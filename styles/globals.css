@@ -1,0 +1,257 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Dark Theme Root Variables */
+:root {
+  --bg-primary: #0f1419;
+  --bg-secondary: #1a1f26;
+  --bg-tertiary: #242b36;
+  --bg-accent: #2d3748;
+  --text-primary: #f7fafc;
+  --text-secondary: #cbd5e0;
+  --text-muted: #a0aec0;
+  --border-color: #4a5568;
+  --border-light: #2d3748;
+  --success-bg: #065f46;
+  --success-text: #10b981;
+  --warning-bg: #92400e;
+  --warning-text: #f59e0b;
+  --error-bg: #991b1b;
+  --error-text: #ef4444;
+  --info-bg: #1e40af;
+  --info-text: #3b82f6;
+}
+
+/* Dark theme base styles */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Mobile-first responsive base */
+html {
+  touch-action: manipulation; /* Better touch experience */
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-accent);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-color);
+}
+
+/* Dark theme utility classes */
+.dark-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  color: var(--text-primary);
+}
+
+.dark-card-elevated {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive variant for transparent cards on small screens */
+.dark-card-transparent {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.dark-button-primary {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+}
+
+.dark-button-primary:hover {
+  background-color: #2563eb;
+}
+
+.dark-button-secondary {
+  background-color: var(--bg-accent);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.dark-button-secondary:hover {
+  background-color: var(--border-color);
+}
+
+.dark-button-success {
+  background-color: var(--success-bg);
+  color: var(--success-text);
+}
+
+.dark-button-success:hover {
+  background-color: #047857;
+}
+
+.dark-button-warning {
+  background-color: var(--warning-bg);
+  color: var(--warning-text);
+}
+
+.dark-button-warning:hover {
+  background-color: #b45309;
+}
+
+.dark-button-danger {
+  background-color: var(--error-bg);
+  color: var(--error-text);
+}
+
+.dark-button-danger:hover {
+  background-color: #b91c1c;
+}
+
+/* Mobile touch improvements */
+@media (max-width: 768px) {
+  .dark-button-primary,
+  .dark-button-secondary,
+  .dark-button-success,
+  .dark-button-warning,
+  .dark-button-danger {
+    min-height: 44px; /* iOS minimum touch target */
+    touch-action: manipulation;
+  }
+}
+
+/* Evaluation color classes for dark theme */
+.eval-excellent {
+  background-color: #065f46;
+  color: #10b981;
+}
+
+.eval-good {
+  background-color: #1e40af;
+  color: #3b82f6;
+}
+
+.eval-neutral {
+  background-color: var(--bg-accent);
+  color: var(--text-secondary);
+}
+
+.eval-inaccurate {
+  background-color: #92400e;
+  color: #f59e0b;
+}
+
+.eval-mistake {
+  background-color: #c2410c;
+  color: #fb923c;
+}
+
+.eval-blunder {
+  background-color: #991b1b;
+  color: #ef4444;
+}
+
+/* Modal overlay dark theme */
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+.modal-content {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+/* Chess square highlights for dark theme */
+.highlight-square {
+  background-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+.last-move-square {
+  background-color: rgba(16, 185, 129, 0.2) !important;
+}
+
+/* Responsive chessboard sizing */
+@media (max-width: 640px) {
+  .chessboard-container {
+    max-width: 90vw;
+    max-height: 90vw;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .chessboard-container {
+    max-width: 500px;
+    max-height: 500px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .chessboard-container {
+    max-width: 600px;
+    max-height: 600px;
+  }
+}
+
+/* Mobile WikiPanel overlay improvements */
+@media (max-width: 1024px) {
+  .mobile-wiki-overlay {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  .mobile-wiki-panel {
+    background-color: var(--bg-primary);
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Better focus states for accessibility */
+.dark-button-primary:focus,
+.dark-button-secondary:focus,
+.dark-button-success:focus,
+.dark-button-warning:focus,
+.dark-button-danger:focus {
+  outline: 2px solid var(--info-text);
+  outline-offset: 2px;
+}
+
+/* Smooth transitions for responsive elements */
+.responsive-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Mobile bottom navigation styling */
+@media (max-width: 1024px) {
+  .mobile-bottom-nav {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background-color: rgba(26, 31, 38, 0.95);
+    border-top: 1px solid var(--border-color);
+  }
+}
+
+/* Responsive text scaling */
+@media (max-width: 640px) {
+  .responsive-text-scale {
+    font-size: 0.875rem; /* 14px */
+  }
+}
+
+@media (min-width: 641px) {
+  .responsive-text-scale {
+    font-size: 1rem; /* 16px */
+  }
+} 
