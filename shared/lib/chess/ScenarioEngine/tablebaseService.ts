@@ -157,4 +157,14 @@ export class TablebaseService {
       maxSize: this.maxCacheSize
     };
   }
+
+  /**
+   * Categorizes WDL value to human-readable category
+   * Used for evaluation display
+   */
+  private getCategory(wdl: number): TablebaseCategory {
+    if (wdl === 1 || wdl === 2) return 'win';
+    if (wdl === -1 || wdl === -2) return 'loss';
+    return 'draw';
+  }
 } 

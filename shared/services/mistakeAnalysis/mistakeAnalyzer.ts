@@ -117,7 +117,7 @@ export function classifyMove(
     const absLoss = Math.abs(centipawnDelta);
     
     // Apply adaptive thresholds with endgame adjustment
-    const endgameMultiplier = context.isEndgame ? 0.8 : 1.0; // More strict in endgames
+    const endgameMultiplier = context.isEndgame ? 0.5 : 1.0; // Much more strict in endgames
     
     if (absLoss >= thresholds.criticalBlunderThreshold * endgameMultiplier) {
       type = 'CRITICAL_BLUNDER';
@@ -198,8 +198,8 @@ export function generateMistakeExplanation(
       
     case 'BLUNDER':
       explanation = isBeginner
-        ? 'This move damages your position badly.'
-        : `major blunder costing ${absLoss} centipawns - this significantly worsens your position.`;
+        ? 'This move damages your position badly. Keep practicing and you\'ll improve!'
+        : `Major blunder costing ${absLoss} centipawns - this significantly worsens your position.`;
       break;
       
     case 'CRITICAL_BLUNDER':
@@ -210,7 +210,7 @@ export function generateMistakeExplanation(
   }
   
   // Add theme-specific advice
-  if (themes.length > 0 && !isBeginner) {
+  if (themes.length > 0) {
     const themeAdvice = generateThemeAdvice(themes, skillLevel);
     if (themeAdvice) {
       explanation += ` ${themeAdvice}`;
@@ -230,45 +230,52 @@ export function generateMistakeExplanation(
  */
 function generateThemeAdvice(themes: MistakeTheme[], skillLevel: SkillLevel): string {
   const isAdvanced = skillLevel === 'ADVANCED' || skillLevel === 'EXPERT';
+  const advicePoints: string[] = [];
   
   if (themes.includes('TACTICS')) {
-    return isAdvanced 
-      ? 'Consider tactical motifs like pins, forks, and discovered attacks.'
-      : 'Look for tactical opportunities before moving.';
+    advicePoints.push(isAdvanced 
+      ? 'Consider tactical motifs like pins, forks, and discovered attacks'
+      : 'Look for tactical opportunities before moving');
   }
   
   if (themes.includes('ENDGAME_TECHNIQUE')) {
-    return isAdvanced
-      ? 'Review fundamental endgame principles and key square concepts.'
-      : 'Practice basic endgame techniques.';
+    advicePoints.push(isAdvanced
+      ? 'Review fundamental endgame principles and key square concepts'
+      : 'Practice basic endgame techniques');
   }
   
   if (themes.includes('KING_SAFETY')) {
-    return isAdvanced
-      ? 'Assess king safety and potential attacking patterns.'
-      : 'focus on king safety concerns.';
+    advicePoints.push(isAdvanced
+      ? 'Assess king safety and potential attacking patterns'
+      : 'Focus on king safety concerns');
   }
   
   if (themes.includes('PIECE_ACTIVITY')) {
-    return isAdvanced
-      ? 'Focus on piece coordination and activity optimization.'
-      : 'Improve your piece activity and coordination.';
+    advicePoints.push(isAdvanced
+      ? 'Focus on piece coordination and activity optimization'
+      : 'Improve your piece activity and coordination');
   }
   
   if (themes.includes('CALCULATION')) {
-    return isAdvanced
-      ? 'Verify your calculations and consider candidate moves systematically.'
-      : 'Take more time to calculate variations.';
+    advicePoints.push(isAdvanced
+      ? 'Verify your calculations and consider candidate moves systematically'
+      : 'Take more time to calculate variations');
   }
   
-  // Generic advice for multiple or unrecognized themes
-  if (themes.length > 1) {
-    return isAdvanced
-      ? 'This involves multiple strategic and tactical considerations.'
-      : 'Consider both tactical and strategic factors.';
+  // Combine advice points
+  if (advicePoints.length === 0) {
+    return '';
+  } else if (advicePoints.length === 1) {
+    return advicePoints[0] + '.';
+  } else {
+    // For multiple themes, join them intelligently
+    if (isAdvanced) {
+      return advicePoints.join('. ') + '.';
+    } else {
+      // For beginners, keep it simpler but mention key areas
+      return advicePoints.slice(0, 2).join(' and ') + '.';
+    }
   }
-  
-  return '';
 }
 
 /**

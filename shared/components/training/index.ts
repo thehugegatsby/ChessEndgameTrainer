@@ -2,10 +2,12 @@
 export { TrainingBoard } from './TrainingBoard';
 export { MovePanel } from './MovePanel';
 export { AnalysisPanel } from './AnalysisPanel';
-export { DualEvaluationPanel } from './DualEvaluationPanel';
+export { DualEvaluationPanel, SidebarEngineSection } from './DualEvaluationPanel';
+export { DualEvaluationSidebar } from './DualEvaluationPanel/DualEvaluationSidebar';
 export { TrainingControls } from './TrainingControls';
 export { MoveHistory } from './MoveHistory';
 export { WikiPanel } from './WikiPanel';
+export { EvaluationLegend } from './EvaluationLegend';
 
 // Types
 export type {

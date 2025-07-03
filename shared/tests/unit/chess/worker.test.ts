@@ -20,8 +20,17 @@ describe('Engine Worker Communication', () => {
     (Engine as any).instance = null;
   });
 
-  it('should initialize worker and send uci command', () => {
+  it('should initialize worker and send uci command', async () => {
+    // Trigger initialization
+    const readyPromise = engine.getReadyEngine();
+    
+    // Wait a bit for initialization to start
+    await new Promise(resolve => setTimeout(resolve, 10));
+    
     expect(global.mockWorker.postMessage).toHaveBeenCalledWith('uci');
+    
+    // Clean up promise
+    readyPromise.catch(() => {}); // Ignore error in test
   });
 
   it('should handle worker messages correctly', async () => {
@@ -51,7 +60,17 @@ describe('Engine Worker Communication', () => {
     }));
   });
 
-  it('should cleanup worker on quit', () => {
+  it('should cleanup worker on quit', async () => {
+    // First initialize the worker
+    const readyPromise = engine.getReadyEngine();
+    
+    // Wait for initialization
+    await new Promise(resolve => setTimeout(resolve, 10));
+    
+    // Clean up promise
+    readyPromise.catch(() => {});
+    
+    // Now quit
     engine.quit();
     expect(global.mockWorker.postMessage).toHaveBeenCalledWith('quit');
     expect(global.mockWorker.terminate).toHaveBeenCalled();

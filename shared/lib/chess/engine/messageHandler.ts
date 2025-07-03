@@ -18,6 +18,8 @@ export class StockfishMessageHandler {
   private currentRequest: BestMoveRequest | EvaluationRequest | null = null;
   private currentEvaluation: EngineEvaluation | null = null;
   private messageCount = 0; // For mobile debugging
+  private uciReady = false;
+  private workerManager: any = null;
 
   constructor() {
     this.chess = new Chess();
@@ -35,6 +37,7 @@ export class StockfishMessageHandler {
       
       // Handle UCI protocol responses
       if (trimmed === 'uciok') {
+        this.uciReady = true;
         return this.handleUciOk();
       }
       
@@ -207,5 +210,26 @@ export class StockfishMessageHandler {
       messagesProcessed: this.messageCount,
       hasCurrentRequest: this.currentRequest !== null
     };
+  }
+
+  /**
+   * Check if UCI is ready
+   */
+  isUciReady(): boolean {
+    return this.uciReady;
+  }
+
+  /**
+   * Set worker manager
+   */
+  setWorkerManager(manager: any): void {
+    this.workerManager = manager;
+  }
+
+  /**
+   * Get worker manager
+   */
+  getWorkerManager(): any {
+    return this.workerManager;
   }
 } 

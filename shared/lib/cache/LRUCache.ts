@@ -35,7 +35,7 @@ export class LRUCache<T> {
   private misses = 0;
 
   constructor(maxSize: number = 1000) {
-    this.maxSize = maxSize;
+    this.maxSize = Math.max(0, maxSize);
     this.cache = new Map();
   }
 
@@ -61,6 +61,11 @@ export class LRUCache<T> {
    */
   set(key: string, value: T): void {
     try {
+      // Handle zero capacity
+      if (this.maxSize === 0) {
+        return;
+      }
+
       const existingNode = this.cache.get(key);
       
       if (existingNode) {
@@ -161,6 +166,50 @@ export class LRUCache<T> {
     // - Each node overhead: ~100 bytes
     // - Each value: estimated at 200 bytes for evaluation data
     return this.cache.size * 350;
+  }
+
+  /**
+   * Get current size of cache
+   */
+  size(): number {
+    return this.cache.size;
+  }
+
+  /**
+   * Iterate over all cache entries
+   */
+  forEach(callback: (value: T, key: string) => void): void {
+    let current = this.head;
+    while (current) {
+      callback(current.value, current.key);
+      current = current.next;
+    }
+  }
+
+  /**
+   * Get all keys as array
+   */
+  keys(): string[] {
+    const keys: string[] = [];
+    let current = this.head;
+    while (current) {
+      keys.push(current.key);
+      current = current.next;
+    }
+    return keys;
+  }
+
+  /**
+   * Get all values as array
+   */
+  values(): T[] {
+    const values: T[] = [];
+    let current = this.head;
+    while (current) {
+      values.push(current.value);
+      current = current.next;
+    }
+    return values;
   }
 
   private moveToHead(node: CacheNode<T>): void {

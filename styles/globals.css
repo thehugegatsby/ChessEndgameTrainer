@@ -254,6 +254,66 @@ html {
   }
 }
 
+/* Sidebar Engine Section Styles */
+.sidebar-engine-section {
+  background-color: var(--bg-secondary);
+  border-radius: 0.375rem;
+  padding: 1rem;
+}
+
+.sidebar-engine-evaluation {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+}
+
+.sidebar-confidence-bar {
+  height: 0.25rem;
+  background-color: var(--bg-accent);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.sidebar-confidence-fill {
+  height: 100%;
+  background-color: #10b981;
+  transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-tablebase-result {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+/* Smooth transitions for engine toggle */
+.engine-toggle-switch {
+  position: relative;
+  width: 2.5rem;
+  height: 1.25rem;
+  background-color: #4b5563;
+  border-radius: 9999px;
+  transition: background-color 200ms;
+}
+
+.engine-toggle-switch.active {
+  background-color: #10b981;
+}
+
+.engine-toggle-knob {
+  position: absolute;
+  top: 0.125rem;
+  left: 0.125rem;
+  width: 1rem;
+  height: 1rem;
+  background-color: white;
+  border-radius: 9999px;
+  transition: transform 200ms;
+}
+
+.engine-toggle-switch.active .engine-toggle-knob {
+  transform: translateX(1.25rem);
+}
+
 @media (min-width: 641px) {
   .responsive-text-scale {
     font-size: 1rem; /* 16px */

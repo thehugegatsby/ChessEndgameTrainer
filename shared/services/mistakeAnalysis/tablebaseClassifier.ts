@@ -24,6 +24,15 @@ export function classifyMoveTablebaseFirst(
   
   // If tablebase data unavailable for either position, fallback to engine
   if (!beforeTablebase.isTablebase || !afterTablebase.isTablebase) {
+    // But first check if we can still determine position type changes from available data
+    if (beforeTablebase.isTablebase && beforeTablebase.result === 'win' && 
+        !afterTablebase.isTablebase) {
+      // Use engine to classify, but we know we went from winning to unknown
+      const engineDelta = (engineAfter || 0) - (engineBefore || 0);
+      if (engineDelta < -200) {
+        return 'BLUNDER'; // Significant drop from known winning position
+      }
+    }
     return classifyMoveEngineOnly(engineBefore || 0, engineAfter || 0, config);
   }
   
@@ -75,6 +84,11 @@ export function classifyMoveTablebaseFirst(
  * Classify moves in winning positions based on DTM efficiency
  */
 function classifyWinningMoveOptimality(beforeDTM: number, afterDTM: number): MistakeType {
+  // If both DTM values are undefined (both set to 999), we can't determine optimality
+  if (beforeDTM === 999 && afterDTM === 999) {
+    return 'CORRECT';
+  }
+  
   const dtmDelta = afterDTM - beforeDTM;
   
   // Perfect: Maintains optimal path or improves it

@@ -10,22 +10,26 @@ const logger = getLogger().setContext('useLocalStorage');
  */
 export function useLocalStorage<T>(
   key: string,
-  initialValue: T
+  initialValue: T | (() => T)
 ): [T, (value: T | ((val: T) => T)) => void] {
   // Get from platform storage then parse stored json or return initialValue
   const [storedValue, setStoredValue] = useState<T>(() => {
+    const resolvedInitialValue = typeof initialValue === 'function' 
+      ? (initialValue as () => T)() 
+      : initialValue;
+      
     if (typeof window === 'undefined') {
-      return initialValue;
+      return resolvedInitialValue;
     }
     
     try {
       const platformService = getPlatformService();
       // For initial load, we need to use sync storage fallback
       const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
+      return item ? JSON.parse(item) : resolvedInitialValue;
     } catch (error) {
       logger.warn(`Error reading storage key "${key}"`, error, { key });
-      return initialValue;
+      return resolvedInitialValue;
     }
   });
 

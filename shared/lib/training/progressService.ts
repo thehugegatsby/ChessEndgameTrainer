@@ -17,14 +17,23 @@ type ProgressData = Record<string, ProgressEntry>;
 
 class ProgressService {
   private loadProgress(): ProgressData {
-    if (typeof window === 'undefined') return {};
-    const data = localStorage.getItem(PROGRESS_KEY);
-    return data ? JSON.parse(data) : {};
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') return {};
+    try {
+      const data = localStorage.getItem(PROGRESS_KEY);
+      return data ? JSON.parse(data) : {};
+    } catch (error) {
+      console.warn('Failed to load progress data:', error);
+      return {};
+    }
   }
 
   private saveProgress(progress: ProgressData): void {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
+    try {
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+    } catch (error) {
+      console.warn('Failed to save progress data:', error);
+    }
   }
 
   public updateProgress(scenarioId: string, isSuccess: boolean): void {
@@ -57,7 +66,7 @@ class ProgressService {
     // Spaced Repetition Logik
     const nextDueDate = SpacedRepetition.getNextDueDate(isSuccess, entry.currentInterval);
     entry.dueDate = nextDueDate.toISOString();
-    entry.currentInterval = isSuccess ? Math.max(1, entry.currentInterval * 2) : 1;
+    entry.currentInterval = isSuccess ? Math.max(2, entry.currentInterval * 2) : 1;
 
 
     progress[scenarioId] = entry;

@@ -44,8 +44,10 @@ export const MovePanel: React.FC<MovePanelProps> = React.memo(({
     for (let i = 0; i < moves.length; i += 2) {
       const whiteMove = moves[i];
       const blackMove = moves[i + 1];
-      const whiteEval = evaluations[i];
-      const blackEval = evaluations[i + 1];
+      // CRITICAL: evaluations array has one extra entry at the beginning (initial position)
+      // So we need to offset by 1 to get the evaluation AFTER each move
+      const whiteEval = evaluations[i + 1];  // +1 offset for evaluation after move
+      const blackEval = evaluations[i + 2];  // +2 for evaluation after black's move
       
       pairs.push({
         moveNumber: Math.floor(i / 2) + 1,
@@ -59,17 +61,11 @@ export const MovePanel: React.FC<MovePanelProps> = React.memo(({
   }, [moves, evaluations]);
 
   // NEW: Smart evaluation function that prioritizes tablebase comparison
-  const getSmartMoveEvaluation = (evaluation: MoveEvaluation, isWhite: boolean) => {
+  const getSmartMoveEvaluation = (evaluation: MoveEvaluation, isWhite: boolean, moveIndex: number) => {
     // Priority 1: Use tablebase comparison if available
     if (evaluation.tablebase?.isTablebasePosition && 
         evaluation.tablebase.wdlBefore !== undefined && 
         evaluation.tablebase.wdlAfter !== undefined) {
-      
-      console.log('🔍 Using tablebase comparison:', {
-        wdlBefore: evaluation.tablebase.wdlBefore,
-        wdlAfter: evaluation.tablebase.wdlAfter,
-        side: isWhite ? 'white' : 'black'
-      });
       
       return getMoveQualityByTablebaseComparison(
         evaluation.tablebase.wdlBefore,
@@ -79,12 +75,6 @@ export const MovePanel: React.FC<MovePanelProps> = React.memo(({
     }
     
     // Priority 2: Fallback to engine evaluation
-    console.log('🔍 Using engine evaluation:', {
-      evaluation: evaluation.evaluation,
-      mate: evaluation.mateInMoves,
-      side: isWhite ? 'white' : 'black'
-    });
-    
     return getMoveQualityDisplay(evaluation.evaluation, evaluation.mateInMoves, isWhite);
   };
 
@@ -119,7 +109,7 @@ export const MovePanel: React.FC<MovePanelProps> = React.memo(({
               {pair.whiteMove.san}
             </button>
             {showEvaluations && pair.whiteEval && (() => {
-              const evalDisplay = getSmartMoveEvaluation(pair.whiteEval, true);
+              const evalDisplay = getSmartMoveEvaluation(pair.whiteEval, true, (pair.moveNumber - 1) * 2);
               return (
                 <span className={`text-xs px-1 py-0.5 rounded ${evalDisplay.className}`}>
                   {evalDisplay.text}
@@ -140,7 +130,7 @@ export const MovePanel: React.FC<MovePanelProps> = React.memo(({
                 {pair.blackMove.san}
               </button>
               {showEvaluations && pair.blackEval && (() => {
-                const evalDisplay = getSmartMoveEvaluation(pair.blackEval, false);
+                const evalDisplay = getSmartMoveEvaluation(pair.blackEval, false, (pair.moveNumber - 1) * 2 + 1);
                 return (
                   <span className={`text-xs px-1 py-0.5 rounded ${evalDisplay.className}`}>
                     {evalDisplay.text}

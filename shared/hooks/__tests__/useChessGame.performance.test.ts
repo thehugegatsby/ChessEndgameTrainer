@@ -31,8 +31,8 @@ describe('useChessGame Performance Tests', () => {
 
       console.log(`Baseline: makeMove triggered ${renderCount} re-renders`);
       
-      // Record baseline - expecting multiple renders due to separate setState calls
-      expect(renderCount).toBeGreaterThan(1);
+      // After optimizations, expecting only 1 render per move
+      expect(renderCount).toBe(1);
     });
 
     it('should measure execution time for makeMove', async () => {
@@ -127,8 +127,8 @@ describe('useChessGame Performance Tests', () => {
 
       console.log(`Baseline: Single move triggered ${stateUpdateCount} state update effects`);
       
-      // Expecting multiple due to separate setState calls
-      expect(stateUpdateCount).toBeGreaterThan(1);
+      // After optimizations, expecting only 1 state update
+      expect(stateUpdateCount).toBe(1);
     });
   });
 

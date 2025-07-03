@@ -41,7 +41,7 @@ class WebStorage implements IPlatformStorage {
       const item = localStorage.getItem(this.prefix + key);
       return item ? JSON.parse(item) : null;
     } catch (error) {
-      console.error('WebStorage load error:', error);
+      // Silently handle JSON parse errors and return null
       return null;
     }
   }

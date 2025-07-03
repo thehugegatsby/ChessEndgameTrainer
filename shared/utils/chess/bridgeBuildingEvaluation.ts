@@ -114,7 +114,9 @@ export function evaluateBridgeBuildingMove(
   fen: string,
   move: string
 ): BridgeBuildingMove | null {
-  const fenKey = fen.split(' - ')[0] + ' w'; // Normalize FEN for lookup
+  // Normalize FEN for lookup: take piece placement and active color only
+  const fenParts = fen.split(' ');
+  const fenKey = `${fenParts[0]} ${fenParts[1]}`; // piece_placement + active_color
   const positionMoves = BRIDGE_BUILDING_POSITIONS[fenKey];
   
   if (!positionMoves) {

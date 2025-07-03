@@ -5,6 +5,13 @@ import { EndgamePosition } from '../data/endgames';
 interface EvaluationData {
   evaluation: number;
   mateInMoves?: number;
+  tablebase?: {
+    isTablebasePosition: boolean;
+    wdlBefore?: number;
+    wdlAfter?: number;
+    category?: string;
+    dtz?: number;
+  };
 }
 
 interface TrainingState {
@@ -16,6 +23,8 @@ interface TrainingState {
   currentMoveIndex: number;
   showAnalysis: boolean;
   showEvaluationPanel: boolean;
+  showEngineEvaluation: boolean;
+  showTablebaseEvaluation: boolean;
   isGameFinished: boolean;
   jumpToMoveFunc: ((moveIndex: number) => void) | null;
 }
@@ -30,6 +39,8 @@ type TrainingAction =
   | { type: 'SET_CURRENT_MOVE_INDEX'; payload: number }
   | { type: 'TOGGLE_ANALYSIS' }
   | { type: 'TOGGLE_EVALUATION_PANEL' }
+  | { type: 'TOGGLE_ENGINE_EVALUATION' }
+  | { type: 'TOGGLE_TABLEBASE_EVALUATION' }
   | { type: 'SET_GAME_FINISHED'; payload: boolean }
   | { type: 'SET_JUMP_TO_MOVE_FUNC'; payload: (moveIndex: number) => void }
   | { type: 'RESET_TRAINING' };
@@ -43,6 +54,8 @@ const initialState: TrainingState = {
   currentMoveIndex: -1,
   showAnalysis: true,
   showEvaluationPanel: false,
+  showEngineEvaluation: true,
+  showTablebaseEvaluation: true,
   isGameFinished: false,
   jumpToMoveFunc: null,
 };
@@ -101,6 +114,20 @@ const trainingReducer = (state: TrainingState, action: TrainingAction): Training
         ...state,
         showEvaluationPanel: !state.showEvaluationPanel,
       };
+    case 'TOGGLE_ENGINE_EVALUATION':
+      return {
+        ...state,
+        showEngineEvaluation: !state.showEngineEvaluation,
+        // If turning on engine, also turn on the panel
+        showEvaluationPanel: !state.showEngineEvaluation ? true : state.showEvaluationPanel,
+      };
+    case 'TOGGLE_TABLEBASE_EVALUATION':
+      return {
+        ...state,
+        showTablebaseEvaluation: !state.showTablebaseEvaluation,
+        // If turning on tablebase, also turn on the panel
+        showEvaluationPanel: !state.showTablebaseEvaluation ? true : state.showEvaluationPanel,
+      };
     case 'SET_GAME_FINISHED':
       return {
         ...state,
@@ -118,6 +145,8 @@ const trainingReducer = (state: TrainingState, action: TrainingAction): Training
         currentFen: state.currentPosition?.fen || '',
         showAnalysis: state.showAnalysis,
         showEvaluationPanel: state.showEvaluationPanel,
+        showEngineEvaluation: state.showEngineEvaluation,
+        showTablebaseEvaluation: state.showTablebaseEvaluation,
       };
     default:
       return state;

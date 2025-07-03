@@ -79,21 +79,22 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   // Calculate previous FEN for tablebase move comparison
   const previousFen = useMemo(() => {
     if (history.length === 0) {
-      return undefined; // No previous position
+      // For the very first evaluation (no moves yet), there's no previous position
+      return undefined;
     }
     
-    // Reconstruct game state before the last move
+    if (history.length === 1) {
+      // For the first move, the previous position is the initial position
+      return initialFen;
+    }
+    
+    // For subsequent moves, reconstruct game state before the last move
     const tempGame = new Chess(initialFen);
     for (let i = 0; i < history.length - 1; i++) {
       tempGame.move(history[i]);
     }
     
     const prevFen = tempGame.fen();
-    console.log('🔍 TrainingBoard - Calculated previousFen:', {
-      currentFen,
-      previousFen: prevFen,
-      historyLength: history.length
-    });
     
     return prevFen;
   }, [history, initialFen, currentFen]);
@@ -137,7 +138,6 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
 
   // Handle piece drop
   const onDrop = useCallback((sourceSquare: Square, targetSquare: Square): boolean => {
-    console.log('🎯 TrainingBoard: onDrop called from', sourceSquare, 'to', targetSquare);
     if (isGameFinished) return false;
 
     const move = {
@@ -146,7 +146,6 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
       promotion: 'q'
     };
 
-    console.log('🎯 TrainingBoard: About to call handleMove');
     handleMove(move);
     return true;
   }, [handleMove, isGameFinished]);
@@ -170,7 +169,6 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   // Update parent with evaluations (now with tablebase data!)
   useEffect(() => {
     if (onEvaluationsChange) {
-      console.log('🏆 TrainingBoard - Sending evaluations with tablebase data:', evaluations);
       onEvaluationsChange(evaluations);
     }
   }, [evaluations, onEvaluationsChange]);

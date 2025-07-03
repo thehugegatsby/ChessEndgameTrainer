@@ -41,7 +41,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           </div>
 
           {/* Page Content */}
-          {children}
+          <main className="container mx-auto p-4">
+            {children}
+          </main>
         </div>
       </div>
       

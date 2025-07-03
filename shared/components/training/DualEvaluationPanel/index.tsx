@@ -124,3 +124,4 @@ export const DualEvaluationPanel: React.FC<DualEvaluationPanelProps> = ({
 export { EngineEvaluationCard } from './EngineEvaluationCard';
 export { TablebaseEvaluationCard } from './TablebaseEvaluationCard';
 export { EvaluationComparison } from './EvaluationComparison';
+export { SidebarEngineSection } from './SidebarEngineSection';

@@ -102,6 +102,12 @@ export const getMoveQualityByTablebaseComparison = (
   wdlAfter: number,
   playerSide: 'w' | 'b'
 ): EvaluationDisplay => {
+  // CRITICAL: Convert WDL values to player's perspective
+  // For Black, we need to flip the values since WDL is from White's perspective
+  const wdlBeforeFromPlayerPerspective = playerSide === 'w' ? wdlBefore : -wdlBefore;
+  const wdlAfterFromPlayerPerspective = playerSide === 'w' ? wdlAfter : -wdlAfter;
+  
+  
   // Convert WDL to simplified categories for clearer logic
   const getCategory = (wdl: number) => {
     if (wdl >= 1) return 'win';    // Both win and cursed-win are wins
@@ -109,8 +115,8 @@ export const getMoveQualityByTablebaseComparison = (
     return 'draw';
   };
   
-  const categoryBefore = getCategory(wdlBefore);
-  const categoryAfter = getCategory(wdlAfter);
+  const categoryBefore = getCategory(wdlBeforeFromPlayerPerspective);
+  const categoryAfter = getCategory(wdlAfterFromPlayerPerspective);
   
   // CATASTROPHIC: Threw away a winning position
   if (categoryBefore === 'win' && categoryAfter === 'draw') {
@@ -143,8 +149,8 @@ export const getMoveQualityByTablebaseComparison = (
   
   // EXCELLENT: Maintained or improved position
   if (categoryBefore === 'win' && categoryAfter === 'win') {
-    // Check if we improved (higher WDL is better win)
-    if (wdlAfter > wdlBefore) {
+    // Check if we improved (higher WDL is better win from player's perspective)
+    if (wdlAfterFromPlayerPerspective > wdlBeforeFromPlayerPerspective) {
       return {
         text: '🌟',
         className: 'eval-excellent',
@@ -187,11 +193,21 @@ export const getMoveQualityByTablebaseComparison = (
       bgColor: 'var(--success-bg)'
     };
   }
+
+  // EXCELLENT: Improved from draw to win
+  if (categoryBefore === 'draw' && categoryAfter === 'win') {
+    return {
+      text: '🎯',
+      className: 'eval-excellent',
+      color: 'var(--success-text)',
+      bgColor: 'var(--success-bg)'
+    };
+  }
   
   // DEFENSIVE: Best try in losing position
   if (categoryBefore === 'loss' && categoryAfter === 'loss') {
-    // Check if we made the loss "better" (less negative WDL)
-    if (wdlAfter > wdlBefore) {
+    // Check if we made the loss "better" (less negative WDL from player's perspective)
+    if (wdlAfterFromPlayerPerspective > wdlBeforeFromPlayerPerspective) {
       return {
         text: '🛡️',
         className: 'eval-neutral',
@@ -199,11 +215,22 @@ export const getMoveQualityByTablebaseComparison = (
         bgColor: 'var(--bg-accent)'
       };
     }
+    // Check if we made the loss worse (more negative WDL from player's perspective)
+    if (wdlAfterFromPlayerPerspective < wdlBeforeFromPlayerPerspective) {
+      return {
+        text: '🔻',
+        className: 'eval-inaccurate',
+        color: 'var(--warning-text)',
+        bgColor: 'var(--warning-bg)'
+      };
+    }
+    // When WDL stays exactly the same in a losing position (e.g., -2 to -2),
+    // it means optimal defense - maintaining the best possible resistance
     return {
-      text: '🔻',
-      className: 'eval-inaccurate',
-      color: 'var(--warning-text)',
-      bgColor: 'var(--warning-bg)'
+      text: '🛡️',
+      className: 'eval-neutral',
+      color: 'var(--text-secondary)',
+      bgColor: 'var(--bg-accent)'
     };
   }
   

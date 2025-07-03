@@ -286,7 +286,18 @@ global.Worker = jest.fn(() => ({
 - Vercel deployment optimiert
 - PWA manifest vorbereitet
 
-## 🚀 Performance Optimierungen (Januar 2025)
+## 🚀 Recent Updates (Januar 2025)
+
+### Engine UI Integration (2025-01-14)
+- **Sidebar Integration**: Engine-Anzeige jetzt in der rechten Seitenleiste (chess.com Style)
+- **Separate Toggles**: Engine (grün) und Tablebase (blau) können unabhängig aktiviert werden
+- **Best Moves Display**: Zeigt die Top 3 Züge mit Bewertungen (Lichess-Style)
+  - Engine: Bewertung in Centipawns oder Matt-Ankündigung
+  - Tablebase: DTM (Distance to Mate) oder Win/Draw/Loss
+- **Multi-PV Support**: Engine kann mehrere beste Züge gleichzeitig analysieren
+- **Improved UX**: Keine schwebenden Overlays mehr, alles integriert
+
+### Performance Optimierungen
 
 ### useEvaluation Hook
 - **Debouncing**: 300ms Verzögerung verhindert Evaluation-Flooding
@@ -316,3 +327,57 @@ global.Worker = jest.fn(() => ({
 ---
 **Last Updated**: 2025-01-10 - Performance Optimierungen dokumentiert
 **Next Review**: Nach useReducer Migration
+## 🐛 Common Pitfalls & Lessons Learned (2025-01-11)
+
+### Tablebase Evaluation Logic
+**Issue**: Black's optimal defensive moves were showing red triangles (🔻) instead of shields (🛡️)
+
+**Root Cause**: The evaluation logic didn't properly handle the case where maintaining a losing position is actually optimal play when no better alternative exists.
+
+**Key Learnings**:
+1. **WDL Values are Always from White's Perspective**
+   - For Black, values must be negated: `playerSide === 'b' ? -wdl : wdl`
+   - A win for White (2) is a loss for Black (-2 from Black's perspective)
+
+2. **Optimal Defense Recognition**
+   - When in a losing position, maintaining that position (WDL stays the same) often represents the best possible play
+   - Example: Black maintaining a tablebase loss for maximum resistance should be rewarded, not penalized
+
+3. **Test Perspective Awareness**
+   - Tests must account for player perspective
+   - Same WDL transition has opposite meanings for different players
+   - Example: WDL 2→0 is catastrophic for White but good for Black
+
+**Solution Applied**:
+```typescript
+// When WDL stays exactly the same in a losing position
+if (categoryBefore === 'loss' && categoryAfter === 'loss') {
+  if (wdlAfterFromPlayerPerspective === wdlBeforeFromPlayerPerspective) {
+    return { text: '🛡️', className: 'eval-neutral' }; // Optimal defense\!
+  }
+}
+```
+
+### Debug Log Management
+**Issue**: Extensive console.log statements for debugging were left in production code
+
+**Impact**: Performance overhead and cluttered console output
+
+**Prevention**:
+1. Use a proper logging service with log levels
+2. Create debug builds vs production builds
+3. Use conditional logging: `if (DEBUG) console.log(...)`
+4. Always remove debug logs before committing
+
+### Documentation Location
+- Detailed evaluation logic documentation: `/shared/utils/chess/EVALUATION_LOGIC_LEARNINGS.md`
+- This file provides in-depth technical details about WDL handling and perspective correction
+
+---
+**Last Updated**: 2025-01-14 - Engine UI Integration & Best Moves Display
+**Session Summary**: 
+- Komplette UI-Überarbeitung der Engine-Anzeige (Lichess-Style)
+- Separate Toggles für Engine und Tablebase
+- Best Moves Display mit Top 3 Zügen
+- TDD-Implementierung für Tablebase-Funktionalität
+EOF < /dev/null

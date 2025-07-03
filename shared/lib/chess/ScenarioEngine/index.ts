@@ -268,6 +268,122 @@ export class ScenarioEngine {
   }
 
   /**
+   * Gets best moves from engine and tablebase
+   * @param fen - Position to analyze
+   * @param count - Number of best moves to return (default: 3)
+   */
+  public async getBestMoves(fen: string, count: number = 3): Promise<{
+    engine: Array<{ move: string; evaluation: number; mate?: number }>;
+    tablebase: Array<{ move: string; wdl: number; dtm?: number; evaluation: string }>;
+  }> {
+    const result = {
+      engine: [] as Array<{ move: string; evaluation: number; mate?: number }>,
+      tablebase: [] as Array<{ move: string; wdl: number; dtm?: number; evaluation: string }>
+    };
+
+    try {
+      // Get engine's top moves
+      const engineMoves = await this.engine.getMultiPV(fen, count);
+      result.engine = engineMoves.map(m => ({
+        move: this.convertEngineNotation(m.move, fen),
+        evaluation: m.score,
+        mate: m.mate
+      }));
+
+      // Check if this is a tablebase position
+      const pieces = this.countPieces(fen);
+      if (pieces <= 7) {
+        const tablebaseMoves = await this.getTablebaseMoves(fen, count);
+        result.tablebase = tablebaseMoves;
+      }
+    } catch (error) {
+      logger.warn('Failed to get best moves', error);
+    }
+
+    return result;
+  }
+
+  /**
+   * Converts engine notation (e2e4) to algebraic notation (e4)
+   */
+  private convertEngineNotation(engineMove: string, fen: string): string {
+    try {
+      const tempChess = new Chess(fen);
+      const from = engineMove.substring(0, 2);
+      const to = engineMove.substring(2, 4);
+      const promotion = engineMove.length > 4 ? engineMove[4] as 'q' | 'r' | 'b' | 'n' : undefined;
+      
+      const move = tempChess.move({ from, to, promotion });
+      return move ? move.san : engineMove;
+    } catch {
+      return engineMove;
+    }
+  }
+
+  /**
+   * Gets tablebase moves for a position
+   */
+  private async getTablebaseMoves(fen: string, count: number): Promise<Array<{
+    move: string;
+    wdl: number;
+    dtm?: number;
+    evaluation: string;
+  }>> {
+    try {
+      const tempChess = new Chess(fen);
+      const legalMoves = tempChess.moves({ verbose: true });
+      // Debug logging removed for production
+      
+      const tablebaseMoves = [];
+
+      // Check more moves than requested to find best ones
+      const movesToCheck = Math.min(legalMoves.length, count * 3);
+      
+      for (const move of legalMoves.slice(0, movesToCheck)) {
+        tempChess.move(move);
+        const positionAfterMove = tempChess.fen();
+        
+        try {
+          const info = await this.tablebaseService.getTablebaseInfo(positionAfterMove);
+          // Process tablebase response
+          
+          if (info && info.isTablebasePosition && info.result?.wdl !== undefined) {
+            // WDL values are from perspective of position after move
+            // We need to negate to get from current player's perspective
+            const wdlFromCurrentPlayer = -info.result.wdl;
+            tablebaseMoves.push({
+              move: move.san,
+              wdl: wdlFromCurrentPlayer,
+              dtm: info.result.dtm || info.result.dtz,
+              evaluation: wdlFromCurrentPlayer === 2 ? 'Win' : wdlFromCurrentPlayer === -2 ? 'Loss' : 'Draw'
+            });
+          }
+        } catch (moveError) {
+          logger.warn('Failed to get tablebase info for move', { move: move.san, error: moveError });
+        }
+        
+        tempChess.undo();
+      }
+
+      // Sort moves by quality
+      
+      // Sort by WDL (wins first, then draws, then losses)
+      return tablebaseMoves.sort((a, b) => b.wdl - a.wdl).slice(0, count);
+    } catch (error) {
+      logger.warn('Failed to get tablebase moves', error);
+      return [];
+    }
+  }
+
+  /**
+   * Counts pieces on the board
+   */
+  private countPieces(fen: string): number {
+    const boardPart = fen.split(' ')[0];
+    return (boardPart.match(/[pnbrqkPNBRQK]/g) || []).length;
+  }
+
+  /**
    * Gets engine statistics for debugging
    */
   public getStats(): { 

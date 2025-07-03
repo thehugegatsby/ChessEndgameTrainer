@@ -16,11 +16,13 @@ describe('getMoveQualityByTablebaseComparison', () => {
       expect(result.className).toBe('eval-blunder');
     });
 
-    it('should detect Cursed Win → Draw as CATASTROPHIC', () => {
-      const result = getMoveQualityByTablebaseComparison(1, 0, 'b'); // Cursed Win to Draw
+    it('should detect Cursed Win → Draw from Black perspective as GOOD', () => {
+      // WDL 1 = cursed win for White = Black is losing
+      // WDL 0 = draw = improvement for Black
+      const result = getMoveQualityByTablebaseComparison(1, 0, 'b');
       
-      expect(result.text).toBe('🚨');
-      expect(result.className).toBe('eval-blunder');
+      expect(result.text).toBe('👍');
+      expect(result.className).toBe('eval-good');
     });
   });
 
@@ -32,11 +34,13 @@ describe('getMoveQualityByTablebaseComparison', () => {
       expect(result.className).toBe('eval-mistake');
     });
 
-    it('should detect Draw → Blessed Loss as MISTAKE', () => {
-      const result = getMoveQualityByTablebaseComparison(0, -1, 'b'); // Draw to Blessed Loss
+    it('should detect Draw → Blessed Loss from Black perspective as EXCELLENT', () => {
+      // WDL 0 = draw
+      // WDL -1 = blessed loss for White = cursed win for Black = improvement
+      const result = getMoveQualityByTablebaseComparison(0, -1, 'b');
       
-      expect(result.text).toBe('❌');
-      expect(result.className).toBe('eval-mistake');
+      expect(result.text).toBe('🎯');
+      expect(result.className).toBe('eval-excellent');
     });
   });
 
@@ -48,11 +52,13 @@ describe('getMoveQualityByTablebaseComparison', () => {
       expect(result.className).toBe('eval-excellent');
     });
 
-    it('should detect improved win (Cursed Win → Win) as EXCELLENT', () => {
-      const result = getMoveQualityByTablebaseComparison(1, 2, 'b'); // Cursed Win to Win
+    it('should detect worsened loss from Black perspective as WEAK DEFENSE', () => {
+      // WDL 1 = cursed win for White = Black is losing
+      // WDL 2 = win for White = Black is losing worse
+      const result = getMoveQualityByTablebaseComparison(1, 2, 'b');
       
-      expect(result.text).toBe('🌟');
-      expect(result.className).toBe('eval-excellent');
+      expect(result.text).toBe('🔻');
+      expect(result.className).toBe('eval-inaccurate');
     });
 
     it('should detect Loss → Win as BRILLIANT', () => {
@@ -64,11 +70,13 @@ describe('getMoveQualityByTablebaseComparison', () => {
   });
 
   describe('GOOD moves - improving from bad positions', () => {
-    it('should detect Loss → Draw as GOOD', () => {
-      const result = getMoveQualityByTablebaseComparison(-2, 0, 'b'); // Loss to Draw
+    it('should detect Win → Draw from Black perspective as CATASTROPHIC', () => {
+      // WDL -2 = loss for White = win for Black
+      // WDL 0 = draw = throwing away win
+      const result = getMoveQualityByTablebaseComparison(-2, 0, 'b');
       
-      expect(result.text).toBe('👍');
-      expect(result.className).toBe('eval-good');
+      expect(result.text).toBe('🚨');
+      expect(result.className).toBe('eval-blunder');
     });
   });
 
@@ -82,18 +90,20 @@ describe('getMoveQualityByTablebaseComparison', () => {
   });
 
   describe('DEFENSIVE moves - best try in losing positions', () => {
-    it('should detect Loss → Loss (improved) as BEST DEFENSE', () => {
-      const result = getMoveQualityByTablebaseComparison(-2, -1, 'b'); // Loss to Blessed Loss (improvement)
+    it('should detect Win → Better Win from Black perspective as EXCELLENT', () => {
+      // WDL -2 = loss for White = win for Black
+      // WDL -1 = blessed loss for White = cursed win for Black = still winning
+      const result = getMoveQualityByTablebaseComparison(-2, -1, 'b');
+      
+      expect(result.text).toBe('✅');
+      expect(result.className).toBe('eval-excellent');
+    });
+
+    it('should detect Loss → Loss (same) as OPTIMAL DEFENSE', () => {
+      const result = getMoveQualityByTablebaseComparison(-2, -2, 'w'); // Loss to Loss (no change)
       
       expect(result.text).toBe('🛡️');
       expect(result.className).toBe('eval-neutral');
-    });
-
-    it('should detect Loss → Loss (same) as DEFENSE', () => {
-      const result = getMoveQualityByTablebaseComparison(-2, -2, 'w'); // Loss to Loss (no change)
-      
-      expect(result.text).toBe('🔻');
-      expect(result.className).toBe('eval-inaccurate');
     });
   });
 
@@ -114,18 +124,21 @@ describe('getMoveQualityByTablebaseComparison', () => {
         expect(result.className).toBe('eval-blunder');
         expect(result.text).toBe(scenario.expectedSymbol);
         
-        console.log(`✅ ${scenario.description}: ${result.text}`);
       });
     });
 
     it('should correctly handle both sides playing', () => {
-      // Same tablebase transition, different sides
-      const winToDrawWhite = getMoveQualityByTablebaseComparison(2, 0, 'w');
-      const winToDrawBlack = getMoveQualityByTablebaseComparison(2, 0, 'b');
+      // Same WDL values, different perspectives
+      const winToDrawWhite = getMoveQualityByTablebaseComparison(2, 0, 'w'); // White throws away win
+      const winToDrawBlack = getMoveQualityByTablebaseComparison(2, 0, 'b'); // Black improves from loss to draw
       
-      // Both should be equally catastrophic
-      expect(winToDrawWhite.text).toBe(winToDrawBlack.text);
-      expect(winToDrawWhite.className).toBe(winToDrawBlack.className);
+      // White throws away win - catastrophic
+      expect(winToDrawWhite.text).toBe('🚨');
+      expect(winToDrawWhite.className).toBe('eval-blunder');
+      
+      // Black improves position - good
+      expect(winToDrawBlack.text).toBe('👍');
+      expect(winToDrawBlack.className).toBe('eval-good');
     });
   });
 }); 

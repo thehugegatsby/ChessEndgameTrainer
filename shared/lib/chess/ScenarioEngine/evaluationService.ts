@@ -245,15 +245,6 @@ export class EvaluationService {
         console.warn('[EvaluationService] Tablebase probe failed:', error);
       }
 
-      // Debug logging for perspective correction
-      console.log('🔍 EVALUATION DEBUG:', {
-        fen: fen,
-        sideToMove: sideToMove,
-        rawEngineScore: rawEngineEval.score,
-        correctedEngineScore: correctedEngineEval.score,
-        rawTablebaseWDL: tablebaseEval ? (sideToMove === 'b' ? -tablebaseEval.result.wdl : tablebaseEval.result.wdl) : 'N/A',
-        correctedTablebaseWDL: tablebaseEval ? tablebaseEval.result.wdl : 'N/A'
-      });
 
       return {
         engine: {

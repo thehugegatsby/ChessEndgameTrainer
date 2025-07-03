@@ -143,26 +143,36 @@ describe('Engine State Machine Logic', () => {
     
     const engine = Engine.getInstance();
     
-    // Measure time to call getReadyEngine (should be near-instant for state check)
-    const startTime = performance.now();
+    // Initialize engine first to ready state
+    const initPromise = engine.getReadyEngine();
+    
+    // Simulate successful initialization
+    mockWorker.onmessage({ data: 'uciok' });
+    mockWorker.onmessage({ data: 'readyok' });
     
     try {
-      await engine.getReadyEngine();
+      await initPromise;
     } catch (error) {
-      // Expected in test environment
+      // Fallback for test environment
     }
     
+    // Now measure state check performance when already ready
+    const startTime = performance.now();
+    const readyPromise = engine.getReadyEngine();
     const endTime = performance.now();
     const duration = endTime - startTime;
     
+    // Should resolve immediately when already ready
+    await readyPromise;
+    
     console.log(`📊 STATE MACHINE METRICS:`);
-    console.log(`  getReadyEngine() call time: ${duration.toFixed(2)}ms`);
-    console.log(`  State transitions: IDLE → INITIALIZING → (timeout) → ERROR`);
+    console.log(`  getReadyEngine() call time when ready: ${duration.toFixed(2)}ms`);
+    console.log(`  State transitions: IDLE → INITIALIZING → READY`);
     console.log(`  Worker creation calls: ${(global.Worker as jest.Mock).mock.calls.length}`);
     console.log(`  UCI commands sent: ${mockWorker.postMessage.mock.calls.filter(call => call[0] === 'uci').length}`);
     
-    // State machine overhead should be minimal
-    expect(duration).toBeLessThan(200); // Very generous - should be ~1ms
+    // State machine overhead should be minimal when already ready
+    expect(duration).toBeLessThan(5); // Should be near-instant
     console.log('✅ State machine overhead minimal');
     
     engine.quit();

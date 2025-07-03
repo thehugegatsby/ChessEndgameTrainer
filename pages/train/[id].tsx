@@ -5,9 +5,10 @@ import { AppLayout } from '@shared/components/layout/AppLayout';
 import { 
   TrainingBoard, 
   MovePanel, 
-  DualEvaluationPanel, 
+  DualEvaluationSidebar,
   TrainingControls, 
-  AnalysisPanel 
+  AnalysisPanel,
+  EvaluationLegend 
 } from '@shared/components/training';
 import { TrainingProvider, useTraining } from '@shared/contexts/TrainingContext';
 import { EndgamePosition, allEndgamePositions, getPositionById, getChapterProgress } from '@shared/data/endgames/index';
@@ -56,7 +57,17 @@ const TrainingContent: React.FC<{ position: EndgamePosition }> = React.memo(({ p
     dispatch({ type: 'SET_GAME_FINISHED', payload: isSuccess });
   }, [dispatch, showSuccess, showError]);
 
-  const handleEvaluationsChange = useCallback((evaluations: Array<{ evaluation: number; mateInMoves?: number }>) => {
+  const handleEvaluationsChange = useCallback((evaluations: Array<{ 
+    evaluation: number; 
+    mateInMoves?: number;
+    tablebase?: {
+      isTablebasePosition: boolean;
+      wdlBefore?: number;
+      wdlAfter?: number;
+      category?: string;
+      dtz?: number;
+    };
+  }>) => {
     dispatch({ type: 'SET_EVALUATIONS', payload: evaluations });
   }, [dispatch]);
 
@@ -92,6 +103,14 @@ const TrainingContent: React.FC<{ position: EndgamePosition }> = React.memo(({ p
 
   const handleToggleEvaluationPanel = useCallback(() => {
     dispatch({ type: 'TOGGLE_EVALUATION_PANEL' });
+  }, [dispatch]);
+
+  const handleToggleEngine = useCallback(() => {
+    dispatch({ type: 'TOGGLE_ENGINE_EVALUATION' });
+  }, [dispatch]);
+
+  const handleToggleTablebase = useCallback(() => {
+    dispatch({ type: 'TOGGLE_TABLEBASE_EVALUATION' });
   }, [dispatch]);
 
   const getLichessUrl = useCallback(() => {
@@ -172,33 +191,50 @@ const TrainingContent: React.FC<{ position: EndgamePosition }> = React.memo(({ p
             <div className="text-sm text-gray-300 mt-1">{gameStatus.objectiveDisplay}</div>
           </div>
 
-          {/* Züge Header mit Engine Toggle */}
+          {/* Engine & Tablebase Toggles */}
           <div className="sidebar-header p-4">
-            <div className="flex items-center justify-between">
-              <span className="font-medium">Züge</span>
-              <button 
-                onClick={handleToggleEvaluationPanel}
-                className="flex items-center gap-2 p-1 rounded hover:bg-gray-800 transition-colors"
-                title={state.showEvaluationPanel ? 'Engine deaktivieren' : 'Engine aktivieren'}
-              >
-                <div className={`relative w-10 h-5 rounded-full transition-colors ${
-                  state.showEvaluationPanel ? 'bg-green-600' : 'bg-gray-600'
-                }`}>
-                  <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
-                    state.showEvaluationPanel ? 'translate-x-5' : 'translate-x-0.5'
-                  }`} />
+            <div className="flex items-center gap-3">
+                {/* Engine Toggle */}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-gray-400">Engine</span>
+                  <button 
+                    onClick={handleToggleEngine}
+                    className={`relative w-9 h-5 rounded-full transition-colors ${
+                      state.showEngineEvaluation ? 'bg-green-600' : 'bg-gray-600'
+                    } hover:opacity-80`}
+                    title={state.showEngineEvaluation ? 'Engine deaktivieren' : 'Engine aktivieren'}
+                  >
+                    <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
+                      state.showEngineEvaluation ? 'translate-x-4' : 'translate-x-0'
+                    }`} />
+                  </button>
                 </div>
-              </button>
+                {/* Tablebase Toggle */}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-gray-400">Tablebase</span>
+                  <button 
+                    onClick={handleToggleTablebase}
+                    className={`relative w-9 h-5 rounded-full transition-colors ${
+                      state.showTablebaseEvaluation ? 'bg-blue-600' : 'bg-gray-600'
+                    } hover:opacity-80`}
+                    title={state.showTablebaseEvaluation ? 'Tablebase deaktivieren' : 'Tablebase aktivieren'}
+                  >
+                    <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
+                      state.showTablebaseEvaluation ? 'translate-x-4' : 'translate-x-0'
+                    }`} />
+                  </button>
+                </div>
             </div>
           </div>
           
           {/* Engine Panel - Direkt unter Header, kompakt */}
-          {state.showEvaluationPanel && (
-            <div className="engine-section border-b border-gray-700 p-4">
-              <div className="text-sm text-green-400 mb-2">Engine Bewertung</div>
-              <DualEvaluationPanel
+          {(state.showEngineEvaluation || state.showTablebaseEvaluation) && (
+            <div className="engine-section px-4 pb-4 border-b border-gray-700">
+              <DualEvaluationSidebar
                 fen={state.currentFen}
-                isVisible={state.showEvaluationPanel}
+                isVisible={state.showEngineEvaluation || state.showTablebaseEvaluation}
+                showEngine={state.showEngineEvaluation}
+                showTablebase={state.showTablebaseEvaluation}
                 onEvaluationUpdate={(evaluation) => {
                   console.log('📊 Dual evaluation update:', evaluation);
                 }}
@@ -235,6 +271,26 @@ const TrainingContent: React.FC<{ position: EndgamePosition }> = React.memo(({ p
                 </div>
               </div>
             )}
+            
+            {/* Evaluation Legend - Under Brückenbau hints */}
+            <div className="mt-6">
+              <EvaluationLegend />
+            </div>
+            
+            {/* Lichess Analysis Link */}
+            <div className="mt-4 pt-4 border-t border-gray-700">
+              <a
+                href={getLichessUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 p-2 text-sm rounded hover:bg-gray-800 transition-colors text-blue-400 hover:text-blue-300"
+              >
+                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 21.75c-5.376 0-9.75-4.374-9.75-9.75S6.624 2.25 12 2.25s9.75 4.374 9.75 9.75-4.374 9.75-9.75 9.75zm-1.969-4.922c0 .414.336.75.75.75s.75-.336.75-.75-.336-.75-.75-.75-.75.336-.75.75zm1.5-10.313h2.625l-2.25 9h-1.5l2.25-9h-2.625l-.375 1.5h-1.5l.75-3h4.125l-.375 1.5z"/>
+                </svg>
+                Auf Lichess analysieren
+              </a>
+            </div>
           </div>
         </div>
       </div>

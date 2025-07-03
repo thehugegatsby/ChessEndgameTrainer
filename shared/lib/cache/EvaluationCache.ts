@@ -271,6 +271,92 @@ export class EvaluationCache {
     await Promise.allSettled(promises);
     console.log(`[EvaluationCache] Warmup completed. Cache size: ${this.evaluationCache.getStats().size}`);
   }
+
+  // Legacy cache interface methods for tests
+  
+  /**
+   * Set engine evaluation in cache
+   */
+  setEngineEval(fen: string, evaluation: { score: number; mate: number | null }): void {
+    const cached: CachedEvaluation = {
+      score: evaluation.score,
+      mate: evaluation.mate,
+      timestamp: Date.now()
+    };
+    this.evaluationCache.set(`engine:${fen}`, cached);
+  }
+
+  /**
+   * Get engine evaluation from cache
+   */
+  getEngineEval(fen: string): { score: number; mate: number | null } | null {
+    const cached = this.evaluationCache.get(`engine:${fen}`);
+    if (!cached) return null;
+    return { score: cached.score, mate: cached.mate };
+  }
+
+  /**
+   * Check if engine evaluation exists in cache
+   */
+  hasEngineEval(fen: string): boolean {
+    return this.evaluationCache.has(`engine:${fen}`);
+  }
+
+  /**
+   * Set tablebase data in cache
+   */
+  setTablebase(fen: string, data: any): void {
+    // Store data directly for test compatibility
+    this.evaluationCache.set(`tb:${fen}`, data as any);
+  }
+
+  /**
+   * Get tablebase data from cache
+   */
+  getTablebase(fen: string): any {
+    const cached = this.evaluationCache.get(`tb:${fen}`) as any;
+    return cached || null;
+  }
+
+  /**
+   * Check if tablebase data exists in cache
+   */
+  hasTablebase(fen: string): boolean {
+    return this.evaluationCache.has(`tb:${fen}`);
+  }
+
+  /**
+   * Clear engine evaluations from cache
+   */
+  clearEngineEvals(): void {
+    // Clear all entries that start with "engine:"
+    const keys = Array.from(this.evaluationCache.keys?.() || []);
+    keys.forEach(key => {
+      if (typeof key === 'string' && key.startsWith('engine:')) {
+        this.evaluationCache.delete(key);
+      }
+    });
+  }
+
+  /**
+   * Clear tablebase data from cache
+   */
+  clearTablebase(): void {
+    // Clear all entries that start with "tb:"
+    const keys = Array.from(this.evaluationCache.keys?.() || []);
+    keys.forEach(key => {
+      if (typeof key === 'string' && key.startsWith('tb:')) {
+        this.evaluationCache.delete(key);
+      }
+    });
+  }
+
+  /**
+   * Get memory usage of cache
+   */
+  getMemoryUsage(): number {
+    return (this.evaluationCache.getMemoryUsage?.() || 0) + (this.bestMoveCache.getMemoryUsage?.() || 0);
+  }
 }
 
 // Singleton instance for global use

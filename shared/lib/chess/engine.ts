@@ -297,6 +297,84 @@ export class Engine {
     });
   }
 
+  async getMultiPV(fen: string, lines: number = 3): Promise<Array<{ move: string; score: number; mate?: number }>> {
+    // Validate and sanitize FEN input
+    if (!isValidFenQuick(fen)) {
+      console.warn('[Engine] ⚠️ Invalid FEN provided to getMultiPV');
+      return [];
+    }
+    
+    const validation = validateAndSanitizeFen(fen);
+    if (!validation.isValid) {
+      console.warn('[Engine] ⚠️ FEN validation failed:', validation.errors);
+      return [];
+    }
+    
+    try {
+      // Wait for engine to be ready
+      await this.getReadyEngine();
+    } catch (error) {
+      console.warn('[Engine] ⚠️ Engine initialization failed for getMultiPV:', error);
+      return [];
+    }
+    
+    return new Promise((resolve) => {
+      const multiPvMoves: Array<{ move: string; score: number; mate?: number }> = [];
+      let pvCount = 0;
+      
+      const handleMessage = (e: MessageEvent) => {
+        const message = e.data;
+        if (typeof message === 'string') {
+          // Parse multi-PV info lines
+          if (message.includes('multipv')) {
+            const pvMatch = message.match(/multipv (\d+)/);
+            const moveMatch = message.match(/pv ([a-h][1-8][a-h][1-8][qrbn]?)/);
+            const scoreMatch = message.match(/score cp (-?\d+)/);
+            const mateMatch = message.match(/score mate (-?\d+)/);
+            
+            if (pvMatch && moveMatch) {
+              const pvIndex = parseInt(pvMatch[1]) - 1;
+              const move = moveMatch[1];
+              
+              if (!multiPvMoves[pvIndex]) {
+                multiPvMoves[pvIndex] = { move, score: 0 };
+              }
+              
+              if (mateMatch) {
+                multiPvMoves[pvIndex].mate = parseInt(mateMatch[1]);
+              } else if (scoreMatch) {
+                multiPvMoves[pvIndex].score = parseInt(scoreMatch[1]);
+              }
+            }
+          }
+          
+          // Check if we received bestmove (search complete)
+          if (message.startsWith('bestmove')) {
+            this.worker?.removeEventListener('message', handleMessage);
+            resolve(multiPvMoves.filter(m => m !== undefined).slice(0, lines));
+          }
+        }
+      };
+      
+      if (this.worker) {
+        this.worker.addEventListener('message', handleMessage);
+        
+        // Configure multi-PV
+        this.worker.postMessage(`setoption name MultiPV value ${lines}`);
+        this.worker.postMessage(`position fen ${validation.sanitized}`);
+        this.worker.postMessage('go movetime 1000');
+        
+        // Timeout fallback
+        setTimeout(() => {
+          this.worker?.removeEventListener('message', handleMessage);
+          resolve(multiPvMoves.filter(m => m !== undefined).slice(0, lines));
+        }, 1500);
+      } else {
+        resolve([]);
+      }
+    });
+  }
+
   async evaluatePosition(fen: string): Promise<{ score: number; mate: number | null }> {
     // Validate and sanitize FEN input
     if (!isValidFenQuick(fen)) {

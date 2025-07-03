@@ -81,7 +81,7 @@ describe('useChessGame Optimization Comparison', () => {
       }
       
       const optimizedDuration = performance.now() - optimizedStart;
-      const optimizedInstances = constructorCallCount - 1;
+      const optimizedInstances = constructorCallCount;
 
       // Reset
       global.Chess = originalChessConstructor;

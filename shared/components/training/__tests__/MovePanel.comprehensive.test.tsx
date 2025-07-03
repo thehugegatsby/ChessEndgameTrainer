@@ -33,22 +33,24 @@ describe('MovePanel - Comprehensive Coverage', () => {
     it('should render empty state when no moves', () => {
       render(<MovePanel moves={[]} />);
       
-      expect(screen.getByText('♟️')).toBeInTheDocument();
       expect(screen.getByText('Noch keine Züge gespielt')).toBeInTheDocument();
     });
 
     it('should render with moves', () => {
       render(<MovePanel moves={mockMoves} />);
       
-      expect(screen.getByText('Züge')).toBeInTheDocument();
       expect(screen.getByText('e4')).toBeInTheDocument();
       expect(screen.getByText('e5')).toBeInTheDocument();
+      expect(screen.getByText('1.')).toBeInTheDocument();
+      expect(screen.getByText('2.')).toBeInTheDocument();
     });
 
     it('should render with evaluations enabled', () => {
       render(<MovePanel moves={mockMoves} showEvaluations={true} evaluations={mockEvaluations} />);
       
-      expect(screen.getByText('📊 Symbole')).toBeInTheDocument();
+      // Check that evaluations are displayed (using emoji icons)
+      const excellentMoves = screen.queryAllByText('✨');
+      expect(excellentMoves.length).toBeGreaterThan(0);
     });
   });
 
@@ -77,7 +79,7 @@ describe('MovePanel - Comprehensive Coverage', () => {
       render(<MovePanel moves={mockMoves} currentMoveIndex={0} />);
       
       const e4Button = screen.getByText('e4');
-      expect(e4Button).toHaveClass('bg-blue-600', 'text-white');
+      expect(e4Button).toHaveClass('text-blue-400', 'bg-blue-900/30');
     });
   });
 

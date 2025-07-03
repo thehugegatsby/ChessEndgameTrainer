@@ -67,7 +67,7 @@ describe('TrainingContext - Comprehensive Coverage', () => {
         currentPgn: '',
         currentMoveIndex: -1,
         showAnalysis: true,
-        showEvaluationPanel: true,
+        showEvaluationPanel: false,
         isGameFinished: false,
         jumpToMoveFunc: null,
       });
@@ -336,7 +336,7 @@ describe('TrainingContext - Comprehensive Coverage', () => {
       expect(state.jumpToMoveFunc).toBeNull();
       // UI preferences bleiben erhalten
       expect(state.showAnalysis).toBe(true);
-      expect(state.showEvaluationPanel).toBe(true);
+      expect(state.showEvaluationPanel).toBe(false);
     });
 
     it('sollte UI Toggle States beim Reset beibehalten', () => {

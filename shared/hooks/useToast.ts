@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 interface Toast {
   id: string;
@@ -9,6 +9,10 @@ interface Toast {
 
 export const useToast = () => {
   const [toasts, setToasts] = useState<Toast[]>([]);
+
+  const removeToast = useCallback((id: string) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id));
+  }, []);
 
   const addToast = useCallback((
     message: string, 
@@ -24,11 +28,14 @@ export const useToast = () => {
     };
 
     setToasts(prev => [...prev, newToast]);
-  }, []);
 
-  const removeToast = useCallback((id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
-  }, []);
+    // Auto-dismiss if duration is provided
+    if (duration) {
+      setTimeout(() => {
+        removeToast(id);
+      }, duration);
+    }
+  }, [removeToast]);
 
   const showSuccess = useCallback((message: string, duration?: number) => {
     addToast(message, 'success', duration);
@@ -58,6 +65,9 @@ export const useToast = () => {
     showError,
     showInfo,
     showWarning,
-    clearAllToasts
+    clearAllToasts,
+    // Aliases for backward compatibility with tests
+    dismissToast: removeToast,
+    clearToasts: clearAllToasts
   };
 };
