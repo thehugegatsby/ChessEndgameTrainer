@@ -1,14 +1,12 @@
-interface EvaluationData {
-  evaluation: number;
-  mateInMoves?: number;
-}
-
-interface EvaluationDisplay {
-  text: string;
-  className: string;
-  color: string;
-  bgColor: string;
-}
+import { 
+  EvaluationData, 
+  EvaluationDisplay, 
+  MoveQuality,
+  MoveQualityClass,
+  RobustnessTag,
+  EnhancedTablebaseData,
+  EnhancedEvaluationDisplay
+} from '@shared/types';
 
 /**
  * Get move quality evaluation (how good was this specific move)
@@ -362,4 +360,138 @@ export const getEvaluationBarWidth = (evaluation?: number): number => {
   if (evaluation === undefined) return 50;
   // Convert evaluation to percentage (clamped between 0-100)
   return Math.max(0, Math.min(100, 50 + (evaluation * 10)));
+};
+
+// Helper function to access getCategory outside of getMoveQualityByTablebaseComparison
+export const getCategory = (wdl: number): 'win' | 'draw' | 'loss' => {
+  if (wdl >= 1) return 'win';    // Both win and cursed-win are wins
+  if (wdl <= -1) return 'loss';  // Both loss and blessed-loss are losses  
+  return 'draw';
+};
+
+/**
+ * Enhanced Move Quality for Brückenbau-Trainer
+ * Classifies Win→Win moves based on DTM difference
+ */
+export const classifyWinToWin = (dtmDiff: number): MoveQualityClass => {
+  if (dtmDiff <= 1) return 'optimal';
+  if (dtmDiff <= 5) return 'sicher';
+  if (dtmDiff <= 15) return 'umweg';
+  return 'riskant';
+};
+
+/**
+ * Classify robustness based on number of winning moves
+ */
+export const classifyRobustness = (winningMovesCount: number): RobustnessTag => {
+  if (winningMovesCount >= 3) return 'robust';
+  if (winningMovesCount === 2) return 'präzise';
+  return 'haarig';
+};
+
+/**
+ * Get educational tip based on move quality and robustness
+ */
+export const getEducationalTip = (
+  qualityClass: MoveQualityClass, 
+  robustness?: RobustnessTag
+): string => {
+  const tips: Record<MoveQualityClass, Record<RobustnessTag | 'default', string>> = {
+    optimal: {
+      robust: 'Perfekt! Viele gute Alternativen vorhanden.',
+      präzise: 'Sehr gut! Eine von wenigen optimalen Lösungen.',
+      haarig: 'Exzellent! Der einzige optimale Zug gefunden.',
+      default: 'Kürzester Weg zum Sieg.'
+    },
+    sicher: {
+      robust: 'Solide Technik mit vielen Alternativen.',
+      präzise: 'Gute Wahl aus wenigen sicheren Optionen.',
+      haarig: 'Wichtiger Zug - nur dieser hält den Gewinn sicher.',
+      default: 'Sichere Gewinntechnik angewendet.'
+    },
+    umweg: {
+      robust: 'Funktioniert, aber es gibt effizientere Wege.',
+      präzise: 'Umständlich, aber einer der wenigen gewinnenden Züge.',
+      haarig: 'Kompliziert, aber der einzige Gewinnzug!',
+      default: 'Gewinn bleibt, aber dauert länger.'
+    },
+    riskant: {
+      robust: 'Sehr kompliziert trotz vieler Alternativen.',
+      präzise: 'Riskant! Nur wenige Züge halten noch den Gewinn.',
+      haarig: 'Kritisch! Nur dieser Zug gewinnt noch.',
+      default: 'Gewinn noch möglich, aber sehr schwierig.'
+    },
+    fehler: {
+      default: 'Gewinn verspielt - zurück zum Anfang!'
+    }
+  };
+  
+  return tips[qualityClass][robustness || 'default'];
+};
+
+/**
+ * Enhanced Move Quality Evaluation for Brückenbau-Trainer
+ * Provides detailed classification for Win→Win moves based on DTM
+ */
+export const getEnhancedMoveQuality = (
+  wdlBefore: number,
+  wdlAfter: number, 
+  dtmBefore: number | undefined,
+  dtmAfter: number | undefined,
+  winningMovesCount: number,
+  playerSide: 'w' | 'b'
+): EnhancedEvaluationDisplay => {
+  // 1. Get base WDL evaluation (existing logic)
+  const baseEval = getMoveQualityByTablebaseComparison(wdlBefore, wdlAfter, playerSide);
+  
+  // 2. For Win→Win: Refined classification
+  if (getCategory(wdlBefore) === 'win' && getCategory(wdlAfter) === 'win' && 
+      dtmBefore !== undefined && dtmAfter !== undefined) {
+    const dtmDiff = dtmAfter - dtmBefore;
+    const qualityClass = classifyWinToWin(dtmDiff);
+    const robustness = classifyRobustness(winningMovesCount);
+    const educationalTip = getEducationalTip(qualityClass, robustness);
+    
+    // Map quality class to display properties
+    const qualityDisplayMap: Record<MoveQualityClass, Partial<EvaluationDisplay>> = {
+      optimal: { text: '🟢', className: 'eval-optimal' },
+      sicher: { text: '✅', className: 'eval-sicher' },
+      umweg: { text: '🟡', className: 'eval-umweg' },
+      riskant: { text: '⚠️', className: 'eval-riskant' },
+      fehler: { text: '🚨', className: 'eval-fehler' }
+    };
+    
+    const display = qualityDisplayMap[qualityClass];
+    
+    return {
+      ...baseEval,
+      text: display.text || baseEval.text,
+      className: display.className || baseEval.className,
+      qualityClass,
+      robustnessTag: robustness,
+      dtmDifference: dtmDiff,
+      educationalTip
+    };
+  }
+  
+  // 3. For non Win→Win moves, map to enhanced format
+  const qualityClassMap: Record<string, MoveQualityClass> = {
+    '🚨': 'fehler',
+    '💥': 'fehler',
+    '❌': 'fehler',
+    '🌟': 'optimal',
+    '✅': 'sicher',
+    '🎯': 'optimal',
+    '👍': 'sicher',
+    '➖': 'sicher',
+    '🛡️': 'sicher',
+    '🔻': 'umweg',
+    '❓': 'umweg'
+  };
+  
+  return {
+    ...baseEval,
+    qualityClass: qualityClassMap[baseEval.text] || 'umweg',
+    educationalTip: getEducationalTip(qualityClassMap[baseEval.text] || 'umweg')
+  };
 }; 

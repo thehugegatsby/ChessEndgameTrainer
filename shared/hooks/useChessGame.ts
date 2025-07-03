@@ -46,7 +46,14 @@ export const useChessGame = ({
     
     try {
       const currentGame = gameRef.current;
-      const moveResult = currentGame.move(move);
+      let moveResult;
+      
+      try {
+        moveResult = currentGame.move(move);
+      } catch (error) {
+        // Invalid move - just return false without crashing
+        return false;
+      }
       
       if (moveResult === null) {
         return false;
@@ -55,7 +62,8 @@ export const useChessGame = ({
       const newFen = currentGame.fen();
       const newPgn = currentGame.pgn();
       
-      setGame(new Chess(newFen));
+      // Reuse existing game instance instead of creating new one
+      setGame(currentGame);
       setHistory(prev => [...prev, moveResult]);
       setCurrentFen(newFen);
       setCurrentPgn(newPgn);
@@ -76,19 +84,23 @@ export const useChessGame = ({
   }, [isGameFinished, onComplete, onPositionChange]);
 
   const jumpToMove = useCallback((moveIndex: number) => {
-    const tempGame = new Chess(initialFen);
+    // Optimization: reuse existing game if possible
+    const currentGameCopy = new Chess(gameRef.current.fen());
+    currentGameCopy.reset();
+    currentGameCopy.load(initialFen);
     
+    // Apply moves up to the target index
     for (let i = 0; i <= moveIndex && i < historyRef.current.length; i++) {
       const move = historyRef.current[i];
-      tempGame.move(move);
+      currentGameCopy.move(move);
     }
     
-    setGame(tempGame);
-    setCurrentFen(tempGame.fen());
-    setCurrentPgn(tempGame.pgn());
+    setGame(currentGameCopy);
+    setCurrentFen(currentGameCopy.fen());
+    setCurrentPgn(currentGameCopy.pgn());
     setIsGameFinished(false);
     
-    onPositionChange?.(tempGame.fen(), tempGame.pgn());
+    onPositionChange?.(currentGameCopy.fen(), currentGameCopy.pgn());
   }, [initialFen, onPositionChange]);
 
   const resetGame = useCallback(() => {

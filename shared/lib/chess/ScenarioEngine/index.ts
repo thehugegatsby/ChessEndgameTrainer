@@ -16,12 +16,15 @@ import type { Move as CustomMove } from '@shared/types/chess';
 import { Engine } from '../engine';
 import { EvaluationService } from './evaluationService';
 import { TablebaseService } from './tablebaseService';
+import { getLogger } from '@shared/services/logging';
 import type { 
   DualEvaluation, 
   TablebaseInfo, 
   EngineEvaluation,
   SCENARIO_CONFIG
 } from './types';
+
+const logger = getLogger().setContext('ScenarioEngine');
 
 const { MAX_INSTANCES } = require('./types').SCENARIO_CONFIG;
 
@@ -45,14 +48,19 @@ export class ScenarioEngine {
 
   /**
    * Creates a new scenario engine instance
-   * @param fen - Starting position in FEN notation
+   * @param fen - Starting position in FEN notation (optional, defaults to starting position)
    */
-  constructor(fen: string) {
-    this.validateFen(fen);
+  constructor(fen?: string) {
+    // Validate FEN if provided
+    if (fen !== undefined) {
+      this.validateFen(fen);
+    }
+    
+    const startingFen = fen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
     this.trackInstanceCount();
     
-    this.initialFen = fen;
-    this.chess = new Chess(fen);
+    this.initialFen = startingFen;
+    this.chess = new Chess(startingFen);
     this.engine = Engine.getInstance();
     
     // Initialize specialized services
@@ -66,8 +74,10 @@ export class ScenarioEngine {
    * Validates FEN string format
    */
   private validateFen(fen: string): void {
-    if (!fen || typeof fen !== 'string') {
-      throw new Error('[ScenarioEngine] FEN must be a non-empty string');
+    if (!fen || typeof fen !== 'string' || fen.trim() === '') {
+      const error = new Error('FEN must be a non-empty string');
+      logger.error('Invalid FEN provided', error, { fen });
+      throw error;
     }
   }
 
@@ -76,8 +86,13 @@ export class ScenarioEngine {
    */
   private trackInstanceCount(): void {
     ScenarioEngine.instanceCount++;
+    logger.debug('ScenarioEngine instance created', { instanceCount: ScenarioEngine.instanceCount });
+    
     if (ScenarioEngine.instanceCount > MAX_INSTANCES) {
-      console.warn(`[ScenarioEngine] ⚠️ Many instances created (${ScenarioEngine.instanceCount}) - Consider cleanup for mobile performance`);
+      logger.warn('Many instances created - Consider cleanup for mobile performance', { 
+        instanceCount: ScenarioEngine.instanceCount, 
+        maxInstances: MAX_INSTANCES 
+      });
     }
   }
 

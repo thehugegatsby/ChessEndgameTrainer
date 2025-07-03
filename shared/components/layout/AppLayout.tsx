@@ -20,9 +20,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      <Header />
-      
-      <div className="flex pt-16">
+      <div className="flex">
         {/* Advanced Endgame Menu */}
         <AdvancedEndgameMenu 
           isOpen={showMenu}

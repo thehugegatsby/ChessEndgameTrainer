@@ -1,17 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Move } from 'chess.js';
-
-interface EvaluationData {
-  evaluation: number;
-  mateInMoves?: number;
-  tablebase?: {
-    isTablebasePosition: boolean;
-    wdlBefore?: number;
-    wdlAfter?: number;
-    category?: string;
-    dtz?: number;
-  };
-}
+import { EvaluationData } from '@shared/types';
+import { useEngine } from './useEngine';
 
 interface UseEvaluationOptions {
   fen: string;
@@ -34,7 +24,12 @@ export const useEvaluation = ({ fen, isEnabled, previousFen }: UseEvaluationOpti
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const engineRef = useRef<any>(null);
+  // Use managed engine service instead of creating new instances
+  const { engine, isLoading: engineLoading, error: engineError } = useEngine({
+    id: 'evaluation-hook',
+    autoCleanup: true
+  });
+  
   const lastFenRef = useRef<string>('');
 
   const addEvaluation = useCallback((evaluation: EvaluationData) => {
@@ -49,7 +44,7 @@ export const useEvaluation = ({ fen, isEnabled, previousFen }: UseEvaluationOpti
   }, []);
 
   useEffect(() => {
-    if (!isEnabled || !fen || lastFenRef.current === fen) {
+    if (!isEnabled || !fen || lastFenRef.current === fen || !engine || engineLoading) {
       return;
     }
 
@@ -60,14 +55,10 @@ export const useEvaluation = ({ fen, isEnabled, previousFen }: UseEvaluationOpti
       setError(null);
       
       try {
-        if (!engineRef.current) {
-          const { ScenarioEngine } = await import('../lib/chess/ScenarioEngine');
-          engineRef.current = new ScenarioEngine(fen);
-        }
-
-        engineRef.current.updatePosition(fen);
+        // Update engine position before evaluation
+        engine.updatePosition(fen);
         
-        const dualEvaluation = await engineRef.current.getDualEvaluation(fen);
+        const dualEvaluation = await engine.getDualEvaluation(fen);
         console.log('🔍 useEvaluation - Got dual evaluation:', dualEvaluation);
         
         const evaluation: EvaluationData = {
@@ -77,7 +68,8 @@ export const useEvaluation = ({ fen, isEnabled, previousFen }: UseEvaluationOpti
 
         if (dualEvaluation.tablebase?.isAvailable && previousFen) {
           try {
-            const previousDualEval = await engineRef.current.getDualEvaluation(previousFen);
+            engine.updatePosition(previousFen);
+            const previousDualEval = await engine.getDualEvaluation(previousFen);
             console.log('🔍 useEvaluation - Previous position tablebase:', previousDualEval.tablebase);
             
             if (previousDualEval.tablebase?.isAvailable) {
@@ -123,26 +115,20 @@ export const useEvaluation = ({ fen, isEnabled, previousFen }: UseEvaluationOpti
     };
 
     evaluatePosition();
-  }, [fen, isEnabled, previousFen, addEvaluation]);
+  }, [fen, isEnabled, previousFen, addEvaluation, engine, engineLoading]);
 
+  // Error handling for engine initialization
   useEffect(() => {
-    return () => {
-      if (engineRef.current) {
-        try {
-          engineRef.current.quit();
-        } catch (error) {
-          // Ignore cleanup errors
-        }
-        engineRef.current = null;
-      }
-    };
-  }, []);
+    if (engineError) {
+      setError(`Engine initialization failed: ${engineError}`);
+    }
+  }, [engineError]);
 
   return {
     evaluations,
     lastEvaluation,
-    isEvaluating,
-    error,
+    isEvaluating: isEvaluating || engineLoading,
+    error: error || engineError,
     addEvaluation,
     clearEvaluations
   };

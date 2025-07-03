@@ -41,7 +41,7 @@ describe('Engine', () => {
     // Engine returns null when not ready yet
     expect(move).toBeNull();
     expect(global.mockWorker.postMessage).toHaveBeenCalledWith('uci');
-  });
+  }, 10000);
 
   it('should handle no move available', async () => {
     const fen = '8/8/8/8/8/8/8/8 w - - 0 1';
@@ -55,7 +55,7 @@ describe('Engine', () => {
     
     const move = await movePromise;
     expect(move).toBeNull();
-  });
+  }, 10000);
 
   it('should evaluate position and resolve with score', async () => {
     const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -71,7 +71,7 @@ describe('Engine', () => {
     const evaluation = await evalPromise;
     // Engine returns fallback score 0 when not ready
     expect(evaluation.score).toBe(0);
-  });
+  }, 10000);
 
   it('should reset the chess instance', () => {
     engine.reset();

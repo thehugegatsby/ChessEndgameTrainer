@@ -12,6 +12,8 @@ export type {
   TrainingBoardProps,
   MovePanelProps,
   AnalysisPanelProps,
-  EvaluationData,
   TrainingPosition
-} from './types'; 
+} from './types';
+
+// Re-export centralized types
+export type { EvaluationData, MoveEvaluation } from '@shared/types'; 

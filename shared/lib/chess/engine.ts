@@ -1,8 +1,16 @@
 import { Chess } from 'chess.js';
 import type { Move } from '../../types/chess';
+import { validateAndSanitizeFen, isValidFenQuick } from '../../utils/fenValidator';
 
 type ResolveBestMove = (move: Move | null) => void;
 type ResolveEvaluation = (result: { score: number; mate: number | null }) => void;
+
+enum EngineState {
+  IDLE = 'IDLE',
+  INITIALIZING = 'INITIALIZING', 
+  READY = 'READY',
+  ERROR = 'ERROR'
+}
 
 interface Request {
   type: 'bestmove' | 'evaluation';
@@ -15,42 +23,100 @@ export class Engine {
   private chess: Chess;
   private static instance: Engine | null = null;
   private worker: Worker | null = null;
-  private isReady = false;
+  private state: EngineState = EngineState.IDLE;
+  private readyPromise: Promise<Engine> | null = null;
+  private readyResolve: ((engine: Engine) => void) | null = null;
+  private readyReject: ((error: Error) => void) | null = null;
   private requestQueue: Request[] = [];
   private currentRequest: Request | null = null;
   private currentEvaluation: { score: number; mate: number | null } | null = null;
   private initializationAttempts = 0; // Track initialization attempts
   private hasLoggedWorkerStatus = false; // Prevent spam logging
 
+  /**
+   * Validate worker path to prevent script injection attacks
+   */
+  private isValidWorkerPath(path: string): boolean {
+    // Allow only specific whitelisted worker paths
+    const allowedPaths = ['/stockfish.js', '/worker/stockfish.js'];
+    return allowedPaths.includes(path) && !path.includes('../') && !path.includes('..\\');
+  }
+
   private constructor() {
     this.chess = new Chess();
     
     // Only initialize worker in browser environment (not during SSR)
     if (typeof window !== 'undefined' && typeof Worker !== 'undefined') {
-      console.log('[Engine] 🚀 Starting worker initialization...');
-      this.initializeWorker();
+      console.log('[Engine] 🚀 Engine starting in browser environment');
+      // Don't auto-initialize - wait for first request
     } else {
       console.warn('[Engine] ⚠️ Worker not available (SSR environment)');
+      this.state = EngineState.ERROR;
     }
   }
 
-  private initializeWorker() {
+  /**
+   * Get a promise that resolves when the engine is ready
+   */
+  getReadyEngine(): Promise<Engine> {
+    if (this.state === EngineState.READY) {
+      return Promise.resolve(this);
+    }
+    
+    if (this.state === EngineState.ERROR) {
+      return Promise.reject(new Error('Engine is in error state'));
+    }
+    
+    if (this.state === EngineState.IDLE) {
+      this.initializeWorker();
+    }
+    
+    // Return existing promise if already initializing
+    return this.readyPromise!;
+  }
+
+  private initializeWorker(): Promise<Engine> {
+    if (this.readyPromise) {
+      return this.readyPromise;
+    }
+
+    this.state = EngineState.INITIALIZING;
+    
+    this.readyPromise = new Promise<Engine>((resolve, reject) => {
+      this.readyResolve = resolve;
+      this.readyReject = reject;
+    });
+
     try {
-      if (typeof window === 'undefined') return;
+      if (typeof window === 'undefined') {
+        this.state = EngineState.ERROR;
+        this.readyReject?.(new Error('Window not available'));
+        return this.readyPromise;
+      }
       
       this.initializationAttempts++;
       if (this.initializationAttempts > 3) {
         console.error('[Engine] ❌ Too many initialization attempts, stopping');
-        return;
+        this.state = EngineState.ERROR;
+        this.readyReject?.(new Error('Too many initialization attempts'));
+        return this.readyPromise;
       }
       
       console.log(`[Engine] 🔧 Creating worker (attempt ${this.initializationAttempts})`);
-      this.worker = new Worker('/stockfish.js');
+      
+      // Validate worker path to prevent injection attacks
+      const workerPath = '/stockfish.js';
+      if (!this.isValidWorkerPath(workerPath)) {
+        throw new Error('Invalid worker path');
+      }
+      
+      this.worker = new Worker(workerPath);
       
       this.worker.onerror = (e) => {
         console.error('[Engine] 💥 Worker error:', e.message);
+        this.state = EngineState.ERROR;
         this.worker = null;
-        this.isReady = false;
+        this.readyReject?.(new Error(`Worker error: ${e.message}`));
       };
       
       this.worker.onmessage = (e) => {
@@ -60,11 +126,23 @@ export class Engine {
       console.log('[Engine] 🎯 Sending UCI command to worker...');
       this.worker.postMessage('uci');
       
+      // Set timeout for initialization
+      setTimeout(() => {
+        if (this.state === EngineState.INITIALIZING) {
+          console.error('[Engine] ⏰ Initialization timeout');
+          this.state = EngineState.ERROR;
+          this.readyReject?.(new Error('Initialization timeout'));
+        }
+      }, 5000);
+      
     } catch (error) {
       console.error('[Engine] 🔥 Failed to initialize worker:', error);
+      this.state = EngineState.ERROR;
       this.worker = null;
-      this.isReady = false;
+      this.readyReject?.(error as Error);
     }
+
+    return this.readyPromise;
   }
 
   static getInstance(): Engine {
@@ -85,13 +163,15 @@ export class Engine {
     try {
       if (message === 'uciok' || message.trim() === 'uciok') {
         console.log('[Engine] ✅ UCI ready - worker is now operational!');
-        this.isReady = true;
+        this.state = EngineState.READY;
         this.hasLoggedWorkerStatus = true;
+        this.readyResolve?.(this);
         this.processQueue();
       } else if (message === 'readyok') {
         console.log('[Engine] ✅ Engine ready (via readyok)');
-        this.isReady = true;
+        this.state = EngineState.READY;
         this.hasLoggedWorkerStatus = true;
+        this.readyResolve?.(this);
         this.processQueue();
       } else if (message.startsWith('bestmove')) {
         if (this.currentRequest?.type === 'bestmove') {
@@ -170,7 +250,7 @@ export class Engine {
   }
 
   private processQueue() {
-    if (!this.isReady || this.currentRequest || this.requestQueue.length === 0) {
+    if (this.state !== EngineState.READY || this.currentRequest || this.requestQueue.length === 0) {
       return;
     }
     
@@ -186,23 +266,30 @@ export class Engine {
   }
 
   async getBestMove(fen: string, timeLimit: number = 1000): Promise<Move | null> {
-    // Try to initialize worker if not available (SSR -> Browser transition)
-    if (!this.worker && typeof window !== 'undefined' && typeof Worker !== 'undefined') {
-      console.log('[Engine] 🔄 Lazy worker initialization for getBestMove');
-      this.initializeWorker();
-      // Wait longer for worker to be ready - Stockfish needs time to compile
-      await this.waitForWorkerReady(2000); // 2 seconds max
+    // Validate and sanitize FEN input
+    if (!isValidFenQuick(fen)) {
+      console.warn('[Engine] ⚠️ Invalid FEN provided to getBestMove');
+      return null;
     }
     
-    if (!this.worker || !this.isReady) {
-      console.warn('[Engine] ⚠️ Worker not ready for getBestMove');
+    const validation = validateAndSanitizeFen(fen);
+    if (!validation.isValid) {
+      console.warn('[Engine] ⚠️ FEN validation failed:', validation.errors);
+      return null;
+    }
+    
+    try {
+      // Wait for engine to be ready
+      await this.getReadyEngine();
+    } catch (error) {
+      console.warn('[Engine] ⚠️ Engine initialization failed for getBestMove:', error);
       return null;
     }
     
     return new Promise((resolve) => {
       this.requestQueue.push({
         type: 'bestmove',
-        fen,
+        fen: validation.sanitized,
         resolve: resolve as ResolveBestMove,
         timeLimit
       });
@@ -211,26 +298,30 @@ export class Engine {
   }
 
   async evaluatePosition(fen: string): Promise<{ score: number; mate: number | null }> {
-    // Try to initialize worker if not available (SSR -> Browser transition)
-    if (!this.worker && typeof window !== 'undefined' && typeof Worker !== 'undefined') {
-      console.log('[Engine] 🔄 Lazy worker initialization for evaluatePosition');
-      this.initializeWorker();
-      // Wait longer for worker to be ready - Stockfish needs time to compile
-      await this.waitForWorkerReady(2000); // 2 seconds max
+    // Validate and sanitize FEN input
+    if (!isValidFenQuick(fen)) {
+      console.warn('[Engine] ⚠️ Invalid FEN provided to evaluatePosition');
+      return { score: 0, mate: null };
     }
     
-    // If worker still not available, fallback mock (default 0)
-    if (!this.worker || !this.isReady) {
-      if (!this.hasLoggedWorkerStatus) {
-        console.warn('[Engine] ⚠️ Worker not ready for evaluatePosition, using fallback');
-      }
+    const validation = validateAndSanitizeFen(fen);
+    if (!validation.isValid) {
+      console.warn('[Engine] ⚠️ FEN validation failed:', validation.errors);
+      return { score: 0, mate: null };
+    }
+    
+    try {
+      // Wait for engine to be ready
+      await this.getReadyEngine();
+    } catch (error) {
+      console.warn('[Engine] ⚠️ Engine initialization failed for evaluatePosition:', error);
       return { score: 0, mate: null };
     }
     
     return new Promise((resolve) => {
       this.requestQueue.push({
         type: 'evaluation',
-        fen,
+        fen: validation.sanitized,
         resolve: resolve as ResolveEvaluation,
         timeLimit: 5000
       });
@@ -238,22 +329,6 @@ export class Engine {
     });
   }
 
-  /**
-   * Wait for worker to become ready with timeout
-   */
-  private async waitForWorkerReady(maxWaitMs: number): Promise<void> {
-    const startTime = Date.now();
-    
-    while (!this.isReady && (Date.now() - startTime) < maxWaitMs) {
-      await new Promise(resolve => setTimeout(resolve, 50)); // Check every 50ms
-    }
-    
-    if (!this.isReady) {
-      console.warn(`[Engine] ⏰ Worker still not ready after ${maxWaitMs}ms`);
-    } else {
-      console.log(`[Engine] ✅ Worker became ready after ${Date.now() - startTime}ms`);
-    }
-  }
 
   reset() {
     this.requestQueue = [];
@@ -262,9 +337,44 @@ export class Engine {
   }
 
   quit() {
-    this.worker?.postMessage('quit');
-    this.worker?.terminate();
-    this.worker = null;
-    this.isReady = false;
+    try {
+      // Clear any pending requests
+      this.requestQueue = [];
+      this.currentRequest = null;
+      this.currentEvaluation = null;
+      
+      // Reset state
+      this.state = EngineState.IDLE;
+      this.readyPromise = null;
+      this.readyResolve = null;
+      this.readyReject = null;
+      
+      // Properly terminate worker
+      if (this.worker) {
+        this.worker.postMessage('quit');
+        
+        // Set timeout for graceful termination
+        setTimeout(() => {
+          if (this.worker) {
+            console.log('[Engine] 🔄 Force terminating worker');
+            this.worker.terminate();
+            this.worker = null;
+          }
+        }, 1000);
+        
+        this.worker.terminate();
+        this.worker = null;
+      }
+      
+      this.initializationAttempts = 0;
+      this.hasLoggedWorkerStatus = false;
+      
+      console.log('[Engine] ✅ Worker cleanup completed');
+    } catch (error) {
+      console.error('[Engine] 💥 Error during worker cleanup:', error);
+      // Force cleanup even if error occurs
+      this.worker = null;
+      this.state = EngineState.ERROR;
+    }
   }
 } 

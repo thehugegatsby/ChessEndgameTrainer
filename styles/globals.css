@@ -183,25 +183,29 @@ html {
   background-color: rgba(16, 185, 129, 0.2) !important;
 }
 
-/* Responsive chessboard sizing */
+/* Responsive chessboard sizing - MAXIMALE GRÖSSE */
 @media (max-width: 640px) {
   .chessboard-container {
-    max-width: 90vw;
-    max-height: 90vw;
+    max-width: 95vw;
+    max-height: 95vw;
   }
 }
 
 @media (min-width: 641px) and (max-width: 1024px) {
   .chessboard-container {
-    max-width: 500px;
-    max-height: 500px;
+    max-width: none;
+    max-height: none;
+    width: 100%;
+    height: 100%;
   }
 }
 
 @media (min-width: 1025px) {
   .chessboard-container {
-    max-width: 600px;
-    max-height: 600px;
+    max-width: none;
+    max-height: none;
+    width: 100%;
+    height: 100%;
   }
 }
 

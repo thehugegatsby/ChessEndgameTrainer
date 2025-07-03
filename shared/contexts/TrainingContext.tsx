@@ -42,7 +42,7 @@ const initialState: TrainingState = {
   currentPgn: '',
   currentMoveIndex: -1,
   showAnalysis: true,
-  showEvaluationPanel: true,
+  showEvaluationPanel: false,
   isGameFinished: false,
   jumpToMoveFunc: null,
 };

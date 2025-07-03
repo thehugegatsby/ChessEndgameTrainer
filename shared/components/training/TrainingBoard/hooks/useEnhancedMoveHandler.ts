@@ -46,16 +46,15 @@ export const useEnhancedMoveHandler = ({
       if (moveResult) {
         console.log('✅ useEnhancedMoveHandler: Player move successful, starting engine response');
         
-        // 2. Show evaluation briefly
-        if (lastEvaluation) {
-          showEvaluationBriefly();
-        }
+        // 2. Show evaluation briefly - DISABLED
+        // if (lastEvaluation) {
+        //   showEvaluationBriefly();
+        // }
 
         // 3. Get and make engine move
         await handleEngineResponse();
-      } else {
-        onWarning('Ungültiger Zug');
       }
+      // Invalid move - do nothing, just keep the current position
     } catch (error) {
       console.error('❌ useEnhancedMoveHandler: Move processing failed:', error);
       onEngineError('Zug konnte nicht verarbeitet werden');

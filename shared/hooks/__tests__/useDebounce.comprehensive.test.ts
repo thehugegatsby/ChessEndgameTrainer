@@ -311,8 +311,8 @@ describe('useDebounce - Comprehensive Coverage', () => {
   describe('Edge Cases', () => {
     it('sollte null values korrekt handhaben', () => {
       const { result, rerender } = renderHook(
-        ({ value }) => useDebounce(value, 300),
-        { initialProps: { value: null } }
+        ({ value }: { value: string | null }) => useDebounce(value, 300),
+        { initialProps: { value: null as string | null } }
       );
 
       rerender({ value: 'not-null' });
@@ -326,8 +326,8 @@ describe('useDebounce - Comprehensive Coverage', () => {
 
     it('sollte undefined values korrekt handhaben', () => {
       const { result, rerender } = renderHook(
-        ({ value }) => useDebounce(value, 300),
-        { initialProps: { value: undefined } }
+        ({ value }: { value: string | undefined }) => useDebounce(value, 300),
+        { initialProps: { value: undefined as string | undefined } }
       );
 
       rerender({ value: 'defined' });

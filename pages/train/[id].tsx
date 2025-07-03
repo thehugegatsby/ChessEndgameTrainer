@@ -10,7 +10,10 @@ import {
   AnalysisPanel 
 } from '@shared/components/training';
 import { TrainingProvider, useTraining } from '@shared/contexts/TrainingContext';
-import { EndgamePosition, allEndgamePositions, getPositionById } from '@shared/data/endgames/index';
+import { EndgamePosition, allEndgamePositions, getPositionById, getChapterProgress } from '@shared/data/endgames/index';
+import { useToast } from '@shared/hooks/useToast';
+import { ToastContainer } from '@shared/components/ui/Toast';
+import { getGameStatus } from '@shared/utils/chess/gameStatus';
 
 interface TrainingPageProps {
   position: EndgamePosition;
@@ -19,6 +22,7 @@ interface TrainingPageProps {
 // Main training component that uses the context
 const TrainingContent: React.FC<{ position: EndgamePosition }> = React.memo(({ position }) => {
   const { state, dispatch } = useTraining();
+  const { toasts, removeToast, showSuccess, showError } = useToast();
   
   // Local UI state
   const [resetKey, setResetKey] = useState<number>(0);
@@ -31,6 +35,13 @@ const TrainingContent: React.FC<{ position: EndgamePosition }> = React.memo(({ p
   const prevPosition = currentIndex > 0 ? allPositions[currentIndex - 1] : null;
   const nextPosition = currentIndex < allPositions.length - 1 ? allPositions[currentIndex + 1] : null;
 
+  // Chapter progress and game status
+  const chapterProgress = getChapterProgress(position.id);
+  const gameStatus = React.useMemo(() => 
+    getGameStatus(state.currentFen, position.goal), 
+    [state.currentFen, position.goal]
+  );
+
   // Initialize position in context when component mounts
   React.useEffect(() => {
     dispatch({ type: 'SET_POSITION', payload: position });
@@ -38,12 +49,12 @@ const TrainingContent: React.FC<{ position: EndgamePosition }> = React.memo(({ p
 
   const handleComplete = useCallback((isSuccess: boolean) => {
     if (isSuccess) {
-      alert('🎉 Geschafft! Position erfolgreich gelöst!');
+      showSuccess('Geschafft! Position erfolgreich gelöst!', 4000);
     } else {
-      alert('❌ Versuch es erneut');
+      showError('Versuch es erneut', 3000);
     }
     dispatch({ type: 'SET_GAME_FINISHED', payload: isSuccess });
-  }, [dispatch]);
+  }, [dispatch, showSuccess, showError]);
 
   const handleEvaluationsChange = useCallback((evaluations: Array<{ evaluation: number; mateInMoves?: number }>) => {
     dispatch({ type: 'SET_EVALUATIONS', payload: evaluations });
@@ -92,31 +103,22 @@ const TrainingContent: React.FC<{ position: EndgamePosition }> = React.memo(({ p
   }, [state.currentPgn, state.moves.length, state.currentFen]);
 
   return (
-    <main className="px-4 md:px-6 max-w-[1200px] mx-auto">
-      {/* Responsive Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 lg:gap-6 h-[calc(100vh-8rem)]">
-        
-        {/* Center - Board Area */}
-        <div className="relative flex flex-col items-center justify-center min-h-full py-4 lg:py-8 px-2 lg:px-8">
-          
-          {/* Mobile-First Floating Buttons */}
-          <div className="absolute top-2 left-2 z-10 flex gap-2">
-            {state.moves.length > 0 && (
-              <button
-                onClick={handleToggleAnalysis}
-                className={`px-3 py-1 text-sm rounded-lg font-medium transition-all duration-200 shadow-lg backdrop-blur-sm ${
-                  state.showAnalysis
-                    ? 'dark-button-primary hover:bg-blue-600'
-                    : 'dark-button-success hover:bg-green-600'
-                }`}
-              >
-                📊
-              </button>
-            )}
-          </div>
-
-          {/* Main Board Container */}
-          <div className="chessboard-container mx-auto">
+    <div className="trainer-container h-screen flex flex-col bg-slate-800 text-white">
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+      
+      {/* Progress Header über dem Brett - Größer und zentriert */}
+      <div className="progress-header flex-shrink-0 px-3 py-3 border-b border-slate-700 bg-slate-750 text-center">
+        <h2 className="text-2xl font-bold">
+          {chapterProgress}
+          {state.moves.length > 3 && <span className="ml-3 text-orange-400">🔥 {Math.floor(state.moves.length / 2)}</span>}
+        </h2>
+      </div>
+      
+      {/* Main Content - Horizontal Layout like Lichess - Full Screen */}
+      <div className="main-content flex-1 flex h-0">
+        {/* Chessboard Area - Brett nimmt Platz */}
+        <div className="chessboard-wrapper flex-[5] h-full min-h-[1000px]">
+          <div className="w-full h-full flex items-center justify-center">
             <TrainingBoard 
               key={`${position.id}-${resetKey}`}
               fen={position.fen}
@@ -128,96 +130,115 @@ const TrainingContent: React.FC<{ position: EndgamePosition }> = React.memo(({ p
               currentMoveIndex={state.currentMoveIndex}
             />
           </div>
-
-          {/* Mobile Controls */}
-          <TrainingControls
-            position={position}
-            prevPosition={prevPosition}
-            nextPosition={nextPosition}
-            onReset={handleResetPosition}
-            getLichessUrl={getLichessUrl}
-            isMobile={true}
-          />
         </div>
+        
+        {/* Sidebar - 10% breiter für Move Panel */}
+        <div className="sidebar w-80 bg-gray-900 border-l border-gray-700 flex flex-col">
+          {/* Navigation - Clean wie linke Sidebar */}
+          <div className="nav-section p-4 border-b border-gray-700">
+            <div className="flex items-center justify-center gap-8">
+              <button 
+                onClick={() => prevPosition && (window.location.href = `/train/${prevPosition.id}`)}
+                disabled={!prevPosition}
+                className="p-2 hover:bg-gray-800 rounded disabled:opacity-30 transition-colors"
+                title="Vorherige Position"
+              >
+                <span className="text-lg">←</span>
+              </button>
+              <button 
+                onClick={handleResetPosition}
+                className="p-2 hover:bg-gray-800 rounded transition-colors"
+                title="Position zurücksetzen"
+              >
+                <span className="text-lg">↻</span>
+              </button>
+              <button 
+                onClick={() => nextPosition && (window.location.href = `/train/${nextPosition.id}`)}
+                disabled={!nextPosition}
+                className="p-2 hover:bg-gray-800 rounded disabled:opacity-30 transition-colors"
+                title="Nächste Position"
+              >
+                <span className="text-lg">→</span>
+              </button>
+            </div>
+          </div>
 
-        {/* Desktop Right Sidebar - Moves & Analysis */}
-        <div className="hidden lg:flex lg:flex-col lg:space-y-4 lg:h-full lg:overflow-hidden">
+          {/* Game Status - Wer am Zug */}
+          <div className="game-status p-4 border-b border-gray-700">
+            <div className="font-medium flex items-center gap-2">
+              <span className="text-lg">♔</span>
+              {gameStatus.sideToMoveDisplay}
+            </div>
+            <div className="text-sm text-gray-300 mt-1">{gameStatus.objectiveDisplay}</div>
+          </div>
+
+          {/* Züge Header mit Engine Toggle */}
+          <div className="sidebar-header p-4">
+            <div className="flex items-center justify-between">
+              <span className="font-medium">Züge</span>
+              <button 
+                onClick={handleToggleEvaluationPanel}
+                className="flex items-center gap-2 p-1 rounded hover:bg-gray-800 transition-colors"
+                title={state.showEvaluationPanel ? 'Engine deaktivieren' : 'Engine aktivieren'}
+              >
+                <div className={`relative w-10 h-5 rounded-full transition-colors ${
+                  state.showEvaluationPanel ? 'bg-green-600' : 'bg-gray-600'
+                }`}>
+                  <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
+                    state.showEvaluationPanel ? 'translate-x-5' : 'translate-x-0.5'
+                  }`} />
+                </div>
+              </button>
+            </div>
+          </div>
           
-          {/* Desktop Controls */}
-          <TrainingControls
-            position={position}
-            prevPosition={prevPosition}
-            nextPosition={nextPosition}
-            onReset={handleResetPosition}
-            getLichessUrl={getLichessUrl}
-            isMobile={false}
-          />
+          {/* Engine Panel - Direkt unter Header, kompakt */}
+          {state.showEvaluationPanel && (
+            <div className="engine-section border-b border-gray-700 p-4">
+              <div className="text-sm text-green-400 mb-2">Engine Bewertung</div>
+              <DualEvaluationPanel
+                fen={state.currentFen}
+                isVisible={state.showEvaluationPanel}
+                onEvaluationUpdate={(evaluation) => {
+                  console.log('📊 Dual evaluation update:', evaluation);
+                }}
+              />
+            </div>
+          )}
+          
 
-          {/* Scrollable Content Area */}
-          <div className="flex-1 overflow-y-auto space-y-4">
+          {/* Move Panel */}
+          <div className="flex-1 overflow-y-auto p-4">
+            {state.moves.length > 0 ? (
+              <MovePanel 
+                moves={state.moves} 
+                showEvaluations={state.showAnalysis}
+                evaluations={state.evaluations}
+                onMoveClick={handleMoveClick}
+                currentMoveIndex={state.currentMoveIndex}
+              />
+            ) : (
+              <div className="text-gray-400">Noch keine Züge gespielt</div>
+            )}
             
-            {/* Move Panel */}
-            <MovePanel 
-              moves={state.moves} 
-              showEvaluations={state.showAnalysis}
-              evaluations={state.evaluations}
-              onMoveClick={handleMoveClick}
-              currentMoveIndex={state.currentMoveIndex}
-            />
-
-            {/* Analysis Panel Toggle */}
-            {state.moves.length > 0 && (
-              <div className="space-y-2">
-                <button
-                  onClick={() => setShowAnalysisPanel(!showAnalysisPanel)}
-                  className={`w-full rounded-lg py-2 text-xs font-medium transition-colors ${
-                    showAnalysisPanel
-                      ? 'dark-button-primary hover:bg-blue-600'
-                      : 'dark-button-secondary hover:bg-gray-600'
-                  }`}
-                >
-                  {showAnalysisPanel ? '📊 Analyse verstecken' : '📊 Detailanalyse'}
-                </button>
-                
-                {showAnalysisPanel && (
-                  <AnalysisPanel
-                    history={state.moves}
-                    initialFen={position.fen}
-                    onClose={() => setShowAnalysisPanel(false)}
-                    isVisible={showAnalysisPanel}
-                  />
-                )}
+            {/* Brückenbau-Hinweise - Immer anzeigen wenn vorhanden */}
+            {position.bridgeHints && position.bridgeHints.length > 0 && (
+              <div className="bridge-hints-panel mt-6 pt-4">
+                <div className="text-sm text-gray-400 mb-3 font-normal">Brückenbau-Technik</div>
+                <div className="space-y-2">
+                  {position.bridgeHints.map((hint, index) => (
+                    <div key={index} className="text-sm text-gray-200 flex items-start gap-2">
+                      <span className="text-gray-400 mt-0.5">•</span>
+                      <span>{hint}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
-
-            {/* Compact Evaluation Toggle */}
-            <div className="space-y-2">
-              <button
-                onClick={handleToggleEvaluationPanel}
-                className={`w-full rounded-lg py-2 text-xs font-medium transition-colors ${
-                  state.showEvaluationPanel
-                    ? 'dark-button-primary hover:bg-blue-600'
-                    : 'dark-button-secondary hover:bg-gray-600'
-                }`}
-              >
-                {state.showEvaluationPanel ? '📊 Engine verstecken' : '📊 Engine + Tablebase'}
-              </button>
-              
-              {state.showEvaluationPanel && (
-                <DualEvaluationPanel
-                  fen={state.currentFen}
-                  isVisible={state.showEvaluationPanel}
-                  onEvaluationUpdate={(evaluation) => {
-                    console.log('📊 Dual evaluation update:', evaluation);
-                  }}
-                />
-              )}
-            </div>
-
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 });
 
@@ -261,4 +282,4 @@ export const getStaticPaths: GetStaticPaths = async () => {
     paths,
     fallback: false,
   };
-}; 
+};

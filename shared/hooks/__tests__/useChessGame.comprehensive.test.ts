@@ -147,7 +147,8 @@ describe('useChessGame - Comprehensive Coverage', () => {
         expect(success).toBe(false);
       });
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Move failed:', expect.any(Error));
+      // Console error was removed in optimization - error is handled silently
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
       consoleErrorSpy.mockRestore();
     });
   });

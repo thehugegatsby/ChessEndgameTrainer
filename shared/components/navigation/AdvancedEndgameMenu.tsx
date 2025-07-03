@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { endgameCategories, EndgameCategory, EndgameSubcategory, allEndgamePositions } from '@shared/data/endgames/index';
+import { endgameCategories, EndgameCategory, EndgameSubcategory, allEndgamePositions, endgameChapters } from '@shared/data/endgames/index';
 
 interface AdvancedEndgameMenuProps {
   isOpen: boolean;
@@ -122,6 +122,23 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
                       </div>
                     </Link>
                   </div>
+
+                  {/* Thematic chapters for this category */}
+                  {endgameChapters
+                    .filter(chapter => chapter.category === category.id)
+                    .map((chapter) => (
+                      <div key={chapter.id} className="px-8 py-1">
+                        <Link href={`/train/${chapter.lessons[0]?.id || 1}`}>
+                          <div className="p-2 hover:bg-gray-700 rounded text-sm text-gray-300 flex items-center gap-2">
+                            <span className="text-xs">🎯</span>
+                            <span>{chapter.name}</span>
+                            <span className="ml-auto text-xs text-gray-500">
+                              {chapter.totalLessons}
+                            </span>
+                          </div>
+                        </Link>
+                      </div>
+                    ))}
 
                   {/* Material-based subcategories */}
                   {category.subcategories.map((subcategory) => (

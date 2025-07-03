@@ -63,7 +63,7 @@ describe('useLocalStorage - Comprehensive Coverage', () => {
 
       expect(result.current[0]).toBe('new-value');
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
-        'test-key', 
+        'chess_trainer_test-key', 
         JSON.stringify('new-value')
       );
     });
@@ -84,7 +84,7 @@ describe('useLocalStorage - Comprehensive Coverage', () => {
 
       expect(result.current[0]).toEqual(newObject);
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
-        'object-key',
+        'chess_trainer_object-key',
         JSON.stringify(newObject)
       );
     });
@@ -175,15 +175,14 @@ describe('useLocalStorage - Comprehensive Coverage', () => {
 
       expect(result.current[0]).toBe('fallback');
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Error reading localStorage key "error-key":',
-        expect.any(Error)
+        expect.stringContaining('Error reading storage key "error-key"')
       );
 
       consoleSpy.mockRestore();
     });
 
     it('sollte localStorage write errors graceful handhaben', () => {
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       localStorageMock.setItem.mockImplementationOnce(() => {
         throw new Error('localStorage write error');
       });
@@ -198,8 +197,9 @@ describe('useLocalStorage - Comprehensive Coverage', () => {
 
       // State should still update even if localStorage fails
       expect(result.current[0]).toBe('new-value');
+      // Now the error goes through the platform service error handling
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Error setting localStorage key "write-error-key":',
+        'WebStorage save error:',
         expect.any(Error)
       );
 
@@ -319,7 +319,7 @@ describe('useLocalStorage - Comprehensive Coverage', () => {
 
       expect(result.current[0]).toBe('updated-special');
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
-        specialKey,
+        'chess_trainer_' + specialKey,
         JSON.stringify('updated-special')
       );
     });

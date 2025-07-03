@@ -52,9 +52,10 @@ describe('ScenarioEngine - Error Handling & Edge Cases', () => {
         new ScenarioEngine(null as any);
       }).toThrow();
       
+      // undefined should NOT throw - it's an optional parameter
       expect(() => {
-        new ScenarioEngine(undefined as any);
-      }).toThrow();
+        new ScenarioEngine(undefined);
+      }).not.toThrow();
     });
 
     it('should handle malformed FEN with correct structure but invalid values', () => {

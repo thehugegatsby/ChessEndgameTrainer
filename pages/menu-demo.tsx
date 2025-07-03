@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Header } from '@shared/components/layout/Header';
 import { AdvancedEndgameMenu } from '@shared/components/navigation/AdvancedEndgameMenu';
 
@@ -98,18 +99,18 @@ export default function MenuDemo() {
 
               <div className="text-center">
                 <div className="inline-flex gap-4">
-                  <a
+                  <Link
                     href="/dashboard"
                     className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     📊 Zurück zum Dashboard
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="/train/1"
                     className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                   >
                     🚀 Training starten
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>

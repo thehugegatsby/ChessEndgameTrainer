@@ -11,14 +11,18 @@ import type {
   TrainingSession, 
   MobileAppConfig 
 } from '../../data/endgames/types';
+import { STORAGE } from '../../constants';
+import { getLogger } from '../logging';
+
+const logger = getLogger().setContext('MobileStorage');
 
 /**
  * Mobile-optimized storage service for chess training app
  * Handles offline functionality and efficient data persistence
  */
 export class MobileStorageService {
-  private readonly storagePrefix = 'chess_training_';
-  private readonly maxStorageSize = 50 * 1024 * 1024; // 50MB limit for mobile
+  private readonly storagePrefix = STORAGE.PREFIX;
+  private readonly maxStorageSize = STORAGE.MAX_SIZE_MOBILE;
   private compressionEnabled = true;
 
   constructor() {
@@ -43,14 +47,14 @@ export class MobileStorageService {
         const usedMB = (estimate.usage || 0) / 1024 / 1024;
         const quotaMB = (estimate.quota || 0) / 1024 / 1024;
         
-        console.log(`[StorageService] 💾 Storage: ${usedMB.toFixed(1)}MB / ${quotaMB.toFixed(1)}MB`);
+        logger.info('Storage capacity check', { usedMB: usedMB.toFixed(1), quotaMB: quotaMB.toFixed(1) });
         
         if (usedMB > quotaMB * 0.8) {
-          console.warn('[StorageService] 🚨 Storage nearly full - consider cleanup');
+          logger.warn('Storage nearly full - consider cleanup', { usedMB, quotaMB, percentage: (usedMB / quotaMB * 100).toFixed(1) });
           this.cleanupOldData();
         }
       } catch (error) {
-        console.warn('[StorageService] Could not estimate storage:', error);
+        logger.warn('Could not estimate storage', error);
       }
     }
   }
