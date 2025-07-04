@@ -1,25 +1,38 @@
 /**
  * @fileoverview Stockfish Message Handler
- * @version 1.0.0
+ * @version 2.0.0
  * @description Handles communication with Stockfish worker
- * Optimized for mobile performance and Android compatibility
+ * Refactored to use serializable response pattern
  */
 
-import type { Move } from '../../../types/chess';
-import type { EngineEvaluation, BestMoveRequest, EvaluationRequest, WorkerMessage } from './types';
-import { Chess } from 'chess.js';
+import type { 
+  EngineEvaluation, 
+  EngineRequest,
+  BestMoveResponse,
+  EvaluationResponse,
+  ErrorResponse
+} from './types';
+import { Chess, Move as ChessJsMove } from 'chess.js';
+
+/**
+ * Internal response type including ready signal
+ */
+type InternalResponse = 
+  | BestMoveResponse 
+  | EvaluationResponse 
+  | ErrorResponse 
+  | { type: 'ready' };
 
 /**
  * Handles all communication with the Stockfish worker
- * Mobile-optimized with proper error handling and logging
+ * Converts UCI protocol messages to structured responses
  */
 export class StockfishMessageHandler {
   private chess: Chess;
-  private currentRequest: BestMoveRequest | EvaluationRequest | null = null;
+  private currentRequest: EngineRequest | null = null;
   private currentEvaluation: EngineEvaluation | null = null;
-  private messageCount = 0; // For mobile debugging
+  private messageCount = 0;
   private uciReady = false;
-  private workerManager: any = null;
 
   constructor() {
     this.chess = new Chess();
@@ -27,9 +40,9 @@ export class StockfishMessageHandler {
 
   /**
    * Processes incoming messages from Stockfish worker
-   * Mobile-optimized with performance tracking
+   * Returns a response object if one is ready, null otherwise
    */
-  handleMessage(message: string): boolean {
+  handleMessage(message: string): InternalResponse | null {
     this.messageCount++;
     
     try {
@@ -38,11 +51,11 @@ export class StockfishMessageHandler {
       // Handle UCI protocol responses
       if (trimmed === 'uciok') {
         this.uciReady = true;
-        return this.handleUciOk();
+        return { type: 'ready' };
       }
       
       if (trimmed === 'readyok') {
-        return this.handleReadyOk();
+        return { type: 'ready' };
       }
       
       // Handle move responses
@@ -52,102 +65,111 @@ export class StockfishMessageHandler {
       
       // Handle evaluation info
       if (trimmed.includes('score')) {
-        return this.handleEvaluationInfo(trimmed);
+        this.handleEvaluationInfo(trimmed);
+        return null; // Continue accumulating info
       }
       
       // Silently handle other info messages
-      if (trimmed.startsWith('info')) {
-        return false; // Continue processing
-      }
-      
-      return false;
+      return null;
       
     } catch (error) {
       console.error('[MessageHandler] Error processing message:', error);
-      return false;
+      if (this.currentRequest) {
+        return {
+          id: this.currentRequest.id,
+          type: 'error',
+          error: `Failed to process message: ${error}`
+        };
+      }
+      return null;
     }
-  }
-
-  /**
-   * Handles UCI OK response
-   */
-  private handleUciOk(): boolean {
-    console.log('[MessageHandler] ✅ UCI protocol ready');
-    return true; // Signal engine ready
-  }
-
-  /**
-   * Handles Ready OK response
-   */
-  private handleReadyOk(): boolean {
-    console.log('[MessageHandler] ✅ Engine ready');
-    return true; // Signal engine ready
   }
 
   /**
    * Handles best move response
-   * Mobile-optimized move parsing
    */
-  private handleBestMove(message: string): boolean {
-    if (!this.currentRequest) return false;
+  private handleBestMove(message: string): InternalResponse | null {
+    if (!this.currentRequest) {
+      console.warn('[MessageHandler] Received bestmove without active request');
+      return null;
+    }
     
     const parts = message.split(' ');
     const moveStr = parts[1];
     
-    if (this.currentRequest.type === 'bestmove') {
-      this.handleBestMoveForBestMoveRequest(moveStr);
-    } else if (this.currentRequest.type === 'evaluation') {
-      this.handleBestMoveForEvaluationRequest();
+    try {
+      if (this.currentRequest.type === 'bestmove') {
+        return this.createBestMoveResponse(moveStr);
+      } else if (this.currentRequest.type === 'evaluation') {
+        return this.createEvaluationResponse();
+      }
+    } finally {
+      // Clear the current request
+      this.currentRequest = null;
+      this.currentEvaluation = null;
     }
     
-    return true;
+    return null;
   }
 
   /**
-   * Handles best move for move request
+   * Creates a best move response
    */
-  private handleBestMoveForBestMoveRequest(moveStr: string): void {
-    const request = this.currentRequest as BestMoveRequest;
+  private createBestMoveResponse(moveStr: string): BestMoveResponse {
+    const requestId = this.currentRequest!.id;
     
     if (moveStr === '(none)' || !moveStr) {
-      request.resolve(null);
-    } else {
-      try {
-        this.chess.load(request.fen);
-        const move = this.chess.move(moveStr);
-        request.resolve(move);
-      } catch (error) {
-        console.warn('[MessageHandler] Failed to parse move:', moveStr, error);
-        request.resolve(null);
-      }
+      return {
+        id: requestId,
+        type: 'bestmove',
+        move: null
+      };
     }
     
-    this.currentRequest = null;
+    try {
+      this.chess.load(this.currentRequest!.fen);
+      const move = this.chess.move(moveStr);
+      
+      return {
+        id: requestId,
+        type: 'bestmove',
+        move: move
+      };
+    } catch (error) {
+      console.warn('[MessageHandler] Failed to parse move:', moveStr, error);
+      return {
+        id: requestId,
+        type: 'bestmove',
+        move: null
+      };
+    }
   }
 
   /**
-   * Handles best move for evaluation request
+   * Creates an evaluation response
    */
-  private handleBestMoveForEvaluationRequest(): void {
-    const request = this.currentRequest as EvaluationRequest;
+  private createEvaluationResponse(): EvaluationResponse {
+    const requestId = this.currentRequest!.id;
     
     // If we haven't set any evaluation yet, use default
     if (!this.currentEvaluation) {
       this.currentEvaluation = { score: 0, mate: null };
     }
     
-    request.resolve(this.currentEvaluation);
-    this.currentRequest = null;
-    this.currentEvaluation = null;
+    return {
+      id: requestId,
+      type: 'evaluation',
+      evaluation: this.currentEvaluation
+    };
   }
 
   /**
    * Handles evaluation information
-   * Mobile-optimized parsing with error handling
+   * Accumulates evaluation data for later response
    */
-  private handleEvaluationInfo(message: string): boolean {
+  private handleEvaluationInfo(message: string): void {
     if (!this.currentRequest || this.currentRequest.type !== 'evaluation') {
-      return false;
+      return;
     }
     
     try {
@@ -163,7 +185,7 @@ export class StockfishMessageHandler {
         
         if (mateMatch) {
           mate = parseInt(mateMatch[1]);
-          score = mate > 0 ? 10000 : -10000; // Large values for mate
+          score = mate > 0 ? 10000 : -10000;
         } else if (scoreMatch) {
           score = parseInt(scoreMatch[1]);
         }
@@ -177,21 +199,17 @@ export class StockfishMessageHandler {
           time: timeMatch ? parseInt(timeMatch[1]) : undefined
         };
       }
-      
-      return false; // Continue processing more info messages
-      
     } catch (error) {
       console.warn('[MessageHandler] Failed to parse evaluation:', error);
-      return false;
     }
   }
 
   /**
    * Sets the current request for processing
    */
-  setCurrentRequest(request: BestMoveRequest | EvaluationRequest): void {
+  setCurrentRequest(request: EngineRequest): void {
     this.currentRequest = request;
-    this.currentEvaluation = null; // Reset evaluation for new request
+    this.currentEvaluation = null;
   }
 
   /**
@@ -203,7 +221,7 @@ export class StockfishMessageHandler {
   }
 
   /**
-   * Gets statistics for mobile debugging
+   * Gets statistics for debugging
    */
   getStats(): { messagesProcessed: number; hasCurrentRequest: boolean } {
     return {
@@ -218,18 +236,4 @@ export class StockfishMessageHandler {
   isUciReady(): boolean {
     return this.uciReady;
   }
-
-  /**
-   * Set worker manager
-   */
-  setWorkerManager(manager: any): void {
-    this.workerManager = manager;
-  }
-
-  /**
-   * Get worker manager
-   */
-  getWorkerManager(): any {
-    return this.workerManager;
-  }
-} 
+}

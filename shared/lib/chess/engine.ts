@@ -1,8 +1,7 @@
-import { Chess } from 'chess.js';
-import type { Move } from '../../types/chess';
+import { Chess, Move as ChessJsMove } from 'chess.js';
 import { validateAndSanitizeFen, isValidFenQuick } from '../../utils/fenValidator';
 
-type ResolveBestMove = (move: Move | null) => void;
+type ResolveBestMove = (move: ChessJsMove | null) => void;
 type ResolveEvaluation = (result: { score: number; mate: number | null }) => void;
 
 enum EngineState {
@@ -265,7 +264,7 @@ export class Engine {
     }
   }
 
-  async getBestMove(fen: string, timeLimit: number = 1000): Promise<Move | null> {
+  async getBestMove(fen: string, timeLimit: number = 1000): Promise<ChessJsMove | null> {
     // Validate and sanitize FEN input
     if (!isValidFenQuick(fen)) {
       console.warn('[Engine] ⚠️ Invalid FEN provided to getBestMove');

@@ -13,7 +13,7 @@
 
 import { LRUCache, type CacheStats } from './LRUCache';
 import type { Engine } from '../chess/engine';
-import type { Move } from '../../types/chess';
+import { Move as ChessJsMove } from 'chess.js';
 
 interface CachedEvaluation {
   score: number;
@@ -23,7 +23,7 @@ interface CachedEvaluation {
 }
 
 interface CachedBestMove {
-  move: Move | null;
+  move: ChessJsMove | null;
   timestamp: number;
   timeLimit: number;
 }
@@ -139,7 +139,7 @@ export class EvaluationCache {
     engine: Engine,
     fen: string,
     timeLimit: number = 1000
-  ): Promise<Move | null> {
+  ): Promise<ChessJsMove | null> {
     const cacheKey = `bestmove:${fen}:${timeLimit}`;
     
     try {
@@ -207,7 +207,7 @@ export class EvaluationCache {
     engine: Engine,
     fen: string,
     timeLimit: number
-  ): Promise<Move | null> {
+  ): Promise<ChessJsMove | null> {
     return await engine.getBestMove(fen, timeLimit);
   }
 

@@ -83,18 +83,18 @@ export const SidebarEngineSection: React.FC<SidebarEngineSectionProps> = ({
           </div>
 
           {/* Win prediction for tablebase positions */}
-          {evaluation.tablebase?.wdl !== undefined && (
+          {evaluation.tablebase?.result?.wdl !== undefined && (
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-500">Result:</span>
               <span className={`font-medium ${
-                evaluation.tablebase.wdl === 2 ? 'text-green-400' : 
-                evaluation.tablebase.wdl === -2 ? 'text-red-400' : 
+                evaluation.tablebase.result.wdl === 2 ? 'text-green-400' : 
+                evaluation.tablebase.result.wdl === -2 ? 'text-red-400' : 
                 'text-yellow-400'
               }`}>
-                {evaluation.tablebase.wdl === 2 ? 'Win' : 
-                 evaluation.tablebase.wdl === -2 ? 'Loss' : 
+                {evaluation.tablebase.result.wdl === 2 ? 'Win' : 
+                 evaluation.tablebase.result.wdl === -2 ? 'Loss' : 
                  'Draw'}
-                {evaluation.tablebase.dtm && ` in ${Math.abs(evaluation.tablebase.dtm)}`}
+                {evaluation.tablebase.result.dtz && ` in ${Math.abs(evaluation.tablebase.result.dtz)}`}
               </span>
             </div>
           )}

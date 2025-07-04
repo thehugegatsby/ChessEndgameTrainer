@@ -1,19 +1,24 @@
-# ChessEndgameTrainer
+# Chess Endgame Trainer 🎯
 
-Eine moderne Web- und Mobile-Anwendung zum Lernen von Schachendspielen.
+[![Next.js](https://img.shields.io/badge/Next.js-15.3.3-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue)](https://www.typescriptlang.org/)
+[![Test Coverage](https://img.shields.io/badge/Coverage-56.15%25-yellow)](./coverage/lcov-report/index.html)
+[![Deployment Ready](https://img.shields.io/badge/Deployment-Ready-green)](./docs/DEPLOYMENT_GUIDE.md)
+
+Eine moderne Web- und Mobile-Anwendung zum systematischen Lernen von Schachendspielen mit KI-Unterstützung.
 
 ## 🎯 Features
 
-- **Interaktives Schachbrett** für Endspielübungen
-- **Stockfish Engine Integration** für perfekte Analyse
-- **Dual Evaluation System** (Engine + Tablebase)
-- **Spaced Repetition System** (FSRS) für optimiertes Lernen
-- **Fortschrittsverfolgung** und Statistiken
-- **Responsive Design** für Desktop und Mobile
-- **Cross-Platform Ready** - Web und Android App
-- **Dark Mode** Support
-- **56.15% Test Coverage** mit 928 Tests
-- **Performance Optimiert** - 75% weniger API-Calls, 31% schnellere Evaluationen
+- **16 Endspiel-Positionen** - Von Bauern bis Turmendspiele
+- **Stockfish Engine Integration** - WASM-basierte KI-Analyse
+- **Dual Evaluation System** - Engine + Lichess Tablebase
+- **Best Moves Display** - Top 3 Züge mit Bewertungen (Lichess-Style)
+- **Brückenbau-Trainer** - Strukturiertes Lernen mit 5 Lektionen
+- **Spaced Repetition** - FSRS-basiertes Lernsystem
+- **Performance Optimiert** - 75% weniger API-Calls, LRU Cache
+- **Responsive Design** - Desktop & Mobile optimiert
+- **Dark Mode** - Augenschonend trainieren
+- **Production Ready** - Vercel Deployment mit Security Headers
 
 ## 🚀 Projektstruktur
 

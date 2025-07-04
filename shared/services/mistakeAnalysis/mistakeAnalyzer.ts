@@ -108,10 +108,10 @@ export function classifyMove(
   let confidence: number;
   
   if (centipawnDelta >= 50) {
-    type = 'EXCELLENT';
+    type = 'PERFECT';
     confidence = Math.min(0.9, 0.7 + (centipawnDelta - 50) / 200);
   } else if (centipawnDelta >= 0) {
-    type = 'GOOD';
+    type = 'CORRECT';
     confidence = 0.7 + centipawnDelta / 100;
   } else {
     const absLoss = Math.abs(centipawnDelta);
@@ -120,19 +120,19 @@ export function classifyMove(
     const endgameMultiplier = context.isEndgame ? 0.5 : 1.0; // Much more strict in endgames
     
     if (absLoss >= thresholds.criticalBlunderThreshold * endgameMultiplier) {
-      type = 'CRITICAL_BLUNDER';
+      type = 'CRITICAL_ERROR';
       confidence = 1.0;
     } else if (absLoss >= thresholds.blunderThreshold * endgameMultiplier) {
       type = 'BLUNDER';
       confidence = Math.min(1.0, 0.9 + (absLoss - thresholds.blunderThreshold) / 200);
     } else if (absLoss >= thresholds.mistakeThreshold * endgameMultiplier) {
-      type = 'MISTAKE';
+      type = 'ERROR';
       confidence = 0.8 + (absLoss - thresholds.mistakeThreshold) / 300;
     } else if (absLoss >= thresholds.inaccuracyThreshold * endgameMultiplier) {
-      type = 'INACCURACY';
+      type = 'IMPRECISE';
       confidence = 0.6 + (absLoss - thresholds.inaccuracyThreshold) / 200;
     } else {
-      type = 'GOOD'; // Very small loss, treat as acceptable
+      type = 'CORRECT'; // Very small loss, treat as acceptable
       confidence = 0.5;
     }
   }
@@ -172,25 +172,25 @@ export function generateMistakeExplanation(
   
   // Opening based on mistake type
   switch (mistakeType) {
-    case 'EXCELLENT':
+    case 'PERFECT':
       explanation = isBeginner 
-        ? 'Great move! This improves your position significantly.'
-        : `Excellent choice! This move gains approximately ${centipawnDelta} centipawns.`;
+        ? 'Perfect move! This is the best possible choice.'
+        : `Perfect choice! This move gains approximately ${centipawnDelta} centipawns.`;
       break;
       
-    case 'GOOD':
+    case 'CORRECT':
       explanation = isBeginner
         ? 'Good move! This keeps your position solid.'
-        : `Solid move with a gain of ${centipawnDelta} centipawns.`;
+        : `Solid move maintaining the position.`;
       break;
       
-    case 'INACCURACY':
+    case 'IMPRECISE':
       explanation = isBeginner
         ? 'This move could be improved. Look for better alternatives.'
         : `Minor inaccuracy costing ${absLoss} centipawns.`;
       break;
       
-    case 'MISTAKE':
+    case 'ERROR':
       explanation = isBeginner
         ? 'This move weakens your position. Take more time to consider alternatives.'
         : `Significant mistake resulting in a ${absLoss} centipawn loss.`;
@@ -202,7 +202,7 @@ export function generateMistakeExplanation(
         : `Major blunder costing ${absLoss} centipawns - this significantly worsens your position.`;
       break;
       
-    case 'CRITICAL_BLUNDER':
+    case 'CRITICAL_ERROR':
       explanation = isBeginner
         ? 'This move is very damaging. Focus on basic tactical patterns and take your time.'
         : `Critical blunder with ${absLoss} centipawn loss - this may have changed the game outcome.`;
@@ -218,7 +218,7 @@ export function generateMistakeExplanation(
   }
   
   // Add encouraging note for beginners making mistakes
-  if (isBeginner && (mistakeType === 'MISTAKE' || mistakeType === 'BLUNDER' || mistakeType === 'CRITICAL_BLUNDER')) {
+  if (isBeginner && (mistakeType === 'ERROR' || mistakeType === 'BLUNDER' || mistakeType === 'CRITICAL_ERROR')) {
     explanation += ' Remember, mistakes are part of learning - keep practicing!';
   }
   

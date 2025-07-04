@@ -1,4 +1,4 @@
-import React, { useRef, useLayoutEffect, useState, useCallback } from 'react';
+import React, { useRef, useLayoutEffect, useEffect, useState, useCallback } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { Square } from 'react-chessboard/dist/chessboard/types';
 import { Move } from 'chess.js';
@@ -63,13 +63,16 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
     }
   }, []);
 
-  // Use useLayoutEffect for synchronous measurement after DOM updates
-  useLayoutEffect(() => {
+  // Use useEffect instead of useLayoutEffect for SSR compatibility
+  const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+
+  // Initial width calculation
+  useIsomorphicLayoutEffect(() => {
     updateWidth();
   }, [updateWidth]);
 
   // ResizeObserver for more precise container size tracking
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!containerRef.current) return;
 
     const resizeObserver = new ResizeObserver(() => {

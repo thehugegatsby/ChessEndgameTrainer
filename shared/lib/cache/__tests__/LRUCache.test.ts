@@ -3,12 +3,12 @@ import { LRUCache } from '../LRUCache';
 describe('LRUCache', () => {
   describe('Basic Operations', () => {
     test('should create cache with specified capacity', () => {
-      const cache = new LRUCache<string, number>(3);
+      const cache = new LRUCache<number>(3);
       expect(cache.size()).toBe(0);
     });
 
     test('should set and get values', () => {
-      const cache = new LRUCache<string, number>(3);
+      const cache = new LRUCache<number>(3);
       
       cache.set('a', 1);
       cache.set('b', 2);
@@ -21,13 +21,13 @@ describe('LRUCache', () => {
     });
 
     test('should return undefined for missing keys', () => {
-      const cache = new LRUCache<string, number>(3);
+      const cache = new LRUCache<number>(3);
       
       expect(cache.get('missing')).toBeUndefined();
     });
 
     test('should update existing values', () => {
-      const cache = new LRUCache<string, number>(3);
+      const cache = new LRUCache<number>(3);
       
       cache.set('a', 1);
       cache.set('a', 2);
@@ -37,7 +37,7 @@ describe('LRUCache', () => {
     });
 
     test('should check if key exists', () => {
-      const cache = new LRUCache<string, number>(3);
+      const cache = new LRUCache<number>(3);
       
       cache.set('a', 1);
       
@@ -46,7 +46,7 @@ describe('LRUCache', () => {
     });
 
     test('should delete values', () => {
-      const cache = new LRUCache<string, number>(3);
+      const cache = new LRUCache<number>(3);
       
       cache.set('a', 1);
       cache.set('b', 2);
@@ -59,7 +59,7 @@ describe('LRUCache', () => {
     });
 
     test('should clear all values', () => {
-      const cache = new LRUCache<string, number>(3);
+      const cache = new LRUCache<number>(3);
       
       cache.set('a', 1);
       cache.set('b', 2);
@@ -76,7 +76,7 @@ describe('LRUCache', () => {
 
   describe('LRU Behavior', () => {
     test('should evict least recently used item when capacity exceeded', () => {
-      const cache = new LRUCache<string, number>(3);
+      const cache = new LRUCache<number>(3);
       
       cache.set('a', 1);
       cache.set('b', 2);
@@ -91,7 +91,7 @@ describe('LRUCache', () => {
     });
 
     test('should update item to most recently used on get', () => {
-      const cache = new LRUCache<string, number>(3);
+      const cache = new LRUCache<number>(3);
       
       cache.set('a', 1);
       cache.set('b', 2);
@@ -110,7 +110,7 @@ describe('LRUCache', () => {
     });
 
     test('should update item to most recently used on set', () => {
-      const cache = new LRUCache<string, number>(3);
+      const cache = new LRUCache<number>(3);
       
       cache.set('a', 1);
       cache.set('b', 2);
@@ -200,7 +200,7 @@ describe('LRUCache', () => {
     });
 
     test('should maintain order with many accesses', () => {
-      const cache = new LRUCache<string, number>(3);
+      const cache = new LRUCache<number>(3);
       
       cache.set('a', 1);
       cache.set('b', 2);
@@ -224,7 +224,7 @@ describe('LRUCache', () => {
 
   describe('Iterator Support', () => {
     test('should iterate over entries', () => {
-      const cache = new LRUCache<string, number>(3);
+      const cache = new LRUCache<number>(3);
       
       cache.set('a', 1);
       cache.set('b', 2);
@@ -242,7 +242,7 @@ describe('LRUCache', () => {
     });
 
     test('should get all keys', () => {
-      const cache = new LRUCache<string, number>(3);
+      const cache = new LRUCache<number>(3);
       
       cache.set('a', 1);
       cache.set('b', 2);
@@ -257,7 +257,7 @@ describe('LRUCache', () => {
     });
 
     test('should get all values', () => {
-      const cache = new LRUCache<string, number>(3);
+      const cache = new LRUCache<number>(3);
       
       cache.set('a', 1);
       cache.set('b', 2);

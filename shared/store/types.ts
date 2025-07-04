@@ -4,13 +4,17 @@
  */
 
 import { 
-  EndgamePosition, 
   Move, 
   ChessInstance, 
-  GameStatus,
+  GameStatus
+} from '../types';
+
+import {
   EvaluationData,
   DualEvaluation
-} from '../types';
+} from '../types/evaluation';
+
+import { EndgamePosition } from '../data/endgames/types';
 
 // User state
 export interface UserState {

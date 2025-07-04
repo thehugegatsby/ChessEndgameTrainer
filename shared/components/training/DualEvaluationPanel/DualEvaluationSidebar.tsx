@@ -114,14 +114,14 @@ export const DualEvaluationSidebar: React.FC<DualEvaluationSidebarProps> = ({
   };
 
   const getTablebaseDisplay = (tablebase?: DualEvaluation['tablebase']) => {
-    if (!tablebase?.wdl) return null;
+    if (!tablebase?.result?.wdl) return null;
     
-    const resultText = tablebase.wdl === 2 ? 'Gewinn' : 
-                      tablebase.wdl === -2 ? 'Verlust' : 
+    const resultText = tablebase.result.wdl === 2 ? 'Gewinn' : 
+                      tablebase.result.wdl === -2 ? 'Verlust' : 
                       'Remis';
     
-    const resultColor = tablebase.wdl === 2 ? 'text-green-400' : 
-                       tablebase.wdl === -2 ? 'text-red-400' : 
+    const resultColor = tablebase.result.wdl === 2 ? 'text-green-400' : 
+                       tablebase.result.wdl === -2 ? 'text-red-400' : 
                        'text-yellow-400';
 
     return (
@@ -129,7 +129,7 @@ export const DualEvaluationSidebar: React.FC<DualEvaluationSidebarProps> = ({
         <span className="text-gray-500">Tablebase:</span>
         <span className={`font-medium ${resultColor}`}>
           {resultText}
-          {tablebase.dtm && ` in ${Math.abs(tablebase.dtm)}`}
+          {tablebase.result.dtz && ` in ${Math.abs(tablebase.result.dtz)}`}
         </span>
       </div>
     );

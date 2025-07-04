@@ -11,9 +11,10 @@
  * - Clean separation of concerns for maintainability
  */
 
-import type { Move } from '../../../types/chess';
-import type { EngineEvaluation, BestMoveRequest, EvaluationRequest, EngineConfig } from './types';
+import { Move as ChessJsMove } from 'chess.js';
+import type { EngineEvaluation, EngineRequest, EngineResponse, EngineConfig } from './types';
 import { StockfishWorkerManager } from './workerManager';
+import { RequestManager } from './requestManager';
 
 /**
  * Main Chess Engine class with modular architecture
@@ -22,15 +23,16 @@ import { StockfishWorkerManager } from './workerManager';
 export class Engine {
   private static instance: Engine | null = null;
   private workerManager: StockfishWorkerManager;
-  private requestQueue: Array<BestMoveRequest | EvaluationRequest> = [];
+  private requestManager: RequestManager;
+  private requestQueue: Array<EngineRequest> = [];
   private isProcessingQueue = false;
-  private requestCounter = 0; // For unique request IDs
 
   /**
    * Private constructor for singleton pattern
    */
   private constructor(config?: EngineConfig) {
     this.workerManager = new StockfishWorkerManager(config);
+    this.requestManager = new RequestManager();
     this.initializeEngine();
   }
 
@@ -56,6 +58,11 @@ export class Engine {
    */
   private async initializeEngine(): Promise<void> {
     try {
+      // Set up response handler
+      this.workerManager.setResponseCallback((response) => {
+        this.handleWorkerResponse(response);
+      });
+      
       const success = await this.workerManager.initialize();
       
       if (success) {
@@ -70,11 +77,33 @@ export class Engine {
   }
 
   /**
+   * Handles responses from the worker
+   */
+  private handleWorkerResponse(response: EngineResponse): void {
+    console.debug('[Engine] Received response:', response.type, response.id);
+    
+    switch (response.type) {
+      case 'bestmove':
+        this.requestManager.resolveBestMoveRequest(response.id, response.move);
+        break;
+      case 'evaluation':
+        this.requestManager.resolveEvaluationRequest(response.id, response.evaluation);
+        break;
+      case 'error':
+        this.requestManager.rejectRequest(response.id, response.error);
+        break;
+    }
+    
+    // Process complete, continue with queue
+    this.onRequestComplete();
+  }
+
+  /**
    * Gets the best move for a position
    * @param fen - Position to analyze
    * @param timeLimit - Time limit in milliseconds (mobile optimized)
    */
-  async getBestMove(fen: string, timeLimit: number = 1000): Promise<Move | null> {
+  async getBestMove(fen: string, timeLimit: number = 1000): Promise<ChessJsMove | null> {
     // Lazy initialization for SSR -> Browser transition
     if (!this.workerManager.isWorkerReady() && typeof window !== 'undefined') {
       console.log('[Engine] 🔄 Lazy initialization for getBestMove');
@@ -86,13 +115,17 @@ export class Engine {
       return null;
     }
 
-    return new Promise<Move | null>((resolve) => {
-      const request: BestMoveRequest = {
+    return new Promise<ChessJsMove | null>((resolve, reject) => {
+      const id = this.requestManager.generateRequestId('bestmove');
+      
+      // Register the request with timeout handling
+      this.requestManager.registerRequest(id, 'bestmove', resolve, reject, timeLimit);
+      
+      const request: EngineRequest = {
         type: 'bestmove',
+        id,
         fen,
-        timeLimit,
-        id: `bestmove-${++this.requestCounter}`,
-        resolve
+        timeLimit
       };
       
       this.queueRequest(request);
@@ -115,13 +148,18 @@ export class Engine {
       return { score: 0, mate: null };
     }
 
-    return new Promise<EngineEvaluation>((resolve) => {
-      const request: EvaluationRequest = {
+    return new Promise<EngineEvaluation>((resolve, reject) => {
+      const id = this.requestManager.generateRequestId('evaluation');
+      const timeLimit = 3000; // 3 seconds for evaluation
+      
+      // Register the request with timeout handling
+      this.requestManager.registerRequest(id, 'evaluation', resolve, reject, timeLimit);
+      
+      const request: EngineRequest = {
         type: 'evaluation',
+        id,
         fen,
-        timeLimit: 3000, // 3 seconds for evaluation
-        id: `eval-${++this.requestCounter}`,
-        resolve
+        timeLimit
       };
       
       this.queueRequest(request);
@@ -131,7 +169,7 @@ export class Engine {
   /**
    * Queues a request for processing
    */
-  private queueRequest(request: BestMoveRequest | EvaluationRequest): void {
+  private queueRequest(request: EngineRequest): void {
     this.requestQueue.push(request);
     this.processQueue();
   }
@@ -163,17 +201,12 @@ export class Engine {
         this.workerManager.sendCommand(`go depth 15`);
       }
       
-      // Set timeout for mobile performance
-      setTimeout(() => {
-        if (this.isProcessingQueue) {
-          console.warn('[Engine] ⏰ Request timeout:', request.id);
-          this.handleRequestTimeout(request);
-        }
-      }, request.timeLimit + 1000); // Add 1 second buffer
+      // Note: Timeout is now handled by RequestManager
       
     } catch (error) {
       console.error('[Engine] 💥 Error processing request:', error);
-      this.handleRequestError(request, error);
+      this.requestManager.rejectRequest(request.id, `Processing error: ${error}`);
+      this.onRequestComplete();
     }
   }
 
@@ -185,36 +218,6 @@ export class Engine {
     this.processQueue(); // Process next request
   }
 
-  /**
-   * Handles request timeout
-   */
-  private handleRequestTimeout(request: BestMoveRequest | EvaluationRequest): void {
-    console.warn('[Engine] Request timed out:', request.id);
-    
-    if (request.type === 'bestmove') {
-      (request as BestMoveRequest).resolve(null);
-    } else {
-      (request as EvaluationRequest).resolve({ score: 0, mate: null });
-    }
-    
-    this.workerManager.getMessageHandler().clearCurrentRequest();
-    this.onRequestComplete();
-  }
-
-  /**
-   * Handles request error
-   */
-  private handleRequestError(request: BestMoveRequest | EvaluationRequest, error: any): void {
-    console.error('[Engine] Request error:', error);
-    
-    if (request.type === 'bestmove') {
-      (request as BestMoveRequest).resolve(null);
-    } else {
-      (request as EvaluationRequest).resolve({ score: 0, mate: null });
-    }
-    
-    this.onRequestComplete();
-  }
 
   /**
    * Checks if engine is ready
@@ -231,6 +234,7 @@ export class Engine {
       this.requestQueue = [];
       this.isProcessingQueue = false;
       this.workerManager.getMessageHandler().clearCurrentRequest();
+      this.requestManager.cancelAllRequests('Engine reset');
       
       console.log('[Engine] 🔄 Engine reset');
     } catch (error) {
@@ -277,7 +281,7 @@ export class Engine {
     isReady: boolean;
     queueLength: number;
     isProcessing: boolean;
-    requestCounter: number;
+    requestStats: any;
     workerStats: any;
     config: EngineConfig;
   } {
@@ -285,7 +289,7 @@ export class Engine {
       isReady: this.isReady(),
       queueLength: this.requestQueue.length,
       isProcessing: this.isProcessingQueue,
-      requestCounter: this.requestCounter,
+      requestStats: this.requestManager.getStats(),
       workerStats: this.workerManager.getStats(),
       config: this.workerManager.getConfig()
     };

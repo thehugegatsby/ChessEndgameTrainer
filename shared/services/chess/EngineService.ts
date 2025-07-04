@@ -55,7 +55,7 @@ export class EngineService {
       };
       
       this.engines.set(id, engineInstance);
-      logger.info(`Created engine '${id}'`, { engineId: id, totalEngines: this.engines.size });
+      logger.info(`Created engine '${id}' (total: ${this.engines.size})`);
     } else {
       // Update usage
       engineInstance.lastUsed = Date.now();
@@ -76,7 +76,7 @@ export class EngineService {
       
       if (engineInstance.refCount <= 0) {
         // Engine no longer in use, eligible for cleanup
-        logger.debug(`Engine '${id}' released, available for cleanup`, { engineId: id });
+        logger.debug(`Engine '${id}' released, available for cleanup`);
       }
     }
   }
@@ -90,9 +90,9 @@ export class EngineService {
       try {
         await engineInstance.engine.quit();
         this.engines.delete(id);
-        logger.info(`Cleaned up engine '${id}'`, { engineId: id, remainingEngines: this.engines.size });
+        logger.info(`Cleaned up engine '${id}' (remaining: ${this.engines.size})`);
       } catch (error) {
-        logger.warn(`Error cleaning up engine '${id}'`, error, { engineId: id });
+        logger.warn(`Error cleaning up engine '${id}': ${error}`);
       }
     }
   }

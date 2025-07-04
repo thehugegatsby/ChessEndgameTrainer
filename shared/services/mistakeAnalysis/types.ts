@@ -3,7 +3,8 @@
  * Provides intelligent feedback on chess moves based on evaluation changes
  */
 
-import type { EvaluationResult } from '../../types/evaluation';
+// EvaluationResult type removed - not exported from evaluation types
+// Using local types instead
 
 /**
  * Classification of move mistakes based on tablebase results and learning value

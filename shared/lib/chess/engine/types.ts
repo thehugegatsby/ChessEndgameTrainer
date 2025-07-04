@@ -5,34 +5,68 @@
  * Optimized for mobile performance and Android compatibility
  */
 
-import type { Move } from '../../../types/chess';
+import { Move as ChessJsMove } from 'chess.js';
 
 /**
- * Request types for engine operations
+ * Base request interface for engine operations
  * Mobile-optimized with appropriate timeouts
  */
-export interface EngineRequest {
-  type: 'bestmove' | 'evaluation';
+export interface BaseEngineRequest {
+  id: string; // Unique request ID for tracking
   fen: string;
   timeLimit: number;
-  id: string; // Unique request ID for mobile debugging
 }
 
 /**
- * Best move request with mobile optimization
+ * Best move request (serializable)
  */
-export interface BestMoveRequest extends EngineRequest {
+export interface BestMoveRequest extends BaseEngineRequest {
   type: 'bestmove';
-  resolve: (move: Move | null) => void;
 }
 
 /**
- * Evaluation request with performance tracking
+ * Evaluation request (serializable)
  */
-export interface EvaluationRequest extends EngineRequest {
+export interface EvaluationRequest extends BaseEngineRequest {
   type: 'evaluation';
-  resolve: (result: EngineEvaluation) => void;
 }
+
+/**
+ * Union of all possible engine requests
+ */
+export type EngineRequest = BestMoveRequest | EvaluationRequest;
+
+/**
+ * Best move response from worker
+ */
+export interface BestMoveResponse {
+  id: string; // Must match request ID
+  type: 'bestmove';
+  move: ChessJsMove | null;
+}
+
+/**
+ * Evaluation response from worker
+ */
+export interface EvaluationResponse {
+  id: string; // Must match request ID
+  type: 'evaluation';
+  evaluation: EngineEvaluation;
+}
+
+/**
+ * Error response from worker
+ */
+export interface ErrorResponse {
+  id: string; // ID of failed request
+  type: 'error';
+  error: string; // Error message
+}
+
+/**
+ * Union of all possible engine responses
+ */
+export type EngineResponse = BestMoveResponse | EvaluationResponse | ErrorResponse;
 
 /**
  * Engine evaluation result

@@ -297,9 +297,9 @@ export const useTrainingOptimized = () => {
     }, [state.moveHistory, state.currentPosition]);
 
     // Transform evaluations to match original interface
-    const evaluations = state.evaluationHistory.map(eval => ({
-      evaluation: eval.score / 100, // Convert centipawns to pawns
-      mateInMoves: eval.mate
+    const evaluations = state.evaluationHistory.map(evalItem => ({
+      evaluation: evalItem.score / 100, // Convert centipawns to pawns
+      mateInMoves: evalItem.mate
     }));
 
     return {

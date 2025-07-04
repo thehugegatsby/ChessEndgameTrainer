@@ -449,6 +449,9 @@ export const getEducationalTip = (
       default: 'Gewinn noch möglich, aber sehr schwierig.'
     },
     fehler: {
+      robust: 'Gewinn verspielt - zurück zum Anfang!',
+      präzise: 'Gewinn verspielt - zurück zum Anfang!',
+      haarig: 'Gewinn verspielt - zurück zum Anfang!',
       default: 'Gewinn verspielt - zurück zum Anfang!'
     }
   };

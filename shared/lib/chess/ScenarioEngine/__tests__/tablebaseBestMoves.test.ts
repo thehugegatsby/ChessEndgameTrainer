@@ -38,8 +38,8 @@ describe('ScenarioEngine - Tablebase Best Moves', () => {
       clearCache: jest.fn(),
       getCacheStats: jest.fn().mockReturnValue({ size: 0, maxSize: 100 })
     } as any;
-
-    // Mock the TablebaseService constructor
+    
+    // Mock TablebaseService constructor
     (TablebaseService as jest.MockedClass<typeof TablebaseService>).mockImplementation(() => mockTablebaseService);
   });
 
@@ -82,7 +82,10 @@ describe('ScenarioEngine - Tablebase Best Moves', () => {
       // We check up to 9 moves (count * 3)
       for (let i = 0; i < 9; i++) {
         mockTablebaseService.getTablebaseInfo
-          .mockResolvedValueOnce({ wdl: -2, dtm: 5 + i, isTablebasePosition: true });
+          .mockResolvedValueOnce({ 
+            isTablebasePosition: true,
+            result: { wdl: -2, dtz: 5 + i, category: 'loss', precise: true }
+          });
       }
 
       const result = await engine.getBestMoves(fen, 3);
@@ -104,9 +107,18 @@ describe('ScenarioEngine - Tablebase Best Moves', () => {
 
       // Mock different WDL values
       mockTablebaseService.getTablebaseInfo
-        .mockResolvedValueOnce({ wdl: 0, dtm: undefined, isTablebasePosition: true })  // Draw move
-        .mockResolvedValueOnce({ wdl: -2, dtm: 10, isTablebasePosition: true })        // Win move
-        .mockResolvedValueOnce({ wdl: 2, dtm: undefined, isTablebasePosition: true }); // Loss move
+        .mockResolvedValueOnce({ 
+          isTablebasePosition: true,
+          result: { wdl: 0, dtz: undefined, category: 'draw', precise: true }
+        })  // Draw move
+        .mockResolvedValueOnce({ 
+          isTablebasePosition: true,
+          result: { wdl: -2, dtz: 10, category: 'loss', precise: true }
+        })  // Win move (from opponent's perspective)
+        .mockResolvedValueOnce({ 
+          isTablebasePosition: true,
+          result: { wdl: 2, dtz: undefined, category: 'win', precise: true }
+        }); // Loss move (from opponent's perspective)
 
       const result = await engine.getBestMoves(fen, 3);
 

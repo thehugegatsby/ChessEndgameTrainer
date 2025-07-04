@@ -122,7 +122,7 @@ export class ScenarioEngine {
     from: string; 
     to: string; 
     promotion?: 'q' | 'r' | 'b' | 'n' 
-  }): Promise<(CustomMove & { color: 'w' | 'b' }) | null> {
+  }): Promise<any | null> {
     const turn = this.chess.turn();
     
     try {
@@ -354,7 +354,7 @@ export class ScenarioEngine {
             tablebaseMoves.push({
               move: move.san,
               wdl: wdlFromCurrentPlayer,
-              dtm: info.result.dtm || info.result.dtz,
+              dtm: info.result.dtz ?? undefined,
               evaluation: wdlFromCurrentPlayer === 2 ? 'Win' : wdlFromCurrentPlayer === -2 ? 'Loss' : 'Draw'
             });
           }

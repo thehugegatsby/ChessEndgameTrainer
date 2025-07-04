@@ -40,6 +40,9 @@ export interface EndgamePosition {
     specificTips?: string[];
   };
   
+  // Brückenbau-spezifische Hinweise für progressive Lernhilfe
+  bridgeHints?: string[];
+  
   // Tags for search and filtering (mobile app features)
   tags: string[];
   
@@ -91,6 +94,18 @@ export interface EndgameCategory {
   skillLevel?: string;        // "Beginner", "Advanced", etc.
   color?: string;            // Hex color for mobile theming
   isAvailableOffline?: boolean; // For Android offline mode
+}
+
+/**
+ * Chapter system for thematic learning
+ */
+export interface EndgameChapter {
+  id: string;
+  name: string;           // "Brückenbau", "Bauernendspiele", etc.
+  description: string;
+  category: string;       // Links to EndgameCategory
+  lessons: EndgamePosition[];
+  totalLessons: number;   // For "Brückenbau 1/3" display
 }
 
 /**

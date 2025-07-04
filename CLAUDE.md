@@ -7,8 +7,24 @@
 - **Status**: Production Ready Web, Mobile Architecture vorbereitet
 - **Test Coverage**: 56.15% (903/928 tests passing after optimization)
 - **Codebase**: 113 TypeScript files, ~15,000 LOC
-- **Features**: 6 Endspiel-Positionen, Stockfish.js Integration, Spaced Repetition
+- **Features**: 16 Endspiel-Positionen, Stockfish.js Integration, Spaced Repetition
 - **Performance**: 75% weniger API-Calls, 31% schnellere Evaluations, 53% schnellere Navigation
+- **Deployment**: Vercel-ready mit WASM Support
+
+## 📁 Dokumentationsstruktur (2025-01-15)
+
+```
+.
+├── README.md                      # Haupteinstieg
+├── CLAUDE.md                      # AI-Kontext (diese Datei)
+└── docs/
+    ├── ARCHITECTURE.md            # Systemarchitektur
+    ├── DEPLOYMENT_GUIDE.md        # Deployment-Anleitung  
+    ├── DEVELOPMENT_HISTORY.md     # Entwicklungsverlauf
+    ├── SECURITY_IMPLEMENTATION_GUIDE.md  # Security-Guide
+    └── features/
+        └── brueckenbau-trainer.md # Feature-Dokumentation
+```
 
 ## 🚀 Essential Commands
 ```bash
@@ -62,24 +78,32 @@ app/mobile/         # React Native App (vorbereitet)
 - Mock Strategy für Worker APIs und Browser APIs
 - Goal: 80% Coverage für Production
 
-## ⚠️ Known Issues & Technical Debt
+## ⚠️ Known Issues & Technical Debt (Updated 2025-01-15)
+
+### Critical Priority
+1. **Mobile Implementation Gap**: React Native Struktur existiert, aber 0% Test Coverage und keine Platform Abstraction
+2. **Security Vulnerabilities**: Keine Input Sanitization für FEN Strings, potentielle XSS Risiken
 
 ### High Priority
-1. **Type Definitions**: `types/chess.ts` nur 5 Zeilen - needs expansion
-2. **Mobile Tests**: 0% coverage für mobile components
-3. **Platform Abstraction**: Direkte Browser API usage ohne Fallbacks
-4. **Error Handling**: Inkonsistent, needs standardization
+1. **Type Definitions**: `types/chess.ts` hat jetzt 127 Zeilen (nicht mehr "nur 5") - Dokumentation veraltet
+2. **State Management Fragmentation**: Complex Context Optimierungen während Zustand ungenutzt bleibt
+3. **Error Handling**: Inkonsistent across Services, Mix aus try-catch und console.warn
+4. **Memory Management**: Potentielle Memory Leaks wenn Engine Cleanup fehlschlägt
 
 ### Medium Priority
-- Magic numbers ohne Konstanten (z.B. `50 * 1024 * 1024`)
-- Console.logs statt proper logging service
+- Magic numbers ohne Konstanten (z.B. `350` in LRUCache, `300ms` Debouncing)
+- Console.logs statt proper logging service (~20 Files betroffen)
+- Direkte Browser API Usage ohne Platform Checks
 - Kein Code-Splitting oder Lazy Loading
-- State Management nicht zentralisiert
+- Overengineering: 3 separate Evaluation Services könnten unified werden
 
 ### Low Priority
 - Internationale Unterstützung fehlt
 - Analytics Integration fehlt
-- PWA Features nicht implementiert
+- PWA Features nicht vollständig implementiert
+
+### Architecture Analysis
+Siehe detaillierte Analyse in: `ARCHITECTURE_ANALYSIS.md`
 
 ## 🎯 Current Development Priorities
 

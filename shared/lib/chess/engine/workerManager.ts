@@ -6,7 +6,7 @@
  */
 
 import { StockfishMessageHandler } from './messageHandler';
-import type { EngineConfig } from './types';
+import type { EngineConfig, EngineResponse } from './types';
 
 /**
  * Manages the Stockfish Web Worker
@@ -19,6 +19,7 @@ export class StockfishWorkerManager {
   private initializationAttempts = 0;
   private readonly maxInitAttempts = 3;
   private readyCallbacks: (() => void)[] = [];
+  private responseCallback: ((response: EngineResponse) => void) | null = null;
 
   constructor(private config: EngineConfig = this.getDefaultConfig()) {
     this.messageHandler = new StockfishMessageHandler();
@@ -68,11 +69,16 @@ export class StockfishWorkerManager {
     if (!this.worker) return;
 
     this.worker.onmessage = (e) => {
-      const isReady = this.messageHandler.handleMessage(e.data);
+      const response = this.messageHandler.handleMessage(e.data);
       
-      if (isReady && !this.isReady) {
-        this.isReady = true;
-        this.notifyReady();
+      if (response) {
+        if (response.type === 'ready' && !this.isReady) {
+          this.isReady = true;
+          this.notifyReady();
+        } else if (response.type !== 'ready' && this.responseCallback) {
+          // Forward engine responses to the callback
+          this.responseCallback(response as EngineResponse);
+        }
       }
     };
 
@@ -211,6 +217,13 @@ export class StockfishWorkerManager {
    */
   getConfig(): EngineConfig {
     return { ...this.config };
+  }
+
+  /**
+   * Sets the response callback for engine responses
+   */
+  setResponseCallback(callback: (response: EngineResponse) => void): void {
+    this.responseCallback = callback;
   }
 
   /**
