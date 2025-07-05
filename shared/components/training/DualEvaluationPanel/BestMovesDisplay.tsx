@@ -80,51 +80,55 @@ export const BestMovesDisplay: React.FC<BestMovesDisplayProps> = ({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="flex gap-2">
       {/* Engine best moves */}
-      {showEngine && engineMoves.length > 0 && (
-        <div className="px-4">
-          <div className="text-xs text-gray-500 mb-1.5">Engine</div>
-          <div className="space-y-1">
-            {engineMoves.slice(0, 3).map((move, index) => (
-              <div 
-                key={index}
-                className="flex items-center justify-between py-1 px-2 rounded hover:bg-gray-800 transition-colors cursor-pointer"
-              >
-                <span className="text-sm font-medium text-gray-200">{move.move}</span>
-                <span className={`text-sm font-mono font-bold ${getEvalColor(move)}`}>
-                  {formatEngineEval(move)}
-                </span>
-              </div>
-            ))}
-          </div>
+      {showEngine && (
+        <div className="flex-1">
+          {engineMoves.length > 0 ? (
+            <div className="space-y-1">
+              {engineMoves.slice(0, 3).map((move, index) => (
+                <div 
+                  key={index}
+                  className="flex items-center justify-between py-1 px-2 rounded hover:bg-gray-800 transition-colors cursor-pointer text-xs"
+                >
+                  <span className="font-medium text-gray-200">{move.move}</span>
+                  <span className={`font-mono font-bold ${getEvalColor(move)}`}>
+                    {formatEngineEval(move)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : !isLoading && (
+            <div className="text-xs text-gray-500 text-center py-2">No engine moves</div>
+          )}
         </div>
+      )}
+
+      {/* Separator if both are shown */}
+      {showEngine && showTablebase && (
+        <div className="w-px bg-gray-700"></div>
       )}
 
       {/* Tablebase best moves */}
-      {showTablebase && tablebaseMoves.length > 0 && (
-        <div className="px-4">
-          <div className="text-xs text-gray-500 mb-1.5">Tablebase</div>
-          <div className="space-y-1">
-            {tablebaseMoves.slice(0, 3).map((move, index) => (
-              <div 
-                key={index}
-                className="flex items-center justify-between py-1 px-2 rounded hover:bg-gray-800 transition-colors cursor-pointer"
-              >
-                <span className="text-sm font-medium text-gray-200">{move.move}</span>
-                <span className={`text-sm font-mono font-bold ${getEvalColor(move, true)}`}>
-                  {formatTablebaseEval(move)}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* No moves available */}
-      {showEngine && engineMoves.length === 0 && showTablebase && tablebaseMoves.length === 0 && !isLoading && (
-        <div className="px-4 py-2">
-          <p className="text-sm text-gray-500">No analysis available</p>
+      {showTablebase && (
+        <div className="flex-1">
+          {tablebaseMoves.length > 0 ? (
+            <div className="space-y-1">
+              {tablebaseMoves.slice(0, 3).map((move, index) => (
+                <div 
+                  key={index}
+                  className="flex items-center justify-between py-1 px-2 rounded hover:bg-gray-800 transition-colors cursor-pointer text-xs"
+                >
+                  <span className="font-medium text-gray-200">{move.move}</span>
+                  <span className={`font-mono font-bold ${getEvalColor(move, true)}`}>
+                    {formatTablebaseEval(move)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : !isLoading && (
+            <div className="text-xs text-gray-500 text-center py-2">No tablebase</div>
+          )}
         </div>
       )}
     </div>

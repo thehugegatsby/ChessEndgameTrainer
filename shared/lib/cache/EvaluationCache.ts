@@ -37,6 +37,9 @@ export interface EvaluationCacheStats extends CacheStats {
   deduplicationHits: number;
   deduplicationMisses: number;
   memoryUsageBytes: number;
+  engineEvals?: number;
+  tablebasePositions?: number;
+  estimatedBytes?: number;
 }
 
 /**
@@ -230,16 +233,22 @@ export class EvaluationCache {
     const evalStats = this.evaluationCache.getStats();
     const bestMoveStats = this.bestMoveCache.getStats();
     
+    const totalHits = evalStats.hits + bestMoveStats.hits;
+    const totalMisses = evalStats.misses + bestMoveStats.misses;
+    const totalAttempts = totalHits + totalMisses;
+    
     return {
-      hits: evalStats.hits + bestMoveStats.hits,
-      misses: evalStats.misses + bestMoveStats.misses,
+      hits: totalHits,
+      misses: totalMisses,
       size: evalStats.size + bestMoveStats.size,
       maxSize: evalStats.maxSize + bestMoveStats.maxSize,
-      hitRate: (evalStats.hits + bestMoveStats.hits) / 
-               (evalStats.hits + evalStats.misses + bestMoveStats.hits + bestMoveStats.misses) || 0,
+      hitRate: totalAttempts > 0 ? totalHits / totalAttempts : 0,
       deduplicationHits: this.deduplicationHits,
       deduplicationMisses: this.deduplicationMisses,
-      memoryUsageBytes: this.evaluationCache.getMemoryUsage() + this.bestMoveCache.getMemoryUsage()
+      memoryUsageBytes: this.evaluationCache.getMemoryUsage() + this.bestMoveCache.getMemoryUsage(),
+      engineEvals: evalStats.size,
+      tablebasePositions: 0, // Not tracking tablebase separately for now
+      estimatedBytes: this.evaluationCache.getMemoryUsage() + this.bestMoveCache.getMemoryUsage()
     };
   }
 

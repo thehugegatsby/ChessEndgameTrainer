@@ -35,30 +35,23 @@ describe('StockfishMessageHandler', () => {
   describe('Initialization', () => {
     test('should create handler instance', () => {
       expect(handler).toBeDefined();
-      expect(handler.isUciReady()).toBe(false);
-    });
-
-    test('should set worker manager', () => {
-      handler.setWorkerManager(mockWorkerManager);
-      
-      // Internal reference should be set
-      expect((handler as any).workerManager).toBe(mockWorkerManager);
+      expect(Chess).toHaveBeenCalled();
     });
   });
 
   describe('UCI Protocol', () => {
     test('should handle uciok message', () => {
-      handler.setWorkerManager(mockWorkerManager);
+      const response = handler.handleMessage('uciok');
       
-      handler.handleMessage('uciok');
-      
-      expect(handler.isUciReady()).toBe(true);
+      expect(response).toEqual({ type: 'ready' });
     });
 
     test('should ignore non-UCI messages before ready', () => {
-      handler.handleMessage('info depth 10');
-      handler.handleMessage('bestmove e2e4');
+      const response1 = handler.handleMessage('info depth 10');
+      const response2 = handler.handleMessage('bestmove e2e4');
       
+      expect(response1).toBeNull();
+      expect(response2).toBeNull();
       expect(handler.isUciReady()).toBe(false);
     });
   });
@@ -97,15 +90,11 @@ describe('StockfishMessageHandler', () => {
 
   describe('Best Move Handling', () => {
     test('should handle valid bestmove response', () => {
-      handler.setWorkerManager(mockWorkerManager);
-      
-      const resolve = jest.fn();
       const request: BestMoveRequest = {
         type: 'bestmove',
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         timeLimit: 1000,
-        id: 'test-1',
-        resolve
+        id: 'test-1'
       };
       
       mockChess.move.mockReturnValue({
@@ -118,23 +107,25 @@ describe('StockfishMessageHandler', () => {
       } as any);
       
       handler.setCurrentRequest(request);
-      handler.handleMessage('bestmove e2e4');
+      const response = handler.handleMessage('bestmove e2e4');
       
       expect(mockChess.load).toHaveBeenCalledWith(request.fen);
       expect(mockChess.move).toHaveBeenCalledWith('e2e4');
-      expect(resolve).toHaveBeenCalledWith({
-        from: 'e2',
-        to: 'e4',
-        san: 'e4',
-        flags: 'b',
-        piece: 'p',
-        color: 'w'
+      expect(response).toEqual({
+        id: 'test-1',
+        type: 'bestmove',
+        move: {
+          from: 'e2',
+          to: 'e4',
+          san: 'e4',
+          flags: 'b',
+          piece: 'p',
+          color: 'w'
+        }
       });
-      expect(mockWorkerManager.onRequestComplete).toHaveBeenCalled();
     });
 
     test('should handle bestmove (none)', () => {
-      handler.setWorkerManager(mockWorkerManager);
       
       const resolve = jest.fn();
       const request: BestMoveRequest = {
@@ -146,14 +137,16 @@ describe('StockfishMessageHandler', () => {
       };
       
       handler.setCurrentRequest(request);
-      handler.handleMessage('bestmove (none)');
+      const response = handler.handleMessage('bestmove (none)');
       
-      expect(resolve).toHaveBeenCalledWith(null);
-      expect(mockWorkerManager.onRequestComplete).toHaveBeenCalled();
+      expect(response).toEqual({
+        id: 'test-1',
+        type: 'bestmove',
+        move: null
+      });
     });
 
     test('should handle invalid move', () => {
-      handler.setWorkerManager(mockWorkerManager);
       
       const resolve = jest.fn();
       const request: BestMoveRequest = {
@@ -167,13 +160,16 @@ describe('StockfishMessageHandler', () => {
       mockChess.move.mockReturnValue(null);
       
       handler.setCurrentRequest(request);
-      handler.handleMessage('bestmove invalid');
+      const response = handler.handleMessage('bestmove invalid');
       
-      expect(resolve).toHaveBeenCalledWith(null);
+      expect(response).toEqual({
+        id: 'test-1',
+        type: 'bestmove',
+        move: null
+      });
     });
 
     test('should handle chess.js exceptions', () => {
-      handler.setWorkerManager(mockWorkerManager);
       
       const resolve = jest.fn();
       const request: BestMoveRequest = {
@@ -189,14 +185,16 @@ describe('StockfishMessageHandler', () => {
       });
       
       handler.setCurrentRequest(request);
-      handler.handleMessage('bestmove e2e4');
+      const response = handler.handleMessage('bestmove e2e4');
       
-      expect(resolve).toHaveBeenCalledWith(null);
-      expect(mockWorkerManager.onRequestComplete).toHaveBeenCalled();
+      expect(response).toEqual({
+        id: 'test-1',
+        type: 'bestmove',
+        move: null
+      });
     });
 
     test('should ignore bestmove without current request', () => {
-      handler.setWorkerManager(mockWorkerManager);
       
       handler.handleMessage('bestmove e2e4');
       
@@ -204,7 +202,6 @@ describe('StockfishMessageHandler', () => {
     });
 
     test('should ignore bestmove for evaluation request', () => {
-      handler.setWorkerManager(mockWorkerManager);
       
       const request: EvaluationRequest = {
         type: 'evaluation',
@@ -215,16 +212,19 @@ describe('StockfishMessageHandler', () => {
       };
       
       handler.setCurrentRequest(request);
-      handler.handleMessage('bestmove e2e4');
+      const response = handler.handleMessage('bestmove e2e4');
       
       // Should process as end of evaluation
-      expect(request.resolve).toHaveBeenCalledWith({ score: 0, mate: null });
+      expect(response).toEqual({
+        id: 'eval-1',
+        type: 'evaluation',
+        evaluation: { score: 0, mate: null, depth: undefined, nodes: undefined, time: undefined }
+      });
     });
   });
 
   describe('Evaluation Handling', () => {
     test('should handle centipawn evaluation', () => {
-      handler.setWorkerManager(mockWorkerManager);
       
       const resolve = jest.fn();
       const request: EvaluationRequest = {
@@ -241,13 +241,16 @@ describe('StockfishMessageHandler', () => {
       handler.handleMessage('info depth 10 score cp 42');
       
       // End with bestmove
-      handler.handleMessage('bestmove e2e4');
+      const response = handler.handleMessage('bestmove e2e4');
       
-      expect(resolve).toHaveBeenCalledWith({ score: 42, mate: null });
+      expect(response).toEqual({
+        id: 'eval-1',
+        type: 'evaluation',
+        evaluation: { score: 42, mate: null, depth: 10, nodes: undefined, time: undefined }
+      });
     });
 
     test('should handle mate evaluation', () => {
-      handler.setWorkerManager(mockWorkerManager);
       
       const resolve = jest.fn();
       const request: EvaluationRequest = {
@@ -262,13 +265,16 @@ describe('StockfishMessageHandler', () => {
       
       // Process mate evaluation
       handler.handleMessage('info depth 15 score mate 3');
-      handler.handleMessage('bestmove e2e4');
+      const response = handler.handleMessage('bestmove e2e4');
       
-      expect(resolve).toHaveBeenCalledWith({ score: 10000, mate: 3 });
+      expect(response).toEqual({
+        id: 'eval-1',
+        type: 'evaluation',
+        evaluation: { score: 10000, mate: 3, depth: 15, nodes: undefined, time: undefined }
+      });
     });
 
     test('should handle negative mate evaluation', () => {
-      handler.setWorkerManager(mockWorkerManager);
       
       const resolve = jest.fn();
       const request: EvaluationRequest = {
@@ -282,13 +288,16 @@ describe('StockfishMessageHandler', () => {
       handler.setCurrentRequest(request);
       
       handler.handleMessage('info depth 10 score mate -2');
-      handler.handleMessage('bestmove e2e4');
+      const response = handler.handleMessage('bestmove e2e4');
       
-      expect(resolve).toHaveBeenCalledWith({ score: -10000, mate: -2 });
+      expect(response).toEqual({
+        id: 'eval-1',
+        type: 'evaluation',
+        evaluation: { score: -10000, mate: -2, depth: 10, nodes: undefined, time: undefined }
+      });
     });
 
     test('should update evaluation with latest info', () => {
-      handler.setWorkerManager(mockWorkerManager);
       
       const resolve = jest.fn();
       const request: EvaluationRequest = {
@@ -305,14 +314,17 @@ describe('StockfishMessageHandler', () => {
       handler.handleMessage('info depth 5 score cp 10');
       handler.handleMessage('info depth 10 score cp 25');
       handler.handleMessage('info depth 15 score cp 42');
-      handler.handleMessage('bestmove e2e4');
+      const response = handler.handleMessage('bestmove e2e4');
       
       // Should use latest evaluation
-      expect(resolve).toHaveBeenCalledWith({ score: 42, mate: null });
+      expect(response).toEqual({
+        id: 'eval-1',
+        type: 'evaluation',
+        evaluation: { score: 42, mate: null, depth: 15, nodes: undefined, time: undefined }
+      });
     });
 
     test('should handle evaluation without score', () => {
-      handler.setWorkerManager(mockWorkerManager);
       
       const resolve = jest.fn();
       const request: EvaluationRequest = {
@@ -327,15 +339,18 @@ describe('StockfishMessageHandler', () => {
       
       // No score info
       handler.handleMessage('info depth 10 nodes 12345');
-      handler.handleMessage('bestmove e2e4');
+      const response = handler.handleMessage('bestmove e2e4');
       
-      expect(resolve).toHaveBeenCalledWith({ score: 0, mate: null });
+      expect(response).toEqual({
+        id: 'eval-1',
+        type: 'evaluation',
+        evaluation: { score: 0, mate: null }
+      });
     });
   });
 
   describe('Message Parsing', () => {
     test('should handle various info message formats', () => {
-      handler.setWorkerManager(mockWorkerManager);
       
       const request: EvaluationRequest = {
         type: 'evaluation',
@@ -352,12 +367,11 @@ describe('StockfishMessageHandler', () => {
       handler.handleMessage('info score cp -100 depth 8');
       handler.handleMessage('info depth 12 score mate 5 pv e2e4 e7e5');
       
-      // Verify last evaluation stored
-      expect((handler as any).currentEvaluation).toEqual({ score: 10000, mate: 5 });
+      // Verify last evaluation stored (currentEvaluation includes more fields now)
+      expect((handler as any).currentEvaluation).toMatchObject({ score: 10000, mate: 5 });
     });
 
     test('should ignore malformed messages', () => {
-      handler.setWorkerManager(mockWorkerManager);
       
       const request: EvaluationRequest = {
         type: 'evaluation',
@@ -372,16 +386,19 @@ describe('StockfishMessageHandler', () => {
       // Malformed messages
       handler.handleMessage('info score cp');
       handler.handleMessage('info depth score mate');
-      handler.handleMessage('bestmove');
+      const response = handler.handleMessage('bestmove');
       
       // Should complete with default
-      expect(request.resolve).toHaveBeenCalledWith({ score: 0, mate: null });
+      expect(response).toEqual({
+        id: 'eval-1',
+        type: 'evaluation',
+        evaluation: { score: 0, mate: null, depth: undefined, nodes: undefined, time: undefined }
+      });
     });
   });
 
   describe('Edge Cases', () => {
     test('should handle empty messages', () => {
-      handler.setWorkerManager(mockWorkerManager);
       
       // Should not throw
       handler.handleMessage('');
@@ -405,7 +422,6 @@ describe('StockfishMessageHandler', () => {
     });
 
     test('should handle concurrent evaluation updates', () => {
-      handler.setWorkerManager(mockWorkerManager);
       
       const request: EvaluationRequest = {
         type: 'evaluation',
@@ -422,14 +438,17 @@ describe('StockfishMessageHandler', () => {
         handler.handleMessage(`info depth ${i} score cp ${i * 10}`);
       }
       
-      handler.handleMessage('bestmove e2e4');
+      const response = handler.handleMessage('bestmove e2e4');
       
       // Should have latest value
-      expect(request.resolve).toHaveBeenCalledWith({ score: 200, mate: null });
+      expect(response).toEqual({
+        id: 'eval-1',
+        type: 'evaluation',
+        evaluation: { score: 200, mate: null, depth: 20, nodes: undefined, time: undefined }
+      });
     });
 
     test('should handle score overflow', () => {
-      handler.setWorkerManager(mockWorkerManager);
       
       const request: EvaluationRequest = {
         type: 'evaluation',
@@ -442,9 +461,13 @@ describe('StockfishMessageHandler', () => {
       handler.setCurrentRequest(request);
       
       handler.handleMessage('info depth 10 score cp 999999');
-      handler.handleMessage('bestmove e2e4');
+      const response = handler.handleMessage('bestmove e2e4');
       
-      expect(request.resolve).toHaveBeenCalledWith({ score: 999999, mate: null });
+      expect(response).toEqual({
+        id: 'eval-1',
+        type: 'evaluation',
+        evaluation: { score: 999999, mate: null, depth: 10, nodes: undefined, time: undefined }
+      });
     });
   });
 });

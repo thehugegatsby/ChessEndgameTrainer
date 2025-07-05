@@ -85,7 +85,11 @@ export class RequestManager {
       return false;
     }
 
-    clearTimeout(request.timeoutId);
+    try {
+      clearTimeout(request.timeoutId);
+    } catch (error) {
+      console.warn('[RequestManager] Error clearing timeout:', error);
+    }
     this.pendingRequests.delete(id);
     request.resolve(move);
     
@@ -110,7 +114,11 @@ export class RequestManager {
       return false;
     }
 
-    clearTimeout(request.timeoutId);
+    try {
+      clearTimeout(request.timeoutId);
+    } catch (error) {
+      console.warn('[RequestManager] Error clearing timeout:', error);
+    }
     this.pendingRequests.delete(id);
     request.resolve(evaluation);
     
@@ -130,7 +138,11 @@ export class RequestManager {
       return false;
     }
 
-    clearTimeout(request.timeoutId);
+    try {
+      clearTimeout(request.timeoutId);
+    } catch (error) {
+      console.warn('[RequestManager] Error clearing timeout:', error);
+    }
     this.pendingRequests.delete(id);
     request.reject(new Error(error));
     
@@ -145,7 +157,11 @@ export class RequestManager {
   cancelRequest(id: string): void {
     const request = this.pendingRequests.get(id);
     if (request) {
-      clearTimeout(request.timeoutId);
+      try {
+        clearTimeout(request.timeoutId);
+      } catch (error) {
+        console.warn('[RequestManager] Error clearing timeout:', error);
+      }
       this.pendingRequests.delete(id);
       request.reject(new Error(`Request ${id} was cancelled`));
     }
@@ -155,12 +171,17 @@ export class RequestManager {
    * Cancels all pending requests
    */
   cancelAllRequests(reason: string = 'All requests cancelled'): void {
+    const count = this.pendingRequests.size;
     for (const [id, request] of this.pendingRequests.entries()) {
-      clearTimeout(request.timeoutId);
+      try {
+        clearTimeout(request.timeoutId);
+      } catch (error) {
+        console.warn('[RequestManager] Error clearing timeout:', error);
+      }
       request.reject(new Error(`${reason}: ${id}`));
     }
     this.pendingRequests.clear();
-    console.log(`[RequestManager] Cancelled all ${this.pendingRequests.size} pending requests`);
+    console.log(`[RequestManager] Cancelled all ${count} pending requests`);
   }
 
   /**

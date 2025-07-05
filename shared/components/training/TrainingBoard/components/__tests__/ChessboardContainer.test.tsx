@@ -56,7 +56,7 @@ describe('ChessboardContainer', () => {
       const chessboard = screen.getByTestId('chessboard');
       expect(chessboard).toBeInTheDocument();
       expect(chessboard).toHaveAttribute('data-position', defaultProps.currentFen);
-      expect(chessboard).toHaveAttribute('data-board-width', '800');
+      expect(chessboard).toHaveAttribute('data-board-width', '840');
       expect(chessboard).toHaveAttribute('data-pieces-draggable', 'true');
     });
 

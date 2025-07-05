@@ -50,8 +50,8 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
       
       // Brett muss quadratisch sein - nimm die kleinere Dimension
       const maxBoardSize = Math.min(containerWidth, containerHeight);
-      // RIESIGES BRETT: 99.8% der verfügbaren Größe, mindestens 800px
-      const newWidth = Math.max(800, Math.floor(maxBoardSize * 0.998));
+      // RIESIGES BRETT: 100% der verfügbaren Größe (5% größer als vorher), mindestens 840px
+      const newWidth = Math.max(840, Math.floor(maxBoardSize * 1.0));
       
       // Update nur bei signifikanten Änderungen > 10px um Resize-Loops zu vermeiden
       setCalculatedWidth(prev => {
@@ -96,7 +96,7 @@ export const ChessboardContainer: React.FC<ChessboardContainerProps> = ({
   }, [updateWidth]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-full flex items-center justify-center p-1">
+    <div ref={containerRef} className="relative w-full h-full flex items-center justify-center p-0">
       {/* Chessboard */}
       <Chessboard
         key={`board-${resetKey}`}

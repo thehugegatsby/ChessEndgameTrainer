@@ -12,19 +12,6 @@ export const STORAGE = {
   CACHE_DURATION: 24 * 60 * 60 * 1000,   // 24 hours in milliseconds
 } as const;
 
-// Engine Constants
-export const ENGINE = {
-  DEFAULT_DEPTH: 20,
-  MIN_DEPTH: 10,
-  MAX_DEPTH: 30,
-  ANALYSIS_TIMEOUT: 30000,               // 30 seconds
-  MOVE_TIMEOUT: 5000,                    // 5 seconds
-  INITIALIZATION_TIMEOUT: 10000,         // 10 seconds
-  MAX_INSTANCES: 1,                      // Max concurrent engine instances
-  MEMORY_LIMIT: 128,                     // MB
-  THREAD_COUNT: 1,                       // Single thread for browser compatibility
-} as const;
-
 // Performance Constants
 export const PERFORMANCE = {
   DEBOUNCE_DELAY: 300,                   // 300ms default debounce
@@ -83,13 +70,6 @@ export const NETWORK = {
   BATCH_UPLOAD_SIZE: 10,                 // Items to upload in batch
 } as const;
 
-// File Size Constants
-export const FILE_SIZE = {
-  MAX_UPLOAD: 10 * 1024 * 1024,          // 10MB max upload
-  MAX_IMAGE: 5 * 1024 * 1024,            // 5MB max image size
-  MAX_LOG_FILE: 1 * 1024 * 1024,         // 1MB max log file
-} as const;
-
 // Time Constants (in milliseconds)
 export const TIME = {
   SECOND: 1000,
@@ -99,36 +79,13 @@ export const TIME = {
   WEEK: 7 * 24 * 60 * 60 * 1000,
 } as const;
 
-// Error Messages
-export const ERROR_MESSAGES = {
-  ENGINE_INIT_FAILED: 'Failed to initialize chess engine',
-  ENGINE_TIMEOUT: 'Engine analysis timed out',
-  STORAGE_FULL: 'Storage capacity exceeded',
-  NETWORK_ERROR: 'Network connection error',
-  INVALID_MOVE: 'Invalid move attempted',
-  POSITION_NOT_FOUND: 'Training position not found',
-} as const;
-
-// Feature Flags
-export const FEATURES = {
-  ENABLE_TABLEBASE: true,
-  ENABLE_ANALYTICS: false,
-  ENABLE_OFFLINE_MODE: true,
-  ENABLE_SOUND: true,
-  ENABLE_NOTIFICATIONS: true,
-  ENABLE_CLOUD_SYNC: false,
-} as const;
 
 // Type utilities for constants
 export type StorageConstants = typeof STORAGE;
-export type EngineConstants = typeof ENGINE;
 export type PerformanceConstants = typeof PERFORMANCE;
 export type UIConstants = typeof UI;
 export type ChessConstants = typeof CHESS;
 export type EvaluationConstants = typeof EVALUATION;
 export type TrainingConstants = typeof TRAINING;
 export type NetworkConstants = typeof NETWORK;
-export type FileSizeConstants = typeof FILE_SIZE;
 export type TimeConstants = typeof TIME;
-export type ErrorMessages = typeof ERROR_MESSAGES;
-export type FeatureFlags = typeof FEATURES;

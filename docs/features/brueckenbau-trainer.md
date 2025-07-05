@@ -497,4 +497,162 @@ const TRACKING_EVENTS = {
 
 ---
 
+## 12. Didaktische Verbesserungen (2025-01-04)
+
+### Problemanalyse
+Schwächere Spieler machen oft zufällige Züge ohne klares Verständnis des Brückenbau-Prinzips. Sie erhalten wenig strukturiertes Feedback und verstehen nicht, warum ihre Züge gut oder schlecht sind.
+
+### Ziel
+Spieler sollen am Ende in der Lage sein zu erkennen: "AHA, Brückenbau-Stellung! Jetzt sind meine Ziele: König auf die 8. Reihe, Bauer auf die 7., dann König abdrängen, Turm auf die 5. Reihe und dann Brückenbau machen."
+
+### Empfohlene Features (Priorisiert nach Nutzen/Aufwand)
+
+#### 1. **Visuelle Feldmarkierung** (Höchste Priorität - Quick Win)
+Mit `react-chessboard` und der `customSquareStyles` prop:
+```typescript
+const highlightStyles = {
+  'a8': { backgroundColor: 'rgba(0, 255, 0, 0.4)' }, // Königsziel
+  'b8': { backgroundColor: 'rgba(0, 255, 0, 0.4)' }, // Königsziel
+  'c8': { backgroundColor: 'rgba(0, 255, 0, 0.4)' }, // Königsziel
+  'e5': { backgroundColor: 'rgba(0, 0, 255, 0.4)' }, // Turm-Kontrolllinie
+  'f7': { backgroundColor: 'rgba(255, 0, 0, 0.4)' }  // Gefahrenzone für gegn. König
+};
+```
+**Nutzen**: Entlastet kognitives Gedächtnis, Spieler *sehen* wichtige Felder
+**Aufwand**: Minimal mit bestehender react-chessboard API
+
+#### 2. **Phasen-Tracking-System** (Priorität 2)
+```typescript
+interface BridgePhase {
+  id: number;
+  name: string;
+  criteria: (position: Chess) => boolean;
+  hint: string;
+  icon: string;
+}
+
+const phases: BridgePhase[] = [
+  { 
+    id: 1, 
+    name: "König zur 8. Reihe",
+    criteria: (pos) => getKingRank(pos, 'w') === 8,
+    hint: "Bringe deinen König zur 8. Reihe",
+    icon: "👑"
+  },
+  { 
+    id: 2, 
+    name: "Bauer auf 7. Reihe",
+    criteria: (pos) => getPawnRank(pos, 'w') === 7,
+    hint: "Der Bauer muss auf die 7. Reihe",
+    icon: "♟️"
+  },
+  { 
+    id: 3, 
+    name: "König abdrängen",
+    criteria: (pos) => getKingDistance(pos) > 2,
+    hint: "Dränge den gegnerischen König ab",
+    icon: "🚫"
+  },
+  { 
+    id: 4, 
+    name: "Turm-Brücke bauen",
+    criteria: (pos) => isRookOnCorrectRank(pos),
+    hint: "Turm auf die 5. Reihe für die Brücke",
+    icon: "🌉"
+  }
+];
+```
+
+**UI-Anzeige**:
+```
+Brückenbau - Phase 2/4
+✅ König auf 8. Reihe
+⏳ Bauer auf 7. Reihe (aktuell)
+⏹️ Gegnerischen König abdrängen
+⏹️ Turm-Brücke bauen
+```
+
+**Nutzen**: Gibt Struktur und Orientierung, macht Fortschritt sichtbar
+**Aufwand**: Mittel - Phasen-Kriterien müssen klar definiert werden
+
+#### 3. **Kontextuelle Zugbewertungen** (Priorität 3)
+Erweitern der bestehenden Evaluation-Display:
+```typescript
+const bridgeSpecificFeedback = {
+  'optimal': {
+    base: '🟢 Perfekt!',
+    phase1: 'König nähert sich der 8. Reihe',
+    phase2: 'Bauer rückt sicher vor',
+    phase3: 'Gegnerischer König wird abgedrängt',
+    phase4: 'Turm kontrolliert die wichtige Linie'
+  },
+  'good': {
+    base: '✅ Gut!',
+    phase1: 'Richtige Richtung für den König',
+    phase2: 'Bauer-Vorstoß vorbereitet',
+    phase3: 'Du gewinnst Raum',
+    phase4: 'Turm gut positioniert'
+  },
+  'mistake': {
+    base: '🔻 Vorsicht!',
+    phase1: 'König entfernt sich vom Ziel',
+    phase2: 'Bauer zu früh vorgezogen',
+    phase3: 'Gegnerischer König wird wieder aktiv',
+    phase4: 'Turm verliert die Kontrolle'
+  }
+};
+```
+
+**Nutzen**: Spezifisches Feedback statt generischer Bewertungen
+**Aufwand**: Baut auf bestehender Infrastruktur auf
+
+### Mittelfristige Features (Phase 2)
+
+#### 4. **Adaptive Hilfe-Stufen**
+Nach 3 suboptimalen Zügen in derselben Phase:
+- Level 1: "Denk an die Königsposition" (allgemein)
+- Level 2: "Der König muss näher zur 8. Reihe" (spezifisch)
+- Level 3: "Versuch Kd7" (konkret)
+
+#### 5. **Fehleranalyse mit Erklärung**
+Bei Fehlern:
+- "Warum war das ein Fehler?" Button
+- Visualisierung der besseren Alternative
+- Mini-Lektion zum verpassten Konzept
+
+#### 6. **Interaktive Demos**
+- "Demo ansehen" Button bei Stagnation
+- Animierte Demonstration der korrekten Technik
+- Slow-Motion mit Erklärungen
+
+### Technische Integration
+
+**Bestehende Infrastruktur nutzen**:
+- `react-chessboard` für visuelle Markierungen
+- `TrainingContext` für Phasen-State
+- `EvaluationDisplay` für erweitertes Feedback
+- `chess.js` für Position-Analyse
+
+**Neue Komponenten**:
+- `BridgePhaseTracker` - Anzeige des aktuellen Fortschritts
+- `FieldHighlighter` - Visuelle Feldmarkierungen
+- `AdaptiveHintSystem` - Gestufte Hilfestellung
+
+### Erwartete Ergebnisse
+
+1. **Bessere Mustererkennung**: Spieler erkennen Brückenbau-Stellungen sofort
+2. **Strukturiertes Lernen**: Klare Phasen statt chaotisches Probieren
+3. **Höhere Erfolgsquote**: Durch visuelle Hilfen und strukturiertes Feedback
+4. **Nachhaltigeres Lernen**: Prinzipien verstehen statt Züge auswendig lernen
+
+### Implementierungsreihenfolge
+
+1. **Woche 1**: Visuelle Feldmarkierung (Quick Win)
+2. **Woche 2**: Phasen-Tracking-System
+3. **Woche 3**: Kontextuelle Zugbewertungen
+4. **Woche 4**: Testing und Feinabstimmung
+5. **Später**: Adaptive Features basierend auf Nutzerfeedback
+
+---
+
 **Dieses Dokument dient als vollständige Spezifikation für Claude Code zur autonomen Umsetzung des erweiterten Brückenbau-Trainers.**

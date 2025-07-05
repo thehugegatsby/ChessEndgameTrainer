@@ -160,11 +160,23 @@ describe('ScenarioEngine - Tablebase Best Moves', () => {
       const fen = '8/8/8/8/8/8/8/4K1Qk w - - 0 1';
       engine = new ScenarioEngine(fen);
 
+      // Mock engine moves
+      mockEngine.getMultiPV.mockResolvedValue([
+        { move: 'g8g1', score: 9000, mate: 5 }
+      ]);
+
+      // Mock tablebase response for the position after the move
       mockTablebaseService.getTablebaseInfo
-        .mockResolvedValue({ wdl: -2, dtm: 5, isTablebasePosition: true });
+        .mockResolvedValue({ 
+          isTablebasePosition: true,
+          result: { wdl: -2, dtz: 5, category: 'loss', precise: true }
+        });
 
       const result = await engine.getBestMoves(fen, 1);
 
+      // Should have at least one tablebase move
+      expect(result.tablebase.length).toBeGreaterThan(0);
+      
       // Should be in algebraic notation (e.g., "Qg1+", not "g8g1")
       expect(result.tablebase[0].move).toMatch(/^[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8][\+#]?$/);
     });

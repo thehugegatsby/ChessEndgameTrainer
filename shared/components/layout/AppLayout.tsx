@@ -2,6 +2,7 @@ import React, { useState, ReactNode } from 'react';
 import { Header } from './Header';
 import { AdvancedEndgameMenu } from '../navigation/AdvancedEndgameMenu';
 import { DarkModeToggle } from '../ui/DarkModeToggle';
+import { SettingsIcon } from '../ui/SettingsIcon';
 import Link from 'next/link';
 
 interface AppLayoutProps {
@@ -20,7 +21,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      <div className="flex">
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-gray-900 border-b border-gray-700">
+        <div className="flex items-center justify-between px-4 py-3">
+          <h1 className="text-xl font-bold text-white">Endgame Training</h1>
+          <SettingsIcon />
+        </div>
+      </header>
+      
+      <div className="flex pt-14"> {/* Add padding-top for fixed header */}
         {/* Advanced Endgame Menu */}
         <AdvancedEndgameMenu 
           isOpen={showMenu}

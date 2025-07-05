@@ -1,6 +1,24 @@
 /**
- * Centralized Engine Management Service
- * Manages Stockfish engine instances with proper cleanup and resource management
+ * @fileoverview Centralized Engine Management Service
+ * @description Manages Stockfish engine instances with proper cleanup and resource management
+ * 
+ * AI_NOTE: ENGINE POOLING & RESOURCE MANAGEMENT!
+ * - Manages up to 5 ScenarioEngine instances (maxInstances)
+ * - Automatic cleanup of idle engines after 5 minutes
+ * - Reference counting for shared engine usage
+ * - Critical for mobile memory management
+ * 
+ * ARCHITECTURE:
+ * - Singleton pattern (again!)
+ * - Map-based engine pool with ID keys
+ * - Periodic cleanup timer (every 60s)
+ * - LRU eviction when at capacity
+ * 
+ * PERFORMANCE OPTIMIZATIONS:
+ * - Reuses engines instead of creating new ones
+ * - Tracks lastUsed for LRU eviction
+ * - Reference counting prevents premature cleanup
+ * - Automatic idle cleanup reduces memory pressure
  */
 
 import { ScenarioEngine } from '@shared/lib/chess/ScenarioEngine';
@@ -15,6 +33,20 @@ interface EngineInstance {
   refCount: number;
 }
 
+/**
+ * Engine Service Singleton
+ * 
+ * AI_NOTE: RESOURCE LIMITS & TIMING:
+ * - maxInstances = 5: Mobile memory constraint (~100MB total)
+ * - maxIdleTime = 5min: Balance between memory and re-init cost
+ * - Cleanup runs every 60s (not too aggressive)
+ * 
+ * USAGE PATTERN:
+ * 1. getEngine('training-123') - Gets/creates engine
+ * 2. Use engine for moves/evaluation
+ * 3. releaseEngine('training-123') - Decrements refCount
+ * 4. Auto-cleanup when refCount=0 and idle>5min
+ */
 export class EngineService {
   private static instance: EngineService;
   private engines: Map<string, EngineInstance> = new Map();
@@ -35,23 +67,42 @@ export class EngineService {
 
   /**
    * Get or create an engine instance for a specific context
+   * 
+   * AI_NOTE: SMART ENGINE REUSE!
+   * - Reuses existing engine if available (performance win)
+   * - Creates new engine only if needed
+   * - Auto-evicts oldest engine when at capacity
+   * 
+   * TYPICAL IDs:
+   * - 'default': General purpose
+   * - 'training-{positionId}': Position-specific engine
+   * - 'analysis': Deep analysis engine
+   * 
+   * WARNING: Always call releaseEngine() when done!
    */
   async getEngine(id: string = 'default'): Promise<ScenarioEngine> {
     let engineInstance = this.engines.get(id);
 
     if (!engineInstance) {
-      // Check if we're at max capacity and cleanup until under limit
+      // AI_NOTE: LRU EVICTION when at capacity!
+      // This prevents unbounded memory growth on mobile
+      // Prioritizes cleaning up unused engines first
       while (this.engines.size >= this.maxInstances) {
         await this.cleanupOldest();
       }
 
-      // Create new engine (uses default starting position)
+      // AI_NOTE: NEW ENGINE CREATION
+      // ScenarioEngine constructor:
+      // - Creates Chess.js instance
+      // - Initializes with starting position
+      // - Tracks instance for memory management
+      // Cost: ~20MB memory + worker initialization time
       const engine = new ScenarioEngine();
       engineInstance = {
         id,
         engine,
         lastUsed: Date.now(),
-        refCount: 1
+        refCount: 1  // Start with 1 reference
       };
       
       this.engines.set(id, engineInstance);
@@ -99,6 +150,13 @@ export class EngineService {
 
   /**
    * Cleanup the oldest engine (prioritize unused engines)
+   * 
+   * AI_NOTE: TWO-PASS LRU ALGORITHM!
+   * 1st pass: Find oldest UNUSED engine (refCount=0)
+   * 2nd pass: If all in use, evict oldest ACTIVE engine
+   * 
+   * This prevents evicting an active engine when unused ones exist
+   * Critical for good UX - don't interrupt active games!
    */
   private async cleanupOldest(): Promise<void> {
     let oldestId = '';
@@ -153,6 +211,16 @@ export class EngineService {
 
   /**
    * Start periodic cleanup timer
+   * 
+   * AI_NOTE: BROWSER-ONLY TIMER!
+   * - Checks typeof window to avoid SSR issues
+   * - Runs every 60 seconds (balanced frequency)
+   * - Cleans up engines idle for >5 minutes
+   * 
+   * MEMORY IMPACT:
+   * - Each cleanup can free ~20MB per engine
+   * - Critical for long-running sessions
+   * - Prevents memory leaks from abandoned engines
    */
   private startCleanupTimer(): void {
     if (typeof window !== 'undefined') {
@@ -183,6 +251,20 @@ export class EngineService {
 
   /**
    * Cleanup all engines (call on app shutdown)
+   * 
+   * AI_NOTE: CRITICAL CLEANUP METHOD!
+   * Call this when:
+   * - App is closing/refreshing
+   * - User navigates away from training
+   * - Memory pressure events
+   * - Test teardown
+   * 
+   * Cleans up:
+   * - All engine instances (frees ~100MB total)
+   * - Periodic timer (prevents zombie timers)
+   * - Worker threads (critical on mobile)
+   * 
+   * Uses Promise.all for parallel cleanup (faster)
    */
   async cleanup(): Promise<void> {
     if (this.cleanupInterval) {

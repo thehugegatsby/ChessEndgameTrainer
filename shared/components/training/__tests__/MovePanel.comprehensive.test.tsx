@@ -85,53 +85,73 @@ describe('MovePanel - Comprehensive Coverage', () => {
 
   describe('Evaluation Display', () => {
     it('should display evaluation symbol for excellent moves', () => {
-      const excellentEval = [{ evaluation: 2.5, mateInMoves: undefined }];
+      // First entry is initial position eval, second is after first move
+      const excellentEval = [
+        { evaluation: 0, mateInMoves: undefined }, // Initial position
+        { evaluation: 2.5, mateInMoves: undefined } // After white's move
+      ];
       render(<MovePanel moves={[mockMoves[0]]} showEvaluations={true} evaluations={excellentEval} />);
       
       expect(screen.getByText('✨')).toBeInTheDocument();
     });
 
     it('should display evaluation symbol for neutral moves', () => {
-      const neutralEval = [{ evaluation: 0.0, mateInMoves: undefined }];
+      // First entry is initial position eval, second is after first move
+      const neutralEval = [
+        { evaluation: 0, mateInMoves: undefined }, // Initial position
+        { evaluation: 0.0, mateInMoves: undefined } // After white's move
+      ];
       render(<MovePanel moves={[mockMoves[0]]} showEvaluations={true} evaluations={neutralEval} />);
       
       expect(screen.getByText('⚪')).toBeInTheDocument();
     });
 
     it('should display mate evaluations correctly', () => {
-      const mateEval = [{ evaluation: 0, mateInMoves: 3 }];
+      // First entry is initial position eval, second is after first move
+      const mateEval = [
+        { evaluation: 0, mateInMoves: undefined }, // Initial position
+        { evaluation: 0, mateInMoves: 3 } // After white's move - mate in 3
+      ];
       render(<MovePanel moves={[mockMoves[0]]} showEvaluations={true} evaluations={mateEval} />);
       
       expect(screen.getByText('#3')).toBeInTheDocument();
     });
 
     it('should display tablebase symbols when available', () => {
-      const tablebaseEval = [{ 
-        evaluation: 0, 
-        mateInMoves: undefined,
-        tablebase: {
-          isTablebasePosition: true,
-          wdlBefore: 1, // win
-          wdlAfter: 1,  // win maintained
-          category: 'win'
+      // First entry is initial position eval, second is after first move
+      const tablebaseEval = [
+        { evaluation: 0, mateInMoves: undefined }, // Initial position
+        { 
+          evaluation: 0, 
+          mateInMoves: undefined,
+          tablebase: {
+            isTablebasePosition: true,
+            wdlBefore: 2, // win (2 = win from white perspective)
+            wdlAfter: 2,  // win maintained
+            category: 'win'
+          }
         }
-      }];
+      ];
       render(<MovePanel moves={[mockMoves[0]]} showEvaluations={true} evaluations={tablebaseEval} />);
       
       expect(screen.getByText('✅')).toBeInTheDocument();
     });
 
     it('should prioritize tablebase over engine evaluation', () => {
-      const tablebaseEval = [{ 
-        evaluation: -5.0, // Would be catastrophic by engine
-        mateInMoves: undefined,
-        tablebase: {
-          isTablebasePosition: true,
-          wdlBefore: 1, // win
-          wdlAfter: 1,  // win maintained  
-          category: 'win'
+      // First entry is initial position eval, second is after first move
+      const tablebaseEval = [
+        { evaluation: 0, mateInMoves: undefined }, // Initial position
+        { 
+          evaluation: -5.0, // Would be catastrophic by engine
+          mateInMoves: undefined,
+          tablebase: {
+            isTablebasePosition: true,
+            wdlBefore: 2, // win (2 = win from white perspective)
+            wdlAfter: 2,  // win maintained  
+            category: 'win'
+          }
         }
-      }];
+      ];
       render(<MovePanel moves={[mockMoves[0]]} showEvaluations={true} evaluations={tablebaseEval} />);
       
       // Should show tablebase symbol (✅) not engine symbol (🔴)

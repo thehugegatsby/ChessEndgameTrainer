@@ -11,6 +11,12 @@ import {
 /**
  * Get move quality evaluation (how good was this specific move)
  * This compares the played move with the best available alternative
+ * 
+ * AI_NOTE: This is the ENGINE-based evaluation, not tablebase!
+ * For endgame training, prefer getMoveQualityByTablebaseComparison() when available.
+ * This function uses absolute values because a "good move" is good regardless of color.
+ * 
+ * QUIRK: isPlayerMove parameter is unused - legacy from earlier version.
  */
 export const getMoveQualityDisplay = (
   evaluation: number, 
@@ -96,6 +102,16 @@ export const getMoveQualityDisplay = (
  * @param wdlBefore - WDL value before the move (-2=loss, -1=blessed loss, 0=draw, 1=cursed win, 2=win)
  * @param wdlAfter - WDL value after the move 
  * @param playerSide - which side played the move ('w' or 'b')
+ * 
+ * AI_NOTE: CRITICAL PERSPECTIVE BUG FIXED (2025-01-11)
+ * WDL values from tablebase API are ALWAYS from White's perspective!
+ * Lines 107-108: We convert to player's perspective by negating for Black.
+ * This bug caused Black's optimal defensive moves to show red triangles.
+ * 
+ * KNOWN ISSUE: Line 229 - When WDL stays exactly -2 to -2 for Black in losing position,
+ * it's actually optimal defense (maintaining tablebase loss). We show shield (🛡️).
+ * 
+ * See: /shared/utils/chess/EVALUATION_LOGIC_LEARNINGS.md for full debugging story.
  */
 export const getMoveQualityByTablebaseComparison = (
   wdlBefore: number,
@@ -462,6 +478,17 @@ export const getEducationalTip = (
 /**
  * Enhanced Move Quality Evaluation for Brückenbau-Trainer
  * Provides detailed classification for Win→Win moves based on DTM
+ * 
+ * AI_NOTE: NEW FEATURE (2025-01) - Not yet integrated in UI!
+ * This is the planned enhancement for didactic endgame training.
+ * DTM (Distance to Mate) differences classify move quality:
+ * - ≤1: optimal (shortest path)
+ * - ≤5: sicher (safe technique)
+ * - ≤15: umweg (detour but works)
+ * - >15: riskant (fragile win)
+ * 
+ * IMPLEMENTATION STATUS: Types defined, logic implemented, UI integration pending.
+ * See: /docs/features/brueckenbau-trainer.md for full specification.
  */
 export const getEnhancedMoveQuality = (
   wdlBefore: number,

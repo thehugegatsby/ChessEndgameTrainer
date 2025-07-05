@@ -183,7 +183,7 @@ describe('EngineErrorBoundary', () => {
     const svg = container.querySelector('svg');
     expect(svg).toBeInTheDocument();
     expect(svg?.getAttribute('viewBox')).toBe('0 0 20 20');
-    expect(svg?.parentElement?.className).toContain('text-amber-400');
+    expect(svg?.getAttribute('class')).toContain('text-amber-400');
   });
 
   test('renders list with proper styling', () => {

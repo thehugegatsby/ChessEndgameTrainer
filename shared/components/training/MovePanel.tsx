@@ -91,7 +91,7 @@ export const MovePanel: React.FC<MovePanelProps> = React.memo(({
       {movePairs.map((pair) => (
         <div 
           key={pair.moveNumber} 
-          className="flex items-center gap-2 py-1 hover:bg-gray-800 rounded px-2"
+          className="flex items-center justify-center gap-4 py-1 hover:bg-gray-800 rounded px-2"
         >
           {/* Move Number */}
           <span className="text-sm text-gray-400 w-6 text-center font-mono">
@@ -99,7 +99,7 @@ export const MovePanel: React.FC<MovePanelProps> = React.memo(({
           </span>
 
           {/* White Move with evaluation */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 min-w-[80px] justify-center">
             <button
               onClick={() => onMoveClick?.((pair.moveNumber - 1) * 2)}
               className={`font-mono text-sm hover:text-blue-400 px-1 py-0.5 rounded transition-colors ${
@@ -120,7 +120,7 @@ export const MovePanel: React.FC<MovePanelProps> = React.memo(({
 
           {/* Black Move with evaluation */}
           {pair.blackMove && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 min-w-[80px] justify-center">
               <button
                 onClick={() => onMoveClick?.((pair.moveNumber - 1) * 2 + 1)}
                 className={`font-mono text-sm hover:text-blue-400 px-1 py-0.5 rounded transition-colors ${

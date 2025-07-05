@@ -53,28 +53,28 @@ describe('MistakeAnalyzer - Pure Logic Functions', () => {
 
     it('should classify excellent moves (+50cp or more)', () => {
       const result = classifyMove(-100, 150, defaultConfig);
-      expect(result.type).toBe('EXCELLENT');
+      expect(result.type).toBe('PERFECT');
       expect(result.centipawnDelta).toBe(250);
       expect(result.confidence).toBeGreaterThan(0.8);
     });
 
     it('should classify good moves (0 to +50cp)', () => {
       const result = classifyMove(100, 130, defaultConfig);
-      expect(result.type).toBe('GOOD');
+      expect(result.type).toBe('CORRECT');
       expect(result.centipawnDelta).toBe(30);
       expect(result.confidence).toBeGreaterThan(0.7);
     });
 
     it('should classify inaccuracies (-10 to -50cp)', () => {
       const result = classifyMove(100, 70, defaultConfig);
-      expect(result.type).toBe('INACCURACY');
+      expect(result.type).toBe('IMPRECISE');
       expect(result.centipawnDelta).toBe(-30);
       expect(result.confidence).toBeGreaterThan(0.6);
     });
 
     it('should classify mistakes (-50 to -200cp)', () => {
       const result = classifyMove(100, -50, defaultConfig);
-      expect(result.type).toBe('MISTAKE');
+      expect(result.type).toBe('ERROR');
       expect(result.centipawnDelta).toBe(-150);
       expect(result.confidence).toBeGreaterThan(0.8);
     });
@@ -88,7 +88,7 @@ describe('MistakeAnalyzer - Pure Logic Functions', () => {
 
     it('should classify critical blunders (win to loss)', () => {
       const result = classifyMove(500, -500, defaultConfig);
-      expect(result.type).toBe('CRITICAL_BLUNDER');
+      expect(result.type).toBe('CRITICAL_ERROR');
       expect(result.centipawnDelta).toBe(-1000);
       expect(result.confidence).toBe(1.0);
     });
@@ -106,7 +106,7 @@ describe('MistakeAnalyzer - Pure Logic Functions', () => {
 
       // -80cp loss should be inaccuracy for beginner, mistake for intermediate
       const beginnerResult = classifyMove(100, 20, beginnerConfig);
-      expect(beginnerResult.type).toBe('INACCURACY');
+      expect(beginnerResult.type).toBe('IMPRECISE');
       expect(beginnerResult.isAdaptive).toBe(true);
     });
 
@@ -119,9 +119,9 @@ describe('MistakeAnalyzer - Pure Logic Functions', () => {
         analysisDepth: 15
       };
 
-      // -30cp loss should be mistake for expert, inaccuracy for intermediate
+      // -30cp loss should be error for expert, imprecise for intermediate
       const expertResult = classifyMove(100, 70, expertConfig);
-      expect(expertResult.type).toBe('MISTAKE');
+      expect(expertResult.type).toBe('ERROR');
       expect(expertResult.isAdaptive).toBe(true);
     });
 
@@ -239,13 +239,13 @@ describe('MistakeAnalyzer - Pure Logic Functions', () => {
 
     it('should handle extreme evaluation values', () => {
       const result = classifyMove(10000, -10000, defaultConfig);
-      expect(result.type).toBe('CRITICAL_BLUNDER');
+      expect(result.type).toBe('CRITICAL_ERROR');
       expect(result.confidence).toBe(1.0);
     });
 
     it('should handle very small evaluation changes', () => {
       const result = classifyMove(100, 105, defaultConfig);
-      expect(result.type).toBe('GOOD');
+      expect(result.type).toBe('CORRECT');
       expect(result.confidence).toBeGreaterThan(0.5);
     });
 

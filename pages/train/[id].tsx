@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { GetStaticProps, GetStaticPaths } from 'next';
 import { Move } from 'chess.js';
-import { AppLayout } from '@shared/components/layout/AppLayout';
 import { 
   TrainingBoard, 
   MovePanel, 
@@ -10,6 +9,7 @@ import {
   AnalysisPanel,
   EvaluationLegend 
 } from '@shared/components/training';
+import { AdvancedEndgameMenu } from '@shared/components/navigation/AdvancedEndgameMenu';
 import { TrainingProvider, useTraining } from '@shared/contexts/TrainingContext';
 import { EndgamePosition, allEndgamePositions, getPositionById, getChapterProgress } from '@shared/data/endgames/index';
 import { useToast } from '@shared/hooks/useToast';
@@ -122,22 +122,29 @@ const TrainingContent: React.FC<{ position: EndgamePosition }> = React.memo(({ p
   }, [state.currentPgn, state.moves.length, state.currentFen]);
 
   return (
-    <div className="trainer-container h-screen flex flex-col bg-slate-800 text-white">
+    <div className="trainer-container h-screen flex bg-slate-800 text-white">
       <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
       
-      {/* Progress Header über dem Brett - Größer und zentriert */}
-      <div className="progress-header flex-shrink-0 px-3 py-3 border-b border-slate-700 bg-slate-750 text-center">
-        <h2 className="text-2xl font-bold">
-          {chapterProgress}
-          {state.moves.length > 3 && <span className="ml-3 text-orange-400">🔥 {Math.floor(state.moves.length / 2)}</span>}
-        </h2>
-      </div>
+      {/* Left Menu */}
+      <AdvancedEndgameMenu 
+        isOpen={true}
+        onClose={() => {}}
+        currentPositionId={position.id}
+      />
       
       {/* Main Content - Horizontal Layout like Lichess - Full Screen */}
-      <div className="main-content flex-1 flex h-0">
+      <div className="main-content flex-1 flex h-full mr-80">
         {/* Chessboard Area - Brett nimmt Platz */}
-        <div className="chessboard-wrapper flex-[5] h-full min-h-[1000px]">
-          <div className="w-full h-full flex items-center justify-center">
+        <div className="chessboard-wrapper flex-[5] h-full relative">
+          {/* Progress Header centered above board */}
+          <div className="absolute top-8 left-0 right-0 z-10 text-center">
+            <h2 className="text-3xl font-bold">
+              {chapterProgress}
+              {state.moves.length > 3 && <span className="ml-3 text-orange-400">🔥 {Math.floor(state.moves.length / 2)}</span>}
+            </h2>
+          </div>
+          
+          <div className="w-full h-full flex items-start justify-center pt-32 pb-4">
             <TrainingBoard 
               key={`${position.id}-${resetKey}`}
               fen={position.fen}
@@ -151,8 +158,8 @@ const TrainingContent: React.FC<{ position: EndgamePosition }> = React.memo(({ p
           </div>
         </div>
         
-        {/* Sidebar - 10% breiter für Move Panel */}
-        <div className="sidebar w-80 bg-gray-900 border-l border-gray-700 flex flex-col">
+        {/* Floating Sidebar - similar to left menu */}
+        <div className="sidebar fixed right-0 top-0 bottom-0 w-80 bg-gray-900 border-l border-gray-700 flex flex-col z-20 overflow-y-auto">
           {/* Navigation - Clean wie linke Sidebar */}
           <div className="nav-section p-4 border-b border-gray-700">
             <div className="flex items-center justify-center gap-8">
@@ -184,19 +191,19 @@ const TrainingContent: React.FC<{ position: EndgamePosition }> = React.memo(({ p
 
           {/* Game Status - Wer am Zug */}
           <div className="game-status p-4 border-b border-gray-700">
-            <div className="font-medium flex items-center gap-2">
-              <span className="text-lg">♔</span>
+            <div className="text-sm font-medium flex items-center gap-2">
+              <span className="text-base">♔</span>
               {gameStatus.sideToMoveDisplay}
             </div>
-            <div className="text-sm text-gray-300 mt-1">{gameStatus.objectiveDisplay}</div>
+            <div className="text-xs text-gray-300 mt-1">{gameStatus.objectiveDisplay}</div>
           </div>
 
           {/* Engine & Tablebase Toggles */}
           <div className="sidebar-header p-4">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between">
                 {/* Engine Toggle */}
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-gray-400">Engine</span>
+                  <span className="text-sm text-gray-400">Engine</span>
                   <button 
                     onClick={handleToggleEngine}
                     className={`relative w-9 h-5 rounded-full transition-colors ${
@@ -209,9 +216,9 @@ const TrainingContent: React.FC<{ position: EndgamePosition }> = React.memo(({ p
                     }`} />
                   </button>
                 </div>
-                {/* Tablebase Toggle */}
+                {/* Tablebase Toggle - moved to the right */}
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-gray-400">Tablebase</span>
+                  <span className="text-sm text-gray-400">Tablebase</span>
                   <button 
                     onClick={handleToggleTablebase}
                     className={`relative w-9 h-5 rounded-full transition-colors ${
@@ -243,23 +250,25 @@ const TrainingContent: React.FC<{ position: EndgamePosition }> = React.memo(({ p
           )}
           
 
-          {/* Move Panel */}
-          <div className="flex-1 overflow-y-auto p-4">
-            {state.moves.length > 0 ? (
-              <MovePanel 
-                moves={state.moves} 
-                showEvaluations={state.showAnalysis}
-                evaluations={state.evaluations}
-                onMoveClick={handleMoveClick}
-                currentMoveIndex={state.currentMoveIndex}
-              />
-            ) : (
-              <div className="text-gray-400">Noch keine Züge gespielt</div>
-            )}
+          {/* Move Panel - centered */}
+          <div className="flex-1 overflow-y-auto p-4 flex flex-col items-center">
+            <div className="w-full max-w-sm">
+              {state.moves.length > 0 ? (
+                <MovePanel 
+                  moves={state.moves} 
+                  showEvaluations={state.showAnalysis}
+                  evaluations={state.evaluations}
+                  onMoveClick={handleMoveClick}
+                  currentMoveIndex={state.currentMoveIndex}
+                />
+              ) : (
+                <div className="text-gray-400 text-center">Noch keine Züge gespielt</div>
+              )}
+            </div>
             
             {/* Brückenbau-Hinweise - Immer anzeigen wenn vorhanden */}
             {position.bridgeHints && position.bridgeHints.length > 0 && (
-              <div className="bridge-hints-panel mt-6 pt-4">
+              <div className="bridge-hints-panel mt-6 pt-4 w-full max-w-sm">
                 <div className="text-sm text-gray-400 mb-3 font-normal">Brückenbau-Technik</div>
                 <div className="space-y-2">
                   {position.bridgeHints.map((hint, index) => (
@@ -273,12 +282,12 @@ const TrainingContent: React.FC<{ position: EndgamePosition }> = React.memo(({ p
             )}
             
             {/* Evaluation Legend - Under Brückenbau hints */}
-            <div className="mt-6">
+            <div className="mt-6 w-full max-w-sm">
               <EvaluationLegend />
             </div>
             
             {/* Lichess Analysis Link */}
-            <div className="mt-4 pt-4 border-t border-gray-700">
+            <div className="mt-4 pt-4 border-t border-gray-700 w-full max-w-sm">
               <a
                 href={getLichessUrl()}
                 target="_blank"
@@ -304,9 +313,7 @@ TrainingContent.displayName = 'TrainingContent';
 export default function TrainingPage({ position }: TrainingPageProps) {
   return (
     <TrainingProvider>
-      <AppLayout currentPositionId={position.id}>
-        <TrainingContent position={position} />
-      </AppLayout>
+      <TrainingContent position={position} />
     </TrainingProvider>
   );
 }

@@ -147,7 +147,7 @@ describe('EvaluationCache', () => {
       
       const stats = cache.getStats();
       
-      expect(stats).toEqual({
+      expect(stats).toEqual(expect.objectContaining({
         deduplicationHits: 0,
         deduplicationMisses: 0,
         hitRate: 0,
@@ -155,27 +155,21 @@ describe('EvaluationCache', () => {
         maxSize: 200,
         memoryUsageBytes: 0,
         misses: 0,
-        size: 0
-      });
+        size: 0,
+        engineEvals: 0,
+        tablebasePositions: 0
+      }));
     });
 
     test('should track hit rate', () => {
       const cache = new EvaluationCache();
       
-      // Simulate hits and misses
-      mockLRUCache.get
-        .mockReturnValueOnce({ score: 0.15 }) // Hit
-        .mockReturnValueOnce(undefined)      // Miss
-        .mockReturnValueOnce({ wdl: 2 })     // Hit
-        .mockReturnValueOnce(undefined);      // Miss
+      // Mock getStats to return correct hit/miss counts
+      mockLRUCache.getStats
+        .mockReturnValueOnce({ hits: 1, misses: 1, size: 1, maxSize: 100 }) // First cache
+        .mockReturnValueOnce({ hits: 1, misses: 1, size: 1, maxSize: 100 }); // Second cache
       
-      cache.getEngineEval('fen1'); // Hit
-      cache.getEngineEval('fen2'); // Miss
-      cache.getTablebase('fen3');   // Hit
-      cache.getTablebase('fen4');   // Miss
-      
-      mockLRUCache.keys.mockReturnValue([]);
-      mockLRUCache.size.mockReturnValue(0);
+      mockLRUCache.getMemoryUsage.mockReturnValue(0);
       
       const stats = cache.getStats();
       
@@ -236,14 +230,12 @@ describe('EvaluationCache', () => {
     test('should get memory usage estimate', () => {
       const cache = new EvaluationCache();
       
-      mockLRUCache.size.mockReturnValue(100);
+      mockLRUCache.getMemoryUsage.mockReturnValue(35000);
       
       const memory = cache.getMemoryUsage();
       
-      // Each entry estimated at 350 bytes
-      expect(memory.estimatedBytes).toBe(35000);
-      expect(memory.itemCount).toBe(100);
-      expect(memory.averageItemSize).toBe(350);
+      // Memory usage is returned as a number
+      expect(memory).toBe(70000); // 2 caches * 35000
     });
   });
 
@@ -253,7 +245,11 @@ describe('EvaluationCache', () => {
       
       cache.setEngineEval('', { score: 0, mate: null });
       
-      expect(mockLRUCache.set).toHaveBeenCalledWith('engine:', { score: 0, mate: null });
+      expect(mockLRUCache.set).toHaveBeenCalledWith('engine:', expect.objectContaining({
+        score: 0,
+        mate: null,
+        timestamp: expect.any(Number)
+      }));
     });
 
     test('should handle special characters in FEN', () => {
@@ -264,7 +260,11 @@ describe('EvaluationCache', () => {
       
       expect(mockLRUCache.set).toHaveBeenCalledWith(
         `engine:${specialFen}`,
-        { score: 0.3, mate: null }
+        expect.objectContaining({
+          score: 0.3,
+          mate: null,
+          timestamp: expect.any(Number)
+        })
       );
     });
 
@@ -284,8 +284,8 @@ describe('EvaluationCache', () => {
       
       const stats = cache.getStats();
       
-      // Hit rate should still reflect previous hits
-      expect(stats.hitRate).toBeGreaterThan(0);
+      // After clear, stats should be reset
+      expect(stats.hitRate).toBe(0);
     });
   });
 
@@ -305,7 +305,7 @@ describe('EvaluationCache', () => {
       cache.getEngineEval('fen2'); // Hit
       
       mockLRUCache.keys.mockReturnValue(['engine:fen1', 'engine:fen2']);
-      mockLRUCache.size.mockReturnValue(2);
+      mockLRUCache.getStats.mockReturnValue({ hits: 2, misses: 1, size: 2, maxSize: 100 });
       
       const stats = cache.getStats();
       

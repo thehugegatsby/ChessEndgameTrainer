@@ -3,8 +3,8 @@ import { render, screen } from '@testing-library/react';
 import { AppLayout } from '../AppLayout';
 
 // Mock the components
-jest.mock('../Header', () => ({
-  Header: () => <div data-testid="mock-header">Mock Header</div>
+jest.mock('../../ui/SettingsIcon', () => ({
+  SettingsIcon: () => <div data-testid="mock-settings">Mock Settings</div>
 }));
 
 jest.mock('../../navigation/AdvancedEndgameMenu', () => ({
@@ -52,6 +52,17 @@ describe('AppLayout', () => {
     const layoutDiv = container.firstChild;
     expect(layoutDiv).toHaveClass('min-h-screen');
     expect(layoutDiv).toHaveStyle('background-color: var(--bg-primary)');
+  });
+  
+  test('should render header with title', () => {
+    render(
+      <AppLayout>
+        <div>Content</div>
+      </AppLayout>
+    );
+    
+    expect(screen.getByText('Endgame Training')).toBeInTheDocument();
+    expect(screen.getByTestId('mock-settings')).toBeInTheDocument();
   });
 
   test('should render main content area', () => {

@@ -49,6 +49,10 @@ export class ScenarioEngine {
   /**
    * Creates a new scenario engine instance
    * @param fen - Starting position in FEN notation (optional, defaults to starting position)
+   * 
+   * AI_NOTE: Instance tracking is CRITICAL for mobile performance. Each instance holds
+   * references to Chess.js, Engine Worker, and caches. Android devices crash with >5 instances.
+   * ALWAYS call quit() when done!
    */
   constructor(fen?: string) {
     // Validate FEN if provided
@@ -117,6 +121,11 @@ export class ScenarioEngine {
    * Makes a move on the board and gets engine response
    * @param move - Move object with from, to, and optional promotion
    * @returns Promise<CustomMove | null> - The move made or null if invalid
+   * 
+   * AI_NOTE: This method has a QUIRK - it automatically makes an engine response move!
+   * This is legacy behavior from the training mode. If you just want to make a move
+   * without engine response, use getChessInstance().move() directly.
+   * TODO: Consider adding a flag to disable auto-response.
    */
   public async makeMove(move: { 
     from: string; 
@@ -250,6 +259,13 @@ export class ScenarioEngine {
 
   /**
    * Cleanup method for mobile memory management
+   * 
+   * AI_NOTE: MUST BE CALLED! Memory leaks are a real issue on mobile.
+   * This nullifies references to help GC. The engine Worker is a singleton
+   * and won't be terminated here - that's handled by Engine.getInstance().terminate()
+   * 
+   * KNOWN ISSUE: If quit() fails, the instance count becomes inaccurate.
+   * Consider using try-finally blocks when using ScenarioEngine.
    */
   public quit(): void {
     try {
@@ -322,6 +338,12 @@ export class ScenarioEngine {
 
   /**
    * Gets tablebase moves for a position
+   * 
+   * AI_NOTE: CRITICAL BUG FIXED HERE - WDL values from tablebase API are ALWAYS from
+   * White's perspective, but after making a move, we need the perspective of who just moved.
+   * Line 353: We negate the WDL to get current player's perspective.
+   * This was causing Black's best defensive moves to show as mistakes!
+   * See: /shared/utils/chess/EVALUATION_LOGIC_LEARNINGS.md for full details
    */
   private async getTablebaseMoves(fen: string, count: number): Promise<Array<{
     move: string;

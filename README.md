@@ -2,7 +2,7 @@
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.3.3-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue)](https://www.typescriptlang.org/)
-[![Test Coverage](https://img.shields.io/badge/Coverage-56.15%25-yellow)](./coverage/lcov-report/index.html)
+[![Test Coverage](https://img.shields.io/badge/Coverage-76.16%25-yellow)](./coverage/lcov-report/index.html)
 [![Deployment Ready](https://img.shields.io/badge/Deployment-Ready-green)](./docs/DEPLOYMENT_GUIDE.md)
 
 Eine moderne Web- und Mobile-Anwendung zum systematischen Lernen von Schachendspielen mit KI-Unterstützung.
@@ -60,6 +60,15 @@ ChessEndgameTrainer/
 - **State Management**: Zustand 4.5.0 + React Context
 - **Testing**: Jest 29.7.0, React Testing Library
 - **Mobile**: React Native 0.73.4 (vorbereitet)
+
+## 📊 Projekt Status
+
+- **Test Coverage**: 76.16% (Statement Coverage)
+- **Test Success**: 99% (99/100 Test Suites bestanden)
+- **Code Health**: Excellent (1.7% ungenutzter Code)
+- **Performance**: Optimiert mit LRU Cache, Debouncing
+- **Bundle Size**: ~500KB (Ziel: <300KB)
+- **Active Development**: Januar 2025
 
 ## 💻 Entwicklung
 

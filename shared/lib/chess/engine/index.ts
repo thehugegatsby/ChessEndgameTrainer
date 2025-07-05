@@ -19,6 +19,21 @@ import { RequestManager } from './requestManager';
 /**
  * Main Chess Engine class with modular architecture
  * Mobile-optimized with proper error handling and performance monitoring
+ * 
+ * AI_NOTE: SINGLETON PATTERN with lazy initialization!
+ * - Only ONE Engine instance exists globally (static instance)
+ * - Worker is expensive on mobile (~20MB memory)
+ * - getInstance() handles SSR→Browser transition gracefully
+ * 
+ * ARCHITECTURE:
+ * - workerManager: Handles Stockfish Web Worker lifecycle
+ * - requestManager: Tracks pending requests with timeouts
+ * - requestQueue: FIFO queue for sequential processing
+ * 
+ * KNOWN ISSUES:
+ * - Line 44: Force new instance if worker not ready (browser-only hack)
+ * - Worker initialization can fail silently on iOS Safari
+ * - Memory pressure on Android devices with <2GB RAM
  */
 export class Engine {
   private static instance: Engine | null = null;
@@ -38,6 +53,14 @@ export class Engine {
 
   /**
    * Gets singleton instance (mobile-optimized)
+   * 
+   * AI_NOTE: Complex initialization logic here!
+   * - Line 60: Checks if we're in browser (not SSR) AND worker is dead
+   * - This handles Next.js SSR→Browser hydration issues
+   * - Also recovers from iOS Safari worker termination
+   * 
+   * USAGE: Always use Engine.getInstance(), never `new Engine()`
+   * CLEANUP: Call Engine.getInstance().quit() when done (mobile memory)
    */
   static getInstance(config?: EngineConfig): Engine {
     // Force new instance if we're in browser but current instance has no worker
@@ -177,6 +200,18 @@ export class Engine {
   /**
    * Processes the request queue
    * Mobile-optimized with proper error handling
+   * 
+   * AI_NOTE: CRITICAL QUEUE PROCESSING LOGIC
+   * - Only ONE request processed at a time (isProcessingQueue flag)
+   * - Stockfish is single-threaded, can't handle parallel requests
+   * - Line 219: `go movetime` for quick analysis (mobile battery)
+   * - Line 221: `go depth 15` for position evaluation (deeper = slower)
+   * 
+   * PERFORMANCE: Average request takes 100-1000ms on mobile
+   * QUEUE BEHAVIOR: FIFO - first request in, first processed
+   * 
+   * KNOWN ISSUE: If worker crashes during processing, queue gets stuck
+   * TODO: Add recovery mechanism for stuck queue
    */
   private processQueue(): void {
     if (this.isProcessingQueue || 
@@ -233,8 +268,16 @@ export class Engine {
     try {
       this.requestQueue = [];
       this.isProcessingQueue = false;
-      this.workerManager.getMessageHandler().clearCurrentRequest();
-      this.requestManager.cancelAllRequests('Engine reset');
+      
+      // Only clear if handlers are available
+      const messageHandler = this.workerManager.getMessageHandler();
+      if (messageHandler?.clearCurrentRequest) {
+        messageHandler.clearCurrentRequest();
+      }
+      
+      if (this.requestManager?.cancelAllRequests) {
+        this.requestManager.cancelAllRequests('Engine reset');
+      }
       
       console.log('[Engine] 🔄 Engine reset');
     } catch (error) {
@@ -244,10 +287,26 @@ export class Engine {
 
   /**
    * Shuts down the engine (mobile cleanup)
+   * 
+   * AI_NOTE: MUST BE CALLED on mobile to prevent memory leaks!
+   * - Terminates the Web Worker (frees ~20MB)
+   * - Clears singleton instance
+   * - Cancels all pending requests
+   * 
+   * WHEN TO CALL:
+   * - Component unmount (useEffect cleanup)
+   * - Page navigation away from training
+   * - App going to background (mobile)
+   * - Memory pressure events
+   * 
+   * SAFE TO CALL: Multiple times, idempotent operation
    */
   quit(): void {
     try {
-      this.reset();
+      // Only reset if we have a request manager initialized
+      if (this.requestManager) {
+        this.reset();
+      }
       this.workerManager.cleanup();
       Engine.instance = null;
       

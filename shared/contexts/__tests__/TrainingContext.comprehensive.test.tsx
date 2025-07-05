@@ -68,6 +68,8 @@ describe('TrainingContext - Comprehensive Coverage', () => {
         currentMoveIndex: -1,
         showAnalysis: true,
         showEvaluationPanel: false,
+        showEngineEvaluation: true,
+        showTablebaseEvaluation: true,
         isGameFinished: false,
         jumpToMoveFunc: null,
       });

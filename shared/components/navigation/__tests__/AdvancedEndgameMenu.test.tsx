@@ -156,13 +156,17 @@ describe('AdvancedEndgameMenu', () => {
       
       const firstCategory = endgameCategories[0];
       const categoryButton = screen.getByText(firstCategory.name).closest('button');
-      const arrow = categoryButton?.querySelector('span:last-child');
+      // Find the span containing the arrow (▶)
+      const arrow = Array.from(categoryButton?.querySelectorAll('span') || [])
+        .find(span => span.textContent?.trim() === '▶');
       
       expect(arrow).toHaveClass('transform');
+      expect(arrow).toHaveClass('transition-transform');
       expect(arrow).not.toHaveClass('rotate-90');
       
       fireEvent.click(categoryButton!);
       
+      expect(arrow).toHaveClass('transform');
       expect(arrow).toHaveClass('rotate-90');
     });
   });
@@ -262,8 +266,9 @@ describe('AdvancedEndgameMenu', () => {
       
       firstCategory.subcategories.forEach(subcategory => {
         expect(screen.getByText(subcategory.material)).toBeInTheDocument();
-        // Should show position count
-        expect(screen.getByText(subcategory.positions.length.toString())).toBeInTheDocument();
+        // Should show position count - use getAllByText since there might be duplicates
+        const positionCounts = screen.getAllByText(subcategory.positions.length.toString());
+        expect(positionCounts.length).toBeGreaterThan(0);
       });
     });
 

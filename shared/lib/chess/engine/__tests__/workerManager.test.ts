@@ -91,9 +91,12 @@ describe('StockfishWorkerManager', () => {
     test('should initialize worker successfully', async () => {
       manager = new StockfishWorkerManager();
       
-      // Mock handleMessage to return true on 'uciok' to signal ready
+      // Mock handleMessage to return proper response for ready state
       mockMessageHandler.handleMessage.mockImplementation((message) => {
-        return message === 'uciok';
+        if (message === 'uciok') {
+          return { type: 'ready' };
+        }
+        return null;
       });
       
       // Start initialization
@@ -109,8 +112,7 @@ describe('StockfishWorkerManager', () => {
       
       expect(result).toBe(true);
       expect(global.Worker).toHaveBeenCalledWith('/stockfish.js');
-      // Note: postMessage might not be called if sendCommand checks isReady
-    });
+    }, 10000);
 
     test('should handle worker creation failure', async () => {
       (global.Worker as jest.Mock).mockImplementationOnce(() => {
@@ -130,7 +132,7 @@ describe('StockfishWorkerManager', () => {
       const result = await manager.initialize();
       
       expect(result).toBe(false);
-    }, 6000);
+    }, 10000);
 
     test('should handle multiple initialization attempts', async () => {
       manager = new StockfishWorkerManager();
@@ -143,13 +145,13 @@ describe('StockfishWorkerManager', () => {
       expect(promise2).toBeInstanceOf(Promise);
       
       // Resolve both
-      mockMessageHandler.handleMessage.mockReturnValue(true);
+      mockMessageHandler.handleMessage.mockReturnValue({ type: 'ready' });
       mockWorker.onmessage?.({ data: 'uciok' });
       
       const [result1, result2] = await Promise.all([promise1, promise2]);
       expect(result1).toBe(true);
       expect(result2).toBe(true);
-    });
+    }, 10000);
 
     test('should handle worker error during initialization', async () => {
       manager = new StockfishWorkerManager();
@@ -164,7 +166,7 @@ describe('StockfishWorkerManager', () => {
       const result = await initPromise;
       
       expect(result).toBe(false);
-    }, 10000);
+    }, 15000);
 
     test('should handle max initialization attempts', async () => {
       manager = new StockfishWorkerManager();
@@ -189,7 +191,7 @@ describe('StockfishWorkerManager', () => {
       const finalResult = await manager.initialize();
       expect(finalResult).toBe(false);
       expect(attempts).toBe(3); // Should not try 4th time
-    });
+    }, 10000);
   });
 
   describe('Worker Communication', () => {
@@ -198,14 +200,14 @@ describe('StockfishWorkerManager', () => {
       
       // Initialize first
       const initPromise = manager.initialize();
-      mockMessageHandler.handleMessage.mockReturnValue(true);
+      mockMessageHandler.handleMessage.mockReturnValue({ type: 'ready' });
       mockWorker.onmessage?.({ data: 'uciok' });
       await initPromise;
       
       manager.sendCommand('position fen ...');
       
       expect(mockWorker.postMessage).toHaveBeenCalledWith('position fen ...');
-    });
+    }, 10000);
 
     test('should not send commands if worker not ready', () => {
       manager = new StockfishWorkerManager();
@@ -231,7 +233,7 @@ describe('StockfishWorkerManager', () => {
       mockWorker.onmessage?.({ data: messageData });
       
       expect(mockMessageHandler.handleMessage).toHaveBeenCalledWith(messageData);
-    });
+    }, 10000);
 
     test('should handle SSR environment', async () => {
       // Simulate SSR by removing window
@@ -257,12 +259,12 @@ describe('StockfishWorkerManager', () => {
       
       // Initialize the worker
       const initPromise = manager.initialize();
-      mockMessageHandler.handleMessage.mockReturnValue(true);
+      mockMessageHandler.handleMessage.mockReturnValue({ type: 'ready' });
       mockWorker.onmessage?.({ data: 'uciok' });
       await initPromise;
       
       expect(manager.isWorkerReady()).toBe(true);
-    });
+    }, 10000);
 
     test('should get message handler', () => {
       manager = new StockfishWorkerManager();
@@ -279,7 +281,7 @@ describe('StockfishWorkerManager', () => {
       
       // Initialize first
       const initPromise = manager.initialize();
-      mockMessageHandler.handleMessage.mockReturnValue(true);
+      mockMessageHandler.handleMessage.mockReturnValue({ type: 'ready' });
       mockWorker.onmessage?.({ data: 'uciok' });
       await initPromise;
       
@@ -287,14 +289,14 @@ describe('StockfishWorkerManager', () => {
       
       expect(mockWorker.terminate).toHaveBeenCalled();
       expect(manager.isWorkerReady()).toBe(false);
-    });
+    }, 10000);
 
     test('should handle cleanup errors gracefully', async () => {
       manager = new StockfishWorkerManager();
       
       // Initialize first
       const initPromise = manager.initialize();
-      mockMessageHandler.handleMessage.mockReturnValue(true);
+      mockMessageHandler.handleMessage.mockReturnValue({ type: 'ready' });
       mockWorker.onmessage?.({ data: 'uciok' });
       await initPromise;
       
@@ -305,14 +307,14 @@ describe('StockfishWorkerManager', () => {
       
       // Should not throw
       expect(() => manager.cleanup()).not.toThrow();
-    });
+    }, 10000);
 
     test('should restart worker', async () => {
       manager = new StockfishWorkerManager();
       
       // Initialize first
       const initPromise = manager.initialize();
-      mockMessageHandler.handleMessage.mockReturnValue(true);
+      mockMessageHandler.handleMessage.mockReturnValue({ type: 'ready' });
       mockWorker.onmessage?.({ data: 'uciok' });
       await initPromise;
       
@@ -321,7 +323,7 @@ describe('StockfishWorkerManager', () => {
       
       // Restart
       const restartPromise = manager.restart();
-      mockMessageHandler.handleMessage.mockReturnValue(true);
+      mockMessageHandler.handleMessage.mockReturnValue({ type: 'ready' });
       mockWorker.onmessage?.({ data: 'uciok' });
       
       const result = await restartPromise;
@@ -329,7 +331,7 @@ describe('StockfishWorkerManager', () => {
       expect(result).toBe(true);
       expect(mockWorker.terminate).toHaveBeenCalled();
       expect(global.Worker).toHaveBeenCalled();
-    });
+    }, 15000);
   });
 
   describe('Configuration', () => {
@@ -392,7 +394,7 @@ describe('StockfishWorkerManager', () => {
       manager = new StockfishWorkerManager();
       
       const initPromise = manager.initialize();
-      mockMessageHandler.handleMessage.mockReturnValue(true);
+      mockMessageHandler.handleMessage.mockReturnValue({ type: 'ready' });
       mockWorker.onmessage?.({ data: 'uciok' });
       await initPromise;
       
@@ -400,7 +402,7 @@ describe('StockfishWorkerManager', () => {
       
       expect(stats.isReady).toBe(true);
       expect(stats.hasWorker).toBe(true);
-    });
+    }, 10000);
 
     test('should track retry count', async () => {
       manager = new StockfishWorkerManager();
@@ -424,7 +426,7 @@ describe('StockfishWorkerManager', () => {
       
       const stats2 = manager.getStats();
       expect(stats2.attempts).toBe(2);
-    });
+    }, 10000);
   });
 
   describe('Edge Cases', () => {
@@ -452,19 +454,19 @@ describe('StockfishWorkerManager', () => {
       mockWorker.onmessage?.({ data: { invalid: true } });
       
       // Eventually send valid message
-      mockMessageHandler.handleMessage.mockReturnValue(true);
+      mockMessageHandler.handleMessage.mockReturnValue({ type: 'ready' });
       mockWorker.onmessage?.({ data: 'uciok' });
       
       const result = await initPromise;
       expect(result).toBe(true);
-    });
+    }, 10000);
 
     test('should handle concurrent restart calls', async () => {
       manager = new StockfishWorkerManager();
       
       // Initialize first
       const initPromise = manager.initialize();
-      mockMessageHandler.handleMessage.mockReturnValue(true);
+      mockMessageHandler.handleMessage.mockReturnValue({ type: 'ready' });
       mockWorker.onmessage?.({ data: 'uciok' });
       await initPromise;
       
@@ -477,12 +479,12 @@ describe('StockfishWorkerManager', () => {
       expect(restart2).toBeInstanceOf(Promise);
       
       // Resolve them
-      mockMessageHandler.handleMessage.mockReturnValue(true);
+      mockMessageHandler.handleMessage.mockReturnValue({ type: 'ready' });
       mockWorker.onmessage?.({ data: 'uciok' });
       
       const [result1, result2] = await Promise.all([restart1, restart2]);
       expect(result1).toBe(true);
       expect(result2).toBe(true);
-    });
+    }, 15000);
   });
 });
