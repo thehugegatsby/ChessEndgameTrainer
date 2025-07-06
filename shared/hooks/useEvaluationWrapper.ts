@@ -10,6 +10,7 @@ import { EvaluationData } from '@shared/types';
 import { UnifiedEvaluationService } from '@shared/lib/chess/evaluation/unifiedService';
 import { EngineProviderAdapter, TablebaseProviderAdapter } from '@shared/lib/chess/evaluation/providerAdapters';
 import { LRUCache } from '@shared/lib/cache/LRUCache';
+import { LRUCacheAdapter } from '@shared/lib/chess/evaluation/cacheAdapter';
 import type { FormattedEvaluation } from '@shared/types/evaluation';
 import { useEvaluation as useLegacyEvaluation } from './useEvaluationOptimized';
 
@@ -38,7 +39,8 @@ let unifiedServiceInstance: UnifiedEvaluationService | null = null;
 
 function getUnifiedService(): UnifiedEvaluationService {
   if (!unifiedServiceInstance) {
-    const cache = new LRUCache<FormattedEvaluation>(200);
+    const lruCache = new LRUCache<FormattedEvaluation>(200);
+    const cache = new LRUCacheAdapter(lruCache);
     const engineProvider = new EngineProviderAdapter();
     const tablebaseProvider = new TablebaseProviderAdapter();
     
