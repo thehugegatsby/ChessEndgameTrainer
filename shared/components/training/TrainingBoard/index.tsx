@@ -1,8 +1,7 @@
 import React, { useEffect, useCallback, useMemo } from 'react';
 import { Chess, Move } from 'chess.js';
 import { Square } from 'react-chessboard/dist/chessboard/types';
-import { useChessGame } from '../../../hooks/useChessGame';
-import { useEvaluation } from '../../../hooks/useEvaluation';
+import { useChessGame, useEvaluation } from '../../../hooks';
 import { ErrorDisplay } from './ErrorDisplay';
 import { ChessboardContainer } from './components/ChessboardContainer';
 import { 

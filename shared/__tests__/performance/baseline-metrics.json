@@ -1,6 +1,6 @@
 {
-  "totalTime": 5014.395237000001,
-  "avgTimePerRequest": 835.7325395000001,
+  "totalTime": 5012.449095,
+  "avgTimePerRequest": 835.4081825,
   "requestCount": 6,
   "successRate": 0.5
 }

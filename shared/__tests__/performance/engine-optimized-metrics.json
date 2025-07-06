@@ -1,8 +1,8 @@
 {
-  "totalTime": 5019.728458999998,
-  "firstEvalTime": 5014.499230000001,
+  "totalTime": 5019.399002,
+  "firstEvalTime": 5013.3083369999995,
   "firstResultScore": 0,
-  "secondEvalTime": 1.8748950000008335,
+  "secondEvalTime": 1.6227799999996932,
   "secondResultScore": 0,
   "engineState": "ERROR"
 }

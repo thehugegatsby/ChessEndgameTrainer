@@ -1,7 +1,5 @@
 /**
- * Wrapper hook for evaluation that delegates to either legacy or unified system
- * based on feature flag. This ensures Rules of Hooks compliance while allowing
- * gradual migration.
+ * Evaluation hook using the unified evaluation system
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';

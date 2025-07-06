@@ -1,6 +1,6 @@
 // Export all custom hooks for easy importing
 export { useChessGame } from './useChessGame';
-export { useEvaluation } from './useEvaluationWrapper';
+export { useEvaluation } from './useEvaluationUnified';
 export { useLocalStorage } from './useLocalStorage';
 export { useDebounce } from './useDebounce';
 
