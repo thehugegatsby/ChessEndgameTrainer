@@ -1,0 +1,20 @@
+{
+  "USE_UNIFIED_EVALUATION_SYSTEM": {
+    "enabled": true,
+    "rolloutPercentage": 10,
+    "description": "Migrates from legacy evaluation to unified evaluation system",
+    "targetingRules": []
+  },
+  "ENABLE_DISCREPANCY_MONITORING": {
+    "enabled": true,
+    "rolloutPercentage": 100,
+    "description": "Enables parallel evaluation for discrepancy monitoring",
+    "targetingRules": []
+  },
+  "ENABLE_PERFORMANCE_BENCHMARKS": {
+    "enabled": false,
+    "rolloutPercentage": 0,
+    "description": "Enables performance benchmark collection in production",
+    "targetingRules": []
+  }
+}

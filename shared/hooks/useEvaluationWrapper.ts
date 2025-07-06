@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { FEATURE_FLAGS } from '@shared/constants';
+import { FeatureFlagService } from '@shared/services/featureFlags/FeatureFlagService';
 import { EvaluationData } from '@shared/types';
 import { UnifiedEvaluationService } from '@shared/lib/chess/evaluation/unifiedService';
 import { EngineProviderAdapter, TablebaseProviderAdapter } from '@shared/lib/chess/evaluation/providerAdapters';
@@ -173,8 +174,24 @@ export function useEvaluation(options: UseEvaluationOptions): UseEvaluationRetur
   const legacyResult = useLegacyEvaluation(options);
   const unifiedResult = useUnifiedEvaluation(options);
 
+  // Check feature flag with user context
+  const [useUnified, setUseUnified] = useState(FEATURE_FLAGS.USE_UNIFIED_EVALUATION_SYSTEM);
+  
+  useEffect(() => {
+    // Get feature flag service and evaluate with context
+    const service = FeatureFlagService.getInstance();
+    const context = {
+      // In a real app, you'd get userId from auth context
+      userId: undefined,
+      sessionId: typeof window !== 'undefined' ? window.sessionStorage.getItem('chess_trainer_session_id') || undefined : undefined
+    };
+    
+    const shouldUseUnified = service.isFeatureEnabled('USE_UNIFIED_EVALUATION_SYSTEM', context);
+    setUseUnified(shouldUseUnified);
+  }, []);
+
   // Return the appropriate result based on feature flag
-  if (FEATURE_FLAGS.USE_UNIFIED_EVALUATION_SYSTEM) {
+  if (useUnified) {
     return unifiedResult;
   }
   
