@@ -21,7 +21,7 @@ import type {
 } from '@shared/types/evaluation';
 
 export interface FormatterConfig {
-  /** Threshold for neutral evaluation in centipawns (default: 20) */
+  /** Threshold for neutral evaluation in centipawns (default: 50) */
   neutralThreshold?: number;
   /** Threshold for extreme scores in centipawns (default: 1000) */
   extremeScoreThreshold?: number;
@@ -34,7 +34,7 @@ export class EvaluationFormatter {
 
   constructor(config: FormatterConfig = {}) {
     this.logger = Logger.getInstance();
-    this.neutralThreshold = config.neutralThreshold ?? 20;
+    this.neutralThreshold = config.neutralThreshold ?? 50;
     this.extremeScoreThreshold = config.extremeScoreThreshold ?? 1000;
   }
 
@@ -157,10 +157,6 @@ export class EvaluationFormatter {
       }
     }
 
-    // ALIGN WITH LEGACY: Use score-based color logic (mate uses legacy score's color thresholds)
-    // For mates, we can't use score thresholds, so stick to semantic classification
-    // but match legacy behavior in EngineEvaluationCardUnified color mapping
-
     return {
       mainText,
       detailText: null,
@@ -184,26 +180,22 @@ export class EvaluationFormatter {
     let className: 'advantage' | 'disadvantage' | 'neutral' | 'winning' | 'losing';
     let isDrawn = false;
 
-    // ALIGN WITH LEGACY: Use legacy thresholds and formatting
-    // Legacy uses Math.abs(score) < 50 for neutral (yellow)
-    const LEGACY_NEUTRAL_THRESHOLD = 50;
-
     // Convert to pawns for display
     const pawns = score / 100;
 
-    if (Math.abs(score) < LEGACY_NEUTRAL_THRESHOLD) {
-      // ALIGN WITH LEGACY: < 50cp is neutral (yellow)
-      mainText = pawns.toFixed(1); // Legacy uses 1 decimal place
+    if (Math.abs(score) < this.neutralThreshold) {
+      // Small advantage is considered neutral
+      mainText = pawns.toFixed(1);
       className = 'neutral';
-      isDrawn = false; // Legacy doesn't mark < 50cp as drawn
+      isDrawn = false;
     } else {
-      // ALIGN WITH LEGACY: >= 50cp uses color based on sign
+      // Clear advantage or disadvantage
       if (score > 0) {
-        mainText = pawns.toFixed(1); // Legacy: No + prefix for positive
-        className = 'advantage'; // Maps to green in UI
+        mainText = pawns.toFixed(1);
+        className = 'advantage';
       } else {
-        mainText = pawns.toFixed(1); // Legacy: Negative sign already included
-        className = 'disadvantage'; // Maps to red in UI
+        mainText = pawns.toFixed(1);
+        className = 'disadvantage';
       }
     }
 

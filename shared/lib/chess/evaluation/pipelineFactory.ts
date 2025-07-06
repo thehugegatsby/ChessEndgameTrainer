@@ -13,7 +13,6 @@
 
 import { Logger } from '@shared/services/logging/LoggerCompat';
 import type { ILogger } from '@shared/services/logging/types';
-import { EvaluationMonitor, monitoredEvaluation } from './monitoring';
 import { EvaluationNormalizer } from './normalizer';
 import { PlayerPerspectiveTransformer } from './perspectiveTransformer';
 import { EvaluationFormatter } from './formatter';
@@ -52,11 +51,9 @@ export interface EvaluationPipelineStrategy {
   ): PlayerPerspectiveEvaluation;
 }
 
-// Legacy pipeline components removed - enhanced perspective is now the only option
-
 /**
- * Enhanced pipeline strategy
- * Proper perspective-aware evaluation handling
+ * Pipeline strategy implementation
+ * Handles perspective-aware evaluation
  */
 class EnhancedPipelineStrategy implements EvaluationPipelineStrategy {
   readonly mode = 'enhanced' as const;
@@ -135,43 +132,23 @@ export class EvaluationPipelineFactory {
   }
 
   /**
-   * Creates an evaluation pipeline strategy based on configuration
-   * 
-   * MIGRATION COMPLETE: Always returns enhanced perspective pipeline
-   * Legacy pipeline has been removed from production use.
+   * Creates an evaluation pipeline strategy
    * 
    * @param config - Configuration for pipeline creation  
-   * @returns Enhanced strategy instance with correct perspective handling
+   * @returns Strategy instance with correct perspective handling
    */
   static createPipeline(config: PipelineConfig = {}): EvaluationPipelineStrategy {
     const logger = config.logger ?? this.getDefaultLogger();
     
-    // Enhanced perspective is now always active
-    logger.debug('EvaluationPipelineFactory: Creating enhanced perspective pipeline (legacy removed)');
+    logger.debug('EvaluationPipelineFactory: Creating evaluation pipeline');
     return new EnhancedPipelineStrategy(logger);
   }
 
   /**
    * Convenience method for getting current default pipeline
-   * Always returns enhanced perspective pipeline
    */
   static createDefault(): EvaluationPipelineStrategy {
     return this.createPipeline();
   }
 
-  /**
-   * Convenience method for creating enhanced pipeline (for testing)
-   * Legacy methods removed - enhanced is now the only option
-   */
-  static createEnhanced(): EvaluationPipelineStrategy {
-    return this.createPipeline();
-  }
-
-  /**
-   * Legacy method for backward compatibility with tests
-   * Returns same as createEnhanced since legacy was removed
-   */
-  static createLegacy(): EvaluationPipelineStrategy {
-    return this.createPipeline();
-  }
 }
