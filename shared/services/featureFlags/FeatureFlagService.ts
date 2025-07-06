@@ -170,4 +170,24 @@ export class FeatureFlagService {
       }))
     };
   }
+  
+  /**
+   * Update feature flag percentage (for ConfigFileAdapter only)
+   * This is used by RolloutManager to control gradual rollout
+   */
+  async updateFeatureFlagPercentage(flagName: string, percentage: number): Promise<void> {
+    // Check if adapter is ConfigFileAdapter
+    if (this.adapter instanceof ConfigFileAdapter) {
+      await this.adapter.updateFlagPercentage(flagName, percentage);
+      this.clearCache(); // Clear cache after update
+      
+      this.monitoring.recordMetric({
+        name: 'feature_flag.percentage_updated',
+        value: percentage,
+        tags: { flag: flagName }
+      });
+    } else {
+      throw new Error('Feature flag percentage updates are only supported with ConfigFileAdapter');
+    }
+  }
 }

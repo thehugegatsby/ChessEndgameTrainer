@@ -33,7 +33,7 @@ const RolloutDashboard: React.FC = () => {
   const fetchData = async () => {
     try {
       const [currentState, currentMetrics, healthResult] = await Promise.all([
-        Promise.resolve(rolloutManager.getState()),
+        rolloutManager.getState(),
         rolloutManager.getMetrics(),
         rolloutManager.performHealthCheck()
       ]);
@@ -58,13 +58,13 @@ const RolloutDashboard: React.FC = () => {
   }, [refreshInterval]); // eslint-disable-line react-hooks/exhaustive-deps
   
   // Actions
-  const handleStart = () => {
-    rolloutManager.start();
+  const handleStart = async () => {
+    await rolloutManager.start();
     fetchData();
   };
   
-  const handlePause = () => {
-    rolloutManager.pause();
+  const handlePause = async () => {
+    await rolloutManager.pause();
     fetchData();
   };
   

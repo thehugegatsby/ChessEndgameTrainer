@@ -4,16 +4,31 @@
  */
 
 import { createHash } from 'crypto';
+import type { promises as fsType } from 'fs';
+import type pathType from 'path';
 import { FeatureFlagPort, FeatureFlagContext, FeatureFlagConfig } from '../ports/FeatureFlagPort';
 
 // Import config directly (Next.js will bundle this)
-import flagConfig from '../config/feature-flags.json';
+import defaultFlagConfig from '../config/feature-flags.json';
+
+// Dynamic imports for Node.js modules
+let fs: typeof fsType;
+let path: typeof pathType;
+
+if (typeof window === 'undefined') {
+  fs = require('fs').promises;
+  path = require('path');
+}
 
 export class ConfigFileAdapter implements FeatureFlagPort {
   private flags: Record<string, FeatureFlagConfig>;
+  private configPath: string;
   
   constructor() {
-    this.flags = flagConfig as Record<string, FeatureFlagConfig>;
+    this.flags = defaultFlagConfig as Record<string, FeatureFlagConfig>;
+    this.configPath = typeof window === 'undefined' 
+      ? path?.join(process.cwd(), 'shared/services/featureFlags/config/feature-flags.json') 
+      : '';
   }
 
   isFeatureEnabled(flagName: string, context: FeatureFlagContext): boolean {
@@ -122,5 +137,37 @@ export class ConfigFileAdapter implements FeatureFlagPort {
     }
     
     return value;
+  }
+  
+  /**
+   * Update flag percentage and persist to config file
+   * Used by RolloutManager for gradual rollout control
+   */
+  async updateFlagPercentage(flagName: string, percentage: number): Promise<void> {
+    // Validate percentage
+    if (percentage < 0 || percentage > 100) {
+      throw new Error(`Invalid percentage: ${percentage}. Must be between 0 and 100.`);
+    }
+    
+    // Update in memory
+    if (this.flags[flagName]) {
+      this.flags[flagName].rolloutPercentage = percentage;
+    } else {
+      throw new Error(`Flag not found: ${flagName}`);
+    }
+    
+    // Only try to persist if we're in Node.js environment
+    if (typeof window === 'undefined' && fs) {
+      try {
+        // Write to file atomically
+        const tempPath = `${this.configPath}.tmp`;
+        await fs.writeFile(tempPath, JSON.stringify(this.flags, null, 2), 'utf8');
+        await fs.rename(tempPath, this.configPath);
+      } catch (error) {
+        // If we can't write to file (e.g., read-only filesystem), just log warning
+        console.warn(`Could not persist feature flag update for ${flagName}:`, error);
+        // Keep the in-memory update
+      }
+    }
   }
 }

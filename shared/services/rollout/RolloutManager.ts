@@ -16,22 +16,27 @@ import {
   RolloutHistoryEntry 
 } from './types';
 import { ROLLOUT_STAGES, STAGE_ORDER, ROLLOUT_CONFIG } from './config';
+import { StoragePort } from './storage/StoragePort';
+import { StorageFactory } from './storage/StorageFactory';
 
 export class RolloutManager {
   private static instance: RolloutManager;
   private state: RolloutState;
   private monitoring: MonitoringPort;
   private metricsCollector: MetricsCollector;
+  private storage: StoragePort;
   private healthCheckTimer?: NodeJS.Timeout;
   private progressionTimer?: NodeJS.Timeout;
   private featureFlagName = 'USE_UNIFIED_EVALUATION_SYSTEM';
+  private isInitialized = false;
   
-  private constructor(monitoring?: MonitoringPort) {
+  private constructor(monitoring?: MonitoringPort, storage?: StoragePort) {
     this.monitoring = monitoring || MonitoringFactory.createAdapter();
     this.metricsCollector = MonitoringFactory.getMetricsCollector();
+    this.storage = storage || StorageFactory.createStorage();
     
-    // Initialize state
-    this.state = this.loadState() || {
+    // Initialize with default state - will be loaded async
+    this.state = {
       currentStage: 'shadow',
       currentPercentage: 0,
       stageStartTime: Date.now(),
@@ -43,9 +48,36 @@ export class RolloutManager {
     };
   }
   
-  static getInstance(monitoring?: MonitoringPort): RolloutManager {
+  /**
+   * Initialize the manager by loading state from storage
+   */
+  private async initialize(): Promise<void> {
+    if (this.isInitialized) return;
+    
+    try {
+      const savedState = await this.storage.read();
+      if (savedState) {
+        this.state = savedState;
+        this.monitoring.recordMetric({
+          name: 'rollout.state_loaded',
+          value: 1,
+          tags: { stage: savedState.currentStage }
+        });
+      }
+    } catch (error) {
+      this.monitoring.recordError({
+        message: 'Failed to load rollout state',
+        severity: 'warning',
+        context: { error }
+      });
+    }
+    
+    this.isInitialized = true;
+  }
+  
+  static getInstance(monitoring?: MonitoringPort, storage?: StoragePort): RolloutManager {
     if (!RolloutManager.instance) {
-      RolloutManager.instance = new RolloutManager(monitoring);
+      RolloutManager.instance = new RolloutManager(monitoring, storage);
     }
     return RolloutManager.instance;
   }
@@ -53,7 +85,8 @@ export class RolloutManager {
   /**
    * Start the rollout process
    */
-  start(): void {
+  async start(): Promise<void> {
+    await this.initialize();
     if (this.state.currentStage === 'rollback') {
       this.monitoring.recordError({
         message: 'Cannot start rollout from rollback state',
@@ -64,7 +97,7 @@ export class RolloutManager {
     
     this.addHistoryEntry('resume', 'Rollout started');
     this.state.isPaused = false;
-    this.saveState();
+    await this.saveState();
     
     // Start health checks and progression checks
     this.startHealthChecks();
@@ -80,10 +113,10 @@ export class RolloutManager {
   /**
    * Pause the rollout
    */
-  pause(): void {
+  async pause(): Promise<void> {
     this.addHistoryEntry('pause', 'Rollout paused');
     this.state.isPaused = true;
-    this.saveState();
+    await this.saveState();
     
     this.stopTimers();
     
@@ -148,7 +181,7 @@ export class RolloutManager {
     this.state.isHealthy = false;
     
     this.addHistoryEntry('rollback', reason);
-    this.saveState();
+    await this.saveState();
     
     this.stopTimers();
   }
@@ -238,7 +271,8 @@ export class RolloutManager {
   /**
    * Get current rollout state
    */
-  getState(): RolloutState {
+  async getState(): Promise<RolloutState> {
+    await this.initialize();
     return { ...this.state };
   }
   
@@ -246,6 +280,7 @@ export class RolloutManager {
    * Get rollout metrics
    */
   async getMetrics(): Promise<RolloutMetrics> {
+    await this.initialize();
     return this.collectMetrics();
   }
   
@@ -313,7 +348,7 @@ export class RolloutManager {
     this.state.stageStartTime = Date.now();
     
     this.addHistoryEntry('enter', `Entered ${config.displayName} stage`);
-    this.saveState();
+    await this.saveState();
     
     this.monitoring.recordMetric({
       name: 'rollout.stage_transition',
@@ -328,16 +363,24 @@ export class RolloutManager {
   }
   
   private async updateFeatureFlagPercentage(percentage: number): Promise<void> {
-    // This would need to be implemented in the feature flag service
-    // For now, we'll update the config file
-    const configPath = './shared/services/featureFlags/config/feature-flags.json';
-    // TODO: Implement actual update logic
+    const flagService = FeatureFlagService.getInstance();
     
-    this.monitoring.recordMetric({
-      name: 'rollout.percentage_update',
-      value: percentage,
-      tags: { stage: this.state.currentStage }
-    });
+    try {
+      await flagService.updateFeatureFlagPercentage(this.featureFlagName, percentage);
+      
+      this.monitoring.recordMetric({
+        name: 'rollout.percentage_update',
+        value: percentage,
+        tags: { stage: this.state.currentStage }
+      });
+    } catch (error) {
+      this.monitoring.recordError({
+        message: 'Failed to update feature flag percentage',
+        severity: 'error',
+        context: { percentage, error }
+      });
+      throw error;
+    }
   }
   
   private startHealthChecks(): void {
@@ -376,7 +419,7 @@ export class RolloutManager {
       this.state.lastProgression = Date.now();
       
       this.addHistoryEntry('progress', `Auto-progressed to ${newPercentage}%`);
-      this.saveState();
+      await this.saveState();
     }
   }
   
@@ -431,19 +474,20 @@ export class RolloutManager {
     }
   }
   
-  private loadState(): RolloutState | null {
-    // In a real implementation, this would load from persistent storage
-    // For now, return null to use default state
-    return null;
-  }
-  
-  private saveState(): void {
-    // In a real implementation, this would save to persistent storage
-    // For now, we'll just log
-    this.monitoring.recordMetric({
-      name: 'rollout.state_saved',
-      value: 1,
-      tags: { stage: this.state.currentStage }
-    });
+  private async saveState(): Promise<void> {
+    try {
+      await this.storage.write(this.state);
+      this.monitoring.recordMetric({
+        name: 'rollout.state_saved',
+        value: 1,
+        tags: { stage: this.state.currentStage }
+      });
+    } catch (error) {
+      this.monitoring.recordError({
+        message: 'Failed to save rollout state',
+        severity: 'error',
+        context: { error }
+      });
+    }
   }
 }

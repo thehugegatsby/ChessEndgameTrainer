@@ -9,9 +9,16 @@ import { DiscrepancyMonitor } from '../../monitoring/DiscrepancyMonitor';
 import { MetricsCollector } from '../../monitoring/adapters/MetricsCollector';
 import { RolloutMetrics, RolloutStage } from '../types';
 import { ROLLOUT_CONFIG } from '../config';
+import { MemoryStorage } from '../storage/MemoryStorage';
 
 // Mock dependencies
-jest.mock('../../featureFlags/FeatureFlagService');
+jest.mock('../../featureFlags/FeatureFlagService', () => ({
+  FeatureFlagService: {
+    getInstance: jest.fn(() => ({
+      updateFeatureFlagPercentage: jest.fn()
+    }))
+  }
+}));
 jest.mock('../../monitoring/DiscrepancyMonitor');
 jest.mock('../../monitoring/adapters/MetricsCollector');
 jest.mock('../../monitoring/MonitoringFactory', () => ({
@@ -42,6 +49,7 @@ const mockDiscrepancyMonitor = {
 
 describe('RolloutManager', () => {
   let manager: RolloutManager;
+  let storage: MemoryStorage;
   
   beforeEach(() => {
     // Reset singleton
@@ -50,6 +58,9 @@ describe('RolloutManager', () => {
     // Reset mocks
     jest.clearAllMocks();
     jest.useFakeTimers();
+    
+    // Use memory storage for tests
+    storage = new MemoryStorage();
     
     // Setup default mock returns
     (DiscrepancyMonitor.getInstance as jest.Mock).mockReturnValue(mockDiscrepancyMonitor);
@@ -76,7 +87,7 @@ describe('RolloutManager', () => {
       recent: []
     });
     
-    manager = RolloutManager.getInstance(mockMonitoring);
+    manager = RolloutManager.getInstance(mockMonitoring, storage);
   });
   
   afterEach(() => {
@@ -85,7 +96,7 @@ describe('RolloutManager', () => {
   
   describe('start', () => {
     it('should start health checks and progression checks', async () => {
-      manager.start();
+      await manager.start();
       
       expect(mockMonitoring.recordMetric).toHaveBeenCalledWith({
         name: 'rollout.started',
@@ -93,7 +104,7 @@ describe('RolloutManager', () => {
         tags: { stage: 'shadow' }
       });
       
-      const state = manager.getState();
+      const state = await manager.getState();
       expect(state.isPaused).toBe(false);
       
       // Advance timers to trigger checks
@@ -115,7 +126,7 @@ describe('RolloutManager', () => {
       await manager.rollback('Test rollback');
       jest.clearAllMocks();
       
-      manager.start();
+      await manager.start();
       
       expect(mockMonitoring.recordError).toHaveBeenCalledWith({
         message: 'Cannot start rollout from rollback state',
@@ -125,11 +136,11 @@ describe('RolloutManager', () => {
   });
   
   describe('pause', () => {
-    it('should pause rollout and stop timers', () => {
-      manager.start();
-      manager.pause();
+    it('should pause rollout and stop timers', async () => {
+      await manager.start();
+      await manager.pause();
       
-      const state = manager.getState();
+      const state = await manager.getState();
       expect(state.isPaused).toBe(true);
       
       expect(mockMonitoring.recordMetric).toHaveBeenCalledWith({
@@ -244,7 +255,7 @@ describe('RolloutManager', () => {
       
       expect(result).toBe(true);
       
-      const state = manager.getState();
+      const state = await manager.getState();
       expect(state.currentStage).toBe('canary');
       expect(state.currentPercentage).toBe(1); // Min percentage for canary
       
@@ -257,7 +268,7 @@ describe('RolloutManager', () => {
     });
     
     it('should not progress when paused', async () => {
-      manager.pause();
+      await manager.pause();
       
       const result = await manager.progressToNextStage();
       
@@ -286,7 +297,7 @@ describe('RolloutManager', () => {
       await manager.progressToNextStage(); // expansion -> majority
       await manager.progressToNextStage(); // majority -> full
       
-      const state = manager.getState();
+      const state = await manager.getState();
       expect(state.currentStage).toBe('full');
       
       // Try to progress beyond full
@@ -302,7 +313,7 @@ describe('RolloutManager', () => {
       
       await manager.rollback('Test rollback reason');
       
-      const state = manager.getState();
+      const state = await manager.getState();
       expect(state.currentStage).toBe('rollback');
       expect(state.currentPercentage).toBe(0);
       expect(state.isHealthy).toBe(false);
@@ -349,7 +360,7 @@ describe('RolloutManager', () => {
     it('should auto-progress within canary stage', async () => {
       // Move to canary stage
       await manager.progressToNextStage();
-      manager.start();
+      await manager.start();
       
       // Mock stable metrics
       mockDiscrepancyMonitor.getStatistics.mockReturnValue({
@@ -366,13 +377,15 @@ describe('RolloutManager', () => {
       // Allow async operations to complete
       await Promise.resolve();
       
-      const state = manager.getState();
+      const state = await manager.getState();
       expect(state.currentPercentage).toBeGreaterThan(1);
     });
     
     it('should not auto-progress when unhealthy', async () => {
       await manager.progressToNextStage();
-      manager.start();
+      await manager.start();
+      
+      const initialPercentage = (await manager.getState()).currentPercentage;
       
       // Set unhealthy metrics
       mockDiscrepancyMonitor.getStatistics.mockReturnValue({
@@ -382,13 +395,16 @@ describe('RolloutManager', () => {
       
       // Trigger health check
       jest.advanceTimersByTime(ROLLOUT_CONFIG.healthCheckInterval);
+      await Promise.resolve(); // Let async operations complete
       
-      const initialPercentage = manager.getState().currentPercentage;
+      // Wait for state to be unhealthy
+      jest.advanceTimersByTime(100);
       
       // Try to progress
       jest.advanceTimersByTime(ROLLOUT_CONFIG.progressionCheckInterval);
+      await Promise.resolve();
       
-      expect(manager.getState().currentPercentage).toBe(initialPercentage);
+      expect((await manager.getState()).currentPercentage).toBe(initialPercentage);
     });
   });
 });
