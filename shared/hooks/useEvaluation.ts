@@ -102,17 +102,32 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
         }
 
         // Convert formatted evaluation to legacy format
+        let evaluationScore: number;
+        
+        // Handle tablebase evaluations differently
+        if (formattedEval.metadata.isTablebase) {
+          // For tablebase positions, use 0 as default since actual value comes from WDL
+          evaluationScore = 0;
+        } else {
+          // For engine evaluations, parse the score
+          evaluationScore = parseFloat(formattedEval.mainText.replace(/[+M]/g, '')) * 100; // Convert to centipawns
+        }
+        
         const evaluation: EvaluationData = {
-          evaluation: parseFloat(formattedEval.mainText.replace(/[+M]/g, '')) * 100, // Convert to centipawns
+          evaluation: evaluationScore,
           mateInMoves: formattedEval.metadata.isMate ? 
             parseInt(formattedEval.mainText.replace(/[M+-]/g, '')) : undefined
         };
 
         // Handle tablebase data if available
         if (formattedEval.metadata.isTablebase && previousFen) {
-          // Get tablebase comparison
-          const prevPerspectiveEval = await service.getPerspectiveEvaluation(previousFen, playerToMove);
-          const currPerspectiveEval = await service.getPerspectiveEvaluation(fen, playerToMove);
+          // CRITICAL: For move comparison, we need the perspective of the player who MADE the move
+          // If it's currently black's turn, then white just moved (and vice versa)
+          const playerWhoMoved = playerToMove === 'w' ? 'b' : 'w';
+          
+          // Get tablebase comparison from the perspective of the player who made the move
+          const prevPerspectiveEval = await service.getPerspectiveEvaluation(previousFen, playerWhoMoved);
+          const currPerspectiveEval = await service.getPerspectiveEvaluation(fen, playerWhoMoved);
           
           if (prevPerspectiveEval.isTablebasePosition && currPerspectiveEval.isTablebasePosition) {
             evaluation.tablebase = {
@@ -127,6 +142,7 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
         }
 
         if (!abortController.signal.aborted) {
+          console.log('🔍 useEvaluation - Adding evaluation:', JSON.stringify(evaluation, null, 2));
           addEvaluation(evaluation);
         }
       } catch (err: any) {

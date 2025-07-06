@@ -168,6 +168,10 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   // Update parent with evaluations (now with tablebase data!)
   useEffect(() => {
     if (onEvaluationsChange) {
+      console.log('🔍 TrainingBoard - Passing evaluations to parent:', evaluations.length, 'items');
+      if (evaluations.length > 0) {
+        console.log('🔍 Last evaluation:', JSON.stringify(evaluations[evaluations.length - 1], null, 2));
+      }
       onEvaluationsChange(evaluations);
     }
   }, [evaluations, onEvaluationsChange]);
