@@ -1,20 +1,9 @@
 // shared/lib/chess/evaluation/__tests__/pipeline.isolated.test.ts
 
+import './jest.setup'; // Setup mocks
 import { EvaluationPipelineFactory } from '../pipelineFactory';
 // Assuming 'chess.js' is used for game state representation.
 import { Chess } from 'chess.js';
-
-// Mock dependencies
-jest.mock('@shared/services/logging', () => ({
-  getLogger: () => ({
-    setContext: () => ({
-      debug: jest.fn(),
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn()
-    })
-  })
-}));
 
 describe('EvaluationPipeline (Isolated)', () => {
   let pipeline: ReturnType<typeof EvaluationPipelineFactory.createDefault>;

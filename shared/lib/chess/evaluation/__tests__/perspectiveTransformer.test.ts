@@ -9,22 +9,12 @@
  * @module PlayerPerspectiveTransformer.test
  */
 
+import './jest.setup'; // Setup mocks
 import { PlayerPerspectiveTransformer } from '../perspectiveTransformer';
 import type { 
   NormalizedEvaluation,
   PlayerPerspectiveEvaluation 
 } from '@shared/types/evaluation';
-
-// Mock the logger
-jest.mock('@shared/services/logging/Logger', () => ({
-  Logger: {
-    getInstance: jest.fn(() => ({
-      debug: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn()
-    }))
-  }
-}));
 
 describe('PlayerPerspectiveTransformer', () => {
   let transformer: PlayerPerspectiveTransformer;

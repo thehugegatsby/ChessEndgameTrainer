@@ -8,22 +8,12 @@
  * @module EvaluationFormatter.test
  */
 
+import './jest.setup'; // Setup mocks
 import { EvaluationFormatter } from '../formatter';
 import type { 
   PlayerPerspectiveEvaluation,
   FormattedEvaluation 
 } from '@shared/types/evaluation';
-
-// Mock the logger
-jest.mock('@shared/services/logging/Logger', () => ({
-  Logger: {
-    getInstance: jest.fn(() => ({
-      debug: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn()
-    }))
-  }
-}));
 
 describe('EvaluationFormatter', () => {
   let formatter: EvaluationFormatter;

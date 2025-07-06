@@ -13,6 +13,7 @@
  * @module EvaluationNormalizer.test
  */
 
+import './jest.setup'; // Setup mocks
 import { EvaluationNormalizer } from '../normalizer';
 import type { 
   EngineEvaluation, 

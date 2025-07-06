@@ -12,7 +12,7 @@ module.exports = {
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  testPathIgnorePatterns: ['/node_modules/', '/.next/'],
+  testPathIgnorePatterns: ['/node_modules/', '/.next/', 'jest.setup.ts'],
   moduleNameMapper: {
     '^@app/(.*)$': '<rootDir>/app/$1',
     '^@shared/(.*)$': '<rootDir>/shared/$1',

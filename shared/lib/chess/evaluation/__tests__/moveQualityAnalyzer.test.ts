@@ -15,6 +15,7 @@
  * @module MoveQualityAnalyzer.test
  */
 
+import './jest.setup'; // Setup mocks
 import { MoveQualityAnalyzer } from '../moveQualityAnalyzer';
 import { UnifiedEvaluationService } from '../unifiedService';
 import { EvaluationNormalizer } from '../normalizer';
@@ -46,17 +47,6 @@ const mockCacheProvider: jest.Mocked<ICacheProvider<any>> = {
   delete: jest.fn(),
   clear: jest.fn()
 };
-
-// Mock the logger
-jest.mock('@shared/services/logging/Logger', () => ({
-  Logger: {
-    getInstance: jest.fn(() => ({
-      debug: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn()
-    }))
-  }
-}));
 
 describe('MoveQualityAnalyzer', () => {
   let analyzer: MoveQualityAnalyzer;

@@ -10,6 +10,7 @@
  * @module UnifiedEvaluationService.test
  */
 
+import './jest.setup'; // Setup mocks
 import { UnifiedEvaluationService } from '../unifiedService';
 import { EvaluationNormalizer } from '../normalizer';
 import { PlayerPerspectiveTransformer } from '../perspectiveTransformer';
