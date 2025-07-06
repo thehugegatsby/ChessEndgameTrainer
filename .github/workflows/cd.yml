@@ -120,6 +120,6 @@ jobs:
           ${{ steps.changelog.outputs.CHANGELOG }}
           
           ---
-          **Full Changelog**: https://github.com/${{ github.repository }}/compare/v${{ github.run_number - 1 }}...v${{ github.run_number }}
+          **Full Changelog**: https://github.com/${{ github.repository }}/commits/main
         draft: false
         prerelease: false
