@@ -20,7 +20,7 @@ import type {
   PlayerPerspectiveEvaluation,
   MoveQualityResult,
   MoveQualityType
-} from '@shared/types/evaluation';
+} from '../../../types/evaluation';
 
 export interface MoveQualityConfig {
   /** Threshold for excellent moves in centipawns */

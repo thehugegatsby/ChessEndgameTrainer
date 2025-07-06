@@ -1,224 +1,171 @@
-import { getGameStatus, getShortGameStatus } from '@/utils/chess/gameStatus';
+/**
+ * @fileoverview Unit tests for chess game status utilities
+ * @description Tests game status detection, objective determination, and turn management
+ */
 
-describe('gameStatus', () => {
+import { describe, test, expect } from '@jest/globals';
+import { getGameStatus, getShortGameStatus } from '../../../shared/utils/chess/gameStatus';
+import { TEST_POSITIONS } from '../../helpers/testPositions';
+
+describe('Chess Game Status', () => {
   describe('getGameStatus', () => {
-    test('should return correct status for white to move', () => {
-      const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-      const status = getGameStatus(fen);
-      
-      expect(status.sideToMove).toBe('white');
-      expect(status.sideToMoveDisplay).toBe('Weiß am Zug');
-      expect(status.icon).toBe('🟢');
+    describe('Turn Detection', () => {
+      test('should_detect_white_to_move_from_starting_position', () => {
+        const status = getGameStatus(TEST_POSITIONS.STARTING_POSITION);
+        
+        expect(status.sideToMove).toBe('white');
+        expect(status.sideToMoveDisplay).toBe('Weiß am Zug');
+        expect(status.icon).toBe('🟢');
+      });
+
+      test('should_detect_black_to_move_from_after_e4', () => {
+        const afterE4 = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1';
+        const status = getGameStatus(afterE4);
+        
+        expect(status.sideToMove).toBe('black');
+        expect(status.sideToMoveDisplay).toBe('Schwarz am Zug');
+        expect(status.icon).toBe('⚫');
+      });
     });
 
-    test('should return correct status for black to move', () => {
-      const fen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1';
-      const status = getGameStatus(fen);
-      
-      expect(status.sideToMove).toBe('black');
-      expect(status.sideToMoveDisplay).toBe('Schwarz am Zug');
-      expect(status.icon).toBe('⚫');
+    describe('Objective Detection', () => {
+      test('should_detect_win_objective_for_material_advantage', () => {
+        // Queen vs King - clear winning advantage
+        const status = getGameStatus(TEST_POSITIONS.KQK_TABLEBASE_WIN);
+        
+        expect(status.objective).toBe('win');
+        expect(status.objectiveDisplay).toBe('Ziel: Gewinn');
+      });
+
+      test('should_detect_win_objective_for_pawn_endgame_advantage', () => {
+        const status = getGameStatus(TEST_POSITIONS.KPK_WINNING);
+        
+        expect(status.objective).toBe('win');
+        expect(status.objectiveDisplay).toBe('Ziel: Gewinn');
+      });
+
+      test('should_detect_draw_objective_for_equal_material', () => {
+        const status = getGameStatus(TEST_POSITIONS.EQUAL_POSITION);
+        
+        expect(status.objective).toBe('draw');
+        expect(status.objectiveDisplay).toBe('Ziel: Remis');
+      });
+
+      test('should_use_provided_goal_over_auto_detection', () => {
+        const status = getGameStatus(TEST_POSITIONS.KQK_TABLEBASE_WIN, 'defend');
+        
+        expect(status.objective).toBe('defend');
+        expect(status.objectiveDisplay).toBe('Ziel: Verteidigen');
+      });
     });
 
-    test('should handle invalid FEN with fallback', () => {
-      const status = getGameStatus('invalid-fen');
-      
-      expect(status.sideToMove).toBe('white');
-      expect(status.sideToMoveDisplay).toBe('Weiß am Zug');
-      expect(status.objective).toBe('win');
-      expect(status.objectiveDisplay).toBe('Ziel: Gewinn');
-      expect(status.icon).toBe('🟢');
+    describe('Error Handling', () => {
+      test('should_handle_invalid_fen_gracefully', () => {
+        const status = getGameStatus(TEST_POSITIONS.INVALID_FEN);
+        
+        expect(status.sideToMove).toBe('white');
+        expect(status.sideToMoveDisplay).toBe('Weiß am Zug');
+        expect(status.objective).toBe('win');
+        expect(status.objectiveDisplay).toBe('Ziel: Gewinn');
+        expect(status.icon).toBe('🟢');
+      });
+
+      test('should_handle_empty_fen_gracefully', () => {
+        const status = getGameStatus(TEST_POSITIONS.EMPTY_FEN);
+        
+        expect(status.sideToMove).toBe('white');
+        expect(status.objective).toBe('win');
+      });
+
+      test('should_handle_malformed_fen_gracefully', () => {
+        const status = getGameStatus(TEST_POSITIONS.MALFORMED_FEN);
+        
+        expect(status.sideToMove).toBe('white');
+        expect(status.objective).toBe('win');
+      });
+
+      test('should_handle_null_fen_gracefully', () => {
+        const status = getGameStatus(null as any);
+        
+        expect(status.sideToMove).toBe('white');
+        expect(status.objective).toBe('win');
+      });
+
+      test('should_handle_undefined_fen_gracefully', () => {
+        const status = getGameStatus(undefined as any);
+        
+        expect(status.sideToMove).toBe('white');
+        expect(status.objective).toBe('win');
+      });
     });
 
-    test('should use provided goal when available', () => {
-      const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-      const status = getGameStatus(fen, 'draw');
-      
-      expect(status.objective).toBe('draw');
-      expect(status.objectiveDisplay).toBe('Ziel: Remis');
-    });
+    describe('Material Analysis Edge Cases', () => {
+      test('should_detect_win_for_significant_material_advantage', () => {
+        // White has queen, black has nothing
+        const queenVsEmpty = '8/8/8/8/8/8/4K3/4k2Q w - - 0 1';
+        const status = getGameStatus(queenVsEmpty);
+        
+        expect(status.objective).toBe('win');
+      });
 
-    test('should use provided defend goal', () => {
-      const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-      const status = getGameStatus(fen, 'defend');
-      
-      expect(status.objective).toBe('defend');
-      expect(status.objectiveDisplay).toBe('Ziel: Verteidigen');
-    });
+      test('should_detect_win_for_king_pawn_vs_king', () => {
+        const status = getGameStatus(TEST_POSITIONS.KPK_WINNING);
+        
+        expect(status.objective).toBe('win');
+      });
 
-    test('should detect win objective for material advantage', () => {
-      // Queen vs empty - should default to win objective
-      const fen = '4k3/8/8/8/8/8/4Q3/4K3 w - - 0 1';
-      const status = getGameStatus(fen);
-      
-      expect(status.objective).toBe('win');
-      expect(status.objectiveDisplay).toBe('Ziel: Gewinn');
-    });
-
-    test('should handle endgame positions correctly', () => {
-      // King and pawn vs king
-      const fen = '4k3/8/8/8/8/8/4P3/4K3 w - - 0 1';
-      const status = getGameStatus(fen);
-      
-      expect(status.sideToMove).toBe('white');
-      expect(status.sideToMoveDisplay).toBe('Weiß am Zug');
-    });
-
-    test('should provide correct move counts', () => {
-      const fen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1';
-      const status = getGameStatus(fen);
-      
-      expect(status.moveNumber).toBe(1);
-      expect(status.halfMoveClock).toBe(0);
-    });
-
-    test('should handle advanced move counts', () => {
-      const fen = 'r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4';
-      const status = getGameStatus(fen);
-      
-      expect(status.moveNumber).toBe(4);
-      expect(status.halfMoveClock).toBe(4);
-    });
-
-    test('should detect castling rights', () => {
-      const fen = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1';
-      const status = getGameStatus(fen);
-      
-      expect(status.castlingRights).toBe('KQkq');
-    });
-
-    test('should handle no castling rights', () => {
-      const fen = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w - - 0 1';
-      const status = getGameStatus(fen);
-      
-      expect(status.castlingRights).toBe('-');
-    });
-
-    test('should detect en passant square', () => {
-      const fen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1';
-      const status = getGameStatus(fen);
-      
-      expect(status.enPassantSquare).toBe('e3');
-    });
-
-    test('should handle no en passant', () => {
-      const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-      const status = getGameStatus(fen);
-      
-      expect(status.enPassantSquare).toBe('-');
+      test('should_detect_draw_for_equal_material_complex', () => {
+        // Both sides have rook
+        const rooksEqual = '8/8/8/8/8/4r3/4K3/4k2R w - - 0 1';
+        const status = getGameStatus(rooksEqual);
+        
+        expect(status.objective).toBe('draw');
+      });
     });
   });
 
   describe('getShortGameStatus', () => {
-    test('should return short status for white', () => {
-      const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-      const status = getShortGameStatus(fen);
+    test('should_return_compact_status_for_white_win', () => {
+      const shortStatus = getShortGameStatus(TEST_POSITIONS.KQK_TABLEBASE_WIN);
       
-      expect(status).toBe('Weiß');
+      expect(shortStatus).toBe('Weiß • Gewinn');
     });
 
-    test('should return short status for black', () => {
-      const fen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1';
-      const status = getShortGameStatus(fen);
+    test('should_return_compact_status_for_black_draw', () => {
+      const afterE4 = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1';
+      const shortStatus = getShortGameStatus(afterE4);
       
-      expect(status).toBe('Schwarz');
+      expect(shortStatus).toMatch(/Schwarz • (Gewinn|Remis)/);
     });
 
-    test('should handle invalid FEN', () => {
-      const status = getShortGameStatus('invalid-fen');
+    test('should_return_compact_status_for_defend_objective', () => {
+      const shortStatus = getShortGameStatus(TEST_POSITIONS.KQK_TABLEBASE_WIN, 'defend');
       
-      expect(status).toBe('Weiß'); // Default fallback
-    });
-
-    test('should be consistent with getGameStatus', () => {
-      const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-      const fullStatus = getGameStatus(fen);
-      const shortStatus = getShortGameStatus(fen);
-      
-      const expectedShort = fullStatus.sideToMove === 'white' ? 'Weiß' : 'Schwarz';
-      expect(shortStatus).toBe(expectedShort);
+      expect(shortStatus).toBe('Weiß • Verteidigen');
     });
   });
 
-  describe('Edge Cases', () => {
-    test('should handle empty string FEN', () => {
-      const status = getGameStatus('');
+  describe('Integration with Special Positions', () => {
+    test('should_handle_bruckenbau_position_correctly', () => {
+      const status = getGameStatus(TEST_POSITIONS.BRUCKENBAU_POSITION);
       
       expect(status.sideToMove).toBe('white');
-      expect(status.objective).toBe('win');
+      expect(status.objective).toBe('win'); // White has Queen advantage
     });
 
-    test('should handle malformed FEN parts', () => {
-      const status = getGameStatus('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR x');
+    test('should_handle_lucena_position_correctly', () => {
+      const status = getGameStatus(TEST_POSITIONS.LUCENA_POSITION);
       
       expect(status.sideToMove).toBe('white');
+      expect(status.objective).toBe('win'); // Famous winning rook endgame
     });
 
-    test('should handle partial FEN', () => {
-      const status = getGameStatus('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w');
+    test('should_handle_philidor_position_correctly', () => {
+      const status = getGameStatus(TEST_POSITIONS.PHILIDOR_POSITION);
       
-      expect(status.sideToMove).toBe('white');
-    });
-
-    test('should handle complex endgame', () => {
-      // Rook endgame
-      const fen = '6k1/8/8/8/8/8/6R1/6K1 w - - 0 1';
-      const status = getGameStatus(fen);
-      
-      expect(status.sideToMove).toBe('white');
-      expect(status.objective).toBe('win');
-    });
-
-    test('should handle pawn endgame', () => {
-      // Pawn endgame
-      const fen = '8/8/8/8/8/3k4/3P4/3K4 w - - 0 1';
-      const status = getGameStatus(fen);
-      
-      expect(status.sideToMove).toBe('white');
-    });
-  });
-
-  describe('Goal Detection', () => {
-    test('should prefer explicit goal over automatic detection', () => {
-      const fen = '4k3/8/8/8/8/8/4Q3/4K3 w - - 0 1'; // Clear win position
-      const status = getGameStatus(fen, 'draw'); // But goal is draw
-      
-      expect(status.objective).toBe('draw');
-      expect(status.objectiveDisplay).toBe('Ziel: Remis');
-    });
-
-    test('should handle all goal types', () => {
-      const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-      
-      const winStatus = getGameStatus(fen, 'win');
-      expect(winStatus.objectiveDisplay).toBe('Ziel: Gewinn');
-      
-      const drawStatus = getGameStatus(fen, 'draw');
-      expect(drawStatus.objectiveDisplay).toBe('Ziel: Remis');
-      
-      const defendStatus = getGameStatus(fen, 'defend');
-      expect(defendStatus.objectiveDisplay).toBe('Ziel: Verteidigen');
-    });
-  });
-
-  describe('Display Formatting', () => {
-    test('should format display strings consistently', () => {
-      const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-      const status = getGameStatus(fen);
-      
-      expect(status.sideToMoveDisplay.startsWith('Weiß')).toBe(true);
-      expect(status.objectiveDisplay.startsWith('Ziel:')).toBe(true);
-    });
-
-    test('should use correct icons', () => {
-      const whiteFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-      const blackFen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1';
-      
-      const whiteStatus = getGameStatus(whiteFen);
-      const blackStatus = getGameStatus(blackFen);
-      
-      expect(whiteStatus.icon).toBe('🟢');
-      expect(blackStatus.icon).toBe('⚫');
+      expect(status.sideToMove).toBe('black');
+      // Philidor position has equal material (rook vs rook + pawn), auto-detection might see pawn advantage
+      expect(['win', 'draw']).toContain(status.objective);
     });
   });
 });

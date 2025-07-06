@@ -7,7 +7,7 @@
  * @module EvaluationProviders
  */
 
-import type { EngineEvaluation, TablebaseResult } from '@shared/types/evaluation';
+import type { EngineEvaluation, TablebaseResult } from '../../../types/evaluation';
 
 /**
  * Interface for chess engine evaluation providers

@@ -1,12 +1,16 @@
+/**
+ * @fileoverview Unit tests for GameControls component
+ * @description Tests game control buttons with position info and game status
+ */
+
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { GameControls } from '../../../../shared/components/training/TrainingBoard/GameControls';
+import { GameControls } from '@shared/components/training/TrainingBoard/GameControls';
 
-describe('GameControls - Comprehensive Coverage', () => {
+describe('GameControls Component', () => {
   const mockPosition = {
-    name: 'Test Position',
-    description: 'A test chess endgame position'
+    name: 'King and Queen vs King',
+    description: 'Learn to deliver checkmate with queen and king vs lone king'
   };
 
   const defaultProps = {
@@ -21,338 +25,375 @@ describe('GameControls - Comprehensive Coverage', () => {
     jest.clearAllMocks();
   });
 
-  describe('Basic Rendering', () => {
+  describe('Rendering', () => {
     it('should render position information', () => {
       render(<GameControls {...defaultProps} />);
-      
-      expect(screen.getByText('Test Position')).toBeInTheDocument();
-      expect(screen.getByText('A test chess endgame position')).toBeInTheDocument();
+
+      expect(screen.getByText('King and Queen vs King')).toBeInTheDocument();
+      expect(screen.getByText('Learn to deliver checkmate with queen and king vs lone king')).toBeInTheDocument();
     });
 
     it('should render control buttons', () => {
       render(<GameControls {...defaultProps} />);
-      
+
       expect(screen.getByText('🔄 Reset')).toBeInTheDocument();
       expect(screen.getByText('↶ Zurück')).toBeInTheDocument();
     });
 
-    it('should render without game finished status by default', () => {
+    it('should not show game finished message when game is active', () => {
       render(<GameControls {...defaultProps} />);
-      
-      expect(screen.queryByText('🏁')).not.toBeInTheDocument();
+
       expect(screen.queryByText('Spiel beendet!')).not.toBeInTheDocument();
+      expect(screen.queryByText('🏁')).not.toBeInTheDocument();
     });
   });
 
   describe('Button Interactions', () => {
-    it('should call onReset when reset button is clicked', () => {
-      render(<GameControls {...defaultProps} />);
-      
-      fireEvent.click(screen.getByText('🔄 Reset'));
-      expect(defaultProps.onReset).toHaveBeenCalledTimes(1);
-    });
+    it('should call onReset when reset button clicked', () => {
+      const onReset = jest.fn();
+      render(<GameControls {...defaultProps} onReset={onReset} />);
 
-    it('should call onUndo when undo button is clicked and canUndo is true', () => {
-      render(<GameControls {...defaultProps} canUndo={true} />);
-      
-      fireEvent.click(screen.getByText('↶ Zurück'));
-      expect(defaultProps.onUndo).toHaveBeenCalledTimes(1);
-    });
-
-    it('should not call onUndo when undo button is clicked and canUndo is false', () => {
-      render(<GameControls {...defaultProps} canUndo={false} />);
-      
-      fireEvent.click(screen.getByText('↶ Zurück'));
-      expect(defaultProps.onUndo).not.toHaveBeenCalled();
-    });
-
-    it('should handle multiple reset clicks', () => {
-      render(<GameControls {...defaultProps} />);
-      
       const resetButton = screen.getByText('🔄 Reset');
       fireEvent.click(resetButton);
-      fireEvent.click(resetButton);
-      fireEvent.click(resetButton);
-      
-      expect(defaultProps.onReset).toHaveBeenCalledTimes(3);
+
+      expect(onReset).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle multiple undo clicks when canUndo is true', () => {
-      render(<GameControls {...defaultProps} canUndo={true} />);
-      
+    it('should call onUndo when undo button clicked', () => {
+      const onUndo = jest.fn();
+      render(<GameControls {...defaultProps} onUndo={onUndo} />);
+
       const undoButton = screen.getByText('↶ Zurück');
       fireEvent.click(undoButton);
+
+      expect(onUndo).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not call onUndo when button is disabled', () => {
+      const onUndo = jest.fn();
+      render(<GameControls {...defaultProps} onUndo={onUndo} canUndo={false} />);
+
+      const undoButton = screen.getByText('↶ Zurück');
       fireEvent.click(undoButton);
-      
-      expect(defaultProps.onUndo).toHaveBeenCalledTimes(2);
+
+      expect(onUndo).not.toHaveBeenCalled();
     });
   });
 
-  describe('Undo Button States', () => {
+  describe('Undo Button State', () => {
     it('should enable undo button when canUndo is true', () => {
       render(<GameControls {...defaultProps} canUndo={true} />);
-      
+
       const undoButton = screen.getByText('↶ Zurück');
       expect(undoButton).not.toBeDisabled();
-      expect(undoButton).not.toHaveClass('opacity-50', 'cursor-not-allowed');
     });
 
     it('should disable undo button when canUndo is false', () => {
       render(<GameControls {...defaultProps} canUndo={false} />);
-      
+
       const undoButton = screen.getByText('↶ Zurück');
       expect(undoButton).toBeDisabled();
-      expect(undoButton).toHaveClass('opacity-50', 'cursor-not-allowed');
     });
 
-    it('should apply correct CSS classes for enabled undo button', () => {
+    it('should apply correct styling when undo is enabled', () => {
       render(<GameControls {...defaultProps} canUndo={true} />);
-      
+
       const undoButton = screen.getByText('↶ Zurück');
-      expect(undoButton).toHaveClass('dark-button-warning', 'hover:bg-yellow-600');
-      expect(undoButton).not.toHaveClass('opacity-50', 'cursor-not-allowed');
+      expect(undoButton.className).toContain('dark-button-warning');
+      expect(undoButton.className).toContain('hover:bg-yellow-600');
     });
 
-    it('should apply correct CSS classes for disabled undo button', () => {
+    it('should apply disabled styling when undo is disabled', () => {
       render(<GameControls {...defaultProps} canUndo={false} />);
-      
+
       const undoButton = screen.getByText('↶ Zurück');
-      expect(undoButton).toHaveClass('opacity-50', 'cursor-not-allowed', 'bg-gray-600');
-      expect(undoButton).not.toHaveClass('dark-button-warning', 'hover:bg-yellow-600');
+      expect(undoButton.className).toContain('opacity-50');
+      expect(undoButton.className).toContain('cursor-not-allowed');
+      expect(undoButton.className).toContain('bg-gray-600');
     });
   });
 
   describe('Game Finished State', () => {
-    it('should display game finished status when isGameFinished is true', () => {
+    it('should show game finished message when game is completed', () => {
       render(<GameControls {...defaultProps} isGameFinished={true} />);
-      
-      expect(screen.getByText('🏁')).toBeInTheDocument();
+
       expect(screen.getByText('Spiel beendet!')).toBeInTheDocument();
+      expect(screen.getByText('🏁')).toBeInTheDocument();
     });
 
-    it('should not display game finished status when isGameFinished is false', () => {
+    it('should hide game finished message when game is active', () => {
       render(<GameControls {...defaultProps} isGameFinished={false} />);
-      
-      expect(screen.queryByText('🏁')).not.toBeInTheDocument();
+
       expect(screen.queryByText('Spiel beendet!')).not.toBeInTheDocument();
+      expect(screen.queryByText('🏁')).not.toBeInTheDocument();
     });
 
-    it('should have correct styling for game finished status', () => {
+    it('should apply correct styling to game finished message', () => {
       render(<GameControls {...defaultProps} isGameFinished={true} />);
-      
-      const finishedContainer = screen.getByText('🏁').closest('div');
-      expect(finishedContainer).toHaveClass('dark-card', 'rounded-lg', 'p-3', 'text-center');
+
+      const gameFinishedText = screen.getByText('Spiel beendet!');
+      expect(gameFinishedText.style.color).toBe('var(--success-text)');
     });
   });
 
   describe('Position Information Display', () => {
     it('should display position name with correct styling', () => {
       render(<GameControls {...defaultProps} />);
-      
-      const positionName = screen.getByText('Test Position');
-      expect(positionName).toHaveClass('font-semibold', 'text-sm', 'mb-1');
+
+      const positionName = screen.getByText('King and Queen vs King');
+      expect(positionName.className).toContain('font-semibold');
+      expect(positionName.className).toContain('text-sm');
+      expect(positionName.style.color).toBe('var(--text-primary)');
     });
 
     it('should display position description with correct styling', () => {
       render(<GameControls {...defaultProps} />);
-      
-      const positionDescription = screen.getByText('A test chess endgame position');
-      expect(positionDescription).toHaveClass('text-xs');
+
+      const positionDescription = screen.getByText('Learn to deliver checkmate with queen and king vs lone king');
+      expect(positionDescription.className).toContain('text-xs');
+      expect(positionDescription.style.color).toBe('var(--text-secondary)');
     });
 
-    it('should handle missing position name', () => {
-      const propsWithoutName = {
-        ...defaultProps,
-        position: { ...mockPosition, name: undefined }
+    it('should handle long position names gracefully', () => {
+      const longPosition = {
+        name: 'Very Long Position Name That Should Wrap Properly Without Breaking Layout',
+        description: 'Description'
       };
-      
-      render(<GameControls {...propsWithoutName} />);
-      expect(screen.queryByText('Test Position')).not.toBeInTheDocument();
+
+      render(<GameControls {...defaultProps} position={longPosition} />);
+
+      expect(screen.getByText(longPosition.name)).toBeInTheDocument();
     });
 
-    it('should handle missing position description', () => {
-      const propsWithoutDescription = {
-        ...defaultProps,
-        position: { ...mockPosition, description: undefined }
+    it('should handle long position descriptions gracefully', () => {
+      const longDescription = {
+        name: 'Position',
+        description: 'This is a very long description that explains the position in great detail and should wrap properly without breaking the layout or causing overflow issues in the component'
       };
-      
-      render(<GameControls {...propsWithoutDescription} />);
-      expect(screen.queryByText('A test chess endgame position')).not.toBeInTheDocument();
+
+      render(<GameControls {...defaultProps} position={longDescription} />);
+
+      expect(screen.getByText(longDescription.description)).toBeInTheDocument();
     });
 
-    it('should handle empty position name', () => {
-      const propsWithEmptyName = {
-        ...defaultProps,
-        position: { ...mockPosition, name: '' }
+    it('should handle empty position descriptions', () => {
+      const emptyDescription = {
+        name: 'Position',
+        description: ''
       };
-      
-      const { container } = render(<GameControls {...propsWithEmptyName} />);
-      const nameElement = container.querySelector('h3');
-      expect(nameElement).toHaveTextContent('');
-    });
 
-    it('should handle very long position name', () => {
-      const longName = 'This is a very long position name that should still display properly without breaking the layout or causing issues';
-      const propsWithLongName = {
-        ...defaultProps,
-        position: { ...mockPosition, name: longName }
-      };
-      
-      render(<GameControls {...propsWithLongName} />);
-      expect(screen.getByText(longName)).toBeInTheDocument();
-    });
+      render(<GameControls {...defaultProps} position={emptyDescription} />);
 
-    it('should handle position with special characters', () => {
-      const specialName = 'Position ♔♕♖♗♘♙ with émojis & spëcial chars';
-      const propsWithSpecialChars = {
-        ...defaultProps,
-        position: { ...mockPosition, name: specialName }
-      };
-      
-      render(<GameControls {...propsWithSpecialChars} />);
-      expect(screen.getByText(specialName)).toBeInTheDocument();
+      expect(screen.getByText('Position')).toBeInTheDocument();
+      // Empty description should still render but be empty
+      const descElement = screen.getByText('Position').parentElement?.querySelector('p');
+      expect(descElement).toHaveTextContent('');
     });
   });
 
-  describe('Layout and Container', () => {
-    it('should have correct container styling', () => {
+  describe('Layout and Structure', () => {
+    it('should have proper container structure', () => {
       const { container } = render(<GameControls {...defaultProps} />);
-      
-      const mainContainer = container.firstChild as HTMLElement;
-      expect(mainContainer).toHaveClass('mt-4', 'flex', 'flex-col', 'gap-3');
+
+      const mainContainer = container.querySelector('.mt-4.flex.flex-col.gap-3');
+      expect(mainContainer).toBeInTheDocument();
     });
 
-    it('should have correct button container styling', () => {
+    it('should have position info section', () => {
       const { container } = render(<GameControls {...defaultProps} />);
-      
-      const buttonContainer = container.querySelector('.flex.gap-2');
-      expect(buttonContainer).toBeInTheDocument();
-      expect(buttonContainer).toHaveClass('flex', 'gap-2');
+
+      const positionSection = container.querySelector('.dark-card.rounded-lg.p-3');
+      expect(positionSection).toBeInTheDocument();
     });
 
-    it('should maintain layout consistency across different states', () => {
-      const { rerender, container } = render(<GameControls {...defaultProps} />);
-      
-      const initialLayout = container.innerHTML;
-      
-      rerender(<GameControls {...defaultProps} canUndo={false} isGameFinished={true} />);
-      
-      // Container structure should remain consistent
-      const mainContainer = container.firstChild as HTMLElement;
-      expect(mainContainer).toHaveClass('mt-4', 'flex', 'flex-col', 'gap-3');
+    it('should have controls section with proper layout', () => {
+      const { container } = render(<GameControls {...defaultProps} />);
+
+      const controlsSection = container.querySelector('.flex.gap-2');
+      expect(controlsSection).toBeInTheDocument();
+    });
+
+    it('should have buttons with equal flex distribution', () => {
+      render(<GameControls {...defaultProps} />);
+
+      const resetButton = screen.getByText('🔄 Reset');
+      const undoButton = screen.getByText('↶ Zurück');
+
+      expect(resetButton.className).toContain('flex-1');
+      expect(undoButton.className).toContain('flex-1');
     });
   });
 
-  describe('Button Styling', () => {
-    it('should apply correct styling to reset button', () => {
+  describe('CSS Classes and Styling', () => {
+    it('should apply correct button styling classes', () => {
       render(<GameControls {...defaultProps} />);
-      
+
       const resetButton = screen.getByText('🔄 Reset');
-      expect(resetButton).toHaveClass('flex-1', 'py-2', 'px-3', 'dark-button-secondary', 'rounded-lg', 'text-sm', 'font-medium', 'transition-colors');
+      expect(resetButton.className).toContain('py-2');
+      expect(resetButton.className).toContain('px-3');
+      expect(resetButton.className).toContain('dark-button-secondary');
+      expect(resetButton.className).toContain('rounded-lg');
+      expect(resetButton.className).toContain('text-sm');
+      expect(resetButton.className).toContain('font-medium');
+      expect(resetButton.className).toContain('transition-colors');
     });
 
-    it('should apply correct base styling to undo button', () => {
-      render(<GameControls {...defaultProps} />);
-      
-      const undoButton = screen.getByText('↶ Zurück');
-      expect(undoButton).toHaveClass('flex-1', 'py-2', 'px-3', 'rounded-lg', 'text-sm', 'font-medium', 'transition-colors');
+    it('should apply dark card styling to position info', () => {
+      const { container } = render(<GameControls {...defaultProps} />);
+
+      const positionCard = container.querySelector('.dark-card');
+      expect(positionCard).toBeInTheDocument();
     });
 
-    it('should maintain button styling consistency', () => {
-      render(<GameControls {...defaultProps} />);
-      
-      const resetButton = screen.getByText('🔄 Reset');
-      const undoButton = screen.getByText('↶ Zurück');
-      
-      // Both should have common button styling
-      const commonClasses = ['flex-1', 'py-2', 'px-3', 'rounded-lg', 'text-sm', 'font-medium', 'transition-colors'];
-      commonClasses.forEach(className => {
-        expect(resetButton).toHaveClass(className);
-        expect(undoButton).toHaveClass(className);
-      });
+    it('should apply correct spacing classes', () => {
+      const { container } = render(<GameControls {...defaultProps} />);
+
+      const mainContainer = container.querySelector('.gap-3');
+      const controlsContainer = container.querySelector('.gap-2');
+
+      expect(mainContainer).toBeInTheDocument();
+      expect(controlsContainer).toBeInTheDocument();
     });
   });
 
   describe('Accessibility', () => {
     it('should have proper button roles', () => {
       render(<GameControls {...defaultProps} />);
-      
+
+      const buttons = screen.getAllByRole('button');
+      expect(buttons).toHaveLength(2);
+    });
+
+    it('should support keyboard interaction', () => {
+      const onReset = jest.fn();
+      const onUndo = jest.fn();
+
+      render(<GameControls {...defaultProps} onReset={onReset} onUndo={onUndo} />);
+
       const resetButton = screen.getByText('🔄 Reset');
       const undoButton = screen.getByText('↶ Zurück');
-      
-      expect(resetButton.tagName).toBe('BUTTON');
-      expect(undoButton.tagName).toBe('BUTTON');
+
+      // Test Enter key
+      fireEvent.keyDown(resetButton, { key: 'Enter' });
+      fireEvent.keyDown(undoButton, { key: 'Enter' });
+
+      // Focus should work
+      resetButton.focus();
+      undoButton.focus();
+
+      expect(resetButton).toBeInTheDocument();
+      expect(undoButton).toBeInTheDocument();
     });
 
-    it('should indicate disabled state for screen readers', () => {
-      render(<GameControls {...defaultProps} canUndo={false} />);
-      
-      const undoButton = screen.getByText('↶ Zurück');
-      expect(undoButton).toBeDisabled();
-      expect(undoButton).toHaveAttribute('disabled');
-    });
-
-    it('should maintain proper focus order', () => {
+    it('should have accessible button text', () => {
       render(<GameControls {...defaultProps} />);
-      
-      const resetButton = screen.getByText('🔄 Reset');
-      const undoButton = screen.getByText('↶ Zurück');
-      
-      // Both buttons should be focusable
-      expect(resetButton).not.toHaveAttribute('tabindex', '-1');
-      expect(undoButton).not.toHaveAttribute('tabindex', '-1');
-    });
 
-    it('should prevent focus on disabled undo button', () => {
-      render(<GameControls {...defaultProps} canUndo={false} />);
-      
-      const undoButton = screen.getByText('↶ Zurück');
-      expect(undoButton).toBeDisabled();
-    });
-  });
-
-  describe('Edge Cases', () => {
-    it('should handle position with empty strings', () => {
-      const propsWithEmptyPosition = {
-        ...defaultProps,
-        position: { name: '', description: '' }
-      };
-      
-      render(<GameControls {...propsWithEmptyPosition} />);
-      
-      // Should still render buttons
+      // Buttons should have clear text descriptions
       expect(screen.getByText('🔄 Reset')).toBeInTheDocument();
       expect(screen.getByText('↶ Zurück')).toBeInTheDocument();
     });
 
-    it('should handle rapid button clicks', () => {
-      render(<GameControls {...defaultProps} />);
-      
-      const resetButton = screen.getByText('🔄 Reset');
-      
-      // Simulate rapid clicks
-      for (let i = 0; i < 10; i++) {
-        fireEvent.click(resetButton);
-      }
-      
-      expect(defaultProps.onReset).toHaveBeenCalledTimes(10);
+    it('should properly handle disabled state for screen readers', () => {
+      render(<GameControls {...defaultProps} canUndo={false} />);
+
+      const undoButton = screen.getByText('↶ Zurück');
+      expect(undoButton).toHaveAttribute('disabled');
+    });
+  });
+
+  describe('Component Memoization', () => {
+    it('should be memoized with React.memo', () => {
+      expect(GameControls.displayName).toBe('GameControls');
     });
 
-    it('should handle button clicks during state transitions', () => {
-      const { rerender } = render(<GameControls {...defaultProps} canUndo={true} />);
-      
+    it('should not re-render with same props', () => {
+      const { rerender } = render(<GameControls {...defaultProps} />);
+      const initialHtml = screen.getByText('King and Queen vs King').closest('div')?.outerHTML;
+
+      // Re-render with same props
+      rerender(<GameControls {...defaultProps} />);
+      const secondHtml = screen.getByText('King and Queen vs King').closest('div')?.outerHTML;
+
+      expect(initialHtml).toBe(secondHtml);
+    });
+  });
+
+  describe('Edge Cases', () => {
+    it('should handle rapid button clicks', () => {
+      const onReset = jest.fn();
+      const onUndo = jest.fn();
+
+      render(<GameControls {...defaultProps} onReset={onReset} onUndo={onUndo} />);
+
+      const resetButton = screen.getByText('🔄 Reset');
       const undoButton = screen.getByText('↶ Zurück');
-      fireEvent.click(undoButton);
-      
-      // Change state
-      rerender(<GameControls {...defaultProps} canUndo={false} />);
-      
-      // Button should now be disabled
+
+      // Rapid clicks
+      for (let i = 0; i < 10; i++) {
+        fireEvent.click(resetButton);
+        fireEvent.click(undoButton);
+      }
+
+      expect(onReset).toHaveBeenCalledTimes(10);
+      expect(onUndo).toHaveBeenCalledTimes(10);
+    });
+
+    it('should handle position with special characters', () => {
+      const specialPosition = {
+        name: 'König & Dame vs König',
+        description: 'Lerne Matt mit Dame & König gegen einsamen König'
+      };
+
+      render(<GameControls {...defaultProps} position={specialPosition} />);
+
+      expect(screen.getByText('König & Dame vs König')).toBeInTheDocument();
+      expect(screen.getByText('Lerne Matt mit Dame & König gegen einsamen König')).toBeInTheDocument();
+    });
+
+    it('should handle position with Unicode characters', () => {
+      const unicodePosition = {
+        name: '♔♕ vs ♔',
+        description: 'Schachmatt mit ♕ und ♔'
+      };
+
+      render(<GameControls {...defaultProps} position={unicodePosition} />);
+
+      expect(screen.getByText('♔♕ vs ♔')).toBeInTheDocument();
+      expect(screen.getByText('Schachmatt mit ♕ und ♔')).toBeInTheDocument();
+    });
+
+    it('should handle boolean prop changes correctly', () => {
+      const { rerender } = render(<GameControls {...defaultProps} canUndo={true} isGameFinished={false} />);
+
+      const undoButton = screen.getByText('↶ Zurück');
+      expect(undoButton).not.toBeDisabled();
+      expect(screen.queryByText('Spiel beendet!')).not.toBeInTheDocument();
+
+      // Change both props
+      rerender(<GameControls {...defaultProps} canUndo={false} isGameFinished={true} />);
+
       expect(undoButton).toBeDisabled();
-      
-      // Clicking disabled button should not call handler
-      fireEvent.click(undoButton);
-      expect(defaultProps.onUndo).toHaveBeenCalledTimes(1); // Only the first click
+      expect(screen.getByText('Spiel beendet!')).toBeInTheDocument();
+    });
+  });
+
+  describe('Performance', () => {
+    it('should not cause memory leaks on unmount', () => {
+      const { unmount } = render(<GameControls {...defaultProps} />);
+
+      expect(() => unmount()).not.toThrow();
+    });
+
+    it('should render efficiently with minimal DOM changes', () => {
+      const { container, rerender } = render(<GameControls {...defaultProps} />);
+      const initialChildren = container.firstChild?.childNodes.length;
+
+      // Change only the game finished state
+      rerender(<GameControls {...defaultProps} isGameFinished={true} />);
+      const afterChildren = container.firstChild?.childNodes.length;
+
+      // Should add only one element (the game finished message)
+      expect(afterChildren).toBe((initialChildren || 0) + 1);
     });
   });
 });

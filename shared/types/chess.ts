@@ -3,20 +3,34 @@
  * Comprehensive type definitions for the chess training application
  */
 
-import { Chess } from 'chess.js';
+import { Chess, Square as ChessJsSquare, PieceSymbol as ChessJsPieceSymbol } from 'chess.js';
 
 // Basic chess types
-export type Square = string; // e.g., 'e4', 'a1'
-export type Piece = 'p' | 'n' | 'b' | 'r' | 'q' | 'k' | 'P' | 'N' | 'B' | 'R' | 'Q' | 'K';
+export type Square = ChessJsSquare; // Use chess.js Square type directly
+export type PieceSymbol = ChessJsPieceSymbol; // Use chess.js PieceSymbol type
+export type Piece = 'p' | 'n' | 'b' | 'r' | 'q' | 'k' | 'P' | 'N' | 'B' | 'R' | 'Q' | 'K'; // Keep for FEN/display purposes
 export type Color = 'w' | 'b';
 export type File = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h';
-// Move related types
+// Move related types - Compatible with chess.js Move class
 export interface Move {
+  color: Color;
   from: Square;
   to: Square;
+  piece: PieceSymbol;
+  captured?: PieceSymbol;
   promotion?: 'q' | 'r' | 'b' | 'n';
-  san?: string; // Standard Algebraic Notation
-  lan?: string; // Long Algebraic Notation
+  flags: string;
+  san: string;
+  lan: string;
+  before: string;
+  after: string;
+  // Helper methods (available on chess.js Move instances)
+  isCapture: () => boolean;
+  isPromotion: () => boolean;
+  isEnPassant: () => boolean;
+  isKingsideCastle: () => boolean;
+  isQueensideCastle: () => boolean;
+  isBigPawn: () => boolean;
 }
 
 

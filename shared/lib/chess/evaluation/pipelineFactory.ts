@@ -19,7 +19,7 @@ import type {
   TablebaseResult,
   FormattedEvaluation,
   PlayerPerspectiveEvaluation
-} from '@shared/types/evaluation';
+} from '../../../types/evaluation';
 
 /**
  * Configuration for pipeline creation

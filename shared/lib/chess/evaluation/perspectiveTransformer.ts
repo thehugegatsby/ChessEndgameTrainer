@@ -16,7 +16,7 @@
 import type {
   NormalizedEvaluation,
   PlayerPerspectiveEvaluation
-} from '@shared/types/evaluation';
+} from '../../../types/evaluation';
 
 export class PlayerPerspectiveTransformer {
 

@@ -4,8 +4,8 @@
  */
 
 import type { IEngineProvider, ITablebaseProvider } from './providers';
-import type { EngineEvaluation, TablebaseResult } from '@shared/types/evaluation';
-import { EngineService } from '@shared/services/chess/EngineService';
+import type { EngineEvaluation, TablebaseResult } from '../../../types/evaluation';
+import { EngineService } from '../../../services/chess/EngineService';
 
 /**
  * Adapts the existing EngineService to IEngineProvider interface

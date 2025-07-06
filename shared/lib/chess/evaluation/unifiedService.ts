@@ -29,7 +29,7 @@ import type {
   PlayerPerspectiveEvaluation,
   FormattedEvaluation,
   NormalizedEvaluation
-} from '@shared/types/evaluation';
+} from '../../../types/evaluation';
 
 export class UnifiedEvaluationService {
   private readonly config: Required<UnifiedEvaluationConfig>;

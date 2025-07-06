@@ -12,7 +12,7 @@
  */
 
 import { Chess, Move as ChessJsMove } from 'chess.js';
-import type { Move as CustomMove } from '@shared/types/chess';
+import type { Move as CustomMove } from '../../../types/chess';
 import { Engine } from '../engine';
 import { EvaluationService } from './evaluationService';
 import { TablebaseService } from './tablebaseService';

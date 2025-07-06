@@ -18,7 +18,7 @@ import type {
   EngineEvaluation,
   TablebaseResult,
   NormalizedEvaluation
-} from '@shared/types/evaluation';
+} from '../../../types/evaluation';
 
 export class EvaluationNormalizer {
 

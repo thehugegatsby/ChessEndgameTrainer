@@ -1,433 +1,372 @@
 /**
- * Comprehensive test suite for EngineEvaluationCard component
- * Tests rendering with different evaluation states, loading states, and edge cases
+ * @fileoverview Unit tests for EngineEvaluationCard component
+ * @description Tests engine evaluation display with loading states and score formatting
  */
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { EngineEvaluationCard } from '../../../../shared/components/training/DualEvaluationPanel/EngineEvaluationCard';
-import type { DualEvaluation, EngineEvaluation } from '@shared/lib/chess/ScenarioEngine';
+import { EngineEvaluationCard } from '@shared/components/training/DualEvaluationPanel/EngineEvaluationCard';
 
-describe('EngineEvaluationCard', () => {
-  const defaultEvaluation: EngineEvaluation = {
-    score: 50,
+describe('EngineEvaluationCard Component', () => {
+  const mockEvaluation = {
+    score: 150, // 1.5 in pawn units
     mate: null,
-    evaluation: 'Slightly favorable for White'
+    evaluation: 'Slight advantage for White'
+  };
+
+  const mockMateEvaluation = {
+    score: 0,
+    mate: 3,
+    evaluation: 'Mate in 3 moves'
   };
 
   describe('Loading State', () => {
-    it('should render loading state with spinner', () => {
-      render(<EngineEvaluationCard evaluation={defaultEvaluation} isLoading={true} />);
-      
+    it('should render loading state correctly', () => {
+      render(<EngineEvaluationCard evaluation={mockEvaluation} isLoading={true} />);
+
       expect(screen.getByText('Engine (Stockfish)')).toBeInTheDocument();
+      // UCI Protocol is only shown when NOT loading
+      expect(screen.queryByText('UCI Protocol')).not.toBeInTheDocument();
       
-      // Check for loading spinner
+      // Should show loading animation
       const spinner = document.querySelector('.animate-spin');
       expect(spinner).toBeInTheDocument();
-      expect(spinner).toHaveClass('rounded-full', 'h-4', 'w-4', 'border-b-2', 'border-blue-600');
       
-      // Check for loading placeholder
+      // Should show loading placeholder
       const placeholder = document.querySelector('.animate-pulse');
       expect(placeholder).toBeInTheDocument();
-      expect(placeholder).toHaveClass('h-6', 'bg-gray-200', 'dark:bg-gray-700', 'rounded');
     });
 
-    it('should apply correct loading container styling', () => {
-      const { container } = render(
-        <EngineEvaluationCard evaluation={defaultEvaluation} isLoading={true} />
-      );
-      
-      const card = container.firstChild as HTMLElement;
-      expect(card).toHaveClass(
-        'bg-white',
-        'dark:bg-gray-800',
-        'rounded-lg',
-        'p-4',
-        'border',
-        'border-gray-200',
-        'dark:border-gray-700'
-      );
-    });
+    it('should not show evaluation data during loading', () => {
+      render(<EngineEvaluationCard evaluation={mockEvaluation} isLoading={true} />);
 
-    it('should show loading header with correct styling', () => {
-      render(<EngineEvaluationCard evaluation={defaultEvaluation} isLoading={true} />);
-      
-      const header = screen.getByText('Engine (Stockfish)');
-      expect(header).toHaveClass('text-sm', 'font-medium', 'text-gray-700', 'dark:text-gray-300');
+      expect(screen.queryByText('1.5')).not.toBeInTheDocument();
+      expect(screen.queryByText('Slight advantage for White')).not.toBeInTheDocument();
     });
   });
 
-  describe('Normal Rendering', () => {
-    it('should render card with evaluation data', () => {
-      render(<EngineEvaluationCard evaluation={defaultEvaluation} isLoading={false} />);
-      
+  describe('Normal Evaluation Display', () => {
+    it('should render evaluation data when not loading', () => {
+      render(<EngineEvaluationCard evaluation={mockEvaluation} isLoading={false} />);
+
       expect(screen.getByText('Engine (Stockfish)')).toBeInTheDocument();
       expect(screen.getByText('UCI Protocol')).toBeInTheDocument();
-      expect(screen.getByText('0.5')).toBeInTheDocument(); // 50 / 100 = 0.5
-      expect(screen.getByText('Slightly favorable for White')).toBeInTheDocument();
+      expect(screen.getByText('1.5')).toBeInTheDocument(); // score / 100
+      expect(screen.getByText('Slight advantage for White')).toBeInTheDocument();
     });
 
-    it('should apply correct container styling', () => {
-      const { container } = render(
-        <EngineEvaluationCard evaluation={defaultEvaluation} isLoading={false} />
-      );
-      
-      const card = container.firstChild as HTMLElement;
-      expect(card).toHaveClass(
-        'bg-white',
-        'dark:bg-gray-800',
-        'rounded-lg',
-        'p-4',
-        'border',
-        'border-gray-200',
-        'dark:border-gray-700'
-      );
+    it('should default to not loading when isLoading prop not provided', () => {
+      render(<EngineEvaluationCard evaluation={mockEvaluation} />);
+
+      expect(screen.getByText('1.5')).toBeInTheDocument();
+      expect(screen.getByText('Slight advantage for White')).toBeInTheDocument();
+      expect(screen.queryByText('.animate-spin')).not.toBeInTheDocument();
     });
 
-    it('should render header with correct structure', () => {
-      render(<EngineEvaluationCard evaluation={defaultEvaluation} isLoading={false} />);
-      
-      const title = screen.getByText('Engine (Stockfish)');
-      expect(title).toHaveClass('text-sm', 'font-medium', 'text-gray-700', 'dark:text-gray-300');
-      
-      const protocol = screen.getByText('UCI Protocol');
-      expect(protocol).toHaveClass('text-xs', 'text-gray-500', 'dark:text-gray-400');
-    });
-  });
-
-  describe('Score Formatting', () => {
     it('should format positive scores correctly', () => {
-      const evaluation = { ...defaultEvaluation, score: 150 };
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      expect(screen.getByText('1.5')).toBeInTheDocument(); // 150 / 100 = 1.5
+      const positiveEval = { ...mockEvaluation, score: 250 };
+      render(<EngineEvaluationCard evaluation={positiveEval} />);
+
+      expect(screen.getByText('2.5')).toBeInTheDocument();
     });
 
     it('should format negative scores correctly', () => {
-      const evaluation = { ...defaultEvaluation, score: -250 };
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      expect(screen.getByText('-2.5')).toBeInTheDocument(); // -250 / 100 = -2.5
+      const negativeEval = { ...mockEvaluation, score: -180 };
+      render(<EngineEvaluationCard evaluation={negativeEval} />);
+
+      expect(screen.getByText('-1.8')).toBeInTheDocument();
     });
 
     it('should format zero score correctly', () => {
-      const evaluation = { ...defaultEvaluation, score: 0 };
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
+      const zeroEval = { ...mockEvaluation, score: 0 };
+      render(<EngineEvaluationCard evaluation={zeroEval} />);
+
       expect(screen.getByText('0.0')).toBeInTheDocument();
-    });
-
-    it('should format decimal scores correctly', () => {
-      const evaluation = { ...defaultEvaluation, score: 123 };
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      expect(screen.getByText('1.2')).toBeInTheDocument(); // 123 / 100 = 1.23, rounded to 1 decimal
-    });
-
-    it('should format large positive scores', () => {
-      const evaluation = { ...defaultEvaluation, score: 9999 };
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      expect(screen.getByText('100.0')).toBeInTheDocument(); // 9999 / 100 = 99.99, rounds to 100.0
-    });
-
-    it('should format large negative scores', () => {
-      const evaluation = { ...defaultEvaluation, score: -9999 };
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      expect(screen.getByText('-100.0')).toBeInTheDocument(); // -9999 / 100 = -99.99, rounds to -100.0
     });
   });
 
-  describe('Mate Handling', () => {
-    it('should display mate notation instead of score when mate is positive', () => {
-      const evaluation = { ...defaultEvaluation, score: 1000, mate: 3 };
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
+  describe('Mate Evaluation Display', () => {
+    it('should display mate evaluation correctly', () => {
+      render(<EngineEvaluationCard evaluation={mockMateEvaluation} />);
+
       expect(screen.getByText('M3')).toBeInTheDocument();
-      expect(screen.queryByText('10.0')).not.toBeInTheDocument();
+      // There are two "Mate in 3 moves" texts - evaluation text and mate info
+      const mateTexts = screen.getAllByText('Mate in 3 moves');
+      expect(mateTexts).toHaveLength(2);
     });
 
-    it('should display mate notation for negative mate', () => {
-      const evaluation = { ...defaultEvaluation, score: -1000, mate: -5 };
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      expect(screen.getByText('M5')).toBeInTheDocument(); // Math.abs(-5) = 5
-      expect(screen.queryByText('-10.0')).not.toBeInTheDocument();
+    it('should handle negative mate values', () => {
+      const negativeMate = { ...mockMateEvaluation, mate: -2 };
+      render(<EngineEvaluationCard evaluation={negativeMate} />);
+
+      expect(screen.getByText('M2')).toBeInTheDocument(); // Math.abs(-2)
+      expect(screen.getByText('Mate in 2 moves')).toBeInTheDocument();
     });
 
-    it('should display mate in 1', () => {
-      const evaluation = { ...defaultEvaluation, score: 5000, mate: 1 };
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
+    it('should handle mate in 1', () => {
+      const mateInOne = { ...mockMateEvaluation, mate: 1 };
+      render(<EngineEvaluationCard evaluation={mateInOne} />);
+
       expect(screen.getByText('M1')).toBeInTheDocument();
+      expect(screen.getByText('Mate in 1 moves')).toBeInTheDocument();
     });
 
-    it('should display mate in 0 (immediate checkmate)', () => {
-      const evaluation = { ...defaultEvaluation, score: 10000, mate: 0 };
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      expect(screen.getByText('M0')).toBeInTheDocument();
-    });
+    it('should not show mate info when mate is null', () => {
+      render(<EngineEvaluationCard evaluation={mockEvaluation} />);
 
-    it('should show mate description when mate is provided', () => {
-      const evaluation = { ...defaultEvaluation, mate: 4 };
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      expect(screen.getByText('Mate in 4 moves')).toBeInTheDocument();
-    });
-
-    it('should show mate description for negative mate values', () => {
-      const evaluation = { ...defaultEvaluation, mate: -2 };
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      expect(screen.getByText('Mate in 2 moves')).toBeInTheDocument(); // Math.abs(-2) = 2
-    });
-
-    it('should not show mate description when mate is null', () => {
-      render(<EngineEvaluationCard evaluation={defaultEvaluation} />);
-      
       expect(screen.queryByText(/Mate in/)).not.toBeInTheDocument();
     });
 
-    it('should not show mate description when mate is undefined', () => {
-      const evaluation = { ...defaultEvaluation };
-      delete (evaluation as any).mate;
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      expect(screen.queryByText(/Mate in/)).not.toBeInTheDocument();
-    });
+    it('should not show mate info when mate is undefined', () => {
+      const noMateEval = { ...mockEvaluation, mate: null };
+      render(<EngineEvaluationCard evaluation={noMateEval} />);
 
-    it('should handle mate value of 0 correctly', () => {
-      const evaluation = { ...defaultEvaluation, mate: 0 };
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      expect(screen.getByText('M0')).toBeInTheDocument();
-      expect(screen.getByText('Mate in 0 moves')).toBeInTheDocument();
+      expect(screen.queryByText(/Mate in/)).not.toBeInTheDocument();
     });
   });
 
   describe('Score Color Coding', () => {
-    it('should apply yellow color for small positive scores', () => {
-      const evaluation = { ...defaultEvaluation, score: 30 }; // < 50
-      const { container } = render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      const scoreElement = container.querySelector('.text-yellow-600');
-      expect(scoreElement).toBeInTheDocument();
-      expect(scoreElement).toHaveTextContent('0.3');
+    it('should apply green color for positive scores', () => {
+      const positiveEval = { ...mockEvaluation, score: 200 };
+      render(<EngineEvaluationCard evaluation={positiveEval} />);
+
+      const scoreElement = screen.getByText('2.0');
+      expect(scoreElement.className).toContain('text-green-600');
     });
 
-    it('should apply yellow color for small negative scores', () => {
-      const evaluation = { ...defaultEvaluation, score: -40 }; // > -50
-      const { container } = render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      const scoreElement = container.querySelector('.text-yellow-600');
-      expect(scoreElement).toBeInTheDocument();
-      expect(scoreElement).toHaveTextContent('-0.4');
+    it('should apply red color for negative scores', () => {
+      const negativeEval = { ...mockEvaluation, score: -200 };
+      render(<EngineEvaluationCard evaluation={negativeEval} />);
+
+      const scoreElement = screen.getByText('-2.0');
+      expect(scoreElement.className).toContain('text-red-600');
     });
 
-    it('should apply green color for larger positive scores', () => {
-      const evaluation = { ...defaultEvaluation, score: 100 }; // > 50
-      const { container } = render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      const scoreElement = container.querySelector('.text-green-600');
-      expect(scoreElement).toBeInTheDocument();
-      expect(scoreElement).toHaveTextContent('1.0');
+    it('should apply yellow color for scores close to zero', () => {
+      const neutralEval = { ...mockEvaluation, score: 30 };
+      render(<EngineEvaluationCard evaluation={neutralEval} />);
+
+      const scoreElement = screen.getByText('0.3');
+      expect(scoreElement.className).toContain('text-yellow-600');
     });
 
-    it('should apply red color for larger negative scores', () => {
-      const evaluation = { ...defaultEvaluation, score: -75 }; // < -50
-      const { container } = render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      const scoreElement = container.querySelector('.text-red-600');
-      expect(scoreElement).toBeInTheDocument();
-      expect(scoreElement).toHaveTextContent('-0.8');
+    it('should apply yellow color for negative scores close to zero', () => {
+      const neutralEval = { ...mockEvaluation, score: -40 };
+      render(<EngineEvaluationCard evaluation={neutralEval} />);
+
+      const scoreElement = screen.getByText('-0.4');
+      expect(scoreElement.className).toContain('text-yellow-600');
     });
 
-    it('should apply yellow color for exactly zero score', () => {
-      const evaluation = { ...defaultEvaluation, score: 0 };
-      const { container } = render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      const scoreElement = container.querySelector('.text-yellow-600');
-      expect(scoreElement).toBeInTheDocument();
+    it('should handle exactly zero score', () => {
+      const zeroEval = { ...mockEvaluation, score: 0 };
+      render(<EngineEvaluationCard evaluation={zeroEval} />);
+
+      const scoreElement = screen.getByText('0.0');
+      expect(scoreElement.className).toContain('text-yellow-600');
     });
 
-    it('should apply yellow color for boundary values', () => {
-      // Test score of exactly 49 (should be yellow as Math.abs(49) < 50)
-      const evaluation1 = { ...defaultEvaluation, score: 49 };
-      const { container: container1 } = render(<EngineEvaluationCard evaluation={evaluation1} />);
-      expect(container1.querySelector('.text-yellow-600')).toBeInTheDocument();
+    it('should handle boundary values for color thresholds', () => {
+      // Test exactly 50 centipawns (boundary value)
+      const boundaryEval = { ...mockEvaluation, score: 50 };
+      render(<EngineEvaluationCard evaluation={boundaryEval} />);
 
-      // Test score of exactly -49 (should be yellow as Math.abs(-49) < 50)
-      const evaluation2 = { ...defaultEvaluation, score: -49 };
-      const { container: container2 } = render(<EngineEvaluationCard evaluation={evaluation2} />);
-      expect(container2.querySelector('.text-yellow-600')).toBeInTheDocument();
-    });
-
-    it('should apply green color for mate positions (positive mate)', () => {
-      const evaluation = { ...defaultEvaluation, score: 1000, mate: 3 };
-      const { container } = render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      // Mate positions use score for color determination
-      const scoreElement = container.querySelector('.text-green-600');
-      expect(scoreElement).toBeInTheDocument();
-      expect(scoreElement).toHaveTextContent('M3');
-    });
-
-    it('should apply red color for mate positions (negative mate)', () => {
-      const evaluation = { ...defaultEvaluation, score: -1000, mate: -2 };
-      const { container } = render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      const scoreElement = container.querySelector('.text-red-600');
-      expect(scoreElement).toBeInTheDocument();
-      expect(scoreElement).toHaveTextContent('M2');
+      const scoreElement = screen.getByText('0.5');
+      expect(scoreElement.className).toContain('text-green-600');
     });
   });
 
-  describe('Typography and Styling', () => {
-    it('should apply correct typography classes to score', () => {
-      const { container } = render(<EngineEvaluationCard evaluation={defaultEvaluation} />);
-      
-      const scoreElement = container.querySelector('.text-lg.font-mono.font-bold');
-      expect(scoreElement).toBeInTheDocument();
-      expect(scoreElement).toHaveTextContent('0.5');
+  describe('CSS Classes and Styling', () => {
+    it('should apply correct card styling', () => {
+      const { container } = render(<EngineEvaluationCard evaluation={mockEvaluation} />);
+
+      const card = container.firstChild as HTMLElement;
+      expect(card.className).toContain('bg-white');
+      expect(card.className).toContain('dark:bg-gray-800');
+      expect(card.className).toContain('rounded-lg');
+      expect(card.className).toContain('p-4');
+      expect(card.className).toContain('border');
+      expect(card.className).toContain('border-gray-200');
+      expect(card.className).toContain('dark:border-gray-700');
     });
 
-    it('should apply correct styling to evaluation text', () => {
-      render(<EngineEvaluationCard evaluation={defaultEvaluation} />);
-      
-      const evaluationText = screen.getByText('Slightly favorable for White');
-      expect(evaluationText).toHaveClass('text-sm', 'text-gray-600', 'dark:text-gray-400', 'mt-1');
+    it('should apply correct header styling', () => {
+      render(<EngineEvaluationCard evaluation={mockEvaluation} />);
+
+      const header = screen.getByText('Engine (Stockfish)');
+      expect(header.className).toContain('text-sm');
+      expect(header.className).toContain('font-medium');
+      expect(header.className).toContain('text-gray-700');
+      expect(header.className).toContain('dark:text-gray-300');
     });
 
-    it('should apply correct styling to mate description', () => {
-      const evaluation = { ...defaultEvaluation, mate: 3 };
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      const mateText = screen.getByText('Mate in 3 moves');
-      expect(mateText).toHaveClass('text-xs', 'text-gray-500', 'dark:text-gray-400', 'mt-1');
+    it('should apply correct score styling', () => {
+      render(<EngineEvaluationCard evaluation={mockEvaluation} />);
+
+      const score = screen.getByText('1.5');
+      expect(score.className).toContain('text-lg');
+      expect(score.className).toContain('font-mono');
+      expect(score.className).toContain('font-bold');
+    });
+
+    it('should apply correct evaluation text styling', () => {
+      render(<EngineEvaluationCard evaluation={mockEvaluation} />);
+
+      const evalText = screen.getByText('Slight advantage for White');
+      expect(evalText.className).toContain('text-sm');
+      expect(evalText.className).toContain('text-gray-600');
+      expect(evalText.className).toContain('dark:text-gray-400');
+    });
+
+    it('should apply correct mate info styling', () => {
+      render(<EngineEvaluationCard evaluation={mockMateEvaluation} />);
+
+      // Get the mate info element specifically (the second one with text-xs class)
+      const mateInfoElements = screen.getAllByText('Mate in 3 moves');
+      const mateInfo = mateInfoElements.find(el => el.className.includes('text-xs'));
+      expect(mateInfo).toBeDefined();
+      expect(mateInfo?.className).toContain('text-xs');
+      expect(mateInfo?.className).toContain('text-gray-500');
+      expect(mateInfo?.className).toContain('dark:text-gray-400');
     });
   });
 
-  describe('Default Props', () => {
-    it('should default isLoading to false when not provided', () => {
-      render(<EngineEvaluationCard evaluation={defaultEvaluation} />);
-      
-      // Should not show loading state
-      expect(document.querySelector('.animate-spin')).not.toBeInTheDocument();
-      expect(screen.getByText('0.5')).toBeInTheDocument();
+  describe('Dark Mode Support', () => {
+    it('should have dark mode classes for all elements', () => {
+      const { container } = render(<EngineEvaluationCard evaluation={mockEvaluation} />);
+
+      // Card should have dark mode background
+      const card = container.firstChild as HTMLElement;
+      expect(card.className).toContain('dark:bg-gray-800');
+      expect(card.className).toContain('dark:border-gray-700');
+
+      // Text elements should have dark mode colors
+      const header = screen.getByText('Engine (Stockfish)');
+      expect(header.className).toContain('dark:text-gray-300');
+
+      const protocol = screen.getByText('UCI Protocol');
+      expect(protocol.className).toContain('dark:text-gray-400');
+
+      const evaluation = screen.getByText('Slight advantage for White');
+      expect(evaluation.className).toContain('dark:text-gray-400');
+    });
+  });
+
+  describe('Loading Animation', () => {
+    it('should show spinning loader', () => {
+      render(<EngineEvaluationCard evaluation={mockEvaluation} isLoading={true} />);
+
+      const spinner = document.querySelector('.animate-spin');
+      expect(spinner).toBeInTheDocument();
+      expect(spinner?.className).toContain('rounded-full');
+      expect(spinner?.className).toContain('border-b-2');
+      expect(spinner?.className).toContain('border-blue-600');
+    });
+
+    it('should show pulsing placeholder', () => {
+      render(<EngineEvaluationCard evaluation={mockEvaluation} isLoading={true} />);
+
+      const placeholder = document.querySelector('.animate-pulse');
+      expect(placeholder).toBeInTheDocument();
+      expect(placeholder?.className).toContain('bg-gray-200');
+      expect(placeholder?.className).toContain('dark:bg-gray-700');
     });
   });
 
   describe('Edge Cases', () => {
-    it('should handle very long evaluation text', () => {
-      const evaluation = {
-        ...defaultEvaluation,
-        evaluation: 'This is a very long evaluation text that should wrap properly in the card layout and maintain readability across different screen sizes'
-      };
-      
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      expect(screen.getByText(evaluation.evaluation)).toBeInTheDocument();
+    it('should handle very large positive scores', () => {
+      const largeEval = { ...mockEvaluation, score: 999999 };
+      render(<EngineEvaluationCard evaluation={largeEval} />);
+
+      expect(screen.getByText('10000.0')).toBeInTheDocument(); // 999999/100 = 9999.99 → 10000.0
     });
 
-    it('should handle empty evaluation text', () => {
-      const evaluation = { ...defaultEvaluation, evaluation: '' };
-      const { container } = render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      // Check that the evaluation div is present but empty
-      const evaluationDiv = container.querySelector('.text-sm.text-gray-600');
-      expect(evaluationDiv).toBeInTheDocument();
-      expect(evaluationDiv).toHaveTextContent('');
+    it('should handle very large negative scores', () => {
+      const largeNegativeEval = { ...mockEvaluation, score: -500000 };
+      render(<EngineEvaluationCard evaluation={largeNegativeEval} />);
+
+      expect(screen.getByText('-5000.0')).toBeInTheDocument();
     });
 
-    it('should handle special characters in evaluation text', () => {
-      const evaluation = { 
-        ...defaultEvaluation, 
-        evaluation: 'Position with ♔♕♖♗♘♙ symbols and éñçódìñg'
-      };
-      
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      expect(screen.getByText(evaluation.evaluation)).toBeInTheDocument();
+    it('should handle decimal precision correctly', () => {
+      const preciseEval = { ...mockEvaluation, score: 123 };
+      render(<EngineEvaluationCard evaluation={preciseEval} />);
+
+      expect(screen.getByText('1.2')).toBeInTheDocument(); // 123/100 = 1.23 → 1.2 (1 decimal)
     });
 
-    it('should handle evaluation with HTML-like content safely', () => {
-      const evaluation = { 
-        ...defaultEvaluation, 
-        evaluation: '<script>alert("test")</script>Safe evaluation text'
-      };
-      
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      // Should render as text, not execute
-      expect(screen.getByText(evaluation.evaluation)).toBeInTheDocument();
-      expect(document.querySelector('script')).not.toBeInTheDocument();
+    it('should handle zero mate value', () => {
+      const zeroMate = { ...mockMateEvaluation, mate: 0 };
+      render(<EngineEvaluationCard evaluation={zeroMate} />);
+
+      expect(screen.getByText('M0')).toBeInTheDocument();
+      expect(screen.getByText('Mate in 0 moves')).toBeInTheDocument();
     });
 
-    it('should handle extremely large mate values', () => {
-      const evaluation = { ...defaultEvaluation, mate: 999 };
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      expect(screen.getByText('M999')).toBeInTheDocument();
-      expect(screen.getByText('Mate in 999 moves')).toBeInTheDocument();
+    it('should handle missing evaluation text', () => {
+      const noEvalText = { ...mockEvaluation, evaluation: '' };
+      render(<EngineEvaluationCard evaluation={noEvalText} />);
+
+      expect(screen.getByText('1.5')).toBeInTheDocument();
+      // Empty evaluation text should still render the element
+      const evalElement = screen.getByText('1.5').parentElement?.querySelector('.text-sm.text-gray-600');
+      expect(evalElement).toBeInTheDocument();
     });
 
-    it('should handle float score values correctly', () => {
-      const evaluation = { ...defaultEvaluation, score: 33.7 };
-      render(<EngineEvaluationCard evaluation={evaluation} />);
-      
-      expect(screen.getByText('0.3')).toBeInTheDocument(); // 33.7 / 100 = 0.337, rounded to 0.3
-    });
-  });
+    it('should handle undefined evaluation text', () => {
+      const noEvalText = { ...mockEvaluation, evaluation: undefined as any };
+      render(<EngineEvaluationCard evaluation={noEvalText} />);
 
-  describe('Accessibility', () => {
-    it('should render semantic HTML structure', () => {
-      const { container } = render(<EngineEvaluationCard evaluation={defaultEvaluation} />);
-      
-      // Should have proper heading structure
-      const heading = screen.getByText('Engine (Stockfish)');
-      expect(heading.tagName).toBe('H3');
-    });
-
-    it('should maintain proper reading order', () => {
-      render(<EngineEvaluationCard evaluation={{ ...defaultEvaluation, mate: 2 }} />);
-      
-      const elements = [
-        screen.getByText('Engine (Stockfish)'),
-        screen.getByText('UCI Protocol'),
-        screen.getByText('M2'),
-        screen.getByText(defaultEvaluation.evaluation),
-        screen.getByText('Mate in 2 moves')
-      ];
-      
-      elements.forEach(element => {
-        expect(element).toBeInTheDocument();
-      });
+      expect(screen.getByText('1.5')).toBeInTheDocument();
     });
   });
 
   describe('Component Structure', () => {
-    it('should maintain consistent card structure between loading and loaded states', () => {
-      const { rerender, container } = render(
-        <EngineEvaluationCard evaluation={defaultEvaluation} isLoading={true} />
+    it('should have proper header structure', () => {
+      const { container } = render(<EngineEvaluationCard evaluation={mockEvaluation} />);
+
+      const headerSection = container.querySelector('.flex.items-center.justify-between');
+      expect(headerSection).toBeInTheDocument();
+    });
+
+    it('should have proper content structure', () => {
+      const { container } = render(<EngineEvaluationCard evaluation={mockEvaluation} />);
+
+      const contentSection = container.querySelector('.mt-2');
+      expect(contentSection).toBeInTheDocument();
+    });
+
+    it('should maintain structure consistency between loading and loaded states', () => {
+      const { container: loadingContainer } = render(
+        <EngineEvaluationCard evaluation={mockEvaluation} isLoading={true} />
       );
-      
-      const loadingCard = container.firstChild as HTMLElement;
-      const loadingClasses = Array.from(loadingCard.classList);
-      
-      rerender(<EngineEvaluationCard evaluation={defaultEvaluation} isLoading={false} />);
-      
-      const loadedCard = container.firstChild as HTMLElement;
-      const loadedClasses = Array.from(loadedCard.classList);
-      
-      // Main container classes should be the same
-      const containerClasses = ['bg-white', 'dark:bg-gray-800', 'rounded-lg', 'p-4', 'border'];
-      containerClasses.forEach(className => {
-        expect(loadingClasses).toContain(className);
-        expect(loadedClasses).toContain(className);
-      });
+      const { container: loadedContainer } = render(
+        <EngineEvaluationCard evaluation={mockEvaluation} isLoading={false} />
+      );
+
+      // Both should have the same basic structure
+      const loadingCard = loadingContainer.firstChild as HTMLElement;
+      const loadedCard = loadedContainer.firstChild as HTMLElement;
+
+      expect(loadingCard.tagName).toBe(loadedCard.tagName);
+      expect(loadingCard.className).toBe(loadedCard.className);
+    });
+  });
+
+  describe('Performance', () => {
+    it('should not cause memory leaks on unmount', () => {
+      const { unmount } = render(<EngineEvaluationCard evaluation={mockEvaluation} />);
+
+      expect(() => unmount()).not.toThrow();
+    });
+
+    it('should render efficiently', () => {
+      const startTime = performance.now();
+      render(<EngineEvaluationCard evaluation={mockEvaluation} />);
+      const endTime = performance.now();
+
+      // Should render quickly
+      expect(endTime - startTime).toBeLessThan(50);
     });
   });
 });

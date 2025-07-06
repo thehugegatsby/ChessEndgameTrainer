@@ -21,8 +21,8 @@
  * - Automatic idle cleanup reduces memory pressure
  */
 
-import { ScenarioEngine } from '@shared/lib/chess/ScenarioEngine';
-import { getLogger } from '@shared/services/logging';
+import { ScenarioEngine } from '../../lib/chess/ScenarioEngine';
+import { getLogger } from '../logging';
 
 const logger = getLogger().setContext('EngineService');
 

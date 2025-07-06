@@ -1,0 +1,66 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - heading "Endgame Training" [level=1]
+  - button "Settings":
+    - img
+- heading "Endgame Training" [level=2]
+- button "⚙️ Settings"
+- link "🎯 All (rated)":
+  - /url: /dashboard
+- button "♙ Bauernendspiele ▶"
+- button "♜ Turmendspiele ▶"
+- button "♛ Queen endgames ▶" [disabled]
+- button "♞ Knight endgames ▶" [disabled]
+- button "♝ Bishop endgames ▶" [disabled]
+- 'link "👤 D. Rating: 1123 ▶"':
+  - /url: /profile
+- main:
+  - main:
+    - heading "Brückenbau-Trainer" [level=1]
+    - paragraph: Meistere Turmendspiele mit systematischem Training
+    - link "Training starten":
+      - /url: /train/12
+    - heading "Lektionen" [level=2]
+    - heading "Zickzack-Technik" [level=3]
+    - text: Lektion 1
+    - paragraph: König läuft im Zickzack nach vorne, Turm schützt von hinten
+    - paragraph: Schlüsselzüge
+    - text: Kd7 Kc6 Kb5
+    - link "Starten":
+      - /url: /train/12
+    - link "Auf Lichess analysieren":
+      - /url: https://lichess.org/analysis/2K5/2P2k2/8/8/4R3/8/1r6/8_w_-_-_0_1?color=white
+    - heading "Turm positionieren" [level=3]
+    - text: Lektion 2
+    - paragraph: Turm erst auf die 4. oder 5. Reihe bringen, dann Brücke bauen
+    - paragraph: Schlüsselzüge
+    - text: Re4 Re5 Kd7
+    - link "Starten":
+      - /url: /train/13
+    - link "Auf Lichess analysieren":
+      - /url: https://lichess.org/analysis/2K2k2/2P5/8/8/8/8/1r6/4R3_w_-_-_0_1?color=white
+    - heading "König abdrängen" [level=3]
+    - text: Lektion 3
+    - paragraph: König steht noch zentral - erst abdrängen, dann Brücke bauen
+    - paragraph: Schlüsselzüge
+    - text: Re1+ Kf8 Re4
+    - link "Starten":
+      - /url: /train/14
+    - link "Auf Lichess analysieren":
+      - /url: https://lichess.org/analysis/2K1k3/2P5/8/8/8/8/1r6/7R_w_-_-_0_1?color=white
+    - heading "Methodik" [level=2]
+    - heading "Präzise Bewertung" [level=3]
+    - paragraph: 5-stufige Qualitätsklassifikation für jeden Zug
+    - heading "Systematisches Lernen" [level=3]
+    - paragraph: Aufbauende Lektionen vom Einfachen zum Komplexen
+    - heading "Sichere Technik" [level=3]
+    - paragraph: Fokus auf zuverlässige Gewinnführung
+- link "📊":
+  - /url: /dashboard
+- text: 🌙 ☀️ 🌙
+- alert
+- button "Open Next.js Dev Tools":
+  - img
+```

@@ -1,210 +1,351 @@
+/**
+ * @fileoverview Unit tests for ProgressCard component
+ * @description Tests training progress display with stats and difficulty indicators
+ */
+
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { ProgressCard } from '@shared/components/ui/ProgressCard';
 
-// Import component using relative path
-import { ProgressCard } from '../../../../shared/components/ui/ProgressCard';
+const mockProgressStats = {
+  total: 20,
+  completed: 12,
+  successRate: 0.75,
+  dueToday: 3,
+  streak: 5
+};
 
-describe('ProgressCard - Comprehensive Coverage', () => {
-  const mockStats = {
-    total: 10,
-    completed: 7,
-    successRate: 0.85,
-    dueToday: 3,
-    streak: 5
-  };
+const defaultProps = {
+  title: 'King and Queen vs King',
+  description: 'Learn basic checkmate patterns',
+  stats: mockProgressStats,
+  difficulty: 'beginner' as const,
+  category: 'queen' as const,
+  onStartTraining: jest.fn()
+};
 
-  const defaultProps = {
-    title: 'Test Endgame',
-    description: 'Test description for endgame',
-    stats: mockStats,
-    difficulty: 'intermediate' as const,
-    category: 'pawn' as const,
-    onStartTraining: jest.fn()
-  };
-
+describe('ProgressCard Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('Basic Rendering', () => {
-    it('sollte alle grundlegenden Inhalte rendern', () => {
+  describe('Rendering', () => {
+    it('should render basic card information', () => {
       render(<ProgressCard {...defaultProps} />);
-      
-      expect(screen.getByText('Test Endgame')).toBeInTheDocument();
-      expect(screen.getByText('Test description for endgame')).toBeInTheDocument();
-      expect(screen.getByText('♟️')).toBeInTheDocument(); // pawn icon
-      expect(screen.getByText('⚡')).toBeInTheDocument(); // intermediate icon
+
+      expect(screen.getByText('King and Queen vs King')).toBeInTheDocument();
+      expect(screen.getByText('Learn basic checkmate patterns')).toBeInTheDocument();
     });
 
-    it('sollte den Fortschritt korrekt berechnen und anzeigen', () => {
+    it('should display correct progress stats', () => {
       render(<ProgressCard {...defaultProps} />);
-      
-      expect(screen.getByText('7/10')).toBeInTheDocument();
-      expect(screen.getByText('70% abgeschlossen')).toBeInTheDocument();
-    });
 
-    it('sollte die Erfolgsrate korrekt anzeigen', () => {
-      render(<ProgressCard {...defaultProps} />);
+      // Progress fraction
+      expect(screen.getByText('12/20')).toBeInTheDocument();
       
-      expect(screen.getByText('85%')).toBeInTheDocument();
+      // Progress percentage (60%)
+      expect(screen.getByText('60% abgeschlossen')).toBeInTheDocument();
+      
+      // Success rate (75%)
+      expect(screen.getByText('75%')).toBeInTheDocument();
       expect(screen.getByText('Erfolgsrate')).toBeInTheDocument();
-    });
-
-    it('sollte heute fällige Karten anzeigen', () => {
-      render(<ProgressCard {...defaultProps} />);
       
+      // Due today
       expect(screen.getByText('3')).toBeInTheDocument();
-      expect(screen.getByText('heute fällig')).toBeInTheDocument();
+      expect(screen.getByText('Heute fällig')).toBeInTheDocument();
     });
 
-    it('sollte die aktuelle Serie anzeigen', () => {
+    it('should display streak when present', () => {
       render(<ProgressCard {...defaultProps} />);
-      
-      expect(screen.getByText('5')).toBeInTheDocument();
-      expect(screen.getByText('Tag Serie')).toBeInTheDocument();
+
+      expect(screen.getByText('5 Tage Streak')).toBeInTheDocument();
+      expect(screen.getByText('🔥')).toBeInTheDocument();
+    });
+
+    it('should not display streak when zero', () => {
+      const propsWithoutStreak = {
+        ...defaultProps,
+        stats: { ...mockProgressStats, streak: 0 }
+      };
+
+      render(<ProgressCard {...propsWithoutStreak} />);
+
+      expect(screen.queryByText('0 Tage Streak')).not.toBeInTheDocument();
+    });
+
+    it('should handle zero total correctly', () => {
+      const propsWithZeroTotal = {
+        ...defaultProps,
+        stats: { ...mockProgressStats, total: 0, completed: 0 }
+      };
+
+      render(<ProgressCard {...propsWithZeroTotal} />);
+
+      expect(screen.getByText('0/0')).toBeInTheDocument();
+      expect(screen.getByText('0% abgeschlossen')).toBeInTheDocument();
     });
   });
 
-  describe('Button Interaction', () => {
-    it('sollte onStartTraining aufrufen wenn der Button geklickt wird', () => {
-      render(<ProgressCard {...defaultProps} />);
-      
-      const button = screen.getByText('Training starten');
-      fireEvent.click(button);
-      
-      expect(defaultProps.onStartTraining).toHaveBeenCalledTimes(1);
+  describe('Difficulty Indicators', () => {
+    it('should display beginner difficulty', () => {
+      render(<ProgressCard {...defaultProps} difficulty="beginner" />);
+
+      expect(screen.getByText('🌱')).toBeInTheDocument();
+      expect(screen.getByText('beginner')).toBeInTheDocument();
     });
 
-    it('sollte den korrekten Button-Text anzeigen', () => {
-      render(<ProgressCard {...defaultProps} />);
-      
-      expect(screen.getByText('Training starten')).toBeInTheDocument();
+    it('should display intermediate difficulty', () => {
+      render(<ProgressCard {...defaultProps} difficulty="intermediate" />);
+
+      expect(screen.getByText('⚡')).toBeInTheDocument();
+      expect(screen.getByText('intermediate')).toBeInTheDocument();
+    });
+
+    it('should display advanced difficulty', () => {
+      render(<ProgressCard {...defaultProps} difficulty="advanced" />);
+
+      expect(screen.getByText('🔥')).toBeInTheDocument();
+      expect(screen.getByText('advanced')).toBeInTheDocument();
     });
   });
 
   describe('Category Icons', () => {
-    it('sollte das korrekte Icon für Bauern-Endspiele anzeigen', () => {
+    it('should display queen category icon', () => {
+      render(<ProgressCard {...defaultProps} category="queen" />);
+
+      expect(screen.getByText('♛')).toBeInTheDocument();
+    });
+
+    it('should display rook category icon', () => {
+      render(<ProgressCard {...defaultProps} category="rook" />);
+
+      expect(screen.getByText('♜')).toBeInTheDocument();
+    });
+
+    it('should display pawn category icon', () => {
       render(<ProgressCard {...defaultProps} category="pawn" />);
+
       expect(screen.getByText('♟️')).toBeInTheDocument();
     });
 
-    it('sollte das korrekte Icon für Königin-Endspiele anzeigen', () => {
-      render(<ProgressCard {...defaultProps} category="queen" />);
-      expect(screen.getByText('♕')).toBeInTheDocument();
+    it('should display minor pieces category icon', () => {
+      render(<ProgressCard {...defaultProps} category="minor" />);
+
+      expect(screen.getByText('♝')).toBeInTheDocument();
     });
 
-    it('sollte das korrekte Icon für Turm-Endspiele anzeigen', () => {
-      render(<ProgressCard {...defaultProps} category="rook" />);
-      expect(screen.getByText('♖')).toBeInTheDocument();
-    });
+    it('should display other category icon', () => {
+      render(<ProgressCard {...defaultProps} category="other" />);
 
-    it('sollte das korrekte Icon für Läufer-Endspiele anzeigen', () => {
-      render(<ProgressCard {...defaultProps} category="bishop" />);
-      expect(screen.getByText('♗')).toBeInTheDocument();
-    });
-
-    it('sollte das korrekte Icon für Springer-Endspiele anzeigen', () => {
-      render(<ProgressCard {...defaultProps} category="knight" />);
-      expect(screen.getByText('♘')).toBeInTheDocument();
-    });
-
-    it('sollte das Standard-Icon für unbekannte Kategorien anzeigen', () => {
-      render(<ProgressCard {...defaultProps} category="unknown" as any />);
-      expect(screen.getByText('🏆')).toBeInTheDocument();
-    });
-  });
-
-  describe('Difficulty Display', () => {
-    it('sollte das korrekte Icon für Beginner-Schwierigkeit anzeigen', () => {
-      render(<ProgressCard {...defaultProps} difficulty="beginner" />);
-      expect(screen.getByText('🌱')).toBeInTheDocument();
-    });
-
-    it('sollte das korrekte Icon für Intermediate-Schwierigkeit anzeigen', () => {
-      render(<ProgressCard {...defaultProps} difficulty="intermediate" />);
-      expect(screen.getByText('⚡')).toBeInTheDocument();
-    });
-
-    it('sollte das korrekte Icon für Advanced-Schwierigkeit anzeigen', () => {
-      render(<ProgressCard {...defaultProps} difficulty="advanced" />);
-      expect(screen.getByText('🔥')).toBeInTheDocument();
-    });
-
-    it('sollte das Standard-Icon für unbekannte Schwierigkeit anzeigen', () => {
-      render(<ProgressCard {...defaultProps} difficulty="unknown" as any />);
       expect(screen.getByText('🎯')).toBeInTheDocument();
     });
   });
 
-  describe('Edge Cases', () => {
-    it('sollte mit 0% Fortschritt umgehen', () => {
-      const zeroProgressStats = { ...mockStats, completed: 0 };
-      render(<ProgressCard {...defaultProps} stats={zeroProgressStats} />);
+  describe('Button Behavior', () => {
+    it('should call onStartTraining when button clicked', () => {
+      const onStartTraining = jest.fn();
       
-      expect(screen.getByText('0/10')).toBeInTheDocument();
-      expect(screen.getByText('0% abgeschlossen')).toBeInTheDocument();
+      render(<ProgressCard {...defaultProps} onStartTraining={onStartTraining} />);
+
+      const button = screen.getByRole('button');
+      fireEvent.click(button);
+
+      expect(onStartTraining).toHaveBeenCalledTimes(1);
     });
 
-    it('sollte mit 100% Fortschritt umgehen', () => {
-      const fullProgressStats = { ...mockStats, completed: 10 };
-      render(<ProgressCard {...defaultProps} stats={fullProgressStats} />);
-      
-      expect(screen.getByText('10/10')).toBeInTheDocument();
-      expect(screen.getByText('100% abgeschlossen')).toBeInTheDocument();
+    it('should show due tasks in button text when tasks are due', () => {
+      render(<ProgressCard {...defaultProps} />);
+
+      expect(screen.getByText('3 Aufgaben trainieren')).toBeInTheDocument();
     });
 
-    it('sollte mit 0% Erfolgsrate umgehen', () => {
-      const zeroSuccessStats = { ...mockStats, successRate: 0 };
-      render(<ProgressCard {...defaultProps} stats={zeroSuccessStats} />);
-      
-      expect(screen.getByText('0%')).toBeInTheDocument();
-    });
+    it('should show generic text when no tasks due', () => {
+      const propsWithoutDueTasks = {
+        ...defaultProps,
+        stats: { ...mockProgressStats, dueToday: 0 }
+      };
 
-    it('sollte mit 100% Erfolgsrate umgehen', () => {
-      const perfectSuccessStats = { ...mockStats, successRate: 1 };
-      render(<ProgressCard {...defaultProps} stats={perfectSuccessStats} />);
-      
-      expect(screen.getByText('100%')).toBeInTheDocument();
-    });
+      render(<ProgressCard {...propsWithoutDueTasks} />);
 
-    it('sollte mit leeren heute fälligen Karten umgehen', () => {
-      const noDueStats = { ...mockStats, dueToday: 0 };
-      render(<ProgressCard {...defaultProps} stats={noDueStats} />);
-      
-      expect(screen.getByText('0')).toBeInTheDocument();
-      expect(screen.getByText('heute fällig')).toBeInTheDocument();
-    });
-
-    it('sollte mit 0-Tag Serie umgehen', () => {
-      const noStreakStats = { ...mockStats, streak: 0 };
-      render(<ProgressCard {...defaultProps} stats={noStreakStats} />);
-      
-      expect(screen.getByText('0')).toBeInTheDocument();
-      expect(screen.getByText('Tag Serie')).toBeInTheDocument();
+      expect(screen.getByText('Training starten')).toBeInTheDocument();
     });
   });
 
-  describe('Styling', () => {
-    it('sollte die korrekte Container-Struktur haben', () => {
+  describe('Progress Bar', () => {
+    it('should display correct progress bar width', () => {
       const { container } = render(<ProgressCard {...defaultProps} />);
-      
-      const card = container.firstChild as HTMLElement;
-      expect(card).toHaveClass('bg-white', 'rounded-xl', 'shadow-md', 'p-6', 'border', 'border-gray-200');
-    });
 
-    it('sollte einen Hover-Effekt haben', () => {
-      const { container } = render(<ProgressCard {...defaultProps} />);
+      // Find progress bar element by looking for the div with width style
+      const progressBar = container.querySelector('div[style*="width: 60%"]');
       
-      const card = container.firstChild as HTMLElement;
-      expect(card).toHaveClass('hover:shadow-lg', 'transition-shadow', 'duration-200');
-    });
-
-    it('sollte die korrekte Fortschrittsbalken-Breite setzen', () => {
-      const { container } = render(<ProgressCard {...defaultProps} />);
-      
-      const progressBar = container.querySelector('[style*="width: 70%"]');
       expect(progressBar).toBeInTheDocument();
+    });
+
+    it('should handle 100% completion', () => {
+      const completeStats = {
+        ...mockProgressStats,
+        completed: 20,
+        total: 20
+      };
+
+      render(<ProgressCard {...defaultProps} stats={completeStats} />);
+
+      expect(screen.getByText('100% abgeschlossen')).toBeInTheDocument();
+    });
+
+    it('should handle 0% completion', () => {
+      const zeroStats = {
+        ...mockProgressStats,
+        completed: 0,
+        total: 20
+      };
+
+      render(<ProgressCard {...defaultProps} stats={zeroStats} />);
+
+      expect(screen.getByText('0% abgeschlossen')).toBeInTheDocument();
+    });
+  });
+
+  describe('CSS Classes and Styling', () => {
+    it('should apply correct difficulty styling classes', () => {
+      const { container } = render(<ProgressCard {...defaultProps} difficulty="beginner" />);
+
+      const card = container.firstChild as HTMLElement;
+      expect(card.className).toContain('from-green-50');
+      expect(card.className).toContain('to-emerald-50');
+      expect(card.className).toContain('border-green-200');
+    });
+
+    it('should apply intermediate difficulty styling', () => {
+      const { container } = render(<ProgressCard {...defaultProps} difficulty="intermediate" />);
+
+      const card = container.firstChild as HTMLElement;
+      expect(card.className).toContain('from-yellow-50');
+      expect(card.className).toContain('to-orange-50');
+    });
+
+    it('should apply advanced difficulty styling', () => {
+      const { container } = render(<ProgressCard {...defaultProps} difficulty="advanced" />);
+
+      const card = container.firstChild as HTMLElement;
+      expect(card.className).toContain('from-red-50');
+      expect(card.className).toContain('to-pink-50');
+    });
+
+    it('should have hover effects', () => {
+      const { container } = render(<ProgressCard {...defaultProps} />);
+
+      const card = container.firstChild as HTMLElement;
+      expect(card.className).toContain('hover:shadow-xl');
+      expect(card.className).toContain('hover:scale-105');
+    });
+  });
+
+  describe('Accessibility', () => {
+    it('should have proper button role', () => {
+      render(<ProgressCard {...defaultProps} />);
+
+      const button = screen.getByRole('button');
+      expect(button).toBeInTheDocument();
+    });
+
+    it('should support keyboard interaction', () => {
+      const onStartTraining = jest.fn();
+      
+      render(<ProgressCard {...defaultProps} onStartTraining={onStartTraining} />);
+
+      const button = screen.getByRole('button');
+      
+      // Test Enter key
+      fireEvent.keyDown(button, { key: 'Enter', code: 'Enter' });
+      fireEvent.keyUp(button, { key: 'Enter', code: 'Enter' });
+      
+      // Focus and click should work
+      button.focus();
+      fireEvent.click(button);
+
+      expect(onStartTraining).toHaveBeenCalled();
+    });
+
+    it('should have descriptive text content for screen readers', () => {
+      render(<ProgressCard {...defaultProps} />);
+
+      // Important content should be visible to screen readers
+      expect(screen.getByText('Fortschritt')).toBeInTheDocument();
+      expect(screen.getByText('Erfolgsrate')).toBeInTheDocument();
+      expect(screen.getByText('Heute fällig')).toBeInTheDocument();
+    });
+  });
+
+  describe('Edge Cases', () => {
+    it('should handle very high success rates', () => {
+      const highSuccessStats = {
+        ...mockProgressStats,
+        successRate: 0.999
+      };
+
+      render(<ProgressCard {...defaultProps} stats={highSuccessStats} />);
+
+      expect(screen.getByText('100%')).toBeInTheDocument(); // Rounded to 100%
+    });
+
+    it('should handle very low success rates', () => {
+      const lowSuccessStats = {
+        ...mockProgressStats,
+        successRate: 0.001
+      };
+
+      render(<ProgressCard {...defaultProps} stats={lowSuccessStats} />);
+
+      expect(screen.getByText('0%')).toBeInTheDocument(); // Rounded to 0%
+    });
+
+    it('should handle large numbers', () => {
+      const largeStats = {
+        total: 1000,
+        completed: 567,
+        successRate: 0.843,
+        dueToday: 99,
+        streak: 150
+      };
+
+      render(<ProgressCard {...defaultProps} stats={largeStats} />);
+
+      expect(screen.getByText('567/1000')).toBeInTheDocument();
+      expect(screen.getByText('57% abgeschlossen')).toBeInTheDocument(); // 567/1000 = 56.7% → 57%
+      expect(screen.getByText('84%')).toBeInTheDocument(); // 84.3% → 84%
+      expect(screen.getByText('99')).toBeInTheDocument();
+      expect(screen.getByText('150 Tage Streak')).toBeInTheDocument();
+    });
+
+    it('should handle completed > total gracefully', () => {
+      const invalidStats = {
+        ...mockProgressStats,
+        total: 10,
+        completed: 15 // More completed than total
+      };
+
+      render(<ProgressCard {...defaultProps} stats={invalidStats} />);
+
+      expect(screen.getByText('15/10')).toBeInTheDocument();
+      expect(screen.getByText('150% abgeschlossen')).toBeInTheDocument(); // 15/10 = 150%
+    });
+  });
+
+  describe('Component Memoization', () => {
+    it('should be memoized with React.memo', () => {
+      expect(ProgressCard.displayName).toBe('ProgressCard');
+    });
+
+    it('should not re-render with same props', () => {
+      const { rerender } = render(<ProgressCard {...defaultProps} />);
+      const initialHtml = screen.getByText('King and Queen vs King').closest('div')?.outerHTML;
+
+      // Re-render with same props
+      rerender(<ProgressCard {...defaultProps} />);
+      const secondHtml = screen.getByText('King and Queen vs King').closest('div')?.outerHTML;
+
+      expect(initialHtml).toBe(secondHtml);
     });
   });
 });

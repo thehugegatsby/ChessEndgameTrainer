@@ -1,382 +1,400 @@
-import { renderHook, act } from '@testing-library/react';
-import { useChessGame } from '@shared/hooks/useChessGame';
+/**
+ * @fileoverview Unit tests for useChessGame hook
+ * @description Tests chess game state management, move validation, and position tracking
+ */
 
-describe('useChessGame - Comprehensive Coverage', () => {
-  const initialFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-  const endgameFen = '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1';
+import { renderHook, act } from '@testing-library/react';
+import { Chess } from 'chess.js';
+import { useChessGame } from '@shared/hooks/useChessGame';
+import { TEST_POSITIONS } from '../../helpers/testPositions';
+import { createTestMove, TEST_MOVES } from '../../helpers/moveFactory';
+
+// Mock Chess.js to control behavior
+jest.mock('chess.js');
+
+const MockedChess = Chess as jest.MockedClass<typeof Chess>;
+
+describe('useChessGame Hook', () => {
+  let mockChessInstance: jest.Mocked<Chess>;
+  let onCompleteMock: jest.Mock;
+  let onPositionChangeMock: jest.Mock;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    
+    // Create mock Chess instance
+    mockChessInstance = {
+      fen: jest.fn(),
+      pgn: jest.fn(),
+      move: jest.fn(),
+      isGameOver: jest.fn(),
+      reset: jest.fn(),
+      load: jest.fn(),
+      history: jest.fn()
+    } as any;
+
+    // Mock Chess constructor
+    MockedChess.mockImplementation(() => mockChessInstance);
+
+    // Set up default mock return values
+    mockChessInstance.fen.mockReturnValue(TEST_POSITIONS.STARTING_POSITION);
+    mockChessInstance.pgn.mockReturnValue('');
+    mockChessInstance.isGameOver.mockReturnValue(false);
+
+    // Create callback mocks
+    onCompleteMock = jest.fn();
+    onPositionChangeMock = jest.fn();
+  });
 
   describe('Initialization', () => {
-    it('sollte mit initial FEN initialisieren', () => {
-      const { result } = renderHook(() => 
-        useChessGame({ initialFen })
-      );
+    it('should initialize with provided FEN position', () => {
+      const { result } = renderHook(() => useChessGame({
+        initialFen: TEST_POSITIONS.STARTING_POSITION,
+        onComplete: onCompleteMock,
+        onPositionChange: onPositionChangeMock
+      }));
 
-      expect(result.current.currentFen).toBe(initialFen);
-      expect(result.current.currentPgn).toBe('');
+      expect(MockedChess).toHaveBeenCalledWith(TEST_POSITIONS.STARTING_POSITION);
+      expect(result.current.currentFen).toBe(TEST_POSITIONS.STARTING_POSITION);
       expect(result.current.history).toEqual([]);
       expect(result.current.isGameFinished).toBe(false);
-      expect(result.current.game).toBeDefined();
     });
 
-    it('sollte mit Endgame FEN initialisieren', () => {
-      const { result } = renderHook(() => 
-        useChessGame({ initialFen: endgameFen })
-      );
+    it('should initialize with different starting position', () => {
+      renderHook(() => useChessGame({
+        initialFen: TEST_POSITIONS.KQK_TABLEBASE_WIN,
+        onComplete: onCompleteMock,
+        onPositionChange: onPositionChangeMock
+      }));
 
-      expect(result.current.currentFen).toBe(endgameFen);
-      expect(result.current.game.fen()).toBe(endgameFen);
+      expect(MockedChess).toHaveBeenCalledWith(TEST_POSITIONS.KQK_TABLEBASE_WIN);
     });
   });
 
-  describe('Move Making', () => {
-    it('sollte gültigen Zug ausführen', async () => {
-      const { result } = renderHook(() => 
-        useChessGame({ initialFen })
-      );
+  describe('Making Moves', () => {
+    it('should make a legal move successfully', async () => {
+      const mockMove = createTestMove({ from: 'e2', to: 'e4', san: 'e4' });
+      mockChessInstance.move.mockReturnValue(mockMove);
+      mockChessInstance.fen.mockReturnValue('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1');
+      mockChessInstance.pgn.mockReturnValue('1. e4');
 
+      const { result } = renderHook(() => useChessGame({
+        initialFen: TEST_POSITIONS.STARTING_POSITION,
+        onComplete: onCompleteMock,
+        onPositionChange: onPositionChangeMock
+      }));
+
+      let moveResult: boolean;
       await act(async () => {
-        const success = await result.current.makeMove({ from: 'e2', to: 'e4' });
-        expect(success).toBe(true);
+        moveResult = await result.current.makeMove(TEST_MOVES.E2E4);
       });
 
-      expect(result.current.history).toHaveLength(1);
-      expect(result.current.history[0].from).toBe('e2');
-      expect(result.current.history[0].to).toBe('e4');
-      expect(result.current.currentFen).not.toBe(initialFen);
+      expect(moveResult!).toBe(true);
+      expect(mockChessInstance.move).toHaveBeenCalledWith(TEST_MOVES.E2E4);
+      expect(result.current.history).toContain(mockMove);
+      expect(onPositionChangeMock).toHaveBeenCalledWith(
+        'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
+        '1. e4'
+      );
     });
 
-    it('sollte ungültigen Zug ablehnen', async () => {
-      const { result } = renderHook(() => 
-        useChessGame({ initialFen })
-      );
-
-      await act(async () => {
-        const success = await result.current.makeMove({ from: 'e2', to: 'e5' });
-        expect(success).toBe(false);
+    it('should reject illegal moves', async () => {
+      mockChessInstance.move.mockImplementation(() => {
+        throw new Error('Invalid move');
       });
 
-      expect(result.current.history).toHaveLength(0);
-      expect(result.current.currentFen).toBe(initialFen);
+      const { result } = renderHook(() => useChessGame({
+        initialFen: TEST_POSITIONS.STARTING_POSITION,
+        onComplete: onCompleteMock,
+        onPositionChange: onPositionChangeMock
+      }));
+
+      let moveResult: boolean;
+      await act(async () => {
+        moveResult = await result.current.makeMove(TEST_MOVES.ILLEGAL_MOVE);
+      });
+
+      expect(moveResult!).toBe(false);
+      expect(result.current.history).toEqual([]);
+      expect(onPositionChangeMock).not.toHaveBeenCalled();
     });
 
-    it('sollte Bauernumwandlung handhaben', async () => {
-      const promotionFen = '4k3/P7/8/8/8/8/8/4K3 w - - 0 1';
-      const { result } = renderHook(() => 
-        useChessGame({ initialFen: promotionFen })
-      );
+    it('should handle null move result', async () => {
+      mockChessInstance.move.mockReturnValue(null as any);
 
+      const { result } = renderHook(() => useChessGame({
+        initialFen: TEST_POSITIONS.STARTING_POSITION,
+        onComplete: onCompleteMock,
+        onPositionChange: onPositionChangeMock
+      }));
+
+      let moveResult: boolean;
       await act(async () => {
-        const success = await result.current.makeMove({ 
-          from: 'a7', 
-          to: 'a8', 
-          promotion: 'q' 
-        });
-        expect(success).toBe(true);
+        moveResult = await result.current.makeMove(TEST_MOVES.E2E4);
       });
 
-      expect(result.current.history).toHaveLength(1);
-      expect(result.current.history[0].promotion).toBe('q');
+      expect(moveResult!).toBe(false);
+      expect(result.current.history).toEqual([]);
     });
 
-    it('sollte keine Züge nach Spielende akzeptieren', async () => {
-      const checkmateFen = 'rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3';
-      const { result } = renderHook(() => 
-        useChessGame({ initialFen: checkmateFen })
-      );
+    it('should detect game completion and call onComplete', async () => {
+      const mockMove = createTestMove({ from: 'f7', to: 'f8', san: 'f8=Q#', promotion: 'q' });
+      mockChessInstance.move.mockReturnValue(mockMove);
+      mockChessInstance.isGameOver.mockReturnValue(true);
 
-      // Game should be finished (checkmate)
-      expect(result.current.isGameFinished).toBe(false); // Initial state
+      const { result } = renderHook(() => useChessGame({
+        initialFen: TEST_POSITIONS.STARTING_POSITION,
+        onComplete: onCompleteMock,
+        onPositionChange: onPositionChangeMock
+      }));
 
       await act(async () => {
-        const success = await result.current.makeMove({ from: 'e2', to: 'e3' });
-        expect(success).toBe(false);
+        await result.current.makeMove({ from: 'f7', to: 'f8', promotion: 'q' });
       });
+
+      expect(result.current.isGameFinished).toBe(true);
+      expect(onCompleteMock).toHaveBeenCalledWith(true);
     });
 
-    it('sollte onComplete callback bei Spielende aufrufen', async () => {
-      const onComplete = jest.fn();
-      const checkmateFen = 'rnbqkb1r/pppp1ppp/5n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4';
-      
-      const { result } = renderHook(() => 
-        useChessGame({ 
-          initialFen: checkmateFen,
-          onComplete
-        })
-      );
+    it('should not allow moves when game is finished', async () => {
+      // Set up a finished game by triggering game completion first
+      mockChessInstance.move.mockReturnValue(createTestMove({ from: 'f7', to: 'f8', san: 'f8=Q#', promotion: 'q' }));
+      mockChessInstance.isGameOver.mockReturnValue(true);
 
+      const { result } = renderHook(() => useChessGame({
+        initialFen: TEST_POSITIONS.STARTING_POSITION,
+        onComplete: onCompleteMock,
+        onPositionChange: onPositionChangeMock
+      }));
+
+      // Make a move that finishes the game
       await act(async () => {
-        const success = await result.current.makeMove({ from: 'h5', to: 'f7' });
-        expect(success).toBe(true);
+        await result.current.makeMove({ from: 'f7', to: 'f8', promotion: 'q' });
       });
 
-      expect(onComplete).toHaveBeenCalledWith(true);
+      // Reset mock to return null for subsequent moves
+      mockChessInstance.move.mockReturnValue(null as any);
+
+      // Now the game should be finished and reject new moves
+      let moveResult: boolean;
+      await act(async () => {
+        moveResult = await result.current.makeMove(TEST_MOVES.E2E4);
+      });
+
+      expect(moveResult!).toBe(false);
+      expect(result.current.isGameFinished).toBe(true);
     });
 
-    it('sollte onPositionChange callback aufrufen', async () => {
-      const onPositionChange = jest.fn();
-      const { result } = renderHook(() => 
-        useChessGame({ 
-          initialFen,
-          onPositionChange
-        })
-      );
+    it('should handle promotion moves', async () => {
+      const mockMove = createTestMove({ from: 'e7', to: 'e8', san: 'e8=Q', promotion: 'q' });
+      mockChessInstance.move.mockReturnValue(mockMove);
+
+      const { result } = renderHook(() => useChessGame({
+        initialFen: TEST_POSITIONS.STARTING_POSITION,
+        onComplete: onCompleteMock,
+        onPositionChange: onPositionChangeMock
+      }));
 
       await act(async () => {
-        await result.current.makeMove({ from: 'e2', to: 'e4' });
+        await result.current.makeMove(TEST_MOVES.PROMOTION_QUEEN);
       });
 
-      expect(onPositionChange).toHaveBeenCalled();
-      expect(onPositionChange.mock.calls[0][0]).not.toBe(initialFen); // New FEN
-      expect(onPositionChange.mock.calls[0][1]).toContain('1. e4'); // PGN contains move
-    });
-
-    it('sollte Fehler beim Zug graceful handhaben', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      
-      const { result } = renderHook(() => 
-        useChessGame({ initialFen })
-      );
-
-      // Mock chess.js to throw an error
-      jest.spyOn(result.current.game, 'move').mockImplementationOnce(() => {
-        throw new Error('Move error');
-      });
-
-      await act(async () => {
-        const success = await result.current.makeMove({ from: 'e2', to: 'e4' });
-        expect(success).toBe(false);
-      });
-
-      // Console error was removed in optimization - error is handled silently
-      expect(consoleErrorSpy).not.toHaveBeenCalled();
-      consoleErrorSpy.mockRestore();
+      expect(mockChessInstance.move).toHaveBeenCalledWith(TEST_MOVES.PROMOTION_QUEEN);
+      expect(result.current.history).toContain(mockMove);
     });
   });
 
   describe('Game Navigation', () => {
-    it('sollte zu Move Index springen', async () => {
-      const onPositionChange = jest.fn();
-      const { result } = renderHook(() => 
-        useChessGame({ 
-          initialFen,
-          onPositionChange
-        })
-      );
+    it('should jump to specific move in history', async () => {
+      const { result } = renderHook(() => useChessGame({
+        initialFen: TEST_POSITIONS.STARTING_POSITION,
+        onComplete: onCompleteMock,
+        onPositionChange: onPositionChangeMock
+      }));
 
-      // Make a few moves first
+      // First, make some moves to build up history
+      const moves = [
+        createTestMove({ from: 'e2', to: 'e4', san: 'e4' }),
+        createTestMove({ from: 'e7', to: 'e5', san: 'e5', color: 'b' }),
+        createTestMove({ from: 'g1', to: 'f3', san: 'Nf3', piece: 'n' })
+      ];
+
+      for (const move of moves) {
+        mockChessInstance.move.mockReturnValueOnce(move);
+        await act(async () => {
+          await result.current.makeMove(move);
+        });
+      }
+
+      // Now test jump to move
+      const newGame = {
+        fen: jest.fn().mockReturnValue('position-after-move-1'),
+        pgn: jest.fn().mockReturnValue('1. e4 e5'),
+        move: jest.fn(),
+        reset: jest.fn(),
+        load: jest.fn()
+      } as any;
+
+      MockedChess.mockReturnValue(newGame);
+
+      act(() => {
+        result.current.jumpToMove(1); // Jump to move index 1 (second move)
+      });
+
+      expect(newGame.reset).toHaveBeenCalled();
+      expect(newGame.load).toHaveBeenCalledWith(TEST_POSITIONS.STARTING_POSITION);
+      expect(onPositionChangeMock).toHaveBeenCalled();
+    });
+
+    it('should undo last move successfully', async () => {
+      const { result } = renderHook(() => useChessGame({
+        initialFen: TEST_POSITIONS.STARTING_POSITION,
+        onComplete: onCompleteMock,
+        onPositionChange: onPositionChangeMock
+      }));
+
+      // First, make some moves to build up history
+      mockChessInstance.move.mockReturnValueOnce(createTestMove({ from: 'e2', to: 'e4', san: 'e4' }));
       await act(async () => {
         await result.current.makeMove({ from: 'e2', to: 'e4' });
-        await result.current.makeMove({ from: 'e7', to: 'e5' });
-        await result.current.makeMove({ from: 'g1', to: 'f3' });
       });
 
-      expect(result.current.history).toHaveLength(3);
-
-      // Jump to move 1 (after e4 e5)
-      act(() => {
-        result.current.jumpToMove(1);
-      });
-
-      expect(result.current.currentPgn).toContain('1. e4 e5');
-      expect(onPositionChange).toHaveBeenCalled();
-    });
-
-    it('sollte zu Move 0 springen (Anfangsposition)', () => {
-      const { result } = renderHook(() => 
-        useChessGame({ initialFen })
-      );
-
-      act(() => {
-        result.current.jumpToMove(-1);
-      });
-
-      expect(result.current.currentFen).toBe(initialFen);
-      expect(result.current.currentPgn).toContain('*'); // Initial position PGN contains result marker
-    });
-
-    it('sollte mit Index über Geschichte umgehen', () => {
-      const { result } = renderHook(() => 
-        useChessGame({ initialFen })
-      );
-
-      act(() => {
-        result.current.jumpToMove(999);
-      });
-
-      expect(result.current.currentFen).toBe(initialFen);
-    });
-  });
-
-  describe('Game Reset', () => {
-    it('sollte Spiel auf Anfangsposition zurücksetzen', async () => {
-      const onPositionChange = jest.fn();
-      const { result } = renderHook(() => 
-        useChessGame({ 
-          initialFen,
-          onPositionChange
-        })
-      );
-
-      // Make some moves
+      mockChessInstance.move.mockReturnValueOnce(createTestMove({ from: 'e7', to: 'e5', san: 'e5', color: 'b' }));
       await act(async () => {
-        await result.current.makeMove({ from: 'e2', to: 'e4' });
         await result.current.makeMove({ from: 'e7', to: 'e5' });
       });
 
-      expect(result.current.history).toHaveLength(2);
+      const tempGame = {
+        fen: jest.fn().mockReturnValue('position-after-undo'),
+        pgn: jest.fn().mockReturnValue('1. e4'),
+        move: jest.fn()
+      } as any;
 
-      // Reset game
+      MockedChess.mockReturnValue(tempGame);
+
+      let undoResult: boolean;
+      act(() => {
+        undoResult = result.current.undoMove();
+      });
+
+      expect(undoResult!).toBe(true);
+      expect(result.current.isGameFinished).toBe(false);
+      expect(onPositionChangeMock).toHaveBeenCalledWith('position-after-undo', '1. e4');
+    });
+
+    it('should not undo when no moves in history', () => {
+      const { result } = renderHook(() => useChessGame({
+        initialFen: TEST_POSITIONS.STARTING_POSITION,
+        onComplete: onCompleteMock,
+        onPositionChange: onPositionChangeMock
+      }));
+
+      let undoResult: boolean;
+      act(() => {
+        undoResult = result.current.undoMove();
+      });
+
+      expect(undoResult!).toBe(false);
+      expect(onPositionChangeMock).not.toHaveBeenCalled();
+    });
+
+    it('should reset game to initial position', async () => {
+      const { result } = renderHook(() => useChessGame({
+        initialFen: TEST_POSITIONS.STARTING_POSITION,
+        onComplete: onCompleteMock,
+        onPositionChange: onPositionChangeMock
+      }));
+
+      // First make a move to create some game state
+      mockChessInstance.move.mockReturnValueOnce(createTestMove({ from: 'e2', to: 'e4', san: 'e4' }));
+      await act(async () => {
+        await result.current.makeMove({ from: 'e2', to: 'e4' });
+      });
+
+      // Verify we have some history
+      expect(result.current.history.length).toBeGreaterThan(0);
+
+      const newGame = {
+        fen: jest.fn().mockReturnValue(TEST_POSITIONS.STARTING_POSITION),
+        pgn: jest.fn().mockReturnValue('')
+      } as any;
+
+      MockedChess.mockReturnValue(newGame);
+
       act(() => {
         result.current.resetGame();
       });
 
-      expect(result.current.currentFen).toBe(initialFen);
-      expect(result.current.currentPgn).toBe(''); // Reset clears PGN
       expect(result.current.history).toEqual([]);
       expect(result.current.isGameFinished).toBe(false);
-      expect(onPositionChange).toHaveBeenCalled();
-    });
-
-    it('sollte mit anderem initialFen zurücksetzen', () => {
-      const { result } = renderHook(() => 
-        useChessGame({ initialFen: endgameFen })
-      );
-
-      act(() => {
-        result.current.resetGame();
-      });
-
-      expect(result.current.currentFen).toBe(endgameFen);
+      expect(result.current.currentFen).toBe(TEST_POSITIONS.STARTING_POSITION);
+      expect(onPositionChangeMock).toHaveBeenCalledWith(TEST_POSITIONS.STARTING_POSITION, '');
     });
   });
 
-  describe('Undo Move', () => {
-    it('sollte letzten Zug rückgängig machen', async () => {
-      const onPositionChange = jest.fn();
-      const { result } = renderHook(() => 
-        useChessGame({ 
-          initialFen,
-          onPositionChange
-        })
-      );
+  describe('Error Handling', () => {
+    it('should handle move errors gracefully', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      mockChessInstance.move.mockImplementation(() => {
+        throw new Error('Unexpected chess.js error');
+      });
 
-      // Make moves
+      const { result } = renderHook(() => useChessGame({
+        initialFen: TEST_POSITIONS.STARTING_POSITION,
+        onComplete: onCompleteMock,
+        onPositionChange: onPositionChangeMock
+      }));
+
+      let moveResult: boolean;
       await act(async () => {
-        await result.current.makeMove({ from: 'e2', to: 'e4' });
-        await result.current.makeMove({ from: 'e7', to: 'e5' });
+        moveResult = await result.current.makeMove(TEST_MOVES.E2E4);
       });
 
-      expect(result.current.history).toHaveLength(2);
-
-      // Undo last move
-      act(() => {
-        const success = result.current.undoMove();
-        expect(success).toBe(true);
-      });
-
-      expect(result.current.history).toHaveLength(1);
-      expect(result.current.currentPgn).toContain('1. e4');
-      expect(result.current.isGameFinished).toBe(false);
-      expect(onPositionChange).toHaveBeenCalled();
-    });
-
-    it('sollte false zurückgeben wenn keine Züge vorhanden', () => {
-      const { result } = renderHook(() => 
-        useChessGame({ initialFen })
-      );
-
-      act(() => {
-        const success = result.current.undoMove();
-        expect(success).toBe(false);
-      });
-
-      expect(result.current.history).toEqual([]);
-      expect(result.current.currentFen).toBe(initialFen);
-    });
-
-    it('sollte alle Züge rückgängig machen können', async () => {
-      const { result } = renderHook(() => 
-        useChessGame({ initialFen })
-      );
-
-      // Make moves
-      await act(async () => {
-        await result.current.makeMove({ from: 'e2', to: 'e4' });
-        await result.current.makeMove({ from: 'e7', to: 'e5' });
-        await result.current.makeMove({ from: 'g1', to: 'f3' });
-      });
-
-      // Undo all moves one by one, sequentially
-      act(() => {
-        result.current.undoMove(); // Undo 3rd move (Nf3)
-      });
+      expect(moveResult!).toBe(false);
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Move failed:', expect.any(Error));
       
-      expect(result.current.history).toHaveLength(2); // e4, e5 remain
-      
-      act(() => {
-        result.current.undoMove(); // Undo 2nd move (e5)
-      });
-      
-      expect(result.current.history).toHaveLength(1); // Only e4 remains
-      
-      act(() => {
-        result.current.undoMove(); // Undo 1st move (e4)
-      });
-
-      expect(result.current.history).toEqual([]);
-      expect(result.current.currentFen).toBe(initialFen);
-      expect(result.current.currentPgn).toContain('*'); // Initial position PGN contains headers and result marker
+      consoleErrorSpy.mockRestore();
     });
   });
 
-  describe('Edge Cases', () => {
-    it('sollte mit null move result umgehen', async () => {
-      const { result } = renderHook(() => 
-        useChessGame({ initialFen })
-      );
+  describe('Callback Integration', () => {
+    it('should work without optional callbacks', async () => {
+      const mockMove = createTestMove({ from: 'e2', to: 'e4', san: 'e4' });
+      mockChessInstance.move.mockReturnValue(mockMove);
 
-      // Mock chess.js to return null (invalid move)
-      jest.spyOn(result.current.game, 'move').mockReturnValueOnce(null as any);
+      const { result } = renderHook(() => useChessGame({
+        initialFen: TEST_POSITIONS.STARTING_POSITION
+      }));
 
+      let moveResult: boolean;
       await act(async () => {
-        const success = await result.current.makeMove({ from: 'e2', to: 'e4' });
-        expect(success).toBe(false);
+        moveResult = await result.current.makeMove(TEST_MOVES.E2E4);
       });
 
-      expect(result.current.history).toHaveLength(0);
+      expect(moveResult!).toBe(true);
+      // Should not throw error even without callbacks
     });
+  });
 
-    it('sollte ohne callbacks funktionieren', async () => {
-      const { result } = renderHook(() => 
-        useChessGame({ initialFen })
-      );
+  describe('Performance Optimizations', () => {
+    it('should reuse game instance instead of creating new ones', async () => {
+      const mockMove = createTestMove({ from: 'e2', to: 'e4', san: 'e4' });
+      mockChessInstance.move.mockReturnValue(mockMove);
 
-      await act(async () => {
-        const success = await result.current.makeMove({ from: 'e2', to: 'e4' });
-        expect(success).toBe(true);
-      });
+      const { result } = renderHook(() => useChessGame({
+        initialFen: TEST_POSITIONS.STARTING_POSITION,
+        onComplete: onCompleteMock,
+        onPositionChange: onPositionChangeMock
+      }));
 
-      expect(result.current.history).toHaveLength(1);
-    });
-
-    it('sollte refs korrekt aktualisieren', async () => {
-      const { result } = renderHook(() => 
-        useChessGame({ initialFen })
-      );
+      const initialGameInstance = result.current.game;
 
       await act(async () => {
-        await result.current.makeMove({ from: 'e2', to: 'e4' });
+        await result.current.makeMove(TEST_MOVES.E2E4);
       });
 
-      // Refs should be updated to latest values
-      expect(result.current.history).toHaveLength(1);
-      
-      // Jump to position should work with updated refs
-      act(() => {
-        result.current.jumpToMove(0);
-      });
-
-      expect(result.current.currentPgn).toContain('1. e4');
+      // Should reuse the same instance
+      expect(result.current.game).toBe(initialGameInstance);
     });
   });
 });

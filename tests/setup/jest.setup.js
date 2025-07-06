@@ -1,105 +1,76 @@
+/**
+ * Jest setup file - global test configuration
+ */
+
+// Import jest-dom for additional matchers
 import '@testing-library/jest-dom';
-
-// Mock global APIs
-global.ResizeObserver = jest.fn().mockImplementation(() => ({
-  observe: jest.fn(),
-  unobserve: jest.fn(),
-  disconnect: jest.fn(),
-}));
-
-global.IntersectionObserver = jest.fn().mockImplementation(() => ({
-  observe: jest.fn(),
-  unobserve: jest.fn(),
-  disconnect: jest.fn(),
-}));
-
-// Mock window.matchMedia
-global.matchMedia = jest.fn().mockImplementation(query => ({
-  matches: false,
-  media: query,
-  onchange: null,
-  addListener: jest.fn(), // deprecated
-  removeListener: jest.fn(), // deprecated
-  addEventListener: jest.fn(),
-  removeEventListener: jest.fn(),
-  dispatchEvent: jest.fn(),
-}));
-
-// Mock canvas for chessboard rendering
-global.HTMLCanvasElement.prototype.getContext = jest.fn(() => ({
-  fillRect: jest.fn(),
-  clearRect: jest.fn(),
-  getImageData: jest.fn(() => ({ data: new Array(4) })),
-  putImageData: jest.fn(),
-  createImageData: jest.fn(() => []),
-  setTransform: jest.fn(),
-  drawImage: jest.fn(),
-  save: jest.fn(),
-  fillText: jest.fn(),
-  restore: jest.fn(),
-  beginPath: jest.fn(),
-  moveTo: jest.fn(),
-  lineTo: jest.fn(),
-  closePath: jest.fn(),
-  stroke: jest.fn(),
-  translate: jest.fn(),
-  scale: jest.fn(),
-  rotate: jest.fn(),
-  arc: jest.fn(),
-  fill: jest.fn(),
-  measureText: jest.fn(() => ({ width: 0 })),
-  transform: jest.fn(),
-  rect: jest.fn(),
-  clip: jest.fn(),
-}));
-
-// Mock performance API
-global.performance = global.performance || {};
-global.performance.now = global.performance.now || jest.fn(() => Date.now());
-global.performance.mark = global.performance.mark || jest.fn();
-global.performance.measure = global.performance.measure || jest.fn();
-
-// Mock window.crypto for UUID generation
-global.crypto = global.crypto || {};
-global.crypto.randomUUID = global.crypto.randomUUID || jest.fn(() => 
-  '12345678-1234-1234-1234-123456789012'
-);
-
-// Mock localStorage
-const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
-};
-global.localStorage = localStorageMock;
-
-// Mock sessionStorage
-global.sessionStorage = localStorageMock;
-
-// Mock console methods to reduce noise in tests
-const originalError = console.error;
-beforeAll(() => {
-  console.error = (...args) => {
-    // Ignore React warnings in tests
-    if (
-      typeof args[0] === 'string' &&
-      args[0].includes('Warning: ReactDOM.render is no longer supported')
-    ) {
-      return;
-    }
-    originalError.call(console, ...args);
-  };
-});
-
-afterAll(() => {
-  console.error = originalError;
-});
 
 // Global test timeout
 jest.setTimeout(30000);
 
-// Clean up after each test
+// Mock console methods for cleaner test output
+const originalConsoleError = console.error;
+const originalConsoleWarn = console.warn;
+
+beforeEach(() => {
+  // Mock console.error to suppress expected errors in tests
+  console.error = jest.fn((message) => {
+    if (typeof message === 'string' && message.includes('Warning: ReactDOM.render is deprecated')) {
+      return;
+    }
+    if (typeof message === 'string' && message.includes('Warning: render is deprecated')) {
+      return;
+    }
+    originalConsoleError(message);
+  });
+
+  // Mock console.warn to suppress warnings
+  console.warn = jest.fn((message) => {
+    if (typeof message === 'string' && message.includes('componentWillReceiveProps')) {
+      return;
+    }
+    originalConsoleWarn(message);
+  });
+});
+
 afterEach(() => {
+  // Restore original console methods
+  console.error = originalConsoleError;
+  console.warn = originalConsoleWarn;
+  
+  // Clear all mocks
   jest.clearAllMocks();
 });
+
+// Global test utilities
+global.testUtils = {
+  createMockFen: (options = {}) => {
+    const {
+      pieces = '2K5/2P2k2/8/8/4R3/8/1r6/8',
+      activeColor = 'w',
+      castling = '-',
+      enPassant = '-',
+      halfmove = '0',
+      fullmove = '1'
+    } = options;
+    
+    return `${pieces} ${activeColor} ${castling} ${enPassant} ${halfmove} ${fullmove}`;
+  },
+  
+  createMockTablebaseData: (wdl = 2, dtm = null, dtz = null) => ({
+    wdl,
+    dtm,
+    dtz,
+    category: wdl > 0 ? 'win' : wdl < 0 ? 'loss' : 'draw',
+    precise: true
+  }),
+  
+  createMockEngineData: (score = 150, mate = null) => ({
+    score,
+    mate,
+    evaluation: `+${(score / 100).toFixed(2)}`,
+    depth: 20,
+    nodes: 1000000,
+    time: 2000
+  })
+};

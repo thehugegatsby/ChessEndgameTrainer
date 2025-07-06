@@ -16,7 +16,7 @@
 import type {
   PlayerPerspectiveEvaluation,
   FormattedEvaluation
-} from '@shared/types/evaluation';
+} from '../../../types/evaluation';
 
 export interface FormatterConfig {
   /** Threshold for neutral evaluation in centipawns (default: 50) */
