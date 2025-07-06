@@ -12,7 +12,7 @@ module.exports = {
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   setupFilesAfterEnv: ['<rootDir>/setup/jest.setup.js'],
-  testPathIgnorePatterns: ['/node_modules/', '/.next/', 'jest.setup.ts'],
+  testPathIgnorePatterns: ['/node_modules/', '/.next/', 'jest.setup.ts', '<rootDir>/e2e/', '/e2e/'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/../shared/$1',
     '^@app/(.*)$': '<rootDir>/../app/$1',
@@ -27,13 +27,11 @@ module.exports = {
     'react-native-safe-area-context': '<rootDir>/shared/tests/mocks/safe-area-context.js'
   },
   testMatch: [
-    '<rootDir>/**/*.{spec,test}.[jt]s?(x)',
-    '<rootDir>/../shared/**/__tests__/**/*.[jt]s?(x)',
-    '<rootDir>/../shared/**/*.{spec,test}.[jt]s?(x)',
-    '<rootDir>/../app/web/**/__tests__/**/*.[jt]s?(x)',
-    '<rootDir>/../app/web/**/*.{spec,test}.[jt]s?(x)',
-    '<rootDir>/../app/mobile/**/__tests__/**/*.[jt]s?(x)',
-    '<rootDir>/../app/mobile/**/*.{spec,test}.[jt]s?(x)'
+    '<rootDir>/unit/**/*.{spec,test}.[jt]s?(x)',
+    '<rootDir>/integration/**/*.{spec,test}.[jt]s?(x)',
+    '<rootDir>/performance/**/*.{spec,test}.[jt]s?(x)',
+    '<rootDir>/regression/**/*.{spec,test}.[jt]s?(x)',
+    '<rootDir>/smoke/**/*.{spec,test}.[jt]s?(x)'
   ],
   collectCoverageFrom: [
     'shared/**/*.{ts,tsx}',

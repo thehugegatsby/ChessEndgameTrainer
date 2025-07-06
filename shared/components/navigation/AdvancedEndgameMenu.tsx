@@ -24,9 +24,14 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
 
   // Load user stats from localStorage
   useEffect(() => {
-    const savedStats = localStorage.getItem('endgame-user-stats');
-    if (savedStats) {
-      setUserStats(JSON.parse(savedStats));
+    try {
+      const savedStats = localStorage.getItem('endgame-user-stats');
+      if (savedStats) {
+        setUserStats(JSON.parse(savedStats));
+      }
+    } catch (error) {
+      // Silently ignore localStorage errors and use default stats
+      console.error('Failed to load user stats from localStorage:', error);
     }
   }, []);
 
