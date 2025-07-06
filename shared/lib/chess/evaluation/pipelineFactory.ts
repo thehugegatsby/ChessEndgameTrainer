@@ -11,10 +11,8 @@
  * @module EvaluationPipelineFactory
  */
 
-import { FEATURE_FLAGS } from '@shared/constants';
 import { Logger } from '@shared/services/logging/LoggerCompat';
 import type { ILogger } from '@shared/services/logging/types';
-import { getEnhancedPerspectiveMode, type UserContext } from '@shared/lib/featureFlags';
 import { EvaluationMonitor, monitoredEvaluation } from './monitoring';
 import { EvaluationNormalizer } from './normalizer';
 import { PlayerPerspectiveTransformer } from './perspectiveTransformer';
@@ -33,7 +31,6 @@ export interface PipelineConfig {
   enhancedPerspective?: boolean;
   cacheEnabled?: boolean;
   logger?: ILogger;
-  userContext?: UserContext; // For dynamic feature flag evaluation
 }
 
 /**

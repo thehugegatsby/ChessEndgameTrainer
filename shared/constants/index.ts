@@ -80,38 +80,6 @@ export const TIME = {
 } as const;
 
 
-// Feature Flags - Migration from legacy evaluation system to unified system
-export const FEATURE_FLAGS = {
-  /**
-   * Controls migration from legacy evaluation logic to UnifiedEvaluationService
-   * 
-   * Default behavior:
-   * - Development: NEW system (unless explicitly disabled with NEXT_PUBLIC_UNIFIED_EVAL=false)
-   * - Production: OLD system (unless explicitly enabled with NEXT_PUBLIC_UNIFIED_EVAL=true)
-   * 
-   * This allows safe gradual migration with easy rollback capability
-   */
-  USE_UNIFIED_EVALUATION_SYSTEM: process.env.NEXT_PUBLIC_UNIFIED_EVAL === 'true' || 
-                                  (process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_UNIFIED_EVAL !== 'false'),
-
-  /**
-   * Enables discrepancy logging between old and new evaluation systems
-   * Only relevant when USE_UNIFIED_EVALUATION_SYSTEM is true
-   */
-  LOG_EVALUATION_DISCREPANCIES: process.env.NODE_ENV === 'development' && 
-                                 process.env.NEXT_PUBLIC_LOG_EVAL_DISCREPANCIES === 'true',
-
-  /**
-   * Phase 3: Enhanced perspective handling (correct Black perspective evaluation)
-   * 
-   * MIGRATION COMPLETE: Enhanced perspective is now ALWAYS ACTIVE
-   * Legacy behavior has been removed for all users in production.
-   * 
-   * This fixes the "Black perspective double-inversion bug" and provides proper UX for Black players.
-   */
-  USE_ENHANCED_PERSPECTIVE: true
-} as const;
-
 // Type utilities for constants
 export type StorageConstants = typeof STORAGE;
 export type PerformanceConstants = typeof PERFORMANCE;
@@ -121,4 +89,3 @@ export type EvaluationConstants = typeof EVALUATION;
 export type TrainingConstants = typeof TRAINING;
 export type NetworkConstants = typeof NETWORK;
 export type TimeConstants = typeof TIME;
-export type FeatureFlags = typeof FEATURE_FLAGS;
