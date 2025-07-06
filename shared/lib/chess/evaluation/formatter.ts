@@ -13,7 +13,7 @@
  * @module EvaluationFormatter
  */
 
-import { Logger } from '@shared/services/logging/LoggerCompat';
+import { getLogger } from '@shared/services/logging';
 import type { ILogger } from '@shared/services/logging/types';
 import type {
   PlayerPerspectiveEvaluation,
@@ -33,7 +33,7 @@ export class EvaluationFormatter {
   private readonly extremeScoreThreshold: number;
 
   constructor(config: FormatterConfig = {}) {
-    this.logger = Logger.getInstance();
+    this.logger = getLogger();
     this.neutralThreshold = config.neutralThreshold ?? 50;
     this.extremeScoreThreshold = config.extremeScoreThreshold ?? 1000;
   }

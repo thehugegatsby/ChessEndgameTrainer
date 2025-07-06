@@ -16,7 +16,7 @@
  * @module UnifiedEvaluationService
  */
 
-import { Logger } from '@shared/services/logging/LoggerCompat';
+import { getLogger } from '@shared/services/logging';
 import type { ILogger } from '@shared/services/logging/types';
 import { EvaluationPipelineFactory } from './pipelineFactory';
 import type { EvaluationPipelineStrategy } from './pipelineFactory';
@@ -45,7 +45,7 @@ export class UnifiedEvaluationService {
     config: UnifiedEvaluationConfig = {},
     enhancedPerspective?: boolean
   ) {
-    this.logger = Logger.getInstance();
+    this.logger = getLogger();
     
     // Create evaluation pipeline strategy based on configuration
     // Following o3's recommendation for constructor injection of behavioral contract

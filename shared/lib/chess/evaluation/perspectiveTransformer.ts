@@ -13,7 +13,7 @@
  * @module PlayerPerspectiveTransformer
  */
 
-import { Logger } from '@shared/services/logging/LoggerCompat';
+import { getLogger } from '@shared/services/logging';
 import type { ILogger } from '@shared/services/logging/types';
 import type {
   NormalizedEvaluation,
@@ -24,7 +24,7 @@ export class PlayerPerspectiveTransformer {
   private readonly logger: ILogger;
 
   constructor() {
-    this.logger = Logger.getInstance();
+    this.logger = getLogger();
   }
 
   /**

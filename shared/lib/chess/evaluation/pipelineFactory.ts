@@ -11,7 +11,7 @@
  * @module EvaluationPipelineFactory
  */
 
-import { Logger } from '@shared/services/logging/LoggerCompat';
+import { getLogger } from '@shared/services/logging';
 import type { ILogger } from '@shared/services/logging/types';
 import { EvaluationNormalizer } from './normalizer';
 import { PlayerPerspectiveTransformer } from './perspectiveTransformer';
@@ -128,7 +128,7 @@ class EnhancedPipelineStrategy implements EvaluationPipelineStrategy {
  */
 export class EvaluationPipelineFactory {
   private static getDefaultLogger() {
-    return Logger.getInstance();
+    return getLogger();
   }
 
   /**

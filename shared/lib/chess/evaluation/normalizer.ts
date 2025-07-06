@@ -14,7 +14,7 @@
  * @module EvaluationNormalizer
  */
 
-import { Logger } from '@shared/services/logging/LoggerCompat';
+import { getLogger } from '@shared/services/logging';
 import type { ILogger } from '@shared/services/logging/types';
 import type {
   EngineEvaluation,
@@ -26,7 +26,7 @@ export class EvaluationNormalizer {
   private readonly logger: ILogger;
 
   constructor() {
-    this.logger = Logger.getInstance();
+    this.logger = getLogger();
   }
 
   /**

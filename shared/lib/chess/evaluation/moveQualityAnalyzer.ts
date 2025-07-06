@@ -15,7 +15,7 @@
  * @module MoveQualityAnalyzer
  */
 
-import { Logger } from '@shared/services/logging/LoggerCompat';
+import { getLogger } from '@shared/services/logging';
 import type { ILogger } from '@shared/services/logging/types';
 import type { UnifiedEvaluationService } from './unifiedService';
 import type {
@@ -46,7 +46,7 @@ export class MoveQualityAnalyzer {
     private readonly evaluationService: UnifiedEvaluationService,
     config: MoveQualityConfig = {}
   ) {
-    this.logger = Logger.getInstance();
+    this.logger = getLogger();
     
     // Apply default thresholds
     this.excellentThreshold = config.excellentThreshold ?? 50;
