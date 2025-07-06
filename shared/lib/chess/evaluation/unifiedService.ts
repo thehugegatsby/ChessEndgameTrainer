@@ -16,8 +16,6 @@
  * @module UnifiedEvaluationService
  */
 
-import { getLogger } from '@shared/services/logging';
-import type { ILogger } from '@shared/services/logging/types';
 import { EvaluationPipelineFactory } from './pipelineFactory';
 import type { EvaluationPipelineStrategy } from './pipelineFactory';
 import { EvaluationNormalizer } from './normalizer';
@@ -34,7 +32,6 @@ import type {
 } from '@shared/types/evaluation';
 
 export class UnifiedEvaluationService {
-  private readonly logger: ILogger;
   private readonly config: Required<UnifiedEvaluationConfig>;
   private readonly pipeline: EvaluationPipelineStrategy;
 
@@ -45,13 +42,12 @@ export class UnifiedEvaluationService {
     config: UnifiedEvaluationConfig = {},
     enhancedPerspective?: boolean
   ) {
-    this.logger = getLogger();
     
     // Create evaluation pipeline strategy based on configuration
     // Following o3's recommendation for constructor injection of behavioral contract
     this.pipeline = EvaluationPipelineFactory.createPipeline({ 
       enhancedPerspective,
-      logger: this.logger 
+ 
     });
     
     // Apply defaults
@@ -82,15 +78,14 @@ export class UnifiedEvaluationService {
       try {
         const cached = await this.cache.get(cacheKey);
         if (cached) {
-          this.logger.debug(`Cache hit for evaluation: ${fen}`);
           return cached;
         }
       } catch (error) {
-        this.logger.warn('Cache read error:', error);
       }
     }
 
     try {
+      
       // Try tablebase first (highest priority)
       const tablebaseFormatted = await this.getTablebaseFormattedEvaluation(fen, perspective);
       if (tablebaseFormatted) {
@@ -99,12 +94,12 @@ export class UnifiedEvaluationService {
           try {
             await this.cache.set(cacheKey, tablebaseFormatted, this.config.cacheTtl);
           } catch (error) {
-            this.logger.warn('Cache write error:', error);
           }
         }
         return tablebaseFormatted;
       }
 
+      
       // Fallback to engine evaluation
       const engineFormatted = await this.getEngineFormattedEvaluation(fen, perspective);
       
@@ -113,13 +108,11 @@ export class UnifiedEvaluationService {
         try {
           await this.cache.set(cacheKey, engineFormatted, this.config.cacheTtl);
         } catch (error) {
-          this.logger.warn('Cache write error:', error);
         }
       }
 
       return engineFormatted;
     } catch (error) {
-      this.logger.error('Error getting formatted evaluation:', error);
       return this.createErrorFormattedEvaluation();
     }
   }
@@ -140,7 +133,37 @@ export class UnifiedEvaluationService {
       // Extract player to move from FEN
       const playerToMove = this.getPlayerToMoveFromFen(fen);
       
-      // Get engine data and transform using pipeline strategy
+      // Try tablebase first (highest priority)
+      try {
+        const tablebaseData = await this.withTimeout(
+          this.tablebaseProvider.getEvaluation(fen, playerToMove),
+          this.config.tablebaseTimeout
+        );
+        
+        if (tablebaseData) {
+          // Convert tablebase data to perspective evaluation
+          const perspectiveWdl = perspective === 'w' ? tablebaseData.wdl : -tablebaseData.wdl;
+          return {
+            type: 'tablebase',
+            scoreInCentipawns: null,
+            mate: null,
+            wdl: tablebaseData.wdl,
+            dtm: tablebaseData.dtm,
+            dtz: tablebaseData.dtz,
+            isTablebasePosition: true,
+            raw: tablebaseData,
+            perspective,
+            perspectiveScore: null,
+            perspectiveMate: null,
+            perspectiveWdl: perspectiveWdl,
+            perspectiveDtm: tablebaseData.dtm,
+            perspectiveDtz: tablebaseData.dtz
+          };
+        }
+      } catch (tablebaseError) {
+      }
+      
+      // Fallback to engine data
       const engineData = await this.engineProvider.getEvaluation(fen, playerToMove);
       if (!engineData) {
         return this.createErrorPerspectiveEvaluation(perspective);
@@ -149,7 +172,6 @@ export class UnifiedEvaluationService {
       
       return perspectiveEval;
     } catch (error) {
-      this.logger.error('Error getting perspective evaluation:', error);
       return this.createErrorPerspectiveEvaluation(perspective);
     }
   }
@@ -182,7 +204,6 @@ export class UnifiedEvaluationService {
 
       return { engine, tablebase };
     } catch (error) {
-      this.logger.error('Error getting dual evaluation:', error);
       return { 
         engine: this.createErrorFormattedEvaluation()
       };
@@ -205,12 +226,10 @@ export class UnifiedEvaluationService {
       );
 
       if (tablebaseData) {
-        this.logger.debug('Using tablebase evaluation for:', fen);
         const normalizer = new EvaluationNormalizer();
         return normalizer.normalizeTablebaseData(tablebaseData, playerToMove);
       }
     } catch (error) {
-      this.logger.warn('Tablebase evaluation failed:', error);
     }
 
     // Fallback to engine
@@ -222,12 +241,10 @@ export class UnifiedEvaluationService {
         );
 
         if (engineData) {
-          this.logger.debug('Using engine evaluation for:', fen);
           const normalizer = new EvaluationNormalizer();
         return normalizer.normalizeEngineData(engineData, playerToMove);
         }
       } catch (error) {
-        this.logger.warn('Engine evaluation failed:', error);
       }
     }
 

@@ -97,7 +97,7 @@ describe('ParallelEvaluationService', () => {
       const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
       
       mockCache.get.mockReturnValue(null);
-      mockDeduplicator.evaluate.mockImplementation(async (_, evaluationFn) => {
+      mockDeduplicator.evaluate.mockImplementation(async (_: string, evaluationFn: (fen: string) => Promise<any>) => {
         return evaluationFn(fen);
       });
 
@@ -121,7 +121,7 @@ describe('ParallelEvaluationService', () => {
       const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
       
       mockCache.get.mockReturnValue(null);
-      mockDeduplicator.evaluate.mockImplementation(async (position, evaluationFn) => {
+      mockDeduplicator.evaluate.mockImplementation(async (position: string, evaluationFn: (fen: string) => Promise<any>) => {
         expect(position).toBe(fen);
         expect(typeof evaluationFn).toBe('function');
         return { engine: { score: 0 }, source: 'engine', fromCache: false };
@@ -136,7 +136,7 @@ describe('ParallelEvaluationService', () => {
   describe('Parallel Evaluation Strategies', () => {
     beforeEach(() => {
       mockCache.get.mockReturnValue(null);
-      mockDeduplicator.evaluate.mockImplementation(async (_, evaluationFn) => {
+      mockDeduplicator.evaluate.mockImplementation(async (_: string, evaluationFn: (fen: string) => Promise<any>) => {
         return evaluationFn('test-fen');
       });
     });
@@ -151,7 +151,7 @@ describe('ParallelEvaluationService', () => {
 
       mockTablebaseService.getTablebaseInfo.mockResolvedValue(quickTablebaseResult);
       mockEngineService.evaluatePosition.mockImplementation(
-        () => new Promise(resolve => setTimeout(() => resolve({ score: 100 }), 100))
+        () => new Promise((resolve) => setTimeout(() => resolve({ score: 100 }), 100))
       );
 
       const options = { preferTablebase: true, tablebaseTimeout: 50 };
@@ -166,7 +166,7 @@ describe('ParallelEvaluationService', () => {
 
     test('should fall back to parallel evaluation when tablebase times out', async () => {
       mockTablebaseService.getTablebaseInfo.mockImplementation(
-        () => new Promise(resolve => setTimeout(() => resolve({ isTablebasePosition: false }), 100))
+        () => new Promise((resolve) => setTimeout(() => resolve({ isTablebasePosition: false }), 100))
       );
       
       const engineResult = { score: 150, mate: null, depth: 12 };
@@ -185,7 +185,7 @@ describe('ParallelEvaluationService', () => {
 
       mockEngineService.evaluatePosition.mockResolvedValue(engineResult);
       mockTablebaseService.getTablebaseInfo.mockImplementation(
-        () => new Promise(resolve => setTimeout(() => resolve(tablebaseResult), 30))
+        () => new Promise((resolve) => setTimeout(() => resolve(tablebaseResult), 30))
       );
 
       const options = { tablebaseTimeout: 10 }; // Force timeout to race mode
@@ -203,7 +203,7 @@ describe('ParallelEvaluationService', () => {
       // Engine wins the race
       mockEngineService.evaluatePosition.mockResolvedValue(engineResult);
       mockTablebaseService.getTablebaseInfo.mockImplementation(
-        () => new Promise(resolve => setTimeout(() => resolve(tablebaseResult), 50))
+        () => new Promise((resolve) => setTimeout(() => resolve(tablebaseResult), 50))
       );
 
       const options = { tablebaseTimeout: 10 };
@@ -217,7 +217,7 @@ describe('ParallelEvaluationService', () => {
   describe('Error Handling', () => {
     beforeEach(() => {
       mockCache.get.mockReturnValue(null);
-      mockDeduplicator.evaluate.mockImplementation(async (_, evaluationFn) => {
+      mockDeduplicator.evaluate.mockImplementation(async (_: string, evaluationFn: (fen: string) => Promise<any>) => {
         return evaluationFn('test-fen');
       });
     });
@@ -286,7 +286,7 @@ describe('ParallelEvaluationService', () => {
   describe('Tablebase to Engine Conversion', () => {
     beforeEach(() => {
       mockCache.get.mockReturnValue(null);
-      mockDeduplicator.evaluate.mockImplementation(async (_, evaluationFn) => {
+      mockDeduplicator.evaluate.mockImplementation(async (_: string, evaluationFn: (fen: string) => Promise<any>) => {
         return evaluationFn('test-fen');
       });
     });
@@ -300,7 +300,7 @@ describe('ParallelEvaluationService', () => {
 
       mockTablebaseService.getTablebaseInfo.mockResolvedValue(tablebaseResult);
       mockEngineService.evaluatePosition.mockImplementation(
-        () => new Promise(() => {}) // Will be cancelled
+        () => new Promise<any>(() => {}) // Will be cancelled
       );
 
       const options = { preferTablebase: true };
@@ -320,7 +320,7 @@ describe('ParallelEvaluationService', () => {
 
       mockTablebaseService.getTablebaseInfo.mockResolvedValue(tablebaseResult);
       mockEngineService.evaluatePosition.mockImplementation(
-        () => new Promise(() => {}) // Will be cancelled
+        () => new Promise<any>(() => {}) // Will be cancelled
       );
 
       const options = { preferTablebase: true };
@@ -339,7 +339,7 @@ describe('ParallelEvaluationService', () => {
 
       mockTablebaseService.getTablebaseInfo.mockResolvedValue(tablebaseResult);
       mockEngineService.evaluatePosition.mockImplementation(
-        () => new Promise(() => {}) // Will be cancelled
+        () => new Promise<any>(() => {}) // Will be cancelled
       );
 
       const options = { preferTablebase: true };
@@ -418,7 +418,7 @@ describe('ParallelEvaluationService', () => {
   describe('Options Handling', () => {
     beforeEach(() => {
       mockCache.get.mockReturnValue(null);
-      mockDeduplicator.evaluate.mockImplementation(async (_, evaluationFn) => {
+      mockDeduplicator.evaluate.mockImplementation(async (_: string, evaluationFn: (fen: string) => Promise<any>) => {
         return evaluationFn('test-fen');
       });
     });
@@ -462,7 +462,7 @@ describe('ParallelEvaluationService', () => {
   describe('Integration Edge Cases', () => {
     test('should handle null tablebase results correctly', async () => {
       mockCache.get.mockReturnValue(null);
-      mockDeduplicator.evaluate.mockImplementation(async (_, evaluationFn) => {
+      mockDeduplicator.evaluate.mockImplementation(async (_: string, evaluationFn: (fen: string) => Promise<any>) => {
         return evaluationFn('test-fen');
       });
 
@@ -479,7 +479,7 @@ describe('ParallelEvaluationService', () => {
 
     test('should handle empty tablebase results', async () => {
       mockCache.get.mockReturnValue(null);
-      mockDeduplicator.evaluate.mockImplementation(async (_, evaluationFn) => {
+      mockDeduplicator.evaluate.mockImplementation(async (_: string, evaluationFn: (fen: string) => Promise<any>) => {
         return evaluationFn('test-fen');
       });
 

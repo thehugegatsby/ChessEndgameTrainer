@@ -120,29 +120,56 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
         };
 
         // Handle tablebase data if available
-        if (formattedEval.metadata.isTablebase && previousFen) {
-          // CRITICAL: For move comparison, we need the perspective of the player who MADE the move
-          // If it's currently black's turn, then white just moved (and vice versa)
-          const playerWhoMoved = playerToMove === 'w' ? 'b' : 'w';
-          
-          // Get tablebase comparison from the perspective of the player who made the move
-          const prevPerspectiveEval = await service.getPerspectiveEvaluation(previousFen, playerWhoMoved);
-          const currPerspectiveEval = await service.getPerspectiveEvaluation(fen, playerWhoMoved);
-          
-          if (prevPerspectiveEval.isTablebasePosition && currPerspectiveEval.isTablebasePosition) {
-            evaluation.tablebase = {
-              isTablebasePosition: true,
-              wdlBefore: prevPerspectiveEval.perspectiveWdl || undefined,
-              wdlAfter: currPerspectiveEval.perspectiveWdl || undefined,
-              category: formattedEval.metadata.isDrawn ? 'draw' : 
-                       formattedEval.className === 'winning' ? 'win' : 'loss',
-              dtz: currPerspectiveEval.perspectiveDtz || undefined
-            };
+        
+        // Handle tablebase data - either with comparison (if previousFen) or standalone
+        if (formattedEval.metadata.isTablebase) {
+          if (previousFen) {
+            // CASE 1: We have a previous position - do full comparison for move quality
+            // CRITICAL: For move comparison, we need the perspective of the player who MADE the move
+            // If it's currently black's turn (playerToMove === 'b'), then white just moved
+            // If it's currently white's turn (playerToMove === 'w'), then black just moved
+            const playerWhoMoved = playerToMove === 'b' ? 'w' : 'b';
+            
+            
+            // Get tablebase comparison from the perspective of the player who made the move
+            const prevPerspectiveEval = await service.getPerspectiveEvaluation(previousFen, playerWhoMoved);
+            const currPerspectiveEval = await service.getPerspectiveEvaluation(fen, playerWhoMoved);
+            
+            
+            if (prevPerspectiveEval.isTablebasePosition && currPerspectiveEval.isTablebasePosition) {
+              evaluation.tablebase = {
+                isTablebasePosition: true,
+                // CRITICAL: Use RAW WDL values, not perspective-adjusted ones!
+                // The getMoveQualityByTablebaseComparison function expects raw API values
+                wdlBefore: prevPerspectiveEval.wdl || undefined,
+                wdlAfter: currPerspectiveEval.wdl || undefined,
+                category: formattedEval.metadata.isDrawn ? 'draw' : 
+                         formattedEval.className === 'winning' ? 'win' : 'loss',
+                dtz: currPerspectiveEval.dtz || undefined
+              };
+              
+            }
+          } else {
+            // CASE 2: No previous position (initial position) - just add current tablebase status
+            
+            const currPerspectiveEval = await service.getPerspectiveEvaluation(fen, playerToMove);
+            
+            
+            if (currPerspectiveEval.isTablebasePosition) {
+              evaluation.tablebase = {
+                isTablebasePosition: true,
+                // For initial position, only wdlAfter is set (use raw WDL)
+                wdlAfter: currPerspectiveEval.wdl || undefined,
+                category: formattedEval.metadata.isDrawn ? 'draw' : 
+                         formattedEval.className === 'winning' ? 'win' : 'loss',
+                dtz: currPerspectiveEval.dtz || undefined
+              };
+              
+            }
           }
         }
 
         if (!abortController.signal.aborted) {
-          console.log('🔍 useEvaluation - Adding evaluation:', JSON.stringify(evaluation, null, 2));
           addEvaluation(evaluation);
         }
       } catch (err: any) {

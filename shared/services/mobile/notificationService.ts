@@ -27,7 +27,6 @@ export class MobileNotificationService {
   private async initializeNotifications(): Promise<void> {
     // Check notification support
     if (!('Notification' in window)) {
-      console.warn('[NotificationService] Notifications not supported');
       return;
     }
 
@@ -37,9 +36,7 @@ export class MobileNotificationService {
     if ('serviceWorker' in navigator) {
       try {
         this.serviceWorkerRegistration = await navigator.serviceWorker.register('/sw.js');
-        console.log('[NotificationService] ✅ Service worker registered');
       } catch (error) {
-        console.warn('[NotificationService] Service worker registration failed:', error);
       }
     }
 
@@ -59,7 +56,6 @@ export class MobileNotificationService {
       this.notificationPermission = await Notification.requestPermission();
       return this.notificationPermission === 'granted';
     } catch (error) {
-      console.error('[NotificationService] Permission request failed:', error);
       return false;
     }
   }
@@ -79,7 +75,6 @@ export class MobileNotificationService {
     }
   ): Promise<void> {
     if (this.notificationPermission !== 'granted') {
-      console.warn('[NotificationService] No permission for notifications');
       return;
     }
 
@@ -98,7 +93,6 @@ export class MobileNotificationService {
         new Notification(title, notificationOptions);
       }
     } catch (error) {
-      console.error('[NotificationService] Failed to show notification:', error);
     }
   }
 

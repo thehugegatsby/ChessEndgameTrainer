@@ -31,7 +31,6 @@ class WebStorage implements IPlatformStorage {
       const serialized = JSON.stringify(data);
       localStorage.setItem(this.prefix + key, serialized);
     } catch (error) {
-      console.error('WebStorage save error:', error);
       throw new Error('Failed to save data');
     }
   }
@@ -300,20 +299,16 @@ class WebShare implements IPlatformShare {
 // Web Analytics Implementation (stub for now)
 class WebAnalytics implements IPlatformAnalytics {
   track(event: string, properties?: Record<string, any>): void {
-    console.log('Analytics track:', event, properties);
     // Implement actual analytics (Google Analytics, Mixpanel, etc.)
   }
 
   identify(userId: string, traits?: Record<string, any>): void {
-    console.log('Analytics identify:', userId, traits);
   }
 
   page(name: string, properties?: Record<string, any>): void {
-    console.log('Analytics page:', name, properties);
   }
 
   setUserProperties(properties: Record<string, any>): void {
-    console.log('Analytics user properties:', properties);
   }
 }
 

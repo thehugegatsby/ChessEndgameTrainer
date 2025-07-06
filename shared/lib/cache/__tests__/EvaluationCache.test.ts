@@ -5,7 +5,7 @@ import { LRUCache } from '../LRUCache';
 jest.mock('../LRUCache');
 
 describe('EvaluationCache', () => {
-  let mockLRUCache: jest.Mocked<LRUCache<string, any>>;
+  let mockLRUCache: jest.Mocked<LRUCache<any>>;
   
   beforeEach(() => {
     jest.clearAllMocks();
@@ -25,7 +25,8 @@ describe('EvaluationCache', () => {
         hits: 0,
         misses: 0,
         size: 0,
-        maxSize: 100
+        maxSize: 100,
+        hitRate: 0
       }),
       getMemoryUsage: jest.fn().mockReturnValue(0)
     } as any;
@@ -70,7 +71,8 @@ describe('EvaluationCache', () => {
         hits: 10,
         misses: 5,
         size: 15,
-        maxSize: 100
+        maxSize: 100,
+        hitRate: 0.67
       });
       mockLRUCache.getMemoryUsage = jest.fn().mockReturnValue(1024);
       
@@ -166,8 +168,8 @@ describe('EvaluationCache', () => {
       
       // Mock getStats to return correct hit/miss counts
       mockLRUCache.getStats
-        .mockReturnValueOnce({ hits: 1, misses: 1, size: 1, maxSize: 100 }) // First cache
-        .mockReturnValueOnce({ hits: 1, misses: 1, size: 1, maxSize: 100 }); // Second cache
+        .mockReturnValueOnce({ hits: 1, misses: 1, size: 1, maxSize: 100, hitRate: 0.5 }) // First cache
+        .mockReturnValueOnce({ hits: 1, misses: 1, size: 1, maxSize: 100, hitRate: 0.5 }); // Second cache
       
       mockLRUCache.getMemoryUsage.mockReturnValue(0);
       
@@ -305,7 +307,7 @@ describe('EvaluationCache', () => {
       cache.getEngineEval('fen2'); // Hit
       
       mockLRUCache.keys.mockReturnValue(['engine:fen1', 'engine:fen2']);
-      mockLRUCache.getStats.mockReturnValue({ hits: 2, misses: 1, size: 2, maxSize: 100 });
+      mockLRUCache.getStats.mockReturnValue({ hits: 2, misses: 1, size: 2, maxSize: 100, hitRate: 0.67 });
       
       const stats = cache.getStats();
       

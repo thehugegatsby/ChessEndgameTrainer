@@ -129,7 +129,6 @@ export class EvaluationCache {
       this.pendingRequests.delete(cacheKey);
       
       // Fall through to original method - preserve exact error behavior
-      console.warn('[EvaluationCache] Cache error, falling back to engine:', error);
       return await engine.evaluatePosition(fen);
     }
   }
@@ -188,7 +187,6 @@ export class EvaluationCache {
       this.pendingRequests.delete(cacheKey);
       
       // Fall through to original method - preserve exact error behavior
-      console.warn('[EvaluationCache] Cache error, falling back to engine:', error);
       return await engine.getBestMove(fen, timeLimit);
     }
   }
@@ -267,18 +265,15 @@ export class EvaluationCache {
    * Warm up cache with common positions
    */
   async warmupCache(engine: Engine, positions: string[]): Promise<void> {
-    console.log(`[EvaluationCache] Warming up cache with ${positions.length} positions...`);
     
     const promises = positions.slice(0, 10).map(async (fen) => {
       try {
         await this.evaluatePositionCached(engine, fen);
       } catch (error) {
-        console.warn(`[EvaluationCache] Warmup failed for position: ${fen}`, error);
       }
     });
     
     await Promise.allSettled(promises);
-    console.log(`[EvaluationCache] Warmup completed. Cache size: ${this.evaluationCache.getStats().size}`);
   }
 
   // Legacy cache interface methods for tests

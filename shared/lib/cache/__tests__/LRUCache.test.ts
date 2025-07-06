@@ -131,7 +131,7 @@ describe('LRUCache', () => {
 
   describe('Edge Cases', () => {
     test('should handle cache with capacity 1', () => {
-      const cache = new LRUCache<string, number>(1);
+      const cache = new LRUCache<number>(1);
       
       cache.set('a', 1);
       expect(cache.get('a')).toBe(1);
@@ -142,7 +142,7 @@ describe('LRUCache', () => {
     });
 
     test('should handle cache with capacity 0', () => {
-      const cache = new LRUCache<string, number>(0);
+      const cache = new LRUCache<number>(0);
       
       cache.set('a', 1);
       expect(cache.has('a')).toBe(false);
@@ -150,7 +150,7 @@ describe('LRUCache', () => {
     });
 
     test('should handle negative capacity as 0', () => {
-      const cache = new LRUCache<string, number>(-5);
+      const cache = new LRUCache<number>(-5);
       
       cache.set('a', 1);
       expect(cache.has('a')).toBe(false);
@@ -158,7 +158,7 @@ describe('LRUCache', () => {
     });
 
     test('should handle null and undefined values', () => {
-      const cache = new LRUCache<string, any>(3);
+      const cache = new LRUCache<any>(3);
       
       cache.set('null', null);
       cache.set('undefined', undefined);
@@ -170,7 +170,7 @@ describe('LRUCache', () => {
     });
 
     test('should handle complex objects as values', () => {
-      const cache = new LRUCache<string, object>(3);
+      const cache = new LRUCache<object>(3);
       
       const obj1 = { name: 'test', value: 42 };
       const obj2 = { data: [1, 2, 3] };
@@ -185,18 +185,18 @@ describe('LRUCache', () => {
 
   describe('Performance', () => {
     test('should handle large number of operations', () => {
-      const cache = new LRUCache<number, number>(100);
+      const cache = new LRUCache<number>(100);
       
       // Add 1000 items
       for (let i = 0; i < 1000; i++) {
-        cache.set(i, i * 2);
+        cache.set(String(i), i * 2);
       }
       
       // Cache should only contain last 100 items
       expect(cache.size()).toBe(100);
-      expect(cache.has(899)).toBe(false); // Evicted
-      expect(cache.has(900)).toBe(true); // Still in cache
-      expect(cache.get(999)).toBe(1998);
+      expect(cache.has('899')).toBe(false); // Evicted
+      expect(cache.has('900')).toBe(true); // Still in cache
+      expect(cache.get('999')).toBe(1998);
     });
 
     test('should maintain order with many accesses', () => {
@@ -274,17 +274,15 @@ describe('LRUCache', () => {
 
   describe('Type Safety', () => {
     test('should work with different key types', () => {
-      const numberCache = new LRUCache<number, string>(3);
-      numberCache.set(1, 'one');
-      numberCache.set(2, 'two');
-      expect(numberCache.get(1)).toBe('one');
+      const stringCache = new LRUCache<string>(3);
+      stringCache.set('1', 'one');
+      stringCache.set('2', 'two');
+      expect(stringCache.get('1')).toBe('one');
       
-      const objectCache = new LRUCache<{id: number}, string>(3);
-      const key1 = {id: 1};
-      const key2 = {id: 2};
-      objectCache.set(key1, 'first');
-      objectCache.set(key2, 'second');
-      expect(objectCache.get(key1)).toBe('first');
+      const numberCache = new LRUCache<number>(3);
+      numberCache.set('key1', 10);
+      numberCache.set('key2', 20);
+      expect(numberCache.get('key1')).toBe(10);
     });
   });
 });

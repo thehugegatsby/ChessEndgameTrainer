@@ -220,9 +220,9 @@ describe('WebPlatformService', () => {
 
     test('should throw for scheduled notifications', async () => {
       await expect(service.notifications.schedule({
-        id: 'test',
         title: 'Test',
-        scheduledAt: new Date()
+        body: 'Test body',
+        trigger: new Date()
       })).rejects.toThrow('Scheduled notifications not supported on web');
     });
 

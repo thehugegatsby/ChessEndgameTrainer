@@ -32,19 +32,16 @@ export class StockfishWorkerManager {
   async initialize(): Promise<boolean> {
     // Skip initialization in SSR environment
     if (typeof window === 'undefined' || typeof Worker === 'undefined') {
-      console.warn('[WorkerManager] ⚠️ Worker not available (SSR environment)');
       return false;
     }
 
     this.initializationAttempts++;
     
     if (this.initializationAttempts > this.maxInitAttempts) {
-      console.error('[WorkerManager] ❌ Max initialization attempts reached');
       return false;
     }
 
     try {
-      console.log(`[WorkerManager] 🔧 Creating worker (attempt ${this.initializationAttempts})`);
       
       this.worker = new Worker('/stockfish.js');
       this.setupWorkerEventHandlers();
@@ -56,7 +53,6 @@ export class StockfishWorkerManager {
       return await this.waitForReady(5000); // 5 second timeout for mobile
       
     } catch (error) {
-      console.error('[WorkerManager] 🔥 Failed to initialize worker:', error);
       this.cleanup();
       return false;
     }
@@ -83,12 +79,10 @@ export class StockfishWorkerManager {
     };
 
     this.worker.onerror = (e) => {
-      console.error('[WorkerManager] 💥 Worker error:', e.message);
       this.cleanup();
     };
 
     this.worker.onmessageerror = (e) => {
-      console.error('[WorkerManager] 💥 Worker message error:', e);
     };
   }
 
@@ -100,7 +94,6 @@ export class StockfishWorkerManager {
 
     return new Promise((resolve) => {
       const timeout = setTimeout(() => {
-        console.warn('[WorkerManager] ⏰ Worker initialization timeout');
         resolve(false);
       }, timeoutMs);
 
@@ -115,7 +108,6 @@ export class StockfishWorkerManager {
    * Notifies all waiting callbacks that worker is ready
    */
   private notifyReady(): void {
-    console.log('[WorkerManager] ✅ Worker ready - notifying callbacks');
     this.readyCallbacks.forEach(callback => callback());
     this.readyCallbacks = [];
   }
@@ -125,14 +117,12 @@ export class StockfishWorkerManager {
    */
   sendCommand(command: string): void {
     if (!this.worker || !this.isReady) {
-      console.warn('[WorkerManager] ⚠️ Cannot send command - worker not ready');
       return;
     }
 
     try {
       this.worker.postMessage(command);
     } catch (error) {
-      console.error('[WorkerManager] Failed to send command:', error);
     }
   }
 
@@ -163,9 +153,7 @@ export class StockfishWorkerManager {
       this.isReady = false;
       this.readyCallbacks = [];
       
-      console.log('[WorkerManager] 🧹 Worker cleaned up');
     } catch (error) {
-      console.warn('[WorkerManager] Cleanup error:', error);
     }
   }
 
@@ -173,7 +161,6 @@ export class StockfishWorkerManager {
    * Restarts the worker (mobile recovery)
    */
   async restart(): Promise<boolean> {
-    console.log('[WorkerManager] 🔄 Restarting worker...');
     
     this.cleanup();
     this.initializationAttempts = 0; // Reset attempt counter

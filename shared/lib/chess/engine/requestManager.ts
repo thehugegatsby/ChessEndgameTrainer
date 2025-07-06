@@ -46,7 +46,6 @@ export class RequestManager {
   ): void {
     // Clear any existing request with same ID (shouldn't happen)
     if (this.pendingRequests.has(id)) {
-      console.warn(`[RequestManager] Overwriting existing request: ${id}`);
       this.cancelRequest(id);
     }
 
@@ -56,7 +55,6 @@ export class RequestManager {
       if (request) {
         this.pendingRequests.delete(id);
         reject(new Error(`Request ${id} timed out after ${timeoutMs}ms`));
-        console.warn(`[RequestManager] Request timeout: ${id}`);
       }
     }, timeoutMs + 1000); // Add 1s buffer
 
@@ -76,25 +74,21 @@ export class RequestManager {
   resolveBestMoveRequest(id: string, move: ChessJsMove | null): boolean {
     const request = this.pendingRequests.get(id);
     if (!request) {
-      console.warn(`[RequestManager] No pending request found: ${id}`);
       return false;
     }
 
     if (request.type !== 'bestmove') {
-      console.error(`[RequestManager] Type mismatch for ${id}: expected bestmove, got ${request.type}`);
       return false;
     }
 
     try {
       clearTimeout(request.timeoutId);
     } catch (error) {
-      console.warn('[RequestManager] Error clearing timeout:', error);
     }
     this.pendingRequests.delete(id);
     request.resolve(move);
     
     const duration = Date.now() - request.timestamp;
-    console.debug(`[RequestManager] Resolved bestmove ${id} in ${duration}ms`);
     
     return true;
   }
@@ -105,25 +99,21 @@ export class RequestManager {
   resolveEvaluationRequest(id: string, evaluation: EngineEvaluation): boolean {
     const request = this.pendingRequests.get(id);
     if (!request) {
-      console.warn(`[RequestManager] No pending request found: ${id}`);
       return false;
     }
 
     if (request.type !== 'evaluation') {
-      console.error(`[RequestManager] Type mismatch for ${id}: expected evaluation, got ${request.type}`);
       return false;
     }
 
     try {
       clearTimeout(request.timeoutId);
     } catch (error) {
-      console.warn('[RequestManager] Error clearing timeout:', error);
     }
     this.pendingRequests.delete(id);
     request.resolve(evaluation);
     
     const duration = Date.now() - request.timestamp;
-    console.debug(`[RequestManager] Resolved evaluation ${id} in ${duration}ms`);
     
     return true;
   }
@@ -134,19 +124,16 @@ export class RequestManager {
   rejectRequest(id: string, error: string): boolean {
     const request = this.pendingRequests.get(id);
     if (!request) {
-      console.warn(`[RequestManager] No pending request found: ${id}`);
       return false;
     }
 
     try {
       clearTimeout(request.timeoutId);
     } catch (error) {
-      console.warn('[RequestManager] Error clearing timeout:', error);
     }
     this.pendingRequests.delete(id);
     request.reject(new Error(error));
     
-    console.error(`[RequestManager] Rejected ${id}: ${error}`);
     
     return true;
   }
@@ -160,8 +147,7 @@ export class RequestManager {
       try {
         clearTimeout(request.timeoutId);
       } catch (error) {
-        console.warn('[RequestManager] Error clearing timeout:', error);
-      }
+        }
       this.pendingRequests.delete(id);
       request.reject(new Error(`Request ${id} was cancelled`));
     }
@@ -176,12 +162,10 @@ export class RequestManager {
       try {
         clearTimeout(request.timeoutId);
       } catch (error) {
-        console.warn('[RequestManager] Error clearing timeout:', error);
-      }
+        }
       request.reject(new Error(`${reason}: ${id}`));
     }
     this.pendingRequests.clear();
-    console.log(`[RequestManager] Cancelled all ${count} pending requests`);
   }
 
   /**
@@ -223,7 +207,6 @@ export class RequestManager {
     }
 
     if (cleaned > 0) {
-      console.warn(`[RequestManager] Cleaned up ${cleaned} stale requests`);
     }
 
     return cleaned;

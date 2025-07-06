@@ -17,15 +17,12 @@ export const EngineErrorBoundary: React.FC<EngineErrorBoundaryProps> = ({
   engineId = 'default' 
 }) => {
   const handleEngineError = async (error: Error) => {
-    console.error('[EngineErrorBoundary] Engine error detected:', error);
     
     // Try to cleanup and restart engine
     try {
       const engineService = EngineService.getInstance();
       await engineService.cleanupEngine(engineId);
-      console.log('[EngineErrorBoundary] Engine cleaned up successfully');
     } catch (cleanupError) {
-      console.error('[EngineErrorBoundary] Failed to cleanup engine:', cleanupError);
     }
   };
 

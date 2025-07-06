@@ -15,8 +15,6 @@
  * @module MoveQualityAnalyzer
  */
 
-import { getLogger } from '@shared/services/logging';
-import type { ILogger } from '@shared/services/logging/types';
 import type { UnifiedEvaluationService } from './unifiedService';
 import type {
   PlayerPerspectiveEvaluation,
@@ -36,7 +34,6 @@ export interface MoveQualityConfig {
 }
 
 export class MoveQualityAnalyzer {
-  private readonly logger: ILogger;
   private readonly excellentThreshold: number;
   private readonly goodThreshold: number;
   private readonly inaccuracyThreshold: number;
@@ -46,7 +43,6 @@ export class MoveQualityAnalyzer {
     private readonly evaluationService: UnifiedEvaluationService,
     config: MoveQualityConfig = {}
   ) {
-    this.logger = getLogger();
     
     // Apply default thresholds
     this.excellentThreshold = config.excellentThreshold ?? 50;
@@ -94,7 +90,6 @@ export class MoveQualityAnalyzer {
         }
       };
     } catch (error) {
-      this.logger.error('Error analyzing move quality:', error);
       
       return {
         quality: 'unknown',

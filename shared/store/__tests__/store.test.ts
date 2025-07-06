@@ -6,6 +6,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { useStore, useUser, useTraining, useUserActions, useTrainingActions } from '../store';
 import { LogLevel } from '../../services/logging/types';
+import type { UserState, RootState } from '../types';
 
 // Mock dependencies
 jest.mock('../../services/logging', () => ({
@@ -52,7 +53,7 @@ describe('Zustand Store', () => {
         actionsResult.current.setUser({
           username: 'testuser',
           rating: 1500
-        });
+        } as Partial<UserState>);
       });
 
       expect(userResult.current.username).toBe('testuser');
@@ -119,10 +120,14 @@ describe('Zustand Store', () => {
       fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
       description: 'Test description',
       difficulty: 'beginner' as const,
-      category: 'pawn',
+      category: 'pawn' as const,
       goal: 'win' as const,
-      solution: [],
-      hints: []
+      sideToMove: 'white' as const,
+      material: {
+        white: 'K+P',
+        black: 'K'
+      },
+      tags: ['basic', 'pawn-endgame']
     };
 
     it('should have initial training state', () => {
@@ -436,10 +441,25 @@ describe('Zustand Store', () => {
     it('should hydrate state', () => {
       const { result } = renderHook(() => useStore());
 
-      const partialState = {
+      const partialState: Partial<RootState> = {
         user: {
           username: 'hydrated_user',
-          rating: 1800
+          rating: 1800,
+          completedPositions: [],
+          currentStreak: 0,
+          totalTrainingTime: 0,
+          lastActiveDate: new Date().toISOString(),
+          preferences: {
+            theme: 'light',
+            soundEnabled: true,
+            notificationsEnabled: true,
+            boardOrientation: 'white',
+            pieceTheme: 'standard',
+            autoPromoteToQueen: true,
+            showCoordinates: true,
+            showLegalMoves: true,
+            animationSpeed: 'normal'
+          }
         }
       };
 

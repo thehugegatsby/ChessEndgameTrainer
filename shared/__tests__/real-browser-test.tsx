@@ -7,6 +7,7 @@ import { render, screen } from '@testing-library/react';
 import { TrainingProvider } from '@shared/contexts/TrainingContext';
 import TrainPage from '../../pages/train/[id]';
 import { useRouter } from 'next/router';
+import { allEndgamePositions } from '@shared/data/endgames';
 
 // Mock Next.js router
 jest.mock('next/router', () => ({
@@ -68,7 +69,7 @@ describe('Real Browser Test - Tablebase Data Flow', () => {
     // Render the actual train page
     const { container } = render(
       <TrainingProvider>
-        <TrainPage />
+        <TrainPage position={allEndgamePositions[0]} />
       </TrainingProvider>
     );
 

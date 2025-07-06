@@ -1,6 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { useEvaluation } from '@shared/hooks/useEvaluation';
 import { UnifiedEvaluationService } from '@shared/lib/chess/evaluation/unifiedService';
+import type { PlayerPerspectiveEvaluation } from '@shared/types/evaluation';
 
 // Mock dependencies
 jest.mock('@shared/lib/chess/evaluation/unifiedService');
@@ -48,15 +49,33 @@ describe('Debug Evaluation Types', () => {
         wdl: 2,
         perspectiveWdl: 2,
         isTablebasePosition: true,
-        perspective: 'w'
-      })
+        perspective: 'w',
+        scoreInCentipawns: null,
+        mate: null,
+        dtm: null,
+        dtz: null,
+        raw: null,
+        perspectiveScore: null,
+        perspectiveMate: null,
+        perspectiveDtm: null,
+        perspectiveDtz: null
+      } as PlayerPerspectiveEvaluation)
       .mockResolvedValueOnce({
         type: 'tablebase',
         wdl: 2,
         perspectiveWdl: 2,
         isTablebasePosition: true,
-        perspective: 'w'
-      });
+        perspective: 'w',
+        scoreInCentipawns: null,
+        mate: null,
+        dtm: null,
+        dtz: null,
+        raw: null,
+        perspectiveScore: null,
+        perspectiveMate: null,
+        perspectiveDtm: null,
+        perspectiveDtz: null
+      } as PlayerPerspectiveEvaluation);
 
     const { result } = renderHook(() => useEvaluation({
       fen: currentFen,
@@ -107,8 +126,17 @@ describe('Debug Evaluation Types', () => {
       wdl: 2,
       perspectiveWdl: 2,
       isTablebasePosition: true,
-      perspective: 'w'
-    });
+      perspective: 'w',
+      scoreInCentipawns: null,
+      mate: null,
+      dtm: null,
+      dtz: null,
+      raw: null,
+      perspectiveScore: null,
+      perspectiveMate: null,
+      perspectiveDtm: null,
+      perspectiveDtz: null
+    } as PlayerPerspectiveEvaluation);
 
     // Spy on the internal addEvaluation function
     const addEvaluationSpy = jest.fn();

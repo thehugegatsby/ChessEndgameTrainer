@@ -16,7 +16,6 @@ import type { Move as CustomMove } from '@shared/types/chess';
 import { Engine } from '../engine';
 import { EvaluationService } from './evaluationService';
 import { TablebaseService } from './tablebaseService';
-import { getLogger } from '@shared/services/logging';
 import type { 
   DualEvaluation, 
   TablebaseInfo, 
@@ -24,7 +23,6 @@ import type {
   SCENARIO_CONFIG
 } from './types';
 
-const logger = getLogger().setContext('ScenarioEngine');
 
 const { MAX_INSTANCES } = require('./types').SCENARIO_CONFIG;
 
@@ -80,7 +78,6 @@ export class ScenarioEngine {
   private validateFen(fen: string): void {
     if (!fen || typeof fen !== 'string' || fen.trim() === '') {
       const error = new Error('FEN must be a non-empty string');
-      logger.error('Invalid FEN provided', error, { fen });
       throw error;
     }
   }
@@ -90,14 +87,8 @@ export class ScenarioEngine {
    */
   private trackInstanceCount(): void {
     ScenarioEngine.instanceCount++;
-    logger.debug('ScenarioEngine instance created', { instanceCount: ScenarioEngine.instanceCount });
     
-    if (ScenarioEngine.instanceCount > MAX_INSTANCES) {
-      logger.warn('Many instances created - Consider cleanup for mobile performance', { 
-        instanceCount: ScenarioEngine.instanceCount, 
-        maxInstances: MAX_INSTANCES 
-      });
-    }
+    // Instance count tracking for mobile performance
   }
 
   /**
@@ -105,7 +96,6 @@ export class ScenarioEngine {
    */
   private validateEngineInitialization(): void {
     if (!this.engine) {
-      console.error('[ScenarioEngine] Engine initialization failed');
       throw new Error('[ScenarioEngine] Engine failed to initialize');
     }
   }
@@ -153,13 +143,11 @@ export class ScenarioEngine {
             promotion: engineMoveData.promotion
           });
         } catch (error) {
-          console.warn('[ScenarioEngine] Engine move failed:', error);
         }
       }
       
       return moveWithColor;
     } catch (error) {
-      console.warn('[ScenarioEngine] Move failed:', error);
       return null;
     }
   }
@@ -180,7 +168,6 @@ export class ScenarioEngine {
       
       return null;
     } catch (error) {
-      console.warn('[ScenarioEngine] getBestMove failed:', error);
       return null;
     }
   }
@@ -218,7 +205,6 @@ export class ScenarioEngine {
     try {
       return await this.engine.evaluatePosition(positionFen);
     } catch (error) {
-      console.warn('[ScenarioEngine] Evaluation failed:', error);
       return { score: 0, mate: null };
     }
   }
@@ -232,7 +218,6 @@ export class ScenarioEngine {
     try {
       this.chess.load(fen);
     } catch (error) {
-      console.error('[ScenarioEngine] Invalid FEN provided:', error);
       throw new Error(`[ScenarioEngine] Invalid FEN: ${fen}`);
     }
   }
@@ -244,7 +229,6 @@ export class ScenarioEngine {
     try {
       this.chess.load(this.initialFen);
     } catch (error) {
-      console.error('[ScenarioEngine] Reset failed:', error);
       throw new Error('[ScenarioEngine] Failed to reset to initial position');
     }
   }
@@ -277,9 +261,7 @@ export class ScenarioEngine {
       this.evaluationService = null as any;
       this.tablebaseService = null as any;
       
-      console.log(`[ScenarioEngine] Instance cleaned up. Remaining: ${ScenarioEngine.instanceCount}`);
     } catch (error) {
-      console.warn('[ScenarioEngine] Cleanup failed:', error);
     }
   }
 
@@ -313,7 +295,6 @@ export class ScenarioEngine {
         result.tablebase = tablebaseMoves;
       }
     } catch (error) {
-      logger.warn('Failed to get best moves', error);
     }
 
     return result;
@@ -381,7 +362,6 @@ export class ScenarioEngine {
             });
           }
         } catch (moveError) {
-          logger.warn('Failed to get tablebase info for move', { move: move.san, error: moveError });
         }
         
         tempChess.undo();
@@ -392,7 +372,6 @@ export class ScenarioEngine {
       // Sort by WDL (wins first, then draws, then losses)
       return tablebaseMoves.sort((a, b) => b.wdl - a.wdl).slice(0, count);
     } catch (error) {
-      logger.warn('Failed to get tablebase moves', error);
       return [];
     }
   }

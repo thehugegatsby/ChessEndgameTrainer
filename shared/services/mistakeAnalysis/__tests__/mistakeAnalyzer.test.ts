@@ -183,14 +183,14 @@ describe('MistakeAnalyzer - Pure Logic Functions', () => {
 
     it('should adapt explanation complexity to skill level', () => {
       const beginnerExp = generateMistakeExplanation(
-        'MISTAKE',
+        'IMPRECISE',
         -100,
         ['ENDGAME_TECHNIQUE'],
         'BEGINNER'
       );
       
       const expertExp = generateMistakeExplanation(
-        'MISTAKE',
+        'IMPRECISE',
         -100,
         ['ENDGAME_TECHNIQUE'],
         'EXPERT'

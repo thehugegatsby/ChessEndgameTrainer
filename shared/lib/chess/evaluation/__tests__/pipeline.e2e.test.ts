@@ -8,6 +8,7 @@ import { UnifiedEvaluationService } from '../unifiedService';
 import { EngineProviderAdapter, TablebaseProviderAdapter } from '../providerAdapters';
 import { LRUCache } from '@shared/lib/cache/LRUCache';
 import type { FormattedEvaluation } from '@shared/types/evaluation';
+import type { ICacheProvider } from '../providers';
 
 // Mock the engine and tablebase services
 jest.mock('@shared/services/chess/EngineService');
@@ -15,14 +16,19 @@ jest.mock('@shared/lib/cache/LRUCache');
 
 describe.skip('Unified Evaluation Pipeline E2E Tests', () => {
   let unifiedService: UnifiedEvaluationService;
-  let mockCache: LRUCache<FormattedEvaluation>;
+  let mockCache: ICacheProvider<FormattedEvaluation>;
 
   beforeEach(() => {
     // Enable the unified evaluation system for these tests
     process.env.NEXT_PUBLIC_UNIFIED_EVAL = 'true';
     
-    // Create mock cache
-    mockCache = new LRUCache<FormattedEvaluation>(100);
+    // Create mock cache that implements ICacheProvider
+    mockCache = {
+      get: jest.fn().mockResolvedValue(null),
+      set: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined),
+      clear: jest.fn().mockResolvedValue(undefined)
+    };
     
     // Create service with real providers
     const engineProvider = new EngineProviderAdapter();

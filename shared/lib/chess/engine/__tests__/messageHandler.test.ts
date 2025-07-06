@@ -62,8 +62,7 @@ describe('StockfishMessageHandler', () => {
         type: 'bestmove',
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         timeLimit: 1000,
-        id: 'test-1',
-        resolve: jest.fn()
+        id: 'test-1'
       };
       
       handler.setCurrentRequest(request);
@@ -76,8 +75,7 @@ describe('StockfishMessageHandler', () => {
         type: 'bestmove',
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         timeLimit: 1000,
-        id: 'test-1',
-        resolve: jest.fn()
+        id: 'test-1'
       };
       
       handler.setCurrentRequest(request);
@@ -126,14 +124,11 @@ describe('StockfishMessageHandler', () => {
     });
 
     test('should handle bestmove (none)', () => {
-      
-      const resolve = jest.fn();
       const request: BestMoveRequest = {
         type: 'bestmove',
         fen: '8/8/8/8/8/8/8/8 w - - 0 1',
         timeLimit: 1000,
-        id: 'test-1',
-        resolve
+        id: 'test-1'
       };
       
       handler.setCurrentRequest(request);
@@ -147,17 +142,14 @@ describe('StockfishMessageHandler', () => {
     });
 
     test('should handle invalid move', () => {
-      
-      const resolve = jest.fn();
       const request: BestMoveRequest = {
         type: 'bestmove',
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         timeLimit: 1000,
-        id: 'test-1',
-        resolve
+        id: 'test-1'
       };
       
-      mockChess.move.mockReturnValue(null);
+      mockChess.move.mockReturnValue(null as any);
       
       handler.setCurrentRequest(request);
       const response = handler.handleMessage('bestmove invalid');
@@ -170,14 +162,11 @@ describe('StockfishMessageHandler', () => {
     });
 
     test('should handle chess.js exceptions', () => {
-      
-      const resolve = jest.fn();
       const request: BestMoveRequest = {
         type: 'bestmove',
         fen: 'invalid-fen',
         timeLimit: 1000,
-        id: 'test-1',
-        resolve
+        id: 'test-1'
       };
       
       mockChess.load.mockImplementation(() => {
@@ -196,9 +185,10 @@ describe('StockfishMessageHandler', () => {
 
     test('should ignore bestmove without current request', () => {
       
-      handler.handleMessage('bestmove e2e4');
+      const response = handler.handleMessage('bestmove e2e4');
       
-      expect(mockWorkerManager.onRequestComplete).not.toHaveBeenCalled();
+      // Should return null when no current request
+      expect(response).toBeNull();
     });
 
     test('should ignore bestmove for evaluation request', () => {
@@ -207,8 +197,7 @@ describe('StockfishMessageHandler', () => {
         type: 'evaluation',
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         timeLimit: 3000,
-        id: 'eval-1',
-        resolve: jest.fn()
+        id: 'eval-1'
       };
       
       handler.setCurrentRequest(request);
@@ -218,21 +207,18 @@ describe('StockfishMessageHandler', () => {
       expect(response).toEqual({
         id: 'eval-1',
         type: 'evaluation',
-        evaluation: { score: 0, mate: null, depth: undefined, nodes: undefined, time: undefined }
+        evaluation: { score: 0, mate: null }
       });
     });
   });
 
   describe('Evaluation Handling', () => {
     test('should handle centipawn evaluation', () => {
-      
-      const resolve = jest.fn();
       const request: EvaluationRequest = {
         type: 'evaluation',
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         timeLimit: 3000,
-        id: 'eval-1',
-        resolve
+        id: 'eval-1'
       };
       
       handler.setCurrentRequest(request);
@@ -246,19 +232,16 @@ describe('StockfishMessageHandler', () => {
       expect(response).toEqual({
         id: 'eval-1',
         type: 'evaluation',
-        evaluation: { score: 42, mate: null, depth: 10, nodes: undefined, time: undefined }
+        evaluation: { score: 42, mate: null, depth: 10 }
       });
     });
 
     test('should handle mate evaluation', () => {
-      
-      const resolve = jest.fn();
       const request: EvaluationRequest = {
         type: 'evaluation',
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         timeLimit: 3000,
-        id: 'eval-1',
-        resolve
+        id: 'eval-1'
       };
       
       handler.setCurrentRequest(request);
@@ -270,19 +253,16 @@ describe('StockfishMessageHandler', () => {
       expect(response).toEqual({
         id: 'eval-1',
         type: 'evaluation',
-        evaluation: { score: 10000, mate: 3, depth: 15, nodes: undefined, time: undefined }
+        evaluation: { score: 10000, mate: 3, depth: 15 }
       });
     });
 
     test('should handle negative mate evaluation', () => {
-      
-      const resolve = jest.fn();
       const request: EvaluationRequest = {
         type: 'evaluation',
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         timeLimit: 3000,
-        id: 'eval-1',
-        resolve
+        id: 'eval-1'
       };
       
       handler.setCurrentRequest(request);
@@ -293,19 +273,16 @@ describe('StockfishMessageHandler', () => {
       expect(response).toEqual({
         id: 'eval-1',
         type: 'evaluation',
-        evaluation: { score: -10000, mate: -2, depth: 10, nodes: undefined, time: undefined }
+        evaluation: { score: -10000, mate: -2, depth: 10 }
       });
     });
 
     test('should update evaluation with latest info', () => {
-      
-      const resolve = jest.fn();
       const request: EvaluationRequest = {
         type: 'evaluation',
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         timeLimit: 3000,
-        id: 'eval-1',
-        resolve
+        id: 'eval-1'
       };
       
       handler.setCurrentRequest(request);
@@ -320,27 +297,25 @@ describe('StockfishMessageHandler', () => {
       expect(response).toEqual({
         id: 'eval-1',
         type: 'evaluation',
-        evaluation: { score: 42, mate: null, depth: 15, nodes: undefined, time: undefined }
+        evaluation: { score: 42, mate: null, depth: 15 }
       });
     });
 
     test('should handle evaluation without score', () => {
-      
-      const resolve = jest.fn();
       const request: EvaluationRequest = {
         type: 'evaluation',
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         timeLimit: 3000,
-        id: 'eval-1',
-        resolve
+        id: 'eval-1'
       };
       
       handler.setCurrentRequest(request);
       
-      // No score info
+      // No score info - only depth and nodes
       handler.handleMessage('info depth 10 nodes 12345');
       const response = handler.handleMessage('bestmove e2e4');
       
+      // When no score is provided, should use default evaluation
       expect(response).toEqual({
         id: 'eval-1',
         type: 'evaluation',
@@ -356,8 +331,7 @@ describe('StockfishMessageHandler', () => {
         type: 'evaluation',
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         timeLimit: 3000,
-        id: 'eval-1',
-        resolve: jest.fn()
+        id: 'eval-1'
       };
       
       handler.setCurrentRequest(request);
@@ -377,8 +351,7 @@ describe('StockfishMessageHandler', () => {
         type: 'evaluation',
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         timeLimit: 3000,
-        id: 'eval-1',
-        resolve: jest.fn()
+        id: 'eval-1'
       };
       
       handler.setCurrentRequest(request);
@@ -392,7 +365,7 @@ describe('StockfishMessageHandler', () => {
       expect(response).toEqual({
         id: 'eval-1',
         type: 'evaluation',
-        evaluation: { score: 0, mate: null, depth: undefined, nodes: undefined, time: undefined }
+        evaluation: { score: 0, mate: null }
       });
     });
   });
@@ -411,8 +384,7 @@ describe('StockfishMessageHandler', () => {
         type: 'bestmove',
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         timeLimit: 1000,
-        id: 'test-1',
-        resolve: jest.fn()
+        id: 'test-1'
       };
       
       handler.setCurrentRequest(request);
@@ -427,8 +399,7 @@ describe('StockfishMessageHandler', () => {
         type: 'evaluation',
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         timeLimit: 3000,
-        id: 'eval-1',
-        resolve: jest.fn()
+        id: 'eval-1'
       };
       
       handler.setCurrentRequest(request);
@@ -444,7 +415,7 @@ describe('StockfishMessageHandler', () => {
       expect(response).toEqual({
         id: 'eval-1',
         type: 'evaluation',
-        evaluation: { score: 200, mate: null, depth: 20, nodes: undefined, time: undefined }
+        evaluation: { score: 200, mate: null, depth: 20 }
       });
     });
 
@@ -454,8 +425,7 @@ describe('StockfishMessageHandler', () => {
         type: 'evaluation',
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
         timeLimit: 3000,
-        id: 'eval-1',
-        resolve: jest.fn()
+        id: 'eval-1'
       };
       
       handler.setCurrentRequest(request);
@@ -466,7 +436,7 @@ describe('StockfishMessageHandler', () => {
       expect(response).toEqual({
         id: 'eval-1',
         type: 'evaluation',
-        evaluation: { score: 999999, mate: null, depth: 10, nodes: undefined, time: undefined }
+        evaluation: { score: 999999, mate: null, depth: 10 }
       });
     });
   });

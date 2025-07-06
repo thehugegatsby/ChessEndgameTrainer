@@ -149,7 +149,10 @@ describe('ScenarioEngine - Tablebase Best Moves', () => {
       engine = new ScenarioEngine(fen);
 
       mockTablebaseService.getTablebaseInfo
-        .mockResolvedValue({ wdl: -2, dtm: 5, isTablebasePosition: true });
+        .mockResolvedValue({ 
+          isTablebasePosition: true,
+          result: { wdl: -2, dtz: 5, category: 'loss', precise: true }
+        });
 
       const result = await engine.getBestMoves(fen, 2);
 

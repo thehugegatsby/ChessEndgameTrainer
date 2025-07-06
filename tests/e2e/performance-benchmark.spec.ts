@@ -52,12 +52,12 @@ test.describe('Evaluation System Performance Benchmarks', () => {
     useUnified: boolean
   ): Promise<number> {
     // Set feature flag via localStorage
-    await page.evaluate((flag) => {
+    await page.evaluate((flag: boolean) => {
       localStorage.setItem('USE_UNIFIED_EVALUATION_SYSTEM', flag ? 'true' : 'false');
     }, useUnified);
     
     // Measure evaluation time
-    const duration = await page.evaluate(async (position) => {
+    const duration = await page.evaluate(async (position: string) => {
       const startTime = performance.now();
       
       // Trigger evaluation (assuming global function exists)
@@ -190,9 +190,9 @@ test.describe('Evaluation System Performance Benchmarks', () => {
     console.log('Testing concurrent requests...');
     
     // Test legacy system
-    const legacyConcurrentTime = await page.evaluate(async (positions) => {
+    const legacyConcurrentTime = await page.evaluate(async (positions: typeof BENCHMARK_CONFIG.positions) => {
       const startTime = performance.now();
-      const promises = positions.map((pos: any) => 
+      const promises = positions.map((pos) => 
         (window as any).evaluatePosition(pos.fen)
       );
       await Promise.all(promises);
@@ -204,9 +204,9 @@ test.describe('Evaluation System Performance Benchmarks', () => {
       localStorage.setItem('USE_UNIFIED_EVALUATION_SYSTEM', 'true');
     });
     
-    const unifiedConcurrentTime = await page.evaluate(async (positions) => {
+    const unifiedConcurrentTime = await page.evaluate(async (positions: typeof BENCHMARK_CONFIG.positions) => {
       const startTime = performance.now();
-      const promises = positions.map((pos: any) => 
+      const promises = positions.map((pos) => 
         (window as any).evaluatePosition(pos.fen)
       );
       await Promise.all(promises);

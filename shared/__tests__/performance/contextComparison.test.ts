@@ -92,8 +92,8 @@ describe('Context Performance Comparison', () => {
       const startTime = performance.now();
       
       const state = {
-        moves: [],
-        evaluations: []
+        moves: [] as any[],
+        evaluations: [] as any[]
       };
       
       // Simulate adding 100 moves with full objects
@@ -124,8 +124,8 @@ describe('Context Performance Comparison', () => {
       const startTime = performance.now();
       
       const state = {
-        moveHistory: [],
-        evaluationHistory: []
+        moveHistory: [] as any[],
+        evaluationHistory: [] as any[]
       };
       
       // Simulate adding 100 moves with strings

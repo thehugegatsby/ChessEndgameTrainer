@@ -11,8 +11,6 @@
  * @module EvaluationPipelineFactory
  */
 
-import { getLogger } from '@shared/services/logging';
-import type { ILogger } from '@shared/services/logging/types';
 import { EvaluationNormalizer } from './normalizer';
 import { PlayerPerspectiveTransformer } from './perspectiveTransformer';
 import { EvaluationFormatter } from './formatter';
@@ -29,7 +27,6 @@ import type {
 export interface PipelineConfig {
   enhancedPerspective?: boolean;
   cacheEnabled?: boolean;
-  logger?: ILogger;
 }
 
 /**
@@ -61,13 +58,11 @@ class EnhancedPipelineStrategy implements EvaluationPipelineStrategy {
   private readonly normalizer: EvaluationNormalizer;
   private readonly transformer: PlayerPerspectiveTransformer;
   private readonly formatter: EvaluationFormatter;
-  private readonly logger: ILogger;
 
-  constructor(logger: ILogger) {
+  constructor() {
     this.normalizer = new EvaluationNormalizer();
     this.transformer = new PlayerPerspectiveTransformer();
     this.formatter = new EvaluationFormatter();
-    this.logger = logger;
   }
 
   formatEngineEvaluation(
@@ -80,7 +75,6 @@ class EnhancedPipelineStrategy implements EvaluationPipelineStrategy {
       const perspectiveEval = this.transformer.transform(normalized, perspective);
       return this.formatter.format(perspectiveEval);
     } catch (error) {
-      this.logger.error('EnhancedPipelineStrategy: Engine evaluation failed', error);
       return this.createErrorFallback();
     }
   }
@@ -95,7 +89,6 @@ class EnhancedPipelineStrategy implements EvaluationPipelineStrategy {
       const perspectiveEval = this.transformer.transform(normalized, perspective);
       return this.formatter.format(perspectiveEval);
     } catch (error) {
-      this.logger.error('EnhancedPipelineStrategy: Tablebase evaluation failed', error);
       return this.createErrorFallback();
     }
   }
@@ -127,10 +120,6 @@ class EnhancedPipelineStrategy implements EvaluationPipelineStrategy {
  * Factory for creating evaluation pipeline strategies
  */
 export class EvaluationPipelineFactory {
-  private static getDefaultLogger() {
-    return getLogger();
-  }
-
   /**
    * Creates an evaluation pipeline strategy
    * 
@@ -138,10 +127,7 @@ export class EvaluationPipelineFactory {
    * @returns Strategy instance with correct perspective handling
    */
   static createPipeline(config: PipelineConfig = {}): EvaluationPipelineStrategy {
-    const logger = config.logger ?? this.getDefaultLogger();
-    
-    logger.debug('EvaluationPipelineFactory: Creating evaluation pipeline');
-    return new EnhancedPipelineStrategy(logger);
+    return new EnhancedPipelineStrategy();
   }
 
   /**

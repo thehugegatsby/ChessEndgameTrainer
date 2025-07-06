@@ -68,12 +68,9 @@ const TrainingContent: React.FC<{ position: EndgamePosition }> = React.memo(({ p
       dtz?: number;
     };
   }>) => {
-    console.log('🔍 [id].tsx - handleEvaluationsChange called with', evaluations.length, 'evaluations');
     if (evaluations.length > 0) {
       const lastEval = evaluations[evaluations.length - 1];
-      console.log('🔍 [id].tsx - Last evaluation has tablebase?', !!lastEval.tablebase);
       if (lastEval.tablebase) {
-        console.log('🔍 [id].tsx - Tablebase data:', JSON.stringify(lastEval.tablebase, null, 2));
       }
     }
     dispatch({ type: 'SET_EVALUATIONS', payload: evaluations });
@@ -84,10 +81,9 @@ const TrainingContent: React.FC<{ position: EndgamePosition }> = React.memo(({ p
   }, [dispatch]);
 
   const handleResetPosition = useCallback(() => {
-    console.log('🔄 Resetting position to:', position.fen);
     dispatch({ type: 'RESET_TRAINING' });
     setResetKey(prev => prev + 1);
-  }, [position.fen, dispatch]);
+  }, [dispatch]);
 
   const handleTrainingBoardReady = useCallback((func: (moveIndex: number) => void) => {
     setJumpToMoveFunc(() => func);
@@ -251,7 +247,6 @@ const TrainingContent: React.FC<{ position: EndgamePosition }> = React.memo(({ p
                 showEngine={state.showEngineEvaluation}
                 showTablebase={state.showTablebaseEvaluation}
                 onEvaluationUpdate={(evaluation) => {
-                  console.log('📊 Dual evaluation update:', evaluation);
                 }}
               />
             </div>

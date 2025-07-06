@@ -212,15 +212,9 @@ describe('StockfishWorkerManager', () => {
     test('should not send commands if worker not ready', () => {
       manager = new StockfishWorkerManager();
       
-      // Console warning should be shown
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
-      
       manager.sendCommand('position fen ...');
       
-      expect(mockWorker.postMessage).not.toHaveBeenCalledWith('position fen ...');
-      expect(consoleWarnSpy).toHaveBeenCalledWith('[WorkerManager] ⚠️ Cannot send command - worker not ready');
-      
-      consoleWarnSpy.mockRestore();
+      expect(mockWorker.postMessage).not.toHaveBeenCalled();
     });
 
     test('should handle message events', async () => {
@@ -347,7 +341,14 @@ describe('StockfishWorkerManager', () => {
     });
 
     test('should merge configuration updates', () => {
-      manager = new StockfishWorkerManager({ maxDepth: 10 });
+      const initialConfig: EngineConfig = {
+        maxDepth: 10,
+        maxTime: 2000,
+        maxNodes: 100000,
+        useThreads: 1,
+        hashSize: 16
+      };
+      manager = new StockfishWorkerManager(initialConfig);
       
       manager.updateConfig({ maxTime: 5000 });
       

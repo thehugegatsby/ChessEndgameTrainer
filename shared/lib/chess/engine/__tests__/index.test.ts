@@ -1,6 +1,6 @@
 import { Engine } from '../index';
 import { StockfishWorkerManager } from '../workerManager';
-import type { BestMoveRequest, EvaluationRequest } from '../types';
+import type { BestMoveRequest, EvaluationRequest, EngineConfig } from '../types';
 
 // Mock the worker manager
 jest.mock('../workerManager');
@@ -23,13 +23,22 @@ describe.skip('Engine', () => {
       setResponseCallback: jest.fn(),
       getMessageHandler: jest.fn().mockReturnValue({
         setCurrentRequest: jest.fn(),
-        clearCurrentRequest: jest.fn()
+        clearCurrentRequest: jest.fn(),
+        handleMessage: jest.fn(),
+        setWorkerManager: jest.fn(),
+        isUciReady: jest.fn().mockReturnValue(true)
       }),
       cleanup: jest.fn(),
       restart: jest.fn().mockResolvedValue(true),
       updateConfig: jest.fn(),
       getStats: jest.fn().mockReturnValue({ initialized: true }),
-      getConfig: jest.fn().mockReturnValue({ maxRetries: 3 })
+      getConfig: jest.fn().mockReturnValue({ 
+        maxDepth: 15,
+        maxTime: 5000,
+        maxNodes: 1000000,
+        useThreads: 1,
+        hashSize: 16
+      })
     } as any;
     
     (StockfishWorkerManager as jest.MockedClass<typeof StockfishWorkerManager>).mockImplementation(() => mockWorkerManager);
@@ -40,13 +49,13 @@ describe.skip('Engine', () => {
     const engine = (Engine as any).instance;
     if (engine) {
       try {
-        // Cancel any pending requests first
-        const requestManager = (engine as any).requestManager;
-        if (requestManager) {
-          // Clear queue without rejecting promises
-          (engine as any).requestQueue = [];
-          (engine as any).isProcessingQueue = false;
+        // Mock the requestManager to avoid errors during cleanup
+        if ((engine as any).requestManager) {
+          (engine as any).requestManager.cancelAllRequests = jest.fn();
         }
+        // Clear queue before quit
+        (engine as any).requestQueue = [];
+        (engine as any).isProcessingQueue = false;
         engine.quit();
       } catch (error) {
         // Ignore cleanup errors
@@ -76,7 +85,13 @@ describe.skip('Engine', () => {
     });
 
     test('should accept config on initialization', () => {
-      const config = { maxRetries: 5, timeout: 10000 };
+      const config: EngineConfig = { 
+        maxDepth: 15,
+        maxTime: 10000,
+        maxNodes: 1000000,
+        useThreads: 1,
+        hashSize: 16
+      };
       const engine = Engine.getInstance(config);
       
       expect(StockfishWorkerManager).toHaveBeenCalledWith(config);
@@ -254,8 +269,15 @@ describe.skip('Engine', () => {
       mockWorkerManager.isWorkerReady.mockReturnValue(true);
       const messageHandler = { 
         setCurrentRequest: jest.fn(), 
-        clearCurrentRequest: jest.fn() 
-      };
+        clearCurrentRequest: jest.fn(),
+        handleMessage: jest.fn(),
+        setWorkerManager: jest.fn(),
+        isUciReady: jest.fn().mockReturnValue(true),
+        getStats: jest.fn().mockReturnValue({
+          messagesProcessed: 0,
+          hasCurrentRequest: false
+        })
+      } as any;
       mockWorkerManager.getMessageHandler.mockReturnValue(messageHandler);
       
       const engine = Engine.getInstance();
@@ -312,7 +334,10 @@ describe.skip('Engine', () => {
 
     test('should update config', () => {
       const engine = Engine.getInstance();
-      const newConfig = { timeout: 5000 };
+      const newConfig: Partial<EngineConfig> = { 
+        maxTime: 5000,
+        maxDepth: 20 
+      };
       
       engine.updateConfig(newConfig);
       
@@ -323,8 +348,22 @@ describe.skip('Engine', () => {
   describe('Statistics', () => {
     test('should return engine stats', () => {
       mockWorkerManager.isWorkerReady.mockReturnValue(true);
-      const workerStats = { initialized: true, requests: 10 };
-      const config = { maxRetries: 3, timeout: 5000 };
+      const workerStats = { 
+        isReady: true,
+        attempts: 1,
+        hasWorker: true,
+        messageStats: {
+          messagesProcessed: 10,
+          hasCurrentRequest: false
+        }
+      };
+      const config: EngineConfig = { 
+        maxDepth: 15,
+        maxTime: 5000,
+        maxNodes: 1000000,
+        useThreads: 1,
+        hashSize: 16
+      };
       
       mockWorkerManager.getStats.mockReturnValue(workerStats);
       mockWorkerManager.getConfig.mockReturnValue(config);
@@ -340,12 +379,12 @@ describe.skip('Engine', () => {
         isReady: true,
         queueLength: expect.any(Number),
         isProcessing: expect.any(Boolean),
-        requestCounter: expect.any(Number),
+        requestStats: expect.any(Object),
         workerStats,
         config
       });
       
-      expect(stats.requestCounter).toBeGreaterThan(0);
+      expect(stats.requestStats.totalRequests).toBeGreaterThan(0);
     });
   });
 
@@ -393,7 +432,7 @@ describe.skip('Engine', () => {
       engine.getBestMove('fen2');
       
       const stats = engine.getStats();
-      expect(stats.requestCounter).toBe(2);
+      expect(stats.requestStats.totalRequests).toBe(2);
     });
 
     test('should handle worker not ready after lazy init', async () => {

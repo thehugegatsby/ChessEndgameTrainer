@@ -32,9 +32,9 @@ describe('useChessGame Optimization Comparison', () => {
       let originalInstances = 0;
       
       // Track Chess constructor calls by monitoring the hook internals
-      const originalChessConstructor = global.Chess;
+      const originalChessConstructor = (global as any).Chess;
       let constructorCallCount = 0;
-      global.Chess = function(...args) {
+      (global as any).Chess = function(...args: any[]) {
         constructorCallCount++;
         return originalChessConstructor.apply(this, args);
       };
@@ -50,7 +50,7 @@ describe('useChessGame Optimization Comparison', () => {
       originalInstances = constructorCallCount - 1; // Subtract initial instance
 
       // Reset Chess constructor
-      global.Chess = originalChessConstructor;
+      (global as any).Chess = originalChessConstructor;
 
       // Test OPTIMIZED implementation
       const { result: optimizedResult } = renderHook(() => 
@@ -68,7 +68,7 @@ describe('useChessGame Optimization Comparison', () => {
       const optimizedStart = performance.now();
       constructorCallCount = 0;
       
-      global.Chess = function(...args) {
+      (global as any).Chess = function(...args: any[]) {
         constructorCallCount++;
         return originalChessConstructor.apply(this, args);
       };
@@ -84,7 +84,7 @@ describe('useChessGame Optimization Comparison', () => {
       const optimizedInstances = constructorCallCount;
 
       // Reset
-      global.Chess = originalChessConstructor;
+      (global as any).Chess = originalChessConstructor;
 
       console.log('\\n=== UNDO OPERATION COMPARISON ===');
       console.log(`Original: ${originalInstances} new Chess instances for ${moves.length} undos`);

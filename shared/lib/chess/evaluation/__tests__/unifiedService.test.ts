@@ -80,9 +80,6 @@ describe('UnifiedEvaluationService', () => {
       mockEngineProvider,
       mockTablebaseProvider,
       mockCacheProvider,
-      normalizer,
-      transformer,
-      formatter,
       defaultConfig
     );
 
@@ -355,9 +352,6 @@ describe('UnifiedEvaluationService', () => {
         mockEngineProvider,
         mockTablebaseProvider,
         mockCacheProvider,
-        normalizer,
-        transformer,
-        formatter,
         { ...defaultConfig, enableCaching: false }
       );
 
@@ -385,9 +379,6 @@ describe('UnifiedEvaluationService', () => {
         mockEngineProvider,
         mockTablebaseProvider,
         mockCacheProvider,
-        normalizer,
-        transformer,
-        formatter,
         { ...defaultConfig, cacheTtl: 600 }
       );
 

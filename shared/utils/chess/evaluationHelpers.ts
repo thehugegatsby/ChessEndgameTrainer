@@ -99,29 +99,31 @@ export const getMoveQualityDisplay = (
  * NEW: Move quality based on tablebase WDL comparison
  * This is the REAL training value - detecting when players throw away wins!
  * 
- * @param wdlBefore - WDL value before the move (-2=loss, -1=blessed loss, 0=draw, 1=cursed win, 2=win)
- * @param wdlAfter - WDL value after the move 
+ * @param wdlBefore - WDL value before the move (from perspective of side to move)
+ * @param wdlAfter - WDL value after the move (from perspective of side to move) 
  * @param playerSide - which side played the move ('w' or 'b')
  * 
- * AI_NOTE: CRITICAL PERSPECTIVE BUG FIXED (2025-01-11)
- * WDL values from tablebase API are ALWAYS from White's perspective!
- * Lines 107-108: We convert to player's perspective by negating for Black.
- * This bug caused Black's optimal defensive moves to show red triangles.
+ * AI_NOTE: CRITICAL PERSPECTIVE UNDERSTANDING (2025-01-06)
+ * WDL values from tablebase API are from the perspective of the player TO MOVE:
+ * - Before a move: WDL is from the mover's perspective
+ * - After a move: WDL is from the opponent's perspective
  * 
- * KNOWN ISSUE: Line 229 - When WDL stays exactly -2 to -2 for Black in losing position,
- * it's actually optimal defense (maintaining tablebase loss). We show shield (🛡️).
+ * Example: White plays Kd7
+ * - Before: wdl = 2 (White to move, White wins)
+ * - After: wdl = -2 (Black to move, Black loses = White still wins!)
  * 
- * See: /shared/utils/chess/EVALUATION_LOGIC_LEARNINGS.md for full debugging story.
+ * To compare properly, we need to convert both to the same perspective.
  */
 export const getMoveQualityByTablebaseComparison = (
   wdlBefore: number,
   wdlAfter: number,
   playerSide: 'w' | 'b'
 ): EvaluationDisplay => {
-  // CRITICAL: Convert WDL values to player's perspective
-  // For Black, we need to flip the values since WDL is from White's perspective
-  const wdlBeforeFromPlayerPerspective = playerSide === 'w' ? wdlBefore : -wdlBefore;
-  const wdlAfterFromPlayerPerspective = playerSide === 'w' ? wdlAfter : -wdlAfter;
+  // CRITICAL: Convert WDL values to a consistent perspective
+  // wdlBefore is from the mover's perspective
+  // wdlAfter is from the opponent's perspective - we need to flip it!
+  const wdlBeforeFromPlayerPerspective = wdlBefore;
+  const wdlAfterFromPlayerPerspective = -wdlAfter; // Flip because it's opponent's turn
   
   
   // Convert WDL to simplified categories for clearer logic

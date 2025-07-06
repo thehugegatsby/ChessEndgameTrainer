@@ -107,7 +107,7 @@ describe('Engine State Machine Logic', () => {
     
     try {
       await engine.getReadyEngine();
-    } catch (error) {
+    } catch (error: any) {
       expect((engine as any).state).toBe('ERROR');
       expect(error.message).toContain('timeout');
       console.log('✅ Timeout handled correctly, state: ERROR');
@@ -130,7 +130,7 @@ describe('Engine State Machine Logic', () => {
     try {
       await engine.getReadyEngine();
       fail('Should have rejected');
-    } catch (error) {
+    } catch (error: any) {
       expect(error.message).toContain('error state');
       console.log('✅ ERROR state correctly rejected subsequent calls');
     }

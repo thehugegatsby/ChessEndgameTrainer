@@ -183,7 +183,7 @@ describe('useToast', () => {
     const { result } = renderHook(() => useToast());
     
     act(() => {
-      result.current.showSuccess('No auto dismiss', null);
+      result.current.showSuccess('No auto dismiss', undefined);
     });
     
     expect(result.current.toasts).toHaveLength(1);

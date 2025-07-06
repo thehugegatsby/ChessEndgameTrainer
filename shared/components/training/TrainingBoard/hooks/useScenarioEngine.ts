@@ -31,7 +31,6 @@ export const useScenarioEngine = ({
         setEngineError(null);
         setIsEngineReady(false);
 
-        console.log('🔧 useScenarioEngine: Initializing engine with FEN:', initialFen);
         
         const { ScenarioEngine } = await import('../../../../lib/chess/ScenarioEngine');
         
@@ -42,7 +41,6 @@ export const useScenarioEngine = ({
         setScenarioEngine(engine);
         setIsEngineReady(true);
         
-        console.log('✅ useScenarioEngine: Engine initialized successfully');
       } catch (error) {
         console.error('❌ useScenarioEngine: Failed to load ScenarioEngine:', error);
         
@@ -61,11 +59,9 @@ export const useScenarioEngine = ({
       mounted = false;
       
       if (scenarioEngine) {
-        console.log('🧹 useScenarioEngine: Cleaning up engine');
         try {
           scenarioEngine.quit();
         } catch (error) {
-          console.warn('⚠️ useScenarioEngine: Error during cleanup:', error);
         }
       }
     };

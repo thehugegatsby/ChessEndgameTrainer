@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2020", "DOM"],
+    "types": ["@playwright/test", "node"],
+    "skipLibCheck": true
+  },
+  "include": [
+    "*.spec.ts",
+    "../../shared/benchmarks/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "../../node_modules/react-native/**/*"
+  ]
+}

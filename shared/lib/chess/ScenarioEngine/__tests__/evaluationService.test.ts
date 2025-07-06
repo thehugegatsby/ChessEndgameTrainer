@@ -20,7 +20,19 @@ describe('EvaluationService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockEngine = new Engine() as jest.Mocked<Engine>;
+    // Mock getInstance to return a mock engine
+    mockEngine = {
+      evaluatePosition: jest.fn(),
+      getBestMove: jest.fn(),
+      isReady: jest.fn(),
+      quit: jest.fn(),
+      reset: jest.fn(),
+      restart: jest.fn(),
+      updateConfig: jest.fn(),
+      getStats: jest.fn()
+    } as unknown as jest.Mocked<Engine>;
+    
+    (Engine.getInstance as jest.Mock).mockReturnValue(mockEngine);
     service = new EvaluationService(mockEngine);
   });
 

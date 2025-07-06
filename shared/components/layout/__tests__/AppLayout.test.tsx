@@ -92,7 +92,11 @@ describe('AppLayout', () => {
   });
 
   test('should handle empty children', () => {
-    const { container } = render(<AppLayout />);
+    const { container } = render(
+      <AppLayout>
+        {null}
+      </AppLayout>
+    );
     
     expect(container.firstChild).toBeInTheDocument();
   });

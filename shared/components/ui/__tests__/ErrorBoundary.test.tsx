@@ -110,7 +110,13 @@ describe('ErrorBoundary', () => {
 
   test('shows error details in development mode', () => {
     const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'development';
+    
+    // Properly override NODE_ENV using Object.defineProperty
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: 'development',
+      writable: true,
+      configurable: true
+    });
 
     const { container } = render(
       <ErrorBoundary>
@@ -129,12 +135,23 @@ describe('ErrorBoundary', () => {
     expect(pre).toBeInTheDocument();
     expect(pre?.textContent).toContain('Error: Test error message');
 
-    process.env.NODE_ENV = originalEnv;
+    // Restore original NODE_ENV
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: originalEnv,
+      writable: true,
+      configurable: true
+    });
   });
 
   test('hides error details in production mode', () => {
     const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
+    
+    // Properly override NODE_ENV using Object.defineProperty
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: 'production',
+      writable: true,
+      configurable: true
+    });
 
     const { container } = render(
       <ErrorBoundary>
@@ -145,7 +162,12 @@ describe('ErrorBoundary', () => {
     const details = container.querySelector('details');
     expect(details).not.toBeInTheDocument();
 
-    process.env.NODE_ENV = originalEnv;
+    // Restore original NODE_ENV
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: originalEnv,
+      writable: true,
+      configurable: true
+    });
   });
 
   test('handles errors without message', () => {

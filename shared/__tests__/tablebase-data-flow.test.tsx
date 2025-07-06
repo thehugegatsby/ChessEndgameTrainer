@@ -6,6 +6,7 @@ import { TrainingBoard } from '@shared/components/training/TrainingBoard';
 import { MovePanel } from '@shared/components/training/MovePanel';
 import { UnifiedEvaluationService } from '@shared/lib/chess/evaluation/unifiedService';
 import type { Move } from 'chess.js';
+import type { PlayerPerspectiveEvaluation } from '@shared/types/evaluation';
 
 // Mock all dependencies
 jest.mock('@shared/lib/chess/evaluation/unifiedService');
@@ -64,8 +65,15 @@ describe('Tablebase Data Flow - Complete Chain Test', () => {
         dtm: 11,
         perspectiveDtm: 11,
         isTablebasePosition: true,
-        perspective: 'w'
-      })
+        perspective: 'w',
+        scoreInCentipawns: null,
+        mate: null,
+        dtz: null,
+        raw: null,
+        perspectiveScore: null,
+        perspectiveMate: null,
+        perspectiveDtz: null
+      } as PlayerPerspectiveEvaluation)
       .mockResolvedValueOnce({
         type: 'tablebase',
         wdl: 2,
@@ -73,8 +81,15 @@ describe('Tablebase Data Flow - Complete Chain Test', () => {
         dtm: 10,
         perspectiveDtm: 10,
         isTablebasePosition: true,
-        perspective: 'w'
-      });
+        perspective: 'w',
+        scoreInCentipawns: null,
+        mate: null,
+        dtz: null,
+        raw: null,
+        perspectiveScore: null,
+        perspectiveMate: null,
+        perspectiveDtz: null
+      } as PlayerPerspectiveEvaluation);
 
     const { result } = renderHook(() => useEvaluation({
       fen: currentFen,
@@ -127,8 +142,17 @@ describe('Tablebase Data Flow - Complete Chain Test', () => {
       wdl: 2,
       perspectiveWdl: 2,
       isTablebasePosition: true,
-      perspective: 'w'
-    });
+      perspective: 'w',
+      scoreInCentipawns: null,
+      mate: null,
+      dtm: null,
+      dtz: null,
+      raw: null,
+      perspectiveScore: null,
+      perspectiveMate: null,
+      perspectiveDtm: null,
+      perspectiveDtz: null
+    } as PlayerPerspectiveEvaluation);
 
     const { container } = render(<TestWrapper />);
     
@@ -152,7 +176,13 @@ describe('Tablebase Data Flow - Complete Chain Test', () => {
       promotion: undefined,
       before: '8/8/3K4/8/8/8/4r3/7k w - - 0 1',
       after: '8/3K4/8/8/8/8/4r3/7k b - - 1 1',
-      lan: 'Kd6-d7'
+      lan: 'Kd6-d7',
+      isCapture: () => false,
+      isPromotion: () => false,
+      isEnPassant: () => false,
+      isKingsideCastle: () => false,
+      isQueensideCastle: () => false,
+      isBigPawn: () => false
     }];
 
     // Test with tablebase data

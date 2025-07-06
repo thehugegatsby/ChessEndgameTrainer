@@ -1,0 +1,112 @@
+shared/__tests__/bugs/actual-screenshot-bug.test.ts(44,35): error TS2339: Property 'isTablebasePosition' does not exist on type '{ isAvailable: boolean; result: { wdl: number; dtz?: number | undefined; category: "win" | "loss" | "draw" | "cursed-win" | "blessed-loss"; precise: boolean; }; evaluation: string; }'.
+shared/__tests__/bugs/actual-screenshot-bug.test.ts(119,47): error TS2339: Property 'isTablebasePosition' does not exist on type '{ isAvailable: boolean; result: { wdl: number; dtz?: number | undefined; category: "win" | "loss" | "draw" | "cursed-win" | "blessed-loss"; precise: boolean; }; evaluation: string; }'.
+shared/__tests__/tablebase-data-flow.test.tsx(180,7): error TS2322: Type 'boolean' is not assignable to type '() => boolean'.
+shared/__tests__/tablebase-data-flow.test.tsx(181,7): error TS2322: Type 'boolean' is not assignable to type '() => boolean'.
+shared/__tests__/tablebase-data-flow.test.tsx(182,7): error TS2322: Type 'boolean' is not assignable to type '() => boolean'.
+shared/__tests__/tablebase-data-flow.test.tsx(183,7): error TS2322: Type 'boolean' is not assignable to type '() => boolean'.
+shared/__tests__/tablebase-data-flow.test.tsx(184,7): error TS2322: Type 'boolean' is not assignable to type '() => boolean'.
+shared/components/layout/__tests__/AppLayout.test.tsx(95,35): error TS2741: Property 'children' is missing in type '{}' but required in type 'AppLayoutProps'.
+shared/hooks/__tests__/useLocalStorage.test.ts(179,25): error TS2345: Argument of type 'string' is not assignable to parameter of type '(val: null) => null'.
+shared/hooks/__tests__/useToast.test.ts(186,53): error TS2345: Argument of type 'null' is not assignable to parameter of type 'number | undefined'.
+shared/lib/cache/__tests__/EvaluationCache.test.ts(169,30): error TS2345: Argument of type '{ hits: number; misses: number; size: number; maxSize: number; }' is not assignable to parameter of type 'CacheStats'.
+  Property 'hitRate' is missing in type '{ hits: number; misses: number; size: number; maxSize: number; }' but required in type 'CacheStats'.
+shared/lib/cache/__tests__/EvaluationCache.test.ts(170,30): error TS2345: Argument of type '{ hits: number; misses: number; size: number; maxSize: number; }' is not assignable to parameter of type 'CacheStats'.
+  Property 'hitRate' is missing in type '{ hits: number; misses: number; size: number; maxSize: number; }' but required in type 'CacheStats'.
+shared/lib/cache/__tests__/EvaluationCache.test.ts(308,45): error TS2345: Argument of type '{ hits: number; misses: number; size: number; maxSize: number; }' is not assignable to parameter of type 'CacheStats'.
+  Property 'hitRate' is missing in type '{ hits: number; misses: number; size: number; maxSize: number; }' but required in type 'CacheStats'.
+shared/lib/chess/ScenarioEngine/__tests__/evaluationService.test.ts(23,18): error TS2673: Constructor of class 'Engine' is private and only accessible within the class declaration.
+shared/lib/chess/ScenarioEngine/__tests__/tablebaseBestMoves.test.ts(152,30): error TS2353: Object literal may only specify known properties, and 'wdl' does not exist in type 'TablebaseInfo | Promise<TablebaseInfo>'.
+shared/lib/chess/engine/__tests__/index.test.ts(80,41): error TS2345: Argument of type '{ maxRetries: number; timeout: number; }' is not assignable to parameter of type 'EngineConfig'.
+  Type '{ maxRetries: number; timeout: number; }' is missing the following properties from type 'EngineConfig': maxDepth, maxTime, maxNodes, useThreads, hashSize
+shared/lib/chess/engine/__tests__/index.test.ts(259,59): error TS2345: Argument of type '{ setCurrentRequest: jest.Mock<any, any, any>; clearCurrentRequest: jest.Mock<any, any, any>; }' is not assignable to parameter of type 'StockfishMessageHandler'.
+  Type '{ setCurrentRequest: Mock<any, any, any>; clearCurrentRequest: Mock<any, any, any>; }' is missing the following properties from type 'StockfishMessageHandler': chess, currentRequest, currentEvaluation, messageCount, and 8 more.
+shared/lib/chess/engine/__tests__/index.test.ts(317,27): error TS2559: Type '{ timeout: number; }' has no properties in common with type 'Partial<EngineConfig>'.
+shared/lib/chess/engine/__tests__/index.test.ts(329,50): error TS2345: Argument of type '{ initialized: boolean; requests: number; }' is not assignable to parameter of type '{ isReady: boolean; attempts: number; hasWorker: boolean; messageStats: { messagesProcessed: number; hasCurrentRequest: boolean; }; }'.
+  Type '{ initialized: boolean; requests: number; }' is missing the following properties from type '{ isReady: boolean; attempts: number; hasWorker: boolean; messageStats: { messagesProcessed: number; hasCurrentRequest: boolean; }; }': isReady, attempts, hasWorker, messageStats
+shared/lib/chess/engine/__tests__/index.test.ts(330,51): error TS2345: Argument of type '{ maxRetries: number; timeout: number; }' is not assignable to parameter of type 'EngineConfig'.
+  Type '{ maxRetries: number; timeout: number; }' is missing the following properties from type 'EngineConfig': maxDepth, maxTime, maxNodes, useThreads, hashSize
+shared/lib/chess/engine/__tests__/index.test.ts(348,20): error TS2339: Property 'requestCounter' does not exist on type '{ isReady: boolean; queueLength: number; isProcessing: boolean; requestStats: any; workerStats: any; config: EngineConfig; }'.
+shared/lib/chess/engine/__tests__/index.test.ts(396,20): error TS2339: Property 'requestCounter' does not exist on type '{ isReady: boolean; queueLength: number; isProcessing: boolean; requestStats: any; workerStats: any; config: EngineConfig; }'.
+shared/lib/chess/engine/__tests__/messageHandler.test.ts(66,9): error TS2353: Object literal may only specify known properties, and 'resolve' does not exist in type 'BestMoveRequest'.
+shared/lib/chess/engine/__tests__/messageHandler.test.ts(80,9): error TS2353: Object literal may only specify known properties, and 'resolve' does not exist in type 'BestMoveRequest'.
+shared/lib/chess/engine/__tests__/messageHandler.test.ts(136,9): error TS2353: Object literal may only specify known properties, and 'resolve' does not exist in type 'BestMoveRequest'.
+shared/lib/chess/engine/__tests__/messageHandler.test.ts(157,9): error TS2353: Object literal may only specify known properties, and 'resolve' does not exist in type 'BestMoveRequest'.
+shared/lib/chess/engine/__tests__/messageHandler.test.ts(160,38): error TS2345: Argument of type 'null' is not assignable to parameter of type 'Move'.
+shared/lib/chess/engine/__tests__/messageHandler.test.ts(180,9): error TS2353: Object literal may only specify known properties, and 'resolve' does not exist in type 'BestMoveRequest'.
+shared/lib/chess/engine/__tests__/messageHandler.test.ts(201,32): error TS2339: Property 'onRequestComplete' does not exist on type 'Mocked<StockfishWorkerManager>'.
+shared/lib/chess/engine/__tests__/messageHandler.test.ts(211,9): error TS2353: Object literal may only specify known properties, and 'resolve' does not exist in type 'EvaluationRequest'.
+shared/lib/chess/engine/__tests__/messageHandler.test.ts(235,9): error TS2353: Object literal may only specify known properties, and 'resolve' does not exist in type 'EvaluationRequest'.
+shared/lib/chess/engine/__tests__/messageHandler.test.ts(261,9): error TS2353: Object literal may only specify known properties, and 'resolve' does not exist in type 'EvaluationRequest'.
+shared/lib/chess/engine/__tests__/messageHandler.test.ts(285,9): error TS2353: Object literal may only specify known properties, and 'resolve' does not exist in type 'EvaluationRequest'.
+shared/lib/chess/engine/__tests__/messageHandler.test.ts(308,9): error TS2353: Object literal may only specify known properties, and 'resolve' does not exist in type 'EvaluationRequest'.
+shared/lib/chess/engine/__tests__/messageHandler.test.ts(335,9): error TS2353: Object literal may only specify known properties, and 'resolve' does not exist in type 'EvaluationRequest'.
+shared/lib/chess/engine/__tests__/messageHandler.test.ts(360,9): error TS2353: Object literal may only specify known properties, and 'resolve' does not exist in type 'EvaluationRequest'.
+shared/lib/chess/engine/__tests__/messageHandler.test.ts(381,9): error TS2353: Object literal may only specify known properties, and 'resolve' does not exist in type 'EvaluationRequest'.
+shared/lib/chess/engine/__tests__/messageHandler.test.ts(415,9): error TS2353: Object literal may only specify known properties, and 'resolve' does not exist in type 'BestMoveRequest'.
+shared/lib/chess/engine/__tests__/messageHandler.test.ts(431,9): error TS2353: Object literal may only specify known properties, and 'resolve' does not exist in type 'EvaluationRequest'.
+shared/lib/chess/engine/__tests__/messageHandler.test.ts(458,9): error TS2353: Object literal may only specify known properties, and 'resolve' does not exist in type 'EvaluationRequest'.
+shared/lib/chess/engine/__tests__/workerManager.test.ts(350,44): error TS2345: Argument of type '{ maxDepth: number; }' is not assignable to parameter of type 'EngineConfig'.
+  Type '{ maxDepth: number; }' is missing the following properties from type 'EngineConfig': maxTime, maxNodes, useThreads, hashSize
+shared/lib/chess/evaluation/__tests__/ParallelEvaluationService.test.ts(100,59): error TS7006: Parameter '_' implicitly has an 'any' type.
+shared/lib/chess/evaluation/__tests__/ParallelEvaluationService.test.ts(100,62): error TS7006: Parameter 'evaluationFn' implicitly has an 'any' type.
+shared/lib/chess/evaluation/__tests__/ParallelEvaluationService.test.ts(124,59): error TS7006: Parameter 'position' implicitly has an 'any' type.
+shared/lib/chess/evaluation/__tests__/ParallelEvaluationService.test.ts(124,69): error TS7006: Parameter 'evaluationFn' implicitly has an 'any' type.
+shared/lib/chess/evaluation/__tests__/ParallelEvaluationService.test.ts(139,59): error TS7006: Parameter '_' implicitly has an 'any' type.
+shared/lib/chess/evaluation/__tests__/ParallelEvaluationService.test.ts(139,62): error TS7006: Parameter 'evaluationFn' implicitly has an 'any' type.
+shared/lib/chess/evaluation/__tests__/ParallelEvaluationService.test.ts(220,59): error TS7006: Parameter '_' implicitly has an 'any' type.
+shared/lib/chess/evaluation/__tests__/ParallelEvaluationService.test.ts(220,62): error TS7006: Parameter 'evaluationFn' implicitly has an 'any' type.
+shared/lib/chess/evaluation/__tests__/ParallelEvaluationService.test.ts(289,59): error TS7006: Parameter '_' implicitly has an 'any' type.
+shared/lib/chess/evaluation/__tests__/ParallelEvaluationService.test.ts(289,62): error TS7006: Parameter 'evaluationFn' implicitly has an 'any' type.
+shared/lib/chess/evaluation/__tests__/ParallelEvaluationService.test.ts(421,59): error TS7006: Parameter '_' implicitly has an 'any' type.
+shared/lib/chess/evaluation/__tests__/ParallelEvaluationService.test.ts(421,62): error TS7006: Parameter 'evaluationFn' implicitly has an 'any' type.
+shared/lib/chess/evaluation/__tests__/ParallelEvaluationService.test.ts(465,59): error TS7006: Parameter '_' implicitly has an 'any' type.
+shared/lib/chess/evaluation/__tests__/ParallelEvaluationService.test.ts(465,62): error TS7006: Parameter 'evaluationFn' implicitly has an 'any' type.
+shared/lib/chess/evaluation/__tests__/ParallelEvaluationService.test.ts(482,59): error TS7006: Parameter '_' implicitly has an 'any' type.
+shared/lib/chess/evaluation/__tests__/ParallelEvaluationService.test.ts(482,62): error TS7006: Parameter 'evaluationFn' implicitly has an 'any' type.
+shared/lib/chess/evaluation/__tests__/evaluation.baseline.test.ts(25,14): error TS2314: Generic type 'ChessAwareCache<T>' requires 1 type argument(s).
+shared/lib/chess/evaluation/__tests__/evaluation.baseline.test.ts(30,33): error TS2345: Argument of type '{ maxSize: number; ttl: number; }' is not assignable to parameter of type 'number'.
+shared/lib/chess/evaluation/__tests__/evaluation.baseline.test.ts(32,25): error TS2554: Expected 2 arguments, but got 0.
+shared/lib/chess/evaluation/__tests__/evaluation.baseline.test.ts(37,23): error TS2339: Property 'cleanup' does not exist on type 'ParallelEvaluationService'.
+shared/lib/chess/evaluation/__tests__/evaluation.baseline.test.ts(43,46): error TS2339: Property 'evaluate' does not exist on type 'ParallelEvaluationService'.
+shared/lib/chess/evaluation/__tests__/evaluation.baseline.test.ts(51,46): error TS2339: Property 'evaluate' does not exist on type 'ParallelEvaluationService'.
+shared/lib/chess/evaluation/__tests__/evaluation.baseline.test.ts(59,46): error TS2339: Property 'evaluate' does not exist on type 'ParallelEvaluationService'.
+shared/lib/chess/evaluation/__tests__/evaluation.baseline.test.ts(70,47): error TS2339: Property 'evaluate' does not exist on type 'ParallelEvaluationService'.
+shared/lib/chess/evaluation/__tests__/evaluation.baseline.test.ts(74,47): error TS2339: Property 'evaluate' does not exist on type 'ParallelEvaluationService'.
+shared/lib/chess/evaluation/__tests__/evaluation.baseline.test.ts(83,27): error TS2339: Property 'evaluate' does not exist on type 'ParallelEvaluationService'.
+shared/lib/chess/evaluation/__tests__/evaluation.baseline.test.ts(89,23): error TS7006: Parameter 'result' implicitly has an 'any' type.
+shared/lib/chess/evaluation/__tests__/evaluation.baseline.test.ts(99,38): error TS2339: Property 'evaluate' does not exist on type 'ParallelEvaluationService'.
+shared/lib/chess/evaluation/__tests__/evaluation.baseline.test.ts(106,32): error TS2339: Property 'timeout' does not exist on type 'ParallelEvaluationService'.
+shared/lib/chess/evaluation/__tests__/evaluation.baseline.test.ts(107,32): error TS2339: Property 'timeout' does not exist on type 'ParallelEvaluationService'.
+shared/lib/chess/evaluation/__tests__/evaluation.baseline.test.ts(113,46): error TS2339: Property 'getDualEvaluation' does not exist on type 'ParallelEvaluationService'.
+shared/lib/chess/evaluation/__tests__/evaluation.baseline.test.ts(131,31): error TS2339: Property 'evaluate' does not exist on type 'ParallelEvaluationService'.
+shared/lib/chess/evaluation/__tests__/evaluation.baseline.test.ts(142,27): error TS2339: Property 'evaluate' does not exist on type 'ParallelEvaluationService'.
+shared/lib/chess/evaluation/__tests__/moveQualityAnalyzer.test.ts(69,7): error TS2554: Expected 3-5 arguments, but got 6.
+shared/lib/chess/evaluation/__tests__/pipeline.e2e.test.ts(34,7): error TS2345: Argument of type 'LRUCache<FormattedEvaluation>' is not assignable to parameter of type 'ICacheProvider<FormattedEvaluation>'.
+  The types returned by 'get(...)' are incompatible between these types.
+    Type 'FormattedEvaluation | undefined' is not assignable to type 'Promise<FormattedEvaluation | null>'.
+      Type 'undefined' is not assignable to type 'Promise<FormattedEvaluation | null>'.
+shared/lib/chess/evaluation/__tests__/unifiedService.test.ts(85,7): error TS2554: Expected 3-5 arguments, but got 7.
+shared/lib/chess/evaluation/__tests__/unifiedService.test.ts(360,9): error TS2554: Expected 3-5 arguments, but got 7.
+shared/lib/chess/evaluation/__tests__/unifiedService.test.ts(390,9): error TS2554: Expected 3-5 arguments, but got 7.
+shared/store/__tests__/store.test.ts(149,43): error TS2345: Argument of type '{ id: number; title: string; fen: string; description: string; difficulty: "beginner"; category: string; goal: "win"; solution: never[]; hints: never[]; sideToMove: "white"; material: { white: string; black: string; }; tags: string[]; }' is not assignable to parameter of type 'EndgamePosition'.
+  Types of property 'category' are incompatible.
+    Type 'string' is not assignable to type '"pawn" | "rook" | "queen" | "minor" | "other"'.
+shared/store/__tests__/store.test.ts(225,43): error TS2345: Argument of type '{ id: number; title: string; fen: string; description: string; difficulty: "beginner"; category: string; goal: "win"; solution: never[]; hints: never[]; sideToMove: "white"; material: { white: string; black: string; }; tags: string[]; }' is not assignable to parameter of type 'EndgamePosition'.
+  Types of property 'category' are incompatible.
+    Type 'string' is not assignable to type '"pawn" | "rook" | "queen" | "minor" | "other"'.
+shared/store/__tests__/store.test.ts(453,32): error TS2345: Argument of type '{ user: { username: string; rating: number; }; }' is not assignable to parameter of type 'Partial<RootState>'.
+  Types of property 'user' are incompatible.
+    Type '{ username: string; rating: number; }' is missing the following properties from type 'UserState': completedPositions, currentStreak, totalTrainingTime, lastActiveDate, preferences
+shared/tests/unit/chess/worker.test.ts(60,57): error TS2345: Argument of type '{ from: string; to: string; piece: string; color: string; san: string; flags: string; lan: string; captured: undefined; promotion: undefined; before: string; after: string; isCapture: boolean; isPromotion: boolean; isEnPassant: boolean; isKingsideCastle: boolean; isQueensideCastle: boolean; }' is not assignable to parameter of type 'Move | Promise<Move | null> | null'.
+  Property 'isBigPawn' is missing in type '{ from: string; to: string; piece: string; color: string; san: string; flags: string; lan: string; captured: undefined; promotion: undefined; before: string; after: string; isCapture: boolean; isPromotion: boolean; isEnPassant: boolean; isKingsideCastle: boolean; isQueensideCastle: boolean; }' but required in type 'Move'.
+tests/e2e/performance-benchmark.spec.ts(6,36): error TS2307: Cannot find module '@playwright/test' or its corresponding type declarations.
+tests/e2e/performance-benchmark.spec.ts(7,37): error TS2307: Cannot find module '../../shared/benchmarks/performance-benchmark' or its corresponding type declarations.
+tests/e2e/performance-benchmark.spec.ts(55,26): error TS7006: Parameter 'flag' implicitly has an 'any' type.
+tests/e2e/performance-benchmark.spec.ts(60,49): error TS7006: Parameter 'position' implicitly has an 'any' type.
+tests/e2e/performance-benchmark.spec.ts(100,33): error TS7031: Binding element 'page' implicitly has an 'any' type.
+tests/e2e/performance-benchmark.spec.ts(121,46): error TS7031: Binding element 'page' implicitly has an 'any' type.
+tests/e2e/performance-benchmark.spec.ts(150,47): error TS7031: Binding element 'page' implicitly has an 'any' type.
+tests/e2e/performance-benchmark.spec.ts(187,48): error TS7031: Binding element 'page' implicitly has an 'any' type.
+tests/e2e/performance-benchmark.spec.ts(193,61): error TS7006: Parameter 'positions' implicitly has an 'any' type.
+tests/e2e/performance-benchmark.spec.ts(207,62): error TS7006: Parameter 'positions' implicitly has an 'any' type.
+tests/e2e/performance-benchmark.spec.ts(245,62): error TS7031: Binding element 'page' implicitly has an 'any' type.

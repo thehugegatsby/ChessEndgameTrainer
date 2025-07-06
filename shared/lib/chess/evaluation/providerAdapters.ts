@@ -20,8 +20,8 @@ export class EngineProviderAdapter implements IEngineProvider {
   async getEvaluation(fen: string, playerToMove: 'w' | 'b'): Promise<EngineEvaluation | null> {
     try {
       const engineService = this.engineService.getInstance();
-      const engine = await engineService.getEngine('evaluation');
-      const evaluation = await engine.getEvaluation(fen);
+      const scenarioEngine = await engineService.getEngine('evaluation');
+      const evaluation = await scenarioEngine.getEvaluation(fen);
       
       if (!evaluation) {
         engineService.releaseEngine('evaluation');
@@ -41,7 +41,6 @@ export class EngineProviderAdapter implements IEngineProvider {
       engineService.releaseEngine('evaluation');
       return result;
     } catch (error) {
-      console.error('EngineProviderAdapter error:', error);
       return null;
     }
   }
@@ -61,9 +60,11 @@ export class TablebaseProviderAdapter implements ITablebaseProvider {
 
   async getEvaluation(fen: string, playerToMove: 'w' | 'b'): Promise<TablebaseResult | null> {
     try {
+      
       const engineService = EngineService.getInstance();
-      const engine = await engineService.getEngine('tablebase');
-      const result = await engine.getTablebaseInfo(fen);
+      const scenarioEngine = await engineService.getEngine('tablebase');
+      const result = await scenarioEngine.getTablebaseInfo(fen);
+      
       
       if (!result || !result.isTablebasePosition) {
         engineService.releaseEngine('tablebase');
@@ -78,11 +79,11 @@ export class TablebaseProviderAdapter implements ITablebaseProvider {
         category: result.result?.category || this.getWdlCategory(result.result?.wdl || 0),
         precise: result.result?.precise || true
       };
+      
 
       engineService.releaseEngine('tablebase');
       return tablebaseResult;
     } catch (error) {
-      console.error('TablebaseProviderAdapter error:', error);
       return null;
     }
   }

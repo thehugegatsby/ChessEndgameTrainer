@@ -65,7 +65,6 @@ export class Engine {
   static getInstance(config?: EngineConfig): Engine {
     // Force new instance if we're in browser but current instance has no worker
     if (Engine.instance && typeof window !== 'undefined' && !Engine.instance.isReady()) {
-      console.log('[Engine] 🔄 Forcing new instance (worker not ready)');
       Engine.instance = null;
     }
     
@@ -89,13 +88,10 @@ export class Engine {
       const success = await this.workerManager.initialize();
       
       if (success) {
-        console.log('[Engine] ✅ Engine ready for requests');
         this.processQueue();
       } else {
-        console.warn('[Engine] ⚠️ Engine initialization failed');
       }
     } catch (error) {
-      console.error('[Engine] 💥 Engine initialization error:', error);
     }
   }
 
@@ -103,7 +99,6 @@ export class Engine {
    * Handles responses from the worker
    */
   private handleWorkerResponse(response: EngineResponse): void {
-    console.debug('[Engine] Received response:', response.type, response.id);
     
     switch (response.type) {
       case 'bestmove':
@@ -129,12 +124,10 @@ export class Engine {
   async getBestMove(fen: string, timeLimit: number = 1000): Promise<ChessJsMove | null> {
     // Lazy initialization for SSR -> Browser transition
     if (!this.workerManager.isWorkerReady() && typeof window !== 'undefined') {
-      console.log('[Engine] 🔄 Lazy initialization for getBestMove');
       await this.workerManager.initialize();
     }
     
     if (!this.workerManager.isWorkerReady()) {
-      console.warn('[Engine] ⚠️ Worker not ready for getBestMove');
       return null;
     }
 
@@ -162,12 +155,10 @@ export class Engine {
   async evaluatePosition(fen: string): Promise<EngineEvaluation> {
     // Lazy initialization for SSR -> Browser transition
     if (!this.workerManager.isWorkerReady() && typeof window !== 'undefined') {
-      console.log('[Engine] 🔄 Lazy initialization for evaluation');
       await this.workerManager.initialize();
     }
     
     if (!this.workerManager.isWorkerReady()) {
-      console.warn('[Engine] ⚠️ Worker not ready for evaluation');
       return { score: 0, mate: null };
     }
 
@@ -239,7 +230,6 @@ export class Engine {
       // Note: Timeout is now handled by RequestManager
       
     } catch (error) {
-      console.error('[Engine] 💥 Error processing request:', error);
       this.requestManager.rejectRequest(request.id, `Processing error: ${error}`);
       this.onRequestComplete();
     }
@@ -279,9 +269,7 @@ export class Engine {
         this.requestManager.cancelAllRequests('Engine reset');
       }
       
-      console.log('[Engine] 🔄 Engine reset');
     } catch (error) {
-      console.warn('[Engine] Reset error:', error);
     }
   }
 
@@ -310,9 +298,7 @@ export class Engine {
       this.workerManager.cleanup();
       Engine.instance = null;
       
-      console.log('[Engine] 🛑 Engine shut down');
     } catch (error) {
-      console.warn('[Engine] Shutdown error:', error);
     }
   }
 
@@ -320,7 +306,6 @@ export class Engine {
    * Restarts the engine (mobile recovery)
    */
   async restart(): Promise<boolean> {
-    console.log('[Engine] 🔄 Restarting engine...');
     
     this.reset();
     return await this.workerManager.restart();

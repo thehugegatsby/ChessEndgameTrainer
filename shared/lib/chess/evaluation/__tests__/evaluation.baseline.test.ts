@@ -22,56 +22,70 @@ describe.skip('Evaluation System Baseline Tests', () => {
   };
 
   let evaluationService: ParallelEvaluationService;
-  let cache: ChessAwareCache;
+  let cache: ChessAwareCache<any>;
   let deduplicator: EvaluationDeduplicator;
+  let mockEngineService: any;
+  let mockTablebaseService: any;
 
   beforeEach(() => {
+    // Mock services
+    mockEngineService = {
+      evaluatePosition: jest.fn().mockResolvedValue({ score: 0, mate: null }),
+      cancelEvaluation: jest.fn()
+    };
+    
+    mockTablebaseService = {
+      getTablebaseInfo: jest.fn().mockResolvedValue({ isTablebasePosition: false })
+    };
+    
     // Initialize services as they are used in production
-    cache = new ChessAwareCache({ maxSize: 100, ttl: 300000 });
+    cache = new ChessAwareCache(100);
     deduplicator = new EvaluationDeduplicator();
-    evaluationService = new ParallelEvaluationService();
+    evaluationService = new ParallelEvaluationService(mockEngineService, mockTablebaseService);
   });
 
   afterEach(() => {
     // Clean up resources
-    evaluationService.cleanup();
+    evaluationService.reset();
     cache.clear();
   });
 
   describe('Standard Position Evaluations', () => {
     test('should evaluate starting position as equal', async () => {
-      const result = await evaluationService.evaluate(POSITIONS.startPosition);
+      const result = await evaluationService.evaluatePosition(POSITIONS.startPosition);
       
       expect(result).toBeDefined();
-      expect(result.evaluation).toBeDefined();
-      expect(Math.abs(result.evaluation)).toBeLessThan(50); // Within 0.5 pawns
+      expect(result.engine).toBeDefined();
+      expect(Math.abs(result.engine.score)).toBeLessThan(50); // Within 0.5 pawns
     });
 
     test('should detect mate in 2', async () => {
-      const result = await evaluationService.evaluate(POSITIONS.mateIn2);
+      const result = await evaluationService.evaluatePosition(POSITIONS.mateIn2);
       
       expect(result).toBeDefined();
-      expect(result.mateInMoves).toBeDefined();
-      expect(result.mateInMoves).toBe(2);
+      expect(result.engine.mate).toBeDefined();
+      expect(result.engine.mate).toBe(2);
     });
 
     test('should use tablebase for endgame positions', async () => {
-      const result = await evaluationService.evaluate(POSITIONS.tablebasePosition);
+      const result = await evaluationService.evaluatePosition(POSITIONS.tablebasePosition);
       
       expect(result).toBeDefined();
       expect(result.tablebase).toBeDefined();
-      expect(result.tablebase.isTablebasePosition).toBe(true);
+      if (result.tablebase) {
+        expect(result.tablebase.isTablebasePosition).toBe(true);
+      }
     });
   });
 
   describe('Performance Characteristics', () => {
     test('should cache repeated evaluations', async () => {
       const startTime1 = Date.now();
-      const result1 = await evaluationService.evaluate(POSITIONS.midgame);
+      const result1 = await evaluationService.evaluatePosition(POSITIONS.midgame);
       const time1 = Date.now() - startTime1;
 
       const startTime2 = Date.now();
-      const result2 = await evaluationService.evaluate(POSITIONS.midgame);
+      const result2 = await evaluationService.evaluatePosition(POSITIONS.midgame);
       const time2 = Date.now() - startTime2;
 
       expect(result1).toEqual(result2);
@@ -80,7 +94,7 @@ describe.skip('Evaluation System Baseline Tests', () => {
 
     test('should deduplicate concurrent requests', async () => {
       const promises = Array(5).fill(null).map(() => 
-        evaluationService.evaluate(POSITIONS.endgame)
+        evaluationService.evaluatePosition(POSITIONS.endgame)
       );
 
       const results = await Promise.all(promises);
@@ -96,28 +110,30 @@ describe.skip('Evaluation System Baseline Tests', () => {
     test('should handle invalid FEN gracefully', async () => {
       const invalidFen = 'invalid-fen-string';
       
-      await expect(evaluationService.evaluate(invalidFen))
+      await expect(evaluationService.evaluatePosition(invalidFen))
         .rejects.toThrow();
     });
 
     test('should timeout long evaluations', async () => {
       // This would require mocking the engine to simulate timeout
-      // For now, we just ensure the timeout parameter exists
-      expect(evaluationService.timeout).toBeDefined();
-      expect(evaluationService.timeout).toBe(5000); // 5 seconds
+      // The timeout is passed as an option to evaluatePosition
+      const result = await evaluationService.evaluatePosition(POSITIONS.midgame, { timeout: 5000 });
+      expect(result).toBeDefined();
     });
   });
 
   describe('Dual Evaluation (Engine + Tablebase)', () => {
     test('should return both evaluations when available', async () => {
-      const result = await evaluationService.getDualEvaluation(
+      const result = await evaluationService.evaluatePosition(
         POSITIONS.tablebasePosition
       );
 
       expect(result).toBeDefined();
       expect(result.engine).toBeDefined();
       expect(result.tablebase).toBeDefined();
-      expect(result.tablebase.isTablebasePosition).toBe(true);
+      if (result.tablebase) {
+        expect(result.tablebase.isTablebasePosition).toBe(true);
+      }
     });
   });
 
@@ -128,7 +144,7 @@ describe.skip('Evaluation System Baseline Tests', () => {
   describe('Performance Baselines', () => {
     test('should complete standard evaluation within 100ms', async () => {
       const startTime = Date.now();
-      await evaluationService.evaluate(POSITIONS.midgame);
+      await evaluationService.evaluatePosition(POSITIONS.midgame);
       const duration = Date.now() - startTime;
 
       expect(duration).toBeLessThan(100);
@@ -139,7 +155,7 @@ describe.skip('Evaluation System Baseline Tests', () => {
       const startTime = Date.now();
       
       const promises = positions.map(pos => 
-        evaluationService.evaluate(pos)
+        evaluationService.evaluatePosition(pos)
       );
       
       const results = await Promise.all(promises);

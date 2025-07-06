@@ -171,7 +171,7 @@ describe('useLocalStorage', () => {
   });
 
   test('should handle null values', () => {
-    const { result } = renderHook(() => useLocalStorage('testKey', null));
+    const { result } = renderHook(() => useLocalStorage<string | null>('testKey', null));
     
     expect(result.current[0]).toBe(null);
     
@@ -204,7 +204,9 @@ describe('useLocalStorage', () => {
     expect(result.current[0]).toBe('computed');
     
     // Re-render should not call the function again
-    result.current[1]('newValue');
+    act(() => {
+      result.current[1]('newValue');
+    });
     expect(expensiveComputation).toHaveBeenCalledTimes(1);
   });
 });

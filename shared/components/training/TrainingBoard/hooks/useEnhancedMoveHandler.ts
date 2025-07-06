@@ -33,18 +33,15 @@ export const useEnhancedMoveHandler = ({
 
   const handleMove = useCallback(async (move: { from: string; to: string; promotion?: string }) => {
     if (!scenarioEngine || isGameFinished) {
-      console.log('⚠️ useEnhancedMoveHandler: Move blocked - engine not ready or game finished');
       return;
     }
 
-    console.log('🎯 useEnhancedMoveHandler: Processing player move:', move);
 
     try {
       // 1. Make player move
       const moveResult = await makeMove(move);
       
       if (moveResult) {
-        console.log('✅ useEnhancedMoveHandler: Player move successful, starting engine response');
         
         // 2. Show evaluation briefly - DISABLED
         // if (lastEvaluation) {
@@ -63,30 +60,24 @@ export const useEnhancedMoveHandler = ({
 
   const handleEngineResponse = useCallback(async () => {
     if (!scenarioEngine || typeof scenarioEngine.getBestMove !== 'function') {
-      console.log('⚠️ useEnhancedMoveHandler: No engine available for response');
       return;
     }
 
     try {
-      console.log('🤖 useEnhancedMoveHandler: Getting engine move for FEN:', game.fen());
       
       const engineMoveUci = await scenarioEngine.getBestMove(game.fen());
-      console.log('🤖 useEnhancedMoveHandler: Engine returned UCI:', engineMoveUci);
 
       if (typeof engineMoveUci === 'string' && engineMoveUci.length >= 4) {
         const engineMove = parseUciMove(engineMoveUci);
-        console.log('🤖 useEnhancedMoveHandler: Making engine move:', engineMove);
         
         const engineMoveResult = await makeMove(engineMove);
         
         if (engineMoveResult) {
-          console.log('✅ useEnhancedMoveHandler: Engine move successful');
         } else {
           console.error('❌ useEnhancedMoveHandler: Engine move failed');
           onEngineError('Engine-Zug ungültig');
         }
       } else {
-        console.log('⚠️ useEnhancedMoveHandler: Engine returned invalid move:', engineMoveUci);
       }
     } catch (error) {
       console.error('❌ useEnhancedMoveHandler: Engine move error:', error);

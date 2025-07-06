@@ -70,9 +70,7 @@ export class MobileStorageService {
         const data = JSON.parse(oldProgress);
         this.saveUserProgress(data);
         localStorage.removeItem('endgame_progress');
-        console.log('[StorageService] 🔄 Migrated old progress data');
       } catch (error) {
-        console.warn('[StorageService] Failed to migrate old data:', error);
       }
     }
   }
@@ -107,7 +105,6 @@ export class MobileStorageService {
     try {
       return JSON.parse(data);
     } catch (error) {
-      console.error('[StorageService] Failed to parse stored data:', error);
       return null;
     }
   }
@@ -122,14 +119,12 @@ export class MobileStorageService {
       
       // Check if data would exceed reasonable size
       if (compressedData.length > 5 * 1024 * 1024) { // 5MB per item
-        console.warn('[StorageService] Data too large to store:', key);
         return false;
       }
       
       localStorage.setItem(fullKey, compressedData);
       return true;
     } catch (error) {
-      console.error('[StorageService] Failed to save data:', error);
       
       // Try to free up space and retry
       if (error instanceof DOMException && error.code === 22) {
@@ -138,7 +133,6 @@ export class MobileStorageService {
           localStorage.setItem(this.getKey(key), this.compressData(data));
           return true;
         } catch (retryError) {
-          console.error('[StorageService] Retry failed:', retryError);
         }
       }
       return false;
@@ -156,7 +150,6 @@ export class MobileStorageService {
       const parsed = this.decompressData(data);
       return parsed !== null ? parsed : defaultValue;
     } catch (error) {
-      console.error('[StorageService] Failed to load data:', error);
       return defaultValue;
     }
   }
@@ -320,7 +313,6 @@ export class MobileStorageService {
    * Cleans up old data to free storage space
    */
   private cleanupOldData(): void {
-    console.log('[StorageService] 🧹 Cleaning up old data...');
     
     // Remove old training sessions (keep only last 50)
     const sessions = this.loadTrainingSessions();
@@ -375,10 +367,8 @@ export class MobileStorageService {
         this.saveAppConfig(data.appConfig);
       }
       
-      console.log('[StorageService] ✅ User data imported successfully');
       return true;
     } catch (error) {
-      console.error('[StorageService] Failed to import data:', error);
       return false;
     }
   }
@@ -429,7 +419,6 @@ export class MobileStorageService {
     }
 
     keys.forEach(key => localStorage.removeItem(key));
-    console.log('[StorageService] 🗑️ All app data cleared');
   }
 }
 

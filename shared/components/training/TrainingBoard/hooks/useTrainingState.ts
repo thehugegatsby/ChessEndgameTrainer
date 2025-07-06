@@ -50,7 +50,6 @@ export const useTrainingState = (): UseTrainingStateReturn => {
     setShowLastEvaluation(false);
     setResetKey(prev => prev + 1);
     
-    console.log('🔄 useTrainingState: State reset, new key:', resetKey + 1);
   }, [resetKey]);
 
   const handleDismissMoveError = useCallback(() => {

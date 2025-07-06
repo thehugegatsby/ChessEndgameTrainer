@@ -13,18 +13,14 @@
  * @module PlayerPerspectiveTransformer
  */
 
-import { getLogger } from '@shared/services/logging';
-import type { ILogger } from '@shared/services/logging/types';
 import type {
   NormalizedEvaluation,
   PlayerPerspectiveEvaluation
 } from '@shared/types/evaluation';
 
 export class PlayerPerspectiveTransformer {
-  private readonly logger: ILogger;
 
   constructor() {
-    this.logger = getLogger();
   }
 
   /**
@@ -44,7 +40,6 @@ export class PlayerPerspectiveTransformer {
   ): PlayerPerspectiveEvaluation {
     // Handle null/undefined input
     if (!normalizedEval) {
-      this.logger.warn('PlayerPerspectiveTransformer: Received null/undefined evaluation');
       return this.createDefaultPerspectiveEvaluation('w');
     }
 
@@ -90,7 +85,6 @@ export class PlayerPerspectiveTransformer {
    */
   private validatePerspective(perspective: string): 'w' | 'b' {
     if (perspective !== 'w' && perspective !== 'b') {
-      this.logger.warn(`PlayerPerspectiveTransformer: Invalid perspective '${perspective}', defaulting to 'w'`);
       return 'w';
     }
     return perspective;

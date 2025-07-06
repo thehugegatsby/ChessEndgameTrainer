@@ -14,8 +14,6 @@
  * @module EvaluationNormalizer
  */
 
-import { getLogger } from '@shared/services/logging';
-import type { ILogger } from '@shared/services/logging/types';
 import type {
   EngineEvaluation,
   TablebaseResult,
@@ -23,10 +21,8 @@ import type {
 } from '@shared/types/evaluation';
 
 export class EvaluationNormalizer {
-  private readonly logger: ILogger;
 
   constructor() {
-    this.logger = getLogger();
   }
 
   /**
@@ -43,7 +39,6 @@ export class EvaluationNormalizer {
   ): NormalizedEvaluation {
     // Handle null/undefined data gracefully
     if (!engineData) {
-      this.logger.warn('EvaluationNormalizer: Received null/undefined engine data');
       return this.createDefaultEngineEvaluation(null);
     }
 
@@ -83,7 +78,6 @@ export class EvaluationNormalizer {
   ): NormalizedEvaluation {
     // Handle null/undefined data gracefully
     if (!tablebaseData) {
-      this.logger.warn('EvaluationNormalizer: Received null/undefined tablebase data');
       return this.createDefaultTablebaseEvaluation(undefined);
     }
 
@@ -112,7 +106,6 @@ export class EvaluationNormalizer {
    */
   private validatePlayerSide(playerSide: string): 'w' | 'b' {
     if (playerSide !== 'w' && playerSide !== 'b') {
-      this.logger.warn(`EvaluationNormalizer: Invalid player side '${playerSide}', defaulting to 'w'`);
       return 'w';
     }
     return playerSide;

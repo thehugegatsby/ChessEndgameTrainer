@@ -46,10 +46,8 @@ export class Engine {
     
     // Only initialize worker in browser environment (not during SSR)
     if (typeof window !== 'undefined' && typeof Worker !== 'undefined') {
-      console.log('[Engine] 🚀 Engine starting in browser environment');
       // Don't auto-initialize - wait for first request
     } else {
-      console.warn('[Engine] ⚠️ Worker not available (SSR environment)');
       this.state = EngineState.ERROR;
     }
   }
@@ -95,13 +93,11 @@ export class Engine {
       
       this.initializationAttempts++;
       if (this.initializationAttempts > 3) {
-        console.error('[Engine] ❌ Too many initialization attempts, stopping');
         this.state = EngineState.ERROR;
         this.readyReject?.(new Error('Too many initialization attempts'));
         return this.readyPromise;
       }
       
-      console.log(`[Engine] 🔧 Creating worker (attempt ${this.initializationAttempts})`);
       
       // Validate worker path to prevent injection attacks
       const workerPath = '/stockfish.js';
@@ -112,7 +108,6 @@ export class Engine {
       this.worker = new Worker(workerPath);
       
       this.worker.onerror = (e) => {
-        console.error('[Engine] 💥 Worker error:', e.message);
         this.state = EngineState.ERROR;
         this.worker = null;
         this.readyReject?.(new Error(`Worker error: ${e.message}`));
@@ -122,20 +117,17 @@ export class Engine {
         this.handleMessage(e.data);
       };
       
-      console.log('[Engine] 🎯 Sending UCI command to worker...');
       this.worker.postMessage('uci');
       
       // Set timeout for initialization
       setTimeout(() => {
         if (this.state === EngineState.INITIALIZING) {
-          console.error('[Engine] ⏰ Initialization timeout');
           this.state = EngineState.ERROR;
           this.readyReject?.(new Error('Initialization timeout'));
         }
       }, 5000);
       
     } catch (error) {
-      console.error('[Engine] 🔥 Failed to initialize worker:', error);
       this.state = EngineState.ERROR;
       this.worker = null;
       this.readyReject?.(error as Error);
@@ -147,7 +139,6 @@ export class Engine {
   static getInstance(): Engine {
     // Force new instance if we're in browser but current instance has no worker
     if (Engine.instance && typeof window !== 'undefined' && !Engine.instance.worker) {
-      console.log('[Engine] 🔄 Forcing new instance (no worker in browser)');
       Engine.instance = null;
     }
     
@@ -161,13 +152,11 @@ export class Engine {
   private handleMessage(message: string) {
     try {
       if (message === 'uciok' || message.trim() === 'uciok') {
-        console.log('[Engine] ✅ UCI ready - worker is now operational!');
         this.state = EngineState.READY;
         this.hasLoggedWorkerStatus = true;
         this.readyResolve?.(this);
         this.processQueue();
       } else if (message === 'readyok') {
-        console.log('[Engine] ✅ Engine ready (via readyok)');
         this.state = EngineState.READY;
         this.hasLoggedWorkerStatus = true;
         this.readyResolve?.(this);
@@ -185,7 +174,6 @@ export class Engine {
         return;
       }
     } catch (error) {
-      console.error('[Engine] 💥 Error handling message:', error);
     }
   }
 
@@ -203,7 +191,6 @@ export class Engine {
         const move = this.chess.move(moveStr);
         (this.currentRequest.resolve as ResolveBestMove)(move);
       } catch (error) {
-        console.warn('[Engine] 💥 Failed to parse move:', moveStr, error);
         (this.currentRequest.resolve as ResolveBestMove)(null);
       }
     }
@@ -267,13 +254,11 @@ export class Engine {
   async getBestMove(fen: string, timeLimit: number = 1000): Promise<ChessJsMove | null> {
     // Validate and sanitize FEN input
     if (!isValidFenQuick(fen)) {
-      console.warn('[Engine] ⚠️ Invalid FEN provided to getBestMove');
       return null;
     }
     
     const validation = validateAndSanitizeFen(fen);
     if (!validation.isValid) {
-      console.warn('[Engine] ⚠️ FEN validation failed:', validation.errors);
       return null;
     }
     
@@ -281,7 +266,6 @@ export class Engine {
       // Wait for engine to be ready
       await this.getReadyEngine();
     } catch (error) {
-      console.warn('[Engine] ⚠️ Engine initialization failed for getBestMove:', error);
       return null;
     }
     
@@ -299,13 +283,11 @@ export class Engine {
   async getMultiPV(fen: string, lines: number = 3): Promise<Array<{ move: string; score: number; mate?: number }>> {
     // Validate and sanitize FEN input
     if (!isValidFenQuick(fen)) {
-      console.warn('[Engine] ⚠️ Invalid FEN provided to getMultiPV');
       return [];
     }
     
     const validation = validateAndSanitizeFen(fen);
     if (!validation.isValid) {
-      console.warn('[Engine] ⚠️ FEN validation failed:', validation.errors);
       return [];
     }
     
@@ -313,7 +295,6 @@ export class Engine {
       // Wait for engine to be ready
       await this.getReadyEngine();
     } catch (error) {
-      console.warn('[Engine] ⚠️ Engine initialization failed for getMultiPV:', error);
       return [];
     }
     
@@ -377,13 +358,11 @@ export class Engine {
   async evaluatePosition(fen: string): Promise<{ score: number; mate: number | null }> {
     // Validate and sanitize FEN input
     if (!isValidFenQuick(fen)) {
-      console.warn('[Engine] ⚠️ Invalid FEN provided to evaluatePosition');
       return { score: 0, mate: null };
     }
     
     const validation = validateAndSanitizeFen(fen);
     if (!validation.isValid) {
-      console.warn('[Engine] ⚠️ FEN validation failed:', validation.errors);
       return { score: 0, mate: null };
     }
     
@@ -391,7 +370,6 @@ export class Engine {
       // Wait for engine to be ready
       await this.getReadyEngine();
     } catch (error) {
-      console.warn('[Engine] ⚠️ Engine initialization failed for evaluatePosition:', error);
       return { score: 0, mate: null };
     }
     
@@ -433,7 +411,6 @@ export class Engine {
         // Set timeout for graceful termination
         setTimeout(() => {
           if (this.worker) {
-            console.log('[Engine] 🔄 Force terminating worker');
             this.worker.terminate();
             this.worker = null;
           }
@@ -446,9 +423,7 @@ export class Engine {
       this.initializationAttempts = 0;
       this.hasLoggedWorkerStatus = false;
       
-      console.log('[Engine] ✅ Worker cleanup completed');
     } catch (error) {
-      console.error('[Engine] 💥 Error during worker cleanup:', error);
       // Force cleanup even if error occurs
       this.worker = null;
       this.state = EngineState.ERROR;

@@ -8,9 +8,9 @@ describe('Test Setup', () => {
 
   test('global test environment is configured', () => {
     // Check that common global test utilities are available
-    expect(global.expect).toBeDefined();
-    expect(global.test).toBeDefined();
-    expect(global.describe).toBeDefined();
+    expect((globalThis as any).expect).toBeDefined();
+    expect((globalThis as any).test).toBeDefined();
+    expect((globalThis as any).describe).toBeDefined();
   });
 
   test('jest is configured', () => {

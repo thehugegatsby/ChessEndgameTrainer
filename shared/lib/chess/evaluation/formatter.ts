@@ -13,8 +13,6 @@
  * @module EvaluationFormatter
  */
 
-import { getLogger } from '@shared/services/logging';
-import type { ILogger } from '@shared/services/logging/types';
 import type {
   PlayerPerspectiveEvaluation,
   FormattedEvaluation
@@ -28,12 +26,10 @@ export interface FormatterConfig {
 }
 
 export class EvaluationFormatter {
-  private readonly logger: ILogger;
   private readonly neutralThreshold: number;
   private readonly extremeScoreThreshold: number;
 
   constructor(config: FormatterConfig = {}) {
-    this.logger = getLogger();
     this.neutralThreshold = config.neutralThreshold ?? 50;
     this.extremeScoreThreshold = config.extremeScoreThreshold ?? 1000;
   }
@@ -47,7 +43,6 @@ export class EvaluationFormatter {
   format(evaluation: PlayerPerspectiveEvaluation | null | undefined): FormattedEvaluation {
     // Handle null/undefined input
     if (!evaluation) {
-      this.logger.warn('EvaluationFormatter: Received null/undefined evaluation');
       return this.createDefaultFormattedEvaluation();
     }
 

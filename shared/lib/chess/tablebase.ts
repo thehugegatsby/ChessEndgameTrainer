@@ -21,6 +21,7 @@
  * - Max 7 pieces (Syzygy limitation)
  */
 
+
 export interface TablebaseResult {
   wdl: number; // Win/Draw/Loss: 2=win, 1=cursed win, 0=draw, -1=blessed loss, -2=loss
   dtz: number | null; // Distance to Zeroing move (50-move rule)
@@ -171,11 +172,13 @@ class TablebaseService {
       
       clearTimeout(timeoutId);
       
+      
       if (!response.ok) {
         throw new Error(`Tablebase API error: ${response.status} ${response.statusText}`);
       }
       
       const data = await response.json();
+      
       
       // AI_NOTE: API RESPONSE PARSING
       // Lichess returns:
@@ -184,8 +187,14 @@ class TablebaseService {
       // - moves: Array of legal moves with their outcomes
       // - precise_dtz: Whether DTZ is exact
       // 
+      // IMPORTANT FIX: Check if API returned valid data
+      // If data is empty object {}, the API call failed
+      if (!data || Object.keys(data).length === 0 || !data.category) {
+        throw new Error('Invalid tablebase response - empty or missing category');
+      }
+      
       // We normalize to our internal format for consistency
-      const category = data.category || 'draw';
+      const category = data.category;
       const wdl = this.categoryToWdl(category);
       
       const result: TablebaseResult = {
@@ -212,12 +221,11 @@ class TablebaseService {
       // Max ~100 positions = 100KB (negligible)
       this.cache.set(cacheKey, result);
       
+      
       // Clean up cache after timeout
       setTimeout(() => {
         this.cache.delete(cacheKey);
       }, this.cacheTimeout);
-      
-
       
       return {
         isTablebasePosition: true,

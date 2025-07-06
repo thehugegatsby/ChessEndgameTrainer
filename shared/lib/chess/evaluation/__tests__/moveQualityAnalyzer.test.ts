@@ -63,10 +63,7 @@ describe('MoveQualityAnalyzer', () => {
     evaluationService = new UnifiedEvaluationService(
       mockEngineProvider,
       mockTablebaseProvider,
-      mockCacheProvider,
-      normalizer,
-      transformer,
-      formatter
+      mockCacheProvider
     );
 
     analyzer = new MoveQualityAnalyzer(evaluationService);

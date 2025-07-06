@@ -17,7 +17,10 @@ describe('EvaluationPipeline (Isolated)', () => {
     const evaluation = {
       score: 0,
       mate: null,
-      depth: 20
+      depth: 20,
+      evaluation: '0.0',
+      nodes: 100000,
+      time: 1000
     };
     
     const formatted = pipeline.formatEngineEvaluation(evaluation, 'w');
@@ -31,7 +34,10 @@ describe('EvaluationPipeline (Isolated)', () => {
     const evaluation = {
       score: 0,
       mate: 3,
-      depth: 20
+      depth: 20,
+      evaluation: 'M3',
+      nodes: 50000,
+      time: 500
     };
     
     const formatted = pipeline.formatEngineEvaluation(evaluation, 'w');

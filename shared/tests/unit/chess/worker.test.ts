@@ -1,4 +1,5 @@
 import { Engine } from '@shared/lib/chess/engine';
+import type { Move } from 'chess.js';
 
 // Use the global mockWorker from jest.setup.js
 declare global {
@@ -38,14 +39,24 @@ describe('Engine Worker Communication', () => {
     
     // Mock the getBestMove method directly since worker communication is complex to mock
     const mockMove = {
-      from: 'e2',
-      to: 'e4',
-      piece: 'p',
-      color: 'w',
+      from: 'e2' as const,
+      to: 'e4' as const,
+      piece: 'p' as const,
+      color: 'w' as const,
       san: 'e4',
       flags: 'n',
-      lan: 'e2e4'
-    };
+      lan: 'e2e4',
+      captured: undefined,
+      promotion: undefined,
+      before: fen,
+      after: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
+      isCapture: () => false,
+      isPromotion: () => false,
+      isEnPassant: () => false,
+      isKingsideCastle: () => false,
+      isQueensideCastle: () => false,
+      isBigPawn: () => false
+    } as Move;
     
     // Override the getBestMove method for this test
     jest.spyOn(engine, 'getBestMove').mockResolvedValue(mockMove);
@@ -54,8 +65,8 @@ describe('Engine Worker Communication', () => {
     expect(move).toEqual(expect.objectContaining({
       from: 'e2',
       to: 'e4',
-      piece: 'p',
-      color: 'w',
+      piece: 'p' as const,
+      color: 'w' as const,
       san: 'e4'
     }));
   });

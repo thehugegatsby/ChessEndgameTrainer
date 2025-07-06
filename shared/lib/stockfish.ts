@@ -79,7 +79,6 @@ export default class StockfishEngine {
         // Set timeout for graceful termination
         setTimeout(() => {
           if (this.worker) {
-            console.log('[StockfishEngine] 🔄 Force terminating worker');
             this.worker.terminate();
             this.worker = null;
           }
@@ -89,9 +88,7 @@ export default class StockfishEngine {
         this.worker = null;
       }
       
-      console.log('[StockfishEngine] ✅ Worker cleanup completed');
     } catch (error) {
-      console.error('[StockfishEngine] 💥 Error during worker cleanup:', error);
       // Force cleanup even if error occurs
       this.worker = null;
       this.isReady = false;
