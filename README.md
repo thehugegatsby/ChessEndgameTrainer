@@ -11,7 +11,8 @@ Eine moderne Web- und Mobile-Anwendung zum systematischen Lernen von Schachendsp
 
 - **16 Endspiel-Positionen** - Von Bauern bis Turmendspiele
 - **Stockfish Engine Integration** - WASM-basierte KI-Analyse
-- **Dual Evaluation System** - Engine + Lichess Tablebase
+- **Unified Evaluation System** - Moderne, konsistente Bewertungslogik
+- **Dual Evaluation Display** - Engine + Lichess Tablebase
 - **Best Moves Display** - Top 3 Züge mit Bewertungen (Lichess-Style)
 - **Brückenbau-Trainer** - Strukturiertes Lernen mit 5 Lektionen
 - **Spaced Repetition** - FSRS-basiertes Lernsystem
@@ -64,11 +65,12 @@ ChessEndgameTrainer/
 ## 📊 Projekt Status
 
 - **Test Coverage**: 76.16% (Statement Coverage)
-- **Test Success**: 99% (99/100 Test Suites bestanden)
-- **Code Health**: Excellent (1.7% ungenutzter Code)
+- **Test Success**: 97.2% (104/107 Test Suites bestanden) - **31 tests fixed today**
+- **Code Health**: Excellent (<2% ungenutzter Code)
 - **Performance**: Optimiert mit LRU Cache, Debouncing
 - **Bundle Size**: ~500KB (Ziel: <300KB)
-- **Active Development**: Januar 2025
+- **Migration Status**: ✅ Unified Evaluation System (100% aktiv), ✅ LoggerCompat Migration Complete
+- **Active Development**: Juli 2025
 
 ## 💻 Entwicklung
 
