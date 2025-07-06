@@ -4,16 +4,8 @@
 
 import { DiscrepancyMonitor, EvaluationResult } from '../DiscrepancyMonitor';
 import { FEATURE_FLAGS } from '../../../constants';
-
-// Mock console methods
-const mockConsole = {
-  error: jest.fn(),
-  warn: jest.fn(),
-  info: jest.fn(),
-  debug: jest.fn()
-};
-
-global.console = mockConsole as any;
+import { MetricsCollector } from '../adapters/MetricsCollector';
+import { MonitoringFactory } from '../MonitoringFactory';
 
 // Mock feature flags
 jest.mock('../../../constants', () => ({
@@ -24,9 +16,18 @@ jest.mock('../../../constants', () => ({
 
 describe('DiscrepancyMonitor', () => {
   let monitor: DiscrepancyMonitor;
+  let metricsCollector: MetricsCollector;
   
   beforeEach(() => {
-    monitor = DiscrepancyMonitor.getInstance();
+    // Reset factory and use metrics collector for tests
+    MonitoringFactory.resetMetrics();
+    metricsCollector = MonitoringFactory.getMetricsCollector();
+    
+    // Clear any existing instance
+    (DiscrepancyMonitor as any).instance = null;
+    
+    // Create monitor with metrics collector
+    monitor = DiscrepancyMonitor.getInstance(metricsCollector);
     monitor.clear();
   });
   

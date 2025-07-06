@@ -4,14 +4,8 @@
  */
 
 import { FEATURE_FLAGS } from '../../constants';
-
-// Simple console logger for now
-const logger = {
-  error: (message: string, data?: any) => console.error(`[ERROR] ${message}`, data),
-  warn: (message: string, data?: any) => console.warn(`[WARN] ${message}`, data),
-  info: (message: string, data?: any) => console.info(`[INFO] ${message}`, data),
-  debug: (message: string, data?: any) => console.debug(`[DEBUG] ${message}`, data)
-};
+import { MonitoringPort } from './ports/MonitoringPort';
+import { ConsoleAdapter } from './adapters/ConsoleAdapter';
 
 export interface EvaluationResult {
   score?: number;
@@ -43,14 +37,28 @@ export class DiscrepancyMonitor {
   private static instance: DiscrepancyMonitor;
   private discrepancies: DiscrepancyReport[] = [];
   private readonly maxDiscrepancies = 1000;
+  private monitoring: MonitoringPort;
   
-  private constructor() {}
+  private constructor(monitoring?: MonitoringPort) {
+    // Use provided monitoring adapter or default to console
+    this.monitoring = monitoring || new ConsoleAdapter(
+      process.env.NODE_ENV === 'development' || 
+      FEATURE_FLAGS.LOG_EVALUATION_DISCREPANCIES
+    );
+  }
   
-  static getInstance(): DiscrepancyMonitor {
+  static getInstance(monitoring?: MonitoringPort): DiscrepancyMonitor {
     if (!DiscrepancyMonitor.instance) {
-      DiscrepancyMonitor.instance = new DiscrepancyMonitor();
+      DiscrepancyMonitor.instance = new DiscrepancyMonitor(monitoring);
     }
     return DiscrepancyMonitor.instance;
+  }
+  
+  /**
+   * Set a new monitoring adapter
+   */
+  setMonitoringAdapter(monitoring: MonitoringPort): void {
+    this.monitoring = monitoring;
   }
   
   /**
@@ -170,29 +178,27 @@ export class DiscrepancyMonitor {
       this.discrepancies.shift();
     }
     
-    // Log based on severity
-    const logData = {
-      fen: report.fen,
-      severity: report.severity,
-      discrepancies: report.discrepancies,
-      legacy: report.legacyResult,
-      unified: report.unifiedResult
-    };
+    // Determine discrepancy type
+    const discrepancyType = this.determineDiscrepancyType(report.discrepancies);
     
-    switch (report.severity) {
-      case 'critical':
-        logger.error('Critical evaluation discrepancy', logData);
-        break;
-      case 'high':
-        logger.warn('High evaluation discrepancy', logData);
-        break;
-      case 'medium':
-        logger.info('Medium evaluation discrepancy', logData);
-        break;
-      case 'low':
-        logger.debug('Low evaluation discrepancy', logData);
-        break;
-    }
+    // Use monitoring port to capture discrepancy
+    this.monitoring.captureDiscrepancy({
+      severity: report.severity,
+      type: discrepancyType,
+      context: {
+        fen: report.fen,
+        discrepancies: report.discrepancies,
+        legacy: report.legacyResult,
+        unified: report.unifiedResult,
+        timestamp: report.timestamp
+      }
+    });
+    
+    // Increment counters for metrics
+    this.monitoring.incrementCounter('evaluation.discrepancy.total', {
+      severity: report.severity,
+      type: discrepancyType
+    });
     
     // In production, send critical discrepancies to monitoring service
     if (process.env.NODE_ENV === 'production' && report.severity === 'critical') {
@@ -201,14 +207,31 @@ export class DiscrepancyMonitor {
   }
   
   /**
+   * Determine the primary type of discrepancy
+   */
+  private determineDiscrepancyType(discrepancies: DiscrepancyReport['discrepancies']): string {
+    if (discrepancies.mateDiff) return 'mate_difference';
+    if (discrepancies.wdlDiff) return 'wdl_mismatch';
+    if (discrepancies.bestMoveDiff) return 'best_move_difference';
+    if (discrepancies.scoreDiff) return 'score_mismatch';
+    if (discrepancies.dtmDiff) return 'dtm_difference';
+    return 'unknown';
+  }
+  
+  /**
    * Send critical discrepancies to external monitoring
    */
   private async sendToMonitoringService(report: DiscrepancyReport): Promise<void> {
-    // TODO: Implement actual monitoring service integration
-    // For now, just log
-    console.error('[MONITORING] Critical discrepancy detected', {
-      fen: report.fen,
-      discrepancies: report.discrepancies
+    // Record as critical error
+    this.monitoring.recordError({
+      message: `Critical evaluation discrepancy: ${this.determineDiscrepancyType(report.discrepancies)}`,
+      severity: 'critical',
+      context: {
+        fen: report.fen,
+        discrepancies: report.discrepancies,
+        legacyResult: report.legacyResult,
+        unifiedResult: report.unifiedResult
+      }
     });
   }
   
