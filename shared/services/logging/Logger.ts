@@ -312,6 +312,7 @@ export function getLogger(): ILogger {
   return loggerInstance;
 }
 
+
 /**
  * Create a new logger instance with custom config
  */
