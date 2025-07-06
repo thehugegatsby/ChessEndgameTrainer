@@ -1,13 +1,13 @@
 {
   "USE_UNIFIED_EVALUATION_SYSTEM": {
     "enabled": true,
-    "rolloutPercentage": 10,
+    "rolloutPercentage": 100,
     "description": "Migrates from legacy evaluation to unified evaluation system",
     "targetingRules": []
   },
   "ENABLE_DISCREPANCY_MONITORING": {
-    "enabled": true,
-    "rolloutPercentage": 100,
+    "enabled": false,
+    "rolloutPercentage": 0,
     "description": "Enables parallel evaluation for discrepancy monitoring",
     "targetingRules": []
   },

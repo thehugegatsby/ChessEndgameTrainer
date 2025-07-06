@@ -5,15 +5,12 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { FEATURE_FLAGS } from '@shared/constants';
-import { FeatureFlagService } from '@shared/services/featureFlags/FeatureFlagService';
 import { EvaluationData } from '@shared/types';
 import { UnifiedEvaluationService } from '@shared/lib/chess/evaluation/unifiedService';
 import { EngineProviderAdapter, TablebaseProviderAdapter } from '@shared/lib/chess/evaluation/providerAdapters';
 import { LRUCache } from '@shared/lib/cache/LRUCache';
 import { LRUCacheAdapter } from '@shared/lib/chess/evaluation/cacheAdapter';
 import type { FormattedEvaluation } from '@shared/types/evaluation';
-import { useEvaluation as useLegacyEvaluation } from './useEvaluationOptimized';
 
 interface UseEvaluationOptions {
   fen: string;
@@ -167,33 +164,9 @@ function useUnifiedEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
 }
 
 /**
- * Main evaluation hook that delegates based on feature flag
+ * Main evaluation hook - now always uses the unified system
  */
 export function useEvaluation(options: UseEvaluationOptions): UseEvaluationReturn {
-  // Always call both hooks to maintain hook order (Rules of Hooks)
-  const legacyResult = useLegacyEvaluation(options);
-  const unifiedResult = useUnifiedEvaluation(options);
-
-  // Check feature flag with user context
-  const [useUnified, setUseUnified] = useState(FEATURE_FLAGS.USE_UNIFIED_EVALUATION_SYSTEM);
-  
-  useEffect(() => {
-    // Get feature flag service and evaluate with context
-    const service = FeatureFlagService.getInstance();
-    const context = {
-      // In a real app, you'd get userId from auth context
-      userId: undefined,
-      sessionId: typeof window !== 'undefined' ? window.sessionStorage.getItem('chess_trainer_session_id') || undefined : undefined
-    };
-    
-    const shouldUseUnified = service.isFeatureEnabled('USE_UNIFIED_EVALUATION_SYSTEM', context);
-    setUseUnified(shouldUseUnified);
-  }, []);
-
-  // Return the appropriate result based on feature flag
-  if (useUnified) {
-    return unifiedResult;
-  }
-  
-  return legacyResult;
+  // Always use unified system now
+  return useUnifiedEvaluation(options);
 }

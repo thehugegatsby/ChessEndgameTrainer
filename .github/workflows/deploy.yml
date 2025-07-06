@@ -1,0 +1,131 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # =================================================================
+  #  Build and Test: Verifies code quality and correctness
+  # =================================================================
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type Check
+        run: npm run check-types || npx tsc --noEmit
+
+      - name: Run Unit & Integration Tests
+        run: npm run test
+
+      - name: Check Test Coverage
+        run: npm run test:coverage
+        continue-on-error: true # Don't fail if coverage is below threshold
+
+      - name: Build Project
+        run: npm run build
+
+  # =================================================================
+  #  Deploy: Creates a new deployment and starts the rollout
+  # =================================================================
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build_and_test # This job only runs if build_and_test succeeds
+    environment: production # Optional: for GitHub environment protection rules
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Deploy to Vercel (Preview)
+        id: deploy_vercel
+        run: |
+          # Deploy without aliasing to production domain
+          # This creates a unique deployment URL for shadow testing
+          DEPLOY_URL=$(vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --yes)
+          echo "deployment_url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+          echo "Deployed to: $DEPLOY_URL"
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Start Shadow Rollout
+        run: |
+          echo "Starting shadow rollout for deployment: ${{ steps.deploy_vercel.outputs.deployment_url }}"
+          
+          # Call our API endpoint to register the shadow deployment
+          curl -X POST "${{ secrets.PRODUCTION_URL }}/api/rollout/start-shadow" \
+            -H "Authorization: Bearer ${{ secrets.ROLLOUT_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "deploymentUrl": "${{ steps.deploy_vercel.outputs.deployment_url }}",
+              "commitSha": "${{ github.sha }}",
+              "commitMessage": "${{ github.event.head_commit.message }}",
+              "author": "${{ github.event.head_commit.author.name }}",
+              "timestamp": "${{ github.event.head_commit.timestamp }}"
+            }' || echo "Warning: Failed to notify rollout system"
+        
+      - name: Post Deployment Status
+        if: success() && github.event_name == 'push'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deploymentUrl = '${{ steps.deploy_vercel.outputs.deployment_url }}';
+            const commitSha = '${{ github.sha }}';
+            
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: commitSha,
+              state: 'success',
+              target_url: deploymentUrl,
+              description: 'Deployment in shadow stage',
+              context: 'vercel/deployment'
+            });
+
+      - name: Notify Slack (Optional)
+        if: success()
+        run: |
+          # Add Slack notification if SLACK_WEBHOOK_URL is configured
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            curl -X POST ${{ secrets.SLACK_WEBHOOK_URL }} \
+              -H 'Content-type: application/json' \
+              -d '{
+                "text": "🚀 New deployment started shadow rollout",
+                "attachments": [{
+                  "color": "good",
+                  "fields": [
+                    {"title": "Deployment URL", "value": "${{ steps.deploy_vercel.outputs.deployment_url }}", "short": false},
+                    {"title": "Commit", "value": "${{ github.sha }}", "short": true},
+                    {"title": "Author", "value": "${{ github.event.head_commit.author.name }}", "short": true}
+                  ]
+                }]
+              }'
+          fi
