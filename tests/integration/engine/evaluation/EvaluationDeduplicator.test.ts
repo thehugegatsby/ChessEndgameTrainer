@@ -3,7 +3,7 @@
  * @description Tests for preventing duplicate evaluation requests
  */
 
-import { EvaluationDeduplicator } from '../EvaluationDeduplicator';
+import { EvaluationDeduplicator } from '@/shared/lib/chess/evaluation/EvaluationDeduplicator';
 
 describe('EvaluationDeduplicator', () => {
   let deduplicator: EvaluationDeduplicator;

@@ -4,15 +4,15 @@
  */
 
 import './jest.setup'; // Setup mocks
-import { UnifiedEvaluationService } from '../unifiedService';
-import { EngineProviderAdapter, TablebaseProviderAdapter } from '../providerAdapters';
-import { LRUCache } from '@shared/lib/cache/LRUCache';
-import type { FormattedEvaluation } from '@shared/types/evaluation';
-import type { ICacheProvider } from '../providers';
+import { UnifiedEvaluationService } from '@/shared/lib/chess/evaluation/unifiedService';
+import { EngineProviderAdapter, TablebaseProviderAdapter } from '@/shared/lib/chess/evaluation/providerAdapters';
+import { LRUCache } from '@/shared/lib/cache/LRUCache';
+import type { FormattedEvaluation } from '@/shared/types/evaluation';
+import type { ICacheProvider } from '@/shared/lib/chess/evaluation/providers';
 
 // Mock the engine and tablebase services
-jest.mock('@shared/services/chess/EngineService');
-jest.mock('@shared/lib/cache/LRUCache');
+jest.mock('@/shared/services/chess/EngineService');
+jest.mock('@/shared/lib/cache/LRUCache');
 
 describe.skip('Unified Evaluation Pipeline E2E Tests', () => {
   let unifiedService: UnifiedEvaluationService;
@@ -49,7 +49,7 @@ describe.skip('Unified Evaluation Pipeline E2E Tests', () => {
   describe('Complete Pipeline Flow', () => {
     it('should process a winning position for White correctly', async () => {
       // Mock engine evaluation: +3.5 (White is winning)
-      const mockEngineService = require('@shared/services/chess/EngineService').EngineService;
+      const mockEngineService = require('@/shared/services/chess/EngineService').EngineService;
       mockEngineService.getInstance.mockReturnValue({
         getEngine: jest.fn().mockResolvedValue({
           getEvaluation: jest.fn().mockResolvedValue({
@@ -75,7 +75,7 @@ describe.skip('Unified Evaluation Pipeline E2E Tests', () => {
 
     it('should handle mate announcements correctly', async () => {
       // Mock engine evaluation: Mate in 5 for White
-      const mockEngineService = require('@shared/services/chess/EngineService').EngineService;
+      const mockEngineService = require('@/shared/services/chess/EngineService').EngineService;
       mockEngineService.getInstance.mockReturnValue({
         getEngine: jest.fn().mockResolvedValue({
           getEvaluation: jest.fn().mockResolvedValue({
@@ -101,7 +101,7 @@ describe.skip('Unified Evaluation Pipeline E2E Tests', () => {
 
     it('should prioritize tablebase over engine evaluation', async () => {
       // Mock both engine and tablebase responses
-      const mockEngineService = require('@shared/services/chess/EngineService').EngineService;
+      const mockEngineService = require('@/shared/services/chess/EngineService').EngineService;
       mockEngineService.getInstance.mockReturnValue({
         getEngine: jest.fn().mockImplementation((type) => {
           if (type === 'evaluation') {
@@ -140,7 +140,7 @@ describe.skip('Unified Evaluation Pipeline E2E Tests', () => {
 
     it('should handle provider errors gracefully', async () => {
       // Mock engine to throw error
-      const mockEngineService = require('@shared/services/chess/EngineService').EngineService;
+      const mockEngineService = require('@/shared/services/chess/EngineService').EngineService;
       mockEngineService.getInstance.mockReturnValue({
         getEngine: jest.fn().mockRejectedValue(new Error('Engine failed')),
         releaseEngine: jest.fn()
@@ -158,7 +158,7 @@ describe.skip('Unified Evaluation Pipeline E2E Tests', () => {
 
     it('should handle drawn positions correctly', async () => {
       // Mock engine evaluation: 0.0 (drawn position)
-      const mockEngineService = require('@shared/services/chess/EngineService').EngineService;
+      const mockEngineService = require('@/shared/services/chess/EngineService').EngineService;
       mockEngineService.getInstance.mockReturnValue({
         getEngine: jest.fn().mockResolvedValue({
           getEvaluation: jest.fn().mockResolvedValue({
@@ -180,7 +180,7 @@ describe.skip('Unified Evaluation Pipeline E2E Tests', () => {
   describe('Move Quality Analysis', () => {
     it('should correctly identify a blunder', async () => {
       // Mock evaluations before and after a bad move
-      const mockEngineService = require('@shared/services/chess/EngineService').EngineService;
+      const mockEngineService = require('@/shared/services/chess/EngineService').EngineService;
       let callCount = 0;
       
       mockEngineService.getInstance.mockReturnValue({
@@ -219,7 +219,7 @@ describe.skip('Unified Evaluation Pipeline E2E Tests', () => {
   describe('Dual Evaluation Display', () => {
     it('should return both engine and tablebase evaluations', async () => {
       // Mock both providers
-      const mockEngineService = require('@shared/services/chess/EngineService').EngineService;
+      const mockEngineService = require('@/shared/services/chess/EngineService').EngineService;
       mockEngineService.getInstance.mockReturnValue({
         getEngine: jest.fn().mockImplementation((type) => {
           if (type === 'evaluation') {

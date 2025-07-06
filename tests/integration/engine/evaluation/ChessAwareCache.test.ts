@@ -3,7 +3,7 @@
  * @description Comprehensive tests for chess-aware caching system
  */
 
-import { ChessAwareCache } from '../ChessAwareCache';
+import { ChessAwareCache } from '@/shared/lib/chess/evaluation/ChessAwareCache';
 
 describe('ChessAwareCache', () => {
   let cache: ChessAwareCache<any>;

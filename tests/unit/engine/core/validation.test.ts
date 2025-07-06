@@ -1,4 +1,4 @@
-import { isValidFen, validateFen } from '../validation';
+import { isValidFen, validateFen } from '@/lib/chess/validation';
 
 describe('Chess Validation', () => {
   describe('isValidFen', () => {

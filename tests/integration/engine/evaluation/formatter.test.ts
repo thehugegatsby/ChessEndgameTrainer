@@ -9,7 +9,7 @@
  */
 
 import './jest.setup'; // Setup mocks
-import { EvaluationFormatter } from '../formatter';
+import { EvaluationFormatter } from '@/lib/chess/evaluation/formatter';
 import type { 
   PlayerPerspectiveEvaluation,
   FormattedEvaluation 

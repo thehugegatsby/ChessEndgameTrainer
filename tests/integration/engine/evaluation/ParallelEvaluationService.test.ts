@@ -3,14 +3,14 @@
  * @description Tests for parallel engine and tablebase evaluation service
  */
 
-import { ParallelEvaluationService } from '../ParallelEvaluationService';
+import { ParallelEvaluationService } from '@/shared/lib/chess/evaluation/ParallelEvaluationService';
 
 // Mock dependencies
-jest.mock('../EvaluationDeduplicator');
-jest.mock('../ChessAwareCache');
+jest.mock('@/shared/lib/chess/evaluation/EvaluationDeduplicator');
+jest.mock('@/shared/lib/chess/evaluation/ChessAwareCache');
 
-const { EvaluationDeduplicator } = jest.requireMock('../EvaluationDeduplicator');
-const { ChessAwareCache } = jest.requireMock('../ChessAwareCache');
+const { EvaluationDeduplicator } = jest.requireMock('@/shared/lib/chess/evaluation/EvaluationDeduplicator');
+const { ChessAwareCache } = jest.requireMock('@/shared/lib/chess/evaluation/ChessAwareCache');
 
 describe('ParallelEvaluationService', () => {
   let service: ParallelEvaluationService;

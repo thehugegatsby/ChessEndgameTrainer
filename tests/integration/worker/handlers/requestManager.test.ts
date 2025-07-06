@@ -3,7 +3,7 @@
  * @description Comprehensive tests for engine request management and promise resolution
  */
 
-import { RequestManager } from '../requestManager';
+import { RequestManager } from '@/shared/lib/chess/engine/requestManager';
 import { Move as ChessJsMove } from 'chess.js';
 
 describe('RequestManager', () => {

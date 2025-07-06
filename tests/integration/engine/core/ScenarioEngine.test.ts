@@ -1,9 +1,9 @@
 import { Chess } from 'chess.js';
-import { ScenarioEngine } from '../ScenarioEngine';
-import { Engine } from '../engine';
+import { ScenarioEngine } from '@/shared/lib/chess/ScenarioEngine';
+import { Engine } from '@/shared/lib/chess/engine';
 
 // Mock the Engine class to provide predictable evaluations
-jest.mock('../engine', () => ({
+jest.mock('@/shared/lib/chess/engine', () => ({
   Engine: {
     getInstance: jest.fn()
   }

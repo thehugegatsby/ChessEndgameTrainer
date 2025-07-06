@@ -1,9 +1,9 @@
-import { StockfishWorkerManager } from '../workerManager';
-import { StockfishMessageHandler } from '../messageHandler';
-import type { EngineConfig } from '../types';
+import { StockfishWorkerManager } from '@/shared/lib/chess/engine/workerManager';
+import { StockfishMessageHandler } from '@/shared/lib/chess/engine/messageHandler';
+import type { EngineConfig } from '@/shared/lib/chess/engine/types';
 
 // Mock the message handler
-jest.mock('../messageHandler');
+jest.mock('@/shared/lib/chess/engine/messageHandler');
 
 // Mock global Worker
 const mockWorker = {

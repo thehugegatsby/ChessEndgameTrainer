@@ -1,9 +1,9 @@
-import { Engine } from '../index';
-import { StockfishWorkerManager } from '../workerManager';
-import type { BestMoveRequest, EvaluationRequest, EngineConfig } from '../types';
+import { Engine } from '@/shared/lib/chess/engine';
+import { StockfishWorkerManager } from '@/shared/lib/chess/engine/workerManager';
+import type { BestMoveRequest, EvaluationRequest, EngineConfig } from '@/shared/lib/chess/engine/types';
 
 // Mock the worker manager
-jest.mock('../workerManager');
+jest.mock('@/shared/lib/chess/engine/workerManager');
 
 describe.skip('Engine', () => {
   let mockWorkerManager: jest.Mocked<StockfishWorkerManager>;

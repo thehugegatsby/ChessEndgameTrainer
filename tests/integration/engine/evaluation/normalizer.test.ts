@@ -14,7 +14,7 @@
  */
 
 import './jest.setup'; // Setup mocks
-import { EvaluationNormalizer } from '../normalizer';
+import { EvaluationNormalizer } from '@/shared/lib/chess/evaluation/normalizer';
 import type { 
   EngineEvaluation, 
   TablebaseResult, 

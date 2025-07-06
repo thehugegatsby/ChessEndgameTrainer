@@ -10,7 +10,7 @@
  */
 
 import './jest.setup'; // Setup mocks
-import { PlayerPerspectiveTransformer } from '../perspectiveTransformer';
+import { PlayerPerspectiveTransformer } from '@/shared/lib/chess/evaluation/perspectiveTransformer';
 import type { 
   NormalizedEvaluation,
   PlayerPerspectiveEvaluation 

@@ -77,3 +77,26 @@ jest.mock('next/router', () => ({
 
 // Stub window.alert for tests
 global.alert = jest.fn(); 
+
+// Mock the logger service to prevent setContext errors
+jest.mock('@shared/services/logging', () => ({
+  getLogger: jest.fn(() => ({
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+    fatal: jest.fn(),
+    setContext: jest.fn(() => ({
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      debug: jest.fn(),
+      fatal: jest.fn(),
+      setContext: jest.fn(),
+      clearContext: jest.fn(),
+    })),
+    clearContext: jest.fn(),
+  })),
+  createLogger: jest.fn(),
+  resetLogger: jest.fn(),
+}));

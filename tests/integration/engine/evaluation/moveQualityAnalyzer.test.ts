@@ -16,8 +16,8 @@
  */
 
 import './jest.setup'; // Setup mocks
-import { MoveQualityAnalyzer } from '../moveQualityAnalyzer';
-import { UnifiedEvaluationService } from '../unifiedService';
+import { MoveQualityAnalyzer } from '@/shared/lib/chess/evaluation/moveQualityAnalyzer';
+import { UnifiedEvaluationService } from '@/shared/lib/chess/evaluation/unifiedService';
 import { EvaluationNormalizer } from '../normalizer';
 import { PlayerPerspectiveTransformer } from '../perspectiveTransformer';
 import { EvaluationFormatter } from '../formatter';

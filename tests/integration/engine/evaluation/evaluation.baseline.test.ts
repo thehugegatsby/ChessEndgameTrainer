@@ -7,9 +7,9 @@
  */
 
 import './jest.setup'; // Setup mocks
-import { ParallelEvaluationService } from '../ParallelEvaluationService';
-import { ChessAwareCache } from '../ChessAwareCache';
-import { EvaluationDeduplicator } from '../EvaluationDeduplicator';
+import { ParallelEvaluationService } from '@/shared/lib/chess/evaluation/ParallelEvaluationService';
+import { ChessAwareCache } from '@/shared/lib/chess/evaluation/ChessAwareCache';
+import { EvaluationDeduplicator } from '@/shared/lib/chess/evaluation/EvaluationDeduplicator';
 
 describe.skip('Evaluation System Baseline Tests', () => {
   // Standard positions for testing

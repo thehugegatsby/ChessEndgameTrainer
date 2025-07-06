@@ -1,7 +1,7 @@
 // shared/lib/chess/evaluation/__tests__/pipeline.isolated.test.ts
 
 import './jest.setup'; // Setup mocks
-import { EvaluationPipelineFactory } from '../pipelineFactory';
+import { EvaluationPipelineFactory } from '@/lib/chess/evaluation/pipelineFactory';
 // Assuming 'chess.js' is used for game state representation.
 import { Chess } from 'chess.js';
 

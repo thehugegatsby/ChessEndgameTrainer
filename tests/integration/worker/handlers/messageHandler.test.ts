@@ -1,6 +1,6 @@
-import { StockfishMessageHandler } from '../messageHandler';
-import type { StockfishWorkerManager } from '../workerManager';
-import type { BestMoveRequest, EvaluationRequest } from '../types';
+import { StockfishMessageHandler } from '@/shared/lib/chess/engine/messageHandler';
+import type { StockfishWorkerManager } from '@/shared/lib/chess/engine/workerManager';
+import type { BestMoveRequest, EvaluationRequest } from '@/shared/lib/chess/engine/types';
 import { Chess } from 'chess.js';
 
 // Mock chess.js
