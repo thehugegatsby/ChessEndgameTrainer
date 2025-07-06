@@ -26,7 +26,13 @@
     "mobile:web": "cd app/mobile && expo start --web",
     "check-duplicates": "node scripts/check-duplicate-components.js",
     "pre-commit": "npm run check-duplicates && npx tsc --noEmit",
-    "clean:tests": "node tests/scripts/cleanup.js"
+    "clean:tests": "node tests/scripts/cleanup.js",
+    "tsc": "tsc",
+    "test:smoke": "jest --config=tests/jest.config.js --testPathPattern=smoke",
+    "audit:fix": "npm audit fix",
+    "outdated": "npm outdated",
+    "ci:install": "npm ci --prefer-offline --no-audit",
+    "ci:test": "npm run lint && npm run tsc -- --noEmit && npm test"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
