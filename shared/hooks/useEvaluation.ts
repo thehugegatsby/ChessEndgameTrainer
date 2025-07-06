@@ -50,9 +50,9 @@ function getUnifiedService(): UnifiedEvaluationService {
 }
 
 /**
- * Unified evaluation hook that uses the new pipeline
+ * Main evaluation hook implementation
  */
-function useUnifiedEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOptions): UseEvaluationReturn {
+export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOptions): UseEvaluationReturn {
   const [evaluations, setEvaluations] = useState<EvaluationData[]>([]);
   const [lastEvaluation, setLastEvaluation] = useState<EvaluationData | null>(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
@@ -159,12 +159,4 @@ function useUnifiedEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
     clearEvaluations,
     cacheStats: undefined // TODO: Expose cache stats from unified service
   };
-}
-
-/**
- * Main evaluation hook - now always uses the unified system
- */
-export function useEvaluation(options: UseEvaluationOptions): UseEvaluationReturn {
-  // Always use unified system now
-  return useUnifiedEvaluation(options);
 }
