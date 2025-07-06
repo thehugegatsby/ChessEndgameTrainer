@@ -14,6 +14,7 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testPathIgnorePatterns: ['/node_modules/', '/.next/', 'jest.setup.ts'],
   moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/shared/$1',
     '^@app/(.*)$': '<rootDir>/app/$1',
     '^@shared/(.*)$': '<rootDir>/shared/$1',
     '^@app/web/(.*)$': '<rootDir>/app/web/$1',
@@ -28,6 +29,7 @@ module.exports = {
   testMatch: [
     '<rootDir>/shared/**/__tests__/**/*.[jt]s?(x)',
     '<rootDir>/shared/**/*.{spec,test}.[jt]s?(x)',
+    '<rootDir>/tests/**/*.{spec,test}.[jt]s?(x)',
     '<rootDir>/app/web/**/__tests__/**/*.[jt]s?(x)',
     '<rootDir>/app/web/**/*.{spec,test}.[jt]s?(x)',
     '<rootDir>/app/mobile/**/__tests__/**/*.[jt]s?(x)',
