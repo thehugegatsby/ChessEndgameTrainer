@@ -109,4 +109,4 @@ export function getInvalidPositions(): string[] {
     TEST_POSITIONS.EMPTY_FEN,
     TEST_POSITIONS.MALFORMED_FEN
   ];
-}
+}// CI test 1751837601
