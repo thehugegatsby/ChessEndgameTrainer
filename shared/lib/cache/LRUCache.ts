@@ -10,6 +10,8 @@
  * - Fail-safe error handling
  */
 
+import { getLogger } from '@shared/services/logging';
+
 export interface CacheStats {
   hits: number;
   misses: number;
@@ -94,7 +96,8 @@ export class LRUCache<T> {
         this.evictTail();
       }
     } catch (error) {
-      console.warn('[LRUCache] Error setting cache value:', error);
+      const logger = getLogger();
+      logger.warn('[LRUCache] Error setting cache value:', error);
     }
   }
 

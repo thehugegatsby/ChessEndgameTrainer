@@ -1,3 +1,15 @@
+/**
+ * @fileoverview Unit tests for Evaluation Formatter
+ * @description Tests evaluation formatting, display conversion, and perspective-aware output generation
+ *
+ * Test guidelines followed (see docs/testing/TESTING_GUIDELINES.md):
+ * - Each test has a single responsibility
+ * - Self-explanatory test names  
+ * - No magic values
+ * - Deterministic behavior
+ * - Fast execution
+ */
+
 import { EvaluationFormatter } from '../../../../../shared/lib/chess/evaluation/formatter';
 import type { PlayerPerspectiveEvaluation } from '../../../../../shared/types/evaluation';
 

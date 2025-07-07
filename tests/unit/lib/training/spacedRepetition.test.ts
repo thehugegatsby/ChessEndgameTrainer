@@ -1,3 +1,15 @@
+/**
+ * @fileoverview Unit tests for Spaced Repetition system
+ * @description Tests spaced repetition algorithms, interval calculations, and learning progress tracking
+ *
+ * Test guidelines followed (see docs/testing/TESTING_GUIDELINES.md):
+ * - Each test has a single responsibility
+ * - Self-explanatory test names  
+ * - No magic values
+ * - Deterministic behavior
+ * - Fast execution
+ */
+
 import { SpacedRepetition } from '../../../../shared/lib/training/spacedRepetition';
 
 describe('SpacedRepetition', () => {

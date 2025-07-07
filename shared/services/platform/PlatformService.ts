@@ -5,6 +5,7 @@
 
 import { IPlatformService, IPlatformDetection } from './types';
 import { WebPlatformService } from './web/WebPlatformService';
+import { getLogger } from '@shared/services/logging';
 
 // Platform detection implementation
 class PlatformDetection implements IPlatformDetection {
@@ -78,7 +79,8 @@ export function getPlatformService(): IPlatformService {
       // Mobile implementation (to be implemented)
       // For now, fallback to web implementation
       platformServiceInstance = new WebPlatformService();
-      console.warn('Using Web implementation for mobile platform');
+      const logger = getLogger();
+      logger.warn('Using Web implementation for mobile platform');
     } else {
       // Default to web implementation
       platformServiceInstance = new WebPlatformService();

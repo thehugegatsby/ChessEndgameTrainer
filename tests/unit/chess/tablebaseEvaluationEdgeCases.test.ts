@@ -1,3 +1,15 @@
+/**
+ * @fileoverview Unit tests for Tablebase evaluation edge cases
+ * @description Tests edge cases in tablebase evaluation, particularly JavaScript falsy value handling
+ *
+ * Test guidelines followed (see docs/testing/TESTING_GUIDELINES.md):
+ * - Each test has a single responsibility
+ * - Self-explanatory test names  
+ * - No magic values
+ * - Deterministic behavior
+ * - Fast execution
+ */
+
 import { getMoveQualityByTablebaseComparison } from '@shared/utils/chess/evaluationHelpers';
 
 describe('Tablebase Evaluation Edge Cases', () => {

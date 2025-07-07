@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getLogger } from '@shared/services/logging';
 
 export interface UseScenarioEngineOptions {
   initialFen: string;
@@ -42,7 +43,8 @@ export const useScenarioEngine = ({
         setIsEngineReady(true);
         
       } catch (error) {
-        console.error('❌ useScenarioEngine: Failed to load ScenarioEngine:', error);
+        const logger = getLogger();
+        logger.error('❌ useScenarioEngine: Failed to load ScenarioEngine:', error);
         
         const errorMessage = 'Engine konnte nicht geladen werden';
         setEngineError(errorMessage);

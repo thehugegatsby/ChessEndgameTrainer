@@ -7,6 +7,7 @@
 
 import { Engine } from '../engine';
 import { tablebaseService } from '../tablebase';
+import { getLogger } from '@shared/services/logging';
 import type { 
   EngineEvaluation, 
   DeepAnalysisResult, 
@@ -63,7 +64,8 @@ export class EvaluationService {
       return this.hasSignificantScoreDrop(evalBefore, evalAfterCorrected);
 
     } catch (error) {
-      console.warn('[EvaluationService] Mistake analysis failed:', error);
+      const logger = getLogger();
+      logger.warn('[EvaluationService] Mistake analysis failed:', error);
       return false;
     }
   }
@@ -116,7 +118,8 @@ export class EvaluationService {
       
       return deeperAnalysis.isBlunder;
     } catch (error) {
-      console.warn('[EvaluationService] Deep analysis timed out:', error);
+      const logger = getLogger();
+      logger.warn('[EvaluationService] Deep analysis timed out:', error);
       return false;
     }
   }
@@ -242,7 +245,8 @@ export class EvaluationService {
           };
         }
       } catch (error) {
-        console.warn('[EvaluationService] Tablebase probe failed:', error);
+        const logger = getLogger();
+        logger.warn('[EvaluationService] Tablebase probe failed:', error);
       }
 
 
@@ -256,7 +260,8 @@ export class EvaluationService {
       };
 
     } catch (error) {
-      console.warn('[EvaluationService] Dual evaluation failed:', error);
+      const logger = getLogger();
+      logger.warn('[EvaluationService] Dual evaluation failed:', error);
       
       // Return fallback evaluation
       return {

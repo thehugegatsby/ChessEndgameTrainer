@@ -21,6 +21,7 @@
  * - Max 7 pieces (Syzygy limitation)
  */
 
+import { getLogger } from '@shared/services/logging';
 
 export interface TablebaseResult {
   wdl: number; // Win/Draw/Loss: 2=win, 1=cursed win, 0=draw, -1=blessed loss, -2=loss
@@ -242,7 +243,8 @@ class TablebaseService {
       // - CORS issues (should be pre-configured)
       // 
       // We DON'T cache errors - allows retry on next request
-      console.warn('❌ Tablebase query failed:', error.message);
+      const logger = getLogger();
+      logger.warn('❌ Tablebase query failed:', error.message);
       
       // Don't cache errors, allow retry
       return {
@@ -318,7 +320,8 @@ class TablebaseService {
  * TYPICAL USAGE:
  * const eval = await tablebaseService.queryPosition(fen);
  * if (eval.isTablebasePosition && eval.result) {
- *   console.log('Tablebase says:', eval.result.category);
+ *   const logger = getLogger();
+ *   logger.info('Tablebase says:', eval.result.category);
  * }
  */
 // Export singleton instance

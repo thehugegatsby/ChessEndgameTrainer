@@ -6,6 +6,7 @@
  */
 
 import { tablebaseService as coreTablebaseService, TablebaseResult } from '../tablebase';
+import { getLogger } from '@shared/services/logging';
 import type { TablebaseInfo, TablebaseCategory } from './types';
 
 /**
@@ -48,7 +49,8 @@ export class TablebaseService {
            }));
          }
        } catch (error) {
-         console.warn('[TablebaseService] Failed to get best moves:', error);
+         const logger = getLogger();
+         logger.warn('[TablebaseService] Failed to get best moves:', error);
        }
 
              const info: TablebaseInfo = {
@@ -66,7 +68,8 @@ export class TablebaseService {
       return info;
 
     } catch (error) {
-      console.warn('[TablebaseService] Tablebase query failed:', error);
+      const logger = getLogger();
+      logger.warn('[TablebaseService] Tablebase query failed:', error);
       
       const info: TablebaseInfo = {
         isTablebasePosition: false,

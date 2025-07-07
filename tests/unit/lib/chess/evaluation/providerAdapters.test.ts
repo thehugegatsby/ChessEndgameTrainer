@@ -1,3 +1,15 @@
+/**
+ * @fileoverview Unit tests for Evaluation Provider Adapters
+ * @description Tests adapter interfaces between evaluation providers and unified evaluation system
+ *
+ * Test guidelines followed (see docs/testing/TESTING_GUIDELINES.md):
+ * - Each test has a single responsibility
+ * - Self-explanatory test names  
+ * - No magic values
+ * - Deterministic behavior
+ * - Fast execution
+ */
+
 import { EngineProviderAdapter, TablebaseProviderAdapter } from '../../../../../shared/lib/chess/evaluation/providerAdapters';
 import { EngineService } from '../../../../../shared/services/chess/EngineService';
 

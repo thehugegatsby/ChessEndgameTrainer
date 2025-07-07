@@ -7,6 +7,7 @@
 
 import { EvaluationDeduplicator } from './EvaluationDeduplicator';
 import { ChessAwareCache } from './ChessAwareCache';
+import { getLogger } from '@shared/services/logging';
 
 interface EngineEvaluation {
   score: number;
@@ -118,7 +119,8 @@ export class ParallelEvaluationService {
     // Start both evaluations in parallel
     const enginePromise = this.engineService.evaluatePosition(fen, options)
       .catch(error => {
-        console.warn('[ParallelEvaluationService] Engine evaluation failed:', error);
+        const logger = getLogger();
+        logger.warn('[ParallelEvaluationService] Engine evaluation failed:', error);
         return this.createFallbackEngineEvaluation();
       });
 
@@ -198,7 +200,8 @@ export class ParallelEvaluationService {
       return finalResult;
 
     } catch (error) {
-      console.warn('[ParallelEvaluationService] Evaluation failed:', error);
+      const logger = getLogger();
+      logger.warn('[ParallelEvaluationService] Evaluation failed:', error);
       
       // Fallback to basic engine evaluation
       try {

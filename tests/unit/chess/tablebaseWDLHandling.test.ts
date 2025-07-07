@@ -1,3 +1,15 @@
+/**
+ * @fileoverview Unit tests for Tablebase WDL (Win/Draw/Loss) handling
+ * @description Tests edge cases and regression scenarios for WDL evaluation processing
+ *
+ * Test guidelines followed (see docs/testing/TESTING_GUIDELINES.md):
+ * - Each test has a single responsibility
+ * - Self-explanatory test names  
+ * - No magic values
+ * - Deterministic behavior
+ * - Fast execution
+ */
+
 import { getMoveQualityByTablebaseComparison } from '@shared/utils/chess/evaluationHelpers';
 
 describe('Tablebase WDL 0 Handling - Regression Test', () => {

@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { Chess } from 'chess.js';
+import { getLogger } from '@shared/services/logging';
 
 export interface UseEnhancedMoveHandlerOptions {
   scenarioEngine: any | null;
@@ -53,7 +54,8 @@ export const useEnhancedMoveHandler = ({
       }
       // Invalid move - do nothing, just keep the current position
     } catch (error) {
-      console.error('❌ useEnhancedMoveHandler: Move processing failed:', error);
+      const logger = getLogger();
+      logger.error('❌ useEnhancedMoveHandler: Move processing failed:', error);
       onEngineError('Zug konnte nicht verarbeitet werden');
     }
   }, [scenarioEngine, isGameFinished, makeMove, lastEvaluation, showEvaluationBriefly, onWarning, onEngineError, game]);
@@ -74,13 +76,15 @@ export const useEnhancedMoveHandler = ({
         
         if (engineMoveResult) {
         } else {
-          console.error('❌ useEnhancedMoveHandler: Engine move failed');
+          const logger = getLogger();
+          logger.error('❌ useEnhancedMoveHandler: Engine move failed');
           onEngineError('Engine-Zug ungültig');
         }
       } else {
       }
     } catch (error) {
-      console.error('❌ useEnhancedMoveHandler: Engine move error:', error);
+      const logger = getLogger();
+      logger.error('❌ useEnhancedMoveHandler: Engine move error:', error);
       onEngineError('Engine-Zug fehlgeschlagen');
     }
   }, [scenarioEngine, game, makeMove, onEngineError]);
