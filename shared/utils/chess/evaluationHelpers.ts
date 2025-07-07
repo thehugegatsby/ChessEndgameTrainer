@@ -115,6 +115,17 @@ export const getMoveQualityByTablebaseComparison = (
   wdlAfter: number,
   playerSide: 'w' | 'b'
 ): EvaluationDisplay => {
+  // CRITICAL CHECK: If wdlAfter is undefined, we can't compare
+  if (wdlBefore === undefined || wdlAfter === undefined) {
+    // Fallback to neutral when we don't have complete data
+    return {
+      text: '⚪',
+      className: 'eval-neutral',
+      color: 'var(--text-secondary)',
+      bgColor: 'var(--bg-accent)'
+    };
+  }
+  
   // CRITICAL: Convert WDL values to a consistent perspective
   // wdlBefore is from the mover's perspective
   // wdlAfter is from the opponent's perspective - we need to flip it!

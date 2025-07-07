@@ -2,9 +2,10 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
+  rootDir: '.', 
   transform: {
     '^.+\\.(ts|tsx|js|jsx)$': ['ts-jest', {
-      tsconfig: 'tsconfig.jest.json'
+      tsconfig: '<rootDir>/../tsconfig.jest.json'
     }]
   },
   transformIgnorePatterns: [
@@ -34,9 +35,9 @@ module.exports = {
     '<rootDir>/smoke/**/*.{spec,test}.[jt]s?(x)'
   ],
   collectCoverageFrom: [
-    'shared/**/*.{ts,tsx}',
-    'app/web/**/*.{ts,tsx}',
-    'app/mobile/**/*.{ts,tsx}',
+    '<rootDir>/../shared/**/*.{ts,tsx}',
+    '<rootDir>/../app/web/**/*.{ts,tsx}',
+    '<rootDir>/../app/mobile/**/*.{ts,tsx}',
     '!**/*.d.ts',
     '!**/node_modules/**',
     '!**/*.test.{ts,tsx}',
@@ -45,5 +46,11 @@ module.exports = {
     '!**/mocks/**'
   ],
   coverageDirectory: '../coverage',
-  coverageReporters: ['lcov', 'text', 'html', 'json-summary']
+  coverageReporters: ['lcov', 'text', 'html', 'json-summary'],
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '/tests/',
+    '/.next/',
+    '/coverage/'
+  ]
 }; 

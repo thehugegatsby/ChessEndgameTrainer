@@ -233,3 +233,29 @@ export interface MoveQualityResult {
     error?: string;
   };
 }
+
+/**
+ * BRÜCKENBAU-TRAINER: Enhanced evaluation types
+ * For 5-level quality classification of Win→Win moves
+ */
+
+/** Move quality classes based on ΔDTM for Win→Win transitions */
+export type MoveQualityClass = 'optimal' | 'sicher' | 'umweg' | 'riskant' | 'fehler';
+
+/** Robustness classification based on available winning moves */
+export type RobustnessTag = 'robust' | 'präzise' | 'haarig';
+
+/** Enhanced evaluation display for BRÜCKENBAU-TRAINER feature */
+export interface EnhancedEvaluationDisplay extends EvaluationDisplay {
+  /** Quality classification for the move */
+  qualityClass?: MoveQualityClass;
+  
+  /** Robustness of the position */
+  robustness?: RobustnessTag;
+  
+  /** Educational tip for learning */
+  educationalTip?: string;
+  
+  /** Number of winning moves available */
+  winningMovesCount?: number;
+}

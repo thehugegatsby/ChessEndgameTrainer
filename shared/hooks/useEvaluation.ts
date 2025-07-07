@@ -141,11 +141,12 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
                 isTablebasePosition: true,
                 // CRITICAL: Use RAW WDL values, not perspective-adjusted ones!
                 // The getMoveQualityByTablebaseComparison function expects raw API values
-                wdlBefore: prevPerspectiveEval.wdl || undefined,
-                wdlAfter: currPerspectiveEval.wdl || undefined,
+                // Convert null to undefined to match TablebaseData interface
+                wdlBefore: prevPerspectiveEval.wdl !== null ? prevPerspectiveEval.wdl : undefined,
+                wdlAfter: currPerspectiveEval.wdl !== null ? currPerspectiveEval.wdl : undefined,
                 category: formattedEval.metadata.isDrawn ? 'draw' : 
                          formattedEval.className === 'winning' ? 'win' : 'loss',
-                dtz: currPerspectiveEval.dtz || undefined
+                dtz: currPerspectiveEval.dtz !== null ? currPerspectiveEval.dtz : undefined
               };
               
             }
@@ -159,10 +160,11 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
               evaluation.tablebase = {
                 isTablebasePosition: true,
                 // For initial position, only wdlAfter is set (use raw WDL)
-                wdlAfter: currPerspectiveEval.wdl || undefined,
+                // Convert null to undefined to match TablebaseData interface
+                wdlAfter: currPerspectiveEval.wdl !== null ? currPerspectiveEval.wdl : undefined,
                 category: formattedEval.metadata.isDrawn ? 'draw' : 
                          formattedEval.className === 'winning' ? 'win' : 'loss',
-                dtz: currPerspectiveEval.dtz || undefined
+                dtz: currPerspectiveEval.dtz !== null ? currPerspectiveEval.dtz : undefined
               };
               
             }
