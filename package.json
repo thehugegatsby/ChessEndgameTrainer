@@ -35,7 +35,9 @@
     "audit:fix": "npm audit fix",
     "outdated": "npm outdated",
     "ci:install": "npm ci --prefer-offline --no-audit",
-    "ci:test": "npm run lint && npm run tsc -- --noEmit && npm test"
+    "ci:test": "npm run lint && npm run tsc -- --noEmit && npm test",
+    "migrate:firestore": "ts-node scripts/migrateToFirestore.ts",
+    "migrate:verify": "ts-node scripts/migrateToFirestore.ts --verify"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
@@ -82,6 +84,8 @@
     "@types/react-dom": "^18.2.19",
     "@types/react-native": "~0.73.0",
     "babel-jest": "^30.0.0",
+    "chalk": "^5.4.1",
+    "commander": "^14.0.0",
     "eslint": "^8.56.0",
     "eslint-config-next": "14.1.0",
     "expo-cli": "^6.3.10",
@@ -90,6 +94,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "rimraf": "^5.0.5",
     "ts-jest": "^29.4.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
     "worker-loader": "^3.0.8"
   },

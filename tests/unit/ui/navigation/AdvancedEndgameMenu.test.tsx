@@ -337,7 +337,7 @@ describe('AdvancedEndgameMenu Component', () => {
     it('should have responsive classes', () => {
       const { container } = render(<AdvancedEndgameMenu {...defaultProps} />);
 
-      const sidebar = container.querySelector('.w-80');
+      const sidebar = container.querySelector('.w-\\[22rem\\]');
       expect(sidebar).toBeInTheDocument();
 
       const responsiveTransform = container.querySelector('.lg\\:translate-x-0');
