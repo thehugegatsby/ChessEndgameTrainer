@@ -1,14 +1,15 @@
 # 📋 Unit Test Development Tasks
 
 ## 📊 Current Status (2025-01-16)
-- **Test Files**: 31 unit test files
-- **Coverage**: 76.16% statement coverage
-- **Test Success**: 99% (659/668 tests passing, 9 skipped)
+- **Test Files**: 37 unit test files (+6 new)
+- **Coverage**: 76.16% → ~78% statement coverage
+- **Test Success**: 99% (787/796 tests passing, 9 skipped)
+- **Tests Added**: 128 new tests in Phase 1 & 2
 - **Goal**: 80%+ coverage for production
 
 ## 🎯 Identified Test Gaps
 
-### Priority 1: Chess Engine Module (Critical) 🔴
+### Priority 1: Chess Engine Module (Critical) ✅ COMPLETED
 These are the core components for Stockfish integration and must be thoroughly tested.
 
 - [x] **workerManager.test.ts** - Worker lifecycle, memory management, mobile constraints ✅
@@ -19,16 +20,30 @@ These are the core components for Stockfish integration and must be thoroughly t
   - Completed: 2025-01-16
   - 24 tests passing
   - Replaced console.log with central logger
-- [ ] **requestManager.test.ts** - Request deduplication, timeout handling, abort support
+- [x] **requestManager.test.ts** - Request deduplication, timeout handling, abort support ✅
+  - Completed: 2025-01-16
+  - 26 tests passing
+  - 98.57% coverage achieved
+  - No bugs found
 
-### Priority 2: Evaluation Pipeline (High) 🟡
+### Priority 2: Evaluation Pipeline (High) 🟡 IN PROGRESS
 Central evaluation logic for the Brückenbau-Trainer feature.
 
-- [ ] **EvaluationDeduplicator.test.ts** - Concurrent request handling, cache integration
-- [ ] **ChessAwareCache.test.ts** - Chess-specific caching logic, FEN normalization
+- [x] **perspectiveTransformer.test.ts** - WDL perspective transformation for Black/White ✅
+  - Completed: 2025-01-16
+  - 16 tests passing
+  - **CRITICAL BUG FOUND**: Perspective not inverted for Black
+  - Bug documented in PERSPECTIVE_BUG_REPORT.md
+- [x] **EvaluationDeduplicator.test.ts** - Concurrent request handling, cache integration ✅
+  - Completed: 2025-01-16
+  - 16 tests passing
+  - 100% coverage achieved
+- [x] **ChessAwareCache.test.ts** - Chess-specific caching logic, FEN normalization ✅
+  - Completed: 2025-01-16
+  - 22 tests passing
+  - 94.44% coverage achieved
 - [ ] **unifiedService.test.ts** - Engine + Tablebase integration, fallback mechanisms
 - [ ] **pipelineFactory.test.ts** - Pipeline creation, configuration handling
-- [ ] **perspectiveTransformer.test.ts** - WDL perspective transformation for Black/White
 
 ### Priority 3: Training & Progress (Medium) 🟢
 User progress tracking and spaced repetition system.
@@ -183,24 +198,33 @@ expect(performance.now() - start).toBeLessThan(MAX_OPERATION_TIME);
 ## 📈 Progress Tracking
 
 ### Completed Tests (2025-01-16)
-- ✅ workerManager.test.ts - 24 tests
-- ✅ messageHandler.test.ts - 24 tests
-- **Total**: 48 tests passing
+- ✅ **Phase 1 - Engine Core**: 74 tests total
+  - workerManager.test.ts - 24 tests
+  - messageHandler.test.ts - 24 tests
+  - requestManager.test.ts - 26 tests
+- ✅ **Phase 2 - Evaluation Pipeline**: 54 tests total (in progress)
+  - perspectiveTransformer.test.ts - 16 tests
+  - EvaluationDeduplicator.test.ts - 16 tests
+  - ChessAwareCache.test.ts - 22 tests
+- **Total**: 128 tests passing
 
 ### Next Steps
-1. **Immediate**: Complete requestManager.test.ts (last Priority 1 test)
-2. **This Week**: Start Phase 2 - Evaluation Pipeline tests
-3. **Focus Areas**: 
-   - Request deduplication logic
-   - AbortController integration
-   - Timeout handling
-   - Priority queue implementation
+1. **CRITICAL**: Fix perspective bug in perspectiveTransformer
+2. **Immediate**: Complete remaining Phase 2 tests
+   - unifiedService.test.ts
+   - pipelineFactory.test.ts
+3. **This Week**: Start Phase 3 - Training & Progress tests
+4. **Focus Areas**: 
+   - Integration testing between components
+   - Performance optimization validation
+   - Mobile compatibility
 
 ### Bugs Found & Fixed
-1. **WorkerManager**: UCI command not sent due to isReady check
-2. **WorkerManager**: Cleanup state not reset on terminate error
-3. **WorkerManager**: Missing onmessageerror handler
-4. **Code Quality**: Replaced all console.log with central logger
+1. **WorkerManager**: UCI command not sent due to isReady check ✅
+2. **WorkerManager**: Cleanup state not reset on terminate error ✅
+3. **WorkerManager**: Missing onmessageerror handler ✅
+4. **Code Quality**: Replaced all console.log with central logger ✅
+5. **perspectiveTransformer**: Values not inverted for Black perspective 🐛 (TO FIX)
 
 ## 🚀 Getting Started
 

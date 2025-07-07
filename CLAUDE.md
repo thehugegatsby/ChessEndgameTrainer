@@ -5,13 +5,14 @@
 
 ### Quick Facts
 - **Status**: Production Ready Web, Mobile Architecture vorbereitet
-- **Test Coverage**: 76.16% (Statement Coverage)
-- **Test Success**: 100% (659/668 tests passing, 9 skipped) - **All CI/CD tests fixed!**
+- **Test Coverage**: ~78% (Statement Coverage) - Up from 76.16%
+- **Test Success**: 99% (787/796 tests passing, 9 skipped) - **128 new tests added!**
 - **Codebase**: 113 TypeScript files, ~15,000 LOC
 - **Features**: 16 Endspiel-Positionen, Stockfish.js Integration, Spaced Repetition
 - **Performance**: 75% weniger API-Calls, 31% schnellere Evaluations, 53% schnellere Navigation
 - **Architecture**: ✅ Unified Evaluation System, ✅ LoggerCompat Migration Complete
 - **Deployment**: Vercel-ready mit WASM Support
+- **Critical Bug Found**: Perspective transformation not working for Black players
 
 ## 📁 Dokumentationsstruktur (2025-01-16)
 
@@ -463,10 +464,28 @@ global.Worker = jest.fn(() => ({
   - NODE_ENV readonly Property Handling in Tests gefixt
 - **Code Quality**: Production Build läuft jetzt fehlerfrei durch
 
+### Unit Test Phase 2 Progress (2025-01-16)
+- **Tests hinzugefügt**: 128 neue Tests (74 Phase 1 + 54 Phase 2)
+- **Coverage verbessert**: Von 76.16% auf ~78%
+- **Kritischer Bug gefunden**: PlayerPerspectiveTransformer invertiert NICHT für Black
+- **Komponenten getestet**:
+  - ✅ Engine Core: workerManager, messageHandler, requestManager
+  - ✅ Evaluation Pipeline: perspectiveTransformer, EvaluationDeduplicator, ChessAwareCache
+  - ⏳ Noch zu testen: unifiedService, pipelineFactory
+
 ---
-**Last Updated**: 2025-01-06 - Complete TypeScript fix and debug cleanup
-**Next Review**: Nach useReducer Migration
+**Last Updated**: 2025-01-16 - Unit Test Phase 2 & Critical Perspective Bug Found
+**Next Review**: Nach Perspective Bug Fix
 ## 🐛 Common Pitfalls & Lessons Learned (2025-01-11)
+
+### PlayerPerspectiveTransformer Bug (2025-01-16)
+**Issue**: Black players see incorrect evaluations - positive when losing, negative when winning
+
+**Root Cause**: The transformer does NOT invert values for Black perspective as documented. All values remain in White perspective.
+
+**Impact**: Critical UX bug affecting all Black players
+
+**Fix Required**: Implement proper value inversion in perspectiveTransformer.ts using the existing invertValue() method
 
 ### Tablebase Evaluation Logic
 **Issue**: Black's optimal defensive moves were showing red triangles (🔻) instead of shields (🛡️)
