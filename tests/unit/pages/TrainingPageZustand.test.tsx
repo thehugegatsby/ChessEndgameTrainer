@@ -270,7 +270,7 @@ describe('TrainingPageZustand', () => {
         // 1. e4
         game.move({ from: 'e2', to: 'e4' });
         useStore.getState().makeMove({ 
-          from: 'e2', to: 'e4', san: 'e4', flags: 'n', piece: 'p', color: 'w',
+          from: 'e2', to: 'e4', san: 'e4', flags: 'n', piece: 'p', color: 'w' as const,
           captured: undefined, promotion: undefined, lan: 'e2e4',
           before: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
           after: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
@@ -285,7 +285,7 @@ describe('TrainingPageZustand', () => {
         // 1... e5
         game.move({ from: 'e7', to: 'e5' });
         useStore.getState().makeMove({ 
-          from: 'e7', to: 'e5', san: 'e5', flags: 'n', piece: 'p', color: 'b',
+          from: 'e7', to: 'e5', san: 'e5', flags: 'n', piece: 'p', color: 'b' as const,
           captured: undefined, promotion: undefined, lan: 'e7e5',
           before: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
           after: 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2',
@@ -322,10 +322,10 @@ describe('TrainingPageZustand', () => {
         
         // Make 4 half-moves
         const moves = [
-          { from: 'e2', to: 'e4', san: 'e4', piece: 'p', color: 'w' },
-          { from: 'e7', to: 'e5', san: 'e5', piece: 'p', color: 'b' },
-          { from: 'g1', to: 'f3', san: 'Nf3', piece: 'n', color: 'w' },
-          { from: 'b8', to: 'c6', san: 'Nc6', piece: 'n', color: 'b' }
+          { from: 'e2' as const, to: 'e4' as const, san: 'e4', piece: 'p' as const, color: 'w' as const },
+          { from: 'e7' as const, to: 'e5' as const, san: 'e5', piece: 'p' as const, color: 'b' as const },
+          { from: 'g1' as const, to: 'f3' as const, san: 'Nf3', piece: 'n' as const, color: 'w' as const },
+          { from: 'b8' as const, to: 'c6' as const, san: 'Nc6', piece: 'n' as const, color: 'b' as const }
         ];
         
         moves.forEach((move) => {
@@ -346,7 +346,8 @@ describe('TrainingPageZustand', () => {
             isEnPassant: () => false,
             isKingsideCastle: () => false,
             isQueensideCastle: () => false,
-            isBigPawn: () => move.piece === 'p'
+            isBigPawn: () => move.piece === 'p',
+            color: move.color as 'w' | 'b'
           });
         });
       });

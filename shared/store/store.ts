@@ -479,6 +479,7 @@ export const useUserActions = () => useStore((state) => ({
 
 export const useTrainingActions = () => useStore((state) => ({
   setPosition: state.setPosition,
+  setGame: state.setGame,
   makeMove: state.makeMove,
   undoMove: state.undoMove,
   resetPosition: state.resetPosition,
