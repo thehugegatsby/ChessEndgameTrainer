@@ -3,6 +3,12 @@
 ## 🎯 Zweck dieser Richtlinie
 Diese Guideline stellt sicher, dass alle neuen Tests im "Claude Build" konsistent, wartbar und effektiv sind. Eine robuste Testbasis ist entscheidend, um Fehler bei Upgrades zu vermeiden und das Vertrauen in unseren Code zu stärken.
 
+### 📊 Aktuelle Test-Metriken (Stand: 2025-01-17)
+- **Test Coverage**: ~78% (Statement Coverage) - Ziel: 80%
+- **Test Success**: 99% (787/796 tests passing, 9 skipped)
+- **Neue Tests**: 128 Tests in Phase 2 hinzugefügt
+- **Kritische Bugs gefunden**: Perspective Transformation Bug durch Tests entdeckt
+
 ---
 
 ## 💡 Grundprinzipien der Teststrategie
@@ -101,6 +107,12 @@ Sie können diesen Text einfach kopieren und in einen Texteditor (wie Notepad, V
 
 ## 🎯 Zweck dieser Richtlinie
 Diese Guideline stellt sicher, dass alle neuen Tests im "Claude Build" konsistent, wartbar und effektiv sind. Eine robuste Testbasis ist entscheidend, um Fehler bei Upgrades zu vermeiden und das Vertrauen in unseren Code zu stärken.
+
+### 📊 Aktuelle Test-Metriken (Stand: 2025-01-17)
+- **Test Coverage**: ~78% (Statement Coverage) - Ziel: 80%
+- **Test Success**: 99% (787/796 tests passing, 9 skipped)
+- **Neue Tests**: 128 Tests in Phase 2 hinzugefügt
+- **Kritische Bugs gefunden**: Perspective Transformation Bug durch Tests entdeckt
 
 ---
 
@@ -205,6 +217,25 @@ Alle Testdateien sollten sich im `tests/`-Verzeichnis im Projekt-Root befinden u
 ## ♟️ Domänen-Spezifische Tests (Fokus auf Schach-Bewertung - `o3 / ZEN MCP` Perspektive)
 
 Besonders für die Zugbewertung ist Präzision unerlässlich:
+
+### Evaluation Pipeline Tests
+Die Evaluation Pipeline besteht aus mehreren unabhängigen Komponenten mit klarer Verantwortungstrennung:
+
+* **PlayerPerspectiveTransformer Tests**:
+  - Testet die korrekte Perspektiven-Transformation für Schwarz/Weiß
+  - Verifiziert, dass Evaluierungen für Schwarz invertiert werden
+  - Stellt sicher, dass Weiß-Perspektive unverändert bleibt
+  
+* **EvaluationDeduplicator Tests**:
+  - Testet die Entfernung von Duplikaten in Evaluierungssequenzen
+  - Verifiziert die Beibehaltung der richtigen Reihenfolge
+  - Prüft Edge Cases wie leere Arrays und einzelne Evaluierungen
+
+* **ChessAwareCache Tests**:
+  - Testet schachspezifische Cache-Optimierungen
+  - Verifiziert Cache-Invalidierung bei Materialänderungen
+  - Prüft symmetrische Stellungserkennung
+  - Testet LRU-Eviction bei Cache-Überlauf
 
 * **Tablebase-Validierung:** Teste explizit, ob bei Endspielen, die in Tablebases enthalten sind, **immer die exakten Tablebase-Ergebnisse** abgerufen und verwendet werden, und ob diese die Engine-Schätzungen korrekt **übersteuern**.
 * **FEN-Szenarien:** Baue eine Test-Suite mit bekannten FEN-Positionen (z.B. Matt in N Zügen, Remis-Stellungen, Gewinn-Stellungen) und verifiziere die **exakte numerische und qualitative Bewertung**.

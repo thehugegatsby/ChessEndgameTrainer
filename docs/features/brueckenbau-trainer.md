@@ -3,6 +3,12 @@
 ## ⚠️ WICHTIG FÜR CLAUDE CODE
 **Dieses Dokument bitte vollständig in CLAUDE.md integrieren oder als eigenständige Spezifikation für die Umsetzung nutzen.**
 
+## 📊 Implementierungsstatus (Stand: 2025-01-17)
+- **Phase P1**: ✅ ABGESCHLOSSEN - Datenmodell erweitert
+- **Phase P2**: ✅ ABGESCHLOSSEN - Bewertungslogik implementiert  
+- **Phase P3**: ⏳ IN ARBEIT - UI-Integration
+- **Phase P4**: 🔜 GEPLANT - Karten-System
+
 ---
 
 ## 1. Vision & Leitprinzipien

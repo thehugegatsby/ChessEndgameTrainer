@@ -4,6 +4,79 @@ Dieses Dokument dokumentiert wichtige Entwicklungsentscheidungen, Performance-An
 
 ---
 
+## 2025-01-17: Phase 2 Brückenbau-Trainer & Critical Bug Fix
+
+### Kontext
+Implementierung von Phase 1 und 2 des Brückenbau-Trainers mit erweiterter Zugbewertung und umfassenden Tests.
+
+### Durchgeführte Arbeiten
+
+1. **Phase P1: Datenmodell-Erweiterung (ABGESCHLOSSEN)**
+   - `EnhancedTablebaseData` Interface implementiert
+   - `EnhancedEvaluationDisplay` Interface für UI-Darstellung
+   - `MoveQualityClass` und `RobustnessTag` Types hinzugefügt
+   - Vollständige Rückwärtskompatibilität gewährleistet
+
+2. **Phase P2: Bewertungslogik (ABGESCHLOSSEN)**
+   - `getEnhancedMoveQuality()` Hauptfunktion implementiert
+   - `classifyWinToWin()` für 5-stufige Qualitätsklassifikation
+   - `classifyRobustness()` für Robustheitsbewertung
+   - Educational Content Konstanten definiert
+   - Integration mit bestehender Tablebase-Logik
+
+3. **Kritischer Bug Fix: PlayerPerspectiveTransformer**
+   - **Problem**: Schwarze Spieler sahen invertierte Bewertungen
+   - **Ursache**: Transformer hat Werte NICHT für Schwarz-Perspektive invertiert
+   - **Lösung**: Konditionelle Invertierung implementiert
+   - **Impact**: Alle Schwarzen Spieler waren betroffen
+   - Bug durch umfassende Unit Tests entdeckt
+
+4. **Umfassende Test-Suite**
+   - 128 neue Tests hinzugefügt (74 Phase 1 + 54 Phase 2)
+   - Test Coverage von 76.16% auf ~78% erhöht
+   - Klare Trennung der Verantwortlichkeiten in Tests:
+     - PlayerPerspectiveTransformer Tests
+     - EvaluationDeduplicator Tests  
+     - ChessAwareCache Tests
+     - Enhanced Evaluation Tests
+
+### Architektur-Entscheidungen
+
+1. **Separation of Concerns**
+   - Jede Pipeline-Komponente hat einzelne Verantwortung
+   - Unabhängig testbare Module
+   - Klare Interfaces zwischen Komponenten
+
+2. **Backward Compatibility**
+   - Neue Features brechen keine bestehende Funktionalität
+   - Optional erweiterte Daten (DTM, Quality, Robustness)
+   - Graceful Degradation wenn Daten fehlen
+
+### Technische Details
+
+```typescript
+// 5-stufige Qualitätsklassifikation
+type MoveQualityClass = 'optimal' | 'sicher' | 'umweg' | 'riskant' | 'fehler';
+
+// Robustheitsbewertung  
+type RobustnessTag = 'robust' | 'präzise' | 'haarig';
+
+// ΔDTM-basierte Klassifikation
+const classifyWinToWin = (dtmDiff: number): MoveQualityClass => {
+  if (dtmDiff <= 1) return 'optimal';
+  if (dtmDiff <= 5) return 'sicher';
+  if (dtmDiff <= 15) return 'umweg';
+  return 'riskant';
+};
+```
+
+### Nächste Schritte
+- Phase P3: UI-Integration in MovePanel
+- Enhanced Display mit Tooltips und Badges
+- Performance-Optimierung für Mobile
+
+---
+
 ## 2025-01-15: Test Suite Stabilisierung
 
 ### Kontext

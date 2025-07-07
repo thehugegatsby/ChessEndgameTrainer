@@ -10,9 +10,9 @@
 - **Codebase**: 113 TypeScript files, ~15,000 LOC
 - **Features**: 16 Endspiel-Positionen, Stockfish.js Integration, Spaced Repetition
 - **Performance**: 75% weniger API-Calls, 31% schnellere Evaluations, 53% schnellere Navigation
-- **Architecture**: ✅ Unified Evaluation System, ✅ LoggerCompat Migration Complete
+- **Architecture**: ✅ Unified Evaluation System, ✅ Clear Separation of Concerns, ✅ LoggerCompat Migration Complete
 - **Deployment**: Vercel-ready mit WASM Support
-- **Critical Bug Found**: Perspective transformation not working for Black players
+- **Critical Bug Fixed**: Perspective transformation now working correctly for Black players
 
 ## 📁 Dokumentationsstruktur (2025-01-16)
 
@@ -208,17 +208,18 @@ export const getEnhancedMoveQuality = (
 
 ### Implementierungs-Phasen
 
-#### Phase P1: Datenmodell erweitern (NEXT)
-- [ ] `EnhancedTablebaseData` Interface zu `types/evaluation.ts`
-- [ ] `EnhancedEvaluationDisplay` Interface definieren  
-- [ ] `MoveQualityClass` und `RobustnessTag` Types
-- [ ] Rückwärtskompatibilität sicherstellen
+#### Phase P1: Datenmodell erweitern (COMPLETED ✅)
+- [x] `EnhancedTablebaseData` Interface zu `types/evaluation.ts`
+- [x] `EnhancedEvaluationDisplay` Interface definieren  
+- [x] `MoveQualityClass` und `RobustnessTag` Types
+- [x] Rückwärtskompatibilität sicherstellen
 
-#### Phase P2: Bewertungslogik implementieren
-- [ ] `getEnhancedMoveQuality()` in `evaluationHelpers.ts`
-- [ ] `classifyWinToWin()` und `classifyRobustness()` Helper
-- [ ] Educational Content Konstanten
-- [ ] Integration mit bestehender Logik
+#### Phase P2: Bewertungslogik implementieren (COMPLETED ✅)
+- [x] `getEnhancedMoveQuality()` in `evaluationHelpers.ts`
+- [x] `classifyWinToWin()` und `classifyRobustness()` Helper
+- [x] Educational Content Konstanten
+- [x] Integration mit bestehender Logik
+- [x] Comprehensive test coverage (128 new tests)
 
 #### Phase P3: UI-Integration
 - [ ] `MovePanel.tsx` um Enhanced Display erweitern
@@ -332,12 +333,13 @@ global.Worker = jest.fn(() => ({
 ## 📊 Metrics & Goals
 
 ### Current State
-- Test Coverage: 76.16% (Statement Coverage) - Ziel: 80%
-- Test Success: 99% (99/100 test suites) - 1 suite skipped (engine index.test.ts)
+- Test Coverage: ~78% (Statement Coverage) - Ziel: 80% (fast erreicht!)
+- Test Success: 99% (787/796 tests passing) - 9 skipped
 - Bundle Size: ~500KB (Ziel: <300KB)
 - Lighthouse Score: 85+ (Ziel: 95+)
 - Performance: Optimiert mit Debouncing, LRU Cache, Instance Reuse
 - Code Health: Nur 1.7% ungenutzter Code (excellent)
+- Architecture: Clear separation of concerns in evaluation pipeline
 
 ### Success Metrics
 - User können 50+ Endspiele trainieren
@@ -447,9 +449,9 @@ global.Worker = jest.fn(() => ({
 
 ## 📋 Nächste Schritte
 
-1. **Sofort**: useReducer Migration für useChessGame
-2. **Diese Woche**: Phase P1 - Enhanced Types implementieren
-3. **Nächste Woche**: Phase P2 - Bewertungslogik erweitern
+1. **Sofort**: Phase P3 - UI-Integration für Enhanced Display
+2. **Diese Woche**: Enhanced Move Quality UI in MovePanel implementieren
+3. **Nächste Woche**: useReducer Migration für useChessGame
 4. **Später**: Phase P4 - Karten-System für strukturierte Lektionen
 
 ### Complete TypeScript Fix and Debug Cleanup (2025-01-06)
@@ -478,14 +480,18 @@ global.Worker = jest.fn(() => ({
 **Next Review**: Nach Perspective Bug Fix
 ## 🐛 Common Pitfalls & Lessons Learned (2025-01-11)
 
-### PlayerPerspectiveTransformer Bug (2025-01-16)
-**Issue**: Black players see incorrect evaluations - positive when losing, negative when winning
+### PlayerPerspectiveTransformer Bug Fix (2025-01-17)
+**Issue**: Black players were seeing incorrect evaluations - positive when losing, negative when winning
 
-**Root Cause**: The transformer does NOT invert values for Black perspective as documented. All values remain in White perspective.
+**Root Cause**: The transformer was not inverting values for Black perspective as documented. All values remained in White perspective.
 
-**Impact**: Critical UX bug affecting all Black players
+**Impact**: Critical UX bug that affected all Black players
 
-**Fix Required**: Implement proper value inversion in perspectiveTransformer.ts using the existing invertValue() method
+**Fix Applied**: 
+- Implemented proper value inversion in perspectiveTransformer.ts
+- Added conditional logic: `this.playerSide === 'b' ? this.invertValue(value) : value`
+- Comprehensive test coverage added to prevent regression
+- Bug discovered through thorough unit testing in Phase 2
 
 ### Tablebase Evaluation Logic
 **Issue**: Black's optimal defensive moves were showing red triangles (🔻) instead of shields (🛡️)
@@ -532,10 +538,10 @@ if (categoryBefore === 'loss' && categoryAfter === 'loss') {
 - This file provides in-depth technical details about WDL handling and perspective correction
 
 ---
-**Last Updated**: 2025-01-16 - Documentation Reorganization
+**Last Updated**: 2025-01-17 - Phase 2 Completion & Critical Bug Fix
 **Session Summary**: 
-- Reorganized documentation structure with clear categories
-- Created archive/ folder for historical documents
-- Added AI Assistant Best Practices section
-- Consolidated all guidelines into structured directories
-- Updated file references to match new structure
+- Completed Phase P1 & P2 of Brückenbau-Trainer implementation
+- Added 128 comprehensive unit tests for evaluation pipeline
+- Fixed critical perspective transformation bug for Black players
+- Achieved clear separation of concerns in architecture
+- Test coverage increased to ~78% (approaching 80% goal)

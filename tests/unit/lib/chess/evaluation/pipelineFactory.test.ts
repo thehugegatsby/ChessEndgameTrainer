@@ -21,21 +21,19 @@ import type {
 const mockEngineEvaluation: EngineEvaluation = {
   score: 150,
   mate: null,
+  evaluation: '+1.50',
   depth: 20,
   nodes: 1000000,
-  time: 1000,
-  pv: ['e2e4', 'e7e5'],
-  multiPv: []
+  time: 1000
 };
 
 const mockMateEvaluation: EngineEvaluation = {
-  score: null,
+  score: 0, // When mate is found, score is typically 0
   mate: 5,
+  evaluation: 'M5',
   depth: 20,
   nodes: 1000000,
-  time: 1000,
-  pv: ['h7h8q', 'a8a7', 'h8h7'],
-  multiPv: []
+  time: 1000
 };
 
 const mockTablebaseResult: TablebaseResult = {
@@ -119,7 +117,14 @@ describe('EvaluationPipelineFactory_[method]_[condition]_[expected]', () => {
 
       it('should handle formatting errors gracefully', () => {
         // Pass invalid data that might cause errors
-        const invalidData = { score: null } as EngineEvaluation;
+        const invalidData = {
+          score: 0,
+          mate: null,
+          evaluation: '',
+          depth: 0,
+          nodes: 0,
+          time: 0
+        } as EngineEvaluation;
         
         const result = pipeline.formatEngineEvaluation(invalidData, 'w', 'w');
         

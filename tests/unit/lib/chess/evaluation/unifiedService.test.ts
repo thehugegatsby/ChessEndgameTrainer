@@ -98,11 +98,10 @@ class MockCacheProvider<T> implements ICacheProvider<T> {
 const mockEngineEvaluation: EngineEvaluation = {
   score: 50,
   mate: null,
+  evaluation: '+0.50',
   depth: 20,
   nodes: 1000000,
-  time: 1000,
-  pv: ['e2e4', 'e7e5'],
-  multiPv: []
+  time: 1000
 };
 
 const mockTablebaseResult: TablebaseResult = {
