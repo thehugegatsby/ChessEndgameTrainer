@@ -11,14 +11,14 @@ export type PieceSymbol = ChessJsPieceSymbol; // Use chess.js PieceSymbol type
 export type Piece = 'p' | 'n' | 'b' | 'r' | 'q' | 'k' | 'P' | 'N' | 'B' | 'R' | 'Q' | 'K'; // Keep for FEN/display purposes
 export type Color = 'w' | 'b';
 export type File = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h';
-// Move related types - Compatible with chess.js Move class
+// Move related types - Clean Domain Types
 export interface Move {
   color: Color;
   from: Square;
   to: Square;
   piece: PieceSymbol;
   captured?: PieceSymbol;
-  promotion?: 'q' | 'r' | 'b' | 'n';
+  promotion?: 'q' | 'r' | 'b' | 'n'; // Strict: only valid promotion pieces
   flags: string;
   san: string;
   lan: string;
@@ -32,6 +32,13 @@ export interface Move {
   isQueensideCastle: () => boolean;
   isBigPawn: () => boolean;
 }
+
+// Brand Types for additional type safety
+declare const __domainMoveBrand: unique symbol;
+export type DomainMove = Move & { readonly [__domainMoveBrand]: true };
+
+declare const __validatedMoveBrand: unique symbol;
+export type ValidatedMove = DomainMove & { readonly [__validatedMoveBrand]: true };
 
 
 // Position types

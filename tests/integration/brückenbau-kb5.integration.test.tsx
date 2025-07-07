@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { TrainingProvider } from '@shared/contexts/TrainingContext';
 import { MovePanel } from '@shared/components/training/MovePanel';
 import { Chess } from 'chess.js';
 
@@ -76,14 +75,12 @@ describe('Brückenbau Kb5 Integration Test', () => {
     const moveObjects = moves.map(m => ({ san: m.san } as any));
 
     render(
-      <TrainingProvider>
-        <MovePanel
-          moves={moveObjects}
-          showEvaluations={true}
-          evaluations={evaluations}
-          currentMoveIndex={4}
-        />
-      </TrainingProvider>
+      <MovePanel
+        moves={moveObjects}
+        showEvaluations={true}
+        evaluations={evaluations}
+        currentMoveIndex={4}
+      />
     );
 
     // Wait for the move panel to render

@@ -1,6 +1,8 @@
 // Training Components - Centralized Exports
 export { TrainingBoard } from './TrainingBoard';
+export { TrainingBoardZustand } from './TrainingBoard/TrainingBoardZustand';
 export { MovePanel } from './MovePanel';
+export { MovePanelZustand } from './MovePanelZustand';
 export { AnalysisPanel } from './AnalysisPanel';
 export { DualEvaluationPanel, SidebarEngineSection } from './DualEvaluationPanel';
 export { DualEvaluationSidebar } from './DualEvaluationPanel/DualEvaluationSidebar';

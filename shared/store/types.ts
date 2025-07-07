@@ -5,13 +5,14 @@
 
 import { 
   Move, 
+  ValidatedMove,
   ChessInstance, 
   GameStatus
 } from '../types';
+import { Move as ChessJsMove } from 'chess.js';
 
 import {
-  EvaluationData,
-  DualEvaluation
+  EvaluationData
 } from '../types/evaluation';
 
 import { EndgamePosition } from '../data/endgames/types';
@@ -45,7 +46,7 @@ export interface UserPreferences {
 export interface TrainingState {
   currentPosition?: EndgamePosition;
   game?: ChessInstance;
-  moveHistory: Move[];
+  moveHistory: ValidatedMove[];
   evaluations: EvaluationData[];
   isPlayerTurn: boolean;
   isGameFinished: boolean;
@@ -54,9 +55,12 @@ export interface TrainingState {
   endTime?: number;
   hintsUsed: number;
   mistakeCount: number;
-  currentEvaluation?: DualEvaluation;
+  currentEvaluation?: EvaluationData;
   isAnalyzing: boolean;
   engineStatus: EngineStatus;
+  currentFen?: string;
+  currentPgn?: string;
+  currentMoveIndex?: number;
 }
 
 export type EngineStatus = 'idle' | 'initializing' | 'ready' | 'analyzing' | 'error';
@@ -174,10 +178,10 @@ export interface UserActions {
 
 export interface TrainingActions {
   setPosition: (position: EndgamePosition) => void;
-  makeMove: (move: Move) => void;
+  makeMove: (move: ChessJsMove) => void;
   undoMove: () => void;
   resetPosition: () => void;
-  setEvaluation: (evaluation: DualEvaluation) => void;
+  setEvaluation: (evaluation: EvaluationData) => void;
   setEngineStatus: (status: EngineStatus) => void;
   completeTraining: (success: boolean) => void;
   useHint: () => void;

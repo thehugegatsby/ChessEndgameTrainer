@@ -22,6 +22,8 @@ import {
 } from './types';
 import { TRAINING, TIME } from '../constants';
 import { getLogger } from '../services/logging';
+import { fromLibraryMove, ChessAdapterError } from '../infrastructure/chess-adapter';
+import { Move as ChessJsMove } from 'chess.js';
 
 const logger = getLogger().setContext('Store');
 
@@ -157,10 +159,29 @@ export const useStore = create<RootState & Actions>()(
           logger.info('Position set', { positionId: position.id });
         }),
 
-        makeMove: (move) => set((state) => {
-          state.training.moveHistory.push(move);
-          state.training.isPlayerTurn = !state.training.isPlayerTurn;
-          logger.debug('Move made', { move });
+        makeMove: (move: ChessJsMove) => set((state) => {
+          try {
+            // Convert library move to validated domain move
+            const validatedMove = fromLibraryMove(move);
+            state.training.moveHistory.push(validatedMove);
+            state.training.isPlayerTurn = !state.training.isPlayerTurn;
+            logger.debug('Move made', { 
+              from: validatedMove.from, 
+              to: validatedMove.to, 
+              san: validatedMove.san 
+            });
+          } catch (error) {
+            if (error instanceof ChessAdapterError) {
+              logger.error('Invalid move rejected', { 
+                error: error.message, 
+                context: error.context 
+              });
+              // Don't update state for invalid moves
+              return;
+            }
+            // Re-throw unexpected errors
+            throw error;
+          }
         }),
 
         undoMove: () => set((state) => {
@@ -185,6 +206,7 @@ export const useStore = create<RootState & Actions>()(
 
         setEvaluation: (evaluation) => set((state) => {
           state.training.currentEvaluation = evaluation;
+          logger.debug('Evaluation updated', { evaluation });
         }),
 
         setEngineStatus: (status) => set((state) => {

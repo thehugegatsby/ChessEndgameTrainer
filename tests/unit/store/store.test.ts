@@ -181,7 +181,13 @@ describe('Zustand Store', () => {
       });
       
       expect(result.current.training.moveHistory).toHaveLength(1);
-      expect(result.current.training.moveHistory[0]).toEqual(mockMove);
+      // Check core move properties (adapter adds helper methods and additional fields)
+      const storedMove = result.current.training.moveHistory[0];
+      expect(storedMove.from).toBe(mockMove.from);
+      expect(storedMove.to).toBe(mockMove.to);
+      expect(storedMove.san).toBe(mockMove.san);
+      expect(storedMove.piece).toBe(mockMove.piece);
+      expect(storedMove.color).toBe(mockMove.color);
       expect(result.current.training.isPlayerTurn).toBe(false);
     });
 
