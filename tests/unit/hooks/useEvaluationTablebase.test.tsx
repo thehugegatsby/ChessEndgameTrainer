@@ -200,24 +200,32 @@ describe('useEvaluation Tablebase Integration', () => {
         },
       });
 
-      mockUnifiedService.getPerspectiveEvaluation
-        .mockResolvedValueOnce({
-          type: 'tablebase',
-          scoreInCentipawns: null,
-          mate: null,
-          wdl: 2,
-          dtm: null,
-          dtz: 10,
-          isTablebasePosition: true,
-          raw: null,
-          perspective: 'b',  // Changed to black's perspective since playerWhoMoved is black
-          perspectiveScore: null,
-          perspectiveMate: null,
-          perspectiveWdl: 2,
-          perspectiveDtm: null,
-          perspectiveDtz: 10,
-        })
-        .mockResolvedValueOnce({
+      // Reset mock before setting up new implementation
+      mockUnifiedService.getPerspectiveEvaluation.mockReset();
+      
+      // Mock getPerspectiveEvaluation to return different values for each call
+      mockUnifiedService.getPerspectiveEvaluation.mockImplementation((fen, perspective) => {
+        // First call should be for previousFen
+        if (fen === previousFen) {
+          return Promise.resolve({
+            type: 'tablebase',
+            scoreInCentipawns: null,
+            mate: null,
+            wdl: 2,
+            dtm: null,
+            dtz: 10,
+            isTablebasePosition: true,
+            raw: null,
+            perspective: 'b',
+            perspectiveScore: null,
+            perspectiveMate: null,
+            perspectiveWdl: 2,
+            perspectiveDtm: null,
+            perspectiveDtz: 10,
+          });
+        }
+        // Second call should be for current fen
+        return Promise.resolve({
           type: 'tablebase',
           scoreInCentipawns: null,
           mate: null,
@@ -226,13 +234,14 @@ describe('useEvaluation Tablebase Integration', () => {
           dtz: 0,
           isTablebasePosition: true,
           raw: null,
-          perspective: 'b',  // Changed to black's perspective since playerWhoMoved is black
+          perspective: 'b',
           perspectiveScore: null,
           perspectiveMate: null,
           perspectiveWdl: 0,
           perspectiveDtm: null,
           perspectiveDtz: 0,
         });
+      });
 
       const { result } = renderHook(() =>
         useEvaluation({
@@ -248,6 +257,11 @@ describe('useEvaluation Tablebase Integration', () => {
       
       expect(result.current.lastEvaluation).toBeDefined();
       expect(result.current.lastEvaluation?.tablebase).toBeDefined();
+
+      // Verify mock was called correctly
+      expect(mockUnifiedService.getPerspectiveEvaluation).toHaveBeenCalledTimes(2);
+      expect(mockUnifiedService.getPerspectiveEvaluation).toHaveBeenNthCalledWith(1, previousFen, 'b');
+      expect(mockUnifiedService.getPerspectiveEvaluation).toHaveBeenNthCalledWith(2, fen, 'b');
 
       // Verify the complete data structure
       const tablebase = result.current.lastEvaluation?.tablebase;

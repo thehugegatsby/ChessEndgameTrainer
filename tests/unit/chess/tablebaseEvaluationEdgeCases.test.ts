@@ -86,23 +86,23 @@ describe('Tablebase Evaluation Edge Cases', () => {
   describe('All WDL transitions', () => {
     it('should handle all possible WDL state transitions', () => {
       const transitions = [
-        // Win transitions
-        { from: 2, to: 2, expected: '✅', desc: 'Win maintained' },
-        { from: 2, to: -1, expected: '💥', desc: 'Win to cursed win (after=-1 is blessed loss for opponent)' },
-        { from: 2, to: 0, expected: '🚨', desc: 'Win to draw (blunder)' },
-        { from: 2, to: -1, expected: '💥', desc: 'Win to blessed loss' },
-        { from: 2, to: -2, expected: '💥', desc: 'Win to loss (catastrophe)' },
+        // Win transitions (remember: wdlAfter gets flipped!)
+        { from: 2, to: -2, expected: '✅', desc: 'Win maintained (after=-2 flipped to 2)' },
+        { from: 2, to: -1, expected: '✅', desc: 'Win to cursed win (after=-1 flipped to 1, still win)' },
+        { from: 2, to: 0, expected: '🚨', desc: 'Win to draw (after=0 flipped to 0)' },
+        { from: 2, to: 1, expected: '💥', desc: 'Win to blessed loss (after=1 flipped to -1)' },
+        { from: 2, to: 2, expected: '💥', desc: 'Win to loss (after=2 flipped to -2)' },
         
-        // Draw transitions
-        { from: 0, to: 2, expected: '🎯', desc: 'Draw to win (excellent)' },
-        { from: 0, to: 0, expected: '➖', desc: 'Draw maintained' },
-        { from: 0, to: -2, expected: '❌', desc: 'Draw to loss (mistake)' },
+        // Draw transitions (remember: wdlAfter gets flipped!)
+        { from: 0, to: -2, expected: '🎯', desc: 'Draw to win (after=-2 flipped to 2)' },
+        { from: 0, to: 0, expected: '➖', desc: 'Draw maintained (after=0 flipped to 0)' },
+        { from: 0, to: 2, expected: '❌', desc: 'Draw to loss (after=2 flipped to -2)' },
         
-        // Loss transitions
-        { from: -2, to: 2, expected: '🎯', desc: 'Loss to win (miracle)' },
-        { from: -2, to: 0, expected: '👍', desc: 'Loss to draw (good defense)' },
-        { from: -2, to: -2, expected: '🛡️', desc: 'Loss maintained (best try)' },
-        { from: -2, to: -1, expected: '🛡️', desc: 'Loss to blessed loss' },
+        // Loss transitions (remember: wdlAfter gets flipped!)
+        { from: -2, to: -2, expected: '🎯', desc: 'Loss to win (after=-2 flipped to 2)' },
+        { from: -2, to: 0, expected: '👍', desc: 'Loss to draw (after=0 flipped to 0)' },
+        { from: -2, to: 2, expected: '🛡️', desc: 'Loss maintained (after=2 flipped to -2)' },
+        { from: -2, to: 1, expected: '🛡️', desc: 'Loss to blessed loss (after=1 flipped to -1)' },
       ];
 
       transitions.forEach(({ from, to, expected, desc }) => {

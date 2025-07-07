@@ -132,11 +132,11 @@ describe('Brückenbau Kb5 Integration Test', () => {
 
     it('should handle WDL transitions involving 0 correctly', () => {
       const transitions = [
-        { from: 2, to: 0, expectedSymbol: '🚨' },  // Win to draw
-        { from: 0, to: 0, expectedSymbol: '➖' },  // Draw maintained
-        { from: 0, to: 2, expectedSymbol: '🎯' },  // Draw to win
-        { from: 0, to: -2, expectedSymbol: '❌' }, // Draw to loss
-        { from: -2, to: 0, expectedSymbol: '👍' }, // Loss to draw
+        { from: 2, to: 0, expectedSymbol: '🚨' },  // Win to draw (wdlAfter=0 flipped to 0)
+        { from: 0, to: 0, expectedSymbol: '➖' },  // Draw maintained (wdlAfter=0 flipped to 0)
+        { from: 0, to: -2, expectedSymbol: '🎯' },  // Draw to win (wdlAfter=-2 flipped to 2)
+        { from: 0, to: 2, expectedSymbol: '❌' }, // Draw to loss (wdlAfter=2 flipped to -2)
+        { from: -2, to: 0, expectedSymbol: '👍' }, // Loss to draw (wdlAfter=0 flipped to 0)
       ];
 
       transitions.forEach(({ from, to, expectedSymbol }) => {
