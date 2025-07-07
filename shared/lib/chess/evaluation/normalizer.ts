@@ -45,17 +45,19 @@ export class EvaluationNormalizer {
     // Validate player side
     const validatedPlayer = this.validatePlayerSide(playerToMove);
 
-    // Calculate perspective multiplier for normalization
-    const perspectiveMultiplier = validatedPlayer === 'b' ? -1 : 1;
+    // NO PERSPECTIVE MULTIPLIER - Always normalize to White's perspective
+    // The engine gives scores from the player-to-move perspective
+    // We need to convert to White's perspective if Black is to move
+    const toWhitePerspective = validatedPlayer === 'b' ? -1 : 1;
 
     // Determine if this is a mate position
     const isMatePosition = this.isMatePosition(engineData);
 
-    // Create normalized evaluation
+    // Create normalized evaluation - ALWAYS from White's perspective
     return {
       type: 'engine',
-      scoreInCentipawns: isMatePosition ? null : (engineData.score * perspectiveMultiplier),
-      mate: isMatePosition ? (engineData.mate! * perspectiveMultiplier) : null,
+      scoreInCentipawns: isMatePosition ? null : (engineData.score * toWhitePerspective),
+      mate: isMatePosition ? (engineData.mate! * toWhitePerspective) : null,
       wdl: null,
       dtm: null,
       dtz: null,
@@ -84,17 +86,18 @@ export class EvaluationNormalizer {
     // Validate player side
     const validatedPlayer = this.validatePlayerSide(playerToMove);
 
-    // Calculate perspective multiplier for normalization
-    const perspectiveMultiplier = validatedPlayer === 'b' ? -1 : 1;
+    // Convert to White's perspective if Black is to move
+    // Engine gives scores from player-to-move perspective
+    const toWhitePerspective = validatedPlayer === 'b' ? -1 : 1;
 
     // Create normalized evaluation
     return {
       type: 'tablebase',
       scoreInCentipawns: null, // Tablebase doesn't use centipawn scores
       mate: null, // Use DTM instead
-      wdl: tablebaseData.wdl === 0 ? 0 : (tablebaseData.wdl * perspectiveMultiplier), // Handle -0 case
-      dtm: tablebaseData.dtm === null ? null : (tablebaseData.dtm * perspectiveMultiplier),
-      dtz: tablebaseData.dtz === null ? null : (tablebaseData.dtz === 0 ? 0 : tablebaseData.dtz * perspectiveMultiplier),
+      wdl: tablebaseData.wdl === 0 ? 0 : (tablebaseData.wdl * toWhitePerspective), // Handle -0 case
+      dtm: tablebaseData.dtm === null ? null : (tablebaseData.dtm * toWhitePerspective),
+      dtz: tablebaseData.dtz === null ? null : (tablebaseData.dtz === 0 ? 0 : tablebaseData.dtz * toWhitePerspective),
       isTablebasePosition: true,
       raw: tablebaseData
     };

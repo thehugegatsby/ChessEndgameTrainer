@@ -36,14 +36,17 @@ export interface EvaluationPipelineStrategy {
   readonly mode: 'legacy' | 'enhanced';
   formatEngineEvaluation(
     engineData: EngineEvaluation,
+    playerToMove: 'w' | 'b',
     perspective: 'w' | 'b'
   ): FormattedEvaluation;
   formatTablebaseEvaluation(
     tablebaseData: TablebaseResult,
+    playerToMove: 'w' | 'b',
     perspective: 'w' | 'b'
   ): FormattedEvaluation;
   getPerspectiveEvaluation(
     engineData: EngineEvaluation,
+    playerToMove: 'w' | 'b',
     perspective: 'w' | 'b'
   ): PlayerPerspectiveEvaluation;
 }
@@ -67,12 +70,15 @@ class EnhancedPipelineStrategy implements EvaluationPipelineStrategy {
 
   formatEngineEvaluation(
     engineData: EngineEvaluation,
+    playerToMove: 'w' | 'b',
     perspective: 'w' | 'b'
   ): FormattedEvaluation {
     try {
-      // ENHANCED BEHAVIOR: Respect actual perspective parameter
-      const normalized = this.normalizer.normalizeEngineData(engineData, perspective);
+      // Step 1: Normalize to White's perspective using playerToMove
+      const normalized = this.normalizer.normalizeEngineData(engineData, playerToMove);
+      // Step 2: Transform to display perspective
       const perspectiveEval = this.transformer.transform(normalized, perspective);
+      // Step 3: Format for display
       return this.formatter.format(perspectiveEval);
     } catch (error) {
       return this.createErrorFallback();
@@ -81,12 +87,15 @@ class EnhancedPipelineStrategy implements EvaluationPipelineStrategy {
 
   formatTablebaseEvaluation(
     tablebaseData: TablebaseResult,
+    playerToMove: 'w' | 'b',
     perspective: 'w' | 'b'
   ): FormattedEvaluation {
     try {
-      // ENHANCED BEHAVIOR: Respect actual perspective parameter
-      const normalized = this.normalizer.normalizeTablebaseData(tablebaseData, perspective);
+      // Step 1: Normalize to White's perspective using playerToMove
+      const normalized = this.normalizer.normalizeTablebaseData(tablebaseData, playerToMove);
+      // Step 2: Transform to display perspective
       const perspectiveEval = this.transformer.transform(normalized, perspective);
+      // Step 3: Format for display
       return this.formatter.format(perspectiveEval);
     } catch (error) {
       return this.createErrorFallback();
@@ -95,10 +104,12 @@ class EnhancedPipelineStrategy implements EvaluationPipelineStrategy {
 
   getPerspectiveEvaluation(
     engineData: EngineEvaluation,
+    playerToMove: 'w' | 'b',
     perspective: 'w' | 'b'
   ): PlayerPerspectiveEvaluation {
-    // ENHANCED BEHAVIOR: Respect actual perspective parameter
-    const normalized = this.normalizer.normalizeEngineData(engineData, perspective);
+    // Step 1: Normalize to White's perspective using playerToMove
+    const normalized = this.normalizer.normalizeEngineData(engineData, playerToMove);
+    // Step 2: Transform to display perspective
     return this.transformer.transform(normalized, perspective);
   }
 

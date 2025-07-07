@@ -168,7 +168,7 @@ export class UnifiedEvaluationService {
       if (!engineData) {
         return this.createErrorPerspectiveEvaluation(perspective);
       }
-      const perspectiveEval = this.pipeline.getPerspectiveEvaluation(engineData, perspective);
+      const perspectiveEval = this.pipeline.getPerspectiveEvaluation(engineData, playerToMove, perspective);
       
       return perspectiveEval;
     } catch (error) {
@@ -267,7 +267,7 @@ export class UnifiedEvaluationService {
     }
 
     // Use pipeline strategy for consistent formatting
-    return this.pipeline.formatEngineEvaluation(engineData, perspective);
+    return this.pipeline.formatEngineEvaluation(engineData, playerToMove, perspective);
   }
 
   /**
@@ -285,7 +285,7 @@ export class UnifiedEvaluationService {
     }
 
     // Use pipeline strategy for consistent formatting
-    return this.pipeline.formatTablebaseEvaluation(tablebaseData, perspective);
+    return this.pipeline.formatTablebaseEvaluation(tablebaseData, playerToMove, perspective);
   }
 
   /**

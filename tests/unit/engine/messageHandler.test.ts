@@ -29,6 +29,27 @@ jest.mock('../../../shared/services/logging', () => ({
   })
 }));
 
+// Helper function to create a mock Move object
+const createMockMove = (from: string, to: string, piece: string = 'p', color: string = 'w') => ({
+  from: from as any,
+  to: to as any,
+  san: to,
+  lan: `${from}${to}`,
+  flags: '',
+  piece: piece as any,
+  color: color as any,
+  before: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+  after: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
+  captured: undefined,
+  promotion: undefined,
+  isCapture: () => false,
+  isPromotion: () => false,
+  isEnPassant: () => false,
+  isKingsideCastle: () => false,
+  isQueensideCastle: () => false,
+  isBigPawn: () => piece === 'p'
+});
+
 describe('StockfishMessageHandler', () => {
   let handler: StockfishMessageHandler;
   let mockChess: jest.Mocked<Chess>;
@@ -89,7 +110,7 @@ describe('StockfishMessageHandler', () => {
     });
 
     it('should parse valid best move response', () => {
-      const mockMove = { from: 'e2', to: 'e4', san: 'e4', flags: '', piece: 'p', color: 'w' };
+      const mockMove = createMockMove('e2', 'e4', 'p', 'w');
       mockChess.move.mockReturnValue(mockMove);
       
       const response = handler.handleMessage('bestmove e2e4') as BestMoveResponse;
@@ -238,7 +259,7 @@ describe('StockfishMessageHandler', () => {
       expect(infoResponse).toBeNull();
       
       // Bestmove should return move, not evaluation
-      mockChess.move.mockReturnValue({ from: 'e2', to: 'e4', san: 'e4', flags: '', piece: 'p', color: 'w' });
+      mockChess.move.mockReturnValue(createMockMove('e2', 'e4', 'p', 'w'));
       const response = handler.handleMessage('bestmove e2e4');
       
       expect(response?.type).toBe('bestmove');
@@ -394,7 +415,7 @@ describe('StockfishMessageHandler', () => {
       };
       handler.setCurrentRequest(request);
       
-      mockChess.move.mockReturnValue({ from: 'e2', to: 'e4', san: 'e4', flags: '', piece: 'p', color: 'w' });
+      mockChess.move.mockReturnValue(createMockMove('e2', 'e4', 'p', 'w'));
       
       const response = handler.handleMessage('bestmove e2e4 ponder e7e5') as BestMoveResponse;
       

@@ -22,8 +22,17 @@ const mockMove: ChessJsMove = {
   piece: 'p',
   flags: 'b',
   san: 'e4',
+  lan: 'e2e4',
   captured: undefined,
-  promotion: undefined
+  promotion: undefined,
+  before: TEST_FEN,
+  after: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
+  isCapture: () => false,
+  isPromotion: () => false,
+  isEnPassant: () => false,
+  isKingsideCastle: () => false,
+  isQueensideCastle: () => false,
+  isBigPawn: () => true
 };
 
 const mockEvaluation: EngineEvaluation = {
