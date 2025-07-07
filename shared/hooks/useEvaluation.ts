@@ -9,7 +9,7 @@ import { EngineProviderAdapter, TablebaseProviderAdapter } from '@shared/lib/che
 import { LRUCache } from '@shared/lib/cache/LRUCache';
 import { LRUCacheAdapter } from '@shared/lib/chess/evaluation/cacheAdapter';
 import type { FormattedEvaluation } from '@shared/types/evaluation';
-import { getLogger } from '@shared/services/logging';
+import { ErrorService } from '@shared/services/errorService';
 
 interface UseEvaluationOptions {
   fen: string;
@@ -177,9 +177,12 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
         }
       } catch (err: any) {
         if (err.name !== 'AbortError') {
-          const logger = getLogger();
-          logger.error('Unified evaluation failed:', err);
-          setError(err.message || 'Evaluation failed');
+          const userMessage = ErrorService.handleChessEngineError(err, {
+            component: 'useEvaluation',
+            action: 'evaluatePosition',
+            additionalData: { fen }
+          });
+          setError(userMessage);
         }
       } finally {
         if (!abortControllerRef.current?.signal.aborted) {

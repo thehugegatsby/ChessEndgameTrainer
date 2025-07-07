@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getLogger } from '@shared/services/logging';
+import { ErrorService } from '@shared/services/errorService';
 
 export interface UseScenarioEngineOptions {
   initialFen: string;
@@ -43,14 +43,16 @@ export const useScenarioEngine = ({
         setIsEngineReady(true);
         
       } catch (error) {
-        const logger = getLogger();
-        logger.error('❌ useScenarioEngine: Failed to load ScenarioEngine:', error);
+        const userMessage = ErrorService.handleChessEngineError(error as Error, {
+          component: 'useScenarioEngine',
+          action: 'loadEngine',
+          additionalData: { initialFen }
+        });
         
-        const errorMessage = 'Engine konnte nicht geladen werden';
-        setEngineError(errorMessage);
+        setEngineError(userMessage);
         
         if (onError) {
-          onError(errorMessage);
+          onError(userMessage);
         }
       }
     };

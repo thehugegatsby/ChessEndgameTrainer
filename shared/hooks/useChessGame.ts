@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Chess, Move } from 'chess.js';
-import { getLogger } from '@shared/services/logging';
+import { ErrorService } from '@shared/services/errorService';
 
 interface UseChessGameOptions {
   initialFen: string;
@@ -79,8 +79,11 @@ export const useChessGame = ({
       return true;
       
     } catch (error) {
-      const logger = getLogger();
-      logger.error('Move failed:', error);
+      ErrorService.handleChessEngineError(error as Error, {
+        component: 'useChessGame',
+        action: 'makeMove',
+        additionalData: { move }
+      });
       return false;
     }
   }, [isGameFinished, onComplete, onPositionChange]);

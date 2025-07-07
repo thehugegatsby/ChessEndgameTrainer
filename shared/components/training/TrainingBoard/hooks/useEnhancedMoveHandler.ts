@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { Chess } from 'chess.js';
-import { getLogger } from '@shared/services/logging';
+import { ErrorService } from '@shared/services/errorService';
 
 export interface UseEnhancedMoveHandlerOptions {
   scenarioEngine: any | null;
@@ -54,9 +54,12 @@ export const useEnhancedMoveHandler = ({
       }
       // Invalid move - do nothing, just keep the current position
     } catch (error) {
-      const logger = getLogger();
-      logger.error('❌ useEnhancedMoveHandler: Move processing failed:', error);
-      onEngineError('Zug konnte nicht verarbeitet werden');
+      const userMessage = ErrorService.handleChessEngineError(error as Error, {
+        component: 'useEnhancedMoveHandler',
+        action: 'processMove',
+        additionalData: { gameFinished: isGameFinished }
+      });
+      onEngineError(userMessage);
     }
   }, [scenarioEngine, isGameFinished, makeMove, lastEvaluation, showEvaluationBriefly, onWarning, onEngineError, game]);
 
@@ -76,16 +79,20 @@ export const useEnhancedMoveHandler = ({
         
         if (engineMoveResult) {
         } else {
-          const logger = getLogger();
-          logger.error('❌ useEnhancedMoveHandler: Engine move failed');
-          onEngineError('Engine-Zug ungültig');
+          const userMessage = ErrorService.handleChessEngineError(new Error('Engine move failed'), {
+            component: 'useEnhancedMoveHandler',
+            action: 'executeEngineMove'
+          });
+          onEngineError(userMessage);
         }
       } else {
       }
     } catch (error) {
-      const logger = getLogger();
-      logger.error('❌ useEnhancedMoveHandler: Engine move error:', error);
-      onEngineError('Engine-Zug fehlgeschlagen');
+      const userMessage = ErrorService.handleChessEngineError(error as Error, {
+        component: 'useEnhancedMoveHandler',
+        action: 'handleEngineResponse'
+      });
+      onEngineError(userMessage);
     }
   }, [scenarioEngine, game, makeMove, onEngineError]);
 
