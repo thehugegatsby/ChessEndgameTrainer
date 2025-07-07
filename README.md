@@ -2,7 +2,7 @@
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.3.3-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue)](https://www.typescriptlang.org/)
-[![Test Coverage](https://img.shields.io/badge/Coverage-76.16%25-yellow)](./coverage/lcov-report/index.html)
+[![Test Coverage](https://img.shields.io/badge/Coverage-~78%25-green)](./coverage/lcov-report/index.html)
 [![CI/CD](https://github.com/thehugegatsby/ChessEndgameTrainer/actions/workflows/test-and-coverage.yml/badge.svg)](https://github.com/thehugegatsby/ChessEndgameTrainer/actions)
 [![Deployment Ready](https://img.shields.io/badge/Deployment-Ready-green)](./docs/deployment/DEPLOYMENT_GUIDE.md)
 
@@ -65,9 +65,10 @@ ChessEndgameTrainer/
 
 ## 📊 Projekt Status
 
-- **Test Coverage**: 76.16% (Statement Coverage)
-- **Test Success**: 97.2% (104/107 Test Suites bestanden) - **31 tests fixed today**
+- **Test Coverage**: ~78% (Statement Coverage) - Ziel: 80%
+- **Test Success**: 99% (787/796 Tests bestanden, 9 skipped) - **128 neue Tests hinzugefügt**
 - **Code Health**: Excellent (<2% ungenutzter Code)
+- **Error Handling**: ✅ Centralized ErrorService + Logger Architecture
 - **Performance**: Optimiert mit LRU Cache, Debouncing
 - **Bundle Size**: ~500KB (Ziel: <300KB)
 - **Migration Status**: ✅ Unified Evaluation System (100% aktiv), ✅ LoggerCompat Migration Complete
@@ -149,7 +150,8 @@ Die Anwendung wurde für optimale Performance auf Desktop und Mobile optimiert:
 ## 📈 Projekt Status
 
 - ✅ **Production Ready** Web-Anwendung
-- ✅ **56.15% Test Coverage** mit 928 Tests
+- ✅ **~78% Test Coverage** mit 787 bestehenden Tests
+- ✅ **Centralized Error Handling** mit ErrorService + Logger
 - ✅ **Performance Optimiert** für Mobile
 - ✅ **Mobile Architecture** vorbereitet
 - ⏳ **Android App** in Entwicklung

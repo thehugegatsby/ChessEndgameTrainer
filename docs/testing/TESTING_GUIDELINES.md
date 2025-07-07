@@ -3,11 +3,12 @@
 ## 🎯 Zweck dieser Richtlinie
 Diese Guideline stellt sicher, dass alle neuen Tests im "Claude Build" konsistent, wartbar und effektiv sind. Eine robuste Testbasis ist entscheidend, um Fehler bei Upgrades zu vermeiden und das Vertrauen in unseren Code zu stärken.
 
-### 📊 Aktuelle Test-Metriken (Stand: 2025-01-17)
+### 📊 Aktuelle Test-Metriken (Stand: 2025-07-07)
 - **Test Coverage**: ~78% (Statement Coverage) - Ziel: 80%
 - **Test Success**: 99% (787/796 tests passing, 9 skipped)
 - **Neue Tests**: 128 Tests in Phase 2 hinzugefügt
 - **Kritische Bugs gefunden**: Perspective Transformation Bug durch Tests entdeckt
+- **Error Handling**: ✅ Centralized ErrorService + Logger architecture implementiert
 
 ---
 
@@ -108,11 +109,12 @@ Sie können diesen Text einfach kopieren und in einen Texteditor (wie Notepad, V
 ## 🎯 Zweck dieser Richtlinie
 Diese Guideline stellt sicher, dass alle neuen Tests im "Claude Build" konsistent, wartbar und effektiv sind. Eine robuste Testbasis ist entscheidend, um Fehler bei Upgrades zu vermeiden und das Vertrauen in unseren Code zu stärken.
 
-### 📊 Aktuelle Test-Metriken (Stand: 2025-01-17)
+### 📊 Aktuelle Test-Metriken (Stand: 2025-07-07)
 - **Test Coverage**: ~78% (Statement Coverage) - Ziel: 80%
 - **Test Success**: 99% (787/796 tests passing, 9 skipped)
 - **Neue Tests**: 128 Tests in Phase 2 hinzugefügt
 - **Kritische Bugs gefunden**: Perspective Transformation Bug durch Tests entdeckt
+- **Error Handling**: ✅ Centralized ErrorService + Logger architecture implementiert
 
 ---
 
@@ -236,6 +238,38 @@ Die Evaluation Pipeline besteht aus mehreren unabhängigen Komponenten mit klare
   - Verifiziert Cache-Invalidierung bei Materialänderungen
   - Prüft symmetrische Stellungserkennung
   - Testet LRU-Eviction bei Cache-Überlauf
+
+### Error Handling Tests
+Mit der zentralisierten Error-Handling-Architektur sollten Tests folgende Patterns verwenden:
+
+* **ErrorService Tests**:
+  - Verifiziert korrekte Kategorisierung von Fehlern (Critical vs Non-Critical)
+  - Testet User-Message Generation für verschiedene Fehlertypen
+  - Prüft Context-Daten Weiterleitung für Debugging
+  - Validiert Error-Recovery Mechanismen
+
+* **Logger Integration Tests**:
+  - Testet strukturierte Log-Ausgabe mit Timestamps
+  - Verifiziert Log-Level Konfiguration (DEBUG, INFO, WARN, ERROR)
+  - Prüft Platform-Context Injection in Log-Messages
+  - Testet Log-Transport Konfiguration
+
+* **Test Pattern für Error Handling**:
+  ```typescript
+  // Mocking für Error Tests
+  const logger = getLogger();
+  const loggerSpy = jest.spyOn(logger, 'warn').mockImplementation(() => {});
+  
+  // Error Service Testing
+  const userMessage = ErrorService.handleChessEngineError(testError, {
+    component: 'TestComponent',
+    action: 'testAction',
+    additionalData: { testData: 'value' }
+  });
+  
+  expect(userMessage).toContain('Engine temporarily unavailable');
+  expect(loggerSpy).toHaveBeenCalledWith(expect.stringContaining('ERROR'));
+  ```
 
 * **Tablebase-Validierung:** Teste explizit, ob bei Endspielen, die in Tablebases enthalten sind, **immer die exakten Tablebase-Ergebnisse** abgerufen und verwendet werden, und ob diese die Engine-Schätzungen korrekt **übersteuern**.
 * **FEN-Szenarien:** Baue eine Test-Suite mit bekannten FEN-Positionen (z.B. Matt in N Zügen, Remis-Stellungen, Gewinn-Stellungen) und verifiziere die **exakte numerische und qualitative Bewertung**.
