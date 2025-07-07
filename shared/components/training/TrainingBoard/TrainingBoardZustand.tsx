@@ -97,10 +97,10 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
 
   // Sync game instance with Zustand
   useEffect(() => {
-    if (game) {
+    if (game && game !== training.game) {
       actions.setGame(game);
     }
-  }, [game, actions]);
+  }, [game, actions, training.game]);
 
   // Sync move history with Zustand
   useEffect(() => {
