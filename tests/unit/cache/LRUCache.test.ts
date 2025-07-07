@@ -4,6 +4,7 @@
  */
 
 import { LRUCache, CacheStats } from '../../../shared/lib/cache/LRUCache';
+import { getLogger } from '../../../shared/services/logging';
 
 describe('LRUCache', () => {
   describe('LRUCache_constructor_defaultCapacity_createsInstance', () => {
@@ -57,7 +58,8 @@ describe('LRUCache', () => {
     });
 
     it('should handle error during set operation gracefully', () => {
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      const logger = getLogger();
+      const loggerSpy = jest.spyOn(logger, 'warn').mockImplementation(() => {});
       
       // Force an error by making the Map throw
       const mockMap = {
@@ -72,9 +74,9 @@ describe('LRUCache', () => {
       cache['cache'] = mockMap as any;
       
       expect(() => cache.set('key1', 'value1')).not.toThrow();
-      expect(consoleSpy).toHaveBeenCalledWith('[LRUCache] Error setting cache value:', expect.any(Error));
+      expect(loggerSpy).toHaveBeenCalledWith('[LRUCache] Error setting cache value:', expect.any(Error));
       
-      consoleSpy.mockRestore();
+      loggerSpy.mockRestore();
     });
   });
 
