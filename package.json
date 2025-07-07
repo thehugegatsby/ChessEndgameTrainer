@@ -36,8 +36,8 @@
     "outdated": "npm outdated",
     "ci:install": "npm ci --prefer-offline --no-audit",
     "ci:test": "npm run lint && npm run tsc -- --noEmit && npm test",
-    "migrate:firestore": "ts-node scripts/migrateToFirestore.ts",
-    "migrate:verify": "ts-node scripts/migrateToFirestore.ts --verify"
+    "migrate:firestore": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register scripts/migrateToFirestore.ts",
+    "migrate:verify": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register scripts/migrateToFirestore.ts --verify"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
@@ -51,7 +51,7 @@
     "clsx": "^2.1.0",
     "expo": "^50.0.0",
     "expo-status-bar": "~1.11.1",
-    "firebase": "^10.8.0",
+    "firebase": "^11.10.0",
     "immer": "^10.1.1",
     "lucide-react": "^0.331.0",
     "next": "^15.3.3",
@@ -86,6 +86,7 @@
     "babel-jest": "^30.0.0",
     "chalk": "^5.4.1",
     "commander": "^14.0.0",
+    "dotenv": "^17.0.1",
     "eslint": "^8.56.0",
     "eslint-config-next": "14.1.0",
     "expo-cli": "^6.3.10",
@@ -95,6 +96,7 @@
     "rimraf": "^5.0.5",
     "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.3.3",
     "worker-loader": "^3.0.8"
   },

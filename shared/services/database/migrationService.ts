@@ -12,6 +12,34 @@ export interface MigrationResult {
 }
 
 /**
+ * Remove undefined values from an object (Firestore doesn't allow undefined)
+ */
+function removeUndefinedValues(obj: any): any {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map(removeUndefinedValues);
+  }
+  
+  if (typeof obj === 'object') {
+    const cleaned: any = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        const value = obj[key];
+        if (value !== undefined) {
+          cleaned[key] = removeUndefinedValues(value);
+        }
+      }
+    }
+    return cleaned;
+  }
+  
+  return obj;
+}
+
+/**
  * Service for migrating chess endgame data from TypeScript arrays to Firestore
  */
 export class FirestoreMigrationService {
@@ -53,13 +81,15 @@ export class FirestoreMigrationService {
               specialContent: {
                 keySquares: position.specialContent?.keySquares || [],
                 criticalMoves: position.specialContent?.criticalMoves || [],
-                historicalNote: position.specialContent?.historicalNote,
+                ...(position.specialContent?.historicalNote && { historicalNote: position.specialContent.historicalNote }),
                 specificTips: position.specialContent?.specificTips || []
               },
               bridgeHints: position.bridgeHints || []
             };
 
-            batch.set(docRef, firestoreData);
+            // Remove all undefined values before sending to Firestore
+            const cleanedData = removeUndefinedValues(firestoreData);
+            batch.set(docRef, cleanedData);
             migratedCount++;
           } catch (error) {
             const errorMsg = `Failed to prepare position ${position.id}: ${error}`;
@@ -114,7 +144,8 @@ export class FirestoreMigrationService {
             positionCount: allEndgamePositions.filter(p => p.category === category.id).length
           };
 
-          batch.set(docRef, firestoreData);
+          const cleanedData = removeUndefinedValues(firestoreData);
+          batch.set(docRef, cleanedData);
           migratedCount++;
         } catch (error) {
           const errorMsg = `Failed to prepare category ${category.id}: ${error}`;
@@ -167,7 +198,8 @@ export class FirestoreMigrationService {
             prerequisites: [] // Add if chapters have prerequisites
           };
 
-          batch.set(docRef, firestoreData);
+          const cleanedData = removeUndefinedValues(firestoreData);
+          batch.set(docRef, cleanedData);
           migratedCount++;
         } catch (error) {
           const errorMsg = `Failed to prepare chapter ${chapter.id}: ${error}`;
