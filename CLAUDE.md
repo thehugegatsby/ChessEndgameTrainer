@@ -13,20 +13,31 @@
 - **Architecture**: ✅ Unified Evaluation System, ✅ LoggerCompat Migration Complete
 - **Deployment**: Vercel-ready mit WASM Support
 
-## 📁 Dokumentationsstruktur (2025-01-16)
+## 📁 Dokumentationsstruktur (2025-01-07)
 
 ```
 .
 ├── README.md                      # Haupteinstieg
 ├── CLAUDE.md                      # AI-Kontext (diese Datei)
+├── UNUSED_FILES_REPORT.md         # Bericht über ungenutzte Dateien (TODO: Review & Clean)
 └── docs/
     ├── ARCHITECTURE.md            # Systemarchitektur
+    ├── CI_CD_GUIDE.md             # CI/CD Pipeline Dokumentation
+    ├── CODE_REVIEW_2025_01_04.md  # Umfassende Code Review (historisch)
     ├── DEPLOYMENT_GUIDE.md        # Deployment-Anleitung  
     ├── DEVELOPMENT_HISTORY.md     # Entwicklungsverlauf
-    ├── SECURITY_IMPLEMENTATION_GUIDE.md  # Security-Guide
+    ├── MIGRATION_COMPLETE.md      # Abgeschlossene Unified Evaluation Migration
+    ├── SECURITY_GUIDE.md          # Security Best Practices
+    ├── SECURITY_IMPLEMENTATION_GUIDE.md  # Security-Implementation Details
+    ├── TESTING_GUIDELINES.md      # Test-Richtlinien
     └── features/
         └── brueckenbau-trainer.md # Feature-Dokumentation
 ```
+
+### Gelöschte veraltete Dokumente (2025-01-07)
+- Migrations-Dokumente (6 Dateien) - Alle Migrationen abgeschlossen
+- Session-Handover temporäre Dateien
+- Veraltete Test-Entwicklungspläne
 
 ## 🚀 Essential Commands
 ```bash
@@ -462,10 +473,10 @@ if (categoryBefore === 'loss' && categoryAfter === 'loss') {
 - This file provides in-depth technical details about WDL handling and perspective correction
 
 ---
-**Last Updated**: 2025-01-16 - CI/CD Pipeline Fixed (All tests passing, Vercel deployment removed)
+**Last Updated**: 2025-01-07 - Documentation Cleanup & Enhanced Tablebase Types
 **Session Summary**: 
-- Fixed 18 failing tests to achieve 100% test success rate
-- Updated Jest configuration and test expectations
-- Resolved test isolation issues with proper mock cleanup
-- CI/CD pipeline fully functional with 659 passing tests
-- Code Health von ~5% auf 1.7% ungenutzten Code verbessert
+- Added enhanced tablebase evaluation types (MoveQualityClass, RobustnessTag)
+- Added comprehensive test coverage for Brückenbau-Trainer foundation
+- Cleaned up 6 obsolete migration documents
+- Updated documentation structure in CLAUDE.md
+- Project build successful with no TypeScript or lint errors
