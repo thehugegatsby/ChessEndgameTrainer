@@ -590,11 +590,21 @@ shared/constants/
 - Worker timeout: 10000ms (PERFORMANCE_CONFIG.WORKER_TIMEOUT)
 - Evaluation thresholds and more
 
+### UI Improvements (2025-01-17)
+**What Changed**: Enhanced user interface layout and responsiveness
+
+**Improvements**:
+1. **Sidebar Width**: Adjusted left navigation from w-80 (20rem) to w-[22rem] for better content visibility
+2. **Board Centering**: Chess board now vertically centered using flex items-center
+3. **Header Position**: Progress header moved from top-8 to top-24 for better spacing
+4. **Responsive Design**: Maintained mobile compatibility with all changes
+
 ---
-**Last Updated**: 2025-01-17 - Move Evaluation Symbols Fix & Test Coverage
+**Last Updated**: 2025-01-17 - Move Evaluation Symbols Fix, Test Coverage & UI Improvements
 **Session Summary**: 
 - Fixed missing move evaluation symbols (✓, 🔻, etc.) in MovePanelZustand
 - Added setEvaluations action to Zustand store
 - Created comprehensive unit & integration tests with pyramid strategy
 - Updated training page to client-side rendering to avoid SSR issues
+- Enhanced UI: wider sidebar (22rem), centered chess board, improved spacing
 - Previous milestone: Magic Numbers Centralization & Modular Architecture (2025-01-07)
