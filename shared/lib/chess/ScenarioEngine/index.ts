@@ -11,20 +11,22 @@
  * - Clean error handling and logging
  */
 
-import { Chess, Move as ChessJsMove } from 'chess.js';
-import type { Move as CustomMove } from '../../../types/chess';
+import { Chess } from 'chess.js';
 import { Engine } from '../engine';
 import { EvaluationService } from './evaluationService';
 import { TablebaseService } from './tablebaseService';
+import {
+  InstanceManager,
+  MoveHandler,
+  EvaluationManager,
+  TablebaseManager,
+  Utilities
+} from './core';
 import type { 
   DualEvaluation, 
   TablebaseInfo, 
-  EngineEvaluation,
-  SCENARIO_CONFIG
+  EngineEvaluation
 } from './types';
-
-
-const { MAX_INSTANCES } = require('./types').SCENARIO_CONFIG;
 
 /**
  * Main Scenario Engine class
@@ -42,7 +44,12 @@ export class ScenarioEngine {
   private engine: Engine;
   private evaluationService: EvaluationService;
   private tablebaseService: TablebaseService;
-  private static instanceCount = 0;
+  
+  // Core managers
+  private moveHandler: MoveHandler;
+  private evaluationManager: EvaluationManager;
+  private tablebaseManager: TablebaseManager;
+  private utilities: Utilities;
 
   /**
    * Creates a new scenario engine instance
@@ -55,57 +62,67 @@ export class ScenarioEngine {
   constructor(fen?: string) {
     // Validate FEN if provided
     if (fen !== undefined) {
-      this.validateFen(fen);
+      InstanceManager.validateFen(fen);
     }
     
     const startingFen = fen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-    this.trackInstanceCount();
+    InstanceManager.trackInstanceCount();
     
     this.initialFen = startingFen;
-    this.chess = new Chess(startingFen);
+    this.chess = InstanceManager.createChessInstance(startingFen);
     this.engine = Engine.getInstance();
     
     // Initialize specialized services
     this.evaluationService = new EvaluationService(this.engine);
     this.tablebaseService = new TablebaseService();
     
-    this.validateEngineInitialization();
+    InstanceManager.validateEngineInitialization(this.engine);
+
+    // Initialize core managers
+    this.moveHandler = new MoveHandler(this.chess, this.engine);
+    this.evaluationManager = new EvaluationManager(this.chess, this.engine, this.evaluationService);
+    this.tablebaseManager = new TablebaseManager(this.tablebaseService);
+    this.utilities = new Utilities(
+      this.chess, 
+      this.tablebaseManager, 
+      this.evaluationManager, 
+      this.moveHandler, 
+      this.initialFen
+    );
   }
 
-  /**
-   * Validates FEN string format
-   */
-  private validateFen(fen: string): void {
-    if (!fen || typeof fen !== 'string' || fen.trim() === '') {
-      const error = new Error('FEN must be a non-empty string');
-      throw error;
-    }
-  }
-
-  /**
-   * Tracks instance count for memory management on mobile
-   */
-  private trackInstanceCount(): void {
-    ScenarioEngine.instanceCount++;
-    
-    // Instance count tracking for mobile performance
-  }
-
-  /**
-   * Validates engine initialization
-   */
-  private validateEngineInitialization(): void {
-    if (!this.engine) {
-      throw new Error('[ScenarioEngine] Engine failed to initialize');
-    }
-  }
+  // === Position Management ===
 
   /**
    * Gets current position FEN
    */
   public getFen(): string {
-    return this.chess.fen();
+    return this.utilities.getFen();
   }
+
+  /**
+   * Updates the current position
+   */
+  public updatePosition(fen: string): void {
+    InstanceManager.updateChessPosition(this.chess, fen);
+  }
+
+  /**
+   * Resets to initial position
+   */
+  public reset(): void {
+    InstanceManager.resetChessPosition(this.chess, this.initialFen);
+  }
+
+  /**
+   * Gets the Chess.js instance for advanced operations
+   * Use with caution - prefer using ScenarioEngine methods
+   */
+  public getChessInstance(): Chess {
+    return this.utilities.getChessInstance();
+  }
+
+  // === Move Operations ===
 
   /**
    * Makes a move on the board and gets engine response
@@ -122,34 +139,7 @@ export class ScenarioEngine {
     to: string; 
     promotion?: 'q' | 'r' | 'b' | 'n' 
   }): Promise<any | null> {
-    const turn = this.chess.turn();
-    
-    try {
-      const playerMove = this.chess.move(move);
-      if (!playerMove) {
-        return null;
-      }
-
-      const moveWithColor = { ...playerMove, color: turn };
-      
-      // Get engine response (mobile-optimized timeout)
-      const engineMoveData = await this.engine.getBestMove(this.chess.fen(), 1000);
-      
-      if (engineMoveData) {
-        try {
-          this.chess.move({ 
-            from: engineMoveData.from, 
-            to: engineMoveData.to,
-            promotion: engineMoveData.promotion
-          });
-        } catch (error) {
-        }
-      }
-      
-      return moveWithColor;
-    } catch (error) {
-      return null;
-    }
+    return this.moveHandler.makeMove(move);
   }
 
   /**
@@ -158,26 +148,17 @@ export class ScenarioEngine {
    * @returns Promise<string | null> - Best move in UCI format
    */
   public async getBestMove(fen: string): Promise<string | null> {
-    try {
-      const bestMove = await this.engine.getBestMove(fen);
-      
-      if (bestMove) {
-        const moveUci = bestMove.from + bestMove.to + (bestMove.promotion || '');
-        return moveUci;
-      }
-      
-      return null;
-    } catch (error) {
-      return null;
-    }
+    return this.moveHandler.getBestMove(fen);
   }
+
+  // === Evaluation Methods ===
 
   /**
    * Checks if a move is a critical mistake
    * Uses the specialized evaluation service
    */
   public async isCriticalMistake(fenBefore: string, fenAfter: string): Promise<boolean> {
-    return this.evaluationService.isCriticalMistake(fenBefore, fenAfter);
+    return this.evaluationManager.isCriticalMistake(fenBefore, fenAfter);
   }
 
   /**
@@ -185,14 +166,7 @@ export class ScenarioEngine {
    * Mobile-optimized with proper error handling
    */
   public async getDualEvaluation(fen: string): Promise<DualEvaluation> {
-    return this.evaluationService.getDualEvaluation(fen);
-  }
-
-  /**
-   * Gets tablebase information for a position
-   */
-  public async getTablebaseInfo(fen: string): Promise<TablebaseInfo> {
-    return this.tablebaseService.getTablebaseInfo(fen);
+    return this.evaluationManager.getDualEvaluation(fen);
   }
 
   /**
@@ -200,46 +174,47 @@ export class ScenarioEngine {
    * @param fen - Position to evaluate (optional, uses current if not provided)
    */
   public async getEvaluation(fen?: string): Promise<EngineEvaluation> {
-    const positionFen = fen || this.chess.fen();
-    
-    try {
-      return await this.engine.evaluatePosition(positionFen);
-    } catch (error) {
-      return { score: 0, mate: null };
-    }
+    return this.evaluationManager.getEvaluation(fen);
   }
 
-  /**
-   * Updates the current position
-   */
-  public updatePosition(fen: string): void {
-    this.validateFen(fen);
-    
-    try {
-      this.chess.load(fen);
-    } catch (error) {
-      throw new Error(`[ScenarioEngine] Invalid FEN: ${fen}`);
-    }
-  }
+  // === Tablebase Methods ===
 
   /**
-   * Resets to initial position
+   * Gets tablebase information for a position
    */
-  public reset(): void {
-    try {
-      this.chess.load(this.initialFen);
-    } catch (error) {
-      throw new Error('[ScenarioEngine] Failed to reset to initial position');
-    }
+  public async getTablebaseInfo(fen: string): Promise<TablebaseInfo> {
+    return this.tablebaseManager.getTablebaseInfo(fen);
   }
 
+  // === Analysis Methods ===
+
   /**
-   * Gets the Chess.js instance for advanced operations
-   * Use with caution - prefer using ScenarioEngine methods
+   * Gets best moves from engine and tablebase
+   * @param fen - Position to analyze
+   * @param count - Number of best moves to return (default: 3)
    */
-  public getChessInstance(): Chess {
-    return this.chess;
+  public async getBestMoves(fen: string, count: number = 3): Promise<{
+    engine: Array<{ move: string; evaluation: number; mate?: number }>;
+    tablebase: Array<{ move: string; wdl: number; dtm?: number; evaluation: string }>;
+  }> {
+    return this.utilities.getBestMoves(fen, count);
   }
+
+  // === Statistics & Debugging ===
+
+  /**
+   * Gets engine statistics for debugging
+   */
+  public getStats(): { 
+    instanceCount: number; 
+    currentFen: string; 
+    initialFen: string;
+    cacheStats: { size: number; maxSize: number };
+  } {
+    return this.utilities.getStats();
+  }
+
+  // === Memory Management ===
 
   /**
    * Cleanup method for mobile memory management
@@ -253,154 +228,26 @@ export class ScenarioEngine {
    */
   public quit(): void {
     try {
-      ScenarioEngine.instanceCount--;
-      this.tablebaseService.clearCache();
+      InstanceManager.decrementInstanceCount();
+      this.tablebaseManager.clearCache();
       
       // Clear references for garbage collection
       this.chess = null as any;
       this.evaluationService = null as any;
       this.tablebaseService = null as any;
+      this.moveHandler = null as any;
+      this.evaluationManager = null as any;
+      this.tablebaseManager = null as any;
+      this.utilities = null as any;
       
     } catch (error) {
+      // Silent cleanup failure
     }
-  }
-
-  /**
-   * Gets best moves from engine and tablebase
-   * @param fen - Position to analyze
-   * @param count - Number of best moves to return (default: 3)
-   */
-  public async getBestMoves(fen: string, count: number = 3): Promise<{
-    engine: Array<{ move: string; evaluation: number; mate?: number }>;
-    tablebase: Array<{ move: string; wdl: number; dtm?: number; evaluation: string }>;
-  }> {
-    const result = {
-      engine: [] as Array<{ move: string; evaluation: number; mate?: number }>,
-      tablebase: [] as Array<{ move: string; wdl: number; dtm?: number; evaluation: string }>
-    };
-
-    try {
-      // Get engine's top moves
-      const engineMoves = await this.engine.getMultiPV(fen, count);
-      result.engine = engineMoves.map(m => ({
-        move: this.convertEngineNotation(m.move, fen),
-        evaluation: m.score,
-        mate: m.mate
-      }));
-
-      // Check if this is a tablebase position
-      const pieces = this.countPieces(fen);
-      if (pieces <= 7) {
-        const tablebaseMoves = await this.getTablebaseMoves(fen, count);
-        result.tablebase = tablebaseMoves;
-      }
-    } catch (error) {
-    }
-
-    return result;
-  }
-
-  /**
-   * Converts engine notation (e2e4) to algebraic notation (e4)
-   */
-  private convertEngineNotation(engineMove: string, fen: string): string {
-    try {
-      const tempChess = new Chess(fen);
-      const from = engineMove.substring(0, 2);
-      const to = engineMove.substring(2, 4);
-      const promotion = engineMove.length > 4 ? engineMove[4] as 'q' | 'r' | 'b' | 'n' : undefined;
-      
-      const move = tempChess.move({ from, to, promotion });
-      return move ? move.san : engineMove;
-    } catch {
-      return engineMove;
-    }
-  }
-
-  /**
-   * Gets tablebase moves for a position
-   * 
-   * AI_NOTE: CRITICAL BUG FIXED HERE - WDL values from tablebase API are ALWAYS from
-   * White's perspective, but after making a move, we need the perspective of who just moved.
-   * Line 353: We negate the WDL to get current player's perspective.
-   * This was causing Black's best defensive moves to show as mistakes!
-   * See: /shared/utils/chess/EVALUATION_LOGIC_LEARNINGS.md for full details
-   */
-  private async getTablebaseMoves(fen: string, count: number): Promise<Array<{
-    move: string;
-    wdl: number;
-    dtm?: number;
-    evaluation: string;
-  }>> {
-    try {
-      const tempChess = new Chess(fen);
-      const legalMoves = tempChess.moves({ verbose: true });
-      // Debug logging removed for production
-      
-      const tablebaseMoves = [];
-
-      // Check more moves than requested to find best ones
-      const movesToCheck = Math.min(legalMoves.length, count * 3);
-      
-      for (const move of legalMoves.slice(0, movesToCheck)) {
-        tempChess.move(move);
-        const positionAfterMove = tempChess.fen();
-        
-        try {
-          const info = await this.tablebaseService.getTablebaseInfo(positionAfterMove);
-          // Process tablebase response
-          
-          if (info && info.isTablebasePosition && info.result?.wdl !== undefined) {
-            // WDL values are from perspective of position after move
-            // We need to negate to get from current player's perspective
-            const wdlFromCurrentPlayer = -info.result.wdl;
-            tablebaseMoves.push({
-              move: move.san,
-              wdl: wdlFromCurrentPlayer,
-              dtm: info.result.dtz ?? undefined,
-              evaluation: wdlFromCurrentPlayer === 2 ? 'Win' : wdlFromCurrentPlayer === -2 ? 'Loss' : 'Draw'
-            });
-          }
-        } catch (moveError) {
-        }
-        
-        tempChess.undo();
-      }
-
-      // Sort moves by quality
-      
-      // Sort by WDL (wins first, then draws, then losses)
-      return tablebaseMoves.sort((a, b) => b.wdl - a.wdl).slice(0, count);
-    } catch (error) {
-      return [];
-    }
-  }
-
-  /**
-   * Counts pieces on the board
-   */
-  private countPieces(fen: string): number {
-    const boardPart = fen.split(' ')[0];
-    return (boardPart.match(/[pnbrqkPNBRQK]/g) || []).length;
-  }
-
-  /**
-   * Gets engine statistics for debugging
-   */
-  public getStats(): { 
-    instanceCount: number; 
-    currentFen: string; 
-    initialFen: string;
-    cacheStats: { size: number; maxSize: number };
-  } {
-    return {
-      instanceCount: ScenarioEngine.instanceCount,
-      currentFen: this.chess.fen(),
-      initialFen: this.initialFen,
-      cacheStats: this.tablebaseService.getCacheStats()
-    };
   }
 }
 
 // Re-export types for convenience
-export type { DualEvaluation, TablebaseInfo, EngineEvaluation } from './types'; 
+export type { DualEvaluation, TablebaseInfo, EngineEvaluation } from './types';
+
+// Re-export InstanceManager for testing
+export { InstanceManager } from './core';

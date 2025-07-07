@@ -5,6 +5,7 @@
 
 import { Chess } from 'chess.js';
 import { ScenarioEngine } from '../../../shared/lib/chess/ScenarioEngine';
+import { InstanceManager } from '../../../shared/lib/chess/ScenarioEngine/core/instanceManager';
 import { TEST_POSITIONS, TEST_MOVES, getInvalidPositions } from '../../helpers/testPositions';
 import { MockEngine, MockTablebaseService } from '../../helpers/engineMocks';
 
@@ -56,8 +57,7 @@ describe('ScenarioEngine', () => {
     }
     
     // Reset static instance count to prevent test interference
-    // Access private static field through prototype manipulation
-    (ScenarioEngine as any).instanceCount = 0;
+    InstanceManager.resetInstanceCount();
   });
 
   describe('Instance Management', () => {
