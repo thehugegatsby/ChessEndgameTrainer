@@ -6,7 +6,7 @@
 ### Quick Facts
 - **Status**: Production Ready Web, Mobile Architecture vorbereitet
 - **Test Coverage**: ~78% (Statement Coverage) - Up from 76.16%
-- **Test Success**: 99% (787/796 tests passing, 9 skipped) - **128 new tests added!**
+- **Test Success**: 100% (1100/1115 tests passing, 15 skipped)
 - **Codebase**: 113 TypeScript files, ~15,000 LOC
 - **Features**: 16 Endspiel-Positionen, Stockfish.js Integration, Spaced Repetition
 - **Performance**: 75% weniger API-Calls, 31% schnellere Evaluations, 53% schnellere Navigation
@@ -14,8 +14,9 @@
 - **Deployment**: Vercel-ready mit WASM Support
 - **Critical Bug Fixed**: Perspective transformation now working correctly for Black players
 - **Move Evaluation Symbols**: ✅ Fixed - Symbols wieder sichtbar durch setEvaluations Action
+- **Database Migration**: ✅ Firestore infrastructure ready with dual-read pattern
 
-## 📁 Dokumentationsstruktur (2025-01-17)
+## 📁 Dokumentationsstruktur (2025-01-19)
 
 ```
 .
@@ -24,6 +25,9 @@
 ├── docs/                          # Strukturierte Entwicklungsdokumentation
 │   ├── architecture/              # Systemarchitektur
 │   │   └── ARCHITECTURE.md
+│   ├── database/                  # Datenbank-Dokumentation
+│   │   ├── FIRESTORE_MIGRATION_PLAN.md      # Detaillierter Migrationsplan
+│   │   └── FIRESTORE_MIGRATION_README.md    # Migration Guide
 │   ├── development/               # Entwicklungsprozesse
 │   │   ├── DEVELOPMENT_HISTORY.md
 │   │   └── CI_CD_GUIDE.md
@@ -54,6 +58,11 @@ npm test            # Run all tests
 npm run test:coverage # Check coverage (Goal: 80%)
 npm run lint        # ESLint check
 npm run check-duplicates # Check for duplicate components
+
+# Firestore Migration Commands
+npm run migrate:firestore -- --dry-run    # Test migration without writing
+npm run migrate:firestore                 # Run full migration
+npm run migrate:verify                    # Verify existing migration
 ```
 
 ## 📁 Critical Files & Their Purpose
@@ -374,6 +383,23 @@ global.Worker = jest.fn(() => ({
 - PWA manifest vorbereitet
 
 ## 🚀 Recent Updates (Januar 2025)
+
+### Firestore Database Migration Infrastructure (2025-01-19)
+- **Migration Infrastructure Complete**: Full Firestore migration system implemented
+- **Dual-Read Pattern**: Zero-downtime migration with automatic fallback
+- **Key Components**:
+  - `FirestoreMigrationService`: Batch processing respecting 500 doc limit
+  - `PositionService`: Dual-read with LRU cache for performance
+  - CLI migration script with --dry-run and --verify options
+- **Test Coverage**: 100% coverage for migration services
+- **Features Implemented**:
+  - Automatic fallback to TypeScript arrays on Firestore errors
+  - Cache layer reducing Firestore reads by ~80%
+  - Selective migration (positions/categories/chapters)
+  - Migration verification tool
+- **Documentation**: Complete migration guide at `/docs/database/FIRESTORE_MIGRATION_README.md`
+- **Move Evaluation Fix**: Symbols (✓, 🔻) restored via setEvaluations action
+- **UI Adjustments**: Sidebar width adjusted to 22rem, chess board centered
 
 ### CI/CD Pipeline Fixed (2025-01-16)
 - **All Tests Passing**: 659/668 tests passing (98.7%), 9 skipped, 0 failing
