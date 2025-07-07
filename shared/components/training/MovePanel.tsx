@@ -91,7 +91,7 @@ export const MovePanel: React.FC<MovePanelProps> = React.memo(({
       {movePairs.map((pair) => (
         <div 
           key={pair.moveNumber} 
-          className="flex items-center justify-center gap-4 py-1 hover:bg-gray-800 rounded px-2"
+          className="flex items-center gap-4 py-1 hover:bg-gray-800 rounded px-2"
         >
           {/* Move Number */}
           <span className="text-sm text-gray-400 w-6 text-center font-mono">
@@ -118,27 +118,32 @@ export const MovePanel: React.FC<MovePanelProps> = React.memo(({
             })()}
           </div>
 
-          {/* Black Move with evaluation */}
-          {pair.blackMove && (
-            <div className="flex items-center gap-1 min-w-[80px] justify-center">
-              <button
-                onClick={() => onMoveClick?.((pair.moveNumber - 1) * 2 + 1)}
-                className={`font-mono text-sm hover:text-blue-400 px-1 py-0.5 rounded transition-colors ${
-                  currentMoveIndex === (pair.moveNumber - 1) * 2 + 1 ? 'text-blue-400 bg-blue-900/30' : 'text-white'
-                }`}
-              >
-                {pair.blackMove.san}
-              </button>
-              {showEvaluations && pair.blackEval && (() => {
-                const evalDisplay = getSmartMoveEvaluation(pair.blackEval, false, (pair.moveNumber - 1) * 2 + 1);
-                return (
-                  <span className={`text-xs px-1 py-0.5 rounded ${evalDisplay.className}`}>
-                    {evalDisplay.text}
-                  </span>
-                );
-              })()}
-            </div>
-          )}
+          {/* Black Move with evaluation - always reserve space */}
+          <div className="flex items-center gap-1 min-w-[80px] justify-center">
+            {pair.blackMove ? (
+              <>
+                <button
+                  onClick={() => onMoveClick?.((pair.moveNumber - 1) * 2 + 1)}
+                  className={`font-mono text-sm hover:text-blue-400 px-1 py-0.5 rounded transition-colors ${
+                    currentMoveIndex === (pair.moveNumber - 1) * 2 + 1 ? 'text-blue-400 bg-blue-900/30' : 'text-white'
+                  }`}
+                >
+                  {pair.blackMove.san}
+                </button>
+                {showEvaluations && pair.blackEval && (() => {
+                  const evalDisplay = getSmartMoveEvaluation(pair.blackEval, false, (pair.moveNumber - 1) * 2 + 1);
+                  return (
+                    <span className={`text-xs px-1 py-0.5 rounded ${evalDisplay.className}`}>
+                      {evalDisplay.text}
+                    </span>
+                  );
+                })()}
+              </>
+            ) : (
+              // Empty placeholder to reserve space
+              <div className="w-full h-6"></div>
+            )}
+          </div>
         </div>
       ))}
     </div>

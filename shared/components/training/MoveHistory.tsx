@@ -90,20 +90,23 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({ moves, showEvaluations
                       </div>
                       
                       {/* Schwarzer Zug - rechts */}
-                      {pair.black ? (
-                        <div className="flex flex-col items-center min-w-0 flex-1">
-                          <span className="font-mono text-sm text-gray-600 bg-gray-50 px-1.5 py-0.5 rounded group-hover:bg-white transition-colors truncate w-full text-center">
-                            {pair.black.san}
-                          </span>
-                          {showEvaluations && (
-                            <span className={`text-xs font-mono ${getEvaluationColor(pair.blackEval)} mt-0.5`}>
-                              {formatEvaluation(pair.blackEval)}
+                      <div className="flex flex-col items-center min-w-0 flex-1">
+                        {pair.black ? (
+                          <>
+                            <span className="font-mono text-sm text-gray-600 bg-gray-50 px-1.5 py-0.5 rounded group-hover:bg-white transition-colors truncate w-full text-center">
+                              {pair.black.san}
                             </span>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="flex-1"></div>
-                      )}
+                            {showEvaluations && (
+                              <span className={`text-xs font-mono ${getEvaluationColor(pair.blackEval)} mt-0.5`}>
+                                {formatEvaluation(pair.blackEval)}
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          // Empty placeholder to maintain consistent spacing
+                          <div className="h-6"></div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
