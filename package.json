@@ -10,6 +10,7 @@
     "test": "jest --config=tests/jest.config.js",
     "test:watch": "jest --config=tests/jest.config.js --watch",
     "test:coverage": "jest --config=tests/jest.config.js --coverage",
+    "test:coverage:business": "jest --config=tests/jest.config.business.js --coverage",
     "test:coverage:evaluation": "jest --config=jest.config.feature-coverage.js --coverage",
     "test:unit": "jest --config=tests/jest.config.js --selectProjects=unit",
     "test:integration": "jest --config=tests/jest.config.js --selectProjects=integration",
