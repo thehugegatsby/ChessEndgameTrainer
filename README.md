@@ -18,6 +18,7 @@ Eine moderne Web- und Mobile-Anwendung zum systematischen Lernen von Schachendsp
 - **Brückenbau-Trainer** - Strukturiertes Lernen mit 5 Lektionen
 - **Spaced Repetition** - FSRS-basiertes Lernsystem
 - **Performance Optimiert** - 75% weniger API-Calls, LRU Cache
+- **Database Ready** - Firestore migration mit Dual-Read Pattern
 - **Responsive Design** - Desktop & Mobile optimiert
 - **Dark Mode** - Augenschonend trainieren
 - **Production Ready** - Vercel Deployment mit Security Headers
@@ -98,6 +99,21 @@ npm run dev
 ```
 
 Server läuft auf http://localhost:3001
+
+### Database Migration (Optional)
+
+```bash
+# Test migration without writing
+npm run migrate:firestore -- --dry-run
+
+# Run actual migration to Firestore
+npm run migrate:firestore
+
+# Verify migration
+npm run migrate:verify
+```
+
+Details siehe [Firestore Migration Guide](./docs/database/FIRESTORE_MIGRATION_README.md)
 
 ### Tests ausführen
 
