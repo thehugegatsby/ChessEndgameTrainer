@@ -13,6 +13,9 @@ import type {
   ErrorResponse
 } from './types';
 import { Chess, Move as ChessJsMove } from 'chess.js';
+import { getLogger } from '../../../services/logging';
+
+const logger = getLogger();
 
 /**
  * Internal response type including ready signal
@@ -73,7 +76,7 @@ export class StockfishMessageHandler {
       return null;
       
     } catch (error) {
-      console.error('[MessageHandler] Error processing message:', error);
+      logger.error('Error processing message:', error);
       if (this.currentRequest) {
         return {
           id: this.currentRequest.id,
@@ -90,7 +93,7 @@ export class StockfishMessageHandler {
    */
   private handleBestMove(message: string): InternalResponse | null {
     if (!this.currentRequest) {
-      console.warn('[MessageHandler] Received bestmove without active request');
+      logger.warn('Received bestmove without active request');
       return null;
     }
     
@@ -136,7 +139,7 @@ export class StockfishMessageHandler {
         move: move
       };
     } catch (error) {
-      console.warn('[MessageHandler] Failed to parse move:', moveStr, error);
+      logger.warn('Failed to parse move:', { moveStr, error });
       return {
         id: requestId,
         type: 'bestmove',
@@ -200,7 +203,7 @@ export class StockfishMessageHandler {
         };
       }
     } catch (error) {
-      console.warn('[MessageHandler] Failed to parse evaluation:', error);
+      logger.warn('Failed to parse evaluation:', error);
     }
   }
 

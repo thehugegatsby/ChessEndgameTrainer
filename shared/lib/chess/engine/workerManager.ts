@@ -7,6 +7,9 @@
 
 import { StockfishMessageHandler } from './messageHandler';
 import type { EngineConfig, EngineResponse } from './types';
+import { getLogger } from '../../../services/logging';
+
+const logger = getLogger();
 
 /**
  * Manages the Stockfish Web Worker
@@ -47,12 +50,14 @@ export class StockfishWorkerManager {
       this.setupWorkerEventHandlers();
       
       // Send UCI command to initialize
-      this.sendCommand('uci');
+      // Note: We need to send this directly since isReady is still false
+      this.worker.postMessage('uci');
       
       // Wait for worker to be ready
       return await this.waitForReady(5000); // 5 second timeout for mobile
       
     } catch (error) {
+      logger.error('Failed to initialize worker:', error);
       this.cleanup();
       return false;
     }
@@ -79,10 +84,13 @@ export class StockfishWorkerManager {
     };
 
     this.worker.onerror = (e) => {
+      logger.error('Worker error:', e);
       this.cleanup();
     };
 
     this.worker.onmessageerror = (e) => {
+      logger.warn('Worker message error:', e);
+      // Don't cleanup on message errors - the worker might still be functional
     };
   }
 
@@ -123,6 +131,7 @@ export class StockfishWorkerManager {
     try {
       this.worker.postMessage(command);
     } catch (error) {
+      logger.error('Failed to send command to worker:', error);
     }
   }
 
@@ -144,16 +153,19 @@ export class StockfishWorkerManager {
    * Cleanup worker resources
    */
   cleanup(): void {
+    // Always reset state, regardless of termination success
+    this.isReady = false;
+    this.readyCallbacks = [];
+    
     try {
       if (this.worker) {
         this.worker.terminate();
-        this.worker = null;
       }
-      
-      this.isReady = false;
-      this.readyCallbacks = [];
-      
     } catch (error) {
+      logger.warn('Error during worker termination:', error);
+    } finally {
+      // Always clear the worker reference
+      this.worker = null;
     }
   }
 

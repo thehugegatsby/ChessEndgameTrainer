@@ -13,31 +13,37 @@
 - **Architecture**: ✅ Unified Evaluation System, ✅ LoggerCompat Migration Complete
 - **Deployment**: Vercel-ready mit WASM Support
 
-## 📁 Dokumentationsstruktur (2025-01-07)
+## 📁 Dokumentationsstruktur (2025-01-16)
 
 ```
 .
 ├── README.md                      # Haupteinstieg
-├── CLAUDE.md                      # AI-Kontext (diese Datei)
-├── UNUSED_FILES_REPORT.md         # Bericht über ungenutzte Dateien (TODO: Review & Clean)
-└── docs/
-    ├── ARCHITECTURE.md            # Systemarchitektur
-    ├── CI_CD_GUIDE.md             # CI/CD Pipeline Dokumentation
-    ├── CODE_REVIEW_2025_01_04.md  # Umfassende Code Review (historisch)
-    ├── DEPLOYMENT_GUIDE.md        # Deployment-Anleitung  
-    ├── DEVELOPMENT_HISTORY.md     # Entwicklungsverlauf
-    ├── MIGRATION_COMPLETE.md      # Abgeschlossene Unified Evaluation Migration
-    ├── SECURITY_GUIDE.md          # Security Best Practices
-    ├── SECURITY_IMPLEMENTATION_GUIDE.md  # Security-Implementation Details
-    ├── TESTING_GUIDELINES.md      # Test-Richtlinien
-    └── features/
-        └── brueckenbau-trainer.md # Feature-Dokumentation
+├── CLAUDE.md                      # AI-Kontext & Best Practices (diese Datei)
+├── docs/                          # Strukturierte Entwicklungsdokumentation
+│   ├── architecture/              # Systemarchitektur
+│   │   └── ARCHITECTURE.md
+│   ├── development/               # Entwicklungsprozesse
+│   │   ├── DEVELOPMENT_HISTORY.md
+│   │   └── CI_CD_GUIDE.md
+│   ├── deployment/                # Deployment-Dokumentation
+│   │   └── DEPLOYMENT_GUIDE.md
+│   ├── security/                  # Security-Dokumentation
+│   │   ├── SECURITY_GUIDE.md
+│   │   └── SECURITY_IMPLEMENTATION_GUIDE.md
+│   ├── testing/                   # Test-Strategie
+│   │   └── TESTING_GUIDELINES.md
+│   └── features/                  # Feature-spezifische Dokumentation
+│       └── brueckenbau-trainer.md
+├── tests/                         # Test-spezifische Dokumentation
+│   ├── README.md
+│   └── unit/
+│       └── cache/
+│           └── CACHE_TEST_STRATEGY.md
+└── archive/                       # Historische Dokumente
+    ├── migration-reports/         # Abgeschlossene Migrationen
+    ├── session-handover/          # Session-Übergaben
+    └── code-reviews/              # Historische Code Reviews
 ```
-
-### Gelöschte veraltete Dokumente (2025-01-07)
-- Migrations-Dokumente (6 Dateien) - Alle Migrationen abgeschlossen
-- Session-Handover temporäre Dateien
-- Veraltete Test-Entwicklungspläne
 
 ## 🚀 Essential Commands
 ```bash
@@ -236,6 +242,40 @@ const TEST_CASES = [
   // ... weitere Test-Cases für alle Qualitätsklassen
 ];
 ```
+
+## 🤖 AI Assistant Best Practices
+
+### Prompt Engineering für Claude
+1. **Kontextbereitstellung**: CLAUDE.md immer aktuell halten mit Projektstruktur, Known Issues und aktuellen Prioritäten
+2. **Spezifische Anfragen**: "Implementiere X mit Y" statt "Verbessere den Code"
+3. **Verifizierung**: Generierte Lösungen immer mit Tests validieren
+4. **Inkrementelle Änderungen**: Große Refactorings in kleine, testbare Schritte aufteilen
+
+### Code-Generierung Guidelines
+1. **Test First**: Erst Tests schreiben/anpassen, dann Implementation
+2. **Type Safety**: Immer TypeScript types verwenden, keine `any`
+3. **Error Handling**: Try-catch mit errorService, nie silent failures
+4. **Performance**: Debouncing und Memoization bei teuren Operationen
+5. **Logging**: IMMER zentralen Logger verwenden, NIE console.log/error/warn
+   ```typescript
+   import { getLogger } from 'shared/services/logging';
+   const logger = getLogger();
+   logger.info('message'); // statt console.log
+   logger.error('error', error); // statt console.error
+   logger.warn('warning'); // statt console.warn
+   ```
+
+### Common AI Pitfalls vermeiden
+1. **Overengineering**: Einfache Lösungen bevorzugen
+2. **Copy-Paste Patterns**: Code-Duplikation vermeiden
+3. **Inconsistent Naming**: Bestehende Konventionen befolgen
+4. **Missing Tests**: Keine Features ohne Tests
+
+### Verifizierung von AI-generierten Code
+1. **Lint & TypeScript**: `npm run lint` und `npm run build` müssen erfolgreich sein
+2. **Test Coverage**: Neue Features müssen >80% Coverage haben
+3. **Manual Testing**: UI-Änderungen immer manuell testen
+4. **Performance Check**: Chrome DevTools für Performance-Monitoring
 
 ## 💡 Code Patterns & Best Practices
 
@@ -473,10 +513,10 @@ if (categoryBefore === 'loss' && categoryAfter === 'loss') {
 - This file provides in-depth technical details about WDL handling and perspective correction
 
 ---
-**Last Updated**: 2025-01-07 - Documentation Cleanup & Enhanced Tablebase Types
+**Last Updated**: 2025-01-16 - Documentation Reorganization
 **Session Summary**: 
-- Added enhanced tablebase evaluation types (MoveQualityClass, RobustnessTag)
-- Added comprehensive test coverage for Brückenbau-Trainer foundation
-- Cleaned up 6 obsolete migration documents
-- Updated documentation structure in CLAUDE.md
-- Project build successful with no TypeScript or lint errors
+- Reorganized documentation structure with clear categories
+- Created archive/ folder for historical documents
+- Added AI Assistant Best Practices section
+- Consolidated all guidelines into structured directories
+- Updated file references to match new structure

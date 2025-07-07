@@ -2,50 +2,54 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
-  rootDir: '.', 
+  rootDir: '..', 
   transform: {
     '^.+\\.(ts|tsx|js|jsx)$': ['ts-jest', {
-      tsconfig: '<rootDir>/../tsconfig.jest.json'
+      tsconfig: '<rootDir>/tsconfig.jest.json'
     }]
   },
   transformIgnorePatterns: [
     '/node_modules/(?!(react-chessboard|chess.js|react-native|@react-native|@react-navigation|expo|@expo|react-native-.*)/)'
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  setupFilesAfterEnv: ['<rootDir>/setup/jest.setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/tests/setup/jest.setup.js'],
   testPathIgnorePatterns: ['/node_modules/', '/.next/', 'jest.setup.ts', '<rootDir>/e2e/', '/e2e/'],
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/../shared/$1',
-    '^@app/(.*)$': '<rootDir>/../app/$1',
-    '^@shared/(.*)$': '<rootDir>/../shared/$1',
-    '^@app/web/(.*)$': '<rootDir>/../app/web/$1',
-    '^@web/(.*)$': '<rootDir>/../app/web/$1',
-    '^@app/mobile/(.*)$': '<rootDir>/../app/mobile/$1',
+    '^@/(.*)$': '<rootDir>/shared/$1',
+    '^@app/(.*)$': '<rootDir>/app/$1',
+    '^@shared/(.*)$': '<rootDir>/shared/$1',
+    '^@app/web/(.*)$': '<rootDir>/app/web/$1',
+    '^@web/(.*)$': '<rootDir>/app/web/$1',
+    '^@app/mobile/(.*)$': '<rootDir>/app/mobile/$1',
     'react-native$': 'react-native-web',
-    '@react-native-async-storage/async-storage': '<rootDir>/shared/tests/mocks/async-storage.js',
-    'expo-.*': '<rootDir>/shared/tests/mocks/expo.js',
-    '@react-navigation/.*': '<rootDir>/shared/tests/mocks/react-navigation.js',
-    'react-native-safe-area-context': '<rootDir>/shared/tests/mocks/safe-area-context.js'
+    '@react-native-async-storage/async-storage': '<rootDir>/tests/shared/tests/mocks/async-storage.js',
+    'expo-.*': '<rootDir>/tests/shared/tests/mocks/expo.js',
+    '@react-navigation/.*': '<rootDir>/tests/shared/tests/mocks/react-navigation.js',
+    'react-native-safe-area-context': '<rootDir>/tests/shared/tests/mocks/safe-area-context.js'
   },
   testMatch: [
-    '<rootDir>/unit/**/*.{spec,test}.[jt]s?(x)',
-    '<rootDir>/integration/**/*.{spec,test}.[jt]s?(x)',
-    '<rootDir>/performance/**/*.{spec,test}.[jt]s?(x)',
-    '<rootDir>/regression/**/*.{spec,test}.[jt]s?(x)',
-    '<rootDir>/smoke/**/*.{spec,test}.[jt]s?(x)'
+    '<rootDir>/tests/unit/**/*.{spec,test}.[jt]s?(x)',
+    '<rootDir>/tests/integration/**/*.{spec,test}.[jt]s?(x)',
+    '<rootDir>/tests/performance/**/*.{spec,test}.[jt]s?(x)',
+    '<rootDir>/tests/regression/**/*.{spec,test}.[jt]s?(x)',
+    '<rootDir>/tests/smoke/**/*.{spec,test}.[jt]s?(x)',
+    '<rootDir>/tests/**/*.test.[jt]s?(x)'  // Catch all pattern for any test files
   ],
   collectCoverageFrom: [
-    '<rootDir>/../shared/**/*.{ts,tsx}',
-    '<rootDir>/../app/web/**/*.{ts,tsx}',
-    '<rootDir>/../app/mobile/**/*.{ts,tsx}',
+    '<rootDir>/shared/**/*.{ts,tsx,js,jsx}',
+    '<rootDir>/app/web/**/*.{ts,tsx,js,jsx}',
+    '<rootDir>/app/mobile/**/*.{ts,tsx,js,jsx}',
+    '<rootDir>/pages/**/*.{ts,tsx,js,jsx}',
     '!**/*.d.ts',
     '!**/node_modules/**',
-    '!**/*.test.{ts,tsx}',
-    '!**/*.spec.{ts,tsx}',
+    '!**/*.test.{ts,tsx,js,jsx}',
+    '!**/*.spec.{ts,tsx,js,jsx}',
     '!**/tests/**',
-    '!**/mocks/**'
+    '!**/mocks/**',
+    '!**/.next/**',
+    '!**/coverage/**'
   ],
-  coverageDirectory: '../coverage',
+  coverageDirectory: '<rootDir>/coverage',
   coverageReporters: ['lcov', 'text', 'html', 'json-summary'],
   coveragePathIgnorePatterns: [
     '/node_modules/',

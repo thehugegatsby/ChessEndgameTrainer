@@ -4,7 +4,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue)](https://www.typescriptlang.org/)
 [![Test Coverage](https://img.shields.io/badge/Coverage-76.16%25-yellow)](./coverage/lcov-report/index.html)
 [![CI/CD](https://github.com/thehugegatsby/ChessEndgameTrainer/actions/workflows/test-and-coverage.yml/badge.svg)](https://github.com/thehugegatsby/ChessEndgameTrainer/actions)
-[![Deployment Ready](https://img.shields.io/badge/Deployment-Ready-green)](./docs/DEPLOYMENT_GUIDE.md)
+[![Deployment Ready](https://img.shields.io/badge/Deployment-Ready-green)](./docs/deployment/DEPLOYMENT_GUIDE.md)
 
 Eine moderne Web- und Mobile-Anwendung zum systematischen Lernen von Schachendspielen mit KI-Unterstützung.
 
@@ -154,6 +154,17 @@ Die Anwendung wurde für optimale Performance auf Desktop und Mobile optimiert:
 - ✅ **Mobile Architecture** vorbereitet
 - ⏳ **Android App** in Entwicklung
 - ⏳ **PWA Features** geplant
+
+## 📚 Dokumentation
+
+Die vollständige Dokumentation ist strukturiert organisiert:
+
+- **[CLAUDE.md](./CLAUDE.md)** - AI Assistant Context & Best Practices
+- **[Architecture](./docs/architecture/ARCHITECTURE.md)** - Systemarchitektur und Design
+- **[Development](./docs/development/)** - Entwicklungshistorie und CI/CD
+- **[Security](./docs/security/)** - Security Guidelines und Implementation
+- **[Testing](./docs/testing/TESTING_GUIDELINES.md)** - Umfassende Test-Strategie
+- **[Deployment](./docs/deployment/DEPLOYMENT_GUIDE.md)** - Production Deployment Guide
 
 ## 📄 Lizenz
 
