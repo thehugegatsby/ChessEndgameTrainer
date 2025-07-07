@@ -95,6 +95,13 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     onPositionChange
   });
 
+  // Sync game instance with Zustand
+  useEffect(() => {
+    if (game) {
+      actions.setGame(game);
+    }
+  }, [game, actions]);
+
   // Sync move history with Zustand
   useEffect(() => {
     // Compare histories to avoid infinite loops

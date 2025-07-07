@@ -14,13 +14,25 @@ jest.mock('@shared/hooks/useToast', () => ({
   }))
 }));
 
+// Import chess.js for game simulation
+import { Chess } from 'chess.js';
+
 // Mock components
 jest.mock('@shared/components/training', () => ({
-  TrainingBoardZustand: ({ onComplete }: any) => (
-    <div data-testid="training-board">
-      <button onClick={() => onComplete(true)}>Complete Training</button>
-    </div>
-  ),
+  TrainingBoardZustand: ({ onComplete }: any) => {
+    // Simulate the TrainingBoard behavior by setting game in store
+    const { useStore } = require('@shared/store/store');
+    React.useEffect(() => {
+      const game = new Chess();
+      useStore.getState().setGame(game);
+    }, []);
+    
+    return (
+      <div data-testid="training-board">
+        <button onClick={() => onComplete(true)}>Complete Training</button>
+      </div>
+    );
+  },
   MovePanelZustand: () => <div data-testid="move-panel">Move Panel</div>,
   DualEvaluationSidebar: () => <div data-testid="eval-sidebar">Eval Sidebar</div>,
   TrainingControls: () => <div data-testid="training-controls">Controls</div>,
@@ -233,5 +245,118 @@ describe('TrainingPageZustand', () => {
 
     expect(prevButton).not.toBeDisabled();
     expect(nextButton).not.toBeDisabled();
+  });
+
+  describe('Lichess URL generation', () => {
+    it('should generate Lichess URL with FEN for initial position', () => {
+      render(<TrainingPageZustand position={mockPosition} />);
+      
+      const lichessLink = screen.getByText('Auf Lichess analysieren →') as HTMLAnchorElement;
+      const expectedUrl = 'https://lichess.org/analysis/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR_w_KQkq_-_0_1';
+      
+      expect(lichessLink.href).toBe(expectedUrl);
+    });
+
+    it('should generate Lichess URL with PGN including all moves after moves are made', () => {
+      render(<TrainingPageZustand position={mockPosition} />);
+      
+      // Make multiple moves
+      act(() => {
+        const game = useStore.getState().training.game;
+        if (!game) {
+          throw new Error('Game not initialized');
+        }
+        
+        // 1. e4
+        game.move({ from: 'e2', to: 'e4' });
+        useStore.getState().makeMove({ 
+          from: 'e2', to: 'e4', san: 'e4', flags: 'n', piece: 'p', color: 'w',
+          captured: undefined, promotion: undefined, lan: 'e2e4',
+          before: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+          after: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
+          isCapture: () => false,
+          isPromotion: () => false,
+          isEnPassant: () => false,
+          isKingsideCastle: () => false,
+          isQueensideCastle: () => false,
+          isBigPawn: () => true
+        });
+        
+        // 1... e5
+        game.move({ from: 'e7', to: 'e5' });
+        useStore.getState().makeMove({ 
+          from: 'e7', to: 'e5', san: 'e5', flags: 'n', piece: 'p', color: 'b',
+          captured: undefined, promotion: undefined, lan: 'e7e5',
+          before: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
+          after: 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2',
+          isCapture: () => false,
+          isPromotion: () => false,
+          isEnPassant: () => false,
+          isKingsideCastle: () => false,
+          isQueensideCastle: () => false,
+          isBigPawn: () => true
+        });
+      });
+      
+      // The URL should now include the PGN with moves
+      const lichessLink = screen.getByText('Auf Lichess analysieren →') as HTMLAnchorElement;
+      
+      // First check if it includes the analysis/pgn path
+      expect(lichessLink.href).toContain('https://lichess.org/analysis/pgn/');
+      
+      // Then verify the PGN is URL encoded and contains the moves
+      const decodedUrl = decodeURIComponent(lichessLink.href);
+      expect(decodedUrl).toContain('1. e4');
+      expect(decodedUrl).toContain('e5');
+    });
+
+    it('should include complete move history in PGN, not just current position', () => {
+      render(<TrainingPageZustand position={mockPosition} />);
+      
+      // Make 4 moves to create a move history
+      act(() => {
+        const game = useStore.getState().training.game;
+        if (!game) {
+          throw new Error('Game not initialized');
+        }
+        
+        // Make 4 half-moves
+        const moves = [
+          { from: 'e2', to: 'e4', san: 'e4', piece: 'p', color: 'w' },
+          { from: 'e7', to: 'e5', san: 'e5', piece: 'p', color: 'b' },
+          { from: 'g1', to: 'f3', san: 'Nf3', piece: 'n', color: 'w' },
+          { from: 'b8', to: 'c6', san: 'Nc6', piece: 'n', color: 'b' }
+        ];
+        
+        moves.forEach((move) => {
+          // Make move on game instance
+          game.move({ from: move.from, to: move.to });
+          
+          // Update store
+          useStore.getState().makeMove({
+            ...move,
+            flags: 'n',
+            captured: undefined,
+            promotion: undefined,
+            lan: `${move.from}${move.to}`,
+            before: '',
+            after: '',
+            isCapture: () => false,
+            isPromotion: () => false,
+            isEnPassant: () => false,
+            isKingsideCastle: () => false,
+            isQueensideCastle: () => false,
+            isBigPawn: () => move.piece === 'p'
+          });
+        });
+      });
+      
+      const lichessLink = screen.getByText('Auf Lichess analysieren →') as HTMLAnchorElement;
+      const decodedUrl = decodeURIComponent(lichessLink.href);
+      
+      // Should contain all moves in PGN format
+      expect(decodedUrl).toContain('1. e4 e5');
+      expect(decodedUrl).toContain('2. Nf3 Nc6');
+    });
   });
 });

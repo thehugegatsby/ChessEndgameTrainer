@@ -156,7 +156,21 @@ export const useStore = create<RootState & Actions>()(
           state.training.startTime = Date.now();
           state.training.hintsUsed = 0;
           state.training.mistakeCount = 0;
+          
+          // Initialize FEN and PGN for the position
+          if (state.training.game) {
+            state.training.currentFen = state.training.game.fen();
+            state.training.currentPgn = state.training.game.pgn();
+          }
+          
           logger.info('Position set', { positionId: position.id });
+        }),
+
+        setGame: (game) => set((state) => {
+          state.training.game = game;
+          state.training.currentFen = game.fen();
+          state.training.currentPgn = game.pgn();
+          logger.debug('Game instance set');
         }),
 
         makeMove: (move: ChessJsMove) => set((state) => {
@@ -165,6 +179,13 @@ export const useStore = create<RootState & Actions>()(
             const validatedMove = fromLibraryMove(move);
             state.training.moveHistory.push(validatedMove);
             state.training.isPlayerTurn = !state.training.isPlayerTurn;
+            
+            // Update currentFen and currentPgn for Lichess URL generation
+            if (state.training.game) {
+              state.training.currentFen = state.training.game.fen();
+              state.training.currentPgn = state.training.game.pgn();
+            }
+            
             logger.debug('Move made', { 
               from: validatedMove.from, 
               to: validatedMove.to, 
@@ -201,6 +222,13 @@ export const useStore = create<RootState & Actions>()(
           state.training.hintsUsed = 0;
           state.training.mistakeCount = 0;
           state.training.startTime = Date.now();
+          
+          // Reset PGN and FEN to initial position
+          if (state.training.game) {
+            state.training.currentFen = state.training.game.fen();
+            state.training.currentPgn = state.training.game.pgn();
+          }
+          
           logger.info('Position reset');
         }),
 

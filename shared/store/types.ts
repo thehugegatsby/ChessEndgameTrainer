@@ -178,6 +178,7 @@ export interface UserActions {
 
 export interface TrainingActions {
   setPosition: (position: EndgamePosition) => void;
+  setGame: (game: ChessInstance) => void;
   makeMove: (move: ChessJsMove) => void;
   undoMove: () => void;
   resetPosition: () => void;
