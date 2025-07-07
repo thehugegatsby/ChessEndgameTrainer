@@ -1,5 +1,10 @@
 # Test Status Report - 2025-01-17
 
+## Latest Update
+- **Move Evaluation Symbols**: ✅ Fixed and tested
+- **Unit Tests Added**: getSmartMoveEvaluation and MovePanelZustand integration tests
+- **Store Enhanced**: setEvaluations action added to support evaluation updates
+
 ## Summary
 All tests, linter, and TypeScript compilation are passing successfully.
 

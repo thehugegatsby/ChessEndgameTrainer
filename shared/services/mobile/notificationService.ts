@@ -3,6 +3,10 @@
  * @version 1.0.0
  * @description Notification service for mobile devices and Android app
  * Handles training reminders, achievements, and progressive web app notifications
+ * 
+ * FUTURE IMPLEMENTATION - MOBILE
+ * This service is a placeholder for the upcoming mobile app implementation.
+ * Currently not in use but kept for future React Native integration.
  */
 
 import type { MobileAppConfig, TrainingSession } from '../../data/endgames/types';

@@ -182,6 +182,7 @@ export interface TrainingActions {
   undoMove: () => void;
   resetPosition: () => void;
   setEvaluation: (evaluation: EvaluationData) => void;
+  setEvaluations: (evaluations: EvaluationData[]) => void;
   setEngineStatus: (status: EngineStatus) => void;
   completeTraining: (success: boolean) => void;
   useHint: () => void;

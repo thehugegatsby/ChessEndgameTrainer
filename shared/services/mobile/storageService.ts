@@ -3,6 +3,10 @@
  * @version 1.0.0
  * @description Storage service optimized for mobile devices and Android apps
  * Handles offline data, progress tracking, and efficient local storage
+ * 
+ * FUTURE IMPLEMENTATION - MOBILE
+ * This service is a placeholder for the upcoming mobile app implementation.
+ * Currently not in use but kept for future React Native integration.
  */
 
 import type { 

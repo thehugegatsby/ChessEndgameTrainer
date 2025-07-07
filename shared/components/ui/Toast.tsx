@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { UI } from '@shared/constants';
 
 export interface ToastProps {
   message: string;
@@ -10,7 +11,7 @@ export interface ToastProps {
 export const Toast: React.FC<ToastProps> = ({ 
   message, 
   type, 
-  duration = 3000, 
+  duration = UI.TOAST_DURATION, 
   onClose 
 }) => {
   const [isVisible, setIsVisible] = useState(true);
@@ -18,7 +19,7 @@ export const Toast: React.FC<ToastProps> = ({
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(false);
-      setTimeout(onClose, 300); // Allow fade out animation
+      setTimeout(onClose, UI.TOAST_FADE_DURATION); // Allow fade out animation
     }, duration);
 
     return () => clearTimeout(timer);
@@ -59,7 +60,7 @@ export const Toast: React.FC<ToastProps> = ({
         <button 
           onClick={() => {
             setIsVisible(false);
-            setTimeout(onClose, 300);
+            setTimeout(onClose, UI.TOAST_FADE_DURATION);
           }}
           className="ml-2 text-xl opacity-70 hover:opacity-100 transition-opacity"
         >

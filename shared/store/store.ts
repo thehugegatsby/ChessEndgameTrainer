@@ -209,6 +209,11 @@ export const useStore = create<RootState & Actions>()(
           logger.debug('Evaluation updated', { evaluation });
         }),
 
+        setEvaluations: (evaluations) => set((state) => {
+          state.training.evaluations = evaluations;
+          logger.debug('Evaluations array updated', { count: evaluations.length });
+        }),
+
         setEngineStatus: (status) => set((state) => {
           state.training.engineStatus = status;
           logger.debug('Engine status changed', { status });
@@ -450,6 +455,7 @@ export const useTrainingActions = () => useStore((state) => ({
   undoMove: state.undoMove,
   resetPosition: state.resetPosition,
   setEvaluation: state.setEvaluation,
+  setEvaluations: state.setEvaluations,
   setEngineStatus: state.setEngineStatus,
   completeTraining: state.completeTraining,
   useHint: state.useHint,

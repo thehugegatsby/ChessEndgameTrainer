@@ -1,19 +1,7 @@
 import React, { useMemo } from 'react';
 import { Move } from 'chess.js';
-import { getMoveQualityDisplay, getMoveQualityByTablebaseComparison, formatEvaluation } from '../../utils/chess/evaluationHelpers';
+import { getMoveQualityDisplay, getMoveQualityByTablebaseComparison, formatEvaluation, getSmartMoveEvaluation, type MoveEvaluation } from '../../utils/chess/evaluationHelpers';
 import { EvaluationLegend } from './EvaluationLegend';
-
-interface MoveEvaluation {
-  evaluation: number;
-  mateInMoves?: number;
-  // NEW: Tablebase data for true training value
-  tablebase?: {
-    isTablebasePosition: boolean;
-    wdlBefore?: number;  // WDL value before this move
-    wdlAfter?: number;   // WDL value after this move
-    category?: string;   // win/draw/loss category
-  };
-}
 
 interface MovePanelProps {
   moves: Move[];
@@ -60,23 +48,6 @@ export const MovePanel: React.FC<MovePanelProps> = React.memo(({
     return pairs;
   }, [moves, evaluations]);
 
-  // NEW: Smart evaluation function that prioritizes tablebase comparison
-  const getSmartMoveEvaluation = (evaluation: MoveEvaluation, isWhite: boolean, moveIndex: number) => {
-    // Priority 1: Use tablebase comparison if available
-    if (evaluation.tablebase?.isTablebasePosition && 
-        evaluation.tablebase.wdlBefore !== undefined && 
-        evaluation.tablebase.wdlAfter !== undefined) {
-      
-      return getMoveQualityByTablebaseComparison(
-        evaluation.tablebase.wdlBefore,
-        evaluation.tablebase.wdlAfter,
-        isWhite ? 'w' : 'b'
-      );
-    }
-    
-    // Priority 2: Fallback to engine evaluation
-    return getMoveQualityDisplay(evaluation.evaluation, evaluation.mateInMoves, isWhite);
-  };
 
   if (moves.length === 0) {
     return (

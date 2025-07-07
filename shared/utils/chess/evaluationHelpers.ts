@@ -15,5 +15,7 @@ export {
   getEvaluationColor,
   getEvaluationBarWidth,
   TABLEBASE_LEGEND,
-  ENGINE_LEGEND
+  ENGINE_LEGEND,
+  getSmartMoveEvaluation,
+  type MoveEvaluation
 } from './evaluation';

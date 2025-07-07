@@ -8,6 +8,7 @@
 import { StockfishMessageHandler } from './messageHandler';
 import type { EngineConfig, EngineResponse } from './types';
 import { getLogger } from '../../../services/logging';
+import { ENGINE } from '@shared/constants';
 
 const logger = getLogger();
 
@@ -20,7 +21,7 @@ export class StockfishWorkerManager {
   private messageHandler: StockfishMessageHandler;
   private isReady = false;
   private initializationAttempts = 0;
-  private readonly maxInitAttempts = 3;
+  private readonly maxInitAttempts = ENGINE.MAX_INIT_ATTEMPTS;
   private readyCallbacks: (() => void)[] = [];
   private responseCallback: ((response: EngineResponse) => void) | null = null;
 
@@ -54,7 +55,7 @@ export class StockfishWorkerManager {
       this.worker.postMessage('uci');
       
       // Wait for worker to be ready
-      return await this.waitForReady(5000); // 5 second timeout for mobile
+      return await this.waitForReady(ENGINE.WORKER_READY_TIMEOUT);
       
     } catch (error) {
       logger.error('Failed to initialize worker:', error);
@@ -185,12 +186,12 @@ export class StockfishWorkerManager {
    */
   private getDefaultConfig(): EngineConfig {
     return {
-      maxDepth: 15,        // Reasonable depth for mobile
-      maxTime: 2000,       // 2 seconds max
-      maxNodes: 100000,    // Limit nodes for performance
+      maxDepth: ENGINE.DEFAULT_SEARCH_DEPTH,
+      maxTime: ENGINE.MAX_ENGINE_TIME,
+      maxNodes: ENGINE.MAX_NODES,
       useThreads: 1,       // Single thread for mobile
-      hashSize: 16,        // 16MB hash (mobile friendly)
-      skillLevel: 20,      // Full strength by default
+      hashSize: ENGINE.HASH_SIZE,
+      skillLevel: ENGINE.SKILL_LEVEL,
     };
   }
 

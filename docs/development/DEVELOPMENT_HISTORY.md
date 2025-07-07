@@ -4,6 +4,65 @@ Dieses Dokument dokumentiert wichtige Entwicklungsentscheidungen, Performance-An
 
 ---
 
+## 2025-07-07: Modular Architecture Refactoring
+
+### Kontext
+Refactoring der evaluationHelpers.ts Datei in eine modulare Struktur für bessere Code-Organisation und Tree-Shaking.
+
+### Durchgeführte Arbeiten
+
+1. **Evaluation Helpers Modularisierung**
+   - Aufgeteilt in focused modules:
+     - `enhanced.ts` - Enhanced move quality evaluation
+     - `tablebase.ts` - Tablebase comparison logic  
+     - `perspective.ts` - Player perspective utilities
+   - Clean re-exports in `index.ts` für tree-shaking
+   - 100% backward compatibility gewährleistet
+
+2. **ScenarioEngine Updates**
+   - Imports auf neue modulare Struktur umgestellt
+   - Keine funktionalen Änderungen
+   - Alle Tests weiterhin grün
+
+3. **Bundle Optimization**
+   - ESM modules ermöglichen besseres Tree-Shaking
+   - Kleinere Bundle-Größe möglich
+   - Verbesserte Code-Splitting-Möglichkeiten
+
+### Architektur-Entscheidungen
+
+1. **Single Responsibility Principle**
+   - Jedes Modul hat klare, einzelne Verantwortung
+   - Einfacher zu testen und zu warten
+   - Bessere Code-Wiederverwendung
+
+2. **Clean Re-exports**
+   - Named exports für bessere IDE-Unterstützung
+   - Tree-shaking-freundlich
+   - Keine Breaking Changes für Konsumenten
+
+### Technische Details
+
+```typescript
+// Alte Struktur
+import { getEnhancedMoveQuality, getMoveQualityByTablebaseComparison } from './evaluationHelpers';
+
+// Neue Struktur (funktioniert identisch)
+import { getEnhancedMoveQuality, getMoveQualityByTablebaseComparison } from './evaluation';
+```
+
+### Performance Impact
+- Keine Runtime-Performance-Änderungen
+- Potenzielle Bundle-Size-Reduzierung durch Tree-Shaking
+- Schnellere Build-Zeiten durch modulare Struktur
+
+### Nächste Schritte
+- Tests für individuelle Module schreiben
+- Bundle-Size-Analyse durchführen
+- Weitere große Dateien modularisieren
+
+---
+
 ## 2025-01-17: Phase 2 Brückenbau-Trainer & Critical Bug Fix
 
 ### Kontext

@@ -1,6 +1,6 @@
 # Chess Endgame Trainer 🎯
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.3.3-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.3.5-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue)](https://www.typescriptlang.org/)
 [![Test Coverage](https://img.shields.io/badge/Coverage-~78%25-green)](./coverage/lcov-report/index.html)
 [![CI/CD](https://github.com/thehugegatsby/ChessEndgameTrainer/actions/workflows/test-and-coverage.yml/badge.svg)](https://github.com/thehugegatsby/ChessEndgameTrainer/actions)
@@ -39,6 +39,9 @@ ChessEndgameTrainer/
 │   ├── hooks/                      # Gemeinsame React Hooks
 │   ├── lib/                        # Services, chess.js wrapper
 │   │   └── chess/                  # Chess Engine, Validation
+│   ├── utils/                      # Utility Functions
+│   │   └── chess/                  # Chess-specific utilities
+│   │       └── evaluation/         # Modular evaluation logic
 │   ├── data/                       # Endspielkarten (FEN, Ziel, Lösung)
 │   └── services/                   # Error handling, Storage
 │
@@ -54,7 +57,7 @@ ChessEndgameTrainer/
 
 ## 🛠️ Technologien
 
-- **Frontend**: Next.js 15.3.3, React 18.2.0
+- **Frontend**: Next.js 15.3.5, React 18.2.0
 - **Language**: TypeScript 5.3.3
 - **Styling**: Tailwind CSS 3.4.1
 - **Chess Logic**: chess.js 1.0.0-beta.6
@@ -68,11 +71,12 @@ ChessEndgameTrainer/
 - **Test Coverage**: ~78% (Statement Coverage) - Ziel: 80%
 - **Test Success**: 99% (787/796 Tests bestanden, 9 skipped) - **128 neue Tests hinzugefügt**
 - **Code Health**: Excellent (<2% ungenutzter Code)
+- **Architecture**: ✅ Modular evaluation system with clean re-exports
 - **Error Handling**: ✅ Centralized ErrorService + Logger Architecture
-- **Performance**: Optimiert mit LRU Cache, Debouncing
-- **Bundle Size**: ~500KB (Ziel: <300KB)
-- **Migration Status**: ✅ Unified Evaluation System (100% aktiv), ✅ LoggerCompat Migration Complete
-- **Active Development**: Juli 2025
+- **Performance**: Optimiert mit LRU Cache, Debouncing, Tree-Shaking
+- **Bundle Size**: ~500KB (Ziel: <300KB) - ESM modules enable better tree-shaking
+- **Migration Status**: ✅ Unified Evaluation System, ✅ LoggerCompat Migration, ✅ Modular Refactoring Complete
+- **Active Development**: Januar 2025
 
 ## 💻 Entwicklung
 
@@ -93,7 +97,7 @@ npm install
 npm run dev
 ```
 
-Server läuft auf http://localhost:3000
+Server läuft auf http://localhost:3001
 
 ### Tests ausführen
 
@@ -151,8 +155,9 @@ Die Anwendung wurde für optimale Performance auf Desktop und Mobile optimiert:
 
 - ✅ **Production Ready** Web-Anwendung
 - ✅ **~78% Test Coverage** mit 787 bestehenden Tests
+- ✅ **Modular Architecture** mit clean code organization
 - ✅ **Centralized Error Handling** mit ErrorService + Logger
-- ✅ **Performance Optimiert** für Mobile
+- ✅ **Performance Optimiert** für Mobile & Tree-Shaking
 - ✅ **Mobile Architecture** vorbereitet
 - ⏳ **Android App** in Entwicklung
 - ⏳ **PWA Features** geplant

@@ -11,6 +11,7 @@
  */
 
 import { getLogger } from '@shared/services/logging';
+import { CACHE } from '@shared/constants';
 
 export interface CacheStats {
   hits: number;
@@ -36,7 +37,7 @@ export class LRUCache<T> {
   private hits = 0;
   private misses = 0;
 
-  constructor(maxSize: number = 1000) {
+  constructor(maxSize: number = CACHE.LRU_DEFAULT_SIZE) {
     this.maxSize = Math.max(0, maxSize);
     this.cache = new Map();
   }
@@ -168,7 +169,7 @@ export class LRUCache<T> {
     // - Each string key: ~50 bytes average
     // - Each node overhead: ~100 bytes
     // - Each value: estimated at 200 bytes for evaluation data
-    return this.cache.size * 350;
+    return this.cache.size * CACHE.LRU_MEMORY_PER_ITEM;
   }
 
   /**

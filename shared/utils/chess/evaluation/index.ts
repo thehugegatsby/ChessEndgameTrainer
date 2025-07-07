@@ -28,3 +28,9 @@ export {
   TABLEBASE_LEGEND,
   ENGINE_LEGEND
 } from './legends';
+
+// Smart evaluation that prioritizes tablebase over engine
+export {
+  getSmartMoveEvaluation,
+  type MoveEvaluation
+} from './smartEvaluation';

@@ -132,6 +132,7 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
               position={position}
               onComplete={handleComplete}
               onJumpToMove={handleTrainingBoardReady}
+              onEvaluationsChange={trainingActions.setEvaluations}
               currentMoveIndex={training.currentMoveIndex}
             />
           </div>

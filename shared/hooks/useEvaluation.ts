@@ -10,6 +10,7 @@ import { LRUCache } from '@shared/lib/cache/LRUCache';
 import { LRUCacheAdapter } from '@shared/lib/chess/evaluation/cacheAdapter';
 import type { FormattedEvaluation } from '@shared/types/evaluation';
 import { ErrorService } from '@shared/services/errorService';
+import { CACHE } from '@shared/constants';
 
 interface UseEvaluationOptions {
   fen: string;
@@ -36,7 +37,7 @@ let unifiedServiceInstance: UnifiedEvaluationService | null = null;
 
 function getUnifiedService(): UnifiedEvaluationService {
   if (!unifiedServiceInstance) {
-    const lruCache = new LRUCache<FormattedEvaluation>(200);
+    const lruCache = new LRUCache<FormattedEvaluation>(CACHE.EVALUATION_CACHE_SIZE);
     const cache = new LRUCacheAdapter(lruCache);
     const engineProvider = new EngineProviderAdapter();
     const tablebaseProvider = new TablebaseProviderAdapter();

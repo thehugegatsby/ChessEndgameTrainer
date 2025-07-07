@@ -8,6 +8,7 @@
 import { tablebaseService as coreTablebaseService, TablebaseResult } from '../tablebase';
 import { getLogger } from '@shared/services/logging';
 import type { TablebaseInfo, TablebaseCategory } from './types';
+import { CACHE } from '@shared/constants';
 
 /**
  * Service for handling tablebase operations
@@ -15,7 +16,7 @@ import type { TablebaseInfo, TablebaseCategory } from './types';
  */
 export class TablebaseService {
   private cache = new Map<string, TablebaseInfo>();
-  private readonly maxCacheSize = 100; // Limit cache for mobile memory
+  private readonly maxCacheSize = CACHE.TABLEBASE_CACHE_SIZE;
 
   /**
    * Gets comprehensive tablebase information for a position

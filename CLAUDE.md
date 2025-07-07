@@ -13,8 +13,9 @@
 - **Architecture**: ✅ Unified Evaluation System, ✅ Clear Separation of Concerns, ✅ LoggerCompat Migration Complete
 - **Deployment**: Vercel-ready mit WASM Support
 - **Critical Bug Fixed**: Perspective transformation now working correctly for Black players
+- **Move Evaluation Symbols**: ✅ Fixed - Symbols wieder sichtbar durch setEvaluations Action
 
-## 📁 Dokumentationsstruktur (2025-01-16)
+## 📁 Dokumentationsstruktur (2025-01-17)
 
 ```
 .
@@ -72,6 +73,11 @@ npm run check-duplicates # Check for duplicate components
 - `shared/services/chess/EngineService.ts` - Stockfish Worker Management
 - `shared/lib/stockfish.ts` - Stockfish.js Wrapper (100% test coverage)
 - `shared/services/errorService.ts` - Centralized Error Handling
+- `shared/utils/chess/evaluation/` - Modular evaluation logic
+  - `enhanced.ts` - Enhanced move quality evaluation
+  - `tablebase.ts` - Tablebase comparison logic
+  - `perspective.ts` - Player perspective utilities
+  - `index.ts` - Clean re-exports for tree-shaking
 
 ## 🏗️ Architecture Principles
 
@@ -98,24 +104,24 @@ app/mobile/         # React Native App (vorbereitet)
 - Mock Strategy für Worker APIs und Browser APIs
 - Goal: 80% Coverage für Production
 
-## ⚠️ Known Issues & Technical Debt (Updated 2025-01-15)
+## ⚠️ Known Issues & Technical Debt (Updated 2025-07-07)
 
 ### Critical Priority
 1. **Mobile Implementation Gap**: React Native Struktur existiert, aber 0% Test Coverage und keine Platform Abstraction
 2. **Security Vulnerabilities**: Keine Input Sanitization für FEN Strings, potentielle XSS Risiken
 
 ### High Priority
-1. **Type Definitions**: `types/chess.ts` hat jetzt 127 Zeilen (nicht mehr "nur 5") - Dokumentation veraltet
+1. **Type Definitions**: `types/chess.ts` hat jetzt 91 Zeilen (nicht mehr "nur 5") - Dokumentation veraltet
 2. **State Management Fragmentation**: Complex Context Optimierungen während Zustand ungenutzt bleibt
-3. **Error Handling**: Inkonsistent across Services, Mix aus try-catch und console.warn
+3. ~~**Error Handling**: Inkonsistent across Services~~ ✅ FIXED - Centralized ErrorService implemented
 4. **Memory Management**: Potentielle Memory Leaks wenn Engine Cleanup fehlschlägt
 
 ### Medium Priority
-- Magic numbers ohne Konstanten (z.B. `350` in LRUCache, `300ms` Debouncing)
-- Console.logs statt proper logging service (~20 Files betroffen)
+- ~~Magic numbers ohne Konstanten~~ ✅ FIXED - Constants centralized in shared/constants/
+- ~~Console.logs statt proper logging service~~ ✅ FIXED - Central Logger implemented
 - Direkte Browser API Usage ohne Platform Checks
 - Kein Code-Splitting oder Lazy Loading
-- Overengineering: 3 separate Evaluation Services könnten unified werden
+- ~~Overengineering: 3 separate Evaluation Services~~ ✅ FIXED - Unified & modularized
 
 ### Low Priority
 - Internationale Unterstützung fehlt
@@ -537,11 +543,58 @@ if (categoryBefore === 'loss' && categoryAfter === 'loss') {
 - Detailed evaluation logic documentation: `/shared/utils/chess/EVALUATION_LOGIC_LEARNINGS.md`
 - This file provides in-depth technical details about WDL handling and perspective correction
 
+### Modular Architecture Refactoring (2025-07-07)
+**What Changed**: Complete refactoring of evaluationHelpers.ts into modular structure
+
+**Benefits**:
+1. **Better Organization**: Logic separated into focused modules
+2. **Tree-Shaking**: Clean re-exports enable better bundle optimization
+3. **Maintainability**: Each module has single responsibility
+4. **Testing**: Easier to test individual modules in isolation
+5. **Type Safety**: ESM modules with proper TypeScript exports
+
+**Architecture**:
+```
+shared/utils/chess/evaluation/
+├── index.ts         # Clean re-exports
+├── enhanced.ts      # Enhanced evaluation logic
+├── tablebase.ts     # Tablebase comparison
+├── perspective.ts   # Player perspective helpers
+└── types.ts        # Shared types (if needed)
+```
+
+### Magic Numbers Centralization (2025-07-07)
+**What Changed**: All magic numbers centralized into constant files
+
+**Improvements**:
+1. **Centralized Constants**: Created shared/constants/ directory structure
+2. **Domain-Specific Organization**: Constants grouped by domain (cache, evaluation, performance)
+3. **Type Safety**: All constants properly typed with TypeScript
+4. **Documentation**: Each constant includes descriptive comments
+5. **Maintainability**: Single source of truth for configuration values
+
+**New Structure**:
+```
+shared/constants/
+├── index.ts         # Re-exports all constants
+├── cache.ts         # Cache-related constants (LRU sizes, TTL)
+├── evaluation.ts    # Evaluation thresholds and limits
+├── performance.ts   # Debounce delays, timeouts
+└── chess.ts        # Chess-specific constants
+```
+
+**Key Constants Centralized**:
+- LRU Cache size: 200 items (CACHE_CONFIG.MAX_ITEMS)
+- Memory per item: 350 bytes (CACHE_CONFIG.MEMORY_PER_ITEM)
+- Debounce delay: 300ms (PERFORMANCE_CONFIG.DEBOUNCE_MS)
+- Worker timeout: 10000ms (PERFORMANCE_CONFIG.WORKER_TIMEOUT)
+- Evaluation thresholds and more
+
 ---
-**Last Updated**: 2025-01-17 - Phase 2 Completion & Critical Bug Fix
+**Last Updated**: 2025-01-17 - Move Evaluation Symbols Fix & Test Coverage
 **Session Summary**: 
-- Completed Phase P1 & P2 of Brückenbau-Trainer implementation
-- Added 128 comprehensive unit tests for evaluation pipeline
-- Fixed critical perspective transformation bug for Black players
-- Achieved clear separation of concerns in architecture
-- Test coverage increased to ~78% (approaching 80% goal)
+- Fixed missing move evaluation symbols (✓, 🔻, etc.) in MovePanelZustand
+- Added setEvaluations action to Zustand store
+- Created comprehensive unit & integration tests with pyramid strategy
+- Updated training page to client-side rendering to avoid SSR issues
+- Previous milestone: Magic Numbers Centralization & Modular Architecture (2025-01-07)

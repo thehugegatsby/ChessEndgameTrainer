@@ -1,4 +1,5 @@
 import { Engine } from './engine';
+import { EVALUATION } from '@shared/constants';
 
 /**
  * Prüft, ob der Zug von `fenBefore` zu `fenAfter` einen entscheidenden Fehler darstellt.
@@ -13,16 +14,13 @@ export async function isCriticalMistake(fenBefore: string, fenAfter: string): Pr
     engine.evaluatePosition(fenAfter)
   ]);
 
-  const beforeScore = evalBefore.mate !== null ? (evalBefore.mate > 0 ? 100000 : -100000) : evalBefore.score;
-  const afterScore = evalAfter.mate !== null ? (evalAfter.mate > 0 ? 100000 : -100000) : evalAfter.score;
+  const beforeScore = evalBefore.mate !== null ? (evalBefore.mate > 0 ? EVALUATION.MATE_THRESHOLD : -EVALUATION.MATE_THRESHOLD) : evalBefore.score;
+  const afterScore = evalAfter.mate !== null ? (evalAfter.mate > 0 ? EVALUATION.MATE_THRESHOLD : -EVALUATION.MATE_THRESHOLD) : evalAfter.score;
 
-  const WIN_THRESHOLD = 300; // 3 pawns Vorteil
-  const LOSS_THRESHOLD = -300;
-
-  const wasWinning = beforeScore > WIN_THRESHOLD;
-  const wasNotLosing = beforeScore >= LOSS_THRESHOLD;
-  const isNowDrawishOrWorse = afterScore <= WIN_THRESHOLD;
-  const isNowLosing = afterScore < LOSS_THRESHOLD;
+  const wasWinning = beforeScore > EVALUATION.WIN_THRESHOLD;
+  const wasNotLosing = beforeScore >= EVALUATION.LOSS_THRESHOLD;
+  const isNowDrawishOrWorse = afterScore <= EVALUATION.WIN_THRESHOLD;
+  const isNowLosing = afterScore < EVALUATION.LOSS_THRESHOLD;
 
   // Gewinn -> Remis/Verlust  ODER  Remis -> Verlust
   if ((wasWinning && isNowDrawishOrWorse) || (wasNotLosing && isNowLosing)) {
