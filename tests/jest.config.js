@@ -34,9 +34,9 @@ module.exports = {
     '<rootDir>/smoke/**/*.{spec,test}.[jt]s?(x)'
   ],
   collectCoverageFrom: [
-    '../shared/**/*.{ts,tsx}',
-    '../app/web/**/*.{ts,tsx}',
-    '../app/mobile/**/*.{ts,tsx}',
+    'shared/**/*.{ts,tsx}',
+    'app/web/**/*.{ts,tsx}',
+    'app/mobile/**/*.{ts,tsx}',
     '!**/*.d.ts',
     '!**/node_modules/**',
     '!**/*.test.{ts,tsx}',

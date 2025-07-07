@@ -11,25 +11,6 @@ export interface TablebaseData {
   dtz?: number;
 }
 
-// Enhanced types for Brückenbau-Trainer
-export type MoveQualityClass = 'optimal' | 'sicher' | 'umweg' | 'riskant' | 'fehler';
-export type RobustnessTag = 'robust' | 'präzise' | 'haarig';
-
-export interface EnhancedTablebaseData extends TablebaseData {
-  // Existing fields remain:
-  isTablebasePosition: boolean;
-  wdlBefore?: number;
-  wdlAfter?: number;
-  category?: string;
-  dtz?: number;
-  
-  // NEW for Brückenbau-Trainer:
-  dtmBefore?: number;        // Distance to Mate before move
-  dtmAfter?: number;         // Distance to Mate after move
-  moveQuality?: MoveQualityClass;
-  robustness?: RobustnessTag;
-  winningMovesCount?: number; // Number of winning moves in position
-}
 
 export interface EvaluationData {
   evaluation: number;
@@ -44,19 +25,6 @@ export interface EvaluationDisplay {
   bgColor: string;
 }
 
-export interface EnhancedEvaluationDisplay extends EvaluationDisplay {
-  // Existing fields remain:
-  text: string;
-  className: string;
-  color: string;
-  bgColor: string;
-  
-  // NEW for Brückenbau-Trainer:
-  qualityClass: MoveQualityClass;
-  robustnessTag?: RobustnessTag;
-  dtmDifference?: number;
-  educationalTip: string;
-}
 
 export interface MoveEvaluation {
   evaluation: number;
