@@ -236,11 +236,33 @@ export const getEnhancedMoveQuality = (
 - [x] Integration mit bestehender Logik
 - [x] Comprehensive test coverage (128 new tests)
 
-#### Phase P3: UI-Integration
-- [ ] `MovePanel.tsx` um Enhanced Display erweitern
-- [ ] CSS für neue Qualitätsbadges
-- [ ] Tooltip-Komponente für Lernhinweise
-- [ ] Erweiterte Legende
+#### Phase P3: UI-Integration (IN PROGRESS 🚧)
+**Status**: Top Priority - Logic complete, UI pending
+
+**Specific Tasks**:
+- [ ] **MovePanel.tsx Enhancement**
+  - [ ] Import `EnhancedEvaluationDisplay` type
+  - [ ] Add conditional rendering for enhanced display
+  - [ ] Show quality badge (optimal/sicher/umweg/riskant)
+  - [ ] Show robustness indicator (robust/präzise/haarig)
+  
+- [ ] **Create styles/evaluation-enhanced.css**
+  - [ ] `.eval-optimal` - green badge (#22c55e)
+  - [ ] `.eval-sicher` - blue badge (#3b82f6) 
+  - [ ] `.eval-umweg` - yellow badge (#eab308)
+  - [ ] `.eval-riskant` - orange badge (#f97316)
+  - [ ] Robustness tag styles
+  
+- [ ] **Create EvaluationTooltip.tsx Component**
+  - [ ] Show educational content on hover
+  - [ ] Include ΔDTM information
+  - [ ] Mobile touch support
+  - [ ] Use existing tooltip patterns
+  
+- [ ] **Update EvaluationLegend.tsx**
+  - [ ] Add quality class section
+  - [ ] Add robustness section
+  - [ ] Include visual examples
 
 #### Phase P4: Karten-System (Future)
 - [ ] Strukturierte Lektionen mit To-do-Tracking
