@@ -1,7 +1,7 @@
-# 🐛 Critical Bug Report: Perspective Transformation Not Working
+# ✅ Bug Fix Report: Perspective Transformation Fixed
 
 ## Summary
-The `PlayerPerspectiveTransformer` component has a critical bug where it does NOT invert evaluation values for Black's perspective, contrary to its documentation and intended behavior.
+The `PlayerPerspectiveTransformer` component had a critical bug where it did NOT invert evaluation values for Black's perspective. This bug has been **FIXED** as of 2025-01-16.
 
 ## Impact
 - **Severity**: HIGH
@@ -88,6 +88,14 @@ transform(
 2. **Short-term**: Add integration tests for Black perspective
 3. **Long-term**: Implement the White-perspective standardization as suggested in the architecture review
 
+## Fix Applied
+The bug was fixed by properly implementing value inversion for Black's perspective:
+- Added `shouldInvert` check for Black perspective
+- Applied `invertValue()` to all evaluation metrics when perspective is 'b'
+- Updated all unit tests to expect correct inverted values
+- All 16 tests now pass successfully
+
 ---
 *Discovered: 2025-01-16*  
+*Fixed: 2025-01-16*  
 *During: Phase 2 Unit Test Development*

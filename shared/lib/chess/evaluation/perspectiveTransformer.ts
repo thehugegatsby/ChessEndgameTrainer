@@ -26,11 +26,11 @@ export class PlayerPerspectiveTransformer {
   /**
    * Transforms a normalized evaluation to a specific player's perspective
    * 
-   * IMPORTANT: The normalizedEval is already adjusted for the player-to-move
-   * during normalization. This transformer only needs to ensure the perspective
-   * matches the desired display perspective.
+   * IMPORTANT: NormalizedEvaluation values are always from White's perspective
+   * (as documented in the type definition). For Black's perspective, we must
+   * invert all values to show the position from Black's point of view.
    * 
-   * @param normalizedEval - Evaluation normalized for the player-to-move
+   * @param normalizedEval - Evaluation normalized to White's perspective
    * @param perspective - Which player's perspective to show ('w' or 'b')
    * @returns Evaluation adjusted for the specified player's perspective
    */
@@ -46,17 +46,28 @@ export class PlayerPerspectiveTransformer {
     // Validate perspective
     const validatedPerspective = this.validatePerspective(perspective);
 
-    // FIXED: The normalized values are already correctly oriented for the 
-    // player-to-move who was specified during normalization. We don't need
-    // to invert them again based on perspective - they're already correct!
+    // Check if we need to invert values for Black's perspective
+    const shouldInvert = validatedPerspective === 'b';
+
+    // Transform values based on perspective
     return {
       ...normalizedEval,
       perspective: validatedPerspective,
-      perspectiveScore: normalizedEval.scoreInCentipawns,
-      perspectiveMate: normalizedEval.mate,
-      perspectiveWdl: normalizedEval.wdl,
-      perspectiveDtm: normalizedEval.dtm,
-      perspectiveDtz: normalizedEval.dtz
+      perspectiveScore: shouldInvert 
+        ? this.invertValue(normalizedEval.scoreInCentipawns)
+        : normalizedEval.scoreInCentipawns,
+      perspectiveMate: shouldInvert 
+        ? this.invertValue(normalizedEval.mate)
+        : normalizedEval.mate,
+      perspectiveWdl: shouldInvert 
+        ? this.invertValue(normalizedEval.wdl)
+        : normalizedEval.wdl,
+      perspectiveDtm: shouldInvert 
+        ? this.invertValue(normalizedEval.dtm)
+        : normalizedEval.dtm,
+      perspectiveDtz: shouldInvert 
+        ? this.invertValue(normalizedEval.dtz)
+        : normalizedEval.dtz
     };
   }
 

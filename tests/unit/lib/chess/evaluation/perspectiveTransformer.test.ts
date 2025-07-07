@@ -111,8 +111,8 @@ describe('PlayerPerspectiveTransformer', () => {
     });
   });
 
-  describe('transform - Black perspective (CRITICAL ISSUE)', () => {
-    it('should NOT invert values for Black perspective - BUG IN CURRENT CODE', () => {
+  describe('transform - Black perspective', () => {
+    it('should invert values for Black perspective', () => {
       const normalized: NormalizedEvaluation = {
         type: 'engine',
         scoreInCentipawns: 150, // White ahead by 1.5 pawns
@@ -126,14 +126,11 @@ describe('PlayerPerspectiveTransformer', () => {
 
       const result = transformer.transform(normalized, BLACK);
 
-      // CURRENT BEHAVIOR (INCORRECT):
-      expect(result.perspectiveScore).toBe(150); // Bug: Should be -150 for Black
-
-      // EXPECTED BEHAVIOR:
-      // expect(result.perspectiveScore).toBe(-150); // Black sees this as -1.5 pawns
+      // FIXED BEHAVIOR (CORRECT):
+      expect(result.perspectiveScore).toBe(-150); // Black sees this as -1.5 pawns disadvantage
     });
 
-    it('should NOT invert mate values for Black - BUG IN CURRENT CODE', () => {
+    it('should invert mate values for Black', () => {
       const normalized: NormalizedEvaluation = {
         type: 'engine',
         scoreInCentipawns: null,
@@ -147,14 +144,11 @@ describe('PlayerPerspectiveTransformer', () => {
 
       const result = transformer.transform(normalized, BLACK);
 
-      // CURRENT BEHAVIOR (INCORRECT):
-      expect(result.perspectiveMate).toBe(5); // Bug: Should be -5 for Black
-
-      // EXPECTED BEHAVIOR:
-      // expect(result.perspectiveMate).toBe(-5); // Black sees being mated in 5
+      // FIXED BEHAVIOR (CORRECT):
+      expect(result.perspectiveMate).toBe(-5); // Black sees being mated in 5
     });
 
-    it('should NOT invert tablebase WDL for Black - BUG IN CURRENT CODE', () => {
+    it('should invert tablebase WDL for Black', () => {
       const normalized: NormalizedEvaluation = {
         type: 'tablebase',
         scoreInCentipawns: null,
@@ -168,11 +162,8 @@ describe('PlayerPerspectiveTransformer', () => {
 
       const result = transformer.transform(normalized, BLACK);
 
-      // CURRENT BEHAVIOR (INCORRECT):
-      expect(result.perspectiveWdl).toBe(2); // Bug: Should be -2 for Black
-
-      // EXPECTED BEHAVIOR:
-      // expect(result.perspectiveWdl).toBe(-2); // Black sees this as a loss
+      // FIXED BEHAVIOR (CORRECT):
+      expect(result.perspectiveWdl).toBe(-2); // Black sees this as a loss
       // expect(result.perspectiveDtm).toBe(-25); // Black is being mated in 25
     });
   });
@@ -288,10 +279,10 @@ describe('PlayerPerspectiveTransformer', () => {
       expect(resultWhite.perspectiveWdl).toBe(2);
       expect(resultWhite.perspectiveDtm).toBe(30);
 
-      // Black perspective (current incorrect behavior)
-      expect(resultBlack.perspectiveScore).toBe(500); // Should be -500
-      expect(resultBlack.perspectiveWdl).toBe(2); // Should be -2
-      expect(resultBlack.perspectiveDtm).toBe(30); // Should be -30
+      // Black perspective (fixed behavior)
+      expect(resultBlack.perspectiveScore).toBe(-500); // Correctly inverted
+      expect(resultBlack.perspectiveWdl).toBe(-2); // Correctly inverted  
+      expect(resultBlack.perspectiveDtm).toBe(-30); // Correctly inverted
     });
 
     it('should handle cursed wins and blessed losses', () => {
@@ -320,9 +311,9 @@ describe('PlayerPerspectiveTransformer', () => {
       const cursedResult = transformer.transform(cursedWin, BLACK);
       const blessedResult = transformer.transform(blessedLoss, BLACK);
 
-      // Current behavior (incorrect)
-      expect(cursedResult.perspectiveWdl).toBe(1); // Should be -1 for Black
-      expect(blessedResult.perspectiveWdl).toBe(-1); // Should be 1 for Black
+      // Fixed behavior (correct)
+      expect(cursedResult.perspectiveWdl).toBe(-1); // Cursed win for White = cursed loss for Black
+      expect(blessedResult.perspectiveWdl).toBe(1); // Blessed loss for White = blessed win for Black
     });
   });
 
