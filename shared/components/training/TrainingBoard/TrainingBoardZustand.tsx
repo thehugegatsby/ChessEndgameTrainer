@@ -97,10 +97,11 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
 
   // Sync game instance with Zustand
   useEffect(() => {
-    if (game && game !== training.game) {
+    // Compare FEN strings instead of object references to avoid infinite loops
+    if (game && game.fen() !== training.currentFen) {
       actions.setGame(game);
     }
-  }, [game, actions, training.game]);
+  }, [game, actions, training.currentFen]);
 
   // Sync move history with Zustand
   useEffect(() => {

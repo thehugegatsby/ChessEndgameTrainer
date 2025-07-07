@@ -92,8 +92,7 @@ describe('TrainingBoardZustand', () => {
     useStore.getState().reset();
   });
 
-  it.skip('should set position in Zustand store on mount', () => {
-    // SKIPPED: Infinite loop issue with setGame in useEffect
+  it('should set position in Zustand store on mount', () => {
     render(
       <TrainingBoardZustand
         position={mockPosition}
@@ -105,8 +104,7 @@ describe('TrainingBoardZustand', () => {
     expect(state.currentPosition).toEqual(mockPosition);
   });
 
-  it.skip('should update Zustand when making a move', () => {
-    // SKIPPED: Infinite loop issue with setGame in useEffect
+  it('should update Zustand when making a move', () => {
     const { useEnhancedMoveHandler } = require('@shared/components/training/TrainingBoard/hooks');
     const handleMoveMock = jest.fn();
     
@@ -173,8 +171,7 @@ describe('TrainingBoardZustand', () => {
     expect(storedMove.color).toBe(mockMove.color);
   });
 
-  it.skip('should handle game completion through onComplete callback', () => {
-    // SKIPPED: Infinite loop issue with setGame in useEffect
+  it('should handle game completion through onComplete callback', () => {
     const onCompleteMock = jest.fn();
     const { useChessGame } = require('@shared/hooks');
     
