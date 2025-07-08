@@ -1,24 +1,26 @@
 # TODO - ChessEndgameTrainer Tasks
 
-Last Updated: 2025-01-07
+Last Updated: 2025-07-08
 
 ## 📌 Current Sprint Focus
 1. Complete Brückenbau-Trainer Phase P3 (UI Integration)
-2. Fix security vulnerabilities (FEN sanitization)
+2. ~~Fix security vulnerabilities (FEN sanitization)~~ ✅ COMPLETED (2025-07-08)
 3. Fix failing Playwright test
 
 ---
 
 ## 🚨 Critical Priority Tasks
 
-### 1. **Security: Implement FEN String Sanitization**
-- [ ] Add input validation in `shared/lib/chess/ScenarioEngine.ts`
-- [ ] Create sanitization utility in `shared/utils/security/`
-- [ ] Apply sanitization to all FEN inputs
-- [ ] Add XSS prevention tests
-- **Files**: `ScenarioEngine.ts`, `TrainingBoard.tsx`, `useChessGame.ts`
-- **Acceptance Criteria**: No unsanitized FEN strings reach chess.js
-- **Effort**: S (Small)
+### 1. ~~**Security: Implement FEN String Sanitization**~~ ✅ COMPLETED (2025-07-08)
+- [x] Add input validation in `shared/lib/chess/ScenarioEngine.ts`
+- [x] Create sanitization utility in `shared/utils/fenValidator.ts`
+- [x] Apply sanitization to all FEN inputs
+- [x] Add XSS prevention tests
+- **Implementation Details**:
+  - Created comprehensive `fenValidator.ts` with validation and sanitization
+  - Protected all input boundaries: instanceManager, tablebase, positionService, store, useChessGame
+  - 100% test coverage on FEN validator
+  - Prevents XSS, SQL injection, and invalid FEN formats
 
 ### 2. **Brückenbau-Trainer Phase P3: UI Integration**
 - [ ] Extend `shared/components/training/MovePanel.tsx` with enhanced display

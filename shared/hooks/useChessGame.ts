@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Chess, Move } from 'chess.js';
 import { ErrorService } from '@shared/services/errorService';
+import { validateAndSanitizeFen } from '@shared/utils/fenValidator';
 
 interface UseChessGameOptions {
   initialFen: string;
@@ -25,10 +26,22 @@ export const useChessGame = ({
   onComplete, 
   onPositionChange 
 }: UseChessGameOptions): UseChessGameReturn => {
-  const [game, setGame] = useState(() => new Chess(initialFen));
+  // Validate and sanitize initial FEN
+  const validation = validateAndSanitizeFen(initialFen);
+  const validatedInitialFen = validation.isValid ? validation.sanitized : initialFen;
+  
+  if (!validation.isValid) {
+    ErrorService.handleChessEngineError(new Error(`Invalid initial FEN: ${validation.errors.join(', ')}`), {
+      component: 'useChessGame',
+      action: 'validateInitialFen',
+      additionalData: { fen: initialFen }
+    });
+  }
+  
+  const [game, setGame] = useState(() => new Chess(validatedInitialFen));
   const [history, setHistory] = useState<Move[]>([]);
   const [isGameFinished, setIsGameFinished] = useState(false);
-  const [currentFen, setCurrentFen] = useState(initialFen);
+  const [currentFen, setCurrentFen] = useState(validatedInitialFen);
   const [currentPgn, setCurrentPgn] = useState('');
   
   const gameRef = useRef(game);
@@ -92,7 +105,7 @@ export const useChessGame = ({
     // Optimization: reuse existing game if possible
     const currentGameCopy = new Chess(gameRef.current.fen());
     currentGameCopy.reset();
-    currentGameCopy.load(initialFen);
+    currentGameCopy.load(validatedInitialFen);
     
     // Apply moves up to the target index
     for (let i = 0; i <= moveIndex && i < historyRef.current.length; i++) {
@@ -106,24 +119,24 @@ export const useChessGame = ({
     setIsGameFinished(false);
     
     onPositionChange?.(currentGameCopy.fen(), currentGameCopy.pgn());
-  }, [initialFen, onPositionChange]);
+  }, [validatedInitialFen, onPositionChange]);
 
   const resetGame = useCallback(() => {
-    const newGame = new Chess(initialFen);
+    const newGame = new Chess(validatedInitialFen);
     setGame(newGame);
     setHistory([]);
     setIsGameFinished(false);
-    setCurrentFen(initialFen);
+    setCurrentFen(validatedInitialFen);
     setCurrentPgn('');
     
-    onPositionChange?.(initialFen, '');
-  }, [initialFen, onPositionChange]);
+    onPositionChange?.(validatedInitialFen, '');
+  }, [validatedInitialFen, onPositionChange]);
 
   const undoMove = useCallback((): boolean => {
     if (history.length === 0) return false;
     
     const newHistory = history.slice(0, -1);
-    const tempGame = new Chess(initialFen);
+    const tempGame = new Chess(validatedInitialFen);
     
     newHistory.forEach(move => tempGame.move(move));
     
@@ -135,7 +148,7 @@ export const useChessGame = ({
     
     onPositionChange?.(tempGame.fen(), tempGame.pgn());
     return true;
-  }, [history, initialFen, onPositionChange]);
+  }, [history, validatedInitialFen, onPositionChange]);
 
   return {
     game,

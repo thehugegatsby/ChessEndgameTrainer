@@ -24,6 +24,7 @@ import { TRAINING, TIME } from '../constants';
 import { getLogger } from '../services/logging';
 import { fromLibraryMove, ChessAdapterError } from '../infrastructure/chess-adapter';
 import { Move as ChessJsMove } from 'chess.js';
+import { validateAndSanitizeFen } from '../utils/fenValidator';
 
 const logger = getLogger().setContext('Store');
 
@@ -150,6 +151,21 @@ export const useStore = create<RootState & Actions>()(
 
         // Training Actions
         setPosition: (position) => set((state) => {
+          // Validate FEN before setting position
+          if (position.fen) {
+            const validation = validateAndSanitizeFen(position.fen);
+            if (!validation.isValid) {
+              logger.error('Invalid FEN in position', { 
+                positionId: position.id, 
+                errors: validation.errors 
+              });
+              get().showToast('Invalid position format', 'error');
+              return;
+            }
+            // Use sanitized FEN
+            position = { ...position, fen: validation.sanitized };
+          }
+          
           state.training.currentPosition = position;
           state.training.isGameFinished = false;
           state.training.isSuccess = false;
