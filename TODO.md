@@ -121,13 +121,14 @@ Last Updated: 2025-07-08
 - **Files**: All files using window, document, localStorage
 - **Effort**: M (Medium)
 
-### 11. **Update Outdated Documentation**
-- [ ] Fix "types/chess.ts has only 5 lines" (actually 91)
-- [ ] Update test coverage numbers
-- [ ] Document new evaluation system
-- [ ] Add Firestore setup guide
+### 11. ~~**Update Outdated Documentation**~~ ✅ COMPLETED (2025-07-08)
+- [x] Fix "types/chess.ts has only 5 lines" (actually 91)
+- [x] Update test coverage numbers
+- [x] Document new evaluation system
+- [x] Add Firestore setup guide
+- [x] Complete documentation restructure
 - **Files**: `CLAUDE.md`, `README.md`, `docs/`
-- **Effort**: S (Small)
+- **Completed**: Consolidated 40 MD files into clean structure
 
 ### 12. **Refactor: useReducer for Complex Hooks**
 - [ ] Migrate `useChessGame` to useReducer
