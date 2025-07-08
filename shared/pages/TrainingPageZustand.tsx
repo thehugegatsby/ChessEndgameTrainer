@@ -6,7 +6,8 @@ import {
   DualEvaluationSidebar,
   TrainingControls, 
   AnalysisPanel,
-  EvaluationLegend 
+  EvaluationLegend,
+  NavigationControls
 } from '@shared/components/training';
 import { AdvancedEndgameMenu } from '@shared/components/navigation/AdvancedEndgameMenu';
 import { EndgamePosition, allEndgamePositions, getChapterProgress } from '@shared/data/endgames/index';
@@ -35,7 +36,6 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
   
   // Local UI state
   const [resetKey, setResetKey] = useState<number>(0);
-  const [jumpToMoveFunc, setJumpToMoveFunc] = useState<((moveIndex: number) => void) | null>(null);
 
   // Navigation helpers
   const currentIndex = allEndgamePositions.findIndex(p => p.id === position.id);
@@ -70,15 +70,10 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
     setResetKey(prev => prev + 1);
   }, [trainingActions]);
 
-  const handleTrainingBoardReady = useCallback((func: (moveIndex: number) => void) => {
-    setJumpToMoveFunc(() => func);
-  }, []);
-
   const handleMoveClick = useCallback((moveIndex: number) => {
-    if (jumpToMoveFunc) {
-      jumpToMoveFunc(moveIndex);
-    }
-  }, [jumpToMoveFunc]);
+    // Navigate to the clicked move
+    trainingActions.goToMove(moveIndex);
+  }, [trainingActions]);
 
   const handleToggleAnalysis = useCallback(() => {
     uiActions.updateAnalysisPanel({ isOpen: !ui.analysisPanel.isOpen });
@@ -130,26 +125,24 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
             <TrainingBoardZustand 
               key={`${position.id}-${resetKey}`}
               position={position}
-              onComplete={handleComplete}
-              onJumpToMove={handleTrainingBoardReady}
-              onEvaluationsChange={trainingActions.setEvaluations}
-              currentMoveIndex={training.currentMoveIndex}
+              onComplete={() => handleComplete(true)}
             />
           </div>
         </div>
         
         {/* Floating Sidebar */}
         <div className="sidebar fixed right-0 top-0 bottom-0 w-80 bg-gray-900 border-l border-gray-700 flex flex-col z-20 overflow-y-auto">
-          {/* Navigation */}
+          {/* Navigation between positions */}
           <div className="nav-section p-4 border-b border-gray-700">
-            <div className="flex items-center justify-center gap-8">
+            <h3 className="text-sm font-semibold text-gray-400 mb-2 text-center">Stellungsnavigation</h3>
+            <div className="flex items-center justify-center gap-4">
               <button 
                 onClick={() => prevPosition && (window.location.href = `/train/${prevPosition.id}`)}
                 disabled={!prevPosition}
                 className="p-2 hover:bg-gray-800 rounded disabled:opacity-30 transition-colors"
-                title="Vorherige Position"
+                title="Vorherige Stellung"
               >
-                <span className="text-lg">←</span>
+                <span className="text-lg">← Vorherige Stellung</span>
               </button>
               <button 
                 onClick={handleResetPosition}
@@ -162,9 +155,9 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
                 onClick={() => nextPosition && (window.location.href = `/train/${nextPosition.id}`)}
                 disabled={!nextPosition}
                 className="p-2 hover:bg-gray-800 rounded disabled:opacity-30 transition-colors"
-                title="Nächste Position"
+                title="Nächste Stellung"
               >
-                <span className="text-lg">→</span>
+                <span className="text-lg">Nächste Stellung →</span>
               </button>
             </div>
           </div>
@@ -211,6 +204,9 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
               onMoveClick={handleMoveClick}
               currentMoveIndex={training.currentMoveIndex}
             />
+            <div className="mt-2">
+              <NavigationControls />
+            </div>
           </div>
 
           {/* External Links */}

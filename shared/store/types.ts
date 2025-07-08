@@ -179,7 +179,7 @@ export interface UserActions {
 export interface TrainingActions {
   setPosition: (position: EndgamePosition) => void;
   setGame: (game: ChessInstance) => void;
-  makeMove: (move: ChessJsMove) => void;
+  makeMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => void;
   undoMove: () => void;
   resetPosition: () => void;
   setEvaluation: (evaluation: EvaluationData) => void;
@@ -188,6 +188,12 @@ export interface TrainingActions {
   completeTraining: (success: boolean) => void;
   useHint: () => void;
   incrementMistake: () => void;
+  // Navigation actions
+  goToMove: (moveIndex: number) => void;
+  goToFirst: () => void;
+  goToPrevious: () => void;
+  goToNext: () => void;
+  goToLast: () => void;
 }
 
 export interface ProgressActions {

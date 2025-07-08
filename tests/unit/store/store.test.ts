@@ -188,6 +188,12 @@ describe('Zustand Store', () => {
     it('should handle moves correctly', () => {
       const { result } = renderHook(() => useStore());
       
+      // First set a position to initialize the chess game instance
+      act(() => {
+        result.current.setPosition(mockPosition);
+      });
+      
+      // Now make a move
       act(() => {
         result.current.makeMove(mockMove);
       });
@@ -206,9 +212,14 @@ describe('Zustand Store', () => {
     it('should undo moves correctly', () => {
       const { result } = renderHook(() => useStore());
       
+      // First set a position to initialize the chess game instance
       act(() => {
-        result.current.makeMove(mockMove);
-        result.current.makeMove({ ...mockMove, from: 'a4', to: 'a5' });
+        result.current.setPosition(mockPosition);
+      });
+      
+      act(() => {
+        result.current.makeMove(mockMove); // a2-a4 (White)
+        result.current.makeMove({ ...mockMove, from: 'a8', to: 'b8', piece: 'k', color: 'b', san: 'Kb8' }); // Black King move
       });
       
       expect(result.current.training.moveHistory).toHaveLength(2);

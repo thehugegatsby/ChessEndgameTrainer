@@ -33,12 +33,14 @@ if (!allowedPaths.includes(workerPath) || workerPath.includes('../')) {
 }
 ```
 
-### 3. Input Validation (TODO)
-**Areas requiring validation**:
-- Move notation input
-- URL parameters (position IDs)
-- User settings/preferences
-- localStorage data
+### 3. Input Validation (IN PROGRESS)
+**Implemented validations**:
+- ✅ FEN strings: Comprehensive validation via `validateAndSanitizeFen()`
+- ✅ Worker paths: Whitelist validation prevents path traversal
+- 🔄 Move notation input: Validated through chess.js library
+- 🔄 URL parameters: Position IDs validated against known scenarios
+- ⚠️ User settings/preferences: Basic type checking only
+- ⚠️ localStorage data: Needs additional validation layer
 
 ## 🛡️ Security Headers Configuration
 

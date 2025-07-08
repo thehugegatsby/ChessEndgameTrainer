@@ -70,6 +70,22 @@ Diese Guideline stellt sicher, dass alle neuen Tests im "Claude Build" konsisten
     * `UserAuthentication_LoginSuccess_DashboardDisplayed`
 * **Ablageort:** `tests/e2e/[user-flow-oder-hauptszenario]/`
 
+#### ⚠️ WICHTIG: E2E Test-Konfiguration
+Für E2E Tests mit Test-Hooks **MUSS** die Umgebungsvariable `NEXT_PUBLIC_TEST_MODE=true` gesetzt sein:
+
+```bash
+# Option 1: Dev-Server mit Test-Mode starten
+NEXT_PUBLIC_TEST_MODE=true npm run dev
+
+# Option 2: .env.test verwenden
+NODE_ENV=test npm run dev
+
+# Dann Tests ausführen
+npm run test:e2e
+```
+
+**Ohne diese Konfiguration schlagen alle E2E Tests fehl, die Test-Hooks verwenden!**
+
 ---
 
 ## 📁 Test-Ordnerstruktur (Empfohlen)
@@ -165,6 +181,22 @@ Diese Guideline stellt sicher, dass alle neuen Tests im "Claude Build" konsisten
     * `MoveEvaluationFullCycle_KingRookVsKing_CorrectlyDisplaysTablebaseResultAndBestMoves`
     * `UserAuthentication_LoginSuccess_DashboardDisplayed`
 * **Ablageort:** `tests/e2e/[user-flow-oder-hauptszenario]/`
+
+#### ⚠️ WICHTIG: E2E Test-Konfiguration
+Für E2E Tests mit Test-Hooks **MUSS** die Umgebungsvariable `NEXT_PUBLIC_TEST_MODE=true` gesetzt sein:
+
+```bash
+# Option 1: Dev-Server mit Test-Mode starten
+NEXT_PUBLIC_TEST_MODE=true npm run dev
+
+# Option 2: .env.test verwenden
+NODE_ENV=test npm run dev
+
+# Dann Tests ausführen
+npm run test:e2e
+```
+
+**Ohne diese Konfiguration schlagen alle E2E Tests fehl, die Test-Hooks verwenden!**
 
 ---
 
@@ -276,6 +308,66 @@ Mit der zentralisierten Error-Handling-Architektur sollten Tests folgende Patter
 * **Blunder- & Optimale-Zug-Verifikation:** Teste spezifische Züge, die bekannt gute oder bekannte fehlerhafte Züge sind, und verifiziere, dass sie mit den **korrekten Symbolen und Labels der Legende** angezeigt werden.
     * Beispiel: Der Blunder `Kb5` in der Stellung `2K5/2P2k2/8/8/4R3/8/1r6/8 w - - 0 1` muss mit `🚨` (Sieg → Remis weggeworfen) visualisiert werden.
 * **Grenzfälle:** Teste Positionen, die Pattsituationen, Dauerschach, unmögliche Stellungen oder andere Regelbesonderheiten beinhalten.
+
+---
+
+## 🏪 Store Testing Best Practices (Zustand)
+
+### Single Source of Truth - Kritisches Learning
+Beim Testen von Zustand Store-basierten Komponenten ist es essentiell, das **Single Source of Truth** Prinzip zu respektieren. Ein häufiger Fehler, der zu schwer nachvollziehbaren Test-Fehlern führt:
+
+#### ❌ Anti-Pattern: Direkte Manipulation + Store Actions
+```typescript
+// FALSCH: Doppelte Manipulation führt zu Konflikten
+act(() => {
+  const game = useStore.getState().training.game;
+  game.move({ from: 'e2', to: 'e4' });          // Direkte Manipulation
+  useStore.getState().makeMove({ from: 'e2', to: 'e4' }); // Store Action → FEHLER!
+});
+```
+
+**Problem**: Der erste Aufruf verändert den Spielzustand direkt, wodurch der zweite Aufruf fehlschlägt, da der Zug bereits ausgeführt wurde.
+
+#### ✅ Korrekt: Nur Store Actions verwenden
+```typescript
+// RICHTIG: Ausschließlich Store Actions verwenden
+act(() => {
+  useStore.getState().makeMove({ from: 'e2', to: 'e4' }); // Store verwaltet alles
+});
+```
+
+### Store Testing Patterns
+
+1. **Mock-Interferenz vermeiden**:
+   - Component Mocks sollten NIEMALS den Store-Zustand überschreiben
+   - Wenn der Parent-Component bereits `setPosition()` aufruft, darf der Mock nicht `setGame()` aufrufen
+   
+2. **Asynchrone Store-Updates**:
+   ```typescript
+   // Verwende waitFor für State-abhängige Callbacks
+   await waitFor(() => {
+     expect(onCompleteMock).toHaveBeenCalledWith(true);
+   });
+   ```
+
+3. **Store Reset zwischen Tests**:
+   ```typescript
+   beforeEach(() => {
+     useStore.getState().reset();
+   });
+   ```
+
+4. **Minimale Move-Objekte**:
+   ```typescript
+   // Store erwartet nur die essentiellen Eigenschaften
+   makeMove({ from: 'e2', to: 'e4' }); // Nicht mehr!
+   ```
+
+### Lessons Learned
+- **Store als einzige Wahrheitsquelle**: Tests müssen das gleiche Interaktionsmuster wie die Anwendung verwenden
+- **Keine doppelten Manipulationen**: Ein Zug = Eine Store Action
+- **Mock-Hygiene**: Mocks dürfen Store-State nicht überschreiben, wenn Parent-Components das bereits tun
+- **Asynchronität beachten**: React-Components reagieren asynchron auf Store-Änderungen
 
 ---
 ```

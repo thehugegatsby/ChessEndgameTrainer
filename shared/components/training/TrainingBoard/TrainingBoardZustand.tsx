@@ -1,16 +1,13 @@
-import React, { useEffect, useCallback, useMemo } from 'react';
+import React, { useEffect, useCallback, useMemo, useState } from 'react';
 import { Chess, Move } from 'chess.js';
 import { Square } from 'react-chessboard/dist/chessboard/types';
-import { useChessGame, useEvaluation } from '../../../hooks';
-import { ErrorDisplay } from './ErrorDisplay';
-import { ChessboardContainer } from './components/ChessboardContainer';
-import { 
-  useScenarioEngine, 
-  useTrainingState, 
-  useEnhancedMoveHandler 
-} from './hooks';
+import { Chessboard } from 'react-chessboard';
+import { useEvaluation, useTrainingGame } from '../../../hooks';
 import { useTraining, useTrainingActions } from '@shared/store/store';
 import { EndgamePosition } from '@shared/data/endgames/types';
+import { ScenarioEngine } from '@shared/lib/chess/ScenarioEngine';
+import { ErrorService } from '@shared/services/errorService';
+import { getLogger } from '@shared/services/logging';
 
 interface PositionInfo {
   fen: string;
@@ -73,7 +70,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
   
   // === HOOKS ===
   
-  // Chess game logic
+  // Chess game logic - now using Store as single source of truth
   const {
     game,
     history,
@@ -84,54 +81,13 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     jumpToMove,
     resetGame,
     undoMove
-  } = useChessGame({
-    initialFen,
+  } = useTrainingGame({
     onComplete: (success) => {
-      // Update Zustand store
-      actions.completeTraining(success);
       // Call parent callback
       onComplete(success);
     },
     onPositionChange
   });
-
-  // Sync game instance with Zustand only when FEN actually changes
-  useEffect(() => {
-    // The game instance from useChessGame is now stable (memoized)
-    // We only update Zustand when the FEN position actually changes
-    const gameFen = game?.fen();
-    if (gameFen && gameFen !== training.currentFen) {
-      actions.setGame(game);
-    }
-  }, [currentFen]); // Use currentFen instead of game to avoid dependency on object reference
-
-  // Sync move history with Zustand
-  useEffect(() => {
-    // Compare histories to avoid infinite loops
-    const zustandHistory = training.moveHistory || [];
-    const localHistory = history || [];
-    
-    if (localHistory.length > zustandHistory.length) {
-      // Local has more moves, sync to Zustand
-      const newMoves = localHistory.slice(zustandHistory.length);
-      newMoves.forEach(move => actions.makeMove(move));
-    } else if (zustandHistory.length > localHistory.length && localHistory.length === 0) {
-      // Zustand has moves but local is empty (reset scenario)
-      // Don't sync back to avoid conflicts during reset
-    }
-  }, [history, training.moveHistory, actions]);
-
-  // Sync game finished state
-  useEffect(() => {
-    if (isGameFinished !== training.isGameFinished) {
-      if (isGameFinished && !training.isGameFinished) {
-        // Game just finished, this is handled by onComplete callback
-      } else if (!isGameFinished && training.isGameFinished) {
-        // Game was reset
-        actions.resetPosition();
-      }
-    }
-  }, [isGameFinished, training.isGameFinished, actions]);
 
   // Calculate previous FEN for tablebase move comparison
   const previousFen = useMemo(() => {
@@ -172,14 +128,52 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     }
   }, [lastEvaluation, actions]);
 
-  // UI state management
-  const trainingState = useTrainingState();
+  // UI state management - inline implementation
+  const [resetKey, setResetKey] = useState(0);
+  const [showLastEvaluation, setShowLastEvaluation] = useState(false);
+  const [warning, setWarning] = useState('');
+  const [engineError, setEngineError] = useState<string | null>(null);
+  const [moveError, setMoveError] = useState<string | null>(null);
+  const [showMoveErrorDialog, setShowMoveErrorDialog] = useState(false);
 
-  // Scenario engine management
-  const { scenarioEngine, isEngineReady, engineError } = useScenarioEngine({
-    initialFen,
-    onError: trainingState.setEngineError
-  });
+  const trainingState = {
+    resetKey,
+    showLastEvaluation,
+    warning,
+    engineError,
+    moveError,
+    showMoveErrorDialog,
+    setWarning,
+    setEngineError,
+    showEvaluationBriefly: () => {
+      setShowLastEvaluation(true);
+      setTimeout(() => setShowLastEvaluation(false), 2000);
+    },
+    handleReset: () => setResetKey(prev => prev + 1),
+    handleDismissMoveError: () => {
+      setMoveError(null);
+      setShowMoveErrorDialog(false);
+    },
+    handleClearWarning: () => setWarning(''),
+    handleClearEngineError: () => setEngineError(null)
+  };
+
+  // Scenario engine management - inline implementation
+  const [scenarioEngine, setScenarioEngine] = useState<ScenarioEngine | null>(null);
+  const [isEngineReady, setIsEngineReady] = useState(false);
+
+  useEffect(() => {
+    if (!position) return;
+    
+    try {
+      const engine = new ScenarioEngine(position.fen);
+      setScenarioEngine(engine);
+      setIsEngineReady(true);
+    } catch (error) {
+      setEngineError(error instanceof Error ? error.message : 'Engine initialization failed');
+      ErrorService.handleChessEngineError(error as Error, { component: 'TrainingBoardZustand' });
+    }
+  }, [position]);
 
   // Update engine status in Zustand
   useEffect(() => {
@@ -194,23 +188,101 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     }
   }, [isEngineReady, engineError, isEvaluating, actions]);
 
-  // Enhanced move handling
-  const { handleMove } = useEnhancedMoveHandler({
-    scenarioEngine,
-    isGameFinished,
-    game,
-    makeMove: async (move) => {
+  // Enhanced move handling - inline implementation
+  const handleMove = useCallback(async (move: any) => {
+    if (!scenarioEngine || isGameFinished) return null;
+
+    try {
+      // Validate move with chess instance
+      const possibleMoves = game.moves({ verbose: true });
+      const isValidMove = possibleMoves.some((m: any) => 
+        m.from === move.from && m.to === move.to
+      );
+      
+      if (!isValidMove) {
+        trainingState.setWarning('Invalid move');
+        actions.incrementMistake();
+        return null;
+      }
+
+      // First make the move on the local game instance
       const result = await makeMove(move);
       if (result) {
+        // Then trigger engine response separately
+        const currentFen = game.fen();
+        const engineMove = await scenarioEngine.getBestMove(currentFen);
+        if (engineMove && typeof engineMove === 'object') {
+          // Make the engine move
+          await makeMove({ from: (engineMove as any).from, to: (engineMove as any).to, promotion: (engineMove as any).promotion });
+        }
+        
         // Move was successful, it will be synced to Zustand via the history effect
+        if (lastEvaluation) {
+          trainingState.showEvaluationBriefly();
+        }
       }
       return result;
-    },
-    lastEvaluation,
-    onWarning: trainingState.setWarning,
-    onEngineError: trainingState.setEngineError,
-    showEvaluationBriefly: trainingState.showEvaluationBriefly
-  });
+    } catch (error) {
+      trainingState.setEngineError(error instanceof Error ? error.message : 'Move failed');
+      return null;
+    }
+  }, [scenarioEngine, isGameFinished, makeMove, lastEvaluation, trainingState, actions]);
+
+  // === TEST HOOK FOR E2E TESTING ===
+  useEffect(() => {
+    // Only expose in test environment
+    if (process.env.NODE_ENV === 'test' || process.env.NEXT_PUBLIC_TEST_MODE === 'true') {
+      (window as any).e2e_makeMove = async (move: string) => {
+        const logger = getLogger().setContext('TrainingBoard-TestHook');
+        logger.debug('Test move requested', { move });
+        
+        // Parse move notation (support 'e2-e4', 'e2e4', 'Ke2-e4', 'Ke2e4' formats)
+        const moveMatch = move.match(/^([KQRBN]?)([a-h][1-8])-?([a-h][1-8])([qrbn])?$/i);
+        if (!moveMatch) {
+          logger.error('Invalid move format', { move });
+          return { success: false, error: 'Invalid move format' };
+        }
+        
+        const [, piece, from, to, promotion] = moveMatch;
+        const moveObj = {
+          from: from as Square,
+          to: to as Square,
+          promotion: promotion || 'q'
+        };
+        
+        try {
+          const result = await handleMove(moveObj);
+          if (result) {
+            logger.debug('Test move successful', { move, result });
+            return { success: true, result };
+          } else {
+            logger.error('Test move failed', { move });
+            return { success: false, error: 'Move rejected by engine' };
+          }
+        } catch (error) {
+          logger.error('Test move error', { move, error });
+          return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+        }
+      };
+      
+      // Also expose game state for debugging
+      (window as any).e2e_getGameState = () => ({
+        fen: game.fen(),
+        turn: game.turn(),
+        isGameOver: game.isGameOver(),
+        moveCount: history.length,
+        pgn: game.pgn()
+      });
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      if (process.env.NODE_ENV === 'test' || process.env.NEXT_PUBLIC_TEST_MODE === 'true') {
+        delete (window as any).e2e_makeMove;
+        delete (window as any).e2e_getGameState;
+      }
+    };
+  }, [handleMove, game, history]);
 
   // === EVENT HANDLERS ===
 
@@ -266,31 +338,153 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     }
   }, [onJumpToMove, jumpToMove]);
 
+  // === TEST MODE: AUTO-PLAY MOVES ===
+  // Für E2E Tests: Spiele Züge automatisch ab via URL-Parameter
+  const [testMoveProcessed, setTestMoveProcessed] = useState(false);
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !testMoveProcessed) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const testMoves = urlParams.get('moves');
+      
+      // Debug logging
+      const logger = getLogger().setContext('TrainingBoard-TestMode');
+      logger.debug('URL check', { 
+        url: window.location.href, 
+        search: window.location.search, 
+        testMoves, 
+        gameReady: !!game, 
+        isGameFinished,
+        historyLength: history.length,
+        testMoveProcessed
+      });
+      
+      if (testMoves && game && !isGameFinished) {
+        setTestMoveProcessed(true);
+        const moves = testMoves.split(',');
+        let moveIndex = 0;
+        
+        logger.info('Starting automated moves', { moves, totalMoves: moves.length });
+        
+        const playNextMove = async () => {
+          if (moveIndex < moves.length) {
+            const moveNotation = moves[moveIndex];
+            
+            logger.debug('Attempting move', { moveIndex, moveNotation, currentHistoryLength: history.length });
+            
+            try {
+              // Use the handleMove function which includes validation
+              let move;
+              if (moveNotation.includes('-')) {
+                // Format: e2-e4
+                const [from, to] = moveNotation.split('-');
+                move = { from: from as Square, to: to as Square, promotion: 'q' };
+              } else {
+                // Format: e4 (SAN) - parse it properly
+                const tempGame = new Chess(game.fen());
+                move = tempGame.move(moveNotation);
+                if (move) {
+                  move = { from: move.from as Square, to: move.to as Square, promotion: move.promotion || 'q' };
+                }
+              }
+              
+              if (move) {
+                logger.debug('Move parsed successfully', { move });
+                const result = await handleMove(move);
+                
+                if (result) {
+                  moveIndex++;
+                  logger.debug('Move executed successfully', { moveIndex, newHistoryLength: history.length });
+                  
+                  // Warte kurz und dann nächster Zug
+                  setTimeout(playNextMove, 1500);
+                } else {
+                  logger.warn('Move execution failed', { moveNotation });
+                }
+              } else {
+                logger.warn('Move parsing returned null', { moveNotation });
+                // Versuche nächsten Zug
+                moveIndex++;
+                setTimeout(playNextMove, 500);
+              }
+            } catch (error) {
+              logger.error('Test move failed', error, { moveNotation });
+              // Versuche nächsten Zug
+              moveIndex++;
+              setTimeout(playNextMove, 500);
+            }
+          } else {
+            logger.info('Automated moves completed', { finalMoveIndex: moveIndex, finalHistoryLength: history.length });
+          }
+        };
+        
+        // Starte nach initialem Render
+        setTimeout(playNextMove, 2000);
+      }
+    }
+  }, [game, isGameFinished, handleMove, testMoveProcessed]);
+
   // === RENDER ===
 
   return (
     <div className="flex flex-col items-center">
       {/* Chessboard with Evaluation Overlay */}
-      <ChessboardContainer
-        currentFen={currentFen}
-        onPieceDrop={onDrop}
-        isGameFinished={isGameFinished}
-        resetKey={trainingState.resetKey}
-        lastEvaluation={lastEvaluation}
-        history={history}
-        showLastEvaluation={trainingState.showLastEvaluation}
-      />
+      <div className="relative" key={trainingState.resetKey} style={{ width: '600px', height: '600px' }}>
+        <Chessboard
+          position={currentFen}
+          onPieceDrop={onDrop}
+          arePiecesDraggable={!isGameFinished}
+          boardWidth={600}
+        />
+        {/* Show last evaluation briefly */}
+        {trainingState.showLastEvaluation && lastEvaluation && (
+          <div className="absolute top-2 right-2 bg-white/90 p-2 rounded shadow-lg">
+            <div className="text-sm font-semibold">
+              Eval: {lastEvaluation.evaluation > 0 ? '+' : ''}{(lastEvaluation.evaluation / 100).toFixed(2)}
+            </div>
+          </div>
+        )}
+      </div>
 
-      {/* Error and Warning Displays */}
-      <ErrorDisplay
-        warning={trainingState.warning}
-        engineError={trainingState.engineError || evaluationError || engineError}
-        moveError={trainingState.moveError}
-        showMoveErrorDialog={trainingState.showMoveErrorDialog}
-        onDismissMoveError={trainingState.handleDismissMoveError}
-        onClearWarning={trainingState.handleClearWarning}
-        onClearEngineError={trainingState.handleClearEngineError}
-      />
+      {/* Error and Warning Displays - inline implementation */}
+      {trainingState.warning && (
+        <div className="mt-2 p-2 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
+          {trainingState.warning}
+          <button
+            onClick={trainingState.handleClearWarning}
+            className="ml-2 text-yellow-700 hover:text-yellow-900"
+          >
+            ×
+          </button>
+        </div>
+      )}
+      
+      {(trainingState.engineError || evaluationError) && (
+        <div className="mt-2 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
+          {trainingState.engineError || evaluationError}
+          <button
+            onClick={trainingState.handleClearEngineError}
+            className="ml-2 text-red-700 hover:text-red-900"
+          >
+            ×
+          </button>
+        </div>
+      )}
+      
+      {trainingState.showMoveErrorDialog && trainingState.moveError && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded shadow-lg max-w-md">
+            <h3 className="text-lg font-semibold mb-2">Move Error</h3>
+            <p>{trainingState.moveError}</p>
+            <button
+              onClick={trainingState.handleDismissMoveError}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

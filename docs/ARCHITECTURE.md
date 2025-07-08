@@ -7,12 +7,12 @@ ChessEndgameTrainer is a web/mobile chess endgame training application with AI e
 ## Tech Stack
 
 ### Core Technologies
-- **Frontend**: Next.js 15.3, React 18.3, TypeScript 5.3
+- **Frontend**: Next.js 15.3.3, React 18.2.0, TypeScript 5.3.3
 - **UI**: Tailwind CSS 3.4, Radix UI, react-chessboard 4.3
-- **State**: Zustand 4.4 (installed), React Context API (current)
+- **State**: Zustand 4.5.0 (installed), React Context API (current)
 - **Chess Engine**: chess.js 1.0.0-beta.6, Stockfish WASM (NNUE)
-- **Testing**: Jest 29.7, React Testing Library 14.1
-- **Mobile**: React Native 0.73 (prepared, 0% implementation)
+- **Testing**: Jest 29.7.0, React Testing Library 14.2.1
+- **Mobile**: React Native 0.73.4 (prepared, 0% implementation)
 - **Database**: Firebase Firestore (optional with local fallback)
 
 ### Project Structure
@@ -171,7 +171,7 @@ interface PlatformService {
 | Metric | Current | Target | Status |
 |--------|---------|--------|---------|
 | Test Coverage | ~78% | 80% | ⚠️ |
-| Bundle Size | ~500KB | <300KB | ❌ |
+| Bundle Size | ~1.1MB | <500KB | ⚠️ |
 | API Call Reduction | 75% | 70% | ✅ |
 | Cache Hit Rate | 99.99% | 95% | ✅ |
 | Mobile Coverage | 0% | 80% | ❌ |

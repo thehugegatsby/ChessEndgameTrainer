@@ -35,7 +35,7 @@ We use GitHub to manage all contributions. The primary ways to contribute are th
 
 ### Reporting Bugs
 
-If you find a bug, please create an issue in our [issue tracker](https://github.com/YOUR_USERNAME/ChessEndgameTrainer/issues). A great bug report includes:
+If you find a bug, please create an issue in our [issue tracker](https://github.com/thehugegatsby/ChessEndgameTrainer/issues). A great bug report includes:
 - A clear and descriptive title
 - Steps to reproduce the bug
 - The expected behavior vs. the actual behavior
@@ -64,7 +64,7 @@ Pull Requests are welcome for bug fixes and pre-approved features. Please follow
 **Installation & Setup:**
 ```bash
 # 1. Fork and clone the repository
-git clone https://github.com/YOUR_USERNAME/ChessEndgameTrainer.git
+git clone https://github.com/thehugegatsby/ChessEndgameTrainer.git
 cd ChessEndgameTrainer
 
 # 2. Install dependencies

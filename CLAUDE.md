@@ -1,5 +1,13 @@
 # CLAUDE.md - AI Assistant Context
 
+## WICHTIGE ARCHITEKTUR-PRINZIPIEN
+**IMMER die sauberste, langfristig beste Lösung wählen!**
+- Keine pragmatischen Workarounds oder Quick-Fixes
+- Single Source of Truth bevorzugen
+- Klare Trennung von Verantwortlichkeiten
+- Wartbarkeit und Erweiterbarkeit priorisieren
+- Technische Schulden vermeiden
+
 ## Project Overview
 **ChessEndgameTrainer** - Web/Mobile chess endgame training app with AI engine integration.
 
@@ -30,12 +38,33 @@
 ## Essential Commands
 ```bash
 npm run dev              # Dev server (port 3002)
+npm run dev:config       # Dev server using central config
 npm test                 # Run tests
 npm run lint            # ESLint
 npm run build           # Production build
 npm run check-duplicates # Find duplicate components
 npm run analyze-code    # Run all code analysis
+npm run test:e2e         # E2E tests with Playwright
 ```
+
+### Test Environment Setup
+**CRITICAL**: E2E tests require `NEXT_PUBLIC_TEST_MODE=true` for test hooks to work!
+
+```bash
+# Start dev server with test mode enabled:
+NEXT_PUBLIC_TEST_MODE=true npm run dev
+
+# Or use test environment:
+NODE_ENV=test npm run dev  # Uses .env.test
+
+# Then run E2E tests:
+npm run test:e2e
+```
+
+## Configuration
+- **Central Config**: `/config/constants.ts` - Contains DEV_PORT (3002) and URLs
+- **Environment**: `.env.development` - Development environment variables
+- **Playwright**: Uses `APP_CONFIG.DEV_URL` from central config
 
 ## Key Architecture Decisions
 

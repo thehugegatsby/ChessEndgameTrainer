@@ -24,9 +24,9 @@ Last Updated: 2025-07-08
 
 ### 2. **Brückenbau-Trainer Phase P3: UI Integration**
 - [ ] Extend `shared/components/training/MovePanel.tsx` with enhanced display
-- [ ] Add CSS classes for quality badges to `styles/evaluation.css`
-- [ ] Create `shared/components/ui/EvaluationTooltip.tsx`
-- [ ] Update `DualEvaluationPanel.tsx` with robustness indicators
+- [ ] Add CSS classes for quality badges (create new CSS module)
+- [ ] Create evaluation tooltip component
+- [ ] Update `DualEvaluationSidebar.tsx` with robustness indicators
 - [ ] Extend evaluation legend in `EvaluationLegend.tsx`
 - **Acceptance Criteria**: 
   - All 5 quality classes visible (optimal, sicher, umweg, riskant, fehler)
@@ -35,10 +35,11 @@ Last Updated: 2025-07-08
 - **Effort**: M (Medium)
 
 ### 3. **Fix Failing Playwright Test**
-- [ ] Fix bridge building test in `test-results/`
-- [ ] Update test for new evaluation logic
+- [ ] Fix bridge building test in `tests/e2e/bridge-building.spec.ts`
+- [ ] Fix simple bridge building test in `tests/e2e/bridge-building-simple.spec.ts`
+- [ ] Update tests for new evaluation logic
 - [ ] Ensure all e2e tests pass
-- **Files**: Playwright test files
+- **Files**: `tests/e2e/bridge-building*.spec.ts`
 - **Acceptance Criteria**: All tests green
 - **Effort**: S (Small)
 
@@ -46,29 +47,24 @@ Last Updated: 2025-07-08
 
 ## 🔥 High Priority Tasks
 
-### 4. **Mobile: Implement Platform Abstraction Layer**
-- [ ] Create `shared/services/platform/PlatformService.ts`
+### 4. **Mobile: Implement Platform Abstraction Layer** (PARTIALLY COMPLETE)
+- [x] Create `shared/services/platform/PlatformService.ts` ✅
+- [x] Add platform detection utilities ✅
 - [ ] Abstract storage API in `shared/services/storage/`
 - [ ] Abstract worker API for React Native
-- [ ] Add platform detection utilities
 - **Acceptance Criteria**: 
   - Single interface for web/mobile
   - No direct browser API usage
   - React Native compatibility
 - **Effort**: L (Large)
 
-### 5. **State Management: Migrate to Zustand**
-- [ ] Create `shared/stores/trainingStore.ts`
-- [ ] Migrate TrainingContext logic to Zustand
-- [ ] Update all components using TrainingContext
-- [ ] Remove old Context implementation
-- [ ] Add Zustand devtools integration
-- **Files**: `TrainingContext.tsx`, all components using it
-- **Acceptance Criteria**: 
-  - No React Context for training state
-  - Zustand store fully functional
-  - Performance improvements measurable
-- **Effort**: L (Large)
+### 5. ~~**State Management: Migrate to Zustand**~~ ✅ COMPLETED (2025-01-07)
+- [x] Create `shared/store/store.ts` (global store)
+- [x] Migrate TrainingContext logic to Zustand
+- [x] Update all components using TrainingContext
+- [x] Remove old Context implementation
+- [x] Add Zustand devtools integration
+- **Status**: Migration complete ✅ Cleanup completed 2025-07-08
 
 ### 6. **Engine: Fix Memory Management**
 - [ ] Implement proper cleanup in `EngineService.ts`
@@ -86,14 +82,23 @@ Last Updated: 2025-07-08
 - [ ] Complete mobile service mocks
 - [ ] Add integration tests for Firestore dual-read
 - [ ] Fix skipped castling tests
-- **Current**: ~78% | **Target**: 80%
+- **Current**: 47.54% (overall) / ~78% (business logic) | **Target**: 80% (business logic)
 - **Effort**: M (Medium)
+
+### 8. ~~**Cleanup: Remove Old Non-Zustand Components**~~ ✅ COMPLETED (2025-07-08)
+- [x] Remove old `TrainingBoard` component (non-Zustand version)
+- [x] Remove old `MovePanel` component (non-Zustand version)
+- [x] Update all imports to use only Zustand versions
+- [x] Update exports in `shared/components/training/index.ts`
+- [x] Update all tests to use Zustand components
+- **Status**: Successfully removed all non-Zustand components
+- **Note**: TrainingBoardZustand test needs fixing due to removed mocks
 
 ---
 
 ## 📊 Medium Priority Tasks
 
-### 8. ~~**Clean Up Uncommitted Debug Scripts**~~ ✅ COMPLETED (2025-07-08)
+### 9. ~~**Clean Up Uncommitted Debug Scripts**~~ ✅ COMPLETED (2025-07-08)
 - [x] Removed unused StockfishEngine implementations (dead code)
 - [x] Review and remove unnecessary scripts in `scripts/`
 - [x] Keep only essential migration scripts
@@ -106,22 +111,22 @@ Last Updated: 2025-07-08
   - 4 code analysis scripts (added to npm scripts)
 - **Documentation**: Created `/scripts/README.md` with usage instructions
 
-### 9. **Performance: Implement Code Splitting**
+### 10. **Performance: Implement Code Splitting**
 - [ ] Add dynamic imports for routes
 - [ ] Lazy load heavy components (Chessboard)
 - [ ] Split vendor bundles
 - [ ] Implement route-based chunking
-- **Target**: Bundle size < 300KB (currently ~500KB)
+- **Target**: Bundle size < 300KB (currently ~155KB per route + 85.8KB shared)
 - **Effort**: M (Medium)
 
-### 10. **Add Platform API Checks**
+### 11. **Add Platform API Checks**
 - [ ] Wrap all browser APIs with existence checks
 - [ ] Add fallbacks for missing APIs
 - [ ] Create platform capability detection
 - **Files**: All files using window, document, localStorage
 - **Effort**: M (Medium)
 
-### 11. ~~**Update Outdated Documentation**~~ ✅ COMPLETED (2025-07-08)
+### 12. ~~**Update Outdated Documentation**~~ ✅ COMPLETED (2025-07-08)
 - [x] Fix "types/chess.ts has only 5 lines" (actually 91)
 - [x] Update test coverage numbers
 - [x] Document new evaluation system
@@ -130,7 +135,7 @@ Last Updated: 2025-07-08
 - **Files**: `CLAUDE.md`, `README.md`, `docs/`
 - **Completed**: Consolidated 40 MD files into clean structure
 
-### 12. **Refactor: useReducer for Complex Hooks**
+### 13. **Refactor: useReducer for Complex Hooks**
 - [ ] Migrate `useChessGame` to useReducer
 - [ ] Migrate `useEvaluation` to useReducer
 - [ ] Add proper action types
@@ -141,40 +146,40 @@ Last Updated: 2025-07-08
 
 ## 🔧 Low Priority Tasks
 
-### 13. **Internationalization Support**
+### 14. **Internationalization Support**
 - [ ] Add i18n library (react-i18next)
 - [ ] Extract all strings to translation files
 - [ ] Support DE/EN minimum
 - **Effort**: L (Large)
 
-### 14. **Complete PWA Features**
+### 15. **Complete PWA Features**
 - [ ] Add offline support
 - [ ] Implement service worker
 - [ ] Add install prompt
 - [ ] Cache static assets
 - **Effort**: M (Medium)
 
-### 15. **Analytics Integration**
+### 16. **Analytics Integration**
 - [ ] Choose analytics provider
 - [ ] Add event tracking
 - [ ] Track learning progress
 - [ ] Privacy-compliant implementation
 - **Effort**: M (Medium)
 
-### 16. **Brückenbau Phase P4: Card System**
+### 17. **Brückenbau Phase P4: Card System**
 - [ ] Design card data structure
 - [ ] Create 3 pilot cards
 - [ ] Add progress persistence
 - [ ] Implement card UI
 - **Effort**: L (Large)
 
-### 17. **TypeScript Strict Mode**
+### 18. **TypeScript Strict Mode**
 - [ ] Enable strict mode in tsconfig
 - [ ] Fix all resulting errors
 - [ ] Add stricter linting rules
 - **Effort**: L (Large)
 
-### 18. **React Native Full Implementation**
+### 19. **React Native Full Implementation**
 - [ ] Complete mobile components
 - [ ] Add navigation
 - [ ] Implement mobile-specific features

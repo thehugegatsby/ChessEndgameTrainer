@@ -100,4 +100,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-For a complete list of changes, please refer to the [git commit history](https://github.com/YOUR_USERNAME/ChessEndgameTrainer/commits/main).
+For a complete list of changes, please refer to the [git commit history](https://github.com/thehugegatsby/ChessEndgameTrainer/commits/main).
