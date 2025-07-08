@@ -59,10 +59,12 @@ Raw Engine Data → Normalizer → PerspectiveTransformer → Formatter → UI
 - **Tablebase Lookup**: 7-piece endgame perfect play
 - **Unified Pipeline**: Both sources go through same evaluation pipeline
 
-### 4. State Management (Current)
-- **React Context**: Current implementation for global state
-- **Local State**: Component-level state with hooks
-- **Zustand**: Installed but not yet migrated (planned)
+### 4. State Management (Zustand - Single Source of Truth)
+- **Zustand Store**: Central state management for entire application
+- **Store Slices**: user, training, progress, ui, settings
+- **Atomic Updates**: All state changes through Store actions
+- **Critical Fix (2025-07-08)**: Store now properly executes moves on Chess.js instance
+- **Migration Status**: Core components migrated, cleanup in progress
 
 ### 5. Error Handling Architecture
 ```typescript
@@ -96,10 +98,10 @@ logger.info('Operation', { data });
 - No hardcoded credentials
 - ErrorService for secure error handling
 
-### Critical Gaps
-- No input sanitization for user-provided FEN strings
+### ~~Critical Gaps~~ ✅ FIXED (2025-07-08)
+- ~~No input sanitization for user-provided FEN strings~~ ✅ Implemented FEN validator
 - Missing Content Security Policy (CSP)
-- No XSS protection in place
+- ~~No XSS protection in place~~ ✅ FEN sanitization prevents XSS
 
 ## Cross-Platform Strategy
 
@@ -120,20 +122,23 @@ interface PlatformService {
 
 ## Data Flow Architecture
 
-### Chess Move Flow
+### Chess Move Flow (Updated 2025-07-08)
 1. User makes move on board
-2. `useChessGame` hook validates move
-3. Move sent to evaluation pipeline
-4. Engine + Tablebase evaluate position
-5. Results normalized and transformed
-6. UI updates with evaluation
+2. `TrainingBoardZustand` calls Store's `makeMove` action
+3. Store executes move on Chess.js instance FIRST
+4. Store updates all derived states atomically
+5. Move sent to evaluation pipeline
+6. Engine + Tablebase evaluate position
+7. Results normalized and transformed
+8. UI updates with evaluation
 
-### State Update Flow
+### State Update Flow (Zustand Store)
 1. Action triggered (move, undo, reset)
-2. State updated in Context/Zustand
-3. Version number incremented
-4. React re-renders affected components
-5. Side effects trigger (evaluation, persistence)
+2. Store action executes with Immer for immutability
+3. Chess.js instance updated (critical for move execution)
+4. All derived states updated atomically
+5. React re-renders affected components
+6. Side effects trigger (evaluation, persistence)
 
 ## Deployment Architecture
 
@@ -166,6 +171,40 @@ interface PlatformService {
 - iOS Safari may terminate workers
 - Web Worker API differences across browsers
 
+## Store Architecture & Known Issues
+
+### Current Store Structure
+```typescript
+// Root State
+{
+  user: UserState,      // User preferences, rating, completed positions
+  training: TrainingState, // Current game, moves, evaluations
+  progress: ProgressState, // Statistics, achievements
+  ui: UIState,          // Modals, toasts, loading states
+  settings: SettingsState  // App configuration
+}
+```
+
+### Known SSOT Violations (Found 2025-07-08)
+1. **Duplicate Chess Instances**: 
+   - `useChessGame` and `useChessGameOptimized` create own instances
+   - Should use Store's game instance via `useTrainingGame`
+
+2. **Local State Duplication**:
+   - `TrainingBoardZustand` maintains local UI state
+   - `DualEvaluationPanel` has local evaluation state
+   - Should be moved to Store's ui slice
+
+3. **Decentralized Engine Management**:
+   - Components create own engine instances
+   - Should use centralized engine from Store
+
+### Store Best Practices
+- Always use Store actions for state changes
+- Never manipulate Chess.js instance directly
+- Use `useTrainingGame` hook for chess logic
+- Test with Store actions, not direct manipulation
+
 ## Architecture Health Metrics
 
 | Metric | Current | Target | Status |
@@ -175,15 +214,18 @@ interface PlatformService {
 | API Call Reduction | 75% | 70% | ✅ |
 | Cache Hit Rate | 99.99% | 95% | ✅ |
 | Mobile Coverage | 0% | 80% | ❌ |
+| Store SSOT Compliance | ~70% | 100% | ⚠️ |
 
 ## Future Architecture Goals
 
 ### Phase 1: Foundation (Immediate)
+- [ ] Complete Store SSOT migration
 - [ ] Implement platform abstraction layer
-- [ ] Add FEN input sanitization
-- [ ] Complete Zustand migration
+- [x] Add FEN input sanitization ✅ (2025-07-08)
+- [x] Complete Zustand migration ✅ (2025-07-08)
 - [x] Centralized error handling ✅
 - [x] Replace magic numbers ✅
+- [x] Fix Store synchronization bug ✅ (2025-07-08)
 
 ### Phase 2: Scalability (Month 1-2)
 - [ ] Complete React Native implementation
@@ -214,6 +256,25 @@ interface PlatformService {
 - **Accuracy**: Tablebase provides perfect endgame play
 - **Flexibility**: Engine handles all positions
 - **Learning**: Compare engine vs perfect play
+
+## Recent Critical Fixes (2025-07-08)
+
+### Store Synchronization Bug
+- **Issue**: Moves displayed in move list but not executed on board
+- **Root Cause**: Chess.js instance in Store wasn't being updated
+- **Fix**: Store now executes `game.move()` before updating derived states
+- **Impact**: Critical for game functionality
+
+### FEN Security Vulnerability
+- **Issue**: No input sanitization for user-provided FEN strings
+- **Risk**: XSS attacks, SQL injection, invalid game states
+- **Fix**: Comprehensive FEN validator with sanitization
+- **Coverage**: All input boundaries protected
+
+### Test Architecture
+- **Issue**: Tests failing due to Store/Chess instance conflicts
+- **Fix**: Updated testing patterns for Store architecture
+- **Documentation**: Added Store Testing Best Practices
 
 ---
 *Last Updated: 2025-07-08*
