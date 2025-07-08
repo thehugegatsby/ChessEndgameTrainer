@@ -6,20 +6,6 @@ import { EndgamePosition } from '@shared/data/endgames/types';
 
 // Mock the chess hooks
 jest.mock('@shared/hooks', () => ({
-  useChessGame: jest.fn(() => ({
-    game: { 
-      fen: () => 'test-fen',
-      pgn: () => 'test-pgn'
-    },
-    history: [],
-    isGameFinished: false,
-    currentFen: 'test-fen',
-    currentPgn: '',
-    makeMove: jest.fn(),
-    jumpToMove: jest.fn(),
-    resetGame: jest.fn(),
-    undoMove: jest.fn()
-  })),
   useTrainingGame: jest.fn(() => ({
     game: { 
       fen: () => 'test-fen',
