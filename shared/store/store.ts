@@ -23,7 +23,8 @@ import {
 import { TRAINING, TIME } from '../constants';
 import { getLogger } from '../services/logging';
 import { fromLibraryMove, ChessAdapterError } from '../infrastructure/chess-adapter';
-import { Move as ChessJsMove } from 'chess.js';
+import { Chess, Move as ChessJsMove } from 'chess.js';
+import { validateAndSanitizeFen } from '../utils/fenValidator';
 
 const logger = getLogger().setContext('Store');
 
@@ -50,6 +51,7 @@ const initialUserState: UserState = {
 const initialTrainingState: TrainingState = {
   moveHistory: [],
   evaluations: [],
+  currentMoveIndex: -1,
   isPlayerTurn: true,
   isGameFinished: false,
   isSuccess: false,
@@ -150,18 +152,38 @@ export const useStore = create<RootState & Actions>()(
 
         // Training Actions
         setPosition: (position) => set((state) => {
+          // Validate FEN before setting position
+          if (position.fen) {
+            const validation = validateAndSanitizeFen(position.fen);
+            if (!validation.isValid) {
+              logger.error('Invalid FEN in position', { 
+                positionId: position.id, 
+                errors: validation.errors 
+              });
+              get().showToast('Invalid position format', 'error');
+              return;
+            }
+            // Use sanitized FEN
+            position = { ...position, fen: validation.sanitized };
+          }
+          
+          // Initialize game with the position
+          const newGame = new Chess();
+          newGame.load(position.fen);
+          
           state.training.currentPosition = position;
+          state.training.game = newGame;
+          state.training.moveHistory = [];
+          state.training.evaluations = [];
+          state.training.currentMoveIndex = -1;
+          state.training.currentFen = newGame.fen();
+          state.training.currentPgn = newGame.pgn();
+          state.training.isPlayerTurn = true;
           state.training.isGameFinished = false;
           state.training.isSuccess = false;
           state.training.startTime = Date.now();
           state.training.hintsUsed = 0;
           state.training.mistakeCount = 0;
-          
-          // Initialize FEN and PGN for the position
-          if (state.training.game) {
-            state.training.currentFen = state.training.game.fen();
-            state.training.currentPgn = state.training.game.pgn();
-          }
           
           logger.info('Position set', { positionId: position.id });
         }),
@@ -173,23 +195,53 @@ export const useStore = create<RootState & Actions>()(
           logger.debug('Game instance set');
         }),
 
-        makeMove: (move: ChessJsMove) => set((state) => {
+        setScenarioEngine: (engine) => set((state) => {
+          state.training.scenarioEngine = engine;
+          logger.debug('Scenario engine set', { hasEngine: !!engine });
+        }),
+
+        makeMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => set((state) => {
           try {
-            // Convert library move to validated domain move
-            const validatedMove = fromLibraryMove(move);
+            // 1. Execute the move on the store's chess.js instance first
+            if (!state.training.game) {
+              logger.error('No game instance available for move');
+              return;
+            }
+            
+            // Try to make the move on the actual game instance
+            const moveResult = state.training.game.move(move);
+            
+            if (!moveResult) {
+              logger.error('Invalid move attempted in store:', move);
+              return; // Don't update state for invalid moves
+            }
+            
+            // 2. Handle navigation state - truncate future moves if we're not at the end
+            const currentIndex = state.training.currentMoveIndex ?? state.training.moveHistory.length - 1;
+            if (currentIndex < state.training.moveHistory.length - 1) {
+              // Truncate move history after current position
+              state.training.moveHistory = state.training.moveHistory.slice(0, currentIndex + 1);
+              state.training.evaluations = state.training.evaluations.slice(0, currentIndex + 2); // +2 because evaluations include initial position
+            }
+            
+            // 3. Convert library move to validated domain move for storage
+            const validatedMove = fromLibraryMove(moveResult);
+            
+            // 4. Update ALL derived states atomically after the move was executed
             state.training.moveHistory.push(validatedMove);
             state.training.isPlayerTurn = !state.training.isPlayerTurn;
+            state.training.currentMoveIndex = state.training.moveHistory.length - 1;
             
-            // Update currentFen and currentPgn for Lichess URL generation
-            if (state.training.game) {
-              state.training.currentFen = state.training.game.fen();
-              state.training.currentPgn = state.training.game.pgn();
-            }
+            // 5. Update FEN and PGN from the updated game instance
+            state.training.currentFen = state.training.game.fen();
+            state.training.currentPgn = state.training.game.pgn();
             
             logger.debug('Move made', { 
               from: validatedMove.from, 
               to: validatedMove.to, 
-              san: validatedMove.san 
+              san: validatedMove.san,
+              newIndex: state.training.currentMoveIndex,
+              newFen: state.training.currentFen
             });
           } catch (error) {
             if (error instanceof ChessAdapterError) {
@@ -216,6 +268,7 @@ export const useStore = create<RootState & Actions>()(
         resetPosition: () => set((state) => {
           state.training.moveHistory = [];
           state.training.evaluations = [];
+          state.training.currentMoveIndex = -1;
           state.training.isPlayerTurn = true;
           state.training.isGameFinished = false;
           state.training.isSuccess = false;
@@ -224,7 +277,8 @@ export const useStore = create<RootState & Actions>()(
           state.training.startTime = Date.now();
           
           // Reset PGN and FEN to initial position
-          if (state.training.game) {
+          if (state.training.game && state.training.currentPosition) {
+            state.training.game.load(state.training.currentPosition.fen);
             state.training.currentFen = state.training.game.fen();
             state.training.currentPgn = state.training.game.pgn();
           }
@@ -283,6 +337,60 @@ export const useStore = create<RootState & Actions>()(
           state.training.mistakeCount += 1;
           logger.debug('Mistake made', { total: state.training.mistakeCount });
         }),
+
+        // Navigation Actions
+        goToMove: (moveIndex) => set((state) => {
+          const targetIndex = Math.max(-1, Math.min(moveIndex, state.training.moveHistory.length - 1));
+          
+          if (targetIndex === state.training.currentMoveIndex) {
+            return; // No change needed
+          }
+          
+          // Reconstruct the position at the target index
+          if (state.training.game && state.training.currentPosition) {
+            // Reset to initial position
+            state.training.game.load(state.training.currentPosition.fen);
+            
+            // Apply moves up to targetIndex (not including when targetIndex is -1)
+            if (targetIndex >= 0) {
+              for (let i = 0; i <= targetIndex; i++) {
+                const move = state.training.moveHistory[i];
+                state.training.game.move({
+                  from: move.from,
+                  to: move.to,
+                  promotion: move.promotion
+                });
+              }
+            }
+            
+            // Update state
+            state.training.currentMoveIndex = targetIndex;
+            state.training.currentFen = state.training.game.fen();
+            state.training.currentPgn = state.training.game.pgn();
+            // Determine whose turn it is: -1 = white, 0 = black, 1 = white, 2 = black, etc.
+            state.training.isPlayerTurn = targetIndex === -1 ? true : targetIndex % 2 === 1;
+            
+            logger.debug('Navigated to move', { moveIndex: targetIndex, fen: state.training.currentFen });
+          }
+        }),
+
+        goToFirst: () => {
+          get().goToMove(-1);
+        },
+
+        goToPrevious: () => {
+          const currentIndex = get().training.currentMoveIndex ?? get().training.moveHistory.length - 1;
+          get().goToMove(currentIndex - 1);
+        },
+
+        goToNext: () => {
+          const currentIndex = get().training.currentMoveIndex ?? -1;
+          get().goToMove(currentIndex + 1);
+        },
+
+        goToLast: () => {
+          get().goToMove(get().training.moveHistory.length - 1);
+        },
 
         // Progress Actions
         updatePositionProgress: (positionId, update) => set((state) => {
@@ -480,6 +588,7 @@ export const useUserActions = () => useStore((state) => ({
 export const useTrainingActions = () => useStore((state) => ({
   setPosition: state.setPosition,
   setGame: state.setGame,
+  setScenarioEngine: state.setScenarioEngine,
   makeMove: state.makeMove,
   undoMove: state.undoMove,
   resetPosition: state.resetPosition,
@@ -488,7 +597,13 @@ export const useTrainingActions = () => useStore((state) => ({
   setEngineStatus: state.setEngineStatus,
   completeTraining: state.completeTraining,
   useHint: state.useHint,
-  incrementMistake: state.incrementMistake
+  incrementMistake: state.incrementMistake,
+  // Navigation actions
+  goToMove: state.goToMove,
+  goToFirst: state.goToFirst,
+  goToPrevious: state.goToPrevious,
+  goToNext: state.goToNext,
+  goToLast: state.goToLast
 }));
 
 export const useUIActions = () => useStore((state) => ({

@@ -1,5 +1,7 @@
 // Export all custom hooks for easy importing
-export { useChessGame } from './useChessGame';
+
+// Main hooks - use these
+export { useTrainingGame } from './useTrainingGame';
 export { useEvaluation } from './useEvaluation';
 export { useLocalStorage } from './useLocalStorage';
 export { useDebounce } from './useDebounce';

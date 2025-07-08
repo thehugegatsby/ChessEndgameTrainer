@@ -1,6 +1,6 @@
 # Chess Endgame Trainer 🎯
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.3.5-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.3.3-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue)](https://www.typescriptlang.org/)
 [![Test Coverage](https://img.shields.io/badge/Coverage-~78%25-green)](./coverage/lcov-report/index.html)
 [![CI/CD](https://github.com/thehugegatsby/ChessEndgameTrainer/actions/workflows/test-and-coverage.yml/badge.svg)](https://github.com/thehugegatsby/ChessEndgameTrainer/actions)
@@ -58,26 +58,27 @@ ChessEndgameTrainer/
 
 ## 🛠️ Technologien
 
-- **Frontend**: Next.js 15.3.5, React 18.2.0
+- **Frontend**: Next.js 15.3.3, React 18.2.0
 - **Language**: TypeScript 5.3.3
 - **Styling**: Tailwind CSS 3.4.1
 - **Chess Logic**: chess.js 1.0.0-beta.6
 - **Chess Engine**: Stockfish.js (WASM)
-- **State Management**: Zustand 4.5.0 + React Context
+- **State Management**: Zustand 4.5.0 (Single Source of Truth)
 - **Testing**: Jest 29.7.0, React Testing Library
 - **Mobile**: React Native 0.73.4 (vorbereitet)
 
 ## 📊 Projekt Status
 
-- **Test Coverage**: ~78% (Statement Coverage) - Ziel: 80%
-- **Test Success**: 99% (787/796 Tests bestanden, 9 skipped) - **128 neue Tests hinzugefügt**
+- **Test Coverage**: ~78% (Business Logic) / ~47% (Overall) - Ziel: 80% Business Logic
+- **Test Success**: 100% (1023/1034 Tests bestanden, 11 skipped) - **236 neue Tests hinzugefügt**
 - **Code Health**: Excellent (<2% ungenutzter Code)
 - **Architecture**: ✅ Modular evaluation system with clean re-exports
 - **Error Handling**: ✅ Centralized ErrorService + Logger Architecture
+- **State Management**: ✅ Vollständig auf Zustand migriert (Store of Truth)
 - **Performance**: Optimiert mit LRU Cache, Debouncing, Tree-Shaking
-- **Bundle Size**: ~500KB (Ziel: <300KB) - ESM modules enable better tree-shaking
-- **Migration Status**: ✅ Unified Evaluation System, ✅ LoggerCompat Migration, ✅ Modular Refactoring Complete
-- **Active Development**: Januar 2025
+- **Bundle Size**: ~154KB per route + 85.8KB shared (Ziel: <300KB) - Optimized with code splitting
+- **Migration Status**: ✅ Unified Evaluation System, ✅ Store of Truth Complete, ✅ Modular Refactoring Complete
+- **Active Development**: Juli 2025
 
 ## 💻 Entwicklung
 
@@ -118,7 +119,7 @@ Details siehe [Firestore Migration Guide](./docs/database/FIRESTORE_MIGRATION_RE
 ### Tests ausführen
 
 ```bash
-# Alle Tests
+# Unit Tests
 npm test
 
 # Mit Coverage
@@ -126,7 +127,29 @@ npm run test:coverage
 
 # Watch Mode
 npm run test:watch
+
+# E2E Tests mit Playwright
+npm run test:e2e
+
+# Smoke Tests
+npx playwright test --grep "@smoke"
 ```
+
+#### ⚠️ WICHTIG: E2E Test-Konfiguration
+Für E2E Tests mit Test-Hooks **MUSS** die Umgebungsvariable `NEXT_PUBLIC_TEST_MODE=true` gesetzt sein:
+
+```bash
+# Option 1: Dev-Server mit Test-Mode starten
+NEXT_PUBLIC_TEST_MODE=true npm run dev
+
+# Option 2: .env.test verwenden
+NODE_ENV=test npm run dev
+
+# Dann Tests ausführen
+npm run test:e2e
+```
+
+**Ohne diese Konfiguration schlagen alle E2E Tests fehl, die Test-Hooks verwenden!**
 
 ### Lint
 
@@ -170,11 +193,13 @@ Die Anwendung wurde für optimale Performance auf Desktop und Mobile optimiert:
 ## 📈 Projekt Status
 
 - ✅ **Production Ready** Web-Anwendung
-- ✅ **~78% Test Coverage** mit 787 bestehenden Tests
+- ✅ **~78% Test Coverage** mit 1023 bestehenden Tests
 - ✅ **Modular Architecture** mit clean code organization
 - ✅ **Centralized Error Handling** mit ErrorService + Logger
+- ✅ **Store of Truth** Migration vollständig abgeschlossen
 - ✅ **Performance Optimiert** für Mobile & Tree-Shaking
 - ✅ **Mobile Architecture** vorbereitet
+- ⏳ **Brückenbau-Trainer UI** Phase P3 in Entwicklung
 - ⏳ **Android App** in Entwicklung
 - ⏳ **PWA Features** geplant
 
@@ -183,10 +208,10 @@ Die Anwendung wurde für optimale Performance auf Desktop und Mobile optimiert:
 Die vollständige Dokumentation ist strukturiert organisiert:
 
 - **[CLAUDE.md](./CLAUDE.md)** - AI Assistant Context & Best Practices
-- **[Architecture](./docs/architecture/ARCHITECTURE.md)** - Systemarchitektur und Design
-- **[Development](./docs/development/)** - Entwicklungshistorie und CI/CD
-- **[Security](./docs/security/)** - Security Guidelines und Implementation
-- **[Testing](./docs/testing/TESTING_GUIDELINES.md)** - Umfassende Test-Strategie
+- **[Architecture](./docs/ARCHITECTURE.md)** - Systemarchitektur und Design
+- **[Security](./docs/SECURITY.md)** - Security Guidelines und Implementation
+- **[Testing](./docs/TESTING.md)** - Umfassende Test-Strategie
+- **[Database Migration](./docs/database/FIRESTORE_MIGRATION_README.md)** - Firestore Migration Guide
 - **[Deployment](./docs/deployment/DEPLOYMENT_GUIDE.md)** - Production Deployment Guide
 
 ## 📄 Lizenz

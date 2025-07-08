@@ -3,6 +3,7 @@ import { db } from '@shared/lib/firebase';
 import { EndgamePosition, EndgameCategory } from '@shared/types';
 import { getPositionById as getPositionFromArray, allEndgamePositions } from '@shared/data/endgames';
 import { getLogger } from '@shared/services/logging';
+import { validateAndSanitizeFen } from '@shared/utils/fenValidator';
 
 const logger = getLogger();
 
@@ -44,6 +45,22 @@ export class PositionService {
       
       if (docSnap.exists()) {
         const position = docSnap.data() as EndgamePosition;
+        
+        // Validate FEN from Firestore to prevent malicious data
+        if (position.fen) {
+          const validation = validateAndSanitizeFen(position.fen);
+          if (!validation.isValid) {
+            logger.error(`Invalid FEN from Firestore for position ${id}: ${validation.errors.join(', ')}`);
+            // Fall back to array data
+            const arrayPosition = getPositionFromArray(id);
+            if (arrayPosition) {
+              this.cache.set(id, arrayPosition);
+            }
+            return arrayPosition ?? null;
+          }
+          position.fen = validation.sanitized;
+        }
+        
         this.cache.set(id, position);
         return position;
       }
@@ -81,6 +98,17 @@ export class PositionService {
       const positions: EndgamePosition[] = [];
       snapshot.forEach((doc) => {
         const position = doc.data() as EndgamePosition;
+        
+        // Validate FEN from Firestore
+        if (position.fen) {
+          const validation = validateAndSanitizeFen(position.fen);
+          if (!validation.isValid) {
+            logger.error(`Invalid FEN from Firestore for position ${position.id}: ${validation.errors.join(', ')}`);
+            return; // Skip this position
+          }
+          position.fen = validation.sanitized;
+        }
+        
         positions.push(position);
         // Cache each position
         this.cache.set(position.id, position);
@@ -114,6 +142,17 @@ export class PositionService {
       const positions: EndgamePosition[] = [];
       snapshot.forEach((doc) => {
         const position = doc.data() as EndgamePosition;
+        
+        // Validate FEN from Firestore
+        if (position.fen) {
+          const validation = validateAndSanitizeFen(position.fen);
+          if (!validation.isValid) {
+            logger.error(`Invalid FEN from Firestore for position ${position.id}: ${validation.errors.join(', ')}`);
+            return; // Skip this position
+          }
+          position.fen = validation.sanitized;
+        }
+        
         positions.push(position);
         this.cache.set(position.id, position);
       });
@@ -146,6 +185,17 @@ export class PositionService {
       const positions: EndgamePosition[] = [];
       snapshot.forEach((doc) => {
         const position = doc.data() as EndgamePosition;
+        
+        // Validate FEN from Firestore
+        if (position.fen) {
+          const validation = validateAndSanitizeFen(position.fen);
+          if (!validation.isValid) {
+            logger.error(`Invalid FEN from Firestore for position ${position.id}: ${validation.errors.join(', ')}`);
+            return; // Skip this position
+          }
+          position.fen = validation.sanitized;
+        }
+        
         positions.push(position);
         this.cache.set(position.id, position);
       });

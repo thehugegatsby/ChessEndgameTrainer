@@ -1,8 +1,8 @@
 // Training Components - Centralized Exports
-export { TrainingBoard } from './TrainingBoard';
 export { TrainingBoardZustand } from './TrainingBoard/TrainingBoardZustand';
-export { MovePanel } from './MovePanel';
+export { TrainingBoardZustand as TrainingBoard } from './TrainingBoard/TrainingBoardZustand'; // Alias for backward compatibility
 export { MovePanelZustand } from './MovePanelZustand';
+export { MovePanelZustand as MovePanel } from './MovePanelZustand'; // Alias for backward compatibility
 export { AnalysisPanel } from './AnalysisPanel';
 export { DualEvaluationPanel, SidebarEngineSection } from './DualEvaluationPanel';
 export { DualEvaluationSidebar } from './DualEvaluationPanel/DualEvaluationSidebar';
@@ -10,6 +10,7 @@ export { TrainingControls } from './TrainingControls';
 export { MoveHistory } from './MoveHistory';
 export { WikiPanel } from './WikiPanel';
 export { EvaluationLegend } from './EvaluationLegend';
+export { NavigationControls } from './NavigationControls';
 
 // Types
 export type {

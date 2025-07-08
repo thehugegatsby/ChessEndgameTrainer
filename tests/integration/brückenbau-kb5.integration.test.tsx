@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MovePanel } from '@shared/components/training/MovePanel';
+import { MovePanelZustand as MovePanel } from '@shared/components/training/MovePanelZustand';
 import { Chess } from 'chess.js';
 
 // Integration test that tests the full flow
@@ -74,11 +74,28 @@ describe('Brückenbau Kb5 Integration Test', () => {
     const game = new Chess('2K5/2P2k2/8/8/4R3/8/1r6/8 w - - 0 1');
     const moveObjects = moves.map(m => ({ san: m.san } as any));
 
+    // Set up Zustand store with the test data
+    const { useStore } = require('@shared/store/store');
+    const store = useStore.getState();
+    
+    // Add moves to store
+    moves.forEach((move, index) => {
+      store.training.moveHistory.push({ 
+        ...move, 
+        from: move.from || '', 
+        to: move.to || '',
+        color: index % 2 === 0 ? 'w' : 'b',
+        piece: 'k',
+        flags: ''
+      });
+    });
+    
+    // Add evaluations to store
+    store.training.evaluations = evaluations;
+    
     render(
       <MovePanel
-        moves={moveObjects}
         showEvaluations={true}
-        evaluations={evaluations}
         currentMoveIndex={4}
       />
     );

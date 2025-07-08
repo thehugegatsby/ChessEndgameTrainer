@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-test('has title', async ({ page }) => {
+test.describe('@smoke Basic App Functionality', () => {
+  test('has title', async ({ page }) => {
   await page.goto('/');
 
   // Wait for page to load
@@ -24,4 +25,5 @@ test('navigate to training page', async ({ page }) => {
 
   // Check that we're on the training page
   await expect(page.locator('h1').filter({ hasText: 'Brückenbau' })).toBeVisible();
+});
 });

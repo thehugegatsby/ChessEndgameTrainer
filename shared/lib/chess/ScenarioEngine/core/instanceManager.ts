@@ -5,6 +5,7 @@
 
 import { Chess } from 'chess.js';
 import { Engine } from '../../engine';
+import { validateAndSanitizeFen } from '../../../../utils/fenValidator';
 
 const { MAX_INSTANCES } = require('../types').SCENARIO_CONFIG;
 
@@ -19,12 +20,18 @@ let globalInstanceCount = 0;
 export class InstanceManager {
 
   /**
-   * Validates FEN string format
+   * Validates FEN string format and sanitizes against injection attacks
    */
   static validateFen(fen: string): void {
     if (!fen || typeof fen !== 'string' || fen.trim() === '') {
       const error = new Error('FEN must be a non-empty string');
       throw error;
+    }
+    
+    // Validate and sanitize FEN to prevent injection attacks
+    const validation = validateAndSanitizeFen(fen);
+    if (!validation.isValid) {
+      throw new Error(`[ScenarioEngine] Invalid FEN format: ${validation.errors.join(', ')}`);
     }
   }
 
@@ -73,10 +80,16 @@ export class InstanceManager {
    * Creates and validates a Chess instance with FEN
    */
   static createChessInstance(fen: string): Chess {
+    // Validate and sanitize FEN before creating Chess instance
+    const validation = validateAndSanitizeFen(fen);
+    if (!validation.isValid) {
+      throw new Error(`[ScenarioEngine] Invalid FEN: ${validation.errors.join(', ')}`);
+    }
+    
     try {
-      return new Chess(fen);
+      return new Chess(validation.sanitized);
     } catch (error) {
-      throw new Error(`[ScenarioEngine] Invalid FEN: ${fen}`);
+      throw new Error(`[ScenarioEngine] Invalid FEN: ${validation.sanitized}`);
     }
   }
 
@@ -84,12 +97,16 @@ export class InstanceManager {
    * Updates Chess instance position with validation
    */
   static updateChessPosition(chess: Chess, fen: string): void {
-    InstanceManager.validateFen(fen);
+    // Validate and sanitize FEN before updating position
+    const validation = validateAndSanitizeFen(fen);
+    if (!validation.isValid) {
+      throw new Error(`[ScenarioEngine] Invalid FEN: ${validation.errors.join(', ')}`);
+    }
     
     try {
-      chess.load(fen);
+      chess.load(validation.sanitized);
     } catch (error) {
-      throw new Error(`[ScenarioEngine] Invalid FEN: ${fen}`);
+      throw new Error(`[ScenarioEngine] Failed to load FEN: ${validation.sanitized}`);
     }
   }
 
@@ -97,8 +114,14 @@ export class InstanceManager {
    * Resets Chess instance to initial position
    */
   static resetChessPosition(chess: Chess, initialFen: string): void {
+    // Validate and sanitize FEN before resetting
+    const validation = validateAndSanitizeFen(initialFen);
+    if (!validation.isValid) {
+      throw new Error(`[ScenarioEngine] Invalid initial FEN: ${validation.errors.join(', ')}`);
+    }
+    
     try {
-      chess.load(initialFen);
+      chess.load(validation.sanitized);
     } catch (error) {
       throw new Error('[ScenarioEngine] Failed to reset to initial position');
     }

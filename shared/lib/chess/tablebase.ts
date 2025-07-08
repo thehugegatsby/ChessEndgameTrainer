@@ -22,6 +22,7 @@
  */
 
 import { getLogger } from '@shared/services/logging';
+import { validateAndSanitizeFen } from '@shared/utils/fenValidator';
 
 export interface TablebaseResult {
   wdl: number; // Win/Draw/Loss: 2=win, 1=cursed win, 0=draw, -1=blessed loss, -2=loss
@@ -132,10 +133,21 @@ class TablebaseService {
    * Query tablebase for a position
    */
   async queryPosition(fen: string): Promise<TablebaseEvaluation> {
-    const pieceCount = this.getPieceCount(fen);
+    // Validate and sanitize FEN to prevent injection attacks
+    const validation = validateAndSanitizeFen(fen);
+    if (!validation.isValid) {
+      return {
+        isTablebasePosition: false,
+        pieceCount: 0,
+        error: `Invalid FEN format: ${validation.errors.join(', ')}`
+      };
+    }
+    
+    const sanitizedFen = validation.sanitized;
+    const pieceCount = this.getPieceCount(sanitizedFen);
     
     // Check if position is suitable for tablebase
-    if (!this.isTablebasePosition(fen)) {
+    if (!this.isTablebasePosition(sanitizedFen)) {
       return {
         isTablebasePosition: false,
         pieceCount,
@@ -143,8 +155,8 @@ class TablebaseService {
       };
     }
     
-    // Check cache first
-    const cacheKey = fen;
+    // Check cache first (use sanitized FEN as key)
+    const cacheKey = sanitizedFen;
     if (this.cache.has(cacheKey)) {
       const cached = this.cache.get(cacheKey)!;
       return {
@@ -163,7 +175,7 @@ class TablebaseService {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
       
-      const response = await fetch(`${this.baseUrl}?fen=${encodeURIComponent(fen)}`, {
+      const response = await fetch(`${this.baseUrl}?fen=${encodeURIComponent(sanitizedFen)}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',

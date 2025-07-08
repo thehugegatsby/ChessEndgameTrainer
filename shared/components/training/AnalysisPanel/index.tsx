@@ -54,12 +54,15 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(({
     });
   }, [history]);
 
-  if (!isVisible) return null;
-
   return (
-    <div className="w-full bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 flex flex-col" style={{ height: '400px' }}>
+    <div 
+      className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-xl shadow-lg border-t border-gray-200 dark:border-gray-700 flex flex-col transform transition-transform duration-300 ease-in-out z-50 ${
+        isVisible ? 'translate-y-0' : 'translate-y-full'
+      }`} 
+      style={{ height: '400px' }}
+    >
       {/* Compact Header */}
-      <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+      <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-xl">
         <div className="flex items-center gap-2">
           <span className="text-lg">📊</span>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Spielanalyse</h3>
