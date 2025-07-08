@@ -1,50 +1,32 @@
 # TODO - ChessEndgameTrainer Tasks
 
-Last Updated: 2025-07-08 (20:15 UTC)
+Last Updated: 2025-07-08 (21:30 UTC)
 
 ## 📌 Current Sprint Focus
 1. ~~Fix critical Store synchronization bug (Kd7 move not executed)~~ ✅ COMPLETED (2025-07-08)
 2. ~~Complete Store Single Source of Truth migration~~ ✅ COMPLETED (2025-07-08)
-3. **FIX: Black doesn't make moves in Training 12 after 1.Kd7** - 🚨 CRITICAL BUG
-4. **FIX: Analysis mode causes layout shift and white move panel** - 🚨 UI BUG
-5. Complete Brückenbau-Trainer Phase P3 (UI Integration) - ON HOLD
-6. Fix failing Playwright tests - ON HOLD
+3. ~~FIX: Black doesn't make moves in Training 12 after 1.Kd7~~ ✅ COMPLETED (2025-07-08)
+4. ~~FIX: Analysis mode causes layout shift and white move panel~~ ✅ COMPLETED (2025-07-08)
+5. Complete Brückenbau-Trainer Phase P3 (UI Integration)
+6. Fix failing Playwright tests
 
 ---
 
 ## 🚨 Critical Priority Tasks
 
-### 1. **Black Doesn't Make Moves in Training 12** - NEW BUG (2025-07-08)
-- **Problem**: After 1.Kd7 in Brückenbau-Trainer position 12, black stops responding
-- **Symptoms**: 
-  - Move is displayed in move list
-  - Board shows the move
-  - But black (computer) doesn't make counter-moves
-- **Potential Causes**:
-  - ScenarioEngine not properly initialized for this position
-  - Turn tracking issue in Store after Kd7
-  - Engine evaluation not triggering for black's turn
-- **Files to Check**: 
-  - `pages/train/[id].tsx`
-  - `shared/lib/chess/ScenarioEngine/index.ts`
-  - `shared/store/store.ts` (makeMove action)
-  - Position data for ID 12
-- **Effort**: M (Medium)
+### 1. ~~**Black Doesn't Make Moves in Training 12**~~ ✅ COMPLETED (2025-07-08)
+- [x] Fixed type mismatch between ScenarioEngine.getBestMove() and UI expectation
+- [x] Changed getBestMove to return move object instead of UCI string
+- [x] Engine now properly responds with black moves
+- **Root Cause**: getBestMove returned UCI string but UI expected object
+- **Solution**: Refactored to return object directly, improving architecture
 
-### 2. **Analysis Mode UI Layout Bug** - NEW BUG (2025-07-08)
-- **Problem**: Enabling analysis mode causes:
-  - Chessboard shifts to the left
-  - White panel with moves appears incorrectly
-  - Layout breaks
-- **Potential Causes**:
-  - CSS Grid/Flexbox issue
-  - Duplicate MovePanel rendering
-  - Responsive layout breaking on analysis toggle
-- **Files to Check**:
-  - `shared/components/training/TrainingBoard/TrainingBoardZustand.tsx`
-  - `shared/components/training/MovePanel/MovePanelZustand.tsx`
-  - CSS modules for layout
-- **Effort**: S (Small)
+### 2. ~~**Analysis Mode UI Layout Bug**~~ ✅ COMPLETED (2025-07-08)
+- [x] Fixed layout shift when enabling analysis mode
+- [x] Changed from conditional rendering to CSS-based visibility
+- [x] Applied fixed positioning with smooth animations
+- **Root Cause**: AnalysisPanel was in normal document flow
+- **Solution**: Position fixed with CSS transforms for overlay behavior
 
 ### 3. ~~**Store Synchronization Bug Fix**~~ ✅ COMPLETED (2025-07-08)
 - [x] Fixed critical bug where moves were shown in move list but not executed on board
