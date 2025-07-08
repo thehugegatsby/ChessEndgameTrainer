@@ -223,15 +223,13 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
         </div>
       </div>
 
-      {/* Analysis Panel (if open) */}
-      {ui.analysisPanel.isOpen && (
-        <AnalysisPanel
-          history={training.moveHistory}
-          initialFen={position.fen}
-          isVisible={ui.analysisPanel.isOpen}
-          onClose={uiActions.closeModal}
-        />
-      )}
+      {/* Analysis Panel - Always rendered but hidden/shown with CSS */}
+      <AnalysisPanel
+        history={training.moveHistory}
+        initialFen={position.fen}
+        isVisible={ui.analysisPanel.isOpen}
+        onClose={handleToggleAnalysis}
+      />
     </div>
   );
 });
