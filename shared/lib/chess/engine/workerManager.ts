@@ -46,8 +46,15 @@ export class StockfishWorkerManager {
     }
 
     try {
+      // Validate worker path to prevent script injection attacks
+      const workerPath = '/stockfish.js';
+      const allowedPaths = ['/stockfish.js', '/worker/stockfish.js'];
       
-      this.worker = new Worker('/stockfish.js');
+      if (!allowedPaths.includes(workerPath) || workerPath.includes('../') || workerPath.includes('..\\')) {
+        throw new Error('Invalid worker path - potential security risk');
+      }
+      
+      this.worker = new Worker(workerPath);
       this.setupWorkerEventHandlers();
       
       // Send UCI command to initialize
