@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { Chess, Move } from 'chess.js';
 import { ErrorService } from '@shared/services/errorService';
 import { validateAndSanitizeFen } from '@shared/utils/fenValidator';
@@ -38,18 +38,20 @@ export const useChessGame = ({
     });
   }
   
-  const [game, setGame] = useState(() => new Chess(validatedInitialFen));
+  // Use a ref to store the actual game instance to maintain stable reference
+  const gameRef = useRef<Chess>(new Chess(validatedInitialFen));
+  
+  // State for tracking game state changes
+  const [gameVersion, setGameVersion] = useState(0); // Used to trigger re-renders when game state changes
   const [history, setHistory] = useState<Move[]>([]);
   const [isGameFinished, setIsGameFinished] = useState(false);
   const [currentFen, setCurrentFen] = useState(validatedInitialFen);
   const [currentPgn, setCurrentPgn] = useState('');
   
-  const gameRef = useRef(game);
-  const historyRef = useRef<Move[]>([]);
+  // Stable game instance that doesn't change reference
+  const game = useMemo(() => gameRef.current, [gameVersion]);
   
-  useEffect(() => {
-    gameRef.current = game;
-  }, [game]);
+  const historyRef = useRef<Move[]>([]);
   
   useEffect(() => {
     historyRef.current = history;
@@ -76,8 +78,8 @@ export const useChessGame = ({
       const newFen = currentGame.fen();
       const newPgn = currentGame.pgn();
       
-      // Reuse existing game instance instead of creating new one
-      setGame(currentGame);
+      // Update state and trigger re-render with stable game reference
+      setGameVersion(v => v + 1); // This triggers useMemo to return the same gameRef.current
       setHistory(prev => [...prev, moveResult]);
       setCurrentFen(newFen);
       setCurrentPgn(newPgn);
@@ -102,28 +104,31 @@ export const useChessGame = ({
   }, [isGameFinished, onComplete, onPositionChange]);
 
   const jumpToMove = useCallback((moveIndex: number) => {
-    // Optimization: reuse existing game if possible
-    const currentGameCopy = new Chess(gameRef.current.fen());
-    currentGameCopy.reset();
-    currentGameCopy.load(validatedInitialFen);
+    // Reset game to initial position
+    gameRef.current.reset();
+    gameRef.current.load(validatedInitialFen);
     
     // Apply moves up to the target index
     for (let i = 0; i <= moveIndex && i < historyRef.current.length; i++) {
       const move = historyRef.current[i];
-      currentGameCopy.move(move);
+      gameRef.current.move(move);
     }
     
-    setGame(currentGameCopy);
-    setCurrentFen(currentGameCopy.fen());
-    setCurrentPgn(currentGameCopy.pgn());
+    // Update state with new position
+    setGameVersion(v => v + 1);
+    setCurrentFen(gameRef.current.fen());
+    setCurrentPgn(gameRef.current.pgn());
     setIsGameFinished(false);
     
-    onPositionChange?.(currentGameCopy.fen(), currentGameCopy.pgn());
+    onPositionChange?.(gameRef.current.fen(), gameRef.current.pgn());
   }, [validatedInitialFen, onPositionChange]);
 
   const resetGame = useCallback(() => {
-    const newGame = new Chess(validatedInitialFen);
-    setGame(newGame);
+    // Reset the existing game instance instead of creating a new one
+    gameRef.current.reset();
+    gameRef.current.load(validatedInitialFen);
+    
+    setGameVersion(v => v + 1);
     setHistory([]);
     setIsGameFinished(false);
     setCurrentFen(validatedInitialFen);
@@ -136,17 +141,19 @@ export const useChessGame = ({
     if (history.length === 0) return false;
     
     const newHistory = history.slice(0, -1);
-    const tempGame = new Chess(validatedInitialFen);
     
-    newHistory.forEach(move => tempGame.move(move));
+    // Reset game and replay moves
+    gameRef.current.reset();
+    gameRef.current.load(validatedInitialFen);
+    newHistory.forEach(move => gameRef.current.move(move));
     
-    setGame(tempGame);
+    setGameVersion(v => v + 1);
     setHistory(newHistory);
-    setCurrentFen(tempGame.fen());
-    setCurrentPgn(tempGame.pgn());
+    setCurrentFen(gameRef.current.fen());
+    setCurrentPgn(gameRef.current.pgn());
     setIsGameFinished(false);
     
-    onPositionChange?.(tempGame.fen(), tempGame.pgn());
+    onPositionChange?.(gameRef.current.fen(), gameRef.current.pgn());
     return true;
   }, [history, validatedInitialFen, onPositionChange]);
 

@@ -95,13 +95,15 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     onPositionChange
   });
 
-  // Sync game instance with Zustand
+  // Sync game instance with Zustand only when FEN actually changes
   useEffect(() => {
-    // Compare FEN strings instead of object references to avoid infinite loops
-    if (game && game.fen() !== training.currentFen) {
+    // The game instance from useChessGame is now stable (memoized)
+    // We only update Zustand when the FEN position actually changes
+    const gameFen = game?.fen();
+    if (gameFen && gameFen !== training.currentFen) {
       actions.setGame(game);
     }
-  }, [game, actions, training.currentFen]);
+  }, [currentFen]); // Use currentFen instead of game to avoid dependency on object reference
 
   // Sync move history with Zustand
   useEffect(() => {

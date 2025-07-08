@@ -226,24 +226,18 @@ describe('useChessGame Hook', () => {
         });
       }
 
-      // Now test jump to move
-      const newGame = {
-        fen: jest.fn().mockReturnValue('position-after-move-1'),
-        pgn: jest.fn().mockReturnValue('1. e4 e5'),
-        move: jest.fn(),
-        reset: jest.fn(),
-        load: jest.fn()
-      } as any;
-
-      MockedChess.mockReturnValue(newGame);
+      // Mock the expected state after jumping to move 1
+      mockChessInstance.fen.mockReturnValue('position-after-move-1');
+      mockChessInstance.pgn.mockReturnValue('1. e4 e5');
 
       act(() => {
         result.current.jumpToMove(1); // Jump to move index 1 (second move)
       });
 
-      expect(newGame.reset).toHaveBeenCalled();
-      expect(newGame.load).toHaveBeenCalledWith(TEST_POSITIONS.STARTING_POSITION);
-      expect(onPositionChangeMock).toHaveBeenCalled();
+      // With the new implementation, we reuse the same instance
+      expect(mockChessInstance.reset).toHaveBeenCalled();
+      expect(mockChessInstance.load).toHaveBeenCalledWith(TEST_POSITIONS.STARTING_POSITION);
+      expect(onPositionChangeMock).toHaveBeenCalledWith('position-after-move-1', '1. e4 e5');
     });
 
     it('should undo last move successfully', async () => {
@@ -264,13 +258,9 @@ describe('useChessGame Hook', () => {
         await result.current.makeMove({ from: 'e7', to: 'e5' });
       });
 
-      const tempGame = {
-        fen: jest.fn().mockReturnValue('position-after-undo'),
-        pgn: jest.fn().mockReturnValue('1. e4'),
-        move: jest.fn()
-      } as any;
-
-      MockedChess.mockReturnValue(tempGame);
+      // Mock the expected state after undo
+      mockChessInstance.fen.mockReturnValue('position-after-undo');
+      mockChessInstance.pgn.mockReturnValue('1. e4');
 
       let undoResult: boolean;
       act(() => {
@@ -279,6 +269,9 @@ describe('useChessGame Hook', () => {
 
       expect(undoResult!).toBe(true);
       expect(result.current.isGameFinished).toBe(false);
+      // With the new implementation, we reuse the same instance
+      expect(mockChessInstance.reset).toHaveBeenCalled();
+      expect(mockChessInstance.load).toHaveBeenCalledWith(TEST_POSITIONS.STARTING_POSITION);
       expect(onPositionChangeMock).toHaveBeenCalledWith('position-after-undo', '1. e4');
     });
 

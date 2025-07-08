@@ -93,12 +93,18 @@ Last Updated: 2025-07-08
 
 ## 📊 Medium Priority Tasks
 
-### 8. **Clean Up Uncommitted Debug Scripts**
-- [ ] Review and remove unnecessary scripts in `scripts/`
-- [ ] Keep only essential migration scripts
-- [ ] Document remaining scripts in README
-- **Files**: `scripts/debug*.ts`, `scripts/test*.ts`
-- **Effort**: S (Small)
+### 8. ~~**Clean Up Uncommitted Debug Scripts**~~ ✅ COMPLETED (2025-07-08)
+- [x] Removed unused StockfishEngine implementations (dead code)
+- [x] Review and remove unnecessary scripts in `scripts/`
+- [x] Keep only essential migration scripts
+- [x] Document remaining scripts in README
+- **Files Removed**: 
+  - 2 unused Stockfish files (-128 lines)
+  - 9 debug/test scripts with hardcoded credentials
+- **Files Kept**: 
+  - 2 essential migration scripts
+  - 4 code analysis scripts (added to npm scripts)
+- **Documentation**: Created `/scripts/README.md` with usage instructions
 
 ### 9. **Performance: Implement Code Splitting**
 - [ ] Add dynamic imports for routes

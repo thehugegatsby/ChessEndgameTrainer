@@ -6,7 +6,7 @@
 ### Quick Facts
 - **Status**: Production Ready Web, Mobile Architecture vorbereitet
 - **Test Coverage**: ~78% (Statement Coverage) - Up from 76.16%
-- **Test Success**: 100% (1100/1115 tests passing, 15 skipped)
+- **Test Success**: 99.1% (1108/1119 tests passing, 11 skipped)
 - **Codebase**: 113 TypeScript files, ~15,000 LOC
 - **Features**: 16 Endspiel-Positionen, Stockfish.js Integration, Spaced Repetition
 - **Performance**: 75% weniger API-Calls, 31% schnellere Evaluations, 53% schnellere Navigation
@@ -124,7 +124,7 @@ app/mobile/         # React Native App (vorbereitet)
 2. **State Management Fragmentation**: Complex Context Optimierungen während Zustand ungenutzt bleibt
 3. ~~**Error Handling**: Inkonsistent across Services~~ ✅ FIXED - Centralized ErrorService implemented
 4. **Memory Management**: Potentielle Memory Leaks wenn Engine Cleanup fehlschlägt
-5. **TrainingBoardZustand Tests**: Infinite loop in `setGame` useEffect - 3 Tests übersprungen (siehe unten)
+5. ~~**TrainingBoardZustand Tests**: Infinite loop in `setGame` useEffect - 3 Tests übersprungen~~ ✅ FIXED - Stable reference pattern implemented
 
 ### Medium Priority
 - ~~Magic numbers ohne Konstanten~~ ✅ FIXED - Constants centralized in shared/constants/
@@ -603,24 +603,39 @@ if (categoryBefore === 'loss' && categoryAfter === 'loss') {
 - Detailed evaluation logic documentation: `/shared/utils/chess/EVALUATION_LOGIC_LEARNINGS.md`
 - This file provides in-depth technical details about WDL handling and perspective correction
 
-### TrainingBoardZustand Infinite Loop Issue (2025-07-07)
-**Issue**: Tests fail with "Maximum update depth exceeded" error when component mounts
+### ✅ TrainingBoardZustand Infinite Loop Issue FIXED (2025-07-08)
+**Issue**: Tests were failing with "Maximum update depth exceeded" error when component mounts
 
-**Root Cause**: The `setGame` action in useEffect creates an infinite update loop because:
-1. `game` object reference changes trigger the effect
-2. Setting game in store might trigger re-render
-3. New render creates new game reference
-4. Cycle repeats
+**Root Cause**: The `setGame` action in useEffect created an infinite update loop because:
+1. `game` object reference changed on every render (new Chess instance created)
+2. Setting game in store triggered re-render
+3. New render created new game reference
+4. Cycle repeated infinitely
 
-**Temporary Fix**: Skipped 3 tests in TrainingBoardZustand.test.tsx:
-- "should set position in Zustand store on mount"
-- "should update Zustand when making a move"  
-- "should handle game completion through onComplete callback"
+**Solution Implemented**: 
+Fixed at the source in `useChessGame` hook by implementing stable reference pattern:
+```typescript
+// Before: Created new instances frequently
+const [game, setGame] = useState(() => new Chess(validatedInitialFen));
 
-**Proper Fix Needed**: 
-- Consider using useRef for game instance
-- Or add proper equality check before setGame
-- Or restructure how game instance is managed in Zustand
+// After: Stable reference with version tracking
+const gameRef = useRef<Chess>(new Chess(validatedInitialFen));
+const [gameVersion, setGameVersion] = useState(0);
+const game = useMemo(() => gameRef.current, [gameVersion]);
+```
+
+**Benefits**:
+- No more infinite loops - game reference remains stable
+- Better performance - reuses same Chess instance
+- All tests now passing (previously 3 were skipped)
+- Memory efficient - no instance churn
+
+**Implementation Details**:
+1. Used `useRef` to store the actual Chess instance
+2. Added `gameVersion` state to trigger re-renders when game state changes
+3. Used `useMemo` to provide stable reference that only updates on version change
+4. Updated all methods (makeMove, jumpToMove, resetGame, undoMove) to work with ref
+5. Updated TrainingBoardZustand to use `currentFen` as dependency instead of `game`
 
 ### Modular Architecture Refactoring (2025-07-07)
 **What Changed**: Complete refactoring of evaluationHelpers.ts into modular structure
@@ -700,11 +715,67 @@ shared/constants/
 
 **Test Coverage**: 100% on FEN validator, all tests passing
 
+### Stockfish Cleanup & Security Enhancement (2025-07-08)
+**Issue**: Two unused StockfishEngine implementations causing confusion, no path validation in production
+
+**Analysis with Gemini**:
+- Found two StockfishEngine classes that were completely unused (dead code)
+- Actual implementation uses StockfishWorkerManager directly
+- Security validation from unused classes was not active in production
+
+**Solution Implemented**:
+1. **Added Path Validation** to `workerManager.ts`:
+   - Whitelist for allowed worker paths
+   - Protection against directory traversal attacks
+   - Clear error messages for security violations
+2. **Removed Dead Code**:
+   - Deleted `/shared/lib/stockfish.ts` (99 lines)
+   - Deleted `/shared/lib/chess/stockfish.ts` (28 lines)
+   - Both were obsolete implementations
+
+**Result**: -128 lines of confusing code, +8 lines of security validation
+
+### Scripts Directory Cleanup (2025-07-08)
+**Issue**: Accumulation of debug scripts with hardcoded credentials and test scripts
+
+**Analysis**:
+- Found 15 scripts in `/scripts/` directory
+- 8 were debug/test scripts with hardcoded Firebase credentials (security risk)
+- 2 essential migration scripts needed for production
+- 5 code analysis scripts providing value
+
+**Actions Taken**:
+1. **Removed 9 scripts** (8 debug + 1 redundant analysis):
+   - `testFirebase.ts`, `testFirestoreRead.ts`, `testPositionWrite.ts` (hardcoded credentials)
+   - `checkFirebaseConfig.ts`, `debugBatchMigration.ts`, `debugMigration.ts`
+   - `findInvalidData.ts`, `migrate-tests-pilot.sh`, `feature-coverage.js`
+
+2. **Kept 6 scripts**:
+   - Essential: `migrateToFirestore.ts`, `runMigration.js`
+   - Analysis: `check-duplicate-components.js`, `check-unused-services.js`, 
+     `deep-unused-analysis.js`, `find-unused-files.js`
+
+3. **Added npm scripts** for easier access:
+   ```json
+   "check-unused-services": "node scripts/check-unused-services.js",
+   "check-unused-files": "node scripts/find-unused-files.js",
+   "analyze-unused": "node scripts/deep-unused-analysis.js",
+   "analyze-code": "npm run check-duplicates && npm run check-unused-services && npm run check-unused-files"
+   ```
+
+4. **Created `/scripts/README.md`** documenting all remaining scripts
+
+**Security Improvement**: Removed all scripts with hardcoded credentials
+**Code Quality**: Analysis scripts now easily accessible via npm commands
+
 ---
-**Last Updated**: 2025-07-08 - FEN Validation Security Fix
+**Last Updated**: 2025-07-08 - FEN Validation, Stockfish Cleanup, Infinite Loop Fix & Scripts Cleanup
 **Session Summary**: 
 - Implemented comprehensive FEN validation across all input boundaries
 - Fixed critical XSS vulnerability
-- Added test suite for FEN validator
+- Removed unused StockfishEngine implementations
+- Added worker path validation to production code
+- Fixed TrainingBoardZustand infinite loop with stable reference pattern
+- Cleaned up scripts directory, removed security risks
 - All tests passing (1108/1119), build successful
 - Previous milestone: Move Evaluation Symbols Fix (2025-01-17)
