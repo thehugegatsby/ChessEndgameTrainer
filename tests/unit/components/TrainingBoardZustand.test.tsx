@@ -89,6 +89,10 @@ describe('TrainingBoardZustand', () => {
   beforeEach(() => {
     useStore.getState().reset();
   });
+  
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   it('should set position in Zustand store on mount', () => {
     render(

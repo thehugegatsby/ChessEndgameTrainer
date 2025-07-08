@@ -195,6 +195,11 @@ export const useStore = create<RootState & Actions>()(
           logger.debug('Game instance set');
         }),
 
+        setScenarioEngine: (engine) => set((state) => {
+          state.training.scenarioEngine = engine;
+          logger.debug('Scenario engine set', { hasEngine: !!engine });
+        }),
+
         makeMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => set((state) => {
           try {
             // 1. Execute the move on the store's chess.js instance first
@@ -583,6 +588,7 @@ export const useUserActions = () => useStore((state) => ({
 export const useTrainingActions = () => useStore((state) => ({
   setPosition: state.setPosition,
   setGame: state.setGame,
+  setScenarioEngine: state.setScenarioEngine,
   makeMove: state.makeMove,
   undoMove: state.undoMove,
   resetPosition: state.resetPosition,

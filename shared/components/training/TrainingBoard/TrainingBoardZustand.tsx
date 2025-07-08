@@ -3,7 +3,7 @@ import { Chess, Move } from 'chess.js';
 import { Square } from 'react-chessboard/dist/chessboard/types';
 import { Chessboard } from 'react-chessboard';
 import { useEvaluation, useTrainingGame } from '../../../hooks';
-import { useTraining, useTrainingActions } from '@shared/store/store';
+import { useTraining, useTrainingActions, useUIActions, useStore } from '@shared/store/store';
 import { EndgamePosition } from '@shared/data/endgames/types';
 import { ScenarioEngine } from '@shared/lib/chess/ScenarioEngine';
 import { ErrorService } from '@shared/services/errorService';
@@ -60,6 +60,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
   // === ZUSTAND STORE ===
   const training = useTraining();
   const actions = useTrainingActions();
+  const uiActions = useUIActions();
   
   // Set position in store on mount or when position changes
   useEffect(() => {
@@ -128,65 +129,62 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     }
   }, [lastEvaluation, actions]);
 
-  // UI state management - inline implementation
+  // UI state management - local component state only
   const [resetKey, setResetKey] = useState(0);
   const [showLastEvaluation, setShowLastEvaluation] = useState(false);
-  const [warning, setWarning] = useState('');
+  const [showMoveErrorDialog, setShowMoveErrorDialog] = useState(false);
+  const [warning, setWarning] = useState<string | null>(null);
   const [engineError, setEngineError] = useState<string | null>(null);
   const [moveError, setMoveError] = useState<string | null>(null);
-  const [showMoveErrorDialog, setShowMoveErrorDialog] = useState(false);
+
+  // Use Store for scenario engine
+  const scenarioEngine = training.scenarioEngine;
 
   const trainingState = {
     resetKey,
     showLastEvaluation,
+    showMoveErrorDialog,
     warning,
     engineError,
     moveError,
-    showMoveErrorDialog,
-    setWarning,
-    setEngineError,
     showEvaluationBriefly: () => {
       setShowLastEvaluation(true);
       setTimeout(() => setShowLastEvaluation(false), 2000);
     },
     handleReset: () => setResetKey(prev => prev + 1),
     handleDismissMoveError: () => {
-      setMoveError(null);
       setShowMoveErrorDialog(false);
+      setMoveError(null);
     },
-    handleClearWarning: () => setWarning(''),
+    handleClearWarning: () => setWarning(null),
     handleClearEngineError: () => setEngineError(null)
   };
 
-  // Scenario engine management - inline implementation
-  const [scenarioEngine, setScenarioEngine] = useState<ScenarioEngine | null>(null);
-  const [isEngineReady, setIsEngineReady] = useState(false);
-
+  // Initialize scenario engine only once per position
   useEffect(() => {
     if (!position) return;
     
     try {
       const engine = new ScenarioEngine(position.fen);
-      setScenarioEngine(engine);
-      setIsEngineReady(true);
+      actions.setScenarioEngine(engine);
+      actions.setEngineStatus('ready');
     } catch (error) {
-      setEngineError(error instanceof Error ? error.message : 'Engine initialization failed');
+      const errorMessage = error instanceof Error ? error.message : 'Engine initialization failed';
+      setEngineError(errorMessage);
+      actions.setEngineStatus('error');
       ErrorService.handleChessEngineError(error as Error, { component: 'TrainingBoardZustand' });
     }
-  }, [position]);
+  }, [position?.id]); // Only depend on position ID to avoid re-initialization
 
-  // Update engine status in Zustand
+  // Update engine status based on evaluation state
   useEffect(() => {
-    if (!isEngineReady) {
-      actions.setEngineStatus('initializing');
-    } else if (engineError) {
-      actions.setEngineStatus('error');
-    } else if (isEvaluating) {
+    if (isEvaluating) {
       actions.setEngineStatus('analyzing');
-    } else {
+    } else if (training.engineStatus === 'analyzing') {
+      // Only update to ready if we were analyzing
       actions.setEngineStatus('ready');
     }
-  }, [isEngineReady, engineError, isEvaluating, actions]);
+  }, [isEvaluating, actions, training.engineStatus]);
 
   // Enhanced move handling - inline implementation
   const handleMove = useCallback(async (move: any) => {
@@ -200,7 +198,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       );
       
       if (!isValidMove) {
-        trainingState.setWarning('Invalid move');
+        uiActions.showToast('Invalid move', 'warning');
         actions.incrementMistake();
         return null;
       }
@@ -223,10 +221,11 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       }
       return result;
     } catch (error) {
-      trainingState.setEngineError(error instanceof Error ? error.message : 'Move failed');
+      const errorMessage = error instanceof Error ? error.message : 'Move failed';
+      uiActions.showToast(errorMessage, 'error');
       return null;
     }
-  }, [scenarioEngine, isGameFinished, makeMove, lastEvaluation, trainingState, actions]);
+  }, [scenarioEngine, isGameFinished, makeMove, lastEvaluation, trainingState, actions, uiActions]);
 
   // === TEST HOOK FOR E2E TESTING ===
   useEffect(() => {
