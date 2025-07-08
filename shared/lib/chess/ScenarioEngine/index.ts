@@ -145,9 +145,9 @@ export class ScenarioEngine {
   /**
    * Gets the best move for a position
    * @param fen - Position to analyze
-   * @returns Promise<string | null> - Best move in UCI format
+   * @returns Promise<{from: string; to: string; promotion?: 'q' | 'r' | 'b' | 'n'} | null> - Best move as object
    */
-  public async getBestMove(fen: string): Promise<string | null> {
+  public async getBestMove(fen: string): Promise<{ from: string; to: string; promotion?: 'q' | 'r' | 'b' | 'n' } | null> {
     return this.moveHandler.getBestMove(fen);
   }
 

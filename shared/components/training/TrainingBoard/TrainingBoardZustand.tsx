@@ -209,9 +209,9 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
         // Then trigger engine response separately
         const currentFen = game.fen();
         const engineMove = await scenarioEngine.getBestMove(currentFen);
-        if (engineMove && typeof engineMove === 'object') {
-          // Make the engine move
-          await makeMove({ from: (engineMove as any).from, to: (engineMove as any).to, promotion: (engineMove as any).promotion });
+        if (engineMove) {
+          // Make the engine move (getBestMove now returns an object directly)
+          await makeMove(engineMove);
         }
         
         // Move was successful, it will be synced to Zustand via the history effect

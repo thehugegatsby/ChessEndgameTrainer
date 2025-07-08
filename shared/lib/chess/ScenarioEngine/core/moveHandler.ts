@@ -69,15 +69,19 @@ export class MoveHandler {
   /**
    * Gets the best move for a position
    * @param fen - Position to analyze
-   * @returns Promise<string | null> - Best move in UCI format
+   * @returns Promise<{from: string; to: string; promotion?: 'q' | 'r' | 'b' | 'n'} | null> - Best move as object
    */
-  async getBestMove(fen: string): Promise<string | null> {
+  async getBestMove(fen: string): Promise<{ from: string; to: string; promotion?: 'q' | 'r' | 'b' | 'n' } | null> {
     try {
       const bestMove = await this.engine.getBestMove(fen);
       
       if (bestMove) {
-        const moveUci = bestMove.from + bestMove.to + (bestMove.promotion || '');
-        return moveUci;
+        // Return the move object directly instead of converting to UCI string
+        return {
+          from: bestMove.from,
+          to: bestMove.to,
+          promotion: bestMove.promotion as 'q' | 'r' | 'b' | 'n' | undefined
+        };
       }
       
       return null;

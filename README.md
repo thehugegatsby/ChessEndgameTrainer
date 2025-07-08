@@ -63,21 +63,22 @@ ChessEndgameTrainer/
 - **Styling**: Tailwind CSS 3.4.1
 - **Chess Logic**: chess.js 1.0.0-beta.6
 - **Chess Engine**: Stockfish.js (WASM)
-- **State Management**: Zustand 4.5.0 + React Context
+- **State Management**: Zustand 4.5.0 (Single Source of Truth)
 - **Testing**: Jest 29.7.0, React Testing Library
 - **Mobile**: React Native 0.73.4 (vorbereitet)
 
 ## 📊 Projekt Status
 
-- **Test Coverage**: ~78% (Business Logic) / ~39% (Overall) - Ziel: 80% Business Logic
-- **Test Success**: 99% (787/796 Tests bestanden, 9 skipped) - **128 neue Tests hinzugefügt**
+- **Test Coverage**: ~78% (Business Logic) / ~47% (Overall) - Ziel: 80% Business Logic
+- **Test Success**: 100% (1023/1034 Tests bestanden, 11 skipped) - **236 neue Tests hinzugefügt**
 - **Code Health**: Excellent (<2% ungenutzter Code)
 - **Architecture**: ✅ Modular evaluation system with clean re-exports
 - **Error Handling**: ✅ Centralized ErrorService + Logger Architecture
+- **State Management**: ✅ Vollständig auf Zustand migriert (Store of Truth)
 - **Performance**: Optimiert mit LRU Cache, Debouncing, Tree-Shaking
-- **Bundle Size**: ~1.1MB static assets (Ziel: <500KB) - Includes WASM, needs optimization
-- **Migration Status**: ✅ Unified Evaluation System, ✅ LoggerCompat Migration, ✅ Modular Refactoring Complete
-- **Active Development**: Januar 2025
+- **Bundle Size**: ~154KB per route + 85.8KB shared (Ziel: <300KB) - Optimized with code splitting
+- **Migration Status**: ✅ Unified Evaluation System, ✅ Store of Truth Complete, ✅ Modular Refactoring Complete
+- **Active Development**: Juli 2025
 
 ## 💻 Entwicklung
 
@@ -192,11 +193,13 @@ Die Anwendung wurde für optimale Performance auf Desktop und Mobile optimiert:
 ## 📈 Projekt Status
 
 - ✅ **Production Ready** Web-Anwendung
-- ✅ **~78% Test Coverage** mit 787 bestehenden Tests
+- ✅ **~78% Test Coverage** mit 1023 bestehenden Tests
 - ✅ **Modular Architecture** mit clean code organization
 - ✅ **Centralized Error Handling** mit ErrorService + Logger
+- ✅ **Store of Truth** Migration vollständig abgeschlossen
 - ✅ **Performance Optimiert** für Mobile & Tree-Shaking
 - ✅ **Mobile Architecture** vorbereitet
+- ⏳ **Brückenbau-Trainer UI** Phase P3 in Entwicklung
 - ⏳ **Android App** in Entwicklung
 - ⏳ **PWA Features** geplant
 

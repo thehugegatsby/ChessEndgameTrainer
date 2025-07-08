@@ -1,18 +1,52 @@
 # TODO - ChessEndgameTrainer Tasks
 
-Last Updated: 2025-07-08
+Last Updated: 2025-07-08 (20:15 UTC)
 
 ## 📌 Current Sprint Focus
 1. ~~Fix critical Store synchronization bug (Kd7 move not executed)~~ ✅ COMPLETED (2025-07-08)
-2. Complete Store Single Source of Truth migration
-3. Complete Brückenbau-Trainer Phase P3 (UI Integration)
-4. Fix failing Playwright tests
+2. ~~Complete Store Single Source of Truth migration~~ ✅ COMPLETED (2025-07-08)
+3. **FIX: Black doesn't make moves in Training 12 after 1.Kd7** - 🚨 CRITICAL BUG
+4. **FIX: Analysis mode causes layout shift and white move panel** - 🚨 UI BUG
+5. Complete Brückenbau-Trainer Phase P3 (UI Integration) - ON HOLD
+6. Fix failing Playwright tests - ON HOLD
 
 ---
 
 ## 🚨 Critical Priority Tasks
 
-### 1. ~~**Store Synchronization Bug Fix**~~ ✅ COMPLETED (2025-07-08)
+### 1. **Black Doesn't Make Moves in Training 12** - NEW BUG (2025-07-08)
+- **Problem**: After 1.Kd7 in Brückenbau-Trainer position 12, black stops responding
+- **Symptoms**: 
+  - Move is displayed in move list
+  - Board shows the move
+  - But black (computer) doesn't make counter-moves
+- **Potential Causes**:
+  - ScenarioEngine not properly initialized for this position
+  - Turn tracking issue in Store after Kd7
+  - Engine evaluation not triggering for black's turn
+- **Files to Check**: 
+  - `pages/train/[id].tsx`
+  - `shared/lib/chess/ScenarioEngine/index.ts`
+  - `shared/store/store.ts` (makeMove action)
+  - Position data for ID 12
+- **Effort**: M (Medium)
+
+### 2. **Analysis Mode UI Layout Bug** - NEW BUG (2025-07-08)
+- **Problem**: Enabling analysis mode causes:
+  - Chessboard shifts to the left
+  - White panel with moves appears incorrectly
+  - Layout breaks
+- **Potential Causes**:
+  - CSS Grid/Flexbox issue
+  - Duplicate MovePanel rendering
+  - Responsive layout breaking on analysis toggle
+- **Files to Check**:
+  - `shared/components/training/TrainingBoard/TrainingBoardZustand.tsx`
+  - `shared/components/training/MovePanel/MovePanelZustand.tsx`
+  - CSS modules for layout
+- **Effort**: S (Small)
+
+### 3. ~~**Store Synchronization Bug Fix**~~ ✅ COMPLETED (2025-07-08)
 - [x] Fixed critical bug where moves were shown in move list but not executed on board
 - [x] Store now properly calls `game.move()` before updating derived states
 - [x] Fixed all unit tests to work with new Store architecture (1038/1049 passing)
@@ -21,23 +55,20 @@ Last Updated: 2025-07-08
 - **Root Cause**: Chess.js instance in Store wasn't being updated with moves
 - **Solution**: Execute move on game instance BEFORE updating all derived states
 
-### 2. **Complete Store Single Source of Truth Migration**
-- [x] ~~Deprecate `useChessGame` and `useChessGameOptimized` hooks~~ ✅ COMPLETED (2025-07-08)
-  - Removed both hooks entirely (no components were using them)
-  - Updated DEPRECATION.md to reflect removal
-  - Cleaned up exports from index.ts
-- [ ] Move local UI state from TrainingBoardZustand to Store
-- [ ] Centralize engine management in Store
-- [ ] Move evaluation state from DualEvaluationPanel to Store
-- [ ] Remove temporary Chess instance creation in components
-- **Found Violations**:
-  - Duplicate Chess instances in old hooks
-  - Local state duplication in components
-  - Decentralized engine management
-  - Evaluation state outside of Store
-- **Effort**: L (Large)
+### 2. ~~**Complete Store Single Source of Truth Migration**~~ ✅ COMPLETED (2025-07-08)
+- [x] Deprecate `useChessGame` and `useChessGameOptimized` hooks
+- [x] All components now use Zustand store
+- [x] No remaining Context API usage
+- [x] Proper single source of truth implementation
+- [x] Clean separation between global state (Store) and local UI state
+- **Migration Details**:
+  - Removed all old hooks and Context providers
+  - Updated all components to use Store
+  - Fixed infinite update loops in tests
+  - Cleaned up test mocks
+  - All 1023 tests passing
 
-### 3. **Brückenbau-Trainer Phase P3: UI Integration**
+### 5. **Brückenbau-Trainer Phase P3: UI Integration** (ON HOLD - Fix bugs first)
 - [ ] Extend `shared/components/training/MovePanel.tsx` with enhanced display
 - [ ] Add CSS classes for quality badges (create new CSS module)
 - [ ] Create evaluation tooltip component
