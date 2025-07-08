@@ -183,10 +183,10 @@ Die Anwendung wurde für optimale Performance auf Desktop und Mobile optimiert:
 Die vollständige Dokumentation ist strukturiert organisiert:
 
 - **[CLAUDE.md](./CLAUDE.md)** - AI Assistant Context & Best Practices
-- **[Architecture](./docs/architecture/ARCHITECTURE.md)** - Systemarchitektur und Design
-- **[Development](./docs/development/)** - Entwicklungshistorie und CI/CD
-- **[Security](./docs/security/)** - Security Guidelines und Implementation
-- **[Testing](./docs/testing/TESTING_GUIDELINES.md)** - Umfassende Test-Strategie
+- **[Architecture](./docs/ARCHITECTURE.md)** - Systemarchitektur und Design
+- **[Security](./docs/SECURITY.md)** - Security Guidelines und Implementation
+- **[Testing](./docs/TESTING.md)** - Umfassende Test-Strategie
+- **[Database Migration](./docs/database/FIRESTORE_MIGRATION_README.md)** - Firestore Migration Guide
 - **[Deployment](./docs/deployment/DEPLOYMENT_GUIDE.md)** - Production Deployment Guide
 
 ## 📄 Lizenz
