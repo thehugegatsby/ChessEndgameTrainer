@@ -1,141 +1,129 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+import { 
+  makeMove, 
+  getGameState, 
+  waitForEngineResponse, 
+  navigateToTraining,
+  KNOWN_POSITIONS 
+} from './helpers';
 
 /**
- * Einfacher Test um zu prüfen, ob Züge gemacht und registriert werden können
+ * Fixed version of simple-move-test.spec.ts using centralized helpers
+ * This serves as a template for fixing other tests
  */
 
-// Helper function to make a move using test hooks
-const makeMove = async (page: Page, move: string) => {
-  const result = await page.evaluate((m) => {
-    return (window as any).e2e_makeMove?.(m);
-  }, move);
+test.describe('@smoke Simple Move Tests (Fixed)', () => {
   
-  if (!result) {
-    throw new Error('Test hooks not available. Ensure NEXT_PUBLIC_TEST_MODE=true');
-  }
-  
-  return result;
-};
-
-// Helper to get game state
-const getGameState = async (page: Page) => {
-  return await page.evaluate(() => {
-    return (window as any).e2e_getGameState?.();
-  });
-};
-
-test.describe('@smoke Einfacher Zug-Test', () => {
-  
-  test('kann einen Zug machen und registrieren', async ({ page }) => {
-    // 1. Zur Trainingsseite navigieren (nutze bekannte funktionierende ID)
-    await page.goto('/train/12'); // Brückenbau Training
+  test('can make a move and register it correctly', async ({ page }) => {
+    // 1. Navigate to Bridge Building training (ID 12)
+    const initialState = await navigateToTraining(page, 12);
     
-    // 2. Warte auf das Brett
-    await expect(page.locator('[data-square="c8"]')).toBeVisible({ timeout: 10000 });
-    await page.waitForTimeout(2000); // Engine initialisieren lassen
-    
-    // 3. Prüfe Anfangszustand
-    const initialState = await getGameState(page);
+    // 2. Verify initial state
     expect(initialState).toBeTruthy();
     expect(initialState.moveCount).toBe(0);
+    expect(initialState.turn).toBe('w'); // White to move
+    expect(initialState.fen).toBe(KNOWN_POSITIONS.bridgeBuilding);
     
-    // 4. Screenshot vor dem Zug
-    await page.screenshot({ path: 'test-results/before-move.png', fullPage: true });
+    // 3. Verify "No moves played" text is visible
+    await expect(page.locator('text=Noch keine Züge gespielt')).toBeVisible();
     
-    // 5. Mache einen einfachen Zug (Kd7)
+    // 4. Make the first move (Kd7)
     const moveResult = await makeMove(page, 'c8-d7');
     expect(moveResult.success).toBe(true);
     
-    // 6. Warte kurz auf UI-Update
-    await page.waitForTimeout(500);
+    // 5. Wait for engine response (move count should be 2)
+    await waitForEngineResponse(page, 2);
     
-    // 7. Screenshot nach dem Zug
-    await page.screenshot({ path: 'test-results/after-move.png', fullPage: true });
-    
-    // 8. Prüfe neuen Zustand
+    // 6. Verify game state after engine response
     const afterMoveState = await getGameState(page);
-    expect(afterMoveState.moveCount).toBeGreaterThan(0);
-    expect(afterMoveState.turn).toBe('b'); // Schwarz ist dran
+    expect(afterMoveState.moveCount).toBe(2); // User move + engine move
+    expect(afterMoveState.turn).toBe('w'); // White's turn again
     
-    // 9. Prüfe ob "Noch keine Züge gespielt" verschwunden ist
-    const noMovesText = page.locator('text=Noch keine Züge gespielt');
-    await expect(noMovesText).not.toBeVisible();
+    // 7. Verify "No moves played" text is gone
+    await expect(page.locator('text=Noch keine Züge gespielt')).not.toBeVisible();
     
-    // 10. Prüfe ob Züge in der Liste angezeigt werden
-    const moveList = page.locator('.space-y-1');
-    const moves = moveList.locator('.font-mono');
+    // 8. Verify moves are displayed in the move list
+    // Use a more specific selector to avoid ambiguity
+    const movePanel = page.locator('div:has(> .font-mono)').first();
+    const moves = movePanel.locator('.font-mono');
     await expect(moves.first()).toBeVisible();
     
-    // Erwartungen erfüllt
-    const finalMoveCount = await moves.count();
-    expect(finalMoveCount).toBeGreaterThan(0);
+    // Should show at least "1. Kd7" in the move list
+    await expect(movePanel).toContainText('Kd7');
   });
   
-  test('prüfe Spielzustand über Test-Hooks', async ({ page }) => {
-    await page.goto('/train/12');
+  test('validates illegal moves correctly', async ({ page }) => {
+    // 1. Navigate to Bridge Building training
+    const initialState = await navigateToTraining(page, 12);
     
-    // Warte auf Brett
-    await expect(page.locator('[data-square="a1"]')).toBeVisible();
-    await page.waitForTimeout(2000);
-    
-    // Hole initialen Spielzustand
-    const initialState = await getGameState(page);
-    expect(initialState).toBeTruthy();
-    expect(initialState.fen).toBeTruthy();
-    expect(initialState.turn).toBe('w'); // Weiß beginnt
-    expect(initialState.isGameOver).toBe(false);
-    
-    // Mache mehrere Züge und prüfe Zustand
-    const move1 = await makeMove(page, 'c8-d7');
-    expect(move1.success).toBe(true);
-    
-    await page.waitForTimeout(3000); // Warte auf Engine
-    
-    const midGameState = await getGameState(page);
-    // Engine might be slow, so we accept either 1 or more moves
-    expect(midGameState.moveCount).toBeGreaterThanOrEqual(1);
-    expect(midGameState.pgn).toContain('Kd7'); // PGN sollte unseren Zug enthalten
-  });
-  
-  test('teste Zugvalidierung über Test-Hooks', async ({ page }) => {
-    await page.goto('/train/12');
-    
-    // Warte auf Brett
-    await expect(page.locator('[data-square="a1"]')).toBeVisible();
-    await page.waitForTimeout(2000);
-    
-    // Hole initialen Zustand
-    const initialState = await getGameState(page);
-    expect(initialState).toBeTruthy();
-    
-    // Teste ungültigen Zug (König kann nicht nach a1)
+    // 2. Try an illegal move (King to a1 - not possible)
     const invalidMove = await makeMove(page, 'c8-a1');
     expect(invalidMove.success).toBe(false);
     expect(invalidMove.error).toBeTruthy();
     
-    // Zustand sollte unverändert sein
+    // 3. Verify game state unchanged
     const stateAfterInvalid = await getGameState(page);
     expect(stateAfterInvalid.moveCount).toBe(0);
     expect(stateAfterInvalid.fen).toBe(initialState.fen);
     
-    // Teste gültigen Zug (von Brückenbau-Position)
+    // 4. Make a valid move to confirm the game still works
     const validMove = await makeMove(page, 'c8-d7');
+    expect(validMove.success).toBe(true);
     
-    // Wenn dieser Zug fehlschlägt, sind wir vielleicht in einer anderen Position
-    if (!validMove.success) {
-      // Fallback: Versuche Opposition-Position
-      const fallbackMove = await makeMove(page, 'e6-d5');
-      expect(fallbackMove.success).toBe(true);
-      
-      const stateAfterFallback = await getGameState(page);
-      expect(stateAfterFallback.moveCount).toBe(1);
-    } else {
-      expect(validMove.success).toBe(true);
-      
-      // Zustand sollte sich geändert haben
-      const stateAfterValid = await getGameState(page);
-      expect(stateAfterValid.moveCount).toBe(1);
-      expect(stateAfterValid.fen).not.toBe(initialState.fen);
+    // 5. Wait for engine and verify
+    await waitForEngineResponse(page, 2);
+    const finalState = await getGameState(page);
+    expect(finalState.moveCount).toBe(2);
+  });
+  
+  test('handles rapid move sequences correctly', async ({ page }) => {
+    // Navigate to position
+    await navigateToTraining(page, 12);
+    
+    // Make first move
+    await makeMove(page, 'c8-d7');
+    await waitForEngineResponse(page, 2);
+    
+    // Make second move (from d7)
+    const state2 = await getGameState(page);
+    console.log('Position after first exchange:', state2.fen);
+    
+    // Try Kc6 or Kd6 depending on where the king is
+    let move2Result = await makeMove(page, 'd7-c6');
+    if (!move2Result.success) {
+      move2Result = await makeMove(page, 'd7-d6');
     }
+    expect(move2Result.success).toBe(true);
+    
+    // Wait for second engine response
+    await waitForEngineResponse(page, 4);
+    
+    // Verify final state
+    const finalState = await getGameState(page);
+    expect(finalState.moveCount).toBe(4);
+    expect(finalState.pgn).toContain('Kd7');
+  });
+});
+
+test.describe('Opposition Training Tests', () => {
+  
+  test('can play moves in opposition training', async ({ page }) => {
+    // Navigate to Opposition training (ID 1)
+    const initialState = await navigateToTraining(page, 1);
+    
+    // Verify it's the opposition position
+    expect(initialState.fen).toBe(KNOWN_POSITIONS.opposition1);
+    
+    // In opposition, white king is on e6, try Kd5
+    const moveResult = await makeMove(page, 'e6-d5');
+    expect(moveResult.success).toBe(true);
+    
+    // Wait for black's response
+    await waitForEngineResponse(page, 2);
+    
+    // Verify the game progressed
+    const afterMove = await getGameState(page);
+    expect(afterMove.moveCount).toBe(2);
+    expect(afterMove.pgn).toContain('Kd5');
   });
 });

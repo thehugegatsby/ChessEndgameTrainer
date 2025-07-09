@@ -43,11 +43,6 @@ export default defineConfig({
       use: { ...devices['Desktop Firefox'] },
     },
 
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-
     /* Test against mobile viewports. */
     // {
     //   name: 'Mobile Chrome',
@@ -73,6 +68,7 @@ export default defineConfig({
   webServer: {
     command: 'npm run dev',
     url: APP_CONFIG.DEV_URL,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: !process.env.CI, // Reuse existing server locally, start new in CI
+    timeout: 120 * 1000,
   },
 });

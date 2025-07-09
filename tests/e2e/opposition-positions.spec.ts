@@ -9,7 +9,7 @@ const makeMove = async (page: Page, move: string): Promise<boolean> => {
   const result = await page.evaluate((m) => {
     const fn = (window as any).e2e_makeMove;
     if (!fn) {
-      throw new Error('Test hooks not available. Ensure NEXT_PUBLIC_TEST_MODE=true');
+      throw new Error('Test hooks not available');
     }
     return fn(m);
   }, move);

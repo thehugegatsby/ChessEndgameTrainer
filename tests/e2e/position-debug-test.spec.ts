@@ -1,82 +1,84 @@
 import { test, expect } from '@playwright/test';
+import {
+  navigateToTraining,
+  makeMove,
+  getGameState,
+  verifyPosition,
+  KNOWN_POSITIONS,
+} from './helpers';
 
 /**
- * Debug test to understand the starting position and legal moves
+ * Position Debug Test (Fixed) - Uses test hooks
  */
-
-test.describe('Position Debug', () => {
+test.describe('Position Debug and Legal Moves', () => {
   
-  test('Check starting position and legal moves', async ({ page }) => {
-    // Console logs abfangen
-    page.on('console', msg => {
-      console.log(`Browser console [${msg.type()}]:`, msg.text());
+  test('Check starting position and test legal moves', async ({ page }) => {
+    // Navigate to position 1
+    await navigateToTraining(page, 1);
+    await verifyPosition(page, KNOWN_POSITIONS.opposition1);
+
+    // Get initial position info
+    const initialState = await getGameState(page);
+    console.log('Initial position:', {
+      fen: initialState.fen,
+      moveCount: initialState.moveCount,
+      pgn: initialState.pgn
     });
-    
-    // Navigiere zur Position ohne URL Parameter
-    console.log('Navigating to /train/1');
-    await page.goto('/train/1');
-    
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
-    
-    // Sammle Position Info
-    const positionInfo = await page.evaluate(() => {
-      // Try to access game state through various methods
-      const info: any = {
-        windowProperties: Object.keys(window).filter(key => key.includes('chess') || key.includes('game')),
-        hasChessSquares: document.querySelectorAll('[data-square]').length,
-        squareData: []
-      };
+
+    // Test various legal moves for the white king on e1
+    const testMoves = [
+      { notation: 'e1-d1', expected: 'Kd1' },
+      { notation: 'e1-d2', expected: 'Kd2' },
+      { notation: 'e1-e2', expected: 'Ke2' },
+      { notation: 'e1-f1', expected: 'Kf1' },
+      { notation: 'e1-f2', expected: 'Kf2' }
+    ];
+
+    for (const { notation, expected } of testMoves) {
+      console.log(`Testing move: ${notation}`);
       
-      // Sammle data-square Informationen
-      const squares = document.querySelectorAll('[data-square]');
-      squares.forEach((square: any, index) => {
-        if (index < 10) { // Nur erste 10 für Debug
-          const squareName = square.getAttribute('data-square');
-          const hasChild = square.children.length > 0;
-          const innerHTML = square.innerHTML.substring(0, 100);
-          info.squareData.push({ squareName, hasChild, innerHTML });
-        }
-      });
+      // Try the move
+      const moveResult = await makeMove(page, notation);
       
-      return info;
-    });
-    
-    console.log('Position info:', JSON.stringify(positionInfo, null, 2));
-    
-    // Test verschiedene Züge
-    const testMoves = ['Kd1', 'Kd3', 'Kf1', 'Kf3', 'Ke1', 'Ke3'];
-    
-    for (const moveNotation of testMoves) {
-      console.log(`Testing move: ${moveNotation}`);
-      
-      // Teste mit URL Parameter
-      await page.goto(`/train/1?moves=${moveNotation}`);
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(3000);
-      
-      // Check if move worked
-      const moveWorked = await page.evaluate(() => {
-        return {
-          noMovesVisible: document.body.textContent?.includes('Noch keine Züge gespielt') || false,
-          moveElements: document.querySelectorAll('.font-mono').length,
-          bodyContainsMove: document.body.textContent?.includes('1.') || false
-        };
-      });
-      
-      console.log(`Move ${moveNotation} result:`, moveWorked);
-      
-      if (!moveWorked.noMovesVisible || moveWorked.moveElements > 0) {
-        console.log(`SUCCESS: Move ${moveNotation} worked!`);
-        break;
+      if (moveResult.success) {
+        console.log(`✅ Move ${notation} (${expected}) is legal!`);
+        
+        // Get the updated state
+        const state = await getGameState(page);
+        expect(state.pgn).toContain(expected);
+        
+        // Reload to reset position for next test
+        await page.reload();
+        await page.waitForLoadState('networkidle');
+        await verifyPosition(page, KNOWN_POSITIONS.opposition1);
+      } else {
+        console.log(`❌ Move ${notation} is illegal`);
       }
     }
-    
-    // Screenshot final state
-    await page.screenshot({ 
-      path: 'position-debug-test.png', 
-      fullPage: true 
-    });
+
+    // Test an illegal move
+    const illegalMove = await makeMove(page, 'e1-a8');
+    expect(illegalMove.success).toBe(false);
+    console.log('✅ Illegal move e1-a8 correctly rejected');
   });
-  
+
+  test('Verify position IDs and their starting positions', async ({ page }) => {
+    const positions = [
+      { id: 1, name: 'Opposition', expectedFen: KNOWN_POSITIONS.opposition1 },
+      { id: 12, name: 'Bridge Building', expectedFen: KNOWN_POSITIONS.bridgeBuilding }
+    ];
+
+    for (const { id, name, expectedFen } of positions) {
+      await navigateToTraining(page, id);
+      await verifyPosition(page, expectedFen);
+      
+      const state = await getGameState(page);
+      console.log(`Position ${id} (${name}):`, {
+        fen: state.fen,
+        verified: state.fen === expectedFen
+      });
+      
+      expect(state.fen).toBe(expectedFen);
+    }
+  });
 });

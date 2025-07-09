@@ -17,14 +17,11 @@ Welcome to the Chess Endgame Trainer documentation. This index provides a compre
 
 ## 🔒 Security
 
-- **[SECURITY.md](SECURITY.md)** - Main security guide with current status
-- **[security/SECURITY_IMPLEMENTATION_GUIDE.md](security/SECURITY_IMPLEMENTATION_GUIDE.md)** - Detailed security implementation steps
-- **[security/SECURITY_TASKS.md](security/SECURITY_TASKS.md)** - Security improvement task tracking
+- **[SECURITY.md](SECURITY.md)** - Comprehensive security guide with implementation details, current status, and task tracking
 
 ## 🧪 Testing
 
-- **[TESTING.md](TESTING.md)** - Testing overview and strategy
-- **[testing/TESTING_GUIDELINES.md](testing/TESTING_GUIDELINES.md)** - Comprehensive testing best practices
+- **[TESTING.md](TESTING.md)** - Comprehensive testing guide with best practices, Store testing patterns, and domain-specific tests
 - **[testing/COVERAGE_GUIDE.md](testing/COVERAGE_GUIDE.md)** - Test coverage requirements and tools
 
 ## 📱 Platform-Specific
@@ -51,20 +48,8 @@ Welcome to the Chess Endgame Trainer documentation. This index provides a compre
 - **[tests/unit/chess/README.md](../tests/unit/chess/README.md)** - Chess logic testing
 - **[tests/unit/cache/CACHE_TEST_STRATEGY.md](../tests/unit/cache/CACHE_TEST_STRATEGY.md)** - Cache testing strategy
 
-## 📚 Historical & Archive
-
-### Features
-- **[archive/features/brueckenbau-trainer.md](archive/features/brueckenbau-trainer.md)** - Bridge-building endgame trainer feature
-
-### Migrations
-- **[archive/migrations/MIGRATION_COMPLETE.md](archive/migrations/MIGRATION_COMPLETE.md)** - Completed migration summary
-- **[archive/migrations/zustand-migration-final-2025-01-07.md](archive/migrations/zustand-migration-final-2025-01-07.md)** - State management migration
-- **[archive/migrations/FIRESTORE_MIGRATION_PLAN.md](archive/migrations/FIRESTORE_MIGRATION_PLAN.md)** - Database migration planning
-
-### Development History
-- **[archive/historical/development/DEVELOPMENT_HISTORY.md](archive/historical/development/DEVELOPMENT_HISTORY.md)** - Project development timeline
-- **[archive/historical/development/MODULAR_REFACTORING_2025-07-07.md](archive/historical/development/MODULAR_REFACTORING_2025-07-07.md)** - Recent refactoring details
-- **[archive/historical/code-reviews/CODE_REVIEW_2025_01_04.md](archive/historical/code-reviews/CODE_REVIEW_2025_01_04.md)** - Code review findings
+## 📚 Archive
+*Note: Historical documentation is preserved in the `archive/` directory but is not part of the main navigation. Access these files directly if you need historical context.*
 
 ## 🗂️ Quick Reference
 
@@ -76,8 +61,8 @@ Welcome to the Chess Endgame Trainer documentation. This index provides a compre
 
 ### For Developers
 1. [API.md](API.md) - API reference
-2. [TESTING_GUIDELINES.md](testing/TESTING_GUIDELINES.md) - Testing practices
-3. [SECURITY_IMPLEMENTATION_GUIDE.md](security/SECURITY_IMPLEMENTATION_GUIDE.md) - Security requirements
+2. [TESTING.md](TESTING.md) - Testing practices and guidelines
+3. [SECURITY.md](SECURITY.md) - Security requirements and implementation
 
 ### For DevOps
 1. [DEPLOYMENT_GUIDE.md](deployment/DEPLOYMENT_GUIDE.md) - Deployment procedures
@@ -105,6 +90,6 @@ To find specific information:
 
 ---
 
-Last updated: 2025-07-08
+Last updated: 2025-01-09
 
 For documentation issues or suggestions, please open an issue on GitHub.

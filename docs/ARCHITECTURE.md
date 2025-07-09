@@ -9,7 +9,7 @@ ChessEndgameTrainer is a web/mobile chess endgame training application with AI e
 ### Core Technologies
 - **Frontend**: Next.js 15.3.3, React 18.2.0, TypeScript 5.3.3
 - **UI**: Tailwind CSS 3.4, Radix UI, react-chessboard 4.3
-- **State**: Zustand 4.5.0 (installed), React Context API (current)
+- **State**: Zustand 4.5.0 (Single Source of Truth)
 - **Chess Engine**: chess.js 1.0.0-beta.6, Stockfish WASM (NNUE)
 - **Testing**: Jest 29.7.0, React Testing Library 14.2.1
 - **Mobile**: React Native 0.73.4 (prepared, 0% implementation)
@@ -63,7 +63,7 @@ Raw Engine Data → Normalizer → PerspectiveTransformer → Formatter → UI
 - **Zustand Store**: Central state management for entire application
 - **Store Slices**: user, training, progress, ui, settings
 - **Atomic Updates**: All state changes through Store actions
-- **Critical Fix (2025-07-08)**: Store now properly executes moves on Chess.js instance
+- **Critical Fix (2025-01-08)**: Store now properly executes moves on Chess.js instance
 - **Migration Status**: Core components migrated, cleanup in progress
 
 ### 5. Error Handling Architecture
@@ -82,6 +82,7 @@ logger.info('Operation', { data });
 - **99.99% Cache Hit Rate**: LRU cache with chess-aware optimizations  
 - **31% Faster Evaluations**: Parallel promise handling
 - **53% Faster Navigation**: Optimized game state management
+- **100% Cache-Hit-Rate**: For repeated positions
 
 ### Key Techniques
 1. **Debouncing**: 300ms delay prevents evaluation flooding
@@ -89,6 +90,13 @@ logger.info('Operation', { data });
 3. **Parallel Processing**: Tablebase comparisons run in parallel
 4. **AbortController**: Cancels outdated evaluation requests
 5. **Instance Reuse**: Single Chess.js instance per game
+6. **Tree-Shaking**: Optimized bundle splitting for minimal load
+
+### Bundle Size Metrics
+- **Route Bundle**: ~155KB per route
+- **Shared Bundle**: 85.8KB shared across routes
+- **Target**: <300KB total per route
+- **Memory Usage**: ~20MB per Stockfish worker instance
 
 ## Security Architecture
 
@@ -98,10 +106,41 @@ logger.info('Operation', { data });
 - No hardcoded credentials
 - ErrorService for secure error handling
 
-### ~~Critical Gaps~~ ✅ FIXED (2025-07-08)
+### ~~Critical Gaps~~ ✅ FIXED (2025-01-08)
 - ~~No input sanitization for user-provided FEN strings~~ ✅ Implemented FEN validator
 - Missing Content Security Policy (CSP)
 - ~~No XSS protection in place~~ ✅ FEN sanitization prevents XSS
+
+## Development Environment Configuration
+
+### Centralized Port Management
+
+To ensure consistency and simplify maintenance across the development environment, the development server port is centralized in `config/constants.ts`. This eliminates hardcoded port numbers throughout the codebase and provides a single source of truth.
+
+The configuration is defined as:
+```typescript
+// config/constants.ts
+export const APP_CONFIG = {
+  DEV_PORT: 3002,
+  DEV_HOST: 'localhost',
+  get DEV_URL() {
+    return `http://${this.DEV_HOST}:${this.DEV_PORT}`;
+  }
+};
+```
+
+This centralized constant is utilized consistently across:
+
+- **Playwright Tests**: Both main and temporary configs use `APP_CONFIG.DEV_URL` for the base URL
+- **npm Scripts**: Development scripts (`dev-server.js`, `kill-port.js`) dynamically read the port from the TypeScript config
+- **Smoke Tests**: Reference `APP_CONFIG.DEV_URL` as fallback when `PRODUCTION_URL` is not set
+- **E2E Tests**: All test files use the centralized configuration for consistency
+
+This approach provides:
+- **Single Source of Truth**: Change port in one place, updates everywhere
+- **Type Safety**: TypeScript ensures correct usage
+- **Cross-Tool Consistency**: Same port used by dev server, tests, and utilities
+- **Easy Migration**: Simple to change ports for different environments
 
 ## Cross-Platform Strategy
 
@@ -221,11 +260,11 @@ interface PlatformService {
 ### Phase 1: Foundation (Immediate)
 - [ ] Complete Store SSOT migration
 - [ ] Implement platform abstraction layer
-- [x] Add FEN input sanitization ✅ (2025-07-08)
-- [x] Complete Zustand migration ✅ (2025-07-08)
+- [x] Add FEN input sanitization ✅ (2025-01-08)
+- [x] Complete Zustand migration ✅ (2025-01-08)
 - [x] Centralized error handling ✅
 - [x] Replace magic numbers ✅
-- [x] Fix Store synchronization bug ✅ (2025-07-08)
+- [x] Fix Store synchronization bug ✅ (2025-01-08)
 
 ### Phase 2: Scalability (Month 1-2)
 - [ ] Complete React Native implementation
@@ -257,7 +296,7 @@ interface PlatformService {
 - **Flexibility**: Engine handles all positions
 - **Learning**: Compare engine vs perfect play
 
-## Recent Critical Fixes (2025-07-08)
+## Recent Critical Fixes (2025-01-08)
 
 ### Store Synchronization Bug
 - **Issue**: Moves displayed in move list but not executed on board
@@ -277,4 +316,4 @@ interface PlatformService {
 - **Documentation**: Added Store Testing Best Practices
 
 ---
-*Last Updated: 2025-07-08*
+*Last Updated: 2025-01-08*

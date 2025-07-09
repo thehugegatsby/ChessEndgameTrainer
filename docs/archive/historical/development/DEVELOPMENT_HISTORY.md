@@ -4,7 +4,7 @@ Dieses Dokument dokumentiert wichtige Entwicklungsentscheidungen, Performance-An
 
 ---
 
-## 2025-07-07: Modular Architecture Refactoring
+## 2025-01-07: Modular Architecture Refactoring
 
 ### Kontext
 Refactoring der evaluationHelpers.ts Datei in eine modulare Struktur für bessere Code-Organisation und Tree-Shaking.

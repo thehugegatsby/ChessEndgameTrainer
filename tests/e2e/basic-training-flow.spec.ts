@@ -1,169 +1,178 @@
-import { test, expect, Page } from '@playwright/test';
-
 /**
- * Playwright E2E Test for Basic Training Flow
- * Tests the happy path: selecting an endgame, making moves, and verifying engine responses
- * 
- * This test covers:
- * - Loading a training scenario
- * - Making a valid move via test hooks
- * - Verifying the engine responds
- * - Checking that the move history is updated
- * - Verifying board state changes
+ * @fileoverview Refactored E2E Test using Page Object Model
+ * @version 1.0.0
+ * @description Clean E2E test implementation following best practices:
+ * - Page Object Model for maintainability
+ * - Event-based synchronization instead of hardcoded timeouts
+ * - Clean test API instead of component-coupled hooks
  */
 
-// Helper function to make a move using test hooks
-const makeMove = async (page: Page, move: string) => {
-  const result = await page.evaluate((m) => {
-    return (window as any).e2e_makeMove?.(m);
-  }, move);
-  
-  if (!result) {
-    throw new Error('Test hooks not available. Ensure NEXT_PUBLIC_TEST_MODE=true');
-  }
-  
-  return result;
-};
+import { test, expect } from '@playwright/test';
+import { TrainingPage } from './pages/TrainingPage';
 
-// Helper to get game state
-const getGameState = async (page: Page) => {
-  return await page.evaluate(() => {
-    return (window as any).e2e_getGameState?.();
+test.describe('@smoke Basic Training Flow - Refactored', () => {
+  let trainingPage: TrainingPage;
+
+  test.beforeEach(async ({ page }) => {
+    trainingPage = new TrainingPage(page);
+    
+    // Enable console logs for debugging
+    page.on('console', msg => {
+      if (msg.type() === 'log' || msg.type() === 'error') {
+        console.log(`Browser ${msg.type()}:`, msg.text());
+      }
+    });
   });
-};
 
-// Helper to wait for engine response
-const waitForEngineMove = async (page: Page, timeout: number = 10000) => {
-  const startTime = Date.now();
-  let lastMoveCount = 0;
-  
-  while (Date.now() - startTime < timeout) {
-    const state = await getGameState(page);
-    if (state && state.moveCount > lastMoveCount) {
-      lastMoveCount = state.moveCount;
-      // Wait a bit more for any animations
-      await page.waitForTimeout(300);
-      return;
-    }
-    await page.waitForTimeout(100);
-  }
-  
-  throw new Error(`Engine did not respond within ${timeout}ms`);
-};
-
-test.describe('@smoke Basic Training Flow', () => {
-  
-  test('should complete a basic training session successfully', async ({ page }) => {
-    // 1. Navigate to Opposition training (ID 1)
-    await page.goto('/train/1');
+  test('should complete a basic training session successfully', async () => {
+    // Navigate to Opposition training (ID 1)
+    await trainingPage.goto(1);
     
-    // 2. Wait for the board to be fully loaded
-    await expect(page.locator('[data-square="a1"]')).toBeVisible();
-    await expect(page.locator('[data-square="h8"]')).toBeVisible();
+    // Verify we're on the correct training
+    const title = await trainingPage.getTitle();
+    expect(title).toContain('Opposition');
     
-    // 3. Verify the training title is visible
-    const title = page.locator('h2:has-text("Opposition")');
-    await expect(title).toBeVisible();
-    
-    // 4. Wait for initial state
-    await page.waitForTimeout(2000); // Allow engine to initialize
-    
-    // 5. Get initial game state
-    const initialState = await getGameState(page);
-    expect(initialState).toBeTruthy();
+    // Get initial game state
+    const initialState = await trainingPage.getGameState();
+    expect(initialState.fen).toBe('4k3/8/4K3/4P3/8/8/8/8 w - - 0 1');
     expect(initialState.moveCount).toBe(0);
+    expect(initialState.turn).toBe('w');
     
-    // 6. Make a move based on the Opposition position
-    // FEN: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1
-    // White king on e6, can move to d6, d5, d7, f6, f5, f7
-    const moveResult = await makeMove(page, 'e6-d6');
-    expect(moveResult.success).toBe(true);
+    // Make a correct move for Opposition position
+    const moveSuccess = await trainingPage.makeMove('e6-d6');
+    expect(moveSuccess).toBe(true);
     
-    // 7. Verify move was registered
-    await page.waitForTimeout(500);
-    const stateAfterMove = await getGameState(page);
+    // Verify move was registered
+    const stateAfterMove = await trainingPage.getGameState();
     expect(stateAfterMove.moveCount).toBe(1);
-    expect(stateAfterMove.turn).toBe('b'); // Black's turn
+    expect(stateAfterMove.turn).toBe('b');
+    expect(stateAfterMove.history).toContain('Kd6');
     
-    // 8. Wait for the engine to respond
-    try {
-      await waitForEngineMove(page);
-      
-      // 9. Verify the move history has been updated
-      const finalState = await getGameState(page);
-      expect(finalState.moveCount).toBeGreaterThanOrEqual(2);
-    } catch (error) {
-      // Engine might be slow, just check that our move was registered
-      const finalState = await getGameState(page);
-      expect(finalState.moveCount).toBeGreaterThanOrEqual(1);
-    }
+    // Wait for engine response using event-based waiting
+    const engineResponded = await trainingPage.waitForEngineMove();
+    expect(engineResponded).toBe(true);
     
-    // 10. Verify UI shows moves
-    await expect(page.locator('text=Noch keine Züge gespielt')).not.toBeVisible();
-    const moveList = page.locator('.space-y-1');
-    const moves = moveList.locator('.font-mono');
-    await expect(moves.first()).toBeVisible();
+    // Verify engine made a move
+    const finalState = await trainingPage.getGameState();
+    expect(finalState.moveCount).toBeGreaterThanOrEqual(2);
+    expect(finalState.turn).toBe('w'); // Back to white's turn
     
-    // 11. Take a screenshot for debugging
-    await page.screenshot({ path: 'test-results/basic-training-flow.png', fullPage: true });
+    // Verify moves are displayed in UI
+    const moveCount = await trainingPage.getMoveCount();
+    expect(moveCount).toBeGreaterThan(0);
+    
+    const isKd6Displayed = await trainingPage.isMoveDisplayed('Kd6');
+    expect(isKd6Displayed).toBe(true);
   });
-  
-  test('should show engine analysis and evaluation', async ({ page }) => {
-    await page.goto('/train/1');
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
+
+  test('should handle invalid moves correctly', async () => {
+    await trainingPage.goto(1);
+    
+    // Try an invalid move
+    const moveSuccess = await trainingPage.makeMove('e6-a1'); // King can't move that far
+    expect(moveSuccess).toBe(false);
+    
+    // Game state should remain unchanged
+    const state = await trainingPage.getGameState();
+    expect(state.moveCount).toBe(0);
+    expect(state.turn).toBe('w');
+  });
+
+  test('should show engine evaluation when enabled', async () => {
+    await trainingPage.goto(1);
     
     // Make a move
-    const moveResult = await makeMove(page, 'e6-d6');
-    expect(moveResult.success).toBe(true);
+    await trainingPage.makeMove('e6-d6');
+    await trainingPage.waitForEngineMove();
     
-    // Wait for engine evaluation
-    await page.waitForTimeout(2000);
+    // Check that evaluation is available in game state
+    const state = await trainingPage.getGameState();
     
-    // Check for evaluation display or engine toggle
-    const hasEvaluation = await page.evaluate(() => {
-      const bodyText = document.body.textContent || '';
-      return bodyText.includes('Eval:') || 
-             bodyText.includes('Bewertung') ||
-             bodyText.includes('Engine') ||
-             bodyText.includes('Stockfish') ||
-             // Check for evaluation symbols
-             bodyText.includes('+') ||
-             bodyText.includes('-') ||
-             bodyText.includes('=') ||
-             // Check for move list with evaluations
-             document.querySelector('.font-mono') !== null;
-    });
-    
-    // Engine evaluation or moves are shown somewhere
+    // Either evaluation exists or UI shows engine-related content
+    const hasEvaluation = state.evaluation !== undefined || 
+                         await trainingPage.getMoveCount() > 0;
     expect(hasEvaluation).toBe(true);
   });
-  
-  test('should handle rapid move sequences', async ({ page }) => {
-    await page.goto('/train/1');
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
+
+  test('should handle rapid move sequences', async () => {
+    await trainingPage.goto(1);
     
-    const initialState = await getGameState(page);
-    expect(initialState).toBeTruthy();
+    const moves = [
+      { move: 'e6-d6', expectedSuccess: true },  // Kd6
+      { move: 'e8-d8', expectedSuccess: true },  // Kd8 (if it's black's turn)
+      { move: 'd6-c6', expectedSuccess: true }   // Kc6 (if it's white's turn)
+    ];
     
-    // Make multiple moves in sequence
-    const moves = ['e6-d6', 'e8-d8', 'd6-c6'];
+    let successfulMoves = 0;
     
-    for (const move of moves) {
-      const result = await makeMove(page, move);
+    for (const { move, expectedSuccess } of moves) {
+      const state = await trainingPage.getGameState();
       
-      if (result.success) {
-        await page.waitForTimeout(300); // Brief pause between moves
-      } else {
-        // Move might not be legal in current position
-        break;
+      // Only make move if it's the right turn
+      if ((move.startsWith('e6') || move.startsWith('d6')) && state.turn !== 'w') {
+        continue;
+      }
+      if (move.startsWith('e8') && state.turn !== 'b') {
+        continue;
+      }
+      
+      const success = await trainingPage.makeMove(move);
+      if (success) {
+        successfulMoves++;
+        
+        // Wait for any engine response if it's black's turn
+        if (state.turn === 'w') {
+          await trainingPage.waitForEngineMove(3000);
+        }
       }
     }
     
-    // Verify at least one move was made
-    const finalState = await getGameState(page);
+    // At least one move should have been successful
+    expect(successfulMoves).toBeGreaterThan(0);
+    
+    // Verify final state
+    const finalState = await trainingPage.getGameState();
     expect(finalState.moveCount).toBeGreaterThan(0);
   });
-  
+
+  test('should reset game correctly', async () => {
+    await trainingPage.goto(1);
+    
+    // Make some moves
+    await trainingPage.makeMove('e6-d6');
+    await trainingPage.waitForEngineMove();
+    
+    // Verify moves were made
+    let state = await trainingPage.getGameState();
+    expect(state.moveCount).toBeGreaterThan(0);
+    
+    // Reset the game
+    await trainingPage.resetGame();
+    
+    // Verify game is reset
+    state = await trainingPage.getGameState();
+    expect(state.moveCount).toBe(0);
+    expect(state.fen).toBe('4k3/8/4K3/4P3/8/8/8/8 w - - 0 1');
+  });
+
+  test('should navigate between positions', async () => {
+    // Start at position 1
+    await trainingPage.goto(1);
+    let state = await trainingPage.getGameState();
+    const position1Fen = state.fen;
+    
+    // Navigate to next position
+    await trainingPage.goToNextPosition();
+    
+    // Verify position changed
+    state = await trainingPage.getGameState();
+    expect(state.fen).not.toBe(position1Fen);
+    
+    // Navigate back
+    await trainingPage.goToPreviousPosition();
+    
+    // Verify we're back at position 1
+    state = await trainingPage.getGameState();
+    expect(state.fen).toBe(position1Fen);
+  });
 });

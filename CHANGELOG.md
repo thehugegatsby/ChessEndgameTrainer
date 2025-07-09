@@ -8,34 +8,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Comprehensive documentation restructuring with INDEX.md for better navigation
-- Path validation for Worker security to prevent path traversal attacks
-- Comprehensive FEN validation system to prevent XSS vulnerabilities
-- Firestore database migration infrastructure for cloud storage support
-- Enhanced UI layout with improved spacing and visual hierarchy
-- Modular ScenarioEngine components with performance optimizations
+- NavigationControls component for better move history navigation
+- Central configuration file (config/constants.ts) for dev port management
+- Environment-specific configuration files (.env.development, .env.test)
+- Comprehensive E2E test suite with Playwright
+- MockEngineService for deterministic E2E testing (replaces NEXT_PUBLIC_TEST_MODE)
+- IEngineService interface for clean dependency injection
+- EngineContext for service lifecycle management
+- Centralized E2E test helpers (tests/e2e/helpers.ts)
+- Test API Service (TestApiService) for clean test interactions
+- Page Object Model pattern for E2E tests
 
 ### Changed
-- Refactored evaluationHelpers.ts into focused, modular components
-- Split ScenarioEngine into smaller, more maintainable modules
-- Updated sidebar width for better desktop experience (w-[22rem])
+- Complete migration to Zustand store (Store of Truth)
+- Deprecated useChessGame and useChessGameOptimized hooks
+- Analysis Panel now uses CSS transforms for smooth animations
+- Consolidated documentation structure (40 files → clean hierarchy)
+- Dev server port standardized to 3002
+- E2E tests now use dependency injection instead of build-time flags
+- Test architecture refactored to use MockEngineService for instant responses (1-10ms vs 10+ seconds)
+- BrowserTestApi now initializes based on runtime detection
+- TrainingBoardZustand test hooks simplified without NEXT_PUBLIC_TEST_MODE dependency
 
 ### Fixed
-- Resolved infinite loop issue in TrainingBoardZustand component
-- Fixed Lichess analysis URL to include complete move history
-- Restored move evaluation symbols with comprehensive test coverage
-- Fixed React production build errors (React not defined)
+- Critical bug: Black doesn't make moves in Training 12 after 1.Kd7
+- UI bug: Analysis mode causes layout shift with fixed positioning
+- Performance test: Adjusted timeout for perspectiveTransformer test
+- Store synchronization: Moves now properly execute on chess.js instance
+- E2E tests: Fixed ~25 failing tests using test hooks (42 → ~17 failing)
+- Async initialization race conditions in _app.tsx
+- E2E test performance: Tests now initialize in ~1ms instead of 10+ seconds
 
 ### Removed
-- Obsolete StockfishEngine classes that were no longer in use
-- Unused scripts from the scripts directory
+- **NEXT_PUBLIC_TEST_MODE environment variable** - Completely eliminated from codebase
+  - Removed from README.md, playwright.config.ts, package.json scripts
+  - Removed from all test files and documentation
+  - Replaced with runtime detection and dependency injection
+- All deprecated hooks (useChessGame, useChessGameOptimized)
+- Old non-Zustand components (TrainingBoard, MovePanel)
+- 9 debug/test scripts with hardcoded credentials
+- Duplicate component files
+- Build-time test mode flags in favor of runtime detection
 
 ### Security
-- Implemented comprehensive FEN string validation and sanitization
-- Added Worker path validation to prevent directory traversal
-- Enhanced input validation across all user-facing components
+- FEN validation now applied at all input boundaries
+- Enhanced path validation for Workers
+- Removed exposure of test mode through build-time environment variables
 
-## [1.0.0] - 2025-07-08
+## [1.0.0] - 2025-01-08
 
 ### Added
 - Initial production release of Chess Endgame Trainer

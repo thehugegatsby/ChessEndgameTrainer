@@ -19,7 +19,7 @@
 ### Test Hook Implementation
 Added to `/shared/components/training/TrainingBoard/TrainingBoardZustand.tsx`:
 ```typescript
-// Window methods exposed when NEXT_PUBLIC_TEST_MODE=true:
+// Window methods exposed for testing:
 window.e2e_makeMove(move: string) // e.g., 'e2-e4', 'Kc8-d7'
 window.e2e_getGameState() // returns {fen, turn, isGameOver, moveCount, pgn}
 ```
@@ -114,25 +114,18 @@ Engine (Stockfish) machte keine Züge im Brückenbau-Training (ID 12):
 
 ### Environment Setup
 
-#### WICHTIG: Test-Hooks Konfiguration
-Die Test-Hooks funktionieren **NUR** wenn die Umgebungsvariable `NEXT_PUBLIC_TEST_MODE=true` gesetzt ist!
+#### Test-Hooks Konfiguration
+Die Tests verwenden MockEngineService für deterministische Antworten:
 
 ```bash
-# Für Tests (.env.test)
-NEXT_PUBLIC_TEST_MODE=true
-NODE_ENV=test
-
-# Dev-Server mit Test-Mode starten:
-NEXT_PUBLIC_TEST_MODE=true npm run dev
-
-# ODER: Erstelle .env.test mit obigen Variablen und nutze:
-NODE_ENV=test npm run dev
+# Dev-Server starten:
+npm run dev
 
 # Run migrated tests only
 npx playwright test --grep "@smoke" --project=chromium
 ```
 
-**Ohne `NEXT_PUBLIC_TEST_MODE=true` schlagen alle Tests mit Test-Hooks fehl!**
+Die Tests nutzen Dependency Injection mit MockEngineService statt der echten Stockfish Engine.
 
 ## Summary for Continuation
 **Main Task**: Fix Engine communication problem after 1.Kd7 in Brückenbau

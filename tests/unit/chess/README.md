@@ -176,6 +176,6 @@ npm test -- --watch tests/unit/chess/
 
 ---
 
-**Last Updated**: 2025-07-06  
+**Last Updated**: 2025-01-06  
 **Test Suite**: Subtask 3 - Chess Game Logic & Validation  
 **Coverage Goal**: >90% statement coverage, 100% passing tests

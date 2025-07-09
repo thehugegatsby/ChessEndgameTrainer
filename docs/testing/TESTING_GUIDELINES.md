@@ -3,7 +3,7 @@
 ## 🎯 Zweck dieser Richtlinie
 Diese Guideline stellt sicher, dass alle neuen Tests im "Claude Build" konsistent, wartbar und effektiv sind. Eine robuste Testbasis ist entscheidend, um Fehler bei Upgrades zu vermeiden und das Vertrauen in unseren Code zu stärken.
 
-### 📊 Aktuelle Test-Metriken (Stand: 2025-07-07)
+### 📊 Aktuelle Test-Metriken (Stand: 2025-01-07)
 - **Test Coverage**: ~78% (Statement Coverage) - Ziel: 80%
 - **Test Success**: 99% (787/796 tests passing, 9 skipped)
 - **Neue Tests**: 128 Tests in Phase 2 hinzugefügt
@@ -71,20 +71,17 @@ Diese Guideline stellt sicher, dass alle neuen Tests im "Claude Build" konsisten
 * **Ablageort:** `tests/e2e/[user-flow-oder-hauptszenario]/`
 
 #### ⚠️ WICHTIG: E2E Test-Konfiguration
-Für E2E Tests mit Test-Hooks **MUSS** die Umgebungsvariable `NEXT_PUBLIC_TEST_MODE=true` gesetzt sein:
+E2E Tests verwenden MockEngineService für deterministische Antworten:
 
 ```bash
-# Option 1: Dev-Server mit Test-Mode starten
-NEXT_PUBLIC_TEST_MODE=true npm run dev
+# Dev-Server starten
+npm run dev
 
-# Option 2: .env.test verwenden
-NODE_ENV=test npm run dev
-
-# Dann Tests ausführen
+# Tests ausführen
 npm run test:e2e
 ```
 
-**Ohne diese Konfiguration schlagen alle E2E Tests fehl, die Test-Hooks verwenden!**
+Die Tests verwenden Dependency Injection mit MockEngineService für instant responses (1-10ms statt 10+ Sekunden).
 
 ---
 
@@ -125,7 +122,7 @@ Sie können diesen Text einfach kopieren und in einen Texteditor (wie Notepad, V
 ## 🎯 Zweck dieser Richtlinie
 Diese Guideline stellt sicher, dass alle neuen Tests im "Claude Build" konsistent, wartbar und effektiv sind. Eine robuste Testbasis ist entscheidend, um Fehler bei Upgrades zu vermeiden und das Vertrauen in unseren Code zu stärken.
 
-### 📊 Aktuelle Test-Metriken (Stand: 2025-07-07)
+### 📊 Aktuelle Test-Metriken (Stand: 2025-01-07)
 - **Test Coverage**: ~78% (Statement Coverage) - Ziel: 80%
 - **Test Success**: 99% (787/796 tests passing, 9 skipped)
 - **Neue Tests**: 128 Tests in Phase 2 hinzugefügt
@@ -183,20 +180,17 @@ Diese Guideline stellt sicher, dass alle neuen Tests im "Claude Build" konsisten
 * **Ablageort:** `tests/e2e/[user-flow-oder-hauptszenario]/`
 
 #### ⚠️ WICHTIG: E2E Test-Konfiguration
-Für E2E Tests mit Test-Hooks **MUSS** die Umgebungsvariable `NEXT_PUBLIC_TEST_MODE=true` gesetzt sein:
+E2E Tests verwenden MockEngineService für deterministische Antworten:
 
 ```bash
-# Option 1: Dev-Server mit Test-Mode starten
-NEXT_PUBLIC_TEST_MODE=true npm run dev
+# Dev-Server starten
+npm run dev
 
-# Option 2: .env.test verwenden
-NODE_ENV=test npm run dev
-
-# Dann Tests ausführen
+# Tests ausführen
 npm run test:e2e
 ```
 
-**Ohne diese Konfiguration schlagen alle E2E Tests fehl, die Test-Hooks verwenden!**
+Die Tests verwenden Dependency Injection mit MockEngineService für instant responses (1-10ms statt 10+ Sekunden).
 
 ---
 

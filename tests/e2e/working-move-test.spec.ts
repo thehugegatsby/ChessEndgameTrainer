@@ -12,7 +12,7 @@ const makeMove = async (page: Page, move: string) => {
   }, move);
   
   if (!result) {
-    throw new Error('Test hooks not available. Ensure NEXT_PUBLIC_TEST_MODE=true');
+    throw new Error('Test hooks not available');
   }
   
   return result;

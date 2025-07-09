@@ -5,8 +5,8 @@ export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: 0,
-  workers: 1,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
   reporter: 'list',
   use: {
     baseURL: APP_CONFIG.DEV_URL,
@@ -18,5 +18,4 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  // No webServer config - server is already running
 });

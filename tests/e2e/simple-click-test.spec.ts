@@ -1,144 +1,92 @@
 import { test, expect } from '@playwright/test';
+import {
+  navigateToTraining,
+  makeMove,
+  waitForEngineResponse,
+  getGameState,
+  verifyPosition,
+  KNOWN_POSITIONS,
+} from './helpers';
 
 /**
- * Einfacher DOM-Click Ansatz mit force:true
- * Pragmatischer Fallback wenn Engine nicht global zugänglich ist
+ * Simple Move Test (Fixed) - Uses test hooks instead of DOM clicks
  */
+test.describe('@smoke Simple Move Tests', () => {
+  
+  test('sollte einfache Züge mit test hooks ausführen können', async ({ page }) => {
+    // Navigate to position 1 (Opposition)
+    await navigateToTraining(page, 1);
+    await verifyPosition(page, KNOWN_POSITIONS.opposition1);
 
-test.describe('Simple DOM Click Tests', () => {
-  
-  test('Einfacher Klick-Test mit force:true', async ({ page }) => {
-    // Console logs für Debugging
-    page.on('console', msg => {
-      console.log(`Browser [${msg.type()}]:`, msg.text());
-    });
-    
-    await page.goto('/train/1');
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
-    
-    console.log('=== Versuche einfachen Klick-Test ===');
-    
-    // Prüfe initiale State
-    const initialState = await page.evaluate(() => {
-      return {
-        noMovesText: document.body.textContent?.includes('Noch keine Züge gespielt'),
-        totalSquares: document.querySelectorAll('[data-square]').length,
-        moveElements: document.querySelectorAll('.font-mono').length
-      };
-    });
-    
-    console.log('Initial state:', initialState);
-    expect(initialState.totalSquares).toBe(64);
-    expect(initialState.noMovesText).toBe(true);
-    
-    // Finde alle verfügbaren Felder mit Figuren
-    const squaresWithPieces = await page.evaluate(() => {
-      const squares = document.querySelectorAll('[data-square]');
-      const withPieces: string[] = [];
-      
-      squares.forEach(square => {
-        const squareName = square.getAttribute('data-square');
-        const hasPiece = square.querySelector('[data-piece]') !== null ||
-                        square.innerHTML.includes('piece') ||
-                        square.children.length > 1; // Mehr als nur der leere Container
-        
-        if (hasPiece && squareName) {
-          withPieces.push(squareName);
-        }
-      });
-      
-      return withPieces;
-    });
-    
-    console.log('Squares with pieces:', squaresWithPieces);
-    
-    if (squaresWithPieces.length > 0) {
-      // Versuche einen einfachen Klick-Test
-      const fromSquare = squaresWithPieces[0]; // Erstes Feld mit Figur
-      
-      // Finde ein nahes leeres Feld für den Zug
-      const nearbySquares = await page.evaluate((fromSq) => {
-        const fromFile = fromSq.charCodeAt(0) - 97; // a=0, b=1, etc
-        const fromRank = parseInt(fromSq[1]) - 1;    // 1=0, 2=1, etc
-        
-        const possibleMoves: string[] = [];
-        
-        // King moves (alle 8 Richtungen)
-        for (let fileOffset = -1; fileOffset <= 1; fileOffset++) {
-          for (let rankOffset = -1; rankOffset <= 1; rankOffset++) {
-            if (fileOffset === 0 && rankOffset === 0) continue;
-            
-            const newFile = fromFile + fileOffset;
-            const newRank = fromRank + rankOffset;
-            
-            if (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8) {
-              const square = String.fromCharCode(97 + newFile) + (newRank + 1);
-              possibleMoves.push(square);
-            }
-          }
-        }
-        
-        return possibleMoves;
-      }, fromSquare);
-      
-      console.log(`Trying move from ${fromSquare} to nearby squares:`, nearbySquares);
-      
-      // Versuche jeden möglichen Zug
-      for (const toSquare of nearbySquares.slice(0, 3)) { // Nur erste 3 versuchen
-        console.log(`\n=== Attempting move: ${fromSquare} -> ${toSquare} ===`);
-        
-        try {
-          // Klicke Startfeld
-          await page.locator(`[data-square="${fromSquare}"]`).click({ force: true });
-          await page.waitForTimeout(200);
-          
-          // Klicke Zielfeld  
-          await page.locator(`[data-square="${toSquare}"]`).click({ force: true });
-          await page.waitForTimeout(1000); // Warte auf mögliche Animationen
-          
-          // Prüfe ob sich etwas geändert hat
-          const afterMoveState = await page.evaluate(() => {
-            return {
-              noMovesText: document.body.textContent?.includes('Noch keine Züge gespielt'),
-              moveElements: document.querySelectorAll('.font-mono').length,
-              bodyTextSample: document.body.textContent?.substring(0, 500)
-            };
-          });
-          
-          console.log(`After move ${fromSquare}->${toSquare}:`, afterMoveState);
-          
-          if (!afterMoveState.noMovesText || afterMoveState.moveElements > 0) {
-            console.log(`🎉 SUCCESS! Move ${fromSquare}->${toSquare} worked!`);
-            
-            // Screenshot des Erfolgs
-            await page.screenshot({ 
-              path: `successful-move-${fromSquare}-${toSquare}.png`, 
-              fullPage: true 
-            });
-            
-            // Prüfe Erwartungen
-            expect(afterMoveState.noMovesText).toBe(false);
-            return; // Test erfolgreich, beende
-          }
-        } catch (error) {
-          console.log(`Move ${fromSquare}->${toSquare} failed:`, (error as Error).message);
-        }
-        
-        // Reset für nächsten Versuch (falls nötig)
-        await page.reload();
-        await page.waitForLoadState('networkidle');
-        await page.waitForTimeout(1000);
-      }
-      
-      console.log('❌ Alle Züge fehlgeschlagen');
-    }
-    
-    // Screenshot final state
-    await page.screenshot({ 
-      path: 'simple-click-test-final.png', 
-      fullPage: true 
-    });
+    // Verify initial state
+    const initialState = await getGameState(page);
+    expect(initialState.moveCount).toBe(0);
+    expect(initialState.pgn).toBe('');
+
+    // Make a valid move for position 1 (King from e1 to e2)
+    const moveResult = await makeMove(page, 'e1-e2');
+    expect(moveResult.success, 'Move e1-e2 should be successful').toBe(true);
+
+    // Wait for engine response (should have 2 moves now)
+    await waitForEngineResponse(page, 2);
+
+    // Verify state after move
+    const afterMoveState = await getGameState(page);
+    expect(afterMoveState.moveCount).toBeGreaterThanOrEqual(2);
+    expect(afterMoveState.pgn).toContain('Ke2');
+
+    // Verify move list UI is updated
+    const movePanel = page.locator('div:has(> .font-mono)').first();
+    await expect(movePanel).toBeVisible();
+    await expect(movePanel).not.toContainText('Noch keine Züge gespielt');
+    await expect(movePanel.locator('.font-mono').first()).toContainText('Ke2');
+
+    console.log('✓ Simple move test with test hooks successful');
   });
-  
+
+  test('sollte ungültige Züge ablehnen', async ({ page }) => {
+    // Navigate to position 1
+    await navigateToTraining(page, 1);
+    await verifyPosition(page, KNOWN_POSITIONS.opposition1);
+
+    // Try an invalid move (King to impossible position)
+    const moveResult = await makeMove(page, 'e1-a8');
+    expect(moveResult.success, 'Invalid move should fail').toBe(false);
+
+    // State should remain unchanged
+    const state = await getGameState(page);
+    expect(state.moveCount).toBe(0);
+    expect(state.pgn).toBe('');
+
+    // UI should still show initial state
+    const movePanel = page.locator('div:has(> .font-mono)').first();
+    await expect(movePanel).toContainText('Noch keine Züge gespielt');
+  });
+
+  test('sollte Zugfolge korrekt verarbeiten', async ({ page }) => {
+    // Navigate to position 1
+    await navigateToTraining(page, 1);
+    await verifyPosition(page, KNOWN_POSITIONS.opposition1);
+
+    // Make first move
+    const move1 = await makeMove(page, 'e1-e2');
+    expect(move1.success).toBe(true);
+    await waitForEngineResponse(page, 2);
+
+    // Make second move (after engine response)
+    // Note: We need to figure out what the engine played
+    const stateAfterEngine = await getGameState(page);
+    
+    // Make another white move based on position
+    const move2 = await makeMove(page, 'e2-e3');
+    if (move2.success) {
+      await waitForEngineResponse(page, 4);
+
+      // Verify final state
+      const finalState = await getGameState(page);
+      expect(finalState.moveCount).toBeGreaterThanOrEqual(4);
+      expect(finalState.pgn).toContain('Ke2');
+      expect(finalState.pgn).toContain('Ke3');
+    }
+  });
 });

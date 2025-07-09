@@ -1,10 +1,10 @@
 # 🧪 Testing Guide - ChessEndgameTrainer
 
-## 📊 Current Status (2025-07-08)
-- **Coverage**: ~78% (Statement) - Goal: 80%
-- **Test Success**: 99% (1100/1115 passing, 15 skipped)
+## 📊 Current Status (2025-01-09)
+- **Coverage**: ~78% (Business Logic) / ~47% (Overall) - Goal: 80%
+- **Test Success**: 99% (1023/1034 passing, 11 skipped)
 - **Architecture**: Test Pyramid with Unit > Integration > E2E
-- **Critical Bugs Found**: Perspective transformation fixed through testing
+- **Recent Fixes**: Black moves bug, Analysis panel layout, Store synchronization
 
 ## 🚀 Quick Start
 
@@ -54,20 +54,58 @@ describe('Tablebase Integration', () => {
 ```
 
 ### 3. **E2E Tests** - User Workflows
-Full system tests simulating real user interactions.
+Full system tests simulating real user interactions using Playwright.
 
 **Location**: `tests/e2e/[workflow]/`  
-**Tool**: Playwright  
-**Example**:
+**Tool**: Playwright with custom Test API  
+**Architecture**: Clean architecture with Test API Service and Page Object Model
+
+#### New Test Architecture (2025-01-08)
+The E2E tests have been refactored to follow clean architecture principles:
+
+**Components**:
+- **Test API Service** (`shared/services/test/TestApiService.ts`): Clean interface for test interactions
+- **Page Object Model** (`tests/e2e/pages/TrainingPage.ts`): Encapsulates page interactions
+- **Event-based Synchronization**: Replaces hardcoded timeouts with deterministic waiting
+
+**Setup**:
+```bash
+# Start development server
+npm run dev
+
+# Run E2E tests
+npm run test:e2e
+```
+
+**Example with New Architecture**:
 ```typescript
-// tests/e2e/training/complete-puzzle.spec.ts
-test('complete endgame puzzle', async ({ page }) => {
-  await page.goto('/train/king-rook-vs-king');
-  await page.click('[data-square="e2"]');
-  await page.click('[data-square="e4"]');
-  await expect(page.locator('.move-quality')).toContainText('✓');
+// tests/e2e/basic-training-flow-refactored.spec.ts
+test('should complete training session', async ({ page }) => {
+  const trainingPage = new TrainingPage(page);
+  
+  // Navigate using Page Object
+  await trainingPage.goto(1);
+  
+  // Make move using Test API
+  const success = await trainingPage.makeMove('e6-d6');
+  expect(success).toBe(true);
+  
+  // Wait for engine response (event-based)
+  const engineResponded = await trainingPage.waitForEngineMove();
+  expect(engineResponded).toBe(true);
+  
+  // Verify state through clean API
+  const state = await trainingPage.getGameState();
+  expect(state.moveCount).toBeGreaterThan(1);
 });
 ```
+
+**Key Improvements**:
+- ✅ Clean separation of concerns (no test hooks in UI components)
+- ✅ Event-based waiting instead of hardcoded timeouts
+- ✅ Deterministic test behavior
+- ✅ Page Object Model for maintainability
+- ✅ Single Source of Truth (no duplicate test files)
 
 ## 🎯 Coverage Strategy
 
@@ -198,6 +236,23 @@ it('should prefer tablebase over engine', async () => {
 });
 ```
 
+#### Key Chess Testing Scenarios
+
+1. **Tablebase Validation**: Ensure endgames in tablebases ALWAYS return exact tablebase results and correctly override engine estimates
+2. **FEN Test Suite**: Build comprehensive tests with known positions (mate in N, draw positions, winning positions) verifying exact numerical and qualitative evaluations
+3. **Blunder & Optimal Move Verification**: Test specific moves for correct symbol display
+   - Example: Blunder `Kb5` in position `2K5/2P2k2/8/8/4R3/8/1r6/8 w - - 0 1` must show `🚨` (win → draw)
+4. **Edge Cases**: Test stalemate, perpetual check, impossible positions, and other rule exceptions
+
+### Cache Testing
+For detailed cache testing strategies, see `/tests/unit/cache/CACHE_TEST_STRATEGY.md`
+
+Key cache test areas:
+- LRU eviction behavior
+- TTL expiration
+- Memory management
+- Performance benchmarks
+
 ### Performance Testing
 Ensure operations meet time constraints:
 
@@ -212,17 +267,79 @@ describe('Performance', () => {
 });
 ```
 
-## ✅ Testing Checklist
+## ✅ Testing Checklist - What Makes a Good Test?
 
-Before committing, ensure your tests:
+Use this checklist when writing and reviewing tests:
 
-- [ ] **Single Responsibility**: Each test checks one thing
-- [ ] **Self-Explanatory**: Clear test names, no comments needed
-- [ ] **Deterministic**: Same result every time
-- [ ] **Independent**: Order doesn't matter
+- [ ] **Single Responsibility**: Each test checks exactly one thing
+- [ ] **Self-Explanatory**: Clear test names that describe what is being tested
+- [ ] **Quick to Read**: Can be understood in seconds without comments
+- [ ] **Helpful Failure Messages**: Provides clear information when test fails
+- [ ] **Descriptive Names**: Use meaningful names for tests, mocks, and variables
+- [ ] **No Magic Values**: Replace `expect(x).toBe(42)` with `const expectedMoveCount = 42`
+- [ ] **Order Independent**: Tests pass regardless of execution order
+- [ ] **Deterministic**: Always produces the same result
 - [ ] **Fast**: Unit tests < 50ms each
-- [ ] **Comprehensive**: Happy path + edge cases + errors
-- [ ] **Maintainable**: DRY principles, shared test utilities
+- [ ] **Comprehensive**: Covers happy path + edge cases + error scenarios
+- [ ] **Maintainable**: Follows DRY principles, uses shared test utilities
+
+## 🏪 Store Testing Best Practices (Zustand)
+
+### Single Source of Truth - Critical Learning
+When testing Zustand Store-based components, it's essential to respect the **Single Source of Truth** principle. A common mistake that leads to confusing test failures:
+
+#### ❌ Anti-Pattern: Direct Manipulation + Store Actions
+```typescript
+// WRONG: Double manipulation leads to conflicts
+act(() => {
+  const game = useStore.getState().training.game;
+  game.move({ from: 'e2', to: 'e4' });          // Direct manipulation
+  useStore.getState().makeMove({ from: 'e2', to: 'e4' }); // Store Action → ERROR!
+});
+```
+
+**Problem**: The first call directly modifies the game state, causing the second call to fail since the move was already executed.
+
+#### ✅ Correct: Use Store Actions Only
+```typescript
+// CORRECT: Use Store Actions exclusively
+act(() => {
+  useStore.getState().makeMove({ from: 'e2', to: 'e4' }); // Store manages everything
+});
+```
+
+### Store Testing Patterns
+
+1. **Avoid Mock Interference**:
+   - Component mocks should NEVER override Store state
+   - If parent component already calls `setPosition()`, mock must not call `setGame()`
+   
+2. **Async Store Updates**:
+   ```typescript
+   // Use waitFor for state-dependent callbacks
+   await waitFor(() => {
+     expect(onCompleteMock).toHaveBeenCalledWith(true);
+   });
+   ```
+
+3. **Store Reset Between Tests**:
+   ```typescript
+   beforeEach(() => {
+     useStore.getState().reset();
+   });
+   ```
+
+4. **Minimal Move Objects**:
+   ```typescript
+   // Store expects only essential properties
+   makeMove({ from: 'e2', to: 'e4' }); // Nothing more!
+   ```
+
+### Lessons Learned
+- **Store as Single Source of Truth**: Tests must use same interaction patterns as the application
+- **No Double Manipulations**: One move = One Store action
+- **Mock Hygiene**: Mocks must not override Store state when parent components handle it
+- **Consider Asynchronicity**: React components respond asynchronously to Store changes
 
 ## 🐛 Known Issues & Workarounds
 
@@ -337,14 +454,19 @@ Tests run automatically on:
 - **Refactoring**: Ensure tests still pass
 - **Performance Issue**: Add performance test
 
-## 🔗 Resources
+## 🔗 Resources & Specialized Guides
 
+### External Resources
 - [Jest Documentation](https://jestjs.io/docs/getting-started)
 - [Testing Library](https://testing-library.com/docs/)
 - [Playwright Docs](https://playwright.dev/docs/intro)
-- Project-specific: `/tests/README.md` for setup
+
+### Project-Specific Guides
+- **Cache Testing**: `/tests/unit/cache/CACHE_TEST_STRATEGY.md` - Detailed cache testing strategies
+- **Test Setup**: `/tests/README.md` - Initial test configuration
+- **Agent Config**: `/AGENT_CONFIG.json` - Testing requirements and quality gates
 
 ---
 
-**Last Updated**: 2025-07-08
+**Last Updated**: 2025-01-09
 **Next Review**: When reaching 80% coverage goal

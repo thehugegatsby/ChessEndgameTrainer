@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { APP_CONFIG } from './config/constants';
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -8,7 +9,7 @@ export default defineConfig({
   workers: 1,
   reporter: 'list',
   use: {
-    baseURL: 'http://localhost:3001',
+    baseURL: APP_CONFIG.DEV_URL,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },

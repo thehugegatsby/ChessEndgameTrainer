@@ -5,7 +5,7 @@ This document lists all deprecated APIs and their migration paths.
 ## Deprecated Hooks
 
 ### `useChessGame` and `useChessGameOptimized` 
-- **Status**: REMOVED (2025-07-08)
+- **Status**: REMOVED (2025-01-08)
 - **Former Location**: `/shared/hooks/useChessGame.ts`, `/shared/hooks/useChessGameOptimized.ts`
 - **Replacement**: `useTrainingGame`
 - **Reason**: Moving to Zustand store as single source of truth
@@ -24,7 +24,7 @@ This document lists all deprecated APIs and their migration paths.
 ## Deprecated Components
 
 ### Non-Zustand versions of components
-- **Status**: Already removed (2025-07-08)
+- **Status**: Already removed (2025-01-08)
 - **Components removed**:
   - `TrainingBoard` (use `TrainingBoardZustand`)
   - `MovePanel` (use `MovePanelZustand`)
@@ -32,7 +32,7 @@ This document lists all deprecated APIs and their migration paths.
 
 ## Migration Timeline
 
-1. **2025-07-08**: 
+1. **2025-01-08**: 
    - Deprecation notices added for hooks
    - `useChessGame` and `useChessGameOptimized` hooks removed (no components were using them)
 

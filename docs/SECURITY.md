@@ -1,6 +1,6 @@
 # 🔒 Security Guide - ChessEndgameTrainer
 
-## 📊 Current Status (2025-07-08)
+## 📊 Current Status (2025-01-08)
 - **FEN Validation**: ✅ Implemented across all input boundaries
 - **Worker Path Validation**: ✅ Whitelist implemented
 - **CSP Headers**: Configured for WASM/SharedArrayBuffer
@@ -181,13 +181,131 @@ npx lighthouse https://your-app.vercel.app --view
 - Check not overridden in vercel.json
 - Verify next.config.js syntax
 
+## 🔧 Detailed Implementation Tasks
+
+### Task 1: FEN String Sanitization (Priority: 🚨 CRITICAL)
+
+#### Implementation Files
+- **Create**: `shared/utils/security/fenSanitizer.ts`
+- **Update**: `shared/lib/chess/ScenarioEngine.ts`
+- **Update**: `shared/hooks/useChessGame.ts`
+- **Create**: `tests/unit/security/fenSanitizer.test.ts`
+
+#### FenSanitizer Implementation
+```typescript
+export class FenSanitizer {
+  private static readonly MAX_FEN_LENGTH = 100;
+  private static readonly VALID_FEN_REGEX = /^[rnbqkpRNBQKP1-8\/\s\-]+$/;
+  
+  static sanitize(fen: string): string {
+    // 1. Check length
+    if (!fen || fen.length > this.MAX_FEN_LENGTH) {
+      throw new Error('Invalid FEN: Length exceeds maximum');
+    }
+    
+    // 2. Basic character validation
+    if (!this.VALID_FEN_REGEX.test(fen)) {
+      throw new Error('Invalid FEN: Contains invalid characters');
+    }
+    
+    // 3. Validate FEN structure
+    const parts = fen.split(' ');
+    if (parts.length < 1 || parts.length > 6) {
+      throw new Error('Invalid FEN: Wrong number of parts');
+    }
+    
+    // 4. Validate board ranks
+    const ranks = parts[0].split('/');
+    if (ranks.length !== 8) {
+      throw new Error('Invalid FEN: Must have 8 ranks');
+    }
+    
+    return fen.trim();
+  }
+}
+```
+
+### Task 2: General Input Validation
+
+#### Create Input Validator
+```typescript
+// shared/utils/security/inputValidator.ts
+export class InputValidator {
+  static validatePositionId(id: string): number {
+    const parsed = parseInt(id, 10);
+    if (isNaN(parsed) || parsed < 1 || parsed > 1000) {
+      throw new Error('Invalid position ID');
+    }
+    return parsed;
+  }
+  
+  static validateMove(move: string): string {
+    const moveRegex = /^[a-h][1-8][a-h][1-8][qrbn]?$/i;
+    if (!moveRegex.test(move) && !['O-O', 'O-O-O'].includes(move)) {
+      throw new Error('Invalid move notation');
+    }
+    return move;
+  }
+  
+  static sanitizeString(input: string, maxLength = 100): string {
+    return input
+      .substring(0, maxLength)
+      .replace(/[<>\"'&]/g, '') // Remove potential HTML
+      .trim();
+  }
+}
+```
+
+### Task 3: XSS Prevention Audit Checklist
+
+#### Areas to Verify
+- [ ] Check all uses of dangerouslySetInnerHTML
+- [ ] Verify React escapes all user content
+- [ ] No direct innerHTML usage
+- [ ] Audit chess.js input handling
+- [ ] Check react-chessboard for XSS vectors
+- [ ] Verify Stockfish WASM isolation
+- [ ] Sanitize before localStorage write
+- [ ] Validate on localStorage read
+- [ ] Clean Firestore inputs
+
+## 📋 Security Testing Requirements
+
+### Unit Tests
+- [ ] FEN sanitizer tests with malicious input
+- [ ] Input validator tests for all methods
+- [ ] Worker path validation tests
+- [ ] Integration tests with security scenarios
+
+### Security Audit
+- [ ] Run OWASP ZAP penetration testing
+- [ ] Verify security headers with securityheaders.com
+- [ ] Monitor CSP violations in production
+- [ ] Test with malformed/malicious inputs
+
+## 📊 Security Metrics
+
+### Success Criteria
+- Zero unsanitized user inputs
+- All security tests passing (100% coverage)
+- No CSP violations in production
+- Security headers score A+ on securityheaders.com
+- Zero critical/high vulnerabilities in npm audit
+
+### Monitoring
+- Set up CSP violation reporting endpoint
+- Monitor Sentry for security-related errors
+- Track failed validation attempts
+- Alert on suspicious input patterns
+
 ## 📚 Security Resources
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+- [OWASP Input Validation Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html)
 - [Next.js Security](https://nextjs.org/docs/advanced-features/security-headers)
 - [React Security Best Practices](https://react.dev/learn/keeping-components-pure)
 - [CSP Guide](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)
 
 ---
 
-**Last Updated**: 2025-07-08  
+**Last Updated**: 2025-01-09  
 **Security Contact**: Report issues via GitHub Security tab

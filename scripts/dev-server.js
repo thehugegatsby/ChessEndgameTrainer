@@ -7,11 +7,14 @@
 const { spawn } = require('child_process');
 const path = require('path');
 
-// Import the config - we'll use the TypeScript compiler to handle this
+// Read the TypeScript config file
+const fs = require('fs');
 const configPath = path.join(__dirname, '../config/constants.ts');
+const configContent = fs.readFileSync(configPath, 'utf8');
 
-// For now, let's just use the hardcoded port from our constants
-const DEV_PORT = 3002;
+// Extract DEV_PORT value
+const portMatch = configContent.match(/DEV_PORT:\s*(\d+)/);
+const DEV_PORT = portMatch && portMatch[1] ? parseInt(portMatch[1]) : 3002;
 
 console.log(`Starting development server on port ${DEV_PORT}...`);
 

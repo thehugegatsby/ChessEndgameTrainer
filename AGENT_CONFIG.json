@@ -1,0 +1,327 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "project": "ChessEndgameTrainer",
+    "created": "2025-01-09",
+    "description": "Structured configuration for AI agent automation and quality enforcement",
+    "usage": "This file works in conjunction with CLAUDE.md to provide strict, machine-enforceable rules"
+  },
+  
+  "quality_gates": {
+    "test_coverage": {
+      "business_logic_minimum": 78,
+      "overall_target": 80,
+      "new_features_minimum": 80,
+      "enforcement": "strict"
+    },
+    "bundle_size": {
+      "max_kb_per_route": 300,
+      "current_warning_threshold": 200,
+      "shared_bundle_max_kb": 100,
+      "enforcement": "warning"
+    },
+    "performance_metrics": {
+      "api_call_reduction_percent": 75,
+      "cache_hit_rate_percent": 99,
+      "evaluation_max_ms": 100,
+      "navigation_speed_improvement_percent": 50,
+      "enforcement": "strict"
+    },
+    "code_quality": {
+      "max_lines_per_file": 400,
+      "max_function_complexity": 10,
+      "typescript_strict_mode": true,
+      "no_any_types": true,
+      "enforcement": "strict"
+    }
+  },
+  
+  "documentation_maintenance": {
+    "immediate_update_triggers": [
+      {
+        "event": "new_feature",
+        "required_updates": [
+          "README.md - Add feature to feature list",
+          "CHANGELOG.md - Document in [Unreleased] section",
+          "docs/INDEX.md - Add navigation entry if new docs created"
+        ]
+      },
+      {
+        "event": "api_change",
+        "required_updates": [
+          "docs/API.md - Update API reference",
+          "CHANGELOG.md - Note breaking changes",
+          "Migration guide if breaking"
+        ]
+      },
+      {
+        "event": "security_fix",
+        "required_updates": [
+          "docs/SECURITY.md - Update security status",
+          "CHANGELOG.md - Document security fix",
+          "README.md - Update security badge if critical"
+        ]
+      },
+      {
+        "event": "architecture_decision",
+        "required_updates": [
+          "docs/ARCHITECTURE.md - Document decision and rationale",
+          "CLAUDE.md - Update if affects AI instructions"
+        ]
+      },
+      {
+        "event": "test_strategy_change",
+        "required_updates": [
+          "docs/TESTING.md - Update test approach",
+          "docs/testing/TESTING_GUIDELINES.md - Update guidelines"
+        ]
+      },
+      {
+        "event": "deployment_change",
+        "required_updates": [
+          "docs/deployment/DEPLOYMENT_GUIDE.md - Update procedures",
+          "vercel.json - Update if config changes"
+        ]
+      }
+    ],
+    
+    "required_documentation_files": {
+      "root": [
+        "README.md - Project overview, features, quick start",
+        "CHANGELOG.md - Version history following Keep a Changelog",
+        "TODO.md - Current sprint focus and task priorities",
+        "CLAUDE.md - AI assistant context and instructions",
+        "AGENT_CONFIG.json - This file, structured automation rules"
+      ],
+      "docs": [
+        "docs/INDEX.md - Documentation navigation hub",
+        "docs/ARCHITECTURE.md - System design and patterns",
+        "docs/SECURITY.md - Security implementation status",
+        "docs/TESTING.md - Test strategy and coverage",
+        "docs/API.md - Service and hook references"
+      ],
+      "component_level": [
+        "Component README.md - For complex components only",
+        "Test documentation - In test directories"
+      ]
+    },
+    
+    "documentation_quality_standards": [
+      "All docs must include 'Last Updated' timestamp",
+      "Code examples required for API documentation",
+      "Architecture decisions must include rationale",
+      "Security docs must list current vulnerabilities",
+      "Test docs must show coverage metrics",
+      "Migration guides must have step-by-step instructions"
+    ]
+  },
+  
+  "execution_workflow": {
+    "mandatory_steps": [
+      {
+        "step": 1,
+        "name": "CONTEXT_REFRESH",
+        "actions": [
+          "Read CLAUDE.md for project context",
+          "Read AGENT_CONFIG.json for strict rules",
+          "Check TODO.md for current priorities",
+          "Review recent CHANGELOG.md entries"
+        ],
+        "validation": "Must acknowledge current sprint focus"
+      },
+      {
+        "step": 2,
+        "name": "PRE_IMPLEMENTATION_CHECK",
+        "actions": [
+          "Verify no duplicate functionality exists",
+          "Check if refactoring is needed first",
+          "Validate approach aligns with architecture principles",
+          "Ensure test strategy is defined"
+        ],
+        "validation": "Document findings before proceeding"
+      },
+      {
+        "step": 3,
+        "name": "IMPLEMENTATION",
+        "actions": [
+          "Follow code conventions strictly",
+          "Implement with tests (TDD preferred)",
+          "Use existing patterns and utilities",
+          "Maintain single source of truth"
+        ],
+        "validation": "Code must pass linting and type checking"
+      },
+      {
+        "step": 4,
+        "name": "TESTING_GATE",
+        "actions": [
+          "Run 'npm test' - all tests must pass",
+          "Run 'npm run lint' - no errors allowed",
+          "Run 'npm run build' - build must succeed",
+          "Test coverage must meet minimums",
+          "Manual testing for UI changes"
+        ],
+        "validation": "No advancement without all checks passing"
+      },
+      {
+        "step": 5,
+        "name": "DOCUMENTATION_UPDATE",
+        "actions": [
+          "Update all triggered documentation files",
+          "Add code comments for complex logic",
+          "Update CHANGELOG.md immediately",
+          "Create migration guide if breaking changes"
+        ],
+        "validation": "All relevant docs updated"
+      },
+      {
+        "step": 6,
+        "name": "FINAL_VERIFICATION",
+        "actions": [
+          "Verify Store remains single source of truth",
+          "Check no performance regressions",
+          "Validate security requirements maintained",
+          "Ensure mobile compatibility preserved"
+        ],
+        "validation": "Sign-off checklist complete"
+      }
+    ],
+    
+    "workflow_gates": {
+      "pre_commit": [
+        "Tests passing",
+        "Lint passing",
+        "Documentation updated",
+        "CHANGELOG.md entry added"
+      ],
+      "pre_merge": [
+        "Code review completed",
+        "All CI checks green",
+        "No merge conflicts",
+        "Performance metrics maintained"
+      ]
+    }
+  },
+  
+  "code_conventions": {
+    "typescript": {
+      "strict_mode": "required",
+      "no_any": "enforced",
+      "interfaces_over_types": "for_objects",
+      "explicit_return_types": "required",
+      "naming": {
+        "components": "PascalCase",
+        "hooks": "camelCase with 'use' prefix",
+        "constants": "UPPER_SNAKE_CASE",
+        "interfaces": "PascalCase with 'I' prefix discouraged"
+      }
+    },
+    
+    "react": {
+      "patterns": [
+        "Hooks for logic separation",
+        "Stable references with useRef + useMemo",
+        "Error boundaries for all async operations",
+        "No direct DOM manipulation"
+      ],
+      "performance": [
+        "Debounce user inputs (300ms)",
+        "Memoize expensive computations",
+        "Lazy load heavy components",
+        "Virtual scrolling for long lists"
+      ]
+    },
+    
+    "testing": {
+      "patterns": [
+        "Arrange-Act-Assert structure",
+        "Single responsibility per test",
+        "Mock external dependencies in unit tests",
+        "Use factory patterns for test data"
+      ],
+      "naming": "should_expectedBehavior_when_condition"
+    },
+    
+    "general": {
+      "comments": "Only for complex logic, code should be self-documenting",
+      "imports": "Absolute paths with @ alias",
+      "error_handling": "Always use ErrorService.logError",
+      "async": "Prefer async/await over promises"
+    }
+  },
+  
+  "testing_requirements": {
+    "unit_tests": {
+      "coverage_target": 90,
+      "max_execution_time_ms": 50,
+      "required_for": ["services", "utils", "hooks", "core libraries"],
+      "mock_requirements": "Mock all external dependencies"
+    },
+    
+    "integration_tests": {
+      "coverage_target": 70,
+      "required_for": ["API integrations", "Store actions", "Engine communication"],
+      "realistic_mocks": "Use realistic data and timing"
+    },
+    
+    "e2e_tests": {
+      "smoke_suite_max_time_seconds": 30,
+      "full_suite_max_time_minutes": 5,
+      "required_scenarios": ["Critical user paths", "Error scenarios", "Performance validation"],
+      "architecture": "MockEngineService for deterministic results"
+    },
+    
+    "performance_tests": {
+      "required_for": ["Evaluation pipeline", "Cache operations", "Heavy computations"],
+      "benchmarks": {
+        "evaluation_time_ms": 100,
+        "cache_lookup_ms": 1,
+        "ui_response_ms": 50
+      }
+    }
+  },
+  
+  "security_requirements": {
+    "input_validation": {
+      "fen_strings": "Always use validateAndSanitizeFen()",
+      "user_input": "Sanitize all user-provided data",
+      "file_paths": "Validate against whitelist"
+    },
+    
+    "dependencies": {
+      "audit_frequency": "before_each_release",
+      "max_vulnerabilities": {
+        "critical": 0,
+        "high": 0,
+        "medium": 5
+      }
+    },
+    
+    "runtime": {
+      "csp_headers": "Required for WASM",
+      "cors_policy": "Strict same-origin",
+      "auth_tokens": "Never in code, use env vars"
+    }
+  },
+  
+  "automation_rules": {
+    "auto_format": {
+      "on_save": true,
+      "prettier_config": ".prettierrc",
+      "organize_imports": true
+    },
+    
+    "auto_documentation": {
+      "generate_api_docs": "from_tsdoc_comments",
+      "update_changelog": "from_commit_messages",
+      "sync_readme_badges": "from_metrics"
+    },
+    
+    "ci_cd": {
+      "run_tests": "on_every_push",
+      "check_coverage": "on_pull_request",
+      "deploy_staging": "on_merge_to_main",
+      "security_scan": "weekly"
+    }
+  }
+}

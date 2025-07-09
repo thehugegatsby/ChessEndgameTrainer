@@ -230,7 +230,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
   // === TEST HOOK FOR E2E TESTING ===
   useEffect(() => {
     // Only expose in test environment
-    if (process.env.NODE_ENV === 'test' || process.env.NEXT_PUBLIC_TEST_MODE === 'true') {
+    if (process.env.NODE_ENV === 'test') {
       (window as any).e2e_makeMove = async (move: string) => {
         const logger = getLogger().setContext('TrainingBoard-TestHook');
         logger.debug('Test move requested', { move });
@@ -276,7 +276,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     
     // Cleanup on unmount
     return () => {
-      if (process.env.NODE_ENV === 'test' || process.env.NEXT_PUBLIC_TEST_MODE === 'true') {
+      if (process.env.NODE_ENV === 'test') {
         delete (window as any).e2e_makeMove;
         delete (window as any).e2e_getGameState;
       }

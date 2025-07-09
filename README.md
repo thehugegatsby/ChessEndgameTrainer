@@ -10,7 +10,7 @@ Eine moderne Web- und Mobile-Anwendung zum systematischen Lernen von Schachendsp
 
 ## 🎯 Features
 
-- **16 Endspiel-Positionen** - Von Bauern bis Turmendspiele
+- **13 Endspiel-Positionen** - Von Bauern bis Turmendspiele
 - **Stockfish Engine Integration** - WASM-basierte KI-Analyse
 - **Unified Evaluation System** - Moderne, konsistente Bewertungslogik
 - **Dual Evaluation Display** - Engine + Lichess Tablebase
@@ -70,15 +70,15 @@ ChessEndgameTrainer/
 ## 📊 Projekt Status
 
 - **Test Coverage**: ~78% (Business Logic) / ~47% (Overall) - Ziel: 80% Business Logic
-- **Test Success**: 100% (1023/1034 Tests bestanden, 11 skipped) - **236 neue Tests hinzugefügt**
+- **Test Success**: 99% (1023/1034 Tests bestanden, 11 skipped)
 - **Code Health**: Excellent (<2% ungenutzter Code)
 - **Architecture**: ✅ Modular evaluation system with clean re-exports
 - **Error Handling**: ✅ Centralized ErrorService + Logger Architecture
 - **State Management**: ✅ Vollständig auf Zustand migriert (Store of Truth)
+- **Security**: ✅ FEN Input Sanitization implementiert
 - **Performance**: Optimiert mit LRU Cache, Debouncing, Tree-Shaking
-- **Bundle Size**: ~154KB per route + 85.8KB shared (Ziel: <300KB) - Optimized with code splitting
-- **Migration Status**: ✅ Unified Evaluation System, ✅ Store of Truth Complete, ✅ Modular Refactoring Complete
-- **Active Development**: Juli 2025
+- **Migration Status**: ✅ Store of Truth Complete, ✅ Hooks deprecated
+- **Active Development**: Januar 2025
 
 ## 💻 Entwicklung
 
@@ -99,7 +99,7 @@ npm install
 npm run dev
 ```
 
-Server läuft auf http://localhost:3001
+Server läuft auf http://localhost:3002
 
 ### Database Migration (Optional)
 
@@ -135,21 +135,16 @@ npm run test:e2e
 npx playwright test --grep "@smoke"
 ```
 
-#### ⚠️ WICHTIG: E2E Test-Konfiguration
-Für E2E Tests mit Test-Hooks **MUSS** die Umgebungsvariable `NEXT_PUBLIC_TEST_MODE=true` gesetzt sein:
+#### E2E Test-Konfiguration
+E2E Tests nutzen MockEngineService für sofortige Antworten:
 
 ```bash
-# Option 1: Dev-Server mit Test-Mode starten
-NEXT_PUBLIC_TEST_MODE=true npm run dev
+# Dev-Server starten
+npm run dev
 
-# Option 2: .env.test verwenden
-NODE_ENV=test npm run dev
-
-# Dann Tests ausführen
+# Tests ausführen
 npm run test:e2e
 ```
-
-**Ohne diese Konfiguration schlagen alle E2E Tests fehl, die Test-Hooks verwenden!**
 
 ### Lint
 
@@ -178,17 +173,12 @@ npm run android
 
 Die Anwendung wurde für optimale Performance auf Desktop und Mobile optimiert:
 
-- **Debouncing**: 300ms Verzögerung bei Evaluierungen verhindert API-Flooding
-- **LRU Cache**: Wiederholte Positionen werden gecacht (200 Items, ~70KB)
-- **Parallel Processing**: Tablebase-Vergleiche laufen parallel statt sequenziell
-- **Instance Reuse**: Chess.js Instanzen werden wiederverwendet statt neu erstellt
-- **Abort Support**: Veraltete API-Requests werden automatisch abgebrochen
+- **Smart Engine Management**: Ein Engine-Instance für die gesamte App
+- **LRU Cache**: Intelligentes Caching für wiederholte Positionen
+- **Debouncing**: Verhindert überflüssige Engine-Anfragen
+- **75% weniger API-Calls** durch verschiedene Optimierungen
 
-### Messergebnisse:
-- 75% weniger API-Calls bei schnellen Zugfolgen
-- 31% schnellere Tablebase-Vergleiche
-- 53% schnellere Navigation zwischen Zügen
-- 100% Cache-Hit-Rate für wiederholte Positionen
+Detaillierte Performance-Metriken und technische Details finden Sie in der [ARCHITECTURE.md](docs/ARCHITECTURE.md#performance-optimizations).
 
 ## 📈 Projekt Status
 
@@ -197,10 +187,12 @@ Die Anwendung wurde für optimale Performance auf Desktop und Mobile optimiert:
 - ✅ **Modular Architecture** mit clean code organization
 - ✅ **Centralized Error Handling** mit ErrorService + Logger
 - ✅ **Store of Truth** Migration vollständig abgeschlossen
+- ✅ **Security** FEN Sanitization implementiert
 - ✅ **Performance Optimiert** für Mobile & Tree-Shaking
 - ✅ **Mobile Architecture** vorbereitet
+- ✅ **Bug Fixes** Black moves & Analysis Panel Layout
 - ⏳ **Brückenbau-Trainer UI** Phase P3 in Entwicklung
-- ⏳ **Android App** in Entwicklung
+- ⏳ **Playwright E2E Tests** Fixes in Arbeit
 - ⏳ **PWA Features** geplant
 
 ## 📚 Dokumentation
