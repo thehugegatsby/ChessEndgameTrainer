@@ -80,6 +80,36 @@ export const SELECTORS = {
     SECONDARY: '[data-testid="chess-square-{square}"]',
     TERTIARY: '.chess-square-{square}',
     FALLBACK: '[id="square-{square}"]'
+  },
+  EVALUATION_PANEL: {
+    PRIMARY: '[data-testid="evaluation-panel"]',
+    SECONDARY: '.evaluation-panel',
+    TERTIARY: '#evaluation-panel',
+    FALLBACK: '[role="region"][aria-label*="evaluation"]'
+  },
+  EVALUATION_VALUE: {
+    PRIMARY: '[data-testid="evaluation-value"]',
+    SECONDARY: '[data-evaluation]',
+    TERTIARY: '.evaluation-value',
+    FALLBACK: '.evaluation'
+  },
+  BEST_MOVE: {
+    PRIMARY: '[data-testid="best-move"]',
+    SECONDARY: '[data-best-move]',
+    TERTIARY: '.best-move',
+    FALLBACK: '.engine-move'
+  },
+  SEARCH_DEPTH: {
+    PRIMARY: '[data-testid="search-depth"]',
+    SECONDARY: '[data-depth]',
+    TERTIARY: '.search-depth',
+    FALLBACK: '.depth'
+  },
+  THINKING_INDICATOR: {
+    PRIMARY: '[data-testid="engine-thinking"]',
+    SECONDARY: '[data-thinking="true"]',
+    TERTIARY: '.engine-thinking',
+    FALLBACK: '.thinking'
   }
 } as const;
 
