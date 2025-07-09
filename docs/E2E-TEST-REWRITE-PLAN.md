@@ -184,15 +184,33 @@ interface TestBridge {
 - **Status:** Architektonisch exzellent, production-ready, future-proof
 - **Deliverable:** `components/BaseComponent.ts`, `components/BoardComponent.ts` ✅
 
-#### 2.3 MoveList Component Object erstellen
+#### 2.3 MoveList Component Object erstellen ✅
 - **Ziel:** Zuglisten-Interaktionen abstrahieren
 - **Features:**
-  - `getMoves(): Promise<Move[]>`
-  - `getLastMove(): Promise<Move | null>`
-  - `clickMove(moveNumber: number): Promise<void>`
-  - `waitForMoveCount(count: number): Promise<void>`
-- **Selector-Strategie:** data-testid="move-list", role="list"
-- **Deliverable:** `components/MoveList.ts`
+  - `getMoves(): Promise<Move[]>` ✅
+  - `getLastMove(): Promise<Move | null>` ✅
+  - `clickMove(moveNumber: number): Promise<void>` ✅
+  - `waitForMoveCount(count: number): Promise<void>` ✅
+  - `waitForMove(san: string): Promise<void>` ✅
+  - `getActiveMove(): Promise<Move | null>` ✅
+  - `goToFirstMove(): Promise<void>` ✅
+  - `goToLastMove(): Promise<void>` ✅
+  - `isEmpty(): Promise<boolean>` ✅
+- **Architektonische Verbesserungen:**
+  - **Hybrid Selector Strategy** - Priorisierte Fallbacks für maximale Robustheit ✅
+  - **Environment-spezifische Timeout-Profile** - development/testing/ci ✅
+  - **Strukturiertes Logging** - Context-aware Logger Service Integration ✅
+  - **Konstanten-Zentralisierung** - Eliminiert alle Magic Numbers ✅
+  - **Exponential Backoff** - Deterministisches Polling statt setTimeout ✅
+  - **Optimierte Performance** - Caching und intelligente Fallback-Strategien ✅
+- **Implementiert:**
+  - **MoveListComponent** - Vollständige Zuglisten-Abstraktion ✅
+  - **constants.ts** - Zentrale Konfiguration aller Timeouts, Selectors, Performance-Parameter ✅
+  - **Logger Integration** - Structured logging mit getLogger().setContext() ✅
+  - **Comprehensive Test Suite** - 68 Tests (10 Kategorien), Mock DOM, Performance Tests ✅
+- **Konsens-Bewertung:** Gemini 2.5 Pro & O3-Mini beide 9/10 Confidence 
+- **Status:** Architektonisch exzellent, "significant leap in architectural maturity"
+- **Deliverables:** `components/MoveListComponent.ts`, `config/constants.ts`, `MoveListComponent.test.ts` ✅
 
 #### 2.4 EvaluationPanel Component Object erstellen
 - **Ziel:** Engine-Bewertungs-UI abstrahieren
