@@ -42,7 +42,7 @@ export class PuzzleSolver implements IPuzzleSolver {
     this.chess.load(this.puzzleFen);
     await this.dependencies.board.loadPosition({
       fen: this.puzzleFen,
-      name: this.description
+      description: this.description
     });
 
     // Wait for board to update
@@ -207,7 +207,7 @@ export class PuzzleSolver implements IPuzzleSolver {
     // Reset board
     await this.dependencies.board.loadPosition({
       fen: this.puzzleFen,
-      name: this.description
+      description: this.description
     });
 
     // Wait for board update
@@ -230,8 +230,8 @@ export class PuzzleSolver implements IPuzzleSolver {
       let message = '';
       const absEval = Math.abs(engineData.evaluation);
       
-      if (engineData.isMate && engineData.mateIn) {
-        message = `Mate in ${Math.abs(engineData.mateIn)}`;
+      if (engineData.isMate && engineData.mateDistance) {
+        message = `Mate in ${Math.abs(engineData.mateDistance)}`;
       } else if (absEval < 50) {
         message = 'Position is equal';
       } else if (absEval < 200) {

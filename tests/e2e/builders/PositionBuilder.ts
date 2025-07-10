@@ -10,11 +10,10 @@ import {
   ChessMove,
   createFen,
   DEFAULT_VALUES,
-  Square,
   PieceType,
   Color,
 } from './types';
-import { Chess } from 'chess.js';
+import { Chess, Square } from 'chess.js';
 
 /**
  * Builder for creating Position objects
@@ -161,10 +160,10 @@ export class PositionBuilder extends BaseBuilder<Position, PositionBuilder> {
     });
     
     if (!whiteKingPresent) {
-      chess.put({ type: 'k', color: 'w' }, 'e1' as Square);
+      chess.put({ type: 'k', color: 'w' }, 'e1');
     }
     if (!blackKingPresent) {
-      chess.put({ type: 'k', color: 'b' }, 'e8' as Square);
+      chess.put({ type: 'k', color: 'b' }, 'e8');
     }
     
     return this.withFen(createFen(chess.fen()));
@@ -247,7 +246,7 @@ export class PositionBuilder extends BaseBuilder<Position, PositionBuilder> {
         }
       }
     } catch (error) {
-      throw new Error(`Invalid position: ${error.message}`);
+      throw new Error(`Invalid position: ${error instanceof Error ? error.message : String(error)}`);
     }
     
     // Validate evaluation is reasonable

@@ -39,20 +39,8 @@ declare global {
       TEST_DATA: typeof TEST_DATA;
     };
     
-    // Also declare the Test Bridge interface
-    __E2E_TEST_BRIDGE__: {
-      engine: {
-        isReady: () => boolean;
-        [key: string]: any;
-      };
-      diagnostic: {
-        getCurrentMoveIndex: () => number;
-        getTotalMoves: () => number;
-        isAtStart: () => boolean;
-        isAtEnd: () => boolean;
-        [key: string]: any;
-      };
-    };
+    // Test Bridge interface is already declared in shared/types/test-bridge.d.ts
+    // This declaration conflicts with the proper one and should be removed
   }
 }
 

@@ -283,10 +283,10 @@ export class ValidationHelper {
       if (!pgn || typeof pgn !== 'string') return false;
       
       const chess = new Chess();
-      const result = chess.loadPgn(pgn);
+      chess.loadPgn(pgn);
       
-      // chess.js returns true if PGN was loaded successfully
-      return result;
+      // If loadPgn didn't throw, the PGN was valid
+      return true;
     } catch {
       return false;
     }

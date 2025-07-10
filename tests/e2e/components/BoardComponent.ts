@@ -6,6 +6,7 @@
 import { Page, Locator } from '@playwright/test';
 import { BaseComponent, BaseComponentConfig } from './BaseComponent';
 import { Position, Piece, ChessMove, FenString } from '../builders/types';
+import { TIMEOUTS } from '../config/constants';
 
 /**
  * Configuration for BoardComponent
@@ -102,19 +103,42 @@ export class BoardComponent extends BaseComponent {
       // Get current FEN for comparison
       const initialFen = await this.getCurrentFen();
       
-      // Step 1: Click source square
-      await this.clickSquare(from);
-      this.log('info', `Clicked source square: ${from}`);
+      // Check if e2e_makeMove is available (E2E test environment)
+      const hasE2EMakeMove = await this.page.evaluate(() => {
+        return typeof (window as any).e2e_makeMove === 'function';
+      });
       
-      // Small delay to allow for UI state update
-      await this.page.waitForTimeout(50);
-      
-      // Step 2: Click destination square  
-      await this.clickSquare(to);
-      this.log('info', `Clicked destination square: ${to}`);
-      
-      // Step 3: Wait for move completion
-      await this.waitForMoveComplete(initialFen);
+      if (hasE2EMakeMove) {
+        // Use the E2E test hook
+        this.log('info', 'Using e2e_makeMove test hook');
+        const moveResult = await this.page.evaluate(async (moveNotation: string) => {
+          return await (window as any).e2e_makeMove(moveNotation);
+        }, `${from}-${to}`);
+        
+        if (!moveResult.success) {
+          throw new Error(moveResult.error || 'Move failed');
+        }
+        
+        // Wait for move completion
+        await this.waitForMoveComplete(initialFen);
+      } else {
+        // Fall back to clicking squares
+        this.log('info', 'Using click-to-click method');
+        
+        // Step 1: Click source square
+        await this.clickSquare(from);
+        this.log('info', `Clicked source square: ${from}`);
+        
+        // Small delay to allow for UI state update
+        await this.page.waitForTimeout(50);
+        
+        // Step 2: Click destination square  
+        await this.clickSquare(to);
+        this.log('info', `Clicked destination square: ${to}`);
+        
+        // Step 3: Wait for move completion
+        await this.waitForMoveComplete(initialFen);
+      }
       
       this.log('info', `Move completed successfully: ${from} -> ${to}`);
     } catch (error) {
@@ -433,7 +457,7 @@ export class BoardComponent extends BaseComponent {
    * @param timeout - Optional timeout override
    */
   async waitForPositionChange(currentFen: string, timeout?: number): Promise<void> {
-    const effectiveTimeout = timeout || this.config.timeouts?.position || 5000;
+    const effectiveTimeout = timeout || TIMEOUTS.position || 5000;
     
     try {
       await this.page.waitForFunction(

@@ -6,7 +6,7 @@
  */
 
 // Import all constants from JavaScript file
-import * as constants from './constants.js';
+const constants = require('./constants.js');
 
 // Re-export all constants with TypeScript's type inference
 export const TIMEOUT_PROFILES = constants.TIMEOUT_PROFILES;
@@ -26,7 +26,21 @@ export const FEATURES = constants.FEATURES;
 export const NAVIGATION_CONFIG = constants.NAVIGATION_CONFIG;
 
 // Type definitions for better IDE support
-export type TimeoutProfile = typeof TIMEOUT_PROFILES[keyof typeof TIMEOUT_PROFILES];
-export type Timeouts = typeof TIMEOUTS;
+export type TimeoutProfile = {
+  default: number;
+  short: number;
+  medium: number;
+  long: number;
+  move: number;
+  position: number;
+  navigation: number;
+  navigationAction: number;
+  stateSyncWait: number;
+  disabledCheck: number;
+  retry: number;
+  debounce: number;
+  poll: number;
+};
+export type Timeouts = TimeoutProfile;
 export type Selectors = typeof SELECTORS;
-export type NavigationButtonType = typeof NAVIGATION_CONFIG.BUTTONS[number];
+export type NavigationButtonType = 'start' | 'back' | 'forward' | 'end';

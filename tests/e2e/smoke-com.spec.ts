@@ -7,6 +7,7 @@
 import { test, expect } from '@playwright/test';
 import { AppDriver } from './components/AppDriver';
 import { aGameState, aPosition } from './builders';
+import { getTestFen, TestPositions } from './helpers/testData';
 
 test.describe('@smoke Critical User Journeys (COM)', () => {
   let app: AppDriver;
@@ -27,7 +28,7 @@ test.describe('@smoke Critical User Journeys (COM)', () => {
     
     // Verify initial position
     const initialState = await app.getFullGameState();
-    expect(initialState.fen).toBe('4k3/8/4K3/4P3/8/8/8/8 w - - 0 1');
+    expect(initialState.fen).toBe(getTestFen(TestPositions.OPPOSITION_BASICS));
     expect(initialState.moveCount).toBe(0);
     
     // Make a valid move and wait for engine response
@@ -45,17 +46,17 @@ test.describe('@smoke Critical User Journeys (COM)', () => {
     // Start at position 1
     await app.visit('/train/1');
     let state = await app.board.getPosition();
-    expect(state).toBe('4k3/8/4K3/4P3/8/8/8/8 w - - 0 1');
+    expect(state).toBe(getTestFen(TestPositions.OPPOSITION_BASICS));
     
     // Navigate to Bridge Building (position 12)
     await app.visit('/train/12');
     state = await app.board.getPosition();
-    expect(state).toBe('4k3/4p3/8/8/8/8/3KP3/8 w - - 0 1');
+    expect(state).toBe(getTestFen(TestPositions.BRIDGE_BUILDING));
     
     // Navigate back to position 1
     await app.visit('/train/1');
     state = await app.board.getPosition();
-    expect(state).toBe('4k3/8/4K3/4P3/8/8/8/8 w - - 0 1');
+    expect(state).toBe(getTestFen(TestPositions.OPPOSITION_BASICS));
     
     // Verify fresh start (no moves)
     const gameState = await app.getFullGameState();
@@ -79,7 +80,7 @@ test.describe('@smoke Critical User Journeys (COM)', () => {
     // Verify state unchanged
     const stateAfterInvalid = await app.getFullGameState();
     expect(stateAfterInvalid.moveCount).toBe(0);
-    expect(stateAfterInvalid.fen).toBe('4k3/8/4K3/4P3/8/8/8/8 w - - 0 1');
+    expect(stateAfterInvalid.fen).toBe(getTestFen(TestPositions.OPPOSITION_BASICS));
     
     // Valid move should work
     await app.board.makeMove('e6', 'd6');
@@ -113,14 +114,14 @@ test.describe('@smoke Critical User Journeys (COM)', () => {
     await app.visit('/train/1');
     
     // Configure engine for deterministic responses using test bridge
-    await app.page.evaluate(() => {
+    await app.page.evaluate((oppositionFen) => {
       const constants = (window as any).__E2E_TEST_CONSTANTS__;
       const bridgeName = constants?.TEST_BRIDGE?.BRIDGE_NAME || '__E2E_TEST_BRIDGE__';
       const bridge = (window as any)[bridgeName];
       
-      bridge?.engine?.setEvaluation('4k3/8/4K3/4P3/8/8/8/8 w - - 0 1', 0.5);
+      bridge?.engine?.setEvaluation(oppositionFen, 0.5);
       bridge?.engine?.setNextMove('4k3/8/3K4/4P3/8/8/8/8 b - - 1 1', 'Kd8');
-    });
+    }, getTestFen(TestPositions.OPPOSITION_BASICS));
     
     // Make a move
     await app.makeMoveAndAwaitUpdate('e6', 'd6');

@@ -47,8 +47,8 @@ export class EngineAnalyzer implements IEngineAnalyzer {
           continuation: [] // Would need more engine integration for full lines
         }],
         isBookMove: false, // Would need opening book integration
-        isMate: engineData.isMate,
-        mateIn: engineData.mateIn
+        isMate: engineData.isMate || false,
+        mateIn: engineData.mateDistance
       };
 
       // Cache result

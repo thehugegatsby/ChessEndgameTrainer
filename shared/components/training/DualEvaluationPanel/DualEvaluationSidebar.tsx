@@ -144,15 +144,17 @@ export const DualEvaluationSidebar: React.FC<DualEvaluationSidebarProps> = ({
   }
 
   return (
-    <EngineErrorBoundary engineId="dual-evaluation-sidebar">
-      {/* Best moves display - Lichess style */}
-      <BestMovesDisplay
-        engineMoves={bestMoves.engine}
-        tablebaseMoves={bestMoves.tablebase}
-        showEngine={showEngine}
-        showTablebase={showTablebase}
-        isLoading={isLoading}
-      />
-    </EngineErrorBoundary>
+    <div data-testid="evaluation-panel">
+      <EngineErrorBoundary engineId="dual-evaluation-sidebar">
+        {/* Best moves display - Lichess style */}
+        <BestMovesDisplay
+          engineMoves={bestMoves.engine}
+          tablebaseMoves={bestMoves.tablebase}
+          showEngine={showEngine}
+          showTablebase={showTablebase}
+          isLoading={isLoading}
+        />
+      </EngineErrorBoundary>
+    </div>
   );
 };

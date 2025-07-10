@@ -9,9 +9,37 @@
  * - ADR-3: Fluent Interface for method chaining (readability)
  * - ADR-4: Per-Test Isolation, no global singleton (parallel execution)
  * - ADR-5: Test Bridge Integration for mock configuration
+ * - ADR-6: Hybrid Refactoring Approach (2025-01-10)
+ *   
+ * REFACTORING ROADMAP (AI Consensus: Gemini 2.5 Pro + O3-Mini):
+ * 
+ * Current State: AppDriver has grown to 1650+ lines, violating single responsibility.
+ * Target State: ~500 lines pure orchestration, all logic in helper classes.
+ * 
+ * Phase 1 (Immediate): Fix API inconsistencies for test stability
+ * - Add missing methods (getMoveCount, etc.)
+ * - Fix case sensitivity issues
+ * - Get smoke tests passing
+ * 
+ * Phase 2 (Week 1-2): Add interface contracts
+ * - Define IChessComponent, IBoardComponent, etc.
+ * - Enforce API consistency at compile time
+ * - Document expected behaviors
+ * 
+ * Phase 3 (Week 2-4): Refactor to helper classes
+ * - Move game logic → GamePlayer
+ * - Move puzzle logic → PuzzleSolver 
+ * - Move analysis logic → EngineAnalyzer
+ * - AppDriver only orchestrates, no business logic
+ * 
+ * Quality Gates:
+ * - No method > 50 lines
+ * - All components implement interfaces
+ * - Zero code duplication with helpers
+ * - AppDriver purely orchestrates
  */
 
-import { Page } from '@playwright/test';
+import { Page, expect } from '@playwright/test';
 import { BoardComponent } from './BoardComponent';
 import { MoveListComponent } from './MoveListComponent';
 import { EvaluationPanel } from './EvaluationPanel';
@@ -31,7 +59,8 @@ import {
   LOG_CONTEXTS,
   TEST_BRIDGE 
 } from '../config/constants';
-import { Logger, getLogger } from '../../../shared/services/logging/Logger';
+import { getLogger } from '../../../shared/services/logging/Logger';
+import { ILogger } from '../../../shared/services/logging/types';
 import { IGamePlayer } from '../helpers/IGamePlayer';
 import { IPuzzleSolver } from '../helpers/IPuzzleSolver';
 import { IEngineAnalyzer } from '../helpers/IEngineAnalyzer';
@@ -40,6 +69,7 @@ import { PuzzleSolver } from '../helpers/PuzzleSolver';
 import { EngineAnalyzer } from '../helpers/EngineAnalyzer';
 import { DriverDependencies } from '../interfaces/driver-dependencies';
 import { Chess } from 'chess.js';
+import { SequenceError } from '../helpers/types';
 
 /**
  * Configuration options for AppDriver
@@ -144,17 +174,7 @@ export interface DisposableComponent {
   dispose?(): Promise<void>;
 }
 
-/**
- * Sequence error details for non-fatal move failures
- */
-export interface SequenceError {
-  /** The move that failed */
-  move: string;
-  /** Error message */
-  error: string;
-  /** Index in the move sequence (0-based) */
-  index: number;
-}
+// SequenceError is imported from helpers/types for consistency
 
 /**
  * AppDriver - Central orchestrator for all E2E test components
@@ -181,7 +201,7 @@ export interface SequenceError {
  * ```
  */
 export class AppDriver {
-  private readonly logger: Logger;
+  private readonly logger: ILogger;
   private readonly config: Required<AppDriverConfig>;
   
   // Lazy-loaded components (memoization pattern)
@@ -219,12 +239,12 @@ export class AppDriver {
     config: AppDriverConfig = {}
   ) {
     this.config = {
-      baseUrl: config.baseUrl || 'http://localhost:3002',
-      timeouts: { ...TIMEOUTS, ...config.timeouts },
+      baseUrl: config.baseUrl || 'http://127.0.0.1:3002',
+      timeouts: { ...TIMEOUTS, ...(config.timeouts || {}) },
       verbose: config.verbose ?? false,
       autoWaitForEngine: config.autoWaitForEngine ?? true,
       autoSetupTestBridge: config.autoSetupTestBridge ?? true,
-      retryConfig: config.retryConfig
+      retryConfig: config.retryConfig || {}
     };
     
     // Initialize retry configuration with defaults and overrides
@@ -311,6 +331,19 @@ export class AppDriver {
   }
 
   /**
+   * Map generic TIMEOUTS to dependency-specific format
+   * Implements Adapter Pattern for interface compatibility
+   */
+  private mapTimeoutsForDependencies() {
+    return {
+      default: this.config.timeouts.default,
+      navigation: this.config.timeouts.navigation,
+      waitForSelector: this.config.timeouts.medium || this.config.timeouts.default,
+      engineResponse: this.config.timeouts.long || this.config.timeouts.default
+    };
+  }
+
+  /**
    * Build dependencies object for helpers
    */
   private buildDependencies(): DriverDependencies {
@@ -326,7 +359,7 @@ export class AppDriver {
       },
       config: {
         baseUrl: this.config.baseUrl,
-        timeouts: this.config.timeouts,
+        timeouts: this.mapTimeoutsForDependencies(),
         retries: {
           defaultAttempts: this.retryConfig.maxAttempts,
           delayMs: this.retryConfig.initialDelay,
@@ -390,10 +423,21 @@ export class AppDriver {
       // Set HTTP header to signal E2E test mode - CRITICAL for Test Bridge!
       await this.page.setExtraHTTPHeaders({ 'x-e2e-test-mode': 'true' });
       
+      // Set E2E test flag BEFORE navigation to avoid race conditions
+      await this.page.addInitScript(() => {
+        (window as any).__E2E_TEST_MODE__ = true;
+      });
+      
       await this.page.goto(url, { 
         waitUntil: 'networkidle',
         timeout: this.config.timeouts.navigation 
       });
+      
+      // Wait for E2E hooks to be available
+      await this.page.waitForFunction(
+        () => typeof (window as any).e2e_makeMove === 'function',
+        { timeout: 5000 }
+      );
       
       // Use common initialization logic
       await this.initializeAfterNavigation();
@@ -422,10 +466,21 @@ export class AppDriver {
     // Clear component references
     this._isInitialized = false;
     
+    // Re-add init script before reload to ensure flag is set
+    await this.page.addInitScript(() => {
+      (window as any).__E2E_TEST_MODE__ = true;
+    });
+    
     await this.page.reload({ 
       waitUntil: 'networkidle',
       timeout: this.config.timeouts.navigation 
     });
+    
+    // Wait for E2E hooks to be available after reload
+    await this.page.waitForFunction(
+      () => typeof (window as any).e2e_makeMove === 'function',
+      { timeout: 5000 }
+    );
     
     // Use common initialization logic
     await this.initializeAfterNavigation();
@@ -453,15 +508,15 @@ export class AppDriver {
     this.log('debug', 'Disposing cached components and helpers');
     
     // Define helpers to dispose in order (least dependent first)
-    const helpersToDispose: (keyof this)[] = [
+    const helpersToDispose = [
       '_gamePlayer',
       '_puzzleSolver',
       '_engineAnalyzer'
-    ];
+    ] as const;
     
     // Dispose helpers with proper error handling
     for (const key of helpersToDispose) {
-      const helper = this[key] as { dispose: () => Promise<void> | void } | null;
+      const helper = (this as any)[key] as { dispose: () => Promise<void> | void } | null;
       
       if (helper && typeof helper.dispose === 'function') {
         try {
@@ -489,8 +544,8 @@ export class AppDriver {
     // Dispose all components that support disposal
     await Promise.all(
       components
-        .filter((comp): comp is DisposableComponent => comp !== null && 'dispose' in comp)
-        .map(comp => comp.dispose!().catch(err => 
+        .filter(comp => comp !== null && 'dispose' in comp)
+        .map(comp => (comp as any).dispose().catch((err: any) => 
           this.log('warn', 'Component disposal failed', { error: err })
         ))
     );
@@ -548,6 +603,15 @@ export class AppDriver {
     // Debug logging to understand what's happening
     await this.debugPageState('Before waitForAppReady');
     
+    // First wait for loading to complete
+    try {
+      const loadingElement = this.page.locator('text=Loading...');
+      await loadingElement.waitFor({ state: 'detached', timeout: 15000 });
+      this.log('debug', 'Loading phase completed');
+    } catch (error) {
+      this.log('warn', 'Loading element not found or already gone', error);
+    }
+    
     // Explicit wait for board element after navigation (Best Practice)
     try {
       await this.page.waitForSelector('[data-testid="training-board"]', {
@@ -560,6 +624,20 @@ export class AppDriver {
       await this.debugPageState('After board selector timeout');
       this.log('error', 'Board element not found within timeout', error);
       throw new Error('Failed to find board element after navigation');
+    }
+    
+    // Wait for engine to be ready (state-based waiting as recommended by Gemini & O3)
+    try {
+      const boardElement = this.page.locator('[data-testid="training-board"]');
+      await expect(boardElement).toHaveAttribute('data-engine-status', 'ready', { 
+        timeout: 15000 
+      });
+      this.log('debug', 'Engine status is ready');
+    } catch (error) {
+      // Log current engine status for debugging
+      const currentStatus = await this.page.locator('[data-testid="training-board"]').getAttribute('data-engine-status');
+      this.log('error', `Engine not ready. Current status: ${currentStatus}`, error);
+      throw new Error(`Engine failed to reach ready state. Current status: ${currentStatus}`);
     }
     
     // Now wait for board component to be ready
@@ -710,7 +788,7 @@ export class AppDriver {
     // Wait for move list to update
     const moveCount = await this.moveList.getMoveCount();
     await this.withRetry(
-      () => this.moveList.waitForMoveCount(moveCount),
+      () => this.moveList.waitForMoveCount(moveCount + 1),
       `Waiting for move list update after ${from}-${to}`
     );
     
@@ -796,7 +874,7 @@ export class AppDriver {
    */
   private async setMoveIndexViaBridge(moveIndex: number): Promise<void> {
     // Get current state before change
-    const currentFen = await this.board.getCurrentFEN();
+    const currentFen = await this.board.getPosition();
     const currentMoveIndex = await this.navigationControls.getCurrentMoveIndex();
     
     // Skip if already at target index
@@ -906,7 +984,8 @@ export class AppDriver {
       currentMoveIndex,
       evaluation,
       engineInfo,
-      navigationState
+      navigationState,
+      isEngineThinking
     ] = await Promise.all([
       this.board.getPosition(),
       this.moveList.getMoves(),
@@ -914,7 +993,8 @@ export class AppDriver {
       this.navigationControls.getCurrentMoveIndex(),
       this.evaluationPanel.getEvaluation().catch(() => null),
       this.evaluationPanel.getEvaluationInfo().catch(() => null),
-      this.navigationControls.getNavigationState()
+      this.navigationControls.getNavigationState(),
+      this.evaluationPanel.isThinking().catch(() => false)
     ]);
     
     // Get last move
@@ -922,7 +1002,27 @@ export class AppDriver {
     
     // Check for checkmate/game over
     const isCheckmate = await this.detectCheckmate();
-    const gameOverReason = isCheckmate ? 'checkmate' : undefined;
+    
+    // Derive game state from FEN using chess.js
+    let isGameOver = false;
+    let turn: 'w' | 'b' = 'w';
+    let gameOverReason: string | undefined = undefined;
+    
+    try {
+      this.chess.load(fen);
+      isGameOver = this.chess.isGameOver();
+      turn = this.chess.turn();
+      
+      if (isCheckmate) {
+        gameOverReason = 'checkmate';
+      } else if (this.chess.isStalemate()) {
+        gameOverReason = 'stalemate';
+      } else if (this.chess.isDraw()) {
+        gameOverReason = 'draw';
+      }
+    } catch (error) {
+      this.log('warn', 'Failed to derive game state from FEN', { error: (error as Error).message });
+    }
     
     return {
       fen,
@@ -934,7 +1034,7 @@ export class AppDriver {
       evaluation: engineInfo?.evaluation ?? evaluation,
       bestMove: engineInfo?.bestMove ?? null,
       depth: engineInfo?.depth ?? null,
-      isEngineThinking: engineInfo?.isThinking ?? false,
+      isEngineThinking,
       navigation: {
         isAtStart: navigationState.isAtStart,
         isAtEnd: navigationState.isAtEnd,
@@ -949,7 +1049,7 @@ export class AppDriver {
   /**
    * Detect if the current position is checkmate
    */
-  private async detectCheckmate(): Promise<boolean> {
+  public async detectCheckmate(): Promise<boolean> {
     try {
       const fen = await this.board.getPosition();
       this.chess.load(fen);
@@ -958,6 +1058,22 @@ export class AppDriver {
       this.log('warn', 'Failed to detect checkmate', { error: (error as Error).message });
       return false;
     }
+  }
+
+  /**
+   * Alias for getFullGameState() for backward compatibility
+   * @deprecated Use getFullGameState() instead
+   */
+  public async getGameState(): Promise<GameState> {
+    return this.getFullGameState();
+  }
+
+  /**
+   * Alias for dispose() for backward compatibility
+   * @deprecated Use dispose() instead
+   */
+  public async cleanup(): Promise<void> {
+    return this.dispose();
   }
   
   /**
@@ -1476,7 +1592,7 @@ export class AppDriver {
     this.log('info', 'Requesting engine analysis', options);
     
     // Get current position
-    const currentFen = await this.board.getFEN();
+    const currentFen = await this.board.getPosition();
     
     // Delegate to EngineAnalyzer
     const analysis = await this.engineAnalyzer.analyzePosition(currentFen, options);

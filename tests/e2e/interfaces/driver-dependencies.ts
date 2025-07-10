@@ -8,7 +8,7 @@ import { BoardComponent } from '../components/BoardComponent';
 import { MoveListComponent } from '../components/MoveListComponent';
 import { EvaluationPanel } from '../components/EvaluationPanel';
 import { NavigationControls } from '../components/NavigationControls';
-import { Logger } from '../../../shared/utils/logger';
+import { ILogger } from '../../../shared/services/logging/types';
 
 /**
  * Core dependencies required by E2E test helpers
@@ -31,7 +31,7 @@ export interface DriverDependencies {
   navigationControls: NavigationControls;
   
   /** Logger instance */
-  logger: Logger;
+  logger: ILogger;
   
   /** Error handler for consistent error management */
   errorHandler: (context: string, error: Error) => Promise<void>;

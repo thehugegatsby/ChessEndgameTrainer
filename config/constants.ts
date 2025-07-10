@@ -5,7 +5,7 @@
 export const APP_CONFIG = {
   // Development server configuration
   DEV_PORT: 3002,
-  DEV_HOST: 'localhost',
+  DEV_HOST: '127.0.0.1',
   get DEV_URL() {
     return `http://${this.DEV_HOST}:${this.DEV_PORT}`;
   },

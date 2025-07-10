@@ -70,12 +70,12 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'cross-env IS_E2E_TEST=true npm run dev',
+    command: 'npx cross-env NEXT_PUBLIC_IS_E2E_TEST=true npm run dev',
     url: APP_CONFIG.DEV_URL,
-    reuseExistingServer: !process.env.CI, // Reuse existing server locally, start new in CI
+    reuseExistingServer: false, // Always start fresh server for consistent testing
     timeout: 120 * 1000,
     env: {
-      IS_E2E_TEST: 'true',
+      NEXT_PUBLIC_IS_E2E_TEST: 'true',
     },
   },
 });

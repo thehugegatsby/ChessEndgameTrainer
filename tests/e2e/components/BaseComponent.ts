@@ -104,7 +104,7 @@ export abstract class BaseComponent {
     delay: number = RETRY_CONFIG.INITIAL_DELAY
   ): Promise<T> {
     const retries = maxRetries ?? this.maxRetries;
-    let lastError: Error;
+    let lastError: Error = new Error('No attempts were made');
 
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {

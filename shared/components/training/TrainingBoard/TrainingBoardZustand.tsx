@@ -255,15 +255,21 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
   useEffect(() => {
     const logger = getLogger().setContext('TrainingBoard-E2E');
     
+    // Check for E2E test mode via window flag OR environment variable
+    const isE2ETest = (typeof window !== 'undefined' && (window as any).__E2E_TEST_MODE__) || 
+                      process.env.NEXT_PUBLIC_IS_E2E_TEST === 'true';
+    
     // Debug logging for E2E test setup
     logger.info('E2E Test Environment Check', {
       NEXT_PUBLIC_IS_E2E_TEST: process.env.NEXT_PUBLIC_IS_E2E_TEST,
       NODE_ENV: process.env.NODE_ENV,
-      typeof_NEXT_PUBLIC_IS_E2E_TEST: typeof process.env.NEXT_PUBLIC_IS_E2E_TEST
+      typeof_NEXT_PUBLIC_IS_E2E_TEST: typeof process.env.NEXT_PUBLIC_IS_E2E_TEST,
+      window__E2E_TEST_MODE__: typeof window !== 'undefined' ? (window as any).__E2E_TEST_MODE__ : 'undefined',
+      isE2ETest
     });
     
     // Only expose in test environment
-    if (process.env.NEXT_PUBLIC_IS_E2E_TEST === 'true') {
+    if (isE2ETest) {
       logger.info('Attaching e2e hooks to window object');
       
       (window as any).e2e_makeMove = async (move: string) => {
@@ -461,53 +467,9 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     }
   }, [game, isGameFinished, handleMove, testMoveProcessed]);
 
-  // === CUSTOM SQUARE RENDERER FOR E2E TESTING ===
-  
-  // Custom renderer to add data-attributes for E2E testing
-  // Implements consensus recommendation: customSquareRenderer (Option B)
-  const customSquareRenderer = useCallback((args: any) => {
-    const { square, squareColor, piece, isDragging, onSquareClick, onSquareRightClick } = args;
-    const squareSize = 600 / 8; // Board width divided by 8
-    
-    // Parse piece notation for data-piece attribute
-    const pieceNotation = piece ? `${piece.color[0]}${piece.type.toUpperCase()}` : null;
-    
-    return (
-      <div
-        data-square={square}
-        data-testid={`chess-square-${square}`}
-        data-piece={pieceNotation || ''}
-        style={{
-          width: squareSize,
-          height: squareSize,
-          backgroundColor: squareColor,
-          cursor: isDragging ? 'grabbing' : 'pointer',
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-        onClick={onSquareClick}
-        onContextMenu={onSquareRightClick}
-      >
-        {/* Render piece if present */}
-        {piece && (
-          <div
-            style={{
-              width: '85%',
-              height: '85%',
-              backgroundImage: `url(/pieces/${piece.color}${piece.type}.png)`,
-              backgroundSize: 'contain',
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center'
-            }}
-          />
-        )}
-      </div>
-    );
-  }, []);
-
   // === RENDER ===
+  // Note: customSquareRenderer was removed as it's not supported in react-chessboard v2.1.3
+  // E2E tests should use the board's data-testid="training-board" and other available selectors
 
   return (
     <div className="flex flex-col items-center">
@@ -525,7 +487,6 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
           onPieceDrop={onDrop}
           arePiecesDraggable={!isGameFinished}
           boardWidth={600}
-          customSquareRenderer={customSquareRenderer}
         />
         {/* Show last evaluation briefly */}
         {trainingState.showLastEvaluation && lastEvaluation && (

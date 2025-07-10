@@ -62,7 +62,11 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(({
   }
 
   return (
-    <div className="space-y-1">
+    <div 
+      className="space-y-1"
+      data-testid="move-panel"
+      data-move-count={moveHistory.length}
+    >
       {movePairs.map((pair) => (
         <div 
           key={pair.moveNumber} 
@@ -80,6 +84,8 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(({
               className={`font-mono text-sm hover:text-blue-400 px-1 py-0.5 rounded transition-colors ${
                 currentMoveIndex === (pair.moveNumber - 1) * 2 ? 'text-blue-400 bg-blue-900/30' : 'text-white'
               }`}
+              data-testid="move-item"
+              data-move-number={(pair.moveNumber - 1) * 2 + 1}
             >
               {pair.whiteMove.san}
             </button>
@@ -102,6 +108,8 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(({
                   className={`font-mono text-sm hover:text-blue-400 px-1 py-0.5 rounded transition-colors ${
                     currentMoveIndex === (pair.moveNumber - 1) * 2 + 1 ? 'text-blue-400 bg-blue-900/30' : 'text-white'
                   }`}
+                  data-testid="move-item"
+                  data-move-number={(pair.moveNumber - 1) * 2 + 2}
                 >
                   {pair.blackMove.san}
                 </button>

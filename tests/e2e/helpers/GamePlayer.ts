@@ -80,11 +80,14 @@ export class GamePlayer implements IGamePlayer {
       }
 
       // Execute the move on the board
-      const { from, to } = moveResult.value;
+      const { from, to, san } = moveResult.value;
       await this.dependencies.board.makeMove(from, to);
       
-      // Update internal chess instance
-      this.chess.move(move);
+      // Update internal chess instance using the validated move object
+      const chessMove = this.chess.move({ from, to });
+      if (!chessMove) {
+        throw new Error(`Chess.js rejected move ${from}-${to} despite validation`);
+      }
       
       // Wait for board to update if auto-wait is enabled
       if (this.dependencies.config.autoWaitForEngine) {
@@ -155,7 +158,7 @@ export class GamePlayer implements IGamePlayer {
       this.chess.load(fenResult.value);
       await this.dependencies.board.loadPosition({
         fen: fenResult.value,
-        name: 'Custom Position'
+        description: 'Custom Position'
       });
     }
 
@@ -231,7 +234,7 @@ export class GamePlayer implements IGamePlayer {
   async getCurrentPosition(): Promise<string> {
     try {
       // Get FEN from the board component
-      const fen = await this.dependencies.board.getFEN();
+      const fen = await this.dependencies.board.getPosition();
       
       // Sync internal chess instance
       if (fen !== this.chess.fen()) {
@@ -256,7 +259,7 @@ export class GamePlayer implements IGamePlayer {
     // Reset the board UI
     await this.dependencies.board.loadPosition({
       fen: this.chess.fen(),
-      name: 'Initial Position'
+      description: 'Initial Position'
     });
     
     // Wait for board to update

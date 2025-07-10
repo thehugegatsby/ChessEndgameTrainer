@@ -3,7 +3,7 @@ const nextConfig = {
   env: {
     // Make process.env.NEXT_PUBLIC_IS_E2E_TEST available in client and server code
     // Using NEXT_PUBLIC_ prefix ensures it's available on the client side
-    NEXT_PUBLIC_IS_E2E_TEST: process.env.IS_E2E_TEST || 'false',
+    NEXT_PUBLIC_IS_E2E_TEST: process.env.NEXT_PUBLIC_IS_E2E_TEST || 'false',
   },
   async headers() {
     return [

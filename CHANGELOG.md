@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fixed multiple TypeScript build errors in E2E tests (2025-01-10)
+  - Removed unsupported `customSquareRenderer` property from react-chessboard
+  - Added backward-compatible method aliases (`getGameState`, `cleanup`) in AppDriver
+  - Fixed `EngineEvaluation` interface usage (changed `mateIn` to `mateDistance`)
+  - Implemented Adapter Pattern for timeout configuration mapping
+  - Unified `SequenceError` type definitions
+  - Fixed various type mismatches (null vs undefined, property names, error handling)
+  - Resolved NavigationError in E2E tests by fixing underlying build issues
+- See [TypeScript Fixes Documentation](docs/TYPESCRIPT-FIXES-2025-01-10.md) for details
+
 ### Added
 - NavigationControls component for better move history navigation
 - Central configuration file (config/constants.ts) for dev port management

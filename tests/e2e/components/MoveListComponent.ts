@@ -66,9 +66,10 @@ export class MoveListComponent extends BaseComponent {
   /**
    * Default selector for move list container
    * Implements abstract method from BaseComponent
+   * Updated to support both old and new selectors for compatibility
    */
   getDefaultSelector(): string {
-    return '[data-testid="move-list"], .move-list, #move-list, [role="list"]';
+    return '[data-testid="move-list"], [data-testid="move-panel"], .move-list, #move-list, [role="list"]';
   }
 
   /**
@@ -125,6 +126,39 @@ export class MoveListComponent extends BaseComponent {
   }
 
   /**
+   * Get the total count of moves in the move list
+   * Required by AppDriver for UI synchronization
+   * OPTIMIZED: First check data-attribute for immediate store state
+   */
+  async getMoveCount(): Promise<number> {
+    this.log('info', 'Getting move count from move list');
+    
+    try {
+      // First try to get count from data-attribute (immediate store state)
+      const movePanel = await this.page.locator('[data-testid="move-panel"]').first();
+      if (await movePanel.count() > 0) {
+        const dataCount = await movePanel.getAttribute('data-move-count');
+        if (dataCount !== null) {
+          const count = parseInt(dataCount, 10);
+          this.log('info', `Move count from data-attribute: ${count}`);
+          return count;
+        }
+      }
+      
+      // Fallback to counting DOM elements
+      const moves = await this.getMoves();
+      const count = moves.length;
+      
+      this.log('info', `Move count from DOM: ${count}`);
+      return count;
+      
+    } catch (error) {
+      this.log('error', 'Failed to get move count', { error: (error as Error).message });
+      return 0;
+    }
+  }
+
+  /**
    * Click on a specific move by move number
    * Implements click-based navigation with robust error handling
    * OPTIMIZED: Enhanced retry logic with state validation
@@ -175,30 +209,36 @@ export class MoveListComponent extends BaseComponent {
   /**
    * Wait for move count to reach specific number
    * Essential for synchronizing with game state changes
-   * OPTIMIZED: Deterministic polling with exponential backoff
+   * OPTIMIZED: Use data-attribute for immediate store state
    */
   async waitForMoveCount(count: number, timeout?: number): Promise<void> {
     const timeoutMs = timeout ?? this.moveTimeout;
     this.log('info', `Waiting for move count: ${count}`);
     
-    let pollInterval = PERFORMANCE.POLL_INTERVAL_MIN;
-    const maxPollInterval = PERFORMANCE.POLL_INTERVAL_MAX;
-    
-    await this.waitForCondition(async () => {
-      const moves = await this.getMoves();
-      const currentCount = moves.length;
+    try {
+      // Use data-attribute for immediate store state checking
+      await this.page.waitForFunction(
+        (targetCount) => {
+          const movePanel = document.querySelector('[data-testid="move-panel"]');
+          if (movePanel) {
+            const currentCount = parseInt(movePanel.getAttribute('data-move-count') || '0', 10);
+            return currentCount >= targetCount;
+          }
+          // Fallback: count DOM elements
+          const moveElements = document.querySelectorAll('[data-testid="move-item"], .move-item, [class*="move-"]');
+          return moveElements.length >= targetCount;
+        },
+        count,
+        { timeout: timeoutMs }
+      );
       
-      this.log('info', `Current move count: ${currentCount}, target: ${count}`);
-      
-      // Exponential backoff for efficiency
-      if (currentCount < count) {
-        pollInterval = Math.min(pollInterval * PERFORMANCE.EXPONENTIAL_BACKOFF_FACTOR, maxPollInterval);
-      }
-      
-      return currentCount >= count;
-    }, timeoutMs, pollInterval);
-    
-    this.log('info', `Move count ${count} reached`);
+      this.log('info', `Move count ${count} reached`);
+    } catch (error) {
+      // Log the actual count for debugging
+      const currentCount = await this.getMoveCount();
+      this.log('error', `Timeout waiting for move count ${count}, current count: ${currentCount}`);
+      throw new Error(`Move count did not reach ${count} within ${timeoutMs}ms. Current count: ${currentCount}`);
+    }
   }
 
   /**
@@ -399,10 +439,10 @@ export class MoveListComponent extends BaseComponent {
       const move: Move = {
         moveNumber,
         san,
-        uci,
+        uci: uci ?? undefined,
         color,
         halfMove,
-        evaluation,
+        evaluation: evaluation ?? undefined,
         isActive
       };
       

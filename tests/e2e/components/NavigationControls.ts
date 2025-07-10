@@ -57,7 +57,7 @@ export class NavigationControls extends BaseComponent {
    * Default selector for navigation controls container
    */
   getDefaultSelector(): string {
-    return '[data-testid="navigation-controls"]';
+    return '[data-testid="move-navigation"]';
   }
 
   /**

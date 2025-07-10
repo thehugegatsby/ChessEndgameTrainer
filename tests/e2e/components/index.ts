@@ -9,7 +9,7 @@ export type { BaseComponentConfig } from './BaseComponent';
 
 // UI components
 export { BoardComponent } from './BoardComponent';
-export type { BoardComponentConfig, Piece } from './BoardComponent';
+export type { BoardComponentConfig, ChessPiece } from './BoardComponent';
 
 export { MoveListComponent } from './MoveListComponent';
 export type { MoveListComponentConfig, Move } from './MoveListComponent';
@@ -27,7 +27,6 @@ export type {
   GameState, 
   RetryConfig,
   DisposableComponent,
-  SequenceError,
   AppDriverError,
   ComponentInitializationError,
   NavigationError,

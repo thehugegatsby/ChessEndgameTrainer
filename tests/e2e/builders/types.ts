@@ -1,23 +1,21 @@
 /**
- * @fileoverview Branded Types and Common Types for Test Builders
+ * @fileoverview Common Types for Test Builders
  * @description Type-safe definitions for chess-related data structures
+ * Uses chess.js branded types for consistency
  */
 
+import type { Square } from 'chess.js';
+
 /**
- * Branded type for FEN strings
- * Ensures compile-time safety for FEN notation
+ * Import branded types from chess.js for consistency
+ * Note: chess.js doesn't export FenString type, so we create a compatible one
  */
-export type FenString = string & { readonly __brand: 'Fen' };
+export type FenString = string;
 
 /**
  * Branded type for chess moves in algebraic notation
  */
 export type ChessMove = string & { readonly __brand: 'Move' };
-
-/**
- * Branded type for square coordinates (e.g., 'e4', 'a1')
- */
-export type Square = string & { readonly __brand: 'Square' };
 
 /**
  * Type guard for FEN validation
@@ -35,7 +33,7 @@ export function createFen(value: string): FenString {
   if (!isFenString(value)) {
     throw new Error(`Invalid FEN notation: ${value}`);
   }
-  return value as FenString;
+  return value;
 }
 
 /**
@@ -118,8 +116,8 @@ export interface TrainingSession {
  * Default values for common scenarios
  */
 export const DEFAULT_VALUES = {
-  INITIAL_FEN: createFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'),
-  EMPTY_FEN: createFen('8/8/8/8/8/8/8/8 w - - 0 1'),
-  OPPOSITION_FEN: createFen('4k3/8/4K3/8/8/8/8/8 w - - 0 1'),
-  BRIDGE_BUILDING_FEN: createFen('8/8/8/8/3K4/8/3P4/3k4 w - - 0 1'),
+  INITIAL_FEN: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1' as FenString,
+  EMPTY_FEN: '8/8/8/8/8/8/8/8 w - - 0 1' as FenString,
+  OPPOSITION_FEN: '4k3/8/4K3/8/8/8/8/8 w - - 0 1' as FenString,
+  BRIDGE_BUILDING_FEN: '8/8/8/8/3K4/8/3P4/3k4 w - - 0 1' as FenString,
 } as const;

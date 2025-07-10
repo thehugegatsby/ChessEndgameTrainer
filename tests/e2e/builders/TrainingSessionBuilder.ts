@@ -75,9 +75,13 @@ export class TrainingSessionBuilder extends BaseBuilder<TrainingSession, Trainin
    */
   withTimePerMove(timeMs: number): TrainingSessionBuilder {
     const currentData = this.getCurrentData();
+    const defaults = this.getDefaults();
+    const settings = currentData.settings || defaults.settings;
     return this.withMany({
       settings: {
-        ...currentData.settings,
+        showEvaluation: settings.showEvaluation,
+        showBestMove: settings.showBestMove,
+        allowTakebacks: settings.allowTakebacks,
         timePerMove: timeMs,
       },
     });
@@ -88,10 +92,14 @@ export class TrainingSessionBuilder extends BaseBuilder<TrainingSession, Trainin
    */
   withShowEvaluation(show: boolean): TrainingSessionBuilder {
     const currentData = this.getCurrentData();
+    const defaults = this.getDefaults();
+    const settings = currentData.settings || defaults.settings;
     return this.withMany({
       settings: {
-        ...currentData.settings,
         showEvaluation: show,
+        showBestMove: settings.showBestMove,
+        allowTakebacks: settings.allowTakebacks,
+        timePerMove: settings.timePerMove,
       },
     });
   }
@@ -101,10 +109,14 @@ export class TrainingSessionBuilder extends BaseBuilder<TrainingSession, Trainin
    */
   withShowBestMove(show: boolean): TrainingSessionBuilder {
     const currentData = this.getCurrentData();
+    const defaults = this.getDefaults();
+    const settings = currentData.settings || defaults.settings;
     return this.withMany({
       settings: {
-        ...currentData.settings,
+        showEvaluation: settings.showEvaluation,
         showBestMove: show,
+        allowTakebacks: settings.allowTakebacks,
+        timePerMove: settings.timePerMove,
       },
     });
   }
@@ -114,10 +126,14 @@ export class TrainingSessionBuilder extends BaseBuilder<TrainingSession, Trainin
    */
   withAllowTakebacks(allow: boolean): TrainingSessionBuilder {
     const currentData = this.getCurrentData();
+    const defaults = this.getDefaults();
+    const settings = currentData.settings || defaults.settings;
     return this.withMany({
       settings: {
-        ...currentData.settings,
+        showEvaluation: settings.showEvaluation,
+        showBestMove: settings.showBestMove,
         allowTakebacks: allow,
+        timePerMove: settings.timePerMove,
       },
     });
   }
