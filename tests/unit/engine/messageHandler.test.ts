@@ -5,7 +5,7 @@
  * Following test guidelines from docs/testing/TESTING_GUIDELINES.md
  */
 
-import { StockfishMessageHandler } from '../../../shared/lib/chess/engine/messageHandler';
+// Use type-only import to avoid module-level side effects
 import type { 
   EngineRequest, 
   BestMoveRequest, 
@@ -14,15 +14,18 @@ import type {
   EvaluationResponse,
   ErrorResponse
 } from '../../../shared/lib/chess/engine/types';
+// StockfishMessageHandler will be dynamically imported after mocks are set up
 import { Chess } from 'chess.js';
 
 // Mock chess.js
 jest.mock('chess.js');
 
-// Mock logger
-jest.mock('../../../shared/services/logging', () => ({
-  getLogger: () => require('../../shared/logger-utils').createTestLogger()
-}));
+// Mock logger with standardized factory pattern
+jest.mock('../../../shared/services/logging', 
+  require('../../shared/logger-utils').getMockLoggerDefinition()
+);
+
+let mockLogger: any;
 
 // Helper function to create a mock Move object
 const createMockMove = (from: string, to: string, piece: string = 'p', color: string = 'w') => ({
@@ -46,23 +49,35 @@ const createMockMove = (from: string, to: string, piece: string = 'p', color: st
 });
 
 describe('StockfishMessageHandler', () => {
-  let handler: StockfishMessageHandler;
+  let handler: any;
   let mockChess: jest.Mocked<Chess>;
+  let StockfishMessageHandler: any;
 
   beforeEach(() => {
-    // Clear all mocks
+    // Clear all mocks before setting up
     jest.clearAllMocks();
     
-    // Setup chess.js mock
-    mockChess = new Chess() as jest.Mocked<Chess>;
+    // Setup chess.js mock with resetMocks: true compatibility
+    mockChess = {
+      load: jest.fn(),
+      move: jest.fn(),
+    } as any;
+    
+    // Ensure Chess constructor returns our mock
     (Chess as jest.Mock).mockImplementation(() => mockChess);
     
-    // Default mock implementations
-    mockChess.load = jest.fn();
-    mockChess.move = jest.fn();
+    // Dynamically require the module AFTER mocks are configured
+    StockfishMessageHandler = require('../../../shared/lib/chess/engine/messageHandler').StockfishMessageHandler;
     
     // Create new handler instance
     handler = new StockfishMessageHandler();
+    
+    // Re-get the mock logger for assertions
+    mockLogger = (require('../../../shared/services/logging').getLogger as jest.Mock)();
+  });
+
+  afterEach(() => {
+    jest.resetModules(); // Important for test isolation
   });
 
   describe('UCI protocol handling', () => {

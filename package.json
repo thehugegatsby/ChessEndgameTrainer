@@ -21,6 +21,7 @@
     "test:e2e": "cross-env IS_E2E_TEST=true playwright test tests/e2e",
     "test:e2e:headed": "cross-env IS_E2E_TEST=true playwright test tests/e2e --headed",
     "test:e2e:ui": "cross-env IS_E2E_TEST=true playwright test tests/e2e --ui",
+    "test:e2e:critical": "cross-env IS_E2E_TEST=true playwright test tests/e2e/critical",
     "test:all": "npm run test:unit && npm run test:integration && npm run test:performance && npm run test:regression",
     "test:ci": "npm run test:all && npm run test:e2e",
     "kill-port": "node scripts/kill-port.js",

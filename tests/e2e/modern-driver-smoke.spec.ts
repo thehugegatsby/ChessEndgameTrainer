@@ -32,14 +32,7 @@ test.describe('ModernDriver Smoke Test', () => {
     driver = new ModernDriver(page, {
       useTestBridge: true,
       defaultTimeout: 30000,
-      logger: {
-        debug: (message: string, context?: Record<string, unknown>) => {
-          console.log(`[ModernDriver] ${message}`, context || '');
-        },
-        error: (message: string, error?: Error) => {
-          console.error(`[ModernDriver ERROR] ${message}`, error);
-        }
-      }
+      logger: undefined // Use default logger
     });
   });
 

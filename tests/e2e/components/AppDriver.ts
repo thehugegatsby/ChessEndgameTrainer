@@ -1,6 +1,7 @@
 /**
  * @fileoverview AppDriver - DEPRECATED - Use ModernDriver instead!
  * @deprecated AppDriver is deprecated in favor of ModernDriver (~300 lines)
+ * @since 2025-01-17
  * 
  * ⚠️ WICHTIG: DIESER DRIVER IST VERALTET! ⚠️
  * 
@@ -31,7 +32,9 @@
  * DEPRECATION TIMELINE:
  * - 2025-01-10: ModernDriver introduced
  * - 2025-01-17: All new tests must use ModernDriver
- * - 2025-01-31: AppDriver will be removed
+ * - 2025-02-28: AppDriver will be removed
+ * 
+ * SEE: docs/MODERNDRIVER_MIGRATION.md for detailed migration guide
  * 
  * Original description (kept for historical context):
  * Provides a unified, high-level interface for E2E tests
@@ -257,25 +260,23 @@ export interface DisposableComponent {
 /**
  * AppDriver - Central orchestrator for all E2E test components
  * 
+ * @deprecated Since 2025-01-17. Use ModernDriver instead.
+ * @see ModernDriver for the new, cleaner API
+ * @see docs/MODERNDRIVER_MIGRATION.md for migration guide
+ * 
  * @example
  * ```typescript
- * // Basic usage
+ * // ❌ OLD WAY (AppDriver) - DO NOT USE
  * const driver = new AppDriver(page);
  * await driver.visit();
  * await driver.setupGame('4k3/8/4K3/4P3/8/8/8/8 w - - 0 1');
  * await driver.makeMoveAndAwaitUpdate('e5', 'e6');
  * 
- * // Fluent interface
- * await driver
- *   .visit()
- *   .setupGame()
- *   .makeMoveAndAwaitUpdate('e2', 'e4')
- *   .makeMoveAndAwaitUpdate('e7', 'e5')
- *   .gotoMove(0);
- * 
- * // Direct component access when needed
- * const evaluation = await driver.evaluationPanel.getEvaluation();
- * const moves = await driver.moveList.getMoves();
+ * // ✅ NEW WAY (ModernDriver) - USE THIS INSTEAD
+ * const driver = new ModernDriver(page, { useTestBridge: true });
+ * await driver.visit('/train/1');
+ * await driver.setupPosition('4k3/8/4K3/4P3/8/8/8/8 w - - 0 1');
+ * await driver.makeMove('e5', 'e6');
  * ```
  */
 export class AppDriver {
@@ -310,6 +311,7 @@ export class AppDriver {
 
   /**
    * Create a new AppDriver instance
+   * @deprecated Use ModernDriver instead
    * @param page - Playwright Page object (Dependency Injection)
    * @param config - Optional configuration
    */
@@ -317,6 +319,11 @@ export class AppDriver {
     private readonly page: Page,
     config: AppDriverConfig = {}
   ) {
+    // Warn about deprecation
+    console.warn('\n⚠️  AppDriver is deprecated! Use ModernDriver instead.');
+    console.warn('   Migration guide: docs/MODERNDRIVER_MIGRATION.md');
+    console.warn('   Will be removed: 2025-02-28\n');
+    
     this.config = {
       baseUrl: config.baseUrl || 'http://127.0.0.1:3002',
       timeouts: { ...TIMEOUTS, ...(config.timeouts || {}) },

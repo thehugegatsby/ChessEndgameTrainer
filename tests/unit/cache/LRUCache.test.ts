@@ -6,6 +6,11 @@
 import { LRUCache, CacheStats } from '../../../shared/lib/cache/LRUCache';
 import { getLogger } from '../../../shared/services/logging';
 
+// Mock logger with standardized factory pattern
+jest.mock('../../../shared/services/logging', 
+  require('../../shared/logger-utils').getMockLoggerDefinition()
+);
+
 describe('LRUCache', () => {
   describe('LRUCache_constructor_defaultCapacity_createsInstance', () => {
     it('should create cache with default capacity of 1000', () => {

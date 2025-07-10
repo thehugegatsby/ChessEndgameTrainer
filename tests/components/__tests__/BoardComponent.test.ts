@@ -10,20 +10,21 @@ import { BoardComponent } from '../../e2e/components/BoardComponent';
 import { 
   createMockPage, 
   createMockLocator,
-  Page,
+  MockPage,
   Locator
 } from '../__mocks__/playwright';
+import type { Page } from '@playwright/test';
 
 // Increase timeout for debugging
 jest.setTimeout(30000);
 
 describe('BoardComponent - Board Initialization', () => {
-  let mockPage: jest.Mocked<Page>;
+  let mockPage: MockPage;
   let boardComponent: BoardComponent;
 
   beforeEach(() => {
     mockPage = createMockPage();
-    boardComponent = new BoardComponent(mockPage);
+    boardComponent = new BoardComponent(mockPage as unknown as Page);
   });
 
   describe('waitForBoard', () => {
@@ -42,7 +43,7 @@ describe('BoardComponent - Board Initialization', () => {
         '[data-testid="training-board"], .react-chessboard, #chessboard'
       );
       expect(mockLocator.isVisible).toHaveBeenCalled();
-      expect(mockPage.waitForSelector).not.toHaveBeenCalled();
+      expect(mockLocator.waitFor).not.toHaveBeenCalled();
     });
 
     test('should wait for selector if board not initially visible', async () => {
@@ -51,40 +52,48 @@ describe('BoardComponent - Board Initialization', () => {
         isVisible: jest.fn().mockResolvedValue(false) // Not visible
       });
       
+      const mockWaitingLocator = createMockLocator({
+        waitFor: jest.fn().mockResolvedValue(undefined)
+      });
+      
       // First call returns board check, subsequent calls for waitForElement
       mockPage.locator
         .mockReturnValueOnce(mockBoardLocator)
-        .mockReturnValue(createMockLocator());
+        .mockReturnValue(mockWaitingLocator);
 
       // Act
       await boardComponent.waitForBoard();
 
       // Assert
       expect(mockBoardLocator.isVisible).toHaveBeenCalledTimes(1);
-      expect(mockPage.waitForSelector).toHaveBeenCalledWith(
-        '[data-testid="training-board"], .react-chessboard, #chessboard',
-        expect.any(Object)
-      );
+      expect(mockWaitingLocator.waitFor).toHaveBeenCalledWith({
+        state: 'visible',
+        timeout: expect.any(Number)
+      });
     });
 
     test('should handle exception when checking visibility', async () => {
       // Arrange
+      const mockWaitingLocator = createMockLocator({
+        waitFor: jest.fn().mockResolvedValue(undefined)
+      });
+      
       // First call throws (in try block), then returns valid locator
       mockPage.locator
         .mockImplementationOnce(() => {
           throw new Error('Element not found');
         })
-        .mockReturnValue(createMockLocator());
+        .mockReturnValue(mockWaitingLocator);
 
       // Act
       await boardComponent.waitForBoard();
 
       // Assert
       expect(mockPage.locator).toHaveBeenCalledTimes(2);
-      expect(mockPage.waitForSelector).toHaveBeenCalledWith(
-        '[data-testid="training-board"], .react-chessboard, #chessboard',
-        expect.any(Object)
-      );
+      expect(mockWaitingLocator.waitFor).toHaveBeenCalledWith({
+        state: 'visible',
+        timeout: expect.any(Number)
+      });
     });
   });
 
@@ -122,7 +131,7 @@ describe('BoardComponent - Board Initialization', () => {
         .mockResolvedValueOnce(false) // hasE2EMakeMove
         .mockResolvedValue('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'); // new FEN
 
-      const mockLocator = mockPage.locator();
+      const mockLocator = mockPage.locator('') as any;
 
       await boardComponent.makeMove('e2', 'e4');
 
@@ -146,7 +155,7 @@ describe('BoardComponent - Board Initialization', () => {
 
   describe('FEN Handling', () => {
     test('should get current position from data-fen attribute', async () => {
-      const mockLocator = mockPage.locator();
+      const mockLocator = mockPage.locator('') as any;
       (mockLocator.getAttribute as jest.Mock).mockResolvedValue(
         'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
       );
@@ -157,7 +166,7 @@ describe('BoardComponent - Board Initialization', () => {
     });
 
     test('should fall back to test bridge for FEN', async () => {
-      const mockLocator = mockPage.locator();
+      const mockLocator = mockPage.locator('') as any;
       (mockLocator.getAttribute as jest.Mock).mockResolvedValue(null);
       (mockPage.evaluate as jest.Mock).mockResolvedValue(
         'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
@@ -169,7 +178,7 @@ describe('BoardComponent - Board Initialization', () => {
     });
 
     test('should validate FEN format', async () => {
-      const mockLocator = mockPage.locator();
+      const mockLocator = mockPage.locator('') as any;
       
       // Test invalid FEN
       (mockLocator.getAttribute as jest.Mock).mockResolvedValue('invalid-fen');
@@ -182,7 +191,7 @@ describe('BoardComponent - Board Initialization', () => {
 
   describe('Piece Detection', () => {
     test('should detect piece at square', async () => {
-      const mockLocator = mockPage.locator();
+      const mockLocator = mockPage.locator('') as any;
       (mockLocator.getAttribute as jest.Mock).mockResolvedValue('wK');
 
       const piece = await boardComponent.getPieceAt('e1');
@@ -196,7 +205,7 @@ describe('BoardComponent - Board Initialization', () => {
     });
 
     test('should return null for empty square', async () => {
-      const mockLocator = mockPage.locator();
+      const mockLocator = mockPage.locator('') as any;
       (mockLocator.getAttribute as jest.Mock).mockResolvedValue(null);
       (mockLocator.count as jest.Mock).mockResolvedValue(0);
 
@@ -272,7 +281,7 @@ describe('BoardComponent - Board Initialization', () => {
 
   describe('Move Validation', () => {
     test('should validate legal moves', async () => {
-      const mockLocator = mockPage.locator();
+      const mockLocator = mockPage.locator('') as any;
       
       // Mock piece at source
       (mockLocator.getAttribute as jest.Mock).mockResolvedValue('wP');
@@ -296,7 +305,7 @@ describe('BoardComponent - Board Initialization', () => {
     });
 
     test('should return false for invalid moves', async () => {
-      const mockLocator = mockPage.locator();
+      const mockLocator = mockPage.locator('') as any;
       
       // Mock piece at source
       (mockLocator.getAttribute as jest.Mock).mockResolvedValue('wP');

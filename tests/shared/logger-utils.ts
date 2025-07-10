@@ -140,3 +140,67 @@ export function createDebugLogger(): ILogger {
     })
   } satisfies ILogger;
 }
+
+/**
+ * Performance-optimized factory function for Jest mock definitions
+ * Returns a reusable mock logger definition that's compatible with clearMocks: true
+ * 
+ * @description This factory creates a standardized logger mock that:
+ * - Works correctly with Jest's clearMocks: true configuration
+ * - Provides consistent mock behavior across all test files
+ * - Optimizes performance by reusing mock function definitions
+ * - Maintains type safety with the ILogger interface
+ * 
+ * @returns A Jest-compatible mock object for the logging service
+ * 
+ * @example
+ * ```typescript
+ * // In your test file:
+ * jest.mock('../../../shared/services/logging', getMockLoggerDefinition);
+ * ```
+ */
+export function getMockLoggerDefinition() {
+  // Pre-create mock functions for reuse across test instances
+  const mockLogger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+    fatal: jest.fn(),
+    setContext: jest.fn().mockReturnThis(),
+    clearContext: jest.fn(),
+    getConfig: jest.fn(() => createNoopLoggerConfig()),
+    updateConfig: jest.fn(),
+    getLogs: jest.fn(() => []),
+    clearLogs: jest.fn(),
+    time: jest.fn(),
+    timeEnd: jest.fn(),
+    withFields: jest.fn().mockReturnThis()
+  };
+
+  return () => ({
+    getLogger: jest.fn(() => mockLogger),
+    createLogger: jest.fn(() => mockLogger),
+    resetLogger: jest.fn(),
+  });
+}
+
+/**
+ * Simplified mock logger definition for basic use cases
+ * Use when you don't need advanced logger features or performance optimization
+ * 
+ * @returns A minimal Jest mock for the logging service
+ */
+export function getBasicMockLoggerDefinition() {
+  return () => ({
+    getLogger: jest.fn(() => ({
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      debug: jest.fn(),
+      fatal: jest.fn(),
+      setContext: jest.fn().mockReturnThis(),
+      clearContext: jest.fn(),
+    }))
+  });
+}

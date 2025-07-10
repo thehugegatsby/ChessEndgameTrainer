@@ -26,10 +26,10 @@ import { EndgamePosition } from '../../../shared/data/endgames/types';
 import { Move } from '../../../shared/types';
 import { RootState } from '../../../shared/store/types';
 
-// Mock the logger to avoid console output
-jest.mock('../../../shared/services/logging', () => ({
-  getLogger: () => require('../../shared/logger-utils').createTestLogger()
-}));
+// Mock the logger using the new factory function for performance optimization
+jest.mock('../../../shared/services/logging', 
+  require('../../shared/logger-utils').getMockLoggerDefinition()
+);
 
 describe('Zustand Store', () => {
   beforeEach(() => {

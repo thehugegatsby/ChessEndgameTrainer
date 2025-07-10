@@ -78,25 +78,59 @@ jest.mock('next/router', () => ({
 // Stub window.alert for tests
 global.alert = jest.fn(); 
 
+/**
+ * @deprecated GLOBAL LOGGER MOCK - SCHEDULED FOR REMOVAL
+ * 
+ * ⚠️  WARNING: This global logger mock is being phased out!
+ * 
+ * With resetMocks: true enabled, this mock is effectively INERT.
+ * All mock implementations are reset before each test runs.
+ * 
+ * MIGRATION REQUIRED:
+ * Please use the new centralized pattern in your test files:
+ * 
+ * jest.mock('@shared/services/logging', () => ({
+ *   getLogger: () => require('../../shared/logger-utils').createTestLogger()
+ * }));
+ * 
+ * See: tests/shared/logger-utils.ts for available utilities
+ * See: docs/testing/TEST_UTILITIES.md for migration guide
+ * 
+ * This global mock will be REMOVED after all tests are migrated.
+ * Track progress: Phase 2 Logger-Mock-Migration
+ */
+
 // Mock the logger service to prevent setContext errors
-jest.mock('@shared/services/logging', () => ({
-  getLogger: jest.fn(() => ({
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
-    fatal: jest.fn(),
-    setContext: jest.fn(() => ({
+jest.mock('@shared/services/logging', () => {
+  // Deprecation warning to encourage migration
+  console.warn(`
+    ******************************************************************
+    DEPRECATION WARNING: Global logger mock is active in jest.setup.js
+    This mock is deprecated and will be removed soon.
+    Please migrate your test to use the centralized logger utility.
+    See docs/testing/TEST_UTILITIES.md for migration instructions.
+    ******************************************************************
+  `);
+  
+  return {
+    getLogger: jest.fn(() => ({
       info: jest.fn(),
       warn: jest.fn(),
       error: jest.fn(),
       debug: jest.fn(),
       fatal: jest.fn(),
-      setContext: jest.fn(),
+      setContext: jest.fn(() => ({
+        info: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+        debug: jest.fn(),
+        fatal: jest.fn(),
+        setContext: jest.fn(),
+        clearContext: jest.fn(),
+      })),
       clearContext: jest.fn(),
     })),
-    clearContext: jest.fn(),
-  })),
-  createLogger: jest.fn(),
-  resetLogger: jest.fn(),
-}));
+    createLogger: jest.fn(),
+    resetLogger: jest.fn(),
+  };
+});

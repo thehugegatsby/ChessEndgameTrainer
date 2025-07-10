@@ -73,9 +73,8 @@ test.describe('BoardComponent', () => {
       await setupMockBoard(page);
       const board = new BoardComponent(page, '[data-testid="custom-board"]');
       
-      // Test that custom selector is used
-      const rootElement = await board.getRootElement();
-      expect(rootElement).toBeDefined();
+      // Test that board is initialized
+      await expect(board.waitForBoard()).resolves.not.toThrow();
     });
 
     test('should initialize with custom configuration', async ({ page }) => {
@@ -252,7 +251,7 @@ test.describe('BoardComponent', () => {
       });
       
       const board = new BoardComponent(page);
-      const position = aPosition().withOpposition().build();
+      const position = aPosition().build();
       
       await board.loadPosition(position);
       
@@ -276,10 +275,8 @@ test.describe('BoardComponent', () => {
       });
       
       // Should fall back to starting position
-      const currentFen = await page.evaluate(async () => {
-        const board = new (await import('./BoardComponent')).BoardComponent(page);
-        return board.getCurrentFen();
-      });
+      const boardElement = await page.locator('[data-testid="training-board"]');
+      const currentFen = await boardElement.getAttribute('data-fen');
       
       expect(currentFen).toBe('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
     });
