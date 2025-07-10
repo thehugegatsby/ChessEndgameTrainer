@@ -18,6 +18,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Resolved NavigationError in E2E tests by fixing underlying build issues
 - See [TypeScript Fixes Documentation](docs/TYPESCRIPT-FIXES-2025-01-10.md) for details
 
+### Changed
+- Removed deprecated method aliases from AppDriver (2025-01-10)
+  - Replaced `cleanup()` with `dispose()` in E2E tests
+  - Replaced `getGameState()` with `getFullGameState()` in E2E tests
+  - Added public `waitForReady()` method for clean API encapsulation
+  - Completed TECH-004 technical debt ticket
+
 ### Added
 - NavigationControls component for better move history navigation
 - Central configuration file (config/constants.ts) for dev port management

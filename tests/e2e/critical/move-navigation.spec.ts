@@ -61,7 +61,7 @@ test.describe('Critical User Journey: Navigate Through Moves', () => {
     await appDriver.moveList.clickMove(1);
     
     // Verify board position matches move 1
-    const afterMove1 = await appDriver.getGameState();
+    const afterMove1 = await appDriver.getFullGameState();
     expect(afterMove1.moveCount).toBe(1);
     
     // Verify active move highlighting
@@ -72,13 +72,13 @@ test.describe('Critical User Journey: Navigate Through Moves', () => {
     // Step 3: Navigate to move 3 via click
     await appDriver.moveList.clickMove(3);
     
-    const afterMove3 = await appDriver.getGameState();
+    const afterMove3 = await appDriver.getFullGameState();
     expect(afterMove3.moveCount).toBe(3);
     
     // Step 4: Navigate to last move
     await appDriver.moveList.goToLastMove();
     
-    const atLastMove = await appDriver.getGameState();
+    const atLastMove = await appDriver.getFullGameState();
     expect(atLastMove.moveCount).toBe(6);
     
     // Step 5: Test navigation buttons
@@ -88,7 +88,7 @@ test.describe('Critical User Journey: Navigate Through Moves', () => {
     
     await prevButton.click();
     
-    const afterPrevButton = await appDriver.getGameState();
+    const afterPrevButton = await appDriver.getFullGameState();
     expect(afterPrevButton.moveCount).toBe(5);
     
     // Navigate forward using button
@@ -96,13 +96,13 @@ test.describe('Critical User Journey: Navigate Through Moves', () => {
     
     await nextButton.click();
     
-    const afterNextButton = await appDriver.getGameState();
+    const afterNextButton = await appDriver.getFullGameState();
     expect(afterNextButton.moveCount).toBe(6);
     
     // Step 6: Test edge cases
     // Try to go past the last move (should stay at last move)
     await nextButton.click();
-    const stillAtLastMove = await appDriver.getGameState();
+    const stillAtLastMove = await appDriver.getFullGameState();
     expect(stillAtLastMove.moveCount).toBe(6);
     
     // Go to first move
@@ -110,14 +110,14 @@ test.describe('Critical User Journey: Navigate Through Moves', () => {
     
     // Try to go before first move (should stay at move 0)
     await prevButton.click();
-    const atStartPosition = await appDriver.getGameState();
+    const atStartPosition = await appDriver.getFullGameState();
     expect(atStartPosition.moveCount).toBe(0);
     
     // Step 7: Verify board state consistency
     // Navigate to a middle move and verify piece positions
     await appDriver.moveList.clickMove(4);
     
-    const middleState = await appDriver.getGameState();
+    const middleState = await appDriver.getFullGameState();
     expect(middleState.fen).toContain('Q'); // Queen should be on board
     expect(middleState.turn).toBe('w'); // White to move after Black's 4th move
     
@@ -140,7 +140,7 @@ test.describe('Critical User Journey: Navigate Through Moves', () => {
     // Step 2: Navigate back to move 2
     await appDriver.moveList.clickMove(2);
     
-    const beforeNewMove = await appDriver.getGameState();
+    const beforeNewMove = await appDriver.getFullGameState();
     expect(beforeNewMove.moveCount).toBe(2);
     
     // Step 3: Make a new move from this position (variation)
@@ -152,17 +152,17 @@ test.describe('Critical User Journey: Navigate Through Moves', () => {
     await appDriver.waitForMoveCount(4); // Should truncate and add new moves
     
     // Step 4: Verify move history was updated correctly
-    const afterVariation = await appDriver.getGameState();
+    const afterVariation = await appDriver.getFullGameState();
     expect(afterVariation.moveCount).toBe(4); // 2 original + 2 new
     
     // Verify we can still navigate
     await appDriver.moveList.clickMove(1);
-    const backToMove1 = await appDriver.getGameState();
+    const backToMove1 = await appDriver.getFullGameState();
     expect(backToMove1.moveCount).toBe(1);
     
     // Navigate to the new variation move
     await appDriver.moveList.clickMove(3);
-    const atVariationMove = await appDriver.getGameState();
+    const atVariationMove = await appDriver.getFullGameState();
     expect(atVariationMove.moveCount).toBe(3);
     
     // The move should be the variation we played
@@ -200,13 +200,13 @@ test.describe('Critical User Journey: Navigate Through Moves', () => {
     await page.waitForTimeout(500);
     
     // Verify the board is in a valid state
-    const finalState = await appDriver.getGameState();
+    const finalState = await appDriver.getFullGameState();
     expect(finalState.moveCount).toBeGreaterThanOrEqual(0);
     expect(finalState.moveCount).toBeLessThanOrEqual(finalMoveCount);
     
     // Verify we can still navigate normally
     await appDriver.moveList.goToLastMove();
-    const atEnd = await appDriver.getGameState();
+    const atEnd = await appDriver.getFullGameState();
     expect(atEnd.moveCount).toBe(finalMoveCount);
     
     console.log('✅ Rapid navigation handled gracefully');
@@ -214,6 +214,6 @@ test.describe('Critical User Journey: Navigate Through Moves', () => {
 
   test.afterEach(async () => {
     // Cleanup if needed
-    await appDriver.cleanup();
+    await appDriver.dispose();
   });
 });

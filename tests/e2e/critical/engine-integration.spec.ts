@@ -230,7 +230,7 @@ test.describe('Critical User Journey: Engine Integration', () => {
     
     // Step 3: Verify the app is still functional
     // Get current state
-    const currentState = await appDriver.getGameState();
+    const currentState = await appDriver.getFullGameState();
     expect(currentState).toBeDefined();
     
     // Try to make a controlled move
@@ -272,7 +272,7 @@ test.describe('Critical User Journey: Engine Integration', () => {
       await appDriver.waitForReady();
       
       // Verify reset worked
-      const resetState = await appDriver.getGameState();
+      const resetState = await appDriver.getFullGameState();
       expect(resetState.moveCount).toBe(0);
     }
     
@@ -281,6 +281,6 @@ test.describe('Critical User Journey: Engine Integration', () => {
 
   test.afterEach(async () => {
     // Cleanup if needed
-    await appDriver.cleanup();
+    await appDriver.dispose();
   });
 });

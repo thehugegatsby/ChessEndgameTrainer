@@ -596,7 +596,15 @@ export class AppDriver {
   }
 
   /**
-   * Wait for application to be fully ready
+   * Waits for the application to be in a ready state.
+   * This is the public method intended for use in tests.
+   */
+  public async waitForReady(): Promise<void> {
+    await this.waitForAppReady();
+  }
+
+  /**
+   * Internal implementation for waiting until the app is ready.
    * Checks multiple readiness indicators
    */
   private async waitForAppReady(): Promise<void> {
@@ -1060,22 +1068,6 @@ export class AppDriver {
     }
   }
 
-  /**
-   * Alias for getFullGameState() for backward compatibility
-   * @deprecated Use getFullGameState() instead
-   */
-  public async getGameState(): Promise<GameState> {
-    return this.getFullGameState();
-  }
-
-  /**
-   * Alias for dispose() for backward compatibility
-   * @deprecated Use dispose() instead
-   */
-  public async cleanup(): Promise<void> {
-    return this.dispose();
-  }
-  
   /**
    * Check if test bridge is available
    */

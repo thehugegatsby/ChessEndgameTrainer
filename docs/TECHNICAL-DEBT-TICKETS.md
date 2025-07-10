@@ -116,7 +116,7 @@ class AppDriver {
 
 ## LOW PRIORITY - API Cleanup
 
-### Ticket: TECH-004 - Remove Method Aliases
+### Ticket: TECH-004 - Remove Method Aliases ✅ COMPLETED 2025-01-10
 **Priority:** LOW  
 **Estimated Effort:** 1 Day  
 **Blocked By:** None  
@@ -127,20 +127,22 @@ class AppDriver {
 - Two ways to call same functionality
 - cleanup() vs dispose()
 - getGameState() vs getFullGameState()
-- waitForReady() vs waitForAppReady()
+- ~~waitForReady() vs waitForAppReady()~~ (different issue - was missing public interface)
 
 #### Acceptance Criteria
-- [ ] Choose canonical method names
-- [ ] Update all test files to use canonical names
-- [ ] Remove @deprecated aliases from AppDriver
-- [ ] Update any documentation
-- [ ] Verify no runtime errors
+- [x] Choose canonical method names
+- [x] Update all test files to use canonical names
+- [x] Remove @deprecated aliases from AppDriver
+- [x] Update any documentation
+- [x] Verify no runtime errors
 
-#### Migration Steps
-1. Find all usages: `grep -r "cleanup()" tests/`
-2. Replace with canonical: `sed -i 's/cleanup()/dispose()/g'`
-3. Remove alias methods
-4. Run full test suite
+#### Migration Steps Executed
+1. Found all usages using grep
+2. Replaced cleanup() with dispose() in 2 E2E test files
+3. Replaced getGameState() with getFullGameState() in 2 E2E test files
+4. Removed deprecated method aliases from AppDriver
+5. Added public waitForReady() method after LLM consultation (clean encapsulation)
+6. All unit tests pass, E2E tests run (some fail due to unrelated selector issues)
 
 ---
 
