@@ -103,6 +103,12 @@ export class ModernDriver implements IModernDriver {
     
     try {
       const url = path.startsWith('http') ? path : `${this.config.baseUrl}${path}`;
+      
+      // Set E2E test mode flag BEFORE navigation (optimal client-side approach)
+      await this.page.addInitScript(() => {
+        window.__E2E_TEST_MODE__ = true;
+      });
+      
       await this.page.goto(url);
       await this.waitUntilReady();
       
@@ -290,25 +296,54 @@ export class ModernDriver implements IModernDriver {
   }
 
   async waitUntilReady(): Promise<void> {
-    this.logger?.debug('Waiting for application ready state');
+    this.logger?.debug('Waiting for application ready state...');
     
     try {
-      // Wait for board to be visible
-      await this.board.waitForBoard();
+      // Phase 1: Wait for DOM basics
+      this.logger?.debug('Phase 1: Waiting for basic DOM elements...');
+      await this.page.waitForSelector('body', { timeout: 5000 });
       
-      // Wait for engine status
-      await this.page.waitForSelector('[data-engine-status="ready"]', {
+      // Phase 2: Wait for app initialization signal (robust event-based approach)
+      this.logger?.debug('Phase 2: Waiting for app-ready signal...');
+      await this.page.waitForSelector('body[data-app-ready="true"]', {
         timeout: this.config.defaultTimeout
       });
       
-      // Initialize Test Bridge if enabled
+      // Phase 3: Verify no error state
+      const appStatus = await this.page.locator('body').getAttribute('data-app-ready');
+      if (appStatus === 'error') {
+        throw new Error('Application failed to initialize - check engine initialization logs');
+      }
+      
+      // Phase 4: Wait for board to be ready
+      this.logger?.debug('Phase 3: Waiting for board component...');
+      await this.board.waitForBoard();
+      
+      // Phase 5: Initialize Test Bridge if enabled
       if (this._bridge) {
+        this.logger?.debug('Phase 4: Initializing Test Bridge...');
         await this._bridge.initialize(this.config.defaultTimeout);
       }
       
-      this.logger?.debug('Application is ready');
+      this.logger?.debug('✅ Application is ready - all phases completed');
     } catch (error) {
-      this.logger?.error('Application not ready', error as Error);
+      this.logger?.error('Application readiness check failed', error as Error);
+      
+      // Enhanced debugging info
+      try {
+        const bodyAttributes = await this.page.evaluate(() => {
+          const body = document.body;
+          return {
+            'data-app-ready': body.getAttribute('data-app-ready'),
+            'data-engine-status': body.getAttribute('data-engine-status'),
+            'data-bridge-status': body.getAttribute('data-bridge-status')
+          };
+        });
+        this.logger?.error('Current body attributes:', bodyAttributes);
+      } catch (debugError) {
+        this.logger?.error('Failed to get debug info', debugError as Error);
+      }
+      
       throw new ModernDriverError(
         'Timeout waiting for application ready state',
         'waitUntilReady',

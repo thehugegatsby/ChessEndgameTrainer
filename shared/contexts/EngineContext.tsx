@@ -72,11 +72,16 @@ export const EngineProvider: React.FC<EngineProviderProps> = ({
   useEffect(() => {
     let isCancelled = false;
     
-    // The `testMode` prop is now the single source of truth, solving the SSR/CSR mismatch
-    const shouldUseTestEngine = testMode || process.env.NODE_ENV === 'test';
+    // Check for E2E test mode via window flag (optimal client-side approach)
+    // Fallback to prop for backward compatibility and manual testing
+    const isE2ETestMode = typeof window !== 'undefined' && (window as any).__E2E_TEST_MODE__;
+    const shouldUseTestEngine = isE2ETestMode || testMode || process.env.NODE_ENV === 'test';
 
     const initializeEngine = async () => {
       try {
+        console.log('[EngineProvider] 🚀 Starting engine initialization...');
+        console.log(`[EngineProvider] Test mode detection: E2E=${isE2ETestMode}, prop=${testMode}, NODE_ENV=${process.env.NODE_ENV}`);
+        
         setStatus('initializing');
         
         // Choose engine implementation based on environment
@@ -84,41 +89,55 @@ export const EngineProvider: React.FC<EngineProviderProps> = ({
           ? new MockEngineService()
           : new MockEngineService(); // TODO: Replace with real EngineService when implemented
         
-        console.log(`🔧 Initializing ${shouldUseTestEngine ? 'Mock' : 'Production'} Engine Service...`);
+        console.log(`[EngineProvider] 🔧 Creating ${shouldUseTestEngine ? 'Mock' : 'Production'} Engine Service...`);
         
+        console.log('[EngineProvider] 📞 Calling service.initialize()...');
         await service.initialize();
+        console.log('[EngineProvider] ✅ service.initialize() completed');
         
         if (!isCancelled) {
+          console.log('[EngineProvider] 🔄 Setting engine service state...');
           setEngineService(service);
           setStatus('ready');
+          console.log('[EngineProvider] 🎯 Engine status set to READY');
           
-          console.log(`✅ ${shouldUseTestEngine ? 'MockEngineService' : 'EngineService'} initialized and ready`);
+          console.log(`[EngineProvider] ✅ ${shouldUseTestEngine ? 'MockEngineService' : 'EngineService'} initialization COMPLETE`);
           
           // For E2E tests: Initialize the Test Bridge
-          // The bridge acts as the sole interface for tests to interact with the engine
           if (shouldUseTestEngine && typeof window !== 'undefined') {
+            console.log('[EngineProvider] 🧪 Initializing Test Bridge...');
             // Dynamically import and initialize the E2E Test Bridge
-            // This ensures the bridge code is NOT in the production bundle
             import('../services/test/TestBridge')
               .then(({ TestBridgeImpl }) => {
-                // Pass the live MockEngineService instance to the bridge
+                console.log('[EngineProvider] 🔗 Creating Test Bridge instance...');
                 window.__E2E_TEST_BRIDGE__ = new TestBridgeImpl(service as MockEngineServiceType);
-                console.log('🧪 E2E Test Bridge initialized.');
+                console.log('[EngineProvider] ✅ E2E Test Bridge initialized and attached to window');
                 
                 // Signal that the bridge is ready for tests
                 if (typeof document !== 'undefined') {
                   document.body.setAttribute('data-bridge-status', 'ready');
+                  console.log('[EngineProvider] 🏁 data-bridge-status="ready" set on body');
                 }
               })
               .catch(err => {
-                console.error('❌ Failed to initialize E2E Test Bridge:', err);
+                console.error('[EngineProvider] ❌ FAILED to initialize E2E Test Bridge:', err);
               });
+          }
+          
+          // CRITICAL: Set app-ready signal for tests
+          if (typeof document !== 'undefined') {
+            document.body.setAttribute('data-app-ready', 'true');
+            console.log('[EngineProvider] 🎉 data-app-ready="true" set - APP IS READY!');
           }
         }
       } catch (error) {
+        console.error('[EngineProvider] 💥 FATAL: Engine service initialization failed:', error);
         if (!isCancelled) {
-          console.error('❌ Engine service initialization failed:', error);
           setStatus('error');
+          // Signal error state
+          if (typeof document !== 'undefined') {
+            document.body.setAttribute('data-app-ready', 'error');
+          }
         }
       }
     };

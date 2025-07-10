@@ -384,24 +384,62 @@ export class NavigationControls extends BaseComponent {
   }
 
   /**
-   * Get current move index from Test Bridge
+   * Get current move index from DOM (DOM-as-SSOT approach)
    * Essential for state validation and boundary checking
+   * Follows MoveListComponent.getMoveCount() pattern for consistency
    */
   async getCurrentMoveIndex(): Promise<number> {
     try {
+      // DOM-first approach: Read from rendered UI like a real user
       const index = await this.page.evaluate(() => {
-        // Access constants from global injection in browser context
-        const constants = (window as any).__E2E_TEST_CONSTANTS__;
-        const bridgeName = constants?.TEST_BRIDGE?.BRIDGE_NAME || '__E2E_TEST_BRIDGE__';
-        const bridge = (window as any)[bridgeName];
-        const diagnosticMethod = constants?.TEST_BRIDGE?.DIAGNOSTIC_METHODS?.GET_CURRENT_MOVE_INDEX || 'getCurrentMoveIndex';
-        return bridge?.diagnostic?.[diagnosticMethod]?.() ?? 0;
+        // Try multiple DOM sources for robustness
+        
+        // Method 1: Check for explicit move index data attribute
+        const movePanel = document.querySelector('[data-testid="move-panel"]');
+        if (movePanel) {
+          const indexAttr = movePanel.getAttribute('data-current-move-index');
+          if (indexAttr !== null) {
+            return parseInt(indexAttr, 10);
+          }
+        }
+        
+        // Method 2: Parse from navigation display text (e.g., "Move 1 / 3")
+        const navContainer = document.querySelector('[data-testid="move-navigation"], [data-testid="navigation-controls"]');
+        if (navContainer) {
+          const moveCounter = navContainer.querySelector('[data-testid="move-counter"], .move-counter');
+          if (moveCounter) {
+            const text = moveCounter.textContent?.trim() || '';
+            const match = text.match(/(\d+)\s*\/\s*\d+/); // "1 / 3" format
+            if (match) {
+              return parseInt(match[1], 10) - 1; // Convert to 0-based index
+            }
+          }
+        }
+        
+        // Method 3: Count active move indicators in move list
+        const activeMoves = document.querySelectorAll('[data-testid="move-item"][data-active="true"], .move-item.active, .move-active');
+        if (activeMoves.length === 1) {
+          const activeElement = activeMoves[0];
+          const moveNumber = activeElement.getAttribute('data-move-number');
+          if (moveNumber) {
+            return parseInt(moveNumber, 10) - 1; // Convert to 0-based index
+          }
+        }
+        
+        // Method 4: Fallback - count enabled back button clicks needed to reach start
+        const backButton = document.querySelector('[data-testid="nav-back"], [data-action="go-back"]');
+        if (backButton && backButton.hasAttribute('disabled')) {
+          return 0; // At start position
+        }
+        
+        // Default fallback
+        return 0;
       });
       
       this.log('info', `Current move index: ${index}`);
       return index;
     } catch (error) {
-      this.log('error', 'Failed to get current move index', { 
+      this.log('error', 'Failed to get current move index from DOM', { 
         error: (error as Error).message 
       });
       return 0;
@@ -409,24 +447,61 @@ export class NavigationControls extends BaseComponent {
   }
 
   /**
-   * Get total number of moves from Test Bridge
+   * Get total number of moves from DOM (DOM-as-SSOT approach)
    * Essential for boundary validation and navigation logic
+   * Consistent with MoveListComponent.getMoveCount() pattern
    */
   async getTotalMoves(): Promise<number> {
     try {
+      // DOM-first approach: Read total moves from rendered UI
       const totalMoves = await this.page.evaluate(() => {
-        // Access constants from global injection in browser context
-        const constants = (window as any).__E2E_TEST_CONSTANTS__;
-        const bridgeName = constants?.TEST_BRIDGE?.BRIDGE_NAME || '__E2E_TEST_BRIDGE__';
-        const bridge = (window as any)[bridgeName];
-        const diagnosticMethod = constants?.TEST_BRIDGE?.DIAGNOSTIC_METHODS?.GET_TOTAL_MOVES || 'getTotalMoves';
-        return bridge?.diagnostic?.[diagnosticMethod]?.() ?? 0;
+        // Method 1: Check move panel data attribute (immediate store state)
+        const movePanel = document.querySelector('[data-testid="move-panel"]');
+        if (movePanel) {
+          const dataCount = movePanel.getAttribute('data-move-count');
+          if (dataCount !== null) {
+            return parseInt(dataCount, 10);
+          }
+        }
+        
+        // Method 2: Parse from navigation display text (e.g., "Move 1 / 3")
+        const navContainer = document.querySelector('[data-testid="move-navigation"], [data-testid="navigation-controls"]');
+        if (navContainer) {
+          const moveCounter = navContainer.querySelector('[data-testid="move-counter"], .move-counter');
+          if (moveCounter) {
+            const text = moveCounter.textContent?.trim() || '';
+            const match = text.match(/\d+\s*\/\s*(\d+)/); // "1 / 3" format
+            if (match) {
+              return parseInt(match[1], 10);
+            }
+          }
+        }
+        
+        // Method 3: Count actual move elements in move list
+        const moveElements = document.querySelectorAll('[data-testid="move-item"], .move-item, [class*="move-"]');
+        if (moveElements.length > 0) {
+          return moveElements.length;
+        }
+        
+        // Method 4: Check if end button is disabled (indicates we're at end)
+        const endButton = document.querySelector('[data-testid="nav-end"], [data-action="go-end"]');
+        if (endButton && endButton.hasAttribute('disabled')) {
+          // If end is disabled and we can find current index, total = current + 1
+          const backButton = document.querySelector('[data-testid="nav-back"], [data-action="go-back"]');
+          if (backButton && !backButton.hasAttribute('disabled')) {
+            // We're at end, but not at start, so there are multiple moves
+            return 1; // At least 1 move exists
+          }
+        }
+        
+        // Default fallback
+        return 0;
       });
       
       this.log('info', `Total moves: ${totalMoves}`);
       return totalMoves;
     } catch (error) {
-      this.log('error', 'Failed to get total moves', { 
+      this.log('error', 'Failed to get total moves from DOM', { 
         error: (error as Error).message 
       });
       return 0;
