@@ -55,6 +55,7 @@ export class NavigationControls extends BaseComponent {
 
   /**
    * Default selector for navigation controls container
+   * Updated to match actual app implementation
    */
   getDefaultSelector(): string {
     return '[data-testid="move-navigation"]';
@@ -95,7 +96,17 @@ export class NavigationControls extends BaseComponent {
       
       try {
         const element = this.page.locator(selector);
-        await element.waitFor({ timeout: timeout / selectors.length });
+        // Fix 1.1: Proportional timeout with minimum threshold (Gemini recommendation)
+        const MIN_ELEMENT_TIMEOUT = 1000;
+        const proportionalTimeout = Math.floor(timeout / selectors.length);
+        const elementTimeout = Math.max(MIN_ELEMENT_TIMEOUT, proportionalTimeout);
+        
+        // Warn if total might exceed budget
+        if (elementTimeout * selectors.length > timeout * 1.1) {
+          this.log('warn', `Element timeout (${elementTimeout}ms) for ${selectors.length} selectors might exceed total timeout of ${timeout}ms`);
+        }
+        
+        await element.waitFor({ timeout: elementTimeout });
         
         if (i > 0) {
           this.log('warn', `Found element with ${selectorType} selector: ${selector}`, { 

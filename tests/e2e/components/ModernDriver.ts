@@ -212,6 +212,7 @@ export class ModernDriver implements IModernDriver {
     
     try {
       // Aggregate state from multiple components
+      // Components handle their own initialization internally
       const [fen, moves, navState] = await Promise.all([
         this.board.getPosition(),
         this.moveList.getMoves(),
@@ -420,7 +421,8 @@ export class ModernDriver implements IModernDriver {
 
   private get navigation(): NavigationControls {
     if (!this._navigation) {
-      this._navigation = new NavigationControls(this.page);
+      // Fix: Set correct root selector for navigation controls
+      this._navigation = new NavigationControls(this.page, '[data-testid="move-navigation"]');
     }
     return this._navigation;
   }

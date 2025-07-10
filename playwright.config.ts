@@ -33,6 +33,11 @@ export default defineConfig({
     /* Run tests in headless mode to prevent browser window spawning */
     headless: true,
     
+    /* Set E2E test mode header to enable Test Bridge and MockEngineService */
+    extraHTTPHeaders: {
+      'x-e2e-test-mode': 'true'
+    },
+    
   },
 
   /* Configure projects for major browsers */

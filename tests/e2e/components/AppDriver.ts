@@ -1,6 +1,40 @@
 /**
- * @fileoverview AppDriver - Central Orchestrator for E2E Test Components
- * @description Provides a unified, high-level interface for E2E tests
+ * @fileoverview AppDriver - DEPRECATED - Use ModernDriver instead!
+ * @deprecated AppDriver is deprecated in favor of ModernDriver (~300 lines)
+ * 
+ * ⚠️ WICHTIG: DIESER DRIVER IST VERALTET! ⚠️
+ * 
+ * MIGRATION GUIDE:
+ * - Replace: import { AppDriver } from './AppDriver'
+ * - With:    import { ModernDriver } from './ModernDriver'
+ * 
+ * WHY MODERNDRIVER?
+ * - 300 lines vs 1847 lines (6x smaller)
+ * - Cleaner architecture with proper separation of concerns
+ * - Built-in Test Bridge support for deterministic testing
+ * - Better error handling with custom error types
+ * - Follows the optimal solution principle (sauberste, langfristig beste Lösung)
+ * 
+ * EXAMPLE MIGRATION:
+ * ```typescript
+ * // OLD (AppDriver)
+ * const appDriver = new AppDriver(page);
+ * await appDriver.waitForPageReady();
+ * await appDriver.makeMove('e2', 'e4');
+ * 
+ * // NEW (ModernDriver)
+ * const driver = new ModernDriver(page, { useTestBridge: true });
+ * await driver.visit('/train/1');
+ * await driver.makeMove('e2', 'e4');
+ * ```
+ * 
+ * DEPRECATION TIMELINE:
+ * - 2025-01-10: ModernDriver introduced
+ * - 2025-01-17: All new tests must use ModernDriver
+ * - 2025-01-31: AppDriver will be removed
+ * 
+ * Original description (kept for historical context):
+ * Provides a unified, high-level interface for E2E tests
  * Implements Facade pattern with lazy loading, DI, and fluent interface
  * 
  * Architecture Decision Records:
@@ -37,6 +71,49 @@
  * - All components implement interfaces
  * - Zero code duplication with helpers
  * - AppDriver purely orchestrates
+ * 
+ * MOVE PANEL REFACTORING DEPENDENCY MAP (TECH-001):
+ * 
+ * Methods to extract to MovePanelPOM:
+ * 1. Component Getters (move to private in POM):
+ *    - moveList getter → private
+ *    - navigationControls getter → private
+ * 
+ * 2. Navigation Methods (public in POM):
+ *    - gotoMove(moveNumber) → delegates to POM
+ *    - setMoveIndexViaBridge(index) → private in POM
+ * 
+ * 3. State Query Methods (via POM):
+ *    - Calls to moveList.getMoves()
+ *    - Calls to moveList.getMoveCount() 
+ *    - Calls to navigationControls.getCurrentMoveIndex()
+ *    - Calls to navigationControls.getTotalMoves()
+ *    - Calls to navigationControls.getNavigationState()
+ * 
+ * 4. Navigation Actions (via POM):
+ *    - Calls to navigationControls.goToStart()
+ *    - Calls to navigationControls.goToEnd()
+ *    - Calls to navigationControls.goBack()
+ *    - Calls to navigationControls.goForward()
+ *    - Calls to moveList.clickMove()
+ * 
+ * 5. Synchronization (stays in AppDriver or moves to POM?):
+ *    - awaitUIUpdate() - uses moveList.waitForMoveCount()
+ * 
+ * 6. Partial Dependencies:
+ *    - getFullGameState() - partially uses move panel data
+ *    - setupGame() - calls goToStart()
+ *    - resetState() - calls goToStart()
+ * 
+ * Dependencies Count:
+ * - moveList: 6 direct method calls
+ * - navigationControls: 11 direct method calls
+ * 
+ * Migration Strategy:
+ * 1. Create MovePanelPOM with all methods
+ * 2. Add movePanel property to AppDriver
+ * 3. Delegate all calls through movePanel
+ * 4. Update all test files to use new API
  */
 
 import { Page, expect } from '@playwright/test';
@@ -44,6 +121,7 @@ import { BoardComponent } from './BoardComponent';
 import { MoveListComponent } from './MoveListComponent';
 import { EvaluationPanel } from './EvaluationPanel';
 import { NavigationControls } from './NavigationControls';
+import { MovePanelPOM } from './MovePanelPOM';
 import { 
   GameStateBuilder,
   PositionBuilder,
@@ -209,6 +287,7 @@ export class AppDriver {
   private _moveListComponent: MoveListComponent | null = null;
   private _evaluationPanel: EvaluationPanel | null = null;
   private _navigationControls: NavigationControls | null = null;
+  private _movePanel: MovePanelPOM | null = null;
   
   // Helper classes for clean separation of concerns
   private _gamePlayer: IGamePlayer | null = null;
@@ -277,6 +356,7 @@ export class AppDriver {
 
   /**
    * Lazy-loaded MoveListComponent with memoization
+   * @refactor-to-MovePanelPOM - Move list component access
    */
   public get moveList(): MoveListComponent {
     if (!this._moveListComponent) {
@@ -307,6 +387,7 @@ export class AppDriver {
 
   /**
    * Lazy-loaded NavigationControls with memoization
+   * @refactor-to-MovePanelPOM - Navigation controls component access
    */
   public get navigationControls(): NavigationControls {
     if (!this._navigationControls) {
@@ -318,6 +399,31 @@ export class AppDriver {
       }
     }
     return this._navigationControls;
+  }
+
+  /**
+   * Lazy-loaded MovePanelPOM with memoization
+   * @refactor-to-MovePanelPOM - New consolidated component
+   */
+  public get movePanel(): MovePanelPOM {
+    if (!this._movePanel) {
+      try {
+        this._movePanel = new MovePanelPOM(this.page, this.logger, {
+          timeouts: {
+            default: this.config.timeouts.default,
+            navigation: this.config.timeouts.navigation
+          },
+          testBridge: {
+            isAvailable: () => this.isTestBridgeAvailable(),
+            setMoveIndex: (index) => this.setMoveIndexViaBridge(index)
+          }
+        });
+        this.log('info', 'MovePanelPOM initialized');
+      } catch (error) {
+        throw new ComponentInitializationError('MovePanelPOM', error as Error);
+      }
+    }
+    return this._movePanel;
   }
 
   /**
@@ -538,7 +644,8 @@ export class AppDriver {
       this._boardComponent,
       this._moveListComponent,
       this._evaluationPanel,
-      this._navigationControls
+      this._navigationControls,
+      this._movePanel
     ];
     
     // Dispose all components that support disposal
@@ -555,6 +662,7 @@ export class AppDriver {
     this._moveListComponent = null;
     this._evaluationPanel = null;
     this._navigationControls = null;
+    this._movePanel = null;
   }
   
   /**
@@ -722,6 +830,7 @@ export class AppDriver {
 
   /**
    * Setup a new game with optional FEN position
+   * @refactor-to-MovePanelPOM - Uses goToStart to reset navigation
    * @param fen - Optional FEN string (default: starting position)
    * @returns this for fluent interface
    */
@@ -789,6 +898,7 @@ export class AppDriver {
   /**
    * Wait for UI updates after a move (orchestration responsibility)
    * Separated from move logic per consensus recommendation
+   * @refactor-to-MovePanelPOM - Uses move count to track updates
    * @param from - Source square 
    * @param to - Target square
    */
@@ -811,6 +921,7 @@ export class AppDriver {
 
   /**
    * Navigate to a specific move number
+   * @refactor-to-MovePanelPOM - Core navigation method
    * @param moveNumber - 0-based move index
    * @returns this for fluent interface
    */
@@ -879,6 +990,7 @@ export class AppDriver {
   
   /**
    * Set move index directly via Test Bridge (performance optimization)
+   * @refactor-to-MovePanelPOM - Internal navigation implementation
    */
   private async setMoveIndexViaBridge(moveIndex: number): Promise<void> {
     // Get current state before change
@@ -980,6 +1092,7 @@ export class AppDriver {
   /**
    * Get complete game state from all components
    * Useful for comprehensive assertions
+   * @refactor-to-MovePanelPOM - Partially - collects move panel state
    */
   public async getFullGameState(): Promise<GameState> {
     this.log('info', 'Collecting full game state');
@@ -1081,6 +1194,7 @@ export class AppDriver {
 
   /**
    * Reset application state
+   * @refactor-to-MovePanelPOM - Uses goToStart to reset navigation
    * @returns this for fluent interface
    */
   public async resetState(): Promise<this> {

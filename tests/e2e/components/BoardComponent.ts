@@ -372,8 +372,14 @@ export class BoardComponent extends BaseComponent {
   /**
    * Validate FEN string format
    */
-  private isValidFen(fen: string): boolean {
+  private isValidFen(fen: string | null | undefined): boolean {
     if (!this.enableFenValidation) return true;
+    
+    // Defensive check for null/undefined (AI Consensus fix)
+    if (!fen) {
+      this.log('warn', 'FEN validation called with null/undefined value');
+      return false;
+    }
     
     // Basic FEN validation (can be expanded)
     const fenParts = fen.split(' ');
@@ -384,6 +390,12 @@ export class BoardComponent extends BaseComponent {
    * Compare FEN positions (ignoring move counts for position comparison)
    */
   private compareFenPositions(fen1: string, fen2: string): boolean {
+    // Defensive checks for null/undefined
+    if (!fen1 || !fen2) {
+      this.log('warn', 'compareFenPositions called with invalid FEN', { fen1, fen2 });
+      return false;
+    }
+    
     const position1 = fen1.split(' ')[0]; // Just the piece placement
     const position2 = fen2.split(' ')[0];
     return position1 === position2;
