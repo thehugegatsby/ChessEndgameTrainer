@@ -23,6 +23,7 @@ Welcome to the Chess Endgame Trainer documentation. This index provides a compre
 
 - **[TESTING.md](TESTING.md)** - Comprehensive testing guide with best practices, Store testing patterns, and domain-specific tests
 - **[testing/COVERAGE_GUIDE.md](testing/COVERAGE_GUIDE.md)** - Test coverage requirements and tools
+- **[testing/TEST_UTILITIES.md](testing/TEST_UTILITIES.md)** - Centralized test utilities (logger mocks, config adapters)
 
 ## 📱 Platform-Specific
 

@@ -27,14 +27,9 @@ import {
   SetupOptions,
   ModernDriverError 
 } from './IModernDriver';
-
-/**
- * Logger interface for optional debugging
- */
-export interface ILogger {
-  debug(message: string, context?: Record<string, unknown>): void;
-  error(message: string, error?: Error): void;
-}
+import { ILogger } from '../../../shared/services/logging/types';
+import { noopLogger } from '../../shared/logger-utils';
+import { createGamePlayerConfigCached } from '../utils/config-adapter';
 
 // Re-export TestBridgeWrapper for convenience
 export { TestBridgeWrapper } from './TestBridgeWrapper';
@@ -66,7 +61,7 @@ export interface ModernDriverConfig {
 export class ModernDriver implements IModernDriver {
   private readonly page: Page;
   private readonly config: Required<ModernDriverConfig>;
-  private readonly logger?: ILogger;
+  private readonly logger: ILogger; // No longer optional - always has a value
   
   // Lazily initialized components
   private _board?: BoardComponent;
@@ -78,9 +73,10 @@ export class ModernDriver implements IModernDriver {
 
   constructor(page: Page, config: ModernDriverConfig = {}) {
     this.page = page;
-    this.logger = config.logger;
+    // Use provided logger or fall back to no-op logger
+    this.logger = config.logger ?? noopLogger;
     this.config = {
-      logger: config.logger,
+      logger: this.logger, // Now always defined as ILogger
       defaultTimeout: config.defaultTimeout ?? 30000,
       baseUrl: config.baseUrl ?? 'http://localhost:3002',
       useTestBridge: config.useTestBridge ?? true // Default to true in test env
@@ -129,7 +125,8 @@ export class ModernDriver implements IModernDriver {
     try {
       // Setup FEN position if provided
       if (options.fen) {
-        await this.board.loadPosition(options.fen);
+        // Transform FEN string to Position object (adapter pattern)
+        await this.board.loadPosition({ fen: options.fen });
       }
       
       // Navigate to scenario if provided
@@ -340,7 +337,7 @@ export class ModernDriver implements IModernDriver {
             'data-bridge-status': body.getAttribute('data-bridge-status')
           };
         });
-        this.logger?.error('Current body attributes:', bodyAttributes);
+        this.logger?.debug('Current body attributes:', bodyAttributes);
       } catch (debugError) {
         this.logger?.error('Failed to get debug info', debugError as Error);
       }
@@ -432,8 +429,12 @@ export class ModernDriver implements IModernDriver {
       this._gamePlayer = new GamePlayer({
         board: this.board,
         moveList: this.moveList,
-        navigation: this.navigation,
-        evaluationPanel: this.evaluation
+        logger: this.logger,
+        page: this.page,
+        errorHandler: async (context: string, error: Error) => {
+          this.logger.error(`GamePlayer error in ${context}`, error);
+        },
+        config: createGamePlayerConfigCached(this.config)
       });
     }
     return this._gamePlayer;

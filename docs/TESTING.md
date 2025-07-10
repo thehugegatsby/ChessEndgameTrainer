@@ -15,6 +15,15 @@ npm run test:coverage:business     # Business logic only (~78% - more accurate)
 npm run test:watch                 # Watch mode for development
 ```
 
+### Test Utilities
+
+We provide centralized test utilities to reduce boilerplate and ensure consistency:
+
+- **Logger Utilities** (`tests/shared/logger-utils.ts`): Type-safe logger mocks
+- **Config Adapters** (`tests/e2e/utils/config-adapter.ts`): Configuration transformers
+
+See [TEST_UTILITIES.md](testing/TEST_UTILITIES.md) for detailed documentation.
+
 ## 📈 Test Types & Structure
 
 ### 1. **Unit Tests** - Isolated Components

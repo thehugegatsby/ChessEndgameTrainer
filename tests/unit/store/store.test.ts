@@ -28,13 +28,7 @@ import { RootState } from '../../../shared/store/types';
 
 // Mock the logger to avoid console output
 jest.mock('../../../shared/services/logging', () => ({
-  getLogger: () => ({
-    setContext: jest.fn().mockReturnThis(),
-    info: jest.fn(),
-    debug: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn()
-  })
+  getLogger: () => require('../../shared/logger-utils').createTestLogger()
 }));
 
 describe('Zustand Store', () => {

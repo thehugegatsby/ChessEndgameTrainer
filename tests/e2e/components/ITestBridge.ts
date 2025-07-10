@@ -28,11 +28,5 @@ export interface ITestBridge {
   disableDebugLogging(): void;
 }
 
-/**
- * Global type augmentation for window object
- */
-declare global {
-  interface Window {
-    __E2E_TEST_BRIDGE__?: ITestBridge;
-  }
-}
+// Note: Global Window augmentation is declared in shared/types/test-bridge.d.ts
+// This file provides local type definitions for E2E test components

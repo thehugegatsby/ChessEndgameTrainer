@@ -21,11 +21,7 @@ jest.mock('@shared/services/platform', () => ({
 
 // Mock logger
 jest.mock('@shared/services/logging', () => ({
-  getLogger: () => ({
-    warn: jest.fn(),
-    error: jest.fn(),
-    setContext: jest.fn().mockReturnThis()
-  })
+  getLogger: () => require('../../shared/logger-utils').createTestLogger()
 }));
 
 // Mock localStorage

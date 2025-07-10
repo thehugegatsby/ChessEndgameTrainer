@@ -21,12 +21,7 @@ jest.mock('chess.js');
 
 // Mock logger
 jest.mock('../../../shared/services/logging', () => ({
-  getLogger: () => ({
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn()
-  })
+  getLogger: () => require('../../shared/logger-utils').createTestLogger()
 }));
 
 // Helper function to create a mock Move object

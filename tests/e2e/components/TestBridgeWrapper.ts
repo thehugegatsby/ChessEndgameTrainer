@@ -10,8 +10,10 @@
  */
 
 import { Page, ConsoleMessage } from '@playwright/test';
-import { ILogger, ModernDriverError } from './ModernDriver';
-import { ITestBridge, EngineAnalysis } from './ITestBridge';
+import { ILogger } from '../../../shared/services/logging/types';
+import { ModernDriverError } from './ModernDriver';
+import type { TestBridge } from '../../../shared/types/test-bridge';
+import type { EngineAnalysis } from '../../../shared/services/engine/IEngineService';
 
 /**
  * Test Bridge Wrapper - Encapsulates browser-side test bridge interaction
@@ -49,6 +51,7 @@ export class TestBridgeWrapper {
     this.page.on('console', this.consoleHandler);
   }
 
+
   /**
    * Check if Test Bridge is available in the browser context
    */
@@ -74,7 +77,7 @@ export class TestBridgeWrapper {
 
     try {
       await this.page.evaluate((timeout) => {
-        return window.__E2E_TEST_BRIDGE__?.waitForReady(timeout);
+        return window.__E2E_TEST_BRIDGE__?.waitForReady?.(timeout);
       }, timeout);
       
       this.isInitialized = true;
@@ -97,7 +100,7 @@ export class TestBridgeWrapper {
     
     if (await this.isAvailable()) {
       await this.page.evaluate(() => {
-        window.__E2E_TEST_BRIDGE__?.enableDebugLogging();
+        window.__E2E_TEST_BRIDGE__?.enableDebugLogging?.();
       });
       this.logger?.debug('Test Bridge debug logging enabled');
     }
@@ -111,7 +114,7 @@ export class TestBridgeWrapper {
     
     if (await this.isAvailable()) {
       await this.page.evaluate(() => {
-        window.__E2E_TEST_BRIDGE__?.disableDebugLogging();
+        window.__E2E_TEST_BRIDGE__?.disableDebugLogging?.();
       });
       this.logger?.debug('Test Bridge debug logging disabled');
     }
@@ -120,17 +123,18 @@ export class TestBridgeWrapper {
   /**
    * Add a custom engine response for a specific position
    */
-  async addCustomResponse(fen: string, response: { bestMove: string; evaluation: number }): Promise<void> {
+  async addCustomResponse(fen: string, response: { bestMove: string; evaluation: number; timeMs?: number }): Promise<void> {
     if (!await this.isAvailable()) {
       this.logger?.debug('Test Bridge not available, skipping addCustomResponse');
       return;
     }
 
     await this.page.evaluate(([fen, response]) => {
-      window.__E2E_TEST_BRIDGE__?.engine.addCustomResponse(fen, {
+      window.__E2E_TEST_BRIDGE__?.engine?.addCustomResponse?.(fen, {
         bestMove: response.bestMove,
         evaluation: response.evaluation,
-        depth: 20
+        depth: 20,
+        timeMs: response.timeMs ?? 100
       });
     }, [fen, response] as const);
     
@@ -147,7 +151,7 @@ export class TestBridgeWrapper {
     }
 
     await this.page.evaluate(([fen, move]) => {
-      window.__E2E_TEST_BRIDGE__?.engine.setNextMove(fen, move);
+      window.__E2E_TEST_BRIDGE__?.engine?.setNextMove?.(fen, move);
     }, [fen, move] as const);
     
     this.logger?.debug('Set next engine move', { fen, move });
@@ -163,7 +167,7 @@ export class TestBridgeWrapper {
     }
 
     await this.page.evaluate(([fen, evaluation]) => {
-      window.__E2E_TEST_BRIDGE__?.engine.setEvaluation(fen, evaluation);
+      window.__E2E_TEST_BRIDGE__?.engine?.setEvaluation?.(fen, evaluation);
     }, [fen, evaluation] as const);
     
     this.logger?.debug('Set engine evaluation', { fen, evaluation });
@@ -178,7 +182,7 @@ export class TestBridgeWrapper {
     }
 
     await this.page.evaluate(() => {
-      window.__E2E_TEST_BRIDGE__?.engine.clearCustomResponses();
+      window.__E2E_TEST_BRIDGE__?.engine?.clearCustomResponses?.();
     });
     
     this.logger?.debug('Cleared all custom engine responses');

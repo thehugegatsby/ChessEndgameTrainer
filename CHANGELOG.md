@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Centralized test logger utility (tests/shared/logger-utils.ts) (2025-01-10)
+  - Provides noopLogger, createSilentLogger, createTestLogger, and createDebugLogger
+  - Type-safe implementation with full ILogger interface coverage
+  - Migrated all manual logger mocks to use centralized utility
+- Config adapter utility (tests/e2e/utils/config-adapter.ts) (2025-01-10)
+  - Transforms ModernDriverConfig to GamePlayerConfig
+  - Implements caching with WeakMap for performance
+  - Includes type guards and default helpers
+  - Full unit test coverage with dependency injection pattern
+- Custom command /granular for detailed task planning with multi-LLM collaboration (2025-01-10)
+
 ### Fixed
 - Fixed multiple TypeScript build errors in E2E tests (2025-01-10)
   - Removed unsupported `customSquareRenderer` property from react-chessboard
