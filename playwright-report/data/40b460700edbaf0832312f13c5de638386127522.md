@@ -1,0 +1,56 @@
+# Page snapshot
+
+```yaml
+- heading "Endgame Training" [level=2]
+- button "⚙️ Settings"
+- link "🎯 All (rated)":
+  - /url: /dashboard
+- button "♙ Bauernendspiele ▶"
+- button "♜ Turmendspiele ▶"
+- button "♛ Queen endgames ▶" [disabled]
+- button "♞ Knight endgames ▶" [disabled]
+- button "♝ Bishop endgames ▶" [disabled]
+- 'link "👤 D. Rating: 1123 ▶"':
+  - /url: /profile
+- text: "8"
+- img:
+  - img
+- text: 7 6 5 4
+- img:
+  - img
+- text: 3 2 1 a b c
+- img:
+  - img
+- text: d e f g h
+- img
+- heading "Stellungsnavigation" [level=3]
+- button "← Vorherige Stellung"
+- button "↻"
+- button "Nächste Stellung →"
+- text: "♔ Weiß am Zug Ziel: Gewinn"
+- heading "Entfernte Opposition" [level=3]
+- paragraph: Opposition bei größerer Distanz zwischen den Königen. Berechne präzise um den Durchbruch zu schaffen.
+- button "Analyse AN"
+- text: Noch keine Züge gespielt
+- button "Zum Anfang der Zugliste" [disabled]:
+  - img
+- button "Ein Zug zurück" [disabled]:
+  - img
+- button "Ein Zug vor" [disabled]:
+  - img
+- button "Zum Ende der Zugliste" [disabled]:
+  - img
+- link "Auf Lichess analysieren →":
+  - /url: https://lichess.org/analysis/5k2/8/8/8/1P6/8/8/3K4_w_-_-_0_1
+- text: 📊
+- heading "Spielanalyse" [level=3]
+- text: (0 Züge)
+- button "×"
+- heading "Zugfolge" [level=4]
+- heading "Wähle einen Zug" [level=4]
+- text: 📊
+- paragraph: Wähle einen Zug aus der Liste um die Analyse zu sehen
+- alert
+- button "Open Next.js Dev Tools":
+  - img
+```
