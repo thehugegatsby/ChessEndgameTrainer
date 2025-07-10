@@ -47,29 +47,31 @@ class AppDriver {
 
 ## MEDIUM PRIORITY - Dependency Management
 
-### Ticket: TECH-002 - Investigate react-chessboard Upgrade
+### Ticket: TECH-002 - Investigate react-chessboard Upgrade ❌ WON'T DO (2025-01-10)
 **Priority:** MEDIUM  
 **Estimated Effort:** 1 Day (Spike)  
 **Blocked By:** None  
-**Blocks:** TECH-006
+**Blocks:** ~~TECH-006~~ None
 
 #### Problem
-- Currently on v2.1.3, latest is v4.x
-- Missing security patches and modern features
+- Currently on v2.1.3, latest is v5.1.0
+- Missing modern features
 - Had to remove customSquareRenderer due to version incompatibility
 
-#### Acceptance Criteria
-- [ ] Document all breaking changes between v2.1.3 and v4.x
-- [ ] Identify code changes required for upgrade
-- [ ] Estimate effort for full upgrade
-- [ ] Create follow-up tickets for actual upgrade
-- [ ] Risk assessment of staying on old version
+#### Spike Results ✅
+- [x] Document all breaking changes - Major API change to options object
+- [x] Identify code changes - Complete prop restructuring needed
+- [x] Estimate effort - 3-5 days minimum
+- [x] Risk assessment - NO security vulnerabilities in v2.1.3
 
-#### Research Questions
-1. What features were removed/changed?
-2. What new features could we leverage?
-3. Are there security vulnerabilities in v2.1.3?
-4. Migration guide availability?
+#### Decision: Stay with v2.1.3
+**Rationale**:
+1. No security vulnerabilities found
+2. High refactoring cost (3-5 days) without clear benefits
+3. Risk of introducing new bugs
+4. Both Gemini and O3 recommend against upgrade
+
+See full analysis: [TECH-002-SPIKE-REACT-CHESSBOARD-UPGRADE.md](./TECH-002-SPIKE-REACT-CHESSBOARD-UPGRADE.md)
 
 ---
 
