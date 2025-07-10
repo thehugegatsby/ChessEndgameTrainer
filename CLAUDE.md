@@ -64,9 +64,20 @@ E2E tests use MockEngineService for instant, deterministic responses.
 # Start dev server:
 npm run dev
 
-# Run E2E tests:
+# Run ALL E2E tests:
 npm run test:e2e
+
+# Run specific E2E test file (WICHTIG: Use npx, NOT npm!):
+npx playwright test tests/e2e/bridge-building.spec.ts --project=chromium
+
+# Run with visible browser:
+npx playwright test tests/e2e/bridge-building.spec.ts --headed
+
+# Debug mode:
+npx playwright test tests/e2e/bridge-building.spec.ts --debug
 ```
+
+⚠️ **WICHTIG**: Für spezifische Test-Dateien IMMER `npx playwright test` verwenden, NICHT `npm run test:e2e -- file`!
 
 ## Configuration
 - **Central Config**: `/config/constants.ts` - Contains DEV_PORT (3002) and URLs

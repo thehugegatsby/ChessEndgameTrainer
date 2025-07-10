@@ -23,6 +23,13 @@ import { Chess } from 'chess.js';
 export class PositionBuilder extends BaseBuilder<Position, PositionBuilder> {
   
   /**
+   * Set position ID
+   */
+  withId(id: number): PositionBuilder {
+    return this.with('id', id);
+  }
+  
+  /**
    * Set FEN directly
    */
   withFen(fen: string | FenString): PositionBuilder {

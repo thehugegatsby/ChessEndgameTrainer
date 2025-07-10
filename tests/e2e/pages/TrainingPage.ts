@@ -7,6 +7,7 @@
 
 import { Page, Locator, expect } from '@playwright/test';
 import { setupEngineMocking } from '../mocks/engineMock';
+import { makeMove as helperMakeMove, getGameState as helperGetGameState, waitForEngine, configureEngine as helperConfigureEngine } from '../helpers';
 
 /**
  * Training Page Object
@@ -103,14 +104,7 @@ export class TrainingPage {
    * Make a move using the test API
    */
   async makeMove(move: string): Promise<boolean> {
-    const result = await this.page.evaluate(async (m) => {
-      const api = (window as any).__testApi;
-      if (!api) {
-        throw new Error('Test API not available');
-      }
-      return await api.makeMove(m);
-    }, move);
-    
+    const result = await helperMakeMove(this.page, move);
     return result.success;
   }
 
@@ -118,46 +112,21 @@ export class TrainingPage {
    * Get current game state
    */
   async getGameState() {
-    return await this.page.evaluate(() => {
-      const api = (window as any).__testApi;
-      if (!api) {
-        throw new Error('Test API not available');
-      }
-      return api.getGameState();
-    });
+    return await helperGetGameState(this.page);
   }
 
   /**
    * Wait for engine to respond
    */
   async waitForEngineMove(timeout: number = 10000): Promise<boolean> {
-    return await this.page.evaluate(async (t) => {
-      const api = (window as any).__testApi;
-      if (!api) {
-        throw new Error('Test API not available');
-      }
-      return await api.waitForEngine(t);
-    }, timeout);
+    return await waitForEngine(this.page, timeout);
   }
 
   /**
    * Configure engine for deterministic testing
    */
   async configureEngine(config: { deterministic: boolean; fixedResponses?: Record<string, string>; timeLimit?: number; }): Promise<void> {
-    await this.page.evaluate((cfg) => {
-      const api = (window as any).__testApi;
-      if (!api) {
-        throw new Error('Test API not available');
-      }
-      
-      // Convert object to Map for TestApiService
-      const apiConfig = {
-        ...cfg,
-        fixedResponses: cfg.fixedResponses ? new Map(Object.entries(cfg.fixedResponses)) : undefined
-      };
-      
-      api.configureEngine(apiConfig);
-    }, config);
+    await helperConfigureEngine(this.page, config);
   }
 
   /**

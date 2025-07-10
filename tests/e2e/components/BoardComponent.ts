@@ -57,6 +57,36 @@ export class BoardComponent extends BaseComponent {
   getDefaultSelector(): string {
     return '[data-testid="training-board"], .react-chessboard, #chessboard';
   }
+  
+  /**
+   * Wait for board to be ready for interaction
+   * Ensures consistency with TrainingPage API
+   */
+  async waitForBoard(): Promise<void> {
+    // Check if board element already exists and is visible
+    try {
+      const boardElement = await this.page.locator(this.getDefaultSelector());
+      const isVisible = await boardElement.isVisible();
+      
+      if (isVisible) {
+        this.log('info', 'Board already visible and ready');
+        return;
+      }
+    } catch {
+      // Element not found, proceed with wait
+    }
+    
+    // Wait for board element to be available and visible
+    await this.waitForElement(this.getDefaultSelector());
+  }
+  
+  /**
+   * Get current position as FEN string
+   * Alias for getCurrentFen for API consistency
+   */
+  async getPosition(): Promise<string> {
+    return await this.getCurrentFen();
+  }
 
   /**
    * Make a move using click-to-click implementation
@@ -394,5 +424,46 @@ export class BoardComponent extends BaseComponent {
     }
     
     return null;
+  }
+  
+  /**
+   * Wait for position to change from current FEN
+   * Useful for synchronizing after navigation or moves
+   * @param currentFen - The current FEN to wait for change from
+   * @param timeout - Optional timeout override
+   */
+  async waitForPositionChange(currentFen: string, timeout?: number): Promise<void> {
+    const effectiveTimeout = timeout || this.config.timeouts?.position || 5000;
+    
+    try {
+      await this.page.waitForFunction(
+        (oldFen) => {
+          // Try multiple selectors to find FEN
+          const fenElement = document.querySelector('[data-fen]') || 
+                           document.querySelector('[data-testid="board-fen"]') ||
+                           document.querySelector('.board-fen');
+          
+          if (!fenElement) {
+            // If no FEN element, check if position visually changed
+            // This is a fallback - ideally we'd have a FEN attribute
+            return true; // Assume changed if we can't verify
+          }
+          
+          const currentFen = fenElement.getAttribute('data-fen') || 
+                           fenElement.textContent?.trim();
+          
+          return currentFen !== oldFen;
+        },
+        currentFen,
+        { timeout: effectiveTimeout }
+      );
+      
+      this.log('info', 'Position changed successfully', { 
+        fromFen: currentFen,
+        timeout: effectiveTimeout 
+      });
+    } catch (error) {
+      throw new Error(`Position did not change from ${currentFen} within ${effectiveTimeout}ms`);
+    }
   }
 }

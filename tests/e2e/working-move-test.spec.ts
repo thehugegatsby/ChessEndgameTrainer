@@ -1,52 +1,10 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+import { makeMove, getGameState, waitForEngineResponse } from './helpers';
 
 /**
  * Funktionierender Test für Züge in der Chess-App
  * Nutzt Test-Hooks für zuverlässige Zugausführung
  */
-
-// Helper function to make a move using test hooks
-const makeMove = async (page: Page, move: string) => {
-  const result = await page.evaluate((m) => {
-    return (window as any).e2e_makeMove?.(m);
-  }, move);
-  
-  if (!result) {
-    throw new Error('Test hooks not available');
-  }
-  
-  return result;
-};
-
-// Helper to get game state
-const getGameState = async (page: Page) => {
-  return await page.evaluate(() => {
-    return (window as any).e2e_getGameState?.();
-  });
-};
-
-// Helper to wait for engine response
-const waitForEngineMove = async (page: Page, timeout: number = 10000) => {
-  const startTime = Date.now();
-  let lastMoveCount = 0;
-  
-  const initialState = await getGameState(page);
-  if (initialState) {
-    lastMoveCount = initialState.moveCount;
-  }
-  
-  while (Date.now() - startTime < timeout) {
-    const state = await getGameState(page);
-    if (state && state.moveCount > lastMoveCount) {
-      // Wait a bit more for any animations
-      await page.waitForTimeout(300);
-      return;
-    }
-    await page.waitForTimeout(100);
-  }
-  
-  throw new Error(`Engine did not respond within ${timeout}ms`);
-};
 
 test.describe('@smoke Funktionierende Zug-Tests', () => {
   
@@ -100,7 +58,7 @@ test.describe('@smoke Funktionierende Zug-Tests', () => {
     // Warte auf Engine-Antwort
     let midState;
     try {
-      await waitForEngineMove(page);
+      await waitForEngineResponse(page, 2); // Expecting move count 2 after engine response
       
       // Hole aktuellen Zustand für nächsten Zug
       midState = await getGameState(page);

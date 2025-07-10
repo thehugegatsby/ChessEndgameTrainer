@@ -42,7 +42,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "jest.setup.js"
+    "jest.setup.js",
+    "tests/e2e/types/**/*.d.ts"
   ],
   "exclude": [
     "node_modules",

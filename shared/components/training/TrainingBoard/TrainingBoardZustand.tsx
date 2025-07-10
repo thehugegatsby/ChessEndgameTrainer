@@ -2,6 +2,7 @@ import React, { useEffect, useCallback, useMemo, useState } from 'react';
 import { Chess, Move } from 'chess.js';
 import { Square } from 'react-chessboard/dist/chessboard/types';
 import { Chessboard } from 'react-chessboard';
+import { Piece } from 'react-chessboard/dist/chessboard/types';
 import { useEvaluation, useTrainingGame } from '../../../hooks';
 import { useTraining, useTrainingActions, useUIActions, useStore } from '@shared/store/store';
 import { EndgamePosition } from '@shared/data/endgames/types';
@@ -64,7 +65,15 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
   
   // Set position in store on mount or when position changes
   useEffect(() => {
+    const logger = getLogger().setContext('TrainingBoard-PositionInit');
+    
     if (position && (!training.currentPosition || training.currentPosition.id !== position.id)) {
+      logger.info('Setting position in store', { 
+        positionId: position.id, 
+        title: position.title,
+        fen: position.fen,
+        currentPositionId: training.currentPosition?.id
+      });
       actions.setPosition(position);
     }
   }, [position, training.currentPosition, actions]);
@@ -162,14 +171,23 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
 
   // Initialize scenario engine only once per position
   useEffect(() => {
-    if (!position) return;
+    const logger = getLogger().setContext('TrainingBoard-EngineInit');
+    
+    if (!position) {
+      logger.warn('No position provided for engine initialization');
+      return;
+    }
+    
+    logger.info('Initializing scenario engine', { positionId: position.id, fen: position.fen });
     
     try {
       const engine = new ScenarioEngine(position.fen);
       actions.setScenarioEngine(engine);
       actions.setEngineStatus('ready');
+      logger.info('Scenario engine initialized successfully', { positionId: position.id, status: 'ready' });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Engine initialization failed';
+      logger.error('Scenario engine initialization failed', { positionId: position.id, error: errorMessage });
       setEngineError(errorMessage);
       actions.setEngineStatus('error');
       ErrorService.handleChessEngineError(error as Error, { component: 'TrainingBoardZustand' });
@@ -188,7 +206,13 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
 
   // Enhanced move handling - inline implementation
   const handleMove = useCallback(async (move: any) => {
-    if (!scenarioEngine || isGameFinished) return null;
+    const logger = getLogger().setContext('TrainingBoard-handleMove');
+    logger.debug('handleMove called', { move, hasScenarioEngine: !!scenarioEngine, isGameFinished });
+    
+    if (!scenarioEngine || isGameFinished) {
+      logger.warn('handleMove early return', { hasScenarioEngine: !!scenarioEngine, isGameFinished });
+      return null;
+    }
 
     try {
       // Validate move with chess instance
@@ -229,10 +253,21 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
 
   // === TEST HOOK FOR E2E TESTING ===
   useEffect(() => {
+    const logger = getLogger().setContext('TrainingBoard-E2E');
+    
+    // Debug logging for E2E test setup
+    logger.info('E2E Test Environment Check', {
+      NEXT_PUBLIC_IS_E2E_TEST: process.env.NEXT_PUBLIC_IS_E2E_TEST,
+      NODE_ENV: process.env.NODE_ENV,
+      typeof_NEXT_PUBLIC_IS_E2E_TEST: typeof process.env.NEXT_PUBLIC_IS_E2E_TEST
+    });
+    
     // Only expose in test environment
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NEXT_PUBLIC_IS_E2E_TEST === 'true') {
+      logger.info('Attaching e2e hooks to window object');
+      
       (window as any).e2e_makeMove = async (move: string) => {
-        const logger = getLogger().setContext('TrainingBoard-TestHook');
+        logger.info('e2e_makeMove called', { move });
         logger.debug('Test move requested', { move });
         
         // Parse move notation (support 'e2-e4', 'e2e4', 'Ke2-e4', 'Ke2e4' formats)
@@ -250,16 +285,19 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
         };
         
         try {
+          logger.debug('Calling handleMove', { moveObj });
           const result = await handleMove(moveObj);
+          logger.info('handleMove result', { result });
+          
           if (result) {
             logger.debug('Test move successful', { move, result });
             return { success: true, result };
           } else {
-            logger.error('Test move failed', { move });
+            logger.error('Test move failed - handleMove returned null/false', { move });
             return { success: false, error: 'Move rejected by engine' };
           }
         } catch (error) {
-          logger.error('Test move error', { move, error });
+          logger.error('Error in e2e_makeMove', { move, error });
           return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
         }
       };
@@ -276,7 +314,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     
     // Cleanup on unmount
     return () => {
-      if (process.env.NODE_ENV === 'test') {
+      if (process.env.NEXT_PUBLIC_IS_E2E_TEST === 'true') {
         delete (window as any).e2e_makeMove;
         delete (window as any).e2e_getGameState;
       }
@@ -423,17 +461,71 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     }
   }, [game, isGameFinished, handleMove, testMoveProcessed]);
 
+  // === CUSTOM SQUARE RENDERER FOR E2E TESTING ===
+  
+  // Custom renderer to add data-attributes for E2E testing
+  // Implements consensus recommendation: customSquareRenderer (Option B)
+  const customSquareRenderer = useCallback((args: any) => {
+    const { square, squareColor, piece, isDragging, onSquareClick, onSquareRightClick } = args;
+    const squareSize = 600 / 8; // Board width divided by 8
+    
+    // Parse piece notation for data-piece attribute
+    const pieceNotation = piece ? `${piece.color[0]}${piece.type.toUpperCase()}` : null;
+    
+    return (
+      <div
+        data-square={square}
+        data-testid={`chess-square-${square}`}
+        data-piece={pieceNotation || ''}
+        style={{
+          width: squareSize,
+          height: squareSize,
+          backgroundColor: squareColor,
+          cursor: isDragging ? 'grabbing' : 'pointer',
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+        onClick={onSquareClick}
+        onContextMenu={onSquareRightClick}
+      >
+        {/* Render piece if present */}
+        {piece && (
+          <div
+            style={{
+              width: '85%',
+              height: '85%',
+              backgroundImage: `url(/pieces/${piece.color}${piece.type}.png)`,
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center'
+            }}
+          />
+        )}
+      </div>
+    );
+  }, []);
+
   // === RENDER ===
 
   return (
     <div className="flex flex-col items-center">
-      {/* Chessboard with Evaluation Overlay */}
-      <div className="relative" key={trainingState.resetKey} style={{ width: '600px', height: '600px' }}>
+      {/* Chessboard with Evaluation Overlay and E2E data attributes */}
+      <div 
+        className="relative" 
+        key={trainingState.resetKey} 
+        style={{ width: '600px', height: '600px' }}
+        data-fen={currentFen}
+        data-testid="training-board"
+        data-engine-status={training.engineStatus}
+      >
         <Chessboard
           position={currentFen}
           onPieceDrop={onDrop}
           arePiecesDraggable={!isGameFinished}
           boardWidth={600}
+          customSquareRenderer={customSquareRenderer}
         />
         {/* Show last evaluation briefly */}
         {trainingState.showLastEvaluation && lastEvaluation && (

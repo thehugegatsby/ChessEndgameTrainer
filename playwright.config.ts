@@ -29,6 +29,10 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    
+    /* Run tests in headless mode to prevent browser window spawning */
+    headless: true,
+    
   },
 
   /* Configure projects for major browsers */
@@ -66,9 +70,12 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run dev',
+    command: 'cross-env IS_E2E_TEST=true npm run dev',
     url: APP_CONFIG.DEV_URL,
     reuseExistingServer: !process.env.CI, // Reuse existing server locally, start new in CI
     timeout: 120 * 1000,
+    env: {
+      IS_E2E_TEST: 'true',
+    },
   },
 });

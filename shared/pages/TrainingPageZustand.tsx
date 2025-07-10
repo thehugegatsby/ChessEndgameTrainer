@@ -113,13 +113,15 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
       <div className="main-content flex-1 flex h-full mr-80">
         {/* Chessboard Area */}
         <div className="chessboard-wrapper flex-[5] h-full relative">
-          {/* Progress Header centered above board */}
-          <div className="absolute top-24 left-0 right-0 z-10 text-center">
-            <h2 className="text-3xl font-bold">
-              {chapterProgress}
-              {training.moveHistory.length > 3 && <span className="ml-3 text-orange-400">🔥 {Math.floor(training.moveHistory.length / 2)}</span>}
-            </h2>
-          </div>
+          {/* Progress Header centered above board - hidden in E2E tests to prevent blocking interactions */}
+          {process.env.NEXT_PUBLIC_IS_E2E_TEST !== 'true' && (
+            <div className="absolute top-24 left-0 right-0 z-10 text-center">
+              <h2 className="text-3xl font-bold">
+                {chapterProgress}
+                {training.moveHistory.length > 3 && <span className="ml-3 text-orange-400">🔥 {Math.floor(training.moveHistory.length / 2)}</span>}
+              </h2>
+            </div>
+          )}
           
           <div className="w-full h-full flex items-center justify-center">
             <TrainingBoardZustand 

@@ -86,6 +86,7 @@ export interface GameState {
  * Position configuration
  */
 export interface Position {
+  id?: number;
   fen: FenString;
   evaluation?: number;
   bestMove?: ChessMove;
