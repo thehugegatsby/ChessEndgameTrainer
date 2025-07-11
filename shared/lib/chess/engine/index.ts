@@ -347,4 +347,9 @@ export class Engine {
 // Re-export types for convenience
 export type { EngineEvaluation, EngineConfig } from './types';
 export type { IWorker, IWorkerFactory, WorkerConfig } from './interfaces';
-export { DefaultWorkerFactory } from './interfaces'; 
+export { DefaultWorkerFactory } from './interfaces';
+export type { EngineState, EngineAction } from './state';
+export { EngineActions, createInitialEngineState } from './state';
+export { engineReducer, EngineSelectors } from './reducer';
+export { EngineStateManager } from './stateManager';
+export type { StateListener, Unsubscribe } from './stateManager'; 
