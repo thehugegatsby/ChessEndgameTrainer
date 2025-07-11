@@ -44,7 +44,9 @@
     "ci:install": "npm ci --prefer-offline --no-audit",
     "ci:test": "npm run lint && npm run tsc -- --noEmit && npm test",
     "migrate:firestore": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register scripts/migrateToFirestore.ts",
-    "migrate:verify": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register scripts/migrateToFirestore.ts --verify"
+    "migrate:verify": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register scripts/migrateToFirestore.ts --verify",
+    "emulator": "firebase emulators:start",
+    "emulator:test": "firebase emulators:start --only firestore"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",

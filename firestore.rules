@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Positions are read-only in production
+    match /positions/{position} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // Categories are read-only in production
+    match /categories/{category} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // Chapters are read-only in production
+    match /chapters/{chapter} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}
