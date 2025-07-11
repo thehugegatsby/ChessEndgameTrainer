@@ -6,7 +6,7 @@ import { Piece } from 'react-chessboard/dist/chessboard/types';
 import { useEvaluation, useTrainingGame } from '../../../hooks';
 import { usePageReady } from '../../../hooks/usePageReady';
 import { useTraining, useTrainingActions, useUIActions, useStore } from '@shared/store/store';
-import { EndgamePosition } from '@shared/data/endgames/types';
+import { EndgamePosition } from '@shared/types';
 import { ScenarioEngine } from '@shared/lib/chess/ScenarioEngine';
 import { ErrorService } from '@shared/services/errorService';
 import { getLogger } from '@shared/services/logging';

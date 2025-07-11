@@ -1,0 +1,56 @@
+{
+  "positions": [
+    {
+      "id": 1,
+      "title": "Opposition Basics",
+      "description": "Learn the fundamental concept of opposition",
+      "fen": "4k3/8/4K3/8/8/8/8/8 w - - 0 1",
+      "category": "king-pawn",
+      "difficulty": "beginner",
+      "targetMoves": 1,
+      "hints": ["Opposition is key"],
+      "solution": ["Ke6-e7"],
+      "sideToMove": "white",
+      "goal": "win"
+    },
+    {
+      "id": 2,
+      "title": "Advanced Opposition",
+      "description": "Master more complex opposition patterns",
+      "fen": "8/8/4k3/8/8/4K3/8/8 w - - 0 1",
+      "category": "king-pawn",
+      "difficulty": "intermediate",
+      "targetMoves": 3,
+      "hints": ["Use opposition to control key squares"],
+      "solution": ["Ke3-e4", "Ke4-e5", "Ke5-d6"],
+      "sideToMove": "white",
+      "goal": "win"
+    },
+    {
+      "id": 3,
+      "title": "Distant Opposition",
+      "description": "Understanding distant opposition concepts",
+      "fen": "8/8/8/3k4/8/3K4/8/8 w - - 0 1",
+      "category": "king-pawn",
+      "difficulty": "intermediate",
+      "targetMoves": 2,
+      "hints": ["Maintain opposition from a distance"],
+      "solution": ["Kd3-d4", "Kd4-d5"],
+      "sideToMove": "white",
+      "goal": "win"
+    },
+    {
+      "id": 12,
+      "title": "Brückenbau",
+      "description": "Build a bridge for your rook",
+      "fen": "1K6/1P6/8/8/8/8/r7/1k6 b - - 0 1",
+      "category": "rook-pawn",
+      "difficulty": "advanced",
+      "targetMoves": 5,
+      "hints": ["Create a bridge with your rook"],
+      "solution": ["Ra2-a8+", "Kb8-c7", "Ra8-a7", "Kb1-b2", "Ra7-b7"],
+      "sideToMove": "black",
+      "goal": "draw"
+    }
+  ]
+}

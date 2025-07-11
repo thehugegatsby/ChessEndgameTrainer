@@ -1,4 +1,4 @@
-import { Engine } from './engine';
+import { engine } from './engine/singleton';
 import { EVALUATION } from '@shared/constants';
 
 /**
@@ -8,7 +8,6 @@ import { EVALUATION } from '@shared/constants';
  * 2. Wenn Bewertung von Remis / leicht besser auf klar verloren (< -3 Pawns) fällt → Fehler.
  */
 export async function isCriticalMistake(fenBefore: string, fenAfter: string): Promise<boolean> {
-  const engine = Engine.getInstance();
   const [evalBefore, evalAfter] = await Promise.all([
     engine.evaluatePosition(fenBefore),
     engine.evaluatePosition(fenAfter)

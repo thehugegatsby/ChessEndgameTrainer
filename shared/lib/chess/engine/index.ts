@@ -15,64 +15,66 @@ import { Move as ChessJsMove } from 'chess.js';
 import type { EngineEvaluation, EngineRequest, EngineResponse, EngineConfig } from './types';
 import { StockfishWorkerManager } from './workerManager';
 import { RequestManager } from './requestManager';
+import { Logger } from '@shared/services/logging/Logger';
+
+const logger = new Logger('Engine');
+
+// Import singleton for getInstance compatibility
+// Lazy import to avoid circular dependency
+let singletonEngine: Engine | null = null;
 
 /**
  * Main Chess Engine class with modular architecture
  * Mobile-optimized with proper error handling and performance monitoring
- * 
- * AI_NOTE: SINGLETON PATTERN with lazy initialization!
- * - Only ONE Engine instance exists globally (static instance)
- * - Worker is expensive on mobile (~20MB memory)
- * - getInstance() handles SSR→Browser transition gracefully
  * 
  * ARCHITECTURE:
  * - workerManager: Handles Stockfish Web Worker lifecycle
  * - requestManager: Tracks pending requests with timeouts
  * - requestQueue: FIFO queue for sequential processing
  * 
+ * USAGE:
+ * - Production: import { engine } from './singleton'
+ * - Tests: import { Engine } from './index' and create new instances
+ * 
  * KNOWN ISSUES:
- * - Line 44: Force new instance if worker not ready (browser-only hack)
  * - Worker initialization can fail silently on iOS Safari
  * - Memory pressure on Android devices with <2GB RAM
  */
 export class Engine {
-  private static instance: Engine | null = null;
   private workerManager: StockfishWorkerManager;
   private requestManager: RequestManager;
   private requestQueue: Array<EngineRequest> = [];
   private isProcessingQueue = false;
 
   /**
-   * Private constructor for singleton pattern
+   * Public constructor for flexible instantiation
+   * @param config - Optional engine configuration
    */
-  private constructor(config?: EngineConfig) {
+  public constructor(config?: EngineConfig) {
     this.workerManager = new StockfishWorkerManager(config);
     this.requestManager = new RequestManager();
     this.initializeEngine();
   }
 
   /**
-   * Gets singleton instance (mobile-optimized)
-   * 
-   * AI_NOTE: Complex initialization logic here!
-   * - Line 60: Checks if we're in browser (not SSR) AND worker is dead
-   * - This handles Next.js SSR→Browser hydration issues
-   * - Also recovers from iOS Safari worker termination
-   * 
-   * USAGE: Always use Engine.getInstance(), never `new Engine()`
-   * CLEANUP: Call Engine.getInstance().quit() when done (mobile memory)
+   * @deprecated Use import { engine } from './singleton' for production
+   * This method is kept for backward compatibility during migration
    */
   static getInstance(config?: EngineConfig): Engine {
-    // Force new instance if we're in browser but current instance has no worker
-    if (Engine.instance && typeof window !== 'undefined' && !Engine.instance.isReady()) {
-      Engine.instance = null;
+    logger.warn('Engine.getInstance() is deprecated. Use import { engine } from "./singleton" instead.');
+    
+    // Return the singleton instance to ensure only one instance exists
+    if (!singletonEngine) {
+      // Lazy import to avoid circular dependency at module load time
+      const { engine } = require('./singleton');
+      singletonEngine = engine;
     }
     
-    if (!Engine.instance) {
-      Engine.instance = new Engine(config);
+    if (config) {
+      logger.warn('Config parameter ignored - singleton already initialized');
     }
     
-    return Engine.instance;
+    return singletonEngine;
   }
 
   /**
@@ -296,7 +298,6 @@ export class Engine {
         this.reset();
       }
       this.workerManager.cleanup();
-      Engine.instance = null;
       
     } catch (error) {
     }

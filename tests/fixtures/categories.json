@@ -1,0 +1,28 @@
+{
+  "categories": [
+    {
+      "id": "king-pawn",
+      "name": "King and Pawn",
+      "description": "Fundamental king and pawn endgames",
+      "icon": "♔",
+      "positions": [],
+      "subcategories": []
+    },
+    {
+      "id": "rook-pawn",
+      "name": "Rook and Pawn",
+      "description": "Rook endgames with pawns",
+      "icon": "♜",
+      "positions": [],
+      "subcategories": []
+    },
+    {
+      "id": "queen-endgames",
+      "name": "Queen Endgames",
+      "description": "Queen endgame techniques",
+      "icon": "♕",
+      "positions": [],
+      "subcategories": []
+    }
+  ]
+}

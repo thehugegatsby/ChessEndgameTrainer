@@ -1,0 +1,28 @@
+{
+  "chapters": [
+    {
+      "id": "opposition-basics",
+      "name": "Opposition Fundamentals",
+      "description": "Learn the basics of opposition",
+      "category": "king-pawn",
+      "lessons": [],
+      "totalLessons": 5
+    },
+    {
+      "id": "bridge-building",
+      "name": "Bridge Building Technique",
+      "description": "Master the bridge building technique",
+      "category": "rook-pawn",
+      "lessons": [],
+      "totalLessons": 3
+    },
+    {
+      "id": "queen-vs-pawn",
+      "name": "Queen vs Pawn Endgames",
+      "description": "Win with queen against advanced pawns",
+      "category": "queen-endgames",
+      "lessons": [],
+      "totalLessons": 4
+    }
+  ]
+}

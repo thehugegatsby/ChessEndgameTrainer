@@ -6,22 +6,20 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/router';
-import MyApp from '../../../pages/_app';
 
 // Mock Next.js router
 jest.mock('next/router', () => ({
   useRouter: jest.fn()
 }));
 
-// Mock EngineContext
-jest.mock('@shared/contexts/EngineContext', () => ({
-  EngineProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  useEngineStatus: jest.fn()
-}));
+// Mock zustand store before importing components that use it
+jest.mock('@shared/store/store');
 
-// Import mocked module to get typed mock
-import { useEngineStatus } from '@shared/contexts/EngineContext';
-const mockUseEngineStatus = useEngineStatus as jest.MockedFunction<typeof useEngineStatus>;
+// Import mock helpers
+import { mockUseTraining, resetUseTrainingMock } from '../../helpers/mockUseTraining';
+
+// Import component after mocks are set up
+import MyApp from '../../../pages/_app';
 
 describe('App Ready Signal', () => {
   let mockRouter: any;
@@ -44,8 +42,8 @@ describe('App Ready Signal', () => {
     
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     
-    // Default engine status
-    mockUseEngineStatus.mockReturnValue('initializing');
+    // Default store mock
+    mockUseTraining({ engineStatus: 'initializing' });
     
     // Clear body attributes
     document.body.removeAttribute('data-app-ready');
@@ -53,6 +51,7 @@ describe('App Ready Signal', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    resetUseTrainingMock();
   });
 
   test('should set data-app-ready to false when router is not ready', () => {
@@ -65,7 +64,7 @@ describe('App Ready Signal', () => {
 
   test('should set data-app-ready to true when both router and engine are ready', async () => {
     mockRouter.isReady = true;
-    mockUseEngineStatus.mockReturnValue('ready');
+    mockUseTraining({ engineStatus: 'ready' });
     
     const TestComponent = () => <div>Test Page</div>;
     
@@ -76,9 +75,10 @@ describe('App Ready Signal', () => {
     });
   });
 
-  test('should set data-app-ready to error when engine has error', async () => {
+  test('should set data-app-ready to error when engine has error on training page', async () => {
     mockRouter.isReady = true;
-    mockUseEngineStatus.mockReturnValue('error');
+    mockRouter.pathname = '/train/1'; // Must be on training page for error state
+    mockUseTraining({ engineStatus: 'error' });
     
     const TestComponent = () => <div>Test Page</div>;
     
@@ -86,6 +86,20 @@ describe('App Ready Signal', () => {
     
     await waitFor(() => {
       expect(document.body.getAttribute('data-app-ready')).toBe('error');
+    });
+  });
+
+  test('should set data-app-ready to true when engine has error on non-training page', async () => {
+    mockRouter.isReady = true;
+    mockRouter.pathname = '/dashboard'; // Non-training page
+    mockUseTraining({ engineStatus: 'error' });
+    
+    const TestComponent = () => <div>Test Page</div>;
+    
+    render(<MyApp Component={TestComponent} pageProps={{}} />);
+    
+    await waitFor(() => {
+      expect(document.body.getAttribute('data-app-ready')).toBe('true');
     });
   });
 
@@ -119,7 +133,7 @@ describe('App Ready Signal', () => {
 
   test('should restore data-app-ready after route change complete', () => {
     mockRouter.isReady = true;
-    mockUseEngineStatus.mockReturnValue('ready');
+    mockUseTraining({ engineStatus: 'ready' });
     
     const TestComponent = () => <div>Test Page</div>;
     

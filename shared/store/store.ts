@@ -25,6 +25,7 @@ import { getLogger } from '../services/logging';
 import { fromLibraryMove, ChessAdapterError } from '../infrastructure/chess-adapter';
 import { Chess, Move as ChessJsMove } from 'chess.js';
 import { validateAndSanitizeFen } from '../utils/fenValidator';
+import { positionService } from '../services/database/positionService';
 
 const logger = getLogger().setContext('Store');
 
@@ -187,6 +188,49 @@ export const useStore = create<RootState & Actions>()(
           
           logger.info('Position set', { positionId: position.id });
         }),
+
+        loadTrainingContext: async (position) => {
+          // Avoid re-fetching if we already have context for this position
+          const currentState = get();
+          if (currentState.training.currentPosition?.id === position.id && 
+              currentState.training.nextPosition !== undefined) {
+            return;
+          }
+          
+          set((state) => {
+            state.training.currentPosition = position;
+            state.training.isLoadingNavigation = true;
+            state.training.navigationError = null;
+            // Reset navigation state while loading
+            state.training.nextPosition = undefined;
+            state.training.previousPosition = undefined;
+          });
+
+          try {
+            const [next, prev] = await Promise.all([
+              positionService.getNextPosition(position.id, position.category),
+              positionService.getPreviousPosition(position.id, position.category),
+            ]);
+
+            set((state) => {
+              state.training.nextPosition = next;
+              state.training.previousPosition = prev;
+              state.training.isLoadingNavigation = false;
+            });
+            
+            logger.info('Training context loaded', { 
+              positionId: position.id,
+              hasNext: !!next,
+              hasPrev: !!prev
+            });
+          } catch (err) {
+            logger.error('Failed to load navigation context:', err);
+            set((state) => {
+              state.training.navigationError = 'Navigation konnte nicht geladen werden';
+              state.training.isLoadingNavigation = false;
+            });
+          }
+        },
 
         setGame: (game) => set((state) => {
           state.training.game = game;
@@ -587,6 +631,7 @@ export const useUserActions = () => useStore((state) => ({
 
 export const useTrainingActions = () => useStore((state) => ({
   setPosition: state.setPosition,
+  loadTrainingContext: state.loadTrainingContext,
   setGame: state.setGame,
   setScenarioEngine: state.setScenarioEngine,
   makeMove: state.makeMove,

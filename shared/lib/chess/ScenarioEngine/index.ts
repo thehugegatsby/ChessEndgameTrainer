@@ -12,7 +12,7 @@
  */
 
 import { Chess } from 'chess.js';
-import { Engine } from '../engine';
+import { engine } from '../engine/singleton';
 import { EvaluationService } from './evaluationService';
 import { TablebaseService } from './tablebaseService';
 import {
@@ -70,7 +70,7 @@ export class ScenarioEngine {
     
     this.initialFen = startingFen;
     this.chess = InstanceManager.createChessInstance(startingFen);
-    this.engine = Engine.getInstance();
+    this.engine = engine;
     
     // Initialize specialized services
     this.evaluationService = new EvaluationService(this.engine);

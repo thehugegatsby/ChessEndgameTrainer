@@ -290,6 +290,10 @@ interface PlatformService {
 - **Memory Efficiency**: Mobile devices have limited memory
 - **Resource Management**: Prevents multiple worker spawns
 - **Consistent State**: Single source of truth for evaluations
+- **Test Isolation**: Refactored to module-level singleton (2025-01-11)
+  - Production uses `import { engine } from './singleton'`
+  - Tests can create isolated instances with `new Engine()`
+  - Graceful cleanup handlers for proper resource management
 
 ### Why Dual Evaluation?
 - **Accuracy**: Tablebase provides perfect endgame play

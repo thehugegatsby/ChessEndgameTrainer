@@ -22,6 +22,8 @@ Welcome to the Chess Endgame Trainer documentation. This index provides a compre
 ## 🧪 Testing
 
 - **[TESTING.md](TESTING.md)** - Comprehensive testing guide with best practices, Store testing patterns, and domain-specific tests
+- **[TESTING-ARCHITECTURE.md](TESTING-ARCHITECTURE.md)** - Enterprise test architecture with Page Object Model, Test API, and advanced testing capabilities
+- **[TEST-IMPLEMENTATION-GUIDE.md](TEST-IMPLEMENTATION-GUIDE.md)** - Practical guide for writing tests using the new architecture
 - **[E2E_TEST_ARCHITECTURE.md](E2E_TEST_ARCHITECTURE.md)** - E2E test architecture with ModernDriver and Component Object Model
 - **[testing/COVERAGE_GUIDE.md](testing/COVERAGE_GUIDE.md)** - Test coverage requirements and tools
 - **[testing/TEST_UTILITIES.md](testing/TEST_UTILITIES.md)** - Centralized test utilities (logger mocks, config adapters)
@@ -64,7 +66,8 @@ Welcome to the Chess Endgame Trainer documentation. This index provides a compre
 ### For Developers
 1. [API.md](API.md) - API reference
 2. [TESTING.md](TESTING.md) - Testing practices and guidelines
-3. [SECURITY.md](SECURITY.md) - Security requirements and implementation
+3. [TEST-IMPLEMENTATION-GUIDE.md](TEST-IMPLEMENTATION-GUIDE.md) - How to write tests
+4. [SECURITY.md](SECURITY.md) - Security requirements and implementation
 
 ### For DevOps
 1. [DEPLOYMENT_GUIDE.md](deployment/DEPLOYMENT_GUIDE.md) - Deployment procedures
@@ -92,6 +95,6 @@ To find specific information:
 
 ---
 
-Last updated: 2025-01-17
+Last updated: 2025-01-11
 
 For documentation issues or suggestions, please open an issue on GitHub.

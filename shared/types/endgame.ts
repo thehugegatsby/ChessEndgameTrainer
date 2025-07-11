@@ -13,6 +13,8 @@ export interface EndgamePosition {
   hints?: string[];
   solution?: string[];
   nextPositionId?: number;
+  sideToMove?: 'white' | 'black';
+  goal?: 'win' | 'draw' | 'defend';
 }
 
 export interface EndgameCategory {
@@ -47,6 +49,9 @@ export interface TrainingSession {
   moves: string[];
   completed: boolean;
   score?: number;
+  result?: 'success' | 'failure';
+  mistakes?: number;
+  timeSpent?: number;
 }
 
 export interface UserProgress {
@@ -62,6 +67,8 @@ export interface MobileAppConfig {
   offlineMode: boolean;
   syncInterval: number;
   maxCacheSize: number;
+  reminderTime?: string;
+  reminderEnabled?: boolean;
 }
 
 export interface TrainingAnalytics {

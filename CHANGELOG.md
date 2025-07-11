@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Refactored Engine from class-level singleton to module-level singleton for better testability (2025-01-11)
+  - Engine constructor is now public, allowing test isolation with new instances
+  - Added graceful shutdown handlers for proper cleanup in Node.js and browser environments
+  - Updated imports in ScenarioEngine and mistakeCheck to use new singleton export
+
+### Fixed
+- Fixed Engine.getInstance() to return the global singleton instance instead of creating new ones (2025-01-11)
+- Fixed async cleanup handlers to properly handle Node.js termination signals (SIGINT, SIGTERM)
+- Fixed circular dependency risk with lazy loading in getInstance()
+- Fixed all unit test failures - 46 test suites now passing (2025-01-11)
+
+### Added
+- New `shared/lib/chess/engine/singleton.ts` module exports the production engine instance (2025-01-11)
+- Comprehensive cleanup handlers for SIGINT, SIGTERM, and uncaught exceptions
+- Test helper `tests/helpers/mockUseTraining.ts` for Zustand store mocking (2025-01-11)
+- Enterprise Test Architecture Implementation (2025-01-11)
+  - Page Object Model with component separation (no assertions in POs)
+  - Test API server replacing window hooks for clean test interactions
+  - Firebase test utilities with Admin SDK integration
+  - Data factories with faker-js for realistic test data generation
+  - Fault injection system for resilience testing (network errors, timeouts, data corruption)
+  - Visual regression testing with Playwright screenshot comparison
+  - Accessibility testing with axe-playwright (WCAG 2.1 compliance)
+  - Performance testing with Core Web Vitals metrics and budgets
+  - Test tagging and monitoring system with export to Prometheus/Datadog
+  - Chaos testing capabilities with ChaosMonkey
+  - Comprehensive test documentation (TESTING-ARCHITECTURE.md, TEST-IMPLEMENTATION-GUIDE.md)
+
 ### Added
 - E2E Ready Signal Pattern implementation (2025-01-17)
   - Frontend signals app-ready state via `data-app-ready` attribute in _app.tsx

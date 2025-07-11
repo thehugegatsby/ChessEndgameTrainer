@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/router';
 import { Move } from 'chess.js';
 import { 
   TrainingBoardZustand, 
@@ -10,7 +11,7 @@ import {
   NavigationControls
 } from '@shared/components/training';
 import { AdvancedEndgameMenu } from '@shared/components/navigation/AdvancedEndgameMenu';
-import { EndgamePosition, allEndgamePositions, getChapterProgress } from '@shared/data/endgames/index';
+import { EndgamePosition } from '@shared/types';
 import { useToast } from '@shared/hooks/useToast';
 import { ToastContainer } from '@shared/components/ui/Toast';
 import { getGameStatus } from '@shared/utils/chess/gameStatus';
@@ -25,6 +26,9 @@ interface TrainingPageZustandProps {
  * This replaces the Context-based version
  */
 export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.memo(({ position }) => {
+  // Next.js router
+  const router = useRouter();
+  
   // Zustand store hooks
   const training = useTraining();
   const trainingActions = useTrainingActions();
@@ -37,17 +41,23 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
   // Local UI state
   const [resetKey, setResetKey] = useState<number>(0);
 
-  // Navigation helpers
-  const currentIndex = allEndgamePositions.findIndex(p => p.id === position.id);
-  const prevPosition = currentIndex > 0 ? allEndgamePositions[currentIndex - 1] : null;
-  const nextPosition = currentIndex < allEndgamePositions.length - 1 ? allEndgamePositions[currentIndex + 1] : null;
-
-  // Chapter progress and game status
-  const chapterProgress = getChapterProgress(position.id);
+  // Load training context when position changes
+  useEffect(() => {
+    if (position) {
+      trainingActions.loadTrainingContext(position);
+    }
+  }, [position, trainingActions]);
+  
+  // Game status
   const gameStatus = useMemo(() => 
     getGameStatus(training.currentFen || position.fen, position.goal), 
     [training.currentFen, position.fen, position.goal]
   );
+  
+  // Navigation data from store
+  const prevPosition = training.previousPosition;
+  const nextPosition = training.nextPosition;
+  const isLoadingNavigation = training.isLoadingNavigation;
 
   // Initialize position in store when component mounts
   useEffect(() => {
@@ -117,7 +127,7 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
           {process.env.NEXT_PUBLIC_IS_E2E_TEST !== 'true' && (
             <div className="absolute top-24 left-0 right-0 z-10 text-center">
               <h2 className="text-3xl font-bold">
-                {chapterProgress}
+                {/* Chapter Progress removed - will be implemented later */}
                 {training.moveHistory.length > 3 && <span className="ml-3 text-orange-400">🔥 {Math.floor(training.moveHistory.length / 2)}</span>}
               </h2>
             </div>
@@ -139,12 +149,14 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
             <h3 className="text-sm font-semibold text-gray-400 mb-2 text-center">Stellungsnavigation</h3>
             <div className="flex items-center justify-center gap-4">
               <button 
-                onClick={() => prevPosition && (window.location.href = `/train/${prevPosition.id}`)}
-                disabled={!prevPosition}
+                onClick={() => prevPosition && router.push(`/train/${prevPosition.id}`)}
+                disabled={!prevPosition || isLoadingNavigation}
                 className="p-2 hover:bg-gray-800 rounded disabled:opacity-30 transition-colors"
                 title="Vorherige Stellung"
               >
-                <span className="text-lg">← Vorherige Stellung</span>
+                <span className="text-lg">
+                  {isLoadingNavigation ? '⏳' : '←'} Vorherige Stellung
+                </span>
               </button>
               <button 
                 onClick={handleResetPosition}
@@ -154,12 +166,14 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
                 <span className="text-lg">↻</span>
               </button>
               <button 
-                onClick={() => nextPosition && (window.location.href = `/train/${nextPosition.id}`)}
-                disabled={!nextPosition}
+                onClick={() => nextPosition && router.push(`/train/${nextPosition.id}`)}
+                disabled={!nextPosition || isLoadingNavigation}
                 className="p-2 hover:bg-gray-800 rounded disabled:opacity-30 transition-colors"
                 title="Nächste Stellung"
               >
-                <span className="text-lg">Nächste Stellung →</span>
+                <span className="text-lg">
+                  Nächste Stellung {isLoadingNavigation ? '⏳' : '→'}
+                </span>
               </button>
             </div>
           </div>

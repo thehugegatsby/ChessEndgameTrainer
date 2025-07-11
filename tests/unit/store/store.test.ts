@@ -22,7 +22,7 @@ import {
   useTrainingActions,
   useUIActions 
 } from '../../../shared/store/store';
-import { EndgamePosition } from '../../../shared/data/endgames/types';
+import { EndgamePosition } from '../../../shared/types/endgame';
 import { Move } from '../../../shared/types';
 import { RootState } from '../../../shared/store/types';
 

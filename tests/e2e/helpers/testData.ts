@@ -4,15 +4,16 @@
  * This ensures tests stay in sync with application data changes
  */
 
-import { getPositionById } from '../../../shared/data/endgames/index';
-import { EndgamePosition } from '../../../shared/data/endgames/types';
+import { EndgamePosition } from '../../../shared/types/endgame';
+import { positionService } from '../../../shared/services/database/positionService';
 
 /**
  * Get training position data by ID
  * Uses the same data source as the application
+ * Note: This is now async due to Firebase integration
  */
-export function getTestPosition(id: number): EndgamePosition {
-  const position = getPositionById(id);
+export async function getTestPosition(id: number): Promise<EndgamePosition> {
+  const position = await positionService.getPosition(id);
   if (!position) {
     throw new Error(`Test position with id ${id} not found in endgame data`);
   }
@@ -33,17 +34,20 @@ export const TestPositions = {
 /**
  * Get FEN for a specific position ID
  * Convenience method for tests that only need the FEN
+ * Note: This is now async due to Firebase integration
  */
-export function getTestFen(id: number): string {
-  return getTestPosition(id).fen;
+export async function getTestFen(id: number): Promise<string> {
+  const position = await getTestPosition(id);
+  return position.fen;
 }
 
 /**
  * Verify a position matches expected data
  * Returns true if position matches, throws descriptive error if not
+ * Note: This is now async due to Firebase integration
  */
-export function verifyPosition(actualFen: string, expectedPositionId: number): boolean {
-  const expectedPosition = getTestPosition(expectedPositionId);
+export async function verifyPosition(actualFen: string, expectedPositionId: number): Promise<boolean> {
+  const expectedPosition = await getTestPosition(expectedPositionId);
   if (actualFen !== expectedPosition.fen) {
     throw new Error(
       `Position mismatch for position ${expectedPositionId} (${expectedPosition.title}):\n` +

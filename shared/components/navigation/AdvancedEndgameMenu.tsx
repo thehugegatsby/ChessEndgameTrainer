@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { endgameCategories, EndgameCategory, EndgameSubcategory, allEndgamePositions, endgameChapters } from '@shared/data/endgames/index';
+import { positionService } from '@shared/services/database/positionService';
+import { EndgameCategory, EndgameChapter } from '@shared/types';
 
 interface AdvancedEndgameMenuProps {
   isOpen: boolean;
@@ -14,39 +15,110 @@ interface UserStats {
   successRate: number;
 }
 
+interface CategoryWithDetails extends EndgameCategory {
+  positionCount: number | null;
+  chapters?: EndgameChapter[];
+  isLoadingChapters?: boolean;
+  isExpanded?: boolean;
+}
+
 export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({ 
   isOpen, 
   onClose, 
   currentPositionId 
 }) => {
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [categories, setCategories] = useState<CategoryWithDetails[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [userStats, setUserStats] = useState<UserStats>({ rating: 1123, totalPlayed: 45, successRate: 73 });
+  const [totalPositions, setTotalPositions] = useState(0);
 
-  // Load user stats from localStorage
+  // Load categories and user stats
   useEffect(() => {
-    try {
-      const savedStats = localStorage.getItem('endgame-user-stats');
-      if (savedStats) {
-        setUserStats(JSON.parse(savedStats));
-      }
-    } catch (error) {
-      // Silently ignore localStorage errors and use default stats
-      console.error('Failed to load user stats from localStorage:', error);
-    }
-  }, []);
+    const loadData = async () => {
+      try {
+        // Load user stats from localStorage
+        const savedStats = localStorage.getItem('endgame-user-stats');
+        if (savedStats) {
+          setUserStats(JSON.parse(savedStats));
+        }
 
-  const toggleCategory = (categoryId: string) => {
-    const newExpanded = new Set(expandedCategories);
-    if (newExpanded.has(categoryId)) {
-      newExpanded.delete(categoryId);
-    } else {
-      newExpanded.add(categoryId);
+        // Fetch categories
+        const baseCategories = await positionService.getCategories();
+        
+        // Fetch position counts in parallel
+        const categoriesWithCounts = await Promise.all(
+          baseCategories.map(async (cat) => {
+            try {
+              const count = await positionService.getPositionCountByCategory(cat.id);
+              return { ...cat, positionCount: count, isExpanded: false } as CategoryWithDetails;
+            } catch (err) {
+              console.error(`Failed to get count for category ${cat.id}:`, err);
+              return { ...cat, positionCount: null, isExpanded: false } as CategoryWithDetails;
+            }
+          })
+        );
+        
+        setCategories(categoriesWithCounts);
+        
+        // Calculate total positions
+        const total = categoriesWithCounts.reduce((sum, cat) => sum + (cat.positionCount || 0), 0);
+        setTotalPositions(total);
+        
+        setError(null);
+      } catch (err) {
+        console.error('Failed to load menu data:', err);
+        setError('Menü konnte nicht geladen werden');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (isOpen) {
+      loadData();
     }
-    setExpandedCategories(newExpanded);
+  }, [isOpen]);
+
+  const toggleCategory = async (categoryId: string) => {
+    const categoryIndex = categories.findIndex(c => c.id === categoryId);
+    if (categoryIndex === -1) return;
+
+    const category = categories[categoryIndex];
+    
+    // Toggle expansion state
+    if (category.isExpanded) {
+      setCategories(prev => prev.map(c => 
+        c.id === categoryId ? { ...c, isExpanded: false } : c
+      ));
+      return;
+    }
+
+    // Expand and load chapters if not already loaded
+    if (!category.chapters) {
+      setCategories(prev => prev.map(c => 
+        c.id === categoryId ? { ...c, isLoadingChapters: true, isExpanded: true } : c
+      ));
+
+      try {
+        const chapters = await positionService.getChaptersByCategory(categoryId);
+        setCategories(prev => prev.map(c => 
+          c.id === categoryId ? { ...c, chapters, isLoadingChapters: false } : c
+        ));
+      } catch (err) {
+        console.error(`Failed to load chapters for category ${categoryId}:`, err);
+        setCategories(prev => prev.map(c => 
+          c.id === categoryId ? { ...c, isLoadingChapters: false, isExpanded: false } : c
+        ));
+      }
+    } else {
+      // Just expand if chapters already loaded
+      setCategories(prev => prev.map(c => 
+        c.id === categoryId ? { ...c, isExpanded: true } : c
+      ));
+    }
   };
 
-  const getTotalPositions = () => allEndgamePositions.length;
-  const getCompletedPositions = () => Math.floor(allEndgamePositions.length * (userStats.successRate / 100));
+  const getCompletedPositions = () => Math.floor(totalPositions * (userStats.successRate / 100));
 
   if (!isOpen) return null;
 
@@ -97,8 +169,25 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
             </Link>
           </div>
 
+          {/* Loading State */}
+          {isLoading && (
+            <div className="p-4 text-center text-gray-400">
+              <div className="animate-pulse">
+                <div className="h-4 bg-gray-700 rounded mb-2"></div>
+                <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+              </div>
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <div className="p-4 text-center text-red-400">
+              {error}
+            </div>
+          )}
+
           {/* Categories */}
-          {endgameCategories.map((category) => (
+          {!isLoading && !error && categories.map((category) => (
             <div key={category.id}>
               {/* Category Header */}
               <button
@@ -108,64 +197,62 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
                 <div className="flex items-center gap-3">
                   <span className="text-lg">{category.icon}</span>
                   <span className="font-medium">{category.name}</span>
+                  {category.positionCount !== null && (
+                    <span className="text-xs text-gray-400">({category.positionCount})</span>
+                  )}
                 </div>
                 <span className={`transform transition-transform ${
-                  expandedCategories.has(category.id) ? 'rotate-90' : ''
+                  category.isExpanded ? 'rotate-90' : ''
                 }`}>
                   ▶
                 </span>
               </button>
 
-              {/* Subcategories */}
-              {expandedCategories.has(category.id) && (
+              {/* Chapters - Lazy Loaded */}
+              {category.isExpanded && (
                 <div className="bg-gray-800">
-                  {/* All subcategory */}
-                  <div className="px-8 py-2">
-                    <Link href={`/train/${category.positions[0]?.id || 1}`}>
-                      <div className="p-2 hover:bg-gray-700 rounded text-sm text-gray-300">
-                        All
-                      </div>
-                    </Link>
-                  </div>
-
-                  {/* Thematic chapters for this category */}
-                  {endgameChapters
-                    .filter(chapter => chapter.category === category.id)
-                    .map((chapter) => (
-                      <div key={chapter.id} className="px-8 py-1">
-                        <Link href={`/train/${chapter.lessons[0]?.id || 1}`}>
-                          <div className="p-2 hover:bg-gray-700 rounded text-sm text-gray-300 flex items-center gap-2">
-                            <span className="text-xs">🎯</span>
-                            <span>{chapter.name}</span>
-                            <span className="ml-auto text-xs text-gray-500">
-                              {chapter.totalLessons}
-                            </span>
+                  {/* Loading chapters */}
+                  {category.isLoadingChapters && (
+                    <div className="px-8 py-3 text-sm text-gray-400">
+                      <div className="animate-pulse">Lade Kapitel...</div>
+                    </div>
+                  )}
+                  
+                  {/* Chapters */}
+                  {!category.isLoadingChapters && category.chapters && (
+                    <>
+                      {/* All positions in category */}
+                      <div className="px-8 py-2">
+                        <Link href={`/train/1?category=${category.id}`}>
+                          <div className="p-2 hover:bg-gray-700 rounded text-sm text-gray-300">
+                            Alle Positionen
                           </div>
                         </Link>
                       </div>
-                    ))}
-
-                  {/* Material-based subcategories */}
-                  {category.subcategories.map((subcategory) => (
-                    <div key={subcategory.id} className="px-8 py-1">
-                      <Link href={`/train/${subcategory.positions[0]?.id || 1}`}>
-                        <div className="p-2 hover:bg-gray-700 rounded text-sm text-gray-300 flex items-center gap-2">
-                          <span className="text-xs">{subcategory.icon}</span>
-                          <span>{subcategory.material}</span>
-                          <span className="ml-auto text-xs text-gray-500">
-                            {subcategory.positions.length}
-                          </span>
+                      
+                      {/* Individual chapters */}
+                      {category.chapters.map((chapter) => (
+                        <div key={chapter.id} className="px-8 py-1">
+                          <Link href={`/train/1?chapter=${chapter.id}`}>
+                            <div className="p-2 hover:bg-gray-700 rounded text-sm text-gray-300 flex items-center gap-2">
+                              <span className="text-xs">🎯</span>
+                              <span>{chapter.name}</span>
+                              <span className="ml-auto text-xs text-gray-500">
+                                {chapter.totalLessons}
+                              </span>
+                            </div>
+                          </Link>
                         </div>
-                      </Link>
+                      ))}
+                    </>
+                  )}
+                  
+                  {/* No chapters message */}
+                  {!category.isLoadingChapters && category.chapters && category.chapters.length === 0 && (
+                    <div className="px-8 py-3 text-sm text-gray-500">
+                      Keine Kapitel verfügbar
                     </div>
-                  ))}
-
-                  {/* Other subcategory */}
-                  <div className="px-8 py-2">
-                    <div className="p-2 text-sm text-gray-500">
-                      Other
-                    </div>
-                  </div>
+                  )}
                 </div>
               )}
             </div>
@@ -191,6 +278,10 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
 
         {/* User Profile Section */}
         <div className="border-t border-gray-700 p-4">
+          <div className="mb-3 text-xs text-gray-400">
+            <div>Total Positions: {totalPositions}</div>
+            <div>Completed: {getCompletedPositions()}</div>
+          </div>
           <Link href="/profile">
             <div className="flex items-center justify-between p-3 hover:bg-gray-800 rounded transition-colors">
               <div className="flex items-center gap-3">

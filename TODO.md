@@ -1,208 +1,80 @@
-# TODO - ChessEndgameTrainer Tasks
+# TODO - Chess Endgame Trainer
 
-Last Updated: 2025-01-09 (01:00 UTC)
+## Current Sprint: Firebase Migration & Test Architecture Integration
 
-## 📌 Current Sprint Focus
-1. ~~Fix critical Store synchronization bug (Kd7 move not executed)~~ ✅ COMPLETED (2025-01-08)
-2. ~~Complete Store Single Source of Truth migration~~ ✅ COMPLETED (2025-01-08)
-3. ~~FIX: Black doesn't make moves in Training 12 after 1.Kd7~~ ✅ COMPLETED (2025-01-08)
-4. ~~FIX: Analysis mode causes layout shift and white move panel~~ ✅ COMPLETED (2025-01-08)
-5. ~~**E2E Test Performance Optimization - DI Architecture**~~ ✅ COMPLETED (2025-01-08)
-6. **NEW**: Complete Engine DI Architecture & Remove NEXT_PUBLIC_TEST_MODE flag
-7. Implement Playwright Worker Mocking for instant E2E tests
-8. Complete @smoke Test Suite for fast feedback (5-10 critical tests)
-9. Complete Brückenbau-Trainer Phase P3 (UI Integration)
+### P0: Immediate Actions (This Week) 🚨
+- [ ] Phase A: Activate Firebase Test Infrastructure (8 steps)
+  - [ ] A.1: Create Firebase test suite using new architecture
+  - [ ] A.2: Integrate firebase-test-helpers with Test API Server
+  - [ ] A.3: Add Firebase emulator to global-setup.ts
+  - [ ] A.4: Create FirebaseTestFixture extending base fixtures
+  - [ ] A.5: Implement data seeding via Test API endpoints
+  - [ ] A.6: Add Firebase-specific Page Objects
+  - [ ] A.7: Create test for positionService with Firestore
+  - [ ] A.8: Verify emulator cleanup between tests
+- [ ] B.1-B.3: Implement Loading/Error States for UX
+  - [ ] B.1: Create LoadingState component
+  - [ ] B.2: Create ErrorBoundary component
+  - [ ] B.3: Migrate HomePage.tsx to async pattern
+
+### P1: Component Migration (Next Week) 🔄
+- [ ] Phase B: Complete Component Migration (B.4-B.15)
+  - [ ] Migrate ~18 remaining components to async/await
+  - [ ] Add loading states and error handling everywhere
+  - [ ] Implement retry logic and loading skeletons
+- [ ] Phase C: Begin Test Migration (C.1-C.5)
+  - [ ] Migrate core E2E tests to new Page Objects
+  - [ ] Replace ModernDriver usage with new architecture
+  - [ ] Implement visual regression tests
+
+### P2: Advanced Testing & Production Readiness 🏗️
+- [ ] Phase C: Complete Test Migration (C.6-C.12)
+  - [ ] Add accessibility and performance tests
+  - [ ] Implement fault injection and chaos testing
+  - [ ] Use test tagging and monitoring system
+- [ ] Phase D: Production Readiness (10 steps)
+  - [ ] Performance test with 1000+ positions
+  - [ ] Security rules testing
+  - [ ] Error tracking and monitoring setup
+  - [ ] Final documentation updates
 
 ---
 
-## 🚨 Critical Priority Tasks
+## 🔥 High Priority Tasks
 
-### 1. ~~**Black Doesn't Make Moves in Training 12**~~ ✅ COMPLETED (2025-01-08)
-- [x] Fixed type mismatch between ScenarioEngine.getBestMove() and UI expectation
-- [x] Changed getBestMove to return move object instead of UCI string
-- [x] Engine now properly responds with black moves
-- **Root Cause**: getBestMove returned UCI string but UI expected object
-- **Solution**: Refactored to return object directly, improving architecture
-
-### 2. ~~**Analysis Mode UI Layout Bug**~~ ✅ COMPLETED (2025-01-08)
-- [x] Fixed layout shift when enabling analysis mode
-- [x] Changed from conditional rendering to CSS-based visibility
-- [x] Applied fixed positioning with smooth animations
-- **Root Cause**: AnalysisPanel was in normal document flow
-- **Solution**: Position fixed with CSS transforms for overlay behavior
-
-### 3. ~~**E2E Test Performance Optimization - Dependency Injection Architecture**~~ ✅ COMPLETED (2025-01-08)
-- [x] Created IEngineService interface for clean dependency injection
-- [x] Implemented MockEngineService with instant responses (1-10ms vs 10+ seconds)
-- [x] Built React Context Provider (EngineProvider) for robust service lifecycle
-- [x] Fixed async initialization race conditions in _app.tsx
-- [x] Added data-engine-status synchronization for E2E tests
-- [x] Updated TrainingPage to wait for engine ready state
-- [x] Eliminated Store integration bugs in TestApiService
-- **Root Cause**: Tests were waiting for real Stockfish engine responses despite mocking
-- **Solution**: Clean DI architecture with MockEngineService for instant, deterministic tests
-- **Performance Impact**: Tests initialization now takes ~1ms instead of 10+ seconds
-- **Next Steps**: Implement @smoke tags and migrate legacy tests
-
-### 4. ~~**Store Synchronization Bug Fix**~~ ✅ COMPLETED (2025-01-08)
-- [x] Fixed critical bug where moves were shown in move list but not executed on board
-- [x] Store now properly calls `game.move()` before updating derived states
-- [x] Fixed all unit tests to work with new Store architecture (1038/1049 passing)
-- [x] Added Store Testing Best Practices to TESTING_GUIDELINES.md
-- [x] Fixed TypeScript types for makeMove to accept simple move objects
-- **Root Cause**: Chess.js instance in Store wasn't being updated with moves
-- **Solution**: Execute move on game instance BEFORE updating all derived states
-
-### 2. ~~**Complete Store Single Source of Truth Migration**~~ ✅ COMPLETED (2025-01-08)
-- [x] Deprecate `useChessGame` and `useChessGameOptimized` hooks
-- [x] All components now use Zustand store
-- [x] No remaining Context API usage
-- [x] Proper single source of truth implementation
-- [x] Clean separation between global state (Store) and local UI state
-- **Migration Details**:
-  - Removed all old hooks and Context providers
-  - Updated all components to use Store
-  - Fixed infinite update loops in tests
-  - Cleaned up test mocks
-  - All 1023 tests passing
-
-### 5. **Brückenbau-Trainer Phase P3: UI Integration** (ON HOLD - Fix bugs first)
-- [ ] Extend `shared/components/training/MovePanel.tsx` with enhanced display
-- [ ] Add CSS classes for quality badges (create new CSS module)
-- [ ] Create evaluation tooltip component
-- [ ] Update `DualEvaluationSidebar.tsx` with robustness indicators
-- [ ] Extend evaluation legend in `EvaluationLegend.tsx`
-- **Acceptance Criteria**: 
-  - All 5 quality classes visible (optimal, sicher, umweg, riskant, fehler)
-  - Robustness tags shown (robust, präzise, haarig)
-  - Educational tooltips functional
-- **Effort**: M (Medium)
-
-### 6. **Complete Engine DI Architecture** (NEW - 2025-01-09)
+### 6. **Complete Engine DI Architecture** (ON HOLD - Focus on Firebase)
 - [ ] Create ProductionEngineService that wraps existing Engine singleton
 - [ ] Fix EngineContext TODO - use ProductionEngineService in production
 - [ ] Migrate ScenarioEngine to accept injected engine service
 - [ ] Remove direct Engine.getInstance() calls
 - [ ] Use runtime detection for test mode instead of build-time flags
-- **Architecture Decision**: Hybrid approach combining DI and Playwright mocking
-- **Acceptance Criteria**: 
-  - No build-time test flags
-  - Clean separation of test/production code
-  - All engine access through DI
 - **Effort**: M (Medium)
 
-### 7. **Implement Playwright Worker Mocking** (NEW - 2025-01-09)
+### 7. **Implement Playwright Worker Mocking** (ON HOLD - Focus on Firebase)
 - [ ] Create Worker mock for Playwright tests
 - [ ] Provide deterministic instant responses (1-10ms)
 - [ ] Remove dependency on real Stockfish in E2E tests
 - [ ] Test with existing @smoke tests
-- **Benefits**:
-  - No application code changes needed
-  - Instant test execution
-  - Deterministic results
 - **Effort**: S (Small)
-
-### 5. **E2E Test Suite Optimization** (IN PROGRESS - Phase 2)
-- [x] ~~Created centralized test helpers in `tests/e2e/helpers.ts`~~
-- [x] ~~Fixed bridge-building tests with FIXED versions~~
-- [x] ~~Fixed navigation tests with FIXED versions~~  
-- [x] ~~Fixed edge-cases tests with FIXED versions~~
-- [x] ~~Fixed URL parameter tests with FIXED versions~~
-- [x] ~~Fixed simple move tests with test hooks~~
-- [x] ~~Implemented DI Architecture with MockEngineService (Phase 1)~~
-- [ ] **PRIORITY**: Create @smoke test suite (5-10 critical tests) with MockEngineService
-- [ ] Migrate legacy tests to new MockEngineService architecture
-- [ ] Consolidate duplicate test files (Single Source of Truth)
-- [ ] Optimize Playwright config (reduce workers from 12 to 4-6)
-- [ ] Clean up old test files after verification
-- **Current Status**: 123 tests total, DI architecture working, need @smoke suite for fast feedback
-- **Performance Target**: @smoke suite under 30 seconds, full suite under 5 minutes
-- **Files**: Created multiple *-FIXED.spec.ts files using test hooks
-- **Acceptance Criteria**: All tests green
-- **Effort**: M (Medium)
-
----
-
-## 🔥 High Priority Tasks
-
-### 5. ~~**Security: Implement FEN String Sanitization**~~ ✅ COMPLETED (2025-01-08)
-- [x] Add input validation in `shared/lib/chess/ScenarioEngine.ts`
-- [x] Create sanitization utility in `shared/utils/fenValidator.ts`
-- [x] Apply sanitization to all FEN inputs
-- [x] Add XSS prevention tests
-- **Implementation Details**:
-  - Created comprehensive `fenValidator.ts` with validation and sanitization
-  - Protected all input boundaries: instanceManager, tablebase, positionService, store, useChessGame
-  - 100% test coverage on FEN validator
-  - Prevents XSS, SQL injection, and invalid FEN formats
-
----
-
-## 🔥 High Priority Tasks
-
-### 6. **Mobile: Implement Platform Abstraction Layer** (PARTIALLY COMPLETE)
-- [x] Create `shared/services/platform/PlatformService.ts` ✅
-- [x] Add platform detection utilities ✅
-- [ ] Abstract storage API in `shared/services/storage/`
-- [ ] Abstract worker API for React Native
-- **Acceptance Criteria**: 
-  - Single interface for web/mobile
-  - No direct browser API usage
-  - React Native compatibility
-- **Effort**: L (Large)
-
-### 7. ~~**State Management: Migrate to Zustand**~~ ✅ COMPLETED (2025-01-07)
-- [x] Create `shared/store/store.ts` (global store)
-- [x] Migrate TrainingContext logic to Zustand
-- [x] Update all components using TrainingContext
-- [x] Remove old Context implementation
-- [x] Add Zustand devtools integration
-- **Status**: Migration complete ✅ Cleanup completed 2025-07-08
 
 ### 8. **Engine: Fix Memory Management**
 - [ ] Implement proper cleanup in `EngineService.ts`
 - [ ] Add memory leak detection tests
 - [ ] Ensure worker termination on unmount
 - [ ] Add cleanup verification in `workerManager.ts`
-- **Acceptance Criteria**: 
-  - No memory leaks in Chrome DevTools
-  - Workers properly terminated
-  - Cleanup tests passing
 - **Effort**: M (Medium)
 
 ### 9. **Testing: Reach 80% Coverage**
 - [ ] Add tests for uncovered evaluation utils
 - [ ] Complete mobile service mocks
-- [ ] Add integration tests for Firestore dual-read
+- [ ] Add integration tests for Firestore
 - [ ] Fix skipped castling tests
 - **Current**: 47.54% (overall) / ~78% (business logic) | **Target**: 80% (business logic)
 - **Effort**: M (Medium)
 
-### 10. ~~**Cleanup: Remove Old Non-Zustand Components**~~ ✅ COMPLETED (2025-01-08)
-- [x] Remove old `TrainingBoard` component (non-Zustand version)
-- [x] Remove old `MovePanel` component (non-Zustand version)
-- [x] Update all imports to use only Zustand versions
-- [x] Update exports in `shared/components/training/index.ts`
-- [x] Update all tests to use Zustand components
-- **Status**: Successfully removed all non-Zustand components
-- **Note**: TrainingBoardZustand test needs fixing due to removed mocks
-
 ---
 
 ## 📊 Medium Priority Tasks
-
-### 11. ~~**Clean Up Uncommitted Debug Scripts**~~ ✅ COMPLETED (2025-01-08)
-- [x] Removed unused StockfishEngine implementations (dead code)
-- [x] Review and remove unnecessary scripts in `scripts/`
-- [x] Keep only essential migration scripts
-- [x] Document remaining scripts in README
-- **Files Removed**: 
-  - 2 unused Stockfish files (-128 lines)
-  - 9 debug/test scripts with hardcoded credentials
-- **Files Kept**: 
-  - 2 essential migration scripts
-  - 4 code analysis scripts (added to npm scripts)
-- **Documentation**: Created `/scripts/README.md` with usage instructions
 
 ### 12. **Performance: Implement Code Splitting**
 - [ ] Add dynamic imports for routes
@@ -216,69 +88,53 @@ Last Updated: 2025-01-09 (01:00 UTC)
 - [ ] Wrap all browser APIs with existence checks
 - [ ] Add fallbacks for missing APIs
 - [ ] Create platform capability detection
-- **Files**: All files using window, document, localStorage
 - **Effort**: M (Medium)
-
-### 14. ~~**Update Outdated Documentation**~~ ✅ COMPLETED (2025-01-08)
-- [x] Fix "types/chess.ts has only 5 lines" (actually 91)
-- [x] Update test coverage numbers
-- [x] Document new evaluation system
-- [x] Add Firestore setup guide
-- [x] Complete documentation restructure
-- **Files**: `CLAUDE.md`, `README.md`, `docs/`
-- **Completed**: Consolidated 40 MD files into clean structure
 
 ### 15. **Refactor: useReducer for Complex Hooks**
 - [ ] Migrate `useChessGame` to useReducer
 - [ ] Migrate `useEvaluation` to useReducer
 - [ ] Add proper action types
-- **Acceptance Criteria**: Cleaner state updates
 - **Effort**: M (Medium)
 
 ---
 
-## 🔧 Low Priority Tasks
+## Backlog
 
-### 16. **Internationalization Support**
-- [ ] Add i18n library (react-i18next)
-- [ ] Extract all strings to translation files
-- [ ] Support DE/EN minimum
-- **Effort**: L (Large)
+### Code Quality & Architecture
+- [ ] Remove AppDriver after full test migration
+- [ ] Extend Firebase security rules for user data
+- [ ] Implement client-side caching strategy
+- [ ] Add Firebase Performance Monitoring
+- [ ] Create architectural decision records (ADRs)
 
-### 17. **Complete PWA Features**
-- [ ] Add offline support
-- [ ] Implement service worker
-- [ ] Add install prompt
-- [ ] Cache static assets
-- **Effort**: M (Medium)
+### Important Context
+- ✅ Enterprise Test Architecture implemented but NOT YET IN USE
+- ✅ Firebase Clean Cut complete (no more dual-read)
+- ❌ Only 2/20 components migrated to async
+- ❌ No tests using new architecture yet
+- See TODO-FIREBASE-MIGRATION.md for detailed 45-step plan
 
-### 18. **Analytics Integration**
-- [ ] Choose analytics provider
-- [ ] Add event tracking
-- [ ] Track learning progress
-- [ ] Privacy-compliant implementation
-- **Effort**: M (Medium)
+---
 
-### 19. **Brückenbau Phase P4: Card System**
-- [ ] Design card data structure
-- [ ] Create 3 pilot cards
-- [ ] Add progress persistence
-- [ ] Implement card UI
-- **Effort**: L (Large)
+## Recently Completed ✅
 
-### 20. **TypeScript Strict Mode**
-- [ ] Enable strict mode in tsconfig
-- [ ] Fix all resulting errors
-- [ ] Add stricter linting rules
-- **Effort**: L (Large)
+### Week of 2025-01-11
+- [x] Implemented Enterprise Test Architecture
+  - [x] Page Object Model with component separation
+  - [x] Test API Server replacing window hooks
+  - [x] Data factories, fault injection, visual/a11y/perf testing
+  - [x] Comprehensive documentation created
+- [x] Firebase Clean Cut (removed dual-read pattern)
 
-### 21. **React Native Full Implementation**
-- [ ] Complete mobile components
-- [ ] Add navigation
-- [ ] Implement mobile-specific features
-- [ ] Add mobile tests
-- **Current Coverage**: 0%
-- **Effort**: XL (Extra Large)
+### Week of 2025-01-06
+- [x] Fixed critical Store synchronization bug
+- [x] Complete Store Single Source of Truth migration
+- [x] Fixed Black doesn't make moves in Training 12
+- [x] Fixed Analysis mode UI layout bug
+- [x] E2E Test Performance Optimization - DI Architecture
+- [x] Security: Implement FEN String Sanitization
+- [x] Clean Up Uncommitted Debug Scripts
+- [x] Update Outdated Documentation
 
 ---
 
@@ -291,13 +147,9 @@ Last Updated: 2025-01-09 (01:00 UTC)
 - XL (Extra Large): > 1 week
 
 **Priority Levels**:
-- 🚨 Critical: Security risks or broken features
-- 🔥 High: Major features or technical debt
-- 📊 Medium: Important improvements
-- 🔧 Low: Nice-to-have features
+- 🚨 P0: Critical - Must do this week
+- 🔄 P1: High - Next week
+- 🏗️ P2: Medium - Following weeks
+- 📋 Backlog: Future work
 
-**Sprint Recommendations**:
-1. Week 1: Tasks #1-3 (Security & Brückenbau UI)
-2. Week 2: Tasks #4-5 (Platform & Zustand)
-3. Week 3: Tasks #6-7 (Memory & Testing)
-4. Week 4: Tasks #8-12 (Cleanup & Performance)
+**Focus**: Complete Firebase migration using the new test architecture before adding new features.

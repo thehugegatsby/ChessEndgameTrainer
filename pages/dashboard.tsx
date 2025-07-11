@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { ProgressCard } from '../shared/components/ui/ProgressCard';
-import { chapters } from '../shared/data/endgames';
 import { AppLayout } from '@shared/components/layout/AppLayout';
+import { positionService } from '@shared/services/database/positionService';
+import { EndgameChapter } from '@shared/types';
 
 interface ProgressData {
   [chapterId: string]: {
@@ -16,6 +17,7 @@ interface ProgressData {
 }
 
 const Dashboard: NextPage = () => {
+  const [chapters, setChapters] = useState<EndgameChapter[]>([]);
   const [progressData, setProgressData] = useState<ProgressData>({});
   const [totalStats, setTotalStats] = useState({
     totalPositions: 0,
@@ -24,45 +26,60 @@ const Dashboard: NextPage = () => {
     totalDueToday: 0,
     currentStreak: 0
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load progress data from localStorage
-    const loadProgressData = () => {
-      const mockProgressData: ProgressData = {};
-      let totalPositions = 0;
-      let completedPositions = 0;
-      let totalDueToday = 0;
-      let successSum = 0;
-      let chapterCount = 0;
+    // Load chapters and progress data
+    const loadData = async () => {
+      try {
+        // Fetch chapters from Firebase
+        const fetchedChapters = await positionService.getChapters();
+        setChapters(fetchedChapters);
 
-      chapters.forEach(chapter => {
-        const chapterProgress = {
-          total: chapter.positions.length,
-          completed: Math.floor(Math.random() * chapter.positions.length), // Mock data
-          successRate: 0.7 + Math.random() * 0.3, // Mock success rate 70-100%
-          dueToday: Math.floor(Math.random() * 3), // Mock due today 0-2
-          streak: Math.floor(Math.random() * 10) // Mock streak 0-9
-        };
+        // Generate mock progress data for now
+        const mockProgressData: ProgressData = {};
+        let totalPositions = 0;
+        let completedPositions = 0;
+        let totalDueToday = 0;
+        let successSum = 0;
+        let chapterCount = 0;
 
-        mockProgressData[chapter.id] = chapterProgress;
-        totalPositions += chapterProgress.total;
-        completedPositions += chapterProgress.completed;
-        totalDueToday += chapterProgress.dueToday;
-        successSum += chapterProgress.successRate;
-        chapterCount++;
-      });
+        for (const chapter of fetchedChapters) {
+          // Get actual position count for this chapter
+          const positionCount = await positionService.getPositionCountByCategory(chapter.category);
+          
+          const chapterProgress = {
+            total: positionCount || chapter.totalLessons || 10,
+            completed: Math.floor(Math.random() * (positionCount || chapter.totalLessons || 10)), // Mock data
+            successRate: 0.7 + Math.random() * 0.3, // Mock success rate 70-100%
+            dueToday: Math.floor(Math.random() * 3), // Mock due today 0-2
+            streak: Math.floor(Math.random() * 10) // Mock streak 0-9
+          };
 
-      setProgressData(mockProgressData);
-      setTotalStats({
-        totalPositions,
-        completedPositions,
-        overallSuccessRate: chapterCount > 0 ? successSum / chapterCount : 0,
-        totalDueToday,
-        currentStreak: Math.floor(Math.random() * 15) // Mock overall streak
-      });
+          mockProgressData[chapter.id] = chapterProgress;
+          totalPositions += chapterProgress.total;
+          completedPositions += chapterProgress.completed;
+          totalDueToday += chapterProgress.dueToday;
+          successSum += chapterProgress.successRate;
+          chapterCount++;
+        }
+
+        setProgressData(mockProgressData);
+        setTotalStats({
+          totalPositions,
+          completedPositions,
+          overallSuccessRate: chapterCount > 0 ? successSum / chapterCount : 0,
+          totalDueToday,
+          currentStreak: Math.floor(Math.random() * 15) // Mock overall streak
+        });
+      } catch (error) {
+        console.error('Failed to load chapters:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    loadProgressData();
+    loadData();
   }, []);
 
   const handleStartTraining = (chapterId: string) => {
@@ -173,24 +190,44 @@ const Dashboard: NextPage = () => {
             Trainingskapitel
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {chapters.map(chapter => {
-              const stats = progressData[chapter.id] || {
-                total: chapter.positions.length,
-                completed: 0,
-                successRate: 0,
-                dueToday: 0,
-                streak: 0
-              };
+            {loading ? (
+              // Loading skeleton for cards
+              <>
+                {[1, 2, 3, 4, 5, 6].map(i => (
+                  <div key={i} className="dark-card-elevated rounded-lg p-6 animate-pulse">
+                    <div className="h-6 bg-gray-700 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-700 rounded w-3/4 mb-4"></div>
+                    <div className="space-y-2">
+                      <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+                      <div className="h-4 bg-gray-700 rounded w-2/3"></div>
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : chapters.length > 0 ? (
+              chapters.map(chapter => {
+                const stats = progressData[chapter.id] || {
+                  total: chapter.totalLessons || 0,
+                  completed: 0,
+                  successRate: 0,
+                  dueToday: 0,
+                  streak: 0
+                };
 
               // Determine difficulty based on chapter content
               const difficulty = chapter.id.includes('basic') ? 'beginner' : 
                                chapter.id.includes('advanced') ? 'advanced' : 'intermediate';
 
-              // Determine category based on chapter content
-              const category = chapter.id.includes('pawn') ? 'pawn' :
-                             chapter.id.includes('rook') ? 'rook' :
-                             chapter.id.includes('queen') ? 'queen' :
-                             chapter.id.includes('minor') ? 'minor' : 'other';
+              // Determine category based on chapter category field
+              const categoryMap: Record<string, 'pawn' | 'rook' | 'queen' | 'minor' | 'other'> = {
+                'pawn': 'pawn',
+                'rook': 'rook',
+                'queen': 'queen',
+                'minor-pieces': 'minor',
+                'bishop': 'minor',
+                'knight': 'minor'
+              };
+              const category = categoryMap[chapter.category] || 'other';
 
               return (
                 <ProgressCard
@@ -203,7 +240,14 @@ const Dashboard: NextPage = () => {
                   onStartTraining={() => handleStartTraining(chapter.id)}
                 />
               );
-            })}
+            })
+          ) : (
+            <div className="col-span-full text-center py-8">
+              <p style={{ color: 'var(--text-secondary)' }}>
+                Keine Kapitel verfügbar. Bitte später erneut versuchen.
+              </p>
+            </div>
+          )}
           </div>
         </div>
       </main>

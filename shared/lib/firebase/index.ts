@@ -1,5 +1,5 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
-import { getFirestore, Firestore } from 'firebase/firestore';
+import { getFirestore, Firestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { firebaseConfig } from './config';
 
 let app: FirebaseApp;
@@ -13,5 +13,17 @@ if (!getApps().length) {
 }
 
 db = getFirestore(app);
+
+// Connect to Firestore emulator if in test environment
+if (process.env.NODE_ENV === 'test' && process.env.FIRESTORE_EMULATOR_HOST) {
+  const [host, port] = process.env.FIRESTORE_EMULATOR_HOST.split(':');
+  try {
+    connectFirestoreEmulator(db, host, parseInt(port));
+    console.log(`Connected to Firestore emulator at ${host}:${port}`);
+  } catch (error) {
+    // Already connected, ignore
+    console.log('Firestore emulator already connected');
+  }
+}
 
 export { app, db };

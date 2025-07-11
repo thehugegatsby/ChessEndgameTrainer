@@ -15,7 +15,7 @@ import {
   EvaluationData
 } from '../types/evaluation';
 
-import { EndgamePosition } from '../data/endgames/types';
+import { EndgamePosition } from '../types/endgame';
 
 // User state
 export interface UserState {
@@ -45,6 +45,14 @@ export interface UserPreferences {
 // Training state
 export interface TrainingState {
   currentPosition?: EndgamePosition;
+  nextPosition?: EndgamePosition | null;
+  previousPosition?: EndgamePosition | null;
+  isLoadingNavigation?: boolean;
+  navigationError?: string | null;
+  chapterProgress?: {
+    completed: number;
+    total: number;
+  } | null;
   game?: ChessInstance;
   scenarioEngine?: any; // ScenarioEngine instance - type is complex, using any for now
   moveHistory: ValidatedMove[];
@@ -179,6 +187,7 @@ export interface UserActions {
 
 export interface TrainingActions {
   setPosition: (position: EndgamePosition) => void;
+  loadTrainingContext: (position: EndgamePosition) => Promise<void>;
   setGame: (game: ChessInstance) => void;
   setScenarioEngine: (engine: any | null) => void;
   makeMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => void;
