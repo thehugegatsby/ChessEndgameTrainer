@@ -1,24 +1,19 @@
 import { doc, getDoc, collection, getDocs, query, where, Query, DocumentData } from 'firebase/firestore';
 import { db } from '@shared/lib/firebase';
 import { EndgamePosition, EndgameCategory } from '@shared/types';
-import { getPositionById as getPositionFromArray, allEndgamePositions } from '@shared/data/endgames';
 import { getLogger } from '@shared/services/logging';
 import { validateAndSanitizeFen } from '@shared/utils/fenValidator';
 
 const logger = getLogger();
 
 /**
- * Service for accessing chess positions with dual-read pattern
- * Supports both Firestore and TypeScript array sources
+ * Service for accessing chess positions from Firestore
  */
 export class PositionService {
-  private useFirestore: boolean;
   private cache: Map<number, EndgamePosition> = new Map();
 
   constructor() {
-    // Check if Firestore should be used
-    this.useFirestore = process.env.NEXT_PUBLIC_USE_FIRESTORE === 'true';
-    logger.info(`PositionService initialized with Firestore=${this.useFirestore}`);
+    logger.info('PositionService initialized with Firestore');
   }
 
   /**
@@ -30,16 +25,7 @@ export class PositionService {
       return this.cache.get(id)!;
     }
 
-    if (!this.useFirestore) {
-      const position = getPositionFromArray(id);
-      if (position) {
-        this.cache.set(id, position);
-      }
-      return position ?? null;
-    }
-
     try {
-      // Try Firestore first
       const docRef = doc(db, 'positions', id.toString());
       const docSnap = await getDoc(docRef);
       
@@ -51,12 +37,7 @@ export class PositionService {
           const validation = validateAndSanitizeFen(position.fen);
           if (!validation.isValid) {
             logger.error(`Invalid FEN from Firestore for position ${id}: ${validation.errors.join(', ')}`);
-            // Fall back to array data
-            const arrayPosition = getPositionFromArray(id);
-            if (arrayPosition) {
-              this.cache.set(id, arrayPosition);
-            }
-            return arrayPosition ?? null;
+            return null;
           }
           position.fen = validation.sanitized;
         }
@@ -65,21 +46,11 @@ export class PositionService {
         return position;
       }
       
-      // Fallback to array if not found in Firestore
-      logger.warn(`Position ${id} not found in Firestore, falling back to array`);
-      const arrayPosition = getPositionFromArray(id);
-      if (arrayPosition) {
-        this.cache.set(id, arrayPosition);
-      }
-      return arrayPosition ?? null;
+      logger.warn(`Position ${id} not found in Firestore`);
+      return null;
     } catch (error) {
-      logger.error('Firestore read error, falling back to array:', error);
-      // Fallback on error
-      const arrayPosition = getPositionFromArray(id);
-      if (arrayPosition) {
-        this.cache.set(id, arrayPosition);
-      }
-      return arrayPosition ?? null;
+      logger.error('Firestore read error:', error);
+      return null;
     }
   }
 
@@ -87,10 +58,6 @@ export class PositionService {
    * Get all positions
    */
   async getAllPositions(): Promise<EndgamePosition[]> {
-    if (!this.useFirestore) {
-      return allEndgamePositions;
-    }
-
     try {
       const positionsRef = collection(db, 'positions');
       const snapshot = await getDocs(positionsRef);
@@ -115,14 +82,13 @@ export class PositionService {
       });
 
       if (positions.length === 0) {
-        logger.warn('No positions found in Firestore, falling back to array');
-        return allEndgamePositions;
+        logger.warn('No positions found in Firestore');
       }
 
       return positions;
     } catch (error) {
       logger.error('Failed to fetch all positions from Firestore:', error);
-      return allEndgamePositions;
+      return [];
     }
   }
 
@@ -130,10 +96,6 @@ export class PositionService {
    * Get positions by category
    */
   async getPositionsByCategory(category: string): Promise<EndgamePosition[]> {
-    if (!this.useFirestore) {
-      return allEndgamePositions.filter(p => p.category === category);
-    }
-
     try {
       const positionsRef = collection(db, 'positions');
       const q = query(positionsRef, where('category', '==', category));
@@ -158,14 +120,13 @@ export class PositionService {
       });
 
       if (positions.length === 0) {
-        logger.warn(`No positions found in Firestore for category ${category}, falling back to array`);
-        return allEndgamePositions.filter(p => p.category === category);
+        logger.warn(`No positions found in Firestore for category ${category}`);
       }
 
       return positions;
     } catch (error) {
       logger.error(`Failed to fetch positions for category ${category}:`, error);
-      return allEndgamePositions.filter(p => p.category === category);
+      return [];
     }
   }
 
@@ -173,10 +134,6 @@ export class PositionService {
    * Get positions by difficulty
    */
   async getPositionsByDifficulty(difficulty: string): Promise<EndgamePosition[]> {
-    if (!this.useFirestore) {
-      return allEndgamePositions.filter(p => p.difficulty === difficulty);
-    }
-
     try {
       const positionsRef = collection(db, 'positions');
       const q = query(positionsRef, where('difficulty', '==', difficulty));
@@ -201,14 +158,13 @@ export class PositionService {
       });
 
       if (positions.length === 0) {
-        logger.warn(`No positions found in Firestore for difficulty ${difficulty}, falling back to array`);
-        return allEndgamePositions.filter(p => p.difficulty === difficulty);
+        logger.warn(`No positions found in Firestore for difficulty ${difficulty}`);
       }
 
       return positions;
     } catch (error) {
       logger.error(`Failed to fetch positions for difficulty ${difficulty}:`, error);
-      return allEndgamePositions.filter(p => p.difficulty === difficulty);
+      return [];
     }
   }
 
@@ -217,13 +173,6 @@ export class PositionService {
    */
   async searchPositions(searchTerm: string): Promise<EndgamePosition[]> {
     const lowerSearch = searchTerm.toLowerCase();
-
-    if (!this.useFirestore) {
-      return allEndgamePositions.filter(p => 
-        p.title.toLowerCase().includes(lowerSearch) ||
-        p.description.toLowerCase().includes(lowerSearch)
-      );
-    }
 
     try {
       // Firestore doesn't support full-text search natively
@@ -236,10 +185,7 @@ export class PositionService {
       );
     } catch (error) {
       logger.error('Failed to search positions:', error);
-      return allEndgamePositions.filter(p => 
-        p.title.toLowerCase().includes(lowerSearch) ||
-        p.description.toLowerCase().includes(lowerSearch)
-      );
+      return [];
     }
   }
 
