@@ -8,17 +8,13 @@
 
 import { test, expect } from '../test-fixtures';
 import { ModernDriver } from '../components/ModernDriver';
+import { noopLogger } from '../../shared/logger-utils';
 
 test.describe('Ready Signal Detection', () => {
   test('should detect app-ready signal when available', async ({ page }) => {
     const driver = new ModernDriver(page, {
       useTestBridge: true,
-      logger: {
-        debug: (msg: string, data?: any) => console.log(`[DEBUG] ${msg}`, data),
-        info: (msg: string, data?: any) => console.log(`[INFO] ${msg}`, data),
-        warn: (msg: string, data?: any) => console.warn(`[WARN] ${msg}`, data),
-        error: (msg: string, error?: any) => console.error(`[ERROR] ${msg}`, error)
-      }
+      logger: noopLogger
     });
     
     // Navigate and wait for ready
@@ -45,12 +41,7 @@ test.describe('Ready Signal Detection', () => {
   test('should use fallback detection when app-ready is not available', async ({ page }) => {
     const driver = new ModernDriver(page, {
       useTestBridge: false, // Disable test bridge to simulate legacy scenario
-      logger: {
-        debug: (msg: string, data?: any) => console.log(`[DEBUG] ${msg}`, data),
-        info: (msg: string, data?: any) => console.log(`[INFO] ${msg}`, data),
-        warn: (msg: string, data?: any) => console.warn(`[WARN] ${msg}`, data),
-        error: (msg: string, error?: any) => console.error(`[ERROR] ${msg}`, error)
-      }
+      logger: noopLogger
     });
     
     // Mock a page without app-ready signal by removing it after navigation
@@ -124,12 +115,7 @@ test.describe('Ready Signal Detection', () => {
 
   test('should deterministically trigger fallback mechanism', async ({ page }) => {
     const driver = new ModernDriver(page, {
-      logger: {
-        debug: (msg: string, data?: any) => console.log(`[DEBUG] ${msg}`, data),
-        info: (msg: string, data?: any) => console.log(`[INFO] ${msg}`, data),
-        warn: (msg: string, data?: any) => console.warn(`[WARN] ${msg}`, data),
-        error: (msg: string, error?: any) => console.error(`[ERROR] ${msg}`, error)
-      }
+      logger: noopLogger
     });
     
     // Navigate directly without using driver.visit to bypass initial ready check

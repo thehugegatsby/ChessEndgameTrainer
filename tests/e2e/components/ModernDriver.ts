@@ -60,7 +60,7 @@ export interface ModernDriverConfig {
  * 4. Zero private methods (pure orchestration)
  */
 export class ModernDriver implements IModernDriver {
-  private readonly page: Page;
+  public readonly page: Page; // Made public for test access
   private readonly config: Required<ModernDriverConfig>;
   private readonly logger: ILogger; // No longer optional - always has a value
   
@@ -441,16 +441,42 @@ export class ModernDriver implements IModernDriver {
     return this._bridge;
   }
   
-  // ==============================
-  // Lazy Component Getters
-  // ==============================
-  
-  private get board(): BoardComponent {
+  /**
+   * Get Board component for test access
+   * @returns BoardComponent instance
+   */
+  get board(): BoardComponent {
     if (!this._board) {
       this._board = new BoardComponent(this.page);
     }
     return this._board;
   }
+  
+  // ==============================
+  // Helper Methods (for tests)
+  // ==============================
+  
+  /**
+   * Get current board position
+   * @returns Promise<{fen: string}>
+   */
+  async getBoardPosition(): Promise<{ fen: string }> {
+    const fen = await this.board.getPosition();
+    return { fen };
+  }
+  
+  /**
+   * Get current move count
+   * @returns Promise<number>
+   */
+  async getMoveCount(): Promise<number> {
+    return await this.moveList.getMoveCount();
+  }
+  
+  // ==============================
+  // Lazy Component Getters
+  // ==============================
+  
 
   private get moveList(): MoveListComponent {
     if (!this._moveList) {

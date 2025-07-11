@@ -294,6 +294,24 @@ export class BoardComponent extends BaseComponent {
   }
 
   /**
+   * Get square element for testing purposes
+   * @param square - Square coordinate (e.g., 'a1', 'h8')
+   * @returns Locator for the square element
+   * @throws Error if square is invalid
+   */
+  async getSquare(square: string): Promise<Locator> {
+    // Validate square format
+    if (!/^[a-h][1-8]$/.test(square)) {
+      throw new Error(`Invalid square: ${square}. Must be in format 'a1' to 'h8'`);
+    }
+    
+    return await this.findElement(
+      `[data-square="${square}"]`,
+      `[data-testid="chess-square-${square}"]`
+    );
+  }
+
+  /**
    * Get highlighted squares (legal moves, selected squares)
    * Uses CSS class inspection with fallback selectors
    */

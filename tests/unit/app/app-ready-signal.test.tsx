@@ -57,7 +57,7 @@ describe('App Ready Signal', () => {
   test('should set data-app-ready to false when router is not ready', () => {
     const TestComponent = () => <div>Test Page</div>;
     
-    render(<MyApp Component={TestComponent} pageProps={{}} />);
+    render(<MyApp Component={TestComponent} pageProps={{}} router={mockRouter as any} />);
     
     expect(document.body.getAttribute('data-app-ready')).toBe('false');
   });
@@ -68,7 +68,7 @@ describe('App Ready Signal', () => {
     
     const TestComponent = () => <div>Test Page</div>;
     
-    render(<MyApp Component={TestComponent} pageProps={{}} />);
+    render(<MyApp Component={TestComponent} pageProps={{}} router={mockRouter as any} />);
     
     await waitFor(() => {
       expect(document.body.getAttribute('data-app-ready')).toBe('true');
@@ -82,7 +82,7 @@ describe('App Ready Signal', () => {
     
     const TestComponent = () => <div>Test Page</div>;
     
-    render(<MyApp Component={TestComponent} pageProps={{}} />);
+    render(<MyApp Component={TestComponent} pageProps={{}} router={mockRouter as any} />);
     
     await waitFor(() => {
       expect(document.body.getAttribute('data-app-ready')).toBe('error');
@@ -96,7 +96,7 @@ describe('App Ready Signal', () => {
     
     const TestComponent = () => <div>Test Page</div>;
     
-    render(<MyApp Component={TestComponent} pageProps={{}} />);
+    render(<MyApp Component={TestComponent} pageProps={{}} router={mockRouter as any} />);
     
     await waitFor(() => {
       expect(document.body.getAttribute('data-app-ready')).toBe('true');
@@ -106,7 +106,7 @@ describe('App Ready Signal', () => {
   test('should register route change event handlers', () => {
     const TestComponent = () => <div>Test Page</div>;
     
-    render(<MyApp Component={TestComponent} pageProps={{}} />);
+    render(<MyApp Component={TestComponent} pageProps={{}} router={mockRouter as any} />);
     
     expect(mockRouterEvents.on).toHaveBeenCalledWith('routeChangeStart', expect.any(Function));
     expect(mockRouterEvents.on).toHaveBeenCalledWith('routeChangeComplete', expect.any(Function));
@@ -115,7 +115,7 @@ describe('App Ready Signal', () => {
   test('should set data-app-ready to false on route change start', () => {
     const TestComponent = () => <div>Test Page</div>;
     
-    render(<MyApp Component={TestComponent} pageProps={{}} />);
+    render(<MyApp Component={TestComponent} pageProps={{}} router={mockRouter as any} />);
     
     // Get the registered handler
     const routeChangeStartHandler = mockRouterEvents.on.mock.calls.find(
@@ -137,7 +137,7 @@ describe('App Ready Signal', () => {
     
     const TestComponent = () => <div>Test Page</div>;
     
-    render(<MyApp Component={TestComponent} pageProps={{}} />);
+    render(<MyApp Component={TestComponent} pageProps={{}} router={mockRouter as any} />);
     
     // Get the registered handler
     const routeChangeCompleteHandler = mockRouterEvents.on.mock.calls.find(
@@ -153,7 +153,7 @@ describe('App Ready Signal', () => {
   test('should clean up event handlers on unmount', () => {
     const TestComponent = () => <div>Test Page</div>;
     
-    const { unmount } = render(<MyApp Component={TestComponent} pageProps={{}} />);
+    const { unmount } = render(<MyApp Component={TestComponent} pageProps={{}} router={mockRouter as any} />);
     
     unmount();
     

@@ -128,11 +128,7 @@ describe('Zustand Store', () => {
       difficulty: 'beginner',
       goal: 'win',
       sideToMove: 'white',
-      material: {
-        white: 'K+P',
-        black: 'K'
-      },
-      tags: ['test']
+      targetMoves: 4
     };
 
     const mockMove: Move = {

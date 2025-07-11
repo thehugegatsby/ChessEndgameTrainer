@@ -29,10 +29,39 @@ import { Logger } from '@shared/services/logging/Logger';
 const logger = new Logger();
 
 /**
- * Global singleton instance of the Chess Engine
- * Initialized on first import (lazy loading)
+ * Lazy-initialized singleton instance
+ * Prevents engine initialization during build process
  */
-export const engine = new Engine();
+let engineInstance: Engine | null = null;
+
+/**
+ * Get the global singleton instance of the Chess Engine
+ * Lazily initializes on first access to prevent build issues
+ * 
+ * @returns The singleton Engine instance
+ * @throws Error if called outside browser context
+ */
+export function getEngine(): Engine {
+  if (!engineInstance) {
+    // Only initialize in browser context
+    if (typeof window === 'undefined') {
+      throw new Error('Engine can only be initialized in browser context');
+    }
+    engineInstance = new Engine();
+  }
+  return engineInstance;
+}
+
+/**
+ * @deprecated Direct access to engine instance - use getEngine() instead
+ * This export is kept for backward compatibility but will be removed
+ */
+export const engine = new Proxy({} as Engine, {
+  get(target, prop) {
+    logger.warn('Direct engine access is deprecated. Use getEngine() instead.');
+    return getEngine()[prop as keyof Engine];
+  }
+});
 
 /**
  * Graceful shutdown handler for async cleanup
@@ -41,9 +70,11 @@ const gracefulShutdown = async (signal: string): Promise<void> => {
   logger.info(`Received ${signal}. Shutting down engine gracefully...`);
   
   try {
-    // quit() is synchronous in current implementation
-    engine.quit();
-    logger.info('Engine cleanup completed');
+    // Only quit if engine was initialized
+    if (engineInstance) {
+      engineInstance.quit();
+      logger.info('Engine cleanup completed');
+    }
     
     if (typeof process !== 'undefined') {
       process.exit(0);
@@ -63,7 +94,9 @@ if (typeof window !== 'undefined') {
   // Synchronous cleanup for browser unload
   window.addEventListener('beforeunload', () => {
     try {
-      engine.quit();
+      if (engineInstance) {
+        engineInstance.quit();
+      }
     } catch (error) {
       logger.error('Browser cleanup error:', error);
     }

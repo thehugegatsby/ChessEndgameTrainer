@@ -284,6 +284,15 @@ export class NavigationControls extends BaseComponent {
   }
 
   /**
+   * Check if we can go back in move history
+   * @returns true if there are previous moves available
+   */
+  async canGoBack(): Promise<boolean> {
+    const state = await this.getNavigationState();
+    return state.currentMoveIndex > 0;
+  }
+
+  /**
    * Navigate back one move
    * Includes boundary condition checking and state validation
    */
@@ -312,6 +321,15 @@ export class NavigationControls extends BaseComponent {
     await this.waitForMoveIndex(currentIndex - 1);
     
     this.log('info', 'Successfully navigated back one move');
+  }
+
+  /**
+   * Check if we can go forward in move history
+   * @returns true if there are next moves available
+   */
+  async canGoForward(): Promise<boolean> {
+    const state = await this.getNavigationState();
+    return state.currentMoveIndex < state.totalMoves;
   }
 
   /**

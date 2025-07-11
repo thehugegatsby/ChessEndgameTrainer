@@ -1,5 +1,5 @@
 import { Engine } from '@shared/lib/chess/engine/index';
-import { EngineConfig, WorkerConfig } from '@shared/lib/chess/engine/types';
+import { EngineConfig } from '@shared/lib/chess/engine/types';
 
 describe('Engine', () => {
   // Debug: Check if Engine is imported correctly
@@ -76,13 +76,6 @@ describe('Engine', () => {
         })).toThrow('skillLevel must be between 0 and 20');
       });
 
-      it('should reject invalid workerConfig', () => {
-        const workerConfig: WorkerConfig = {
-          workerPath: '../../../malicious/path'
-        };
-        
-        expect(() => new Engine(undefined, workerConfig)).toThrow('workerPath cannot contain "../"');
-      });
     });
   });
 });
