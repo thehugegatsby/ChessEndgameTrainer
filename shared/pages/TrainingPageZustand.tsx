@@ -126,7 +126,7 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
           {process.env.NEXT_PUBLIC_IS_E2E_TEST !== 'true' && (
             <div className="absolute top-24 left-0 right-0 z-10 text-center">
               <h2 className="text-3xl font-bold">
-                {/* Chapter Progress removed - will be implemented later */}
+                {position.title}
                 {training.moveHistory.length > 3 && <span className="ml-3 text-orange-400">🔥 {Math.floor(training.moveHistory.length / 2)}</span>}
               </h2>
             </div>
