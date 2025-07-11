@@ -184,19 +184,21 @@ export class ModernDriver implements IModernDriver {
     this.logger?.debug('Playing move sequence', { moves, count: moves.length });
     
     try {
-      for (const move of moves) {
-        const [from, to] = move.split('-');
-        await this.makeMove(from, to);
+      // Delegate to GamePlayer for efficient sequence execution
+      const result = await this.gamePlayer.playMoveSequence(moves);
+      
+      if (!result.success && result.errors.length > 0) {
+        throw new ModernDriverError(
+          'Failed to play move sequence',
+          'playMoves',
+          { moves, errors: result.errors }
+        );
       }
       
       this.logger?.debug('Move sequence completed');
     } catch (error) {
       this.logger?.error('Move sequence failed', error as Error);
-      throw new ModernDriverError(
-        'Failed to play move sequence',
-        'playMoves',
-        { moves, error: (error as Error).message }
-      );
+      throw error; // Re-throw to preserve stack trace
     }
   }
 
@@ -217,11 +219,19 @@ export class ModernDriver implements IModernDriver {
       ]);
       
       const lastMove = moves[moves.length - 1];
+      
+      // Get game status using ValidationHelper
+      const gameStatus = ValidationHelper.getGameStatus(fen);
+      const status = gameStatus?.isCheckmate ? 'checkmate' : 
+                     gameStatus?.isStalemate ? 'stalemate' :
+                     gameStatus?.isDraw ? 'draw' : 
+                     'playing';
+      
       const gameState: GameState = {
         fen,
         turn: navState.currentMoveIndex % 2 === 0 ? 'w' : 'b',
         moveCount: moves.length,
-        status: 'playing', // TODO: Detect checkmate/stalemate
+        status,
         lastMove: lastMove ? {
           from: lastMove.from || '',
           to: lastMove.to || '',
@@ -294,18 +304,23 @@ export class ModernDriver implements IModernDriver {
   }
 
   async waitUntilReady(): Promise<void> {
+    const startTime = Date.now();
     this.logger?.debug('Waiting for application ready state...');
     
     try {
       // Phase 1: Wait for DOM basics
+      const phase1Start = Date.now();
       this.logger?.debug('Phase 1: Waiting for basic DOM elements...');
       await this.page.waitForSelector('body', { timeout: 5000 });
+      this.logger?.debug(`Phase 1 completed in ${Date.now() - phase1Start}ms`);
       
       // Phase 2: Wait for app initialization signal (robust event-based approach)
+      const phase2Start = Date.now();
       this.logger?.debug('Phase 2: Waiting for app-ready signal...');
       await this.page.waitForSelector('body[data-app-ready="true"]', {
         timeout: this.config.defaultTimeout
       });
+      this.logger?.debug(`Phase 2 completed in ${Date.now() - phase2Start}ms`);
       
       // Phase 3: Verify no error state
       const appStatus = await this.page.locator('body').getAttribute('data-app-ready');
@@ -323,9 +338,16 @@ export class ModernDriver implements IModernDriver {
         await this._bridge.initialize(this.config.defaultTimeout);
       }
       
-      this.logger?.debug('✅ Application is ready - all phases completed');
+      const totalDuration = Date.now() - startTime;
+      this.logger?.info('✅ Application is ready - all phases completed', { 
+        totalDuration: `${totalDuration}ms` 
+      });
     } catch (error) {
-      this.logger?.error('Application readiness check failed', error as Error);
+      const totalDuration = Date.now() - startTime;
+      this.logger?.error('❌ Application failed to become ready', {
+        totalDuration: `${totalDuration}ms`,
+        error: error instanceof Error ? error.message : String(error)
+      });
       
       // Enhanced debugging info
       try {

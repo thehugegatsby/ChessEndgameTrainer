@@ -127,7 +127,7 @@ export class MoveListComponent extends BaseComponent {
 
   /**
    * Get the total count of moves in the move list
-   * Required by AppDriver for UI synchronization
+   * Required by ModernDriver for UI synchronization
    * OPTIMIZED: First check data-attribute for immediate store state
    */
   async getMoveCount(): Promise<number> {

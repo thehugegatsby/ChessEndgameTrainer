@@ -1,0 +1,85 @@
+# Page snapshot
+
+```yaml
+- heading "Test Chessboard" [level=1]
+- img:
+  - img
+- text: "8"
+- img:
+  - img
+- img:
+  - img
+- img:
+  - img
+- img:
+  - img
+- img:
+  - img
+- img:
+  - img
+- img:
+  - img
+- img:
+  - img
+- text: "7"
+- img:
+  - img
+- img:
+  - img
+- img:
+  - img
+- img:
+  - img
+- img:
+  - img
+- img:
+  - img
+- img:
+  - img
+- text: 6 5 4 3
+- img:
+  - img
+- text: "2"
+- img:
+  - img
+- img:
+  - img
+- img:
+  - img
+- img:
+  - img
+- img:
+  - img
+- img:
+  - img
+- img:
+  - img
+- img:
+  - img
+- text: 1 a
+- img:
+  - img
+- text: b
+- img:
+  - img
+- text: c
+- img:
+  - img
+- text: d
+- img:
+  - img
+- text: e
+- img:
+  - img
+- text: f
+- img:
+  - img
+- text: g
+- img:
+  - img
+- text: h
+- img
+- alert
+- button "Open Next.js Dev Tools":
+  - img
+```

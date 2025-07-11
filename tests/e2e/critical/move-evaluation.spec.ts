@@ -66,7 +66,7 @@ test.describe('Critical: Move Evaluation', () => {
     
     // Check for error feedback
     const moveQuality = await driver.page.textContent('[data-testid="move-evaluation"]');
-    expect(moveQuality).toMatch(/fehler|schlecht|?/); // Error indication
+    expect(moveQuality).toMatch(/fehler|schlecht|weak/); // Error indication
     
     // Verify negative evaluation
     const evalScore = await driver.page.textContent('[data-testid="eval-score"]');

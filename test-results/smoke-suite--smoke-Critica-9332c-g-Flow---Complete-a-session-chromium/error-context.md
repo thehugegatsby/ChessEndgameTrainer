@@ -1,0 +1,59 @@
+# Page snapshot
+
+```yaml
+- heading "Endgame Training" [level=2]
+- button "⚙️ Settings"
+- link "🎯 All (rated)":
+  - /url: /dashboard
+- button "♙ Bauernendspiele ▶"
+- button "♜ Turmendspiele ▶"
+- button "♛ Queen endgames ▶" [disabled]
+- button "♞ Knight endgames ▶" [disabled]
+- button "♝ Bishop endgames ▶" [disabled]
+- 'link "👤 D. Rating: 1123 ▶"':
+  - /url: /profile
+- text: "8"
+- img:
+  - img
+- text: 7 6
+- img:
+  - img
+- text: "5"
+- img:
+  - img
+- text: 4 3 2 1 a b c d e f g h
+- img
+- text: "Eval: 0.00"
+- heading "Stellungsnavigation" [level=3]
+- button "← Vorherige Stellung" [disabled]
+- button "↻"
+- button "Nächste Stellung →"
+- text: "♔ Schwarz am Zug Ziel: Gewinn"
+- heading "Opposition Grundlagen" [level=3]
+- paragraph: Lerne das fundamentale Konzept der Opposition in Bauernendspielen. Weiß muss die Opposition erobern um zu gewinnen.
+- button "Analyse AN"
+- text: "1."
+- button "Kd6"
+- button "Zum Anfang der Zugliste":
+  - img
+- button "Ein Zug zurück":
+  - img
+- button "Ein Zug vor" [disabled]:
+  - img
+- button "Zum Ende der Zugliste" [disabled]:
+  - img
+- link "Auf Lichess analysieren →":
+  - /url: https://lichess.org/analysis/pgn/%5BEvent%20%22%3F%22%5D%0A%5BSite%20%22%3F%22%5D%0A%5BDate%20%22%3F%3F%3F%3F.%3F%3F.%3F%3F%22%5D%0A%5BRound%20%22%3F%22%5D%0A%5BWhite%20%22%3F%22%5D%0A%5BBlack%20%22%3F%22%5D%0A%5BResult%20%22*%22%5D%0A%5BSetUp%20%221%22%5D%0A%5BFEN%20%224k3%2F8%2F4K3%2F4P3%2F8%2F8%2F8%2F8%20w%20-%20-%200%201%22%5D%0A%0A1.%20Kd6%20*
+- text: 📊
+- heading "Spielanalyse" [level=3]
+- text: (1 Züge)
+- button "×"
+- heading "Zugfolge" [level=4]
+- text: 1. Kd6 ! -0.15
+- heading "Wähle einen Zug" [level=4]
+- text: 📊
+- paragraph: Wähle einen Zug aus der Liste um die Analyse zu sehen
+- alert: /train/1
+- button "Open Next.js Dev Tools":
+  - img
+```

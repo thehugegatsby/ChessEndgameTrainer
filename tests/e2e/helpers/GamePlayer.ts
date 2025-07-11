@@ -5,7 +5,7 @@
  * Design Decisions:
  * 1. Chess.js injection with optional fallback - enables unit testing while providing convenience
  * 2. Validation within GamePlayer - maintains cohesion and leverages chess.js directly
- * 3. Error reporting via PlayResult - follows SRP, AppDriver handles aggregation
+ * 3. Error reporting via PlayResult - follows SRP, ModernDriver handles aggregation
  * 4. Async methods throughout - future-proofs for potential API interactions
  */
 
@@ -244,8 +244,8 @@ export class GamePlayer implements IGamePlayer {
       return fen;
     } catch (error) {
       this.dependencies.logger.error('Failed to get board position', error);
-      // Return internal chess state as fallback
-      return this.chess.fen();
+      // Propagate error to caller instead of masking it
+      throw error;
     }
   }
 

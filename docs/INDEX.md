@@ -22,6 +22,7 @@ Welcome to the Chess Endgame Trainer documentation. This index provides a compre
 ## 🧪 Testing
 
 - **[TESTING.md](TESTING.md)** - Comprehensive testing guide with best practices, Store testing patterns, and domain-specific tests
+- **[E2E_TEST_ARCHITECTURE.md](E2E_TEST_ARCHITECTURE.md)** - E2E test architecture with ModernDriver and Component Object Model
 - **[testing/COVERAGE_GUIDE.md](testing/COVERAGE_GUIDE.md)** - Test coverage requirements and tools
 - **[testing/TEST_UTILITIES.md](testing/TEST_UTILITIES.md)** - Centralized test utilities (logger mocks, config adapters)
 
@@ -91,6 +92,6 @@ To find specific information:
 
 ---
 
-Last updated: 2025-01-09
+Last updated: 2025-01-17
 
 For documentation issues or suggestions, please open an issue on GitHub.

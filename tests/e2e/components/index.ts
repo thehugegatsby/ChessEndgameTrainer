@@ -20,15 +20,6 @@ export type { EvaluationPanelConfig, EngineEvaluation } from './EvaluationPanel'
 export { NavigationControls } from './NavigationControls';
 export type { NavigationControlsConfig, NavigationButtonType } from './NavigationControls';
 
-// Orchestrator
-export { AppDriver, createAppDriver } from './AppDriver';
-export type { 
-  AppDriverConfig, 
-  GameState, 
-  RetryConfig,
-  DisposableComponent,
-  AppDriverError,
-  ComponentInitializationError,
-  NavigationError,
-  SynchronizationError
-} from './AppDriver';
+// Modern Orchestrator
+export { ModernDriver } from './ModernDriver';
+export type { ModernDriverConfig, ModernDriverError } from './ModernDriver';
