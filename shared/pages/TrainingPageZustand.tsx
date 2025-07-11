@@ -6,7 +6,6 @@ import {
   MovePanelZustand, 
   DualEvaluationSidebar,
   TrainingControls, 
-  AnalysisPanel,
   EvaluationLegend,
   NavigationControls
 } from '@shared/components/training';
@@ -239,13 +238,6 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
         </div>
       </div>
 
-      {/* Analysis Panel - Always rendered but hidden/shown with CSS */}
-      <AnalysisPanel
-        history={training.moveHistory}
-        initialFen={position.fen}
-        isVisible={ui.analysisPanel.isOpen}
-        onClose={handleToggleAnalysis}
-      />
     </div>
   );
 });
