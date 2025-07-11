@@ -66,7 +66,15 @@ export class NavigationControls extends BaseComponent {
    * Implements 4-level fallback chain for maximum robustness
    */
   private async getNavigationButton(buttonType: NavigationButtonType): Promise<Locator> {
-    const buttonKey = `GO_TO_${buttonType.toUpperCase()}` as keyof typeof SELECTORS.NAVIGATION_CONTROLS;
+    // Map button types to match constants.js keys and component implementation
+    const buttonKeyMap: Record<NavigationButtonType, keyof typeof SELECTORS.NAVIGATION_CONTROLS> = {
+      'start': 'GO_TO_START',  // Maps to 'first' in component
+      'back': 'GO_BACK',       // Correct key in constants.js
+      'forward': 'GO_FORWARD', // Correct key in constants.js
+      'end': 'GO_TO_END'       // Maps to 'last' in component
+    };
+    
+    const buttonKey = buttonKeyMap[buttonType];
     const selectors = SELECTORS.NAVIGATION_CONTROLS[buttonKey];
     
     if (!selectors) {

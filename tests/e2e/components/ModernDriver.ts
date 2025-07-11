@@ -30,6 +30,7 @@ import {
 import { ILogger } from '../../../shared/services/logging/types';
 import { noopLogger } from '../../shared/logger-utils';
 import { createGamePlayerConfigCached } from '../utils/config-adapter';
+import { TIMEOUTS } from '../config/constants';
 
 // Re-export TestBridgeWrapper for convenience
 export { TestBridgeWrapper } from './TestBridgeWrapper';
@@ -172,6 +173,12 @@ export class ModernDriver implements IModernDriver {
       this.logger?.debug('Move completed', { moveString, newMoveCount: currentMoveCount + 1 });
     } catch (error) {
       this.logger?.error('Move failed', error as Error);
+      console.error('🚨 ModernDriver.makeMove failed:', {
+        from, to, promotion,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : 'No stack trace',
+        errorType: error?.constructor?.name
+      });
       throw new ModernDriverError(
         `Failed to make move ${from}-${to}`,
         'makeMove',
@@ -227,11 +234,20 @@ export class ModernDriver implements IModernDriver {
                      gameStatus?.isDraw ? 'draw' : 
                      'playing';
       
+      // Extract scenario ID from URL if on training page
+      let scenario: number | undefined;
+      const currentUrl = this.page.url();
+      const scenarioMatch = currentUrl.match(/\/train\/(\d+)/);
+      if (scenarioMatch) {
+        scenario = parseInt(scenarioMatch[1], 10);
+      }
+      
       const gameState: GameState = {
         fen,
         turn: navState.currentMoveIndex % 2 === 0 ? 'w' : 'b',
         moveCount: moves.length,
         status,
+        scenario,
         lastMove: lastMove ? {
           from: lastMove.from || '',
           to: lastMove.to || '',
@@ -317,25 +333,52 @@ export class ModernDriver implements IModernDriver {
       // Phase 2: Wait for app initialization signal (robust event-based approach)
       const phase2Start = Date.now();
       this.logger?.debug('Phase 2: Waiting for app-ready signal...');
-      await this.page.waitForSelector('body[data-app-ready="true"]', {
-        timeout: this.config.defaultTimeout
-      });
-      this.logger?.debug(`Phase 2 completed in ${Date.now() - phase2Start}ms`);
       
-      // Phase 3: Verify no error state
-      const appStatus = await this.page.locator('body').getAttribute('data-app-ready');
-      if (appStatus === 'error') {
-        throw new Error('Application failed to initialize - check engine initialization logs');
+      try {
+        await this.page.waitForSelector('body[data-app-ready="true"]', {
+          state: 'attached',
+          timeout: TIMEOUTS.appReady || this.config.defaultTimeout
+        });
+        this.logger?.debug(`Phase 2 completed in ${Date.now() - phase2Start}ms`);
+        
+        // Phase 3: Verify no error state
+        const appStatus = await this.page.locator('body').getAttribute('data-app-ready');
+        if (appStatus === 'error') {
+          throw new Error('Application failed to initialize - check engine initialization logs');
+        }
+      } catch (phase2Error) {
+        // Kein Fallback mehr - wenn app-ready fehlt, ist das ein echter Fehler
+        throw new ModernDriverError(
+          'Application ready signal not detected - check _app.tsx implementation',
+          'waitUntilReady',
+          { 
+            error: (phase2Error as Error).message,
+            hint: 'Ensure body[data-app-ready="true"] is set when app is ready'
+          }
+        );
       }
       
-      // Phase 4: Wait for board to be ready
+      // Phase 3: Wait for board to be ready
+      // Note: Previous Phase 3 (router ready check) was removed as redundant - 
+      // Phase 5 already ensures app is fully loaded via e2e_makeMove availability
       this.logger?.debug('Phase 3: Waiting for board component...');
       await this.board.waitForBoard();
       
-      // Phase 5: Initialize Test Bridge if enabled
+      // Phase 4: Initialize Test Bridge if enabled
       if (this._bridge) {
         this.logger?.debug('Phase 4: Initializing Test Bridge...');
         await this._bridge.initialize(this.config.defaultTimeout);
+      }
+      
+      // Phase 5: Verify e2e_makeMove is available (if in test mode)
+      if (this.config.useTestBridge) {
+        const phase5Start = Date.now();
+        this.logger?.debug('Phase 5: Waiting for e2e_makeMove hook...');
+        await this.page.waitForFunction(
+          () => typeof (window as any).e2e_makeMove === 'function',
+          { timeout: 5000 }
+        );
+        this.logger?.debug(`Phase 5 completed in ${Date.now() - phase5Start}ms`);
       }
       
       const totalDuration = Date.now() - startTime;
@@ -348,21 +391,6 @@ export class ModernDriver implements IModernDriver {
         totalDuration: `${totalDuration}ms`,
         error: error instanceof Error ? error.message : String(error)
       });
-      
-      // Enhanced debugging info
-      try {
-        const bodyAttributes = await this.page.evaluate(() => {
-          const body = document.body;
-          return {
-            'data-app-ready': body.getAttribute('data-app-ready'),
-            'data-engine-status': body.getAttribute('data-engine-status'),
-            'data-bridge-status': body.getAttribute('data-bridge-status')
-          };
-        });
-        this.logger?.debug('Current body attributes:', bodyAttributes);
-      } catch (debugError) {
-        this.logger?.error('Failed to get debug info', debugError as Error);
-      }
       
       throw new ModernDriverError(
         'Timeout waiting for application ready state',

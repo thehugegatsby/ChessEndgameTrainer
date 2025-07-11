@@ -81,6 +81,7 @@ export class GamePlayer implements IGamePlayer {
 
       // Execute the move on the board
       const { from, to, san } = moveResult.value;
+      console.log('🎮 GamePlayer calling board.makeMove:', { from, to });
       await this.dependencies.board.makeMove(from, to);
       
       // Update internal chess instance using the validated move object

@@ -28,7 +28,8 @@ module.exports = {
     '@react-native-async-storage/async-storage': '<rootDir>/tests/shared/tests/mocks/async-storage.js',
     'expo-.*': '<rootDir>/tests/shared/tests/mocks/expo.js',
     '@react-navigation/.*': '<rootDir>/tests/shared/tests/mocks/react-navigation.js',
-    'react-native-safe-area-context': '<rootDir>/tests/shared/tests/mocks/safe-area-context.js'
+    'react-native-safe-area-context': '<rootDir>/tests/shared/tests/mocks/safe-area-context.js',
+    '\\.(css|less|scss|sass)$': '<rootDir>/tests/__mocks__/styleMock.js'
   },
   testMatch: [
     '<rootDir>/tests/unit/**/*.{spec,test}.[jt]s?(x)',
@@ -54,6 +55,10 @@ module.exports = {
   ],
   coverageDirectory: '<rootDir>/coverage',
   coverageReporters: ['lcov', 'text', 'html', 'json-summary'],
+  reporters: [
+    'default',
+    ['<rootDir>/tests/reporters/skippedTestsReporter.js', { maxSkippedTests: 10 }]
+  ],
   coveragePathIgnorePatterns: [
     '/node_modules/',
     '/tests/',

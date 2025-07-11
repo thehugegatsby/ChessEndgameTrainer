@@ -1,10 +1,11 @@
 # 🧪 Testing Guide - ChessEndgameTrainer
 
-## 📊 Current Status (2025-01-09)
+## 📊 Current Status (2025-01-17)
 - **Coverage**: ~78% (Business Logic) / ~47% (Overall) - Goal: 80%
 - **Test Success**: 99% (1023/1034 passing, 11 skipped)
 - **Architecture**: Test Pyramid with Unit > Integration > E2E
-- **Recent Fixes**: Black moves bug, Analysis panel layout, Store synchronization
+- **E2E Tests**: Complete rewrite - 9 focused ModernDriver tests (was 38 legacy tests)
+- **Recent Changes**: E2E test suite migration to ModernDriver architecture + Ready Signal implementation
 
 ## 🚀 Quick Start
 
@@ -65,17 +66,30 @@ describe('Tablebase Integration', () => {
 ### 3. **E2E Tests** - User Workflows
 Full system tests simulating real user interactions using Playwright.
 
-**Location**: `tests/e2e/[workflow]/`  
-**Tool**: Playwright with custom Test API  
-**Architecture**: Clean architecture with Test API Service and Page Object Model
+**Location**: `tests/e2e/[category]/[test].spec.ts`  
+**Tool**: Playwright with ModernDriver  
+**Architecture**: Component Object Model with lean orchestrator pattern
 
-#### New Test Architecture (2025-01-08)
-The E2E tests have been refactored to follow clean architecture principles:
+#### New Test Architecture (2025-01-17)
+Complete rewrite from 38 legacy tests to 8-12 focused ModernDriver tests:
+
+**Structure**:
+```
+tests/e2e/
+├── 00-smoke/           # Basic app functionality (1 test)
+├── 01-core-driver/     # ModernDriver core features (5 tests)
+│   ├── lifecycle.spec.ts
+│   ├── ready-signal.spec.ts    # NEW: App ready detection tests
+│   └── ...
+├── 02-user-journeys/   # Critical user workflows (4 tests)
+└── 03-integration/     # Component integration (3 tests)
+```
 
 **Components**:
-- **Test API Service** (`shared/services/test/TestApiService.ts`): Clean interface for test interactions
-- **Page Object Model** (`tests/e2e/pages/TrainingPage.ts`): Encapsulates page interactions
-- **Event-based Synchronization**: Replaces hardcoded timeouts with deterministic waiting
+- **ModernDriver** (`tests/e2e/components/ModernDriver.ts`): Lean orchestrator (442 lines)
+- **Component Objects**: BoardComponent, MoveListComponent, EvaluationPanel, NavigationControls
+- **Test Bridge**: Deterministic engine responses for reliable testing
+- **Helper Services**: GamePlayer, ValidationHelper, PuzzleSolver
 
 **Setup**:
 ```bash
@@ -86,35 +100,35 @@ npm run dev
 npm run test:e2e
 ```
 
-**Example with New Architecture**:
+**Example with ModernDriver**:
 ```typescript
-// tests/e2e/basic-training-flow-refactored.spec.ts
+// tests/e2e/02-user-journeys/complete-training.spec.ts
 test('should complete training session', async ({ page }) => {
-  const trainingPage = new TrainingPage(page);
+  const driver = new ModernDriver(page, { useTestBridge: true });
   
-  // Navigate using Page Object
-  await trainingPage.goto(1);
+  // Navigate to training
+  await driver.visit('/train/1');
   
-  // Make move using Test API
-  const success = await trainingPage.makeMove('e6-d6');
-  expect(success).toBe(true);
+  // Make move with deterministic engine response
+  await driver.makeMove('e2', 'e4');
   
-  // Wait for engine response (event-based)
-  const engineResponded = await trainingPage.waitForEngineMove();
-  expect(engineResponded).toBe(true);
+  // Get game state
+  const state = await driver.getGameState();
+  expect(state.moveCount).toBe(2); // Player + engine
+  expect(state.status).toBe('playing');
   
-  // Verify state through clean API
-  const state = await trainingPage.getGameState();
-  expect(state.moveCount).toBeGreaterThan(1);
+  // Clean up
+  await driver.dispose();
 });
 ```
 
 **Key Improvements**:
-- ✅ Clean separation of concerns (no test hooks in UI components)
-- ✅ Event-based waiting instead of hardcoded timeouts
-- ✅ Deterministic test behavior
-- ✅ Page Object Model for maintainability
-- ✅ Single Source of Truth (no duplicate test files)
+- ✅ 76% code reduction (ModernDriver: 442 lines vs AppDriver: 1,889 lines)
+- ✅ Component Object Model for clean separation
+- ✅ Test Bridge for deterministic behavior
+- ✅ Focused test scope (9-12 tests vs 38 legacy tests)
+- ✅ Fast execution with mock engine responses
+- ✅ Robust ready detection with primary signal + fallback mechanism
 
 ## 🎯 Coverage Strategy
 
@@ -349,6 +363,43 @@ act(() => {
 - **No Double Manipulations**: One move = One Store action
 - **Mock Hygiene**: Mocks must not override Store state when parent components handle it
 - **Consider Asynchronicity**: React components respond asynchronously to Store changes
+
+## 🚦 E2E Ready Signal Pattern
+
+### Overview
+The E2E test suite uses an explicit ready signal pattern to ensure tests only start when the application is fully initialized. This eliminates timing-related flakiness.
+
+### Implementation
+1. **Frontend Signal** (`_app.tsx`):
+   ```typescript
+   // App sets data-app-ready based on router + engine status
+   document.body.setAttribute('data-app-ready', 'true');  // ready
+   document.body.setAttribute('data-app-ready', 'false'); // loading
+   document.body.setAttribute('data-app-ready', 'error'); // failed
+   ```
+
+2. **Test Driver** (`ModernDriver.ts`):
+   ```typescript
+   // Primary: Wait for explicit signal
+   await page.waitForSelector('body[data-app-ready="true"]');
+   
+   // Fallback: Check for chess-specific elements
+   if (primary fails) {
+     await checkBoardVisibility();
+     await validateInteractiveElements();
+   }
+   ```
+
+3. **Configuration** (`constants.js`):
+   ```javascript
+   appReady: 30000,      // Primary signal timeout
+   fallbackReady: 5000   // Fallback detection timeout
+   ```
+
+### Testing the Pattern
+- `ready-signal.spec.ts`: Tests both primary and fallback paths
+- Includes deterministic test that blocks signal to force fallback
+- Unit tests verify frontend signal logic
 
 ## 🐛 Known Issues & Workarounds
 

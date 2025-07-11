@@ -19,7 +19,9 @@ const TIMEOUT_PROFILES = {
     disabledCheck: 1000,
     retry: 500,
     debounce: 100,
-    poll: 100
+    poll: 100,
+    appReady: 30000,        // Main app ready timeout
+    fallbackReady: 5000     // Fallback detection timeout
   },
   testing: {
     default: 3000,
@@ -34,7 +36,9 @@ const TIMEOUT_PROFILES = {
     disabledCheck: 500,
     retry: 200,
     debounce: 50,
-    poll: 50
+    poll: 50,
+    appReady: 20000,        // Shorter for test environment
+    fallbackReady: 3000     // Shorter fallback timeout
   },
   ci: {
     default: 10000,
@@ -49,7 +53,9 @@ const TIMEOUT_PROFILES = {
     disabledCheck: 2000,
     retry: 1000,
     debounce: 200,
-    poll: 200
+    poll: 200,
+    appReady: 45000,        // Longer for CI environment
+    fallbackReady: 10000    // Longer fallback for CI
   }
 };
 
@@ -73,7 +79,7 @@ const SELECTORS = {
     FALLBACK: '[role="list"]'
   },
   MOVE_ITEM: {
-    PRIMARY: '[data-testid="move-item"]',
+    PRIMARY: '[data-testid^="move-item"]', // Matches move-item, move-item-0, move-item-1, etc.
     SECONDARY: '[data-move-number]',
     TERTIARY: '.move-item',
     QUATERNARY: '.move',
@@ -123,28 +129,28 @@ const SELECTORS = {
   },
   NAVIGATION_CONTROLS: {
     GO_TO_START: {
-      PRIMARY: '[role="button"][aria-label*="start"]',
-      SECONDARY: '[data-testid="nav-start"]',
-      TERTIARY: '[data-testid="nav-first"]',
-      FALLBACK: 'button[title*="start"]'
+      PRIMARY: '[data-testid="nav-first"]',
+      SECONDARY: '[aria-label="Zum Anfang der Zugliste"]',
+      TERTIARY: 'button[title="Zum Anfang"]',
+      FALLBACK: '[data-testid="move-navigation"] button:first-child'
     },
     GO_BACK: {
-      PRIMARY: '[role="button"][aria-label*="back"]',
-      SECONDARY: '[data-testid="nav-back"]',
-      TERTIARY: '[data-testid="nav-previous"]',
-      FALLBACK: 'button[title*="back"]'
+      PRIMARY: '[data-testid="nav-back"]',
+      SECONDARY: '[aria-label="Ein Zug zurück"]',
+      TERTIARY: 'button[title="Ein Zug zurück"]',
+      FALLBACK: '[data-testid="move-navigation"] button:nth-child(2)'
     },
     GO_FORWARD: {
-      PRIMARY: '[role="button"][aria-label*="forward"]',
-      SECONDARY: '[data-testid="nav-forward"]',
-      TERTIARY: '[data-testid="nav-next"]',
-      FALLBACK: 'button[title*="forward"]'
+      PRIMARY: '[data-testid="nav-forward"]',
+      SECONDARY: '[aria-label="Ein Zug vor"]',
+      TERTIARY: 'button[title="Ein Zug vor"]',
+      FALLBACK: '[data-testid="move-navigation"] button:nth-child(3)'
     },
     GO_TO_END: {
-      PRIMARY: '[role="button"][aria-label*="end"]',
-      SECONDARY: '[data-testid="nav-end"]',
-      TERTIARY: '[data-testid="nav-last"]',
-      FALLBACK: 'button[title*="end"]'
+      PRIMARY: '[data-testid="nav-last"]',
+      SECONDARY: '[aria-label="Zum Ende der Zugliste"]',
+      TERTIARY: 'button[title="Zum Ende"]',
+      FALLBACK: '[data-testid="move-navigation"] button:last-child'
     }
   }
 };

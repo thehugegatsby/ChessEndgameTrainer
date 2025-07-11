@@ -1,0 +1,83 @@
+/**
+ * E2E Test CSS Overrides
+ * Disables animations and transitions to prevent timing issues in tests
+ */
+
+/* Disable all CSS animations and transitions globally */
+*,
+*::before,
+*::after {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+}
+
+/* Disable smooth scrolling */
+html {
+  scroll-behavior: auto !important;
+}
+
+/* Force instant visibility changes */
+.fade-in,
+.fade-out,
+[class*="fade"],
+[class*="slide"],
+[class*="animate"] {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Disable any hover effects that might cause delays */
+button:hover,
+a:hover,
+[role="button"]:hover {
+  transition: none !important;
+}
+
+/* Ensure move list items are instantly visible */
+[data-testid="move-item"],
+.move-item,
+.move-list li {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: list-item !important;
+}
+
+/* Ensure navigation buttons respond instantly */
+[data-testid^="nav-"],
+[data-testid="move-navigation"] button {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+}
+
+/* Disable chess piece animations */
+.react-chessboard svg,
+[data-testid="chess-piece"],
+.chess-piece {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Ensure evaluation panel updates instantly */
+[data-testid="evaluation-panel"],
+[data-testid="evaluation-value"],
+[data-testid="best-move"] {
+  transition: none !important;
+}
+
+/* Disable loading spinners animations */
+.spinner,
+.loading,
+[class*="spin"],
+[data-testid="engine-thinking"] {
+  animation: none !important;
+}
+
+/* Force immediate state changes for disabled elements */
+button:disabled,
+[aria-disabled="true"],
+[disabled] {
+  transition: none !important;
+  opacity: 0.6 !important; /* Maintain visual feedback */
+}

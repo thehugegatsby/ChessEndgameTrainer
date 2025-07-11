@@ -3,6 +3,7 @@ import { Move } from 'chess.js';
 import { getMoveQualityDisplay, getMoveQualityByTablebaseComparison, formatEvaluation, getSmartMoveEvaluation, type MoveEvaluation } from '../../utils/chess/evaluationHelpers';
 import { EvaluationLegend } from './EvaluationLegend';
 import { useTraining } from '@shared/store/store';
+import { TEST_IDS, getTestId } from '@shared/constants/testIds';
 
 interface MovePanelZustandProps {
   showEvaluations?: boolean;
@@ -53,9 +54,17 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(({
   }, [moveHistory, evaluations]);
 
 
+  const hasContent = movePairs.length > 0 || currentMoveIndex === 0;
+  const showE2ESignals = process.env.NEXT_PUBLIC_E2E_SIGNALS === 'true';
+
   if (moveHistory.length === 0) {
     return (
-      <div className="text-gray-400">
+      <div 
+        className="text-gray-400"
+        data-testid={TEST_IDS.MOVE_PANEL.CONTAINER}
+        data-move-count={moveHistory.length}
+        {...(showE2ESignals && { 'data-component-ready': hasContent ? 'true' : 'false' })}
+      >
         Noch keine Züge gespielt
       </div>
     );
@@ -64,8 +73,9 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(({
   return (
     <div 
       className="space-y-1"
-      data-testid="move-panel"
+      data-testid={TEST_IDS.MOVE_PANEL.CONTAINER}
       data-move-count={moveHistory.length}
+      {...(showE2ESignals && { 'data-component-ready': hasContent ? 'true' : 'false' })}
     >
       {movePairs.map((pair) => (
         <div 
@@ -84,7 +94,7 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(({
               className={`font-mono text-sm hover:text-blue-400 px-1 py-0.5 rounded transition-colors ${
                 currentMoveIndex === (pair.moveNumber - 1) * 2 ? 'text-blue-400 bg-blue-900/30' : 'text-white'
               }`}
-              data-testid="move-item"
+              data-testid={getTestId(TEST_IDS.MOVE_PANEL.ITEM, (pair.moveNumber - 1) * 2)}
               data-move-number={(pair.moveNumber - 1) * 2 + 1}
             >
               {pair.whiteMove.san}
@@ -92,8 +102,13 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(({
             {showEvaluations && pair.whiteEval && (() => {
               const evalDisplay = getSmartMoveEvaluation(pair.whiteEval, true, (pair.moveNumber - 1) * 2);
               return (
-                <span className={`text-xs px-1 py-0.5 rounded ${evalDisplay.className}`}>
-                  {evalDisplay.text}
+                <span 
+                  className={`text-xs px-1 py-0.5 rounded ${evalDisplay.className}`}
+                  data-testid={TEST_IDS.MOVE_PANEL.EVALUATION}
+                >
+                  <span data-testid={TEST_IDS.MOVE_PANEL.EVAL_SCORE}>
+                    {evalDisplay.text}
+                  </span>
                 </span>
               );
             })()}
@@ -108,7 +123,7 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(({
                   className={`font-mono text-sm hover:text-blue-400 px-1 py-0.5 rounded transition-colors ${
                     currentMoveIndex === (pair.moveNumber - 1) * 2 + 1 ? 'text-blue-400 bg-blue-900/30' : 'text-white'
                   }`}
-                  data-testid="move-item"
+                  data-testid={getTestId(TEST_IDS.MOVE_PANEL.ITEM, (pair.moveNumber - 1) * 2 + 1)}
                   data-move-number={(pair.moveNumber - 1) * 2 + 2}
                 >
                   {pair.blackMove.san}
@@ -116,8 +131,13 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(({
                 {showEvaluations && pair.blackEval && (() => {
                   const evalDisplay = getSmartMoveEvaluation(pair.blackEval, false, (pair.moveNumber - 1) * 2 + 1);
                   return (
-                    <span className={`text-xs px-1 py-0.5 rounded ${evalDisplay.className}`}>
-                      {evalDisplay.text}
+                    <span 
+                      className={`text-xs px-1 py-0.5 rounded ${evalDisplay.className}`}
+                      data-testid={TEST_IDS.MOVE_PANEL.EVALUATION}
+                    >
+                      <span data-testid={TEST_IDS.MOVE_PANEL.EVAL_SCORE}>
+                        {evalDisplay.text}
+                      </span>
                     </span>
                   );
                 })()}

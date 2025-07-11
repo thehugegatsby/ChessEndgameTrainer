@@ -93,6 +93,13 @@ export class TestBridgeWrapper {
   }
 
   /**
+   * Check if the bridge has been successfully initialized
+   */
+  isReady(): boolean {
+    return this.isInitialized;
+  }
+
+  /**
    * Enable debug logging for the bridge
    */
   async enableDebugLogging(): Promise<void> {

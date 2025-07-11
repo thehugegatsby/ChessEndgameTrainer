@@ -9,6 +9,13 @@
  *   npm run migrate:firestore -- --verify     # Verify existing migration
  */
 
+// Load environment variables for Node.js scripts
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+
+// Load .env.local for Firebase config
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
+
 import { program } from 'commander';
 import { FirestoreMigrationService } from '../shared/services/database/migrationService';
 import { initializeApp } from 'firebase/app';

@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- E2E Ready Signal Pattern implementation (2025-01-17)
+  - Frontend signals app-ready state via `data-app-ready` attribute in _app.tsx
+  - ModernDriver implements two-tier ready detection (primary signal + fallback)
+  - Environment-specific timeout configuration in constants.js
+  - Comprehensive tests for both primary and fallback paths
+  - Fixes test timeout issues when navigating to /train routes
 - Centralized test logger utility (tests/shared/logger-utils.ts) (2025-01-10)
   - Provides noopLogger, createSilentLogger, createTestLogger, and createDebugLogger
   - Type-safe implementation with full ILogger interface coverage
@@ -20,6 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Custom command /granular for detailed task planning with multi-LLM collaboration (2025-01-10)
 
 ### Fixed
+- Fixed NavigationControls selector error in E2E tests (2025-01-17)
+  - Corrected button key mismatch (GO_TO_BACK → GO_BACK)
+  - Added explicit button key mapping for navigation types
+- Fixed E2E test timeout when navigating to /train routes (2025-01-17)
+  - Implemented app-ready signal in frontend (_app.tsx)
+  - Added robust fallback detection mechanism
+  - Enhanced ModernDriver with detailed phase logging
 - Fixed multiple TypeScript build errors in E2E tests (2025-01-10)
   - Removed unsupported `customSquareRenderer` property from react-chessboard
   - Added backward-compatible method aliases (`getGameState`, `cleanup`) in AppDriver

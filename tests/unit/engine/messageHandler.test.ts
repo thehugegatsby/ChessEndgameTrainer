@@ -57,14 +57,18 @@ describe('StockfishMessageHandler', () => {
     // Clear all mocks before setting up
     jest.clearAllMocks();
     
+    // Reset modules to ensure clean state
+    jest.resetModules();
+    
     // Setup chess.js mock with resetMocks: true compatibility
     mockChess = {
-      load: jest.fn(),
+      load: jest.fn().mockReturnValue(true), // Mock load to prevent state changes
       move: jest.fn(),
     } as any;
     
     // Ensure Chess constructor returns our mock
-    (Chess as jest.Mock).mockImplementation(() => mockChess);
+    const ChessMock = require('chess.js').Chess;
+    ChessMock.mockImplementation(() => mockChess);
     
     // Dynamically require the module AFTER mocks are configured
     StockfishMessageHandler = require('../../../shared/lib/chess/engine/messageHandler').StockfishMessageHandler;

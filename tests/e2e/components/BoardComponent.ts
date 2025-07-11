@@ -105,7 +105,9 @@ export class BoardComponent extends BaseComponent {
       
       // Check if e2e_makeMove is available (E2E test environment)
       const hasE2EMakeMove = await this.page.evaluate(() => {
-        return typeof (window as any).e2e_makeMove === 'function';
+        const available = typeof (window as any).e2e_makeMove === 'function';
+        console.log('🔍 Checking e2e_makeMove availability:', available);
+        return available;
       });
       
       if (hasE2EMakeMove) {

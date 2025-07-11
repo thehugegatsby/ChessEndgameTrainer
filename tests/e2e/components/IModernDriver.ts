@@ -37,6 +37,9 @@ export interface GameState {
   /** Current game status */
   status: 'playing' | 'checkmate' | 'stalemate' | 'draw';
   
+  /** Current scenario ID (extracted from URL) */
+  scenario?: number;
+  
   /** Details of the last move played */
   lastMove?: {
     from: string;

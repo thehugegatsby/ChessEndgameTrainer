@@ -4,6 +4,7 @@ import { Square } from 'react-chessboard/dist/chessboard/types';
 import { Chessboard } from 'react-chessboard';
 import { Piece } from 'react-chessboard/dist/chessboard/types';
 import { useEvaluation, useTrainingGame } from '../../../hooks';
+import { usePageReady } from '../../../hooks/usePageReady';
 import { useTraining, useTrainingActions, useUIActions, useStore } from '@shared/store/store';
 import { EndgamePosition } from '@shared/data/endgames/types';
 import { ScenarioEngine } from '@shared/lib/chess/ScenarioEngine';
@@ -215,13 +216,34 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     }
 
     try {
+      // Debug: Log game state before validation
+      console.log('🎲 Game state before move validation:', {
+        hasGame: !!game,
+        gameFen: game?.fen(),
+        possibleMovesCount: game?.moves()?.length || 0
+      });
+      logger.debug('Game state before move validation', {
+        hasGame: !!game,
+        gameFen: game?.fen(),
+        possibleMovesCount: game?.moves()?.length || 0
+      });
+      
       // Validate move with chess instance
       const possibleMoves = game.moves({ verbose: true });
       const isValidMove = possibleMoves.some((m: any) => 
         m.from === move.from && m.to === move.to
       );
       
+      logger.debug('Move validation result', { 
+        move, 
+        isValidMove, 
+        possibleMovesCount: possibleMoves.length,
+        firstFewMoves: possibleMoves.slice(0, 3).map((m: any) => `${m.from}-${m.to}`)
+      });
+      
       if (!isValidMove) {
+        console.log('❌ Move validation failed:', { move, possibleMoves: possibleMoves.map((m: any) => `${m.from}-${m.to}`) });
+        logger.error('Move validation failed', { move, possibleMoves: possibleMoves.map((m: any) => `${m.from}-${m.to}`) });
         uiActions.showToast('Invalid move', 'warning');
         actions.incrementMistake();
         return null;
@@ -270,11 +292,21 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     
     // Only expose in test environment
     if (isE2ETest) {
+      console.log('🪄 TrainingBoardZustand: Attaching e2e hooks to window object');
       logger.info('Attaching e2e hooks to window object');
       
       (window as any).e2e_makeMove = async (move: string) => {
+        console.log('🎯 e2e_makeMove called with move:', move);
         logger.info('e2e_makeMove called', { move });
         logger.debug('Test move requested', { move });
+        
+        // Debug: Check game state before move
+        logger.debug('Pre-move state check', { 
+          hasGame: !!game,
+          gamefen: game?.fen(),
+          movesAvailable: game?.moves()?.length || 0,
+          isGameFinished
+        });
         
         // Parse move notation (support 'e2-e4', 'e2e4', 'Ke2-e4', 'Ke2e4' formats)
         const moveMatch = move.match(/^([KQRBN]?)([a-h][1-8])-?([a-h][1-8])([qrbn])?$/i);
@@ -467,12 +499,22 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     }
   }, [game, isGameFinished, handleMove, testMoveProcessed]);
 
+  // === PAGE READY DETECTION ===
+  const isEngineReady = training.engineStatus === 'ready' || training.engineStatus === 'idle';
+  const isBoardReady = !!currentFen && !!game;
+  const isPageReady = usePageReady([isEngineReady, isBoardReady]);
+
   // === RENDER ===
   // Note: customSquareRenderer was removed as it's not supported in react-chessboard v2.1.3
   // E2E tests should use the board's data-testid="training-board" and other available selectors
 
+  const showE2ESignals = process.env.NEXT_PUBLIC_E2E_SIGNALS === 'true';
+
   return (
-    <div className="flex flex-col items-center">
+    <div 
+      className="flex flex-col items-center"
+      {...(showE2ESignals && { 'data-page-ready': isPageReady })}
+    >
       {/* Chessboard with Evaluation Overlay and E2E data attributes */}
       <div 
         className="relative" 

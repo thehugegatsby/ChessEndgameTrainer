@@ -43,6 +43,10 @@ export default defineConfig({
       'x-e2e-test-mode': 'true'
     },
     
+    /* Increased timeouts for Two-Phase Ready Detection system */
+    actionTimeout: 10000, // 10s for individual actions (clicks, etc.)
+    navigationTimeout: 30000, // 30s for page navigation and ready detection
+    
   },
 
   /* Configure projects for major browsers */
@@ -80,12 +84,13 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npx cross-env NEXT_PUBLIC_IS_E2E_TEST=true npm run dev',
+    command: 'npx cross-env NEXT_PUBLIC_IS_E2E_TEST=true NEXT_PUBLIC_E2E_SIGNALS=true npm run dev',
     url: APP_CONFIG.DEV_URL,
     reuseExistingServer: false, // Always start fresh server for consistent testing
     timeout: 120 * 1000,
     env: {
       NEXT_PUBLIC_IS_E2E_TEST: 'true',
+      NEXT_PUBLIC_E2E_SIGNALS: 'true',
     },
   },
 });

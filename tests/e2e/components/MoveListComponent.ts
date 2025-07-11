@@ -69,6 +69,7 @@ export class MoveListComponent extends BaseComponent {
    * Updated to support both old and new selectors for compatibility
    */
   getDefaultSelector(): string {
+    // Note: move-panel is kept as fallback for backward compatibility, primary is move-list
     return '[data-testid="move-list"], [data-testid="move-panel"], .move-list, #move-list, [role="list"]';
   }
 
@@ -135,7 +136,7 @@ export class MoveListComponent extends BaseComponent {
     
     try {
       // First try to get count from data-attribute (immediate store state)
-      const movePanel = await this.page.locator('[data-testid="move-panel"]').first();
+      const movePanel = await this.page.locator(this.getDefaultSelector()).first();
       if (await movePanel.count() > 0) {
         const dataCount = await movePanel.getAttribute('data-move-count');
         if (dataCount !== null) {
@@ -219,13 +220,13 @@ export class MoveListComponent extends BaseComponent {
       // Use data-attribute for immediate store state checking
       await this.page.waitForFunction(
         (targetCount) => {
-          const movePanel = document.querySelector('[data-testid="move-panel"]');
+          const movePanel = document.querySelector('[data-testid="move-list"], [data-testid="move-panel"]');
           if (movePanel) {
             const currentCount = parseInt(movePanel.getAttribute('data-move-count') || '0', 10);
             return currentCount >= targetCount;
           }
           // Fallback: count DOM elements
-          const moveElements = document.querySelectorAll('[data-testid="move-item"], .move-item, [class*="move-"]');
+          const moveElements = document.querySelectorAll('[data-testid^="move-item"], .move-item, [class*="move-"]');
           return moveElements.length >= targetCount;
         },
         count,
