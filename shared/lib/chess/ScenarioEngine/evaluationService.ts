@@ -5,7 +5,7 @@
  * Optimized for mobile performance and Android compatibility
  */
 
-import { Engine } from '../engine';
+import type { Engine } from '../engine/index';
 import { tablebaseService } from '../tablebase';
 import { getLogger } from '@shared/services/logging';
 import type { 

@@ -4,7 +4,7 @@
  */
 
 import { Chess } from 'chess.js';
-import { Engine } from '../../engine';
+import type { Engine } from '../../engine/index';
 import { validateAndSanitizeFen } from '../../../../utils/fenValidator';
 
 const { MAX_INSTANCES } = require('../types').SCENARIO_CONFIG;

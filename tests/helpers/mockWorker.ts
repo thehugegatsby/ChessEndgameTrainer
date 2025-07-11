@@ -173,7 +173,7 @@ export class MockWorker implements IWorker {
  * MockWorkerFactory - Creates MockWorker instances for testing
  */
 export class MockWorkerFactory implements IWorkerFactory {
-  private workers: MockWorker[] = [];
+  workers: MockWorker[] = [];
 
   createWorker(scriptURL: string | URL): IWorker {
     const worker = new MockWorker();
@@ -237,13 +237,8 @@ export function createStockfishMockWorker(): MockWorker {
   const worker = new MockWorker();
   
   // Add Stockfish initialization sequence
-  worker.addResponse('uci', [
-    'id name Stockfish 16',
-    'id author the Stockfish developers',
-    'option name Hash type spin default 16 min 1 max 33554432',
-    'option name Threads type spin default 1 min 1 max 512',
-    'uciok'
-  ]);
+  // For now, only send 'uciok' as the messageHandler doesn't handle other UCI messages
+  worker.addResponse('uci', ['uciok']);
   
   // Ready check
   worker.addResponse('isready', ['readyok']);

@@ -26,7 +26,7 @@
 import { Engine } from './index';
 import { Logger } from '@shared/services/logging/Logger';
 
-const logger = new Logger('EngineSingleton');
+const logger = new Logger();
 
 /**
  * Global singleton instance of the Chess Engine
@@ -94,7 +94,7 @@ if (typeof process !== 'undefined' && process.on) {
   
   // Unhandled promise rejections
   process.on('unhandledRejection', async (reason, promise) => {
-    logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    logger.error('Unhandled Rejection at:', promise);
     await gracefulShutdown('unhandledRejection');
   });
 }

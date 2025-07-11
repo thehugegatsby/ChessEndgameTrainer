@@ -8,6 +8,26 @@ import '@testing-library/jest-dom';
 // Global test timeout
 jest.setTimeout(30000);
 
+// Mock Worker global for tests
+if (typeof Worker === 'undefined') {
+  global.Worker = class Worker {
+    constructor(scriptURL) {
+      this.scriptURL = scriptURL;
+      this.onmessage = null;
+      this.onerror = null;
+      this.onmessageerror = null;
+    }
+    
+    postMessage(message) {
+      // This will be replaced by mock implementations
+    }
+    
+    terminate() {
+      // This will be replaced by mock implementations
+    }
+  };
+}
+
 // Mock console methods for cleaner test output
 const originalConsoleError = console.error;
 const originalConsoleWarn = console.warn;

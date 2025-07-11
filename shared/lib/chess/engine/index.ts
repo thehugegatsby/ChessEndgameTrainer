@@ -18,7 +18,7 @@ import { StockfishWorkerManager } from './workerManager';
 import { RequestManager } from './requestManager';
 import { Logger } from '@shared/services/logging/Logger';
 
-const logger = new Logger('Engine');
+const logger = new Logger();
 
 // Import singleton for getInstance compatibility
 // Lazy import to avoid circular dependency
@@ -46,6 +46,11 @@ export class Engine {
   private requestManager: RequestManager;
   private requestQueue: Array<EngineRequest> = [];
   private isProcessingQueue = false;
+  
+  // Promise-based initialization tracking
+  private initializationPromise: Promise<void>;
+  private resolveInitialization!: () => void;
+  private rejectInitialization!: (error: Error) => void;
 
   /**
    * Public constructor for flexible instantiation
@@ -56,7 +61,17 @@ export class Engine {
     // Now we just pass the objects through. Much cleaner.
     this.workerManager = new StockfishWorkerManager(engineConfig, workerConfig);
     this.requestManager = new RequestManager();
-    this.initializeEngine();
+    
+    // Initialize the promise for async initialization tracking
+    this.initializationPromise = new Promise<void>((resolve, reject) => {
+      this.resolveInitialization = resolve;
+      this.rejectInitialization = reject;
+    });
+    
+    // Start async initialization but don't wait
+    this.initializeEngine().catch((error) => {
+      this.rejectInitialization(error);
+    });
   }
 
   /**
@@ -77,7 +92,7 @@ export class Engine {
       logger.warn('Config parameter ignored - singleton already initialized');
     }
     
-    return singletonEngine;
+    return singletonEngine!;
   }
 
   /**
@@ -90,13 +105,26 @@ export class Engine {
         this.handleWorkerResponse(response);
       });
       
+      // Set up error handler
+      this.workerManager.setErrorCallback((error) => {
+        this.handleWorkerError(error);
+      });
+      
       const success = await this.workerManager.initialize();
       
       if (success) {
         this.processQueue();
+        // Signal successful initialization
+        this.resolveInitialization();
       } else {
+        const error = new Error('Engine initialization failed: Worker manager returned false');
+        this.rejectInitialization(error);
+        throw error;
       }
     } catch (error) {
+      const initError = error instanceof Error ? error : new Error(String(error));
+      this.rejectInitialization(initError);
+      throw initError;
     }
   }
 
@@ -119,6 +147,20 @@ export class Engine {
     
     // Process complete, continue with queue
     this.onRequestComplete();
+  }
+
+  /**
+   * Handles worker errors (crashes)
+   */
+  private handleWorkerError(error: Error): void {
+    logger.error('Worker crashed, cancelling all pending requests:', error);
+    
+    // Cancel all pending requests
+    this.requestManager.cancelAllRequests(`Worker error: ${error.message}`);
+    
+    // Clear the request queue
+    this.requestQueue = [];
+    this.isProcessingQueue = false;
   }
 
   /**
@@ -254,6 +296,15 @@ export class Engine {
    */
   isReady(): boolean {
     return this.workerManager.isWorkerReady();
+  }
+
+  /**
+   * Returns a promise that resolves when the engine is fully initialized,
+   * or rejects if initialization fails.
+   * @returns Promise that resolves when engine is ready
+   */
+  waitForReady(): Promise<void> {
+    return this.initializationPromise;
   }
 
   /**

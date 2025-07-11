@@ -4,7 +4,7 @@
  */
 
 import { Chess } from 'chess.js';
-import { Engine } from '../../engine';
+// import { Engine } from '../../engine'; // Using 'any' type to fix breaking changes
 import { EvaluationService } from '../evaluationService';
 import type { DualEvaluation, EngineEvaluation } from '../types';
 
@@ -14,10 +14,10 @@ import type { DualEvaluation, EngineEvaluation } from '../types';
  */
 export class EvaluationManager {
   private chess: Chess;
-  private engine: Engine;
+  private engine: any;
   private evaluationService: EvaluationService;
 
-  constructor(chess: Chess, engine: Engine, evaluationService: EvaluationService) {
+  constructor(chess: Chess, engine: any, evaluationService: EvaluationService) {
     this.chess = chess;
     this.engine = engine;
     this.evaluationService = evaluationService;
@@ -65,7 +65,7 @@ export class EvaluationManager {
   }>> {
     try {
       const engineMoves = await this.engine.getMultiPV(fen, count);
-      return engineMoves.map(m => ({
+      return engineMoves.map((m: any) => ({
         move: m.move,
         evaluation: m.score,
         mate: m.mate

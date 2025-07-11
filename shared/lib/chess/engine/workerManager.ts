@@ -26,6 +26,7 @@ export class StockfishWorkerManager {
   private readonly maxInitAttempts = ENGINE.MAX_INIT_ATTEMPTS;
   private readyCallbacks: (() => void)[] = [];
   private responseCallback: ((response: EngineResponse) => void) | null = null;
+  private errorCallback: ((error: Error) => void) | null = null;
   private workerFactory: IWorkerFactory;
   private workerPath: string;
   private allowedPaths: string[];
@@ -74,11 +75,18 @@ export class StockfishWorkerManager {
       this.worker = this.workerFactory.createWorker(this.workerPath);
       this.setupWorkerEventHandlers();
       
-      // Send UCI command to initialize
-      // Note: We need to send this directly since isReady is still false
+      // UCI Protocol Step 1: Send 'uci' command
       this.worker.postMessage('uci');
       
-      // Wait for worker to be ready
+      // Wait for 'uciok' response to confirm UCI mode
+      // TODO: Implement waitForMessage helper for proper uciok handling
+      // For now, use a small delay to allow uciok processing
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // UCI Protocol Step 2: Send 'isready' to check if engine is ready
+      this.worker.postMessage('isready');
+      
+      // Wait for 'readyok' response
       return await this.waitForReady(ENGINE.WORKER_READY_TIMEOUT);
       
     } catch (error) {
@@ -110,6 +118,13 @@ export class StockfishWorkerManager {
 
     this.worker.onerror = (e) => {
       logger.error('Worker error:', e);
+      
+      // Notify the error callback if set
+      if (this.errorCallback) {
+        const errorMessage = e.message || 'Worker crashed';
+        this.errorCallback(new Error(errorMessage));
+      }
+      
       this.cleanup();
     };
 
@@ -248,6 +263,13 @@ export class StockfishWorkerManager {
    */
   setResponseCallback(callback: (response: EngineResponse) => void): void {
     this.responseCallback = callback;
+  }
+
+  /**
+   * Sets the error callback for worker errors
+   */
+  setErrorCallback(callback: (error: Error) => void): void {
+    this.errorCallback = callback;
   }
 
   /**

@@ -13,7 +13,6 @@
 
 import { Chess } from 'chess.js';
 import { engine } from '../engine/singleton';
-import type { Engine } from '../engine';
 import { EvaluationService } from './evaluationService';
 import { TablebaseService } from './tablebaseService';
 import {
@@ -42,7 +41,7 @@ import type {
 export class ScenarioEngine {
   private chess: Chess;
   private initialFen: string;
-  private engine: Engine;
+  private engine: typeof engine;
   private evaluationService: EvaluationService;
   private tablebaseService: TablebaseService;
   

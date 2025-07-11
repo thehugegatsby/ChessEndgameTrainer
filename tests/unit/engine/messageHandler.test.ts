@@ -85,10 +85,10 @@ describe('StockfishMessageHandler', () => {
   });
 
   describe('UCI protocol handling', () => {
-    it('should recognize uciok message and return ready response', () => {
+    it('should recognize uciok message and set UCI ready flag', () => {
       const response = handler.handleMessage('uciok');
       
-      expect(response).toEqual({ type: 'ready' });
+      expect(response).toBeNull(); // uciok doesn't trigger ready, only readyok does
       expect(handler.isUciReady()).toBe(true);
     });
 
@@ -99,7 +99,7 @@ describe('StockfishMessageHandler', () => {
     });
 
     it('should handle messages with extra whitespace', () => {
-      const response = handler.handleMessage('  uciok  \n');
+      const response = handler.handleMessage('  readyok  \n');
       
       expect(response).toEqual({ type: 'ready' });
     });

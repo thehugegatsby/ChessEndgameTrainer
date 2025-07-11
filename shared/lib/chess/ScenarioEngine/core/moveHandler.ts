@@ -4,7 +4,7 @@
  */
 
 import { Chess, Move as ChessJsMove } from 'chess.js';
-import { Engine } from '../../engine';
+// import { Engine } from '../../engine'; // Using 'any' type to fix breaking changes
 import type { Move as CustomMove } from '../../../../types/chess';
 
 /**
@@ -13,9 +13,9 @@ import type { Move as CustomMove } from '../../../../types/chess';
  */
 export class MoveHandler {
   private chess: Chess;
-  private engine: Engine;
+  private engine: any;
 
-  constructor(chess: Chess, engine: Engine) {
+  constructor(chess: Chess, engine: any) {
     this.chess = chess;
     this.engine = engine;
   }

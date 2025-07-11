@@ -54,7 +54,7 @@ export class StockfishMessageHandler {
       // Handle UCI protocol responses
       if (trimmed === 'uciok') {
         this.uciReady = true;
-        return { type: 'ready' };
+        return null; // Don't signal ready yet, wait for readyok
       }
       
       if (trimmed === 'readyok') {

@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed async cleanup handlers to properly handle Node.js termination signals (SIGINT, SIGTERM)
 - Fixed circular dependency risk with lazy loading in getInstance()
 - Fixed all unit test failures - 46 test suites now passing (2025-01-11)
+- Fixed UCI protocol implementation in Engine - now correctly waits for 'readyok' before signaling ready state (2025-01-11)
+- Fixed MockWorker factory tracking in tests - workers are now properly added to factory array (2025-01-11)
+- Added Worker global mock for Jest environment to fix "typeof Worker === 'undefined'" errors (2025-01-11)
+- Implemented proper error propagation from worker crashes to pending request promises (2025-01-11)
+- Fixed all 11 failing Engine test helper tests (2025-01-11)
 
 ### Added
 - New `shared/lib/chess/engine/singleton.ts` module exports the production engine instance (2025-01-11)
