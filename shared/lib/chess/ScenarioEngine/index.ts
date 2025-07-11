@@ -13,6 +13,7 @@
 
 import { Chess } from 'chess.js';
 import { engine } from '../engine/singleton';
+import type { Engine } from '../engine';
 import { EvaluationService } from './evaluationService';
 import { TablebaseService } from './tablebaseService';
 import {

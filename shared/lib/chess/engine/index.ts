@@ -13,6 +13,7 @@
 
 import { Move as ChessJsMove } from 'chess.js';
 import type { EngineEvaluation, EngineRequest, EngineResponse, EngineConfig } from './types';
+import type { IWorkerFactory, WorkerConfig } from './interfaces';
 import { StockfishWorkerManager } from './workerManager';
 import { RequestManager } from './requestManager';
 import { Logger } from '@shared/services/logging/Logger';
@@ -49,9 +50,15 @@ export class Engine {
   /**
    * Public constructor for flexible instantiation
    * @param config - Optional engine configuration
+   * @param workerConfig - Optional worker configuration for dependency injection
    */
-  public constructor(config?: EngineConfig) {
-    this.workerManager = new StockfishWorkerManager(config);
+  public constructor(config?: EngineConfig, workerConfig?: WorkerConfig) {
+    this.workerManager = new StockfishWorkerManager(
+      config,
+      workerConfig?.workerFactory,
+      workerConfig?.workerPath,
+      workerConfig?.allowedPaths
+    );
     this.requestManager = new RequestManager();
     this.initializeEngine();
   }
@@ -342,4 +349,6 @@ export class Engine {
 }
 
 // Re-export types for convenience
-export type { EngineEvaluation, EngineConfig } from './types'; 
+export type { EngineEvaluation, EngineConfig } from './types';
+export type { IWorker, IWorkerFactory, WorkerConfig } from './interfaces';
+export { DefaultWorkerFactory } from './interfaces'; 

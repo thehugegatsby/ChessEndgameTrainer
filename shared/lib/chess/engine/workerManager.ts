@@ -7,6 +7,8 @@
 
 import { StockfishMessageHandler } from './messageHandler';
 import type { EngineConfig, EngineResponse } from './types';
+import type { IWorker, IWorkerFactory } from './interfaces';
+import { DefaultWorkerFactory } from './interfaces';
 import { getLogger } from '../../../services/logging';
 import { ENGINE } from '@shared/constants';
 
@@ -17,16 +19,27 @@ const logger = getLogger();
  * Mobile-optimized with retry logic and error handling
  */
 export class StockfishWorkerManager {
-  private worker: Worker | null = null;
+  private worker: IWorker | null = null;
   private messageHandler: StockfishMessageHandler;
   private isReady = false;
   private initializationAttempts = 0;
   private readonly maxInitAttempts = ENGINE.MAX_INIT_ATTEMPTS;
   private readyCallbacks: (() => void)[] = [];
   private responseCallback: ((response: EngineResponse) => void) | null = null;
+  private workerFactory: IWorkerFactory;
+  private workerPath: string;
+  private allowedPaths: string[];
 
-  constructor(private config: EngineConfig = this.getDefaultConfig()) {
+  constructor(
+    private config: EngineConfig = this.getDefaultConfig(),
+    workerFactory?: IWorkerFactory,
+    workerPath: string = '/stockfish.js',
+    allowedPaths: string[] = ['/stockfish.js', '/worker/stockfish.js']
+  ) {
     this.messageHandler = new StockfishMessageHandler();
+    this.workerFactory = workerFactory || new DefaultWorkerFactory();
+    this.workerPath = workerPath;
+    this.allowedPaths = allowedPaths;
   }
 
   /**
@@ -47,14 +60,13 @@ export class StockfishWorkerManager {
 
     try {
       // Validate worker path to prevent script injection attacks
-      const workerPath = '/stockfish.js';
-      const allowedPaths = ['/stockfish.js', '/worker/stockfish.js'];
-      
-      if (!allowedPaths.includes(workerPath) || workerPath.includes('../') || workerPath.includes('..\\')) {
+      if (!this.allowedPaths.includes(this.workerPath) || 
+          this.workerPath.includes('../') || 
+          this.workerPath.includes('..\\')) {
         throw new Error('Invalid worker path - potential security risk');
       }
       
-      this.worker = new Worker(workerPath);
+      this.worker = this.workerFactory.createWorker(this.workerPath);
       this.setupWorkerEventHandlers();
       
       // Send UCI command to initialize
