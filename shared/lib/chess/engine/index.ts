@@ -58,6 +58,35 @@ export class Engine {
    * @param workerConfig - Optional worker configuration for dependency injection
    */
   public constructor(engineConfig?: EngineConfig, workerConfig?: WorkerConfig) {
+    // Simple validation for engineConfig
+    if (engineConfig) {
+      if (engineConfig.maxDepth !== undefined && engineConfig.maxDepth <= 0) {
+        throw new TypeError('maxDepth must be positive');
+      }
+      if (engineConfig.maxTime !== undefined && engineConfig.maxTime <= 0) {
+        throw new TypeError('maxTime must be positive');
+      }
+      if (engineConfig.maxNodes !== undefined && engineConfig.maxNodes <= 0) {
+        throw new TypeError('maxNodes must be positive');
+      }
+      if (engineConfig.useThreads !== undefined && engineConfig.useThreads !== 1) {
+        throw new TypeError('useThreads must be 1 for mobile');
+      }
+      if (engineConfig.hashSize !== undefined && (engineConfig.hashSize <= 0 || engineConfig.hashSize > 128)) {
+        throw new TypeError('hashSize must be between 1 and 128 MB');
+      }
+      if (engineConfig.skillLevel !== undefined && (engineConfig.skillLevel < 0 || engineConfig.skillLevel > 20)) {
+        throw new TypeError('skillLevel must be between 0 and 20');
+      }
+    }
+    
+    // Simple validation for workerConfig
+    if (workerConfig) {
+      if (workerConfig.workerPath && workerConfig.workerPath.includes('../')) {
+        throw new TypeError('workerPath cannot contain "../"');
+      }
+    }
+    
     // Now we just pass the objects through. Much cleaner.
     this.workerManager = new StockfishWorkerManager(engineConfig, workerConfig);
     this.requestManager = new RequestManager();

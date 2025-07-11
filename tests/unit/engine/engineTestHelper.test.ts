@@ -12,7 +12,7 @@ import {
   engineTestUtils,
 } from '../../helpers/engineTestHelper';
 import { MockWorker } from '../../helpers/mockWorker';
-import { Engine } from '@shared/lib/chess/engine';
+import { Engine } from '@shared/lib/chess/engine/index';
 
 // Use the test utilities
 engineTestUtils.describeEngine('Engine Test Helper', () => {

@@ -23,6 +23,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added Worker global mock for Jest environment to fix "typeof Worker === 'undefined'" errors (2025-01-11)
 - Implemented proper error propagation from worker crashes to pending request promises (2025-01-11)
 - Fixed all 11 failing Engine test helper tests (2025-01-11)
+- Fixed Engine constructor validation - now properly validates engineConfig and workerConfig parameters (2025-07-11)
+- Fixed test architecture mismatch by updating imports from old Engine path to new modular Engine (2025-07-11)
+
+### Removed
+- Deleted outdated test files that were mocking non-existent Engine module (2025-07-11)
+  - `tests/unit/engine/ScenarioEngine.test.ts` - 700+ lines of tests using old architecture
+  - `tests/unit/engine/EvaluationService.test.ts` - 406 lines of outdated dependency injection tests
+  - `tests/unit/chess/mistakeCheck.test.ts` - 275 lines with incorrect module mocks
+  - `tests/unit/engine/workerManager.test.ts` - Incompatible with new singleton pattern
 
 ### Added
 - New `shared/lib/chess/engine/singleton.ts` module exports the production engine instance (2025-01-11)
