@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { EndgamePosition } from '@shared/data/endgames/index';
+import { EndgamePosition } from '@shared/types';
 
 interface TrainingControlsProps {
   position: EndgamePosition;

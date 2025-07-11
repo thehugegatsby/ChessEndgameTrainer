@@ -1,6 +1,6 @@
-import { doc, getDoc, collection, getDocs, query, where, Query, DocumentData } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, query, where, Query, DocumentData, orderBy, limit } from 'firebase/firestore';
 import { db } from '@shared/lib/firebase';
-import { EndgamePosition, EndgameCategory } from '@shared/types';
+import { EndgamePosition, EndgameCategory, EndgameChapter } from '@shared/types';
 import { getLogger } from '@shared/services/logging';
 import { validateAndSanitizeFen } from '@shared/utils/fenValidator';
 
@@ -205,6 +205,188 @@ export class PositionService {
       size: this.cache.size,
       keys: Array.from(this.cache.keys())
     };
+  }
+
+  /**
+   * Get all categories
+   */
+  async getCategories(): Promise<EndgameCategory[]> {
+    try {
+      const categoriesRef = collection(db, 'categories');
+      const snapshot = await getDocs(categoriesRef);
+      
+      const categories: EndgameCategory[] = [];
+      snapshot.forEach((doc) => {
+        categories.push(doc.data() as EndgameCategory);
+      });
+      
+      return categories;
+    } catch (error) {
+      logger.error('Failed to fetch categories:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get all chapters
+   */
+  async getChapters(): Promise<EndgameChapter[]> {
+    try {
+      const chaptersRef = collection(db, 'chapters');
+      const snapshot = await getDocs(chaptersRef);
+      
+      const chapters: EndgameChapter[] = [];
+      snapshot.forEach((doc) => {
+        chapters.push(doc.data() as EndgameChapter);
+      });
+      
+      return chapters;
+    } catch (error) {
+      logger.error('Failed to fetch chapters:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get chapters by category
+   */
+  async getChaptersByCategory(categoryId: string): Promise<EndgameChapter[]> {
+    try {
+      const chaptersRef = collection(db, 'chapters');
+      const q = query(chaptersRef, where('category', '==', categoryId));
+      const snapshot = await getDocs(q);
+      
+      const chapters: EndgameChapter[] = [];
+      snapshot.forEach((doc) => {
+        chapters.push(doc.data() as EndgameChapter);
+      });
+      
+      return chapters;
+    } catch (error) {
+      logger.error(`Failed to fetch chapters for category ${categoryId}:`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Get next position in sequence (for navigation)
+   */
+  async getNextPosition(currentId: number, categoryId?: string): Promise<EndgamePosition | null> {
+    try {
+      const positionsRef = collection(db, 'positions');
+      let q;
+      
+      if (categoryId) {
+        // Next in same category
+        q = query(
+          positionsRef,
+          where('category', '==', categoryId),
+          where('id', '>', currentId),
+          orderBy('id'),
+          limit(1)
+        );
+      } else {
+        // Next overall
+        q = query(
+          positionsRef,
+          where('id', '>', currentId),
+          orderBy('id'),
+          limit(1)
+        );
+      }
+      
+      const snapshot = await getDocs(q);
+      if (!snapshot.empty) {
+        const position = snapshot.docs[0].data() as EndgamePosition;
+        if (position.fen) {
+          const validation = validateAndSanitizeFen(position.fen);
+          if (validation.isValid) {
+            position.fen = validation.sanitized;
+            return position;
+          }
+        }
+      }
+      
+      return null;
+    } catch (error) {
+      logger.error('Failed to get next position:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get previous position in sequence (for navigation)
+   */
+  async getPreviousPosition(currentId: number, categoryId?: string): Promise<EndgamePosition | null> {
+    try {
+      const positionsRef = collection(db, 'positions');
+      let q;
+      
+      if (categoryId) {
+        // Previous in same category
+        q = query(
+          positionsRef,
+          where('category', '==', categoryId),
+          where('id', '<', currentId),
+          orderBy('id', 'desc'),
+          limit(1)
+        );
+      } else {
+        // Previous overall
+        q = query(
+          positionsRef,
+          where('id', '<', currentId),
+          orderBy('id', 'desc'),
+          limit(1)
+        );
+      }
+      
+      const snapshot = await getDocs(q);
+      if (!snapshot.empty) {
+        const position = snapshot.docs[0].data() as EndgamePosition;
+        if (position.fen) {
+          const validation = validateAndSanitizeFen(position.fen);
+          if (validation.isValid) {
+            position.fen = validation.sanitized;
+            return position;
+          }
+        }
+      }
+      
+      return null;
+    } catch (error) {
+      logger.error('Failed to get previous position:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get total position count
+   */
+  async getTotalPositionCount(): Promise<number> {
+    try {
+      const positionsRef = collection(db, 'positions');
+      const snapshot = await getDocs(positionsRef);
+      return snapshot.size;
+    } catch (error) {
+      logger.error('Failed to get position count:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Get position count by category
+   */
+  async getPositionCountByCategory(categoryId: string): Promise<number> {
+    try {
+      const positionsRef = collection(db, 'positions');
+      const q = query(positionsRef, where('category', '==', categoryId));
+      const snapshot = await getDocs(q);
+      return snapshot.size;
+    } catch (error) {
+      logger.error(`Failed to get position count for category ${categoryId}:`, error);
+      return 0;
+    }
   }
 }
 

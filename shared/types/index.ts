@@ -11,16 +11,7 @@ export * from './analysisTypes';
 export * from './evaluation';
 
 // Endgame types
-export type { 
-  EndgamePosition, 
-  EndgameCategory, 
-  EndgameChapter,
-  EndgameSubcategory,
-  TrainingSession,
-  UserProgress,
-  MobileAppConfig,
-  TrainingAnalytics
-} from '../data/endgames/types';
+export * from './endgame';
 
 // Re-export for backwards compatibility
 export type { Move } from './chess';
