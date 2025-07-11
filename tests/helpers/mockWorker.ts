@@ -47,11 +47,15 @@ export class MockWorker implements IWorker {
 
   /**
    * Processes a message and generates appropriate response
+   * 
+   * TODO: Consider supporting regex or function-based matching for more
+   * complex test scenarios. Current implementation uses simple string
+   * prefix matching which works well for Stockfish UCI protocol.
    */
   private processMessage(message: string): void {
     if (this.isTerminated || !this.onmessage) return;
 
-    // Check for exact match first
+    // Check for exact match first (fastest and most specific)
     if (this.responses.has(message)) {
       const responses = this.responses.get(message)!;
       responses.forEach(response => {
@@ -60,9 +64,14 @@ export class MockWorker implements IWorker {
       return;
     }
 
-    // Check for prefix match (e.g., "go movetime 1000" matches "go movetime")
-    for (const [prefix, responses] of this.responses) {
+    // For prefix matching, sort keys by length descending.
+    // This ensures a more specific prefix like "go movetime" is checked
+    // before a generic one like "go".
+    const sortedPrefixes = [...this.responses.keys()].sort((a, b) => b.length - a.length);
+
+    for (const prefix of sortedPrefixes) {
       if (message.startsWith(prefix)) {
+        const responses = this.responses.get(prefix)!;
         responses.forEach(response => {
           this.sendResponse(response);
         });

@@ -49,16 +49,12 @@ export class Engine {
 
   /**
    * Public constructor for flexible instantiation
-   * @param config - Optional engine configuration
+   * @param engineConfig - Optional engine configuration
    * @param workerConfig - Optional worker configuration for dependency injection
    */
-  public constructor(config?: EngineConfig, workerConfig?: WorkerConfig) {
-    this.workerManager = new StockfishWorkerManager(
-      config,
-      workerConfig?.workerFactory,
-      workerConfig?.workerPath,
-      workerConfig?.allowedPaths
-    );
+  public constructor(engineConfig?: EngineConfig, workerConfig?: WorkerConfig) {
+    // Now we just pass the objects through. Much cleaner.
+    this.workerManager = new StockfishWorkerManager(engineConfig, workerConfig);
     this.requestManager = new RequestManager();
     this.initializeEngine();
   }

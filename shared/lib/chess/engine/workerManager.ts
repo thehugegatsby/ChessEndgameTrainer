@@ -7,7 +7,7 @@
 
 import { StockfishMessageHandler } from './messageHandler';
 import type { EngineConfig, EngineResponse } from './types';
-import type { IWorker, IWorkerFactory } from './interfaces';
+import type { IWorker, IWorkerFactory, WorkerConfig } from './interfaces';
 import { DefaultWorkerFactory } from './interfaces';
 import { getLogger } from '../../../services/logging';
 import { ENGINE } from '@shared/constants';
@@ -31,13 +31,18 @@ export class StockfishWorkerManager {
   private allowedPaths: string[];
 
   constructor(
-    private config: EngineConfig = this.getDefaultConfig(),
-    workerFactory?: IWorkerFactory,
-    workerPath: string = '/stockfish.js',
-    allowedPaths: string[] = ['/stockfish.js', '/worker/stockfish.js']
+    private engineConfig: EngineConfig = this.getDefaultConfig(),
+    workerConfig: WorkerConfig = {}
   ) {
+    // Use destructuring with default values for clean, robust handling
+    const {
+      workerFactory = new DefaultWorkerFactory(),
+      workerPath = '/stockfish.js',
+      allowedPaths = ['/stockfish.js', '/worker/stockfish.js']
+    } = workerConfig;
+
     this.messageHandler = new StockfishMessageHandler();
-    this.workerFactory = workerFactory || new DefaultWorkerFactory();
+    this.workerFactory = workerFactory;
     this.workerPath = workerPath;
     this.allowedPaths = allowedPaths;
   }
@@ -218,15 +223,15 @@ export class StockfishWorkerManager {
    * Updates engine configuration
    */
   updateConfig(newConfig: Partial<EngineConfig>): void {
-    this.config = { ...this.config, ...newConfig };
+    this.engineConfig = { ...this.engineConfig, ...newConfig };
     
     // Send configuration to engine if ready
     if (this.isWorkerReady()) {
-      this.sendCommand(`setoption name Hash value ${this.config.hashSize}`);
-      this.sendCommand(`setoption name Threads value ${this.config.useThreads}`);
+      this.sendCommand(`setoption name Hash value ${this.engineConfig.hashSize}`);
+      this.sendCommand(`setoption name Threads value ${this.engineConfig.useThreads}`);
       
-      if (this.config.skillLevel !== undefined) {
-        this.sendCommand(`setoption name Skill Level value ${this.config.skillLevel}`);
+      if (this.engineConfig.skillLevel !== undefined) {
+        this.sendCommand(`setoption name Skill Level value ${this.engineConfig.skillLevel}`);
       }
     }
   }
@@ -235,7 +240,7 @@ export class StockfishWorkerManager {
    * Gets current configuration
    */
   getConfig(): EngineConfig {
-    return { ...this.config };
+    return { ...this.engineConfig };
   }
 
   /**
