@@ -11,13 +11,8 @@
  */
 
 // Skip this test as the config-adapter is in quarantined E2E folder
-describe.skip('config-adapter', () => {
-  it('should be tested when config-adapter is moved out of quarantined folder', () => {
-    expect(true).toBe(true);
-  });
-});
+// Config adapter tests - now properly co-located with E2E utilities
 
-/*
 import {
   createGamePlayerConfig,
   createGamePlayerConfigCached,
@@ -25,9 +20,8 @@ import {
   isCompleteModernDriverConfig,
   ensureCompleteConfig,
   GamePlayerConfig
-} from '../../e2e/utils/config-adapter';
-*/
-import { ModernDriverConfig } from '../../e2e/components/ModernDriver';
+} from './config-adapter';
+import { ModernDriverConfig } from '../components/ModernDriver';
 import { ILogger } from '../../../shared/services/logging/types';
 import { noopLogger } from '../../shared/logger-utils';
 
@@ -104,7 +98,7 @@ class ConfigTestBuilder {
   }
 }
 
-describe.skip('isCompleteModernDriverConfig', () => {
+describe('isCompleteModernDriverConfig', () => {
   describe('positive cases', () => {
     it('should return true for complete config', () => {
       const config = ConfigTestBuilder.create().withDefaults().build();
@@ -187,7 +181,7 @@ describe.skip('isCompleteModernDriverConfig', () => {
   });
 });
 
-describe.skip('ensureCompleteConfig', () => {
+describe('ensureCompleteConfig', () => {
   describe('default application', () => {
     it('should return unchanged config when all fields present', () => {
       const input = ConfigTestBuilder.create().withDefaults().build();
@@ -263,7 +257,7 @@ describe.skip('ensureCompleteConfig', () => {
   });
 });
 
-describe.skip('createGamePlayerConfig', () => {
+describe('createGamePlayerConfig', () => {
   describe('transformation correctness', () => {
     it('should correctly transform complete config - happy path', () => {
       const input = ConfigTestBuilder.create().withDefaults().buildRequired();
@@ -371,7 +365,7 @@ describe.skip('createGamePlayerConfig', () => {
   });
 });
 
-describe.skip('createGamePlayerConfigCached', () => {
+describe('createGamePlayerConfigCached', () => {
   describe('caching behavior using internal DI function', () => {
     it('should cache result based on object reference', () => {
       const config = ConfigTestBuilder.create().withDefaults().buildRequired();
