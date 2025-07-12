@@ -244,13 +244,13 @@ export class TestApiClient {
   }
 
   /**
-   * Firebase-specific methods
+   * Firebase-specific methods using new architecture
    */
   
   /**
    * Setup Firebase test environment
    */
-  async setupFirebase(): Promise<{ success: boolean }> {
+  async setupFirebase(): Promise<{ success: boolean; message: string; timestamp: string }> {
     const response = await this.request.post(`${this.baseUrl}/e2e/firebase/setup`);
     
     if (!response.ok()) {
@@ -264,7 +264,7 @@ export class TestApiClient {
   /**
    * Clear Firestore data
    */
-  async clearFirestore(): Promise<{ success: boolean }> {
+  async clearFirestore(): Promise<{ success: boolean; message: string; timestamp: string }> {
     const response = await this.request.post(`${this.baseUrl}/e2e/firebase/clear`);
     
     if (!response.ok()) {
@@ -306,18 +306,250 @@ export class TestApiClient {
   }
 
   /**
-   * Create Firebase test user
+   * Create Firebase test user using template
    */
-  async createUser(email: string, password: string): Promise<{ success: boolean; user: any }> {
+  async createFirebaseUser(options: {
+    template?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT';
+    overrides?: {
+      email?: string;
+      displayName?: string;
+      customClaims?: Record<string, any>;
+    };
+  } = {}): Promise<{ success: boolean; user: any; progressEntries: number }> {
     const response = await this.request.post(`${this.baseUrl}/e2e/firebase/create-user`, {
-      data: { email, password }
+      data: options
     });
     
     if (!response.ok()) {
       const error = await response.text();
-      throw new Error(`Failed to create user: ${error}`);
+      throw new Error(`Failed to create Firebase user: ${error}`);
     }
     
     return response.json();
+  }
+
+  /**
+   * Seed test scenario using new architecture
+   */
+  async seedFirebaseScenario(
+    scenario: 'empty' | 'basic' | 'advanced' | 'edge-cases',
+    options?: { userCount?: number; includeProgress?: boolean }
+  ): Promise<{ success: boolean; scenario: string; seeded: any; users: any[] }> {
+    const response = await this.request.post(`${this.baseUrl}/e2e/firebase/seed-scenario`, {
+      data: { scenario, options }
+    });
+    
+    if (!response.ok()) {
+      const error = await response.text();
+      throw new Error(`Failed to seed scenario: ${error}`);
+    }
+    
+    return response.json();
+  }
+
+  /**
+   * Get Firebase emulator status
+   */
+  async getFirebaseStatus(): Promise<{ 
+    success: boolean; 
+    status: string; 
+    collections: Record<string, number>;
+    timestamp: string;
+  }> {
+    const response = await this.request.get(`${this.baseUrl}/e2e/firebase/status`);
+    
+    if (!response.ok()) {
+      const error = await response.text();
+      throw new Error(`Failed to get Firebase status: ${error}`);
+    }
+    
+    return response.json();
+  }
+
+  /**
+   * Verify Firebase data integrity
+   */
+  async verifyFirebaseIntegrity(): Promise<{
+    success: boolean;
+    integrity: 'good' | 'issues_found';
+    counts: Record<string, number>;
+    issues: string[];
+    timestamp: string;
+  }> {
+    const response = await this.request.get(`${this.baseUrl}/e2e/firebase/verify-integrity`);
+    
+    if (!response.ok()) {
+      const error = await response.text();
+      throw new Error(`Failed to verify Firebase integrity: ${error}`);
+    }
+    
+    return response.json();
+  }
+
+  /**
+   * Batch seed custom data
+   */
+  async seedFirebaseBatch(data: {
+    positions?: EndgamePosition[];
+    categories?: any[];
+    chapters?: any[];
+    users?: Array<{
+      template?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT';
+      overrides?: { email?: string; displayName?: string; };
+    }>;
+  }): Promise<{ success: boolean; results: Record<string, number> }> {
+    const response = await this.request.post(`${this.baseUrl}/e2e/firebase/seed-batch`, {
+      data
+    });
+    
+    if (!response.ok()) {
+      const error = await response.text();
+      throw new Error(`Failed to batch seed Firebase data: ${error}`);
+    }
+    
+    return response.json();
+  }
+
+  /**
+   * Advanced batch seed with progress tracking and comprehensive validation
+   */
+  async seedFirebaseBatchAdvanced(data: {
+    positions?: EndgamePosition[];
+    categories?: any[];
+    chapters?: any[];
+    users?: Array<{
+      template?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT';
+      overrides?: { email?: string; displayName?: string; customClaims?: Record<string, any>; };
+    }>;
+    options?: {
+      validateData?: boolean;
+      clearExisting?: boolean;
+      enableRetries?: boolean;
+      parallelism?: number;
+      transactional?: boolean;
+      skipValidation?: boolean;
+      includeUsers?: boolean;
+      userOptions?: {
+        templates?: Array<'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT'>;
+        customClaims?: Record<string, any>;
+      };
+    };
+  }): Promise<{
+    success: boolean;
+    results: Record<string, number>;
+    errors: Array<{ operation: string; error: string; data?: any }>;
+    duration: number;
+    progress: {
+      total: number;
+      completed: number;
+      failed: number;
+      percentage: number;
+      estimatedTimeRemaining: number;
+      currentOperation: string;
+    };
+    timestamp: string;
+  }> {
+    const response = await this.request.post(`${this.baseUrl}/e2e/firebase/seed-batch-advanced`, {
+      data
+    });
+    
+    if (!response.ok()) {
+      const error = await response.text();
+      throw new Error(`Failed to perform advanced batch seed: ${error}`);
+    }
+    
+    return response.json();
+  }
+
+  /**
+   * Advanced scenario seeding with enhanced options
+   */
+  async seedFirebaseScenarioAdvanced(
+    scenario: 'empty' | 'basic' | 'advanced' | 'edge-cases',
+    options?: {
+      userCount?: number;
+      includeProgress?: boolean;
+      validateData?: boolean;
+      clearExisting?: boolean;
+      enableRetries?: boolean;
+      parallelism?: number;
+      transactional?: boolean;
+      skipValidation?: boolean;
+      includeUsers?: boolean;
+      userOptions?: {
+        templates?: Array<'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT'>;
+        customClaims?: Record<string, any>;
+      };
+    }
+  ): Promise<{
+    success: boolean;
+    results: Record<string, number>;
+    errors: Array<{ operation: string; error: string; data?: any }>;
+    duration: number;
+    progress: {
+      total: number;
+      completed: number;
+      failed: number;
+      percentage: number;
+      estimatedTimeRemaining: number;
+      currentOperation: string;
+    };
+    timestamp: string;
+  }> {
+    const response = await this.request.post(`${this.baseUrl}/e2e/firebase/seed-scenario-advanced`, {
+      data: {
+        scenario,
+        options
+      }
+    });
+    
+    if (!response.ok()) {
+      const error = await response.text();
+      throw new Error(`Failed to perform advanced scenario seed: ${error}`);
+    }
+    
+    return response.json();
+  }
+
+  /**
+   * Get comprehensive seeding statistics and performance metrics
+   */
+  async getFirebaseSeedingStatistics(): Promise<{
+    success: boolean;
+    statistics: {
+      collections: Record<string, number>;
+      totalDocuments: number;
+      lastSeeded: Date | null;
+      performance: {
+        averageDocumentsPerSecond: number;
+        estimatedSeedingTime: number;
+      };
+    };
+    timestamp: string;
+  }> {
+    const response = await this.request.get(`${this.baseUrl}/e2e/firebase/seeding-statistics`);
+    
+    if (!response.ok()) {
+      const error = await response.text();
+      throw new Error(`Failed to get Firebase seeding statistics: ${error}`);
+    }
+    
+    return response.json();
+  }
+
+  /**
+   * Legacy method for backward compatibility
+   */
+  async createUser(email: string, password: string): Promise<{ success: boolean; user: any }> {
+    console.warn('createUser is deprecated, use createFirebaseUser instead');
+    
+    const result = await this.createFirebaseUser({
+      overrides: { email }
+    });
+    
+    return {
+      success: result.success,
+      user: result.user
+    };
   }
 }

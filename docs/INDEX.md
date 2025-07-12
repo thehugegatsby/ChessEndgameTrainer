@@ -25,6 +25,7 @@ Welcome to the Chess Endgame Trainer documentation. This index provides a compre
 - **[TESTING-ARCHITECTURE.md](TESTING-ARCHITECTURE.md)** - Enterprise test architecture with Page Object Model, Test API, and advanced testing capabilities
 - **[TEST-IMPLEMENTATION-GUIDE.md](TEST-IMPLEMENTATION-GUIDE.md)** - Practical guide for writing tests using the new architecture
 - **[E2E_TEST_ARCHITECTURE.md](E2E_TEST_ARCHITECTURE.md)** - E2E test architecture with ModernDriver and Component Object Model
+- **[FIREBASE-TEST-INFRASTRUCTURE.md](FIREBASE-TEST-INFRASTRUCTURE.md)** - Firebase emulator integration, test fixtures, and isolation testing
 - **[testing/COVERAGE_GUIDE.md](testing/COVERAGE_GUIDE.md)** - Test coverage requirements and tools
 - **[testing/TEST_UTILITIES.md](testing/TEST_UTILITIES.md)** - Centralized test utilities (logger mocks, config adapters)
 
@@ -95,6 +96,6 @@ To find specific information:
 
 ---
 
-Last updated: 2025-01-11
+Last updated: 2025-07-12
 
 For documentation issues or suggestions, please open an issue on GitHub.

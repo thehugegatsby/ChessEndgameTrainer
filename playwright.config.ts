@@ -113,6 +113,7 @@ const config = {
   
   // Global setup and teardown
   globalSetup: require.resolve('./tests/e2e/global-setup.ts'),
+  globalTeardown: require.resolve('./tests/e2e/global-teardown.ts'),
   
   // Web server configuration - simplified to just Next.js dev server
   // IMPORTANT: Playwright expects EITHER 'port' OR 'url', not both!

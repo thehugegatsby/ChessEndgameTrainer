@@ -7,6 +7,7 @@ import express from 'express';
 import cors from 'cors';
 import { testAdmin } from './firebase-admin-helpers';
 import { EndgamePosition } from '@shared/types/endgame';
+import firebaseRoutes from '../api/firebase-routes';
 
 export class TestApiServer {
   private app: express.Application;
@@ -39,75 +40,8 @@ export class TestApiServer {
       res.json({ status: 'ok', environment: 'test' });
     });
 
-    // Firebase test data management endpoints
-    this.app.post('/e2e/firebase/setup', async (req, res) => {
-      try {
-        // Admin SDK is already initialized in start()
-        res.json({ success: true });
-      } catch (error) {
-        res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
-      }
-    });
-
-    this.app.post('/e2e/firebase/clear', async (req, res) => {
-      try {
-        await testAdmin.clearAllData();
-        res.json({ success: true });
-      } catch (error) {
-        res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
-      }
-    });
-
-    this.app.post('/e2e/firebase/seed-positions', async (req, res) => {
-      try {
-        const { positions } = req.body;
-        const db = testAdmin.getDb();
-        const batch = db.batch();
-        
-        positions.forEach((position: EndgamePosition) => {
-          const docRef = db.collection('positions').doc(position.id.toString());
-          batch.set(docRef, position);
-        });
-        
-        await batch.commit();
-        res.json({ success: true });
-      } catch (error) {
-        res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
-      }
-    });
-
-    this.app.post('/e2e/firebase/seed-all', async (req, res) => {
-      try {
-        await testAdmin.createTestScenario('basic');
-        res.json({ success: true });
-      } catch (error) {
-        res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
-      }
-    });
-
-    this.app.post('/e2e/firebase/create-user', async (req, res) => {
-      try {
-        const { email, password } = req.body;
-        const db = testAdmin.getDb();
-        const mockUid = 'test-user-' + Date.now();
-        
-        await db.collection('users').doc(mockUid).set({
-          uid: mockUid,
-          email: email,
-          displayName: email.split('@')[0],
-          createdAt: new Date(),
-          settings: {
-            theme: 'light',
-            soundEnabled: true,
-            autoPlay: false
-          }
-        });
-        
-        res.json({ success: true, user: { uid: mockUid, email } });
-      } catch (error) {
-        res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
-      }
-    });
+    // Mount Firebase routes using new architecture
+    this.app.use('/e2e/firebase', firebaseRoutes);
 
     // Make a move directly in database
     this.app.post('/e2e/make-move', async (req, res) => {
