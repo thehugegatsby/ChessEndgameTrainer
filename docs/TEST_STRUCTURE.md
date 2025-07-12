@@ -7,8 +7,8 @@ This document provides a comprehensive overview of the test structure and recent
 
 ### Overall Progress
 - **Initial Coverage**: 37.47% statements, 28.75% branches
-- **Current Coverage**: 47.85% statements, 39.32% branches  
-- **Improvement**: +10.38% statement coverage
+- **Current Coverage**: 48.69% statements, 40.25% branches  
+- **Improvement**: +11.22% statement coverage
 
 ### Coverage by Service
 | Service | Coverage | Tests | Description |
@@ -18,6 +18,7 @@ This document provides a comprehensive overview of the test structure and recent
 | **EvaluationService** | 93.82% | 22 tests | Perspective correction, dual evaluation |
 | **MistakeAnalyzer** | 96.93% | 47 tests | Adaptive thresholds, explanations |
 | **TablebaseClassifier** | 97.29% | 49 tests | Tablebase-first classification |
+| **Store** | 82.27% | 38 tests | Navigation, async, error handling |
 
 ## Test Directory Structure
 

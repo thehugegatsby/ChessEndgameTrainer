@@ -8,13 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Comprehensive Store unit test coverage improvements (2025-07-12)
+  - Store Navigation Tests: Complete coverage for goToMove, goToFirst, goToNext, goToLast
+  - Store Error Handling Tests: FEN validation, makeMove errors, toggleFavorite
+  - Store Async Tests: loadTrainingContext with success/error scenarios
+  - Store coverage improved from 69.23% to 82.27% (+13.04%)
+  - Overall test coverage improved from 37.47% to 48.69% (+11.22%)
 - Comprehensive unit test coverage improvements (2025-07-12)
   - EngineService: 89.33% coverage with singleton pattern testing
   - ScenarioEngine Core: 100% coverage across all modules
   - EvaluationService: 93.82% coverage with perspective correction tests
   - MistakeAnalyzer: 96.93% coverage with adaptive threshold testing
   - TablebaseClassifier: 97.29% coverage with tablebase-first classification
-  - Overall test coverage improved from 37.47% to 47.85% (+10.38%)
+  - Overall test coverage improved from 37.47% to 48.69% (+11.22%)
 - Created TEST_STRUCTURE.md documentation for test organization
 
 ### Fixed
