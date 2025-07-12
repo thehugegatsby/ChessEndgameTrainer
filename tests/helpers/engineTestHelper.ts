@@ -59,15 +59,24 @@ export async function createTestEngine(config?: Partial<EngineConfig>, workerBeh
       // Use original method which adds to workers array
       mockWorker = originalCreateWorker(scriptURL) as MockWorker;
       
-      // Apply worker behavior configuration
+      // Apply worker behavior configuration with CI-aware defaults
+      const CI = process.env.CI === 'true';
+      
+      // Default to autoRespond true for reliable initialization
+      if (workerBehavior?.autoRespond !== undefined) {
+        mockWorker.setAutoRespond(workerBehavior.autoRespond);
+      } else {
+        mockWorker.setAutoRespond(true); // Default to true
+      }
+      
+      // Default to minimal delay in CI for faster responses
+      if (workerBehavior?.responseDelay !== undefined) {
+        mockWorker.setResponseDelay(workerBehavior.responseDelay);
+      } else {
+        mockWorker.setResponseDelay(CI ? 0 : 10); // Immediate in CI, slight delay locally
+      }
+      
       if (workerBehavior) {
-        if (workerBehavior.autoRespond !== undefined) {
-          mockWorker.setAutoRespond(workerBehavior.autoRespond);
-        }
-        
-        if (workerBehavior.responseDelay !== undefined) {
-          mockWorker.setResponseDelay(workerBehavior.responseDelay);
-        }
         
         if (workerBehavior.customResponses) {
           workerBehavior.customResponses.forEach((responses, command) => {

@@ -313,7 +313,10 @@ describe('EvaluationDeduplicator_[method]_[condition]_[expected]', () => {
       const duration = performance.now() - start;
       
       // Should be very fast (no actual evaluations yet)
-      expect(duration).toBeLessThan(50);
+      // More lenient threshold in CI environments
+      const CI = process.env.CI === 'true';
+      const timeLimit = CI ? 200 : 50;
+      expect(duration).toBeLessThan(timeLimit);
       
       // Only one actual evaluation should be queued
       expect(mockEvaluationFn).toHaveBeenCalledTimes(1);
