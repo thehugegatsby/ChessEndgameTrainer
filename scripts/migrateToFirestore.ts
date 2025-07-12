@@ -17,7 +17,8 @@ import * as path from 'path';
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
 import { program } from 'commander';
-import { FirestoreMigrationService } from '../shared/services/database/migrationService';
+// Note: Migration service removed - this script is kept for reference
+// import { FirestoreMigrationService } from '../shared/services/database/migrationService';
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { firebaseConfig } from '../shared/lib/firebase/config';
@@ -43,8 +44,12 @@ const options = program.opts();
 async function main() {
   console.log(chalk.blue('🚀 Firestore Migration Tool'));
   console.log(chalk.gray('==========================\n'));
+  
+  console.log(chalk.red('❌ Migration service has been removed from the codebase'));
+  console.log(chalk.yellow('This script is kept for reference only'));
+  process.exit(1);
 
-  const migrationService = new FirestoreMigrationService();
+  // const migrationService = new FirestoreMigrationService();
 
   // Verify mode
   if (options.verify) {
@@ -120,7 +125,7 @@ async function main() {
         console.log(chalk.green(`✅ Positions: ${results.positions.migratedCount} migrated successfully`));
       } else {
         console.log(chalk.yellow(`⚠️  Positions: ${results.positions.migratedCount} migrated with ${results.positions.errors.length} errors`));
-        results.positions.errors.forEach(err => console.log(chalk.red(`   - ${err}`)));
+        results.positions.errors.forEach((err: any) => console.log(chalk.red(`   - ${err}`)));
       }
     }
 
@@ -130,7 +135,7 @@ async function main() {
         console.log(chalk.green(`✅ Categories: ${results.categories.migratedCount} migrated successfully`));
       } else {
         console.log(chalk.yellow(`⚠️  Categories: ${results.categories.migratedCount} migrated with ${results.categories.errors.length} errors`));
-        results.categories.errors.forEach(err => console.log(chalk.red(`   - ${err}`)));
+        results.categories.errors.forEach((err: any) => console.log(chalk.red(`   - ${err}`)));
       }
     }
 
@@ -140,7 +145,7 @@ async function main() {
         console.log(chalk.green(`✅ Chapters: ${results.chapters.migratedCount} migrated successfully`));
       } else {
         console.log(chalk.yellow(`⚠️  Chapters: ${results.chapters.migratedCount} migrated with ${results.chapters.errors.length} errors`));
-        results.chapters.errors.forEach(err => console.log(chalk.red(`   - ${err}`)));
+        results.chapters.errors.forEach((err: any) => console.log(chalk.red(`   - ${err}`)));
       }
     }
 
