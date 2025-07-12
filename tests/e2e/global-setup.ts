@@ -12,7 +12,6 @@ async function globalSetup(config: FullConfig) {
   // Set environment variables for test mode
   process.env.NEXT_PUBLIC_IS_E2E_TEST = 'true';
   process.env.NEXT_PUBLIC_E2E_SIGNALS = 'true';
-  process.env.NODE_ENV = 'test';
   
   // Verify Next.js build is available for production tests
   const isCI = process.env.CI === 'true';
