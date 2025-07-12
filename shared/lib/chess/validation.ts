@@ -42,6 +42,62 @@ export function isValidFen(fen: string): boolean {
     }
   }
   
+  // Additional chess logic validation before chess.js
+  // Check piece counts to prevent impossible positions
+  const boardPart = parts[0];
+  const pieceCounts = {
+    'K': 0, 'Q': 0, 'R': 0, 'B': 0, 'N': 0, 'P': 0,
+    'k': 0, 'q': 0, 'r': 0, 'b': 0, 'n': 0, 'p': 0
+  };
+  
+  for (const char of boardPart) {
+    if (pieceCounts.hasOwnProperty(char)) {
+      pieceCounts[char as keyof typeof pieceCounts]++;
+    }
+  }
+  
+  // Each side must have exactly one king
+  if (pieceCounts.K !== 1 || pieceCounts.k !== 1) {
+    return false;
+  }
+  
+  // Check for reasonable piece limits (standard chess has max 16 pieces per side)
+  const whitePieces = pieceCounts.K + pieceCounts.Q + pieceCounts.R + pieceCounts.B + pieceCounts.N + pieceCounts.P;
+  const blackPieces = pieceCounts.k + pieceCounts.q + pieceCounts.r + pieceCounts.b + pieceCounts.n + pieceCounts.p;
+  
+  if (whitePieces > 16 || blackPieces > 16) {
+    return false;
+  }
+  
+  // Check for too many pawns (max 8 per side)
+  if (pieceCounts.P > 8 || pieceCounts.p > 8) {
+    return false;
+  }
+  
+  // Check for reasonable promotion scenarios
+  // If more than starting pieces of any type, pawns must have been promoted
+  const whiteStarting = { Q: 1, R: 2, B: 2, N: 2 };
+  const blackStarting = { q: 1, r: 2, b: 2, n: 2 };
+  
+  const whitePromotions = Math.max(0, pieceCounts.Q - whiteStarting.Q) + 
+                         Math.max(0, pieceCounts.R - whiteStarting.R) + 
+                         Math.max(0, pieceCounts.B - whiteStarting.B) + 
+                         Math.max(0, pieceCounts.N - whiteStarting.N);
+                         
+  const blackPromotions = Math.max(0, pieceCounts.q - blackStarting.q) + 
+                         Math.max(0, pieceCounts.r - blackStarting.r) + 
+                         Math.max(0, pieceCounts.b - blackStarting.b) + 
+                         Math.max(0, pieceCounts.n - blackStarting.n);
+  
+  // Pawns available for promotion = starting pawns - current pawns
+  const whitePawnsForPromotion = 8 - pieceCounts.P;
+  const blackPawnsForPromotion = 8 - pieceCounts.p;
+  
+  // Can't have more promotions than pawns that could have been promoted
+  if (whitePromotions > whitePawnsForPromotion || blackPromotions > blackPawnsForPromotion) {
+    return false;
+  }
+  
   try {
     new Chess(fen);
     return true;

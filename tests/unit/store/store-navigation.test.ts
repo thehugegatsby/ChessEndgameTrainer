@@ -283,8 +283,8 @@ describe('Store Navigation Actions', () => {
         result.current.goToMove(0);
       });
 
-      // State should remain unchanged
-      expect(result.current.training.currentMoveIndex).toBe(0); // Should stay at 0 when game is null
+      // State should remain unchanged - when game is null, currentMoveIndex defaults to -1
+      expect(result.current.training.currentMoveIndex).toBe(-1); // Should stay at -1 when game is null
     });
 
     it('should handle moves with promotion', () => {

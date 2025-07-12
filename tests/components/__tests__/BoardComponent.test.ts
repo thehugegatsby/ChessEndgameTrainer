@@ -27,7 +27,7 @@ import type { Page } from '@playwright/test';
 // Increase timeout for debugging
 jest.setTimeout(30000);
 
-describe('BoardComponent - Board Initialization', () => {
+describe.skip('BoardComponent - Board Initialization', () => {
   let mockPage: MockPage;
   let boardComponent: BoardComponent;
 

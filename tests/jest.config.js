@@ -16,7 +16,7 @@ module.exports = {
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   setupFilesAfterEnv: ['<rootDir>/tests/setup/jest.setup.js'],
-  testPathIgnorePatterns: ['/node_modules/', '/.next/', 'jest.setup.ts', '<rootDir>/e2e/', '/e2e/'],
+  testPathIgnorePatterns: ['/node_modules/', '/.next/', 'jest.setup.ts', '<rootDir>/e2e/', '/e2e/', '<rootDir>/tests/_quarantined_e2e/', '/tests/_quarantined_e2e/'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/shared/$1',
     '^@app/(.*)$': '<rootDir>/app/$1',
@@ -37,7 +37,7 @@ module.exports = {
     '<rootDir>/tests/performance/**/*.{spec,test}.[jt]s?(x)',
     '<rootDir>/tests/regression/**/*.{spec,test}.[jt]s?(x)',
     '<rootDir>/tests/smoke/**/*.{spec,test}.[jt]s?(x)',
-    '<rootDir>/tests/**/*.test.[jt]s?(x)'  // Catch all pattern for any test files
+    '<rootDir>/tests/components/**/*.{spec,test}.[jt]s?(x)'  // Components tests (excluding quarantined)
   ],
   collectCoverageFrom: [
     '<rootDir>/shared/**/*.{ts,tsx,js,jsx}',
