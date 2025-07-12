@@ -23,7 +23,7 @@ const config = {
   
   // Setup files
   setupFilesAfterEnv: [
-    '<rootDir>/tests/setup/jest.setup.js',
+    '<rootDir>/configs/jest/jest.setup.js',
     '<rootDir>/tests/setup/mocks.setup.js'
   ],
   

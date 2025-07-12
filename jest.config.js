@@ -11,7 +11,7 @@ module.exports = {
     '/node_modules/(?!(react-chessboard|chess.js|react-native|@react-native|@react-navigation|expo|@expo|react-native-.*)/)'
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/configs/jest/jest.setup.js'],
   testPathIgnorePatterns: ['/node_modules/', '/.next/', 'jest.setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/shared/$1',

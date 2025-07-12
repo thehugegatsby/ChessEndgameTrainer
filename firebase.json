@@ -1,6 +1,6 @@
 {
   "firestore": {
-    "rules": "firestore.test.rules"
+    "rules": "configs/firebase/firestore.test.rules"
   },
   "emulators": {
     "auth": {
