@@ -118,8 +118,8 @@ const config = {
   // Web server configuration - simplified to just Next.js dev server
   // IMPORTANT: Playwright expects EITHER 'port' OR 'url', not both!
   webServer: {
-    // Next.js dev server
-    command: CI ? 'npm run build && npm run start' : 'npm run dev',
+    // Use dev server for E2E tests (production build requires Firebase during static generation)
+    command: 'npm run dev',
     url: url,  // Using URL only, not port
     timeout: 120000,
     reuseExistingServer: !CI,
