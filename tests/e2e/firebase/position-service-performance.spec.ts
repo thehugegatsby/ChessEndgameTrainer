@@ -21,7 +21,7 @@ const PERFORMANCE_CONFIG = {
 // Helper function to generate test positions
 function generateTestPositions(count: number, categoryPrefix = 'perf-test'): EndgamePosition[] {
   const difficulties = ['beginner', 'intermediate', 'advanced', 'master'];
-  const goals = ['win', 'draw', 'loss'];
+  const goals = ['win', 'draw', 'defend'];
   const sides = ['white', 'black'];
   
   return Array.from({ length: count }, (_, i) => ({
@@ -30,9 +30,10 @@ function generateTestPositions(count: number, categoryPrefix = 'perf-test'): End
     description: `Generated position ${i + 1} for performance testing with detailed description that includes multiple keywords for search testing`,
     fen: '8/8/8/3k4/8/3K4/3Q4/8 w - - 0 1', // Simple but valid FEN
     category: `${categoryPrefix}-${Math.floor(i / 20) + 1}`, // Group into categories of 20
-    difficulty: difficulties[i % difficulties.length],
+    difficulty: difficulties[i % difficulties.length] as 'beginner' | 'intermediate' | 'advanced' | 'master',
     sideToMove: sides[i % sides.length] as 'white' | 'black',
-    goal: goals[i % goals.length] as 'win' | 'draw' | 'loss',
+    goal: goals[i % goals.length] as 'win' | 'draw' | 'defend',
+    targetMoves: 5 + (i % 10),
     hints: [
       `Hint 1 for position ${i + 1}`,
       `Hint 2 for position ${i + 1}`,
@@ -42,13 +43,6 @@ function generateTestPositions(count: number, categoryPrefix = 'perf-test'): End
       `Move1-${i}`,
       `Move2-${i}`,
       `Move3-${i}`
-    ],
-    lessonNumber: (i % 10) + 1,
-    chapterNumber: Math.floor(i / 50) + 1,
-    tags: [
-      `tag-${i % 5}`,
-      `performance-test`,
-      `batch-${Math.floor(i / 10)}`
     ]
   }));
 }
@@ -233,8 +227,7 @@ test.describe('PositionService Performance Tests', () => {
         name: `Performance Category ${i + 1}`,
         description: `Category ${i + 1} for performance testing`,
         icon: '♔',
-        positionCount: 20,
-        estimatedTime: 30
+        positions: []
       }));
       
       await firebaseData.seedBatch({ positions, categories });
@@ -385,8 +378,7 @@ test.describe('PositionService Performance Tests', () => {
         name: `Category ${i + 1}`,
         description: `Description ${i + 1}`,
         icon: '♔',
-        positionCount: 20,
-        estimatedTime: 30
+        positions: []
       }));
 
       await firebaseData.seedBatch({ positions, categories });

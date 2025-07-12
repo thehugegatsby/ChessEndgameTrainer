@@ -16,13 +16,11 @@ const testPosition: EndgamePosition = {
   fen: '8/8/8/3k4/8/3K4/3Q4/8 w - - 0 1',
   category: 'isolation-test',
   difficulty: 'beginner',
+  targetMoves: 3,
   sideToMove: 'white',
   goal: 'win',
   hints: ['This is an isolation test'],
-  solution: ['Qd5+', 'Kf6', 'Qf7#'],
-  lessonNumber: 1,
-  chapterNumber: 1,
-  tags: ['isolation', 'test']
+  solution: ['Qd5+', 'Kf6', 'Qf7#']
 };
 
 test.describe('Basic Isolation Verification', () => {

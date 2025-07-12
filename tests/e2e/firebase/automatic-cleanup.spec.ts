@@ -20,9 +20,7 @@ const cleanupTestPosition: EndgamePosition = {
   goal: 'win',
   hints: ['This should be cleaned up automatically'],
   solution: ['Test', 'Cleanup'],
-  lessonNumber: 1,
-  chapterNumber: 1,
-  tags: ['cleanup', 'verification']
+  targetMoves: 3
 };
 
 test.describe('Automatic Cleanup Mechanism Verification', () => {
@@ -99,8 +97,7 @@ test.describe('Automatic Cleanup Mechanism Verification', () => {
         name: 'Multi-Type Category',
         description: 'Category for multi-type cleanup test',
         icon: '🧹',
-        positionCount: 5,
-        estimatedTime: 25
+        positions: []
       }];
       
       await firebaseData.seedBatch({ positions, categories });
@@ -177,13 +174,13 @@ test.describe('Automatic Cleanup Mechanism Verification', () => {
       const cleanupStartTime = Date.now();
       
       // Store cleanup start time for next test to verify
-      global.cleanupTestStartTime = cleanupStartTime;
+      (global as any).cleanupTestStartTime = cleanupStartTime;
     });
 
     test('should have completed cleanup quickly (Performance Verification)', async ({ firebaseData, apiClient }) => {
       // Calculate cleanup time (approximation since cleanup happened between tests)
       const cleanupEndTime = Date.now();
-      const cleanupStartTime = global.cleanupTestStartTime || cleanupEndTime;
+      const cleanupStartTime = (global as any).cleanupTestStartTime || cleanupEndTime;
       const cleanupDuration = cleanupEndTime - cleanupStartTime;
       
       // Cleanup should complete within reasonable time (allowing for test framework overhead)

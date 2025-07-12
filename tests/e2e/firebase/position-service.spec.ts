@@ -17,13 +17,11 @@ const testPositions: EndgamePosition[] = [
     fen: '8/8/8/3k4/8/3K4/3Q4/8 w - - 0 1',
     category: 'basic-checkmates',
     difficulty: 'beginner',
+    targetMoves: 3,
     sideToMove: 'white',
     goal: 'win',
     hints: ['Bring your king up to support', 'Use the queen to control squares'],
-    solution: ['Qd5+', 'Kf6', 'Qf7#'],
-    lessonNumber: 1,
-    chapterNumber: 1,
-    tags: ['checkmate', 'queen', 'basic']
+    solution: ['Qd5+', 'Kf6', 'Qf7#']
   },
   {
     id: 2,
@@ -32,13 +30,11 @@ const testPositions: EndgamePosition[] = [
     fen: '8/8/8/3k4/8/3K4/3R4/8 w - - 0 1',
     category: 'basic-checkmates',
     difficulty: 'beginner',
+    targetMoves: 6,
     sideToMove: 'white',
     goal: 'win',
     hints: ['Use the rook to cut off the king', 'Drive the king to the edge'],
-    solution: ['Rd5+', 'Kf6', 'Rd6+'],
-    lessonNumber: 2,
-    chapterNumber: 1,
-    tags: ['checkmate', 'rook', 'basic']
+    solution: ['Rd5+', 'Kf6', 'Rd6+']
   },
   {
     id: 3,
@@ -47,13 +43,11 @@ const testPositions: EndgamePosition[] = [
     fen: '8/8/8/3k4/8/3K4/3P4/8 w - - 0 1',
     category: 'pawn-endgames',
     difficulty: 'intermediate',
+    targetMoves: 5,
     sideToMove: 'white',
     goal: 'win',
     hints: ['Take the opposition', 'Advance with support'],
-    solution: ['Kd4', 'Kd6', 'd3'],
-    lessonNumber: 1,
-    chapterNumber: 2,
-    tags: ['pawn', 'opposition', 'intermediate']
+    solution: ['Kd4', 'Kd6', 'd3']
   },
   {
     id: 10,
@@ -62,13 +56,11 @@ const testPositions: EndgamePosition[] = [
     fen: '8/8/8/3k1p2/8/3K1P2/3R4/5r2 w - - 0 1',
     category: 'rook-endgames',
     difficulty: 'advanced',
+    targetMoves: 10,
     sideToMove: 'white',
     goal: 'draw',
     hints: ['Find the key defensive setup', 'Use passive defense'],
-    solution: ['Rd5+', 'Kf6', 'Rd6+'],
-    lessonNumber: 5,
-    chapterNumber: 3,
-    tags: ['rook', 'advanced', 'defense']
+    solution: ['Rd5+', 'Kf6', 'Rd6+']
   }
 ];
 
@@ -78,24 +70,21 @@ const testCategories: EndgameCategory[] = [
     name: 'Basic Checkmates',
     description: 'Fundamental checkmate patterns',
     icon: '♕',
-    positionCount: 2,
-    estimatedTime: 30
+    positions: []
   },
   {
     id: 'pawn-endgames',
     name: 'Pawn Endgames',
     description: 'Pawn endgame techniques',
     icon: '♟',
-    positionCount: 1,
-    estimatedTime: 45
+    positions: []
   },
   {
     id: 'rook-endgames',
     name: 'Rook Endgames',
     description: 'Rook endgame mastery',
     icon: '♜',
-    positionCount: 1,
-    estimatedTime: 60
+    positions: []
   }
 ];
 
@@ -105,27 +94,24 @@ const testChapters: EndgameChapter[] = [
     name: 'Basic Checkmates Chapter',
     description: 'Learn fundamental checkmates',
     category: 'basic-checkmates',
-    order: 1,
-    totalLessons: 2,
-    estimatedTime: 30
+    lessons: [],
+    totalLessons: 2
   },
   {
     id: 'chapter-2',
     name: 'Pawn Endgames Chapter',
     description: 'Master pawn endgames',
     category: 'pawn-endgames',
-    order: 1,
-    totalLessons: 1,
-    estimatedTime: 45
+    lessons: [],
+    totalLessons: 1
   },
   {
     id: 'chapter-3',
     name: 'Rook Endgames Chapter',
     description: 'Advanced rook techniques',
     category: 'rook-endgames',
-    order: 1,
-    totalLessons: 1,
-    estimatedTime: 60
+    lessons: [],
+    totalLessons: 1
   }
 ];
 
@@ -505,13 +491,11 @@ test.describe('PositionService Integration Tests', () => {
           fen: '8/8/8/3k4/8/3K4/3Q4/8 w - - 0 1',
           category: i <= 10 ? 'category-a' : 'category-b',
           difficulty: i <= 5 ? 'beginner' : i <= 15 ? 'intermediate' : 'advanced',
+          targetMoves: i + 2,
           sideToMove: 'white',
           goal: 'win',
           hints: [`Hint for position ${i}`],
-          solution: ['Move1', 'Move2'],
-          lessonNumber: 1,
-          chapterNumber: 1,
-          tags: ['test']
+          solution: ['Move1', 'Move2']
         });
       }
       

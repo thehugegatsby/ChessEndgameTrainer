@@ -51,6 +51,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Created TEST_STRUCTURE.md documentation for test organization
 
 ### Fixed
+- Fixed TypeScript errors in Firebase test infrastructure (2025-07-12)
+  - Removed invalid properties from test data (lessonNumber, chapterNumber, tags)
+  - Added required targetMoves property to all EndgamePosition test objects
+  - Fixed goal type by replacing 'loss' with 'defend' to match type definition
+  - Removed non-existent properties from EndgameCategory and EndgameChapter
+  - Improved null safety by replacing non-null assertions with explicit checks
+  - Fixed type casting for difficulty levels in performance tests
 - Fixed all TypeScript errors related to chess.js 1.0.0-beta.6 migration (2025-07-12)
   - Updated Move type usage in tests with proper type assertions
   - Fixed IEngineService mock to match actual interface methods

@@ -30,9 +30,7 @@ test.describe('PositionService Edge Cases and Error Handling', () => {
           goal: 'win',
           hints: [],
           solution: [],
-          lessonNumber: 1,
-          chapterNumber: 1,
-          tags: []
+          targetMoves: 5
         },
         {
           id: 2,
@@ -45,9 +43,7 @@ test.describe('PositionService Edge Cases and Error Handling', () => {
           goal: 'win',
           hints: [],
           solution: [],
-          lessonNumber: 1,
-          chapterNumber: 1,
-          tags: []
+          targetMoves: 5
         },
         {
           id: 3,
@@ -60,9 +56,7 @@ test.describe('PositionService Edge Cases and Error Handling', () => {
           goal: 'win',
           hints: [],
           solution: [],
-          lessonNumber: 1,
-          chapterNumber: 1,
-          tags: []
+          targetMoves: 5
         }
       ];
 
@@ -94,9 +88,9 @@ test.describe('PositionService Edge Cases and Error Handling', () => {
         goal: 'draw',
         hints: [],
         solution: [],
-        lessonNumber: 1,
-        chapterNumber: 1,
-        tags: []
+        
+        
+        targetMoves: 5
       };
 
       await firebaseData.seedBatch({ positions: [minimalFenPosition] });
@@ -167,9 +161,7 @@ test.describe('PositionService Edge Cases and Error Handling', () => {
           goal: 'draw',
           hints: [],
           solution: [],
-          lessonNumber: 1,
-          chapterNumber: 1,
-          tags: []
+          targetMoves: 5
         },
         {
           id: 2147483647, // Max 32-bit integer
@@ -182,9 +174,7 @@ test.describe('PositionService Edge Cases and Error Handling', () => {
           goal: 'draw',
           hints: [],
           solution: [],
-          lessonNumber: 1,
-          chapterNumber: 1,
-          tags: []
+          targetMoves: 5
         }
       ];
 
@@ -212,9 +202,7 @@ test.describe('PositionService Edge Cases and Error Handling', () => {
           goal: 'draw',
           hints: [],
           solution: [],
-          lessonNumber: 1,
-          chapterNumber: 1,
-          tags: []
+          targetMoves: 5
         },
         {
           id: 100,
@@ -227,9 +215,7 @@ test.describe('PositionService Edge Cases and Error Handling', () => {
           goal: 'draw',
           hints: [],
           solution: [],
-          lessonNumber: 1,
-          chapterNumber: 1,
-          tags: []
+          targetMoves: 5
         }
       ];
 
@@ -266,9 +252,7 @@ test.describe('PositionService Edge Cases and Error Handling', () => {
           goal: 'win',
           hints: ['Hint with émoji ♔', 'Hint with 中文'],
           solution: ['Move with ♔', 'Another move'],
-          lessonNumber: 1,
-          chapterNumber: 1,
-          tags: ['spéciál', '中文', 'émoji']
+          targetMoves: 5
         }
       ];
 
@@ -294,9 +278,7 @@ test.describe('PositionService Edge Cases and Error Handling', () => {
           goal: 'win',
           hints: [],
           solution: [],
-          lessonNumber: 1,
-          chapterNumber: 1,
-          tags: []
+          targetMoves: 5
         }
       ];
 
@@ -324,17 +306,27 @@ test.describe('PositionService Edge Cases and Error Handling', () => {
         goal: 'win',
         hints: [longHint],
         solution: ['Move'],
-        lessonNumber: 1,
-        chapterNumber: 1,
-        tags: []
+        targetMoves: 5
       };
 
       await firebaseData.seedBatch({ positions: [longStringPosition] });
 
       const position = await positionService.getPosition(1);
       expect(position).not.toBeNull();
-      expect(position!.description).toHaveLength(10000);
-      expect(position!.hints[0]).toHaveLength(5000);
+      
+      // Type guard for better null safety
+      if (!position) {
+        throw new Error('Test setup error: position should exist');
+      }
+      
+      expect(position.description).toHaveLength(10000);
+      
+      // Explicit check for optional hints array
+      expect(position.hints).toBeDefined();
+      expect(position.hints).toHaveLength(1);
+      if (position.hints && position.hints.length > 0) {
+        expect(position.hints[0]).toHaveLength(5000);
+      }
     });
 
     test('should handle search with very long search terms', async ({ firebaseData }) => {
@@ -349,9 +341,9 @@ test.describe('PositionService Edge Cases and Error Handling', () => {
         goal: 'win',
         hints: [],
         solution: [],
-        lessonNumber: 1,
-        chapterNumber: 1,
-        tags: []
+        
+        
+        targetMoves: 5
       };
 
       await firebaseData.seedBatch({ positions: [normalPosition] });
@@ -375,9 +367,9 @@ test.describe('PositionService Edge Cases and Error Handling', () => {
         goal: 'win',
         hints: [],
         solution: [],
-        lessonNumber: 1,
-        chapterNumber: 1,
-        tags: []
+        
+        
+        targetMoves: 5
       }));
 
       await firebaseData.seedBatch({ positions });
@@ -414,9 +406,9 @@ test.describe('PositionService Edge Cases and Error Handling', () => {
         goal: 'win',
         hints: [],
         solution: [],
-        lessonNumber: 1,
-        chapterNumber: 1,
-        tags: []
+        
+        
+        targetMoves: 5
       };
 
       await firebaseData.seedBatch({ positions: [position] });
@@ -452,9 +444,9 @@ test.describe('PositionService Edge Cases and Error Handling', () => {
         goal: 'win',
         hints: [],
         solution: [],
-        lessonNumber: 1,
-        chapterNumber: 1,
-        tags: []
+        
+        
+        targetMoves: 5
       }));
 
       await firebaseData.seedBatch({ positions });
@@ -496,9 +488,9 @@ test.describe('PositionService Edge Cases and Error Handling', () => {
         goal: 'win',
         hints: [],
         solution: [],
-        lessonNumber: 1,
-        chapterNumber: 1,
-        tags: []
+        
+        
+        targetMoves: 5
       }));
 
       await firebaseData.seedBatch({ positions });
@@ -536,9 +528,9 @@ test.describe('PositionService Edge Cases and Error Handling', () => {
         goal: 'win',
         hints: [],
         solution: [],
-        lessonNumber: 1,
-        chapterNumber: 1,
-        tags: []
+        
+        
+        targetMoves: 5
       }));
 
       await firebaseData.seedBatch({ positions });

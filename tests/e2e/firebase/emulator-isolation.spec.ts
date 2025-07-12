@@ -20,9 +20,7 @@ const isolationTestPosition: EndgamePosition = {
   goal: 'win',
   hints: ['This is an isolation test'],
   solution: ['Qd5+', 'Kf6', 'Qf7#'],
-  lessonNumber: 1,
-  chapterNumber: 1,
-  tags: ['isolation', 'test']
+  targetMoves: 3
 };
 
 const isolationTestCategory: EndgameCategory = {
@@ -30,8 +28,7 @@ const isolationTestCategory: EndgameCategory = {
   name: 'Isolation Test Category',
   description: 'Category for testing isolation',
   icon: '🧪',
-  positionCount: 1,
-  estimatedTime: 5
+  positions: []
 };
 
 test.describe('Emulator Isolation and Cleanup Verification', () => {
@@ -255,8 +252,7 @@ test.describe('Emulator Isolation and Cleanup Verification', () => {
         name: `Category ${i + 1}`,
         description: `Test category ${i + 1}`,
         icon: '🔍',
-        positionCount: 3,
-        estimatedTime: 30
+        positions: []
       }));
       
       await firebaseData.seedBatch({ positions, categories });
