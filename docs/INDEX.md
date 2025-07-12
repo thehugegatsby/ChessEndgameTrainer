@@ -11,6 +11,7 @@ Welcome to the Chess Endgame Trainer documentation. This index provides a compre
 ## 📐 Architecture & Design
 
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - Core architecture documentation
+- **[DEPENDENCY_INJECTION_ARCHITECTURE.md](DEPENDENCY_INJECTION_ARCHITECTURE.md)** - Dependency injection patterns and implementation
 - **[architecture/ARCHITECTURE_ANALYSIS.md](architecture/ARCHITECTURE_ANALYSIS.md)** - Architecture analysis and recommendations
 - **[architecture/EVALUATION_PIPELINE_ARCHITECTURE.md](architecture/EVALUATION_PIPELINE_ARCHITECTURE.md)** - Chess evaluation pipeline design
 - **[API.md](API.md)** - API reference for services, hooks, and utilities

@@ -3,7 +3,7 @@ import { GetStaticProps, GetStaticPaths } from 'next';
 import { useRouter } from 'next/router';
 import { TrainingPageZustand } from '@shared/pages/TrainingPageZustand';
 import { EndgamePosition } from '@shared/types';
-import { positionService } from '@shared/services/database/positionService';
+import { getServerPositionService } from '@shared/services/database/serverPositionService';
 
 interface TrainingPageProps {
   position: EndgamePosition | null;
@@ -60,6 +60,7 @@ export const getStaticProps: GetStaticProps<TrainingPageProps> = async ({ params
   }
 
   try {
+    const positionService = getServerPositionService();
     const position = await positionService.getPosition(id);
     
     if (!position) {

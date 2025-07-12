@@ -25,7 +25,7 @@ import { getLogger } from '../services/logging';
 import { fromLibraryMove, ChessAdapterError } from '../infrastructure/chess-adapter';
 import { Chess, Move as ChessJsMove } from 'chess.js';
 import { validateAndSanitizeFen } from '../utils/fenValidator';
-import { positionService } from '../services/database/positionService';
+import { getStoreDependencies } from './storeConfig';
 
 const logger = getLogger().setContext('Store');
 
@@ -207,6 +207,7 @@ export const useStore = create<RootState & Actions>()(
           });
 
           try {
+            const { positionService } = getStoreDependencies();
             const [next, prev] = await Promise.all([
               positionService.getNextPosition(position.id, position.category),
               positionService.getPreviousPosition(position.id, position.category),

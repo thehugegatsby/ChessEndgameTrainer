@@ -3,7 +3,7 @@ import { NextPage } from 'next';
 import Link from 'next/link';
 import { ProgressCard } from '../shared/components/ui/ProgressCard';
 import { AppLayout } from '@shared/components/layout/AppLayout';
-import { positionService } from '@shared/services/database/positionService';
+import { usePositionService } from '@shared/contexts/PositionServiceContext';
 import { EndgameChapter } from '@shared/types';
 
 interface ProgressData {
@@ -17,6 +17,7 @@ interface ProgressData {
 }
 
 const Dashboard: NextPage = () => {
+  const positionService = usePositionService();
   const [chapters, setChapters] = useState<EndgameChapter[]>([]);
   const [progressData, setProgressData] = useState<ProgressData>({});
   const [totalStats, setTotalStats] = useState({
@@ -80,7 +81,7 @@ const Dashboard: NextPage = () => {
     };
 
     loadData();
-  }, []);
+  }, [positionService]);
 
   const handleStartTraining = (chapterId: string) => {
     // Navigate to training with specific chapter

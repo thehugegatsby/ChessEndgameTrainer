@@ -8,6 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Dependency Injection Architecture Implementation (2025-07-12)
+  - Repository Pattern with IPositionRepository interface (30+ methods)
+  - FirebasePositionRepository for production use
+  - MockPositionRepository for testing
+  - Service Layer with IPositionService interface
+  - PositionService with constructor injection
+  - React Context for component-level DI (PositionServiceProvider)
+  - usePositionService() hook for React components
+  - Service Locator pattern for non-React modules (Zustand store)
+  - Server-side service factory for SSG/SSR
+  - Custom error classes for consistent error handling
+  - Migration from singleton pattern to full DI
+  - Improved testability and separation of concerns
+  - ID generation using nanoid instead of Date.now()
+  - Full TypeScript support with proper type exports
 - Comprehensive Firebase Test Infrastructure (P0 Priority) (2025-07-12)
   - Firebase emulator integration with Playwright testing framework
   - Extended test fixtures with auth and data helpers

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { positionService } from '@shared/services/database/positionService';
+import { usePositionService } from '@shared/contexts/PositionServiceContext';
 import { EndgameCategory, EndgameChapter } from '@shared/types';
 
 interface AdvancedEndgameMenuProps {
@@ -27,6 +27,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
   onClose, 
   currentPositionId 
 }) => {
+  const positionService = usePositionService();
   const [categories, setCategories] = useState<CategoryWithDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

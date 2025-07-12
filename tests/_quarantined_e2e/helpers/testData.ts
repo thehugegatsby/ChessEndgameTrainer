@@ -5,7 +5,8 @@
  */
 
 import { EndgamePosition } from '../../../shared/types/endgame';
-import { positionService } from '../../../shared/services/database/positionService';
+// TODO: Update to use new DI pattern when quarantined tests are re-enabled
+// import { getServerPositionService } from '../../../shared/services/database/serverPositionService';
 
 /**
  * Get training position data by ID
@@ -13,11 +14,15 @@ import { positionService } from '../../../shared/services/database/positionServi
  * Note: This is now async due to Firebase integration
  */
 export async function getTestPosition(id: number): Promise<EndgamePosition> {
-  const position = await positionService.getPosition(id);
-  if (!position) {
-    throw new Error(`Test position with id ${id} not found in endgame data`);
-  }
-  return position;
+  // TODO: Temporarily disabled - update when quarantined tests are re-enabled
+  throw new Error('getTestPosition is disabled - quarantined tests need migration to new DI pattern');
+  
+  // const positionService = getServerPositionService();
+  // const position = await positionService.getPosition(id);
+  // if (!position) {
+  //   throw new Error(`Test position with id ${id} not found in endgame data`);
+  // }
+  // return position;
 }
 
 /**

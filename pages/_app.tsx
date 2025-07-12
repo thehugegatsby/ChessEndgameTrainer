@@ -3,6 +3,16 @@ import type { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
 import '../styles/globals.css';
 import { useTraining } from '@shared/store/store';
+import { PositionServiceProvider } from '@shared/contexts/PositionServiceContext';
+import { configureStore } from '@shared/store/storeConfig';
+import { createServerPositionService } from '@shared/services/database/serverPositionService';
+
+// Configure store dependencies once at app initialization
+// This happens before any component renders
+if (typeof window !== 'undefined') {
+  const positionService = createServerPositionService();
+  configureStore({ positionService });
+}
 
 // Inner component that has access to zustand store
 function AppContent({ Component, pageProps }: AppProps) {
@@ -72,8 +82,12 @@ function AppContent({ Component, pageProps }: AppProps) {
 }
 
 function MyApp(props: AppProps) {
-  // No provider needed for Zustand
-  return <AppContent {...props} />;
+  // Wrap app with PositionServiceProvider for dependency injection
+  return (
+    <PositionServiceProvider>
+      <AppContent {...props} />
+    </PositionServiceProvider>
+  );
 }
 
 export default MyApp; 
