@@ -126,6 +126,8 @@ const config = {
       NEXT_PUBLIC_IS_E2E_TEST: 'true',
       NEXT_PUBLIC_E2E_SIGNALS: 'true',
       FIRESTORE_EMULATOR_HOST: 'localhost:8080',
+      FIREBASE_AUTH_EMULATOR_HOST: 'localhost:9099',
+      NODE_ENV: 'test',
     },
   },
 };

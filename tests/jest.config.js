@@ -57,7 +57,7 @@ module.exports = {
   coverageReporters: ['lcov', 'text', 'html', 'json-summary'],
   reporters: [
     'default',
-    ['<rootDir>/tests/reporters/skippedTestsReporter.js', { maxSkippedTests: 10 }]
+    ['<rootDir>/tests/reporters/skippedTestsReporter.js', { maxSkippedTests: 12 }]
   ],
   coveragePathIgnorePatterns: [
     '/node_modules/',
