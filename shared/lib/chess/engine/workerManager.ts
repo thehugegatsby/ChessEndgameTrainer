@@ -73,7 +73,10 @@ export class StockfishWorkerManager {
       }
       
       this.worker = this.workerFactory.createWorker(this.workerPath);
-      this.setupWorkerEventHandlers();
+      
+      // CRITICAL FIX: Set up waitForReady handler BEFORE sending messages
+      // This prevents race condition where MockWorker responds before handler is ready
+      const readyPromise = this.waitForReady(ENGINE.WORKER_READY_TIMEOUT);
       
       // UCI Protocol Step 1: Send 'uci' command
       this.worker.postMessage('uci');
@@ -86,8 +89,17 @@ export class StockfishWorkerManager {
       // UCI Protocol Step 2: Send 'isready' to check if engine is ready
       this.worker.postMessage('isready');
       
-      // Wait for 'readyok' response
-      return await this.waitForReady(ENGINE.WORKER_READY_TIMEOUT);
+      // Wait for 'readyok' response using event-driven approach
+      try {
+        await readyPromise; // Handler was already set up before postMessage
+        // NOW set up the normal event handlers (AFTER initialization completes)
+        this.setupWorkerEventHandlers();
+        return true; // Success if no exception thrown
+      } catch (error) {
+        logger.error('Worker initialization failed:', error);
+        this.cleanup();
+        return false; // Failure if exception caught
+      }
       
     } catch (error) {
       logger.error('Failed to initialize worker:', error);
@@ -97,7 +109,7 @@ export class StockfishWorkerManager {
   }
 
   /**
-   * Sets up worker event handlers
+   * Sets up worker event handlers for normal operation (after initialization)
    */
   private setupWorkerEventHandlers(): void {
     if (!this.worker) return;
@@ -135,20 +147,78 @@ export class StockfishWorkerManager {
   }
 
   /**
-   * Waits for worker to be ready
+   * Waits for worker to be ready using event-driven approach
+   * Resolves on 'readyok', rejects on error messages or timeout
    */
   private async waitForReady(timeoutMs: number): Promise<boolean> {
     if (this.isReady) return true;
 
-    return new Promise((resolve) => {
-      const timeout = setTimeout(() => {
-        resolve(false);
+    return new Promise((resolve, reject) => {
+      let messageHandler: ((e: MessageEvent) => void) | null = null;
+      let errorHandler: ((e: ErrorEvent) => void) | null = null;
+      let timeoutHandle: NodeJS.Timeout | null = null;
+
+      const cleanup = () => {
+        if (messageHandler && this.worker) {
+          // Remove our temporary message handler
+          this.worker.onmessage = null;
+        }
+        if (errorHandler && this.worker) {
+          // Remove our temporary error handler
+          this.worker.onerror = null;
+        }
+        if (timeoutHandle) {
+          clearTimeout(timeoutHandle);
+        }
+      };
+
+      // Set up temporary message handler for initialization
+      messageHandler = (e) => {
+        const message = e.data;
+        if (typeof message === 'string') {
+          const trimmedMsg = message.trim();
+          if (trimmedMsg === 'readyok') {
+            cleanup();
+            // Mark as ready - normal handlers will be set up by caller
+            this.isReady = true;
+            this.notifyReady();
+            resolve(true);
+          } else if (trimmedMsg.startsWith('error:')) {
+            cleanup();
+            const errorMsg = `Worker initialization failed: ${trimmedMsg}`;
+            logger.error(errorMsg);
+            // CRITICAL FIX: Reject promise on error instead of resolving
+            reject(new Error(errorMsg));
+          }
+        }
+      };
+
+      // Set up temporary error handler for initialization
+      errorHandler = (e) => {
+        cleanup();
+        const errorMsg = `Worker crashed during initialization: ${e.message || 'Unknown error'}`;
+        logger.error(errorMsg);
+        reject(new Error(errorMsg));
+      };
+
+      // Set up timeout as fallback - CRITICAL FIX: Reject on timeout
+      timeoutHandle = setTimeout(() => {
+        cleanup();
+        const timeoutError = new Error(`Engine initialization timed out after ${timeoutMs}ms`);
+        logger.error('Worker initialization timed out:', timeoutError);
+        // CRITICAL FIX: Reject promise on timeout instead of resolving false
+        reject(timeoutError);
       }, timeoutMs);
 
-      this.readyCallbacks.push(() => {
-        clearTimeout(timeout);
-        resolve(true);
-      });
+      // Temporarily override both handlers for initialization
+      if (this.worker) {
+        this.worker.onmessage = messageHandler;
+        this.worker.onerror = errorHandler;
+      } else {
+        cleanup();
+        const noWorkerError = new Error('No worker available for initialization');
+        reject(noWorkerError);
+      }
     });
   }
 

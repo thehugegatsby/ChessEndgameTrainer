@@ -77,9 +77,9 @@ export async function createTestEngine(config?: Partial<EngineConfig>, workerBeh
         
         if (workerBehavior.failOnInit) {
           // Override UCI response to simulate init failure
-          mockWorker.addResponse('uci', ['error: initialization failed']);
-          // Don't respond to isready when failing
-          mockWorker.addResponse('isready', []);
+          mockWorker.addResponse('uci', ['uciok']); // UCI should succeed
+          // Respond with error to isready to trigger immediate failure
+          mockWorker.addResponse('isready', ['error: initialization failed']);
         }
       }
     }
@@ -212,20 +212,27 @@ export function cleanupAllEngines(): void {
 }
 
 /**
- * Test helper to wait for engine initialization
+ * Test helper to wait for engine initialization using event-driven approach
  * @param engine Engine instance
- * @param timeout Maximum wait time in ms
+ * @param timeout Maximum wait time in ms (fallback only)
  */
 export async function waitForEngineReady(engine: Engine, timeout: number = 5000): Promise<boolean> {
   try {
-    // Use Promise.race to implement timeout
-    await Promise.race([
-      engine.waitForReady(),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout')), timeout)
-      )
-    ]);
-    return true;
+    // First try the event-driven approach
+    if (typeof (engine as any).waitForReadyEvent === 'function') {
+      // Use the new event-driven method
+      await (engine as any).waitForReadyEvent();
+      return true;
+    } else {
+      // Fallback to promise-based approach for compatibility
+      await Promise.race([
+        engine.waitForReady(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout')), timeout)
+        )
+      ]);
+      return true;
+    }
   } catch (error) {
     return false;
   }

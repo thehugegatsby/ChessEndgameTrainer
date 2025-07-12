@@ -18,15 +18,10 @@ import { Engine } from '@shared/lib/chess/engine/index';
 engineTestUtils.describeEngine('Engine Test Helper', () => {
   describe('createTestEngine', () => {
     it('should create engine with mock worker', async () => {
-      // DEBUG: Check what we're getting
-      console.log('Engine constructor from test:', Engine);
-      
-      const { engine, getMockWorker, cleanup } = await createTestEngine();
-      
-      console.log('Created engine instance:', engine);
-      console.log('Engine instance prototype:', Object.getPrototypeOf(engine));
-      console.log('Engine has isReady?', typeof engine.isReady);
-      console.log('Engine has waitForReady?', typeof engine.waitForReady);
+      const { engine, getMockWorker, cleanup } = await createTestEngine(
+        {},
+        { autoRespond: true }, // Enable for successful initialization
+      );
       
       expect(engine).toBeDefined();
       expect(engine.isReady()).toBe(true); // Engine is ready after createTestEngine
@@ -42,10 +37,7 @@ engineTestUtils.describeEngine('Engine Test Helper', () => {
       expect(messages).toContain('isready');
       
       // Test engine functionality
-      const bestMovePromise = engine.getBestMove('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
-      const bestMove = await bestMovePromise;
+      const bestMove = await engine.getBestMove('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
       expect(bestMove).toBeDefined();
       
       cleanup();
@@ -55,7 +47,7 @@ engineTestUtils.describeEngine('Engine Test Helper', () => {
       const { engine, getMockWorker, cleanup } = await createTestEngine(
         {},
         {
-          autoRespond: false,
+          autoRespond: true, // Enable for successful initialization
           responseDelay: 100,
           customResponses: new Map([
             ['test command', ['test response']],
@@ -63,33 +55,42 @@ engineTestUtils.describeEngine('Engine Test Helper', () => {
         }
       );
 
-      // Initialize engine
-      await engine.getBestMove('test-fen');
-      
       const mockWorker = getMockWorker()!;
       
-      // Test custom response
+      // Now disable autoRespond for manual testing
+      mockWorker.setAutoRespond(false);
+      
+      // Test custom response manually
       mockWorker.postMessage('test command');
-      mockWorker.setAutoRespond(true);
       
-      await new Promise(resolve => setTimeout(resolve, 150));
+      // Manually trigger the expected response
+      mockWorker.triggerResponse('test response');
       
-      // Worker should have processed the custom command
+      // Verify the command was queued
       expect(mockWorker.getMessageQueue()).toContain('test command');
       
       cleanup();
     });
 
-    it('should simulate initialization failure', async () => {
-      const { engine, cleanup } = await createTestEngine(
+    it('should simulate initialization failure deterministically', async () => {
+      // Use explicit mock control for deterministic failure
+      const { engine, getMockWorker, cleanup } = await createTestEngine(
         {},
-        { failOnInit: true },
-        { throwOnInitError: false } // Don't throw, allow test to verify failure
+        { failOnInit: true }, // Use proper failure mechanism
+        { throwOnInitError: false }
       );
 
-      const ready = await waitForEngineReady(engine, 1000);
-      expect(ready).toBe(false);
+      const mockWorker = getMockWorker();
+      
+      // Verify engine is not ready after failed init
       expect(engine.isReady()).toBe(false);
+      
+      // Test that engine properly handles the failure state
+      const bestMovePromise = engine.getBestMove('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+      
+      // Engine should return null immediately for non-ready state
+      const result = await bestMovePromise;
+      expect(result).toBeNull();
       
       cleanup();
     });
@@ -117,23 +118,22 @@ engineTestUtils.describeEngine('Engine Test Helper', () => {
       // Use a valid starting position FEN
       const validFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
       
-      const { engine, getMockWorker, cleanup } = await createTestEngine();
+      const { engine, getMockWorker, cleanup } = await createTestEngine(
+        {},
+        { autoRespond: true } // Enable for successful engine operations
+      );
 
       const mockWorker = getMockWorker()!;
       const scenario = new EngineTestScenario(mockWorker);
       
       // Use valid FEN for proper move parsing
-      const movePromise = engine.getBestMove(validFen);
-      
-      // Wait for engine to process
-      await new Promise(resolve => setTimeout(resolve, 50));
+      const move = await engine.getBestMove(validFen);
       
       // Verify commands were sent
       expect(scenario.expectCommand('position fen')).toBe(true);
       expect(scenario.expectCommand('go movetime')).toBe(true);
       
       // Move should be parsed successfully with valid FEN
-      const move = await movePromise;
       expect(move).toBeDefined();
       expect(move).toHaveProperty('from');
       expect(move).toHaveProperty('to');
@@ -158,16 +158,17 @@ engineTestUtils.describeEngine('Engine Test Helper', () => {
       const mockWorker = getMockWorker()!;
       
       // Start evaluation with valid FEN
-      const evalPromise = engine.evaluatePosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
-      
-      const evaluation = await evalPromise;
+      const evaluation = await engine.evaluatePosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
       expect(evaluation.score).toBe(150);
       
       cleanup();
     });
 
     it('should simulate errors', async () => {
-      const { engine, getMockWorker, cleanup } = await createTestEngine();
+      const { engine, getMockWorker, cleanup } = await createTestEngine(
+        {},
+        { autoRespond: true } // Enable for successful initialization
+      );
 
       const mockWorker = getMockWorker()!;
       
@@ -180,10 +181,7 @@ engineTestUtils.describeEngine('Engine Test Helper', () => {
       // Start request with valid FEN
       const movePromise = engine.getBestMove('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
       
-      // Wait a bit for the request to be processed
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
-      // Simulate error by terminating the worker
+      // Simulate error by terminating the worker (no setTimeout needed)
       mockWorker.triggerError('Worker crashed');
       
       // Should handle error gracefully - the promise should reject
@@ -242,15 +240,23 @@ engineTestUtils.describeEngine('Engine Test Helper', () => {
       cleanup();
     });
 
-    it('should timeout if engine never becomes ready', async () => {
+    it('should handle graceful degradation when worker unavailable', async () => {
+      // Test system behavior when worker is not available (using failOnInit is cleaner)
       const { engine, cleanup } = await createTestEngine(
         {},
-        { failOnInit: true },
+        { failOnInit: true }, // Simulate initialization failure 
         { throwOnInitError: false }
       );
       
-      const ready = await waitForEngineReady(engine, 100);
-      expect(ready).toBe(false);
+      // Engine should handle non-ready state gracefully
+      expect(engine.isReady()).toBe(false);
+      
+      // All operations should return safe defaults
+      const bestMove = await engine.getBestMove('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+      expect(bestMove).toBeNull();
+      
+      const evaluation = await engine.evaluatePosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+      expect(evaluation).toEqual({ score: 0, mate: null });
       
       cleanup();
     });

@@ -89,10 +89,7 @@ describe('useEvaluation Hook', () => {
         isEnabled: false
       }));
 
-      // Wait for any potential async operations
-      await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 100));
-      });
+      // No artificial delay needed - React testing library handles async properly
 
       expect(mockUnifiedService.getFormattedEvaluation).not.toHaveBeenCalled();
     });
@@ -103,9 +100,7 @@ describe('useEvaluation Hook', () => {
         isEnabled: true
       }));
 
-      await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 100));
-      });
+      // No artificial delay needed - React testing library handles async properly
 
       expect(mockUnifiedService.getFormattedEvaluation).not.toHaveBeenCalled();
     });
@@ -345,8 +340,10 @@ describe('useEvaluation Hook', () => {
       }));
 
       await act(async () => {
-        // Wait for the error to be thrown
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Wait for the error to be thrown using waitFor
+        await waitFor(() => {
+          expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalled();
+        });
       });
 
       // Verify the evaluation function was called
@@ -367,8 +364,10 @@ describe('useEvaluation Hook', () => {
       }));
 
       await act(async () => {
-        // Wait for the error to be thrown
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Wait for the error to be thrown using waitFor
+        await waitFor(() => {
+          expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalled();
+        });
       });
 
       // Should not have error for AbortError

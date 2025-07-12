@@ -40,8 +40,9 @@ export class MockWorker implements IWorker {
     this.messageQueue.push(message);
 
     if (this.autoRespond) {
-      // Simulate async worker response
-      setTimeout(() => this.processMessage(message), this.responseDelay);
+      // Simulate async worker response with minimum delay to allow handler setup
+      const delay = Math.max(this.responseDelay, 10); // Minimum 10ms delay
+      setTimeout(() => this.processMessage(message), delay);
     }
   }
 

@@ -289,16 +289,16 @@ describe('TablebaseService', () => {
     test('should_handle_tablebase_service_timeout_gracefully', async () => {
       // Purpose: Verify graceful handling of slow tablebase responses
       const tablebaseFen = TEST_POSITIONS.KQK_TABLEBASE_WIN;
-      mockCoreService.setDelay(5000); // 5 second delay
+      mockCoreService.setDelay(500); // 500ms delay - sufficient for timeout testing
       
       const startTime = Date.now();
       const info = await tablebaseService.getTablebaseInfo(tablebaseFen);
       const endTime = Date.now();
       
       // Should not hang indefinitely
-      expect(endTime - startTime).toBeLessThan(10000);
+      expect(endTime - startTime).toBeLessThan(2000);
       expect(info).toBeDefined();
-    });
+    }); // Remove unnecessary timeout - 500ms + overhead fits in default 5s
 
     test('should_handle_malformed_tablebase_responses', async () => {
       // Purpose: Verify robustness against invalid tablebase API responses

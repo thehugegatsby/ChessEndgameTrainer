@@ -8,6 +8,7 @@
  * - StockfishWorkerManager: Handles worker lifecycle
  * - StockfishMessageHandler: Processes worker messages
  * - RequestQueue: Manages request queuing and timeouts
+ * - Event-driven initialization: Emits 'ready' and 'init:failed' events
  * - Clean separation of concerns for maintainability
  */
 
@@ -19,6 +20,56 @@ import { RequestManager } from './requestManager';
 import { Logger } from '@shared/services/logging/Logger';
 
 const logger = new Logger();
+
+// Simple event emitter for engine events
+type EngineEventListener = (...args: any[]) => void;
+
+interface EngineEvents {
+  'ready': () => void;
+  'init:failed': (error: Error) => void;
+}
+
+class SimpleEventEmitter {
+  private listeners: Map<string, EngineEventListener[]> = new Map();
+
+  on(event: string, listener: EngineEventListener): void {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, []);
+    }
+    this.listeners.get(event)!.push(listener);
+  }
+
+  off(event: string, listener: EngineEventListener): void {
+    const eventListeners = this.listeners.get(event);
+    if (eventListeners) {
+      const index = eventListeners.indexOf(listener);
+      if (index > -1) {
+        eventListeners.splice(index, 1);
+      }
+    }
+  }
+
+  emit(event: string, ...args: any[]): void {
+    const eventListeners = this.listeners.get(event);
+    if (eventListeners) {
+      eventListeners.forEach(listener => {
+        try {
+          listener(...args);
+        } catch (error) {
+          logger.error(`Error in event listener for ${event}:`, error);
+        }
+      });
+    }
+  }
+
+  removeAllListeners(event?: string): void {
+    if (event) {
+      this.listeners.delete(event);
+    } else {
+      this.listeners.clear();
+    }
+  }
+}
 
 // Import singleton for getInstance compatibility
 // Lazy import to avoid circular dependency
@@ -47,7 +98,8 @@ export class Engine {
   private requestQueue: Array<EngineRequest> = [];
   private isProcessingQueue = false;
   
-  // Promise-based initialization tracking
+  // Event-driven initialization tracking
+  private eventEmitter: SimpleEventEmitter = new SimpleEventEmitter();
   private initializationPromise: Promise<void>;
   private resolveInitialization!: () => void;
   private rejectInitialization!: (error: Error) => void;
@@ -145,14 +197,17 @@ export class Engine {
         this.processQueue();
         // Signal successful initialization
         this.resolveInitialization();
+        this.eventEmitter.emit('ready');
       } else {
         const error = new Error('Engine initialization failed: Worker manager returned false');
         this.rejectInitialization(error);
+        this.eventEmitter.emit('init:failed', error);
         throw error;
       }
     } catch (error) {
       const initError = error instanceof Error ? error : new Error(String(error));
       this.rejectInitialization(initError);
+      this.eventEmitter.emit('init:failed', initError);
       throw initError;
     }
   }
@@ -337,6 +392,53 @@ export class Engine {
   }
 
   /**
+   * Adds an event listener for engine events
+   * @param event - Event name ('ready' or 'init:failed')
+   * @param listener - Event listener function
+   */
+  on<K extends keyof EngineEvents>(event: K, listener: EngineEvents[K]): void {
+    this.eventEmitter.on(event, listener);
+  }
+
+  /**
+   * Removes an event listener for engine events
+   * @param event - Event name ('ready' or 'init:failed')
+   * @param listener - Event listener function
+   */
+  off<K extends keyof EngineEvents>(event: K, listener: EngineEvents[K]): void {
+    this.eventEmitter.off(event, listener);
+  }
+
+  /**
+   * Creates a promise that resolves when engine is ready or rejects when initialization fails
+   * This is the event-driven alternative to timeout-based waiting
+   * @returns Promise that resolves when ready or rejects on failure
+   */
+  waitForReadyEvent(): Promise<void> {
+    // If already ready, resolve immediately
+    if (this.isReady()) {
+      return Promise.resolve();
+    }
+
+    return new Promise<void>((resolve, reject) => {
+      const onReady = () => {
+        this.eventEmitter.off('ready', onReady);
+        this.eventEmitter.off('init:failed', onFailed);
+        resolve();
+      };
+
+      const onFailed = (error: Error) => {
+        this.eventEmitter.off('ready', onReady);
+        this.eventEmitter.off('init:failed', onFailed);
+        reject(error);
+      };
+
+      this.eventEmitter.on('ready', onReady);
+      this.eventEmitter.on('init:failed', onFailed);
+    });
+  }
+
+  /**
    * Resets the engine (clears queue)
    */
   reset(): void {
@@ -381,6 +483,8 @@ export class Engine {
         this.reset();
       }
       this.workerManager.cleanup();
+      // Clean up event listeners
+      this.eventEmitter.removeAllListeners();
       
     } catch (error) {
     }
