@@ -20,7 +20,6 @@ import {
   writeBatch,
   Query
 } from 'firebase/firestore';
-import { nanoid } from 'nanoid';
 
 import { IPositionRepository, IPositionRepositoryConfig } from '../IPositionRepository';
 import { EndgamePosition, EndgameCategory, EndgameChapter } from '@shared/types';
@@ -61,10 +60,10 @@ export class FirebasePositionRepository implements IPositionRepository {
 
   async createPosition(data: Omit<EndgamePosition, 'id'>): Promise<EndgamePosition> {
     try {
-      // Generate unique ID using nanoid for collision-free identifiers
-      const uniqueId = nanoid();
+      // Generate unique ID using crypto.randomUUID for collision-free identifiers
+      const uniqueId = crypto.randomUUID();
       // Convert to number for compatibility with existing EndgamePosition.id type
-      // Using hash code of the nanoid string
+      // Using hash code of the UUID string
       const id = Math.abs(uniqueId.split('').reduce((a, b) => {
         a = ((a << 5) - a) + b.charCodeAt(0);
         return a & a;
@@ -425,8 +424,8 @@ export class FirebasePositionRepository implements IPositionRepository {
       const createdPositions: EndgamePosition[] = [];
       
       for (const data of positions) {
-        // Generate unique ID using nanoid for each position
-        const uniqueId = nanoid();
+        // Generate unique ID using crypto.randomUUID for each position
+        const uniqueId = crypto.randomUUID();
         const id = Math.abs(uniqueId.split('').reduce((a, b) => {
           a = ((a << 5) - a) + b.charCodeAt(0);
           return a & a;
