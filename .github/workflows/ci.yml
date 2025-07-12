@@ -41,9 +41,10 @@ jobs:
     - name: Check for duplicate components
       run: npm run check-duplicates
 
-  unit-tests:
-    name: Unit Tests
+  test:
+    name: Unit Tests & Coverage
     runs-on: ubuntu-latest
+    needs: lint-and-typecheck
     
     steps:
     - name: Checkout code
@@ -58,73 +59,28 @@ jobs:
     - name: Install dependencies
       run: npm ci --prefer-offline --no-audit
 
-    - name: Run unit tests with coverage
-      run: |
-        # Run tests from root directory with proper config
-        npm test -- tests/unit --coverage --coverageDirectory=coverage/unit --coverageReporters=json-summary --coverageReporters=lcov --passWithNoTests || true
-        
-        # Ensure coverage directory and files exist even if tests fail
-        mkdir -p coverage/unit
-        if [ ! -f "coverage/unit/lcov.info" ]; then
-          echo "Coverage files not generated, creating empty ones"
-          echo 'TN:' > coverage/unit/lcov.info
-          echo '{"total":{"statements":{"pct":0},"branches":{"pct":0},"functions":{"pct":0},"lines":{"pct":0}}}' > coverage/unit/coverage-summary.json
-        fi
+    - name: Run tests with coverage
+      run: npm run test:coverage
 
-    - name: Upload unit test coverage
+    - name: Upload coverage report
       uses: actions/upload-artifact@v4
       with:
-        name: unit-coverage
-        path: coverage/unit
+        name: coverage-report
+        path: coverage/
       if: always()
 
     - name: Comment coverage on PR
       if: github.event_name == 'pull_request'
       uses: romeovs/lcov-reporter-action@v0.3.1
       with:
-        lcov-file: ./coverage/unit/lcov.info
+        lcov-file: ./coverage/lcov.info
         github-token: ${{ secrets.GITHUB_TOKEN }}
         title: Unit Test Coverage Report
-
-  integration-tests:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-
-    - name: Install dependencies
-      run: npm ci --prefer-offline --no-audit
-
-    - name: Run integration tests
-      run: |
-        # Check if integration tests exist
-        if find tests/integration -name "*.test.ts" -o -name "*.test.tsx" 2>/dev/null | grep -q .; then
-          npm test -- tests/integration --coverage --coverageDirectory=coverage/integration --coverageReporters=json-summary --coverageReporters=lcov --passWithNoTests || true
-        else
-          echo "No integration tests found, creating placeholder coverage"
-          mkdir -p coverage/integration
-          echo 'TN:' > coverage/integration/lcov.info
-          echo '{"total":{"statements":{"pct":0},"branches":{"pct":0},"functions":{"pct":0},"lines":{"pct":0}}}' > coverage/integration/coverage-summary.json
-        fi
-
-    - name: Upload integration test coverage
-      uses: actions/upload-artifact@v4
-      with:
-        name: integration-coverage
-        path: coverage/integration
 
   build:
     name: Build Application
     runs-on: ubuntu-latest
-    needs: [lint-and-typecheck]
+    needs: lint-and-typecheck
     
     steps:
     - name: Checkout code
@@ -162,84 +118,59 @@ jobs:
         retention-days: 1
       if: success() && hashFiles('.next/**') != ''
 
-  coverage-report:
-    name: Coverage Summary
+  e2e:
+    name: E2E Tests
     runs-on: ubuntu-latest
-    needs: [unit-tests, integration-tests]
-    if: always()
+    needs: [test, build]
+    timeout-minutes: 15
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Download unit coverage
-      uses: actions/download-artifact@v4
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
       with:
-        name: unit-coverage
-        path: coverage/unit
-      continue-on-error: true
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
 
-    - name: Download integration coverage
-      uses: actions/download-artifact@v4
+    - name: Install dependencies
+      run: npm ci --prefer-offline --no-audit
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps chromium
+
+    - name: Start dev server
+      run: |
+        npm run dev &
+        # Wait for server to be ready
+        npx wait-on http://localhost:3002 --timeout 60000
+
+    - name: Run Playwright tests
+      run: npm run test:e2e
+      env:
+        PLAYWRIGHT_JUNIT_OUTPUT_NAME: results.xml
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
       with:
-        name: integration-coverage
-        path: coverage/integration
-      continue-on-error: true
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 7
 
-    - name: Merge coverage reports
-      run: |
-        mkdir -p coverage/combined
-        
-        # Simple approach: if we have coverage files, combine them
-        if [ -f "coverage/unit/lcov.info" ] || [ -f "coverage/integration/lcov.info" ]; then
-          # Combine lcov files
-          touch coverage/combined/lcov.info
-          
-          if [ -f "coverage/unit/lcov.info" ]; then
-            cat coverage/unit/lcov.info >> coverage/combined/lcov.info
-          fi
-          
-          if [ -f "coverage/integration/lcov.info" ]; then
-            cat coverage/integration/lcov.info >> coverage/combined/lcov.info
-          fi
-          
-          # For JSON summary, we'll use the unit test coverage as the base
-          if [ -f "coverage/unit/coverage-summary.json" ]; then
-            cp coverage/unit/coverage-summary.json coverage/combined/coverage-summary.json
-          elif [ -f "coverage/integration/coverage-summary.json" ]; then
-            cp coverage/integration/coverage-summary.json coverage/combined/coverage-summary.json
-          else
-            echo '{"total":{"statements":{"pct":0}}}' > coverage/combined/coverage-summary.json
-          fi
-          
-          echo "Coverage files merged successfully"
-        else
-          echo "No coverage files found to merge"
-          echo '{"total":{"statements":{"pct":0}}}' > coverage/combined/coverage-summary.json
-          echo 'TN:' > coverage/combined/lcov.info
-        fi
-
-    - name: Check coverage thresholds
-      run: |
-        if [ -f "coverage/combined/coverage-summary.json" ]; then
-          COVERAGE=$(cat coverage/combined/coverage-summary.json | jq '.total.statements.pct // 0')
-          echo "Total coverage: $COVERAGE%"
-          
-          # Goal is 80% coverage - temporarily disabled for CI stability
-          # if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-          #   echo "⚠️ Coverage is below 80% threshold"
-          #   exit 1
-          # else
-          #   echo "✅ Coverage meets threshold"
-          # fi
-        else
-          echo "Coverage summary not found"
-        fi
+    - name: Upload test videos
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-videos
+        path: test-results/
+        retention-days: 3
 
   quality-gates:
     name: Quality Gates Summary
     runs-on: ubuntu-latest
-    needs: [lint-and-typecheck, unit-tests, integration-tests, build]
+    needs: [lint-and-typecheck, test, build, e2e]
     if: always()
     
     steps:
@@ -254,16 +185,10 @@ jobs:
           echo "❌ Lint & Type Check: Failed" >> $GITHUB_STEP_SUMMARY
         fi
         
-        if [ "${{ needs.unit-tests.result }}" == "success" ]; then
+        if [ "${{ needs.test.result }}" == "success" ]; then
           echo "✅ Unit Tests: Passed" >> $GITHUB_STEP_SUMMARY
         else
           echo "❌ Unit Tests: Failed" >> $GITHUB_STEP_SUMMARY
-        fi
-        
-        if [ "${{ needs.integration-tests.result }}" == "success" ]; then
-          echo "✅ Integration Tests: Passed" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "❌ Integration Tests: Failed" >> $GITHUB_STEP_SUMMARY
         fi
         
         if [ "${{ needs.build.result }}" == "success" ]; then
@@ -271,12 +196,19 @@ jobs:
         else
           echo "❌ Build: Failed" >> $GITHUB_STEP_SUMMARY
         fi
+        
+        if [ "${{ needs.e2e.result }}" == "success" ]; then
+          echo "✅ E2E Tests: Passed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ E2E Tests: Failed" >> $GITHUB_STEP_SUMMARY
+        fi
 
     - name: Set final status
       if: |
         needs.lint-and-typecheck.result == 'failure' ||
-        needs.unit-tests.result == 'failure' ||
-        needs.build.result == 'failure'
+        needs.test.result == 'failure' ||
+        needs.build.result == 'failure' ||
+        needs.e2e.result == 'failure'
       run: |
         echo "❌ Quality gates failed. Please fix the issues before merging."
         exit 1
