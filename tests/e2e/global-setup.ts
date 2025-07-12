@@ -51,7 +51,6 @@ async function globalSetup(config: FullConfig) {
   process.env.GCLOUD_PROJECT = FIREBASE_TEST_CONFIG.PROJECT_ID;
   
   // Initialize Firebase emulator only if not in CI or running Firebase-specific tests
-  const isCI = process.env.CI === 'true';
   const isFirebaseTest = process.env.PLAYWRIGHT_PROJECT === 'firebase';
   
   if (!isCI || isFirebaseTest) {
