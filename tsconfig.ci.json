@@ -1,0 +1,26 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "exclude": [
+    "node_modules",
+    ".next",
+    "out",
+    "scripts/**/*",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "tests/_quarantined_e2e/**/*",
+    "tests/components/__tests__/BoardComponent.test.ts",
+    "tests/components/__mocks__/**/*",
+    "tests/unit/store/store-async.test.ts",
+    "tests/unit/utils/config-adapter.test.ts",
+    "tests/e2e/**/*",
+    "test-results/**/*",
+    "playwright-report/**/*",
+    "coverage/**/*"
+  ]
+}

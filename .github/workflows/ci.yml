@@ -36,7 +36,7 @@ jobs:
       run: npm run lint
 
     - name: Run TypeScript compiler check
-      run: npx tsc --noEmit
+      run: npx tsc --project tsconfig.ci.json --noEmit
 
     - name: Check for duplicate components
       run: npm run check-duplicates
