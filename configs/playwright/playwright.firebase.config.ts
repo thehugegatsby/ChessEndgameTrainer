@@ -11,7 +11,7 @@ dotenv.config({ path: '.env.test' });
 
 export default defineConfig({
   // Test directory
-  testDir: './tests/e2e/firebase',
+  testDir: '../../tests/e2e/firebase',
   
   // Test execution
   fullyParallel: false, // Firebase tests should run sequentially
@@ -72,7 +72,7 @@ export default defineConfig({
   outputDir: 'test-results/',
   
   // Global setup for Firebase emulator
-  globalSetup: require.resolve('./tests/e2e/firebase/_setup/global.setup.ts'),
+  globalSetup: require.resolve('../../tests/e2e/firebase/_setup/global.setup.ts'),
   
   // Web servers to run
   webServer: [

@@ -5,7 +5,8 @@
  */
 
 import { test, expect } from '../firebase-test-fixture';
-import { PositionService } from '@shared/services/database/positionService';
+import { IPositionService } from '@shared/services/database/IPositionService';
+import { createFirebasePositionService } from './helpers/firebase-test-setup';
 import { EndgamePosition, EndgameCategory } from '@shared/types';
 
 // Test data for isolation verification
@@ -86,7 +87,7 @@ test.describe('Emulator Isolation and Cleanup Verification', () => {
       expect(afterSeedStatus.collections.categories).toBe(1);
       
       // Create position service instance and verify it can read data
-      const positionService = new PositionService();
+      const positionService = createFirebasePositionService();
       const position = await positionService.getPosition(42);
       expect(position).not.toBeNull();
       expect(position!.title).toBe('Isolation Test Position');
@@ -109,7 +110,7 @@ test.describe('Emulator Isolation and Cleanup Verification', () => {
       expect(integrity.issues).toHaveLength(0);
       
       // Create new position service and verify no cached data
-      const positionService = new PositionService();
+      const positionService = createFirebasePositionService();
       const position = await positionService.getPosition(42);
       expect(position).toBeNull();
       
@@ -138,7 +139,7 @@ test.describe('Emulator Isolation and Cleanup Verification', () => {
       const status = await apiClient.getFirebaseStatus();
       expect(status.collections.positions).toBe(1);
       
-      const positionService = new PositionService();
+      const positionService = createFirebasePositionService();
       const position = await positionService.getPosition(100);
       expect(position).not.toBeNull();
       expect(position!.title).toContain(testId);
@@ -161,7 +162,7 @@ test.describe('Emulator Isolation and Cleanup Verification', () => {
       const status = await apiClient.getFirebaseStatus();
       expect(status.collections.positions).toBe(1);
       
-      const positionService = new PositionService();
+      const positionService = createFirebasePositionService();
       const position = await positionService.getPosition(200);
       expect(position).not.toBeNull();
       expect(position!.title).toContain(testId);
@@ -180,7 +181,7 @@ test.describe('Emulator Isolation and Cleanup Verification', () => {
       });
       
       // Create first service instance and load data
-      const service1 = new PositionService();
+      const service1 = createFirebasePositionService();
       const position1 = await service1.getPosition(42);
       expect(position1).not.toBeNull();
       
@@ -189,7 +190,7 @@ test.describe('Emulator Isolation and Cleanup Verification', () => {
       expect(cache1Stats.size).toBe(1);
       
       // Create second service instance
-      const service2 = new PositionService();
+      const service2 = createFirebasePositionService();
       
       // Second instance should have empty cache initially
       const cache2StatsInitial = service2.getCacheStats();
@@ -305,7 +306,7 @@ test.describe('Emulator Isolation and Cleanup Verification', () => {
   test.describe('Memory and Resource Cleanup', () => {
     test('should not accumulate cached data across tests', async ({ firebaseData }) => {
       // Create many position services and load data
-      const services: PositionService[] = [];
+      const services: IPositionService[] = [];
       
       // Seed data
       const positions = Array.from({ length: 20 }, (_, i) => ({
@@ -318,7 +319,7 @@ test.describe('Emulator Isolation and Cleanup Verification', () => {
       
       // Create multiple service instances and load data
       for (let i = 0; i < 5; i++) {
-        const service = new PositionService();
+        const service = createFirebasePositionService();
         services.push(service);
         
         // Load different subsets of data in each service
@@ -363,7 +364,7 @@ test.describe('Emulator Isolation and Cleanup Verification', () => {
       expect(status.collections.positions).toBe(100);
       
       // Create service and load all data
-      const positionService = new PositionService();
+      const positionService = createFirebasePositionService();
       const allPositions = await positionService.getAllPositions();
       expect(allPositions).toHaveLength(100);
       

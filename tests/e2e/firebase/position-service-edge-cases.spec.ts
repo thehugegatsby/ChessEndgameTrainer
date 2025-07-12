@@ -5,15 +5,16 @@
  */
 
 import { test, expect } from '../firebase-test-fixture';
-import { PositionService } from '@shared/services/database/positionService';
+import { IPositionService } from '@shared/services/database/IPositionService';
+import { createFirebasePositionService } from './helpers/firebase-test-setup';
 import { EndgamePosition } from '@shared/types';
 
 test.describe('PositionService Edge Cases and Error Handling', () => {
-  let positionService: PositionService;
+  let positionService: IPositionService;
 
   test.beforeEach(async ({ firebaseData }) => {
     await firebaseData.clearAll();
-    positionService = new PositionService();
+    positionService = createFirebasePositionService();
   });
 
   test.describe('FEN Validation Edge Cases', () => {
@@ -421,7 +422,7 @@ test.describe('PositionService Edge Cases and Error Handling', () => {
       const results = await Promise.all(promises);
 
       // All requests should succeed and return the same data
-      results.forEach(result => {
+      results.forEach((result: EndgamePosition | null) => {
         expect(result).not.toBeNull();
         expect(result!.id).toBe(1);
         expect(result!.title).toBe('Concurrent Test Position');

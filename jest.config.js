@@ -4,7 +4,7 @@ module.exports = {
   testEnvironment: 'jsdom',
   transform: {
     '^.+\\.(ts|tsx|js|jsx)$': ['ts-jest', {
-      tsconfig: 'tsconfig.jest.json'
+      tsconfig: 'configs/typescript/tsconfig.jest.json'
     }]
   },
   transformIgnorePatterns: [

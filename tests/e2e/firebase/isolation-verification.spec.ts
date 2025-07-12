@@ -5,7 +5,8 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { PositionService } from '@shared/services/database/positionService';
+import { IPositionService } from '@shared/services/database/IPositionService';
+import { createFirebasePositionService } from './helpers/firebase-test-setup';
 import { EndgamePosition } from '@shared/types';
 
 // Test data for isolation verification
@@ -26,8 +27,8 @@ const testPosition: EndgamePosition = {
 test.describe('Basic Isolation Verification', () => {
   test.describe('Service Instance Isolation', () => {
     test('should have independent service instances', async () => {
-      const service1 = new PositionService();
-      const service2 = new PositionService();
+      const service1 = createFirebasePositionService();
+      const service2 = createFirebasePositionService();
       
       // Both services should start with empty caches
       const cache1Initial = service1.getCacheStats();
@@ -41,8 +42,8 @@ test.describe('Basic Isolation Verification', () => {
     });
 
     test('should isolate cache operations between instances', async () => {
-      const service1 = new PositionService();
-      const service2 = new PositionService();
+      const service1 = createFirebasePositionService();
+      const service2 = createFirebasePositionService();
       
       // Manually add to cache of first service
       // Note: This simulates cache population without requiring real Firestore data
@@ -73,7 +74,7 @@ test.describe('Basic Isolation Verification', () => {
 
   test.describe('Test-to-Test Isolation', () => {
     test('should start with clean service state (Test A)', async () => {
-      const service = new PositionService();
+      const service = createFirebasePositionService();
       
       // Should start clean
       const initialCache = service.getCacheStats();
@@ -92,7 +93,7 @@ test.describe('Basic Isolation Verification', () => {
     });
 
     test('should start with clean service state (Test B)', async () => {
-      const service = new PositionService();
+      const service = createFirebasePositionService();
       
       // Should start clean, unaffected by previous test
       const cache = service.getCacheStats();
@@ -106,7 +107,7 @@ test.describe('Basic Isolation Verification', () => {
 
   test.describe('Cache Management Verification', () => {
     test('should clear cache correctly', async () => {
-      const service = new PositionService();
+      const service = createFirebasePositionService();
       
       // Manually populate cache
       const privateCache = (service as any).cache;
@@ -130,7 +131,7 @@ test.describe('Basic Isolation Verification', () => {
     });
 
     test('should handle multiple cache operations', async () => {
-      const service = new PositionService();
+      const service = createFirebasePositionService();
       const privateCache = (service as any).cache;
       
       // Add items one by one and verify
@@ -161,11 +162,11 @@ test.describe('Basic Isolation Verification', () => {
 
   test.describe('Memory Management', () => {
     test('should not accumulate memory across instances', async () => {
-      const services: PositionService[] = [];
+      const services: IPositionService[] = [];
       
       // Create multiple service instances
       for (let i = 0; i < 10; i++) {
-        const service = new PositionService();
+        const service = createFirebasePositionService();
         services.push(service);
         
         // Populate each with some test data
@@ -206,7 +207,7 @@ test.describe('Basic Isolation Verification', () => {
     });
 
     test('should handle large cache datasets', async () => {
-      const service = new PositionService();
+      const service = createFirebasePositionService();
       const privateCache = (service as any).cache;
       
       // Populate with large dataset
@@ -247,7 +248,7 @@ test.describe('Basic Isolation Verification', () => {
 
   test.describe('Concurrent Operations', () => {
     test('should handle concurrent cache operations', async () => {
-      const service = new PositionService();
+      const service = createFirebasePositionService();
       const privateCache = (service as any).cache;
       
       // Simulate concurrent cache operations
@@ -276,7 +277,7 @@ test.describe('Basic Isolation Verification', () => {
     });
 
     test('should maintain consistency during mixed operations', async () => {
-      const service = new PositionService();
+      const service = createFirebasePositionService();
       const privateCache = (service as any).cache;
       
       // Initial population
@@ -321,7 +322,7 @@ test.describe('Basic Isolation Verification', () => {
 
   test.describe('State Consistency', () => {
     test('should maintain consistent state across operations', async () => {
-      const service = new PositionService();
+      const service = createFirebasePositionService();
       const privateCache = (service as any).cache;
       
       // Test state consistency through multiple operations
@@ -344,11 +345,11 @@ test.describe('Basic Isolation Verification', () => {
       // Verify final state
       const finalStats = service.getCacheStats();
       expect(finalStats.size).toBe(15);
-      expect(finalStats.keys.sort((a, b) => a - b)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
+      expect(finalStats.keys.sort((a: number, b: number) => a - b)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
     });
 
     test('should verify cache statistics accuracy', async () => {
-      const service = new PositionService();
+      const service = createFirebasePositionService();
       const privateCache = (service as any).cache;
       
       // Empty state
@@ -368,7 +369,7 @@ test.describe('Basic Isolation Verification', () => {
       expect(stats.size).toBe(testIds.length);
       expect(stats.keys).toHaveLength(testIds.length);
       expect(stats.size).toBe(stats.keys.length);
-      expect(stats.keys.sort((a, b) => a - b)).toEqual(testIds.sort((a, b) => a - b));
+      expect(stats.keys.sort((a: number, b: number) => a - b)).toEqual(testIds.sort((a: number, b: number) => a - b));
       
       // Remove some items
       privateCache.delete(5);
@@ -377,7 +378,7 @@ test.describe('Basic Isolation Verification', () => {
       stats = service.getCacheStats();
       expect(stats.size).toBe(3);
       expect(stats.keys).toHaveLength(3);
-      expect(stats.keys.sort((a, b) => a - b)).toEqual([1, 10, 100]);
+      expect(stats.keys.sort((a: number, b: number) => a - b)).toEqual([1, 10, 100]);
       
       // Clear and verify
       service.clearCache();

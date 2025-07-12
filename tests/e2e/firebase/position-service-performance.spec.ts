@@ -5,7 +5,8 @@
  */
 
 import { test, expect } from '../firebase-test-fixture';
-import { PositionService } from '@shared/services/database/positionService';
+import { IPositionService } from '@shared/services/database/IPositionService';
+import { createFirebasePositionService } from './helpers/firebase-test-setup';
 import { EndgamePosition, EndgameCategory, EndgameChapter } from '@shared/types';
 
 // Performance test configuration
@@ -48,11 +49,11 @@ function generateTestPositions(count: number, categoryPrefix = 'perf-test'): End
 }
 
 test.describe('PositionService Performance Tests', () => {
-  let positionService: PositionService;
+  let positionService: IPositionService;
 
   test.beforeEach(async ({ firebaseData }) => {
     await firebaseData.clearAll();
-    positionService = new PositionService();
+    positionService = createFirebasePositionService();
   });
 
   test.describe('Response Time Performance', () => {
@@ -93,7 +94,7 @@ test.describe('PositionService Performance Tests', () => {
       expect(responseTime).toBeLessThan(PERFORMANCE_CONFIG.MAX_RESPONSE_TIME_MS);
 
       // Verify all returned positions are from the correct category
-      categoryPositions.forEach(pos => {
+      categoryPositions.forEach((pos: EndgamePosition) => {
         expect(pos.category).toBe('perf-test-1');
       });
     });
@@ -110,7 +111,7 @@ test.describe('PositionService Performance Tests', () => {
       expect(responseTime).toBeLessThan(PERFORMANCE_CONFIG.MAX_RESPONSE_TIME_MS);
 
       // Verify all returned positions have correct difficulty
-      beginnerPositions.forEach(pos => {
+      beginnerPositions.forEach((pos: EndgamePosition) => {
         expect(pos.difficulty).toBe('beginner');
       });
     });
@@ -208,7 +209,7 @@ test.describe('PositionService Performance Tests', () => {
 
       // All requests should succeed
       expect(results).toHaveLength(PERFORMANCE_CONFIG.CONCURRENT_REQUESTS);
-      results.forEach(result => {
+      results.forEach((result: EndgamePosition | null) => {
         expect(result).not.toBeNull();
       });
 

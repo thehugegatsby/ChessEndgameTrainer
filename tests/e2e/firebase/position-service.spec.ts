@@ -5,7 +5,8 @@
  */
 
 import { test, expect } from '../firebase-test-fixture';
-import { PositionService } from '@shared/services/database/positionService';
+import { IPositionService } from '@shared/services/database/IPositionService';
+import { createFirebasePositionService } from './helpers/firebase-test-setup';
 import { EndgamePosition, EndgameCategory, EndgameChapter } from '@shared/types';
 
 // Test data fixtures
@@ -116,14 +117,14 @@ const testChapters: EndgameChapter[] = [
 ];
 
 test.describe('PositionService Integration Tests', () => {
-  let positionService: PositionService;
+  let positionService: IPositionService;
 
   test.beforeEach(async ({ firebaseData }) => {
     // Clear all data and seed test data
     await firebaseData.clearAll();
     
     // Create fresh instance for each test to ensure clean state
-    positionService = new PositionService();
+    positionService = createFirebasePositionService();
     
     // Seed test data for most tests
     await firebaseData.seedBatch({
@@ -182,7 +183,7 @@ test.describe('PositionService Integration Tests', () => {
       const positions = await positionService.getAllPositions();
       
       expect(positions).toHaveLength(4);
-      expect(positions.map(p => p.id).sort()).toEqual([1, 2, 3, 10]);
+      expect(positions.map((p: EndgamePosition) => p.id).sort()).toEqual([1, 2, 3, 10]);
       
       // Verify all positions are cached
       const cacheStats = positionService.getCacheStats();
@@ -200,7 +201,7 @@ test.describe('PositionService Integration Tests', () => {
     test('should retrieve positions by category', async () => {
       const basicCheckmates = await positionService.getPositionsByCategory('basic-checkmates');
       expect(basicCheckmates).toHaveLength(2);
-      expect(basicCheckmates.every(p => p.category === 'basic-checkmates')).toBe(true);
+      expect(basicCheckmates.every((p: EndgamePosition) => p.category === 'basic-checkmates')).toBe(true);
       
       const pawnEndgames = await positionService.getPositionsByCategory('pawn-endgames');
       expect(pawnEndgames).toHaveLength(1);
@@ -214,7 +215,7 @@ test.describe('PositionService Integration Tests', () => {
     test('should retrieve positions by difficulty', async () => {
       const beginnerPositions = await positionService.getPositionsByDifficulty('beginner');
       expect(beginnerPositions).toHaveLength(2);
-      expect(beginnerPositions.every(p => p.difficulty === 'beginner')).toBe(true);
+      expect(beginnerPositions.every((p: EndgamePosition) => p.difficulty === 'beginner')).toBe(true);
       
       const intermediatePositions = await positionService.getPositionsByDifficulty('intermediate');
       expect(intermediatePositions).toHaveLength(1);
@@ -271,7 +272,7 @@ test.describe('PositionService Integration Tests', () => {
       const categories = await positionService.getCategories();
       expect(categories).toHaveLength(3);
       
-      const categoryIds = categories.map(c => c.id);
+      const categoryIds = categories.map((c: EndgameCategory) => c.id);
       expect(categoryIds).toContain('basic-checkmates');
       expect(categoryIds).toContain('pawn-endgames');
       expect(categoryIds).toContain('rook-endgames');
@@ -281,7 +282,7 @@ test.describe('PositionService Integration Tests', () => {
       const chapters = await positionService.getChapters();
       expect(chapters).toHaveLength(3);
       
-      const chapterIds = chapters.map(c => c.id);
+      const chapterIds = chapters.map((c: EndgameChapter) => c.id);
       expect(chapterIds).toContain('chapter-1');
       expect(chapterIds).toContain('chapter-2');
       expect(chapterIds).toContain('chapter-3');
@@ -551,7 +552,7 @@ test.describe('PositionService Integration Tests', () => {
       expect(position1).not.toBeNull();
       
       // Create new service instance
-      const newService = new PositionService();
+      const newService = createFirebasePositionService();
       
       // Should be able to load same data
       const position2 = await newService.getPosition(1);
@@ -572,7 +573,7 @@ test.describe('PositionService Integration Tests', () => {
       const results = await Promise.all(rapidCalls);
       
       // All calls should succeed
-      results.forEach(result => {
+      results.forEach((result: EndgamePosition | null) => {
         expect(result).not.toBeNull();
       });
     });

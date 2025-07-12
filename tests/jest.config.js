@@ -12,7 +12,7 @@ module.exports = {
     }]
   },
   transformIgnorePatterns: [
-    '/node_modules/(?!(react-chessboard|chess.js|react-native|@react-native|@react-navigation|expo|@expo|react-native-.*)/)'
+    '/node_modules/(?!(react-chessboard|chess.js|nanoid|react-native|@react-native|@react-navigation|expo|@expo|react-native-.*)/)'
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   setupFilesAfterEnv: ['<rootDir>/tests/setup/jest.setup.js'],

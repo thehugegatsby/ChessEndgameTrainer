@@ -5,7 +5,8 @@
  */
 
 import { test, expect } from '../firebase-test-fixture';
-import { PositionService } from '@shared/services/database/positionService';
+import { IPositionService } from '@shared/services/database/IPositionService';
+import { createFirebasePositionService } from './helpers/firebase-test-setup';
 import { EndgamePosition } from '@shared/types';
 
 // Marker data for tracking cleanup
@@ -40,7 +41,7 @@ test.describe('Automatic Cleanup Mechanism Verification', () => {
       expect(afterSeedStatus.collections.positions).toBe(1);
       
       // Create service and verify data access
-      const positionService = new PositionService();
+      const positionService = createFirebasePositionService();
       const position = await positionService.getPosition(999);
       expect(position).not.toBeNull();
       expect(position!.title).toBe('Cleanup Verification Position');
@@ -60,7 +61,7 @@ test.describe('Automatic Cleanup Mechanism Verification', () => {
       expect(status.collections.positions).toBe(0);
       
       // Verify the specific marker data is gone
-      const positionService = new PositionService();
+      const positionService = createFirebasePositionService();
       const position = await positionService.getPosition(999);
       expect(position).toBeNull();
       
@@ -109,7 +110,7 @@ test.describe('Automatic Cleanup Mechanism Verification', () => {
       expect(status.collections.categories).toBe(1);
       
       // Create service instances and populate caches
-      const positionService = new PositionService();
+      const positionService = createFirebasePositionService();
       await positionService.getAllPositions();
       
       const cacheStats = positionService.getCacheStats();
@@ -126,7 +127,7 @@ test.describe('Automatic Cleanup Mechanism Verification', () => {
       expect(status.collections.categories).toBe(0);
       
       // Verify new service instance has clean state
-      const positionService = new PositionService();
+      const positionService = createFirebasePositionService();
       const allPositions = await positionService.getAllPositions();
       expect(allPositions).toHaveLength(0);
       
@@ -160,7 +161,7 @@ test.describe('Automatic Cleanup Mechanism Verification', () => {
       // Create services and populate caches
       const services = [];
       for (let i = 0; i < 3; i++) {
-        const service = new PositionService();
+        const service = createFirebasePositionService();
         services.push(service);
         
         // Load data to populate cache
@@ -255,7 +256,7 @@ test.describe('Automatic Cleanup Mechanism Verification', () => {
       
       // Create services and populate their caches
       for (let i = 0; i < 5; i++) {
-        const service = new PositionService();
+        const service = createFirebasePositionService();
         services.push(service);
         
         // Load different data in each service
@@ -284,7 +285,7 @@ test.describe('Automatic Cleanup Mechanism Verification', () => {
       expect(status.collections.positions).toBe(0);
       
       // Create new service instance
-      const newService = new PositionService();
+      const newService = createFirebasePositionService();
       
       // Should have empty cache
       const cacheStats = newService.getCacheStats();
