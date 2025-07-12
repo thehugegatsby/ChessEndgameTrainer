@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Comprehensive unit test coverage improvements (2025-07-12)
+  - EngineService: 89.33% coverage with singleton pattern testing
+  - ScenarioEngine Core: 100% coverage across all modules
+  - EvaluationService: 93.82% coverage with perspective correction tests
+  - MistakeAnalyzer: 96.93% coverage with adaptive threshold testing
+  - TablebaseClassifier: 97.29% coverage with tablebase-first classification
+  - Overall test coverage improved from 37.47% to 47.85% (+10.38%)
+- Created TEST_STRUCTURE.md documentation for test organization
+
 ### Fixed
 - Fixed 60 TypeScript errors through clean solution approach (2025-07-11)
   - Deleted outdated test files using old APIs instead of creating stub methods

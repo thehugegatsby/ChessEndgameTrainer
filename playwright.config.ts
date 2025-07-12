@@ -7,10 +7,15 @@ import { defineConfig, devices } from '@playwright/test';
 import { APP_CONFIG } from './config/constants';
 import * as path from 'path';
 
+
+// Force evaluation of getter and ensure correct types
+const url = String(APP_CONFIG?.DEV_URL || 'http://127.0.0.1:3002');
+const port = Number(APP_CONFIG?.DEV_PORT || 3002);
+
 const CI = process.env.CI === 'true';
 const TEST_API_PORT = 3003;
 
-export default defineConfig({
+const config = {
   // Test directory
   testDir: './tests/e2e',
   
@@ -24,8 +29,8 @@ export default defineConfig({
   reporter: [
     ['html', { open: !CI }],
     ['json', { outputFile: 'test-results/results.json' }],
-    CI ? ['github'] : ['list'],
-  ],
+    CI ? ['github'] : ['list']
+  ] as any,
   
   // Shared settings
   use: {
@@ -33,13 +38,13 @@ export default defineConfig({
     baseURL: APP_CONFIG.DEV_URL,
     
     // Collect trace on first retry
-    trace: 'on-first-retry',
+    trace: 'on-first-retry' as const,
     
     // Screenshot on failure
-    screenshot: 'only-on-failure',
+    screenshot: { mode: 'only-on-failure' as const },
     
     // Video on first retry
-    video: 'on-first-retry',
+    video: 'on-first-retry' as const,
     
     // Viewport
     viewport: { width: 1280, height: 720 },
@@ -109,35 +114,23 @@ export default defineConfig({
   // Global setup and teardown
   globalSetup: require.resolve('./tests/e2e/global-setup.ts'),
   
-  // Web servers to run
-  webServer: [
-    {
-      // Next.js dev server
-      command: CI ? 'npm run build && npm run start' : 'npm run dev',
-      url: APP_CONFIG.DEV_URL,
-      port: APP_CONFIG.DEV_PORT,
-      timeout: 120000,
-      reuseExistingServer: !CI,
-      env: {
-        NEXT_PUBLIC_IS_E2E_TEST: 'true',
-        NEXT_PUBLIC_E2E_SIGNALS: 'true',
-        FIRESTORE_EMULATOR_HOST: 'localhost:8080',
-      },
+  // Web server configuration - simplified to just Next.js dev server
+  // IMPORTANT: Playwright expects EITHER 'port' OR 'url', not both!
+  webServer: {
+    // Next.js dev server
+    command: CI ? 'npm run build && npm run start' : 'npm run dev',
+    url: url,  // Using URL only, not port
+    timeout: 120000,
+    reuseExistingServer: !CI,
+    env: {
+      NEXT_PUBLIC_IS_E2E_TEST: 'true',
+      NEXT_PUBLIC_E2E_SIGNALS: 'true',
+      FIRESTORE_EMULATOR_HOST: 'localhost:8080',
     },
-    {
-      // Test API server
-      command: 'npx tsx tests/utils/start-test-api-server.ts',
-      port: TEST_API_PORT,
-      timeout: 30000,
-      reuseExistingServer: !CI,
-      env: {
-        NODE_ENV: 'test',
-        FIRESTORE_EMULATOR_HOST: 'localhost:8080',
-      },
-    },
-    // Firebase emulator is started in global setup
-  ],
-});
+  },
+};
+
+export default defineConfig(config);
 
 // Environment variables for tests
 process.env.FIRESTORE_EMULATOR_HOST = 'localhost:8080';

@@ -59,7 +59,8 @@ export class TablebaseManager {
           if (info && info.isTablebasePosition && info.result?.wdl !== undefined) {
             // WDL values are from perspective of position after move
             // We need to negate to get from current player's perspective
-            const wdlFromCurrentPlayer = -info.result.wdl;
+            // Handle -0 case explicitly for draws
+            const wdlFromCurrentPlayer = info.result.wdl === 0 ? 0 : -info.result.wdl;
             tablebaseMoves.push({
               move: move.san,
               wdl: wdlFromCurrentPlayer,

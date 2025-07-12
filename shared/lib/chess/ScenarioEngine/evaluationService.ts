@@ -293,9 +293,9 @@ export class EvaluationService {
   private formatTablebaseEvaluation(result: any): string {
     switch (result.category) {
       case 'win':
-        return result.dtz ? `Win in ${result.dtz}` : 'Win';
+        return result.dtz ? `Win in ${Math.abs(result.dtz)}` : 'Win';
       case 'loss':
-        return result.dtz ? `Loss in ${result.dtz}` : 'Loss';
+        return result.dtz ? `Loss in ${Math.abs(result.dtz)}` : 'Loss';
       case 'draw':
         return 'Draw';
       case 'cursed-win':

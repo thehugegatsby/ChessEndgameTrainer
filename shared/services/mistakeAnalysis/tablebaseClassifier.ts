@@ -256,19 +256,25 @@ export function generateTablebaseExplanation(
       if (mistakeType === 'PERFECT') {
         return isBeginner
           ? 'Perfect! This is the fastest way to win.'
-          : `Optimal move: This maintains or improves the shortest path to mate (DTM ${afterDTM}).`;
+          : afterDTM !== undefined 
+            ? `Optimal move: This maintains or improves the shortest path to mate (DTM ${afterDTM}).`
+            : 'Optimal move: This maintains the winning position.';
       }
       
       if (mistakeType === 'CORRECT') {
         return isBeginner
           ? 'Good move! This keeps your winning advantage.'
-          : `Solid choice: This maintains the win, though not the fastest route (+${dtmDelta} moves to DTM ${afterDTM}).`;
+          : afterDTM !== undefined
+            ? `Solid choice: This maintains the win, though not the fastest route (+${dtmDelta} moves to DTM ${afterDTM}).`
+            : 'Solid choice: This maintains the winning position.';
       }
       
       if (mistakeType === 'SUBOPTIMAL') {
         return isBeginner
           ? 'This move still wins, but takes longer. Try to find more direct paths.'
-          : `Suboptimal: This significantly extends the win (+${dtmDelta} moves to DTM ${afterDTM}). Look for more forcing continuations.`;
+          : afterDTM !== undefined
+            ? `Suboptimal: This significantly extends the win (+${dtmDelta} moves to DTM ${afterDTM}). Look for more forcing continuations.`
+            : 'Suboptimal: This maintains the win but not efficiently.';
       }
     }
     
