@@ -9,15 +9,13 @@
     ".next",
     "out",
     "scripts/**/*",
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.spec.ts",
-    "**/*.spec.tsx",
-    "tests/_quarantined_e2e/**/*",
     "tests/components/__mocks__/**/*",
     "tests/e2e/**/*",
     "test-results/**/*",
     "playwright-report/**/*",
-    "coverage/**/*"
+    "coverage/**/*",
+    "tests/unit/lib/chess/ScenarioEngine/**/*",
+    "tests/unit/services/EngineService.test.ts",
+    "tests/unit/store/store-error-handling.test.ts"
   ]
 }
