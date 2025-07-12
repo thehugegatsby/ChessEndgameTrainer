@@ -8,7 +8,7 @@ module.exports = {
   clearMocks: true, // Change from resetMocks to clearMocks to avoid Jest internal conflicts 
   transform: {
     '^.+\\.(ts|tsx|js|jsx)$': ['ts-jest', {
-      tsconfig: '<rootDir>/tsconfig.jest.json'
+      tsconfig: '<rootDir>/configs/typescript/tsconfig.jest.json'
     }]
   },
   transformIgnorePatterns: [

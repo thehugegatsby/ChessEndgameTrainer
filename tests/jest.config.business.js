@@ -10,7 +10,7 @@ module.exports = {
   rootDir: '..', 
   transform: {
     '^.+\\.(ts|tsx|js|jsx)$': ['ts-jest', {
-      tsconfig: '<rootDir>/tsconfig.jest.json'
+      tsconfig: '<rootDir>/configs/typescript/tsconfig.jest.json'
     }]
   },
   transformIgnorePatterns: [

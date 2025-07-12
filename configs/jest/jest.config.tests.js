@@ -31,7 +31,7 @@ const config = {
   preset: 'ts-jest',
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: 'tsconfig.jest.json'
+      tsconfig: '<rootDir>/configs/typescript/tsconfig.jest.json'
     }],
     '^.+\\.(js|jsx)$': ['babel-jest', {
       presets: [
