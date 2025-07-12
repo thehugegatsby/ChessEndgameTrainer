@@ -10,6 +10,7 @@ import { useEngine } from '@shared/hooks';
 import { DualEvaluation } from '@shared/lib/chess/ScenarioEngine';
 import { EngineErrorBoundary } from '@shared/components/ui';
 import { BestMovesDisplay } from './BestMovesDisplay';
+import { isTablebaseAvailable } from '@shared/utils/tablebaseHelpers';
 
 interface DualEvaluationSidebarProps {
   fen: string;
@@ -114,7 +115,7 @@ export const DualEvaluationSidebar: React.FC<DualEvaluationSidebarProps> = ({
   };
 
   const getTablebaseDisplay = (tablebase?: DualEvaluation['tablebase']) => {
-    if (!tablebase?.result?.wdl) return null;
+    if (!isTablebaseAvailable(tablebase)) return null;
     
     const resultText = tablebase.result.wdl === 2 ? 'Gewinn' : 
                       tablebase.result.wdl === -2 ? 'Verlust' : 

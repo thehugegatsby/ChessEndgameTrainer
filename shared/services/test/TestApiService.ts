@@ -45,7 +45,7 @@ export interface TestGameState {
 }
 
 export interface TestEngineConfig {
-  deterministic: boolean;
+  deterministic?: boolean;
   seed?: number;
   fixedResponses?: Map<string, string>;
   depth?: number;

@@ -194,6 +194,7 @@ describe('Store Error Handling', () => {
       const { result } = renderHook(() => useStore());
       
       const evaluation = {
+        evaluation: 0.5,
         score: 0.5,
         mate: null,
         bestMove: 'e2e4',
@@ -213,9 +214,9 @@ describe('Store Error Handling', () => {
       const { result } = renderHook(() => useStore());
       
       const evaluations = [
-        { score: 0.3, mate: null, bestMove: 'e2e4' },
-        { score: 0.2, mate: null, bestMove: 'e7e5' },
-        { score: 0.4, mate: null, bestMove: 'g1f3' }
+        { evaluation: 0.3, score: 0.3, bestMove: 'e2e4' },
+        { evaluation: 0.2, score: 0.2, bestMove: 'e7e5' },
+        { evaluation: 0.4, score: 0.4, bestMove: 'g1f3' }
       ];
 
       act(() => {

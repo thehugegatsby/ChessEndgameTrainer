@@ -11,16 +11,20 @@ export interface DualEvaluation {
     mate: number | null;
     evaluation: string;
   };
-  tablebase?: {
-    isAvailable: boolean;
-    result: {
-      wdl: number;
-      dtz?: number;
-      category: 'win' | 'loss' | 'draw' | 'cursed-win' | 'blessed-loss';
-      precise: boolean;
-    };
-    evaluation: string;
-  };
+  tablebase?: 
+    | {
+        isAvailable: true;
+        result: {
+          wdl: number;
+          dtz?: number;
+          category: 'win' | 'loss' | 'draw' | 'cursed-win' | 'blessed-loss';
+          precise: boolean;
+        };
+        evaluation: string;
+      }
+    | {
+        isAvailable: false;
+      };
 }
 
 export interface TablebaseInfo {

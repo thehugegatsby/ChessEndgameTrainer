@@ -9,9 +9,8 @@ import { execSync } from 'child_process';
 async function globalSetup(config: FullConfig) {
   console.log('🔧 E2E Global Setup: Initializing test environment...');
   
-  // Set environment variables for test mode
-  process.env.NEXT_PUBLIC_IS_E2E_TEST = 'true';
-  process.env.NEXT_PUBLIC_E2E_SIGNALS = 'true';
+  // Environment variables are now set in playwright.config.ts webServer.env
+  // This ensures they are available when Next.js initializes
   
   // Verify Next.js build is available for production tests
   const isCI = process.env.CI === 'true';

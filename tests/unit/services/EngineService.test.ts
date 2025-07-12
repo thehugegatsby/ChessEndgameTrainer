@@ -301,20 +301,41 @@ describe('EngineService', () => {
   });
 
   describe('without window (SSR environment)', () => {
-    it('should not start cleanup timer when window is undefined', () => {
-      // Clear existing timers first
+    let originalWindow: any;
+
+    beforeEach(() => {
+      // Save original window
+      originalWindow = (global as any).window;
+      
+      // Cleanup existing service
+      if (service) {
+        service.cleanup();
+      }
+      
+      // Clear all timers and use fake timers
       jest.clearAllTimers();
-      
-      // Remove window before loading modules
-      delete global.window;
-      
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      // Restore original window
+      if (originalWindow !== undefined) {
+        (global as any).window = originalWindow;
+      }
+      jest.useRealTimers();
+    });
+
+    it('should not start cleanup timer when window is undefined', () => {
       jest.isolateModules(() => {
+        // Delete window to simulate SSR environment
+        delete (global as any).window;
+        
         const EngineServiceModule = require('@shared/services/chess/EngineService');
         // Reset singleton
         (EngineServiceModule.EngineService as any).instance = null;
         const ssrService = EngineServiceModule.EngineService.getInstance();
         
-        // No timers should be running
+        // No timers should be running in SSR environment
         expect(jest.getTimerCount()).toBe(0);
       });
     });

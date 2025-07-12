@@ -97,19 +97,19 @@ describe('TestApiService', () => {
     
     // Mock engine service
     mockEngineService = {
-      initialize: jest.fn(),
+      initialize: jest.fn().mockResolvedValue(undefined),
       analyzePosition: jest.fn().mockResolvedValue({
-        evaluation: { type: 'cp', value: 15 },
+        evaluation: 15,
         bestMove: 'e2e4',
-        pv: ['e2e4', 'e7e5'],
-        depth: 15
+        principalVariation: ['e2e4', 'e7e5'],
+        depth: 15,
+        timeMs: 100
       }),
-      findBestMove: jest.fn(),
+      getStatus: jest.fn().mockReturnValue('ready'),
       stopAnalysis: jest.fn(),
-      terminate: jest.fn(),
-      isReady: jest.fn().mockReturnValue(true),
       isAnalyzing: jest.fn().mockReturnValue(false),
-      getAnalysisProgress: jest.fn()
+      shutdown: jest.fn().mockResolvedValue(undefined),
+      onStatusChange: jest.fn().mockReturnValue(jest.fn())
     };
     
     // Mock console methods
@@ -436,7 +436,7 @@ describe('TestApiService', () => {
       expect(result).toBe(true);
       expect(eventHandler).toHaveBeenCalledWith(expect.objectContaining({
         analysis: expect.objectContaining({
-          evaluation: { type: 'cp', value: 15 },
+          evaluation: 15,
           bestMove: 'e2e4'
         })
       }));

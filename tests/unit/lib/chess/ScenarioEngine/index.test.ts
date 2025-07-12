@@ -333,9 +333,9 @@ describe('ScenarioEngine', () => {
     it('should get best moves with default count', async () => {
       const bestMoves = {
         engine: [
-          { move: 'e4', evaluation: 0.3, mate: null },
-          { move: 'd4', evaluation: 0.2, mate: null },
-          { move: 'Nf3', evaluation: 0.1, mate: null }
+          { move: 'e4', evaluation: 0.3 },
+          { move: 'd4', evaluation: 0.2 },
+          { move: 'Nf3', evaluation: 0.1 }
         ],
         tablebase: []
       };
@@ -350,11 +350,11 @@ describe('ScenarioEngine', () => {
     it('should get best moves with custom count', async () => {
       const bestMoves = {
         engine: [
-          { move: 'e4', evaluation: 0.3, mate: null },
-          { move: 'd4', evaluation: 0.2, mate: null },
-          { move: 'Nf3', evaluation: 0.1, mate: null },
-          { move: 'c4', evaluation: 0.1, mate: null },
-          { move: 'g3', evaluation: 0.0, mate: null }
+          { move: 'e4', evaluation: 0.3 },
+          { move: 'd4', evaluation: 0.2 },
+          { move: 'Nf3', evaluation: 0.1 },
+          { move: 'c4', evaluation: 0.1 },
+          { move: 'g3', evaluation: 0.0 }
         ],
         tablebase: []
       };

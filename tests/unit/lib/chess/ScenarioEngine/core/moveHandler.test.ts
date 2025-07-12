@@ -6,7 +6,7 @@
 // Mock dependencies before imports
 jest.mock('chess.js');
 
-import { Chess } from 'chess.js';
+import { Chess, Move } from 'chess.js';
 import { MoveHandler } from '@shared/lib/chess/ScenarioEngine/core/moveHandler';
 
 describe('MoveHandler', () => {
@@ -59,7 +59,7 @@ describe('MoveHandler', () => {
       const engineMove = { from: 'e7', to: 'e5' };
 
       // First move() call returns player move
-      mockChess.move.mockReturnValueOnce(playerMoveResult);
+      mockChess.move.mockReturnValueOnce(playerMoveResult as unknown as Move);
       // Second move() call for engine move
       mockChess.move.mockReturnValueOnce({} as any);
       
@@ -87,7 +87,7 @@ describe('MoveHandler', () => {
         promotion: 'q'
       };
 
-      mockChess.move.mockReturnValueOnce(playerMoveResult);
+      mockChess.move.mockReturnValueOnce(playerMoveResult as unknown as Move);
       mockEngine.getBestMove.mockResolvedValue(null);
 
       const result = await moveHandler.makeMove(playerMove);
@@ -98,7 +98,7 @@ describe('MoveHandler', () => {
 
     it('should return null for invalid move', async () => {
       const invalidMove = { from: 'e2', to: 'e5' };
-      mockChess.move.mockReturnValueOnce(null);
+      mockChess.move.mockReturnValueOnce(null as any);
 
       const result = await moveHandler.makeMove(invalidMove);
 
@@ -110,7 +110,7 @@ describe('MoveHandler', () => {
       const playerMove = { from: 'e2', to: 'e4' };
       const playerMoveResult = { from: 'e2', to: 'e4', san: 'e4' };
 
-      mockChess.move.mockReturnValueOnce(playerMoveResult);
+      mockChess.move.mockReturnValueOnce(playerMoveResult as unknown as Move);
       mockEngine.getBestMove.mockResolvedValue({ from: 'e7', to: 'e5' });
       
       // Engine move throws error
@@ -128,7 +128,7 @@ describe('MoveHandler', () => {
       const playerMove = { from: 'e2', to: 'e4' };
       const playerMoveResult = { from: 'e2', to: 'e4', san: 'e4' };
 
-      mockChess.move.mockReturnValueOnce(playerMoveResult);
+      mockChess.move.mockReturnValueOnce(playerMoveResult as unknown as Move);
       mockEngine.getBestMove.mockResolvedValue(null);
 
       const result = await moveHandler.makeMove(playerMove);
@@ -143,7 +143,7 @@ describe('MoveHandler', () => {
       const playerMoveResult = { from: 'e2', to: 'e4', san: 'e4' };
       const engineMove = { from: 'a7', to: 'a8', promotion: 'q' };
 
-      mockChess.move.mockReturnValueOnce(playerMoveResult);
+      mockChess.move.mockReturnValueOnce(playerMoveResult as unknown as Move);
       mockChess.move.mockReturnValueOnce({} as any);
       mockEngine.getBestMove.mockResolvedValue(engineMove);
 
@@ -171,7 +171,7 @@ describe('MoveHandler', () => {
 
       // Test black's turn
       mockChess.turn.mockReturnValue('b');
-      mockChess.move.mockReturnValueOnce(playerMoveResult);
+      mockChess.move.mockReturnValueOnce(playerMoveResult as unknown as Move);
       mockEngine.getBestMove.mockResolvedValue(null);
 
       const result = await moveHandler.makeMove(playerMove);

@@ -70,9 +70,9 @@ describe('Utilities', () => {
   describe('getBestMoves', () => {
     it('should get engine moves for non-tablebase position', async () => {
       const engineMoves = [
-        { move: 'e2e4', evaluation: 0.3, mate: null },
-        { move: 'd2d4', evaluation: 0.2, mate: null },
-        { move: 'g1f3', evaluation: 0.1, mate: null }
+        { move: 'e2e4', evaluation: 0.3 },
+        { move: 'd2d4', evaluation: 0.2 },
+        { move: 'g1f3', evaluation: 0.1 }
       ];
 
       mockEvaluationManager.getEngineBestMoves.mockResolvedValue(engineMoves);
@@ -91,9 +91,9 @@ describe('Utilities', () => {
 
       expect(result).toEqual({
         engine: [
-          { move: 'e4', evaluation: 0.3, mate: null },
-          { move: 'd4', evaluation: 0.2, mate: null },
-          { move: 'Nf3', evaluation: 0.1, mate: null }
+          { move: 'e4', evaluation: 0.3 },
+          { move: 'd4', evaluation: 0.2 },
+          { move: 'Nf3', evaluation: 0.1 }
         ],
         tablebase: []
       });
@@ -101,8 +101,8 @@ describe('Utilities', () => {
 
     it('should get both engine and tablebase moves for endgame position', async () => {
       const engineMoves = [
-        { move: 'e3e4', evaluation: 10.5, mate: null },
-        { move: 'e3d2', evaluation: 10.2, mate: null }
+        { move: 'e3e4', evaluation: 10.5 },
+        { move: 'e3d2', evaluation: 10.2 }
       ];
 
       const tablebaseMoves = [
@@ -125,8 +125,8 @@ describe('Utilities', () => {
 
       expect(result).toEqual({
         engine: [
-          { move: 'e4', evaluation: 10.5, mate: null },
-          { move: 'Kd2', evaluation: 10.2, mate: null }
+          { move: 'e4', evaluation: 10.5 },
+          { move: 'Kd2', evaluation: 10.2 }
         ],
         tablebase: tablebaseMoves
       });

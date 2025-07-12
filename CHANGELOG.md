@@ -33,6 +33,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Created TEST_STRUCTURE.md documentation for test organization
 
 ### Fixed
+- Fixed all TypeScript errors related to chess.js 1.0.0-beta.6 migration (2025-07-12)
+  - Updated Move type usage in tests with proper type assertions
+  - Fixed IEngineService mock to match actual interface methods
+  - Implemented discriminated union for DualEvaluation.tablebase type
+  - Created helper functions in `tablebaseHelpers.ts` for type-safe access
+  - Updated all components to use proper type guards
+  - Fixed EngineService SSR test by properly simulating server-side environment
+  - Fixed various test data issues (mate property, deterministic config, evaluation property)
 - Fixed CI/CD pipeline issues (2025-07-12)
   - Increased Jest skipped test threshold from 10 to 12 temporarily
   - Fixed Firebase emulator configuration in playwright.config.ts

@@ -320,7 +320,10 @@ describe('EvaluationService', () => {
 
         const result = await evaluationService.getDualEvaluation(whiteFen);
 
-        expect(result.tablebase?.evaluation).toBe(testCase.expected);
+        expect(result.tablebase?.isAvailable).toBe(true);
+        if (result.tablebase?.isAvailable) {
+          expect(result.tablebase.evaluation).toBe(testCase.expected);
+        }
       }
     });
 
@@ -379,7 +382,10 @@ describe('EvaluationService', () => {
 
       const result = await evaluationService.getDualEvaluation(whiteFen);
 
-      expect(result.tablebase?.evaluation).toBe('Unknown');
+      expect(result.tablebase?.isAvailable).toBe(true);
+      if (result.tablebase?.isAvailable) {
+        expect(result.tablebase.evaluation).toBe('Unknown');
+      }
     });
   });
 });

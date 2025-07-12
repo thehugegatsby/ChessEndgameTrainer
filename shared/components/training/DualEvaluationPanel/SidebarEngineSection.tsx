@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { DualEvaluation } from '@shared/lib/chess/ScenarioEngine';
+import { isTablebaseAvailable } from '@shared/utils/tablebaseHelpers';
 
 interface SidebarEngineSectionProps {
   evaluation: DualEvaluation | null;
@@ -83,7 +84,7 @@ export const SidebarEngineSection: React.FC<SidebarEngineSectionProps> = ({
           </div>
 
           {/* Win prediction for tablebase positions */}
-          {evaluation.tablebase?.result?.wdl !== undefined && (
+          {isTablebaseAvailable(evaluation.tablebase) && (
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-500">Result:</span>
               <span className={`font-medium ${
