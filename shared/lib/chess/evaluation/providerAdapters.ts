@@ -5,35 +5,41 @@
 
 import type { IEngineProvider, ITablebaseProvider } from './providers';
 import type { EngineEvaluation, TablebaseResult } from '../../../types/evaluation';
-import { EngineService } from '../../../services/chess/EngineService';
+import { engine } from '../engine/singleton';
 
 /**
- * Adapts the new EngineService to IEngineProvider interface
+ * Adapts the enhanced Engine to IEngineProvider interface
+ * PHASE 2.2: Now calls enhanced engine API to get PV data
  */
 export class EngineProviderAdapter implements IEngineProvider {
-  private engineService: EngineService;
-
-  constructor() {
-    this.engineService = EngineService.getInstance();
-  }
-
   async getEvaluation(fen: string, playerToMove: 'w' | 'b'): Promise<EngineEvaluation | null> {
     try {
-      // Use the new IChessEngine interface
-      const evaluation = await this.engineService.evaluatePosition(fen, { depth: 15 });
+      // PHASE 2.2: Call enhanced engine API with PV data
+      const enhancedEvaluation = await engine.evaluatePositionEnhanced(fen, false);
       
-      if (!evaluation) {
+      if (!enhancedEvaluation) {
         return null;
       }
 
-      // Convert to EngineEvaluation format
+      // Convert enhanced evaluation to EngineEvaluation format with PV data
       const result: EngineEvaluation = {
-        score: evaluation.evaluation,
-        mate: evaluation.mate || null,
-        evaluation: evaluation.mate ? `#${Math.abs(evaluation.mate)}` : `${(evaluation.evaluation / 100).toFixed(2)}`,
-        depth: 15, // Default depth
-        nodes: 0, // Not available in current implementation
-        time: 0   // Not available in current implementation
+        score: enhancedEvaluation.score,
+        mate: enhancedEvaluation.mate,
+        evaluation: enhancedEvaluation.mate 
+          ? `#${Math.abs(enhancedEvaluation.mate)}` 
+          : `${(enhancedEvaluation.score / 100).toFixed(2)}`,
+        depth: enhancedEvaluation.depth || 15,
+        nodes: enhancedEvaluation.nodes || 0,
+        time: enhancedEvaluation.time || 0,
+        // PHASE 2.2: Include PV data in engine evaluation
+        pv: enhancedEvaluation.pv,
+        pvString: enhancedEvaluation.pvString,
+        nps: enhancedEvaluation.nps,
+        hashfull: enhancedEvaluation.hashfull,
+        seldepth: enhancedEvaluation.seldepth,
+        multipv: enhancedEvaluation.multipv,
+        currmove: enhancedEvaluation.currmove,
+        currmovenumber: enhancedEvaluation.currmovenumber
       };
 
       return result;

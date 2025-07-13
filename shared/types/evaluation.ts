@@ -16,6 +16,18 @@ export interface EvaluationData {
   evaluation: number;
   mateInMoves?: number;
   tablebase?: TablebaseData;
+  // PHASE 2.2: Enhanced UCI evaluation data for PV display
+  pv?: string[];          // Principal variation moves array
+  pvString?: string;      // Raw PV string for debugging
+  depth?: number;         // Search depth reached
+  nps?: number;           // Nodes per second
+  time?: number;          // Time spent in milliseconds
+  nodes?: number;         // Number of positions evaluated
+  hashfull?: number;      // Hash table usage percentage
+  seldepth?: number;      // Selective search depth
+  multipv?: number;       // Multi-PV index
+  currmove?: string;      // Current move being analyzed
+  currmovenumber?: number; // Current move number
 }
 
 export interface EvaluationDisplay {
@@ -70,6 +82,24 @@ export interface EngineEvaluation {
   
   /** Time spent in milliseconds */
   time: number;
+  
+  // PHASE 2.2: Enhanced UCI evaluation data for PV display
+  /** Principal variation moves array */
+  pv?: string[];
+  /** Raw PV string for debugging */
+  pvString?: string;
+  /** Nodes per second */
+  nps?: number;
+  /** Hash table usage percentage */
+  hashfull?: number;
+  /** Selective search depth */
+  seldepth?: number;
+  /** Multi-PV index */
+  multipv?: number;
+  /** Current move being analyzed */
+  currmove?: string;
+  /** Current move number */
+  currmovenumber?: number;
 }
 
 /**

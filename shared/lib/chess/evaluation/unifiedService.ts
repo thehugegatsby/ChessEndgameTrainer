@@ -28,7 +28,8 @@ import type {
 import type {
   PlayerPerspectiveEvaluation,
   FormattedEvaluation,
-  NormalizedEvaluation
+  NormalizedEvaluation,
+  EngineEvaluation
 } from '../../../types/evaluation';
 
 export class UnifiedEvaluationService {
@@ -207,6 +208,28 @@ export class UnifiedEvaluationService {
       return { 
         engine: this.createErrorFormattedEvaluation()
       };
+    }
+  }
+
+  /**
+   * Gets raw engine evaluation data with enhanced UCI fields (including PV)
+   * PHASE 2.2: Exposes enhanced evaluation data for PV display
+   * 
+   * @param fen - Position in FEN notation
+   * @param perspective - Player perspective ('w' or 'b') 
+   * @returns Raw engine evaluation data or null if unavailable
+   */
+  async getRawEngineEvaluation(
+    fen: string,
+    perspective: 'w' | 'b'
+  ): Promise<EngineEvaluation | null> {
+    try {
+      const playerToMove = this.getPlayerToMoveFromFen(fen);
+      const engineData = await this.engineProvider.getEvaluation(fen, playerToMove);
+      
+      return engineData;
+    } catch (error) {
+      return null;
     }
   }
 

@@ -103,6 +103,9 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
           return;
         }
 
+        // PHASE 2.2: Also get raw engine evaluation with PV data
+        const rawEngineEval = await service.getRawEngineEvaluation(fen, playerToMove);
+
         // Convert formatted evaluation to legacy format
         let evaluationScore: number;
         
@@ -118,7 +121,19 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
         const evaluation: EvaluationData = {
           evaluation: evaluationScore,
           mateInMoves: formattedEval.metadata.isMate ? 
-            parseInt(formattedEval.mainText.replace(/[M+-]/g, '')) : undefined
+            parseInt(formattedEval.mainText.replace(/[M+-]/g, '')) : undefined,
+          // PHASE 2.2: Include enhanced UCI data from raw engine evaluation
+          pv: rawEngineEval?.pv,
+          pvString: rawEngineEval?.pvString,
+          depth: rawEngineEval?.depth,
+          nps: rawEngineEval?.nps,
+          time: rawEngineEval?.time,
+          nodes: rawEngineEval?.nodes,
+          hashfull: rawEngineEval?.hashfull,
+          seldepth: rawEngineEval?.seldepth,
+          multipv: rawEngineEval?.multipv,
+          currmove: rawEngineEval?.currmove,
+          currmovenumber: rawEngineEval?.currmovenumber
         };
 
         // Handle tablebase data if available
