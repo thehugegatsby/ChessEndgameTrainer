@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Test Infrastructure Stabilization** (2025-07-13)
+  - **TypeScript Export Resolution**: Fixed missing `UseEvaluationReturn` export in useEvaluation hook
+    - Added proper export interface for test compatibility
+    - Resolved compilation errors in useEvaluation.test.ts
+  - **E2E Test Production Mode**: Stabilized tests using production build instead of dev server
+    - 8/10 E2E tests passing (Chromium, Firefox, WebKit all pass)
+    - Mobile-specific failures isolated to sidebar click interception issue
+  - **Cross-Origin Security Headers**: Fixed Stockfish WASM SharedArrayBuffer support
+    - Added Cross-Origin-Resource-Policy header for stockfish-nnue-16.wasm
+    - Centralized COEP/COOP/CORP header configuration in next.config.js
+
 ### Added
 - **Architecture Simplification: Clean Slate Engine Refactoring** (2025-07-13)
   - **Expert-Validated Clean Architecture**: Applied "Clean Slate" approach with Gemini Pro + O3-Mini consensus (9/10 confidence scores)

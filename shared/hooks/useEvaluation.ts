@@ -18,7 +18,7 @@ interface UseEvaluationOptions {
   previousFen?: string;
 }
 
-interface UseEvaluationReturn {
+export interface UseEvaluationReturn {
   evaluations: EvaluationData[];
   lastEvaluation: EvaluationData | null;
   isEvaluating: boolean;
