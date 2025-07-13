@@ -3,9 +3,10 @@
  * @description Tests unified evaluation service integration, caching, and state management
  */
 
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act, waitFor, RenderHookResult } from '@testing-library/react';
 import { useEvaluation } from '@shared/hooks/useEvaluation';
 import { TEST_FENS } from '../../../shared/testing/TestFixtures';
+import type { UseEvaluationReturn } from '@shared/hooks/useEvaluation';
 
 // Mock the unified evaluation service and dependencies
 const mockFormattedEvaluation = {
@@ -70,6 +71,15 @@ describe('useEvaluation Hook', () => {
     mockUnifiedService.getPerspectiveEvaluation.mockResolvedValue(mockPerspectiveEvaluation);
   });
 
+  // Helper function to wait for evaluation to complete
+  const waitForEvaluationComplete = async (
+    result: RenderHookResult<UseEvaluationReturn, unknown>
+  ): Promise<void> => {
+    await waitFor(() => {
+      expect(result.current.isEvaluating).toBe(false);
+    }, { timeout: 2000 });
+  };
+
   describe('Basic Functionality', () => {
     it('should initialize with empty state', () => {
       const { result } = renderHook(() => useEvaluation({
@@ -113,20 +123,16 @@ describe('useEvaluation Hook', () => {
         isEnabled: true
       }));
 
-      await act(async () => {
-        await waitFor(() => {
-          expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalledWith(
-            TEST_FENS.STARTING_POSITION,
-            'w'
-          );
-        });
+      // Wait for evaluation to complete by waiting for isEvaluating to become false
+      await waitFor(() => {
+        expect(result.current.isEvaluating).toBe(false);
       });
 
-      // The hook may or may not be evaluating initially
-      expect(result.current.isEvaluating).toBeDefined();
+      expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalledWith(
+        TEST_FENS.STARTING_POSITION,
+        'w'
+      );
       expect(result.current.evaluations).toBeDefined();
-      // Check that evaluation was called
-      expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalled();
     });
 
     it('should handle mate evaluations', async () => {
@@ -147,13 +153,8 @@ describe('useEvaluation Hook', () => {
         isEnabled: true
       }));
 
-      await act(async () => {
-        await waitFor(() => {
-          expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalled();
-        });
-      });
+      await waitForEvaluationComplete(result);
 
-      // Just verify the evaluation was called with mate evaluation
       expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalledWith(
         TEST_FENS.KQK_TABLEBASE_WIN,
         'w'
@@ -164,19 +165,17 @@ describe('useEvaluation Hook', () => {
       // Black to move position
       const blackToMoveFen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1';
 
-      renderHook(() => useEvaluation({
+      const { result } = renderHook(() => useEvaluation({
         fen: blackToMoveFen,
         isEnabled: true
       }));
 
-      await act(async () => {
-        await waitFor(() => {
-          expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalledWith(
-            blackToMoveFen,
-            'b'
-          );
-        });
-      });
+      await waitForEvaluationComplete(result);
+
+      expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalledWith(
+        blackToMoveFen,
+        'b'
+      );
     });
   });
 
@@ -191,13 +190,8 @@ describe('useEvaluation Hook', () => {
         isEnabled: true
       }));
 
-      await act(async () => {
-        await waitFor(() => {
-          expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalled();
-        });
-      });
+      await waitForEvaluationComplete(result);
 
-      // Verify the evaluation was called for tablebase position
       expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalledWith(
         TEST_FENS.KQK_TABLEBASE_WIN,
         'w'
@@ -214,17 +208,15 @@ describe('useEvaluation Hook', () => {
         previousFen
       }));
 
-      await act(async () => {
-        await waitFor(() => {
-          expect(mockUnifiedService.getPerspectiveEvaluation).toHaveBeenCalledWith(
-            previousFen,
-            'b' // Player who made the move (since current position has white to move)
-          );
-          expect(mockUnifiedService.getPerspectiveEvaluation).toHaveBeenCalledWith(
-            currentFen,
-            'b'
-          );
-        });
+      await waitFor(() => {
+        expect(mockUnifiedService.getPerspectiveEvaluation).toHaveBeenCalledWith(
+          previousFen,
+          'b' // Player who made the move (since current position has white to move)
+        );
+        expect(mockUnifiedService.getPerspectiveEvaluation).toHaveBeenCalledWith(
+          currentFen,
+          'b'
+        );
       });
 
       // Verify that perspective evaluation was called for both positions
@@ -240,13 +232,11 @@ describe('useEvaluation Hook', () => {
         previousFen: TEST_FENS.STARTING_POSITION
       }));
 
-      await act(async () => {
-        await waitFor(() => {
-          expect(mockUnifiedService.getPerspectiveEvaluation).toHaveBeenCalledWith(
-            TEST_FENS.STARTING_POSITION,
-            'w' // White made the move to reach black-to-move position
-          );
-        });
+      await waitFor(() => {
+        expect(mockUnifiedService.getPerspectiveEvaluation).toHaveBeenCalledWith(
+          TEST_FENS.STARTING_POSITION,
+          'w' // White made the move to reach black-to-move position
+        );
       });
     });
 
@@ -268,11 +258,7 @@ describe('useEvaluation Hook', () => {
         isEnabled: true
       }));
 
-      await act(async () => {
-        await waitFor(() => {
-          expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalled();
-        });
-      });
+      await waitForEvaluationComplete(result);
 
       // Verify the evaluation was called for draw position
       expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalledWith(
@@ -289,11 +275,7 @@ describe('useEvaluation Hook', () => {
         isEnabled: true
       }));
 
-      await act(async () => {
-        await waitFor(() => {
-          expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalled();
-        });
-      });
+      await waitForEvaluationComplete(result);
 
       const testEvaluation = { evaluation: 200, mateInMoves: undefined };
       act(() => {
@@ -311,11 +293,7 @@ describe('useEvaluation Hook', () => {
         isEnabled: true
       }));
 
-      await act(async () => {
-        await waitFor(() => {
-          expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalled();
-        });
-      });
+      await waitForEvaluationComplete(result);
 
       act(() => {
         result.current.clearEvaluations();
@@ -339,11 +317,8 @@ describe('useEvaluation Hook', () => {
         isEnabled: true
       }));
 
-      await act(async () => {
-        // Wait for the error to be thrown using waitFor
-        await waitFor(() => {
-          expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalled();
-        });
+      await waitFor(() => {
+        expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalled();
       });
 
       // Verify the evaluation function was called
@@ -363,11 +338,8 @@ describe('useEvaluation Hook', () => {
         isEnabled: true
       }));
 
-      await act(async () => {
-        // Wait for the error to be thrown using waitFor
-        await waitFor(() => {
-          expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalled();
-        });
+      await waitFor(() => {
+        expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalled();
       });
 
       // Should not have error for AbortError
@@ -450,18 +422,14 @@ describe('useEvaluation Hook', () => {
         }
       );
 
-      await act(async () => {
-        await waitFor(() => {
-          expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalledTimes(1);
-        });
+      await waitFor(() => {
+        expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalledTimes(1);
       });
 
       rerender({ fen: TEST_FENS.WHITE_ADVANTAGE });
 
-      await act(async () => {
-        await waitFor(() => {
-          expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalledTimes(2);
-        });
+      await waitFor(() => {
+        expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalledTimes(2);
       });
     });
 
@@ -480,10 +448,8 @@ describe('useEvaluation Hook', () => {
 
       rerender({ isEnabled: true });
 
-      await act(async () => {
-        await waitFor(() => {
-          expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalledTimes(1);
-        });
+      await waitFor(() => {
+        expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalledTimes(1);
       });
     });
   });
