@@ -207,8 +207,6 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
             <DualEvaluationSidebar 
               fen={training.currentFen || position.fen}
               isVisible={ui.analysisPanel.isOpen}
-              showEngine={ui.analysisPanel.showEngine}
-              showTablebase={ui.analysisPanel.showTablebase}
             />
           </div>
 

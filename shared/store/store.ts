@@ -59,7 +59,8 @@ const initialTrainingState: TrainingState = {
   hintsUsed: 0,
   mistakeCount: 0,
   isAnalyzing: false,
-  engineStatus: 'idle'
+  engineStatus: 'idle',
+  isEngineThinking: false
 };
 
 const initialProgressState: ProgressState = {
@@ -240,10 +241,6 @@ export const useStore = create<RootState & Actions>()(
           logger.debug('Game instance set');
         }),
 
-        setScenarioEngine: (engine) => set((state) => {
-          state.training.scenarioEngine = engine;
-          logger.debug('Scenario engine set', { hasEngine: !!engine });
-        }),
 
         makeMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => set((state) => {
           try {
@@ -634,7 +631,6 @@ export const useTrainingActions = () => useStore((state) => ({
   setPosition: state.setPosition,
   loadTrainingContext: state.loadTrainingContext,
   setGame: state.setGame,
-  setScenarioEngine: state.setScenarioEngine,
   makeMove: state.makeMove,
   undoMove: state.undoMove,
   resetPosition: state.resetPosition,

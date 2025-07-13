@@ -18,7 +18,8 @@
 import { Chess, Move as ChessJsMove } from 'chess.js';
 import { StockfishWorkerManager } from '../engine/workerManager';
 import { RequestManager } from '../engine/requestManager';
-import { TablebaseService } from '../ScenarioEngine/tablebaseService';
+// TODO: Implement TablebaseService in clean architecture when needed
+// import { TablebaseService } from '../ScenarioEngine/tablebaseService';
 import { validateChessEngineFen, isValidChessEngineFen } from './validation';
 import type {
   IChessEngine,
@@ -46,7 +47,8 @@ export class ChessEngine implements IChessEngine {
   private workerManager: StockfishWorkerManager;
   private requestManager: RequestManager;
   private chess: Chess;
-  private tablebaseService: TablebaseService;
+  // TODO: Add tablebaseService when implementing tablebase integration
+  // private tablebaseService: TablebaseService;
   
   // === State Management & Configuration ===
   private initialFen: string;
@@ -92,8 +94,8 @@ export class ChessEngine implements IChessEngine {
     this.workerManager = new StockfishWorkerManager(engineConfig);
     this.requestManager = new RequestManager();
     
-    // Initialize tablebase service (from ScenarioEngine patterns)
-    this.tablebaseService = config?.enableTablebase !== false ? new TablebaseService() : null as any;
+    // TODO: Initialize tablebase service when implementing tablebase integration
+    // this.tablebaseService = config?.enableTablebase !== false ? new TablebaseService() : null as any;
     
     // Start async initialization
     this.initializeAsync().catch(error => {
@@ -307,8 +309,8 @@ export class ChessEngine implements IChessEngine {
       // Clean up request manager
       this.requestManager?.cancelAllRequests('ChessEngine disposed');
       
-      // Clean up tablebase service
-      this.tablebaseService?.clearCache?.();
+      // TODO: Clean up tablebase service when implemented
+      // this.tablebaseService?.clearCache?.();
       
       // Clear event listeners
       this.eventListeners.clear();
@@ -336,7 +338,7 @@ export class ChessEngine implements IChessEngine {
       successfulRequests: 0, // Simplified - requestManager doesn't track this
       averageResponseTime: 0, // Simplified - requestManager doesn't track this
       instanceCount: 1, // Singleton pattern
-      cacheSize: this.tablebaseService?.getCacheStats?.()?.size || 0,
+      cacheSize: 0, // TODO: Implement when tablebaseService is added
       uptime: Date.now() - Date.now() // Simplified - uptime calculation simplified
     };
   }
@@ -457,17 +459,11 @@ export class ChessEngine implements IChessEngine {
 
   /**
    * Internal tablebase method (bypasses command queue for dual evaluation)
+   * TODO: Implement when tablebase integration is added
    */
   private async getTablebaseInfoInternal(fen: string): Promise<TablebaseInfo | null> {
-    if (!this.tablebaseService) {
-      return null;
-    }
-    
-    try {
-      return await this.tablebaseService.getTablebaseInfo(fen);
-    } catch (error) {
-      return null;
-    }
+    // TODO: Implement tablebase integration in clean architecture
+    return null;
   }
 
   /**

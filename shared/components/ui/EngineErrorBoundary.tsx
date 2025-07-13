@@ -5,23 +5,21 @@
 
 import React from 'react';
 import { ErrorBoundary } from './ErrorBoundary';
-import { EngineService } from '@shared/services';
+import { EngineService } from '@shared/services/chess/EngineService';
 
 interface EngineErrorBoundaryProps {
   children: React.ReactNode;
-  engineId?: string;
 }
 
 export const EngineErrorBoundary: React.FC<EngineErrorBoundaryProps> = ({ 
-  children, 
-  engineId = 'default' 
+  children
 }) => {
   const handleEngineError = async (error: Error) => {
     
     // Try to cleanup and restart engine
     try {
       const engineService = EngineService.getInstance();
-      await engineService.cleanupEngine(engineId);
+      await engineService.terminate();
     } catch (cleanupError) {
     }
   };

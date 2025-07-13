@@ -19,7 +19,9 @@ import type { Chess, Move as ChessJsMove } from 'chess.js';
 // Re-export essential types from existing systems
 import type { EngineConfig } from '../engine/types';
 export type { EngineConfig };
-export type { TablebaseCategory } from '../ScenarioEngine/types';
+
+// Define TablebaseCategory directly instead of importing from deleted module
+export type TablebaseCategory = 'win' | 'loss' | 'draw' | 'cursed-win' | 'blessed-loss';
 
 /**
  * Move object interface for chess operations

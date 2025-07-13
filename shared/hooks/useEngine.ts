@@ -1,20 +1,19 @@
 /**
- * Hook for managed access to ScenarioEngine instances
- * Uses EngineService for proper resource management
+ * Hook for managed access to Chess Engine
+ * Uses EngineService singleton for proper resource management
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { EngineService } from '@shared/services';
-import type { IScenarioEngine } from '@shared/lib/chess/IScenarioEngine';
+import { EngineService } from '@shared/services/chess/EngineService';
+import type { IChessEngine } from '@shared/lib/chess/IChessEngine';
 
 interface UseEngineOptions {
-  id?: string;
   autoCleanup?: boolean;
 }
 
 export function useEngine(options: UseEngineOptions = {}) {
-  const { id = 'default', autoCleanup = true } = options;
-  const [engine, setEngine] = useState<IScenarioEngine | null>(null);
+  const { autoCleanup = true } = options;
+  const [engine, setEngine] = useState<IChessEngine | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const engineServiceRef = useRef<EngineService>();
@@ -27,11 +26,11 @@ export function useEngine(options: UseEngineOptions = {}) {
         setIsLoading(true);
         setError(null);
         
+        // Get singleton instance - no need for getEngine() call
         engineServiceRef.current = EngineService.getInstance();
-        const engineInstance = await engineServiceRef.current.getEngine(id);
         
         if (isMounted) {
-          setEngine(engineInstance);
+          setEngine(engineServiceRef.current);
           setIsLoading(false);
         }
       } catch (err) {
@@ -46,32 +45,23 @@ export function useEngine(options: UseEngineOptions = {}) {
 
     return () => {
       isMounted = false;
-      if (autoCleanup && engineServiceRef.current) {
-        engineServiceRef.current.releaseEngine(id);
-      }
+      // No need to release - singleton manages its own lifecycle
     };
-  }, [id, autoCleanup]);
+  }, [autoCleanup]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (autoCleanup && engineServiceRef.current) {
-        engineServiceRef.current.releaseEngine(id);
+        // Clean terminate if requested
+        engineServiceRef.current.terminate().catch(console.error);
       }
     };
   }, []);
 
-  const getStats = () => {
-    return engineServiceRef.current?.getStats() || {
-      totalEngines: 0,
-      activeEngines: 0,
-      engineIds: []
-    };
-  };
-
   const forceCleanup = async () => {
     if (engineServiceRef.current) {
-      await engineServiceRef.current.cleanupEngine(id);
+      await engineServiceRef.current.terminate();
       setEngine(null);
     }
   };
@@ -80,7 +70,6 @@ export function useEngine(options: UseEngineOptions = {}) {
     engine,
     isLoading,
     error,
-    getStats,
     forceCleanup
   };
 }

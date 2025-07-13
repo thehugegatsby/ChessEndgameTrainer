@@ -85,16 +85,15 @@ function AppContent({ Component, pageProps }: AppProps) {
         .then(({ EngineService }) => {
           import('@shared/services/test/TestBridge')
             .then(({ TestBridgeImpl }) => {
-              // Get the mock engine instance
-              EngineService.getInstance().getEngine('e2e-test').then(engine => {
-                // Initialize TestBridge with the mock engine
-                (window as any).__E2E_TEST_BRIDGE__ = new TestBridgeImpl(engine as any);
-                
-                // Signal that the bridge is ready for tests
-                document.body.setAttribute('data-bridge-status', 'ready');
-                document.body.setAttribute('data-app-ready', 'true');
-                console.log('[E2E] Test Bridge initialized and ready');
-              });
+              // Get the singleton engine instance
+              const engine = EngineService.getInstance();
+              // Initialize TestBridge with the engine
+              (window as any).__E2E_TEST_BRIDGE__ = new TestBridgeImpl(engine as any);
+              
+              // Signal that the bridge is ready for tests
+              document.body.setAttribute('data-bridge-status', 'ready');
+              document.body.setAttribute('data-app-ready', 'true');
+              console.log('[E2E] Test Bridge initialized and ready');
             })
             .catch(err => {
               console.error('[E2E] Failed to load TestBridge:', err);

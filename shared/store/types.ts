@@ -54,8 +54,9 @@ export interface TrainingState {
     total: number;
   } | null;
   game?: ChessInstance;
-  scenarioEngine?: any; // ScenarioEngine instance - type is complex, using any for now
   moveHistory: ValidatedMove[];
+  isEngineThinking: boolean;
+  engineMove?: string;
   evaluations: EvaluationData[];
   isPlayerTurn: boolean;
   isGameFinished: boolean;
@@ -189,7 +190,6 @@ export interface TrainingActions {
   setPosition: (position: EndgamePosition) => void;
   loadTrainingContext: (position: EndgamePosition) => Promise<void>;
   setGame: (game: ChessInstance) => void;
-  setScenarioEngine: (engine: any | null) => void;
   makeMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => void;
   undoMove: () => void;
   resetPosition: () => void;

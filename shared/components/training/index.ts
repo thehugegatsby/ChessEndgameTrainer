@@ -4,7 +4,8 @@ export { TrainingBoardZustand as TrainingBoard } from './TrainingBoard/TrainingB
 export { MovePanelZustand } from './MovePanelZustand';
 export { MovePanelZustand as MovePanel } from './MovePanelZustand'; // Alias for backward compatibility
 export { AnalysisPanel } from './AnalysisPanel';
-export { DualEvaluationPanel, SidebarEngineSection } from './DualEvaluationPanel';
+// TODO: Re-enable when DualEvaluationPanel is refactored for clean architecture
+// export { DualEvaluationPanel, SidebarEngineSection } from './DualEvaluationPanel';
 export { DualEvaluationSidebar } from './DualEvaluationPanel/DualEvaluationSidebar';
 export { TrainingControls } from './TrainingControls';
 export { MoveHistory } from './MoveHistory';

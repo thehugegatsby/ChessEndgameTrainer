@@ -6,8 +6,8 @@ import { Piece } from 'react-chessboard/dist/chessboard/types';
 import { useEvaluation, useTrainingGame } from '../../../hooks';
 import { usePageReady } from '../../../hooks/usePageReady';
 import { useTraining, useTrainingActions, useUIActions, useStore } from '@shared/store/store';
+import { requestEngineMove } from '@shared/store/trainingActions';
 import { EndgamePosition } from '@shared/types';
-import { ScenarioEngine } from '@shared/lib/chess/ScenarioEngine';
 import { ErrorService } from '@shared/services/errorService';
 import { getLogger } from '@shared/services/logging';
 
@@ -147,15 +147,15 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
   const [engineError, setEngineError] = useState<string | null>(null);
   const [moveError, setMoveError] = useState<string | null>(null);
 
-  // Use Store for scenario engine
-  const scenarioEngine = training.scenarioEngine;
+  // Get store instance for engine actions
+  const store = useStore();
 
   const trainingState = {
     resetKey,
     showLastEvaluation,
     showMoveErrorDialog,
     warning,
-    engineError,
+    engineError: null, // Engine errors now handled by store
     moveError,
     showEvaluationBriefly: () => {
       setShowLastEvaluation(true);
@@ -170,30 +170,6 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     handleClearEngineError: () => setEngineError(null)
   };
 
-  // Initialize scenario engine only once per position
-  useEffect(() => {
-    const logger = getLogger().setContext('TrainingBoard-EngineInit');
-    
-    if (!position) {
-      logger.warn('No position provided for engine initialization');
-      return;
-    }
-    
-    logger.info('Initializing scenario engine', { positionId: position.id, fen: position.fen });
-    
-    try {
-      const engine = new ScenarioEngine(position.fen);
-      actions.setScenarioEngine(engine);
-      actions.setEngineStatus('ready');
-      logger.info('Scenario engine initialized successfully', { positionId: position.id, status: 'ready' });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Engine initialization failed';
-      logger.error('Scenario engine initialization failed', { positionId: position.id, error: errorMessage });
-      setEngineError(errorMessage);
-      actions.setEngineStatus('error');
-      ErrorService.handleChessEngineError(error as Error, { component: 'TrainingBoardZustand' });
-    }
-  }, [position?.id]); // Only depend on position ID to avoid re-initialization
 
   // Update engine status based on evaluation state
   useEffect(() => {
@@ -208,10 +184,10 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
   // Enhanced move handling - inline implementation
   const handleMove = useCallback(async (move: any) => {
     const logger = getLogger().setContext('TrainingBoard-handleMove');
-    logger.debug('handleMove called', { move, hasScenarioEngine: !!scenarioEngine, isGameFinished });
+    logger.debug('handleMove called', { move, isGameFinished });
     
-    if (!scenarioEngine || isGameFinished) {
-      logger.warn('handleMove early return', { hasScenarioEngine: !!scenarioEngine, isGameFinished });
+    if (isGameFinished) {
+      logger.warn('handleMove early return', { isGameFinished });
       return null;
     }
 
@@ -252,11 +228,18 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       // First make the move on the local game instance
       const result = await makeMove(move);
       if (result) {
-        // Then trigger engine response separately
-        const engineMove = await scenarioEngine.getBestMove();
-        if (engineMove) {
-          // Make the engine move (getBestMove now returns an object directly)
-          await makeMove(engineMove);
+        // Then trigger engine response using store action
+        try {
+          const engineMoveUci = await requestEngineMove(currentFen)(useStore.getState, useStore.setState);
+          if (engineMoveUci) {
+            // Convert UCI to move object format for makeMove
+            const from = engineMoveUci.slice(0, 2);
+            const to = engineMoveUci.slice(2, 4);
+            const promotion = engineMoveUci.length > 4 ? engineMoveUci.slice(4, 5) : undefined;
+            await makeMove({ from, to, promotion });
+          }
+        } catch (error) {
+          logger.error('Engine move failed', error);
         }
         
         // Move was successful, it will be synced to Zustand via the history effect
@@ -270,7 +253,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       uiActions.showToast(errorMessage, 'error');
       return null;
     }
-  }, [scenarioEngine, isGameFinished, makeMove, lastEvaluation, trainingState, actions, uiActions]);
+  }, [isGameFinished, makeMove, lastEvaluation, trainingState, actions, uiActions, currentFen, store]);
 
   // === TEST HOOK FOR E2E TESTING ===
   useEffect(() => {
