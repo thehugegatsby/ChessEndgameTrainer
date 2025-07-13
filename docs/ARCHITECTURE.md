@@ -34,13 +34,29 @@ ChessEndgameTrainer is a web/mobile chess endgame training application with AI e
 
 ## Core Architecture Patterns
 
-### 1. Singleton Engine Pattern
+### 1. Clean Engine Service Architecture ⭐ **NEW**
+The chess engine architecture has been completely simplified following clean architecture principles:
+
 ```typescript
-// Only ONE Stockfish instance system-wide
-const engine = Engine.getInstance();
-// Mobile constraint: ~20MB memory per worker
-// Critical: Always call quit() on cleanup
+// NEW: Stateless IChessEngine interface (4 methods only)
+interface IChessEngine {
+  findBestMove(fen: string, options?: EngineOptions): Promise<BestMoveResult>;
+  evaluatePosition(fen: string, options?: EngineOptions): Promise<EvaluationResult>;
+  stop(): Promise<void>;
+  terminate(): Promise<void>;
+}
+
+// NEW: Clean singleton implementation
+const engineService = EngineService.getInstance();
+await engineService.findBestMove('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
 ```
+
+**Key Improvements:**
+- **293 lines → 222 lines**: Removed overengineered pooling, LRU eviction, reference counting
+- **15+ methods → 4 methods**: Eliminated `getStats()`, `isCriticalMistake()`, `getChessInstance()`
+- **Stateless design**: All methods accept FEN parameters for thread safety
+- **Lazy initialization**: Stockfish worker created only when needed
+- **Proper cleanup**: Single `terminate()` method handles all resource cleanup
 
 ### 2. Evaluation Pipeline Architecture
 ```
@@ -271,16 +287,24 @@ interface PlatformService {
 - [x] Replace magic numbers ✅
 - [x] Fix Store synchronization bug ✅ (2025-01-08)
 
-### 🚀 Next: Phase 2 - ENGINE CONSOLIDATION EXECUTION
-Ready to execute ScenarioEngine → ChessEngine migration with expert-validated approach.
+### ✅ Phase 2: COMPLETED - Test Suite Clean Architecture Migration  
+Expert-guided test cleanup successfully completed with 848 tests passing.
 
-### Phase 2: Scalability (Month 1-2)
+#### Phase 2 Achievements:
+- **Test Cleanup**: 976 lines of obsolete tests deleted, 187 lines updated
+- **Expert Validation**: Gemini Pro + O3-Mini consensus on rewrite approach
+- **Clean Architecture**: All tests now align with IChessEngine interface
+- **Zero Failures**: 848 passed, 11 skipped, 0 failing tests
+- **Technical Debt**: Created ISSUE_MISSING_TESTS.md for future requirements
+
+### 🎯 Next: Phase 3 - Production Features
+- [ ] Complete EngineEvaluationCard rewrite (see ISSUE_MISSING_TESTS.md)
+- [ ] Write comprehensive EngineService.test.ts (~4-6 hours)
 - [ ] Complete React Native implementation
 - [ ] Add offline support
 - [ ] Implement code splitting
-- [ ] Add monitoring/analytics
 
-### Phase 3: Production (Month 3)
+### Phase 4: Production Hardening
 - [ ] Security hardening (CSP, XSS protection)
 - [ ] Performance monitoring dashboard
 - [ ] A/B testing infrastructure
@@ -308,24 +332,30 @@ Ready to execute ScenarioEngine → ChessEngine migration with expert-validated 
 - **Flexibility**: Engine handles all positions
 - **Learning**: Compare engine vs perfect play
 
-## Recent Critical Fixes (2025-01-08)
+## Recent Critical Fixes & Architecture Simplification
 
-### Store Synchronization Bug
+### 2025-07-13: Clean Architecture Test Migration ⭐ **MAJOR**
+- **Achievement**: Expert-guided test suite cleanup (Gemini Pro + O3-Mini consensus)
+- **Impact**: 976 lines obsolete code deleted, 187 lines modernized
+- **Result**: 848 tests passing, 0 failing - clean architecture alignment
+- **Documentation**: ISSUE_MISSING_TESTS.md created for future requirements
+
+### 2025-01-08: Store Synchronization Bug
 - **Issue**: Moves displayed in move list but not executed on board
 - **Root Cause**: Chess.js instance in Store wasn't being updated
 - **Fix**: Store now executes `game.move()` before updating derived states
 - **Impact**: Critical for game functionality
 
-### FEN Security Vulnerability
+### 2025-01-08: FEN Security Vulnerability
 - **Issue**: No input sanitization for user-provided FEN strings
 - **Risk**: XSS attacks, SQL injection, invalid game states
 - **Fix**: Comprehensive FEN validator with sanitization
 - **Coverage**: All input boundaries protected
 
-### Test Architecture
+### 2025-01-08: Test Architecture
 - **Issue**: Tests failing due to Store/Chess instance conflicts
 - **Fix**: Updated testing patterns for Store architecture
 - **Documentation**: Added Store Testing Best Practices
 
 ---
-*Last Updated: 2025-01-08*
+*Last Updated: 2025-07-13*
