@@ -1,6 +1,7 @@
 /**
- * Playwright Configuration
- * Clean architecture setup with test API and Firebase emulator
+ * Playwright Configuration - DISABLED
+ * E2E tests deleted during clean architecture migration
+ * See ISSUE_E2E_REWRITE.md for rewrite plan
  */
 
 import { defineConfig, devices } from '@playwright/test';

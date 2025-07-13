@@ -1,0 +1,43 @@
+# Page snapshot
+
+```yaml
+- alert
+- button "Open Next.js Dev Tools":
+  - img
+- button "Open issues overlay": 1 Issue
+- button "Collapse issues badge":
+  - img
+- navigation:
+  - button "previous" [disabled]:
+    - img "previous"
+  - text: 1/1
+  - button "next" [disabled]:
+    - img "next"
+- img
+- img
+- text: Next.js 15.3.5 Webpack
+- img
+- dialog "Runtime Error":
+  - text: Runtime Error
+  - button "Copy Stack Trace":
+    - img
+  - button "No related documentation found" [disabled]:
+    - img
+  - link "Learn more about enabling Node.js inspector for server code with Chrome DevTools":
+    - /url: https://nextjs.org/docs/app/building-your-application/configuring/debugging#server-side-code
+    - img
+  - paragraph: "Error: Error serializing `.position.nextPositionId` returned from `getStaticProps` in \"/train/[id]\". Reason: `undefined` cannot be serialized as JSON. Please use `null` or omit this value."
+  - paragraph: Call Stack 13
+  - button "Show 11 ignore-listed frame(s)":
+    - text: Show 11 ignore-listed frame(s)
+    - img
+  - text: Array.every <anonymous> (0:0) Array.every <anonymous> (0:0)
+- contentinfo:
+  - paragraph: This error happened while generating the page. Any console logs will be displayed in the terminal window.
+  - region "Error feedback":
+    - paragraph:
+      - link "Was this helpful?":
+        - /url: https://nextjs.org/telemetry#error-feedback
+    - button "Mark as helpful"
+    - button "Mark as not helpful"
+```
