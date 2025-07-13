@@ -25,6 +25,7 @@ import { IPositionRepository, IPositionRepositoryConfig } from '../IPositionRepo
 import { EndgamePosition, EndgameCategory, EndgameChapter } from '@shared/types';
 import { validateAndSanitizeFen } from '@shared/utils/fenValidator';
 import { getLogger } from '@shared/services/logging';
+import { positionConverter } from '../converters/positionConverter';
 
 const logger = getLogger().setContext('FirebasePositionRepository');
 
@@ -40,11 +41,20 @@ export class FirebasePositionRepository implements IPositionRepository {
 
   async getPosition(id: number): Promise<EndgamePosition | null> {
     try {
-      const docRef = doc(this.db, 'positions', id.toString());
+      const docRef = doc(this.db, 'positions', id.toString()).withConverter(positionConverter);
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists()) {
-        const position = this.documentToPosition(docSnap.data(), id);
+        const position = docSnap.data();
+        // Validate FEN after conversion
+        if (position.fen) {
+          const validation = validateAndSanitizeFen(position.fen);
+          if (!validation.isValid) {
+            logger.error(`Invalid FEN from Firestore for position ${id}: ${validation.errors.join(', ')}`);
+            throw new Error('Invalid position data');
+          }
+          position.fen = validation.sanitized;
+        }
         this.config.events?.onDataFetched?.('getPosition', 1);
         return position;
       }
@@ -102,7 +112,7 @@ export class FirebasePositionRepository implements IPositionRepository {
         updates.fen = validation.sanitized;
       }
 
-      const docRef = doc(this.db, 'positions', id.toString());
+      const docRef = doc(this.db, 'positions', id.toString()).withConverter(positionConverter);
       await updateDoc(docRef, updates as DocumentData);
       
       this.config.events?.onDataModified?.('updatePosition', [id]);
@@ -130,12 +140,27 @@ export class FirebasePositionRepository implements IPositionRepository {
 
   async getAllPositions(): Promise<EndgamePosition[]> {
     try {
-      const positionsRef = collection(this.db, 'positions');
+      const positionsRef = collection(this.db, 'positions').withConverter(positionConverter);
       const snapshot = await getDocs(positionsRef);
       
-      const positions = this.documentsToPositions(snapshot);
-      this.config.events?.onDataFetched?.('getAllPositions', positions.length);
+      const positions: EndgamePosition[] = [];
+      snapshot.forEach((doc) => {
+        const position = doc.data();
+        // Validate FEN
+        if (position.fen) {
+          const validation = validateAndSanitizeFen(position.fen);
+          if (validation.isValid) {
+            position.fen = validation.sanitized;
+            positions.push(position);
+          } else {
+            logger.error(`Invalid FEN for position ${position.id}: ${validation.errors.join(', ')}`);
+          }
+        } else {
+          positions.push(position);
+        }
+      });
       
+      this.config.events?.onDataFetched?.('getAllPositions', positions.length);
       return positions;
     } catch (error) {
       logger.error('Failed to get all positions', { error });
@@ -146,13 +171,28 @@ export class FirebasePositionRepository implements IPositionRepository {
 
   async getPositionsByCategory(category: string): Promise<EndgamePosition[]> {
     try {
-      const positionsRef = collection(this.db, 'positions');
+      const positionsRef = collection(this.db, 'positions').withConverter(positionConverter);
       const q = query(positionsRef, where('category', '==', category));
       const snapshot = await getDocs(q);
       
-      const positions = this.documentsToPositions(snapshot);
-      this.config.events?.onDataFetched?.('getPositionsByCategory', positions.length);
+      const positions: EndgamePosition[] = [];
+      snapshot.forEach((doc) => {
+        const position = doc.data();
+        // Validate FEN
+        if (position.fen) {
+          const validation = validateAndSanitizeFen(position.fen);
+          if (validation.isValid) {
+            position.fen = validation.sanitized;
+            positions.push(position);
+          } else {
+            logger.error(`Invalid FEN for position ${position.id}: ${validation.errors.join(', ')}`);
+          }
+        } else {
+          positions.push(position);
+        }
+      });
       
+      this.config.events?.onDataFetched?.('getPositionsByCategory', positions.length);
       return positions;
     } catch (error) {
       logger.error('Failed to get positions by category', { category, error });
@@ -163,13 +203,28 @@ export class FirebasePositionRepository implements IPositionRepository {
 
   async getPositionsByDifficulty(difficulty: EndgamePosition['difficulty']): Promise<EndgamePosition[]> {
     try {
-      const positionsRef = collection(this.db, 'positions');
+      const positionsRef = collection(this.db, 'positions').withConverter(positionConverter);
       const q = query(positionsRef, where('difficulty', '==', difficulty));
       const snapshot = await getDocs(q);
       
-      const positions = this.documentsToPositions(snapshot);
-      this.config.events?.onDataFetched?.('getPositionsByDifficulty', positions.length);
+      const positions: EndgamePosition[] = [];
+      snapshot.forEach((doc) => {
+        const position = doc.data();
+        // Validate FEN
+        if (position.fen) {
+          const validation = validateAndSanitizeFen(position.fen);
+          if (validation.isValid) {
+            position.fen = validation.sanitized;
+            positions.push(position);
+          } else {
+            logger.error(`Invalid FEN for position ${position.id}: ${validation.errors.join(', ')}`);
+          }
+        } else {
+          positions.push(position);
+        }
+      });
       
+      this.config.events?.onDataFetched?.('getPositionsByDifficulty', positions.length);
       return positions;
     } catch (error) {
       logger.error('Failed to get positions by difficulty', { difficulty, error });
@@ -226,8 +281,8 @@ export class FirebasePositionRepository implements IPositionRepository {
 
   async getNextPosition(currentId: number, categoryId?: string): Promise<EndgamePosition | null> {
     try {
-      const positionsRef = collection(this.db, 'positions');
-      let q: Query<DocumentData>;
+      const positionsRef = collection(this.db, 'positions').withConverter(positionConverter);
+      let q: Query<EndgamePosition>;
       
       if (categoryId) {
         q = query(
@@ -247,10 +302,25 @@ export class FirebasePositionRepository implements IPositionRepository {
       }
       
       const snapshot = await getDocs(q);
-      const positions = this.documentsToPositions(snapshot);
       
-      this.config.events?.onDataFetched?.('getNextPosition', positions.length);
-      return positions[0] || null;
+      if (snapshot.empty) {
+        return null;
+      }
+      
+      const position = snapshot.docs[0].data();
+      
+      // Validate FEN
+      if (position.fen) {
+        const validation = validateAndSanitizeFen(position.fen);
+        if (!validation.isValid) {
+          logger.error(`Invalid FEN for position ${position.id}: ${validation.errors.join(', ')}`);
+          return null;
+        }
+        position.fen = validation.sanitized;
+      }
+      
+      this.config.events?.onDataFetched?.('getNextPosition', 1);
+      return position;
     } catch (error) {
       logger.error('Failed to get next position', { currentId, categoryId, error });
       this.config.events?.onError?.('getNextPosition', error as Error);
@@ -260,8 +330,8 @@ export class FirebasePositionRepository implements IPositionRepository {
 
   async getPreviousPosition(currentId: number, categoryId?: string): Promise<EndgamePosition | null> {
     try {
-      const positionsRef = collection(this.db, 'positions');
-      let q: Query<DocumentData>;
+      const positionsRef = collection(this.db, 'positions').withConverter(positionConverter);
+      let q: Query<EndgamePosition>;
       
       if (categoryId) {
         q = query(
@@ -281,10 +351,25 @@ export class FirebasePositionRepository implements IPositionRepository {
       }
       
       const snapshot = await getDocs(q);
-      const positions = this.documentsToPositions(snapshot);
       
-      this.config.events?.onDataFetched?.('getPreviousPosition', positions.length);
-      return positions[0] || null;
+      if (snapshot.empty) {
+        return null;
+      }
+      
+      const position = snapshot.docs[0].data();
+      
+      // Validate FEN
+      if (position.fen) {
+        const validation = validateAndSanitizeFen(position.fen);
+        if (!validation.isValid) {
+          logger.error(`Invalid FEN for position ${position.id}: ${validation.errors.join(', ')}`);
+          return null;
+        }
+        position.fen = validation.sanitized;
+      }
+      
+      this.config.events?.onDataFetched?.('getPreviousPosition', 1);
+      return position;
     } catch (error) {
       logger.error('Failed to get previous position', { currentId, categoryId, error });
       this.config.events?.onError?.('getPreviousPosition', error as Error);
@@ -510,35 +595,4 @@ export class FirebasePositionRepository implements IPositionRepository {
     }
   }
 
-  // Helper methods
-  private documentToPosition(data: DocumentData, id: number): EndgamePosition {
-    const position = data as EndgamePosition;
-    
-    // Validate and sanitize FEN
-    if (position.fen) {
-      const validation = validateAndSanitizeFen(position.fen);
-      if (!validation.isValid) {
-        logger.error(`Invalid FEN from Firestore for position ${id}: ${validation.errors.join(', ')}`);
-        throw new Error('Invalid position data');
-      }
-      position.fen = validation.sanitized;
-    }
-    
-    return position;
-  }
-
-  private documentsToPositions(snapshot: any): EndgamePosition[] {
-    const positions: EndgamePosition[] = [];
-    
-    snapshot.forEach((doc: any) => {
-      try {
-        const position = this.documentToPosition(doc.data(), doc.data().id);
-        positions.push(position);
-      } catch (error) {
-        logger.error('Failed to parse position document', { id: doc.id, error });
-      }
-    });
-    
-    return positions;
-  }
 }

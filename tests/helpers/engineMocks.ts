@@ -4,7 +4,7 @@
  */
 
 import type { EngineEvaluation, DualEvaluation, TablebaseInfo } from '../../shared/lib/chess/ScenarioEngine/types';
-import { TEST_POSITIONS } from './testPositions';
+import { TestPositions } from '../../shared/testing/TestPositions';
 
 /**
  * Mock Engine implementation with controlled responses
@@ -102,39 +102,31 @@ export class MockEngine {
   // Helper methods for mock responses
   private getMockEvaluation(fen: string): EngineEvaluation {
     // Return deterministic evaluations based on position
-    switch (fen) {
-      case TEST_POSITIONS.STARTING_POSITION:
-        return { score: 15, mate: null }; // Slight advantage to first move
-      
-      case TEST_POSITIONS.KQK_TABLEBASE_WIN:
-        return { score: 0, mate: 3 }; // Mate in 3
-      
-      case TEST_POSITIONS.WHITE_ADVANTAGE:
-        return { score: 150, mate: null }; // 1.5 pawn advantage
-      
-      case TEST_POSITIONS.BLACK_ADVANTAGE:
-        return { score: -120, mate: null }; // Black has advantage
-      
-      case TEST_POSITIONS.EQUAL_POSITION:
-        return { score: 5, mate: null }; // Roughly equal
-      
-      default:
-        return { score: 0, mate: null }; // Default neutral evaluation
+    
+    // Check against our real test positions
+    if (fen === TestPositions.POSITION_1_OPPOSITION_BASICS.fen) {
+      return { 
+        score: TestPositions.POSITION_1_OPPOSITION_BASICS.initialExpectedEvaluation || 2000, 
+        mate: TestPositions.POSITION_1_OPPOSITION_BASICS.initialExpectedMate || 11 
+      };
     }
+    
+    // Default fallback for unknown positions
+    return { score: 0, mate: null };
   }
 
   private getMockBestMove(fen: string): { from: string; to: string; promotion?: string } | null {
-    // Return common opening moves for starting position
-    if (fen === TEST_POSITIONS.STARTING_POSITION) {
-      return { from: 'e2', to: 'e4' };
+    // Check against our real test positions
+    if (fen === TestPositions.POSITION_1_OPPOSITION_BASICS.fen) {
+      const move = TestPositions.POSITION_1_OPPOSITION_BASICS.initialExpectedMove;
+      return { 
+        from: move.from, 
+        to: move.to, 
+        promotion: move.promotion 
+      };
     }
     
-    // For tablebase positions, return a winning move
-    if (fen === TEST_POSITIONS.KQK_TABLEBASE_WIN) {
-      return { from: 'h1', to: 'h8' }; // Check with queen
-    }
-    
-    // Default move
+    // Default move for unknown positions
     return { from: 'e2', to: 'e4' };
   }
 

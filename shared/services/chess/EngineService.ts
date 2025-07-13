@@ -22,13 +22,14 @@
  */
 
 import { ScenarioEngine } from '../../lib/chess/ScenarioEngine';
+import type { IScenarioEngine } from '../../lib/chess/IScenarioEngine';
 import { getLogger } from '../logging';
 
 const logger = getLogger().setContext('EngineService');
 
 interface EngineInstance {
   id: string;
-  engine: ScenarioEngine;
+  engine: IScenarioEngine;
   lastUsed: number;
   refCount: number;
 }
@@ -80,7 +81,7 @@ export class EngineService {
    * 
    * WARNING: Always call releaseEngine() when done!
    */
-  async getEngine(id: string = 'default'): Promise<ScenarioEngine> {
+  async getEngine(id: string = 'default'): Promise<IScenarioEngine> {
     let engineInstance = this.engines.get(id);
 
     if (!engineInstance) {
@@ -97,7 +98,17 @@ export class EngineService {
       // - Initializes with starting position
       // - Tracks instance for memory management
       // Cost: ~20MB memory + worker initialization time
-      const engine = new ScenarioEngine();
+      
+      // Use MockScenarioEngine in E2E test mode for deterministic behavior
+      let engine: IScenarioEngine;
+      if (process.env.NEXT_PUBLIC_IS_E2E_TEST === 'true') {
+        const { MockScenarioEngine } = await import('../../lib/chess/MockScenarioEngine');
+        engine = new MockScenarioEngine();
+        logger.info(`Created MOCK engine '${id}' for E2E tests`);
+      } else {
+        engine = new ScenarioEngine();
+        logger.info(`Created production ScenarioEngine '${id}'`);
+      }
       engineInstance = {
         id,
         engine,

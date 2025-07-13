@@ -78,6 +78,34 @@ function AppContent({ Component, pageProps }: AppProps) {
     };
   }, [router.events, router.isReady, engineStatus]);
 
+  // Initialize TestBridge for E2E tests
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_IS_E2E_TEST === 'true' && typeof window !== 'undefined') {
+      import('@shared/services/chess/EngineService')
+        .then(({ EngineService }) => {
+          import('@shared/services/test/TestBridge')
+            .then(({ TestBridgeImpl }) => {
+              // Get the mock engine instance
+              EngineService.getInstance().getEngine('e2e-test').then(engine => {
+                // Initialize TestBridge with the mock engine
+                (window as any).__E2E_TEST_BRIDGE__ = new TestBridgeImpl(engine as any);
+                
+                // Signal that the bridge is ready for tests
+                document.body.setAttribute('data-bridge-status', 'ready');
+                document.body.setAttribute('data-app-ready', 'true');
+                console.log('[E2E] Test Bridge initialized and ready');
+              });
+            })
+            .catch(err => {
+              console.error('[E2E] Failed to load TestBridge:', err);
+            });
+        })
+        .catch(err => {
+          console.error('[E2E] Failed to load EngineService:', err);
+        });
+    }
+  }, []);
+
   return <Component {...pageProps} />;
 }
 

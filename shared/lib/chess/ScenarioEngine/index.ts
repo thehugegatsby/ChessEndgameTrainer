@@ -27,6 +27,7 @@ import type {
   TablebaseInfo, 
   EngineEvaluation
 } from './types';
+import type { IScenarioEngine, BestMovesResult } from '../IScenarioEngine';
 
 /**
  * Main Scenario Engine class
@@ -38,7 +39,7 @@ import type {
  * - Error Resilience: Graceful failure handling
  * - Clean API: Simple, predictable interface
  */
-export class ScenarioEngine {
+export class ScenarioEngine implements IScenarioEngine {
   private chess: Chess;
   private initialFen: string;
   private engine: typeof engine;
@@ -193,10 +194,7 @@ export class ScenarioEngine {
    * @param fen - Position to analyze
    * @param count - Number of best moves to return (default: 3)
    */
-  public async getBestMoves(fen: string, count: number = 3): Promise<{
-    engine: Array<{ move: string; evaluation: number; mate?: number }>;
-    tablebase: Array<{ move: string; wdl: number; dtm?: number; evaluation: string }>;
-  }> {
+  public async getBestMoves(fen: string, count: number = 3): Promise<BestMovesResult> {
     return this.utilities.getBestMoves(fen, count);
   }
 
@@ -207,12 +205,20 @@ export class ScenarioEngine {
    * Gets engine statistics for debugging
    */
   public getStats(): { 
-    instanceCount: number; 
-    currentFen: string; 
-    initialFen: string;
-    cacheStats: { size: number; maxSize: number };
+    instanceCount: number;
+    cacheSize: number;
+    evaluationCount: number;
+    tablebaseHits: number;
   } {
-    return this.utilities.getStats();
+    const utilityStats = this.utilities.getStats();
+    
+    // Transform internal stats to match IScenarioEngine interface
+    return {
+      instanceCount: utilityStats.instanceCount,
+      cacheSize: utilityStats.cacheStats?.size || 0,
+      evaluationCount: 0, // TODO: Track in EvaluationManager
+      tablebaseHits: 0    // TODO: Track in TablebaseManager
+    };
   }
 
   // === Memory Management ===

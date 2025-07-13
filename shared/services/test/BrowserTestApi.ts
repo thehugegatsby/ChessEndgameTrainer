@@ -2,13 +2,12 @@
  * @fileoverview Browser Test API - Exposes test API for E2E tests
  * @version 1.0.0
  * @description Browser-specific implementation that exposes the Test API
- * to the window object for Playwright tests
+ * to the window object for Playwright tests. Works with TestBridge for engine control.
  */
 
 import { TestApiService } from './TestApiService';
 import type { TestMoveResponse, TestGameState, TestEngineConfig } from './TestApiService';
-import { MockEngineService } from '../engine/MockEngineService';
-import type { IEngineService } from '../engine/IEngineService';
+import type { TestBridge } from '@shared/types/test-bridge';
 
 /**
  * Browser Test API
@@ -16,12 +15,11 @@ import type { IEngineService } from '../engine/IEngineService';
  */
 export class BrowserTestApi {
   private testApi: TestApiService;
-  private mockEngine: IEngineService;
   private initialized = false;
+  private testBridge: TestBridge | null = null;
 
   constructor() {
     this.testApi = TestApiService.getInstance();
-    this.mockEngine = new MockEngineService();
   }
 
   /**
@@ -29,7 +27,7 @@ export class BrowserTestApi {
    * Only works in test environment
    */
   public async initialize(storeAccess?: any): Promise<void> {
-    if (process.env.NODE_ENV !== 'test') {
+    if (process.env.NODE_ENV !== 'test' && process.env.NEXT_PUBLIC_IS_E2E_TEST !== 'true') {
       console.warn('Test API is only available in test environment');
       return;
     }
@@ -44,11 +42,14 @@ export class BrowserTestApi {
       return;
     }
 
-    // Initialize mock engine first
-    await this.mockEngine.initialize();
-    
-    // Initialize test API with store access and mock engine
-    this.testApi.initialize(storeAccess, this.mockEngine);
+    // Initialize test API with store access
+    this.testApi.initialize(storeAccess);
+
+    // Get TestBridge from window (set by _app.tsx)
+    this.testBridge = (window as any).__E2E_TEST_BRIDGE__ || null;
+    if (!this.testBridge) {
+      console.warn('TestBridge not found on window - engine control will not be available');
+    }
 
     // Expose methods to window
     (window as any).__testApi = {
@@ -88,9 +89,8 @@ export class BrowserTestApi {
     delete (window as any).e2e_makeMove;
     delete (window as any).e2e_getGameState;
 
-    // Clean up test API and mock engine
+    // Clean up test API
     this.testApi.cleanup();
-    await this.mockEngine.shutdown();
     
     this.initialized = false;
   }
@@ -134,9 +134,13 @@ export class BrowserTestApi {
    * Add custom mock engine response for testing
    */
   private addMockEngineResponse(fen: string, analysis: any): void {
-    if (this.mockEngine instanceof MockEngineService) {
-      this.mockEngine.addCustomResponse(fen, analysis);
+    if (!this.testBridge) {
+      console.error('TestBridge not available - cannot add mock engine response');
+      return;
     }
+    
+    // Use TestBridge to control the MockScenarioEngine
+    this.testBridge.engine.addCustomResponse(fen, analysis);
   }
 }
 

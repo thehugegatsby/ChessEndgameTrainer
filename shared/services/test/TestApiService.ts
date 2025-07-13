@@ -13,7 +13,6 @@
 
 import { Chess } from 'chess.js';
 import type { TrainingActions, TrainingState } from '@shared/store/types';
-import type { IEngineService } from '../engine/IEngineService';
 
 /**
  * Test API Response types
@@ -63,7 +62,7 @@ export class TestApiService {
   };
   private eventEmitter: EventTarget = new EventTarget();
   private isInitialized: boolean = false;
-  private engineService: IEngineService | null = null;
+  // Engine control is now handled via TestBridge, not directly
   private storeAccess: {
     getState: () => any;
     subscribe: (listener: (state: any, prevState: any) => void) => () => void;
@@ -101,7 +100,6 @@ export class TestApiService {
       goToMove: (moveIndex: number) => void;
       setEngineStatus: (status: string) => void;
     },
-    engineService: IEngineService,
     config?: TestEngineConfig
   ): void {
     // Validate required actions
@@ -112,14 +110,13 @@ export class TestApiService {
     }
     
     this.storeAccess = storeAccess;
-    this.engineService = engineService;
     this.isInitialized = true;
     
     if (config) {
       this.engineConfig = { ...this.engineConfig, ...config };
     }
     
-    console.log('✅ TestApiService: Successfully initialized with store actions and engine service');
+    console.log('✅ TestApiService: Successfully initialized with store actions');
     
     // Emit initialization event
     this.emit('test:initialized', { config: this.engineConfig });
@@ -132,7 +129,6 @@ export class TestApiService {
     this.engineConfig = { deterministic: false };
     this.isInitialized = false;
     this.storeAccess = null;
-    this.engineService = null;
     this.emit('test:cleanup', {});
     TestApiService.instance = null;
   }
@@ -266,40 +262,41 @@ export class TestApiService {
   /**
    * Trigger engine analysis for current position
    * @param timeoutMs - Maximum time to wait (for mock engine this is instant)
+   * 
+   * Note: In the new architecture, engine analysis happens automatically
+   * through the store when moves are made. This method now just waits
+   * for the engine status to become ready.
    */
   public async triggerEngineAnalysis(timeoutMs: number = 1000): Promise<boolean> {
-    if (!this.storeAccess || !this.engineService) {
+    if (!this.storeAccess) {
       throw new Error('TestApiService not initialized');
     }
 
     try {
-      const state = this.storeAccess.getState();
-      const currentFen = state.training?.currentFen || state.fen;
+      const startTime = Date.now();
       
-      if (!currentFen) {
-        console.warn('No FEN available for engine analysis');
-        return false;
+      // Wait for engine to be ready
+      while (Date.now() - startTime < timeoutMs) {
+        const state = this.storeAccess.getState();
+        const engineStatus = state.training?.engineStatus || state.engineStatus;
+        
+        if (engineStatus === 'ready' || engineStatus === 'analyzing') {
+          // Engine is working or has finished
+          this.emit('test:engineAnalysisComplete', { 
+            fen: state.training?.currentFen || state.fen
+          });
+          return true;
+        }
+        
+        // Wait a bit before checking again
+        await new Promise(resolve => setTimeout(resolve, 50));
       }
-
-      // Trigger analysis through engine service (instant for MockEngineService)
-      const analysis = await this.engineService.analyzePosition(currentFen, {
-        timeLimit: timeoutMs,
-        depth: 15
-      });
       
-      // Update store with analysis results
-      if (this.storeAccess.setEngineStatus) {
-        this.storeAccess.setEngineStatus('ready');
-      }
-      
-      this.emit('test:engineAnalysisComplete', { 
-        analysis,
-        fen: currentFen
-      });
-      
-      return true;
+      // Timeout reached
+      console.warn('Engine analysis timeout after', timeoutMs, 'ms');
+      return false;
     } catch (error) {
-      console.error('Engine analysis failed:', error);
+      console.error('Engine analysis check failed:', error);
       this.emit('test:engineError', { error: error instanceof Error ? error.message : 'Unknown error' });
       return false;
     }

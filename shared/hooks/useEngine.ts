@@ -5,7 +5,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { EngineService } from '@shared/services';
-import { ScenarioEngine } from '@shared/lib/chess/ScenarioEngine';
+import type { IScenarioEngine } from '@shared/lib/chess/IScenarioEngine';
 
 interface UseEngineOptions {
   id?: string;
@@ -14,7 +14,7 @@ interface UseEngineOptions {
 
 export function useEngine(options: UseEngineOptions = {}) {
   const { id = 'default', autoCleanup = true } = options;
-  const [engine, setEngine] = useState<ScenarioEngine | null>(null);
+  const [engine, setEngine] = useState<IScenarioEngine | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const engineServiceRef = useRef<EngineService>();

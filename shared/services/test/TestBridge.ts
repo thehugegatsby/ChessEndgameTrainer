@@ -15,8 +15,7 @@
  */
 
 import type { TestBridge, TestBridgeEngineAPI, TestBridgeDiagnosticAPI } from '../../types/test-bridge';
-import type { MockEngineService } from '../engine/MockEngineService';
-import type { EngineAnalysis } from '../engine/IEngineService';
+import type { MockScenarioEngine } from '../../lib/chess/MockScenarioEngine';
 import { getLogger } from '../logging';
 import type { ILogger } from '../logging/types';
 
@@ -29,7 +28,7 @@ export class TestBridgeImpl implements TestBridge {
   diagnostic?: TestBridgeDiagnosticAPI;
   private logger: ILogger;
 
-  constructor(private mockEngineService: MockEngineService) {
+  constructor(private mockEngine: MockScenarioEngine) {
     this.logger = getLogger().setContext('TestBridge');
     this.engine = this.createEngineAPI();
     // Diagnostic API will be added in Phase 4
@@ -43,27 +42,27 @@ export class TestBridgeImpl implements TestBridge {
     return {
       setNextMove: (fen: string, move: string) => {
         this.logger.debug(`Setting next move for FEN "${fen}": ${move}`);
-        this.mockEngineService.setNextMove(fen, move);
+        this.mockEngine.setNextMove(fen, move);
       },
 
       setEvaluation: (fen: string, evaluation: number) => {
         this.logger.debug(`Setting evaluation for FEN "${fen}": ${evaluation}`);
-        this.mockEngineService.setEvaluation(fen, evaluation);
+        this.mockEngine.setEvaluation(fen, evaluation);
       },
 
-      addCustomResponse: (fen: string, analysis: EngineAnalysis) => {
+      addCustomResponse: (fen: string, analysis: any) => {
         this.logger.debug(`Adding custom response for FEN "${fen}"`, { analysis });
-        this.mockEngineService.addCustomResponse(fen, analysis);
+        this.mockEngine.addCustomResponse(analysis);
       },
 
       clearCustomResponses: () => {
         this.logger.debug('Clearing all custom responses');
-        this.mockEngineService.clearCustomResponses();
+        this.mockEngine.clearCustomResponses();
       },
 
       reset: () => {
         this.logger.debug('Resetting engine to default state');
-        this.mockEngineService.clearCustomResponses();
+        this.mockEngine.clearCustomResponses();
       },
     };
   }
