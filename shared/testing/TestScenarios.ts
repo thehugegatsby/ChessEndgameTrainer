@@ -48,6 +48,7 @@ export const TestPositions: Record<string, TestScenario> = {
     solution: [
       'Kf6', 'Kf8', 'e6', 'Ke8', 'e7', 'Kd7', 'Kf7', 'Kd6', 'e8=Q', 'Kd5', 'Qe7', 'mate'
     ],
+    // nextPositionId is omitted (undefined) for JSON serialization compatibility
     // TEST-SPECIFIC FIELDS
     initialExpectedMove: { from: 'e6', to: 'f6' }, // Kf6 (gleichwertig mit Kd6)
     expectsDrawEvaluation: false // This is a win for White!

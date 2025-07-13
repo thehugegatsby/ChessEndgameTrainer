@@ -49,7 +49,8 @@ export function createMockPositionService(): IPositionService {
     solution: scenario.solution,
     sideToMove: scenario.sideToMove,
     goal: scenario.goal,
-    nextPositionId: scenario.nextPositionId
+    // Conditional mapping for optional fields to prevent undefined serialization issues
+    ...(scenario.nextPositionId && { nextPositionId: scenario.nextPositionId })
     // Note: Test-specific fields (initialExpectedMove, expectsDrawEvaluation) are NOT included
   }));
 
@@ -90,7 +91,8 @@ export function createMockPositionRepository(): MockPositionRepository {
     solution: scenario.solution,
     sideToMove: scenario.sideToMove,
     goal: scenario.goal,
-    nextPositionId: scenario.nextPositionId
+    // Conditional mapping for optional fields to prevent undefined serialization issues  
+    ...(scenario.nextPositionId && { nextPositionId: scenario.nextPositionId })
   }));
 
   repository.seedData({

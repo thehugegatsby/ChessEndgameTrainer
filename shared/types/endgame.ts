@@ -12,7 +12,7 @@ export interface EndgamePosition {
   targetMoves: number;
   hints?: string[];
   solution?: string[];
-  nextPositionId?: number;
+  nextPositionId?: number | null;
   sideToMove?: 'white' | 'black';
   goal?: 'win' | 'draw' | 'defend';
 }

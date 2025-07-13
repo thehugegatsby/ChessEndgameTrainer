@@ -24,7 +24,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-gray-900 border-b border-gray-700">
         <div className="flex items-center justify-between px-4 py-3">
-          <h1 className="text-xl font-bold text-white">Endgame Training</h1>
+          <h2 className="text-xl font-bold text-white">Endgame Training</h2>
           <SettingsIcon />
         </div>
       </header>
