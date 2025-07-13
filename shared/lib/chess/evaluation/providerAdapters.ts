@@ -6,6 +6,7 @@
 import type { IEngineProvider, ITablebaseProvider } from './providers';
 import type { EngineEvaluation, TablebaseResult } from '../../../types/evaluation';
 import { engine } from '../engine/singleton';
+import { createTablebaseService, TablebaseServiceAdapter } from '../../../services/tablebase';
 
 /**
  * Adapts the enhanced Engine to IEngineProvider interface
@@ -50,21 +51,41 @@ export class EngineProviderAdapter implements IEngineProvider {
 }
 
 /**
- * Tablebase provider - currently not implemented in new clean architecture
- * TODO: Implement tablebase integration when needed
+ * Tablebase provider using clean architecture tablebase services
+ * PHASE 3.2: Implements tablebase integration through ITablebaseService
  */
 export class TablebaseProviderAdapter implements ITablebaseProvider {
-  private getWdlCategory(wdl: number): 'win' | 'cursed-win' | 'draw' | 'blessed-loss' | 'loss' {
-    if (wdl === 2) return 'win';
-    if (wdl === 1) return 'cursed-win';
-    if (wdl === 0) return 'draw';
-    if (wdl === -1) return 'blessed-loss';
-    return 'loss';
+  private readonly serviceAdapter: TablebaseServiceAdapter;
+
+  constructor() {
+    // PHASE 3.2: Create tablebase service and adapter
+    // For now using mock service - can be configured for real services later
+    const tablebaseService = createTablebaseService('mock', {
+      maxPieces: 7,
+      enableCaching: true,
+      cacheTtl: 3600, // 1 hour cache
+      timeout: 2000   // 2 second timeout
+    });
+    
+    this.serviceAdapter = new TablebaseServiceAdapter(tablebaseService);
   }
 
   async getEvaluation(fen: string, playerToMove: 'w' | 'b'): Promise<TablebaseResult | null> {
-    // TODO: Implement tablebase integration in clean architecture
-    // For now, return null (no tablebase data available)
-    return null;
+    try {
+      // PHASE 3.2: Use service adapter to get tablebase evaluation
+      return await this.serviceAdapter.getEvaluation(fen, playerToMove);
+    } catch (error) {
+      // Log error but return null for graceful fallback to engine
+      console.warn('TablebaseProviderAdapter: Failed to get tablebase evaluation', error);
+      return null;
+    }
+  }
+  
+  /**
+   * Gets the underlying tablebase service for advanced usage
+   * @returns The tablebase service instance
+   */
+  getTablebaseService() {
+    return this.serviceAdapter.getTablebaseService();
   }
 }

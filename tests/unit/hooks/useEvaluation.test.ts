@@ -37,7 +37,8 @@ const mockPerspectiveEvaluation = {
 
 const mockUnifiedService = {
   getFormattedEvaluation: jest.fn(),
-  getPerspectiveEvaluation: jest.fn()
+  getPerspectiveEvaluation: jest.fn(),
+  getRawEngineEvaluation: jest.fn()
 };
 
 // Mock the service factory
@@ -69,11 +70,27 @@ describe('useEvaluation Hook', () => {
     // Set up default mock implementations
     mockUnifiedService.getFormattedEvaluation.mockResolvedValue(mockFormattedEvaluation);
     mockUnifiedService.getPerspectiveEvaluation.mockResolvedValue(mockPerspectiveEvaluation);
+    mockUnifiedService.getRawEngineEvaluation.mockResolvedValue({
+      score: 150,
+      mate: null,
+      evaluation: '+1.5',
+      depth: 20,
+      nodes: 1000000,
+      time: 2000,
+      pv: ['e2e4', 'e7e5', 'g1f3'],
+      pvString: 'e2e4 e7e5 g1f3',
+      nps: 500000,
+      hashfull: 50,
+      seldepth: 22,
+      multipv: 1,
+      currmove: 'e2e4',
+      currmovenumber: 1
+    });
   });
 
   // Helper function to wait for evaluation to complete
   const waitForEvaluationComplete = async (
-    result: RenderHookResult<UseEvaluationReturn, unknown>
+    result: { current: UseEvaluationReturn }
   ): Promise<void> => {
     await waitFor(() => {
       expect(result.current.isEvaluating).toBe(false);
