@@ -15,9 +15,6 @@ import {
   UIState,
   SettingsState,
   Toast,
-  ModalType,
-  LoadingState,
-  EngineStatus,
 } from './types';
 import { TRAINING, TIME } from '../constants';
 import { getLogger } from '../services/logging';
