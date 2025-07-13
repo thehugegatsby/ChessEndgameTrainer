@@ -51,7 +51,7 @@ jobs:
       run: npm ci
 
     - name: Run tests with coverage
-      run: npm test -- --coverage
+      run: npm run test:coverage
 
     - name: Checkout base branch
       run: |
@@ -61,7 +61,7 @@ jobs:
     - name: Run base branch tests
       run: |
         npm ci
-        npm test -- --coverage --coverageDirectory=coverage-base
+        npm run test:coverage -- --coverageDirectory=coverage-base
 
     - name: Compare coverage
       run: |
