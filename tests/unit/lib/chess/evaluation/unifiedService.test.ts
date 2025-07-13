@@ -344,23 +344,23 @@ describe('UnifiedEvaluationService_[method]_[condition]_[expected]', () => {
   });
 
   describe('timeout handling', () => {
-    it.skip('should timeout long engine requests', async () => {
-      // Mock delayed response that will timeout
+    it('should timeout long engine requests', async () => {
+      // Mock delayed response that will timeout with singleton EngineService
       const slowEngineProvider = new MockEngineProvider();
       const slowTablebaseProvider = new MockTablebaseProvider();
       
-      // Both providers return null to force timeout scenario
+      // Both providers simulate timeout behavior for singleton architecture
       slowEngineProvider.getEvaluation = jest.fn().mockImplementation(() => 
         new Promise((resolve) => {
-          // Never resolve - will cause timeout
-          // setTimeout(() => resolve(null), 1000);
+          // Simulate hanging engine request that never resolves
+          setTimeout(() => resolve(null), 200); // Longer than timeout
         })
       );
       
       slowTablebaseProvider.getEvaluation = jest.fn().mockImplementation(() => 
         new Promise((resolve) => {
-          // Never resolve - will cause timeout
-          // setTimeout(() => resolve(null), 1000);
+          // Simulate hanging tablebase request that never resolves
+          setTimeout(() => resolve(null), 200); // Longer than timeout  
         })
       );
       
@@ -369,7 +369,7 @@ describe('UnifiedEvaluationService_[method]_[condition]_[expected]', () => {
         slowTablebaseProvider,
         mockCache,
         { 
-          engineTimeout: 50, 
+          engineTimeout: 50,  // Short timeout for singleton EngineService
           tablebaseTimeout: 50,
           fallbackToEngine: true 
         }
@@ -377,9 +377,13 @@ describe('UnifiedEvaluationService_[method]_[condition]_[expected]', () => {
 
       const result = await slowService.getFormattedEvaluation(TEST_FEN, 'w');
 
-      // When both timeout, should return error evaluation
+      // When both timeout, should return fallback evaluation
       expect(result.mainText).toBe('...');
       expect(result.className).toBe('neutral');
+      
+      // Verify providers were called (but timed out)
+      expect(slowEngineProvider.getEvaluation).toHaveBeenCalledWith(TEST_FEN, 'w');
+      expect(slowTablebaseProvider.getEvaluation).toHaveBeenCalledWith(TEST_FEN, 'w');
     });
   });
 

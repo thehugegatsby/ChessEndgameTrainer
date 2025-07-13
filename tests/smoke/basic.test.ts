@@ -15,7 +15,7 @@ describe('Smoke Tests', () => {
   });
 
   describe('Critical Pages Load', () => {
-    it.skip('should load the homepage', async () => {
+    it('should load the homepage', async () => {
       if (!process.env.SMOKE_TEST) return;
       
       const response = await fetch(PRODUCTION_URL);
@@ -25,7 +25,7 @@ describe('Smoke Tests', () => {
       expect(html).toContain('ChessEndgameTrainer');
     });
 
-    it.skip('should load a training page', async () => {
+    it('should load a training page', async () => {
       if (!process.env.SMOKE_TEST) return;
       
       const response = await fetch(`${PRODUCTION_URL}/train/1`);
@@ -34,7 +34,7 @@ describe('Smoke Tests', () => {
   });
 
   describe('API Health Checks', () => {
-    it.skip('should load static assets', async () => {
+    it('should load static assets', async () => {
       if (!process.env.SMOKE_TEST) return;
       
       // Check if Next.js static files are accessible
@@ -42,7 +42,7 @@ describe('Smoke Tests', () => {
       expect(response.status).toBeLessThan(400);
     });
 
-    it.skip('should have correct headers', async () => {
+    it('should have correct headers', async () => {
       if (!process.env.SMOKE_TEST) return;
       
       const response = await fetch(PRODUCTION_URL);
@@ -54,7 +54,7 @@ describe('Smoke Tests', () => {
   });
 
   describe('Critical Resources', () => {
-    it.skip('should load Stockfish WASM', async () => {
+    it('should load Stockfish WASM', async () => {
       if (!process.env.SMOKE_TEST) return;
       
       const response = await fetch(`${PRODUCTION_URL}/stockfish/stockfish-nnue-16.wasm`);
@@ -62,7 +62,7 @@ describe('Smoke Tests', () => {
       expect(response.headers.get('content-type')).toContain('application/wasm');
     });
 
-    it.skip('should have manifest.json for PWA', async () => {
+    it('should have manifest.json for PWA', async () => {
       if (!process.env.SMOKE_TEST) return;
       
       const response = await fetch(`${PRODUCTION_URL}/manifest.json`);

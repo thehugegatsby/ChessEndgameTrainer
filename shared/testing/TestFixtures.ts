@@ -19,6 +19,18 @@ export const TEST_FENS: Record<string, string> = {
   EQUAL_POSITION: '8/8/3k4/6r1/8/8/1KR5/8 w - - 0 1',
   WHITE_ADVANTAGE: 'rnbqkbnr/ppppp2p/6P1/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 3',
   BLACK_ADVANTAGE: 'rnbqkbnr/ppp2ppp/8/4p3/4p2P/7N/PPPP1PP1/RNBQKB1R b KQkq - 1 4',
+  
+  // Chess integration test positions
+  CASTLING_AVAILABLE: 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1',
+  CASTLING_NO_RIGHTS: 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w - - 0 1',
+  KING_IN_CHECK: 'r3k2r/ppp2ppp/8/8/8/8/PPP1qPPP/R3K2R w KQkq - 0 1',
+  EN_PASSANT_POSITION: 'rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3',
+  PAWN_PROMOTION_WHITE: '8/4P3/8/8/8/8/8/4k1K1 w - - 0 1',
+  EXPOSED_KING_POSITION: '8/8/2k5/8/8/1q6/7P/K7 w - - 0 1',
+  STALEMATE_POSITION: 'k7/P7/K7/8/8/8/8/8 b - - 0 1',
+  INSUFFICIENT_MATERIAL: '4k3/8/8/8/8/8/8/4K3 w - - 0 1',
+  
+  // Invalid/malformed FEN strings  
   INVALID_FEN: 'invalid fen string',
   EMPTY_FEN: '',
   MALFORMED_FEN: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR X KQkq - 0 1',

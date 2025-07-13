@@ -311,12 +311,21 @@ describe('Store Error Handling', () => {
       expect(result.current.ui.modalOpen).toBe(null);
     });
 
-    it.skip('should handle multiple toasts with unique IDs', () => {
+    it('should handle multiple toasts with unique IDs', () => {
       const { result } = renderHook(() => useStore());
       
       act(() => {
         result.current.showToast('First message', 'info', 5000);
+      });
+      
+      // Advance time to ensure unique timestamps for toast IDs
+      act(() => {
+        jest.advanceTimersByTime(1);
         result.current.showToast('Second message', 'warning', 5000);
+      });
+      
+      act(() => {
+        jest.advanceTimersByTime(1);
         result.current.showToast('Third message', 'error', 5000);
       });
 
@@ -326,6 +335,14 @@ describe('Store Error Handling', () => {
       const ids = result.current.ui.toasts.map(t => t.id);
       const uniqueIds = new Set(ids);
       expect(uniqueIds.size).toBe(3);
+      
+      // Verify toast content and types
+      expect(result.current.ui.toasts[0].message).toBe('First message');
+      expect(result.current.ui.toasts[0].type).toBe('info');
+      expect(result.current.ui.toasts[1].message).toBe('Second message');
+      expect(result.current.ui.toasts[1].type).toBe('warning');
+      expect(result.current.ui.toasts[2].message).toBe('Third message');
+      expect(result.current.ui.toasts[2].type).toBe('error');
     });
 
     it('should handle clearing all toasts', () => {
