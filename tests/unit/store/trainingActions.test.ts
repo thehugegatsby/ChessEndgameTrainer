@@ -165,7 +165,8 @@ describe('trainingActions', () => {
       const secondUpdate = mockSet.mock.calls[1][0](mockState);
       expect(secondUpdate.training.currentEvaluation).toEqual({
         evaluation: 0.35,
-        mate: undefined
+        mate: undefined,
+        depth: 20
       });
       expect(secondUpdate.training.engineStatus).toBe('ready');
     });
@@ -186,7 +187,8 @@ describe('trainingActions', () => {
       const secondUpdate = mockSet.mock.calls[1][0](mockState);
       expect(secondUpdate.training.currentEvaluation).toEqual({
         evaluation: 1000,
-        mate: 3
+        mate: 3,
+        depth: 15
       });
     });
 
@@ -204,6 +206,7 @@ describe('trainingActions', () => {
       // Assert
       const secondUpdate = mockSet.mock.calls[1][0](mockState);
       expect(secondUpdate.training.currentEvaluation.evaluation).toBe(-0.15);
+      expect(secondUpdate.training.currentEvaluation.depth).toBe(15); // default depth
     });
 
     it('should handle evaluation errors gracefully', async () => {
