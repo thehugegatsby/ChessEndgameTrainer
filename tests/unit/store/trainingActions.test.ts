@@ -71,9 +71,7 @@ describe('trainingActions', () => {
       // Arrange
       const expectedResult: BestMoveResult = {
         move: 'e2e4',
-        evaluation: 0.15,
-        depth: 15,
-        principalVariation: ['e2e4', 'e7e5']
+        evaluation: 0.15
       };
       mockEngine.findBestMove.mockResolvedValue(expectedResult);
 
@@ -144,8 +142,7 @@ describe('trainingActions', () => {
       const expectedResult: EvaluationResult = {
         evaluation: 0.35,
         mate: undefined,
-        depth: 20,
-        principalVariation: ['e7e5', 'g1f3']
+        pv: ['e7e5', 'g1f3']
       };
       mockEngine.evaluatePosition.mockResolvedValue(expectedResult);
 
@@ -168,8 +165,7 @@ describe('trainingActions', () => {
       const secondUpdate = mockSet.mock.calls[1][0](mockState);
       expect(secondUpdate.training.currentEvaluation).toEqual({
         evaluation: 0.35,
-        mate: undefined,
-        depth: 20
+        mate: undefined
       });
       expect(secondUpdate.training.engineStatus).toBe('ready');
     });
@@ -178,8 +174,7 @@ describe('trainingActions', () => {
       // Arrange
       const expectedResult: EvaluationResult = {
         evaluation: 1000,
-        mate: 3,
-        depth: 15
+        mate: 3
       };
       mockEngine.evaluatePosition.mockResolvedValue(expectedResult);
 
@@ -191,8 +186,7 @@ describe('trainingActions', () => {
       const secondUpdate = mockSet.mock.calls[1][0](mockState);
       expect(secondUpdate.training.currentEvaluation).toEqual({
         evaluation: 1000,
-        mate: 3,
-        depth: 15
+        mate: 3
       });
     });
 
@@ -209,7 +203,7 @@ describe('trainingActions', () => {
 
       // Assert
       const secondUpdate = mockSet.mock.calls[1][0](mockState);
-      expect(secondUpdate.training.currentEvaluation.depth).toBe(15); // default depth
+      expect(secondUpdate.training.currentEvaluation.evaluation).toBe(-0.15);
     });
 
     it('should handle evaluation errors gracefully', async () => {
@@ -302,7 +296,7 @@ describe('trainingActions', () => {
     it('should handle sequential engine operations correctly', async () => {
       // Arrange
       const moveResult: BestMoveResult = { move: 'e2e4', evaluation: 0.2 };
-      const evalResult: EvaluationResult = { evaluation: 0.2, depth: 15 };
+      const evalResult: EvaluationResult = { evaluation: 0.2 };
       
       mockEngine.findBestMove.mockResolvedValue(moveResult);
       mockEngine.evaluatePosition.mockResolvedValue(evalResult);

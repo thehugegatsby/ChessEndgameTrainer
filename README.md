@@ -6,7 +6,7 @@
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-Stabilized-green)](https://github.com/thehugegatsby/ChessEndgameTrainer/actions)
 [![Deployment Ready](https://img.shields.io/badge/Deployment-Ready-green)](https://nextjs.org/docs/deployment)
 
-Eine moderne Web-Anwendung zum systematischen Lernen von Schachendspielen mit KI-Unterstützung.
+Eine moderne **Web-first** Anwendung zum systematischen Lernen von Schachendspielen mit KI-Unterstützung. Fokus auf Stabilität und Qualität vor Platform-Expansion.
 
 ## 🎯 Features
 
@@ -65,18 +65,26 @@ ChessEndgameTrainer/
 - **Testing**: Jest 29.7.0, React Testing Library 14.2.1
 - **Environment**: Node.js 20+
 
-## 📊 Projekt Status
+## 📊 Projekt Status (Juli 2025)
 
-- **Test Success**: 951 tests (950 passed, 1 failing) ✅ **Comprehensive Coverage**
-- **TypeScript**: 144→42 errors (71% reduction) ✅ **Clean Compilation**
-- **Code Health**: Excellent (<2% ungenutzter Code)
-- **Architecture**: ✅ Modular evaluation system with clean re-exports
-- **Error Handling**: ✅ Centralized ErrorService + Logger Architecture
-- **State Management**: ✅ Vollständig auf Zustand migriert (Store of Truth)
-- **Security**: ✅ FEN Input Sanitization implementiert
-- **Performance**: Optimiert mit LRU Cache, Debouncing, Tree-Shaking
-- **CI/CD Pipeline**: ✅ Stabilized with expert consensus
-- **Active Development**: Juli 2025
+### 🎯 **Current Focus: Web-First Stabilization**
+- **Strategy**: Stabilization → Enhancement → Expansion
+- **Platform**: Web-only (Mobile deferred until stable foundation)
+- **Phase**: Critical bug fixes + E2E test rewrite
+
+### ✅ **Technical Health**
+- **Test Suite**: 951 tests (99.9% passing - 1 failing) | Comprehensive Coverage
+- **TypeScript**: 144→42 errors (71% reduction) | Clean Compilation  
+- **Architecture**: Clean Service→Adapter→Provider layers
+- **State Management**: Zustand Store as Single Source of Truth
+- **Security**: FEN Input Sanitization implemented
+- **Performance**: LRU Cache, Debouncing, Tree-Shaking optimized
+- **CI/CD**: Stabilized pipeline with automated quality gates
+
+### 🚨 **Current Issues**
+- **E2E Tests**: Broken, require complete Playwright rewrite
+- **UI Bugs**: Engine moves missing (#14), Tablebase emojis (#15), wrong titles (#16)
+- **Data**: Missing Firestore positions 9-11 (#20)
 
 ## 💻 Entwicklung
 
@@ -179,38 +187,88 @@ Die Anwendung wurde für optimale Performance auf Desktop und Mobile optimiert:
 
 Detaillierte Performance-Metriken und technische Details finden Sie in der Codebasis unter `/shared/lib/chess/engine/`.
 
-## 📈 Entwicklungsstand
+## 🚀 Entwicklungs-Roadmap
 
-- ✅ **Production Ready** Web-Anwendung
-- ✅ **Phase 0 & 1 Complete** Test Infrastructure + Engine Foundation  
-- ✅ **Phase 2 COMPLETED** Clean Architecture Test Migration (2025-07-13)
-- ✅ **951 Unit Tests** Comprehensive test coverage (950 passed, 1 failing)
-- ✅ **TypeScript Cleanup** 144→42 errors (71% reduction)
-- ✅ **Expert-Guided Cleanup** Multi-model consensus approach
-- ✅ **Clean Architecture** IChessEngine interface, singleton pattern, stateless design
-- ✅ **FEN Validation** All positions validated and corrected  
-- ✅ **Store of Truth** Migration vollständig abgeschlossen  
-- ✅ **Security** FEN Sanitization implementiert
-- ✅ **Performance Optimiert** für Web & Tree-Shaking
-- ✅ **Quality Gates** All passing (lint, TypeScript, tests, build)
-- 🎯 **Next: E2E Test Rewrite** Modern Playwright architecture
-- ⏳ **Documentation System** Modernization
-- ⏳ **Firebase Direct Integration** Enhanced data layer
+### ✅ **Completed Foundations**
+- **Clean Architecture**: Service→Adapter→Provider layers implemented
+- **Engine Foundation**: Stockfish WASM singleton with memory optimization
+- **State Management**: Zustand Store as Single Source of Truth
+- **TypeScript Health**: 71% error reduction (144→42)
+- **Test Infrastructure**: 951 comprehensive unit tests
+- **Security**: FEN input sanitization and validation
+- **Performance**: LRU caching, debouncing, bundle optimization
 
-## 📚 Dokumentation
+### 🎯 **Phase 1: Stabilization (Current - 1 Week)**
+- 🚨 **Fix critical UI bugs** - Engine moves, tablebase emojis, titles
+- 🔧 **E2E test rewrite** - Modern Playwright architecture  
+- ✅ **100% unit test pass rate** - Fix remaining failing test
+- 📝 **Issue triage** - Address GitHub issues #14-26
 
+### ⚡ **Phase 2: Enhancement (2-3 Weeks)**
+- 🚀 **Performance optimization** - Lazy loading, code splitting
+- 🔥 **Data completion** - Missing Firestore positions
+- 📊 **Quality improvements** - TypeScript error elimination
+- 🧪 **Test coverage** - Enable skipped tests
+
+### 🏗️ **Phase 3: Expansion (Future)**
+- 📱 **Progressive Web App** - Mobile experience without native complexity
+- 🎨 **Advanced features** - Enhanced Brückenbau trainer
+- 📱 **Native mobile** - Only after web platform stability
+- 🔮 **Platform expansion** - Based on user feedback and metrics
+
+## 📚 Dokumentation & Architektur
+
+### 📖 **Entwickler-Dokumentation**
 - **[CLAUDE.md](./CLAUDE.md)** - AI Assistant Context & Architektur-Richtlinien
-- **[TODO.md](./TODO.md)** - Aktuelle Sprint-Planung und Prioritäten
+- **[TODO.md](./TODO.md)** - Web-First Roadmap und aktuelle Prioritäten
 - **[CHANGELOG.md](./CHANGELOG.md)** - Versionshistorie und Änderungen
+- **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - System-Architektur Details
 
-### Architektur & Design
+### 🏗️ **Web-First Architektur-Prinzipien**
+- **Clean Architecture**: Service→Adapter→Provider Separation
+- **Engine Singleton**: Eine Stockfish-Instanz für Browser-Optimierung
+- **Unified Evaluation**: Konsistente Chess Engine + Tablebase Integration
+- **Store of Truth**: Zustand als zentrale State-Verwaltung
+- **TypeScript Strict**: Vollständige Typisierung für Entwicklersicherheit
+- **Performance**: <300KB Bundle-Size pro Route
 
-- **Clean Architecture**: Modulare Trennung von Verantwortlichkeiten
-- **Singleton Pattern**: Eine Engine-Instanz pro Anwendung  
-- **Unified Evaluation**: Konsistente Bewertungslogik über alle Komponenten
-- **Zustand Store**: Single Source of Truth für Application State
-- **TypeScript**: Vollständige Typisierung für Typsicherheit
+### 🎯 **Web-First Strategy Benefits**
+- **Rapid Development**: Fokus auf eine Plattform
+- **Quality First**: Stabilität vor Feature-Expansion
+- **Resource Efficiency**: Keine parallele Mobile-Komplexität
+- **User Value**: Perfekte Web-Experience vs. mittelmäßige Multi-Platform
+- **Future-Ready**: PWA als Mobile-Brücke, Native später
+
+---
+
+## 🤝 Entwicklungs-Workflow
+
+### 🔄 **Qualitäts-Gates**
+```bash
+npm test           # 951/951 tests müssen bestehen
+npm run lint       # ESLint ohne Fehler
+npm run build      # Erfolgreicher Build
+# E2E Tests (nach Rewrite)
+```
+
+### 📋 **Issue-Priorisierung**
+- **P0 Critical**: UI Bugs, Test-Failures → Sofort
+- **P1 High**: Performance, UX → Diese Woche  
+- **P2 Medium**: Tech Debt → Nächste Sprints
+- **P3 Low**: Future Features → Backlog
+
+### 🎯 **Web-First Entwicklung**
+1. **Stabilität vor Features** - Bugs zuerst fixen
+2. **Test-getrieben** - E2E + Unit Test Coverage
+3. **Performance-bewusst** - Bundle Size <300KB
+4. **Mobile später** - PWA dann Native
+
+---
 
 ## 📄 Lizenz
 
 ISC
+
+---
+
+*Multi-Model Analysis (Juli 2025): Gemini Pro + Claude Opus 4 Consensus*

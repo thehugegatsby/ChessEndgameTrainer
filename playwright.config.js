@@ -30,8 +30,8 @@ const config = {
   
   // Shared settings
   use: {
-    // Base URL for navigation - using stable E2E server
-    baseURL: E2E_URL,
+    // Base URL for navigation - using development server
+    baseURL: DEV_URL,
     
     // Collect trace on first retry
     trace: 'on-first-retry',
@@ -108,19 +108,12 @@ const config = {
   // Output folder for test artifacts
   outputDir: 'test-results/',
   
-  // Stable E2E server using production build
-  // Eliminates file watching cascade issues
+  // Use existing development server
+  // Assumes developer runs `npm run dev` manually
   webServer: {
-    command: 'NEXT_PUBLIC_IS_E2E_TEST=true IS_E2E_TEST=true NODE_ENV=production npm run build && npm run start -- -p 3001',
-    url: E2E_URL,
-    timeout: 120000,
-    reuseExistingServer: !CI,
-    env: {
-      NEXT_PUBLIC_IS_E2E_TEST: 'true',
-      NEXT_PUBLIC_E2E_SIGNALS: 'true',
-      IS_E2E_TEST: 'true',
-      NODE_ENV: 'production',
-    },
+    url: DEV_URL,
+    timeout: 30000,
+    reuseExistingServer: true, // Always reuse - don't start new server
   },
 };
 

@@ -10,13 +10,10 @@
 
 import { ChessEngine } from '../../../../../shared/lib/chess/ChessEngine';
 import type { 
-  ChessEngineConfig, 
   MoveObject, 
-  EngineEvaluation,
-  DualEvaluation,
   ChessEngineStats
 } from '../../../../../shared/lib/chess/ChessEngine/interfaces';
-import type { Chess, Move as ChessJsMove } from 'chess.js';
+import type { Chess } from 'chess.js';
 import { TEST_FENS, TEST_MOVES } from '../../../../../shared/testing/TestFixtures';
 
 // SIMPLIFIED MOCKS - Immediate resolution, no complex logic
@@ -32,7 +29,7 @@ jest.mock('../../../../../shared/lib/chess/engine/workerManager', () => ({
 jest.mock('../../../../../shared/lib/chess/engine/requestManager', () => ({
   RequestManager: jest.fn().mockImplementation(() => ({
     generateRequestId: jest.fn().mockReturnValue('test-request-id'),
-    registerRequest: jest.fn().mockImplementation((id, type, resolve) => {
+    registerRequest: jest.fn().mockImplementation((_id, type, resolve) => {
       // Immediate resolution based on type - getBestMove returns null for non-initialized engine
       setImmediate(() => {
         if (type === 'bestmove') {

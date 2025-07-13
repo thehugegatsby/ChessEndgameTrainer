@@ -309,7 +309,7 @@ describe('ChessEngine Integration Tests - STATELESS API', () => {
       const testFen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1';
       
       const mockMoveResult: BestMoveResult = { move: 'e7e5', evaluation: 0.0 };
-      const mockEvalResult: EvaluationResult = { evaluation: 0.0, depth: 15 };
+      const mockEvalResult: EvaluationResult = { evaluation: 0.0 };
       
       mockEngineService.findBestMove.mockResolvedValue(mockMoveResult);
       mockEngineService.evaluatePosition.mockResolvedValue(mockEvalResult);
