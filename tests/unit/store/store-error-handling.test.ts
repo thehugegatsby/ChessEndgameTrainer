@@ -37,10 +37,15 @@ jest.mock('../../../shared/utils/fenValidator', () => ({
 
 describe('Store Error Handling', () => {
   beforeEach(() => {
+    jest.useFakeTimers();
     act(() => {
       useStore.getState().reset();
     });
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   describe('FEN Validation Error Handling', () => {
