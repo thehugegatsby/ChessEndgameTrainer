@@ -13,7 +13,7 @@
  */
 
 import { Move as ChessJsMove } from 'chess.js';
-import type { EngineEvaluation, EngineRequest, EngineResponse, EngineConfig } from './types';
+import type { EngineEvaluation, EnhancedEngineEvaluation, EngineRequest, EngineResponse, EngineConfig } from './types';
 import type { IWorkerFactory, WorkerConfig } from './interfaces';
 import { StockfishWorkerManager } from './workerManager';
 import { RequestManager } from './requestManager';
@@ -312,6 +312,90 @@ export class Engine {
   }
 
   /**
+   * Evaluates a position with enhanced data including Principal Variation
+   * PHASE 2.1: Enhanced evaluation with PV for UI display
+   * @param fen - Position to evaluate
+   * @param includeMultiPV - Whether to include Multi-PV analysis (default: false)
+   */
+  async evaluatePositionEnhanced(fen: string, includeMultiPV: boolean = false): Promise<EnhancedEngineEvaluation> {
+    // Lazy initialization for SSR -> Browser transition
+    if (!this.workerManager.isWorkerReady() && typeof window !== 'undefined') {
+      await this.workerManager.initialize();
+    }
+    
+    if (!this.workerManager.isWorkerReady()) {
+      return { score: 0, mate: null };
+    }
+
+    return new Promise<EnhancedEngineEvaluation>((resolve, reject) => {
+      const id = this.requestManager.generateRequestId('evaluation');
+      const timeLimit = 5000; // 5 seconds for enhanced evaluation
+      
+      // Enhanced request resolver that includes UCI evaluation data
+      const enhancedResolver = (basicEvaluation: EngineEvaluation) => {
+        try {
+          // Get enhanced evaluation data from message handler
+          const messageHandler = this.workerManager.getMessageHandler();
+          const enhancedData = messageHandler.getEnhancedEvaluation();
+          
+          if (enhancedData) {
+            // Merge basic evaluation with enhanced UCI data
+            const enhancedEvaluation: EnhancedEngineEvaluation = {
+              // Basic evaluation fields
+              score: basicEvaluation.score,
+              mate: basicEvaluation.mate,
+              depth: basicEvaluation.depth,
+              nodes: basicEvaluation.nodes,
+              time: basicEvaluation.time,
+              
+              // Enhanced UCI fields from parser
+              pv: enhancedData.pv,
+              pvString: enhancedData.pvString,
+              nps: enhancedData.nps,
+              hashfull: enhancedData.hashfull,
+              seldepth: enhancedData.seldepth,
+              multipv: enhancedData.multipv,
+              currmove: enhancedData.currmove,
+              currmovenumber: enhancedData.currmovenumber
+            };
+            
+            resolve(enhancedEvaluation);
+          } else {
+            // Fallback to basic evaluation if enhanced data unavailable
+            logger.warn('Enhanced evaluation data not available, falling back to basic evaluation');
+            resolve(basicEvaluation as EnhancedEngineEvaluation);
+          }
+        } catch (error) {
+          logger.error('Error processing enhanced evaluation:', error);
+          // Fallback to basic evaluation on error
+          resolve(basicEvaluation as EnhancedEngineEvaluation);
+        }
+      };
+      
+      // Register the request with enhanced resolver
+      this.requestManager.registerRequest(id, 'evaluation', enhancedResolver, reject, timeLimit);
+      
+      const request: EngineRequest = {
+        type: 'evaluation',
+        id,
+        fen,
+        timeLimit
+      };
+      
+      // Configure Multi-PV if requested
+      if (includeMultiPV) {
+        try {
+          this.workerManager.sendCommand('setoption name MultiPV value 3');
+        } catch (error) {
+          logger.warn('Failed to set MultiPV option:', error);
+        }
+      }
+      
+      this.queueRequest(request);
+    });
+  }
+
+  /**
    * Queues a request for processing
    */
   private queueRequest(request: EngineRequest): void {
@@ -507,6 +591,48 @@ export class Engine {
   }
 
   /**
+   * Gets the current enhanced evaluation data (if available)
+   * PHASE 2.1: Direct access to enhanced evaluation without new request
+   * @returns Enhanced evaluation data or null if not available
+   */
+  getCurrentEnhancedEvaluation(): EnhancedEngineEvaluation | null {
+    try {
+      if (!this.workerManager.isWorkerReady()) {
+        return null;
+      }
+      
+      const messageHandler = this.workerManager.getMessageHandler();
+      const enhancedData = messageHandler.getEnhancedEvaluation();
+      
+      if (enhancedData) {
+        // Convert UCI evaluation to enhanced engine evaluation format
+        return {
+          score: enhancedData.score,
+          mate: enhancedData.mate,
+          depth: enhancedData.depth,
+          nodes: enhancedData.nodes,
+          time: enhancedData.time,
+          
+          // Enhanced fields
+          pv: enhancedData.pv,
+          pvString: enhancedData.pvString,
+          nps: enhancedData.nps,
+          hashfull: enhancedData.hashfull,
+          seldepth: enhancedData.seldepth,
+          multipv: enhancedData.multipv,
+          currmove: enhancedData.currmove,
+          currmovenumber: enhancedData.currmovenumber
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      logger.error('Error getting current enhanced evaluation:', error);
+      return null;
+    }
+  }
+
+  /**
    * Gets engine statistics for debugging
    */
   getStats(): {
@@ -516,6 +642,7 @@ export class Engine {
     requestStats: any;
     workerStats: any;
     config: EngineConfig;
+    hasEnhancedEvaluation: boolean;
   } {
     return {
       isReady: this.isReady(),
@@ -523,13 +650,14 @@ export class Engine {
       isProcessing: this.isProcessingQueue,
       requestStats: this.requestManager.getStats(),
       workerStats: this.workerManager.getStats(),
-      config: this.workerManager.getConfig()
+      config: this.workerManager.getConfig(),
+      hasEnhancedEvaluation: this.getCurrentEnhancedEvaluation() !== null
     };
   }
 }
 
 // Re-export types for convenience
-export type { EngineEvaluation, EngineConfig } from './types';
+export type { EngineEvaluation, EnhancedEngineEvaluation, EngineConfig } from './types';
 export type { IWorker, IWorkerFactory, WorkerConfig } from './interfaces';
 export { DefaultWorkerFactory } from './interfaces';
 export type { EngineState, EngineAction } from './state';

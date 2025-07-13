@@ -14,6 +14,7 @@ import type {
 } from './types';
 import { Chess, Move as ChessJsMove } from 'chess.js';
 import { getLogger } from '../../../services/logging';
+import { parseInfo, type UCIEvaluation } from './uciParser';
 
 const logger = getLogger();
 
@@ -34,6 +35,7 @@ export class StockfishMessageHandler {
   private chess: Chess;
   private currentRequest: EngineRequest | null = null;
   private currentEvaluation: EngineEvaluation | null = null;
+  private enhancedEvaluation: UCIEvaluation | null = null; // PHASE 1.2: Store enhanced data
   private messageCount = 0;
   private uciReady = false;
 
@@ -167,7 +169,8 @@ export class StockfishMessageHandler {
   }
 
   /**
-   * Handles evaluation information
+   * Handles evaluation information using enhanced UCI parser
+   * PHASE 1.2: Replaced manual parsing with dedicated uciParser module
    * Accumulates evaluation data for later response
    */
   private handleEvaluationInfo(message: string): void {
@@ -175,6 +178,45 @@ export class StockfishMessageHandler {
       return;
     }
     
+    try {
+      // Use enhanced UCI parser for comprehensive evaluation parsing
+      const parseResult = this.parseUCIInfo(message);
+      
+      if (parseResult.isValid && parseResult.evaluation) {
+        // Convert enhanced UCI evaluation to legacy format for compatibility
+        this.currentEvaluation = {
+          score: parseResult.evaluation.score,
+          mate: parseResult.evaluation.mate,
+          depth: parseResult.evaluation.depth,
+          nodes: parseResult.evaluation.nodes,
+          time: parseResult.evaluation.time
+        };
+        
+        // Store enhanced data for future use (Phase 2 Principal Variation)
+        this.enhancedEvaluation = parseResult.evaluation;
+      } else if (parseResult.errors.length > 0) {
+        logger.warn('UCI parsing errors:', parseResult.errors);
+      }
+    } catch (error) {
+      logger.warn('Failed to parse evaluation:', error);
+      // Fallback to legacy parsing for robustness
+      this.handleEvaluationInfoLegacy(message);
+    }
+  }
+
+  /**
+   * Enhanced UCI info parsing using dedicated parser module
+   * PHASE 1.2: Integration point for uciParser.ts
+   */
+  private parseUCIInfo(message: string): { isValid: boolean; evaluation: UCIEvaluation | null; errors: string[] } {
+    return parseInfo(message);
+  }
+
+  /**
+   * Legacy evaluation parsing as fallback
+   * Maintains backward compatibility if enhanced parser fails
+   */
+  private handleEvaluationInfoLegacy(message: string): void {
     try {
       const scoreMatch = message.match(/score cp (-?\d+)/);
       const mateMatch = message.match(/score mate (-?\d+)/);
@@ -193,7 +235,7 @@ export class StockfishMessageHandler {
           score = parseInt(scoreMatch[1]);
         }
         
-        // Update current evaluation with additional info
+        // Update current evaluation with basic info
         this.currentEvaluation = {
           score,
           mate,
@@ -203,7 +245,7 @@ export class StockfishMessageHandler {
         };
       }
     } catch (error) {
-      logger.warn('Failed to parse evaluation:', error);
+      logger.warn('Legacy evaluation parsing failed:', error);
     }
   }
 
@@ -213,6 +255,7 @@ export class StockfishMessageHandler {
   setCurrentRequest(request: EngineRequest): void {
     this.currentRequest = request;
     this.currentEvaluation = null;
+    this.enhancedEvaluation = null; // PHASE 1.2: Clear enhanced data too
   }
 
   /**
@@ -221,16 +264,33 @@ export class StockfishMessageHandler {
   clearCurrentRequest(): void {
     this.currentRequest = null;
     this.currentEvaluation = null;
+    this.enhancedEvaluation = null; // PHASE 1.2: Clear enhanced data too
   }
 
   /**
    * Gets statistics for debugging
+   * PHASE 1.2: Enhanced with parser information
    */
-  getStats(): { messagesProcessed: number; hasCurrentRequest: boolean } {
+  getStats(): { 
+    messagesProcessed: number; 
+    hasCurrentRequest: boolean;
+    hasEnhancedEvaluation: boolean;
+    uciParserAvailable: boolean;
+  } {
     return {
       messagesProcessed: this.messageCount,
-      hasCurrentRequest: this.currentRequest !== null
+      hasCurrentRequest: this.currentRequest !== null,
+      hasEnhancedEvaluation: this.enhancedEvaluation !== null,
+      uciParserAvailable: true // Since we import it directly now
     };
+  }
+
+  /**
+   * Get enhanced evaluation data for Phase 2 integration
+   * PHASE 1.2: Accessor for Principal Variation and advanced metrics
+   */
+  getEnhancedEvaluation(): UCIEvaluation | null {
+    return this.enhancedEvaluation;
   }
 
   /**

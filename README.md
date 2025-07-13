@@ -4,7 +4,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue)](https://www.typescriptlang.org/)
 [![Test Coverage](https://img.shields.io/badge/Coverage-~78%25-green)](./coverage/lcov-report/index.html)
 [![CI/CD](https://github.com/thehugegatsby/ChessEndgameTrainer/actions/workflows/test-and-coverage.yml/badge.svg)](https://github.com/thehugegatsby/ChessEndgameTrainer/actions)
-[![Deployment Ready](https://img.shields.io/badge/Deployment-Ready-green)](./docs/deployment/DEPLOYMENT_GUIDE.md)
+[![Deployment Ready](https://img.shields.io/badge/Deployment-Ready-green)](https://nextjs.org/docs/deployment)
 
 Eine moderne Web- und Mobile-Anwendung zum systematischen Lernen von Schachendspielen mit KI-Unterstützung.
 
@@ -101,20 +101,9 @@ npm run dev
 
 Server läuft auf http://localhost:3002
 
-### Database Migration (Optional)
+### Database (Firebase Firestore)
 
-```bash
-# Test migration without writing
-npm run migrate:firestore -- --dry-run
-
-# Run actual migration to Firestore
-npm run migrate:firestore
-
-# Verify migration
-npm run migrate:verify
-```
-
-Details siehe [Firestore Migration Guide](./docs/database/FIRESTORE_MIGRATION_README.md)
+Die Anwendung unterstützt Firebase Firestore als Backend-Datenbank für persistente Speicherung von Fortschritt und Einstellungen. Konfiguration über Umgebungsvariablen.
 
 ### Tests ausführen
 
@@ -185,7 +174,7 @@ Die Anwendung wurde für optimale Performance auf Desktop und Mobile optimiert:
 - **75% weniger API-Calls** durch verschiedene Optimierungen
 - **99.99% Cache Hit Rate** für wiederkehrende Positionen
 
-Detaillierte Performance-Metriken und technische Details finden Sie in der [ARCHITECTURE.md](docs/ARCHITECTURE.md#performance-optimizations).
+Detaillierte Performance-Metriken und technische Details finden Sie in der Codebasis unter `/shared/lib/chess/engine/`.
 
 ## 📈 Projekt Status
 
@@ -207,14 +196,17 @@ Detaillierte Performance-Metriken und technische Details finden Sie in der [ARCH
 
 ## 📚 Dokumentation
 
-Die vollständige Dokumentation ist strukturiert organisiert:
+- **[CLAUDE.md](./CLAUDE.md)** - AI Assistant Context & Architektur-Richtlinien
+- **[TODO.md](./TODO.md)** - Aktuelle Sprint-Planung und Prioritäten
+- **[CHANGELOG.md](./CHANGELOG.md)** - Versionshistorie und Änderungen
 
-- **[CLAUDE.md](./CLAUDE.md)** - AI Assistant Context & Best Practices
-- **[Architecture](./docs/ARCHITECTURE.md)** - Systemarchitektur und Design
-- **[Security](./docs/SECURITY.md)** - Security Guidelines und Implementation
-- **[Testing](./docs/TESTING.md)** - Umfassende Test-Strategie
-- **[Database Migration](./docs/database/FIRESTORE_MIGRATION_README.md)** - Firestore Migration Guide
-- **[Deployment](./docs/deployment/DEPLOYMENT_GUIDE.md)** - Production Deployment Guide
+### Architektur & Design
+
+- **Clean Architecture**: Modulare Trennung von Verantwortlichkeiten
+- **Singleton Pattern**: Eine Engine-Instanz pro Anwendung  
+- **Unified Evaluation**: Konsistente Bewertungslogik über alle Komponenten
+- **Zustand Store**: Single Source of Truth für Application State
+- **TypeScript**: Vollständige Typisierung für Typsicherheit
 
 ## 📄 Lizenz
 

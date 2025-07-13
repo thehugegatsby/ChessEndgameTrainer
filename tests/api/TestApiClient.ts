@@ -537,19 +537,4 @@ export class TestApiClient {
     return response.json();
   }
 
-  /**
-   * Legacy method for backward compatibility
-   */
-  async createUser(email: string, password: string): Promise<{ success: boolean; user: any }> {
-    console.warn('createUser is deprecated, use createFirebaseUser instead');
-    
-    const result = await this.createFirebaseUser({
-      overrides: { email }
-    });
-    
-    return {
-      success: result.success,
-      user: result.user
-    };
-  }
 }

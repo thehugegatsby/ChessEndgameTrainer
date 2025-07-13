@@ -1,12 +1,17 @@
 import React from 'react';
 import { Move } from 'chess.js';
 import { getEvaluationBarWidth } from '../../../utils/chess/evaluationHelpers';
+import { PrincipalVariation } from '../PrincipalVariation';
 
 interface MoveAnalysisData {
   move: Move;
   evaluation?: number;
   bestMove?: string;
   classification?: 'excellent' | 'good' | 'inaccuracy' | 'mistake' | 'blunder';
+  // PHASE 2.2: Enhanced evaluation data
+  pv?: string[];
+  pvString?: string;
+  depth?: number;
 }
 
 interface AnalysisDetailsProps {
@@ -75,6 +80,25 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = React.memo(({
                 <span className="font-mono text-sm font-semibold text-gray-800 dark:text-gray-200">
                   {selectedAnalysis.bestMove}
                 </span>
+              </div>
+            )}
+
+            {/* Principal Variation - PHASE 2.2 Enhancement */}
+            {selectedAnalysis.pv && selectedAnalysis.pv.length > 0 && (
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                <PrincipalVariation
+                  pv={selectedAnalysis.pv}
+                  pvString={selectedAnalysis.pvString}
+                  evaluation={selectedAnalysis.evaluation}
+                  depth={selectedAnalysis.depth}
+                  interactive={true}
+                  maxMoves={8} // Limit for mobile UI
+                  onMoveClick={(moveIndex, move) => {
+                    // TODO: Implement board preview functionality
+                    console.log(`PV Move clicked: ${move} at index ${moveIndex}`);
+                  }}
+                  className="w-full"
+                />
               </div>
             )}
 

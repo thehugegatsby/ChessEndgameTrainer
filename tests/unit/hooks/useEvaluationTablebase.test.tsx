@@ -5,7 +5,8 @@ import { useEvaluation } from '@shared/hooks/useEvaluation';
 // Create mock service instance
 const mockUnifiedService = {
   getFormattedEvaluation: jest.fn(),
-  getPerspectiveEvaluation: jest.fn()
+  getPerspectiveEvaluation: jest.fn(),
+  getRawEngineEvaluation: jest.fn()
 };
 
 // Mock the service factory
@@ -61,6 +62,23 @@ describe('useEvaluation Tablebase Integration', () => {
       perspectiveWdl: 0,
       perspectiveDtm: null,
       perspectiveDtz: 0,
+    });
+    
+    mockUnifiedService.getRawEngineEvaluation.mockResolvedValue({
+      score: 0,
+      mate: null,
+      evaluation: '0.00',
+      depth: 20,
+      nodes: 1000000,
+      time: 2000,
+      pv: [],
+      pvString: '',
+      nps: 500000,
+      hashfull: 50,
+      seldepth: 22,
+      multipv: 1,
+      currmove: '',
+      currmovenumber: 1
     });
   });
 

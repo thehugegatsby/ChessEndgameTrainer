@@ -77,5 +77,9 @@ engines/
 tmp/
 temp/
 
+# Debug scripts
+debug-*.js
+debug-*.ts
+
 # Pre-commit hooks
 # Run: npm run pre-commit before committing 

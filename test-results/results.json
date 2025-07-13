@@ -93,38 +93,6 @@
         "metadata": {
           "actualWorkers": 2
         },
-        "id": "mobile-chrome",
-        "name": "mobile-chrome",
-        "testDir": "/home/thehu/coolProjects/EndgameTrainer/tests/e2e",
-        "testIgnore": [],
-        "testMatch": [
-          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
-        ],
-        "timeout": 60000
-      },
-      {
-        "outputDir": "/home/thehu/coolProjects/EndgameTrainer/test-results",
-        "repeatEach": 1,
-        "retries": 0,
-        "metadata": {
-          "actualWorkers": 2
-        },
-        "id": "mobile-safari",
-        "name": "mobile-safari",
-        "testDir": "/home/thehu/coolProjects/EndgameTrainer/tests/e2e",
-        "testIgnore": [],
-        "testMatch": [
-          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
-        ],
-        "timeout": 60000
-      },
-      {
-        "outputDir": "/home/thehu/coolProjects/EndgameTrainer/test-results",
-        "repeatEach": 1,
-        "retries": 0,
-        "metadata": {
-          "actualWorkers": 2
-        },
         "id": "firebase",
         "name": "firebase",
         "testDir": "/home/thehu/coolProjects/EndgameTrainer/tests/e2e/firebase",
@@ -183,7 +151,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3470,
+                      "duration": 3482,
                       "errors": [],
                       "stdout": [
                         {
@@ -192,7 +160,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-07-13T18:30:00.056Z",
+                      "startTime": "2025-07-13T20:15:19.643Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -221,7 +189,7 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 3322,
+                      "duration": 3299,
                       "errors": [],
                       "stdout": [
                         {
@@ -230,7 +198,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-07-13T18:30:00.050Z",
+                      "startTime": "2025-07-13T20:15:19.645Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -250,8 +218,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-07-13T18:29:35.538Z",
-    "duration": 27045.408,
+    "startTime": "2025-07-13T20:14:56.236Z",
+    "duration": 27086.815,
     "expected": 2,
     "skipped": 0,
     "unexpected": 0,

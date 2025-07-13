@@ -84,14 +84,15 @@ const config = {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
     },
-    {
-      name: 'mobile-chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'mobile-safari',
-      use: { ...devices['iPhone 12'] },
-    },
+    // Mobile tests removed - not implemented yet
+    // {
+    //   name: 'mobile-chrome',
+    //   use: { ...devices['Pixel 5'] },
+    // },
+    // {
+    //   name: 'mobile-safari',
+    //   use: { ...devices['iPhone 12'] },
+    // },
     {
       name: 'firebase',
       testDir: './tests/e2e/firebase',

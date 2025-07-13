@@ -11,28 +11,24 @@
  */
 
 import { EngineProviderAdapter, TablebaseProviderAdapter } from '../../../../../shared/lib/chess/evaluation/providerAdapters';
-import { EngineService } from '../../../../../shared/services/chess/EngineService';
 
-// Mock the EngineService
-jest.mock('../../../../../shared/services/chess/EngineService');
+// Mock the engine singleton that EngineProviderAdapter actually uses
+jest.mock('../../../../../shared/lib/chess/engine/singleton', () => ({
+  engine: {
+    evaluatePositionEnhanced: jest.fn()
+  }
+}));
 
 describe('Provider Adapters', () => {
-  let mockEngineService: any;
+  let mockEngine: any;
 
   beforeEach(() => {
     // Reset all mocks
     jest.clearAllMocks();
     
-    // Create mock EngineService implementing IChessEngine interface
-    mockEngineService = {
-      evaluatePosition: jest.fn(),
-      findBestMove: jest.fn(),
-      stop: jest.fn(),
-      terminate: jest.fn()
-    };
-    
-    // Mock EngineService.getInstance()
-    (EngineService.getInstance as jest.Mock).mockReturnValue(mockEngineService);
+    // Get the mocked engine from the singleton module
+    const { engine } = require('../../../../../shared/lib/chess/engine/singleton');
+    mockEngine = engine;
   });
 
   describe('EngineProviderAdapter', () => {
@@ -45,10 +41,22 @@ describe('Provider Adapters', () => {
     describe('getEvaluation', () => {
       it('should return engine evaluation with score', async () => {
         const mockEvaluationResult = {
-          evaluation: 150
+          score: 150,
+          mate: null,
+          depth: 20,
+          nodes: 1000000,
+          time: 2000,
+          pv: ['e2e4', 'e7e5'],
+          pvString: 'e2e4 e7e5',
+          nps: 500000,
+          hashfull: 50,
+          seldepth: 22,
+          multipv: 1,
+          currmove: 'e2e4',
+          currmovenumber: 1
         };
         
-        mockEngineService.evaluatePosition.mockResolvedValue(mockEvaluationResult);
+        mockEngine.evaluatePositionEnhanced.mockResolvedValue(mockEvaluationResult);
         
         const result = await adapter.getEvaluation('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', 'w');
         
@@ -56,21 +64,40 @@ describe('Provider Adapters', () => {
           score: 150,
           mate: null,
           evaluation: '1.50',
-          depth: 15,
-          nodes: 0,
-          time: 0
+          depth: 20,
+          nodes: 1000000,
+          time: 2000,
+          pv: ['e2e4', 'e7e5'],
+          pvString: 'e2e4 e7e5',
+          nps: 500000,
+          hashfull: 50,
+          seldepth: 22,
+          multipv: 1,
+          currmove: 'e2e4',
+          currmovenumber: 1
         });
         
-        expect(mockEngineService.evaluatePosition).toHaveBeenCalledWith('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', { depth: 15 });
+        expect(mockEngine.evaluatePositionEnhanced).toHaveBeenCalledWith('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', false);
       });
 
       it('should return engine evaluation with mate', async () => {
         const mockEvaluationResult = {
-          evaluation: 0,
-          mate: 5
+          score: 0,
+          mate: 5,
+          depth: 15,
+          nodes: 500000,
+          time: 1000,
+          pv: ['Ka8', 'Qb8#'],
+          pvString: 'Ka8 Qb8#',
+          nps: 500000,
+          hashfull: 25,
+          seldepth: 15,
+          multipv: 1,
+          currmove: 'Ka8',
+          currmovenumber: 1
         };
         
-        mockEngineService.evaluatePosition.mockResolvedValue(mockEvaluationResult);
+        mockEngine.evaluatePositionEnhanced.mockResolvedValue(mockEvaluationResult);
         
         const result = await adapter.getEvaluation('8/8/8/8/8/2k5/1q6/K7 w - - 0 1', 'w');
         
@@ -79,20 +106,39 @@ describe('Provider Adapters', () => {
           mate: 5,
           evaluation: '#5',
           depth: 15,
-          nodes: 0,
-          time: 0
+          nodes: 500000,
+          time: 1000,
+          pv: ['Ka8', 'Qb8#'],
+          pvString: 'Ka8 Qb8#',
+          nps: 500000,
+          hashfull: 25,
+          seldepth: 15,
+          multipv: 1,
+          currmove: 'Ka8',
+          currmovenumber: 1
         });
         
-        expect(mockEngineService.evaluatePosition).toHaveBeenCalledWith('8/8/8/8/8/2k5/1q6/K7 w - - 0 1', { depth: 15 });
+        expect(mockEngine.evaluatePositionEnhanced).toHaveBeenCalledWith('8/8/8/8/8/2k5/1q6/K7 w - - 0 1', false);
       });
 
       it('should handle negative mate values', async () => {
         const mockEvaluationResult = {
-          evaluation: 0,
-          mate: -3
+          score: 0,
+          mate: -3,
+          depth: 15,
+          nodes: 200000,
+          time: 800,
+          pv: ['Kb8', 'Qb7#'],
+          pvString: 'Kb8 Qb7#',
+          nps: 250000,
+          hashfull: 30,
+          seldepth: 15,
+          multipv: 1,
+          currmove: 'Kb8',
+          currmovenumber: 1
         };
         
-        mockEngineService.evaluatePosition.mockResolvedValue(mockEvaluationResult);
+        mockEngine.evaluatePositionEnhanced.mockResolvedValue(mockEvaluationResult);
         
         const result = await adapter.getEvaluation('8/8/8/8/8/2K5/1Q6/k7 b - - 0 1', 'b');
         
@@ -101,32 +147,64 @@ describe('Provider Adapters', () => {
           mate: -3,
           evaluation: '#3', // Absolute value for display
           depth: 15,
-          nodes: 0,
-          time: 0
+          nodes: 200000,
+          time: 800,
+          pv: ['Kb8', 'Qb7#'],
+          pvString: 'Kb8 Qb7#',
+          nps: 250000,
+          hashfull: 30,
+          seldepth: 15,
+          multipv: 1,
+          currmove: 'Kb8',
+          currmovenumber: 1
         });
         
-        expect(mockEngineService.evaluatePosition).toHaveBeenCalledWith('8/8/8/8/8/2K5/1Q6/k7 b - - 0 1', { depth: 15 });
+        expect(mockEngine.evaluatePositionEnhanced).toHaveBeenCalledWith('8/8/8/8/8/2K5/1Q6/k7 b - - 0 1', false);
       });
 
       it('should format score to 2 decimal places', async () => {
         const mockEvaluationResult = {
-          evaluation: 237
+          score: 237,
+          mate: null,
+          depth: 15,
+          nodes: 300000,
+          time: 1200,
+          pv: [],
+          pvString: '',
+          nps: 250000,
+          hashfull: 40,
+          seldepth: 16,
+          multipv: 1,
+          currmove: '',
+          currmovenumber: 1
         };
         
-        mockEngineService.evaluatePosition.mockResolvedValue(mockEvaluationResult);
+        mockEngine.evaluatePositionEnhanced.mockResolvedValue(mockEvaluationResult);
         
         const result = await adapter.getEvaluation('8/8/8/8/8/8/8/8 w - - 0 1', 'w');
         
         expect(result?.evaluation).toBe('2.37');
-        expect(mockEngineService.evaluatePosition).toHaveBeenCalledWith('8/8/8/8/8/8/8/8 w - - 0 1', { depth: 15 });
+        expect(mockEngine.evaluatePositionEnhanced).toHaveBeenCalledWith('8/8/8/8/8/8/8/8 w - - 0 1', false);
       });
 
       it('should handle negative scores', async () => {
         const mockEvaluationResult = {
-          evaluation: -450
+          score: -450,
+          mate: null,
+          depth: 15,
+          nodes: 400000,
+          time: 1600,
+          pv: [],
+          pvString: '',
+          nps: 250000,
+          hashfull: 35,
+          seldepth: 17,
+          multipv: 1,
+          currmove: '',
+          currmovenumber: 1
         };
         
-        mockEngineService.evaluatePosition.mockResolvedValue(mockEvaluationResult);
+        mockEngine.evaluatePositionEnhanced.mockResolvedValue(mockEvaluationResult);
         
         const result = await adapter.getEvaluation('8/8/8/8/8/8/8/8 b - - 0 1', 'b');
         
@@ -135,15 +213,23 @@ describe('Provider Adapters', () => {
           mate: null,
           evaluation: '-4.50',
           depth: 15,
-          nodes: 0,
-          time: 0
+          nodes: 400000,
+          time: 1600,
+          pv: [],
+          pvString: '',
+          nps: 250000,
+          hashfull: 35,
+          seldepth: 17,
+          multipv: 1,
+          currmove: '',
+          currmovenumber: 1
         });
         
-        expect(mockEngineService.evaluatePosition).toHaveBeenCalledWith('8/8/8/8/8/8/8/8 b - - 0 1', { depth: 15 });
+        expect(mockEngine.evaluatePositionEnhanced).toHaveBeenCalledWith('8/8/8/8/8/8/8/8 b - - 0 1', false);
       });
 
       it('should return null when engine returns null', async () => {
-        mockEngineService.evaluatePosition.mockResolvedValue(null);
+        mockEngine.evaluatePositionEnhanced.mockResolvedValue(null);
         
         const result = await adapter.getEvaluation('invalid fen', 'w');
         
@@ -151,15 +237,15 @@ describe('Provider Adapters', () => {
       });
 
       it('should return null when engine throws error', async () => {
-        mockEngineService.evaluatePosition.mockRejectedValue(new Error('Engine error'));
+        mockEngine.evaluatePositionEnhanced.mockRejectedValue(new Error('Engine error'));
         
         const result = await adapter.getEvaluation('8/8/8/8/8/8/8/8 w - - 0 1', 'w');
         
         expect(result).toBeNull();
       });
 
-      it('should return null when evaluatePosition throws error', async () => {
-        mockEngineService.evaluatePosition.mockRejectedValue(new Error('Service error'));
+      it('should return null when evaluatePositionEnhanced throws error', async () => {
+        mockEngine.evaluatePositionEnhanced.mockRejectedValue(new Error('Service error'));
         
         const result = await adapter.getEvaluation('8/8/8/8/8/8/8/8 w - - 0 1', 'w');
         
@@ -168,33 +254,64 @@ describe('Provider Adapters', () => {
 
       it('should handle mate 0 correctly', async () => {
         const mockEvaluationResult = {
-          evaluation: 0,
-          mate: 0
+          score: 0,
+          mate: 0,
+          depth: 15,
+          nodes: 100000,
+          time: 500,
+          pv: [],
+          pvString: '',
+          nps: 200000,
+          hashfull: 20,
+          seldepth: 15,
+          multipv: 1,
+          currmove: '',
+          currmovenumber: 1
         };
         
-        mockEngineService.evaluatePosition.mockResolvedValue(mockEvaluationResult);
+        mockEngine.evaluatePositionEnhanced.mockResolvedValue(mockEvaluationResult);
         
         const result = await adapter.getEvaluation('8/8/8/8/8/8/8/8 w - - 0 1', 'w');
         
-        // mate: 0 is falsy, so || null converts it to null
+        // mate: 0 is falsy, so it uses score format instead
         expect(result).toEqual({
           score: 0,
-          mate: null, // mate || null converts 0 to null
-          evaluation: '0.00', // Since mate is null, it uses score
+          mate: 0, // Keep the original mate value
+          evaluation: '0.00', // Since mate is 0 (falsy), it uses score format
           depth: 15,
-          nodes: 0,
-          time: 0
+          nodes: 100000,
+          time: 500,
+          pv: [],
+          pvString: '',
+          nps: 200000,
+          hashfull: 20,
+          seldepth: 15,
+          multipv: 1,
+          currmove: '',
+          currmovenumber: 1
         });
         
-        expect(mockEngineService.evaluatePosition).toHaveBeenCalledWith('8/8/8/8/8/8/8/8 w - - 0 1', { depth: 15 });
+        expect(mockEngine.evaluatePositionEnhanced).toHaveBeenCalledWith('8/8/8/8/8/8/8/8 w - - 0 1', false);
       });
 
       it('should handle score 0 correctly', async () => {
         const mockEvaluationResult = {
-          evaluation: 0
+          score: 0,
+          mate: null,
+          depth: 15,
+          nodes: 150000,
+          time: 600,
+          pv: [],
+          pvString: '',
+          nps: 250000,
+          hashfull: 25,
+          seldepth: 15,
+          multipv: 1,
+          currmove: '',
+          currmovenumber: 1
         };
         
-        mockEngineService.evaluatePosition.mockResolvedValue(mockEvaluationResult);
+        mockEngine.evaluatePositionEnhanced.mockResolvedValue(mockEvaluationResult);
         
         const result = await adapter.getEvaluation('8/8/8/8/8/8/8/8 w - - 0 1', 'w');
         
@@ -203,11 +320,19 @@ describe('Provider Adapters', () => {
           mate: null,
           evaluation: '0.00',
           depth: 15,
-          nodes: 0,
-          time: 0
+          nodes: 150000,
+          time: 600,
+          pv: [],
+          pvString: '',
+          nps: 250000,
+          hashfull: 25,
+          seldepth: 15,
+          multipv: 1,
+          currmove: '',
+          currmovenumber: 1
         });
         
-        expect(mockEngineService.evaluatePosition).toHaveBeenCalledWith('8/8/8/8/8/8/8/8 w - - 0 1', { depth: 15 });
+        expect(mockEngine.evaluatePositionEnhanced).toHaveBeenCalledWith('8/8/8/8/8/8/8/8 w - - 0 1', false);
       });
     });
   });
@@ -220,10 +345,14 @@ describe('Provider Adapters', () => {
     });
 
     describe('getEvaluation', () => {
-      it('should return null (not implemented in clean architecture)', async () => {
+      it('should return tablebase result for valid positions', async () => {
         const result = await adapter.getEvaluation('8/8/8/8/8/8/P7/k6K w - - 0 1', 'w');
         
-        expect(result).toBeNull();
+        // With Phase 3.2 implementation, should return actual tablebase data
+        expect(result).not.toBeNull();
+        expect(result).toHaveProperty('wdl');
+        expect(result).toHaveProperty('category');
+        expect(result).toHaveProperty('precise');
       });
 
       // TODO: Re-enable these tests when tablebase integration is implemented

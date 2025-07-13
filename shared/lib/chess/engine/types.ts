@@ -81,6 +81,24 @@ export interface EngineEvaluation {
 }
 
 /**
+ * Enhanced engine evaluation with Principal Variation
+ * PHASE 2: Extended evaluation data for UI display
+ */
+export interface EnhancedEngineEvaluation extends EngineEvaluation {
+  // Principal Variation data (Phase 2 enhancement)
+  pv?: string[];        // Best line of play as move array
+  pvString?: string;    // Raw PV string for debugging
+  
+  // Enhanced UCI data
+  nps?: number;         // Nodes per second
+  hashfull?: number;    // Hash table utilization (0-1000)
+  seldepth?: number;    // Selective search depth
+  multipv?: number;     // Multi-PV line number
+  currmove?: string;    // Current move being searched
+  currmovenumber?: number; // Current move number in search
+}
+
+/**
  * Worker message types for communication
  * Mobile-safe message passing
  */
