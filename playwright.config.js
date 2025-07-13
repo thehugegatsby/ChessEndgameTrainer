@@ -110,7 +110,7 @@ const config = {
   // Stable E2E server using production build
   // Eliminates file watching cascade issues
   webServer: {
-    command: 'npm run build && npm run start -- -p 3001',
+    command: 'NEXT_PUBLIC_IS_E2E_TEST=true IS_E2E_TEST=true NODE_ENV=production npm run build && npm run start -- -p 3001',
     url: E2E_URL,
     timeout: 120000,
     reuseExistingServer: !CI,

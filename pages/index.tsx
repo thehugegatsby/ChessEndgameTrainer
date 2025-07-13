@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { AppLayout } from '@shared/components/layout/AppLayout';
+import { TEST_IDS, getTestId } from '@shared/constants/testIds';
 
 // Brückenbau-Trainer Lektionen (Inkrementell von fast gewonnen zu schwieriger)
 const bridgeTrainerLessons = [
@@ -56,6 +57,7 @@ export default function HomePage() {
           <div className="flex justify-center">
             <Link 
               href="/train/12"
+              data-testid={TEST_IDS.NAVIGATION.TRAINING_LINK}
               className="px-8 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
             >
               Training starten
@@ -105,6 +107,7 @@ export default function HomePage() {
                 <div className="space-y-2">
                   <Link 
                     href={`/train/${lesson.trainId}`}
+                    data-testid={getTestId(TEST_IDS.LESSONS.START_BUTTON, lesson.trainId)}
                     className="block w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-center text-sm font-medium"
                   >
                     Starten

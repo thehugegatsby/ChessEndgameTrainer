@@ -17,10 +17,18 @@ export const TEST_IDS = {
     FIRST: 'nav-first',
     BACK: 'nav-back',
     FORWARD: 'nav-forward',
-    LAST: 'nav-last'
+    LAST: 'nav-last',
+    TRAINING_LINK: 'training-link'
   },
   CONTROLS: {
     UNDO: 'undo-button'
+  },
+  CHESS: {
+    TRAINING_BOARD: 'training-board',
+    CHESSBOARD: 'chessboard'
+  },
+  LESSONS: {
+    START_BUTTON: 'lesson-start'
   }
 } as const;
 

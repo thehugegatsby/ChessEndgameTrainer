@@ -52,6 +52,32 @@ export const TestPositions: Record<string, TestScenario> = {
     // TEST-SPECIFIC FIELDS
     initialExpectedMove: { from: 'e6', to: 'f6' }, // Kf6 (gleichwertig mit Kd6)
     expectsDrawEvaluation: false // This is a win for White!
+  },
+
+  // Position 12: "Zickzack-Technik" Brückenbau-Trainer
+  // FEN: "2K5/2P2k2/8/8/4R3/8/1r6/8 w - - 0 1"  
+  // White K+P+R vs Black K+R, White to move, goal: win using bridge technique
+  POSITION_12_BRIDGE_ZICKZACK: {
+    id: "12", // TestScenario uses string IDs
+    title: 'Zickzack-Technik',
+    description: 'König läuft im Zickzack nach vorne, Turm schützt von hinten',
+    fen: '2K5/2P2k2/8/8/4R3/8/1r6/8 w - - 0 1', // From homepage bridgeTrainerLessons
+    category: 'endgame',
+    difficulty: 'beginner',
+    targetMoves: 8, // Estimated moves to win
+    sideToMove: 'white',
+    goal: 'win',
+    hints: [
+      'König läuft im Zickzack nach vorne',
+      'Turm schützt von hinten',
+      'Kd7, Kc6, Kb5 sind die Schlüsselzüge'
+    ],
+    solution: [
+      'Kd7', 'Kf8', 'Kc6', 'Ke7', 'Kb5', 'Kd6', 'Re6+', 'Kd5', 'c8=Q'
+    ],
+    // TEST-SPECIFIC FIELDS
+    initialExpectedMove: { from: 'c8', to: 'd7' }, // Kd7 (Zickzack beginnen)
+    expectsDrawEvaluation: false // This is a win for White!
   }
 };
 
@@ -59,7 +85,8 @@ export const TestPositions: Record<string, TestScenario> = {
  * Legacy position ID mapping
  */
 export const PositionIdMap = new Map<number, keyof typeof TestPositions>([
-  [1, 'POSITION_1_OPPOSITION_BASICS']
+  [1, 'POSITION_1_OPPOSITION_BASICS'],
+  [12, 'POSITION_12_BRIDGE_ZICKZACK']
 ]);
 
 /**
