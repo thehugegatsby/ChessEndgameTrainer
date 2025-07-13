@@ -33,12 +33,12 @@ const generateTestFens = (count: number): string[] => {
   });
 };
 
-const generateTestEvaluations = (count: number) => {
-  return Array(count).fill(0).map((_, i) => ({
-    score: Math.floor(Math.random() * 1000) - 500,
-    mate: Math.random() > 0.9 ? Math.floor(Math.random() * 10) + 1 : null
-  }));
-};
+// const generateTestEvaluations = (count: number) => {
+//   return Array(count).fill(0).map(() => ({
+//     score: Math.floor(Math.random() * 1000) - 500,
+//     mate: Math.random() > 0.9 ? Math.floor(Math.random() * 10) + 1 : null
+//   }));
+// };
 
 // Mock Engine for performance tests
 const createMockEngine = (): jest.Mocked<Engine> => ({
@@ -147,7 +147,7 @@ describe('Cache Performance Tests', () => {
           )
         ];
         
-        accessPatterns.forEach((patternGen, patternIndex) => {
+        accessPatterns.forEach((patternGen) => {
           const keys = patternGen();
           const start = performance.now();
           

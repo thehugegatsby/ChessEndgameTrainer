@@ -9,7 +9,7 @@ import { IPositionService, IPositionServiceConfig } from './IPositionService';
 import { EndgamePosition, EndgameCategory, EndgameChapter } from '@shared/types';
 import { getLogger } from '@shared/services/logging';
 import { LRUCache } from '@shared/lib/cache/LRUCache';
-import { PositionNotFoundError, RepositoryError } from './errors';
+import { RepositoryError } from './errors';
 
 const logger = getLogger().setContext('PositionService');
 

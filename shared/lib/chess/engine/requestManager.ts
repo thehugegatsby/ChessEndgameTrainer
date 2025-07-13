@@ -88,8 +88,6 @@ export class RequestManager {
     this.pendingRequests.delete(id);
     request.resolve(move);
     
-    const duration = Date.now() - request.timestamp;
-    
     return true;
   }
 
@@ -112,8 +110,6 @@ export class RequestManager {
     }
     this.pendingRequests.delete(id);
     request.resolve(evaluation);
-    
-    const duration = Date.now() - request.timestamp;
     
     return true;
   }
@@ -157,7 +153,6 @@ export class RequestManager {
    * Cancels all pending requests
    */
   cancelAllRequests(reason: string = 'All requests cancelled'): void {
-    const count = this.pendingRequests.size;
     for (const [id, request] of this.pendingRequests.entries()) {
       try {
         clearTimeout(request.timeoutId);

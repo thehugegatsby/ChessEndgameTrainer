@@ -285,7 +285,6 @@ describe('ErrorService', () => {
       
       // For STORAGE errors
       const storageError = new Error('Storage error');
-      const storageContext: ErrorContext = { type: ErrorType.STORAGE };
       
       // Use reflection to access private method (for testing only)
       const serviceInstance = ErrorService.getInstance();

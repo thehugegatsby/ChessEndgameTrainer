@@ -1,12 +1,9 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
-import { Move } from 'chess.js';
 import { 
   TrainingBoardZustand, 
   MovePanelZustand, 
   DualEvaluationSidebar,
-  TrainingControls, 
-  EvaluationLegend,
   NavigationControls
 } from '@shared/components/training';
 import { AdvancedEndgameMenu } from '@shared/components/navigation/AdvancedEndgameMenu';
@@ -14,7 +11,7 @@ import { EndgamePosition } from '@shared/types';
 import { useToast } from '@shared/hooks/useToast';
 import { ToastContainer } from '@shared/components/ui/Toast';
 import { getGameStatus } from '@shared/utils/chess/gameStatus';
-import { useStore, useTraining, useTrainingActions, useUI, useUIActions } from '@shared/store/store';
+import { useTraining, useTrainingActions, useUI, useUIActions } from '@shared/store/store';
 
 interface TrainingPageZustandProps {
   position: EndgamePosition;
@@ -88,13 +85,6 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
     uiActions.updateAnalysisPanel({ isOpen: !ui.analysisPanel.isOpen });
   }, [ui.analysisPanel.isOpen, uiActions]);
 
-  const handleToggleEngine = useCallback(() => {
-    uiActions.updateAnalysisPanel({ showEngine: !ui.analysisPanel.showEngine });
-  }, [ui.analysisPanel.showEngine, uiActions]);
-
-  const handleToggleTablebase = useCallback(() => {
-    uiActions.updateAnalysisPanel({ showTablebase: !ui.analysisPanel.showTablebase });
-  }, [ui.analysisPanel.showTablebase, uiActions]);
 
   const getLichessUrl = useCallback(() => {
     const currentPgn = training.currentPgn || '';

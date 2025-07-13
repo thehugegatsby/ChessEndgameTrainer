@@ -94,7 +94,7 @@ export abstract class BasePage {
    * This is a placeholder that can be overridden by specific pages
    * or implemented based on your Firebase integration pattern
    */
-  async waitForFirebaseData(timeout = 5000): Promise<void> {
+  async waitForFirebaseData(_timeout = 5000): Promise<void> {
     // Wait for a global Firebase ready indicator or specific data attribute
     // This could check for:
     // - A global window variable: window.firebaseDataReady

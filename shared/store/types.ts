@@ -4,10 +4,8 @@
  */
 
 import { 
-  Move, 
   ValidatedMove,
-  ChessInstance, 
-  GameStatus
+  ChessInstance
 } from '../types';
 import { Move as ChessJsMove } from 'chess.js';
 

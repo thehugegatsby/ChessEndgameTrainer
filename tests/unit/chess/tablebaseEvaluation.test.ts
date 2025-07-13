@@ -9,7 +9,6 @@ import { getMoveQualityByTablebaseComparison } from '../../../shared/utils/chess
 describe('Tablebase Evaluation - Concrete Positions', () => {
   describe('Brückenbau Position', () => {
     // FEN: 2K5/2P2k2/8/8/4R3/8/1r6/8 w - - 0 1
-    const BRUECKENBAU_FEN = '2K5/2P2k2/8/8/4R3/8/1r6/8 w - - 0 1';
     
     test('should_evaluate_Kd7_as_winning_move', () => {
       // Before: White to move, White wins (wdl = 2)
@@ -79,7 +78,6 @@ describe('Tablebase Evaluation - Concrete Positions', () => {
   
   describe('Philidor Position', () => {
     // FEN: 4k3/7R/r3P3/5K2/8/8/8/8 b - - 0 1
-    const PHILIDOR_FEN = '4k3/7R/r3P3/5K2/8/8/8/8 b - - 0 1';
     
     test('should_evaluate_Ra1_as_drawing_move', () => {
       // Before: Black to move, position is drawn (wdl = 0)

@@ -14,7 +14,7 @@
 
 import { Move as ChessJsMove } from 'chess.js';
 import type { EngineEvaluation, EnhancedEngineEvaluation, EngineRequest, EngineResponse, EngineConfig } from './types';
-import type { IWorkerFactory, WorkerConfig } from './interfaces';
+import type { WorkerConfig } from './interfaces';
 import { StockfishWorkerManager } from './workerManager';
 import { RequestManager } from './requestManager';
 import { Logger } from '@shared/services/logging/Logger';

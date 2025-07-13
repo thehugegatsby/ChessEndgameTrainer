@@ -19,29 +19,29 @@ This file provides high-level context and architectural guidance for AI assistan
 ⚠️ **See AGENT_CONFIG.json for strict quality gates and enforcement rules!**
 
 ## Project Overview
-**ChessEndgameTrainer** - Web/Mobile chess endgame training app with AI engine integration.
+**ChessEndgameTrainer** - Modern web chess endgame training app with AI engine integration.
 
 ## Tech Stack
-- **Frontend**: Next.js 15.3, React 18.3, TypeScript 5.3
-- **UI**: Tailwind CSS 3.4, Radix UI, react-chessboard 4.3
-- **State**: Zustand 4.4 (Single Source of Truth)
+- **Frontend**: Next.js 15.3.3, React 18.3, TypeScript 5.3.3
+- **UI**: Tailwind CSS 3.4.1, Radix UI, react-chessboard 2.1.3
+- **State**: Zustand 4.5.0 (Single Source of Truth)
 - **Chess**: chess.js 1.0.0-beta.6, Stockfish WASM (NNUE)
-- **Testing**: Jest 29.7, React Testing Library 14.1
-- **Mobile**: React Native 0.73 (prepared, not implemented)
+- **Testing**: Jest 29.7.0, React Testing Library 14.2.1
+- **Environment**: Node.js 20+
 - **Database**: Firebase Firestore (optional, with fallback)
 
 ## Project Structure
 ```
 /
 ├── pages/              # Next.js pages (train/[id].tsx main)
-├── shared/             # 80% shared code (web + mobile ready)
+├── shared/             # Core application code
 │   ├── components/     # UI components
 │   ├── hooks/         # Business logic hooks
 │   ├── lib/           # Core libraries (chess engine)
 │   ├── services/      # Platform services
 │   ├── utils/         # Utilities
 │   └── types/         # TypeScript types
-├── tests/             # Test suites
+├── tests/             # Test suites (951 unit tests)
 └── public/            # Static assets + stockfish.wasm
 ```
 
@@ -54,41 +54,40 @@ npm run lint            # ESLint
 npm run build           # Production build
 npm run check-duplicates # Find duplicate components
 npm run analyze-code    # Run all code analysis
-npm run test:e2e         # E2E tests with Playwright
+npm run test:all         # Run all test suites (951 tests)
 ```
 
 ### Test Environment Setup
-E2E tests use MockEngineService for instant, deterministic responses.
+Current testing focuses on comprehensive unit test suite (951 tests).
 
 ```bash
 # Start dev server:
 npm run dev
 
-# Run ALL E2E tests:
-npm run test:e2e
+# Run unit tests:
+npm test
 
-# Run specific E2E test file (WICHTIG: Use npx, NOT npm!):
-npx playwright test tests/e2e/bridge-building.spec.ts --project=chromium
+# Run tests with coverage:
+npm run test:coverage
 
-# Run with visible browser:
-npx playwright test tests/e2e/bridge-building.spec.ts --headed
-
-# Debug mode:
-npx playwright test tests/e2e/bridge-building.spec.ts --debug
+# Run specific test categories:
+npm run test:unit
+npm run test:integration
+npm run test:performance
 ```
 
-⚠️ **WICHTIG**: Für spezifische Test-Dateien IMMER `npx playwright test` verwenden, NICHT `npm run test:e2e -- file`!
+⚠️ **WICHTIG**: E2E tests pending rewrite - see ISSUE_E2E_REWRITE.md for details!
 
 ## Configuration
 - **Central Config**: `/config/constants.ts` - Contains DEV_PORT (3002) and URLs
 - **Environment**: `.env.development` - Development environment variables
-- **Playwright**: Uses `APP_CONFIG.DEV_URL` from central config
+- **Jest Config**: Root level jest.config.js for all test suites
 
 ## Key Architecture Decisions
 
 ### 1. Singleton Pattern for Engine
 - `Engine.getInstance()` - Only ONE Stockfish instance
-- Mobile constraint: ~20MB memory per worker
+- Web-optimized: ~20MB memory per worker
 - Always call `quit()` on cleanup
 
 ### 2. Stable References in Hooks
@@ -139,10 +138,10 @@ try {
 - Use factory patterns for test data
 
 ## Performance Constraints
-- Mobile: Max 1 engine instance
+- Web app: Max 1 engine instance
 - Debounce evaluations (300ms)
 - LRU cache: 200 items max
-- Touch targets: minimum 44px
+- Touch-friendly interface: minimum 44px targets
 
 ## Security Requirements
 - Validate all FEN inputs
@@ -154,17 +153,18 @@ try {
 1. ✅ **Completed: UCI Parser Enhancement** - Phase 1 with comprehensive PV data parsing
 2. ✅ **Completed: Principal Variation UI Integration** - Phase 2 clean architecture implementation
 3. ✅ **Completed: Tablebase Services Integration** - Phase 3 clean architecture with mock services
-4. ✅ **Completed: Unit Test Suite Stabilization** - All 951 tests passing with expert consensus fixes
-5. **Next: Documentation System Redesign** - Modern /docs structure with best practices
-6. Engine memory management improvements
-7. Mobile platform abstraction layer
+4. ✅ **Completed: Unit Test Suite Stabilization** - 951 comprehensive unit tests (950 passed, 1 failing)
+5. ✅ **Completed: TypeScript Error Reduction** - 144→42 errors (71% reduction)
+6. **Next: E2E Test System Rewrite** - Modern Playwright architecture
+7. Engine memory management improvements
+8. Documentation system modernization
 
 ## Test Helpers
-E2E tests use centralized helpers in `tests/e2e/helpers.ts`:
-- `makeMove(page, notation)` - Execute moves via test hooks
-- `waitForEngineResponse(page, moveCount)` - Wait for engine
-- `getGameState(page)` - Get current game state
-- `verifyPosition(page, fen)` - Verify board position
+Unit tests use comprehensive test utilities:
+- `TestFixtures.ts` - Validated FEN positions for unit tests
+- `TestScenarios.ts` - Complex training scenarios with business logic
+- Mock factories for Engine, services, and external dependencies
+- Centralized test helpers for common assertions
 
 ## Important Notes
 - WASM requires specific server headers
@@ -213,7 +213,7 @@ Follow the mandatory workflow steps defined in AGENT_CONFIG.json:
 
 ### Manual Verification
 - UI changes tested in browser
-- Mobile responsiveness verified
+- Responsive design verified
 - Store remains single source of truth
 - No performance regressions
 - Security requirements maintained

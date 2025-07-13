@@ -1,6 +1,5 @@
 import React from 'react';
 import { Move } from 'chess.js';
-import { formatEvaluation, getEvaluationColor } from '../../../utils/chess/evaluationHelpers';
 
 interface MoveAnalysisData {
   move: Move;

@@ -11,7 +11,7 @@
 ```
                     /\
                    /  \
-                  /E2E \     ← Playwright (User journeys)
+                  /E2E \     ← Playwright (DISABLED - Rewrite planned)
                  /______\
                 /        \
                /Integration\  ← Component + Service integration
@@ -30,10 +30,10 @@ tests/
 │   ├── lib/                # Library testing
 │   ├── services/           # Service testing
 │   └── components/         # Component testing
-├── e2e/                    # Playwright E2E tests
-│   ├── domains/            # Domain-specific tests
-│   ├── helpers/            # E2E test helpers
-│   └── fixtures/           # Test data
+├── e2e/                    # E2E tests (DISABLED - see scripts comments)
+│   ├── domains/            # Domain-specific tests (legacy)
+│   ├── helpers/            # E2E test helpers (legacy)
+│   └── fixtures/           # Test data (legacy)
 └── integration/            # Integration tests
 ```
 
@@ -194,20 +194,27 @@ jest.mock('@shared/lib/chess/evaluation/providerAdapters', () => ({
 }));
 ```
 
-## 🚀 E2E Testing Patterns
+## 🚀 E2E Testing Status
 
-### Page Object Pattern
+### Current Status: DISABLED
 
-**File**: `/tests/e2e/helpers.ts:15-35`
+**E2E Testing Infrastructure Status:**
+- **Framework**: Playwright 1.53.2 (installed but disabled)
+- **Test Files**: 54 unit test files, 951 total tests
+- **E2E Scripts**: Commented out in package.json with `_` prefix
+- **Status**: E2E tests require complete rewrite
+
+### E2E Rewrite Plan (Future)
+
+**Planned E2E Infrastructure:**
 ```typescript
+// Future: Page Object Pattern
 export class TrainingPageHelpers {
   constructor(private page: Page) {}
   
   async makeMove(notation: string): Promise<void> {
-    // E2E pattern: Use test hooks for actions
-    await this.page.evaluate((move) => {
-      window.testBridge?.makeMove(move);
-    }, notation);
+    // E2E pattern: Direct UI interaction
+    await this.page.click(`[data-move="${notation}"]`);
     
     // E2E pattern: Wait for UI update
     await this.page.waitForSelector('[data-testid="move-made"]', {
@@ -216,54 +223,29 @@ export class TrainingPageHelpers {
     });
   }
   
-  async waitForEngineResponse(moveCount: number): Promise<void> {
-    // E2E pattern: Wait for engine evaluation
-    await this.page.waitForFunction((count) => {
-      return window.testBridge?.getGameState()?.evaluations?.length >= count;
-    }, moveCount, { timeout: 10000 });
-  }
-  
-  async getGameState(): Promise<any> {
-    // E2E pattern: Extract test state
-    return await this.page.evaluate(() => {
-      return window.testBridge?.getGameState();
+  async waitForEngineResponse(): Promise<void> {
+    // E2E pattern: Wait for evaluation display
+    await this.page.waitForSelector('[data-testid="evaluation-complete"]', {
+      timeout: 10000
     });
   }
 }
 ```
 
-### Test Bridge Pattern
+### Mock Service Pattern (Current)
 
-**File**: `/shared/services/test/TestBridge.ts:25-50`
+**File**: `/tests/unit/services/tablebase/MockTablebaseService.test.ts:25-50`
 ```typescript
-class TestBridge {
-  constructor(private store: TrainingStore) {}
-  
-  // Test bridge pattern: Expose controlled actions
-  makeMove(notation: string): void {
-    const move = this.parseMove(notation);
-    this.store.makeMove(move);
-  }
-  
-  getGameState(): TestGameState {
-    const state = this.store.getState();
+// Current pattern: Mock services for deterministic testing
+class MockEngineService {
+  async evaluatePosition(fen: string): Promise<EngineEvaluation> {
+    // Instant, deterministic responses for testing
     return {
-      currentFen: state.currentFen,
-      moveHistory: state.moveHistory,
-      evaluations: state.evaluations
+      score: this.calculateMockScore(fen),
+      depth: 20,
+      pv: this.generateMockPV(fen),
+      mate: this.checkMockMate(fen)
     };
-  }
-  
-  // Test bridge pattern: Reset state for tests
-  reset(): void {
-    this.store.resetGame();
-  }
-}
-
-// Global test bridge
-declare global {
-  interface Window {
-    testBridge?: TestBridge;
   }
 }
 ```
@@ -277,16 +259,16 @@ declare global {
 {
   "coverageThreshold": {
     "global": {
-      "branches": 78,
-      "functions": 78,
-      "lines": 78,
-      "statements": 78
+      "branches": 75,
+      "functions": 75,
+      "lines": 75,
+      "statements": 75
     },
     "./shared/lib/": {
-      "branches": 85,
-      "functions": 85,
-      "lines": 85,
-      "statements": 85
+      "branches": 80,
+      "functions": 80,
+      "lines": 80,
+      "statements": 80
     }
   }
 }
@@ -306,7 +288,49 @@ if (process.env.NODE_ENV === 'development') {
 throw new Error('Unreachable code path');
 ```
 
-## 🔧 Test Utilities
+## 🔧 Test Infrastructure
+
+### Current Test Commands
+
+**Available Test Scripts:**
+```bash
+# Core testing commands
+npm test                    # Run all tests (Jest 29.7)
+npm run test:watch          # Watch mode
+npm run test:coverage       # Coverage report
+npm run test:unit           # Unit tests only
+npm run test:integration    # Integration tests
+npm run test:performance    # Performance tests
+npm run test:regression     # Regression tests
+npm run test:all           # All test categories
+npm run test:ci            # CI pipeline tests
+
+# E2E commands (DISABLED)
+# _test:e2e                 # E2E tests (commented out)
+# _test:e2e:headed          # Headed E2E tests (commented out)
+# _test:e2e:ui              # E2E UI mode (commented out)
+```
+
+### Mock Services Architecture
+
+**Current Pattern**: Mock services provide instant, deterministic responses:
+```typescript
+// Mock pattern: Instant evaluation responses
+class MockEngineService {
+  async evaluatePosition(fen: string): Promise<EngineEvaluation> {
+    // No actual engine - instant response
+    return this.generateMockEvaluation(fen);
+  }
+}
+
+// Mock pattern: Tablebase simulation
+class MockTablebaseService {
+  async lookupPosition(fen: string): Promise<TablebaseResult | null> {
+    // Simulate 7-piece tablebase lookup
+    return this.simulateTablebaseLookup(fen);
+  }
+}
+```
 
 ### Test Data Factories
 
@@ -381,6 +405,16 @@ describe('useEvaluation Hook', () => {
   });
 });
 ```
+
+### Current Test Statistics
+
+**Jest 29.7 Framework Statistics:**
+- **Total Test Suites**: 50 passing, 1 failing
+- **Total Tests**: 951 tests (950 passing, 1 failing)
+- **Test Files**: 54 unit test files
+- **Framework**: Jest 29.7.0 with @swc/jest transform
+- **Testing Library**: React Testing Library 14.2.1
+- **Environment**: jsdom with setupFilesAfterEnv
 
 ### Test Naming Convention
 

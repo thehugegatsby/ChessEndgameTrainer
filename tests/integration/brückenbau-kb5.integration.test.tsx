@@ -1,8 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { MovePanelZustand as MovePanel } from '@shared/components/training/MovePanelZustand';
-import { Chess } from 'chess.js';
 
 // Integration test that tests the full flow
 describe('Brückenbau Kb5 Integration Test', () => {
@@ -71,8 +69,7 @@ describe('Brückenbau Kb5 Integration Test', () => {
       },
     ];
 
-    const game = new Chess('2K5/2P2k2/8/8/4R3/8/1r6/8 w - - 0 1');
-    const moveObjects = moves.map(m => ({ san: m.san } as any));
+    // Set up game state
 
     // Set up Zustand store with the test data
     const { useStore } = require('@shared/store/store');
@@ -154,16 +151,6 @@ describe('Brückenbau Kb5 Integration Test', () => {
       ];
 
       transitions.forEach(({ from, to, expectedSymbol }) => {
-        const evaluation = {
-          evaluation: 0,
-          tablebase: {
-            isTablebasePosition: true,
-            wdlBefore: from,
-            wdlAfter: to,
-            category: to === 0 ? 'draw' : to > 0 ? 'win' : 'loss',
-          },
-        };
-
         // This would be called by MovePanel's getSmartMoveEvaluation
         const { getMoveQualityByTablebaseComparison } = require('@shared/utils/chess/evaluationHelpers');
         const result = getMoveQualityByTablebaseComparison(from, to, 'w');

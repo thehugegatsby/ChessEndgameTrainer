@@ -22,7 +22,6 @@ import type {
 
 // Forward declaration - actual ChessEngine will be imported lazily
 // to avoid circular dependencies during module initialization
-type ChessEngineClass = new (config?: ChessEngineConfig) => IChessEngine;
 
 /**
  * Global engine instance for singleton pattern

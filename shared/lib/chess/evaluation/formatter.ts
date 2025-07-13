@@ -27,11 +27,9 @@ export interface FormatterConfig {
 
 export class EvaluationFormatter {
   private readonly neutralThreshold: number;
-  private readonly extremeScoreThreshold: number;
 
   constructor(config: FormatterConfig = {}) {
     this.neutralThreshold = config.neutralThreshold ?? 50;
-    this.extremeScoreThreshold = config.extremeScoreThreshold ?? 1000;
   }
 
   /**

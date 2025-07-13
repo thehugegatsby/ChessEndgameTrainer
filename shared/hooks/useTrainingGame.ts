@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useTraining, useTrainingActions } from '@shared/store/store';
-import { Chess, Move } from 'chess.js';
+import { Move } from 'chess.js';
 
 interface UseTrainingGameOptions {
   onComplete?: (success: boolean) => void;

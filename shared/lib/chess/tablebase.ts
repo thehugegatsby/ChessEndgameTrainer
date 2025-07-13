@@ -115,19 +115,6 @@ class TablebaseService {
     }
   }
   
-  /**
-   * Convert WDL value to human-readable category
-   */
-  private getCategory(wdl: number): TablebaseResult['category'] {
-    switch (wdl) {
-      case 2: return 'win';
-      case 1: return 'cursed-win';
-      case 0: return 'draw';
-      case -1: return 'blessed-loss';
-      case -2: return 'loss';
-      default: return 'draw';
-    }
-  }
   
   /**
    * Query tablebase for a position

@@ -23,7 +23,7 @@ const logger = getLogger().setContext('TrainingActions');
  * @returns Thunk function for Zustand store
  */
 export const requestEngineMove = (fen: string, options?: EngineOptions) => 
-  async (get: () => { training: TrainingState }, set: (partial: any) => void) => {
+  async (_get: () => { training: TrainingState }, set: (partial: any) => void) => {
     try {
       logger.debug('Requesting engine move', { fen, options });
       
@@ -77,7 +77,7 @@ export const requestEngineMove = (fen: string, options?: EngineOptions) =>
  * @returns Thunk function for Zustand store
  */
 export const requestPositionEvaluation = (fen: string, options?: EngineOptions) =>
-  async (get: () => { training: TrainingState }, set: (partial: any) => void) => {
+  async (_get: () => { training: TrainingState }, set: (partial: any) => void) => {
     try {
       logger.debug('Requesting position evaluation', { fen, options });
 
@@ -130,7 +130,7 @@ export const requestPositionEvaluation = (fen: string, options?: EngineOptions) 
  * @returns Thunk function for Zustand store
  */
 export const stopEngineAnalysis = () =>
-  async (get: () => { training: TrainingState }, set: (partial: any) => void) => {
+  async (_get: () => { training: TrainingState }, set: (partial: any) => void) => {
     try {
       logger.debug('Stopping engine analysis');
 
@@ -156,7 +156,7 @@ export const stopEngineAnalysis = () =>
  * @returns Thunk function for Zustand store
  */
 export const terminateEngine = () =>
-  async (get: () => { training: TrainingState }, set: (partial: any) => void) => {
+  async (_get: () => { training: TrainingState }, set: (partial: any) => void) => {
     try {
       logger.info('Terminating chess engine');
 

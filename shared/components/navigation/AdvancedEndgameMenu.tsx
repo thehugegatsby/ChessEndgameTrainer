@@ -24,8 +24,7 @@ interface CategoryWithDetails extends EndgameCategory {
 
 export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({ 
   isOpen, 
-  onClose, 
-  currentPositionId 
+  onClose 
 }) => {
   const positionService = usePositionService();
   const [categories, setCategories] = useState<CategoryWithDetails[]>([]);
@@ -78,7 +77,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
     if (isOpen) {
       loadData();
     }
-  }, [isOpen]);
+  }, [isOpen, positionService]);
 
   const toggleCategory = async (categoryId: string) => {
     const categoryIndex = categories.findIndex(c => c.id === categoryId);
@@ -260,7 +259,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
           ))}
 
           {/* Future Categories (placeholder) */}
-          {['Queen endgames', 'Knight endgames', 'Bishop endgames'].map((name, index) => (
+          {['Queen endgames', 'Knight endgames', 'Bishop endgames'].map((name) => (
             <button
               key={name}
               className="w-full flex items-center justify-between p-4 hover:bg-gray-800 transition-colors text-left text-gray-500"

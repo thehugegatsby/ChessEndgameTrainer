@@ -18,7 +18,6 @@ import {
   ModalType,
   LoadingState,
   EngineStatus,
-  PositionProgress
 } from './types';
 import { TRAINING, TIME } from '../constants';
 import { getLogger } from '../services/logging';
@@ -496,7 +495,7 @@ export const useStore = create<RootState & Actions>()(
           logger.debug('Favorite toggled', { positionId });
         }),
 
-        calculateNextReview: (positionId, success) => set((state) => {
+        calculateNextReview: (positionId, _success) => set((state) => {
           const progress = state.progress.positionProgress[positionId];
           if (!progress) return;
           

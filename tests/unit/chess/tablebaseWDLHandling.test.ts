@@ -56,7 +56,7 @@ describe('Tablebase WDL 0 Handling - Regression Test', () => {
         { from: -1, to: 0, expected: '👍', desc: 'Blessed loss to draw' },
       ];
 
-      testCases.forEach(({ from, to, expected, desc }) => {
+      testCases.forEach(({ from, to, expected }) => {
         const result = getMoveQualityByTablebaseComparison(from, to, 'w');
         expect(result.text).toBe(expected);
       });

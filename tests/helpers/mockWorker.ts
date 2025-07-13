@@ -176,7 +176,7 @@ export class MockWorker implements IWorker {
 export class MockWorkerFactory implements IWorkerFactory {
   workers: MockWorker[] = [];
 
-  createWorker(scriptURL: string | URL): IWorker {
+  createWorker(_scriptURL: string | URL): IWorker {
     const worker = new MockWorker();
     this.workers.push(worker);
     return worker;

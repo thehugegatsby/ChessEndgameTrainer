@@ -31,7 +31,6 @@ import type {
   ChessEngineStats,
   ChessEngineEvents
 } from './interfaces';
-import type { EngineConfig, EngineRequest } from '../engine/types';
 
 /**
  * Main ChessEngine Class
@@ -461,7 +460,7 @@ export class ChessEngine implements IChessEngine {
    * Internal tablebase method (bypasses command queue for dual evaluation)
    * TODO: Implement when tablebase integration is added
    */
-  private async getTablebaseInfoInternal(fen: string): Promise<TablebaseInfo | null> {
+  private async getTablebaseInfoInternal(_fen: string): Promise<TablebaseInfo | null> {
     // TODO: Implement tablebase integration in clean architecture
     return null;
   }

@@ -13,7 +13,7 @@ export class LRUCacheAdapter<T> implements ICacheProvider<T> {
     return value ?? null;
   }
 
-  async set(key: string, value: T, ttl?: number): Promise<void> {
+  async set(key: string, value: T, _ttl?: number): Promise<void> {
     this.cache.set(key, value);
     // Note: LRUCache doesn't support TTL, so we ignore it
     // In a real implementation, you might want to add TTL support

@@ -27,7 +27,7 @@ export class TablebaseServiceAdapter implements ITablebaseProvider {
    * @param playerToMove - Which player is to move ('w' or 'b')  
    * @returns Tablebase result or null if unavailable
    */
-  async getEvaluation(fen: string, playerToMove: 'w' | 'b'): Promise<TablebaseResult | null> {
+  async getEvaluation(fen: string, _playerToMove: 'w' | 'b'): Promise<TablebaseResult | null> {
     try {
       // Check if position is in tablebase range
       if (!this.tablebaseService.isTablebasePosition(fen)) {

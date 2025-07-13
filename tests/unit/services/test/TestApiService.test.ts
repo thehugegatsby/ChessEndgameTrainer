@@ -4,7 +4,6 @@
  */
 
 import { TestApiService, TestEngineConfig, getTestApi } from '../../../../shared/services/test/TestApiService';
-import { Chess } from 'chess.js';
 
 // Mock chess.js
 jest.mock('chess.js', () => {
@@ -21,7 +20,7 @@ jest.mock('chess.js', () => {
         isStalemate: jest.fn(() => false),
         isThreefoldRepetition: jest.fn(() => false),
         isInsufficientMaterial: jest.fn(() => false),
-        move: jest.fn((move) => ({ from: 'e2', to: 'e4', san: 'e4' }))
+        move: jest.fn((_move) => ({ from: 'e2', to: 'e4', san: 'e4' }))
       };
     })
   };
@@ -130,7 +129,7 @@ describe('TestApiService - Store-Based Architecture', () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         '❌ TestApiService: Required store actions not available'
       );
-      expect(service['isInitialized']).toBe(false);
+      expect(service.isInitialized).toBe(false);
     });
   });
   
@@ -258,7 +257,7 @@ describe('TestApiService - Store-Based Architecture', () => {
       
       service.cleanup();
       
-      expect(service['isInitialized']).toBe(false);
+      expect(service.isInitialized).toBe(false);
       expect(service['storeAccess']).toBeNull();
       expect(service['engineConfig']).toEqual({ deterministic: false });
       expect(TestApiService['instance']).toBeNull();

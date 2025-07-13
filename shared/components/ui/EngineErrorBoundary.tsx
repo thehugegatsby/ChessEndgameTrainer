@@ -14,13 +14,14 @@ interface EngineErrorBoundaryProps {
 export const EngineErrorBoundary: React.FC<EngineErrorBoundaryProps> = ({ 
   children
 }) => {
-  const handleEngineError = async (error: Error) => {
+  const handleEngineError = async (_error: Error) => {
     
     // Try to cleanup and restart engine
     try {
       const engineService = EngineService.getInstance();
       await engineService.terminate();
-    } catch (cleanupError) {
+    } catch {
+      // Ignore cleanup errors
     }
   };
 

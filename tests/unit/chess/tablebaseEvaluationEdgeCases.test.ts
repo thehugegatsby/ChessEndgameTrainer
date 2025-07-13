@@ -117,7 +117,7 @@ describe('Tablebase Evaluation Edge Cases', () => {
         { from: -2, to: 1, expected: '🛡️', desc: 'Loss to blessed loss (after=1 flipped to -1)' },
       ];
 
-      transitions.forEach(({ from, to, expected, desc }) => {
+      transitions.forEach(({ from, to, expected }) => {
         const result = getMoveQualityByTablebaseComparison(from, to, 'w');
         expect(result.text).toBe(expected);
       });

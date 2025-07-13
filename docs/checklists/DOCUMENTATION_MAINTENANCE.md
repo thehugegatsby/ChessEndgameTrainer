@@ -11,32 +11,50 @@
   - [ ] Add to `docs/patterns/REACT_PATTERNS.md`
   - [ ] Update component architecture diagram
   - [ ] Add file references with line numbers
+  - [ ] Update unit tests (Jest 29.7 patterns)
 
 - [ ] **Store actions modified?**
   - [ ] Update `docs/patterns/ZUSTAND_PATTERNS.md`
   - [ ] Verify action pattern examples
   - [ ] Check state flow documentation
+  - [ ] Update store integration tests
 
 - [ ] **Service interfaces changed?**
   - [ ] Update relevant service README.md
   - [ ] Update Mermaid diagrams if architectural changes
   - [ ] Verify interface examples still compile
+  - [ ] Update mock service implementations
 
 - [ ] **Data flows modified?**
   - [ ] Update `docs/DATA_FLOWS.md`
   - [ ] Update sequence diagrams
   - [ ] Verify integration point documentation
+  - [ ] Update test fixtures and mock data
+
+- [ ] **Testing changes made?**
+  - [ ] Update `docs/testing/TESTING_GUIDELINES.md`
+  - [ ] Verify test statistics (951 tests target)
+  - [ ] Update coverage requirements
+  - [ ] Check mock service patterns
 
 ### Code Review Checklist
 - [ ] **Documentation impact assessment**
   - [ ] Files changed require doc updates?
   - [ ] New patterns introduced?
   - [ ] Anti-patterns identified?
+  - [ ] Test coverage maintained (75% global, 80% shared/lib)?
 
 - [ ] **Reference validation**
   - [ ] All file paths still valid?
   - [ ] Line numbers accurate?
   - [ ] Code examples current?
+  - [ ] Mock implementations up to date?
+
+- [ ] **Testing documentation review**
+  - [ ] Test patterns still match implementation?
+  - [ ] Jest 29.7 configuration current?
+  - [ ] React Testing Library 14.2 patterns used?
+  - [ ] E2E test status accurately reflected?
 
 ## 📅 Weekly Maintenance Checklist
 
@@ -58,11 +76,19 @@ node scripts/update-doc-references.js
   - [ ] Line numbers within bounds  
   - [ ] No broken internal links
   - [ ] Code examples compile
+  - [ ] Mock service references accurate
 
 - [ ] **Pattern correlation check**
   - [ ] Documented patterns match implementations
   - [ ] New patterns discovered and documented
   - [ ] Anti-pattern examples still relevant
+  - [ ] Testing patterns reflect Jest 29.7 usage
+
+- [ ] **Test documentation health**
+  - [ ] Test statistics current (951 tests)
+  - [ ] Coverage thresholds documented correctly
+  - [ ] E2E status accurately reflects disabled state
+  - [ ] Mock service patterns documented
 
 ### Wednesday: Content Freshness Review
 - [ ] **Architecture documentation**
@@ -79,6 +105,12 @@ node scripts/update-doc-references.js
   - [ ] Caching strategies documented correctly
   - [ ] Memory usage figures current
   - [ ] Performance optimization notes accurate
+
+- [ ] **Testing infrastructure documentation**
+  - [ ] Jest 29.7 configuration documented
+  - [ ] React Testing Library 14.2 patterns current
+  - [ ] Mock services architecture up to date
+  - [ ] E2E rewrite plan status current
 
 ### Friday: Quality Assurance
 ```bash
@@ -97,11 +129,19 @@ node scripts/discover-patterns.js
   - [ ] Coverage percentage acceptable (>80%)
   - [ ] Reference accuracy high (>95%)
   - [ ] Pattern coverage comprehensive
+  - [ ] Test documentation reflects 951 tests
 
 - [ ] **Content quality**
   - [ ] No TODO/FIXME items in docs
   - [ ] Examples demonstrate current best practices
   - [ ] Anti-patterns section comprehensive
+  - [ ] Testing examples use Jest 29.7 patterns
+
+- [ ] **Testing documentation quality**
+  - [ ] All test commands documented and working
+  - [ ] Mock service patterns comprehensive
+  - [ ] Coverage requirements realistic and current
+  - [ ] E2E status clearly communicated
 
 ## 🗓️ Monthly Maintenance Checklist
 
@@ -142,16 +182,26 @@ node scripts/discover-patterns.js
   - [ ] Interface documentation accurate
   - [ ] Implementation patterns current
   - [ ] Clean architecture adherence documented
+  - [ ] Mock service patterns documented
 
 - [ ] **EngineService documentation**
   - [ ] Singleton pattern implementation current
   - [ ] Worker management documentation accurate
   - [ ] Memory management strategies documented
+  - [ ] Mock engine service patterns updated
 
 - [ ] **Evaluation pipeline documentation**
   - [ ] UnifiedEvaluationService documentation current
   - [ ] Provider adapter patterns accurate
   - [ ] Caching strategies documented correctly
+  - [ ] Test mocking strategies documented
+
+- [ ] **Testing infrastructure documentation**
+  - [ ] Jest 29.7 setup and configuration
+  - [ ] React Testing Library 14.2 integration
+  - [ ] Mock services architecture comprehensive
+  - [ ] Coverage reporting and thresholds
+  - [ ] CI/CD testing pipeline documentation
 
 ### Documentation Debt Review (Fourth Monday)
 - [ ] **Debt identification**
@@ -338,16 +388,20 @@ jobs:
 - **File Coverage**: >80% of source files referenced in docs
 - **Pattern Coverage**: >90% of identified patterns documented  
 - **Reference Accuracy**: >95% of references valid
+- **Test Coverage Documentation**: Match actual 75% global, 80% shared/lib thresholds
 
 ### Quality Metrics
 - **Example Accuracy**: >90% of code examples current
 - **Link Health**: 100% of internal links working
 - **Correlation Health**: >85% code-doc correlation score
+- **Testing Framework Alignment**: Jest 29.7 and React Testing Library 14.2 patterns
 
 ### Freshness Metrics
 - **Update Frequency**: Documentation updated within 1 week of code changes
 - **Debt Resolution**: Documentation debt resolved within 1 month
 - **Pattern Discovery**: New patterns documented within 2 weeks
+- **Test Statistics**: Documentation reflects current 951 tests
+- **E2E Status**: Disabled status clearly communicated and rewrite plan updated
 
 ---
 

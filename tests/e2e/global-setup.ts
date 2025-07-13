@@ -59,7 +59,7 @@ async function globalSetup(config: FullConfig) {
             // Attempt to create worker with stockfish path
             worker = new Worker('/stockfish.wasm.js');
             
-            worker.onmessage = (event) => {
+            worker.onmessage = (_event) => {
               clearTimeout(timeout);
               worker?.terminate();
               resolve('Engine worker loaded successfully');

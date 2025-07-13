@@ -12,9 +12,7 @@ import type {
 } from '../../../../../shared/lib/chess/evaluation/pipelineFactory';
 import type {
   EngineEvaluation,
-  TablebaseResult,
-  FormattedEvaluation,
-  PlayerPerspectiveEvaluation
+  TablebaseResult
 } from '../../../../../shared/types/evaluation';
 
 // Test constants

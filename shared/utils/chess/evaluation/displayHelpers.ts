@@ -13,7 +13,7 @@ import type { EvaluationDisplay } from '@shared/types';
 export const getMoveQualityDisplay = (
   evaluation: number, 
   mate?: number,
-  isPlayerMove: boolean = true
+  _isPlayerMove: boolean = true
 ): EvaluationDisplay => {
   // For move quality, we want to show how good the move was
   // regardless of who played it

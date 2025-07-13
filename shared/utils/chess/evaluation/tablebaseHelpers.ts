@@ -31,7 +31,7 @@ export const getCategory = (wdl: number): 'win' | 'draw' | 'loss' => {
 export const getMoveQualityByTablebaseComparison = (
   wdlBefore: number,
   wdlAfter: number,
-  playerSide: 'w' | 'b'
+  _playerSide: 'w' | 'b'
 ): EvaluationDisplay => {
   // CRITICAL CHECK: If wdlAfter is undefined, we can't compare
   if (wdlBefore === undefined || wdlAfter === undefined) {

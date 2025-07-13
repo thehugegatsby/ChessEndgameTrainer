@@ -4,9 +4,10 @@
  */
 
 // Mock the logger first before any imports
-jest.mock('../../../shared/services/logging', 
-  require('../../shared/logger-utils').getMockLoggerDefinition()
-);
+jest.mock('../../../shared/services/logging', () => {
+  const { getMockLoggerDefinition } = require('../../shared/logger-utils');
+  return getMockLoggerDefinition()();
+});
 
 import { act, renderHook } from '@testing-library/react';
 import { useStore } from '../../../shared/store/store';

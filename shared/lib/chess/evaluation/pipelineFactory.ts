@@ -137,7 +137,7 @@ export class EvaluationPipelineFactory {
    * @param config - Configuration for pipeline creation  
    * @returns Strategy instance with correct perspective handling
    */
-  static createPipeline(config: PipelineConfig = {}): EvaluationPipelineStrategy {
+  static createPipeline(_config: PipelineConfig = {}): EvaluationPipelineStrategy {
     return new EnhancedPipelineStrategy();
   }
 

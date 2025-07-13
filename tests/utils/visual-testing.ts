@@ -317,10 +317,8 @@ export class A11yTester {
 export class QualityAssuranceTester {
   private visualTester: VisualTester;
   private a11yTester: A11yTester;
-  private page: Page;
 
   constructor(page: Page) {
-    this.page = page;
     this.visualTester = new VisualTester(page);
     this.a11yTester = new A11yTester(page);
   }

@@ -226,9 +226,6 @@ describe('Chess FEN Validation', () => {
       });
 
       it('should handle non-Error exceptions', () => {
-        // Mock Chess constructor to throw a non-Error object
-        const originalChess = (global as any).Chess;
-        
         // This test verifies the error handling logic, though it's hard to trigger naturally
         const invalidFen = 'completely-invalid';
         const result = validateFen(invalidFen);

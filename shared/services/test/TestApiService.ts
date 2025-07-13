@@ -12,7 +12,6 @@
  */
 
 import { Chess } from 'chess.js';
-import type { TrainingActions, TrainingState } from '@shared/store/types';
 
 /**
  * Test API Response types
@@ -61,7 +60,7 @@ export class TestApiService {
     deterministic: false
   };
   private eventEmitter: EventTarget = new EventTarget();
-  private isInitialized: boolean = false;
+  private _isInitialized: boolean = false;
   // Engine control is now handled via TestBridge, not directly
   private storeAccess: {
     getState: () => any;
@@ -105,12 +104,12 @@ export class TestApiService {
     // Validate required actions
     if (!storeAccess.makeMove || !storeAccess.resetPosition) {
       console.error('❌ TestApiService: Required store actions not available');
-      this.isInitialized = false;
+      this._isInitialized = false;
       return;
     }
     
     this.storeAccess = storeAccess;
-    this.isInitialized = true;
+    this._isInitialized = true;
     
     if (config) {
       this.engineConfig = { ...this.engineConfig, ...config };
@@ -127,10 +126,17 @@ export class TestApiService {
    */
   public cleanup(): void {
     this.engineConfig = { deterministic: false };
-    this.isInitialized = false;
+    this._isInitialized = false;
     this.storeAccess = null;
     this.emit('test:cleanup', {});
     TestApiService.instance = null;
+  }
+
+  /**
+   * Check if service is initialized
+   */
+  public get isInitialized(): boolean {
+    return this._isInitialized;
   }
 
   /**

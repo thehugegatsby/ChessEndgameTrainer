@@ -11,7 +11,7 @@
  * 4. Library-Austausch ohne Domain-Änderungen möglich
  */
 
-import { Move as ChessJsMove, PieceSymbol as ChessJsPieceSymbol } from 'chess.js';
+import { Move as ChessJsMove } from 'chess.js';
 import { Move as DomainMove, Color, Square, PieceSymbol, ValidatedMove } from '../types/chess';
 import { getLogger } from '../services/logging';
 

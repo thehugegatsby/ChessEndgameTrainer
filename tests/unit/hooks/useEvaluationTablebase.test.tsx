@@ -1,4 +1,3 @@
-import React from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useEvaluation } from '@shared/hooks/useEvaluation';
 
@@ -174,7 +173,7 @@ describe('useEvaluation Tablebase Integration', () => {
         { wdl: '' as any, description: 'empty string (invalid but should handle)' },
       ];
 
-      for (const { wdl, description } of testCases) {
+      for (const { wdl } of testCases) {
         mockUnifiedService.getPerspectiveEvaluation.mockResolvedValueOnce({
           type: 'tablebase',
           scoreInCentipawns: null,
@@ -222,7 +221,7 @@ describe('useEvaluation Tablebase Integration', () => {
       mockUnifiedService.getPerspectiveEvaluation.mockReset();
       
       // Mock getPerspectiveEvaluation to return different values for each call
-      mockUnifiedService.getPerspectiveEvaluation.mockImplementation((fen, perspective) => {
+      mockUnifiedService.getPerspectiveEvaluation.mockImplementation((fen) => {
         // First call should be for previousFen
         if (fen === previousFen) {
           return Promise.resolve({

@@ -57,7 +57,7 @@ export function getEngine(): Engine {
  * This export is kept for backward compatibility but will be removed
  */
 export const engine = new Proxy({} as Engine, {
-  get(target, prop) {
+  get(_target, prop) {
     logger.warn('Direct engine access is deprecated. Use getEngine() instead.');
     return getEngine()[prop as keyof Engine];
   }
@@ -126,7 +126,7 @@ if (typeof process !== 'undefined' && process.on) {
   });
   
   // Unhandled promise rejections
-  process.on('unhandledRejection', async (reason, promise) => {
+  process.on('unhandledRejection', async (_reason, promise) => {
     logger.error('Unhandled Rejection at:', promise);
     await gracefulShutdown('unhandledRejection');
   });

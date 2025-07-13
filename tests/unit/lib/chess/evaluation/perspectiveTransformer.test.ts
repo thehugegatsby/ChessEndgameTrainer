@@ -10,7 +10,6 @@
 import { PlayerPerspectiveTransformer } from '../../../../../shared/lib/chess/evaluation/perspectiveTransformer';
 import type {
   NormalizedEvaluation,
-  PlayerPerspectiveEvaluation,
   EngineEvaluation,
   TablebaseResult
 } from '../../../../../shared/types/evaluation';

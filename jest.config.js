@@ -1,11 +1,8 @@
-/** @type {import('ts-jest').JestConfigWithTsJest} */
+/** @type {import('jest').Config} */
 module.exports = {
-  preset: 'ts-jest',
   testEnvironment: 'jsdom',
   transform: {
-    '^.+\\.(ts|tsx|js|jsx)$': ['ts-jest', {
-      tsconfig: 'configs/typescript/tsconfig.jest.json'
-    }]
+    '^.+\\.(ts|tsx|js|jsx)$': '@swc/jest'
   },
   transformIgnorePatterns: [
     '/node_modules/(?!(react-chessboard|chess.js|react-native|@react-native|@react-navigation|expo|@expo|react-native-.*)/)'

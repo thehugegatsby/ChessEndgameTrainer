@@ -10,8 +10,6 @@ import {
   Firestore,
   collection,
   doc,
-  setDoc,
-  deleteDoc,
   getDocs,
   writeBatch,
   Timestamp

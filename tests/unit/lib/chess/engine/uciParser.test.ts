@@ -16,8 +16,7 @@ import {
   validateUCIEvaluation,
   toEngineEvaluation,
   getParserStats,
-  type UCIEvaluation,
-  type UCIParseResult
+  type UCIEvaluation
 } from '@shared/lib/chess/engine/uciParser';
 
 describe('UCI Parser - Comprehensive Test Suite', () => {

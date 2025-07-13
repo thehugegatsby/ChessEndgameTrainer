@@ -146,7 +146,7 @@ export class MoveQualityAnalyzer {
   private analyzeDifference(
     beforeEval: PlayerPerspectiveEvaluation | null,
     afterEval: PlayerPerspectiveEvaluation | null,
-    player: 'w' | 'b'
+    _player: 'w' | 'b'
   ): {
     quality: MoveQualityType;
     scoreDifference: number | null;

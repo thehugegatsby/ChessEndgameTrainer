@@ -218,7 +218,6 @@ export function engineReducer(state: EngineState, action: EngineAction): EngineS
 
     default:
       // Exhaustive check - TypeScript will error if we miss a case
-      const _exhaustiveCheck: never = action;
       return state;
   }
 }

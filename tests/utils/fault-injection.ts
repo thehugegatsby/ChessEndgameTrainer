@@ -3,8 +3,7 @@
  * Systematic error injection for resilience testing
  */
 
-import { Page, Route } from '@playwright/test';
-import { TestApiClient } from '../api/TestApiClient';
+import { Page } from '@playwright/test';
 
 export type FaultType = 
   | 'network-error'
@@ -61,7 +60,7 @@ export class FaultInjector {
         await this.injectDataCorruption(fault);
         break;
       case 'offline':
-        await this.injectOffline(fault);
+        await this.injectOffline();
         break;
     }
 
@@ -237,7 +236,7 @@ export class FaultInjector {
   /**
    * Offline mode injection
    */
-  private async injectOffline(fault: FaultConfig): Promise<void> {
+  private async injectOffline(): Promise<void> {
     await this.page.context().setOffline(true);
   }
 
@@ -255,7 +254,7 @@ export class FaultInjector {
   private async reapplyFaults(): Promise<void> {
     await this.page.unroute('**/*');
     
-    for (const fault of this.activeFaults.values()) {
+    for (const fault of Array.from(this.activeFaults.values())) {
       await this.inject(fault);
     }
   }

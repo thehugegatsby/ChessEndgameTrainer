@@ -7,7 +7,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useEvaluation } from '@shared/hooks/useEvaluation';
 import { PrincipalVariation } from '@shared/components/training/PrincipalVariation';
 

@@ -112,7 +112,7 @@ export class MockPositionRepository implements IPositionRepository {
     return Promise.resolve(positions);
   }
 
-  async getPositionsByTags(tags: string[]): Promise<EndgamePosition[]> {
+  async getPositionsByTags(_tags: string[]): Promise<EndgamePosition[]> {
     // Tags are not yet implemented in EndgamePosition type
     // Return empty array for now
     console.warn('getPositionsByTags: tags property not yet implemented in EndgamePosition');

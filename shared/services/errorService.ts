@@ -114,7 +114,7 @@ export class ErrorService {
   /**
    * Get user-friendly error messages
    */
-  private getUserFriendlyMessage(type: ErrorType, error: Error): string {
+  private getUserFriendlyMessage(type: ErrorType, _error: Error): string {
     switch (type) {
       case ErrorType.CHESS_ENGINE:
         return 'Die Schach-Engine konnte nicht geladen werden. Bitte aktualisieren Sie die Seite.';

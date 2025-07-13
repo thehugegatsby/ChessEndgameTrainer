@@ -26,7 +26,7 @@ export interface MoveEvaluation {
 export const getSmartMoveEvaluation = (
   evaluation: MoveEvaluation, 
   isWhite: boolean, 
-  moveIndex: number
+  _moveIndex: number
 ) => {
   // Priority 1: Use tablebase comparison if available
   if (evaluation.tablebase?.isTablebasePosition && 

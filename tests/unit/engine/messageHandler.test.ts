@@ -25,8 +25,6 @@ jest.mock('../../../shared/services/logging',
   require('../../shared/logger-utils').getMockLoggerDefinition()
 );
 
-let mockLogger: any;
-
 // Helper function to create a mock Move object
 const createMockMove = (from: string, to: string, piece: string = 'p', color: string = 'w') => ({
   from: from as any,
@@ -77,7 +75,7 @@ describe('StockfishMessageHandler', () => {
     handler = new StockfishMessageHandler();
     
     // Re-get the mock logger for assertions
-    mockLogger = (require('../../../shared/services/logging').getLogger as jest.Mock)();
+    (require('../../../shared/services/logging').getLogger as jest.Mock)();
   });
 
   afterEach(() => {

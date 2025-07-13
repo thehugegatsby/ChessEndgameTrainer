@@ -3,7 +3,7 @@
  * @description Tests for evaluation caching, deduplication, and performance optimization
  */
 
-import { EvaluationCache, type EvaluationCacheStats } from '../../../shared/lib/cache/EvaluationCache';
+import { EvaluationCache } from '../../../shared/lib/cache/EvaluationCache';
 import type { Engine } from '../../../shared/lib/chess/engine';
 import { Move as ChessJsMove } from 'chess.js';
 
@@ -455,7 +455,7 @@ describe('EvaluationCache', () => {
       const testFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
       mockEngine.getBestMove.mockResolvedValue({ from: 'e2', to: 'e4', san: 'e4' } as ChessJsMove);
       
-      const result = await cache.getBestMoveCached(mockEngine, testFen, 0);
+      await cache.getBestMoveCached(mockEngine, testFen, 0);
       
       expect(mockEngine.getBestMove).toHaveBeenCalledWith(testFen, 0);
     });

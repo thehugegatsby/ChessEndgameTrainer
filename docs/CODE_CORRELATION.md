@@ -2,7 +2,7 @@
 
 **Target**: LLM comprehension for maintaining accurate code-documentation correlation
 **Environment**: WSL + VS Code + Windows
-**Updated**: 2025-01-13
+**Updated**: 2025-07-13
 
 ## 🎯 Correlation Principles
 
@@ -129,14 +129,14 @@ function validateCodeExample(docFile, filePath, lineRange, codeExample) {
         "/shared/components/training/TrainingBoard/TrainingBoardZustand.tsx:25-60",
         "/shared/components/training/AnalysisPanel/AnalysisDetails.tsx:20-65"
       ],
-      "last_validated": "2025-01-13T10:30:00Z"
+      "last_validated": "2025-07-13T10:30:00Z"
     },
     "compound-components": {
       "documentation": "/docs/patterns/REACT_PATTERNS.md:178-207",
       "implementations": [
         "/shared/components/training/DualEvaluationPanel/index.tsx:20-55"
       ],
-      "last_validated": "2025-01-13T10:30:00Z"
+      "last_validated": "2025-07-13T10:30:00Z"
     }
   },
   "zustand-patterns": {
@@ -145,7 +145,7 @@ function validateCodeExample(docFile, filePath, lineRange, codeExample) {
       "implementations": [
         "/shared/store/store.ts:15-80"
       ],
-      "last_validated": "2025-01-13T10:30:00Z"
+      "last_validated": "2025-07-13T10:30:00Z"
     }
   }
 }

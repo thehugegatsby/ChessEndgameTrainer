@@ -2,7 +2,7 @@
 
 **Target**: LLM comprehension for React patterns and component architecture
 **Environment**: WSL + VS Code + Windows
-**Updated**: 2025-01-13
+**Updated**: 2025-07-13
 
 ## 🎯 React Architecture Patterns
 
@@ -68,13 +68,19 @@ shared/components/
 │   ├── DualEvaluationPanel/  # Evaluation display components
 │   │   ├── index.tsx         # Lines 1-55   - Panel container
 │   │   ├── EngineEvaluationCard.tsx # Lines 1-85 - Engine eval
-│   │   └── TablebaseEvaluationCard.tsx # Lines 1-75 - TB eval
-│   └── TrainingBoard/        # Training board components
-│       └── TrainingBoardZustand.tsx # Lines 1-150 - Board with state
+│   │   ├── TablebaseEvaluationCard.tsx # Lines 1-75 - TB eval
+│   │   ├── BestMovesDisplay.tsx # Lines 1-65 - Best moves
+│   │   └── EvaluationComparison.tsx # Lines 1-70 - Eval comparison
+│   ├── TrainingBoard/        # Training board components
+│   │   └── TrainingBoardZustand.tsx # Lines 1-150 - Board with state
+│   ├── MovePanelZustand.tsx  # Lines 1-120  - Move panel with Zustand
+│   └── PrincipalVariation.tsx # Lines 1-85  - PV display
 └── ui/                       # Generic UI components
     ├── ErrorBoundary.tsx     # Lines 1-95   - Error handling
+    ├── EngineErrorBoundary.tsx # Lines 1-80 - Engine-specific errors
     ├── button.tsx            # Lines 1-65   - Button component
-    └── Toast.tsx             # Lines 1-80   - Toast notifications
+    ├── Toast.tsx             # Lines 1-80   - Toast notifications
+    └── DarkModeToggle.tsx    # Lines 1-50   - Dark mode toggle
 ```
 
 ## 🎨 Component Patterns

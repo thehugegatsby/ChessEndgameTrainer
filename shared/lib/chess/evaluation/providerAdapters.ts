@@ -13,7 +13,7 @@ import { createTablebaseService, TablebaseServiceAdapter } from '../../../servic
  * PHASE 2.2: Now calls enhanced engine API to get PV data
  */
 export class EngineProviderAdapter implements IEngineProvider {
-  async getEvaluation(fen: string, playerToMove: 'w' | 'b'): Promise<EngineEvaluation | null> {
+  async getEvaluation(fen: string, _playerToMove: 'w' | 'b'): Promise<EngineEvaluation | null> {
     try {
       // PHASE 2.2: Call enhanced engine API with PV data
       const enhancedEvaluation = await engine.evaluatePositionEnhanced(fen, false);

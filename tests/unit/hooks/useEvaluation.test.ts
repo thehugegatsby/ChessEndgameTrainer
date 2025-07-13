@@ -3,7 +3,7 @@
  * @description Tests unified evaluation service integration, caching, and state management
  */
 
-import { renderHook, act, waitFor, RenderHookResult } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useEvaluation } from '@shared/hooks/useEvaluation';
 import { TEST_FENS } from '../../../shared/testing/TestFixtures';
 import type { UseEvaluationReturn } from '@shared/hooks/useEvaluation';
@@ -219,7 +219,7 @@ describe('useEvaluation Hook', () => {
       const previousFen = TEST_FENS.STARTING_POSITION;
       const currentFen = TEST_FENS.KQK_TABLEBASE_WIN;
 
-      const { result } = renderHook(() => useEvaluation({
+      renderHook(() => useEvaluation({
         fen: currentFen,
         isEnabled: true,
         previousFen
@@ -329,7 +329,7 @@ describe('useEvaluation Hook', () => {
       
       mockUnifiedService.getFormattedEvaluation.mockRejectedValueOnce(testError);
 
-      const { result } = renderHook(() => useEvaluation({
+      renderHook(() => useEvaluation({
         fen: TEST_FENS.STARTING_POSITION,
         isEnabled: true
       }));

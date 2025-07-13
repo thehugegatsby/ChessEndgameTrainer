@@ -3,7 +3,7 @@
  * @description Tests for LRU cache algorithms, memory management, and edge cases
  */
 
-import { LRUCache, CacheStats } from '../../../shared/lib/cache/LRUCache';
+import { LRUCache } from '../../../shared/lib/cache/LRUCache';
 import { getLogger } from '../../../shared/services/logging';
 
 // Mock logger with standardized factory pattern

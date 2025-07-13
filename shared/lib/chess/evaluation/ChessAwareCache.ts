@@ -15,7 +15,6 @@ interface CacheEntry<T> {
   isCritical: boolean;
 }
 
-type PositionType = 'endgame' | 'middlegame' | 'opening';
 
 export class ChessAwareCache<T> {
   private cache = new Map<string, CacheEntry<T>>();
@@ -190,12 +189,4 @@ export class ChessAwareCache<T> {
     this.cache.delete(lruEntry[0]);
   }
 
-  /**
-   * Get position type for debugging/monitoring
-   */
-  private getPositionType(pieceCount: number): PositionType {
-    if (pieceCount <= ChessAwareCache.ENDGAME_THRESHOLD) return 'endgame';
-    if (pieceCount <= 20) return 'middlegame';
-    return 'opening';
-  }
 }

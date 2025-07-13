@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // SWC compiler options (only used when Babel is not detected)
+  compiler: {
+    // Remove React dev props in production
+    reactRemoveProperties: process.env.NODE_ENV === 'production',
+  },
   env: {
     // Make process.env.NEXT_PUBLIC_IS_E2E_TEST available in client and server code
     // Using NEXT_PUBLIC_ prefix ensures it's available on the client side

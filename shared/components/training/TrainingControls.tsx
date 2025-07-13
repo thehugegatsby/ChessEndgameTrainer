@@ -12,7 +12,6 @@ interface TrainingControlsProps {
 }
 
 export const TrainingControls: React.FC<TrainingControlsProps> = ({
-  position,
   prevPosition,
   nextPosition,
   onReset,

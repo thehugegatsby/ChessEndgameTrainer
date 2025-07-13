@@ -91,13 +91,13 @@ class WebNotification implements IPlatformNotification {
     });
   }
 
-  async schedule(notification: ScheduledNotification): Promise<string> {
+  async schedule(_notification: ScheduledNotification): Promise<string> {
     // Web doesn't support scheduled notifications natively
     // Would need service worker implementation
     throw new Error('Scheduled notifications not supported on web');
   }
 
-  async cancel(id: string): Promise<void> {
+  async cancel(_id: string): Promise<void> {
     // Not supported on web
   }
 
@@ -298,17 +298,17 @@ class WebShare implements IPlatformShare {
 
 // Web Analytics Implementation (stub for now)
 class WebAnalytics implements IPlatformAnalytics {
-  track(event: string, properties?: Record<string, any>): void {
+  track(_event: string, _properties?: Record<string, any>): void {
     // Implement actual analytics (Google Analytics, Mixpanel, etc.)
   }
 
-  identify(userId: string, traits?: Record<string, any>): void {
+  identify(_userId: string, _traits?: Record<string, any>): void {
   }
 
-  page(name: string, properties?: Record<string, any>): void {
+  page(_name: string, _properties?: Record<string, any>): void {
   }
 
-  setUserProperties(properties: Record<string, any>): void {
+  setUserProperties(_properties: Record<string, any>): void {
   }
 }
 

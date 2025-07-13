@@ -15,8 +15,7 @@ import type {
 import type {
   EngineEvaluation,
   TablebaseResult,
-  FormattedEvaluation,
-  PlayerPerspectiveEvaluation
+  FormattedEvaluation
 } from '../../../../../shared/types/evaluation';
 
 // Test constants
@@ -36,7 +35,7 @@ class MockEngineProvider implements IEngineProvider {
     this.shouldThrow = shouldThrow;
   }
 
-  async getEvaluation(fen: string, playerToMove: 'w' | 'b'): Promise<EngineEvaluation | null> {
+  async getEvaluation(_fen: string, _playerToMove: 'w' | 'b'): Promise<EngineEvaluation | null> {
     if (this.shouldThrow) {
       throw new Error('Engine provider error');
     }
@@ -56,7 +55,7 @@ class MockTablebaseProvider implements ITablebaseProvider {
     this.shouldThrow = shouldThrow;
   }
 
-  async getEvaluation(fen: string, playerToMove: 'w' | 'b'): Promise<TablebaseResult | null> {
+  async getEvaluation(_fen: string, _playerToMove: 'w' | 'b'): Promise<TablebaseResult | null> {
     if (this.shouldThrow) {
       throw new Error('Tablebase provider error');
     }
@@ -74,7 +73,7 @@ class MockCacheProvider<T> implements ICacheProvider<T> {
     return this.cache.get(key) || null;
   }
 
-  async set(key: string, value: T, ttl?: number): Promise<void> {
+  async set(key: string, value: T, _ttl?: number): Promise<void> {
     this.setCallCount++;
     this.cache.set(key, value);
   }

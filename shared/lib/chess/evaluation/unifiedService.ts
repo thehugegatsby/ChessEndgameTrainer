@@ -18,7 +18,6 @@
 
 import { EvaluationPipelineFactory } from './pipelineFactory';
 import type { EvaluationPipelineStrategy } from './pipelineFactory';
-import { EvaluationNormalizer } from './normalizer';
 import type {
   IEngineProvider,
   ITablebaseProvider,
@@ -28,7 +27,6 @@ import type {
 import type {
   PlayerPerspectiveEvaluation,
   FormattedEvaluation,
-  NormalizedEvaluation,
   EngineEvaluation
 } from '../../../types/evaluation';
 
@@ -221,7 +219,7 @@ export class UnifiedEvaluationService {
    */
   async getRawEngineEvaluation(
     fen: string,
-    perspective: 'w' | 'b'
+    _perspective: 'w' | 'b'
   ): Promise<EngineEvaluation | null> {
     try {
       const playerToMove = this.getPlayerToMoveFromFen(fen);
@@ -233,47 +231,6 @@ export class UnifiedEvaluationService {
     }
   }
 
-  /**
-   * Gets normalized evaluation, prioritizing tablebase over engine
-   * @private
-   */
-  private async getNormalizedEvaluation(
-    fen: string,
-    playerToMove: 'w' | 'b'
-  ): Promise<NormalizedEvaluation> {
-    // Try tablebase first (ground truth)
-    try {
-      const tablebaseData = await this.withTimeout(
-        this.tablebaseProvider.getEvaluation(fen, playerToMove),
-        this.config.tablebaseTimeout
-      );
-
-      if (tablebaseData) {
-        const normalizer = new EvaluationNormalizer();
-        return normalizer.normalizeTablebaseData(tablebaseData, playerToMove);
-      }
-    } catch (error) {
-    }
-
-    // Fallback to engine
-    if (this.config.fallbackToEngine) {
-      try {
-        const engineData = await this.withTimeout(
-          this.engineProvider.getEvaluation(fen, playerToMove),
-          this.config.engineTimeout
-        );
-
-        if (engineData) {
-          const normalizer = new EvaluationNormalizer();
-        return normalizer.normalizeEngineData(engineData, playerToMove);
-        }
-      } catch (error) {
-      }
-    }
-
-    // No evaluation available
-    throw new Error('No evaluation available from any provider');
-  }
 
   /**
    * Gets engine-only formatted evaluation

@@ -83,11 +83,10 @@ class ConsoleTransport implements ILogTransport {
 // Remote transport implementation (stub)
 class RemoteTransport implements ILogTransport {
   private buffer: LogEntry[] = [];
-  private endpoint: string;
   private batchSize = 50;
   
-  constructor(endpoint: string) {
-    this.endpoint = endpoint;
+  constructor(_endpoint: string) {
+    // Endpoint not used in current implementation
   }
   
   log(entry: LogEntry): void {

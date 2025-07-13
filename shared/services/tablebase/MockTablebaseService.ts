@@ -128,7 +128,6 @@ export class MockTablebaseService implements ITablebaseService {
    */
   private analyzePosition(fen: string): TablebaseResult | null {
     const position = fen.split(' ')[0];
-    const activePlayer = fen.split(' ')[1] as 'w' | 'b';
     
     // Count pieces by type
     const pieces = this.countPiecesByType(position);

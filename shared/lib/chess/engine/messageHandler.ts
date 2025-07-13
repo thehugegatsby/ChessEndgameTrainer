@@ -12,7 +12,7 @@ import type {
   EvaluationResponse,
   ErrorResponse
 } from './types';
-import { Chess, Move as ChessJsMove } from 'chess.js';
+import { Chess } from 'chess.js';
 import { getLogger } from '../../../services/logging';
 import { parseInfo, type UCIEvaluation } from './uciParser';
 

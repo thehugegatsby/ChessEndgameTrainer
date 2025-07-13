@@ -12,7 +12,6 @@ import {
   engineTestUtils,
 } from '../../helpers/engineTestHelper';
 import { MockWorker } from '../../helpers/mockWorker';
-import { Engine } from '@shared/lib/chess/engine/index';
 
 // Use the test utilities
 engineTestUtils.describeEngine('Engine Test Helper', () => {
@@ -44,7 +43,7 @@ engineTestUtils.describeEngine('Engine Test Helper', () => {
     });
 
     it('should configure worker behavior', async () => {
-      const { engine, getMockWorker, cleanup } = await createTestEngine(
+      const { getMockWorker, cleanup } = await createTestEngine(
         {},
         {
           autoRespond: true, // Enable for successful initialization
@@ -74,13 +73,11 @@ engineTestUtils.describeEngine('Engine Test Helper', () => {
 
     it('should simulate initialization failure deterministically', async () => {
       // Use explicit mock control for deterministic failure
-      const { engine, getMockWorker, cleanup } = await createTestEngine(
+      const { engine, cleanup } = await createTestEngine(
         {},
         { failOnInit: true }, // Use proper failure mechanism
         { throwOnInitError: false }
       );
-
-      const mockWorker = getMockWorker();
       
       // Verify engine is not ready after failed init
       expect(engine.isReady()).toBe(false);
@@ -98,7 +95,7 @@ engineTestUtils.describeEngine('Engine Test Helper', () => {
 
   describe('createRealisticTestEngine', () => {
     it('should create engine with realistic Stockfish responses', async () => {
-      const { engine, getMockWorker, cleanup } = await createRealisticTestEngine();
+      const { engine, cleanup } = await createRealisticTestEngine();
       
       // Engine should already be ready
       expect(engine.isReady()).toBe(true);
@@ -147,15 +144,13 @@ engineTestUtils.describeEngine('Engine Test Helper', () => {
         ['go depth', ['info depth 20 score cp 150', 'bestmove e2e4']]
       ]);
       
-      const { engine, getMockWorker, cleanup } = await createTestEngine(
+      const { engine, cleanup } = await createTestEngine(
         {},
         { 
           autoRespond: true,
           customResponses 
         }
       );
-
-      const mockWorker = getMockWorker()!;
       
       // Start evaluation with valid FEN
       const evaluation = await engine.evaluatePosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
@@ -228,7 +223,7 @@ engineTestUtils.describeEngine('Engine Test Helper', () => {
 
   describe('waitForEngineReady', () => {
     it('should wait for engine to be ready', async () => {
-      const { engine, getMockWorker, cleanup } = await createTestEngine();
+      const { engine, cleanup } = await createTestEngine();
       
       // Engine is already ready after createTestEngine
       expect(engine.isReady()).toBe(true);

@@ -6,7 +6,7 @@
 
 import { TablebaseServiceAdapter } from '@shared/services/tablebase/TablebaseServiceAdapter';
 import { MockTablebaseService } from '@shared/services/tablebase/MockTablebaseService';
-import type { ITablebaseService, TablebaseLookupResult } from '@shared/services/tablebase/ITablebaseService';
+import type { ITablebaseService } from '@shared/services/tablebase/ITablebaseService';
 
 describe('TablebaseServiceAdapter', () => {
   let mockService: ITablebaseService;

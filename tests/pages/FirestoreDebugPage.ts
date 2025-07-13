@@ -40,7 +40,6 @@ export class FirestoreDebugPage extends BasePage {
   private readonly hostDisplay: Locator;
   
   // Data display locators
-  private readonly dataStats: Locator;
   private readonly positionsCount: Locator;
   private readonly categoriesCount: Locator;
   private readonly chaptersCount: Locator;
@@ -67,8 +66,6 @@ export class FirestoreDebugPage extends BasePage {
   
   // Progress tracking for batch operations
   private readonly progressBar: Locator;
-  private readonly progressText: Locator;
-  private readonly operationStatus: Locator;
 
   constructor(page: Page, private apiClient?: TestApiClient) {
     super(page);
@@ -80,7 +77,6 @@ export class FirestoreDebugPage extends BasePage {
     this.hostDisplay = page.locator('[data-testid="firebase-host"]');
     
     // Data statistics locators
-    this.dataStats = page.locator('[data-testid="firestore-data-stats"]');
     this.positionsCount = page.locator('[data-testid="positions-count"]');
     this.categoriesCount = page.locator('[data-testid="categories-count"]');
     this.chaptersCount = page.locator('[data-testid="chapters-count"]');
@@ -107,8 +103,6 @@ export class FirestoreDebugPage extends BasePage {
     
     // Progress tracking
     this.progressBar = page.locator('[data-testid="progress-bar"]');
-    this.progressText = page.locator('[data-testid="progress-text"]');
-    this.operationStatus = page.locator('[data-testid="operation-status"]');
   }
 
   /**

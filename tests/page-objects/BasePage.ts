@@ -58,7 +58,7 @@ export abstract class BasePage {
   /**
    * Take screenshot for visual regression
    */
-  async takeScreenshot(name: string): Promise<Buffer> {
+  async takeScreenshot(_name: string): Promise<Buffer> {
     return await this.page.screenshot({
       fullPage: true,
       animations: 'disabled',

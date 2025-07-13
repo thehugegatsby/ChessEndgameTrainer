@@ -2,20 +2,13 @@ import React, { useEffect, useCallback, useMemo, useState } from 'react';
 import { Chess, Move } from 'chess.js';
 import { Square } from 'react-chessboard/dist/chessboard/types';
 import { Chessboard } from 'react-chessboard';
-import { Piece } from 'react-chessboard/dist/chessboard/types';
 import { useEvaluation, useTrainingGame } from '../../../hooks';
 import { usePageReady } from '../../../hooks/usePageReady';
 import { useTraining, useTrainingActions, useUIActions, useStore } from '@shared/store/store';
 import { requestEngineMove } from '@shared/store/trainingActions';
 import { EndgamePosition } from '@shared/types';
-import { ErrorService } from '@shared/services/errorService';
 import { getLogger } from '@shared/services/logging';
 
-interface PositionInfo {
-  fen: string;
-  name: string;
-  description: string;
-}
 
 // Extended evaluation interface that matches our new MovePanel requirements
 interface ExtendedEvaluation {
@@ -54,7 +47,6 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
   onEvaluationsChange, 
   onPositionChange,
   onJumpToMove,
-  currentMoveIndex = -1,
   resetTrigger = 0
 }) => {
   const initialFen = fen || position?.fen || '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1';
@@ -87,11 +79,9 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     history,
     isGameFinished,
     currentFen,
-    currentPgn,
     makeMove,
     jumpToMove,
-    resetGame,
-    undoMove
+    resetGame
   } = useTrainingGame({
     onComplete: (success) => {
       // Call parent callback
@@ -124,7 +114,6 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     lastEvaluation,
     isEvaluating,
     error: evaluationError,
-    addEvaluation,
     clearEvaluations
   } = useEvaluation({
     fen: currentFen,
@@ -144,11 +133,8 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
   const [showLastEvaluation, setShowLastEvaluation] = useState(false);
   const [showMoveErrorDialog, setShowMoveErrorDialog] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
-  const [engineError, setEngineError] = useState<string | null>(null);
   const [moveError, setMoveError] = useState<string | null>(null);
 
-  // Get store instance for engine actions
-  const store = useStore();
 
   const trainingState = {
     resetKey,
@@ -167,7 +153,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       setMoveError(null);
     },
     handleClearWarning: () => setWarning(null),
-    handleClearEngineError: () => setEngineError(null)
+    handleClearEngineError: () => {}
   };
 
 
@@ -253,7 +239,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       uiActions.showToast(errorMessage, 'error');
       return null;
     }
-  }, [isGameFinished, makeMove, lastEvaluation, trainingState, actions, uiActions, currentFen, store]);
+  }, [isGameFinished, makeMove, lastEvaluation, trainingState, actions, uiActions, currentFen]);
 
   // === TEST HOOK FOR E2E TESTING ===
   useEffect(() => {
@@ -297,7 +283,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
           return { success: false, error: 'Invalid move format' };
         }
         
-        const [, piece, from, to, promotion] = moveMatch;
+        const [, , from, to, promotion] = moveMatch;
         const moveObj = {
           from: from as Square,
           to: to as Square,
@@ -370,7 +356,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     if (resetTrigger > 0) {
       handleReset();
     }
-  }, [resetTrigger]); // Remove handleReset from deps to avoid infinite loop
+  }, [resetTrigger, handleReset]);
 
   // === EFFECTS ===
 

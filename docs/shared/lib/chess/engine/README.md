@@ -2,7 +2,7 @@
 
 **Target**: LLM comprehension for chess engine patterns
 **Environment**: WSL + VS Code + Windows
-**Updated**: 2025-01-13
+**Updated**: 2025-07-13
 
 ## 🎯 Engine Architecture
 
@@ -341,9 +341,9 @@ export class MessageHandler {
 }
 ```
 
-## 🎯 Enhanced Evaluation API
+## 🎯 Multiple Engine Service Implementations
 
-### Position Evaluation
+### Current EngineService vs Legacy Engine
 
 **File**: `/shared/lib/chess/engine/singleton.ts:80-120`
 ```typescript
@@ -603,21 +603,37 @@ export class EngineProviderAdapter implements IEngineProvider {
 ### Memory Management
 - **Worker Memory**: ~20MB for Stockfish WASM + NNUE
 - **Singleton Overhead**: Minimal (~1KB for management)
-- **Message Queue**: Bounded queue with max 100 messages
-- **Cleanup**: Automatic on page unload + manual disposal
+- **Lazy Initialization**: Only loads when first accessed
+- **Browser Context**: Prevents build-time initialization
+- **Cleanup**: Automatic on page unload + visibility change
 
-### Evaluation Performance
+### Engine Service Performance
 - **Cold Start**: ~500ms (WASM loading)
 - **Warm Evaluation**: ~100-2000ms depending on depth
 - **Concurrent Requests**: Serialized through single worker
-- **Timeout Handling**: Configurable per request (default 5s)
+- **Timeout Handling**: 5s initialization, 10s command timeout
+- **Error Recovery**: Graceful fallback and logging
 
-### Scalability Considerations
-- **Single Worker**: Prevents memory bloat on mobile
-- **Request Queuing**: FIFO order with timeout protection
-- **Error Recovery**: Worker restart on fatal errors
-- **Resource Cleanup**: Proper disposal prevents memory leaks
+### Current Implementation Status
+- **EngineService**: Clean 222-line singleton implementation
+- **Legacy Engine**: Complex worker management (preserved)
+- **Provider Adapters**: Bridge to evaluation pipeline
+- **Error Handling**: Centralized through ErrorService
+- **Logging**: Structured logging with context
+
+### Mobile Considerations
+- **Single Worker**: Prevents memory bloat
+- **Background Handling**: App visibility awareness
+- **Resource Cleanup**: Proper disposal on termination
+- **Memory Monitoring**: ~20MB limit awareness
 
 ---
+
+**Current State**: 
+- ✅ **Engine Singleton**: Clean lazy initialization with browser context protection
+- ✅ **EngineService**: Simplified 222-line implementation
+- ✅ **Provider Integration**: EngineProviderAdapter with error handling
+- ✅ **Memory Management**: Enhanced cleanup with signal handling
+- ✅ **Error Recovery**: Centralized error service integration
 
 **Next**: Review [../evaluation/](../evaluation/) for evaluation pipeline integration patterns.

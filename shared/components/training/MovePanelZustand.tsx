@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { Move } from 'chess.js';
-import { getMoveQualityDisplay, getMoveQualityByTablebaseComparison, formatEvaluation, getSmartMoveEvaluation, type MoveEvaluation } from '../../utils/chess/evaluationHelpers';
-import { EvaluationLegend } from './EvaluationLegend';
+import { getSmartMoveEvaluation, type MoveEvaluation } from '../../utils/chess/evaluationHelpers';
 import { useTraining } from '@shared/store/store';
 import { TEST_IDS, getTestId } from '@shared/constants/testIds';
 

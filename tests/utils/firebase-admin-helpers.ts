@@ -3,7 +3,7 @@
  * Clean architecture using Admin SDK for complete control over test data
  */
 
-import { initializeApp, cert, App, deleteApp } from 'firebase-admin/app';
+import { initializeApp, App, deleteApp } from 'firebase-admin/app';
 import { getFirestore, Firestore, Timestamp } from 'firebase-admin/firestore';
 import { EndgamePosition, EndgameCategory, EndgameChapter } from '@shared/types/endgame';
 import * as fs from 'fs/promises';

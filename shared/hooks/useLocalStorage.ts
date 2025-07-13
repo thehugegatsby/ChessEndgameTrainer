@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { getPlatformService } from '../services/platform';
 import { getLogger } from '../services/logging';
 
@@ -23,7 +23,6 @@ export function useLocalStorage<T>(
     }
     
     try {
-      const platformService = getPlatformService();
       // For initial load, we need to use sync storage fallback
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : resolvedInitialValue;
@@ -51,7 +50,7 @@ export function useLocalStorage<T>(
           try {
             window.localStorage.setItem(key, JSON.stringify(valueToStore));
           } catch (fallbackError) {
-            logger.error('Fallback localStorage also failed', fallbackError, { key });
+            logger.error('Fallback localStorage also failed', { key, error: fallbackError });
           }
         });
       }

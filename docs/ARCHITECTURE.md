@@ -2,7 +2,8 @@
 
 **Target**: LLM comprehension for AI-assisted development
 **Environment**: WSL + VS Code + Windows
-**Updated**: 2025-01-13
+**Updated**: 2025-07-13
+**Status**: Web-only architecture (React Native components removed)
 
 ## 🏗️ High-Level Architecture
 
@@ -84,6 +85,7 @@ graph TB
 ITablebaseService → MockTablebaseService
 IPositionService → PositionService
 EngineService (singleton pattern)
+PlatformService → WebPlatformService
 ```
 
 ### Adapter Layer
@@ -92,6 +94,7 @@ EngineService (singleton pattern)
 TablebaseServiceAdapter
 EngineProviderAdapter
 TablebaseProviderAdapter
+cacheAdapter
 ```
 
 ### Provider Layer
@@ -100,6 +103,7 @@ TablebaseProviderAdapter
 IEngineProvider
 ITablebaseProvider
 ICacheProvider
+ParallelEvaluationService
 ```
 
 ## 📊 Core Data Flows
@@ -142,7 +146,7 @@ Position Request
 
 ### 1. Singleton Pattern for Engine
 **File**: `/shared/lib/chess/engine/singleton.ts`
-**Reason**: Mobile memory constraints (~20MB per worker)
+**Reason**: Browser memory optimization (~20MB per worker)
 **Implementation**: Single Stockfish instance across application
 
 ### 2. Unified Evaluation Service
@@ -166,12 +170,23 @@ Position Request
 ```
 /shared/
 ├── components/           # UI Layer - React components
+│   ├── chess/           # Chess-specific UI components
+│   ├── layout/          # Layout and structure components
+│   ├── navigation/      # Navigation components
+│   ├── training/        # Training-specific components
+│   └── ui/             # Generic UI components
 ├── hooks/               # Hooks Layer - Business logic hooks
 ├── lib/                 # Service Layer - Core libraries
-│   ├── chess/
+│   ├── cache/          # Caching infrastructure
+│   ├── chess/          # Chess engine and evaluation
 │   │   ├── engine/     # Engine infrastructure
 │   │   └── evaluation/ # Evaluation pipeline
+│   └── firebase/       # Firebase configuration
 ├── services/           # Service Layer - Business services
+│   ├── chess/          # Chess services
+│   ├── database/       # Database services
+│   ├── platform/       # Platform abstraction
+│   └── tablebase/      # Tablebase services
 ├── store/              # State Layer - Zustand store
 └── types/              # Type definitions across layers
 ```
@@ -223,11 +238,43 @@ class UnifiedEvaluationService {
 }
 ```
 
+## 🔄 Current Tech Stack (Updated)
+
+### Frontend Framework
+- **Next.js 15.3**: React framework with App Router
+- **React 18.3**: Component library with concurrent features
+- **TypeScript 5.3**: Strict mode enabled for type safety
+
+### State Management
+- **Zustand 4.4**: Lightweight state management (single source of truth)
+- **Immer Middleware**: Immutable state updates
+- **Persist Middleware**: LocalStorage integration
+
+### Chess Engine
+- **Stockfish WASM**: NNUE-enabled chess engine
+- **chess.js 1.0.0-beta.6**: Chess game logic library
+- **UCI Protocol**: Universal Chess Interface for engine communication
+
+### UI & Styling
+- **Tailwind CSS 3.4**: Utility-first CSS framework
+- **Radix UI**: Accessible component primitives
+- **react-chessboard 4.3**: Chess board component
+
+### Testing Framework
+- **Jest 29.7**: Unit testing framework (951 tests passing)
+- **React Testing Library 14.1**: Component testing utilities
+- **Playwright**: End-to-end testing framework
+
+### Development Tools
+- **ESLint**: Code linting and formatting
+- **CI/CD Pipeline**: Automated testing and deployment
+- **Firebase Firestore**: Optional database (with fallback)
+
 ## 🚀 Performance Characteristics
 
 ### Engine Management
 - **Single Instance**: One Stockfish worker maximum
-- **Memory Constraint**: ~20MB per worker on mobile
+- **Memory Constraint**: ~20MB per worker optimized for browsers
 - **Cleanup**: Always call `engine.quit()` on unmount
 
 ### Evaluation Caching
@@ -244,8 +291,10 @@ class UnifiedEvaluationService {
 
 ### Next.js Integration
 - **Pages**: `/pages/train/[id].tsx` - Main training interface
+- **App Component**: `/pages/_app.tsx` - App-wide configuration
 - **API Routes**: None (client-side only)
 - **Static Assets**: Stockfish WASM files in `/public`
+- **Config**: `/config/constants.ts` - Centralized configuration
 
 ### Worker Integration
 - **Stockfish Worker**: Browser Web Worker for chess engine
@@ -253,9 +302,11 @@ class UnifiedEvaluationService {
 - **Parser**: Custom UCI message parser
 
 ### Testing Integration
-- **Unit Tests**: Jest + React Testing Library
+- **Unit Tests**: Jest + React Testing Library (951 tests passing)
 - **E2E Tests**: Playwright with mock services
 - **Mock Strategy**: MockEngineService for deterministic tests
+- **Coverage**: Business logic ≥78% coverage requirement
+- **Test Organization**: `/tests/unit/`, `/tests/e2e/`, `/tests/integration/`
 
 ## 🛡️ Error Handling Strategy
 

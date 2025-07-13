@@ -334,7 +334,7 @@ export class ChessBoardPage extends BasePage {
   /**
    * Take board screenshot for visual regression
    */
-  async takeBoardScreenshot(name: string): Promise<Buffer> {
+  async takeBoardScreenshot(_name: string): Promise<Buffer> {
     return await this.board.screenshot({
       animations: 'disabled',
     });

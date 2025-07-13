@@ -1,5 +1,4 @@
 import React, { useState, ReactNode } from 'react';
-import { Header } from './Header';
 import { AdvancedEndgameMenu } from '../navigation/AdvancedEndgameMenu';
 import { DarkModeToggle } from '../ui/DarkModeToggle';
 import { SettingsIcon } from '../ui/SettingsIcon';

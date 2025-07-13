@@ -65,9 +65,7 @@ describe('ChessAwareCache_[method]_[condition]_[expected]', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
       
       // Access should update timestamp
-      const beforeAccess = Date.now();
       cache.get(MIDDLEGAME_POSITION);
-      const afterAccess = Date.now();
       
       // Can't directly test internal lastAccessed, but can verify behavior
       // by filling cache and checking what gets evicted

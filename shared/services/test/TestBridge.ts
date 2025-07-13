@@ -22,7 +22,7 @@ import type { IChessEngine } from '../../lib/chess/IChessEngine';
 
 // Temporary placeholder
 export class TestBridgeImpl {
-  constructor(engine: any) {
+  constructor(_engine: any) {
     console.warn('TestBridge temporarily disabled during architecture refactoring');
   }
 }

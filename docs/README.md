@@ -67,11 +67,11 @@ docs/
 
 ## 🔧 Development Context
 
-- **Frontend**: Next.js 15.3 + React 18.3 + TypeScript 5.3
+- **Frontend**: Next.js 15.3.3 + React 18.3 + TypeScript 5.3.3
 - **Chess Engine**: Stockfish WASM + NNUE
-- **State**: Zustand 4.4
-- **Testing**: Jest + Playwright + React Testing Library
-- **Platform**: WSL2 + VS Code + Windows
+- **State**: Zustand 4.5.0
+- **Testing**: Jest 29.7.0 + React Testing Library 14.2.1 (951 unit tests)
+- **Environment**: Node.js 20+ + WSL2 + VS Code + Windows
 
 ## 📊 Key Data Flows
 

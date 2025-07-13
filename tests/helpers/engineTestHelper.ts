@@ -54,10 +54,10 @@ export async function createTestEngine(config?: Partial<EngineConfig>, workerBeh
   
   // Override factory to return our pre-configured worker
   const originalCreateWorker = mockFactory.createWorker.bind(mockFactory);
-  mockFactory.createWorker = (scriptURL: string | URL) => {
+  mockFactory.createWorker = (_scriptURL: string | URL) => {
     if (!mockWorker) {
       // Use original method which adds to workers array
-      mockWorker = originalCreateWorker(scriptURL) as MockWorker;
+      mockWorker = originalCreateWorker(_scriptURL) as MockWorker;
       
       // Apply worker behavior configuration with CI-aware defaults
       const CI = process.env.CI === 'true';
@@ -153,8 +153,8 @@ export async function createRealisticTestEngine(config?: Partial<EngineConfig>, 
   let mockWorker: MockWorker | null = null;
   
   // Override factory to create realistic worker
-  const originalCreateWorker = mockFactory.createWorker.bind(mockFactory);
-  mockFactory.createWorker = (scriptURL: string | URL) => {
+  // const _originalCreateWorker = mockFactory.createWorker.bind(mockFactory);
+  mockFactory.createWorker = (_scriptURL: string | URL) => {
     if (!mockWorker) {
       // Create the realistic worker
       mockWorker = createStockfishMockWorker();

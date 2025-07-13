@@ -5,7 +5,6 @@
  */
 
 import { TablebaseProviderAdapter } from '@shared/lib/chess/evaluation/providerAdapters';
-import type { TablebaseResult } from '@shared/types/evaluation';
 
 describe('TablebaseProviderAdapter (Enhanced)', () => {
   let adapter: TablebaseProviderAdapter;

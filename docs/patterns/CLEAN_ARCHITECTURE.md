@@ -2,7 +2,7 @@
 
 **Target**: LLM comprehension for clean architecture implementation
 **Environment**: WSL + VS Code + Windows
-**Updated**: 2025-01-13
+**Updated**: 2025-07-13
 
 ## 🏗️ Layer Separation
 
@@ -48,14 +48,19 @@ class TablebaseProviderAdapter implements ITablebaseProvider {
 │   ├── tablebase/
 │   │   ├── ITablebaseService.ts      # Service interface
 │   │   ├── MockTablebaseService.ts   # Service implementation
+│   │   ├── TablebaseServiceAdapter.ts # Service adapter
 │   │   └── index.ts                  # Service factory
-│   └── database/
+│   ├── database/          # Database services
+│   ├── platform/          # Platform abstraction
+│   └── chess/            # Chess-specific services
 ├── lib/chess/evaluation/  # Adapter + Provider Layers
 │   ├── providers.ts       # Provider interfaces
 │   ├── providerAdapters.ts # Provider implementations
-│   └── unifiedService.ts  # Service orchestration
+│   ├── unifiedService.ts  # Service orchestration
+│   └── cacheAdapter.ts    # Cache abstraction
 └── types/                 # Shared contracts
-    └── evaluation.ts      # Data transfer objects
+    ├── evaluation.ts      # Evaluation types
+    └── chess.ts          # Chess-related types
 ```
 
 ## 🎯 Dependency Injection Pattern
