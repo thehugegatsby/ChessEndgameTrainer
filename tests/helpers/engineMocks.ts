@@ -4,7 +4,7 @@
  */
 
 import type { EngineEvaluation, DualEvaluation, TablebaseInfo } from '../../shared/lib/chess/ScenarioEngine/types';
-import { TestPositions } from '../../shared/testing/TestPositions';
+import { TestPositions } from '../../shared/testing/TestScenarios';
 
 /**
  * Mock Engine implementation with controlled responses
@@ -106,8 +106,8 @@ export class MockEngine {
     // Check against our real test positions
     if (fen === TestPositions.POSITION_1_OPPOSITION_BASICS.fen) {
       return { 
-        score: TestPositions.POSITION_1_OPPOSITION_BASICS.initialExpectedEvaluation || 2000, 
-        mate: TestPositions.POSITION_1_OPPOSITION_BASICS.initialExpectedMate || 11 
+        score: TestPositions.POSITION_1_OPPOSITION_BASICS.expectsDrawEvaluation ? 0 : 2000, 
+        mate: 11 // Simplified mock 
       };
     }
     
@@ -119,11 +119,12 @@ export class MockEngine {
     // Check against our real test positions
     if (fen === TestPositions.POSITION_1_OPPOSITION_BASICS.fen) {
       const move = TestPositions.POSITION_1_OPPOSITION_BASICS.initialExpectedMove;
-      return { 
-        from: move.from, 
-        to: move.to, 
-        promotion: move.promotion 
-      };
+      if (move) {
+        return { 
+          from: move.from, 
+          to: move.to
+        };
+      }
     }
     
     // Default move for unknown positions

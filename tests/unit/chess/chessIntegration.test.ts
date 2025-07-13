@@ -5,7 +5,7 @@
 
 import { describe, test, expect, beforeEach } from '@jest/globals';
 import { Chess } from 'chess.js';
-import { TEST_POSITIONS, TEST_MOVES } from '../../helpers/testPositions';
+import { TEST_FENS, TEST_MOVES } from '../../../shared/testing/TestFixtures';
 
 describe('Chess.js Integration and Game Logic', () => {
   let game: Chess;
@@ -16,26 +16,26 @@ describe('Chess.js Integration and Game Logic', () => {
 
   describe('Position Loading and FEN Handling', () => {
     test('should_load_starting_position_correctly', () => {
-      game.load(TEST_POSITIONS.STARTING_POSITION);
+      game.load(TEST_FENS.STARTING_POSITION);
       
-      expect(game.fen()).toBe(TEST_POSITIONS.STARTING_POSITION);
+      expect(game.fen()).toBe(TEST_FENS.STARTING_POSITION);
       expect(game.turn()).toBe('w');
     });
 
     test('should_load_endgame_positions_correctly', () => {
-      game.load(TEST_POSITIONS.KQK_TABLEBASE_WIN);
-      expect(game.fen()).toBe(TEST_POSITIONS.KQK_TABLEBASE_WIN);
+      game.load(TEST_FENS.KQK_TABLEBASE_WIN);
+      expect(game.fen()).toBe(TEST_FENS.KQK_TABLEBASE_WIN);
       
-      game.load(TEST_POSITIONS.ROOK_ENDGAME);
-      expect(game.fen()).toBe(TEST_POSITIONS.ROOK_ENDGAME);
+      game.load(TEST_FENS.ROOK_ENDGAME);
+      expect(game.fen()).toBe(TEST_FENS.ROOK_ENDGAME);
       
-      game.load(TEST_POSITIONS.BRUCKENBAU_POSITION);
-      expect(game.fen()).toBe(TEST_POSITIONS.BRUCKENBAU_POSITION);
+      game.load(TEST_FENS.WHITE_ADVANTAGE);
+      expect(game.fen()).toBe(TEST_FENS.WHITE_ADVANTAGE);
     });
 
     test('should_reject_invalid_fen_strings', () => {
-      expect(() => game.load(TEST_POSITIONS.INVALID_FEN)).toThrow();
-      expect(() => game.load(TEST_POSITIONS.MALFORMED_FEN)).toThrow();
+      expect(() => game.load(TEST_FENS.INVALID_FEN)).toThrow();
+      expect(() => game.load(TEST_FENS.MALFORMED_FEN)).toThrow();
       expect(() => game.load('')).toThrow();
     });
 
@@ -429,17 +429,17 @@ describe('Chess.js Integration and Game Logic', () => {
 
     test('should_handle_complex_endgame_positions', () => {
       // Load various endgame positions and verify they work
-      game.load(TEST_POSITIONS.LUCENA_POSITION);
-      expect(game.fen()).toBe(TEST_POSITIONS.LUCENA_POSITION);
+      game.load(TEST_FENS.BLACK_ADVANTAGE);
+      expect(game.fen()).toBe(TEST_FENS.BLACK_ADVANTAGE);
       
-      game.load(TEST_POSITIONS.PHILIDOR_POSITION);
-      expect(game.fen()).toBe(TEST_POSITIONS.PHILIDOR_POSITION);
+      game.load(TEST_FENS.EQUAL_POSITION);
+      expect(game.fen()).toBe(TEST_FENS.EQUAL_POSITION);
       
-      game.load(TEST_POSITIONS.KPK_WINNING);
-      expect(game.fen()).toBe(TEST_POSITIONS.KPK_WINNING);
+      game.load(TEST_FENS.KPK_WINNING);
+      expect(game.fen()).toBe(TEST_FENS.KPK_WINNING);
       
       // Each should still allow move generation
-      game.load(TEST_POSITIONS.LUCENA_POSITION);
+      game.load(TEST_FENS.EQUAL_POSITION);
       const moves = game.moves();
       expect(moves.length).toBeGreaterThan(0);
     });

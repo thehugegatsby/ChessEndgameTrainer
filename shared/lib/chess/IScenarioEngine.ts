@@ -76,10 +76,10 @@ export interface IScenarioEngine {
   
   /**
    * Get the best move for the current position
-   * @param fen - Position to analyze
+   * Uses the engine's internal position state (no external FEN dependency)
    * @returns Best move as object or null
    */
-  getBestMove(fen: string): Promise<{ 
+  getBestMove(): Promise<{ 
     from: string; 
     to: string; 
     promotion?: 'q' | 'r' | 'b' | 'n' 

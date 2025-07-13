@@ -8,6 +8,7 @@ import { PositionService } from './PositionService';
 import { IPositionService } from './IPositionService';
 import { FirebasePositionRepository } from '@shared/repositories/implementations/FirebasePositionRepository';
 import { db } from '@shared/lib/firebase';
+import { shouldUseMockService, createMockPositionService } from '@shared/testing/MockPositionServiceFactory';
 
 /**
  * Creates a PositionService instance for server-side usage
@@ -15,6 +16,13 @@ import { db } from '@shared/lib/firebase';
  * where React Context/hooks are not available
  */
 export function createServerPositionService(): IPositionService {
+  // Use mock service for E2E tests (server-side)
+  if (shouldUseMockService()) {
+    console.log('Creating MockPositionService for server-side E2E testing');
+    return createMockPositionService();
+  }
+  
+  // Use Firebase for production/development
   const repository = new FirebasePositionRepository(db, {
     enableCache: true,
     cacheSize: 200,
@@ -40,4 +48,11 @@ export function getServerPositionService(): IPositionService {
     serverPositionService = createServerPositionService();
   }
   return serverPositionService;
+}
+
+/**
+ * Reset server position service singleton (useful for testing)
+ */
+export function resetServerPositionService(): void {
+  serverPositionService = null;
 }

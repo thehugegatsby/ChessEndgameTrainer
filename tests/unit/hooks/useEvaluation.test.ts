@@ -5,7 +5,7 @@
 
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useEvaluation } from '@shared/hooks/useEvaluation';
-import { TEST_POSITIONS } from '../../helpers/testPositions';
+import { TEST_FENS } from '../../../shared/testing/TestFixtures';
 
 // Mock the unified evaluation service and dependencies
 const mockFormattedEvaluation = {
@@ -73,7 +73,7 @@ describe('useEvaluation Hook', () => {
   describe('Basic Functionality', () => {
     it('should initialize with empty state', () => {
       const { result } = renderHook(() => useEvaluation({
-        fen: TEST_POSITIONS.STARTING_POSITION,
+        fen: TEST_FENS.STARTING_POSITION,
         isEnabled: false
       }));
 
@@ -85,7 +85,7 @@ describe('useEvaluation Hook', () => {
 
     it('should not evaluate when disabled', async () => {
       renderHook(() => useEvaluation({
-        fen: TEST_POSITIONS.STARTING_POSITION,
+        fen: TEST_FENS.STARTING_POSITION,
         isEnabled: false
       }));
 
@@ -109,14 +109,14 @@ describe('useEvaluation Hook', () => {
   describe('Engine Evaluations', () => {
     it('should evaluate position when enabled', async () => {
       const { result } = renderHook(() => useEvaluation({
-        fen: TEST_POSITIONS.STARTING_POSITION,
+        fen: TEST_FENS.STARTING_POSITION,
         isEnabled: true
       }));
 
       await act(async () => {
         await waitFor(() => {
           expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalledWith(
-            TEST_POSITIONS.STARTING_POSITION,
+            TEST_FENS.STARTING_POSITION,
             'w'
           );
         });
@@ -143,7 +143,7 @@ describe('useEvaluation Hook', () => {
       mockUnifiedService.getFormattedEvaluation.mockResolvedValueOnce(mateEvaluation);
 
       const { result } = renderHook(() => useEvaluation({
-        fen: TEST_POSITIONS.KQK_TABLEBASE_WIN,
+        fen: TEST_FENS.KQK_TABLEBASE_WIN,
         isEnabled: true
       }));
 
@@ -155,7 +155,7 @@ describe('useEvaluation Hook', () => {
 
       // Just verify the evaluation was called with mate evaluation
       expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalledWith(
-        TEST_POSITIONS.KQK_TABLEBASE_WIN,
+        TEST_FENS.KQK_TABLEBASE_WIN,
         'w'
       );
     });
@@ -187,7 +187,7 @@ describe('useEvaluation Hook', () => {
 
     it('should handle tablebase position without previous FEN', async () => {
       const { result } = renderHook(() => useEvaluation({
-        fen: TEST_POSITIONS.KQK_TABLEBASE_WIN,
+        fen: TEST_FENS.KQK_TABLEBASE_WIN,
         isEnabled: true
       }));
 
@@ -199,14 +199,14 @@ describe('useEvaluation Hook', () => {
 
       // Verify the evaluation was called for tablebase position
       expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalledWith(
-        TEST_POSITIONS.KQK_TABLEBASE_WIN,
+        TEST_FENS.KQK_TABLEBASE_WIN,
         'w'
       );
     });
 
     it('should handle tablebase comparison with previous FEN', async () => {
-      const previousFen = TEST_POSITIONS.STARTING_POSITION;
-      const currentFen = TEST_POSITIONS.KQK_TABLEBASE_WIN;
+      const previousFen = TEST_FENS.STARTING_POSITION;
+      const currentFen = TEST_FENS.KQK_TABLEBASE_WIN;
 
       const { result } = renderHook(() => useEvaluation({
         fen: currentFen,
@@ -237,13 +237,13 @@ describe('useEvaluation Hook', () => {
       renderHook(() => useEvaluation({
         fen: blackToMoveFen,
         isEnabled: true,
-        previousFen: TEST_POSITIONS.STARTING_POSITION
+        previousFen: TEST_FENS.STARTING_POSITION
       }));
 
       await act(async () => {
         await waitFor(() => {
           expect(mockUnifiedService.getPerspectiveEvaluation).toHaveBeenCalledWith(
-            TEST_POSITIONS.STARTING_POSITION,
+            TEST_FENS.STARTING_POSITION,
             'w' // White made the move to reach black-to-move position
           );
         });
@@ -264,7 +264,7 @@ describe('useEvaluation Hook', () => {
       mockUnifiedService.getFormattedEvaluation.mockResolvedValueOnce(drawEvaluation);
 
       const { result } = renderHook(() => useEvaluation({
-        fen: TEST_POSITIONS.KRK_TABLEBASE_DRAW,
+        fen: TEST_FENS.KRK_TABLEBASE_DRAW,
         isEnabled: true
       }));
 
@@ -276,8 +276,8 @@ describe('useEvaluation Hook', () => {
 
       // Verify the evaluation was called for draw position
       expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalledWith(
-        TEST_POSITIONS.KRK_TABLEBASE_DRAW,
-        'w'
+        TEST_FENS.KRK_TABLEBASE_DRAW,
+        'b'
       );
     });
   });
@@ -285,7 +285,7 @@ describe('useEvaluation Hook', () => {
   describe('State Management', () => {
     it('should add evaluations to history', async () => {
       const { result } = renderHook(() => useEvaluation({
-        fen: TEST_POSITIONS.STARTING_POSITION,
+        fen: TEST_FENS.STARTING_POSITION,
         isEnabled: true
       }));
 
@@ -307,7 +307,7 @@ describe('useEvaluation Hook', () => {
 
     it('should clear evaluations', async () => {
       const { result } = renderHook(() => useEvaluation({
-        fen: TEST_POSITIONS.STARTING_POSITION,
+        fen: TEST_FENS.STARTING_POSITION,
         isEnabled: true
       }));
 
@@ -335,7 +335,7 @@ describe('useEvaluation Hook', () => {
       mockUnifiedService.getFormattedEvaluation.mockRejectedValueOnce(testError);
 
       const { result } = renderHook(() => useEvaluation({
-        fen: TEST_POSITIONS.STARTING_POSITION,
+        fen: TEST_FENS.STARTING_POSITION,
         isEnabled: true
       }));
 
@@ -359,7 +359,7 @@ describe('useEvaluation Hook', () => {
       mockUnifiedService.getFormattedEvaluation.mockRejectedValueOnce(abortError);
 
       const { result } = renderHook(() => useEvaluation({
-        fen: TEST_POSITIONS.STARTING_POSITION,
+        fen: TEST_FENS.STARTING_POSITION,
         isEnabled: true
       }));
 
@@ -390,14 +390,14 @@ describe('useEvaluation Hook', () => {
           isEnabled: true
         }),
         {
-          initialProps: { fen: TEST_POSITIONS.STARTING_POSITION }
+          initialProps: { fen: TEST_FENS.STARTING_POSITION }
         }
       );
 
       expect(result.current.isEvaluating).toBe(true);
 
       // Change FEN before first evaluation completes
-      rerender({ fen: TEST_POSITIONS.WHITE_ADVANTAGE });
+      rerender({ fen: TEST_FENS.WHITE_ADVANTAGE });
 
       // Resolve first evaluation (should be ignored)
       await act(async () => {
@@ -417,7 +417,7 @@ describe('useEvaluation Hook', () => {
       mockUnifiedService.getFormattedEvaluation.mockReturnValueOnce(evaluationPromise);
 
       const { result, unmount } = renderHook(() => useEvaluation({
-        fen: TEST_POSITIONS.STARTING_POSITION,
+        fen: TEST_FENS.STARTING_POSITION,
         isEnabled: true
       }));
 
@@ -446,7 +446,7 @@ describe('useEvaluation Hook', () => {
           isEnabled: true
         }),
         {
-          initialProps: { fen: TEST_POSITIONS.STARTING_POSITION }
+          initialProps: { fen: TEST_FENS.STARTING_POSITION }
         }
       );
 
@@ -456,7 +456,7 @@ describe('useEvaluation Hook', () => {
         });
       });
 
-      rerender({ fen: TEST_POSITIONS.WHITE_ADVANTAGE });
+      rerender({ fen: TEST_FENS.WHITE_ADVANTAGE });
 
       await act(async () => {
         await waitFor(() => {
@@ -468,7 +468,7 @@ describe('useEvaluation Hook', () => {
     it('should re-evaluate when enabled state changes', async () => {
       const { rerender } = renderHook(
         ({ isEnabled }: { isEnabled: boolean }) => useEvaluation({
-          fen: TEST_POSITIONS.STARTING_POSITION,
+          fen: TEST_FENS.STARTING_POSITION,
           isEnabled
         }),
         {
@@ -491,7 +491,7 @@ describe('useEvaluation Hook', () => {
   describe('Cache Stats', () => {
     it('should return undefined cache stats (TODO feature)', () => {
       const { result } = renderHook(() => useEvaluation({
-        fen: TEST_POSITIONS.STARTING_POSITION,
+        fen: TEST_FENS.STARTING_POSITION,
         isEnabled: false
       }));
 

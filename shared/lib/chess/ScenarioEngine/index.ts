@@ -144,11 +144,12 @@ export class ScenarioEngine implements IScenarioEngine {
   }
 
   /**
-   * Gets the best move for a position
-   * @param fen - Position to analyze
+   * Gets the best move for the current position
+   * Uses the engine's internal position state (no external FEN dependency)
    * @returns Promise<{from: string; to: string; promotion?: 'q' | 'r' | 'b' | 'n'} | null> - Best move as object
    */
-  public async getBestMove(fen: string): Promise<{ from: string; to: string; promotion?: 'q' | 'r' | 'b' | 'n' } | null> {
+  public async getBestMove(): Promise<{ from: string; to: string; promotion?: 'q' | 'r' | 'b' | 'n' } | null> {
+    const fen = this.chess.fen(); // Use internal position state
     return this.moveHandler.getBestMove(fen);
   }
 

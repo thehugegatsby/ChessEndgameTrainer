@@ -253,8 +253,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       const result = await makeMove(move);
       if (result) {
         // Then trigger engine response separately
-        const currentFen = game.fen();
-        const engineMove = await scenarioEngine.getBestMove(currentFen);
+        const engineMove = await scenarioEngine.getBestMove();
         if (engineMove) {
           // Make the engine move (getBestMove now returns an object directly)
           await makeMove(engineMove);

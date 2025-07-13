@@ -28,7 +28,7 @@ import {
   FenToScenarioMap,
   type TestScenario,
   type EngineMove
-} from '@shared/testing/TestPositions';
+} from '@shared/testing/TestScenarios';
 
 /**
  * Mock response configuration
@@ -118,12 +118,13 @@ export class MockScenarioEngine implements IScenarioEngine {
     return result;
   }
 
-  async getBestMove(fen: string): Promise<{ 
+  async getBestMove(): Promise<{ 
     from: string; 
     to: string; 
     promotion?: 'q' | 'r' | 'b' | 'n' 
   } | null> {
-    console.log(`[MockScenarioEngine] getBestMove called with FEN: "${fen}"`);
+    const fen = this.chess.fen(); // Use internal position state
+    console.log(`[MockScenarioEngine] getBestMove called - using internal FEN: "${fen}"`);
     await new Promise(resolve => setTimeout(resolve, 10));
     
     const scenario = this.findScenarioForPosition(fen);
@@ -152,26 +153,17 @@ export class MockScenarioEngine implements IScenarioEngine {
     
     console.log(`[MockScenarioEngine] Found scenario: ${scenario.id}`);
     
+    // For unified TestScenario, derive evaluation from expectsDrawEvaluation
+    const expectedScore = scenario.expectsDrawEvaluation ? 0 : 100; // 0 for draw, 100 for win
+    
     return {
       engine: {
-        score: scenario.initialExpectedEvaluation || 0,
-        evaluation: this.formatEvaluation(scenario.initialExpectedEvaluation || 0, scenario.initialExpectedMate),
-        mate: scenario.initialExpectedMate || null
+        score: expectedScore,
+        evaluation: this.formatEvaluation(expectedScore, undefined),
+        mate: null // Mate detection not implemented in unified scenarios
       },
-      tablebase: scenario.isTablebasePosition ? {
-        isAvailable: true,
-        result: {
-          wdl: scenario.initialExpectedEvaluation && scenario.initialExpectedEvaluation > 100 ? 2 : 
-               scenario.initialExpectedEvaluation && scenario.initialExpectedEvaluation < -100 ? -2 : 0,
-          dtz: scenario.initialExpectedMate ? Math.abs(scenario.initialExpectedMate) : undefined,
-          category: scenario.initialExpectedEvaluation && scenario.initialExpectedEvaluation > 100 ? 'win' : 
-                   scenario.initialExpectedEvaluation && scenario.initialExpectedEvaluation < -100 ? 'loss' : 'draw',
-          precise: true
-        },
-        evaluation: scenario.initialExpectedEvaluation && scenario.initialExpectedEvaluation > 100 ? 'Win' : 
-                   scenario.initialExpectedEvaluation && scenario.initialExpectedEvaluation < -100 ? 'Loss' : 'Draw'
-      } : {
-        isAvailable: false
+      tablebase: {
+        isAvailable: false // Simplified mock - no tablebase support
       }
     };
   }
@@ -184,10 +176,12 @@ export class MockScenarioEngine implements IScenarioEngine {
     // First try to find in registry
     const scenario = this.findScenarioForPosition(fen);
     if (scenario) {
+      // Use simplified evaluation for unified scenarios
+      const evaluation = scenario.expectsDrawEvaluation ? 0 : 100;
       return {
         fen,
-        evaluation: scenario.initialExpectedEvaluation || 0,
-        mate: scenario.initialExpectedMate
+        evaluation: evaluation,
+        mate: undefined // Simplified - no mate detection
       };
     }
     
@@ -249,8 +243,8 @@ export class MockScenarioEngine implements IScenarioEngine {
       console.log(`[MockScenarioEngine] ✅ Returning engine move: ${moveStr}`);
       engineMoves.push({
         move: moveStr,
-        evaluation: scenario.initialExpectedEvaluation || 0,
-        mate: scenario.initialExpectedMate
+        evaluation: scenario.expectsDrawEvaluation ? 0 : 100,
+        mate: undefined
       });
     } else {
       console.error(`[MockScenarioEngine] ❌ No move found for scenario ${scenario.id}`);
@@ -261,24 +255,13 @@ export class MockScenarioEngine implements IScenarioEngine {
       const altMove = `${move?.from || 'e2'}${move?.to || 'e4'}`;
       engineMoves.push({
         move: altMove,
-        evaluation: (scenario.initialExpectedEvaluation || 0) - (i * 20),
+        evaluation: (scenario.expectsDrawEvaluation ? 0 : 100) - (i * 20),
         mate: undefined
       });
     }
     
-    const tablebaseMoves = [];
-    if (scenario.isTablebasePosition && move) {
-      this.stats.tablebaseHits++;
-      const moveStr = `${move.from}${move.to}${move.promotion || ''}`;
-      const wdl = scenario.initialExpectedEvaluation && scenario.initialExpectedEvaluation > 100 ? 2 : 
-                  scenario.initialExpectedEvaluation && scenario.initialExpectedEvaluation < -100 ? -2 : 0;
-      tablebaseMoves.push({
-        move: moveStr,
-        wdl: wdl,
-        dtm: scenario.initialExpectedMate,
-        evaluation: wdl > 0 ? 'Win' : wdl < 0 ? 'Loss' : 'Draw'
-      });
-    }
+    const tablebaseMoves: any[] = [];
+    // Tablebase support disabled for simplified mock
     
     console.log(`[MockScenarioEngine] ✅ Returning moves: engine=${engineMoves.length}, tablebase=${tablebaseMoves.length}`);
     return { engine: engineMoves, tablebase: tablebaseMoves };
@@ -291,7 +274,7 @@ export class MockScenarioEngine implements IScenarioEngine {
     if (response?.tablebaseResult) {
       this.stats.tablebaseHits++;
       return {
-        isTablebasePosition: true,
+        isTablebasePosition: false, // Simplified - no tablebase support
         result: {
           wdl: response.tablebaseResult.wdl,
           dtz: response.tablebaseResult.dtz || null,
@@ -393,6 +376,7 @@ export class MockScenarioEngine implements IScenarioEngine {
         if (scenarioParts.length >= 2) {
           const scenarioPositionOnly = `${scenarioParts[0]} ${scenarioParts[1]}`;
           if (positionOnly === scenarioPositionOnly) {
+            // TestPositions now contains TestScenario objects directly
             return scenario;
           }
         }
@@ -411,16 +395,8 @@ export class MockScenarioEngine implements IScenarioEngine {
       return scenario.initialExpectedMove;
     }
     
-    // Check interactions for matching positions
-    if (scenario.interactions) {
-      for (const interaction of scenario.interactions) {
-        // This is simplified - in a full implementation, we'd track the game state
-        // For now, just return the first interaction's response
-        return interaction.expectedEngineResponse;
-      }
-    }
-    
-    return scenario.initialExpectedMove; // Fallback
+    // Simplified mock - just return the initial expected move
+    return scenario.initialExpectedMove;
   }
 
   /**

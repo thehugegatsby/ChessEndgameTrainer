@@ -5,27 +5,27 @@
 
 import { describe, test, expect } from '@jest/globals';
 import { isValidFen, validateFen } from '../../../shared/lib/chess/validation';
-import { TEST_POSITIONS } from '../../helpers/testPositions';
+import { TEST_FENS } from '../../../shared/testing/TestFixtures';
 
 describe('Chess Validation', () => {
   describe('isValidFen', () => {
     describe('Valid FEN Strings', () => {
       test('should_accept_starting_position', () => {
-        const result = isValidFen(TEST_POSITIONS.STARTING_POSITION);
+        const result = isValidFen(TEST_FENS.STARTING_POSITION);
         expect(result).toBe(true);
       });
 
       test('should_accept_simple_endgame_positions', () => {
-        expect(isValidFen(TEST_POSITIONS.KQK_TABLEBASE_WIN)).toBe(true);
-        expect(isValidFen(TEST_POSITIONS.KRK_TABLEBASE_DRAW)).toBe(true);
-        expect(isValidFen(TEST_POSITIONS.KPK_WINNING)).toBe(true);
-        expect(isValidFen(TEST_POSITIONS.KPK_DRAWING)).toBe(true);
+        expect(isValidFen(TEST_FENS.KQK_TABLEBASE_WIN)).toBe(true);
+        expect(isValidFen(TEST_FENS.KRK_TABLEBASE_DRAW)).toBe(true);
+        expect(isValidFen(TEST_FENS.KPK_WINNING)).toBe(true);
+        expect(isValidFen(TEST_FENS.KPK_DRAWING)).toBe(true);
       });
 
-      test('should_accept_complex_training_positions', () => {
-        expect(isValidFen(TEST_POSITIONS.BRUCKENBAU_POSITION)).toBe(true);
-        expect(isValidFen(TEST_POSITIONS.LUCENA_POSITION)).toBe(true);
-        expect(isValidFen(TEST_POSITIONS.PHILIDOR_POSITION)).toBe(true);
+      test('should_accept_advantage_positions', () => {
+        expect(isValidFen(TEST_FENS.WHITE_ADVANTAGE)).toBe(true);
+        expect(isValidFen(TEST_FENS.BLACK_ADVANTAGE)).toBe(true);
+        expect(isValidFen(TEST_FENS.EQUAL_POSITION)).toBe(true);
       });
 
       test('should_accept_position_with_en_passant', () => {
@@ -69,7 +69,7 @@ describe('Chess Validation', () => {
       });
 
       test('should_reject_malformed_fen_parts', () => {
-        expect(isValidFen(TEST_POSITIONS.MALFORMED_FEN)).toBe(false);
+        expect(isValidFen(TEST_FENS.MALFORMED_FEN)).toBe(false);
         expect(isValidFen('invalid fen string')).toBe(false);
       });
 
@@ -139,15 +139,15 @@ describe('Chess Validation', () => {
   describe('validateFen', () => {
     describe('Valid FEN Results', () => {
       test('should_return_valid_for_starting_position', () => {
-        const result = validateFen(TEST_POSITIONS.STARTING_POSITION);
+        const result = validateFen(TEST_FENS.STARTING_POSITION);
         
         expect(result.isValid).toBe(true);
         expect(result.error).toBeUndefined();
       });
 
       test('should_return_valid_for_endgame_positions', () => {
-        const result1 = validateFen(TEST_POSITIONS.KQK_TABLEBASE_WIN);
-        const result2 = validateFen(TEST_POSITIONS.ROOK_ENDGAME);
+        const result1 = validateFen(TEST_FENS.KQK_TABLEBASE_WIN);
+        const result2 = validateFen(TEST_FENS.ROOK_ENDGAME);
         
         expect(result1.isValid).toBe(true);
         expect(result1.error).toBeUndefined();
@@ -158,21 +158,21 @@ describe('Chess Validation', () => {
 
     describe('Invalid FEN Results', () => {
       test('should_return_error_for_invalid_fen', () => {
-        const result = validateFen(TEST_POSITIONS.INVALID_FEN);
+        const result = validateFen(TEST_FENS.INVALID_FEN);
         
         expect(result.isValid).toBe(false);
         expect(result.error).toBe('Ungültiger FEN-String');
       });
 
       test('should_return_error_for_empty_fen', () => {
-        const result = validateFen(TEST_POSITIONS.EMPTY_FEN);
+        const result = validateFen(TEST_FENS.EMPTY_FEN);
         
         expect(result.isValid).toBe(false);
         expect(result.error).toBe('Ungültiger FEN-String');
       });
 
       test('should_return_error_for_malformed_fen', () => {
-        const result = validateFen(TEST_POSITIONS.MALFORMED_FEN);
+        const result = validateFen(TEST_FENS.MALFORMED_FEN);
         
         expect(result.isValid).toBe(false);
         expect(result.error).toBe('Ungültiger FEN-String');
@@ -209,11 +209,11 @@ describe('Chess Validation', () => {
   describe('Performance and Stress Tests', () => {
     test('should_handle_large_batch_validation_efficiently', () => {
       const positions = [
-        TEST_POSITIONS.STARTING_POSITION,
-        TEST_POSITIONS.KQK_TABLEBASE_WIN,
-        TEST_POSITIONS.EQUAL_POSITION,
-        TEST_POSITIONS.WHITE_ADVANTAGE,
-        TEST_POSITIONS.BLACK_ADVANTAGE
+        TEST_FENS.STARTING_POSITION,
+        TEST_FENS.KQK_TABLEBASE_WIN,
+        TEST_FENS.EQUAL_POSITION,
+        TEST_FENS.WHITE_ADVANTAGE,
+        TEST_FENS.BLACK_ADVANTAGE
       ];
 
       const startTime = Date.now();
@@ -227,7 +227,7 @@ describe('Chess Validation', () => {
     });
 
     test('should_handle_repeated_validation_calls', () => {
-      const fen = TEST_POSITIONS.STARTING_POSITION;
+      const fen = TEST_FENS.STARTING_POSITION;
       
       // Validate the same FEN multiple times
       for (let i = 0; i < 10; i++) {

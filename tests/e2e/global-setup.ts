@@ -7,6 +7,8 @@ import { FullConfig } from '@playwright/test';
 import { execSync, spawn, ChildProcess } from 'child_process';
 import { FIREBASE_TEST_CONFIG, TEST_TIMEOUTS } from './firebase/firebase.constants';
 import { waitForEmulator, isEmulatorRunning } from '../utils/firebase-emulator-api';
+import { FirebaseBatchSeeder } from '../api/firebase-batch-seeder';
+import { TestPositions } from '@shared/testing/TestScenarios';
 
 // Global process reference for cleanup
 let firebaseEmulatorProcess: ChildProcess | null = null;
@@ -137,6 +139,10 @@ async function initializeFirebaseEmulator(): Promise<void> {
   try {
     await waitForEmulator(30, 1000); // 30 attempts, 1 second intervals
     console.log('✅ Firebase emulator started and ready');
+    
+    // Seed test data into emulator
+    await seedTestData();
+    console.log('✅ Test data seeded into emulator');
   } catch (error) {
     // Clean up failed process
     if (firebaseEmulatorProcess) {
@@ -187,6 +193,58 @@ export async function globalTeardown(): Promise<void> {
   }
   
   console.log('✅ E2E Global Teardown: Complete');
+}
+
+/**
+ * Seed test data into Firebase emulator
+ */
+async function seedTestData(): Promise<void> {
+  console.log('🌱 Seeding test data into Firebase emulator...');
+  
+  try {
+    const seeder = new FirebaseBatchSeeder();
+    
+    // Convert TestScenarios to EndgamePositions for seeding
+    const testPositions = Object.values(TestPositions).map(scenario => ({
+      id: parseInt(scenario.id), // Convert string ID to number
+      title: scenario.title,
+      description: scenario.description,
+      fen: scenario.fen,
+      category: scenario.category,
+      difficulty: scenario.difficulty,
+      targetMoves: scenario.targetMoves,
+      hints: scenario.hints,
+      solution: scenario.solution,
+      sideToMove: scenario.sideToMove,
+      goal: scenario.goal,
+      nextPositionId: scenario.nextPositionId
+      // Note: Test-specific fields (initialExpectedMove, expectsDrawEvaluation) are NOT seeded
+    }));
+    
+    const result = await seeder.seedBatchAdvanced(
+      { positions: testPositions },
+      {
+        validateData: true,
+        clearExisting: true,
+        onProgress: (progress) => {
+          if (progress.percentage % 25 === 0) {
+            console.log(`📊 Seeding progress: ${progress.percentage}% (${progress.completed}/${progress.total})`);
+          }
+        }
+      }
+    );
+    
+    if (!result.success) {
+      console.error('❌ Seeding failed:', result.errors);
+      throw new Error(`Failed to seed test data: ${result.errors.map(e => e.error).join(', ')}`);
+    }
+    
+    console.log(`✅ Successfully seeded ${result.results.positions} positions`);
+    
+  } catch (error) {
+    console.error('❌ Error during test data seeding:', error);
+    throw error;
+  }
 }
 
 export default globalSetup;

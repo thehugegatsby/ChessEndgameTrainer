@@ -10,6 +10,7 @@ import { IPositionRepository } from '@shared/repositories/IPositionRepository';
 import { FirebasePositionRepository } from '@shared/repositories/implementations/FirebasePositionRepository';
 import { MockPositionRepository } from '@shared/repositories/implementations/MockPositionRepository';
 import { db } from '@shared/lib/firebase';
+import { shouldUseMockService, createMockPositionRepository } from '@shared/testing/MockPositionServiceFactory';
 
 /**
  * Context value type
@@ -98,9 +99,15 @@ export const usePositionRepository = (): IPositionRepository => {
  * Create default repository based on environment
  */
 function createDefaultRepository(): IPositionRepository {
-  // Use mock repository in test environment
+  // Use pre-seeded mock repository for E2E tests (bypasses Firebase completely)
+  if (shouldUseMockService()) {
+    console.log('Using MockPositionRepository with pre-seeded test data for E2E testing');
+    return createMockPositionRepository();
+  }
+  
+  // Use mock repository in unit test environment
   if (process.env.NODE_ENV === 'test' && !process.env.USE_REAL_FIREBASE) {
-    console.log('Using MockPositionRepository for testing');
+    console.log('Using MockPositionRepository for unit testing');
     return new MockPositionRepository({
       enableCache: true,
       events: {

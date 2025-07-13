@@ -5,7 +5,7 @@
 
 import { TablebaseService } from '../../../shared/lib/chess/ScenarioEngine/tablebaseService';
 import { MockTablebaseService } from '../../helpers/engineMocks';
-import { TEST_POSITIONS, getTablebasePositions } from '../../helpers/testPositions';
+import { TEST_FENS, getTablebasePositions } from '../../../shared/testing/TestFixtures';
 import type { TablebaseInfo } from '../../../shared/lib/chess/ScenarioEngine/types';
 
 // Mock the core tablebase service
@@ -103,7 +103,7 @@ describe('TablebaseService', () => {
   describe('Tablebase Position Detection', () => {
     test('should_identify_valid_tablebase_position_correctly', async () => {
       // Purpose: Verify detection of positions that exist in tablebase (≤7 pieces)
-      const tablebaseFen = TEST_POSITIONS.KQK_TABLEBASE_WIN;
+      const tablebaseFen = TEST_FENS.KQK_TABLEBASE_WIN;
       
       const isTablebase = await tablebaseService.isTablebasePosition(tablebaseFen);
       
@@ -113,7 +113,7 @@ describe('TablebaseService', () => {
 
     test('should_reject_non_tablebase_position_correctly', async () => {
       // Purpose: Verify positions with >7 pieces are not considered tablebase positions
-      const complexFen = TEST_POSITIONS.STARTING_POSITION; // 32 pieces
+      const complexFen = TEST_FENS.STARTING_POSITION; // 32 pieces
       
       const isTablebase = await tablebaseService.isTablebasePosition(complexFen);
       
@@ -122,7 +122,7 @@ describe('TablebaseService', () => {
 
     test('should_handle_tablebase_query_failure_gracefully', async () => {
       // Purpose: Verify resilience when tablebase service is unavailable
-      const tablebaseFen = TEST_POSITIONS.KQK_TABLEBASE_WIN;
+      const tablebaseFen = TEST_FENS.KQK_TABLEBASE_WIN;
       mockCoreService.setShouldFail(true);
       
       const isTablebase = await tablebaseService.isTablebasePosition(tablebaseFen);
@@ -132,7 +132,7 @@ describe('TablebaseService', () => {
 
     test('should_get_comprehensive_tablebase_info_for_endgame', async () => {
       // Purpose: Verify complete tablebase information retrieval
-      const tablebaseFen = TEST_POSITIONS.KQK_TABLEBASE_WIN;
+      const tablebaseFen = TEST_FENS.KQK_TABLEBASE_WIN;
       mockCoreService.setShouldFail(false);
       
       const info = await tablebaseService.getTablebaseInfo(tablebaseFen);
@@ -147,7 +147,7 @@ describe('TablebaseService', () => {
 
     test('should_handle_non_tablebase_position_info_request', async () => {
       // Purpose: Verify handling of positions not in tablebase database
-      const nonTablebaseFen = TEST_POSITIONS.STARTING_POSITION;
+      const nonTablebaseFen = TEST_FENS.STARTING_POSITION;
       
       const info = await tablebaseService.getTablebaseInfo(nonTablebaseFen);
       
@@ -161,7 +161,7 @@ describe('TablebaseService', () => {
   describe('Caching System', () => {
     test('should_cache_tablebase_results_for_mobile_performance', async () => {
       // Purpose: Verify caching improves performance by avoiding redundant queries
-      const tablebaseFen = TEST_POSITIONS.KQK_TABLEBASE_WIN;
+      const tablebaseFen = TEST_FENS.KQK_TABLEBASE_WIN;
       
       // Clear call tracking
       mockCoreService.calls.queryPosition = [];
@@ -192,8 +192,8 @@ describe('TablebaseService', () => {
 
     test('should_evict_oldest_entries_when_cache_full', async () => {
       // Purpose: Verify LRU eviction policy for cache management
-      const position1 = TEST_POSITIONS.KQK_TABLEBASE_WIN;
-      const position2 = TEST_POSITIONS.KPK_WINNING;
+      const position1 = TEST_FENS.KQK_TABLEBASE_WIN;
+      const position2 = TEST_FENS.KPK_WINNING;
       
       // Fill cache to near capacity first
       for (let i = 0; i < 99; i++) {
@@ -230,8 +230,8 @@ describe('TablebaseService', () => {
       expect(initialStats.size).toBe(0);
       
       // Add some entries
-      await tablebaseService.getTablebaseInfo(TEST_POSITIONS.KQK_TABLEBASE_WIN);
-      await tablebaseService.getTablebaseInfo(TEST_POSITIONS.KPK_WINNING);
+      await tablebaseService.getTablebaseInfo(TEST_FENS.KQK_TABLEBASE_WIN);
+      await tablebaseService.getTablebaseInfo(TEST_FENS.KPK_WINNING);
       
       const stats = tablebaseService.getCacheStats();
       expect(stats.size).toBe(2);
@@ -242,7 +242,7 @@ describe('TablebaseService', () => {
   describe('Move Evaluation and Formatting', () => {
     test('should_format_winning_moves_correctly', async () => {
       // Purpose: Verify proper formatting of tablebase move evaluations
-      const tablebaseFen = TEST_POSITIONS.KQK_TABLEBASE_WIN;
+      const tablebaseFen = TEST_FENS.KQK_TABLEBASE_WIN;
       
       // Override mock to return moves with wdl value instead of mate (to get "Win" format)
       mockCoreService.queryPosition = jest.fn().mockResolvedValue({
@@ -288,7 +288,7 @@ describe('TablebaseService', () => {
   describe('Error Handling and Edge Cases', () => {
     test('should_handle_tablebase_service_timeout_gracefully', async () => {
       // Purpose: Verify graceful handling of slow tablebase responses
-      const tablebaseFen = TEST_POSITIONS.KQK_TABLEBASE_WIN;
+      const tablebaseFen = TEST_FENS.KQK_TABLEBASE_WIN;
       mockCoreService.setDelay(500); // 500ms delay - sufficient for timeout testing
       
       const startTime = Date.now();
@@ -302,7 +302,7 @@ describe('TablebaseService', () => {
 
     test('should_handle_malformed_tablebase_responses', async () => {
       // Purpose: Verify robustness against invalid tablebase API responses
-      const tablebaseFen = TEST_POSITIONS.KQK_TABLEBASE_WIN;
+      const tablebaseFen = TEST_FENS.KQK_TABLEBASE_WIN;
       
       // Mock malformed response
       mockCoreService.queryPosition = jest.fn().mockResolvedValue({
@@ -318,7 +318,7 @@ describe('TablebaseService', () => {
 
     test('should_handle_network_errors_gracefully', async () => {
       // Purpose: Verify resilience to network connectivity issues
-      const tablebaseFen = TEST_POSITIONS.KQK_TABLEBASE_WIN;
+      const tablebaseFen = TEST_FENS.KQK_TABLEBASE_WIN;
       
       // Mock network error
       mockCoreService.queryPosition = jest.fn().mockRejectedValue(new Error('Network connection failed'));
@@ -383,7 +383,7 @@ describe('TablebaseService', () => {
     test('should_minimize_memory_usage_during_bulk_operations', async () => {
       // Purpose: Verify memory efficiency during large batch operations
       const manyPositions = Array.from({ length: 200 }, (_, i) => 
-        `${TEST_POSITIONS.KQK_TABLEBASE_WIN} 0 ${i}`
+        `${TEST_FENS.KQK_TABLEBASE_WIN} 0 ${i}`
       );
       
       // Process in batches to verify memory management
@@ -399,7 +399,7 @@ describe('TablebaseService', () => {
 
     test('should_provide_fast_cache_access_for_repeated_positions', async () => {
       // Purpose: Verify cache provides significant performance improvement
-      const tablebaseFen = TEST_POSITIONS.KQK_TABLEBASE_WIN;
+      const tablebaseFen = TEST_FENS.KQK_TABLEBASE_WIN;
       
       // Clear call tracking
       mockCoreService.calls.queryPosition = [];
