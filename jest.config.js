@@ -12,7 +12,7 @@ module.exports = {
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   setupFilesAfterEnv: ['<rootDir>/configs/jest/jest.setup.js'],
-  testPathIgnorePatterns: ['/node_modules/', '/.next/', 'jest.setup.ts'],
+  testPathIgnorePatterns: ['/node_modules/', '/.next/', 'jest.setup.ts', '/app/mobile/', '/tests/e2e/'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/shared/$1',
     '^@app/(.*)$': '<rootDir>/app/$1',
@@ -24,7 +24,8 @@ module.exports = {
     '@react-native-async-storage/async-storage': '<rootDir>/shared/tests/mocks/async-storage.js',
     'expo-.*': '<rootDir>/shared/tests/mocks/expo.js',
     '@react-navigation/.*': '<rootDir>/shared/tests/mocks/react-navigation.js',
-    'react-native-safe-area-context': '<rootDir>/shared/tests/mocks/safe-area-context.js'
+    'react-native-safe-area-context': '<rootDir>/shared/tests/mocks/safe-area-context.js',
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
   },
   testMatch: [
     '<rootDir>/shared/**/__tests__/**/*.[jt]s?(x)',
