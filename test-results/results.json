@@ -176,14 +176,14 @@
                   "timeout": 60000,
                   "annotations": [],
                   "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
                   "results": [
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5059,
+                      "duration": 3470,
                       "errors": [],
                       "stdout": [
                         {
@@ -192,7 +192,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-07-13T18:05:07.223Z",
+                      "startTime": "2025-07-13T18:30:00.056Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -200,7 +200,7 @@
                   "status": "expected"
                 }
               ],
-              "id": "6d9583ee37d0fd986dfe-a60b6bcd354f6cd77313",
+              "id": "6d9583ee37d0fd986dfe-a8981d918aafc9bdff9e",
               "file": "domains/core-training.spec.ts",
               "line": 11,
               "column": 7
@@ -214,14 +214,14 @@
                   "timeout": 60000,
                   "annotations": [],
                   "expectedStatus": "passed",
-                  "projectId": "webkit",
-                  "projectName": "webkit",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
                   "results": [
                     {
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 4210,
+                      "duration": 3322,
                       "errors": [],
                       "stdout": [
                         {
@@ -230,7 +230,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-07-13T18:05:07.265Z",
+                      "startTime": "2025-07-13T18:30:00.050Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -238,7 +238,7 @@
                   "status": "expected"
                 }
               ],
-              "id": "6d9583ee37d0fd986dfe-b5d4a68629b18fc0e54b",
+              "id": "6d9583ee37d0fd986dfe-6a2854a23aa88d063f05",
               "file": "domains/core-training.spec.ts",
               "line": 93,
               "column": 7
@@ -250,8 +250,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-07-13T18:04:49.848Z",
-    "duration": 23196.362,
+    "startTime": "2025-07-13T18:29:35.538Z",
+    "duration": 27045.408,
     "expected": 2,
     "skipped": 0,
     "unexpected": 0,

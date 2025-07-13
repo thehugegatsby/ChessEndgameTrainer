@@ -20,6 +20,16 @@ const nextConfig = {
           },
         ],
       },
+      {
+        // Apply CORP header specifically to WASM files for SharedArrayBuffer support
+        source: '/stockfish-nnue-16.wasm',
+        headers: [
+          {
+            key: 'Cross-Origin-Resource-Policy',
+            value: 'same-origin',
+          },
+        ],
+      },
     ];
   },
   webpack: (config, { isServer, dev }) => {
