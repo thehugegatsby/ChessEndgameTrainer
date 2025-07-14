@@ -111,6 +111,8 @@ class RemoteTransport implements ILogTransport {
       //   body: JSON.stringify({ logs: entries })
       // });
     } catch (error) {
+      // FALLBACK: Using console.error as last resort when logging infrastructure itself fails
+      // This prevents infinite loops and ensures critical logging failures are still visible
       console.error('Failed to send logs to remote:', error);
       // Re-add to buffer if failed
       this.buffer.unshift(...entries);

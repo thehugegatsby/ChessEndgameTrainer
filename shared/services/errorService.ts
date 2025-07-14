@@ -5,6 +5,8 @@
  * across the application.
  */
 
+import { getLogger } from './logging';
+
 export enum ErrorType {
   CHESS_ENGINE = 'CHESS_ENGINE',
   UI_COMPONENT = 'UI_COMPONENT',
@@ -25,6 +27,7 @@ export interface ErrorContext {
 export class ErrorService {
   private static instance: ErrorService;
   private errorLog: Array<{ error: Error; context: ErrorContext; timestamp: Date }> = [];
+  private logger = getLogger().setContext('ErrorService');
 
   static getInstance(): ErrorService {
     if (!ErrorService.instance) {
@@ -44,11 +47,7 @@ export class ErrorService {
       timestamp: new Date() 
     };
 
-    console.error('🚨 Chess Engine Error:', {
-      message: error.message,
-      stack: error.stack,
-      context: enhancedContext
-    });
+    service.logger.error('Chess Engine Error', error, enhancedContext);
 
     service.logError(error, enhancedContext);
     return service.getUserFriendlyMessage(ErrorType.CHESS_ENGINE, error);
@@ -66,10 +65,7 @@ export class ErrorService {
       timestamp: new Date() 
     };
 
-    console.error(`🚨 UI Error in ${componentName}:`, {
-      message: error.message,
-      context: enhancedContext
-    });
+    service.logger.error(`UI Error in ${componentName}`, error, enhancedContext);
 
     service.logError(error, enhancedContext);
     return service.getUserFriendlyMessage(ErrorType.UI_COMPONENT, error);
@@ -86,10 +82,7 @@ export class ErrorService {
       timestamp: new Date() 
     };
 
-    console.error('🚨 Network Error:', {
-      message: error.message,
-      context: enhancedContext
-    });
+    service.logger.error('Network Error', error, enhancedContext);
 
     service.logError(error, enhancedContext);
     return service.getUserFriendlyMessage(ErrorType.NETWORK, error);

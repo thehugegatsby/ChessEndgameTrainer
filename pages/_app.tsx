@@ -6,6 +6,8 @@ import { useTraining } from '@shared/store/store';
 import { PositionServiceProvider } from '@shared/contexts/PositionServiceContext';
 import { configureStore } from '@shared/store/storeConfig';
 import { createServerPositionService } from '@shared/services/database/serverPositionService';
+import { getLogger } from '@shared/services/logging';
+import { ErrorService } from '@shared/services/errorService';
 
 // Configure store dependencies once at app initialization
 // This happens before any component renders
@@ -18,6 +20,7 @@ if (typeof window !== 'undefined') {
 function AppContent({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const { engineStatus } = useTraining();
+  const logger = getLogger().setContext('_app');
 
   useEffect(() => {
     // Update app-ready based on router state
@@ -44,7 +47,7 @@ function AppContent({ Component, pageProps }: AppProps) {
       // Log state transitions for debugging
       const currentState = document.body.getAttribute('data-app-ready');
       if (currentState !== appReadyState) {
-        console.log(`[_app] App ready state transition: ${currentState} → ${appReadyState}`, {
+        logger.info(`App ready state transition: ${currentState} → ${appReadyState}`, {
           router: { isReady: router.isReady, pathname: router.pathname },
           engineStatus
         });
@@ -93,14 +96,14 @@ function AppContent({ Component, pageProps }: AppProps) {
               // Signal that the bridge is ready for tests
               document.body.setAttribute('data-bridge-status', 'ready');
               document.body.setAttribute('data-app-ready', 'true');
-              console.log('[E2E] Test Bridge initialized and ready');
+              logger.info('Test Bridge initialized and ready');
             })
             .catch(err => {
-              console.error('[E2E] Failed to load TestBridge:', err);
+              ErrorService.handleUIError(err, 'TestBridge', { action: 'load_testbridge' });
             });
         })
         .catch(err => {
-          console.error('[E2E] Failed to load EngineService:', err);
+          ErrorService.handleUIError(err, 'EngineService', { action: 'load_engineservice' });
         });
     }
   }, []);

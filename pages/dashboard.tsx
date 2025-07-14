@@ -5,6 +5,7 @@ import { ProgressCard } from '../shared/components/ui/ProgressCard';
 import { AppLayout } from '@shared/components/layout/AppLayout';
 import { usePositionService } from '@shared/contexts/PositionServiceContext';
 import { EndgameChapter } from '@shared/types';
+import { ErrorService } from '@shared/services/errorService';
 
 interface ProgressData {
   [chapterId: string]: {
@@ -74,7 +75,7 @@ const Dashboard: NextPage = () => {
           currentStreak: Math.floor(Math.random() * 15) // Mock overall streak
         });
       } catch (error) {
-        console.error('Failed to load chapters:', error);
+        ErrorService.handleNetworkError(error as Error, { component: 'dashboard', action: 'load_chapters' });
       } finally {
         setLoading(false);
       }

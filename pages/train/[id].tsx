@@ -4,6 +4,8 @@ import { useRouter } from 'next/router';
 import { TrainingPageZustand } from '@shared/pages/TrainingPageZustand';
 import { EndgamePosition } from '@shared/types';
 import { getServerPositionService } from '@shared/services/database/serverPositionService';
+import { getLogger } from '@shared/services/logging';
+import { ErrorService } from '@shared/services/errorService';
 
 interface TrainingPageProps {
   position: EndgamePosition | null;
@@ -60,11 +62,12 @@ export const getStaticProps: GetStaticProps<TrainingPageProps> = async ({ params
   }
 
   // Production-only logic - E2E tests will mock at network level
+  const logger = getLogger().setContext('getStaticProps');
 
   try {
-    console.log('[getStaticProps] Loading position for ID:', id);
+    logger.info('Loading position for ID', { id });
     const positionService = getServerPositionService();
-    console.log('[getStaticProps] Got position service:', positionService.constructor.name);
+    logger.info('Got position service', { serviceName: positionService.constructor.name });
     const position = await positionService.getPosition(id);
     
     if (!position) {
@@ -79,7 +82,7 @@ export const getStaticProps: GetStaticProps<TrainingPageProps> = async ({ params
       revalidate: 86400
     };
   } catch (error) {
-    console.error('Error loading position in getStaticProps:', error);
+    ErrorService.handleNetworkError(error as Error, { component: 'train', action: 'load_position', positionId: id });
     return { notFound: true };
   }
 };
