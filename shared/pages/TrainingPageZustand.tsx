@@ -14,6 +14,7 @@ import { useToast } from '@shared/hooks/useToast';
 import { ToastContainer } from '@shared/components/ui/Toast';
 import { getGameStatus } from '@shared/utils/chess/gameStatus';
 import { useTraining, useTrainingActions, useUI, useUIActions } from '@shared/store/store';
+import { getTrainingDisplayTitle, formatPositionTitle } from '@shared/utils/titleFormatter';
 
 interface TrainingPageZustandProps {
   position: EndgamePosition;
@@ -118,8 +119,7 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
           {process.env.NEXT_PUBLIC_IS_E2E_TEST !== 'true' && (
             <div className="absolute top-24 left-0 right-0 z-10 text-center">
               <h2 className="text-3xl font-bold">
-                {position.title}
-                {training.moveHistory.length > 3 && <span className="ml-3 text-orange-400">🔥 {Math.floor(training.moveHistory.length / 2)}</span>}
+                {getTrainingDisplayTitle(position, training.moveHistory.length)}
               </h2>
             </div>
           )}
@@ -180,7 +180,7 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
 
           {/* Instructions */}
           <div className="instructions p-4 border-b border-gray-700">
-            <h3 className="font-bold mb-2">{position.title}</h3>
+            <h3 className="font-bold mb-2">{formatPositionTitle(position)}</h3>
             <p className="text-sm text-gray-400">{position.description}</p>
           </div>
 

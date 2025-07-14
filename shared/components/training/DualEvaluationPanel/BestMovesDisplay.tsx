@@ -40,10 +40,13 @@ export const BestMovesDisplay: React.FC<BestMovesDisplayProps> = ({
 
   const formatTablebaseEval = (move: Move) => {
     if (move.dtm !== undefined) {
-      return `DTM ${Math.abs(move.dtm)}`;
+      const emoji = move.wdl === 2 ? '🏆' : move.wdl === -2 ? '❌' : '⚖️';
+      return `${emoji} DTM${Math.abs(move.dtm)}`;
     }
     if (move.wdl !== undefined) {
-      return move.wdl === 2 ? 'Win' : move.wdl === -2 ? 'Loss' : 'Draw';
+      if (move.wdl === 2) return '🏆 Win';
+      if (move.wdl === -2) return '❌ Loss';
+      return '⚖️ Draw';
     }
     return move.evaluation;
   };

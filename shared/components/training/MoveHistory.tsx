@@ -4,7 +4,16 @@ import { Move } from 'chess.js';
 interface MoveHistoryProps {
   moves: Move[];
   showEvaluations?: boolean;
-  evaluations?: Array<{ evaluation: number; mateInMoves?: number }>;
+  evaluations?: Array<{ 
+    evaluation: number; 
+    mateInMoves?: number;
+    tablebase?: {
+      isTablebasePosition: boolean;
+      category?: 'win' | 'loss' | 'draw';
+      wdl?: number;
+      dtm?: number;
+    };
+  }>;
 }
 
 export const MoveHistory: React.FC<MoveHistoryProps> = ({ moves, showEvaluations = false, evaluations = [] }) => {
@@ -24,8 +33,54 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({ moves, showEvaluations
     });
   }
 
-  const formatEvaluation = (evalData?: { evaluation: number; mateInMoves?: number }) => {
+  const formatEvaluation = (evalData?: { 
+    evaluation: number; 
+    mateInMoves?: number;
+    tablebase?: {
+      isTablebasePosition: boolean;
+      category?: 'win' | 'loss' | 'draw';
+      wdl?: number;
+      dtm?: number;
+    };
+  }) => {
     if (!evalData) return '';
+    
+    // Tablebase evaluation with emojis
+    if (evalData.tablebase?.isTablebasePosition) {
+      const { category, wdl, dtm } = evalData.tablebase;
+      let emoji = '';
+      let text = '';
+      
+      if (category) {
+        switch (category) {
+          case 'win':
+            emoji = '🏆';
+            text = dtm ? `W${dtm}` : 'Win';
+            break;
+          case 'loss':
+            emoji = '❌';
+            text = dtm ? `L${dtm}` : 'Loss';
+            break;
+          case 'draw':
+            emoji = '⚖️';
+            text = 'Draw';
+            break;
+        }
+      } else if (wdl !== undefined) {
+        if (wdl === 2) {
+          emoji = '🏆';
+          text = dtm ? `W${dtm}` : 'Win';
+        } else if (wdl === -2) {
+          emoji = '❌';
+          text = dtm ? `L${dtm}` : 'Loss';
+        } else {
+          emoji = '⚖️';
+          text = 'Draw';
+        }
+      }
+      
+      return `${emoji} ${text}`;
+    }
     
     if (evalData.mateInMoves !== undefined) {
       return `#${Math.abs(evalData.mateInMoves)}`;
@@ -36,8 +91,33 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({ moves, showEvaluations
     return eval_ > 0 ? `+${eval_.toFixed(1)}` : eval_.toFixed(1);
   };
 
-  const getEvaluationColor = (evalData?: { evaluation: number; mateInMoves?: number }) => {
+  const getEvaluationColor = (evalData?: { 
+    evaluation: number; 
+    mateInMoves?: number;
+    tablebase?: {
+      isTablebasePosition: boolean;
+      category?: 'win' | 'loss' | 'draw';
+      wdl?: number;
+    };
+  }) => {
     if (!evalData) return '';
+    
+    // Tablebase evaluation colors
+    if (evalData.tablebase?.isTablebasePosition) {
+      const { category, wdl } = evalData.tablebase;
+      
+      if (category) {
+        switch (category) {
+          case 'win': return 'text-green-700';
+          case 'loss': return 'text-red-700';
+          case 'draw': return 'text-yellow-600';
+        }
+      } else if (wdl !== undefined) {
+        if (wdl === 2) return 'text-green-700';
+        if (wdl === -2) return 'text-red-700';
+        return 'text-yellow-600';
+      }
+    }
     
     if (evalData.mateInMoves !== undefined) {
       return evalData.mateInMoves > 0 ? 'text-green-700' : 'text-red-700';
