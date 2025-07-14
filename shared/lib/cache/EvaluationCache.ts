@@ -14,6 +14,7 @@
 import { LRUCache, type CacheStats } from './LRUCache';
 import type { Engine } from '../chess/engine';
 import { Move as ChessJsMove } from 'chess.js';
+import { CACHE, ENGINE } from '@shared/constants';
 
 interface CachedEvaluation {
   score: number;
@@ -51,18 +52,18 @@ export class EvaluationCache {
   private bestMoveCache: LRUCache<CachedBestMove>;
   private pendingRequests: Map<string, DeduplicationEntry>;
   
-  // Cache configuration
-  private readonly EVALUATION_TTL = 30 * 60 * 1000; // 30 minutes
-  private readonly BEST_MOVE_TTL = 10 * 60 * 1000;  // 10 minutes (more volatile)
-  private readonly DEDUPLICATION_TTL = 10 * 1000;   // 10 seconds
+  // Cache configuration using centralized constants
+  private readonly EVALUATION_TTL = CACHE.EVALUATION_CACHE_TTL;
+  private readonly BEST_MOVE_TTL = CACHE.BEST_MOVE_CACHE_TTL;
+  private readonly DEDUPLICATION_TTL = CACHE.DEDUPLICATION_TTL;
   
   // Statistics
   private deduplicationHits = 0;
   private deduplicationMisses = 0;
 
   constructor(
-    evaluationCacheSize: number = 1000,
-    bestMoveCacheSize: number = 500
+    evaluationCacheSize: number = CACHE.EVALUATION_CACHE_SIZE,
+    bestMoveCacheSize: number = CACHE.BEST_MOVE_CACHE_SIZE
   ) {
     this.evaluationCache = new LRUCache(evaluationCacheSize);
     this.bestMoveCache = new LRUCache(bestMoveCacheSize);
@@ -70,7 +71,7 @@ export class EvaluationCache {
     
     // Cleanup pending requests periodically
     if (typeof window !== 'undefined') {
-      setInterval(() => this.cleanupStaleRequests(), 30000);
+      setInterval(() => this.cleanupStaleRequests(), CACHE.CLEANUP_INTERVAL_TTL);
     }
   }
 
@@ -140,7 +141,7 @@ export class EvaluationCache {
   async getBestMoveCached(
     engine: Engine,
     fen: string,
-    timeLimit: number = 1000
+    timeLimit: number = ENGINE.DEFAULT_MOVE_TIMEOUT
   ): Promise<ChessJsMove | null> {
     const cacheKey = `bestmove:${fen}:${timeLimit}`;
     

@@ -7,6 +7,7 @@
 
 import type { Move as ChessJsMove } from 'chess.js';
 import type { EngineEvaluation } from './types';
+import { ENGINE } from '@shared/constants';
 
 /**
  * Represents a pending request with its promise handlers
@@ -56,7 +57,7 @@ export class RequestManager {
         this.pendingRequests.delete(id);
         reject(new Error(`Request ${id} timed out after ${timeoutMs}ms`));
       }
-    }, timeoutMs + 1000); // Add 1s buffer
+    }, timeoutMs + ENGINE.TIMEOUT_BUFFER); // Add buffer from constants
 
     // Store the request
     this.pendingRequests.set(id, {

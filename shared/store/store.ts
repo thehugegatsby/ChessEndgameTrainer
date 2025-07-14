@@ -16,7 +16,7 @@ import {
   SettingsState,
   Toast,
 } from './types';
-import { TRAINING, TIME } from '../constants';
+import { TRAINING, TIME, RATING } from '../constants';
 import { getLogger } from '../services/logging';
 import { fromLibraryMove, ChessAdapterError } from '../infrastructure/chess-adapter';
 import { Chess, Move as ChessJsMove } from 'chess.js';
@@ -27,7 +27,7 @@ const logger = getLogger().setContext('Store');
 
 // Initial states
 const initialUserState: UserState = {
-  rating: 1200,
+  rating: RATING.DEFAULT_RATING,
   completedPositions: [],
   currentStreak: 0,
   totalTrainingTime: 0,

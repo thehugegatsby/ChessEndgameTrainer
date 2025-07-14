@@ -287,9 +287,9 @@ export const CHESS_ENGINE_CONFIG = {
   DEFAULT_WORKER_PATH: '/stockfish.wasm.js',
   MAX_QUEUE_LENGTH: 10,             // Request queue limit
   
-  // Cache settings
-  MAX_CACHE_SIZE: 200,              // LRU cache for evaluations
-  CACHE_TTL: 300000,                // 5 minutes cache TTL
+  // Cache settings (using centralized constants)
+  MAX_CACHE_SIZE: 200,              // LRU cache for evaluations (legacy - use CACHE.ENGINE_CACHE_SIZE)
+  CACHE_TTL: 300000,                // 5 minutes cache TTL (legacy - use CACHE.ENGINE_CACHE_TTL)
 } as const;
 
 /**

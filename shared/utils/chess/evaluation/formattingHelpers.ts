@@ -1,4 +1,5 @@
 import type { EvaluationData } from '@shared/types';
+import { EVALUATION } from '@shared/constants';
 
 export const formatEvaluation = (evalData?: EvaluationData): string => {
   if (!evalData) return '0.00';
@@ -20,10 +21,10 @@ export const getEvaluationColor = (evalData?: EvaluationData): string => {
   }
   
   const eval_ = evalData.evaluation;
-  if (eval_ > 2) return 'text-green-700';
-  if (eval_ > 0.5) return 'text-green-600';
-  if (eval_ > -0.5) return 'text-gray-600';
-  if (eval_ > -2) return 'text-orange-600';
+  if (eval_ > EVALUATION.COLOR_THRESHOLDS.EXCELLENT) return 'text-green-700';
+  if (eval_ > EVALUATION.COLOR_THRESHOLDS.GOOD) return 'text-green-600';
+  if (eval_ > EVALUATION.COLOR_THRESHOLDS.NEUTRAL_LOWER) return 'text-gray-600';
+  if (eval_ > EVALUATION.COLOR_THRESHOLDS.INACCURATE) return 'text-orange-600';
   return 'text-red-600';
 };
 

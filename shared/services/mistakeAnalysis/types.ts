@@ -3,6 +3,8 @@
  * Provides intelligent feedback on chess moves based on evaluation changes
  */
 
+import { RATING } from '../../constants';
+
 // EvaluationResult type removed - not exported from evaluation types
 // Using local types instead
 
@@ -90,12 +92,28 @@ export type MistakeTheme =
 
 /**
  * User skill level for adaptive feedback
+ * Thresholds based on centralized RATING constants
  */
 export type SkillLevel = 
-  | 'BEGINNER'     // < 1200 rating
-  | 'INTERMEDIATE' // 1200-1800 rating  
-  | 'ADVANCED'     // 1800-2200 rating
-  | 'EXPERT';      // 2200+ rating
+  | 'BEGINNER'     // < RATING.BEGINNER_THRESHOLD (1200)
+  | 'INTERMEDIATE' // RATING.BEGINNER_THRESHOLD to RATING.INTERMEDIATE_THRESHOLD (1200-1800)
+  | 'ADVANCED'     // RATING.INTERMEDIATE_THRESHOLD to RATING.ADVANCED_THRESHOLD (1800-2200)
+  | 'EXPERT';      // RATING.EXPERT_THRESHOLD+ (2200+)
+
+/**
+ * Get skill level based on rating using centralized constants
+ */
+export function getSkillLevel(rating: number): SkillLevel {
+  if (rating < RATING.BEGINNER_THRESHOLD) {
+    return 'BEGINNER';
+  } else if (rating < RATING.INTERMEDIATE_THRESHOLD) {
+    return 'INTERMEDIATE';
+  } else if (rating < RATING.ADVANCED_THRESHOLD) {
+    return 'ADVANCED';
+  } else {
+    return 'EXPERT';
+  }
+}
 
 /**
  * Configuration for adaptive mistake analysis

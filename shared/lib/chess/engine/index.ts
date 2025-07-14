@@ -18,6 +18,7 @@ import type { WorkerConfig } from './interfaces';
 import { StockfishWorkerManager } from './workerManager';
 import { RequestManager } from './requestManager';
 import { Logger } from '@shared/services/logging/Logger';
+import { ENGINE } from '@shared/constants';
 
 const logger = new Logger();
 
@@ -252,7 +253,7 @@ export class Engine {
    * @param fen - Position to analyze
    * @param timeLimit - Time limit in milliseconds (mobile optimized)
    */
-  async getBestMove(fen: string, timeLimit: number = 1000): Promise<ChessJsMove | null> {
+  async getBestMove(fen: string, timeLimit: number = ENGINE.DEFAULT_MOVE_TIMEOUT): Promise<ChessJsMove | null> {
     // Lazy initialization for SSR -> Browser transition
     if (!this.workerManager.isWorkerReady() && typeof window !== 'undefined') {
       await this.workerManager.initialize();

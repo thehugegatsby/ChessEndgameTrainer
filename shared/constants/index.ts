@@ -14,15 +14,24 @@ export const STORAGE = {
 
 // Cache Constants
 export const CACHE = {
-  // Cache sizes
+  // Cache sizes - Standardized across all components
   EVALUATION_CACHE_SIZE: 200,            // Main evaluation cache in useEvaluation
+  BEST_MOVE_CACHE_SIZE: 500,             // Best move cache size for EvaluationCache
   LRU_DEFAULT_SIZE: 1000,                // Default LRU cache size
   LRU_MEMORY_PER_ITEM: 350,              // Estimated bytes per cache item
-  CHESS_AWARE_CACHE_SIZE: 100,           // Chess-aware cache default size
+  CHESS_AWARE_CACHE_SIZE: 200,           // Chess-aware cache default size (standardized)
   TABLEBASE_CACHE_SIZE: 100,             // Tablebase results cache size
+  POSITION_CACHE_SIZE: 200,              // Position service cache size
+  ENGINE_CACHE_SIZE: 200,                // Engine evaluation cache size
+  PARALLEL_EVALUATION_CACHE_SIZE: 200,   // ParallelEvaluationService cache size
   
-  // Cache timeouts
+  // Cache timeouts - Standardized TTL values
   TABLEBASE_CACHE_TIMEOUT: 5 * 60 * 1000, // 5 minutes for tablebase cache
+  ENGINE_CACHE_TTL: 5 * 60 * 1000,       // 5 minutes for engine cache TTL
+  EVALUATION_CACHE_TTL: 30 * 60 * 1000,   // 30 minutes for evaluation cache
+  BEST_MOVE_CACHE_TTL: 10 * 60 * 1000,    // 10 minutes for best move cache (more volatile)
+  DEDUPLICATION_TTL: 10 * 1000,           // 10 seconds for deduplication
+  CLEANUP_INTERVAL_TTL: 30 * 1000,        // 30 seconds for cleanup intervals
 } as const;
 
 // Performance Constants
@@ -31,7 +40,6 @@ export const PERFORMANCE = {
   THROTTLE_DELAY: 1000,                  // 1 second throttle
   BATCH_SIZE: 50,                        // Items to process in batch
   MAX_LOG_ENTRIES: 1000,                 // Maximum log entries in memory
-  CACHE_SIZE: 100,                       // Maximum cached evaluations (deprecated - use CACHE constants)
 } as const;
 
 // Engine Constants
@@ -50,7 +58,7 @@ export const ENGINE = {
   MAX_INIT_ATTEMPTS: 3,                  // Maximum initialization attempts
   DEFAULT_SEARCH_DEPTH: 15,              // Default engine search depth
   HASH_SIZE: 16,                         // Engine hash table size (MB)
-  SKILL_LEVEL: 20,                       // Engine skill level (0-20)
+  SKILL_LEVEL: 20,                       // Engine skill level (0-20) - Use RATING.ENGINE_SKILL_LEVEL
   MAX_NODES: 100000,                     // Maximum nodes to search
   
   // Idle management
@@ -69,6 +77,34 @@ export const UI = {
     TABLET: 1024,                        // Tablet breakpoint
     DESKTOP: 1280,                       // Desktop breakpoint
   },
+  
+  // Evaluation color palette - synchronized with CSS variables
+  EVALUATION_COLORS: {
+    EXCELLENT: {
+      text: '#10b981',                   // Light green text
+      background: '#065f46',             // Dark green background
+    },
+    GOOD: {
+      text: '#3b82f6',                   // Light blue text
+      background: '#1e40af',             // Dark blue background
+    },
+    NEUTRAL: {
+      text: 'var(--text-secondary)',     // Secondary text color
+      background: 'var(--bg-accent)',    // Accent background
+    },
+    INACCURATE: {
+      text: '#f59e0b',                   // Light yellow/orange text
+      background: '#92400e',             // Dark yellow/orange background
+    },
+    MISTAKE: {
+      text: '#fb923c',                   // Light orange text
+      background: '#c2410c',             // Dark orange background
+    },
+    BLUNDER: {
+      text: '#ef4444',                   // Light red text
+      background: '#991b1b',             // Dark red background
+    },
+  },
 } as const;
 
 // Chess Constants
@@ -80,6 +116,32 @@ export const CHESS = {
   THREEFOLD_REPETITION: 3,               // Draw by repetition
   TABLEBASE_PIECE_LIMIT: 7,              // Maximum pieces for tablebase lookup
   ENDGAME_PIECE_THRESHOLD: 7,            // Piece count threshold for endgame
+  
+  // FEN Validation Constants
+  FEN_PARTS_COUNT: 6,                    // FEN must have exactly 6 parts separated by spaces
+  FEN_RANKS_COUNT: 8,                    // Chess board has 8 ranks
+  FEN_SQUARES_PER_RANK: 8,               // Each rank has 8 squares
+  FEN_MIN_LENGTH: 10,                    // Minimum reasonable FEN length
+  FEN_MAX_LENGTH: 100,                   // Maximum reasonable FEN length
+  FEN_HALFMOVE_MIN: 0,                   // Minimum halfmove clock value
+  FEN_HALFMOVE_MAX: 100,                 // Maximum halfmove clock value (50-move rule * 2)
+  FEN_FULLMOVE_MIN: 1,                   // Minimum fullmove number
+  FEN_FULLMOVE_MAX: 9999,                // Maximum fullmove number
+  FEN_CASTLING_MAX_LENGTH: 4,            // Maximum castling rights length (KQkq)
+  
+  // Piece Count Limits
+  MAX_PIECES_PER_SIDE: 16,               // Maximum pieces per side
+  MAX_PAWNS_PER_SIDE: 8,                 // Maximum pawns per side
+  KINGS_PER_SIDE: 1,                     // Exactly one king per side
+  
+  // Starting piece counts for promotion validation
+  STARTING_PIECES: {
+    WHITE: { Q: 1, R: 2, B: 2, N: 2, P: 8 },
+    BLACK: { q: 1, r: 2, b: 2, n: 2, p: 8 }
+  },
+  
+  // En passant validation
+  EN_PASSANT_RANKS: [3, 6],              // Valid en passant target ranks
 } as const;
 
 // Evaluation Constants
@@ -106,6 +168,25 @@ export const EVALUATION = {
   WIN_THRESHOLD: 300,                    // Positive score threshold for winning
   LOSS_THRESHOLD: -300,                  // Negative score threshold for losing
   MATE_THRESHOLD: 100000,                // Threshold for mate scores
+  
+  // Color display thresholds (in pawn units, 1 pawn = 100 centipawns)
+  COLOR_THRESHOLDS: {
+    DOMINATING: 5.0,                     // 5+ pawns - Dominating advantage
+    EXCELLENT: 2.0,                      // 2+ pawns - Excellent position
+    GOOD: 0.5,                           // 0.5+ pawns - Good advantage
+    NEUTRAL_UPPER: 0.5,                  // Upper bound for neutral
+    NEUTRAL_LOWER: -0.5,                 // Lower bound for neutral
+    INACCURATE: -2.0,                    // -2 to -0.5 pawns - Inaccurate
+    MISTAKE: -5.0,                       // -5 to -2 pawns - Mistake
+    // Below -5 pawns = Blunder
+  },
+  
+  // Tablebase WDL thresholds
+  WDL_THRESHOLDS: {
+    WIN: 1,                              // WDL >= 1 = win/cursed-win
+    LOSS: -1,                            // WDL <= -1 = loss/blessed-loss
+    // WDL = 0 = draw
+  },
 } as const;
 
 // Training Constants
@@ -114,12 +195,29 @@ export const TRAINING = {
   SUCCESS_RATE_THRESHOLD: 0.8,           // 80% success rate
   REPETITION_INTERVALS: [1, 3, 7, 14, 30], // Days for spaced repetition
   MAX_HINTS: 3,                          // Maximum hints per position
-  RATING_CHANGE_BASE: 32,                // ELO-like rating change
-  DEFAULT_RATING: 1200,                  // Default user rating
   
   // Spaced repetition multipliers
   SUCCESS_MULTIPLIER: 2,                 // Interval multiplier on success
   FAILURE_MULTIPLIER: 1,                 // Interval multiplier on failure
+} as const;
+
+// Rating Constants - Centralized rating system thresholds
+export const RATING = {
+  // Base ratings
+  DEFAULT_RATING: 1200,                  // Default user rating
+  TEST_RATING: 1500,                     // Test user rating for E2E tests
+  
+  // Skill level thresholds
+  BEGINNER_THRESHOLD: 1200,              // Below this = beginner
+  INTERMEDIATE_THRESHOLD: 1800,          // 1200-1800 = intermediate
+  ADVANCED_THRESHOLD: 2200,              // 1800-2200 = advanced
+  EXPERT_THRESHOLD: 2200,                // 2200+ = expert
+  
+  // Rating change calculations
+  RATING_CHANGE_BASE: 32,                // ELO-like rating change base
+  
+  // Engine skill level (0-20 scale)
+  ENGINE_SKILL_LEVEL: 20,                // Maximum engine skill level
 } as const;
 
 // Network Constants
@@ -156,7 +254,7 @@ export const E2E = {
   DATA: {
     STORAGE_KEY: 'chess-trainer-storage',       // LocalStorage key for state persistence
     USER: {
-      RATING: 1500,                            // Test user rating
+      RATING: 1500,                            // Test user rating - Use RATING.TEST_RATING
       STREAK: 5,                               // Test user streak
     },
     MOVES: [
@@ -271,6 +369,7 @@ export type UIConstants = typeof UI;
 export type ChessConstants = typeof CHESS;
 export type EvaluationConstants = typeof EVALUATION;
 export type TrainingConstants = typeof TRAINING;
+export type RatingConstants = typeof RATING;
 export type NetworkConstants = typeof NETWORK;
 export type TimeConstants = typeof TIME;
 export type E2EConstants = typeof E2E;

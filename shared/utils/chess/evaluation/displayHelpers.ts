@@ -1,4 +1,5 @@
 import type { EvaluationDisplay } from '@shared/types';
+import { EVALUATION, UI } from '@shared/constants';
 
 /**
  * Get move quality evaluation (how good was this specific move)
@@ -44,36 +45,36 @@ export const getMoveQualityDisplay = (
   const absEval = Math.abs(evaluation);
   
   // Sehr starke Züge (leading to winning positions)
-  if (absEval >= 5) {
+  if (absEval >= EVALUATION.COLOR_THRESHOLDS.DOMINATING) {
     return { 
       text: '⭐', 
       className: 'eval-excellent',
-      color: 'var(--success-text)', 
-      bgColor: 'var(--success-bg)' 
+      color: UI.EVALUATION_COLORS.EXCELLENT.text, 
+      bgColor: UI.EVALUATION_COLORS.EXCELLENT.background 
     };
   }
-  if (absEval >= 2) {
+  if (absEval >= EVALUATION.COLOR_THRESHOLDS.EXCELLENT) {
     return { 
       text: '✨', 
       className: 'eval-excellent',
-      color: 'var(--success-text)', 
-      bgColor: 'var(--success-bg)' 
+      color: UI.EVALUATION_COLORS.EXCELLENT.text, 
+      bgColor: UI.EVALUATION_COLORS.EXCELLENT.background 
     };
   }
-  if (absEval >= 0.5) {
+  if (absEval >= EVALUATION.COLOR_THRESHOLDS.GOOD) {
     return { 
       text: '👌', 
       className: 'eval-good',
-      color: 'var(--info-text)', 
-      bgColor: 'var(--info-bg)' 
+      color: UI.EVALUATION_COLORS.GOOD.text, 
+      bgColor: UI.EVALUATION_COLORS.GOOD.background 
     };
   }
-  if (absEval >= -0.5) {
+  if (absEval >= Math.abs(EVALUATION.COLOR_THRESHOLDS.NEUTRAL_LOWER)) {
     return { 
       text: '⚪', 
       className: 'eval-neutral',
-      color: 'var(--text-secondary)', 
-      bgColor: 'var(--bg-accent)' 
+      color: UI.EVALUATION_COLORS.NEUTRAL.text, 
+      bgColor: UI.EVALUATION_COLORS.NEUTRAL.background 
     };
   }
   
@@ -97,74 +98,74 @@ export const getEvaluationDisplay = (evaluation: number, mate?: number): Evaluat
       return { 
         text: `#${mate}`, 
         className: 'eval-excellent',
-        color: 'var(--success-text)', 
-        bgColor: 'var(--success-bg)' 
+        color: UI.EVALUATION_COLORS.EXCELLENT.text, 
+        bgColor: UI.EVALUATION_COLORS.EXCELLENT.background 
       };
     }
     if (mate < 0) {
       return { 
         text: `#${Math.abs(mate)}`, 
         className: 'eval-blunder',
-        color: 'var(--error-text)', 
-        bgColor: 'var(--error-bg)' 
+        color: UI.EVALUATION_COLORS.BLUNDER.text, 
+        bgColor: UI.EVALUATION_COLORS.BLUNDER.background 
       };
     }
   }
   
   // Normale Bewertungen mit Symbolen
-  if (evaluation >= 5) {
+  if (evaluation >= EVALUATION.COLOR_THRESHOLDS.DOMINATING) {
     return { 
       text: '⭐', 
       className: 'eval-excellent',
-      color: 'var(--success-text)', 
-      bgColor: 'var(--success-bg)' 
+      color: UI.EVALUATION_COLORS.EXCELLENT.text, 
+      bgColor: UI.EVALUATION_COLORS.EXCELLENT.background 
     };
   }
-  if (evaluation >= 2) {
+  if (evaluation >= EVALUATION.COLOR_THRESHOLDS.EXCELLENT) {
     return { 
       text: '✨', 
       className: 'eval-excellent',
-      color: 'var(--success-text)', 
-      bgColor: 'var(--success-bg)' 
+      color: UI.EVALUATION_COLORS.EXCELLENT.text, 
+      bgColor: UI.EVALUATION_COLORS.EXCELLENT.background 
     };
   }
-  if (evaluation >= 0.5) {
+  if (evaluation >= EVALUATION.COLOR_THRESHOLDS.GOOD) {
     return { 
       text: '👌', 
       className: 'eval-good',
-      color: 'var(--info-text)', 
-      bgColor: 'var(--info-bg)' 
+      color: UI.EVALUATION_COLORS.GOOD.text, 
+      bgColor: UI.EVALUATION_COLORS.GOOD.background 
     };
   }
-  if (evaluation >= -0.5) {
+  if (evaluation >= EVALUATION.COLOR_THRESHOLDS.NEUTRAL_LOWER) {
     return { 
       text: '⚪', 
       className: 'eval-neutral',
-      color: 'var(--text-secondary)', 
-      bgColor: 'var(--bg-accent)' 
+      color: UI.EVALUATION_COLORS.NEUTRAL.text, 
+      bgColor: UI.EVALUATION_COLORS.NEUTRAL.background 
     };
   }
-  if (evaluation >= -2) {
+  if (evaluation >= EVALUATION.COLOR_THRESHOLDS.INACCURATE) {
     return { 
       text: '⚠️', 
       className: 'eval-inaccurate',
-      color: 'var(--warning-text)', 
-      bgColor: 'var(--warning-bg)' 
+      color: UI.EVALUATION_COLORS.INACCURATE.text, 
+      bgColor: UI.EVALUATION_COLORS.INACCURATE.background 
     };
   }
-  if (evaluation >= -5) {
+  if (evaluation >= EVALUATION.COLOR_THRESHOLDS.MISTAKE) {
     return { 
       text: '🔶', 
       className: 'eval-mistake',
-      color: '#fb923c', 
-      bgColor: '#c2410c' 
+      color: UI.EVALUATION_COLORS.MISTAKE.text, 
+      bgColor: UI.EVALUATION_COLORS.MISTAKE.background 
     };
   }
   
   return { 
     text: '🔴', 
     className: 'eval-blunder',
-    color: 'var(--error-text)', 
-    bgColor: 'var(--error-bg)' 
+    color: UI.EVALUATION_COLORS.BLUNDER.text, 
+    bgColor: UI.EVALUATION_COLORS.BLUNDER.background 
   };
 };
