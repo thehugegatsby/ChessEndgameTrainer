@@ -1,8 +1,8 @@
 ---
 name: LLM-Optimized Task
 about: Systematic code improvement task optimized for LLM consumption
-title: "[TASK] Brief descriptive title"
-labels: enhancement, systematic-improvement
+title: "type(scope): brief descriptive title"
+labels: llm-ready
 assignees: ''
 ---
 
