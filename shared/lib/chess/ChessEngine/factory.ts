@@ -19,6 +19,7 @@ import type {
   ChessEngineConfig, 
   ChessEngineEvents 
 } from './interfaces';
+import { ErrorService } from '@shared/services/errorService';
 
 // Forward declaration - actual ChessEngine will be imported lazily
 // to avoid circular dependencies during module initialization
@@ -116,7 +117,7 @@ export async function resetChessEngine(): Promise<void> {
       globalChessEngine.quit();
     } catch (error) {
       // Silent cleanup failure - worker may already be terminated
-      console.warn('ChessEngine cleanup warning:', error);
+      ErrorService.handleChessEngineError(error instanceof Error ? error : new Error(String(error)), { component: 'ChessEngine', action: 'cleanup' });
     }
     
     globalChessEngine = null;
@@ -193,7 +194,7 @@ function emitEvent<K extends keyof ChessEngineEvents>(
       try {
         listener(...args);
       } catch (error) {
-        console.error(`Error in ChessEngine event listener for ${event}:`, error);
+        ErrorService.handleChessEngineError(error instanceof Error ? error : new Error(String(error)), { component: 'ChessEngine', action: event });
       }
     });
   }
@@ -314,7 +315,9 @@ function setupMemoryManagement(): void {
         setTimeout(() => {
           if (document.hidden && globalChessEngine) {
             // App has been in background for 30 seconds - clean up
-            resetChessEngine().catch(console.warn);
+            resetChessEngine().catch((error) => {
+              ErrorService.handleChessEngineError(error instanceof Error ? error : new Error(String(error)), { component: 'ChessEngine', action: 'appStateChange' });
+            });
           }
         }, 30000);
       }

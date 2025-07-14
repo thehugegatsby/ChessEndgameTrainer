@@ -108,12 +108,12 @@ const config = {
   // Output folder for test artifacts
   outputDir: 'test-results/',
   
-  // Use existing development server
-  // Assumes developer runs `npm run dev` manually
+  // E2E development server with mock environment
   webServer: {
+    command: 'npm run dev:e2e',
     url: DEV_URL,
-    timeout: 30000,
-    reuseExistingServer: true, // Always reuse - don't start new server
+    timeout: 60000,
+    reuseExistingServer: !CI, // Reuse in dev, fresh in CI
   },
 };
 

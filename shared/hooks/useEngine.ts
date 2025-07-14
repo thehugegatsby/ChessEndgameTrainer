@@ -6,6 +6,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { EngineService } from '@shared/services/chess/EngineService';
 import type { IChessEngine } from '@shared/lib/chess/IChessEngine';
+import { ErrorService } from '@shared/services/errorService';
 
 interface UseEngineOptions {
   autoCleanup?: boolean;
@@ -54,7 +55,9 @@ export function useEngine(options: UseEngineOptions = {}) {
     return () => {
       if (autoCleanup && engineServiceRef.current) {
         // Clean terminate if requested
-        engineServiceRef.current.terminate().catch(console.error);
+        engineServiceRef.current.terminate().catch((error) => {
+          ErrorService.handleChessEngineError(error, { component: 'useEngine', action: 'cleanup' });
+        });
       }
     };
   }, []);

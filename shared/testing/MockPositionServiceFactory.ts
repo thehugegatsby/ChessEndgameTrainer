@@ -107,9 +107,21 @@ export function createMockPositionRepository(): MockPositionRepository {
  * Determines if we should use mock services
  */
 export function shouldUseMockService(): boolean {
+  const nodeEnv = process.env.NODE_ENV;
+  const nextPublicE2E = process.env.NEXT_PUBLIC_IS_E2E_TEST;
+  const isE2E = process.env.IS_E2E_TEST;
+  
+  // Debug logging for environment detection
+  console.log('[MockServiceFactory] Environment check:', {
+    NODE_ENV: nodeEnv,
+    NEXT_PUBLIC_IS_E2E_TEST: nextPublicE2E,
+    IS_E2E_TEST: isE2E,
+    shouldUseMock: nodeEnv === 'test' || nextPublicE2E === 'true' || isE2E === 'true'
+  });
+  
   return (
-    process.env.NODE_ENV === 'test' ||
-    process.env.NEXT_PUBLIC_IS_E2E_TEST === 'true' ||
-    process.env.IS_E2E_TEST === 'true'
+    nodeEnv === 'test' ||
+    nextPublicE2E === 'true' ||
+    isE2E === 'true'
   );
 }

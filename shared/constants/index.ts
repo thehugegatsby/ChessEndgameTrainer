@@ -141,6 +141,127 @@ export const TIME = {
 } as const;
 
 
+// E2E Testing Constants
+export const E2E = {
+  // Timeouts
+  TIMEOUTS: {
+    PAGE_LOAD: 2 * TIME.SECOND,                // 2 seconds for page loads
+    PAGE_RELOAD: 3 * TIME.SECOND,              // 3 seconds for page reloads
+    ENGINE_INIT: 3 * TIME.SECOND,              // 3 seconds for engine initialization
+    MODAL_APPEAR: 1 * TIME.SECOND,             // 1 second for modals to appear
+    ANIMATION: 500,                            // 500ms for animations
+  },
+
+  // Test Data
+  DATA: {
+    STORAGE_KEY: 'chess-trainer-storage',       // LocalStorage key for state persistence
+    USER: {
+      RATING: 1500,                            // Test user rating
+      STREAK: 5,                               // Test user streak
+    },
+    MOVES: [
+      { from: 'e2', to: 'e4', san: 'e4' },
+      { from: 'e7', to: 'e5', san: 'e5' }
+    ],
+    COMPLETED_POSITIONS: [1, 2],               // Test completed positions
+    PREFERENCES: {
+      theme: 'light' as const,
+      showCoordinates: false,
+      animationSpeed: 'fast' as const
+    },
+  },
+
+  // Selectors (data-testid based)
+  SELECTORS: {
+    // Navigation
+    NAV: {
+      TRAINING_LINK: '[data-testid="training-link"]',
+      DASHBOARD_LINK: '[data-testid="nav-dashboard"]',
+      NAVBAR: '[data-testid="navbar"]',
+      NAVBAR_LOGO: '[data-testid="navbar-logo"]',
+    },
+    
+    // Chess Board
+    BOARD: '[data-testid="training-board"]',
+    CHESSBOARD: '[data-testid="chessboard"]',
+    SQUARE: (square: string) => `[data-square="${square}"]`,
+    PIECE: '[data-piece]',
+    
+    // Training Controls
+    BUTTONS: {
+      RESET: '[data-testid="reset-button"]',
+      HINT: '[data-testid="hint-button"]',
+      SOLUTION: '[data-testid="solution-button"]',
+      NEXT_POSITION: '[data-testid="next-position-button"]',
+      PREVIOUS_POSITION: '[data-testid="previous-position-button"]',
+      UNDO: '[data-testid="undo-button"]',            // Future: Dedicated undo button
+    },
+    
+    // Navigation Controls
+    NAVIGATION: {
+      FIRST: '[data-testid="nav-first"]',
+      BACK: '[data-testid="nav-back"]',               // Current: Navigation-based undo
+      FORWARD: '[data-testid="nav-forward"]',
+      LAST: '[data-testid="nav-last"]',
+    },
+    
+    // Error Recovery Elements
+    ERROR_RECOVERY: {
+      TOAST: '.toast, [data-testid="toast"], .notification',
+      MISTAKE_COUNTER: '[data-testid="mistake-counter"]',
+      ENGINE_ERROR: '[data-testid="engine-error"]',
+      RETRY_BUTTON: '[data-testid="retry-engine"]',
+      WARNING_DIALOG: '[data-testid="warning-dialog"]',
+    },
+    
+    // UI Elements
+    EVALUATION_DISPLAY: '[data-testid="evaluation-display"]',
+    MOVE_COUNTER: '[data-testid="move-counter"]',
+    ENGINE_STATUS: '[data-testid="engine-status"]',
+    POSITION_DESCRIPTION: '[data-testid="position-description"]',
+    LOADING_SPINNER: '[data-testid="loading-spinner"]',
+    
+    // Modals
+    HINT_MODAL: '[data-testid="hint-modal"]',
+    SOLUTION_MODAL: '[data-testid="solution-modal"]',
+    PROMOTION_DIALOG: '[data-testid="promotion-dialog"]',
+  },
+
+  // Routes/URLs
+  ROUTES: {
+    HOME: '/',
+    TRAIN: (id: number) => `/train/${id}`,
+    DASHBOARD: '/dashboard',
+  },
+
+  // Expected Messages/Texts
+  MESSAGES: {
+    SUCCESS: {
+      CORE_TRAINING_COMPLETE: 'Core Training Workflow completed successfully',
+      ENGINE_VERIFIED: 'Engine initialization verified',
+      STATE_PERSISTED: 'State persistence test completed successfully',
+      POSITION_PRESERVED: 'Position navigation state preserved after reload',
+      CORRUPTION_HANDLED: 'App handles localStorage corruption gracefully',
+      PREFERENCES_PERSISTED: 'User preferences persisted across sessions',
+      ERROR_RECOVERY_TESTED: 'Error recovery functionality tested successfully',
+      UNDO_FUNCTIONALITY_TESTED: 'Undo functionality and state consistency verified',
+      MISTAKE_TRACKING_TESTED: 'Mistake tracking functionality verified',
+      ENGINE_ERROR_RECOVERY_TESTED: 'Engine error recovery scenarios tested',
+    },
+    ERRORS: {
+      ENGINE_ERROR: /engine.*error/i,
+      GENERIC_ERROR: /error/i,
+      INVALID_MOVE: /invalid.*move/i,
+      WARNING: /warning/i,
+    },
+    WARNINGS: {
+      INVALID_MOVE: 'Invalid move',
+      BAD_MOVE: 'Not the best move',
+      MISTAKE: 'Mistake detected',
+    },
+  },
+} as const;
+
 // Type utilities for constants
 export type StorageConstants = typeof STORAGE;
 export type CacheConstants = typeof CACHE;
@@ -152,3 +273,4 @@ export type EvaluationConstants = typeof EVALUATION;
 export type TrainingConstants = typeof TRAINING;
 export type NetworkConstants = typeof NETWORK;
 export type TimeConstants = typeof TIME;
+export type E2EConstants = typeof E2E;

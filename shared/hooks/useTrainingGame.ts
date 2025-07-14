@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useTraining, useTrainingActions } from '@shared/store/store';
 import { Move } from 'chess.js';
+import { ErrorService } from '@shared/services/errorService';
 
 interface UseTrainingGameOptions {
   onComplete?: (success: boolean) => void;
@@ -50,7 +51,7 @@ export const useTrainingGame = ({
       
       return true;
     } catch (error) {
-      console.error('Move error:', error, 'Move:', move);
+      ErrorService.handleUIError(error instanceof Error ? error : new Error(String(error)), 'useTrainingGame', { action: 'makeMove', additionalData: { move } });
       return false;
     }
   }, [training, actions, onComplete, onPositionChange]);

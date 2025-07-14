@@ -1,7 +1,7 @@
 {
   "config": {
-    "configFile": "/home/thehu/coolProjects/EndgameTrainer/playwright.config.js",
-    "rootDir": "/home/thehu/coolProjects/EndgameTrainer/tests/e2e",
+    "configFile": "/home/thehu/coolProjects/EndgameTrainer-e2e-tests/playwright.config.js",
+    "rootDir": "/home/thehu/coolProjects/EndgameTrainer-e2e-tests/tests/e2e",
     "forbidOnly": false,
     "fullyParallel": true,
     "globalSetup": null,
@@ -11,7 +11,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 6
+      "actualWorkers": 12
     },
     "preserveOutput": "always",
     "reporter": [
@@ -39,15 +39,15 @@
     "quiet": false,
     "projects": [
       {
-        "outputDir": "/home/thehu/coolProjects/EndgameTrainer/test-results",
+        "outputDir": "/home/thehu/coolProjects/EndgameTrainer-e2e-tests/test-results",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 6
+          "actualWorkers": 12
         },
         "id": "chromium",
         "name": "chromium",
-        "testDir": "/home/thehu/coolProjects/EndgameTrainer/tests/e2e",
+        "testDir": "/home/thehu/coolProjects/EndgameTrainer-e2e-tests/tests/e2e",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
@@ -55,15 +55,15 @@
         "timeout": 60000
       },
       {
-        "outputDir": "/home/thehu/coolProjects/EndgameTrainer/test-results",
+        "outputDir": "/home/thehu/coolProjects/EndgameTrainer-e2e-tests/test-results",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 6
+          "actualWorkers": 12
         },
         "id": "firefox",
         "name": "firefox",
-        "testDir": "/home/thehu/coolProjects/EndgameTrainer/tests/e2e",
+        "testDir": "/home/thehu/coolProjects/EndgameTrainer-e2e-tests/tests/e2e",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
@@ -71,15 +71,15 @@
         "timeout": 60000
       },
       {
-        "outputDir": "/home/thehu/coolProjects/EndgameTrainer/test-results",
+        "outputDir": "/home/thehu/coolProjects/EndgameTrainer-e2e-tests/test-results",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 6
+          "actualWorkers": 12
         },
         "id": "webkit",
         "name": "webkit",
-        "testDir": "/home/thehu/coolProjects/EndgameTrainer/tests/e2e",
+        "testDir": "/home/thehu/coolProjects/EndgameTrainer-e2e-tests/tests/e2e",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
@@ -87,15 +87,15 @@
         "timeout": 60000
       },
       {
-        "outputDir": "/home/thehu/coolProjects/EndgameTrainer/test-results",
+        "outputDir": "/home/thehu/coolProjects/EndgameTrainer-e2e-tests/test-results",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 6
+          "actualWorkers": 12
         },
         "id": "firebase",
         "name": "firebase",
-        "testDir": "/home/thehu/coolProjects/EndgameTrainer/tests/e2e/firebase",
+        "testDir": "/home/thehu/coolProjects/EndgameTrainer-e2e-tests/tests/e2e/firebase",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
@@ -109,8 +109,9 @@
     "version": "1.54.1",
     "workers": 12,
     "webServer": {
+      "command": "npm run dev:e2e",
       "url": "http://127.0.0.1:3002",
-      "timeout": 30000,
+      "timeout": 60000,
       "reuseExistingServer": true
     }
   },
@@ -125,7 +126,7 @@
         {
           "title": "Core Training Workflow",
           "file": "domains/core-training.spec.ts",
-          "line": 10,
+          "line": 13,
           "column": 6,
           "specs": [
             {
@@ -144,16 +145,19 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5616,
+                      "duration": 7884,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "✅ Core Training Workflow completed successfully\n"
+                          "text": "2025-07-14T09:31:28.439Z INFO [E2E-CoreTraining] Found 12 links on homepage {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:34.666Z INFO [E2E-CoreTraining] Core Training Workflow completed successfully {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-07-14T07:42:53.824Z",
+                      "startTime": "2025-07-14T09:31:26.648Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -163,7 +167,7 @@
               ],
               "id": "6d9583ee37d0fd986dfe-a8981d918aafc9bdff9e",
               "file": "domains/core-training.spec.ts",
-              "line": 11,
+              "line": 21,
               "column": 7
             },
             {
@@ -182,16 +186,16 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 5683,
+                      "duration": 5934,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "✅ Engine initialization verified\n"
+                          "text": "2025-07-14T09:31:32.724Z INFO [E2E-CoreTraining] Engine initialization verified {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-07-14T07:42:53.802Z",
+                      "startTime": "2025-07-14T09:31:26.658Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -201,7 +205,7 @@
               ],
               "id": "6d9583ee37d0fd986dfe-6a2854a23aa88d063f05",
               "file": "domains/core-training.spec.ts",
-              "line": 93,
+              "line": 110,
               "column": 7
             },
             {
@@ -217,19 +221,22 @@
                   "projectName": "firefox",
                   "results": [
                     {
-                      "workerIndex": 2,
-                      "parallelIndex": 2,
+                      "workerIndex": 11,
+                      "parallelIndex": 11,
                       "status": "passed",
-                      "duration": 6232,
+                      "duration": 9483,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "✅ Core Training Workflow completed successfully\n"
+                          "text": "2025-07-14T09:31:29.919Z INFO [E2E-CoreTraining] Found 12 links on homepage {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:36.708Z INFO [E2E-CoreTraining] Core Training Workflow completed successfully {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-07-14T07:42:53.821Z",
+                      "startTime": "2025-07-14T09:31:26.774Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -239,7 +246,7 @@
               ],
               "id": "6d9583ee37d0fd986dfe-6128f9ba5e83c7b9f791",
               "file": "domains/core-training.spec.ts",
-              "line": 11,
+              "line": 21,
               "column": 7
             },
             {
@@ -255,19 +262,19 @@
                   "projectName": "firefox",
                   "results": [
                     {
-                      "workerIndex": 3,
-                      "parallelIndex": 3,
+                      "workerIndex": 12,
+                      "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 5443,
+                      "duration": 5072,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "✅ Engine initialization verified\n"
+                          "text": "2025-07-14T09:31:38.993Z INFO [E2E-CoreTraining] Engine initialization verified {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-07-14T07:42:53.809Z",
+                      "startTime": "2025-07-14T09:31:33.502Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -277,7 +284,7 @@
               ],
               "id": "6d9583ee37d0fd986dfe-dc514e2e12f1f45e1e20",
               "file": "domains/core-training.spec.ts",
-              "line": 93,
+              "line": 110,
               "column": 7
             },
             {
@@ -293,19 +300,22 @@
                   "projectName": "webkit",
                   "results": [
                     {
-                      "workerIndex": 4,
-                      "parallelIndex": 4,
+                      "workerIndex": 21,
+                      "parallelIndex": 3,
                       "status": "passed",
-                      "duration": 6337,
+                      "duration": 8524,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "✅ Core Training Workflow completed successfully\n"
+                          "text": "2025-07-14T09:31:40.581Z INFO [E2E-CoreTraining] Found 12 links on homepage {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:46.813Z INFO [E2E-CoreTraining] Core Training Workflow completed successfully {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-07-14T07:42:53.814Z",
+                      "startTime": "2025-07-14T09:31:38.329Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -315,7 +325,7 @@
               ],
               "id": "6d9583ee37d0fd986dfe-a60b6bcd354f6cd77313",
               "file": "domains/core-training.spec.ts",
-              "line": 11,
+              "line": 21,
               "column": 7
             },
             {
@@ -331,19 +341,19 @@
                   "projectName": "webkit",
                   "results": [
                     {
-                      "workerIndex": 5,
-                      "parallelIndex": 5,
+                      "workerIndex": 22,
+                      "parallelIndex": 4,
                       "status": "passed",
-                      "duration": 6203,
+                      "duration": 5356,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "✅ Engine initialization verified\n"
+                          "text": "2025-07-14T09:31:44.604Z INFO [E2E-CoreTraining] Engine initialization verified {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-07-14T07:42:53.824Z",
+                      "startTime": "2025-07-14T09:31:39.276Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -353,7 +363,1247 @@
               ],
               "id": "6d9583ee37d0fd986dfe-b5d4a68629b18fc0e54b",
               "file": "domains/core-training.spec.ts",
-              "line": 93,
+              "line": 110,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "domains/error-recovery.spec.ts",
+      "file": "domains/error-recovery.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Error Recovery - Issue #24",
+          "file": "domains/error-recovery.spec.ts",
+          "line": 13,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should show toast warning for invalid moves and allow retry",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 10309,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:31.702Z INFO [E2E-ErrorRecovery] Training page loaded for error recovery test {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:31.703Z INFO [E2E-ErrorRecovery] Testing invalid move → toast warning → retry flow {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:35.811Z INFO [E2E-ErrorRecovery] No toast visible - may indicate different error handling pattern {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:36.912Z INFO [E2E-ErrorRecovery] Valid move executed after invalid move attempt - recovery successful {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:36.913Z INFO [E2E-ErrorRecovery] Error recovery functionality tested successfully {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:26.448Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c4a658b9b4e00a31571-05fac0ab223fa9284df9",
+              "file": "domains/error-recovery.spec.ts",
+              "line": 26,
+              "column": 7
+            },
+            {
+              "title": "should undo move using nav-back button and maintain state consistency",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 10320,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:31.713Z INFO [E2E-ErrorRecovery] Training page loaded for error recovery test {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:31.714Z INFO [E2E-ErrorRecovery] Testing nav-back undo with state consistency verification {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:36.913Z INFO [E2E-ErrorRecovery] Nav-back button is disabled (expected for first move in training) {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:36.922Z INFO [E2E-ErrorRecovery] Button correctly disabled - no moves to undo. Testing state consistency {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false},\"initialState\":\"{\\n  \\\"state\\\": {\\n    \\\"user\\\": {\\n      \\\"rating\\\": 1200,\\n      \\\"completedPositions\\\": [],\\n      \\\"currentStreak\\\": 0,\\n      \\\"totalTrainingTime\\\": 0,\\n      \\\"lastActiveDate\\\": \\\"2025-07-14T09:31:29.554Z\\\",\\n      \\\"preferences\\\": {\\n        \\\"theme\\\": \\\"dark\\\",\\n        \\\"soundEnabled\\\": true,\\n        \\\"notificationsEnabled\\\": true,\\n        \\\"boardOrientation\\\": \\\"white\\\",\\n        \\\"pieceTheme\\\": \\\"standard\\\",\\n        \\\"autoPromoteToQueen\\\": true,\\n        \\\"showCoordinates\\\": true,\\n        \\\"showLegalMoves\\\": true,\\n        \\\"animationSpeed\\\": \\\"normal\\\"\\n      }\\n    },\\n    \\\"progress\\\": {\\n      \\\"positionProgress\\\": {},\\n      \\\"dailyStats\\\": {\\n        \\\"date\\\": \\\"2025-07-14\\\",\\n        \\\"positionsSolved\\\": 0,\\n        \\\"timeSpent\\\": 0,\\n        \\\"accuracy\\\": 0,\\n        \\\"mistakesMade\\\": 0,\\n        \\\"hintsUsed\\\": 0\\n      },\\n      \\\"achievements\\\": [],\\n      \\\"totalSolvedPositions\\\": 0,\\n      \\\"averageAccuracy\\\": 0,\\n      \\\"favoritePositions\\\": []\\n    },\\n    \\\"settings\\\": {\\n      \\\"appVersion\\\": \\\"1.0.0\\\",\\n      \\\"lastUpdated\\\": \\\"2025-07-14T09:31:29.554Z\\\",\\n      \\\"dataSync\\\": {\\n        \\\"enabled\\\": false,\\n        \\\"syncInProgress\\\": false\\n      },\\n      \\\"experimentalFeatures\\\": {\\n        \\\"advancedAnalysis\\\": false,\\n        \\\"voiceCommands\\\": false,\\n        \\\"multipleVariations\\\": false,\\n        \\\"puzzleRush\\\": false\\n      }\\n    }\\n  },\\n  \\\"version\\\": 0\\n}\",\"currentState\":\"{\\n  \\\"state\\\": {\\n    \\\"user\\\": {\\n      \\\"rating\\\": 1200,\\n      \\\"completedPositions\\\": [],\\n      \\\"currentStreak\\\": 0,\\n      \\\"totalTrainingTime\\\": 0,\\n      \\\"lastActiveDate\\\": \\\"2025-07-14T09:31:29.554Z\\\",\\n      \\\"preferences\\\": {\\n        \\\"theme\\\": \\\"dark\\\",\\n        \\\"soundEnabled\\\": true,\\n        \\\"notificationsEnabled\\\": true,\\n        \\\"boardOrientation\\\": \\\"white\\\",\\n        \\\"pieceTheme\\\": \\\"standard\\\",\\n        \\\"autoPromoteToQueen\\\": true,\\n        \\\"showCoordinates\\\": true,\\n        \\\"showLegalMoves\\\": true,\\n        \\\"animationSpeed\\\": \\\"normal\\\"\\n      }\\n    },\\n    \\\"progress\\\": {\\n      \\\"positionProgress\\\": {},\\n      \\\"dailyStats\\\": {\\n        \\\"date\\\": \\\"2025-07-14\\\",\\n        \\\"positionsSolved\\\": 0,\\n        \\\"timeSpent\\\": 0,\\n        \\\"accuracy\\\": 0,\\n        \\\"mistakesMade\\\": 0,\\n        \\\"hintsUsed\\\": 0\\n      },\\n      \\\"achievements\\\": [],\\n      \\\"totalSolvedPositions\\\": 0,\\n      \\\"averageAccuracy\\\": 0,\\n      \\\"favoritePositions\\\": []\\n    },\\n    \\\"settings\\\": {\\n      \\\"appVersion\\\": \\\"1.0.0\\\",\\n      \\\"lastUpdated\\\": \\\"2025-07-14T09:31:29.554Z\\\",\\n      \\\"dataSync\\\": {\\n        \\\"enabled\\\": false,\\n        \\\"syncInProgress\\\": false\\n      },\\n      \\\"experimentalFeatures\\\": {\\n        \\\"advancedAnalysis\\\": false,\\n        \\\"voiceCommands\\\": false,\\n        \\\"multipleVariations\\\": false,\\n        \\\"puzzleRush\\\": false\\n      }\\n    }\\n  },\\n  \\\"version\\\": 0\\n}\"}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:36.922Z INFO [E2E-ErrorRecovery] Nav-back button correctly disabled for first move - state consistency maintained {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:36.922Z INFO [E2E-ErrorRecovery] Undo functionality and state consistency verified {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:26.455Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c4a658b9b4e00a31571-8e5fc5de515bf3820d0a",
+              "file": "domains/error-recovery.spec.ts",
+              "line": 82,
+              "column": 7
+            },
+            {
+              "title": "should increment mistake counter for bad moves",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 11485,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:31.741Z INFO [E2E-ErrorRecovery] Training page loaded for error recovery test {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:31.742Z INFO [E2E-ErrorRecovery] Testing mistake counter increment for bad moves {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:37.937Z INFO [E2E-ErrorRecovery] Mistake tracking functionality verified {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:26.358Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c4a658b9b4e00a31571-d40f117c20ec4a8a4c98",
+              "file": "domains/error-recovery.spec.ts",
+              "line": 177,
+              "column": 7
+            },
+            {
+              "title": "should handle engine errors gracefully with recovery options",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 5,
+                      "status": "passed",
+                      "duration": 8349,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:31.736Z INFO [E2E-ErrorRecovery] Training page loaded for error recovery test {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:31.737Z INFO [E2E-ErrorRecovery] Testing engine error recovery scenarios {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:34.764Z INFO [E2E-ErrorRecovery] No engine errors detected - testing error resilience {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:34.782Z INFO [E2E-ErrorRecovery] Engine error recovery scenarios tested {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:26.349Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c4a658b9b4e00a31571-f96422b9317193033c7a",
+              "file": "domains/error-recovery.spec.ts",
+              "line": 234,
+              "column": 7
+            },
+            {
+              "title": "should prepare for future dedicated undo button (conditional)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 6,
+                      "status": "passed",
+                      "duration": 7270,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:31.732Z INFO [E2E-ErrorRecovery] Training page loaded for error recovery test {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:31.733Z INFO [E2E-ErrorRecovery] Testing future undo button functionality (conditional) {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:33.745Z INFO [E2E-ErrorRecovery] Dedicated undo button not yet implemented - using nav-back fallback {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:33.749Z INFO [E2E-ErrorRecovery] Testing current nav-back as foundation for future undo button {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:33.749Z INFO [E2E-ErrorRecovery] Future undo button preparation complete {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:26.345Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c4a658b9b4e00a31571-ffa609d356eb084f2c70",
+              "file": "domains/error-recovery.spec.ts",
+              "line": 280,
+              "column": 7
+            },
+            {
+              "title": "should show toast warning for invalid moves and allow retry",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 8,
+                      "status": "passed",
+                      "duration": 9418,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:38.687Z INFO [E2E-ErrorRecovery] Training page loaded for error recovery test {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:38.689Z INFO [E2E-ErrorRecovery] Testing invalid move → toast warning → retry flow {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:42.866Z INFO [E2E-ErrorRecovery] No toast visible - may indicate different error handling pattern {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:43.986Z INFO [E2E-ErrorRecovery] Valid move executed after invalid move attempt - recovery successful {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:43.987Z INFO [E2E-ErrorRecovery] Error recovery functionality tested successfully {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:34.073Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c4a658b9b4e00a31571-cc1086ed670778e354ce",
+              "file": "domains/error-recovery.spec.ts",
+              "line": 26,
+              "column": 7
+            },
+            {
+              "title": "should undo move using nav-back button and maintain state consistency",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 6,
+                      "status": "passed",
+                      "duration": 9404,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:39.332Z INFO [E2E-ErrorRecovery] Training page loaded for error recovery test {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:39.334Z INFO [E2E-ErrorRecovery] Testing nav-back undo with state consistency verification {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:44.556Z INFO [E2E-ErrorRecovery] Nav-back button is disabled (expected for first move in training) {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:44.560Z INFO [E2E-ErrorRecovery] Button correctly disabled - no moves to undo. Testing state consistency {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false},\"initialState\":\"{\\n  \\\"state\\\": {\\n    \\\"user\\\": {\\n      \\\"rating\\\": 1200,\\n      \\\"completedPositions\\\": [],\\n      \\\"currentStreak\\\": 0,\\n      \\\"totalTrainingTime\\\": 0,\\n      \\\"lastActiveDate\\\": \\\"2025-07-14T09:31:37.079Z\\\",\\n      \\\"preferences\\\": {\\n        \\\"theme\\\": \\\"dark\\\",\\n        \\\"soundEnabled\\\": true,\\n        \\\"notificationsEnabled\\\": true,\\n        \\\"boardOrientation\\\": \\\"white\\\",\\n        \\\"pieceTheme\\\": \\\"standard\\\",\\n        \\\"autoPromoteToQueen\\\": true,\\n        \\\"showCoordinates\\\": true,\\n        \\\"showLegalMoves\\\": true,\\n        \\\"animationSpeed\\\": \\\"normal\\\"\\n      }\\n    },\\n    \\\"progress\\\": {\\n      \\\"positionProgress\\\": {},\\n      \\\"dailyStats\\\": {\\n        \\\"date\\\": \\\"2025-07-14\\\",\\n        \\\"positionsSolved\\\": 0,\\n        \\\"timeSpent\\\": 0,\\n        \\\"accuracy\\\": 0,\\n        \\\"mistakesMade\\\": 0,\\n        \\\"hintsUsed\\\": 0\\n      },\\n      \\\"achievements\\\": [],\\n      \\\"totalSolvedPositions\\\": 0,\\n      \\\"averageAccuracy\\\": 0,\\n      \\\"favoritePositions\\\": []\\n    },\\n    \\\"settings\\\": {\\n      \\\"appVersion\\\": \\\"1.0.0\\\",\\n      \\\"lastUpdated\\\": \\\"2025-07-14T09:31:37.079Z\\\",\\n      \\\"dataSync\\\": {\\n        \\\"enabled\\\": false,\\n        \\\"syncInProgress\\\": false\\n      },\\n      \\\"experimentalFeatures\\\": {\\n        \\\"advancedAnalysis\\\": false,\\n        \\\"voiceCommands\\\": false,\\n        \\\"multipleVariations\\\": false,\\n        \\\"puzzleRush\\\": false\\n      }\\n    }\\n  },\\n  \\\"version\\\": 0\\n}\",\"currentState\":\"{\\n  \\\"state\\\": {\\n    \\\"user\\\": {\\n      \\\"rating\\\": 1200,\\n      \\\"completedPositions\\\": [],\\n      \\\"currentStreak\\\": 0,\\n      \\\"totalTrainingTime\\\": 0,\\n      \\\"lastActiveDate\\\": \\\"2025-07-14T09:31:37.079Z\\\",\\n      \\\"preferences\\\": {\\n        \\\"theme\\\": \\\"dark\\\",\\n        \\\"soundEnabled\\\": true,\\n        \\\"notificationsEnabled\\\": true,\\n        \\\"boardOrientation\\\": \\\"white\\\",\\n        \\\"pieceTheme\\\": \\\"standard\\\",\\n        \\\"autoPromoteToQueen\\\": true,\\n        \\\"showCoordinates\\\": true,\\n        \\\"showLegalMoves\\\": true,\\n        \\\"animationSpeed\\\": \\\"normal\\\"\\n      }\\n    },\\n    \\\"progress\\\": {\\n      \\\"positionProgress\\\": {},\\n      \\\"dailyStats\\\": {\\n        \\\"date\\\": \\\"2025-07-14\\\",\\n        \\\"positionsSolved\\\": 0,\\n        \\\"timeSpent\\\": 0,\\n        \\\"accuracy\\\": 0,\\n        \\\"mistakesMade\\\": 0,\\n        \\\"hintsUsed\\\": 0\\n      },\\n      \\\"achievements\\\": [],\\n      \\\"totalSolvedPositions\\\": 0,\\n      \\\"averageAccuracy\\\": 0,\\n      \\\"favoritePositions\\\": []\\n    },\\n    \\\"settings\\\": {\\n      \\\"appVersion\\\": \\\"1.0.0\\\",\\n      \\\"lastUpdated\\\": \\\"2025-07-14T09:31:37.079Z\\\",\\n      \\\"dataSync\\\": {\\n        \\\"enabled\\\": false,\\n        \\\"syncInProgress\\\": false\\n      },\\n      \\\"experimentalFeatures\\\": {\\n        \\\"advancedAnalysis\\\": false,\\n        \\\"voiceCommands\\\": false,\\n        \\\"multipleVariations\\\": false,\\n        \\\"puzzleRush\\\": false\\n      }\\n    }\\n  },\\n  \\\"version\\\": 0\\n}\"}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:44.560Z INFO [E2E-ErrorRecovery] Nav-back button correctly disabled for first move - state consistency maintained {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:44.560Z INFO [E2E-ErrorRecovery] Undo functionality and state consistency verified {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:34.482Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c4a658b9b4e00a31571-104d6c61b4d48a73e833",
+              "file": "domains/error-recovery.spec.ts",
+              "line": 82,
+              "column": 7
+            },
+            {
+              "title": "should increment mistake counter for bad moves",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 15,
+                      "parallelIndex": 10,
+                      "status": "passed",
+                      "duration": 10735,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:41.967Z INFO [E2E-ErrorRecovery] Training page loaded for error recovery test {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:41.969Z INFO [E2E-ErrorRecovery] Testing mistake counter increment for bad moves {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:48.181Z INFO [E2E-ErrorRecovery] Mistake tracking functionality verified {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:35.005Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c4a658b9b4e00a31571-d18831f179309cfd5093",
+              "file": "domains/error-recovery.spec.ts",
+              "line": 177,
+              "column": 7
+            },
+            {
+              "title": "should handle engine errors gracefully with recovery options",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 7,
+                      "status": "passed",
+                      "duration": 7458,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:40.085Z INFO [E2E-ErrorRecovery] Training page loaded for error recovery test {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:40.087Z INFO [E2E-ErrorRecovery] Testing engine error recovery scenarios {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:43.107Z INFO [E2E-ErrorRecovery] No engine errors detected - testing error resilience {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:43.118Z INFO [E2E-ErrorRecovery] Engine error recovery scenarios tested {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:35.007Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c4a658b9b4e00a31571-6a507ce1b28c9c581234",
+              "file": "domains/error-recovery.spec.ts",
+              "line": 234,
+              "column": 7
+            },
+            {
+              "title": "should prepare for future dedicated undo button (conditional)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 17,
+                      "parallelIndex": 9,
+                      "status": "passed",
+                      "duration": 6399,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:42.642Z INFO [E2E-ErrorRecovery] Training page loaded for error recovery test {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:42.643Z INFO [E2E-ErrorRecovery] Testing future undo button functionality (conditional) {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:44.658Z INFO [E2E-ErrorRecovery] Dedicated undo button not yet implemented - using nav-back fallback {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:44.665Z INFO [E2E-ErrorRecovery] Testing current nav-back as foundation for future undo button {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:44.665Z INFO [E2E-ErrorRecovery] Future undo button preparation complete {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:35.270Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c4a658b9b4e00a31571-a4684de933e8e4108faf",
+              "file": "domains/error-recovery.spec.ts",
+              "line": 280,
+              "column": 7
+            },
+            {
+              "title": "should show toast warning for invalid moves and allow retry",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 23,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 9662,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:44.859Z INFO [E2E-ErrorRecovery] Training page loaded for error recovery test {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:44.860Z INFO [E2E-ErrorRecovery] Testing invalid move → toast warning → retry flow {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:49.128Z INFO [E2E-ErrorRecovery] No toast visible - may indicate different error handling pattern {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:50.293Z INFO [E2E-ErrorRecovery] Valid move executed after invalid move attempt - recovery successful {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:50.293Z INFO [E2E-ErrorRecovery] Error recovery functionality tested successfully {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:40.595Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c4a658b9b4e00a31571-767a9cbf934d2edc711e",
+              "file": "domains/error-recovery.spec.ts",
+              "line": 26,
+              "column": 7
+            },
+            {
+              "title": "should undo move using nav-back button and maintain state consistency",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 24,
+                      "parallelIndex": 7,
+                      "status": "passed",
+                      "duration": 9175,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:48.245Z INFO [E2E-ErrorRecovery] Training page loaded for error recovery test {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:48.247Z INFO [E2E-ErrorRecovery] Testing nav-back undo with state consistency verification {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:53.397Z INFO [E2E-ErrorRecovery] Nav-back button is disabled (expected for first move in training) {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:53.401Z INFO [E2E-ErrorRecovery] Button correctly disabled - no moves to undo. Testing state consistency {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false},\"initialState\":\"{\\n  \\\"state\\\": {\\n    \\\"user\\\": {\\n      \\\"rating\\\": 1200,\\n      \\\"completedPositions\\\": [],\\n      \\\"currentStreak\\\": 0,\\n      \\\"totalTrainingTime\\\": 0,\\n      \\\"lastActiveDate\\\": \\\"2025-07-14T09:31:45.987Z\\\",\\n      \\\"preferences\\\": {\\n        \\\"theme\\\": \\\"dark\\\",\\n        \\\"soundEnabled\\\": true,\\n        \\\"notificationsEnabled\\\": true,\\n        \\\"boardOrientation\\\": \\\"white\\\",\\n        \\\"pieceTheme\\\": \\\"standard\\\",\\n        \\\"autoPromoteToQueen\\\": true,\\n        \\\"showCoordinates\\\": true,\\n        \\\"showLegalMoves\\\": true,\\n        \\\"animationSpeed\\\": \\\"normal\\\"\\n      }\\n    },\\n    \\\"progress\\\": {\\n      \\\"positionProgress\\\": {},\\n      \\\"dailyStats\\\": {\\n        \\\"date\\\": \\\"2025-07-14\\\",\\n        \\\"positionsSolved\\\": 0,\\n        \\\"timeSpent\\\": 0,\\n        \\\"accuracy\\\": 0,\\n        \\\"mistakesMade\\\": 0,\\n        \\\"hintsUsed\\\": 0\\n      },\\n      \\\"achievements\\\": [],\\n      \\\"totalSolvedPositions\\\": 0,\\n      \\\"averageAccuracy\\\": 0,\\n      \\\"favoritePositions\\\": []\\n    },\\n    \\\"settings\\\": {\\n      \\\"appVersion\\\": \\\"1.0.0\\\",\\n      \\\"lastUpdated\\\": \\\"2025-07-14T09:31:45.987Z\\\",\\n      \\\"dataSync\\\": {\\n        \\\"enabled\\\": false,\\n        \\\"syncInProgress\\\": false\\n      },\\n      \\\"experimentalFeatures\\\": {\\n        \\\"advancedAnalysis\\\": false,\\n        \\\"voiceCommands\\\": false,\\n        \\\"multipleVariations\\\": false,\\n        \\\"puzzleRush\\\": false\\n      }\\n    }\\n  },\\n  \\\"version\\\": 0\\n}\",\"currentState\":\"{\\n  \\\"state\\\": {\\n    \\\"user\\\": {\\n      \\\"rating\\\": 1200,\\n      \\\"completedPositions\\\": [],\\n      \\\"currentStreak\\\": 0,\\n      \\\"totalTrainingTime\\\": 0,\\n      \\\"lastActiveDate\\\": \\\"2025-07-14T09:31:45.987Z\\\",\\n      \\\"preferences\\\": {\\n        \\\"theme\\\": \\\"dark\\\",\\n        \\\"soundEnabled\\\": true,\\n        \\\"notificationsEnabled\\\": true,\\n        \\\"boardOrientation\\\": \\\"white\\\",\\n        \\\"pieceTheme\\\": \\\"standard\\\",\\n        \\\"autoPromoteToQueen\\\": true,\\n        \\\"showCoordinates\\\": true,\\n        \\\"showLegalMoves\\\": true,\\n        \\\"animationSpeed\\\": \\\"normal\\\"\\n      }\\n    },\\n    \\\"progress\\\": {\\n      \\\"positionProgress\\\": {},\\n      \\\"dailyStats\\\": {\\n        \\\"date\\\": \\\"2025-07-14\\\",\\n        \\\"positionsSolved\\\": 0,\\n        \\\"timeSpent\\\": 0,\\n        \\\"accuracy\\\": 0,\\n        \\\"mistakesMade\\\": 0,\\n        \\\"hintsUsed\\\": 0\\n      },\\n      \\\"achievements\\\": [],\\n      \\\"totalSolvedPositions\\\": 0,\\n      \\\"averageAccuracy\\\": 0,\\n      \\\"favoritePositions\\\": []\\n    },\\n    \\\"settings\\\": {\\n      \\\"appVersion\\\": \\\"1.0.0\\\",\\n      \\\"lastUpdated\\\": \\\"2025-07-14T09:31:45.987Z\\\",\\n      \\\"dataSync\\\": {\\n        \\\"enabled\\\": false,\\n        \\\"syncInProgress\\\": false\\n      },\\n      \\\"experimentalFeatures\\\": {\\n        \\\"advancedAnalysis\\\": false,\\n        \\\"voiceCommands\\\": false,\\n        \\\"multipleVariations\\\": false,\\n        \\\"puzzleRush\\\": false\\n      }\\n    }\\n  },\\n  \\\"version\\\": 0\\n}\"}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:53.401Z INFO [E2E-ErrorRecovery] Nav-back button correctly disabled for first move - state consistency maintained {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:53.401Z INFO [E2E-ErrorRecovery] Undo functionality and state consistency verified {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:44.305Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c4a658b9b4e00a31571-18405996a5ef26784ffd",
+              "file": "domains/error-recovery.spec.ts",
+              "line": 82,
+              "column": 7
+            },
+            {
+              "title": "should increment mistake counter for bad moves",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 25,
+                      "parallelIndex": 5,
+                      "status": "passed",
+                      "duration": 10271,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:48.702Z INFO [E2E-ErrorRecovery] Training page loaded for error recovery test {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:48.703Z INFO [E2E-ErrorRecovery] Testing mistake counter increment for bad moves {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:54.849Z INFO [E2E-ErrorRecovery] Mistake tracking functionality verified {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:44.646Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c4a658b9b4e00a31571-76a8cd9c7cb796f17bff",
+              "file": "domains/error-recovery.spec.ts",
+              "line": 177,
+              "column": 7
+            },
+            {
+              "title": "should handle engine errors gracefully with recovery options",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 26,
+                      "parallelIndex": 8,
+                      "status": "passed",
+                      "duration": 7171,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:49.336Z INFO [E2E-ErrorRecovery] Training page loaded for error recovery test {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:49.338Z INFO [E2E-ErrorRecovery] Testing engine error recovery scenarios {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:52.354Z INFO [E2E-ErrorRecovery] No engine errors detected - testing error resilience {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:52.363Z INFO [E2E-ErrorRecovery] Engine error recovery scenarios tested {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:45.224Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c4a658b9b4e00a31571-8131a470ce74e709ef8c",
+              "file": "domains/error-recovery.spec.ts",
+              "line": 234,
+              "column": 7
+            },
+            {
+              "title": "should prepare for future dedicated undo button (conditional)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 27,
+                      "parallelIndex": 11,
+                      "status": "passed",
+                      "duration": 6444,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:49.902Z INFO [E2E-ErrorRecovery] Training page loaded for error recovery test {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:49.903Z INFO [E2E-ErrorRecovery] Testing future undo button functionality (conditional) {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:51.918Z INFO [E2E-ErrorRecovery] Dedicated undo button not yet implemented - using nav-back fallback {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:51.922Z INFO [E2E-ErrorRecovery] Testing current nav-back as foundation for future undo button {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:51.923Z INFO [E2E-ErrorRecovery] Future undo button preparation complete {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:45.495Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6c4a658b9b4e00a31571-b27853a9ea962d4c4c11",
+              "file": "domains/error-recovery.spec.ts",
+              "line": 280,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "domains/state-persistence.spec.ts",
+      "file": "domains/state-persistence.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "State Persistence - Issue #23",
+          "file": "domains/state-persistence.spec.ts",
+          "line": 13,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should persist and restore game state after page reload",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 7,
+                      "status": "passed",
+                      "duration": 7706,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:29.770Z INFO [E2E-StatePersistence] Page loaded, testing state persistence {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:34.149Z INFO [E2E-StatePersistence] State after reload {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false},\"restoredState\":{\"user\":{\"rating\":1500,\"currentStreak\":5,\"preferences\":{\"theme\":\"dark\",\"showCoordinates\":true}},\"training\":{\"moveHistory\":[{\"from\":\"e2\",\"to\":\"e4\",\"san\":\"e4\"},{\"from\":\"e7\",\"to\":\"e5\",\"san\":\"e5\"}],\"isPlayerTurn\":true},\"progress\":{\"completedPositions\":[1,2]}}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:34.157Z INFO [E2E-StatePersistence] State persistence test completed successfully {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:26.350Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e225495717fb7198a83a-cbcc2483d48dd17d3379",
+              "file": "domains/state-persistence.spec.ts",
+              "line": 21,
+              "column": 7
+            },
+            {
+              "title": "should preserve position navigation state across reloads",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 8,
+                      "status": "passed",
+                      "duration": 6904,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:33.387Z INFO [E2E-StatePersistence] Position navigation state preserved after reload {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false},\"originalUrl\":\"http://127.0.0.1:3002/\",\"restoredUrl\":\"http://127.0.0.1:3002/\"}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:26.347Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e225495717fb7198a83a-194c9b0209bee98c6b45",
+              "file": "domains/state-persistence.spec.ts",
+              "line": 82,
+              "column": 7
+            },
+            {
+              "title": "should handle localStorage corruption gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 9,
+                      "status": "passed",
+                      "duration": 7793,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:34.420Z INFO [E2E-StatePersistence] App handles localStorage corruption gracefully {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false},\"pageContent\":true,\"hasError\":0}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:26.468Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e225495717fb7198a83a-a837bee1f2c73da12696",
+              "file": "domains/state-persistence.spec.ts",
+              "line": 103,
+              "column": 7
+            },
+            {
+              "title": "should preserve user preferences across sessions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 10,
+                      "status": "passed",
+                      "duration": 7694,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:34.152Z INFO [E2E-StatePersistence] User preferences persisted across sessions {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false},\"preferences\":{\"theme\":\"light\",\"showCoordinates\":false,\"animationSpeed\":\"fast\"}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:26.339Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e225495717fb7198a83a-4f26131934cd0d286fa7",
+              "file": "domains/state-persistence.spec.ts",
+              "line": 130,
+              "column": 7
+            },
+            {
+              "title": "should persist and restore game state after page reload",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 18,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8410,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:41.300Z INFO [E2E-StatePersistence] Page loaded, testing state persistence {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:45.083Z INFO [E2E-StatePersistence] State after reload {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false},\"restoredState\":{\"user\":{\"rating\":1500,\"currentStreak\":5,\"preferences\":{\"theme\":\"dark\",\"showCoordinates\":true}},\"training\":{\"moveHistory\":[{\"from\":\"e2\",\"to\":\"e4\",\"san\":\"e4\"},{\"from\":\"e7\",\"to\":\"e5\",\"san\":\"e5\"}],\"isPlayerTurn\":true},\"progress\":{\"completedPositions\":[1,2]}}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:45.093Z INFO [E2E-StatePersistence] State persistence test completed successfully {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:35.551Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e225495717fb7198a83a-ffaf8a8b42e06d1d93ef",
+              "file": "domains/state-persistence.spec.ts",
+              "line": 21,
+              "column": 7
+            },
+            {
+              "title": "should preserve position navigation state across reloads",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 19,
+                      "parallelIndex": 5,
+                      "status": "passed",
+                      "duration": 7317,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:43.418Z INFO [E2E-StatePersistence] Position navigation state preserved after reload {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false},\"originalUrl\":\"http://127.0.0.1:3002/\",\"restoredUrl\":\"http://127.0.0.1:3002/\"}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:35.638Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e225495717fb7198a83a-c9df38c443665714dcfc",
+              "file": "domains/state-persistence.spec.ts",
+              "line": 82,
+              "column": 7
+            },
+            {
+              "title": "should handle localStorage corruption gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 11,
+                      "status": "passed",
+                      "duration": 7422,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:44.229Z INFO [E2E-StatePersistence] App handles localStorage corruption gracefully {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false},\"pageContent\":true,\"hasError\":0}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:36.842Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e225495717fb7198a83a-79ace346e53c7a181ce3",
+              "file": "domains/state-persistence.spec.ts",
+              "line": 103,
+              "column": 7
+            },
+            {
+              "title": "should preserve user preferences across sessions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 20,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 8015,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:46.945Z INFO [E2E-StatePersistence] User preferences persisted across sessions {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false},\"preferences\":{\"theme\":\"light\",\"showCoordinates\":false,\"animationSpeed\":\"fast\"}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:38.060Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e225495717fb7198a83a-99f172224a621e7a1781",
+              "file": "domains/state-persistence.spec.ts",
+              "line": 130,
+              "column": 7
+            },
+            {
+              "title": "should persist and restore game state after page reload",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 28,
+                      "parallelIndex": 6,
+                      "status": "passed",
+                      "duration": 8065,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:50.441Z INFO [E2E-StatePersistence] Page loaded, testing state persistence {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:54.015Z INFO [E2E-StatePersistence] State after reload {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false},\"restoredState\":{\"user\":{\"rating\":1500,\"currentStreak\":5,\"preferences\":{\"theme\":\"dark\",\"showCoordinates\":true}},\"training\":{\"moveHistory\":[{\"from\":\"e2\",\"to\":\"e4\",\"san\":\"e4\"},{\"from\":\"e7\",\"to\":\"e5\",\"san\":\"e5\"}],\"isPlayerTurn\":true},\"progress\":{\"completedPositions\":[1,2]}}}\n"
+                        },
+                        {
+                          "text": "2025-07-14T09:31:54.024Z INFO [E2E-StatePersistence] State persistence test completed successfully {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:45.959Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e225495717fb7198a83a-07708d4a1c5ffc0e5f0b",
+              "file": "domains/state-persistence.spec.ts",
+              "line": 21,
+              "column": 7
+            },
+            {
+              "title": "should preserve position navigation state across reloads",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 29,
+                      "parallelIndex": 9,
+                      "status": "passed",
+                      "duration": 7130,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:53.219Z INFO [E2E-StatePersistence] Position navigation state preserved after reload {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false},\"originalUrl\":\"http://127.0.0.1:3002/\",\"restoredUrl\":\"http://127.0.0.1:3002/\"}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:46.092Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e225495717fb7198a83a-d2c1c3c5c3f5c8d428a4",
+              "file": "domains/state-persistence.spec.ts",
+              "line": 82,
+              "column": 7
+            },
+            {
+              "title": "should handle localStorage corruption gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 22,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 7856,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:52.495Z INFO [E2E-StatePersistence] App handles localStorage corruption gracefully {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false},\"pageContent\":true,\"hasError\":0}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:44.821Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e225495717fb7198a83a-2bf9b54b4d55dcbc1695",
+              "file": "domains/state-persistence.spec.ts",
+              "line": 103,
+              "column": 7
+            },
+            {
+              "title": "should preserve user preferences across sessions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 30,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8248,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "2025-07-14T09:31:54.885Z INFO [E2E-StatePersistence] User preferences persisted across sessions {\"platform\":{\"isWeb\":false,\"isMobile\":false,\"isAndroid\":false,\"isIOS\":false},\"preferences\":{\"theme\":\"light\",\"showCoordinates\":false,\"animationSpeed\":\"fast\"}}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-14T09:31:46.666Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e225495717fb7198a83a-bad9ca93580b4cba2621",
+              "file": "domains/state-persistence.spec.ts",
+              "line": 130,
               "column": 7
             }
           ]
@@ -363,9 +1613,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-07-14T07:42:52.841Z",
-    "duration": 8626.177,
-    "expected": 6,
+    "startTime": "2025-07-14T09:31:21.574Z",
+    "duration": 50518.344,
+    "expected": 33,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

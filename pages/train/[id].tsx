@@ -59,8 +59,12 @@ export const getStaticProps: GetStaticProps<TrainingPageProps> = async ({ params
     return { notFound: true };
   }
 
+  // Production-only logic - E2E tests will mock at network level
+
   try {
+    console.log('[getStaticProps] Loading position for ID:', id);
     const positionService = getServerPositionService();
+    console.log('[getStaticProps] Got position service:', positionService.constructor.name);
     const position = await positionService.getPosition(id);
     
     if (!position) {
