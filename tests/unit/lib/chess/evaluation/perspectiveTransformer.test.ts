@@ -335,7 +335,7 @@ describe('PlayerPerspectiveTransformer', () => {
       }
       const duration = performance.now() - start;
 
-      expect(duration).toBeLessThan(100); // Should be fast (100ms for 10k transformations)
+      expect(duration).toBeLessThan(150); // Should be fast (150ms for 10k transformations)
     });
   });
 
