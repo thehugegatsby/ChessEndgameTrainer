@@ -84,7 +84,8 @@ describe('TablebaseServiceAdapter', () => {
         getMaxPieces: jest.fn().mockReturnValue(7),
         getConfig: jest.fn().mockReturnValue({}),
         isHealthy: jest.fn().mockResolvedValue(true),
-        clearCache: jest.fn().mockResolvedValue(undefined)
+        clearCache: jest.fn().mockResolvedValue(undefined),
+        getTopMoves: jest.fn().mockResolvedValue([])
       };
       
       const throwingAdapter = new TablebaseServiceAdapter(throwingService);
@@ -102,7 +103,8 @@ describe('TablebaseServiceAdapter', () => {
         getMaxPieces: jest.fn().mockReturnValue(7),
         getConfig: jest.fn().mockReturnValue({}),
         isHealthy: jest.fn().mockResolvedValue(true),
-        clearCache: jest.fn().mockResolvedValue(undefined)
+        clearCache: jest.fn().mockResolvedValue(undefined),
+        getTopMoves: jest.fn().mockResolvedValue([])
       };
       
       const nullAdapter = new TablebaseServiceAdapter(nullService);

@@ -6,6 +6,7 @@
  * AFTER: ServiceContainer with dependency injection (Jest 30 compatible)
  */
 
+import React from 'react';
 import { createTestContainer, TestScenarios, TestAssertions } from '../utils';
 import type { IPlatformStorage } from '@shared/services/platform/types';
 

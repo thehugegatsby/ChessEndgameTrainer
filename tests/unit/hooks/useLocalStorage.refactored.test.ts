@@ -63,7 +63,7 @@ describe('useLocalStorage Hook - Refactored Version', () => {
           expect(result.current[2]).toBe(false); // isLoading should be false
         });
 
-        const [value, setter, isLoading, saveError] = result.current;
+        const [value, _setter, isLoading, saveError] = result.current;
         expect(value).toEqual(testValue);
         expect(isLoading).toBe(false);
         expect(saveError).toBeNull();
