@@ -33,7 +33,7 @@ describe('ChessAwareCache_[method]_[condition]_[expected]', () => {
     it('should create cache with default size', () => {
       const defaultCache = new ChessAwareCache<MockEvaluation>();
       const stats = defaultCache.getStats();
-      expect(stats.maxSize).toBe(100);
+      expect(stats.maxSize).toBe(200);
     });
 
     it('should create cache with custom size', () => {

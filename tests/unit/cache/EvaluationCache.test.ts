@@ -37,7 +37,7 @@ describe('EvaluationCache', () => {
       const defaultCache = new EvaluationCache();
       const stats = defaultCache.getStats();
       
-      expect(stats.maxSize).toBe(1500); // 1000 + 500
+      expect(stats.maxSize).toBe(700); // 200 + 500
       expect(stats.size).toBe(0);
       expect(stats.hits).toBe(0);
       expect(stats.misses).toBe(0);

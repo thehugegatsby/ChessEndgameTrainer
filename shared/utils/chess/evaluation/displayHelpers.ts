@@ -25,8 +25,8 @@ export const getMoveQualityDisplay = (
       return { 
         text: `#${mate}`, 
         className: 'eval-excellent',
-        color: 'var(--success-text)', 
-        bgColor: 'var(--success-bg)' 
+        color: UI.EVALUATION_COLORS.EXCELLENT.text, 
+        bgColor: UI.EVALUATION_COLORS.EXCELLENT.background 
       };
     }
     if (mate < 0) {
@@ -34,8 +34,8 @@ export const getMoveQualityDisplay = (
       return { 
         text: `#${Math.abs(mate)}`, 
         className: 'eval-neutral',
-        color: 'var(--text-secondary)', 
-        bgColor: 'var(--bg-accent)' 
+        color: UI.EVALUATION_COLORS.NEUTRAL.text, 
+        bgColor: UI.EVALUATION_COLORS.NEUTRAL.background 
       };
     }
   }
@@ -83,8 +83,8 @@ export const getMoveQualityDisplay = (
   return { 
     text: '⚪', 
     className: 'eval-neutral',
-    color: 'var(--text-secondary)', 
-    bgColor: 'var(--bg-accent)' 
+    color: UI.EVALUATION_COLORS.NEUTRAL.text, 
+    bgColor: UI.EVALUATION_COLORS.NEUTRAL.background 
   };
 };
 
