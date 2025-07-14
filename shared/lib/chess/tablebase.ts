@@ -23,6 +23,7 @@
 
 import { getLogger } from '@shared/services/logging';
 import { validateAndSanitizeFen } from '@shared/utils/fenValidator';
+import { ANIMATION } from '@shared/constants';
 
 export interface TablebaseResult {
   wdl: number; // Win/Draw/Loss: 2=win, 1=cursed win, 0=draw, -1=blessed loss, -2=loss
@@ -160,7 +161,7 @@ class TablebaseService {
       // - AbortController works in modern browsers
       // - Prevents UI freezing on slow connections
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const timeoutId = setTimeout(() => controller.abort(), ANIMATION.TABLEBASE_REQUEST_TIMEOUT);
       
       const response = await fetch(`${this.baseUrl}?fen=${encodeURIComponent(sanitizedFen)}`, {
         method: 'GET',

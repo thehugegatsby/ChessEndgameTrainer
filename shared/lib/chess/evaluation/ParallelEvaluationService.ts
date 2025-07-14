@@ -8,7 +8,7 @@
 import { EvaluationDeduplicator } from './EvaluationDeduplicator';
 import { ChessAwareCache } from './ChessAwareCache';
 import { getLogger } from '@shared/services/logging';
-import { CACHE } from '@shared/constants';
+import { CACHE, ANIMATION } from '@shared/constants';
 
 interface EngineEvaluation {
   score: number;
@@ -171,7 +171,7 @@ export class ParallelEvaluationService {
       if (firstResult.source === 'engine') {
         const remainingTablebase = await Promise.race([
           tablebasePromise,
-          new Promise<null>(resolve => setTimeout(() => resolve(null), 200))
+          new Promise<null>(resolve => setTimeout(() => resolve(null), ANIMATION.PARALLEL_EVALUATION_DELAY))
         ]);
 
         finalResult = {
@@ -185,7 +185,7 @@ export class ParallelEvaluationService {
         const remainingEngine = await Promise.race([
           enginePromise,
           new Promise<EngineEvaluation>(resolve => 
-            setTimeout(() => resolve(this.createFallbackEngineEvaluation()), 500)
+            setTimeout(() => resolve(this.createFallbackEngineEvaluation()), ANIMATION.PARALLEL_EVALUATION_FALLBACK)
           )
         ]);
 

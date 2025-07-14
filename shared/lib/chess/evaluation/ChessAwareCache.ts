@@ -7,7 +7,7 @@
  * - LRU eviction within priority groups
  */
 
-import { CACHE, EVALUATION } from '@shared/constants';
+import { CACHE, EVALUATION } from '../../../constants';
 
 interface CacheEntry<T> {
   value: T;
@@ -22,7 +22,7 @@ export class ChessAwareCache<T> {
   private cache = new Map<string, CacheEntry<T>>();
   private readonly maxSize: number;
   
-  constructor(maxSize = CACHE.CHESS_AWARE_CACHE_SIZE) {
+  constructor(maxSize: number = CACHE.CHESS_AWARE_CACHE_SIZE) {
     this.maxSize = maxSize;
   }
 

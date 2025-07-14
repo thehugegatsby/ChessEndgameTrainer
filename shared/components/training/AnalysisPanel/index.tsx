@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Move } from 'chess.js';
 import { MoveAnalysis } from './MoveAnalysis';
 import { AnalysisDetails } from './AnalysisDetails';
+import { DIMENSIONS } from '@shared/constants';
 
 interface AnalysisPanelProps {
   history: Move[];
@@ -58,7 +59,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(({
       className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-xl shadow-lg border-t border-gray-200 dark:border-gray-700 flex flex-col transform transition-transform duration-300 ease-in-out z-50 ${
         isVisible ? 'translate-y-0' : 'translate-y-full'
       }`} 
-      style={{ height: '400px' }}
+      style={{ height: `${DIMENSIONS.ANALYSIS_PANEL_HEIGHT}px` }}
     >
       {/* Compact Header */}
       <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-xl">

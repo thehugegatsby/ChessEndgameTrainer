@@ -6,16 +6,12 @@
 import { WebPlatformService } from '@shared/services/platform/web/WebPlatformService';
 import {
   IPlatformService,
-  IPlatformStorage,
-  IPlatformNotification,
-  IPlatformDevice,
-  IPlatformPerformance,
   Platform,
   DeviceInfo,
   MemoryInfo,
   NetworkStatus
 } from '@shared/services/platform/types';
-import { STORAGE, PERFORMANCE, ENGINE, UI, TIME, E2E } from '@shared/constants';
+import { STORAGE, ENGINE } from '@shared/constants/index';
 
 // Mock browser APIs for Jest 30 compatibility
 const mockNotification = jest.fn();
@@ -379,7 +375,7 @@ describe('WebPlatformService', () => {
         style: {},
         select: jest.fn(),
         remove: jest.fn()
-      };
+      } as unknown as HTMLTextAreaElement;
       const mockDocument = {
         createElement: jest.fn().mockReturnValue(mockTextArea),
         execCommand: jest.fn(),
@@ -387,7 +383,7 @@ describe('WebPlatformService', () => {
           appendChild: jest.fn(),
           removeChild: jest.fn()
         }
-      };
+      } as unknown as Document;
       
       Object.defineProperty(global, 'document', {
         value: mockDocument,
@@ -402,7 +398,7 @@ describe('WebPlatformService', () => {
       await service.clipboard.copy('fallback text');
       
       expect(mockDocument.createElement).toHaveBeenCalledWith('textarea');
-      expect(mockTextArea.value).toBe('fallback text');
+      expect((mockTextArea as any).value).toBe('fallback text');
       expect(mockDocument.execCommand).toHaveBeenCalledWith('copy');
       
       // Restore clipboard API
@@ -449,7 +445,10 @@ describe('WebPlatformService', () => {
   describe('Notification Service', () => {
     beforeEach(() => {
       // Mock the global Notification constructor and its static methods
-      const mockNotificationConstructor = jest.fn();
+      const mockNotificationConstructor = jest.fn() as jest.MockedFunction<any> & {
+        permission: string;
+        requestPermission: jest.MockedFunction<() => Promise<string>>;
+      };
       mockNotificationConstructor.permission = 'granted';
       mockNotificationConstructor.requestPermission = jest.fn().mockResolvedValue('granted');
       
@@ -473,7 +472,7 @@ describe('WebPlatformService', () => {
       const result = await service.notifications.requestPermission();
       
       expect(result).toBe(true);
-      expect(global.Notification.requestPermission).toHaveBeenCalled();
+      expect((global.Notification as any).requestPermission).toHaveBeenCalled();
     });
 
     it('should show notification', async () => {
@@ -495,9 +494,9 @@ describe('WebPlatformService', () => {
 
     it('should throw error for scheduled notifications', async () => {
       await expect(service.notifications.schedule({
-        id: 'test',
         title: 'Test',
-        scheduledTime: new Date()
+        body: 'Test body',
+        trigger: new Date()
       })).rejects.toThrow('Scheduled notifications not supported on web');
     });
   });

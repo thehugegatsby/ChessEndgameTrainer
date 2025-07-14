@@ -8,6 +8,7 @@ import { useTraining, useTrainingActions, useUIActions, useStore } from '@shared
 import { requestEngineMove } from '@shared/store/trainingActions';
 import { EndgamePosition } from '@shared/types';
 import { getLogger } from '@shared/services/logging';
+import { ANIMATION, DIMENSIONS } from '@shared/constants';
 
 
 // Extended evaluation interface that matches our new MovePanel requirements
@@ -145,7 +146,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     moveError,
     showEvaluationBriefly: () => {
       setShowLastEvaluation(true);
-      setTimeout(() => setShowLastEvaluation(false), 2000);
+      setTimeout(() => setShowLastEvaluation(false), ANIMATION.EVALUATION_FEEDBACK_DURATION);
     },
     handleReset: () => setResetKey(prev => prev + 1),
     handleDismissMoveError: () => {
@@ -440,7 +441,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
                   logger.debug('Move executed successfully', { moveIndex, newHistoryLength: history.length });
                   
                   // Warte kurz und dann nächster Zug
-                  setTimeout(playNextMove, 1500);
+                  setTimeout(playNextMove, ANIMATION.MOVE_PLAY_DELAY_NORMAL);
                 } else {
                   logger.warn('Move execution failed', { moveNotation });
                 }
@@ -448,13 +449,13 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
                 logger.warn('Move parsing returned null', { moveNotation });
                 // Versuche nächsten Zug
                 moveIndex++;
-                setTimeout(playNextMove, 500);
+                setTimeout(playNextMove, ANIMATION.MOVE_PLAY_DELAY_FAST);
               }
             } catch (error) {
               logger.error('Test move failed', error, { moveNotation });
               // Versuche nächsten Zug
               moveIndex++;
-              setTimeout(playNextMove, 500);
+              setTimeout(playNextMove, ANIMATION.MOVE_PLAY_DELAY_FAST);
             }
           } else {
             logger.info('Automated moves completed', { finalMoveIndex: moveIndex, finalHistoryLength: history.length });
@@ -462,7 +463,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
         };
         
         // Starte nach initialem Render
-        setTimeout(playNextMove, 2000);
+        setTimeout(playNextMove, ANIMATION.MOVE_PLAY_DELAY_SLOW);
       }
     }
   }, [game, isGameFinished, handleMove, testMoveProcessed]);
@@ -487,7 +488,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       <div 
         className="relative" 
         key={trainingState.resetKey} 
-        style={{ width: '600px', height: '600px' }}
+        style={{ width: `${DIMENSIONS.TRAINING_BOARD_SIZE}px`, height: `${DIMENSIONS.TRAINING_BOARD_SIZE}px` }}
         data-fen={currentFen}
         data-testid="training-board"
         data-engine-status={training.engineStatus}

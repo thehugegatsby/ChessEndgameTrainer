@@ -13,6 +13,7 @@ import type {
   TablebaseLookupResult 
 } from './ITablebaseService';
 import type { TablebaseResult } from '@shared/types/evaluation';
+import { ANIMATION } from '@shared/constants';
 
 /**
  * Mock tablebase service for development and testing
@@ -42,7 +43,7 @@ export class MockTablebaseService implements ITablebaseService {
 
   async lookupPosition(fen: string): Promise<TablebaseLookupResult | null> {
     // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 50 + Math.random() * 100));
+    await new Promise(resolve => setTimeout(resolve, ANIMATION.MOCK_SERVICE_DELAY));
     
     // Check cache first
     if (this.config.enableCaching && this.cache.has(fen)) {

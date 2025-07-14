@@ -5,7 +5,7 @@
  * Refactored from modern-driver-api.spec.ts to focus on app functionality
  */
 
-import { test, expect, Page, BrowserContext } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { getLogger } from '../../../shared/services/logging';
 import { E2E, STORAGE, UI } from '../../../shared/constants';
 import { resetMSWHandlers } from '../fixtures/msw-server';
@@ -26,7 +26,7 @@ test.describe('App Platform Integration Tests', () => {
       await context.grantPermissions(permissions);
     } catch (error) {
       // Some browsers don't support all permissions - continue anyway
-      logger.info(`Permission grant failed for ${browserName}: ${error.message}`);
+      logger.info(`Permission grant failed for ${browserName}: ${(error as Error).message}`);
     }
     
     // Navigate to training page
@@ -77,7 +77,7 @@ test.describe('App Platform Integration Tests', () => {
           }
           return { success: true };
         } catch (error) {
-          return { success: false, error: error.message };
+          return { success: false, error: (error as Error).message };
         }
       }, STORAGE.PREFIX);
       
@@ -138,7 +138,7 @@ test.describe('App Platform Integration Tests', () => {
         const clipboardContent = await page.evaluate(async () => {
           try {
             return await navigator.clipboard.readText();
-          } catch (error) {
+          } catch (error: unknown) {
             return null;
           }
         });

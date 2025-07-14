@@ -15,6 +15,7 @@ import { ToastContainer } from '@shared/components/ui/Toast';
 import { getGameStatus } from '@shared/utils/chess/gameStatus';
 import { useTraining, useTrainingActions, useUI, useUIActions } from '@shared/store/store';
 import { getTrainingDisplayTitle, formatPositionTitle } from '@shared/utils/titleFormatter';
+import { ANIMATION } from '@shared/constants';
 
 interface TrainingPageZustandProps {
   position: EndgamePosition;
@@ -67,9 +68,9 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
 
   const handleComplete = useCallback((isSuccess: boolean) => {
     if (isSuccess) {
-      showSuccess('Geschafft! Position erfolgreich gelöst!', 4000);
+      showSuccess('Geschafft! Position erfolgreich gelöst!', ANIMATION.SUCCESS_TOAST_DURATION);
     } else {
-      showError('Versuch es erneut', 3000);
+      showError('Versuch es erneut', ANIMATION.ERROR_TOAST_DURATION);
     }
     trainingActions.completeTraining(isSuccess);
   }, [trainingActions, showSuccess, showError]);

@@ -258,6 +258,49 @@ export const TIME = {
   WEEK: 7 * 24 * 60 * 60 * 1000,
 } as const;
 
+// Animation and Feedback Constants
+export const ANIMATION = {
+  // Training feedback animations
+  EVALUATION_FEEDBACK_DURATION: 2000,        // 2 seconds for evaluation feedback display
+  MOVE_PLAY_DELAY_FAST: 500,                 // 0.5 seconds for fast move playback
+  MOVE_PLAY_DELAY_NORMAL: 1500,              // 1.5 seconds for normal move playback
+  MOVE_PLAY_DELAY_SLOW: 2000,                // 2 seconds for slow move playback
+  
+  // Service timeouts
+  PARALLEL_EVALUATION_DELAY: 200,            // 200ms delay for parallel evaluation
+  PARALLEL_EVALUATION_FALLBACK: 500,         // 500ms fallback timeout
+  TABLEBASE_REQUEST_TIMEOUT: 5000,           // 5 seconds for tablebase requests
+  WORKER_DELAY: 100,                         // 100ms delay for worker operations
+  MOCK_SERVICE_DELAY: 10,                    // 10ms delay for mock services
+  
+  // Toast message durations
+  SUCCESS_TOAST_DURATION: 4000,              // 4 seconds for success messages
+  ERROR_TOAST_DURATION: 3000,                // 3 seconds for error messages
+  
+  // E2E test timeouts
+  VIEWPORT_CHANGE_DELAY: 100,                // 100ms delay for viewport changes
+  BREAKPOINT_DETECTION_TIMEOUT: 5000,        // 5 seconds for breakpoint detection
+} as const;
+
+// Board and UI Dimensions
+export const DIMENSIONS = {
+  // Board sizes
+  DEFAULT_BOARD_SIZE: 400,                   // Default chessboard size in pixels
+  TRAINING_BOARD_SIZE: 600,                  // Training board size in pixels
+  
+  // Panel heights
+  ANALYSIS_PANEL_HEIGHT: 400,                // Analysis panel height in pixels
+  
+  // Component minimum widths
+  MOVE_CONTAINER_MIN_WIDTH: 80,              // Minimum width for move containers
+  MOVE_NUMBER_MIN_WIDTH: 20,                 // Minimum width for move numbers
+  MOVE_DISPLAY_MIN_WIDTH: 45,                // Minimum width for move display
+  
+  // Breakpoint values (for E2E tests)
+  MOBILE_BREAKPOINT: 768,                    // Mobile breakpoint threshold
+  TABLET_BREAKPOINT: 1024,                   // Tablet breakpoint threshold
+} as const;
+
 
 // E2E Testing Constants
 export const E2E = {
@@ -405,4 +448,6 @@ export type TrainingConstants = typeof TRAINING;
 export type RatingConstants = typeof RATING;
 export type NetworkConstants = typeof NETWORK;
 export type TimeConstants = typeof TIME;
+export type AnimationConstants = typeof ANIMATION;
+export type DimensionsConstants = typeof DIMENSIONS;
 export type E2EConstants = typeof E2E;

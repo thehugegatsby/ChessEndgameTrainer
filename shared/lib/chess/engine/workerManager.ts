@@ -10,7 +10,7 @@ import type { EngineConfig, EngineResponse } from './types';
 import type { IWorker, IWorkerFactory, WorkerConfig } from './interfaces';
 import { DefaultWorkerFactory } from './interfaces';
 import { getLogger } from '../../../services/logging';
-import { ENGINE } from '@shared/constants';
+import { ENGINE, ANIMATION } from '@shared/constants';
 
 const logger = getLogger();
 
@@ -84,7 +84,7 @@ export class StockfishWorkerManager {
       // Wait for 'uciok' response to confirm UCI mode
       // TODO: Implement waitForMessage helper for proper uciok handling
       // For now, use a small delay to allow uciok processing
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, ANIMATION.WORKER_DELAY));
       
       // UCI Protocol Step 2: Send 'isready' to check if engine is ready
       this.worker.postMessage('isready');

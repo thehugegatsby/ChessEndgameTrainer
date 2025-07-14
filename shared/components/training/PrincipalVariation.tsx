@@ -14,6 +14,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { UI_CONSTANTS } from '@shared/constants/uiConstants';
+import { DIMENSIONS } from '@shared/constants';
 
 export interface PrincipalVariationProps {
   /** Array of moves in algebraic notation (e.g., ['e2e4', 'e7e5', 'g1f3']) */
@@ -137,7 +138,7 @@ export const PrincipalVariation: React.FC<PrincipalVariationProps> = React.memo(
             <React.Fragment key={`move-${index}`}>
               {/* Move number for white moves */}
               {isEven && (
-                <span className="move-number text-xs text-gray-500 dark:text-gray-400 font-medium min-w-[20px]">
+                <span className="move-number text-xs text-gray-500 dark:text-gray-400 font-medium" style={{ minWidth: `${DIMENSIONS.MOVE_NUMBER_MIN_WIDTH}px` }}>
                   {Math.floor(index / 2) + 1}.
                 </span>
               )}

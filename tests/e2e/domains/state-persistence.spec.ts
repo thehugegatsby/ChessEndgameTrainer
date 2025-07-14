@@ -7,7 +7,7 @@
 
 import { test, expect } from '@playwright/test';
 import { getLogger } from '../../../shared/services/logging';
-import { E2E, TRAINING } from '../../../shared/constants';
+import { E2E, RATING } from '../../../shared/constants';
 
 test.describe('State Persistence - Issue #23', () => {
   const logger = getLogger().setContext('E2E-StatePersistence');
@@ -133,7 +133,7 @@ test.describe('State Persistence - Issue #23', () => {
     // 🔧 STEP 2: Set preferences directly in localStorage
     const testState = {
       user: { 
-        rating: TRAINING.DEFAULT_RATING,
+        rating: RATING.DEFAULT_RATING,
         currentStreak: 0,
         preferences: E2E.DATA.PREFERENCES
       }

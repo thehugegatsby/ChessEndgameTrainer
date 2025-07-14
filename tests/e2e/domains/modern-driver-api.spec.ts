@@ -5,9 +5,9 @@
  * Issue #17: E2E tests für ModernDriver API
  */
 
-import { test, expect, Page, BrowserContext } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { getLogger } from '../../../shared/services/logging';
-import { E2E, STORAGE, PERFORMANCE, TIME } from '../../../shared/constants';
+import { E2E, STORAGE, PERFORMANCE, TIME, UI } from '../../../shared/constants';
 import { resetMSWHandlers } from '../fixtures/msw-server';
 
 test.describe('Modern Driver API Tests', () => {
@@ -20,15 +20,15 @@ test.describe('Modern Driver API Tests', () => {
     const permissions = ['notifications'];
     if (browserName === 'chromium') {
       permissions.push('clipboard-read', 'clipboard-write');
-    } else if (browserName === 'firefox') {
-      permissions.push('clipboard-write');
     }
+    // Firefox doesn't support clipboard-write permission
     
     try {
       await context.grantPermissions(permissions);
-    } catch (error) {
+    } catch (error: unknown) {
       // Some browsers don't support all permissions - log and continue
-      console.warn(`Permission grant failed for ${browserName}: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.warn(`Permission grant failed for ${browserName}: ${errorMessage}`);
     }
     
     // Navigate to training page for testing
@@ -80,8 +80,9 @@ test.describe('Modern Driver API Tests', () => {
             localStorage.setItem(`${prefix}large-${i}`, largeData);
           }
           return { success: true };
-        } catch (error) {
-          return { success: false, error: error.message };
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          return { success: false, error: errorMessage };
         }
       }, STORAGE.PREFIX);
       
@@ -205,8 +206,9 @@ test.describe('Modern Driver API Tests', () => {
             return { success: true, data: readText };
           }
           return { success: false, reason: 'Clipboard API not available' };
-        } catch (error) {
-          return { success: false, reason: error.message };
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          return { success: false, reason: errorMessage };
         }
       });
       
@@ -227,8 +229,9 @@ test.describe('Modern Driver API Tests', () => {
             return { success: true };
           }
           return { success: false, reason: 'Clipboard API not available' };
-        } catch (error) {
-          return { success: false, reason: error.message };
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          return { success: false, reason: errorMessage };
         }
       });
       
@@ -258,9 +261,13 @@ test.describe('Modern Driver API Tests', () => {
   });
 
   test.describe('Notification API Tests', () => {
-    test('should handle notification permissions', async ({ page, context }) => {
-      // Grant notification permissions
-      await context.grantPermissions(['notifications']);
+    test('should handle notification permissions', async ({ page, context, browserName }) => {
+      // Grant notification permissions (Firefox doesn't support clipboard-write)
+      const permissions = ['notifications'];
+      if (browserName === 'chromium') {
+        permissions.push('clipboard-read', 'clipboard-write');
+      }
+      await context.grantPermissions(permissions);
       
       const notificationResult = await page.evaluate(async () => {
         if ('Notification' in window) {
@@ -328,33 +335,77 @@ test.describe('Modern Driver API Tests', () => {
       // Test different viewport sizes
       const breakpoints = [
         { name: 'mobile', width: UI.BREAKPOINTS.MOBILE, height: 667 },
-        { name: 'tablet', width: UI.BREAKPOINTS.TABLET, height: 1024 },
+        { name: 'tablet', width: 800, height: 1024 }, // Use 800 instead of 1024 to be in tablet range
         { name: 'desktop', width: UI.BREAKPOINTS.DESKTOP, height: 720 }
       ];
       
       for (const breakpoint of breakpoints) {
         await page.setViewportSize({ width: breakpoint.width, height: breakpoint.height });
         
-        const viewportInfo = await page.evaluate(() => {
+        // Wait for viewport change to be processed by the application
+        await page.waitForTimeout(100);
+        
+        // Use expect.poll to wait for breakpoint detection to complete
+        if (breakpoint.name === 'mobile') {
+          await expect.poll(async () => {
+            const viewportInfo = await page.evaluate(() => {
+              return {
+                width: window.innerWidth,
+                height: window.innerHeight,
+                isMobile: window.innerWidth < 768,
+                isTablet: window.innerWidth >= 768 && window.innerWidth < 1024,
+                isDesktop: window.innerWidth >= 1024
+              };
+            });
+            return viewportInfo.isMobile;
+          }, {
+            message: `Mobile breakpoint not detected for width ${breakpoint.width}`,
+            timeout: 5000
+          }).toBe(true);
+        } else if (breakpoint.name === 'tablet') {
+          await expect.poll(async () => {
+            const viewportInfo = await page.evaluate(() => {
+              return {
+                width: window.innerWidth,
+                height: window.innerHeight,
+                isMobile: window.innerWidth < 768,
+                isTablet: window.innerWidth >= 768 && window.innerWidth < 1024,
+                isDesktop: window.innerWidth >= 1024
+              };
+            });
+            return viewportInfo.isTablet;
+          }, {
+            message: `Tablet breakpoint not detected for width ${breakpoint.width}`,
+            timeout: 5000
+          }).toBe(true);
+        } else {
+          await expect.poll(async () => {
+            const viewportInfo = await page.evaluate(() => {
+              return {
+                width: window.innerWidth,
+                height: window.innerHeight,
+                isMobile: window.innerWidth < 768,
+                isTablet: window.innerWidth >= 768 && window.innerWidth < 1024,
+                isDesktop: window.innerWidth >= 1024
+              };
+            });
+            return viewportInfo.isDesktop;
+          }, {
+            message: `Desktop breakpoint not detected for width ${breakpoint.width}`,
+            timeout: 5000
+          }).toBe(true);
+        }
+        
+        // Verify the viewport dimensions are set correctly
+        const finalViewportInfo = await page.evaluate(() => {
           return {
             width: window.innerWidth,
-            height: window.innerHeight,
-            isMobile: window.innerWidth < 768,
-            isTablet: window.innerWidth >= 768 && window.innerWidth < 1024,
-            isDesktop: window.innerWidth >= 1024
+            height: window.innerHeight
           };
         });
         
-        expect(viewportInfo.width).toBe(breakpoint.width);
-        expect(viewportInfo.height).toBe(breakpoint.height);
-        
-        if (breakpoint.name === 'mobile') {
-          expect(viewportInfo.isMobile).toBe(true);
-        } else if (breakpoint.name === 'tablet') {
-          expect(viewportInfo.isTablet).toBe(true);
-        } else {
-          expect(viewportInfo.isDesktop).toBe(true);
-        }
+        expect(finalViewportInfo.width).toBe(breakpoint.width);
+        expect(finalViewportInfo.height).toBe(breakpoint.height);
       }
     });
   });
@@ -392,7 +443,7 @@ test.describe('Modern Driver API Tests', () => {
 
     test('should handle modern error handling', async ({ page }) => {
       const errorHandling = await page.evaluate(() => {
-        const results = [];
+        const results: Array<{ type: string; caught: boolean; message: string }> = [];
         
         // Test try-catch with async/await
         const testAsyncError = async () => {
@@ -400,8 +451,9 @@ test.describe('Modern Driver API Tests', () => {
             await new Promise((_, reject) => {
               setTimeout(() => reject(new Error('Test async error')), 10);
             });
-          } catch (error) {
-            results.push({ type: 'async-error', caught: true, message: error.message });
+          } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            results.push({ type: 'async-error', caught: true, message: errorMessage });
           }
         };
         
@@ -416,7 +468,7 @@ test.describe('Modern Driver API Tests', () => {
           const results = await Promise.allSettled(promises);
           return results.map(result => ({
             status: result.status,
-            value: result.status === 'fulfilled' ? result.value : result.reason.message
+            value: result.status === 'fulfilled' ? result.value : (result.reason instanceof Error ? result.reason.message : String(result.reason))
           }));
         };
         
