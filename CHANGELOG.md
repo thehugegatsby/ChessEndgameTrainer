@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **MSW (Mock Service Worker) Integration** (2025-07-14)
+  - Installed MSW 2.x for HTTP request mocking in E2E tests
+  - Complete MSW architecture with handler configuration (`tests/e2e/fixtures/msw-handlers.ts`)
+  - Server setup for deterministic API testing (`tests/e2e/fixtures/msw-server.ts`)
+  - Route mocking service for network error simulation and slow response testing
+  - Integration with existing Playwright E2E test infrastructure
+  - Documentation added to `docs/testing/TESTING_GUIDELINES.md` with comprehensive examples
+  - Service worker pattern implementation for realistic browser testing
+  - Type-safe handler composition and best practices established
+
 ### Fixed
 - **E2E Test System Stabilization Complete** (2025-07-14)
   - All 6 E2E tests now passing (100% success rate)

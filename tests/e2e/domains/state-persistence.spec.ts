@@ -6,16 +6,14 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { ChessBoardPage } from '../../page-objects/ChessBoardPage';
 import { getLogger } from '../../../shared/services/logging';
 import { E2E, TRAINING } from '../../../shared/constants';
 
 test.describe('State Persistence - Issue #23', () => {
-  let chessBoardPage: ChessBoardPage;
   const logger = getLogger().setContext('E2E-StatePersistence');
 
-  test.beforeEach(async ({ page }) => {
-    chessBoardPage = new ChessBoardPage(page);
+  test.beforeEach(async () => {
+    // Setup for each test
   });
 
   test('should persist and restore game state after page reload', async ({ page }) => {

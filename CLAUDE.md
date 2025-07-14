@@ -76,7 +76,7 @@ npm run test:integration
 npm run test:performance
 ```
 
-⚠️ **WICHTIG**: E2E tests pending rewrite - see ISSUE_E2E_REWRITE.md for details!
+✅ **E2E Tests**: TypeScript errors fixed - tests ready for execution
 
 ## Configuration
 - **Central Config**: `/config/constants.ts` - Contains DEV_PORT (3002) and URLs

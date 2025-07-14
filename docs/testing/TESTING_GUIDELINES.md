@@ -194,6 +194,183 @@ jest.mock('@shared/lib/chess/evaluation/providerAdapters', () => ({
 }));
 ```
 
+## 🌐 MSW (Mock Service Worker) Integration
+
+### MSW Architecture
+
+**MSW Integration Status**: ✅ **Installed and Configured**
+- **Framework**: MSW 2.x with Playwright E2E integration  
+- **Purpose**: HTTP request interception for E2E testing
+- **Coverage**: API mocking, service worker patterns, deterministic testing
+
+### MSW Setup Pattern
+
+```typescript
+// MSW Handler Configuration
+// File: tests/e2e/fixtures/msw-handlers.ts
+import { http, HttpResponse } from 'msw';
+import { E2E } from '../../../shared/constants';
+
+export const handlers = [
+  // Mock position service API
+  http.get(`${E2E.API_BASE_URL}/api/positions/:id`, ({ params }) => {
+    const { id } = params;
+    return HttpResponse.json({
+      id,
+      fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+      title: `Test Position ${id}`,
+      difficulty: 'intermediate'
+    });
+  }),
+  
+  // Mock tablebase lookups
+  http.get(`${E2E.TABLEBASE_API_URL}/:fen`, ({ params }) => {
+    return HttpResponse.json({
+      wdl: 0,
+      category: 'draw',
+      dtm: null
+    });
+  })
+];
+```
+
+### MSW Server Configuration
+
+```typescript
+// MSW Server Setup  
+// File: tests/e2e/fixtures/msw-server.ts
+import { setupServer } from 'msw/node';
+import { handlers } from './msw-handlers';
+
+export const server = setupServer(...handlers);
+
+// Global setup for all E2E tests
+beforeAll(() => {
+  server.listen({ onUnhandledRequest: 'error' });
+});
+
+afterEach(() => {
+  server.resetHandlers();
+});
+
+afterAll(() => {
+  server.close();
+});
+```
+
+### E2E Test Integration
+
+```typescript
+// E2E Test with MSW
+// File: tests/e2e/domains/core-training.spec.ts
+import { test, expect } from '@playwright/test';
+import { server } from '../fixtures/msw-server';
+import { http, HttpResponse } from 'msw';
+
+test.describe('Training with MSW', () => {
+  test('should handle mocked position loading', async ({ page }) => {
+    // Override default handler for specific test
+    server.use(
+      http.get('/api/positions/1', () => {
+        return HttpResponse.json({
+          id: '1',
+          fen: '8/8/8/8/8/8/4K3/4k1Q1 w - - 0 1',
+          title: 'King & Queen vs King',
+          difficulty: 'beginner'
+        });
+      })
+    );
+
+    await page.goto('/train/1');
+    
+    // Verify mocked data is displayed
+    await expect(page.locator('[data-testid="position-title"]')).toContainText('King & Queen vs King');
+    await expect(page.locator('[data-testid="difficulty"]')).toContainText('beginner');
+  });
+});
+```
+
+### Route Mocking Pattern
+
+```typescript
+// Advanced Route Mocking
+// File: tests/e2e/fixtures/route-mocking.ts
+export class RouteMockingService {
+  constructor(private server: SetupServer) {}
+
+  mockPositionNotFound(id: string) {
+    this.server.use(
+      http.get(`/api/positions/${id}`, () => {
+        return new HttpResponse(null, { status: 404 });
+      })
+    );
+  }
+
+  mockSlowResponse(delay: number = 3000) {
+    this.server.use(
+      http.get('/api/positions/*', async () => {
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return HttpResponse.json({ /* data */ });
+      })
+    );
+  }
+
+  mockNetworkError() {
+    this.server.use(
+      http.get('/api/positions/*', () => {
+        return HttpResponse.error();
+      })
+    );
+  }
+}
+```
+
+### MSW vs Jest Mocking
+
+**Use MSW for**:
+- ✅ HTTP requests in E2E tests
+- ✅ Service worker testing  
+- ✅ Network error simulation
+- ✅ API integration testing
+
+**Use Jest mocks for**:
+- ✅ Unit test module mocking
+- ✅ Function/service interface mocking
+- ✅ Component dependency injection
+- ✅ Synchronous operation testing
+
+### MSW Best Practices
+
+```typescript
+// Best Practice: Type-safe handlers
+interface PositionResponse {
+  id: string;
+  fen: string;
+  title: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+}
+
+const createPositionHandler = (data: PositionResponse) => {
+  return http.get(`/api/positions/${data.id}`, () => {
+    return HttpResponse.json<PositionResponse>(data);
+  });
+};
+
+// Best Practice: Handler composition
+export const createTestHandlers = (scenario: 'success' | 'error' | 'slow') => {
+  const baseHandlers = [/* common handlers */];
+  
+  switch (scenario) {
+    case 'error':
+      return [...baseHandlers, ...errorHandlers];
+    case 'slow':
+      return [...baseHandlers, ...slowHandlers];
+    default:
+      return baseHandlers;
+  }
+};
+```
+
 ## 🚀 E2E Testing Status
 
 ### Current Status: DISABLED

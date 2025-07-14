@@ -97,7 +97,6 @@
     "dotenv": "^17.0.1",
     "eslint": "^8.56.0",
     "eslint-config-next": "14.1.0",
-    "expo-cli": "^6.3.10",
     "express": "^5.1.0",
     "firebase-admin": "^13.4.0",
     "glob": "^10.3.10",

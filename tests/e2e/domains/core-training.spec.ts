@@ -13,7 +13,7 @@ import { resetMSWHandlers } from '../fixtures/msw-server';
 test.describe('Core Training Workflow', () => {
   const logger = getLogger().setContext('E2E-CoreTraining');
   
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async () => {
     // Reset MSW handlers for clean test isolation
     resetMSWHandlers();
   });
