@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { ServiceContainer, IServiceContainer, IBrowserAPIs } from '@shared/services/container';
+import { ServiceContainer, IServiceContainer } from '@shared/services/container';
 import { BrowserAPIs } from '@shared/services/platform/web/WebPlatformService';
 import { MockStorage } from './MockStorage';
 
@@ -81,37 +81,37 @@ export function createTestContainer(overrides?: TestServiceOverrides): IServiceC
 
   // Register individual platform services that delegate to the main service
   container.register('platform.storage', (c) => {
-    const platformService = c.resolveCustom('platform.service');
+    const platformService = c.resolveCustom('platform.service') as any;
     return platformService.storage;
   });
   
   container.register('platform.notifications', (c) => {
-    const platformService = c.resolveCustom('platform.service');
+    const platformService = c.resolveCustom('platform.service') as any;
     return platformService.notifications;
   });
   
   container.register('platform.device', (c) => {
-    const platformService = c.resolveCustom('platform.service');
+    const platformService = c.resolveCustom('platform.service') as any;
     return platformService.device;
   });
   
   container.register('platform.performance', (c) => {
-    const platformService = c.resolveCustom('platform.service');
+    const platformService = c.resolveCustom('platform.service') as any;
     return platformService.performance;
   });
   
   container.register('platform.clipboard', (c) => {
-    const platformService = c.resolveCustom('platform.service');
+    const platformService = c.resolveCustom('platform.service') as any;
     return platformService.clipboard;
   });
   
   container.register('platform.share', (c) => {
-    const platformService = c.resolveCustom('platform.service');
+    const platformService = c.resolveCustom('platform.service') as any;
     return platformService.share;
   });
   
   container.register('platform.analytics', (c) => {
-    const platformService = c.resolveCustom('platform.service');
+    const platformService = c.resolveCustom('platform.service') as any;
     return platformService.analytics;
   });
 
@@ -152,7 +152,7 @@ export function createTestWrapper(overrides?: TestServiceOverrides) {
 export function createMockLocalStorage(): Storage {
   const store: Record<string, string> = {};
 
-  const mockFn = (impl: Function) => {
+  const mockFn = (impl: (...args: any[]) => any) => {
     if (typeof jest !== 'undefined' && jest.fn) {
       return jest.fn(impl);
     }

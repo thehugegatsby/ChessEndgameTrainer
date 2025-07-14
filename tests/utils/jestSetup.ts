@@ -3,6 +3,7 @@
  * Common setup patterns for Jest 30 with ServiceContainer
  */
 
+import React from 'react';
 import { IServiceContainer } from '@shared/services/container';
 import { createTestContainer, TestServiceOverrides } from './createTestContainer';
 
@@ -161,8 +162,8 @@ export const waitForServicesReady = async (container: IServiceContainer): Promis
  */
 export function debugContainer(container: IServiceContainer): void {
   if (process.env.NODE_ENV === 'test' && process.env.DEBUG_CONTAINER) {
-    console.log('Container Stats:', container.getStats());
-    console.log('Registered Keys:', container.getRegisteredKeys());
+    console.log('Container Stats:', (container as any).getStats?.());
+    console.log('Registered Keys:', (container as any).getRegisteredKeys?.());
   }
 }
 

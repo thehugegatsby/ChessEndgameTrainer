@@ -275,37 +275,37 @@ export class ServiceContainer implements IServiceContainer {
     
     // Register individual services that delegate to the main service
     this.register('platform.storage', (container) => {
-      const platformService = container.resolveCustom('platform.service');
+      const platformService = container.resolveCustom('platform.service') as any;
       return platformService.storage;
     });
     
     this.register('platform.notifications', (container) => {
-      const platformService = container.resolveCustom('platform.service');
+      const platformService = container.resolveCustom('platform.service') as any;
       return platformService.notifications;
     });
     
     this.register('platform.device', (container) => {
-      const platformService = container.resolveCustom('platform.service');
+      const platformService = container.resolveCustom('platform.service') as any;
       return platformService.device;
     });
     
     this.register('platform.performance', (container) => {
-      const platformService = container.resolveCustom('platform.service');
+      const platformService = container.resolveCustom('platform.service') as any;
       return platformService.performance;
     });
     
     this.register('platform.clipboard', (container) => {
-      const platformService = container.resolveCustom('platform.service');
+      const platformService = container.resolveCustom('platform.service') as any;
       return platformService.clipboard;
     });
     
     this.register('platform.share', (container) => {
-      const platformService = container.resolveCustom('platform.service');
+      const platformService = container.resolveCustom('platform.service') as any;
       return platformService.share;
     });
     
     this.register('platform.analytics', (container) => {
-      const platformService = container.resolveCustom('platform.service');
+      const platformService = container.resolveCustom('platform.service') as any;
       return platformService.analytics;
     });
   }

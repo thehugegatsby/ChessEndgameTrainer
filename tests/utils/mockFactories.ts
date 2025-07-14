@@ -18,14 +18,14 @@ import type {
 } from '@shared/services/platform/types';
 
 // Helper to create mock functions that work with or without Jest
-const mockFn = (impl?: Function) => {
+const mockFn = (impl?: (...args: any[]) => any) => {
   if (typeof jest !== 'undefined' && jest.fn) {
     return impl ? jest.fn(impl) : jest.fn();
   }
   return impl || (() => {});
 };
 
-const asyncMockFn = (impl?: Function) => {
+const asyncMockFn = (impl?: (...args: any[]) => any) => {
   if (typeof jest !== 'undefined' && jest.fn) {
     return impl ? jest.fn(impl) : jest.fn().mockResolvedValue(undefined);
   }
@@ -215,7 +215,7 @@ export const MockScenarios = {
    */
   offline: () => {
     const service = createMockPlatformService();
-    service.device.getNetworkStatus = mockFn(() => ({
+    (service.device.getNetworkStatus as any) = mockFn(() => ({
       isOnline: false,
       type: 'none' as const,
       effectiveType: undefined,
@@ -229,8 +229,8 @@ export const MockScenarios = {
    */
   lowEndDevice: () => {
     const service = createMockPlatformService();
-    service.device.isLowEndDevice = mockFn(() => true);
-    service.device.getMemoryInfo = mockFn(() => ({
+    (service.device.isLowEndDevice as any) = mockFn(() => true);
+    (service.device.getMemoryInfo as any) = mockFn(() => ({
       totalMemory: 2 * 1024 * 1024 * 1024, // 2GB
       availableMemory: 512 * 1024 * 1024, // 512MB
       usedMemory: 1.5 * 1024 * 1024 * 1024 // 1.5GB
@@ -243,9 +243,9 @@ export const MockScenarios = {
    */
   noPermissions: () => {
     const service = createMockPlatformService();
-    service.notifications.requestPermission = asyncMockFn(async () => false);
-    service.clipboard.hasContent = asyncMockFn(async () => false);
-    service.share.canShare = mockFn(() => false);
+    (service.notifications.requestPermission as any) = asyncMockFn(async () => false);
+    (service.clipboard.hasContent as any) = asyncMockFn(async () => false);
+    (service.share.canShare as any) = mockFn(() => false);
     return service;
   }
 };

@@ -9,7 +9,7 @@ module.exports = {
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   setupFilesAfterEnv: ['<rootDir>/config/jest/jest.setup.js'],
-  testPathIgnorePatterns: ['/node_modules/', '/.next/', 'jest.setup.ts', '/app/mobile/', '/tests/e2e/'],
+  testPathIgnorePatterns: ['/node_modules/', '/.next/', 'jest.setup.ts', '/app/mobile/', '/tests/e2e/', '.*\\.skip\\..*'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/shared/$1',
     '^@app/(.*)$': '<rootDir>/app/$1',
@@ -28,6 +28,7 @@ module.exports = {
     '<rootDir>/shared/**/__tests__/**/*.[jt]s?(x)',
     '<rootDir>/shared/**/*.{spec,test}.[jt]s?(x)',
     '<rootDir>/tests/**/*.{spec,test}.[jt]s?(x)',
+    '!<rootDir>/tests/e2e/**',
     '<rootDir>/app/web/**/__tests__/**/*.[jt]s?(x)',
     '<rootDir>/app/web/**/*.{spec,test}.[jt]s?(x)',
     '<rootDir>/app/mobile/**/__tests__/**/*.[jt]s?(x)',

@@ -233,7 +233,7 @@ class WebDevice implements IPlatformDevice {
       this.window?.screen?.height || 1080
     );
     
-    return hasTouch && screenSize >= 768 && 
+    return !!hasTouch && screenSize >= 768 && 
            (userAgent.includes('tablet') || userAgent.includes('ipad'));
   }
 }

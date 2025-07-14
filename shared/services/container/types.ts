@@ -25,7 +25,7 @@ export interface IBrowserAPIs {
 }
 
 // Service identifier type (string literal for type safety)
-export type ServiceKey<T = any> = string;
+export type ServiceKey = string;
 
 // Service factory function type
 export type ServiceFactory<T> = (container: IServiceContainer) => T;
