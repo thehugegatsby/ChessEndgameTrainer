@@ -5,10 +5,15 @@ import { getLogger } from '../services/logging';
 const logger = getLogger().setContext('useLocalStorage');
 
 /**
- * INTERNAL: Full-featured async hook with loading state and error handling
- * Private implementation used by both legacy and new APIs
+ * Custom hook for managing localStorage with React state
+ * Uses platform abstraction for cross-platform compatibility
+ * 
+ * REFACTORED VERSION: Fully async, ServiceContainer-compatible
+ * - Eliminates direct window.localStorage access
+ * - Uses only platform service for ALL storage operations
+ * - Perfect Jest 30 compatibility through dependency injection
  */
-function useLocalStorageInternal<T>(
+export function useLocalStorage<T>(
   key: string,
   initialValue: T | (() => T)
 ): [
@@ -99,19 +104,17 @@ function useLocalStorageInternal<T>(
 }
 
 /**
- * Custom hook for managing localStorage with React state
- * Uses platform abstraction for cross-platform compatibility
+ * Backward compatibility hook with synchronous behavior
+ * Uses the new async hook but provides a fallback for immediate values
  * 
- * BACKWARD COMPATIBILITY: This API maintains the original 2-value return
- * [value, setValue] for existing code while using the new architecture internally.
- * 
- * For new code, consider using useLocalStorageWithState for full error handling.
+ * ⚠️ DEPRECATED: Use the main useLocalStorage hook instead
+ * This exists only for gradual migration of existing components
  */
-export function useLocalStorage<T>(
+export function useLocalStorageSync<T>(
   key: string,
   initialValue: T | (() => T)
 ): [T, (value: T | ((val: T) => T)) => void] {
-  const [asyncValue, setAsyncValue, isLoading, saveError] = useLocalStorageInternal(key, initialValue);
+  const [asyncValue, setAsyncValue, isLoading, saveError] = useLocalStorage(key, initialValue);
   
   const resolvedInitialValue = useMemo(() => {
     return typeof initialValue === 'function' 
@@ -119,49 +122,20 @@ export function useLocalStorage<T>(
       : initialValue;
   }, [initialValue]);
 
-  // Return initial value while loading, then switch to loaded value (backward compatible)
+  // Return initial value while loading, then switch to loaded value
   const currentValue = isLoading ? resolvedInitialValue : (asyncValue ?? resolvedInitialValue);
   
-  // Wrapper for the setter to maintain backward compatible interface
-  const compatSetValue = useCallback((value: T | ((val: T) => T)) => {
+  // Wrapper for the sync setter to maintain sync interface
+  const syncSetValue = useCallback((value: T | ((val: T) => T)) => {
     const valueToStore = value instanceof Function ? value(currentValue) : value;
+    // Call the async setter (now synchronous, just updates state)
     setAsyncValue(valueToStore);
     
-    // Log save errors (backward compatible - original didn't expose errors)
+    // Log save errors if they occur
     if (saveError) {
-      logger.warn(`Storage save error (backward compatibility mode): ${saveError.message}`);
+      logger.warn(`Storage save error: ${saveError.message}`);
     }
   }, [currentValue, setAsyncValue, saveError]);
 
-  return [currentValue, compatSetValue];
-}
-
-/**
- * Enhanced hook with full loading state and error handling
- * New API that exposes all async behavior and error states
- * 
- * Returns: [value, setValue, isLoading, saveError]
- */
-export function useLocalStorageWithState<T>(
-  key: string,
-  initialValue: T | (() => T)
-): [
-  T | undefined,
-  (value: T | ((val: T | undefined) => T)) => void,
-  boolean,
-  Error | null
-] {
-  return useLocalStorageInternal(key, initialValue);
-}
-
-/**
- * ⚠️ DEPRECATED: Legacy sync wrapper - use useLocalStorage instead
- * This exists only for gradual migration of existing components
- */
-export function useLocalStorageSync<T>(
-  key: string,
-  initialValue: T | (() => T)
-): [T, (value: T | ((val: T) => T)) => void] {
-  // Just use the backward compatible version
-  return useLocalStorage(key, initialValue);
+  return [currentValue, syncSetValue];
 }

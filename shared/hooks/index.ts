@@ -3,7 +3,7 @@
 // Main hooks - use these
 export { useTrainingGame } from './useTrainingGame';
 export { useEvaluation } from './useEvaluation';
-export { useLocalStorage } from './useLocalStorage';
+export { useLocalStorage, useLocalStorageWithState, useLocalStorageSync } from './useLocalStorage';
 export { useDebounce } from './useDebounce';
 
 // Re-export existing hooks if any
