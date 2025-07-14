@@ -9,6 +9,15 @@ export interface TablebaseData {
   wdlAfter?: number;
   category?: string;
   dtz?: number;
+  // Top 3 tablebase moves with DTZ/DTM like Lichess
+  topMoves?: Array<{
+    move: string;
+    san: string;
+    dtz: number;
+    dtm: number;
+    wdl: number;
+    category: 'win' | 'draw' | 'loss';
+  }>;
 }
 
 
@@ -28,6 +37,17 @@ export interface EvaluationData {
   multipv?: number;       // Multi-PV index
   currmove?: string;      // Current move being analyzed
   currmovenumber?: number; // Current move number
+  // Top 3 engine moves with Multi-PV like Lichess
+  multiPvResults?: Array<{
+    move: string;
+    san: string;
+    score: {
+      type: 'cp' | 'mate';
+      value: number;
+    };
+    pv: string[];
+    rank: number;
+  }>;
 }
 
 export interface EvaluationDisplay {

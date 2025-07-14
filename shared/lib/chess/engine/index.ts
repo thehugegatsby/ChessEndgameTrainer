@@ -13,7 +13,7 @@
  */
 
 import { Move as ChessJsMove } from 'chess.js';
-import type { EngineEvaluation, EnhancedEngineEvaluation, EngineRequest, EngineResponse, EngineConfig } from './types';
+import type { EngineEvaluation, EnhancedEngineEvaluation, MultiPvResult, EngineRequest, EngineResponse, EngineConfig } from './types';
 import type { WorkerConfig } from './interfaces';
 import { StockfishWorkerManager } from './workerManager';
 import { RequestManager } from './requestManager';
@@ -390,6 +390,78 @@ export class Engine {
         } catch (error) {
           logger.warn('Failed to set MultiPV option:', error);
         }
+      }
+      
+      this.queueRequest(request);
+    });
+  }
+
+  /**
+   * Get Multi-PV evaluation for Top-3 moves (Lichess-style)
+   * PHASE 3: Multi-PV support for DualEvaluationPanel
+   */
+  async getMultiPvEvaluation(fen: string, lines: number = 3): Promise<MultiPvResult[]> {
+    // Lazy initialization for SSR -> Browser transition
+    if (!this.workerManager.isWorkerReady() && typeof window !== 'undefined') {
+      await this.workerManager.initialize();
+    }
+    
+    if (!this.workerManager.isWorkerReady()) {
+      return [];
+    }
+
+    return new Promise<MultiPvResult[]>((resolve, reject) => {
+      const id = this.requestManager.generateRequestId('multipv');
+      const timeLimit = 8000; // 8 seconds for Multi-PV analysis
+      
+      // Enhanced resolver that extracts Multi-PV results
+      const multiPvResolver = (basicEvaluation: EngineEvaluation) => {
+        try {
+          // Get Multi-PV data from message handler
+          const messageHandler = this.workerManager.getMessageHandler();
+          const multiPvData = messageHandler.getMultiPvResults();
+          
+          if (multiPvData && multiPvData.length > 0) {
+            resolve(multiPvData.slice(0, lines)); // Return requested number of lines
+          } else {
+            // Fallback: create single result from basic evaluation
+            logger.warn('Multi-PV data not available, creating fallback single result');
+            const fallbackResult: MultiPvResult = {
+              move: 'unknown',
+              san: 'Unknown',
+              score: {
+                type: basicEvaluation.mate ? 'mate' : 'cp',
+                value: basicEvaluation.mate || basicEvaluation.score
+              },
+              pv: [],
+              rank: 1,
+              depth: basicEvaluation.depth
+            };
+            resolve([fallbackResult]);
+          }
+        } catch (error) {
+          logger.error('Error processing Multi-PV evaluation:', error);
+          reject(error);
+        }
+      };
+
+      // Store resolver for this request
+      this.requestManager.registerRequest(id, 'evaluation', multiPvResolver, reject, timeLimit);
+      
+      // Create Multi-PV request
+      const request: EngineRequest = {
+        type: 'evaluation', // Reuse evaluation type but with Multi-PV
+        id,
+        fen,
+        timeLimit
+      };
+      
+      // Configure Multi-PV BEFORE queuing request
+      try {
+        this.workerManager.sendCommand(`setoption name MultiPV value ${lines}`);
+        logger.info(`Set MultiPV to ${lines} lines for Top-${lines} analysis`);
+      } catch (error) {
+        logger.warn('Failed to set MultiPV option:', error);
       }
       
       this.queueRequest(request);

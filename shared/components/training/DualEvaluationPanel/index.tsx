@@ -36,7 +36,7 @@ export const DualEvaluationPanel: React.FC<DualEvaluationPanelProps> = ({
       <div className="dual-evaluation-grid grid grid-cols-2 gap-4">
         
         {/* Engine Evaluation Column */}
-        <div className="engine-evaluation-panel bg-gray-50 dark:bg-gray-800 rounded-lg p-3" data-testid="engine-evaluation-panel">
+        <div className="engine-evaluation-panel bg-gray-800 rounded-lg p-3" data-testid="engine-evaluation-panel">
           <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
             Engine-Bewertung
           </h4>
@@ -75,10 +75,28 @@ export const DualEvaluationPanel: React.FC<DualEvaluationPanelProps> = ({
                 </div>
               )}
 
+              {/* Top 3 Engine Moves - Multi-PV Results */}
+              {lastEvaluation.multiPvResults && lastEvaluation.multiPvResults.length > 0 && (
+                <div className="space-y-1">
+                  <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Top 3 Engine-Züge</div>
+                  {lastEvaluation.multiPvResults.slice(0, 3).map((result, index) => (
+                    <div key={index} className="flex justify-between items-center bg-gray-900 p-1 rounded text-xs">
+                      <span className="font-mono font-medium">{result.san}</span>
+                      <span className="font-mono text-gray-600 dark:text-gray-400">
+                        {result.score.type === 'mate' 
+                          ? `Matt in ${Math.abs(result.score.value)}`
+                          : `${result.score.value >= 0 ? '+' : ''}${(result.score.value / 100).toFixed(2)}`
+                        }
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {lastEvaluation.pv && lastEvaluation.pv.length > 0 && (
                 <div className="text-xs text-gray-600 dark:text-gray-400">
                   <div className="font-medium mb-1">Hauptvariante:</div>
-                  <div className="font-mono bg-white dark:bg-gray-900 p-2 rounded border">
+                  <div className="font-mono bg-gray-900 p-2 rounded border">
                     {lastEvaluation.pv.slice(0, 3).join(' ')}
                   </div>
                 </div>
@@ -97,7 +115,7 @@ export const DualEvaluationPanel: React.FC<DualEvaluationPanelProps> = ({
         </div>
 
         {/* Tablebase Evaluation Column */}
-        <div className="tablebase-evaluation-panel bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3" data-testid="tablebase-evaluation-panel">
+        <div className="tablebase-evaluation-panel bg-blue-900/20 rounded-lg p-3" data-testid="tablebase-evaluation-panel">
           <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
             Tablebase-Bewertung
           </h4>
@@ -113,6 +131,37 @@ export const DualEvaluationPanel: React.FC<DualEvaluationPanelProps> = ({
                 </span>
               </div>
               
+              {lastEvaluation.tablebase.dtz && (
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-500">DTZ</span>
+                  <span className="text-xs font-mono">{lastEvaluation.tablebase.dtz}</span>
+                </div>
+              )}
+              
+              {/* Top 3 Tablebase Moves with DTZ/DTM */}
+              {lastEvaluation.tablebase.topMoves && lastEvaluation.tablebase.topMoves.length > 0 && (
+                <div className="space-y-1">
+                  <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Top 3 Tablebase-Züge</div>
+                  {lastEvaluation.tablebase.topMoves.slice(0, 3).map((move, index) => (
+                    <div key={index} className="space-y-1">
+                      <div className="flex justify-between items-center bg-gray-900 p-1 rounded text-xs">
+                        <span className="font-mono font-medium">{move.san}</span>
+                        <span className="font-mono text-blue-600 dark:text-blue-400">
+                          {move.category === 'win' ? 'Gewinn' :
+                           move.category === 'loss' ? 'Verlust' :
+                           move.category === 'draw' ? 'Remis' :
+                           'Unbekannt'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-xs text-gray-500 px-1">
+                        <span>DTZ {move.dtz}</span>
+                        <span>DTM {move.dtm}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {lastEvaluation.tablebase.dtz && (
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-500">DTZ</span>

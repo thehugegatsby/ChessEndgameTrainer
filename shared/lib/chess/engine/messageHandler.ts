@@ -10,7 +10,8 @@ import type {
   EngineRequest,
   BestMoveResponse,
   EvaluationResponse,
-  ErrorResponse
+  ErrorResponse,
+  MultiPvResult
 } from './types';
 import { Chess } from 'chess.js';
 import { getLogger } from '../../../services/logging';
@@ -36,6 +37,7 @@ export class StockfishMessageHandler {
   private currentRequest: EngineRequest | null = null;
   private currentEvaluation: EngineEvaluation | null = null;
   private enhancedEvaluation: UCIEvaluation | null = null; // PHASE 1.2: Store enhanced data
+  private multiPvResults: MultiPvResult[] = []; // PHASE 3: Store Multi-PV results
   private messageCount = 0;
   private uciReady = false;
 
@@ -194,6 +196,11 @@ export class StockfishMessageHandler {
         
         // Store enhanced data for future use (Phase 2 Principal Variation)
         this.enhancedEvaluation = parseResult.evaluation;
+        
+        // PHASE 3: Handle Multi-PV results for Top-3 moves
+        if (parseResult.evaluation.multipv && parseResult.evaluation.pv && parseResult.evaluation.pv.length > 0) {
+          this.addMultiPvResult(parseResult.evaluation);
+        }
       } else if (parseResult.errors.length > 0) {
         logger.warn('UCI parsing errors:', parseResult.errors);
       }
@@ -256,6 +263,7 @@ export class StockfishMessageHandler {
     this.currentRequest = request;
     this.currentEvaluation = null;
     this.enhancedEvaluation = null; // PHASE 1.2: Clear enhanced data too
+    this.multiPvResults = []; // PHASE 3: Clear Multi-PV results for new request
   }
 
   /**
@@ -265,6 +273,7 @@ export class StockfishMessageHandler {
     this.currentRequest = null;
     this.currentEvaluation = null;
     this.enhancedEvaluation = null; // PHASE 1.2: Clear enhanced data too
+    this.multiPvResults = []; // PHASE 3: Clear Multi-PV results too
   }
 
   /**
@@ -291,6 +300,68 @@ export class StockfishMessageHandler {
    */
   getEnhancedEvaluation(): UCIEvaluation | null {
     return this.enhancedEvaluation;
+  }
+
+  /**
+   * PHASE 3: Add Multi-PV result to collection
+   */
+  private addMultiPvResult(evaluation: UCIEvaluation): void {
+    if (!evaluation.multipv || !evaluation.pv || !this.currentRequest) {
+      return;
+    }
+
+    try {
+      // Set up chess position to convert UCI moves to SAN
+      this.chess.load(this.currentRequest.fen);
+      
+      // Get first move from PV and convert to SAN
+      const firstMove = evaluation.pv[0];
+      let san = 'Unknown';
+      
+      try {
+        const move = this.chess.move(firstMove);
+        san = move.san;
+        this.chess.undo(); // Restore position
+      } catch (error) {
+        logger.warn('Failed to convert UCI move to SAN:', { move: firstMove, error });
+        san = firstMove; // Fallback to UCI notation
+      }
+
+      const multiPvResult: MultiPvResult = {
+        move: firstMove,
+        san: san,
+        score: {
+          type: evaluation.mate ? 'mate' : 'cp',
+          value: evaluation.mate || evaluation.score
+        },
+        pv: evaluation.pv,
+        rank: evaluation.multipv,
+        depth: evaluation.depth
+      };
+
+      // Find existing result with same rank and update, or add new
+      const existingIndex = this.multiPvResults.findIndex(r => r.rank === evaluation.multipv);
+      if (existingIndex >= 0) {
+        this.multiPvResults[existingIndex] = multiPvResult;
+      } else {
+        this.multiPvResults.push(multiPvResult);
+      }
+
+      // Sort by rank to maintain order (1 = best, 2 = second best, etc.)
+      this.multiPvResults.sort((a, b) => a.rank - b.rank);
+      
+      logger.info(`Added Multi-PV result: rank=${multiPvResult.rank}, move=${multiPvResult.san}, score=${multiPvResult.score.value}${multiPvResult.score.type}`);
+      
+    } catch (error) {
+      logger.error('Error adding Multi-PV result:', error);
+    }
+  }
+
+  /**
+   * PHASE 3: Accessor for Multi-PV results
+   */
+  getMultiPvResults(): MultiPvResult[] {
+    return this.multiPvResults;
   }
 
   /**

@@ -4,13 +4,17 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { EvaluationData } from '@shared/types';
+import type { MultiPvResult } from '@shared/lib/chess/engine/types';
 import { UnifiedEvaluationService } from '@shared/lib/chess/evaluation/unifiedService';
 import { EngineProviderAdapter, TablebaseProviderAdapter } from '@shared/lib/chess/evaluation/providerAdapters';
 import { LRUCache } from '@shared/lib/cache/LRUCache';
 import { LRUCacheAdapter } from '@shared/lib/chess/evaluation/cacheAdapter';
 import type { FormattedEvaluation } from '@shared/types/evaluation';
 import { ErrorService } from '@shared/services/errorService';
+import { Logger } from '@shared/services/logging/Logger';
 import { CACHE } from '@shared/constants';
+
+const logger = new Logger();
 
 interface UseEvaluationOptions {
   fen: string;
@@ -105,6 +109,20 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
 
         // PHASE 2.2: Also get raw engine evaluation with PV data
         const rawEngineEval = await service.getRawEngineEvaluation(fen, playerToMove);
+        
+        // PHASE 3: Get Multi-PV results for Top-3 moves directly from engine
+        let multiPvResults: MultiPvResult[] | undefined = undefined;
+        try {
+          // Import engine singleton dynamically to avoid circular dependencies
+          const { engine } = await import('@shared/lib/chess/engine/singleton');
+          const multiPvData = await engine.getMultiPvEvaluation(fen, 3); // Top-3 moves
+          if (multiPvData && multiPvData.length > 0) {
+            multiPvResults = multiPvData;
+          }
+        } catch (error) {
+          // Multi-PV is optional, don't fail entire evaluation
+          logger.warn('Multi-PV evaluation failed:', error);
+        }
 
         // Convert formatted evaluation to legacy format
         let evaluationScore: number;
@@ -133,7 +151,9 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
           seldepth: rawEngineEval?.seldepth,
           multipv: rawEngineEval?.multipv,
           currmove: rawEngineEval?.currmove,
-          currmovenumber: rawEngineEval?.currmovenumber
+          currmovenumber: rawEngineEval?.currmovenumber,
+          // PHASE 3: Include Multi-PV results for Top-3 moves display
+          multiPvResults: multiPvResults
         };
 
         // Handle tablebase data if available

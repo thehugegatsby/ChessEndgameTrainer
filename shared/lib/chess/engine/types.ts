@@ -34,7 +34,7 @@ export interface EvaluationRequest extends BaseEngineRequest {
 /**
  * Union of all possible engine requests
  */
-export type EngineRequest = BestMoveRequest | EvaluationRequest;
+export type EngineRequest = BestMoveRequest | EvaluationRequest | MultiPvRequest;
 
 /**
  * Best move response from worker
@@ -66,7 +66,7 @@ export interface ErrorResponse {
 /**
  * Union of all possible engine responses
  */
-export type EngineResponse = BestMoveResponse | EvaluationResponse | ErrorResponse;
+export type EngineResponse = BestMoveResponse | EvaluationResponse | MultiPvResponse | ErrorResponse;
 
 /**
  * Engine evaluation result
@@ -96,6 +96,39 @@ export interface EnhancedEngineEvaluation extends EngineEvaluation {
   multipv?: number;     // Multi-PV line number
   currmove?: string;    // Current move being searched
   currmovenumber?: number; // Current move number in search
+}
+
+/**
+ * Multi-PV evaluation result for Top-3 moves display
+ * PHASE 3: Multi-PV support for Lichess-style Top-3 moves
+ */
+export interface MultiPvResult {
+  move: string;         // UCI move notation (e.g., "e2e4")
+  san: string;          // Standard algebraic notation (e.g., "e4")
+  score: {
+    type: 'cp' | 'mate';
+    value: number;      // Centipawns or mate in N moves
+  };
+  pv: string[];         // Principal variation for this line
+  rank: number;         // Multi-PV rank (1 = best, 2 = second best, etc.)
+  depth?: number;       // Search depth for this line
+}
+
+/**
+ * Multi-PV evaluation request (serializable)
+ */
+export interface MultiPvRequest extends BaseEngineRequest {
+  type: 'multipv';
+  lines: number;        // Number of lines to calculate (typically 3 for Top-3)
+}
+
+/**
+ * Multi-PV evaluation response from worker
+ */
+export interface MultiPvResponse {
+  id: string;           // Must match request ID
+  type: 'multipv';
+  results: MultiPvResult[];
 }
 
 /**
