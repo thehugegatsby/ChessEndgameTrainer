@@ -111,7 +111,7 @@ async function renamePositionIds() {
     
     // Verify the rename was successful
     console.log('\n🔍 Verifying renamed positions...');
-    for (const [oldId, newId] of positionsToRename) {
+    for (const [, newId] of positionsToRename) {
       const newDocRef = doc(db, 'positions', newId.toString());
       const newSnap = await getDoc(newDocRef);
       

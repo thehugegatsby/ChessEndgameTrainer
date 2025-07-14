@@ -135,7 +135,7 @@ describe('WebPlatformService', () => {
       ];
       
       requiredProperties.forEach(prop => {
-        expect(service[prop]).toBeDefined();
+        expect((service as any)[prop]).toBeDefined();
       });
     });
   });

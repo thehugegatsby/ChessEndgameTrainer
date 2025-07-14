@@ -6,12 +6,10 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { getLogger } from '../../../shared/services/logging';
-import { E2E, STORAGE, PERFORMANCE, TIME, UI } from '../../../shared/constants';
+import { E2E, STORAGE, PERFORMANCE, UI } from '../../../shared/constants';
 import { resetMSWHandlers } from '../fixtures/msw-server';
 
 test.describe('Modern Driver API Tests', () => {
-  const logger = getLogger().setContext('E2E-ModernDriverAPI');
   
   test.beforeEach(async ({ page, context, browserName }) => {
     resetMSWHandlers();
@@ -193,7 +191,7 @@ test.describe('Modern Driver API Tests', () => {
   });
 
   test.describe('Clipboard API Tests', () => {
-    test('should handle clipboard operations', async ({ page, context, browserName }) => {
+    test('should handle clipboard operations', async ({ page, browserName }) => {
       // Skip clipboard read tests on unsupported browsers
       test.skip(browserName !== 'chromium', 'Clipboard read API only supported in Chromium');
       
