@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { 
   TrainingBoardZustand, 
   MovePanelZustand, 

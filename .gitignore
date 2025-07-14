@@ -45,6 +45,8 @@ Thumbs.db
 # Logs
 logs
 *.log
+firebase-debug.log
+firestore-debug.log
 
 # Runtime data
 pids
@@ -60,6 +62,10 @@ lcov-report/
 lcov.info
 coverage-summary.json
 *.html
+
+# Playwright
+playwright-report/
+test-results/
 
 # nyc test coverage
 .nyc_output

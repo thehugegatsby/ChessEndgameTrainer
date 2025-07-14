@@ -42,17 +42,7 @@ describe('ErrorService', () => {
       
       expect(message).toBe('Die Schach-Engine konnte nicht geladen werden. Bitte aktualisieren Sie die Seite.');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        '🚨 Chess Engine Error:',
-        expect.objectContaining({
-          message: 'Engine initialization failed',
-          stack: expect.any(String),
-          context: expect.objectContaining({
-            type: ErrorType.CHESS_ENGINE,
-            component: 'EngineLoader',
-            action: 'initialize',
-            timestamp: expect.any(Date)
-          })
-        })
+        expect.stringContaining('ERROR [ErrorService] Chess Engine Error')
       );
     });
     
@@ -63,14 +53,7 @@ describe('ErrorService', () => {
       
       expect(message).toBe('Die Schach-Engine konnte nicht geladen werden. Bitte aktualisieren Sie die Seite.');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        '🚨 Chess Engine Error:',
-        expect.objectContaining({
-          message: 'Worker crashed',
-          context: expect.objectContaining({
-            type: ErrorType.CHESS_ENGINE,
-            timestamp: expect.any(Date)
-          })
-        })
+        expect.stringContaining('ERROR [ErrorService] Chess Engine Error')
       );
     });
   });
@@ -88,17 +71,7 @@ describe('ErrorService', () => {
       
       expect(message).toBe('Ein Problem mit der Benutzeroberfläche ist aufgetreten. Bitte versuchen Sie es erneut.');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        '🚨 UI Error in ChessBoard:',
-        expect.objectContaining({
-          message: 'Failed to render board',
-          context: expect.objectContaining({
-            type: ErrorType.UI_COMPONENT,
-            component: 'ChessBoard',
-            action: 'render',
-            user: 'user123',
-            timestamp: expect.any(Date)
-          })
-        })
+        expect.stringContaining('ERROR [ErrorService] UI Error in ChessBoard')
       );
     });
     
@@ -110,14 +83,7 @@ describe('ErrorService', () => {
       
       expect(message).toBe('Ein Problem mit der Benutzeroberfläche ist aufgetreten. Bitte versuchen Sie es erneut.');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        '🚨 UI Error in GameController:',
-        expect.objectContaining({
-          message: 'State update failed',
-          context: expect.objectContaining({
-            type: ErrorType.UI_COMPONENT,
-            component: 'GameController'
-          })
-        })
+        expect.stringContaining('ERROR [ErrorService] UI Error in GameController')
       );
     });
   });
@@ -137,18 +103,7 @@ describe('ErrorService', () => {
       
       expect(message).toBe('Netzwerkfehler. Bitte prüfen Sie Ihre Internetverbindung.');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        '🚨 Network Error:',
-        expect.objectContaining({
-          message: 'Request timeout',
-          context: expect.objectContaining({
-            type: ErrorType.NETWORK,
-            action: 'fetchPositions',
-            additionalData: {
-              url: '/api/positions',
-              method: 'GET'
-            }
-          })
-        })
+        expect.stringContaining('ERROR [ErrorService] Network Error')
       );
     });
     

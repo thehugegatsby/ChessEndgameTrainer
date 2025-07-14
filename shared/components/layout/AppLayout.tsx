@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, ReactNode } from 'react';
 import { AdvancedEndgameMenu } from '../navigation/AdvancedEndgameMenu';
 import { DarkModeToggle } from '../ui/DarkModeToggle';

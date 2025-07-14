@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Position Service Context
  * Provides dependency injection for PositionService throughout the React app
