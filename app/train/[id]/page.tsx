@@ -38,11 +38,12 @@ export default async function TrainingPage({ params }: TrainingPageProps) {
   }
 }
 
-// Generate static paths for the first 20 positions
+// Generate static paths for available test positions
 export async function generateStaticParams() {
-  const popularPositionIds = Array.from({ length: Math.min(20, 13) }, (_, i) => i + 1);
+  // Use actual available position IDs from TestScenarios
+  const availablePositionIds = [1, 9, 10, 11]; // Match TestPositions in TestScenarios.ts
   
-  return popularPositionIds.map(id => ({
+  return availablePositionIds.map(id => ({
     id: id.toString()
   }));
 }

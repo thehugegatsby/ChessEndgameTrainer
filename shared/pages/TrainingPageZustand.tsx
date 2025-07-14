@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { 
   TrainingBoardZustand, 
   MovePanelZustand, 
-  DualEvaluationSidebar,
   NavigationControls
 } from '@shared/components/training';
+import { DualEvaluationPanel } from '@shared/components/training/DualEvaluationPanel';
 import { AdvancedEndgameMenu } from '@shared/components/navigation/AdvancedEndgameMenu';
 import { EndgamePosition } from '@shared/types';
 import { useToast } from '@shared/hooks/useToast';
@@ -197,9 +197,10 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.mem
               Analyse {ui.analysisPanel.isOpen ? 'AUS' : 'AN'}
             </button>
             
-            <DualEvaluationSidebar 
+            <DualEvaluationPanel 
               fen={training.currentFen || position.fen}
               isVisible={ui.analysisPanel.isOpen}
+              previousFen={training.moveHistory.length > 0 ? training.moveHistory[training.moveHistory.length - 1]?.before : undefined}
             />
           </div>
 
