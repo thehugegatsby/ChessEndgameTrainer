@@ -3,6 +3,7 @@
  * Easy setup for Jest tests with ServiceContainer
  */
 
+import React from 'react';
 import { ServiceContainer, IServiceContainer, IBrowserAPIs } from '@shared/services/container';
 import { BrowserAPIs } from '@shared/services/platform/web/WebPlatformService';
 import { MockStorage } from './MockStorage';
