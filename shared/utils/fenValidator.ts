@@ -3,6 +3,8 @@
  * Prevents injection attacks and ensures valid chess positions
  */
 
+import { CHESS } from '../constants';
+
 export interface FenValidationResult {
   isValid: boolean;
   sanitized: string;
@@ -21,8 +23,8 @@ export function validateAndSanitizeFen(fen: string): FenValidationResult {
   // Check for basic FEN structure
   const parts = sanitized.split(' ');
   
-  if (parts.length !== 6) {
-    errors.push('FEN must have exactly 6 parts separated by spaces');
+  if (parts.length !== CHESS.FEN_PARTS_COUNT) {
+    errors.push(`FEN must have exactly ${CHESS.FEN_PARTS_COUNT} parts separated by spaces`);
     return { isValid: false, sanitized, errors };
   }
   
@@ -49,13 +51,13 @@ export function validateAndSanitizeFen(fen: string): FenValidationResult {
   }
   
   // Validate halfmove clock
-  if (!validateNumber(halfmove, 0, 100)) {
-    errors.push('Invalid halfmove clock');
+  if (!validateNumber(halfmove, CHESS.FEN_HALFMOVE_MIN, CHESS.FEN_HALFMOVE_MAX)) {
+    errors.push(`Invalid halfmove clock (must be ${CHESS.FEN_HALFMOVE_MIN}-${CHESS.FEN_HALFMOVE_MAX})`);
   }
   
   // Validate fullmove number
-  if (!validateNumber(fullmove, 1, 9999)) {
-    errors.push('Invalid fullmove number');
+  if (!validateNumber(fullmove, CHESS.FEN_FULLMOVE_MIN, CHESS.FEN_FULLMOVE_MAX)) {
+    errors.push(`Invalid fullmove number (must be ${CHESS.FEN_FULLMOVE_MIN}-${CHESS.FEN_FULLMOVE_MAX})`);
   }
   
   return {
@@ -70,7 +72,7 @@ export function validateAndSanitizeFen(fen: string): FenValidationResult {
  */
 function validatePiecePlacement(position: string): boolean {
   const ranks = position.split('/');
-  if (ranks.length !== 8) return false;
+  if (ranks.length !== CHESS.FEN_RANKS_COUNT) return false;
   
   for (const rank of ranks) {
     let squares = 0;
@@ -83,7 +85,7 @@ function validatePiecePlacement(position: string): boolean {
         return false; // Invalid character
       }
     }
-    if (squares !== 8) return false;
+    if (squares !== CHESS.FEN_SQUARES_PER_RANK) return false;
   }
   
   return true;
@@ -94,7 +96,7 @@ function validatePiecePlacement(position: string): boolean {
  */
 function validateCastling(castling: string): boolean {
   if (castling === '-') return true;
-  return /^[KQkq]*$/.test(castling) && castling.length <= 4;
+  return /^[KQkq]*$/.test(castling) && castling.length <= CHESS.FEN_CASTLING_MAX_LENGTH;
 }
 
 /**
@@ -102,7 +104,9 @@ function validateCastling(castling: string): boolean {
  */
 function validateEnPassant(enPassant: string): boolean {
   if (enPassant === '-') return true;
-  return /^[a-h][36]$/.test(enPassant);
+  // En passant targets must be on ranks 3 or 6
+  const rank = parseInt(enPassant[1]);
+  return /^[a-h][36]$/.test(enPassant) && CHESS.EN_PASSANT_RANKS.includes(rank as 3 | 6);
 }
 
 /**
@@ -118,10 +122,10 @@ function validateNumber(value: string, min: number, max: number): boolean {
  */
 export function isValidFenQuick(fen: string): boolean {
   if (!fen || typeof fen !== 'string') return false;
-  if (fen.length < 10 || fen.length > 100) return false;
+  if (fen.length < CHESS.FEN_MIN_LENGTH || fen.length > CHESS.FEN_MAX_LENGTH) return false;
   
   const parts = fen.trim().split(' ');
-  return parts.length === 6 && 
+  return parts.length === CHESS.FEN_PARTS_COUNT && 
          parts[0].includes('/') && 
          ['w', 'b'].includes(parts[1]);
 }

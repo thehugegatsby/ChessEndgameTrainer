@@ -77,6 +77,34 @@ export const UI = {
     TABLET: 1024,                        // Tablet breakpoint
     DESKTOP: 1280,                       // Desktop breakpoint
   },
+  
+  // Evaluation color palette - synchronized with CSS variables
+  EVALUATION_COLORS: {
+    EXCELLENT: {
+      text: '#10b981',                   // Light green text
+      background: '#065f46',             // Dark green background
+    },
+    GOOD: {
+      text: '#3b82f6',                   // Light blue text
+      background: '#1e40af',             // Dark blue background
+    },
+    NEUTRAL: {
+      text: 'var(--text-secondary)',     // Secondary text color
+      background: 'var(--bg-accent)',    // Accent background
+    },
+    INACCURATE: {
+      text: '#f59e0b',                   // Light yellow/orange text
+      background: '#92400e',             // Dark yellow/orange background
+    },
+    MISTAKE: {
+      text: '#fb923c',                   // Light orange text
+      background: '#c2410c',             // Dark orange background
+    },
+    BLUNDER: {
+      text: '#ef4444',                   // Light red text
+      background: '#991b1b',             // Dark red background
+    },
+  },
 } as const;
 
 // Chess Constants
@@ -88,6 +116,32 @@ export const CHESS = {
   THREEFOLD_REPETITION: 3,               // Draw by repetition
   TABLEBASE_PIECE_LIMIT: 7,              // Maximum pieces for tablebase lookup
   ENDGAME_PIECE_THRESHOLD: 7,            // Piece count threshold for endgame
+  
+  // FEN Validation Constants
+  FEN_PARTS_COUNT: 6,                    // FEN must have exactly 6 parts separated by spaces
+  FEN_RANKS_COUNT: 8,                    // Chess board has 8 ranks
+  FEN_SQUARES_PER_RANK: 8,               // Each rank has 8 squares
+  FEN_MIN_LENGTH: 10,                    // Minimum reasonable FEN length
+  FEN_MAX_LENGTH: 100,                   // Maximum reasonable FEN length
+  FEN_HALFMOVE_MIN: 0,                   // Minimum halfmove clock value
+  FEN_HALFMOVE_MAX: 100,                 // Maximum halfmove clock value (50-move rule * 2)
+  FEN_FULLMOVE_MIN: 1,                   // Minimum fullmove number
+  FEN_FULLMOVE_MAX: 9999,                // Maximum fullmove number
+  FEN_CASTLING_MAX_LENGTH: 4,            // Maximum castling rights length (KQkq)
+  
+  // Piece Count Limits
+  MAX_PIECES_PER_SIDE: 16,               // Maximum pieces per side
+  MAX_PAWNS_PER_SIDE: 8,                 // Maximum pawns per side
+  KINGS_PER_SIDE: 1,                     // Exactly one king per side
+  
+  // Starting piece counts for promotion validation
+  STARTING_PIECES: {
+    WHITE: { Q: 1, R: 2, B: 2, N: 2, P: 8 },
+    BLACK: { q: 1, r: 2, b: 2, n: 2, p: 8 }
+  },
+  
+  // En passant validation
+  EN_PASSANT_RANKS: [3, 6],              // Valid en passant target ranks
 } as const;
 
 // Evaluation Constants
@@ -114,6 +168,25 @@ export const EVALUATION = {
   WIN_THRESHOLD: 300,                    // Positive score threshold for winning
   LOSS_THRESHOLD: -300,                  // Negative score threshold for losing
   MATE_THRESHOLD: 100000,                // Threshold for mate scores
+  
+  // Color display thresholds (in pawn units, 1 pawn = 100 centipawns)
+  COLOR_THRESHOLDS: {
+    DOMINATING: 5.0,                     // 5+ pawns - Dominating advantage
+    EXCELLENT: 2.0,                      // 2+ pawns - Excellent position
+    GOOD: 0.5,                           // 0.5+ pawns - Good advantage
+    NEUTRAL_UPPER: 0.5,                  // Upper bound for neutral
+    NEUTRAL_LOWER: -0.5,                 // Lower bound for neutral
+    INACCURATE: -2.0,                    // -2 to -0.5 pawns - Inaccurate
+    MISTAKE: -5.0,                       // -5 to -2 pawns - Mistake
+    // Below -5 pawns = Blunder
+  },
+  
+  // Tablebase WDL thresholds
+  WDL_THRESHOLDS: {
+    WIN: 1,                              // WDL >= 1 = win/cursed-win
+    LOSS: -1,                            // WDL <= -1 = loss/blessed-loss
+    // WDL = 0 = draw
+  },
 } as const;
 
 // Training Constants

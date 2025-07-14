@@ -1,11 +1,12 @@
 import type { EvaluationDisplay } from '@shared/types';
+import { EVALUATION, UI } from '@shared/constants';
 
 /**
  * Helper function to access getCategory outside of getMoveQualityByTablebaseComparison
  */
 export const getCategory = (wdl: number): 'win' | 'draw' | 'loss' => {
-  if (wdl >= 1) return 'win';    // Both win and cursed-win are wins
-  if (wdl <= -1) return 'loss';  // Both loss and blessed-loss are losses  
+  if (wdl >= EVALUATION.WDL_THRESHOLDS.WIN) return 'win';    // Both win and cursed-win are wins
+  if (wdl <= EVALUATION.WDL_THRESHOLDS.LOSS) return 'loss';  // Both loss and blessed-loss are losses  
   return 'draw';
 }; 
 
@@ -79,8 +80,8 @@ export const getMoveQualityByTablebaseComparison = (
     return {
       text: '❌',
       className: 'eval-mistake',
-      color: '#fb923c',
-      bgColor: '#c2410c'
+      color: UI.EVALUATION_COLORS.MISTAKE.text,
+      bgColor: UI.EVALUATION_COLORS.MISTAKE.background
     };
   }
   
