@@ -164,6 +164,16 @@ export const EVALUATION = {
   CRITICAL_PRIORITY_BOOST: 200,          // Priority boost for critical positions
   ENDGAME_PRIORITY_FACTOR: 20,           // Factor for endgame priority
   
+  // ChessAwareCache configuration
+  CHESS_AWARE_CACHE: {
+    ENDGAME_THRESHOLD: 7,                // 7 pieces or less = endgame
+    CRITICAL_SCORE_THRESHOLD: 500,       // Centipawns for critical positions
+    ENDGAME_PRIORITY_BASE: 100,          // Base priority for endgame positions
+    ENDGAME_PRIORITY_MULTIPLIER: 20,     // Priority multiplier per missing piece
+    CRITICAL_POSITION_BOOST: 200,        // Priority boost for critical positions
+    NON_ENDGAME_PRIORITY_BASE: 50,       // Base priority for non-endgame positions
+  },
+  
   // Win/Loss thresholds for mistake checking
   WIN_THRESHOLD: 300,                    // Positive score threshold for winning
   LOSS_THRESHOLD: -300,                  // Negative score threshold for losing
@@ -199,6 +209,16 @@ export const TRAINING = {
   // Spaced repetition multipliers
   SUCCESS_MULTIPLIER: 2,                 // Interval multiplier on success
   FAILURE_MULTIPLIER: 1,                 // Interval multiplier on failure
+  
+  // Mock data for development
+  MOCK: {
+    DEFAULT_LESSON_COUNT: 10,       // Default number of lessons in dashboard
+    SUCCESS_RATE_MIN: 0.7,          // Minimum success rate for mock data
+    SUCCESS_RATE_RANGE: 0.3,        // Range for success rate variation
+    DUE_TODAY_MAX: 3,               // Maximum lessons due today
+    STREAK_MAX: 10,                 // Maximum current streak value
+    OVERALL_STREAK_MAX: 15,         // Maximum overall streak value
+  },
 } as const;
 
 // Rating Constants - Centralized rating system thresholds
@@ -358,6 +378,19 @@ export const E2E = {
       MISTAKE: 'Mistake detected',
     },
   },
+} as const;
+
+// Testing constants for test configuration
+export const TESTING = {
+  DEFAULT_TIMEOUT: 1000,     // 1 second default timeout for API calls
+  POLL_INTERVAL: 50,         // 50ms polling interval for status checks
+} as const;
+
+// System constants for platform services
+export const SYSTEM = {
+  GB_TO_BYTES_FACTOR: 1024 * 1024 * 1024,  // Conversion factor GB to bytes
+  DEFAULT_MEMORY_GB: 4,                     // Default system memory allocation
+  LOW_MEMORY_THRESHOLD_GB: 4,               // Low memory warning threshold
 } as const;
 
 // Type utilities for constants

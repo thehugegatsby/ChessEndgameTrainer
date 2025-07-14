@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { EndgamePosition } from '@shared/types';
 import { getShortTitle } from '@shared/utils/titleFormatter';
+import { UI } from '@shared/constants';
 
 interface TrainingControlsProps {
   position: EndgamePosition;
@@ -21,7 +22,7 @@ export const TrainingControls: React.FC<TrainingControlsProps> = ({
 }) => {
   if (isMobile) {
     return (
-      <div className="lg:hidden w-full max-w-sm mt-16 space-y-2">
+      <div className={`lg:hidden w-full max-w-sm space-y-2 mt-4`}>
         <div className="grid grid-cols-2 gap-2">
           <button 
             onClick={onReset}

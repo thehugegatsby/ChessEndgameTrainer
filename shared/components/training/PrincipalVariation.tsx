@@ -13,6 +13,7 @@
 'use client';
 
 import React, { useState, useCallback, useMemo } from 'react';
+import { UI_CONSTANTS } from '@shared/constants/uiConstants';
 
 export interface PrincipalVariationProps {
   /** Array of moves in algebraic notation (e.g., ['e2e4', 'e7e5', 'g1f3']) */
@@ -52,7 +53,7 @@ export const PrincipalVariation: React.FC<PrincipalVariationProps> = React.memo(
   depth,
   onMoveClick,
   interactive = true,
-  maxMoves = 10,
+  maxMoves = UI_CONSTANTS.PRINCIPAL_VARIATION.MAX_MOVES_DISPLAY,
   className = ''
 }) => {
   const [hoveredMoveIndex, setHoveredMoveIndex] = useState<number | null>(null);
