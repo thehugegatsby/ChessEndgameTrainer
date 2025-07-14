@@ -10,6 +10,7 @@ import { EndgamePosition, EndgameCategory, EndgameChapter } from '@shared/types'
 import { getLogger } from '@shared/services/logging';
 import { LRUCache } from '@shared/lib/cache/LRUCache';
 import { RepositoryError } from './errors';
+import { CACHE } from '@shared/constants';
 
 const logger = getLogger().setContext('PositionService');
 
@@ -30,8 +31,8 @@ export class PositionService implements IPositionService {
     this.repository = repository;
     this.config = {
       cacheEnabled: true,
-      cacheSize: 200,
-      cacheTTL: 300000, // 5 minutes
+      cacheSize: CACHE.POSITION_CACHE_SIZE,
+      cacheTTL: CACHE.ENGINE_CACHE_TTL,
       ...config
     };
 

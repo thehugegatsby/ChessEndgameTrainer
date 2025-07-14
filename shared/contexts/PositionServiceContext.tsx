@@ -13,6 +13,7 @@ import { FirebasePositionRepository } from '@shared/repositories/implementations
 import { MockPositionRepository } from '@shared/repositories/implementations/MockPositionRepository';
 import { db } from '@shared/lib/firebase';
 import { shouldUseMockService, createMockPositionRepository } from '@shared/testing/MockPositionServiceFactory';
+import { CACHE } from '@shared/constants';
 
 /**
  * Context value type
@@ -124,8 +125,8 @@ function createDefaultRepository(): IPositionRepository {
   console.log('Using FirebasePositionRepository');
   return new FirebasePositionRepository(db, {
     enableCache: true,
-    cacheSize: 200,
-    cacheTTL: 300000, // 5 minutes
+    cacheSize: CACHE.POSITION_CACHE_SIZE,
+    cacheTTL: CACHE.ENGINE_CACHE_TTL,
     events: {
       onDataFetched: (operation, count) => {
         console.log(`Firebase: ${operation} fetched ${count} items`);

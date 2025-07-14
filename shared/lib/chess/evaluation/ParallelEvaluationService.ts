@@ -8,6 +8,7 @@
 import { EvaluationDeduplicator } from './EvaluationDeduplicator';
 import { ChessAwareCache } from './ChessAwareCache';
 import { getLogger } from '@shared/services/logging';
+import { CACHE } from '@shared/constants';
 
 interface EngineEvaluation {
   score: number;
@@ -51,7 +52,7 @@ type TablebaseService = {
 
 export class ParallelEvaluationService {
   private deduplicator = new EvaluationDeduplicator();
-  private cache = new ChessAwareCache<DualEvaluation>(200); // Increased cache size
+  private cache = new ChessAwareCache<DualEvaluation>(CACHE.PARALLEL_EVALUATION_CACHE_SIZE);
   
   private engineService: EngineService;
   private tablebaseService: TablebaseService;

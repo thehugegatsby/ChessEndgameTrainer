@@ -7,6 +7,8 @@
  * - LRU eviction within priority groups
  */
 
+import { CACHE } from '@shared/constants';
+
 interface CacheEntry<T> {
   value: T;
   lastAccessed: number;
@@ -24,7 +26,7 @@ export class ChessAwareCache<T> {
   private static readonly ENDGAME_THRESHOLD = 7; // 7 pieces or less
   private static readonly CRITICAL_SCORE_THRESHOLD = 500; // Centipawns
   
-  constructor(maxSize = 100) {
+  constructor(maxSize = CACHE.CHESS_AWARE_CACHE_SIZE) {
     this.maxSize = maxSize;
   }
 

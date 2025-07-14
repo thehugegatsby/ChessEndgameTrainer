@@ -14,15 +14,24 @@ export const STORAGE = {
 
 // Cache Constants
 export const CACHE = {
-  // Cache sizes
+  // Cache sizes - Standardized across all components
   EVALUATION_CACHE_SIZE: 200,            // Main evaluation cache in useEvaluation
+  BEST_MOVE_CACHE_SIZE: 500,             // Best move cache size for EvaluationCache
   LRU_DEFAULT_SIZE: 1000,                // Default LRU cache size
   LRU_MEMORY_PER_ITEM: 350,              // Estimated bytes per cache item
-  CHESS_AWARE_CACHE_SIZE: 100,           // Chess-aware cache default size
+  CHESS_AWARE_CACHE_SIZE: 200,           // Chess-aware cache default size (standardized)
   TABLEBASE_CACHE_SIZE: 100,             // Tablebase results cache size
+  POSITION_CACHE_SIZE: 200,              // Position service cache size
+  ENGINE_CACHE_SIZE: 200,                // Engine evaluation cache size
+  PARALLEL_EVALUATION_CACHE_SIZE: 200,   // ParallelEvaluationService cache size
   
-  // Cache timeouts
+  // Cache timeouts - Standardized TTL values
   TABLEBASE_CACHE_TIMEOUT: 5 * 60 * 1000, // 5 minutes for tablebase cache
+  ENGINE_CACHE_TTL: 5 * 60 * 1000,       // 5 minutes for engine cache TTL
+  EVALUATION_CACHE_TTL: 30 * 60 * 1000,   // 30 minutes for evaluation cache
+  BEST_MOVE_CACHE_TTL: 10 * 60 * 1000,    // 10 minutes for best move cache (more volatile)
+  DEDUPLICATION_TTL: 10 * 1000,           // 10 seconds for deduplication
+  CLEANUP_INTERVAL_TTL: 30 * 1000,        // 30 seconds for cleanup intervals
 } as const;
 
 // Performance Constants
@@ -31,7 +40,6 @@ export const PERFORMANCE = {
   THROTTLE_DELAY: 1000,                  // 1 second throttle
   BATCH_SIZE: 50,                        // Items to process in batch
   MAX_LOG_ENTRIES: 1000,                 // Maximum log entries in memory
-  CACHE_SIZE: 100,                       // Maximum cached evaluations (deprecated - use CACHE constants)
 } as const;
 
 // Engine Constants

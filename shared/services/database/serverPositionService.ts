@@ -9,6 +9,7 @@ import { IPositionService } from './IPositionService';
 import { FirebasePositionRepository } from '@shared/repositories/implementations/FirebasePositionRepository';
 import { db } from '@shared/lib/firebase';
 import { shouldUseMockService, createMockPositionService } from '@shared/testing/MockPositionServiceFactory';
+import { CACHE } from '@shared/constants';
 
 /**
  * Creates a PositionService instance for server-side usage
@@ -25,14 +26,14 @@ export function createServerPositionService(): IPositionService {
   // Use Firebase for production/development
   const repository = new FirebasePositionRepository(db, {
     enableCache: true,
-    cacheSize: 200,
-    cacheTTL: 300000, // 5 minutes
+    cacheSize: CACHE.POSITION_CACHE_SIZE,
+    cacheTTL: CACHE.ENGINE_CACHE_TTL,
   });
   
   return new PositionService(repository, {
     cacheEnabled: true,
-    cacheSize: 200,
-    cacheTTL: 300000
+    cacheSize: CACHE.POSITION_CACHE_SIZE,
+    cacheTTL: CACHE.ENGINE_CACHE_TTL
   });
 }
 
