@@ -7,7 +7,7 @@
  * - LRU eviction within priority groups
  */
 
-import { CACHE } from '@shared/constants';
+import { CACHE, EVALUATION } from '@shared/constants';
 
 interface CacheEntry<T> {
   value: T;
@@ -21,10 +21,6 @@ interface CacheEntry<T> {
 export class ChessAwareCache<T> {
   private cache = new Map<string, CacheEntry<T>>();
   private readonly maxSize: number;
-  
-  // Priority thresholds
-  private static readonly ENDGAME_THRESHOLD = 7; // 7 pieces or less
-  private static readonly CRITICAL_SCORE_THRESHOLD = 500; // Centipawns
   
   constructor(maxSize = CACHE.CHESS_AWARE_CACHE_SIZE) {
     this.maxSize = maxSize;
@@ -93,7 +89,7 @@ export class ChessAwareCache<T> {
     avgPieceCount: number;
   } {
     const entries = Array.from(this.cache.values());
-    const endgameCount = entries.filter(e => e.pieceCount <= ChessAwareCache.ENDGAME_THRESHOLD).length;
+    const endgameCount = entries.filter(e => e.pieceCount <= EVALUATION.CHESS_AWARE_CACHE.ENDGAME_THRESHOLD).length;
     const criticalCount = entries.filter(e => e.isCritical).length;
     const avgPieceCount = entries.length > 0 
       ? entries.reduce((sum, e) => sum + e.pieceCount, 0) / entries.length 
@@ -126,7 +122,7 @@ export class ChessAwareCache<T> {
       
       // High evaluation magnitude
       if (typeof evaluation.score === 'number' && 
-          Math.abs(evaluation.score) > ChessAwareCache.CRITICAL_SCORE_THRESHOLD) {
+          Math.abs(evaluation.score) > EVALUATION.CHESS_AWARE_CACHE.CRITICAL_SCORE_THRESHOLD) {
         return true;
       }
       
@@ -150,18 +146,19 @@ export class ChessAwareCache<T> {
    */
   private calculatePriority(pieceCount: number, isCritical: boolean): number {
     let priority = 0;
+    const config = EVALUATION.CHESS_AWARE_CACHE;
     
     // Base priority favors positions with fewer pieces
     // Endgame positions are exponentially more valuable
-    if (pieceCount <= ChessAwareCache.ENDGAME_THRESHOLD) {
-      priority += 100 + (ChessAwareCache.ENDGAME_THRESHOLD - pieceCount) * 20;
+    if (pieceCount <= config.ENDGAME_THRESHOLD) {
+      priority += config.ENDGAME_PRIORITY_BASE + (config.ENDGAME_THRESHOLD - pieceCount) * config.ENDGAME_PRIORITY_MULTIPLIER;
     } else {
-      priority += Math.max(0, 50 - pieceCount);
+      priority += Math.max(0, config.NON_ENDGAME_PRIORITY_BASE - pieceCount);
     }
     
     // Critical positions get significant boost
     if (isCritical) {
-      priority += 200;
+      priority += config.CRITICAL_POSITION_BOOST;
     }
     
     return priority;

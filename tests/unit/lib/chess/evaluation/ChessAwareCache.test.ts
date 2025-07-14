@@ -6,13 +6,13 @@
  */
 
 import { ChessAwareCache } from '../../../../../shared/lib/chess/evaluation/ChessAwareCache';
+import { CACHE } from '../../../../../shared/constants';
+import { TEST_FENS } from '../../../../../shared/testing/TestFixtures';
 
-// Test constants - Real chess positions
-const STARTING_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'; // 32 pieces
+// Additional test positions for ChessAwareCache specific tests
 const MIDDLEGAME_POSITION = 'r1bqk2r/pp2nppp/2n1p3/3p4/1b1P4/3BPN2/PPP2PPP/RNBQK2R w KQkq - 4 8'; // 28 pieces
 const ENDGAME_POSITION = '8/2k5/8/2P5/4K3/8/8/8 w - - 0 1'; // 3 pieces
 const MATE_POSITION = '6k1/5ppp/8/8/8/8/5PPP/R3K2R w KQ - 0 1'; // 12 pieces
-const TABLEBASE_POSITION = '4k3/8/8/8/8/8/8/4K2R w - - 0 1'; // 3 pieces
 
 // Mock evaluation types
 interface MockEvaluation {
@@ -33,7 +33,7 @@ describe('ChessAwareCache_[method]_[condition]_[expected]', () => {
     it('should create cache with default size', () => {
       const defaultCache = new ChessAwareCache<MockEvaluation>();
       const stats = defaultCache.getStats();
-      expect(stats.maxSize).toBe(100);
+      expect(stats.maxSize).toBe(CACHE.CHESS_AWARE_CACHE_SIZE);
     });
 
     it('should create cache with custom size', () => {
@@ -85,7 +85,7 @@ describe('ChessAwareCache_[method]_[condition]_[expected]', () => {
 
   describe('clear', () => {
     it('should remove all entries', () => {
-      cache.set(STARTING_POSITION, { score: 0 });
+      cache.set(TEST_FENS.STARTING_POSITION, { score: 0 });
       cache.set(MIDDLEGAME_POSITION, { score: 50 });
       cache.set(ENDGAME_POSITION, { score: 100 });
       
@@ -94,7 +94,7 @@ describe('ChessAwareCache_[method]_[condition]_[expected]', () => {
       cache.clear();
       
       expect(cache.getStats().size).toBe(0);
-      expect(cache.has(STARTING_POSITION)).toBe(false);
+      expect(cache.has(TEST_FENS.STARTING_POSITION)).toBe(false);
       expect(cache.has(MIDDLEGAME_POSITION)).toBe(false);
       expect(cache.has(ENDGAME_POSITION)).toBe(false);
     });
@@ -151,12 +151,12 @@ describe('ChessAwareCache_[method]_[condition]_[expected]', () => {
       }
       
       // Add tablebase position
-      cache.set(TABLEBASE_POSITION, { 
+      cache.set(TEST_FENS.KQK_TABLEBASE_WIN, { 
         score: 0, 
         isTablebasePosition: true 
       });
       
-      expect(cache.has(TABLEBASE_POSITION)).toBe(true);
+      expect(cache.has(TEST_FENS.KQK_TABLEBASE_WIN)).toBe(true);
       expect(cache.getStats().criticalPositions).toBe(1);
     });
   });
@@ -220,7 +220,7 @@ describe('ChessAwareCache_[method]_[condition]_[expected]', () => {
       });
 
       // Add various positions
-      cache.set(STARTING_POSITION, { score: 0 }); // 32 pieces
+      cache.set(TEST_FENS.STARTING_POSITION, { score: 0 }); // 32 pieces
       cache.set(MIDDLEGAME_POSITION, { score: 50 }); // 28 pieces
       cache.set(ENDGAME_POSITION, { score: 100 }); // 3 pieces
       cache.set('rnbqkb1r/pppppppp/5n2/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 2 2', { score: 600 }); // Critical middlegame
@@ -335,7 +335,7 @@ describe('ChessAwareCache_[method]_[condition]_[expected]', () => {
       expect(cache.getStats().size).toBe(5);
       
       // Try to add non-endgame position - should evict itself due to lower priority
-      cache.set(STARTING_POSITION, { score: 0 });
+      cache.set(TEST_FENS.STARTING_POSITION, { score: 0 });
       
       // The cache should keep endgames and evict the lower priority opening
       // But if all endgames have same high priority, it might evict one endgame

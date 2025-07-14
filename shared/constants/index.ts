@@ -164,6 +164,16 @@ export const EVALUATION = {
   CRITICAL_PRIORITY_BOOST: 200,          // Priority boost for critical positions
   ENDGAME_PRIORITY_FACTOR: 20,           // Factor for endgame priority
   
+  // ChessAwareCache configuration
+  CHESS_AWARE_CACHE: {
+    ENDGAME_THRESHOLD: 7,                // 7 pieces or less = endgame
+    CRITICAL_SCORE_THRESHOLD: 500,       // Centipawns for critical positions
+    ENDGAME_PRIORITY_BASE: 100,          // Base priority for endgame positions
+    ENDGAME_PRIORITY_MULTIPLIER: 20,     // Priority multiplier per missing piece
+    CRITICAL_POSITION_BOOST: 200,        // Priority boost for critical positions
+    NON_ENDGAME_PRIORITY_BASE: 50,       // Base priority for non-endgame positions
+  },
+  
   // Win/Loss thresholds for mistake checking
   WIN_THRESHOLD: 300,                    // Positive score threshold for winning
   LOSS_THRESHOLD: -300,                  // Negative score threshold for losing
