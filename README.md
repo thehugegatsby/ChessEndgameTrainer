@@ -2,7 +2,7 @@
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.3.3-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue)](https://www.typescriptlang.org/)
-[![Test Coverage](https://img.shields.io/badge/Tests-1061_passing-green)](./coverage/lcov-report/index.html)
+[![Test Coverage](https://img.shields.io/badge/Tests-1015_passing-green)](./coverage/lcov-report/index.html)
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-Stabilized-green)](https://github.com/thehugegatsby/ChessEndgameTrainer/actions)
 [![Deployment Ready](https://img.shields.io/badge/Deployment-Ready-green)](https://nextjs.org/docs/deployment)
 
@@ -27,10 +27,12 @@ Eine moderne **Web-first** Anwendung zum systematischen Lernen von Schachendspie
 
 ```
 ChessEndgameTrainer/
-├── pages/                          # Next.js Seiten
-│   ├── index.tsx                   # Homepage mit Endgame-Kategorien
-│   ├── dashboard.tsx               # Training Progress Dashboard
-│   └── train/[id].tsx              # Haupttraining-Interface
+├── app/                            # Next.js App Router
+│   ├── layout.tsx                  # Root Layout mit Providers
+│   ├── page.tsx                    # Homepage mit Endgame-Kategorien
+│   ├── dashboard/page.tsx          # Training Progress Dashboard
+│   ├── train/[id]/page.tsx         # Haupttraining-Interface
+│   └── providers.tsx               # Client-side Providers
 │
 ├── shared/                         # Geteilte Logik für Web + App
 │   ├── components/                 # Wiederverwendbare UI-Komponenten
@@ -73,7 +75,7 @@ ChessEndgameTrainer/
 - **Phase**: Critical bug fixes + E2E test rewrite
 
 ### ✅ **Technical Health**
-- **Test Suite**: 1015 tests (100% passing) | Comprehensive Coverage
+- **Test Suite**: 1015 unit tests + 33 E2E tests (100% passing) | Comprehensive Coverage
 - **TypeScript**: 144→42 errors (71% reduction) | Clean Compilation  
 - **Architecture**: Clean Service→Adapter→Provider layers
 - **State Management**: Zustand Store as Single Source of Truth
@@ -82,7 +84,7 @@ ChessEndgameTrainer/
 - **CI/CD**: Stabilized pipeline with automated quality gates
 
 ### 🚨 **Current Issues**
-- **E2E Tests**: 6/6 passing (100%) | Stabilized Playwright architecture
+- **E2E Tests**: 33/33 passing (100%) | Stabilized Playwright architecture
 - **UI Bugs**: Engine moves missing (#14), Tablebase emojis (#15), wrong titles (#16)
 - **Data**: Missing Firestore positions 9-11 (#20)
 
@@ -133,7 +135,7 @@ npm run test:performance
 ```
 
 #### Test-Architektur
-Umfassende Unit-Test-Suite mit 951 Tests:
+Umfassende Test-Suite mit 1015 Unit Tests + 33 E2E Tests:
 
 ```bash
 # Dev-Server starten
@@ -194,14 +196,14 @@ Detaillierte Performance-Metriken und technische Details finden Sie in der Codeb
 - **Engine Foundation**: Stockfish WASM singleton with memory optimization
 - **State Management**: Zustand Store as Single Source of Truth
 - **TypeScript Health**: 71% error reduction (144→42)
-- **Test Infrastructure**: 951 comprehensive unit tests
+- **Test Infrastructure**: 1015 comprehensive unit tests + 33 E2E tests
 - **Security**: FEN input sanitization and validation
 - **Performance**: LRU caching, debouncing, bundle optimization
 
 ### 🎯 **Phase 1: Stabilization (Current - 1 Week)**
 - 🚨 **Fix critical UI bugs** - Engine moves, tablebase emojis, titles
-- 🔧 **E2E test rewrite** - Modern Playwright architecture  
-- ✅ **100% unit test pass rate** - Fix remaining failing test
+- ✅ **E2E test rewrite** - Modern Playwright architecture (33/33 passing)
+- ✅ **100% unit test pass rate** - All 1015 tests passing
 - 📝 **Issue triage** - Address GitHub issues #14-26
 
 ### ⚡ **Phase 2: Enhancement (2-3 Weeks)**
@@ -245,10 +247,10 @@ Detaillierte Performance-Metriken und technische Details finden Sie in der Codeb
 
 ### 🔄 **Qualitäts-Gates**
 ```bash
-npm test           # 951/951 tests müssen bestehen
+npm test           # 1015/1015 unit tests müssen bestehen
+npm run test:e2e   # 33/33 E2E tests müssen bestehen
 npm run lint       # ESLint ohne Fehler
 npm run build      # Erfolgreicher Build
-# E2E Tests (nach Rewrite)
 ```
 
 ### 📋 **Issue-Priorisierung**

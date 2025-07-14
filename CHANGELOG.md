@@ -8,10 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **App Router Migration Complete** (2025-07-14)
+  - Migrated from Next.js Pages Router to modern App Router architecture
+  - New structure: `app/layout.tsx`, `app/page.tsx`, `app/dashboard/page.tsx`, `app/train/[id]/page.tsx`
+  - Client-side providers restructured in `app/providers.tsx` with app-ready signal
+  - Updated routing from `next/router` to `next/navigation` hooks
+  - Fixed client component boundaries with proper 'use client' directives
+  - All tests migrated and passing: 1015 unit tests + 33 E2E tests
+  - GitHub Actions CI/CD pipeline updated for App Router compatibility
+
 - **Phase Transition: Stabilization → Enhancement** (2025-07-14)
   - Project has successfully completed stabilization phase
-  - All technical debt resolved (TypeScript: 144→0 errors, 100% clean)
-  - Comprehensive test suite achieved (1,061 unit tests, 33 E2E tests, 100% passing)
+  - Significant technical debt reduction (TypeScript: 144→42 errors, 71% reduction)
+  - Comprehensive test suite achieved (1015 unit tests, 33 E2E tests, 100% passing)
   - Performance targets exceeded (155KB bundle, 48% under 300KB target)
   - Focus shift from technical stabilization to user experience enhancement
   - GitHub Issues now primary task management (TODO.md for high-level planning)
@@ -19,8 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **Reality-Documentation Alignment** (2025-07-14)
-  - Corrected test count documentation (951→1,061 actual tests)
-  - Updated TypeScript error status (42→0 actual errors)
+  - Corrected test count documentation (951→1015 actual tests)
+  - Updated TypeScript error status (144→42 actual errors, 71% reduction)
   - Fixed E2E test reporting (6→33 actual tests across browsers)
   - Aligned project status with actual technical achievements
   - TODO.md completely rewritten to reflect current reality
@@ -42,11 +51,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **E2E Test System Stabilization Complete** (2025-07-14)
-  - All 6 E2E tests now passing (100% success rate)
+  - All 33 E2E tests now passing (100% success rate across chromium, firefox, webkit)
   - Homepage H1 Element "Brückenbau-Trainer" detection working correctly
   - Navigation to /train/ Route functioning perfectly across all browsers
   - Playwright test architecture fully stabilized
-  - Unit test suite expanded to 1,061 tests (100% passing)
+  - Unit test suite expanded to 1015 tests (100% passing)
   - Complete test infrastructure modernization achieved
 
 ### Fixed

@@ -21,13 +21,8 @@ docs/
 │   ├── EVALUATION_PIPELINE.md
 │   ├── REACT_PATTERNS.md
 │   └── ZUSTAND_PATTERNS.md
-├── testing/               # Testing strategies and patterns
-│   ├── TESTING_GUIDELINES.md
-│   ├── MOCK_PATTERNS.md
-│   └── E2E_PATTERNS.md
-└── workflows/             # Development workflows
-    ├── PR_CHECKLIST.md
-    └── CODE_REVIEW.md
+└── testing/               # Testing strategies and patterns
+    └── TESTING_GUIDELINES.md
 ```
 
 ## 🎯 Documentation Purpose
@@ -67,10 +62,10 @@ docs/
 
 ## 🔧 Development Context
 
-- **Frontend**: Next.js 15.3.3 + React 18.3 + TypeScript 5.3.3
+- **Frontend**: Next.js 15.3.3 (App Router) + React 18.3 + TypeScript 5.3.3
 - **Chess Engine**: Stockfish WASM + NNUE
 - **State**: Zustand 4.5.0
-- **Testing**: Jest 29.7.0 + React Testing Library 14.2.1 (951 unit tests)
+- **Testing**: Jest 29.7.0 + React Testing Library 14.2.1 (1015 unit tests) + Playwright (33 E2E tests)
 - **Environment**: Node.js 20+ + WSL2 + VS Code + Windows
 
 ## 📊 Key Data Flows

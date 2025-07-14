@@ -241,7 +241,7 @@ class UnifiedEvaluationService {
 ## 🔄 Current Tech Stack (Updated)
 
 ### Frontend Framework
-- **Next.js 15.3**: React framework with App Router
+- **Next.js 15.3**: React framework with App Router (modern architecture)
 - **React 18.3**: Component library with concurrent features
 - **TypeScript 5.3**: Strict mode enabled for type safety
 
@@ -263,7 +263,7 @@ class UnifiedEvaluationService {
 ### Testing Framework
 - **Jest 29.7**: Unit testing framework (1015 tests passing)
 - **React Testing Library 14.1**: Component testing utilities
-- **Playwright**: End-to-end testing framework
+- **Playwright**: End-to-end testing framework (33 tests passing)
 
 ### Development Tools
 - **ESLint**: Code linting and formatting
@@ -290,9 +290,9 @@ class UnifiedEvaluationService {
 ## 🔍 Integration Points
 
 ### Next.js Integration
-- **Pages**: `/pages/train/[id].tsx` - Main training interface
-- **App Component**: `/pages/_app.tsx` - App-wide configuration
-- **API Routes**: None (client-side only)
+- **App Router**: `/app/train/[id]/page.tsx` - Main training interface
+- **Root Layout**: `/app/layout.tsx` - App-wide configuration and providers
+- **Providers**: `/app/providers.tsx` - Client-side providers (app-ready signal)
 - **Static Assets**: Stockfish WASM files in `/public`
 - **Config**: `/config/constants.ts` - Centralized configuration
 
@@ -303,7 +303,7 @@ class UnifiedEvaluationService {
 
 ### Testing Integration
 - **Unit Tests**: Jest + React Testing Library (1015 tests passing)
-- **E2E Tests**: Playwright with stabilized architecture (6/6 passing)
+- **E2E Tests**: Playwright with stabilized architecture (33/33 passing)
 - **Mock Strategy**: MockEngineService for deterministic tests
 - **Coverage**: Business logic ≥78% coverage requirement
 - **Test Organization**: `/tests/unit/`, `/tests/e2e/`, `/tests/integration/`
