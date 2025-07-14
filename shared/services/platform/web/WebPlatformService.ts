@@ -21,31 +21,57 @@ import {
   PerformanceMetrics,
   ShareOptions
 } from '../types';
+import { STORAGE } from '../../../constants';
+
+// Storage key validation regex
+const VALID_KEY_REGEX = /^[a-zA-Z0-9-_]+$/;
 
 // Web Storage Implementation
 class WebStorage implements IPlatformStorage {
-  private prefix = 'chess_trainer_';
+  private prefix = STORAGE.PREFIX;
 
   async save(key: string, data: any): Promise<void> {
+    // Validate key format
+    if (!VALID_KEY_REGEX.test(key)) {
+      throw new Error(`Invalid storage key: ${key}. Only alphanumeric characters, hyphens, and underscores are allowed.`);
+    }
+    
     try {
       const serialized = JSON.stringify(data);
       localStorage.setItem(this.prefix + key, serialized);
     } catch (error) {
-      throw new Error('Failed to save data');
+      // Preserve original error context for debugging
+      throw new Error(`Failed to save data for key '${key}': ${(error as Error).message}`);
     }
   }
 
   async load<T = any>(key: string): Promise<T | null> {
+    // Validate key format
+    if (!VALID_KEY_REGEX.test(key)) {
+      console.error(`Invalid storage key requested: ${key}`);
+      return null;
+    }
+    
     try {
       const item = localStorage.getItem(this.prefix + key);
-      return item ? JSON.parse(item) : null;
+      if (!item) return null;
+      
+      // Parse JSON with error handling
+      const data = JSON.parse(item);
+      return data as T;
     } catch (error) {
-      // Silently handle JSON parse errors and return null
+      console.error(`Failed to parse stored data for key '${key}':`, error);
       return null;
     }
   }
 
   async remove(key: string): Promise<void> {
+    // Validate key format
+    if (!VALID_KEY_REGEX.test(key)) {
+      console.error(`Invalid storage key for removal: ${key}`);
+      return;
+    }
+    
     localStorage.removeItem(this.prefix + key);
   }
 
