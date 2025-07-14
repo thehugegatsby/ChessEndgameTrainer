@@ -126,8 +126,12 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
   useEffect(() => {
     if (lastEvaluation) {
       actions.setEvaluation(lastEvaluation);
+      // Also update the evaluations array - this is needed for MovePanelZustand to show tablebase emojis
+      const currentEvaluations = training.evaluations || [];
+      const updatedEvaluations = [...currentEvaluations, lastEvaluation];
+      actions.setEvaluations(updatedEvaluations);
     }
-  }, [lastEvaluation, actions]);
+  }, [lastEvaluation, actions, training.evaluations]);
 
   // UI state management - local component state only
   const [resetKey, setResetKey] = useState(0);
