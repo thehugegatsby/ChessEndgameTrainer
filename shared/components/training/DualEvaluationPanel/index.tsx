@@ -32,161 +32,91 @@ export const DualEvaluationPanel: React.FC<DualEvaluationPanelProps> = ({
   }
 
   return (
-    <div className="dual-evaluation-panel p-4 space-y-4" data-testid="dual-evaluation-panel">
-      <div className="dual-evaluation-grid grid grid-cols-2 gap-4">
+    <div className="dual-evaluation-panel space-y-6" data-testid="dual-evaluation-panel">
+      
+      {/* Engine Top-3 Moves - Simple Text Display */}
+      <div className="engine-evaluation-section" data-testid="engine-evaluation-panel">
+        <div className="text-sm font-bold text-blue-600 dark:text-blue-400 mb-2">🔧 Engine</div>
         
-        {/* Engine Evaluation Column */}
-        <div className="engine-evaluation-panel bg-gray-800 rounded-lg p-3" data-testid="engine-evaluation-panel">
-          <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-            Engine-Bewertung
-          </h4>
-          
-          {isEvaluating && (
-            <div className="text-xs text-blue-500 mb-2">Analysiert...</div>
-          )}
+        {isEvaluating && (
+          <div className="text-xs text-blue-500 mb-2">Analysiert...</div>
+        )}
 
-          {error ? (
-            <div className="text-xs text-red-500 bg-red-50 dark:bg-red-900/20 p-2 rounded">
-              {error}
-            </div>
-          ) : lastEvaluation ? (
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-600 dark:text-gray-400">Bewertung</span>
-                <span className="font-mono text-sm font-semibold">
-                  {lastEvaluation.mateInMoves 
-                    ? `M${Math.abs(lastEvaluation.mateInMoves)}`
-                    : `${(lastEvaluation.evaluation / 100).toFixed(2)}`
-                  }
-                </span>
+        {error ? (
+          <div className="text-xs text-red-500 font-medium">
+            {error}
+          </div>
+        ) : lastEvaluation ? (
+          <div className="space-y-1">
+            {/* Top 3 Engine Moves - Normale Größe, bessere Farben */}
+            {lastEvaluation.multiPvResults && lastEvaluation.multiPvResults.length > 0 ? (
+              lastEvaluation.multiPvResults.slice(0, 3).map((result, index) => (
+                <div key={index} className="text-sm">
+                  <span className="font-mono font-bold text-blue-700 dark:text-blue-300">{result.san}</span>
+                  <span className="text-orange-600 dark:text-orange-400 ml-2">
+                    {result.score.type === 'mate' 
+                      ? `Matt in ${Math.abs(result.score.value)}`
+                      : `${result.score.value >= 0 ? '+' : ''}${(result.score.value / 100).toFixed(2)}`
+                    }
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="text-sm text-blue-600 dark:text-blue-400">
+                Warte auf Multi-PV Analyse...
               </div>
-              
-              {lastEvaluation.depth && (
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-500">Tiefe</span>
-                  <span className="text-xs font-mono">{lastEvaluation.depth}</span>
-                </div>
-              )}
-              
-              {lastEvaluation.nps && (
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-500">kN/s</span>
-                  <span className="text-xs font-mono">{Math.round(lastEvaluation.nps / 1000)}</span>
-                </div>
-              )}
+            )}
+          </div>
+        ) : (
+          <div className="text-sm text-blue-500 dark:text-blue-400">
+            Warte auf Analyse...
+          </div>
+        )}
+        
+        {/* DEBUG: Show evaluation data */}
+        {lastEvaluation && (
+          <div className="mt-2 text-xs text-gray-500">
+            DEBUG: multiPvResults={lastEvaluation.multiPvResults?.length || 0}
+          </div>
+        )}
+      </div>
 
-              {/* Top 3 Engine Moves - Multi-PV Results */}
-              {lastEvaluation.multiPvResults && lastEvaluation.multiPvResults.length > 0 && (
-                <div className="space-y-1">
-                  <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Top 3 Engine-Züge</div>
-                  {lastEvaluation.multiPvResults.slice(0, 3).map((result, index) => (
-                    <div key={index} className="flex justify-between items-center bg-gray-900 p-1 rounded text-xs">
-                      <span className="font-mono font-medium">{result.san}</span>
-                      <span className="font-mono text-gray-600 dark:text-gray-400">
-                        {result.score.type === 'mate' 
-                          ? `Matt in ${Math.abs(result.score.value)}`
-                          : `${result.score.value >= 0 ? '+' : ''}${(result.score.value / 100).toFixed(2)}`
-                        }
-                      </span>
-                    </div>
-                  ))}
+      {/* Tablebase Top-3 Moves - Simple Text Display */}
+      <div className="tablebase-evaluation-section" data-testid="tablebase-evaluation-panel">
+        <div className="text-sm font-bold text-green-600 dark:text-green-400 mb-2">📚 Tablebase</div>
+        
+        {lastEvaluation?.tablebase?.isTablebasePosition ? (
+          <div className="space-y-1">
+            {/* Top 3 Tablebase Moves - Normale Größe, bessere Farben */}
+            {lastEvaluation.tablebase.topMoves && lastEvaluation.tablebase.topMoves.length > 0 ? (
+              lastEvaluation.tablebase.topMoves.slice(0, 3).map((move, index) => (
+                <div key={index} className="text-sm">
+                  <span className="font-mono font-bold text-green-700 dark:text-green-300">{move.san}</span>
+                  <span className="text-purple-600 dark:text-purple-400 ml-2">
+                    DTZ {move.dtz}, DTM {move.dtm}
+                  </span>
                 </div>
-              )}
-
-              {lastEvaluation.pv && lastEvaluation.pv.length > 0 && (
-                <div className="text-xs text-gray-600 dark:text-gray-400">
-                  <div className="font-medium mb-1">Hauptvariante:</div>
-                  <div className="font-mono bg-gray-900 p-2 rounded border">
-                    {lastEvaluation.pv.slice(0, 3).join(' ')}
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="text-center py-4">
-              <div className="text-gray-400 dark:text-gray-500 mb-1">
-                <span className="text-lg">⏳</span>
+              ))
+            ) : (
+              <div className="text-sm text-green-600 dark:text-green-400">
+                Warte auf Tablebase Top-3...
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Warte auf Analyse...
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Tablebase Evaluation Column */}
-        <div className="tablebase-evaluation-panel bg-blue-900/20 rounded-lg p-3" data-testid="tablebase-evaluation-panel">
-          <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-            Tablebase-Bewertung
-          </h4>
-          
-          {lastEvaluation?.tablebase?.isTablebasePosition ? (
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-600 dark:text-gray-400">Status</span>
-                <span className="font-mono text-sm font-semibold text-blue-600 dark:text-blue-400">
-                  {lastEvaluation.tablebase.category === 'win' ? 'Gewonnen' :
-                   lastEvaluation.tablebase.category === 'loss' ? 'Verloren' :
-                   'Remis'}
-                </span>
-              </div>
-              
-              {lastEvaluation.tablebase.dtz && (
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-500">DTZ</span>
-                  <span className="text-xs font-mono">{lastEvaluation.tablebase.dtz}</span>
-                </div>
-              )}
-              
-              {/* Top 3 Tablebase Moves with DTZ/DTM */}
-              {lastEvaluation.tablebase.topMoves && lastEvaluation.tablebase.topMoves.length > 0 && (
-                <div className="space-y-1">
-                  <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Top 3 Tablebase-Züge</div>
-                  {lastEvaluation.tablebase.topMoves.slice(0, 3).map((move, index) => (
-                    <div key={index} className="space-y-1">
-                      <div className="flex justify-between items-center bg-gray-900 p-1 rounded text-xs">
-                        <span className="font-mono font-medium">{move.san}</span>
-                        <span className="font-mono text-blue-600 dark:text-blue-400">
-                          {move.category === 'win' ? 'Gewinn' :
-                           move.category === 'loss' ? 'Verlust' :
-                           move.category === 'draw' ? 'Remis' :
-                           'Unbekannt'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-xs text-gray-500 px-1">
-                        <span>DTZ {move.dtz}</span>
-                        <span>DTM {move.dtm}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {lastEvaluation.tablebase.dtz && (
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-500">DTZ</span>
-                  <span className="text-xs font-mono">{lastEvaluation.tablebase.dtz}</span>
-                </div>
-              )}
-              
-              {lastEvaluation.tablebase.wdlAfter !== undefined && (
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-500">WDL</span>
-                  <span className="text-xs font-mono">{lastEvaluation.tablebase.wdlAfter}</span>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="text-center py-4">
-              <div className="text-gray-400 dark:text-gray-500 mb-1">
-                <span className="text-lg">📚</span>
-              </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Keine Tablebase-Daten
-              </p>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        ) : (
+          <div className="text-sm text-amber-600 dark:text-amber-400">
+            Keine Tablebase-Daten
+          </div>
+        )}
+        
+        {/* DEBUG: Show tablebase data */}
+        {lastEvaluation && (
+          <div className="mt-2 text-xs text-gray-500">
+            DEBUG: isTablebase={lastEvaluation.tablebase?.isTablebasePosition || false}, 
+            topMoves={lastEvaluation.tablebase?.topMoves?.length || 0}, 
+            FEN: {fen.substring(0, 20)}...
+          </div>
+        )}
       </div>
     </div>
   );

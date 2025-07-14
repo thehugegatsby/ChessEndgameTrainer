@@ -103,4 +103,19 @@ export interface ITablebaseService {
    * @returns Promise that resolves when cache is cleared
    */
   clearCache(): Promise<void>;
+  
+  /**
+   * Gets Top-3 tablebase moves for a position (PHASE 3.2)
+   * 
+   * @param fen - Position in FEN notation
+   * @returns Array of top moves with DTZ/DTM data or null if not in tablebase
+   */
+  getTopMoves(fen: string): Promise<Array<{
+    move: string;
+    san: string;
+    dtz: number;
+    dtm: number;
+    wdl: number;
+    category: 'win' | 'draw' | 'loss';
+  }> | null>;
 }

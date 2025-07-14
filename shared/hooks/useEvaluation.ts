@@ -186,6 +186,18 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
                 dtz: currPerspectiveEval.dtz !== null ? currPerspectiveEval.dtz : undefined
               };
               
+              // PHASE 3.2: Get Top-3 tablebase moves for current position
+              try {
+                const tablebaseProvider = new (await import('@shared/lib/chess/evaluation/providerAdapters')).TablebaseProviderAdapter();
+                const tablebaseService = tablebaseProvider.getTablebaseService();
+                const topMoves = await tablebaseService.getTopMoves(fen);
+                if (topMoves && topMoves.length > 0) {
+                  evaluation.tablebase.topMoves = topMoves;
+                }
+              } catch (error) {
+                logger.warn('Failed to get tablebase Top-3 moves:', error);
+              }
+              
             }
           } else {
             // CASE 2: No previous position (initial position) - just add current tablebase status
@@ -203,6 +215,18 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
                          formattedEval.className === 'winning' ? 'win' : 'loss',
                 dtz: currPerspectiveEval.dtz !== null ? currPerspectiveEval.dtz : undefined
               };
+              
+              // PHASE 3.2: Get Top-3 tablebase moves for current position
+              try {
+                const tablebaseProvider = new (await import('@shared/lib/chess/evaluation/providerAdapters')).TablebaseProviderAdapter();
+                const tablebaseService = tablebaseProvider.getTablebaseService();
+                const topMoves = await tablebaseService.getTopMoves(fen);
+                if (topMoves && topMoves.length > 0) {
+                  evaluation.tablebase.topMoves = topMoves;
+                }
+              } catch (error) {
+                logger.warn('Failed to get tablebase Top-3 moves:', error);
+              }
               
             }
           }
