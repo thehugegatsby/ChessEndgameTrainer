@@ -9,7 +9,7 @@ export interface EndgamePosition {
   fen: string;
   category: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced' | 'master';
-  targetMoves: number;
+  targetMoves?: number;
   hints?: string[];
   solution?: string[];
   nextPositionId?: number | null;

@@ -25,7 +25,6 @@ import { IPositionRepository, IPositionRepositoryConfig } from '../IPositionRepo
 import { EndgamePosition, EndgameCategory, EndgameChapter } from '@shared/types';
 import { validateAndSanitizeFen } from '@shared/utils/fenValidator';
 import { getLogger } from '@shared/services/logging';
-import { positionConverter } from '../converters/positionConverter';
 
 const logger = getLogger().setContext('FirebasePositionRepository');
 
@@ -41,12 +40,13 @@ export class FirebasePositionRepository implements IPositionRepository {
 
   async getPosition(id: number): Promise<EndgamePosition | null> {
     try {
-      const docRef = doc(this.db, 'positions', id.toString()).withConverter(positionConverter);
+      const docRef = doc(this.db, 'positions', id.toString());
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists()) {
-        const position = docSnap.data();
-        // Validate FEN after conversion
+        const data = docSnap.data();
+        const position: EndgamePosition = { ...data, id } as EndgamePosition;
+        // Validate FEN 
         if (position.fen) {
           const validation = validateAndSanitizeFen(position.fen);
           if (!validation.isValid) {
@@ -112,7 +112,7 @@ export class FirebasePositionRepository implements IPositionRepository {
         updates.fen = validation.sanitized;
       }
 
-      const docRef = doc(this.db, 'positions', id.toString()).withConverter(positionConverter);
+      const docRef = doc(this.db, 'positions', id.toString());
       await updateDoc(docRef, updates as DocumentData);
       
       this.config.events?.onDataModified?.('updatePosition', [id]);
@@ -140,12 +140,13 @@ export class FirebasePositionRepository implements IPositionRepository {
 
   async getAllPositions(): Promise<EndgamePosition[]> {
     try {
-      const positionsRef = collection(this.db, 'positions').withConverter(positionConverter);
+      const positionsRef = collection(this.db, 'positions');
       const snapshot = await getDocs(positionsRef);
       
       const positions: EndgamePosition[] = [];
       snapshot.forEach((doc) => {
-        const position = doc.data();
+        const data = doc.data();
+        const position: EndgamePosition = { ...data, id: parseInt(doc.id) } as EndgamePosition;
         // Validate FEN
         if (position.fen) {
           const validation = validateAndSanitizeFen(position.fen);
@@ -171,13 +172,14 @@ export class FirebasePositionRepository implements IPositionRepository {
 
   async getPositionsByCategory(category: string): Promise<EndgamePosition[]> {
     try {
-      const positionsRef = collection(this.db, 'positions').withConverter(positionConverter);
+      const positionsRef = collection(this.db, 'positions');
       const q = query(positionsRef, where('category', '==', category));
       const snapshot = await getDocs(q);
       
       const positions: EndgamePosition[] = [];
       snapshot.forEach((doc) => {
-        const position = doc.data();
+        const data = doc.data();
+        const position: EndgamePosition = { ...data, id: parseInt(doc.id) } as EndgamePosition;
         // Validate FEN
         if (position.fen) {
           const validation = validateAndSanitizeFen(position.fen);
@@ -203,13 +205,14 @@ export class FirebasePositionRepository implements IPositionRepository {
 
   async getPositionsByDifficulty(difficulty: EndgamePosition['difficulty']): Promise<EndgamePosition[]> {
     try {
-      const positionsRef = collection(this.db, 'positions').withConverter(positionConverter);
+      const positionsRef = collection(this.db, 'positions');
       const q = query(positionsRef, where('difficulty', '==', difficulty));
       const snapshot = await getDocs(q);
       
       const positions: EndgamePosition[] = [];
       snapshot.forEach((doc) => {
-        const position = doc.data();
+        const data = doc.data();
+        const position: EndgamePosition = { ...data, id: parseInt(doc.id) } as EndgamePosition;
         // Validate FEN
         if (position.fen) {
           const validation = validateAndSanitizeFen(position.fen);
@@ -281,8 +284,8 @@ export class FirebasePositionRepository implements IPositionRepository {
 
   async getNextPosition(currentId: number, categoryId?: string): Promise<EndgamePosition | null> {
     try {
-      const positionsRef = collection(this.db, 'positions').withConverter(positionConverter);
-      let q: Query<EndgamePosition>;
+      const positionsRef = collection(this.db, 'positions');
+      let q: Query<DocumentData>;
       
       if (categoryId) {
         q = query(
@@ -307,7 +310,8 @@ export class FirebasePositionRepository implements IPositionRepository {
         return null;
       }
       
-      const position = snapshot.docs[0].data();
+      const data = snapshot.docs[0].data();
+      const position: EndgamePosition = { ...data, id: parseInt(snapshot.docs[0].id) } as EndgamePosition;
       
       // Validate FEN
       if (position.fen) {
@@ -330,8 +334,8 @@ export class FirebasePositionRepository implements IPositionRepository {
 
   async getPreviousPosition(currentId: number, categoryId?: string): Promise<EndgamePosition | null> {
     try {
-      const positionsRef = collection(this.db, 'positions').withConverter(positionConverter);
-      let q: Query<EndgamePosition>;
+      const positionsRef = collection(this.db, 'positions');
+      let q: Query<DocumentData>;
       
       if (categoryId) {
         q = query(
@@ -356,7 +360,8 @@ export class FirebasePositionRepository implements IPositionRepository {
         return null;
       }
       
-      const position = snapshot.docs[0].data();
+      const data = snapshot.docs[0].data();
+      const position: EndgamePosition = { ...data, id: parseInt(snapshot.docs[0].id) } as EndgamePosition;
       
       // Validate FEN
       if (position.fen) {
