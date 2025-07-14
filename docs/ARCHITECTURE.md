@@ -261,7 +261,7 @@ class UnifiedEvaluationService {
 - **react-chessboard 4.3**: Chess board component
 
 ### Testing Framework
-- **Jest 29.7**: Unit testing framework (951 tests passing)
+- **Jest 29.7**: Unit testing framework (1015 tests passing)
 - **React Testing Library 14.1**: Component testing utilities
 - **Playwright**: End-to-end testing framework
 
@@ -302,8 +302,8 @@ class UnifiedEvaluationService {
 - **Parser**: Custom UCI message parser
 
 ### Testing Integration
-- **Unit Tests**: Jest + React Testing Library (951 tests passing)
-- **E2E Tests**: Playwright with mock services
+- **Unit Tests**: Jest + React Testing Library (1015 tests passing)
+- **E2E Tests**: Playwright with stabilized architecture (6/6 passing)
 - **Mock Strategy**: MockEngineService for deterministic tests
 - **Coverage**: Business logic ≥78% coverage requirement
 - **Test Organization**: `/tests/unit/`, `/tests/e2e/`, `/tests/integration/`

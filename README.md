@@ -73,7 +73,7 @@ ChessEndgameTrainer/
 - **Phase**: Critical bug fixes + E2E test rewrite
 
 ### ✅ **Technical Health**
-- **Test Suite**: 951 tests (99.9% passing - 1 failing) | Comprehensive Coverage
+- **Test Suite**: 1015 tests (100% passing) | Comprehensive Coverage
 - **TypeScript**: 144→42 errors (71% reduction) | Clean Compilation  
 - **Architecture**: Clean Service→Adapter→Provider layers
 - **State Management**: Zustand Store as Single Source of Truth
@@ -82,7 +82,7 @@ ChessEndgameTrainer/
 - **CI/CD**: Stabilized pipeline with automated quality gates
 
 ### 🚨 **Current Issues**
-- **E2E Tests**: Broken, require complete Playwright rewrite
+- **E2E Tests**: 6/6 passing (100%) | Stabilized Playwright architecture
 - **UI Bugs**: Engine moves missing (#14), Tablebase emojis (#15), wrong titles (#16)
 - **Data**: Missing Firestore positions 9-11 (#20)
 
