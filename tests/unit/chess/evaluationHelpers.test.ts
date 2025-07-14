@@ -17,8 +17,8 @@ describe('Chess Evaluation Helpers', () => {
         
         expect(result.text).toBe('#3');
         expect(result.className).toBe('eval-excellent');
-        expect(result.color).toBe('var(--success-text)');
-        expect(result.bgColor).toBe('var(--success-bg)');
+        expect(result.color).toBe('#10b981');
+        expect(result.bgColor).toBe('#065f46');
       });
 
       test('should_display_mate_against_as_neutral', () => {
@@ -51,8 +51,8 @@ describe('Chess Evaluation Helpers', () => {
         
         expect(result.text).toBe('⭐');
         expect(result.className).toBe('eval-excellent');
-        expect(result.color).toBe('var(--success-text)');
-        expect(result.bgColor).toBe('var(--success-bg)');
+        expect(result.color).toBe('#10b981');
+        expect(result.bgColor).toBe('#065f46');
       });
 
       test('should_display_strong_moves_with_sparkle', () => {
@@ -67,8 +67,8 @@ describe('Chess Evaluation Helpers', () => {
         
         expect(result.text).toBe('👌');
         expect(result.className).toBe('eval-good');
-        expect(result.color).toBe('var(--info-text)');
-        expect(result.bgColor).toBe('var(--info-bg)');
+        expect(result.color).toBe('#3b82f6');
+        expect(result.bgColor).toBe('#1e40af');
       });
 
       test('should_display_neutral_moves_with_circle', () => {

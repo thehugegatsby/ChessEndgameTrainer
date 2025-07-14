@@ -13,8 +13,8 @@ describe('Engine Evaluation - Move Quality Display', () => {
       
       expect(result.text).toBe('#1');
       expect(result.className).toBe('eval-excellent');
-      expect(result.color).toBe('var(--success-text)');
-      expect(result.bgColor).toBe('var(--success-bg)');
+      expect(result.color).toBe('#10b981');
+      expect(result.bgColor).toBe('#065f46');
     });
     
     test('should_display_mate_in_3_as_excellent', () => {
@@ -55,8 +55,8 @@ describe('Engine Evaluation - Move Quality Display', () => {
       
       expect(result.text).toBe('⭐');
       expect(result.className).toBe('eval-excellent');
-      expect(result.color).toBe('var(--success-text)');
-      expect(result.bgColor).toBe('var(--success-bg)');
+      expect(result.color).toBe('#10b981');
+      expect(result.bgColor).toBe('#065f46');
     });
     
     test('should_display_excellent_position_with_sparkles', () => {
@@ -73,8 +73,8 @@ describe('Engine Evaluation - Move Quality Display', () => {
       
       expect(result.text).toBe('👌');
       expect(result.className).toBe('eval-good');
-      expect(result.color).toBe('var(--info-text)');
-      expect(result.bgColor).toBe('var(--info-bg)');
+      expect(result.color).toBe('#3b82f6');
+      expect(result.bgColor).toBe('#1e40af');
     });
     
     test('should_display_neutral_position_with_circle', () => {

@@ -13,8 +13,8 @@ describe('Position Evaluation - getEvaluationDisplay', () => {
       
       expect(result.text).toBe('#3');
       expect(result.className).toBe('eval-excellent');
-      expect(result.color).toBe('var(--success-text)');
-      expect(result.bgColor).toBe('var(--success-bg)');
+      expect(result.color).toBe('#10b981');
+      expect(result.bgColor).toBe('#065f46');
     });
     
     test('should_display_negative_mate_as_losing', () => {
@@ -22,8 +22,8 @@ describe('Position Evaluation - getEvaluationDisplay', () => {
       
       expect(result.text).toBe('#5');
       expect(result.className).toBe('eval-blunder');
-      expect(result.color).toBe('var(--error-text)');
-      expect(result.bgColor).toBe('var(--error-bg)');
+      expect(result.color).toBe('#ef4444');
+      expect(result.bgColor).toBe('#991b1b');
     });
   });
   
@@ -47,8 +47,8 @@ describe('Position Evaluation - getEvaluationDisplay', () => {
       
       expect(result.text).toBe('👌');
       expect(result.className).toBe('eval-good');
-      expect(result.color).toBe('var(--info-text)');
-      expect(result.bgColor).toBe('var(--info-bg)');
+      expect(result.color).toBe('#3b82f6');
+      expect(result.bgColor).toBe('#1e40af');
     });
     
     test('should_display_equal_position_with_circle', () => {
@@ -65,8 +65,8 @@ describe('Position Evaluation - getEvaluationDisplay', () => {
       
       expect(result.text).toBe('⚠️');
       expect(result.className).toBe('eval-inaccurate');
-      expect(result.color).toBe('var(--warning-text)');
-      expect(result.bgColor).toBe('var(--warning-bg)');
+      expect(result.color).toBe('#f59e0b');
+      expect(result.bgColor).toBe('#92400e');
     });
     
     test('should_display_clearly_worse_position_with_orange_diamond', () => {
@@ -83,8 +83,8 @@ describe('Position Evaluation - getEvaluationDisplay', () => {
       
       expect(result.text).toBe('🔴');
       expect(result.className).toBe('eval-blunder');
-      expect(result.color).toBe('var(--error-text)');
-      expect(result.bgColor).toBe('var(--error-bg)');
+      expect(result.color).toBe('#ef4444');
+      expect(result.bgColor).toBe('#991b1b');
     });
   });
   
