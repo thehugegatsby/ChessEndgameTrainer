@@ -36,7 +36,7 @@ jobs:
       run: npm run lint
 
     - name: Run TypeScript compiler check
-      run: npx tsc --project configs/typescript/tsconfig.ci.json --noEmit
+      run: npx tsc --project config/typescript/tsconfig.ci.json --noEmit
 
     - name: Check for duplicate components
       run: npm run check-duplicates
@@ -118,53 +118,53 @@ jobs:
         retention-days: 1
       if: success() && hashFiles('.next/**') != ''
 
-  # e2e:
-  #   name: E2E Tests
-  #   runs-on: ubuntu-latest
-  #   needs: [test, build]
-  #   timeout-minutes: 15
-  #   
-  #   steps:
-  #   - name: Checkout code
-  #     uses: actions/checkout@v4
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [test, build]
+    timeout-minutes: 15
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-  #   - name: Setup Node.js
-  #     uses: actions/setup-node@v4
-  #     with:
-  #       node-version: ${{ env.NODE_VERSION }}
-  #       cache: 'npm'
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
 
-  #   - name: Install dependencies
-  #     run: npm ci --prefer-offline --no-audit
+    - name: Install dependencies
+      run: npm ci --prefer-offline --no-audit
 
-  #   - name: Install Playwright Browsers
-  #     run: npx playwright install --with-deps chromium
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps chromium firefox webkit
 
-  #   - name: Run Playwright tests
-  #     run: npm run test:e2e
-  #     env:
-  #       PLAYWRIGHT_JUNIT_OUTPUT_NAME: results.xml
+    - name: Run Playwright tests
+      run: npm run test:e2e
+      env:
+        PLAYWRIGHT_JUNIT_OUTPUT_NAME: results.xml
 
-  #   - name: Upload test results
-  #     uses: actions/upload-artifact@v4
-  #     if: always()
-  #     with:
-  #       name: playwright-report
-  #       path: playwright-report/
-  #       retention-days: 7
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 7
 
-  #   - name: Upload test videos
-  #     uses: actions/upload-artifact@v4
-  #     if: always()
-  #     with:
-  #       name: playwright-videos
-  #       path: test-results/
-  #       retention-days: 3
+    - name: Upload test videos
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-videos
+        path: test-results/
+        retention-days: 3
 
   quality-gates:
     name: Quality Gates Summary
     runs-on: ubuntu-latest
-    needs: [lint-and-typecheck, test, build]
+    needs: [lint-and-typecheck, test, build, e2e]
     if: always()
     
     steps:
@@ -191,13 +191,18 @@ jobs:
           echo "❌ Build: Failed" >> $GITHUB_STEP_SUMMARY
         fi
         
-        echo "⚠️  E2E Tests: Disabled (tests being rewritten)" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ needs.e2e.result }}" == "success" ]; then
+          echo "✅ E2E Tests: Passed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ E2E Tests: Failed" >> $GITHUB_STEP_SUMMARY
+        fi
 
     - name: Set final status
       if: |
         needs.lint-and-typecheck.result == 'failure' ||
         needs.test.result == 'failure' ||
-        needs.build.result == 'failure'
+        needs.build.result == 'failure' ||
+        needs.e2e.result == 'failure'
       run: |
         echo "❌ Quality gates failed. Please fix the issues before merging."
         exit 1
