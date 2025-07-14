@@ -48,6 +48,8 @@
     "migrate:firestore": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register scripts/migrateToFirestore.ts",
     "migrate:verify": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register scripts/migrateToFirestore.ts --verify",
     "emulator": "firebase emulators:start",
+    "fix:position-ids": "npx tsx scripts/renamePositionIds.ts",
+    "seed:test-positions": "npx tsx scripts/seedTestPositions.ts",
     "emulator:test": "firebase emulators:start --only firestore"
   },
   "dependencies": {
