@@ -58,7 +58,7 @@ export const ENGINE = {
   MAX_INIT_ATTEMPTS: 3,                  // Maximum initialization attempts
   DEFAULT_SEARCH_DEPTH: 15,              // Default engine search depth
   HASH_SIZE: 16,                         // Engine hash table size (MB)
-  SKILL_LEVEL: 20,                       // Engine skill level (0-20)
+  SKILL_LEVEL: 20,                       // Engine skill level (0-20) - Use RATING.ENGINE_SKILL_LEVEL
   MAX_NODES: 100000,                     // Maximum nodes to search
   
   // Idle management
@@ -122,12 +122,29 @@ export const TRAINING = {
   SUCCESS_RATE_THRESHOLD: 0.8,           // 80% success rate
   REPETITION_INTERVALS: [1, 3, 7, 14, 30], // Days for spaced repetition
   MAX_HINTS: 3,                          // Maximum hints per position
-  RATING_CHANGE_BASE: 32,                // ELO-like rating change
-  DEFAULT_RATING: 1200,                  // Default user rating
   
   // Spaced repetition multipliers
   SUCCESS_MULTIPLIER: 2,                 // Interval multiplier on success
   FAILURE_MULTIPLIER: 1,                 // Interval multiplier on failure
+} as const;
+
+// Rating Constants - Centralized rating system thresholds
+export const RATING = {
+  // Base ratings
+  DEFAULT_RATING: 1200,                  // Default user rating
+  TEST_RATING: 1500,                     // Test user rating for E2E tests
+  
+  // Skill level thresholds
+  BEGINNER_THRESHOLD: 1200,              // Below this = beginner
+  INTERMEDIATE_THRESHOLD: 1800,          // 1200-1800 = intermediate
+  ADVANCED_THRESHOLD: 2200,              // 1800-2200 = advanced
+  EXPERT_THRESHOLD: 2200,                // 2200+ = expert
+  
+  // Rating change calculations
+  RATING_CHANGE_BASE: 32,                // ELO-like rating change base
+  
+  // Engine skill level (0-20 scale)
+  ENGINE_SKILL_LEVEL: 20,                // Maximum engine skill level
 } as const;
 
 // Network Constants
@@ -164,7 +181,7 @@ export const E2E = {
   DATA: {
     STORAGE_KEY: 'chess-trainer-storage',       // LocalStorage key for state persistence
     USER: {
-      RATING: 1500,                            // Test user rating
+      RATING: 1500,                            // Test user rating - Use RATING.TEST_RATING
       STREAK: 5,                               // Test user streak
     },
     MOVES: [
@@ -279,6 +296,7 @@ export type UIConstants = typeof UI;
 export type ChessConstants = typeof CHESS;
 export type EvaluationConstants = typeof EVALUATION;
 export type TrainingConstants = typeof TRAINING;
+export type RatingConstants = typeof RATING;
 export type NetworkConstants = typeof NETWORK;
 export type TimeConstants = typeof TIME;
 export type E2EConstants = typeof E2E;
