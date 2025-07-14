@@ -270,14 +270,22 @@ describe('WebPlatformService', () => {
 
   describe('Performance Service', () => {
     beforeEach(() => {
-      mockPerformance.now.mockReturnValueOnce(MOCK_PERFORMANCE_START).mockReturnValueOnce(MOCK_PERFORMANCE_END);
+      // Clear performance service state between tests
+      service.performance.clearMetrics();
     });
 
     it('should start and end measure', () => {
+      // Mock specific to this test
+      const performanceSpy = jest.spyOn(performance, 'now')
+        .mockReturnValueOnce(MOCK_PERFORMANCE_START) // startMeasure
+        .mockReturnValueOnce(MOCK_PERFORMANCE_END); // endMeasure
+      
       service.performance.startMeasure('test-measure');
       const duration = service.performance.endMeasure('test-measure');
       
       expect(duration).toBe(MOCK_PERFORMANCE_DURATION);
+      
+      performanceSpy.mockRestore();
     });
 
     it('should throw error when ending non-existent measure', () => {
@@ -287,16 +295,21 @@ describe('WebPlatformService', () => {
     });
 
     it('should create marks', () => {
+      // Mock specific to this test
+      const performanceSpy = jest.spyOn(performance, 'now')
+        .mockReturnValue(MOCK_PERFORMANCE_START);
+      
       service.performance.mark('test-mark');
       
       const metrics = service.performance.getMetrics();
       expect(metrics.marks['test-mark']).toBe(MOCK_PERFORMANCE_START);
+      
+      performanceSpy.mockRestore();
     });
 
     it('should measure between marks', () => {
-      // Reset mock to avoid interference from other tests
-      mockPerformance.now.mockClear();
-      mockPerformance.now
+      // Mock specific to this test - isolated mock calls
+      const performanceSpy = jest.spyOn(performance, 'now')
         .mockReturnValueOnce(MOCK_PERFORMANCE_START) // start mark: 1000
         .mockReturnValueOnce(MOCK_PERFORMANCE_END); // end mark: 1600
       
@@ -306,12 +319,13 @@ describe('WebPlatformService', () => {
       const duration = service.performance.measure('test', 'start', 'end');
       // duration = endMark - startMark = 1600 - 1000 = 600
       expect(duration).toBe(MOCK_PERFORMANCE_DURATION);
+      
+      performanceSpy.mockRestore();
     });
 
     it('should get metrics with averages', () => {
-      // Reset mock to avoid interference from other tests
-      mockPerformance.now.mockClear();
-      mockPerformance.now
+      // Mock specific to this test
+      const performanceSpy = jest.spyOn(performance, 'now')
         .mockReturnValueOnce(MOCK_PERFORMANCE_START) // startMeasure
         .mockReturnValueOnce(MOCK_PERFORMANCE_END); // endMeasure
       
@@ -322,6 +336,8 @@ describe('WebPlatformService', () => {
       
       expect(metrics.measures.test).toEqual([MOCK_PERFORMANCE_DURATION]);
       expect(metrics.averages.test).toBe(MOCK_PERFORMANCE_DURATION);
+      
+      performanceSpy.mockRestore();
     });
 
     it('should clear metrics', () => {
