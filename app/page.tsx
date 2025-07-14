@@ -7,7 +7,7 @@ import { TEST_IDS, getTestId } from '@shared/constants/testIds';
 const bridgeTrainerLessons = [
   {
     id: 'schritt-1-zickzack',
-    trainId: 12,
+    trainId: 9,
     title: 'Zickzack-Technik',
     description: 'König läuft im Zickzack nach vorne, Turm schützt von hinten',
     fen: '2K5/2P2k2/8/8/4R3/8/1r6/8 w - - 0 1',
@@ -18,7 +18,7 @@ const bridgeTrainerLessons = [
   },
   {
     id: 'schritt-2-turm-positionieren',
-    trainId: 13,
+    trainId: 10,
     title: 'Turm positionieren',
     description: 'Turm erst auf die 4. oder 5. Reihe bringen, dann Brücke bauen',
     fen: '2K2k2/2P5/8/8/8/8/1r6/4R3 w - - 0 1',
@@ -29,7 +29,7 @@ const bridgeTrainerLessons = [
   },
   {
     id: 'schritt-3-koenig-abdraengen',
-    trainId: 14,
+    trainId: 11,
     title: 'König abdrängen',
     description: 'König steht noch zentral - erst abdrängen, dann Brücke bauen',
     fen: '2K1k3/2P5/8/8/8/8/1r6/7R w - - 0 1',
@@ -56,7 +56,7 @@ export default function HomePage() {
           {/* Start-Button */}
           <div className="flex justify-center">
             <Link 
-              href="/train/12"
+              href="/train/9"
               data-testid={TEST_IDS.NAVIGATION.TRAINING_LINK}
               className="px-8 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
             >

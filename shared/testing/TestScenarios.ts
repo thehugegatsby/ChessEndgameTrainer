@@ -54,11 +54,11 @@ export const TestPositions: Record<string, TestScenario> = {
     expectsDrawEvaluation: false // This is a win for White!
   },
 
-  // Position 12: "Zickzack-Technik" Brückenbau-Trainer
+  // Position 9: "Zickzack-Technik" Brückenbau-Trainer (was 12)
   // FEN: "2K5/2P2k2/8/8/4R3/8/1r6/8 w - - 0 1"  
   // White K+P+R vs Black K+R, White to move, goal: win using bridge technique
-  POSITION_12_BRIDGE_ZICKZACK: {
-    id: "12", // TestScenario uses string IDs
+  POSITION_9_BRIDGE_ZICKZACK: {
+    id: "9", // TestScenario uses string IDs
     title: 'Zickzack-Technik',
     description: 'König läuft im Zickzack nach vorne, Turm schützt von hinten',
     fen: '2K5/2P2k2/8/8/4R3/8/1r6/8 w - - 0 1', // From homepage bridgeTrainerLessons
@@ -78,6 +78,58 @@ export const TestPositions: Record<string, TestScenario> = {
     // TEST-SPECIFIC FIELDS
     initialExpectedMove: { from: 'c8', to: 'd7' }, // Kd7 (Zickzack beginnen)
     expectsDrawEvaluation: false // This is a win for White!
+  },
+
+  // Position 10: "Turm positionieren" Brückenbau-Trainer (was 13)
+  // FEN: "2K2k2/2P5/8/8/8/8/1r6/4R3 w - - 0 1"
+  // White K+P+R vs Black K+R, White to move, goal: win by positioning rook first
+  POSITION_10_BRIDGE_POSITIONING: {
+    id: "10", // TestScenario uses string IDs
+    title: 'Turm positionieren',
+    description: 'Turm erst auf die 4. oder 5. Reihe bringen, dann Brücke bauen',
+    fen: '2K2k2/2P5/8/8/8/8/1r6/4R3 w - - 0 1', // From homepage bridgeTrainerLessons
+    category: 'endgame',
+    difficulty: 'beginner',
+    targetMoves: 10, // Estimated moves to win
+    sideToMove: 'white',
+    goal: 'win',
+    hints: [
+      'Turm auf die 4. oder 5. Reihe positionieren',
+      'Re4 oder Re5 sind gute Züge',
+      'Dann normale Brückenbau-Technik anwenden'
+    ],
+    solution: [
+      'Re4', 'Kd8', 'Kd7', 'Kc8', 'Kc6', 'Kd8', 'Kb5', 'Kc7', 'Re7+', 'Kd6', 'c8=Q'
+    ],
+    // TEST-SPECIFIC FIELDS
+    initialExpectedMove: { from: 'e1', to: 'e4' }, // Re4 (Turm positionieren)
+    expectsDrawEvaluation: false // This is a win for White!
+  },
+
+  // Position 11: "König abdrängen" Brückenbau-Trainer (was 14)
+  // FEN: "2K1k3/2P5/8/8/8/8/1r6/7R w - - 0 1"
+  // White K+P+R vs Black K+R, White to move, goal: win by deflecting king first
+  POSITION_11_BRIDGE_DEFLECTION: {
+    id: "11", // TestScenario uses string IDs
+    title: 'König abdrängen',
+    description: 'König steht noch zentral - erst abdrängen, dann Brücke bauen',
+    fen: '2K1k3/2P5/8/8/8/8/1r6/7R w - - 0 1', // From homepage bridgeTrainerLessons
+    category: 'endgame',
+    difficulty: 'intermediate',
+    targetMoves: 12, // Estimated moves to win
+    sideToMove: 'white',
+    goal: 'win',
+    hints: [
+      'König mit einem Turmschach abdrängen',
+      'Re1+ zwingt den König auf f8',
+      'Dann Turm positionieren und Brücke bauen'
+    ],
+    solution: [
+      'Re1+', 'Kf8', 'Re4', 'Kf7', 'Kd7', 'Kf8', 'Kc6', 'Ke7', 'Kb5', 'Kd6', 'Re6+', 'Kd5', 'c8=Q'
+    ],
+    // TEST-SPECIFIC FIELDS
+    initialExpectedMove: { from: 'h1', to: 'e1' }, // Re1+ (König abdrängen)
+    expectsDrawEvaluation: false // This is a win for White!
   }
 };
 
@@ -86,7 +138,9 @@ export const TestPositions: Record<string, TestScenario> = {
  */
 export const PositionIdMap = new Map<number, keyof typeof TestPositions>([
   [1, 'POSITION_1_OPPOSITION_BASICS'],
-  [12, 'POSITION_12_BRIDGE_ZICKZACK']
+  [9, 'POSITION_9_BRIDGE_ZICKZACK'],    // Was 12
+  [10, 'POSITION_10_BRIDGE_POSITIONING'], // Was 13
+  [11, 'POSITION_11_BRIDGE_DEFLECTION']   // Was 14
 ]);
 
 /**

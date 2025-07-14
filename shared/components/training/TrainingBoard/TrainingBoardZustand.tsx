@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useMemo, useState } from 'react';
+import React, { useEffect, useCallback, useMemo, useState, useRef } from 'react';
 import { Chess, Move } from 'chess.js';
 import { Square } from 'react-chessboard/dist/chessboard/types';
 import { Chessboard } from 'react-chessboard';
@@ -122,16 +122,27 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     previousFen: previousFen
   });
 
+  // Add useRef to track processed evaluations
+  const processedEvaluationsRef = useRef(new Set<string>());
+
   // Update Zustand with current evaluation
   useEffect(() => {
-    if (lastEvaluation) {
-      actions.setEvaluation(lastEvaluation);
-      // Also update the evaluations array - this is needed for MovePanelZustand to show tablebase emojis
-      const currentEvaluations = training.evaluations || [];
-      const updatedEvaluations = [...currentEvaluations, lastEvaluation];
-      actions.setEvaluations(updatedEvaluations);
+    if (!lastEvaluation) return;
+    
+    // Create unique key for this evaluation using current FEN and evaluation data
+    const evalKey = `${currentFen}_${lastEvaluation.evaluation}_${lastEvaluation.mateInMoves ?? 'null'}`;
+    
+    if (processedEvaluationsRef.current.has(evalKey)) {
+      return; // Skip if already processed
     }
-  }, [lastEvaluation, actions, training.evaluations]);
+    
+    processedEvaluationsRef.current.add(evalKey);
+    
+    actions.setEvaluation(lastEvaluation);
+    const currentEvaluations = training.evaluations || [];
+    const updatedEvaluations = [...currentEvaluations, lastEvaluation];
+    actions.setEvaluations(updatedEvaluations);
+  }, [lastEvaluation, actions, currentFen]);
 
   // UI state management - local component state only
   const [resetKey, setResetKey] = useState(0);
