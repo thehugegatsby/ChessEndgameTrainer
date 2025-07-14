@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { EndgamePosition } from '@shared/types';
+import { getShortTitle } from '@shared/utils/titleFormatter';
 
 interface TrainingControlsProps {
   position: EndgamePosition;
@@ -87,7 +88,7 @@ export const TrainingControls: React.FC<TrainingControlsProps> = ({
           <Link 
             href={`/train/${prevPosition.id}`}
             className="flex-1 dark-button-primary rounded-lg py-2 text-xs font-medium hover:bg-blue-600 transition-colors text-center"
-            title={prevPosition.title}
+            title={getShortTitle(prevPosition)}
           >
             ← #{prevPosition.id}
           </Link>
@@ -100,7 +101,7 @@ export const TrainingControls: React.FC<TrainingControlsProps> = ({
           <Link 
             href={`/train/${nextPosition.id}`}
             className="flex-1 dark-button-primary rounded-lg py-2 text-xs font-medium hover:bg-blue-600 transition-colors text-center"
-            title={nextPosition.title}
+            title={getShortTitle(nextPosition)}
           >
             #{nextPosition.id} →
           </Link>
