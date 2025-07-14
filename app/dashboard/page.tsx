@@ -7,6 +7,7 @@ import { AppLayout } from '@shared/components/layout/AppLayout';
 import { usePositionService } from '@shared/contexts/PositionServiceContext';
 import { EndgameChapter } from '@shared/types';
 import { ErrorService } from '@shared/services/errorService';
+import { TRAINING } from '@shared/constants';
 
 interface ProgressData {
   [chapterId: string]: {
@@ -52,11 +53,11 @@ export default function Dashboard() {
           const positionCount = await positionService.getPositionCountByCategory(chapter.category);
           
           const chapterProgress = {
-            total: positionCount || chapter.totalLessons || 10,
-            completed: Math.floor(Math.random() * (positionCount || chapter.totalLessons || 10)), // Mock data
-            successRate: 0.7 + Math.random() * 0.3, // Mock success rate 70-100%
-            dueToday: Math.floor(Math.random() * 3), // Mock due today 0-2
-            streak: Math.floor(Math.random() * 10) // Mock streak 0-9
+            total: positionCount || chapter.totalLessons || TRAINING.MOCK.DEFAULT_LESSON_COUNT,
+            completed: Math.floor(Math.random() * (positionCount || chapter.totalLessons || TRAINING.MOCK.DEFAULT_LESSON_COUNT)), // Mock data
+            successRate: TRAINING.MOCK.SUCCESS_RATE_MIN + Math.random() * TRAINING.MOCK.SUCCESS_RATE_RANGE, // Mock success rate 70-100%
+            dueToday: Math.floor(Math.random() * TRAINING.MOCK.DUE_TODAY_MAX), // Mock due today 0-2
+            streak: Math.floor(Math.random() * TRAINING.MOCK.STREAK_MAX) // Mock streak 0-9
           };
 
           mockProgressData[chapter.id] = chapterProgress;
@@ -73,7 +74,7 @@ export default function Dashboard() {
           completedPositions,
           overallSuccessRate: chapterCount > 0 ? successSum / chapterCount : 0,
           totalDueToday,
-          currentStreak: Math.floor(Math.random() * 15) // Mock overall streak
+          currentStreak: Math.floor(Math.random() * TRAINING.MOCK.OVERALL_STREAK_MAX) // Mock overall streak
         });
       } catch (error) {
         ErrorService.handleNetworkError(error as Error, { component: 'dashboard', action: 'load_chapters' });

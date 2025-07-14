@@ -1,5 +1,6 @@
 import React from 'react';
 import { Move } from 'chess.js';
+import { UI_CONSTANTS } from '@shared/constants/uiConstants';
 
 interface MoveHistoryProps {
   moves: Move[];
@@ -70,7 +71,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({ moves, showEvaluations
             <p className="text-gray-400 text-sm mt-1">Ziehe eine Figur um zu beginnen</p>
           </div>
         ) : (
-          <div className="overflow-y-auto" style={{ maxHeight: '600px' }}>
+          <div className="overflow-y-auto" style={{ maxHeight: UI_CONSTANTS.MOVE_HISTORY.MAX_HEIGHT }}>
             <div className="space-y-0.5">
               {movePairs.map((pair) => (
                 <div key={pair.number} className="group flex items-center py-1.5 px-2 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 border border-transparent hover:border-blue-100">

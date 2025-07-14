@@ -12,6 +12,7 @@
  */
 
 import { Chess } from 'chess.js';
+import { TESTING } from '@shared/constants';
 
 /**
  * Test API Response types
@@ -273,7 +274,7 @@ export class TestApiService {
    * through the store when moves are made. This method now just waits
    * for the engine status to become ready.
    */
-  public async triggerEngineAnalysis(timeoutMs: number = 1000): Promise<boolean> {
+  public async triggerEngineAnalysis(timeoutMs: number = TESTING.DEFAULT_TIMEOUT): Promise<boolean> {
     if (!this.storeAccess) {
       throw new Error('TestApiService not initialized');
     }
@@ -295,7 +296,7 @@ export class TestApiService {
         }
         
         // Wait a bit before checking again
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, TESTING.POLL_INTERVAL));
       }
       
       // Timeout reached

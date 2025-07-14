@@ -21,6 +21,7 @@ import {
   PerformanceMetrics,
   ShareOptions
 } from '../types';
+import { SYSTEM } from '@shared/constants';
 
 // Web Storage Implementation
 class WebStorage implements IPlatformStorage {
@@ -135,7 +136,7 @@ class WebDevice implements IPlatformDevice {
     const nav = navigator as any;
     if (nav.deviceMemory) {
       return {
-        totalMemory: nav.deviceMemory * 1024 * 1024 * 1024 // Convert GB to bytes
+        totalMemory: nav.deviceMemory * SYSTEM.GB_TO_BYTES_FACTOR // Convert GB to bytes
       };
     }
     return {};
@@ -156,11 +157,11 @@ class WebDevice implements IPlatformDevice {
   isLowEndDevice(): boolean {
     const nav = navigator as any;
     // Consider device low-end if it has less than 4GB RAM or slow network
-    const memoryGB = nav.deviceMemory || 4;
+    const memoryGB = nav.deviceMemory || SYSTEM.DEFAULT_MEMORY_GB;
     const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
     const slowConnection = connection?.effectiveType === '2g' || connection?.effectiveType === 'slow-2g';
     
-    return memoryGB < 4 || slowConnection || false;
+    return memoryGB < SYSTEM.LOW_MEMORY_THRESHOLD_GB || slowConnection || false;
   }
 
   private checkIsTablet(): boolean {

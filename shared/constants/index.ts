@@ -209,6 +209,16 @@ export const TRAINING = {
   // Spaced repetition multipliers
   SUCCESS_MULTIPLIER: 2,                 // Interval multiplier on success
   FAILURE_MULTIPLIER: 1,                 // Interval multiplier on failure
+  
+  // Mock data for development
+  MOCK: {
+    DEFAULT_LESSON_COUNT: 10,       // Default number of lessons in dashboard
+    SUCCESS_RATE_MIN: 0.7,          // Minimum success rate for mock data
+    SUCCESS_RATE_RANGE: 0.3,        // Range for success rate variation
+    DUE_TODAY_MAX: 3,               // Maximum lessons due today
+    STREAK_MAX: 10,                 // Maximum current streak value
+    OVERALL_STREAK_MAX: 15,         // Maximum overall streak value
+  },
 } as const;
 
 // Rating Constants - Centralized rating system thresholds
@@ -368,6 +378,19 @@ export const E2E = {
       MISTAKE: 'Mistake detected',
     },
   },
+} as const;
+
+// Testing constants for test configuration
+export const TESTING = {
+  DEFAULT_TIMEOUT: 1000,     // 1 second default timeout for API calls
+  POLL_INTERVAL: 50,         // 50ms polling interval for status checks
+} as const;
+
+// System constants for platform services
+export const SYSTEM = {
+  GB_TO_BYTES_FACTOR: 1024 * 1024 * 1024,  // Conversion factor GB to bytes
+  DEFAULT_MEMORY_GB: 4,                     // Default system memory allocation
+  LOW_MEMORY_THRESHOLD_GB: 4,               // Low memory warning threshold
 } as const;
 
 // Type utilities for constants
