@@ -1,15 +1,15 @@
 /**
- * @fileoverview Unit test for app-ready signal in _app.tsx
- * @description Tests that the app-ready attribute is correctly set based on router and engine status
+ * @fileoverview Unit test for app-ready signal in App Router providers
+ * @description Tests that the app-ready attribute is correctly set based on pathname and engine status
  */
 
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
-import { useRouter } from 'next/router';
+import { usePathname } from 'next/navigation';
 
-// Mock Next.js router
-jest.mock('next/router', () => ({
-  useRouter: jest.fn()
+// Mock Next.js navigation
+jest.mock('next/navigation', () => ({
+  usePathname: jest.fn()
 }));
 
 // Mock zustand store before importing components that use it
@@ -19,28 +19,14 @@ jest.mock('@shared/store/store');
 import { mockUseTraining, resetUseTrainingMock } from '../../helpers/mockUseTraining';
 
 // Import component after mocks are set up
-import MyApp from '../../../pages/_app';
+import { AppProviders } from '../../../app/providers';
 
-describe('App Ready Signal', () => {
-  let mockRouter: any;
-  let mockRouterEvents: any;
+describe('App Ready Signal (App Router)', () => {
+  const mockUsePathname = usePathname as jest.Mock;
 
   beforeEach(() => {
-    // Setup router mock
-    mockRouterEvents = {
-      on: jest.fn(),
-      off: jest.fn()
-    };
-    
-    mockRouter = {
-      isReady: false,
-      events: mockRouterEvents,
-      pathname: '/test',
-      query: {},
-      asPath: '/test'
-    };
-    
-    (useRouter as jest.Mock).mockReturnValue(mockRouter);
+    // Setup pathname mock
+    mockUsePathname.mockReturnValue('/dashboard');
     
     // Default store mock
     mockUseTraining({ engineStatus: 'initializing' });
@@ -54,110 +40,166 @@ describe('App Ready Signal', () => {
     resetUseTrainingMock();
   });
 
-  test('should set data-app-ready to false when router is not ready', () => {
-    const TestComponent = () => <div>Test Page</div>;
+  test('should set data-app-ready to true when engine is initializing on non-training page', async () => {
+    mockUsePathname.mockReturnValue('/dashboard');
+    mockUseTraining({ engineStatus: 'initializing' });
     
-    render(<MyApp Component={TestComponent} pageProps={{}} router={mockRouter as any} />);
-    
-    expect(document.body.getAttribute('data-app-ready')).toBe('false');
-  });
-
-  test('should set data-app-ready to true when both router and engine are ready', async () => {
-    mockRouter.isReady = true;
-    mockUseTraining({ engineStatus: 'ready' });
-    
-    const TestComponent = () => <div>Test Page</div>;
-    
-    render(<MyApp Component={TestComponent} pageProps={{}} router={mockRouter as any} />);
+    render(
+      <AppProviders>
+        <div>Test Page</div>
+      </AppProviders>
+    );
     
     await waitFor(() => {
       expect(document.body.getAttribute('data-app-ready')).toBe('true');
     });
   });
 
-  test('should set data-app-ready to error when engine has error on training page', async () => {
-    mockRouter.isReady = true;
-    mockRouter.pathname = '/train/1'; // Must be on training page for error state
+  test('should set data-app-ready to false when engine is initializing on training page', async () => {
+    mockUsePathname.mockReturnValue('/train/1');
+    mockUseTraining({ engineStatus: 'initializing' });
+    
+    render(
+      <AppProviders>
+        <div>Test Page</div>
+      </AppProviders>
+    );
+    
+    await waitFor(() => {
+      expect(document.body.getAttribute('data-app-ready')).toBe('false');
+    });
+  });
+
+  test('should set data-app-ready to true when engine is ready on non-training page', async () => {
+    mockUsePathname.mockReturnValue('/dashboard');
+    mockUseTraining({ engineStatus: 'ready' });
+    
+    render(
+      <AppProviders>
+        <div>Test Page</div>
+      </AppProviders>
+    );
+    
+    await waitFor(() => {
+      expect(document.body.getAttribute('data-app-ready')).toBe('true');
+    });
+  });
+
+  test('should set data-app-ready to true when engine is ready on training page', async () => {
+    mockUsePathname.mockReturnValue('/train/1');
+    mockUseTraining({ engineStatus: 'ready' });
+    
+    render(
+      <AppProviders>
+        <div>Test Page</div>
+      </AppProviders>
+    );
+    
+    await waitFor(() => {
+      expect(document.body.getAttribute('data-app-ready')).toBe('true');
+    });
+  });
+
+  test('should set data-app-ready to error when engine has error', async () => {
+    mockUsePathname.mockReturnValue('/train/1');
     mockUseTraining({ engineStatus: 'error' });
     
-    const TestComponent = () => <div>Test Page</div>;
-    
-    render(<MyApp Component={TestComponent} pageProps={{}} router={mockRouter as any} />);
+    render(
+      <AppProviders>
+        <div>Test Page</div>
+      </AppProviders>
+    );
     
     await waitFor(() => {
       expect(document.body.getAttribute('data-app-ready')).toBe('error');
     });
   });
 
-  test('should set data-app-ready to true when engine has error on non-training page', async () => {
-    mockRouter.isReady = true;
-    mockRouter.pathname = '/dashboard'; // Non-training page
+  test('should set data-app-ready to error when engine has error on non-training page', async () => {
+    mockUsePathname.mockReturnValue('/dashboard');
     mockUseTraining({ engineStatus: 'error' });
     
-    const TestComponent = () => <div>Test Page</div>;
+    render(
+      <AppProviders>
+        <div>Test Page</div>
+      </AppProviders>
+    );
     
-    render(<MyApp Component={TestComponent} pageProps={{}} router={mockRouter as any} />);
+    await waitFor(() => {
+      expect(document.body.getAttribute('data-app-ready')).toBe('error');
+    });
+  });
+
+  test('should update data-app-ready when pathname changes', async () => {
+    // Start on dashboard page
+    mockUsePathname.mockReturnValue('/dashboard');
+    mockUseTraining({ engineStatus: 'ready' });
+    
+    const { rerender } = render(
+      <AppProviders>
+        <div>Test Page</div>
+      </AppProviders>
+    );
+    
+    await waitFor(() => {
+      expect(document.body.getAttribute('data-app-ready')).toBe('true');
+    });
+
+    // Change to training page with initializing engine
+    mockUsePathname.mockReturnValue('/train/1');
+    mockUseTraining({ engineStatus: 'initializing' });
+    
+    rerender(
+      <AppProviders>
+        <div>Test Page</div>
+      </AppProviders>
+    );
+    
+    await waitFor(() => {
+      expect(document.body.getAttribute('data-app-ready')).toBe('false');
+    });
+  });
+
+  test('should update data-app-ready when engine status changes', async () => {
+    mockUsePathname.mockReturnValue('/train/1');
+    mockUseTraining({ engineStatus: 'initializing' });
+    
+    const { rerender } = render(
+      <AppProviders>
+        <div>Test Page</div>
+      </AppProviders>
+    );
+    
+    await waitFor(() => {
+      expect(document.body.getAttribute('data-app-ready')).toBe('false');
+    });
+
+    // Engine becomes ready
+    mockUseTraining({ engineStatus: 'ready' });
+    
+    rerender(
+      <AppProviders>
+        <div>Test Page</div>
+      </AppProviders>
+    );
     
     await waitFor(() => {
       expect(document.body.getAttribute('data-app-ready')).toBe('true');
     });
   });
 
-  test('should register route change event handlers', () => {
-    const TestComponent = () => <div>Test Page</div>;
-    
-    render(<MyApp Component={TestComponent} pageProps={{}} router={mockRouter as any} />);
-    
-    expect(mockRouterEvents.on).toHaveBeenCalledWith('routeChangeStart', expect.any(Function));
-    expect(mockRouterEvents.on).toHaveBeenCalledWith('routeChangeComplete', expect.any(Function));
-  });
-
-  test('should set data-app-ready to false on route change start', () => {
-    const TestComponent = () => <div>Test Page</div>;
-    
-    render(<MyApp Component={TestComponent} pageProps={{}} router={mockRouter as any} />);
-    
-    // Get the registered handler
-    const routeChangeStartHandler = mockRouterEvents.on.mock.calls.find(
-      (call: any[]) => call[0] === 'routeChangeStart'
-    )?.[1];
-    
-    // Set initial ready state
-    document.body.setAttribute('data-app-ready', 'true');
-    
-    // Trigger route change
-    routeChangeStartHandler?.();
-    
-    expect(document.body.getAttribute('data-app-ready')).toBe('false');
-  });
-
-  test('should restore data-app-ready after route change complete', () => {
-    mockRouter.isReady = true;
+  test('should handle null pathname gracefully', async () => {
+    mockUsePathname.mockReturnValue(null);
     mockUseTraining({ engineStatus: 'ready' });
     
-    const TestComponent = () => <div>Test Page</div>;
+    render(
+      <AppProviders>
+        <div>Test Page</div>
+      </AppProviders>
+    );
     
-    render(<MyApp Component={TestComponent} pageProps={{}} router={mockRouter as any} />);
-    
-    // Get the registered handler
-    const routeChangeCompleteHandler = mockRouterEvents.on.mock.calls.find(
-      (call: any[]) => call[0] === 'routeChangeComplete'
-    )?.[1];
-    
-    // Trigger route change complete
-    routeChangeCompleteHandler?.();
-    
-    expect(document.body.getAttribute('data-app-ready')).toBe('true');
-  });
-
-  test('should clean up event handlers on unmount', () => {
-    const TestComponent = () => <div>Test Page</div>;
-    
-    const { unmount } = render(<MyApp Component={TestComponent} pageProps={{}} router={mockRouter as any} />);
-    
-    unmount();
-    
-    expect(mockRouterEvents.off).toHaveBeenCalledWith('routeChangeStart', expect.any(Function));
-    expect(mockRouterEvents.off).toHaveBeenCalledWith('routeChangeComplete', expect.any(Function));
+    await waitFor(() => {
+      expect(document.body.getAttribute('data-app-ready')).toBe('false');
+    });
   });
 });
