@@ -26,9 +26,34 @@ import { STORAGE, SYSTEM } from '@shared/constants';
 // Storage key validation regex
 const VALID_KEY_REGEX = /^[a-zA-Z0-9-_]+$/;
 
-// Web Storage Implementation
+// Browser APIs interface for dependency injection
+export interface BrowserAPIs {
+  localStorage: Storage;
+  sessionStorage?: Storage;
+  navigator: Navigator;
+  window?: Window;
+  document?: Document;
+  performance?: Performance;
+}
+
+// Default implementation using real browser APIs
+const getLiveBrowserAPIs = (): BrowserAPIs => ({
+  localStorage: typeof window !== 'undefined' ? window.localStorage : {} as Storage,
+  sessionStorage: typeof window !== 'undefined' ? window.sessionStorage : {} as Storage,
+  navigator: typeof navigator !== 'undefined' ? navigator : {} as Navigator,
+  window: typeof window !== 'undefined' ? window : {} as Window,
+  document: typeof document !== 'undefined' ? document : {} as Document,
+  performance: typeof performance !== 'undefined' ? performance : {} as Performance,
+});
+
+// Web Storage Implementation with dependency injection
 class WebStorage implements IPlatformStorage {
   private prefix = STORAGE.PREFIX;
+  private storage: Storage;
+
+  constructor(storage: Storage = typeof localStorage !== 'undefined' ? localStorage : {} as Storage) {
+    this.storage = storage;
+  }
 
   async save(key: string, data: any): Promise<void> {
     // Validate key format
@@ -38,7 +63,7 @@ class WebStorage implements IPlatformStorage {
     
     try {
       const serialized = JSON.stringify(data);
-      localStorage.setItem(this.prefix + key, serialized);
+      this.storage.setItem(this.prefix + key, serialized);
     } catch (error) {
       // Preserve original error context for debugging
       throw new Error(`Failed to save data for key '${key}': ${(error as Error).message}`);
@@ -53,7 +78,7 @@ class WebStorage implements IPlatformStorage {
     }
     
     try {
-      const item = localStorage.getItem(this.prefix + key);
+      const item = this.storage.getItem(this.prefix + key);
       if (!item) return null;
       
       // Parse JSON with error handling
@@ -72,18 +97,18 @@ class WebStorage implements IPlatformStorage {
       return;
     }
     
-    localStorage.removeItem(this.prefix + key);
+    this.storage.removeItem(this.prefix + key);
   }
 
   async clear(): Promise<void> {
     const keys = await this.getAllKeys();
-    keys.forEach(key => localStorage.removeItem(this.prefix + key));
+    keys.forEach(key => this.storage.removeItem(this.prefix + key));
   }
 
   async getAllKeys(): Promise<string[]> {
     const keys: string[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
+    for (let i = 0; i < this.storage.length; i++) {
+      const key = this.storage.key(i);
       if (key?.startsWith(this.prefix)) {
         keys.push(key.replace(this.prefix, ''));
       }
@@ -132,10 +157,21 @@ class WebNotification implements IPlatformNotification {
   }
 }
 
-// Web Device Implementation
+// Web Device Implementation with dependency injection
 class WebDevice implements IPlatformDevice {
+  private navigator: Navigator;
+  private window?: Window;
+
+  constructor(
+    navigator: Navigator = typeof window !== 'undefined' ? window.navigator : {} as Navigator,
+    windowObj?: Window
+  ) {
+    this.navigator = navigator;
+    this.window = windowObj || (typeof window !== 'undefined' ? window : {} as Window);
+  }
+
   getPlatform(): Platform {
-    const userAgent = navigator.userAgent.toLowerCase();
+    const userAgent = this.navigator.userAgent.toLowerCase();
     if (userAgent.includes('android')) return 'android';
     if (userAgent.includes('iphone') || userAgent.includes('ipad')) return 'ios';
     if (userAgent.includes('win')) return 'windows';
@@ -146,19 +182,19 @@ class WebDevice implements IPlatformDevice {
 
   getDeviceInfo(): DeviceInfo {
     return {
-      model: navigator.userAgent,
-      osVersion: navigator.userAgent,
+      model: this.navigator.userAgent,
+      osVersion: this.navigator.userAgent,
       screenSize: {
-        width: window.screen.width,
-        height: window.screen.height
+        width: this.window?.screen?.width || 1920,
+        height: this.window?.screen?.height || 1080
       },
-      pixelRatio: window.devicePixelRatio || 1,
+      pixelRatio: this.window?.devicePixelRatio || 1,
       isTablet: this.checkIsTablet()
     };
   }
 
   getMemoryInfo(): MemoryInfo {
-    const nav = navigator as any;
+    const nav = this.navigator as any;
     if (nav.deviceMemory) {
       return {
         totalMemory: nav.deviceMemory * SYSTEM.GB_TO_BYTES_FACTOR // Convert GB to bytes
@@ -168,11 +204,11 @@ class WebDevice implements IPlatformDevice {
   }
 
   getNetworkStatus(): NetworkStatus {
-    const nav = navigator as any;
+    const nav = this.navigator as any;
     const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
     
     return {
-      isOnline: navigator.onLine,
+      isOnline: this.navigator.onLine,
       type: connection?.type,
       effectiveType: connection?.effectiveType,
       downlink: connection?.downlink
@@ -180,7 +216,7 @@ class WebDevice implements IPlatformDevice {
   }
 
   isLowEndDevice(): boolean {
-    const nav = navigator as any;
+    const nav = this.navigator as any;
     // Consider device low-end if it has less than 4GB RAM or slow network
     const memoryGB = nav.deviceMemory || SYSTEM.DEFAULT_MEMORY_GB;
     const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
@@ -190,9 +226,12 @@ class WebDevice implements IPlatformDevice {
   }
 
   private checkIsTablet(): boolean {
-    const userAgent = navigator.userAgent.toLowerCase();
-    const hasTouch = 'ontouchstart' in window;
-    const screenSize = Math.min(window.screen.width, window.screen.height);
+    const userAgent = this.navigator.userAgent.toLowerCase();
+    const hasTouch = this.window && 'ontouchstart' in this.window;
+    const screenSize = Math.min(
+      this.window?.screen?.width || 1920, 
+      this.window?.screen?.height || 1080
+    );
     
     return hasTouch && screenSize >= 768 && 
            (userAgent.includes('tablet') || userAgent.includes('ipad'));
@@ -266,27 +305,38 @@ class WebPerformance implements IPlatformPerformance {
   }
 }
 
-// Web Clipboard Implementation
+// Web Clipboard Implementation with dependency injection
 class WebClipboard implements IPlatformClipboard {
+  private navigator: Navigator;
+  private document?: Document;
+
+  constructor(
+    navigator: Navigator = typeof window !== 'undefined' ? window.navigator : {} as Navigator,
+    document?: Document
+  ) {
+    this.navigator = navigator;
+    this.document = document || (typeof window !== 'undefined' ? window.document : {} as Document);
+  }
+
   async copy(text: string): Promise<void> {
-    if (navigator.clipboard) {
-      await navigator.clipboard.writeText(text);
+    if (this.navigator.clipboard) {
+      await this.navigator.clipboard.writeText(text);
     } else {
       // Fallback for older browsers
-      const textArea = document.createElement('textarea');
+      const textArea = this.document!.createElement('textarea');
       textArea.value = text;
       textArea.style.position = 'fixed';
       textArea.style.opacity = '0';
-      document.body.appendChild(textArea);
+      this.document!.body.appendChild(textArea);
       textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
+      this.document!.execCommand('copy');
+      this.document!.body.removeChild(textArea);
     }
   }
 
   async paste(): Promise<string> {
-    if (navigator.clipboard) {
-      return await navigator.clipboard.readText();
+    if (this.navigator.clipboard) {
+      return await this.navigator.clipboard.readText();
     }
     throw new Error('Clipboard paste not supported');
   }
@@ -297,10 +347,16 @@ class WebClipboard implements IPlatformClipboard {
   }
 }
 
-// Web Share Implementation
+// Web Share Implementation with dependency injection
 class WebShare implements IPlatformShare {
+  private navigator: Navigator;
+
+  constructor(navigator: Navigator = typeof window !== 'undefined' ? window.navigator : {} as Navigator) {
+    this.navigator = navigator;
+  }
+
   canShare(): boolean {
-    return 'share' in navigator;
+    return 'share' in this.navigator;
   }
 
   async share(options: ShareOptions): Promise<void> {
@@ -309,7 +365,7 @@ class WebShare implements IPlatformShare {
     }
 
     try {
-      await navigator.share({
+      await this.navigator.share({
         title: options.title,
         text: options.text,
         url: options.url
@@ -338,7 +394,7 @@ class WebAnalytics implements IPlatformAnalytics {
   }
 }
 
-// Main Web Platform Service
+// Main Web Platform Service with dependency injection
 export class WebPlatformService implements IPlatformService {
   storage: IPlatformStorage;
   notifications: IPlatformNotification;
@@ -348,13 +404,19 @@ export class WebPlatformService implements IPlatformService {
   share: IPlatformShare;
   analytics: IPlatformAnalytics;
 
-  constructor() {
-    this.storage = new WebStorage();
+  private readonly apis: BrowserAPIs;
+
+  // Optional apis parameter for dependency injection (backward compatible)
+  constructor(apis: BrowserAPIs = getLiveBrowserAPIs()) {
+    this.apis = apis;
+    
+    // Pass injected APIs to services that need them
+    this.storage = new WebStorage(this.apis.localStorage);
     this.notifications = new WebNotification();
-    this.device = new WebDevice();
+    this.device = new WebDevice(this.apis.navigator, this.apis.window);
     this.performance = new WebPerformance();
-    this.clipboard = new WebClipboard();
-    this.share = new WebShare();
+    this.clipboard = new WebClipboard(this.apis.navigator, this.apis.document);
+    this.share = new WebShare(this.apis.navigator);
     this.analytics = new WebAnalytics();
   }
 }

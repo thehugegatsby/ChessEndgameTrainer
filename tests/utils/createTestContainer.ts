@@ -4,6 +4,8 @@
  */
 
 import { ServiceContainer, IServiceContainer, IBrowserAPIs } from '@shared/services/container';
+import { BrowserAPIs } from '@shared/services/platform/web/WebPlatformService';
+import { MockStorage } from './MockStorage';
 
 /**
  * Service overrides for specific tests
@@ -22,18 +24,97 @@ export interface TestServiceOverrides {
  * Main entry point for Jest tests - replaces global localStorage mocks
  */
 export function createTestContainer(overrides?: TestServiceOverrides): IServiceContainer {
-  // Create base mock APIs
-  const mockAPIs: Partial<IBrowserAPIs> = {};
+  const container = new ServiceContainer();
+  
+  // Create mock instances
+  const mockStorage = overrides?.localStorage || new MockStorage();
+  const mockNavigator = overrides?.navigator || {
+    userAgent: 'Mozilla/5.0 (Test Environment)',
+    onLine: true,
+    deviceMemory: 8,
+    clipboard: {
+      writeText: jest.fn().mockResolvedValue(undefined),
+      readText: jest.fn().mockResolvedValue('mocked text')
+    },
+    share: jest.fn().mockResolvedValue(undefined)
+  } as any;
 
-  // Apply overrides if provided
-  if (overrides?.localStorage) mockAPIs.localStorage = overrides.localStorage;
-  if (overrides?.sessionStorage) mockAPIs.sessionStorage = overrides.sessionStorage;
-  if (overrides?.navigator) mockAPIs.navigator = overrides.navigator;
-  if (overrides?.window) mockAPIs.window = overrides.window;
-  if (overrides?.document) mockAPIs.document = overrides.document;
-  if (overrides?.performance) mockAPIs.performance = overrides.performance;
+  const mockWindow = overrides?.window || {
+    screen: { width: 1920, height: 1080 },
+    devicePixelRatio: 1,
+    localStorage: mockStorage,
+    sessionStorage: overrides?.sessionStorage || new MockStorage()
+  } as any;
 
-  return ServiceContainer.createTestContainer(mockAPIs);
+  const mockDocument = overrides?.document || {
+    createElement: jest.fn(),
+    body: { appendChild: jest.fn(), removeChild: jest.fn() }
+  } as any;
+
+  const mockPerformance = overrides?.performance || {
+    now: jest.fn().mockReturnValue(1000)
+  } as any;
+
+  // Build browser APIs object
+  const browserAPIs: BrowserAPIs = {
+    localStorage: mockStorage,
+    sessionStorage: mockWindow.sessionStorage,
+    navigator: mockNavigator,
+    window: mockWindow,
+    document: mockDocument,
+    performance: mockPerformance
+  };
+
+  // Register browser APIs individually for direct access
+  container.registerCustom('browser.localStorage', () => browserAPIs.localStorage);
+  container.registerCustom('browser.navigator', () => browserAPIs.navigator);
+  container.registerCustom('browser.window', () => browserAPIs.window!);
+  container.registerCustom('browser.document', () => browserAPIs.document!);
+  container.registerCustom('browser.performance', () => browserAPIs.performance!);
+
+  // Register the WebPlatformService with injected mock dependencies
+  container.registerCustom('platform.service', () => {
+    const { WebPlatformService } = require('@shared/services/platform/web/WebPlatformService');
+    return new WebPlatformService(browserAPIs);
+  });
+
+  // Register individual platform services that delegate to the main service
+  container.register('platform.storage', (c) => {
+    const platformService = c.resolveCustom('platform.service');
+    return platformService.storage;
+  });
+  
+  container.register('platform.notifications', (c) => {
+    const platformService = c.resolveCustom('platform.service');
+    return platformService.notifications;
+  });
+  
+  container.register('platform.device', (c) => {
+    const platformService = c.resolveCustom('platform.service');
+    return platformService.device;
+  });
+  
+  container.register('platform.performance', (c) => {
+    const platformService = c.resolveCustom('platform.service');
+    return platformService.performance;
+  });
+  
+  container.register('platform.clipboard', (c) => {
+    const platformService = c.resolveCustom('platform.service');
+    return platformService.clipboard;
+  });
+  
+  container.register('platform.share', (c) => {
+    const platformService = c.resolveCustom('platform.service');
+    return platformService.share;
+  });
+  
+  container.register('platform.analytics', (c) => {
+    const platformService = c.resolveCustom('platform.service');
+    return platformService.analytics;
+  });
+
+  return container;
 }
 
 /**
@@ -60,7 +141,7 @@ export function createTestWrapper(overrides?: TestServiceOverrides) {
   return function TestWrapper({ children }: { children: React.ReactNode }) {
     // Dynamic import to avoid SSR issues
     const { ServiceProvider } = require('@shared/services/container/adapter');
-    return <ServiceProvider container={container}>{children}</ServiceProvider>;
+    return React.createElement(ServiceProvider, { container }, children);
   };
 }
 
@@ -125,8 +206,17 @@ export const TestScenarios = {
   offline: () => {
     const mockNavigator = {
       onLine: false,
-      userAgent: 'Mozilla/5.0 (Test Environment - Offline)'
-    } as Navigator;
+      userAgent: 'Mozilla/5.0 (Test Environment - Offline)',
+      deviceMemory: 8,
+      connection: { type: 'none', effectiveType: undefined, downlink: 0 },
+      mozConnection: { type: 'none', effectiveType: undefined, downlink: 0 },
+      webkitConnection: { type: 'none', effectiveType: undefined, downlink: 0 },
+      clipboard: {
+        writeText: jest.fn().mockResolvedValue(undefined),
+        readText: jest.fn().mockResolvedValue('mocked text')
+      },
+      share: jest.fn().mockResolvedValue(undefined)
+    } as any;
     
     return createTestContainer({ navigator: mockNavigator });
   },
@@ -157,7 +247,13 @@ export const TestScenarios = {
   lowMemory: () => {
     const mockNavigator = {
       deviceMemory: 2, // 2GB
-      onLine: true
+      onLine: true,
+      userAgent: 'Mozilla/5.0 (Test Environment - Low Memory)',
+      clipboard: {
+        writeText: jest.fn().mockResolvedValue(undefined),
+        readText: jest.fn().mockResolvedValue('mocked text')
+      },
+      share: jest.fn().mockResolvedValue(undefined)
     } as any;
     
     return createTestContainer({ navigator: mockNavigator });

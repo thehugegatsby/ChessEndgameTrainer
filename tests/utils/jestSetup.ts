@@ -73,7 +73,7 @@ export function setupReactTestingWithContainer(overrides?: TestServiceOverrides)
     // Create wrapper component
     wrapper = ({ children }: { children: React.ReactNode }) => {
       const { ServiceProvider } = require('@shared/services/container/adapter');
-      return <ServiceProvider container={container}>{children}</ServiceProvider>;
+      return React.createElement(ServiceProvider, { container }, children);
     };
   });
 
