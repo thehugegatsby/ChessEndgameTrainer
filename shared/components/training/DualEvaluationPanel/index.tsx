@@ -13,6 +13,7 @@ import { Chess } from 'chess.js';
 import { useEvaluation } from '@shared/hooks/useEvaluation';
 import { useBatchMoveQuality, type MoveToAnalyze } from '@shared/hooks/useBatchMoveQuality';
 import { MoveQualityDisplay } from '@shared/components/analysis/MoveQualityDisplay';
+import { TablebasePanel } from '@shared/components/tablebase/TablebasePanel';
 
 interface DualEvaluationPanelProps {
   fen: string;
@@ -102,10 +103,10 @@ export const DualEvaluationPanel: React.FC<DualEvaluationPanelProps> = ({
   return (
     <div className="dual-evaluation-panel" data-testid="dual-evaluation-panel">
       
-      {/* Two-Column Layout */}
-      <div className="grid grid-cols-2 gap-6">
+      {/* Vertical Layout - Engine on top, Tablebase below */}
+      <div className="space-y-6">
         
-        {/* Engine Top-3 Moves - Left Column */}
+        {/* Engine Top-3 Moves */}
         <div className="engine-evaluation-section" data-testid="engine-evaluation-panel">
           <div className="text-sm font-bold text-blue-600 dark:text-blue-400 mb-2">🔧 Engine</div>
           
@@ -125,7 +126,7 @@ export const DualEvaluationPanel: React.FC<DualEvaluationPanelProps> = ({
                   {lastEvaluation.multiPvResults.slice(0, 3).map((result, index) => (
                     <div key={index} className="flex items-center justify-between py-1">
                       <div className="flex items-center">
-                        <span className="font-mono font-bold text-white dark:text-white text-sm">
+                        <span className="font-mono font-bold text-blue-700 dark:text-blue-300 text-sm">
                           {result.san}
                         </span>
                         {/* Move Quality Assessment for Engine Moves */}
@@ -157,45 +158,18 @@ export const DualEvaluationPanel: React.FC<DualEvaluationPanelProps> = ({
           )}
         </div>
 
-        {/* Tablebase Moves - Right Column */}
+        {/* Enhanced Tablebase Panel - Below Engine */}
         <div className="tablebase-evaluation-section" data-testid="tablebase-evaluation-panel">
-          <div className="text-sm font-bold text-green-600 dark:text-green-400 mb-3">📚 Tablebase</div>
-          
-          {lastEvaluation?.tablebase?.isTablebasePosition ? (
-            <div className="space-y-3">
-              {/* Best Tablebase Moves */}
-              {lastEvaluation.tablebase.topMoves && lastEvaluation.tablebase.topMoves.length > 0 ? (
-                <div className="space-y-1">
-                  {lastEvaluation.tablebase.topMoves.slice(0, 3).map((move, index) => (
-                    <div key={index} className="flex items-center justify-between py-1">
-                      <div className="flex items-center">
-                        <span className="font-mono font-bold text-white dark:text-white text-sm">
-                          {move.san}
-                        </span>
-                        {/* Move Quality Assessment for Tablebase Moves */}
-                        <MoveQualityDisplay
-                          quality={results.get(move.san) || null}
-                          isLoading={isQualityLoading}
-                          onRetry={() => analyzeMoveBatch(movesToAnalyze)}
-                        />
-                      </div>
-                      <span className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded">
-                        DTZ {move.dtz !== null ? Math.abs(move.dtz) : (index + 1)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-sm text-green-600 dark:text-green-400">
-                  Warte auf Tablebase Top-3...
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="text-sm text-amber-600 dark:text-amber-400">
-              Keine Tablebase-Daten
-            </div>
-          )}
+          <TablebasePanel
+            tablebaseData={lastEvaluation?.tablebase || { isTablebasePosition: false }}
+            onMoveSelect={(move) => {
+              // TODO: Implement move selection logic
+              console.log('Selected tablebase move:', move);
+            }}
+            selectedMove={undefined}
+            loading={isEvaluating}
+            compact={false}
+          />
         </div>
         
       </div>
