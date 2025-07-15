@@ -8,6 +8,7 @@ import type { EngineEvaluation, TablebaseResult } from '../../../types/evaluatio
 import { getSimpleEngine } from '../engine/simple/SimpleEngine';
 import { tablebaseService } from '../../../services/TablebaseService';
 import { Logger } from '@shared/services/logging/Logger';
+import { EVALUATION } from '@shared/constants';
 
 const logger = new Logger();
 
@@ -24,10 +25,10 @@ export class EngineProviderAdapter implements IEngineProvider {
       logger.debug('[EngineProviderAdapter] Getting SimpleEngine instance');
       const engine = getSimpleEngine();
       
-      // Try Multi-PV evaluation first (3 lines)
+      // Try Multi-PV evaluation first
       try {
         logger.debug('[EngineProviderAdapter] Trying Multi-PV evaluation');
-        const multiPvResult = await engine.evaluatePositionMultiPV(fen, 3);
+        const multiPvResult = await engine.evaluatePositionMultiPV(fen, EVALUATION.MULTI_PV_COUNT);
         
         if (multiPvResult && multiPvResult.lines.length > 0) {
           // Use the best line (first one) for primary evaluation

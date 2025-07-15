@@ -13,7 +13,8 @@ import { LRUCacheAdapter } from '@shared/lib/chess/evaluation/cacheAdapter';
 import type { FormattedEvaluation } from '@shared/types/evaluation';
 import { ErrorService } from '@shared/services/errorService';
 import { Logger } from '@shared/services/logging/Logger';
-import { CACHE } from '@shared/constants';
+import { CACHE, EVALUATION } from '@shared/constants';
+import { tablebaseService } from '@shared/services/TablebaseService';
 
 const logger = new Logger();
 
@@ -262,41 +263,29 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
                 dtz: currPerspectiveEval.dtz !== null ? currPerspectiveEval.dtz : undefined
               };
               
-              // Add top 3 tablebase moves using engine PV as placeholder
-              // TODO: Implement real tablebase API call for top moves
-              if (evaluation.tablebase && rawEngineEval?.pv) {
+              // Get top tablebase moves using real API
+              if (evaluation.tablebase) {
                 try {
-                  const gameClone = new (await import('chess.js')).Chess(fen);
-                  // pv can be either string or string[]
-                  const pvString = Array.isArray(rawEngineEval.pv) 
-                    ? rawEngineEval.pv.join(' ') 
-                    : rawEngineEval.pv;
-                  const moves = pvString.split(' ');
+                  logger.debug('[useEvaluation] Getting top tablebase moves');
+                  const tablebaseMoves = await tablebaseService.getTopMoves(fen, EVALUATION.MULTI_PV_COUNT);
                   
-                  // TEMPORARY: Only show first move until we have real tablebase API
-                  // TODO: Implement real tablebase top moves API
-                  evaluation.tablebase.topMoves = [];
-                  const firstMove = moves[0];
-                  if (firstMove) {
-                    const from = firstMove.substring(0, 2);
-                    const to = firstMove.substring(2, 4);
-                    const promotion = firstMove.length > 4 ? firstMove[4] : undefined;
-                    
-                    const move = gameClone.move({ from, to, promotion });
-                    
-                    if (move) {
-                      evaluation.tablebase.topMoves.push({
-                        move: firstMove, // UCI format
-                        san: move.san,
-                        dtz: evaluation.tablebase.dtz || 0,
-                        dtm: 0, // Not available from engine
-                        wdl: evaluation.tablebase.wdlAfter || 0,
-                        category: (evaluation.tablebase.category || 'draw') as 'win' | 'draw' | 'loss'
-                      });
-                    }
+                  if (tablebaseMoves.isAvailable && tablebaseMoves.moves) {
+                    evaluation.tablebase.topMoves = tablebaseMoves.moves.map(move => ({
+                      move: move.uci,
+                      san: move.san,
+                      dtz: move.dtz || 0,
+                      dtm: move.dtm || 0,
+                      wdl: move.wdl,
+                      category: move.category as 'win' | 'draw' | 'loss'
+                    }));
+                    logger.info('[useEvaluation] Got tablebase moves', { 
+                      count: evaluation.tablebase.topMoves.length 
+                    });
+                  } else {
+                    logger.debug('[useEvaluation] No tablebase moves available');
                   }
                 } catch (error) {
-                  logger.warn('[useEvaluation] Failed to create tablebase moves', error);
+                  logger.warn('[useEvaluation] Failed to get tablebase moves', error);
                 }
               }
               
@@ -318,41 +307,29 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
                 dtz: currPerspectiveEval.dtz !== null ? currPerspectiveEval.dtz : undefined
               };
               
-              // Add top 3 tablebase moves using engine PV as placeholder
-              // TODO: Implement real tablebase API call for top moves
-              if (evaluation.tablebase && rawEngineEval?.pv) {
+              // Get top tablebase moves using real API
+              if (evaluation.tablebase) {
                 try {
-                  const gameClone = new (await import('chess.js')).Chess(fen);
-                  // pv can be either string or string[]
-                  const pvString = Array.isArray(rawEngineEval.pv) 
-                    ? rawEngineEval.pv.join(' ') 
-                    : rawEngineEval.pv;
-                  const moves = pvString.split(' ');
+                  logger.debug('[useEvaluation] Getting top tablebase moves');
+                  const tablebaseMoves = await tablebaseService.getTopMoves(fen, EVALUATION.MULTI_PV_COUNT);
                   
-                  // TEMPORARY: Only show first move until we have real tablebase API
-                  // TODO: Implement real tablebase top moves API
-                  evaluation.tablebase.topMoves = [];
-                  const firstMove = moves[0];
-                  if (firstMove) {
-                    const from = firstMove.substring(0, 2);
-                    const to = firstMove.substring(2, 4);
-                    const promotion = firstMove.length > 4 ? firstMove[4] : undefined;
-                    
-                    const move = gameClone.move({ from, to, promotion });
-                    
-                    if (move) {
-                      evaluation.tablebase.topMoves.push({
-                        move: firstMove, // UCI format
-                        san: move.san,
-                        dtz: evaluation.tablebase.dtz || 0,
-                        dtm: 0, // Not available from engine
-                        wdl: evaluation.tablebase.wdlAfter || 0,
-                        category: (evaluation.tablebase.category || 'draw') as 'win' | 'draw' | 'loss'
-                      });
-                    }
+                  if (tablebaseMoves.isAvailable && tablebaseMoves.moves) {
+                    evaluation.tablebase.topMoves = tablebaseMoves.moves.map(move => ({
+                      move: move.uci,
+                      san: move.san,
+                      dtz: move.dtz || 0,
+                      dtm: move.dtm || 0,
+                      wdl: move.wdl,
+                      category: move.category as 'win' | 'draw' | 'loss'
+                    }));
+                    logger.info('[useEvaluation] Got tablebase moves', { 
+                      count: evaluation.tablebase.topMoves.length 
+                    });
+                  } else {
+                    logger.debug('[useEvaluation] No tablebase moves available');
                   }
                 } catch (error) {
-                  logger.warn('[useEvaluation] Failed to create tablebase moves', error);
+                  logger.warn('[useEvaluation] Failed to get tablebase moves', error);
                 }
               }
               

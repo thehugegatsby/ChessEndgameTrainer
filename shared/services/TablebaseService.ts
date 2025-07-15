@@ -5,6 +5,15 @@
 
 import { validateAndSanitizeFen } from '../utils/fenValidator';
 
+export interface TablebaseMove {
+  uci: string;  // UCI format (e.g., "a1a8")
+  san: string;  // SAN format (e.g., "Ra8+")
+  wdl: number; // Win/Draw/Loss after this move
+  dtz: number | null; // Distance to Zeroing
+  dtm: number | null; // Distance to Mate
+  category: 'win' | 'draw' | 'loss' | 'cursed-win' | 'blessed-loss';
+}
+
 export interface TablebaseResult {
   wdl: number; // Win/Draw/Loss: 2=win, 1=cursed win, 0=draw, -1=blessed loss, -2=loss
   dtz: number | null; // Distance to Zeroing move
@@ -17,6 +26,12 @@ export interface TablebaseResult {
 export interface TablebaseEvaluation {
   isAvailable: boolean;
   result?: TablebaseResult;
+  error?: string;
+}
+
+export interface TablebaseMovesResult {
+  isAvailable: boolean;
+  moves?: TablebaseMove[];
   error?: string;
 }
 
@@ -142,6 +157,117 @@ class TablebaseService {
     }
   }
   
+  /**
+   * Get top moves from tablebase for a position
+   * Returns multiple moves with their evaluations
+   */
+  async getTopMoves(fen: string, limit: number = 3): Promise<TablebaseMovesResult> {
+    // Validate FEN
+    const validation = validateAndSanitizeFen(fen);
+    if (!validation.isValid) {
+      return { 
+        isAvailable: false, 
+        error: `Invalid FEN: ${validation.errors.join(', ')}` 
+      };
+    }
+    
+    const sanitizedFen = validation.sanitized;
+    
+    // Check if position has few enough pieces
+    const pieceCount = this.countPieces(sanitizedFen);
+    if (pieceCount > this.maxPieces) {
+      return { 
+        isAvailable: false, 
+        error: `Position has ${pieceCount} pieces, max supported is ${this.maxPieces}` 
+      };
+    }
+    
+    try {
+      // Import chess.js for move generation
+      const { Chess } = await import('chess.js');
+      const game = new Chess(sanitizedFen);
+      
+      // Get all legal moves
+      const legalMoves = game.moves({ verbose: true });
+      
+      // Evaluate each move
+      const moveEvaluations = await Promise.all(
+        legalMoves.map(async (move) => {
+          // Make the move
+          const tempGame = new Chess(sanitizedFen);
+          tempGame.move(move);
+          
+          // Get tablebase evaluation for resulting position
+          const evalResult = await this.getEvaluation(tempGame.fen());
+          
+          if (evalResult.isAvailable && evalResult.result) {
+            return {
+              uci: move.from + move.to + (move.promotion || ''),
+              san: move.san,
+              // Negate WDL because we want from current player's perspective
+              wdl: -evalResult.result.wdl,
+              dtz: evalResult.result.dtz,
+              dtm: evalResult.result.dtm,
+              category: this.invertCategory(evalResult.result.category)
+            };
+          }
+          return null;
+        })
+      );
+      
+      // Filter out null results and sort by WDL (best moves first)
+      const validMoves = moveEvaluations
+        .filter((m): m is TablebaseMove => m !== null)
+        .sort((a, b) => {
+          // Sort by WDL first (higher is better)
+          if (b.wdl !== a.wdl) return b.wdl - a.wdl;
+          // Then by DTZ (lower is better for wins)
+          if (a.dtz !== null && b.dtz !== null) {
+            if (a.wdl > 0) return Math.abs(a.dtz) - Math.abs(b.dtz);
+            if (a.wdl < 0) return Math.abs(b.dtz) - Math.abs(a.dtz);
+          }
+          return 0;
+        })
+        .slice(0, limit);
+      
+      if (validMoves.length === 0) {
+        return { 
+          isAvailable: false, 
+          error: 'No tablebase data available for legal moves' 
+        };
+      }
+      
+      return {
+        isAvailable: true,
+        moves: validMoves
+      };
+      
+    } catch (error) {
+      return { 
+        isAvailable: false, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      };
+    }
+  }
+  
+  private invertCategory(category: string): 'win' | 'draw' | 'loss' | 'cursed-win' | 'blessed-loss' {
+    switch (category) {
+      case 'win': return 'loss';
+      case 'loss': return 'win';
+      case 'cursed-win': return 'blessed-loss';
+      case 'blessed-loss': return 'cursed-win';
+      default: return 'draw';
+    }
+  }
+
+  /**
+   * Count total pieces on the board
+   */
+  private countPieces(fen: string): number {
+    const piecesPart = fen.split(' ')[0];
+    return piecesPart.replace(/[^a-zA-Z]/g, '').length;
+  }
+
   /**
    * For testing
    */

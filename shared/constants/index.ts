@@ -154,6 +154,10 @@ export const EVALUATION = {
   INACCURACY_THRESHOLD: 50,              // Centipawns lost for inaccuracy
   TABLEBASE_TIMEOUT: 2000,               // 2 seconds for tablebase lookup
   
+  // Multi-PV and move display configuration
+  MULTI_PV_COUNT: 3,                     // Number of alternative moves to analyze and display
+  MAX_DISPLAY_MOVES: 5,                  // Maximum moves that can be displayed in UI
+  
   // Critical position thresholds
   CRITICAL_SCORE_THRESHOLD: 500,         // Score threshold for critical positions
   CRITICAL_MISTAKE_THRESHOLD: 200,       // Threshold for critical mistakes
