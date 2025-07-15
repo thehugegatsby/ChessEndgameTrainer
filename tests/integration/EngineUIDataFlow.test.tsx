@@ -10,15 +10,16 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 
 // Import actual UI components to test
 import { DualEvaluationPanel } from '../../shared/components/training/DualEvaluationPanel';
 import { EngineEvaluationCard } from '../../shared/components/training/DualEvaluationPanel/EngineEvaluationCard';
+import { useEvaluation } from '../../shared/hooks/useEvaluation';
 
 // Mock useEvaluation hook
 jest.mock('../../shared/hooks/useEvaluation', () => ({
-  useEvaluation: jest.fn(() => mockUseEvaluation)
+  useEvaluation: jest.fn()
 }));
 
 // Mock SimpleEngine module
@@ -37,22 +38,14 @@ jest.mock('../../shared/services/TablebaseService', () => ({
 }));
 
 // Mock useEvaluation hook return value
-const mockUseEvaluation = {
-  evaluation: null,
+const mockUseEvaluationReturn = {
+  evaluations: [],
+  lastEvaluation: null,
   isEvaluating: false,
   error: null,
-  depth: 0,
-  nodes: 0,
-  nps: 0,
-  time: 0,
-  pv: [],
-  tablebase: null,
-  bestMove: null,
-  score: null,
-  isReady: true,
-  evaluatePosition: jest.fn(),
-  stopEvaluation: jest.fn(),
-  clearEvaluation: jest.fn()
+  addEvaluation: jest.fn(),
+  clearEvaluations: jest.fn(),
+  cacheStats: undefined
 };
 
 // Mock engine instances
@@ -84,23 +77,18 @@ describe('Engine UI Integration - TDD Approach', () => {
     jest.useFakeTimers();
     
     // Reset mock to default state
-    Object.assign(mockUseEvaluation, {
-      evaluation: null,
+    Object.assign(mockUseEvaluationReturn, {
+      evaluations: [],
+      lastEvaluation: null,
       isEvaluating: false,
       error: null,
-      depth: 0,
-      nodes: 0,
-      nps: 0,
-      time: 0,
-      pv: [],
-      tablebase: null,
-      bestMove: null,
-      score: null,
-      isReady: true,
-      evaluatePosition: jest.fn(),
-      stopEvaluation: jest.fn(),
-      clearEvaluation: jest.fn()
+      addEvaluation: jest.fn(),
+      clearEvaluations: jest.fn(),
+      cacheStats: undefined
     });
+    
+    // Set up the mock function to return our mock data
+    (useEvaluation as jest.Mock).mockReturnValue(mockUseEvaluationReturn);
     
     mockSimpleEngine.waitForInit.mockResolvedValue(undefined);
     mockEvaluationCache.getStats.mockReturnValue({
@@ -121,21 +109,9 @@ describe('Engine UI Integration - TDD Approach', () => {
       // RED: This test should FAIL initially (current bug)
       
       // Mock useEvaluation to simulate endless analyzing state
-      mockUseEvaluation.isEvaluating = true;
-      mockUseEvaluation.evaluation = null;
-      mockUseEvaluation.evaluatePosition.mockImplementation(() => {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve({
-              score: { type: 'cp', value: 30 },
-              depth: 15,
-              pv: 'e2e4',
-              nodes: 1000,
-              time: 100
-            });
-          }, 5000); // 5 second delay simulating endless analysis
-        });
-      });
+      mockUseEvaluationReturn.isEvaluating = true;
+      mockUseEvaluationReturn.lastEvaluation = null;
+      mockUseEvaluationReturn.error = null;
 
       // Render actual Engine UI component
       const { container } = render(<DualEvaluationPanel fen={TEST_FEN} isVisible={true} />);
@@ -143,9 +119,17 @@ describe('Engine UI Integration - TDD Approach', () => {
       // Should initially show "Analysiert..." state
       expect(screen.getByText(/Analysiert/)).toBeInTheDocument();
       
-      // Wait for evaluation to complete with realistic timing
+      // Simulate evaluation completing
       act(() => {
-        jest.advanceTimersByTime(2000); // Advance timers by 2 seconds
+        mockUseEvaluationReturn.isEvaluating = false;
+        mockUseEvaluationReturn.lastEvaluation = {
+          evaluation: 30,
+          multiPvResults: [{
+            san: 'e4',
+            score: { type: 'cp', value: 30 }
+          }]
+        };
+        jest.advanceTimersByTime(100);
       });
       
       // RED: This should FAIL - engine stuck in "Analysiert..." state
@@ -155,7 +139,7 @@ describe('Engine UI Integration - TDD Approach', () => {
       
       // Engine should show actual evaluation result
       await waitFor(() => {
-        expect(screen.getByText(/30/)).toBeInTheDocument();
+        expect(screen.getByText(/e4/)).toBeInTheDocument();
       }, { timeout: 1000 });
     });
 
@@ -163,16 +147,9 @@ describe('Engine UI Integration - TDD Approach', () => {
       // RED: This test should FAIL initially (current bug)
       
       // Mock useEvaluation to simulate missing tablebase data
-      mockUseEvaluation.tablebase = null;
-      mockUseEvaluation.isEvaluating = false;
-      
-      // Mock tablebase service to return valid data (but UI not showing it)
-      mockTablebaseService.lookupPosition.mockResolvedValue({
-        isTablebasePosition: true,
-        wdl: 1, // Win for white
-        dtm: 10, // Distance to mate
-        category: 'KQvK'
-      });
+      mockUseEvaluationReturn.isEvaluating = false;
+      mockUseEvaluationReturn.lastEvaluation = null;
+      mockUseEvaluationReturn.error = null;
 
       // Render actual Tablebase UI component
       const { container } = render(<DualEvaluationPanel fen={TEST_FEN} isVisible={true} />);
@@ -182,11 +159,17 @@ describe('Engine UI Integration - TDD Approach', () => {
       
       // Simulate tablebase data arriving
       act(() => {
-        mockUseEvaluation.tablebase = {
-          isTablebasePosition: true,
-          wdl: 1,
-          dtm: 10,
-          category: 'KQvK'
+        mockUseEvaluationReturn.lastEvaluation = {
+          evaluation: 0,
+          tablebase: {
+            isTablebasePosition: true,
+            wdlAfter: 1,
+            category: 'win',
+            topMoves: [{
+              san: 'Kd7',
+              dtz: 5
+            }]
+          }
         };
         jest.advanceTimersByTime(100);
       });
@@ -198,7 +181,7 @@ describe('Engine UI Integration - TDD Approach', () => {
       
       // Should show actual tablebase data
       await waitFor(() => {
-        expect(screen.getByText(/Win/)).toBeInTheDocument();
+        expect(screen.getByText(/Kd7/)).toBeInTheDocument();
       }, { timeout: 1000 });
     });
   });
@@ -207,30 +190,30 @@ describe('Engine UI Integration - TDD Approach', () => {
     it('should show engine evaluation result in UI', async () => {
       // GREEN: Implement minimal connection Engine → UI
       
-      const mockEvaluation = {
-        score: { type: 'cp', value: 30 },
-        depth: 15,
-        pv: 'e2e4',
-        nodes: 1000,
-        time: 100
+      // Set up mock to return evaluation data from the start
+      mockUseEvaluationReturn.isEvaluating = false;
+      mockUseEvaluationReturn.lastEvaluation = {
+        evaluation: 30,
+        multiPvResults: [{
+          san: 'e4',
+          score: { type: 'cp', value: 30 }
+        }]
       };
+      mockUseEvaluationReturn.error = null;
 
-      mockSimpleEngine.evaluatePosition.mockResolvedValue(mockEvaluation);
-      mockEvaluationCache.evaluatePositionCached.mockResolvedValue(mockEvaluation);
-
-      // TODO: Test actual UI component integration
-      // const { container } = render(<EnginePanel fen={TEST_FEN} />);
+      // Render component with evaluation data already available
+      const { container } = render(<DualEvaluationPanel fen={TEST_FEN} isVisible={true} />);
       
-      // TODO: Verify UI shows evaluation data
-      // await waitFor(() => {
-      //   expect(screen.getByText(/30/)).toBeInTheDocument();
-      // }, { timeout: 1000 });
-
-      // Verify engine was called
-      expect(mockSimpleEngine.evaluatePosition).toHaveBeenCalledWith(TEST_FEN);
+      // Should show engine evaluation result
+      await waitFor(() => {
+        expect(screen.getByText(/e4/)).toBeInTheDocument();
+      }, { timeout: 1000 });
       
-      // Placeholder assertion
-      expect(true).toBe(true);
+      // Should NOT show "Analysiert..." when evaluation is complete
+      expect(screen.queryByText(/Analysiert/)).not.toBeInTheDocument();
+      
+      // Should NOT show "Warte auf Analyse..." when evaluation is complete
+      expect(screen.queryByText(/Warte auf Analyse/)).not.toBeInTheDocument();
     });
 
     it('should show tablebase data in UI', async () => {
