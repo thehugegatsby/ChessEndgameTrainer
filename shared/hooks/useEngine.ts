@@ -1,23 +1,31 @@
 /**
  * Hook for managed access to Chess Engine
- * Uses EngineService singleton for proper resource management
+ * MIGRATED: Now uses SimpleEngine instead of EngineService
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { EngineService } from '@shared/services/chess/EngineService';
-import type { IChessEngine } from '@shared/lib/chess/IChessEngine';
+import { getSimpleEngine } from '../lib/chess/engine/simple/SimpleEngine';
+// import type { EvaluationResult } from '../lib/chess/engine/simple/SimpleEngine';
 import { ErrorService } from '@shared/services/errorService';
 
 interface UseEngineOptions {
   autoCleanup?: boolean;
 }
 
+// SimpleEngine-compatible interface for backward compatibility
+interface EngineCompat {
+  findBestMove: (fen: string, options?: any) => Promise<{ move: string; evaluation: number }>;
+  evaluatePosition: (fen: string, options?: any) => Promise<{ evaluation: number }>;
+  stop: () => Promise<void>;
+  terminate: () => void;
+}
+
 export function useEngine(options: UseEngineOptions = {}) {
   const { autoCleanup = true } = options;
-  const [engine, setEngine] = useState<IChessEngine | null>(null);
+  const [engine, setEngine] = useState<EngineCompat | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const engineServiceRef = useRef<EngineService>();
+  const engineRef = useRef<ReturnType<typeof getSimpleEngine> | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -27,11 +35,30 @@ export function useEngine(options: UseEngineOptions = {}) {
         setIsLoading(true);
         setError(null);
         
-        // Get singleton instance - no need for getEngine() call
-        engineServiceRef.current = EngineService.getInstance();
+        // Get SimpleEngine instance
+        engineRef.current = getSimpleEngine();
+        
+        // Create compatibility adapter
+        const engineCompat: EngineCompat = {
+          findBestMove: async (fen: string, _options?: any) => {
+            const move = await engineRef.current!.findBestMove(fen);
+            const evaluation = await engineRef.current!.evaluatePosition(fen);
+            return { move, evaluation: evaluation.score.value };
+          },
+          evaluatePosition: async (fen: string, _options?: any) => {
+            const result = await engineRef.current!.evaluatePosition(fen);
+            return { evaluation: result.score.value };
+          },
+          stop: async () => {
+            // SimpleEngine doesn't have stop method, no-op for compatibility
+          },
+          terminate: () => {
+            engineRef.current!.terminate();
+          }
+        };
         
         if (isMounted) {
-          setEngine(engineServiceRef.current);
+          setEngine(engineCompat);
           setIsLoading(false);
         }
       } catch (err) {
@@ -46,25 +73,25 @@ export function useEngine(options: UseEngineOptions = {}) {
 
     return () => {
       isMounted = false;
-      // No need to release - singleton manages its own lifecycle
     };
   }, [autoCleanup]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (autoCleanup && engineServiceRef.current) {
-        // Clean terminate if requested
-        engineServiceRef.current.terminate().catch((error) => {
-          ErrorService.handleChessEngineError(error, { component: 'useEngine', action: 'cleanup' });
-        });
+      if (autoCleanup && engineRef.current) {
+        try {
+          engineRef.current.terminate();
+        } catch (error) {
+          ErrorService.handleChessEngineError(error as Error, { component: 'useEngine', action: 'cleanup' });
+        }
       }
     };
   }, []);
 
   const forceCleanup = async () => {
-    if (engineServiceRef.current) {
-      await engineServiceRef.current.terminate();
+    if (engineRef.current) {
+      engineRef.current.terminate();
       setEngine(null);
     }
   };

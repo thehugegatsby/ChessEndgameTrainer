@@ -9,8 +9,8 @@
 export {
   getMoveQualityDisplay,
   getEvaluationDisplay,
-  getMoveQualityByTablebaseComparison,
-  getCategory,
+  // REMOVED: getMoveQualityByTablebaseComparison, (overengineered)
+  // REMOVED: getCategory, (overengineered)
   formatEvaluation,
   getEvaluationColor,
   getEvaluationBarWidth,

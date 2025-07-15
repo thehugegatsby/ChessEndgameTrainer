@@ -11,7 +11,8 @@
  * - Extensible for future services
  */
 
-import type { EngineAnalysis } from '../services/engine/IEngineService';
+// TODO: Replace with SimpleEngine types after refactoring
+type EngineAnalysis = any;
 import type { EngineStatus } from '../store/types';
 
 /**

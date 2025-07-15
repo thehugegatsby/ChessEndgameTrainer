@@ -5,8 +5,7 @@ import { EVALUATION, UI } from '@shared/constants';
  * Get move quality evaluation (how good was this specific move)
  * This compares the played move with the best available alternative
  * 
- * AI_NOTE: This is the ENGINE-based evaluation, not tablebase!
- * For endgame training, prefer getMoveQualityByTablebaseComparison() when available.
+ * SIMPLIFIED: Uses engine evaluation only (tablebase helpers removed)
  * This function uses absolute values because a "good move" is good regardless of color.
  * 
  * QUIRK: isPlayerMove parameter is unused - legacy from earlier version.

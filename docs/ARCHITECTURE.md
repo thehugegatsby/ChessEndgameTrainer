@@ -27,21 +27,15 @@ graph TB
         I[useEngine]
     end
     
-    subgraph "SERVICE LAYER - Clean Architecture"
-        subgraph "Services"
-            J[ITablebaseService]
-            K[MockTablebaseService]
-            L[EngineService]
+    subgraph "SERVICE LAYER - Simplified Architecture"
+        subgraph "Core Services"
+            J[TablebaseService]
+            K[EvaluationCache]
+            L[SimpleEngine]
         end
-        subgraph "Adapters"
-            M[TablebaseServiceAdapter]
-            N[EngineProviderAdapter]
-            O[TablebaseProviderAdapter]
-        end
-        subgraph "Providers"
-            P[IEngineProvider]
-            Q[ITablebaseProvider]
-            R[UnifiedEvaluationService]
+        subgraph "Evaluation"
+            M[UnifiedEvaluationService]
+            N[ProviderAdapters]
         end
     end
     

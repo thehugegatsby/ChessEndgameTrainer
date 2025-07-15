@@ -12,15 +12,13 @@
  */
 
 import { LRUCache, type CacheStats } from './LRUCache';
-import type { Engine } from '../chess/engine';
-import { Move as ChessJsMove } from 'chess.js';
+import type { SimpleEngine, EvaluationResult } from '../chess/engine/simple/SimpleEngine';
+import { Move as ChessJsMove, Chess } from 'chess.js';
 import { CACHE, ENGINE } from '@shared/constants';
 
 interface CachedEvaluation {
-  score: number;
-  mate: number | null;
+  result: EvaluationResult;
   timestamp: number;
-  depth?: number;
 }
 
 interface CachedBestMove {
@@ -51,6 +49,7 @@ export class EvaluationCache {
   private evaluationCache: LRUCache<CachedEvaluation>;
   private bestMoveCache: LRUCache<CachedBestMove>;
   private pendingRequests: Map<string, DeduplicationEntry>;
+  private engine: SimpleEngine | null = null;
   
   // Cache configuration using centralized constants
   private readonly EVALUATION_TTL = CACHE.EVALUATION_CACHE_TTL;
@@ -69,6 +68,9 @@ export class EvaluationCache {
     this.bestMoveCache = new LRUCache(bestMoveCacheSize);
     this.pendingRequests = new Map();
     
+    // Initialize engine instance lazily
+    this.initializeEngine();
+    
     // Cleanup pending requests periodically
     if (typeof window !== 'undefined') {
       setInterval(() => this.cleanupStaleRequests(), CACHE.CLEANUP_INTERVAL_TTL);
@@ -76,13 +78,36 @@ export class EvaluationCache {
   }
 
   /**
-   * Cached wrapper for Engine.evaluatePosition()
-   * Preserves exact API and error handling
+   * Initialize engine instance lazily
+   */
+  private initializeEngine(): void {
+    if (typeof window !== 'undefined' && !this.engine) {
+      // Import getSimpleEngine dynamically to avoid circular imports
+      const { getSimpleEngine } = require('../chess/engine/simple/SimpleEngine');
+      this.engine = getSimpleEngine();
+    }
+  }
+
+  /**
+   * Get engine instance, initializing if necessary
+   */
+  private getEngine(): SimpleEngine {
+    if (!this.engine) {
+      this.initializeEngine();
+    }
+    if (!this.engine) {
+      throw new Error('Engine not available in this environment');
+    }
+    return this.engine;
+  }
+
+  /**
+   * Cached wrapper for SimpleEngine.evaluatePosition()
+   * Returns full EvaluationResult with caching
    */
   async evaluatePositionCached(
-    engine: Engine,
     fen: string
-  ): Promise<{ score: number; mate: number | null }> {
+  ): Promise<EvaluationResult> {
     const cacheKey = `eval:${fen}`;
     
     try {
@@ -96,11 +121,11 @@ export class EvaluationCache {
       // Check cache
       const cached = this.evaluationCache.get(cacheKey);
       if (cached && (Date.now() - cached.timestamp) < this.EVALUATION_TTL) {
-        return { score: cached.score, mate: cached.mate };
+        return cached.result;
       }
 
       // Create promise for this request
-      const promise = this.executeEvaluation(engine, fen);
+      const promise = this.executeEvaluation(fen);
       
       // Store in pending requests for deduplication
       this.pendingRequests.set(cacheKey, {
@@ -114,8 +139,7 @@ export class EvaluationCache {
       // Cache successful result
       if (result !== null) {
         this.evaluationCache.set(cacheKey, {
-          score: result.score,
-          mate: result.mate,
+          result,
           timestamp: Date.now()
         });
       }
@@ -128,18 +152,16 @@ export class EvaluationCache {
     } catch (error) {
       // Remove from pending on error
       this.pendingRequests.delete(cacheKey);
-      
-      // Fall through to original method - preserve exact error behavior
-      return await engine.evaluatePosition(fen);
+      // Re-throw the error to be handled by the caller
+      throw error;
     }
   }
 
   /**
-   * Cached wrapper for Engine.getBestMove()
+   * Cached wrapper for SimpleEngine.findBestMove()
    * Preserves exact API and error handling
    */
   async getBestMoveCached(
-    engine: Engine,
     fen: string,
     timeLimit: number = ENGINE.DEFAULT_MOVE_TIMEOUT
   ): Promise<ChessJsMove | null> {
@@ -160,7 +182,7 @@ export class EvaluationCache {
       }
 
       // Create promise for this request
-      const promise = this.executeBestMove(engine, fen, timeLimit);
+      const promise = this.executeBestMove(fen, timeLimit);
       
       // Store in pending requests for deduplication
       this.pendingRequests.set(cacheKey, {
@@ -186,9 +208,8 @@ export class EvaluationCache {
     } catch (error) {
       // Remove from pending on error
       this.pendingRequests.delete(cacheKey);
-      
-      // Fall through to original method - preserve exact error behavior
-      return await engine.getBestMove(fen, timeLimit);
+      // Re-throw the error to be handled by the caller
+      throw error;
     }
   }
 
@@ -196,9 +217,9 @@ export class EvaluationCache {
    * Execute the actual evaluation (wrapped for error handling)
    */
   private async executeEvaluation(
-    engine: Engine,
     fen: string
-  ): Promise<{ score: number; mate: number | null }> {
+  ): Promise<EvaluationResult> {
+    const engine = this.getEngine();
     return await engine.evaluatePosition(fen);
   }
 
@@ -206,11 +227,26 @@ export class EvaluationCache {
    * Execute the actual best move request (wrapped for error handling)
    */
   private async executeBestMove(
-    engine: Engine,
     fen: string,
     timeLimit: number
   ): Promise<ChessJsMove | null> {
-    return await engine.getBestMove(fen, timeLimit);
+    const engine = this.getEngine();
+    const moveString = await engine.findBestMove(fen, timeLimit);
+    
+    if (!moveString || moveString === '(none)') {
+      return null;
+    }
+
+    try {
+      // Use chess.js to parse the move string into a move object
+      const game = new Chess(fen);
+      const moveObject = game.move(moveString);
+      return moveObject; // This is now of type ChessJsMove
+    } catch (e) {
+      // This handles cases where the engine might return a technically invalid move
+      console.error(`Engine returned an invalid move "${moveString}" for FEN "${fen}"`, e);
+      return null;
+    }
   }
 
   /**
@@ -265,11 +301,11 @@ export class EvaluationCache {
   /**
    * Warm up cache with common positions
    */
-  async warmupCache(engine: Engine, positions: string[]): Promise<void> {
+  async warmupCache(positions: string[]): Promise<void> {
     
     const promises = positions.slice(0, 10).map(async (fen) => {
       try {
-        await this.evaluatePositionCached(engine, fen);
+        await this.evaluatePositionCached(fen);
       } catch (error) {
       }
     });
@@ -282,10 +318,9 @@ export class EvaluationCache {
   /**
    * Set engine evaluation in cache
    */
-  setEngineEval(fen: string, evaluation: { score: number; mate: number | null }): void {
+  setEngineEval(fen: string, evaluation: EvaluationResult): void {
     const cached: CachedEvaluation = {
-      score: evaluation.score,
-      mate: evaluation.mate,
+      result: evaluation,
       timestamp: Date.now()
     };
     this.evaluationCache.set(`engine:${fen}`, cached);
@@ -294,10 +329,10 @@ export class EvaluationCache {
   /**
    * Get engine evaluation from cache
    */
-  getEngineEval(fen: string): { score: number; mate: number | null } | null {
+  getEngineEval(fen: string): EvaluationResult | null {
     const cached = this.evaluationCache.get(`engine:${fen}`);
     if (!cached) return null;
-    return { score: cached.score, mate: cached.mate };
+    return cached.result;
   }
 
   /**

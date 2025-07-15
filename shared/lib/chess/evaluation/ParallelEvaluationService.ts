@@ -41,7 +41,7 @@ interface EvaluationOptions {
   preferTablebase?: boolean;  // Prefer tablebase over engine when available
 }
 
-type EngineService = {
+type SimpleEngineService = {
   evaluatePosition: (fen: string, options?: any) => Promise<EngineEvaluation>;
   cancelEvaluation?: (fen: string) => void;
 };
@@ -54,7 +54,7 @@ export class ParallelEvaluationService {
   private deduplicator = new EvaluationDeduplicator();
   private cache = new ChessAwareCache<DualEvaluation>(CACHE.PARALLEL_EVALUATION_CACHE_SIZE);
   
-  private engineService: EngineService;
+  private engineService: SimpleEngineService;
   private tablebaseService: TablebaseService;
   
   // Performance tracking
@@ -67,7 +67,7 @@ export class ParallelEvaluationService {
     averageTime: 0
   };
 
-  constructor(engineService: EngineService, tablebaseService: TablebaseService) {
+  constructor(engineService: SimpleEngineService, tablebaseService: TablebaseService) {
     this.engineService = engineService;
     this.tablebaseService = tablebaseService;
   }

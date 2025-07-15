@@ -9,8 +9,8 @@
  * - Stateless engine calls (pass FEN)
  */
 
-import { EngineService } from '../services/chess/EngineService';
-import type { IChessEngine, EngineOptions } from '../lib/chess/IChessEngine';
+import { getSimpleEngine } from '../lib/chess/engine/simple/SimpleEngine';
+// import type { EvaluationResult } from '../lib/chess/engine/simple/SimpleEngine';
 import { getLogger } from '../services/logging';
 import type { TrainingState } from './types';
 
@@ -22,7 +22,7 @@ const logger = getLogger().setContext('TrainingActions');
  * @param options - Engine analysis options
  * @returns Thunk function for Zustand store
  */
-export const requestEngineMove = (fen: string, options?: EngineOptions) => 
+export const requestEngineMove = (fen: string, options?: { depth?: number; timeout?: number }) => 
   async (_get: () => { training: TrainingState }, set: (partial: any) => void) => {
     try {
       logger.debug('Requesting engine move', { fen, options });
@@ -37,22 +37,23 @@ export const requestEngineMove = (fen: string, options?: EngineOptions) =>
       }));
 
       // Get engine instance and find best move
-      const engine: IChessEngine = EngineService.getInstance();
-      const result = await engine.findBestMove(fen, options);
+      const engine = getSimpleEngine();
+      const move = await engine.findBestMove(fen);
+      const evaluation = await engine.evaluatePosition(fen);
       
-      logger.debug('Engine move received', { move: result.move, evaluation: result.evaluation });
+      logger.debug('Engine move received', { move, evaluation: evaluation.score.value });
 
       // Update store with engine move
       set((state: any) => ({
         training: {
           ...state.training,
           isEngineThinking: false,
-          engineMove: result.move,
+          engineMove: move,
           engineStatus: 'ready'
         }
       }));
 
-      return result.move;
+      return move;
 
     } catch (error) {
       logger.error('Engine move request failed', error);
@@ -76,7 +77,7 @@ export const requestEngineMove = (fen: string, options?: EngineOptions) =>
  * @param options - Engine analysis options
  * @returns Thunk function for Zustand store
  */
-export const requestPositionEvaluation = (fen: string, options?: EngineOptions) =>
+export const requestPositionEvaluation = (fen: string, options?: { depth?: number; timeout?: number }) =>
   async (_get: () => { training: TrainingState }, set: (partial: any) => void) => {
     try {
       logger.debug('Requesting position evaluation', { fen, options });
@@ -90,19 +91,19 @@ export const requestPositionEvaluation = (fen: string, options?: EngineOptions) 
       }));
 
       // Get engine instance and evaluate position
-      const engine: IChessEngine = EngineService.getInstance();
-      const result = await engine.evaluatePosition(fen, options);
+      const engine = getSimpleEngine();
+      const result = await engine.evaluatePosition(fen);
       
-      logger.debug('Position evaluation received', { evaluation: result.evaluation });
+      logger.debug('Position evaluation received', { evaluation: result.score.value });
 
       // Update store with evaluation
       set((state: any) => ({
         training: {
           ...state.training,
           currentEvaluation: {
-            evaluation: result.evaluation,
-            mate: result.mate,
-            depth: options?.depth || 15
+            evaluation: result.score.value,
+            mate: result.score.type === 'mate' ? result.score.value : null,
+            depth: result.depth
           },
           engineStatus: 'ready'
         }
@@ -134,9 +135,7 @@ export const stopEngineAnalysis = () =>
     try {
       logger.debug('Stopping engine analysis');
 
-      const engine: IChessEngine = EngineService.getInstance();
-      await engine.stop();
-      
+      // SimpleEngine doesn't have stop method, just update state
       // Update store state
       set((state: any) => ({
         training: {
@@ -160,8 +159,8 @@ export const terminateEngine = () =>
     try {
       logger.info('Terminating chess engine');
 
-      const engine: IChessEngine = EngineService.getInstance();
-      await engine.terminate();
+      const engine = getSimpleEngine();
+      engine.terminate();
       
       // Reset engine state in store
       set((state: any) => ({

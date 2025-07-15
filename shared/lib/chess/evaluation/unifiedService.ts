@@ -20,10 +20,10 @@ import { EvaluationPipelineFactory } from './pipelineFactory';
 import type { EvaluationPipelineStrategy } from './pipelineFactory';
 import type {
   IEngineProvider,
-  ITablebaseProvider,
   ICacheProvider,
   UnifiedEvaluationConfig
 } from './providers';
+import { tablebaseService } from '../../../services/TablebaseService';
 import type {
   PlayerPerspectiveEvaluation,
   FormattedEvaluation,
@@ -36,7 +36,6 @@ export class UnifiedEvaluationService {
 
   constructor(
     private readonly engineProvider: IEngineProvider,
-    private readonly tablebaseProvider: ITablebaseProvider,
     private readonly cache: ICacheProvider<FormattedEvaluation>,
     config: UnifiedEvaluationConfig = {},
     enhancedPerspective?: boolean
@@ -134,29 +133,27 @@ export class UnifiedEvaluationService {
       
       // Try tablebase first (highest priority)
       try {
-        const tablebaseData = await this.withTimeout(
-          this.tablebaseProvider.getEvaluation(fen, playerToMove),
-          this.config.tablebaseTimeout
-        );
+        // MEDIUM FIX: Remove redundant timeout wrapper - TablebaseService handles its own timeout
+        const tablebaseEval = await tablebaseService.getEvaluation(fen);
         
-        if (tablebaseData) {
-          // Convert tablebase data to perspective evaluation
-          const perspectiveWdl = perspective === 'w' ? tablebaseData.wdl : -tablebaseData.wdl;
+        if (tablebaseEval.isAvailable && tablebaseEval.result) {
+          const result = tablebaseEval.result;
+          const perspectiveWdl = perspective === 'w' ? result.wdl : -result.wdl;
           return {
             type: 'tablebase',
             scoreInCentipawns: null,
             mate: null,
-            wdl: tablebaseData.wdl,
-            dtm: tablebaseData.dtm,
-            dtz: tablebaseData.dtz,
+            wdl: result.wdl,
+            dtm: null,
+            dtz: result.dtz,
             isTablebasePosition: true,
-            raw: tablebaseData,
+            raw: result,
             perspective,
             perspectiveScore: null,
             perspectiveMate: null,
             perspectiveWdl: perspectiveWdl,
-            perspectiveDtm: tablebaseData.dtm,
-            perspectiveDtz: tablebaseData.dtz
+            perspectiveDtm: null,
+            perspectiveDtz: result.dtz
           };
         }
       } catch (tablebaseError) {
@@ -259,27 +256,16 @@ export class UnifiedEvaluationService {
     perspective: 'w' | 'b'
   ): Promise<FormattedEvaluation | undefined> {
     const playerToMove = this.getPlayerToMoveFromFen(fen);
-    const tablebaseData = await this.tablebaseProvider.getEvaluation(fen, playerToMove);
-    if (!tablebaseData) {
+    const tablebaseEval = await tablebaseService.getEvaluation(fen);
+    if (!tablebaseEval.isAvailable || !tablebaseEval.result) {
       return undefined;
     }
 
     // Use pipeline strategy for consistent formatting
-    return this.pipeline.formatTablebaseEvaluation(tablebaseData, playerToMove, perspective);
+    return this.pipeline.formatTablebaseEvaluation(tablebaseEval.result, playerToMove, perspective);
   }
 
-  /**
-   * Wraps a promise with a timeout
-   * @private
-   */
-  private withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
-    return Promise.race([
-      promise,
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Timeout')), timeoutMs)
-      )
-    ]);
-  }
+  // REMOVED: withTimeout method no longer needed after removing redundant timeout logic
 
   /**
    * Creates cache key for evaluation

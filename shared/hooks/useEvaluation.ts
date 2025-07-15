@@ -4,9 +4,10 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { EvaluationData } from '@shared/types';
-import type { MultiPvResult } from '@shared/lib/chess/engine/types';
+// TODO: Replace with SimpleEngine types after refactoring
+type MultiPvResult = any;
 import { UnifiedEvaluationService } from '@shared/lib/chess/evaluation/unifiedService';
-import { EngineProviderAdapter, TablebaseProviderAdapter } from '@shared/lib/chess/evaluation/providerAdapters';
+import { EngineProviderAdapter } from '@shared/lib/chess/evaluation/providerAdapters';
 import { LRUCache } from '@shared/lib/cache/LRUCache';
 import { LRUCacheAdapter } from '@shared/lib/chess/evaluation/cacheAdapter';
 import type { FormattedEvaluation } from '@shared/types/evaluation';
@@ -44,11 +45,9 @@ function getUnifiedService(): UnifiedEvaluationService {
     const lruCache = new LRUCache<FormattedEvaluation>(CACHE.EVALUATION_CACHE_SIZE);
     const cache = new LRUCacheAdapter(lruCache);
     const engineProvider = new EngineProviderAdapter();
-    const tablebaseProvider = new TablebaseProviderAdapter();
     
     unifiedServiceInstance = new UnifiedEvaluationService(
       engineProvider,
-      tablebaseProvider,
       cache
     );
   }
@@ -110,19 +109,10 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
         // PHASE 2.2: Also get raw engine evaluation with PV data
         const rawEngineEval = await service.getRawEngineEvaluation(fen, playerToMove);
         
-        // PHASE 3: Get Multi-PV results for Top-3 moves directly from engine
+        // Multi-PV not available in SimpleEngine, skip for now
         let multiPvResults: MultiPvResult[] | undefined = undefined;
-        try {
-          // Import engine singleton dynamically to avoid circular dependencies
-          const { engine } = await import('@shared/lib/chess/engine/singleton');
-          const multiPvData = await engine.getMultiPvEvaluation(fen, 3); // Top-3 moves
-          if (multiPvData && multiPvData.length > 0) {
-            multiPvResults = multiPvData;
-          }
-        } catch (error) {
-          // Multi-PV is optional, don't fail entire evaluation
-          logger.warn('Multi-PV evaluation failed:', error);
-        }
+        // Note: SimpleEngine doesn't support Multi-PV evaluation
+        // This feature can be added later if needed
 
         // Convert formatted evaluation to legacy format
         let evaluationScore: number;
@@ -186,16 +176,13 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
                 dtz: currPerspectiveEval.dtz !== null ? currPerspectiveEval.dtz : undefined
               };
               
-              // PHASE 3.2: Get Top-3 tablebase moves for current position
+              // SIMPLIFIED: Skip tablebase top moves for now
+              // TODO: Implement getTopMoves if needed later
               try {
-                const tablebaseProvider = new (await import('@shared/lib/chess/evaluation/providerAdapters')).TablebaseProviderAdapter();
-                const tablebaseService = tablebaseProvider.getTablebaseService();
-                const topMoves = await tablebaseService.getTopMoves(fen);
-                if (topMoves && topMoves.length > 0) {
-                  evaluation.tablebase.topMoves = topMoves;
-                }
+                // For now, just leave tablebase as is
+                // Future enhancement: add top moves functionality
               } catch (error) {
-                logger.warn('Failed to get tablebase Top-3 moves:', error);
+                logger.warn('Failed to get tablebase data:', error);
               }
               
             }
@@ -216,16 +203,13 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
                 dtz: currPerspectiveEval.dtz !== null ? currPerspectiveEval.dtz : undefined
               };
               
-              // PHASE 3.2: Get Top-3 tablebase moves for current position
+              // SIMPLIFIED: Skip tablebase top moves for now
+              // TODO: Implement getTopMoves if needed later
               try {
-                const tablebaseProvider = new (await import('@shared/lib/chess/evaluation/providerAdapters')).TablebaseProviderAdapter();
-                const tablebaseService = tablebaseProvider.getTablebaseService();
-                const topMoves = await tablebaseService.getTopMoves(fen);
-                if (topMoves && topMoves.length > 0) {
-                  evaluation.tablebase.topMoves = topMoves;
-                }
+                // For now, just leave tablebase as is
+                // Future enhancement: add top moves functionality
               } catch (error) {
-                logger.warn('Failed to get tablebase Top-3 moves:', error);
+                logger.warn('Failed to get tablebase data:', error);
               }
               
             }

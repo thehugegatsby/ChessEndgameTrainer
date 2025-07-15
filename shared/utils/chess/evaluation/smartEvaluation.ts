@@ -1,8 +1,8 @@
 /**
  * Smart evaluation that prioritizes tablebase comparison over engine evaluation
+ * SIMPLIFIED: Removed overengineered tablebase helpers
  */
 
-import { getMoveQualityByTablebaseComparison } from './tablebaseHelpers';
 import { getMoveQualityDisplay } from './displayHelpers';
 
 export interface MoveEvaluation {
@@ -28,18 +28,7 @@ export const getSmartMoveEvaluation = (
   isWhite: boolean, 
   _moveIndex: number
 ) => {
-  // Priority 1: Use tablebase comparison if available
-  if (evaluation.tablebase?.isTablebasePosition && 
-      evaluation.tablebase.wdlBefore !== undefined && 
-      evaluation.tablebase.wdlAfter !== undefined) {
-    
-    return getMoveQualityByTablebaseComparison(
-      evaluation.tablebase.wdlBefore,
-      evaluation.tablebase.wdlAfter,
-      isWhite ? 'w' : 'b'
-    );
-  }
-  
-  // Priority 2: Fallback to engine evaluation
+  // SIMPLIFIED: Just use engine evaluation for now
+  // TODO: Re-implement tablebase comparison if needed with simplified approach
   return getMoveQualityDisplay(evaluation.evaluation, evaluation.mateInMoves, isWhite);
 };

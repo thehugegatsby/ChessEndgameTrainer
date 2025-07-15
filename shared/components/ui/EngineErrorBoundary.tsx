@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { ErrorBoundary } from './ErrorBoundary';
-import { EngineService } from '@shared/services/chess/EngineService';
+import { getSimpleEngine } from '@shared/lib/chess/engine/simple/SimpleEngine';
 
 interface EngineErrorBoundaryProps {
   children: React.ReactNode;
@@ -18,8 +18,8 @@ export const EngineErrorBoundary: React.FC<EngineErrorBoundaryProps> = ({
     
     // Try to cleanup and restart engine
     try {
-      const engineService = EngineService.getInstance();
-      await engineService.terminate();
+      const engine = getSimpleEngine();
+      engine.terminate();
     } catch {
       // Ignore cleanup errors
     }

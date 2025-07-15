@@ -10,11 +10,8 @@ export {
   getEvaluationDisplay
 } from './displayHelpers';
 
-// Tablebase-specific evaluation helpers
-export {
-  getMoveQualityByTablebaseComparison,
-  getCategory
-} from './tablebaseHelpers';
+// Tablebase-specific evaluation helpers - REMOVED (overengineered)
+// TODO: Re-implement if needed with simplified approach
 
 // Formatting utilities for evaluation data
 export {
