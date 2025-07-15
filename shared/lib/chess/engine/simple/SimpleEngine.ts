@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import { parseUciInfo } from './SimpleUCIParser';
 import { validateAndSanitizeFen } from './fenValidator';
 import { Logger } from '@shared/services/logging/Logger';
+import { ENGINE } from '@shared/constants';
 
 const logger = new Logger();
 
@@ -64,7 +65,7 @@ class SimpleEngine extends EventEmitter {
     // Set configuration with defaults
     this.config = {
       threads: config.threads ?? 4,
-      depth: config.depth ?? 15,
+      depth: config.depth ?? ENGINE.DEFAULT_SEARCH_DEPTH,
       timeout: config.timeout ?? 10000,
       multiPv: config.multiPv ?? 1
     };

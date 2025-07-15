@@ -8,7 +8,7 @@ import type { EngineEvaluation, TablebaseResult } from '../../../types/evaluatio
 import { getSimpleEngine } from '../engine/simple/SimpleEngine';
 import { tablebaseService } from '../../../services/TablebaseService';
 import { Logger } from '@shared/services/logging/Logger';
-import { EVALUATION } from '@shared/constants';
+import { EVALUATION, ENGINE } from '@shared/constants';
 
 const logger = new Logger();
 
@@ -81,7 +81,7 @@ export class EngineProviderAdapter implements IEngineProvider {
         evaluation: evaluation.score.type === 'mate' 
           ? `#${Math.abs(Math.ceil(evaluation.score.value / 2))}` 
           : `${(evaluation.score.value / 100).toFixed(2)}`,
-        depth: evaluation.depth || 15,
+        depth: evaluation.depth || ENGINE.DEFAULT_SEARCH_DEPTH,
         nodes: evaluation.nodes || 0,
         time: evaluation.time || 0,
         // Use SimpleEngine PV data

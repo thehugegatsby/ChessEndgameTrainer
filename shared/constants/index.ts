@@ -47,7 +47,7 @@ export const ENGINE = {
   // Timeouts
   WORKER_TERMINATION_TIMEOUT: 1000,      // 1 second to terminate worker
   DEFAULT_MOVE_TIMEOUT: 1000,            // 1 second default getBestMove timeout
-  EVALUATION_TIMEOUT: 3000,              // 3 seconds for evaluation
+  EVALUATION_TIMEOUT: 7000,              // 7 seconds for evaluation (increased for deeper mate detection)
   TIMEOUT_BUFFER: 1000,                  // 1 second buffer added to timeouts
   STALE_REQUEST_CLEANUP: 60000,          // 60 seconds for stale request cleanup
   WORKER_READY_TIMEOUT: 5000,            // 5 seconds for worker to be ready
@@ -56,10 +56,10 @@ export const ENGINE = {
   // Engine configuration
   MAX_INSTANCES: 5,                      // Maximum engine instances
   MAX_INIT_ATTEMPTS: 3,                  // Maximum initialization attempts
-  DEFAULT_SEARCH_DEPTH: 15,              // Default engine search depth
+  DEFAULT_SEARCH_DEPTH: 30,              // Default engine search depth (increased for precise mate detection)
   HASH_SIZE: 16,                         // Engine hash table size (MB)
   SKILL_LEVEL: 20,                       // Engine skill level (0-20) - Use RATING.ENGINE_SKILL_LEVEL
-  MAX_NODES: 100000,                     // Maximum nodes to search
+  MAX_NODES: 300000,                     // Maximum nodes to search (increased for precise mate detection)
   
   // Idle management
   IDLE_TIME: 5 * 60 * 1000,              // 5 minutes before marking as idle
