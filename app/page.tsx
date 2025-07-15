@@ -54,13 +54,19 @@ export default function HomePage() {
           </p>
           
           {/* Start-Button */}
-          <div className="flex justify-center">
+          <div className="flex justify-center gap-4">
             <Link 
               href="/train/9"
               data-testid={TEST_IDS.NAVIGATION.TRAINING_LINK}
               className="px-8 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
             >
               Training starten
+            </Link>
+            <Link 
+              href="/test-mate"
+              className="px-8 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
+            >
+              🎯 Issue #53 Test
             </Link>
           </div>
         </div>

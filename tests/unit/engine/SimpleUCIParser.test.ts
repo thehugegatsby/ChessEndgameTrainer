@@ -142,4 +142,56 @@ describe('SimpleUCIParser', () => {
       expect(parseOption('option name')).toBeNull();
     });
   });
+
+  describe('Issue #53 - Mate notation tests', () => {
+    // Test FEN: 8/8/1k6/3K1P2/8/8/8/8 w - - 0 1
+    // Expected results:
+    // 1. Matt in 8 mit bauer f6 (f5f6)
+    // 2. Matt in 11 mit Kd6 oder Ke6 
+    // 3. Matt in 13 mit Ke5
+    
+    it('should parse mate in 8 from UCI output', () => {
+      const uciOutput = 'info depth 15 score mate 8 pv f5f6';
+      const result = parseUciInfo(uciOutput);
+      
+      expect(result).toEqual({
+        depth: 15,
+        score: { type: 'mate', value: 8 },
+        pv: 'f5f6'
+      });
+    });
+
+    it('should parse mate in 11 from UCI output', () => {
+      const uciOutput = 'info depth 15 score mate 11 pv Kd6';
+      const result = parseUciInfo(uciOutput);
+      
+      expect(result).toEqual({
+        depth: 15,
+        score: { type: 'mate', value: 11 },
+        pv: 'Kd6'
+      });
+    });
+
+    it('should parse mate in 13 from UCI output', () => {
+      const uciOutput = 'info depth 15 score mate 13 pv Ke5';
+      const result = parseUciInfo(uciOutput);
+      
+      expect(result).toEqual({
+        depth: 15,
+        score: { type: 'mate', value: 13 },
+        pv: 'Ke5'
+      });
+    });
+
+    it('should handle negative mate scores (opponent mates)', () => {
+      const uciOutput = 'info depth 15 score mate -5 pv Kd6';
+      const result = parseUciInfo(uciOutput);
+      
+      expect(result).toEqual({
+        depth: 15,
+        score: { type: 'mate', value: -5 },
+        pv: 'Kd6'
+      });
+    });
+  });
 });

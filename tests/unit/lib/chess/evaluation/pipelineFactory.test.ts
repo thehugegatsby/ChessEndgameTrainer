@@ -110,7 +110,7 @@ describe('EvaluationPipelineFactory_[method]_[condition]_[expected]', () => {
         
         expect(result).toBeDefined();
         expect(result.metadata.isMate).toBe(true);
-        expect(result.mainText).toContain('M'); // Mate notation
+        expect(result.mainText).toContain('#'); // Mate notation with # prefix (like Lichess)
       });
 
       it('should handle formatting errors gracefully', () => {

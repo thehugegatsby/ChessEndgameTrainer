@@ -130,22 +130,23 @@ export class EvaluationFormatter {
     let className: 'winning' | 'losing' | 'neutral';
 
     if (mate === 0) {
-      // Checkmate on the board
-      mainText = 'M#';
+      // Checkmate on the board - use # prefix like Lichess
+      mainText = '#';
       className = 'winning';
     } else {
       // For perspective-adjusted mates, the sign indicates who's winning from current perspective:
       // - Positive mate: Current perspective player wins
       // - Negative mate: Current perspective player is being mated
-      // BUT for display, we always show the absolute value and determine winning/losing by sign
-      
-      mainText = `M${Math.abs(mate)}`;
+      // Use # prefix like Lichess instead of M prefix
       
       if (mate > 0) {
         // Positive perspectiveMate = current player has mate
+        mainText = `#${Math.abs(mate)}`;
         className = 'winning';
       } else {
         // Negative perspectiveMate = current player is being mated
+        // Show negative sign for opponent mate
+        mainText = `#-${Math.abs(mate)}`;
         className = 'losing';
       }
     }

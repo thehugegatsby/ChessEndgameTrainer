@@ -139,7 +139,7 @@ describe('EvaluationFormatter', () => {
         
         const result = formatter.format(evaluation);
         
-        expect(result.mainText).toBe('M5');
+        expect(result.mainText).toBe('#5');
         expect(result.metadata.isMate).toBe(true);
       });
 
@@ -299,7 +299,7 @@ describe('EvaluationFormatter', () => {
         
         const result = formatter.format(evaluation);
         
-        expect(result.mainText).toBe('M#');
+        expect(result.mainText).toBe('#');
         expect(result.className).toBe('winning');
         expect(result.metadata.isMate).toBe(true);
       });
@@ -312,7 +312,7 @@ describe('EvaluationFormatter', () => {
         
         const result = formatter.format(evaluation);
         
-        expect(result.mainText).toBe('M7');
+        expect(result.mainText).toBe('#7');
         expect(result.className).toBe('winning');
       });
 
@@ -324,7 +324,7 @@ describe('EvaluationFormatter', () => {
         
         const result = formatter.format(evaluation);
         
-        expect(result.mainText).toBe('M5'); // Absolute value
+        expect(result.mainText).toBe('#-5'); // Show negative sign
         expect(result.className).toBe('losing');
       });
 
@@ -336,7 +336,7 @@ describe('EvaluationFormatter', () => {
         
         const result = formatter.format(evaluation);
         
-        expect(result.mainText).toBe('M99');
+        expect(result.mainText).toBe('#99');
         expect(result.className).toBe('winning');
       });
     });
@@ -453,6 +453,77 @@ describe('EvaluationFormatter', () => {
         
         expect(result.mainText).toBe('-0.5'); // -45/100 = -0.45, rounded to -0.5
         expect(result.className).toBe('neutral');
+      });
+    });
+
+    describe('Issue #53 - Mate notation should use # prefix', () => {
+      // Test cases for TDD approach based on test FEN position
+      // FEN: 8/8/1k6/3K1P2/8/8/8/8 w - - 0 1
+      
+      it('should format mate in 8 with # prefix (like Lichess)', () => {
+        const evaluation = createEvaluation({
+          mate: 8,
+          perspectiveMate: 8
+        });
+        
+        const result = formatter.format(evaluation);
+        
+        // CURRENTLY FAILING - expect this to show "#8" instead of "M8"
+        expect(result.mainText).toBe('#8');
+        expect(result.className).toBe('winning');
+        expect(result.metadata.isMate).toBe(true);
+      });
+
+      it('should format mate in 11 with # prefix', () => {
+        const evaluation = createEvaluation({
+          mate: 11,
+          perspectiveMate: 11
+        });
+        
+        const result = formatter.format(evaluation);
+        
+        // CURRENTLY FAILING - expect this to show "#11" instead of "M11"
+        expect(result.mainText).toBe('#11');
+        expect(result.className).toBe('winning');
+      });
+
+      it('should format mate in 13 with # prefix', () => {
+        const evaluation = createEvaluation({
+          mate: 13,
+          perspectiveMate: 13
+        });
+        
+        const result = formatter.format(evaluation);
+        
+        // CURRENTLY FAILING - expect this to show "#13" instead of "M13"
+        expect(result.mainText).toBe('#13');
+        expect(result.className).toBe('winning');
+      });
+
+      it('should format negative mate with # prefix', () => {
+        const evaluation = createEvaluation({
+          mate: -8,
+          perspectiveMate: -8
+        });
+        
+        const result = formatter.format(evaluation);
+        
+        // CURRENTLY FAILING - expect this to show "#-8" instead of "M8"
+        expect(result.mainText).toBe('#-8');
+        expect(result.className).toBe('losing');
+      });
+
+      it('should format checkmate on board with # prefix', () => {
+        const evaluation = createEvaluation({
+          mate: 0,
+          perspectiveMate: 0
+        });
+        
+        const result = formatter.format(evaluation);
+        
+        // CURRENTLY FAILING - expect this to show "#" instead of "M#"
+        expect(result.mainText).toBe('#');
+        expect(result.className).toBe('winning');
       });
     });
   });
