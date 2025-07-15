@@ -1,6 +1,9 @@
 {
   "firestore": {
-    "rules": "configs/firebase/firestore.test.rules"
+    "database": "(default)",
+    "location": "eur3",
+    "rules": "firestore.rules.mvp",
+    "indexes": "firestore.indexes.json"
   },
   "emulators": {
     "auth": {

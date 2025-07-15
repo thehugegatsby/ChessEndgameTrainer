@@ -18,6 +18,18 @@ service cloud.firestore {
         request.auth.uid == request.resource.data.userId;
     }
     
+    // Categories Collection - Read-only for all users
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if false; // Only admin via console
+    }
+    
+    // Chapters Collection - Read-only for all users
+    match /chapters/{chapterId} {
+      allow read: if true;
+      allow write: if false; // Only admin via console
+    }
+    
     // Default deny all other collections
     match /{document=**} {
       allow read, write: if false;
