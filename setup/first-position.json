@@ -1,0 +1,10 @@
+{
+  "id": "pos_001",
+  "fen": "8/8/8/8/8/8/r7/R6K b - - 0 1",
+  "category": "rook_endgame",
+  "difficulty": 1,
+  "solutionMoves": ["Ra1+", "Kg2", "Ra2+", "Kf3", "Ra3+", "Kf4", "Ra4+", "Kf5", "Ra5+"],
+  "description": "Basic rook opposition - learn to push the king back",
+  "title": "Rook vs Rook - Basic Opposition",
+  "createdAt": "2025-07-15T18:30:00.000Z"
+}

@@ -3,6 +3,7 @@ import { Move } from 'chess.js';
 import { getSmartMoveEvaluation, type MoveEvaluation } from '../../utils/chess/evaluationHelpers';
 import { useTraining } from '@shared/store/store';
 import { TEST_IDS, getTestId } from '@shared/constants/testIds';
+import { MoveQualityIndicator } from '../analysis/MoveQualityIndicator';
 
 interface MovePanelZustandProps {
   showEvaluations?: boolean;
@@ -28,7 +29,16 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(({
   currentMoveIndex = -1 
 }) => {
   // Get data from Zustand store
-  const { moveHistory, evaluations } = useTraining();
+  const { moveHistory, evaluations, gameState } = useTraining();
+
+  // Helper to get FEN before a move
+  const getFenBeforeMove = (moveIndex: number): string => {
+    if (!gameState || moveIndex === 0) {
+      return gameState?.initialFen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+    }
+    // Get FEN from previous position
+    return gameState.fenHistory[moveIndex - 1] || gameState.initialFen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+  };
 
   // Memoize move pairs calculation for performance
   const movePairs = useMemo((): MovePair[] => {
@@ -98,6 +108,12 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(({
             >
               {pair.whiteMove.san}
             </button>
+            <MoveQualityIndicator
+              moveIndex={(pair.moveNumber - 1) * 2}
+              moveSan={pair.whiteMove.san}
+              player="w"
+              getFenBefore={getFenBeforeMove}
+            />
             {showEvaluations && pair.whiteEval && (() => {
               const evalDisplay = getSmartMoveEvaluation(pair.whiteEval, true, (pair.moveNumber - 1) * 2);
               return (
@@ -127,6 +143,12 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(({
                 >
                   {pair.blackMove.san}
                 </button>
+                <MoveQualityIndicator
+                  moveIndex={(pair.moveNumber - 1) * 2 + 1}
+                  moveSan={pair.blackMove.san}
+                  player="b"
+                  getFenBefore={getFenBeforeMove}
+                />
                 {showEvaluations && pair.blackEval && (() => {
                   const evalDisplay = getSmartMoveEvaluation(pair.blackEval, false, (pair.moveNumber - 1) * 2 + 1);
                   return (

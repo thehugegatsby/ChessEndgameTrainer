@@ -3,6 +3,7 @@
  * Statische Seite zum Testen der neuen # Notation
  */
 
+import Link from 'next/link';
 import { EvaluationFormatter } from '../../shared/lib/chess/evaluation/formatter';
 import type { PlayerPerspectiveEvaluation } from '../../shared/types/evaluation';
 
@@ -153,12 +154,12 @@ export default function TestMatePage() {
             </div>
 
             <div className="mt-6 text-center">
-              <a 
+              <Link 
                 href="/" 
                 className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 ← Zurück zur Hauptseite
-              </a>
+              </Link>
             </div>
           </div>
         </div>
