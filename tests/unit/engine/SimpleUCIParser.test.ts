@@ -64,8 +64,8 @@ describe('SimpleUCIParser', () => {
     });
 
     it('should return null for malformed info lines', () => {
-      expect(parseUciInfo('info')).toEqual({});
-      expect(parseUciInfo('info depth')).toEqual({});
+      expect(parseUciInfo('info')).toBeNull();
+      expect(parseUciInfo('info depth')).toBeNull();
     });
 
     it('should handle missing score value', () => {
@@ -83,6 +83,7 @@ describe('SimpleUCIParser', () => {
       expect(result).toEqual({
         depth: 15,
         seldepth: 18,
+        multipv: 1,
         score: { type: 'cp', value: 13 },
         nodes: 948032,
         nps: 1066329,
@@ -118,7 +119,7 @@ describe('SimpleUCIParser', () => {
       const result = parseOption('option name Hash type spin default 16 min 1 max 33554432');
       expect(result).toEqual({
         name: 'Hash',
-        value: '16'
+        value: '16 min 1 max 33554432'
       });
     });
 

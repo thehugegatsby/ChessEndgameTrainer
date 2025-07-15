@@ -66,11 +66,7 @@ shared/components/
 │   │   ├── AnalysisDetails.tsx # Lines 1-90  - Analysis details
 │   │   └── MoveAnalysis.tsx  # Lines 1-110  - Move analysis
 │   ├── DualEvaluationPanel/  # Evaluation display components
-│   │   ├── index.tsx         # Lines 1-55   - Panel container
-│   │   ├── EngineEvaluationCard.tsx # Lines 1-85 - Engine eval
-│   │   ├── TablebaseEvaluationCard.tsx # Lines 1-75 - TB eval
-│   │   ├── BestMovesDisplay.tsx # Lines 1-65 - Best moves
-│   │   └── EvaluationComparison.tsx # Lines 1-70 - Eval comparison
+│   │   └── index.tsx         # Lines 1-121  - Panel with dual evaluation display
 │   ├── TrainingBoard/        # Training board components
 │   │   └── TrainingBoardZustand.tsx # Lines 1-150 - Board with state
 │   ├── MovePanelZustand.tsx  # Lines 1-120  - Move panel with Zustand
@@ -185,31 +181,31 @@ export function TrainingBoardPresentation({
 
 **Main Component with Sub-components**:
 ```typescript
-// File: /shared/components/training/DualEvaluationPanel/index.tsx:20-55
-export function DualEvaluationPanel() {
-  const { engineEvaluation, tablebaseEvaluation } = useEvaluation();
+// File: /shared/components/training/DualEvaluationPanel/index.tsx
+export function DualEvaluationPanel({ fen, isVisible }) {
+  const { lastEvaluation, isEvaluating } = useEvaluation({
+    fen,
+    isEnabled: isVisible
+  });
   
   return (
     <div className="dual-evaluation-panel">
-      <DualEvaluationPanel.Header />
-      <DualEvaluationPanel.Engine evaluation={engineEvaluation} />
-      <DualEvaluationPanel.Tablebase evaluation={tablebaseEvaluation} />
-      <DualEvaluationPanel.Comparison 
-        engine={engineEvaluation}
-        tablebase={tablebaseEvaluation}
-      />
+      {/* Engine Multi-PV Display */}
+      <div className="engine-evaluation-section">
+        {lastEvaluation?.multiPvResults?.map((result, index) => (
+          <div key={index}>{result.san} {formatScore(result.score)}</div>
+        ))}
+      </div>
+      
+      {/* Tablebase Moves Display */}
+      <div className="tablebase-evaluation-section">
+        {lastEvaluation?.tablebase?.topMoves?.map((move, index) => (
+          <div key={index}>{move.san} DTZ {move.dtz}</div>
+        ))}
+      </div>
     </div>
   );
 }
-
-// Compound pattern: Sub-components as static properties
-DualEvaluationPanel.Header = function Header() {
-  return <h3>Position Evaluation</h3>;
-};
-
-DualEvaluationPanel.Engine = EngineEvaluationCard;
-DualEvaluationPanel.Tablebase = TablebaseEvaluationCard;
-DualEvaluationPanel.Comparison = EvaluationComparison;
 ```
 
 ### 3. Hook Integration Pattern

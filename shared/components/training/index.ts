@@ -6,7 +6,6 @@ export { MovePanelZustand as MovePanel } from './MovePanelZustand'; // Alias for
 export { AnalysisPanel } from './AnalysisPanel';
 // TODO: Re-enable when DualEvaluationPanel is refactored for clean architecture
 // export { DualEvaluationPanel, SidebarEngineSection } from './DualEvaluationPanel';
-export { DualEvaluationSidebar } from './DualEvaluationPanel/DualEvaluationSidebar';
 export { TrainingControls } from './TrainingControls';
 export { MoveHistory } from './MoveHistory';
 export { WikiPanel } from './WikiPanel';
