@@ -129,16 +129,15 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
               : rawEngineEval.pv;
             const moves = pvString.split(' ');
             
-            // Extract up to 3 moves from the PV
+            // TEMPORARY FIX: Only show the first move until Multi-PV is implemented
+            // TODO: Implement real Multi-PV support in SimpleEngine
             multiPvResults = [];
-            for (let i = 0; i < Math.min(3, moves.length); i++) {
-              const uciMove = moves[i];
-              if (!uciMove) continue;
-              
+            const firstMove = moves[0];
+            if (firstMove) {
               // Convert UCI to SAN
-              const from = uciMove.substring(0, 2);
-              const to = uciMove.substring(2, 4);
-              const promotion = uciMove.length > 4 ? uciMove[4] : undefined;
+              const from = firstMove.substring(0, 2);
+              const to = firstMove.substring(2, 4);
+              const promotion = firstMove.length > 4 ? firstMove[4] : undefined;
               
               const move = gameClone.move({
                 from,
@@ -147,19 +146,12 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
               });
               
               if (move) {
-                // For the first move, use the actual evaluation
-                // For subsequent moves, we don't have separate evaluations
-                const score = i === 0 ? {
-                  type: rawEngineEval.mate !== null ? 'mate' : 'cp',
-                  value: rawEngineEval.mate !== null ? rawEngineEval.mate : rawEngineEval.score
-                } : {
-                  type: 'cp' as const,
-                  value: 0 // Placeholder for continuation moves
-                };
-                
                 multiPvResults.push({
                   san: move.san,
-                  score
+                  score: {
+                    type: rawEngineEval.mate !== null ? 'mate' : 'cp',
+                    value: rawEngineEval.mate !== null ? rawEngineEval.mate : rawEngineEval.score
+                  }
                 });
               }
             }
@@ -246,21 +238,20 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
                     : rawEngineEval.pv;
                   const moves = pvString.split(' ');
                   
-                  // Extract up to 3 moves for tablebase display
+                  // TEMPORARY: Only show first move until we have real tablebase API
+                  // TODO: Implement real tablebase top moves API
                   evaluation.tablebase.topMoves = [];
-                  for (let i = 0; i < Math.min(3, moves.length); i++) {
-                    const uciMove = moves[i];
-                    if (!uciMove) continue;
-                    
-                    const from = uciMove.substring(0, 2);
-                    const to = uciMove.substring(2, 4);
-                    const promotion = uciMove.length > 4 ? uciMove[4] : undefined;
+                  const firstMove = moves[0];
+                  if (firstMove) {
+                    const from = firstMove.substring(0, 2);
+                    const to = firstMove.substring(2, 4);
+                    const promotion = firstMove.length > 4 ? firstMove[4] : undefined;
                     
                     const move = gameClone.move({ from, to, promotion });
                     
                     if (move) {
                       evaluation.tablebase.topMoves.push({
-                        move: uciMove, // UCI format
+                        move: firstMove, // UCI format
                         san: move.san,
                         dtz: evaluation.tablebase.dtz || 0,
                         dtm: 0, // Not available from engine
@@ -303,21 +294,20 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
                     : rawEngineEval.pv;
                   const moves = pvString.split(' ');
                   
-                  // Extract up to 3 moves for tablebase display
+                  // TEMPORARY: Only show first move until we have real tablebase API
+                  // TODO: Implement real tablebase top moves API
                   evaluation.tablebase.topMoves = [];
-                  for (let i = 0; i < Math.min(3, moves.length); i++) {
-                    const uciMove = moves[i];
-                    if (!uciMove) continue;
-                    
-                    const from = uciMove.substring(0, 2);
-                    const to = uciMove.substring(2, 4);
-                    const promotion = uciMove.length > 4 ? uciMove[4] : undefined;
+                  const firstMove = moves[0];
+                  if (firstMove) {
+                    const from = firstMove.substring(0, 2);
+                    const to = firstMove.substring(2, 4);
+                    const promotion = firstMove.length > 4 ? firstMove[4] : undefined;
                     
                     const move = gameClone.move({ from, to, promotion });
                     
                     if (move) {
                       evaluation.tablebase.topMoves.push({
-                        move: uciMove, // UCI format
+                        move: firstMove, // UCI format
                         san: move.san,
                         dtz: evaluation.tablebase.dtz || 0,
                         dtm: 0, // Not available from engine
