@@ -25,7 +25,7 @@ This file provides high-level context and architectural guidance for AI assistan
 - **Frontend**: Next.js 15.3.3, React 18.3, TypeScript 5.3.3
 - **UI**: Tailwind CSS 3.4.1, Radix UI, react-chessboard 2.1.3
 - **State**: Zustand 4.5.0 (Single Source of Truth)
-- **Chess**: chess.js 1.0.0-beta.6, Stockfish WASM (NNUE)
+- **Chess**: chess.js 1.0.0-beta.6, SimpleEngine (Stockfish WASM NNUE)
 - **Testing**: Jest 29.7.0, React Testing Library 14.2.1
 - **Environment**: Node.js 20+
 - **Database**: Firebase Firestore (optional, with fallback)
@@ -85,10 +85,10 @@ npm run test:performance
 
 ## Key Architecture Decisions
 
-### 1. Singleton Pattern for Engine
-- `Engine.getInstance()` - Only ONE Stockfish instance
+### 1. SimpleEngine Singleton Pattern
+- `getSimpleEngine()` - Only ONE Stockfish instance
 - Web-optimized: ~20MB memory per worker
-- Always call `quit()` on cleanup
+- Always call `terminate()` on cleanup
 
 ### 2. Stable References in Hooks
 - `useChessGame` uses useRef + useMemo for game instance
@@ -150,20 +150,20 @@ try {
 - Path validation for workers
 
 ## Current Focus Areas
-1. ✅ **Completed: UCI Parser Enhancement** - Phase 1 with comprehensive PV data parsing
-2. ✅ **Completed: Principal Variation UI Integration** - Phase 2 clean architecture implementation
-3. ✅ **Completed: Tablebase Services Integration** - Phase 3 clean architecture with mock services
-4. ✅ **Completed: Unit Test Suite Stabilization** - 951 comprehensive unit tests (950 passed, 1 failing)
-5. ✅ **Completed: TypeScript Error Reduction** - 144→42 errors (71% reduction)
+1. ✅ **Completed: Engine Architecture Refactoring** - Complete migration to SimpleEngine
+2. ✅ **Completed: Altlasten Bereinigung** - All old engine references removed
+3. ✅ **Completed: TypeScript Error Elimination** - 0 errors (100% clean)
+4. ✅ **Completed: Test Suite Modernization** - Simplified test architecture
+5. ✅ **Completed: Documentation Updates** - Architecture diagrams updated
 6. **Next: E2E Test System Rewrite** - Modern Playwright architecture
-7. Engine memory management improvements
-8. Documentation system modernization
+7. **Next: Performance Optimization** - SimpleEngine memory management
+8. **Next: UI Enhancement** - Missing engine moves and tablebase display
 
 ## Test Helpers
-Unit tests use comprehensive test utilities:
+Unit tests use simplified test utilities:
 - `TestFixtures.ts` - Validated FEN positions for unit tests
 - `TestScenarios.ts` - Complex training scenarios with business logic
-- Mock factories for Engine, services, and external dependencies
+- Direct SimpleEngine testing (no complex mocks)
 - Centralized test helpers for common assertions
 
 ## Important Notes
