@@ -103,7 +103,15 @@ describe('EvaluationCache', () => {
       const result = await cache.getBestMoveCached(testFen);
       
       expect(mockEngine.findBestMove).toHaveBeenCalledWith(testFen, 1000);
-      expect(result).toBe(testMove);
+      // Result is now a ChessJsMove object with from/to properties
+      expect(result).toMatchObject({
+        from: 'e2',
+        to: 'e4',
+        color: 'w',
+        flags: 'b',
+        piece: 'p',
+        san: 'e4'
+      });
     });
 
     it('should return cached result on cache hit', async () => {
@@ -116,7 +124,15 @@ describe('EvaluationCache', () => {
       const result = await cache.getBestMoveCached(testFen);
       
       expect(mockEngine.findBestMove).toHaveBeenCalledTimes(1);
-      expect(result).toBe(testMove);
+      // Result is now a ChessJsMove object
+      expect(result).toMatchObject({
+        from: 'e2',
+        to: 'e4',
+        color: 'w',
+        flags: 'b',
+        piece: 'p',
+        san: 'e4'
+      });
     });
 
     it('should handle different time limits', async () => {
