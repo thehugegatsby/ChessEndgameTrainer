@@ -1,0 +1,10 @@
+{
+  "library": "sql.js",
+  "success": true,
+  "initTime": 9.248329000000002,
+  "insertTime": 102.925658,
+  "queryTime": 4.330624,
+  "bundleSize": 303104,
+  "memoryUsage": 6,
+  "errors": []
+}

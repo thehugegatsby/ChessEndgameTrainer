@@ -27,9 +27,12 @@ import { tablebaseService } from '../../../services/TablebaseService';
 import type {
   PlayerPerspectiveEvaluation,
   FormattedEvaluation,
-  EngineEvaluation
+  EngineEvaluation,
+  MoveQualityResult,
+  MoveQualityType
 } from '../../../types/evaluation';
 import { Logger } from '@shared/services/logging/Logger';
+import { Chess } from 'chess.js';
 
 const logger = new Logger();
 
@@ -322,6 +325,270 @@ export class UnifiedEvaluationService {
       perspectiveWdl: null,
       perspectiveDtm: null,
       perspectiveDtz: null
+    };
+  }
+
+  /**
+   * Assesses the quality of a move by comparing evaluations before and after
+   * Supports both engine-based and tablebase-based analysis
+   * 
+   * @param fenBefore - FEN position before the move
+   * @param move - The move in algebraic notation (e.g., "e4") or UCI (e.g., "e2e4")
+   * @param playerPerspective - Player who made the move ('w' or 'b')
+   * @returns Detailed move quality analysis
+   */
+  async assessMoveQuality(
+    fenBefore: string,
+    move: string,
+    playerPerspective: 'w' | 'b'
+  ): Promise<MoveQualityResult> {
+    try {
+      // Calculate FEN after the move
+      const fenAfter = this.calculateFenAfterMove(fenBefore, move);
+      if (!fenAfter) {
+        return this.createErrorMoveQuality(fenBefore, move, playerPerspective, 'Invalid move');
+      }
+
+      // Get evaluations for both positions
+      const [evalBefore, evalAfter] = await Promise.all([
+        this.getPerspectiveEvaluation(fenBefore, playerPerspective),
+        this.getPerspectiveEvaluation(fenAfter, playerPerspective)
+      ]);
+
+      // Analyze based on data type priority (tablebase > engine)
+      if (evalBefore.isTablebasePosition && evalAfter.isTablebasePosition) {
+        return this.analyzeTablebaseMoveQuality(evalBefore, evalAfter, fenBefore, fenAfter, playerPerspective);
+      } else if (evalBefore.type === 'engine' && evalAfter.type === 'engine') {
+        return this.analyzeEngineMoveQuality(evalBefore, evalAfter, fenBefore, fenAfter, playerPerspective);
+      } else {
+        // Mixed evaluation types (edge case)
+        return this.analyzeMixedMoveQuality(evalBefore, evalAfter, fenBefore, fenAfter, playerPerspective);
+      }
+    } catch (error) {
+      logger.error('[UnifiedEvaluationService] Error in assessMoveQuality', error);
+      return this.createErrorMoveQuality(fenBefore, move, playerPerspective, 'Analysis failed');
+    }
+  }
+
+  /**
+   * Analyzes move quality based on tablebase WDL values
+   * @private
+   */
+  private analyzeTablebaseMoveQuality(
+    evalBefore: PlayerPerspectiveEvaluation,
+    evalAfter: PlayerPerspectiveEvaluation,
+    fenBefore: string,
+    fenAfter: string,
+    player: 'w' | 'b'
+  ): MoveQualityResult {
+    const wdlBefore = evalBefore.perspectiveWdl || 0;
+    const wdlAfter = evalAfter.perspectiveWdl || 0;
+    const wdlChange = wdlAfter - wdlBefore;
+
+    let quality: MoveQualityType;
+    let reason: string;
+
+    if (wdlChange > 0) {
+      quality = 'excellent';
+      reason = 'Improved position (WDL)';
+    } else if (wdlChange === 0) {
+      if (wdlBefore === 2) {
+        // Win to Win - check DTZ for efficiency
+        const dtzBefore = evalBefore.perspectiveDtz || 0;
+        const dtzAfter = evalAfter.perspectiveDtz || 0;
+        const dtzChange = dtzAfter - dtzBefore;
+
+        if (dtzChange <= 0) {
+          quality = 'excellent';
+          reason = 'Optimal winning move (DTZ maintained/improved)';
+        } else if (dtzChange <= 5) {
+          quality = 'good';
+          reason = 'Slight DTZ increase but still winning';
+        } else {
+          quality = 'inaccuracy';
+          reason = 'Significant DTZ increase';
+        }
+      } else {
+        quality = 'good';
+        reason = 'Maintained position quality';
+      }
+    } else if (wdlChange === -1) {
+      quality = 'mistake';
+      reason = 'Lost winning chance or worsened position';
+    } else {
+      quality = 'blunder';
+      reason = 'Significant position deterioration';
+    }
+
+    return {
+      quality,
+      fromFen: fenBefore,
+      toFen: fenAfter,
+      player,
+      scoreDifference: null,
+      wdlChange,
+      mateChange: null,
+      reason,
+      isTablebaseAnalysis: true,
+      metadata: {
+        beforeEvaluation: evalBefore,
+        afterEvaluation: evalAfter
+      }
+    };
+  }
+
+  /**
+   * Analyzes move quality based on engine centipawn evaluation
+   * @private
+   */
+  private analyzeEngineMoveQuality(
+    evalBefore: PlayerPerspectiveEvaluation,
+    evalAfter: PlayerPerspectiveEvaluation,
+    fenBefore: string,
+    fenAfter: string,
+    player: 'w' | 'b'
+  ): MoveQualityResult {
+    const scoreBefore = evalBefore.perspectiveScore || 0;
+    const scoreAfter = evalAfter.perspectiveScore || 0;
+    const scoreDifference = scoreAfter - scoreBefore;
+
+    const mateBefore = evalBefore.perspectiveMate;
+    const mateAfter = evalAfter.perspectiveMate;
+    const mateChange = mateAfter && mateBefore ? mateAfter - mateBefore : null;
+
+    let quality: MoveQualityType;
+    let reason: string;
+
+    // Handle mate positions first
+    if (mateBefore || mateAfter) {
+      if (mateBefore && mateAfter) {
+        if (mateAfter <= mateBefore) {
+          quality = 'excellent';
+          reason = 'Maintained or improved mate';
+        } else {
+          quality = 'mistake';
+          reason = 'Extended mate distance';
+        }
+      } else if (mateAfter && !mateBefore) {
+        quality = 'excellent';
+        reason = 'Found mate';
+      } else {
+        quality = 'blunder';
+        reason = 'Lost mate';
+      }
+    } else {
+      // Standard centipawn evaluation
+      if (scoreDifference >= 50) {
+        quality = 'excellent';
+        reason = 'Significant improvement';
+      } else if (scoreDifference >= 10) {
+        quality = 'good';
+        reason = 'Position improved';
+      } else if (scoreDifference >= -10) {
+        quality = 'good';
+        reason = 'Position maintained';
+      } else if (scoreDifference >= -50) {
+        quality = 'inaccuracy';
+        reason = 'Minor position loss';
+      } else if (scoreDifference >= -100) {
+        quality = 'mistake';
+        reason = 'Position worsened';
+      } else {
+        quality = 'blunder';
+        reason = 'Major position loss';
+      }
+    }
+
+    return {
+      quality,
+      fromFen: fenBefore,
+      toFen: fenAfter,
+      player,
+      scoreDifference,
+      wdlChange: null,
+      mateChange,
+      reason,
+      isTablebaseAnalysis: false,
+      metadata: {
+        beforeEvaluation: evalBefore,
+        afterEvaluation: evalAfter
+      }
+    };
+  }
+
+  /**
+   * Analyzes move quality for mixed evaluation types (edge case)
+   * @private
+   */
+  private analyzeMixedMoveQuality(
+    evalBefore: PlayerPerspectiveEvaluation,
+    evalAfter: PlayerPerspectiveEvaluation,
+    fenBefore: string,
+    fenAfter: string,
+    player: 'w' | 'b'
+  ): MoveQualityResult {
+    // Default to conservative analysis for mixed types
+    return {
+      quality: 'unknown',
+      fromFen: fenBefore,
+      toFen: fenAfter,
+      player,
+      scoreDifference: null,
+      wdlChange: null,
+      mateChange: null,
+      reason: 'Mixed evaluation sources - analysis limited',
+      isTablebaseAnalysis: false,
+      metadata: {
+        beforeEvaluation: evalBefore,
+        afterEvaluation: evalAfter
+      }
+    };
+  }
+
+  /**
+   * Calculates FEN position after a move
+   * @private
+   */
+  private calculateFenAfterMove(fenBefore: string, move: string): string | null {
+    try {
+      const chess = new Chess(fenBefore);
+      const moveResult = chess.move(move);
+      
+      if (moveResult) {
+        return chess.fen();
+      }
+      return null;
+    } catch (error) {
+      logger.error('[UnifiedEvaluationService] Error calculating FEN after move', error);
+      return null;
+    }
+  }
+
+  /**
+   * Creates error move quality result
+   * @private
+   */
+  private createErrorMoveQuality(
+    fenBefore: string,
+    move: string,
+    player: 'w' | 'b',
+    errorMessage: string
+  ): MoveQualityResult {
+    return {
+      quality: 'unknown',
+      fromFen: fenBefore,
+      toFen: fenBefore,
+      player,
+      scoreDifference: null,
+      wdlChange: null,
+      mateChange: null,
+      reason: errorMessage,
+      isTablebaseAnalysis: false,
+      metadata: {
+        beforeEvaluation: null,
+        afterEvaluation: null,
+        error: errorMessage
+      }
     };
   }
 

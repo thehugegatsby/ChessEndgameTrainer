@@ -28,6 +28,18 @@ import { getLogger } from '@shared/services/logging';
 
 const logger = getLogger().setContext('FirebasePositionRepository');
 
+// Helper function to serialize errors for logging
+function serializeError(error: unknown): unknown {
+  if (error instanceof Error) {
+    return {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    };
+  }
+  return String(error);
+}
+
 export class FirebasePositionRepository implements IPositionRepository {
   private db: Firestore;
   private config: IPositionRepositoryConfig;
@@ -62,7 +74,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       logger.warn(`Position ${id} not found`);
       return null;
     } catch (error) {
-      logger.error('Failed to get position', { id, error });
+      logger.error('Failed to get position', { id, error: serializeError(error) });
       this.config.events?.onError?.('getPosition', error as Error);
       throw error;
     }
@@ -95,7 +107,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       this.config.events?.onDataModified?.('createPosition', [id]);
       return position;
     } catch (error) {
-      logger.error('Failed to create position', { error });
+      logger.error('Failed to create position', { error: serializeError(error) });
       this.config.events?.onError?.('createPosition', error as Error);
       throw error;
     }
@@ -118,7 +130,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       this.config.events?.onDataModified?.('updatePosition', [id]);
       return this.getPosition(id);
     } catch (error) {
-      logger.error('Failed to update position', { id, error });
+      logger.error('Failed to update position', { id, error: serializeError(error) });
       this.config.events?.onError?.('updatePosition', error as Error);
       throw error;
     }
@@ -132,7 +144,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       this.config.events?.onDataModified?.('deletePosition', [id]);
       return true;
     } catch (error) {
-      logger.error('Failed to delete position', { id, error });
+      logger.error('Failed to delete position', { id, error: serializeError(error) });
       this.config.events?.onError?.('deletePosition', error as Error);
       return false;
     }
@@ -164,7 +176,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       this.config.events?.onDataFetched?.('getAllPositions', positions.length);
       return positions;
     } catch (error) {
-      logger.error('Failed to get all positions', { error });
+      logger.error('Failed to get all positions', { error: serializeError(error) });
       this.config.events?.onError?.('getAllPositions', error as Error);
       return [];
     }
@@ -197,7 +209,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       this.config.events?.onDataFetched?.('getPositionsByCategory', positions.length);
       return positions;
     } catch (error) {
-      logger.error('Failed to get positions by category', { category, error });
+      logger.error('Failed to get positions by category', { category, error: serializeError(error) });
       this.config.events?.onError?.('getPositionsByCategory', error as Error);
       return [];
     }
@@ -230,7 +242,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       this.config.events?.onDataFetched?.('getPositionsByDifficulty', positions.length);
       return positions;
     } catch (error) {
-      logger.error('Failed to get positions by difficulty', { difficulty, error });
+      logger.error('Failed to get positions by difficulty', { difficulty, error: serializeError(error) });
       this.config.events?.onError?.('getPositionsByDifficulty', error as Error);
       return [];
     }
@@ -247,7 +259,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       
       return validPositions;
     } catch (error) {
-      logger.error('Failed to get positions by ids', { ids, error });
+      logger.error('Failed to get positions by ids', { ids, error: serializeError(error) });
       this.config.events?.onError?.('getPositionsByIds', error as Error);
       return [];
     }
@@ -268,7 +280,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       this.config.events?.onDataFetched?.('searchPositions', results.length);
       return results;
     } catch (error) {
-      logger.error('Failed to search positions', { searchTerm, error });
+      logger.error('Failed to search positions', { searchTerm, error: serializeError(error) });
       this.config.events?.onError?.('searchPositions', error as Error);
       return [];
     }
@@ -326,7 +338,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       this.config.events?.onDataFetched?.('getNextPosition', 1);
       return position;
     } catch (error) {
-      logger.error('Failed to get next position', { currentId, categoryId, error });
+      logger.error('Failed to get next position', { currentId, categoryId, error: serializeError(error) });
       this.config.events?.onError?.('getNextPosition', error as Error);
       return null;
     }
@@ -376,7 +388,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       this.config.events?.onDataFetched?.('getPreviousPosition', 1);
       return position;
     } catch (error) {
-      logger.error('Failed to get previous position', { currentId, categoryId, error });
+      logger.error('Failed to get previous position', { currentId, categoryId, error: serializeError(error) });
       this.config.events?.onError?.('getPreviousPosition', error as Error);
       return null;
     }
@@ -395,7 +407,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       this.config.events?.onDataFetched?.('getCategories', categories.length);
       return categories;
     } catch (error) {
-      logger.error('Failed to get categories', { error });
+      logger.error('Failed to get categories', { error: serializeError(error) });
       this.config.events?.onError?.('getCategories', error as Error);
       return [];
     }
@@ -413,7 +425,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       
       return null;
     } catch (error) {
-      logger.error('Failed to get category', { id, error });
+      logger.error('Failed to get category', { id, error: serializeError(error) });
       this.config.events?.onError?.('getCategory', error as Error);
       return null;
     }
@@ -432,7 +444,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       this.config.events?.onDataFetched?.('getChapters', chapters.length);
       return chapters;
     } catch (error) {
-      logger.error('Failed to get chapters', { error });
+      logger.error('Failed to get chapters', { error: serializeError(error) });
       this.config.events?.onError?.('getChapters', error as Error);
       return [];
     }
@@ -452,7 +464,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       this.config.events?.onDataFetched?.('getChaptersByCategory', chapters.length);
       return chapters;
     } catch (error) {
-      logger.error('Failed to get chapters by category', { categoryId, error });
+      logger.error('Failed to get chapters by category', { categoryId, error: serializeError(error) });
       this.config.events?.onError?.('getChaptersByCategory', error as Error);
       return [];
     }
@@ -468,7 +480,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       
       return count;
     } catch (error) {
-      logger.error('Failed to get total position count', { error });
+      logger.error('Failed to get total position count', { error: serializeError(error) });
       this.config.events?.onError?.('getTotalPositionCount', error as Error);
       return 0;
     }
@@ -485,7 +497,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       
       return count;
     } catch (error) {
-      logger.error('Failed to get position count by category', { categoryId, error });
+      logger.error('Failed to get position count by category', { categoryId, error: serializeError(error) });
       this.config.events?.onError?.('getPositionCountByCategory', error as Error);
       return 0;
     }
@@ -502,7 +514,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       
       return count;
     } catch (error) {
-      logger.error('Failed to get position count by difficulty', { difficulty, error });
+      logger.error('Failed to get position count by difficulty', { difficulty, error: serializeError(error) });
       this.config.events?.onError?.('getPositionCountByDifficulty', error as Error);
       return 0;
     }
@@ -543,7 +555,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       
       return createdPositions;
     } catch (error) {
-      logger.error('Failed to batch create positions', { error });
+      logger.error('Failed to batch create positions', { error: serializeError(error) });
       this.config.events?.onError?.('batchCreatePositions', error as Error);
       throw error;
     }
@@ -574,7 +586,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       this.config.events?.onDataModified?.('batchUpdatePositions', ids);
       return this.getPositionsByIds(ids);
     } catch (error) {
-      logger.error('Failed to batch update positions', { error });
+      logger.error('Failed to batch update positions', { error: serializeError(error) });
       this.config.events?.onError?.('batchUpdatePositions', error as Error);
       throw error;
     }
@@ -594,7 +606,7 @@ export class FirebasePositionRepository implements IPositionRepository {
       this.config.events?.onDataModified?.('batchDeletePositions', ids);
       return true;
     } catch (error) {
-      logger.error('Failed to batch delete positions', { ids, error });
+      logger.error('Failed to batch delete positions', { ids, error: serializeError(error) });
       this.config.events?.onError?.('batchDeletePositions', error as Error);
       return false;
     }

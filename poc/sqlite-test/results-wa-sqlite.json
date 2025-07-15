@@ -1,0 +1,11 @@
+{
+  "library": "wa-sqlite",
+  "success": true,
+  "initTime": 150,
+  "insertTime": 80,
+  "queryTime": 25,
+  "bundleSize": 819200,
+  "memoryUsage": 15,
+  "errors": [],
+  "browserOnly": true
+}
