@@ -29,6 +29,9 @@ import type {
   FormattedEvaluation,
   EngineEvaluation
 } from '../../../types/evaluation';
+import { Logger } from '@shared/services/logging/Logger';
+
+const logger = new Logger();
 
 export class UnifiedEvaluationService {
   private readonly config: Required<UnifiedEvaluationConfig>;
@@ -69,6 +72,7 @@ export class UnifiedEvaluationService {
     fen: string,
     perspective: 'w' | 'b'
   ): Promise<FormattedEvaluation> {
+    logger.info('[UnifiedEvaluationService] getFormattedEvaluation called', { fen: fen.slice(0, 20) + '...', perspective });
     const cacheKey = this.createCacheKey(fen, perspective, 'formatted');
     
     // Check cache first
@@ -76,15 +80,19 @@ export class UnifiedEvaluationService {
       try {
         const cached = await this.cache.get(cacheKey);
         if (cached) {
+          logger.debug('[UnifiedEvaluationService] Cache hit', { cacheKey });
           return cached;
         }
       } catch (error) {
+        logger.warn('[UnifiedEvaluationService] Cache error', error);
       }
     }
 
     try {
+      logger.debug('[UnifiedEvaluationService] No cache hit, starting evaluation');
       
       // Try tablebase first (highest priority)
+      logger.debug('[UnifiedEvaluationService] Trying tablebase evaluation');
       const tablebaseFormatted = await this.getTablebaseFormattedEvaluation(fen, perspective);
       if (tablebaseFormatted) {
         // Cache the result
@@ -99,7 +107,9 @@ export class UnifiedEvaluationService {
 
       
       // Fallback to engine evaluation
+      logger.info('[UnifiedEvaluationService] No tablebase data, falling back to engine');
       const engineFormatted = await this.getEngineFormattedEvaluation(fen, perspective);
+      logger.info('[UnifiedEvaluationService] Got engine evaluation', { engineFormatted });
       
       // Cache the result
       if (this.config.enableCaching) {

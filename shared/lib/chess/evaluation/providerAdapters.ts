@@ -7,6 +7,9 @@ import type { IEngineProvider, ITablebaseProvider } from './providers';
 import type { EngineEvaluation, TablebaseResult } from '../../../types/evaluation';
 import { getSimpleEngine } from '../engine/simple/SimpleEngine';
 import { tablebaseService } from '../../../services/TablebaseService';
+import { Logger } from '@shared/services/logging/Logger';
+
+const logger = new Logger();
 
 /**
  * Adapts the enhanced Engine to IEngineProvider interface
@@ -14,10 +17,14 @@ import { tablebaseService } from '../../../services/TablebaseService';
  */
 export class EngineProviderAdapter implements IEngineProvider {
   async getEvaluation(fen: string, _playerToMove: 'w' | 'b'): Promise<EngineEvaluation | null> {
+    logger.info('[EngineProviderAdapter] Getting evaluation', { fen: fen.slice(0, 20) + '...' });
     try {
       // Use SimpleEngine for evaluation
+      logger.debug('[EngineProviderAdapter] Getting SimpleEngine instance');
       const engine = getSimpleEngine();
+      logger.debug('[EngineProviderAdapter] Calling engine.evaluatePosition');
       const evaluation = await engine.evaluatePosition(fen);
+      logger.info('[EngineProviderAdapter] Got evaluation result', { evaluation });
       
       if (!evaluation) {
         return null;

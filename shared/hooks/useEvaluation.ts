@@ -78,12 +78,16 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
   }, []);
 
   useEffect(() => {
+    logger.info('[useEvaluation] Effect triggered', { isEnabled, fen: fen?.slice(0, 20) + '...' });
+    
     if (!isEnabled || !fen) {
+      logger.debug('[useEvaluation] Skipping evaluation - not enabled or no FEN');
       return;
     }
 
     // Cancel any pending evaluation
     if (abortControllerRef.current) {
+      logger.debug('[useEvaluation] Aborting previous evaluation');
       abortControllerRef.current.abort();
     }
 
@@ -93,14 +97,18 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
       
       setIsEvaluating(true);
       setError(null);
+      logger.info('[useEvaluation] Starting evaluation');
 
       try {
         // Get player perspective from FEN
         const fenParts = fen.split(' ');
         const playerToMove = fenParts[1] as 'w' | 'b';
+        logger.debug('[useEvaluation] Player to move', { playerToMove });
         
         // Get formatted evaluation from unified service
+        logger.debug('[useEvaluation] Calling service.getFormattedEvaluation');
         const formattedEval = await service.getFormattedEvaluation(fen, playerToMove);
+        logger.info('[useEvaluation] Got formatted evaluation', { formattedEval });
         
         if (abortController.signal.aborted) {
           return;
@@ -109,10 +117,61 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
         // PHASE 2.2: Also get raw engine evaluation with PV data
         const rawEngineEval = await service.getRawEngineEvaluation(fen, playerToMove);
         
-        // Multi-PV not available in SimpleEngine, skip for now
+        // Create multiPvResults from the engine line - extract first 3 moves
         let multiPvResults: MultiPvResult[] | undefined = undefined;
-        // Note: SimpleEngine doesn't support Multi-PV evaluation
-        // This feature can be added later if needed
+        if (rawEngineEval && rawEngineEval.pv) {
+          // Convert PV string to SAN notation
+          try {
+            const gameClone = new (await import('chess.js')).Chess(fen);
+            // pv can be either string or string[]
+            const pvString = Array.isArray(rawEngineEval.pv) 
+              ? rawEngineEval.pv.join(' ') 
+              : rawEngineEval.pv;
+            const moves = pvString.split(' ');
+            
+            // Extract up to 3 moves from the PV
+            multiPvResults = [];
+            for (let i = 0; i < Math.min(3, moves.length); i++) {
+              const uciMove = moves[i];
+              if (!uciMove) continue;
+              
+              // Convert UCI to SAN
+              const from = uciMove.substring(0, 2);
+              const to = uciMove.substring(2, 4);
+              const promotion = uciMove.length > 4 ? uciMove[4] : undefined;
+              
+              const move = gameClone.move({
+                from,
+                to,
+                promotion
+              });
+              
+              if (move) {
+                // For the first move, use the actual evaluation
+                // For subsequent moves, we don't have separate evaluations
+                const score = i === 0 ? {
+                  type: rawEngineEval.mate !== null ? 'mate' : 'cp',
+                  value: rawEngineEval.mate !== null ? rawEngineEval.mate : rawEngineEval.score
+                } : {
+                  type: 'cp' as const,
+                  value: 0 // Placeholder for continuation moves
+                };
+                
+                multiPvResults.push({
+                  san: move.san,
+                  score
+                });
+              }
+            }
+            
+            // Only set multiPvResults if we have at least one move
+            if (multiPvResults.length === 0) {
+              multiPvResults = undefined;
+            }
+          } catch (error) {
+            logger.warn('[useEvaluation] Failed to convert PV to SAN', error);
+          }
+        }
 
         // Convert formatted evaluation to legacy format
         let evaluationScore: number;
@@ -176,13 +235,43 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
                 dtz: currPerspectiveEval.dtz !== null ? currPerspectiveEval.dtz : undefined
               };
               
-              // SIMPLIFIED: Skip tablebase top moves for now
-              // TODO: Implement getTopMoves if needed later
-              try {
-                // For now, just leave tablebase as is
-                // Future enhancement: add top moves functionality
-              } catch (error) {
-                logger.warn('Failed to get tablebase data:', error);
+              // Add top 3 tablebase moves using engine PV as placeholder
+              // TODO: Implement real tablebase API call for top moves
+              if (evaluation.tablebase && rawEngineEval?.pv) {
+                try {
+                  const gameClone = new (await import('chess.js')).Chess(fen);
+                  // pv can be either string or string[]
+                  const pvString = Array.isArray(rawEngineEval.pv) 
+                    ? rawEngineEval.pv.join(' ') 
+                    : rawEngineEval.pv;
+                  const moves = pvString.split(' ');
+                  
+                  // Extract up to 3 moves for tablebase display
+                  evaluation.tablebase.topMoves = [];
+                  for (let i = 0; i < Math.min(3, moves.length); i++) {
+                    const uciMove = moves[i];
+                    if (!uciMove) continue;
+                    
+                    const from = uciMove.substring(0, 2);
+                    const to = uciMove.substring(2, 4);
+                    const promotion = uciMove.length > 4 ? uciMove[4] : undefined;
+                    
+                    const move = gameClone.move({ from, to, promotion });
+                    
+                    if (move) {
+                      evaluation.tablebase.topMoves.push({
+                        move: uciMove, // UCI format
+                        san: move.san,
+                        dtz: evaluation.tablebase.dtz || 0,
+                        dtm: 0, // Not available from engine
+                        wdl: evaluation.tablebase.wdlAfter || 0,
+                        category: (evaluation.tablebase.category || 'draw') as 'win' | 'draw' | 'loss'
+                      });
+                    }
+                  }
+                } catch (error) {
+                  logger.warn('[useEvaluation] Failed to create tablebase moves', error);
+                }
               }
               
             }
@@ -203,13 +292,43 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
                 dtz: currPerspectiveEval.dtz !== null ? currPerspectiveEval.dtz : undefined
               };
               
-              // SIMPLIFIED: Skip tablebase top moves for now
-              // TODO: Implement getTopMoves if needed later
-              try {
-                // For now, just leave tablebase as is
-                // Future enhancement: add top moves functionality
-              } catch (error) {
-                logger.warn('Failed to get tablebase data:', error);
+              // Add top 3 tablebase moves using engine PV as placeholder
+              // TODO: Implement real tablebase API call for top moves
+              if (evaluation.tablebase && rawEngineEval?.pv) {
+                try {
+                  const gameClone = new (await import('chess.js')).Chess(fen);
+                  // pv can be either string or string[]
+                  const pvString = Array.isArray(rawEngineEval.pv) 
+                    ? rawEngineEval.pv.join(' ') 
+                    : rawEngineEval.pv;
+                  const moves = pvString.split(' ');
+                  
+                  // Extract up to 3 moves for tablebase display
+                  evaluation.tablebase.topMoves = [];
+                  for (let i = 0; i < Math.min(3, moves.length); i++) {
+                    const uciMove = moves[i];
+                    if (!uciMove) continue;
+                    
+                    const from = uciMove.substring(0, 2);
+                    const to = uciMove.substring(2, 4);
+                    const promotion = uciMove.length > 4 ? uciMove[4] : undefined;
+                    
+                    const move = gameClone.move({ from, to, promotion });
+                    
+                    if (move) {
+                      evaluation.tablebase.topMoves.push({
+                        move: uciMove, // UCI format
+                        san: move.san,
+                        dtz: evaluation.tablebase.dtz || 0,
+                        dtm: 0, // Not available from engine
+                        wdl: evaluation.tablebase.wdlAfter || 0,
+                        category: (evaluation.tablebase.category || 'draw') as 'win' | 'draw' | 'loss'
+                      });
+                    }
+                  }
+                } catch (error) {
+                  logger.warn('[useEvaluation] Failed to create tablebase moves', error);
+                }
               }
               
             }
@@ -221,12 +340,15 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
         }
       } catch (err: any) {
         if (err.name !== 'AbortError') {
+          logger.error('[useEvaluation] Evaluation failed', err);
           const userMessage = ErrorService.handleChessEngineError(err, {
             component: 'useEvaluation',
             action: 'evaluatePosition',
             additionalData: { fen }
           });
           setError(userMessage);
+        } else {
+          logger.debug('[useEvaluation] Evaluation aborted');
         }
       } finally {
         if (!abortControllerRef.current?.signal.aborted) {

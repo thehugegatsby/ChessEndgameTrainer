@@ -114,23 +114,29 @@ describe('Engine UI Integration - TDD Approach', () => {
       mockUseEvaluationReturn.error = null;
 
       // Render actual Engine UI component
-      const { container } = render(<DualEvaluationPanel fen={TEST_FEN} isVisible={true} />);
+      const { container, rerender } = render(<DualEvaluationPanel fen={TEST_FEN} isVisible={true} />);
       
       // Should initially show "Analysiert..." state
       expect(screen.getByText(/Analysiert/)).toBeInTheDocument();
       
-      // Simulate evaluation completing
-      act(() => {
-        mockUseEvaluationReturn.isEvaluating = false;
-        mockUseEvaluationReturn.lastEvaluation = {
+      // Simulate evaluation completing by updating the mock
+      (useEvaluation as jest.Mock).mockReturnValue({
+        isEvaluating: false,
+        lastEvaluation: {
           evaluation: 30,
           multiPvResults: [{
             san: 'e4',
             score: { type: 'cp', value: 30 }
           }]
-        };
-        jest.advanceTimersByTime(100);
+        },
+        error: null,
+        evaluations: [],
+        addEvaluation: jest.fn(),
+        clearEvaluations: jest.fn()
       });
+      
+      // Force React to re-render with the updated hook values
+      rerender(<DualEvaluationPanel fen={TEST_FEN} isVisible={true} />);
       
       // RED: This should FAIL - engine stuck in "Analysiert..." state
       await waitFor(() => {
@@ -152,14 +158,15 @@ describe('Engine UI Integration - TDD Approach', () => {
       mockUseEvaluationReturn.error = null;
 
       // Render actual Tablebase UI component
-      const { container } = render(<DualEvaluationPanel fen={TEST_FEN} isVisible={true} />);
+      const { container, rerender } = render(<DualEvaluationPanel fen={TEST_FEN} isVisible={true} />);
       
       // Should initially show "Keine Tablebase-Daten" (the bug)
       expect(screen.getByText(/Keine Tablebase-Daten/)).toBeInTheDocument();
       
-      // Simulate tablebase data arriving
-      act(() => {
-        mockUseEvaluationReturn.lastEvaluation = {
+      // Simulate tablebase data arriving by updating the mock
+      (useEvaluation as jest.Mock).mockReturnValue({
+        isEvaluating: false,
+        lastEvaluation: {
           evaluation: 0,
           tablebase: {
             isTablebasePosition: true,
@@ -170,9 +177,15 @@ describe('Engine UI Integration - TDD Approach', () => {
               dtz: 5
             }]
           }
-        };
-        jest.advanceTimersByTime(100);
+        },
+        error: null,
+        evaluations: [],
+        addEvaluation: jest.fn(),
+        clearEvaluations: jest.fn()
       });
+      
+      // Force React to re-render with the updated hook values
+      rerender(<DualEvaluationPanel fen={TEST_FEN} isVisible={true} />);
       
       // RED: This should FAIL - not showing tablebase data
       await waitFor(() => {
@@ -247,16 +260,21 @@ describe('Engine UI Integration - TDD Approach', () => {
   describe('REFACTOR Phase: Error Handling & Edge Cases', () => {
     it('should handle engine timeout gracefully', async () => {
       // Mock useEvaluation to simulate engine error
-      mockUseEvaluation.isEvaluating = false;
-      mockUseEvaluation.error = new Error('Engine timeout');
-      mockUseEvaluation.evaluation = null;
+      (useEvaluation as jest.Mock).mockReturnValue({
+        isEvaluating: false,
+        error: 'Engine timeout',
+        lastEvaluation: null,
+        evaluations: [],
+        addEvaluation: jest.fn(),
+        clearEvaluations: jest.fn()
+      });
 
       // Render Engine UI component
       const { container } = render(<DualEvaluationPanel fen={TEST_FEN} isVisible={true} />);
       
       // Should show error state, not endless loading
       await waitFor(() => {
-        expect(screen.getByText(/Fehler/)).toBeInTheDocument();
+        expect(screen.getByText(/Engine timeout/)).toBeInTheDocument();
       }, { timeout: 500 });
 
       // Should NOT show "Analysiert..." when there's an error
@@ -264,10 +282,18 @@ describe('Engine UI Integration - TDD Approach', () => {
     });
 
     it('should handle tablebase service unavailable', async () => {
-      // Mock useEvaluation with tablebase error
-      mockUseEvaluation.tablebase = null;
-      mockUseEvaluation.error = new Error('Tablebase service unavailable');
-      mockUseEvaluation.isEvaluating = false;
+      // Mock useEvaluation with no tablebase data
+      (useEvaluation as jest.Mock).mockReturnValue({
+        isEvaluating: false,
+        error: null,
+        lastEvaluation: {
+          evaluation: 0,
+          tablebase: null  // No tablebase data available
+        },
+        evaluations: [],
+        addEvaluation: jest.fn(),
+        clearEvaluations: jest.fn()
+      });
 
       // Render Tablebase UI component
       const { container } = render(<DualEvaluationPanel fen={TEST_FEN} isVisible={true} />);

@@ -1,6 +1,9 @@
 import { EventEmitter } from 'events';
 import { parseUciInfo } from './SimpleUCIParser';
 import { validateAndSanitizeFen } from './fenValidator';
+import { Logger } from '@shared/services/logging/Logger';
+
+const logger = new Logger();
 
 interface EvaluationResult {
   score: { type: 'cp' | 'mate'; value: number };
@@ -68,14 +71,21 @@ class SimpleEngine extends EventEmitter {
   }
 
   private async initWorker(workerPath: string): Promise<void> {
+    logger.info('[SimpleEngine] Starting worker initialization', { workerPath });
     try {
+      logger.debug('[SimpleEngine] Creating new Worker...', { workerPath });
       this.worker = new Worker(workerPath);
+      logger.info('[SimpleEngine] Worker created successfully');
+      
       this.worker.onmessage = this.handleEngineMessage.bind(this);
       this.worker.onerror = this.handleWorkerError.bind(this);
       
+      logger.debug('[SimpleEngine] Starting engine init...');
       // Initialize the engine
       await this.init();
+      logger.info('[SimpleEngine] Engine init completed');
     } catch (error) {
+      logger.error('[SimpleEngine] Worker initialization failed', error);
       this.emit('error', error);
       throw error;
     }
@@ -266,10 +276,15 @@ let simpleEngineInstance: SimpleEngine | null = null;
 
 export function getSimpleEngine(config?: EngineConfig): SimpleEngine {
   if (!simpleEngineInstance) {
+    logger.info('[SimpleEngine] Creating singleton instance');
     if (typeof window === 'undefined') {
+      logger.error('[SimpleEngine] Attempted to initialize in non-browser context');
       throw new Error('SimpleEngine can only be initialized in browser context');
     }
-    simpleEngineInstance = new SimpleEngine('/stockfish.wasm', config);
+    logger.info('[SimpleEngine] Browser context confirmed, creating engine with path: /stockfish.js');
+    simpleEngineInstance = new SimpleEngine('/stockfish.js', config);
+  } else {
+    logger.debug('[SimpleEngine] Returning existing singleton instance');
   }
   return simpleEngineInstance;
 }
