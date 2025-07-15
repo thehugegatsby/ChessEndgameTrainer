@@ -13,7 +13,7 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { unifiedService } from '../lib/chess/evaluation/unifiedService';
+import { unifiedService } from './useEvaluation';
 import type { MoveQualityResult } from '../types/evaluation';
 import { Logger } from '../services/logging/Logger';
 

@@ -1,0 +1,24 @@
+{
+  "id": "pawn-basics",
+  "name": "Bauernendspiele Grundlagen",
+  "description": "Schritt-für-Schritt Einführung in Bauernendspiele",
+  "category": "pawn-endgames",
+  "order": 1,
+  "lessons": [
+    {
+      "id": "lesson-1",
+      "name": "König + Bauer vs König",
+      "description": "Lerne die Grundtechnik",
+      "positionIds": [
+        1,
+        2
+      ],
+      "objectives": [
+        "Verstehe die Opposition",
+        "Führe den Bauern zur Umwandlung",
+        "Erkenne Remis-Stellungen"
+      ]
+    }
+  ],
+  "totalLessons": 1
+}

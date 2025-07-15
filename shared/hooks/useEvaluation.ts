@@ -8,8 +8,7 @@ import { EvaluationData } from '@shared/types';
 type MultiPvResult = any;
 import { UnifiedEvaluationService } from '@shared/lib/chess/evaluation/unifiedService';
 import { EngineProviderAdapter } from '@shared/lib/chess/evaluation/providerAdapters';
-import { LRUCache } from '@shared/lib/cache/LRUCache';
-import { LRUCacheAdapter } from '@shared/lib/chess/evaluation/cacheAdapter';
+import { HybridCache } from '@shared/lib/cache/HybridCache';
 import type { FormattedEvaluation } from '@shared/types/evaluation';
 import { ErrorService } from '@shared/services/errorService';
 import { Logger } from '@shared/services/logging/Logger';
@@ -43,8 +42,13 @@ let unifiedServiceInstance: UnifiedEvaluationService | null = null;
 
 function getUnifiedService(): UnifiedEvaluationService {
   if (!unifiedServiceInstance) {
-    const lruCache = new LRUCache<FormattedEvaluation>(CACHE.EVALUATION_CACHE_SIZE);
-    const cache = new LRUCacheAdapter(lruCache);
+    const cache = new HybridCache<FormattedEvaluation>({
+      memorySize: CACHE.EVALUATION_CACHE_SIZE,
+      persistentSize: 1000,
+      memoryTtl: 5 * 60 * 1000,        // 5 minutes
+      persistentTtl: 30 * 60 * 1000,   // 30 minutes  
+      enablePersistent: true
+    });
     const engineProvider = new EngineProviderAdapter();
     
     unifiedServiceInstance = new UnifiedEvaluationService(
@@ -54,6 +58,9 @@ function getUnifiedService(): UnifiedEvaluationService {
   }
   return unifiedServiceInstance;
 }
+
+// Export singleton instance for move quality assessment
+export const unifiedService = getUnifiedService();
 
 /**
  * Main evaluation hook implementation

@@ -40,9 +40,9 @@ export class EngineProviderAdapter implements IEngineProvider {
           
           const result: EngineEvaluation = {
             score: bestLine.score.value,
-            mate: bestLine.score.type === 'mate' ? bestLine.score.value : null,
+            mate: bestLine.score.type === 'mate' ? Math.ceil(bestLine.score.value / 2) : null,
             evaluation: bestLine.score.type === 'mate' 
-              ? `#${Math.abs(bestLine.score.value)}` 
+              ? `#${Math.abs(Math.ceil(bestLine.score.value / 2))}` 
               : `${(bestLine.score.value / 100).toFixed(2)}`,
             depth: bestLine.depth,
             nodes: bestLine.nodes || 0,
@@ -77,9 +77,9 @@ export class EngineProviderAdapter implements IEngineProvider {
       // Convert SimpleEngine evaluation to EngineEvaluation format
       const result: EngineEvaluation = {
         score: evaluation.score.value,
-        mate: evaluation.score.type === 'mate' ? evaluation.score.value : null,
+        mate: evaluation.score.type === 'mate' ? Math.ceil(evaluation.score.value / 2) : null,
         evaluation: evaluation.score.type === 'mate' 
-          ? `#${Math.abs(evaluation.score.value)}` 
+          ? `#${Math.abs(Math.ceil(evaluation.score.value / 2))}` 
           : `${(evaluation.score.value / 100).toFixed(2)}`,
         depth: evaluation.depth || 15,
         nodes: evaluation.nodes || 0,

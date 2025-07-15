@@ -1,0 +1,33 @@
+{
+  "id": 1,
+  "title": "King and Pawn vs King - Basic Win",
+  "description": "White to move and win. Basic technique with opposition.",
+  "fen": "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1",
+  "category": "pawn-endgames",
+  "difficulty": "beginner",
+  "goal": "win",
+  "targetMoves": 8,
+  "hints": [
+    "Support the pawn with your king",
+    "Opposition is crucial in pawn endgames"
+  ],
+  "solution": [
+    "1.Kd6",
+    "1...Kd8",
+    "2.e6",
+    "2...Ke8",
+    "3.e7",
+    "3...Kf7",
+    "4.Kd7",
+    "4...Kf6",
+    "5.e8=Q"
+  ],
+  "nextPositionId": 2,
+  "tags": [
+    "basic",
+    "king-pawn",
+    "opposition"
+  ],
+  "created": "2024-01-01T00:00:00Z",
+  "updated": "2024-01-01T00:00:00Z"
+}

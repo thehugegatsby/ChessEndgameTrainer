@@ -570,7 +570,7 @@ export class UnifiedEvaluationService {
    */
   private createErrorMoveQuality(
     fenBefore: string,
-    move: string,
+    _move: string,
     player: 'w' | 'b',
     errorMessage: string
   ): MoveQualityResult {
@@ -601,3 +601,4 @@ export class UnifiedEvaluationService {
     return parts[1] as 'w' | 'b';
   }
 }
+

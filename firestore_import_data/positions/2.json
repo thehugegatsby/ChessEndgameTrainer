@@ -1,0 +1,31 @@
+{
+  "id": 2,
+  "title": "King and Pawn vs King - Draw",
+  "description": "Black to move and draw. Show defensive technique.",
+  "fen": "4k3/8/8/4K3/4P3/8/8/8 b - - 0 1",
+  "category": "pawn-endgames",
+  "difficulty": "beginner",
+  "goal": "draw",
+  "targetMoves": 10,
+  "hints": [
+    "Keep the king in front of the pawn",
+    "Use opposition to stop the advance"
+  ],
+  "solution": [
+    "1...Kd7",
+    "2.Kf6",
+    "2...Kd6",
+    "3.e5+",
+    "3...Kd7",
+    "4.Kf7",
+    "4...Kd8="
+  ],
+  "nextPositionId": null,
+  "tags": [
+    "basic",
+    "king-pawn",
+    "defensive"
+  ],
+  "created": "2024-01-01T00:00:00Z",
+  "updated": "2024-01-01T00:00:00Z"
+}

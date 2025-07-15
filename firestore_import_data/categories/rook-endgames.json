@@ -1,0 +1,19 @@
+{
+  "id": "rook-endgames",
+  "name": "Turmendspiele",
+  "description": "Endspiele mit Türmen",
+  "icon": "♜",
+  "order": 2,
+  "subcategories": [
+    {
+      "id": "rook-pawn",
+      "name": "Turm + Bauer",
+      "description": "Turm und Bauer gegen Turm"
+    },
+    {
+      "id": "rook-vs-rook",
+      "name": "Turm gegen Turm",
+      "description": "Reine Turmendspiele"
+    }
+  ]
+}

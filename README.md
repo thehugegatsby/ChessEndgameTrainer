@@ -2,7 +2,7 @@
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.3.3-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue)](https://www.typescriptlang.org/)
-[![Test Coverage](https://img.shields.io/badge/Tests-1015_passing-green)](./coverage/lcov-report/index.html)
+[![Test Coverage](https://img.shields.io/badge/Tests-762_passing-green)](./coverage/lcov-report/index.html)
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-Stabilized-green)](https://github.com/thehugegatsby/ChessEndgameTrainer/actions)
 [![Deployment Ready](https://img.shields.io/badge/Deployment-Ready-green)](https://nextjs.org/docs/deployment)
 
@@ -64,7 +64,7 @@ ChessEndgameTrainer/
 - **Chess Logic**: chess.js 1.0.0-beta.6
 - **Chess Engine**: SimpleEngine (Stockfish WASM) - Clean Singleton Architecture
 - **State Management**: Zustand 4.5.0 (Single Source of Truth)
-- **Testing**: Jest 29.7.0, React Testing Library 14.2.1
+- **Testing**: Jest 30.0.4, React Testing Library 14.2.1
 - **Environment**: Node.js 20+
 
 ## 📊 Projekt Status (Juli 2025)
@@ -75,7 +75,7 @@ ChessEndgameTrainer/
 - **Phase**: Critical bug fixes + E2E test rewrite
 
 ### ✅ **Technical Health**
-- **Test Suite**: 1015 unit tests + 33 E2E tests (100% passing) | Comprehensive Coverage
+- **Test Suite**: 762 unit tests + 33 E2E tests (100% passing) | Comprehensive Coverage
 - **TypeScript**: 0 errors (100% clean) | Complete Clean Compilation  
 - **Architecture**: Simplified - SimpleEngine + EvaluationCache + TablebaseService
 - **State Management**: Zustand Store as Single Source of Truth
@@ -135,7 +135,7 @@ npm run test:performance
 ```
 
 #### Test-Architektur
-Umfassende Test-Suite mit 1015 Unit Tests + 33 E2E Tests:
+Umfassende Test-Suite mit 762 Unit Tests + 33 E2E Tests:
 
 ```bash
 # Dev-Server starten

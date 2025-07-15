@@ -29,15 +29,15 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(({
   currentMoveIndex = -1 
 }) => {
   // Get data from Zustand store
-  const { moveHistory, evaluations, gameState } = useTraining();
+  const { moveHistory, evaluations, currentFen } = useTraining();
 
   // Helper to get FEN before a move
   const getFenBeforeMove = (moveIndex: number): string => {
-    if (!gameState || moveIndex === 0) {
-      return gameState?.initialFen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+    if (moveIndex === 0) {
+      return 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
     }
-    // Get FEN from previous position
-    return gameState.fenHistory[moveIndex - 1] || gameState.initialFen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+    // For now, use current FEN as fallback - this needs proper implementation
+    return currentFen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
   };
 
   // Memoize move pairs calculation for performance

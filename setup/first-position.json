@@ -1,10 +1,10 @@
 {
   "id": "pos_001",
-  "fen": "8/8/8/8/8/8/r7/R6K b - - 0 1",
-  "category": "rook_endgame",
+  "fen": "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1",
+  "category": "pawn_endgame",
   "difficulty": 1,
-  "solutionMoves": ["Ra1+", "Kg2", "Ra2+", "Kf3", "Ra3+", "Kf4", "Ra4+", "Kf5", "Ra5+"],
-  "description": "Basic rook opposition - learn to push the king back",
-  "title": "Rook vs Rook - Basic Opposition",
+  "solutionMoves": ["Kd6", "Kd8", "e6", "Ke8", "e7", "Kf7", "Kd7"],
+  "description": "Basic king and pawn opposition - learn to support the pawn promotion",
+  "title": "King and Pawn vs King - Basic Opposition",
   "createdAt": "2025-07-15T18:30:00.000Z"
 }

@@ -63,7 +63,7 @@ export class HybridCache<T> implements ICacheProvider<T> {
     try {
       // Try L1 cache first (memory)
       const memoryResult = this.memoryCache.get(key);
-      if (memoryResult !== null) {
+      if (memoryResult !== null && memoryResult !== undefined) {
         logger.debug('[HybridCache] L1 cache hit', { key: key.slice(0, 20) + '...' });
         return memoryResult;
       }

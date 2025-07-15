@@ -3,12 +3,16 @@
  * 
  * Two-column layout showing Engine and Tablebase evaluations side-by-side
  * Uses existing useEvaluation hook and clean architecture patterns
+ * Enhanced with efficient batch move quality assessment
  */
 
 'use client';
 
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
+import { Chess } from 'chess.js';
 import { useEvaluation } from '@shared/hooks/useEvaluation';
+import { useBatchMoveQuality, type MoveToAnalyze } from '@shared/hooks/useBatchMoveQuality';
+import { MoveQualityDisplay } from '@shared/components/analysis/MoveQualityDisplay';
 
 interface DualEvaluationPanelProps {
   fen: string;
@@ -26,6 +30,70 @@ export const DualEvaluationPanel: React.FC<DualEvaluationPanelProps> = ({
     isEnabled: isVisible,
     previousFen
   });
+
+  // Batch move quality assessment
+  const { results, isLoading: isQualityLoading, analyzeMoveBatch, clearResults } = useBatchMoveQuality();
+
+  // Extract player to move from FEN
+  const playerToMove = fen.split(' ')[1] as 'w' | 'b';
+
+  // Memoize moves to analyze based on evaluation results
+  const movesToAnalyze = useMemo((): MoveToAnalyze[] => {
+    if (!lastEvaluation || !previousFen) return [];
+    
+    const moves: MoveToAnalyze[] = [];
+    
+    // Add engine moves
+    if (lastEvaluation.multiPvResults && lastEvaluation.multiPvResults.length > 0) {
+      for (const result of lastEvaluation.multiPvResults.slice(0, 3)) {
+        try {
+          const chess = new Chess(fen);
+          const moveResult = chess.move(result.san);
+          if (moveResult) {
+            moves.push({
+              san: result.san,
+              fenBefore: fen,
+              fenAfter: chess.fen(),
+              player: playerToMove,
+            });
+          }
+        } catch (err) {
+          // Skip invalid moves
+        }
+      }
+    }
+    
+    // Add tablebase moves
+    if (lastEvaluation.tablebase?.topMoves && lastEvaluation.tablebase.topMoves.length > 0) {
+      for (const move of lastEvaluation.tablebase.topMoves.slice(0, 3)) {
+        try {
+          const chess = new Chess(fen);
+          const moveResult = chess.move(move.san);
+          if (moveResult) {
+            moves.push({
+              san: move.san,
+              fenBefore: fen,
+              fenAfter: chess.fen(),
+              player: playerToMove,
+            });
+          }
+        } catch (err) {
+          // Skip invalid moves
+        }
+      }
+    }
+    
+    return moves;
+  }, [lastEvaluation, fen, playerToMove, previousFen]);
+
+  // Trigger batch analysis when moves change
+  useEffect(() => {
+    if (isVisible && movesToAnalyze.length > 0) {
+      analyzeMoveBatch(movesToAnalyze);
+    } else if (!isVisible) {
+      clearResults();
+    }
+  }, [isVisible, movesToAnalyze, analyzeMoveBatch, clearResults]);
 
   if (!isVisible) {
     return null;
@@ -56,9 +124,17 @@ export const DualEvaluationPanel: React.FC<DualEvaluationPanelProps> = ({
                 <div className="space-y-1">
                   {lastEvaluation.multiPvResults.slice(0, 3).map((result, index) => (
                     <div key={index} className="flex items-center justify-between py-1">
-                      <span className="font-mono font-bold text-white dark:text-white text-sm">
-                        {result.san}
-                      </span>
+                      <div className="flex items-center">
+                        <span className="font-mono font-bold text-white dark:text-white text-sm">
+                          {result.san}
+                        </span>
+                        {/* Move Quality Assessment for Engine Moves */}
+                        <MoveQualityDisplay
+                          quality={results.get(result.san) || null}
+                          isLoading={isQualityLoading}
+                          onRetry={() => analyzeMoveBatch(movesToAnalyze)}
+                        />
+                      </div>
                       <span className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded">
                         {result.score.type === 'mate' 
                           ? `#${Math.abs(result.score.value)}`
@@ -92,9 +168,17 @@ export const DualEvaluationPanel: React.FC<DualEvaluationPanelProps> = ({
                 <div className="space-y-1">
                   {lastEvaluation.tablebase.topMoves.slice(0, 3).map((move, index) => (
                     <div key={index} className="flex items-center justify-between py-1">
-                      <span className="font-mono font-bold text-white dark:text-white text-sm">
-                        {move.san}
-                      </span>
+                      <div className="flex items-center">
+                        <span className="font-mono font-bold text-white dark:text-white text-sm">
+                          {move.san}
+                        </span>
+                        {/* Move Quality Assessment for Tablebase Moves */}
+                        <MoveQualityDisplay
+                          quality={results.get(move.san) || null}
+                          isLoading={isQualityLoading}
+                          onRetry={() => analyzeMoveBatch(movesToAnalyze)}
+                        />
+                      </div>
                       <span className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded">
                         DTZ {move.dtz !== null ? Math.abs(move.dtz) : (index + 1)}
                       </span>

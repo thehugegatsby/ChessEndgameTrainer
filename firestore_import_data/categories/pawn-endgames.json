@@ -1,0 +1,19 @@
+{
+  "id": "pawn-endgames",
+  "name": "Bauernendspiele",
+  "description": "Grundlegende Bauernendspiele mit König und Bauern",
+  "icon": "♟️",
+  "order": 1,
+  "subcategories": [
+    {
+      "id": "basic-pawn",
+      "name": "Grundlagen",
+      "description": "König + Bauer gegen König"
+    },
+    {
+      "id": "advanced-pawn",
+      "name": "Fortgeschritten",
+      "description": "Mehrere Bauern und komplexere Strukturen"
+    }
+  ]
+}

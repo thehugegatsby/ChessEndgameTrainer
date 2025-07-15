@@ -225,7 +225,7 @@ export class IndexedDBCache<T> implements ICacheProvider<T> {
       // Get oldest entry timestamp
       const index = store.index('timestamp');
       const oldestRequest = index.openCursor();
-      const oldestResult = await this.promisifyRequest<IDBCursorWithValue>(oldestRequest);
+      const oldestResult = await this.promisifyRequest(oldestRequest);
       const oldestEntry = oldestResult ? oldestResult.value.timestamp : null;
 
       return {
