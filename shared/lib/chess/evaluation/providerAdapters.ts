@@ -14,6 +14,7 @@ const logger = new Logger();
 /**
  * Adapts the enhanced Engine to IEngineProvider interface
  * PHASE 2.2: Now calls enhanced engine API to get PV data
+ * PHASE 3: Added Multi-PV support
  */
 export class EngineProviderAdapter implements IEngineProvider {
   async getEvaluation(fen: string, _playerToMove: 'w' | 'b'): Promise<EngineEvaluation | null> {
@@ -22,6 +23,48 @@ export class EngineProviderAdapter implements IEngineProvider {
       // Use SimpleEngine for evaluation
       logger.debug('[EngineProviderAdapter] Getting SimpleEngine instance');
       const engine = getSimpleEngine();
+      
+      // Try Multi-PV evaluation first (3 lines)
+      try {
+        logger.debug('[EngineProviderAdapter] Trying Multi-PV evaluation');
+        const multiPvResult = await engine.evaluatePositionMultiPV(fen, 3);
+        
+        if (multiPvResult && multiPvResult.lines.length > 0) {
+          // Use the best line (first one) for primary evaluation
+          const bestLine = multiPvResult.lines[0];
+          logger.info('[EngineProviderAdapter] Got Multi-PV result', { 
+            lines: multiPvResult.lines.length,
+            bestScore: bestLine.score 
+          });
+          
+          const result: EngineEvaluation = {
+            score: bestLine.score.value,
+            mate: bestLine.score.type === 'mate' ? bestLine.score.value : null,
+            evaluation: bestLine.score.type === 'mate' 
+              ? `#${Math.abs(bestLine.score.value)}` 
+              : `${(bestLine.score.value / 100).toFixed(2)}`,
+            depth: bestLine.depth,
+            nodes: bestLine.nodes || 0,
+            time: bestLine.time || 0,
+            pv: bestLine.pv.split(' '),
+            pvString: bestLine.pv,
+            nps: bestLine.nps || 0,
+            hashfull: 0, // Not available in SimpleEngine
+            seldepth: bestLine.seldepth || 0,
+            multipv: 1, // This is the best line
+            currmove: '', // Not available in SimpleEngine
+            currmovenumber: 0, // Not available in SimpleEngine
+            // Store all Multi-PV lines for later use
+            multiPvLines: multiPvResult.lines
+          };
+          
+          return result;
+        }
+      } catch (multiPvError) {
+        logger.warn('[EngineProviderAdapter] Multi-PV failed, falling back to single PV', multiPvError);
+      }
+      
+      // Fallback to single PV evaluation
       logger.debug('[EngineProviderAdapter] Calling engine.evaluatePosition');
       const evaluation = await engine.evaluatePosition(fen);
       logger.info('[EngineProviderAdapter] Got evaluation result', { evaluation });

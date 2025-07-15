@@ -120,6 +120,19 @@ export interface EngineEvaluation {
   currmove?: string;
   /** Current move number */
   currmovenumber?: number;
+  
+  // PHASE 3: Multi-PV support
+  /** All Multi-PV lines when using Multi-PV evaluation */
+  multiPvLines?: Array<{
+    multipv: number;  // Line number (1, 2, 3, ...)
+    score: { type: 'cp' | 'mate'; value: number };
+    depth: number;
+    pv: string;       // Space-separated UCI moves
+    nodes?: number;
+    nps?: number;
+    time?: number;
+    seldepth?: number;
+  }>;
 }
 
 /**

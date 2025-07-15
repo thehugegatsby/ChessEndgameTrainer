@@ -129,30 +129,65 @@ export function useEvaluation({ fen, isEnabled, previousFen }: UseEvaluationOpti
               : rawEngineEval.pv;
             const moves = pvString.split(' ');
             
-            // TEMPORARY FIX: Only show the first move until Multi-PV is implemented
-            // TODO: Implement real Multi-PV support in SimpleEngine
-            multiPvResults = [];
-            const firstMove = moves[0];
-            if (firstMove) {
-              // Convert UCI to SAN
-              const from = firstMove.substring(0, 2);
-              const to = firstMove.substring(2, 4);
-              const promotion = firstMove.length > 4 ? firstMove[4] : undefined;
-              
-              const move = gameClone.move({
-                from,
-                to,
-                promotion
+            // Check if we have Multi-PV data
+            if (rawEngineEval.multiPvLines && rawEngineEval.multiPvLines.length > 0) {
+              // Use real Multi-PV data
+              multiPvResults = [];
+              logger.info('[useEvaluation] Processing Multi-PV lines', { 
+                count: rawEngineEval.multiPvLines.length 
               });
               
-              if (move) {
-                multiPvResults.push({
-                  san: move.san,
-                  score: {
-                    type: rawEngineEval.mate !== null ? 'mate' : 'cp',
-                    value: rawEngineEval.mate !== null ? rawEngineEval.mate : rawEngineEval.score
+              for (const pvLine of rawEngineEval.multiPvLines) {
+                const moves = pvLine.pv.split(' ');
+                const firstMove = moves[0];
+                
+                if (firstMove) {
+                  // Convert UCI to SAN
+                  const from = firstMove.substring(0, 2);
+                  const to = firstMove.substring(2, 4);
+                  const promotion = firstMove.length > 4 ? firstMove[4] : undefined;
+                  
+                  // Clone game state for each line
+                  const tempGame = new (await import('chess.js')).Chess(fen);
+                  const move = tempGame.move({
+                    from,
+                    to,
+                    promotion
+                  });
+                  
+                  if (move) {
+                    multiPvResults.push({
+                      san: move.san,
+                      score: pvLine.score
+                    });
                   }
+                }
+              }
+            } else {
+              // Fallback: Only show the first move from single PV
+              multiPvResults = [];
+              const firstMove = moves[0];
+              if (firstMove) {
+                // Convert UCI to SAN
+                const from = firstMove.substring(0, 2);
+                const to = firstMove.substring(2, 4);
+                const promotion = firstMove.length > 4 ? firstMove[4] : undefined;
+                
+                const move = gameClone.move({
+                  from,
+                  to,
+                  promotion
                 });
+                
+                if (move) {
+                  multiPvResults.push({
+                    san: move.san,
+                    score: {
+                      type: rawEngineEval.mate !== null ? 'mate' : 'cp',
+                      value: rawEngineEval.mate !== null ? rawEngineEval.mate : rawEngineEval.score
+                    }
+                  });
+                }
               }
             }
             

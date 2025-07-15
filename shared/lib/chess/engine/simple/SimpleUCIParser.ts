@@ -1,4 +1,5 @@
 interface UciInfo {
+  multipv?: number;   // Multi-PV line number
   depth?: number;
   seldepth?: number;
   score?: { type: 'cp' | 'mate'; value: number };
@@ -31,6 +32,10 @@ export function parseUciInfo(line: string): UciInfo | null {
         break;
       case 'seldepth':
         info.seldepth = parseInt(nextToken, 10);
+        i++;
+        break;
+      case 'multipv':
+        info.multipv = parseInt(nextToken, 10);
         i++;
         break;
       case 'score':

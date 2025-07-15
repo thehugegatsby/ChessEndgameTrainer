@@ -14,13 +14,32 @@ interface EvaluationResult {
   time?: number;
 }
 
+// Multi-PV specific types
+interface MultiPvLine {
+  multipv: number;  // Line number (1, 2, 3, ...)
+  score: { type: 'cp' | 'mate'; value: number };
+  depth: number;
+  pv: string;       // Space-separated UCI moves
+  nodes?: number;
+  nps?: number;
+  time?: number;
+  seldepth?: number;
+}
+
+interface MultiPvResult {
+  lines: MultiPvLine[];
+  totalDepth: number;  // Max depth reached
+}
+
 interface EngineConfig {
   threads?: number;
   depth?: number;
   timeout?: number;
+  multiPv?: number;  // Number of lines to analyze (default: 1)
 }
 
 interface UciInfo {
+  multipv?: number;   // Multi-PV line number
   depth?: number;
   seldepth?: number;
   score?: { type: 'cp' | 'mate'; value: number };
@@ -35,6 +54,8 @@ class SimpleEngine extends EventEmitter {
   private isReady = false;
   private readonly config: Required<EngineConfig>;
   private initPromise: Promise<void> | null = null;
+  private multiPvLines: Map<number, MultiPvLine> = new Map();
+  private currentMultiPv: number = 1;
   
   constructor(workerPath: string, config: EngineConfig = {}) {
     super();
@@ -44,7 +65,8 @@ class SimpleEngine extends EventEmitter {
     this.config = {
       threads: config.threads ?? 4,
       depth: config.depth ?? 15,
-      timeout: config.timeout ?? 10000
+      timeout: config.timeout ?? 10000,
+      multiPv: config.multiPv ?? 1
     };
     
     this.initPromise = this.initWorker(workerPath);
@@ -97,6 +119,12 @@ class SimpleEngine extends EventEmitter {
     await this.sendCommand('uci');
     await this.whenReady();
     await this.sendCommand(`setoption name Threads value ${this.config.threads}`);
+    
+    // Set Multi-PV if greater than 1
+    if (this.config.multiPv > 1) {
+      logger.info('[SimpleEngine] Setting MultiPV', { multiPv: this.config.multiPv });
+      await this.sendCommand(`setoption name MultiPV value ${this.config.multiPv}`);
+    }
   }
 
   // Core UCI Methods
@@ -148,6 +176,71 @@ class SimpleEngine extends EventEmitter {
       };
 
       this.once('evaluation', onEvaluation);
+      this.once('error', onError);
+    });
+  }
+
+  // Multi-PV evaluation method
+  async evaluatePositionMultiPV(fen: string, lines?: number): Promise<MultiPvResult> {
+    // Wait for initialization to complete
+    await this.waitForInit();
+
+    // Validate FEN to prevent command injection
+    const validation = validateAndSanitizeFen(fen);
+    if (!validation.isValid) {
+      throw new Error(`Invalid FEN: ${validation.errors.join(', ')}`);
+    }
+    const sanitizedFen = validation.sanitized!;
+
+    if (!this.worker) {
+      throw new Error('Engine not initialized');
+    }
+
+    // Clear previous multi-PV data
+    this.multiPvLines.clear();
+    
+    // Set desired number of lines if different from config
+    const desiredLines = lines ?? this.config.multiPv;
+    if (desiredLines !== this.currentMultiPv) {
+      await this.sendCommand(`setoption name MultiPV value ${desiredLines}`);
+      this.currentMultiPv = desiredLines;
+    }
+
+    // Send position and go command
+    await this.sendCommand(`position fen ${sanitizedFen}`);
+    await this.sendCommand(`go depth ${this.config.depth}`);
+
+    // Return promise that resolves when all lines are complete
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        // Clean up listeners before rejecting
+        this.removeListener('multipv-complete', onComplete);
+        this.removeListener('error', onError);
+        reject(new Error('Multi-PV evaluation timeout'));
+      }, this.config.timeout) as NodeJS.Timeout;
+
+      const onComplete = () => {
+        clearTimeout(timeout);
+        this.removeListener('multipv-complete', onComplete);
+        this.removeListener('error', onError);
+        
+        // Convert map to sorted array
+        const lines = Array.from(this.multiPvLines.values())
+          .sort((a, b) => a.multipv - b.multipv);
+        
+        const totalDepth = Math.max(...lines.map(l => l.depth), 0);
+        
+        resolve({ lines, totalDepth });
+      };
+
+      const onError = (error: Error) => {
+        clearTimeout(timeout);
+        this.removeListener('multipv-complete', onComplete);
+        this.removeListener('error', onError);
+        reject(error);
+      };
+
+      this.once('multipv-complete', onComplete);
       this.once('error', onError);
     });
   }
@@ -233,8 +326,25 @@ class SimpleEngine extends EventEmitter {
       const info = parseUciInfo(line);
       if (info) {
         this.emit('info', info);
-        // Convert to EvaluationResult for final evaluation
-        if (info.score && info.depth) {
+        
+        // Handle Multi-PV lines
+        if (info.multipv && info.score && info.depth && info.pv) {
+          const multiPvLine: MultiPvLine = {
+            multipv: info.multipv,
+            score: info.score,
+            depth: info.depth,
+            pv: info.pv,
+            nodes: info.nodes,
+            nps: info.nps,
+            time: info.time,
+            seldepth: info.seldepth
+          };
+          this.multiPvLines.set(info.multipv, multiPvLine);
+          logger.debug('[SimpleEngine] Multi-PV line stored', { multipv: info.multipv, score: info.score });
+        }
+        
+        // For single PV evaluation (backward compatibility)
+        if (!info.multipv && info.score && info.depth) {
           const result: EvaluationResult = {
             score: info.score,
             depth: info.depth,
@@ -249,6 +359,11 @@ class SimpleEngine extends EventEmitter {
     } else if (line.startsWith('bestmove')) {
       const bestMove = line.split(' ')[1];
       this.emit('bestmove', bestMove);
+      
+      // For Multi-PV, emit complete event when bestmove is received
+      if (this.multiPvLines.size > 0) {
+        this.emit('multipv-complete');
+      }
     } else if (line === 'uciok') {
       this.emit('uciok');
     } else if (line === 'readyok') {
@@ -298,4 +413,4 @@ export function resetSimpleEngineInstance() {
 }
 
 export { SimpleEngine };
-export type { EvaluationResult, UciInfo, EngineConfig };
+export type { EvaluationResult, UciInfo, EngineConfig, MultiPvLine, MultiPvResult };
