@@ -220,8 +220,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       });
       
       if (!isValidMove) {
-        console.log('❌ Move validation failed:', { move, possibleMoves: possibleMoves.map((m: any) => `${m.from}-${m.to}`) });
-        logger.error('Move validation failed', { move, possibleMoves: possibleMoves.map((m: any) => `${m.from}-${m.to}`) });
+        logger.error('Move validation failed', undefined, { move, possibleMoves: possibleMoves.map((m: any) => `${m.from}-${m.to}`) });
         uiActions.showToast('Invalid move', 'warning');
         actions.incrementMistake();
         return null;
@@ -241,7 +240,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
             await makeMove({ from, to, promotion });
           }
         } catch (error) {
-          logger.error('Engine move failed', error);
+          logger.error('Engine move failed', error as Error);
         }
         
         // Move was successful, it will be synced to Zustand via the history effect
@@ -295,7 +294,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
         // Parse move notation (support 'e2-e4', 'e2e4', 'Ke2-e4', 'Ke2e4' formats)
         const moveMatch = move.match(/^([KQRBN]?)([a-h][1-8])-?([a-h][1-8])([qrbn])?$/i);
         if (!moveMatch) {
-          logger.error('Invalid move format', { move });
+          logger.error('Invalid move format', undefined, { move });
           return { success: false, error: 'Invalid move format' };
         }
         
@@ -315,11 +314,11 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
             logger.debug('Test move successful', { move, result });
             return { success: true, result };
           } else {
-            logger.error('Test move failed - handleMove returned null/false', { move });
+            logger.error('Test move failed - handleMove returned null/false', undefined, { move });
             return { success: false, error: 'Move rejected by engine' };
           }
         } catch (error) {
-          logger.error('Error in e2e_makeMove', { move, error });
+          logger.error('Error in e2e_makeMove', error as Error, { move });
           return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
         }
       };
