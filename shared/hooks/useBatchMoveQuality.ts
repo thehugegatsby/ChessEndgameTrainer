@@ -15,8 +15,8 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { unifiedService } from './useEvaluation';
-import type { MoveQualityResult } from '../types/evaluation';
+import { analysisService } from '@shared/lib/chess/AnalysisService';
+import type { SimplifiedMoveQualityResult } from '../types/evaluation';
 import { Logger } from '../services/logging/Logger';
 
 const logger = new Logger();
@@ -34,7 +34,7 @@ export interface MoveToAnalyze {
 
 interface UseBatchMoveQualityState {
   /** Map of move SAN to quality result */
-  results: Map<string, MoveQualityResult>;
+  results: Map<string, SimplifiedMoveQualityResult>;
   /** Whether any analysis is in progress */
   isLoading: boolean;
   /** Error from analysis */
@@ -82,7 +82,7 @@ export const useBatchMoveQuality = () => {
   const analyzeMoveBatch = useCallback(async (
     moves: MoveToAnalyze[],
     maxParallel: number = 2
-  ): Promise<Map<string, MoveQualityResult>> => {
+  ): Promise<Map<string, SimplifiedMoveQualityResult>> => {
     // Abort previous analysis if running
     abortControllerRef.current?.abort();
     
@@ -91,7 +91,7 @@ export const useBatchMoveQuality = () => {
     abortControllerRef.current = controller;
 
     // Initialize state
-    const resultsMap = new Map<string, MoveQualityResult>();
+    const resultsMap = new Map<string, SimplifiedMoveQualityResult>();
     setState({
       results: new Map(),
       isLoading: true,
@@ -223,13 +223,13 @@ export const useBatchMoveQuality = () => {
 async function analyzeSingleMove(
   move: MoveToAnalyze,
   signal: AbortSignal
-): Promise<MoveQualityResult | null> {
+): Promise<SimplifiedMoveQualityResult | null> {
   try {
     if (signal.aborted) {
       return null;
     }
 
-    const result = await unifiedService.assessMoveQuality(
+    const result = await analysisService.assessMoveQuality(
       move.fenBefore,
       move.san,
       move.player

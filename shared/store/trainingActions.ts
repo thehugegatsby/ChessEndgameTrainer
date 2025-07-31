@@ -9,8 +9,8 @@
  * - Stateless engine calls (pass FEN)
  */
 
+import { analysisService } from '../lib/chess/AnalysisService';
 import { getSimpleEngine } from '../lib/chess/engine/simple/SimpleEngine';
-// import type { EvaluationResult } from '../lib/chess/engine/simple/SimpleEngine';
 import { getLogger } from '../services/logging';
 import type { TrainingState } from './types';
 
@@ -36,12 +36,15 @@ export const requestEngineMove = (fen: string, options?: { depth?: number; timeo
         }
       }));
 
-      // Get engine instance and find best move
-      const engine = getSimpleEngine();
-      const move = await engine.findBestMove(fen);
-      const evaluation = await engine.evaluatePosition(fen);
+      // Use simplified AnalysisService - prioritizes tablebase
+      const move = await analysisService.getBestMove(fen);
+      const analysis = await analysisService.analyzePosition(fen);
       
-      logger.debug('Engine move received', { move, evaluation: evaluation.score.value });
+      logger.debug('Best move received', { 
+        move, 
+        evaluation: analysis.evaluation,
+        isTablebase: !!analysis.tablebase 
+      });
 
       // Update store with engine move
       set((state: any) => ({
@@ -90,20 +93,19 @@ export const requestPositionEvaluation = (fen: string, options?: { depth?: numbe
         }
       }));
 
-      // Get engine instance and evaluate position
-      const engine = getSimpleEngine();
-      const result = await engine.evaluatePosition(fen);
+      // Use AnalysisService to evaluate position
+      const result = await analysisService.analyzePosition(fen);
       
-      logger.debug('Position evaluation received', { evaluation: result.score.value });
+      logger.debug('Position evaluation received', { evaluation: result.evaluation });
 
       // Update store with evaluation
       set((state: any) => ({
         training: {
           ...state.training,
           currentEvaluation: {
-            evaluation: result.score.value,
-            mate: result.score.type === 'mate' ? result.score.value : null,
-            depth: result.depth
+            evaluation: result.evaluation,
+            mate: result.mateInMoves || null,
+            depth: result.engineData?.depth || 0
           },
           engineStatus: 'ready'
         }

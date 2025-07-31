@@ -7,7 +7,7 @@
  * @module moveQualityFormatters
  */
 
-import type { MoveQualityResult } from '../types/evaluation';
+import type { SimplifiedMoveQualityResult } from '../types/evaluation';
 
 /**
  * Get CSS color class for move quality
@@ -15,7 +15,7 @@ import type { MoveQualityResult } from '../types/evaluation';
  * @param quality - Move quality classification
  * @returns Tailwind CSS class for quality color
  */
-export const getQualityColor = (quality: MoveQualityResult['quality']): string => {
+export const getQualityColor = (quality: SimplifiedMoveQualityResult['quality']): string => {
   switch (quality) {
     case 'excellent':
       return 'text-green-500';
@@ -39,7 +39,7 @@ export const getQualityColor = (quality: MoveQualityResult['quality']): string =
  * @param quality - Move quality classification
  * @returns Tailwind CSS class for quality background
  */
-export const getQualityBgColor = (quality: MoveQualityResult['quality']): string => {
+export const getQualityBgColor = (quality: SimplifiedMoveQualityResult['quality']): string => {
   switch (quality) {
     case 'excellent':
       return 'bg-green-100 dark:bg-green-900';
@@ -63,7 +63,7 @@ export const getQualityBgColor = (quality: MoveQualityResult['quality']): string
  * @param quality - Move quality classification
  * @returns Emoji representing the quality
  */
-export const getQualityEmoji = (quality: MoveQualityResult['quality']): string => {
+export const getQualityEmoji = (quality: SimplifiedMoveQualityResult['quality']): string => {
   switch (quality) {
     case 'excellent':
       return '🏆';
@@ -87,7 +87,7 @@ export const getQualityEmoji = (quality: MoveQualityResult['quality']): string =
  * @param quality - Move quality classification
  * @returns Localized quality label
  */
-export const getQualityLabel = (quality: MoveQualityResult['quality']): string => {
+export const getQualityLabel = (quality: SimplifiedMoveQualityResult['quality']): string => {
   switch (quality) {
     case 'excellent':
       return 'Excellent';
@@ -111,7 +111,7 @@ export const getQualityLabel = (quality: MoveQualityResult['quality']): string =
  * @param result - Move quality analysis result
  * @returns Formatted string for tooltip
  */
-export const formatQualityTooltip = (result: MoveQualityResult): string => {
+export const formatQualityTooltip = (result: SimplifiedMoveQualityResult): string => {
   const emoji = getQualityEmoji(result.quality);
   const label = getQualityLabel(result.quality);
   
@@ -124,7 +124,7 @@ export const formatQualityTooltip = (result: MoveQualityResult): string => {
  * @param quality - Move quality classification
  * @returns Numeric score (higher = better quality)
  */
-export const getQualityScore = (quality: MoveQualityResult['quality']): number => {
+export const getQualityScore = (quality: SimplifiedMoveQualityResult['quality']): number => {
   switch (quality) {
     case 'excellent':
       return 5;

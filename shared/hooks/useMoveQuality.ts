@@ -13,15 +13,15 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { unifiedService } from './useEvaluation';
-import type { MoveQualityResult } from '../types/evaluation';
+import { analysisService } from '@shared/lib/chess/AnalysisService';
+import type { SimplifiedMoveQualityResult } from '../types/evaluation';
 import { Logger } from '../services/logging/Logger';
 
 const logger = new Logger();
 
 interface UseMoveQualityState {
   /** Current move quality result */
-  data: MoveQualityResult | null;
+  data: SimplifiedMoveQualityResult | null;
   /** Whether analysis is in progress */
   isLoading: boolean;
   /** Error from analysis */
@@ -66,7 +66,7 @@ export const useMoveQuality = () => {
     fenBefore: string,
     move: string,
     playerPerspective: 'w' | 'b'
-  ): Promise<MoveQualityResult> => {
+  ): Promise<SimplifiedMoveQualityResult> => {
     // Abort previous request if running
     abortControllerRef.current?.abort();
     
@@ -84,8 +84,8 @@ export const useMoveQuality = () => {
         playerPerspective
       });
 
-      // Call unified service for analysis
-      const result = await unifiedService.assessMoveQuality(fenBefore, move, playerPerspective);
+      // Call analysis service for analysis
+      const result = await analysisService.assessMoveQuality(fenBefore, move, playerPerspective);
       
       // Only update state if request wasn't aborted
       if (!controller.signal.aborted) {

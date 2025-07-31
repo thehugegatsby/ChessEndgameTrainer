@@ -156,102 +156,8 @@ export interface TablebaseResult {
   precise: boolean;
 }
 
-/**
- * Normalized evaluation data - unified format for all evaluation sources
- * All values are from White's perspective for consistency
- */
-export interface NormalizedEvaluation {
-  /** Source of the evaluation */
-  type: 'engine' | 'tablebase';
-  
-  /** 
-   * Score in centipawns from White's perspective 
-   * Positive = White advantage, Negative = Black advantage
-   * null for tablebase positions or mate positions
-   */
-  scoreInCentipawns: number | null;
-  
-  /** 
-   * Mate in N moves from White's perspective
-   * Positive = White mates, Negative = Black mates
-   * null if no mate or tablebase position
-   */
-  mate: number | null;
-  
-  /** Tablebase Win/Draw/Loss value (null for engine evaluations) */
-  wdl: number | null;
-  
-  /** Tablebase Distance to Mate (null for engine evaluations) */
-  dtm: number | null;
-  
-  /** Tablebase Distance to Zero (null for engine evaluations) */
-  dtz: number | null;
-  
-  /** Whether this is a tablebase position */
-  isTablebasePosition: boolean;
-  
-  /** Original raw data for debugging/logging */
-  raw: EngineEvaluation | TablebaseResult | null;
-}
 
-/**
- * Evaluation from a specific player's perspective
- */
-export interface PlayerPerspectiveEvaluation extends NormalizedEvaluation {
-  /** Which player's perspective (w = White, b = Black) */
-  perspective: 'w' | 'b';
-  
-  /** 
-   * Adjusted score from player's perspective
-   * For Black: inverted from scoreInCentipawns
-   */
-  perspectiveScore: number | null;
-  
-  /**
-   * Adjusted mate from player's perspective
-   * For Black: inverted from mate value
-   */
-  perspectiveMate: number | null;
-  
-  /**
-   * Adjusted WDL from player's perspective
-   * For Black: inverted from wdl value
-   */
-  perspectiveWdl: number | null;
-  
-  /**
-   * Adjusted DTM from player's perspective
-   * For Black: inverted from dtm value
-   */
-  perspectiveDtm: number | null;
-  
-  /**
-   * Adjusted DTZ from player's perspective
-   * For Black: inverted from dtz value
-   */
-  perspectiveDtz: number | null;
-}
 
-/**
- * Formatted evaluation ready for display
- */
-export interface FormattedEvaluation {
-  /** Main display text (e.g., "+0.50", "M+3", "TB Win") */
-  mainText: string;
-  
-  /** Secondary details (e.g., "DTM: 25") */
-  detailText: string | null;
-  
-  /** CSS class for styling */
-  className: 'advantage' | 'disadvantage' | 'neutral' | 'winning' | 'losing';
-  
-  /** Additional metadata for tooltips/debugging */
-  metadata: {
-    isTablebase: boolean;
-    isMate: boolean;
-    isDrawn: boolean;
-  };
-}
 
 /**
  * Move quality classification for the MoveQualityAnalyzer
@@ -259,29 +165,12 @@ export interface FormattedEvaluation {
 export type MoveQualityType = 'excellent' | 'good' | 'inaccuracy' | 'mistake' | 'blunder' | 'unknown';
 
 /**
- * Result of move quality analysis
+ * Simplified move quality result for the new architecture
+ * Only contains essential information for UI display
  */
-export interface MoveQualityResult {
+export interface SimplifiedMoveQualityResult {
   /** The quality classification of the move */
   quality: MoveQualityType;
-  
-  /** The FEN position before the move */
-  fromFen: string;
-  
-  /** The FEN position after the move */
-  toFen: string;
-  
-  /** Player who made the move */
-  player: 'w' | 'b';
-  
-  /** Score difference in centipawns (positive = improvement for player) */
-  scoreDifference: number | null;
-  
-  /** WDL change (for tablebase positions) */
-  wdlChange: number | null;
-  
-  /** Mate change (for mate positions) */
-  mateChange: number | null;
   
   /** Human-readable reason for the classification */
   reason: string;
@@ -289,13 +178,20 @@ export interface MoveQualityResult {
   /** Whether this analysis is based on tablebase data */
   isTablebaseAnalysis: boolean;
   
-  /** Metadata about the evaluation sources */
-  metadata: {
-    beforeEvaluation: PlayerPerspectiveEvaluation | null;
-    afterEvaluation: PlayerPerspectiveEvaluation | null;
-    error?: string;
+  /** Optional tablebase-specific info */
+  tablebaseInfo?: {
+    wdlBefore: number;
+    wdlAfter: number;
+  };
+  
+  /** Optional engine-specific info */
+  engineInfo?: {
+    evalBefore: number;
+    evalAfter: number;
   };
 }
+
+// MoveQualityResult has been replaced by SimplifiedMoveQualityResult above
 
 /**
  * BRÜCKENBAU-TRAINER: Enhanced evaluation types

@@ -1,600 +1,149 @@
-# Tablebase Service Documentation
+# TablebaseService Documentation
 
-**Target**: LLM comprehension for tablebase service implementation
-**Environment**: WSL + VS Code + Windows
-**Updated**: 2025-07-13
+**Purpose**: LLM-optimized reference for tablebase integration
+**Last Updated**: 2025-07-31
+**Architecture Version**: 2.0 (Simplified)
 
-## 🎯 Tablebase Service Architecture
+## 🎯 Overview
 
-### Clean Architecture Implementation
+Direct Lichess tablebase API integration for 7-piece endgame positions.
 
-```mermaid
-graph TB
-    subgraph "PROVIDER LAYER"
-        A[TablebaseProviderAdapter]
-        A1[ITablebaseProvider Interface]
-    end
-    
-    subgraph "ADAPTER LAYER"
-        B[TablebaseServiceAdapter]
-        B1[Service → Provider Translation]
-    end
-    
-    subgraph "SERVICE LAYER"
-        C[ITablebaseService Interface]
-        D[MockTablebaseService]
-        E[Future: SyzygyService]
-        F[Future: GaviotaService]
-    end
-    
-    subgraph "INFRASTRUCTURE LAYER"
-        G[Mock Endgame Patterns]
-        H[Pattern Recognition Engine]
-        I[Caching System]
-        J[Future: Real Tablebase Files]
-    end
-    
-    A --> A1
-    A1 --> B
-    B --> B1
-    B1 --> C
-    C --> D
-    C --> E
-    C --> F
-    D --> G
-    D --> H
-    D --> I
-    E --> J
-    F --> J
-    
-    style A fill:#e1f5fe
-    style B fill:#f3e5f5
-    style C fill:#e8f5e8
-    style D fill:#fff3e0
-    style G fill:#ffebee
-```
-
-## 📁 File Structure with Line References
+## 📊 Architecture
 
 ```
-services/tablebase/
-├── ITablebaseService.ts        # Lines 1-45   - Service interface
-├── MockTablebaseService.ts     # Lines 1-180  - Mock implementation  
-├── TablebaseServiceAdapter.ts  # Lines 1-95   - Service adapter
-└── index.ts                    # Lines 1-25   - Factory + exports
+AnalysisService
+     ↓
+TablebaseService → Lichess API (https://tablebase.lichess.ovh)
+     ↓
+LRU Cache (200 positions)
 ```
 
-## 🔧 Core Interface Definition
+## 🔑 Key Components
 
-### ITablebaseService Interface
+### TablebaseService (`/shared/services/TablebaseService.ts`)
 
-**File**: `/shared/services/tablebase/ITablebaseService.ts:10-30`
 ```typescript
-export interface ITablebaseService {
-  /**
-   * Look up a position in the tablebase
-   * @param fen - Position in FEN notation
-   * @returns Tablebase lookup result or null if not found
-   */
-  lookupPosition(fen: string): Promise<TablebaseLookupResult | null>;
+class TablebaseService {
+  // Main evaluation method
+  async getEvaluation(fen: string): Promise<TablebaseEvaluationResult>
   
-  /**
-   * Check if position is within tablebase scope
-   * @param fen - Position in FEN notation  
-   * @returns True if position can be looked up
-   */
-  isTablebasePosition(fen: string): boolean;
+  // Get top moves with DTZ/DTM
+  async getTopMoves(fen: string, count: number): Promise<TablebaseMovesResult>
   
-  /**
-   * Get maximum pieces supported by this tablebase
-   * @returns Maximum piece count
-   */
-  getMaxPieces(): number;
-  
-  /**
-   * Get service configuration
-   * @returns Current configuration object
-   */
-  getConfig(): TablebaseServiceConfig;
-  
-  /**
-   * Check if service is healthy and responsive
-   * @returns True if service is operational
-   */
-  isHealthy(): Promise<boolean>;
-  
-  /**
-   * Clear internal caches
-   */
-  clearCache(): Promise<void>;
+  // Check if position qualifies for tablebase
+  isTablebasePosition(fen: string): boolean
 }
 ```
 
-### Data Transfer Objects
+### Key Interfaces
 
-**File**: `/shared/services/tablebase/ITablebaseService.ts:35-65`
 ```typescript
-export interface TablebaseLookupResult {
-  position: string;           // FEN of the position
-  wdl: number;               // Win/Draw/Loss (-2 to +2)
-  dtz: number | null;        // Distance to Zero (50-move rule)
-  dtm: number | null;        // Distance to Mate
-  category: TablebaseCategory; // Human-readable category
-  precise: boolean;          // Whether result is precise
-  metadata: {
-    source: string;          // Source of the data
-    cached: boolean;         // Whether result was cached
-    timestamp: number;       // When result was generated
-  };
+interface TablebaseEvaluationResult {
+  isAvailable: boolean;
+  result: {
+    wdl: number;        // Win/Draw/Loss: 2=win, 0=draw, -2=loss
+    dtz: number | null; // Distance to Zero
+    dtm: number | null; // Distance to Mate
+    category: 'win' | 'cursed-win' | 'draw' | 'blessed-loss' | 'loss';
+  } | null;
+  error?: string;
 }
 
-export interface TablebaseServiceConfig {
-  maxPieces: number;         // Maximum pieces to support
-  enableCaching: boolean;    // Enable position caching
-  cacheTtl: number;         // Cache time-to-live (seconds)
-  timeout: number;          // Request timeout (milliseconds)
-}
-
-export type TablebaseCategory = 'win' | 'cursed-win' | 'draw' | 'blessed-loss' | 'loss';
-```
-
-## 🎨 Mock Implementation Patterns
-
-### Core Mock Service Implementation
-
-**File**: `/shared/services/tablebase/MockTablebaseService.ts:25-60`
-```typescript
-export class MockTablebaseService implements ITablebaseService {
-  private cache = new Map<string, TablebaseLookupResult>();
-  private readonly endgamePatterns = new Map<string, EndgamePattern>();
-  
-  constructor(private config: TablebaseServiceConfig) {
-    this.initializeEndgamePatterns();
-  }
-  
-  async lookupPosition(fen: string): Promise<TablebaseLookupResult | null> {
-    // Step 1: Cache check
-    if (this.config.enableCaching && this.cache.has(fen)) {
-      const cached = this.cache.get(fen)!;
-      return {
-        ...cached,
-        metadata: { ...cached.metadata, cached: true }
-      };
-    }
-    
-    // Step 2: Piece count validation
-    if (!this.isTablebasePosition(fen)) {
-      return null;
-    }
-    
-    // Step 3: Pattern matching
-    const result = this.performLookup(fen);
-    
-    // Step 4: Cache result
-    if (this.config.enableCaching && result) {
-      this.cache.set(fen, result);
-    }
-    
-    return result;
-  }
-  
-  isTablebasePosition(fen: string): boolean {
-    const pieceCount = this.countPieces(fen);
-    return pieceCount <= this.config.maxPieces && pieceCount >= 2;
-  }
+interface TablebaseMovesResult {
+  isAvailable: boolean;
+  moves: Array<{
+    uci: string;
+    san: string;
+    wdl: number;
+    dtz: number | null;
+    dtm: number | null;
+    category: string;
+  }> | null;
 }
 ```
 
-### Endgame Pattern Recognition
+## 🚀 Usage
 
-**File**: `/shared/services/tablebase/MockTablebaseService.ts:85-120`
+### In AnalysisService
+
 ```typescript
-private initializeEndgamePatterns(): void {
-  // KvK - Always draw
-  this.endgamePatterns.set('KvK', {
-    pieces: ['K', 'k'],
-    wdl: 0,
-    category: 'draw',
-    dtzRange: [0, 0]
-  });
-  
-  // KQvK - White wins
-  this.endgamePatterns.set('KQvK', {
-    pieces: ['K', 'Q', 'k'],
-    wdl: 2,
-    category: 'win',
-    dtzRange: [1, 10]
-  });
-  
-  // KRvK - White wins  
-  this.endgamePatterns.set('KRvK', {
-    pieces: ['K', 'R', 'k'],
-    wdl: 2,
-    category: 'win',
-    dtzRange: [1, 16]
-  });
-  
-  // KPvK - Depends on pawn position
-  this.endgamePatterns.set('KPvK', {
-    pieces: ['K', 'P', 'k'],
-    wdl: 1, // Often cursed win
-    category: 'cursed-win',
-    dtzRange: [20, 50]
-  });
+// Check tablebase first for endgames
+const tablebaseResult = await tablebaseService.getEvaluation(fen);
+if (tablebaseResult.isAvailable && tablebaseResult.result) {
+  // Use tablebase data
+  return formatTablebaseResult(tablebaseResult);
 }
+// Fall back to engine...
+```
 
-private performLookup(fen: string): TablebaseLookupResult | null {
-  const pattern = this.identifyEndgamePattern(fen);
-  
-  if (!pattern) {
-    return null;
-  }
-  
-  // Generate realistic DTZ value within pattern range
-  const dtz = this.generateRealisticDtz(pattern.dtzRange);
-  
-  return {
-    position: fen,
-    wdl: pattern.wdl,
-    dtz: pattern.wdl === 0 ? null : dtz,
-    dtm: pattern.wdl === 0 ? null : Math.max(1, Math.floor(dtz * 0.8)),
-    category: pattern.category,
-    precise: true,
-    metadata: {
-      source: 'mock-tablebase',
-      cached: false,
-      timestamp: Date.now()
-    }
-  };
+### Getting Best Move
+
+```typescript
+const topMoves = await tablebaseService.getTopMoves(fen, 1);
+if (topMoves.isAvailable && topMoves.moves?.length > 0) {
+  return topMoves.moves[0].san; // Best tablebase move
 }
 ```
 
-### Caching Implementation
+## ⚡ Performance
 
-**File**: `/shared/services/tablebase/MockTablebaseService.ts:145-165`
+- **Cache**: LRU with 200 position limit
+- **Network**: ~50-200ms per API call
+- **Piece Limit**: Max 7 pieces (including kings)
+- **Rate Limiting**: Lichess fair use policy
+
+## 🔧 Configuration
+
 ```typescript
-async clearCache(): Promise<void> {
-  this.cache.clear();
-}
-
-private shouldEvictFromCache(): boolean {
-  if (!this.config.enableCaching) return false;
-  
-  // Simple LRU-like eviction based on TTL
-  const now = Date.now();
-  const ttlMs = this.config.cacheTtl * 1000;
-  
-  for (const [fen, result] of this.cache.entries()) {
-    if (now - result.metadata.timestamp > ttlMs) {
-      this.cache.delete(fen);
-    }
-  }
-  
-  return this.cache.size > 1000; // Max cache size
-}
-
-private countPieces(fen: string): number {
-  const position = fen.split(' ')[0];
-  return position.replace(/[^a-zA-Z]/g, '').length;
-}
-```
-
-## 🔄 Service Adapter Pattern
-
-### TablebaseServiceAdapter Implementation
-
-**File**: `/shared/services/tablebase/TablebaseServiceAdapter.ts:15-50`
-```typescript
-export class TablebaseServiceAdapter {
-  constructor(private tablebaseService: ITablebaseService) {}
-  
-  async getEvaluation(
-    fen: string,
-    playerToMove: 'w' | 'b'
-  ): Promise<TablebaseResult | null> {
-    try {
-      // Delegate to service layer
-      const serviceResult = await this.tablebaseService.lookupPosition(fen);
-      
-      if (!serviceResult) {
-        return null;
-      }
-      
-      // Transform service DTO to provider DTO (strip metadata)
-      const providerResult: TablebaseResult = {
-        wdl: serviceResult.wdl,
-        dtz: serviceResult.dtz,
-        dtm: serviceResult.dtm,
-        category: serviceResult.category,
-        precise: serviceResult.precise
-      };
-      
-      return providerResult;
-    } catch (error) {
-      // Adapter-level error handling
-      console.warn('TablebaseServiceAdapter error:', error);
-      return null;
-    }
-  }
-  
-  /**
-   * Get underlying service for advanced operations
-   */
-  getTablebaseService(): ITablebaseService {
-    return this.tablebaseService;
-  }
-  
-  /**
-   * Health check delegation
-   */
-  async isHealthy(): Promise<boolean> {
-    return await this.tablebaseService.isHealthy();
-  }
-}
-```
-
-## 🏭 Factory Pattern Implementation
-
-### Service Factory
-
-**File**: `/shared/services/tablebase/index.ts:10-30`
-```typescript
-export function createTablebaseService(
-  type: 'mock' | 'lichess' | 'chessdb' = 'mock',
-  config: TablebaseServiceConfig = {}
-): ITablebaseService {
-  // Validate configuration
-  if (config.maxPieces < 2 || config.maxPieces > 7) {
-    throw new Error('maxPieces must be between 2 and 7');
-  }
-  
-  if (config.timeout <= 0) {
-    throw new Error('timeout must be positive');
-  }
-  
-  switch (type) {
-    case 'mock':
-      return new MockTablebaseService(config);
-    case 'lichess':
-      // TODO: Implement LichessTablebaseService
-      throw new Error('LichessTablebaseService not yet implemented');
-    case 'chessdb':
-      // TODO: Implement ChessDbTablebaseService
-      throw new Error('ChessDbTablebaseService not yet implemented');
-    default:
-      throw new Error(`Unknown tablebase service type: ${type}`);
-  }
-}
-
-// Default configuration for different environments
-// Default configuration for different environments
-export const defaultTablebaseConfig: Record<string, TablebaseServiceConfig> = {
-  development: {
-    maxPieces: 7,
-    enableCaching: true,
-    cacheTtl: 3600,
-    timeout: 5000
-  },
-  production: {
-    maxPieces: 7,
-    enableCaching: true,
-    cacheTtl: 7200,
-    timeout: 2000
-  },
-  test: {
-    maxPieces: 7,
-    enableCaching: false,
-    cacheTtl: 0,
-    timeout: 1000
-  }
+const TABLEBASE_CONFIG = {
+  API_URL: 'https://tablebase.lichess.ovh/standard',
+  MAX_PIECES: 7,
+  CACHE_SIZE: 200,
+  TIMEOUT: 5000
 };
 ```
 
-## 🧪 Testing Patterns
+## 🧪 Testing
 
-### Service Unit Testing
-
-**File**: `/tests/unit/services/tablebase/MockTablebaseService.test.ts:25-50`
 ```typescript
-describe('MockTablebaseService', () => {
-  let service: MockTablebaseService;
-  
-  beforeEach(() => {
-    service = new MockTablebaseService({
-      maxPieces: 7,
-      enableCaching: true,
-      cacheTtl: 3600,
-      timeout: 2000
-    });
-  });
-  
-  describe('lookupPosition', () => {
-    it('should return win for KQvK endgame', async () => {
-      // KQ vs K - White to move, should be winning
-      const fen = '8/8/8/8/8/8/4K3/4k1Q1 w - - 0 1';
-      
-      const result = await service.lookupPosition(fen);
-      
-      expect(result).not.toBeNull();
-      expect(result!.wdl).toBe(2);          // Win for white
-      expect(result!.category).toBe('win');
-      expect(result!.dtz).toBeGreaterThan(0);
-      expect(result!.precise).toBe(true);
-      expect(result!.metadata.source).toBe('mock-tablebase');
-    });
-    
-    it('should return draw for KvK endgame', async () => {
-      // K vs K - Always draw
-      const fen = '8/8/8/8/8/8/4K3/4k3 w - - 0 1';
-      
-      const result = await service.lookupPosition(fen);
-      
-      expect(result).not.toBeNull();
-      expect(result!.wdl).toBe(0);          // Draw
-      expect(result!.category).toBe('draw');
-      expect(result!.dtz).toBeNull();       // No DTZ for draw
-      expect(result!.dtm).toBeNull();       // No DTM for draw
-    });
-  });
-  
-  describe('caching', () => {
-    it('should cache lookup results', async () => {
-      const fen = '8/8/8/8/8/8/4K3/4k1Q1 w - - 0 1';
-      
-      // First lookup
-      const result1 = await service.lookupPosition(fen);
-      expect(result1!.metadata.cached).toBe(false);
-      
-      // Second lookup (should be cached)
-      const result2 = await service.lookupPosition(fen);
-      expect(result2!.metadata.cached).toBe(true);
-      
-      // Results should be identical
-      expect(result1!.wdl).toBe(result2!.wdl);
-    });
-  });
-});
+// Mock tablebase responses
+jest.mock('@shared/services/TablebaseService', () => ({
+  tablebaseService: {
+    getEvaluation: jest.fn().mockResolvedValue({
+      isAvailable: true,
+      result: { wdl: 2, dtz: 5, category: 'win' }
+    })
+  }
+}));
 ```
 
-### Adapter Integration Testing
+## 📝 WDL Values
 
-**File**: `/tests/unit/services/tablebase/TablebaseServiceAdapter.test.ts:20-45`
+- `2`: Clear win
+- `1`: Cursed win (win under 50-move rule)
+- `0`: Draw
+- `-1`: Blessed loss (draw under 50-move rule)
+- `-2`: Clear loss
+
+## 🚨 Error Handling
+
 ```typescript
-describe('TablebaseServiceAdapter', () => {
-  let adapter: TablebaseServiceAdapter;
-  let mockService: jest.Mocked<ITablebaseService>;
-  
-  beforeEach(() => {
-    mockService = {
-      lookupPosition: jest.fn(),
-      isTablebasePosition: jest.fn(),
-      getMaxPieces: jest.fn(),
-      getConfig: jest.fn(),
-      isHealthy: jest.fn(),
-      clearCache: jest.fn()
-    } as jest.Mocked<ITablebaseService>;
-    
-    adapter = new TablebaseServiceAdapter(mockService);
-  });
-  
-  it('should transform service result to provider format', async () => {
-    // Setup mock service response
-    const serviceResult: TablebaseLookupResult = {
-      position: 'test-fen',
-      wdl: 2,
-      dtz: 5,
-      dtm: 4,
-      category: 'win',
-      precise: true,
-      metadata: {
-        source: 'mock',
-        cached: false,
-        timestamp: Date.now()
-      }
-    };
-    
-    mockService.lookupPosition.mockResolvedValue(serviceResult);
-    
-    // Call adapter
-    const result = await adapter.getEvaluation('test-fen', 'w');
-    
-    // Verify transformation (metadata stripped)
-    expect(result).toEqual({
-      wdl: 2,
-      dtz: 5,
-      dtm: 4,
-      category: 'win',
-      precise: true
-      // Note: metadata not included in provider format
-    });
-    
-    expect(mockService.lookupPosition).toHaveBeenCalledWith('test-fen');
-  });
-});
-```
-
-## 🎯 Integration with Evaluation Pipeline
-
-### Provider Adapter Integration
-
-**File**: `/shared/lib/chess/evaluation/providerAdapters.ts:60-80`
-```typescript
-export class TablebaseProviderAdapter implements ITablebaseProvider {
-  private readonly serviceAdapter: TablebaseServiceAdapter;
-
-  constructor() {
-    // Factory pattern: Create service through factory with defaults
-    const tablebaseService = createTablebaseService('mock', {
-      maxPieces: 7,
-      enableCaching: true,
-      cacheTtl: 3600,
-      timeout: 2000
-    });
-    
-    // Adapter pattern: Wrap service with adapter
-    this.serviceAdapter = new TablebaseServiceAdapter(tablebaseService);
+try {
+  const result = await tablebaseService.getEvaluation(fen);
+  if (!result.isAvailable) {
+    // Not a tablebase position or API unavailable
+    return null;
   }
-
-  async getEvaluation(
-    fen: string, 
-    playerToMove: 'w' | 'b'
-  ): Promise<TablebaseResult | null> {
-    try {
-      // Provider pattern: Delegate to service adapter with error handling
-      return await this.serviceAdapter.getEvaluation(fen, playerToMove);
-    } catch (error) {
-      // Log error through centralized service
-      ErrorService.handleChessEngineError(error as Error, {
-        component: 'TablebaseProviderAdapter',
-        action: 'getEvaluation'
-      });
-      return null;
-    }
-  }
-  
-  // Advanced feature access
-  getTablebaseService(): ITablebaseService {
-    return this.serviceAdapter.getTablebaseService();
-  }
-
-  // Health check for service monitoring
-  async isHealthy(): Promise<boolean> {
-    return await this.serviceAdapter.isHealthy();
-  }
+} catch (error) {
+  // Network error or invalid FEN
+  logger.warn('Tablebase lookup failed', error);
+  return null;
 }
 ```
 
-## 🚀 Performance Characteristics
+## 📊 Metrics
 
-### Caching Strategy
-- **Cache Key**: Full FEN string
-- **TTL**: Configurable (default 3600s)
-- **Eviction**: Time-based + size-based (max 1000 entries)
-- **Hit Rate**: ~95% for typical endgame sequences
-
-### Memory Usage
-- **Cache Entry Size**: ~200 bytes per position
-- **Max Memory**: ~200KB for full cache
-- **Lookup Time**: <1ms for cached, ~5ms for pattern matching
-
-### Scalability
-- **Concurrent Requests**: Thread-safe Map operations
-- **Position Capacity**: Supports all 7-piece endgames
-- **Extension**: Easy to add new endgame patterns
-
----
-
-**Current State**:
-- ✅ **Mock Implementation**: Realistic pattern recognition for KQvK, KRvK, KPvK, KvK endgames
-- ✅ **Caching System**: TTL-based with configurable limits and LRU eviction
-- ✅ **Service Adapter**: Clean transformation between service and provider DTOs
-- ✅ **Factory Pattern**: Environment-based configuration with validation
-- ✅ **Error Handling**: Graceful degradation with centralized error service
-- ✅ **Testing**: Comprehensive unit and integration tests
-
-**Future Implementations**:
-- 🔄 **LichessTablebaseService**: HTTP API integration for real tablebase lookups
-- 🔄 **ChessDbTablebaseService**: Alternative tablebase provider
-- 🔄 **SyzygyTablebaseService**: Local tablebase file support
-
-**Next**: Review [../chess/EngineService.md](../chess/EngineService.md) for engine service patterns.
+- **Coverage**: All 7-piece endgames
+- **Accuracy**: 100% (perfect play database)
+- **Availability**: ~99.9% (Lichess uptime)
+- **Cache Hit Rate**: ~60-80% in typical usage

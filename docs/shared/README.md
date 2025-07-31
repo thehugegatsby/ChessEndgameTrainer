@@ -196,7 +196,7 @@ import { useEvaluation, useEngine } from '@shared/hooks';
 ```typescript
 // ✅ Allowed: Lower layers can import from higher layers
 // hooks/ can import from lib/, services/, store/
-import { UnifiedEvaluationService } from '@shared/lib/chess/evaluation';
+import { analysisService } from '@shared/lib/chess/AnalysisService';
 
 // ✅ Allowed: Same layer imports
 import { formatEvaluation } from '@shared/utils/chess/evaluation';
@@ -296,8 +296,8 @@ const handleMoveResult = useCallback((result: MoveResult) => {
 ```typescript
 // Pattern: Service instantiation in hooks with singleton pattern
 const engineService = useMemo(() => EngineService.getInstance(), []);
-const service = useMemo(() => new UnifiedEvaluationService(
-  new EngineProviderAdapter(engineService),
+// Use the singleton AnalysisService
+const result = await analysisService.analyzePosition(fen);
   new TablebaseProviderAdapter(),
   new ChessAwareCache(new LRUCache(200))
 ), [engineService]);

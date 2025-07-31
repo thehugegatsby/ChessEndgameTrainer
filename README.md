@@ -12,7 +12,7 @@ Eine moderne **Web-first** Anwendung zum systematischen Lernen von Schachendspie
 
 - **13 Endspiel-Positionen** - Von Bauern bis Turmendspiele
 - **Stockfish Engine Integration** - WASM-basierte KI-Analyse
-- **Unified Evaluation System** - Moderne, konsistente Bewertungslogik
+- **Simplified Architecture** - AnalysisService vereinheitlicht Engine + Tablebase
 - **Dual Evaluation Display** - Engine + Lichess Tablebase
 - **Best Moves Display** - Top 3 Züge mit Bewertungen (Lichess-Style)
 - **Brückenbau-Trainer** - Strukturiertes Lernen mit 5 Lektionen
@@ -62,7 +62,7 @@ ChessEndgameTrainer/
 - **Language**: TypeScript 5.3.3
 - **Styling**: Tailwind CSS 3.4.1
 - **Chess Logic**: chess.js 1.0.0-beta.6
-- **Chess Engine**: SimpleEngine (Stockfish WASM) - Clean Singleton Architecture
+- **Chess Engine**: SimpleEngine (Stockfish WASM) - Singleton Pattern
 - **State Management**: Zustand 4.5.0 (Single Source of Truth)
 - **Testing**: Jest 30.0.4, React Testing Library 14.2.1
 - **Environment**: Node.js 20+
@@ -77,7 +77,7 @@ ChessEndgameTrainer/
 ### ✅ **Technical Health**
 - **Test Suite**: 762 unit tests + 33 E2E tests (100% passing) | Comprehensive Coverage
 - **TypeScript**: 0 errors (100% clean) | Complete Clean Compilation  
-- **Architecture**: Simplified - SimpleEngine + EvaluationCache + TablebaseService
+- **Architecture**: v2.0 Simplified - SimpleEngine → AnalysisService → UI
 - **State Management**: Zustand Store as Single Source of Truth
 - **Security**: FEN Input Sanitization implemented
 - **Performance**: LRU Cache, Debouncing, Tree-Shaking optimized

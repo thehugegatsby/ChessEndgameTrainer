@@ -14,8 +14,7 @@ import {
   calculateBarWidth,
   formatDtzDisplay,
   getResultTypeTitle,
-  type TablebaseMove,
-  type MoveResultType
+  type TablebaseMove
 } from '@shared/utils/tablebase/resultClassification';
 
 describe('Result Classification Utilities', () => {

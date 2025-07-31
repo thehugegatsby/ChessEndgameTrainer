@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import { parseUciInfo } from './SimpleUCIParser';
 import { validateAndSanitizeFen } from './fenValidator';
 import { Logger } from '@shared/services/logging/Logger';
-import { ENGINE } from '@shared/constants';
+import { ENGINE, EVALUATION } from '@shared/constants';
 
 const logger = new Logger();
 
@@ -397,8 +397,15 @@ export function getSimpleEngine(config?: EngineConfig): SimpleEngine {
       logger.error('[SimpleEngine] Attempted to initialize in non-browser context');
       throw new Error('SimpleEngine can only be initialized in browser context');
     }
-    logger.info('[SimpleEngine] Browser context confirmed, creating engine with path: /stockfish.js');
-    simpleEngineInstance = new SimpleEngine('/stockfish.js', config);
+    
+    // Always use MULTI_PV_COUNT from constants for consistent behavior
+    const engineConfig: EngineConfig = {
+      ...config,
+      multiPv: EVALUATION.MULTI_PV_COUNT // Always use 3 for multi-PV analysis
+    };
+    
+    logger.info('[SimpleEngine] Browser context confirmed, creating engine with config', engineConfig);
+    simpleEngineInstance = new SimpleEngine('/stockfish.js', engineConfig);
   } else {
     logger.debug('[SimpleEngine] Returning existing singleton instance');
   }

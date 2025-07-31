@@ -8,12 +8,12 @@
  */
 
 import React from 'react';
-import type { MoveQualityResult } from '../../types/evaluation';
+import type { SimplifiedMoveQualityResult } from '../../types/evaluation';
 import { getQualityEmoji, formatQualityTooltip } from '../../utils/moveQualityFormatters';
 
 interface MoveQualityDisplayProps {
   /** Move quality result to display */
-  quality: MoveQualityResult | null;
+  quality: SimplifiedMoveQualityResult | null;
   /** Whether analysis is in progress */
   isLoading?: boolean;
   /** Error from analysis */
