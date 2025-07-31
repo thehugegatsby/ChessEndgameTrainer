@@ -187,6 +187,10 @@ export const useStore = create<RootState & Actions>()(
           state.training.nextPosition = undefined;
           state.training.previousPosition = undefined;
           
+          // Clear any pending engine moves
+          state.training.isEngineThinking = false;
+          state.training.engineMove = undefined;
+          
           logger.info('Position set', { positionId: position.id });
         }),
 

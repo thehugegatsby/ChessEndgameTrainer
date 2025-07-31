@@ -81,14 +81,19 @@ export class AnalysisService {
    * Get best move for computer - prioritizes tablebase
    */
   async getBestMove(fen: string): Promise<string | null> {
-    logger.info('[AnalysisService] Getting best move');
+    logger.info('[AnalysisService] Getting best move', { fen });
     
     try {
       // 1. Try tablebase first
       const tablebaseMoves = await tablebaseService.getTopMoves(fen, 1);
       if (tablebaseMoves.isAvailable && tablebaseMoves.moves && tablebaseMoves.moves.length > 0) {
-        logger.info('[AnalysisService] Using tablebase move', { move: tablebaseMoves.moves[0].san });
-        return tablebaseMoves.moves[0].san;
+        // Return UCI format (e.g. "e6f6") as expected by the engine move handler
+        logger.info('[AnalysisService] Using tablebase move', { 
+          move: tablebaseMoves.moves[0].uci,
+          san: tablebaseMoves.moves[0].san,
+          fen 
+        });
+        return tablebaseMoves.moves[0].uci;
       }
       
       // 2. Fall back to engine

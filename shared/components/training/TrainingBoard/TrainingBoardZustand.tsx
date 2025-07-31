@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useMemo, useState, useRef } from 'react';
 import { Chess, Move } from 'chess.js';
-import { Square } from 'react-chessboard/dist/chessboard/types';
+import { Square, Piece } from 'react-chessboard/dist/chessboard/types';
 import { Chessboard } from 'react-chessboard';
 import { useEvaluation, useTrainingGame } from '../../../hooks';
 import { usePageReady } from '../../../hooks/usePageReady';
@@ -101,12 +101,20 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       return initialFen;
     }
     
-    const tempGame = new Chess(initialFen);
-    for (let i = 0; i < history.length - 1; i++) {
-      tempGame.move(history[i]);
+    try {
+      const tempGame = new Chess(initialFen);
+      for (let i = 0; i < history.length - 1; i++) {
+        const moveResult = tempGame.move(history[i]);
+        if (!moveResult) {
+          // Move doesn't apply to this position - history is from a different position
+          return undefined;
+        }
+      }
+      return tempGame.fen();
+    } catch (error) {
+      // History doesn't match current position
+      return undefined;
     }
-    
-    return tempGame.fen();
   }, [history, initialFen, currentFen]);
 
   // Evaluation logic
@@ -231,13 +239,20 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       if (result) {
         // Then trigger engine response using store action
         try {
-          const engineMoveUci = await requestEngineMove(currentFen)(useStore.getState, useStore.setState);
-          if (engineMoveUci) {
+          // Get the updated FEN after the move
+          const updatedFen = useStore.getState().training.currentFen || game.fen();
+          const engineMoveUci = await requestEngineMove(updatedFen)(useStore.getState, useStore.setState);
+          
+          // Check if position hasn't changed while waiting for engine
+          const currentPositionId = useStore.getState().training.currentPosition?.id;
+          if (engineMoveUci && currentPositionId === position?.id) {
             // Convert UCI to move object format for makeMove
             const from = engineMoveUci.slice(0, 2);
             const to = engineMoveUci.slice(2, 4);
             const promotion = engineMoveUci.length > 4 ? engineMoveUci.slice(4, 5) : undefined;
             await makeMove({ from, to, promotion });
+          } else if (currentPositionId !== position?.id) {
+            logger.debug('Position changed, skipping engine move');
           }
         } catch (error) {
           logger.error('Engine move failed', error as Error);
@@ -345,7 +360,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
   // === EVENT HANDLERS ===
 
   // Handle piece drop
-  const onDrop = useCallback((sourceSquare: Square, targetSquare: Square): boolean => {
+  const onDrop = useCallback((sourceSquare: Square, targetSquare: Square, piece: Piece): boolean => {
     if (isGameFinished) return false;
 
     const move = {
