@@ -4,6 +4,9 @@
  */
 
 import { validateAndSanitizeFen } from '../utils/fenValidator';
+import { getLogger } from '../services/logging';
+
+const logger = getLogger().setContext('TablebaseService');
 
 export interface TablebaseMove {
   uci: string;  // UCI format (e.g., "a1a8")
@@ -75,58 +78,87 @@ class TablebaseService {
       return { isAvailable: true, result: cachedEntry.result };
     }
     
-    try {
-      // HIGH FIX: Use AbortController for proper timeout handling
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-      
-      const response = await fetch(`https://tablebase.lichess.ovh/standard?fen=${encodeURIComponent(sanitizedFen)}`, {
-        signal: controller.signal
-      });
-      
-      clearTimeout(timeoutId);
-      
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (!data.category) {
-        return { isAvailable: false, error: 'Invalid response' };
-      }
-      
-      const result: TablebaseResult = {
-        wdl: this.categoryToWdl(data.category),
-        dtz: data.dtz || null,
-        dtm: null, // Lichess doesn't provide DTM
-        category: data.category,
-        precise: data.precise_dtz !== undefined,
-        evaluation: this.getEvaluationText(data.category, data.dtz)
-      };
-      
-      // MEDIUM FIX: Cache with expiry timestamp instead of setTimeout
-      this.cache.set(sanitizedFen, { 
-        result, 
-        expiry: Date.now() + this.cacheTtl 
-      });
-      
-      return { isAvailable: true, result };
-      
-    } catch (error) {
-      // Handle specific timeout errors
-      if (error instanceof Error && error.name === 'AbortError') {
-        return { 
-          isAvailable: false, 
-          error: 'Request timeout (5s)' 
+    // Retry logic for API calls
+    const MAX_RETRIES = 3;
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        // HIGH FIX: Use AbortController for proper timeout handling
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        
+        const response = await fetch(`https://tablebase.lichess.ovh/standard?fen=${encodeURIComponent(sanitizedFen)}`, {
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          // Don't retry on 4xx client errors, except rate limiting
+          if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+            throw new Error(`Client error: ${response.status}`);
+          }
+          // For server errors or rate limiting, throw to trigger retry
+          throw new Error(`API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!data.category) {
+          return { isAvailable: false, error: 'Invalid response' };
+        }
+        
+        const result: TablebaseResult = {
+          wdl: this.categoryToWdl(data.category),
+          dtz: data.dtz || null,
+          dtm: null, // Lichess doesn't provide DTM
+          category: data.category,
+          precise: data.precise_dtz !== undefined,
+          evaluation: this.getEvaluationText(data.category, data.dtz)
         };
+        
+        // MEDIUM FIX: Cache with expiry timestamp instead of setTimeout
+        this.cache.set(sanitizedFen, { 
+          result, 
+          expiry: Date.now() + this.cacheTtl 
+        });
+        
+        return { isAvailable: true, result };
+        
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        logger.warn(`Tablebase API attempt ${attempt}/${MAX_RETRIES} failed`, { fen: sanitizedFen, error: errorMessage });
+        
+        // Don't retry client errors
+        if (error instanceof Error && error.message.startsWith('Client error')) {
+          return { 
+            isAvailable: false, 
+            error: errorMessage 
+          };
+        }
+        
+        // Last attempt failed
+        if (attempt === MAX_RETRIES) {
+          // Handle specific timeout errors
+          if (error instanceof Error && error.name === 'AbortError') {
+            return { 
+              isAvailable: false, 
+              error: 'Request timeout after retries' 
+            };
+          }
+          
+          return { 
+            isAvailable: false, 
+            error: `Failed after ${MAX_RETRIES} attempts: ${errorMessage}` 
+          };
+        }
+        
+        // Wait before retry with exponential backoff
+        await new Promise(resolve => setTimeout(resolve, 250 * attempt));
       }
-      
-      return { 
-        isAvailable: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
-      };
     }
+    
+    // Should never reach here
+    return { isAvailable: false, error: 'Unexpected error' };
   }
   
   private categoryToWdl(category: string): number {
@@ -217,7 +249,23 @@ class TablebaseService {
       
       // Filter out null results and sort by WDL (best moves first)
       const validMoves = moveEvaluations
-        .filter((m): m is TablebaseMove => m !== null)
+        .filter((m): m is TablebaseMove => m !== null);
+      
+      // Log moves BEFORE sorting for debugging
+      logger.info('[TablebaseService] Moves before sorting', {
+        fen: sanitizedFen,
+        movesCount: validMoves.length,
+        moves: validMoves.map(m => ({
+          uci: m.uci,
+          san: m.san,
+          wdl: m.wdl,
+          dtz: m.dtz,
+          category: m.category
+        }))
+      });
+      
+      // Sort moves
+      const sortedMoves = validMoves
         .sort((a, b) => {
           // Sort by WDL first (higher is better)
           if (b.wdl !== a.wdl) return b.wdl - a.wdl;
@@ -230,7 +278,21 @@ class TablebaseService {
         })
         .slice(0, limit);
       
-      if (validMoves.length === 0) {
+      // Log moves AFTER sorting for debugging
+      logger.info('[TablebaseService] Moves after sorting', {
+        fen: sanitizedFen,
+        limit,
+        movesCount: sortedMoves.length,
+        moves: sortedMoves.map(m => ({
+          uci: m.uci,
+          san: m.san,
+          wdl: m.wdl,
+          dtz: m.dtz,
+          category: m.category
+        }))
+      });
+      
+      if (sortedMoves.length === 0) {
         return { 
           isAvailable: false, 
           error: 'No tablebase data available for legal moves' 
@@ -239,7 +301,7 @@ class TablebaseService {
       
       return {
         isAvailable: true,
-        moves: validMoves
+        moves: sortedMoves
       };
       
     } catch (error) {

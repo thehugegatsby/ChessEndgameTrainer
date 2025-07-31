@@ -25,7 +25,7 @@ const logger = getLogger().setContext('TrainingActions');
 export const requestEngineMove = (fen: string, options?: { depth?: number; timeout?: number }) => 
   async (_get: () => { training: TrainingState }, set: (partial: any) => void) => {
     try {
-      logger.debug('Requesting engine move', { fen, options });
+      logger.info('[TRACE] requestEngineMove called', { fen, options });
       
       // Set engine thinking state
       set((state: any) => ({
@@ -40,10 +40,11 @@ export const requestEngineMove = (fen: string, options?: { depth?: number; timeo
       const move = await analysisService.getBestMove(fen);
       const analysis = await analysisService.analyzePosition(fen);
       
-      logger.debug('Best move received', { 
+      logger.info('[TRACE] Best move received from AnalysisService', { 
         move, 
         evaluation: analysis.evaluation,
-        isTablebase: !!analysis.tablebase 
+        isTablebase: !!analysis.tablebase,
+        fen 
       });
 
       // Update store with engine move
@@ -56,6 +57,7 @@ export const requestEngineMove = (fen: string, options?: { depth?: number; timeo
         }
       }));
 
+      logger.info('[TRACE] Returning move from requestEngineMove', { move });
       return move;
 
     } catch (error) {

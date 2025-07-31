@@ -241,7 +241,20 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
         try {
           // Get the updated FEN after the move
           const updatedFen = useStore.getState().training.currentFen || game.fen();
+          logger.info('Requesting engine move for position', { 
+            updatedFen,
+            turn: game.turn(),
+            moveNumber: history.length
+          });
+          
           const engineMoveUci = await requestEngineMove(updatedFen)(useStore.getState, useStore.setState);
+          
+          logger.info('[TRACE] Engine move returned', {
+            engineMoveUci,
+            updatedFen,
+            currentGameFen: game.fen(),
+            historyLength: history.length
+          });
           
           // Check if position hasn't changed while waiting for engine
           const currentPositionId = useStore.getState().training.currentPosition?.id;
@@ -250,7 +263,23 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
             const from = engineMoveUci.slice(0, 2);
             const to = engineMoveUci.slice(2, 4);
             const promotion = engineMoveUci.length > 4 ? engineMoveUci.slice(4, 5) : undefined;
-            await makeMove({ from, to, promotion });
+            
+            logger.info('[TRACE] About to execute engine move', {
+              engineMoveUci,
+              from,
+              to,
+              promotion,
+              currentFen: updatedFen,
+              gameStateBeforeMove: game.fen()
+            });
+            
+            const engineMoveResult = await makeMove({ from, to, promotion });
+            
+            logger.info('[TRACE] Engine move executed', {
+              success: !!engineMoveResult,
+              gameStateAfterMove: game.fen(),
+              actualMove: engineMoveResult
+            });
           } else if (currentPositionId !== position?.id) {
             logger.debug('Position changed, skipping engine move');
           }
