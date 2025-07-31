@@ -20,7 +20,7 @@ describe('Engine Moves Display Integration Test (Bug #14)', () => {
       // 2. useEvaluation hook gets multiPvResults as undefined
       // 3. DualEvaluationPanel shows "Warte auf Multi-PV Analyse..."
       
-      const { container } = render(
+      render(
         <DualEvaluationPanel
           fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
           isVisible={true}

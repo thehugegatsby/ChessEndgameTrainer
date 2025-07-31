@@ -5,7 +5,7 @@
  */
 
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useLocalStorage, useLocalStorageSync } from '@shared/hooks/useLocalStorage.refactored';
+import { useLocalStorageWithState, useLocalStorageSync } from '@shared/hooks/useLocalStorage';
 import { createTestContainer } from '../../utils';
 import type { IPlatformStorage } from '@shared/services/platform/types';
 
@@ -39,12 +39,12 @@ describe('useLocalStorage Hook - Refactored Version', () => {
     jest.clearAllMocks();
   });
 
-  describe('Async Hook - useLocalStorage', () => {
+  describe('Async Hook - useLocalStorageWithState', () => {
     describe('Initialization', () => {
       test('should initialize with loading state', () => {
         jest.spyOn(mockStorageService, 'load').mockResolvedValue(null);
 
-        const { result } = renderHook(() => useLocalStorage(testKey, testString));
+        const { result } = renderHook(() => useLocalStorageWithState(testKey, testString));
 
         const [value, setter, isLoading, saveError] = result.current;
         expect(value).toBeUndefined();
@@ -56,7 +56,7 @@ describe('useLocalStorage Hook - Refactored Version', () => {
       test('should load existing value from storage', async () => {
         jest.spyOn(mockStorageService, 'load').mockResolvedValue(testValue);
 
-        const { result } = renderHook(() => useLocalStorage(testKey, 'default'));
+        const { result } = renderHook(() => useLocalStorageWithState(testKey, 'default'));
 
         // Wait for async loading to complete
         await waitFor(() => {
@@ -73,7 +73,7 @@ describe('useLocalStorage Hook - Refactored Version', () => {
       test('should use initial value when storage is empty', async () => {
         jest.spyOn(mockStorageService, 'load').mockResolvedValue(null);
 
-        const { result } = renderHook(() => useLocalStorage(testKey, testString));
+        const { result } = renderHook(() => useLocalStorageWithState(testKey, testString));
 
         await waitFor(() => {
           expect(result.current[2]).toBe(false);
@@ -87,7 +87,7 @@ describe('useLocalStorage Hook - Refactored Version', () => {
         const initialValueFn = jest.fn(() => testValue);
         jest.spyOn(mockStorageService, 'load').mockResolvedValue(null);
 
-        const { result } = renderHook(() => useLocalStorage(testKey, initialValueFn));
+        const { result } = renderHook(() => useLocalStorageWithState(testKey, initialValueFn));
 
         await waitFor(() => {
           expect(result.current[2]).toBe(false);
@@ -101,7 +101,7 @@ describe('useLocalStorage Hook - Refactored Version', () => {
       test('should handle storage load errors gracefully', async () => {
         jest.spyOn(mockStorageService, 'load').mockRejectedValue(new Error('Storage error'));
 
-        const { result } = renderHook(() => useLocalStorage(testKey, testString));
+        const { result } = renderHook(() => useLocalStorageWithState(testKey, testString));
 
         await waitFor(() => {
           expect(result.current[2]).toBe(false);
@@ -117,7 +117,7 @@ describe('useLocalStorage Hook - Refactored Version', () => {
         jest.spyOn(mockStorageService, 'load').mockResolvedValue(null);
         jest.spyOn(mockStorageService, 'save').mockResolvedValue(undefined);
 
-        const { result } = renderHook(() => useLocalStorage(testKey, testString));
+        const { result } = renderHook(() => useLocalStorageWithState(testKey, testString));
 
         // Wait for initialization
         await waitFor(() => {
@@ -141,7 +141,7 @@ describe('useLocalStorage Hook - Refactored Version', () => {
         jest.spyOn(mockStorageService, 'load').mockResolvedValue({ count: 0 });
         jest.spyOn(mockStorageService, 'save').mockResolvedValue(undefined);
 
-        const { result } = renderHook(() => useLocalStorage(testKey, { count: 0 }));
+        const { result } = renderHook(() => useLocalStorageWithState(testKey, { count: 0 }));
 
         // Wait for loading to complete step by step
         await waitFor(() => {
@@ -154,7 +154,7 @@ describe('useLocalStorage Hook - Refactored Version', () => {
         });
 
         act(() => {
-          result.current[1](prev => ({ count: (prev?.count || 0) + 1 }));
+          result.current[1]((prev: any) => ({ count: (prev?.count || 0) + 1 }));
         });
 
         expect(result.current[0]).toEqual({ count: 1 });
@@ -169,7 +169,7 @@ describe('useLocalStorage Hook - Refactored Version', () => {
         jest.spyOn(mockStorageService, 'load').mockResolvedValue(null);
         jest.spyOn(mockStorageService, 'save').mockRejectedValue(new Error('Save failed'));
 
-        const { result } = renderHook(() => useLocalStorage(testKey, testString));
+        const { result } = renderHook(() => useLocalStorageWithState(testKey, testString));
 
         await waitFor(() => {
           expect(result.current[2]).toBe(false);
@@ -202,7 +202,7 @@ describe('useLocalStorage Hook - Refactored Version', () => {
           new Promise(resolve => setTimeout(() => resolve(testValue), 100))
         );
 
-        const { result, unmount } = renderHook(() => useLocalStorage(testKey, 'default'));
+        const { result, unmount } = renderHook(() => useLocalStorageWithState(testKey, 'default'));
 
         // Unmount before async load completes
         unmount();
@@ -250,7 +250,7 @@ describe('useLocalStorage Hook - Refactored Version', () => {
 
       // Should work with function updates
       act(() => {
-        setValue(prev => prev + ' updated');
+        setValue((prev: string) => prev + ' updated');
       });
 
       expect(result.current[0]).toBe(testString + ' updated');
@@ -262,7 +262,7 @@ describe('useLocalStorage Hook - Refactored Version', () => {
       jest.spyOn(mockStorageService, 'load').mockResolvedValue(testValue);
       jest.spyOn(mockStorageService, 'save').mockResolvedValue(undefined);
 
-      const { result } = renderHook(() => useLocalStorage(testKey, 'initial'));
+      const { result } = renderHook(() => useLocalStorageWithState(testKey, 'initial'));
 
       await waitFor(() => {
         expect(result.current[2]).toBe(false);
@@ -307,7 +307,7 @@ describe('useLocalStorage Hook - Refactored Version', () => {
       
       jest.spyOn(mockStorageService, 'load').mockResolvedValue('test-data');
       
-      const { result } = renderHook(() => useLocalStorage('test', 'default'));
+      const { result } = renderHook(() => useLocalStorageWithState('test', 'default'));
       
       await waitFor(() => {
         expect(result.current[2]).toBe(false);
@@ -329,7 +329,7 @@ describe('useLocalStorage Hook - Refactored Version', () => {
 
       const { result, rerender } = renderHook(() => {
         renderCount();
-        return useLocalStorage(testKey, 'initial');
+        return useLocalStorageWithState(testKey, 'initial');
       });
 
       await waitFor(() => {
@@ -349,7 +349,7 @@ describe('useLocalStorage Hook - Refactored Version', () => {
       jest.spyOn(mockStorageService, 'load').mockResolvedValue(null);
       jest.spyOn(mockStorageService, 'save').mockResolvedValue(undefined);
 
-      const { result } = renderHook(() => useLocalStorage(testKey, 0));
+      const { result } = renderHook(() => useLocalStorageWithState(testKey, 0));
 
       await waitFor(() => {
         expect(result.current[2]).toBe(false);

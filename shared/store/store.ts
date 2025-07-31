@@ -183,6 +183,10 @@ export const useStore = create<RootState & Actions>()(
           state.training.hintsUsed = 0;
           state.training.mistakeCount = 0;
           
+          // Clear navigation context when position changes
+          state.training.nextPosition = undefined;
+          state.training.previousPosition = undefined;
+          
           logger.info('Position set', { positionId: position.id });
         }),
 
@@ -190,7 +194,13 @@ export const useStore = create<RootState & Actions>()(
           // Avoid re-fetching if we already have context for this position
           const currentState = get();
           if (currentState.training.currentPosition?.id === position.id && 
-              currentState.training.nextPosition !== undefined) {
+              currentState.training.nextPosition !== undefined &&
+              currentState.training.previousPosition !== undefined) {
+            logger.info('Skipping navigation context load - already cached', {
+              positionId: position.id,
+              hasNext: currentState.training.nextPosition !== null,
+              hasPrev: currentState.training.previousPosition !== null
+            });
             return;
           }
           
@@ -205,6 +215,12 @@ export const useStore = create<RootState & Actions>()(
 
           try {
             const { positionService } = getStoreDependencies();
+            
+            logger.info('Loading navigation context', { 
+              positionId: position.id, 
+              category: position.category 
+            });
+            
             const [next, prev] = await Promise.all([
               positionService.getNextPosition(position.id, position.category),
               positionService.getPreviousPosition(position.id, position.category),
@@ -218,8 +234,11 @@ export const useStore = create<RootState & Actions>()(
             
             logger.info('Training context loaded', { 
               positionId: position.id,
+              category: position.category,
               hasNext: !!next,
-              hasPrev: !!prev
+              hasPrev: !!prev,
+              nextId: next?.id,
+              prevId: prev?.id
             });
           } catch (err) {
             logger.error('Failed to load navigation context:', err);

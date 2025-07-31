@@ -33,7 +33,12 @@ class DefaultLogFormatter implements ILogFormatter {
     let message = `${timestamp} ${level} ${context} ${entry.message}`;
     
     if (entry.data) {
-      message += ` ${JSON.stringify(entry.data)}`;
+      try {
+        message += ` ${JSON.stringify(entry.data, null, 2)}`;
+      } catch (e) {
+        // Fallback for circular references or other stringify errors
+        message += ` ${String(entry.data)}`;
+      }
     }
     
     if (entry.error) {
@@ -58,20 +63,39 @@ class ConsoleTransport implements ILogTransport {
   log(entry: LogEntry): void {
     const formatted = this.formatter.format(entry);
     
-    switch (entry.level) {
-      case LogLevel.DEBUG:
-        console.debug(formatted);
-        break;
-      case LogLevel.INFO:
-        console.info(formatted);
-        break;
-      case LogLevel.WARN:
-        console.warn(formatted);
-        break;
-      case LogLevel.ERROR:
-      case LogLevel.FATAL:
-        console.error(formatted);
-        break;
+    // If there's additional data, log it separately for better visibility
+    if (entry.data) {
+      switch (entry.level) {
+        case LogLevel.DEBUG:
+          console.debug(formatted, entry.data);
+          break;
+        case LogLevel.INFO:
+          console.info(formatted, entry.data);
+          break;
+        case LogLevel.WARN:
+          console.warn(formatted, entry.data);
+          break;
+        case LogLevel.ERROR:
+        case LogLevel.FATAL:
+          console.error(formatted, entry.data);
+          break;
+      }
+    } else {
+      switch (entry.level) {
+        case LogLevel.DEBUG:
+          console.debug(formatted);
+          break;
+        case LogLevel.INFO:
+          console.info(formatted);
+          break;
+        case LogLevel.WARN:
+          console.warn(formatted);
+          break;
+        case LogLevel.ERROR:
+        case LogLevel.FATAL:
+          console.error(formatted);
+          break;
+      }
     }
   }
   

@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { DualEvaluationPanel } from '@shared/components/training/DualEvaluationPanel';
 import { useEvaluation } from '@shared/hooks/useEvaluation';
 import { useBatchMoveQuality } from '@shared/hooks/useBatchMoveQuality';
@@ -13,12 +13,12 @@ import { useBatchMoveQuality } from '@shared/hooks/useBatchMoveQuality';
 jest.mock('@shared/hooks/useEvaluation');
 jest.mock('@shared/hooks/useBatchMoveQuality');
 jest.mock('@shared/components/tablebase/TablebasePanel', () => ({
-  TablebasePanel: ({ tablebaseData }: any) => (
+  TablebasePanel: () => (
     <div data-testid="tablebase-panel">TablebasePanel</div>
   )
 }));
 jest.mock('@shared/components/analysis/MoveQualityDisplay', () => ({
-  MoveQualityDisplay: ({ quality }: any) => (
+  MoveQualityDisplay: () => (
     <span data-testid="move-quality">MoveQuality</span>
   )
 }));
@@ -34,6 +34,8 @@ describe('DualEvaluationPanel', () => {
     mockUseBatchMoveQuality.mockReturnValue({
       results: new Map(),
       isLoading: false,
+      error: null,
+      progress: { completed: 0, total: 0, percentage: 0 },
       analyzeMoveBatch: jest.fn(),
       clearResults: jest.fn()
     });
@@ -47,9 +49,9 @@ describe('DualEvaluationPanel', () => {
         lastEvaluation: {
           evaluation: 150,
           multiPvResults: [
-            { san: 'e4', score: { type: 'cp', value: 150 } },
-            { san: 'Nf3', score: { type: 'cp', value: 120 } },
-            { san: 'd4', score: { type: 'cp', value: 100 } }
+            { move: 'e2e4', san: 'e4', score: { type: 'cp', value: 150 }, pv: ['e2e4'], rank: 1 },
+            { move: 'g1f3', san: 'Nf3', score: { type: 'cp', value: 120 }, pv: ['g1f3'], rank: 2 },
+            { move: 'd2d4', san: 'd4', score: { type: 'cp', value: 100 }, pv: ['d2d4'], rank: 3 }
           ]
         },
         isEvaluating: false,
@@ -138,8 +140,8 @@ describe('DualEvaluationPanel', () => {
         lastEvaluation: {
           evaluation: 0,
           multiPvResults: [
-            { san: 'Qh5', score: { type: 'mate', value: 3 } },
-            { san: 'Qf3', score: { type: 'mate', value: 5 } }
+            { move: 'd1h5', san: 'Qh5', score: { type: 'mate', value: 3 }, pv: ['d1h5'], rank: 1 },
+            { move: 'd1f3', san: 'Qf3', score: { type: 'mate', value: 5 }, pv: ['d1f3'], rank: 2 }
           ]
         },
         isEvaluating: false,
