@@ -360,7 +360,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
   // === EVENT HANDLERS ===
 
   // Handle piece drop
-  const onDrop = useCallback((sourceSquare: Square, targetSquare: Square, piece: Piece): boolean => {
+  const onDrop = useCallback((sourceSquare: Square, targetSquare: Square, _piece: Piece): boolean => {
     if (isGameFinished) return false;
 
     const move = {

@@ -28,18 +28,6 @@ import { getLogger } from '@shared/services/logging';
 
 const logger = getLogger().setContext('FirebasePositionRepository');
 
-// Helper function to serialize errors for logging
-function serializeError(error: unknown): unknown {
-  if (error instanceof Error) {
-    return {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    };
-  }
-  return String(error);
-}
-
 export class FirebasePositionRepository implements IPositionRepository {
   private db: Firestore;
   private config: IPositionRepositoryConfig;
