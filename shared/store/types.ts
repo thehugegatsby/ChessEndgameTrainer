@@ -3,17 +3,12 @@
  * Defines the shape of the application state and actions
  */
 
-import { 
-  ValidatedMove,
-  ChessInstance
-} from '../types';
-import { Move as ChessJsMove } from 'chess.js';
+import { ValidatedMove, ChessInstance } from "../types";
+import { Move as ChessJsMove } from "chess.js";
 
-import {
-  EvaluationData
-} from '../types/evaluation';
+import { PositionAnalysis } from "../types/evaluation";
 
-import { EndgamePosition } from '../types/endgame';
+import { EndgamePosition } from "../types/endgame";
 
 // User state
 export interface UserState {
@@ -29,15 +24,15 @@ export interface UserState {
 }
 
 export interface UserPreferences {
-  theme: 'light' | 'dark' | 'system';
+  theme: "light" | "dark" | "system";
   soundEnabled: boolean;
   notificationsEnabled: boolean;
-  boardOrientation: 'white' | 'black';
+  boardOrientation: "white" | "black";
   pieceTheme: string;
   autoPromoteToQueen: boolean;
   showCoordinates: boolean;
   showLegalMoves: boolean;
-  animationSpeed: 'slow' | 'normal' | 'fast' | 'none';
+  animationSpeed: "slow" | "normal" | "fast" | "none";
 }
 
 // Training state
@@ -55,7 +50,7 @@ export interface TrainingState {
   moveHistory: ValidatedMove[];
   isEngineThinking: boolean;
   engineMove?: string;
-  evaluations: EvaluationData[];
+  evaluations: PositionAnalysis[];
   isPlayerTurn: boolean;
   isGameFinished: boolean;
   isSuccess: boolean;
@@ -63,7 +58,7 @@ export interface TrainingState {
   endTime?: number;
   hintsUsed: number;
   mistakeCount: number;
-  currentEvaluation?: EvaluationData;
+  currentEvaluation?: PositionAnalysis;
   isAnalyzing: boolean;
   engineStatus: EngineStatus;
   currentFen?: string;
@@ -71,7 +66,12 @@ export interface TrainingState {
   currentMoveIndex?: number;
 }
 
-export type EngineStatus = 'idle' | 'initializing' | 'ready' | 'analyzing' | 'error';
+export type EngineStatus =
+  | "idle"
+  | "initializing"
+  | "ready"
+  | "analyzing"
+  | "error";
 
 // Progress state
 export interface ProgressState {
@@ -121,12 +121,17 @@ export interface UIState {
   analysisPanel: AnalysisPanelState;
 }
 
-export type ModalType = 'settings' | 'help' | 'achievements' | 'share' | 'confirm';
+export type ModalType =
+  | "settings"
+  | "help"
+  | "achievements"
+  | "share"
+  | "confirm";
 
 export interface Toast {
   id: string;
   message: string;
-  type: 'success' | 'error' | 'info' | 'warning';
+  type: "success" | "error" | "info" | "warning";
   duration?: number;
 }
 
@@ -139,7 +144,7 @@ export interface LoadingState {
 
 export interface AnalysisPanelState {
   isOpen: boolean;
-  activeTab: 'moves' | 'evaluation' | 'variations';
+  activeTab: "moves" | "evaluation" | "variations";
   showEngine: boolean;
   showTablebase: boolean;
 }
@@ -188,11 +193,13 @@ export interface TrainingActions {
   setPosition: (position: EndgamePosition) => void;
   loadTrainingContext: (position: EndgamePosition) => Promise<void>;
   setGame: (game: ChessInstance) => void;
-  makeMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => void;
+  makeMove: (
+    move: ChessJsMove | { from: string; to: string; promotion?: string },
+  ) => void;
   undoMove: () => void;
   resetPosition: () => void;
-  setEvaluation: (evaluation: EvaluationData) => void;
-  setEvaluations: (evaluations: EvaluationData[]) => void;
+  setEvaluation: (evaluation: PositionAnalysis) => void;
+  setEvaluations: (evaluations: PositionAnalysis[]) => void;
   setEngineStatus: (status: EngineStatus) => void;
   completeTraining: (success: boolean) => void;
   useHint: () => void;
@@ -206,7 +213,10 @@ export interface TrainingActions {
 }
 
 export interface ProgressActions {
-  updatePositionProgress: (positionId: number, update: Partial<PositionProgress>) => void;
+  updatePositionProgress: (
+    positionId: number,
+    update: Partial<PositionProgress>,
+  ) => void;
   addDailyStats: (stats: Partial<DailyStats>) => void;
   unlockAchievement: (achievementId: string) => void;
   toggleFavorite: (positionId: number) => void;
@@ -217,7 +227,7 @@ export interface UIActions {
   toggleSidebar: () => void;
   openModal: (type: ModalType) => void;
   closeModal: () => void;
-  showToast: (message: string, type: Toast['type'], duration?: number) => void;
+  showToast: (message: string, type: Toast["type"], duration?: number) => void;
   removeToast: (id: string) => void;
   setLoading: (key: keyof LoadingState, value: boolean) => void;
   updateAnalysisPanel: (update: Partial<AnalysisPanelState>) => void;
@@ -231,12 +241,12 @@ export interface SettingsActions {
 }
 
 // Combined actions
-export interface Actions extends 
-  UserActions, 
-  TrainingActions, 
-  ProgressActions, 
-  UIActions, 
-  SettingsActions {
+export interface Actions
+  extends UserActions,
+    TrainingActions,
+    ProgressActions,
+    UIActions,
+    SettingsActions {
   reset: () => void;
   hydrate: (state: Partial<RootState>) => void;
 }

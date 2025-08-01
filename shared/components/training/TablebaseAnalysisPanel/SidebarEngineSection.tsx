@@ -1,6 +1,6 @@
 /**
  * TEMPORARILY COMMENTED OUT - Needs refactoring for clean architecture
- * 
+ *
  * This component needs to be rewritten to work with the clean architecture.
  */
 

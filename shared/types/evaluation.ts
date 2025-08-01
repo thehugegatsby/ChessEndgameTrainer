@@ -16,39 +16,28 @@ export interface TablebaseData {
     dtz: number;
     dtm: number;
     wdl: number;
-    category: 'win' | 'draw' | 'loss';
+    category: "win" | "draw" | "loss";
   }>;
 }
 
-
-export interface EvaluationData {
+/**
+ * Position Analysis - Central domain type for chess position evaluation
+ * Replaces the old EvaluationData interface with cleaner, domain-centric naming
+ */
+export interface PositionAnalysis {
+  /** Numeric evaluation score (derived from WDL for tablebase positions) */
   evaluation: number;
+
+  /** Mate in N moves (if applicable) */
   mateInMoves?: number;
+
+  /** Tablebase data (always present for endgame positions) */
   tablebase?: TablebaseData;
-  // PHASE 2.2: Enhanced UCI evaluation data for PV display
-  pv?: string[];          // Principal variation moves array
-  pvString?: string;      // Raw PV string for debugging
-  depth?: number;         // Search depth reached
-  nps?: number;           // Nodes per second
-  time?: number;          // Time spent in milliseconds
-  nodes?: number;         // Number of positions evaluated
-  hashfull?: number;      // Hash table usage percentage
-  seldepth?: number;      // Selective search depth
-  multipv?: number;       // Multi-PV index
-  currmove?: string;      // Current move being analyzed
-  currmovenumber?: number; // Current move number
-  // Top 3 engine moves with Multi-PV like Lichess
-  multiPvResults?: Array<{
-    move: string;
-    san: string;
-    score: {
-      type: 'cp' | 'mate';
-      value: number;
-    };
-    pv: string[];
-    rank: number;
-  }>;
 }
+
+// EvaluationData has been replaced by PositionAnalysis
+// This export maintains backwards compatibility
+export type EvaluationData = PositionAnalysis;
 
 export interface EvaluationDisplay {
   text: string;
@@ -57,13 +46,17 @@ export interface EvaluationDisplay {
   bgColor: string;
 }
 
-
 export interface MoveEvaluation {
   evaluation: number;
   mateInMoves?: number;
 }
 
-export type MoveQuality = 'excellent' | 'good' | 'inaccuracy' | 'mistake' | 'blunder';
+export type MoveQuality =
+  | "excellent"
+  | "good"
+  | "inaccuracy"
+  | "mistake"
+  | "blunder";
 
 export interface DualEvaluation {
   engine: {
@@ -87,22 +80,22 @@ export interface DualEvaluation {
 export interface EngineEvaluation {
   /** Score in centipawns (100 = 1 pawn advantage) */
   score: number;
-  
+
   /** Mate in N moves (positive = White mates, negative = Black mates, null = no mate) */
   mate: number | null;
-  
+
   /** Human-readable evaluation text */
   evaluation: string;
-  
+
   /** Search depth reached */
   depth: number;
-  
+
   /** Number of positions evaluated */
   nodes: number;
-  
+
   /** Time spent in milliseconds */
   time: number;
-  
+
   // PHASE 2.2: Enhanced UCI evaluation data for PV display
   /** Principal variation moves array */
   pv?: string[];
@@ -120,14 +113,14 @@ export interface EngineEvaluation {
   currmove?: string;
   /** Current move number */
   currmovenumber?: number;
-  
+
   // PHASE 3: Multi-PV support
   /** All Multi-PV lines when using Multi-PV evaluation */
   multiPvLines?: Array<{
-    multipv: number;  // Line number (1, 2, 3, ...)
-    score: { type: 'cp' | 'mate'; value: number };
+    multipv: number; // Line number (1, 2, 3, ...)
+    score: { type: "cp" | "mate"; value: number };
     depth: number;
-    pv: string;       // Space-separated UCI moves
+    pv: string; // Space-separated UCI moves
     nodes?: number;
     nps?: number;
     time?: number;
@@ -142,27 +135,30 @@ export interface EngineEvaluation {
 export interface TablebaseResult {
   /** Win/Draw/Loss: 2=win, 1=cursed-win, 0=draw, -1=blessed-loss, -2=loss */
   wdl: number;
-  
+
   /** Distance to Zero (moves to draw under 50-move rule) */
   dtz: number | null;
-  
+
   /** Distance to Mate (total moves to checkmate) */
   dtm: number | null;
-  
+
   /** Human-readable category */
-  category: 'win' | 'cursed-win' | 'draw' | 'blessed-loss' | 'loss';
-  
+  category: "win" | "cursed-win" | "draw" | "blessed-loss" | "loss";
+
   /** Whether the tablebase data is precise */
   precise: boolean;
 }
 
-
-
-
 /**
  * Move quality classification for the MoveQualityAnalyzer
  */
-export type MoveQualityType = 'excellent' | 'good' | 'inaccuracy' | 'mistake' | 'blunder' | 'unknown';
+export type MoveQualityType =
+  | "excellent"
+  | "good"
+  | "inaccuracy"
+  | "mistake"
+  | "blunder"
+  | "unknown";
 
 /**
  * Simplified move quality result for the new architecture
@@ -171,19 +167,19 @@ export type MoveQualityType = 'excellent' | 'good' | 'inaccuracy' | 'mistake' | 
 export interface SimplifiedMoveQualityResult {
   /** The quality classification of the move */
   quality: MoveQualityType;
-  
+
   /** Human-readable reason for the classification */
   reason: string;
-  
+
   /** Whether this analysis is based on tablebase data */
   isTablebaseAnalysis: boolean;
-  
+
   /** Optional tablebase-specific info */
   tablebaseInfo?: {
     wdlBefore: number;
     wdlAfter: number;
   };
-  
+
   /** Optional engine-specific info */
   engineInfo?: {
     evalBefore: number;
@@ -199,22 +195,27 @@ export interface SimplifiedMoveQualityResult {
  */
 
 /** Move quality classes based on ΔDTM for Win→Win transitions */
-export type MoveQualityClass = 'optimal' | 'sicher' | 'umweg' | 'riskant' | 'fehler';
+export type MoveQualityClass =
+  | "optimal"
+  | "sicher"
+  | "umweg"
+  | "riskant"
+  | "fehler";
 
 /** Robustness classification based on available winning moves */
-export type RobustnessTag = 'robust' | 'präzise' | 'haarig';
+export type RobustnessTag = "robust" | "präzise" | "haarig";
 
 /** Enhanced evaluation display for BRÜCKENBAU-TRAINER feature */
 export interface EnhancedEvaluationDisplay extends EvaluationDisplay {
   /** Quality classification for the move */
   qualityClass?: MoveQualityClass;
-  
+
   /** Robustness of the position */
   robustness?: RobustnessTag;
-  
+
   /** Educational tip for learning */
   educationalTip?: string;
-  
+
   /** Number of winning moves available */
   winningMovesCount?: number;
 }
