@@ -15,9 +15,10 @@ if (typeof window !== "undefined") {
 }
 
 /**
- *
- * @param root0
- * @param root0.children
+ * App providers component
+ * @param props - Component props
+ * @param props.children - Child components to render
+ * @returns Providers wrapper with app-ready state management
  */
 export function AppProviders({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

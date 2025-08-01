@@ -3,53 +3,65 @@
  * Shows the new Lichess-like tablebase interface without database dependency
  */
 
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { TablebasePanel } from '@shared/components/tablebase/TablebasePanel';
-import { type TablebaseData } from '@shared/types/evaluation';
+import React, { useState } from "react";
+import { TablebasePanel } from "@shared/components/tablebase/TablebasePanel";
+import { type TablebaseData } from "@shared/types/evaluation";
 
+/**
+ * Tablebase demo page component
+ * @returns Demo page showing tablebase functionality
+ */
 export default function TablebaseDemoPage() {
-  const [selectedMove, setSelectedMove] = useState<string | undefined>(undefined);
+  const [selectedMove, setSelectedMove] = useState<string | undefined>(
+    undefined,
+  );
 
   // Mock tablebase data for demonstration
   const mockTablebaseData: TablebaseData = {
     isTablebasePosition: true,
     wdlBefore: 2,
     wdlAfter: 2,
-    category: 'win',
+    category: "win",
     dtz: 5,
     topMoves: [
-      { move: 'Kf6', san: 'Kf6', dtz: 2, dtm: 4, wdl: 2, category: 'win' },
-      { move: 'Kd6', san: 'Kd6', dtz: 3, dtm: 6, wdl: 2, category: 'win' },
-      { move: 'Ke6', san: 'Ke6', dtz: 5, dtm: 10, wdl: 2, category: 'win' },
-      { move: 'Kf5', san: 'Kf5', dtz: 0, dtm: 0, wdl: 0, category: 'draw' },
-      { move: 'Ke5', san: 'Ke5', dtz: 0, dtm: 0, wdl: 0, category: 'draw' },
-      { move: 'Kf4', san: 'Kf4', dtz: -2, dtm: -4, wdl: -2, category: 'loss' },
-      { move: 'Ke4', san: 'Ke4', dtz: -5, dtm: -10, wdl: -2, category: 'loss' },
-      { move: 'Kd4', san: 'Kd4', dtz: -8, dtm: -16, wdl: -2, category: 'loss' }
-    ]
+      { move: "Kf6", san: "Kf6", dtz: 2, dtm: 4, wdl: 2, category: "win" },
+      { move: "Kd6", san: "Kd6", dtz: 3, dtm: 6, wdl: 2, category: "win" },
+      { move: "Ke6", san: "Ke6", dtz: 5, dtm: 10, wdl: 2, category: "win" },
+      { move: "Kf5", san: "Kf5", dtz: 0, dtm: 0, wdl: 0, category: "draw" },
+      { move: "Ke5", san: "Ke5", dtz: 0, dtm: 0, wdl: 0, category: "draw" },
+      { move: "Kf4", san: "Kf4", dtz: -2, dtm: -4, wdl: -2, category: "loss" },
+      { move: "Ke4", san: "Ke4", dtz: -5, dtm: -10, wdl: -2, category: "loss" },
+      { move: "Kd4", san: "Kd4", dtz: -8, dtm: -16, wdl: -2, category: "loss" },
+    ],
   };
 
   const mockTablebaseDataEmpty: TablebaseData = {
-    isTablebasePosition: false
+    isTablebasePosition: false,
   };
 
   const mockTablebaseDataLoading: TablebaseData = {
     isTablebasePosition: true,
-    topMoves: []
+    topMoves: [],
   };
 
+  /**
+   * Handle move selection
+   * @param move - Selected move
+   */
   const handleMoveSelect = (move: string) => {
     setSelectedMove(move);
-    console.log('Selected move:', move);
+    console.log("Selected move:", move);
   };
 
   // Debug: Log the actual move classifications
-  console.log('Move classifications:');
-  mockTablebaseData.topMoves?.forEach(move => {
-    const resultType = move.dtz > 0 ? 'win' : move.dtz === 0 ? 'draw' : 'loss';
-    console.log(`${move.san}: DTZ=${move.dtz}, calculated=${resultType}, category=${move.category}`);
+  console.log("Move classifications:");
+  mockTablebaseData.topMoves?.forEach((move) => {
+    const resultType = move.dtz > 0 ? "win" : move.dtz === 0 ? "draw" : "loss";
+    console.log(
+      `${move.san}: DTZ=${move.dtz}, calculated=${resultType}, category=${move.category}`,
+    );
   });
 
   return (
@@ -85,7 +97,7 @@ export default function TablebaseDemoPage() {
                 </div>
               </div>
             </div>
-            
+
             <div className="p-6">
               <TablebasePanel
                 tablebaseData={mockTablebaseData}
@@ -111,7 +123,7 @@ export default function TablebaseDemoPage() {
                 <div>Kf4 - DTZ -2</div>
               </div>
             </div>
-            
+
             <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
               <h3 className="text-base font-medium text-gray-900 dark:text-white mb-4">
                 Nachher (Lichess-Style)
@@ -171,7 +183,7 @@ export default function TablebaseDemoPage() {
           <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
             ✨ Implementierte Features
           </h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
               <h3 className="font-semibold text-green-700 dark:text-green-400 mb-2">
@@ -181,7 +193,7 @@ export default function TablebaseDemoPage() {
                 Grün für Gewinnzüge, Gelb für Remis, Rot für Verluste
               </p>
             </div>
-            
+
             <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
               <h3 className="font-semibold text-blue-700 dark:text-blue-400 mb-2">
                 📊 Evaluierungs-Balken
@@ -190,7 +202,7 @@ export default function TablebaseDemoPage() {
                 Visuelle Fortschrittsbalken basierend auf DTZ-Werten
               </p>
             </div>
-            
+
             <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
               <h3 className="font-semibold text-purple-700 dark:text-purple-400 mb-2">
                 📂 Gruppierung
@@ -199,7 +211,7 @@ export default function TablebaseDemoPage() {
                 Züge nach Ergebnis-Typ organisiert mit einklappbaren Bereichen
               </p>
             </div>
-            
+
             <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
               <h3 className="font-semibold text-orange-700 dark:text-orange-400 mb-2">
                 ♿ Barrierefreiheit
@@ -208,7 +220,7 @@ export default function TablebaseDemoPage() {
                 ARIA-Labels, Tastaturnavigation, Screenreader-Unterstützung
               </p>
             </div>
-            
+
             <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
               <h3 className="font-semibold text-red-700 dark:text-red-400 mb-2">
                 ⚡ Performance
@@ -217,7 +229,7 @@ export default function TablebaseDemoPage() {
                 Optimiert für große Zugmengen mit effizienter Rendering
               </p>
             </div>
-            
+
             <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 🧪 Getestet

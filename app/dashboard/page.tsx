@@ -1,14 +1,17 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { ProgressCard } from '../../shared/components/ui/ProgressCard';
-import { AppLayout } from '@shared/components/layout/AppLayout';
-import { usePositionService } from '@shared/contexts/PositionServiceContext';
-import { EndgameChapter } from '@shared/types';
-import { ErrorService } from '@shared/services/errorService';
-import { TRAINING } from '@shared/constants';
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { ProgressCard } from "../../shared/components/ui/ProgressCard";
+import { AppLayout } from "@shared/components/layout/AppLayout";
+import { usePositionService } from "@shared/contexts/PositionServiceContext";
+import { EndgameChapter } from "@shared/types";
+import { ErrorService } from "@shared/services/errorService";
+import { TRAINING } from "@shared/constants";
 
+/**
+ * Progress data for chapters keyed by chapter ID
+ */
 interface ProgressData {
   [chapterId: string]: {
     total: number;
@@ -19,6 +22,10 @@ interface ProgressData {
   };
 }
 
+/**
+ * Dashboard page component
+ * @returns Dashboard component with training progress
+ */
 export default function Dashboard() {
   const positionService = usePositionService();
   const [chapters, setChapters] = useState<EndgameChapter[]>([]);
@@ -28,12 +35,15 @@ export default function Dashboard() {
     completedPositions: 0,
     overallSuccessRate: 0,
     totalDueToday: 0,
-    currentStreak: 0
+    currentStreak: 0,
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Load chapters and progress data
+    /**
+     * Load chapters and generate mock progress data
+     */
     const loadData = async () => {
       try {
         // Fetch chapters from Firebase
@@ -50,14 +60,25 @@ export default function Dashboard() {
 
         for (const chapter of fetchedChapters) {
           // Get actual position count for this chapter
-          const positionCount = await positionService.getPositionCountByCategory(chapter.category);
-          
+          const positionCount =
+            await positionService.getPositionCountByCategory(chapter.category);
+
           const chapterProgress = {
-            total: positionCount || chapter.totalLessons || TRAINING.MOCK.DEFAULT_LESSON_COUNT,
-            completed: Math.floor(Math.random() * (positionCount || chapter.totalLessons || TRAINING.MOCK.DEFAULT_LESSON_COUNT)), // Mock data
-            successRate: TRAINING.MOCK.SUCCESS_RATE_MIN + Math.random() * TRAINING.MOCK.SUCCESS_RATE_RANGE, // Mock success rate 70-100%
+            total:
+              positionCount ||
+              chapter.totalLessons ||
+              TRAINING.MOCK.DEFAULT_LESSON_COUNT,
+            completed: Math.floor(
+              Math.random() *
+                (positionCount ||
+                  chapter.totalLessons ||
+                  TRAINING.MOCK.DEFAULT_LESSON_COUNT),
+            ), // Mock data
+            successRate:
+              TRAINING.MOCK.SUCCESS_RATE_MIN +
+              Math.random() * TRAINING.MOCK.SUCCESS_RATE_RANGE, // Mock success rate 70-100%
             dueToday: Math.floor(Math.random() * TRAINING.MOCK.DUE_TODAY_MAX), // Mock due today 0-2
-            streak: Math.floor(Math.random() * TRAINING.MOCK.STREAK_MAX) // Mock streak 0-9
+            streak: Math.floor(Math.random() * TRAINING.MOCK.STREAK_MAX), // Mock streak 0-9
           };
 
           mockProgressData[chapter.id] = chapterProgress;
@@ -74,10 +95,15 @@ export default function Dashboard() {
           completedPositions,
           overallSuccessRate: chapterCount > 0 ? successSum / chapterCount : 0,
           totalDueToday,
-          currentStreak: Math.floor(Math.random() * TRAINING.MOCK.OVERALL_STREAK_MAX) // Mock overall streak
+          currentStreak: Math.floor(
+            Math.random() * TRAINING.MOCK.OVERALL_STREAK_MAX,
+          ), // Mock overall streak
         });
       } catch (error) {
-        ErrorService.handleNetworkError(error as Error, { component: 'dashboard', action: 'load_chapters' });
+        ErrorService.handleNetworkError(error as Error, {
+          component: "dashboard",
+          action: "load_chapters",
+        });
       } finally {
         setLoading(false);
       }
@@ -86,23 +112,33 @@ export default function Dashboard() {
     loadData();
   }, [positionService]);
 
+  /**
+   * Handle start training button click
+   * @param chapterId - ID of the chapter to start training
+   */
   const handleStartTraining = (chapterId: string) => {
     // Navigate to training with specific chapter
     window.location.href = `/train?chapter=${chapterId}`;
   };
 
-  const overallProgress = totalStats.totalPositions > 0 
-    ? Math.round((totalStats.completedPositions / totalStats.totalPositions) * 100) 
-    : 0;
+  const overallProgress =
+    totalStats.totalPositions > 0
+      ? Math.round(
+          (totalStats.completedPositions / totalStats.totalPositions) * 100,
+        )
+      : 0;
 
   return (
     <AppLayout>
       <main className="px-4 max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+          <h1
+            className="text-3xl font-bold mb-2"
+            style={{ color: "var(--text-primary)" }}
+          >
             Dashboard
           </h1>
-          <p style={{ color: 'var(--text-secondary)' }}>
+          <p style={{ color: "var(--text-secondary)" }}>
             Verfolge deinen Fortschritt im Endspiel-Training
           </p>
         </div>
@@ -112,10 +148,16 @@ export default function Dashboard() {
           <div className="dark-card-elevated rounded-lg p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: "var(--text-secondary)" }}
+                >
                   Gesamte Partien
                 </p>
-                <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+                <p
+                  className="text-2xl font-bold"
+                  style={{ color: "var(--text-primary)" }}
+                >
                   {totalStats.totalPositions}
                 </p>
               </div>
@@ -126,10 +168,16 @@ export default function Dashboard() {
           <div className="dark-card-elevated rounded-lg p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: "var(--text-secondary)" }}
+                >
                   Gewinnrate
                 </p>
-                <p className="text-2xl font-bold" style={{ color: 'var(--success-text)' }}>
+                <p
+                  className="text-2xl font-bold"
+                  style={{ color: "var(--success-text)" }}
+                >
                   {Math.round(totalStats.overallSuccessRate * 100)}%
                 </p>
               </div>
@@ -140,10 +188,16 @@ export default function Dashboard() {
           <div className="dark-card-elevated rounded-lg p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: "var(--text-secondary)" }}
+                >
                   Ø Genauigkeit
                 </p>
-                <p className="text-2xl font-bold" style={{ color: 'var(--info-text)' }}>
+                <p
+                  className="text-2xl font-bold"
+                  style={{ color: "var(--info-text)" }}
+                >
                   {overallProgress}%
                 </p>
               </div>
@@ -154,10 +208,16 @@ export default function Dashboard() {
           <div className="dark-card-elevated rounded-lg p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: "var(--text-secondary)" }}
+                >
                   Aktuelle Serie
                 </p>
-                <p className="text-2xl font-bold" style={{ color: 'var(--warning-text)' }}>
+                <p
+                  className="text-2xl font-bold"
+                  style={{ color: "var(--warning-text)" }}
+                >
                   {totalStats.currentStreak}
                 </p>
               </div>
@@ -175,7 +235,8 @@ export default function Dashboard() {
                   🚨 Aufgaben warten auf dich!
                 </h3>
                 <p className="text-orange-700 dark:text-orange-300">
-                  Du hast {totalStats.totalDueToday} Stellungen, die heute wiederholt werden sollten.
+                  Du hast {totalStats.totalDueToday} Stellungen, die heute
+                  wiederholt werden sollten.
                 </p>
               </div>
               <Link
@@ -197,8 +258,11 @@ export default function Dashboard() {
             {loading ? (
               // Loading skeleton for cards
               <>
-                {[1, 2, 3, 4, 5, 6].map(i => (
-                  <div key={i} className="dark-card-elevated rounded-lg p-6 animate-pulse">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div
+                    key={i}
+                    className="dark-card-elevated rounded-lg p-6 animate-pulse"
+                  >
                     <div className="h-6 bg-gray-700 rounded mb-2"></div>
                     <div className="h-4 bg-gray-700 rounded w-3/4 mb-4"></div>
                     <div className="space-y-2">
@@ -209,49 +273,55 @@ export default function Dashboard() {
                 ))}
               </>
             ) : chapters.length > 0 ? (
-              chapters.map(chapter => {
+              chapters.map((chapter) => {
                 const stats = progressData[chapter.id] || {
                   total: chapter.totalLessons || 0,
                   completed: 0,
                   successRate: 0,
                   dueToday: 0,
-                  streak: 0
+                  streak: 0,
                 };
 
-              // Determine difficulty based on chapter content
-              const difficulty = chapter.id.includes('basic') ? 'beginner' : 
-                               chapter.id.includes('advanced') ? 'advanced' : 'intermediate';
+                // Determine difficulty based on chapter content
+                const difficulty = chapter.id.includes("basic")
+                  ? "beginner"
+                  : chapter.id.includes("advanced")
+                    ? "advanced"
+                    : "intermediate";
 
-              // Determine category based on chapter category field
-              const categoryMap: Record<string, 'pawn' | 'rook' | 'queen' | 'minor' | 'other'> = {
-                'pawn': 'pawn',
-                'rook': 'rook',
-                'queen': 'queen',
-                'minor-pieces': 'minor',
-                'bishop': 'minor',
-                'knight': 'minor'
-              };
-              const category = categoryMap[chapter.category] || 'other';
+                // Determine category based on chapter category field
+                const categoryMap: Record<
+                  string,
+                  "pawn" | "rook" | "queen" | "minor" | "other"
+                > = {
+                  pawn: "pawn",
+                  rook: "rook",
+                  queen: "queen",
+                  "minor-pieces": "minor",
+                  bishop: "minor",
+                  knight: "minor",
+                };
+                const category = categoryMap[chapter.category] || "other";
 
-              return (
-                <ProgressCard
-                  key={chapter.id}
-                  title={chapter.name}
-                  description={chapter.description}
-                  stats={stats}
-                  difficulty={difficulty}
-                  category={category}
-                  onStartTraining={() => handleStartTraining(chapter.id)}
-                />
-              );
-            })
-          ) : (
-            <div className="col-span-full text-center py-8">
-              <p style={{ color: 'var(--text-secondary)' }}>
-                Keine Kapitel verfügbar. Bitte später erneut versuchen.
-              </p>
-            </div>
-          )}
+                return (
+                  <ProgressCard
+                    key={chapter.id}
+                    title={chapter.name}
+                    description={chapter.description}
+                    stats={stats}
+                    difficulty={difficulty}
+                    category={category}
+                    onStartTraining={() => handleStartTraining(chapter.id)}
+                  />
+                );
+              })
+            ) : (
+              <div className="col-span-full text-center py-8">
+                <p style={{ color: "var(--text-secondary)" }}>
+                  Keine Kapitel verfügbar. Bitte später erneut versuchen.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </main>
