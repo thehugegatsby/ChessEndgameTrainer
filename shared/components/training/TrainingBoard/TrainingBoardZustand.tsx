@@ -16,12 +16,15 @@ import {
   useUIActions,
   useStore,
 } from "@shared/store/store";
-import { requestEngineMove } from "@shared/store/trainingActions";
+import { requestTablebaseMove } from "@shared/store/trainingActions";
 import { EndgamePosition } from "@shared/types";
 import { getLogger } from "@shared/services/logging";
 import { ANIMATION, DIMENSIONS } from "@shared/constants";
 
 // Extended evaluation interface that matches our new MovePanel requirements
+/**
+ *
+ */
 interface ExtendedEvaluation {
   evaluation: number;
   mateInMoves?: number;
@@ -34,6 +37,9 @@ interface ExtendedEvaluation {
   };
 }
 
+/**
+ *
+ */
 interface TrainingBoardZustandProps {
   fen?: string;
   position?: EndgamePosition;
@@ -49,8 +55,20 @@ interface TrainingBoardZustandProps {
 /**
  * TrainingBoard component migrated to use Zustand store
  * This version uses the global Zustand store instead of React Context
+ * @param root0
+ * @param root0.fen
+ * @param root0.position
+ * @param root0.onComplete
+ * @param root0.onHistoryChange
+ * @param root0.onEvaluationsChange
+ * @param root0.onPositionChange
+ * @param root0.onJumpToMove
+ * @param root0.resetTrigger
  */
-export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
+export /**
+ *
+ */
+const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
   fen,
   position,
   onComplete,
@@ -97,6 +115,10 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     jumpToMove,
     resetGame,
   } = useTrainingGame({
+    /**
+     *
+     * @param success
+     */
     onComplete: (success) => {
       // Call parent callback
       onComplete(success);
@@ -167,43 +189,46 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
 
   // UI state management - local component state only
   const [resetKey, setResetKey] = useState(0);
-  const [showLastEvaluation, setShowLastEvaluation] = useState(false);
   const [showMoveErrorDialog, setShowMoveErrorDialog] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
   const [moveError, setMoveError] = useState<string | null>(null);
 
   const trainingState = {
     resetKey,
-    showLastEvaluation,
     showMoveErrorDialog,
     warning,
     engineError: null, // Engine errors now handled by store
     moveError,
-    showEvaluationBriefly: () => {
-      setShowLastEvaluation(true);
-      setTimeout(
-        () => setShowLastEvaluation(false),
-        ANIMATION.EVALUATION_FEEDBACK_DURATION,
-      );
-    },
+    /**
+     *
+     */
     handleReset: () => setResetKey((prev) => prev + 1),
+    /**
+     *
+     */
     handleDismissMoveError: () => {
       setShowMoveErrorDialog(false);
       setMoveError(null);
     },
+    /**
+     *
+     */
     handleClearWarning: () => setWarning(null),
+    /**
+     *
+     */
     handleClearEngineError: () => {},
   };
 
-  // Update engine status based on evaluation state
+  // Update analysis status based on evaluation state
   useEffect(() => {
     if (isEvaluating) {
-      actions.setEngineStatus("analyzing");
-    } else if (training.engineStatus === "analyzing") {
-      // Only update to ready if we were analyzing
-      actions.setEngineStatus("ready");
+      actions.setAnalysisStatus("loading");
+    } else if (training.analysisStatus === "loading") {
+      // Only update to success if we were loading
+      actions.setAnalysisStatus("success");
     }
-  }, [isEvaluating, actions, training.engineStatus]);
+  }, [isEvaluating, actions, training.analysisStatus]);
 
   // Enhanced move handling - inline implementation
   const handleMove = useCallback(
@@ -252,43 +277,43 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
         // First make the move on the local game instance
         const result = await makeMove(move);
         if (result) {
-          // Then trigger engine response using store action
+          // Then trigger tablebase response using store action
           try {
             // Get the updated FEN after the move
             const updatedFen =
               useStore.getState().training.currentFen || game.fen();
-            logger.info("Requesting engine move for position", {
+            logger.info("Requesting tablebase move for position", {
               updatedFen,
               turn: game.turn(),
               moveNumber: history.length,
             });
 
-            const engineMoveUci = await requestEngineMove(updatedFen)(
+            const tablebaseMoveUci = await requestTablebaseMove(updatedFen)(
               useStore.getState,
               useStore.setState,
             );
 
-            logger.info("[TRACE] Engine move returned", {
-              engineMoveUci,
+            logger.info("[TRACE] Tablebase move returned", {
+              tablebaseMoveUci,
               updatedFen,
               currentGameFen: game.fen(),
               historyLength: history.length,
             });
 
-            // Check if position hasn't changed while waiting for engine
+            // Check if position hasn't changed while waiting for tablebase
             const currentPositionId =
               useStore.getState().training.currentPosition?.id;
-            if (engineMoveUci && currentPositionId === position?.id) {
+            if (tablebaseMoveUci && currentPositionId === position?.id) {
               // Convert UCI to move object format for makeMove
-              const from = engineMoveUci.slice(0, 2);
-              const to = engineMoveUci.slice(2, 4);
+              const from = tablebaseMoveUci.slice(0, 2);
+              const to = tablebaseMoveUci.slice(2, 4);
               const promotion =
-                engineMoveUci.length > 4
-                  ? engineMoveUci.slice(4, 5)
+                tablebaseMoveUci.length > 4
+                  ? tablebaseMoveUci.slice(4, 5)
                   : undefined;
 
-              logger.info("[TRACE] About to execute engine move", {
-                engineMoveUci,
+              logger.info("[TRACE] About to execute tablebase move", {
+                tablebaseMoveUci,
                 from,
                 to,
                 promotion,
@@ -296,24 +321,25 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
                 gameStateBeforeMove: game.fen(),
               });
 
-              const engineMoveResult = await makeMove({ from, to, promotion });
+              const tablebaseMoveResult = await makeMove({
+                from,
+                to,
+                promotion,
+              });
 
-              logger.info("[TRACE] Engine move executed", {
-                success: !!engineMoveResult,
+              logger.info("[TRACE] Tablebase move executed", {
+                success: !!tablebaseMoveResult,
                 gameStateAfterMove: game.fen(),
-                actualMove: engineMoveResult,
+                actualMove: tablebaseMoveResult,
               });
             } else if (currentPositionId !== position?.id) {
-              logger.debug("Position changed, skipping engine move");
+              logger.debug("Position changed, skipping tablebase move");
             }
           } catch (error) {
             logger.error("Engine move failed", error as Error);
           }
 
           // Move was successful, it will be synced to Zustand via the history effect
-          if (lastEvaluation) {
-            trainingState.showEvaluationBriefly();
-          }
         }
         return result;
       } catch (error) {
@@ -363,6 +389,10 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       );
       logger.info("Attaching e2e hooks to window object");
 
+      /**
+       *
+       * @param move
+       */
       (window as any).e2e_makeMove = async (move: string) => {
         console.log("🎯 e2e_makeMove called with move:", move);
         logger.info("e2e_makeMove called", { move });
@@ -418,6 +448,9 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       };
 
       // Also expose game state for debugging
+      /**
+       *
+       */
       (window as any).e2e_getGameState = () => ({
         fen: game.fen(),
         turn: game.turn(),
@@ -524,6 +557,9 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
           totalMoves: moves.length,
         });
 
+        /**
+         *
+         */
         const playNextMove = async () => {
           if (moveIndex < moves.length) {
             const moveNotation = moves[moveIndex];
@@ -601,10 +637,10 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
   }, [game, isGameFinished, handleMove, testMoveProcessed]);
 
   // === PAGE READY DETECTION ===
-  const isEngineReady =
-    training.engineStatus === "ready" || training.engineStatus === "idle";
+  const isAnalysisReady =
+    training.analysisStatus === "success" || training.analysisStatus === "idle";
   const isBoardReady = !!currentFen && !!game;
-  const isPageReady = usePageReady([isEngineReady, isBoardReady]);
+  const isPageReady = usePageReady([isAnalysisReady, isBoardReady]);
 
   // === RENDER ===
   // Note: customSquareRenderer was removed as it's not supported in react-chessboard v2.1.3
@@ -627,7 +663,7 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
         }}
         data-fen={currentFen}
         data-testid="training-board"
-        data-engine-status={training.engineStatus}
+        data-analysis-status={training.analysisStatus}
       >
         <Chessboard
           position={currentFen}
@@ -635,15 +671,6 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
           arePiecesDraggable={!isGameFinished}
           boardWidth={600}
         />
-        {/* Show last evaluation briefly */}
-        {trainingState.showLastEvaluation && lastEvaluation && (
-          <div className="absolute top-2 right-2 bg-white/90 p-2 rounded shadow-lg">
-            <div className="text-sm font-semibold">
-              Eval: {lastEvaluation.evaluation > 0 ? "+" : ""}
-              {(lastEvaluation.evaluation / 100).toFixed(2)}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Error and Warning Displays - inline implementation */}

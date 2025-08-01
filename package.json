@@ -106,6 +106,7 @@
     "dotenv": "^17.0.1",
     "eslint": "^9.31.0",
     "eslint-config-next": "^15.3.5",
+    "eslint-plugin-jsdoc": "^52.0.2",
     "firebase-admin": "^13.4.0",
     "glob": "^10.3.10",
     "husky": "^9.1.7",

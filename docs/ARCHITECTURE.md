@@ -1,183 +1,117 @@
 # ChessEndgameTrainer Architecture
 
-**Purpose**: LLM-optimized architecture reference for the simplified chess endgame training system
-**Last Updated**: 2025-07-31
-**Architecture Version**: 2.0 (Simplified)
+## State Management Philosophy
 
-## 🏗️ Core Architecture
+We use Zustand with domain-specific slices and actions. The store is the Single Source of Truth - no component maintains chess state locally. All state mutations go through actions for consistency.
+
+## Current Architecture: Tablebase-Only (v3.0)
 
 ```
-SimpleEngine (singleton) → AnalysisService → UI Components
-                              ↓
-                      TablebaseService (direct calls)
+TablebaseService (Lichess API)
+         ↓
+  Zustand Store (state)
+         ↓
+  React Components
 ```
 
 ### Key Components
 
-1. **SimpleEngine** (`/shared/lib/chess/engine/simple/SimpleEngine.ts`)
-   - Singleton Stockfish WASM wrapper
-   - Handles UCI protocol communication
-   - Multi-PV support (3 lines)
-   - Memory-efficient (~20MB per worker)
-
-2. **AnalysisService** (`/shared/lib/chess/AnalysisService.ts`)
-   - Central evaluation orchestrator
-   - Prioritizes tablebase over engine
-   - Provides unified API for position analysis
-   - Move quality assessment
-
-3. **TablebaseService** (`/shared/services/TablebaseService.ts`)
+1. **TablebaseService** (`/shared/services/TablebaseService.ts`)
    - Lichess tablebase API integration
    - 7-piece endgame support
-   - DTZ/DTM calculations
+   - LRU cache for API responses
+   - Rate limiting protection
 
-4. **UI Layer** (React components)
-   - Training pages (`/pages/train/[id].tsx`)
-   - Chess board (`react-chessboard`)
-   - Analysis panels
+2. **Zustand Store** (`/shared/store/`)
+   - `store.ts` - Main store with all slices
+   - `trainingActions.ts` - Async actions (requestTablebaseMove)
+   - `types.ts` - TypeScript interfaces
 
-## 📊 Primary Data Flows
+3. **React Hooks** (`/shared/hooks/`)
+   - `useTrainingGame` - Game state management
+   - `usePositionAnalysis` - Tablebase evaluation
+   - Domain-specific hooks for UI logic
+
+## Data Flow Examples
+
+### Move Execution Flow
+
+```
+User clicks square → TrainingBoard component
+                           ↓
+                    makeMove() action
+                           ↓
+                    Update Zustand store
+                           ↓
+                    requestTablebaseMove()
+                           ↓
+                    TablebaseService.getTopMoves()
+                           ↓
+                    Update store with tablebaseMove
+                           ↓
+                    Component re-renders
+```
 
 ### Position Evaluation Flow
 
 ```
-User Move → Zustand Store → useEvaluation Hook → AnalysisService
-                                                       ↓
-                                              TablebaseService.getEvaluation()
-                                                       ↓
-                                              [Tablebase Hit?]
-                                                  Yes → Return TB result
-                                                  No  → SimpleEngine.evaluatePosition()
-                                                       ↓
-                                              Format & Return to UI
+Position changes → usePositionAnalysis hook
+                          ↓
+                  TablebaseService.getEvaluation()
+                          ↓
+                  Update evaluations in store
+                          ↓
+                  UI displays results
 ```
 
-### Computer Move Flow
+## State Structure
 
-```
-Computer's Turn → trainingActions.requestEngineMove() → AnalysisService.getBestMove()
-                                                              ↓
-                                                      TablebaseService.getTopMoves(1)
-                                                              ↓
-                                                      [Tablebase Move?]
-                                                          Yes → Use TB move
-                                                          No  → SimpleEngine.findBestMove()
-                                                              ↓
-                                                      Return move to Store
-```
-
-## 🗂️ File Structure
-
-```
-/shared/
-├── lib/
-│   ├── chess/
-│   │   ├── engine/simple/SimpleEngine.ts    # Stockfish wrapper
-│   │   └── AnalysisService.ts              # Evaluation orchestrator
-│   └── cache/
-│       └── EvaluationCache.ts              # LRU cache for evaluations
-├── services/
-│   └── TablebaseService.ts                 # Tablebase API client
-├── hooks/
-│   ├── useEvaluation.ts                    # Position evaluation hook
-│   └── useTrainingGame.ts                  # Game state management
-├── store/
-│   ├── trainingStore.ts                    # Zustand store
-│   └── trainingActions.ts                  # Async engine operations
-└── types/
-    └── evaluation.ts                       # Core types
-
-Key interfaces:
-- SimplifiedMoveQualityResult            # Move quality assessment
-- AnalysisResult                        # Position analysis data
-- TablebaseData                         # Tablebase evaluation data
-```
-
-## 🔑 Key Design Decisions
-
-### 1. Singleton Pattern for Engine
 ```typescript
-// Always use the singleton instance
-const engine = getSimpleEngine();
-```
-- Prevents multiple WASM instances
-- Centralized lifecycle management
-- Consistent configuration
-
-### 2. Tablebase-First Strategy
-```typescript
-// In AnalysisService.getBestMove()
-1. Check tablebase first (authoritative for endgames)
-2. Fall back to engine if no tablebase data
-```
-
-### 3. Simplified Type System
-```typescript
-interface SimplifiedMoveQualityResult {
-  quality: MoveQualityType;       // excellent|good|inaccuracy|mistake|blunder
-  reason: string;                 // Human-readable explanation
-  isTablebaseAnalysis: boolean;  // Source indicator
+interface TrainingState {
+  currentPosition?: EndgamePosition;
+  game?: ChessInstance;
+  moveHistory: ValidatedMove[];
+  tablebaseMove?: string | null; // null = draw, undefined = no lookup yet
+  evaluations: PositionAnalysis[];
+  analysisStatus: "idle" | "loading" | "success" | "error";
+  // ... other fields
 }
 ```
 
-## ⚡ Performance Constraints
+## Error Handling
 
-- **Engine**: Single instance, max 1 worker thread
-- **Evaluation**: 300ms debounce on position changes
-- **Cache**: LRU with 200 position limit
-- **Tablebase**: Network calls, cached responses
-- **Memory**: ~20MB for Stockfish WASM
+- All errors go through ErrorService
+- User-friendly German messages
+- Graceful degradation (show error, don't crash)
 
-## 🔧 Configuration
+## Performance Optimizations
 
-- **Multi-PV**: 3 lines (`EVALUATION.MULTI_PV_COUNT`)
-- **Engine Depth**: 20 (`EVALUATION.DEFAULT_DEPTH`)
-- **Cache TTL**: 5 minutes
-- **Dev Port**: 3002 (`DEV_PORT`)
+- Debouncing: 300ms for evaluations
+- LRU Cache: 200 items max
+- Request deduplication
+- Memoization in hooks
 
-## 🚀 Usage Examples
+## Security
 
-### Evaluate Position
-```typescript
-const result = await analysisService.analyzePosition(fen);
-// Returns: { evaluation, displayText, className, tablebase?, engineData? }
-```
+- FEN validation before all operations
+- Path validation for file access
+- No direct chess.js manipulation
 
-### Get Best Move
-```typescript
-const move = await analysisService.getBestMove(fen);
-// Returns: "e2e4" (SAN format) or null
-```
+## Testing Strategy
 
-### Assess Move Quality
-```typescript
-const quality = await analysisService.assessMoveQuality(fenBefore, move, 'w');
-// Returns: { quality: 'excellent', reason: 'Optimal tablebase move', ... }
-```
+- Unit tests for services and hooks
+- Integration tests for store actions
+- Mock TablebaseService for tests
+- Use TestFixtures for valid FENs
 
-## 🔄 State Management
+## Migration History
 
-**Zustand Store** (`trainingStore.ts`)
-- Single source of truth for game state
-- Async actions via thunks
-- No direct Chess.js manipulation
+- v1.0: Stockfish WASM engine
+- v2.0: SimpleEngine abstraction
+- v3.0: Tablebase-only (current)
 
-**Key Store Actions**:
-- `makeMove()` - User/computer moves
-- `requestEngineMove()` - Computer thinking
-- `requestPositionEvaluation()` - Analysis update
+## Future Considerations (v4.0)
 
-## 🧪 Testing Considerations
-
-- Mock SimpleEngine for unit tests
-- Use TestFixtures.ts for validated FENs
-- Test tablebase fallback scenarios
-- Verify singleton behavior
-
-## 📝 Migration Notes
-
-**From v1.0 (Complex) to v2.0 (Simplified)**:
-- Removed: UnifiedEvaluationService, EngineProviderAdapter, EvaluationPipeline
-- Removed: PlayerPerspectiveEvaluation, NormalizedEvaluation types
-- Consolidated: All evaluation logic in AnalysisService
-- Simplified: Direct service calls instead of adapter layers
+- Potential local engine fallback
+- Offline mode with cached positions
+- Advanced training algorithms

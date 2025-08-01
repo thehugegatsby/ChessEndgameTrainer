@@ -1,70 +1,83 @@
-'use client';
+"use client";
 
-import React, { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
-import { useTraining } from '@shared/store/store';
-import { configureStore } from '@shared/store/storeConfig';
-import { createServerPositionService } from '@shared/services/database/serverPositionService';
-import { getLogger } from '@shared/services/logging';
+import React, { useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { useTraining } from "@shared/store/store";
+import { configureStore } from "@shared/store/storeConfig";
+import { createServerPositionService } from "@shared/services/database/serverPositionService";
+import { getLogger } from "@shared/services/logging";
 
 // Configure store dependencies once at app initialization
 // This happens before any component renders
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   const positionService = createServerPositionService();
   configureStore({ positionService });
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.children
+ */
 export function AppProviders({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { engineStatus } = useTraining();
-  const logger = getLogger().setContext('_app');
+  const { analysisStatus } = useTraining();
+  const logger = getLogger().setContext("_app");
 
   useEffect(() => {
     // Update app-ready based on router state
     // Don't wait for engine initially as it may not be initialized on all pages
-    if (typeof document !== 'undefined') {
-      let appReadyState: 'true' | 'false' | 'error';
-      
-      // Define ready state based on router and engine status
+    if (typeof document !== "undefined") {
+      let appReadyState: "true" | "false" | "error";
+
+      // Define ready state based on router and analysis status
       const isReady = pathname !== null; // App Router equivalent of router.isReady
-      
-      if (engineStatus === 'error') {
-        appReadyState = 'error';
-      } else if (isReady && (engineStatus === 'ready' || !pathname.startsWith('/train'))) {
-        // Ready if router is ready AND (engine is ready OR not on a training page)
-        appReadyState = 'true';
+
+      if (analysisStatus === "error") {
+        appReadyState = "error";
+      } else if (
+        isReady &&
+        (analysisStatus === "idle" ||
+          analysisStatus === "success" ||
+          !pathname.startsWith("/train"))
+      ) {
+        // Ready if router is ready AND (analysis is idle/success OR not on a training page)
+        appReadyState = "true";
       } else {
-        appReadyState = 'false';
+        appReadyState = "false";
       }
 
       // Track transitions for debugging and monitoring
-      const previousState = document.body.dataset.appReady || 'null';
+      const previousState = document.body.dataset.appReady || "null";
       const currentState = appReadyState;
-      
+
       if (previousState !== currentState) {
-        logger.info('App ready state transition: ' + previousState + ' → ' + currentState, {
-          router: {
-            isReady,
-            pathname,
+        logger.info(
+          "App ready state transition: " + previousState + " → " + currentState,
+          {
+            router: {
+              isReady,
+              pathname,
+            },
+            analysisStatus,
           },
-          engineStatus,
-        });
+        );
       }
 
       // Set the global app-ready state for other components and tests
       document.body.dataset.appReady = appReadyState;
     }
-  }, [pathname, engineStatus, logger]);
+  }, [pathname, analysisStatus, logger]);
 
   useEffect(() => {
     // Additional effect for error handling if needed
-    if (engineStatus === 'error') {
-      logger.error('Engine is in error state during app initialization', {
+    if (analysisStatus === "error") {
+      logger.error("Analysis is in error state during app initialization", {
         pathname,
-        engineStatus,
+        analysisStatus,
       });
     }
-  }, [engineStatus, pathname, logger]);
+  }, [analysisStatus, pathname, logger]);
 
   return <>{children}</>;
 }

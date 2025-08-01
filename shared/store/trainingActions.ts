@@ -1,5 +1,5 @@
 /**
- * @fileoverview Training Actions - Async Engine Operations
+ * @file Training Actions - Async Engine Operations
  * @description Zustand thunk functions for chess engine operations
  *
  * PRINCIPLES:
@@ -17,26 +17,30 @@ import type { TrainingState } from "./types";
 const logger = getLogger().setContext("TrainingActions");
 
 /**
- * Request engine to find best move for current position
+ * Request tablebase to find best move for current position
  * @param fen - Current position in FEN notation
- * @param options - Engine analysis options
+ * @param options - Analysis options (kept for compatibility)
+ * @param options.depth
+ * @param options.timeout
  * @returns Thunk function for Zustand store
  */
-export const requestEngineMove =
+export /**
+ *
+ */
+const requestTablebaseMove =
   (fen: string, options?: { depth?: number; timeout?: number }) =>
   async (
     _get: () => { training: TrainingState },
     set: (partial: any) => void,
   ) => {
     try {
-      logger.info("[TRACE] requestEngineMove called", { fen, options });
+      logger.info("[TRACE] requestTablebaseMove called", { fen, options });
 
-      // Set engine thinking state
+      // Set analysis loading state
       set((state: any) => ({
         training: {
           ...state.training,
-          isEngineThinking: true,
-          engineStatus: "analyzing",
+          analysisStatus: "loading",
         },
       }));
 
@@ -61,41 +65,44 @@ export const requestEngineMove =
         fen,
       });
 
-      // Update store with engine move
+      // Update store with tablebase move
       set((state: any) => ({
         training: {
           ...state.training,
-          isEngineThinking: false,
-          engineMove: move,
-          engineStatus: "ready",
+          tablebaseMove: move,
+          analysisStatus: "success",
         },
       }));
 
-      logger.info("[TRACE] Returning move from requestEngineMove", { move });
+      logger.info("[TRACE] Returning move from requestTablebaseMove", { move });
       return move;
     } catch (error) {
-      logger.error("Engine move request failed", error);
+      logger.error("Tablebase move request failed", error);
 
       // Update store with error state
       set((state: any) => ({
         training: {
           ...state.training,
-          isEngineThinking: false,
-          engineStatus: "error",
+          analysisStatus: "error",
         },
       }));
 
-      throw new Error(`Engine move failed: ${error}`);
+      throw new Error(`Tablebase move failed: ${error}`);
     }
   };
 
 /**
- * Request engine to evaluate current position
+ * Request tablebase to evaluate current position
  * @param fen - Current position in FEN notation
- * @param options - Engine analysis options
+ * @param options - Analysis options (kept for compatibility)
+ * @param options.depth
+ * @param options.timeout
  * @returns Thunk function for Zustand store
  */
-export const requestPositionEvaluation =
+export /**
+ *
+ */
+const requestPositionEvaluation =
   (fen: string, options?: { depth?: number; timeout?: number }) =>
   async (
     _get: () => { training: TrainingState },
@@ -179,7 +186,10 @@ export const requestPositionEvaluation =
  * Stop current engine analysis
  * @returns Thunk function for Zustand store
  */
-export const stopEngineAnalysis =
+export /**
+ *
+ */
+const stopEngineAnalysis =
   () =>
   async (
     _get: () => { training: TrainingState },
@@ -207,7 +217,10 @@ export const stopEngineAnalysis =
  * @returns Thunk function for Zustand store
  * @deprecated No engine to terminate anymore - keeping for compatibility
  */
-export const terminateEngine =
+export /**
+ *
+ */
+const terminateEngine =
   () =>
   async (
     _get: () => { training: TrainingState },

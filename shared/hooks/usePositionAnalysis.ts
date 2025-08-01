@@ -12,12 +12,18 @@ import type { PositionAnalysis } from "@shared/types";
 
 const logger = new Logger();
 
+/**
+ *
+ */
 interface UsePositionAnalysisOptions {
   fen: string;
   isEnabled: boolean;
   previousFen?: string;
 }
 
+/**
+ *
+ */
 export interface UsePositionAnalysisReturn {
   evaluations: PositionAnalysis[];
   lastEvaluation: PositionAnalysis | null;
@@ -27,6 +33,12 @@ export interface UsePositionAnalysisReturn {
   clearEvaluations: () => void;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.fen
+ * @param root0.isEnabled
+ */
 export function usePositionAnalysis({
   fen,
   isEnabled,
@@ -70,6 +82,9 @@ export function usePositionAnalysis({
       abortControllerRef.current.abort();
     }
 
+    /**
+     *
+     */
     const evaluatePosition = async () => {
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
@@ -145,7 +160,7 @@ export function usePositionAnalysis({
       } catch (err: any) {
         if (err.name !== "AbortError") {
           logger.error("[usePositionAnalysis] Evaluation failed", err);
-          const userMessage = ErrorService.handleChessEngineError(err, {
+          const userMessage = ErrorService.handleTablebaseError(err, {
             component: "usePositionAnalysis",
             action: "evaluatePosition",
             additionalData: { fen },

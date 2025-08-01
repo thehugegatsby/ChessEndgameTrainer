@@ -4,12 +4,15 @@
  * where React hooks are not available
  */
 
-import { PositionService } from './PositionService';
-import { IPositionService } from './IPositionService';
-import { FirebasePositionRepository } from '@shared/repositories/implementations/FirebasePositionRepository';
-import { db } from '@shared/lib/firebase';
-import { shouldUseMockService, createMockPositionService } from '@shared/testing/MockPositionServiceFactory';
-import { CACHE } from '@shared/constants';
+import { PositionService } from "./PositionService";
+import { IPositionService } from "./IPositionService";
+import { FirebasePositionRepository } from "@shared/repositories/implementations/FirebasePositionRepository";
+import { db } from "@shared/lib/firebase";
+import {
+  shouldUseMockService,
+  createMockPositionService,
+} from "@shared/testing/MockPositionServiceFactory";
+import { CACHE } from "@shared/constants";
 
 /**
  * Creates a PositionService instance for server-side usage
@@ -19,21 +22,21 @@ import { CACHE } from '@shared/constants';
 export function createServerPositionService(): IPositionService {
   // Use mock service for E2E tests (server-side)
   if (shouldUseMockService()) {
-    console.log('Creating MockPositionService for server-side E2E testing');
+    console.log("Creating MockPositionService for server-side E2E testing");
     return createMockPositionService();
   }
-  
+
   // Use Firebase for production/development
   const repository = new FirebasePositionRepository(db, {
     enableCache: true,
     cacheSize: CACHE.POSITION_CACHE_SIZE,
-    cacheTTL: CACHE.ENGINE_CACHE_TTL,
+    cacheTTL: CACHE.ANALYSIS_CACHE_TTL,
   });
-  
+
   return new PositionService(repository, {
     cacheEnabled: true,
     cacheSize: CACHE.POSITION_CACHE_SIZE,
-    cacheTTL: CACHE.ENGINE_CACHE_TTL
+    cacheTTL: CACHE.ANALYSIS_CACHE_TTL,
   });
 }
 

@@ -3,63 +3,66 @@
  * Import these in both components and tests to avoid fragile string matching
  */
 
-import { deepFreezeConst } from '../utils/deepFreeze';
+import { deepFreezeConst } from "../utils/deepFreeze";
 
-export const TEST_MESSAGES = deepFreezeConst({
+export /**
+ *
+ */
+const TEST_MESSAGES = deepFreezeConst({
   // Loading states
   LOADING: {
-    DEFAULT: 'Loading...',
-    POSITION: 'Loading position...',
-    ENGINE: 'Initializing chess engine...',
-    TRAINING: 'Loading training session...',
+    DEFAULT: "Loading...",
+    POSITION: "Loading position...",
+    TABLEBASE: "Initializing tablebase...",
+    TRAINING: "Loading training session...",
   },
-  
+
   // Error states
   ERROR: {
-    GENERIC: 'Something went wrong. Please try again.',
-    POSITION_NOT_FOUND: 'Position not found',
-    FAILED_TO_LOAD: 'Failed to load training position. Please try again.',
-    ENGINE_INIT: 'Failed to initialize chess engine',
-    NETWORK: 'Network error. Please check your connection.',
-    INVALID_ID: 'Invalid position ID',
+    GENERIC: "Something went wrong. Please try again.",
+    POSITION_NOT_FOUND: "Position not found",
+    FAILED_TO_LOAD: "Failed to load training position. Please try again.",
+    TABLEBASE_INIT: "Failed to initialize tablebase",
+    NETWORK: "Network error. Please check your connection.",
+    INVALID_ID: "Invalid position ID",
   },
-  
+
   // Success states
   SUCCESS: {
-    POSITION_LOADED: 'Position loaded successfully',
-    ENGINE_READY: 'Engine ready',
-    MOVE_COMPLETED: 'Move completed',
+    POSITION_LOADED: "Position loaded successfully",
+    TABLEBASE_READY: "Tablebase ready",
+    MOVE_COMPLETED: "Move completed",
   },
-  
+
   // Navigation
   NAVIGATION: {
-    BACK_TO_DASHBOARD: 'Back to Dashboard',
-    NEXT_POSITION: 'Next Position',
-    PREVIOUS_POSITION: 'Previous Position',
+    BACK_TO_DASHBOARD: "Back to Dashboard",
+    NEXT_POSITION: "Next Position",
+    PREVIOUS_POSITION: "Previous Position",
   },
-  
+
   // Training specific
   TRAINING: {
-    COMPLETED: 'Training completed!',
-    IN_PROGRESS: 'Training in progress',
-    PAUSED: 'Training paused',
-    YOUR_TURN: 'Your turn',
-    THINKING: 'Thinking...',
+    COMPLETED: "Training completed!",
+    IN_PROGRESS: "Training in progress",
+    PAUSED: "Training paused",
+    YOUR_TURN: "Your turn",
+    THINKING: "Thinking...",
   },
-  
-  // Engine states
-  ENGINE: {
-    IDLE: 'Engine idle',
-    ANALYZING: 'Analyzing position...',
-    CALCULATING: 'Calculating best move...',
-    READY: 'Engine ready',
+
+  // Tablebase states
+  TABLEBASE: {
+    IDLE: "Engine idle",
+    ANALYZING: "Analyzing position...",
+    CALCULATING: "Calculating best move...",
+    READY: "Engine ready",
   },
-  
+
   // Validation messages
   VALIDATION: {
-    INVALID_FEN: 'Invalid chess position',
-    ILLEGAL_MOVE: 'Illegal move',
-    GAME_OVER: 'Game over',
+    INVALID_FEN: "Invalid chess position",
+    ILLEGAL_MOVE: "Illegal move",
+    GAME_OVER: "Game over",
   },
 } as const);
 
@@ -67,12 +70,15 @@ export const TEST_MESSAGES = deepFreezeConst({
  * Helper function to get timeout values based on environment
  */
 export function getTestTimeout(): number {
-  const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+  const isCI =
+    process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
   return isCI ? 5000 : 2000;
 }
 
 /**
  * Helper to create consistent error objects for testing
+ * @param message
+ * @param code
  */
 export function createTestError(message: string, code?: string): Error {
   const error = new Error(message);
@@ -85,31 +91,35 @@ export function createTestError(message: string, code?: string): Error {
 /**
  * Type-safe message getter with fallback
  * Uses optional chaining and type narrowing for robustness
+ * @param path
+ * @param fallback
  */
-export function getMessage(path: string, fallback = 'Unknown message'): string {
-  const keys = path.split('.');
+export function getMessage(path: string, fallback = "Unknown message"): string {
+  const keys = path.split(".");
   let current: unknown = TEST_MESSAGES;
-  
+
   try {
     for (const key of keys) {
       // Type narrowing with proper checks
-      if (current !== null && 
-          current !== undefined && 
-          typeof current === 'object' && 
-          key in current) {
+      if (
+        current !== null &&
+        current !== undefined &&
+        typeof current === "object" &&
+        key in current
+      ) {
         current = (current as Record<string, unknown>)[key];
       } else {
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === "development") {
           console.warn(`Message not found: ${path}`);
         }
         return fallback;
       }
     }
-    
+
     // Final type check
-    return typeof current === 'string' ? current : fallback;
+    return typeof current === "string" ? current : fallback;
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       console.error(`Error accessing message: ${path}`, error);
     }
     return fallback;

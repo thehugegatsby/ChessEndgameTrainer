@@ -11,6 +11,9 @@ import { PositionAnalysis } from "../types/evaluation";
 import { EndgamePosition } from "../types/endgame";
 
 // User state
+/**
+ *
+ */
 export interface UserState {
   id?: string;
   username?: string;
@@ -23,6 +26,9 @@ export interface UserState {
   preferences: UserPreferences;
 }
 
+/**
+ *
+ */
 export interface UserPreferences {
   theme: "light" | "dark" | "system";
   soundEnabled: boolean;
@@ -36,6 +42,9 @@ export interface UserPreferences {
 }
 
 // Training state
+/**
+ *
+ */
 export interface TrainingState {
   currentPosition?: EndgamePosition;
   nextPosition?: EndgamePosition | null;
@@ -48,8 +57,7 @@ export interface TrainingState {
   } | null;
   game?: ChessInstance;
   moveHistory: ValidatedMove[];
-  isEngineThinking: boolean;
-  engineMove?: string;
+  tablebaseMove?: string | null;
   evaluations: PositionAnalysis[];
   isPlayerTurn: boolean;
   isGameFinished: boolean;
@@ -59,21 +67,21 @@ export interface TrainingState {
   hintsUsed: number;
   mistakeCount: number;
   currentEvaluation?: PositionAnalysis;
-  isAnalyzing: boolean;
-  engineStatus: EngineStatus;
+  analysisStatus: AnalysisStatus;
   currentFen?: string;
   currentPgn?: string;
   currentMoveIndex?: number;
 }
 
-export type EngineStatus =
-  | "idle"
-  | "initializing"
-  | "ready"
-  | "analyzing"
-  | "error";
+/**
+ *
+ */
+export type AnalysisStatus = "idle" | "loading" | "success" | "error";
 
 // Progress state
+/**
+ *
+ */
 export interface ProgressState {
   positionProgress: Record<number, PositionProgress>;
   dailyStats: DailyStats;
@@ -83,6 +91,9 @@ export interface ProgressState {
   favoritePositions: number[];
 }
 
+/**
+ *
+ */
 export interface PositionProgress {
   positionId: number;
   attempts: number;
@@ -94,6 +105,9 @@ export interface PositionProgress {
   difficulty: number; // Dynamic difficulty based on performance
 }
 
+/**
+ *
+ */
 export interface DailyStats {
   date: string;
   positionsSolved: number;
@@ -103,6 +117,9 @@ export interface DailyStats {
   hintsUsed: number;
 }
 
+/**
+ *
+ */
 export interface Achievement {
   id: string;
   name: string;
@@ -113,6 +130,9 @@ export interface Achievement {
 }
 
 // UI state
+/**
+ *
+ */
 export interface UIState {
   sidebarOpen: boolean;
   modalOpen: ModalType | null;
@@ -121,6 +141,9 @@ export interface UIState {
   analysisPanel: AnalysisPanelState;
 }
 
+/**
+ *
+ */
 export type ModalType =
   | "settings"
   | "help"
@@ -128,6 +151,9 @@ export type ModalType =
   | "share"
   | "confirm";
 
+/**
+ *
+ */
 export interface Toast {
   id: string;
   message: string;
@@ -135,6 +161,9 @@ export interface Toast {
   duration?: number;
 }
 
+/**
+ *
+ */
 export interface LoadingState {
   global: boolean;
   engine: boolean;
@@ -142,6 +171,9 @@ export interface LoadingState {
   analysis: boolean;
 }
 
+/**
+ *
+ */
 export interface AnalysisPanelState {
   isOpen: boolean;
   activeTab: "moves" | "evaluation" | "variations";
@@ -150,6 +182,9 @@ export interface AnalysisPanelState {
 }
 
 // Settings state
+/**
+ *
+ */
 export interface SettingsState {
   appVersion: string;
   lastUpdated: string;
@@ -157,6 +192,9 @@ export interface SettingsState {
   experimentalFeatures: ExperimentalFeatures;
 }
 
+/**
+ *
+ */
 export interface DataSyncState {
   enabled: boolean;
   lastSyncDate?: string;
@@ -164,6 +202,9 @@ export interface DataSyncState {
   syncError?: string;
 }
 
+/**
+ *
+ */
 export interface ExperimentalFeatures {
   advancedAnalysis: boolean;
   voiceCommands: boolean;
@@ -172,6 +213,9 @@ export interface ExperimentalFeatures {
 }
 
 // Root state
+/**
+ *
+ */
 export interface RootState {
   user: UserState;
   training: TrainingState;
@@ -181,6 +225,9 @@ export interface RootState {
 }
 
 // Action types
+/**
+ *
+ */
 export interface UserActions {
   setUser: (user: Partial<UserState>) => void;
   updatePreferences: (preferences: Partial<UserPreferences>) => void;
@@ -189,6 +236,9 @@ export interface UserActions {
   addCompletedPosition: (positionId: number) => void;
 }
 
+/**
+ *
+ */
 export interface TrainingActions {
   setPosition: (position: EndgamePosition) => void;
   loadTrainingContext: (position: EndgamePosition) => Promise<void>;
@@ -200,7 +250,7 @@ export interface TrainingActions {
   resetPosition: () => void;
   setEvaluation: (evaluation: PositionAnalysis) => void;
   setEvaluations: (evaluations: PositionAnalysis[]) => void;
-  setEngineStatus: (status: EngineStatus) => void;
+  setAnalysisStatus: (status: AnalysisStatus) => void;
   completeTraining: (success: boolean) => void;
   useHint: () => void;
   incrementMistake: () => void;
@@ -212,6 +262,9 @@ export interface TrainingActions {
   goToLast: () => void;
 }
 
+/**
+ *
+ */
 export interface ProgressActions {
   updatePositionProgress: (
     positionId: number,
@@ -223,6 +276,9 @@ export interface ProgressActions {
   calculateNextReview: (positionId: number, success: boolean) => void;
 }
 
+/**
+ *
+ */
 export interface UIActions {
   toggleSidebar: () => void;
   openModal: (type: ModalType) => void;
@@ -233,6 +289,9 @@ export interface UIActions {
   updateAnalysisPanel: (update: Partial<AnalysisPanelState>) => void;
 }
 
+/**
+ *
+ */
 export interface SettingsActions {
   updateSettings: (settings: Partial<SettingsState>) => void;
   toggleExperimentalFeature: (feature: keyof ExperimentalFeatures) => void;
@@ -241,6 +300,9 @@ export interface SettingsActions {
 }
 
 // Combined actions
+/**
+ *
+ */
 export interface Actions
   extends UserActions,
     TrainingActions,
