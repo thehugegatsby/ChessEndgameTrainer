@@ -51,23 +51,39 @@ const MoveQualityIndicator: React.FC<MoveQualityIndicatorProps> = ({
   const { data, isLoading, error, assessMove } = useMoveQuality();
 
   /**
-   *
+   * Handle move assessment
    */
-  const handleAssess = async () => {
-    const fenBefore = getFenBefore(moveIndex);
+  const handleAssess = React.useCallback(async () => {
     try {
+      const fenBefore = getFenBefore(moveIndex);
+      console.log(
+        `[MoveQualityIndicator] Assessing move ${moveSan} at index ${moveIndex}`,
+        {
+          fenBefore,
+          player,
+        },
+      );
       await assessMove(fenBefore, moveSan, player);
     } catch (err) {
-      console.error(`Assessment for move ${moveSan} failed`, err);
+      console.error(
+        `[MoveQualityIndicator] Assessment for move ${moveSan} failed:`,
+        {
+          error: err,
+          moveIndex,
+          player,
+          message: err instanceof Error ? err.message : "Unknown error",
+        },
+      );
     }
-  };
+  }, [moveIndex, moveSan, player, getFenBefore, assessMove]);
 
   // Automatically assess move on mount
   React.useEffect(() => {
+    // Only assess if we haven't already and not currently loading
     if (!data && !isLoading && !error) {
       handleAssess();
     }
-  }, []); // Run once on mount
+  }, [data, isLoading, error, handleAssess]);
 
   // Loading state
   if (isLoading) {
