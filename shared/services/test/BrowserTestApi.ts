@@ -1,13 +1,17 @@
 /**
- * @fileoverview Browser Test API - Exposes test API for E2E tests
+ * @file Browser Test API - Exposes test API for E2E tests
  * @version 1.0.0
  * @description Browser-specific implementation that exposes the Test API
  * to the window object for Playwright tests. Works with TestBridge for engine control.
  */
 
-import { TestApiService } from './TestApiService';
-import type { TestMoveResponse, TestGameState, TestEngineConfig } from './TestApiService';
-import type { TestBridge } from '@shared/types/test-bridge';
+import { TestApiService } from "./TestApiService";
+import type {
+  TestMoveResponse,
+  TestGameState,
+  TestEngineConfig,
+} from "./TestApiService";
+import type { TestBridge } from "@shared/types/test-bridge";
 
 /**
  * Browser Test API
@@ -25,10 +29,14 @@ export class BrowserTestApi {
   /**
    * Initialize browser test API
    * Only works in test environment
+   * @param storeAccess
    */
   public async initialize(storeAccess?: any): Promise<void> {
-    if (process.env.NODE_ENV !== 'test' && process.env.NEXT_PUBLIC_IS_E2E_TEST !== 'true') {
-      console.warn('Test API is only available in test environment');
+    if (
+      process.env.NODE_ENV !== "test" &&
+      process.env.NEXT_PUBLIC_IS_E2E_TEST !== "true"
+    ) {
+      console.warn("Test API is only available in test environment");
       return;
     }
 
@@ -38,7 +46,9 @@ export class BrowserTestApi {
 
     // Wait for store access to be provided
     if (!storeAccess) {
-      console.warn('BrowserTestApi: Store access not provided, delaying initialization');
+      console.warn(
+        "BrowserTestApi: Store access not provided, delaying initialization",
+      );
       return;
     }
 
@@ -48,7 +58,9 @@ export class BrowserTestApi {
     // Get TestBridge from window (set by _app.tsx)
     this.testBridge = (window as any).__E2E_TEST_BRIDGE__ || null;
     if (!this.testBridge) {
-      console.warn('TestBridge not found on window - engine control will not be available');
+      console.warn(
+        "TestBridge not found on window - engine control will not be available",
+      );
     }
 
     // Expose methods to window
@@ -59,21 +71,28 @@ export class BrowserTestApi {
       configureEngine: this.configureEngine.bind(this),
       triggerEngineAnalysis: this.triggerEngineAnalysis.bind(this),
       addMockEngineResponse: this.addMockEngineResponse.bind(this),
-      cleanup: this.cleanup.bind(this)
+      cleanup: this.cleanup.bind(this),
     };
 
     // Legacy compatibility - expose old API names
+    /**
+     *
+     * @param move
+     */
     (window as any).e2e_makeMove = async (move: string) => {
       const result = await this.makeMove(move);
       return result;
     };
 
+    /**
+     *
+     */
     (window as any).e2e_getGameState = () => {
       return this.getGameState();
     };
 
     this.initialized = true;
-    console.log('Browser Test API initialized');
+    console.log("Browser Test API initialized");
   }
 
   /**
@@ -91,12 +110,13 @@ export class BrowserTestApi {
 
     // Clean up test API
     this.testApi.cleanup();
-    
+
     this.initialized = false;
   }
 
   /**
    * Make a move through test API
+   * @param move
    */
   private async makeMove(move: string): Promise<TestMoveResponse> {
     return this.testApi.makeMove(move);
@@ -118,6 +138,7 @@ export class BrowserTestApi {
 
   /**
    * Configure engine through test API
+   * @param config
    */
   private configureEngine(config: TestEngineConfig): void {
     return this.testApi.configureEngine(config);
@@ -125,6 +146,7 @@ export class BrowserTestApi {
 
   /**
    * Trigger engine analysis (instant with mock)
+   * @param timeout
    */
   private async triggerEngineAnalysis(timeout?: number): Promise<boolean> {
     return this.testApi.triggerEngineAnalysis(timeout);
@@ -132,24 +154,31 @@ export class BrowserTestApi {
 
   /**
    * Add custom mock engine response for testing
+   * @param fen
+   * @param analysis
    */
   private addMockEngineResponse(fen: string, analysis: any): void {
     if (!this.testBridge) {
-      console.error('TestBridge not available - cannot add mock engine response');
+      console.error(
+        "TestBridge not available - cannot add mock engine response",
+      );
       return;
     }
-    
+
     // Use TestBridge to control the MockScenarioEngine
-    this.testBridge.engine.addCustomResponse(fen, analysis);
+    this.testBridge.tablebase.addCustomResponse(fen, analysis);
   }
 }
 
 // Export browser test API instance for manual initialization
-export const browserTestApi = new BrowserTestApi();
+export /**
+ *
+ */
+const browserTestApi = new BrowserTestApi();
 
 // Auto-cleanup on page unload
-if (typeof window !== 'undefined') {
-  window.addEventListener('beforeunload', () => {
+if (typeof window !== "undefined") {
+  window.addEventListener("beforeunload", () => {
     browserTestApi.cleanup();
   });
 }

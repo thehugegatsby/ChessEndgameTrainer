@@ -1,9 +1,9 @@
 /**
- * @fileoverview Test Bridge Type Definitions
+ * @file Test Bridge Type Definitions
  * @version 1.0.0
  * @description Type definitions for E2E Test Bridge API.
  * Provides type-safe interface between Playwright tests and application.
- * 
+ *
  * ARCHITECTURE PRINCIPLES:
  * - Minimal surface area for test control
  * - Type-safe without circular dependencies
@@ -11,37 +11,40 @@
  * - Extensible for future services
  */
 
-// TODO: Replace with SimpleEngine types after refactoring
-type EngineAnalysis = any;
-import type { EngineStatus } from '../store/types';
+// Tablebase analysis type for E2E test configuration
+/**
+ *
+ */
+type TablebaseAnalysis = any;
+import type { AnalysisStatus } from "../store/types";
 
 /**
- * Engine control API for E2E tests
- * Provides methods to configure mock engine behavior
+ * Tablebase control API for E2E tests
+ * Provides methods to configure mock tablebase behavior
  */
-export interface TestBridgeEngineAPI {
+export interface TestBridgeTablebaseAPI {
   /**
-   * Set the next move the engine should return
+   * Set the next move the tablebase should return
    */
   setNextMove: (fen: string, move: string) => void;
-  
+
   /**
    * Set a specific evaluation for a position
    */
   setEvaluation: (fen: string, evaluation: number) => void;
-  
+
   /**
    * Add a complete custom response for a position
    */
-  addCustomResponse: (fen: string, analysis: EngineAnalysis) => void;
-  
+  addCustomResponse: (fen: string, analysis: TablebaseAnalysis) => void;
+
   /**
    * Clear all custom responses
    */
   clearCustomResponses: () => void;
-  
+
   /**
-   * Reset engine to default state
+   * Reset tablebase to default state
    */
   reset: () => void;
 }
@@ -58,13 +61,13 @@ export interface TestBridgeDiagnosticAPI {
     fen: string;
     moveCount: number;
     isGameOver: boolean;
-    turn: 'w' | 'b';
+    turn: "w" | "b";
   } | null;
-  
+
   /**
-   * Get current engine status
+   * Get current analysis status
    */
-  getEngineStatus: () => EngineStatus;
+  getAnalysisStatus: () => AnalysisStatus;
 }
 
 /**
@@ -73,28 +76,28 @@ export interface TestBridgeDiagnosticAPI {
  */
 export interface TestBridge {
   /**
-   * Engine control API
+   * Tablebase control API
    */
-  engine: TestBridgeEngineAPI;
-  
+  tablebase: TestBridgeTablebaseAPI;
+
   /**
    * Diagnostic API (optional, added later)
    */
   diagnostic?: TestBridgeDiagnosticAPI;
-  
+
   /**
-   * Wait for engine to be ready
+   * Wait for tablebase to be ready
    * @param timeout - Maximum time to wait in milliseconds (default: 2000)
-   * @returns Promise that resolves when engine is ready
+   * @returns Promise that resolves when tablebase is ready
    * @throws Error if timeout is exceeded
    */
   waitForReady: (timeout?: number) => Promise<void>;
-  
+
   /**
    * Enable debug logging for test bridge
    */
   enableDebugLogging?: () => void;
-  
+
   /**
    * Disable debug logging
    */
@@ -106,6 +109,9 @@ export interface TestBridge {
  * Makes TypeScript aware of the test bridge
  */
 declare global {
+  /**
+   *
+   */
   interface Window {
     __E2E_TEST_BRIDGE__?: TestBridge;
   }

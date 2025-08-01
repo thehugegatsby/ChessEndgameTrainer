@@ -51,35 +51,7 @@ module.exports = [
       "jsdoc/check-param-names": "warn",
       "jsdoc/check-alignment": "warn",
       "jsdoc/check-tag-names": "warn",
-      "no-restricted-imports": [
-        "error",
-        {
-          paths: [
-            {
-              name: "./tests/e2e/components/AppDriver",
-              message:
-                "AppDriver is deprecated. Use ModernDriver instead. See: docs/MODERNDRIVER_MIGRATION.md",
-            },
-            {
-              name: "../components/AppDriver",
-              message:
-                "AppDriver is deprecated. Use ModernDriver instead. See: docs/MODERNDRIVER_MIGRATION.md",
-            },
-            {
-              name: "../../components/AppDriver",
-              message:
-                "AppDriver is deprecated. Use ModernDriver instead. See: docs/MODERNDRIVER_MIGRATION.md",
-            },
-          ],
-          patterns: [
-            {
-              group: ["**/AppDriver", "**/AppDriver.ts"],
-              message:
-                "AppDriver is deprecated. Use ModernDriver instead. See: docs/MODERNDRIVER_MIGRATION.md",
-            },
-          ],
-        },
-      ],
+      // No restricted imports currently configured
     },
   },
 

@@ -1,5 +1,5 @@
 /**
- * @fileoverview Chess Evaluation Utilities
+ * @file Chess Evaluation Utilities
  * @description Modular evaluation helpers for chess training
  * @deprecated This file has been refactored into separate modules.
  * Use individual imports from ./evaluation/ subdirectory for better maintainability.
@@ -15,7 +15,6 @@ export {
   getEvaluationColor,
   getEvaluationBarWidth,
   TABLEBASE_LEGEND,
-  ENGINE_LEGEND,
   getSmartMoveEvaluation,
-  type MoveEvaluation
-} from './evaluation';
+  type MoveEvaluation,
+} from "./evaluation";

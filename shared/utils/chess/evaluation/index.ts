@@ -1,33 +1,21 @@
 /**
- * @fileoverview Chess Evaluation Utilities
- * @description Modular evaluation helpers for chess training
+ * @file Chess Evaluation Utilities
+ * @description Modular evaluation helpers for tablebase-only chess training
  * Refactored from evaluationHelpers.ts for better maintainability
  */
 
-// Display helpers for engine and move quality evaluations
-export {
-  getMoveQualityDisplay,
-  getEvaluationDisplay
-} from './displayHelpers';
-
-// Tablebase-specific evaluation helpers - REMOVED (overengineered)
-// TODO: Re-implement if needed with simplified approach
+// Display helpers for tablebase and move quality evaluations
+export { getMoveQualityDisplay, getEvaluationDisplay } from "./displayHelpers";
 
 // Formatting utilities for evaluation data
 export {
   formatEvaluation,
   getEvaluationColor,
-  getEvaluationBarWidth
-} from './formattingHelpers';
+  getEvaluationBarWidth,
+} from "./formattingHelpers";
 
 // Symbol legends for UI display
-export {
-  TABLEBASE_LEGEND,
-  ENGINE_LEGEND
-} from './legends';
+export { TABLEBASE_LEGEND } from "./legends";
 
-// Smart evaluation that prioritizes tablebase over engine
-export {
-  getSmartMoveEvaluation,
-  type MoveEvaluation
-} from './smartEvaluation';
+// Smart evaluation using tablebase WDL comparison for accurate move quality
+export { getSmartMoveEvaluation, type MoveEvaluation } from "./smartEvaluation";
