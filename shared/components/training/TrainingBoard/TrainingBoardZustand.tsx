@@ -6,8 +6,7 @@ import React, {
   useRef,
 } from "react";
 import { Chess, Move } from "chess.js";
-import { Square, Piece } from "react-chessboard/dist/chessboard/types";
-import { Chessboard } from "react-chessboard";
+import { Chessboard } from "@shared/components/chess/Chessboard";
 import { usePositionAnalysis, useTrainingGame } from "../../../hooks";
 import { usePageReady } from "../../../hooks/usePageReady";
 import {
@@ -470,8 +469,8 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
 
         const [, , from, to, promotion] = moveMatch;
         const moveObj = {
-          from: from as Square,
-          to: to as Square,
+          from: from,
+          to: to,
           promotion: promotion || "q",
         };
 
@@ -526,7 +525,7 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
 
   // Handle piece drop
   const onDrop = useCallback(
-    (sourceSquare: Square, targetSquare: Square, _piece: Piece): boolean => {
+    (sourceSquare: string, targetSquare: string, _piece: string): boolean => {
       if (isGameFinished) return false;
 
       const move = {
@@ -622,8 +621,8 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
                 // Format: e2-e4
                 const [from, to] = moveNotation.split("-");
                 move = {
-                  from: from as Square,
-                  to: to as Square,
+                  from: from,
+                  to: to,
                   promotion: "q",
                 };
               } else {
@@ -632,8 +631,8 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
                 move = tempGame.move(moveNotation);
                 if (move) {
                   move = {
-                    from: move.from as Square,
-                    to: move.to as Square,
+                    from: move.from,
+                    to: move.to,
                     promotion: move.promotion || "q",
                   };
                 }
@@ -711,7 +710,7 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
         data-analysis-status={training.analysisStatus}
       >
         <Chessboard
-          position={currentFen}
+          fen={currentFen}
           onPieceDrop={onDrop}
           arePiecesDraggable={!isGameFinished}
           boardWidth={600}
