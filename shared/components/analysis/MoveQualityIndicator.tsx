@@ -1,34 +1,48 @@
 /**
  * MoveQualityIndicator - Isolated move quality assessment component
- * 
+ *
  * Each instance manages its own state to avoid shared state issues
  * Provides clean separation of concerns and reusability
- * 
+ *
  * @module MoveQualityIndicator
  */
 
-import React from 'react';
-import { useMoveQuality } from '../../hooks/useMoveQuality';
-import { getQualityEmoji, formatQualityTooltip } from '../../utils/moveQualityFormatters';
+import React from "react";
+import { useMoveQuality } from "../../hooks/useMoveQuality";
+import {
+  getQualityEmoji,
+  formatQualityTooltip,
+} from "../../utils/moveQualityFormatters";
 
+/**
+ *
+ */
 interface MoveQualityIndicatorProps {
   /** Index of the move in the game history */
   moveIndex: number;
   /** Move in SAN notation */
   moveSan: string;
   /** Player who made the move */
-  player: 'w' | 'b';
+  player: "w" | "b";
   /** Function to get FEN before the move */
   getFenBefore: (moveIndex: number) => string;
 }
 
 /**
  * Isolated component for move quality assessment
- * 
+ *
  * Each instance has its own state and can display results independently
  * Follows clean architecture with minimal UI footprint
+ * @param root0
+ * @param root0.moveIndex
+ * @param root0.moveSan
+ * @param root0.player
+ * @param root0.getFenBefore
  */
-export const MoveQualityIndicator: React.FC<MoveQualityIndicatorProps> = ({
+export /**
+ *
+ */
+const MoveQualityIndicator: React.FC<MoveQualityIndicatorProps> = ({
   moveIndex,
   moveSan,
   player,
@@ -36,6 +50,9 @@ export const MoveQualityIndicator: React.FC<MoveQualityIndicatorProps> = ({
 }) => {
   const { data, isLoading, error, assessMove } = useMoveQuality();
 
+  /**
+   *
+   */
   const handleAssess = async () => {
     const fenBefore = getFenBefore(moveIndex);
     try {
@@ -45,13 +62,17 @@ export const MoveQualityIndicator: React.FC<MoveQualityIndicatorProps> = ({
     }
   };
 
+  // Automatically assess move on mount
+  React.useEffect(() => {
+    if (!data && !isLoading && !error) {
+      handleAssess();
+    }
+  }, []); // Run once on mount
+
   // Loading state
   if (isLoading) {
     return (
-      <span 
-        className="ml-1 text-xs" 
-        title="Analyzing move..."
-      >
+      <span className="ml-1 text-xs" title="Analyzing move...">
         ⏳
       </span>
     );
@@ -73,8 +94,8 @@ export const MoveQualityIndicator: React.FC<MoveQualityIndicatorProps> = ({
   // Result state
   if (data) {
     return (
-      <span 
-        className="ml-1 text-xs cursor-help" 
+      <span
+        className="ml-1 text-xs cursor-help"
         title={formatQualityTooltip(data)}
       >
         {getQualityEmoji(data.quality)}
@@ -94,4 +115,4 @@ export const MoveQualityIndicator: React.FC<MoveQualityIndicatorProps> = ({
   );
 };
 
-MoveQualityIndicator.displayName = 'MoveQualityIndicator';
+MoveQualityIndicator.displayName = "MoveQualityIndicator";
