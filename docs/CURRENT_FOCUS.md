@@ -6,7 +6,16 @@ Currently no critical bugs to fix. Ready for new feature development!
 
 ## 🔄 Recent Architecture Changes
 
-### Clean Cut Migration (Just Completed)
+### Complete E2E Test Cleanup (Just Completed)
+
+E2E test suite cleaned up and modernized:
+
+- **Removed obsolete tests**: `modern-driver-api.spec.ts`, `app-platform-integration.spec.ts` (~800 lines)
+- **Updated terminology**: All "engine" references → "tablebase" in E2E tests (11 edits across 3 files)
+- **Optimized configuration**: Next.js config optimized for E2E tests
+- **Documentation**: Cross-origin warnings documented as minor HMR-related issue
+
+### Clean Cut Migration (Completed)
 
 All references to "engine" have been renamed to "tablebase":
 

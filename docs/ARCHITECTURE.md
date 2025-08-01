@@ -99,16 +99,17 @@ interface TrainingState {
 
 ## Testing Strategy
 
-- Unit tests for services and hooks
-- Integration tests for store actions
-- Mock TablebaseService for tests
-- Use TestFixtures for valid FENs
+- **Unit tests**: Services, hooks, and components with TablebaseService mocks
+- **Integration tests**: Store actions and service integrations
+- **E2E tests**: Clean architecture with Playwright (core-training, error-recovery)
+- **Mock patterns**: MSW for API mocking, TestFixtures for valid FENs
 
 ## Migration History
 
 - v1.0: Stockfish WASM engine
 - v2.0: SimpleEngine abstraction
 - v3.0: Tablebase-only (current)
+- v3.1: E2E test cleanup and modernization
 
 ## Future Considerations (v4.0)
 
