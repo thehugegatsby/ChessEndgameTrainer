@@ -6,22 +6,17 @@
 
 These issues block user experience and should be fixed first:
 
-1. **#14: Tablebase moves not showing**
-   - Symptom: "No engine moves" display despite valid tablebase data
-   - Location: Likely in move display components or store updates
-   - Impact: Users can't see computer moves
-
-2. **#15: Tablebase evaluation emojis missing**
+1. **#15: Tablebase evaluation emojis missing**
    - Symptom: Move quality indicators (✓, ⚡, etc.) not displaying
    - Location: Move list component or evaluation formatting
    - Impact: Users can't see move quality at a glance
 
-3. **#16: Wrong Brückenbau titles**
+2. **#16: Wrong Brückenbau titles**
    - Symptom: Shows full description instead of "Brückenbau X/Y" format
    - Location: Position title formatting in data or display
    - Impact: Confusing UI for training positions
 
-4. **#20: Missing Firestore positions 9-11**
+3. **#20: Missing Firestore positions 9-11**
    - Symptom: Some positions fail to load from database
    - Location: Position service or data seeding
    - Impact: Incomplete training content
