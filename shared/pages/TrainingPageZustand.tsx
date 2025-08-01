@@ -149,8 +149,9 @@ const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.memo(
           <div className="chessboard-wrapper flex-[5] h-full relative">
             {/* Progress Header centered above board - always show for E2E test visibility */}
             <div
-              className="absolute top-24 left-0 right-0 z-10 text-center"
+              className="absolute top-24 left-0 right-0 text-center pointer-events-none"
               data-testid="position-title"
+              style={{ zIndex: 5 }}
             >
               <h2 className="text-3xl font-bold">
                 {getTrainingDisplayTitle(position, training.moveHistory.length)}
