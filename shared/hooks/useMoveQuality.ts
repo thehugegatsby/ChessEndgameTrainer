@@ -21,6 +21,9 @@ import { Logger } from "../services/logging/Logger";
 
 const logger = new Logger();
 
+/**
+ *
+ */
 interface UseMoveQualityState {
   /** Current move quality result */
   data: SimplifiedMoveQualityResult | null;
@@ -38,7 +41,10 @@ interface UseMoveQualityState {
  *
  * @returns Object with state and assessMove trigger function
  */
-export const useMoveQuality = () => {
+export /**
+ *
+ */
+const useMoveQuality = () => {
   const [state, setState] = useState<UseMoveQualityState>({
     data: null,
     isLoading: false,
@@ -123,11 +129,32 @@ export const useMoveQuality = () => {
           return result;
         }
 
+        // Detailed logging before assessment
+        logger.info("[useMoveQuality] WDL values before assessment", {
+          move,
+          fenBefore,
+          fenAfter,
+          wdlBefore: evalBefore.result.wdl,
+          wdlAfter: evalAfter.result.wdl,
+          categoryBefore: evalBefore.result.category,
+          categoryAfter: evalAfter.result.category,
+        });
+
         // Assess move quality using helper function
         const result = assessTablebaseMoveQuality(
           evalBefore.result.wdl,
           evalAfter.result.wdl,
         );
+
+        // Log the calculation details
+        const wdlChange = -evalAfter.result.wdl - evalBefore.result.wdl;
+        logger.info("[useMoveQuality] Quality calculation details", {
+          wdlBefore: evalBefore.result.wdl,
+          wdlAfter: evalAfter.result.wdl,
+          wdlChange,
+          calculatedQuality: result.quality,
+          formula: `wdlChange = -${evalAfter.result.wdl} - ${evalBefore.result.wdl} = ${wdlChange}`,
+        });
 
         // Only update state if request wasn't aborted
         if (!controller.signal.aborted) {

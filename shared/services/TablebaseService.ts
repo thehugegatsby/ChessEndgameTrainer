@@ -9,6 +9,9 @@ import { APP_CONFIG } from "../../config/constants";
 
 const logger = getLogger().setContext("TablebaseService");
 
+/**
+ *
+ */
 export interface TablebaseMove {
   uci: string; // UCI format (e.g., "a1a8")
   san: string; // SAN format (e.g., "Ra8+")
@@ -18,6 +21,9 @@ export interface TablebaseMove {
   category: "win" | "draw" | "loss" | "cursed-win" | "blessed-loss";
 }
 
+/**
+ *
+ */
 export interface TablebaseResult {
   wdl: number; // Win/Draw/Loss: 2=win, 1=cursed win, 0=draw, -1=blessed loss, -2=loss
   dtz: number | null; // Distance to Zeroing move
@@ -27,18 +33,27 @@ export interface TablebaseResult {
   evaluation: string; // Human readable text
 }
 
+/**
+ *
+ */
 export interface TablebaseEvaluation {
   isAvailable: boolean;
   result?: TablebaseResult;
   error?: string;
 }
 
+/**
+ *
+ */
 export interface TablebaseMovesResult {
   isAvailable: boolean;
   moves?: TablebaseMove[];
   error?: string;
 }
 
+/**
+ *
+ */
 interface CacheEntry {
   result: TablebaseResult;
   expiry: number;
@@ -54,6 +69,7 @@ class TablebaseService {
 
   /**
    * Get tablebase evaluation for position
+   * @param fen
    */
   async getEvaluation(fen: string): Promise<TablebaseEvaluation> {
     // CRITICAL FIX: Validate FEN to prevent security risks
@@ -126,6 +142,13 @@ class TablebaseService {
           evaluation: this.getEvaluationText(data.category, data.dtz),
         };
 
+        logger.info("[TablebaseService] API response and WDL mapping", {
+          fen: sanitizedFen,
+          apiCategory: data.category,
+          mappedWdl: this.categoryToWdl(data.category),
+          dtz: data.dtz,
+        });
+
         // MEDIUM FIX: Cache with expiry timestamp instead of setTimeout
         this.cache.set(sanitizedFen, {
           result,
@@ -177,6 +200,10 @@ class TablebaseService {
     return { isAvailable: false, error: "Unexpected error" };
   }
 
+  /**
+   *
+   * @param category
+   */
   private categoryToWdl(category: string): number {
     switch (category) {
       case "win":
@@ -194,6 +221,11 @@ class TablebaseService {
     }
   }
 
+  /**
+   *
+   * @param category
+   * @param dtz
+   */
   private getEvaluationText(category: string, dtz?: number): string {
     switch (category) {
       case "win":
@@ -220,6 +252,8 @@ class TablebaseService {
   /**
    * Get top moves from tablebase for a position
    * Returns multiple moves with their evaluations
+   * @param fen
+   * @param limit
    */
   async getTopMoves(
     fen: string,
@@ -343,6 +377,10 @@ class TablebaseService {
     }
   }
 
+  /**
+   *
+   * @param category
+   */
   private invertCategory(
     category: string,
   ): "win" | "draw" | "loss" | "cursed-win" | "blessed-loss" {
@@ -362,6 +400,7 @@ class TablebaseService {
 
   /**
    * Count total pieces on the board
+   * @param fen
    */
   private countPieces(fen: string): number {
     const piecesPart = fen.split(" ")[0];
@@ -377,4 +416,7 @@ class TablebaseService {
 }
 
 // Export singleton
-export const tablebaseService = new TablebaseService();
+export /**
+ *
+ */
+const tablebaseService = new TablebaseService();
