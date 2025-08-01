@@ -54,7 +54,19 @@
     "emulator": "firebase emulators:start",
     "fix:position-ids": "npx tsx scripts/renamePositionIds.ts",
     "seed:test-positions": "npx tsx scripts/seedTestPositions.ts",
-    "emulator:test": "firebase emulators:start --only firestore"
+    "emulator:test": "firebase emulators:start --only firestore",
+    "prepare": "husky",
+    "type-check": "tsc --noEmit"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write",
+      "jest --bail --findRelatedTests --passWithNoTests"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.2",
@@ -96,10 +108,13 @@
     "eslint-config-next": "^15.3.5",
     "firebase-admin": "^13.4.0",
     "glob": "^10.3.10",
+    "husky": "^9.1.7",
     "jest": "^30.0.4",
     "jest-environment-jsdom": "^30.0.4",
+    "lint-staged": "^16.1.2",
     "msw": "^2.10.4",
     "next-router-mock": "^1.0.2",
+    "prettier": "^3.6.2",
     "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",

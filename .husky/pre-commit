@@ -1,0 +1,24 @@
+echo "🚀 Running pre-commit hooks..."
+
+# Run lint-staged on staged files
+echo "📝 Running lint-staged (format, lint, test related)..."
+npx lint-staged
+LINT_STAGED_EXIT_CODE=$?
+
+if [ $LINT_STAGED_EXIT_CODE -ne 0 ]; then
+  echo "❌ lint-staged failed. Aborting commit."
+  exit 1
+fi
+
+# Run type check on the whole project
+echo "🔍 Running TypeScript type check..."
+npm run type-check
+TSC_EXIT_CODE=$?
+
+if [ $TSC_EXIT_CODE -ne 0 ]; then
+  echo "❌ TypeScript check failed. Aborting commit."
+  exit 1
+fi
+
+echo "✅ Pre-commit hooks passed!"
+exit 0
