@@ -28,8 +28,13 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
-    - name: Run tests
+    - name: Run unit tests
       run: npm test
+    
+    - name: Run integration tests
+      run: npm run test:integration
+      env:
+        CI: true  # Skip real API tests in CI
 
     - name: Build application
       run: npm run build

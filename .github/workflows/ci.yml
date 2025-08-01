@@ -59,7 +59,7 @@ jobs:
     - name: Install dependencies
       run: npm ci --prefer-offline --no-audit
 
-    - name: Run tests with coverage
+    - name: Run unit tests with coverage
       run: npm run test:coverage
 
     - name: Upload coverage report
@@ -76,6 +76,36 @@ jobs:
         lcov-file: ./coverage/lcov.info
         github-token: ${{ secrets.GITHUB_TOKEN }}
         title: Unit Test Coverage Report
+
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: lint-and-typecheck
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci --prefer-offline --no-audit
+
+    - name: Run integration tests
+      run: npm run test:integration
+      env:
+        CI: true  # Skip real API tests in CI
+
+    - name: Upload integration test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: integration-test-results
+        path: test-results/
+      if: always()
 
   build:
     name: Build Application
@@ -121,7 +151,7 @@ jobs:
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
-    needs: [test, build]
+    needs: [test, integration-test, build]
     timeout-minutes: 15
     
     steps:
@@ -164,7 +194,7 @@ jobs:
   quality-gates:
     name: Quality Gates Summary
     runs-on: ubuntu-latest
-    needs: [lint-and-typecheck, test, build, e2e]
+    needs: [lint-and-typecheck, test, integration-test, build, e2e]
     if: always()
     
     steps:
@@ -185,6 +215,12 @@ jobs:
           echo "❌ Unit Tests: Failed" >> $GITHUB_STEP_SUMMARY
         fi
         
+        if [ "${{ needs.integration-test.result }}" == "success" ]; then
+          echo "✅ Integration Tests: Passed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Integration Tests: Failed" >> $GITHUB_STEP_SUMMARY
+        fi
+        
         if [ "${{ needs.build.result }}" == "success" ]; then
           echo "✅ Build: Passed" >> $GITHUB_STEP_SUMMARY
         else
@@ -201,6 +237,7 @@ jobs:
       if: |
         needs.lint-and-typecheck.result == 'failure' ||
         needs.test.result == 'failure' ||
+        needs.integration-test.result == 'failure' ||
         needs.build.result == 'failure' ||
         needs.e2e.result == 'failure'
       run: |

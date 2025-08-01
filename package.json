@@ -21,6 +21,7 @@
     "test:coverage:business": "jest --config=tests/jest.config.business.js --coverage",
     "test:coverage:evaluation": "jest --config=config/jest/jest.config.feature-coverage.js --coverage",
     "test:integration": "jest --config=tests/jest.config.integration.js",
+    "test:real-api": "node scripts/test-real-api.js",
     "test:all": "npm run test:unit && npm run test:integration",
     "test:e2e": "cross-env IS_E2E_TEST=true playwright test",
     "test:e2e:headed": "cross-env IS_E2E_TEST=true playwright test --headed",
