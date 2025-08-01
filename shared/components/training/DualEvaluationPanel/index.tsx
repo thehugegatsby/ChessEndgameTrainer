@@ -164,7 +164,6 @@ export const DualEvaluationPanel: React.FC<DualEvaluationPanelProps> = ({
             tablebaseData={lastEvaluation?.tablebase || { isTablebasePosition: false }}
             onMoveSelect={(move) => {
               // TODO: Implement move selection logic
-              console.log('Selected tablebase move:', move);
             }}
             selectedMove={undefined}
             loading={isEvaluating}

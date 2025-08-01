@@ -37,7 +37,7 @@ export class ErrorService {
   }
 
   /**
-   * Handle Chess Engine errors with specific context
+   * Handle Simple Engine errors with specific context
    */
   static handleChessEngineError(error: Error, context: ErrorContext = {}) {
     const service = ErrorService.getInstance();

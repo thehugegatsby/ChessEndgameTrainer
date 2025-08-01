@@ -29,24 +29,3 @@ export function usePageReady(dependencies: boolean[] = []): boolean {
   return isPageReady;
 }
 
-/**
- * Hook for components to signal their ready state
- * More granular than page-ready, used for specific component readiness
- * 
- * @param isReady - Boolean indicating if the component is ready
- * @returns The same boolean for convenience
- */
-export function useComponentReady(isReady: boolean): boolean {
-  useEffect(() => {
-    if (isReady && typeof window !== 'undefined' && process.env.NEXT_PUBLIC_E2E_SIGNALS === 'true') {
-      window.dispatchEvent(new CustomEvent('component-ready', {
-        detail: { 
-          timestamp: Date.now(),
-          component: new Error().stack?.split('\n')[2]?.trim() // Capture calling component for debugging
-        }
-      }));
-    }
-  }, [isReady]);
-  
-  return isReady;
-}

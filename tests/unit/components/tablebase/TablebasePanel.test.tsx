@@ -139,17 +139,22 @@ describe('TablebasePanel', () => {
     );
 
     // Check statistics section - use more specific selectors to avoid conflicts
-    const statisticsSection = screen.getByText('Winning').closest('div');
-    expect(statisticsSection).toBeInTheDocument();
+    const winningMovesSection = screen.getByText('Winning Moves');
+    expect(winningMovesSection).toBeInTheDocument();
     
-    const winningStatsDiv = screen.getByText('Winning').previousSibling;
-    expect(winningStatsDiv).toHaveTextContent('2');
+    // Check counts are displayed correctly
+    const winningCount = screen.getByText('Winning Moves').parentElement?.querySelector('.text-xs');
+    expect(winningCount).toHaveTextContent('2');
     
-    const drawingStatsDiv = screen.getByText('Drawing').previousSibling;
-    expect(drawingStatsDiv).toHaveTextContent('1');
+    const drawingMovesSection = screen.getByText('Drawing Moves');
+    expect(drawingMovesSection).toBeInTheDocument();
+    const drawingCount = drawingMovesSection.parentElement?.querySelector('.text-xs');
+    expect(drawingCount).toHaveTextContent('1');
     
-    const losingStatsDiv = screen.getByText('Losing').previousSibling;
-    expect(losingStatsDiv).toHaveTextContent('1');
+    const losingMovesSection = screen.getByText('Losing Moves');
+    expect(losingMovesSection).toBeInTheDocument();
+    const losingCount = losingMovesSection.parentElement?.querySelector('.text-xs');
+    expect(losingCount).toHaveTextContent('1');
   });
 
   it('should handle compact mode', () => {

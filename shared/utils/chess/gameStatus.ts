@@ -130,14 +130,3 @@ function getObjectiveDisplay(objective: 'win' | 'draw' | 'defend'): string {
   }
 }
 
-/**
- * Get short status for compact display
- */
-export function getShortGameStatus(fen: string, goalFromData?: 'win' | 'draw' | 'defend'): string {
-  const status = getGameStatus(fen, goalFromData);
-  const turn = status.sideToMove === 'white' ? 'Weiß' : 'Schwarz';
-  const objective = status.objective === 'win' ? 'Gewinn' : 
-                   status.objective === 'draw' ? 'Remis' : 'Verteidigen';
-  
-  return `${turn} • ${objective}`;
-}

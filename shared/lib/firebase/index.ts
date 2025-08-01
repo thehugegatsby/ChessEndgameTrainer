@@ -19,10 +19,10 @@ if ((process.env.NODE_ENV === 'test' || process.env.IS_E2E_TEST === 'true' || pr
   const [host, port] = process.env.FIRESTORE_EMULATOR_HOST.split(':');
   try {
     connectFirestoreEmulator(db, host, parseInt(port));
-    console.log(`Connected to Firestore emulator at ${host}:${port}`);
+    // Connected to Firestore emulator
   } catch (error) {
     // Already connected, ignore
-    console.log('Firestore emulator already connected');
+    // Firestore emulator already connected
   }
 }
 

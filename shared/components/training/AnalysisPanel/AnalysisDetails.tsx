@@ -95,7 +95,6 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = React.memo(({
                   maxMoves={8} // Limit for mobile UI
                   onMoveClick={(moveIndex, move) => {
                     // TODO: Implement board preview functionality
-                    console.log(`PV Move clicked: ${move} at index ${moveIndex}`);
                   }}
                   className="w-full"
                 />

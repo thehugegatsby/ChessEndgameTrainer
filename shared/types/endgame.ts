@@ -42,39 +42,3 @@ export interface EndgameChapter {
   totalLessons: number;
 }
 
-export interface TrainingSession {
-  positionId: number;
-  startTime: Date;
-  endTime?: Date;
-  moves: string[];
-  completed: boolean;
-  score?: number;
-  result?: 'success' | 'failure';
-  mistakes?: number;
-  timeSpent?: number;
-}
-
-export interface UserProgress {
-  userId: string;
-  positionId: number;
-  completed: boolean;
-  bestScore: number;
-  attempts: number;
-  lastAttempt: Date;
-}
-
-export interface MobileAppConfig {
-  offlineMode: boolean;
-  syncInterval: number;
-  maxCacheSize: number;
-  reminderTime?: string;
-  reminderEnabled?: boolean;
-}
-
-export interface TrainingAnalytics {
-  totalPositions: number;
-  completedPositions: number;
-  averageScore: number;
-  timeSpent: number;
-  favoriteCategory?: string;
-}

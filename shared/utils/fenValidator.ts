@@ -117,15 +117,3 @@ function validateNumber(value: string, min: number, max: number): boolean {
   return !isNaN(num) && num >= min && num <= max;
 }
 
-/**
- * Quick validation for performance-critical paths
- */
-export function isValidFenQuick(fen: string): boolean {
-  if (!fen || typeof fen !== 'string') return false;
-  if (fen.length < CHESS.FEN_MIN_LENGTH || fen.length > CHESS.FEN_MAX_LENGTH) return false;
-  
-  const parts = fen.trim().split(' ');
-  return parts.length === CHESS.FEN_PARTS_COUNT && 
-         parts[0].includes('/') && 
-         ['w', 'b'].includes(parts[1]);
-}

@@ -203,11 +203,6 @@ export const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
 
     try {
       // Debug: Log game state before validation
-      console.log('🎲 Game state before move validation:', {
-        hasGame: !!game,
-        gameFen: game?.fen(),
-        possibleMovesCount: game?.moves()?.length || 0
-      });
       logger.debug('Game state before move validation', {
         hasGame: !!game,
         gameFen: game?.fen(),

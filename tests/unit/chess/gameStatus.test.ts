@@ -4,7 +4,7 @@
  */
 
 import { describe, test, expect } from '@jest/globals';
-import { getGameStatus, getShortGameStatus } from '../../../shared/utils/chess/gameStatus';
+import { getGameStatus } from '../../../shared/utils/chess/gameStatus';
 import { TEST_FENS } from '../../../shared/testing/TestFixtures';
 
 describe('Chess Game Status', () => {
@@ -121,27 +121,6 @@ describe('Chess Game Status', () => {
         
         expect(status.objective).toBe('draw');
       });
-    });
-  });
-
-  describe('getShortGameStatus', () => {
-    test('should_return_compact_status_for_white_win', () => {
-      const shortStatus = getShortGameStatus(TEST_FENS.KQK_TABLEBASE_WIN);
-      
-      expect(shortStatus).toBe('Weiß • Gewinn');
-    });
-
-    test('should_return_compact_status_for_black_draw', () => {
-      const afterE4 = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1';
-      const shortStatus = getShortGameStatus(afterE4);
-      
-      expect(shortStatus).toMatch(/Schwarz • (Gewinn|Remis)/);
-    });
-
-    test('should_return_compact_status_for_defend_objective', () => {
-      const shortStatus = getShortGameStatus(TEST_FENS.KQK_TABLEBASE_WIN, 'defend');
-      
-      expect(shortStatus).toBe('Weiß • Verteidigen');
     });
   });
 

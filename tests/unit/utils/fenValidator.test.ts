@@ -1,4 +1,4 @@
-import { validateAndSanitizeFen, isValidFenQuick } from '@shared/utils/fenValidator';
+import { validateAndSanitizeFen } from '@shared/utils/fenValidator';
 
 describe('FEN Validator', () => {
   describe('validateAndSanitizeFen', () => {
@@ -96,21 +96,6 @@ describe('FEN Validator', () => {
         const result = validateAndSanitizeFen(fen);
         expect(result.isValid).toBe(false);
       });
-    });
-  });
-
-  describe('isValidFenQuick', () => {
-    it('should perform quick validation correctly', () => {
-      expect(isValidFenQuick('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')).toBe(true);
-      expect(isValidFenQuick('8/8/8/8/8/8/8/8 w - - 0 1')).toBe(true);
-      
-      expect(isValidFenQuick('')).toBe(false);
-      expect(isValidFenQuick(null as any)).toBe(false);
-      expect(isValidFenQuick(undefined as any)).toBe(false);
-      expect(isValidFenQuick('too short')).toBe(false);
-      expect(isValidFenQuick('a'.repeat(101))).toBe(false);
-      expect(isValidFenQuick('invalid fen')).toBe(false);
-      expect(isValidFenQuick('8/8/8/8/8/8/8/8 x - - 0 1')).toBe(false);
     });
   });
 });
