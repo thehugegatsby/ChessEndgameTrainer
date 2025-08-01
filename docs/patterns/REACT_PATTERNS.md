@@ -15,26 +15,26 @@ graph TB
         B[Layout Components]
         C[Training Components]
     end
-    
+
     subgraph "CONTAINER LAYER"
         D[Page Components]
         E[Feature Containers]
         F[Provider Components]
     end
-    
+
     subgraph "HOOK LAYER"
         G[useEvaluation]
         H[useTrainingGame]
-        I[useEngine]
+        I[useTablebase]
         J[Custom Hooks]
     end
-    
+
     subgraph "STATE LAYER"
         K[Zustand Store]
         L[Training Actions]
         M[Local State]
     end
-    
+
     A --> D
     B --> E
     C --> F
@@ -44,7 +44,7 @@ graph TB
     G --> K
     H --> L
     I --> M
-    
+
     style A fill:#e3f2fd
     style D fill:#f3e5f5
     style G fill:#e8f5e8
@@ -84,35 +84,36 @@ shared/components/
 ### 1. Container/Presentation Pattern
 
 **Container Component** (Business Logic):
+
 ```typescript
 // File: /shared/components/training/TrainingBoard/TrainingBoardZustand.tsx:25-60
 export function TrainingBoardContainer() {
   // Container pattern: Handle business logic and state
-  const { 
-    position, 
-    moves, 
+  const {
+    position,
+    moves,
     currentMoveIndex,
     makeMove,
-    navigateToMove 
+    navigateToMove
   } = useTrainingGame();
-  
-  const { 
-    lastEvaluation, 
-    isEvaluating 
+
+  const {
+    lastEvaluation,
+    isEvaluating
   } = useEvaluation({
     fen: position.fen(),
     isEnabled: true
   });
-  
+
   // Container pattern: Event handlers
   const handleMove = useCallback((move: Move) => {
     makeMove(move);
   }, [makeMove]);
-  
+
   const handleMoveNavigation = useCallback((index: number) => {
     navigateToMove(index);
   }, [navigateToMove]);
-  
+
   // Container pattern: Pass data and handlers to presentation
   return (
     <TrainingBoardPresentation
@@ -129,6 +130,7 @@ export function TrainingBoardContainer() {
 ```
 
 **Presentation Component** (UI Only):
+
 ```typescript
 // File: /shared/components/training/TrainingBoard/TrainingBoardPresentation.tsx:15-45
 interface TrainingBoardPresentationProps {
@@ -158,7 +160,7 @@ export function TrainingBoardPresentation({
         onMove={onMove}
         boardSize={400}
       />
-      
+
       <div className="evaluation-display">
         {isEvaluating ? (
           <Spinner />
@@ -166,7 +168,7 @@ export function TrainingBoardPresentation({
           <EvaluationCard evaluation={evaluation} />
         )}
       </div>
-      
+
       <MoveHistory
         moves={moves}
         currentIndex={currentMoveIndex}
@@ -180,6 +182,7 @@ export function TrainingBoardPresentation({
 ### 2. Compound Component Pattern
 
 **Main Component with Sub-components**:
+
 ```typescript
 // File: /shared/components/training/DualEvaluationPanel/index.tsx
 export function DualEvaluationPanel({ fen, isVisible }) {
@@ -187,7 +190,7 @@ export function DualEvaluationPanel({ fen, isVisible }) {
     fen,
     isEnabled: isVisible
   });
-  
+
   return (
     <div className="dual-evaluation-panel">
       {/* Engine Multi-PV Display */}
@@ -196,7 +199,7 @@ export function DualEvaluationPanel({ fen, isVisible }) {
           <div key={index}>{result.san} {formatScore(result.score)}</div>
         ))}
       </div>
-      
+
       {/* Tablebase Moves Display */}
       <div className="tablebase-evaluation-section">
         {lastEvaluation?.tablebase?.topMoves?.map((move, index) => (
@@ -211,6 +214,7 @@ export function DualEvaluationPanel({ fen, isVisible }) {
 ### 3. Hook Integration Pattern
 
 **Component with Multiple Hooks**:
+
 ```typescript
 // File: /shared/components/training/AnalysisPanel/AnalysisDetails.tsx:20-65
 export function AnalysisDetails() {
@@ -220,30 +224,30 @@ export function AnalysisDetails() {
     currentMove: state.currentMove,
     moveHistory: state.moveHistory
   }));
-  
-  const { 
-    lastEvaluation, 
-    evaluations, 
-    isEvaluating 
+
+  const {
+    lastEvaluation,
+    evaluations,
+    isEvaluating
   } = useEvaluation({
     fen: gameState.position.fen(),
     isEnabled: true,
     previousFen: gameState.moveHistory[gameState.moveHistory.length - 2]?.fen
   });
-  
-  const { 
-    bestMoves, 
-    analysis 
+
+  const {
+    bestMoves,
+    analysis
   } = useAnalysisData({
     position: gameState.position,
     evaluation: lastEvaluation
   });
-  
+
   // Hook integration pattern: Derived state
   const evaluationTrend = useMemo(() => {
     return calculateEvaluationTrend(evaluations);
   }, [evaluations]);
-  
+
   // Hook integration pattern: Side effects
   useEffect(() => {
     if (lastEvaluation && lastEvaluation.tablebase) {
@@ -251,17 +255,17 @@ export function AnalysisDetails() {
       analytics.trackTablebaseHit(gameState.position.fen());
     }
   }, [lastEvaluation, gameState.position]);
-  
+
   return (
     <div className="analysis-details">
-      <EvaluationDisplay 
+      <EvaluationDisplay
         evaluation={lastEvaluation}
         trend={evaluationTrend}
         isLoading={isEvaluating}
       />
-      
+
       <BestMovesDisplay moves={bestMoves} />
-      
+
       <MoveAnalysis analysis={analysis} />
     </div>
   );
@@ -273,22 +277,23 @@ export function AnalysisDetails() {
 ### 1. Store Connection Pattern
 
 **Direct Store Access**:
+
 ```typescript
 // File: /shared/components/training/NavigationControls.tsx:15-40
 export function NavigationControls() {
   // Store connection pattern: Direct access with selectors
-  const { 
-    canGoBack, 
-    canGoForward, 
+  const {
+    canGoBack,
+    canGoForward,
     currentMoveIndex,
-    totalMoves 
+    totalMoves
   } = useTrainingStore(state => ({
     canGoBack: state.currentMoveIndex > 0,
     canGoForward: state.currentMoveIndex < state.moveHistory.length - 1,
     currentMoveIndex: state.currentMoveIndex,
     totalMoves: state.moveHistory.length
   }));
-  
+
   // Store connection pattern: Action dispatchers
   const navigateToMove = useTrainingStore(state => state.navigateToMove);
   const goBack = useCallback(() => {
@@ -296,27 +301,27 @@ export function NavigationControls() {
       navigateToMove(currentMoveIndex - 1);
     }
   }, [canGoBack, currentMoveIndex, navigateToMove]);
-  
+
   const goForward = useCallback(() => {
     if (canGoForward) {
       navigateToMove(currentMoveIndex + 1);
     }
   }, [canGoForward, currentMoveIndex, navigateToMove]);
-  
+
   return (
     <div className="navigation-controls">
-      <button 
-        onClick={goBack} 
+      <button
+        onClick={goBack}
         disabled={!canGoBack}
         aria-label="Previous move"
       >
         ←
       </button>
-      
+
       <span>{currentMoveIndex + 1} / {totalMoves}</span>
-      
-      <button 
-        onClick={goForward} 
+
+      <button
+        onClick={goForward}
         disabled={!canGoForward}
         aria-label="Next move"
       >
@@ -330,6 +335,7 @@ export function NavigationControls() {
 ### 2. Optimized Selector Pattern
 
 **Performance-Optimized Selectors**:
+
 ```typescript
 // File: /shared/components/training/MoveHistory.tsx:20-50
 export function MoveHistory() {
@@ -338,9 +344,9 @@ export function MoveHistory() {
     state => state.moveHistory,
     shallow // Zustand shallow comparison
   );
-  
+
   const currentMoveIndex = useTrainingStore(state => state.currentMoveIndex);
-  
+
   // Optimized selector pattern: Derived state with useMemo
   const formattedMoves = useMemo(() => {
     return moves.map((move, index) => ({
@@ -351,10 +357,10 @@ export function MoveHistory() {
       isWhiteMove: index % 2 === 0
     }));
   }, [moves, currentMoveIndex]);
-  
+
   // Optimized selector pattern: Stable action reference
   const navigateToMove = useTrainingStore(state => state.navigateToMove);
-  
+
   return (
     <div className="move-history">
       {formattedMoves.map((move, index) => (
@@ -375,6 +381,7 @@ export function MoveHistory() {
 ### 1. Error Boundary Pattern
 
 **Error Boundary Component**:
+
 ```typescript
 // File: /shared/components/ui/ErrorBoundary.tsx:15-70
 interface ErrorBoundaryState {
@@ -389,14 +396,14 @@ export class ErrorBoundary extends Component<
 > {
   constructor(props: PropsWithChildren<ErrorBoundaryProps>) {
     super(props);
-    
+
     this.state = {
       hasError: false,
       error: null,
       errorInfo: null
     };
   }
-  
+
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     // Error boundary pattern: Update state on error
     return {
@@ -404,28 +411,28 @@ export class ErrorBoundary extends Component<
       error
     };
   }
-  
+
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Error boundary pattern: Log error details
     console.error('ErrorBoundary caught an error:', error, errorInfo);
-    
+
     this.setState({
       error,
       errorInfo
     });
-    
+
     // Error boundary pattern: Report to error service
     ErrorService.logError('React Error Boundary', error, {
       componentStack: errorInfo.componentStack,
       errorBoundary: this.props.fallbackComponent?.name || 'Unknown'
     });
   }
-  
+
   render() {
     if (this.state.hasError) {
       // Error boundary pattern: Fallback UI
       const FallbackComponent = this.props.fallbackComponent || DefaultErrorFallback;
-      
+
       return (
         <FallbackComponent
           error={this.state.error}
@@ -433,7 +440,7 @@ export class ErrorBoundary extends Component<
         />
       );
     }
-    
+
     return this.props.children;
   }
 }
@@ -453,48 +460,55 @@ export function EngineErrorBoundary({ children }: PropsWithChildren) {
 ### 2. Hook Error Handling Pattern
 
 **Error Handling in Hooks**:
+
 ```typescript
 // File: /shared/hooks/useEvaluation.ts:195-220
 export function useEvaluation(params: UseEvaluationParams) {
   const [error, setError] = useState<string | null>(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
-  
+
   // Hook error handling pattern: Centralized error handler
-  const handleEvaluationError = useCallback((error: Error) => {
-    // Don't set error state for intentional cancellations
-    if (error.name === 'AbortError') {
-      return;
-    }
-    
-    // Hook error handling pattern: User-friendly error messages
-    const userMessage = getEvaluationErrorMessage(error);
-    setError(userMessage);
-    setIsEvaluating(false);
-    
-    // Hook error handling pattern: Error logging
-    console.error('Evaluation error:', {
-      error: error.message,
-      fen: params.fen,
-      timestamp: new Date().toISOString()
-    });
-  }, [params.fen]);
-  
-  const evaluatePosition = useCallback(async (fen: string) => {
-    try {
-      setIsEvaluating(true);
-      setError(null);
-      
-      const result = await service.getFormattedEvaluation(fen, playerToMove);
-      
-      // Success - update state
-      updateEvaluationState(result);
-    } catch (error) {
-      handleEvaluationError(error as Error);
-    } finally {
+  const handleEvaluationError = useCallback(
+    (error: Error) => {
+      // Don't set error state for intentional cancellations
+      if (error.name === "AbortError") {
+        return;
+      }
+
+      // Hook error handling pattern: User-friendly error messages
+      const userMessage = getEvaluationErrorMessage(error);
+      setError(userMessage);
       setIsEvaluating(false);
-    }
-  }, [service, handleEvaluationError]);
-  
+
+      // Hook error handling pattern: Error logging
+      console.error("Evaluation error:", {
+        error: error.message,
+        fen: params.fen,
+        timestamp: new Date().toISOString(),
+      });
+    },
+    [params.fen],
+  );
+
+  const evaluatePosition = useCallback(
+    async (fen: string) => {
+      try {
+        setIsEvaluating(true);
+        setError(null);
+
+        const result = await service.getFormattedEvaluation(fen, playerToMove);
+
+        // Success - update state
+        updateEvaluationState(result);
+      } catch (error) {
+        handleEvaluationError(error as Error);
+      } finally {
+        setIsEvaluating(false);
+      }
+    },
+    [service, handleEvaluationError],
+  );
+
   return {
     error,
     isEvaluating,
@@ -508,11 +522,12 @@ export function useEvaluation(params: UseEvaluationParams) {
 ### 1. Component Testing Pattern
 
 **Component Unit Testing**:
+
 ```typescript
 // File: /tests/unit/components/training/NavigationControls.test.tsx:15-50
 describe('NavigationControls', () => {
   let mockStore: any;
-  
+
   beforeEach(() => {
     // Testing pattern: Mock store setup
     mockStore = {
@@ -525,40 +540,40 @@ describe('NavigationControls', () => {
       ],
       navigateToMove: jest.fn()
     };
-    
+
     // Testing pattern: Mock Zustand store
     (useTrainingStore as jest.Mock).mockImplementation((selector) => {
       return selector(mockStore);
     });
   });
-  
+
   it('should display correct move position', () => {
     const { getByText } = render(<NavigationControls />);
-    
+
     // Testing pattern: State-based assertions
     expect(getByText('3 / 4')).toBeInTheDocument();
   });
-  
+
   it('should handle navigation correctly', () => {
     const { getByLabelText } = render(<NavigationControls />);
-    
+
     const backButton = getByLabelText('Previous move');
     const forwardButton = getByLabelText('Next move');
-    
+
     // Testing pattern: Interaction testing
     fireEvent.click(backButton);
     expect(mockStore.navigateToMove).toHaveBeenCalledWith(1);
-    
+
     fireEvent.click(forwardButton);
     expect(mockStore.navigateToMove).toHaveBeenCalledWith(3);
   });
-  
+
   it('should disable buttons appropriately', () => {
     // Testing pattern: Edge case testing
     mockStore.currentMoveIndex = 0;
-    
+
     const { getByLabelText } = render(<NavigationControls />);
-    
+
     expect(getByLabelText('Previous move')).toBeDisabled();
     expect(getByLabelText('Next move')).not.toBeDisabled();
   });
@@ -568,19 +583,24 @@ describe('NavigationControls', () => {
 ### 2. Hook Testing Pattern
 
 **Custom Hook Testing**:
+
 ```typescript
 // File: /tests/unit/hooks/useEvaluation.test.ts:100-130
-describe('useEvaluation Hook', () => {
+describe("useEvaluation Hook", () => {
   beforeEach(() => {
     // Hook testing pattern: Mock dependencies
-    mockUnifiedService.getFormattedEvaluation.mockResolvedValue(mockFormattedEvaluation);
+    mockUnifiedService.getFormattedEvaluation.mockResolvedValue(
+      mockFormattedEvaluation,
+    );
   });
-  
-  it('should evaluate position when enabled', async () => {
-    const { result } = renderHook(() => useEvaluation({
-      fen: TEST_FENS.STARTING_POSITION,
-      isEnabled: true
-    }));
+
+  it("should evaluate position when enabled", async () => {
+    const { result } = renderHook(() =>
+      useEvaluation({
+        fen: TEST_FENS.STARTING_POSITION,
+        isEnabled: true,
+      }),
+    );
 
     // Hook testing pattern: Wait for async operations
     await waitFor(() => {
@@ -590,18 +610,20 @@ describe('useEvaluation Hook', () => {
     // Hook testing pattern: Service call verification
     expect(mockUnifiedService.getFormattedEvaluation).toHaveBeenCalledWith(
       TEST_FENS.STARTING_POSITION,
-      'w'
+      "w",
     );
   });
-  
-  it('should handle error states correctly', async () => {
-    const testError = new Error('Evaluation failed');
+
+  it("should handle error states correctly", async () => {
+    const testError = new Error("Evaluation failed");
     mockUnifiedService.getFormattedEvaluation.mockRejectedValue(testError);
 
-    const { result } = renderHook(() => useEvaluation({
-      fen: TEST_FENS.STARTING_POSITION,
-      isEnabled: true
-    }));
+    const { result } = renderHook(() =>
+      useEvaluation({
+        fen: TEST_FENS.STARTING_POSITION,
+        isEnabled: true,
+      }),
+    );
 
     // Hook testing pattern: Error state verification
     await waitFor(() => {
@@ -616,6 +638,7 @@ describe('useEvaluation Hook', () => {
 ### 1. CSS Module Pattern
 
 **Component with CSS Modules**:
+
 ```typescript
 // File: /shared/components/training/EvaluationLegend.tsx:10-30
 import styles from './EvaluationLegend.module.css';
@@ -627,12 +650,12 @@ export function EvaluationLegend() {
         <span className={styles.colorIndicator} data-evaluation="winning" />
         <span className={styles.label}>Winning (+2.0 or better)</span>
       </div>
-      
+
       <div className={styles.legendItem}>
         <span className={styles.colorIndicator} data-evaluation="advantage" />
         <span className={styles.label}>Advantage (+0.5 to +2.0)</span>
       </div>
-      
+
       <div className={styles.legendItem}>
         <span className={styles.colorIndicator} data-evaluation="equal" />
         <span className={styles.label}>Equal (-0.5 to +0.5)</span>
@@ -645,6 +668,7 @@ export function EvaluationLegend() {
 ### 2. Tailwind CSS Pattern
 
 **Component with Tailwind Classes**:
+
 ```typescript
 // File: /shared/components/ui/Toast.tsx:20-45
 interface ToastProps {
@@ -658,18 +682,18 @@ export function Toast({ message, type, onClose }: ToastProps) {
   const baseClasses = "fixed top-4 right-4 p-4 rounded-lg shadow-lg transition-all duration-300";
   const typeClasses = {
     success: "bg-green-500 text-white",
-    error: "bg-red-500 text-white", 
+    error: "bg-red-500 text-white",
     warning: "bg-yellow-500 text-black",
     info: "bg-blue-500 text-white"
   };
-  
+
   const className = `${baseClasses} ${typeClasses[type]}`;
-  
+
   return (
     <div className={className}>
       <div className="flex items-center justify-between">
         <span>{message}</span>
-        <button 
+        <button
           onClick={onClose}
           className="ml-4 text-lg hover:opacity-75"
         >
@@ -686,6 +710,7 @@ export function Toast({ message, type, onClose }: ToastProps) {
 ### 1. React Anti-Patterns
 
 **❌ Prop Drilling**
+
 ```typescript
 // BAD: Drilling props through multiple levels
 function App() {
@@ -709,25 +734,26 @@ function UserProfile() {
 ```
 
 **❌ Monolithic Components**
+
 ```typescript
 // BAD: Single component handling multiple responsibilities
 function TrainingPageMonolith() {
   // Game logic
   const [position, setPosition] = useState(new Chess());
   const [moveHistory, setMoveHistory] = useState([]);
-  
+
   // UI state
   const [selectedSquare, setSelectedSquare] = useState(null);
   const [showAnalysis, setShowAnalysis] = useState(true);
-  
+
   // Evaluation logic
   const [evaluation, setEvaluation] = useState(null);
-  
+
   // Engine management
   const [engine, setEngine] = useState(null);
-  
+
   // 200+ lines of mixed logic...
-  
+
   return (
     <div>
       {/* Complex JSX mixing all concerns */}
@@ -748,11 +774,12 @@ function TrainingPage() {
 ```
 
 **❌ Business Logic in Presentation Components**
+
 ```typescript
 // BAD: Complex calculations and side effects in presentation
 function EvaluationDisplay({ fen }) {
   const [evaluation, setEvaluation] = useState(null);
-  
+
   useEffect(() => {
     // Heavy computation in presentation component
     async function calculateEvaluation() {
@@ -763,29 +790,30 @@ function EvaluationDisplay({ fen }) {
     }
     calculateEvaluation();
   }, [fen]);
-  
+
   return <div>{evaluation}</div>;
 }
 
 // GOOD: Business logic in hooks, presentation components pure
 function EvaluationDisplay() {
   const { evaluation, isEvaluating } = useEvaluation();
-  
+
   if (isEvaluating) return <Spinner />;
   return <div>{evaluation}</div>;
 }
 ```
 
 **❌ Unstable References**
+
 ```typescript
 // BAD: Creating new objects/functions on every render
 function MoveHistory() {
   const moves = useTrainingStore(state => state.moveHistory);
-  
+
   return (
     <div>
       {moves.map((move, index) => (
-        <button 
+        <button
           key={index}
           onClick={() => navigateToMove(index)} // New function every render
           style={{ color: index === currentIndex ? 'blue' : 'black' }} // New object every render
@@ -801,11 +829,11 @@ function MoveHistory() {
 function MoveHistory() {
   const moves = useTrainingStore(state => state.moveHistory);
   const navigateToMove = useTrainingStore(state => state.navigateToMove);
-  
+
   const handleMoveClick = useCallback((index) => {
     navigateToMove(index);
   }, [navigateToMove]);
-  
+
   return (
     <div>
       {moves.map((move, index) => (
@@ -824,67 +852,69 @@ function MoveHistory() {
 ### 2. Hook Anti-Patterns
 
 **❌ Hooks with Side Effects in Render**
+
 ```typescript
 // BAD: Side effects during render
 function useEvaluation(fen) {
   const [evaluation, setEvaluation] = useState(null);
-  
+
   // NEVER: Side effects in render
   if (fen && !evaluation) {
     evaluatePosition(fen).then(setEvaluation);
   }
-  
+
   return evaluation;
 }
 
 // GOOD: Side effects in useEffect
 function useEvaluation(fen) {
   const [evaluation, setEvaluation] = useState(null);
-  
+
   useEffect(() => {
     if (fen) {
       evaluatePosition(fen).then(setEvaluation);
     }
   }, [fen]);
-  
+
   return evaluation;
 }
 ```
 
 **❌ Missing Dependency Arrays**
+
 ```typescript
 // BAD: Missing or incorrect dependencies
 function useEngine() {
   const [engine, setEngine] = useState(null);
-  
+
   useEffect(() => {
     initializeEngine().then(setEngine);
   }); // Missing dependency array - runs every render!
-  
+
   useEffect(() => {
     if (engine) {
       engine.configure(settings);
     }
   }, []); // Missing 'engine' and 'settings' dependencies
-  
+
   return engine;
 }
 
 // GOOD: Correct dependency arrays
 function useEngine() {
   const [engine, setEngine] = useState(null);
-  const settings = useTrainingStore(state => state.engineSettings);
-  
+  const settings = useTrainingStore((state) => state.engineSettings);
+
   useEffect(() => {
     initializeEngine().then(setEngine);
   }, []); // Correct: empty array for one-time initialization
-  
+
   useEffect(() => {
     if (engine && settings) {
       engine.configure(settings);
     }
   }, [engine, settings]); // Correct: all dependencies listed
-  
+
   return engine;
 }
 ```
@@ -892,17 +922,18 @@ function useEngine() {
 ### 3. Error Handling Anti-Patterns
 
 **❌ Silent Error Swallowing**
+
 ```typescript
 // BAD: Silently catching and ignoring errors
 function useEvaluation(fen) {
   const [evaluation, setEvaluation] = useState(null);
-  
+
   useEffect(() => {
     evaluatePosition(fen)
       .then(setEvaluation)
       .catch(() => {}); // Silent failure - user never knows!
   }, [fen]);
-  
+
   return evaluation;
 }
 
@@ -910,17 +941,17 @@ function useEvaluation(fen) {
 function useEvaluation(fen) {
   const [evaluation, setEvaluation] = useState(null);
   const [error, setError] = useState(null);
-  
+
   useEffect(() => {
     setError(null);
     evaluatePosition(fen)
       .then(setEvaluation)
       .catch((err) => {
-        console.error('Evaluation failed:', err);
-        setError('Failed to evaluate position');
+        console.error("Evaluation failed:", err);
+        setError("Failed to evaluate position");
       });
   }, [fen]);
-  
+
   return { evaluation, error };
 }
 ```

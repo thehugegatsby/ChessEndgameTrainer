@@ -70,13 +70,15 @@ ChessEndgameTrainer/
 ## 📊 Projekt Status (Juli 2025)
 
 ### 🎯 **Current Focus: Web-First Stabilization**
+
 - **Strategy**: Stabilization → Enhancement → Expansion
 - **Platform**: Web-only (Mobile deferred until stable foundation)
 - **Phase**: Critical bug fixes + E2E test rewrite
 
 ### ✅ **Technical Health**
+
 - **Test Suite**: 762 unit tests + 33 E2E tests (100% passing) | Comprehensive Coverage
-- **TypeScript**: 0 errors (100% clean) | Complete Clean Compilation  
+- **TypeScript**: 0 errors (100% clean) | Complete Clean Compilation
 - **Architecture**: v2.0 Simplified - SimpleEngine → AnalysisService → UI
 - **State Management**: Zustand Store as Single Source of Truth
 - **Security**: FEN Input Sanitization implemented
@@ -84,6 +86,7 @@ ChessEndgameTrainer/
 - **CI/CD**: Stabilized pipeline with automated quality gates
 
 ### 🚨 **Current Issues**
+
 - **E2E Tests**: 33/33 passing (100%) | Stabilized Playwright architecture
 - **UI Bugs**: Engine moves missing (#14), Tablebase emojis (#15), wrong titles (#16)
 - **Data**: Missing Firestore positions 9-11 (#20)
@@ -135,6 +138,7 @@ npm run test:performance
 ```
 
 #### Test-Architektur
+
 Umfassende Test-Suite mit 762 Unit Tests + 33 E2E Tests:
 
 ```bash
@@ -175,12 +179,14 @@ npm run build
 Die Anwendung wurde für optimale Performance auf Desktop und Mobile optimiert:
 
 ### 🔧 **Clean Engine Architecture** (2025-07-13)
+
 - **IChessEngine Interface**: 4 clean methods (`findBestMove`, `evaluatePosition`, `stop`, `terminate`)
 - **Singleton Pattern**: Ein Engine-Instance für die gesamte App (293→222 lines, 70% simpler)
 - **Stateless Design**: Alle Methoden akzeptieren FEN-Parameter für Thread-Safety
 - **Lazy Initialization**: Stockfish Worker wird nur bei Bedarf erstellt
 
 ### 📈 **Performance Optimierungen**
+
 - **LRU Cache**: Intelligentes Caching für wiederholte Positionen
 - **Debouncing**: Verhindert überflüssige Engine-Anfragen
 - **75% weniger API-Calls** durch verschiedene Optimierungen
@@ -192,6 +198,7 @@ Detaillierte Performance-Metriken und technische Details finden Sie in der Codeb
 ## 🚀 Entwicklungs-Roadmap
 
 ### ✅ **Completed Foundations**
+
 - **Clean Architecture**: Service→Adapter→Provider layers implemented
 - **Engine Foundation**: Stockfish WASM singleton with memory optimization
 - **State Management**: Zustand Store as Single Source of Truth
@@ -201,18 +208,21 @@ Detaillierte Performance-Metriken und technische Details finden Sie in der Codeb
 - **Performance**: LRU caching, debouncing, bundle optimization
 
 ### 🎯 **Phase 1: Stabilization (Current - 1 Week)**
+
 - 🚨 **Fix critical UI bugs** - Engine moves, tablebase emojis, titles
 - ✅ **E2E test rewrite** - Modern Playwright architecture (33/33 passing)
 - ✅ **100% unit test pass rate** - All 1015 tests passing
 - 📝 **Issue triage** - Address GitHub issues #14-26
 
 ### ⚡ **Phase 2: Enhancement (2-3 Weeks)**
+
 - 🚀 **Performance optimization** - Lazy loading, code splitting
 - 🔥 **Data completion** - Missing Firestore positions
 - 📊 **Quality improvements** - TypeScript error elimination
 - 🧪 **Test coverage** - Enable skipped tests
 
 ### 🏗️ **Phase 3: Expansion (Future)**
+
 - 📱 **Progressive Web App** - Mobile experience without native complexity
 - 🎨 **Advanced features** - Enhanced Brückenbau trainer
 - 📱 **Native mobile** - Only after web platform stability
@@ -221,12 +231,14 @@ Detaillierte Performance-Metriken und technische Details finden Sie in der Codeb
 ## 📚 Dokumentation & Architektur
 
 ### 📖 **Entwickler-Dokumentation**
+
 - **[CLAUDE.md](./CLAUDE.md)** - AI Assistant Context & Architektur-Richtlinien
-- **[TODO.md](./TODO.md)** - Web-First Roadmap und aktuelle Prioritäten
 - **[CHANGELOG.md](./CHANGELOG.md)** - Versionshistorie und Änderungen
 - **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - System-Architektur Details
+- **[GitHub Issues](https://github.com/thehugegatsby/ChessEndgameTrainer/issues)** - Aktuelle Prioritäten und Roadmap
 
 ### 🏗️ **Web-First Architektur-Prinzipien**
+
 - **Clean Architecture**: Service→Adapter→Provider Separation
 - **Engine Singleton**: Eine Stockfish-Instanz für Browser-Optimierung
 - **Unified Evaluation**: Konsistente Chess Engine + Tablebase Integration
@@ -235,6 +247,7 @@ Detaillierte Performance-Metriken und technische Details finden Sie in der Codeb
 - **Performance**: <300KB Bundle-Size pro Route
 
 ### 🎯 **Web-First Strategy Benefits**
+
 - **Rapid Development**: Fokus auf eine Plattform
 - **Quality First**: Stabilität vor Feature-Expansion
 - **Resource Efficiency**: Keine parallele Mobile-Komplexität
@@ -246,6 +259,7 @@ Detaillierte Performance-Metriken und technische Details finden Sie in der Codeb
 ## 🤝 Entwicklungs-Workflow
 
 ### 🔄 **Qualitäts-Gates**
+
 ```bash
 npm test           # 1015/1015 unit tests müssen bestehen
 npm run test:e2e   # 33/33 E2E tests müssen bestehen
@@ -254,12 +268,14 @@ npm run build      # Erfolgreicher Build
 ```
 
 ### 📋 **Issue-Priorisierung**
+
 - **P0 Critical**: UI Bugs, Test-Failures → Sofort
-- **P1 High**: Performance, UX → Diese Woche  
+- **P1 High**: Performance, UX → Diese Woche
 - **P2 Medium**: Tech Debt → Nächste Sprints
 - **P3 Low**: Future Features → Backlog
 
 ### 🎯 **Web-First Entwicklung**
+
 1. **Stabilität vor Features** - Bugs zuerst fixen
 2. **Test-getrieben** - E2E + Unit Test Coverage
 3. **Performance-bewusst** - Bundle Size <300KB
@@ -273,4 +289,4 @@ ISC
 
 ---
 
-*Multi-Model Analysis (Juli 2025): Gemini Pro + Claude Opus 4 Consensus*
+_Multi-Model Analysis (Juli 2025): Gemini Pro + Claude Opus 4 Consensus_

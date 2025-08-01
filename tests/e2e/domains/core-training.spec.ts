@@ -21,11 +21,14 @@ test.describe("Core Training Workflow", () => {
   test("should complete homepage → training → move → evaluation journey", async ({
     page,
   }) => {
-    // 🏠 STEP 1: Homepage laden
+    // 🏠 STEP 1: Homepage laden (redirects to /train/1)
     await page.goto(E2E.ROUTES.HOME);
 
-    // Verify homepage loads with main content title (now the only H1)
-    await expect(page.locator("h1")).toContainText("Brückenbau-Trainer");
+    // Homepage redirects to training page, so we should be on /train/1
+    await expect(page).toHaveURL(/\/train\/1/);
+
+    // Wait for the training page to load and verify we have training content
+    await expect(page.locator("[data-testid='training-board']")).toBeVisible();
 
     // 🎮 STEP 2: Navigate to Training page
     // Check what links are available on the page

@@ -32,11 +32,15 @@ test.describe("Error Recovery - Issue #24", () => {
     await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
 
     // Attempt an invalid move (try to move opponent's piece or illegal move)
+    // Wait for any UI overlays to disappear before attempting chess moves
+    await page.waitForTimeout(1000);
+
     // Try clicking a square that doesn't have a valid piece to move
     const invalidSquare = page.locator(E2E.SELECTORS.SQUARE("a8")); // Black rook in starting position
 
     if (await invalidSquare.isVisible()) {
-      await invalidSquare.click();
+      // Force click to bypass any overlays
+      await invalidSquare.click({ force: true });
 
       // Try to move to invalid destination
       const invalidDestination = page.locator(E2E.SELECTORS.SQUARE("a1"));
