@@ -172,9 +172,10 @@ describe("Move Validation - Game Outcome Changes", () => {
       expect(state.training.moveErrorDialog).toEqual({
         isOpen: true,
         wdlBefore: 2,
-        wdlAfter: 0,
+        wdlAfter: expect.any(Number), // Accept both 0 and -0
         bestMove: "Kd5",
       });
+      expect(Math.abs(state.training.moveErrorDialog?.wdlAfter || 0)).toBe(0); // Ensure it's actually 0
 
       // Verify the position hasn't changed (move was prevented)
       expect(state.training.currentFen).toBe("5k2/8/3K4/4P3/8/8/8/8 w - - 2 2");

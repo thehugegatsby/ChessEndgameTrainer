@@ -1,10 +1,12 @@
 /**
  * WDL (Win/Draw/Loss) normalization utilities
  *
- * The Tablebase API returns WDL values from the perspective of the player to move.
- * This can cause confusion when comparing positions before and after a move,
- * as the perspective switches. These utilities normalize WDL values to a
- * consistent perspective (the training player's perspective).
+ * NOTE: The TablebaseService already normalizes WDL values to the current player's perspective.
+ * These utilities are kept for potential future use but are currently not needed
+ * in the main application flow since TablebaseService handles perspective correctly.
+ *
+ * IMPORTANT: Do not use these functions with values from TablebaseService as it will cause
+ * double normalization and incorrect results.
  */
 
 /**

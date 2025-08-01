@@ -302,8 +302,8 @@ class TablebaseService {
             return {
               uci: move.from + move.to + (move.promotion || ""),
               san: move.san,
-              // Negate WDL because we want from current player's perspective
-              wdl: -evalResult.result.wdl,
+              // WDL is already from White's perspective (Lichess API standard)
+              wdl: evalResult.result.wdl,
               dtz: evalResult.result.dtz,
               dtm: evalResult.result.dtm,
               category: this.invertCategory(evalResult.result.category),

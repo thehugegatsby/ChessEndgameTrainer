@@ -131,7 +131,7 @@ test.describe("Actual Position 1 - King and Pawn vs King", () => {
 
       // Verify we have the expected position - use first occurrence
       await expect(
-        page.getByText("King and Pawn vs King - Basic Win").first(),
+        page.getByText("Opposition Grundlagen").first(),
       ).toBeVisible();
 
       // Verify the Lichess link contains the expected FEN
@@ -261,8 +261,22 @@ test.describe("Actual Position 1 - King and Pawn vs King", () => {
     // Since the pieces are SVG, let's use the same square-clicking approach from test 1
 
     await test.step("Make first move Kd6", async () => {
-      // Wait for board to be ready
-      await page.waitForTimeout(2000);
+      // Wait until the game state is initialized with the expected FEN
+      await page.waitForFunction((expectedFen) => {
+        const gameState = (window as any).e2e_getGameState();
+        return gameState && gameState.fen === expectedFen;
+      }, "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1"); // Pass the expected FEN as an argument
+
+      // Debug: Check initial game state before attempting move
+      const initialState = await page.evaluate(() => {
+        const gameState = (window as any).e2e_getGameState();
+        console.log(
+          "Playwright DEBUG: Initial Game State (after wait):",
+          gameState,
+        );
+        return gameState;
+      });
+      logger.info("Initial Game State:", initialState);
 
       // Based on debug test, react-chessboard v5 uses data-square attributes
       // and IDs like chessboard-square-e6
@@ -273,25 +287,23 @@ test.describe("Actual Position 1 - King and Pawn vs King", () => {
       await expect(fromSquare).toBeVisible({ timeout: 5000 });
       await expect(toSquare).toBeVisible({ timeout: 5000 });
 
-      // Debug: log the square content to see if we're targeting the right element
-      const fromSquareHtml = await fromSquare.innerHTML();
-      logger.info(`From square (e6) HTML: ${fromSquareHtml.substring(0, 200)}`);
-
       // Log what we're about to do
-      logger.info("Attempting drag from e6 to d6");
+      logger.info("Attempting move e6-d6 with expected FEN:", initialState.fen);
 
       // Use the E2E test hooks that the app provides
-      // The app exposes window.e2e_makeMove() for testing
-      // The function expects format like 'e2-e4' or 'e2e4'
-      const moveResult = await page.evaluate(async () => {
-        // First, let's check what moves are available
-        const gameState = (window as any).e2e_getGameState();
-        console.log("Available game state:", gameState);
+      const moveResult = await page.evaluate(async (move) => {
+        console.log("Playwright DEBUG: About to attempt move:", move);
+        return await (window as any).e2e_makeMove(move);
+      }, "e6-d6");
 
-        // Debug: let's see the exact error by looking at the logs
-        // The error logs show the possible moves in format like "e6-f6", "e6-f5", "e6-d5", "e6-d6"
-        // So let's use the dash format
-        return await (window as any).e2e_makeMove("e6-d6");
+      // Debug: Check game state after move attempt
+      await page.evaluate(() => {
+        const gameState = (window as any).e2e_getGameState();
+        console.log(
+          "Playwright DEBUG: Final Game State after move attempt:",
+          gameState,
+        );
+        return gameState;
       });
 
       logger.info("Move result from e2e_makeMove", { moveResult });
@@ -350,16 +362,12 @@ test.describe("Actual Position 1 - King and Pawn vs King", () => {
       const moveList = page.locator('[data-testid="move-list"]');
       await expect(moveList).toBeVisible();
 
-      // Check that navigation buttons are enabled
-      const backButton = page
-        .locator("button")
-        .filter({ hasText: "Ein Zug zurück" });
+      // Check that navigation buttons are enabled (using data-testid)
+      const backButton = page.locator('[data-testid="nav-back"]');
       await expect(backButton).not.toBeDisabled();
 
       // The "go to start" button should also be enabled now
-      const startButton = page
-        .locator("button")
-        .filter({ hasText: "Zum Anfang der Zugliste" });
+      const startButton = page.locator('[data-testid="nav-first"]');
       await expect(startButton).not.toBeDisabled();
 
       logger.info("Move history UI elements working correctly");

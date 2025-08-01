@@ -24,7 +24,6 @@ import {
 } from "../infrastructure/chess-adapter";
 import { Chess, Move as ChessJsMove } from "chess.js";
 import { validateAndSanitizeFen } from "../utils/fenValidator";
-import { normalizeWdl, getTurnFromFen } from "../utils/wdlNormalization";
 import { getStoreDependencies } from "./storeConfig";
 import { tablebaseService } from "../services/TablebaseService";
 
@@ -397,6 +396,8 @@ const useStore = create<RootState & Actions>()(
             | { from: string; to: string; promotion?: string }
             | string,
         ) => {
+          logger.info("Store makeUserMove entry point", { move });
+
           const state = get();
           const { _internalApplyMove, setMoveErrorDialog } = get();
 
@@ -412,12 +413,28 @@ const useStore = create<RootState & Actions>()(
 
           // Create a temporary game to test the move
           const tempGame = new Chess(fenBefore);
+
+          // Debug: Log the move attempt details (safe for mocks)
+          logger.info("Store makeUserMove: Attempting move", {
+            move,
+            fenBefore,
+          });
+
           const tempMove = tempGame.move(move);
 
           if (!tempMove) {
-            logger.warn("Invalid user move attempted", { move });
+            logger.error("Store makeUserMove: Invalid user move attempted", {
+              move,
+              fenBefore,
+            });
             return false;
           }
+
+          logger.info("Store makeUserMove: Move accepted by chess.js", {
+            move,
+            tempMove: `${tempMove.from}-${tempMove.to}`,
+            san: tempMove.san,
+          });
 
           const fenAfter = tempGame.fen();
 
@@ -435,50 +452,50 @@ const useStore = create<RootState & Actions>()(
               evalBefore.result &&
               evalAfter.result
             ) {
-              // Get raw WDL values from API
-              const wdlBeforeRaw = evalBefore.result.wdl;
-              const wdlAfterRaw = evalAfter.result.wdl;
-
-              // Normalize WDL values from the training player's perspective
-              // We assume the training player is White (sideToMove: 'white')
-              const trainingSide =
-                state.training.currentPosition?.sideToMove || "white";
-
-              // Normalize both WDL values using utility function
-              const turnBefore = getTurnFromFen(fenBefore);
-              const turnAfter = getTurnFromFen(fenAfter);
-
-              const wdlBefore = normalizeWdl(
-                wdlBeforeRaw,
-                turnBefore!,
-                trainingSide,
-              );
-              const wdlAfter = normalizeWdl(
-                wdlAfterRaw,
-                turnAfter!,
-                trainingSide,
-              );
+              // Get WDL values from API - these are from the perspective of the side to move
+              const wdlBefore = evalBefore.result.wdl; // From perspective of side who is moving
+              const wdlAfter = evalAfter.result.wdl; // From perspective of side who will move after
 
               // Define WDL constants for clarity
               const WDL_WIN = 2;
               const WDL_DRAW = 0;
               const WDL_LOSS = -2;
 
+              // Convert to consistent perspective (Training player's perspective)
+              // wdlBefore: evaluation from perspective of side that just moved (White)
+              // wdlAfter: evaluation from perspective of side that will move next (Black)
+              // For training as White: "loss" for Black = "win" for White, so we invert
+              // Use Object.freeze(0) to normalize -0 to 0 to avoid test comparison issues
+              const wdlAfterFromTrainingPerspective =
+                wdlAfter === 0 ? 0 : -wdlAfter;
+
               logger.info("User move quality check", {
                 move: `${tempMove.from}${tempMove.to}`,
                 san: tempMove.san,
                 wdlBefore,
                 wdlAfter,
+                wdlAfterFromTrainingPerspective,
                 categoryBefore: evalBefore.result.category,
                 categoryAfter: evalAfter.result.category,
+                WDL_WIN,
+                WDL_DRAW,
+                WDL_LOSS,
+                winToDrawOrLossCondition: `${wdlBefore} === ${WDL_WIN} && (${wdlAfterFromTrainingPerspective} === ${WDL_DRAW} || ${wdlAfterFromTrainingPerspective} === ${WDL_LOSS})`,
+                winToDrawOrLossResult:
+                  wdlBefore === WDL_WIN &&
+                  (wdlAfterFromTrainingPerspective === WDL_DRAW ||
+                    wdlAfterFromTrainingPerspective === WDL_LOSS),
               });
 
               // Check if move actually changes the game outcome (not just suboptimal)
+              // Now compare consistent perspectives: wdlBefore vs wdlAfterFromTrainingPerspective
               const winToDrawOrLoss =
                 wdlBefore === WDL_WIN &&
-                (wdlAfter === WDL_DRAW || wdlAfter === WDL_LOSS);
+                (wdlAfterFromTrainingPerspective === WDL_DRAW ||
+                  wdlAfterFromTrainingPerspective === WDL_LOSS);
               const drawToLoss =
-                wdlBefore === WDL_DRAW && wdlAfter === WDL_LOSS;
+                wdlBefore === WDL_DRAW &&
+                wdlAfterFromTrainingPerspective === WDL_LOSS;
 
               if (winToDrawOrLoss || drawToLoss) {
                 logger.warn("Bad user move detected - game outcome worsened", {
@@ -508,11 +525,11 @@ const useStore = create<RootState & Actions>()(
                   logger.error("Error finding best move", error as Error);
                 }
 
-                // Show error dialog
+                // Show error dialog with corrected perspective values
                 setMoveErrorDialog({
                   isOpen: true,
                   wdlBefore,
-                  wdlAfter,
+                  wdlAfter: wdlAfterFromTrainingPerspective, // Use corrected perspective
                   bestMove: bestMoveSan,
                 });
 

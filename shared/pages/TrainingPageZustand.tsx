@@ -25,6 +25,9 @@ import {
 } from "@shared/utils/titleFormatter";
 import { ANIMATION } from "@shared/constants";
 
+/**
+ *
+ */
 interface TrainingPageZustandProps {
   position: EndgamePosition;
 }
@@ -33,8 +36,11 @@ interface TrainingPageZustandProps {
  * Training page component migrated to use Zustand store
  * This replaces the Context-based version
  */
-export const TrainingPageZustand: React.FC<TrainingPageZustandProps> =
-  React.memo(({ position }) => {
+export /**
+ *
+ */
+const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.memo(
+  ({ position }) => {
     // Next.js router
     const router = useRouter();
 
@@ -141,17 +147,15 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> =
         <div className="main-content flex-1 flex h-full mr-80">
           {/* Chessboard Area */}
           <div className="chessboard-wrapper flex-[5] h-full relative">
-            {/* Progress Header centered above board - hidden in E2E tests to prevent blocking interactions */}
-            {process.env.NEXT_PUBLIC_IS_E2E_TEST !== "true" && (
-              <div className="absolute top-24 left-0 right-0 z-10 text-center">
-                <h2 className="text-3xl font-bold">
-                  {getTrainingDisplayTitle(
-                    position,
-                    training.moveHistory.length,
-                  )}
-                </h2>
-              </div>
-            )}
+            {/* Progress Header centered above board - always show for E2E test visibility */}
+            <div
+              className="absolute top-24 left-0 right-0 z-10 text-center"
+              data-testid="position-title"
+            >
+              <h2 className="text-3xl font-bold">
+                {getTrainingDisplayTitle(position, training.moveHistory.length)}
+              </h2>
+            </div>
 
             <div className="w-full h-full flex items-center justify-center">
               <TrainingBoardZustand
@@ -276,6 +280,7 @@ export const TrainingPageZustand: React.FC<TrainingPageZustandProps> =
         </div>
       </div>
     );
-  });
+  },
+);
 
 TrainingPageZustand.displayName = "TrainingPageZustand";

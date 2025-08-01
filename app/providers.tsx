@@ -6,12 +6,16 @@ import { useTraining } from "@shared/store/store";
 import { configureStore } from "@shared/store/storeConfig";
 import { createServerPositionService } from "@shared/services/database/serverPositionService";
 import { getLogger } from "@shared/services/logging";
+import { setupE2ETablebaseMocks } from "@shared/services/TablebaseService.e2e.mocks";
 
 // Configure store dependencies once at app initialization
 // This happens before any component renders
 if (typeof window !== "undefined") {
   const positionService = createServerPositionService();
   configureStore({ positionService });
+
+  // Setup E2E mocks if in test environment
+  setupE2ETablebaseMocks();
 }
 
 /**

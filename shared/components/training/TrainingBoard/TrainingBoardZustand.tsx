@@ -283,6 +283,15 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       const logger = getLogger().setContext("TrainingBoard-handleMove");
       logger.debug("handleMove called", { move, isGameFinished });
 
+      // Add these critical debug logs
+      console.log("DEBUG: handleMove called with move:", move);
+      console.log("DEBUG: Current FEN in handleMove:", game.fen());
+      console.log(
+        "DEBUG: Possible moves in handleMove (verbose):",
+        game.moves({ verbose: true }).map((m: any) => `${m.from}-${m.to}`),
+      );
+      console.log("DEBUG: Possible moves in handleMove (san):", game.moves());
+
       if (isGameFinished) {
         logger.warn("handleMove early return", { isGameFinished });
         return null;
@@ -315,6 +324,7 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
           logger.error("Move validation failed", undefined, {
             move,
             possibleMoves: possibleMoves.map((m: any) => `${m.from}-${m.to}`),
+            currentFen: game.fen(), // Add current FEN to error log
           });
           uiActions.showToast("Invalid move", "warning");
           actions.incrementMistake();
@@ -509,6 +519,10 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
         isGameOver: game.isGameOver(),
         moveCount: history.length,
         pgn: game.pgn(),
+        moves: game
+          .moves({ verbose: true })
+          .map((m: any) => `${m.from}-${m.to}`),
+        possibleMovesCount: game.moves().length,
       });
     }
 
