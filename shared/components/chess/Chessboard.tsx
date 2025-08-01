@@ -1,6 +1,6 @@
 import React from "react";
 import { Chessboard as ReactChessboard } from "react-chessboard";
-import type { PieceDropHandlerArgs } from "react-chessboard";
+import type { PieceDropHandlerArgs } from "react-chessboard/dist/types";
 
 /**
  *
