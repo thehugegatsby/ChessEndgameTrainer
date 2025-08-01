@@ -93,7 +93,7 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = React.memo(({
                   depth={selectedAnalysis.depth}
                   interactive={true}
                   maxMoves={8} // Limit for mobile UI
-                  onMoveClick={(moveIndex, move) => {
+                  onMoveClick={() => {
                     // TODO: Implement board preview functionality
                   }}
                   className="w-full"
