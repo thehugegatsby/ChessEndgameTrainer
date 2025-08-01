@@ -16,11 +16,6 @@ These issues block user experience and should be fixed first:
    - Location: Position title formatting in data or display
    - Impact: Confusing UI for training positions
 
-3. **#20: Missing Firestore positions 9-11**
-   - Symptom: Some positions fail to load from database
-   - Location: Position service or data seeding
-   - Impact: Incomplete training content
-
 ## 🔄 Recent Architecture Changes
 
 ### Clean Cut Migration (Just Completed)
