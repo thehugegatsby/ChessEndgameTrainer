@@ -85,7 +85,7 @@ test.describe("Core Training Workflow", () => {
     }
 
     // 🧠 STEP 4: Wait for and verify evaluation
-    // Wait for engine to respond
+    // Wait for tablebase to respond
     await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
 
     // Look for evaluation display (adapt based on actual UI)
@@ -99,20 +99,22 @@ test.describe("Core Training Workflow", () => {
     // Verify evaluation is displayed
     await expect(evaluation).toBeVisible({ timeout: 10000 });
 
-    // Additional verification: check for engine status (but ignore debug text)
-    const engineError = page.locator("text=/engine.*error.*failed/i").first();
+    // Additional verification: check for tablebase status (but ignore debug text)
+    const tablebaseError = page
+      .locator("text=/tablebase.*error.*failed/i")
+      .first();
     const criticalError = page.locator("text=/critical.*error/i").first();
 
     // Only check for actual critical errors, not debug text
-    if (await engineError.isVisible()) {
-      const errorText = await engineError.textContent();
+    if (await tablebaseError.isVisible()) {
+      const errorText = await tablebaseError.textContent();
       // Skip if it's just debug/source code text
       if (
         errorText &&
         !errorText.includes("this.eventEmitter.emit") &&
         !errorText.includes("const error")
       ) {
-        await expect(engineError).not.toBeVisible();
+        await expect(tablebaseError).not.toBeVisible();
       }
     }
 
@@ -123,15 +125,15 @@ test.describe("Core Training Workflow", () => {
     logger.info(E2E.MESSAGES.SUCCESS.CORE_TRAINING_COMPLETE);
   });
 
-  test("should handle engine initialization", async ({ page }) => {
+  test("should handle tablebase initialization", async ({ page }) => {
     await page.goto(E2E.ROUTES.TRAIN(1));
 
-    // Wait for engine to initialize
+    // Wait for tablebase to initialize
     await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
 
-    // Check engine status is not error
-    const engineError = page.locator("text=/engine.*error/i").first();
-    await expect(engineError).not.toBeVisible();
+    // Check tablebase status is not error
+    const tablebaseError = page.locator("text=/tablebase.*error/i").first();
+    await expect(tablebaseError).not.toBeVisible();
 
     logger.info(E2E.MESSAGES.SUCCESS.TABLEBASE_VERIFIED);
   });

@@ -58,7 +58,7 @@ async function globalSetup(config: FullConfig) {
     try {
       await page.evaluate(() => {
         return new Promise((resolve) => {
-          // Basic smoke test - no engine/worker verification needed
+          // Basic smoke test - no tablebase/worker verification needed
           resolve("Browser environment ready for tablebase-only tests");
         });
       });

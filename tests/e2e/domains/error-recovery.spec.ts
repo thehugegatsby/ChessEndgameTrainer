@@ -250,7 +250,7 @@ test.describe("Error Recovery - Issue #24", () => {
       await fromSquare.click();
       await toSquare.click();
 
-      // Wait for engine evaluation and mistake detection
+      // Wait for tablebase evaluation and mistake detection
       await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
 
       // Check if mistake counter increased
@@ -274,12 +274,12 @@ test.describe("Error Recovery - Issue #24", () => {
     logger.info(E2E.MESSAGES.SUCCESS.MISTAKE_TRACKING_TESTED);
   });
 
-  test("should handle engine errors gracefully with recovery options", async ({
+  test("should handle tablebase errors gracefully with recovery options", async ({
     page,
   }) => {
-    logger.info("Testing engine error recovery scenarios");
+    logger.info("Testing tablebase error recovery scenarios");
 
-    // Wait for initial engine setup
+    // Wait for initial tablebase setup
     await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
 
     // Look for any tablebase error indicators
@@ -298,7 +298,7 @@ test.describe("Error Recovery - Issue #24", () => {
       .first();
 
     if (await tablebaseError.isVisible()) {
-      logger.info("Engine error detected, testing recovery");
+      logger.info("Tablebase error detected, testing recovery");
 
       if (await retryButton.isVisible()) {
         await retryButton.click();
@@ -307,11 +307,11 @@ test.describe("Error Recovery - Issue #24", () => {
         // Verify error is cleared after retry
         const errorAfterRetry = await tablebaseError.isVisible();
         if (!errorAfterRetry) {
-          logger.info("Engine error recovery successful");
+          logger.info("Tablebase error recovery successful");
         }
       }
     } else {
-      logger.info("No engine errors detected - testing error resilience");
+      logger.info("No tablebase errors detected - testing error resilience");
 
       // Test that the app continues to function normally
       const boardElement = page
