@@ -24,13 +24,6 @@ export function assessTablebaseMoveQuality(
   // we need to negate the WDL for the position after (opponent's turn)
   const wdlChange = -wdlAfter - wdlBefore;
 
-  console.log("[assessTablebaseMoveQuality] Input values:", {
-    wdlBefore,
-    wdlAfter,
-    wdlChange,
-    formula: `wdlChange = -${wdlAfter} - ${wdlBefore} = ${wdlChange}`,
-  });
-
   let quality: MoveQualityType;
   let reason: string;
 

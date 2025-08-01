@@ -74,6 +74,7 @@ export class TestApiService {
     subscribe: (listener: (state: any, prevState: any) => void) => () => void;
     // Individual action functions extracted from store state
     makeMove: (move: any) => void;
+    _internalApplyMove: (move: any) => void;
     resetPosition: () => void;
     setPosition: (position: any) => void;
     goToMove: (moveIndex: number) => void;
@@ -98,6 +99,7 @@ export class TestApiService {
    * @param storeAccess.getState
    * @param storeAccess.subscribe
    * @param storeAccess.makeMove
+   * @param storeAccess._internalApplyMove
    * @param storeAccess.resetPosition
    * @param storeAccess.setPosition
    * @param storeAccess.goToMove
@@ -110,6 +112,7 @@ export class TestApiService {
       subscribe: (listener: (state: any, prevState: any) => void) => () => void;
       // Individual action functions extracted from store state
       makeMove: (move: any) => void;
+      _internalApplyMove: (move: any) => void;
       resetPosition: () => void;
       setPosition: (position: any) => void;
       goToMove: (moveIndex: number) => void;
@@ -179,8 +182,8 @@ export class TestApiService {
         moveObj = move;
       }
 
-      // Execute move through store actions
-      this.storeAccess.makeMove(moveObj);
+      // Execute move through store actions (bypass validation for tests)
+      this.storeAccess._internalApplyMove(moveObj);
       const success = true; // makeMove is synchronous in Zustand
 
       if (success) {
@@ -399,7 +402,7 @@ export class TestApiService {
 
       // Make the deterministic engine move
       try {
-        this.storeAccess.makeMove(engineMove);
+        this.storeAccess._internalApplyMove(engineMove);
         this.emit("test:engineMove", {
           move: engineMove,
           fen: currentFen,

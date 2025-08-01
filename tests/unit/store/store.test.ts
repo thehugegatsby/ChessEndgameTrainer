@@ -204,7 +204,7 @@ describe("Zustand Store", () => {
 
       // Now make a move
       act(() => {
-        result.current.makeMove(mockMove);
+        result.current._internalApplyMove(mockMove);
       });
 
       expect(result.current.training.moveHistory).toHaveLength(1);
@@ -227,8 +227,8 @@ describe("Zustand Store", () => {
       });
 
       act(() => {
-        result.current.makeMove(mockMove); // a2-a4 (White)
-        result.current.makeMove({
+        result.current._internalApplyMove(mockMove); // a2-a4 (White)
+        result.current._internalApplyMove({
           ...mockMove,
           from: "a8",
           to: "b8",
@@ -253,7 +253,7 @@ describe("Zustand Store", () => {
 
       act(() => {
         result.current.setPosition(mockPosition);
-        result.current.makeMove(mockMove);
+        result.current._internalApplyMove(mockMove);
         result.current.useHint();
         result.current.incrementMistake();
         result.current.resetPosition();
@@ -615,7 +615,7 @@ describe("Zustand Store", () => {
 
       expect(userActionsHook.result.current.setUser).toBeDefined();
       expect(userActionsHook.result.current.updatePreferences).toBeDefined();
-      expect(trainingActionsHook.result.current.makeMove).toBeDefined();
+      expect(trainingActionsHook.result.current.makeUserMove).toBeDefined();
       expect(trainingActionsHook.result.current.resetPosition).toBeDefined();
       expect(uiActionsHook.result.current.toggleSidebar).toBeDefined();
       expect(uiActionsHook.result.current.showToast).toBeDefined();
@@ -629,7 +629,11 @@ describe("Zustand Store", () => {
       // Make some changes
       act(() => {
         result.current.setUser({ username: "TestUser", rating: 1500 });
-        result.current.makeMove({ from: "e2", to: "e4", san: "e4" } as Move);
+        result.current._internalApplyMove({
+          from: "e2",
+          to: "e4",
+          san: "e4",
+        } as Move);
         result.current.toggleSidebar();
       });
 

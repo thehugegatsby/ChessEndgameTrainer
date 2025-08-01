@@ -147,6 +147,7 @@ class TablebaseService {
           apiCategory: data.category,
           mappedWdl: this.categoryToWdl(data.category),
           dtz: data.dtz,
+          fullResponse: data,
         });
 
         // MEDIUM FIX: Cache with expiry timestamp instead of setTimeout

@@ -71,6 +71,12 @@ export interface TrainingState {
   currentFen?: string;
   currentPgn?: string;
   currentMoveIndex?: number;
+  moveErrorDialog?: {
+    isOpen: boolean;
+    wdlBefore?: number;
+    wdlAfter?: number;
+    bestMove?: string;
+  } | null;
 }
 
 /**
@@ -243,7 +249,13 @@ export interface TrainingActions {
   setPosition: (position: EndgamePosition) => void;
   loadTrainingContext: (position: EndgamePosition) => Promise<void>;
   setGame: (game: ChessInstance) => void;
-  makeMove: (
+  makeUserMove: (
+    move:
+      | ChessJsMove
+      | { from: string; to: string; promotion?: string }
+      | string,
+  ) => Promise<boolean>;
+  _internalApplyMove: (
     move: ChessJsMove | { from: string; to: string; promotion?: string },
   ) => void;
   undoMove: () => void;
@@ -254,6 +266,14 @@ export interface TrainingActions {
   completeTraining: (success: boolean) => void;
   useHint: () => void;
   incrementMistake: () => void;
+  setMoveErrorDialog: (
+    dialogState: {
+      isOpen: boolean;
+      wdlBefore?: number;
+      wdlAfter?: number;
+      bestMove?: string;
+    } | null,
+  ) => void;
   // Navigation actions
   goToMove: (moveIndex: number) => void;
   goToFirst: () => void;

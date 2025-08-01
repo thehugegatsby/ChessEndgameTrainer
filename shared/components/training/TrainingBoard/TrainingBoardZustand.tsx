@@ -20,6 +20,7 @@ import { requestTablebaseMove } from "@shared/store/trainingActions";
 import { EndgamePosition } from "@shared/types";
 import { getLogger } from "@shared/services/logging";
 import { ANIMATION, DIMENSIONS } from "@shared/constants";
+import { MoveErrorDialog } from "@shared/components/ui/MoveErrorDialog";
 
 // Extended evaluation interface that matches our new MovePanel requirements
 /**
@@ -114,6 +115,7 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     makeMove,
     jumpToMove,
     resetGame,
+    undoMove,
   } = useTrainingGame({
     /**
      *
@@ -189,9 +191,19 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
 
   // UI state management - local component state only
   const [resetKey, setResetKey] = useState(0);
-  const [showMoveErrorDialog, setShowMoveErrorDialog] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
   const [moveError, setMoveError] = useState<string | null>(null);
+
+  // Get move error dialog state from store
+  const moveErrorDialog = training.moveErrorDialog;
+  const showMoveErrorDialog = moveErrorDialog?.isOpen || false;
+  const moveErrorData = moveErrorDialog
+    ? {
+        wdlBefore: moveErrorDialog.wdlBefore || 0,
+        wdlAfter: moveErrorDialog.wdlAfter || 0,
+        bestMove: moveErrorDialog.bestMove,
+      }
+    : null;
 
   const trainingState = {
     resetKey,
@@ -207,7 +219,7 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
      *
      */
     handleDismissMoveError: () => {
-      setShowMoveErrorDialog(false);
+      actions.setMoveErrorDialog(null);
       setMoveError(null);
     },
     /**
@@ -219,6 +231,42 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
      */
     handleClearEngineError: () => {},
   };
+
+  // Enhanced reset handler that includes all cleanup
+  const handleReset = useCallback(() => {
+    resetGame();
+    clearEvaluations();
+    trainingState.handleReset();
+    actions.resetPosition();
+  }, [resetGame, clearEvaluations, trainingState, actions]);
+
+  // Handlers for move error dialog
+  const handleMoveErrorTakeBack = useCallback(() => {
+    const logger = getLogger().setContext("TrainingBoard-MoveError");
+    logger.info("Taking back move due to error");
+    undoMove();
+    actions.setMoveErrorDialog(null);
+  }, [undoMove, actions]);
+
+  const handleMoveErrorRestart = useCallback(() => {
+    const logger = getLogger().setContext("TrainingBoard-MoveError");
+    logger.info("Restarting game due to move error");
+    handleReset();
+    actions.setMoveErrorDialog(null);
+  }, [handleReset, actions]);
+
+  const handleShowBestMove = useCallback(() => {
+    if (moveErrorData?.bestMove) {
+      const logger = getLogger().setContext("TrainingBoard-MoveError");
+      logger.info("Showing best move", { bestMove: moveErrorData.bestMove });
+      uiActions.showToast(
+        `Der beste Zug war: ${moveErrorData.bestMove}`,
+        "info",
+      );
+      // TODO: Highlight the best move on the board
+    }
+    actions.setMoveErrorDialog(null);
+  }, [moveErrorData, uiActions]);
 
   // Update analysis status based on evaluation state
   useEffect(() => {
@@ -276,8 +324,10 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
 
         // First make the move on the local game instance
         const result = await makeMove(move);
+
         if (result) {
-          // Then trigger tablebase response using store action
+          // Move validation is now handled in the store's makeUserMove action
+          // Just trigger tablebase response using store action
           try {
             // Get the updated FEN after the move
             const updatedFen =
@@ -357,6 +407,9 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       actions,
       uiActions,
       currentFen,
+      game,
+      history,
+      position,
     ],
   );
 
@@ -487,14 +540,6 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     },
     [handleMove, isGameFinished],
   );
-
-  // Enhanced reset handler that includes all cleanup
-  const handleReset = useCallback(() => {
-    resetGame();
-    clearEvaluations();
-    trainingState.handleReset();
-    actions.resetPosition();
-  }, [resetGame, clearEvaluations, trainingState, actions]);
 
   // Handle reset trigger from parent
   useEffect(() => {
@@ -698,19 +743,22 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
         </div>
       )}
 
-      {trainingState.showMoveErrorDialog && trainingState.moveError && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded shadow-lg max-w-md">
-            <h3 className="text-lg font-semibold mb-2">Move Error</h3>
-            <p>{trainingState.moveError}</p>
-            <button
-              onClick={trainingState.handleDismissMoveError}
-              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              OK
-            </button>
-          </div>
-        </div>
+      {/* Move Error Dialog */}
+      {showMoveErrorDialog && moveErrorData && (
+        <MoveErrorDialog
+          isOpen={showMoveErrorDialog}
+          onClose={() => {
+            actions.setMoveErrorDialog(null);
+          }}
+          onTakeBack={handleMoveErrorTakeBack}
+          onRestart={handleMoveErrorRestart}
+          onShowBestMove={
+            moveErrorData.bestMove ? handleShowBestMove : undefined
+          }
+          wdlBefore={moveErrorData.wdlBefore}
+          wdlAfter={moveErrorData.wdlAfter}
+          bestMove={moveErrorData.bestMove}
+        />
       )}
     </div>
   );

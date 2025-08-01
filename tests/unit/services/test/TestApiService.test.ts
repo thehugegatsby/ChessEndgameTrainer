@@ -62,6 +62,7 @@ describe("TestApiService - Store-Based Architecture", () => {
       })),
       subscribe: jest.fn(() => jest.fn()),
       makeMove: jest.fn(),
+      _internalApplyMove: jest.fn(),
       resetPosition: jest.fn(),
       setPosition: jest.fn(),
       goToMove: jest.fn(),
@@ -154,7 +155,7 @@ describe("TestApiService - Store-Based Architecture", () => {
 
       const result = await service.makeMove("e2-e4");
 
-      expect(mockStoreAccess.makeMove).toHaveBeenCalledWith({
+      expect(mockStoreAccess._internalApplyMove).toHaveBeenCalledWith({
         from: "e2",
         to: "e4",
       });
@@ -168,12 +169,12 @@ describe("TestApiService - Store-Based Architecture", () => {
     it("should make move with SAN notation", async () => {
       const result = await service.makeMove("e4");
 
-      expect(mockStoreAccess.makeMove).toHaveBeenCalledWith("e4");
+      expect(mockStoreAccess._internalApplyMove).toHaveBeenCalledWith("e4");
       expect(result.success).toBe(true);
     });
 
     it("should handle errors gracefully", async () => {
-      mockStoreAccess.makeMove.mockImplementation(() => {
+      mockStoreAccess._internalApplyMove.mockImplementation(() => {
         throw new Error("Invalid move");
       });
 

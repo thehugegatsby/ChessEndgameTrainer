@@ -11,13 +11,26 @@ import { usePositionAnalysis } from "@shared/hooks/usePositionAnalysis";
 import { TablebasePanel } from "@shared/components/tablebase/TablebasePanel";
 import { useStore } from "@shared/store";
 
+/**
+ *
+ */
 interface TablebaseAnalysisPanelProps {
   fen: string;
   isVisible: boolean;
   previousFen?: string;
 }
 
-export const TablebaseAnalysisPanel: React.FC<TablebaseAnalysisPanelProps> = ({
+/**
+ *
+ * @param root0
+ * @param root0.fen
+ * @param root0.isVisible
+ * @param root0.previousFen
+ */
+export /**
+ *
+ */
+const TablebaseAnalysisPanel: React.FC<TablebaseAnalysisPanelProps> = ({
   fen,
   isVisible,
   previousFen,
@@ -28,16 +41,16 @@ export const TablebaseAnalysisPanel: React.FC<TablebaseAnalysisPanelProps> = ({
     previousFen,
   });
 
-  const makeMove = useStore((state) => state.makeMove);
+  const makeUserMove = useStore((state) => state.makeUserMove);
 
-  const handleMoveSelect = (moveUci: string) => {
-    // Parse UCI move format (e.g., "a1a8" or "e7e8q")
-    const from = moveUci.slice(0, 2);
-    const to = moveUci.slice(2, 4);
-    const promotion = moveUci.length > 4 ? moveUci.slice(4) : undefined;
-
-    // Make the move using the store action
-    makeMove({ from, to, promotion });
+  /**
+   *
+   * @param moveSan
+   */
+  const handleMoveSelect = (moveSan: string) => {
+    // The store action accepts SAN strings directly
+    // MoveResultGroup passes move.san, which chess.js can parse
+    makeUserMove(moveSan);
   };
 
   if (!isVisible) {

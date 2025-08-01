@@ -24,7 +24,9 @@ import {
 } from "../infrastructure/chess-adapter";
 import { Chess, Move as ChessJsMove } from "chess.js";
 import { validateAndSanitizeFen } from "../utils/fenValidator";
+import { normalizeWdl, getTurnFromFen } from "../utils/wdlNormalization";
 import { getStoreDependencies } from "./storeConfig";
+import { tablebaseService } from "../services/TablebaseService";
 
 const logger = getLogger().setContext("Store");
 
@@ -59,6 +61,7 @@ const initialTrainingState: TrainingState = {
   mistakeCount: 0,
   analysisStatus: "idle",
   tablebaseMove: undefined,
+  moveErrorDialog: null,
 };
 
 const initialProgressState: ProgressState = {
@@ -311,10 +314,10 @@ const useStore = create<RootState & Actions>()(
           }),
 
         /**
-         *
+         * Internal move execution without validation
          * @param move
          */
-        makeMove: (
+        _internalApplyMove: (
           move: ChessJsMove | { from: string; to: string; promotion?: string },
         ) =>
           set((state) => {
@@ -381,6 +384,167 @@ const useStore = create<RootState & Actions>()(
               // Re-throw unexpected errors
               throw error;
             }
+          }),
+
+        /**
+         * Public move action with validation for user moves
+         * @param move - Can be a SAN string (e.g. "Nf3"), UCI string (e.g. "g1f3"),
+         *                or a move object with from/to/promotion fields
+         */
+        makeUserMove: async (
+          move:
+            | ChessJsMove
+            | { from: string; to: string; promotion?: string }
+            | string,
+        ) => {
+          const state = get();
+          const { _internalApplyMove, setMoveErrorDialog } = get();
+
+          // Get current game state
+          const game = state.training.game;
+          if (!game) {
+            logger.error("No game instance for user move");
+            return false;
+          }
+
+          // Get FEN before the move
+          const fenBefore = game.fen();
+
+          // Create a temporary game to test the move
+          const tempGame = new Chess(fenBefore);
+          const tempMove = tempGame.move(move);
+
+          if (!tempMove) {
+            logger.warn("Invalid user move attempted", { move });
+            return false;
+          }
+
+          const fenAfter = tempGame.fen();
+
+          try {
+            // Get tablebase evaluations for both positions
+            const [evalBefore, evalAfter] = await Promise.all([
+              tablebaseService.getEvaluation(fenBefore),
+              tablebaseService.getEvaluation(fenAfter),
+            ]);
+
+            // Check if move worsens position
+            if (
+              evalBefore.isAvailable &&
+              evalAfter.isAvailable &&
+              evalBefore.result &&
+              evalAfter.result
+            ) {
+              // Get raw WDL values from API
+              const wdlBeforeRaw = evalBefore.result.wdl;
+              const wdlAfterRaw = evalAfter.result.wdl;
+
+              // Normalize WDL values from the training player's perspective
+              // We assume the training player is White (sideToMove: 'white')
+              const trainingSide =
+                state.training.currentPosition?.sideToMove || "white";
+
+              // Normalize both WDL values using utility function
+              const turnBefore = getTurnFromFen(fenBefore);
+              const turnAfter = getTurnFromFen(fenAfter);
+
+              const wdlBefore = normalizeWdl(
+                wdlBeforeRaw,
+                turnBefore!,
+                trainingSide,
+              );
+              const wdlAfter = normalizeWdl(
+                wdlAfterRaw,
+                turnAfter!,
+                trainingSide,
+              );
+
+              // Define WDL constants for clarity
+              const WDL_WIN = 2;
+              const WDL_DRAW = 0;
+              const WDL_LOSS = -2;
+
+              logger.info("User move quality check", {
+                move: `${tempMove.from}${tempMove.to}`,
+                san: tempMove.san,
+                wdlBefore,
+                wdlAfter,
+                categoryBefore: evalBefore.result.category,
+                categoryAfter: evalAfter.result.category,
+              });
+
+              // Check if move actually changes the game outcome (not just suboptimal)
+              const winToDrawOrLoss =
+                wdlBefore === WDL_WIN &&
+                (wdlAfter === WDL_DRAW || wdlAfter === WDL_LOSS);
+              const drawToLoss =
+                wdlBefore === WDL_DRAW && wdlAfter === WDL_LOSS;
+
+              if (winToDrawOrLoss || drawToLoss) {
+                logger.warn("Bad user move detected - game outcome worsened", {
+                  move: `${tempMove.from}${tempMove.to}`,
+                  wdlBefore,
+                  wdlAfter,
+                  outcomeChange: winToDrawOrLoss
+                    ? "Win->Draw/Loss"
+                    : "Draw->Loss",
+                });
+
+                // Find best move
+                let bestMoveSan: string | undefined;
+                try {
+                  const topMoves = await tablebaseService.getTopMoves(
+                    fenBefore,
+                    1,
+                  );
+                  if (
+                    topMoves.isAvailable &&
+                    topMoves.moves &&
+                    topMoves.moves.length > 0
+                  ) {
+                    bestMoveSan = topMoves.moves[0].san;
+                  }
+                } catch (error) {
+                  logger.error("Error finding best move", error as Error);
+                }
+
+                // Show error dialog
+                setMoveErrorDialog({
+                  isOpen: true,
+                  wdlBefore,
+                  wdlAfter,
+                  bestMove: bestMoveSan,
+                });
+
+                return false; // Don't execute the move
+              }
+            }
+
+            // Move is good, execute it using the validated move object
+            _internalApplyMove(tempMove);
+            return true;
+          } catch (error) {
+            logger.error("Error validating user move", error as Error);
+            // On error, allow the move (fail open) using the validated move object
+            _internalApplyMove(tempMove);
+            return true;
+          }
+        },
+
+        /**
+         * Set move error dialog state
+         * @param dialogState
+         */
+        setMoveErrorDialog: (
+          dialogState: {
+            isOpen: boolean;
+            wdlBefore?: number;
+            wdlAfter?: number;
+            bestMove?: string;
+          } | null,
+        ) =>
+          set((state) => {
+            state.training.moveErrorDialog = dialogState;
           }),
 
         /**
@@ -947,7 +1111,8 @@ const useTrainingActions = () =>
     setPosition: state.setPosition,
     loadTrainingContext: state.loadTrainingContext,
     setGame: state.setGame,
-    makeMove: state.makeMove,
+    makeUserMove: state.makeUserMove,
+    _internalApplyMove: state._internalApplyMove,
     undoMove: state.undoMove,
     resetPosition: state.resetPosition,
     setEvaluation: state.setEvaluation,
@@ -956,6 +1121,7 @@ const useTrainingActions = () =>
     completeTraining: state.completeTraining,
     useHint: state.useHint,
     incrementMistake: state.incrementMistake,
+    setMoveErrorDialog: state.setMoveErrorDialog,
     // Navigation actions
     goToMove: state.goToMove,
     goToFirst: state.goToFirst,
