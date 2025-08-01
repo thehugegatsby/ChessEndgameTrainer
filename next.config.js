@@ -2,18 +2,25 @@
 const isE2ETest = process.env.NEXT_PUBLIC_IS_E2E_TEST === "true";
 
 const nextConfig = {
-  // Fix cross-origin warnings for E2E tests
-  allowedDevOrigins: [
-    "http://127.0.0.1:3003",
-    "http://localhost:3003",
-    "127.0.0.1:3003",
-    "localhost:3003",
-  ],
-  experimental: {
-    serverActions: {
-      allowedOrigins: ["127.0.0.1:3003", "localhost:3003"],
+  // Reduce development noise during E2E tests
+  ...(isE2ETest && {
+    devIndicators: {
+      position: "bottom-right",
     },
-  },
+  }),
+  ...(isE2ETest && {
+    allowedDevOrigins: [
+      "http://127.0.0.1:3003",
+      "http://localhost:3003",
+      "127.0.0.1:3003",
+      "localhost:3003",
+    ],
+    experimental: {
+      serverActions: {
+        allowedOrigins: ["127.0.0.1:3003", "localhost:3003"],
+      },
+    },
+  }),
 
   // SWC compiler options (only used when Babel is not detected)
   compiler: {
