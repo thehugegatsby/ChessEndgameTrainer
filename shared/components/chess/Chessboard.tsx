@@ -48,15 +48,13 @@ const Chessboard: React.FC<ChessboardProps> = ({
   };
 
   return (
-    <div data-testid="chessboard">
-      <ReactChessboard
-        options={{
-          position: fen,
-          onPieceDrop: onPieceDrop ? handlePieceDrop : undefined,
-          boardStyle: { width: `${boardWidth}px`, height: `${boardWidth}px` },
-          allowDragging: arePiecesDraggable,
-        }}
-      />
-    </div>
+    <ReactChessboard
+      options={{
+        position: fen,
+        onPieceDrop: onPieceDrop ? handlePieceDrop : undefined,
+        boardStyle: { width: `${boardWidth}px`, height: `${boardWidth}px` },
+        allowDragging: arePiecesDraggable,
+      }}
+    />
   );
 };
