@@ -16,11 +16,5 @@ module.exports = {
     "<rootDir>/config/jest/jest.setup.js",
     "<rootDir>/tests/integration/setup.ts",
   ],
-  // Override globals to prevent conflicts with MSW
-  globals: {
-    "ts-jest": {
-      useESM: true,
-    },
-  },
   testTimeout: 10000, // Increase timeout for integration tests
 };

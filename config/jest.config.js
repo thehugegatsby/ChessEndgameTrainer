@@ -51,4 +51,5 @@ module.exports = {
     "!**/*.d.ts",
     "!**/node_modules/**",
   ],
+  coverageProvider: "v8",
 };

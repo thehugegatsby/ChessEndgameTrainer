@@ -1,9 +1,11 @@
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'jsdom',
-  rootDir: '.',
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/shared/$1'
+  testEnvironment: "jsdom",
+  rootDir: ".",
+  transform: {
+    "^.+\\.(ts|tsx|js|jsx)$": "@swc/jest",
   },
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js']
+  moduleNameMapper: {
+    "^@/(.*)$": "<rootDir>/shared/$1",
+  },
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
 };
