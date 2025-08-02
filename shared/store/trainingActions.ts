@@ -10,6 +10,7 @@
  */
 
 import { tablebaseService } from "../services/TablebaseService";
+import { moveStrategyService } from "../services/MoveStrategyService";
 import { formatPositionAnalysis } from "../utils/positionAnalysisFormatter";
 import { getLogger } from "../services/logging";
 import type { TrainingState } from "./types";
@@ -44,24 +45,16 @@ const requestTablebaseMove =
         },
       }));
 
-      // Get best move from tablebase
-      const topMoves = await tablebaseService.getTopMoves(fen, 1);
+      // Get the best defensive move using the strategy service
+      const move = await moveStrategyService.getLongestResistanceMove(fen);
 
-      if (
-        !topMoves.isAvailable ||
-        !topMoves.moves ||
-        topMoves.moves.length === 0
-      ) {
+      if (!move) {
         logger.warn("[TRACE] No tablebase moves available");
         throw new Error("No tablebase moves available for this position");
       }
 
-      const move = topMoves.moves[0].uci;
-
-      logger.info("[TRACE] Best move received from TablebaseService", {
+      logger.info("[TRACE] Best move received from MoveStrategyService", {
         move,
-        wdl: topMoves.moves[0].wdl,
-        dtz: topMoves.moves[0].dtz,
         fen,
       });
 

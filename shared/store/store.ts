@@ -507,19 +507,41 @@ const useStore = create<RootState & Actions>()(
                     : "Draw->Loss",
                 });
 
-                // Find best move
+                // Find best move - but only if it maintains or improves the position
                 let bestMoveSan: string | undefined;
                 try {
                   const topMoves = await tablebaseService.getTopMoves(
                     fenBefore,
-                    1,
+                    5, // Get more moves to find truly best ones
                   );
                   if (
                     topMoves.isAvailable &&
                     topMoves.moves &&
                     topMoves.moves.length > 0
                   ) {
-                    bestMoveSan = topMoves.moves[0].san;
+                    // Find a move that maintains the win (if position was winning)
+                    // or at least maintains the draw (if position was drawing)
+                    for (const move of topMoves.moves) {
+                      // For winning positions, only suggest moves that maintain the win
+                      if (wdlBefore === WDL_WIN && move.wdl === WDL_LOSS) {
+                        // WDL_LOSS from opponent's perspective = WIN for us
+                        bestMoveSan = move.san;
+                        break;
+                      }
+                      // For drawing positions, any draw move is acceptable
+                      else if (
+                        wdlBefore === WDL_DRAW &&
+                        move.wdl === WDL_DRAW
+                      ) {
+                        bestMoveSan = move.san;
+                        break;
+                      }
+                    }
+
+                    // If no ideal move found, just take the first one
+                    if (!bestMoveSan && topMoves.moves.length > 0) {
+                      bestMoveSan = topMoves.moves[0].san;
+                    }
                   }
                 } catch (error) {
                   logger.error("Error finding best move", error as Error);

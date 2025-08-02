@@ -114,7 +114,6 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     makeMove,
     jumpToMove,
     resetGame,
-    undoMove,
   } = useTrainingGame({
     /**
      *
@@ -242,10 +241,11 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
   // Handlers for move error dialog
   const handleMoveErrorTakeBack = useCallback(() => {
     const logger = getLogger().setContext("TrainingBoard-MoveError");
-    logger.info("Taking back move due to error");
-    undoMove();
+    logger.info("Closing move error dialog");
+    // Don't undo anything - the invalid move was never added to history
+    // Just close the dialog so the user can try again
     actions.setMoveErrorDialog(null);
-  }, [undoMove, actions]);
+  }, [actions]);
 
   const handleMoveErrorRestart = useCallback(() => {
     const logger = getLogger().setContext("TrainingBoard-MoveError");
