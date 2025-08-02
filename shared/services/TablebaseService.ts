@@ -136,7 +136,7 @@ class TablebaseService {
         const result: TablebaseResult = {
           wdl: this.categoryToWdl(data.category),
           dtz: data.dtz || null,
-          dtm: null, // Lichess doesn't provide DTM
+          dtm: data.dtm || null, // Lichess provides DTM for mate positions
           category: data.category,
           precise: data.precise_dtz !== undefined,
           evaluation: this.getEvaluationText(data.category, data.dtz),
@@ -299,11 +299,17 @@ class TablebaseService {
           const evalResult = await this.getEvaluation(tempGame.fen());
 
           if (evalResult.isAvailable && evalResult.result) {
+            // Check whose turn it is in the original position
+            const isBlackToMove = sanitizedFen.split(" ")[1] === "b";
+
             return {
               uci: move.from + move.to + (move.promotion || ""),
               san: move.san,
-              // WDL is already from White's perspective (Lichess API standard)
-              wdl: evalResult.result.wdl,
+              // If Black is to move, we need to invert WDL values
+              // because the evaluation is from White's perspective after the move
+              wdl: isBlackToMove
+                ? -evalResult.result.wdl
+                : evalResult.result.wdl,
               dtz: evalResult.result.dtz,
               dtm: evalResult.result.dtm,
               category: this.invertCategory(evalResult.result.category),
@@ -327,6 +333,7 @@ class TablebaseService {
           san: m.san,
           wdl: m.wdl,
           dtz: m.dtz,
+          dtm: m.dtm,
           category: m.category,
         })),
       });
@@ -355,6 +362,7 @@ class TablebaseService {
           san: m.san,
           wdl: m.wdl,
           dtz: m.dtz,
+          dtm: m.dtm,
           category: m.category,
         })),
       });

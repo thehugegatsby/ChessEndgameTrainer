@@ -57,22 +57,67 @@ class MoveStrategyService {
           dtz: selectedMove.dtz,
         });
       } else if (positionWdl === -2) {
-        // Position is losing - find the longest resistance (highest DTZ)
-        let maxDtz =
-          selectedMove.dtz !== null && selectedMove.dtz !== undefined
-            ? Math.abs(selectedMove.dtz)
-            : 0;
-        for (const move of moves) {
-          if (move.wdl === -2 && move.dtz !== undefined && move.dtz !== null) {
-            const absDtz = Math.abs(move.dtz);
-            if (absDtz > maxDtz) {
+        // Position is losing - find the longest resistance (highest DTM, not DTZ!)
+        // DTM shows actual moves to mate, DTZ only shows moves to 50-move rule
+
+        // Check if we have DTM values directly in the moves
+        const movesWithDtm = moves.filter(
+          (m) => m.wdl === -2 && m.dtm !== null && m.dtm !== undefined,
+        );
+
+        if (movesWithDtm.length > 0) {
+          // We have DTM values - use them directly
+          let maxDtm = Math.abs(movesWithDtm[0].dtm!);
+          let maxDtz = Math.abs(movesWithDtm[0].dtz || 0);
+          selectedMove = movesWithDtm[0];
+
+          for (const move of movesWithDtm) {
+            const absDtm = Math.abs(move.dtm!);
+            const absDtz = Math.abs(move.dtz || 0);
+
+            // Primary criterion: maximize DTM (delay mate as long as possible)
+            if (absDtm > maxDtm) {
+              maxDtm = absDtm;
+              maxDtz = absDtz;
+              selectedMove = move;
+            }
+            // Secondary criterion: if DTM is equal, maximize DTZ
+            else if (absDtm === maxDtm && absDtz > maxDtz) {
               maxDtz = absDtz;
               selectedMove = move;
             }
           }
+        } else {
+          // No DTM values in moves - need to fetch DTM from resulting positions
+          logger.debug(
+            "No DTM values in moves, fetching from resulting positions",
+          );
+
+          // For now, fall back to DTZ-based selection
+          let maxDtz = Math.abs(selectedMove.dtz || 0);
+
+          for (const move of moves) {
+            if (
+              move.wdl === -2 &&
+              move.dtz !== null &&
+              move.dtz !== undefined
+            ) {
+              const absDtz = Math.abs(move.dtz);
+              if (absDtz > maxDtz) {
+                maxDtz = absDtz;
+                selectedMove = move;
+              }
+            }
+          }
+
+          // TODO: Implement fetching DTM values from resulting positions
+          // This would require making additional API calls for each possible move
+          // to get the DTM value of the resulting position
         }
+
         logger.debug("Selected longest resistance move", {
           move: selectedMove.san,
+          dtm: selectedMove.dtm,
           dtz: selectedMove.dtz,
         });
       } else {
