@@ -1,5 +1,4 @@
 import React from "react";
-import { Button } from "./button";
 
 /**
  *
@@ -8,7 +7,7 @@ interface MoveErrorDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onTakeBack: () => void;
-  onRestart: () => void;
+  onRestart?: () => void;
   onShowBestMove?: () => void;
   wdlBefore: number;
   wdlAfter: number;
@@ -34,8 +33,6 @@ const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
   isOpen,
   onClose,
   onTakeBack,
-  onRestart,
-  onShowBestMove,
   wdlBefore,
   wdlAfter,
   bestMove,
@@ -58,52 +55,54 @@ const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-red-600 flex items-center gap-2">
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-            </svg>
-            Fehler erkannt!
-          </h3>
-          <p className="mt-2 text-base text-gray-700">{getMessage()}</p>
+    <div
+      className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+      onClick={onClose}
+    >
+      <div
+        className="relative bg-gradient-to-br from-red-500 to-pink-600 p-1 rounded-2xl max-w-md w-full mx-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="bg-[var(--bg-primary)] rounded-2xl p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-3 rounded-full bg-gradient-to-br from-red-400 to-pink-500">
+              <svg
+                className="w-6 h-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-white">Fehler erkannt!</h3>
+          </div>
+          <p className="text-gray-300 mb-2">{getMessage()}</p>
           {bestMove && (
-            <p className="mt-2 text-sm text-gray-600">
-              Bester Zug war: <strong>{bestMove}</strong>
+            <p className="text-gray-400 text-sm mb-4">
+              Bester Zug war:{" "}
+              <strong className="text-gray-200">{bestMove}</strong>
             </p>
           )}
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Button onClick={onClose} variant="secondary" className="flex-1">
-            Weiterspielen
-          </Button>
-          <Button onClick={onTakeBack} variant="default" className="flex-1">
-            Zug zurücknehmen
-          </Button>
-          {onShowBestMove && (
-            <Button
-              onClick={onShowBestMove}
-              variant="default"
-              className="flex-1 bg-green-500 hover:bg-green-600"
+          <div className="flex gap-3">
+            <button
+              onClick={onClose}
+              className="flex-1 px-4 py-2 text-white bg-white/10 backdrop-blur rounded-lg hover:bg-white/20 transition-all"
             >
-              Besten Zug zeigen
-            </Button>
-          )}
-          <Button onClick={onRestart} variant="secondary" className="flex-1">
-            Neu starten
-          </Button>
+              Verstanden
+            </button>
+            <button
+              onClick={onTakeBack}
+              className="flex-1 px-4 py-2 text-white bg-gradient-to-r from-red-500 to-pink-600 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all"
+            >
+              Zurücknehmen
+            </button>
+          </div>
         </div>
       </div>
     </div>

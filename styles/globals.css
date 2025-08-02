@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import dialog animations */
+@import "./dialog-animations.css";
+
 /* Dark Theme Root Variables */
 :root {
   --bg-primary: #0f1419;
@@ -215,7 +218,7 @@ html {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
   }
-  
+
   .mobile-wiki-panel {
     background-color: var(--bg-primary);
     box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
@@ -262,7 +265,9 @@ html {
 }
 
 .sidebar-engine-evaluation {
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo,
+    monospace;
   font-weight: 700;
   letter-spacing: -0.05em;
 }
@@ -318,4 +323,4 @@ html {
   .responsive-text-scale {
     font-size: 1rem; /* 16px */
   }
-} 
+}
