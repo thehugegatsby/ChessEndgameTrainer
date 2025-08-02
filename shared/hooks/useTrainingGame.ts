@@ -114,8 +114,8 @@ const useTrainingGame = ({
   const undoMove = useCallback((): boolean => {
     if (training.moveHistory.length === 0) return false;
 
-    // Go to previous move
-    actions.goToPrevious();
+    // Use the store's undoMove action
+    actions.undoMove();
 
     // Notify position change
     if (onPositionChange && training.currentFen) {

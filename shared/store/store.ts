@@ -732,9 +732,14 @@ const useStore = create<RootState & Actions>()(
               state.training.currentMoveIndex = targetIndex;
               state.training.currentFen = state.training.game.fen();
               state.training.currentPgn = state.training.game.pgn();
-              // Determine whose turn it is: -1 = white, 0 = black, 1 = white, 2 = black, etc.
-              state.training.isPlayerTurn =
-                targetIndex === -1 ? true : targetIndex % 2 === 1;
+
+              // Determine whose turn it is based on game state and player side
+              const currentTurn = state.training.game.turn(); // 'w' or 'b'
+              const playerSide =
+                state.training.currentPosition?.sideToMove === "white"
+                  ? "w"
+                  : "b";
+              state.training.isPlayerTurn = currentTurn === playerSide;
 
               logger.debug("Navigated to move", {
                 moveIndex: targetIndex,
