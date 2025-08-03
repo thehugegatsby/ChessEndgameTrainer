@@ -6,6 +6,7 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
+import { useShallow } from "zustand/react/shallow";
 import {
   RootState,
   Actions,
@@ -1136,13 +1137,15 @@ export /**
  *
  */
 const useUserActions = () =>
-  useStore((state) => ({
-    setUser: state.setUser,
-    updatePreferences: state.updatePreferences,
-    incrementStreak: state.incrementStreak,
-    resetStreak: state.resetStreak,
-    addCompletedPosition: state.addCompletedPosition,
-  }));
+  useStore(
+    useShallow((state) => ({
+      setUser: state.setUser,
+      updatePreferences: state.updatePreferences,
+      incrementStreak: state.incrementStreak,
+      resetStreak: state.resetStreak,
+      addCompletedPosition: state.addCompletedPosition,
+    })),
+  );
 
 /**
  *
@@ -1151,28 +1154,30 @@ export /**
  *
  */
 const useTrainingActions = () =>
-  useStore((state) => ({
-    setPosition: state.setPosition,
-    loadTrainingContext: state.loadTrainingContext,
-    setGame: state.setGame,
-    makeUserMove: state.makeUserMove,
-    _internalApplyMove: state._internalApplyMove,
-    undoMove: state.undoMove,
-    resetPosition: state.resetPosition,
-    setEvaluation: state.setEvaluation,
-    setEvaluations: state.setEvaluations,
-    setAnalysisStatus: state.setAnalysisStatus,
-    completeTraining: state.completeTraining,
-    useHint: state.useHint,
-    incrementMistake: state.incrementMistake,
-    setMoveErrorDialog: state.setMoveErrorDialog,
-    // Navigation actions
-    goToMove: state.goToMove,
-    goToFirst: state.goToFirst,
-    goToPrevious: state.goToPrevious,
-    goToNext: state.goToNext,
-    goToLast: state.goToLast,
-  }));
+  useStore(
+    useShallow((state) => ({
+      setPosition: state.setPosition,
+      loadTrainingContext: state.loadTrainingContext,
+      setGame: state.setGame,
+      makeUserMove: state.makeUserMove,
+      _internalApplyMove: state._internalApplyMove,
+      undoMove: state.undoMove,
+      resetPosition: state.resetPosition,
+      setEvaluation: state.setEvaluation,
+      setEvaluations: state.setEvaluations,
+      setAnalysisStatus: state.setAnalysisStatus,
+      completeTraining: state.completeTraining,
+      useHint: state.useHint,
+      incrementMistake: state.incrementMistake,
+      setMoveErrorDialog: state.setMoveErrorDialog,
+      // Navigation actions
+      goToMove: state.goToMove,
+      goToFirst: state.goToFirst,
+      goToPrevious: state.goToPrevious,
+      goToNext: state.goToNext,
+      goToLast: state.goToLast,
+    })),
+  );
 
 /**
  *
@@ -1181,12 +1186,14 @@ export /**
  *
  */
 const useUIActions = () =>
-  useStore((state) => ({
-    toggleSidebar: state.toggleSidebar,
-    openModal: state.openModal,
-    closeModal: state.closeModal,
-    showToast: state.showToast,
-    removeToast: state.removeToast,
-    setLoading: state.setLoading,
-    updateAnalysisPanel: state.updateAnalysisPanel,
-  }));
+  useStore(
+    useShallow((state) => ({
+      toggleSidebar: state.toggleSidebar,
+      openModal: state.openModal,
+      closeModal: state.closeModal,
+      showToast: state.showToast,
+      removeToast: state.removeToast,
+      setLoading: state.setLoading,
+      updateAnalysisPanel: state.updateAnalysisPanel,
+    })),
+  );

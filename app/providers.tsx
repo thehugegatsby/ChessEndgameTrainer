@@ -7,6 +7,7 @@ import { configureStore } from "@shared/store/storeConfig";
 import { createServerPositionService } from "@shared/services/database/serverPositionService";
 import { getLogger } from "@shared/services/logging";
 import { setupE2ETablebaseMocks } from "@shared/services/TablebaseService.e2e.mocks";
+import { useStoreHydration } from "@shared/hooks/useHydration";
 
 // Configure store dependencies once at app initialization
 // This happens before any component renders
@@ -28,6 +29,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { analysisStatus } = useTraining();
   const logger = getLogger().setContext("_app");
+  const hasHydrated = useStoreHydration();
 
   useEffect(() => {
     // Update app-ready based on router state
@@ -83,6 +85,15 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       });
     }
   }, [analysisStatus, pathname, logger]);
+
+  // Show loading state until store is hydrated from localStorage
+  if (!hasHydrated) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-slate-800">
+        <div className="text-white text-lg">Loading...</div>
+      </div>
+    );
+  }
 
   return <>{children}</>;
 }

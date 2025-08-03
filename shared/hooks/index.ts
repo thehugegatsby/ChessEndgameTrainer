@@ -12,3 +12,6 @@ export { useDebounce } from "./useDebounce";
 
 // Re-export existing hooks if any
 export { useAnalysisData } from "./useAnalysisData";
+
+// Hydration hook for Zustand v5
+export { useHydration, useStoreHydration } from "./useHydration";
