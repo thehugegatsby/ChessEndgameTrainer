@@ -67,9 +67,9 @@ docs/
 ## 🔧 Development Context
 
 - **Frontend**: Next.js 15.3.3 (App Router) + React 18.3 + TypeScript 5.3.3
-- **Chess Evaluation**: Lichess Tablebase API (7-piece endgames)
-- **State**: Zustand 4.5.0
-- **Testing**: Jest 29.7.0 + React Testing Library 14.2.1 (unit tests) + Playwright (E2E tests - clean architecture)
+- **Chess Evaluation**: Lichess Tablebase API only (no local engine)
+- **State**: Zustand 5.0.7 (with migration complete)
+- **Testing**: Jest 29.7.0 + React Testing Library 14.2.1 (577 unit tests) + Playwright (42 E2E tests)
 - **Environment**: Node.js 20+ + WSL2 + VS Code + Windows
 
 ## 📊 Key Data Flows

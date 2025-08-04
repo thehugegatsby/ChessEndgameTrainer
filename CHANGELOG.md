@@ -8,6 +8,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- **Phase 3: Test Coverage Improvements** (2025-08-04)
+  - TablebaseService unit tests: 93.73% coverage with comprehensive test scenarios
+  - Refactored fenValidator to use chess.js wrapper (reduced from 120 to 50 lines)
+  - Fixed all Jest timer issues following best practices
+  - Updated documentation (ARCHITECTURE.md v3.2, TODO_TECH_DEBT.md)
+  - All 577 unit tests + 42 E2E tests passing
+
+### Fixed
+
+- **JSDoc Warnings Resolution** (2025-08-04)
+  - Configured ESLint to disable redundant JSDoc rules for Next.js pages
+  - Fixed unused eslint-disable directive in app/layout.tsx
+  - Clean linting with 0 warnings
+
+### Changed
+
+- **Documentation Updates** (2025-08-04)
+  - Updated README.md to reflect tablebase-only architecture
+  - Corrected test counts (577 unit, 42 E2E)
+  - Removed outdated engine references
+  - Updated port information for dev (3002) and E2E (3003)
+
+### Added
+
 - **Complete Engine Architecture Refactoring** (2025-07-15)
   - Migrated from complex Engine system to SimpleEngine architecture
   - Removed ChessEngine, IChessEngine, EngineService and all complex abstractions
@@ -36,6 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Enhanced training content and UI polish prioritized for next phase
 
 ### Fixed
+
 - **Reality-Documentation Alignment** (2025-07-14)
   - Corrected test count documentation (951→1015 actual tests)
   - Updated TypeScript error status (144→42 actual errors, 71% reduction)
@@ -48,6 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Completed - Stabilization Phase
 
 ### Added
+
 - **MSW (Mock Service Worker) Integration** (2025-07-14)
   - Installed MSW 2.x for HTTP request mocking in E2E tests
   - Complete MSW architecture with handler configuration (`tests/e2e/fixtures/msw-handlers.ts`)
@@ -59,6 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Type-safe handler composition and best practices established
 
 ### Fixed
+
 - **E2E Test System Stabilization Complete** (2025-07-14)
   - All 33 E2E tests now passing (100% success rate across chromium, firefox, webkit)
   - Homepage H1 Element "Brückenbau-Trainer" detection working correctly
@@ -68,6 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Complete test infrastructure modernization achieved
 
 ### Fixed
+
 - **Complete CI/CD Pipeline Stabilization with Expert Consensus** (2025-07-13)
   - **TypeScript Error Reduction**: Massive cleanup from 144→42 TypeScript errors (71% reduction)
     - Fixed missing `UseEvaluationReturn` export in useEvaluation hook
@@ -86,6 +115,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Centralized COEP/COOP/CORP header configuration in next.config.js
 
 ### Added
+
 - **Architecture Simplification: Clean Slate Engine Refactoring** (2025-07-13)
   - **Expert-Validated Clean Architecture**: Applied "Clean Slate" approach with Gemini Pro + O3-Mini consensus (9/10 confidence scores)
   - **Engine Interface Simplification**: Replaced 15+ method IScenarioEngine with minimal 4-method IChessEngine
@@ -138,6 +168,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Phase 1 Engine Consolidation Complete**: Critical path milestone achieved
 
 ### Added
+
 - Dependency Injection Architecture Implementation (2025-07-12)
   - Repository Pattern with IPositionRepository interface (30+ methods)
   - FirebasePositionRepository for production use
@@ -196,6 +227,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Created TEST_STRUCTURE.md documentation for test organization
 
 ### Fixed
+
 - Fixed TypeScript errors in Firebase test infrastructure (2025-07-12)
   - Removed invalid properties from test data (lessonNumber, chapterNumber, tags)
   - Added required targetMoves property to all EndgamePosition test objects
@@ -222,7 +254,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Made `page` and `board` properties public in ModernDriver for E2E test access
   - Fixed ILogger interface implementations using existing noopLogger utility
   - Fixed ChessJsMove import to use correct Move type from chess.js
-  - Fixed missing router property in _app.tsx test
+  - Fixed missing router property in \_app.tsx test
   - Fixed EndgamePosition type mismatches in store tests
 - Fixed build process hanging on Engine initialization (2025-07-11)
   - Implemented lazy initialization pattern in singleton.ts
@@ -231,12 +263,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Build now completes in ~7 seconds instead of timing out
 
 ### Changed
+
 - Refactored Engine from class-level singleton to module-level singleton for better testability (2025-01-11)
   - Engine constructor is now public, allowing test isolation with new instances
   - Added graceful shutdown handlers for proper cleanup in Node.js and browser environments
   - Updated imports in ScenarioEngine and mistakeCheck to use new singleton export
 
 ### Fixed
+
 - Fixed Engine.getInstance() to return the global singleton instance instead of creating new ones (2025-01-11)
 - Fixed async cleanup handlers to properly handle Node.js termination signals (SIGINT, SIGTERM)
 - Fixed circular dependency risk with lazy loading in getInstance()
@@ -250,6 +284,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed test architecture mismatch by updating imports from old Engine path to new modular Engine (2025-07-11)
 
 ### Removed
+
 - Deleted outdated test files that were mocking non-existent Engine module (2025-07-11)
   - `tests/unit/engine/ScenarioEngine.test.ts` - 700+ lines of tests using old architecture
   - `tests/unit/engine/EvaluationService.test.ts` - 406 lines of outdated dependency injection tests
@@ -257,6 +292,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `tests/unit/engine/workerManager.test.ts` - Incompatible with new singleton pattern
 
 ### Added
+
 - New `shared/lib/chess/engine/singleton.ts` module exports the production engine instance (2025-01-11)
 - Comprehensive cleanup handlers for SIGINT, SIGTERM, and uncaught exceptions
 - Test helper `tests/helpers/mockUseTraining.ts` for Zustand store mocking (2025-01-11)
@@ -274,8 +310,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Comprehensive test documentation (TESTING-ARCHITECTURE.md, TEST-IMPLEMENTATION-GUIDE.md)
 
 ### Added
+
 - E2E Ready Signal Pattern implementation (2025-01-17)
-  - Frontend signals app-ready state via `data-app-ready` attribute in _app.tsx
+  - Frontend signals app-ready state via `data-app-ready` attribute in \_app.tsx
   - ModernDriver implements two-tier ready detection (primary signal + fallback)
   - Environment-specific timeout configuration in constants.js
   - Comprehensive tests for both primary and fallback paths
@@ -292,11 +329,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Custom command /granular for detailed task planning with multi-LLM collaboration (2025-01-10)
 
 ### Fixed
+
 - Fixed NavigationControls selector error in E2E tests (2025-01-17)
   - Corrected button key mismatch (GO_TO_BACK → GO_BACK)
   - Added explicit button key mapping for navigation types
 - Fixed E2E test timeout when navigating to /train routes (2025-01-17)
-  - Implemented app-ready signal in frontend (_app.tsx)
+  - Implemented app-ready signal in frontend (\_app.tsx)
   - Added robust fallback detection mechanism
   - Enhanced ModernDriver with detailed phase logging
 - Fixed multiple TypeScript build errors in E2E tests (2025-01-10)
@@ -310,6 +348,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - See [TypeScript Fixes Documentation](docs/TYPESCRIPT-FIXES-2025-01-10.md) for details
 
 ### Changed
+
 - Removed deprecated method aliases from AppDriver (2025-01-10)
   - Replaced `cleanup()` with `dispose()` in E2E tests
   - Replaced `getGameState()` with `getFullGameState()` in E2E tests
@@ -317,6 +356,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Completed TECH-004 technical debt ticket
 
 ### Added
+
 - NavigationControls component for better move history navigation
 - Central configuration file (config/constants.ts) for dev port management
 - Environment-specific configuration files (.env.development, .env.test)
@@ -329,6 +369,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Page Object Model pattern for E2E tests
 
 ### Changed
+
 - Complete migration to Zustand store (Store of Truth)
 - Deprecated useChessGame and useChessGameOptimized hooks
 - Analysis Panel now uses CSS transforms for smooth animations
@@ -340,15 +381,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TrainingBoardZustand test hooks simplified without NEXT_PUBLIC_TEST_MODE dependency
 
 ### Fixed
+
 - Critical bug: Black doesn't make moves in Training 12 after 1.Kd7
 - UI bug: Analysis mode causes layout shift with fixed positioning
 - Performance test: Adjusted timeout for perspectiveTransformer test
 - Store synchronization: Moves now properly execute on chess.js instance
 - E2E tests: Fixed ~25 failing tests using test hooks (42 → ~17 failing)
-- Async initialization race conditions in _app.tsx
+- Async initialization race conditions in \_app.tsx
 - E2E test performance: Tests now initialize in ~1ms instead of 10+ seconds
 
 ### Removed
+
 - **NEXT_PUBLIC_TEST_MODE environment variable** - Completely eliminated from codebase
   - Removed from README.md, playwright.config.ts, package.json scripts
   - Removed from all test files and documentation
@@ -360,6 +403,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Build-time test mode flags in favor of runtime detection
 
 ### Security
+
 - FEN validation now applied at all input boundaries
 - Enhanced path validation for Workers
 - Removed exposure of test mode through build-time environment variables
@@ -367,6 +411,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2025-01-08
 
 ### Added
+
 - Initial production release of Chess Endgame Trainer
 - Stockfish WASM engine integration for real-time position evaluation
 - Dual evaluation display (Engine + Lichess tablebase)
@@ -378,6 +423,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mobile-ready architecture (80% shared code)
 
 ### Tech Stack
+
 - Next.js 15.3.3 with React 18.3
 - TypeScript 5.3.3 with strict mode
 - Tailwind CSS 3.4.1 for styling
@@ -388,6 +434,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Node.js 20+ environment
 
 ### Architecture
+
 - Singleton pattern for engine management
 - Evaluation pipeline with normalization and caching
 - LRU cache with 99.99% hit rate
@@ -395,6 +442,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cross-platform code sharing structure
 
 ### Performance
+
 - 31% faster position evaluations
 - 53% faster navigation between moves
 - Optimized bundle size targeting <300KB
@@ -403,27 +451,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.9.0] - 2025-01-17
 
 ### Added
+
 - Zustand state management (installed, not yet integrated)
 - Enhanced testing infrastructure
 - Code quality improvements and linting setup
 
 ### Changed
+
 - Modularized evaluation system for better maintainability
 - Improved error handling with centralized ErrorService
 
 ### Fixed
+
 - Various UI responsiveness issues
 - Test coverage improvements reaching ~78%
 
 ## [0.8.0] - 2025-01-04
 
 ### Added
+
 - Initial implementation of core chess engine integration
 - Basic UI components with react-chessboard
 - Evaluation display system
 - Initial test suite setup
 
 ### Known Issues
+
 - E2E tests pending rewrite (unit tests comprehensive at 951 tests)
 - Bundle size optimization ongoing (target <300KB per route)
 - Some browser compatibility issues on iOS Safari

@@ -2,7 +2,7 @@
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.3.3-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue)](https://www.typescriptlang.org/)
-[![Test Coverage](https://img.shields.io/badge/Tests-762_passing-green)](./coverage/lcov-report/index.html)
+[![Test Coverage](https://img.shields.io/badge/Tests-577_passing-green)](./coverage/lcov-report/index.html)
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-Stabilized-green)](https://github.com/thehugegatsby/ChessEndgameTrainer/actions)
 [![Deployment Ready](https://img.shields.io/badge/Deployment-Ready-green)](https://nextjs.org/docs/deployment)
 
@@ -11,9 +11,9 @@ Eine moderne **Web-first** Anwendung zum systematischen Lernen von Schachendspie
 ## 🎯 Features
 
 - **13 Endspiel-Positionen** - Von Bauern bis Turmendspiele
-- **Stockfish Engine Integration** - WASM-basierte KI-Analyse
-- **Simplified Architecture** - AnalysisService vereinheitlicht Engine + Tablebase
-- **Dual Evaluation Display** - Engine + Lichess Tablebase
+- **Tablebase-Only Architecture** - Lichess API für perfekte Endspiel-Analyse
+- **Simplified Architecture** - TablebaseService → Store → UI
+- **Tablebase Evaluation** - Perfekte Endspiel-Bewertungen
 - **Best Moves Display** - Top 3 Züge mit Bewertungen (Lichess-Style)
 - **Brückenbau-Trainer** - Strukturiertes Lernen mit 5 Lektionen
 - **Spaced Repetition** - FSRS-basiertes Lernsystem
@@ -62,7 +62,7 @@ ChessEndgameTrainer/
 - **Language**: TypeScript 5.3.3
 - **Styling**: Tailwind CSS 3.4.1
 - **Chess Logic**: chess.js 1.0.0-beta.6
-- **Chess Engine**: SimpleEngine (Stockfish WASM) - Singleton Pattern
+- **Chess Logic**: chess.js 1.0.0-beta.6 für Zugvalidierung
 - **State Management**: Zustand 4.5.0 (Single Source of Truth)
 - **Testing**: Jest 30.0.4, React Testing Library 14.2.1
 - **Environment**: Node.js 20+
@@ -77,7 +77,7 @@ ChessEndgameTrainer/
 
 ### ✅ **Technical Health**
 
-- **Test Suite**: 762 unit tests + 33 E2E tests (100% passing) | Comprehensive Coverage
+- **Test Suite**: 577 unit tests + 42 E2E tests (100% passing) | Comprehensive Coverage
 - **TypeScript**: 0 errors (100% clean) | Complete Clean Compilation
 - **Architecture**: v2.0 Simplified - SimpleEngine → AnalysisService → UI
 - **State Management**: Zustand Store as Single Source of Truth
@@ -87,7 +87,7 @@ ChessEndgameTrainer/
 
 ### 🚨 **Current Issues**
 
-- **E2E Tests**: 33/33 passing (100%) | Stabilized Playwright architecture
+- **E2E Tests**: 42/42 passing (100%) | Stabilized Playwright architecture
 - **UI Bugs**: Engine moves missing (#14), Tablebase emojis (#15), wrong titles (#16)
 - **Data**: Missing Firestore positions 9-11 (#20)
 
@@ -110,7 +110,7 @@ npm install
 npm run dev
 ```
 
-Server läuft auf http://localhost:3002
+Server läuft auf http://localhost:3002 (Dev) oder http://localhost:3003 (E2E Tests)
 
 ### Database (Firebase Firestore)
 
@@ -139,7 +139,7 @@ npm run test:performance
 
 #### Test-Architektur
 
-Umfassende Test-Suite mit 762 Unit Tests + 33 E2E Tests:
+Umfassende Test-Suite mit 577 Unit Tests + 42 E2E Tests:
 
 ```bash
 # Dev-Server starten
@@ -178,12 +178,12 @@ npm run build
 
 Die Anwendung wurde für optimale Performance auf Desktop und Mobile optimiert:
 
-### 🔧 **Clean Engine Architecture** (2025-07-13)
+### 🔧 **Tablebase-Only Architecture** (2025-08)
 
-- **IChessEngine Interface**: 4 clean methods (`findBestMove`, `evaluatePosition`, `stop`, `terminate`)
-- **Singleton Pattern**: Ein Engine-Instance für die gesamte App (293→222 lines, 70% simpler)
-- **Stateless Design**: Alle Methoden akzeptieren FEN-Parameter für Thread-Safety
-- **Lazy Initialization**: Stockfish Worker wird nur bei Bedarf erstellt
+- **TablebaseService**: Direkte Integration mit Lichess Tablebase API
+- **No Chess Engine**: Kein lokaler Engine, nur perfekte Endspiel-Datenbank
+- **Caching**: LRU Cache für API-Antworten mit 5 Minuten TTL
+- **Error Handling**: Graceful degradation bei API-Fehlern
 
 ### 📈 **Performance Optimierungen**
 
@@ -193,25 +193,25 @@ Die Anwendung wurde für optimale Performance auf Desktop und Mobile optimiert:
 - **99.99% Cache Hit Rate** für wiederkehrende Positionen
 - **Bundle Size**: Optimiert für <300KB pro Route
 
-Detaillierte Performance-Metriken und technische Details finden Sie in der Codebasis unter `/shared/lib/chess/engine/`.
+Detaillierte Performance-Metriken und technische Details finden Sie in der Codebasis unter `/shared/services/TablebaseService.ts`.
 
 ## 🚀 Entwicklungs-Roadmap
 
 ### ✅ **Completed Foundations**
 
 - **Clean Architecture**: Service→Adapter→Provider layers implemented
-- **Engine Foundation**: Stockfish WASM singleton with memory optimization
+- **Tablebase Integration**: Lichess API integration with caching
 - **State Management**: Zustand Store as Single Source of Truth
 - **TypeScript Health**: 71% error reduction (144→42)
-- **Test Infrastructure**: 1015 comprehensive unit tests + 33 E2E tests
+- **Test Infrastructure**: 577 comprehensive unit tests + 42 E2E tests
 - **Security**: FEN input sanitization and validation
 - **Performance**: LRU caching, debouncing, bundle optimization
 
 ### 🎯 **Phase 1: Stabilization (Current - 1 Week)**
 
 - 🚨 **Fix critical UI bugs** - Engine moves, tablebase emojis, titles
-- ✅ **E2E test rewrite** - Modern Playwright architecture (33/33 passing)
-- ✅ **100% unit test pass rate** - All 1015 tests passing
+- ✅ **E2E test rewrite** - Modern Playwright architecture (42/42 passing)
+- ✅ **100% unit test pass rate** - All 577 tests passing
 - 📝 **Issue triage** - Address GitHub issues #14-26
 
 ### ⚡ **Phase 2: Enhancement (2-3 Weeks)**
@@ -240,8 +240,8 @@ Detaillierte Performance-Metriken und technische Details finden Sie in der Codeb
 ### 🏗️ **Web-First Architektur-Prinzipien**
 
 - **Clean Architecture**: Service→Adapter→Provider Separation
-- **Engine Singleton**: Eine Stockfish-Instanz für Browser-Optimierung
-- **Unified Evaluation**: Konsistente Chess Engine + Tablebase Integration
+- **Tablebase-Only**: Keine lokale Engine, nur perfekte Endspiel-Datenbank
+- **Simplified State**: Zustand Store ohne Engine-Komplexität
 - **Store of Truth**: Zustand als zentrale State-Verwaltung
 - **TypeScript Strict**: Vollständige Typisierung für Entwicklersicherheit
 - **Performance**: <300KB Bundle-Size pro Route
@@ -261,8 +261,8 @@ Detaillierte Performance-Metriken und technische Details finden Sie in der Codeb
 ### 🔄 **Qualitäts-Gates**
 
 ```bash
-npm test           # 1015/1015 unit tests müssen bestehen
-npm run test:e2e   # 33/33 E2E tests müssen bestehen
+npm test           # 577/577 unit tests müssen bestehen
+npm run test:e2e   # 42/42 E2E tests müssen bestehen
 npm run lint       # ESLint ohne Fehler
 npm run build      # Erfolgreicher Build
 ```

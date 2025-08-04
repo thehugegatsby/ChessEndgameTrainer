@@ -62,4 +62,17 @@ module.exports = [
       "no-console": ["warn", { allow: ["warn", "error"] }],
     },
   },
+
+  // Next.js pages and app router files - disable redundant JSDoc rules
+  {
+    files: ["pages/**/*.tsx", "pages/**/*.ts", "app/**/*.tsx", "app/**/*.ts"],
+    rules: {
+      // These components are framework-defined entry points.
+      // JSDoc on props and return values is often redundant.
+      "jsdoc/require-param-description": "off",
+      "jsdoc/require-returns": "off",
+      "jsdoc/require-returns-description": "off",
+      "jsdoc/require-jsdoc": "off",
+    },
+  },
 ];

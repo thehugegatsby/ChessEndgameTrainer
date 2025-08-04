@@ -8,7 +8,6 @@ import { AppProviders } from "./providers";
  * @constant
  * @type {import('next').Metadata}
  */
-// eslint-disable-next-line jsdoc/require-jsdoc
 export const metadata = {
   title: "Chess Endgame Trainer",
   description: "Advanced chess endgame training with AI analysis",
