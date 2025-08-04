@@ -3,16 +3,16 @@
  * Central export point for state management
  */
 
-export { 
+export {
   useStore,
   useUser,
-  useTraining,
+  useEndgameState,
   useProgress,
   useUI,
   useSettings,
   useUserActions,
-  useTrainingActions,
-  useUIActions
-} from './store';
+  useEndgameActions,
+  useUIActions,
+} from "./store";
 
-export * from './types';
+export * from "./types";

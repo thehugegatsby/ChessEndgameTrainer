@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useTraining, useTrainingActions } from "@shared/store/store";
+import { useEndgameState, useEndgameActions } from "@shared/store/store";
 import { Move } from "chess.js";
 import { ErrorService } from "@shared/services/errorService";
 
@@ -71,8 +71,8 @@ export const useEndgameSession = ({
   onComplete,
   onPositionChange,
 }: UseEndgameSessionOptions): UseEndgameSessionReturn => {
-  const training = useTraining();
-  const actions = useTrainingActions();
+  const training = useEndgameState();
+  const actions = useEndgameActions();
 
   /**
    * Execute a chess move and update the game state

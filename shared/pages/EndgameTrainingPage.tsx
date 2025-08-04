@@ -14,8 +14,8 @@ import { useToast } from "@shared/hooks/useToast";
 import { ToastContainer } from "@shared/components/ui/Toast";
 import { getGameStatus } from "@shared/utils/chess/gameStatus";
 import {
-  useTraining,
-  useTrainingActions,
+  useEndgameState,
+  useEndgameActions,
   useUI,
   useUIActions,
 } from "@shared/store/store";
@@ -45,8 +45,8 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
     const router = useRouter();
 
     // Zustand store hooks
-    const training = useTraining();
-    const trainingActions = useTrainingActions();
+    const training = useEndgameState();
+    const trainingActions = useEndgameActions();
     const ui = useUI();
     const uiActions = useUIActions();
 

@@ -14,12 +14,12 @@ import { act, renderHook } from "@testing-library/react";
 import {
   useStore,
   useUser,
-  useTraining,
+  useEndgameState,
   useProgress,
   useUI,
   useSettings,
   useUserActions,
-  useTrainingActions,
+  useEndgameActions,
   useUIActions,
 } from "../../../shared/store/store";
 import { EndgamePosition } from "../../../shared/types/endgame";
@@ -169,7 +169,7 @@ describe("Zustand Store", () => {
     };
 
     it("should have correct initial training state", () => {
-      const { result } = renderHook(() => useTraining());
+      const { result } = renderHook(() => useEndgameState());
 
       expect(result.current.moveHistory).toEqual([]);
       expect(result.current.evaluations).toEqual([]);
@@ -333,7 +333,7 @@ describe("Zustand Store", () => {
     });
 
     it("should have correct analysis status in initial state", () => {
-      const { result } = renderHook(() => useTraining());
+      const { result } = renderHook(() => useEndgameState());
 
       expect(result.current.analysisStatus).toBe("idle");
     });
@@ -596,7 +596,7 @@ describe("Zustand Store", () => {
   describe("Selector Hooks", () => {
     it("should provide specialized hooks for state slices", () => {
       const userHook = renderHook(() => useUser());
-      const trainingHook = renderHook(() => useTraining());
+      const trainingHook = renderHook(() => useEndgameState());
       const progressHook = renderHook(() => useProgress());
       const uiHook = renderHook(() => useUI());
       const settingsHook = renderHook(() => useSettings());
@@ -610,7 +610,7 @@ describe("Zustand Store", () => {
 
     it("should provide action selector hooks", () => {
       const userActionsHook = renderHook(() => useUserActions());
-      const trainingActionsHook = renderHook(() => useTrainingActions());
+      const trainingActionsHook = renderHook(() => useEndgameActions());
       const uiActionsHook = renderHook(() => useUIActions());
 
       expect(userActionsHook.result.current.setUser).toBeDefined();

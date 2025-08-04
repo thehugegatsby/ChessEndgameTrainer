@@ -13,7 +13,7 @@ import {
   useEndgameTrainingState,
   useGameState,
   useTablebaseAnalysisState,
-  useTrainingActions,
+  useEndgameActions,
   useUIActions,
   useStore,
 } from "@shared/store/store";
@@ -86,7 +86,7 @@ const EndgameBoard: React.FC<EndgameBoardProps> = ({
   const gameState = useGameState();
   const tablebaseAnalysisState = useTablebaseAnalysisState();
   const endgameTrainingState = useEndgameTrainingState();
-  const actions = useTrainingActions();
+  const actions = useEndgameActions();
   const uiActions = useUIActions();
 
   // Set position in store on mount or when position changes

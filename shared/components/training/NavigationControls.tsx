@@ -1,5 +1,5 @@
 import React from "react";
-import { useTraining, useTrainingActions } from "@shared/store/store";
+import { useEndgameState, useEndgameActions } from "@shared/store/store";
 
 /**
  * Navigation controls for move history
@@ -9,8 +9,8 @@ export /**
  *
  */
 const NavigationControls: React.FC = React.memo(() => {
-  const { moveHistory, currentMoveIndex } = useTraining();
-  const { goToFirst, goToPrevious, goToNext, goToLast } = useTrainingActions();
+  const { moveHistory, currentMoveIndex } = useEndgameState();
+  const { goToFirst, goToPrevious, goToNext, goToLast } = useEndgameActions();
 
   // Calculate navigation state
   const totalMoves = moveHistory.length;

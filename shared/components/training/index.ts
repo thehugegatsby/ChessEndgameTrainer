@@ -19,4 +19,4 @@ export type {
 } from "./types";
 
 // Re-export centralized types
-export type { EvaluationData, MoveEvaluation } from "@shared/types";
+export type { PositionAnalysis, MoveEvaluation } from "@shared/types";

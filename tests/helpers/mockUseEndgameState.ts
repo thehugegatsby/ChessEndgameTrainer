@@ -1,11 +1,11 @@
 /**
- * Mock helper for useTraining Zustand store
+ * Mock helper for useEndgameState Zustand store
  * @example
- * mockUseTraining({ analysisStatus: 'success' });
- * mockUseTraining({ analysisStatus: 'error' });
+ * mockUseEndgameState({ analysisStatus: 'success' });
+ * mockUseEndgameState({ analysisStatus: 'error' });
  */
 
-import { useTraining } from "@shared/store/store";
+import { useEndgameState } from "@shared/store/store";
 
 // Mock the store module
 jest.mock("@shared/store/store");
@@ -14,17 +14,17 @@ jest.mock("@shared/store/store");
 /**
  *
  */
-type MockTrainingState = Partial<ReturnType<typeof useTraining>>;
+type MockEndgameState = Partial<ReturnType<typeof useEndgameState>>;
 
 /**
- * Creates a mock implementation of the useTraining hook
+ * Creates a mock implementation of the useEndgameState hook
  * @param overrides - Partial state to override defaults
- * @returns The mocked useTraining function for additional assertions
+ * @returns The mocked useEndgameState function for additional assertions
  */
 export /**
  *
  */
-const mockUseTraining = (overrides: MockTrainingState = {}) => {
+const mockUseEndgameState = (overrides: MockEndgameState = {}) => {
   // Define sensible defaults that match the actual store
   const defaultState = {
     // Analysis related
@@ -58,23 +58,23 @@ const mockUseTraining = (overrides: MockTrainingState = {}) => {
   const mockState = { ...defaultState, ...overrides };
 
   // Configure the mock to return our state
-  (useTraining as jest.MockedFunction<typeof useTraining>).mockReturnValue(
-    mockState as any,
-  );
+  (
+    useEndgameState as jest.MockedFunction<typeof useEndgameState>
+  ).mockReturnValue(mockState as any);
 
   // Return the mock for additional assertions if needed
-  return useTraining as jest.MockedFunction<typeof useTraining>;
+  return useEndgameState as jest.MockedFunction<typeof useEndgameState>;
 };
 
 /**
- * Resets the useTraining mock
+ * Resets the useEndgameState mock
  * Call this in afterEach hooks to ensure test isolation
  */
 export /**
  *
  */
-const resetUseTrainingMock = () => {
-  (useTraining as jest.Mock).mockClear();
+const resetUseEndgameStateMock = () => {
+  (useEndgameState as jest.Mock).mockClear();
 };
 
 /**
@@ -82,15 +82,15 @@ const resetUseTrainingMock = () => {
  * @param mock
  * @param expectedCalls
  * @example
- * const mock = mockUseTraining();
+ * const mock = mockUseEndgameState();
  * // ... test code ...
- * verifyUseTrainingCalls(mock, 1);
+ * verifyUseEndgameStateCalls(mock, 1);
  */
 export /**
  *
  */
-const verifyUseTrainingCalls = (
-  mock: jest.MockedFunction<typeof useTraining>,
+const verifyUseEndgameStateCalls = (
+  mock: jest.MockedFunction<typeof useEndgameState>,
   expectedCalls: number,
 ) => {
   expect(mock).toHaveBeenCalledTimes(expectedCalls);

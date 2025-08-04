@@ -87,9 +87,7 @@ export interface CompleteEndgameSessionState {
   endgameTrainingState: EndgameTrainingState;
 }
 
-// Legacy alias for backward compatibility
-/** @deprecated Use EndgameSessionState or CompleteEndgameSessionState instead */
-export type TrainingState = EndgameSessionState;
+// TrainingState removed - use EndgameSessionState instead
 
 /**
  * Pure chess game state (domain-agnostic)

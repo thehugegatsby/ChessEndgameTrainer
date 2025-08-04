@@ -12,7 +12,7 @@
 import { moveStrategyService } from "../services/MoveStrategyService";
 import { analysisService } from "../services/AnalysisService";
 import { getLogger } from "../services/logging";
-import type { TrainingState, RootState } from "./types";
+import type { EndgameSessionState, RootState } from "./types";
 import type { WritableDraft } from "immer";
 
 const logger = getLogger().setContext("TrainingActions");
@@ -43,7 +43,7 @@ const logger = getLogger().setContext("TrainingActions");
 export const requestTablebaseMove =
   (fen: string, options?: { depth?: number; timeout?: number }) =>
   async (
-    _get: () => { training: TrainingState },
+    _get: () => { training: EndgameSessionState },
     set: (
       updater: Partial<RootState> | ((state: WritableDraft<RootState>) => void),
     ) => void,
@@ -132,7 +132,7 @@ export const requestTablebaseMove =
 export const requestPositionEvaluation =
   (fen: string, options?: { depth?: number; timeout?: number }) =>
   async (
-    _get: () => { training: TrainingState },
+    _get: () => { training: EndgameSessionState },
     set: (
       updater: Partial<RootState> | ((state: WritableDraft<RootState>) => void),
     ) => void,
@@ -227,7 +227,7 @@ export const requestPositionEvaluation =
 export const stopTablebaseAnalysis =
   () =>
   async (
-    _get: () => { training: TrainingState },
+    _get: () => { training: EndgameSessionState },
     set: (
       updater: Partial<RootState> | ((state: WritableDraft<RootState>) => void),
     ) => void,
@@ -247,40 +247,4 @@ export const stopTablebaseAnalysis =
     }
   };
 
-/**
- * Reset tablebase analysis state to initial values
- *
- * @returns {Function} Thunk function that clears tablebase-related state
- * @deprecated No local engine to terminate anymore - kept for backward compatibility
- *
- * @remarks
- * Resets:
- * - tablebaseMove to undefined (no move selected)
- * - analysisStatus to 'idle'
- *
- * This function exists for compatibility with old engine-based code.
- * In the tablebase-only architecture, there's no engine process to terminate.
- *
- * @example
- * // Reset after game completion
- * resetTablebaseState()(getState, setState);
- */
-export const resetTablebaseState =
-  () =>
-  async (
-    _get: () => { training: TrainingState },
-    set: (
-      updater: Partial<RootState> | ((state: WritableDraft<RootState>) => void),
-    ) => void,
-  ) => {
-    logger.info("resetTablebaseState called - resetting analysis state");
-
-    // Reset tablebase state in store
-    set((state: any) => ({
-      training: {
-        ...state.training,
-        tablebaseMove: undefined,
-        analysisStatus: "idle",
-      },
-    }));
-  };
+// resetTablebaseState removed - no engine to reset in tablebase-only architecture

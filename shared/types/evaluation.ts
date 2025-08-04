@@ -66,11 +66,7 @@ export interface PositionAnalysis {
   tablebase?: TablebaseData;
 }
 
-/**
- * @deprecated Use PositionAnalysis instead
- * Maintained for backward compatibility with legacy code
- */
-export type EvaluationData = PositionAnalysis;
+// EvaluationData removed - use PositionAnalysis instead
 
 /**
  * Display formatting for evaluation UI components

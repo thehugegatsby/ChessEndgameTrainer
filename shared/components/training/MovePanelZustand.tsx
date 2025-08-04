@@ -4,7 +4,7 @@ import {
   getSmartMoveEvaluation,
   type MoveEvaluation,
 } from "../../utils/chess/evaluationHelpers";
-import { useTraining } from "@shared/store/store";
+import { useEndgameState } from "@shared/store/store";
 import { TEST_IDS, getTestId } from "@shared/constants/testIds";
 import { MoveQualityIndicator } from "../analysis/MoveQualityIndicator";
 
@@ -38,7 +38,7 @@ export /**
 const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
   ({ showEvaluations = false, onMoveClick, currentMoveIndex = -1 }) => {
     // Get data from Zustand store
-    const { moveHistory, evaluations } = useTraining();
+    const { moveHistory, evaluations } = useEndgameState();
 
     // Helper to get FEN before a move
     /**

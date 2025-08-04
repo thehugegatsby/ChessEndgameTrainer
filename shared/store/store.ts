@@ -11,7 +11,7 @@ import {
   RootState,
   Actions,
   UserState,
-  TrainingState,
+  EndgameSessionState,
   ProgressState,
   UIState,
   SettingsState,
@@ -87,7 +87,7 @@ const initialEndgameTrainingState: EndgameTrainingState = {
 // };
 
 // Legacy support - flatten the new structure for backward compatibility
-const initialTrainingState: TrainingState = {
+const initialTrainingState: EndgameSessionState = {
   ...initialGameState,
   ...initialTablebaseAnalysisState,
   ...initialEndgameTrainingState,
@@ -1270,8 +1270,7 @@ const useTrainingActions = () =>
     })),
   );
 
-/** @deprecated useTrainingActions will be removed - use useEndgameActions instead */
-// const _deprecatedUseTrainingActions = useTrainingActions;
+// useTrainingActions removed - use useEndgameActions instead
 
 /**
  * Preferred: Use this instead of useTrainingActions for clarity
