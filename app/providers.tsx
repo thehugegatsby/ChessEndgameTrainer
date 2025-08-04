@@ -33,7 +33,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Update app-ready based on router state
-    // Don't wait for engine initially as it may not be initialized on all pages
+    // Don't wait for tablebase initially as it may not be initialized on all pages
     if (typeof document !== "undefined") {
       let appReadyState: "true" | "false" | "error";
 
