@@ -108,14 +108,17 @@ interface TrainingState {
 
 ## Migration History
 
-- v1.0: Stockfish WASM engine
-- v2.0: SimpleEngine abstraction
+- v1.0: Stockfish WASM (deprecated)
+- v2.0: SimpleEngine abstraction (deprecated)
 - v3.0: Tablebase-only (current)
 - v3.1: E2E test cleanup and modernization
 - v3.2: FEN validator refactoring, TablebaseService test coverage
+- v3.3: Zustand v5 migration with useShallow
+- v3.4: Complete removal of all engine references
 
 ## Future Considerations (v4.0)
 
-- Potential local engine fallback
+- Enhanced caching strategies
 - Offline mode with cached positions
 - Advanced training algorithms
+- Performance optimizations for mobile
