@@ -52,10 +52,10 @@ const TEST_MESSAGES = deepFreezeConst({
 
   // Tablebase states
   TABLEBASE: {
-    IDLE: "Engine idle",
+    IDLE: "Tablebase idle",
     ANALYZING: "Analyzing position...",
     CALCULATING: "Calculating best move...",
-    READY: "Engine ready",
+    READY: "Tablebase ready",
   },
 
   // Validation messages
