@@ -17,20 +17,32 @@ TablebaseService (Lichess API)
 ### Key Components
 
 1. **TablebaseService** (`/shared/services/TablebaseService.ts`)
-   - Lichess tablebase API integration
+   - Lichess tablebase API integration with single API call architecture
    - 7-piece endgame support
-   - LRU cache for API responses
+   - Smart LRU cache with FEN normalization
+   - Request deduplication for concurrent calls
+   - Zod schema validation for API responses
    - Rate limiting protection
 
-2. **Zustand Store** (`/shared/store/`)
-   - `store.ts` - Main store with all slices
-   - `trainingActions.ts` - Async actions (requestTablebaseMove)
-   - `types.ts` - TypeScript interfaces
+2. **AnalysisService** (`/shared/services/AnalysisService.ts`)
+   - Centralized position analysis logic
+   - Consolidates tablebase data fetching and formatting
+   - Reduces duplication between hooks and store actions
+   - Leverages TablebaseService caching
 
-3. **React Hooks** (`/shared/hooks/`)
+3. **Zustand Store** (`/shared/store/`)
+   - `store.ts` - Main store with all slices (using Immer middleware)
+   - `endgameActions.ts` - Async actions (requestTablebaseMove, requestPositionEvaluation)
+   - `types.ts` - TypeScript interfaces with proper types
+
+4. **React Hooks** (`/shared/hooks/`)
    - `useEndgameSession` - Game state management
-   - `usePositionAnalysis` - Tablebase evaluation
+   - `usePositionAnalysis` - Tablebase evaluation (uses AnalysisService)
    - Domain-specific hooks for UI logic
+
+5. **Error Handling** (`/shared/components/common/`)
+   - `ErrorBoundary.tsx` - Generic React error boundary
+   - `TablebasePanelWithBoundary.tsx` - Wrapped tablebase panel with error handling
 
 ## Data Flow Examples
 
@@ -57,7 +69,12 @@ User clicks square → TrainingBoard component
 ```
 Position changes → usePositionAnalysis hook
                           ↓
-                  TablebaseService.getEvaluation()
+                  AnalysisService.getPositionAnalysis()
+                          ↓
+                  TablebaseService.getEvaluation() [cached]
+                  TablebaseService.getTopMoves() [uses cache]
+                          ↓
+                  Format and return PositionAnalysis
                           ↓
                   Update evaluations in store
                           ↓
@@ -100,8 +117,10 @@ interface TrainingState {
 ## Testing Strategy
 
 - **Unit tests**: Services, hooks, and components with TablebaseService mocks
-  - TablebaseService: 93.73% coverage with comprehensive test scenarios
+  - TablebaseService: 100% coverage with comprehensive test scenarios
+  - AnalysisService: Tested through integration with TablebaseService
   - FEN validation: Simplified to use chess.js wrapper (50 lines, down from 120)
+  - Store actions: Full TypeScript type safety (no `any` types)
 - **Integration tests**: Store actions and service integrations
 - **E2E tests**: Clean architecture with Playwright (core-training, error-recovery)
 - **Mock patterns**: MSW for API mocking, TestFixtures for valid FENs, chess.js mocking for unit tests
@@ -115,6 +134,8 @@ interface TrainingState {
 - v3.2: FEN validator refactoring, TablebaseService test coverage
 - v3.3: Zustand v5 migration with useShallow
 - v3.4: Complete removal of all engine references
+- v3.5: TablebaseService optimization (single API call, smart caching, deduplication)
+- v3.6: AnalysisService extraction, React Error Boundaries, TypeScript improvements
 
 ## Future Considerations (v4.0)
 

@@ -6,7 +6,26 @@ Currently no critical bugs to fix. Ready for new feature development!
 
 ## 🔄 Recent Architecture Changes
 
-### Complete E2E Test Cleanup (Just Completed)
+### TablebaseService Optimization (Just Completed)
+
+Major architectural improvements based on AI review:
+
+- **Single API call architecture**: Reduced N+1 pattern to 1 call for `getTopMoves`
+- **Smart caching**: FEN normalization removes halfmove/fullmove counters
+- **Request deduplication**: Concurrent calls share the same promise
+- **Zod validation**: Type-safe API response handling
+- **100% test coverage**: Comprehensive test suite with 20 tests
+
+### Architecture Improvements (Just Completed)
+
+Based on AI assistant reviews (Gemini & o3):
+
+- **AnalysisService**: Extracted common formatting logic from hooks and store actions
+- **React Error Boundaries**: Proper error handling for TablebasePanel
+- **TypeScript improvements**: Removed all `any` types from store actions
+- **Clean architecture**: No overengineering, appropriate abstractions
+
+### Complete E2E Test Cleanup (Completed)
 
 E2E test suite cleaned up and modernized:
 

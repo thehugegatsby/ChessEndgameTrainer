@@ -79,7 +79,7 @@ ChessEndgameTrainer/
 
 - **Test Suite**: 577 unit tests + 42 E2E tests (100% passing) | Comprehensive Coverage
 - **TypeScript**: 0 errors (100% clean) | Complete Clean Compilation
-- **Architecture**: v2.0 Simplified - SimpleEngine → AnalysisService → UI
+- **Architecture**: v3.6 Tablebase-Only - TablebaseService → AnalysisService → UI
 - **State Management**: Zustand Store as Single Source of Truth
 - **Security**: FEN Input Sanitization implemented
 - **Performance**: LRU Cache, Debouncing, Tree-Shaking optimized
@@ -178,12 +178,13 @@ npm run build
 
 Die Anwendung wurde für optimale Performance auf Desktop und Mobile optimiert:
 
-### 🔧 **Tablebase-Only Architecture** (2025-08)
+### 🔧 **Tablebase-Only Architecture** (v3.6 - 2025-08)
 
-- **TablebaseService**: Direkte Integration mit Lichess Tablebase API
-- **No Chess Engine**: Kein lokaler Engine, nur perfekte Endspiel-Datenbank
-- **Caching**: LRU Cache für API-Antworten mit 5 Minuten TTL
-- **Error Handling**: Graceful degradation bei API-Fehlern
+- **TablebaseService**: Optimierte Lichess API Integration (Single API Call)
+- **AnalysisService**: Zentralisierte Position-Analyse Logik
+- **Smart Caching**: FEN Normalisierung, Request Deduplication
+- **Error Boundaries**: React Error Boundaries für robuste Fehlerbehandlung
+- **TypeScript**: 100% Type Safety (keine `any` Types mehr)
 
 ### 📈 **Performance Optimierungen**
 
