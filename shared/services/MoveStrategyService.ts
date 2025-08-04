@@ -45,7 +45,8 @@ class MoveStrategyService {
    */
   async getLongestResistanceMove(fen: string): Promise<string | null> {
     try {
-      const topMoves = await tablebaseService.getTopMoves(fen, 10);
+      // Get ALL moves efficiently with single API call
+      const topMoves = await tablebaseService.getTopMoves(fen, 100);
 
       if (
         !topMoves.isAvailable ||
@@ -136,9 +137,8 @@ class MoveStrategyService {
             }
           }
 
-          // TODO: Implement fetching DTM values from resulting positions
-          // This would require making additional API calls for each possible move
-          // to get the DTM value of the resulting position
+          // Note: DTM values are only available for positions with ≤5 pieces
+          // For 6-7 piece positions, we must use DTZ for resistance calculation
         }
 
         logger.debug("Selected longest resistance move", {

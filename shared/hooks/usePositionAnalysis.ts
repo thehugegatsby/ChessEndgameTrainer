@@ -16,8 +16,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { tablebaseService } from "@shared/services/TablebaseService";
-import { formatPositionAnalysis } from "@shared/utils/positionAnalysisFormatter";
+import { analysisService } from "@shared/services/AnalysisService";
 import { ErrorService } from "@shared/services/errorService";
 import { Logger } from "@shared/services/logging/Logger";
 import type { PositionAnalysis } from "@shared/types";
@@ -136,63 +135,18 @@ export function usePositionAnalysis({
       logger.info("[usePositionAnalysis] Starting evaluation");
 
       try {
-        // Get tablebase evaluation directly
-        const tablebaseResult = await tablebaseService.getEvaluation(fen);
+        // Get position analysis from the centralized service
+        const evaluation = await analysisService.getPositionAnalysisOrEmpty(
+          fen,
+          5,
+        );
 
         if (abortController.signal.aborted) {
           return;
         }
 
-        // No tablebase data available
-        if (!tablebaseResult.isAvailable || !tablebaseResult.result) {
-          const evaluation: PositionAnalysis = {
-            evaluation: 0,
-            tablebase: undefined,
-          };
-          if (!abortController.signal.aborted) {
-            addEvaluation(evaluation);
-          }
-          return;
-        }
-
-        // Format tablebase result for UI
-        const displayData = formatPositionAnalysis(tablebaseResult.result);
-
-        // Get top moves for display
-        const topMoves = await tablebaseService.getTopMoves(fen, 5);
-
-        // Convert to PositionAnalysis format (adapter pattern)
-        const evaluation: PositionAnalysis = {
-          evaluation: displayData.score,
-          mateInMoves:
-            displayData.isWin && tablebaseResult.result.dtz
-              ? Math.abs(tablebaseResult.result.dtz)
-              : undefined,
-          tablebase: {
-            isTablebasePosition: true,
-            wdlAfter: tablebaseResult.result.wdl,
-            category: tablebaseResult.result.category as
-              | "win"
-              | "draw"
-              | "loss",
-            dtz: tablebaseResult.result.dtz ?? undefined,
-            topMoves:
-              topMoves.isAvailable && topMoves.moves
-                ? topMoves.moves.map((move) => ({
-                    move: move.uci,
-                    san: move.san,
-                    dtz: move.dtz || 0,
-                    dtm: move.dtm || 0,
-                    wdl: move.wdl,
-                    category: move.category as "win" | "draw" | "loss",
-                  }))
-                : [],
-          },
-        };
-
         logger.info("[usePositionAnalysis] Got tablebase evaluation", {
-          wdl: tablebaseResult.result.wdl,
-          dtz: tablebaseResult.result.dtz,
+          hasTablebase: !!evaluation.tablebase,
           topMovesCount: evaluation.tablebase?.topMoves?.length,
         });
 

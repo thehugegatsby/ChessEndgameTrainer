@@ -1,22 +1,22 @@
 /**
  * TablebasePanel Component
- * 
+ *
  * Unified tablebase display panel that replaces the basic tablebase column
  * with a professional, Lichess-like interface featuring grouped moves,
  * color-coded evaluation bars, and clear visual hierarchy.
  */
 
-'use client';
+"use client";
 
-import React, { useMemo } from 'react';
-import { MoveResultGroup } from './MoveResultGroup';
+import React, { useMemo } from "react";
+import { MoveResultGroup } from "./MoveResultGroup";
 import {
   type TablebaseMove,
-  classifyMovesByDTZ
-} from '@shared/utils/tablebase/resultClassification';
-import { type TablebaseData } from '@shared/types/evaluation';
+  classifyMovesByDTZ,
+} from "@shared/utils/tablebase/resultClassification";
+import { type TablebaseData } from "@shared/types/evaluation";
 
-interface TablebasePanelProps {
+export interface TablebasePanelProps {
   /** Tablebase data from the evaluation system */
   tablebaseData: TablebaseData;
   /** Callback when a move is selected */
@@ -37,7 +37,7 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
   selectedMove,
   loading = false,
   compact = false,
-  className = ''
+  className = "",
 }) => {
   // Convert tablebase data to our move format
   const moves: TablebaseMove[] = useMemo(() => {
@@ -45,13 +45,13 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
       return [];
     }
 
-    return tablebaseData.topMoves.map(move => ({
+    return tablebaseData.topMoves.map((move) => ({
       move: move.move,
       san: move.san,
       dtz: move.dtz,
       dtm: move.dtm,
       wdl: move.wdl,
-      category: move.category
+      category: move.category,
     }));
   }, [tablebaseData.topMoves]);
 
@@ -105,7 +105,10 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
   }
 
   return (
-    <div className={`tablebase-panel ${className}`} data-testid="tablebase-panel">
+    <div
+      className={`tablebase-panel ${className}`}
+      data-testid="tablebase-panel"
+    >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -154,7 +157,6 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
           />
         )}
       </div>
-
     </div>
   );
 };
@@ -167,7 +169,7 @@ export const CompactTablebasePanel: React.FC<TablebasePanelProps> = (props) => {
     <TablebasePanel
       {...props}
       compact={true}
-      className={`compact-tablebase-panel ${props.className || ''}`}
+      className={`compact-tablebase-panel ${props.className || ""}`}
     />
   );
 };
@@ -175,20 +177,4 @@ export const CompactTablebasePanel: React.FC<TablebasePanelProps> = (props) => {
 /**
  * Error boundary wrapper for TablebasePanel
  */
-export const TablebasePanelWithErrorBoundary: React.FC<TablebasePanelProps> = (props) => {
-  try {
-    return <TablebasePanel {...props} />;
-  } catch (error) {
-    console.error('TablebasePanel error:', error);
-    return (
-      <div className={`tablebase-panel ${props.className || ''}`}>
-        <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-          Tablebase
-        </div>
-        <div className="text-sm text-red-600 dark:text-red-400 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-          Fehler beim Laden der Tablebase-Daten
-        </div>
-      </div>
-    );
-  }
-};
+export { TablebasePanel as TablebasePanelWithErrorBoundary };

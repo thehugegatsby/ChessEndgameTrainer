@@ -9,11 +9,11 @@
  * - Stateless tablebase calls (pass FEN)
  */
 
-import { tablebaseService } from "../services/TablebaseService";
 import { moveStrategyService } from "../services/MoveStrategyService";
-import { formatPositionAnalysis } from "../utils/positionAnalysisFormatter";
+import { analysisService } from "../services/AnalysisService";
 import { getLogger } from "../services/logging";
-import type { TrainingState } from "./types";
+import type { TrainingState, RootState } from "./types";
+import type { WritableDraft } from "immer";
 
 const logger = getLogger().setContext("TrainingActions");
 
@@ -44,13 +44,15 @@ export const requestTablebaseMove =
   (fen: string, options?: { depth?: number; timeout?: number }) =>
   async (
     _get: () => { training: TrainingState },
-    set: (partial: any) => void,
+    set: (
+      updater: Partial<RootState> | ((state: WritableDraft<RootState>) => void),
+    ) => void,
   ) => {
     try {
       logger.info("[TRACE] requestTablebaseMove called", { fen, options });
 
       // Set analysis loading state
-      set((state: any) => ({
+      set((state) => ({
         training: {
           ...state.training,
           analysisStatus: "loading",
@@ -71,7 +73,7 @@ export const requestTablebaseMove =
       });
 
       // Update store with tablebase move
-      set((state: any) => ({
+      set((state) => ({
         training: {
           ...state.training,
           tablebaseMove: move,
@@ -85,7 +87,7 @@ export const requestTablebaseMove =
       logger.error("Tablebase move request failed", error);
 
       // Update store with error state
-      set((state: any) => ({
+      set((state) => ({
         training: {
           ...state.training,
           analysisStatus: "error",
@@ -131,45 +133,44 @@ export const requestPositionEvaluation =
   (fen: string, options?: { depth?: number; timeout?: number }) =>
   async (
     _get: () => { training: TrainingState },
-    set: (partial: any) => void,
+    set: (
+      updater: Partial<RootState> | ((state: WritableDraft<RootState>) => void),
+    ) => void,
   ) => {
     try {
       logger.debug("Requesting position evaluation", { fen, options });
 
       // Set analyzing state
-      set((state: any) => ({
+      set((state) => ({
         training: {
           ...state.training,
           analysisStatus: "loading",
         },
       }));
 
-      // Get evaluation from tablebase
-      const tablebaseResult = await tablebaseService.getEvaluation(fen);
+      // Get evaluation from analysis service
+      const analysisResult = await analysisService.getPositionAnalysis(fen);
 
-      if (!tablebaseResult.isAvailable || !tablebaseResult.result) {
+      if (!analysisResult) {
         logger.warn("No tablebase evaluation available");
         throw new Error("No tablebase evaluation available for this position");
       }
 
-      // Format for display
-      const displayData = formatPositionAnalysis(tablebaseResult.result);
+      const { evaluation: positionAnalysis, rawTablebaseResult } =
+        analysisResult;
 
       logger.debug("Position evaluation received", {
-        wdl: tablebaseResult.result.wdl,
-        dtz: tablebaseResult.result.dtz,
+        wdl: rawTablebaseResult.wdl,
+        dtz: rawTablebaseResult.dtz,
       });
 
       // Update store with evaluation
-      set((state: any) => ({
+      set((state) => ({
         training: {
           ...state.training,
           currentEvaluation: {
-            evaluation: displayData.score,
-            mate:
-              displayData.isWin && tablebaseResult.result?.dtz
-                ? Math.abs(tablebaseResult.result.dtz)
-                : null,
+            evaluation: positionAnalysis.evaluation,
+            mate: positionAnalysis.mateInMoves ?? null,
             depth: 0, // No depth for tablebase
           },
           analysisStatus: "success",
@@ -177,26 +178,23 @@ export const requestPositionEvaluation =
       }));
 
       return {
-        evaluation: displayData.score,
-        mateInMoves:
-          displayData.isWin && tablebaseResult.result?.dtz
-            ? Math.abs(tablebaseResult.result.dtz)
-            : undefined,
+        evaluation: positionAnalysis.evaluation,
+        mateInMoves: positionAnalysis.mateInMoves,
         tablebase: {
           isTablebasePosition: true,
-          wdlAfter: tablebaseResult.result?.wdl ?? 0,
-          category: (tablebaseResult.result?.category ?? "draw") as
+          wdlAfter: rawTablebaseResult.wdl ?? 0,
+          category: (rawTablebaseResult.category ?? "draw") as
             | "win"
             | "draw"
             | "loss",
-          dtz: tablebaseResult.result?.dtz ?? undefined,
+          dtz: rawTablebaseResult.dtz ?? undefined,
         },
       };
     } catch (error) {
       logger.error("Position evaluation failed", error);
 
       // Update store with error state
-      set((state: any) => ({
+      set((state) => ({
         training: {
           ...state.training,
           analysisStatus: "error",
@@ -230,13 +228,15 @@ export const stopTablebaseAnalysis =
   () =>
   async (
     _get: () => { training: TrainingState },
-    set: (partial: any) => void,
+    set: (
+      updater: Partial<RootState> | ((state: WritableDraft<RootState>) => void),
+    ) => void,
   ) => {
     try {
       logger.debug("Stopping tablebase analysis");
 
       // Update store state
-      set((state: any) => ({
+      set((state) => ({
         training: {
           ...state.training,
           analysisStatus: "idle",
@@ -269,7 +269,9 @@ export const resetTablebaseState =
   () =>
   async (
     _get: () => { training: TrainingState },
-    set: (partial: any) => void,
+    set: (
+      updater: Partial<RootState> | ((state: WritableDraft<RootState>) => void),
+    ) => void,
   ) => {
     logger.info("resetTablebaseState called - resetting analysis state");
 
