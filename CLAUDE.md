@@ -70,3 +70,35 @@ npm run analyze-code    # Run all code analysis
 3. Use TypeScript strict mode (no `any`)
 4. Follow naming conventions in @docs/STANDARDS.md
 5. Update tests when changing functionality
+
+## AI Programming Guidelines
+
+### Before Making Changes
+
+1. **Read** `/docs/TECHNICAL_DEBT_AND_AI_BEST_PRACTICES.md` first
+2. **Check** for `@deprecated` markers in code
+3. **Keep** functions under 50 lines (extract helpers if needed)
+4. **Use** Logger service, not console.log
+5. **Avoid** `any` types - use proper TypeScript interfaces
+
+### Critical Files to Understand
+
+- `/shared/services/TablebaseService.ts` - Core service pattern
+- `/shared/store/types.ts` - All type definitions
+- `/shared/services/ErrorService.ts` - Error handling pattern
+- `/shared/services/AnalysisService.ts` - Service composition example
+
+### Known Technical Debt
+
+- **Large Files**: `store.ts` (1,298 lines) needs splitting
+- **Complex Functions**: `makeUserMove` (178 lines) needs refactoring
+- **Mixed Concerns**: Some components have E2E test code mixed in
+- **TODOs**: 4 TODO comments need GitHub issue tracking
+
+### Best Practices for AI
+
+- Always add JSDoc to exported functions
+- Include usage examples in comments
+- Follow existing patterns in the codebase
+- Test your changes with `npm test`
+- Check types with `npm run type-check`

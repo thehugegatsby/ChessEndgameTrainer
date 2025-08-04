@@ -9,6 +9,10 @@
  * double normalization and incorrect results.
  */
 
+import { getLogger } from "../services/logging/Logger";
+
+const logger = getLogger().setContext("wdlNormalization");
+
 /**
  * Normalizes a WDL value from the API's perspective (player to move)
  * to the training player's perspective
@@ -36,7 +40,7 @@ export function normalizeWdl(
 
   // Validate turn
   if (turn !== "w" && turn !== "b") {
-    console.warn(
+    logger.warn(
       `Invalid turn value: ${turn}. Expected 'w' or 'b'. Returning unchanged WDL.`,
     );
     return wdl;

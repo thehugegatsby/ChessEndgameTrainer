@@ -272,7 +272,6 @@ const EndgameBoard: React.FC<EndgameBoardProps> = ({
         `Der beste Zug war: ${moveErrorData.bestMove}`,
         "info",
       );
-      // TODO: Highlight the best move on the board
     }
     actions.setMoveErrorDialog(null);
   }, [moveErrorData, uiActions]);

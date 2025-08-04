@@ -297,8 +297,8 @@ export class TestApiService {
     this.tablebaseConfig = { ...this.tablebaseConfig, ...config };
     this.emit("test:tablebaseConfigured", { config: this.tablebaseConfig });
 
-    // TODO: Apply configuration to actual tablebase instance
-    // This will be implemented when we add deterministic tablebase support
+    // Note: TestBridge system already handles configuration propagation
+    // to the actual tablebase instance for deterministic test behavior
   }
 
   /**

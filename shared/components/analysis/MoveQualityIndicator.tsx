@@ -13,6 +13,10 @@ import {
   getQualityEmoji,
   formatQualityTooltip,
 } from "../../utils/moveQualityFormatters";
+import { getLogger } from "../../services/logging/Logger";
+import { ErrorService } from "../../services/errorService";
+
+const logger = getLogger().setContext("MoveQualityIndicator");
 
 /**
  *
@@ -56,22 +60,23 @@ const MoveQualityIndicator: React.FC<MoveQualityIndicatorProps> = ({
   const handleAssess = React.useCallback(async () => {
     try {
       const fenBefore = getFenBefore(moveIndex);
-      console.log(
-        `[MoveQualityIndicator] Assessing move ${moveSan} at index ${moveIndex}`,
-        {
-          fenBefore,
-          player,
-        },
-      );
+      logger.debug(`Assessing move ${moveSan} at index ${moveIndex}`, {
+        fenBefore,
+        player,
+      });
       await assessMove(fenBefore, moveSan, player);
     } catch (err) {
-      console.error(
-        `[MoveQualityIndicator] Assessment for move ${moveSan} failed:`,
+      // Use ErrorService for user-facing error handling
+      ErrorService.handleUIError(
+        err instanceof Error ? err : new Error(String(err)),
+        "MoveQualityIndicator",
         {
-          error: err,
-          moveIndex,
-          player,
-          message: err instanceof Error ? err.message : "Unknown error",
+          action: "assess-move",
+          additionalData: {
+            moveIndex,
+            moveSan,
+            player,
+          },
         },
       );
     }

@@ -51,15 +51,21 @@ module.exports = [
       "jsdoc/check-param-names": "warn",
       "jsdoc/check-alignment": "warn",
       "jsdoc/check-tag-names": "warn",
-      // No restricted imports currently configured
+      // Prevent console.log in production code - use Logger service instead
+      "no-console": "error",
     },
   },
 
-  // E2E specific rules
+  // Test files - Allow all console calls
   {
-    files: ["tests/e2e/**/*.ts", "tests/e2e/**/*.tsx"],
+    files: [
+      "tests/**/*.ts",
+      "tests/**/*.tsx",
+      "tests/**/*.js",
+      "tests/**/*.jsx",
+    ],
     rules: {
-      "no-console": ["warn", { allow: ["warn", "error"] }],
+      "no-console": "off", // Allow console in all test files for debugging
     },
   },
 

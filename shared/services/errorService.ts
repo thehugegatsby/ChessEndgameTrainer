@@ -39,6 +39,30 @@ export interface ErrorContext {
   additionalData?: Record<string, any>;
 }
 
+/**
+ * Centralized Error Handling Service
+ *
+ * Provides a single point of error management across the application.
+ * Handles different error types, logs them internally, and returns
+ * user-friendly German error messages.
+ *
+ * @singleton
+ * @example
+ * // Get the singleton instance
+ * const errorService = ErrorService.getInstance();
+ *
+ * @example
+ * // Handle a tablebase error
+ * try {
+ *   await tablebaseService.getEvaluation(fen);
+ * } catch (error) {
+ *   const userMessage = ErrorService.handleTablebaseError(error, {
+ *     component: 'TrainingBoard',
+ *     action: 'evaluate-position'
+ *   });
+ *   showToast(userMessage, 'error');
+ * }
+ */
 export class ErrorService {
   private static instance: ErrorService;
   private errorLog: Array<{
@@ -49,9 +73,16 @@ export class ErrorService {
   private logger = getLogger().setContext("ErrorService");
 
   /**
-   * Get singleton instance of ErrorService
-   * @returns {ErrorService} Singleton instance
-   * @remarks Ensures single error handler across application
+   * Gets the singleton instance of ErrorService.
+   *
+   * Creates a new instance on first call and returns the same
+   * instance on subsequent calls. This ensures consistent error
+   * handling and a single error log across the application.
+   *
+   * @returns {ErrorService} The singleton ErrorService instance
+   * @example
+   * const errorService = ErrorService.getInstance();
+   * const stats = errorService.getErrorStats();
    */
   static getInstance(): ErrorService {
     if (!ErrorService.instance) {
@@ -61,9 +92,22 @@ export class ErrorService {
   }
 
   /**
-   * Handle Tablebase errors with specific context
+   * Handles errors from tablebase operations.
+   *
+   * Processes errors that occur when interacting with the Lichess
+   * tablebase API. Logs the error with context and returns a
+   * user-friendly German message.
+   *
+   * Side effects:
+   * - Logs the error via Logger service with ERROR level
+   * - Adds the error to internal error log
+   *
+   * @static
    * @param {Error} error - The error object from tablebase operations
-   * @param {ErrorContext} context - Additional context for debugging
+   * @param {ErrorContext} [context={}] - Additional context for debugging
+   * @param {string} [context.component] - Component where error occurred
+   * @param {string} [context.action] - Action that triggered the error
+   * @param {Record<string, any>} [context.additionalData] - Extra debug data
    * @returns {string} User-friendly German error message
    *
    * @example
@@ -72,12 +116,14 @@ export class ErrorService {
    * } catch (error) {
    *   const message = ErrorService.handleTablebaseError(error, {
    *     component: "TrainingBoard",
-   *     action: "evaluate-position"
+   *     action: "evaluate-position",
+   *     additionalData: { fen, pieceCount: 7 }
    *   });
    *   showToast(message, "error");
    * }
    *
-   * @throws {Error} Common tablebase errors:
+   * @remarks
+   * Common tablebase errors include:
    * - Network timeout: "Request timeout after retries"
    * - Invalid FEN: "Invalid FEN: <details>"
    * - Rate limiting: "API error: 429"
@@ -98,10 +144,22 @@ export class ErrorService {
   }
 
   /**
-   * Handle UI Component errors
+   * Handles errors from UI components.
+   *
+   * Processes errors that occur in React components, including render
+   * errors, state update issues, and prop validation failures. Logs the
+   * error with component context and returns a user-friendly German message.
+   *
+   * Side effects:
+   * - Logs the error via Logger service with ERROR level
+   * - Adds the error to internal error log with component name
+   *
+   * @static
    * @param {Error} error - The error object from React component
    * @param {string} componentName - Name of the component that errored
-   * @param {ErrorContext} context - Additional debugging context
+   * @param {ErrorContext} [context={}] - Additional debugging context
+   * @param {string} [context.action] - User action that triggered the error
+   * @param {Record<string, any>} [context.additionalData] - Extra debug data (e.g., ErrorInfo from React)
    * @returns {string} User-friendly German error message
    *
    * @example
@@ -113,11 +171,25 @@ export class ErrorService {
    *   this.setState({ errorMessage: message });
    * }
    *
+   * @example
+   * // In event handler
+   * try {
+   *   handleSquareClick(square);
+   * } catch (error) {
+   *   const message = ErrorService.handleUIError(error, "TrainingBoard", {
+   *     action: "square-click",
+   *     additionalData: { square, position: currentPosition }
+   *   });
+   *   showToast(message, "error");
+   * }
+   *
    * @remarks
-   * Common UI errors:
+   * Common UI errors include:
    * - State update on unmounted component
    * - Invalid props passed to component
    * - Chess.js move validation failures
+   * - Render errors from missing data
+   * - Event handler exceptions
    */
   static handleUIError(
     error: Error,
@@ -143,26 +215,68 @@ export class ErrorService {
   }
 
   /**
-   * Handle Network/API errors
-   * @param {Error} error - Network or API error
-   * @param {ErrorContext} context - Request context
+   * Handles network and API communication errors.
+   *
+   * Processes errors that occur during network requests, including
+   * timeouts, connection failures, and API response errors. Logs the
+   * error with request context and returns a user-friendly German message.
+   *
+   * Side effects:
+   * - Logs the error via Logger service with ERROR level
+   * - Adds the error to internal error log with network context
+   *
+   * @static
+   * @param {Error} error - Network or API error object
+   * @param {ErrorContext} [context={}] - Additional context for debugging
+   * @param {string} [context.component] - Component making the request
+   * @param {string} [context.action] - Action that triggered the request
+   * @param {Record<string, any>} [context.additionalData] - Extra debug data (URL, method, headers)
    * @returns {string} User-friendly German error message
    *
    * @example
-   * fetch(url)
-   *   .catch(error => {
-   *     const message = ErrorService.handleNetworkError(error, {
-   *       action: "fetch-tablebase",
-   *       additionalData: { url, method: "GET" }
-   *     });
-   *     return { error: message };
+   * // In async fetch call
+   * try {
+   *   const response = await fetch(url);
+   *   return await response.json();
+   * } catch (error) {
+   *   const message = ErrorService.handleNetworkError(error, {
+   *     action: "fetch-tablebase",
+   *     additionalData: { url, method: "GET" }
    *   });
+   *   return { error: message };
+   * }
    *
-   * @throws {Error} Common network errors:
-   * - AbortError: Request timeout
-   * - TypeError: Network failure
-   * - 429: Rate limit exceeded
-   * - 503: Service unavailable
+   * @example
+   * // With AbortController for timeout
+   * const controller = new AbortController();
+   * const timeout = setTimeout(() => controller.abort(), 5000);
+   *
+   * try {
+   *   const response = await fetch(url, { signal: controller.signal });
+   *   return await response.json();
+   * } catch (error) {
+   *   const message = ErrorService.handleNetworkError(error, {
+   *     component: "TablebaseService",
+   *     action: "evaluate-position",
+   *     additionalData: {
+   *       url,
+   *       timeout: 5000,
+   *       aborted: error.name === 'AbortError'
+   *     }
+   *   });
+   *   throw new Error(message);
+   * } finally {
+   *   clearTimeout(timeout);
+   * }
+   *
+   * @remarks
+   * Common network errors include:
+   * - AbortError: Request timeout or manual abort
+   * - TypeError: Network failure (no connection)
+   * - HTTP 429: Rate limit exceeded
+   * - HTTP 503: Service temporarily unavailable
+   * - HTTP 500: Server error
+   * - CORS errors: Cross-origin request blocked
    */
   static handleNetworkError(error: Error, context: ErrorContext = {}) {
     const service = ErrorService.getInstance();
@@ -179,9 +293,15 @@ export class ErrorService {
   }
 
   /**
-   * Log error for debugging and potential reporting
-   * @param error
-   * @param context
+   * Logs an error to the internal error log.
+   *
+   * Maintains a rolling log of the last 50 errors for debugging
+   * and monitoring purposes. Older errors are automatically removed
+   * when the limit is exceeded.
+   *
+   * @private
+   * @param {Error} error - The error object to log
+   * @param {ErrorContext} context - Additional context information
    */
   private logError(error: Error, context: ErrorContext) {
     this.errorLog.push({
@@ -197,9 +317,16 @@ export class ErrorService {
   }
 
   /**
-   * Get user-friendly error messages
-   * @param type
-   * @param _error
+   * Gets a user-friendly German error message based on error type.
+   *
+   * Returns localized messages suitable for display to end users.
+   * Technical error details are logged separately and not exposed
+   * to users for security and usability reasons.
+   *
+   * @private
+   * @param {ErrorType} type - The category of error
+   * @param {Error} _error - The error object (unused, for future extension)
+   * @returns {string} A German error message suitable for user display
    */
   private getUserFriendlyMessage(type: ErrorType, _error: Error): string {
     switch (type) {
@@ -224,7 +351,20 @@ export class ErrorService {
   }
 
   /**
-   * Get error statistics for debugging
+   * Gets statistics about logged errors.
+   *
+   * Provides a summary of all errors in the internal log, grouped
+   * by type and including recent error details. Useful for debugging
+   * and monitoring application health.
+   *
+   * @returns {Object} Error statistics including:
+   *   - totalErrors: Total number of errors in log
+   *   - errorsByType: Count of errors grouped by ErrorType
+   *   - recentErrors: Array of last 5 errors with details
+   * @example
+   * const stats = errorService.getErrorStats();
+   * console.log(`Total errors: ${stats.totalErrors}`);
+   * console.log(`UI errors: ${stats.errorsByType.UI_COMPONENT || 0}`);
    */
   getErrorStats() {
     const stats = this.errorLog.reduce(
@@ -249,7 +389,18 @@ export class ErrorService {
   }
 
   /**
-   * Clear error log (useful for testing)
+   * Clears all errors from the internal log.
+   *
+   * Resets the error tracking to a clean state. Primarily used
+   * for testing, but can also be used to reset error tracking
+   * after exporting or processing error data.
+   *
+   * @returns {void}
+   * @example
+   * // Export errors then clear
+   * const stats = errorService.getErrorStats();
+   * await sendErrorReport(stats);
+   * errorService.clearErrorLog();
    */
   clearErrorLog() {
     this.errorLog = [];
