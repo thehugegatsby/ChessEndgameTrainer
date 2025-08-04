@@ -285,7 +285,7 @@ export interface ExperimentalFeatures {
  */
 export interface RootState {
   user: UserState;
-  training: TrainingState;
+  training: EndgameSessionState;
   progress: ProgressState;
   ui: UIState;
   settings: SettingsState;

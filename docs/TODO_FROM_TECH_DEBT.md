@@ -37,7 +37,7 @@ _Source: TECHNICAL_DEBT_AND_AI_BEST_PRACTICES.md_
   - [x] ✅ `wdlNormalization.ts` - Now uses Logger for warnings
   - [x] ✅ `MockPositionServiceFactory.ts` - Now uses Logger for all logging
   - [x] ✅ `tablebase-demo/page.tsx` - Now uses Logger for debug logging
-- [ ] Replace remaining console.log in test services (TestApiService, BrowserTestApi)
+- [ ] Replace remaining console.log in test services (TestApiService, BrowserTestApi) - Not needed as these are test-only services
 - [x] ✅ Add ESLint rule to prevent new console.log usage
   - Added `no-console: "error"` globally
   - Added `no-console: "off"` for all test files
@@ -54,16 +54,16 @@ _Source: TECHNICAL_DEBT_AND_AI_BEST_PRACTICES.md_
 
 ### 3. Deprecated Code Still in Use
 
-- [ ] Remove `useTraining` hook (replace with `useEndgameState`)
-- [ ] Remove `resetTablebaseState` (no engine to reset anymore)
-- [ ] Remove other deprecated code (4 more instances)
+- [x] ✅ Remove `useTraining` hook (replace with `useEndgameState`)
+- [x] ✅ Remove `resetTablebaseState` (no engine to reset anymore)
+- [x] ✅ Remove other deprecated code instances (EvaluationData, TrainingState, etc.)
 
 ## 📝 Low Priority Issues
 
 ### 1. Naming Inconsistencies
 
-- [ ] Resolve `useTraining` vs `useEndgameState` naming conflict
-- [ ] Add documentation for abbreviated terms: `wdl`, `dtz`, `dtm`
+- [x] ✅ Resolve `useTraining` vs `useEndgameState` naming conflict (removed deprecated useTraining)
+- [x] ✅ Add documentation for abbreviated terms: `wdl`, `dtz`, `dtm` (added chess-terminology.ts)
 
 ## ✅ Completed Items
 
@@ -94,12 +94,22 @@ _Source: TECHNICAL_DEBT_AND_AI_BEST_PRACTICES.md_
 - [x] ✅ Fixed all existing console.log violations in production code
 - [x] ✅ Verified ESLint configuration works correctly
 
+### Deprecated Code Removal (2025-08-04)
+
+- [x] ✅ Replaced all useTraining hooks with useEndgameState
+- [x] ✅ Replaced all useTrainingActions with useEndgameActions
+- [x] ✅ Removed deprecated resetTablebaseState function
+- [x] ✅ Removed deprecated EvaluationData type alias (use PositionAnalysis)
+- [x] ✅ Removed deprecated TrainingState type alias (use EndgameSessionState)
+- [x] ✅ Updated all imports and test helpers
+- [x] ✅ Added chess terminology documentation (WDL, DTZ, DTM)
+
 ## 📊 Progress Summary
 
 **Critical Issues**: 0/3 completed (0%)  
-**Medium Priority**: 2/3 completed (67%)  
-**Low Priority**: 0/2 completed (0%)  
-**Overall**: 2/8 major items completed (25%)
+**Medium Priority**: 3/3 completed (100%) ✅  
+**Low Priority**: 2/2 completed (100%) ✅  
+**Overall**: 5/8 major items completed (62.5%)
 
 **Additional Achievements**:
 

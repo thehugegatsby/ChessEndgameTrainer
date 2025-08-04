@@ -122,7 +122,7 @@ export class TestApiService {
   ): void {
     // Validate required actions
     if (!storeAccess.makeMove || !storeAccess.resetPosition) {
-      console.error("❌ TestApiService: Required store actions not available");
+      console.error("Required store actions not available");
       this._isInitialized = false;
       return;
     }
@@ -340,7 +340,7 @@ export class TestApiService {
       }
 
       // Timeout reached
-      console.warn("Tablebase analysis timeout after", timeoutMs, "ms");
+      console.warn("Tablebase analysis timeout after", timeoutMs);
       return false;
     } catch (error) {
       console.error("Tablebase analysis check failed:", error);
@@ -412,12 +412,11 @@ export class TestApiService {
           deterministic: true,
         });
       } catch (error) {
-        console.warn(
-          "Deterministic tablebase move failed:",
+        console.warn("Deterministic tablebase move failed", {
           tablebaseMove,
-          "from position:",
-          currentFen,
-        );
+          position: currentFen,
+          error,
+        });
       }
     }
   }

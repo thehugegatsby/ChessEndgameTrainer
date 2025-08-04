@@ -138,7 +138,7 @@ describe("TestApiService - Store-Based Architecture", () => {
       service.initialize(invalidStoreAccess as any);
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "❌ TestApiService: Required store actions not available",
+        "Required store actions not available",
       );
       expect(service.isInitialized).toBe(false);
     });
@@ -257,7 +257,6 @@ describe("TestApiService - Store-Based Architecture", () => {
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         "Tablebase analysis timeout after",
         100,
-        "ms",
       );
     });
 
