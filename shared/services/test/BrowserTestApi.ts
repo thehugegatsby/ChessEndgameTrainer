@@ -2,14 +2,14 @@
  * @file Browser Test API - Exposes test API for E2E tests
  * @version 1.0.0
  * @description Browser-specific implementation that exposes the Test API
- * to the window object for Playwright tests. Works with TestBridge for engine control.
+ * to the window object for Playwright tests. Works with TestBridge for tablebase control.
  */
 
 import { TestApiService } from "./TestApiService";
 import type {
   TestMoveResponse,
   TestGameState,
-  TestEngineConfig,
+  TestTablebaseConfig,
 } from "./TestApiService";
 import type { TestBridge } from "@shared/types/test-bridge";
 
@@ -59,7 +59,7 @@ export class BrowserTestApi {
     this.testBridge = (window as any).__E2E_TEST_BRIDGE__ || null;
     if (!this.testBridge) {
       console.warn(
-        "TestBridge not found on window - engine control will not be available",
+        "TestBridge not found on window - tablebase control will not be available",
       );
     }
 
@@ -68,9 +68,9 @@ export class BrowserTestApi {
       makeMove: this.makeMove.bind(this),
       getGameState: this.getGameState.bind(this),
       resetGame: this.resetGame.bind(this),
-      configureEngine: this.configureEngine.bind(this),
-      triggerEngineAnalysis: this.triggerEngineAnalysis.bind(this),
-      addMockEngineResponse: this.addMockEngineResponse.bind(this),
+      configureTablebase: this.configureTablebase.bind(this),
+      triggerTablebaseAnalysis: this.triggerTablebaseAnalysis.bind(this),
+      addMockTablebaseResponse: this.addMockTablebaseResponse.bind(this),
       cleanup: this.cleanup.bind(this),
     };
 
@@ -137,35 +137,35 @@ export class BrowserTestApi {
   }
 
   /**
-   * Configure engine through test API
+   * Configure tablebase through test API
    * @param config
    */
-  private configureEngine(config: TestEngineConfig): void {
-    return this.testApi.configureEngine(config);
+  private configureTablebase(config: TestTablebaseConfig): void {
+    return this.testApi.configureTablebase(config);
   }
 
   /**
-   * Trigger engine analysis (instant with mock)
+   * Trigger tablebase analysis (instant with mock)
    * @param timeout
    */
-  private async triggerEngineAnalysis(timeout?: number): Promise<boolean> {
-    return this.testApi.triggerEngineAnalysis(timeout);
+  private async triggerTablebaseAnalysis(timeout?: number): Promise<boolean> {
+    return this.testApi.triggerTablebaseAnalysis(timeout);
   }
 
   /**
-   * Add custom mock engine response for testing
+   * Add custom mock tablebase response for testing
    * @param fen
    * @param analysis
    */
-  private addMockEngineResponse(fen: string, analysis: any): void {
+  private addMockTablebaseResponse(fen: string, analysis: any): void {
     if (!this.testBridge) {
       console.error(
-        "TestBridge not available - cannot add mock engine response",
+        "TestBridge not available - cannot add mock tablebase response",
       );
       return;
     }
 
-    // Use TestBridge to control the MockScenarioEngine
+    // Use TestBridge to control the MockScenarioTablebase
     this.testBridge.tablebase.addCustomResponse(fen, analysis);
   }
 }

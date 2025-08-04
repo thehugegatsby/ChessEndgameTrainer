@@ -49,7 +49,7 @@ export interface TestGameState {
 /**
  *
  */
-export interface TestEngineConfig {
+export interface TestTablebaseConfig {
   deterministic?: boolean;
   seed?: number;
   fixedResponses?: Map<string, string>;
@@ -63,12 +63,12 @@ export interface TestEngineConfig {
  */
 export class TestApiService {
   private static instance: TestApiService | null = null;
-  private engineConfig: TestEngineConfig = {
+  private tablebaseConfig: TestTablebaseConfig = {
     deterministic: false,
   };
   private eventEmitter: EventTarget = new EventTarget();
   private _isInitialized: boolean = false;
-  // Engine control is now handled via TestBridge, not directly
+  // Tablebase control is now handled via TestBridge, not directly
   private storeAccess: {
     getState: () => any;
     subscribe: (listener: (state: any, prevState: any) => void) => () => void;
@@ -118,7 +118,7 @@ export class TestApiService {
       goToMove: (moveIndex: number) => void;
       setAnalysisStatus: (status: string) => void;
     },
-    config?: TestEngineConfig,
+    config?: TestTablebaseConfig,
   ): void {
     // Validate required actions
     if (!storeAccess.makeMove || !storeAccess.resetPosition) {
@@ -131,7 +131,7 @@ export class TestApiService {
     this._isInitialized = true;
 
     if (config) {
-      this.engineConfig = { ...this.engineConfig, ...config };
+      this.tablebaseConfig = { ...this.tablebaseConfig, ...config };
     }
 
     console.log(
@@ -139,14 +139,14 @@ export class TestApiService {
     );
 
     // Emit initialization event
-    this.emit("test:initialized", { config: this.engineConfig });
+    this.emit("test:initialized", { config: this.tablebaseConfig });
   }
 
   /**
    * Clean up test API after test session
    */
   public cleanup(): void {
-    this.engineConfig = { deterministic: false };
+    this.tablebaseConfig = { deterministic: false };
     this._isInitialized = false;
     this.storeAccess = null;
     this.emit("test:cleanup", {});
@@ -189,13 +189,13 @@ export class TestApiService {
       if (success) {
         const newState = this.storeAccess.getState();
 
-        // Check if deterministic mode is enabled and if we should mock engine response
+        // Check if deterministic mode is enabled and if we should mock tablebase response
         if (
-          this.engineConfig.deterministic &&
-          this.engineConfig.fixedResponses
+          this.tablebaseConfig.deterministic &&
+          this.tablebaseConfig.fixedResponses
         ) {
-          // After player move, check if engine should respond with a fixed move
-          await this.handleDeterministicEngineMove(newState.fen);
+          // After player move, check if tablebase should respond with a fixed move
+          await this.handleDeterministicTablebaseMove(newState.fen);
         }
 
         this.emit("test:move", {
@@ -207,7 +207,7 @@ export class TestApiService {
             0,
         });
 
-        // Get updated state after potential engine move
+        // Get updated state after potential tablebase move
         const finalState = this.storeAccess.getState();
 
         return {
@@ -290,26 +290,26 @@ export class TestApiService {
   }
 
   /**
-   * Configure engine for deterministic behavior
+   * Configure tablebase for deterministic behavior
    * @param config
    */
-  public configureEngine(config: TestEngineConfig): void {
-    this.engineConfig = { ...this.engineConfig, ...config };
-    this.emit("test:engineConfigured", { config: this.engineConfig });
+  public configureTablebase(config: TestTablebaseConfig): void {
+    this.tablebaseConfig = { ...this.tablebaseConfig, ...config };
+    this.emit("test:tablebaseConfigured", { config: this.tablebaseConfig });
 
-    // TODO: Apply configuration to actual engine instance
-    // This will be implemented when we add deterministic engine support
+    // TODO: Apply configuration to actual tablebase instance
+    // This will be implemented when we add deterministic tablebase support
   }
 
   /**
-   * Trigger engine analysis for current position
-   * @param timeoutMs - Maximum time to wait (for mock engine this is instant)
+   * Trigger tablebase analysis for current position
+   * @param timeoutMs - Maximum time to wait (for mock tablebase this is instant)
    *
-   * Note: In the new architecture, engine analysis happens automatically
+   * Note: In the new architecture, tablebase analysis happens automatically
    * through the store when moves are made. This method now just waits
-   * for the engine status to become ready.
+   * for the tablebase status to become ready.
    */
-  public async triggerEngineAnalysis(
+  public async triggerTablebaseAnalysis(
     timeoutMs: number = TESTING.DEFAULT_TIMEOUT,
   ): Promise<boolean> {
     if (!this.storeAccess) {
@@ -319,15 +319,15 @@ export class TestApiService {
     try {
       const startTime = Date.now();
 
-      // Wait for engine to be ready
+      // Wait for tablebase to be ready
       while (Date.now() - startTime < timeoutMs) {
         const state = this.storeAccess.getState();
         const analysisStatus =
           state.training?.analysisStatus || state.analysisStatus;
 
         if (analysisStatus === "idle" || analysisStatus === "success") {
-          // Engine is working or has finished
-          this.emit("test:engineAnalysisComplete", {
+          // Tablebase is working or has finished
+          this.emit("test:tablebaseAnalysisComplete", {
             fen: state.training?.currentFen || state.fen,
           });
           return true;
@@ -340,11 +340,11 @@ export class TestApiService {
       }
 
       // Timeout reached
-      console.warn("Engine analysis timeout after", timeoutMs, "ms");
+      console.warn("Tablebase analysis timeout after", timeoutMs, "ms");
       return false;
     } catch (error) {
-      console.error("Engine analysis check failed:", error);
-      this.emit("test:engineError", {
+      console.error("Tablebase analysis check failed:", error);
+      this.emit("test:tablebaseError", {
         error: error instanceof Error ? error.message : "Unknown error",
       });
       return false;
@@ -379,39 +379,42 @@ export class TestApiService {
   }
 
   /**
-   * Handle deterministic engine move in mock mode
+   * Handle deterministic tablebase move in mock mode
    * @param currentFen
    */
-  private async handleDeterministicEngineMove(
+  private async handleDeterministicTablebaseMove(
     currentFen: string,
   ): Promise<void> {
-    if (!this.storeAccess || !this.engineConfig.fixedResponses) {
+    if (!this.storeAccess || !this.tablebaseConfig.fixedResponses) {
       return;
     }
 
     // Check if we have a fixed response for this position
-    const engineMove = this.engineConfig.fixedResponses.get(currentFen);
+    const tablebaseMove = this.tablebaseConfig.fixedResponses.get(currentFen);
 
-    if (engineMove) {
-      // Wait a bit to simulate engine thinking time (optional)
-      if (this.engineConfig.timeLimit && this.engineConfig.timeLimit > 0) {
+    if (tablebaseMove) {
+      // Wait a bit to simulate tablebase thinking time (optional)
+      if (
+        this.tablebaseConfig.timeLimit &&
+        this.tablebaseConfig.timeLimit > 0
+      ) {
         await new Promise((resolve) =>
-          setTimeout(resolve, this.engineConfig.timeLimit),
+          setTimeout(resolve, this.tablebaseConfig.timeLimit),
         );
       }
 
-      // Make the deterministic engine move
+      // Make the deterministic tablebase move
       try {
-        this.storeAccess._internalApplyMove(engineMove);
-        this.emit("test:engineMove", {
-          move: engineMove,
+        this.storeAccess._internalApplyMove(tablebaseMove);
+        this.emit("test:tablebaseMove", {
+          move: tablebaseMove,
           fen: currentFen,
           deterministic: true,
         });
       } catch (error) {
         console.warn(
-          "Deterministic engine move failed:",
-          engineMove,
+          "Deterministic tablebase move failed:",
+          tablebaseMove,
           "from position:",
           currentFen,
         );

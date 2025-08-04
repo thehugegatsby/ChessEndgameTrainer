@@ -86,14 +86,13 @@ const initialUIState: UIState = {
   toasts: [],
   loading: {
     global: false,
-    engine: false,
+    tablebase: false,
     position: false,
     analysis: false,
   },
   analysisPanel: {
     isOpen: false,
     activeTab: "moves",
-    showEngine: true,
     showTablebase: true,
   },
 };

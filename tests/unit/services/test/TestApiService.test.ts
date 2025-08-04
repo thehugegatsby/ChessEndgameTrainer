@@ -5,7 +5,7 @@
 
 import {
   TestApiService,
-  TestEngineConfig,
+  TestTablebaseConfig,
   getTestApi,
 } from "../../../../shared/services/test/TestApiService";
 
@@ -57,7 +57,7 @@ describe("TestApiService - Store-Based Architecture", () => {
         },
         fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         history: [],
-        evaluation: { engineEvaluation: { value: 0.1 } },
+        evaluation: { tablebaseEvaluation: { value: 0.1 } },
         analysisStatus: "idle",
       })),
       subscribe: jest.fn(() => jest.fn()),
@@ -114,7 +114,7 @@ describe("TestApiService - Store-Based Architecture", () => {
     });
 
     it("should initialize with custom config", () => {
-      const config: TestEngineConfig = {
+      const config: TestTablebaseConfig = {
         deterministic: true,
         depth: 20,
         timeLimit: 5000,
@@ -122,7 +122,7 @@ describe("TestApiService - Store-Based Architecture", () => {
 
       service.initialize(mockStoreAccess, config);
 
-      expect(service["engineConfig"]).toEqual({
+      expect(service["tablebaseConfig"]).toEqual({
         deterministic: true,
         depth: 20,
         timeLimit: 5000,
@@ -224,16 +224,16 @@ describe("TestApiService - Store-Based Architecture", () => {
     });
   });
 
-  describe("triggerEngineAnalysis", () => {
+  describe("triggerTablebaseAnalysis", () => {
     beforeEach(() => {
       service.initialize(mockStoreAccess);
     });
 
-    it("should trigger engine analysis", async () => {
+    it("should trigger tablebase analysis", async () => {
       const eventHandler = jest.fn();
-      service.on("test:engineAnalysisComplete", eventHandler);
+      service.on("test:tablebaseAnalysisComplete", eventHandler);
 
-      const result = await service.triggerEngineAnalysis(2000);
+      const result = await service.triggerTablebaseAnalysis(2000);
 
       expect(mockStoreAccess.getState).toHaveBeenCalled();
       expect(result).toBe(true);
@@ -245,17 +245,17 @@ describe("TestApiService - Store-Based Architecture", () => {
     });
 
     it("should handle timeout", async () => {
-      // Mock engine status as not ready
+      // Mock tablebase status as not ready
       mockStoreAccess.getState.mockReturnValue({
         training: { analysisStatus: "loading" },
         analysisStatus: "loading",
       });
 
-      const result = await service.triggerEngineAnalysis(100);
+      const result = await service.triggerTablebaseAnalysis(100);
 
       expect(result).toBe(false);
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        "Engine analysis timeout after",
+        "Tablebase analysis timeout after",
         100,
         "ms",
       );
@@ -266,11 +266,11 @@ describe("TestApiService - Store-Based Architecture", () => {
         throw new Error("Store error");
       });
 
-      const result = await service.triggerEngineAnalysis(1000);
+      const result = await service.triggerTablebaseAnalysis(1000);
 
       expect(result).toBe(false);
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "Engine analysis check failed:",
+        "Tablebase analysis check failed:",
         expect.any(Error),
       );
     });
@@ -286,7 +286,7 @@ describe("TestApiService - Store-Based Architecture", () => {
 
       expect(service.isInitialized).toBe(false);
       expect(service["storeAccess"]).toBeNull();
-      expect(service["engineConfig"]).toEqual({ deterministic: false });
+      expect(service["tablebaseConfig"]).toEqual({ deterministic: false });
       expect(TestApiService["instance"]).toBeNull();
       expect(eventHandler).toHaveBeenCalledWith({});
     });

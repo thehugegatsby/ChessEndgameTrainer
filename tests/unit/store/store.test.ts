@@ -494,8 +494,9 @@ describe("Zustand Store", () => {
     it("should set loading states correctly", () => {
       const { result } = renderHook(() => useStore());
 
-      const loadingKeys: Array<"global" | "engine" | "position" | "analysis"> =
-        ["global", "engine", "position", "analysis"];
+      const loadingKeys: Array<
+        "global" | "tablebase" | "position" | "analysis"
+      > = ["global", "tablebase", "position", "analysis"];
 
       loadingKeys.forEach((key) => {
         act(() => {
@@ -517,14 +518,13 @@ describe("Zustand Store", () => {
         result.current.updateAnalysisPanel({
           isOpen: true,
           activeTab: "evaluation",
-          showEngine: false,
+          showTablebase: false,
         });
       });
 
       expect(result.current.ui.analysisPanel.isOpen).toBe(true);
       expect(result.current.ui.analysisPanel.activeTab).toBe("evaluation");
-      expect(result.current.ui.analysisPanel.showEngine).toBe(false);
-      expect(result.current.ui.analysisPanel.showTablebase).toBe(true); // unchanged
+      expect(result.current.ui.analysisPanel.showTablebase).toBe(false);
     });
   });
 

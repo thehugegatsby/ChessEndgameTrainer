@@ -172,7 +172,7 @@ export interface Toast {
  */
 export interface LoadingState {
   global: boolean;
-  engine: boolean;
+  tablebase: boolean;
   position: boolean;
   analysis: boolean;
 }
@@ -183,7 +183,6 @@ export interface LoadingState {
 export interface AnalysisPanelState {
   isOpen: boolean;
   activeTab: "moves" | "evaluation" | "variations";
-  showEngine: boolean;
   showTablebase: boolean;
 }
 
