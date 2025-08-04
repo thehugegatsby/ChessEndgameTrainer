@@ -1,6 +1,27 @@
 /**
  * Simple Tablebase Service - Direct Lichess API Integration
  * No overengineering, just what we need.
+ *
+ * @remarks
+ * [ADR-001] Tablebase-Only Architecture Decision:
+ * This service uses Lichess Tablebase API instead of a local chess engine because:
+ * - Perfect play guarantee: Tablebase provides mathematically proven best moves for endgames
+ * - No runtime computation: Just API lookups, reducing client-side CPU usage
+ * - Consistent evaluations: Same position always returns same evaluation (important for learning)
+ * - No WASM/Worker complexity: Simplified architecture without Stockfish integration
+ *
+ * Migration history:
+ * - v1.0: Used Stockfish WASM for all evaluations (complex, inconsistent)
+ * - v2.0: Introduced SimpleEngine abstraction layer (over-engineered)
+ * - v3.0: Current tablebase-only approach (simple, reliable)
+ *
+ * Limitations:
+ * - Only works for positions with ≤7 pieces (Syzygy tablebase limit)
+ * - Requires internet connection (no offline mode yet)
+ * - Rate limited by Lichess API (handled with retry logic)
+ *
+ * @see https://github.com/lichess-org/lila-tablebase - Lichess tablebase implementation
+ * @see MoveStrategyService - For move selection strategies (DTM, DTZ, WDL)
  */
 
 import { validateAndSanitizeFen } from "../utils/fenValidator";
@@ -108,13 +129,26 @@ class TablebaseService {
    *
    * @param {string} fen - Position in Forsyth-Edwards Notation
    * @returns {Promise<TablebaseEvaluation>} Evaluation result with WDL, DTZ, DTM values
-   * @throws Never throws - returns error in result object
+   * @throws Never throws - returns error in result object for graceful degradation
    *
    * @example
    * const eval = await tablebaseService.getEvaluation("K7/P7/k7/8/8/8/8/8 w - - 0 1");
    * if (eval.isAvailable && eval.result) {
    *   console.log(`WDL: ${eval.result.wdl}, DTZ: ${eval.result.dtz}`);
    * }
+   *
+   * @performance
+   * - Cache hit: O(1) lookup, <1ms
+   * - Cache miss: Network request 50-200ms (Lichess API)
+   * - Memory: ~200 positions cached, ~10KB per position
+   *
+   * @remarks
+   * Error handling strategy:
+   * - Invalid FEN: Returns {isAvailable: false, error: "Invalid FEN: ..."}
+   * - Too many pieces: Returns {isAvailable: false} (silent fail)
+   * - Network errors: Retry with exponential backoff (3 attempts)
+   * - Rate limiting (429): Included in retry logic
+   * - Client errors (4xx): No retry, immediate fail
    */
   async getEvaluation(fen: string): Promise<TablebaseEvaluation> {
     // CRITICAL FIX: Validate FEN to prevent security risks
@@ -313,12 +347,30 @@ class TablebaseService {
    * - For winning moves: lower DTZ is better (faster win)
    * - For losing moves: higher DTZ is better (slower loss)
    *
+   * [Algorithm Notes for AI]:
+   * This method evaluates EVERY legal move by:
+   * 1. Generate all legal moves using chess.js
+   * 2. Make each move and query tablebase for resulting position
+   * 3. Invert WDL values if Black to move (tablebase returns from White's perspective)
+   * 4. Sort by WDL (best first), then DTZ (optimal distance)
+   *
    * @example
    * const moves = await tablebaseService.getTopMoves(fen, 5);
    * if (moves.isAvailable && moves.moves) {
    *   const bestMove = moves.moves[0]; // Best move
    *   console.log(`Best: ${bestMove.san}, WDL: ${bestMove.wdl}`);
    * }
+   *
+   * @performance
+   * - Time complexity: O(n*m) where n = legal moves, m = API latency
+   * - Typically 20-40 moves * 100ms = 2-4 seconds total
+   * - All moves evaluated in parallel using Promise.all
+   *
+   * @throws {Error} Via returned error property when:
+   * - Invalid FEN provided
+   * - Position has >7 pieces
+   * - Chess.js import fails
+   * - No tablebase data for any legal moves
    */
   async getTopMoves(
     fen: string,

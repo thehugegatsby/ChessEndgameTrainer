@@ -8,7 +8,9 @@
 import { getLogger } from "./logging";
 
 /**
- *
+ * Error types for categorizing different error scenarios
+ * @enum {string}
+ * @remarks Used to provide context-specific error messages in German
  */
 export enum ErrorType {
   TABLEBASE = "TABLEBASE",
@@ -19,7 +21,14 @@ export enum ErrorType {
 }
 
 /**
- *
+ * Context information for error tracking and debugging
+ * @interface ErrorContext
+ * @property {string} [component] - Component where error occurred
+ * @property {string} [action] - User action that triggered the error
+ * @property {string} [user] - User identifier for error tracking
+ * @property {Date} [timestamp] - When the error occurred
+ * @property {ErrorType} [type] - Categorized error type
+ * @property {Record<string, any>} [additionalData] - Extra debugging information
  */
 export interface ErrorContext {
   component?: string;
@@ -40,7 +49,9 @@ export class ErrorService {
   private logger = getLogger().setContext("ErrorService");
 
   /**
-   *
+   * Get singleton instance of ErrorService
+   * @returns {ErrorService} Singleton instance
+   * @remarks Ensures single error handler across application
    */
   static getInstance(): ErrorService {
     if (!ErrorService.instance) {
@@ -51,8 +62,26 @@ export class ErrorService {
 
   /**
    * Handle Tablebase errors with specific context
-   * @param error
-   * @param context
+   * @param {Error} error - The error object from tablebase operations
+   * @param {ErrorContext} context - Additional context for debugging
+   * @returns {string} User-friendly German error message
+   *
+   * @example
+   * try {
+   *   await tablebaseService.getEvaluation(fen);
+   * } catch (error) {
+   *   const message = ErrorService.handleTablebaseError(error, {
+   *     component: "TrainingBoard",
+   *     action: "evaluate-position"
+   *   });
+   *   showToast(message, "error");
+   * }
+   *
+   * @throws {Error} Common tablebase errors:
+   * - Network timeout: "Request timeout after retries"
+   * - Invalid FEN: "Invalid FEN: <details>"
+   * - Rate limiting: "API error: 429"
+   * - Too many pieces: Position has >7 pieces
    */
   static handleTablebaseError(error: Error, context: ErrorContext = {}) {
     const service = ErrorService.getInstance();
@@ -70,9 +99,25 @@ export class ErrorService {
 
   /**
    * Handle UI Component errors
-   * @param error
-   * @param componentName
-   * @param context
+   * @param {Error} error - The error object from React component
+   * @param {string} componentName - Name of the component that errored
+   * @param {ErrorContext} context - Additional debugging context
+   * @returns {string} User-friendly German error message
+   *
+   * @example
+   * // In React Error Boundary
+   * componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+   *   const message = ErrorService.handleUIError(error, "ChessBoard", {
+   *     additionalData: errorInfo
+   *   });
+   *   this.setState({ errorMessage: message });
+   * }
+   *
+   * @remarks
+   * Common UI errors:
+   * - State update on unmounted component
+   * - Invalid props passed to component
+   * - Chess.js move validation failures
    */
   static handleUIError(
     error: Error,
@@ -99,8 +144,25 @@ export class ErrorService {
 
   /**
    * Handle Network/API errors
-   * @param error
-   * @param context
+   * @param {Error} error - Network or API error
+   * @param {ErrorContext} context - Request context
+   * @returns {string} User-friendly German error message
+   *
+   * @example
+   * fetch(url)
+   *   .catch(error => {
+   *     const message = ErrorService.handleNetworkError(error, {
+   *       action: "fetch-tablebase",
+   *       additionalData: { url, method: "GET" }
+   *     });
+   *     return { error: message };
+   *   });
+   *
+   * @throws {Error} Common network errors:
+   * - AbortError: Request timeout
+   * - TypeError: Network failure
+   * - 429: Rate limit exceeded
+   * - 503: Service unavailable
    */
   static handleNetworkError(error: Error, context: ErrorContext = {}) {
     const service = ErrorService.getInstance();
