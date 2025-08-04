@@ -28,7 +28,7 @@ TablebaseService (Lichess API)
    - `types.ts` - TypeScript interfaces
 
 3. **React Hooks** (`/shared/hooks/`)
-   - `useTrainingGame` - Game state management
+   - `useEndgameSession` - Game state management
    - `usePositionAnalysis` - Tablebase evaluation
    - Domain-specific hooks for UI logic
 

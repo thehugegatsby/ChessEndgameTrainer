@@ -1,10 +1,38 @@
 /**
  * Centralized evaluation types for chess analysis
  * Consolidates all evaluation-related interfaces from across the codebase
+ *
+ * @module evaluation
+ *
+ * @remarks
+ * ## WDL (Win/Draw/Loss) Value System
+ *
+ * The tablebase uses a 5-value WDL system from White's perspective:
+ * - **2**: Win - White wins with perfect play
+ * - **1**: Cursed-win - White wins but draw under 50-move rule
+ * - **0**: Draw - Position is drawn with perfect play
+ * - **-1**: Blessed-loss - White loses but draw under 50-move rule
+ * - **-2**: Loss - White loses with perfect play
+ *
+ * For Black's perspective, invert the values.
+ *
+ * ## DTZ vs DTM
+ *
+ * - **DTZ** (Distance to Zeroing): Moves until pawn move or capture resets 50-move counter
+ * - **DTM** (Distance to Mate): Total moves until checkmate with perfect play
+ *
+ * DTM is more accurate for resistance calculation but not always available.
  */
 
 /**
- *
+ * Tablebase evaluation data for UI components
+ * @interface TablebaseData
+ * @property {boolean} isTablebasePosition - Whether position has tablebase data (≤7 pieces)
+ * @property {number} [wdlBefore] - WDL value before the move
+ * @property {number} [wdlAfter] - WDL value after the move
+ * @property {string} [category] - Human-readable outcome category
+ * @property {number} [dtz] - Distance to zeroing (50-move rule)
+ * @property {Array} [topMoves] - Best moves from tablebase with evaluations
  */
 export interface TablebaseData {
   isTablebasePosition: boolean;
@@ -38,15 +66,19 @@ export interface PositionAnalysis {
   tablebase?: TablebaseData;
 }
 
-// EvaluationData has been replaced by PositionAnalysis
-// This export maintains backwards compatibility
 /**
- *
+ * @deprecated Use PositionAnalysis instead
+ * Maintained for backward compatibility with legacy code
  */
 export type EvaluationData = PositionAnalysis;
 
 /**
- *
+ * Display formatting for evaluation UI components
+ * @interface EvaluationDisplay
+ * @property {string} text - Human-readable evaluation text
+ * @property {string} className - CSS class for styling
+ * @property {string} color - Text color
+ * @property {string} bgColor - Background color
  */
 export interface EvaluationDisplay {
   text: string;
@@ -56,7 +88,10 @@ export interface EvaluationDisplay {
 }
 
 /**
- *
+ * Simple move evaluation result
+ * @interface MoveEvaluation
+ * @property {number} evaluation - Numeric score (centipawns or WDL-derived)
+ * @property {number} [mateInMoves] - Moves to mate if applicable
  */
 export interface MoveEvaluation {
   evaluation: number;
@@ -64,7 +99,8 @@ export interface MoveEvaluation {
 }
 
 /**
- *
+ * Move quality classification for training feedback
+ * @typedef {string} MoveQuality
  */
 export type MoveQuality =
   | "excellent"
@@ -74,7 +110,9 @@ export type MoveQuality =
   | "blunder";
 
 /**
- *
+ * Evaluation data supporting both engine and tablebase sources
+ * @interface DualEvaluation
+ * @property {Object} [tablebase] - Tablebase-specific evaluation data
  */
 export interface DualEvaluation {
   tablebase?: {
@@ -142,11 +180,21 @@ export interface TablebaseEvaluation {
 }
 
 /**
- * Raw tablebase result data
- * Used by the new unified evaluation system
+ * Raw tablebase result data from Lichess API
+ * Core type for tablebase evaluation system
+ *
+ * @interface TablebaseResult
+ * @see {@link TablebaseService} for usage examples
  */
 export interface TablebaseResult {
-  /** Win/Draw/Loss: 2=win, 1=cursed-win, 0=draw, -1=blessed-loss, -2=loss */
+  /**
+   * Win/Draw/Loss value from White's perspective
+   * - 2 = White wins
+   * - 1 = Cursed-win (White wins but drawn with 50-move rule)
+   * - 0 = Draw
+   * - -1 = Blessed-loss (White loses but drawn with 50-move rule)
+   * - -2 = White loses
+   */
   wdl: number;
 
   /** Distance to Zero (moves to draw under 50-move rule) */

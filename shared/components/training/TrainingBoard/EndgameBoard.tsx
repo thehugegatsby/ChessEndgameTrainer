@@ -7,15 +7,17 @@ import React, {
 } from "react";
 import { Chess, Move } from "chess.js";
 import { Chessboard } from "@shared/components/chess/Chessboard";
-import { usePositionAnalysis, useTrainingGame } from "../../../hooks";
+import { usePositionAnalysis, useEndgameSession } from "../../../hooks";
 import { usePageReady } from "../../../hooks/usePageReady";
 import {
-  useTraining,
+  useEndgameTrainingState,
+  useGameState,
+  useTablebaseAnalysisState,
   useTrainingActions,
   useUIActions,
   useStore,
 } from "@shared/store/store";
-import { requestTablebaseMove } from "@shared/store/trainingActions";
+import { requestTablebaseMove } from "@shared/store/endgameActions";
 import { EndgamePosition } from "@shared/types";
 import { getLogger } from "@shared/services/logging";
 import { ANIMATION, DIMENSIONS } from "@shared/constants";
@@ -40,7 +42,7 @@ interface ExtendedEvaluation {
 /**
  *
  */
-interface TrainingBoardZustandProps {
+interface EndgameBoardProps {
   fen?: string;
   position?: EndgamePosition;
   onComplete: (success: boolean) => void;
@@ -53,8 +55,8 @@ interface TrainingBoardZustandProps {
 }
 
 /**
- * TrainingBoard component migrated to use Zustand store
- * This version uses the global Zustand store instead of React Context
+ * Endgame training board component using Zustand store
+ * Provides interactive chess board for endgame training with tablebase analysis
  * @param root0
  * @param root0.fen
  * @param root0.position
@@ -68,7 +70,7 @@ interface TrainingBoardZustandProps {
 export /**
  *
  */
-const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
+const EndgameBoard: React.FC<EndgameBoardProps> = ({
   fen,
   position,
   onComplete,
@@ -80,8 +82,10 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
 }) => {
   const initialFen = fen || position?.fen || "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1";
 
-  // === ZUSTAND STORE ===
-  const training = useTraining();
+  // === ZUSTAND STORE - Using optimized selectors ===
+  const gameState = useGameState();
+  const tablebaseAnalysisState = useTablebaseAnalysisState();
+  const endgameTrainingState = useEndgameTrainingState();
   const actions = useTrainingActions();
   const uiActions = useUIActions();
 
@@ -91,17 +95,18 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
 
     if (
       position &&
-      (!training.currentPosition || training.currentPosition.id !== position.id)
+      (!endgameTrainingState.currentPosition ||
+        endgameTrainingState.currentPosition.id !== position.id)
     ) {
       logger.info("Setting position in store", {
         positionId: position.id,
         title: position.title,
         fen: position.fen,
-        currentPositionId: training.currentPosition?.id,
+        currentPositionId: endgameTrainingState.currentPosition?.id,
       });
       actions.setPosition(position);
     }
-  }, [position, training.currentPosition, actions]);
+  }, [position, endgameTrainingState.currentPosition, actions]);
 
   // === HOOKS ===
 
@@ -114,7 +119,7 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     makeMove,
     jumpToMove,
     resetGame,
-  } = useTrainingGame({
+  } = useEndgameSession({
     /**
      *
      * @param success
@@ -126,20 +131,20 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     onPositionChange,
   });
 
-  // Calculate previous FEN for tablebase move comparison
+  // Calculate previous FEN for tablebase move comparison using gameState
   const previousFen = useMemo(() => {
-    if (history.length === 0) {
+    if (gameState.moveHistory.length === 0) {
       return undefined;
     }
 
-    if (history.length === 1) {
+    if (gameState.moveHistory.length === 1) {
       return initialFen;
     }
 
     try {
       const tempGame = new Chess(initialFen);
-      for (let i = 0; i < history.length - 1; i++) {
-        const moveResult = tempGame.move(history[i]);
+      for (let i = 0; i < gameState.moveHistory.length - 1; i++) {
+        const moveResult = tempGame.move(gameState.moveHistory[i]);
         if (!moveResult) {
           // Move doesn't apply to this position - history is from a different position
           return undefined;
@@ -150,7 +155,7 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       // History doesn't match current position
       return undefined;
     }
-  }, [history, initialFen, currentFen]);
+  }, [gameState.moveHistory, initialFen, gameState.currentFen]);
 
   // Evaluation logic
   const {
@@ -160,7 +165,7 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     error: evaluationError,
     clearEvaluations,
   } = usePositionAnalysis({
-    fen: currentFen,
+    fen: gameState.currentFen || initialFen,
     isEnabled: true,
     previousFen: previousFen,
   });
@@ -173,7 +178,7 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     if (!lastEvaluation) return;
 
     // Create unique key for this evaluation using current FEN and evaluation data
-    const evalKey = `${currentFen}_${lastEvaluation.evaluation}_${lastEvaluation.mateInMoves ?? "null"}`;
+    const evalKey = `${gameState.currentFen}_${lastEvaluation.evaluation}_${lastEvaluation.mateInMoves ?? "null"}`;
 
     if (processedEvaluationsRef.current.has(evalKey)) {
       return; // Skip if already processed
@@ -182,10 +187,15 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
     processedEvaluationsRef.current.add(evalKey);
 
     actions.setEvaluation(lastEvaluation);
-    const currentEvaluations = training.evaluations || [];
+    const currentEvaluations = tablebaseAnalysisState.evaluations || [];
     const updatedEvaluations = [...currentEvaluations, lastEvaluation];
     actions.setEvaluations(updatedEvaluations);
-  }, [lastEvaluation, actions, currentFen]);
+  }, [
+    lastEvaluation,
+    actions,
+    gameState.currentFen,
+    tablebaseAnalysisState.evaluations,
+  ]);
 
   // UI state management - local component state only
   const [resetKey, setResetKey] = useState(0);
@@ -193,7 +203,7 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
   const [moveError, setMoveError] = useState<string | null>(null);
 
   // Get move error dialog state from store
-  const moveErrorDialog = training.moveErrorDialog;
+  const moveErrorDialog = endgameTrainingState.moveErrorDialog;
   const showMoveErrorDialog = moveErrorDialog?.isOpen || false;
   const moveErrorData = moveErrorDialog
     ? {
@@ -203,7 +213,7 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       }
     : null;
 
-  const trainingState = {
+  const trainingUIState = {
     resetKey,
     showMoveErrorDialog,
     warning,
@@ -234,9 +244,9 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
   const handleReset = useCallback(() => {
     resetGame();
     clearEvaluations();
-    trainingState.handleReset();
+    trainingUIState.handleReset();
     actions.resetPosition();
-  }, [resetGame, clearEvaluations, trainingState, actions]);
+  }, [resetGame, clearEvaluations, endgameTrainingState, actions]);
 
   // Handlers for move error dialog
   const handleMoveErrorTakeBack = useCallback(() => {
@@ -271,11 +281,11 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
   useEffect(() => {
     if (isEvaluating) {
       actions.setAnalysisStatus("loading");
-    } else if (training.analysisStatus === "loading") {
+    } else if (tablebaseAnalysisState.analysisStatus === "loading") {
       // Only update to success if we were loading
       actions.setAnalysisStatus("success");
     }
-  }, [isEvaluating, actions, training.analysisStatus]);
+  }, [isEvaluating, actions, tablebaseAnalysisState.analysisStatus]);
 
   // Enhanced move handling - inline implementation
   const handleMove = useCallback(
@@ -412,7 +422,7 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       isGameFinished,
       makeMove,
       lastEvaluation,
-      trainingState,
+      endgameTrainingState,
       actions,
       uiActions,
       currentFen,
@@ -446,9 +456,7 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
 
     // Only expose in test environment
     if (isE2ETest) {
-      console.log(
-        "🪄 TrainingBoardZustand: Attaching e2e hooks to window object",
-      );
+      console.log("🪄 EndgameBoard: Attaching e2e hooks to window object");
       logger.info("Attaching e2e hooks to window object");
 
       /**
@@ -696,7 +704,8 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
 
   // === PAGE READY DETECTION ===
   const isAnalysisReady =
-    training.analysisStatus === "success" || training.analysisStatus === "idle";
+    tablebaseAnalysisState.analysisStatus === "success" ||
+    tablebaseAnalysisState.analysisStatus === "idle";
   const isBoardReady = !!currentFen && !!game;
   const isPageReady = usePageReady([isAnalysisReady, isBoardReady]);
 
@@ -714,14 +723,14 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       {/* Chessboard with Evaluation Overlay and E2E data attributes */}
       <div
         className="relative"
-        key={trainingState.resetKey}
+        key={trainingUIState.resetKey}
         style={{
           width: `${DIMENSIONS.TRAINING_BOARD_SIZE}px`,
           height: `${DIMENSIONS.TRAINING_BOARD_SIZE}px`,
         }}
         data-fen={currentFen}
         data-testid="training-board"
-        data-analysis-status={training.analysisStatus}
+        data-analysis-status={tablebaseAnalysisState.analysisStatus}
       >
         <Chessboard
           fen={currentFen}
@@ -732,11 +741,11 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
       </div>
 
       {/* Error and Warning Displays - inline implementation */}
-      {trainingState.warning && (
+      {trainingUIState.warning && (
         <div className="mt-2 p-2 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
-          {trainingState.warning}
+          {trainingUIState.warning}
           <button
-            onClick={trainingState.handleClearWarning}
+            onClick={trainingUIState.handleClearWarning}
             className="ml-2 text-yellow-700 hover:text-yellow-900"
           >
             ×
@@ -744,11 +753,11 @@ const TrainingBoardZustand: React.FC<TrainingBoardZustandProps> = ({
         </div>
       )}
 
-      {(trainingState.engineError || evaluationError) && (
+      {(trainingUIState.engineError || evaluationError) && (
         <div className="mt-2 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
-          {trainingState.engineError || evaluationError}
+          {trainingUIState.engineError || evaluationError}
           <button
-            onClick={trainingState.handleClearEngineError}
+            onClick={trainingUIState.handleClearEngineError}
             className="ml-2 text-red-700 hover:text-red-900"
           >
             ×

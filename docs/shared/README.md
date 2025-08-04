@@ -95,7 +95,7 @@ hooks/
 ├── usePageReady.ts     # Page readiness state
 ├── usePositionAnalysis.ts  # Tablebase position analysis
 ├── useToast.ts         # Toast notifications
-├── useTrainingGame.ts  # Training game state
+├── useEndgameSession.ts  # Endgame session state
 └── [other hooks]
 ```
 
@@ -160,7 +160,7 @@ import { EvaluationData } from "@shared/types/evaluation";
 // shared/hooks/index.ts
 export { useEvaluation } from "./useEvaluation";
 export { useEngine } from "./useEngine";
-export { useTrainingGame } from "./useTrainingGame";
+export { useEndgameSession } from "./useEndgameSession";
 
 // Usage
 import { useEvaluation, useEngine } from "@shared/hooks";
@@ -347,7 +347,7 @@ function TrainingBoard() {
 ```typescript
 // Pattern: Platform-independent business logic
 // This code works unchanged on web and mobile
-export function useTrainingGame() {
+export function useEndgameSession() {
   const store = useTrainingStore();
 
   const makeMove = useCallback(

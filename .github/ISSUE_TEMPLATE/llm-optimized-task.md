@@ -136,7 +136,7 @@ Use glob patterns where appropriate.
 
 - `shared/services/TablebaseService.ts`
 - `shared/services/MoveStrategyService.ts`
-- `shared/hooks/useTrainingGame.ts`
+- `shared/hooks/useEndgameSession.ts`
 - `shared/hooks/usePositionAnalysis.ts`
 - `shared/store/**/*.ts`
 

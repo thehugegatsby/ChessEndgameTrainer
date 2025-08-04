@@ -37,7 +37,7 @@ Um unsere Codebasis wartbar zu halten, folgen wir klaren Regeln für die Verzeic
   - **Muss** mit `use` Prefix benannt werden
   - **Darf** Services und Store verwenden
   - **Sollte** UI-bezogene Logik kapseln
-  - **Beispiele:** `useTrainingGame()`, `useDebounce()`, `useLocalStorage()`
+  - **Beispiele:** `useEndgameSession()`, `useDebounce()`, `useLocalStorage()`
 
 ### `shared/components/`
 
@@ -63,7 +63,7 @@ Um unsere Codebasis wartbar zu halten, folgen wir klaren Regeln für die Verzeic
 
 ### Naming Conventions
 
-- **Hooks:** `use` Prefix (z.B. `useTrainingGame`)
+- **Hooks:** `use` Prefix (z.B. `useEndgameSession`)
 - **Services:** PascalCase mit `Service` Suffix (z.B. `ErrorService`)
 - **Components:** PascalCase (z.B. `TrainingBoard`)
 - **Utils:** camelCase (z.B. `formatPositionTitle`)

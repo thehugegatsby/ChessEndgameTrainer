@@ -19,16 +19,28 @@ const logger = getLogger().setContext("TrainingActions");
 
 /**
  * Request tablebase to find best move for current position
- * @param fen - Current position in FEN notation
- * @param options - Analysis options (kept for compatibility)
- * @param options.depth
- * @param options.timeout
- * @returns Thunk function for Zustand store
- */
-export /**
+ * Uses MoveStrategyService to find the longest resistance move (best defensive play)
  *
+ * @param {string} fen - Current position in FEN notation
+ * @param {Object} [options] - Analysis options (kept for backward compatibility)
+ * @param {number} [options.depth] - Unused - tablebase has perfect play
+ * @param {number} [options.timeout] - Unused - tablebase queries are fast
+ * @returns {Function} Thunk function that updates Zustand store with tablebase move
+ * @throws {Error} When no tablebase moves are available for the position
+ *
+ * @remarks
+ * This is an async thunk action for Zustand. It:
+ * 1. Sets analysisStatus to 'loading'
+ * 2. Queries tablebase for best defensive move
+ * 3. Updates store with move (UCI format) and sets status to 'success'
+ * 4. On error, sets status to 'error' and throws
+ *
+ * @example
+ * // In a component or another action
+ * const move = await requestTablebaseMove(currentFen)(getState, setState);
+ * console.log('Best move:', move); // e.g., "e2e4"
  */
-const requestTablebaseMove =
+export const requestTablebaseMove =
   (fen: string, options?: { depth?: number; timeout?: number }) =>
   async (
     _get: () => { training: TrainingState },
@@ -85,17 +97,37 @@ const requestTablebaseMove =
   };
 
 /**
- * Request tablebase to evaluate current position
- * @param fen - Current position in FEN notation
- * @param options - Analysis options (kept for compatibility)
- * @param options.depth
- * @param options.timeout
- * @returns Thunk function for Zustand store
- */
-export /**
+ * Request tablebase evaluation for a chess position
+ * Provides perfect endgame evaluation for positions with ≤7 pieces
  *
+ * @param {string} fen - Position to evaluate in FEN notation
+ * @param {Object} [options] - Analysis options (kept for backward compatibility)
+ * @param {number} [options.depth] - Unused - tablebase provides perfect evaluation
+ * @param {number} [options.timeout] - Unused - tablebase queries are fast
+ * @returns {Function} Thunk function that updates store with evaluation
+ * @throws {Error} When tablebase evaluation is not available
+ *
+ * @remarks
+ * Returns evaluation data including:
+ * - Score: Numeric evaluation (100 = white winning, -100 = black winning, 0 = draw)
+ * - Mate detection: DTZ (Distance to Zeroing) for winning positions
+ * - WDL values: Win/Draw/Loss classification
+ * - Category: Human-readable outcome (win/draw/loss/cursed-win/blessed-loss)
+ *
+ * @example
+ * const evalData = await requestPositionEvaluation(fen)(getState, setState);
+ * // Returns: {
+ * //   evaluation: 100,
+ * //   mateInMoves: 15,
+ * //   tablebase: {
+ * //     isTablebasePosition: true,
+ * //     wdlAfter: 2,
+ * //     category: 'win',
+ * //     dtz: 15
+ * //   }
+ * // }
  */
-const requestPositionEvaluation =
+export const requestPositionEvaluation =
   (fen: string, options?: { depth?: number; timeout?: number }) =>
   async (
     _get: () => { training: TrainingState },
@@ -176,13 +208,25 @@ const requestPositionEvaluation =
   };
 
 /**
- * Stop current tablebase analysis
- * @returns Thunk function for Zustand store
- */
-export /**
+ * Stop current tablebase analysis and reset to idle state
  *
+ * @returns {Function} Thunk function that sets analysisStatus to 'idle'
+ *
+ * @remarks
+ * Since tablebase queries are near-instant, this is mainly used for:
+ * - Canceling pending requests during component unmount
+ * - Resetting state after errors
+ * - User-initiated analysis cancellation
+ *
+ * @example
+ * // In a component cleanup
+ * useEffect(() => {
+ *   return () => {
+ *     stopTablebaseAnalysis()(getState, setState);
+ *   };
+ * }, []);
  */
-const stopTablebaseAnalysis =
+export const stopTablebaseAnalysis =
   () =>
   async (
     _get: () => { training: TrainingState },
@@ -204,14 +248,24 @@ const stopTablebaseAnalysis =
   };
 
 /**
- * Reset tablebase analysis state
- * @returns Thunk function for Zustand store
- * @deprecated No tablebase to terminate anymore - keeping for compatibility
- */
-export /**
+ * Reset tablebase analysis state to initial values
  *
+ * @returns {Function} Thunk function that clears tablebase-related state
+ * @deprecated No local engine to terminate anymore - kept for backward compatibility
+ *
+ * @remarks
+ * Resets:
+ * - tablebaseMove to undefined (no move selected)
+ * - analysisStatus to 'idle'
+ *
+ * This function exists for compatibility with old engine-based code.
+ * In the tablebase-only architecture, there's no engine process to terminate.
+ *
+ * @example
+ * // Reset after game completion
+ * resetTablebaseState()(getState, setState);
  */
-const resetTablebaseState =
+export const resetTablebaseState =
   () =>
   async (
     _get: () => { training: TrainingState },

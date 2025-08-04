@@ -50,18 +50,58 @@ const initialUserState: UserState = {
   },
 };
 
-const initialTrainingState: TrainingState = {
+// New structured initial states
+import type {
+  GameState,
+  TablebaseAnalysisState,
+  EndgameTrainingState,
+} from "./types";
+
+const initialGameState: GameState = {
+  currentFen: "",
+  currentPgn: "",
   moveHistory: [],
-  evaluations: [],
   currentMoveIndex: -1,
-  isPlayerTurn: true,
   isGameFinished: false,
+};
+
+const initialTablebaseAnalysisState: TablebaseAnalysisState = {
+  tablebaseMove: undefined,
+  analysisStatus: "idle",
+  evaluations: [],
+};
+
+const initialEndgameTrainingState: EndgameTrainingState = {
+  isPlayerTurn: true,
   isSuccess: false,
   hintsUsed: 0,
   mistakeCount: 0,
-  analysisStatus: "idle",
-  tablebaseMove: undefined,
   moveErrorDialog: null,
+};
+
+// Complete endgame state available if needed for future use
+// const initialCompleteEndgameState: CompleteEndgameSessionState = {
+//   gameState: initialGameState,
+//   tablebaseAnalysisState: initialTablebaseAnalysisState,
+//   endgameTrainingState: initialEndgameTrainingState,
+// };
+
+// Legacy support - flatten the new structure for backward compatibility
+const initialTrainingState: TrainingState = {
+  ...initialGameState,
+  ...initialTablebaseAnalysisState,
+  ...initialEndgameTrainingState,
+  // Additional fields from legacy EndgameSessionState
+  currentPosition: undefined,
+  nextPosition: null,
+  previousPosition: null,
+  isLoadingNavigation: false,
+  navigationError: null,
+  chapterProgress: null,
+  startTime: undefined,
+  endTime: undefined,
+  game: undefined,
+  evaluations: [], // Keep for legacy
 };
 
 const initialProgressState: ProgressState = {
@@ -1102,10 +1142,62 @@ const useUser = () => useStore((state) => state.user);
 /**
  *
  */
+/** @deprecated Use useEndgameState instead - will be removed in next major version */
+export const useTraining = () => useStore((state) => state.training);
+
+// Alias for gradual migration to better naming
 export /**
- *
+ * Preferred: Use this instead of useTraining for clarity
  */
-const useTraining = () => useStore((state) => state.training);
+const useEndgameState = () => useStore((state) => state.training);
+
+// New optimized selectors for the structured state
+/**
+ * Select only game state - optimizes re-renders for components only interested in chess logic
+ */
+export const useGameState = () =>
+  useStore(
+    useShallow((state) => ({
+      currentFen: state.training.currentFen,
+      currentPgn: state.training.currentPgn,
+      moveHistory: state.training.moveHistory,
+      currentMoveIndex: state.training.currentMoveIndex,
+      isGameFinished: state.training.isGameFinished,
+      game: state.training.game,
+    })),
+  );
+
+/**
+ * Select only tablebase analysis state - optimizes re-renders for analysis components
+ */
+export const useTablebaseAnalysisState = () =>
+  useStore(
+    useShallow((state) => ({
+      tablebaseMove: state.training.tablebaseMove,
+      analysisStatus: state.training.analysisStatus,
+      evaluations: state.training.evaluations,
+      currentEvaluation: state.training.currentEvaluation,
+    })),
+  );
+
+/**
+ * Select only endgame training state - optimizes re-renders for training-specific components
+ */
+export const useEndgameTrainingState = () =>
+  useStore(
+    useShallow((state) => ({
+      currentPosition: state.training.currentPosition,
+      nextPosition: state.training.nextPosition,
+      previousPosition: state.training.previousPosition,
+      isPlayerTurn: state.training.isPlayerTurn,
+      isSuccess: state.training.isSuccess,
+      hintsUsed: state.training.hintsUsed,
+      mistakeCount: state.training.mistakeCount,
+      moveErrorDialog: state.training.moveErrorDialog,
+      startTime: state.training.startTime,
+      endTime: state.training.endTime,
+    })),
+  );
 /**
  *
  */
@@ -1177,6 +1269,14 @@ const useTrainingActions = () =>
       goToLast: state.goToLast,
     })),
   );
+
+/** @deprecated useTrainingActions will be removed - use useEndgameActions instead */
+// const _deprecatedUseTrainingActions = useTrainingActions;
+
+/**
+ * Preferred: Use this instead of useTrainingActions for clarity
+ */
+export const useEndgameActions = useTrainingActions;
 
 /**
  *

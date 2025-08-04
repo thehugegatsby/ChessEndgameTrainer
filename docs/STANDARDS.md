@@ -4,7 +4,7 @@
 
 ### React/TypeScript
 
-- **Hooks**: `use` prefix (e.g., `useTrainingGame`, `useDebounce`)
+- **Hooks**: `use` prefix (e.g., `useEndgameSession`, `useDebounce`)
 - **Services**: PascalCase with `Service` suffix (e.g., `TablebaseService`, `ErrorService`)
 - **Components**: PascalCase (e.g., `TrainingBoard`, `MovePanel`)
 - **Utils**: camelCase (e.g., `formatPositionTitle`, `validateFen`)

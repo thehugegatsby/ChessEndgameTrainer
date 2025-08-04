@@ -10,7 +10,22 @@ import { APP_CONFIG } from "../../config/constants";
 const logger = getLogger().setContext("TablebaseService");
 
 /**
- *
+ * Represents a single chess move with its tablebase evaluation
+ * @interface TablebaseMove
+ * @property {string} uci - Move in UCI format (e.g., "e2e4", "a7a8q" for promotion)
+ * @property {string} san - Move in Standard Algebraic Notation (e.g., "e4", "axb8=Q+")
+ * @property {number} wdl - Win/Draw/Loss value from the perspective of the side to move
+ *                          2 = win, 1 = cursed-win (win but drawn with 50-move rule)
+ *                          0 = draw, -1 = blessed-loss (loss but drawn with 50-move rule)
+ *                          -2 = loss
+ * @property {number|null} dtz - Distance to Zeroing of the 50-move counter
+ *                               Positive = moves until pawn move or capture
+ *                               Negative = opponent has the zeroing move
+ *                               null = not available
+ * @property {number|null} dtm - Distance to Mate in optimal play
+ *                               Only available for mate positions
+ *                               null = not a mate or not available
+ * @property {"win"|"draw"|"loss"|"cursed-win"|"blessed-loss"} category - Human-readable outcome
  */
 export interface TablebaseMove {
   uci: string; // UCI format (e.g., "a1a8")
@@ -22,7 +37,16 @@ export interface TablebaseMove {
 }
 
 /**
- *
+ * Represents the tablebase evaluation of a position
+ * @interface TablebaseResult
+ * @property {number} wdl - Win/Draw/Loss evaluation from White's perspective
+ *                          2 = White wins, 1 = White cursed-win
+ *                          0 = Draw, -1 = White blessed-loss, -2 = White loses
+ * @property {number|null} dtz - Distance to Zeroing the 50-move counter
+ * @property {number|null} dtm - Distance to Mate (only for mate positions)
+ * @property {"win"|"draw"|"loss"|"cursed-win"|"blessed-loss"} category - Outcome category
+ * @property {boolean} precise - Whether DTZ value is precise (not affected by 50-move rule)
+ * @property {string} evaluation - Human-readable evaluation in German
  */
 export interface TablebaseResult {
   wdl: number; // Win/Draw/Loss: 2=win, 1=cursed win, 0=draw, -1=blessed loss, -2=loss
@@ -34,7 +58,11 @@ export interface TablebaseResult {
 }
 
 /**
- *
+ * Wrapper for tablebase API responses with availability status
+ * @interface TablebaseEvaluation
+ * @property {boolean} isAvailable - Whether tablebase data exists for this position
+ * @property {TablebaseResult} [result] - The evaluation result if available
+ * @property {string} [error] - Error message if evaluation failed
  */
 export interface TablebaseEvaluation {
   isAvailable: boolean;
@@ -43,7 +71,11 @@ export interface TablebaseEvaluation {
 }
 
 /**
- *
+ * Result of querying multiple moves from tablebase
+ * @interface TablebaseMovesResult
+ * @property {boolean} isAvailable - Whether tablebase data exists
+ * @property {TablebaseMove[]} [moves] - Array of moves with evaluations, sorted by quality
+ * @property {string} [error] - Error message if query failed
  */
 export interface TablebaseMovesResult {
   isAvailable: boolean;
@@ -52,7 +84,10 @@ export interface TablebaseMovesResult {
 }
 
 /**
- *
+ * Internal cache entry for storing tablebase results
+ * @interface CacheEntry
+ * @property {TablebaseResult} result - The cached evaluation result
+ * @property {number} expiry - Timestamp when this cache entry expires
  */
 interface CacheEntry {
   result: TablebaseResult;
@@ -68,8 +103,18 @@ class TablebaseService {
   private readonly cacheTtl = 300000; // 5 minutes
 
   /**
-   * Get tablebase evaluation for position
-   * @param fen
+   * Get tablebase evaluation for a chess position
+   * Queries the Lichess tablebase API for positions with 7 or fewer pieces
+   *
+   * @param {string} fen - Position in Forsyth-Edwards Notation
+   * @returns {Promise<TablebaseEvaluation>} Evaluation result with WDL, DTZ, DTM values
+   * @throws Never throws - returns error in result object
+   *
+   * @example
+   * const eval = await tablebaseService.getEvaluation("K7/P7/k7/8/8/8/8/8 w - - 0 1");
+   * if (eval.isAvailable && eval.result) {
+   *   console.log(`WDL: ${eval.result.wdl}, DTZ: ${eval.result.dtz}`);
+   * }
    */
   async getEvaluation(fen: string): Promise<TablebaseEvaluation> {
     // CRITICAL FIX: Validate FEN to prevent security risks
@@ -202,8 +247,10 @@ class TablebaseService {
   }
 
   /**
-   *
-   * @param category
+   * Convert Lichess category string to numeric WDL value
+   * @private
+   * @param {string} category - Lichess category (win/draw/loss/cursed-win/blessed-loss)
+   * @returns {number} WDL value from White's perspective (-2 to 2)
    */
   private categoryToWdl(category: string): number {
     switch (category) {
@@ -223,9 +270,11 @@ class TablebaseService {
   }
 
   /**
-   *
-   * @param category
-   * @param dtz
+   * Generate human-readable evaluation text in German
+   * @private
+   * @param {string} category - Position category from tablebase
+   * @param {number} [dtz] - Distance to zeroing value
+   * @returns {string} German evaluation text for UI display
    */
   private getEvaluationText(category: string, dtz?: number): string {
     switch (category) {
@@ -251,10 +300,25 @@ class TablebaseService {
   }
 
   /**
-   * Get top moves from tablebase for a position
-   * Returns multiple moves with their evaluations
-   * @param fen
-   * @param limit
+   * Get the best moves from tablebase for a position
+   * Evaluates all legal moves and returns them sorted by quality
+   *
+   * @param {string} fen - Position in FEN notation
+   * @param {number} [limit=3] - Maximum number of moves to return
+   * @returns {Promise<TablebaseMovesResult>} Sorted moves with evaluations
+   *
+   * @remarks
+   * - Only works for positions with 7 or fewer pieces
+   * - Moves are sorted by WDL value first, then by DTZ
+   * - For winning moves: lower DTZ is better (faster win)
+   * - For losing moves: higher DTZ is better (slower loss)
+   *
+   * @example
+   * const moves = await tablebaseService.getTopMoves(fen, 5);
+   * if (moves.isAvailable && moves.moves) {
+   *   const bestMove = moves.moves[0]; // Best move
+   *   console.log(`Best: ${bestMove.san}, WDL: ${bestMove.wdl}`);
+   * }
    */
   async getTopMoves(
     fen: string,
@@ -387,8 +451,11 @@ class TablebaseService {
   }
 
   /**
-   *
-   * @param category
+   * Invert a category from one player's perspective to the other
+   * Used when evaluating moves from Black's perspective
+   * @private
+   * @param {string} category - Original category
+   * @returns {"win"|"draw"|"loss"|"cursed-win"|"blessed-loss"} Inverted category
    */
   private invertCategory(
     category: string,
@@ -408,8 +475,11 @@ class TablebaseService {
   }
 
   /**
-   * Count total pieces on the board
-   * @param fen
+   * Count total pieces on the board from FEN string
+   * Used to check if position qualifies for tablebase (≤7 pieces)
+   * @private
+   * @param {string} fen - Position in FEN notation
+   * @returns {number} Total number of pieces (including kings)
    */
   private countPieces(fen: string): number {
     const piecesPart = fen.split(" ")[0];
@@ -417,15 +487,25 @@ class TablebaseService {
   }
 
   /**
-   * For testing
+   * Clear the internal cache - useful for testing
+   * @returns {void}
    */
   clearCache(): void {
     this.cache.clear();
   }
 }
 
-// Export singleton
-export /**
+/**
+ * Singleton instance of TablebaseService
+ * Provides access to Lichess 7-piece endgame tablebase
  *
+ * @example
+ * import { tablebaseService } from '@shared/services/TablebaseService';
+ *
+ * // Get position evaluation
+ * const eval = await tablebaseService.getEvaluation(fen);
+ *
+ * // Get best moves
+ * const moves = await tablebaseService.getTopMoves(fen, 5);
  */
-const tablebaseService = new TablebaseService();
+export const tablebaseService = new TablebaseService();

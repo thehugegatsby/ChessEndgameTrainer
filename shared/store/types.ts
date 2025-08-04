@@ -41,11 +41,12 @@ export interface UserPreferences {
   animationSpeed: "slow" | "normal" | "fast" | "none";
 }
 
-// Training state
+// Endgame session state
 /**
- *
+ * State for endgame training sessions
+ * @interface EndgameSessionState
  */
-export interface TrainingState {
+export interface EndgameSessionState {
   currentPosition?: EndgamePosition;
   nextPosition?: EndgamePosition | null;
   previousPosition?: EndgamePosition | null;
@@ -71,6 +72,69 @@ export interface TrainingState {
   currentFen?: string;
   currentPgn?: string;
   currentMoveIndex?: number;
+  moveErrorDialog?: {
+    isOpen: boolean;
+    wdlBefore?: number;
+    wdlAfter?: number;
+    bestMove?: string;
+  } | null;
+}
+
+// Complete endgame session state combining all aspects
+export interface CompleteEndgameSessionState {
+  gameState: GameState;
+  tablebaseAnalysisState: TablebaseAnalysisState;
+  endgameTrainingState: EndgameTrainingState;
+}
+
+// Legacy alias for backward compatibility
+/** @deprecated Use EndgameSessionState or CompleteEndgameSessionState instead */
+export type TrainingState = EndgameSessionState;
+
+/**
+ * Pure chess game state (domain-agnostic)
+ * @interface GameState
+ */
+export interface GameState {
+  game?: ChessInstance;
+  currentFen: string;
+  currentPgn: string;
+  moveHistory: ValidatedMove[];
+  currentMoveIndex: number;
+  isGameFinished: boolean;
+}
+
+/**
+ * Tablebase analysis state
+ * @interface TablebaseAnalysisState
+ */
+export interface TablebaseAnalysisState {
+  tablebaseMove?: string | null;
+  analysisStatus: AnalysisStatus;
+  evaluations: PositionAnalysis[];
+  currentEvaluation?: PositionAnalysis;
+}
+
+/**
+ * Endgame training specific state
+ * @interface EndgameTrainingState
+ */
+export interface EndgameTrainingState {
+  currentPosition?: EndgamePosition;
+  nextPosition?: EndgamePosition | null;
+  previousPosition?: EndgamePosition | null;
+  isLoadingNavigation?: boolean;
+  navigationError?: string | null;
+  chapterProgress?: {
+    completed: number;
+    total: number;
+  } | null;
+  isPlayerTurn: boolean;
+  isSuccess: boolean;
+  startTime?: number;
+  endTime?: number;
+  hintsUsed: number;
+  mistakeCount: number;
   moveErrorDialog?: {
     isOpen: boolean;
     wdlBefore?: number;

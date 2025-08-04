@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
-  TrainingBoardZustand,
+  EndgameBoard,
   MovePanelZustand,
   NavigationControls,
 } from "@shared/components/training";
@@ -28,18 +28,18 @@ import { ANIMATION } from "@shared/constants";
 /**
  *
  */
-interface TrainingPageZustandProps {
+export interface EndgameTrainingPageProps {
   position: EndgamePosition;
 }
 
 /**
- * Training page component migrated to use Zustand store
- * This replaces the Context-based version
+ * Endgame training page component using Zustand store
+ * Provides the main training interface for endgame positions
  */
 export /**
  *
  */
-const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.memo(
+const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
   ({ position }) => {
     // Next.js router
     const router = useRouter();
@@ -159,7 +159,7 @@ const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.memo(
             </div>
 
             <div className="w-full h-full flex items-center justify-center">
-              <TrainingBoardZustand
+              <EndgameBoard
                 key={`${position.id}-${resetKey}`}
                 position={position}
                 onComplete={() => handleComplete(true)}
@@ -284,4 +284,4 @@ const TrainingPageZustand: React.FC<TrainingPageZustandProps> = React.memo(
   },
 );
 
-TrainingPageZustand.displayName = "TrainingPageZustand";
+EndgameTrainingPage.displayName = "EndgameTrainingPage";
