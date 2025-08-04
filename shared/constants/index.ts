@@ -120,19 +120,7 @@ const CHESS = {
   TABLEBASE_PIECE_LIMIT: 7, // Maximum pieces for tablebase lookup
   ENDGAME_PIECE_THRESHOLD: 7, // Piece count threshold for endgame
 
-  // FEN Validation Constants
-  FEN_PARTS_COUNT: 6, // FEN must have exactly 6 parts separated by spaces
-  FEN_RANKS_COUNT: 8, // Chess board has 8 ranks
-  FEN_SQUARES_PER_RANK: 8, // Each rank has 8 squares
-  FEN_MIN_LENGTH: 10, // Minimum reasonable FEN length
-  FEN_MAX_LENGTH: 100, // Maximum reasonable FEN length
-  FEN_HALFMOVE_MIN: 0, // Minimum halfmove clock value
-  FEN_HALFMOVE_MAX: 100, // Maximum halfmove clock value (50-move rule * 2)
-  FEN_FULLMOVE_MIN: 1, // Minimum fullmove number
-  FEN_FULLMOVE_MAX: 9999, // Maximum fullmove number
-  FEN_CASTLING_MAX_LENGTH: 4, // Maximum castling rights length (KQkq)
-
-  // Piece Count Limits
+  // Piece Count Limits (kept for general chess logic)
   MAX_PIECES_PER_SIDE: 16, // Maximum pieces per side
   MAX_PAWNS_PER_SIDE: 8, // Maximum pawns per side
   KINGS_PER_SIDE: 1, // Exactly one king per side
@@ -142,9 +130,6 @@ const CHESS = {
     WHITE: { Q: 1, R: 2, B: 2, N: 2, P: 8 },
     BLACK: { q: 1, r: 2, b: 2, n: 2, p: 8 },
   },
-
-  // En passant validation
-  EN_PASSANT_RANKS: [3, 6], // Valid en passant target ranks
 } as const;
 
 // Evaluation Constants

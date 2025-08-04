@@ -41,10 +41,10 @@ Last Updated: 2025-08-04
 
 ## 🧪 Phase 3: Code-Qualität (1 Woche)
 
-- [ ] **Test Coverage Improvement**
+- [ ] **Test Coverage Improvement** (In Progress)
   - [ ] Increase coverage to 70% minimum for critical paths
   - [ ] Focus areas:
-    - [ ] TablebaseService
+    - [x] TablebaseService ✅ (93.73% coverage!)
     - [ ] Store Actions (trainingActions.ts)
     - [ ] Training Components (TrainingBoard)
   - [ ] Add missing unit tests
@@ -59,7 +59,8 @@ Last Updated: 2025-08-04
     - [x] pages/dialog-showcase.tsx ✅
     - [x] shared/utils/wdlNormalization.ts ✅
   - [x] Remove debug console.logs ✅
-  - [ ] Clean up deprecated methods in TestScenarios
+  - [x] Clean up deprecated methods in TestScenarios ✅
+  - [x] Refactor fenValidator to use chess.js ✅ (reduced from 120 to 50 lines)
 
 ## 🔧 Phase 4: Infrastruktur (Optional, parallel)
 

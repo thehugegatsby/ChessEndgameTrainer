@@ -93,16 +93,18 @@ interface TrainingState {
 
 ## Security
 
-- FEN validation before all operations
+- FEN validation before all operations (now using chess.js wrapper)
 - Path validation for file access
 - No direct chess.js manipulation
 
 ## Testing Strategy
 
 - **Unit tests**: Services, hooks, and components with TablebaseService mocks
+  - TablebaseService: 93.73% coverage with comprehensive test scenarios
+  - FEN validation: Simplified to use chess.js wrapper (50 lines, down from 120)
 - **Integration tests**: Store actions and service integrations
 - **E2E tests**: Clean architecture with Playwright (core-training, error-recovery)
-- **Mock patterns**: MSW for API mocking, TestFixtures for valid FENs
+- **Mock patterns**: MSW for API mocking, TestFixtures for valid FENs, chess.js mocking for unit tests
 
 ## Migration History
 
@@ -110,6 +112,7 @@ interface TrainingState {
 - v2.0: SimpleEngine abstraction
 - v3.0: Tablebase-only (current)
 - v3.1: E2E test cleanup and modernization
+- v3.2: FEN validator refactoring, TablebaseService test coverage
 
 ## Future Considerations (v4.0)
 
