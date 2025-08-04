@@ -9,7 +9,7 @@
 import React from "react";
 import { usePositionAnalysis } from "@shared/hooks/usePositionAnalysis";
 import { TablebasePanel } from "@shared/components/tablebase/TablebasePanel";
-import { useStore } from "@shared/store";
+import { useStore } from "@shared/store/rootStore";
 
 /**
  *

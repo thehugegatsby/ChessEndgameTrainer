@@ -56,6 +56,9 @@ export interface TablebaseData {
  * Replaces the old EvaluationData interface with cleaner, domain-centric naming
  */
 export interface PositionAnalysis {
+  /** FEN string for the position (used for caching) */
+  fen: string;
+
   /** Numeric evaluation score (derived from WDL for tablebase positions) */
   evaluation: number;
 

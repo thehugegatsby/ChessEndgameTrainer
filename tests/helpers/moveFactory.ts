@@ -52,8 +52,8 @@ export const createTestMove = (options: CreateMoveOptions): Move => {
     flags,
     san: san || generateSan(from, to, piece, captured),
     lan: `${from}${to}${promotion || ''}`,
-    before,
-    after,
+    fenBefore: before,
+    fenAfter: after,
     // Helper methods
     isCapture: () => !!captured,
     isPromotion: () => !!promotion,

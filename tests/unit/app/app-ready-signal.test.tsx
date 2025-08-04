@@ -13,13 +13,13 @@ jest.mock("next/navigation", () => ({
 }));
 
 // Mock zustand store before importing components that use it
-jest.mock("@shared/store/store");
+jest.mock("@shared/store/rootStore");
 
 // Import mock helpers
 import {
-  mockUseEndgameState,
-  resetUseEndgameStateMock,
-} from "../../helpers/mockUseEndgameState";
+  mockRootStoreWithSelector,
+  resetRootStoreMock,
+} from "../../helpers/mockRootStore";
 
 // Import component after mocks are set up
 import { AppProviders } from "../../../app/providers";
@@ -32,7 +32,7 @@ describe("App Ready Signal (App Router)", () => {
     mockUsePathname.mockReturnValue("/dashboard");
 
     // Default store mock
-    mockUseEndgameState({ analysisStatus: "loading" });
+    mockRootStoreWithSelector({ analysisStatus: "loading" });
 
     // Clear body attributes
     document.body.removeAttribute("data-app-ready");
@@ -40,12 +40,12 @@ describe("App Ready Signal (App Router)", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-    resetUseEndgameStateMock();
+    resetRootStoreMock();
   });
 
   test("should set data-app-ready to true when engine is initializing on non-training page", async () => {
     mockUsePathname.mockReturnValue("/dashboard");
-    mockUseEndgameState({ analysisStatus: "loading" });
+    mockRootStoreWithSelector({ analysisStatus: "loading" });
 
     render(
       <AppProviders>
@@ -60,7 +60,7 @@ describe("App Ready Signal (App Router)", () => {
 
   test("should set data-app-ready to false when engine is initializing on training page", async () => {
     mockUsePathname.mockReturnValue("/train/1");
-    mockUseEndgameState({ analysisStatus: "loading" });
+    mockRootStoreWithSelector({ analysisStatus: "loading" });
 
     render(
       <AppProviders>
@@ -75,7 +75,7 @@ describe("App Ready Signal (App Router)", () => {
 
   test("should set data-app-ready to true when engine is ready on non-training page", async () => {
     mockUsePathname.mockReturnValue("/dashboard");
-    mockUseEndgameState({ analysisStatus: "idle" });
+    mockRootStoreWithSelector({ analysisStatus: "idle" });
 
     render(
       <AppProviders>
@@ -90,7 +90,7 @@ describe("App Ready Signal (App Router)", () => {
 
   test("should set data-app-ready to true when engine is ready on training page", async () => {
     mockUsePathname.mockReturnValue("/train/1");
-    mockUseEndgameState({ analysisStatus: "idle" });
+    mockRootStoreWithSelector({ analysisStatus: "idle" });
 
     render(
       <AppProviders>
@@ -105,7 +105,7 @@ describe("App Ready Signal (App Router)", () => {
 
   test("should set data-app-ready to error when engine has error", async () => {
     mockUsePathname.mockReturnValue("/train/1");
-    mockUseEndgameState({ analysisStatus: "error" });
+    mockRootStoreWithSelector({ analysisStatus: "error" });
 
     render(
       <AppProviders>
@@ -120,7 +120,7 @@ describe("App Ready Signal (App Router)", () => {
 
   test("should set data-app-ready to error when engine has error on non-training page", async () => {
     mockUsePathname.mockReturnValue("/dashboard");
-    mockUseEndgameState({ analysisStatus: "error" });
+    mockRootStoreWithSelector({ analysisStatus: "error" });
 
     render(
       <AppProviders>
@@ -136,7 +136,7 @@ describe("App Ready Signal (App Router)", () => {
   test("should update data-app-ready when pathname changes", async () => {
     // Start on dashboard page
     mockUsePathname.mockReturnValue("/dashboard");
-    mockUseEndgameState({ analysisStatus: "idle" });
+    mockRootStoreWithSelector({ analysisStatus: "idle" });
 
     const { rerender } = render(
       <AppProviders>
@@ -150,7 +150,7 @@ describe("App Ready Signal (App Router)", () => {
 
     // Change to training page with initializing engine
     mockUsePathname.mockReturnValue("/train/1");
-    mockUseEndgameState({ analysisStatus: "loading" });
+    mockRootStoreWithSelector({ analysisStatus: "loading" });
 
     rerender(
       <AppProviders>
@@ -165,7 +165,7 @@ describe("App Ready Signal (App Router)", () => {
 
   test("should update data-app-ready when engine status changes", async () => {
     mockUsePathname.mockReturnValue("/train/1");
-    mockUseEndgameState({ analysisStatus: "loading" });
+    mockRootStoreWithSelector({ analysisStatus: "loading" });
 
     const { rerender } = render(
       <AppProviders>
@@ -178,7 +178,7 @@ describe("App Ready Signal (App Router)", () => {
     });
 
     // Engine becomes ready
-    mockUseEndgameState({ analysisStatus: "idle" });
+    mockRootStoreWithSelector({ analysisStatus: "idle" });
 
     rerender(
       <AppProviders>
@@ -193,7 +193,7 @@ describe("App Ready Signal (App Router)", () => {
 
   test("should handle null pathname gracefully", async () => {
     mockUsePathname.mockReturnValue(null);
-    mockUseEndgameState({ analysisStatus: "idle" });
+    mockRootStoreWithSelector({ analysisStatus: "idle" });
 
     render(
       <AppProviders>

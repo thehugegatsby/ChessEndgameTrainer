@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { useEndgameState } from "@shared/store/store";
+import { useStore } from "@shared/store/rootStore";
 import { configureStore } from "@shared/store/storeConfig";
 import { createServerPositionService } from "@shared/services/database/serverPositionService";
 import { getLogger } from "@shared/services/logging";
@@ -27,7 +27,7 @@ if (typeof window !== "undefined") {
  */
 export function AppProviders({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { analysisStatus } = useEndgameState();
+  const analysisStatus = useStore((state) => state.analysisStatus);
   const logger = getLogger().setContext("_app");
   const hasHydrated = useStoreHydration();
 

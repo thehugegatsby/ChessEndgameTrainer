@@ -1,10 +1,10 @@
 import React, { useMemo } from "react";
-import { Move } from "chess.js";
+import type { ValidatedMove } from "@shared/types/chess";
 import {
   getSmartMoveEvaluation,
   type MoveEvaluation,
 } from "../../utils/chess/evaluationHelpers";
-import { useEndgameState } from "@shared/store/store";
+import { useStore } from "@shared/store/rootStore";
 import { TEST_IDS, getTestId } from "@shared/constants/testIds";
 import { MoveQualityIndicator } from "../analysis/MoveQualityIndicator";
 
@@ -22,8 +22,8 @@ interface MovePanelZustandProps {
  */
 interface MovePair {
   moveNumber: number;
-  whiteMove: Move;
-  blackMove?: Move;
+  whiteMove: ValidatedMove;
+  blackMove?: ValidatedMove;
   whiteEval?: MoveEvaluation;
   blackEval?: MoveEvaluation;
 }
@@ -38,7 +38,10 @@ export /**
 const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
   ({ showEvaluations = false, onMoveClick, currentMoveIndex = -1 }) => {
     // Get data from Zustand store
-    const { moveHistory, evaluations } = useEndgameState();
+    const { moveHistory, evaluations } = useStore((state) => ({
+      moveHistory: state.moveHistory,
+      evaluations: state.evaluations,
+    }));
 
     // Helper to get FEN before a move
     /**
@@ -52,8 +55,8 @@ const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
       }
 
       const move = moveHistory[moveIndex];
-      // Each ValidatedMove has a 'before' field with the FEN before the move
-      return move.before;
+      // Each ValidatedMove has a 'fenBefore' field with the FEN before the move
+      return move.fenBefore;
     };
 
     // Memoize move pairs calculation for performance

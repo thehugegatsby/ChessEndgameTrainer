@@ -10,7 +10,7 @@
  * - Logger integration (mocked)
  */
 
-import { ErrorService, ErrorType } from "@shared/services/errorService";
+import { ErrorService, ErrorType } from "@shared/services/ErrorService";
 import { getLogger } from "@shared/services/logging/Logger";
 
 // Mock the Logger module

@@ -1,5 +1,5 @@
 import React from "react";
-import { useEndgameState, useEndgameActions } from "@shared/store/store";
+import { useStore } from "@shared/store/rootStore";
 
 /**
  * Navigation controls for move history
@@ -9,8 +9,16 @@ export /**
  *
  */
 const NavigationControls: React.FC = React.memo(() => {
-  const { moveHistory, currentMoveIndex } = useEndgameState();
-  const { goToFirst, goToPrevious, goToNext, goToLast } = useEndgameActions();
+  const { moveHistory, currentMoveIndex } = useStore((state) => ({
+    moveHistory: state.moveHistory,
+    currentMoveIndex: state.currentMoveIndex,
+  }));
+  const { goToFirst, goToPrevious, goToNext, goToLast } = useStore((state) => ({
+    goToFirst: state.goToFirst,
+    goToPrevious: state.goToPrevious,
+    goToNext: state.goToNext,
+    goToLast: state.goToLast,
+  }));
 
   // Calculate navigation state
   const totalMoves = moveHistory.length;

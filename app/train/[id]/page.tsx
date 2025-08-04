@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { EndgameTrainingPage } from "@shared/pages/EndgameTrainingPage";
 import { getServerPositionService } from "@shared/services/database/serverPositionService";
 import { getLogger } from "@shared/services/logging";
-import { ErrorService } from "@shared/services/errorService";
+import { ErrorService } from "@shared/services/ErrorService";
 
 /**
  * Training page props

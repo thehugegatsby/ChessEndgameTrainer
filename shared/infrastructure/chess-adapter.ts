@@ -57,9 +57,15 @@ export function toLibraryMove(move: DomainMove): ChessJsMove {
     san: move.san 
   });
 
-  // Domain move is already validated and stricter than library requirements
-  // Safe to convert by preserving all original properties including helper methods
-  return move as ChessJsMove;
+  // Convert domain move to library format
+  // Map fenBefore/fenAfter to before/after for chess.js compatibility
+  const libraryMove = {
+    ...move,
+    before: move.fenBefore,
+    after: move.fenAfter,
+  } as ChessJsMove;
+
+  return libraryMove;
 }
 
 /**
@@ -135,8 +141,8 @@ export function fromLibraryMove(libraryMove: ChessJsMove): ValidatedMove {
     flags: libraryMove.flags || '',
     san: libraryMove.san,
     lan: libraryMove.lan || '',
-    before: libraryMove.before || '',
-    after: libraryMove.after || '',
+    fenBefore: libraryMove.before || '',
+    fenAfter: libraryMove.after || '',
     // Helper methods - these will be added by the chess.js library when needed
     isCapture: () => !!(libraryMove as any).captured,
     isPromotion: () => !!(libraryMove as any).promotion,

@@ -152,11 +152,28 @@ export type AnalysisStatus = "idle" | "loading" | "success" | "error";
  */
 export interface ProgressState {
   positionProgress: Record<number, PositionProgress>;
-  dailyStats: DailyStats;
+  dailyStats: DailyStats[];
   achievements: Achievement[];
   totalSolvedPositions: number;
   averageAccuracy: number;
   favoritePositions: number[];
+  currentStreak: number;
+  longestStreak: number;
+  lastActivityDate?: number;
+  totalPoints: number;
+  weeklyGoals: {
+    target: number;
+    completed: number;
+    weekStart: number;
+  };
+  monthlyStats: {
+    positionsCompleted: number;
+    totalTime: number;
+    averageAccuracy: number;
+    hintsUsed: number;
+    mistakesMade: number;
+    monthStart: number;
+  };
 }
 
 /**
@@ -165,22 +182,23 @@ export interface ProgressState {
 export interface PositionProgress {
   positionId: number;
   attempts: number;
-  successes: number;
-  lastAttemptDate: string;
+  completed: boolean;
+  accuracy: number;
   bestTime?: number;
-  averageTime: number;
-  nextReviewDate?: string;
-  difficulty: number; // Dynamic difficulty based on performance
+  lastAttempt?: number;
+  nextReview?: number;
+  difficulty: number;
+  reviewInterval?: number;
 }
 
 /**
  *
  */
 export interface DailyStats {
-  date: string;
-  positionsSolved: number;
-  timeSpent: number; // in seconds
-  accuracy: number; // percentage
+  date: number;
+  positionsCompleted: number;
+  totalTime: number;
+  averageAccuracy: number;
   mistakesMade: number;
   hintsUsed: number;
 }
@@ -195,6 +213,12 @@ export interface Achievement {
   unlockedDate?: string;
   progress: number;
   maxProgress: number;
+  unlocked: boolean;
+  points: number;
+  category: "streak" | "completion" | "performance" | "discovery" | "mastery";
+  icon: string;
+  rarity: "common" | "rare" | "epic" | "legendary";
+  unlockedAt?: number;
 }
 
 // UI state
@@ -217,7 +241,8 @@ export type ModalType =
   | "help"
   | "achievements"
   | "share"
-  | "confirm";
+  | "confirm"
+  | "completion";
 
 /**
  *
@@ -253,10 +278,63 @@ export interface AnalysisPanelState {
  *
  */
 export interface SettingsState {
-  appVersion: string;
-  lastUpdated: string;
-  dataSync: DataSyncState;
+  // Visual theme configuration
+  theme: {
+    mode: "light" | "dark";
+    colorScheme: "blue" | "green" | "purple" | "orange" | "red";
+    boardTheme: "classic" | "modern" | "wood" | "marble" | "neon";
+    pieceSet: "classic" | "modern" | "medieval" | "minimalist";
+    fontSize: "small" | "medium" | "large";
+    highContrast: boolean;
+  };
+
+  // Notification preferences
+  notifications: {
+    enabled: boolean;
+    dailyReminders: boolean;
+    achievements: boolean;
+    trainingReminders: boolean;
+    weeklyProgress: boolean;
+    soundEnabled: boolean;
+    preferredTime: string; // "HH:MM" format
+  };
+
+  // Training difficulty settings
+  difficulty: {
+    level: "beginner" | "intermediate" | "advanced" | "expert";
+    autoHints: boolean;
+    maxHints: number;
+    moveSuggestions: boolean;
+    timePressure: boolean;
+    defaultTimeLimit: number;
+    mistakeTolerance: "strict" | "normal" | "lenient";
+  };
+
+  // Privacy and data settings
+  privacy: {
+    analytics: boolean;
+    crashReporting: boolean;
+    usageStatistics: boolean;
+    performanceMonitoring: boolean;
+    dataRetentionDays: number;
+  };
+
+  // Experimental features (feature flags)
   experimentalFeatures: ExperimentalFeatures;
+
+  // Data synchronization state
+  dataSync: DataSyncState;
+
+  // Localization settings
+  language: string;
+  timezone: string;
+
+  // User onboarding state
+  firstTimeUser: boolean;
+  lastSettingsUpdate?: number;
+
+  // Application restart requirement flag
+  restartRequired: boolean;
 }
 
 /**
@@ -264,19 +342,22 @@ export interface SettingsState {
  */
 export interface DataSyncState {
   enabled: boolean;
-  lastSyncDate?: string;
+  lastSync?: number;
   syncInProgress: boolean;
-  syncError?: string;
+  syncError?: string | null;
+  autoSync: boolean;
+  syncInterval: number;
 }
 
 /**
  *
  */
 export interface ExperimentalFeatures {
-  advancedAnalysis: boolean;
+  newTrainingMode: boolean;
+  advancedAnalytics: boolean;
   voiceCommands: boolean;
-  multipleVariations: boolean;
-  puzzleRush: boolean;
+  aiCoach: boolean;
+  multiplePerspective: boolean;
 }
 
 // Root state

@@ -6,7 +6,7 @@ import { ProgressCard } from "../../shared/components/ui/ProgressCard";
 import { AppLayout } from "@shared/components/layout/AppLayout";
 import { usePositionService } from "@shared/contexts/PositionServiceContext";
 import { EndgameChapter } from "@shared/types";
-import { ErrorService } from "@shared/services/errorService";
+import { ErrorService } from "@shared/services/ErrorService";
 import { TRAINING } from "@shared/constants";
 
 /**

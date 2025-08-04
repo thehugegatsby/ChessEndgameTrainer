@@ -14,7 +14,7 @@ import {
   formatQualityTooltip,
 } from "../../utils/moveQualityFormatters";
 import { getLogger } from "../../services/logging/Logger";
-import { ErrorService } from "../../services/errorService";
+import { ErrorService } from "../../services/ErrorService";
 
 const logger = getLogger().setContext("MoveQualityIndicator");
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useStore } from "@shared/store/store";
+import { useStore } from "@shared/store/rootStore";
 
 /**
  * Hook to check if Zustand store has been hydrated from persisted storage

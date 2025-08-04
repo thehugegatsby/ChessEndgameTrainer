@@ -5,7 +5,7 @@ module.exports = {
     "^.+\\.(ts|tsx|js|jsx)$": "@swc/jest",
   },
   transformIgnorePatterns: [
-    "/node_modules/(?!(react-chessboard|chess.js|react-native|@react-native|@react-navigation|expo|@expo|react-native-.*)/)",
+    "/node_modules/(?!(react-chessboard|chess.js|react-native|@react-native|@react-navigation|expo|@expo|react-native-.*|nanoid)/)",
   ],
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
   setupFilesAfterEnv: ["<rootDir>/config/jest/jest.setup.js"],

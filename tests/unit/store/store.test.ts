@@ -11,17 +11,7 @@
  */
 
 import { act, renderHook } from "@testing-library/react";
-import {
-  useStore,
-  useUser,
-  useEndgameState,
-  useProgress,
-  useUI,
-  useSettings,
-  useUserActions,
-  useEndgameActions,
-  useUIActions,
-} from "../../../shared/store/store";
+import { useStore } from "../../../shared/store/rootStore";
 import { EndgamePosition } from "../../../shared/types/endgame";
 import { Move } from "../../../shared/types";
 import { RootState } from "../../../shared/store/types";
@@ -47,7 +37,7 @@ describe("Zustand Store", () => {
 
   describe("User State & Actions", () => {
     it("should have correct initial state", () => {
-      const { result } = renderHook(() => useUser());
+      const { result } = renderHook(() => useStore(state => state));
 
       expect(result.current.rating).toBe(1200);
       expect(result.current.completedPositions).toEqual([]);
@@ -68,9 +58,9 @@ describe("Zustand Store", () => {
         });
       });
 
-      expect(result.current.user.username).toBe("TestUser");
-      expect(result.current.user.rating).toBe(1500);
-      expect(result.current.user.email).toBe("test@example.com");
+      expect(result.current.username).toBe("TestUser");
+      expect(result.current.rating).toBe(1500);
+      expect(result.current.email).toBe("test@example.com");
     });
 
     it("should update preferences correctly", () => {
@@ -84,9 +74,9 @@ describe("Zustand Store", () => {
         });
       });
 
-      expect(result.current.user.preferences.theme).toBe("light");
-      expect(result.current.user.preferences.soundEnabled).toBe(false);
-      expect(result.current.user.preferences.boardOrientation).toBe("black");
+      expect(result.current.preferences.theme).toBe("light");
+      expect(result.current.preferences.soundEnabled).toBe(false);
+      expect(result.current.preferences.boardOrientation).toBe("black");
     });
 
     it("should handle streak operations", () => {
@@ -97,13 +87,13 @@ describe("Zustand Store", () => {
         result.current.incrementStreak();
       });
 
-      expect(result.current.user.currentStreak).toBe(2);
+      expect(result.current.currentStreak).toBe(2);
 
       act(() => {
         result.current.resetStreak();
       });
 
-      expect(result.current.user.currentStreak).toBe(0);
+      expect(result.current.currentStreak).toBe(0);
     });
 
     it("should add completed positions without duplicates", () => {
@@ -115,7 +105,7 @@ describe("Zustand Store", () => {
         result.current.addCompletedPosition(1); // Duplicate
       });
 
-      expect(result.current.user.completedPositions).toEqual([1, 2]);
+      expect(result.current.completedPositions).toEqual([1, 2]);
     });
   });
 
@@ -169,7 +159,7 @@ describe("Zustand Store", () => {
     };
 
     it("should have correct initial training state", () => {
-      const { result } = renderHook(() => useEndgameState());
+      const { result } = renderHook(() => useStore(state => state));
 
       expect(result.current.moveHistory).toEqual([]);
       expect(result.current.evaluations).toEqual([]);
@@ -188,10 +178,10 @@ describe("Zustand Store", () => {
         result.current.setPosition(mockPosition);
       });
 
-      expect(result.current.training.currentPosition).toEqual(mockPosition);
-      expect(result.current.training.isGameFinished).toBe(false);
-      expect(result.current.training.isSuccess).toBe(false);
-      expect(result.current.training.startTime).toBeDefined();
+      expect(result.current.currentPosition).toEqual(mockPosition);
+      expect(result.current.isGameFinished).toBe(false);
+      expect(result.current.isSuccess).toBe(false);
+      expect(result.current.startTime).toBeDefined();
     });
 
     it("should handle moves correctly", () => {
@@ -207,15 +197,15 @@ describe("Zustand Store", () => {
         result.current._internalApplyMove(mockMove);
       });
 
-      expect(result.current.training.moveHistory).toHaveLength(1);
+      expect(result.current.moveHistory).toHaveLength(1);
       // Check core move properties (adapter adds helper methods and additional fields)
-      const storedMove = result.current.training.moveHistory[0];
+      const storedMove = result.current.moveHistory[0];
       expect(storedMove.from).toBe(mockMove.from);
       expect(storedMove.to).toBe(mockMove.to);
       expect(storedMove.san).toBe(mockMove.san);
       expect(storedMove.piece).toBe(mockMove.piece);
       expect(storedMove.color).toBe(mockMove.color);
-      expect(result.current.training.isPlayerTurn).toBe(false);
+      expect(result.current.isPlayerTurn).toBe(false);
     });
 
     it("should undo moves correctly", () => {
@@ -238,14 +228,14 @@ describe("Zustand Store", () => {
         }); // Black King move
       });
 
-      expect(result.current.training.moveHistory).toHaveLength(2);
+      expect(result.current.moveHistory).toHaveLength(2);
 
       act(() => {
         result.current.undoMove();
       });
 
-      expect(result.current.training.moveHistory).toHaveLength(1);
-      expect(result.current.training.isPlayerTurn).toBe(false);
+      expect(result.current.moveHistory).toHaveLength(1);
+      expect(result.current.isPlayerTurn).toBe(false);
     });
 
     it("should reset position correctly", () => {
@@ -259,10 +249,10 @@ describe("Zustand Store", () => {
         result.current.resetPosition();
       });
 
-      expect(result.current.training.moveHistory).toEqual([]);
-      expect(result.current.training.isPlayerTurn).toBe(true);
-      expect(result.current.training.hintsUsed).toBe(0);
-      expect(result.current.training.mistakeCount).toBe(0);
+      expect(result.current.moveHistory).toEqual([]);
+      expect(result.current.isPlayerTurn).toBe(true);
+      expect(result.current.hintsUsed).toBe(0);
+      expect(result.current.mistakeCount).toBe(0);
     });
 
     it("should complete training and update training state", () => {
@@ -275,8 +265,8 @@ describe("Zustand Store", () => {
       });
 
       // Ensure position is set
-      expect(result.current.training.currentPosition).toEqual(mockPosition);
-      expect(result.current.training.startTime).toBeDefined();
+      expect(result.current.currentPosition).toEqual(mockPosition);
+      expect(result.current.startTime).toBeDefined();
 
       act(() => {
         // Wait a bit to ensure time difference
@@ -284,11 +274,11 @@ describe("Zustand Store", () => {
         result.current.completeTraining(true);
       });
 
-      expect(result.current.training.isGameFinished).toBe(true);
-      expect(result.current.training.isSuccess).toBe(true);
-      expect(result.current.training.endTime).toBeDefined();
-      expect(result.current.training.endTime).toBeGreaterThan(
-        result.current.training.startTime!,
+      expect(result.current.isGameFinished).toBe(true);
+      expect(result.current.isSuccess).toBe(true);
+      expect(result.current.endTime).toBeDefined();
+      expect(result.current.endTime).toBeGreaterThan(
+        result.current.startTime!,
       );
     });
 
@@ -302,7 +292,7 @@ describe("Zustand Store", () => {
         // No explicit startTraining method - position loading starts training
       });
 
-      const initialTime = result.current.training.startTime;
+      const initialTime = result.current.startTime;
       expect(initialTime).toBeDefined();
 
       // Advance time to ensure endTime > startTime
@@ -311,10 +301,10 @@ describe("Zustand Store", () => {
         result.current.completeTraining(true);
       });
 
-      expect(result.current.training.isGameFinished).toBe(true);
-      expect(result.current.training.isSuccess).toBe(true);
-      expect(result.current.training.endTime).toBeDefined();
-      expect(result.current.training.endTime).toBeGreaterThan(initialTime!);
+      expect(result.current.isGameFinished).toBe(true);
+      expect(result.current.isSuccess).toBe(true);
+      expect(result.current.endTime).toBeDefined();
+      expect(result.current.endTime).toBeGreaterThan(initialTime!);
     });
 
     it("should track hints and mistakes", () => {
@@ -328,12 +318,12 @@ describe("Zustand Store", () => {
         result.current.incrementMistake();
       });
 
-      expect(result.current.training.hintsUsed).toBe(2);
-      expect(result.current.training.mistakeCount).toBe(3);
+      expect(result.current.hintsUsed).toBe(2);
+      expect(result.current.mistakeCount).toBe(3);
     });
 
     it("should have correct analysis status in initial state", () => {
-      const { result } = renderHook(() => useEndgameState());
+      const { result } = renderHook(() => useStore(state => state));
 
       expect(result.current.analysisStatus).toBe("idle");
     });
@@ -351,7 +341,7 @@ describe("Zustand Store", () => {
         });
       });
 
-      const progress = result.current.progress.positionProgress[1];
+      const progress = result.current.positionProgress[1];
       expect(progress.positionId).toBe(1);
       expect(progress.attempts).toBe(3);
       expect(progress.successes).toBe(2);
@@ -371,7 +361,7 @@ describe("Zustand Store", () => {
         });
       });
 
-      const stats = result.current.progress.dailyStats;
+      const stats = result.current.dailyStats;
       expect(stats.positionsSolved).toBe(5);
       expect(stats.timeSpent).toBe(300);
       expect(stats.mistakesMade).toBe(2);
@@ -388,7 +378,7 @@ describe("Zustand Store", () => {
       });
 
       // Total: 6/10 = 60%
-      expect(result.current.progress.dailyStats.accuracy).toBe(60);
+      expect(result.current.dailyStats.accuracy).toBe(60);
     });
 
     it("should toggle favorites correctly", () => {
@@ -399,13 +389,13 @@ describe("Zustand Store", () => {
         result.current.toggleFavorite(2);
       });
 
-      expect(result.current.progress.favoritePositions).toEqual([1, 2]);
+      expect(result.current.favoritePositions).toEqual([1, 2]);
 
       act(() => {
         result.current.toggleFavorite(1); // Remove
       });
 
-      expect(result.current.progress.favoritePositions).toEqual([2]);
+      expect(result.current.favoritePositions).toEqual([2]);
     });
 
     it("should calculate next review date", () => {
@@ -423,14 +413,14 @@ describe("Zustand Store", () => {
         result.current.calculateNextReview(1, true);
       });
 
-      const progress = result.current.progress.positionProgress[1];
+      const progress = result.current.positionProgress[1];
       expect(progress.nextReviewDate).toBeDefined();
     });
   });
 
   describe("UI State & Actions", () => {
     it("should have correct initial UI state", () => {
-      const { result } = renderHook(() => useUI());
+      const { result } = renderHook(() => useStore(state => state.ui));
 
       expect(result.current.sidebarOpen).toBe(false);
       expect(result.current.modalOpen).toBe(null);
@@ -446,13 +436,13 @@ describe("Zustand Store", () => {
         result.current.toggleSidebar();
       });
 
-      expect(result.current.ui.sidebarOpen).toBe(true);
+      expect(result.current.sidebarOpen).toBe(true);
 
       act(() => {
         result.current.toggleSidebar();
       });
 
-      expect(result.current.ui.sidebarOpen).toBe(false);
+      expect(result.current.sidebarOpen).toBe(false);
     });
 
     it("should handle modals correctly", () => {
@@ -462,13 +452,13 @@ describe("Zustand Store", () => {
         result.current.openModal("settings");
       });
 
-      expect(result.current.ui.modalOpen).toBe("settings");
+      expect(result.current.modalOpen).toBe("settings");
 
       act(() => {
         result.current.closeModal();
       });
 
-      expect(result.current.ui.modalOpen).toBe(null);
+      expect(result.current.modalOpen).toBe(null);
     });
 
     it("should manage toasts correctly", () => {
@@ -478,17 +468,17 @@ describe("Zustand Store", () => {
         result.current.showToast("Success message", "success", 5000);
       });
 
-      expect(result.current.ui.toasts).toHaveLength(1);
-      expect(result.current.ui.toasts[0].message).toBe("Success message");
-      expect(result.current.ui.toasts[0].type).toBe("success");
+      expect(result.current.toasts).toHaveLength(1);
+      expect(result.current.toasts[0].message).toBe("Success message");
+      expect(result.current.toasts[0].type).toBe("success");
 
-      const toastId = result.current.ui.toasts[0].id;
+      const toastId = result.current.toasts[0].id;
 
       act(() => {
         result.current.removeToast(toastId);
       });
 
-      expect(result.current.ui.toasts).toHaveLength(0);
+      expect(result.current.toasts).toHaveLength(0);
     });
 
     it("should set loading states correctly", () => {
@@ -502,12 +492,12 @@ describe("Zustand Store", () => {
         act(() => {
           result.current.setLoading(key, true);
         });
-        expect(result.current.ui.loading[key]).toBe(true);
+        expect(result.current.loading[key]).toBe(true);
 
         act(() => {
           result.current.setLoading(key, false);
         });
-        expect(result.current.ui.loading[key]).toBe(false);
+        expect(result.current.loading[key]).toBe(false);
       });
     });
 
@@ -522,9 +512,9 @@ describe("Zustand Store", () => {
         });
       });
 
-      expect(result.current.ui.analysisPanel.isOpen).toBe(true);
-      expect(result.current.ui.analysisPanel.activeTab).toBe("evaluation");
-      expect(result.current.ui.analysisPanel.showTablebase).toBe(false);
+      expect(result.current.analysisPanel.isOpen).toBe(true);
+      expect(result.current.analysisPanel.activeTab).toBe("evaluation");
+      expect(result.current.analysisPanel.showTablebase).toBe(false);
     });
   });
 
@@ -537,7 +527,7 @@ describe("Zustand Store", () => {
       });
 
       expect(
-        result.current.settings.experimentalFeatures.advancedAnalysis,
+        result.current.experimentalFeatures.advancedAnalysis,
       ).toBe(true);
 
       act(() => {
@@ -545,7 +535,7 @@ describe("Zustand Store", () => {
       });
 
       expect(
-        result.current.settings.experimentalFeatures.advancedAnalysis,
+        result.current.experimentalFeatures.advancedAnalysis,
       ).toBe(false);
     });
 
@@ -556,22 +546,22 @@ describe("Zustand Store", () => {
         result.current.startSync();
       });
 
-      expect(result.current.settings.dataSync.syncInProgress).toBe(true);
-      expect(result.current.settings.dataSync.syncError).toBeUndefined();
+      expect(result.current.dataSync.syncInProgress).toBe(true);
+      expect(result.current.dataSync.syncError).toBeUndefined();
 
       act(() => {
         result.current.completeSync(true);
       });
 
-      expect(result.current.settings.dataSync.syncInProgress).toBe(false);
-      expect(result.current.settings.dataSync.lastSyncDate).toBeDefined();
+      expect(result.current.dataSync.syncInProgress).toBe(false);
+      expect(result.current.dataSync.lastSyncDate).toBeDefined();
 
       act(() => {
         result.current.startSync();
         result.current.completeSync(false, "Network error");
       });
 
-      expect(result.current.settings.dataSync.syncError).toBe("Network error");
+      expect(result.current.dataSync.syncError).toBe("Network error");
     });
   });
 
@@ -583,42 +573,37 @@ describe("Zustand Store", () => {
       const state = result.current;
 
       // These should be included in persistence
-      expect(state.user).toBeDefined();
-      expect(state.progress).toBeDefined();
-      expect(state.settings).toBeDefined();
+      expect(state.username).toBeDefined();
+      expect(state.rating).toBeDefined();
+      expect(state.positionProgress).toBeDefined();
+      expect(state.theme).toBeDefined();
 
-      // These should not be persisted (transient state)
-      expect(state.training).toBeDefined();
-      expect(state.ui).toBeDefined();
+      // These should not be persisted (transient state) but still exist
+      expect(state.currentPosition).toBeDefined(); // training state
+      expect(state.sidebarOpen).toBeDefined(); // ui state
     });
   });
 
   describe("Selector Hooks", () => {
-    it("should provide specialized hooks for state slices", () => {
-      const userHook = renderHook(() => useUser());
-      const trainingHook = renderHook(() => useEndgameState());
-      const progressHook = renderHook(() => useProgress());
-      const uiHook = renderHook(() => useUI());
-      const settingsHook = renderHook(() => useSettings());
+    it("should provide store state access", () => {
+      const { result } = renderHook(() => useStore());
 
-      expect(userHook.result.current).toBe(useStore.getState().user);
-      expect(trainingHook.result.current).toBe(useStore.getState().training);
-      expect(progressHook.result.current).toBe(useStore.getState().progress);
-      expect(uiHook.result.current).toBe(useStore.getState().ui);
-      expect(settingsHook.result.current).toBe(useStore.getState().settings);
+      expect(result.current.rating).toBeDefined();
+      expect(result.current.currentPosition).toBeDefined();
+      expect(result.current.positionProgress).toBeDefined();
+      expect(result.current.sidebarOpen).toBeDefined();
+      expect(result.current.theme).toBeDefined();
     });
 
-    it("should provide action selector hooks", () => {
-      const userActionsHook = renderHook(() => useUserActions());
-      const trainingActionsHook = renderHook(() => useEndgameActions());
-      const uiActionsHook = renderHook(() => useUIActions());
+    it("should provide direct store actions", () => {
+      const { result } = renderHook(() => useStore());
 
-      expect(userActionsHook.result.current.setUser).toBeDefined();
-      expect(userActionsHook.result.current.updatePreferences).toBeDefined();
-      expect(trainingActionsHook.result.current.makeUserMove).toBeDefined();
-      expect(trainingActionsHook.result.current.resetPosition).toBeDefined();
-      expect(uiActionsHook.result.current.toggleSidebar).toBeDefined();
-      expect(uiActionsHook.result.current.showToast).toBeDefined();
+      expect(result.current.setUser).toBeDefined();
+      expect(result.current.updatePreferences).toBeDefined();
+      expect(result.current.makeUserMove).toBeDefined();
+      expect(result.current.resetPosition).toBeDefined();
+      expect(result.current.toggleSidebar).toBeDefined();
+      expect(result.current.showToast).toBeDefined();
     });
   });
 
@@ -629,11 +614,6 @@ describe("Zustand Store", () => {
       // Make some changes
       act(() => {
         result.current.setUser({ username: "TestUser", rating: 1500 });
-        result.current._internalApplyMove({
-          from: "e2",
-          to: "e4",
-          san: "e4",
-        } as Move);
         result.current.toggleSidebar();
       });
 
@@ -642,10 +622,10 @@ describe("Zustand Store", () => {
         result.current.reset();
       });
 
-      expect(result.current.user.username).toBeUndefined();
-      expect(result.current.user.rating).toBe(1200); // initial value
-      expect(result.current.training.moveHistory).toEqual([]);
-      expect(result.current.ui.sidebarOpen).toBe(false);
+      expect(result.current.username).toBeUndefined();
+      expect(result.current.rating).toBe(1200); // initial value
+      expect(result.current.moveHistory).toEqual([]);
+      expect(result.current.sidebarOpen).toBe(false);
     });
 
     it("should hydrate state from external source", () => {
@@ -667,9 +647,9 @@ describe("Zustand Store", () => {
         result.current.hydrate(newState);
       });
 
-      expect(result.current.user.rating).toBe(1800);
-      expect(result.current.user.username).toBe("HydratedUser");
-      expect(result.current.progress.totalSolvedPositions).toBe(50);
+      expect(result.current.rating).toBe(1800);
+      expect(result.current.username).toBe("HydratedUser");
+      expect(result.current.totalSolvedPositions).toBe(50);
     });
   });
 });

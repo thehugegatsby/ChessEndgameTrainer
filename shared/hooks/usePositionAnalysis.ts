@@ -17,7 +17,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { analysisService } from "@shared/services/AnalysisService";
-import { ErrorService } from "@shared/services/errorService";
+import { ErrorService } from "@shared/services/ErrorService";
 import { Logger } from "@shared/services/logging/Logger";
 import type { PositionAnalysis } from "@shared/types";
 

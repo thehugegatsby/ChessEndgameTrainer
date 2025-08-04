@@ -10,7 +10,7 @@ jest.mock("../../../shared/services/logging", () => {
 });
 
 import { act, renderHook } from "@testing-library/react";
-import { useStore } from "../../../shared/store/store";
+import { useStore } from "../../../shared/store/rootStore";
 import { EndgamePosition } from "../../../shared/types/endgame";
 import { Move } from "../../../shared/types";
 import { getLogger } from "../../../shared/services/logging";

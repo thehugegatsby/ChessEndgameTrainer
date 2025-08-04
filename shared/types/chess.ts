@@ -22,8 +22,9 @@ export interface Move {
   flags: string;
   san: string;
   lan: string;
-  before: string;
-  after: string;
+  fenBefore: string;
+  fenAfter: string;
+  timestamp?: number;
   // Helper methods (available on chess.js Move instances)
   isCapture: () => boolean;
   isPromotion: () => boolean;

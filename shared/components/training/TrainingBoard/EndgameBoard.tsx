@@ -9,19 +9,13 @@ import { Chess, Move } from "chess.js";
 import { Chessboard } from "@shared/components/chess/Chessboard";
 import { usePositionAnalysis, useEndgameSession } from "../../../hooks";
 import { usePageReady } from "../../../hooks/usePageReady";
-import {
-  useEndgameTrainingState,
-  useGameState,
-  useTablebaseAnalysisState,
-  useEndgameActions,
-  useUIActions,
-  useStore,
-} from "@shared/store/store";
-import { requestTablebaseMove } from "@shared/store/endgameActions";
+import { useStore } from "@shared/store/rootStore";
+// Note: requestTablebaseMove is now available as a method on the store
 import { EndgamePosition } from "@shared/types";
 import { getLogger } from "@shared/services/logging";
 import { ANIMATION, DIMENSIONS } from "@shared/constants";
 import { MoveErrorDialog } from "@shared/components/ui/MoveErrorDialog";
+import { toLibraryMove } from "@shared/infrastructure/chess-adapter";
 
 // Extended evaluation interface that matches our new MovePanel requirements
 /**
@@ -83,11 +77,31 @@ const EndgameBoard: React.FC<EndgameBoardProps> = ({
   const initialFen = fen || position?.fen || "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1";
 
   // === ZUSTAND STORE - Using optimized selectors ===
-  const gameState = useGameState();
-  const tablebaseAnalysisState = useTablebaseAnalysisState();
-  const endgameTrainingState = useEndgameTrainingState();
-  const actions = useEndgameActions();
-  const uiActions = useUIActions();
+  const gameState = useStore((state) => ({
+    moveHistory: state.moveHistory,
+    currentFen: state.currentFen,
+  }));
+  const tablebaseAnalysisState = useStore((state) => ({
+    analysisStatus: state.analysisStatus,
+    evaluations: state.evaluations,
+  }));
+  const endgameTrainingState = useStore((state) => ({
+    currentPosition: state.currentPosition,
+    moveErrorDialog: state.moveErrorDialog,
+  }));
+  const actions = useStore((state) => ({
+    setPosition: state.setPosition,
+    setEvaluation: state.setEvaluation,
+    setEvaluations: state.setEvaluations,
+    setMoveErrorDialog: state.setMoveErrorDialog,
+    setAnalysisStatus: state.setAnalysisStatus,
+    resetPosition: state.resetPosition,
+    incrementMistake: state.incrementMistake,
+    loadTrainingContext: state.loadTrainingContext,
+  }));
+  const uiActions = useStore((state) => ({
+    showToast: state.showToast,
+  }));
 
   // Set position in store on mount or when position changes
   useEffect(() => {
@@ -104,7 +118,7 @@ const EndgameBoard: React.FC<EndgameBoardProps> = ({
         fen: position.fen,
         currentPositionId: endgameTrainingState.currentPosition?.id,
       });
-      actions.setPosition(position);
+      actions.loadTrainingContext(position);
     }
   }, [position, endgameTrainingState.currentPosition, actions]);
 
@@ -348,61 +362,23 @@ const EndgameBoard: React.FC<EndgameBoardProps> = ({
           // Just trigger tablebase response using store action
           try {
             // Get the updated FEN after the move
-            const updatedFen =
-              useStore.getState().training.currentFen || game.fen();
+            const updatedFen = gameState.currentFen || game.fen();
             logger.info("Requesting tablebase move for position", {
               updatedFen,
               turn: game.turn(),
               moveNumber: history.length,
             });
 
-            const tablebaseMoveUci = await requestTablebaseMove(updatedFen)(
-              useStore.getState,
-              useStore.setState,
-            );
+            // Use the orchestrator from the store directly
+            await useStore.getState().requestTablebaseMove();
 
-            logger.info("[TRACE] Tablebase move returned", {
-              tablebaseMoveUci,
+            logger.info("[TRACE] Tablebase move request completed", {
               updatedFen,
               currentGameFen: game.fen(),
               historyLength: history.length,
             });
 
-            // Check if position hasn't changed while waiting for tablebase
-            const currentPositionId =
-              useStore.getState().training.currentPosition?.id;
-            if (tablebaseMoveUci && currentPositionId === position?.id) {
-              // Convert UCI to move object format for makeMove
-              const from = tablebaseMoveUci.slice(0, 2);
-              const to = tablebaseMoveUci.slice(2, 4);
-              const promotion =
-                tablebaseMoveUci.length > 4
-                  ? tablebaseMoveUci.slice(4, 5)
-                  : undefined;
-
-              logger.info("[TRACE] About to execute tablebase move", {
-                tablebaseMoveUci,
-                from,
-                to,
-                promotion,
-                currentFen: updatedFen,
-                gameStateBeforeMove: game.fen(),
-              });
-
-              const tablebaseMoveResult = await makeMove({
-                from,
-                to,
-                promotion,
-              });
-
-              logger.info("[TRACE] Tablebase move executed", {
-                success: !!tablebaseMoveResult,
-                gameStateAfterMove: game.fen(),
-                actualMove: tablebaseMoveResult,
-              });
-            } else if (currentPositionId !== position?.id) {
-              logger.debug("Position changed, skipping tablebase move");
-            }
+            // The orchestrator handles the tablebase move automatically
           } catch (error) {
             logger.error("Engine move failed", error as Error);
           }
@@ -573,7 +549,9 @@ const EndgameBoard: React.FC<EndgameBoardProps> = ({
   // Update parent with move history
   useEffect(() => {
     if (onHistoryChange) {
-      onHistoryChange(history);
+      // Convert ValidatedMove[] to Move[] for the callback
+      const libraryMoves = history.map(toLibraryMove);
+      onHistoryChange(libraryMoves);
     }
   }, [history, onHistoryChange]);
 

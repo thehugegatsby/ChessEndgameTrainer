@@ -1,7 +1,7 @@
 import { useCallback } from "react";
-import { useEndgameState, useEndgameActions } from "@shared/store/store";
-import { Move } from "chess.js";
-import { ErrorService } from "@shared/services/errorService";
+import { useStore } from "@shared/store/rootStore";
+import type { ValidatedMove } from "@shared/types/chess";
+import { ErrorService } from "@shared/services/ErrorService";
 
 /**
  * Configuration options for the useEndgameSession hook
@@ -18,7 +18,7 @@ interface UseEndgameSessionOptions {
  * Return value of the useEndgameSession hook
  * @interface UseEndgameSessionReturn
  * @property {Chess} game - Chess.js instance from Zustand store (read-only reference)
- * @property {Move[]} history - Array of moves played in the endgame
+ * @property {ValidatedMove[]} history - Array of validated moves played in the endgame
  * @property {boolean} isGameFinished - Whether endgame has ended (checkmate/stalemate)
  * @property {string} currentFen - Current position in FEN notation
  * @property {string} currentPgn - Current game in PGN notation
@@ -29,7 +29,7 @@ interface UseEndgameSessionOptions {
  */
 interface UseEndgameSessionReturn {
   game: any; // Chess instance from store
-  history: Move[];
+  history: ValidatedMove[];
   isGameFinished: boolean;
   currentFen: string;
   currentPgn: string;
@@ -71,8 +71,21 @@ export const useEndgameSession = ({
   onComplete,
   onPositionChange,
 }: UseEndgameSessionOptions): UseEndgameSessionReturn => {
-  const training = useEndgameState();
-  const actions = useEndgameActions();
+  const training = useStore((state) => ({
+    game: state.game,
+    isGameFinished: state.isGameFinished,
+    currentFen: state.currentFen,
+    currentPgn: state.currentPgn,
+    moveHistory: state.moveHistory,
+    currentPosition: state.currentPosition,
+  }));
+  const actions = useStore((state) => ({
+    makeUserMove: state.makeUserMove,
+    completeTraining: state.completeTraining,
+    goToMove: state.goToMove,
+    resetPosition: state.resetPosition,
+    undoMove: state.undoMove,
+  }));
 
   /**
    * Execute a chess move and update the game state

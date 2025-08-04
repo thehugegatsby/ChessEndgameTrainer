@@ -68,6 +68,7 @@ class AnalysisService {
 
     // Convert to PositionAnalysis format
     const evaluation: PositionAnalysis = {
+      fen,
       evaluation: displayData.score,
       mateInMoves:
         displayData.isWin && tablebaseResult.result.dtz
@@ -119,6 +120,7 @@ class AnalysisService {
     if (!result) {
       // Return empty evaluation when no tablebase data
       return {
+        fen,
         evaluation: 0,
         tablebase: undefined,
       };
