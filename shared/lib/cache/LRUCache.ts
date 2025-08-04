@@ -1,8 +1,11 @@
 /**
  * Minimal LRU Cache implementation
- * For position caching only - no engine dependencies
+ * For position caching only - no tablebase dependencies
  */
 
+/**
+ *
+ */
 export interface CacheStats {
   hits: number;
   misses: number;
@@ -21,6 +24,10 @@ export class LRUCache<T> {
     this.maxSize = maxSize;
   }
 
+  /**
+   *
+   * @param key
+   */
   get(key: string): T | undefined {
     const value = this.cache.get(key);
     if (value !== undefined) {
@@ -34,6 +41,11 @@ export class LRUCache<T> {
     return undefined;
   }
 
+  /**
+   *
+   * @param key
+   * @param value
+   */
   set(key: string, value: T): void {
     // Remove if exists (to reorder)
     if (this.cache.has(key)) {
@@ -48,20 +60,34 @@ export class LRUCache<T> {
     this.cache.set(key, value);
   }
 
+  /**
+   *
+   * @param key
+   */
   has(key: string): boolean {
     return this.cache.has(key);
   }
 
+  /**
+   *
+   * @param key
+   */
   delete(key: string): boolean {
     return this.cache.delete(key);
   }
 
+  /**
+   *
+   */
   clear(): void {
     this.cache.clear();
     this.hits = 0;
     this.misses = 0;
   }
 
+  /**
+   *
+   */
   getStats(): CacheStats {
     const total = this.hits + this.misses;
     return {
@@ -73,11 +99,17 @@ export class LRUCache<T> {
     };
   }
 
+  /**
+   *
+   */
   getMemoryUsage(): number {
     // Rough estimate
     return this.cache.size * 1000; // Assume 1KB per entry
   }
 
+  /**
+   *
+   */
   keys(): string[] {
     return Array.from(this.cache.keys());
   }

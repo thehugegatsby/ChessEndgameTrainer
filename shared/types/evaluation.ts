@@ -3,6 +3,9 @@
  * Consolidates all evaluation-related interfaces from across the codebase
  */
 
+/**
+ *
+ */
 export interface TablebaseData {
   isTablebasePosition: boolean;
   wdlBefore?: number;
@@ -37,8 +40,14 @@ export interface PositionAnalysis {
 
 // EvaluationData has been replaced by PositionAnalysis
 // This export maintains backwards compatibility
+/**
+ *
+ */
 export type EvaluationData = PositionAnalysis;
 
+/**
+ *
+ */
 export interface EvaluationDisplay {
   text: string;
   className: string;
@@ -46,11 +55,17 @@ export interface EvaluationDisplay {
   bgColor: string;
 }
 
+/**
+ *
+ */
 export interface MoveEvaluation {
   evaluation: number;
   mateInMoves?: number;
 }
 
+/**
+ *
+ */
 export type MoveQuality =
   | "excellent"
   | "good"
@@ -58,12 +73,10 @@ export type MoveQuality =
   | "mistake"
   | "blunder";
 
+/**
+ *
+ */
 export interface DualEvaluation {
-  engine: {
-    score: number;
-    mate?: number | null;
-    evaluation: string;
-  };
   tablebase?: {
     isTablebasePosition: boolean;
     wdl?: number;
@@ -74,10 +87,10 @@ export interface DualEvaluation {
 }
 
 /**
- * Raw engine evaluation data as returned by the chess engine
+ * Raw tablebase evaluation data as returned by the chess tablebase
  * Used by the new unified evaluation system
  */
-export interface EngineEvaluation {
+export interface TablebaseEvaluation {
   /** Score in centipawns (100 = 1 pawn advantage) */
   score: number;
 
@@ -180,8 +193,8 @@ export interface SimplifiedMoveQualityResult {
     wdlAfter: number;
   };
 
-  /** Optional engine-specific info */
-  engineInfo?: {
+  /** Optional tablebase evaluation info */
+  tablebaseEvalInfo?: {
     evalBefore: number;
     evalAfter: number;
   };

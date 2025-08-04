@@ -1,12 +1,12 @@
 /**
- * @file Training Actions - Async Engine Operations
- * @description Zustand thunk functions for chess engine operations
+ * @file Training Actions - Async Tablebase Operations
+ * @description Zustand thunk functions for chess tablebase operations
  *
  * PRINCIPLES:
- * - Async thunks for engine communication
+ * - Async thunks for tablebase communication
  * - Clean separation from store state
- * - Error handling for engine failures
- * - Stateless engine calls (pass FEN)
+ * - Error handling for tablebase failures
+ * - Stateless tablebase calls (pass FEN)
  */
 
 import { tablebaseService } from "../services/TablebaseService";
@@ -108,7 +108,7 @@ const requestPositionEvaluation =
       set((state: any) => ({
         training: {
           ...state.training,
-          engineStatus: "analyzing",
+          analysisStatus: "loading",
         },
       }));
 
@@ -140,7 +140,7 @@ const requestPositionEvaluation =
                 : null,
             depth: 0, // No depth for tablebase
           },
-          engineStatus: "ready",
+          analysisStatus: "success",
         },
       }));
 
@@ -167,7 +167,7 @@ const requestPositionEvaluation =
       set((state: any) => ({
         training: {
           ...state.training,
-          engineStatus: "error",
+          analysisStatus: "error",
         },
       }));
 
@@ -176,58 +176,55 @@ const requestPositionEvaluation =
   };
 
 /**
- * Stop current engine analysis
+ * Stop current tablebase analysis
  * @returns Thunk function for Zustand store
  */
 export /**
  *
  */
-const stopEngineAnalysis =
+const stopTablebaseAnalysis =
   () =>
   async (
     _get: () => { training: TrainingState },
     set: (partial: any) => void,
   ) => {
     try {
-      logger.debug("Stopping engine analysis");
+      logger.debug("Stopping tablebase analysis");
 
-      // SimpleEngine doesn't have stop method, just update state
       // Update store state
       set((state: any) => ({
         training: {
           ...state.training,
-          isEngineThinking: false,
-          engineStatus: "ready",
+          analysisStatus: "idle",
         },
       }));
     } catch (error) {
-      logger.error("Failed to stop engine analysis", error);
+      logger.error("Failed to stop tablebase analysis", error);
     }
   };
 
 /**
- * Terminate engine and clean up resources
+ * Reset tablebase analysis state
  * @returns Thunk function for Zustand store
- * @deprecated No engine to terminate anymore - keeping for compatibility
+ * @deprecated No tablebase to terminate anymore - keeping for compatibility
  */
 export /**
  *
  */
-const terminateEngine =
+const resetTablebaseState =
   () =>
   async (
     _get: () => { training: TrainingState },
     set: (partial: any) => void,
   ) => {
-    logger.info("terminateEngine called - no-op (engine removed)");
+    logger.info("resetTablebaseState called - resetting analysis state");
 
-    // Reset engine state in store
+    // Reset tablebase state in store
     set((state: any) => ({
       training: {
         ...state.training,
-        isEngineThinking: false,
-        engineMove: undefined,
-        engineStatus: "idle",
+        tablebaseMove: undefined,
+        analysisStatus: "idle",
       },
     }));
   };

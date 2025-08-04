@@ -1,12 +1,12 @@
 /**
- * @file Unit tests for engine-based move quality evaluation
+ * @file Unit tests for tablebase-based move quality evaluation
  * @description Tests getMoveQualityDisplay function with various evaluations
  */
 
 import { describe, test, expect } from "@jest/globals";
 import { getMoveQualityDisplay } from "../../../shared/utils/chess/evaluationHelpers";
 
-describe("Engine Evaluation - Move Quality Display", () => {
+describe("Tablebase Evaluation - Move Quality Display", () => {
   describe("Mate Evaluations", () => {
     test("should_display_mate_in_1_as_excellent", () => {
       const result = getMoveQualityDisplay(0, 1, true);

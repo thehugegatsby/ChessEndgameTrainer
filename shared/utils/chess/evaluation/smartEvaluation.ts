@@ -1,5 +1,5 @@
 /**
- * Smart evaluation that prioritizes tablebase comparison over engine evaluation
+ * Smart evaluation that prioritizes tablebase comparison
  * SIMPLIFIED: Removed overengineered tablebase helpers
  */
 
