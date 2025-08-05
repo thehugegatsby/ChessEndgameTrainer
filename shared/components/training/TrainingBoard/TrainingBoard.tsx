@@ -33,6 +33,7 @@ import { Chessboard } from "@shared/components/chess/Chessboard";
 import { usePositionAnalysis, useTrainingSession } from "../../../hooks";
 import { usePageReady } from "../../../hooks/usePageReady";
 import { useStore } from "@shared/store/rootStore";
+import { useShallow } from "zustand/react/shallow";
 // Note: handleOpponentTurn is now available as a method on the store
 import { EndgamePosition } from "@shared/types";
 import { getLogger } from "@shared/services/logging";
@@ -154,30 +155,40 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   const initialFen = fen || position?.fen || "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1";
 
   // === ZUSTAND STORE - Using optimized selectors ===
-  const gameState = useStore((state) => ({
-    moveHistory: state.moveHistory,
-    currentFen: state.currentFen,
-  }));
-  const tablebaseAnalysisState = useStore((state) => ({
-    analysisStatus: state.analysisStatus,
-    evaluations: state.evaluations,
-  }));
-  const endgameTrainingState = useStore((state) => ({
-    currentPosition: state.currentPosition,
-    moveErrorDialog: state.moveErrorDialog,
-  }));
-  const actions = useStore((state) => ({
-    setPosition: state.setPosition,
-    setEvaluations: state.setEvaluations,
-    setMoveErrorDialog: state.setMoveErrorDialog,
-    setAnalysisStatus: state.setAnalysisStatus,
-    resetPosition: state.resetPosition,
-    incrementMistake: state.incrementMistake,
-    loadTrainingContext: state.loadTrainingContext,
-  }));
-  const uiActions = useStore((state) => ({
-    showToast: state.showToast,
-  }));
+  const gameState = useStore(
+    useShallow((state) => ({
+      moveHistory: state.moveHistory,
+      currentFen: state.currentFen,
+    })),
+  );
+  const tablebaseAnalysisState = useStore(
+    useShallow((state) => ({
+      analysisStatus: state.analysisStatus,
+      evaluations: state.evaluations,
+    })),
+  );
+  const endgameTrainingState = useStore(
+    useShallow((state) => ({
+      currentPosition: state.currentPosition,
+      moveErrorDialog: state.moveErrorDialog,
+    })),
+  );
+  const actions = useStore(
+    useShallow((state) => ({
+      setPosition: state.setPosition,
+      setEvaluations: state.setEvaluations,
+      setMoveErrorDialog: state.setMoveErrorDialog,
+      setAnalysisStatus: state.setAnalysisStatus,
+      resetPosition: state.resetPosition,
+      incrementMistake: state.incrementMistake,
+      loadTrainingContext: state.loadTrainingContext,
+    })),
+  );
+  const uiActions = useStore(
+    useShallow((state) => ({
+      showToast: state.showToast,
+    })),
+  );
 
   // Set position in store on mount or when position changes
   useEffect(() => {

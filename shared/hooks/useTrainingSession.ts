@@ -10,6 +10,7 @@
 
 import { useCallback } from "react";
 import { useStore } from "@shared/store/rootStore";
+import { useShallow } from "zustand/react/shallow";
 import type { ValidatedMove } from "@shared/types/chess";
 import { ErrorService } from "@shared/services/ErrorService";
 
@@ -113,21 +114,25 @@ export const useTrainingSession = ({
   onComplete,
   onPositionChange,
 }: UseTrainingSessionOptions): UseTrainingSessionReturn => {
-  const training = useStore((state) => ({
-    game: state.game,
-    isGameFinished: state.isGameFinished,
-    currentFen: state.currentFen,
-    currentPgn: state.currentPgn,
-    moveHistory: state.moveHistory,
-    currentPosition: state.currentPosition,
-  }));
-  const actions = useStore((state) => ({
-    handlePlayerMove: state.handlePlayerMove,
-    completeTraining: state.completeTraining,
-    goToMove: state.goToMove,
-    resetPosition: state.resetPosition,
-    undoMove: state.undoMove,
-  }));
+  const training = useStore(
+    useShallow((state) => ({
+      game: state.game,
+      isGameFinished: state.isGameFinished,
+      currentFen: state.currentFen,
+      currentPgn: state.currentPgn,
+      moveHistory: state.moveHistory,
+      currentPosition: state.currentPosition,
+    })),
+  );
+  const actions = useStore(
+    useShallow((state) => ({
+      handlePlayerMove: state.handlePlayerMove,
+      completeTraining: state.completeTraining,
+      goToMove: state.goToMove,
+      resetPosition: state.resetPosition,
+      undoMove: state.undoMove,
+    })),
+  );
 
   /**
    * Execute a chess move and update the game state

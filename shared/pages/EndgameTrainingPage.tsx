@@ -14,6 +14,7 @@ import { useToast } from "@shared/hooks/useToast";
 import { ToastContainer } from "@shared/components/ui/Toast";
 import { getGameStatus } from "@shared/utils/chess/gameStatus";
 import { useStore } from "@shared/store/rootStore";
+import { useShallow } from "zustand/react/shallow";
 import {
   getTrainingDisplayTitle,
   formatPositionTitle,
@@ -40,29 +41,37 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
     const router = useRouter();
 
     // Zustand store hooks
-    const training = useStore((state) => ({
-      currentPosition: state.currentPosition,
-      currentFen: state.currentFen,
-      currentPgn: state.currentPgn,
-      moveHistory: state.moveHistory,
-      currentMoveIndex: state.currentMoveIndex,
-      previousPosition: state.previousPosition,
-      nextPosition: state.nextPosition,
-      isLoadingNavigation: state.isLoadingNavigation,
-    }));
-    const trainingActions = useStore((state) => ({
-      loadTrainingContext: state.loadTrainingContext,
-      setPosition: state.setPosition,
-      completeTraining: state.completeTraining,
-      resetPosition: state.resetPosition,
-      goToMove: state.goToMove,
-    }));
-    const ui = useStore((state) => ({
-      analysisPanel: state.analysisPanel,
-    }));
-    const uiActions = useStore((state) => ({
-      updateAnalysisPanel: state.updateAnalysisPanel,
-    }));
+    const training = useStore(
+      useShallow((state) => ({
+        currentPosition: state.currentPosition,
+        currentFen: state.currentFen,
+        currentPgn: state.currentPgn,
+        moveHistory: state.moveHistory,
+        currentMoveIndex: state.currentMoveIndex,
+        previousPosition: state.previousPosition,
+        nextPosition: state.nextPosition,
+        isLoadingNavigation: state.isLoadingNavigation,
+      })),
+    );
+    const trainingActions = useStore(
+      useShallow((state) => ({
+        loadTrainingContext: state.loadTrainingContext,
+        setPosition: state.setPosition,
+        completeTraining: state.completeTraining,
+        resetPosition: state.resetPosition,
+        goToMove: state.goToMove,
+      })),
+    );
+    const ui = useStore(
+      useShallow((state) => ({
+        analysisPanel: state.analysisPanel,
+      })),
+    );
+    const uiActions = useStore(
+      useShallow((state) => ({
+        updateAnalysisPanel: state.updateAnalysisPanel,
+      })),
+    );
 
     // Toast hook
     const { toasts, removeToast, showSuccess, showError } = useToast();
