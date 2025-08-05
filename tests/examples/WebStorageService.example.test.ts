@@ -1,16 +1,16 @@
 /**
- * WebStorageService Migration Example
- * Shows how to migrate from global localStorage mocks to ServiceContainer
+ * WebStorageService Testing Example
+ * Shows how to test storage services using ServiceContainer with dependency injection
  *
- * BEFORE: Global localStorage mocks (Jest 30 incompatible)
- * AFTER: ServiceContainer with dependency injection (Jest 30 compatible)
+ * This example demonstrates the recommended approach for testing platform services
+ * with proper isolation and no global state pollution.
  */
 
 import React from "react";
 import { createTestContainer, TestScenarios, TestAssertions } from "../utils";
 import type { IPlatformStorage } from "@shared/services/platform/types";
 
-describe("WebStorageService - Migrated Tests", () => {
+describe("WebStorageService - Example Tests", () => {
   // APPROACH 1: Per-test container (recommended for isolation)
   describe("Per-test container approach", () => {
     let container: ReturnType<typeof createTestContainer>;
@@ -235,6 +235,11 @@ describe("Real-world integration", () => {
     // Example of how this would work with components
     const container = createTestContainer();
 
+    /**
+     *
+     * @param root0
+     * @param root0.children
+     */
     const TestWrapper = ({ children }: { children: React.ReactNode }) => {
       const { ServiceProvider } = require("@shared/services/container/adapter");
       return React.createElement(ServiceProvider, { container }, children);

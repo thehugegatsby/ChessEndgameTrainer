@@ -48,8 +48,6 @@
     "outdated": "npm outdated",
     "ci:install": "npm ci --prefer-offline --no-audit",
     "ci:test": "npm run lint && npm run tsc -- --noEmit && npm test",
-    "migrate:firestore": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register scripts/migrateToFirestore.ts",
-    "migrate:verify": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register scripts/migrateToFirestore.ts --verify",
     "emulator": "firebase emulators:start",
     "fix:position-ids": "npx tsx scripts/renamePositionIds.ts",
     "seed:test-positions": "npx tsx scripts/seedTestPositions.ts",
