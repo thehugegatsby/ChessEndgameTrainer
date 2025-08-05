@@ -13,8 +13,13 @@ import { EndgamePosition } from "@shared/types";
 import { useToast } from "@shared/hooks/useToast";
 import { ToastContainer } from "@shared/components/ui/Toast";
 import { getGameStatus } from "@shared/utils/chess/gameStatus";
-import { useStore } from "@shared/store/rootStore";
-import { useShallow } from "zustand/react/shallow";
+import {
+  useTrainingNavigationState,
+  useTrainingUIState,
+  useTrainingActions,
+  useGameActions,
+  useUIActions,
+} from "@shared/store/hooks";
 import {
   getTrainingDisplayTitle,
   formatPositionTitle,
@@ -41,37 +46,11 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
     const router = useRouter();
 
     // Zustand store hooks
-    const training = useStore(
-      useShallow((state) => ({
-        currentPosition: state.currentPosition,
-        currentFen: state.currentFen,
-        currentPgn: state.currentPgn,
-        moveHistory: state.moveHistory,
-        currentMoveIndex: state.currentMoveIndex,
-        previousPosition: state.previousPosition,
-        nextPosition: state.nextPosition,
-        isLoadingNavigation: state.isLoadingNavigation,
-      })),
-    );
-    const trainingActions = useStore(
-      useShallow((state) => ({
-        loadTrainingContext: state.loadTrainingContext,
-        setPosition: state.setPosition,
-        completeTraining: state.completeTraining,
-        resetPosition: state.resetPosition,
-        goToMove: state.goToMove,
-      })),
-    );
-    const ui = useStore(
-      useShallow((state) => ({
-        analysisPanel: state.analysisPanel,
-      })),
-    );
-    const uiActions = useStore(
-      useShallow((state) => ({
-        updateAnalysisPanel: state.updateAnalysisPanel,
-      })),
-    );
+    const training = useTrainingNavigationState();
+    const uiState = useTrainingUIState();
+    const { loadTrainingContext, completeTraining } = useTrainingActions();
+    const { resetPosition, goToMove } = useGameActions();
+    const { updateAnalysisPanel } = useUIActions();
 
     // Toast hook
     const { toasts, removeToast, showSuccess, showError } = useToast();
@@ -82,9 +61,9 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
     // Load training context when position changes
     useEffect(() => {
       if (position) {
-        trainingActions.loadTrainingContext(position);
+        loadTrainingContext(position);
       }
-    }, [position, trainingActions]);
+    }, [position, loadTrainingContext]);
 
     // Game status
     const gameStatus = useMemo(
@@ -103,9 +82,9 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
         !training.currentPosition ||
         training.currentPosition.id !== position.id
       ) {
-        trainingActions.loadTrainingContext(position);
+        loadTrainingContext(position);
       }
-    }, [position.id, training.currentPosition, trainingActions]);
+    }, [position.id, training.currentPosition, loadTrainingContext]);
 
     const handleComplete = useCallback(
       (isSuccess: boolean) => {
@@ -117,27 +96,27 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
         } else {
           showError("Versuch es erneut", ANIMATION.ERROR_TOAST_DURATION);
         }
-        trainingActions.completeTraining(isSuccess);
+        completeTraining(isSuccess);
       },
-      [trainingActions, showSuccess, showError],
+      [completeTraining, showSuccess, showError],
     );
 
     const handleResetPosition = useCallback(() => {
-      trainingActions.resetPosition();
+      resetPosition();
       setResetKey((prev) => prev + 1);
-    }, [trainingActions]);
+    }, [resetPosition]);
 
     const handleMoveClick = useCallback(
       (moveIndex: number) => {
         // Navigate to the clicked move
-        trainingActions.goToMove(moveIndex);
+        goToMove(moveIndex);
       },
-      [trainingActions],
+      [goToMove],
     );
 
     const handleToggleAnalysis = useCallback(() => {
-      uiActions.updateAnalysisPanel({ isOpen: !ui.analysisPanel.isOpen });
-    }, [ui.analysisPanel.isOpen, uiActions]);
+      updateAnalysisPanel({ isOpen: !uiState.analysisPanel.isOpen });
+    }, [uiState.analysisPanel.isOpen, updateAnalysisPanel]);
 
     const getLichessUrl = useCallback(() => {
       const currentPgn = training.currentPgn || "";
@@ -257,17 +236,17 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
                 onClick={handleToggleAnalysis}
                 data-testid="toggle-analysis"
                 className={`w-full p-2 rounded mb-2 transition-colors ${
-                  ui.analysisPanel.isOpen
+                  uiState.analysisPanel.isOpen
                     ? "bg-blue-600 hover:bg-blue-700"
                     : "bg-gray-700 hover:bg-gray-600"
                 }`}
               >
-                Analyse {ui.analysisPanel.isOpen ? "AUS" : "AN"}
+                Analyse {uiState.analysisPanel.isOpen ? "AUS" : "AN"}
               </button>
 
               <TablebaseAnalysisPanel
                 fen={training.currentFen || position.fen}
-                isVisible={ui.analysisPanel.isOpen}
+                isVisible={uiState.analysisPanel.isOpen}
                 previousFen={
                   training.moveHistory.length > 0
                     ? training.moveHistory[training.moveHistory.length - 1]
@@ -280,7 +259,7 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
             {/* Move History */}
             <div className="move-history flex-1 p-4 border-b border-gray-700 overflow-y-auto">
               <MovePanelZustand
-                showEvaluations={ui.analysisPanel.isOpen}
+                showEvaluations={uiState.analysisPanel.isOpen}
                 onMoveClick={handleMoveClick}
                 currentMoveIndex={training.currentMoveIndex}
               />

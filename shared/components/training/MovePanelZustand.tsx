@@ -28,8 +28,7 @@ import {
   getSmartMoveEvaluation,
   type MoveEvaluation,
 } from "../../utils/chess/evaluation";
-import { useStore } from "@shared/store/rootStore";
-import { useShallow } from "zustand/react/shallow";
+import { useBoardState, useAnalysisState } from "@shared/store/hooks";
 import { TEST_IDS, getTestId } from "@shared/constants/testIds";
 import { MoveQualityIndicator } from "../analysis/MoveQualityIndicator";
 
@@ -101,12 +100,8 @@ interface MovePair {
 export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
   ({ showEvaluations = false, onMoveClick, currentMoveIndex = -1 }) => {
     // Get data from Zustand store
-    const { moveHistory, evaluations } = useStore(
-      useShallow((state) => ({
-        moveHistory: state.moveHistory,
-        evaluations: state.evaluations,
-      })),
-    );
+    const { moveHistory } = useBoardState();
+    const { evaluations } = useAnalysisState();
 
     /**
      * Helper to get FEN position before a specific move

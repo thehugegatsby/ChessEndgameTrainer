@@ -22,8 +22,10 @@
  */
 
 import React from "react";
-import { useStore } from "@shared/store/rootStore";
-import { useShallow } from "zustand/react/shallow";
+import {
+  useTrainingNavigationState,
+  useGameActions,
+} from "@shared/store/hooks";
 
 /**
  * Navigation controls for move history
@@ -70,20 +72,8 @@ import { useShallow } from "zustand/react/shallow";
  * @returns {JSX.Element} Navigation control buttons
  */
 export const NavigationControls: React.FC = React.memo(() => {
-  const { moveHistory, currentMoveIndex } = useStore(
-    useShallow((state) => ({
-      moveHistory: state.moveHistory,
-      currentMoveIndex: state.currentMoveIndex,
-    })),
-  );
-  const { goToFirst, goToPrevious, goToNext, goToLast } = useStore(
-    useShallow((state) => ({
-      goToFirst: state.goToFirst,
-      goToPrevious: state.goToPrevious,
-      goToNext: state.goToNext,
-      goToLast: state.goToLast,
-    })),
-  );
+  const { moveHistory, currentMoveIndex } = useTrainingNavigationState();
+  const { goToFirst, goToPrevious, goToNext, goToLast } = useGameActions();
 
   // Calculate navigation state
   const totalMoves = moveHistory.length;

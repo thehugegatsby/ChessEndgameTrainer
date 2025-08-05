@@ -27,7 +27,7 @@
 import React from "react";
 import { usePositionAnalysis } from "@shared/hooks/usePositionAnalysis";
 import { TablebasePanel } from "@shared/components/tablebase/TablebasePanel";
-import { useStore } from "@shared/store/rootStore";
+import { useTrainingActions } from "@shared/store/hooks";
 
 /**
  * Props for the TablebaseAnalysisPanel component
@@ -87,7 +87,7 @@ export const TablebaseAnalysisPanel: React.FC<TablebaseAnalysisPanelProps> = ({
     previousFen,
   });
 
-  const handlePlayerMove = useStore((state) => state.handlePlayerMove);
+  const { handlePlayerMove } = useTrainingActions();
 
   /**
    * Handle move selection from tablebase panel
