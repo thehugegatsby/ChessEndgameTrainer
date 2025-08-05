@@ -27,7 +27,7 @@ A web-based training tool for chess players to master specific endgame scenarios
 - `/shared/lib` → Core libraries
 - `/shared/utils` → Utility functions
 - `/shared/types` → TypeScript types
-- `/tests` → Test suites (100% passing, 823 tests)
+- `/tests` → Test suites (100% passing, 721+ tests)
 - `/public` → Static assets
 
 ## Core Commands
@@ -79,11 +79,11 @@ npm run analyze-code    # Run all code analysis
 
 ### Before Making Changes
 
-1. **Read** `/docs/TECHNICAL_DEBT_AND_AI_BEST_PRACTICES.md` first
-2. **Check** for `@deprecated` markers in code
-3. **Keep** functions under 50 lines (extract helpers if needed)
-4. **Use** Logger service, not console.log
-5. **Avoid** `any` types - use proper TypeScript interfaces
+1. **Check** for `@deprecated` markers in code
+2. **Keep** functions under 50 lines (extract helpers if needed)
+3. **Use** Logger service, not console.log
+4. **Avoid** `any` types - use proper TypeScript interfaces
+5. **Follow** domain-slice architecture patterns
 
 ### Critical Files to Understand
 
@@ -98,7 +98,7 @@ npm run analyze-code    # Run all code analysis
 
 - ✅ **Store Refactoring**: Monolithic store.ts (1,298 lines) → domain slices ✅
 - ✅ **Type Safety**: All TypeScript errors resolved (0 compilation errors) ✅
-- ✅ **Test Coverage**: All 823 tests passing ✅
+- ✅ **Test Coverage**: All 721+ tests passing ✅
 - ✅ **Branded Types**: Clean ValidatedMove implementation ✅
 - [ ] **Complex Functions**: `handlePlayerMove` (178 lines) still needs refactoring
 - [ ] **Mixed Concerns**: Some components have E2E test code mixed in

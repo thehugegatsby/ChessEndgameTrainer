@@ -3,8 +3,8 @@
 [![Next.js](https://img.shields.io/badge/Next.js-15.3.3-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue)](https://www.typescriptlang.org/)
 [![Zustand](https://img.shields.io/badge/Zustand-5.0.7-orange)](https://zustand-demo.pmnd.rs/)
-[![Test Coverage](https://img.shields.io/badge/Tests-823_passing-green)](./coverage/lcov-report/index.html)
-[![Phase 8](https://img.shields.io/badge/Phase_8-COMPLETE-brightgreen)](./docs/technical-debt/TODO_TECH_DEBT.md)
+[![Test Coverage](https://img.shields.io/badge/Tests-721_passing-green)](./coverage/lcov-report/index.html)
+[![Phase 8](https://img.shields.io/badge/Phase_8-COMPLETE-brightgreen)](./docs/CURRENT_FOCUS.md)
 [![Architecture](https://img.shields.io/badge/Architecture-Domain_Slices-blue)](./docs/ARCHITECTURE.md)
 
 Eine moderne **Web-first** Anwendung zum systematischen Lernen von Schachendspielen mit KI-Unterstützung. **🎉 PHASE 8 COMPLETE** - Größte architektonische Überarbeitung in der Projektgeschichte erfolgreich abgeschlossen!

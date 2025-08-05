@@ -71,21 +71,21 @@ export const Button: React.FC<ButtonProps> = ({ onClick, children, variant = 'pr
 export const Button = (props) => <button {...props} />;
 ```
 
-### State Management (Zustand)
+### State Management (Zustand with Immer)
 
 ```typescript
-// ✅ Good - actions modify state immutably
+// ✅ Good - Immer middleware allows mutative syntax (becomes immutable)
+makeMove: (move) => set((state) => {
+  state.training.moveHistory.push(move); // Immer handles immutability
+}),
+
+// ❌ Bad - manual spread patterns (verbose and error-prone)
 makeMove: (move) => set((state) => ({
   training: {
     ...state.training,
     moveHistory: [...state.training.moveHistory, move],
   }
 })),
-
-// ❌ Bad - direct mutation
-makeMove: (move) => set((state) => {
-  state.training.moveHistory.push(move); // Don't mutate!
-}),
 ```
 
 ## Documentation

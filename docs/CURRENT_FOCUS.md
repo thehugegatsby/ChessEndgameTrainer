@@ -100,7 +100,7 @@ When debugging, pay special attention to:
 
 ## 🧪 Testing Focus Areas
 
-**Current test infrastructure status**: 823 tests passing ✅
+**Current test infrastructure status**: 721+ tests passing ✅
 
 When working on new features, ensure tests cover:
 
@@ -119,7 +119,7 @@ A task is considered complete when:
 1. Root cause identified and fixed (for bugs)
 2. Unit tests added/updated for affected slices
 3. TypeScript compilation passes with 0 errors
-4. All 823+ tests pass
+4. All 721+ tests pass
 5. Manual testing confirms functionality
 6. No regression in existing functionality
 7. Code follows domain-slice architecture patterns

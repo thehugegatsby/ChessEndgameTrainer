@@ -158,7 +158,7 @@ Each slice contains its own state and actions, promoting separation of concerns 
 - **Integration tests**: Store orchestrators and service integrations
 - **E2E tests**: Clean architecture with Playwright (core-training, error-recovery)
 - **Mock patterns**: MSW for API mocking, TestFixtures for valid FENs, chess.js mocking for unit tests
-- **Test infrastructure**: 823 tests passing with comprehensive slice testing patterns
+- **Test infrastructure**: 721+ tests passing with comprehensive slice testing patterns
 
 ## Migration History
 
@@ -174,7 +174,7 @@ Each slice contains its own state and actions, promoting separation of concerns 
 - **v3.7: Phase 8 Store Refactoring (MAJOR MILESTONE)** ✅
   - Monolithic store.ts (1,298 lines) → domain-specific slices
   - All TypeScript errors resolved (0 compilation errors)
-  - All 823 tests passing with proper Immer middleware patterns
+  - All 721+ tests passing with proper Immer middleware patterns
   - Branded types implementation with controlled test factories
   - Cross-slice orchestrators for complex operations
 
