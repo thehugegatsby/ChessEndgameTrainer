@@ -87,7 +87,7 @@ export const TablebaseAnalysisPanel: React.FC<TablebaseAnalysisPanelProps> = ({
     previousFen,
   });
 
-  const trainingStore = useTrainingStore();
+  const [, trainingActions] = useTrainingStore();
 
   /**
    * Handle move selection from tablebase panel
@@ -107,7 +107,7 @@ export const TablebaseAnalysisPanel: React.FC<TablebaseAnalysisPanelProps> = ({
   const handleMoveSelect = (moveSan: string) => {
     // The store action accepts SAN strings directly
     // MoveResultGroup passes move.san, which chess.js can parse
-    trainingStore.handlePlayerMove(moveSan);
+    trainingActions.handlePlayerMove(moveSan);
   };
 
   if (!isVisible) {

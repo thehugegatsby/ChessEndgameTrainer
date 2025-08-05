@@ -1,74 +1,124 @@
 /**
- * @file Consolidated Tablebase store hook
+ * @file Tablebase store hooks with state/action separation
  * @module store/hooks/useTablebaseStore
  *
  * @description
- * Provides unified access to tablebase-related state and actions from the Zustand store.
- * This consolidated hook manages tablebase API interactions, evaluations, and analysis status.
- * Uses useShallow for optimal performance.
+ * Provides optimized hooks for tablebase-related state and actions with proper separation.
+ * This pattern prevents unnecessary re-renders in action-only components while
+ * maintaining excellent developer experience.
+ *
+ * Three hooks are exported:
+ * - useTablebaseState(): For components that need reactive state
+ * - useTablebaseActions(): For components that only dispatch actions (no re-renders)
+ * - useTablebaseStore(): Convenience hook returning [state, actions] tuple
  */
 
 import { useStore } from "../rootStore";
 import { useShallow } from "zustand/react/shallow";
-import type { RootState } from "../slices/types";
+import type {
+  RootState,
+  TablebaseState as TablebaseStateType,
+  TablebaseActions as TablebaseActionsType,
+} from "../slices/types";
+import type { AsyncActions } from "../slices/types";
+
+// Extend tablebase actions with relevant async action
+type ExtendedTablebaseActions = TablebaseActionsType &
+  Pick<AsyncActions, "requestPositionEvaluation">;
 
 /**
- * Hook for comprehensive tablebase state and actions
+ * Hook for reactive tablebase state properties
  *
  * @description
- * Central hook for tablebase API state management including
- * evaluation results, analysis status, and move suggestions.
- * Provides both state queries and mutation actions for tablebase operations.
+ * Subscribes components to tablebase state changes. Use this in components
+ * that need to display or react to evaluation data. Will re-render when any
+ * selected tablebase state changes.
  *
- * @returns {Object} Tablebase state and actions
+ * @returns {TablebaseStateType} Tablebase state properties
  *
  * @example
  * ```tsx
- * const {
- *   // State
- *   tablebaseMove,
- *   analysisStatus,
- *   evaluations,
- *   currentEvaluation,
+ * const { tablebaseMove, analysisStatus, currentEvaluation } = useTablebaseState();
  *
- *   // Actions
- *   setTablebaseMove,
- *   setAnalysisStatus,
- *   addEvaluation,
- * } = useTablebaseStore();
- *
- * // Check analysis status
+ * // Component will re-render when these values change
  * if (analysisStatus === 'loading') {
- *   // Show loading spinner
+ *   return <Spinner />;
  * }
- *
- * // Display tablebase move
- * if (tablebaseMove) {
- *   console.log(`Best move: ${tablebaseMove}`);
- * }
- *
- * // Add new evaluation
- * const handleEvaluation = (eval: PositionAnalysis) => {
- *   addEvaluation(eval);
- * };
  * ```
  */
-export const useTablebaseStore = () => {
+export const useTablebaseState = (): TablebaseStateType => {
   return useStore(
     useShallow((state: RootState) => ({
-      // === Tablebase State ===
+      // Tablebase state
       tablebaseMove: state.tablebaseMove,
       analysisStatus: state.analysisStatus,
       evaluations: state.evaluations,
       currentEvaluation: state.currentEvaluation,
-
-      // === Tablebase Actions ===
-      setTablebaseMove: state.setTablebaseMove,
-      setAnalysisStatus: state.setAnalysisStatus,
-      addEvaluation: state.addEvaluation,
-      setEvaluations: state.setEvaluations,
-      setCurrentEvaluation: state.setCurrentEvaluation,
-      clearTablebaseState: state.clearTablebaseState,
     })),
   );
+};
+
+/**
+ * Hook for tablebase action functions
+ *
+ * @description
+ * Returns stable action functions that never cause re-renders.
+ * Use this in components that only need to trigger tablebase actions
+ * without subscribing to state changes.
+ *
+ * @returns {ExtendedTablebaseActions} Tablebase action functions
+ *
+ * @example
+ * ```tsx
+ * const { setAnalysisStatus, requestPositionEvaluation } = useTablebaseActions();
+ *
+ * // This component will never re-render due to tablebase state changes
+ * const analyzePosition = async () => {
+ *   setAnalysisStatus('loading');
+ *   await requestPositionEvaluation();
+ * };
+ * ```
+ */
+export const useTablebaseActions = (): ExtendedTablebaseActions => {
+  return useStore((state: RootState) => ({
+    // Tablebase actions
+    setTablebaseMove: state.setTablebaseMove,
+    setAnalysisStatus: state.setAnalysisStatus,
+    addEvaluation: state.addEvaluation,
+    setEvaluations: state.setEvaluations,
+    setCurrentEvaluation: state.setCurrentEvaluation,
+    clearTablebaseState: state.clearTablebaseState,
+
+    // Orchestrated action
+    requestPositionEvaluation: state.requestPositionEvaluation,
+  }));
+};
+
+/**
+ * Convenience hook for components that need both state and actions
+ *
+ * @description
+ * Returns a tuple of [state, actions] for components that need both.
+ * This maintains the familiar pattern while benefiting from the
+ * optimized separation under the hood.
+ *
+ * @returns {[TablebaseStateType, ExtendedTablebaseActions]} Tuple of tablebase state and actions
+ *
+ * @example
+ * ```tsx
+ * const [tablebaseState, tablebaseActions] = useTablebaseStore();
+ *
+ * const handleEvaluation = (eval: PositionAnalysis) => {
+ *   tablebaseActions.addEvaluation(eval);
+ *   if (!tablebaseState.currentEvaluation) {
+ *     tablebaseActions.setCurrentEvaluation(eval);
+ *   }
+ * };
+ * ```
+ */
+export const useTablebaseStore = (): [
+  TablebaseStateType,
+  ExtendedTablebaseActions,
+] => {
+  return [useTablebaseState(), useTablebaseActions()];
 };

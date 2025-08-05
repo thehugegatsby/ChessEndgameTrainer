@@ -158,10 +158,10 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   const initialFen = fen || position?.fen || "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1";
 
   // === ZUSTAND STORE - Using domain-specific hooks for performance ===
-  const gameStore = useGameStore(); // Pure chess state
-  const trainingStore = useTrainingStore(); // Training session state
-  const tablebaseStore = useTablebaseStore(); // Analysis and evaluation data
-  const uiStore = useUIStore(); // UI state (toasts, modals, loading)
+  const [, gameActions] = useGameStore(); // Pure chess state
+  const [trainingState, trainingActions] = useTrainingStore(); // Training session state
+  const [tablebaseState, tablebaseActions] = useTablebaseStore(); // Analysis and evaluation data
+  const [, uiActions] = useUIStore(); // UI state (toasts, modals, loading)
 
   // Set position in store on mount or when position changes
   useEffect(() => {
@@ -169,18 +169,18 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
 
     if (
       position &&
-      (!trainingStore.currentPosition ||
-        trainingStore.currentPosition.id !== position.id)
+      (!trainingState.currentPosition ||
+        trainingState.currentPosition.id !== position.id)
     ) {
       logger.info("Setting position in store", {
         positionId: position.id,
         title: position.title,
         fen: position.fen,
-        currentPositionId: trainingStore.currentPosition?.id,
+        currentPositionId: trainingState.currentPosition?.id,
       });
-      trainingStore.loadTrainingContext(position);
+      trainingActions.loadTrainingContext(position);
     }
-  }, [position, trainingStore]);
+  }, [position, trainingActions, trainingState]);
 
   // === HOOKS ===
 
@@ -262,8 +262,8 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
 
     const currentEvaluations = evaluations || [];
     const updatedEvaluations = [...currentEvaluations, lastEvaluation];
-    tablebaseStore.setEvaluations(updatedEvaluations);
-  }, [lastEvaluation, currentFen, evaluations, tablebaseStore]);
+    tablebaseActions.setEvaluations(updatedEvaluations);
+  }, [lastEvaluation, currentFen, evaluations, tablebaseActions]);
 
   // UI state management - local component state only
   const [resetKey, setResetKey] = useState(0);
@@ -271,12 +271,12 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   const [moveError, setMoveError] = useState<string | null>(null);
 
   // Get move error dialog state from training slice
-  const showMoveErrorDialog = trainingStore.moveErrorDialog?.isOpen || false;
-  const moveErrorData = trainingStore.moveErrorDialog
+  const showMoveErrorDialog = trainingState.moveErrorDialog?.isOpen || false;
+  const moveErrorData = trainingState.moveErrorDialog
     ? {
-        wdlBefore: trainingStore.moveErrorDialog.wdlBefore || 0,
-        wdlAfter: trainingStore.moveErrorDialog.wdlAfter || 0,
-        bestMove: trainingStore.moveErrorDialog.bestMove,
+        wdlBefore: trainingState.moveErrorDialog.wdlBefore || 0,
+        wdlAfter: trainingState.moveErrorDialog.wdlAfter || 0,
+        bestMove: trainingState.moveErrorDialog.bestMove,
       }
     : null;
 
@@ -294,7 +294,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
      *
      */
     handleDismissMoveError: () => {
-      trainingStore.setMoveErrorDialog(null);
+      trainingActions.setMoveErrorDialog(null);
       setMoveError(null);
     },
     /**
@@ -327,8 +327,8 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     resetGame();
     clearEvaluations();
     trainingUIState.handleReset();
-    gameStore.resetGame();
-  }, [resetGame, clearEvaluations, gameStore]);
+    gameActions.resetGame();
+  }, [resetGame, clearEvaluations, gameActions]);
 
   /**
    * Handles move error dialog dismissal without undo
@@ -346,8 +346,8 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     logger.info("Closing move error dialog");
     // Don't undo anything - the invalid move was never added to history
     // Just close the dialog so the user can try again
-    trainingStore.setMoveErrorDialog(null);
-  }, [uiStore]);
+    trainingActions.setMoveErrorDialog(null);
+  }, [trainingActions]);
 
   /**
    * Restarts the entire training session after move error
@@ -364,8 +364,8 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     const logger = getLogger().setContext("TrainingBoard-MoveError");
     logger.info("Restarting game due to move error");
     handleReset();
-    trainingStore.setMoveErrorDialog(null);
-  }, [handleReset, uiStore]);
+    trainingActions.setMoveErrorDialog(null);
+  }, [handleReset, trainingActions]);
 
   /**
    * Displays the best move as a toast notification
@@ -383,20 +383,23 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     if (moveErrorData?.bestMove) {
       const logger = getLogger().setContext("TrainingBoard-MoveError");
       logger.info("Showing best move", { bestMove: moveErrorData.bestMove });
-      uiStore.showToast(`Der beste Zug war: ${moveErrorData.bestMove}`, "info");
+      uiActions.showToast(
+        `Der beste Zug war: ${moveErrorData.bestMove}`,
+        "info",
+      );
     }
-    trainingStore.setMoveErrorDialog(null);
-  }, [moveErrorData, uiStore]);
+    trainingActions.setMoveErrorDialog(null);
+  }, [moveErrorData, uiActions, trainingActions]);
 
   // Update analysis status based on evaluation state
   useEffect(() => {
     if (isEvaluating) {
-      tablebaseStore.setAnalysisStatus("loading");
-    } else if (tablebaseStore.analysisStatus === "loading") {
+      tablebaseActions.setAnalysisStatus("loading");
+    } else if (tablebaseState.analysisStatus === "loading") {
       // Only update to success if we were loading
-      tablebaseStore.setAnalysisStatus("success");
+      tablebaseActions.setAnalysisStatus("success");
     }
-  }, [isEvaluating, tablebaseStore]);
+  }, [isEvaluating, tablebaseState, tablebaseActions]);
 
   /**
    * Handles chess move execution and validation
@@ -484,8 +487,8 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
             possibleMoves: possibleMoves.map((m: any) => `${m.from}-${m.to}`),
             currentFen: game.fen(), // Add current FEN to error log
           });
-          uiStore.showToast("Invalid move", "warning");
-          trainingStore.incrementMistake();
+          uiActions.showToast("Invalid move", "warning");
+          trainingActions.incrementMistake();
           return null;
         }
 
@@ -505,7 +508,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
             });
 
             // Use the orchestrator from the store directly
-            await trainingStore.handleOpponentTurn();
+            await trainingActions.handleOpponentTurn();
 
             logger.info("[TRACE] Tablebase move request completed", {
               updatedFen,
@@ -524,7 +527,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : "Move failed";
-        uiStore.showToast(errorMessage, "error");
+        uiActions.showToast(errorMessage, "error");
         return null;
       }
     },
@@ -532,9 +535,10 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
       isGameFinished,
       makeMove,
       lastEvaluation,
-      trainingStore,
-      uiStore,
-      gameStore,
+      trainingActions,
+      trainingState,
+      uiActions,
+      gameActions,
       game,
       history,
       position,
@@ -884,8 +888,8 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
 
   // === PAGE READY DETECTION ===
   const isAnalysisReady =
-    tablebaseStore.analysisStatus === "success" ||
-    tablebaseStore.analysisStatus === "idle";
+    tablebaseState.analysisStatus === "success" ||
+    tablebaseState.analysisStatus === "idle";
   const isBoardReady = !!currentFen && !!game;
   const isPageReady = usePageReady([isAnalysisReady, isBoardReady]);
 
@@ -910,7 +914,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         }}
         data-fen={currentFen}
         data-testid="training-board"
-        data-analysis-status={tablebaseStore.analysisStatus}
+        data-analysis-status={tablebaseState.analysisStatus}
       >
         <Chessboard
           fen={currentFen}
@@ -950,7 +954,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         <MoveErrorDialog
           isOpen={showMoveErrorDialog}
           onClose={() => {
-            trainingStore.setMoveErrorDialog(null);
+            trainingActions.setMoveErrorDialog(null);
           }}
           onTakeBack={handleMoveErrorTakeBack}
           onRestart={handleMoveErrorRestart}

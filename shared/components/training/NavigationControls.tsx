@@ -69,11 +69,11 @@ import { useGameStore } from "@shared/store/hooks";
  * @returns {JSX.Element} Navigation control buttons
  */
 export const NavigationControls: React.FC = React.memo(() => {
-  const gameStore = useGameStore();
+  const [gameState, gameActions] = useGameStore();
 
   // Calculate navigation state
-  const totalMoves = gameStore.moveHistory.length;
-  const currentIndex = gameStore.currentMoveIndex ?? totalMoves - 1;
+  const totalMoves = gameState.moveHistory.length;
+  const currentIndex = gameState.currentMoveIndex ?? totalMoves - 1;
   const isAtStart = currentIndex <= -1;
   const isAtEnd = currentIndex >= totalMoves - 1;
 
@@ -83,7 +83,7 @@ export const NavigationControls: React.FC = React.memo(() => {
       data-testid="move-navigation"
     >
       <button
-        onClick={gameStore.goToFirst}
+        onClick={gameActions.goToFirst}
         disabled={isAtStart}
         className={`p-2 rounded transition-all ${
           isAtStart
@@ -100,7 +100,7 @@ export const NavigationControls: React.FC = React.memo(() => {
       </button>
 
       <button
-        onClick={gameStore.goToPrevious}
+        onClick={gameActions.goToPrevious}
         disabled={isAtStart}
         className={`p-2 rounded transition-all ${
           isAtStart
@@ -118,7 +118,7 @@ export const NavigationControls: React.FC = React.memo(() => {
       </button>
 
       <button
-        onClick={gameStore.goToNext}
+        onClick={gameActions.goToNext}
         disabled={isAtEnd}
         className={`p-2 rounded transition-all ${
           isAtEnd
@@ -135,7 +135,7 @@ export const NavigationControls: React.FC = React.memo(() => {
       </button>
 
       <button
-        onClick={gameStore.goToLast}
+        onClick={gameActions.goToLast}
         disabled={isAtEnd}
         className={`p-2 rounded transition-all ${
           isAtEnd

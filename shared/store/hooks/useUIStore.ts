@@ -1,82 +1,122 @@
 /**
- * @file Consolidated UI store hook
+ * @file UI store hooks with state/action separation
  * @module store/hooks/useUIStore
  *
  * @description
- * Provides unified access to UI-related state and actions from the Zustand store.
- * This consolidated hook manages all UI elements including toasts, modals,
- * sidebars, and loading states. Uses useShallow for optimal performance.
+ * Provides optimized hooks for UI-related state and actions with proper separation.
+ * This pattern prevents unnecessary re-renders in action-only components while
+ * maintaining excellent developer experience.
+ *
+ * Three hooks are exported:
+ * - useUIState(): For components that need reactive state
+ * - useUIActions(): For components that only dispatch actions (no re-renders)
+ * - useUIStore(): Convenience hook returning [state, actions] tuple
  */
 
 import { useStore } from "../rootStore";
 import { useShallow } from "zustand/react/shallow";
-import type { RootState } from "../slices/types";
+import type { RootState, UIActions as UIActionsType } from "../slices/types";
+import type { UIState } from "../types";
 
 /**
- * Hook for comprehensive UI state and actions
+ * Hook for reactive UI state properties
  *
  * @description
- * Central hook for UI state management including notifications,
- * dialogs, panels, and loading indicators. Provides both state
- * queries and mutation actions for UI elements.
+ * Subscribes components to UI state changes. Use this in components
+ * that need to display or react to UI data. Will re-render when any
+ * selected UI state changes.
  *
- * @returns {Object} UI state and actions
+ * @returns {UIState} UI state properties
  *
  * @example
  * ```tsx
- * const {
- *   // State
- *   analysisPanel,
- *   isSidebarOpen,
+ * const { toasts, currentModal, isSidebarOpen } = useUIState();
  *
- *   // Actions
- *   showToast,
- *   toggleSidebar,
- *   updateAnalysisPanel,
- * } = useUIStore();
+ * // Component will re-render when these values change
+ * return (
+ *   <>
+ *     {toasts.map(toast => <Toast key={toast.id} {...toast} />)}
+ *     {currentModal && <Modal type={currentModal} />}
+ *   </>
+ * );
+ * ```
+ */
+export const useUIState = (): UIState => {
+  return useStore(
+    useShallow((state: RootState) => ({
+      // UI state
+      isSidebarOpen: state.isSidebarOpen,
+      currentModal: state.currentModal,
+      toasts: state.toasts,
+      loading: state.loading,
+      analysisPanel: state.analysisPanel,
+    })),
+  );
+};
+
+/**
+ * Hook for UI action functions
  *
- * // Show success notification
- * const handleSuccess = () => {
- *   showToast('Operation completed!', 'success');
+ * @description
+ * Returns stable action functions that never cause re-renders.
+ * Use this in components that only need to trigger UI actions
+ * without subscribing to state changes.
+ *
+ * @returns {UIActionsType} UI action functions
+ *
+ * @example
+ * ```tsx
+ * const { showToast, toggleSidebar, openModal } = useUIActions();
+ *
+ * // This component will never re-render due to UI state changes
+ * return (
+ *   <>
+ *     <button onClick={toggleSidebar}>Toggle Menu</button>
+ *     <button onClick={() => showToast('Success!', 'success')}>Show Toast</button>
+ *     <button onClick={() => openModal('settings')}>Settings</button>
+ *   </>
+ * );
+ * ```
+ */
+export const useUIActions = (): UIActionsType => {
+  return useStore((state: RootState) => ({
+    // UI actions
+    toggleSidebar: state.toggleSidebar,
+    setIsSidebarOpen: state.setIsSidebarOpen,
+    openModal: state.openModal,
+    closeModal: state.closeModal,
+    showToast: state.showToast,
+    removeToast: state.removeToast,
+    setLoading: state.setLoading,
+    updateAnalysisPanel: state.updateAnalysisPanel,
+  }));
+};
+
+/**
+ * Convenience hook for components that need both state and actions
+ *
+ * @description
+ * Returns a tuple of [state, actions] for components that need both.
+ * This maintains the familiar pattern while benefiting from the
+ * optimized separation under the hood.
+ *
+ * @returns {[UIState, UIActionsType]} Tuple of UI state and actions
+ *
+ * @example
+ * ```tsx
+ * const [uiState, uiActions] = useUIStore();
+ *
+ * const handleAnalysisToggle = () => {
+ *   uiActions.updateAnalysisPanel({
+ *     isOpen: !uiState.analysisPanel.isOpen
+ *   });
  * };
  *
- * // Toggle analysis panel
- * const toggleAnalysis = () => {
- *   updateAnalysisPanel({ isOpen: !analysisPanel.isOpen });
- * };
- *
- * // Check sidebar state
- * if (isSidebarOpen) {
- *   // Sidebar is open
+ * if (uiState.loading.global) {
+ *   return <GlobalSpinner />;
  * }
  * ```
  */
-export const useUIStore = () => {
-  return useStore(
-    useShallow((state: RootState) => ({
-      // === UI State ===
-      toasts: state.toasts,
-      currentModal: state.currentModal,
-      isSidebarOpen: state.isSidebarOpen,
-      loading: state.loading,
-      analysisPanel: state.analysisPanel,
-
-      // === Toast Actions ===
-      showToast: state.showToast,
-
-      // === Modal Actions ===
-      openModal: state.openModal,
-      closeModal: state.closeModal,
-
-      // === Sidebar Actions ===
-      toggleSidebar: state.toggleSidebar,
-      setIsSidebarOpen: state.setIsSidebarOpen,
-
-      // === Loading Actions ===
-      setLoading: state.setLoading,
-
-      // === Panel Actions ===
-      updateAnalysisPanel: state.updateAnalysisPanel,
-    })),
-  );
+export const useUIStore = (): [UIState, UIActionsType] => {
+  return [useUIState(), useUIActions()];
 };

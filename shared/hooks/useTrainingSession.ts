@@ -113,8 +113,8 @@ export const useTrainingSession = ({
   onComplete,
   onPositionChange,
 }: UseTrainingSessionOptions): UseTrainingSessionReturn => {
-  const gameStore = useGameStore();
-  const trainingStore = useTrainingStore();
+  const [gameState, gameActions] = useGameStore();
+  const [trainingState, trainingActions] = useTrainingStore();
 
   /**
    * Execute a chess move and update the game state
@@ -130,27 +130,27 @@ export const useTrainingSession = ({
       to: string;
       promotion?: string;
     }): Promise<boolean> => {
-      if (gameStore.isGameFinished) return false;
+      if (gameState.isGameFinished) return false;
 
       try {
         // Simply delegate to Store - no double validation needed
         // Store will validate the move and update all states atomically
-        const moveResult = await trainingStore.handlePlayerMove(move as any);
+        const moveResult = await trainingActions.handlePlayerMove(move as any);
         if (!moveResult) return false;
 
         // Check if game is finished after move
-        if (gameStore.game?.isGameOver()) {
+        if (gameState.game?.isGameOver()) {
           const success =
-            gameStore.game.turn() !==
-            trainingStore.currentPosition?.sideToMove?.[0];
-          trainingStore.completeTraining(success);
+            gameState.game.turn() !==
+            trainingState.currentPosition?.sideToMove?.[0];
+          trainingActions.completeTraining(success);
           onComplete?.(success);
         }
 
         // Notify position change with current Store state
         onPositionChange?.(
-          gameStore.currentFen || "",
-          gameStore.currentPgn || "",
+          gameState.currentFen || "",
+          gameState.currentPgn || "",
         );
 
         return true;
@@ -164,13 +164,13 @@ export const useTrainingSession = ({
       }
     },
     [
-      gameStore.isGameFinished,
-      gameStore.game,
-      gameStore.currentFen,
-      gameStore.currentPgn,
-      trainingStore.handlePlayerMove,
-      trainingStore.completeTraining,
-      trainingStore.currentPosition,
+      gameState.isGameFinished,
+      gameState.game,
+      gameState.currentFen,
+      gameState.currentPgn,
+      trainingActions.handlePlayerMove,
+      trainingActions.completeTraining,
+      trainingState.currentPosition,
       onComplete,
       onPositionChange,
     ],
@@ -184,17 +184,17 @@ export const useTrainingSession = ({
     (moveIndex: number) => {
       // Convert 1-based index to 0-based for store
       const zeroBasedIndex = moveIndex - 1;
-      gameStore.goToMove(zeroBasedIndex);
+      gameActions.goToMove(zeroBasedIndex);
 
       // Notify position change
-      if (onPositionChange && gameStore.currentFen) {
-        onPositionChange(gameStore.currentFen, gameStore.currentPgn || "");
+      if (onPositionChange && gameState.currentFen) {
+        onPositionChange(gameState.currentFen, gameState.currentPgn || "");
       }
     },
     [
-      gameStore.goToMove,
-      gameStore.currentFen,
-      gameStore.currentPgn,
+      gameActions.goToMove,
+      gameState.currentFen,
+      gameState.currentPgn,
       onPositionChange,
     ],
   );
@@ -204,45 +204,45 @@ export const useTrainingSession = ({
    * Clears move history and resets to starting FEN
    */
   const resetGame = useCallback(() => {
-    gameStore.resetGame();
+    gameActions.resetGame();
 
     // Notify position change
-    if (onPositionChange && trainingStore.currentPosition) {
-      onPositionChange(trainingStore.currentPosition.fen, "");
+    if (onPositionChange && trainingState.currentPosition) {
+      onPositionChange(trainingState.currentPosition.fen, "");
     }
-  }, [gameStore.resetGame, trainingStore.currentPosition, onPositionChange]);
+  }, [gameActions.resetGame, trainingState.currentPosition, onPositionChange]);
 
   /**
    * Undo the last move in the game
    * @returns {boolean} True if move was undone, false if no moves to undo
    */
   const undoMoveAction = useCallback((): boolean => {
-    if (gameStore.moveHistory.length === 0) return false;
+    if (gameState.moveHistory.length === 0) return false;
 
     // Use the store's undoMove action
-    gameStore.undoMove();
+    gameActions.undoMove();
 
     // Notify position change
-    if (onPositionChange && gameStore.currentFen) {
-      onPositionChange(gameStore.currentFen, gameStore.currentPgn || "");
+    if (onPositionChange && gameState.currentFen) {
+      onPositionChange(gameState.currentFen, gameState.currentPgn || "");
     }
 
     return true;
   }, [
-    gameStore.moveHistory,
-    gameStore.currentFen,
-    gameStore.currentPgn,
-    gameStore.undoMove,
+    gameState.moveHistory,
+    gameState.currentFen,
+    gameState.currentPgn,
+    gameActions.undoMove,
     onPositionChange,
   ]);
 
   return {
-    game: gameStore.game,
-    history: gameStore.moveHistory,
-    isGameFinished: gameStore.isGameFinished,
+    game: gameState.game,
+    history: gameState.moveHistory,
+    isGameFinished: gameState.isGameFinished,
     currentFen:
-      gameStore.currentFen || trainingStore.currentPosition?.fen || "",
-    currentPgn: gameStore.currentPgn || "",
+      gameState.currentFen || trainingState.currentPosition?.fen || "",
+    currentPgn: gameState.currentPgn || "",
     makeMove,
     jumpToMove,
     resetGame,

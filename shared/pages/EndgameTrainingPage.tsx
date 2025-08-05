@@ -45,9 +45,9 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
     const router = useRouter();
 
     // Zustand store hooks - consolidated
-    const gameStore = useGameStore();
-    const trainingStore = useTrainingStore();
-    const uiStore = useUIStore();
+    const [gameState, gameActions] = useGameStore();
+    const [trainingState, trainingActions] = useTrainingStore();
+    const [uiState, uiActions] = useUIStore();
 
     // Toast hook
     const { toasts, removeToast, showSuccess, showError } = useToast();
@@ -59,18 +59,18 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
     const isPositionInitialized = useInitializePosition(position);
 
     // Extract actions to avoid dependency issues
-    const { completeTraining } = trainingStore;
+    const { completeTraining } = trainingActions;
 
     // Game status
     const gameStatus = useMemo(
-      () => getGameStatus(gameStore.currentFen || position.fen, position.goal),
-      [gameStore.currentFen, position.fen, position.goal],
+      () => getGameStatus(gameState.currentFen || position.fen, position.goal),
+      [gameState.currentFen, position.fen, position.goal],
     );
 
     // Navigation data from store
-    const prevPosition = trainingStore.previousPosition;
-    const nextPosition = trainingStore.nextPosition;
-    const isLoadingNavigation = trainingStore.isLoadingNavigation;
+    const prevPosition = trainingState.previousPosition;
+    const nextPosition = trainingState.nextPosition;
+    const isLoadingNavigation = trainingState.isLoadingNavigation;
 
     const handleComplete = useCallback(
       (isSuccess: boolean) => {
@@ -88,35 +88,35 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
     );
 
     const handleResetPosition = useCallback(() => {
-      gameStore.resetGame();
+      gameActions.resetGame();
       setResetKey((prev) => prev + 1);
-    }, [gameStore]);
+    }, [gameActions]);
 
     const handleMoveClick = useCallback(
       (moveIndex: number) => {
         // Navigate to the clicked move
-        gameStore.goToMove(moveIndex);
+        gameActions.goToMove(moveIndex);
       },
-      [gameStore],
+      [gameActions],
     );
 
     const handleToggleAnalysis = useCallback(() => {
-      uiStore.updateAnalysisPanel({ isOpen: !uiStore.analysisPanel.isOpen });
-    }, [uiStore]);
+      uiActions.updateAnalysisPanel({ isOpen: !uiState.analysisPanel.isOpen });
+    }, [uiActions, uiState]);
 
     const getLichessUrl = useCallback(() => {
-      const currentPgn = gameStore.currentPgn || "";
-      const currentFen = gameStore.currentFen || position.fen;
+      const currentPgn = gameState.currentPgn || "";
+      const currentFen = gameState.currentFen || position.fen;
 
-      if (currentPgn && gameStore.moveHistory.length > 0) {
+      if (currentPgn && gameState.moveHistory.length > 0) {
         return `https://lichess.org/analysis/pgn/${encodeURIComponent(currentPgn)}`;
       } else {
         return `https://lichess.org/analysis/${currentFen.replace(/ /g, "_")}`;
       }
     }, [
-      gameStore.currentPgn,
-      gameStore.moveHistory,
-      gameStore.currentFen,
+      gameState.currentPgn,
+      gameState.moveHistory,
+      gameState.currentFen,
       position.fen,
     ]);
 
@@ -153,7 +153,7 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
               <h2 className="text-3xl font-bold">
                 {getTrainingDisplayTitle(
                   position,
-                  gameStore.moveHistory.length,
+                  gameState.moveHistory.length,
                 )}
               </h2>
             </div>
@@ -234,20 +234,20 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
                 onClick={handleToggleAnalysis}
                 data-testid="toggle-analysis"
                 className={`w-full p-2 rounded mb-2 transition-colors ${
-                  uiStore.analysisPanel.isOpen
+                  uiState.analysisPanel.isOpen
                     ? "bg-blue-600 hover:bg-blue-700"
                     : "bg-gray-700 hover:bg-gray-600"
                 }`}
               >
-                Analyse {uiStore.analysisPanel.isOpen ? "AUS" : "AN"}
+                Analyse {uiState.analysisPanel.isOpen ? "AUS" : "AN"}
               </button>
 
               <TablebaseAnalysisPanel
-                fen={gameStore.currentFen || position.fen}
-                isVisible={uiStore.analysisPanel.isOpen}
+                fen={gameState.currentFen || position.fen}
+                isVisible={uiState.analysisPanel.isOpen}
                 previousFen={
-                  gameStore.moveHistory.length > 0
-                    ? gameStore.moveHistory[gameStore.moveHistory.length - 1]
+                  gameState.moveHistory.length > 0
+                    ? gameState.moveHistory[gameState.moveHistory.length - 1]
                         ?.fenBefore
                     : undefined
                 }
@@ -257,9 +257,9 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
             {/* Move History */}
             <div className="move-history flex-1 p-4 border-b border-gray-700 overflow-y-auto">
               <MovePanelZustand
-                showEvaluations={uiStore.analysisPanel.isOpen}
+                showEvaluations={uiState.analysisPanel.isOpen}
                 onMoveClick={handleMoveClick}
-                currentMoveIndex={gameStore.currentMoveIndex}
+                currentMoveIndex={gameState.currentMoveIndex}
               />
               <div className="mt-2">
                 <NavigationControls />

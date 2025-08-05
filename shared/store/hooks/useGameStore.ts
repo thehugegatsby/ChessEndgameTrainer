@@ -1,55 +1,48 @@
 /**
- * @file Consolidated game store hook
+ * @file Game store hooks with state/action separation
  * @module store/hooks/useGameStore
  *
  * @description
- * Provides unified access to game-related state and actions from the Zustand store.
- * This consolidated hook replaces multiple small hooks for better ergonomics
- * and avoids naming conflicts. Uses useShallow for optimal performance.
+ * Provides optimized hooks for game-related state and actions with proper separation.
+ * This pattern prevents unnecessary re-renders in action-only components while
+ * maintaining excellent developer experience.
+ *
+ * Three hooks are exported:
+ * - useGameState(): For components that need reactive state
+ * - useGameActions(): For components that only dispatch actions (no re-renders)
+ * - useGameStore(): Convenience hook returning [state, actions] tuple
  */
 
 import { useStore } from "../rootStore";
 import { useShallow } from "zustand/react/shallow";
-import type { RootState } from "../slices/types";
+import type {
+  RootState,
+  GameState as GameStateType,
+  GameActions as GameActionsType,
+} from "../slices/types";
 
 /**
- * Hook for pure game state and actions (chess logic only)
+ * Hook for reactive game state properties
  *
  * @description
- * Focused hook for chess game functionality including board state,
- * move history, and game operations. This hook is optimized for
- * performance by only subscribing to game-related state changes.
+ * Subscribes components to game state changes. Use this in components
+ * that need to display or react to game data. Will re-render when any
+ * selected game state changes.
  *
- * For other domains use:
- * - useTrainingStore() for training session state
- * - useTablebaseStore() for analysis/evaluation data
- * - useUIStore() for interface state
- *
- * @returns {Object} Game state and actions
+ * @returns {GameStateType} Game state properties
  *
  * @example
  * ```tsx
- * const {
- *   // Pure game state
- *   currentFen,
- *   moveHistory,
- *   isGameFinished,
+ * const { currentFen, moveHistory, isGameFinished } = useGameState();
  *
- *   // Game actions
- *   makeMove,
- *   resetGame,
- *   goToMove,
- * } = useGameStore();
- *
- * // For better performance, use direct selectors for single values
- * const currentFen = useStore(state => state.currentFen);
- * const makeMove = useStore(state => state.makeMove);
+ * // Component will re-render when these values change
+ * return <div>Position: {currentFen}</div>;
  * ```
  */
-export const useGameStore = () => {
+export const useGameState = (): GameStateType => {
   return useStore(
     useShallow((state: RootState) => ({
-      // === Pure Game State ===
+      // Pure game state
       game: state.game,
       currentFen: state.currentFen,
       currentPgn: state.currentPgn,
@@ -57,22 +50,76 @@ export const useGameStore = () => {
       currentMoveIndex: state.currentMoveIndex,
       isGameFinished: state.isGameFinished,
       gameResult: state.gameResult,
-
-      // === Pure Game Actions ===
-      setGame: state.setGame,
-      updatePosition: state.updatePosition,
-      makeMove: state.makeMove,
-      resetGame: state.resetGame,
-      undoMove: state.undoMove,
-      redoMove: state.redoMove,
-
-      // === Navigation Actions ===
-      goToMove: state.goToMove,
-      goToFirst: state.goToFirst,
-      goToPrevious: state.goToPrevious,
-      goToNext: state.goToNext,
-      goToLast: state.goToLast,
-      setCurrentFen: state.setCurrentFen,
     })),
   );
+};
+
+/**
+ * Hook for game action functions
+ *
+ * @description
+ * Returns stable action functions that never cause re-renders.
+ * Use this in components that only need to trigger game actions
+ * without subscribing to state changes.
+ *
+ * @returns {GameActionsType} Game action functions
+ *
+ * @example
+ * ```tsx
+ * const { makeMove, resetGame } = useGameActions();
+ *
+ * // This component will never re-render due to game state changes
+ * return <button onClick={resetGame}>Reset</button>;
+ * ```
+ */
+export const useGameActions = (): GameActionsType => {
+  return useStore((state: RootState) => ({
+    // State management actions
+    setGame: state.setGame,
+    updatePosition: state.updatePosition,
+    addMove: state.addMove,
+    setMoveHistory: state.setMoveHistory,
+    setCurrentMoveIndex: state.setCurrentMoveIndex,
+    setGameFinished: state.setGameFinished,
+    resetGame: state.resetGame,
+
+    // Game operations
+    initializeGame: state.initializeGame,
+    makeMove: state.makeMove,
+    undoMove: state.undoMove,
+    redoMove: state.redoMove,
+
+    // Navigation actions
+    goToMove: state.goToMove,
+    goToFirst: state.goToFirst,
+    goToPrevious: state.goToPrevious,
+    goToNext: state.goToNext,
+    goToLast: state.goToLast,
+    setCurrentFen: state.setCurrentFen,
+  }));
+};
+
+/**
+ * Convenience hook for components that need both state and actions
+ *
+ * @description
+ * Returns a tuple of [state, actions] for components that need both.
+ * This maintains the familiar pattern while benefiting from the
+ * optimized separation under the hood.
+ *
+ * @returns {[GameStateType, GameActionsType]} Tuple of game state and actions
+ *
+ * @example
+ * ```tsx
+ * const [gameState, gameActions] = useGameStore();
+ *
+ * const handleMove = (move: string) => {
+ *   if (!gameState.isGameFinished) {
+ *     gameActions.makeMove(move);
+ *   }
+ * };
+ * ```
+ */
+export const useGameStore = (): [GameStateType, GameActionsType] => {
+  return [useGameState(), useGameActions()];
 };
