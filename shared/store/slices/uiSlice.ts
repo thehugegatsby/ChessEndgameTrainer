@@ -57,12 +57,6 @@ export const createInitialUIState = () => ({
     activeTab: "moves" as const,
     showTablebase: true,
   } as AnalysisPanelState,
-  moveErrorDialog: null as {
-    isOpen: boolean;
-    wdlBefore?: number;
-    wdlAfter?: number;
-    bestMove?: string;
-  } | null,
 });
 
 /**
@@ -311,47 +305,6 @@ export const createUISlice: ImmerStateCreator<UISlice> = (set, get) => ({
         ...update,
       },
     })),
-
-  /**
-   * Sets the move error dialog state
-   *
-   * @param {Object|null} dialog - Dialog configuration or null to close
-   * @param {boolean} dialog.isOpen - Whether dialog is open
-   * @param {number} [dialog.wdlBefore] - WDL evaluation before move
-   * @param {number} [dialog.wdlAfter] - WDL evaluation after move
-   * @param {string} [dialog.bestMove] - Best move that should have been played
-   *
-   * @fires stateChange - When dialog state changes
-   *
-   * @remarks
-   * Controls the display of move feedback dialogs that show
-   * when a user makes a mistake. The dialog can display the
-   * evaluation change and suggest the best move.
-   *
-   * @example
-   * ```typescript
-   * // Show error dialog
-   * store.getState().setMoveErrorDialog({
-   *   isOpen: true,
-   *   wdlBefore: 1000,  // Winning
-   *   wdlAfter: 0,      // Now draw
-   *   bestMove: "Ra8#"
-   * });
-   *
-   * // Close dialog
-   * store.getState().setMoveErrorDialog(null);
-   * ```
-   */
-  setMoveErrorDialog: (
-    dialog: {
-      isOpen: boolean;
-      wdlBefore?: number;
-      wdlAfter?: number;
-      bestMove?: string;
-    } | null,
-  ) => {
-    set({ moveErrorDialog: dialog });
-  },
 });
 
 /**
@@ -435,11 +388,4 @@ export const uiSelectors = {
    */
   selectIsModalOpen: (type: ModalType) => (state: UISlice) =>
     state.currentModal === type,
-
-  /**
-   * Selects the move error dialog state
-   * @param {UISlice} state - The UI slice of the store
-   * @returns {Object|null} The move error dialog configuration or null
-   */
-  selectMoveErrorDialog: (state: UISlice) => state.moveErrorDialog,
 };

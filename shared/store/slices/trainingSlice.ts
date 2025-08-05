@@ -94,6 +94,12 @@ export const createInitialTrainingState = () => ({
   sessionEndTime: undefined as number | undefined,
   hintsUsed: 0,
   mistakeCount: 0,
+  moveErrorDialog: null as {
+    isOpen: boolean;
+    wdlBefore?: number;
+    wdlAfter?: number;
+    bestMove?: string;
+  } | null,
 });
 
 /**
@@ -402,6 +408,47 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
   },
 
   /**
+   * Sets the move error dialog configuration
+   *
+   * @param {Object|null} dialog - Dialog configuration or null to close
+   * @param {boolean} dialog.isOpen - Whether the dialog should be open
+   * @param {number} [dialog.wdlBefore] - WDL value before the move
+   * @param {number} [dialog.wdlAfter] - WDL value after the move
+   * @param {string} [dialog.bestMove] - The best move in the position
+   *
+   * @fires stateChange - When dialog state changes
+   *
+   * @remarks
+   * This dialog is shown when a user makes a suboptimal move during training.
+   * It displays the position evaluation before and after the move, helping
+   * users understand why their move was not optimal.
+   *
+   * @example
+   * ```typescript
+   * // Show error dialog
+   * setMoveErrorDialog({
+   *   isOpen: true,
+   *   wdlBefore: 1000,
+   *   wdlAfter: 0,
+   *   bestMove: 'Qb7'
+   * });
+   *
+   * // Close dialog
+   * setMoveErrorDialog(null);
+   * ```
+   */
+  setMoveErrorDialog: (
+    dialog: {
+      isOpen: boolean;
+      wdlBefore?: number;
+      wdlAfter?: number;
+      bestMove?: string;
+    } | null,
+  ) => {
+    set({ moveErrorDialog: dialog });
+  },
+
+  /**
    * Adds a move to the training history
    *
    * @param {any} move - The move to add (ValidatedMove with training metadata)
@@ -597,6 +644,13 @@ export const trainingSelectors = {
    * @returns {number} Number of mistakes
    */
   selectMistakeCount: (state: TrainingSlice) => state.mistakeCount,
+
+  /**
+   * Selects the move error dialog configuration
+   * @param {TrainingSlice} state - The training slice of the store
+   * @returns {Object|null} The move error dialog configuration or null
+   */
+  selectMoveErrorDialog: (state: TrainingSlice) => state.moveErrorDialog,
 
   /**
    * Selects whether navigation to next position is available

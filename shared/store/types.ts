@@ -235,12 +235,6 @@ export interface UIState {
   toasts: Toast[];
   loading: LoadingState;
   analysisPanel: AnalysisPanelState;
-  moveErrorDialog: {
-    isOpen: boolean;
-    wdlBefore?: number;
-    wdlAfter?: number;
-    bestMove?: string;
-  } | null;
 }
 
 /**

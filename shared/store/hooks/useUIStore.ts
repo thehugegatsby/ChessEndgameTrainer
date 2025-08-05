@@ -28,7 +28,6 @@ import type { RootState } from "../slices/types";
  *   // State
  *   analysisPanel,
  *   isSidebarOpen,
- *   moveErrorDialog,
  *
  *   // Actions
  *   showToast,
@@ -61,7 +60,6 @@ export const useUIStore = () => {
       isSidebarOpen: state.isSidebarOpen,
       loading: state.loading,
       analysisPanel: state.analysisPanel,
-      moveErrorDialog: state.moveErrorDialog,
 
       // === Toast Actions ===
       showToast: state.showToast,
@@ -79,9 +77,6 @@ export const useUIStore = () => {
 
       // === Panel Actions ===
       updateAnalysisPanel: state.updateAnalysisPanel,
-
-      // === Dialog Actions ===
-      setMoveErrorDialog: state.setMoveErrorDialog,
     })),
   );
 };

@@ -2,7 +2,7 @@
  * @file Root store assembly for refactored Zustand architecture
  * @module store/rootStore
  * @description Combines all domain-specific slices into a unified store with middleware
- * integration. This replaces the monolithic store.ts with a clean, maintainable architecture.
+ * integration. Uses a clean, maintainable architecture with domain-driven slices.
  *
  * @example
  * ```typescript
@@ -100,7 +100,7 @@ const initialState = createInitialState();
  * - Middleware integration (DevTools, Persist, Immer)
  * - Global reset and hydration actions (using efficient initialState pattern)
  *
- * The store uses the same middleware configuration as the original monolithic store:
+ * The store uses middleware configuration for enhanced functionality:
  * - DevTools: For debugging and time-travel debugging
  * - Persist: For localStorage persistence of user data
  * - Immer: For immutable state updates with mutable syntax

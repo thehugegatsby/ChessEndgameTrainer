@@ -161,7 +161,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   const gameStore = useGameStore(); // Pure chess state
   const trainingStore = useTrainingStore(); // Training session state
   const tablebaseStore = useTablebaseStore(); // Analysis and evaluation data
-  const uiStore = useUIStore(); // UI state including moveErrorDialog
+  const uiStore = useUIStore(); // UI state (toasts, modals, loading)
 
   // Set position in store on mount or when position changes
   useEffect(() => {
@@ -270,13 +270,13 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   const [warning, setWarning] = useState<string | null>(null);
   const [moveError, setMoveError] = useState<string | null>(null);
 
-  // Get move error dialog state from UI slice
-  const showMoveErrorDialog = uiStore.moveErrorDialog?.isOpen || false;
-  const moveErrorData = uiStore.moveErrorDialog
+  // Get move error dialog state from training slice
+  const showMoveErrorDialog = trainingStore.moveErrorDialog?.isOpen || false;
+  const moveErrorData = trainingStore.moveErrorDialog
     ? {
-        wdlBefore: uiStore.moveErrorDialog.wdlBefore || 0,
-        wdlAfter: uiStore.moveErrorDialog.wdlAfter || 0,
-        bestMove: uiStore.moveErrorDialog.bestMove,
+        wdlBefore: trainingStore.moveErrorDialog.wdlBefore || 0,
+        wdlAfter: trainingStore.moveErrorDialog.wdlAfter || 0,
+        bestMove: trainingStore.moveErrorDialog.bestMove,
       }
     : null;
 
@@ -294,7 +294,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
      *
      */
     handleDismissMoveError: () => {
-      uiStore.setMoveErrorDialog(null);
+      trainingStore.setMoveErrorDialog(null);
       setMoveError(null);
     },
     /**
@@ -346,7 +346,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     logger.info("Closing move error dialog");
     // Don't undo anything - the invalid move was never added to history
     // Just close the dialog so the user can try again
-    uiStore.setMoveErrorDialog(null);
+    trainingStore.setMoveErrorDialog(null);
   }, [uiStore]);
 
   /**
@@ -364,7 +364,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     const logger = getLogger().setContext("TrainingBoard-MoveError");
     logger.info("Restarting game due to move error");
     handleReset();
-    uiStore.setMoveErrorDialog(null);
+    trainingStore.setMoveErrorDialog(null);
   }, [handleReset, uiStore]);
 
   /**
@@ -385,7 +385,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
       logger.info("Showing best move", { bestMove: moveErrorData.bestMove });
       uiStore.showToast(`Der beste Zug war: ${moveErrorData.bestMove}`, "info");
     }
-    uiStore.setMoveErrorDialog(null);
+    trainingStore.setMoveErrorDialog(null);
   }, [moveErrorData, uiStore]);
 
   // Update analysis status based on evaluation state
@@ -950,7 +950,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         <MoveErrorDialog
           isOpen={showMoveErrorDialog}
           onClose={() => {
-            uiStore.setMoveErrorDialog(null);
+            trainingStore.setMoveErrorDialog(null);
           }}
           onTakeBack={handleMoveErrorTakeBack}
           onRestart={handleMoveErrorRestart}

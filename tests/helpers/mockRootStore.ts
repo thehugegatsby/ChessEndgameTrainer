@@ -101,6 +101,7 @@ const mockRootStore = (overrides: MockRootState = {}) => {
     sessionEndTime: undefined,
     hintsUsed: 0,
     mistakeCount: 0,
+    moveErrorDialog: null,
 
     // Progress state
     positionProgress: {},
@@ -128,7 +129,6 @@ const mockRootStore = (overrides: MockRootState = {}) => {
       showDepth: false,
       showThinkingTime: false,
     },
-    moveErrorDialog: null,
 
     // Settings state
     theme: {

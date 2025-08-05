@@ -56,6 +56,7 @@ export const useTrainingStore = () => {
       hintsUsed: state.hintsUsed,
       mistakeCount: state.mistakeCount,
       isPlayerTurn: state.isPlayerTurn,
+      moveErrorDialog: state.moveErrorDialog,
 
       // === Navigation State ===
       previousPosition: state.previousPosition,
@@ -68,6 +69,7 @@ export const useTrainingStore = () => {
       completeTraining: state.completeTraining,
       incrementMistake: state.incrementMistake,
       incrementHint: state.incrementHint,
+      setMoveErrorDialog: state.setMoveErrorDialog,
 
       // === Navigation Actions ===
       setNavigationPositions: state.setNavigationPositions,

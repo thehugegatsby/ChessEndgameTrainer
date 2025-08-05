@@ -101,6 +101,12 @@ export interface TrainingState {
   sessionEndTime?: number;
   hintsUsed: number;
   mistakeCount: number;
+  moveErrorDialog: {
+    isOpen: boolean;
+    wdlBefore?: number;
+    wdlAfter?: number;
+    bestMove?: string;
+  } | null;
 }
 
 export interface TrainingActions {
@@ -118,6 +124,14 @@ export interface TrainingActions {
   completeTraining: (success: boolean) => void;
   incrementHint: () => void;
   incrementMistake: () => void;
+  setMoveErrorDialog: (
+    dialog: {
+      isOpen: boolean;
+      wdlBefore?: number;
+      wdlAfter?: number;
+      bestMove?: string;
+    } | null,
+  ) => void;
   addTrainingMove: (move: ValidatedMove) => void;
   resetTraining: () => void;
   resetPosition: () => void;
@@ -135,14 +149,6 @@ export interface UIActions {
   removeToast: (id: string) => void;
   setLoading: (key: keyof LoadingState, value: boolean) => void;
   updateAnalysisPanel: (update: Partial<AnalysisPanelState>) => void;
-  setMoveErrorDialog: (
-    dialog: {
-      isOpen: boolean;
-      wdlBefore?: number;
-      wdlAfter?: number;
-      bestMove?: string;
-    } | null,
-  ) => void;
 }
 
 /**
