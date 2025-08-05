@@ -35,7 +35,7 @@ export default function Dashboard() {
     completedPositions: 0,
     overallSuccessRate: 0,
     totalDueToday: 0,
-    currentStreak: 0,
+    currentStreak: 0, // TODO: Implement real progress tracking when needed
   });
   const [loading, setLoading] = useState(true);
 
@@ -95,9 +95,7 @@ export default function Dashboard() {
           completedPositions,
           overallSuccessRate: chapterCount > 0 ? successSum / chapterCount : 0,
           totalDueToday,
-          currentStreak: Math.floor(
-            Math.random() * TRAINING.MOCK.OVERALL_STREAK_MAX,
-          ), // Mock overall streak
+          currentStreak: 0, // TODO: Real progress tracking removed
         });
       } catch (error) {
         ErrorService.handleNetworkError(error as Error, {

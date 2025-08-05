@@ -28,7 +28,7 @@ import {
   getSmartMoveEvaluation,
   type MoveEvaluation,
 } from "../../utils/chess/evaluation";
-import { useGameStore } from "@shared/store/hooks";
+import { useGameStore, useTablebaseStore } from "@shared/store/hooks";
 import { TEST_IDS, getTestId } from "@shared/constants/testIds";
 import { MoveQualityIndicator } from "../analysis/MoveQualityIndicator";
 
@@ -101,6 +101,7 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
   ({ showEvaluations = false, onMoveClick, currentMoveIndex = -1 }) => {
     // Get data from Zustand store
     const gameStore = useGameStore();
+    const tablebaseStore = useTablebaseStore();
 
     /**
      * Helper to get FEN position before a specific move
@@ -147,8 +148,8 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
         const blackMove = gameStore.moveHistory[i + 1];
         // CRITICAL: evaluations array has one extra entry at the beginning (initial position)
         // So we need to offset by 1 to get the evaluation AFTER each move
-        const whiteEval = gameStore.evaluations[i + 1]; // +1 offset for evaluation after move
-        const blackEval = gameStore.evaluations[i + 2]; // +2 for evaluation after black's move
+        const whiteEval = tablebaseStore.evaluations[i + 1]; // +1 offset for evaluation after move
+        const blackEval = tablebaseStore.evaluations[i + 2]; // +2 for evaluation after black's move
 
         pairs.push({
           moveNumber: Math.floor(i / 2) + 1,
@@ -159,7 +160,7 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
         });
       }
       return pairs;
-    }, [gameStore.moveHistory, gameStore.evaluations]);
+    }, [gameStore.moveHistory, tablebaseStore.evaluations]);
 
     const hasContent = movePairs.length > 0 || currentMoveIndex === 0;
     const showE2ESignals = process.env.NEXT_PUBLIC_E2E_SIGNALS === "true";

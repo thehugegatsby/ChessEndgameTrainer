@@ -88,7 +88,7 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
     );
 
     const handleResetPosition = useCallback(() => {
-      gameStore.resetPosition();
+      gameStore.resetGame();
       setResetKey((prev) => prev + 1);
     }, [gameStore]);
 

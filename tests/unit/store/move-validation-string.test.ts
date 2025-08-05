@@ -209,6 +209,13 @@ describe("Store - String Move Validation", () => {
       ],
     });
 
+    // Verify state is properly set up after loadTrainingContext
+    const stateAfterLoad = useStore.getState();
+    expect(stateAfterLoad.game).toBeDefined();
+    expect(stateAfterLoad.game).not.toBeNull();
+    expect(stateAfterLoad.currentPosition).toBeDefined();
+    expect(stateAfterLoad.currentPosition).not.toBeNull();
+
     // Test making a move with SAN string (as TablebaseAnalysisPanel does)
     const moveResult = await store.handlePlayerMove("Kd6");
 
@@ -284,6 +291,13 @@ describe("Store - String Move Validation", () => {
         },
       ],
     });
+
+    // Verify state is properly set up after loadTrainingContext
+    const stateAfterLoad = useStore.getState();
+    expect(stateAfterLoad.game).toBeDefined();
+    expect(stateAfterLoad.game).not.toBeNull();
+    expect(stateAfterLoad.currentPosition).toBeDefined();
+    expect(stateAfterLoad.currentPosition).not.toBeNull();
 
     // Test making a bad move with SAN string
     const moveResult = await store.handlePlayerMove("Kc5");

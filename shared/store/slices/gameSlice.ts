@@ -25,6 +25,7 @@
 import { ImmerStateCreator, GameSlice } from "./types";
 import { Chess } from "chess.js";
 import type { ChessInstance, ValidatedMove } from "@shared/types";
+import { createValidatedMove } from "@shared/types/chess";
 import { getLogger } from "@shared/services/logging";
 
 const logger = getLogger().setContext("gameSlice");
@@ -197,19 +198,11 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
       if (!result) return null;
 
       // Create validated move object
-      const validatedMove: ValidatedMove = {
-        ...result,
-        fenBefore: game.fen(),
-        fenAfter: gameCopy.fen(),
-        timestamp: Date.now(),
-        // Add missing helper methods
-        isCapture: () => !!result.captured,
-        isPromotion: () => !!result.promotion,
-        isEnPassant: () => result.flags.includes("e"),
-        isKingsideCastle: () => result.flags.includes("k"),
-        isQueensideCastle: () => result.flags.includes("q"),
-        isBigPawn: () => result.flags.includes("b"),
-      } as unknown as ValidatedMove;
+      const validatedMove = createValidatedMove(
+        result,
+        game.fen(),
+        gameCopy.fen(),
+      );
 
       // Truncate history if we're not at the end
       const newHistory = moveHistory.slice(0, currentMoveIndex + 1);

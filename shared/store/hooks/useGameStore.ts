@@ -13,43 +13,43 @@ import { useShallow } from "zustand/react/shallow";
 import type { RootState } from "../slices/types";
 
 /**
- * Hook for comprehensive game state and actions
+ * Hook for pure game state and actions (chess logic only)
  *
  * @description
- * Single source of truth for all game-related functionality including
- * board state, move history, analysis results, and game operations.
- * Combines state from multiple slices with their associated actions.
+ * Focused hook for chess game functionality including board state,
+ * move history, and game operations. This hook is optimized for
+ * performance by only subscribing to game-related state changes.
+ *
+ * For other domains use:
+ * - useTrainingStore() for training session state
+ * - useTablebaseStore() for analysis/evaluation data
+ * - useUIStore() for interface state
  *
  * @returns {Object} Game state and actions
  *
  * @example
  * ```tsx
  * const {
- *   // State
+ *   // Pure game state
  *   currentFen,
  *   moveHistory,
  *   isGameFinished,
- *   analysisStatus,
  *
- *   // Actions
+ *   // Game actions
  *   makeMove,
- *   resetPosition,
+ *   resetGame,
  *   goToMove,
  * } = useGameStore();
  *
- * // Use directly in component
- * const handleMove = async (from: string, to: string) => {
- *   const success = await makeMove({ from, to });
- *   if (!success) {
- *     console.error('Invalid move');
- *   }
- * };
+ * // For better performance, use direct selectors for single values
+ * const currentFen = useStore(state => state.currentFen);
+ * const makeMove = useStore(state => state.makeMove);
  * ```
  */
 export const useGameStore = () => {
   return useStore(
     useShallow((state: RootState) => ({
-      // === Game State ===
+      // === Pure Game State ===
       game: state.game,
       currentFen: state.currentFen,
       currentPgn: state.currentPgn,
@@ -58,24 +58,13 @@ export const useGameStore = () => {
       isGameFinished: state.isGameFinished,
       gameResult: state.gameResult,
 
-      // === Training State ===
-      currentPosition: state.currentPosition,
-      mistakeCount: state.mistakeCount,
-      moveErrorDialog: state.moveErrorDialog,
-
-      // === Analysis State ===
-      analysisStatus: state.analysisStatus,
-      evaluations: state.evaluations,
-      currentEvaluation: state.currentEvaluation,
-      tablebaseMove: state.tablebaseMove,
-
-      // === Game Actions ===
+      // === Pure Game Actions ===
       setGame: state.setGame,
       updatePosition: state.updatePosition,
       makeMove: state.makeMove,
       resetGame: state.resetGame,
-      resetPosition: state.resetPosition,
       undoMove: state.undoMove,
+      redoMove: state.redoMove,
 
       // === Navigation Actions ===
       goToMove: state.goToMove,
@@ -83,16 +72,7 @@ export const useGameStore = () => {
       goToPrevious: state.goToPrevious,
       goToNext: state.goToNext,
       goToLast: state.goToLast,
-
-      // === Analysis Actions ===
-      setAnalysisStatus: state.setAnalysisStatus,
-      setEvaluations: state.setEvaluations,
-      addEvaluation: state.addEvaluation,
-      setCurrentEvaluation: state.setCurrentEvaluation,
-
-      // === Training Actions ===
-      incrementMistake: state.incrementMistake,
-      setMoveErrorDialog: state.setMoveErrorDialog,
+      setCurrentFen: state.setCurrentFen,
     })),
   );
 };

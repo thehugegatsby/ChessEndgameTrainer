@@ -66,6 +66,51 @@ export type ValidatedMove = DomainMove & {
   readonly [__validatedMoveBrand]: true;
 };
 
+/**
+ * Type-safe factory for creating ValidatedMove from chess.js Move
+ *
+ * @param chessMove - Move result from chess.js
+ * @param fenBefore - FEN string before the move
+ * @param fenAfter - FEN string after the move
+ * @returns Type-safe ValidatedMove with all required properties
+ *
+ * @example
+ * ```typescript
+ * const chessMove = game.move('e4');
+ * const validatedMove = createValidatedMove(chessMove, game.fen(), gameCopy.fen());
+ * ```
+ */
+export function createValidatedMove(
+  chessMove: import("chess.js").Move,
+  fenBefore: string,
+  fenAfter: string,
+): ValidatedMove {
+  const domainMove: Move = {
+    color: chessMove.color,
+    from: chessMove.from,
+    to: chessMove.to,
+    piece: chessMove.piece,
+    captured: chessMove.captured,
+    promotion: chessMove.promotion as "q" | "r" | "b" | "n" | undefined,
+    flags: chessMove.flags,
+    san: chessMove.san,
+    lan: chessMove.lan,
+    fenBefore,
+    fenAfter,
+    timestamp: Date.now(),
+
+    // Helper methods
+    isCapture: () => !!chessMove.captured,
+    isPromotion: () => !!chessMove.promotion,
+    isEnPassant: () => chessMove.flags.includes("e"),
+    isKingsideCastle: () => chessMove.flags.includes("k"),
+    isQueensideCastle: () => chessMove.flags.includes("q"),
+    isBigPawn: () => chessMove.flags.includes("b"),
+  };
+
+  return domainMove as ValidatedMove;
+}
+
 // Position types
 export interface Position {
   fen: string;

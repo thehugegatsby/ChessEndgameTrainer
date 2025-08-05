@@ -204,17 +204,13 @@ export const useTrainingSession = ({
    * Clears move history and resets to starting FEN
    */
   const resetGame = useCallback(() => {
-    gameStore.resetPosition();
+    gameStore.resetGame();
 
     // Notify position change
     if (onPositionChange && trainingStore.currentPosition) {
       onPositionChange(trainingStore.currentPosition.fen, "");
     }
-  }, [
-    gameStore.resetPosition,
-    trainingStore.currentPosition,
-    onPositionChange,
-  ]);
+  }, [gameStore.resetGame, trainingStore.currentPosition, onPositionChange]);
 
   /**
    * Undo the last move in the game

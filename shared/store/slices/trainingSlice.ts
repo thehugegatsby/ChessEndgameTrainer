@@ -166,15 +166,15 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
    * ```
    */
   setPosition: (position: TrainingPosition) => {
-    set({
-      currentPosition: position,
-      isSuccess: false,
-      sessionStartTime: Date.now(),
-      sessionEndTime: undefined,
-      hintsUsed: 0,
-      mistakeCount: 0,
+    set((state) => {
+      state.currentPosition = position;
+      state.isSuccess = false;
+      state.sessionStartTime = Date.now();
+      state.sessionEndTime = undefined;
+      state.hintsUsed = 0;
+      state.mistakeCount = 0;
       // Set initial turn based on position
-      isPlayerTurn: position.sideToMove === position.colorToTrain,
+      state.isPlayerTurn = position.sideToMove === position.colorToTrain;
     });
   },
 

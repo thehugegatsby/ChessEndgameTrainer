@@ -5,18 +5,11 @@
 
 import { StateCreator } from "zustand";
 import {
-  UserState,
-  ProgressState,
   UIState,
-  SettingsState,
-  UserPreferences,
   Toast,
   ModalType,
   LoadingState,
   AnalysisPanelState,
-  PositionProgress,
-  DailyStats,
-  Achievement,
   AnalysisStatus,
 } from "../types";
 import { ValidatedMove, ChessInstance } from "@shared/types/chess";
@@ -24,19 +17,6 @@ import { PositionAnalysis } from "@shared/types/evaluation";
 import { EndgamePosition } from "@shared/types/endgame";
 import { Move as ChessJsMove } from "chess.js";
 import type { TrainingPosition } from "./trainingSlice";
-
-/**
- * User slice actions
- */
-export interface UserActions {
-  setUser: (user: Partial<UserState>) => void;
-  updatePreferences: (preferences: Partial<UserPreferences>) => void;
-  incrementStreak: () => void;
-  resetStreak: () => void;
-  addCompletedPosition: (positionId: number) => void;
-  updateLastActive: () => void;
-  clearUser: () => void;
-}
 
 /**
  * Game slice - Pure chess game state
@@ -144,25 +124,6 @@ export interface TrainingActions {
 }
 
 /**
- * Progress slice actions
- */
-export interface ProgressActions {
-  updatePositionProgress: (
-    positionId: number,
-    update: Partial<PositionProgress>,
-  ) => void;
-  addDailyStats: (stats: Partial<DailyStats>) => void;
-  unlockAchievement: (achievementId: string) => void;
-  toggleFavorite: (positionId: number) => void;
-  calculateNextReview: (positionId: number, success: boolean) => void;
-  initializeAchievements: (achievements: Achievement[]) => void;
-  updateWeeklyGoals: (completed: number, target?: number) => void;
-  updateMonthlyStats: (stats: Partial<DailyStats>) => void;
-  updateStreak: (newStreak: number, lastActivity?: number) => void;
-  resetProgress: () => void;
-}
-
-/**
  * UI slice actions
  */
 export interface UIActions {
@@ -185,34 +146,20 @@ export interface UIActions {
 }
 
 /**
- * Settings slice actions - essential functionality only
- */
-export interface SettingsActions {
-  clearRestartRequired: () => void;
-  resetSettings: () => void;
-}
-
-/**
  * Combined slice types
  */
-export type UserSlice = UserState & UserActions;
+// UserSlice removed - was over-engineered and unused in UI
 export type GameSlice = GameState & GameActions;
 export type TablebaseSlice = TablebaseState & TablebaseActions;
 export type TrainingSlice = TrainingState & TrainingActions;
-export type ProgressSlice = ProgressState & ProgressActions;
+// ProgressSlice removed - was over-engineered and unused in UI
 export type UISlice = UIState & UIActions;
-export type SettingsSlice = SettingsState & SettingsActions;
+// SettingsSlice removed - was over-engineered and unused in UI
 
 /**
  * Base state combining all slices
  */
-type BaseState = UserSlice &
-  GameSlice &
-  TablebaseSlice &
-  TrainingSlice &
-  ProgressSlice &
-  UISlice &
-  SettingsSlice;
+type BaseState = GameSlice & TablebaseSlice & TrainingSlice & UISlice;
 
 /**
  * Root state combining all slices with orchestrator actions
@@ -257,13 +204,10 @@ export interface AsyncActions {
 /**
  * Complete actions interface
  */
-export type Actions = UserActions &
-  GameActions &
+export type Actions = GameActions &
   TablebaseActions &
   TrainingActions &
-  ProgressActions &
   UIActions &
-  SettingsActions &
   AsyncActions & {
     reset: () => void;
     hydrate: (state: Partial<RootState>) => void;

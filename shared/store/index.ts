@@ -40,10 +40,7 @@ export type {
 export * from "./slices/types";
 
 // Export selectors for components that need them
-export { userSelectors } from "./slices/userSlice";
 export { gameSelectors } from "./slices/gameSlice";
 export { tablebaseSelectors } from "./slices/tablebaseSlice";
 export { trainingSelectors } from "./slices/trainingSlice";
-export { progressSelectors } from "./slices/progressSlice";
 export { uiSelectors } from "./slices/uiSlice";
-export { settingsSelectors } from "./slices/settingsSlice";

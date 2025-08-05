@@ -105,6 +105,7 @@ export const loadTrainingContext = async (
 
     // Step 2: Initialize the chess game
     const game = state.initializeGame(position.fen);
+
     if (!game) {
       throw new Error("Ungültige FEN-Position");
     }
@@ -150,24 +151,7 @@ export const loadTrainingContext = async (
       }, 300);
     }
 
-    // Step 7: Initialize position progress if not exists
-    if (!state.positionProgress[position.id]) {
-      state.updatePositionProgress(position.id, {
-        positionId: position.id,
-        attempts: 0,
-        completed: false,
-        accuracy: 0,
-        lastAttempt: Date.now(),
-        difficulty:
-          position.difficulty === "beginner"
-            ? 1
-            : position.difficulty === "intermediate"
-              ? 2
-              : position.difficulty === "advanced"
-                ? 3
-                : 4,
-      });
-    }
+    // Step 7: Position progress tracking removed (was unused in UI)
 
     // Step 8: Show success message
     state.showToast(`Position geladen: ${position.title}`, "success", 2000);

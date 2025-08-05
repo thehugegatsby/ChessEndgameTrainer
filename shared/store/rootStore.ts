@@ -31,13 +31,10 @@ import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 // Import all slice creators
-import { createUserSlice } from "./slices/userSlice";
 import { createGameSlice } from "./slices/gameSlice";
 import { createTablebaseSlice } from "./slices/tablebaseSlice";
 import { createTrainingSlice } from "./slices/trainingSlice";
-import { createProgressSlice } from "./slices/progressSlice";
 import { createUISlice } from "./slices/uiSlice";
-import { createSettingsSlice } from "./slices/settingsSlice";
 
 // Import orchestrators
 import { handleOpponentTurn as handleOpponentTurnOrchestrator } from "./orchestrators/handleOpponentTurn";
@@ -51,16 +48,57 @@ import type { Move as ChessJsMove } from "chess.js";
 import type { EndgamePosition } from "@shared/types/endgame";
 
 /**
+ * Creates initial state by combining all slices
+ * This is computed once and reused for efficient reset operations
+ */
+const createInitialState = () => {
+  // Create temporary store creator functions to get initial state
+  const dummySet = () => {};
+  const dummyGet = () => ({}) as any;
+  const dummyStore = {} as any;
+
+  // Get initial state from each slice but filter out action methods
+  const filterActions = (slice: any) => {
+    const filtered: any = {};
+    for (const [key, value] of Object.entries(slice)) {
+      // Keep state properties (non-functions) but exclude action methods
+      if (typeof value !== "function") {
+        filtered[key] = value;
+      }
+    }
+    return filtered;
+  };
+
+  return {
+    ...filterActions(createGameSlice(dummySet, dummyGet, dummyStore)),
+    ...filterActions(createTablebaseSlice(dummySet, dummyGet, dummyStore)),
+    ...filterActions(createTrainingSlice(dummySet, dummyGet, dummyStore)),
+    ...filterActions(createUISlice(dummySet, dummyGet, dummyStore)),
+
+    // Dummy orchestrator actions (will be overridden in actual store)
+    handlePlayerMove: async () => false,
+    handleOpponentTurn: async () => {},
+    requestPositionEvaluation: async () => {},
+    loadTrainingContext: async () => {},
+    reset: () => {},
+    hydrate: () => {},
+  };
+};
+
+// Capture initial state once for efficient reset
+const initialState = createInitialState();
+
+/**
  * Creates the root store with all slices and orchestrators integrated
  *
  * @returns {Object} Zustand store with all slices and middleware
  *
  * @remarks
  * This store combines:
- * - All 7 domain-specific slices (User, Game, Tablebase, Training, Progress, UI, Settings)
+ * - All 4 domain-specific slices (Game, Tablebase, Training, UI)
  * - Cross-slice orchestrators for complex async operations
  * - Middleware integration (DevTools, Persist, Immer)
- * - Global reset and hydration actions
+ * - Global reset and hydration actions (using efficient initialState pattern)
  *
  * The store uses the same middleware configuration as the original monolithic store:
  * - DevTools: For debugging and time-travel debugging
@@ -87,14 +125,14 @@ export const useStore = create<RootState>()(
     persist(
       immer((set, get, store) => {
         return {
-          // Combine all slices
-          ...createUserSlice(set, get, store),
+          // Start with initial state
+          ...initialState,
+
+          // Override with actual slice implementations
           ...createGameSlice(set, get, store),
           ...createTablebaseSlice(set, get, store),
           ...createTrainingSlice(set, get, store),
-          ...createProgressSlice(set, get, store),
           ...createUISlice(set, get, store),
-          ...createSettingsSlice(set, get, store),
 
           // Orchestrator actions - coordinate across multiple slices
           /**
@@ -113,10 +151,10 @@ export const useStore = create<RootState>()(
            *
            * @example
            * ```typescript
-           * const makeMove = useStore(state => state.makeUserMove);
+           * const handlePlayerMove = useStore(state => state.handlePlayerMove);
            *
            * const handleMove = async (from: string, to: string) => {
-           *   const success = await makeMove({ from, to });
+           *   const success = await handlePlayerMove({ from, to });
            *   if (success) {
            *     logger.info('Move completed successfully');
            *   }
@@ -223,51 +261,22 @@ export const useStore = create<RootState>()(
            * Resets entire store to initial state
            *
            * @remarks
-           * Automatically recreates all slices with their initial state.
-           * Much cleaner than manually listing every state property.
+           * Uses pre-computed initial state for efficient and reliable reset.
+           * Actions remain functional after reset.
            */
           reset: () => {
-            set(() => ({
-              // Recreate all slices with initial state
-              ...createUserSlice(set, get, store),
-              ...createGameSlice(set, get, store),
-              ...createTablebaseSlice(set, get, store),
-              ...createTrainingSlice(set, get, store),
-              ...createProgressSlice(set, get, store),
-              ...createUISlice(set, get, store),
-              ...createSettingsSlice(set, get, store),
+            set(() => {
+              // Create a clean initial state without orchestrator functions
+              const stateOnlyInitial = { ...initialState };
+              delete stateOnlyInitial.handlePlayerMove;
+              delete stateOnlyInitial.handleOpponentTurn;
+              delete stateOnlyInitial.requestPositionEvaluation;
+              delete stateOnlyInitial.loadTrainingContext;
+              delete stateOnlyInitial.reset;
+              delete stateOnlyInitial.hydrate;
 
-              // Re-add orchestrator actions (they get overwritten by slice spread)
-              handlePlayerMove: async (
-                move:
-                  | ChessJsMove
-                  | { from: string; to: string; promotion?: string }
-                  | string,
-              ) => {
-                const storeApi = { getState: get, setState: set };
-                return await handlePlayerMoveOrchestrator(storeApi, move);
-              },
-              handleOpponentTurn: async () => {
-                const storeApi = { getState: get, setState: set };
-                return await handleOpponentTurnOrchestrator(storeApi);
-              },
-              requestPositionEvaluation: async (fen?: string) => {
-                const storeApi = { getState: get, setState: set };
-                return await requestPositionEvaluationOrchestrator(
-                  storeApi,
-                  fen,
-                );
-              },
-              loadTrainingContext: async (position: EndgamePosition) => {
-                const storeApi = { getState: get, setState: set };
-                return await loadTrainingContextOrchestrator(
-                  storeApi,
-                  position,
-                );
-              },
-              reset: get().reset, // Self-reference to prevent infinite recursion
-              hydrate: get().hydrate,
-            }));
+              return stateOnlyInitial;
+            });
           },
 
           /**
@@ -319,37 +328,18 @@ export const useStore = create<RootState>()(
       {
         name: "endgame-trainer-store",
         version: 1,
-        // Only persist user data, settings, and progress (not ephemeral UI state)
+        // Only persist training position for session continuity
         partialize: (state) => ({
-          // User data - always persist
-          id: state.id,
-          username: state.username,
-          email: state.email,
-          rating: state.rating,
-          completedPositions: state.completedPositions,
-          currentStreak: state.currentStreak,
-          totalTrainingTime: state.totalTrainingTime,
-          lastActiveDate: state.lastActiveDate,
-          preferences: state.preferences,
-
-          // Settings - always persist (only essential settings)
-          lastSettingsUpdate: state.lastSettingsUpdate,
-          restartRequired: state.restartRequired,
-
-          // Progress data - always persist
-          positionProgress: state.positionProgress,
-          dailyStats: state.dailyStats,
-          achievements: state.achievements,
-          totalSolvedPositions: state.totalSolvedPositions,
-          averageAccuracy: state.averageAccuracy,
-          favoritePositions: state.favoritePositions,
-
           // Training position - persist for session continuity
           currentPosition: state.currentPosition,
 
-          // Game state - don't persist (reset on page reload)
-          // UI state - don't persist (reset on page reload)
-          // Tablebase state - don't persist (ephemeral analysis data)
+          // All other state removed - was over-engineered and unused in UI:
+          // - User data (authentication, profile, preferences) - not implemented
+          // - Settings (restart flags, config) - not used by UI
+          // - Progress data (statistics, achievements) - not displayed
+          // - Game state - ephemeral (reset on page reload)
+          // - UI state - ephemeral (toasts, modals, loading)
+          // - Tablebase state - ephemeral (analysis data)
         }),
       },
     ),

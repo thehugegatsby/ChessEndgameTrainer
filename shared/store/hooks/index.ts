@@ -8,43 +8,51 @@
  * ergonomics and performance.
  *
  * @remarks
- * These consolidated hooks follow the recommended pattern from the Zustand
- * community to avoid excessive granularity and naming conflicts. Each hook
- * represents a logical domain or feature area of the application.
+ * These consolidated hooks provide convenient access to domain-specific state
+ * and actions. However, for optimal performance, prefer direct selectors
+ * from useStore when you only need 1-2 values:
+ *
+ * **Performance Best Practices:**
+ * - Use consolidated hooks for high-level container components that need many values
+ * - Use direct selectors for leaf components that need specific values
+ * - Always use useShallow when selecting multiple properties
  *
  * Hook Categories:
  *
- * 1. Domain Hooks (consolidated state + actions):
- *    - useGameStore: Chess game state, moves, analysis
- *    - useTrainingStore: Training sessions, navigation, progress
+ * 1. Domain Hooks (focused on single responsibilities):
+ *    - useGameStore: Pure chess game state and operations
+ *    - useTrainingStore: Training sessions and navigation
+ *    - useTablebaseStore: Tablebase evaluations and analysis
  *    - useUIStore: UI elements, toasts, modals, panels
- *    - useProgressStore: User progress, achievements, statistics
- *    - useTablebaseStore: Tablebase evaluations, analysis status
- *    - useUserStore: User authentication, profile, preferences
- *    - useSettingsStore: Application settings, theme, configuration
- *
- * All hooks use useShallow internally for optimal re-render performance.
  *
  * @example
  * ```tsx
- * import { useGameStore, useUIStore } from '@/store/hooks';
+ * import { useStore } from '@/store/rootStore';
+ * import { useShallow } from 'zustand/react/shallow';
  *
- * function ChessBoard() {
- *   const {
- *     currentFen,
- *     moveHistory,
- *     makeMove,
- *     resetPosition
- *   } = useGameStore();
+ * // ✅ Preferred: Direct selectors for specific values
+ * function MoveButton() {
+ *   const makeMove = useStore(state => state.makeMove);
+ *   const isGameFinished = useStore(state => state.isGameFinished);
+ *   // Component only re-renders when these specific values change
+ * }
  *
- *   const { showToast } = useUIStore();
+ * // ✅ Good: useShallow for multiple related values
+ * function GameInfo() {
+ *   const { currentFen, moveHistory, gameResult } = useStore(
+ *     useShallow(state => ({
+ *       currentFen: state.currentFen,
+ *       moveHistory: state.moveHistory,
+ *       gameResult: state.gameResult,
+ *     }))
+ *   );
+ * }
  *
- *   const handleMove = async (from: string, to: string) => {
- *     const success = await makeMove({ from, to });
- *     if (!success) {
- *       showToast('Invalid move!', 'error');
- *     }
- *   };
+ * // ⚠️ Use consolidated hooks only for container components
+ * function ChessGameContainer() {
+ *   const gameStore = useGameStore(); // Many values needed
+ *   const trainingStore = useTrainingStore();
+ *   // This is appropriate for a high-level container
  * }
  * ```
  */
@@ -53,7 +61,4 @@
 export { useGameStore } from "./useGameStore";
 export { useTrainingStore } from "./useTrainingStore";
 export { useUIStore } from "./useUIStore";
-export { useProgressStore } from "./useProgressStore";
 export { useTablebaseStore } from "./useTablebaseStore";
-export { useUserStore } from "./useUserStore";
-export { useSettingsStore } from "./useSettingsStore";

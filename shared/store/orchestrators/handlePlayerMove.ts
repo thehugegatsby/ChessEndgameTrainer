@@ -46,33 +46,14 @@ import { ErrorService } from "@shared/services/ErrorService";
  * @fires tablebaseRequest - Fetches evaluation data for positions
  *
  * @remarks
- * This orchestrator performs the following steps:
- * 1. Validates the move using chess.js
- * 2. Updates game state and move history
- * 3. Evaluates position with tablebase
- * 4. Checks for WDL perspective changes
- * 5. Updates progress statistics
- * 6. Checks for training completion
- * 7. Handles perfect game achievements
- * 8. Shows appropriate toasts for feedback
- *
- * The orchestrator ensures atomicity - if any step fails, the entire
- * operation is rolled back to maintain consistency.
+ * This orchestrator coordinates move execution across multiple slices:
+ * 1. Validates preconditions and makes move
+ * 2. Evaluates move quality with tablebase
+ * 3. Handles training completion or turn transition
  *
  * @example
  * ```typescript
- * // Object notation
- * const success = await makeUserMove(api, { from: "e2", to: "e4" });
- *
- * // Algebraic notation
- * const success = await makeUserMove(api, "Nf3");
- *
- * // With promotion
- * const success = await makeUserMove(api, {
- *   from: "e7",
- *   to: "e8",
- *   promotion: "q"
- * });
+ * const success = await handlePlayerMove(api, { from: "e2", to: "e4" });
  * ```
  */
 export const handlePlayerMove = async (
@@ -82,7 +63,61 @@ export const handlePlayerMove = async (
   const { getState } = api;
   const state = getState();
 
-  // Early validation
+  // Validate preconditions
+  if (!validateMoveContext(state)) {
+    return false;
+  }
+
+  try {
+    state.setLoading("position", true);
+
+    // Execute move and get positions
+    const moveResult = await executeMoveWithValidation(state, move);
+    if (!moveResult) {
+      return false;
+    }
+
+    const { fenBefore, fenAfter } = moveResult;
+
+    // Evaluate move quality
+    const evaluation = await evaluateMoveQuality(
+      fenBefore,
+      fenAfter,
+      state.currentPosition!,
+    );
+
+    // Handle move feedback
+    if (evaluation.isWorseningMove) {
+      handleMoveError(state, evaluation);
+    }
+
+    // Check training completion or continue game
+    if (state.isGameFinished) {
+      await handleTrainingCompletion(api, evaluation.isOptimal);
+      return true;
+    }
+
+    // Transition to opponent turn
+    await transitionToOpponentTurn(api, state);
+
+    return true;
+  } catch (error) {
+    handleMoveOrchestrationError(state, error as Error);
+    return false;
+  } finally {
+    state.setLoading("position", false);
+  }
+};
+
+/**
+ * Validates the context for making a move
+ *
+ * @param {any} state - Current store state
+ * @returns {boolean} Whether the context is valid for moves
+ *
+ * @private
+ */
+function validateMoveContext(state: any): boolean {
   if (!state.game) {
     state.showToast("Kein Spiel aktiv", "error");
     return false;
@@ -93,31 +128,74 @@ export const handlePlayerMove = async (
     return false;
   }
 
+  return true;
+}
+
+/**
+ * Executes a move with validation
+ *
+ * @param {any} state - Current store state
+ * @param {ChessJsMove | {from: string; to: string; promotion?: string} | string} move - The move to make
+ * @returns {Promise<{fenBefore: string; fenAfter: string; validatedMove: any} | null>} Move result or null if invalid
+ *
+ * @private
+ */
+async function executeMoveWithValidation(
+  state: any,
+  move: ChessJsMove | { from: string; to: string; promotion?: string } | string,
+): Promise<{ fenBefore: string; fenAfter: string; validatedMove: any } | null> {
+  const fenBefore = state.currentFen;
+  const validatedMove = state.makeMove(move);
+
+  if (!validatedMove) {
+    state.showToast("Ungültiger Zug", "error");
+    return null;
+  }
+
+  const fenAfter = state.currentFen;
+  return { fenBefore, fenAfter, validatedMove };
+}
+
+/**
+ * Move evaluation result interface
+ *
+ * @private
+ */
+interface MoveEvaluation {
+  isOptimal: boolean;
+  isWorseningMove: boolean;
+  wdlBefore?: number;
+  wdlAfter?: number;
+  bestMove?: string;
+  outcomeChange?: string | null;
+}
+
+/**
+ * Evaluates move quality using tablebase
+ *
+ * @param {string} fenBefore - Position before move
+ * @param {string} fenAfter - Position after move
+ * @param {any} currentPosition - Training position context
+ * @returns {Promise<MoveEvaluation>} Move evaluation result
+ *
+ * @private
+ */
+async function evaluateMoveQuality(
+  fenBefore: string,
+  fenAfter: string,
+  currentPosition: any,
+): Promise<MoveEvaluation> {
+  const result: MoveEvaluation = {
+    isOptimal: false,
+    isWorseningMove: false,
+  };
+
   try {
-    // Set loading state
-    state.setLoading("position", true);
-
-    // Step 1: Validate and make the move
-    const fenBefore = state.currentFen;
-    const validatedMove = state.makeMove(move);
-
-    if (!validatedMove) {
-      state.showToast("Ungültiger Zug", "error");
-      return false;
-    }
-
-    const fenAfter = state.currentFen;
-
-    // Step 2: Evaluate positions for WDL perspective
+    // Evaluate positions for WDL perspective
     const [evalBefore, evalAfter] = await Promise.all([
       tablebaseService.getEvaluation(fenBefore),
       tablebaseService.getEvaluation(fenAfter),
     ]);
-
-    // Step 3: Check if move was optimal
-    let isOptimal = false;
-    let wdlBefore: number | undefined;
-    let wdlAfter: number | undefined;
 
     if (
       evalBefore.isAvailable &&
@@ -125,86 +203,106 @@ export const handlePlayerMove = async (
       evalBefore.result &&
       evalAfter.result
     ) {
-      wdlBefore = getWDLFromTrainingPerspective(
+      const wdlBefore = getWDLFromTrainingPerspective(
         evalBefore.result.wdl,
-        state.currentPosition.colorToTrain,
+        currentPosition.colorToTrain,
       );
-      wdlAfter = getWDLFromTrainingPerspective(
+      const wdlAfter = getWDLFromTrainingPerspective(
         evalAfter.result.wdl,
-        state.currentPosition.colorToTrain,
+        currentPosition.colorToTrain,
       );
+
+      result.wdlBefore = wdlBefore;
+      result.wdlAfter = wdlAfter;
 
       // Get best moves to check optimality
       const topMoves = await tablebaseService.getTopMoves(fenBefore);
       if (topMoves.isAvailable && topMoves.moves && topMoves.moves.length > 0) {
         const bestWDL = getWDLFromTrainingPerspective(
           topMoves.moves[0].wdl,
-          state.currentPosition.colorToTrain,
+          currentPosition.colorToTrain,
         );
-        isOptimal = wdlAfter === bestWDL;
+        result.isOptimal = wdlAfter === bestWDL;
+        result.bestMove = topMoves.moves[0].san;
       }
 
       // Check for position worsening
       if (isPositionWorsened(wdlBefore, wdlAfter)) {
-        const outcomeChange = getOutcomeChange(wdlBefore, wdlAfter);
-
-        state.incrementMistake();
-        state.setMoveErrorDialog({
-          isOpen: true,
-          wdlBefore,
-          wdlAfter,
-          bestMove:
-            topMoves.isAvailable && topMoves.moves && topMoves.moves.length > 0
-              ? topMoves.moves[0].san
-              : undefined,
-        });
-
-        state.showToast(
-          outcomeChange === "Win->Draw/Loss"
-            ? "Position verschlechtert: Gewinn → Remis/Verlust"
-            : "Position verschlechtert: Remis → Verlust",
-          "warning",
-          4000,
-        );
+        result.isWorseningMove = true;
+        result.outcomeChange = getOutcomeChange(wdlBefore, wdlAfter);
       }
     }
-
-    // Step 4: Update progress would be calculated here if needed
-
-    // Step 5: Check for training completion
-    if (state.isGameFinished) {
-      await handleTrainingCompletion(api, isOptimal);
-      return true;
-    }
-
-    // Step 6: Switch turns and request tablebase move if needed
-    state.setPlayerTurn(false); // User just moved, so it's not their turn
-
-    const isTablebaseTurn =
-      state.game.turn() !== state.currentPosition.colorToTrain.charAt(0);
-    if (isTablebaseTurn) {
-      // Small delay for better UX
-      setTimeout(async () => {
-        await api.getState().handleOpponentTurn();
-      }, 500);
-    }
-
-    return true;
   } catch (error) {
-    const userMessage = ErrorService.handleUIError(
-      error as Error,
-      "MakeUserMove",
-      {
-        component: "MakeUserMove",
-        action: "orchestrate",
-      },
-    );
-    state.showToast(userMessage, "error");
-    return false;
-  } finally {
-    state.setLoading("position", false);
+    // Silently handle evaluation errors - move was valid even if we can't evaluate it
   }
-};
+
+  return result;
+}
+
+/**
+ * Handles move error feedback
+ *
+ * @param {any} state - Current store state
+ * @param {MoveEvaluation} evaluation - Move evaluation result
+ *
+ * @private
+ */
+function handleMoveError(state: any, evaluation: MoveEvaluation): void {
+  state.incrementMistake();
+  state.setMoveErrorDialog({
+    isOpen: true,
+    wdlBefore: evaluation.wdlBefore,
+    wdlAfter: evaluation.wdlAfter,
+    bestMove: evaluation.bestMove,
+  });
+
+  const message =
+    evaluation.outcomeChange === "Win->Draw/Loss"
+      ? "Position verschlechtert: Gewinn → Remis/Verlust"
+      : "Position verschlechtert: Remis → Verlust";
+
+  state.showToast(message, "warning", 4000);
+}
+
+/**
+ * Transitions to opponent turn
+ *
+ * @param {StoreApi} api - Store API
+ * @param {any} state - Current store state
+ *
+ * @private
+ */
+async function transitionToOpponentTurn(
+  api: StoreApi,
+  state: any,
+): Promise<void> {
+  state.setPlayerTurn(false); // User just moved, so it's not their turn
+
+  const isTablebaseTurn =
+    state.game.turn() !== state.currentPosition.colorToTrain.charAt(0);
+  if (isTablebaseTurn) {
+    // Small delay for better UX
+    setTimeout(async () => {
+      await api.getState().handleOpponentTurn();
+    }, 500);
+  }
+}
+
+/**
+ * Handles orchestration errors
+ *
+ * @param {any} state - Current store state
+ * @param {Error} error - The error that occurred
+ *
+ * @private
+ */
+function handleMoveOrchestrationError(state: any, error: Error): void {
+  const userMessage = ErrorService.handleUIError(error, "MakeUserMove", {
+    component: "MakeUserMove",
+    action: "orchestrate",
+  });
+  state.showToast(userMessage, "error");
+}
 
 /**
  * Handles training completion logic
@@ -259,35 +357,8 @@ async function handleTrainingCompletion(
   // Complete training
   state.completeTraining(success);
 
-  // Update position progress
-  const positionId = state.currentPosition.id;
-  const timeSpent = Date.now() - state.sessionStartTime;
-
-  state.updatePositionProgress(positionId, {
-    attempts: (state.positionProgress[positionId]?.attempts || 0) + 1,
-    completed: success,
-    lastAttempt: Date.now(),
-    bestTime:
-      success &&
-      (!state.positionProgress[positionId]?.bestTime ||
-        timeSpent < state.positionProgress[positionId].bestTime!)
-        ? timeSpent
-        : state.positionProgress[positionId]?.bestTime,
-  });
-
-  // Calculate next review date if successful
-  if (success) {
-    state.calculateNextReview(positionId, true);
-  }
-
-  // Add daily stats
-  state.addDailyStats({
-    positionsCompleted: success ? 1 : 0,
-    totalTime: Math.floor(timeSpent / 1000), // Convert to seconds
-    averageAccuracy: 0,
-    mistakesMade: state.mistakeCount,
-    hintsUsed: state.hintsUsed,
-  });
+  // TODO: Progress tracking removed (was over-engineered, not used in UI)
+  // If progress tracking is needed in the future, implement only what's actually displayed
 
   // Show completion message
   if (success) {
