@@ -10,7 +10,7 @@
  * @remarks
  * Features:
  * - Race condition protection with AbortController
- * - Robust error handling with state management  
+ * - Robust error handling with state management
  * - Automatic cleanup on unmount
  * - Tablebase-based analysis for endgame positions
  * - Supports both SAN and UCI move notation
@@ -27,7 +27,7 @@ const logger = new Logger();
 
 /**
  * State interface for move quality analysis
- * 
+ *
  * @interface UseMoveQualityState
  * @property {SimplifiedMoveQualityResult | null} data - Current move quality result
  * @property {boolean} isLoading - Whether analysis is in progress
@@ -60,7 +60,7 @@ interface UseMoveQualityState {
  * @example
  * ```tsx
  * const { data, isLoading, error, assessMove } = useMoveQuality();
- * 
+ *
  * // Assess a move when user plays
  * const handleMove = async (move: string) => {
  *   try {

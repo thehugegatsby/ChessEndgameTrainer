@@ -9,7 +9,7 @@ global.Worker = jest.fn(() => ({
   addEventListener: jest.fn(),
   removeEventListener: jest.fn(),
   onmessage: null,
-  onerror: null
+  onerror: null,
 }));
 
 // Mock fetch API
@@ -17,8 +17,8 @@ global.fetch = jest.fn(() =>
   Promise.resolve({
     ok: true,
     json: () => Promise.resolve({ wdl: 2, dtm: 15, dtz: 15 }),
-    text: () => Promise.resolve('2,15,15')
-  })
+    text: () => Promise.resolve("2,15,15"),
+  }),
 );
 
 // Mock logger for evaluation tests
@@ -27,15 +27,15 @@ const mockLogger = {
   info: jest.fn(),
   warn: jest.fn(),
   error: jest.fn(),
-  getInstance: jest.fn(() => mockLogger)
+  getInstance: jest.fn(() => mockLogger),
 };
 
 // Set up module mocks
-jest.mock('@shared/services/loggerService', () => ({
+jest.mock("@shared/services/loggerService", () => ({
   getLogger: jest.fn(() => mockLogger),
   Logger: {
-    getInstance: jest.fn(() => mockLogger)
-  }
+    getInstance: jest.fn(() => mockLogger),
+  },
 }));
 
 // Mock AbortController for older Node versions
@@ -45,10 +45,10 @@ if (!global.AbortController) {
       this.signal = {
         aborted: false,
         addEventListener: jest.fn(),
-        removeEventListener: jest.fn()
+        removeEventListener: jest.fn(),
       };
     }
-    
+
     abort() {
       this.signal.aborted = true;
     }

@@ -116,7 +116,7 @@ export const useStore = create<RootState>()(
            * const handleMove = async (from: string, to: string) => {
            *   const success = await makeMove({ from, to });
            *   if (success) {
-           *     console.log('Move completed successfully');
+           *     logger.info('Move completed successfully');
            *   }
            * };
            * ```
@@ -178,7 +178,7 @@ export const useStore = create<RootState>()(
            *
            * const analyzePosition = async (fen?: string) => {
            *   await requestEval(fen);
-           *   console.log('Position analysis complete');
+           *   logger.info('Position analysis complete');
            * };
            * ```
            */
@@ -206,7 +206,7 @@ export const useStore = create<RootState>()(
            *
            * const startTraining = async (position) => {
            *   await loadContext(position);
-           *   console.log('Training context loaded');
+           *   logger.info('Training context loaded');
            * };
            * ```
            */

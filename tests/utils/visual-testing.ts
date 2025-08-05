@@ -3,17 +3,17 @@
  * Enterprise-grade visual and a11y testing
  */
 
-import { Page, Locator, expect } from '@playwright/test';
-import { injectAxe, checkA11y, configureAxe } from 'axe-playwright';
+import { Page, Locator, expect } from "@playwright/test";
+import { injectAxe, checkA11y, configureAxe } from "axe-playwright";
 
 export interface VisualTestOptions {
   name: string;
   fullPage?: boolean;
   clip?: { x: number; y: number; width: number; height: number };
   mask?: Locator[];
-  animations?: 'disabled' | 'allow';
-  caret?: 'hide' | 'initial';
-  scale?: 'css' | 'device';
+  animations?: "disabled" | "allow";
+  caret?: "hide" | "initial";
+  scale?: "css" | "device";
   maxDiffPixels?: number;
   maxDiffPixelRatio?: number;
   threshold?: number;
@@ -21,7 +21,7 @@ export interface VisualTestOptions {
 }
 
 export interface A11yTestOptions {
-  includedImpacts?: ('minor' | 'moderate' | 'serious' | 'critical')[];
+  includedImpacts?: ("minor" | "moderate" | "serious" | "critical")[];
   detailedReport?: boolean;
   detailedReportOptions?: {
     html?: boolean;
@@ -37,12 +37,12 @@ export class VisualTester {
   constructor(page: Page, defaultOptions?: Partial<VisualTestOptions>) {
     this.page = page;
     this.defaultOptions = {
-      animations: 'disabled',
-      caret: 'hide',
-      scale: 'css',
+      animations: "disabled",
+      caret: "hide",
+      scale: "css",
       maxDiffPixels: 100,
       threshold: 0.2,
-      ...defaultOptions
+      ...defaultOptions,
     };
   }
 
@@ -51,10 +51,10 @@ export class VisualTester {
    */
   async snapshot(options: VisualTestOptions): Promise<void> {
     const mergedOptions = { ...this.defaultOptions, ...options };
-    
+
     // Prepare page for consistent screenshots
     await this.preparePage(mergedOptions);
-    
+
     // Take screenshot
     if (mergedOptions.fullPage) {
       await expect(this.page).toHaveScreenshot(mergedOptions.name, {
@@ -66,17 +66,17 @@ export class VisualTester {
         maxDiffPixels: mergedOptions.maxDiffPixels,
         maxDiffPixelRatio: mergedOptions.maxDiffPixelRatio,
         threshold: mergedOptions.threshold,
-        timeout: mergedOptions.timeout
+        timeout: mergedOptions.timeout,
       });
     } else {
-      const screenshot = mergedOptions.clip 
+      const screenshot = mergedOptions.clip
         ? await this.page.screenshot({ clip: mergedOptions.clip })
         : await this.page.screenshot();
-        
+
       await expect(screenshot).toMatchSnapshot(mergedOptions.name, {
         maxDiffPixels: mergedOptions.maxDiffPixels,
         maxDiffPixelRatio: mergedOptions.maxDiffPixelRatio,
-        threshold: mergedOptions.threshold
+        threshold: mergedOptions.threshold,
       });
     }
   }
@@ -85,14 +85,14 @@ export class VisualTester {
    * Compare specific element
    */
   async snapshotElement(
-    element: Locator, 
-    name: string, 
-    options?: Partial<VisualTestOptions>
+    element: Locator,
+    name: string,
+    options?: Partial<VisualTestOptions>,
   ): Promise<void> {
     const mergedOptions = { ...this.defaultOptions, ...options };
-    
+
     await this.preparePage(mergedOptions);
-    
+
     await expect(element).toHaveScreenshot(name, {
       animations: mergedOptions.animations,
       caret: mergedOptions.caret,
@@ -101,16 +101,18 @@ export class VisualTester {
       maxDiffPixels: mergedOptions.maxDiffPixels,
       maxDiffPixelRatio: mergedOptions.maxDiffPixelRatio,
       threshold: mergedOptions.threshold,
-      timeout: mergedOptions.timeout
+      timeout: mergedOptions.timeout,
     });
   }
 
   /**
    * Prepare page for consistent screenshots
    */
-  private async preparePage(options: Partial<VisualTestOptions>): Promise<void> {
+  private async preparePage(
+    options: Partial<VisualTestOptions>,
+  ): Promise<void> {
     // Disable animations if requested
-    if (options.animations === 'disabled') {
+    if (options.animations === "disabled") {
       await this.page.addStyleTag({
         content: `
           *, *::before, *::after {
@@ -119,27 +121,27 @@ export class VisualTester {
             transition-duration: 0s !important;
             transition-delay: 0s !important;
           }
-        `
+        `,
       });
     }
 
     // Hide caret if requested
-    if (options.caret === 'hide') {
+    if (options.caret === "hide") {
       await this.page.addStyleTag({
         content: `
           * {
             caret-color: transparent !important;
           }
-        `
+        `,
       });
     }
 
     // Wait for fonts to load
     await this.page.evaluate(() => document.fonts.ready);
-    
+
     // Wait for images to load
-    await this.page.waitForLoadState('networkidle');
-    
+    await this.page.waitForLoadState("networkidle");
+
     // Additional wait for any lazy-loaded content
     await this.page.waitForTimeout(500);
   }
@@ -154,7 +156,7 @@ export class VisualTester {
     for (const test of suite.tests) {
       await this.snapshot({
         ...test,
-        name: `${suite.name}/${test.name}`
+        name: `${suite.name}/${test.name}`,
       });
     }
   }
@@ -200,7 +202,7 @@ export class A11yTester {
    */
   async check(options?: A11yTestOptions): Promise<void> {
     await this.initialize();
-    
+
     await checkA11y(
       this.page,
       undefined, // selector - undefined means whole page
@@ -209,10 +211,10 @@ export class A11yTester {
         detailedReport: options?.detailedReport,
         detailedReportOptions: options?.detailedReportOptions,
         axeOptions: {
-          rules: options?.rules
-        }
+          rules: options?.rules,
+        },
       },
-      options?.skipFailures
+      options?.skipFailures,
     );
   }
 
@@ -220,11 +222,11 @@ export class A11yTester {
    * Check specific element
    */
   async checkElement(
-    selector: string, 
-    options?: A11yTestOptions
+    selector: string,
+    options?: A11yTestOptions,
   ): Promise<void> {
     await this.initialize();
-    
+
     await checkA11y(
       this.page,
       selector,
@@ -233,10 +235,10 @@ export class A11yTester {
         detailedReport: options?.detailedReport,
         detailedReportOptions: options?.detailedReportOptions,
         axeOptions: {
-          rules: options?.rules
-        }
+          rules: options?.rules,
+        },
       },
-      options?.skipFailures
+      options?.skipFailures,
     );
   }
 
@@ -253,14 +255,14 @@ export class A11yTester {
   async runCommonTests(): Promise<void> {
     // WCAG 2.1 Level AA compliance
     await this.check({
-      includedImpacts: ['critical', 'serious'],
+      includedImpacts: ["critical", "serious"],
       rules: {
-        'color-contrast': { enabled: true },
-        'label': { enabled: true },
-        'landmark-one-main': { enabled: true },
-        'page-has-heading-one': { enabled: true },
-        'region': { enabled: true }
-      }
+        "color-contrast": { enabled: true },
+        label: { enabled: true },
+        "landmark-one-main": { enabled: true },
+        "page-has-heading-one": { enabled: true },
+        region: { enabled: true },
+      },
     });
   }
 
@@ -270,21 +272,24 @@ export class A11yTester {
   async checkKeyboardNavigation(elements: string[]): Promise<void> {
     for (const selector of elements) {
       const element = this.page.locator(selector);
-      
+
       // Check if element is focusable
-      const isFocusable = await element.evaluate(el => {
-        const tabindex = el.getAttribute('tabindex');
-        return el.matches(':focus-visible') || 
-               (tabindex !== null && parseInt(tabindex) >= 0);
+      const isFocusable = await element.evaluate((el) => {
+        const tabindex = el.getAttribute("tabindex");
+        return (
+          el.matches(":focus-visible") ||
+          (tabindex !== null && parseInt(tabindex) >= 0)
+        );
       });
-      
+
       expect(isFocusable).toBe(true);
-      
+
       // Check if element has accessible name
-      const accessibleName = await element.getAttribute('aria-label') ||
-                           await element.getAttribute('aria-labelledby') ||
-                           await element.textContent();
-                           
+      const accessibleName =
+        (await element.getAttribute("aria-label")) ||
+        (await element.getAttribute("aria-labelledby")) ||
+        (await element.textContent());
+
       expect(accessibleName).toBeTruthy();
     }
   }
@@ -294,19 +299,19 @@ export class A11yTester {
    */
   async checkContrast(options?: {
     normalTextMinimum?: number; // Default: 4.5:1
-    largeTextMinimum?: number;  // Default: 3:1
+    largeTextMinimum?: number; // Default: 3:1
   }): Promise<void> {
     await this.check({
       rules: {
-        'color-contrast': { 
+        "color-contrast": {
           enabled: true,
           options: {
             noScroll: true,
             normalTextMinimum: options?.normalTextMinimum || 4.5,
-            largeTextMinimum: options?.largeTextMinimum || 3
-          }
-        }
-      }
+            largeTextMinimum: options?.largeTextMinimum || 3,
+          },
+        },
+      },
     });
   }
 }
@@ -335,14 +340,14 @@ export class QualityAssuranceTester {
     for (const test of options.visualTests) {
       await this.visualTester.snapshot(test);
     }
-    
+
     // Accessibility tests
     await this.a11yTester.runCommonTests();
-    
+
     if (options.a11yConfig) {
       await this.a11yTester.check(options.a11yConfig);
     }
-    
+
     // Keyboard navigation tests
     if (options.keyboardElements) {
       await this.a11yTester.checkKeyboardNavigation(options.keyboardElements);
@@ -361,7 +366,7 @@ export class QualityAssuranceTester {
     return {
       visualTests: 0, // Count from actual tests
       a11yIssues: [], // Collect from axe results
-      keyboardNavigation: true // Result from keyboard tests
+      keyboardNavigation: true, // Result from keyboard tests
     };
   }
 }

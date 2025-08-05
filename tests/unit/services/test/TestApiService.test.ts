@@ -57,7 +57,7 @@ describe("TestApiService - Store-Based Architecture", () => {
     // Get the mocked logger instance and clear all mocks
     mockLogger = getLogger();
     jest.clearAllMocks();
-    
+
     // Reset singleton
     TestApiService["instance"] = null;
     service = TestApiService.getInstance();
@@ -66,7 +66,8 @@ describe("TestApiService - Store-Based Architecture", () => {
     mockStoreAccess = {
       getState: jest.fn(() => ({
         game: {
-          currentFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+          currentFen:
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         },
         tablebase: {
           analysisStatus: "idle",
@@ -128,7 +129,7 @@ describe("TestApiService - Store-Based Architecture", () => {
 
       // Verify logger was called
       expect(mockLogger.info).toHaveBeenCalledWith(
-        "✅ TestApiService: Successfully initialized with store actions"
+        "✅ TestApiService: Successfully initialized with store actions",
       );
       expect(eventHandler).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -160,7 +161,7 @@ describe("TestApiService - Store-Based Architecture", () => {
 
       // Verify logger error was called
       expect(mockLogger.error).toHaveBeenCalledWith(
-        "Required store actions not available"
+        "Required store actions not available",
       );
       expect(service.isInitialized).toBe(false);
     });
@@ -269,7 +270,8 @@ describe("TestApiService - Store-Based Architecture", () => {
       mockStoreAccess.getState.mockReturnValue({
         tablebase: { analysisStatus: "loading" },
         game: {
-          currentFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+          currentFen:
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         },
       });
 
@@ -278,7 +280,7 @@ describe("TestApiService - Store-Based Architecture", () => {
       expect(result).toBe(false);
       expect(mockLogger.warn).toHaveBeenCalledWith(
         "Tablebase analysis timeout after",
-        { timeoutMs: 100 }
+        { timeoutMs: 100 },
       );
     });
 

@@ -7,6 +7,7 @@
 ## 📋 Daily Maintenance Checklist
 
 ### Development Session Checklist
+
 - [ ] **New components created?**
   - [ ] Add to `docs/patterns/REACT_PATTERNS.md`
   - [ ] Update component architecture diagram
@@ -38,6 +39,7 @@
   - [ ] Check mock service patterns
 
 ### Code Review Checklist
+
 - [ ] **Documentation impact assessment**
   - [ ] Files changed require doc updates?
   - [ ] New patterns introduced?
@@ -59,6 +61,7 @@
 ## 📅 Weekly Maintenance Checklist
 
 ### Monday: Reference Validation
+
 ```bash
 # Run automated reference validation
 node scripts/validate-references.js
@@ -71,9 +74,10 @@ node scripts/update-doc-references.js
 ```
 
 **Checklist**:
+
 - [ ] **Reference health check**
   - [ ] All file references valid
-  - [ ] Line numbers within bounds  
+  - [ ] Line numbers within bounds
   - [ ] No broken internal links
   - [ ] Code examples compile
   - [ ] Mock service references accurate
@@ -91,6 +95,7 @@ node scripts/update-doc-references.js
   - [ ] Mock service patterns documented
 
 ### Wednesday: Content Freshness Review
+
 - [ ] **Architecture documentation**
   - [ ] Mermaid diagrams reflect current architecture
   - [ ] Service integrations up to date
@@ -113,6 +118,7 @@ node scripts/update-doc-references.js
   - [ ] E2E rewrite plan status current
 
 ### Friday: Quality Assurance
+
 ```bash
 # Generate documentation health metrics
 node scripts/doc-health-metrics.js
@@ -125,6 +131,7 @@ node scripts/discover-patterns.js
 ```
 
 **Checklist**:
+
 - [ ] **Documentation health metrics**
   - [ ] Coverage percentage acceptable (>80%)
   - [ ] Reference accuracy high (>95%)
@@ -146,6 +153,7 @@ node scripts/discover-patterns.js
 ## 🗓️ Monthly Maintenance Checklist
 
 ### Architecture Review (First Monday)
+
 - [ ] **System architecture validation**
   - [ ] `docs/ARCHITECTURE.md` reflects current system
   - [ ] Component hierarchy diagrams accurate
@@ -162,6 +170,7 @@ node scripts/discover-patterns.js
   - [ ] Bottleneck identification accurate
 
 ### Pattern Audit (Second Monday)
+
 - [ ] **React pattern audit**
   - [ ] All documented patterns still in use
   - [ ] New patterns identified and documented
@@ -178,6 +187,7 @@ node scripts/discover-patterns.js
   - [ ] Performance optimization patterns included
 
 ### Service Documentation Review (Third Monday)
+
 - [ ] **TablebaseService documentation**
   - [ ] Interface documentation accurate
   - [ ] Implementation patterns current
@@ -204,6 +214,7 @@ node scripts/discover-patterns.js
   - [ ] CI/CD testing pipeline documentation
 
 ### Documentation Debt Review (Fourth Monday)
+
 - [ ] **Debt identification**
   - [ ] Run debt detection scripts
   - [ ] Identify outdated documentation
@@ -222,6 +233,7 @@ node scripts/discover-patterns.js
 ## 🚨 Emergency Maintenance Checklist
 
 ### Post-Major Architecture Change
+
 - [ ] **Immediate updates**
   - [ ] Update `docs/ARCHITECTURE.md`
   - [ ] Update affected Mermaid diagrams
@@ -238,6 +250,7 @@ node scripts/discover-patterns.js
   - [ ] Add new anti-patterns if discovered
 
 ### Post-Breaking Change
+
 - [ ] **Impact assessment**
   - [ ] Identify affected documentation
   - [ ] Assess severity of documentation drift
@@ -256,6 +269,7 @@ node scripts/discover-patterns.js
 ## 🔧 Maintenance Scripts
 
 ### Daily Automation
+
 ```bash
 #!/bin/bash
 # File: scripts/daily-doc-check.sh
@@ -278,6 +292,7 @@ echo "✅ Daily check complete"
 ```
 
 ### Weekly Automation
+
 ```bash
 #!/bin/bash
 # File: scripts/weekly-doc-maintenance.sh
@@ -304,6 +319,7 @@ echo "✅ Weekly maintenance complete"
 ```
 
 ### Monthly Automation
+
 ```bash
 #!/bin/bash
 # File: scripts/monthly-doc-audit.sh
@@ -334,6 +350,7 @@ echo "✅ Monthly audit complete"
 ## 📊 Quality Gates
 
 ### Pre-Commit Quality Gate
+
 ```yaml
 # .pre-commit-config.yaml
 repos:
@@ -344,40 +361,41 @@ repos:
         entry: node scripts/validate-references.js
         language: node
         files: 'docs/.*\.md$'
-        
+
       - id: code-example-sync
-        name: Code Example Sync Check  
+        name: Code Example Sync Check
         entry: node scripts/sync-code-examples.js --check-only
         language: node
         files: 'docs/.*\.md$'
 ```
 
 ### CI/CD Quality Gate
+
 ```yaml
 # .github/workflows/documentation-quality.yml
 name: Documentation Quality Gate
 
 on:
   pull_request:
-    paths: ['docs/**', 'shared/**']
+    paths: ["docs/**", "shared/**"]
 
 jobs:
   documentation-quality:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Documentation Quality Check
         run: |
           # Reference validation
           node scripts/validate-references.js
-          
+
           # Example accuracy
           node scripts/sync-code-examples.js --check-only
-          
+
           # Pattern correlation
           node scripts/correlation-metrics.js
-          
+
           # Quality gate: must pass all checks
           echo "✅ Documentation quality gate passed"
 ```
@@ -385,18 +403,21 @@ jobs:
 ## 🎯 Maintenance KPIs
 
 ### Coverage Metrics
+
 - **File Coverage**: >80% of source files referenced in docs
-- **Pattern Coverage**: >90% of identified patterns documented  
+- **Pattern Coverage**: >90% of identified patterns documented
 - **Reference Accuracy**: >95% of references valid
 - **Test Coverage Documentation**: Match actual 75% global, 80% shared/lib thresholds
 
 ### Quality Metrics
+
 - **Example Accuracy**: >90% of code examples current
 - **Link Health**: 100% of internal links working
 - **Correlation Health**: >85% code-doc correlation score
 - **Testing Framework Alignment**: Jest 29.7 and React Testing Library 14.2 patterns
 
 ### Freshness Metrics
+
 - **Update Frequency**: Documentation updated within 1 week of code changes
 - **Debt Resolution**: Documentation debt resolved within 1 month
 - **Pattern Discovery**: New patterns documented within 2 weeks

@@ -107,10 +107,7 @@ export const createInitialUserState = (): UserState => ({
  * const useStore = create<UserSlice>()(createUserSlice);
  * ```
  */
-export const createUserSlice: ImmerStateCreator<UserSlice> = (
-  set,
-  _get,
-) => ({
+export const createUserSlice: ImmerStateCreator<UserSlice> = (set, _get) => ({
   // Initial state
   ...createInitialUserState(),
 

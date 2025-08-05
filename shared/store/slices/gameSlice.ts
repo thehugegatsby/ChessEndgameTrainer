@@ -88,17 +88,18 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
   ...createInitialGameState(),
 
   // Actions
-  
+
   // State management actions
   setGame: (game: ChessInstance) => set({ game }),
-  updatePosition: (fen: string, pgn: string) => set({ currentFen: fen, currentPgn: pgn }),
+  updatePosition: (fen: string, pgn: string) =>
+    set({ currentFen: fen, currentPgn: pgn }),
   addMove: (move: ValidatedMove) => {
     const { moveHistory, currentMoveIndex } = get();
     const newHistory = moveHistory.slice(0, currentMoveIndex + 1);
     newHistory.push(move);
-    set({ 
-      moveHistory: newHistory, 
-      currentMoveIndex: newHistory.length - 1 
+    set({
+      moveHistory: newHistory,
+      currentMoveIndex: newHistory.length - 1,
     });
   },
   setMoveHistory: (moves: ValidatedMove[]) => set({ moveHistory: moves }),
@@ -204,10 +205,10 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
         // Add missing helper methods
         isCapture: () => !!result.captured,
         isPromotion: () => !!result.promotion,
-        isEnPassant: () => result.flags.includes('e'),
-        isKingsideCastle: () => result.flags.includes('k'),
-        isQueensideCastle: () => result.flags.includes('q'),
-        isBigPawn: () => result.flags.includes('b'),
+        isEnPassant: () => result.flags.includes("e"),
+        isKingsideCastle: () => result.flags.includes("k"),
+        isQueensideCastle: () => result.flags.includes("q"),
+        isBigPawn: () => result.flags.includes("b"),
       } as unknown as ValidatedMove;
 
       // Truncate history if we're not at the end

@@ -1,12 +1,12 @@
 /**
  * @file Position service implementation
  * @module services/database/PositionService
- * 
+ *
  * @description
  * Business logic layer for managing chess endgame positions.
  * Handles position-related operations with caching and business rules,
  * completely decoupled from data access implementation through repository pattern.
- * 
+ *
  * @remarks
  * Key features:
  * - Repository pattern for data abstraction
@@ -16,10 +16,10 @@
  * - Category and difficulty filtering
  * - Position navigation (next/previous)
  * - Full-text search capabilities
- * 
+ *
  * The service acts as an intermediary between the UI layer and data layer,
  * enforcing business rules and providing caching for frequently accessed positions.
- * 
+ *
  * @example
  * ```typescript
  * // Create service with repository
@@ -28,7 +28,7 @@
  *   cacheEnabled: true,
  *   cacheSize: 100
  * });
- * 
+ *
  * // Use service
  * const position = await service.getPosition(1);
  * const positions = await service.getPositionsByCategory('basic-checkmates');
@@ -51,15 +51,15 @@ const logger = getLogger().setContext("PositionService");
 
 /**
  * Service for managing chess positions
- * 
+ *
  * @class PositionService
  * @implements {IPositionService}
- * 
+ *
  * @description
  * Implements the position service interface with caching and business logic.
  * Uses repository pattern for data access abstraction, allowing different
  * storage backends (SQLite, PostgreSQL, etc.) without changing service code.
- * 
+ *
  * @example
  * ```typescript
  * const service = new PositionService(repository, {
@@ -76,10 +76,10 @@ export class PositionService implements IPositionService {
 
   /**
    * Creates a new PositionService instance
-   * 
+   *
    * @param {IPositionRepository} repository - Data access repository
    * @param {IPositionServiceConfig} [config={}] - Service configuration
-   * 
+   *
    * @example
    * ```typescript
    * const service = new PositionService(repository, {
@@ -109,16 +109,16 @@ export class PositionService implements IPositionService {
 
   /**
    * Get a single position by ID
-   * 
+   *
    * @param {number} id - Position identifier
    * @returns {Promise<EndgamePosition | null>} Position if found, null otherwise
    * @throws {RepositoryError} If repository operation fails
-   * 
+   *
    * @description
    * Retrieves a position by ID with cache-first strategy.
    * If found in cache, returns immediately. Otherwise fetches
    * from repository and caches the result.
-   * 
+   *
    * @example
    * ```typescript
    * const position = await service.getPosition(1);
@@ -151,19 +151,19 @@ export class PositionService implements IPositionService {
 
   /**
    * Get all positions
-   * 
+   *
    * @returns {Promise<EndgamePosition[]>} Array of all positions
    * @throws {RepositoryError} If repository operation fails
-   * 
+   *
    * @description
    * Retrieves all positions from the repository and caches
    * each position individually for future single-position lookups.
-   * 
+   *
    * @remarks
    * Use with caution on large datasets as this loads all positions
    * into memory. Consider using pagination or filtering for better
    * performance with large position databases.
-   * 
+   *
    * @example
    * ```typescript
    * const allPositions = await service.getAllPositions();
@@ -190,15 +190,15 @@ export class PositionService implements IPositionService {
 
   /**
    * Get positions by category
-   * 
+   *
    * @param {string} category - Category identifier (e.g., 'basic-checkmates')
    * @returns {Promise<EndgamePosition[]>} Positions in the category
-   * 
+   *
    * @description
    * Retrieves all positions belonging to a specific category.
    * Results are cached individually for improved performance
    * on subsequent single-position lookups.
-   * 
+   *
    * @example
    * ```typescript
    * const checkmates = await service.getPositionsByCategory('basic-checkmates');
@@ -253,15 +253,15 @@ export class PositionService implements IPositionService {
 
   /**
    * Search positions by title or description
-   * 
+   *
    * @param {string} searchTerm - Search query
    * @returns {Promise<EndgamePosition[]>} Matching positions
-   * 
+   *
    * @description
    * Performs full-text search across position titles and descriptions.
    * Empty or whitespace-only search terms return empty results.
    * Search is delegated to the repository implementation.
-   * 
+   *
    * @example
    * ```typescript
    * const results = await service.searchPositions('rook checkmate');
@@ -292,11 +292,11 @@ export class PositionService implements IPositionService {
 
   /**
    * Clear the cache
-   * 
+   *
    * @description
    * Removes all cached positions from memory.
    * Useful for testing or when positions are updated externally.
-   * 
+   *
    * @example
    * ```typescript
    * service.clearCache();
@@ -310,15 +310,15 @@ export class PositionService implements IPositionService {
 
   /**
    * Get cache statistics
-   * 
+   *
    * @returns {Object} Cache statistics
    * @returns {number} returns.size - Number of cached items
    * @returns {number[]} returns.keys - Array of cached position IDs
    * @returns {boolean} returns.enabled - Whether caching is enabled
-   * 
+   *
    * @description
    * Provides insight into cache usage for monitoring and debugging.
-   * 
+   *
    * @example
    * ```typescript
    * const stats = service.getCacheStats();
@@ -379,20 +379,20 @@ export class PositionService implements IPositionService {
 
   /**
    * Get next position in sequence (for navigation)
-   * 
+   *
    * @param {number} currentId - Current position ID
    * @param {string} [categoryId] - Optional category constraint
    * @returns {Promise<EndgamePosition | null>} Next position or null
-   * 
+   *
    * @description
    * Retrieves the next position in sequence, optionally within
    * the same category. Used for navigation between positions.
-   * 
+   *
    * @example
    * ```typescript
    * // Get next position in any category
    * const next = await service.getNextPosition(5);
-   * 
+   *
    * // Get next position in same category
    * const nextInCategory = await service.getNextPosition(5, 'rook-endgames');
    * ```
@@ -482,18 +482,18 @@ export class PositionService implements IPositionService {
 
   /**
    * Create a new position (admin functionality)
-   * 
+   *
    * @param {Omit<EndgamePosition, 'id'>} position - Position data without ID
    * @returns {Promise<EndgamePosition | null>} Created position or null on failure
-   * 
+   *
    * @description
    * Creates a new position in the repository. The ID is auto-generated
    * by the storage backend. Created position is automatically cached.
-   * 
+   *
    * @remarks
    * This is an administrative function that may require special
    * permissions in production environments.
-   * 
+   *
    * @example
    * ```typescript
    * const newPosition = await service.createPosition({

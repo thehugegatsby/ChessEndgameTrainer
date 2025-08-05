@@ -3,14 +3,30 @@
  * Comprehensive type definitions for the chess training application
  */
 
-import { Chess, Square as ChessJsSquare, PieceSymbol as ChessJsPieceSymbol } from 'chess.js';
+import {
+  Chess,
+  Square as ChessJsSquare,
+  PieceSymbol as ChessJsPieceSymbol,
+} from "chess.js";
 
 // Basic chess types
 export type Square = ChessJsSquare; // Use chess.js Square type directly
 export type PieceSymbol = ChessJsPieceSymbol; // Use chess.js PieceSymbol type
-export type Piece = 'p' | 'n' | 'b' | 'r' | 'q' | 'k' | 'P' | 'N' | 'B' | 'R' | 'Q' | 'K'; // Keep for FEN/display purposes
-export type Color = 'w' | 'b';
-export type File = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h';
+export type Piece =
+  | "p"
+  | "n"
+  | "b"
+  | "r"
+  | "q"
+  | "k"
+  | "P"
+  | "N"
+  | "B"
+  | "R"
+  | "Q"
+  | "K"; // Keep for FEN/display purposes
+export type Color = "w" | "b";
+export type File = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h";
 // Move related types - Clean Domain Types
 export interface Move {
   color: Color;
@@ -18,7 +34,7 @@ export interface Move {
   to: Square;
   piece: PieceSymbol;
   captured?: PieceSymbol;
-  promotion?: 'q' | 'r' | 'b' | 'n'; // Strict: only valid promotion pieces
+  promotion?: "q" | "r" | "b" | "n"; // Strict: only valid promotion pieces
   flags: string;
   san: string;
   lan: string;
@@ -39,8 +55,9 @@ declare const __domainMoveBrand: unique symbol;
 export type DomainMove = Move & { readonly [__domainMoveBrand]: true };
 
 declare const __validatedMoveBrand: unique symbol;
-export type ValidatedMove = DomainMove & { readonly [__validatedMoveBrand]: true };
-
+export type ValidatedMove = DomainMove & {
+  readonly [__validatedMoveBrand]: true;
+};
 
 // Position types
 export interface Position {
@@ -77,7 +94,7 @@ export interface TrainingPosition {
   targetSquares?: Square[];
   moveSequence?: Move[];
   hints?: string[];
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  difficulty: "beginner" | "intermediate" | "advanced";
   category: string;
 }
 
@@ -90,4 +107,4 @@ export type ChessInstance = Chess;
 
 // Utility types
 export type FEN = string;
-export type PGN = string; 
+export type PGN = string;

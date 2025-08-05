@@ -1,8 +1,44 @@
+/**
+ * @file Analysis details component for detailed move analysis display
+ * @module components/training/AnalysisPanel/AnalysisDetails
+ * 
+ * @description
+ * Detailed analysis display component showing comprehensive information about
+ * selected chess moves including evaluation, best moves, principal variations,
+ * and move classification. Provides rich visual feedback for move analysis.
+ * 
+ * @remarks
+ * Key features:
+ * - Detailed move analysis display with evaluation bars
+ * - Principal variation visualization and interaction
+ * - Move classification with color-coded feedback
+ * - Position evaluation with descriptive explanations
+ * - Responsive design with mobile-optimized layout
+ * - Multi-language support (German interface)
+ * - Dark mode compatibility
+ * 
+ * The component integrates with the PrincipalVariation component and
+ * evaluation utilities to provide comprehensive move analysis feedback.
+ */
+
 import React from "react";
 import { Move } from "chess.js";
-import { getEvaluationBarWidth } from "../../../utils/chess/evaluationHelpers";
+import { getEvaluationBarWidth } from "../../../utils/chess/evaluation";
 import { PrincipalVariation } from "../PrincipalVariation";
 
+/**
+ * Move analysis data structure for detailed analysis display
+ * 
+ * @interface MoveAnalysisData
+ * 
+ * @property {Move} move - Chess move object from chess.js
+ * @property {number} [evaluation] - Position evaluation after the move (in centipawns)
+ * @property {string} [bestMove] - Best move according to engine analysis
+ * @property {'excellent' | 'good' | 'inaccuracy' | 'mistake' | 'blunder'} [classification] - Move quality classification
+ * @property {string[]} [pv] - Principal variation moves array
+ * @property {string} [pvString] - Principal variation as formatted string
+ * @property {number} [depth] - Analysis depth used for evaluation
+ */
 interface MoveAnalysisData {
   move: Move;
   evaluation?: number;
@@ -14,16 +50,84 @@ interface MoveAnalysisData {
   depth?: number;
 }
 
+/**
+ * Props for the AnalysisDetails component
+ * 
+ * @interface AnalysisDetailsProps
+ * 
+ * @property {number | null} selectedMoveIndex - Index of currently selected move for detailed analysis, null if none selected
+ * @property {MoveAnalysisData[]} analysisData - Array of move analysis data for all moves in the game
+ */
 interface AnalysisDetailsProps {
   selectedMoveIndex: number | null;
   analysisData: MoveAnalysisData[];
 }
 
+/**
+ * Format evaluation number for display
+ * 
+ * @param {number} [evaluation] - Evaluation value in centipawns
+ * @returns {string} Formatted evaluation string with + sign for positive values
+ * 
+ * @example
+ * ```typescript
+ * formatEvaluation(1.5)    // "+1.50"
+ * formatEvaluation(-0.8)   // "-0.80"
+ * formatEvaluation(undefined) // "0.00"
+ * ```
+ */
 const formatEvaluation = (evaluation?: number) => {
   if (evaluation === undefined) return "0.00";
   return evaluation > 0 ? `+${evaluation.toFixed(2)}` : evaluation.toFixed(2);
 };
 
+/**
+ * Analysis details component for comprehensive move analysis display
+ * 
+ * @component
+ * @description
+ * Displays detailed analysis information for a selected chess move including
+ * evaluation, best moves, principal variations, move classification, and
+ * position assessment. Provides rich visual feedback with evaluation bars,
+ * color-coded move quality indicators, and descriptive text explanations.
+ * 
+ * @remarks
+ * Feature sections:
+ * - Evaluation bar with visual position assessment
+ * - Best move suggestion from engine analysis
+ * - Principal variation display with interactive moves
+ * - Move classification with color-coded quality indicators
+ * - Position evaluation with descriptive explanations in German
+ * - Empty state with helpful instruction message
+ * 
+ * Visual design:
+ * - Responsive layout optimized for mobile devices
+ * - Dark mode support with appropriate color schemes
+ * - Color-coded move quality (green=excellent, red=blunder)
+ * - Gradient evaluation bars for intuitive position assessment
+ * - Clean card-based layout with consistent spacing
+ * 
+ * The component is memoized for performance optimization and integrates
+ * seamlessly with the broader analysis panel system.
+ * 
+ * @example
+ * ```tsx
+ * // Basic usage in analysis panel
+ * <AnalysisDetails
+ *   selectedMoveIndex={currentMoveIndex}
+ *   analysisData={gameAnalysisData}
+ * />
+ * 
+ * // With no selection (shows empty state)
+ * <AnalysisDetails
+ *   selectedMoveIndex={null}
+ *   analysisData={[]}
+ * />
+ * ```
+ * 
+ * @param {AnalysisDetailsProps} props - Component configuration
+ * @returns {JSX.Element} Detailed analysis display with comprehensive move information
+ */
 export const AnalysisDetails: React.FC<AnalysisDetailsProps> = React.memo(
   ({ selectedMoveIndex, analysisData }) => {
     const selectedAnalysis =

@@ -56,8 +56,6 @@
     "dueToday": 1,
     "reviewedToday": 0,
     "memoryRate": 0.85,
-    "difficultPositions": [
-      2
-    ]
+    "difficultPositions": [2]
   }
 }

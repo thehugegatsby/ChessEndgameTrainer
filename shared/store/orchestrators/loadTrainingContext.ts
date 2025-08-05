@@ -1,11 +1,11 @@
 /**
  * @file Load training context orchestrator
  * @module store/orchestrators/loadTrainingContext
- * 
+ *
  * @description
  * Orchestrates loading a training position across game, training, and UI slices.
  * Sets up the complete training environment for a new endgame position.
- * 
+ *
  * @remarks
  * This orchestrator is the main entry point for starting a training session.
  * It coordinates multiple slices to ensure proper initialization:
@@ -15,7 +15,7 @@
  * - Sets up initial turn order
  * - Requests initial analysis
  * - Tracks position progress
- * 
+ *
  * The orchestrator handles both player-first and opponent-first scenarios,
  * automatically triggering the appropriate initial move or analysis.
  *
@@ -56,10 +56,10 @@ import type { TrainingPosition } from "../slices/trainingSlice";
  * 6. Resets UI state for new session
  * 7. Initializes progress tracking
  * 8. Triggers initial move/analysis as needed
- * 
+ *
  * The orchestrator gracefully handles errors by resetting to a clean state
  * and showing user-friendly error messages.
- * 
+ *
  * TrainingPosition extends EndgamePosition with:
  * - colorToTrain: Which color the user is playing
  * - targetOutcome: Expected result ("1-0", "0-1", "1/2-1/2")

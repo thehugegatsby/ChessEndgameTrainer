@@ -3,7 +3,7 @@
  * Foundation for all page objects with common functionality
  */
 
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator, expect } from "@playwright/test";
 
 export abstract class BasePage {
   protected readonly page: Page;
@@ -43,7 +43,7 @@ export abstract class BasePage {
    * Wait for network idle
    */
   async waitForNetworkIdle(): Promise<void> {
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState("networkidle");
   }
 
   /**
@@ -51,7 +51,9 @@ export abstract class BasePage {
    */
   async waitForFirebaseData(): Promise<void> {
     // Wait for common Firebase loading indicators to disappear
-    await this.page.waitForSelector('[data-testid="loading-spinner"]', { state: 'hidden' });
+    await this.page.waitForSelector('[data-testid="loading-spinner"]', {
+      state: "hidden",
+    });
     await this.waitForNetworkIdle();
   }
 
@@ -61,7 +63,7 @@ export abstract class BasePage {
   async takeScreenshot(_name: string): Promise<Buffer> {
     return await this.page.screenshot({
       fullPage: true,
-      animations: 'disabled',
+      animations: "disabled",
     });
   }
 
@@ -82,7 +84,7 @@ export abstract class BasePage {
    */
   async getElementText(selector: string): Promise<string> {
     await this.page.waitForSelector(selector);
-    return await this.page.textContent(selector) || '';
+    return (await this.page.textContent(selector)) || "";
   }
 
   /**
@@ -168,7 +170,7 @@ export abstract class BasePage {
   }
 
   async logPageState(): Promise<void> {
-    console.log('Current URL:', this.getCurrentUrl());
-    console.log('Page Title:', await this.page.title());
+    console.log("Current URL:", this.getCurrentUrl());
+    console.log("Page Title:", await this.page.title());
   }
 }

@@ -3,7 +3,7 @@
  * Manages dependency injection for the Zustand store
  */
 
-import { IPositionService } from '@shared/services/database/IPositionService';
+import { IPositionService } from "@shared/services/database/IPositionService";
 
 /**
  * Store dependencies that need to be injected
@@ -32,7 +32,9 @@ export function configureStore(dependencies: StoreDependencies): void {
  */
 export function getStoreDependencies(): StoreDependencies {
   if (!storeDependencies) {
-    throw new Error('Store dependencies not configured. Call configureStore() first.');
+    throw new Error(
+      "Store dependencies not configured. Call configureStore() first.",
+    );
   }
   return storeDependencies;
 }

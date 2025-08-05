@@ -1,5 +1,5 @@
-import { Move } from 'chess.js';
-import { MoveEvaluation } from '@shared/types';
+import { Move } from "chess.js";
+import { MoveEvaluation } from "@shared/types";
 
 /**
  * Common interfaces for Training components
@@ -37,4 +37,4 @@ export interface TrainingPosition {
   description?: string;
   category: string;
   difficulty: number;
-} 
+}

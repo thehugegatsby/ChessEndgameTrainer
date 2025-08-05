@@ -10,21 +10,23 @@ const mockDataStore = new Map<string, Map<string, any>>();
 export const createMockDoc = (exists: boolean, data: any = {}) => ({
   exists: () => exists,
   data: () => data,
-  id: data.id || '1',
+  id: data.id || "1",
 });
 
 export const createMockSnapshot = (docs: any[] = []) => ({
   empty: docs.length === 0,
   size: docs.length,
-  docs: docs.map(data => ({
+  docs: docs.map((data) => ({
     data: () => data,
-    id: data.id || '1',
+    id: data.id || "1",
   })),
   forEach: (callback: (doc: any) => void) => {
-    docs.forEach(data => callback({
-      data: () => data,
-      id: data.id || '1',
-    }));
+    docs.forEach((data) =>
+      callback({
+        data: () => data,
+        id: data.id || "1",
+      }),
+    );
   },
 });
 
@@ -48,49 +50,50 @@ const mockCollection = jest.fn((_, collectionName: string) => ({
 }));
 
 const mockGetDocs = jest.fn(async (queryOrCollection: any) => {
-  const collectionName = queryOrCollection._name || queryOrCollection._collection;
+  const collectionName =
+    queryOrCollection._name || queryOrCollection._collection;
   const collectionData = mockDataStore.get(collectionName);
-  
+
   if (!collectionData) {
     return createMockSnapshot([]);
   }
-  
+
   let results = Array.from(collectionData.values());
-  
+
   // Apply query filters if present
   if (queryOrCollection._filters) {
     queryOrCollection._filters.forEach((filter: any) => {
-      results = results.filter(item => {
-        if (filter.op === '==') {
+      results = results.filter((item) => {
+        if (filter.op === "==") {
           return item[filter.field] === filter.value;
         }
-        if (filter.op === '>') {
+        if (filter.op === ">") {
           return item[filter.field] > filter.value;
         }
-        if (filter.op === '<') {
+        if (filter.op === "<") {
           return item[filter.field] < filter.value;
         }
         return true;
       });
     });
   }
-  
+
   // Apply ordering if present
   if (queryOrCollection._orderBy) {
     const { field, direction } = queryOrCollection._orderBy;
     results.sort((a, b) => {
-      if (direction === 'desc') {
+      if (direction === "desc") {
         return b[field] - a[field];
       }
       return a[field] - b[field];
     });
   }
-  
+
   // Apply limit if present
   if (queryOrCollection._limit) {
     results = results.slice(0, queryOrCollection._limit);
   }
-  
+
   return createMockSnapshot(results);
 });
 
@@ -101,35 +104,35 @@ const mockQuery = jest.fn((collection: any, ...constraints: any[]) => {
     _orderBy: null as any,
     _limit: null as number | null,
   };
-  
-  constraints.forEach(constraint => {
-    if (constraint.type === 'where') {
+
+  constraints.forEach((constraint) => {
+    if (constraint.type === "where") {
       query._filters.push(constraint);
-    } else if (constraint.type === 'orderBy') {
+    } else if (constraint.type === "orderBy") {
       query._orderBy = constraint;
-    } else if (constraint.type === 'limit') {
+    } else if (constraint.type === "limit") {
       query._limit = constraint.value;
     }
   });
-  
+
   return query;
 });
 
 const mockWhere = jest.fn((field: string, op: string, value: any) => ({
-  type: 'where',
+  type: "where",
   field,
   op,
   value,
 }));
 
-const mockOrderBy = jest.fn((field: string, direction: string = 'asc') => ({
-  type: 'orderBy',
+const mockOrderBy = jest.fn((field: string, direction: string = "asc") => ({
+  type: "orderBy",
   field,
   direction,
 }));
 
 const mockLimit = jest.fn((value: number) => ({
-  type: 'limit',
+  type: "limit",
   value,
 }));
 
@@ -157,7 +160,7 @@ export const setMockDoc = (collection: string, id: string, data: any) => {
 // Test helper to set collection data
 export const setMockCollection = (collection: string, documents: any[]) => {
   const collectionMap = new Map();
-  documents.forEach(doc => {
+  documents.forEach((doc) => {
     collectionMap.set(doc.id.toString(), doc);
   });
   mockDataStore.set(collection, collectionMap);

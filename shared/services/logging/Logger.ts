@@ -1,12 +1,12 @@
 /**
  * @file Core Logger implementation
  * @module services/logging/Logger
- * 
+ *
  * @description
  * Provides structured, multi-level logging with different transports.
  * Supports console, file, and remote logging with configurable log levels,
  * filtering, and formatting. Designed for both development and production use.
- * 
+ *
  * @remarks
  * Key features:
  * - Multiple log levels (DEBUG, INFO, WARN, ERROR)
@@ -41,10 +41,10 @@ const DEFAULT_CONFIG: LoggerConfig = {
 
 /**
  * Default log formatter implementation
- * 
+ *
  * @class DefaultLogFormatter
  * @implements {ILogFormatter}
- * 
+ *
  * @description
  * Formats log entries into human-readable strings with timestamp,
  * level, context, message, and optional data/error information.
@@ -52,10 +52,10 @@ const DEFAULT_CONFIG: LoggerConfig = {
 class DefaultLogFormatter implements ILogFormatter {
   /**
    * Formats a log entry into a string
-   * 
+   *
    * @param {LogEntry} entry - The log entry to format
    * @returns {string} Formatted log message
-   * 
+   *
    * @example
    * ```typescript
    * const formatter = new DefaultLogFormatter();
@@ -98,15 +98,15 @@ class DefaultLogFormatter implements ILogFormatter {
 
 /**
  * Console transport implementation for logging
- * 
+ *
  * @class ConsoleTransport
  * @implements {ILogTransport}
- * 
+ *
  * @description
  * Outputs log entries to the browser console with appropriate log levels.
  * Uses native console methods (debug, info, warn, error) based on log level
  * for better developer experience.
- * 
+ *
  * @example
  * ```typescript
  * const transport = new ConsoleTransport();
@@ -123,7 +123,7 @@ class ConsoleTransport implements ILogTransport {
 
   /**
    * Creates a new console transport
-   * 
+   *
    * @param {ILogFormatter} [formatter] - Optional custom formatter, defaults to DefaultLogFormatter
    */
   constructor(formatter?: ILogFormatter) {
@@ -132,16 +132,16 @@ class ConsoleTransport implements ILogTransport {
 
   /**
    * Logs an entry to the console
-   * 
+   *
    * @param {LogEntry} entry - The log entry to output
-   * 
+   *
    * @remarks
    * Maps log levels to appropriate console methods:
    * - DEBUG → console.debug()
    * - INFO → console.info()
    * - WARN → console.warn()
    * - ERROR/FATAL → console.error()
-   * 
+   *
    * If the entry contains data, it's logged as a second parameter
    * for better console formatting.
    */
@@ -186,9 +186,9 @@ class ConsoleTransport implements ILogTransport {
 
   /**
    * Flushes pending logs (no-op for console transport)
-   * 
+   *
    * @returns {Promise<void>} Resolves immediately as console has no buffer
-   * 
+   *
    * @remarks
    * Console transport writes immediately, so no flushing is needed.
    * This method exists to satisfy the ILogTransport interface.
@@ -200,15 +200,15 @@ class ConsoleTransport implements ILogTransport {
 
 /**
  * Remote transport implementation for centralized logging
- * 
+ *
  * @class RemoteTransport
  * @implements {ILogTransport}
- * 
+ *
  * @description
  * Buffers log entries and sends them to a remote endpoint in batches.
  * Includes retry logic and maintains chronological order of logs.
  * Useful for production monitoring and debugging.
- * 
+ *
  * @example
  * ```typescript
  * const transport = new RemoteTransport('https://logs.myapp.com/ingest');
@@ -230,9 +230,9 @@ class RemoteTransport implements ILogTransport {
 
   /**
    * Creates a new remote transport
-   * 
+   *
    * @param {string} endpoint - The URL to send logs to
-   * 
+   *
    * @example
    * ```typescript
    * const transport = new RemoteTransport('https://logs.myapp.com/ingest');
@@ -244,9 +244,9 @@ class RemoteTransport implements ILogTransport {
 
   /**
    * Adds a log entry to the buffer and triggers flush if needed
-   * 
+   *
    * @param {LogEntry} entry - The log entry to buffer
-   * 
+   *
    * @remarks
    * Logs are buffered until batch size is reached, then automatically
    * sent to the remote endpoint. Use flush() to send immediately.
@@ -261,20 +261,20 @@ class RemoteTransport implements ILogTransport {
 
   /**
    * Flushes buffered logs to the remote endpoint
-   * 
+   *
    * @returns {Promise<void>} Resolves when flush completes or fails
-   * 
+   *
    * @remarks
    * - Prevents concurrent flushes
    * - Preserves log order on failure by re-buffering
    * - Uses console.error as fallback for logging failures
    * - Automatically called when buffer reaches batch size
-   * 
+   *
    * @example
    * ```typescript
    * // Force send all pending logs
    * await transport.flush();
-   * 
+   *
    * // Ensure logs are sent before shutdown
    * process.on('SIGTERM', async () => {
    *   await transport.flush();
@@ -324,16 +324,16 @@ class RemoteTransport implements ILogTransport {
 
 /**
  * Main Logger implementation
- * 
+ *
  * @class Logger
  * @implements {ILogger}
- * 
+ *
  * @description
  * Core logging service providing structured, multi-level logging with
  * configurable transports, contexts, and filtering. Supports development
  * and production use cases with features like timing, field enrichment,
  * and log buffering.
- * 
+ *
  * @example
  * ```typescript
  * // Create a logger with custom configuration
@@ -342,16 +342,16 @@ class RemoteTransport implements ILogTransport {
  *   enableRemote: true,
  *   remoteEndpoint: 'https://logs.myapp.com/ingest'
  * });
- * 
+ *
  * // Create a context-specific logger
  * const authLogger = logger.setContext('AuthService');
- * 
+ *
  * // Log with structured data
  * authLogger.info('User authenticated', {
  *   userId: 123,
  *   method: 'OAuth2'
  * });
- * 
+ *
  * // Measure performance
  * logger.time('api-call');
  * await fetchData();
@@ -368,14 +368,14 @@ export class Logger implements ILogger {
 
   /**
    * Creates a new logger instance
-   * 
+   *
    * @param {Partial<LoggerConfig>} [config] - Configuration options
-   * 
+   *
    * @example
    * ```typescript
    * // Default logger
    * const logger = new Logger();
-   * 
+   *
    * // Production logger with custom config
    * const prodLogger = new Logger({
    *   minLevel: LogLevel.WARN,
@@ -398,7 +398,7 @@ export class Logger implements ILogger {
 
   /**
    * Sets up logging transports based on configuration
-   * 
+   *
    * @private
    * @remarks
    * Called during initialization and when configuration changes.
@@ -418,12 +418,12 @@ export class Logger implements ILogger {
 
   /**
    * Determines if a log entry should be processed
-   * 
+   *
    * @private
    * @param {LogLevel} level - The log level to check
    * @param {string} [context] - Optional context to check against filters
    * @returns {boolean} True if the log should be processed
-   * 
+   *
    * @remarks
    * Checks against minimum level, context whitelist, and blacklist
    */
@@ -445,13 +445,13 @@ export class Logger implements ILogger {
 
   /**
    * Core logging method used by all public log methods
-   * 
+   *
    * @private
    * @param {LogLevel} level - The severity level
    * @param {string} message - The log message
    * @param {Error|any} [error] - Optional error object
    * @param {any} [data] - Optional structured data
-   * 
+   *
    * @remarks
    * - Checks if log should be processed
    * - Creates log entry with metadata

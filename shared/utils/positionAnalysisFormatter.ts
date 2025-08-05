@@ -1,12 +1,12 @@
 /**
  * @file Position analysis formatting utilities
  * @module utils/positionAnalysisFormatter
- * 
+ *
  * @description
  * Provides utilities for formatting tablebase position analysis data
  * for UI display. Converts raw tablebase evaluation data into
  * human-readable formats with appropriate styling classes.
- * 
+ *
  * @remarks
  * Key features:
  * - WDL to score conversion for move ordering
@@ -14,7 +14,7 @@
  * - CSS class generation for visual styling
  * - Support for 50-move rule positions
  * - DTZ (Distance to Zero) formatting
- * 
+ *
  * The module uses domain-centric naming to decouple
  * formatting logic from specific data sources.
  */
@@ -26,9 +26,9 @@ import type {
 
 /**
  * Formatted position analysis for UI display
- * 
+ *
  * @interface PositionAnalysisDisplay
- * 
+ *
  * @description
  * Contains all necessary data for rendering position
  * evaluations in the UI with appropriate styling.
@@ -93,19 +93,19 @@ export function formatPositionAnalysis(
 
 /**
  * Formats tablebase move for display with outcome annotation
- * 
+ *
  * @param {TablebaseMove} move - Move data from tablebase
  * @returns {string} Formatted move string with outcome
- * 
+ *
  * @description
  * Combines the move notation with a human-readable outcome
  * description in parentheses. Includes DTZ information when available.
- * 
+ *
  * @example
  * ```typescript
  * formatTablebaseMove({ san: "Ke2", wdl: 2, dtz: 10 });
  * // Returns: "Ke2 (Win in 10)"
- * 
+ *
  * formatTablebaseMove({ san: "Kb1", wdl: 0, dtz: null });
  * // Returns: "Kb1 (Draw)"
  * ```
@@ -167,14 +167,14 @@ export function wdlToScore(wdl: number, dtz: number | null): number {
 
 /**
  * Gets appropriate CSS class for evaluation display
- * 
+ *
  * @param {number} wdl - Win/Draw/Loss value
  * @returns {string} CSS class name for styling
- * 
+ *
  * @description
  * Maps WDL values to semantic CSS classes for consistent
  * visual styling across the application.
- * 
+ *
  * @example
  * ```typescript
  * getEvaluationClass(2);  // "winning"
@@ -190,14 +190,14 @@ export function getEvaluationClass(wdl: number): string {
 
 /**
  * Checks if position represents a critical outcome
- * 
+ *
  * @param {number} wdl - Win/Draw/Loss value
  * @returns {boolean} True if position is definitely won or lost
- * 
+ *
  * @description
  * Critical positions are those with absolute outcomes (WDL ±2),
  * excluding 50-move rule positions (WDL ±1) and draws (WDL 0).
- * 
+ *
  * @example
  * ```typescript
  * isCriticalPosition(2);  // true (definite win)
@@ -212,20 +212,20 @@ export function isCriticalPosition(wdl: number): boolean {
 
 /**
  * Generates human-readable description of position outcome
- * 
+ *
  * @param {TablebaseResult} result - Tablebase evaluation result
  * @returns {string} Detailed position description
- * 
+ *
  * @description
  * Creates comprehensive descriptions including outcome type,
  * move count (DTZ), and special conditions like 50-move rule.
  * Always written from White's perspective.
- * 
+ *
  * @example
  * ```typescript
  * getPositionDescription({ category: "win", dtz: 15, ... });
  * // "White wins with best play in 15 moves"
- * 
+ *
  * getPositionDescription({ category: "cursed-win", dtz: 60, ... });
  * // "White wins in 60 moves (50-move rule applies)"
  * ```

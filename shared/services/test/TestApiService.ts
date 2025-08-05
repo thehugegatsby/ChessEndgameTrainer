@@ -28,7 +28,22 @@ export interface TestMoveResponse {
 }
 
 /**
- *
+ * Game state information for test scenarios
+ * 
+ * @interface TestGameState
+ * 
+ * @property {string} fen - Current board position in FEN notation
+ * @property {'w' | 'b'} turn - Current player to move (white or black)
+ * @property {number} moveCount - Total number of moves made in the game
+ * @property {string} pgn - Game in Portable Game Notation format
+ * @property {boolean} isGameOver - Whether the game has ended
+ * @property {string} [gameOverReason] - Reason for game termination if applicable
+ * @property {string[]} history - List of moves in SAN notation
+ * @property {number} [evaluation] - Current position evaluation if available
+ * @property {boolean} isCheck - Whether the current player is in check
+ * @property {boolean} isCheckmate - Whether the current player is checkmated
+ * @property {boolean} isDraw - Whether the game is drawn
+ * @property {object} [lastMove] - Details of the most recent move
  */
 export interface TestGameState {
   fen: string;
@@ -50,7 +65,15 @@ export interface TestGameState {
 }
 
 /**
- *
+ * Configuration options for test tablebase behavior
+ * 
+ * @interface TestTablebaseConfig
+ * 
+ * @property {boolean} [deterministic] - Whether tablebase should provide predictable responses
+ * @property {number} [seed] - Random seed for deterministic behavior
+ * @property {Map<string, string>} [fixedResponses] - Pre-defined responses for specific FEN positions
+ * @property {number} [depth] - Analysis depth limit for tablebase calculations
+ * @property {number} [timeLimit] - Time limit in milliseconds for tablebase responses
  */
 export interface TestTablebaseConfig {
   deterministic?: boolean;
@@ -62,7 +85,46 @@ export interface TestTablebaseConfig {
 
 /**
  * Test API Service
- * Provides clean interface for E2E tests to interact with the chess game
+ * 
+ * @class TestApiService
+ * @description
+ * Provides clean interface for E2E tests to interact with the chess game.
+ * Implements singleton pattern for consistent test state management across
+ * test scenarios while maintaining separation from UI components.
+ * 
+ * @remarks
+ * Key responsibilities:
+ * - Game state management for test scenarios
+ * - Move execution with bypass for test validation
+ * - Tablebase configuration for deterministic behavior
+ * - Event emission for test coordination
+ * - Store integration without tight coupling
+ * - Error handling with proper test feedback
+ * 
+ * Architecture features:
+ * - Singleton pattern for consistent state
+ * - Store access through dependency injection
+ * - Event-driven communication with tests
+ * - Deterministic tablebase response handling
+ * - Clean separation from UI layer
+ * 
+ * @example
+ * ```typescript
+ * // Initialize test API with store access
+ * const testApi = TestApiService.getInstance();
+ * testApi.initialize(storeAccess, { deterministic: true });
+ * 
+ * // Make moves and verify game state
+ * await testApi.makeMove('e2-e4');
+ * const state = testApi.getGameState();
+ * expect(state.fen).toContain('e4');
+ * 
+ * // Configure deterministic tablebase
+ * testApi.configureTablebase({
+ *   deterministic: true,
+ *   fixedResponses: new Map([['fen1', 'Nf3']])
+ * });
+ * ```
  */
 export class TestApiService {
   private static instance: TestApiService | null = null;
@@ -87,7 +149,21 @@ export class TestApiService {
   private constructor() {}
 
   /**
-   * Get singleton instance
+   * Get singleton instance of TestApiService
+   * 
+   * @static
+   * @description
+   * Returns the singleton instance of TestApiService, creating it if
+   * it doesn't exist. Ensures consistent test state across all test
+   * scenarios and prevents multiple instances from interfering.
+   * 
+   * @returns {TestApiService} The singleton TestApiService instance
+   * 
+   * @example
+   * ```typescript
+   * const testApi = TestApiService.getInstance();
+   * await testApi.initialize(storeAccess);
+   * ```
    */
   public static getInstance(): TestApiService {
     if (!TestApiService.instance) {
@@ -137,7 +213,9 @@ export class TestApiService {
       this.tablebaseConfig = { ...this.tablebaseConfig, ...config };
     }
 
-    logger.info("✅ TestApiService: Successfully initialized with store actions");
+    logger.info(
+      "✅ TestApiService: Successfully initialized with store actions",
+    );
 
     // Emit initialization event
     this.emit("test:initialized", { config: this.tablebaseConfig });
@@ -145,6 +223,25 @@ export class TestApiService {
 
   /**
    * Clean up test API after test session
+   * 
+   * @description
+   * Resets the TestApiService to its initial state, clearing all
+   * configuration and store access. Should be called after each
+   * test to prevent state leakage between test scenarios.
+   * 
+   * @remarks
+   * Cleanup operations:
+   * - Reset tablebase configuration to defaults
+   * - Clear store access references
+   * - Emit cleanup event for test coordination
+   * - Destroy singleton instance
+   * 
+   * @example
+   * ```typescript
+   * // In test teardown
+   * testApi.cleanup();
+   * // Fresh instance will be created on next getInstance() call
+   * ```
    */
   public cleanup(): void {
     this.tablebaseConfig = { deterministic: false };
@@ -155,7 +252,20 @@ export class TestApiService {
   }
 
   /**
-   * Check if service is initialized
+   * Check if service is initialized and ready for use
+   * 
+   * @description
+   * Returns whether the TestApiService has been properly initialized
+   * with store access and is ready to handle test operations.
+   * 
+   * @returns {boolean} True if service is initialized and ready
+   * 
+   * @example
+   * ```typescript
+   * if (!testApi.isInitialized) {
+   *   await testApi.initialize(storeAccess);
+   * }
+   * ```
    */
   public get isInitialized(): boolean {
     return this._isInitialized;
@@ -213,7 +323,8 @@ export class TestApiService {
 
         return {
           success: true,
-          resultingFen: finalState.game?.currentFen || finalState.currentFen || "unknown",
+          resultingFen:
+            finalState.game?.currentFen || finalState.currentFen || "unknown",
           moveCount: finalState.game?.moveHistory?.length || 0,
         };
       } else {
@@ -231,7 +342,25 @@ export class TestApiService {
   }
 
   /**
-   * Get current game state
+   * Get current game state for test verification
+   * 
+   * @description
+   * Returns comprehensive game state information for test assertions
+   * and verification. Constructs a detailed game state object from
+   * the current store state with all relevant chess game information.
+   * 
+   * @returns {TestGameState} Current game state with position, moves, and status
+   * 
+   * @throws {Error} If service is not initialized with store access
+   * 
+   * @example
+   * ```typescript
+   * const state = testApi.getGameState();
+   * expect(state.fen).toBe('expected-fen');
+   * expect(state.turn).toBe('w');
+   * expect(state.moveCount).toBe(2);
+   * expect(state.isCheck).toBe(false);
+   * ```
    */
   public getGameState(): TestGameState {
     if (!this.storeAccess) {
@@ -277,6 +406,23 @@ export class TestApiService {
 
   /**
    * Reset game to initial position
+   * 
+   * @description
+   * Resets the chess game to its initial starting position, clearing
+   * all move history and returning to the standard opening setup.
+   * Useful for test scenarios that need a clean game state.
+   * 
+   * @returns {Promise<void>} Promise that resolves when reset is complete
+   * 
+   * @throws {Error} If service is not initialized with store access
+   * 
+   * @example
+   * ```typescript
+   * // Reset before starting a new test scenario
+   * await testApi.resetGame();
+   * const state = testApi.getGameState();
+   * expect(state.fen).toBe('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+   * ```
    */
   public async resetGame(): Promise<void> {
     if (!this.storeAccess) {
@@ -440,11 +586,19 @@ export class TestApiService {
   }
 }
 
-// Export singleton instance getter for convenience
 /**
- *
+ * Convenience function to get TestApiService singleton instance
+ * 
+ * @description
+ * Provides a convenient way to access the TestApiService singleton
+ * instance without having to call the full static method name.
+ * 
+ * @returns {TestApiService} The singleton TestApiService instance
+ * 
+ * @example
+ * ```typescript
+ * const testApi = getTestApi();
+ * await testApi.initialize(storeAccess);
+ * ```
  */
-export /**
- *
- */
-const getTestApi = () => TestApiService.getInstance();
+export const getTestApi = () => TestApiService.getInstance();

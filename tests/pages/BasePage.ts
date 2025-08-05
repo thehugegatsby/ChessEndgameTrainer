@@ -3,7 +3,7 @@
  * Common functionality for all page objects
  */
 
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator } from "@playwright/test";
 
 export abstract class BasePage {
   constructor(protected page: Page) {}
@@ -20,14 +20,16 @@ export abstract class BasePage {
    * Wait for page to load
    */
   async waitForPageLoad(): Promise<void> {
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState("networkidle");
   }
 
   /**
    * Take a screenshot
    */
   async screenshot(name: string): Promise<void> {
-    await this.page.screenshot({ path: `test-results/screenshots/${name}.png` });
+    await this.page.screenshot({
+      path: `test-results/screenshots/${name}.png`,
+    });
   }
 
   /**
@@ -40,7 +42,13 @@ export abstract class BasePage {
   /**
    * Wait for element
    */
-  async waitForElement(selector: string, options?: { state?: 'visible' | 'hidden' | 'attached' | 'detached'; timeout?: number }): Promise<void> {
+  async waitForElement(
+    selector: string,
+    options?: {
+      state?: "visible" | "hidden" | "attached" | "detached";
+      timeout?: number;
+    },
+  ): Promise<void> {
     await this.page.waitForSelector(selector, options ?? {});
   }
 
@@ -49,7 +57,7 @@ export abstract class BasePage {
    */
   async getText(selector: string): Promise<string> {
     const text = await this.page.textContent(selector);
-    return text || '';
+    return text || "";
   }
 
   /**
@@ -86,7 +94,7 @@ export abstract class BasePage {
    */
   protected async getLocatorText(locator: Locator): Promise<string> {
     const text = await locator.textContent();
-    return text || '';
+    return text || "";
   }
 
   /**
@@ -100,7 +108,7 @@ export abstract class BasePage {
     // - A global window variable: window.firebaseDataReady
     // - A data attribute: data-firebase-loaded="true"
     // - Absence of loading indicators
-    
+
     // For now, just a small delay to ensure async operations complete
     // Override this method in specific pages for more precise waiting
     await this.page.waitForTimeout(100);

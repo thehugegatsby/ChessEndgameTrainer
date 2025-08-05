@@ -1,12 +1,12 @@
 /**
  * @file Handle opponent turn orchestrator
  * @module store/orchestrators/handleOpponentTurn
- * 
+ *
  * @description
  * Orchestrates opponent moves using tablebase for the current chess position.
  * This orchestrator handles the async flow of requesting the best move from the
  * Lichess tablebase API and updating the relevant state slices.
- * 
+ *
  * @remarks
  * Key responsibilities:
  * - Validate game state and turn order
@@ -15,7 +15,7 @@
  * - Update training move history
  * - Handle special cases (draws, unavailable positions)
  * - Manage loading states and error handling
- * 
+ *
  * This orchestrator is exposed as `requestTablebaseMove` in the root store
  * for backward compatibility.
  *
@@ -196,10 +196,10 @@ export const handleOpponentTurn: OrchestratorFunction<
  * 2. Adds training metadata to the move
  * 3. Updates the training move history
  * 4. Handles move validation errors
- * 
+ *
  * All tablebase moves are marked as optimal since they come from
  * perfect endgame analysis.
- * 
+ *
  * @example
  * ```typescript
  * // Called internally by handleOpponentTurn

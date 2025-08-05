@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2015",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -23,12 +19,8 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@shared/*": [
-        "./shared/*"
-      ],
-      "@web/*": [
-        "./app/web/*"
-      ]
+      "@shared/*": ["./shared/*"],
+      "@web/*": ["./app/web/*"]
     },
     "plugins": [
       {
@@ -45,8 +37,5 @@
     "jest.setup.js",
     "tests/e2e/types/**/*.d.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "scripts/*.ts"
-  ]
+  "exclude": ["node_modules", "scripts/*.ts"]
 }

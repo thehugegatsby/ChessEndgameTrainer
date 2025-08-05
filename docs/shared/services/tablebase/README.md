@@ -25,13 +25,13 @@ LRU Cache (200 positions)
 ```typescript
 class TablebaseService {
   // Main evaluation method
-  async getEvaluation(fen: string): Promise<TablebaseEvaluationResult>
-  
+  async getEvaluation(fen: string): Promise<TablebaseEvaluationResult>;
+
   // Get top moves with DTZ/DTM
-  async getTopMoves(fen: string, count: number): Promise<TablebaseMovesResult>
-  
+  async getTopMoves(fen: string, count: number): Promise<TablebaseMovesResult>;
+
   // Check if position qualifies for tablebase
-  isTablebasePosition(fen: string): boolean
+  isTablebasePosition(fen: string): boolean;
 }
 ```
 
@@ -41,10 +41,10 @@ class TablebaseService {
 interface TablebaseEvaluationResult {
   isAvailable: boolean;
   result: {
-    wdl: number;        // Win/Draw/Loss: 2=win, 0=draw, -2=loss
+    wdl: number; // Win/Draw/Loss: 2=win, 0=draw, -2=loss
     dtz: number | null; // Distance to Zero
     dtm: number | null; // Distance to Mate
-    category: 'win' | 'cursed-win' | 'draw' | 'blessed-loss' | 'loss';
+    category: "win" | "cursed-win" | "draw" | "blessed-loss" | "loss";
   } | null;
   error?: string;
 }
@@ -96,10 +96,10 @@ if (topMoves.isAvailable && topMoves.moves?.length > 0) {
 
 ```typescript
 const TABLEBASE_CONFIG = {
-  API_URL: 'https://tablebase.lichess.ovh/standard',
+  API_URL: "https://tablebase.lichess.ovh/standard",
   MAX_PIECES: 7,
   CACHE_SIZE: 200,
-  TIMEOUT: 5000
+  TIMEOUT: 5000,
 };
 ```
 
@@ -107,13 +107,13 @@ const TABLEBASE_CONFIG = {
 
 ```typescript
 // Mock tablebase responses
-jest.mock('@shared/services/TablebaseService', () => ({
+jest.mock("@shared/services/TablebaseService", () => ({
   tablebaseService: {
     getEvaluation: jest.fn().mockResolvedValue({
       isAvailable: true,
-      result: { wdl: 2, dtz: 5, category: 'win' }
-    })
-  }
+      result: { wdl: 2, dtz: 5, category: "win" },
+    }),
+  },
 }));
 ```
 
@@ -136,7 +136,7 @@ try {
   }
 } catch (error) {
   // Network error or invalid FEN
-  logger.warn('Tablebase lookup failed', error);
+  logger.warn("Tablebase lookup failed", error);
   return null;
 }
 ```

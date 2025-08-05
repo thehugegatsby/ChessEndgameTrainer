@@ -1,12 +1,12 @@
 /**
  * @file Tablebase analysis display panel
  * @module components/tablebase/TablebasePanel
- * 
+ *
  * @description
  * Professional tablebase analysis panel with grouped move display,
  * color-coded evaluation bars, and interactive move selection.
  * Provides a Lichess-style interface for exploring tablebase evaluations.
- * 
+ *
  * @remarks
  * Key features:
  * - Automatic move grouping by outcome (win/draw/loss)
@@ -15,7 +15,7 @@
  * - Expandable/collapsible move groups
  * - Loading and error state handling
  * - Responsive layout with compact mode
- * 
+ *
  * The component integrates with the tablebase evaluation system
  * and provides visual feedback for optimal move selection.
  */
@@ -32,9 +32,9 @@ import { type TablebaseData } from "@shared/types/evaluation";
 
 /**
  * Props for the TablebasePanel component
- * 
+ *
  * @interface TablebasePanelProps
- * 
+ *
  * @description
  * Configuration options for the tablebase analysis panel,
  * including data source, interaction callbacks, and display options.
@@ -56,22 +56,22 @@ export interface TablebasePanelProps {
 
 /**
  * Tablebase analysis display panel
- * 
+ *
  * @component
  * @description
  * Displays tablebase evaluation results in an organized, interactive format.
  * Groups moves by outcome and provides visual indicators for move quality.
- * 
+ *
  * @remarks
  * The component automatically categorizes moves into three groups:
  * - Winning moves (positive WDL)
  * - Drawing moves (zero WDL)
  * - Losing moves (negative WDL)
- * 
+ *
  * Each group can be expanded/collapsed and shows DTZ information
  * when available. The panel handles various states including loading,
  * no data, and no moves available.
- * 
+ *
  * @example
  * ```tsx
  * // Basic usage
@@ -80,7 +80,7 @@ export interface TablebasePanelProps {
  *   onMoveSelect={(move) => makeMove(move)}
  *   selectedMove={currentMove}
  * />
- * 
+ *
  * // With loading state and compact mode
  * <TablebasePanel
  *   tablebaseData={data}
@@ -90,7 +90,7 @@ export interface TablebasePanelProps {
  *   className="mt-4"
  * />
  * ```
- * 
+ *
  * @param {TablebasePanelProps} props - Component configuration
  * @returns {JSX.Element} Rendered tablebase panel
  */
@@ -104,12 +104,12 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
 }) => {
   /**
    * Transforms tablebase API data to internal move format
-   * 
+   *
    * @description
    * Converts the raw tablebase data structure into a normalized
    * format suitable for display and interaction. Handles missing
    * data gracefully by returning an empty array.
-   * 
+   *
    * @remarks
    * The transformation preserves all tablebase metrics:
    * - move: UCI notation (e.g., "e2e4")
@@ -136,12 +136,12 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
 
   /**
    * Categorizes moves by outcome for grouped display
-   * 
+   *
    * @description
    * Uses the classification utility to group moves into
    * winning, drawing, and losing categories based on their
    * WDL (Win/Draw/Loss) values.
-   * 
+   *
    * @remarks
    * This categorization enables the UI to display moves
    * in semantically meaningful groups with appropriate

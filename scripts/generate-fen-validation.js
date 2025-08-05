@@ -1,26 +1,27 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 // FEN data from TestFixtures.ts for validation
 const TEST_FENS = {
-  STARTING_POSITION: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-  KQK_TABLEBASE_WIN: '8/8/8/8/3K4/8/7Q/4k3 w - - 0 1',
-  KRK_TABLEBASE_DRAW: '8/8/8/8/8/7R/4K1k1/8 b - - 40 80',
-  KPK_WINNING: '8/8/8/8/8/4K3/4P3/4k3 w - - 0 1',
-  KPK_DRAWING: '8/8/8/8/8/4k3/4P3/7K w - - 0 1',
-  ROOK_ENDGAME: '8/8/1K6/8/8/8/2k5/4R3 w - - 0 1',
-  QUEEN_ENDGAME: '8/8/8/8/5K2/2q5/8/4k3 w - - 0 1',
-  EQUAL_POSITION: '8/8/3k4/6r1/8/8/1KR5/8 w - - 0 1',
-  WHITE_ADVANTAGE: 'rnbqkbnr/ppppp2p/6P1/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 3',
-  BLACK_ADVANTAGE: 'rnbqkbnr/ppp2ppp/8/4p3/4p2P/7N/PPPP1PP1/RNBQKB1R b KQkq - 1 4',
-  INVALID_FEN: 'invalid fen string',
-  EMPTY_FEN: '',
-  MALFORMED_FEN: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR X KQkq - 0 1',
+  STARTING_POSITION: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  KQK_TABLEBASE_WIN: "8/8/8/8/3K4/8/7Q/4k3 w - - 0 1",
+  KRK_TABLEBASE_DRAW: "8/8/8/8/8/7R/4K1k1/8 b - - 40 80",
+  KPK_WINNING: "8/8/8/8/8/4K3/4P3/4k3 w - - 0 1",
+  KPK_DRAWING: "8/8/8/8/8/4k3/4P3/7K w - - 0 1",
+  ROOK_ENDGAME: "8/8/1K6/8/8/8/2k5/4R3 w - - 0 1",
+  QUEEN_ENDGAME: "8/8/8/8/5K2/2q5/8/4k3 w - - 0 1",
+  EQUAL_POSITION: "8/8/3k4/6r1/8/8/1KR5/8 w - - 0 1",
+  WHITE_ADVANTAGE: "rnbqkbnr/ppppp2p/6P1/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 3",
+  BLACK_ADVANTAGE:
+    "rnbqkbnr/ppp2ppp/8/4p3/4p2P/7N/PPPP1PP1/RNBQKB1R b KQkq - 1 4",
+  INVALID_FEN: "invalid fen string",
+  EMPTY_FEN: "",
+  MALFORMED_FEN: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR X KQkq - 0 1",
 };
 
 // Collect FENs to validate (exclude intentionally invalid ones - none in this list)
 const fensToValidate = {
-  ...TEST_FENS
+  ...TEST_FENS,
 };
 
 // Remove intentionally invalid FENs
@@ -29,8 +30,8 @@ delete fensToValidate.EMPTY_FEN;
 delete fensToValidate.MALFORMED_FEN;
 
 // Generate HTML content
-let boardHtml = '';
-let scriptHtml = '';
+let boardHtml = "";
+let scriptHtml = "";
 let i = 0;
 
 for (const [name, fen] of Object.entries(fensToValidate)) {
@@ -109,10 +110,12 @@ const finalHtml = `
 `;
 
 // Write to file
-const outputPath = path.join(__dirname, '..', 'fen-validation.html');
+const outputPath = path.join(__dirname, "..", "fen-validation.html");
 fs.writeFileSync(outputPath, finalHtml);
 
-console.log('✅ FEN Validation HTML generated successfully!');
+console.log("✅ FEN Validation HTML generated successfully!");
 console.log(`📄 File: ${outputPath}`);
 console.log(`🔍 Positions to validate: ${Object.keys(fensToValidate).length}`);
-console.log('\nÖffne fen-validation.html in deinem Browser zur visuellen Überprüfung.');
+console.log(
+  "\nÖffne fen-validation.html in deinem Browser zur visuellen Überprüfung.",
+);

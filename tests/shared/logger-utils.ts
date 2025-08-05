@@ -1,14 +1,18 @@
 /**
  * @fileoverview Test Logger Utilities
  * @description Provides reusable logger implementations for testing
- * 
+ *
  * Benefits:
  * - Single Source of Truth for test loggers
  * - Type-safe implementations that stay in sync with ILogger interface
  * - Prevents duplication and inconsistencies across test files
  */
 
-import { ILogger, LoggerConfig, LogLevel } from '../../shared/services/logging/types';
+import {
+  ILogger,
+  LoggerConfig,
+  LogLevel,
+} from "../../shared/services/logging/types";
 
 /**
  * Creates a no-op logger configuration with all features disabled
@@ -20,7 +24,7 @@ export function createNoopLoggerConfig(): LoggerConfig {
     enableConsole: false,
     enableRemote: false,
     enableFileLogging: false,
-    maxLogSize: 0
+    maxLogSize: 0,
   };
 }
 
@@ -35,25 +39,25 @@ export const noopLogger: ILogger = {
   warn: () => {},
   error: () => {},
   fatal: () => {},
-  
+
   // Context management
   setContext: () => noopLogger,
   clearContext: () => {},
-  
+
   // Configuration
   getConfig: createNoopLoggerConfig,
   updateConfig: () => {},
-  
+
   // Log management
   getLogs: () => [],
   clearLogs: () => {},
-  
+
   // Performance logging (if part of interface)
   time: () => {},
   timeEnd: () => {},
-  
+
   // Structured logging (if part of interface)
-  withFields: () => noopLogger
+  withFields: () => noopLogger,
 } satisfies ILogger;
 
 /**
@@ -68,8 +72,8 @@ export function createSilentLogger(): ILogger {
       enableConsole: false,
       enableRemote: false,
       enableFileLogging: false,
-      maxLogSize: 0
-    })
+      maxLogSize: 0,
+    }),
   } satisfies ILogger;
 }
 
@@ -79,42 +83,49 @@ export function createSilentLogger(): ILogger {
  */
 export function createTestLogger(): ILogger {
   const logs: Array<{ level: LogLevel; message: string; data?: any }> = [];
-  
+
   const logMethod = (level: LogLevel) => (message: string, data?: any) => {
     logs.push({ level, message, data });
   };
-  
+
   return {
     debug: logMethod(LogLevel.DEBUG),
     info: logMethod(LogLevel.INFO),
     warn: logMethod(LogLevel.WARN),
     error: logMethod(LogLevel.ERROR),
     fatal: logMethod(LogLevel.FATAL),
-    
-    setContext: function() { return this; },
+
+    setContext: function () {
+      return this;
+    },
     clearContext: () => {},
-    
+
     getConfig: () => ({
       minLevel: LogLevel.DEBUG, // Capture all levels
       enableConsole: false,
       enableRemote: false,
       enableFileLogging: false,
-      maxLogSize: 1000
+      maxLogSize: 1000,
     }),
     updateConfig: () => {},
-    
-    getLogs: () => logs.map(log => ({
-      level: log.level,
-      message: log.message,
-      timestamp: new Date(),
-      data: log.data
-    })),
-    clearLogs: () => { logs.length = 0; },
-    
+
+    getLogs: () =>
+      logs.map((log) => ({
+        level: log.level,
+        message: log.message,
+        timestamp: new Date(),
+        data: log.data,
+      })),
+    clearLogs: () => {
+      logs.length = 0;
+    },
+
     time: () => {},
     timeEnd: () => {},
-    
-    withFields: function() { return this; }
+
+    withFields: function () {
+      return this;
+    },
   } satisfies ILogger;
 }
 
@@ -130,29 +141,29 @@ export function createDebugLogger(): ILogger {
     warn: console.warn,
     error: console.error,
     fatal: console.error,
-    
+
     getConfig: () => ({
       minLevel: LogLevel.DEBUG,
       enableConsole: true,
       enableRemote: false,
       enableFileLogging: false,
-      maxLogSize: 0
-    })
+      maxLogSize: 0,
+    }),
   } satisfies ILogger;
 }
 
 /**
  * Performance-optimized factory function for Jest mock definitions
  * Returns a reusable mock logger definition that's compatible with clearMocks: true
- * 
+ *
  * @description This factory creates a standardized logger mock that:
  * - Works correctly with Jest's clearMocks: true configuration
  * - Provides consistent mock behavior across all test files
  * - Optimizes performance by reusing mock function definitions
  * - Maintains type safety with the ILogger interface
- * 
+ *
  * @returns A Jest-compatible mock object for the logging service
- * 
+ *
  * @example
  * ```typescript
  * // In your test file:
@@ -175,7 +186,7 @@ export function getMockLoggerDefinition() {
     clearLogs: jest.fn(),
     time: jest.fn(),
     timeEnd: jest.fn(),
-    withFields: jest.fn().mockReturnThis()
+    withFields: jest.fn().mockReturnThis(),
   };
 
   return () => ({
@@ -188,7 +199,7 @@ export function getMockLoggerDefinition() {
 /**
  * Simplified mock logger definition for basic use cases
  * Use when you don't need advanced logger features or performance optimization
- * 
+ *
  * @returns A minimal Jest mock for the logging service
  */
 export function getBasicMockLoggerDefinition() {
@@ -201,6 +212,6 @@ export function getBasicMockLoggerDefinition() {
       fatal: jest.fn(),
       setContext: jest.fn().mockReturnThis(),
       clearContext: jest.fn(),
-    }))
+    })),
   });
 }

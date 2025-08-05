@@ -1,12 +1,12 @@
 /**
  * @file Request position evaluation orchestrator
  * @module store/orchestrators/requestPositionEvaluation
- * 
+ *
  * @description
  * Orchestrates position evaluation requests from the Lichess tablebase API.
  * This orchestrator handles fetching evaluation data for a specific chess position
  * and updating the relevant state slices.
- * 
+ *
  * @remarks
  * Key features:
  * - FEN validation and sanitization
@@ -15,7 +15,7 @@
  * - Loading state management
  * - Error handling with user feedback
  * - Updates both evaluation and tablebase move states
- * 
+ *
  * The orchestrator leverages the AnalysisService which provides:
  * - WDL (Win/Draw/Loss) evaluation
  * - DTZ (Distance to Zero) metrics
@@ -38,7 +38,10 @@
 
 import type { StoreApi, OrchestratorFunction } from "./types";
 import type { PositionAnalysis } from "@shared/types/evaluation";
-import { analysisService, type AnalysisResult } from "@shared/services/AnalysisService";
+import {
+  analysisService,
+  type AnalysisResult,
+} from "@shared/services/AnalysisService";
 import { ErrorService } from "@shared/services/ErrorService";
 import { validateAndSanitizeFen } from "@shared/utils/fenValidator";
 import { getLogger } from "@shared/services/logging";
@@ -194,11 +197,11 @@ export const requestPositionEvaluation: OrchestratorFunction<
  * This helper function extracts the best move from the analysis
  * and updates the tablebase move state following the three-state pattern:
  * - No moves or draw: null
- * - Has winning/losing move: the move string  
+ * - Has winning/losing move: the move string
  * - Not in tablebase: undefined (unchanged)
- * 
+ *
  * Only updates state for positions that are actually in the tablebase.
- * 
+ *
  * @example
  * ```typescript
  * // Called internally after successful analysis
@@ -223,7 +226,10 @@ function updateTablebaseMoveFromAnalysis(
     return;
   }
 
-  if (!analysis.evaluation.tablebase?.topMoves || analysis.evaluation.tablebase.topMoves.length === 0) {
+  if (
+    !analysis.evaluation.tablebase?.topMoves ||
+    analysis.evaluation.tablebase.topMoves.length === 0
+  ) {
     // No moves available - position is terminal or draw
     state.setTablebaseMove(null);
     return;
@@ -253,7 +259,7 @@ function updateTablebaseMoveFromAnalysis(
  * This is a utility function that can be used to implement
  * cache invalidation strategies. Currently not used but provided
  * for future enhancements.
- * 
+ *
  * In the current implementation, this always returns true because:
  * - TablebaseService handles its own LRU cache
  * - Tablebase data doesn't change (it's precomputed)
@@ -268,7 +274,7 @@ function updateTablebaseMoveFromAnalysis(
  *   // Request fresh evaluation
  * }
  * ```
- * 
+ *
  * @todo Consider implementing time-based cache invalidation if needed
  */
 export function isEvaluationStale(

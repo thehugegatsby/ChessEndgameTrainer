@@ -3,16 +3,22 @@
  */
 
 // Export interfaces
-export type { IPositionService, IPositionServiceConfig } from './IPositionService';
-export { PositionService } from './PositionService';
+export type {
+  IPositionService,
+  IPositionServiceConfig,
+} from "./IPositionService";
+export { PositionService } from "./PositionService";
 
 // Export server-side helpers
-export { createServerPositionService, getServerPositionService } from './serverPositionService';
+export {
+  createServerPositionService,
+  getServerPositionService,
+} from "./serverPositionService";
 
 // Export error types
-export { 
-  PositionError, 
-  PositionNotFoundError, 
-  InvalidPositionError, 
-  RepositoryError 
-} from './errors';
+export {
+  PositionError,
+  PositionNotFoundError,
+  InvalidPositionError,
+  RepositoryError,
+} from "./errors";

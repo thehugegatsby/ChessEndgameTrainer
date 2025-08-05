@@ -136,7 +136,10 @@ export const createInitialTrainingState = () => ({
  */
 const logger = getLogger().setContext("TrainingSlice");
 
-export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (set, get) => ({
+export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
+  set,
+  get,
+) => ({
   // Initial state
   ...createInitialTrainingState(),
 

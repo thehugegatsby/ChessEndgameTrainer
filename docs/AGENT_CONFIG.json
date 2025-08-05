@@ -6,7 +6,7 @@
     "description": "Structured configuration for AI agent automation and quality enforcement",
     "usage": "This file works in conjunction with CLAUDE.md to provide strict, machine-enforceable rules"
   },
-  
+
   "quality_gates": {
     "test_coverage": {
       "business_logic_minimum": 78,
@@ -35,7 +35,7 @@
       "enforcement": "strict"
     }
   },
-  
+
   "documentation_maintenance": {
     "immediate_update_triggers": [
       {
@@ -84,7 +84,7 @@
         ]
       }
     ],
-    
+
     "required_documentation_files": {
       "root": [
         "README.md - Project overview, features, quick start",
@@ -105,7 +105,7 @@
         "Test documentation - In test directories"
       ]
     },
-    
+
     "documentation_quality_standards": [
       "All docs must include 'Last Updated' timestamp",
       "Code examples required for API documentation",
@@ -115,7 +115,7 @@
       "Migration guides must have step-by-step instructions"
     ]
   },
-  
+
   "execution_workflow": {
     "mandatory_steps": [
       {
@@ -186,7 +186,7 @@
         "validation": "Sign-off checklist complete"
       }
     ],
-    
+
     "workflow_gates": {
       "pre_commit": [
         "Tests passing",
@@ -202,7 +202,7 @@
       ]
     }
   },
-  
+
   "code_conventions": {
     "typescript": {
       "strict_mode": "required",
@@ -216,7 +216,7 @@
         "interfaces": "PascalCase with 'I' prefix discouraged"
       }
     },
-    
+
     "react": {
       "patterns": [
         "Hooks for logic separation",
@@ -231,7 +231,7 @@
         "Virtual scrolling for long lists"
       ]
     },
-    
+
     "testing": {
       "patterns": [
         "Arrange-Act-Assert structure",
@@ -241,7 +241,7 @@
       ],
       "naming": "should_expectedBehavior_when_condition"
     },
-    
+
     "general": {
       "comments": "Only for complex logic, code should be self-documenting",
       "imports": "Absolute paths with @ alias",
@@ -249,7 +249,7 @@
       "async": "Prefer async/await over promises"
     }
   },
-  
+
   "testing_requirements": {
     "unit_tests": {
       "coverage_target": 90,
@@ -257,22 +257,34 @@
       "required_for": ["services", "utils", "hooks", "core libraries"],
       "mock_requirements": "Mock all external dependencies"
     },
-    
+
     "integration_tests": {
       "coverage_target": 70,
-      "required_for": ["API integrations", "Store actions", "Engine communication"],
+      "required_for": [
+        "API integrations",
+        "Store actions",
+        "Engine communication"
+      ],
       "realistic_mocks": "Use realistic data and timing"
     },
-    
+
     "e2e_tests": {
       "smoke_suite_max_time_seconds": 30,
       "full_suite_max_time_minutes": 5,
-      "required_scenarios": ["Critical user paths", "Error scenarios", "Performance validation"],
+      "required_scenarios": [
+        "Critical user paths",
+        "Error scenarios",
+        "Performance validation"
+      ],
       "architecture": "MockEngineService for deterministic results"
     },
-    
+
     "performance_tests": {
-      "required_for": ["Evaluation pipeline", "Cache operations", "Heavy computations"],
+      "required_for": [
+        "Evaluation pipeline",
+        "Cache operations",
+        "Heavy computations"
+      ],
       "benchmarks": {
         "evaluation_time_ms": 100,
         "cache_lookup_ms": 1,
@@ -280,14 +292,14 @@
       }
     }
   },
-  
+
   "security_requirements": {
     "input_validation": {
       "fen_strings": "Always use validateAndSanitizeFen()",
       "user_input": "Sanitize all user-provided data",
       "file_paths": "Validate against whitelist"
     },
-    
+
     "dependencies": {
       "audit_frequency": "before_each_release",
       "max_vulnerabilities": {
@@ -296,27 +308,27 @@
         "medium": 5
       }
     },
-    
+
     "runtime": {
       "csp_headers": "Required for WASM",
       "cors_policy": "Strict same-origin",
       "auth_tokens": "Never in code, use env vars"
     }
   },
-  
+
   "automation_rules": {
     "auto_format": {
       "on_save": true,
       "prettier_config": ".prettierrc",
       "organize_imports": true
     },
-    
+
     "auto_documentation": {
       "generate_api_docs": "from_tsdoc_comments",
       "update_changelog": "from_commit_messages",
       "sync_readme_badges": "from_metrics"
     },
-    
+
     "ci_cd": {
       "run_tests": "on_every_push",
       "check_coverage": "on_pull_request",

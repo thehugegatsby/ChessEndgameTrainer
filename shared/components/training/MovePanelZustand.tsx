@@ -1,13 +1,13 @@
 /**
  * @file Move panel component using Zustand store
  * @module components/training/MovePanelZustand
- * 
+ *
  * @description
  * Move history display panel that integrates directly with the Zustand store
  * for state management. Shows chess moves in standard notation with optional
  * evaluations and move quality indicators. Supports interactive move navigation
  * for game review.
- * 
+ *
  * @remarks
  * Key features:
  * - Direct Zustand store integration for move history
@@ -17,7 +17,7 @@
  * - Interactive move selection for navigation
  * - E2E testing support with data attributes
  * - Dark theme optimized design
- * 
+ *
  * The component efficiently handles the offset between move indices
  * and evaluation indices (evaluations array has one extra initial entry).
  */
@@ -27,16 +27,16 @@ import type { ValidatedMove } from "@shared/types/chess";
 import {
   getSmartMoveEvaluation,
   type MoveEvaluation,
-} from "../../utils/chess/evaluationHelpers";
+} from "../../utils/chess/evaluation";
 import { useStore } from "@shared/store/rootStore";
 import { TEST_IDS, getTestId } from "@shared/constants/testIds";
 import { MoveQualityIndicator } from "../analysis/MoveQualityIndicator";
 
 /**
  * Props for the MovePanelZustand component
- * 
+ *
  * @interface MovePanelZustandProps
- * 
+ *
  * @property {boolean} [showEvaluations=false] - Whether to display numerical evaluations
  * @property {(moveIndex: number) => void} [onMoveClick] - Callback when a move is clicked
  * @property {number} [currentMoveIndex=-1] - Index of the currently selected move
@@ -49,10 +49,10 @@ interface MovePanelZustandProps {
 
 /**
  * Internal structure for organizing moves into pairs
- * 
+ *
  * @interface MovePair
  * @private
- * 
+ *
  * @property {number} moveNumber - Full move number (1, 2, 3...)
  * @property {ValidatedMove} whiteMove - White's move for this pair
  * @property {ValidatedMove} [blackMove] - Black's move (may be undefined for last move)
@@ -69,22 +69,22 @@ interface MovePair {
 
 /**
  * Move panel component with Zustand store integration
- * 
+ *
  * @component
  * @description
  * Displays the move history in a traditional chess notation format with
  * two columns (white and black moves). Retrieves data directly from the
  * Zustand store, eliminating the need for prop drilling. Supports move
  * quality indicators and optional evaluation display.
- * 
+ *
  * @remarks
  * The component handles the complexity of evaluation array indexing:
  * - moveHistory[0] = first move
  * - evaluations[0] = initial position
  * - evaluations[1] = position after first move
- * 
+ *
  * This offset is critical for correctly displaying evaluations alongside moves.
- * 
+ *
  * @example
  * ```tsx
  * <MovePanelZustand
@@ -93,7 +93,7 @@ interface MovePair {
  *   currentMoveIndex={5}
  * />
  * ```
- * 
+ *
  * @param {MovePanelZustandProps} props - Component configuration
  * @returns {JSX.Element} Rendered move panel
  */
@@ -107,11 +107,11 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
 
     /**
      * Helper to get FEN position before a specific move
-     * 
+     *
      * @private
      * @param {number} moveIndex - Index of the move in history
      * @returns {string} FEN string before the move was played
-     * 
+     *
      * @description
      * Retrieves the board position FEN before a move was made.
      * Used by MoveQualityIndicator to analyze move quality.
@@ -130,17 +130,17 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
 
     /**
      * Memoized calculation of move pairs for display
-     * 
+     *
      * @description
      * Organizes the linear move history into white/black pairs for
      * traditional chess notation display. Handles the evaluation array
      * offset correctly to match evaluations with their corresponding moves.
-     * 
+     *
      * @remarks
      * Critical offset handling:
      * - evaluations[0] = initial position
      * - evaluations[i+1] = position after moveHistory[i]
-     * 
+     *
      * This ensures evaluations are correctly paired with moves.
      */
     const movePairs = useMemo((): MovePair[] => {

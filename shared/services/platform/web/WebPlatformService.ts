@@ -19,9 +19,9 @@ import {
   NotificationOptions,
   ScheduledNotification,
   PerformanceMetrics,
-  ShareOptions
-} from '../types';
-import { STORAGE, SYSTEM } from '@shared/constants';
+  ShareOptions,
+} from "../types";
+import { STORAGE, SYSTEM } from "@shared/constants";
 
 // Storage key validation regex
 const VALID_KEY_REGEX = /^[a-zA-Z0-9-_]+$/;
@@ -38,12 +38,15 @@ export interface BrowserAPIs {
 
 // Default implementation using real browser APIs
 const getLiveBrowserAPIs = (): BrowserAPIs => ({
-  localStorage: typeof window !== 'undefined' ? window.localStorage : {} as Storage,
-  sessionStorage: typeof window !== 'undefined' ? window.sessionStorage : {} as Storage,
-  navigator: typeof navigator !== 'undefined' ? navigator : {} as Navigator,
-  window: typeof window !== 'undefined' ? window : {} as Window,
-  document: typeof document !== 'undefined' ? document : {} as Document,
-  performance: typeof performance !== 'undefined' ? performance : {} as Performance,
+  localStorage:
+    typeof window !== "undefined" ? window.localStorage : ({} as Storage),
+  sessionStorage:
+    typeof window !== "undefined" ? window.sessionStorage : ({} as Storage),
+  navigator: typeof navigator !== "undefined" ? navigator : ({} as Navigator),
+  window: typeof window !== "undefined" ? window : ({} as Window),
+  document: typeof document !== "undefined" ? document : ({} as Document),
+  performance:
+    typeof performance !== "undefined" ? performance : ({} as Performance),
 });
 
 // Web Storage Implementation with dependency injection
@@ -51,22 +54,30 @@ class WebStorage implements IPlatformStorage {
   private prefix = STORAGE.PREFIX;
   private storage: Storage;
 
-  constructor(storage: Storage = typeof localStorage !== 'undefined' ? localStorage : {} as Storage) {
+  constructor(
+    storage: Storage = typeof localStorage !== "undefined"
+      ? localStorage
+      : ({} as Storage),
+  ) {
     this.storage = storage;
   }
 
   async save(key: string, data: any): Promise<void> {
     // Validate key format
     if (!VALID_KEY_REGEX.test(key)) {
-      throw new Error(`Invalid storage key: ${key}. Only alphanumeric characters, hyphens, and underscores are allowed.`);
+      throw new Error(
+        `Invalid storage key: ${key}. Only alphanumeric characters, hyphens, and underscores are allowed.`,
+      );
     }
-    
+
     try {
       const serialized = JSON.stringify(data);
       this.storage.setItem(this.prefix + key, serialized);
     } catch (error) {
       // Preserve original error context for debugging
-      throw new Error(`Failed to save data for key '${key}': ${(error as Error).message}`);
+      throw new Error(
+        `Failed to save data for key '${key}': ${(error as Error).message}`,
+      );
     }
   }
 
@@ -76,11 +87,11 @@ class WebStorage implements IPlatformStorage {
       console.error(`Invalid storage key requested: ${key}`);
       return null;
     }
-    
+
     try {
       const item = this.storage.getItem(this.prefix + key);
       if (!item) return null;
-      
+
       // Parse JSON with error handling
       const data = JSON.parse(item);
       return data as T;
@@ -96,13 +107,13 @@ class WebStorage implements IPlatformStorage {
       console.error(`Invalid storage key for removal: ${key}`);
       return;
     }
-    
+
     this.storage.removeItem(this.prefix + key);
   }
 
   async clear(): Promise<void> {
     const keys = await this.getAllKeys();
-    keys.forEach(key => this.storage.removeItem(this.prefix + key));
+    keys.forEach((key) => this.storage.removeItem(this.prefix + key));
   }
 
   async getAllKeys(): Promise<string[]> {
@@ -110,7 +121,7 @@ class WebStorage implements IPlatformStorage {
     for (let i = 0; i < this.storage.length; i++) {
       const key = this.storage.key(i);
       if (key?.startsWith(this.prefix)) {
-        keys.push(key.replace(this.prefix, ''));
+        keys.push(key.replace(this.prefix, ""));
       }
     }
     return keys;
@@ -120,17 +131,17 @@ class WebStorage implements IPlatformStorage {
 // Web Notification Implementation
 class WebNotification implements IPlatformNotification {
   async requestPermission(): Promise<boolean> {
-    if (!('Notification' in window)) {
+    if (!("Notification" in window)) {
       return false;
     }
-    
+
     const result = await Notification.requestPermission();
-    return result === 'granted';
+    return result === "granted";
   }
 
   async show(title: string, options?: NotificationOptions): Promise<void> {
-    if (!('Notification' in window) || Notification.permission !== 'granted') {
-      throw new Error('Notifications not supported or not permitted');
+    if (!("Notification" in window) || Notification.permission !== "granted") {
+      throw new Error("Notifications not supported or not permitted");
     }
 
     new Notification(title, {
@@ -138,14 +149,14 @@ class WebNotification implements IPlatformNotification {
       icon: options?.icon,
       badge: options?.badge,
       tag: options?.tag,
-      data: options?.data
+      data: options?.data,
     });
   }
 
   async schedule(_notification: ScheduledNotification): Promise<string> {
     // Web doesn't support scheduled notifications natively
     // Would need service worker implementation
-    throw new Error('Scheduled notifications not supported on web');
+    throw new Error("Scheduled notifications not supported on web");
   }
 
   async cancel(_id: string): Promise<void> {
@@ -163,21 +174,25 @@ class WebDevice implements IPlatformDevice {
   private window?: Window;
 
   constructor(
-    navigator: Navigator = typeof window !== 'undefined' ? window.navigator : {} as Navigator,
-    windowObj?: Window
+    navigator: Navigator = typeof window !== "undefined"
+      ? window.navigator
+      : ({} as Navigator),
+    windowObj?: Window,
   ) {
     this.navigator = navigator;
-    this.window = windowObj || (typeof window !== 'undefined' ? window : {} as Window);
+    this.window =
+      windowObj || (typeof window !== "undefined" ? window : ({} as Window));
   }
 
   getPlatform(): Platform {
     const userAgent = this.navigator.userAgent.toLowerCase();
-    if (userAgent.includes('android')) return 'android';
-    if (userAgent.includes('iphone') || userAgent.includes('ipad')) return 'ios';
-    if (userAgent.includes('win')) return 'windows';
-    if (userAgent.includes('mac')) return 'macos';
-    if (userAgent.includes('linux')) return 'linux';
-    return 'web';
+    if (userAgent.includes("android")) return "android";
+    if (userAgent.includes("iphone") || userAgent.includes("ipad"))
+      return "ios";
+    if (userAgent.includes("win")) return "windows";
+    if (userAgent.includes("mac")) return "macos";
+    if (userAgent.includes("linux")) return "linux";
+    return "web";
   }
 
   getDeviceInfo(): DeviceInfo {
@@ -186,10 +201,10 @@ class WebDevice implements IPlatformDevice {
       osVersion: this.navigator.userAgent,
       screenSize: {
         width: this.window?.screen?.width || 1920,
-        height: this.window?.screen?.height || 1080
+        height: this.window?.screen?.height || 1080,
       },
       pixelRatio: this.window?.devicePixelRatio || 1,
-      isTablet: this.checkIsTablet()
+      isTablet: this.checkIsTablet(),
     };
   }
 
@@ -197,7 +212,7 @@ class WebDevice implements IPlatformDevice {
     const nav = this.navigator as any;
     if (nav.deviceMemory) {
       return {
-        totalMemory: nav.deviceMemory * SYSTEM.GB_TO_BYTES_FACTOR // Convert GB to bytes
+        totalMemory: nav.deviceMemory * SYSTEM.GB_TO_BYTES_FACTOR, // Convert GB to bytes
       };
     }
     return {};
@@ -205,13 +220,14 @@ class WebDevice implements IPlatformDevice {
 
   getNetworkStatus(): NetworkStatus {
     const nav = this.navigator as any;
-    const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
-    
+    const connection =
+      nav.connection || nav.mozConnection || nav.webkitConnection;
+
     return {
       isOnline: this.navigator.onLine,
       type: connection?.type,
       effectiveType: connection?.effectiveType,
-      downlink: connection?.downlink
+      downlink: connection?.downlink,
     };
   }
 
@@ -219,22 +235,28 @@ class WebDevice implements IPlatformDevice {
     const nav = this.navigator as any;
     // Consider device low-end if it has less than 4GB RAM or slow network
     const memoryGB = nav.deviceMemory || SYSTEM.DEFAULT_MEMORY_GB;
-    const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
-    const slowConnection = connection?.effectiveType === '2g' || connection?.effectiveType === 'slow-2g';
-    
+    const connection =
+      nav.connection || nav.mozConnection || nav.webkitConnection;
+    const slowConnection =
+      connection?.effectiveType === "2g" ||
+      connection?.effectiveType === "slow-2g";
+
     return memoryGB < SYSTEM.LOW_MEMORY_THRESHOLD_GB || slowConnection || false;
   }
 
   private checkIsTablet(): boolean {
     const userAgent = this.navigator.userAgent.toLowerCase();
-    const hasTouch = this.window && 'ontouchstart' in this.window;
+    const hasTouch = this.window && "ontouchstart" in this.window;
     const screenSize = Math.min(
-      this.window?.screen?.width || 1920, 
-      this.window?.screen?.height || 1080
+      this.window?.screen?.width || 1920,
+      this.window?.screen?.height || 1080,
     );
-    
-    return !!hasTouch && screenSize >= 768 && 
-           (userAgent.includes('tablet') || userAgent.includes('ipad'));
+
+    return (
+      !!hasTouch &&
+      screenSize >= 768 &&
+      (userAgent.includes("tablet") || userAgent.includes("ipad"))
+    );
   }
 }
 
@@ -254,12 +276,12 @@ class WebPerformance implements IPlatformPerformance {
     }
 
     const duration = performance.now() - this.marks[startMark];
-    
+
     if (!this.measures[name]) {
       this.measures[name] = [];
     }
     this.measures[name].push(duration);
-    
+
     delete this.marks[startMark];
     return duration;
   }
@@ -270,22 +292,22 @@ class WebPerformance implements IPlatformPerformance {
 
   measure(name: string, startMark: string, endMark: string): number {
     if (!this.marks[startMark] || !this.marks[endMark]) {
-      throw new Error('Start or end mark not found');
+      throw new Error("Start or end mark not found");
     }
 
     const duration = this.marks[endMark] - this.marks[startMark];
-    
+
     if (!this.measures[name]) {
       this.measures[name] = [];
     }
     this.measures[name].push(duration);
-    
+
     return duration;
   }
 
   getMetrics(): PerformanceMetrics {
     const averages: Record<string, number> = {};
-    
+
     Object.entries(this.measures).forEach(([name, values]) => {
       if (values.length > 0) {
         averages[name] = values.reduce((a, b) => a + b, 0) / values.length;
@@ -295,7 +317,7 @@ class WebPerformance implements IPlatformPerformance {
     return {
       measures: { ...this.measures },
       marks: { ...this.marks },
-      averages
+      averages,
     };
   }
 
@@ -311,11 +333,15 @@ class WebClipboard implements IPlatformClipboard {
   private document?: Document;
 
   constructor(
-    navigator: Navigator = typeof window !== 'undefined' ? window.navigator : {} as Navigator,
-    document?: Document
+    navigator: Navigator = typeof window !== "undefined"
+      ? window.navigator
+      : ({} as Navigator),
+    document?: Document,
   ) {
     this.navigator = navigator;
-    this.document = document || (typeof window !== 'undefined' ? window.document : {} as Document);
+    this.document =
+      document ||
+      (typeof window !== "undefined" ? window.document : ({} as Document));
   }
 
   async copy(text: string): Promise<void> {
@@ -323,13 +349,13 @@ class WebClipboard implements IPlatformClipboard {
       await this.navigator.clipboard.writeText(text);
     } else {
       // Fallback for older browsers
-      const textArea = this.document!.createElement('textarea');
+      const textArea = this.document!.createElement("textarea");
       textArea.value = text;
-      textArea.style.position = 'fixed';
-      textArea.style.opacity = '0';
+      textArea.style.position = "fixed";
+      textArea.style.opacity = "0";
       this.document!.body.appendChild(textArea);
       textArea.select();
-      this.document!.execCommand('copy');
+      this.document!.execCommand("copy");
       this.document!.body.removeChild(textArea);
     }
   }
@@ -338,7 +364,7 @@ class WebClipboard implements IPlatformClipboard {
     if (this.navigator.clipboard) {
       return await this.navigator.clipboard.readText();
     }
-    throw new Error('Clipboard paste not supported');
+    throw new Error("Clipboard paste not supported");
   }
 
   async hasContent(): Promise<boolean> {
@@ -351,27 +377,31 @@ class WebClipboard implements IPlatformClipboard {
 class WebShare implements IPlatformShare {
   private navigator: Navigator;
 
-  constructor(navigator: Navigator = typeof window !== 'undefined' ? window.navigator : {} as Navigator) {
+  constructor(
+    navigator: Navigator = typeof window !== "undefined"
+      ? window.navigator
+      : ({} as Navigator),
+  ) {
     this.navigator = navigator;
   }
 
   canShare(): boolean {
-    return 'share' in this.navigator;
+    return "share" in this.navigator;
   }
 
   async share(options: ShareOptions): Promise<void> {
     if (!this.canShare()) {
-      throw new Error('Web Share API not supported');
+      throw new Error("Web Share API not supported");
     }
 
     try {
       await this.navigator.share({
         title: options.title,
         text: options.text,
-        url: options.url
+        url: options.url,
       });
     } catch (error) {
-      if ((error as Error).name !== 'AbortError') {
+      if ((error as Error).name !== "AbortError") {
         throw error;
       }
     }
@@ -384,14 +414,11 @@ class WebAnalytics implements IPlatformAnalytics {
     // Implement actual analytics (Google Analytics, Mixpanel, etc.)
   }
 
-  identify(_userId: string, _traits?: Record<string, any>): void {
-  }
+  identify(_userId: string, _traits?: Record<string, any>): void {}
 
-  page(_name: string, _properties?: Record<string, any>): void {
-  }
+  page(_name: string, _properties?: Record<string, any>): void {}
 
-  setUserProperties(_properties: Record<string, any>): void {
-  }
+  setUserProperties(_properties: Record<string, any>): void {}
 }
 
 // Main Web Platform Service with dependency injection
@@ -409,7 +436,7 @@ export class WebPlatformService implements IPlatformService {
   // Optional apis parameter for dependency injection (backward compatible)
   constructor(apis: BrowserAPIs = getLiveBrowserAPIs()) {
     this.apis = apis;
-    
+
     // Pass injected APIs to services that need them
     this.storage = new WebStorage(this.apis.localStorage);
     this.notifications = new WebNotification();

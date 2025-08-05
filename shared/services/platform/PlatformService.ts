@@ -1,12 +1,12 @@
 /**
  * @file Platform Service Factory
  * @module services/platform/PlatformService
- * 
+ *
  * @description
  * Provides the correct platform implementation based on the environment.
  * Supports web, mobile (React Native), and desktop platforms with
  * automatic detection and appropriate service instantiation.
- * 
+ *
  * @remarks
  * The platform service abstracts platform-specific functionality like:
  * - Storage (localStorage, AsyncStorage, etc.)
@@ -15,16 +15,16 @@
  * - Platform-specific APIs
  */
 
-import { IPlatformService, IPlatformDetection } from './types';
-import { WebPlatformService } from './web/WebPlatformService';
-import { getLogger } from '@shared/services/logging';
+import { IPlatformService, IPlatformDetection } from "./types";
+import { WebPlatformService } from "./web/WebPlatformService";
+import { getLogger } from "@shared/services/logging";
 
 /**
  * Platform detection implementation
- * 
+ *
  * @class PlatformDetection
  * @implements {IPlatformDetection}
- * 
+ *
  * @description
  * Provides methods to detect the current platform and device type.
  * Uses user agent analysis and platform-specific APIs for detection.
@@ -32,9 +32,9 @@ import { getLogger } from '@shared/services/logging';
 class PlatformDetection implements IPlatformDetection {
   /**
    * Detects if running in a web browser environment
-   * 
+   *
    * @returns {boolean} True if running in a browser
-   * 
+   *
    * @example
    * ```typescript
    * if (platformDetection.isWeb()) {
@@ -43,18 +43,18 @@ class PlatformDetection implements IPlatformDetection {
    * ```
    */
   isWeb(): boolean {
-    return typeof window !== 'undefined' && typeof document !== 'undefined';
+    return typeof window !== "undefined" && typeof document !== "undefined";
   }
 
   /**
    * Detects if running on a mobile device
-   * 
+   *
    * @returns {boolean} True if mobile device or React Native
-   * 
+   *
    * @remarks
    * Checks for React Native environment first, then falls back
    * to user agent detection for mobile browsers.
-   * 
+   *
    * @example
    * ```typescript
    * if (platformDetection.isMobile()) {
@@ -63,26 +63,28 @@ class PlatformDetection implements IPlatformDetection {
    * ```
    */
   isMobile(): boolean {
-    if (typeof window === 'undefined') return false;
-    
+    if (typeof window === "undefined") return false;
+
     // Check for React Native
     if ((window as any).ReactNativeWebView) return true;
-    
+
     // Check for mobile user agents
     const userAgent = navigator.userAgent.toLowerCase();
-    return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+    return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+      userAgent,
+    );
   }
 
   isAndroid(): boolean {
-    if (typeof window === 'undefined') return false;
-    
+    if (typeof window === "undefined") return false;
+
     const userAgent = navigator.userAgent.toLowerCase();
-    return userAgent.includes('android') || (window as any).isAndroid === true;
+    return userAgent.includes("android") || (window as any).isAndroid === true;
   }
 
   isIOS(): boolean {
-    if (typeof window === 'undefined') return false;
-    
+    if (typeof window === "undefined") return false;
+
     const userAgent = navigator.userAgent.toLowerCase();
     return /iphone|ipad|ipod/.test(userAgent) || (window as any).isIOS === true;
   }
@@ -92,20 +94,24 @@ class PlatformDetection implements IPlatformDetection {
   }
 
   isTouchDevice(): boolean {
-    if (typeof window === 'undefined') return false;
-    
-    return 'ontouchstart' in window || 
-           navigator.maxTouchPoints > 0 ||
-           (navigator as any).msMaxTouchPoints > 0;
+    if (typeof window === "undefined") return false;
+
+    return (
+      "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0 ||
+      (navigator as any).msMaxTouchPoints > 0
+    );
   }
 
   isStandalone(): boolean {
-    if (typeof window === 'undefined') return false;
-    
+    if (typeof window === "undefined") return false;
+
     // Check if running as PWA
-    return (window.matchMedia('(display-mode: standalone)').matches) ||
-           (window.navigator as any).standalone === true ||
-           document.referrer.includes('android-app://');
+    return (
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as any).standalone === true ||
+      document.referrer.includes("android-app://")
+    );
   }
 }
 
@@ -120,7 +126,7 @@ let platformDetectionInstance: IPlatformDetection | null = null;
 export function getPlatformService(): IPlatformService {
   if (!platformServiceInstance) {
     const detection = getPlatformDetection();
-    
+
     if (detection.isWeb() && !detection.isMobile()) {
       // Web browser implementation
       platformServiceInstance = new WebPlatformService();
@@ -129,13 +135,13 @@ export function getPlatformService(): IPlatformService {
       // For now, fallback to web implementation
       platformServiceInstance = new WebPlatformService();
       const logger = getLogger();
-      logger.warn('Using Web implementation for mobile platform');
+      logger.warn("Using Web implementation for mobile platform");
     } else {
       // Default to web implementation
       platformServiceInstance = new WebPlatformService();
     }
   }
-  
+
   return platformServiceInstance;
 }
 
@@ -157,4 +163,4 @@ export function resetPlatformService(): void {
 }
 
 // Export types for convenience
-export * from './types';
+export * from "./types";

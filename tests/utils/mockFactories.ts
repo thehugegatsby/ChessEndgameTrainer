@@ -14,19 +14,19 @@ import type {
   DeviceInfo,
   MemoryInfo,
   NetworkStatus,
-  PerformanceMetrics
-} from '@shared/services/platform/types';
+  PerformanceMetrics,
+} from "@shared/services/platform/types";
 
 // Helper to create mock functions that work with or without Jest
 const mockFn = (impl?: (...args: any[]) => any) => {
-  if (typeof jest !== 'undefined' && jest.fn) {
+  if (typeof jest !== "undefined" && jest.fn) {
     return impl ? jest.fn(impl) : jest.fn();
   }
   return impl || (() => {});
 };
 
 const asyncMockFn = (impl?: (...args: any[]) => any) => {
-  if (typeof jest !== 'undefined' && jest.fn) {
+  if (typeof jest !== "undefined" && jest.fn) {
     return impl ? jest.fn(impl) : jest.fn().mockResolvedValue(undefined);
   }
   return impl || (() => Promise.resolve(undefined));
@@ -49,11 +49,11 @@ export function createMockPlatformStorage(): jest.Mocked<IPlatformStorage> {
       delete store[key];
     }),
     clear: asyncMockFn(async () => {
-      Object.keys(store).forEach(key => delete store[key]);
+      Object.keys(store).forEach((key) => delete store[key]);
     }),
     getAllKeys: asyncMockFn(async () => {
       return Object.keys(store);
-    })
+    }),
   } as jest.Mocked<IPlatformStorage>;
 }
 
@@ -62,33 +62,33 @@ export function createMockPlatformStorage(): jest.Mocked<IPlatformStorage> {
  */
 export function createMockPlatformDevice(): jest.Mocked<IPlatformDevice> {
   const mockDeviceInfo: DeviceInfo = {
-    model: 'Test Device',
-    brand: 'Test Brand',
-    osVersion: '1.0.0',
+    model: "Test Device",
+    brand: "Test Brand",
+    osVersion: "1.0.0",
     screenSize: { width: 1920, height: 1080 },
     pixelRatio: 1,
-    isTablet: false
+    isTablet: false,
   };
 
   const mockMemoryInfo: MemoryInfo = {
     totalMemory: 8 * 1024 * 1024 * 1024, // 8GB
     availableMemory: 4 * 1024 * 1024 * 1024, // 4GB
-    usedMemory: 4 * 1024 * 1024 * 1024 // 4GB
+    usedMemory: 4 * 1024 * 1024 * 1024, // 4GB
   };
 
   const mockNetworkStatus: NetworkStatus = {
     isOnline: true,
-    type: 'wifi',
-    effectiveType: '4g',
-    downlink: 10
+    type: "wifi",
+    effectiveType: "4g",
+    downlink: 10,
   };
 
   return {
-    getPlatform: mockFn(() => 'web'),
+    getPlatform: mockFn(() => "web"),
     getDeviceInfo: mockFn(() => mockDeviceInfo),
     getMemoryInfo: mockFn(() => mockMemoryInfo),
     getNetworkStatus: mockFn(() => mockNetworkStatus),
-    isLowEndDevice: mockFn(() => false)
+    isLowEndDevice: mockFn(() => false),
   } as jest.Mocked<IPlatformDevice>;
 }
 
@@ -99,9 +99,9 @@ export function createMockPlatformNotification(): jest.Mocked<IPlatformNotificat
   return {
     requestPermission: asyncMockFn(async () => true),
     show: asyncMockFn(),
-    schedule: asyncMockFn(async () => 'mock-notification-id'),
+    schedule: asyncMockFn(async () => "mock-notification-id"),
     cancel: asyncMockFn(),
-    cancelAll: asyncMockFn()
+    cancelAll: asyncMockFn(),
   } as jest.Mocked<IPlatformNotification>;
 }
 
@@ -116,7 +116,7 @@ export function createMockPlatformPerformance(): jest.Mocked<IPlatformPerformanc
   const mockMetrics: PerformanceMetrics = {
     measures,
     marks,
-    averages: {}
+    averages: {},
   };
 
   return {
@@ -143,9 +143,9 @@ export function createMockPlatformPerformance(): jest.Mocked<IPlatformPerformanc
     }),
     getMetrics: mockFn(() => mockMetrics),
     clearMetrics: mockFn(() => {
-      Object.keys(measures).forEach(key => delete measures[key]);
-      Object.keys(marks).forEach(key => delete marks[key]);
-    })
+      Object.keys(measures).forEach((key) => delete measures[key]);
+      Object.keys(marks).forEach((key) => delete marks[key]);
+    }),
   } as jest.Mocked<IPlatformPerformance>;
 }
 
@@ -153,14 +153,14 @@ export function createMockPlatformPerformance(): jest.Mocked<IPlatformPerformanc
  * Mock Platform Clipboard Service
  */
 export function createMockPlatformClipboard(): jest.Mocked<IPlatformClipboard> {
-  let clipboardContent = '';
+  let clipboardContent = "";
 
   return {
     copy: asyncMockFn(async (text: string) => {
       clipboardContent = text;
     }),
     paste: asyncMockFn(async () => clipboardContent),
-    hasContent: asyncMockFn(async () => clipboardContent.length > 0)
+    hasContent: asyncMockFn(async () => clipboardContent.length > 0),
   } as jest.Mocked<IPlatformClipboard>;
 }
 
@@ -170,7 +170,7 @@ export function createMockPlatformClipboard(): jest.Mocked<IPlatformClipboard> {
 export function createMockPlatformShare(): jest.Mocked<IPlatformShare> {
   return {
     canShare: mockFn(() => true),
-    share: asyncMockFn()
+    share: asyncMockFn(),
   } as jest.Mocked<IPlatformShare>;
 }
 
@@ -182,7 +182,7 @@ export function createMockPlatformAnalytics(): jest.Mocked<IPlatformAnalytics> {
     track: mockFn(),
     identify: mockFn(),
     page: mockFn(),
-    setUserProperties: mockFn()
+    setUserProperties: mockFn(),
   } as jest.Mocked<IPlatformAnalytics>;
 }
 
@@ -197,7 +197,7 @@ export function createMockPlatformService() {
     performance: createMockPlatformPerformance(),
     clipboard: createMockPlatformClipboard(),
     share: createMockPlatformShare(),
-    analytics: createMockPlatformAnalytics()
+    analytics: createMockPlatformAnalytics(),
   };
 }
 
@@ -217,9 +217,9 @@ export const MockScenarios = {
     const service = createMockPlatformService();
     (service.device.getNetworkStatus as any) = mockFn(() => ({
       isOnline: false,
-      type: 'none' as const,
+      type: "none" as const,
       effectiveType: undefined,
-      downlink: 0
+      downlink: 0,
     }));
     return service;
   },
@@ -233,7 +233,7 @@ export const MockScenarios = {
     (service.device.getMemoryInfo as any) = mockFn(() => ({
       totalMemory: 2 * 1024 * 1024 * 1024, // 2GB
       availableMemory: 512 * 1024 * 1024, // 512MB
-      usedMemory: 1.5 * 1024 * 1024 * 1024 // 1.5GB
+      usedMemory: 1.5 * 1024 * 1024 * 1024, // 1.5GB
     }));
     return service;
   },
@@ -243,9 +243,11 @@ export const MockScenarios = {
    */
   noPermissions: () => {
     const service = createMockPlatformService();
-    (service.notifications.requestPermission as any) = asyncMockFn(async () => false);
+    (service.notifications.requestPermission as any) = asyncMockFn(
+      async () => false,
+    );
     (service.clipboard.hasContent as any) = asyncMockFn(async () => false);
     (service.share.canShare as any) = mockFn(() => false);
     return service;
-  }
+  },
 };

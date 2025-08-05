@@ -1,7 +1,7 @@
 /**
  * @file Hook for managing chess endgame training sessions
  * @module hooks/useTrainingSession
- * 
+ *
  * @description
  * Core hook that connects React components to the Zustand store for chess training.
  * Provides a clean API for move execution, history navigation, and game state management.
@@ -15,7 +15,7 @@ import { ErrorService } from "@shared/services/ErrorService";
 
 /**
  * Configuration options for the useTrainingSession hook
- * 
+ *
  * @interface UseTrainingSessionOptions
  * @property {Function} [onComplete] - Callback fired when training ends (checkmate/stalemate)
  * @property {Function} [onPositionChange] - Callback fired after each move with new FEN and PGN
@@ -98,10 +98,10 @@ interface UseTrainingSessionReturn {
  *       showError('Invalid move!');
  *     }
  *   };
- *   
+ *
  *   return (
- *     <Chessboard 
- *       position={game.fen()} 
+ *     <Chessboard
+ *       position={game.fen()}
  *       onPieceDrop={handleMove}
  *       arePiecesDraggable={!isGameFinished}
  *     />

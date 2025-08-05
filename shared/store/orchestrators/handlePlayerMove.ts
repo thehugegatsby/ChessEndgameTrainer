@@ -1,12 +1,12 @@
 /**
  * @file Handle player move orchestrator
  * @module store/orchestrators/handlePlayerMove
- * 
+ *
  * @description
  * Orchestrates player moves across game, tablebase, training, and progress slices.
  * This is the main orchestrator for handling player chess moves with full validation,
  * tablebase checking, progress tracking, and training completion logic.
- * 
+ *
  * @remarks
  * Key responsibilities:
  * - Move validation through chess.js
@@ -15,7 +15,7 @@
  * - UI feedback for mistakes
  * - Game state synchronization
  * - Automatic opponent response
- * 
+ *
  * This orchestrator is exposed as `makeUserMove` in the root store for
  * backward compatibility.
  *
@@ -34,7 +34,6 @@ import type { StoreApi } from "./types";
 import type { Move as ChessJsMove } from "chess.js";
 import { tablebaseService } from "@shared/services/TablebaseService";
 import { ErrorService } from "@shared/services/ErrorService";
-
 
 /**
  * Handles a player move with full orchestration across slices
@@ -56,7 +55,7 @@ import { ErrorService } from "@shared/services/ErrorService";
  * 6. Checks for training completion
  * 7. Handles perfect game achievements
  * 8. Shows appropriate toasts for feedback
- * 
+ *
  * The orchestrator ensures atomicity - if any step fails, the entire
  * operation is rolled back to maintain consistency.
  *
@@ -192,10 +191,14 @@ export const handlePlayerMove = async (
 
     return true;
   } catch (error) {
-    const userMessage = ErrorService.handleUIError(error as Error, "MakeUserMove", {
-      component: "MakeUserMove",
-      action: "orchestrate",
-    });
+    const userMessage = ErrorService.handleUIError(
+      error as Error,
+      "MakeUserMove",
+      {
+        component: "MakeUserMove",
+        action: "orchestrate",
+      },
+    );
     state.showToast(userMessage, "error");
     return false;
   } finally {
@@ -211,7 +214,7 @@ export const handlePlayerMove = async (
  * @returns {Promise<void>}
  *
  * @private
- * 
+ *
  * @description
  * Processes training completion including:
  * - Calculating accuracy and performance metrics
@@ -219,12 +222,15 @@ export const handlePlayerMove = async (
  * - Recording daily statistics
  * - Showing completion feedback
  * - Opening completion modal
- * 
+ *
  * @remarks
  * A "perfect game" requires 100% accuracy, no mistakes, and optimal final move.
  * Success is determined by matching the target outcome (win/draw/loss).
  */
-async function handleTrainingCompletion(api: StoreApi, isOptimal: boolean): Promise<void> {
+async function handleTrainingCompletion(
+  api: StoreApi,
+  isOptimal: boolean,
+): Promise<void> {
   const state = api.getState();
 
   if (!state.currentPosition || !state.sessionStartTime) return;
@@ -233,10 +239,11 @@ async function handleTrainingCompletion(api: StoreApi, isOptimal: boolean): Prom
   const optimalMoves = userMoves.filter((m: any) => m.isOptimal).length;
   const totalMoves = userMoves.length;
   const accuracy = totalMoves > 0 ? (optimalMoves / totalMoves) * 100 : 0;
-  
+
   // Consider the final move's optimality for perfect game calculation
   const finalMoveOptimal = isOptimal;
-  const isPerfectGame = accuracy === 100 && state.mistakeCount === 0 && finalMoveOptimal;
+  const isPerfectGame =
+    accuracy === 100 && state.mistakeCount === 0 && finalMoveOptimal;
 
   // Determine success based on game outcome
   const gameOutcome = state.game?.isCheckmate()
@@ -314,17 +321,17 @@ async function handleTrainingCompletion(api: StoreApi, isOptimal: boolean): Prom
  * @returns {number} WDL from training perspective
  *
  * @private
- * 
+ *
  * @description
  * Converts tablebase WDL values to the perspective of the training color.
  * Tablebase always returns WDL from white's perspective, so when training
  * black, we negate the value.
- * 
+ *
  * @example
  * ```typescript
  * // White training, winning position
  * getWDLFromTrainingPerspective(1000, "white"); // 1000
- * 
+ *
  * // Black training, same position (losing for black)
  * getWDLFromTrainingPerspective(1000, "black"); // -1000
  * ```
@@ -346,11 +353,11 @@ function getWDLFromTrainingPerspective(
  * @returns {boolean} Whether position worsened
  *
  * @private
- * 
+ *
  * @description
  * A position worsens when the WDL value decreases from the training
  * perspective. This indicates the player made a suboptimal move.
- * 
+ *
  * @example
  * ```typescript
  * isPositionWorsened(1000, 0); // true (win -> draw)
@@ -371,11 +378,11 @@ function isPositionWorsened(wdlBefore: number, wdlAfter: number): boolean {
  * @returns {string | null} Outcome change description or null if no significant change
  *
  * @private
- * 
+ *
  * @description
  * Generates human-readable descriptions for significant outcome changes.
  * Used for user feedback when a move worsens the position.
- * 
+ *
  * @example
  * ```typescript
  * getOutcomeChange(1000, 0); // "Win->Draw/Loss"
@@ -403,11 +410,11 @@ function getOutcomeChange(wdlBefore: number, wdlAfter: number): string | null {
  * @returns {"win" | "draw" | "loss"} Outcome classification
  *
  * @private
- * 
+ *
  * @description
  * Classifies a WDL value into three outcome categories.
  * Positive values are wins, negative are losses, zero is draw.
- * 
+ *
  * @example
  * ```typescript
  * getOutcomeFromWDL(1000); // "win"

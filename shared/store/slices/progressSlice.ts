@@ -29,12 +29,11 @@
  */
 
 import { ImmerStateCreator, ProgressSlice } from "./types";
-import type { 
-  PositionProgress, 
+import type {
+  PositionProgress,
   DailyStats,
-  Achievement as GlobalAchievement 
+  Achievement as GlobalAchievement,
 } from "@shared/store/types";
-
 
 /**
  * Creates the initial progress state with default values
@@ -130,7 +129,10 @@ export const createInitialProgressState = () => ({
  * }));
  * ```
  */
-export const createProgressSlice: ImmerStateCreator<ProgressSlice> = (set, _get) => ({
+export const createProgressSlice: ImmerStateCreator<ProgressSlice> = (
+  set,
+  _get,
+) => ({
   // Initial state
   ...createInitialProgressState(),
 

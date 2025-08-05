@@ -1,7 +1,42 @@
+/**
+ * @file Move error dialog component for chess training
+ * @module components/ui/MoveErrorDialog
+ *
+ * @description
+ * Modal dialog that appears when a player makes a suboptimal move during
+ * training. Provides feedback based on Win/Draw/Loss (WDL) evaluation changes
+ * and offers options to take back the move or continue. Features a
+ * visually striking gradient design to capture attention.
+ *
+ * @remarks
+ * Key features:
+ * - Dynamic error messages based on WDL changes
+ * - Shows best move suggestion when available
+ * - Gradient border design for visual impact
+ * - Options to take back or continue
+ * - German language interface
+ * - Backdrop click to close
+ * - Responsive design
+ *
+ * The component analyzes the WDL change to provide context-appropriate
+ * feedback messages (e.g., "ruins winning position", "leads to loss").
+ */
+
 import React from "react";
 
 /**
+ * Props for the MoveErrorDialog component
  *
+ * @interface MoveErrorDialogProps
+ *
+ * @property {boolean} isOpen - Controls dialog visibility
+ * @property {() => void} onClose - Callback when dialog is closed
+ * @property {() => void} onTakeBack - Callback to take back the move
+ * @property {() => void} [onRestart] - Optional callback to restart (currently unused)
+ * @property {() => void} [onShowBestMove] - Optional callback to show best move (currently unused)
+ * @property {number} wdlBefore - Win/Draw/Loss value before the move (2=win, 0=draw, -2=loss)
+ * @property {number} wdlAfter - Win/Draw/Loss value after the move
+ * @property {string} [bestMove] - The best move that should have been played
  */
 interface MoveErrorDialogProps {
   isOpen: boolean;
@@ -15,21 +50,40 @@ interface MoveErrorDialogProps {
 }
 
 /**
+ * Move error dialog component
  *
- * @param root0
- * @param root0.isOpen
- * @param root0.onClose
- * @param root0.onTakeBack
- * @param root0.onRestart
- * @param root0.onShowBestMove
- * @param root0.wdlBefore
- * @param root0.wdlAfter
- * @param root0.bestMove
- */
-export /**
+ * @component
+ * @description
+ * Displays a modal dialog when the player makes a suboptimal move.
+ * Analyzes the Win/Draw/Loss (WDL) evaluation change to provide
+ * appropriate feedback and coaching. The striking visual design
+ * helps reinforce learning moments.
  *
+ * @remarks
+ * WDL value meanings:
+ * - 2: Winning position
+ * - 0: Draw
+ * - -2: Losing position
+ *
+ * The component provides different messages based on the severity
+ * of the error, helping players understand the impact of their moves.
+ *
+ * @example
+ * ```tsx
+ * <MoveErrorDialog
+ *   isOpen={showError}
+ *   onClose={() => setShowError(false)}
+ *   onTakeBack={() => takeBackMove()}
+ *   wdlBefore={2}
+ *   wdlAfter={0}
+ *   bestMove="Kg7"
+ * />
+ * ```
+ *
+ * @param {MoveErrorDialogProps} props - Dialog configuration
+ * @returns {JSX.Element | null} Rendered dialog or null when closed
  */
-const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
+export const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
   isOpen,
   onClose,
   onTakeBack,
@@ -39,9 +93,19 @@ const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  // Determine the error message based on WDL change
   /**
+   * Determine error message based on WDL change
    *
+   * @private
+   * @returns {string} Localized error message in German
+   *
+   * @description
+   * Analyzes the WDL values before and after the move to provide
+   * context-appropriate feedback:
+   * - Win to non-win: "Ruins the win"
+   * - Draw to loss: "Leads to loss"
+   * - Any deterioration: "Worsens the position"
+   * - Default: "This move is an error"
    */
   const getMessage = () => {
     if (wdlBefore === 2 && wdlAfter < 2) {

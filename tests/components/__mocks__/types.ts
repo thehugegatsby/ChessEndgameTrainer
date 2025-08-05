@@ -4,13 +4,13 @@
 
 export interface Position {
   fen: string;
-  turn: 'w' | 'b';
+  turn: "w" | "b";
   moveNumber?: number;
 }
 
 export interface Piece {
   type: string;
-  color: 'white' | 'black';
+  color: "white" | "black";
   square: string;
 }
 
