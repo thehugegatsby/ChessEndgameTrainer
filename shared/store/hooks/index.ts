@@ -49,18 +49,3 @@
 export { useGameStore } from "./useGameStore";
 export { useTrainingStore } from "./useTrainingStore";
 export { useUIStore } from "./useUIStore";
-
-// Legacy hooks (to be removed after refactoring is complete)
-// These are kept temporarily for backward compatibility
-export { useGameActions } from "./useGameActions";
-export { useTrainingActions } from "./useTrainingActions";
-export { useTablebaseActions } from "./useTablebaseActions";
-export { useUIActions } from "./useUIActions";
-export { useProgressActions } from "./useProgressActions";
-export { useSettingsActions } from "./useSettingsActions";
-export { useUserActions } from "./useUserActions";
-
-export { useBoardState } from "./useBoardState";
-export { useTrainingNavigationState } from "./useTrainingNavigationState";
-export { useAnalysisState } from "./useAnalysisState";
-export { useTrainingUIState } from "./useTrainingUIState";
