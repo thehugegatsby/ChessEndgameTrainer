@@ -177,6 +177,12 @@ Each slice contains its own state and actions, promoting separation of concerns 
   - All 721+ tests passing with proper Immer middleware patterns
   - Branded types implementation with controlled test factories
   - Cross-slice orchestrators for complex operations
+- **v3.8: Major Dependency Updates** ✅
+  - TailwindCSS 3.4.1 → 4.1.11 (CSS-first configuration)
+  - Firebase 11.x → 12.0.0 (modular SDK)
+  - Next.js 15.3.3 → 15.4.5
+  - All outdated dependencies updated
+  - Circular dependency between Logger and WebPlatformService resolved
 
 ## Future Considerations (v4.0)
 

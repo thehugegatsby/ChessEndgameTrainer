@@ -6,13 +6,14 @@ A web-based training tool for chess players to master specific endgame scenarios
 
 ## Tech Stack
 
-- **Frontend**: Next.js 15.3.3, React 18.3, TypeScript 5.9.2
-- **UI**: Tailwind CSS 3.4.1, Radix UI, react-chessboard 2.1.3
+- **Frontend**: Next.js 15.4.5, React 18.3, TypeScript 5.9.2
+- **UI**: Tailwind CSS 4.1.11 (CSS-first config), Radix UI, react-chessboard 2.1.3
 - **State**: Zustand 5.0.7 (Domain-Specific Slices Architecture)
 - **Chess**: chess.js 1.0.0-beta.6
+- **Backend**: Firebase 12.0.0 (Firestore, Auth)
 - **Evaluation**: Lichess Tablebase API (7-piece endgames)
 - **Testing**: Jest 29.7.0, React Testing Library 14.2.1
-- **Environment**: Node.js 20+
+- **Environment**: Node.js 20+, PM2 process manager
 
 ## Project Structure
 

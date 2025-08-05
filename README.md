@@ -81,10 +81,12 @@ ChessEndgameTrainer/
 
 ### ✅ **Technical Health**
 
-- **Test Suite**: 823 unit tests + 42 E2E tests (100% passing) | Comprehensive Coverage
+- **Test Suite**: 691 tests (100% passing) | Comprehensive Coverage
 - **TypeScript**: 0 errors (100% clean) | Complete Clean Compilation
-- **Architecture**: v3.7 Domain-Specific Slices - Clean separation mit Orchestrators
+- **Architecture**: v3.8 Domain-Specific Slices - Clean separation mit Orchestrators
 - **State Management**: Zustand 5.0.7 mit Domain Slices (GameSlice, TrainingSlice, etc.)
+- **UI Framework**: TailwindCSS 4.1.11 (CSS-first configuration)
+- **Backend**: Firebase 12.0.0 (Modular SDK)
 - **Security**: FEN Input Sanitization implemented
 - **Performance**: LRU Cache, Debouncing, Tree-Shaking optimized
 - **CI/CD**: Stabilized pipeline with automated quality gates
@@ -141,7 +143,7 @@ npm run test:performance
 
 #### Test-Architektur
 
-Umfassende Test-Suite mit 823 Unit Tests + 42 E2E Tests (ALLE BESTEHEND ✅):
+Umfassende Test-Suite mit 691 Tests (ALLE BESTEHEND ✅):
 
 ```bash
 # Dev-Server starten
