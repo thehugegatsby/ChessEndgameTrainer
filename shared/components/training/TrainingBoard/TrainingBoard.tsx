@@ -1,3 +1,26 @@
+/**
+ * @file Interactive chess training board component
+ * @module components/training/TrainingBoard
+ * 
+ * @description
+ * Core training interface for chess endgame practice. Provides an interactive
+ * chessboard with real-time tablebase analysis, move validation, error feedback,
+ * and training session management. Integrates with Zustand store for state management
+ * and supports E2E testing with special hooks.
+ * 
+ * @remarks
+ * Key features:
+ * - Interactive drag-and-drop chess moves
+ * - Real-time tablebase position evaluation
+ * - Move quality feedback with WDL analysis
+ * - Training session tracking and completion
+ * - E2E test support with programmatic move injection
+ * - Responsive board sizing and animations
+ * 
+ * The component acts as the main interface between the user and the chess
+ * training system, coordinating between multiple services and state slices.
+ */
+
 import React, {
   useEffect,
   useCallback,
@@ -17,54 +40,108 @@ import { ANIMATION, DIMENSIONS } from "@shared/constants";
 import { MoveErrorDialog } from "@shared/components/ui/MoveErrorDialog";
 import { toLibraryMove } from "@shared/infrastructure/chess-adapter";
 
-// Extended evaluation interface that matches our new MovePanel requirements
 /**
- *
+ * Extended evaluation data structure for move panel integration
+ * 
+ * @interface ExtendedEvaluation
+ * 
+ * @description
+ * Provides comprehensive evaluation data including tablebase-specific
+ * information for move quality assessment and UI display.
  */
 interface ExtendedEvaluation {
+  /** Numeric evaluation score (centipawns or mate distance) */
   evaluation: number;
+  /** Number of moves to mate (if applicable) */
   mateInMoves?: number;
+  /** Tablebase-specific evaluation data */
   tablebase?: {
+    /** Whether position exists in tablebase */
     isTablebasePosition: boolean;
+    /** Win/Draw/Loss value before move */
     wdlBefore?: number;
+    /** Win/Draw/Loss value after move */
     wdlAfter?: number;
+    /** Outcome category (e.g., "win", "draw", "loss") */
     category?: string;
+    /** Distance to zero (moves to conversion) */
     dtz?: number;
   };
 }
 
 /**
- *
+ * Props for the TrainingBoard component
+ * 
+ * @interface TrainingBoardProps
+ * 
+ * @description
+ * Configuration options for the training board, supporting both
+ * controlled and uncontrolled usage patterns.
  */
 interface TrainingBoardProps {
+  /** Initial FEN position (if not using EndgamePosition) */
   fen?: string;
+  /** Complete endgame position data with metadata */
   position?: EndgamePosition;
+  /** Callback when training session completes */
   onComplete: (success: boolean) => void;
+  /** Callback when move history changes */
   onHistoryChange?: (moves: Move[]) => void;
+  /** Callback when position evaluations update */
   onEvaluationsChange?: (evaluations: ExtendedEvaluation[]) => void;
+  /** Callback when board position changes */
   onPositionChange?: (currentFen: string, pgn: string) => void;
+  /** Provides jump-to-move function to parent */
   onJumpToMove?: (jumpToMoveFunc: (moveIndex: number) => void) => void;
+  /** Current move index for navigation */
   currentMoveIndex?: number;
+  /** Trigger value to force board reset */
   resetTrigger?: number;
 }
 
 /**
- * Endgame training board component using Zustand store
- * Provides interactive chess board for endgame training with tablebase analysis
- * @param root0
- * @param root0.fen
- * @param root0.position
- * @param root0.onComplete
- * @param root0.onHistoryChange
- * @param root0.onEvaluationsChange
- * @param root0.onPositionChange
- * @param root0.onJumpToMove
- * @param root0.resetTrigger
+ * Interactive chess training board component
+ * 
+ * @component
+ * @description
+ * Main training interface providing an interactive chessboard with
+ * real-time tablebase analysis, move validation, and session management.
+ * 
+ * @remarks
+ * The component integrates with multiple systems:
+ * - Zustand store for global state management
+ * - Tablebase service for position evaluation
+ * - Training hooks for session management
+ * - E2E test infrastructure for automated testing
+ * 
+ * State is managed through a combination of:
+ * - Global Zustand store (game state, evaluations, progress)
+ * - Local component state (UI-only concerns)
+ * - Custom hooks (position analysis, training session)
+ * 
+ * @example
+ * ```tsx
+ * // Basic usage with endgame position
+ * <TrainingBoard
+ *   position={endgamePosition}
+ *   onComplete={(success) => {
+ *     console.log('Training completed:', success);
+ *   }}
+ * />
+ * 
+ * // With callbacks for parent integration
+ * <TrainingBoard
+ *   position={position}
+ *   onComplete={handleComplete}
+ *   onHistoryChange={updateMoveList}
+ *   onEvaluationsChange={updateEvaluations}
+ * />
+ * ```
+ * 
+ * @param {TrainingBoardProps} props - Component configuration
+ * @returns {JSX.Element} Rendered training board interface
  */
-export /**
- *
- */
-const TrainingBoard: React.FC<TrainingBoardProps> = ({
+export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   fen,
   position,
   onComplete,
@@ -254,7 +331,22 @@ const TrainingBoard: React.FC<TrainingBoardProps> = ({
     handleClearEngineError: () => {},
   };
 
-  // Enhanced reset handler that includes all cleanup
+  /**
+   * Resets the training board to initial state
+   * 
+   * @description
+   * Performs comprehensive cleanup including:
+   * - Resetting chess game to starting position
+   * - Clearing all position evaluations
+   * - Resetting UI state and dialogs
+   * - Clearing training session data
+   * 
+   * @remarks
+   * This handler is called when:
+   * - User clicks reset button
+   * - Training session needs restart
+   * - Parent component triggers reset
+   */
   const handleReset = useCallback(() => {
     resetGame();
     clearEvaluations();
@@ -262,7 +354,17 @@ const TrainingBoard: React.FC<TrainingBoardProps> = ({
     actions.resetPosition();
   }, [resetGame, clearEvaluations, endgameTrainingState, actions]);
 
-  // Handlers for move error dialog
+  /**
+   * Handles move error dialog dismissal without undo
+   * 
+   * @description
+   * Closes the move error dialog allowing the user to try a different move.
+   * No undo is performed as invalid moves are not added to history.
+   * 
+   * @remarks
+   * This maintains the current board position and allows the user
+   * to attempt another move without reverting any game state.
+   */
   const handleMoveErrorTakeBack = useCallback(() => {
     const logger = getLogger().setContext("TrainingBoard-MoveError");
     logger.info("Closing move error dialog");
@@ -271,6 +373,17 @@ const TrainingBoard: React.FC<TrainingBoardProps> = ({
     actions.setMoveErrorDialog(null);
   }, [actions]);
 
+  /**
+   * Restarts the entire training session after move error
+   * 
+   * @description
+   * Completely resets the game and closes the error dialog when
+   * the user chooses to restart after making a critical mistake.
+   * 
+   * @remarks
+   * This is typically used when the user has made a game-losing
+   * mistake and wants to start the position from the beginning.
+   */
   const handleMoveErrorRestart = useCallback(() => {
     const logger = getLogger().setContext("TrainingBoard-MoveError");
     logger.info("Restarting game due to move error");
@@ -278,6 +391,18 @@ const TrainingBoard: React.FC<TrainingBoardProps> = ({
     actions.setMoveErrorDialog(null);
   }, [handleReset, actions]);
 
+  /**
+   * Displays the best move as a toast notification
+   * 
+   * @description
+   * Shows the optimal move in a toast message when the user
+   * requests to see the best move after making a mistake.
+   * 
+   * @remarks
+   * The best move is determined by tablebase analysis and
+   * represents the objectively best continuation from the
+   * position before the user's suboptimal move.
+   */
   const handleShowBestMove = useCallback(() => {
     if (moveErrorData?.bestMove) {
       const logger = getLogger().setContext("TrainingBoard-MoveError");
@@ -300,7 +425,42 @@ const TrainingBoard: React.FC<TrainingBoardProps> = ({
     }
   }, [isEvaluating, actions, tablebaseAnalysisState.analysisStatus]);
 
-  // Enhanced move handling - inline implementation
+  /**
+   * Handles chess move execution and validation
+   * 
+   * @param {Object} move - Move object with from/to squares
+   * @param {string} move.from - Starting square (e.g., "e2")
+   * @param {string} move.to - Target square (e.g., "e4")
+   * @param {string} [move.promotion] - Promotion piece if applicable
+   * @returns {Promise<any>} Move result or null if invalid
+   * 
+   * @description
+   * Core move handler that:
+   * 1. Validates move legality using chess.js
+   * 2. Executes the move on the game instance
+   * 3. Triggers tablebase analysis for opponent response
+   * 4. Updates all relevant state slices
+   * 5. Handles errors with user feedback
+   * 
+   * @remarks
+   * This function coordinates between multiple services:
+   * - Chess.js for move validation
+   * - TrainingSession hook for game state
+   * - Tablebase orchestrator for opponent moves
+   * - UI actions for user feedback
+   * 
+   * Invalid moves increment the mistake counter and show
+   * a warning toast without modifying game state.
+   * 
+   * @example
+   * ```typescript
+   * // User drags piece
+   * await handleMove({ from: "e2", to: "e4" });
+   * 
+   * // With promotion
+   * await handleMove({ from: "e7", to: "e8", promotion: "q" });
+   * ```
+   */
   const handleMove = useCallback(
     async (move: any) => {
       const logger = getLogger().setContext("TrainingBoard-handleMove");
@@ -435,8 +595,26 @@ const TrainingBoard: React.FC<TrainingBoardProps> = ({
       logger.info("Attaching e2e hooks to window object");
 
       /**
-       *
-       * @param move
+       * E2E test helper for programmatic move execution
+       * 
+       * @param {string} move - Move in notation format (e.g., "e2-e4", "Nf3")
+       * @returns {Promise<Object>} Result object with success status
+       * 
+       * @description
+       * Exposed global function for E2E tests to execute moves programmatically.
+       * Supports multiple notation formats and provides detailed error feedback.
+       * 
+       * @remarks
+       * Only available when E2E test mode is enabled via:
+       * - window.__E2E_TEST_MODE__ = true
+       * - NEXT_PUBLIC_IS_E2E_TEST = "true"
+       * 
+       * @example
+       * ```javascript
+       * // In E2E test
+       * const result = await window.e2e_makeMove("e2-e4");
+       * expect(result.success).toBe(true);
+       * ```
        */
       (window as any).e2e_makeMove = async (move: string) => {
         logger.debug("🎯 e2e_makeMove called with move:", { move });
@@ -492,9 +670,29 @@ const TrainingBoard: React.FC<TrainingBoardProps> = ({
         }
       };
 
-      // Also expose game state for debugging
       /**
-       *
+       * E2E test helper for retrieving current game state
+       * 
+       * @returns {Object} Current game state information
+       * @returns {string} returns.fen - Current board position in FEN
+       * @returns {string} returns.turn - Current turn ('w' or 'b')
+       * @returns {boolean} returns.isGameOver - Whether game has ended
+       * @returns {number} returns.moveCount - Number of moves played
+       * @returns {string} returns.pgn - Game notation in PGN format
+       * @returns {string[]} returns.moves - Available moves in from-to format
+       * @returns {number} returns.possibleMovesCount - Count of legal moves
+       * 
+       * @description
+       * Provides comprehensive game state information for E2E test assertions
+       * and debugging. Useful for verifying board state after moves.
+       * 
+       * @example
+       * ```javascript
+       * // In E2E test
+       * const state = window.e2e_getGameState();
+       * expect(state.turn).toBe('w');
+       * expect(state.moveCount).toBe(2);
+       * ```
        */
       (window as any).e2e_getGameState = () => ({
         fen: game.fen(),
@@ -520,7 +718,29 @@ const TrainingBoard: React.FC<TrainingBoardProps> = ({
 
   // === EVENT HANDLERS ===
 
-  // Handle piece drop
+  /**
+   * Handles piece drop events from the chessboard
+   * 
+   * @param {string} sourceSquare - Square where piece was picked up
+   * @param {string} targetSquare - Square where piece was dropped
+   * @param {string} _piece - Piece type (unused but required by interface)
+   * @returns {boolean} Whether the drop was accepted
+   * 
+   * @description
+   * Converts drag-and-drop events into move objects and delegates
+   * to the main move handler. Always promotes to queen by default.
+   * 
+   * @remarks
+   * This is the primary user interaction handler for the chess board.
+   * Returns false if game is finished to prevent further moves.
+   * The actual move validation happens in handleMove.
+   * 
+   * @example
+   * ```typescript
+   * // User drags pawn from e2 to e4
+   * onDrop("e2", "e4", "wP") // returns true if valid
+   * ```
+   */
   const onDrop = useCallback(
     (sourceSquare: string, targetSquare: string, _piece: string): boolean => {
       if (isGameFinished) return false;
@@ -601,7 +821,16 @@ const TrainingBoard: React.FC<TrainingBoardProps> = ({
         });
 
         /**
-         *
+         * Recursively plays moves from URL parameter for automated testing
+         * 
+         * @description
+         * Internal function that processes a sequence of moves provided
+         * via URL parameter. Supports multiple notation formats and
+         * includes error recovery.
+         * 
+         * @remarks
+         * Moves are played with animation delays to simulate user interaction.
+         * Failed moves are skipped and the sequence continues.
          */
         const playNextMove = async () => {
           if (moveIndex < moves.length) {

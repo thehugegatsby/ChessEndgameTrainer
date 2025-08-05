@@ -1,8 +1,23 @@
 /**
- * MoveEvaluationBar Component
+ * @file Move evaluation bar visualization component
+ * @module components/tablebase/MoveEvaluationBar
  * 
+ * @description
  * Visual progress bar component that displays tablebase moves with color-coded
- * evaluation bars based on DTZ values, similar to Lichess tablebase interface.
+ * evaluation bars based on DTZ (Distance to Zero) values. Provides an intuitive
+ * visualization similar to the Lichess tablebase interface.
+ * 
+ * @remarks
+ * Key features:
+ * - Color-coded bars (green=win, yellow=draw, red=loss)
+ * - Bar width proportional to DTZ value
+ * - Interactive selection with hover states
+ * - Accessible keyboard navigation
+ * - Compact variant for dense layouts
+ * - Dark mode support
+ * 
+ * The component uses DTZ values to create visual feedback about move quality,
+ * with longer bars indicating moves that take more time to reach an outcome.
  */
 
 'use client';
@@ -17,6 +32,15 @@ import {
   getMoveResultType
 } from '@shared/utils/tablebase/resultClassification';
 
+/**
+ * Props for the MoveEvaluationBar component
+ * 
+ * @interface MoveEvaluationBarProps
+ * 
+ * @description
+ * Configuration options for rendering move evaluation bars with
+ * visual DTZ feedback and interactive selection.
+ */
 interface MoveEvaluationBarProps {
   /** The chess move in SAN notation */
   move: string;
@@ -34,6 +58,41 @@ interface MoveEvaluationBarProps {
   category?: 'win' | 'draw' | 'loss';
 }
 
+/**
+ * Move evaluation bar component
+ * 
+ * @component
+ * @description
+ * Renders an interactive bar visualization for a single tablebase move.
+ * The bar's color and width represent the move's outcome and DTZ value.
+ * 
+ * @remarks
+ * Visual design:
+ * - Green bars for winning moves
+ * - Yellow bars for drawing moves
+ * - Red bars for losing moves
+ * - Bar width scales with DTZ (longer = more moves to outcome)
+ * 
+ * Interaction:
+ * - Click to select the move
+ * - Keyboard navigation with Enter/Space
+ * - Hover state for visual feedback
+ * - Selected state with blue highlight
+ * 
+ * @example
+ * ```tsx
+ * <MoveEvaluationBar
+ *   move="Ke2"
+ *   dtz={15}
+ *   maxDtz={30}
+ *   onClick={() => makeMove("Ke2")}
+ *   isSelected={selectedMove === "Ke2"}
+ * />
+ * ```
+ * 
+ * @param {MoveEvaluationBarProps} props - Component configuration
+ * @returns {JSX.Element} Rendered evaluation bar
+ */
 export const MoveEvaluationBar: React.FC<MoveEvaluationBarProps> = ({
   move,
   dtz,

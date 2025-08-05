@@ -1,19 +1,50 @@
 /**
- * Utility functions for move quality formatting and display
+ * @file Move quality formatting utilities
+ * @module utils/moveQualityFormatters
  * 
- * Pure functions for UI representation of move quality results
- * Separated from business logic for better code organization
+ * @description
+ * Pure utility functions for formatting and displaying move quality
+ * analysis results in the UI. Provides consistent visual representation
+ * of move quality through emojis, labels, and tooltips.
  * 
- * @module moveQualityFormatters
+ * @remarks
+ * Key features:
+ * - Quality-to-emoji mapping for visual feedback
+ * - Localized quality labels (currently English)
+ * - Tooltip formatting for detailed move feedback
+ * - Type-safe quality classifications
+ * 
+ * These formatters are separated from business logic to maintain
+ * clean architecture and enable easy UI customization.
  */
 
 import type { SimplifiedMoveQualityResult } from '../types/evaluation';
 
 /**
- * Get emoji representation for move quality
+ * Gets emoji representation for move quality
  * 
- * @param quality - Move quality classification
- * @returns Emoji representing the quality
+ * @param {SimplifiedMoveQualityResult['quality']} quality - Move quality classification
+ * @returns {string} Emoji representing the quality
+ * 
+ * @description
+ * Maps move quality classifications to intuitive emoji representations
+ * for quick visual feedback in the UI.
+ * 
+ * @example
+ * ```typescript
+ * getQualityEmoji('excellent'); // '🏆'
+ * getQualityEmoji('blunder');   // '💥'
+ * getQualityEmoji('unknown');   // '❓'
+ * ```
+ * 
+ * @remarks
+ * Emoji mappings:
+ * - excellent: 🏆 (trophy - best possible move)
+ * - good: 👍 (thumbs up - solid move)
+ * - inaccuracy: ⚠️ (warning - minor error)
+ * - mistake: ❌ (cross - significant error)
+ * - blunder: 💥 (explosion - critical error)
+ * - unknown: ❓ (question - no evaluation available)
  */
 export const getQualityEmoji = (quality: SimplifiedMoveQualityResult['quality']): string => {
   switch (quality) {
@@ -34,10 +65,25 @@ export const getQualityEmoji = (quality: SimplifiedMoveQualityResult['quality'])
 };
 
 /**
- * Get human-readable quality label
+ * Gets human-readable quality label
  * 
- * @param quality - Move quality classification
- * @returns Localized quality label
+ * @param {SimplifiedMoveQualityResult['quality']} quality - Move quality classification
+ * @returns {string} Localized quality label
+ * 
+ * @description
+ * Converts technical quality classifications into user-friendly
+ * labels suitable for display in the UI.
+ * 
+ * @example
+ * ```typescript
+ * getQualityLabel('excellent'); // "Excellent"
+ * getQualityLabel('blunder');   // "Blunder"
+ * getQualityLabel('unknown');   // "Unknown"
+ * ```
+ * 
+ * @remarks
+ * Labels are currently in English. Future versions may support
+ * localization based on user language preferences.
  */
 export const getQualityLabel = (quality: SimplifiedMoveQualityResult['quality']): string => {
   switch (quality) {
@@ -58,10 +104,29 @@ export const getQualityLabel = (quality: SimplifiedMoveQualityResult['quality'])
 };
 
 /**
- * Format move quality result for tooltip display
+ * Formats move quality result for tooltip display
  * 
- * @param result - Move quality analysis result
- * @returns Formatted string for tooltip
+ * @param {SimplifiedMoveQualityResult} result - Move quality analysis result
+ * @returns {string} Formatted string for tooltip
+ * 
+ * @description
+ * Creates a comprehensive tooltip string combining emoji, label,
+ * and detailed reason for the quality assessment. Provides users
+ * with complete feedback about their move quality.
+ * 
+ * @example
+ * ```typescript
+ * const result = {
+ *   quality: 'mistake',
+ *   reason: 'Loses material without compensation'
+ * };
+ * formatQualityTooltip(result);
+ * // "❌ Mistake: Loses material without compensation"
+ * ```
+ * 
+ * @remarks
+ * The tooltip format is designed to be concise yet informative,
+ * suitable for hover interactions without overwhelming the user.
  */
 export const formatQualityTooltip = (result: SimplifiedMoveQualityResult): string => {
   const emoji = getQualityEmoji(result.quality);

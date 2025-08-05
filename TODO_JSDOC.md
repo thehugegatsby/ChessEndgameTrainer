@@ -14,11 +14,11 @@
 - [x] `/shared/hooks/useDebounce.ts` - ✅ Bereits vorhanden, überprüft
 - [x] `/shared/hooks/usePositionAnalysis.ts` - ✅ Bereits vorhanden, überprüft
 
-### Services (Kritische Infrastruktur) ✅ TEILWEISE ERLEDIGT
+### Services (Kritische Infrastruktur) ✅ ERLEDIGT
 - [x] `/shared/services/container/ServiceContainer.ts` - ✅ Klassen- und Methoden-Dokumentation
-- [ ] `/shared/services/container/types.ts` - Service Container Types
+- [x] `/shared/services/container/types.ts` - ✅ Vollständige Interface- und Type-Dokumentation
 - [x] `/shared/services/platform/PlatformService.ts` - ✅ Datei-Header und Klassen-Dokumentation
-- [ ] `/shared/services/database/PositionService.ts` - Database Service
+- [x] `/shared/services/database/PositionService.ts` - ✅ Umfassende Service-Dokumentation
 - [x] `/shared/services/logging/Logger.ts` - ✅ Umfassende Modul-Dokumentation mit allen Klassen
 
 ### Store Orchestrators (Cross-Slice Logic) ✅ ERLEDIGT
@@ -29,22 +29,22 @@
 
 ## 🟡 Priorität MITTEL - UI & Utilities
 
-### Zentrale UI-Komponenten
-- [ ] `/shared/components/training/TrainingBoard/TrainingBoard.tsx` - Nur Stub JSDoc
-- [ ] `/shared/components/tablebase/TablebasePanel.tsx` - Hauptkomponente
+### Zentrale UI-Komponenten ✅ TEILWEISE ERLEDIGT
+- [x] `/shared/components/training/TrainingBoard/TrainingBoard.tsx` - ✅ Vollständige Komponenten-Dokumentation
+- [x] `/shared/components/tablebase/TablebasePanel.tsx` - ✅ Umfassende Panel-Dokumentation
 - [ ] `/shared/components/tablebase/MoveEvaluationBar.tsx` - Evaluation Display
 - [ ] `/shared/components/tablebase/MoveResultGroup.tsx` - Move Grouping
 - [ ] `/shared/components/training/AnalysisPanel/index.tsx` - Analysis UI
 - [ ] `/shared/components/training/MovePanelZustand.tsx` - Move Panel
 - [ ] `/shared/components/training/TablebaseAnalysisPanel/index.tsx` - Tablebase UI
 
-### Utility Functions
-- [ ] `/shared/utils/positionAnalysisFormatter.ts` - Formatierung
-- [ ] `/shared/utils/moveQualityFormatters.ts` - Move Quality Display
+### Utility Functions ✅ TEILWEISE ERLEDIGT
+- [x] `/shared/utils/positionAnalysisFormatter.ts` - ✅ Vollständige Formatierungs-Dokumentation
+- [x] `/shared/utils/moveQualityFormatters.ts` - ✅ Move Quality Display Dokumentation
 - [ ] `/shared/utils/tablebase/resultClassification.ts` - Result Logic
 - [ ] `/shared/utils/chess/gameStatus.ts` - Game State Utils
 - [ ] `/shared/utils/chess/evaluationHelpers.ts` - Evaluation Utils
-- [ ] `/shared/utils/titleFormatter.ts` - Title Formatting
+- [x] `/shared/utils/titleFormatter.ts` - ✅ Title Formatting Dokumentation
 
 ### UI Components (Reusable)
 - [ ] `/shared/components/ui/button.tsx` - Keine JSDoc
@@ -131,21 +131,26 @@
 
 1. **Erledigt ✅**: Hooks dokumentiert (alle 10 Core Hooks)
 2. **Erledigt ✅**: Store Orchestrators dokumentiert (alle 4)
-3. **Als nächstes**: 
-   - Service Types & Database Service (HIGH Priority Rest)
-   - Zentrale UI-Komponenten (TrainingBoard, TablebasePanel)
-4. **Danach**: Utility Functions und kleinere Komponenten
-5. **Optional**: Test-Utilities und Mocks
+3. **Erledigt ✅**: Services dokumentiert (alle 5)
+4. **Erledigt ✅**: Wichtige UI-Komponenten (TrainingBoard, TablebasePanel)
+5. **Erledigt ✅**: Haupt-Utility Functions (3 von 6)
+6. **Als nächstes**: 
+   - Restliche UI-Komponenten (MoveEvaluationBar, MoveResultGroup, etc.)
+   - Restliche Utility Functions (resultClassification, gameStatus, evaluationHelpers)
+7. **Danach**: Kleinere UI-Komponenten und Layout
+8. **Optional**: Test-Utilities und Mocks
 
 ## 📊 Statistik
 
 - **Gesamt**: ~70 Dateien ohne vollständige JSDoc
-- **Erledigt**: 15 Dateien ✅
+- **Erledigt**: 22 Dateien ✅
   - Hooks: 10/10 ✅
-  - Services: 3/5 (2 noch offen)
+  - Services: 5/5 ✅
   - Orchestrators: 4/4 ✅
-- **Hoch**: ~5 Dateien noch offen (2 Service Types, 1 Database Service)
-- **Mittel**: ~25 Dateien (UI Components, Utils)
+  - UI-Komponenten: 2/7 (5 noch offen)
+  - Utility Functions: 3/6 (3 noch offen)
+- **Hoch**: Alle erledigt! ✅
+- **Mittel**: ~18 Dateien noch offen (UI Components, Utils)
 - **Niedrig**: ~25 Dateien (Layout, Test, Misc)
 
-**Fortschritt**: ~21% (15/70 Dateien)
+**Fortschritt**: ~31% (22/70 Dateien)

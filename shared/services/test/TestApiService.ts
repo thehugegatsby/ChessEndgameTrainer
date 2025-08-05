@@ -402,12 +402,9 @@ export class TestApiService {
 
       // Make the deterministic tablebase move
       try {
-        // Use direct makeMove for test bypass or handleOpponentTurn
+        // Use direct makeMove for test bypass
         if (this.storeAccess.makeMove) {
           this.storeAccess.makeMove(tablebaseMove);
-        } else {
-          // This is a tablebase move, so it should be handled by the opponent turn orchestrator
-          await this.storeAccess.handleOpponentTurn();
         }
         this.emit("test:tablebaseMove", {
           move: tablebaseMove,
