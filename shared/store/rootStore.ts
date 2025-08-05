@@ -10,14 +10,15 @@
  * import { useStore } from '@/store/rootStore';
  *
  * function MyComponent() {
- *   const theme = useStore(state => state.theme);
- *   const updateTheme = useStore(state => state.updateTheme);
- *   const makeMove = useStore(state => state.makeUserMove);
+ *   const restartRequired = useStore(state => state.restartRequired);
+ *   const clearRestart = useStore(state => state.clearRestartRequired);
+ *   const makeMove = useStore(state => state.handlePlayerMove);
  *
  *   return (
- *     <div className={theme.mode}>
- *       <button onClick={() => updateTheme({ mode: 'dark' })}>
- *         Toggle Theme
+ *     <div>
+ *       {restartRequired && <div>App restart required</div>}
+ *       <button onClick={() => makeMove({ from: 'e2', to: 'e4' })}>
+ *         Make Move
  *       </button>
  *     </div>
  *   );
@@ -47,6 +48,7 @@ import { handlePlayerMove as handlePlayerMoveOrchestrator } from "./orchestrator
 // Import types
 import type { RootState } from "./slices/types";
 import type { Move as ChessJsMove } from "chess.js";
+import type { EndgamePosition } from "@shared/types/endgame";
 
 /**
  * Creates the root store with all slices and orchestrators integrated
@@ -68,15 +70,15 @@ import type { Move as ChessJsMove } from "chess.js";
  * @example
  * ```typescript
  * // Access slice state
- * const theme = useStore(state => state.theme);
+ * const restartRequired = useStore(state => state.restartRequired);
  * const currentGame = useStore(state => state.game);
  *
  * // Access slice actions
- * const updateSettings = useStore(state => state.updateSettings);
+ * const clearRestart = useStore(state => state.clearRestartRequired);
  * const makeMove = useStore(state => state.addMove);
  *
  * // Access orchestrator actions
- * const makeUserMove = useStore(state => state.makeUserMove);
+ * const handlePlayerMove = useStore(state => state.handlePlayerMove);
  * const requestEvaluation = useStore(state => state.requestPositionEvaluation);
  * ```
  */
@@ -190,7 +192,7 @@ export const useStore = create<RootState>()(
           /**
            * Loads training context for a position
            *
-           * @param {any} position - The endgame position to load
+           * @param {EndgamePosition} position - The endgame position to load
            * @returns {Promise<void>} Completes when context is loaded
            *
            * @remarks
@@ -204,13 +206,15 @@ export const useStore = create<RootState>()(
            * ```typescript
            * const loadContext = useStore(state => state.loadTrainingContext);
            *
-           * const startTraining = async (position) => {
+           * const startTraining = async (position: EndgamePosition) => {
            *   await loadContext(position);
            *   logger.info('Training context loaded');
            * };
            * ```
            */
-          loadTrainingContext: async (position: any): Promise<void> => {
+          loadTrainingContext: async (
+            position: EndgamePosition,
+          ): Promise<void> => {
             const storeApi = { getState: get, setState: set };
             return await loadTrainingContextOrchestrator(storeApi, position);
           },
@@ -232,9 +236,14 @@ export const useStore = create<RootState>()(
               ...createProgressSlice(set, get, store),
               ...createUISlice(set, get, store),
               ...createSettingsSlice(set, get, store),
-              
+
               // Re-add orchestrator actions (they get overwritten by slice spread)
-              handlePlayerMove: async (move: any) => {
+              handlePlayerMove: async (
+                move:
+                  | ChessJsMove
+                  | { from: string; to: string; promotion?: string }
+                  | string,
+              ) => {
                 const storeApi = { getState: get, setState: set };
                 return await handlePlayerMoveOrchestrator(storeApi, move);
               },
@@ -244,11 +253,17 @@ export const useStore = create<RootState>()(
               },
               requestPositionEvaluation: async (fen?: string) => {
                 const storeApi = { getState: get, setState: set };
-                return await requestPositionEvaluationOrchestrator(storeApi, fen);
+                return await requestPositionEvaluationOrchestrator(
+                  storeApi,
+                  fen,
+                );
               },
-              loadTrainingContext: async (position: any) => {
+              loadTrainingContext: async (position: EndgamePosition) => {
                 const storeApi = { getState: get, setState: set };
-                return await loadTrainingContextOrchestrator(storeApi, position);
+                return await loadTrainingContextOrchestrator(
+                  storeApi,
+                  position,
+                );
               },
               reset: get().reset, // Self-reference to prevent infinite recursion
               hydrate: get().hydrate,
@@ -317,16 +332,7 @@ export const useStore = create<RootState>()(
           lastActiveDate: state.lastActiveDate,
           preferences: state.preferences,
 
-          // Settings - always persist
-          theme: state.theme,
-          notifications: state.notifications,
-          difficulty: state.difficulty,
-          privacy: state.privacy,
-          experimentalFeatures: state.experimentalFeatures,
-          dataSync: state.dataSync,
-          language: state.language,
-          timezone: state.timezone,
-          firstTimeUser: state.firstTimeUser,
+          // Settings - always persist (only essential settings)
           lastSettingsUpdate: state.lastSettingsUpdate,
           restartRequired: state.restartRequired,
 
@@ -372,8 +378,8 @@ export const useStore = create<RootState>()(
  * const store = useStore();
  *
  * // Selective access (better performance)
- * const theme = useStore(state => state.theme);
- * const updateTheme = useStore(state => state.updateTheme);
+ * const restartRequired = useStore(state => state.restartRequired);
+ * const clearRestart = useStore(state => state.clearRestartRequired);
  *
  * // Training state access (replaces useTrainingState hook)
  * const currentPosition = useStore(state => state.currentPosition);
@@ -412,9 +418,9 @@ export default useStore;
  * // In tests
  * import { store } from '@/store/rootStore';
  *
- * test('should update theme', () => {
- *   store.getState().updateTheme({ mode: 'dark' });
- *   expect(store.getState().theme.mode).toBe('dark');
+ * test('should clear restart flag', () => {
+ *   store.getState().clearRestartRequired();
+ *   expect(store.getState().restartRequired).toBe(false);
  * });
  *
  * // External state access
@@ -422,4 +428,3 @@ export default useStore;
  * ```
  */
 export const store = useStore;
-

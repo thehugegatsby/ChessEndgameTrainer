@@ -473,7 +473,7 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
    * });
    * ```
    */
-  addTrainingMove: (move: any) => {
+  addTrainingMove: (move: ValidatedMove) => {
     // This is a placeholder - actual implementation will be in orchestrator
     // as it needs to coordinate with game state
     logger.debug("Training move added", { move });

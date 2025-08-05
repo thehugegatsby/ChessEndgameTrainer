@@ -235,8 +235,8 @@ async function handleTrainingCompletion(
 
   if (!state.currentPosition || !state.sessionStartTime) return;
 
-  const userMoves = state.moveHistory.filter((m: any) => m.userMove);
-  const optimalMoves = userMoves.filter((m: any) => m.isOptimal).length;
+  const userMoves = state.moveHistory.filter((m) => (m as any).userMove);
+  const optimalMoves = userMoves.filter((m) => (m as any).isOptimal).length;
   const totalMoves = userMoves.length;
   const accuracy = totalMoves > 0 ? (optimalMoves / totalMoves) * 100 : 0;
 

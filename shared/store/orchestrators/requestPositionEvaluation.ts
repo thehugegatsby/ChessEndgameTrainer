@@ -275,7 +275,6 @@ function updateTablebaseMoveFromAnalysis(
  * }
  * ```
  *
- * @todo Consider implementing time-based cache invalidation if needed
  */
 export function isEvaluationStale(
   _evaluation: PositionAnalysis,

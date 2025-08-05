@@ -250,23 +250,6 @@ export const createTablebaseSlice: ImmerStateCreator<TablebaseSlice> = (
     set({ currentEvaluation: evaluation });
   },
 
-  /**
-   * Sets the current evaluation (alias for setCurrentEvaluation for backward compatibility)
-   *
-   * @param {PositionAnalysis | undefined} evaluation - The evaluation to set
-   *
-   * @fires stateChange - When evaluation is updated
-   *
-   * @deprecated Use setCurrentEvaluation instead
-   *
-   * @example
-   * ```typescript
-   * store.getState().setEvaluation(evaluation);
-   * ```
-   */
-  setEvaluation: (evaluation: PositionAnalysis | undefined) => {
-    get().setCurrentEvaluation(evaluation);
-  },
 
   /**
    * Clears all tablebase state to initial values

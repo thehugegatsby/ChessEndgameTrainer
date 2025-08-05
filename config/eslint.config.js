@@ -7,6 +7,15 @@ const compat = new FlatCompat({
 });
 
 module.exports = [
+  // Global ignores - Single source of truth for ignored files
+  {
+    ignores: [
+      "poc/**/*", // Ignore the entire poc directory
+      ".next/**/*", // Standard Next.js ignore
+      "node_modules/**/*", // Always a good practice
+    ],
+  },
+
   // Extend Next.js config
   ...compat.extends("next/core-web-vitals"),
 
@@ -58,6 +67,7 @@ module.exports = [
 
   // Scripts and utilities - Allow console and disable JSDoc requirements
   {
+    // REMOVED poc/**/*.js and poc/**/*.ts - they are globally ignored above
     files: [
       "scripts/**/*.js",
       "scripts/**/*.ts",
@@ -67,7 +77,7 @@ module.exports = [
     rules: {
       "no-console": "off", // Scripts need console output
       "jsdoc/require-jsdoc": "off",
-      "jsdoc/require-param": "off", 
+      "jsdoc/require-param": "off",
       "jsdoc/require-param-description": "off",
       "jsdoc/require-returns": "off",
       "jsdoc/require-returns-description": "off",
@@ -78,7 +88,7 @@ module.exports = [
   {
     files: [
       "tests/**/*.ts",
-      "tests/**/*.tsx", 
+      "tests/**/*.tsx",
       "tests/**/*.js",
       "tests/**/*.jsx",
     ],

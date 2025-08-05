@@ -282,63 +282,9 @@ export interface AnalysisPanelState {
  *
  */
 export interface SettingsState {
-  // Visual theme configuration
-  theme: {
-    mode: "light" | "dark";
-    colorScheme: "blue" | "green" | "purple" | "orange" | "red";
-    boardTheme: "classic" | "modern" | "wood" | "marble" | "neon";
-    pieceSet: "classic" | "modern" | "medieval" | "minimalist";
-    fontSize: "small" | "medium" | "large";
-    highContrast: boolean;
-  };
-
-  // Notification preferences
-  notifications: {
-    enabled: boolean;
-    dailyReminders: boolean;
-    achievements: boolean;
-    trainingReminders: boolean;
-    weeklyProgress: boolean;
-    soundEnabled: boolean;
-    preferredTime: string; // "HH:MM" format
-  };
-
-  // Training difficulty settings
-  difficulty: {
-    level: "beginner" | "intermediate" | "advanced" | "expert";
-    autoHints: boolean;
-    maxHints: number;
-    moveSuggestions: boolean;
-    timePressure: boolean;
-    defaultTimeLimit: number;
-    mistakeTolerance: "strict" | "normal" | "lenient";
-  };
-
-  // Privacy and data settings
-  privacy: {
-    analytics: boolean;
-    crashReporting: boolean;
-    usageStatistics: boolean;
-    performanceMonitoring: boolean;
-    dataRetentionDays: number;
-  };
-
-  // Experimental features (feature flags)
-  experimentalFeatures: ExperimentalFeatures;
-
-  // Data synchronization state
-  dataSync: DataSyncState;
-
-  // Localization settings
-  language: string;
-  timezone: string;
-
-  // User onboarding state
-  firstTimeUser: boolean;
-  lastSettingsUpdate?: number;
-
-  // Application restart requirement flag
+  // Essential settings only
   restartRequired: boolean;
+  lastSettingsUpdate?: number;
 }
 
 /**

@@ -16,6 +16,7 @@ import {
   AnalysisPanelState,
   PositionProgress,
   DailyStats,
+  Achievement,
   ExperimentalFeatures,
   AnalysisStatus,
 } from "../types";
@@ -99,7 +100,6 @@ export interface TablebaseActions {
   addEvaluation: (evaluation: PositionAnalysis) => void;
   setEvaluations: (evaluations: PositionAnalysis[]) => void;
   setCurrentEvaluation: (evaluation: PositionAnalysis | undefined) => void;
-  setEvaluation: (evaluation: PositionAnalysis | undefined) => void; // Alias for backward compatibility
   clearTablebaseState: () => void;
 }
 
@@ -146,7 +146,7 @@ export interface TrainingActions {
   useHint: () => void;
   incrementMistake: () => void;
   setMoveErrorDialog: (dialog: TrainingState["moveErrorDialog"] | null) => void;
-  addTrainingMove: (move: any) => void;
+  addTrainingMove: (move: ValidatedMove) => void;
   resetTraining: () => void;
   resetPosition: () => void;
 }
@@ -163,9 +163,9 @@ export interface ProgressActions {
   unlockAchievement: (achievementId: string) => void;
   toggleFavorite: (positionId: number) => void;
   calculateNextReview: (positionId: number, success: boolean) => void;
-  initializeAchievements: (achievements: any[]) => void;
+  initializeAchievements: (achievements: Achievement[]) => void;
   updateWeeklyGoals: (completed: number, target?: number) => void;
-  updateMonthlyStats: (stats: any) => void;
+  updateMonthlyStats: (stats: Partial<DailyStats>) => void;
   updateStreak: (newStreak: number, lastActivity?: number) => void;
   resetProgress: () => void;
 }
@@ -185,23 +185,11 @@ export interface UIActions {
 }
 
 /**
- * Settings slice actions
+ * Settings slice actions - essential functionality only
  */
 export interface SettingsActions {
-  updateSettings: (settings: Partial<SettingsState>) => void;
-  toggleExperimentalFeature: (feature: keyof ExperimentalFeatures) => void;
-  startSync: () => void;
-  completeSync: (success: boolean, error?: string) => void;
-  resetSettings: () => void;
-  updateTheme: (themeUpdate: Partial<SettingsState["theme"]>) => void;
-  updateNotifications: (
-    notificationUpdate: Partial<SettingsState["notifications"]>,
-  ) => void;
-  updateDifficulty: (
-    difficultyUpdate: Partial<SettingsState["difficulty"]>,
-  ) => void;
-  updatePrivacy: (privacyUpdate: Partial<SettingsState["privacy"]>) => void;
   clearRestartRequired: () => void;
+  resetSettings: () => void;
 }
 
 /**
