@@ -1,9 +1,42 @@
+/**
+ * @file Game analysis panel component
+ * @module components/training/AnalysisPanel
+ * 
+ * @description
+ * Sliding panel component that displays comprehensive move-by-move analysis
+ * of a completed chess game. Shows move quality, evaluations, and detailed
+ * insights for training review. Currently uses simulated data for demo
+ * purposes.
+ * 
+ * @remarks
+ * Key features:
+ * - Sliding animation from bottom of screen
+ * - Two-column layout: move list and detailed analysis
+ * - Move quality classification (excellent/good/inaccuracy/mistake/blunder)
+ * - Simulated evaluation data (to be replaced with real tablebase data)
+ * - Dark mode support
+ * - Responsive height based on constants
+ * 
+ * The component is designed to work with the training interface,
+ * providing post-game analysis for learning purposes.
+ */
+
 import React, { useState, useMemo } from 'react';
 import { Move } from 'chess.js';
 import { MoveAnalysis } from './MoveAnalysis';
 import { AnalysisDetails } from './AnalysisDetails';
 import { DIMENSIONS } from '@shared/constants';
 
+/**
+ * Props for the AnalysisPanel component
+ * 
+ * @interface AnalysisPanelProps
+ * 
+ * @property {Move[]} history - Array of moves played in the game
+ * @property {string} [initialFen] - Starting position FEN (currently unused)
+ * @property {() => void} onClose - Callback to close the panel
+ * @property {boolean} isVisible - Controls panel visibility with animation
+ */
 interface AnalysisPanelProps {
   history: Move[];
   initialFen?: string;
@@ -11,6 +44,17 @@ interface AnalysisPanelProps {
   isVisible: boolean;
 }
 
+/**
+ * Internal data structure for move analysis
+ * 
+ * @interface MoveAnalysisData
+ * @private
+ * 
+ * @property {Move} move - The chess move object
+ * @property {number} [evaluation] - Position evaluation after the move
+ * @property {string} [bestMove] - Best move according to analysis
+ * @property {string} [classification] - Quality classification of the move
+ */
 interface MoveAnalysisData {
   move: Move;
   evaluation?: number;
@@ -18,6 +62,37 @@ interface MoveAnalysisData {
   classification?: 'excellent' | 'good' | 'inaccuracy' | 'mistake' | 'blunder';
 }
 
+/**
+ * Game analysis panel component
+ * 
+ * @component
+ * @description
+ * Provides a comprehensive post-game analysis interface that slides up from
+ * the bottom of the screen. Displays move-by-move analysis with quality
+ * indicators and detailed insights for each move.
+ * 
+ * @remarks
+ * Current implementation uses simulated data for demonstration.
+ * In production, this would integrate with:
+ * - TablebaseService for endgame evaluations
+ * - Move quality analysis from the training session
+ * - Actual best move suggestions from tablebase data
+ * 
+ * The panel height is controlled by DIMENSIONS.ANALYSIS_PANEL_HEIGHT
+ * for consistent layout across the application.
+ * 
+ * @example
+ * ```tsx
+ * <AnalysisPanel
+ *   history={gameHistory}
+ *   onClose={() => setShowAnalysis(false)}
+ *   isVisible={showAnalysis}
+ * />
+ * ```
+ * 
+ * @param {AnalysisPanelProps} props - Component props
+ * @returns {JSX.Element} Rendered analysis panel
+ */
 export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(({ 
   history, 
   onClose,
@@ -25,16 +100,30 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(({
 }) => {
   const [selectedMoveIndex, setSelectedMoveIndex] = useState<number | null>(null);
 
-  // Memoize analysis data generation for performance
+  /**
+   * Memoized analysis data generation
+   * 
+   * @description
+   * Generates simulated analysis data for each move in the history.
+   * This is a placeholder implementation that creates realistic-looking
+   * data for UI development and testing.
+   * 
+   * @todo Replace with actual tablebase evaluation data
+   */
   const analysisData = useMemo((): MoveAnalysisData[] => {
     return history.map((move, index): MoveAnalysisData => {
-      // Simulate some evaluation scores for demo purposes
-      // In production, this would come from a real engine
+      /**
+       * Simulate evaluation scores for demo purposes
+       * @todo Replace with real tablebase evaluations
+       */
       const baseEval = Math.sin(index * 0.5) * 2;
       const noise = (Math.random() - 0.5) * 0.5;
       const evaluation = baseEval + noise;
       
-      // Classify moves based on evaluation change
+      /**
+       * Classify moves based on simulated evaluation changes
+       * @todo Replace with actual move quality analysis
+       */
       let classification: MoveAnalysisData['classification'] = 'good';
       if (index > 0) {
         const prevEval = Math.sin((index - 1) * 0.5) * 2;
@@ -49,7 +138,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(({
         move,
         evaluation,
         classification,
-        bestMove: index % 3 === 0 ? 'Nf3' : undefined // Simulate some best moves
+        bestMove: index % 3 === 0 ? 'Nf3' : undefined // @todo: Get from tablebase
       };
     });
   }, [history]);

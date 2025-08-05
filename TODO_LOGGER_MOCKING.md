@@ -1,38 +1,56 @@
-# Logger Mocking Issue
+# Logger Mocking Issue - RESOLVED ✅
 
 ## Problem
 
-The TestApiService test is failing because of a circular dependency issue when mocking the logger. The logger is created at the module level in TestApiService.ts:
+The TestApiService test was failing because of a circular dependency issue when mocking the logger. The logger is created at the module level in TestApiService.ts:
 
 ```typescript
 const logger = getLogger().setContext("TestApiService");
 ```
 
-## Current Situation
+## Root Cause
 
-- Tests are failing with: "Cannot access 'mockLoggerInstance' before initialization"
-- This is due to Jest hoisting and module initialization order
+- Jest hoists all `jest.mock()` calls to the top before any other code
+- The mock tried to reference `mockLoggerInstance` before it was initialized
+- This created a circular dependency: mock needs variable → variable needs initialization → initialization happens after mock
 
-## Gemini's Recommendations
+## Solution Implemented ✅
 
-### Strategy 1: Shared Mock Instance (Attempted)
+Create the mock object directly inside the jest.mock factory function (no external variable references):
 
-- Create a shared mock instance
-- Use jest.resetModules() if needed
-- **Issue**: Still getting circular dependency errors
+```typescript
+// Working solution:
+jest.mock("../../../../shared/services/logging", () => ({
+  getLogger: jest.fn().mockReturnValue({
+    setContext: jest.fn().mockReturnThis(),
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+  }),
+}));
+```
 
-### Strategy 2: Dependency Injection (Recommended Long-term)
+This pattern is already successfully used in 6 other test files in the codebase.
 
-- Refactor TestApiService to accept logger as a constructor parameter
-- Makes the service more testable
-- Requires refactoring TestApiService and all code that uses it
+## Architecture Analysis (from Gemini)
 
-## Temporary Solution
+### Current Pattern (Module-Level Logger)
+- **Pros**: Simple, low boilerplate, immediately usable
+- **Cons**: Tight coupling, difficult testability, violates Dependency Inversion Principle
 
-For now, the tests are committed with failures noted. The logger mocking needs to be addressed in a separate PR.
+### Long-term Recommendation: Dependency Injection
+- **Pros**: Better testability, loose coupling, flexible
+- **Cons**: More boilerplate, higher initial complexity
 
-## Next Steps
+## Future Improvements
 
-1. Consider refactoring TestApiService to use dependency injection
-2. Or investigate alternative mocking strategies (manual mocks, etc.)
-3. Could also consider making logger creation lazy (getter pattern)
+1. **Short-term**: Consider centralizing mock creation in test utilities to avoid duplication
+2. **Long-term**: 
+   - Use Dependency Injection for new code
+   - Refactor existing code opportunistically
+   - No "Big Bang" refactoring needed
+
+## Status
+
+✅ **RESOLVED** - All tests passing with the inline mock factory pattern

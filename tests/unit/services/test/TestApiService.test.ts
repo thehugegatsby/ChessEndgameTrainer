@@ -3,21 +3,15 @@
  * @description Test coverage for E2E test API service with store interactions only
  */
 
-// Create a mock logger object that will be shared
-const createMockLogger = () => ({
-  info: jest.fn(),
-  error: jest.fn(),
-  warn: jest.fn(),
-  debug: jest.fn(),
-  setContext: jest.fn(function() { return this; }),
-});
-
-// Create the shared mock instance
-const mockLoggerInstance = createMockLogger();
-
 // Mock the logging module BEFORE imports
 jest.mock("../../../../shared/services/logging", () => ({
-  getLogger: () => mockLoggerInstance,
+  getLogger: jest.fn().mockReturnValue({
+    setContext: jest.fn().mockReturnThis(),
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+  }),
 }));
 
 // Mock chess.js
@@ -49,6 +43,7 @@ import {
   TestTablebaseConfig,
   getTestApi,
 } from "../../../../shared/services/test/TestApiService";
+import { getLogger } from "../../../../shared/services/logging";
 
 describe("TestApiService - Store-Based Architecture", () => {
   let service: TestApiService;
@@ -56,14 +51,12 @@ describe("TestApiService - Store-Based Architecture", () => {
   let consoleLogSpy: jest.SpyInstance;
   let consoleErrorSpy: jest.SpyInstance;
   let consoleWarnSpy: jest.SpyInstance;
+  let mockLogger: any;
 
   beforeEach(() => {
-    // Clear all logger mocks
-    mockLoggerInstance.info.mockClear();
-    mockLoggerInstance.error.mockClear();
-    mockLoggerInstance.warn.mockClear();
-    mockLoggerInstance.debug.mockClear();
-    mockLoggerInstance.setContext.mockClear();
+    // Get the mocked logger instance and clear all mocks
+    mockLogger = getLogger();
+    jest.clearAllMocks();
     
     // Reset singleton
     TestApiService["instance"] = null;
@@ -134,7 +127,7 @@ describe("TestApiService - Store-Based Architecture", () => {
       service.initialize(mockStoreAccess);
 
       // Verify logger was called
-      expect(mockLoggerInstance.info).toHaveBeenCalledWith(
+      expect(mockLogger.info).toHaveBeenCalledWith(
         "✅ TestApiService: Successfully initialized with store actions"
       );
       expect(eventHandler).toHaveBeenCalledWith(
@@ -166,7 +159,7 @@ describe("TestApiService - Store-Based Architecture", () => {
       service.initialize(invalidStoreAccess as any);
 
       // Verify logger error was called
-      expect(mockLoggerInstance.error).toHaveBeenCalledWith(
+      expect(mockLogger.error).toHaveBeenCalledWith(
         "Required store actions not available"
       );
       expect(service.isInitialized).toBe(false);
@@ -184,7 +177,7 @@ describe("TestApiService - Store-Based Architecture", () => {
 
       const result = await service.makeMove("e2-e4");
 
-      expect(mockStoreAccess.makeMove).toHaveBeenCalledWith(
+      expect(mockStoreAccess._internalApplyMove).toHaveBeenCalledWith(
         expect.objectContaining({
           from: "e2",
           to: "e4",
@@ -198,16 +191,12 @@ describe("TestApiService - Store-Based Architecture", () => {
     it("should make move with SAN notation", async () => {
       const result = await service.makeMove("e4");
 
-      expect(mockStoreAccess.makeMove).toHaveBeenCalledWith(
-        expect.objectContaining({
-          san: "e4",
-        }),
-      );
+      expect(mockStoreAccess._internalApplyMove).toHaveBeenCalledWith("e4");
       expect(result.success).toBe(true);
     });
 
     it("should handle errors gracefully", async () => {
-      mockStoreAccess.makeMove.mockImplementation(() => {
+      mockStoreAccess._internalApplyMove.mockImplementation(() => {
         throw new Error("Invalid move");
       });
 
@@ -287,7 +276,7 @@ describe("TestApiService - Store-Based Architecture", () => {
       const result = await service.triggerTablebaseAnalysis(100);
 
       expect(result).toBe(false);
-      expect(mockLoggerInstance.warn).toHaveBeenCalledWith(
+      expect(mockLogger.warn).toHaveBeenCalledWith(
         "Tablebase analysis timeout after",
         { timeoutMs: 100 }
       );
@@ -301,7 +290,7 @@ describe("TestApiService - Store-Based Architecture", () => {
       const result = await service.triggerTablebaseAnalysis(1000);
 
       expect(result).toBe(false);
-      expect(mockLoggerInstance.error).toHaveBeenCalled();
+      expect(mockLogger.error).toHaveBeenCalled();
     });
   });
 

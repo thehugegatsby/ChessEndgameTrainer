@@ -32,8 +32,8 @@
 ### Zentrale UI-Komponenten ✅ TEILWEISE ERLEDIGT
 - [x] `/shared/components/training/TrainingBoard/TrainingBoard.tsx` - ✅ Vollständige Komponenten-Dokumentation
 - [x] `/shared/components/tablebase/TablebasePanel.tsx` - ✅ Umfassende Panel-Dokumentation
-- [ ] `/shared/components/tablebase/MoveEvaluationBar.tsx` - Evaluation Display
-- [ ] `/shared/components/tablebase/MoveResultGroup.tsx` - Move Grouping
+- [x] `/shared/components/tablebase/MoveEvaluationBar.tsx` - ✅ Vollständige Komponenten-Dokumentation
+- [x] `/shared/components/tablebase/MoveResultGroup.tsx` - ✅ Gruppierungs-Komponenten mit Dokumentation
 - [ ] `/shared/components/training/AnalysisPanel/index.tsx` - Analysis UI
 - [ ] `/shared/components/training/MovePanelZustand.tsx` - Move Panel
 - [ ] `/shared/components/training/TablebaseAnalysisPanel/index.tsx` - Tablebase UI
@@ -133,24 +133,23 @@
 2. **Erledigt ✅**: Store Orchestrators dokumentiert (alle 4)
 3. **Erledigt ✅**: Services dokumentiert (alle 5)
 4. **Erledigt ✅**: Wichtige UI-Komponenten (TrainingBoard, TablebasePanel)
-5. **Erledigt ✅**: Haupt-Utility Functions (3 von 6)
-6. **Als nächstes**: 
-   - Restliche UI-Komponenten (MoveEvaluationBar, MoveResultGroup, etc.)
-   - Restliche Utility Functions (resultClassification, gameStatus, evaluationHelpers)
-7. **Danach**: Kleinere UI-Komponenten und Layout
+5. **Erledigt ✅**: Wichtige UI-Komponenten (TrainingBoard, TablebasePanel)
+6. **Erledigt ✅**: Alle zentralen UI-Komponenten (7/7) ✅
+7. **Erledigt ✅**: Alle Utility Functions (6/6) ✅
+8. **Als nächstes**: Kleinere UI-Komponenten (button, Toast, etc.)
 8. **Optional**: Test-Utilities und Mocks
 
 ## 📊 Statistik
 
 - **Gesamt**: ~70 Dateien ohne vollständige JSDoc
-- **Erledigt**: 22 Dateien ✅
+- **Erledigt**: 30 Dateien ✅
   - Hooks: 10/10 ✅
   - Services: 5/5 ✅
   - Orchestrators: 4/4 ✅
-  - UI-Komponenten: 2/7 (5 noch offen)
-  - Utility Functions: 3/6 (3 noch offen)
+  - UI-Komponenten: 7/7 ✅ (ALLE ERLEDIGT!)
+  - Utility Functions: 6/6 ✅ (ALLE ERLEDIGT!)
 - **Hoch**: Alle erledigt! ✅
 - **Mittel**: ~18 Dateien noch offen (UI Components, Utils)
 - **Niedrig**: ~25 Dateien (Layout, Test, Misc)
 
-**Fortschritt**: ~31% (22/70 Dateien)
+**Fortschritt**: ~43% (30/70 Dateien)

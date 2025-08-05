@@ -1,8 +1,23 @@
 /**
- * MoveResultGroup Component
+ * @file Move result grouping component
+ * @module components/tablebase/MoveResultGroup
  * 
+ * @description
  * Groups tablebase moves by result type (Win/Draw/Loss) with collapsible sections
- * and clear visual organization, similar to Lichess tablebase interface.
+ * and clear visual organization. Provides an intuitive interface similar to the
+ * Lichess tablebase display for exploring move categories.
+ * 
+ * @remarks
+ * Key features:
+ * - Collapsible groups for space efficiency
+ * - Visual icons and color coding by outcome
+ * - Move count display per group
+ * - Keyboard accessible expand/collapse
+ * - Automatic DTZ normalization within groups
+ * - Summary statistics component
+ * 
+ * The component automatically calculates the maximum DTZ within each group
+ * to ensure consistent bar scaling for visual comparison.
  */
 
 'use client';
@@ -16,6 +31,15 @@ import {
   getResultIcon
 } from '@shared/utils/tablebase/resultClassification';
 
+/**
+ * Props for the MoveResultGroup component
+ * 
+ * @interface MoveResultGroupProps
+ * 
+ * @description
+ * Configuration for grouping and displaying moves by outcome type,
+ * with support for collapsible sections and move selection.
+ */
 interface MoveResultGroupProps {
   /** Array of moves for this result type */
   moves: TablebaseMove[];
@@ -35,6 +59,40 @@ interface MoveResultGroupProps {
   className?: string;
 }
 
+/**
+ * Move result grouping component
+ * 
+ * @component
+ * @description
+ * Displays tablebase moves grouped by outcome type (Win/Draw/Loss) with
+ * collapsible sections for better organization. Each group shows move count,
+ * visual outcome indicators, and can be expanded/collapsed for space efficiency.
+ * 
+ * @remarks
+ * Features:
+ * - Automatic DTZ normalization within groups for consistent bar scaling
+ * - Keyboard accessible with Enter/Space for expand/collapse
+ * - Visual color coding: green (win), yellow (draw), red (loss)
+ * - Hover states for better interactivity
+ * - ARIA labels for screen reader support
+ * 
+ * The component calculates the maximum DTZ within each group to ensure
+ * evaluation bars scale proportionally for easy visual comparison.
+ * 
+ * @example
+ * ```tsx
+ * <MoveResultGroup
+ *   moves={winningMoves}
+ *   resultType="win"
+ *   onMoveSelect={(move) => makeMove(move)}
+ *   selectedMove={currentMove}
+ *   initiallyExpanded={true}
+ * />
+ * ```
+ * 
+ * @param {MoveResultGroupProps} props - Component configuration
+ * @returns {JSX.Element | null} Rendered group or null if no moves
+ */
 export const MoveResultGroup: React.FC<MoveResultGroupProps> = ({
   moves,
   resultType,
@@ -55,7 +113,18 @@ export const MoveResultGroup: React.FC<MoveResultGroupProps> = ({
   const icon = getResultIcon(resultType);
   const maxDtz = Math.max(...moves.map(move => Math.abs(move.dtz)));
 
-  // Text color classes for icons
+  /**
+   * Gets CSS color class for result type icons
+   * 
+   * @private
+   * @param {MoveResultType} type - The result type to style
+   * @returns {string} Tailwind CSS classes for text color
+   * 
+   * @description
+   * Maps result types to appropriate color classes with dark mode support.
+   * Colors follow standard chess conventions: green for wins, yellow for draws,
+   * red for losses, and gray for unknown/unclassified results.
+   */
   const getTextColorClass = (type: MoveResultType): string => {
     switch (type) {
       case 'win':
@@ -136,6 +205,32 @@ export const MoveResultGroup: React.FC<MoveResultGroupProps> = ({
 
 /**
  * Compact version of MoveResultGroup for dense layouts
+ * 
+ * @component
+ * @description
+ * A space-optimized variant of MoveResultGroup designed for sidebars,
+ * mobile layouts, or any context where screen real estate is limited.
+ * Maintains full functionality while reducing visual footprint.
+ * 
+ * @remarks
+ * This is a convenience wrapper that passes compact=true to the base
+ * MoveResultGroup component. The compact mode affects:
+ * - Reduced padding and margins
+ * - Smaller font sizes in child components
+ * - Tighter spacing between elements
+ * 
+ * @example
+ * ```tsx
+ * <CompactMoveResultGroup
+ *   moves={drawMoves}
+ *   resultType="draw"
+ *   onMoveSelect={handleMoveSelect}
+ *   initiallyExpanded={false}
+ * />
+ * ```
+ * 
+ * @param {MoveResultGroupProps} props - Same props as MoveResultGroup
+ * @returns {JSX.Element} Compact move result group
  */
 export const CompactMoveResultGroup: React.FC<MoveResultGroupProps> = (props) => {
   return (
@@ -149,6 +244,36 @@ export const CompactMoveResultGroup: React.FC<MoveResultGroupProps> = (props) =>
 
 /**
  * Summary statistics for a move result group
+ * 
+ * @component
+ * @description
+ * Displays aggregate statistics for a group of moves including count,
+ * minimum/maximum/average DTZ values. Provides a quick overview of move
+ * distribution and quality within a result category.
+ * 
+ * @remarks
+ * Statistics displayed:
+ * - Count: Total number of moves in the group
+ * - Min DTZ: Fastest path to outcome
+ * - Avg DTZ: Average distance to outcome
+ * - Max DTZ: Slowest path to outcome
+ * 
+ * Color coding matches the result type for visual consistency.
+ * Background colors provide subtle visual separation.
+ * 
+ * @example
+ * ```tsx
+ * <MoveResultGroupSummary
+ *   moves={lossingMoves}
+ *   resultType="loss"
+ * />
+ * // Displays: "Count: 3  Min DTZ: 5  Avg DTZ: 12.3  Max DTZ: 20"
+ * ```
+ * 
+ * @param {Object} props - Component props
+ * @param {TablebaseMove[]} props.moves - Array of moves to summarize
+ * @param {MoveResultType} props.resultType - Type of result for styling
+ * @returns {JSX.Element | null} Summary statistics or null if no moves
  */
 export const MoveResultGroupSummary: React.FC<{
   moves: TablebaseMove[];
@@ -160,6 +285,18 @@ export const MoveResultGroupSummary: React.FC<{
   const minDtz = Math.min(...moves.map(move => Math.abs(move.dtz)));
   const maxDtz = Math.max(...moves.map(move => Math.abs(move.dtz)));
 
+  /**
+   * Gets background and text color classes for statistics display
+   * 
+   * @private
+   * @param {MoveResultType} type - The result type to style
+   * @returns {string} Combined Tailwind CSS classes for styling
+   * 
+   * @description
+   * Provides subtle background colors with matching text for the summary
+   * statistics component. Uses light backgrounds to avoid overwhelming
+   * the interface while maintaining visual consistency.
+   */
   const getStatsColorClass = (type: MoveResultType): string => {
     switch (type) {
       case 'win':

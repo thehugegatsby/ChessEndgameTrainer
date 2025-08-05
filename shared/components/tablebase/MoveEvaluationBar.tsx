@@ -175,7 +175,38 @@ export const MoveEvaluationBar: React.FC<MoveEvaluationBarProps> = ({
 };
 
 /**
- * Compact version of MoveEvaluationBar for dense layouts
+ * Compact move evaluation bar component
+ * 
+ * @component
+ * @description
+ * A condensed version of MoveEvaluationBar designed for space-constrained
+ * layouts. Maintains the same functionality with reduced visual footprint.
+ * 
+ * @remarks
+ * Differences from standard version:
+ * - Reduced padding and smaller font sizes
+ * - Icons instead of text labels
+ * - Simplified DTZ display
+ * - Rounded corners for better visual separation
+ * 
+ * Use this variant when:
+ * - Displaying many moves in a limited space
+ * - Mobile or responsive layouts
+ * - Sidebar or panel contexts
+ * 
+ * @example
+ * ```tsx
+ * <CompactMoveEvaluationBar
+ *   move="Kb1"
+ *   dtz={-20}
+ *   maxDtz={50}
+ *   onClick={() => selectMove("Kb1")}
+ *   category="loss"
+ * />
+ * ```
+ * 
+ * @param {MoveEvaluationBarProps} props - Component configuration
+ * @returns {JSX.Element} Rendered compact evaluation bar
  */
 export const CompactMoveEvaluationBar: React.FC<MoveEvaluationBarProps> = ({
   move,
