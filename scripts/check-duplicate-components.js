@@ -7,6 +7,12 @@
 const fs = require("fs");
 const path = require("path");
 
+/**
+ * Recursively finds React components in a directory structure
+ * @param {string} dir - Directory path to search for components
+ * @param {Map<string, string[]>} components - Map to store component names and their paths
+ * @returns {Map<string, string[]>} Map of component names to their file paths
+ */
 function findComponents(dir, components = new Map()) {
   const files = fs.readdirSync(dir);
 
@@ -45,6 +51,10 @@ function findComponents(dir, components = new Map()) {
   return components;
 }
 
+/**
+ * Main function to check for duplicate component names
+ * @returns {void} Exits process with 0 if no duplicates, 1 if duplicates found
+ */
 function main() {
   console.log("🔍 Checking for duplicate component names...\n");
 

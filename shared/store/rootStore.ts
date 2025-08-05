@@ -219,104 +219,40 @@ export const useStore = create<RootState>()(
            * Resets entire store to initial state
            *
            * @remarks
-           * This action resets all slices to their initial state.
-           * Useful for logout, testing, or complete app reset scenarios.
-           * Each slice defines its own initial state that gets restored.
-           *
-           * @example
-           * ```typescript
-           * const reset = useStore(state => state.reset);
-           *
-           * const handleLogout = () => {
-           *   reset();
-           *   navigate('/login');
-           * };
-           * ```
+           * Automatically recreates all slices with their initial state.
+           * Much cleaner than manually listing every state property.
            */
           reset: () => {
-            set((_state) => {
-              // Reset each slice to its initial state
-              const userSlice = createUserSlice(set, get, store);
-              const gameSlice = createGameSlice(set, get, store);
-              const tablebaseSlice = createTablebaseSlice(set, get, store);
-              const trainingSlice = createTrainingSlice(set, get, store);
-              const progressSlice = createProgressSlice(set, get, store);
-              const uiSlice = createUISlice(set, get, store);
-              const settingsSlice = createSettingsSlice(set, get, store);
-
-              // Combine all initial states (excluding actions)
-              const initialState = {
-                // User slice initial state
-                id: userSlice.id,
-                username: userSlice.username,
-                email: userSlice.email,
-                rating: userSlice.rating,
-                completedPositions: userSlice.completedPositions,
-                currentStreak: userSlice.currentStreak,
-                totalTrainingTime: userSlice.totalTrainingTime,
-                lastActiveDate: userSlice.lastActiveDate,
-                preferences: userSlice.preferences,
-
-                // Game slice initial state
-                game: gameSlice.game,
-                currentFen: gameSlice.currentFen,
-                currentPgn: gameSlice.currentPgn,
-                moveHistory: gameSlice.moveHistory,
-                currentMoveIndex: gameSlice.currentMoveIndex,
-                isGameFinished: gameSlice.isGameFinished,
-
-                // Tablebase slice initial state
-                tablebaseMove: tablebaseSlice.tablebaseMove,
-                analysisStatus: tablebaseSlice.analysisStatus,
-                evaluations: tablebaseSlice.evaluations,
-                currentEvaluation: tablebaseSlice.currentEvaluation,
-
-                // Training slice initial state
-                currentPosition: trainingSlice.currentPosition,
-                nextPosition: trainingSlice.nextPosition,
-                previousPosition: trainingSlice.previousPosition,
-                isLoadingNavigation: trainingSlice.isLoadingNavigation,
-                navigationError: trainingSlice.navigationError,
-                chapterProgress: trainingSlice.chapterProgress,
-                isPlayerTurn: trainingSlice.isPlayerTurn,
-                isSuccess: trainingSlice.isSuccess,
-                sessionStartTime: trainingSlice.sessionStartTime,
-                sessionEndTime: trainingSlice.sessionEndTime,
-                hintsUsed: trainingSlice.hintsUsed,
-                mistakeCount: trainingSlice.mistakeCount,
-                moveErrorDialog: trainingSlice.moveErrorDialog,
-
-                // Progress slice initial state
-                positionProgress: progressSlice.positionProgress,
-                dailyStats: progressSlice.dailyStats,
-                achievements: progressSlice.achievements,
-                totalSolvedPositions: progressSlice.totalSolvedPositions,
-                averageAccuracy: progressSlice.averageAccuracy,
-                favoritePositions: progressSlice.favoritePositions,
-
-                // UI slice initial state
-                sidebarOpen: uiSlice.sidebarOpen,
-                modalOpen: uiSlice.modalOpen,
-                toasts: uiSlice.toasts,
-                loading: uiSlice.loading,
-                analysisPanel: uiSlice.analysisPanel,
-
-                // Settings slice initial state
-                theme: settingsSlice.theme,
-                notifications: settingsSlice.notifications,
-                difficulty: settingsSlice.difficulty,
-                privacy: settingsSlice.privacy,
-                experimentalFeatures: settingsSlice.experimentalFeatures,
-                dataSync: settingsSlice.dataSync,
-                language: settingsSlice.language,
-                timezone: settingsSlice.timezone,
-                firstTimeUser: settingsSlice.firstTimeUser,
-                lastSettingsUpdate: settingsSlice.lastSettingsUpdate,
-                restartRequired: settingsSlice.restartRequired,
-              };
-
-              return initialState;
-            });
+            set(() => ({
+              // Recreate all slices with initial state
+              ...createUserSlice(set, get, store),
+              ...createGameSlice(set, get, store),
+              ...createTablebaseSlice(set, get, store),
+              ...createTrainingSlice(set, get, store),
+              ...createProgressSlice(set, get, store),
+              ...createUISlice(set, get, store),
+              ...createSettingsSlice(set, get, store),
+              
+              // Re-add orchestrator actions (they get overwritten by slice spread)
+              handlePlayerMove: async (move: any) => {
+                const storeApi = { getState: get, setState: set };
+                return await handlePlayerMoveOrchestrator(storeApi, move);
+              },
+              handleOpponentTurn: async () => {
+                const storeApi = { getState: get, setState: set };
+                return await handleOpponentTurnOrchestrator(storeApi);
+              },
+              requestPositionEvaluation: async (fen?: string) => {
+                const storeApi = { getState: get, setState: set };
+                return await requestPositionEvaluationOrchestrator(storeApi, fen);
+              },
+              loadTrainingContext: async (position: any) => {
+                const storeApi = { getState: get, setState: set };
+                return await loadTrainingContextOrchestrator(storeApi, position);
+              },
+              reset: get().reset, // Self-reference to prevent infinite recursion
+              hydrate: get().hydrate,
+            }));
           },
 
           /**
@@ -423,7 +359,7 @@ export const useStore = create<RootState>()(
  *
  * @remarks
  * This is the main hook for accessing the store. It provides access to:
- * - All slice state and actions
+ * - All slice state and actions (Game, Training, Tablebase, Progress, UI, Settings, User)
  * - Orchestrator actions for complex operations
  * - Global reset and hydration methods
  *
@@ -439,10 +375,23 @@ export const useStore = create<RootState>()(
  * const theme = useStore(state => state.theme);
  * const updateTheme = useStore(state => state.updateTheme);
  *
+ * // Training state access (replaces useTrainingState hook)
+ * const currentPosition = useStore(state => state.currentPosition);
+ * const isPlayerTurn = useStore(state => state.isPlayerTurn);
+ * const setPlayerTurn = useStore(state => state.setPlayerTurn);
+ *
+ * // Game state access
+ * const currentFen = useStore(state => state.currentFen);
+ * const makeMove = useStore(state => state.makeMove);
+ *
  * // Multiple selections with useShallow for complex objects
  * import { useShallow } from 'zustand/react/shallow';
- * const { user, settings } = useStore(
- *   useShallow(state => ({ user: state, settings: state }))
+ * const { currentPosition, isPlayerTurn, hintsUsed } = useStore(
+ *   useShallow(state => ({
+ *     currentPosition: state.currentPosition,
+ *     isPlayerTurn: state.isPlayerTurn,
+ *     hintsUsed: state.hintsUsed
+ *   }))
  * );
  * ```
  */
@@ -474,56 +423,3 @@ export default useStore;
  */
 export const store = useStore;
 
-/**
- * Hook for accessing the training state
- *
- * @remarks
- * Convenience hook that provides access to the training slice of the store.
- * This replaces the old `useEndgameState` hook and provides a cleaner
- * separation between training session state and endgame position data.
- *
- * @example
- * ```typescript
- * // In a component
- * const training = useTrainingState();
- *
- * // Access training state
- * const { currentPosition, isPlayerTurn, hintsUsed } = training;
- *
- * // Call training actions
- * training.setPlayerTurn(true);
- * training.useHint();
- * ```
- */
-export const useTrainingState = () =>
-  useStore((state) => ({
-    // Training state
-    currentPosition: state.currentPosition,
-    nextPosition: state.nextPosition,
-    previousPosition: state.previousPosition,
-    isLoadingNavigation: state.isLoadingNavigation,
-    navigationError: state.navigationError,
-    chapterProgress: state.chapterProgress,
-    isPlayerTurn: state.isPlayerTurn,
-    isSuccess: state.isSuccess,
-    sessionStartTime: state.sessionStartTime,
-    sessionEndTime: state.sessionEndTime,
-    hintsUsed: state.hintsUsed,
-    mistakeCount: state.mistakeCount,
-    moveErrorDialog: state.moveErrorDialog,
-
-    // Training actions
-    setPosition: state.setPosition,
-    setNavigationPositions: state.setNavigationPositions,
-    setNavigationLoading: state.setNavigationLoading,
-    setNavigationError: state.setNavigationError,
-    setChapterProgress: state.setChapterProgress,
-    setPlayerTurn: state.setPlayerTurn,
-    completeTraining: state.completeTraining,
-    useHint: state.useHint,
-    incrementMistake: state.incrementMistake,
-    setMoveErrorDialog: state.setMoveErrorDialog,
-    addTrainingMove: state.addTrainingMove,
-    resetTraining: state.resetTraining,
-    resetPosition: state.resetPosition,
-  }));

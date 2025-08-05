@@ -50,6 +50,12 @@ const specificChecks = [
   },
 ];
 
+/**
+ * Checks if a service is used anywhere in the codebase
+ * @param {string} servicePath - Relative path to the service directory
+ * @param {string} serviceName - Human-readable name of the service
+ * @returns {Object} Usage information for the service
+ */
 function checkServiceUsage(servicePath, serviceName) {
   const fullPath = path.join(projectRoot, servicePath);
 

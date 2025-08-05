@@ -122,38 +122,15 @@ export const createSettingsSlice: ImmerStateCreator<SettingsSlice> = (set, _get)
       state.lastSettingsUpdate = undefined;
     }),
 
-  // Backward compatibility stubs - no-ops since features are unused
-  updateSettings: () => {
-    // No-op - complex settings were unused anyway
-  },
-
-  toggleExperimentalFeature: () => {
-    // No-op - experimental features were unused anyway
-  },
-
-  startSync: () => {
-    // No-op - sync functionality was unused anyway
-  },
-
-  completeSync: () => {
-    // No-op - sync functionality was unused anyway
-  },
-
-  updateTheme: () => {
-    // No-op - theme updates were unused anyway
-  },
-
-  updateNotifications: () => {
-    // No-op - notification updates were unused anyway
-  },
-
-  updateDifficulty: () => {
-    // No-op - difficulty updates were unused anyway
-  },
-
-  updatePrivacy: () => {
-    // No-op - privacy updates were unused anyway
-  },
+  // Required by SettingsSlice interface - minimal implementations
+  updateSettings: () => {},
+  toggleExperimentalFeature: () => {},
+  startSync: () => {},
+  completeSync: () => {},
+  updateTheme: () => {},
+  updateNotifications: () => {},
+  updateDifficulty: () => {},
+  updatePrivacy: () => {},
 });
 
 /**

@@ -56,16 +56,36 @@ module.exports = [
     },
   },
 
-  // Test files - Allow all console calls
+  // Scripts and utilities - Allow console and disable JSDoc requirements
+  {
+    files: [
+      "scripts/**/*.js",
+      "scripts/**/*.ts",
+      "config/**/*.js",
+      "config/**/*.ts",
+    ],
+    rules: {
+      "no-console": "off", // Scripts need console output
+      "jsdoc/require-jsdoc": "off",
+      "jsdoc/require-param": "off", 
+      "jsdoc/require-param-description": "off",
+      "jsdoc/require-returns": "off",
+      "jsdoc/require-returns-description": "off",
+    },
+  },
+
+  // Test files - Allow console calls and relaxed JSDoc
   {
     files: [
       "tests/**/*.ts",
-      "tests/**/*.tsx",
+      "tests/**/*.tsx", 
       "tests/**/*.js",
       "tests/**/*.jsx",
     ],
     rules: {
       "no-console": "off", // Allow console in all test files for debugging
+      "jsdoc/require-param-description": "off", // Test utilities don't need full descriptions
+      "jsdoc/require-returns-description": "off",
     },
   },
 

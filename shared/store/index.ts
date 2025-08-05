@@ -4,7 +4,7 @@
  */
 
 // Export from new root store
-export { useStore, store, useTrainingState } from "./rootStore";
+export { useStore, store } from "./rootStore";
 
 // Export specific types from old types file (avoid conflicts)
 export type {
