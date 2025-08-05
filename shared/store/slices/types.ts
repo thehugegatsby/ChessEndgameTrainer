@@ -163,6 +163,11 @@ export interface ProgressActions {
   unlockAchievement: (achievementId: string) => void;
   toggleFavorite: (positionId: number) => void;
   calculateNextReview: (positionId: number, success: boolean) => void;
+  initializeAchievements: (achievements: any[]) => void;
+  updateWeeklyGoals: (completed: number, target?: number) => void;
+  updateMonthlyStats: (stats: any) => void;
+  updateStreak: (newStreak: number, lastActivity?: number) => void;
+  resetProgress: () => void;
 }
 
 /**
@@ -241,7 +246,7 @@ export type StoreCreator<T> = StateCreator<RootState, [], [], T>;
  */
 export type ImmerStateCreator<T> = StateCreator<
   RootState,
-  [['zustand/immer', never]],
+  [["zustand/immer", never]],
   [],
   T
 >;

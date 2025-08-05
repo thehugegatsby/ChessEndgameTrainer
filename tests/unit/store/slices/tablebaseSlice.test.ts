@@ -6,6 +6,7 @@
  */
 
 import { createStore } from "zustand/vanilla";
+import { immer } from "zustand/middleware/immer";
 import {
   createTablebaseSlice,
   tablebaseSelectors,
@@ -19,7 +20,11 @@ import type { PositionAnalysis } from "@shared/types";
  * @returns Store instance with getState and setState methods
  */
 const createTestStore = () => {
-  return createStore<TablebaseSlice>()(createTablebaseSlice);
+  return createStore<TablebaseSlice>()(
+    immer((set, get, store) =>
+      createTablebaseSlice(set as any, get as any, store as any),
+    ),
+  );
 };
 
 /**
@@ -27,18 +32,15 @@ const createTestStore = () => {
  */
 const mockEvaluation: PositionAnalysis = {
   fen: "8/8/8/8/8/8/R7/K3k3 w - - 0 1",
-  evaluation: {
-    wdl: 1000,
-    dtz: 5,
-    outcome: "win",
-    bestMove: "Ra8#",
-  },
+  evaluation: 1000,
   topMoves: [
     {
       uci: "a2a8",
       san: "Ra8#",
       wdl: 1000,
       dtz: 1,
+      dtm: null,
+      category: "win",
       zeroing: true,
       checkmate: true,
       stalemate: false,
@@ -52,12 +54,7 @@ const mockEvaluation: PositionAnalysis = {
 
 const mockDrawEvaluation: PositionAnalysis = {
   fen: "8/8/8/8/8/8/8/K3k3 w - - 0 1",
-  evaluation: {
-    wdl: 0,
-    dtz: 0,
-    outcome: "draw",
-    bestMove: null,
-  },
+  evaluation: 0,
   topMoves: [],
   isTablebasePosition: true,
 };

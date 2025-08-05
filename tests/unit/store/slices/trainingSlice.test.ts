@@ -6,6 +6,7 @@
  */
 
 import { createStore } from "zustand/vanilla";
+import { immer } from "zustand/middleware/immer";
 import {
   createTrainingSlice,
   trainingSelectors,
@@ -19,7 +20,11 @@ import type { TrainingPosition } from "@shared/store/slices/trainingSlice";
  * @returns Store instance with getState and setState methods
  */
 const createTestStore = () => {
-  return createStore<TrainingSlice>()(createTrainingSlice);
+  return createStore<TrainingSlice>()(
+    immer((set, get, store) =>
+      createTrainingSlice(set as any, get as any, store as any),
+    ),
+  );
 };
 
 /**

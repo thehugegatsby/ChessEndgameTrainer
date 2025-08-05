@@ -46,8 +46,6 @@ describe("Move Validation - Game Outcome Changes", () => {
         useStore.getState().loadTrainingContext({
           ...trainingPosition1,
           sideToMove: "white" as const,
-          colorToTrain: "white",
-          targetOutcome: "1-0",
         });
       });
 
@@ -89,7 +87,6 @@ describe("Move Validation - Game Outcome Changes", () => {
             dtz: 12,
             dtm: null,
             category: "win",
-            precise: true,
           },
         ],
       });
@@ -120,8 +117,6 @@ describe("Move Validation - Game Outcome Changes", () => {
         useStore.getState().loadTrainingContext({
           ...trainingPosition1,
           sideToMove: "white" as const,
-          colorToTrain: "white",
-          targetOutcome: "1-0",
         });
       });
 
@@ -212,10 +207,12 @@ describe("Move Validation - Game Outcome Changes", () => {
       renderHook(() => useStore.getState());
 
       // Setup a drawn position (K vs K)
-      const drawnPosition: EndgamePosition = {
+      const drawnPosition = {
         ...trainingPosition1,
         fen: "4k3/8/4K3/8/8/8/8/8 w - - 0 1",
-        goal: "draw",
+        goal: "draw" as const,
+        colorToTrain: "white" as const,
+        targetOutcome: "1/2-1/2" as const,
       };
 
       act(() => {
@@ -270,8 +267,6 @@ describe("Move Validation - Game Outcome Changes", () => {
         useStore.getState().loadTrainingContext({
           ...trainingPosition1,
           sideToMove: "white" as const,
-          colorToTrain: "white",
-          targetOutcome: "1-0",
         });
       });
 
@@ -301,8 +296,6 @@ describe("Move Validation - Game Outcome Changes", () => {
         useStore.getState().loadTrainingContext({
           ...trainingPosition1,
           sideToMove: "white" as const,
-          colorToTrain: "white",
-          targetOutcome: "1-0",
         });
       });
 

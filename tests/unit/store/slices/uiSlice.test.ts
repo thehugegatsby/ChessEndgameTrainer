@@ -6,6 +6,7 @@
  */
 
 import { createStore } from "zustand/vanilla";
+import { immer } from "zustand/middleware/immer";
 import {
   createUISlice,
   uiSelectors,
@@ -23,7 +24,11 @@ jest.mock("nanoid", () => ({
  * @returns Store instance with getState and setState methods
  */
 const createTestStore = () => {
-  return createStore<UISlice>()(createUISlice);
+  return createStore<UISlice>()(
+    immer((set, get, store) =>
+      createUISlice(set as any, get as any, store as any),
+    ),
+  );
 };
 
 describe("UISlice", () => {

@@ -144,7 +144,7 @@ describe("Store - String Move Validation", () => {
     // Use the store directly instead of renderHook to ensure consistent store instance
     const store = useStore.getState();
 
-    // Setup position - K+P vs K
+    // Setup position - K+P vs K (EndgamePosition format)
     await store.loadTrainingContext({
       id: 1,
       title: "König und Bauer gegen König",
@@ -155,8 +155,6 @@ describe("Store - String Move Validation", () => {
       goal: "win",
       sideToMove: "white",
       targetMoves: 6,
-      colorToTrain: "white",
-      targetOutcome: "1-0",
     });
 
     // Mock tablebase responses for Kd6 (a winning move)
@@ -240,8 +238,6 @@ describe("Store - String Move Validation", () => {
       goal: "win",
       sideToMove: "white",
       targetMoves: 5,
-      colorToTrain: "white",
-      targetOutcome: "1-0",
     });
 
     const mockTablebaseService = tablebaseService as jest.Mocked<
@@ -324,8 +320,6 @@ describe("Store - String Move Validation", () => {
       goal: "win",
       sideToMove: "white",
       targetMoves: 6,
-      colorToTrain: "white",
-      targetOutcome: "1-0",
     });
 
     // Test making an invalid move

@@ -93,10 +93,10 @@ jest.mock("nanoid", () => ({
 // Mock ErrorService
 jest.mock("@shared/services/ErrorService", () => ({
   ErrorService: {
-    handleUIError: jest.fn((error, component, context) => {
+    handleUIError: jest.fn((_error, _component, _context) => {
       return "Ein Fehler ist aufgetreten";
     }),
-    handleTablebaseError: jest.fn((error, context) => {
+    handleTablebaseError: jest.fn((_error, _context) => {
       return "Tablebase-Fehler";
     }),
   },
@@ -104,11 +104,11 @@ jest.mock("@shared/services/ErrorService", () => ({
 
 import { useStore } from "@shared/store/rootStore";
 import type { EndgamePosition } from "@shared/types/endgame";
-import { getLogger } from "@shared/services/logging";
+// import { getLogger } from "@shared/services/logging";
 import { tablebaseService } from "@shared/services/TablebaseService";
 
-// Get mocked logger for assertions
-const mockLogger = getLogger() as jest.Mocked<ReturnType<typeof getLogger>>;
+// Get mocked logger for assertions (currently unused)
+// const _mockLogger = getLogger() as jest.Mocked<ReturnType<typeof getLogger>>;
 const mockTablebaseService = tablebaseService as jest.Mocked<
   typeof tablebaseService
 >;

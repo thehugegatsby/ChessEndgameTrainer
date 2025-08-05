@@ -6,6 +6,7 @@
  */
 
 import { createStore } from "zustand/vanilla";
+import { immer } from "zustand/middleware/immer";
 import {
   createSettingsSlice,
   settingsSelectors,
@@ -16,14 +17,17 @@ import {
   type PrivacySettings,
 } from "@shared/store/slices/settingsSlice";
 import type { SettingsSlice } from "@shared/store/slices/types";
-import type { ExperimentalFeatures } from "@shared/store/types";
 
 /**
  * Creates a test store instance with only the settings slice
  * @returns Store instance with getState and setState methods
  */
 const createTestStore = () => {
-  return createStore<SettingsSlice>()(createSettingsSlice);
+  return createStore<SettingsSlice>()(
+    immer((set, get, store) =>
+      createSettingsSlice(set as any, get as any, store as any),
+    ),
+  );
 };
 
 /**
@@ -146,11 +150,9 @@ describe("SettingsSlice", () => {
     it("should update theme settings with deep merge", () => {
       const beforeTime = Date.now();
 
-      store.getState().updateSettings({
-        theme: {
-          mode: "dark",
-          colorScheme: "green",
-        },
+      store.getState().updateTheme({
+        mode: "dark",
+        colorScheme: "green",
       });
 
       const afterTime = Date.now();
@@ -176,16 +178,16 @@ describe("SettingsSlice", () => {
     it("should update multiple sections simultaneously", () => {
       store.getState().updateSettings({
         language: "en",
-        theme: {
-          mode: "dark",
-        },
-        difficulty: {
-          level: "expert",
-          maxHints: 1,
-        },
-        notifications: {
-          enabled: false,
-        },
+      });
+      store.getState().updateTheme({
+        mode: "dark",
+      });
+      store.getState().updateDifficulty({
+        level: "expert",
+        maxHints: 1,
+      });
+      store.getState().updateNotifications({
+        enabled: false,
       });
 
       const state = store.getState();
@@ -223,9 +225,9 @@ describe("SettingsSlice", () => {
 
       store.getState().updateSettings({
         language: "en",
-        notifications: {
-          enabled: false,
-        },
+      });
+      store.getState().updateNotifications({
+        enabled: false,
       });
 
       const state = store.getState();
@@ -540,9 +542,11 @@ describe("SettingsSlice", () => {
       // Enable auto-sync and set last sync
       store.getState().updateSettings({
         dataSync: {
+          enabled: true,
           autoSync: true,
           lastSync: Date.now() - 60000, // 1 minute ago
           syncInterval: 300000, // 5 minutes
+          syncInProgress: false,
         },
       });
 
@@ -596,18 +600,18 @@ describe("SettingsSlice", () => {
     beforeEach(() => {
       // Set up test data
       store.getState().updateSettings({
-        theme: {
-          mode: "dark",
-          colorScheme: "purple",
-        },
-        notifications: {
-          enabled: false,
-        },
-        difficulty: {
-          level: "expert",
-        },
         language: "en",
         firstTimeUser: false,
+      });
+      store.getState().updateTheme({
+        mode: "dark",
+        colorScheme: "purple",
+      });
+      store.getState().updateNotifications({
+        enabled: false,
+      });
+      store.getState().updateDifficulty({
+        level: "expert",
       });
 
       store.getState().toggleExperimentalFeature("aiCoach");
@@ -690,24 +694,27 @@ describe("SettingsSlice", () => {
      */
     it("should not require restart for non-critical settings", () => {
       // Theme changes should not require restart
-      freshStore.getState().updateSettings({
-        theme: { mode: "dark", colorScheme: "purple" },
+      freshStore.getState().updateTheme({
+        mode: "dark",
+        colorScheme: "purple",
       });
 
       let state = freshStore.getState();
       expect(state.restartRequired).toBe(false);
 
       // Notification changes should not require restart
-      freshStore.getState().updateSettings({
-        notifications: { enabled: false, soundEnabled: false },
+      freshStore.getState().updateNotifications({
+        enabled: false,
+        soundEnabled: false,
       });
 
       state = freshStore.getState();
       expect(state.restartRequired).toBe(false);
 
       // Difficulty changes should not require restart
-      freshStore.getState().updateSettings({
-        difficulty: { level: "expert", maxHints: 1 },
+      freshStore.getState().updateDifficulty({
+        level: "expert",
+        maxHints: 1,
       });
 
       state = freshStore.getState();
@@ -729,8 +736,8 @@ describe("SettingsSlice", () => {
      * Tests crash reporting change triggers restart requirement
      */
     it("should require restart when crash reporting changes", () => {
-      freshStore.getState().updateSettings({
-        privacy: { crashReporting: false },
+      freshStore.getState().updatePrivacy({
+        crashReporting: false,
       });
 
       const state = freshStore.getState();
@@ -741,8 +748,8 @@ describe("SettingsSlice", () => {
      * Tests performance monitoring change triggers restart requirement
      */
     it("should require restart when performance monitoring changes", () => {
-      freshStore.getState().updateSettings({
-        privacy: { performanceMonitoring: false },
+      freshStore.getState().updatePrivacy({
+        performanceMonitoring: false,
       });
 
       const state = freshStore.getState();
@@ -772,11 +779,9 @@ describe("SettingsSlice", () => {
       expect(state.restartRequired).toBe(false);
 
       // Set privacy settings to same values (no-op)
-      freshStore.getState().updateSettings({
-        privacy: {
-          crashReporting: initialState.privacy.crashReporting,
-          performanceMonitoring: initialState.privacy.performanceMonitoring,
-        },
+      freshStore.getState().updatePrivacy({
+        crashReporting: initialState.privacy.crashReporting,
+        performanceMonitoring: initialState.privacy.performanceMonitoring,
       });
 
       state = freshStore.getState();
@@ -792,9 +797,11 @@ describe("SettingsSlice", () => {
       expect(freshStore.getState().restartRequired).toBe(true);
 
       // Make non-critical changes
-      freshStore.getState().updateSettings({
-        theme: { mode: "dark" },
-        notifications: { enabled: false },
+      freshStore.getState().updateTheme({
+        mode: "dark",
+      });
+      freshStore.getState().updateNotifications({
+        enabled: false,
       });
 
       // Flag should remain true
@@ -808,10 +815,10 @@ describe("SettingsSlice", () => {
     it("should require restart when multiple critical settings change", () => {
       freshStore.getState().updateSettings({
         language: "en",
-        privacy: {
-          crashReporting: false,
-          performanceMonitoring: false,
-        },
+      });
+      freshStore.getState().updatePrivacy({
+        crashReporting: false,
+        performanceMonitoring: false,
       });
 
       const state = freshStore.getState();
@@ -839,14 +846,14 @@ describe("SettingsSlice", () => {
      */
     it("should handle partial privacy updates correctly", () => {
       // Update only analytics (non-critical)
-      freshStore.getState().updateSettings({
-        privacy: { analytics: false },
+      freshStore.getState().updatePrivacy({
+        analytics: false,
       });
       expect(freshStore.getState().restartRequired).toBe(false);
 
       // Update crash reporting (critical)
-      freshStore.getState().updateSettings({
-        privacy: { crashReporting: false },
+      freshStore.getState().updatePrivacy({
+        crashReporting: false,
       });
       expect(freshStore.getState().restartRequired).toBe(true);
     });
@@ -942,6 +949,7 @@ describe("SettingsSlice", () => {
           enabled: true,
           autoSync: true,
           syncInterval: 600000, // 10 minutes
+          syncInProgress: false,
         },
       });
 

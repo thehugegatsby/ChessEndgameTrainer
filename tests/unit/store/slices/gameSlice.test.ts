@@ -6,20 +6,24 @@
  */
 
 import { createStore } from "zustand/vanilla";
+import { immer } from "zustand/middleware/immer";
 import {
   createGameSlice,
   gameSelectors,
   createInitialGameState,
 } from "@shared/store/slices/gameSlice";
 import type { GameSlice } from "@shared/store/slices/types";
-import type { ValidatedMove } from "@shared/types";
 
 /**
  * Creates a test store instance with only the game slice
  * @returns Store instance with getState and setState methods
  */
 const createTestStore = () => {
-  return createStore<GameSlice>()(createGameSlice);
+  return createStore<GameSlice>()(
+    immer((set, get, store) =>
+      createGameSlice(set as any, get as any, store as any),
+    ),
+  );
 };
 
 /**
@@ -54,7 +58,7 @@ describe("GameSlice", () => {
       expect(state.currentFen).toBe(expectedState.currentFen);
       expect(state.moveHistory).toEqual(expectedState.moveHistory);
       expect(state.currentMoveIndex).toBe(expectedState.currentMoveIndex);
-      expect(state.isGameOver).toBe(expectedState.isGameOver);
+      expect(state.isGameFinished).toBe(expectedState.isGameFinished);
       expect(state.gameResult).toBe(expectedState.gameResult);
     });
 

@@ -452,14 +452,14 @@ describe("RootStore", () => {
         const store = useStore.getState();
 
         store.updateNotifications({
-          moves: false,
-          analysis: false,
+          dailyReminders: false,
+          trainingReminders: false,
           achievements: true,
         });
 
         const state = useStore.getState();
-        expect(state.notifications.moves).toBe(false);
-        expect(state.notifications.analysis).toBe(false);
+        expect(state.notifications.dailyReminders).toBe(false);
+        expect(state.notifications.trainingReminders).toBe(false);
         expect(state.notifications.achievements).toBe(true);
       });
 
@@ -475,10 +475,14 @@ describe("RootStore", () => {
         const store = useStore.getState();
 
         store.updateSettings({
-          theme: { mode: "light" },
-          difficulty: { level: "advanced" },
+          theme: {
+            mode: "light",
+          },
+          difficulty: {
+            level: "advanced",
+          },
           language: "en",
-        });
+        } as any);
 
         const state = useStore.getState();
         expect(state.theme.mode).toBe("light");
@@ -494,15 +498,16 @@ describe("RootStore", () => {
         store.updatePositionProgress(1, {
           positionId: 1,
           attempts: 1,
-          successes: 1,
-          lastAttemptDate: new Date().toISOString(),
-          averageTime: 30,
+          completed: true,
+          accuracy: 1.0,
+          bestTime: 30,
+          difficulty: 1,
         });
 
         const state = useStore.getState();
         expect(state.positionProgress[1]).toBeDefined();
         expect(state.positionProgress[1].attempts).toBe(1);
-        expect(state.positionProgress[1].successes).toBe(1);
+        expect(state.positionProgress[1].completed).toBe(true);
       });
 
       it("should toggle favorite positions", () => {
@@ -606,15 +611,15 @@ describe("RootStore", () => {
       store.hydrate({
         username: "HydratedUser",
         rating: 1800,
-        theme: { mode: "light", customColors: {} },
-        difficulty: "advanced",
-      });
+        theme: { mode: "light" },
+        difficulty: { level: "advanced" },
+      } as any);
 
       const state = useStore.getState();
       expect(state.username).toBe("HydratedUser");
       expect(state.rating).toBe(1800);
       expect(state.theme.mode).toBe("light");
-      expect(state.difficulty).toBe("advanced");
+      expect(state.difficulty.level).toBe("advanced");
 
       // Other state should remain unchanged
       expect(state.language).toBe("de");

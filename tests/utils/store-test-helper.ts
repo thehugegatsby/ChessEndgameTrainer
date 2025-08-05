@@ -5,7 +5,8 @@
  */
 
 import { createStore as createZustandStore } from "zustand/vanilla";
-import type { RootState, StoreCreator } from "@shared/store/slices/types";
+import type { RootState } from "@shared/store/slices/types";
+import type { StateCreator } from "zustand";
 
 /**
  * Creates a test store with a single slice for isolated testing
@@ -28,7 +29,7 @@ import type { RootState, StoreCreator } from "@shared/store/slices/types";
  * ```
  */
 export function createTestStore<T>(
-  createSlice: StoreCreator<T>,
+  createSlice: StateCreator<T, [], [], T>,
   initialState?: Partial<T>,
 ) {
   const store = createZustandStore<T>()((set, get, api) => {
@@ -64,12 +65,12 @@ export function createTestStore<T>(
  * ```
  */
 export function createCombinedTestStore(
-  sliceCreators: Record<string, StoreCreator<any>>,
+  sliceCreators: Record<string, StateCreator<any, [], [], any>>,
   initialState?: Partial<RootState>,
 ) {
   const store = createZustandStore<RootState>()((set, get, api) => {
     const slices = Object.entries(sliceCreators).reduce(
-      (acc, [name, createSlice]) => {
+      (acc, [_name, createSlice]) => {
         return {
           ...acc,
           ...createSlice(set, get, api),

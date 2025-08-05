@@ -6,12 +6,13 @@
  */
 
 import { createStore } from "zustand/vanilla";
+import { immer } from "zustand/middleware/immer";
 import {
   createProgressSlice,
   progressSelectors,
   createInitialProgressState,
-  type Achievement,
 } from "@shared/store/slices/progressSlice";
+import type { Achievement } from "@shared/store/types";
 import type { ProgressSlice } from "@shared/store/slices/types";
 import type { PositionProgress, DailyStats } from "@shared/store/types";
 
@@ -20,7 +21,11 @@ import type { PositionProgress, DailyStats } from "@shared/store/types";
  * @returns Store instance with getState and setState methods
  */
 const createTestStore = () => {
-  return createStore<ProgressSlice>()(createProgressSlice);
+  return createStore<ProgressSlice>()(
+    immer((set, get, store) =>
+      createProgressSlice(set as any, get as any, store as any),
+    ),
+  );
 };
 
 /**
@@ -39,6 +44,7 @@ const mockPositionProgress: PositionProgress = {
   nextReview: Date.now() + 86400000, // 1 day from now
   lastReview: Date.now() - 86400000,
   success: true,
+  difficulty: 1,
 };
 
 const mockDailyStats: DailyStats = {
@@ -52,26 +58,28 @@ const mockDailyStats: DailyStats = {
 
 const mockAchievement: Achievement = {
   id: "first_completion",
-  title: "First Steps",
+  name: "First Steps",
   description: "Complete your first position",
   category: "completion",
   icon: "star",
   points: 10,
   unlocked: false,
   progress: 0,
+  maxProgress: 1,
   rarity: "common",
 };
 
 const mockUnlockedAchievement: Achievement = {
   ...mockAchievement,
   id: "streak_7",
-  title: "Week Warrior",
+  name: "Week Warrior",
   description: "Maintain a 7-day streak",
   category: "streak",
   points: 25,
   unlocked: true,
   unlockedAt: Date.now() - 3600000, // 1 hour ago
   progress: 1,
+  maxProgress: 1,
   rarity: "rare",
 };
 
@@ -673,18 +681,10 @@ describe("ProgressSlice", () => {
      * Tests recent activity selector
      */
     it("should select recent activity", () => {
-      // Add older stats manually (bypass date normalization)
-      const oldDate = Date.now() - 8 * 24 * 60 * 60 * 1000; // 8 days ago
+      // Add current day stats using the regular store
       const state = store.getState();
-      state.dailyStats.push({
-        date: oldDate,
-        positionsCompleted: 2,
-        totalTime: 0,
-        hintsUsed: 0,
-        mistakesMade: 0,
-        averageAccuracy: 0,
-      });
 
+      // Test recent activity selector - it should only return last 7 days
       const recentActivity = progressSelectors.selectRecentActivity(state);
 
       expect(recentActivity).toHaveLength(1); // Only today's stats

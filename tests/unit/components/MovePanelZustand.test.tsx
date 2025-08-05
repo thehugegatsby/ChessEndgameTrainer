@@ -2,6 +2,7 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MovePanelZustand } from "@shared/components/training/MovePanelZustand";
 import { mockRootStore } from "../../helpers/mockRootStore";
+import { createTestValidatedMove } from "../../helpers/validatedMoveFactory";
 
 // Mock the store
 jest.mock("@shared/store/rootStore");
@@ -12,59 +13,33 @@ describe("MovePanelZustand", () => {
   });
 
   it("should display moves from Zustand store", () => {
-    // Set up store with moves
+    // Set up store with moves using factory
     const mockMoves = [
-      {
+      createTestValidatedMove({
         from: "e2",
         to: "e4",
-        san: "e4",
-        lan: "e2e4",
-        flags: "n",
         piece: "p",
-        color: "w",
-        fenBefore: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        fenAfter: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
-        isCapture: () => false,
-        isPromotion: () => false,
-        isEnPassant: () => false,
-        isKingsideCastle: () => false,
-        isQueensideCastle: () => false,
-        isBigPawn: () => true,
-      },
-      {
+        san: "e4",
+        before: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        after: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+      }),
+      createTestValidatedMove({
         from: "e7",
         to: "e5",
-        san: "e5",
-        lan: "e7e5",
-        flags: "n",
         piece: "p",
         color: "b",
-        fenBefore: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
-        fenAfter: "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
-        isCapture: () => false,
-        isPromotion: () => false,
-        isEnPassant: () => false,
-        isKingsideCastle: () => false,
-        isQueensideCastle: () => false,
-        isBigPawn: () => true,
-      },
-      {
+        san: "e5",
+        before: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+        after: "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+      }),
+      createTestValidatedMove({
         from: "g1",
         to: "f3",
-        san: "Nf3",
-        lan: "g1f3",
-        flags: "n",
         piece: "n",
-        color: "w",
-        fenBefore: "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
-        fenAfter: "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
-        isCapture: () => false,
-        isPromotion: () => false,
-        isEnPassant: () => false,
-        isKingsideCastle: () => false,
-        isQueensideCastle: () => false,
-        isBigPawn: () => false,
-      },
+        san: "Nf3",
+        before: "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+        after: "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+      }),
     ];
 
     mockRootStore({
@@ -80,28 +55,26 @@ describe("MovePanelZustand", () => {
 
   it("should display evaluations when showEvaluations is true", () => {
     const mockMoves = [
-      {
+      createTestValidatedMove({
         from: "e2",
         to: "e4",
-        san: "e4",
-        lan: "e2e4",
-        flags: "n",
         piece: "p",
-        color: "w",
-        fenBefore: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        fenAfter: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
-        isCapture: () => false,
-        isPromotion: () => false,
-        isEnPassant: () => false,
-        isKingsideCastle: () => false,
-        isQueensideCastle: () => false,
-        isBigPawn: () => true,
-      },
+        san: "e4",
+        before: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        after: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+      }),
     ];
 
     const mockEvaluations = [
-      { fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", evaluation: 0 }, // Initial position
-      { fen: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1", evaluation: 0.3, tablebase: { isTablebasePosition: false } }, // After e4
+      {
+        fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        evaluation: 0,
+      }, // Initial position
+      {
+        fen: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+        evaluation: 0.3,
+        tablebase: { isTablebasePosition: false },
+      }, // After e4
     ];
 
     mockRootStore({
@@ -120,40 +93,23 @@ describe("MovePanelZustand", () => {
   it("should handle move click events", () => {
     const onMoveClickMock = jest.fn();
     const mockMoves = [
-      {
+      createTestValidatedMove({
         from: "e2",
         to: "e4",
-        san: "e4",
-        lan: "e2e4",
-        flags: "n",
         piece: "p",
-        color: "w",
-        fenBefore: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        fenAfter: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
-        isCapture: () => false,
-        isPromotion: () => false,
-        isEnPassant: () => false,
-        isKingsideCastle: () => false,
-        isQueensideCastle: () => false,
-        isBigPawn: () => true,
-      },
-      {
+        san: "e4",
+        before: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        after: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+      }),
+      createTestValidatedMove({
         from: "e7",
         to: "e5",
-        san: "e5",
-        lan: "e7e5",
-        flags: "n",
         piece: "p",
         color: "b",
-        fenBefore: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
-        fenAfter: "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
-        isCapture: () => false,
-        isPromotion: () => false,
-        isEnPassant: () => false,
-        isKingsideCastle: () => false,
-        isQueensideCastle: () => false,
-        isBigPawn: () => true,
-      },
+        san: "e5",
+        before: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+        after: "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+      }),
     ];
 
     mockRootStore({
@@ -171,40 +127,23 @@ describe("MovePanelZustand", () => {
 
   it("should highlight current move", () => {
     const mockMoves = [
-      {
+      createTestValidatedMove({
         from: "e2",
         to: "e4",
-        san: "e4",
-        lan: "e2e4",
-        flags: "n",
         piece: "p",
-        color: "w",
-        fenBefore: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        fenAfter: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
-        isCapture: () => false,
-        isPromotion: () => false,
-        isEnPassant: () => false,
-        isKingsideCastle: () => false,
-        isQueensideCastle: () => false,
-        isBigPawn: () => true,
-      },
-      {
+        san: "e4",
+        before: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        after: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+      }),
+      createTestValidatedMove({
         from: "e7",
         to: "e5",
-        san: "e5",
-        lan: "e7e5",
-        flags: "n",
         piece: "p",
         color: "b",
-        fenBefore: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
-        fenAfter: "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
-        isCapture: () => false,
-        isPromotion: () => false,
-        isEnPassant: () => false,
-        isKingsideCastle: () => false,
-        isQueensideCastle: () => false,
-        isBigPawn: () => true,
-      },
+        san: "e5",
+        before: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+        after: "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+      }),
     ];
 
     mockRootStore({
@@ -227,27 +166,21 @@ describe("MovePanelZustand", () => {
 
   it("should display tablebase evaluations when available", () => {
     const mockMoves = [
-      {
+      createTestValidatedMove({
         from: "e2",
         to: "e4",
-        san: "e4",
-        lan: "e2e4",
-        flags: "n",
         piece: "p",
-        color: "w",
-        fenBefore: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        fenAfter: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
-        isCapture: () => false,
-        isPromotion: () => false,
-        isEnPassant: () => false,
-        isKingsideCastle: () => false,
-        isQueensideCastle: () => false,
-        isBigPawn: () => true,
-      },
+        san: "e4",
+        before: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        after: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+      }),
     ];
 
     const mockEvaluations = [
-      { fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", evaluation: 0 }, // Initial position
+      {
+        fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        evaluation: 0,
+      }, // Initial position
       {
         fen: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
         evaluation: 0.3,

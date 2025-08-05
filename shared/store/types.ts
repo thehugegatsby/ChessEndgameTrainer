@@ -187,8 +187,12 @@ export interface PositionProgress {
   bestTime?: number;
   lastAttempt?: number;
   nextReview?: number;
+  lastReview?: number;
   difficulty: number;
   reviewInterval?: number;
+  hintsUsed?: number;
+  mistakesMade?: number;
+  success?: boolean;
 }
 
 /**

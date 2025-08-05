@@ -4,7 +4,7 @@
  */
 
 import { useStore } from "@shared/store/rootStore";
-import type { EndgamePosition } from "@shared/types/endgame";
+import type { TrainingPosition } from "@shared/store/slices/trainingSlice";
 
 // Mock the logger
 jest.mock("@shared/services/logging", () => ({
@@ -62,7 +62,7 @@ jest.mock("nanoid", () => ({
 }));
 
 describe("Root Store Integration Tests", () => {
-  const mockPosition: EndgamePosition = {
+  const mockPosition: TrainingPosition = {
     id: 1,
     title: "Test Position",
     fen: "k7/8/8/8/8/8/P7/K7 w - - 0 1",
@@ -72,6 +72,9 @@ describe("Root Store Integration Tests", () => {
     goal: "win",
     sideToMove: "white",
     targetMoves: 4,
+    colorToTrain: "white",
+    targetOutcome: "1-0",
+    chapterId: "test-chapter",
   };
 
   beforeEach(() => {
@@ -108,7 +111,7 @@ describe("Root Store Integration Tests", () => {
     it("should handle position changes correctly", () => {
       const store = useStore.getState();
 
-      const newPosition: EndgamePosition = {
+      const newPosition: TrainingPosition = {
         ...mockPosition,
         id: 2,
         title: "Second Position",
@@ -200,14 +203,15 @@ describe("Root Store Integration Tests", () => {
       store.updatePositionProgress(1, {
         positionId: 1,
         attempts: 1,
-        successes: 1,
-        lastAttemptDate: new Date().toISOString(),
-        averageTime: 60,
+        completed: true,
+        accuracy: 100,
+        bestTime: 60,
+        difficulty: 1,
       });
 
       const state = useStore.getState();
       expect(state.positionProgress[1]).toBeDefined();
-      expect(state.positionProgress[1].successes).toBe(1);
+      expect(state.positionProgress[1].completed).toBe(true);
 
       // Add to favorites
       store.toggleFavorite(1);

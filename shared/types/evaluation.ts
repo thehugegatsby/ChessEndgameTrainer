@@ -65,6 +65,25 @@ export interface PositionAnalysis {
   /** Mate in N moves (if applicable) */
   mateInMoves?: number;
 
+  /** Top moves for this position */
+  topMoves?: Array<{
+    uci: string;
+    san: string;
+    wdl: number;
+    dtz: number;
+    dtm?: number | null;
+    category: string;
+    zeroing?: boolean;
+    checkmate?: boolean;
+    stalemate?: boolean;
+    variant_win?: boolean;
+    variant_loss?: boolean;
+    insufficient_material?: boolean;
+  }>;
+
+  /** Whether this is a tablebase position */
+  isTablebasePosition?: boolean;
+
   /** Tablebase data (always present for endgame positions) */
   tablebase?: TablebaseData;
 }
