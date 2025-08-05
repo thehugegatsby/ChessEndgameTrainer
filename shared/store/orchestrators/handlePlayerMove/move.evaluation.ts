@@ -9,7 +9,8 @@
  */
 
 import { tablebaseService } from "@shared/services/TablebaseService";
-import type { MoveEvaluation, WDLOutcome, MoveErrorDialog } from "./move.types";
+import { assessTablebaseMoveQuality } from "@shared/utils/moveQuality";
+import type { MoveEvaluation, MoveErrorDialog } from "./move.types";
 import type { TrainingPosition } from "@shared/store/slices/trainingSlice";
 
 /**
@@ -26,8 +27,7 @@ export async function evaluateMoveQuality(
   currentPosition: TrainingPosition,
 ): Promise<MoveEvaluation> {
   const result: MoveEvaluation = {
-    isOptimal: false,
-    isWorseningMove: false,
+    isOptimal: true, // Default to true when tablebase unavailable
   };
 
   try {
@@ -55,22 +55,24 @@ export async function evaluateMoveQuality(
       result.wdlBefore = wdlBefore;
       result.wdlAfter = wdlAfter;
 
-      // Get best moves to check optimality
+      // Use the same logic as MoveQualityIndicator
+      const moveQuality = assessTablebaseMoveQuality(
+        evalBefore.result.wdl,
+        evalAfter.result.wdl,
+      );
+
+      // A move is optimal if it's "excellent" or "good"
+      result.isOptimal =
+        moveQuality.quality === "excellent" || moveQuality.quality === "good";
+
+      // Get best move for display
       const topMoves = await tablebaseService.getTopMoves(fenBefore);
       if (topMoves.isAvailable && topMoves.moves && topMoves.moves.length > 0) {
-        const bestWDL = getWDLFromTrainingPerspective(
-          topMoves.moves[0].wdl,
-          currentPosition.colorToTrain,
-        );
-        result.isOptimal = wdlAfter === bestWDL;
         result.bestMove = topMoves.moves[0].san;
       }
 
-      // Check for position worsening
-      if (isPositionWorsened(wdlBefore, wdlAfter)) {
-        result.isWorseningMove = true;
-        result.outcomeChange = getOutcomeChange(wdlBefore, wdlAfter);
-      }
+      // Note: isWorseningMove is currently unused but kept for potential future use
+      // The move quality assessment from assessTablebaseMoveQuality is sufficient
     }
   } catch (error) {
     // Silently handle evaluation errors - move was valid even if we can't evaluate it
@@ -105,12 +107,12 @@ export function handleMoveError(
     bestMove: evaluation.bestMove,
   });
 
-  const message =
-    evaluation.outcomeChange === "Win->Draw/Loss"
-      ? "Position verschlechtert: Gewinn → Remis/Verlust"
-      : "Position verschlechtert: Remis → Verlust";
-
-  actions.showToast(message, "warning", 4000);
+  // Show generic message for suboptimal moves
+  actions.showToast(
+    "Nicht der beste Zug - versuche es nochmal",
+    "warning",
+    4000,
+  );
 }
 
 /**
@@ -141,87 +143,4 @@ export function getWDLFromTrainingPerspective(
   // WDL is always from white's perspective
   // If training black, we need to negate
   return trainingColor === "white" ? wdl : -wdl;
-}
-
-/**
- * Checks if position worsened from training perspective
- *
- * @param {number} wdlBefore - WDL before move (from training perspective)
- * @param {number} wdlAfter - WDL after move (from training perspective)
- * @returns {boolean} Whether position worsened
- *
- * @description
- * A position worsens when the WDL value decreases from the training
- * perspective. This indicates the player made a suboptimal move.
- *
- * @example
- * ```typescript
- * isPositionWorsened(1000, 0); // true (win -> draw)
- * isPositionWorsened(0, -1000); // true (draw -> loss)
- * isPositionWorsened(-1000, 0); // false (loss -> draw is improvement)
- * ```
- */
-export function isPositionWorsened(
-  wdlBefore: number,
-  wdlAfter: number,
-): boolean {
-  // Position worsens if WDL decreases
-  return wdlAfter < wdlBefore;
-}
-
-/**
- * Gets outcome change description
- *
- * @param {number} wdlBefore - WDL before move (from training perspective)
- * @param {number} wdlAfter - WDL after move (from training perspective)
- * @returns {string | null} Outcome change description or null if no significant change
- *
- * @description
- * Generates human-readable descriptions for significant outcome changes.
- * Used for user feedback when a move worsens the position.
- *
- * @example
- * ```typescript
- * getOutcomeChange(1000, 0); // "Win->Draw/Loss"
- * getOutcomeChange(0, -1000); // "Draw->Loss"
- * getOutcomeChange(1000, 500); // null (still winning)
- * ```
- */
-export function getOutcomeChange(
-  wdlBefore: number,
-  wdlAfter: number,
-): string | null {
-  const outcomeBefore = getOutcomeFromWDL(wdlBefore);
-  const outcomeAfter = getOutcomeFromWDL(wdlAfter);
-
-  if (outcomeBefore === "win" && outcomeAfter !== "win") {
-    return "Win->Draw/Loss";
-  }
-  if (outcomeBefore === "draw" && outcomeAfter === "loss") {
-    return "Draw->Loss";
-  }
-  return null;
-}
-
-/**
- * Converts WDL to outcome string
- *
- * @param {number} wdl - WDL value (from any perspective)
- * @returns {WDLOutcome} Outcome classification
- *
- * @description
- * Classifies a WDL value into three outcome categories.
- * Positive values are wins, negative are losses, zero is draw.
- *
- * @example
- * ```typescript
- * getOutcomeFromWDL(1000); // "win"
- * getOutcomeFromWDL(0); // "draw"
- * getOutcomeFromWDL(-500); // "loss"
- * ```
- */
-export function getOutcomeFromWDL(wdl: number): WDLOutcome {
-  if (wdl > 0) return "win";
-  if (wdl < 0) return "loss";
-  return "draw";
 }

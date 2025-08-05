@@ -50,17 +50,26 @@ export function useInitializePosition(
   const initPromise = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
-    // Only initialize once
-    if (hasInitialized.current) {
-      return;
-    }
-
     // Check if already initialized with same position
     if (currentPosition && currentPosition.id === serverPosition.id) {
       logger.debug("Position already initialized", {
         positionId: serverPosition.id,
       });
       hasInitialized.current = true;
+      return;
+    }
+
+    // If we have already initialized but currentPosition is now missing,
+    // we need to reinitialize (this can happen after resetTraining)
+    if (hasInitialized.current && !currentPosition) {
+      logger.warn("Position was cleared after initialization, reinitializing", {
+        positionId: serverPosition.id,
+      });
+      hasInitialized.current = false;
+    }
+
+    // Only initialize once (unless position was cleared)
+    if (hasInitialized.current) {
       return;
     }
 

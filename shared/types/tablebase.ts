@@ -36,10 +36,10 @@ export interface LichessTablebaseResponse {
   dtz: number | null;
 
   /** Distance to Mate (if available) */
-  dtm: number | null;
+  dtm?: number | null;
 
-  /** Precise DTZ without rounding */
-  precise_dtz?: number | null;
+  /** Precise DTZ without rounding - can be number or boolean */
+  precise_dtz?: number | boolean;
 
   /** DTZ for antichess variant */
   dtw?: number | null;

@@ -227,6 +227,9 @@ const mockRootStore = (overrides: MockRootState = {}) => {
     return mockState;
   });
 
+  // CRITICAL: Mock getState() method which is used by useGameActions()
+  (useStore as any).getState = jest.fn().mockReturnValue(mockState);
+
   // Return the mock for additional assertions if needed
   return useStore as jest.MockedFunction<typeof useStore>;
 };

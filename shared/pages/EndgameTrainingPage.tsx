@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
-  EndgameBoard,
+  TrainingBoard,
   MovePanelZustand,
   NavigationControls,
 } from "@shared/components/training";
@@ -159,7 +159,7 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
             </div>
 
             <div className="w-full h-full flex items-center justify-center">
-              <EndgameBoard
+              <TrainingBoard
                 key={`${position.id}-${resetKey}`}
                 position={position}
                 onComplete={() => handleComplete(true)}

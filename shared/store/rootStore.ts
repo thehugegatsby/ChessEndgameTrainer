@@ -40,7 +40,7 @@ import { createUISlice } from "./slices/uiSlice";
 import { handleOpponentTurn as handleOpponentTurnOrchestrator } from "./orchestrators/handleOpponentTurn";
 import { requestPositionEvaluation as requestPositionEvaluationOrchestrator } from "./orchestrators/requestPositionEvaluation";
 import { loadTrainingContext as loadTrainingContextOrchestrator } from "./orchestrators/loadTrainingContext";
-import { handlePlayerMove as handlePlayerMoveOrchestrator } from "./orchestrators/handlePlayerMove";
+import { handlePlayerMove as handlePlayerMoveOrchestrator } from "./orchestrators/handlePlayerMove/index";
 
 // Import types
 import type { RootState } from "./slices/types";

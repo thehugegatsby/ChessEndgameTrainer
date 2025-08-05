@@ -30,11 +30,7 @@ import { evaluateMoveQuality, handleMoveError } from "./move.evaluation";
 import { handleTrainingCompletion } from "./move.completion";
 
 // Re-export types for consumers
-export type {
-  MoveEvaluation,
-  MoveExecutionResult,
-  WDLOutcome,
-} from "./move.types";
+export type { MoveEvaluation, MoveExecutionResult } from "./move.types";
 
 /**
  * Handles a player move with full orchestration across slices
@@ -86,8 +82,11 @@ export const handlePlayerMove = async (
     );
 
     // Step 4: Handle move feedback
-    if (evaluation.isWorseningMove) {
+    if (!evaluation.isOptimal) {
+      // Show error dialog for all suboptimal moves
       handleMoveError(state, evaluation);
+      // Don't continue to opponent turn - wait for user decision
+      return true;
     }
 
     // Step 5: Check training completion or continue game
@@ -126,9 +125,15 @@ async function transitionToOpponentTurn(
 ): Promise<void> {
   state.setPlayerTurn(false); // User just moved, so it's not their turn
 
-  const isTablebaseTurn =
-    state.game.turn() !== state.currentPosition.colorToTrain.charAt(0);
-  if (isTablebaseTurn) {
+  // Get fresh state after move
+  const freshState = api.getState();
+
+  // Check if it's the opponent's turn (not the training color)
+  const currentTurn = freshState.game?.turn(); // 'w' or 'b'
+  const trainingColor = freshState.currentPosition?.colorToTrain?.charAt(0); // 'w' or 'b'
+  const isOpponentTurn = currentTurn !== trainingColor;
+
+  if (isOpponentTurn) {
     // Small delay for better UX
     setTimeout(async () => {
       await api.getState().handleOpponentTurn();

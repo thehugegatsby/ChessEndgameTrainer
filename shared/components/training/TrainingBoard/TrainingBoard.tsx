@@ -458,6 +458,14 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         return null;
       }
 
+      // Check if piece was dropped on same square (no move)
+      if (move.from === move.to) {
+        logger.debug("Piece dropped on same square, ignoring", {
+          square: move.from,
+        });
+        return null;
+      }
+
       try {
         // Debug: Log game state before validation
         logger.debug("Game state before move validation", {
@@ -495,34 +503,12 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         // First make the move on the local game instance
         const result = await makeMove(move);
 
-        if (result) {
-          // Move validation is now handled in the store's makeUserMove action
-          // Just trigger tablebase response using store action
-          try {
-            // Get the updated FEN after the move
-            const updatedFen = game.fen();
-            logger.info("Requesting tablebase move for position", {
-              updatedFen,
-              turn: game.turn(),
-              moveNumber: history.length,
-            });
+        // The orchestrator now handles the entire workflow including:
+        // - Move validation
+        // - Error dialog for suboptimal moves
+        // - Opponent turn (only if move was optimal)
+        // TrainingBoard should NOT call handleOpponentTurn directly
 
-            // Use the orchestrator from the store directly
-            await trainingActions.handleOpponentTurn();
-
-            logger.info("[TRACE] Tablebase move request completed", {
-              updatedFen,
-              currentGameFen: game.fen(),
-              historyLength: history.length,
-            });
-
-            // The orchestrator handles the tablebase move automatically
-          } catch (error) {
-            logger.error("Engine move failed", error as Error);
-          }
-
-          // Move was successful, it will be synced to Zustand via the history effect
-        }
         return result;
       } catch (error) {
         const errorMessage =

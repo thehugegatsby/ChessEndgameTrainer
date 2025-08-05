@@ -13,6 +13,7 @@
  * - useTrainingStore(): Convenience hook returning [state, actions] tuple
  */
 
+import { useMemo } from "react";
 import { useStore } from "../rootStore";
 import { useShallow } from "zustand/react/shallow";
 import type {
@@ -87,27 +88,34 @@ export const useTrainingState = (): TrainingStateType => {
  * ```
  */
 export const useTrainingActions = (): ExtendedTrainingActions => {
-  return useStore((state: RootState) => ({
-    // Training actions
-    setPosition: state.setPosition,
-    setNavigationPositions: state.setNavigationPositions,
-    setNavigationLoading: state.setNavigationLoading,
-    setNavigationError: state.setNavigationError,
-    setChapterProgress: state.setChapterProgress,
-    setPlayerTurn: state.setPlayerTurn,
-    completeTraining: state.completeTraining,
-    incrementHint: state.incrementHint,
-    incrementMistake: state.incrementMistake,
-    setMoveErrorDialog: state.setMoveErrorDialog,
-    addTrainingMove: state.addTrainingMove,
-    resetTraining: state.resetTraining,
-    resetPosition: state.resetPosition,
+  // Non-reactive access to avoid SSR issues
+  const actions = useStore.getState();
 
-    // Orchestrated actions
-    handlePlayerMove: state.handlePlayerMove,
-    handleOpponentTurn: state.handleOpponentTurn,
-    loadTrainingContext: state.loadTrainingContext,
-  }));
+  // Memoize the actions object to ensure stable reference
+  return useMemo(
+    () => ({
+      // Training actions
+      setPosition: actions.setPosition,
+      setNavigationPositions: actions.setNavigationPositions,
+      setNavigationLoading: actions.setNavigationLoading,
+      setNavigationError: actions.setNavigationError,
+      setChapterProgress: actions.setChapterProgress,
+      setPlayerTurn: actions.setPlayerTurn,
+      completeTraining: actions.completeTraining,
+      incrementHint: actions.incrementHint,
+      incrementMistake: actions.incrementMistake,
+      setMoveErrorDialog: actions.setMoveErrorDialog,
+      addTrainingMove: actions.addTrainingMove,
+      resetTraining: actions.resetTraining,
+      resetPosition: actions.resetPosition,
+
+      // Orchestrated actions
+      handlePlayerMove: actions.handlePlayerMove,
+      handleOpponentTurn: actions.handleOpponentTurn,
+      loadTrainingContext: actions.loadTrainingContext,
+    }),
+    [actions],
+  );
 };
 
 /**

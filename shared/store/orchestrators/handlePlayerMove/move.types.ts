@@ -25,16 +25,12 @@ export interface MoveExecutionResult {
 export interface MoveEvaluation {
   /** Whether the move was optimal according to tablebase */
   isOptimal: boolean;
-  /** Whether the move worsened the position */
-  isWorseningMove: boolean;
   /** WDL value before the move (from training perspective) */
   wdlBefore?: number;
   /** WDL value after the move (from training perspective) */
   wdlAfter?: number;
   /** Best move in the position */
   bestMove?: string;
-  /** Description of outcome change (e.g., "Win->Draw/Loss") */
-  outcomeChange?: string | null;
 }
 
 /**
@@ -54,11 +50,6 @@ export interface MoveContext {
     duration?: number,
   ) => void;
 }
-
-/**
- * Outcome classification for WDL values
- */
-export type WDLOutcome = "win" | "draw" | "loss";
 
 /**
  * Error dialog configuration for move feedback

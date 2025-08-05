@@ -292,8 +292,9 @@ class TablebaseService {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
+        // Always request moves to get complete tablebase entry
         const response = await fetch(
-          `${APP_CONFIG.TABLEBASE_API_URL}/standard?fen=${encodeURIComponent(fen)}`,
+          `${APP_CONFIG.TABLEBASE_API_URL}/standard?fen=${encodeURIComponent(fen)}&moves=20`,
           { signal: controller.signal },
         );
 
@@ -419,7 +420,14 @@ class TablebaseService {
 
     // Transform position evaluation
     const positionCategory = api.category as TablebaseCategory;
-    const positionWdl = this._categoryToWdl(positionCategory);
+    let positionWdl = this._categoryToWdl(positionCategory);
+
+    // WDL is already from the perspective of the side to move
+    // No need to negate for Black positions - the API gives the result from the mover's perspective
+    // Handle -0 case to ensure it's just 0
+    if (positionWdl === -0) {
+      positionWdl = 0;
+    }
 
     // Transform moves with correct perspective (moves array guaranteed by schema)
     const moves: TablebaseMoveInternal[] = (api.moves || []).map((apiMove) => {

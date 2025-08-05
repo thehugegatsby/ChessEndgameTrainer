@@ -13,6 +13,7 @@
  * - useTablebaseStore(): Convenience hook returning [state, actions] tuple
  */
 
+import { useMemo } from "react";
 import { useStore } from "../rootStore";
 import { useShallow } from "zustand/react/shallow";
 import type {
@@ -80,18 +81,25 @@ export const useTablebaseState = (): TablebaseStateType => {
  * ```
  */
 export const useTablebaseActions = (): ExtendedTablebaseActions => {
-  return useStore((state: RootState) => ({
-    // Tablebase actions
-    setTablebaseMove: state.setTablebaseMove,
-    setAnalysisStatus: state.setAnalysisStatus,
-    addEvaluation: state.addEvaluation,
-    setEvaluations: state.setEvaluations,
-    setCurrentEvaluation: state.setCurrentEvaluation,
-    clearTablebaseState: state.clearTablebaseState,
+  // Non-reactive access to avoid SSR issues
+  const actions = useStore.getState();
 
-    // Orchestrated action
-    requestPositionEvaluation: state.requestPositionEvaluation,
-  }));
+  // Memoize the actions object to ensure stable reference
+  return useMemo(
+    () => ({
+      // Tablebase actions
+      setTablebaseMove: actions.setTablebaseMove,
+      setAnalysisStatus: actions.setAnalysisStatus,
+      addEvaluation: actions.addEvaluation,
+      setEvaluations: actions.setEvaluations,
+      setCurrentEvaluation: actions.setCurrentEvaluation,
+      clearTablebaseState: actions.clearTablebaseState,
+
+      // Orchestrated action
+      requestPositionEvaluation: actions.requestPositionEvaluation,
+    }),
+    [actions],
+  );
 };
 
 /**

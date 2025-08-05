@@ -38,7 +38,7 @@ describe("Move Validation - Game Outcome Changes", () => {
   });
 
   describe("Position: K+P vs K (Training Position 1)", () => {
-    it.skip("should NOT show error dialog for winning move Kd6 (suboptimal but still wins)", async () => {
+    it("should NOT show error dialog for winning move Kd6 (suboptimal but still wins)", async () => {
       renderHook(() => useStore.getState());
 
       // Initialize position

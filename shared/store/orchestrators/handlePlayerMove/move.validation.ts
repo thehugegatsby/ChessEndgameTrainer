@@ -56,6 +56,8 @@ export async function executeMoveWithValidation(
     return null;
   }
 
-  const fenAfter = context.currentFen;
+  // Get fenAfter from the validatedMove object, not from context
+  // because context.currentFen is a snapshot and won't update
+  const fenAfter = validatedMove.fenAfter;
   return { fenBefore, fenAfter, validatedMove };
 }

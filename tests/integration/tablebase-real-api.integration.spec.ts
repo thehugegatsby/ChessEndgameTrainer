@@ -57,8 +57,11 @@ describeIfNotCI("Tablebase Real API Integration Tests", () => {
 
   describe("Move Evaluation", () => {
     it("should get top moves for K+P vs K position", async () => {
-      const fen = "5k2/8/3K4/4P3/8/8/8/8 w - - 0 1";
+      // Use a known winning position that actually has moves
+      const fen = "K7/P7/k7/8/8/8/8/8 w - - 0 1";
 
+      // Clear cache to ensure fresh API call
+      tablebaseService.clearCache();
       const movesResult = await tablebaseService.getTopMoves(fen, 5);
       const moves = movesResult.moves || [];
 
@@ -193,7 +196,7 @@ describeIfNotCI("API Contract Verification", () => {
 
   it("should verify moves endpoint response format", async () => {
     const response = await fetch(
-      "https://tablebase.lichess.ovh/standard?fen=K7/P7/k7/8/8/8/8/8 w - - 0 1&moves=5",
+      "https://tablebase.lichess.ovh/standard?fen=K7/P7/k7/8/8/8/8/8%20w%20-%20-%200%201&moves=5",
     );
     const data = await response.json();
 

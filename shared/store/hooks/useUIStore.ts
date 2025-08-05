@@ -13,6 +13,7 @@
  * - useUIStore(): Convenience hook returning [state, actions] tuple
  */
 
+import { useMemo } from "react";
 import { useStore } from "../rootStore";
 import { useShallow } from "zustand/react/shallow";
 import type { RootState, UIActions as UIActionsType } from "../slices/types";
@@ -79,17 +80,24 @@ export const useUIState = (): UIState => {
  * ```
  */
 export const useUIActions = (): UIActionsType => {
-  return useStore((state: RootState) => ({
-    // UI actions
-    toggleSidebar: state.toggleSidebar,
-    setIsSidebarOpen: state.setIsSidebarOpen,
-    openModal: state.openModal,
-    closeModal: state.closeModal,
-    showToast: state.showToast,
-    removeToast: state.removeToast,
-    setLoading: state.setLoading,
-    updateAnalysisPanel: state.updateAnalysisPanel,
-  }));
+  // Non-reactive access to avoid SSR issues
+  const actions = useStore.getState();
+
+  // Memoize the actions object to ensure stable reference
+  return useMemo(
+    () => ({
+      // UI actions
+      toggleSidebar: actions.toggleSidebar,
+      setIsSidebarOpen: actions.setIsSidebarOpen,
+      openModal: actions.openModal,
+      closeModal: actions.closeModal,
+      showToast: actions.showToast,
+      removeToast: actions.removeToast,
+      setLoading: actions.setLoading,
+      updateAnalysisPanel: actions.updateAnalysisPanel,
+    }),
+    [actions],
+  );
 };
 
 /**

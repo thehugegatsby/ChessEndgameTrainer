@@ -13,6 +13,7 @@
  * - useGameStore(): Convenience hook returning [state, actions] tuple
  */
 
+import { useMemo } from "react";
 import { useStore } from "../rootStore";
 import { useShallow } from "zustand/react/shallow";
 import type {
@@ -73,30 +74,37 @@ export const useGameState = (): GameStateType => {
  * ```
  */
 export const useGameActions = (): GameActionsType => {
-  return useStore((state: RootState) => ({
-    // State management actions
-    setGame: state.setGame,
-    updatePosition: state.updatePosition,
-    addMove: state.addMove,
-    setMoveHistory: state.setMoveHistory,
-    setCurrentMoveIndex: state.setCurrentMoveIndex,
-    setGameFinished: state.setGameFinished,
-    resetGame: state.resetGame,
+  // Non-reactive access to avoid SSR issues
+  const actions = useStore.getState();
 
-    // Game operations
-    initializeGame: state.initializeGame,
-    makeMove: state.makeMove,
-    undoMove: state.undoMove,
-    redoMove: state.redoMove,
+  // Memoize the actions object to ensure stable reference
+  return useMemo(
+    () => ({
+      // State management actions
+      setGame: actions.setGame,
+      updatePosition: actions.updatePosition,
+      addMove: actions.addMove,
+      setMoveHistory: actions.setMoveHistory,
+      setCurrentMoveIndex: actions.setCurrentMoveIndex,
+      setGameFinished: actions.setGameFinished,
+      resetGame: actions.resetGame,
 
-    // Navigation actions
-    goToMove: state.goToMove,
-    goToFirst: state.goToFirst,
-    goToPrevious: state.goToPrevious,
-    goToNext: state.goToNext,
-    goToLast: state.goToLast,
-    setCurrentFen: state.setCurrentFen,
-  }));
+      // Game operations
+      initializeGame: actions.initializeGame,
+      makeMove: actions.makeMove,
+      undoMove: actions.undoMove,
+      redoMove: actions.redoMove,
+
+      // Navigation actions
+      goToMove: actions.goToMove,
+      goToFirst: actions.goToFirst,
+      goToPrevious: actions.goToPrevious,
+      goToNext: actions.goToNext,
+      goToLast: actions.goToLast,
+      setCurrentFen: actions.setCurrentFen,
+    }),
+    [actions],
+  );
 };
 
 /**
