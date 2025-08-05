@@ -1,12 +1,12 @@
 /**
  * @file Analysis details component for detailed move analysis display
  * @module components/training/AnalysisPanel/AnalysisDetails
- * 
+ *
  * @description
  * Detailed analysis display component showing comprehensive information about
  * selected chess moves including evaluation, best moves, principal variations,
  * and move classification. Provides rich visual feedback for move analysis.
- * 
+ *
  * @remarks
  * Key features:
  * - Detailed move analysis display with evaluation bars
@@ -16,7 +16,7 @@
  * - Responsive design with mobile-optimized layout
  * - Multi-language support (German interface)
  * - Dark mode compatibility
- * 
+ *
  * The component integrates with the PrincipalVariation component and
  * evaluation utilities to provide comprehensive move analysis feedback.
  */
@@ -28,9 +28,9 @@ import { PrincipalVariation } from "../PrincipalVariation";
 
 /**
  * Move analysis data structure for detailed analysis display
- * 
+ *
  * @interface MoveAnalysisData
- * 
+ *
  * @property {Move} move - Chess move object from chess.js
  * @property {number} [evaluation] - Position evaluation after the move (in centipawns)
  * @property {string} [bestMove] - Best move according to engine analysis
@@ -52,9 +52,9 @@ interface MoveAnalysisData {
 
 /**
  * Props for the AnalysisDetails component
- * 
+ *
  * @interface AnalysisDetailsProps
- * 
+ *
  * @property {number | null} selectedMoveIndex - Index of currently selected move for detailed analysis, null if none selected
  * @property {MoveAnalysisData[]} analysisData - Array of move analysis data for all moves in the game
  */
@@ -65,10 +65,10 @@ interface AnalysisDetailsProps {
 
 /**
  * Format evaluation number for display
- * 
+ *
  * @param {number} [evaluation] - Evaluation value in centipawns
  * @returns {string} Formatted evaluation string with + sign for positive values
- * 
+ *
  * @example
  * ```typescript
  * formatEvaluation(1.5)    // "+1.50"
@@ -83,14 +83,14 @@ const formatEvaluation = (evaluation?: number) => {
 
 /**
  * Analysis details component for comprehensive move analysis display
- * 
+ *
  * @component
  * @description
  * Displays detailed analysis information for a selected chess move including
  * evaluation, best moves, principal variations, move classification, and
  * position assessment. Provides rich visual feedback with evaluation bars,
  * color-coded move quality indicators, and descriptive text explanations.
- * 
+ *
  * @remarks
  * Feature sections:
  * - Evaluation bar with visual position assessment
@@ -99,17 +99,17 @@ const formatEvaluation = (evaluation?: number) => {
  * - Move classification with color-coded quality indicators
  * - Position evaluation with descriptive explanations in German
  * - Empty state with helpful instruction message
- * 
+ *
  * Visual design:
  * - Responsive layout optimized for mobile devices
  * - Dark mode support with appropriate color schemes
  * - Color-coded move quality (green=excellent, red=blunder)
  * - Gradient evaluation bars for intuitive position assessment
  * - Clean card-based layout with consistent spacing
- * 
+ *
  * The component is memoized for performance optimization and integrates
  * seamlessly with the broader analysis panel system.
- * 
+ *
  * @example
  * ```tsx
  * // Basic usage in analysis panel
@@ -117,14 +117,14 @@ const formatEvaluation = (evaluation?: number) => {
  *   selectedMoveIndex={currentMoveIndex}
  *   analysisData={gameAnalysisData}
  * />
- * 
+ *
  * // With no selection (shows empty state)
  * <AnalysisDetails
  *   selectedMoveIndex={null}
  *   analysisData={[]}
  * />
  * ```
- * 
+ *
  * @param {AnalysisDetailsProps} props - Component configuration
  * @returns {JSX.Element} Detailed analysis display with comprehensive move information
  */
@@ -179,7 +179,7 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = React.memo(
                       Bester Zug
                     </span>
                     <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded">
-                      Engine
+                      Tablebase
                     </span>
                   </div>
                   <span className="font-mono text-sm font-semibold text-gray-800 dark:text-gray-200">

@@ -1,19 +1,19 @@
 /**
- * @fileoverview Unit tests for refactored useLocalStorage hook
+ * @file Unit tests for refactored useLocalStorage hook
  * @description Tests the new fully async, ServiceContainer-compatible hook
  * Perfect Jest 30 compatibility - no global mocking required!
  */
 
 import { renderHook, act, waitFor } from "@testing-library/react";
-import {
-  useLocalStorageWithState,
-  useLocalStorageSync,
-} from "@shared/hooks/useLocalStorage";
+import { useLocalStorageWithState } from "@shared/hooks/useLocalStorage";
 import { createTestContainer } from "../../utils";
 import type { IPlatformStorage } from "@shared/services/platform/types";
 
 // Mock logger
 jest.mock("@shared/services/logging", () => ({
+  /**
+   *
+   */
   getLogger: () => require("../../shared/logger-utils").createTestLogger(),
 }));
 
@@ -23,6 +23,9 @@ let mockStorageService: IPlatformStorage;
 
 // Mock the platform service module to use our test container
 jest.mock("@shared/services/platform", () => ({
+  /**
+   *
+   */
   getPlatformService: () => ({
     storage: mockStorageService,
   }),
@@ -255,16 +258,16 @@ describe("useLocalStorage Hook - Refactored Version", () => {
     });
   });
 
-  describe("Sync Compatibility Hook - useLocalStorageSync", () => {
-    test("should provide sync-like interface", async () => {
+  describe("useLocalStorageWithState Hook", () => {
+    test("should provide state-based interface", async () => {
       jest.spyOn(mockStorageService, "load").mockResolvedValue(testValue);
 
       const { result } = renderHook(() =>
-        useLocalStorageSync(testKey, "default"),
+        useLocalStorageWithState(testKey, "default"),
       );
 
-      // Should start with initial value (sync behavior)
-      expect(result.current[0]).toBe("default");
+      // Should start with loading state
+      expect(result.current[0]).toBe(undefined);
 
       // Wait for async load to complete
       await waitFor(() => {
@@ -277,7 +280,7 @@ describe("useLocalStorage Hook - Refactored Version", () => {
       jest.spyOn(mockStorageService, "save").mockResolvedValue(undefined);
 
       const { result } = renderHook(() =>
-        useLocalStorageSync(testKey, testString),
+        useLocalStorageWithState(testKey, testString),
       );
 
       // Wait for initialization
@@ -285,17 +288,10 @@ describe("useLocalStorage Hook - Refactored Version", () => {
         expect(result.current[0]).toBe(testString);
       });
 
-      // Should have sync API
+      // Should have state API
       const [value, setValue] = result.current;
       expect(typeof value).toBe("string");
       expect(typeof setValue).toBe("function");
-
-      // Should work with function updates
-      act(() => {
-        setValue((prev: string) => prev + " updated");
-      });
-
-      expect(result.current[0]).toBe(testString + " updated");
     });
   });
 

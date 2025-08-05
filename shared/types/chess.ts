@@ -41,6 +41,13 @@ export interface Move {
   fenBefore: string;
   fenAfter: string;
   timestamp?: number;
+  // Analysis data for post-game review
+  evalBefore?: number; // WDL evaluation before move (-2 to 2)
+  evalAfter?: number; // WDL evaluation after move (-2 to 2)
+  bestMoveSan?: string; // Best move in algebraic notation
+  moveQuality?: "excellent" | "good" | "inaccuracy" | "mistake" | "blunder";
+  dtzBefore?: number | null; // Distance to zeroing before move
+  dtzAfter?: number | null; // Distance to zeroing after move
   // Helper methods (available on chess.js Move instances)
   isCapture: () => boolean;
   isPromotion: () => boolean;
@@ -98,7 +105,7 @@ export interface TrainingPosition {
   category: string;
 }
 
-// Engine related types
+// Analysis related types
 
 // Validation types
 

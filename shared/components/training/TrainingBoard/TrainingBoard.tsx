@@ -168,7 +168,6 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   }));
   const actions = useStore((state) => ({
     setPosition: state.setPosition,
-    setEvaluation: state.setEvaluation,
     setEvaluations: state.setEvaluations,
     setMoveErrorDialog: state.setMoveErrorDialog,
     setAnalysisStatus: state.setAnalysisStatus,
@@ -277,7 +276,6 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
 
     processedEvaluationsRef.current.add(evalKey);
 
-    actions.setEvaluation(lastEvaluation);
     const currentEvaluations = tablebaseAnalysisState.evaluations || [];
     const updatedEvaluations = [...currentEvaluations, lastEvaluation];
     actions.setEvaluations(updatedEvaluations);
@@ -308,7 +306,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     resetKey,
     showMoveErrorDialog,
     warning,
-    engineError: null, // Engine errors now handled by store
+    analysisError: null, // Analysis errors now handled by store
     moveError,
     /**
      *
@@ -328,7 +326,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     /**
      *
      */
-    handleClearEngineError: () => {},
+    handleClearAnalysisError: () => {},
   };
 
   /**
@@ -961,11 +959,11 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         </div>
       )}
 
-      {(trainingUIState.engineError || evaluationError) && (
+      {(trainingUIState.analysisError || evaluationError) && (
         <div className="mt-2 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
-          {trainingUIState.engineError || evaluationError}
+          {trainingUIState.analysisError || evaluationError}
           <button
-            onClick={trainingUIState.handleClearEngineError}
+            onClick={trainingUIState.handleClearAnalysisError}
             className="ml-2 text-red-700 hover:text-red-900"
           >
             ×

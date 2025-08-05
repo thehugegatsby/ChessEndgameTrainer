@@ -1,12 +1,12 @@
 /**
  * @file Move history display component
  * @module components/training/MoveHistory
- * 
+ *
  * @description
  * Displays chess move history in a traditional two-column format with
  * optional evaluations. Shows moves in algebraic notation with visual
- * styling and supports both engine and tablebase evaluations.
- * 
+ * styling and supports tablebase evaluations.
+ *
  * @remarks
  * Key features:
  * - Two-column layout (white/black moves) with move numbering
@@ -16,9 +16,8 @@
  * - Hover effects and responsive design
  * - Empty state messaging for no moves
  * - German language interface
- * 
- * The component handles both engine evaluations (centipawn values) and
- * tablebase evaluations (win/draw/loss categories) with appropriate
+ *
+ * The component handles tablebase evaluations (win/draw/loss categories) with appropriate
  * visual indicators and color coding.
  */
 
@@ -28,9 +27,9 @@ import { UI_CONSTANTS } from "@shared/constants/uiConstants";
 
 /**
  * Evaluation data structure for move analysis
- * 
+ *
  * @interface EvaluationData
- * 
+ *
  * @property {number} evaluation - Engine evaluation in centipawns
  * @property {number} [mateInMoves] - Mate in X moves (positive for white advantage)
  * @property {object} [tablebase] - Tablebase evaluation data
@@ -52,9 +51,9 @@ interface EvaluationData {
 
 /**
  * Props for the MoveHistory component
- * 
+ *
  * @interface MoveHistoryProps
- * 
+ *
  * @property {Move[]} moves - Array of chess moves in chess.js format
  * @property {boolean} [showEvaluations=false] - Whether to display evaluations
  * @property {EvaluationData[]} [evaluations] - Optional evaluation data for each move
@@ -67,13 +66,13 @@ interface MoveHistoryProps {
 
 /**
  * Move history display component
- * 
+ *
  * @component
  * @description
  * Renders chess move history in a traditional chess scorecard format.
  * Displays moves in two columns (white and black) with move numbers,
  * and optionally shows position evaluations with color-coded indicators.
- * 
+ *
  * @remarks
  * Component features:
  * - Traditional chess notation display (1. e4 e5 2. Nf3 Nc6)
@@ -83,24 +82,23 @@ interface MoveHistoryProps {
  * - Color-coded evaluation feedback
  * - Responsive design with scrollable content
  * - Hover effects for better user interaction
- * 
+ *
  * Evaluation priority:
  * 1. Tablebase evaluations (exact results)
  * 2. Mate-in-X evaluations
- * 3. Standard engine evaluations (centipawns)
- * 
+ *
  * @example
  * ```tsx
  * // Basic move history without evaluations
  * <MoveHistory moves={gameHistory} />
- * 
+ *
  * // With evaluation display
  * <MoveHistory
  *   moves={gameHistory}
  *   showEvaluations={true}
  *   evaluations={positionEvaluations}
  * />
- * 
+ *
  * // In a game interface
  * <div className="game-sidebar">
  *   <MoveHistory
@@ -110,7 +108,7 @@ interface MoveHistoryProps {
  *   />
  * </div>
  * ```
- * 
+ *
  * @param {MoveHistoryProps} props - Move history configuration
  * @returns {JSX.Element} Rendered move history component
  */

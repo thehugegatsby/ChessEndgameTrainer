@@ -21,11 +21,13 @@
  * providing post-game analysis for learning purposes.
  */
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { Move } from "chess.js";
+import { Chess } from "chess.js";
 import { MoveAnalysis } from "./MoveAnalysis";
 import { AnalysisDetails } from "./AnalysisDetails";
 import { DIMENSIONS } from "@shared/constants";
+import { tablebaseService } from "@shared/services/TablebaseService";
 
 /**
  * Props for the AnalysisPanel component
@@ -94,53 +96,103 @@ interface MoveAnalysisData {
  * @returns {JSX.Element} Rendered analysis panel
  */
 export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
-  ({ history, onClose, isVisible }) => {
+  ({ history, initialFen, onClose, isVisible }) => {
     const [selectedMoveIndex, setSelectedMoveIndex] = useState<number | null>(
       null,
     );
+    const [analysisData, setAnalysisData] = useState<MoveAnalysisData[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     /**
-     * Memoized analysis data generation
-     *
-     * @description
-     * Generates simulated analysis data for each move in the history.
-     * This is a placeholder implementation that creates realistic-looking
-     * data for UI development and testing.
-     *
-     * @todo Replace with actual tablebase evaluation data
+     * Load analysis data from tablebase for all positions
      */
-    const analysisData = useMemo((): MoveAnalysisData[] => {
-      return history.map((move, index): MoveAnalysisData => {
-        /**
-         * Simulate evaluation scores for demo purposes
-         * @todo Replace with real tablebase evaluations
-         */
-        const baseEval = Math.sin(index * 0.5) * 2;
-        const noise = (Math.random() - 0.5) * 0.5;
-        const evaluation = baseEval + noise;
+    useEffect(() => {
+      if (!isVisible || history.length === 0) return;
 
-        /**
-         * Classify moves based on simulated evaluation changes
-         * @todo Replace with actual move quality analysis
-         */
-        let classification: MoveAnalysisData["classification"] = "good";
-        if (index > 0) {
-          const prevEval = Math.sin((index - 1) * 0.5) * 2;
-          const evalChange = Math.abs(evaluation - prevEval);
-          if (evalChange > 1.5) classification = "blunder";
-          else if (evalChange > 1.0) classification = "mistake";
-          else if (evalChange > 0.5) classification = "inaccuracy";
-          else if (evalChange < 0.2) classification = "excellent";
+      const loadAnalysisData = async () => {
+        setIsLoading(true);
+        try {
+          // Reconstruct all FENs from move history
+          const startFen = initialFen || "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1";
+          const chess = new Chess(startFen);
+          const positions: string[] = [startFen];
+
+          // Apply each move to get FEN after each move
+          for (const move of history) {
+            chess.move(move);
+            positions.push(chess.fen());
+          }
+
+          // Fetch tablebase analysis for all positions in parallel
+          const analysisPromises = history.map(async (move, index) => {
+            const fenBefore = positions[index];
+            const fenAfter = positions[index + 1];
+
+            const [evalBefore, evalAfter, topMoves] = await Promise.all([
+              tablebaseService.getEvaluation(fenBefore),
+              tablebaseService.getEvaluation(fenAfter),
+              tablebaseService.getTopMoves(fenBefore, 1),
+            ]);
+
+            // Calculate move quality based on WDL change
+            let classification: MoveAnalysisData["classification"] = "good";
+            if (
+              evalBefore.isAvailable &&
+              evalAfter.isAvailable &&
+              evalBefore.result &&
+              evalAfter.result
+            ) {
+              const wdlBefore = evalBefore.result.wdl;
+              const wdlAfter = evalAfter.result.wdl;
+              const wdlChange = wdlBefore - wdlAfter; // From player's perspective
+
+              if (wdlChange >= 2)
+                classification = "blunder"; // Win to loss
+              else if (wdlChange >= 1)
+                classification = "mistake"; // Win to draw or draw to loss
+              else if (wdlChange > 0)
+                classification = "inaccuracy"; // Small loss
+              else if (wdlChange === 0)
+                classification = "excellent"; // Maintained evaluation
+              else classification = "good"; // Improved position
+            }
+
+            return {
+              move,
+              evaluation:
+                evalAfter.isAvailable && evalAfter.result
+                  ? evalAfter.result.wdl
+                  : 0,
+              classification,
+              bestMove:
+                topMoves.isAvailable &&
+                topMoves.moves &&
+                topMoves.moves.length > 0
+                  ? topMoves.moves[0].san
+                  : undefined,
+            };
+          });
+
+          const results = await Promise.all(analysisPromises);
+          setAnalysisData(results);
+        } catch (error) {
+          console.error("Failed to load analysis data:", error);
+          // Fallback to empty analysis
+          setAnalysisData(
+            history.map((move) => ({
+              move,
+              evaluation: 0,
+              classification: "good" as const,
+              bestMove: undefined,
+            })),
+          );
+        } finally {
+          setIsLoading(false);
         }
+      };
 
-        return {
-          move,
-          evaluation,
-          classification,
-          bestMove: index % 3 === 0 ? "Nf3" : undefined, // @todo: Get from tablebase
-        };
-      });
-    }, [history]);
+      loadAnalysisData();
+    }, [history, initialFen, isVisible]);
 
     return (
       <div
@@ -169,18 +221,31 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
         </div>
 
         <div className="flex flex-1 overflow-hidden">
-          {/* Move Analysis List */}
-          <MoveAnalysis
-            analysisData={analysisData}
-            selectedMoveIndex={selectedMoveIndex}
-            onMoveSelect={setSelectedMoveIndex}
-          />
+          {isLoading ? (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Lade Analyse...
+                </p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Move Analysis List */}
+              <MoveAnalysis
+                analysisData={analysisData}
+                selectedMoveIndex={selectedMoveIndex}
+                onMoveSelect={setSelectedMoveIndex}
+              />
 
-          {/* Analysis Details */}
-          <AnalysisDetails
-            selectedMoveIndex={selectedMoveIndex}
-            analysisData={analysisData}
-          />
+              {/* Analysis Details */}
+              <AnalysisDetails
+                selectedMoveIndex={selectedMoveIndex}
+                analysisData={analysisData}
+              />
+            </>
+          )}
         </div>
       </div>
     );

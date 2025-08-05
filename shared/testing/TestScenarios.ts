@@ -379,35 +379,6 @@ export class TestPositionUtils {
       nextPositionId: scenario.nextPositionId,
     };
   }
-
-  // DEPRECATED METHODS - use getPosition/getPositionByFen instead
-  /**
-   *
-   * @param id
-   */
-  static getScenario(id: keyof typeof TestPositions): TestScenario {
-    const position = TestPositions[id];
-    if (!position) {
-      throw new Error(`Test position not found: ${id}`);
-    }
-
-    // Return the complete TestScenario (TestPositions already stores TestScenario objects)
-    return position;
-  }
-
-  /**
-   *
-   * @param fen
-   */
-  static getScenarioByFen(fen: string): TestScenario | null {
-    const position = Object.values(TestPositions).find(
-      (pos) => pos.fen === fen,
-    );
-    if (!position) return null;
-
-    // Return the complete TestScenario (TestPositions already stores TestScenario objects)
-    return position;
-  }
 }
 
 /**

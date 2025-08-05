@@ -17,7 +17,6 @@ import {
   PositionProgress,
   DailyStats,
   Achievement,
-  ExperimentalFeatures,
   AnalysisStatus,
 } from "../types";
 import { ValidatedMove, ChessInstance } from "@shared/types/chess";

@@ -239,32 +239,3 @@ export function useLocalStorageWithState<T>(
 ] {
   return useLocalStorageInternal(key, initialValue);
 }
-
-/**
- * @deprecated Use useLocalStorage instead
- *
- * @description
- * Legacy sync wrapper that exists only for gradual migration of existing components.
- * This has the same behavior as useLocalStorage but with a different name.
- *
- * @template T - Type of the stored value
- * @param {string} key - Storage key to use
- * @param {T | (() => T)} initialValue - Initial value or factory function
- * @returns {[T, Function]} Tuple of [currentValue, setValue]
- *
- * @example
- * ```tsx
- * // Old code (deprecated)
- * const [value, setValue] = useLocalStorageSync('key', 'default');
- *
- * // New code (preferred)
- * const [value, setValue] = useLocalStorage('key', 'default');
- * ```
- */
-export function useLocalStorageSync<T>(
-  key: string,
-  initialValue: T | (() => T),
-): [T, (value: T | ((val: T) => T)) => void] {
-  // Just use the backward compatible version
-  return useLocalStorage(key, initialValue);
-}

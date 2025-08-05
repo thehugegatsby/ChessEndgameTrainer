@@ -83,7 +83,6 @@ export const createInitialTablebaseState = () => ({
  */
 export const createTablebaseSlice: ImmerStateCreator<TablebaseSlice> = (
   set,
-  get,
 ) => ({
   // Initial state
   ...createInitialTablebaseState(),
@@ -249,7 +248,6 @@ export const createTablebaseSlice: ImmerStateCreator<TablebaseSlice> = (
   setCurrentEvaluation: (evaluation: PositionAnalysis | undefined) => {
     set({ currentEvaluation: evaluation });
   },
-
 
   /**
    * Clears all tablebase state to initial values

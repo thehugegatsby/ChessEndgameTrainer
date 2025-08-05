@@ -725,7 +725,7 @@ describe("ProgressSlice", () => {
         {
           ...mockAchievement,
           id: "accuracy_master",
-          title: "Accuracy Master",
+          name: "Accuracy Master",
           description: "Achieve 95% accuracy",
           category: "performance",
           points: 20,

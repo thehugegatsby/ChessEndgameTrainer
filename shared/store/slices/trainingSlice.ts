@@ -26,6 +26,7 @@
 
 import { ImmerStateCreator, TrainingSlice } from "./types";
 import type { EndgamePosition as BaseEndgamePosition } from "@shared/types/endgame";
+import type { ValidatedMove } from "@shared/types/chess";
 import { getLogger } from "@shared/services/logging";
 
 /**
