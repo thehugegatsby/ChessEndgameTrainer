@@ -15,10 +15,10 @@
  *   const currentPosition = useStore(trainingSelectors.selectCurrentPosition);
  *   const isPlayerTurn = useStore(trainingSelectors.selectIsPlayerTurn);
  *   const hintsUsed = useStore(trainingSelectors.selectHintsUsed);
- *   const useHint = useStore(state => state.useHint);
+ *   const incrementHint = useStore(state => state.incrementHint);
  *
  *   const handleHintRequest = () => {
- *     if (hintsUsed < 3) useHint();
+ *     if (hintsUsed < 3) incrementHint();
  *   };
  * }
  * ```
@@ -72,7 +72,6 @@ export interface TrainingPosition extends BaseEndgamePosition {
  * @returns {number|undefined} returns.sessionEndTime - Session end timestamp
  * @returns {number} returns.hintsUsed - Number of hints used
  * @returns {number} returns.mistakeCount - Number of mistakes made
- * @returns {Object|null} returns.moveErrorDialog - Error dialog state
  *
  * @example
  * ```typescript
@@ -95,12 +94,6 @@ export const createInitialTrainingState = () => ({
   sessionEndTime: undefined as number | undefined,
   hintsUsed: 0,
   mistakeCount: 0,
-  moveErrorDialog: null as {
-    isOpen: boolean;
-    wdlBefore?: number;
-    wdlAfter?: number;
-    bestMove?: string;
-  } | null,
 });
 
 /**
@@ -180,7 +173,6 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
       sessionEndTime: undefined,
       hintsUsed: 0,
       mistakeCount: 0,
-      moveErrorDialog: null,
       // Set initial turn based on position
       isPlayerTurn: position.sideToMove === position.colorToTrain,
     });
@@ -355,7 +347,7 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
   },
 
   /**
-   * Records the use of a hint
+   * Increments the hint counter
    *
    * @fires stateChange - When hint count increases
    *
@@ -368,7 +360,7 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
    * @example
    * ```typescript
    * // User requests a hint
-   * store.getState().useHint();
+   * store.getState().incrementHint();
    *
    * // Check hint usage
    * const hintsUsed = store.getState().hintsUsed;
@@ -377,7 +369,7 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
    * }
    * ```
    */
-  useHint: () => {
+  incrementHint: () => {
     set((state) => ({
       hintsUsed: state.hintsUsed + 1,
     }));
@@ -407,47 +399,6 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
     set((state) => ({
       mistakeCount: state.mistakeCount + 1,
     }));
-  },
-
-  /**
-   * Sets the move error dialog state
-   *
-   * @param {Object|null} dialog - Dialog configuration or null to close
-   * @param {boolean} dialog.isOpen - Whether dialog is open
-   * @param {number} [dialog.wdlBefore] - WDL evaluation before move
-   * @param {number} [dialog.wdlAfter] - WDL evaluation after move
-   * @param {string} [dialog.bestMove] - Best move that should have been played
-   *
-   * @fires stateChange - When dialog state changes
-   *
-   * @remarks
-   * Controls the display of move feedback dialogs that show
-   * when a user makes a mistake. The dialog can display the
-   * evaluation change and suggest the best move.
-   *
-   * @example
-   * ```typescript
-   * // Show error dialog
-   * store.getState().setMoveErrorDialog({
-   *   isOpen: true,
-   *   wdlBefore: 1000,  // Winning
-   *   wdlAfter: 0,      // Now draw
-   *   bestMove: "Ra8#"
-   * });
-   *
-   * // Close dialog
-   * store.getState().setMoveErrorDialog(null);
-   * ```
-   */
-  setMoveErrorDialog: (
-    dialog: {
-      isOpen: boolean;
-      wdlBefore?: number;
-      wdlAfter?: number;
-      bestMove?: string;
-    } | null,
-  ) => {
-    set({ moveErrorDialog: dialog });
   },
 
   /**
@@ -531,7 +482,6 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
       isSuccess: false,
       sessionStartTime: Date.now(),
       sessionEndTime: undefined,
-      moveErrorDialog: null,
       // Reset turn based on position
       isPlayerTurn: currentPos
         ? currentPos.sideToMove === currentPos.colorToTrain
@@ -647,13 +597,6 @@ export const trainingSelectors = {
    * @returns {number} Number of mistakes
    */
   selectMistakeCount: (state: TrainingSlice) => state.mistakeCount,
-
-  /**
-   * Selects move error dialog state
-   * @param {TrainingSlice} state - The training slice of the store
-   * @returns {Object|null} Dialog state or null
-   */
-  selectMoveErrorDialog: (state: TrainingSlice) => state.moveErrorDialog,
 
   /**
    * Selects whether navigation to next position is available

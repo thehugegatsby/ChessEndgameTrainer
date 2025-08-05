@@ -53,8 +53,8 @@ describe("UISlice", () => {
       const state = store.getState();
       const expectedState = createInitialUIState();
 
-      expect(state.sidebarOpen).toBe(expectedState.sidebarOpen);
-      expect(state.modalOpen).toBe(expectedState.modalOpen);
+      expect(state.isSidebarOpen).toBe(expectedState.isSidebarOpen);
+      expect(state.currentModal).toBe(expectedState.currentModal);
       expect(state.toasts).toEqual(expectedState.toasts);
       expect(state.loading).toEqual(expectedState.loading);
       expect(state.analysisPanel).toEqual(expectedState.analysisPanel);
@@ -79,13 +79,13 @@ describe("UISlice", () => {
      * Tests sidebar toggle functionality
      */
     it("should toggle sidebar open/closed", () => {
-      expect(store.getState().sidebarOpen).toBe(true);
+      expect(store.getState().isSidebarOpen).toBe(true);
 
       store.getState().toggleSidebar();
-      expect(store.getState().sidebarOpen).toBe(false);
+      expect(store.getState().isSidebarOpen).toBe(false);
 
       store.getState().toggleSidebar();
-      expect(store.getState().sidebarOpen).toBe(true);
+      expect(store.getState().isSidebarOpen).toBe(true);
     });
   });
 
@@ -94,13 +94,13 @@ describe("UISlice", () => {
      * Tests opening different modal types
      */
     it("should open modal by type", () => {
-      expect(store.getState().modalOpen).toBe(null);
+      expect(store.getState().currentModal).toBe(null);
 
       store.getState().openModal("settings");
-      expect(store.getState().modalOpen).toBe("settings");
+      expect(store.getState().currentModal).toBe("settings");
 
       store.getState().openModal("achievements");
-      expect(store.getState().modalOpen).toBe("achievements");
+      expect(store.getState().currentModal).toBe("achievements");
     });
 
     /**
@@ -108,10 +108,10 @@ describe("UISlice", () => {
      */
     it("should close modal", () => {
       store.getState().openModal("help");
-      expect(store.getState().modalOpen).toBe("help");
+      expect(store.getState().currentModal).toBe("help");
 
       store.getState().closeModal();
-      expect(store.getState().modalOpen).toBe(null);
+      expect(store.getState().currentModal).toBe(null);
     });
 
     /**
@@ -121,7 +121,7 @@ describe("UISlice", () => {
       store.getState().openModal("settings");
       store.getState().openModal("share");
 
-      expect(store.getState().modalOpen).toBe("share");
+      expect(store.getState().currentModal).toBe("share");
     });
   });
 
@@ -312,7 +312,7 @@ describe("UISlice", () => {
       const state = store.getState();
 
       expect(uiSelectors.selectSidebarOpen(state)).toBe(false);
-      expect(uiSelectors.selectModalOpen(state)).toBe("settings");
+      expect(uiSelectors.selectCurrentModal(state)).toBe("settings");
       expect(uiSelectors.selectToasts(state)).toHaveLength(1);
       expect(uiSelectors.selectGlobalLoading(state)).toBe(true);
       expect(uiSelectors.selectTablebaseLoading(state)).toBe(false);
@@ -385,7 +385,7 @@ describe("UISlice", () => {
       const state = store.getState();
       expect(state.loading.global).toBe(false);
       expect(state.toasts).toHaveLength(1);
-      expect(state.modalOpen).toBe("share");
+      expect(state.currentModal).toBe("share");
     });
 
     /**

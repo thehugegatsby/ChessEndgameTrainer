@@ -230,11 +230,17 @@ export interface Achievement {
  *
  */
 export interface UIState {
-  sidebarOpen: boolean;
-  modalOpen: ModalType | null;
+  isSidebarOpen: boolean;
+  currentModal: ModalType | null;
   toasts: Toast[];
   loading: LoadingState;
   analysisPanel: AnalysisPanelState;
+  moveErrorDialog: {
+    isOpen: boolean;
+    wdlBefore?: number;
+    wdlAfter?: number;
+    bestMove?: string;
+  } | null;
 }
 
 /**
@@ -356,7 +362,7 @@ export interface TrainingActions {
   setEvaluations: (evaluations: PositionAnalysis[]) => void;
   setAnalysisStatus: (status: AnalysisStatus) => void;
   completeTraining: (success: boolean) => void;
-  useHint: () => void;
+  incrementHint: () => void;
   incrementMistake: () => void;
   setMoveErrorDialog: (
     dialogState: {

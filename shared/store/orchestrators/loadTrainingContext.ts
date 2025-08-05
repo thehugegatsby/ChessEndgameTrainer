@@ -99,7 +99,7 @@ export const loadTrainingContext = async (
     state.clearTablebaseState();
 
     // Close any open modals
-    if (state.modalOpen) {
+    if (state.currentModal) {
       state.closeModal();
     }
 

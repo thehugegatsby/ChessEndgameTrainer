@@ -35,7 +35,7 @@ type MockRootState = Partial<RootState>;
  * ```typescript
  * const mock = mockRootStore({
  *   analysisStatus: 'error',
- *   modalOpen: 'settings'
+ *   currentModal: 'settings'
  * });
  *
  * // Component will see these values
@@ -101,7 +101,6 @@ const mockRootStore = (overrides: MockRootState = {}) => {
     sessionEndTime: undefined,
     hintsUsed: 0,
     mistakeCount: 0,
-    moveErrorDialog: null,
 
     // Progress state
     positionProgress: {},
@@ -112,8 +111,8 @@ const mockRootStore = (overrides: MockRootState = {}) => {
     level: 1,
 
     // UI state
-    sidebarOpen: true,
-    modalOpen: null,
+    isSidebarOpen: true,
+    currentModal: null,
     toasts: [],
     loading: {
       global: false,
@@ -129,6 +128,7 @@ const mockRootStore = (overrides: MockRootState = {}) => {
       showDepth: false,
       showThinkingTime: false,
     },
+    moveErrorDialog: null,
 
     // Settings state
     theme: {
@@ -185,7 +185,7 @@ const mockRootStore = (overrides: MockRootState = {}) => {
     clearTablebaseState: jest.fn(),
     setPosition: jest.fn(),
     setPlayerTurn: jest.fn(),
-    useHint: jest.fn(),
+    incrementHint: jest.fn(),
     incrementMistake: jest.fn(),
     setMoveErrorDialog: jest.fn(),
     updatePositionProgress: jest.fn(),

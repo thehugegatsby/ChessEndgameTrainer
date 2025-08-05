@@ -90,7 +90,6 @@ describe("TrainingSlice", () => {
       expect(state.isSuccess).toBe(expectedState.isSuccess);
       expect(state.hintsUsed).toBe(expectedState.hintsUsed);
       expect(state.mistakeCount).toBe(expectedState.mistakeCount);
-      expect(state.moveErrorDialog).toBe(expectedState.moveErrorDialog);
     });
 
     /**
@@ -122,7 +121,6 @@ describe("TrainingSlice", () => {
       expect(state.sessionEndTime).toBeUndefined();
       expect(state.hintsUsed).toBe(0);
       expect(state.mistakeCount).toBe(0);
-      expect(state.moveErrorDialog).toBeNull();
     });
 
     /**
@@ -140,24 +138,6 @@ describe("TrainingSlice", () => {
       };
       store.getState().setPosition(blackTrainingPos);
       expect(store.getState().isPlayerTurn).toBe(false);
-    });
-
-    /**
-     * Tests that setting position resets error dialog
-     */
-    it("should clear move error dialog", () => {
-      // Set error dialog first
-      store.getState().setMoveErrorDialog({
-        isOpen: true,
-        wdlBefore: 1000,
-        wdlAfter: 0,
-        bestMove: "Ra8#",
-      });
-      expect(store.getState().moveErrorDialog).not.toBeNull();
-
-      // Set position should clear it
-      store.getState().setPosition(mockPosition);
-      expect(store.getState().moveErrorDialog).toBeNull();
     });
   });
 
@@ -332,11 +312,11 @@ describe("TrainingSlice", () => {
     it("should increment hint counter", () => {
       expect(store.getState().hintsUsed).toBe(0);
 
-      store.getState().useHint();
+      store.getState().incrementHint();
       expect(store.getState().hintsUsed).toBe(1);
 
-      store.getState().useHint();
-      store.getState().useHint();
+      store.getState().incrementHint();
+      store.getState().incrementHint();
       expect(store.getState().hintsUsed).toBe(3);
     });
 
@@ -355,54 +335,6 @@ describe("TrainingSlice", () => {
     });
   });
 
-  describe("Move Error Dialog", () => {
-    /**
-     * Tests setting error dialog
-     */
-    it("should set move error dialog", () => {
-      const dialog = {
-        isOpen: true,
-        wdlBefore: 1000,
-        wdlAfter: 0,
-        bestMove: "Ra8#",
-      };
-
-      store.getState().setMoveErrorDialog(dialog);
-      expect(store.getState().moveErrorDialog).toEqual(dialog);
-    });
-
-    /**
-     * Tests clearing error dialog
-     */
-    it("should clear move error dialog with null", () => {
-      store.getState().setMoveErrorDialog({
-        isOpen: true,
-        wdlBefore: 500,
-      });
-
-      store.getState().setMoveErrorDialog(null);
-      expect(store.getState().moveErrorDialog).toBeNull();
-    });
-
-    /**
-     * Tests partial error dialog data
-     */
-    it("should handle partial dialog data", () => {
-      const dialog = {
-        isOpen: true,
-        // No WDL or best move
-      };
-
-      store.getState().setMoveErrorDialog(dialog);
-
-      const state = store.getState();
-      expect(state.moveErrorDialog?.isOpen).toBe(true);
-      expect(state.moveErrorDialog?.wdlBefore).toBeUndefined();
-      expect(state.moveErrorDialog?.wdlAfter).toBeUndefined();
-      expect(state.moveErrorDialog?.bestMove).toBeUndefined();
-    });
-  });
-
   describe("resetTraining", () => {
     /**
      * Tests complete state reset
@@ -417,9 +349,8 @@ describe("TrainingSlice", () => {
       store.getState().setNavigationError("Error");
       store.getState().setChapterProgress({ completed: 5, total: 10 });
       store.getState().setPlayerTurn(false);
-      store.getState().useHint();
+      store.getState().incrementHint();
       store.getState().incrementMistake();
-      store.getState().setMoveErrorDialog({ isOpen: true });
 
       // Reset
       store.getState().resetTraining();
@@ -440,7 +371,6 @@ describe("TrainingSlice", () => {
       expect(state.sessionEndTime).toBe(initialState.sessionEndTime);
       expect(state.hintsUsed).toBe(initialState.hintsUsed);
       expect(state.mistakeCount).toBe(initialState.mistakeCount);
-      expect(state.moveErrorDialog).toBe(initialState.moveErrorDialog);
     });
   });
 
@@ -472,7 +402,6 @@ describe("TrainingSlice", () => {
       expect(trainingSelectors.selectIsSuccess(state)).toBe(false);
       expect(trainingSelectors.selectHintsUsed(state)).toBe(0);
       expect(trainingSelectors.selectMistakeCount(state)).toBe(0);
-      expect(trainingSelectors.selectMoveErrorDialog(state)).toBeNull();
     });
 
     /**
@@ -556,14 +485,14 @@ describe("TrainingSlice", () => {
       expect(trainingSelectors.selectAccuracy(state2)).toBe(90);
 
       // One hint = -5%
-      store.getState().useHint();
+      store.getState().incrementHint();
       const state3 = store.getState();
       expect(trainingSelectors.selectAccuracy(state3)).toBe(85);
 
       // Multiple mistakes and hints
       store.getState().incrementMistake();
       store.getState().incrementMistake();
-      store.getState().useHint();
+      store.getState().incrementHint();
       const state4 = store.getState();
       // 3 mistakes (-30%) + 2 hints (-10%) = 60%
       expect(trainingSelectors.selectAccuracy(state4)).toBe(60);
@@ -589,18 +518,9 @@ describe("TrainingSlice", () => {
 
       // Make some moves (with mistakes and hints)
       store.getState().incrementMistake();
-      store.getState().setMoveErrorDialog({
-        isOpen: true,
-        wdlBefore: 1000,
-        wdlAfter: 500,
-        bestMove: "Ra7",
-      });
 
       // Use a hint
-      store.getState().useHint();
-
-      // Close error dialog
-      store.getState().setMoveErrorDialog(null);
+      store.getState().incrementHint();
 
       // Complete training
       store.getState().completeTraining(true);

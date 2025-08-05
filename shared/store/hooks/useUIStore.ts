@@ -27,7 +27,7 @@ import type { RootState } from "../slices/types";
  * const {
  *   // State
  *   analysisPanel,
- *   sidebarOpen,
+ *   isSidebarOpen,
  *   moveErrorDialog,
  *
  *   // Actions
@@ -45,6 +45,11 @@ import type { RootState } from "../slices/types";
  * const toggleAnalysis = () => {
  *   updateAnalysisPanel({ isOpen: !analysisPanel.isOpen });
  * };
+ *
+ * // Check sidebar state
+ * if (isSidebarOpen) {
+ *   // Sidebar is open
+ * }
  * ```
  */
 export const useUIStore = () => {
@@ -52,10 +57,11 @@ export const useUIStore = () => {
     useShallow((state: RootState) => ({
       // === UI State ===
       toasts: state.toasts,
-      modalOpen: state.modalOpen,
-      sidebarOpen: state.sidebarOpen,
+      currentModal: state.currentModal,
+      isSidebarOpen: state.isSidebarOpen,
       loading: state.loading,
       analysisPanel: state.analysisPanel,
+      moveErrorDialog: state.moveErrorDialog,
 
       // === Toast Actions ===
       showToast: state.showToast,

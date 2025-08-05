@@ -67,7 +67,7 @@ export const useTrainingStore = () => {
       loadTrainingContext: state.loadTrainingContext,
       completeTraining: state.completeTraining,
       incrementMistake: state.incrementMistake,
-      useHint: state.useHint,
+      incrementHint: state.incrementHint,
 
       // === Navigation Actions ===
       setNavigationPositions: state.setNavigationPositions,

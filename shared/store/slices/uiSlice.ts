@@ -29,8 +29,8 @@ import { Toast, ModalType, LoadingState, AnalysisPanelState } from "../types";
  * Creates the initial UI state with default values
  *
  * @returns {Object} Initial UI state
- * @returns {boolean} returns.sidebarOpen - Sidebar visibility (default: true)
- * @returns {ModalType|null} returns.modalOpen - Currently open modal type or null
+ * @returns {boolean} returns.isSidebarOpen - Sidebar visibility (default: true)
+ * @returns {ModalType|null} returns.currentModal - Currently open modal type or null
  * @returns {Toast[]} returns.toasts - Array of active toast notifications
  * @returns {LoadingState} returns.loading - Loading states for different operations
  * @returns {AnalysisPanelState} returns.analysisPanel - Analysis panel configuration
@@ -38,13 +38,13 @@ import { Toast, ModalType, LoadingState, AnalysisPanelState } from "../types";
  * @example
  * ```typescript
  * const initialState = createInitialUIState();
- * console.log(initialState.sidebarOpen); // true
+ * console.log(initialState.isSidebarOpen); // true
  * console.log(initialState.toasts); // []
  * ```
  */
 export const createInitialUIState = () => ({
-  sidebarOpen: true,
-  modalOpen: null as ModalType | null,
+  isSidebarOpen: true,
+  currentModal: null as ModalType | null,
   toasts: [] as Toast[],
   loading: {
     global: false,
@@ -57,6 +57,12 @@ export const createInitialUIState = () => ({
     activeTab: "moves" as const,
     showTablebase: true,
   } as AnalysisPanelState,
+  moveErrorDialog: null as {
+    isOpen: boolean;
+    wdlBefore?: number;
+    wdlAfter?: number;
+    bestMove?: string;
+  } | null,
 });
 
 /**
@@ -102,7 +108,7 @@ export const createUISlice: ImmerStateCreator<UISlice> = (set, get) => ({
    */
   toggleSidebar: () =>
     set((state) => ({
-      sidebarOpen: !state.sidebarOpen,
+      isSidebarOpen: !state.isSidebarOpen,
     })),
 
   /**
@@ -122,7 +128,7 @@ export const createUISlice: ImmerStateCreator<UISlice> = (set, get) => ({
    */
   setSidebarOpen: (isOpen: boolean) =>
     set({
-      sidebarOpen: isOpen,
+      isSidebarOpen: isOpen,
     }),
 
   /**
@@ -146,7 +152,7 @@ export const createUISlice: ImmerStateCreator<UISlice> = (set, get) => ({
    */
   openModal: (type: ModalType) =>
     set({
-      modalOpen: type,
+      currentModal: type,
     }),
 
   /**
@@ -162,7 +168,7 @@ export const createUISlice: ImmerStateCreator<UISlice> = (set, get) => ({
    */
   closeModal: () =>
     set({
-      modalOpen: null,
+      currentModal: null,
     }),
 
   /**
@@ -305,6 +311,47 @@ export const createUISlice: ImmerStateCreator<UISlice> = (set, get) => ({
         ...update,
       },
     })),
+
+  /**
+   * Sets the move error dialog state
+   *
+   * @param {Object|null} dialog - Dialog configuration or null to close
+   * @param {boolean} dialog.isOpen - Whether dialog is open
+   * @param {number} [dialog.wdlBefore] - WDL evaluation before move
+   * @param {number} [dialog.wdlAfter] - WDL evaluation after move
+   * @param {string} [dialog.bestMove] - Best move that should have been played
+   *
+   * @fires stateChange - When dialog state changes
+   *
+   * @remarks
+   * Controls the display of move feedback dialogs that show
+   * when a user makes a mistake. The dialog can display the
+   * evaluation change and suggest the best move.
+   *
+   * @example
+   * ```typescript
+   * // Show error dialog
+   * store.getState().setMoveErrorDialog({
+   *   isOpen: true,
+   *   wdlBefore: 1000,  // Winning
+   *   wdlAfter: 0,      // Now draw
+   *   bestMove: "Ra8#"
+   * });
+   *
+   * // Close dialog
+   * store.getState().setMoveErrorDialog(null);
+   * ```
+   */
+  setMoveErrorDialog: (
+    dialog: {
+      isOpen: boolean;
+      wdlBefore?: number;
+      wdlAfter?: number;
+      bestMove?: string;
+    } | null,
+  ) => {
+    set({ moveErrorDialog: dialog });
+  },
 });
 
 /**
@@ -332,14 +379,14 @@ export const uiSelectors = {
    * @param {UISlice} state - The UI slice of the store
    * @returns {boolean} Whether the sidebar is open
    */
-  selectSidebarOpen: (state: UISlice) => state.sidebarOpen,
+  selectSidebarOpen: (state: UISlice) => state.isSidebarOpen,
 
   /**
    * Selects the currently open modal type
    * @param {UISlice} state - The UI slice of the store
    * @returns {ModalType | null} The open modal type or null if no modal is open
    */
-  selectModalOpen: (state: UISlice) => state.modalOpen,
+  selectCurrentModal: (state: UISlice) => state.currentModal,
 
   /**
    * Selects all active toasts
@@ -387,5 +434,12 @@ export const uiSelectors = {
    * ```
    */
   selectIsModalOpen: (type: ModalType) => (state: UISlice) =>
-    state.modalOpen === type,
+    state.currentModal === type,
+
+  /**
+   * Selects the move error dialog state
+   * @param {UISlice} state - The UI slice of the store
+   * @returns {Object|null} The move error dialog configuration or null
+   */
+  selectMoveErrorDialog: (state: UISlice) => state.moveErrorDialog,
 };

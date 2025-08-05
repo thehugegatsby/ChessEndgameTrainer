@@ -23,7 +23,7 @@ import type { StateCreator } from "zustand";
  *
  * // With initial state
  * const store = createTestStore(createUISlice, {
- *   sidebarOpen: false,
+ *   isSidebarOpen: false,
  *   toasts: [{ id: '1', message: 'Test', type: 'info' }]
  * });
  * ```
@@ -60,7 +60,7 @@ export function createTestStore<T>(
  * // With initial state
  * const store = createCombinedTestStore(
  *   { ui: createUISlice, game: createGameSlice },
- *   { ui: { sidebarOpen: false } }
+ *   { ui: { isSidebarOpen: false } }
  * );
  * ```
  */

@@ -18,6 +18,10 @@
  *    - useGameStore: Chess game state, moves, analysis
  *    - useTrainingStore: Training sessions, navigation, progress
  *    - useUIStore: UI elements, toasts, modals, panels
+ *    - useProgressStore: User progress, achievements, statistics
+ *    - useTablebaseStore: Tablebase evaluations, analysis status
+ *    - useUserStore: User authentication, profile, preferences
+ *    - useSettingsStore: Application settings, theme, configuration
  *
  * All hooks use useShallow internally for optimal re-render performance.
  *
@@ -49,3 +53,7 @@
 export { useGameStore } from "./useGameStore";
 export { useTrainingStore } from "./useTrainingStore";
 export { useUIStore } from "./useUIStore";
+export { useProgressStore } from "./useProgressStore";
+export { useTablebaseStore } from "./useTablebaseStore";
+export { useUserStore } from "./useUserStore";
+export { useSettingsStore } from "./useSettingsStore";
