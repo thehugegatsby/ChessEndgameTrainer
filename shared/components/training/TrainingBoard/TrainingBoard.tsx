@@ -158,7 +158,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   const initialFen = fen || position?.fen || "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1";
 
   // === ZUSTAND STORE - Using domain-specific hooks for performance ===
-  const [, gameActions] = useGameStore(); // Pure chess state
+  const [gameState, gameActions] = useGameStore(); // Pure chess state
   const [trainingState, trainingActions] = useTrainingStore(); // Training session state
   const [tablebaseState, tablebaseActions] = useTablebaseStore(); // Analysis and evaluation data
   const [, uiActions] = useUIStore(); // UI state (toasts, modals, loading)
@@ -331,23 +331,46 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   }, [resetGame, clearEvaluations, gameActions]);
 
   /**
-   * Handles move error dialog dismissal without undo
+   * Handles move error dialog dismissal with undo
    *
    * @description
-   * Closes the move error dialog allowing the user to try a different move.
-   * No undo is performed as invalid moves are not added to history.
+   * Closes the move error dialog and undoes the suboptimal move,
+   * allowing the user to try a different move.
    *
    * @remarks
-   * This maintains the current board position and allows the user
-   * to attempt another move without reverting any game state.
+   * When a suboptimal move is detected, it has already been executed
+   * on the board and added to the move history. This function removes
+   * the move from history and reverts the board position.
    */
   const handleMoveErrorTakeBack = useCallback(() => {
     const logger = getLogger().setContext("TrainingBoard-MoveError");
-    logger.info("Closing move error dialog");
-    // Don't undo anything - the invalid move was never added to history
-    // Just close the dialog so the user can try again
+    logger.info("Undoing suboptimal move");
+
+    // Get current move history and remove the last move
+    const currentHistory = gameState.moveHistory;
+    const currentIndex = gameState.currentMoveIndex;
+
+    if (currentIndex >= 0 && currentHistory.length > 0) {
+      // Remove the suboptimal move from history
+      const newHistory = currentHistory.slice(0, currentIndex);
+      const newIndex = currentIndex - 1;
+
+      // Set the position to before the suboptimal move
+      const fenBeforeMove = currentHistory[currentIndex].fenBefore;
+
+      // Update game state
+      gameActions.setCurrentFen(fenBeforeMove);
+      gameActions.setMoveHistory(newHistory);
+      gameActions.setCurrentMoveIndex(newIndex);
+
+      logger.info("Move removed from history and position restored");
+    } else {
+      logger.error("No move to undo");
+    }
+
+    // Close the dialog
     trainingActions.setMoveErrorDialog(null);
-  }, [trainingActions]);
+  }, [gameState, gameActions, trainingActions]);
 
   /**
    * Restarts the entire training session after move error
