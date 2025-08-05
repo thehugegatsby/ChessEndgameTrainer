@@ -11,20 +11,17 @@
 import { tablebaseService } from "@shared/services/TablebaseService";
 import { assessTablebaseMoveQuality } from "@shared/utils/moveQuality";
 import type { MoveEvaluation, MoveErrorDialog } from "./move.types";
-import type { TrainingPosition } from "@shared/store/slices/trainingSlice";
 
 /**
  * Evaluates move quality using tablebase
  *
  * @param {string} fenBefore - Position before move
  * @param {string} fenAfter - Position after move
- * @param {TrainingPosition} currentPosition - Training position context
  * @returns {Promise<MoveEvaluation>} Move evaluation result
  */
 export async function evaluateMoveQuality(
   fenBefore: string,
   fenAfter: string,
-  currentPosition: TrainingPosition,
 ): Promise<MoveEvaluation> {
   const result: MoveEvaluation = {
     isOptimal: true, // Default to true when tablebase unavailable
@@ -43,14 +40,8 @@ export async function evaluateMoveQuality(
       evalBefore.result &&
       evalAfter.result
     ) {
-      const wdlBefore = getWDLFromTrainingPerspective(
-        evalBefore.result.wdl,
-        currentPosition.colorToTrain,
-      );
-      const wdlAfter = getWDLFromTrainingPerspective(
-        evalAfter.result.wdl,
-        currentPosition.colorToTrain,
-      );
+      const wdlBefore = evalBefore.result.wdl;
+      const wdlAfter = evalAfter.result.wdl;
 
       result.wdlBefore = wdlBefore;
       result.wdlAfter = wdlAfter;

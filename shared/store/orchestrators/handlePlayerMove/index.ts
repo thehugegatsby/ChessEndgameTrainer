@@ -75,11 +75,7 @@ export const handlePlayerMove = async (
     const { fenBefore, fenAfter } = moveResult;
 
     // Step 3: Evaluate move quality
-    const evaluation = await evaluateMoveQuality(
-      fenBefore,
-      fenAfter,
-      state.currentPosition!,
-    );
+    const evaluation = await evaluateMoveQuality(fenBefore, fenAfter);
 
     // Step 4: Handle move feedback
     if (!evaluation.isOptimal) {

@@ -60,14 +60,31 @@ jest.mock("nanoid", () => ({
 jest.mock("chess.js", () => {
   return {
     Chess: jest.fn().mockImplementation((fen) => {
-      const currentFen =
+      let currentFen =
         fen || "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
       return {
         fen: jest.fn(() => currentFen),
         pgn: jest.fn(() => ""),
         move: jest.fn((move) => {
-          // Return valid move object
+          // Simulate the specific test move Kd6->Kc7
+          if (
+            move.from === "d6" &&
+            move.to === "c7" &&
+            currentFen === "5k2/8/3K4/4P3/8/8/8/8 w - - 2 2"
+          ) {
+            currentFen = "5k2/2K5/8/4P3/8/8/8/8 b - - 3 2";
+            return {
+              from: "d6",
+              to: "c7",
+              san: "Kc7",
+              piece: "k",
+              color: "w",
+              flags: "",
+            };
+          }
+
+          // Return valid move object for other moves
           return {
             from: move.from || "e2",
             to: move.to || "e4",

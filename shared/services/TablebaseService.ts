@@ -459,7 +459,7 @@ class TablebaseService {
         category: positionCategory,
         wdl: positionWdl,
         dtz: api.dtz,
-        dtm: api.dtm,
+        dtm: api.dtm ?? null,
         precise: api.precise_dtz !== undefined && api.precise_dtz !== null,
         evaluation: this._getEvaluationText(positionCategory, api.dtz),
       },
