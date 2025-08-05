@@ -9,11 +9,7 @@
  */
 
 import { useCallback } from "react";
-import {
-  useBoardState,
-  useTrainingActions,
-  useGameActions,
-} from "@shared/store/hooks";
+import { useGameStore, useTrainingStore } from "@shared/store/hooks";
 import type { ValidatedMove } from "@shared/types/chess";
 import { ErrorService } from "@shared/services/ErrorService";
 
@@ -117,18 +113,8 @@ export const useTrainingSession = ({
   onComplete,
   onPositionChange,
 }: UseTrainingSessionOptions): UseTrainingSessionReturn => {
-  const {
-    game,
-    isGameFinished,
-    currentFen,
-    currentPgn,
-    moveHistory,
-    currentPosition,
-  } = useBoardState();
-
-  const { handlePlayerMove, completeTraining } = useTrainingActions();
-
-  const { goToMove, resetPosition, undoMove } = useGameActions();
+  const gameStore = useGameStore();
+  const trainingStore = useTrainingStore();
 
   /**
    * Execute a chess move and update the game state
@@ -144,23 +130,28 @@ export const useTrainingSession = ({
       to: string;
       promotion?: string;
     }): Promise<boolean> => {
-      if (isGameFinished) return false;
+      if (gameStore.isGameFinished) return false;
 
       try {
         // Simply delegate to Store - no double validation needed
         // Store will validate the move and update all states atomically
-        const moveResult = await handlePlayerMove(move as any);
+        const moveResult = await trainingStore.handlePlayerMove(move as any);
         if (!moveResult) return false;
 
         // Check if game is finished after move
-        if (game?.isGameOver()) {
-          const success = game.turn() !== currentPosition?.sideToMove?.[0];
-          completeTraining(success);
+        if (gameStore.game?.isGameOver()) {
+          const success =
+            gameStore.game.turn() !==
+            trainingStore.currentPosition?.sideToMove?.[0];
+          trainingStore.completeTraining(success);
           onComplete?.(success);
         }
 
         // Notify position change with current Store state
-        onPositionChange?.(currentFen || "", currentPgn || "");
+        onPositionChange?.(
+          gameStore.currentFen || "",
+          gameStore.currentPgn || "",
+        );
 
         return true;
       } catch (error) {
@@ -173,13 +164,13 @@ export const useTrainingSession = ({
       }
     },
     [
-      game,
-      isGameFinished,
-      currentPosition,
-      currentFen,
-      currentPgn,
-      handlePlayerMove,
-      completeTraining,
+      gameStore.isGameFinished,
+      gameStore.game,
+      gameStore.currentFen,
+      gameStore.currentPgn,
+      trainingStore.handlePlayerMove,
+      trainingStore.completeTraining,
+      trainingStore.currentPosition,
       onComplete,
       onPositionChange,
     ],
@@ -193,14 +184,19 @@ export const useTrainingSession = ({
     (moveIndex: number) => {
       // Convert 1-based index to 0-based for store
       const zeroBasedIndex = moveIndex - 1;
-      goToMove(zeroBasedIndex);
+      gameStore.goToMove(zeroBasedIndex);
 
       // Notify position change
-      if (onPositionChange && currentFen) {
-        onPositionChange(currentFen, currentPgn || "");
+      if (onPositionChange && gameStore.currentFen) {
+        onPositionChange(gameStore.currentFen, gameStore.currentPgn || "");
       }
     },
-    [goToMove, currentFen, currentPgn, onPositionChange],
+    [
+      gameStore.goToMove,
+      gameStore.currentFen,
+      gameStore.currentPgn,
+      onPositionChange,
+    ],
   );
 
   /**
@@ -208,38 +204,49 @@ export const useTrainingSession = ({
    * Clears move history and resets to starting FEN
    */
   const resetGame = useCallback(() => {
-    resetPosition();
+    gameStore.resetPosition();
 
     // Notify position change
-    if (onPositionChange && currentPosition) {
-      onPositionChange(currentPosition.fen, "");
+    if (onPositionChange && trainingStore.currentPosition) {
+      onPositionChange(trainingStore.currentPosition.fen, "");
     }
-  }, [resetPosition, currentPosition, onPositionChange]);
+  }, [
+    gameStore.resetPosition,
+    trainingStore.currentPosition,
+    onPositionChange,
+  ]);
 
   /**
    * Undo the last move in the game
    * @returns {boolean} True if move was undone, false if no moves to undo
    */
   const undoMoveAction = useCallback((): boolean => {
-    if (moveHistory.length === 0) return false;
+    if (gameStore.moveHistory.length === 0) return false;
 
     // Use the store's undoMove action
-    undoMove();
+    gameStore.undoMove();
 
     // Notify position change
-    if (onPositionChange && currentFen) {
-      onPositionChange(currentFen, currentPgn || "");
+    if (onPositionChange && gameStore.currentFen) {
+      onPositionChange(gameStore.currentFen, gameStore.currentPgn || "");
     }
 
     return true;
-  }, [moveHistory, currentFen, currentPgn, undoMove, onPositionChange]);
+  }, [
+    gameStore.moveHistory,
+    gameStore.currentFen,
+    gameStore.currentPgn,
+    gameStore.undoMove,
+    onPositionChange,
+  ]);
 
   return {
-    game: game,
-    history: moveHistory,
-    isGameFinished: isGameFinished,
-    currentFen: currentFen || currentPosition?.fen || "",
-    currentPgn: currentPgn || "",
+    game: gameStore.game,
+    history: gameStore.moveHistory,
+    isGameFinished: gameStore.isGameFinished,
+    currentFen:
+      gameStore.currentFen || trainingStore.currentPosition?.fen || "",
+    currentPgn: gameStore.currentPgn || "",
     makeMove,
     jumpToMove,
     resetGame,
