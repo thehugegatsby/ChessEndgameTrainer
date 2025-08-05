@@ -10,6 +10,7 @@
 
 import { useStore } from "../rootStore";
 import { useShallow } from "zustand/react/shallow";
+import type { RootState } from "../slices/types";
 
 /**
  * Hook for comprehensive training state and actions
@@ -46,7 +47,7 @@ import { useShallow } from "zustand/react/shallow";
  */
 export const useTrainingStore = () => {
   return useStore(
-    useShallow((state) => ({
+    useShallow((state: RootState) => ({
       // === Training State ===
       currentPosition: state.currentPosition,
       sessionStartTime: state.sessionStartTime,

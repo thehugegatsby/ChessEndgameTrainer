@@ -54,12 +54,15 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
     // Local UI state
     const [resetKey, setResetKey] = useState<number>(0);
 
+    // Extract actions to avoid dependency issues
+    const { loadTrainingContext, completeTraining } = trainingStore;
+
     // Load training context when position changes
     useEffect(() => {
-      if (position) {
-        trainingStore.loadTrainingContext(position);
+      if (position && position.id) {
+        loadTrainingContext(position);
       }
-    }, [position, trainingStore]);
+    }, [position?.id, loadTrainingContext]);
 
     // Game status
     const gameStatus = useMemo(
@@ -72,16 +75,6 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
     const nextPosition = trainingStore.nextPosition;
     const isLoadingNavigation = trainingStore.isLoadingNavigation;
 
-    // Initialize position in store when component mounts
-    useEffect(() => {
-      if (
-        !trainingStore.currentPosition ||
-        trainingStore.currentPosition.id !== position.id
-      ) {
-        trainingStore.loadTrainingContext(position);
-      }
-    }, [position.id, trainingStore]);
-
     const handleComplete = useCallback(
       (isSuccess: boolean) => {
         if (isSuccess) {
@@ -92,9 +85,9 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
         } else {
           showError("Versuch es erneut", ANIMATION.ERROR_TOAST_DURATION);
         }
-        trainingStore.completeTraining(isSuccess);
+        completeTraining(isSuccess);
       },
-      [trainingStore, showSuccess, showError],
+      [completeTraining, showSuccess, showError],
     );
 
     const handleResetPosition = useCallback(() => {

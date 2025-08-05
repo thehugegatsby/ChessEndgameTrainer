@@ -10,6 +10,7 @@
 
 import { useStore } from "../rootStore";
 import { useShallow } from "zustand/react/shallow";
+import type { RootState } from "../slices/types";
 
 /**
  * Hook for comprehensive game state and actions
@@ -47,7 +48,7 @@ import { useShallow } from "zustand/react/shallow";
  */
 export const useGameStore = () => {
   return useStore(
-    useShallow((state) => ({
+    useShallow((state: RootState) => ({
       // === Game State ===
       game: state.game,
       currentFen: state.currentFen,

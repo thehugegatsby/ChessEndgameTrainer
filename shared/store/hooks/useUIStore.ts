@@ -10,6 +10,7 @@
 
 import { useStore } from "../rootStore";
 import { useShallow } from "zustand/react/shallow";
+import type { RootState } from "../slices/types";
 
 /**
  * Hook for comprehensive UI state and actions
@@ -48,7 +49,7 @@ import { useShallow } from "zustand/react/shallow";
  */
 export const useUIStore = () => {
   return useStore(
-    useShallow((state) => ({
+    useShallow((state: RootState) => ({
       // === UI State ===
       toasts: state.toasts,
       modalOpen: state.modalOpen,
