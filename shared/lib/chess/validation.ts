@@ -1,9 +1,60 @@
+/**
+ * @file Chess position validation utilities
+ * @module lib/chess/validation
+ *
+ * @description
+ * Provides comprehensive FEN (Forsyth-Edwards Notation) validation utilities
+ * for chess positions. Combines syntactic validation with chess rule validation
+ * to ensure positions are both well-formed and legal according to chess rules.
+ *
+ * @remarks
+ * Key validation features:
+ * - Syntactic FEN structure validation (6 parts, proper format)
+ * - Chess rule validation using chess.js library
+ * - Piece count limits and promotion scenario validation
+ * - King presence and castling rights validation
+ * - Character encoding and whitespace validation
+ *
+ * The validation is performed in two stages:
+ * 1. Fast syntactic checks to catch obvious errors
+ * 2. Chess.js library validation for comprehensive rule checking
+ */
+
 import { Chess } from "chess.js";
 import { CHESS } from "../../constants";
 
 /**
+ * Validates a FEN string for correctness
  *
- * @param fen
+ * @param {string} fen - The FEN string to validate
+ * @returns {boolean} True if the FEN is valid, false otherwise
+ *
+ * @description
+ * Performs comprehensive validation of a FEN string including syntactic
+ * structure checks and chess rule validation. Uses a two-stage approach
+ * for efficient validation with early rejection of malformed strings.
+ *
+ * @remarks
+ * Validation checks performed:
+ * - Null/undefined/empty string checks
+ * - Correct number of FEN parts (exactly 6)
+ * - Proper character encoding (no special chars or non-ASCII)
+ * - Castling rights format validation
+ * - Piece count limits and king presence
+ * - Promotion scenario validation
+ * - Final chess.js rule validation
+ *
+ * @example
+ * ```typescript
+ * // Valid starting position
+ * isValidFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1') // true
+ *
+ * // Invalid: missing parts
+ * isValidFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR') // false
+ *
+ * // Invalid: impossible piece count
+ * isValidFen('QQQQQQQQ/8/8/8/8/8/8/qqqqqqqq w - - 0 1') // false
+ * ```
  */
 export function isValidFen(fen: string): boolean {
   // Check for null/undefined
@@ -145,8 +196,26 @@ export function isValidFen(fen: string): boolean {
 }
 
 /**
+ * Validates a FEN string and returns detailed validation result
  *
- * @param fen
+ * @param {string} fen - The FEN string to validate
+ * @returns {{ isValid: boolean; error?: string }} Validation result with optional error message
+ *
+ * @description
+ * Extended validation function that provides detailed error information
+ * when validation fails. Uses the same validation logic as isValidFen
+ * but returns structured result with German error messages for user display.
+ *
+ * @example
+ * ```typescript
+ * // Valid position
+ * const result1 = validateFen('rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4');
+ * // { isValid: true }
+ *
+ * // Invalid position
+ * const result2 = validateFen('invalid-fen');
+ * // { isValid: false, error: 'Ungültiger FEN-String' }
+ * ```
  */
 export function validateFen(fen: string): { isValid: boolean; error?: string } {
   // Use the same validation logic as isValidFen
