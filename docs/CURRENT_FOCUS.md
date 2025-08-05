@@ -2,9 +2,9 @@
 
 ## 🎯 Active Development
 
-**🎉 MAJOR MILESTONE ACHIEVED: Phase 8 Store Refactoring Complete!**
+**🚀 LATEST ACHIEVEMENT: Performance-Optimized State/Action Hook Split Pattern!**
 
-The largest architectural overhaul in the project's history has been successfully completed. Ready for new feature development!
+Following the successful Phase 8 Store Refactoring, we've implemented Gemini's performance optimization suggestion for preventing unnecessary re-renders in action-only components.
 
 ## 🔄 Recent Architecture Changes
 
@@ -47,6 +47,19 @@ Based on AI assistant reviews (Gemini & o3):
 - **React Error Boundaries**: Proper error handling for TablebasePanel
 - **TypeScript improvements**: Removed all `any` types from store actions
 - **Clean architecture**: No overengineering, appropriate abstractions
+
+### Performance Optimization: State/Action Hook Split (Just Completed)
+
+Major performance improvement implementing Gemini's suggestion:
+
+- **Three-hook pattern** for each store slice:
+  - `useXxxState()`: Returns reactive state (with useShallow optimization)
+  - `useXxxActions()`: Returns stable action references (never re-renders)
+  - `useXxxStore()`: Returns [state, actions] tuple for convenience
+- **Zero re-renders** for action-only components (e.g., button controls)
+- **Full TypeScript type safety** maintained throughout
+- **All components migrated** to new tuple pattern
+- **Comprehensive documentation** in `/shared/store/hooks/README.md`
 
 ### Complete E2E Test Cleanup (Completed)
 

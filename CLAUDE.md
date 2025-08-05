@@ -85,6 +85,10 @@ npm run analyze-code    # Run all code analysis
 3. **Use** Logger service, not console.log
 4. **Avoid** `any` types - use proper TypeScript interfaces
 5. **Follow** domain-slice architecture patterns
+6. **Use** appropriate store hooks:
+   - `useXxxState()` for reactive state
+   - `useXxxActions()` for action-only components (no re-renders!)
+   - `useXxxStore()` for [state, actions] tuple
 
 ### Critical Files to Understand
 
@@ -94,13 +98,15 @@ npm run analyze-code    # Run all code analysis
 - `/shared/services/ErrorService.ts` - Error handling pattern
 - `/shared/services/AnalysisService.ts` - Service composition example
 - `/tests/helpers/validatedMoveFactory.ts` - Branded type test utilities
+- `/shared/store/hooks/README.md` - NEW: State/Action hook pattern documentation
 
-### Technical Debt Status (Phase 8 Complete!)
+### Technical Debt Status (Phase 9 Complete!)
 
 - ✅ **Store Refactoring**: Monolithic store.ts (1,298 lines) → domain slices ✅
 - ✅ **Type Safety**: All TypeScript errors resolved (0 compilation errors) ✅
 - ✅ **Test Coverage**: All 721+ tests passing ✅
 - ✅ **Branded Types**: Clean ValidatedMove implementation ✅
+- ✅ **Performance**: State/Action hook split prevents unnecessary re-renders ✅
 - [ ] **Complex Functions**: `handlePlayerMove` (178 lines) still needs refactoring
 - [ ] **Mixed Concerns**: Some components have E2E test code mixed in
 - ✅ **TODOs**: All TODO comments resolved

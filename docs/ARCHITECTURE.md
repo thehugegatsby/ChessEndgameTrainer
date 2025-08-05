@@ -4,7 +4,7 @@
 
 We use Zustand with domain-specific slices and actions. The store is the Single Source of Truth - no component maintains chess state locally. All state mutations go through actions for consistency.
 
-## Current Architecture: Domain-Specific Slices (v3.7)
+## Current Architecture: Domain-Specific Slices (v3.9)
 
 ```
 TablebaseService (Lichess API)
@@ -55,7 +55,15 @@ Cross-slice operations are handled by orchestrators in `/shared/store/orchestrat
    - `usePositionAnalysis` - Tablebase evaluation (uses AnalysisService)
    - Domain-specific hooks for UI logic
 
-5. **Error Handling** (`/shared/components/common/`)
+5. **Store Hooks** (`/shared/store/hooks/`) - **NEW Performance-Optimized Pattern**
+   - Three-hook pattern for each slice:
+     - `useXxxState()` - Returns reactive state (with useShallow optimization)
+     - `useXxxActions()` - Returns stable action references (never re-renders)
+     - `useXxxStore()` - Returns [state, actions] tuple for convenience
+   - Prevents unnecessary re-renders in action-only components
+   - Full TypeScript type safety maintained
+
+6. **Error Handling** (`/shared/components/common/`)
    - `ErrorBoundary.tsx` - Generic React error boundary
    - `TablebasePanelWithBoundary.tsx` - Wrapped tablebase panel with error handling
 
@@ -183,6 +191,12 @@ Each slice contains its own state and actions, promoting separation of concerns 
   - Next.js 15.3.3 → 15.4.5
   - All outdated dependencies updated
   - Circular dependency between Logger and WebPlatformService resolved
+- **v3.9: Performance Optimization - State/Action Hook Split** ✅
+  - Implemented three-hook pattern for all store slices
+  - Components using only actions never re-render
+  - Maintained full TypeScript type safety
+  - All components migrated to new tuple pattern
+  - Documentation added for new patterns
 
 ## Future Considerations (v4.0)
 
