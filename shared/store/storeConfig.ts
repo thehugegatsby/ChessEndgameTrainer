@@ -28,13 +28,8 @@ export function configureStore(dependencies: StoreDependencies): void {
 
 /**
  * Get the configured store dependencies
- * @throws Error if store is not configured
+ * @returns StoreDependencies or null if not configured (SSR-safe)
  */
-export function getStoreDependencies(): StoreDependencies {
-  if (!storeDependencies) {
-    throw new Error(
-      "Store dependencies not configured. Call configureStore() first.",
-    );
-  }
+export function getStoreDependencies(): StoreDependencies | null {
   return storeDependencies;
 }

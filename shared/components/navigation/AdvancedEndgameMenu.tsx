@@ -129,7 +129,8 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { positionService } = getStoreDependencies();
+  const dependencies = getStoreDependencies();
+  const positionService = dependencies?.positionService;
   const [categories, setCategories] = useState<CategoryWithDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -148,6 +149,12 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
         const savedStats = localStorage.getItem("endgame-user-stats");
         if (savedStats) {
           setUserStats(JSON.parse(savedStats));
+        }
+
+        // Skip loading categories if service not available (SSR/build)
+        if (!positionService) {
+          setIsLoading(false);
+          return;
         }
 
         // Fetch categories
@@ -226,6 +233,10 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
       );
 
       try {
+        // Check if service is available before loading chapters
+        if (!positionService) {
+          throw new Error("Position service not available");
+        }
         const chapters =
           await positionService.getChaptersByCategory(categoryId);
         setCategories((prev) =>

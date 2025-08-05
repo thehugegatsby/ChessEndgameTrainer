@@ -45,6 +45,12 @@ export default function Dashboard() {
      * Load chapters and generate mock progress data
      */
     const loadData = async () => {
+      // Skip if service not available (SSR/build)
+      if (!positionService) {
+        setLoading(false);
+        return;
+      }
+
       try {
         // Fetch chapters from Firebase
         const fetchedChapters = await positionService.getChapters();
@@ -60,8 +66,9 @@ export default function Dashboard() {
 
         for (const chapter of fetchedChapters) {
           // Get actual position count for this chapter
-          const positionCount =
-            await positionService.getPositionCountByCategory(chapter.category);
+          const positionCount = positionService
+            ? await positionService.getPositionCountByCategory(chapter.category)
+            : 0;
 
           const chapterProgress = {
             total:
@@ -125,6 +132,25 @@ export default function Dashboard() {
           (totalStats.completedPositions / totalStats.totalPositions) * 100,
         )
       : 0;
+
+  // Show loading state during SSR/build or when service is unavailable
+  if (!positionService) {
+    return (
+      <AppLayout>
+        <main className="px-4 max-w-6xl mx-auto">
+          <div className="mb-8">
+            <h1
+              className="text-3xl font-bold mb-2"
+              style={{ color: "var(--text-primary)" }}
+            >
+              Dashboard
+            </h1>
+            <p style={{ color: "var(--text-secondary)" }}>Laden...</p>
+          </div>
+        </main>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>

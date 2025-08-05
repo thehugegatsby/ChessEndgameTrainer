@@ -92,17 +92,17 @@ const PositionServiceProvider: React.FC<PositionServiceProviderProps> = ({
 
 /**
  * Hook to access PositionService
+ * Returns null during SSR/build to prevent pre-rendering errors
  */
 export /**
  *
  */
-const usePositionService = (): IPositionService => {
+const usePositionService = (): IPositionService | null => {
   const context = useContext(PositionServiceContext);
 
   if (!context) {
-    throw new Error(
-      "usePositionService must be used within PositionServiceProvider",
-    );
+    // Return null instead of throwing to make it SSR-safe
+    return null;
   }
 
   return context.positionService;
@@ -204,6 +204,11 @@ export function withPositionService<
     props: Omit<P, "positionService">,
   ) {
     const positionService = usePositionService();
+
+    // Handle SSR case where service might be null
+    if (!positionService) {
+      return null;
+    }
 
     return <Component {...(props as P)} positionService={positionService} />;
   };
