@@ -1,9 +1,9 @@
 import React from "react";
 import { notFound } from "next/navigation";
-import { TrainingPageZustand } from "@shared/pages/TrainingPageZustand";
+import { EndgameTrainingPage } from "@shared/pages/EndgameTrainingPage";
 import { getServerPositionService } from "@shared/services/database/serverPositionService";
 import { getLogger } from "@shared/services/logging";
-import { ErrorService } from "@shared/services/errorService";
+import { ErrorService } from "@shared/services/ErrorService";
 
 /**
  * Training page props
@@ -42,7 +42,7 @@ export default async function TrainingPage({ params }: TrainingPageProps) {
       notFound();
     }
 
-    return <TrainingPageZustand position={position} />;
+    return <EndgameTrainingPage position={position} />;
   } catch (error) {
     ErrorService.handleNetworkError(error as Error, {
       component: "train",
@@ -58,8 +58,8 @@ export default async function TrainingPage({ params }: TrainingPageProps) {
  * @returns Array of position IDs
  */
 export async function generateStaticParams() {
-  // Use actual available position IDs from TestScenarios
-  const availablePositionIds = [1, 9, 10, 11]; // Match TestPositions in TestScenarios.ts
+  // Use actual available position IDs
+  const availablePositionIds = [1, 2]; // Only existing positions
 
   return availablePositionIds.map((id) => ({
     id: id.toString(),

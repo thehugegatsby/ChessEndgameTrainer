@@ -1,15 +1,19 @@
 /**
- * Hook for on-demand move quality assessment
+ * @file Hook for on-demand move quality assessment
+ * @module hooks/useMoveQuality
  *
- * Provides controlled move quality analysis with loading/error states
- * Following clean architecture principles with trigger-based evaluation
+ * @description
+ * Provides controlled move quality analysis with loading/error states.
+ * Following clean architecture principles with trigger-based evaluation.
+ * Uses tablebase data to determine if moves are optimal, good, or mistakes.
  *
+ * @remarks
  * Features:
  * - Race condition protection with AbortController
  * - Robust error handling with state management
  * - Automatic cleanup on unmount
- *
- * @module useMoveQuality
+ * - Tablebase-based analysis for endgame positions
+ * - Supports both SAN and UCI move notation
  */
 
 import { useState, useCallback, useRef, useEffect } from "react";
@@ -22,7 +26,12 @@ import { Logger } from "../services/logging/Logger";
 const logger = new Logger();
 
 /**
+ * State interface for move quality analysis
  *
+ * @interface UseMoveQualityState
+ * @property {SimplifiedMoveQualityResult | null} data - Current move quality result
+ * @property {boolean} isLoading - Whether analysis is in progress
+ * @property {Error | null} error - Error from analysis if any
  */
 interface UseMoveQualityState {
   /** Current move quality result */
@@ -36,15 +45,36 @@ interface UseMoveQualityState {
 /**
  * Hook for on-demand move quality assessment
  *
- * Returns state and trigger function for controlled analysis
- * No automatic evaluation - only when assessMove is called
+ * @description
+ * Returns state and trigger function for controlled analysis.
+ * No automatic evaluation - only when assessMove is called.
+ * Uses tablebase API to compare positions before and after moves.
  *
- * @returns Object with state and assessMove trigger function
- */
-export /**
+ * @returns {Object} Hook return object
+ * @returns {SimplifiedMoveQualityResult | null} returns.data - Current move quality result
+ * @returns {boolean} returns.isLoading - Whether analysis is in progress
+ * @returns {Error | null} returns.error - Error from analysis if any
+ * @returns {Function} returns.assessMove - Trigger function for move quality assessment
+ * @returns {Function} returns.clearAnalysis - Clear current analysis data
  *
+ * @example
+ * ```tsx
+ * const { data, isLoading, error, assessMove } = useMoveQuality();
+ *
+ * // Assess a move when user plays
+ * const handleMove = async (move: string) => {
+ *   try {
+ *     const result = await assessMove(currentFen, move, 'w');
+ *     if (result.quality === 'mistake') {
+ *       showWarning(result.reason);
+ *     }
+ *   } catch (err) {
+ *     console.error('Move assessment failed:', err);
+ *   }
+ * };
+ * ```
  */
-const useMoveQuality = () => {
+export const useMoveQuality = () => {
   const [state, setState] = useState<UseMoveQualityState>({
     data: null,
     isLoading: false,

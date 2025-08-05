@@ -1,7 +1,7 @@
-import React from 'react';
-import Link from 'next/link';
-import { EndgamePosition } from '@shared/types';
-import { getShortTitle } from '@shared/utils/titleFormatter';
+import React from "react";
+import Link from "next/link";
+import { EndgamePosition } from "@shared/types";
+import { getShortTitle } from "@shared/utils/titleFormatter";
 
 interface TrainingControlsProps {
   position: EndgamePosition;
@@ -17,19 +17,19 @@ export const TrainingControls: React.FC<TrainingControlsProps> = ({
   nextPosition,
   onReset,
   getLichessUrl,
-  isMobile = false
+  isMobile = false,
 }) => {
   if (isMobile) {
     return (
       <div className={`lg:hidden w-full max-w-sm space-y-2 mt-4`}>
         <div className="grid grid-cols-2 gap-2">
-          <button 
+          <button
             onClick={onReset}
             className="dark-button-secondary rounded-lg py-2 text-sm font-medium hover:bg-gray-600 transition-colors"
           >
             🔄 Reset
           </button>
-          <a 
+          <a
             href={getLichessUrl()}
             target="_blank"
             rel="noopener noreferrer"
@@ -38,11 +38,11 @@ export const TrainingControls: React.FC<TrainingControlsProps> = ({
             🔗 Lichess
           </a>
         </div>
-        
+
         {/* Mobile Navigation */}
         <div className="flex gap-2">
           {prevPosition && (
-            <Link 
+            <Link
               href={`/train/${prevPosition.id}`}
               className="flex-1 dark-button-primary rounded-lg py-2 text-sm font-medium hover:bg-blue-600 transition-colors text-center"
             >
@@ -50,7 +50,7 @@ export const TrainingControls: React.FC<TrainingControlsProps> = ({
             </Link>
           )}
           {nextPosition && (
-            <Link 
+            <Link
               href={`/train/${nextPosition.id}`}
               className="flex-1 dark-button-primary rounded-lg py-2 text-sm font-medium hover:bg-blue-600 transition-colors text-center"
             >
@@ -66,7 +66,7 @@ export const TrainingControls: React.FC<TrainingControlsProps> = ({
   return (
     <div className="flex-shrink-0 space-y-3">
       <div className="grid grid-cols-2 gap-2">
-        <a 
+        <a
           href={getLichessUrl()}
           target="_blank"
           rel="noopener noreferrer"
@@ -74,7 +74,7 @@ export const TrainingControls: React.FC<TrainingControlsProps> = ({
         >
           🔗 Lichess
         </a>
-        <button 
+        <button
           onClick={onReset}
           className="dark-button-secondary rounded-lg py-2 text-xs font-medium hover:bg-gray-600 transition-colors"
         >
@@ -85,7 +85,7 @@ export const TrainingControls: React.FC<TrainingControlsProps> = ({
       {/* Navigation - Always Visible */}
       <div className="flex gap-2">
         {prevPosition ? (
-          <Link 
+          <Link
             href={`/train/${prevPosition.id}`}
             className="flex-1 dark-button-primary rounded-lg py-2 text-xs font-medium hover:bg-blue-600 transition-colors text-center"
             title={getShortTitle(prevPosition)}
@@ -98,7 +98,7 @@ export const TrainingControls: React.FC<TrainingControlsProps> = ({
           </div>
         )}
         {nextPosition ? (
-          <Link 
+          <Link
             href={`/train/${nextPosition.id}`}
             className="flex-1 dark-button-primary rounded-lg py-2 text-xs font-medium hover:bg-blue-600 transition-colors text-center"
             title={getShortTitle(nextPosition)}
@@ -113,4 +113,4 @@ export const TrainingControls: React.FC<TrainingControlsProps> = ({
       </div>
     </div>
   );
-}; 
+};

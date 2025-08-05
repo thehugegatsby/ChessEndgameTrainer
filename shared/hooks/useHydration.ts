@@ -1,11 +1,43 @@
+/**
+ * @file Hydration hooks for Zustand store persistence
+ * @module hooks/useHydration
+ *
+ * @description
+ * Provides hooks to check if the Zustand store has been hydrated from persisted storage.
+ * Essential for preventing UI flicker and ensuring correct initial state in SSR environments.
+ */
+
 import { useEffect, useState } from "react";
-import { useStore } from "@shared/store/store";
+import { useStore } from "@shared/store/rootStore";
 
 /**
  * Hook to check if Zustand store has been hydrated from persisted storage
- * This prevents UI flicker by waiting for localStorage data to load
  *
- * @returns Whether the store has been hydrated
+ * @description
+ * This hook prevents UI flicker by waiting for localStorage/sessionStorage data to load.
+ * Particularly important for SSR/SSG applications where the server and client may have
+ * different initial states until hydration completes.
+ *
+ * @returns {boolean} Whether the store has been hydrated from persistent storage
+ *
+ * @example
+ * ```tsx
+ * function App() {
+ *   const hasHydrated = useHydration();
+ *
+ *   if (!hasHydrated) {
+ *     return <LoadingSpinner />; // or null to prevent flicker
+ *   }
+ *
+ *   return <MainContent />;
+ * }
+ * ```
+ *
+ * @remarks
+ * - Uses Zustand's persist middleware API
+ * - Returns true immediately if persist is not configured
+ * - Automatically cleans up listeners on unmount
+ * - Safe to use in SSR environments
  */
 export function useHydration(): boolean {
   const [hasHydrated, setHasHydrated] = useState(false);
@@ -30,10 +62,36 @@ export function useHydration(): boolean {
 }
 
 /**
- * Alternative approach using the _hasHydrated property directly from store
- * This is simpler but relies on Zustand's internal implementation
+ * Alternative hydration check using Zustand's internal _hasHydrated property
  *
- * @returns Whether the store has been hydrated
+ * @description
+ * This is a simpler approach that directly accesses the _hasHydrated property
+ * added by Zustand's persist middleware. Less code but relies on internal implementation.
+ *
+ * @returns {boolean} Whether the store has been hydrated from persistent storage
+ *
+ * @example
+ * ```tsx
+ * function Settings() {
+ *   const isHydrated = useStoreHydration();
+ *   const settings = useStore(state => state.settings);
+ *
+ *   // Show placeholder while hydrating to prevent flicker
+ *   if (!isHydrated) {
+ *     return <SettingsSkeleton />;
+ *   }
+ *
+ *   return <SettingsForm settings={settings} />;
+ * }
+ * ```
+ *
+ * @remarks
+ * - Relies on Zustand v5 internal implementation detail (_hasHydrated)
+ * - Returns true if persist middleware is not configured
+ * - Synchronous - no useEffect needed
+ * - Consider using useHydration() for more robust implementation
+ *
+ * @see {@link useHydration} for the recommended approach
  */
 export function useStoreHydration(): boolean {
   // This property is automatically added by persist middleware in v5

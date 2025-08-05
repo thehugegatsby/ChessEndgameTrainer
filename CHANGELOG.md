@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **TablebaseService Architecture Improvements** (2025-08-04)
+  - Implemented single API call architecture (reduced N+1 pattern to 1 call)
+  - Smart caching with FEN normalization (removes halfmove/fullmove counters)
+  - Request deduplication for concurrent calls
+  - Zod schema validation for API responses
+  - Comprehensive test suite: 100% coverage with 20 tests
+  - AnalysisService to centralize position analysis logic
+  - React Error Boundaries for robust error handling
+  - Full TypeScript type safety in store actions (removed all `any` types)
+
 - **Phase 3: Test Coverage Improvements** (2025-08-04)
   - TablebaseService unit tests: 93.73% coverage with comprehensive test scenarios
   - Refactored fenValidator to use chess.js wrapper (reduced from 120 to 50 lines)

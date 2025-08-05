@@ -1,25 +1,63 @@
 /**
- * PositionAnalysisFormatter
- * Formats position analysis data for UI display
- * Domain-centric naming - decoupled from data source
+ * @file Position analysis formatting utilities
+ * @module utils/positionAnalysisFormatter
+ *
+ * @description
+ * Provides utilities for formatting tablebase position analysis data
+ * for UI display. Converts raw tablebase evaluation data into
+ * human-readable formats with appropriate styling classes.
+ *
+ * @remarks
+ * Key features:
+ * - WDL to score conversion for move ordering
+ * - Human-readable outcome descriptions
+ * - CSS class generation for visual styling
+ * - Support for 50-move rule positions
+ * - DTZ (Distance to Zero) formatting
+ *
+ * The module uses domain-centric naming to decouple
+ * formatting logic from specific data sources.
  */
 
-import type {
-  TablebaseResult,
-  TablebaseMove,
-} from "@shared/services/TablebaseService";
+import type { TablebaseResult } from "@shared/services/TablebaseService";
 
+/**
+ * Formatted position analysis for UI display
+ *
+ * @interface PositionAnalysisDisplay
+ *
+ * @description
+ * Contains all necessary data for rendering position
+ * evaluations in the UI with appropriate styling.
+ */
 export interface PositionAnalysisDisplay {
+  /** Human-readable evaluation text (e.g., "Win in 15") */
   displayText: string;
+  /** CSS class name for styling (winning/losing/draw) */
   className: string;
+  /** Numeric score for sorting (-10000 to 10000) */
   score: number;
+  /** Whether position is winning */
   isWin: boolean;
+  /** Whether position is drawn */
   isDraw: boolean;
+  /** Whether position is losing */
   isLoss: boolean;
 }
 
 /**
  * Format tablebase result for display
+ *
+ * @param {TablebaseResult} result - Raw tablebase evaluation data
+ * @returns {PositionAnalysisDisplay} Formatted data for UI rendering
+ *
+ * @example
+ * const display = formatPositionAnalysis({
+ *   wdl: 2, dtz: 15, category: "win", ...
+ * });
+ * // Returns: { displayText: "Win in 15", className: "winning", score: 9985, ... }
+ *
+ * @performance O(1) - Simple calculations only
  */
 export function formatPositionAnalysis(
   result: TablebaseResult,
@@ -51,23 +89,27 @@ export function formatPositionAnalysis(
 }
 
 /**
- * Format tablebase move for display
- */
-export function formatTablebaseMove(move: TablebaseMove): string {
-  const { san, wdl, dtz } = move;
-
-  if (wdl === 0) {
-    return `${san} (Draw)`;
-  } else if (wdl > 0) {
-    return dtz ? `${san} (Win in ${dtz})` : `${san} (Win)`;
-  } else {
-    return dtz ? `${san} (Loss in ${Math.abs(dtz)})` : `${san} (Loss)`;
-  }
-}
-
-/**
  * Convert WDL to numeric score for sorting/comparison
  * Higher scores are better for the player
+ *
+ * @param {number} wdl - Win/Draw/Loss value (-2 to 2)
+ * @param {number | null} dtz - Distance to zeroing (affects score granularity)
+ * @returns {number} Numeric score for comparison (higher = better)
+ *
+ * @remarks
+ * Scoring algorithm:
+ * - Win (wdl=2): 10000 - dtz (faster wins score higher)
+ * - Loss (wdl=-2): -10000 + dtz (longer resistance scores higher)
+ * - Cursed win (wdl=1): 8000 - dtz (discounted due to 50-move rule)
+ * - Blessed loss (wdl=-1): -8000 + dtz (less bad due to 50-move rule)
+ * - Draw (wdl=0): 0 (neutral)
+ *
+ * @example
+ * wdlToScore(2, 10)  // 9990 (win in 10 moves)
+ * wdlToScore(-2, 30) // -9970 (loss in 30 moves)
+ * wdlToScore(0, null) // 0 (draw)
+ *
+ * @performance O(1) - Basic arithmetic only
  */
 export function wdlToScore(wdl: number, dtz: number | null): number {
   const BASE_SCORE = 10000;
@@ -87,50 +129,4 @@ export function wdlToScore(wdl: number, dtz: number | null): number {
   }
   // Draw
   return 0;
-}
-
-/**
- * Get CSS class for evaluation display
- */
-export function getEvaluationClass(wdl: number): string {
-  if (wdl > 0) return "winning";
-  if (wdl < 0) return "losing";
-  return "draw";
-}
-
-/**
- * Check if position is critical (win/loss)
- */
-export function isCriticalPosition(wdl: number): boolean {
-  return Math.abs(wdl) === 2;
-}
-
-/**
- * Get human-readable description of position
- */
-export function getPositionDescription(result: TablebaseResult): string {
-  const { category, dtz } = result;
-
-  switch (category) {
-    case "win":
-      return dtz
-        ? `White wins with best play in ${dtz} moves`
-        : "White has a theoretical win";
-    case "cursed-win":
-      return dtz
-        ? `White wins in ${dtz} moves (50-move rule applies)`
-        : "White wins but 50-move rule applies";
-    case "draw":
-      return "Position is a theoretical draw with best play";
-    case "blessed-loss":
-      return dtz
-        ? `White loses in ${Math.abs(dtz)} moves (but can claim 50-move rule)`
-        : "White loses but can claim 50-move rule";
-    case "loss":
-      return dtz
-        ? `White loses with best defense in ${Math.abs(dtz)} moves`
-        : "White has a theoretical loss";
-    default:
-      return "Unknown position";
-  }
 }

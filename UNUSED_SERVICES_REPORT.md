@@ -1,12 +1,12 @@
 # Unused Services and Components Report
 
-Generated on: 2025-08-03T13:32:32.959Z
+Generated on: 2025-08-05T12:09:16.470Z
 
 ## Summary
 
 - Services checked: 5
 - Completely unused services: 0
-- Total files checked: 13
+- Total files checked: 25
 - Unused files: 0
 - Potentially unused components: 3
 
@@ -32,8 +32,8 @@ Path: `shared/services/logging`
 
 Path: `shared/store`
 
-- Total files: 5
-- Used files: 5
+- Total files: 17
+- Used files: 17
 - Unused files: 0
 
 ### Cache Services

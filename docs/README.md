@@ -1,27 +1,30 @@
 # EndgameTrainer Documentation
 
+**🎉 Phase 8 Store Refactoring Complete!** This documentation reflects the new domain-specific slices architecture.
+
 This documentation is optimized for LLM consumption and AI-assisted development using Claude Code on WSL/Windows environments.
 
 ## 📁 Documentation Structure
 
 ```
 docs/
-├── README.md                  # This file - overview and navigation
-├── ARCHITECTURE.md           # High-level system architecture
-├── DATA_FLOWS.md            # Critical data flow mappings
-├── shared/                  # Mirror of /shared directory structure
-│   ├── components/         # UI component documentation
-│   ├── hooks/             # Hook patterns and usage
-│   ├── lib/               # Core library documentation
-│   ├── services/          # Service layer documentation
-│   ├── store/             # State management patterns
-│   └── types/             # Type system documentation
+├── README.md              # This file - overview and navigation
+├── ARCHITECTURE.md        # High-level system architecture
+├── CURRENT_FOCUS.md       # Current development priorities
+├── STANDARDS.md           # Coding standards and conventions
+├── checklists/            # Development checklists
 ├── patterns/              # Reusable patterns catalog
-│   ├── CLEAN_ARCHITECTURE.md
-│   ├── EVALUATION_PIPELINE.md
 │   ├── REACT_PATTERNS.md
 │   └── ZUSTAND_PATTERNS.md
-└── testing/               # Testing strategies and patterns
+├── shared/                # Codebase structure documentation
+│   ├── README.md
+│   ├── services/
+│   │   └── tablebase/
+│   └── [subdirectories]
+├── technical-debt/        # Technical debt tracking
+│   └── TODO_TECH_DEBT.md
+└── testing/               # Testing strategies
+    ├── INTEGRATION_TESTING.md
     └── TESTING_GUIDELINES.md
 ```
 
@@ -36,14 +39,15 @@ docs/
 ### Understanding the Codebase
 
 - Start with [ARCHITECTURE.md](./ARCHITECTURE.md) for system overview
-- Check [DATA_FLOWS.md](./DATA_FLOWS.md) for evaluation pipeline understanding
+- Check [CURRENT_FOCUS.md](./CURRENT_FOCUS.md) for active development priorities
 - Review [patterns/](./patterns/) for implementation patterns
+- See [shared/README.md](./shared/README.md) for codebase structure
 
 ### Service Documentation
 
-- [shared/services/](./shared/services/) - Service layer patterns
-- [shared/services/tablebase/](./shared/services/tablebase/) - Tablebase API integration
-- [shared/lib/chess/](./shared/lib/chess/) - Chess utilities and validation
+- TablebaseService.ts - Main tablebase integration (Lichess API)
+- MoveStrategyService.ts - Move selection strategies (DTM, DTZ, WDL)
+- ErrorService.ts - Centralized error handling with German messages
 
 ### Component Patterns
 
@@ -53,8 +57,11 @@ docs/
 
 ### State Management
 
-- [shared/store/](./shared/store/) - Zustand store patterns
+- [shared/store/](./shared/store/) - Domain-specific slices architecture (Phase 8!)
 - [patterns/ZUSTAND_PATTERNS.md](./patterns/ZUSTAND_PATTERNS.md) - State management patterns
+- **NEW**: `rootStore.ts` - Combined store with all domain slices
+- **NEW**: `slices/` - Individual domain slices (GameSlice, TrainingSlice, etc.)
+- **NEW**: `orchestrators/` - Cross-slice operations
 
 ## 🏗️ Architecture Principles
 
@@ -66,25 +73,24 @@ docs/
 
 ## 🔧 Development Context
 
-- **Frontend**: Next.js 15.3.3 (App Router) + React 18.3 + TypeScript 5.3.3
+- **Frontend**: Next.js 15.3.3 (App Router) + React 18.3 + TypeScript 5.9.2
 - **Chess Evaluation**: Lichess Tablebase API only (no local engine)
-- **State**: Zustand 5.0.7 (with migration complete)
-- **Testing**: Jest 29.7.0 + React Testing Library 14.2.1 (577 unit tests) + Playwright (42 E2E tests)
+- **State**: Zustand 5.0.7 with Domain-Specific Slices Architecture (Phase 8 Complete!)
+- **Testing**: Jest 29.7.0 + React Testing Library 14.2.1 + Playwright (823 tests passing)
 - **Environment**: Node.js 20+ + WSL2 + VS Code + Windows
 
 ## 📊 Key Data Flows
 
-1. **Evaluation Pipeline**: Position → Tablebase API → Service → UI
-2. **State Management**: User Action → Store → Components
-3. **Tablebase Flow**: Service → API Request → WDL Analysis → Display
-4. **Move Quality**: WDL Before/After → Smart Evaluation → Quality Indicators
+1. **Tablebase Evaluation**: Position → TablebaseService → Lichess API → UI
+2. **State Management**: User Action → Zustand Store → Components
+3. **Move Analysis**: Current Position → Tablebase Lookup → Move Quality Assessment
+4. **Training Flow**: User Move → Validation → Tablebase Response → Feedback
 
 ## 🎨 Pattern Catalogs
 
-- [Clean Architecture Implementation](./patterns/CLEAN_ARCHITECTURE.md)
-- [Evaluation Pipeline Patterns](./patterns/EVALUATION_PIPELINE.md)
 - [React Component Patterns](./patterns/REACT_PATTERNS.md)
 - [Zustand State Patterns](./patterns/ZUSTAND_PATTERNS.md)
+- Testing Patterns in [testing/TESTING_GUIDELINES.md](./testing/TESTING_GUIDELINES.md)
 
 ## 🤖 How to Use This Documentation with an LLM
 
@@ -98,9 +104,9 @@ docs/
 
 **Understanding Data Flow:**
 
-1. Start: [DATA_FLOWS.md](./DATA_FLOWS.md) for complete pipeline
-2. Focus: [patterns/EVALUATION_PIPELINE.md](./patterns/EVALUATION_PIPELINE.md) for implementation
-3. Debug: Use line numbers and file paths provided
+1. Start: [ARCHITECTURE.md](./ARCHITECTURE.md) for system overview
+2. Focus: TablebaseService.ts for API integration details
+3. Debug: Use analysisStatus state field for flow tracking
 
 **Adding New Component:**
 
@@ -115,7 +121,7 @@ docs/
 ```
 Provide LLM with:
 - ARCHITECTURE.md (system overview)
-- Specific service documentation from shared/services/
+- TablebaseService.ts (main service implementation)
 - Relevant pattern from patterns/
 ```
 

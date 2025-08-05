@@ -8,6 +8,9 @@
 import React, { useState } from "react";
 import { TablebasePanel } from "@shared/components/tablebase/TablebasePanel";
 import { type TablebaseData } from "@shared/types/evaluation";
+import { getLogger } from "@shared/services/logging/Logger";
+
+const logger = getLogger().setContext("TablebaseDemo");
 
 /**
  * Tablebase demo page component
@@ -52,16 +55,21 @@ export default function TablebaseDemoPage() {
    */
   const handleMoveSelect = (move: string) => {
     setSelectedMove(move);
-    console.log("Selected move:", move);
+    logger.debug("Selected move", { move });
   };
 
   // Debug: Log the actual move classifications
-  console.log("Move classifications:");
-  mockTablebaseData.topMoves?.forEach((move) => {
-    const resultType = move.dtz > 0 ? "win" : move.dtz === 0 ? "draw" : "loss";
-    console.log(
-      `${move.san}: DTZ=${move.dtz}, calculated=${resultType}, category=${move.category}`,
-    );
+  logger.debug("Move classifications", {
+    moves: mockTablebaseData.topMoves?.map((move) => {
+      const resultType =
+        move.dtz > 0 ? "win" : move.dtz === 0 ? "draw" : "loss";
+      return {
+        san: move.san,
+        dtz: move.dtz,
+        calculated: resultType,
+        category: move.category,
+      };
+    }),
   });
 
   return (

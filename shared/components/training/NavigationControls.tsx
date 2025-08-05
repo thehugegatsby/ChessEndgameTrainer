@@ -1,20 +1,79 @@
+/**
+ * @file Navigation controls for move history
+ * @module components/training/NavigationControls
+ *
+ * @description
+ * Navigation control buttons for moving through chess game history.
+ * Provides Lichess-style navigation with first/previous/next/last
+ * buttons. Integrates directly with Zustand store for state management.
+ *
+ * @remarks
+ * Key features:
+ * - Four-button navigation (first, previous, next, last)
+ * - Intelligent button state management (disabled at boundaries)
+ * - SVG icons for clear visual feedback
+ * - Accessibility support with ARIA labels
+ * - German language tooltips
+ * - Test-friendly data attributes
+ * - Responsive hover and active states
+ *
+ * The component automatically calculates navigation boundaries and
+ * disables appropriate buttons when at the start or end of move history.
+ */
+
 import React from "react";
-import { useTraining, useTrainingActions } from "@shared/store/store";
+import { useGameStore } from "@shared/store/hooks";
 
 /**
  * Navigation controls for move history
- * Provides buttons to navigate through the game moves like Lichess
- */
-export /**
  *
+ * @component
+ * @description
+ * Provides a set of navigation buttons for moving through chess game
+ * move history. Similar to video player controls but for chess moves.
+ * Integrates with the Zustand store for seamless state management.
+ *
+ * @remarks
+ * Navigation behavior:
+ * - First: Jump to initial position (before any moves)
+ * - Previous: Go back one move
+ * - Next: Go forward one move
+ * - Last: Jump to current position (after all moves)
+ *
+ * Button states:
+ * - Buttons are disabled when navigation is not possible
+ * - Visual feedback shows enabled/disabled states
+ * - Hover effects provide interactive feedback
+ * - Active states provide click feedback
+ *
+ * The component uses memoization to prevent unnecessary re-renders
+ * and calculates navigation state efficiently.
+ *
+ * @example
+ * ```tsx
+ * // Basic usage in game interface
+ * <NavigationControls />
+ *
+ * // In a move panel or sidebar
+ * <div className="move-controls">
+ *   <MoveHistory moves={gameHistory} />
+ *   <NavigationControls />
+ * </div>
+ *
+ * // With custom styling
+ * <div className="custom-nav-container">
+ *   <NavigationControls />
+ * </div>
+ * ```
+ *
+ * @returns {JSX.Element} Navigation control buttons
  */
-const NavigationControls: React.FC = React.memo(() => {
-  const { moveHistory, currentMoveIndex } = useTraining();
-  const { goToFirst, goToPrevious, goToNext, goToLast } = useTrainingActions();
+export const NavigationControls: React.FC = React.memo(() => {
+  const gameStore = useGameStore();
 
   // Calculate navigation state
-  const totalMoves = moveHistory.length;
-  const currentIndex = currentMoveIndex ?? totalMoves - 1;
+  const totalMoves = gameStore.moveHistory.length;
+  const currentIndex = gameStore.currentMoveIndex ?? totalMoves - 1;
   const isAtStart = currentIndex <= -1;
   const isAtEnd = currentIndex >= totalMoves - 1;
 
@@ -24,7 +83,7 @@ const NavigationControls: React.FC = React.memo(() => {
       data-testid="move-navigation"
     >
       <button
-        onClick={goToFirst}
+        onClick={gameStore.goToFirst}
         disabled={isAtStart}
         className={`p-2 rounded transition-all ${
           isAtStart
@@ -41,7 +100,7 @@ const NavigationControls: React.FC = React.memo(() => {
       </button>
 
       <button
-        onClick={goToPrevious}
+        onClick={gameStore.goToPrevious}
         disabled={isAtStart}
         className={`p-2 rounded transition-all ${
           isAtStart
@@ -59,7 +118,7 @@ const NavigationControls: React.FC = React.memo(() => {
       </button>
 
       <button
-        onClick={goToNext}
+        onClick={gameStore.goToNext}
         disabled={isAtEnd}
         className={`p-2 rounded transition-all ${
           isAtEnd
@@ -76,7 +135,7 @@ const NavigationControls: React.FC = React.memo(() => {
       </button>
 
       <button
-        onClick={goToLast}
+        onClick={gameStore.goToLast}
         disabled={isAtEnd}
         className={`p-2 rounded transition-all ${
           isAtEnd

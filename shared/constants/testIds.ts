@@ -1,6 +1,6 @@
 /**
  * Centralized Test IDs for E2E Testing
- * 
+ *
  * This file serves as the single source of truth for all data-testid attributes
  * used throughout the application. It ensures consistency between UI components
  * and E2E tests while providing type safety and better maintainability.
@@ -8,28 +8,28 @@
 
 export const TEST_IDS = {
   MOVE_PANEL: {
-    CONTAINER: 'move-list', // Semantic name for the move list container
-    ITEM: 'move-item',
-    EVALUATION: 'move-evaluation',
-    EVAL_SCORE: 'eval-score'
+    CONTAINER: "move-list", // Semantic name for the move list container
+    ITEM: "move-item",
+    EVALUATION: "move-evaluation",
+    EVAL_SCORE: "eval-score",
   },
   NAVIGATION: {
-    FIRST: 'nav-first',
-    BACK: 'nav-back',
-    FORWARD: 'nav-forward',
-    LAST: 'nav-last',
-    TRAINING_LINK: 'training-link'
+    FIRST: "nav-first",
+    BACK: "nav-back",
+    FORWARD: "nav-forward",
+    LAST: "nav-last",
+    TRAINING_LINK: "training-link",
   },
   CONTROLS: {
-    UNDO: 'undo-button'
+    UNDO: "undo-button",
   },
   CHESS: {
-    TRAINING_BOARD: 'training-board',
-    CHESSBOARD: 'chessboard'
+    TRAINING_BOARD: "training-board",
+    CHESSBOARD: "chessboard",
   },
   LESSONS: {
-    START_BUTTON: 'lesson-start'
-  }
+    START_BUTTON: "lesson-start",
+  },
 } as const;
 
 /**

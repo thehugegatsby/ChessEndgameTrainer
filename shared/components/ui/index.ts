@@ -2,5 +2,5 @@
 export { Button } from "./button";
 export { DarkModeToggle } from "./DarkModeToggle";
 export { ProgressCard } from "./ProgressCard";
-export { ErrorBoundary } from "./ErrorBoundary";
+export { ErrorBoundary } from "../common/ErrorBoundary";
 export { SettingsIcon } from "./SettingsIcon";

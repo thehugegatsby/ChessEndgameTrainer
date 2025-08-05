@@ -24,7 +24,7 @@ graph TB
 
     subgraph "HOOK LAYER"
         G[useEvaluation]
-        H[useTrainingGame]
+        H[useEndgameSession]
         I[useTablebase]
         J[Custom Hooks]
     end
@@ -68,7 +68,7 @@ shared/components/
 │   ├── DualEvaluationPanel/  # Evaluation display components
 │   │   └── index.tsx         # Lines 1-121  - Panel with dual evaluation display
 │   ├── TrainingBoard/        # Training board components
-│   │   └── TrainingBoardZustand.tsx # Lines 1-150 - Board with state
+│   │   └── EndgameBoard.tsx # Lines 1-150 - Board with state
 │   ├── MovePanelZustand.tsx  # Lines 1-120  - Move panel with Zustand
 │   └── PrincipalVariation.tsx # Lines 1-85  - PV display
 └── ui/                       # Generic UI components
@@ -86,7 +86,7 @@ shared/components/
 **Container Component** (Business Logic):
 
 ```typescript
-// File: /shared/components/training/TrainingBoard/TrainingBoardZustand.tsx:25-60
+// File: /shared/components/training/TrainingBoard/EndgameBoard.tsx:25-60
 export function TrainingBoardContainer() {
   // Container pattern: Handle business logic and state
   const {
@@ -95,7 +95,7 @@ export function TrainingBoardContainer() {
     currentMoveIndex,
     makeMove,
     navigateToMove
-  } = useTrainingGame();
+  } = useEndgameSession();
 
   const {
     lastEvaluation,

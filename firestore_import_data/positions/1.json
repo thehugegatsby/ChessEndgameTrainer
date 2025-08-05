@@ -23,11 +23,7 @@
     "5.e8=Q"
   ],
   "nextPositionId": 2,
-  "tags": [
-    "basic",
-    "king-pawn",
-    "opposition"
-  ],
+  "tags": ["basic", "king-pawn", "opposition"],
   "created": "2024-01-01T00:00:00Z",
   "updated": "2024-01-01T00:00:00Z"
 }

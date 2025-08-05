@@ -1,6 +1,21 @@
 /**
- * Move Quality Helper Functions
- * Pure functions for assessing move quality based on tablebase WDL values
+ * @file Move quality assessment utilities for tablebase analysis
+ * @module utils/moveQuality
+ *
+ * @description
+ * Pure functions for assessing chess move quality based on tablebase WDL
+ * (Win/Draw/Loss) values. Provides comprehensive analysis of move impact
+ * including critical move detection and human-readable quality descriptions.
+ *
+ * @remarks
+ * Key features:
+ * - WDL-based move quality assessment (excellent, good, mistake)
+ * - Critical move detection for position evaluation changes
+ * - Human-readable quality descriptions for UI display
+ * - Perspective-aware analysis (player vs opponent viewpoint)
+ *
+ * All functions are pure and side-effect free, designed for use in
+ * performance-critical contexts like real-time move analysis.
  */
 
 import type {
@@ -10,11 +25,35 @@ import type {
 
 /**
  * Analyzes move quality based on tablebase WDL values
- * Compares position before and after the move
  *
- * @param wdlBefore - WDL value before the move (from player's perspective)
- * @param wdlAfter - WDL value after the move (from opponent's perspective, needs negation)
- * @returns Move quality assessment
+ * @param {number} wdlBefore - WDL value before the move (from player's perspective)
+ * @param {number} wdlAfter - WDL value after the move (from opponent's perspective, needs negation)
+ * @returns {SimplifiedMoveQualityResult} Comprehensive move quality assessment
+ *
+ * @description
+ * Compares tablebase evaluations before and after a move to determine
+ * move quality. Handles perspective conversion since wdlAfter represents
+ * the opponent's view and must be negated for player perspective analysis.
+ *
+ * @remarks
+ * Quality categories:
+ * - excellent: Move improves WDL evaluation (wdlChange > 0)
+ * - good: Move maintains WDL evaluation (wdlChange = 0)
+ * - mistake: Move worsens WDL evaluation (wdlChange < 0)
+ *
+ * The WDL change calculation: -wdlAfter - wdlBefore accounts for
+ * perspective flip when it becomes the opponent's turn.
+ *
+ * @example
+ * ```typescript
+ * // Excellent move: Win to win (maintains advantage)
+ * const result1 = assessTablebaseMoveQuality(2, -2);
+ * // { quality: 'excellent', reason: 'Optimal tablebase move' }
+ *
+ * // Mistake: Win to draw
+ * const result2 = assessTablebaseMoveQuality(2, 0);
+ * // { quality: 'mistake', reason: 'Worsens tablebase position' }
+ * ```
  */
 export function assessTablebaseMoveQuality(
   wdlBefore: number,
@@ -47,71 +86,4 @@ export function assessTablebaseMoveQuality(
       wdlAfter: -wdlAfter,
     },
   };
-}
-
-/**
- * Check if a move is critical (changes win/loss status)
- *
- * @param wdlBefore - WDL before move
- * @param wdlAfter - WDL after move (negated for player perspective)
- * @returns True if move changes win/loss status
- */
-export function isCriticalMove(wdlBefore: number, wdlAfter: number): boolean {
-  const wdlAfterFromPlayerPerspective = -wdlAfter;
-
-  // Critical if:
-  // - Win to draw/loss (2 to 0/-2)
-  // - Draw to loss (0 to -2)
-  // - Loss to win/draw (-2 to 2/0) - this would be a good critical move
-
-  const wasWinning = wdlBefore === 2;
-  const wasDrawing = wdlBefore === 0;
-  const wasLosing = wdlBefore === -2;
-
-  const isWinning = wdlAfterFromPlayerPerspective === 2;
-  const isLosing = wdlAfterFromPlayerPerspective === -2;
-
-  // Bad critical moves
-  if (wasWinning && !isWinning) return true; // Threw away win
-  if (wasDrawing && isLosing) return true; // Threw away draw
-
-  // Good critical moves (still critical, but positive)
-  if (wasLosing && !isLosing) return true; // Found a save
-
-  return false;
-}
-
-/**
- * Get human-readable description of move quality
- *
- * @param quality - Move quality assessment
- * @returns Description for UI display
- */
-export function getMoveQualityDescription(
-  quality: SimplifiedMoveQualityResult,
-): string {
-  if (!quality.tablebaseInfo) {
-    return quality.reason;
-  }
-
-  const { wdlBefore, wdlAfter } = quality.tablebaseInfo;
-
-  // Special cases for critical moves
-  if (wdlBefore === 2 && wdlAfter === 0) {
-    return "Threw away the win!";
-  }
-  if (wdlBefore === 2 && wdlAfter === -2) {
-    return "Blundered into a loss!";
-  }
-  if (wdlBefore === 0 && wdlAfter === -2) {
-    return "Blundered the draw!";
-  }
-  if (wdlBefore === -2 && wdlAfter === 0) {
-    return "Found the drawing resource!";
-  }
-  if (wdlBefore === -2 && wdlAfter === 2) {
-    return "Incredible save!";
-  }
-
-  return quality.reason;
 }

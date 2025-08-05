@@ -1,20 +1,79 @@
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePositionService } from '@shared/contexts/PositionServiceContext';
-import { EndgameCategory, EndgameChapter } from '@shared/types';
+/**
+ * @file Advanced endgame navigation menu component
+ * @module components/navigation/AdvancedEndgameMenu
+ * 
+ * @description
+ * Comprehensive navigation menu for chess endgame training categories.
+ * Provides hierarchical navigation through endgame categories and chapters,
+ * user statistics display, and progress tracking. Features expandable
+ * categories with lazy-loaded chapter data.
+ * 
+ * @remarks
+ * Key features:
+ * - Hierarchical category and chapter navigation
+ * - User statistics display (rating, games played, success rate)
+ * - Lazy loading of chapter data on category expansion
+ * - Position count display per category
+ * - Current position highlighting
+ * - Responsive sidebar design with slide-out functionality
+ * - Error handling with user-friendly messages
+ * - Persistent user stats via localStorage
+ * 
+ * The component integrates with PositionService for data fetching
+ * and provides a comprehensive overview of available training content.
+ */
 
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePositionService } from "@shared/contexts/PositionServiceContext";
+import { EndgameCategory, EndgameChapter } from "@shared/types";
+import { getLogger } from "@shared/services/logging";
+
+const logger = getLogger().setContext("AdvancedEndgameMenu");
+
+/**
+ * Props for the AdvancedEndgameMenu component
+ * 
+ * @interface AdvancedEndgameMenuProps
+ * 
+ * @property {boolean} isOpen - Whether the menu is currently visible
+ * @property {() => void} onClose - Callback to close the menu
+ * @property {number} [currentPositionId] - ID of currently active position for highlighting
+ */
 interface AdvancedEndgameMenuProps {
   isOpen: boolean;
   onClose: () => void;
   currentPositionId?: number;
 }
 
+/**
+ * User statistics data structure
+ * 
+ * @interface UserStats
+ * 
+ * @property {number} rating - User's current rating
+ * @property {number} totalPlayed - Total number of games played
+ * @property {number} successRate - Success rate as percentage (0-100)
+ */
 interface UserStats {
   rating: number;
   totalPlayed: number;
   successRate: number;
 }
 
+/**
+ * Extended category data with navigation state
+ * 
+ * @interface CategoryWithDetails
+ * @description
+ * Extends the base EndgameCategory with additional state for navigation
+ * and lazy loading functionality.
+ * 
+ * @property {number | null} positionCount - Number of positions in category
+ * @property {EndgameChapter[]} [chapters] - Loaded chapters for this category
+ * @property {boolean} [isLoadingChapters] - Whether chapters are currently loading
+ * @property {boolean} [isExpanded] - Whether the category is expanded in the UI
+ */
 interface CategoryWithDetails extends EndgameCategory {
   positionCount: number | null;
   chapters?: EndgameChapter[];
@@ -22,15 +81,63 @@ interface CategoryWithDetails extends EndgameCategory {
   isExpanded?: boolean;
 }
 
-export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({ 
-  isOpen, 
-  onClose 
+/**
+ * Advanced endgame navigation menu component
+ * 
+ * @component
+ * @description
+ * Comprehensive navigation sidebar for chess endgame training. Displays
+ * hierarchical categories and chapters, user statistics, and provides
+ * direct navigation to training positions. Features lazy loading for
+ * performance and maintains state across sessions.
+ * 
+ * @remarks
+ * Component behavior:
+ * - Loads all categories on mount with position counts
+ * - Expands categories on click to load chapters
+ * - Displays user statistics from localStorage
+ * - Highlights current position when provided
+ * - Handles loading states and error conditions gracefully
+ * - Provides responsive design with slide-out functionality
+ * 
+ * Data flow:
+ * 1. Initial load: Fetch all categories with position counts
+ * 2. User stats: Load from localStorage with defaults
+ * 3. Category expansion: Lazy load chapters on demand
+ * 4. Navigation: Direct links to training positions
+ * 
+ * @example
+ * ```tsx
+ * // Basic usage in layout
+ * <AdvancedEndgameMenu
+ *   isOpen={menuOpen}
+ *   onClose={() => setMenuOpen(false)}
+ * />
+ * 
+ * // With current position highlighting
+ * <AdvancedEndgameMenu
+ *   isOpen={true}
+ *   onClose={handleClose}
+ *   currentPositionId={5}
+ * />
+ * ```
+ * 
+ * @param {AdvancedEndgameMenuProps} props - Navigation menu configuration
+ * @returns {JSX.Element} Rendered navigation menu with categories and stats
+ */
+export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
+  isOpen,
+  onClose,
 }) => {
   const positionService = usePositionService();
   const [categories, setCategories] = useState<CategoryWithDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userStats, setUserStats] = useState<UserStats>({ rating: 1123, totalPlayed: 45, successRate: 73 });
+  const [userStats, setUserStats] = useState<UserStats>({
+    rating: 1123,
+    totalPlayed: 45,
+    successRate: 73,
+  });
   const [totalPositions, setTotalPositions] = useState(0);
 
   // Load categories and user stats
@@ -38,37 +145,50 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
     const loadData = async () => {
       try {
         // Load user stats from localStorage
-        const savedStats = localStorage.getItem('endgame-user-stats');
+        const savedStats = localStorage.getItem("endgame-user-stats");
         if (savedStats) {
           setUserStats(JSON.parse(savedStats));
         }
 
         // Fetch categories
         const baseCategories = await positionService.getCategories();
-        
+
         // Fetch position counts in parallel
         const categoriesWithCounts = await Promise.all(
           baseCategories.map(async (cat) => {
             try {
-              const count = await positionService.getPositionCountByCategory(cat.id);
-              return { ...cat, positionCount: count, isExpanded: false } as CategoryWithDetails;
+              const count = await positionService.getPositionCountByCategory(
+                cat.id,
+              );
+              return {
+                ...cat,
+                positionCount: count,
+                isExpanded: false,
+              } as CategoryWithDetails;
             } catch (err) {
-              console.error(`Failed to get count for category ${cat.id}:`, err);
-              return { ...cat, positionCount: null, isExpanded: false } as CategoryWithDetails;
+              logger.error(`Failed to get count for category ${cat.id}`, err);
+              return {
+                ...cat,
+                positionCount: null,
+                isExpanded: false,
+              } as CategoryWithDetails;
             }
-          })
+          }),
         );
-        
+
         setCategories(categoriesWithCounts);
-        
+
         // Calculate total positions
-        const total = categoriesWithCounts.reduce((sum, cat) => sum + (cat.positionCount || 0), 0);
+        const total = categoriesWithCounts.reduce(
+          (sum, cat) => sum + (cat.positionCount || 0),
+          0,
+        );
         setTotalPositions(total);
-        
+
         setError(null);
       } catch (err) {
-        console.error('Failed to load menu data:', err);
-        setError('Menü konnte nicht geladen werden');
+        logger.error("Failed to load menu data", err);
+        setError("Menü konnte nicht geladen werden");
       } finally {
         setIsLoading(false);
       }
@@ -80,67 +200,85 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
   }, [isOpen, positionService]);
 
   const toggleCategory = async (categoryId: string) => {
-    const categoryIndex = categories.findIndex(c => c.id === categoryId);
+    const categoryIndex = categories.findIndex((c) => c.id === categoryId);
     if (categoryIndex === -1) return;
 
     const category = categories[categoryIndex];
-    
+
     // Toggle expansion state
     if (category.isExpanded) {
-      setCategories(prev => prev.map(c => 
-        c.id === categoryId ? { ...c, isExpanded: false } : c
-      ));
+      setCategories((prev) =>
+        prev.map((c) =>
+          c.id === categoryId ? { ...c, isExpanded: false } : c,
+        ),
+      );
       return;
     }
 
     // Expand and load chapters if not already loaded
     if (!category.chapters) {
-      setCategories(prev => prev.map(c => 
-        c.id === categoryId ? { ...c, isLoadingChapters: true, isExpanded: true } : c
-      ));
+      setCategories((prev) =>
+        prev.map((c) =>
+          c.id === categoryId
+            ? { ...c, isLoadingChapters: true, isExpanded: true }
+            : c,
+        ),
+      );
 
       try {
-        const chapters = await positionService.getChaptersByCategory(categoryId);
-        setCategories(prev => prev.map(c => 
-          c.id === categoryId ? { ...c, chapters, isLoadingChapters: false } : c
-        ));
+        const chapters =
+          await positionService.getChaptersByCategory(categoryId);
+        setCategories((prev) =>
+          prev.map((c) =>
+            c.id === categoryId
+              ? { ...c, chapters, isLoadingChapters: false }
+              : c,
+          ),
+        );
       } catch (err) {
-        console.error(`Failed to load chapters for category ${categoryId}:`, err);
-        setCategories(prev => prev.map(c => 
-          c.id === categoryId ? { ...c, isLoadingChapters: false, isExpanded: false } : c
-        ));
+        logger.error(`Failed to load chapters for category ${categoryId}`, err);
+        setCategories((prev) =>
+          prev.map((c) =>
+            c.id === categoryId
+              ? { ...c, isLoadingChapters: false, isExpanded: false }
+              : c,
+          ),
+        );
       }
     } else {
       // Just expand if chapters already loaded
-      setCategories(prev => prev.map(c => 
-        c.id === categoryId ? { ...c, isExpanded: true } : c
-      ));
+      setCategories((prev) =>
+        prev.map((c) => (c.id === categoryId ? { ...c, isExpanded: true } : c)),
+      );
     }
   };
 
-  const getCompletedPositions = () => Math.floor(totalPositions * (userStats.successRate / 100));
+  const getCompletedPositions = () =>
+    Math.floor(totalPositions * (userStats.successRate / 100));
 
   if (!isOpen) return null;
 
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
         onClick={onClose}
       />
-      
+
       {/* Menu Sidebar */}
-      <div className={`
+      <div
+        className={`
         fixed left-0 top-0 h-full w-[22rem] bg-gray-900 text-white z-50 transform transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        ${isOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0 lg:static lg:z-auto
-      `}>
+      `}
+      >
         {/* Header */}
         <div className="p-4 border-b border-gray-700">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">Endgame Training</h2>
-            <button 
+            <button
               onClick={onClose}
               className="lg:hidden p-2 hover:bg-gray-800 rounded"
             >
@@ -180,100 +318,110 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
           )}
 
           {/* Error State */}
-          {error && (
-            <div className="p-4 text-center text-red-400">
-              {error}
-            </div>
-          )}
+          {error && <div className="p-4 text-center text-red-400">{error}</div>}
 
           {/* Categories */}
-          {!isLoading && !error && categories.map((category) => (
-            <div key={category.id}>
-              {/* Category Header */}
-              <button
-                onClick={() => toggleCategory(category.id)}
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-800 transition-colors text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-lg">{category.icon}</span>
-                  <span className="font-medium">{category.name}</span>
-                  {category.positionCount !== null && (
-                    <span className="text-xs text-gray-400">({category.positionCount})</span>
-                  )}
-                </div>
-                <span className={`transform transition-transform ${
-                  category.isExpanded ? 'rotate-90' : ''
-                }`}>
-                  ▶
-                </span>
-              </button>
+          {!isLoading &&
+            !error &&
+            categories.map((category) => (
+              <div key={category.id}>
+                {/* Category Header */}
+                <button
+                  onClick={() => toggleCategory(category.id)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-800 transition-colors text-left"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg">{category.icon}</span>
+                    <span className="font-medium">{category.name}</span>
+                    {category.positionCount !== null && (
+                      <span className="text-xs text-gray-400">
+                        ({category.positionCount})
+                      </span>
+                    )}
+                  </div>
+                  <span
+                    className={`transform transition-transform ${
+                      category.isExpanded ? "rotate-90" : ""
+                    }`}
+                  >
+                    ▶
+                  </span>
+                </button>
 
-              {/* Chapters - Lazy Loaded */}
-              {category.isExpanded && (
-                <div className="bg-gray-800">
-                  {/* Loading chapters */}
-                  {category.isLoadingChapters && (
-                    <div className="px-8 py-3 text-sm text-gray-400">
-                      <div className="animate-pulse">Lade Kapitel...</div>
-                    </div>
-                  )}
-                  
-                  {/* Chapters */}
-                  {!category.isLoadingChapters && category.chapters && (
-                    <>
-                      {/* All positions in category */}
-                      <div className="px-8 py-2">
-                        <Link href={`/train/1?category=${category.id}`}>
-                          <div className="p-2 hover:bg-gray-700 rounded text-sm text-gray-300">
-                            Alle Positionen
-                          </div>
-                        </Link>
+                {/* Chapters - Lazy Loaded */}
+                {category.isExpanded && (
+                  <div className="bg-gray-800">
+                    {/* Loading chapters */}
+                    {category.isLoadingChapters && (
+                      <div className="px-8 py-3 text-sm text-gray-400">
+                        <div className="animate-pulse">Lade Kapitel...</div>
                       </div>
-                      
-                      {/* Individual chapters */}
-                      {category.chapters.map((chapter) => (
-                        <div key={chapter.id} className="px-8 py-1">
-                          <Link href={`/train/1?chapter=${chapter.id}`}>
-                            <div className="p-2 hover:bg-gray-700 rounded text-sm text-gray-300 flex items-center gap-2">
-                              <span className="text-xs">🎯</span>
-                              <span>{chapter.name}</span>
-                              <span className="ml-auto text-xs text-gray-500">
-                                {chapter.totalLessons}
-                              </span>
+                    )}
+
+                    {/* Chapters */}
+                    {!category.isLoadingChapters && category.chapters && (
+                      <>
+                        {/* All positions in category */}
+                        <div className="px-8 py-2">
+                          <Link href={`/train/1?category=${category.id}`}>
+                            <div className="p-2 hover:bg-gray-700 rounded text-sm text-gray-300">
+                              Alle Positionen
                             </div>
                           </Link>
                         </div>
-                      ))}
-                    </>
-                  )}
-                  
-                  {/* No chapters message */}
-                  {!category.isLoadingChapters && category.chapters && category.chapters.length === 0 && (
-                    <div className="px-8 py-3 text-sm text-gray-500">
-                      Keine Kapitel verfügbar
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
+
+                        {/* Individual chapters */}
+                        {category.chapters.map((chapter) => (
+                          <div key={chapter.id} className="px-8 py-1">
+                            <Link href={`/train/1?chapter=${chapter.id}`}>
+                              <div className="p-2 hover:bg-gray-700 rounded text-sm text-gray-300 flex items-center gap-2">
+                                <span className="text-xs">🎯</span>
+                                <span>{chapter.name}</span>
+                                <span className="ml-auto text-xs text-gray-500">
+                                  {chapter.totalLessons}
+                                </span>
+                              </div>
+                            </Link>
+                          </div>
+                        ))}
+                      </>
+                    )}
+
+                    {/* No chapters message */}
+                    {!category.isLoadingChapters &&
+                      category.chapters &&
+                      category.chapters.length === 0 && (
+                        <div className="px-8 py-3 text-sm text-gray-500">
+                          Keine Kapitel verfügbar
+                        </div>
+                      )}
+                  </div>
+                )}
+              </div>
+            ))}
 
           {/* Future Categories (placeholder) */}
-          {['Queen endgames', 'Knight endgames', 'Bishop endgames'].map((name) => (
-            <button
-              key={name}
-              className="w-full flex items-center justify-between p-4 hover:bg-gray-800 transition-colors text-left text-gray-500"
-              disabled
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-lg">
-                  {name.includes('Queen') ? '♛' : name.includes('Knight') ? '♞' : '♝'}
-                </span>
-                <span className="font-medium">{name}</span>
-              </div>
-              <span>▶</span>
-            </button>
-          ))}
+          {["Queen endgames", "Knight endgames", "Bishop endgames"].map(
+            (name) => (
+              <button
+                key={name}
+                className="w-full flex items-center justify-between p-4 hover:bg-gray-800 transition-colors text-left text-gray-500"
+                disabled
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-lg">
+                    {name.includes("Queen")
+                      ? "♛"
+                      : name.includes("Knight")
+                        ? "♞"
+                        : "♝"}
+                  </span>
+                  <span className="font-medium">{name}</span>
+                </div>
+                <span>▶</span>
+              </button>
+            ),
+          )}
         </div>
 
         {/* User Profile Section */}
@@ -290,7 +438,9 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
                 </div>
                 <div>
                   <div className="text-sm font-medium">D.</div>
-                  <div className="text-xs text-gray-400">Rating: {userStats.rating}</div>
+                  <div className="text-xs text-gray-400">
+                    Rating: {userStats.rating}
+                  </div>
                 </div>
               </div>
               <span>▶</span>
@@ -302,4 +452,4 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
   );
 };
 
-export default AdvancedEndgameMenu; 
+export default AdvancedEndgameMenu;

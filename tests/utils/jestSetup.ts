@@ -3,9 +3,12 @@
  * Common setup patterns for Jest 30 with ServiceContainer
  */
 
-import React from 'react';
-import { IServiceContainer } from '@shared/services/container';
-import { createTestContainer, TestServiceOverrides } from './createTestContainer';
+import React from "react";
+import { IServiceContainer } from "@shared/services/container";
+import {
+  createTestContainer,
+  TestServiceOverrides,
+} from "./createTestContainer";
 
 /**
  * Global test container for tests that need shared state
@@ -17,7 +20,9 @@ let globalTestContainer: IServiceContainer | null = null;
  * Setup global test container
  * Call in jest.setup.js or describe block
  */
-export function setupGlobalTestContainer(overrides?: TestServiceOverrides): void {
+export function setupGlobalTestContainer(
+  overrides?: TestServiceOverrides,
+): void {
   beforeAll(() => {
     globalTestContainer = createTestContainer(overrides);
   });
@@ -38,7 +43,9 @@ export function setupGlobalTestContainer(overrides?: TestServiceOverrides): void
  */
 export function getGlobalTestContainer(): IServiceContainer {
   if (!globalTestContainer) {
-    throw new Error('Global test container not set up. Call setupGlobalTestContainer() first.');
+    throw new Error(
+      "Global test container not set up. Call setupGlobalTestContainer() first.",
+    );
   }
   return globalTestContainer;
 }
@@ -47,7 +54,9 @@ export function getGlobalTestContainer(): IServiceContainer {
  * Per-test container setup
  * Preferred approach for better test isolation
  */
-export function setupPerTestContainer(overrides?: TestServiceOverrides): () => IServiceContainer {
+export function setupPerTestContainer(
+  overrides?: TestServiceOverrides,
+): () => IServiceContainer {
   let container: IServiceContainer;
 
   beforeEach(() => {
@@ -64,16 +73,18 @@ export function setupPerTestContainer(overrides?: TestServiceOverrides): () => I
 /**
  * React Testing Library setup with ServiceContainer
  */
-export function setupReactTestingWithContainer(overrides?: TestServiceOverrides) {
+export function setupReactTestingWithContainer(
+  overrides?: TestServiceOverrides,
+) {
   let container: IServiceContainer;
   let wrapper: React.ComponentType<{ children: React.ReactNode }>;
 
   beforeEach(() => {
     container = createTestContainer(overrides);
-    
+
     // Create wrapper component
     wrapper = ({ children }: { children: React.ReactNode }) => {
-      const { ServiceProvider } = require('@shared/services/container/adapter');
+      const { ServiceProvider } = require("@shared/services/container/adapter");
       return React.createElement(ServiceProvider, { container }, children);
     };
   });
@@ -84,7 +95,7 @@ export function setupReactTestingWithContainer(overrides?: TestServiceOverrides)
 
   return {
     getContainer: () => container,
-    getWrapper: () => wrapper
+    getWrapper: () => wrapper,
   };
 }
 
@@ -96,7 +107,7 @@ export const platformServiceMatchers = {
    * Check if a service method was called
    */
   toHaveBeenCalledOnService: (service: any, method: string, ...args: any[]) => {
-    if (typeof jest !== 'undefined') {
+    if (typeof jest !== "undefined") {
       expect(service[method]).toHaveBeenCalledWith(...args);
     }
   },
@@ -111,28 +122,34 @@ export const platformServiceMatchers = {
   /**
    * Check storage calls
    */
-  toHaveCalledStorageMethod: (storage: Storage, method: keyof Storage, ...args: any[]) => {
-    if (typeof jest !== 'undefined') {
+  toHaveCalledStorageMethod: (
+    storage: Storage,
+    method: keyof Storage,
+    ...args: any[]
+  ) => {
+    if (typeof jest !== "undefined") {
       expect((storage as any)[method]).toHaveBeenCalledWith(...args);
     }
-  }
+  },
 };
 
 /**
  * Test environment detection
  */
 export const testEnvironment = {
-  isJest: typeof jest !== 'undefined',
-  isJSDOM: typeof window !== 'undefined' && window.navigator?.userAgent?.includes('jsdom'),
-  isNode: typeof process !== 'undefined' && process.versions?.node
+  isJest: typeof jest !== "undefined",
+  isJSDOM:
+    typeof window !== "undefined" &&
+    window.navigator?.userAgent?.includes("jsdom"),
+  isNode: typeof process !== "undefined" && process.versions?.node,
 };
 
 /**
  * Wait for next tick (useful for async operations)
  */
 export const waitForNextTick = (): Promise<void> => {
-  return new Promise(resolve => {
-    if (typeof setImmediate !== 'undefined') {
+  return new Promise((resolve) => {
+    if (typeof setImmediate !== "undefined") {
       setImmediate(resolve);
     } else {
       setTimeout(resolve, 0);
@@ -144,16 +161,18 @@ export const waitForNextTick = (): Promise<void> => {
  * Wait for container services to be ready
  * Useful when services have async initialization
  */
-export const waitForServicesReady = async (container: IServiceContainer): Promise<void> => {
+export const waitForServicesReady = async (
+  container: IServiceContainer,
+): Promise<void> => {
   // Give services time to initialize
   await waitForNextTick();
-  
+
   // Try to resolve a basic service to ensure container is ready
   try {
-    container.resolveCustom('browser.localStorage');
+    container.resolveCustom("browser.localStorage");
   } catch (error) {
     // If services aren't ready, wait a bit more
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise((resolve) => setTimeout(resolve, 10));
   }
 };
 
@@ -161,9 +180,9 @@ export const waitForServicesReady = async (container: IServiceContainer): Promis
  * Debug helper to inspect container state
  */
 export function debugContainer(container: IServiceContainer): void {
-  if (process.env.NODE_ENV === 'test' && process.env.DEBUG_CONTAINER) {
-    console.log('Container Stats:', (container as any).getStats?.());
-    console.log('Registered Keys:', (container as any).getRegisteredKeys?.());
+  if (process.env.NODE_ENV === "test" && process.env.DEBUG_CONTAINER) {
+    console.log("Container Stats:", (container as any).getStats?.());
+    console.log("Registered Keys:", (container as any).getRegisteredKeys?.());
   }
 }
 
@@ -172,11 +191,11 @@ export function debugContainer(container: IServiceContainer): void {
  */
 export function mockConsole() {
   const originalConsole = { ...console };
-  
+
   beforeEach(() => {
-    jest.spyOn(console, 'log').mockImplementation(() => {});
-    jest.spyOn(console, 'warn').mockImplementation(() => {});
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, "log").mockImplementation(() => {});
+    jest.spyOn(console, "warn").mockImplementation(() => {});
+    jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -185,13 +204,19 @@ export function mockConsole() {
 
   return {
     expectConsoleLog: (message: string) => {
-      expect(console.log).toHaveBeenCalledWith(expect.stringContaining(message));
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining(message),
+      );
     },
     expectConsoleWarn: (message: string) => {
-      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining(message));
+      expect(console.warn).toHaveBeenCalledWith(
+        expect.stringContaining(message),
+      );
     },
     expectConsoleError: (message: string) => {
-      expect(console.error).toHaveBeenCalledWith(expect.stringContaining(message));
-    }
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining(message),
+      );
+    },
   };
 }

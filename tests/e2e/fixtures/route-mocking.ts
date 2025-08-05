@@ -4,8 +4,8 @@
  * Expert consensus: Gemini 9/10, O3-mini 9/10, Claude 8/10 confidence
  */
 
-import { Page } from '@playwright/test';
-import { E2E } from '../../../shared/constants';
+import { Page } from "@playwright/test";
+import { E2E } from "../../../shared/constants";
 
 /**
  * Mock position data for E2E tests
@@ -13,14 +13,14 @@ import { E2E } from '../../../shared/constants';
  */
 const createMockPosition = (id: number) => ({
   id,
-  fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+  fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   name: `E2E Test Position ${id}`,
   description: `Test position for E2E testing - ID ${id}`,
-  pgn: '',
-  tags: ['e2e-test'],
-  difficulty: 'beginner' as const,
-  category: 'endgame' as const,
-  moves: []
+  pgn: "",
+  tags: ["e2e-test"],
+  difficulty: "beginner" as const,
+  category: "endgame" as const,
+  moves: [],
 });
 
 /**
@@ -29,37 +29,37 @@ const createMockPosition = (id: number) => ({
  */
 export async function setupRouteInterception(page: Page) {
   // Intercept position API calls
-  await page.route('**/api/positions/**', async (route) => {
+  await page.route("**/api/positions/**", async (route) => {
     const url = new URL(route.request().url());
-    const pathParts = url.pathname.split('/');
-    const id = Number(pathParts[pathParts.indexOf('positions') + 1]);
-    
+    const pathParts = url.pathname.split("/");
+    const id = Number(pathParts[pathParts.indexOf("positions") + 1]);
+
     if (isNaN(id)) {
       await route.fulfill({
         status: 404,
-        json: { error: 'Position not found' }
+        json: { error: "Position not found" },
       });
       return;
     }
-    
+
     const mockPosition = createMockPosition(id);
     await route.fulfill({
       status: 200,
-      headers: { 'content-type': 'application/json' },
-      json: mockPosition
+      headers: { "content-type": "application/json" },
+      json: mockPosition,
     });
   });
 
   // Intercept any other backend calls that might need mocking
-  await page.route('**/api/user/**', async (route) => {
+  await page.route("**/api/user/**", async (route) => {
     await route.fulfill({
       status: 200,
       json: {
-        id: 'e2e-test-user',
+        id: "e2e-test-user",
         rating: E2E.DATA.USER.RATING,
         currentStreak: E2E.DATA.USER.STREAK,
-        preferences: E2E.DATA.PREFERENCES
-      }
+        preferences: E2E.DATA.PREFERENCES,
+      },
     });
   });
 }
@@ -67,26 +67,29 @@ export async function setupRouteInterception(page: Page) {
 /**
  * Setup route interception with error simulation for testing error handling
  */
-export async function setupRouteInterceptionWithErrors(page: Page, errorRate = 0.1) {
-  await page.route('**/api/positions/**', async (route) => {
+export async function setupRouteInterceptionWithErrors(
+  page: Page,
+  errorRate = 0.1,
+) {
+  await page.route("**/api/positions/**", async (route) => {
     // Simulate network errors occasionally
     if (Math.random() < errorRate) {
       await route.fulfill({
         status: 500,
-        json: { error: 'Simulated server error for E2E testing' }
+        json: { error: "Simulated server error for E2E testing" },
       });
       return;
     }
-    
+
     // Normal mock response
     const url = new URL(route.request().url());
-    const pathParts = url.pathname.split('/');
-    const id = Number(pathParts[pathParts.indexOf('positions') + 1]);
-    
+    const pathParts = url.pathname.split("/");
+    const id = Number(pathParts[pathParts.indexOf("positions") + 1]);
+
     const mockPosition = createMockPosition(id);
     await route.fulfill({
       status: 200,
-      json: mockPosition
+      json: mockPosition,
     });
   });
 }

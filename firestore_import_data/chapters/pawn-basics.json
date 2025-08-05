@@ -9,10 +9,7 @@
       "id": "lesson-1",
       "name": "König + Bauer vs König",
       "description": "Lerne die Grundtechnik",
-      "positionIds": [
-        1,
-        2
-      ],
+      "positionIds": [1, 2],
       "objectives": [
         "Verstehe die Opposition",
         "Führe den Bauern zur Umwandlung",

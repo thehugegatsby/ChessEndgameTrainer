@@ -41,7 +41,7 @@ test.describe("Core Training Workflow", () => {
     // Wait for training page to load
     await expect(page).toHaveURL(/\/train/);
 
-    // Verify chess board is present (using TrainingBoardZustand data-testid)
+    // Verify chess board is present (using EndgameBoard data-testid)
     await expect(
       page
         .locator(E2E.SELECTORS.BOARD)

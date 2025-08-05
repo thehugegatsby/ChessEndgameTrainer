@@ -11,8 +11,8 @@ export {
   createMockLocalStorage,
   TestScenarios,
   TestAssertions,
-  type TestServiceOverrides
-} from './createTestContainer';
+  type TestServiceOverrides,
+} from "./createTestContainer";
 
 // Mock Factories
 export {
@@ -24,8 +24,8 @@ export {
   createMockPlatformShare,
   createMockPlatformAnalytics,
   createMockPlatformService,
-  MockScenarios
-} from './mockFactories';
+  MockScenarios,
+} from "./mockFactories";
 
 // Jest Setup Utilities
 export {
@@ -38,5 +38,5 @@ export {
   waitForNextTick,
   waitForServicesReady,
   debugContainer,
-  mockConsole
-} from './jestSetup';
+  mockConsole,
+} from "./jestSetup";

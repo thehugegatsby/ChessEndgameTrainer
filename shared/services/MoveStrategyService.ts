@@ -4,22 +4,49 @@ import { getLogger } from "./logging";
 const logger = getLogger().setContext("MoveStrategyService");
 
 /**
- * Service for chess move selection strategies.
- * Encapsulates the logic for choosing moves based on different criteria.
+ * Service for chess move selection strategies
+ *
+ * @class MoveStrategyService
+ * @description
+ * Provides different algorithms for selecting chess moves from tablebase data.
+ * Supports multiple strategies:
+ * - Longest resistance: Maximize DTM (Distance to Mate) in losing positions
+ * - Best move: Objectively optimal move by WDL and DTZ
+ * - Human-like: Introduces occasional suboptimal moves for realism
+ *
+ * @remarks
+ * All methods query the tablebase service and apply different selection criteria.
+ * The service is stateless - each method call is independent.
+ * Used primarily by the training system for opponent move selection.
  */
 class MoveStrategyService {
   /**
-   * Selects the move that provides the longest resistance in a lost position.
-   * For losing positions, chooses the move with the highest DTZ (Distance to Zero).
-   * For drawn positions, maintains the draw.
-   * For winning positions, plays the fastest win.
+   * Select the move providing longest resistance (best defensive play)
    *
-   * @param fen - The current position in FEN notation
-   * @returns The selected move or null if no moves available
+   * @param {string} fen - Current position in FEN notation
+   * @returns {Promise<string|null>} Best defensive move in UCI format, or null if unavailable
+   *
+   * @remarks
+   * Strategy varies by position evaluation:
+   * - **Winning positions**: Fastest win (lowest DTZ)
+   * - **Losing positions**: Longest resistance (highest DTM if available, else DTZ)
+   * - **Drawn positions**: Any move maintaining the draw
+   *
+   * DTM (Distance to Mate) is preferred over DTZ for losing positions because:
+   * - DTM shows actual moves until checkmate
+   * - DTZ only shows moves until 50-move rule reset
+   * - DTM provides more accurate resistance measurement
+   *
+   * @example
+   * const move = await moveStrategyService.getLongestResistanceMove(fen);
+   * if (move) {
+   *   console.log('Best defensive move:', move); // e.g., "e7e8"
+   * }
    */
   async getLongestResistanceMove(fen: string): Promise<string | null> {
     try {
-      const topMoves = await tablebaseService.getTopMoves(fen, 10);
+      // Get ALL moves efficiently with single API call
+      const topMoves = await tablebaseService.getTopMoves(fen, 100);
 
       if (
         !topMoves.isAvailable ||
@@ -110,9 +137,8 @@ class MoveStrategyService {
             }
           }
 
-          // TODO: Implement fetching DTM values from resulting positions
-          // This would require making additional API calls for each possible move
-          // to get the DTM value of the resulting position
+          // Note: DTM values are only available for positions with ≤5 pieces
+          // For 6-7 piece positions, we must use DTZ for resistance calculation
         }
 
         logger.debug("Selected longest resistance move", {
@@ -141,11 +167,21 @@ class MoveStrategyService {
   }
 
   /**
-   * Selects the objectively best move.
-   * Prioritizes by WDL (win > draw > loss), then by DTZ.
+   * Select the objectively best move according to tablebase
    *
-   * @param fen - The current position in FEN notation
-   * @returns The selected move or null if no moves available
+   * @param {string} fen - Current position in FEN notation
+   * @returns {Promise<string|null>} Best move in UCI format, or null if unavailable
+   *
+   * @remarks
+   * Uses tablebase's pre-sorted move list which orders by:
+   * 1. WDL value (win > draw > loss)
+   * 2. DTZ for tiebreaking (lower is better for wins)
+   *
+   * This is the "perfect play" strategy - always choosing the objectively best move.
+   *
+   * @example
+   * const move = await moveStrategyService.getBestMove(fen);
+   * console.log('Tablebase says best is:', move); // e.g., "a7a8q"
    */
   async getBestMove(fen: string): Promise<string | null> {
     try {
@@ -169,12 +205,28 @@ class MoveStrategyService {
   }
 
   /**
-   * Selects a move that mimics human-like play.
-   * Can introduce occasional suboptimal moves for realism.
+   * Select a move with human-like imperfection
    *
-   * @param fen - The current position in FEN notation
-   * @param strength - Playing strength (0-1, where 1 is perfect play)
-   * @returns The selected move or null if no moves available
+   * @param {string} fen - Current position in FEN notation
+   * @param {number} [strength=0.8] - Playing strength from 0 to 1
+   * @returns {Promise<string|null>} Selected move in UCI format, or null if unavailable
+   *
+   * @remarks
+   * Simulates human play by occasionally choosing suboptimal moves:
+   * - strength = 1.0: Always plays the best move (perfect play)
+   * - strength = 0.8: 80% chance of best move, 20% chance of top-3 move
+   * - strength = 0.5: 50% chance of best move, 50% chance of top-3 move
+   * - strength = 0.0: Random selection from top-3 moves
+   *
+   * Useful for creating more realistic training opponents that make
+   * occasional mistakes like human players.
+   *
+   * @example
+   * // Medium strength opponent
+   * const move = await moveStrategyService.getHumanLikeMove(fen, 0.7);
+   *
+   * // Very strong but not perfect
+   * const move = await moveStrategyService.getHumanLikeMove(fen, 0.95);
    */
   async getHumanLikeMove(
     fen: string,
@@ -215,7 +267,22 @@ class MoveStrategyService {
   }
 }
 
-export /**
+/**
+ * Singleton instance of MoveStrategyService
  *
+ * @remarks
+ * Provides move selection strategies for chess training:
+ * - `getLongestResistanceMove()`: Best defensive play
+ * - `getBestMove()`: Objectively optimal move
+ * - `getHumanLikeMove()`: Realistic opponent with configurable strength
+ *
+ * @example
+ * import { moveStrategyService } from '@shared/services/MoveStrategyService';
+ *
+ * // For training opponent moves
+ * const defenseMove = await moveStrategyService.getLongestResistanceMove(fen);
+ *
+ * // For showing best play
+ * const bestMove = await moveStrategyService.getBestMove(fen);
  */
-const moveStrategyService = new MoveStrategyService();
+export const moveStrategyService = new MoveStrategyService();

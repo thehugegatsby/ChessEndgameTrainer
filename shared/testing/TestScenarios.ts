@@ -1,6 +1,23 @@
 /**
- * @file Clean Test Positions - Fresh Start
- * @description Minimal test positions with CORRECT FENs using unified EndgamePosition type
+ * @file Test scenario definitions for chess endgame training
+ * @module testing/TestScenarios
+ *
+ * @description
+ * Provides comprehensive test scenarios for chess endgame training with verified
+ * positions from the Firebase database. Contains real training positions with
+ * correct FEN strings, solutions, hints, and difficulty classifications.
+ *
+ * @remarks
+ * Key features:
+ * - Verified FEN positions from actual Firebase data
+ * - Complete solutions with move sequences
+ * - Progressive difficulty levels (beginner to intermediate)
+ * - Bridge building technique scenarios (Zickzack, positioning, deflection)
+ * - Opposition fundamentals for pawn endgames
+ * - Conversion utilities between TestScenario and EndgamePosition types
+ *
+ * All positions have been tested and validated for correctness and include
+ * realistic move targets and German language hints for training purposes.
  */
 
 import { EndgamePosition } from "@shared/types/endgame";
@@ -12,14 +29,24 @@ import { EndgamePosition } from "@shared/types/endgame";
 // If you need TestScenario compatibility, use the conversion functions below
 
 /**
- * REAL TEST POSITIONS from Firebase Database
- * Each position verified with actual data
- * USING DEDICATED TestScenario TYPE (extends EndgamePosition)
- */
-export /**
+ * Real test positions from Firebase database
  *
+ * @description
+ * Collection of verified chess endgame positions with complete training data.
+ * Each position includes FEN string, solution moves, hints, and metadata
+ * required for comprehensive endgame training scenarios.
+ *
+ * @remarks
+ * Position categories:
+ * - Opposition fundamentals (king and pawn endgames)
+ * - Bridge building techniques (rook and pawn endgames)
+ * - Zickzack technique for king advancement
+ * - Rook positioning and deflection strategies
+ *
+ * All positions use the TestScenario interface which extends EndgamePosition
+ * with string IDs for test-specific compatibility.
  */
-const TestPositions: Record<string, TestScenario> = {
+export const TestPositions: Record<string, TestScenario> = {
   // Position 1: "Opposition Grundlagen" from Firebase
   // FEN: "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1"
   // White K+P vs Black K, White to move, goal: win, mate in #11
@@ -162,8 +189,23 @@ const PositionIdMap = new Map<number, keyof typeof TestPositions>([
 
 /**
  * Get test position by legacy position ID
- * Converts TestScenario to EndgamePosition (removing test-specific fields)
- * @param positionId
+ *
+ * @param {number} positionId - The numeric position ID to look up
+ * @returns {EndgamePosition | null} The endgame position or null if not found
+ *
+ * @description
+ * Converts TestScenario to EndgamePosition by removing test-specific fields
+ * and transforming string ID to numeric ID. Provides compatibility with
+ * legacy position ID mapping system.
+ *
+ * @example
+ * ```typescript
+ * const position = getPositionByPositionId(1);
+ * // Returns position with opposition fundamentals
+ *
+ * const unknown = getPositionByPositionId(999);
+ * // Returns null
+ * ```
  */
 export function getPositionByPositionId(
   positionId: number,
@@ -191,7 +233,16 @@ export function getPositionByPositionId(
 
 /**
  * Test-specific scenario interface
- * Simply uses string IDs instead of numeric IDs for test scenarios
+ *
+ * @interface TestScenario
+ * @extends {Omit<EndgamePosition, "id">}
+ *
+ * @description
+ * Extended version of EndgamePosition that uses string IDs instead of numeric IDs
+ * for test scenario compatibility. Provides same functionality as EndgamePosition
+ * but with test-friendly string identifiers.
+ *
+ * @property {string} id - String identifier for test scenarios (overrides numeric ID)
  */
 export interface TestScenario extends Omit<EndgamePosition, "id"> {
   id: string; // Override to be string for test scenarios
@@ -213,12 +264,31 @@ export function getScenarioByPositionId(
 }
 
 /**
- * Utility functions
+ * Utility functions for test position management
+ *
+ * @class TestPositionUtils
+ * @description
+ * Provides static utility methods for working with test positions and scenarios.
+ * Includes FEN normalization, position lookup by ID or FEN, and conversion
+ * between TestScenario and EndgamePosition formats.
  */
 export class TestPositionUtils {
   /**
+   * Normalize a FEN string by removing move counters
    *
-   * @param fen
+   * @param {string} fen - The FEN string to normalize
+   * @returns {string} Normalized FEN string (first 4 parts only)
+   *
+   * @description
+   * Removes halfmove and fullmove counters from FEN string for consistent
+   * position comparison. Keeps only piece placement, active color, castling
+   * availability, and en passant target square.
+   *
+   * @example
+   * ```typescript
+   * const normalized = TestPositionUtils.normalizeFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+   * // Returns: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -'
+   * ```
    */
   static normalizeFen(fen: string): string {
     const parts = fen.trim().split(/\s+/);
@@ -229,8 +299,21 @@ export class TestPositionUtils {
   }
 
   /**
+   * Get endgame position by test position key
    *
-   * @param id
+   * @param {keyof typeof TestPositions} id - The test position key
+   * @returns {EndgamePosition} The endgame position
+   * @throws {Error} If the position is not found
+   *
+   * @description
+   * Retrieves a test position by its key and converts from TestScenario
+   * to EndgamePosition format. Throws an error if the position doesn't exist.
+   *
+   * @example
+   * ```typescript
+   * const position = TestPositionUtils.getPosition('POSITION_1_OPPOSITION_BASICS');
+   * // Returns opposition fundamentals position
+   * ```
    */
   static getPosition(id: keyof typeof TestPositions): EndgamePosition {
     const scenario = TestPositions[id];
@@ -256,8 +339,23 @@ export class TestPositionUtils {
   }
 
   /**
+   * Get endgame position by FEN string
    *
-   * @param fen
+   * @param {string} fen - The FEN string to match
+   * @returns {EndgamePosition | null} The matching position or null if not found
+   *
+   * @description
+   * Searches for a test position matching the given FEN string and returns
+   * it as an EndgamePosition. Uses exact FEN matching for position lookup.
+   *
+   * @example
+   * ```typescript
+   * const position = TestPositionUtils.getPositionByFen('4k3/8/4K3/4P3/8/8/8/8 w - - 0 1');
+   * // Returns opposition fundamentals position
+   *
+   * const notFound = TestPositionUtils.getPositionByFen('invalid-fen');
+   * // Returns null
+   * ```
    */
   static getPositionByFen(fen: string): EndgamePosition | null {
     const scenario = Object.values(TestPositions).find(
@@ -280,35 +378,6 @@ export class TestPositionUtils {
       goal: scenario.goal,
       nextPositionId: scenario.nextPositionId,
     };
-  }
-
-  // DEPRECATED METHODS - use getPosition/getPositionByFen instead
-  /**
-   *
-   * @param id
-   */
-  static getScenario(id: keyof typeof TestPositions): TestScenario {
-    const position = TestPositions[id];
-    if (!position) {
-      throw new Error(`Test position not found: ${id}`);
-    }
-
-    // Return the complete TestScenario (TestPositions already stores TestScenario objects)
-    return position;
-  }
-
-  /**
-   *
-   * @param fen
-   */
-  static getScenarioByFen(fen: string): TestScenario | null {
-    const position = Object.values(TestPositions).find(
-      (pos) => pos.fen === fen,
-    );
-    if (!position) return null;
-
-    // Return the complete TestScenario (TestPositions already stores TestScenario objects)
-    return position;
   }
 }
 

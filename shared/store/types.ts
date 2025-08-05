@@ -41,11 +41,12 @@ export interface UserPreferences {
   animationSpeed: "slow" | "normal" | "fast" | "none";
 }
 
-// Training state
+// Endgame session state
 /**
- *
+ * State for endgame training sessions
+ * @interface EndgameSessionState
  */
-export interface TrainingState {
+export interface EndgameSessionState {
   currentPosition?: EndgamePosition;
   nextPosition?: EndgamePosition | null;
   previousPosition?: EndgamePosition | null;
@@ -79,6 +80,67 @@ export interface TrainingState {
   } | null;
 }
 
+// Complete endgame session state combining all aspects
+export interface CompleteEndgameSessionState {
+  gameState: GameState;
+  tablebaseAnalysisState: TablebaseAnalysisState;
+  endgameTrainingState: EndgameTrainingState;
+}
+
+// TrainingState removed - use EndgameSessionState instead
+
+/**
+ * Pure chess game state (domain-agnostic)
+ * @interface GameState
+ */
+export interface GameState {
+  game?: ChessInstance;
+  currentFen: string;
+  currentPgn: string;
+  moveHistory: ValidatedMove[];
+  currentMoveIndex: number;
+  isGameFinished: boolean;
+}
+
+/**
+ * Tablebase analysis state
+ * @interface TablebaseAnalysisState
+ */
+export interface TablebaseAnalysisState {
+  tablebaseMove?: string | null;
+  analysisStatus: AnalysisStatus;
+  evaluations: PositionAnalysis[];
+  currentEvaluation?: PositionAnalysis;
+}
+
+/**
+ * Endgame training specific state
+ * @interface EndgameTrainingState
+ */
+export interface EndgameTrainingState {
+  currentPosition?: EndgamePosition;
+  nextPosition?: EndgamePosition | null;
+  previousPosition?: EndgamePosition | null;
+  isLoadingNavigation?: boolean;
+  navigationError?: string | null;
+  chapterProgress?: {
+    completed: number;
+    total: number;
+  } | null;
+  isPlayerTurn: boolean;
+  isSuccess: boolean;
+  startTime?: number;
+  endTime?: number;
+  hintsUsed: number;
+  mistakeCount: number;
+  moveErrorDialog?: {
+    isOpen: boolean;
+    wdlBefore?: number;
+    wdlAfter?: number;
+    bestMove?: string;
+  } | null;
+}
+
 /**
  *
  */
@@ -90,11 +152,28 @@ export type AnalysisStatus = "idle" | "loading" | "success" | "error";
  */
 export interface ProgressState {
   positionProgress: Record<number, PositionProgress>;
-  dailyStats: DailyStats;
+  dailyStats: DailyStats[];
   achievements: Achievement[];
   totalSolvedPositions: number;
   averageAccuracy: number;
   favoritePositions: number[];
+  currentStreak: number;
+  longestStreak: number;
+  lastActivityDate?: number;
+  totalPoints: number;
+  weeklyGoals: {
+    target: number;
+    completed: number;
+    weekStart: number;
+  };
+  monthlyStats: {
+    positionsCompleted: number;
+    totalTime: number;
+    averageAccuracy: number;
+    hintsUsed: number;
+    mistakesMade: number;
+    monthStart: number;
+  };
 }
 
 /**
@@ -103,22 +182,27 @@ export interface ProgressState {
 export interface PositionProgress {
   positionId: number;
   attempts: number;
-  successes: number;
-  lastAttemptDate: string;
+  completed: boolean;
+  accuracy: number;
   bestTime?: number;
-  averageTime: number;
-  nextReviewDate?: string;
-  difficulty: number; // Dynamic difficulty based on performance
+  lastAttempt?: number;
+  nextReview?: number;
+  lastReview?: number;
+  difficulty: number;
+  reviewInterval?: number;
+  hintsUsed?: number;
+  mistakesMade?: number;
+  success?: boolean;
 }
 
 /**
  *
  */
 export interface DailyStats {
-  date: string;
-  positionsSolved: number;
-  timeSpent: number; // in seconds
-  accuracy: number; // percentage
+  date: number;
+  positionsCompleted: number;
+  totalTime: number;
+  averageAccuracy: number;
   mistakesMade: number;
   hintsUsed: number;
 }
@@ -133,6 +217,12 @@ export interface Achievement {
   unlockedDate?: string;
   progress: number;
   maxProgress: number;
+  unlocked: boolean;
+  points: number;
+  category: "streak" | "completion" | "performance" | "discovery" | "mastery";
+  icon: string;
+  rarity: "common" | "rare" | "epic" | "legendary";
+  unlockedAt?: number;
 }
 
 // UI state
@@ -155,7 +245,8 @@ export type ModalType =
   | "help"
   | "achievements"
   | "share"
-  | "confirm";
+  | "confirm"
+  | "completion";
 
 /**
  *
@@ -191,10 +282,9 @@ export interface AnalysisPanelState {
  *
  */
 export interface SettingsState {
-  appVersion: string;
-  lastUpdated: string;
-  dataSync: DataSyncState;
-  experimentalFeatures: ExperimentalFeatures;
+  // Essential settings only
+  restartRequired: boolean;
+  lastSettingsUpdate?: number;
 }
 
 /**
@@ -202,19 +292,22 @@ export interface SettingsState {
  */
 export interface DataSyncState {
   enabled: boolean;
-  lastSyncDate?: string;
+  lastSync?: number;
   syncInProgress: boolean;
-  syncError?: string;
+  syncError?: string | null;
+  autoSync: boolean;
+  syncInterval: number;
 }
 
 /**
  *
  */
 export interface ExperimentalFeatures {
-  advancedAnalysis: boolean;
+  newTrainingMode: boolean;
+  advancedAnalytics: boolean;
   voiceCommands: boolean;
-  multipleVariations: boolean;
-  puzzleRush: boolean;
+  aiCoach: boolean;
+  multiplePerspective: boolean;
 }
 
 // Root state
@@ -223,7 +316,7 @@ export interface ExperimentalFeatures {
  */
 export interface RootState {
   user: UserState;
-  training: TrainingState;
+  training: EndgameSessionState;
   progress: ProgressState;
   ui: UIState;
   settings: SettingsState;

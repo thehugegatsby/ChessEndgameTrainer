@@ -6,7 +6,11 @@
 import { Chess } from "chess.js";
 
 /**
- *
+ * Result of FEN string validation
+ * @interface FenValidationResult
+ * @property {boolean} isValid - Whether the FEN string represents a valid chess position
+ * @property {string} sanitized - Normalized FEN string (canonical form from chess.js)
+ * @property {string[]} errors - Array of validation error messages if FEN is invalid
  */
 export interface FenValidationResult {
   isValid: boolean;
@@ -16,8 +20,29 @@ export interface FenValidationResult {
 
 /**
  * Validates and normalizes a FEN string using chess.js
- * @param fen The FEN string to validate
- * @returns Validation result with normalized FEN
+ *
+ * @param {string} fen - The FEN string to validate (Forsyth-Edwards Notation)
+ * @returns {FenValidationResult} Validation result with normalized FEN
+ *
+ * @example
+ * // Valid starting position
+ * const result = validateAndSanitizeFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+ * console.log(result.isValid); // true
+ * console.log(result.sanitized); // Normalized FEN from chess.js
+ *
+ * @example
+ * // Invalid FEN (too many kings)
+ * const result = validateAndSanitizeFen("K7/K7/8/8/8/8/8/k7 w - - 0 1");
+ * console.log(result.isValid); // false
+ * console.log(result.errors); // ["Invalid FEN: too many kings"]
+ *
+ * @remarks
+ * This is a thin wrapper around chess.js validation. We use chess.js because:
+ * - It provides comprehensive FEN validation including piece placement rules
+ * - It normalizes FEN to canonical form (important for caching)
+ * - It gives descriptive error messages for debugging
+ *
+ * @performance O(n) where n is FEN string length, typically <1ms
  */
 export function validateAndSanitizeFen(fen: string): FenValidationResult {
   if (!fen || typeof fen !== "string") {

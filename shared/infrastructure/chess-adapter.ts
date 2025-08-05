@@ -1,27 +1,33 @@
 /**
  * Chess Adapter - Clean Architecture Implementation
- * 
+ *
  * Anti-Corruption Layer zwischen chess.js Library und unserer Domain.
  * Implementiert das Adapter Pattern für saubere Trennung von Domain und Infrastructure.
- * 
+ *
  * Architektur-Prinzipien:
  * 1. Domain Types bleiben unberührt von Library-Details
- * 2. Error-First Validation für ungültige Library-Daten  
+ * 2. Error-First Validation für ungültige Library-Daten
  * 3. Klare Trennung: Domain ↔ Adapter ↔ Library
  * 4. Library-Austausch ohne Domain-Änderungen möglich
  */
 
-import { Move as ChessJsMove } from 'chess.js';
-import { Move as DomainMove, Color, Square, PieceSymbol, ValidatedMove } from '../types/chess';
-import { getLogger } from '../services/logging';
+import { Move as ChessJsMove } from "chess.js";
+import {
+  Move as DomainMove,
+  Color,
+  Square,
+  PieceSymbol,
+  ValidatedMove,
+} from "../types/chess";
+import { getLogger } from "../services/logging";
 
 const logger = getLogger();
 
 /**
  * Valid promotion pieces according to chess rules
  */
-const VALID_PROMOTION_PIECES = ['q', 'r', 'b', 'n'] as const;
-type ValidPromotionPiece = typeof VALID_PROMOTION_PIECES[number];
+const VALID_PROMOTION_PIECES = ["q", "r", "b", "n"] as const;
+type ValidPromotionPiece = (typeof VALID_PROMOTION_PIECES)[number];
 
 /**
  * Validates if a piece symbol represents a valid promotion piece
@@ -34,79 +40,85 @@ function isValidPromotionPiece(piece: string): piece is ValidPromotionPiece {
  * Validates if a piece symbol is valid according to our domain rules
  */
 function isValidPieceSymbol(piece: string): piece is PieceSymbol {
-  return ['p', 'n', 'b', 'r', 'q', 'k'].includes(piece);
+  return ["p", "n", "b", "r", "q", "k"].includes(piece);
 }
 
 /**
  * Validates if a color is valid according to our domain rules
  */
 function isValidColor(color: string): color is Color {
-  return color === 'w' || color === 'b';
+  return color === "w" || color === "b";
 }
 
 /**
  * Converts Domain Move to chess.js Move format
- * 
+ *
  * This is generally safe since DomainMove is a subset of ChessJsMove
  * with stricter constraints.
  */
 export function toLibraryMove(move: DomainMove): ChessJsMove {
-  logger.debug('Converting domain move to library format', { 
-    from: move.from, 
-    to: move.to, 
-    san: move.san 
+  logger.debug("Converting domain move to library format", {
+    from: move.from,
+    to: move.to,
+    san: move.san,
   });
 
-  // Domain move is already validated and stricter than library requirements
-  // Safe to convert by preserving all original properties including helper methods
-  return move as ChessJsMove;
+  // Convert domain move to library format
+  // Map fenBefore/fenAfter to before/after for chess.js compatibility
+  const libraryMove = {
+    ...move,
+    before: move.fenBefore,
+    after: move.fenAfter,
+  } as ChessJsMove;
+
+  return libraryMove;
 }
 
 /**
  * Converts chess.js Move to Domain Move format
- * 
+ *
  * This is the critical validation layer. Any invalid data from the library
  * will be caught here before it enters our domain.
- * 
+ *
  * Error-First Strategy: Fail fast on invalid data to prevent silent bugs.
  */
 export function fromLibraryMove(libraryMove: ChessJsMove): ValidatedMove {
-  logger.debug('Converting library move to domain format', { 
-    from: libraryMove.from, 
-    to: libraryMove.to, 
+  logger.debug("Converting library move to domain format", {
+    from: libraryMove.from,
+    to: libraryMove.to,
     san: libraryMove.san,
-    promotion: libraryMove.promotion 
+    promotion: libraryMove.promotion,
   });
 
   // Validate required fields exist
   if (!libraryMove.from || !libraryMove.to || !libraryMove.san) {
-    throw new ChessAdapterError(
-      'Missing required move fields',
-      { move: libraryMove, missingFields: ['from', 'to', 'san'] }
-    );
+    throw new ChessAdapterError("Missing required move fields", {
+      move: libraryMove,
+      missingFields: ["from", "to", "san"],
+    });
   }
 
   // Validate color
   if (!isValidColor(libraryMove.color)) {
-    throw new ChessAdapterError(
-      `Invalid move color: ${libraryMove.color}`,
-      { move: libraryMove, invalidField: 'color' }
-    );
+    throw new ChessAdapterError(`Invalid move color: ${libraryMove.color}`, {
+      move: libraryMove,
+      invalidField: "color",
+    });
   }
 
   // Validate piece
   if (!isValidPieceSymbol(libraryMove.piece)) {
-    throw new ChessAdapterError(
-      `Invalid piece symbol: ${libraryMove.piece}`,
-      { move: libraryMove, invalidField: 'piece' }
-    );
+    throw new ChessAdapterError(`Invalid piece symbol: ${libraryMove.piece}`, {
+      move: libraryMove,
+      invalidField: "piece",
+    });
   }
 
   // Validate captured piece (if present)
   if (libraryMove.captured && !isValidPieceSymbol(libraryMove.captured)) {
     throw new ChessAdapterError(
       `Invalid captured piece: ${libraryMove.captured}`,
-      { move: libraryMove, invalidField: 'captured' }
+      { move: libraryMove, invalidField: "captured" },
     );
   }
 
@@ -116,11 +128,11 @@ export function fromLibraryMove(libraryMove: ChessJsMove): ValidatedMove {
     // but we fail fast to catch any library bugs or unexpected behavior
     throw new ChessAdapterError(
       `Invalid promotion piece: ${libraryMove.promotion}. Only q, r, b, n are allowed.`,
-      { 
-        move: libraryMove, 
-        invalidField: 'promotion',
-        validPromotions: VALID_PROMOTION_PIECES 
-      }
+      {
+        move: libraryMove,
+        invalidField: "promotion",
+        validPromotions: VALID_PROMOTION_PIECES,
+      },
     );
   }
 
@@ -132,27 +144,27 @@ export function fromLibraryMove(libraryMove: ChessJsMove): ValidatedMove {
     piece: libraryMove.piece as PieceSymbol,
     captured: libraryMove.captured as PieceSymbol | undefined,
     promotion: libraryMove.promotion as ValidPromotionPiece | undefined,
-    flags: libraryMove.flags || '',
+    flags: libraryMove.flags || "",
     san: libraryMove.san,
-    lan: libraryMove.lan || '',
-    before: libraryMove.before || '',
-    after: libraryMove.after || '',
+    lan: libraryMove.lan || "",
+    fenBefore: libraryMove.before || "",
+    fenAfter: libraryMove.after || "",
     // Helper methods - these will be added by the chess.js library when needed
     isCapture: () => !!(libraryMove as any).captured,
     isPromotion: () => !!(libraryMove as any).promotion,
-    isEnPassant: () => (libraryMove as any).flags?.includes('e') || false,
-    isKingsideCastle: () => (libraryMove as any).flags?.includes('k') || false,
-    isQueensideCastle: () => (libraryMove as any).flags?.includes('q') || false,
-    isBigPawn: () => (libraryMove as any).flags?.includes('b') || false,
+    isEnPassant: () => (libraryMove as any).flags?.includes("e") || false,
+    isKingsideCastle: () => (libraryMove as any).flags?.includes("k") || false,
+    isQueensideCastle: () => (libraryMove as any).flags?.includes("q") || false,
+    isBigPawn: () => (libraryMove as any).flags?.includes("b") || false,
   } as ValidatedMove;
 
-  logger.debug('Successfully converted library move to domain move', {
+  logger.debug("Successfully converted library move to domain move", {
     domainMove: {
       from: domainMove.from,
       to: domainMove.to,
       san: domainMove.san,
-      promotion: domainMove.promotion
-    }
+      promotion: domainMove.promotion,
+    },
   });
 
   return domainMove;
@@ -169,14 +181,11 @@ export function fromLibraryMoves(libraryMoves: ChessJsMove[]): ValidatedMove[] {
     } catch (error) {
       if (error instanceof ChessAdapterError) {
         // Create a new error with enhanced context since context is readonly
-        throw new ChessAdapterError(
-          error.message,
-          { 
-            ...error.context, 
-            moveIndex: index, 
-            totalMoves: libraryMoves.length 
-          }
-        );
+        throw new ChessAdapterError(error.message, {
+          ...error.context,
+          moveIndex: index,
+          totalMoves: libraryMoves.length,
+        });
       }
       throw error;
     }
@@ -192,13 +201,13 @@ export class ChessAdapterError extends Error {
 
   constructor(message: string, context?: Record<string, any>) {
     super(message);
-    this.name = 'ChessAdapterError';
+    this.name = "ChessAdapterError";
     this.context = context;
-    
+
     // Log error for monitoring/debugging
-    logger.error('Chess adapter validation failed', {
+    logger.error("Chess adapter validation failed", {
       error: message,
-      context: context
+      context: context,
     });
   }
 }
@@ -210,5 +219,5 @@ export const ChessAdapter = {
   isValidPromotionPiece,
   isValidPieceSymbol,
   isValidColor,
-  VALID_PROMOTION_PIECES
+  VALID_PROMOTION_PIECES,
 } as const;

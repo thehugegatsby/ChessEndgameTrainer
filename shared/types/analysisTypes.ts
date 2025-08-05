@@ -5,4 +5,4 @@ export type AnalysisData = {
   mistakeIndex?: number;
   correctLine?: string[];
   evaluations?: number[]; // centipawn scores
-}; 
+};

@@ -1,22 +1,77 @@
+/**
+ * @file Evaluation legend component for training interface
+ * @module components/training/EvaluationLegend
+ * 
+ * @description
+ * Collapsible legend component that explains the symbols and colors used
+ * in chess position evaluations. Focuses on tablebase symbols and their
+ * meanings to help users understand move quality indicators.
+ * 
+ * @remarks
+ * Key features:
+ * - Expandable/collapsible design to save screen space
+ * - Tablebase symbol explanations with German descriptions
+ * - Clean grid layout for easy scanning
+ * - Theme-aware styling with CSS custom properties
+ * - Responsive design for mobile and desktop
+ * 
+ * The component serves as educational support, helping users understand
+ * the evaluation symbols used throughout the training interface.
+ */
+
 import React, { useState } from "react";
-import { TABLEBASE_LEGEND } from "../../utils/chess/evaluationHelpers";
+import { TABLEBASE_LEGEND } from "../../utils/chess/evaluation";
 
 /**
- *
+ * Props for the EvaluationLegend component
+ * 
+ * @interface EvaluationLegendProps
+ * 
+ * @property {string} [className] - Additional CSS classes to apply
  */
 interface EvaluationLegendProps {
   className?: string;
 }
 
 /**
- *
- * @param root0
- * @param root0.className
+ * Evaluation legend component
+ * 
+ * @component
+ * @description
+ * Displays an expandable legend explaining the evaluation symbols used
+ * in the chess training interface. Provides context for tablebase symbols
+ * and their meanings to improve user understanding.
+ * 
+ * @remarks
+ * Component behavior:
+ * - Starts collapsed to conserve screen space
+ * - Expands on click to show detailed legend
+ * - Uses emoji icons for visual appeal and clarity
+ * - Organizes symbols in a clean grid layout
+ * - Includes explanatory text about symbol priority
+ * 
+ * The legend focuses on tablebase evaluations as the application uses
+ * a tablebase-only architecture for move analysis.
+ * 
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <EvaluationLegend />
+ * 
+ * // With custom styling
+ * <EvaluationLegend className="mt-4 border rounded" />
+ * 
+ * // In sidebar or panel
+ * <div className="sidebar">
+ *   <EvaluationLegend className="mb-4" />
+ *   <OtherComponents />
+ * </div>
+ * ```
+ * 
+ * @param {EvaluationLegendProps} props - Component configuration
+ * @returns {JSX.Element} Collapsible legend component
  */
-export /**
- *
- */
-const EvaluationLegend: React.FC<EvaluationLegendProps> = ({
+export const EvaluationLegend: React.FC<EvaluationLegendProps> = ({
   className = "",
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);

@@ -2,56 +2,61 @@
 
 **Target**: LLM comprehension for shared codebase structure
 **Environment**: WSL + VS Code + Windows
-**Updated**: 2025-01-13
+**Updated**: 2025-08-04
 
 ## 📁 Directory Structure Overview
 
 ```
 shared/
-├── components/          # UI Layer - React components (80% shared)
-├── hooks/              # Business Logic Layer - Custom hooks
-├── lib/                # Core Library Layer - Domain logic
-├── services/           # Service Layer - External integrations
-├── store/              # State Layer - Zustand store
-├── types/              # Type Definitions - Shared contracts
-├── utils/              # Utility Layer - Helper functions
-├── testing/            # Test Utilities - Mock factories
-├── constants/          # Application Constants
-├── contexts/           # React Context Providers
-├── repositories/       # Data Access Layer - Repository pattern
-├── infrastructure/     # Infrastructure adapters
 ├── benchmarks/         # Performance benchmarking
+├── components/         # UI Layer - React components
+├── constants/          # Application constants
+├── contexts/           # React Context Providers
 ├── data/               # Static data files
-└── pages/              # Page-level components
+├── hooks/              # Business Logic Layer - Custom hooks
+├── infrastructure/     # Infrastructure adapters (chess-adapter)
+├── lib/                # Core Library Layer - Domain logic
+├── pages/              # Page-level components
+├── repositories/       # Data Access Layer - Repository pattern
+├── services/           # Service Layer - External integrations
+├── store/              # State Layer - Zustand store (v5)
+├── testing/            # Test utilities and fixtures
+├── types/              # TypeScript type definitions
+└── utils/              # Utility functions
 ```
 
 ## 🎯 Layer Architecture Mapping
 
 ### UI Layer
+
 - **Location**: `components/`
 - **Purpose**: React components, UI logic
 - **Dependencies**: hooks/, store/, types/
 - **Pattern**: Presentational + Container components
 
-### Business Logic Layer  
+### Business Logic Layer
+
 - **Location**: `hooks/`
 - **Purpose**: Reusable business logic, state management bridges
 - **Dependencies**: lib/, services/, store/, types/
 - **Pattern**: Custom hooks with clean separation
 
 ### Core Library Layer
+
 - **Location**: `lib/`
-- **Purpose**: Domain-specific libraries, chess engine, evaluation
+- **Purpose**: Domain-specific libraries, chess logic, training
 - **Dependencies**: types/, utils/
-- **Pattern**: Clean architecture (Service → Adapter → Provider)
+- **Pattern**: Core business logic, no engine (tablebase-only)
 
 ### Service Layer
+
 - **Location**: `services/`
 - **Purpose**: External service integrations, platform abstractions
 - **Dependencies**: types/, utils/
 - **Pattern**: Interface-driven design with implementations
 
 ### State Layer
+
 - **Location**: `store/`
 - **Purpose**: Global state management with Zustand
 - **Dependencies**: types/
@@ -60,146 +65,116 @@ shared/
 ## 🔍 Key Directories Deep Dive
 
 ### components/
+
 ```
 components/
+├── analysis/           # Analysis UI components
 ├── chess/              # Chess-specific UI components
-│   └── Chessboard.tsx
 ├── layout/             # Layout components
-│   ├── AppLayout.tsx
-│   └── Header.tsx
 ├── navigation/         # Navigation components
-│   └── AdvancedEndgameMenu.tsx
+├── tablebase/          # Tablebase-specific components
 ├── training/           # Training-specific components
-│   ├── AnalysisPanel/
-│   ├── DualEvaluationPanel/
 │   ├── TrainingBoard/
-│   ├── EvaluationLegend.tsx
+│   ├── TablebaseAnalysisPanel/
 │   ├── MoveHistory.tsx
-│   ├── MovePanelZustand.tsx
 │   ├── NavigationControls.tsx
-│   ├── PrincipalVariation.tsx
-│   ├── TrainingControls.tsx
-│   └── WikiPanel.tsx
+│   └── [other training components]
 └── ui/                 # Generic UI components
-    ├── ErrorBoundary.tsx
-    ├── EngineErrorBoundary.tsx
-    ├── DarkModeToggle.tsx
-    ├── ProgressCard.tsx
-    ├── SettingsIcon.tsx
-    ├── Toast.tsx
-    └── button.tsx
+    ├── button.tsx
+    ├── card.tsx
+    ├── dialog.tsx
+    └── [other UI components]
 ```
 
 ### hooks/
+
 ```
 hooks/
-├── index.ts            # Hook exports
-├── useAnalysisData.ts  # Analysis data management
 ├── useDebounce.ts      # Input debouncing
-├── useEngine.ts        # Engine integration
-├── useEvaluation.ts    # Position evaluation
 ├── useLocalStorage.ts  # Browser storage
 ├── usePageReady.ts     # Page readiness state
-├── useToast.ts         # Toast notification management
-└── useTrainingGame.ts  # Training game state
+├── usePositionAnalysis.ts  # Tablebase position analysis
+├── useToast.ts         # Toast notifications
+├── useEndgameSession.ts  # Endgame session state
+└── [other hooks]
 ```
 
 ### lib/
+
 ```
 lib/
 ├── cache/              # Caching implementations
-│   ├── EvaluationCache.ts
-│   ├── LRUCache.ts
-│   └── index.ts
+│   └── LRUCache.ts
 ├── chess/              # Chess domain logic
-│   ├── ChessEngine/    # Engine factory patterns
-│   ├── engine/         # Stockfish WASM integration
-│   ├── evaluation/     # Evaluation pipeline
-│   ├── IChessEngine.ts # Engine interface
-│   ├── MockScenarioEngine.ts
-│   ├── ScenarioEngine.ts
-│   ├── tablebase.ts    # Tablebase utilities
-│   └── validation.ts   # Chess validation
+│   └── [chess utilities]
 ├── firebase/           # Firebase integration
 ├── training/           # Training utilities
-└── utils.ts            # Library utilities
+└── [other libraries]
 ```
 
 ### services/
+
 ```
 services/
-├── chess/              # Chess-related services
-│   └── EngineService.ts
+├── chess/              # Chess-related services (legacy)
+├── container/          # Dependency injection
 ├── database/           # Database services
-│   ├── IPositionService.ts
-│   ├── PositionService.ts
-│   ├── errors.ts
-│   ├── index.ts
-│   └── serverPositionService.ts
-├── engine/             # Engine service abstractions
+├── engine/             # Legacy engine directory (empty)
 ├── logging/            # Logging infrastructure
-│   ├── Logger.ts
-│   ├── index.ts
-│   └── types.ts
 ├── mistakeAnalysis/    # Mistake analysis services
 ├── platform/           # Platform abstractions
-│   ├── PlatformService.ts
-│   ├── types.ts
-│   └── web/WebPlatformService.ts
-├── tablebase/          # Tablebase services
-│   ├── ITablebaseService.ts
-│   ├── MockTablebaseService.ts
-│   ├── TablebaseServiceAdapter.ts
-│   └── index.ts
 ├── test/               # Testing services
-│   ├── BrowserTestApi.ts
-│   ├── TestApiService.ts
-│   ├── TestBridge.ts
-│   └── index.ts
-├── errorService.ts     # Centralized error handling
+├── MoveStrategyService.ts    # Move selection strategies
+├── TablebaseService.ts       # Main tablebase service
+├── TablebaseService.e2e.mocks.ts  # E2E test mocks
+├── errorService.ts           # Centralized error handling
 └── index.ts
 ```
 
 ### store/
+
 ```
 store/
-├── index.ts            # Store exports
-├── store.ts            # Main store definition
+├── store.ts            # Main Zustand v5 store
 ├── storeConfig.ts      # Store configuration
-├── trainingActions.ts  # Training action creators
-└── types.ts            # Store type definitions
+├── trainingActions.ts  # Async training actions
+├── types.ts            # TypeScript interfaces
+└── [store slices]
 ```
 
 ## 🎨 Import Patterns
 
 ### Absolute Imports
+
 ```typescript
 // Preferred pattern: Absolute imports with @shared alias
-import { useEvaluation } from '@shared/hooks/useEvaluation';
-import { TrainingStore } from '@shared/store/types';
-import { EvaluationData } from '@shared/types/evaluation';
+import { useEvaluation } from "@shared/hooks/useEvaluation";
+import { TrainingStore } from "@shared/store/types";
+import { EvaluationData } from "@shared/types/evaluation";
 ```
 
 ### Barrel Exports
+
 ```typescript
 // Pattern: Barrel exports for clean imports
 // shared/hooks/index.ts
-export { useEvaluation } from './useEvaluation';
-export { useEngine } from './useEngine';
-export { useTrainingGame } from './useTrainingGame';
+export { useEvaluation } from "./useEvaluation";
+export { useEngine } from "./useEngine";
+export { useEndgameSession } from "./useEndgameSession";
 
 // Usage
-import { useEvaluation, useEngine } from '@shared/hooks';
+import { useEvaluation, useEngine } from "@shared/hooks";
 ```
 
 ### Layer Dependency Rules
+
 ```typescript
 // ✅ Allowed: Lower layers can import from higher layers
 // hooks/ can import from lib/, services/, store/
-import { analysisService } from '@shared/lib/chess/AnalysisService';
+import { analysisService } from "@shared/lib/chess/AnalysisService";
 
 // ✅ Allowed: Same layer imports
-import { formatEvaluation } from '@shared/utils/chess/evaluation';
+import { formatEvaluation } from "@shared/utils/chess/evaluation";
 
 // ❌ Forbidden: Higher layers importing from lower layers
 // lib/ should NOT import from hooks/
@@ -208,6 +183,7 @@ import { formatEvaluation } from '@shared/utils/chess/evaluation';
 ## 🔧 Configuration Patterns
 
 ### TypeScript Path Mapping
+
 ```json
 // tsconfig.json paths
 {
@@ -227,6 +203,7 @@ import { formatEvaluation } from '@shared/utils/chess/evaluation';
 ```
 
 ### Jest Module Mapping
+
 ```javascript
 // jest.config.js moduleNameMapper
 moduleNameMapper: {
@@ -244,6 +221,7 @@ moduleNameMapper: {
 ## 📊 Data Flow Between Layers
 
 ### Top-Down Flow (User Interaction)
+
 ```
 User Interaction
   ↓
@@ -259,6 +237,7 @@ External Systems (Engine, Tablebase, Database)
 ```
 
 ### Bottom-Up Flow (Data Response)
+
 ```
 External Systems
   ↓
@@ -276,120 +255,110 @@ User Interface Update
 ## 🎯 Key Integration Points
 
 ### Hook ↔ Store Integration (Zustand Single Source of Truth)
+
 ```typescript
-// Pattern: Store consumption in hooks with Zustand
-const currentFen = useTrainingStore(state => state.currentFen);
-const makeMove = useTrainingStore(state => state.makeMove);
-const { evaluations, isEvaluating } = useTrainingStore(state => ({
-  evaluations: state.evaluations,
-  isEvaluating: state.isEvaluating
-}));
+// Pattern: Store consumption in hooks with Zustand v5
+const currentFen = useTrainingStore((state) => state.currentFen);
+const makeMove = useTrainingStore((state) => state.makeMove);
+// Use useShallow for object selectors to prevent re-renders
+const { evaluations, analysisStatus } = useTrainingStore(
+  useShallow((state) => ({
+    evaluations: state.evaluations,
+    analysisStatus: state.analysisStatus,
+  })),
+);
 
 // Pattern: Store updates from hooks
-const handleMoveResult = useCallback((result: MoveResult) => {
-  makeMove(result.move);
-  updateEvaluation(result.evaluation);
-}, [makeMove, updateEvaluation]);
+const handleMoveResult = useCallback(
+  (result: MoveResult) => {
+    makeMove(result.move);
+    updateEvaluation(result.evaluation);
+  },
+  [makeMove, updateEvaluation],
+);
 ```
 
 ### Service ↔ Hook Integration
+
 ```typescript
-// Pattern: Service instantiation in hooks with singleton pattern
-const engineService = useMemo(() => EngineService.getInstance(), []);
-// Use the singleton AnalysisService
-const result = await analysisService.analyzePosition(fen);
-  new TablebaseProviderAdapter(),
-  new ChessAwareCache(new LRUCache(200))
-), [engineService]);
+// Pattern: Service usage in hooks (tablebase-only)
+const tablebaseService = getTablebaseService();
+
+// Direct tablebase API calls
+const result = await tablebaseService.getEvaluation(fen);
+const moves = await tablebaseService.getTopMoves(fen);
 
 // Pattern: Service method calls in hooks with error handling
-const evaluatePosition = useCallback(async (fen: string) => {
-  try {
-    const result = await service.getFormattedEvaluation(fen, playerToMove);
-    return result;
-  } catch (error) {
-    ErrorService.handleChessEngineError(error as Error, { action: 'evaluatePosition' });
-    return null;
-  }
-}, [service, playerToMove]);
+const evaluatePosition = useCallback(
+  async (fen: string) => {
+    try {
+      const result = await service.getFormattedEvaluation(fen, playerToMove);
+      return result;
+    } catch (error) {
+      ErrorService.handleChessEngineError(error as Error, {
+        action: "evaluatePosition",
+      });
+      return null;
+    }
+  },
+  [service, playerToMove],
+);
 ```
 
 ### Component ↔ Hook Integration
+
 ```typescript
-// Pattern: Hook consumption in components with error boundaries
+// Pattern: Hook consumption in components
 function TrainingBoard() {
-  const { 
-    evaluations, 
-    lastEvaluation, 
-    isEvaluating,
-    error 
-  } = useEvaluation({
+  const {
+    evaluations,
+    analysisStatus,
+    error
+  } = usePositionAnalysis({
     fen: currentFen,
-    isEnabled: true,
+    enabled: true,
     debounceMs: 300
   });
-  
+
   return (
-    <EngineErrorBoundary>
-      <div>
-        {error && <Toast type="error" message={error} />}
-        {isEvaluating ? (
-          <ProgressCard title="Analyzing..." />
-        ) : (
-          <DualEvaluationPanel evaluation={lastEvaluation} />
-        )}
-      </div>
-    </EngineErrorBoundary>
+    <div>
+      {error && <Toast type="error" message={error} />}
+      {analysisStatus === 'loading' ? (
+        <LoadingState />
+      ) : (
+        <TablebaseAnalysisPanel evaluations={evaluations} />
+      )}
+    </div>
   );
 }
 ```
 
-## 🚀 Mobile Readiness (80% Shared Code)
+## 🚀 Architecture Notes
 
-### Platform Abstraction Pattern
-```typescript
-// Pattern: Platform-agnostic interfaces in services/platform/
-interface IPlatformService {
-  getDeviceInfo(): DeviceInfo;
-  showNotification(message: string): void;
-  vibrate(pattern: number[]): void;
-  detectCapabilities(): PlatformCapabilities;
-}
+### Key Architecture Changes
 
-// Current: Web implementation
-class WebPlatformService implements IPlatformService {
-  // Web-specific implementations for browser environment
-}
-
-// Platform detection service
-interface IPlatformDetection {
-  isWeb(): boolean;
-  isMobile(): boolean;
-  isAndroid(): boolean;
-  isIOS(): boolean;
-  isDesktop(): boolean;
-  isTouchDevice(): boolean;
-  isStandalone(): boolean; // PWA mode
-}
-
-// Factory pattern for platform services
-export function getPlatformService(): IPlatformService;
-export function getPlatformDetection(): IPlatformDetection;
-```
+1. **Tablebase-Only**: No local chess engine, all evaluations via Lichess Tablebase API
+2. **Zustand v5**: Updated state management with useShallow for performance
+3. **Clean Migration**: All "engine" references removed, replaced with "tablebase"
+4. **Simplified State**: `analysisStatus` replaces multiple status fields
 
 ### Shared Business Logic
+
 ```typescript
 // Pattern: Platform-independent business logic
 // This code works unchanged on web and mobile
-export function useTrainingGame() {
+export function useEndgameSession() {
   const store = useTrainingStore();
-  
-  const makeMove = useCallback((move: Move) => {
-    // Business logic is platform-agnostic
-    const validatedMove = validateMove(move, store.getState().position);
-    store.makeMove(validatedMove);
-  }, [store]);
-  
+
+  const makeMove = useCallback(
+    (move: Move) => {
+      // Business logic is platform-agnostic
+      const validatedMove = validateMove(move, store.getState().position);
+      store.makeMove(validatedMove);
+    },
+    [store],
+  );
+
   return { makeMove };
 }
 ```
@@ -397,22 +366,24 @@ export function useTrainingGame() {
 ## 🔍 Documentation Navigation
 
 ### By Functionality
-- **Chess Engine**: [lib/chess/](./lib/chess/)
-- **Evaluation System**: [lib/chess/evaluation/](./lib/chess/evaluation/)
-- **State Management**: [store/](./store/)
-- **UI Components**: [components/](./components/)
-- **Business Logic**: [hooks/](./hooks/)
+
+- **Tablebase Integration**: `services/TablebaseService.ts`
+- **State Management**: `store/` (Zustand v5)
+- **UI Components**: `components/`
+- **Business Logic**: `hooks/`
 
 ### By Layer
-- **Service Layer**: [services/](./services/)
-- **Domain Layer**: [lib/](./lib/)
-- **Application Layer**: [hooks/](./hooks/)
-- **Presentation Layer**: [components/](./components/)
 
-### By Pattern
-- **Clean Architecture**: [../patterns/CLEAN_ARCHITECTURE.md](../patterns/CLEAN_ARCHITECTURE.md)
-- **Evaluation Pipeline**: [../patterns/EVALUATION_PIPELINE.md](../patterns/EVALUATION_PIPELINE.md)
-- **Testing Patterns**: [../testing/TESTING_GUIDELINES.md](../testing/TESTING_GUIDELINES.md)
+- **Service Layer**: `services/` (TablebaseService, MoveStrategyService)
+- **Infrastructure**: `infrastructure/` (chess-adapter)
+- **Application Layer**: `hooks/`
+- **Presentation Layer**: `components/`
+
+### Key Services
+
+- **TablebaseService**: Main service for Lichess Tablebase API integration
+- **MoveStrategyService**: Different strategies for move selection (DTM, DTZ, WDL)
+- **ErrorService**: Centralized error handling with German user messages
 
 ---
 

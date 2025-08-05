@@ -26,6 +26,8 @@ const KNOWN_POSITIONS = {
   KK_DRAW: "4k3/8/4K3/8/8/8/8/8 w - - 0 1",
   // More pieces than tablebase supports
   TOO_MANY_PIECES: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  // Special position that triggers API error in MSW
+  API_ERROR: "8/8/8/8/8/8/8/8 w - - 0 1",
 } as const;
 
 /**

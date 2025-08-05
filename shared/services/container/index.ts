@@ -4,7 +4,7 @@
  */
 
 // Core container
-export { ServiceContainer } from './ServiceContainer';
+export { ServiceContainer } from "./ServiceContainer";
 
 // Types
 export type {
@@ -14,15 +14,15 @@ export type {
   ServiceKey,
   ServiceOverrides,
   ServiceContainerConfig,
-  IBrowserAPIs
-} from './types';
+  IBrowserAPIs,
+} from "./types";
 
 // Errors
 export {
   ServiceNotFoundError,
   ServiceAlreadyRegisteredError,
-  CircularDependencyError
-} from './types';
+  CircularDependencyError,
+} from "./types";
 
 // Mocks for testing
 export {
@@ -30,8 +30,8 @@ export {
   createMockNavigator,
   createMockWindow,
   createMockDocument,
-  createMockPerformance
-} from './mocks';
+  createMockPerformance,
+} from "./mocks";
 
 // React integration
 export {
@@ -43,5 +43,5 @@ export {
   usePlatformNotifications,
   useLocalStorage,
   getPlatformService,
-  resetPlatformService
-} from './adapter';
+  resetPlatformService,
+} from "./adapter";

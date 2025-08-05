@@ -3,25 +3,31 @@
  * @description Tests main layout component with header, menu, and navigation
  */
 
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { AppLayout } from '@shared/components/layout/AppLayout';
+import React from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { AppLayout } from "@shared/components/layout/AppLayout";
 
 // Mock Next.js Link component
-jest.mock('next/link', () => {
-  return function MockLink({ children, href }: { children: React.ReactNode; href: string }) {
+jest.mock("next/link", () => {
+  return function MockLink({
+    children,
+    href,
+  }: {
+    children: React.ReactNode;
+    href: string;
+  }) {
     return <a href={href}>{children}</a>;
   };
 });
 
 // Mock child components
-jest.mock('@shared/components/layout/Header', () => ({
-  Header: () => <div data-testid="mock-header">Header Component</div>
+jest.mock("@shared/components/layout/Header", () => ({
+  Header: () => <div data-testid="mock-header">Header Component</div>,
 }));
 
-jest.mock('@shared/components/navigation/AdvancedEndgameMenu', () => ({
+jest.mock("@shared/components/navigation/AdvancedEndgameMenu", () => ({
   AdvancedEndgameMenu: ({ isOpen, onClose, currentPositionId }: any) => (
-    <div 
+    <div
       data-testid="mock-menu"
       data-is-open={isOpen}
       data-position-id={currentPositionId}
@@ -29,360 +35,364 @@ jest.mock('@shared/components/navigation/AdvancedEndgameMenu', () => ({
       Menu Component
       <button onClick={onClose}>Close Menu</button>
     </div>
-  )
+  ),
 }));
 
-jest.mock('@shared/components/ui/DarkModeToggle', () => ({
-  DarkModeToggle: () => <div data-testid="mock-dark-toggle">Dark Mode Toggle</div>
+jest.mock("@shared/components/ui/DarkModeToggle", () => ({
+  DarkModeToggle: () => (
+    <div data-testid="mock-dark-toggle">Dark Mode Toggle</div>
+  ),
 }));
 
-jest.mock('@shared/components/ui/SettingsIcon', () => ({
-  SettingsIcon: () => <div data-testid="mock-settings">Settings Icon</div>
+jest.mock("@shared/components/ui/SettingsIcon", () => ({
+  SettingsIcon: () => <div data-testid="mock-settings">Settings Icon</div>,
 }));
 
-describe('AppLayout Component', () => {
+describe("AppLayout Component", () => {
   const mockChildren = <div data-testid="test-content">Test Content</div>;
 
   const defaultProps = {
-    children: mockChildren
+    children: mockChildren,
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('Basic Rendering', () => {
-    it('should render main layout structure', () => {
+  describe("Basic Rendering", () => {
+    it("should render main layout structure", () => {
       render(<AppLayout {...defaultProps} />);
 
-      expect(screen.getByTestId('test-content')).toBeInTheDocument();
-      expect(screen.getByTestId('mock-menu')).toBeInTheDocument();
-      expect(screen.getByTestId('mock-settings')).toBeInTheDocument();
+      expect(screen.getByTestId("test-content")).toBeInTheDocument();
+      expect(screen.getByTestId("mock-menu")).toBeInTheDocument();
+      expect(screen.getByTestId("mock-settings")).toBeInTheDocument();
     });
 
-    it('should render header section', () => {
+    it("should render header section", () => {
       render(<AppLayout {...defaultProps} />);
 
-      expect(screen.getByText('Endgame Training')).toBeInTheDocument();
-      expect(screen.getByTestId('mock-settings')).toBeInTheDocument();
+      expect(screen.getByText("Endgame Training")).toBeInTheDocument();
+      expect(screen.getByTestId("mock-settings")).toBeInTheDocument();
     });
 
-    it('should pass currentPositionId to menu', () => {
+    it("should pass currentPositionId to menu", () => {
       render(<AppLayout {...defaultProps} currentPositionId={42} />);
 
-      const menu = screen.getByTestId('mock-menu');
-      expect(menu).toHaveAttribute('data-position-id', '42');
+      const menu = screen.getByTestId("mock-menu");
+      expect(menu).toHaveAttribute("data-position-id", "42");
     });
 
-    it('should render children in main content area', () => {
+    it("should render children in main content area", () => {
       render(<AppLayout {...defaultProps} />);
 
-      const mainContent = screen.getByRole('main');
+      const mainContent = screen.getByRole("main");
       expect(mainContent).toBeInTheDocument();
-      expect(mainContent).toContainElement(screen.getByTestId('test-content'));
+      expect(mainContent).toContainElement(screen.getByTestId("test-content"));
     });
   });
 
-  describe('Menu State Management', () => {
-    it('should start with menu open by default', () => {
+  describe("Menu State Management", () => {
+    it("should start with menu open by default", () => {
       render(<AppLayout {...defaultProps} />);
 
-      const menu = screen.getByTestId('mock-menu');
-      expect(menu).toHaveAttribute('data-is-open', 'true');
+      const menu = screen.getByTestId("mock-menu");
+      expect(menu).toHaveAttribute("data-is-open", "true");
     });
 
-    it('should close menu when close button clicked', () => {
+    it("should close menu when close button clicked", () => {
       render(<AppLayout {...defaultProps} />);
 
-      const closeButton = screen.getByText('Close Menu');
+      const closeButton = screen.getByText("Close Menu");
       fireEvent.click(closeButton);
 
-      const menu = screen.getByTestId('mock-menu');
-      expect(menu).toHaveAttribute('data-is-open', 'false');
+      const menu = screen.getByTestId("mock-menu");
+      expect(menu).toHaveAttribute("data-is-open", "false");
     });
 
-    it('should toggle menu with mobile toggle button', () => {
+    it("should toggle menu with mobile toggle button", () => {
       render(<AppLayout {...defaultProps} />);
 
       // Initially open
-      let menu = screen.getByTestId('mock-menu');
-      expect(menu).toHaveAttribute('data-is-open', 'true');
+      let menu = screen.getByTestId("mock-menu");
+      expect(menu).toHaveAttribute("data-is-open", "true");
 
       // Find and click mobile toggle button
-      const toggleButton = screen.getByText('❌ Menü schließen');
+      const toggleButton = screen.getByText("❌ Menü schließen");
       fireEvent.click(toggleButton);
 
-      menu = screen.getByTestId('mock-menu');
-      expect(menu).toHaveAttribute('data-is-open', 'false');
+      menu = screen.getByTestId("mock-menu");
+      expect(menu).toHaveAttribute("data-is-open", "false");
 
       // Should change button text when closed
-      expect(screen.getByText('📖 Navigation')).toBeInTheDocument();
+      expect(screen.getByText("📖 Navigation")).toBeInTheDocument();
 
       // Click again to open
-      fireEvent.click(screen.getByText('📖 Navigation'));
+      fireEvent.click(screen.getByText("📖 Navigation"));
 
-      menu = screen.getByTestId('mock-menu');
-      expect(menu).toHaveAttribute('data-is-open', 'true');
+      menu = screen.getByTestId("mock-menu");
+      expect(menu).toHaveAttribute("data-is-open", "true");
     });
   });
 
-  describe('Header Structure', () => {
-    it('should have fixed header with correct styling', () => {
+  describe("Header Structure", () => {
+    it("should have fixed header with correct styling", () => {
       const { container } = render(<AppLayout {...defaultProps} />);
 
-      const header = container.querySelector('header');
-      expect(header?.className).toContain('fixed');
-      expect(header?.className).toContain('top-0');
-      expect(header?.className).toContain('left-0');
-      expect(header?.className).toContain('right-0');
-      expect(header?.className).toContain('z-50');
-      expect(header?.className).toContain('bg-gray-900');
-      expect(header?.className).toContain('border-b');
-      expect(header?.className).toContain('border-gray-700');
+      const header = container.querySelector("header");
+      expect(header?.className).toContain("fixed");
+      expect(header?.className).toContain("top-0");
+      expect(header?.className).toContain("left-0");
+      expect(header?.className).toContain("right-0");
+      expect(header?.className).toContain("z-50");
+      expect(header?.className).toContain("bg-gray-900");
+      expect(header?.className).toContain("border-b");
+      expect(header?.className).toContain("border-gray-700");
     });
 
-    it('should have proper header content layout', () => {
+    it("should have proper header content layout", () => {
       render(<AppLayout {...defaultProps} />);
 
-      const title = screen.getByText('Endgame Training');
-      expect(title.className).toContain('text-xl');
-      expect(title.className).toContain('font-bold');
-      expect(title.className).toContain('text-white');
+      const title = screen.getByText("Endgame Training");
+      expect(title.className).toContain("text-xl");
+      expect(title.className).toContain("font-bold");
+      expect(title.className).toContain("text-white");
     });
   });
 
-  describe('Main Content Layout', () => {
-    it('should have proper main layout structure', () => {
+  describe("Main Content Layout", () => {
+    it("should have proper main layout structure", () => {
       const { container } = render(<AppLayout {...defaultProps} />);
 
-      const mainLayout = container.querySelector('.flex.pt-14');
+      const mainLayout = container.querySelector(".flex.pt-14");
       expect(mainLayout).toBeInTheDocument();
 
-      const flexContent = container.querySelector('.flex-1');
+      const flexContent = container.querySelector(".flex-1");
       expect(flexContent).toBeInTheDocument();
     });
 
-    it('should have container with proper styling', () => {
+    it("should have container with proper styling", () => {
       const { container } = render(<AppLayout {...defaultProps} />);
 
-      const mainContainer = container.querySelector('.container.mx-auto.p-4');
+      const mainContainer = container.querySelector(".container.mx-auto.p-4");
       expect(mainContainer).toBeInTheDocument();
     });
 
-    it('should apply background color from CSS variables', () => {
+    it("should apply background color from CSS variables", () => {
       const { container } = render(<AppLayout {...defaultProps} />);
 
       const rootDiv = container.firstChild as HTMLElement;
       // CSS variables are not evaluated in jsdom
-      expect(rootDiv).toHaveClass('min-h-screen');
+      expect(rootDiv).toHaveClass("min-h-screen");
     });
   });
 
-  describe('Mobile Navigation', () => {
-    it('should show mobile toggle button', () => {
+  describe("Mobile Navigation", () => {
+    it("should show mobile toggle button", () => {
       render(<AppLayout {...defaultProps} />);
 
-      const mobileToggle = screen.getByText('❌ Menü schließen');
+      const mobileToggle = screen.getByText("❌ Menü schließen");
       // Check parent container has responsive class
-      expect(mobileToggle.parentElement).toHaveClass('lg:hidden');
+      expect(mobileToggle.parentElement).toHaveClass("lg:hidden");
     });
 
-    it('should have responsive classes for mobile toggle', () => {
+    it("should have responsive classes for mobile toggle", () => {
       render(<AppLayout {...defaultProps} />);
 
-      const toggleButton = screen.getByText('❌ Menü schließen');
-      expect(toggleButton.className).toContain('px-4');
-      expect(toggleButton.className).toContain('py-2');
-      expect(toggleButton.className).toContain('bg-blue-600');
-      expect(toggleButton.className).toContain('text-white');
-      expect(toggleButton.className).toContain('rounded-lg');
-      expect(toggleButton.className).toContain('hover:bg-blue-700');
+      const toggleButton = screen.getByText("❌ Menü schließen");
+      expect(toggleButton.className).toContain("px-4");
+      expect(toggleButton.className).toContain("py-2");
+      expect(toggleButton.className).toContain("bg-blue-600");
+      expect(toggleButton.className).toContain("text-white");
+      expect(toggleButton.className).toContain("rounded-lg");
+      expect(toggleButton.className).toContain("hover:bg-blue-700");
     });
   });
 
-  describe('Desktop Floating Actions', () => {
-    it('should render desktop floating action buttons', () => {
+  describe("Desktop Floating Actions", () => {
+    it("should render desktop floating action buttons", () => {
       render(<AppLayout {...defaultProps} />);
 
-      const dashboardLink = screen.getByText('📊');
-      expect(dashboardLink).toHaveAttribute('href', '/dashboard');
-      expect(dashboardLink).toHaveTextContent('📊');
+      const dashboardLink = screen.getByText("📊");
+      expect(dashboardLink).toHaveAttribute("href", "/dashboard");
+      expect(dashboardLink).toHaveTextContent("📊");
     });
 
-    it('should render dark mode toggle in floating actions', () => {
+    it("should render dark mode toggle in floating actions", () => {
       render(<AppLayout {...defaultProps} />);
 
-      const darkToggle = screen.getAllByTestId('mock-dark-toggle')[0]; // Desktop version
+      const darkToggle = screen.getAllByTestId("mock-dark-toggle")[0]; // Desktop version
       expect(darkToggle).toBeInTheDocument();
     });
 
-    it('should have proper styling for floating actions', () => {
+    it("should have proper styling for floating actions", () => {
       const { container } = render(<AppLayout {...defaultProps} />);
 
-      const floatingContainer = container.querySelector('.fixed.bottom-6.right-6');
+      const floatingContainer = container.querySelector(
+        ".fixed.bottom-6.right-6",
+      );
       expect(floatingContainer).toBeInTheDocument();
-      expect(floatingContainer?.className).toContain('hidden');
-      expect(floatingContainer?.className).toContain('lg:flex');
+      expect(floatingContainer?.className).toContain("hidden");
+      expect(floatingContainer?.className).toContain("lg:flex");
     });
   });
 
-  describe('Mobile Bottom Navigation', () => {
-    it('should render mobile bottom navigation by default', () => {
+  describe("Mobile Bottom Navigation", () => {
+    it("should render mobile bottom navigation by default", () => {
       render(<AppLayout {...defaultProps} />);
 
-      const bottomNav = screen.getByText('📊 Dashboard');
+      const bottomNav = screen.getByText("📊 Dashboard");
       expect(bottomNav).toBeInTheDocument();
-      expect(bottomNav.closest('a')).toHaveAttribute('href', '/dashboard');
+      expect(bottomNav.closest("a")).toHaveAttribute("href", "/dashboard");
     });
 
-    it('should render home link in bottom navigation', () => {
+    it("should render home link in bottom navigation", () => {
       render(<AppLayout {...defaultProps} />);
 
-      const homeLink = screen.getByText('🏠 Home');
-      expect(homeLink.closest('a')).toHaveAttribute('href', '/');
+      const homeLink = screen.getByText("🏠 Home");
+      expect(homeLink.closest("a")).toHaveAttribute("href", "/");
     });
 
-    it('should hide bottom navigation when showMobileBottomNav is false', () => {
+    it("should hide bottom navigation when showMobileBottomNav is false", () => {
       render(<AppLayout {...defaultProps} showMobileBottomNav={false} />);
 
-      expect(screen.queryByText('📊 Dashboard')).not.toBeInTheDocument();
-      expect(screen.queryByText('🏠 Home')).not.toBeInTheDocument();
+      expect(screen.queryByText("📊 Dashboard")).not.toBeInTheDocument();
+      expect(screen.queryByText("🏠 Home")).not.toBeInTheDocument();
     });
 
-    it('should have proper bottom navigation styling', () => {
+    it("should have proper bottom navigation styling", () => {
       const { container } = render(<AppLayout {...defaultProps} />);
 
-      const bottomNav = container.querySelector('.lg\\:hidden.fixed.bottom-0');
+      const bottomNav = container.querySelector(".lg\\:hidden.fixed.bottom-0");
       expect(bottomNav).toBeInTheDocument();
-      expect(bottomNav?.className).toContain('dark-card-elevated');
-      expect(bottomNav?.className).toContain('border-t');
+      expect(bottomNav?.className).toContain("dark-card-elevated");
+      expect(bottomNav?.className).toContain("border-t");
     });
 
-    it('should include dark mode toggle in bottom navigation', () => {
+    it("should include dark mode toggle in bottom navigation", () => {
       render(<AppLayout {...defaultProps} />);
 
       // Should have dark mode toggle in bottom nav (second instance)
-      const darkToggles = screen.getAllByTestId('mock-dark-toggle');
+      const darkToggles = screen.getAllByTestId("mock-dark-toggle");
       expect(darkToggles.length).toBeGreaterThan(1);
     });
   });
 
-  describe('Responsive Behavior', () => {
-    it('should have responsive classes for different screen sizes', () => {
+  describe("Responsive Behavior", () => {
+    it("should have responsive classes for different screen sizes", () => {
       const { container } = render(<AppLayout {...defaultProps} />);
 
       // Mobile toggle should be hidden on large screens
-      const mobileSection = container.querySelector('.lg\\:hidden.p-4');
+      const mobileSection = container.querySelector(".lg\\:hidden.p-4");
       expect(mobileSection).toBeInTheDocument();
 
       // Floating actions should be hidden on mobile
-      const desktopActions = container.querySelector('.hidden.lg\\:flex');
+      const desktopActions = container.querySelector(".hidden.lg\\:flex");
       expect(desktopActions).toBeInTheDocument();
     });
 
-    it('should handle window resize gracefully', () => {
+    it("should handle window resize gracefully", () => {
       render(<AppLayout {...defaultProps} />);
 
       // Should not break with different viewport sizes
-      expect(screen.getByTestId('test-content')).toBeInTheDocument();
-      expect(screen.getByTestId('mock-menu')).toBeInTheDocument();
+      expect(screen.getByTestId("test-content")).toBeInTheDocument();
+      expect(screen.getByTestId("mock-menu")).toBeInTheDocument();
     });
   });
 
-  describe('Link Navigation', () => {
-    it('should render dashboard links correctly', () => {
+  describe("Link Navigation", () => {
+    it("should render dashboard links correctly", () => {
       render(<AppLayout {...defaultProps} />);
 
       const dashboardLinks = screen.getAllByText(/Dashboard/);
-      dashboardLinks.forEach(link => {
-        expect(link.closest('a')).toHaveAttribute('href', '/dashboard');
+      dashboardLinks.forEach((link) => {
+        expect(link.closest("a")).toHaveAttribute("href", "/dashboard");
       });
     });
 
-    it('should render home link correctly', () => {
+    it("should render home link correctly", () => {
       render(<AppLayout {...defaultProps} />);
 
-      const homeLink = screen.getByText('🏠 Home');
-      expect(homeLink.closest('a')).toHaveAttribute('href', '/');
+      const homeLink = screen.getByText("🏠 Home");
+      expect(homeLink.closest("a")).toHaveAttribute("href", "/");
     });
 
-    it('should have proper button styling for navigation links', () => {
+    it("should have proper button styling for navigation links", () => {
       render(<AppLayout {...defaultProps} />);
 
-      const dashboardButton = screen.getByText('📊 Dashboard');
+      const dashboardButton = screen.getByText("📊 Dashboard");
       // Button styling is handled by Link component
       expect(dashboardButton).toBeInTheDocument();
     });
   });
 
-  describe('CSS Layout Classes', () => {
-    it('should apply minimum height to main container', () => {
+  describe("CSS Layout Classes", () => {
+    it("should apply minimum height to main container", () => {
       const { container } = render(<AppLayout {...defaultProps} />);
 
       const mainContainer = container.firstChild as HTMLElement;
-      expect(mainContainer.className).toContain('min-h-screen');
+      expect(mainContainer.className).toContain("min-h-screen");
     });
 
-    it('should have flex layout for main content', () => {
+    it("should have flex layout for main content", () => {
       const { container } = render(<AppLayout {...defaultProps} />);
 
-      const flexContainer = container.querySelector('.flex.pt-14');
+      const flexContainer = container.querySelector(".flex.pt-14");
       expect(flexContainer).toBeInTheDocument();
     });
 
-    it('should have proper spacing and padding', () => {
+    it("should have proper spacing and padding", () => {
       const { container } = render(<AppLayout {...defaultProps} />);
 
-      const headerPadding = container.querySelector('.px-4.py-3');
-      const contentPadding = container.querySelector('.container.mx-auto.p-4');
+      const headerPadding = container.querySelector(".px-4.py-3");
+      const contentPadding = container.querySelector(".container.mx-auto.p-4");
 
       expect(headerPadding).toBeInTheDocument();
       expect(contentPadding).toBeInTheDocument();
     });
   });
 
-  describe('Component Integration', () => {
-    it('should integrate properly with menu component', () => {
+  describe("Component Integration", () => {
+    it("should integrate properly with menu component", () => {
       render(<AppLayout {...defaultProps} currentPositionId={123} />);
 
-      const menu = screen.getByTestId('mock-menu');
-      expect(menu).toHaveAttribute('data-position-id', '123');
-      expect(menu).toHaveAttribute('data-is-open', 'true');
+      const menu = screen.getByTestId("mock-menu");
+      expect(menu).toHaveAttribute("data-position-id", "123");
+      expect(menu).toHaveAttribute("data-is-open", "true");
     });
 
-    it('should handle menu close callback', () => {
+    it("should handle menu close callback", () => {
       render(<AppLayout {...defaultProps} />);
 
-      const menu = screen.getByTestId('mock-menu');
-      expect(menu).toHaveAttribute('data-is-open', 'true');
+      const menu = screen.getByTestId("mock-menu");
+      expect(menu).toHaveAttribute("data-is-open", "true");
 
-      const closeButton = screen.getByText('Close Menu');
+      const closeButton = screen.getByText("Close Menu");
       fireEvent.click(closeButton);
 
-      expect(menu).toHaveAttribute('data-is-open', 'false');
+      expect(menu).toHaveAttribute("data-is-open", "false");
     });
   });
 
-  describe('Edge Cases', () => {
-    it('should handle missing children gracefully', () => {
+  describe("Edge Cases", () => {
+    it("should handle missing children gracefully", () => {
       render(<AppLayout children={undefined} />);
 
-      const mainContent = screen.getByRole('main');
+      const mainContent = screen.getByRole("main");
       expect(mainContent).toBeInTheDocument();
     });
 
-    it('should handle undefined currentPositionId', () => {
+    it("should handle undefined currentPositionId", () => {
       render(<AppLayout {...defaultProps} currentPositionId={undefined} />);
 
-      const menu = screen.getByTestId('mock-menu');
+      const menu = screen.getByTestId("mock-menu");
       // Check menu exists, data attributes are optional
       expect(menu).toBeInTheDocument();
     });
 
-    it('should handle rapid menu toggle clicks', () => {
+    it("should handle rapid menu toggle clicks", () => {
       render(<AppLayout {...defaultProps} />);
 
-      const toggleButton = screen.getByText('❌ Menü schließen');
+      const toggleButton = screen.getByText("❌ Menü schließen");
 
       // Rapid clicks
       for (let i = 0; i < 10; i++) {
@@ -390,11 +400,11 @@ describe('AppLayout Component', () => {
       }
 
       // Final state depends on implementation
-      const menu = screen.getByTestId('mock-menu');
+      const menu = screen.getByTestId("mock-menu");
       expect(menu).toBeInTheDocument();
     });
 
-    it('should handle complex children content', () => {
+    it("should handle complex children content", () => {
       const complexChildren = (
         <div>
           <h1>Complex Content</h1>
@@ -407,61 +417,63 @@ describe('AppLayout Component', () => {
 
       render(<AppLayout children={complexChildren} />);
 
-      expect(screen.getByText('Complex Content')).toBeInTheDocument();
-      expect(screen.getByText('Nested content')).toBeInTheDocument();
-      expect(screen.getByText('Action Button')).toBeInTheDocument();
+      expect(screen.getByText("Complex Content")).toBeInTheDocument();
+      expect(screen.getByText("Nested content")).toBeInTheDocument();
+      expect(screen.getByText("Action Button")).toBeInTheDocument();
     });
   });
 
-  describe('Performance', () => {
-    it('should not cause memory leaks on unmount', () => {
+  describe("Performance", () => {
+    it("should not cause memory leaks on unmount", () => {
       const { unmount } = render(<AppLayout {...defaultProps} />);
 
       expect(() => unmount()).not.toThrow();
     });
 
-    it('should handle frequent prop changes efficiently', () => {
-      const { rerender } = render(<AppLayout {...defaultProps} currentPositionId={1} />);
+    it("should handle frequent prop changes efficiently", () => {
+      const { rerender } = render(
+        <AppLayout {...defaultProps} currentPositionId={1} />,
+      );
 
       // Frequent position changes
       for (let i = 2; i <= 20; i++) {
         rerender(<AppLayout {...defaultProps} currentPositionId={i} />);
       }
 
-      expect(screen.getByTestId('test-content')).toBeInTheDocument();
-      const menu = screen.getByTestId('mock-menu');
-      expect(menu).toHaveAttribute('data-position-id', '20');
+      expect(screen.getByTestId("test-content")).toBeInTheDocument();
+      const menu = screen.getByTestId("mock-menu");
+      expect(menu).toHaveAttribute("data-position-id", "20");
     });
   });
 
-  describe('State Management', () => {
-    it('should maintain menu state across re-renders', () => {
+  describe("State Management", () => {
+    it("should maintain menu state across re-renders", () => {
       const { rerender } = render(<AppLayout {...defaultProps} />);
 
       // Close menu
-      const closeButton = screen.getByText('Close Menu');
+      const closeButton = screen.getByText("Close Menu");
       fireEvent.click(closeButton);
 
-      let menu = screen.getByTestId('mock-menu');
-      expect(menu).toHaveAttribute('data-is-open', 'false');
+      let menu = screen.getByTestId("mock-menu");
+      expect(menu).toHaveAttribute("data-is-open", "false");
 
       // Re-render with different props
       rerender(<AppLayout {...defaultProps} currentPositionId={42} />);
 
       // Menu should still be closed
-      menu = screen.getByTestId('mock-menu');
-      expect(menu).toHaveAttribute('data-is-open', 'false');
+      menu = screen.getByTestId("mock-menu");
+      expect(menu).toHaveAttribute("data-is-open", "false");
     });
 
-    it('should initialize with correct default state', () => {
+    it("should initialize with correct default state", () => {
       render(<AppLayout {...defaultProps} />);
 
       // Menu should start open
-      const menu = screen.getByTestId('mock-menu');
-      expect(menu).toHaveAttribute('data-is-open', 'true');
+      const menu = screen.getByTestId("mock-menu");
+      expect(menu).toHaveAttribute("data-is-open", "true");
 
       // Mobile bottom nav should be shown by default
-      expect(screen.getByText('📊 Dashboard')).toBeInTheDocument();
+      expect(screen.getByText("📊 Dashboard")).toBeInTheDocument();
     });
   });
 });

@@ -1,13 +1,9 @@
 // Export all custom hooks for easy importing
 
 // Main hooks - use these
-export { useTrainingGame } from "./useTrainingGame";
+export { useTrainingSession } from "./useTrainingSession";
 export { usePositionAnalysis } from "./usePositionAnalysis";
-export {
-  useLocalStorage,
-  useLocalStorageWithState,
-  useLocalStorageSync,
-} from "./useLocalStorage";
+export { useLocalStorage, useLocalStorageWithState } from "./useLocalStorage";
 export { useDebounce } from "./useDebounce";
 
 // Re-export existing hooks if any

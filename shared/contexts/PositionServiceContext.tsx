@@ -20,6 +20,9 @@ import {
   createMockPositionRepository,
 } from "@shared/testing/MockPositionServiceFactory";
 import { CACHE } from "@shared/constants";
+import { getLogger } from "@shared/services/logging";
+
+const logger = getLogger().setContext("PositionServiceContext");
 
 /**
  * Context value type
@@ -129,7 +132,7 @@ const usePositionRepository = (): IPositionRepository => {
 function createDefaultRepository(): IPositionRepository {
   // Use pre-seeded mock repository for E2E tests (bypasses Firebase completely)
   if (shouldUseMockService()) {
-    console.log(
+    logger.info(
       "Using MockPositionRepository with pre-seeded test data for E2E testing",
     );
     return createMockPositionRepository();
@@ -137,7 +140,7 @@ function createDefaultRepository(): IPositionRepository {
 
   // Use mock repository in unit test environment
   if (process.env.NODE_ENV === "test" && !process.env.USE_REAL_FIREBASE) {
-    console.log("Using MockPositionRepository for unit testing");
+    logger.info("Using MockPositionRepository for unit testing");
     return new MockPositionRepository({
       enableCache: true,
       events: {
@@ -147,14 +150,14 @@ function createDefaultRepository(): IPositionRepository {
          * @param count
          */
         onDataFetched: (operation, count) => {
-          console.log(`Mock: ${operation} fetched ${count} items`);
+          logger.debug(`Mock: ${operation} fetched ${count} items`);
         },
       },
     });
   }
 
   // Use Firebase repository in production/development
-  console.log("Using FirebasePositionRepository");
+  logger.info("Using FirebasePositionRepository");
   return new FirebasePositionRepository(db, {
     enableCache: true,
     cacheSize: CACHE.POSITION_CACHE_SIZE,
@@ -166,7 +169,7 @@ function createDefaultRepository(): IPositionRepository {
        * @param count
        */
       onDataFetched: (operation, count) => {
-        console.log(`Firebase: ${operation} fetched ${count} items`);
+        logger.debug(`Firebase: ${operation} fetched ${count} items`);
       },
       /**
        *
@@ -174,7 +177,7 @@ function createDefaultRepository(): IPositionRepository {
        * @param ids
        */
       onDataModified: (operation, ids) => {
-        console.log(`Firebase: ${operation} modified ${ids.length} items`);
+        logger.debug(`Firebase: ${operation} modified ${ids.length} items`);
       },
       /**
        *
@@ -182,7 +185,7 @@ function createDefaultRepository(): IPositionRepository {
        * @param error
        */
       onError: (operation, error) => {
-        console.error(`Firebase: ${operation} failed`, error);
+        logger.error(`Firebase: ${operation} failed`, error);
       },
     },
   });

@@ -4,11 +4,14 @@
  * Completely bypasses Firebase for clean, fast, deterministic tests
  */
 
-import { MockPositionRepository } from '@shared/repositories/implementations/MockPositionRepository';
-import { PositionService } from '@shared/services/database/PositionService';
-import { IPositionService } from '@shared/services/database/IPositionService';
-import { TestPositions } from './TestScenarios';
-import type { EndgamePosition } from '@shared/types/endgame';
+import { MockPositionRepository } from "@shared/repositories/implementations/MockPositionRepository";
+import { PositionService } from "@shared/services/database/PositionService";
+import { IPositionService } from "@shared/services/database/IPositionService";
+import { TestPositions } from "./TestScenarios";
+import type { EndgamePosition } from "@shared/types/endgame";
+import { getLogger } from "@shared/services/logging/Logger";
+
+const logger = getLogger().setContext("MockPositionServiceFactory");
 
 /**
  * Create a fully configured MockPositionService for E2E tests
@@ -22,53 +25,59 @@ export function createMockPositionService(): IPositionService {
       onDataFetched: (operation, count) => {
         // Silent logging for tests - only in debug mode
         if (process.env.DEBUG_MOCK_SERVICE) {
-          console.log(`[MockRepo] ${operation}: ${count} items`);
+          logger.debug(`[MockRepo] ${operation}: ${count} items`);
         }
       },
       onDataModified: (operation, ids) => {
         if (process.env.DEBUG_MOCK_SERVICE) {
-          console.log(`[MockRepo] ${operation}: ${ids.length} items`);
+          logger.debug(`[MockRepo] ${operation}: ${ids.length} items`);
         }
       },
       onError: (operation, error) => {
-        console.error(`[MockRepo] ${operation} failed:`, error);
-      }
-    }
+        logger.error(`[MockRepo] ${operation} failed`, error);
+      },
+    },
   });
 
   // Convert TestScenario to EndgamePosition for repository seeding
-  const testPositions: EndgamePosition[] = Object.values(TestPositions).map(scenario => ({
-    id: parseInt(scenario.id), // Convert string ID back to number for EndgamePosition
-    title: scenario.title,
-    description: scenario.description,
-    fen: scenario.fen,
-    category: scenario.category,
-    difficulty: scenario.difficulty,
-    targetMoves: scenario.targetMoves,
-    hints: scenario.hints,
-    solution: scenario.solution,
-    sideToMove: scenario.sideToMove,
-    goal: scenario.goal,
-    // Conditional mapping for optional fields to prevent undefined serialization issues
-    ...(scenario.nextPositionId && { nextPositionId: scenario.nextPositionId })
-    // Note: Test-specific fields (initialExpectedMove, expectsDrawEvaluation) are NOT included
-  }));
+  const testPositions: EndgamePosition[] = Object.values(TestPositions).map(
+    (scenario) => ({
+      id: parseInt(scenario.id), // Convert string ID back to number for EndgamePosition
+      title: scenario.title,
+      description: scenario.description,
+      fen: scenario.fen,
+      category: scenario.category,
+      difficulty: scenario.difficulty,
+      targetMoves: scenario.targetMoves,
+      hints: scenario.hints,
+      solution: scenario.solution,
+      sideToMove: scenario.sideToMove,
+      goal: scenario.goal,
+      // Conditional mapping for optional fields to prevent undefined serialization issues
+      ...(scenario.nextPositionId && {
+        nextPositionId: scenario.nextPositionId,
+      }),
+      // Note: Test-specific fields (initialExpectedMove, expectsDrawEvaluation) are NOT included
+    }),
+  );
 
   repository.seedData({
     positions: testPositions,
     categories: [], // Add test categories if needed
-    chapters: []   // Add test chapters if needed
+    chapters: [], // Add test chapters if needed
   });
 
   // Create service with mock repository
   const service = new PositionService(repository, {
     cacheEnabled: false, // Disable service-level cache for tests
     cacheSize: 0,
-    cacheTTL: 0
+    cacheTTL: 0,
   });
 
-  console.log(`[MockPositionService] Initialized with ${testPositions.length} test positions`);
-  
+  logger.info(
+    `[MockPositionService] Initialized with ${testPositions.length} test positions`,
+  );
+
   return service;
 }
 
@@ -77,28 +86,32 @@ export function createMockPositionService(): IPositionService {
  */
 export function createMockPositionRepository(): MockPositionRepository {
   const repository = new MockPositionRepository();
-  
+
   // Convert TestScenario to EndgamePosition and pre-seed
-  const testPositions: EndgamePosition[] = Object.values(TestPositions).map(scenario => ({
-    id: parseInt(scenario.id),
-    title: scenario.title,
-    description: scenario.description,
-    fen: scenario.fen,
-    category: scenario.category,
-    difficulty: scenario.difficulty,
-    targetMoves: scenario.targetMoves,
-    hints: scenario.hints,
-    solution: scenario.solution,
-    sideToMove: scenario.sideToMove,
-    goal: scenario.goal,
-    // Conditional mapping for optional fields to prevent undefined serialization issues  
-    ...(scenario.nextPositionId && { nextPositionId: scenario.nextPositionId })
-  }));
+  const testPositions: EndgamePosition[] = Object.values(TestPositions).map(
+    (scenario) => ({
+      id: parseInt(scenario.id),
+      title: scenario.title,
+      description: scenario.description,
+      fen: scenario.fen,
+      category: scenario.category,
+      difficulty: scenario.difficulty,
+      targetMoves: scenario.targetMoves,
+      hints: scenario.hints,
+      solution: scenario.solution,
+      sideToMove: scenario.sideToMove,
+      goal: scenario.goal,
+      // Conditional mapping for optional fields to prevent undefined serialization issues
+      ...(scenario.nextPositionId && {
+        nextPositionId: scenario.nextPositionId,
+      }),
+    }),
+  );
 
   repository.seedData({
-    positions: testPositions
+    positions: testPositions,
   });
-  
+
   return repository;
 }
 
@@ -111,20 +124,24 @@ export function shouldUseMockService(): boolean {
   const nextPublicE2E = process.env.NEXT_PUBLIC_IS_E2E_TEST;
   const isE2E = process.env.IS_E2E_TEST;
   const useFirestore = process.env.NEXT_PUBLIC_USE_FIRESTORE;
-  
+
   // Debug logging for environment detection
-  console.log('[MockServiceFactory] Environment check:', {
+  logger.debug("[MockServiceFactory] Environment check", {
     NODE_ENV: nodeEnv,
     NEXT_PUBLIC_IS_E2E_TEST: nextPublicE2E,
     IS_E2E_TEST: isE2E,
     NEXT_PUBLIC_USE_FIRESTORE: useFirestore,
-    shouldUseMock: nodeEnv === 'test' || nextPublicE2E === 'true' || isE2E === 'true' || useFirestore === 'false'
+    shouldUseMock:
+      nodeEnv === "test" ||
+      nextPublicE2E === "true" ||
+      isE2E === "true" ||
+      useFirestore === "false",
   });
-  
+
   return (
-    nodeEnv === 'test' ||
-    nextPublicE2E === 'true' ||
-    isE2E === 'true' ||
-    useFirestore === 'false'
+    nodeEnv === "test" ||
+    nextPublicE2E === "true" ||
+    isE2E === "true" ||
+    useFirestore === "false"
   );
 }

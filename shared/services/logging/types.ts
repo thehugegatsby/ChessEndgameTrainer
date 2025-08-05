@@ -8,7 +8,7 @@ export enum LogLevel {
   INFO = 1,
   WARN = 2,
   ERROR = 3,
-  FATAL = 4
+  FATAL = 4,
 }
 
 export interface LogEntry {
@@ -30,6 +30,7 @@ export interface LoggerConfig {
   remoteEndpoint?: string;
   contextWhitelist?: string[]; // Only log from these contexts
   contextBlacklist?: string[]; // Don't log from these contexts
+  transports?: ILogTransport[]; // Optional custom transports for testing
 }
 
 export interface ILogger {
@@ -38,20 +39,20 @@ export interface ILogger {
   warn(message: string, data?: any): void;
   error(message: string, error?: Error | any, data?: any): void;
   fatal(message: string, error?: Error | any, data?: any): void;
-  
+
   setContext(context: string): ILogger;
   clearContext(): void;
-  
+
   getConfig(): LoggerConfig;
   updateConfig(config: Partial<LoggerConfig>): void;
-  
+
   getLogs(filter?: LogFilter): LogEntry[];
   clearLogs(): void;
-  
+
   // Performance logging
   time(label: string): void;
   timeEnd(label: string): void;
-  
+
   // Structured logging
   withFields(fields: Record<string, any>): ILogger;
 }

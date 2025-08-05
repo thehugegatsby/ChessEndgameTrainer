@@ -21,11 +21,7 @@
     "4...Kd8="
   ],
   "nextPositionId": null,
-  "tags": [
-    "basic",
-    "king-pawn",
-    "defensive"
-  ],
+  "tags": ["basic", "king-pawn", "defensive"],
   "created": "2024-01-01T00:00:00Z",
   "updated": "2024-01-01T00:00:00Z"
 }
