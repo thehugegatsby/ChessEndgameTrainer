@@ -1,5 +1,7 @@
 # EndgameTrainer Documentation
 
+**🎉 Phase 8 Store Refactoring Complete!** This documentation reflects the new domain-specific slices architecture.
+
 This documentation is optimized for LLM consumption and AI-assisted development using Claude Code on WSL/Windows environments.
 
 ## 📁 Documentation Structure
@@ -55,8 +57,11 @@ docs/
 
 ### State Management
 
-- [shared/store/](./shared/store/) - Zustand store patterns
+- [shared/store/](./shared/store/) - Domain-specific slices architecture (Phase 8!)
 - [patterns/ZUSTAND_PATTERNS.md](./patterns/ZUSTAND_PATTERNS.md) - State management patterns
+- **NEW**: `rootStore.ts` - Combined store with all domain slices
+- **NEW**: `slices/` - Individual domain slices (GameSlice, TrainingSlice, etc.)
+- **NEW**: `orchestrators/` - Cross-slice operations
 
 ## 🏗️ Architecture Principles
 
@@ -68,10 +73,10 @@ docs/
 
 ## 🔧 Development Context
 
-- **Frontend**: Next.js 15.3.3 (App Router) + React 19.0.0 + TypeScript 5.9.2
+- **Frontend**: Next.js 15.3.3 (App Router) + React 18.3 + TypeScript 5.9.2
 - **Chess Evaluation**: Lichess Tablebase API only (no local engine)
-- **State**: Zustand 5.0.7 (v5 migration complete with useShallow)
-- **Testing**: Jest 29.7.0 + React Testing Library 14.2.1 + Playwright
+- **State**: Zustand 5.0.7 with Domain-Specific Slices Architecture (Phase 8 Complete!)
+- **Testing**: Jest 29.7.0 + React Testing Library 14.2.1 + Playwright (823 tests passing)
 - **Environment**: Node.js 20+ + WSL2 + VS Code + Windows
 
 ## 📊 Key Data Flows

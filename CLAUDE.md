@@ -6,9 +6,9 @@ A web-based training tool for chess players to master specific endgame scenarios
 
 ## Tech Stack
 
-- **Frontend**: Next.js 15.3.3, React 18.3, TypeScript 5.3.3
+- **Frontend**: Next.js 15.3.3, React 18.3, TypeScript 5.9.2
 - **UI**: Tailwind CSS 3.4.1, Radix UI, react-chessboard 2.1.3
-- **State**: Zustand 4.5.0 (Single Source of Truth)
+- **State**: Zustand 5.0.7 (Domain-Specific Slices Architecture)
 - **Chess**: chess.js 1.0.0-beta.6
 - **Evaluation**: Lichess Tablebase API (7-piece endgames)
 - **Testing**: Jest 29.7.0, React Testing Library 14.2.1
@@ -20,11 +20,14 @@ A web-based training tool for chess players to master specific endgame scenarios
 - `/shared/components` → React UI components
 - `/shared/hooks` → Business logic hooks
 - `/shared/services` → External integrations (TablebaseService)
-- `/shared/store` → Zustand state management
+- `/shared/store` → Zustand state management (refactored to domain slices)
+  - `/slices` → Domain-specific slices (Game, Training, Progress, UI, etc.)
+  - `/orchestrators` → Cross-slice operations
+  - `rootStore.ts` → Combined store with all slices
 - `/shared/lib` → Core libraries
 - `/shared/utils` → Utility functions
 - `/shared/types` → TypeScript types
-- `/tests` → Test suites
+- `/tests` → Test suites (100% passing, 823 tests)
 - `/public` → Static assets
 
 ## Core Commands
@@ -59,9 +62,10 @@ npm run analyze-code    # Run all code analysis
 ## Key Architecture Decisions
 
 1. **Tablebase-Only**: No local chess engine, rely on Lichess API
-2. **State Management**: Zustand as Single Source of Truth
+2. **State Management**: Zustand with Domain-Specific Slices (Phase 8 Complete)
 3. **Error Handling**: Centralized ErrorService with German user messages
 4. **Performance**: LRU cache, debouncing (300ms), request deduplication
+5. **Type Safety**: Branded types (ValidatedMove) with controlled factories
 
 ## Development Workflow
 
@@ -84,16 +88,21 @@ npm run analyze-code    # Run all code analysis
 ### Critical Files to Understand
 
 - `/shared/services/TablebaseService.ts` - Core service pattern
-- `/shared/store/types.ts` - All type definitions
+- `/shared/store/slices/types.ts` - All slice type definitions
+- `/shared/store/rootStore.ts` - Combined store architecture
 - `/shared/services/ErrorService.ts` - Error handling pattern
 - `/shared/services/AnalysisService.ts` - Service composition example
+- `/tests/helpers/validatedMoveFactory.ts` - Branded type test utilities
 
-### Known Technical Debt
+### Technical Debt Status (Phase 8 Complete!)
 
-- **Large Files**: `store.ts` (1,298 lines) needs splitting
-- **Complex Functions**: `makeUserMove` (178 lines) needs refactoring
-- **Mixed Concerns**: Some components have E2E test code mixed in
-- **TODOs**: 4 TODO comments need GitHub issue tracking
+- ✅ **Store Refactoring**: Monolithic store.ts (1,298 lines) → domain slices ✅
+- ✅ **Type Safety**: All TypeScript errors resolved (0 compilation errors) ✅
+- ✅ **Test Coverage**: All 823 tests passing ✅
+- ✅ **Branded Types**: Clean ValidatedMove implementation ✅
+- [ ] **Complex Functions**: `makeUserMove` (178 lines) still needs refactoring
+- [ ] **Mixed Concerns**: Some components have E2E test code mixed in
+- [ ] **TODOs**: 4 TODO comments need GitHub issue tracking
 
 ### Best Practices for AI
 

@@ -4,15 +4,29 @@
 
 We use Zustand with domain-specific slices and actions. The store is the Single Source of Truth - no component maintains chess state locally. All state mutations go through actions for consistency.
 
-## Current Architecture: Tablebase-Only (v3.0)
+## Current Architecture: Domain-Specific Slices (v3.7)
 
 ```
 TablebaseService (Lichess API)
          ↓
-  Zustand Store (state)
+  Zustand RootStore (domain slices)
          ↓
   React Components
 ```
+
+### Domain-Specific Slices Architecture
+
+The store is now organized into focused, domain-specific slices:
+
+- **GameSlice**: Chess game state, moves, position management
+- **TrainingSlice**: Training sessions, progress tracking, scenarios
+- **TablebaseSlice**: Tablebase evaluations, analysis status, cache management
+- **ProgressSlice**: User progress, achievements, statistics, spaced repetition
+- **UISlice**: Interface state, toasts, sidebar, modal management
+- **SettingsSlice**: User preferences, themes, notifications
+- **UserSlice**: Authentication, profile, preferences
+
+Cross-slice operations are handled by orchestrators in `/shared/store/orchestrators/`.
 
 ### Key Components
 
@@ -31,9 +45,10 @@ TablebaseService (Lichess API)
    - Leverages TablebaseService caching
 
 3. **Zustand Store** (`/shared/store/`)
-   - `store.ts` - Main store with all slices (using Immer middleware)
-   - `endgameActions.ts` - Async actions (requestTablebaseMove, requestPositionEvaluation)
-   - `types.ts` - TypeScript interfaces with proper types
+   - `rootStore.ts` - Combined store with all domain slices (using Immer middleware)
+   - `slices/` - Individual domain-specific slices with actions and state
+   - `orchestrators/` - Cross-slice operations (requestTablebaseMove, makeUserMove)
+   - `slices/types.ts` - TypeScript interfaces for all slice types
 
 4. **React Hooks** (`/shared/hooks/`)
    - `useEndgameSession` - Game state management
@@ -83,17 +98,34 @@ Position changes → usePositionAnalysis hook
 
 ## State Structure
 
+The store is now composed of domain-specific slices:
+
 ```typescript
-interface TrainingState {
-  currentPosition?: EndgamePosition;
-  game?: ChessInstance;
-  moveHistory: ValidatedMove[];
-  tablebaseMove?: string | null; // null = draw, undefined = no lookup yet
-  evaluations: PositionAnalysis[];
-  analysisStatus: "idle" | "loading" | "success" | "error";
-  // ... other fields
+interface RootState {
+  // Game slice - chess game state
+  game: GameState;
+
+  // Training slice - session management
+  training: TrainingState;
+
+  // Tablebase slice - API evaluations
+  tablebase: TablebaseState;
+
+  // Progress slice - user progress tracking
+  progress: ProgressState;
+
+  // UI slice - interface state
+  ui: UIState;
+
+  // Settings slice - user preferences
+  settings: SettingsState;
+
+  // User slice - authentication
+  user: UserState;
 }
 ```
+
+Each slice contains its own state and actions, promoting separation of concerns and testability.
 
 ## Error Handling
 
@@ -116,26 +148,35 @@ interface TrainingState {
 
 ## Testing Strategy
 
-- **Unit tests**: Services, hooks, and components with TablebaseService mocks
+- **Unit tests**: Services, hooks, components, and individual slices
   - TablebaseService: 100% coverage with comprehensive test scenarios
   - AnalysisService: Tested through integration with TablebaseService
+  - Store slices: Each slice tested in isolation with proper Immer middleware
   - FEN validation: Simplified to use chess.js wrapper (50 lines, down from 120)
   - Store actions: Full TypeScript type safety (no `any` types)
-- **Integration tests**: Store actions and service integrations
+  - Branded types: Clean ValidatedMove test utilities with controlled factories
+- **Integration tests**: Store orchestrators and service integrations
 - **E2E tests**: Clean architecture with Playwright (core-training, error-recovery)
 - **Mock patterns**: MSW for API mocking, TestFixtures for valid FENs, chess.js mocking for unit tests
+- **Test infrastructure**: 823 tests passing with comprehensive slice testing patterns
 
 ## Migration History
 
 - v1.0: Stockfish WASM (deprecated)
 - v2.0: SimpleEngine abstraction (deprecated)
-- v3.0: Tablebase-only (current)
+- v3.0: Tablebase-only architecture
 - v3.1: E2E test cleanup and modernization
 - v3.2: FEN validator refactoring, TablebaseService test coverage
 - v3.3: Zustand v5 migration with useShallow
 - v3.4: Complete removal of all engine references
 - v3.5: TablebaseService optimization (single API call, smart caching, deduplication)
 - v3.6: AnalysisService extraction, React Error Boundaries, TypeScript improvements
+- **v3.7: Phase 8 Store Refactoring (MAJOR MILESTONE)** ✅
+  - Monolithic store.ts (1,298 lines) → domain-specific slices
+  - All TypeScript errors resolved (0 compilation errors)
+  - All 823 tests passing with proper Immer middleware patterns
+  - Branded types implementation with controlled test factories
+  - Cross-slice orchestrators for complex operations
 
 ## Future Considerations (v4.0)
 

@@ -2,80 +2,98 @@
 
 **Target**: LLM comprehension for Zustand store patterns and state management
 **Environment**: WSL + VS Code + Windows  
-**Updated**: 2025-07-13
+**Updated**: 2025-08-05 - Phase 8 Domain-Specific Slices Architecture Complete!
 
-## 🎯 Zustand Store Architecture
+## 🎯 Domain-Specific Slices Architecture (Phase 8 Complete!)
 
-### Store Structure Overview
+**🎉 MAJOR MILESTONE**: Transformation from monolithic store.ts (1,298 lines) to domain-specific slices!
+
+### New Architecture Overview
 
 ```mermaid
 graph TB
-    subgraph "STORE LAYER"
-        A[TrainingStore]
-        B[Store State]
-        C[Store Actions]
-        D[Store Config]
+    subgraph "ROOT STORE"
+        RS[RootStore.ts]
+        RS --> GS[GameSlice]
+        RS --> TS[TrainingSlice]
+        RS --> TBS[TablebaseSlice]
+        RS --> PS[ProgressSlice]
+        RS --> US[UISlice]
+        RS --> SS[SettingsSlice]
+        RS --> URS[UserSlice]
     end
 
-    subgraph "ACTION LAYER"
-        E[trainingActions.ts]
-        F[makeMove]
-        G[navigateToMove]
-        H[resetGame]
-        I[updateEvaluation]
+    subgraph "DOMAIN SLICES"
+        GS --> GSA[Game State & Actions]
+        TS --> TSA[Training State & Actions]
+        TBS --> TBSA[Tablebase State & Actions]
+        PS --> PSA[Progress State & Actions]
+        US --> USA[UI State & Actions]
+        SS --> SSA[Settings State & Actions]
+        URS --> URSA[User State & Actions]
     end
 
-    subgraph "STATE LAYER"
-        J[Game State]
-        K[Position State]
-        L[Evaluation State]
-        M[UI State]
+    subgraph "ORCHESTRATORS"
+        O1[loadTrainingContext]
+        O2[makeUserMove]
+        O3[requestTablebaseMove]
+        O4[requestPositionEvaluation]
     end
 
-    subgraph "PERSISTENCE LAYER"
-        N[LocalStorage]
-        O[State Persistence]
-        P[Hydration]
+    subgraph "CROSS-SLICE OPERATIONS"
+        GSA -.-> O1
+        TSA -.-> O2
+        TBSA -.-> O3
+        PSA -.-> O4
     end
 
-    A --> B
-    A --> C
-    A --> D
-    C --> E
-    E --> F
-    E --> G
-    E --> H
-    E --> I
-    B --> J
-    B --> K
-    B --> L
-    B --> M
-    D --> N
-    N --> O
-    N --> P
-
-    style A fill:#e3f2fd
-    style E fill:#f3e5f5
-    style J fill:#e8f5e8
-    style N fill:#fff3e0
+    style RS fill:#e3f2fd
+    style GS fill:#f3e5f5
+    style TS fill:#e8f5e8
+    style TBS fill:#fff3e0
+    style O1 fill:#fce4ec
 ```
 
-## 📁 Store Structure with File References
+## 📁 New Store Structure with File References (Phase 8)
 
 ```
 shared/store/
-├── store.ts              # Lines 1-120  - Main store definition
-├── trainingActions.ts    # Lines 1-180  - Action implementations
-├── storeConfig.ts        # Lines 1-85   - Store configuration
-├── types.ts              # Lines 1-95   - Store type definitions
-└── index.ts              # Lines 1-25   - Store exports
+├── rootStore.ts                      # Combined store with all slices
+├── index.ts                          # Store exports
+├── slices/                           # Domain-specific slices
+│   ├── types.ts                      # All slice type definitions
+│   ├── gameSlice.ts                  # Chess game state, moves, position
+│   ├── trainingSlice.ts              # Training sessions, progress, scenarios
+│   ├── tablebaseSlice.ts             # Tablebase evaluations, analysis status
+│   ├── progressSlice.ts              # User progress, achievements, stats
+│   ├── uiSlice.ts                    # Interface state, toasts, sidebar
+│   ├── settingsSlice.ts              # User preferences, themes, notifications
+│   └── userSlice.ts                  # Authentication, profile, preferences
+└── orchestrators/                    # Cross-slice operations
+    ├── types.ts                      # Orchestrator type definitions
+    ├── loadTrainingContext.ts        # Load training session data
+    ├── makeUserMove.ts               # Complex move processing
+    ├── requestTablebaseMove.ts       # Tablebase move requests
+    └── requestPositionEvaluation.ts  # Position analysis requests
 ```
 
-## 🏗️ Store Definition Pattern
+---
 
-### Main Store Implementation
+**⚠️ LEGACY DOCUMENTATION NOTICE**
 
-**File**: `/shared/store/store.ts:15-80`
+The patterns below document the **legacy monolithic architecture** for reference purposes.
+
+**For new development, use the Phase 8 Domain-Specific Slices Architecture above.**
+
+All new code should follow the slice patterns in `/shared/store/slices/` and use orchestrators for cross-slice operations.
+
+---
+
+## 🏗️ Legacy Store Definition Pattern (DEPRECATED)
+
+### Legacy Main Store Implementation
+
+**File**: `/shared/store/store.ts:15-80` (REMOVED in Phase 8)
 
 ```typescript
 import { create } from "zustand";
