@@ -3,72 +3,9 @@
  * @description Manages user profile, preferences, and authentication state
  */
 
-import { ImmerStateCreator } from "./types";
-import { UserState, UserPreferences } from "../types";
+import { ImmerStateCreator, UserSlice } from "./types";
+import { UserState } from "../types";
 import { RATING } from "../../constants";
-
-/**
- * User-related actions interface
- * @interface UserActions
- */
-export interface UserActions {
-  /**
-   * Sets the complete user profile
-   * @param user - Partial user object to merge with existing state
-   * @example
-   * setUser({ id: '123', username: 'player1', email: 'player1@example.com' })
-   */
-  setUser: (user: Partial<UserState>) => void;
-
-  /**
-   * Updates user preferences
-   * @param preferences - Partial preferences object to merge
-   * @example
-   * updatePreferences({ theme: 'dark', soundEnabled: false })
-   */
-  updatePreferences: (preferences: Partial<UserPreferences>) => void;
-
-  /**
-   * Increments the current winning streak
-   * @example
-   * incrementStreak() // Increases currentStreak by 1
-   */
-  incrementStreak: () => void;
-
-  /**
-   * Resets the winning streak to zero
-   * @example
-   * resetStreak() // Sets currentStreak to 0
-   */
-  resetStreak: () => void;
-
-  /**
-   * Adds a position ID to the completed positions list
-   * @param positionId - The ID of the completed position
-   * @example
-   * addCompletedPosition(42) // Adds position 42 to completedPositions array
-   */
-  addCompletedPosition: (positionId: number) => void;
-
-  /**
-   * Updates the last active date to current timestamp
-   * @example
-   * updateLastActive() // Sets lastActiveDate to current ISO string
-   */
-  updateLastActive: () => void;
-
-  /**
-   * Clears all user data and resets to initial state
-   * @example
-   * clearUser() // Resets entire user state
-   */
-  clearUser: () => void;
-}
-
-/**
- * Combined user slice type (state + actions)
- */
-export type UserSlice = UserState & UserActions;
 
 /**
  * Initial user state factory
