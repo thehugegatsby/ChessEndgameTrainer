@@ -72,7 +72,7 @@ export const useUIStore = () => {
 
       // === Sidebar Actions ===
       toggleSidebar: state.toggleSidebar,
-      setSidebarOpen: state.setSidebarOpen,
+      setIsSidebarOpen: state.setIsSidebarOpen,
 
       // === Loading Actions ===
       setLoading: state.setLoading,

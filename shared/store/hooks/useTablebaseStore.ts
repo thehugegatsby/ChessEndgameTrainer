@@ -1,11 +1,11 @@
 /**
- * @file Consolidated tablebase store hook
+ * @file Consolidated Tablebase store hook
  * @module store/hooks/useTablebaseStore
  *
  * @description
  * Provides unified access to tablebase-related state and actions from the Zustand store.
- * This consolidated hook manages tablebase evaluations, analysis status, caching,
- * and API interactions. Uses useShallow for optimal performance.
+ * This consolidated hook manages tablebase API interactions, evaluations, and analysis status.
+ * Uses useShallow for optimal performance.
  */
 
 import { useStore } from "../rootStore";
@@ -16,9 +16,9 @@ import type { RootState } from "../slices/types";
  * Hook for comprehensive tablebase state and actions
  *
  * @description
- * Central hook for tablebase functionality including position evaluation,
- * best move suggestions, analysis status tracking, and evaluation caching.
- * Provides both state queries and mutation actions for tablebase data.
+ * Central hook for tablebase API state management including
+ * evaluation results, analysis status, and move suggestions.
+ * Provides both state queries and mutation actions for tablebase operations.
  *
  * @returns {Object} Tablebase state and actions
  *
@@ -35,18 +35,21 @@ import type { RootState } from "../slices/types";
  *   setTablebaseMove,
  *   setAnalysisStatus,
  *   addEvaluation,
- *   clearTablebaseState,
  * } = useTablebaseStore();
  *
- * // Request tablebase evaluation
- * const handlePositionAnalysis = async (fen: string) => {
- *   setAnalysisStatus('loading');
- *   try {
- *     // Evaluation logic handled by orchestrators
- *     console.log('Analysis status:', analysisStatus);
- *   } catch (error) {
- *     setAnalysisStatus('error');
- *   }
+ * // Check analysis status
+ * if (analysisStatus === 'loading') {
+ *   // Show loading spinner
+ * }
+ *
+ * // Display tablebase move
+ * if (tablebaseMove) {
+ *   console.log(`Best move: ${tablebaseMove}`);
+ * }
+ *
+ * // Add new evaluation
+ * const handleEvaluation = (eval: PositionAnalysis) => {
+ *   addEvaluation(eval);
  * };
  * ```
  */

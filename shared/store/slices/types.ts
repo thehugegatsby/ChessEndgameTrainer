@@ -128,7 +128,7 @@ export interface TrainingActions {
  */
 export interface UIActions {
   toggleSidebar: () => void;
-  setSidebarOpen: (isOpen: boolean) => void;
+  setIsSidebarOpen: (isOpen: boolean) => void;
   openModal: (type: ModalType) => void;
   closeModal: () => void;
   showToast: (message: string, type: Toast["type"], duration?: number) => void;

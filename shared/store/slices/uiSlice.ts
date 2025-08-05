@@ -120,13 +120,13 @@ export const createUISlice: ImmerStateCreator<UISlice> = (set, get) => ({
    * @example
    * ```typescript
    * // Open sidebar
-   * store.getState().setSidebarOpen(true);
+   * store.getState().setIsSidebarOpen(true);
    *
    * // Close sidebar
-   * store.getState().setSidebarOpen(false);
+   * store.getState().setIsSidebarOpen(false);
    * ```
    */
-  setSidebarOpen: (isOpen: boolean) =>
+  setIsSidebarOpen: (isOpen: boolean) =>
     set({
       isSidebarOpen: isOpen,
     }),

@@ -191,7 +191,7 @@ const mockRootStore = (overrides: MockRootState = {}) => {
     updatePositionProgress: jest.fn(),
     unlockAchievement: jest.fn(),
     toggleFavorite: jest.fn(),
-    setSidebarOpen: jest.fn(),
+    setIsSidebarOpen: jest.fn(),
     openModal: jest.fn(),
     closeModal: jest.fn(),
     showToast: jest.fn(),
