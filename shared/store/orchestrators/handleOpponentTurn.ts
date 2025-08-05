@@ -1,21 +1,35 @@
 /**
- * @file Request tablebase move orchestrator
- * @module store/orchestrators/requestTablebaseMove
- * @description Orchestrates tablebase move requests for the current chess position.
+ * @file Handle opponent turn orchestrator
+ * @module store/orchestrators/handleOpponentTurn
+ * 
+ * @description
+ * Orchestrates opponent moves using tablebase for the current chess position.
  * This orchestrator handles the async flow of requesting the best move from the
  * Lichess tablebase API and updating the relevant state slices.
+ * 
+ * @remarks
+ * Key responsibilities:
+ * - Validate game state and turn order
+ * - Request optimal moves from tablebase API
+ * - Execute moves on the chess board
+ * - Update training move history
+ * - Handle special cases (draws, unavailable positions)
+ * - Manage loading states and error handling
+ * 
+ * This orchestrator is exposed as `requestTablebaseMove` in the root store
+ * for backward compatibility.
  *
  * @example
  * ```typescript
  * // In the root store
- * import { requestTablebaseMove } from './orchestrators/requestTablebaseMove';
+ * import { handleOpponentTurn } from './orchestrators/handleOpponentTurn';
  *
  * const store = create<RootState>()((...args) => ({
  *   ...createGameSlice(...args),
  *   ...createTablebaseSlice(...args),
  *   // ... other slices
  *   // Orchestrators as actions
- *   requestTablebaseMove: () => requestTablebaseMove(args[2]),
+ *   requestTablebaseMove: () => handleOpponentTurn(args[2]),
  * }));
  * ```
  */
@@ -23,9 +37,12 @@
 import type { StoreApi, OrchestratorFunction } from "./types";
 import { tablebaseService } from "@shared/services/TablebaseService";
 import { ErrorService } from "@shared/services/ErrorService";
+import { getLogger } from "@shared/services/logging";
+
+const logger = getLogger().setContext("handleOpponentTurn");
 
 /**
- * Requests the best tablebase move for the current position
+ * Handles the opponent's turn by requesting the best tablebase move
  *
  * @param {StoreApi} api - Store API for accessing state and actions
  * @returns {Promise<void>}
@@ -64,7 +81,7 @@ import { ErrorService } from "@shared/services/ErrorService";
  * // 5. Update UI and training state
  * ```
  */
-export const requestTablebaseMove: OrchestratorFunction<
+export const handleOpponentTurn: OrchestratorFunction<
   [],
   Promise<void>
 > = async (api) => {
@@ -72,12 +89,12 @@ export const requestTablebaseMove: OrchestratorFunction<
 
   // Step 1: Validate preconditions
   if (!state.game) {
-    console.warn("requestTablebaseMove: No game instance");
+    logger.warn("No game instance");
     return;
   }
 
   if (!state.currentPosition) {
-    console.warn("requestTablebaseMove: No current position");
+    logger.warn("No current position");
     return;
   }
 
@@ -85,13 +102,13 @@ export const requestTablebaseMove: OrchestratorFunction<
   const isTablebaseTurn =
     state.game.turn() !== state.currentPosition.colorToTrain.charAt(0);
   if (!isTablebaseTurn) {
-    console.warn("requestTablebaseMove: Not tablebase's turn");
+    logger.warn("Not tablebase's turn");
     return;
   }
 
   // Don't make moves if game is over
   if (state.isGameFinished) {
-    console.info("requestTablebaseMove: Game is already over");
+    logger.info("Game is already over");
     return;
   }
 
@@ -111,7 +128,7 @@ export const requestTablebaseMove: OrchestratorFunction<
       state.setAnalysisStatus("success"); // Not an error, just unavailable
 
       if (topMovesResult.error) {
-        console.info("Tablebase unavailable:", topMovesResult.error);
+        logger.info("Tablebase unavailable", { error: topMovesResult.error });
       }
       return;
     }
@@ -143,7 +160,7 @@ export const requestTablebaseMove: OrchestratorFunction<
     state.setAnalysisStatus("success");
   } catch (error) {
     // Step 7: Error handling
-    console.error("Error requesting tablebase move:", error);
+    logger.error("Error requesting tablebase move", error);
     state.setAnalysisStatus("error");
 
     const userMessage = ErrorService.handleUIError(
@@ -163,11 +180,15 @@ export const requestTablebaseMove: OrchestratorFunction<
 /**
  * Makes a tablebase move on the board and updates training state
  *
- * @param {StoreApi} api - Store API
- * @param {string} moveStr - Move in algebraic notation
+ * @param {StoreApi} api - Store API for state access and actions
+ * @param {string} moveStr - Move in algebraic notation (e.g., "Nf3", "e4")
  * @returns {Promise<void>}
  *
  * @private
+ *
+ * @description
+ * Helper function that executes a tablebase move and updates all
+ * relevant state including game position and training history.
  *
  * @remarks
  * This helper function:
@@ -175,6 +196,16 @@ export const requestTablebaseMove: OrchestratorFunction<
  * 2. Adds training metadata to the move
  * 3. Updates the training move history
  * 4. Handles move validation errors
+ * 
+ * All tablebase moves are marked as optimal since they come from
+ * perfect endgame analysis.
+ * 
+ * @example
+ * ```typescript
+ * // Called internally by handleOpponentTurn
+ * await makeTablebaseMove(api, "Ra8#"); // Checkmate move
+ * await makeTablebaseMove(api, "Kf7"); // King move
+ * ```
  */
 async function makeTablebaseMove(
   api: StoreApi,
@@ -186,7 +217,7 @@ async function makeTablebaseMove(
   const validatedMove = state.makeMove(moveStr);
 
   if (!validatedMove) {
-    console.error("Failed to make tablebase move:", moveStr);
+    logger.error("Failed to make tablebase move", { move: moveStr });
     state.showToast("Tablebase-Zug ungültig", "error");
     return;
   }
@@ -206,6 +237,6 @@ async function makeTablebaseMove(
   if (state.isGameFinished) {
     // Training completion will be handled by makeUserMove orchestrator
     // when user makes their next move attempt
-    console.info("Game ended after tablebase move");
+    logger.info("Game ended after tablebase move");
   }
 }

@@ -1,9 +1,26 @@
 /**
  * @file Request position evaluation orchestrator
  * @module store/orchestrators/requestPositionEvaluation
- * @description Orchestrates position evaluation requests from the Lichess tablebase API.
+ * 
+ * @description
+ * Orchestrates position evaluation requests from the Lichess tablebase API.
  * This orchestrator handles fetching evaluation data for a specific chess position
  * and updating the relevant state slices.
+ * 
+ * @remarks
+ * Key features:
+ * - FEN validation and sanitization
+ * - Result caching to minimize API calls
+ * - Comprehensive position analysis via AnalysisService
+ * - Loading state management
+ * - Error handling with user feedback
+ * - Updates both evaluation and tablebase move states
+ * 
+ * The orchestrator leverages the AnalysisService which provides:
+ * - WDL (Win/Draw/Loss) evaluation
+ * - DTZ (Distance to Zero) metrics
+ * - Top moves with variations
+ * - UI-ready formatted analysis
  *
  * @example
  * ```typescript
@@ -24,6 +41,9 @@ import type { PositionAnalysis } from "@shared/types/evaluation";
 import { analysisService, type AnalysisResult } from "@shared/services/AnalysisService";
 import { ErrorService } from "@shared/services/ErrorService";
 import { validateAndSanitizeFen } from "@shared/utils/fenValidator";
+import { getLogger } from "@shared/services/logging";
+
+const logger = getLogger().setContext("requestPositionEvaluation");
 
 /**
  * Requests position evaluation from the tablebase API
@@ -77,9 +97,7 @@ export const requestPositionEvaluation: OrchestratorFunction<
   const fenToEvaluate = fen || state.currentFen;
 
   if (!fenToEvaluate) {
-    console.warn(
-      "requestPositionEvaluation: No FEN provided and no current position",
-    );
+    logger.warn("No FEN provided and no current position");
     state.showToast("Keine Position zum Analysieren", "error");
     return;
   }
@@ -87,7 +105,7 @@ export const requestPositionEvaluation: OrchestratorFunction<
   // Validate FEN
   const validationResult = validateAndSanitizeFen(fenToEvaluate);
   if (!validationResult.isValid || !validationResult.sanitized) {
-    console.error("Invalid FEN:", validationResult.errors);
+    logger.error("Invalid FEN", { errors: validationResult.errors });
     state.showToast("Ungültige Position", "error");
     return;
   }
@@ -98,7 +116,7 @@ export const requestPositionEvaluation: OrchestratorFunction<
     // Step 2: Check cache first
     const cachedEval = state.evaluations.find((e) => e.fen === sanitizedFen);
     if (cachedEval) {
-      console.info("Using cached evaluation for:", sanitizedFen);
+      logger.info("Using cached evaluation", { fen: sanitizedFen });
       state.setCurrentEvaluation(cachedEval);
       state.setAnalysisStatus("success");
       return;
@@ -116,7 +134,7 @@ export const requestPositionEvaluation: OrchestratorFunction<
       // Not an error - position just not in tablebase
       state.setCurrentEvaluation(undefined);
       state.setAnalysisStatus("success");
-      console.info("Position not in tablebase:", sanitizedFen);
+      logger.info("Position not in tablebase", { fen: sanitizedFen });
       return;
     }
 
@@ -136,14 +154,14 @@ export const requestPositionEvaluation: OrchestratorFunction<
     state.setAnalysisStatus("success");
 
     // Log successful evaluation
-    console.info("Position evaluated:", {
+    logger.info("Position evaluated", {
       fen: sanitizedFen,
       evaluation: positionAnalysis.evaluation,
       mateInMoves: positionAnalysis.mateInMoves,
     });
   } catch (error) {
     // Step 8: Error handling
-    console.error("Error evaluating position:", error);
+    logger.error("Error evaluating position", error);
     state.setAnalysisStatus("error");
 
     const userMessage = ErrorService.handleUIError(
@@ -163,17 +181,36 @@ export const requestPositionEvaluation: OrchestratorFunction<
 /**
  * Updates tablebase move state based on position analysis
  *
- * @param {StoreApi} api - Store API
- * @param {PositionAnalysis} analysis - The position analysis
+ * @param {StoreApi} api - Store API for state access
+ * @param {AnalysisResult} analysis - The position analysis result
  *
  * @private
+ *
+ * @description
+ * Extracts the best move from analysis and updates tablebase state
+ * according to the three-state pattern used throughout the app.
  *
  * @remarks
  * This helper function extracts the best move from the analysis
  * and updates the tablebase move state following the three-state pattern:
  * - No moves or draw: null
- * - Has winning/losing move: the move string
+ * - Has winning/losing move: the move string  
  * - Not in tablebase: undefined (unchanged)
+ * 
+ * Only updates state for positions that are actually in the tablebase.
+ * 
+ * @example
+ * ```typescript
+ * // Called internally after successful analysis
+ * updateTablebaseMoveFromAnalysis(api, {
+ *   evaluation: {
+ *     tablebase: {
+ *       isTablebasePosition: true,
+ *       topMoves: [{ san: "Ra8#", wdl: 1000 }]
+ *     }
+ *   }
+ * });
+ * ```
  */
 function updateTablebaseMoveFromAnalysis(
   api: StoreApi,
@@ -205,13 +242,22 @@ function updateTablebaseMoveFromAnalysis(
  * Checks if a position evaluation is stale and needs refresh
  *
  * @param {PositionAnalysis} evaluation - The evaluation to check
- * @param {number} maxAgeMs - Maximum age in milliseconds (default: 5 minutes)
+ * @param {number} [maxAgeMs=300000] - Maximum age in milliseconds (default: 5 minutes)
  * @returns {boolean} True if evaluation should be refreshed
+ *
+ * @description
+ * Utility function for cache invalidation strategies. Currently always
+ * returns true as caching is handled at the TablebaseService level.
  *
  * @remarks
  * This is a utility function that can be used to implement
  * cache invalidation strategies. Currently not used but provided
  * for future enhancements.
+ * 
+ * In the current implementation, this always returns true because:
+ * - TablebaseService handles its own LRU cache
+ * - Tablebase data doesn't change (it's precomputed)
+ * - Fresh data ensures UI consistency
  *
  * @example
  * ```typescript
@@ -222,12 +268,14 @@ function updateTablebaseMoveFromAnalysis(
  *   // Request fresh evaluation
  * }
  * ```
+ * 
+ * @todo Consider implementing time-based cache invalidation if needed
  */
 export function isEvaluationStale(
   _evaluation: PositionAnalysis,
   _maxAgeMs: number = 5 * 60 * 1000,
 ): boolean {
-  // For now, always refresh position analysis to get latest data
-  // TODO: Add timestamp to PositionAnalysis if caching is needed
+  // Always refresh position analysis to get latest data
+  // Note: Caching is handled at the TablebaseService level
   return true;
 }

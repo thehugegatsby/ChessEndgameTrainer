@@ -1,6 +1,20 @@
 /**
- * Service Container Implementation
- * Lightweight dependency injection container for platform services
+ * @file Service Container Implementation
+ * @module services/container/ServiceContainer
+ * 
+ * @description
+ * Lightweight dependency injection container for platform services.
+ * Provides a centralized way to manage service instances and their dependencies,
+ * supporting both singleton and factory patterns with circular dependency detection.
+ * 
+ * @remarks
+ * Key features:
+ * - Lazy service instantiation
+ * - Singleton and factory patterns
+ * - Circular dependency detection
+ * - Mock services for testing
+ * - Browser API abstraction
+ * - Type-safe service registry
  */
 
 import {
@@ -21,12 +35,45 @@ import {
   createMockPerformance
 } from './mocks';
 
+/**
+ * Service Container implementation for dependency injection
+ * 
+ * @class ServiceContainer
+ * @implements {IServiceContainer}
+ * 
+ * @description
+ * Manages service registration, instantiation, and dependency resolution.
+ * Supports both singleton and factory patterns with automatic circular
+ * dependency detection.
+ * 
+ * @example
+ * ```typescript
+ * // Create a container
+ * const container = new ServiceContainer({ useSingletons: true });
+ * 
+ * // Register a service factory
+ * container.register('storage', (container) => {
+ *   return new StorageService(container.get('platform'));
+ * });
+ * 
+ * // Get service instance
+ * const storage = container.get<IStorageService>('storage');
+ * ```
+ */
 export class ServiceContainer implements IServiceContainer {
   private factories = new Map<string, ServiceFactory<any>>();
   private instances = new Map<string, any>();
   private resolving = new Set<string>(); // For circular dependency detection
   private config: ServiceContainerConfig;
 
+  /**
+   * Creates a new service container
+   * 
+   * @param {ServiceContainerConfig} config - Configuration options
+   * @param {boolean} [config.useSingletons=true] - Whether to cache service instances
+   * @param {boolean} [config.validateKeys=true] - Whether to validate service keys
+   * @param {Function} [config.logger] - Optional logger function
+   */
   constructor(config: ServiceContainerConfig = {}) {
     this.config = {
       useSingletons: true,
@@ -39,6 +86,15 @@ export class ServiceContainer implements IServiceContainer {
 
   /**
    * Create a production container with real browser APIs
+   * 
+   * @static
+   * @returns {ServiceContainer} Container configured for production use
+   * 
+   * @example
+   * ```typescript
+   * const container = ServiceContainer.createProductionContainer();
+   * const platform = container.get('platform');
+   * ```
    */
   static createProductionContainer(): ServiceContainer {
     const container = new ServiceContainer();
@@ -62,7 +118,25 @@ export class ServiceContainer implements IServiceContainer {
 
   /**
    * Create a test container with browser API mocks
-   * This is the main entry point for Jest tests
+   * 
+   * @description
+   * This is the main entry point for Jest tests. Creates a container with
+   * mocked browser APIs and platform services suitable for testing.
+   * 
+   * @static
+   * @param {Partial<IBrowserAPIs>} [mockAPIs] - Optional custom mock implementations
+   * @returns {ServiceContainer} Container configured for testing
+   * 
+   * @example
+   * ```typescript
+   * // In a test file
+   * const container = ServiceContainer.createTestContainer({
+   *   localStorage: customMockStorage
+   * });
+   * 
+   * const storage = container.get('storage');
+   * await storage.save('key', 'value');
+   * ```
    */
   static createTestContainer(mockAPIs?: Partial<IBrowserAPIs>): ServiceContainer {
     const container = new ServiceContainer();
@@ -88,6 +162,19 @@ export class ServiceContainer implements IServiceContainer {
 
   /**
    * Register a service with type-safe key
+   * 
+   * @template K - Key from the ServiceRegistry type
+   * @param {K} key - Service identifier from ServiceRegistry
+   * @param {ServiceFactory<ServiceRegistry[K]>} factory - Factory function to create service
+   * @throws {ServiceAlreadyRegisteredError} If service is already registered
+   * 
+   * @example
+   * ```typescript
+   * container.register('storage', (container) => {
+   *   const platform = container.get('platform');
+   *   return new StorageService(platform);
+   * });
+   * ```
    */
   register<K extends keyof ServiceRegistry>(
     key: K,

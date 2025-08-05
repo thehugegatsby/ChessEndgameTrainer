@@ -161,7 +161,7 @@ describe("KPK Integration Tests (Refactored Store)", () => {
       let moveResult: boolean = false;
       await act(async () => {
         // Kc7 is a valid move (confirmed by chess.js v1.4.0)
-        moveResult = await result.current.makeUserMove({
+        moveResult = await result.current.handlePlayerMove({
           from: "d6",
           to: "c7",
         });
@@ -227,7 +227,7 @@ describe("KPK Integration Tests (Refactored Store)", () => {
 
       // Make the move
       await act(async () => {
-        await result.current.makeUserMove({
+        await result.current.handlePlayerMove({
           from: "d6",
           to: "c7",
         });
@@ -266,7 +266,7 @@ describe("KPK Integration Tests (Refactored Store)", () => {
       // Make a move that will trigger API error
       let moveResult = false;
       await act(async () => {
-        moveResult = await result.current.makeUserMove({
+        moveResult = await result.current.handlePlayerMove({
           from: "e5",
           to: "e6",
         });

@@ -255,13 +255,13 @@ export type ImmerStateCreator<T> = StateCreator<
  * Async actions that orchestrate across slices
  */
 export interface AsyncActions {
-  makeUserMove: (
+  handlePlayerMove: (
     move:
       | ChessJsMove
       | { from: string; to: string; promotion?: string }
       | string,
   ) => Promise<boolean>;
-  requestTablebaseMove: () => Promise<void>;
+  handleOpponentTurn: () => Promise<void>;
   requestPositionEvaluation: (fen?: string) => Promise<void>;
   loadTrainingContext: (position: EndgamePosition) => Promise<void>;
 }

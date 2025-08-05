@@ -26,6 +26,7 @@
 
 import { ImmerStateCreator, TrainingSlice } from "./types";
 import type { EndgamePosition as BaseEndgamePosition } from "@shared/types/endgame";
+import { getLogger } from "@shared/services/logging";
 
 /**
  * Extended EndgamePosition with training-specific fields
@@ -133,6 +134,8 @@ export const createInitialTrainingState = () => ({
  * }));
  * ```
  */
+const logger = getLogger().setContext("TrainingSlice");
+
 export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (set, get) => ({
   // Initial state
   ...createInitialTrainingState(),
@@ -470,7 +473,7 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (set, get) 
   addTrainingMove: (move: any) => {
     // This is a placeholder - actual implementation will be in orchestrator
     // as it needs to coordinate with game state
-    console.log("Training move added:", move);
+    logger.debug("Training move added", { move });
   },
 
   /**

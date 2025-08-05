@@ -174,8 +174,8 @@ describe("RootStore", () => {
     it("should have orchestrator actions", () => {
       const state = useStore.getState();
 
-      expect(state).toHaveProperty("makeUserMove");
-      expect(state).toHaveProperty("requestTablebaseMove");
+      expect(state).toHaveProperty("handlePlayerMove");
+      expect(state).toHaveProperty("handleOpponentTurn");
       expect(state).toHaveProperty("requestPositionEvaluation");
       expect(state).toHaveProperty("loadTrainingContext");
     });

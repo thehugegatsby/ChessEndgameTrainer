@@ -13,6 +13,9 @@
 
 import { Chess } from "chess.js";
 import { TESTING } from "@shared/constants";
+import { getLogger } from "@shared/services/logging";
+
+const logger = getLogger().setContext("TestApiService");
 
 /**
  * Test API Response types
@@ -122,7 +125,7 @@ export class TestApiService {
   ): void {
     // Validate required actions
     if (!storeAccess.makeMove || !storeAccess.resetPosition) {
-      console.error("Required store actions not available");
+      logger.error("Required store actions not available");
       this._isInitialized = false;
       return;
     }
@@ -134,9 +137,7 @@ export class TestApiService {
       this.tablebaseConfig = { ...this.tablebaseConfig, ...config };
     }
 
-    console.log(
-      "✅ TestApiService: Successfully initialized with store actions",
-    );
+    logger.info("✅ TestApiService: Successfully initialized with store actions");
 
     // Emit initialization event
     this.emit("test:initialized", { config: this.tablebaseConfig });
@@ -212,11 +213,8 @@ export class TestApiService {
 
         return {
           success: true,
-          resultingFen: finalState.training?.currentFen || finalState.fen,
-          moveCount:
-            finalState.training?.moveHistory?.length ||
-            finalState.history?.length ||
-            0,
+          resultingFen: finalState.game?.currentFen || finalState.currentFen || "unknown",
+          moveCount: finalState.game?.moveHistory?.length || 0,
         };
       } else {
         return {
@@ -322,13 +320,12 @@ export class TestApiService {
       // Wait for tablebase to be ready
       while (Date.now() - startTime < timeoutMs) {
         const state = this.storeAccess.getState();
-        const analysisStatus =
-          state.training?.analysisStatus || state.analysisStatus;
+        const analysisStatus = state.tablebase?.analysisStatus || "idle";
 
         if (analysisStatus === "idle" || analysisStatus === "success") {
           // Tablebase is working or has finished
           this.emit("test:tablebaseAnalysisComplete", {
-            fen: state.training?.currentFen || state.fen,
+            fen: state.game?.currentFen || state.currentFen,
           });
           return true;
         }
@@ -340,10 +337,10 @@ export class TestApiService {
       }
 
       // Timeout reached
-      console.warn("Tablebase analysis timeout after", timeoutMs);
+      logger.warn("Tablebase analysis timeout after", { timeoutMs });
       return false;
     } catch (error) {
-      console.error("Tablebase analysis check failed:", error);
+      logger.error("Tablebase analysis check failed", error);
       this.emit("test:tablebaseError", {
         error: error instanceof Error ? error.message : "Unknown error",
       });
@@ -405,14 +402,20 @@ export class TestApiService {
 
       // Make the deterministic tablebase move
       try {
-        this.storeAccess._internalApplyMove(tablebaseMove);
+        // Use direct makeMove for test bypass or handleOpponentTurn
+        if (this.storeAccess.makeMove) {
+          this.storeAccess.makeMove(tablebaseMove);
+        } else {
+          // This is a tablebase move, so it should be handled by the opponent turn orchestrator
+          await this.storeAccess.handleOpponentTurn();
+        }
         this.emit("test:tablebaseMove", {
           move: tablebaseMove,
           fen: currentFen,
           deterministic: true,
         });
       } catch (error) {
-        console.warn("Deterministic tablebase move failed", {
+        logger.warn("Deterministic tablebase move failed", {
           tablebaseMove,
           position: currentFen,
           error,

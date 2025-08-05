@@ -210,7 +210,7 @@ describe("Store - String Move Validation", () => {
     });
 
     // Test making a move with SAN string (as TablebaseAnalysisPanel does)
-    const moveResult = await store.makeUserMove("Kd6");
+    const moveResult = await store.handlePlayerMove("Kd6");
 
     // Move should be accepted (no error dialog)
     expect(moveResult).toBe(true);
@@ -286,7 +286,7 @@ describe("Store - String Move Validation", () => {
     });
 
     // Test making a bad move with SAN string
-    const moveResult = await store.makeUserMove("Kc5");
+    const moveResult = await store.handlePlayerMove("Kc5");
 
     // Move should be accepted (move was made)
     expect(moveResult).toBe(true);
@@ -323,7 +323,7 @@ describe("Store - String Move Validation", () => {
     });
 
     // Test making an invalid move
-    const moveResult = await store.makeUserMove("InvalidMove");
+    const moveResult = await store.handlePlayerMove("InvalidMove");
 
     // Move should be rejected
     expect(moveResult).toBe(false);

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { EndgamePosition } from "@shared/types";
 import { getShortTitle } from "@shared/utils/titleFormatter";
 
-interface EndgameControlsProps {
+interface TrainingControlsProps {
   position: EndgamePosition;
   prevPosition?: EndgamePosition | null;
   nextPosition?: EndgamePosition | null;
@@ -12,7 +12,7 @@ interface EndgameControlsProps {
   isMobile?: boolean;
 }
 
-export const EndgameControls: React.FC<EndgameControlsProps> = ({
+export const TrainingControls: React.FC<TrainingControlsProps> = ({
   prevPosition,
   nextPosition,
   onReset,

@@ -94,9 +94,9 @@ describe("Move Validation - Game Outcome Changes", () => {
       // Act
       let moveResult: boolean = false;
       await act(async () => {
-        // Access makeUserMove from the store
-        const { makeUserMove } = useStore.getState();
-        moveResult = await makeUserMove({ from: "e6", to: "d6" });
+        // Access handlePlayerMove from the store
+        const { handlePlayerMove } = useStore.getState();
+        moveResult = await handlePlayerMove({ from: "e6", to: "d6" });
       });
 
       // Assert
@@ -179,9 +179,9 @@ describe("Move Validation - Game Outcome Changes", () => {
       // Act
       let moveResult: boolean = true;
       await act(async () => {
-        // Access makeUserMove from the store
-        const { makeUserMove } = useStore.getState();
-        moveResult = await makeUserMove({ from: "d6", to: "c5" });
+        // Access handlePlayerMove from the store
+        const { handlePlayerMove } = useStore.getState();
+        moveResult = await handlePlayerMove({ from: "d6", to: "c5" });
       });
 
       // Assert
@@ -247,9 +247,9 @@ describe("Move Validation - Game Outcome Changes", () => {
       // Act
       let moveResult: boolean = false;
       await act(async () => {
-        // Access makeUserMove from the store
-        const { makeUserMove } = useStore.getState();
-        moveResult = await makeUserMove({ from: "e6", to: "d6" });
+        // Access handlePlayerMove from the store
+        const { handlePlayerMove } = useStore.getState();
+        moveResult = await handlePlayerMove({ from: "e6", to: "d6" });
       });
 
       // Assert
@@ -278,9 +278,9 @@ describe("Move Validation - Game Outcome Changes", () => {
       // Act
       let moveResult: boolean = false;
       await act(async () => {
-        // Access makeUserMove from the store
-        const { makeUserMove } = useStore.getState();
-        moveResult = await makeUserMove({ from: "e6", to: "d6" });
+        // Access handlePlayerMove from the store
+        const { handlePlayerMove } = useStore.getState();
+        moveResult = await handlePlayerMove({ from: "e6", to: "d6" });
       });
 
       // Assert
@@ -308,9 +308,9 @@ describe("Move Validation - Game Outcome Changes", () => {
       // Act
       let moveResult: boolean = false;
       await act(async () => {
-        // Access makeUserMove from the store
-        const { makeUserMove } = useStore.getState();
-        moveResult = await makeUserMove({ from: "e6", to: "d6" });
+        // Access handlePlayerMove from the store
+        const { handlePlayerMove } = useStore.getState();
+        moveResult = await handlePlayerMove({ from: "e6", to: "d6" });
       });
 
       // Assert

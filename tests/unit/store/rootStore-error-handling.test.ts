@@ -191,7 +191,7 @@ describe("Root Store Error Handling", () => {
       await store.loadTrainingContext(position);
 
       // Try invalid move
-      const result = await store.makeUserMove({ from: "z9", to: "z10" });
+      const result = await store.handlePlayerMove({ from: "z9", to: "z10" });
 
       expect(result).toBe(false);
 
@@ -221,7 +221,7 @@ describe("Root Store Error Handling", () => {
       await store.loadTrainingContext(position);
 
       // Try invalid SAN move
-      const result = await store.makeUserMove("InvalidMove");
+      const result = await store.handlePlayerMove("InvalidMove");
 
       expect(result).toBe(false);
 
@@ -233,7 +233,7 @@ describe("Root Store Error Handling", () => {
       const store = useStore.getState();
 
       // Try to make move without game
-      const result = await store.makeUserMove({ from: "e2", to: "e4" });
+      const result = await store.handlePlayerMove({ from: "e2", to: "e4" });
 
       expect(result).toBe(false);
 
@@ -253,7 +253,7 @@ describe("Root Store Error Handling", () => {
       );
 
       // Try to make move
-      const result = await store.makeUserMove({ from: "e2", to: "e4" });
+      const result = await store.handlePlayerMove({ from: "e2", to: "e4" });
 
       expect(result).toBe(false);
 
@@ -328,7 +328,7 @@ describe("Root Store Error Handling", () => {
       await store.loadTrainingContext(position);
 
       // Request tablebase move
-      await store.requestTablebaseMove();
+      await store.handleOpponentTurn();
 
       // Should handle error gracefully - status stays in error state
       expect(useStore.getState().analysisStatus).toBe("error");

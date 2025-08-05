@@ -25,6 +25,9 @@
 import { ImmerStateCreator, GameSlice } from "./types";
 import { Chess } from "chess.js";
 import type { ChessInstance, ValidatedMove } from "@shared/types";
+import { getLogger } from "@shared/services/logging";
+
+const logger = getLogger().setContext("gameSlice");
 
 /**
  * Creates the initial game state with default values
@@ -140,7 +143,7 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
       });
       return chess;
     } catch (error) {
-      console.error("Failed to initialize game with FEN:", fen, error);
+      logger.error("Failed to initialize game with FEN", { fen, error });
       return null;
     }
   },
@@ -222,7 +225,7 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
 
       return validatedMove;
     } catch (error) {
-      console.error("Invalid move:", move, error);
+      logger.error("Invalid move", { move, error });
       return null;
     }
   },
@@ -268,7 +271,7 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
       });
       return true;
     } catch (error) {
-      console.error("Failed to undo move:", error);
+      logger.error("Failed to undo move", error);
       return false;
     }
   },
@@ -313,7 +316,7 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
       });
       return true;
     } catch (error) {
-      console.error("Failed to redo move:", error);
+      logger.error("Failed to redo move", error);
       return false;
     }
   },
@@ -366,7 +369,7 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
       });
       return true;
     } catch (error) {
-      console.error("Failed to go to move:", moveIndex, error);
+      logger.error("Failed to go to move", { moveIndex, error });
       return false;
     }
   },

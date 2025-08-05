@@ -180,7 +180,7 @@ describe("Root Store Integration Tests", () => {
       await store.loadTrainingContext(mockPosition);
 
       // Make a user move
-      const moveResult = await store.makeUserMove({ from: "a2", to: "a4" });
+      const moveResult = await store.handlePlayerMove({ from: "a2", to: "a4" });
 
       expect(moveResult).toBe(true);
 

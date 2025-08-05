@@ -9,6 +9,9 @@
 import React from "react";
 import { ErrorBoundary } from "../common/ErrorBoundary";
 import { TablebasePanel, type TablebasePanelProps } from "./TablebasePanel";
+import { getLogger } from "@shared/services/logging";
+
+const logger = getLogger().setContext("TablebasePanelWithBoundary");
 
 /**
  * Custom fallback UI for tablebase errors
@@ -39,7 +42,7 @@ export const TablebasePanelWithBoundary: React.FC<TablebasePanelProps> = (
     <ErrorBoundary
       fallback={<TablebaseErrorFallback className={props.className} />}
       onError={(error) => {
-        console.error("TablebasePanel error:", error);
+        logger.error("TablebasePanel error", error);
       }}
     >
       <TablebasePanel {...props} />

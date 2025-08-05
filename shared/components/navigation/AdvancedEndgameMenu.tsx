@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePositionService } from '@shared/contexts/PositionServiceContext';
 import { EndgameCategory, EndgameChapter } from '@shared/types';
+import { getLogger } from '@shared/services/logging';
+
+const logger = getLogger().setContext('AdvancedEndgameMenu');
 
 interface AdvancedEndgameMenuProps {
   isOpen: boolean;
@@ -53,7 +56,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
               const count = await positionService.getPositionCountByCategory(cat.id);
               return { ...cat, positionCount: count, isExpanded: false } as CategoryWithDetails;
             } catch (err) {
-              console.error(`Failed to get count for category ${cat.id}:`, err);
+              logger.error(`Failed to get count for category ${cat.id}`, err);
               return { ...cat, positionCount: null, isExpanded: false } as CategoryWithDetails;
             }
           })
@@ -67,7 +70,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
         
         setError(null);
       } catch (err) {
-        console.error('Failed to load menu data:', err);
+        logger.error('Failed to load menu data', err);
         setError('Menü konnte nicht geladen werden');
       } finally {
         setIsLoading(false);
@@ -105,7 +108,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
           c.id === categoryId ? { ...c, chapters, isLoadingChapters: false } : c
         ));
       } catch (err) {
-        console.error(`Failed to load chapters for category ${categoryId}:`, err);
+        logger.error(`Failed to load chapters for category ${categoryId}`, err);
         setCategories(prev => prev.map(c => 
           c.id === categoryId ? { ...c, isLoadingChapters: false, isExpanded: false } : c
         ));

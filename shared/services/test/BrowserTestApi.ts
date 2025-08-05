@@ -12,6 +12,9 @@ import type {
   TestTablebaseConfig,
 } from "./TestApiService";
 import type { TestBridge } from "@shared/types/test-bridge";
+import { getLogger } from "@shared/services/logging";
+
+const logger = getLogger().setContext("BrowserTestApi");
 
 /**
  * Browser Test API
@@ -58,9 +61,7 @@ export class BrowserTestApi {
     // Get TestBridge from window (set by _app.tsx)
     this.testBridge = (window as any).__E2E_TEST_BRIDGE__ || null;
     if (!this.testBridge) {
-      console.warn(
-        "TestBridge not found on window - tablebase control will not be available",
-      );
+      logger.warn("TestBridge not found on window - tablebase control will not be available");
     }
 
     // Expose methods to window
@@ -159,9 +160,7 @@ export class BrowserTestApi {
    */
   private addMockTablebaseResponse(fen: string, analysis: any): void {
     if (!this.testBridge) {
-      console.error(
-        "TestBridge not available - cannot add mock tablebase response",
-      );
+      logger.error("TestBridge not available - cannot add mock tablebase response");
       return;
     }
 

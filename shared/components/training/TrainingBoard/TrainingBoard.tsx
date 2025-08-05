@@ -7,10 +7,10 @@ import React, {
 } from "react";
 import { Chess, Move } from "chess.js";
 import { Chessboard } from "@shared/components/chess/Chessboard";
-import { usePositionAnalysis, useEndgameSession } from "../../../hooks";
+import { usePositionAnalysis, useTrainingSession } from "../../../hooks";
 import { usePageReady } from "../../../hooks/usePageReady";
 import { useStore } from "@shared/store/rootStore";
-// Note: requestTablebaseMove is now available as a method on the store
+// Note: handleOpponentTurn is now available as a method on the store
 import { EndgamePosition } from "@shared/types";
 import { getLogger } from "@shared/services/logging";
 import { ANIMATION, DIMENSIONS } from "@shared/constants";
@@ -36,7 +36,7 @@ interface ExtendedEvaluation {
 /**
  *
  */
-interface EndgameBoardProps {
+interface TrainingBoardProps {
   fen?: string;
   position?: EndgamePosition;
   onComplete: (success: boolean) => void;
@@ -64,7 +64,7 @@ interface EndgameBoardProps {
 export /**
  *
  */
-const EndgameBoard: React.FC<EndgameBoardProps> = ({
+const TrainingBoard: React.FC<TrainingBoardProps> = ({
   fen,
   position,
   onComplete,
@@ -133,7 +133,7 @@ const EndgameBoard: React.FC<EndgameBoardProps> = ({
     makeMove,
     jumpToMove,
     resetGame,
-  } = useEndgameSession({
+  } = useTrainingSession({
     /**
      *
      * @param success
@@ -307,13 +307,13 @@ const EndgameBoard: React.FC<EndgameBoardProps> = ({
       logger.debug("handleMove called", { move, isGameFinished });
 
       // Add these critical debug logs
-      console.log("DEBUG: handleMove called with move:", move);
-      console.log("DEBUG: Current FEN in handleMove:", game.fen());
-      console.log(
-        "DEBUG: Possible moves in handleMove (verbose):",
-        game.moves({ verbose: true }).map((m: any) => `${m.from}-${m.to}`),
-      );
-      console.log("DEBUG: Possible moves in handleMove (san):", game.moves());
+      const moveLogger = getLogger().setContext("TrainingBoard-handleMove");
+      moveLogger.debug("handleMove called", { move });
+      moveLogger.debug("Current FEN", { fen: game.fen() });
+      moveLogger.debug("Possible moves (verbose)", {
+        moves: game.moves({ verbose: true }).map((m: any) => `${m.from}-${m.to}`),
+      });
+      moveLogger.debug("Possible moves (san)", { moves: game.moves() });
 
       if (isGameFinished) {
         logger.warn("handleMove early return", { isGameFinished });
@@ -370,7 +370,7 @@ const EndgameBoard: React.FC<EndgameBoardProps> = ({
             });
 
             // Use the orchestrator from the store directly
-            await useStore.getState().requestTablebaseMove();
+            await useStore.getState().handleOpponentTurn();
 
             logger.info("[TRACE] Tablebase move request completed", {
               updatedFen,
@@ -431,7 +431,7 @@ const EndgameBoard: React.FC<EndgameBoardProps> = ({
 
     // Only expose in test environment
     if (isE2ETest) {
-      console.log("🪄 EndgameBoard: Attaching e2e hooks to window object");
+      logger.debug("🪄 EndgameBoard: Attaching e2e hooks to window object");
       logger.info("Attaching e2e hooks to window object");
 
       /**
@@ -439,7 +439,7 @@ const EndgameBoard: React.FC<EndgameBoardProps> = ({
        * @param move
        */
       (window as any).e2e_makeMove = async (move: string) => {
-        console.log("🎯 e2e_makeMove called with move:", move);
+        logger.debug("🎯 e2e_makeMove called with move:", { move });
         logger.info("e2e_makeMove called", { move });
         logger.debug("Test move requested", { move });
 

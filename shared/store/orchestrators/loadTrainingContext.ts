@@ -1,8 +1,23 @@
 /**
  * @file Load training context orchestrator
  * @module store/orchestrators/loadTrainingContext
- * @description Orchestrates loading a training position across game, training, and UI slices.
+ * 
+ * @description
+ * Orchestrates loading a training position across game, training, and UI slices.
  * Sets up the complete training environment for a new endgame position.
+ * 
+ * @remarks
+ * This orchestrator is the main entry point for starting a training session.
+ * It coordinates multiple slices to ensure proper initialization:
+ * - Resets previous state to avoid conflicts
+ * - Initializes chess.js with the position
+ * - Configures training parameters
+ * - Sets up initial turn order
+ * - Requests initial analysis
+ * - Tracks position progress
+ * 
+ * The orchestrator handles both player-first and opponent-first scenarios,
+ * automatically triggering the appropriate initial move or analysis.
  *
  * @example
  * ```typescript
@@ -24,6 +39,13 @@ import type { TrainingPosition } from "../slices/trainingSlice";
  * @param {EndgamePosition} position - The endgame position to load
  * @returns {Promise<void>}
  *
+ * @fires stateChange - Updates game, training, tablebase, progress, and UI slices
+ * @fires tablebaseRequest - May trigger initial opponent move or position evaluation
+ *
+ * @description
+ * Main orchestrator for initializing a complete training session.
+ * Ensures all state is properly reset and configured for the new position.
+ *
  * @remarks
  * This orchestrator performs the following steps:
  * 1. Resets training state to clean slate
@@ -33,6 +55,16 @@ import type { TrainingPosition } from "../slices/trainingSlice";
  * 5. Clears any previous tablebase data
  * 6. Resets UI state for new session
  * 7. Initializes progress tracking
+ * 8. Triggers initial move/analysis as needed
+ * 
+ * The orchestrator gracefully handles errors by resetting to a clean state
+ * and showing user-friendly error messages.
+ * 
+ * TrainingPosition extends EndgamePosition with:
+ * - colorToTrain: Which color the user is playing
+ * - targetOutcome: Expected result ("1-0", "0-1", "1/2-1/2")
+ * - timeLimit: Optional time constraint
+ * - chapterId: If part of a training chapter
  *
  * @example
  * ```typescript
@@ -42,10 +74,12 @@ import type { TrainingPosition } from "../slices/trainingSlice";
  *   fen: "8/8/8/8/8/8/R7/K3k3 w - - 0 1",
  *   category: "basic-checkmates",
  *   difficulty: "beginner",
- *   // ... other fields
+ *   sideToMove: "white",
+ *   goal: "win"
  * };
  *
  * await loadTrainingContext(api, position);
+ * // Game is now ready for training
  * ```
  */
 export const loadTrainingContext = async (
@@ -107,7 +141,7 @@ export const loadTrainingContext = async (
     if (!isPlayerTurn) {
       // Tablebase needs to make the first move
       setTimeout(async () => {
-        await api.getState().requestTablebaseMove();
+        await api.getState().handleOpponentTurn();
       }, 500);
     } else {
       // Get position evaluation for the player

@@ -1,3 +1,17 @@
+/**
+ * @file localStorage hooks with React state management
+ * @module hooks/useLocalStorage
+ * 
+ * @description
+ * Provides cross-platform localStorage functionality with async support.
+ * Uses the PlatformService abstraction to work across web, mobile, and desktop.
+ * 
+ * Three APIs are provided:
+ * - useLocalStorage: Backward-compatible API that hides async complexity
+ * - useLocalStorageWithState: Full-featured API with loading/error states
+ * - useLocalStorageSync: Deprecated sync wrapper
+ */
+
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { getPlatformService } from '../services/platform';
 import { getLogger } from '../services/logging';
@@ -7,6 +21,12 @@ const logger = getLogger().setContext('useLocalStorage');
 /**
  * INTERNAL: Full-featured async hook with loading state and error handling
  * Private implementation used by both legacy and new APIs
+ * 
+ * @private
+ * @template T - Type of the stored value
+ * @param {string} key - Storage key
+ * @param {T | (() => T)} initialValue - Initial value or factory function
+ * @returns {[T | undefined, Function, boolean, Error | null]} Tuple of [value, setter, isLoading, error]
  */
 function useLocalStorageInternal<T>(
   key: string,
@@ -100,12 +120,33 @@ function useLocalStorageInternal<T>(
 
 /**
  * Custom hook for managing localStorage with React state
- * Uses platform abstraction for cross-platform compatibility
  * 
- * BACKWARD COMPATIBILITY: This API maintains the original 2-value return
- * [value, setValue] for existing code while using the new architecture internally.
+ * @description
+ * Uses platform abstraction for cross-platform compatibility.
+ * This API maintains backward compatibility with a simple [value, setValue] interface
+ * while handling async operations internally. Loading states and errors are hidden.
  * 
- * For new code, consider using useLocalStorageWithState for full error handling.
+ * @template T - Type of the stored value
+ * @param {string} key - Storage key to use
+ * @param {T | (() => T)} initialValue - Initial value or factory function
+ * @returns {[T, Function]} Tuple of [currentValue, setValue]
+ * 
+ * @example
+ * ```tsx
+ * const [theme, setTheme] = useLocalStorage('theme', 'light');
+ * 
+ * // Update value
+ * setTheme('dark');
+ * 
+ * // Update with function
+ * setTheme(prev => prev === 'light' ? 'dark' : 'light');
+ * ```
+ * 
+ * @remarks
+ * - Returns initialValue while loading from storage
+ * - Automatically saves to storage on value changes
+ * - Errors are logged but not exposed (use useLocalStorageWithState for error handling)
+ * - For new code, consider using useLocalStorageWithState for full async support
  */
 export function useLocalStorage<T>(
   key: string,
@@ -137,10 +178,37 @@ export function useLocalStorage<T>(
 }
 
 /**
- * Enhanced hook with full loading state and error handling
- * New API that exposes all async behavior and error states
+ * Enhanced localStorage hook with full loading state and error handling
  * 
- * Returns: [value, setValue, isLoading, saveError]
+ * @description
+ * New API that exposes all async behavior and error states.
+ * Use this for new code that needs to handle loading states or save errors.
+ * 
+ * @template T - Type of the stored value
+ * @param {string} key - Storage key to use
+ * @param {T | (() => T)} initialValue - Initial value or factory function
+ * @returns {[T | undefined, Function, boolean, Error | null]} Tuple of [value, setValue, isLoading, saveError]
+ * 
+ * @example
+ * ```tsx
+ * const [settings, setSettings, isLoading, error] = useLocalStorageWithState('settings', {});
+ * 
+ * if (isLoading) return <Spinner />;
+ * if (error) return <ErrorMessage error={error} />;
+ * 
+ * return (
+ *   <SettingsForm 
+ *     settings={settings} 
+ *     onChange={setSettings}
+ *   />
+ * );
+ * ```
+ * 
+ * @remarks
+ * - value is undefined during initial load
+ * - isLoading is true until first load completes
+ * - saveError contains any errors from the last save attempt
+ * - Errors are automatically cleared on successful saves
  */
 export function useLocalStorageWithState<T>(
   key: string,
@@ -155,8 +223,25 @@ export function useLocalStorageWithState<T>(
 }
 
 /**
- * ⚠️ DEPRECATED: Legacy sync wrapper - use useLocalStorage instead
- * This exists only for gradual migration of existing components
+ * @deprecated Use useLocalStorage instead
+ * 
+ * @description
+ * Legacy sync wrapper that exists only for gradual migration of existing components.
+ * This has the same behavior as useLocalStorage but with a different name.
+ * 
+ * @template T - Type of the stored value
+ * @param {string} key - Storage key to use
+ * @param {T | (() => T)} initialValue - Initial value or factory function
+ * @returns {[T, Function]} Tuple of [currentValue, setValue]
+ * 
+ * @example
+ * ```tsx
+ * // Old code (deprecated)
+ * const [value, setValue] = useLocalStorageSync('key', 'default');
+ * 
+ * // New code (preferred)
+ * const [value, setValue] = useLocalStorage('key', 'default');
+ * ```
  */
 export function useLocalStorageSync<T>(
   key: string,

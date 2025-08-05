@@ -39,10 +39,10 @@ import { createUISlice } from "./slices/uiSlice";
 import { createSettingsSlice } from "./slices/settingsSlice";
 
 // Import orchestrators
-import { requestTablebaseMove as requestTablebaseMoveOrchestrator } from "./orchestrators/requestTablebaseMove";
+import { handleOpponentTurn as handleOpponentTurnOrchestrator } from "./orchestrators/handleOpponentTurn";
 import { requestPositionEvaluation as requestPositionEvaluationOrchestrator } from "./orchestrators/requestPositionEvaluation";
 import { loadTrainingContext as loadTrainingContextOrchestrator } from "./orchestrators/loadTrainingContext";
-import { makeUserMove as makeUserMoveOrchestrator } from "./orchestrators/makeUserMove";
+import { handlePlayerMove as handlePlayerMoveOrchestrator } from "./orchestrators/handlePlayerMove";
 
 // Import types
 import type { RootState } from "./slices/types";
@@ -121,14 +121,14 @@ export const useStore = create<RootState>()(
            * };
            * ```
            */
-          makeUserMove: async (
+          handlePlayerMove: async (
             move:
               | ChessJsMove
               | { from: string; to: string; promotion?: string }
               | string,
           ): Promise<boolean> => {
             const storeApi = { getState: get, setState: set };
-            return await makeUserMoveOrchestrator(storeApi, move);
+            return await handlePlayerMoveOrchestrator(storeApi, move);
           },
 
           /**
@@ -154,9 +154,9 @@ export const useStore = create<RootState>()(
            * }, [position, isPlayerTurn]);
            * ```
            */
-          requestTablebaseMove: async (): Promise<void> => {
+          handleOpponentTurn: async (): Promise<void> => {
             const storeApi = { getState: get, setState: set };
-            return await requestTablebaseMoveOrchestrator(storeApi);
+            return await handleOpponentTurnOrchestrator(storeApi);
           },
 
           /**

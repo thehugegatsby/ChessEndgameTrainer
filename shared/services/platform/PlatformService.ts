@@ -1,18 +1,67 @@
 /**
- * Platform Service Factory
- * Provides the correct platform implementation based on the environment
+ * @file Platform Service Factory
+ * @module services/platform/PlatformService
+ * 
+ * @description
+ * Provides the correct platform implementation based on the environment.
+ * Supports web, mobile (React Native), and desktop platforms with
+ * automatic detection and appropriate service instantiation.
+ * 
+ * @remarks
+ * The platform service abstracts platform-specific functionality like:
+ * - Storage (localStorage, AsyncStorage, etc.)
+ * - Navigation (browser history, React Navigation, etc.)
+ * - Device capabilities (touch, screen size, etc.)
+ * - Platform-specific APIs
  */
 
 import { IPlatformService, IPlatformDetection } from './types';
 import { WebPlatformService } from './web/WebPlatformService';
 import { getLogger } from '@shared/services/logging';
 
-// Platform detection implementation
+/**
+ * Platform detection implementation
+ * 
+ * @class PlatformDetection
+ * @implements {IPlatformDetection}
+ * 
+ * @description
+ * Provides methods to detect the current platform and device type.
+ * Uses user agent analysis and platform-specific APIs for detection.
+ */
 class PlatformDetection implements IPlatformDetection {
+  /**
+   * Detects if running in a web browser environment
+   * 
+   * @returns {boolean} True if running in a browser
+   * 
+   * @example
+   * ```typescript
+   * if (platformDetection.isWeb()) {
+   *   // Use browser-specific features
+   * }
+   * ```
+   */
   isWeb(): boolean {
     return typeof window !== 'undefined' && typeof document !== 'undefined';
   }
 
+  /**
+   * Detects if running on a mobile device
+   * 
+   * @returns {boolean} True if mobile device or React Native
+   * 
+   * @remarks
+   * Checks for React Native environment first, then falls back
+   * to user agent detection for mobile browsers.
+   * 
+   * @example
+   * ```typescript
+   * if (platformDetection.isMobile()) {
+   *   // Enable touch controls
+   * }
+   * ```
+   */
   isMobile(): boolean {
     if (typeof window === 'undefined') return false;
     
