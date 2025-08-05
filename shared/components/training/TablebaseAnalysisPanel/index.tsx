@@ -27,7 +27,7 @@
 import React from "react";
 import { usePositionAnalysis } from "@shared/hooks/usePositionAnalysis";
 import { TablebasePanel } from "@shared/components/tablebase/TablebasePanel";
-import { useTrainingActions } from "@shared/store/hooks";
+import { useTrainingStore } from "@shared/store/hooks";
 
 /**
  * Props for the TablebaseAnalysisPanel component
@@ -87,7 +87,7 @@ export const TablebaseAnalysisPanel: React.FC<TablebaseAnalysisPanelProps> = ({
     previousFen,
   });
 
-  const { handlePlayerMove } = useTrainingActions();
+  const trainingStore = useTrainingStore();
 
   /**
    * Handle move selection from tablebase panel
@@ -107,7 +107,7 @@ export const TablebaseAnalysisPanel: React.FC<TablebaseAnalysisPanelProps> = ({
   const handleMoveSelect = (moveSan: string) => {
     // The store action accepts SAN strings directly
     // MoveResultGroup passes move.san, which chess.js can parse
-    handlePlayerMove(moveSan);
+    trainingStore.handlePlayerMove(moveSan);
   };
 
   if (!isVisible) {

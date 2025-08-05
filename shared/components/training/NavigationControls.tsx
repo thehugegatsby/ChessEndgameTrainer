@@ -22,10 +22,7 @@
  */
 
 import React from "react";
-import {
-  useTrainingNavigationState,
-  useGameActions,
-} from "@shared/store/hooks";
+import { useGameStore } from "@shared/store/hooks";
 
 /**
  * Navigation controls for move history
@@ -72,12 +69,11 @@ import {
  * @returns {JSX.Element} Navigation control buttons
  */
 export const NavigationControls: React.FC = React.memo(() => {
-  const { moveHistory, currentMoveIndex } = useTrainingNavigationState();
-  const { goToFirst, goToPrevious, goToNext, goToLast } = useGameActions();
+  const gameStore = useGameStore();
 
   // Calculate navigation state
-  const totalMoves = moveHistory.length;
-  const currentIndex = currentMoveIndex ?? totalMoves - 1;
+  const totalMoves = gameStore.moveHistory.length;
+  const currentIndex = gameStore.currentMoveIndex ?? totalMoves - 1;
   const isAtStart = currentIndex <= -1;
   const isAtEnd = currentIndex >= totalMoves - 1;
 
@@ -87,7 +83,7 @@ export const NavigationControls: React.FC = React.memo(() => {
       data-testid="move-navigation"
     >
       <button
-        onClick={goToFirst}
+        onClick={gameStore.goToFirst}
         disabled={isAtStart}
         className={`p-2 rounded transition-all ${
           isAtStart
@@ -104,7 +100,7 @@ export const NavigationControls: React.FC = React.memo(() => {
       </button>
 
       <button
-        onClick={goToPrevious}
+        onClick={gameStore.goToPrevious}
         disabled={isAtStart}
         className={`p-2 rounded transition-all ${
           isAtStart
@@ -122,7 +118,7 @@ export const NavigationControls: React.FC = React.memo(() => {
       </button>
 
       <button
-        onClick={goToNext}
+        onClick={gameStore.goToNext}
         disabled={isAtEnd}
         className={`p-2 rounded transition-all ${
           isAtEnd
@@ -139,7 +135,7 @@ export const NavigationControls: React.FC = React.memo(() => {
       </button>
 
       <button
-        onClick={goToLast}
+        onClick={gameStore.goToLast}
         disabled={isAtEnd}
         className={`p-2 rounded transition-all ${
           isAtEnd

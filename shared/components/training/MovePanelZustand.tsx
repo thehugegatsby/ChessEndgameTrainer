@@ -28,7 +28,7 @@ import {
   getSmartMoveEvaluation,
   type MoveEvaluation,
 } from "../../utils/chess/evaluation";
-import { useBoardState, useAnalysisState } from "@shared/store/hooks";
+import { useGameStore } from "@shared/store/hooks";
 import { TEST_IDS, getTestId } from "@shared/constants/testIds";
 import { MoveQualityIndicator } from "../analysis/MoveQualityIndicator";
 
@@ -100,8 +100,7 @@ interface MovePair {
 export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
   ({ showEvaluations = false, onMoveClick, currentMoveIndex = -1 }) => {
     // Get data from Zustand store
-    const { moveHistory } = useBoardState();
-    const { evaluations } = useAnalysisState();
+    const gameStore = useGameStore();
 
     /**
      * Helper to get FEN position before a specific move
@@ -117,11 +116,11 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
      */
     const getFenBeforeMove = (moveIndex: number): string => {
       // moveHistory contains ValidatedMove objects with 'before' and 'after' FEN fields
-      if (moveIndex < 0 || moveIndex >= moveHistory.length) {
+      if (moveIndex < 0 || moveIndex >= gameStore.moveHistory.length) {
         return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
       }
 
-      const move = moveHistory[moveIndex];
+      const move = gameStore.moveHistory[moveIndex];
       // Each ValidatedMove has a 'fenBefore' field with the FEN before the move
       return move.fenBefore;
     };
@@ -143,13 +142,13 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
      */
     const movePairs = useMemo((): MovePair[] => {
       const pairs: MovePair[] = [];
-      for (let i = 0; i < moveHistory.length; i += 2) {
-        const whiteMove = moveHistory[i];
-        const blackMove = moveHistory[i + 1];
+      for (let i = 0; i < gameStore.moveHistory.length; i += 2) {
+        const whiteMove = gameStore.moveHistory[i];
+        const blackMove = gameStore.moveHistory[i + 1];
         // CRITICAL: evaluations array has one extra entry at the beginning (initial position)
         // So we need to offset by 1 to get the evaluation AFTER each move
-        const whiteEval = evaluations[i + 1]; // +1 offset for evaluation after move
-        const blackEval = evaluations[i + 2]; // +2 for evaluation after black's move
+        const whiteEval = gameStore.evaluations[i + 1]; // +1 offset for evaluation after move
+        const blackEval = gameStore.evaluations[i + 2]; // +2 for evaluation after black's move
 
         pairs.push({
           moveNumber: Math.floor(i / 2) + 1,
@@ -160,17 +159,17 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
         });
       }
       return pairs;
-    }, [moveHistory, evaluations]);
+    }, [gameStore.moveHistory, gameStore.evaluations]);
 
     const hasContent = movePairs.length > 0 || currentMoveIndex === 0;
     const showE2ESignals = process.env.NEXT_PUBLIC_E2E_SIGNALS === "true";
 
-    if (moveHistory.length === 0) {
+    if (gameStore.moveHistory.length === 0) {
       return (
         <div
           className="text-gray-400"
           data-testid={TEST_IDS.MOVE_PANEL.CONTAINER}
-          data-move-count={moveHistory.length}
+          data-move-count={gameStore.moveHistory.length}
           {...(showE2ESignals && {
             "data-component-ready": hasContent ? "true" : "false",
           })}
@@ -184,7 +183,7 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
       <div
         className="space-y-1"
         data-testid={TEST_IDS.MOVE_PANEL.CONTAINER}
-        data-move-count={moveHistory.length}
+        data-move-count={gameStore.moveHistory.length}
         {...(showE2ESignals && {
           "data-component-ready": hasContent ? "true" : "false",
         })}
