@@ -7,6 +7,9 @@ import {
   IPositionRepository,
   IPositionRepositoryConfig,
 } from "../IPositionRepository";
+import { getLogger } from "@shared/services/logging";
+
+const logger = getLogger().setContext("MockPositionRepository");
 import {
   EndgamePosition,
   EndgameCategory,
@@ -142,7 +145,7 @@ export class MockPositionRepository implements IPositionRepository {
   async getPositionsByTags(_tags: string[]): Promise<EndgamePosition[]> {
     // Tags are not yet implemented in EndgamePosition type
     // Return empty array for now
-    console.warn(
+    logger.warn(
       "getPositionsByTags: tags property not yet implemented in EndgamePosition",
     );
     this.config.events?.onDataFetched?.("getPositionsByTags", 0);

@@ -22,6 +22,7 @@ import {
   ShareOptions,
 } from "../types";
 import { STORAGE, SYSTEM } from "@shared/constants";
+// Using console directly to avoid circular dependency with Logger
 
 // Storage key validation regex
 const VALID_KEY_REGEX = /^[a-zA-Z0-9-_]+$/;
@@ -84,7 +85,9 @@ class WebStorage implements IPlatformStorage {
   async load<T = any>(key: string): Promise<T | null> {
     // Validate key format
     if (!VALID_KEY_REGEX.test(key)) {
-      console.error(`Invalid storage key requested: ${key}`);
+      console.error(
+        `[WebPlatformService] Invalid storage key requested: ${key}`,
+      );
       return null;
     }
 
@@ -96,7 +99,10 @@ class WebStorage implements IPlatformStorage {
       const data = JSON.parse(item);
       return data as T;
     } catch (error) {
-      console.error(`Failed to parse stored data for key '${key}':`, error);
+      console.error(
+        `[WebPlatformService] Failed to parse stored data for key '${key}':`,
+        error,
+      );
       return null;
     }
   }
@@ -104,7 +110,9 @@ class WebStorage implements IPlatformStorage {
   async remove(key: string): Promise<void> {
     // Validate key format
     if (!VALID_KEY_REGEX.test(key)) {
-      console.error(`Invalid storage key for removal: ${key}`);
+      console.error(
+        `[WebPlatformService] Invalid storage key for removal: ${key}`,
+      );
       return;
     }
 

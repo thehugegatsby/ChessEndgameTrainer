@@ -28,6 +28,9 @@ import { MoveAnalysis } from "./MoveAnalysis";
 import { AnalysisDetails } from "./AnalysisDetails";
 import { DIMENSIONS } from "@shared/constants";
 import { tablebaseService } from "@shared/services/TablebaseService";
+import { getLogger } from "@shared/services/logging";
+
+const logger = getLogger().setContext("AnalysisPanel");
 
 /**
  * Props for the AnalysisPanel component
@@ -176,7 +179,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
           const results = await Promise.all(analysisPromises);
           setAnalysisData(results);
         } catch (error) {
-          console.error("Failed to load analysis data:", error);
+          logger.error("Failed to load analysis data:", error);
           // Fallback to empty analysis
           setAnalysisData(
             history.map((move) => ({

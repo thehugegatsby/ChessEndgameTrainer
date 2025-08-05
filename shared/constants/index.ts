@@ -1,13 +1,13 @@
 /**
  * @file Global constants for the Chess Endgame Trainer application
  * @module constants/index
- * 
+ *
  * @description
  * Centralizes all magic numbers, configuration values, and constants used
  * throughout the Chess Endgame Trainer application. Provides comprehensive
  * configuration for caching, performance, UI, chess logic, evaluation,
  * training, and testing environments.
- * 
+ *
  * @remarks
  * Key constant categories:
  * - Storage: LocalStorage and cache configurations
@@ -19,17 +19,17 @@
  * - Evaluation: Score thresholds for move quality assessment
  * - Training: Spaced repetition and success rate configurations
  * - E2E: Testing selectors, timeouts, and mock data
- * 
+ *
  * All constants use `as const` assertion for type safety and immutability.
  */
 
 /**
  * Storage configuration constants
- * 
+ *
  * @description
  * Configuration values for localStorage, sessionStorage, and cache
  * management including size limits, compression thresholds, and TTL values.
- * 
+ *
  * @example
  * ```typescript
  * const key = `${STORAGE.PREFIX}user_settings`;
@@ -48,12 +48,12 @@ export const STORAGE = {
 
 /**
  * Cache configuration constants
- * 
+ *
  * @description
  * Standardized cache sizes and TTL values across all application components.
  * Provides consistent caching behavior for evaluations, positions, analysis,
  * and tablebase results with appropriate memory and time limits.
- * 
+ *
  * @example
  * ```typescript
  * const cache = new LRUCache(CACHE.EVALUATION_CACHE_SIZE);
@@ -81,25 +81,11 @@ export const CACHE = {
   CLEANUP_INTERVAL_TTL: 30 * 1000, // 30 seconds for cleanup intervals
 } as const;
 
-/**
- * Performance optimization constants
- * 
- * @description
- * Configuration for debouncing, throttling, batching, and performance
- * monitoring to ensure smooth user experience and efficient resource usage.
- */
-export const PERFORMANCE = {
-  DEBOUNCE_DELAY: 300, // 300ms default debounce
-  THROTTLE_DELAY: 1000, // 1 second throttle
-  BATCH_SIZE: 50, // Items to process in batch
-  MAX_LOG_ENTRIES: 1000, // Maximum log entries in memory
-} as const;
-
 // Tablebase Constants
-export /**
+/**
  *
  */
-const TABLEBASE = {
+export const TABLEBASE = {
   // Timeouts
   EVALUATION_TIMEOUT: 7000, // 7 seconds for tablebase evaluation
   TIMEOUT_BUFFER: 1000, // 1 second buffer added to timeouts
@@ -510,7 +496,7 @@ const SYSTEM = {
 
 /**
  * Type utilities for constants with strict typing
- * 
+ *
  * @description
  * TypeScript type definitions for all constant objects, providing
  * compile-time type safety and intellisense support for constant usage
@@ -518,7 +504,6 @@ const SYSTEM = {
  */
 export type StorageConstants = typeof STORAGE;
 export type CacheConstants = typeof CACHE;
-export type PerformanceConstants = typeof PERFORMANCE;
 export type UIConstants = typeof UI;
 export type ChessConstants = typeof CHESS;
 export type EvaluationConstants = typeof EVALUATION;

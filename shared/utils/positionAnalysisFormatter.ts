@@ -19,10 +19,7 @@
  * formatting logic from specific data sources.
  */
 
-import type {
-  TablebaseResult,
-  TablebaseMove,
-} from "@shared/services/TablebaseService";
+import type { TablebaseResult } from "@shared/services/TablebaseService";
 
 /**
  * Formatted position analysis for UI display
@@ -92,37 +89,6 @@ export function formatPositionAnalysis(
 }
 
 /**
- * Formats tablebase move for display with outcome annotation
- *
- * @param {TablebaseMove} move - Move data from tablebase
- * @returns {string} Formatted move string with outcome
- *
- * @description
- * Combines the move notation with a human-readable outcome
- * description in parentheses. Includes DTZ information when available.
- *
- * @example
- * ```typescript
- * formatTablebaseMove({ san: "Ke2", wdl: 2, dtz: 10 });
- * // Returns: "Ke2 (Win in 10)"
- *
- * formatTablebaseMove({ san: "Kb1", wdl: 0, dtz: null });
- * // Returns: "Kb1 (Draw)"
- * ```
- */
-export function formatTablebaseMove(move: TablebaseMove): string {
-  const { san, wdl, dtz } = move;
-
-  if (wdl === 0) {
-    return `${san} (Draw)`;
-  } else if (wdl > 0) {
-    return dtz ? `${san} (Win in ${dtz})` : `${san} (Win)`;
-  } else {
-    return dtz ? `${san} (Loss in ${Math.abs(dtz)})` : `${san} (Loss)`;
-  }
-}
-
-/**
  * Convert WDL to numeric score for sorting/comparison
  * Higher scores are better for the player
  *
@@ -163,96 +129,4 @@ export function wdlToScore(wdl: number, dtz: number | null): number {
   }
   // Draw
   return 0;
-}
-
-/**
- * Gets appropriate CSS class for evaluation display
- *
- * @param {number} wdl - Win/Draw/Loss value
- * @returns {string} CSS class name for styling
- *
- * @description
- * Maps WDL values to semantic CSS classes for consistent
- * visual styling across the application.
- *
- * @example
- * ```typescript
- * getEvaluationClass(2);  // "winning"
- * getEvaluationClass(0);  // "draw"
- * getEvaluationClass(-1); // "losing"
- * ```
- */
-export function getEvaluationClass(wdl: number): string {
-  if (wdl > 0) return "winning";
-  if (wdl < 0) return "losing";
-  return "draw";
-}
-
-/**
- * Checks if position represents a critical outcome
- *
- * @param {number} wdl - Win/Draw/Loss value
- * @returns {boolean} True if position is definitely won or lost
- *
- * @description
- * Critical positions are those with absolute outcomes (WDL ±2),
- * excluding 50-move rule positions (WDL ±1) and draws (WDL 0).
- *
- * @example
- * ```typescript
- * isCriticalPosition(2);  // true (definite win)
- * isCriticalPosition(-2); // true (definite loss)
- * isCriticalPosition(1);  // false (cursed win)
- * isCriticalPosition(0);  // false (draw)
- * ```
- */
-export function isCriticalPosition(wdl: number): boolean {
-  return Math.abs(wdl) === 2;
-}
-
-/**
- * Generates human-readable description of position outcome
- *
- * @param {TablebaseResult} result - Tablebase evaluation result
- * @returns {string} Detailed position description
- *
- * @description
- * Creates comprehensive descriptions including outcome type,
- * move count (DTZ), and special conditions like 50-move rule.
- * Always written from White's perspective.
- *
- * @example
- * ```typescript
- * getPositionDescription({ category: "win", dtz: 15, ... });
- * // "White wins with best play in 15 moves"
- *
- * getPositionDescription({ category: "cursed-win", dtz: 60, ... });
- * // "White wins in 60 moves (50-move rule applies)"
- * ```
- */
-export function getPositionDescription(result: TablebaseResult): string {
-  const { category, dtz } = result;
-
-  switch (category) {
-    case "win":
-      return dtz
-        ? `White wins with best play in ${dtz} moves`
-        : "White has a theoretical win";
-    case "cursed-win":
-      return dtz
-        ? `White wins in ${dtz} moves (50-move rule applies)`
-        : "White wins but 50-move rule applies";
-    case "draw":
-      return "Position is a theoretical draw with best play";
-    case "blessed-loss":
-      return dtz
-        ? `White loses in ${Math.abs(dtz)} moves (but can claim 50-move rule)`
-        : "White loses but can claim 50-move rule";
-    case "loss":
-      return dtz
-        ? `White loses with best defense in ${Math.abs(dtz)} moves`
-        : "White has a theoretical loss";
-    default:
-      return "Unknown position";
-  }
 }

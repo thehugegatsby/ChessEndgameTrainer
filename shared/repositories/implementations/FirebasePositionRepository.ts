@@ -328,7 +328,7 @@ export class FirebasePositionRepository implements IPositionRepository {
   async getPositionsByTags(_tags: string[]): Promise<EndgamePosition[]> {
     // Tags are not yet implemented in EndgamePosition type
     // Return empty array for now
-    console.warn(
+    logger.warn(
       "getPositionsByTags: tags property not yet implemented in EndgamePosition",
     );
     this.config.events?.onDataFetched?.("getPositionsByTags", 0);

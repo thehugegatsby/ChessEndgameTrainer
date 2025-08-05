@@ -18,13 +18,13 @@ const logger = getLogger().setContext("BrowserTestApi");
 
 /**
  * Browser Test API
- * 
+ *
  * @class BrowserTestApi
  * @description
  * Exposes test methods to the browser window object for E2E tests.
  * Acts as a bridge between Playwright test scripts and the application's
  * internal test infrastructure, providing a clean API for browser automation.
- * 
+ *
  * @remarks
  * Key responsibilities:
  * - Window object API exposure for E2E tests
@@ -33,18 +33,18 @@ const logger = getLogger().setContext("BrowserTestApi");
  * - Legacy API compatibility support
  * - Browser environment safety checks
  * - Automatic cleanup on page unload
- * 
+ *
  * Security features:
  * - Test environment validation
  * - API exposure only in test mode
  * - Safe cleanup on navigation
- * 
+ *
  * @example
  * ```typescript
  * // Browser usage (exposed to window)
  * const result = await window.__testApi.makeMove('e2-e4');
  * const state = window.__testApi.getGameState();
- * 
+ *
  * // Legacy compatibility
  * await window.e2e_makeMove('Nf3');
  * const gameState = window.e2e_getGameState();
@@ -61,15 +61,15 @@ export class BrowserTestApi {
 
   /**
    * Initialize browser test API
-   * 
+   *
    * @description
    * Initializes the browser test API by setting up window object exposure,
    * TestBridge integration, and legacy compatibility methods. Only functions
    * in test environments for security.
-   * 
+   *
    * @param {any} [storeAccess] - Store access object with actions and state
    * @returns {Promise<void>} Promise that resolves when initialization is complete
-   * 
+   *
    * @remarks
    * Initialization process:
    * - Validates test environment (NODE_ENV=test or NEXT_PUBLIC_IS_E2E_TEST=true)
@@ -78,7 +78,7 @@ export class BrowserTestApi {
    * - Exposes modern API methods to window.__testApi
    * - Sets up legacy compatibility methods (e2e_makeMove, e2e_getGameState)
    * - Registers cleanup handlers for page unload
-   * 
+   *
    * @example
    * ```typescript
    * const browserTestApi = new BrowserTestApi();
@@ -91,7 +91,7 @@ export class BrowserTestApi {
       process.env.NODE_ENV !== "test" &&
       process.env.NEXT_PUBLIC_IS_E2E_TEST !== "true"
     ) {
-      console.warn("Test API is only available in test environment");
+      logger.warn("Test API is only available in test environment");
       return;
     }
 
@@ -101,7 +101,7 @@ export class BrowserTestApi {
 
     // Wait for store access to be provided
     if (!storeAccess) {
-      console.warn(
+      logger.warn(
         "BrowserTestApi: Store access not provided, delaying initialization",
       );
       return;
@@ -147,31 +147,31 @@ export class BrowserTestApi {
     };
 
     this.initialized = true;
-    console.log("Browser Test API initialized");
+    logger.info("Browser Test API initialized");
   }
 
   /**
    * Clean up browser test API
-   * 
+   *
    * @description
    * Removes all test API methods from the window object and cleans up
    * the underlying TestApiService. Should be called when tests are
    * complete or during page navigation to prevent memory leaks.
-   * 
+   *
    * @returns {Promise<void>} Promise that resolves when cleanup is complete
-   * 
+   *
    * @remarks
    * Cleanup operations:
    * - Remove __testApi from window object
    * - Remove legacy compatibility methods
    * - Clean up TestApiService instance
    * - Reset initialization state
-   * 
+   *
    * @example
    * ```typescript
    * // Manual cleanup
    * await browserTestApi.cleanup();
-   * 
+   *
    * // Automatic cleanup on page unload (already handled)
    * ```
    */
@@ -193,12 +193,12 @@ export class BrowserTestApi {
 
   /**
    * Make a move through test API
-   * 
+   *
    * @private
    * @description
    * Executes a chess move through the TestApiService. This is a private
    * method that's exposed to the window object during initialization.
-   * 
+   *
    * @param {string} move - Move in algebraic notation or from-to format
    * @returns {Promise<TestMoveResponse>} Promise resolving to move execution result
    */
@@ -256,12 +256,12 @@ export class BrowserTestApi {
 
 /**
  * Browser test API singleton instance
- * 
+ *
  * @description
  * Pre-created instance of BrowserTestApi that can be used for manual
  * initialization in test environments. Provides a convenient way to
  * access the browser test API without creating multiple instances.
- * 
+ *
  * @example
  * ```typescript
  * import { browserTestApi } from '@shared/services/test/BrowserTestApi';

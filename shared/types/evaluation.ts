@@ -128,21 +128,6 @@ export type MoveQuality =
   | "blunder";
 
 /**
- * Evaluation data supporting both engine and tablebase sources
- * @interface DualEvaluation
- * @property {Object} [tablebase] - Tablebase-specific evaluation data
- */
-export interface DualEvaluation {
-  tablebase?: {
-    isTablebasePosition: boolean;
-    wdl?: number;
-    dtz?: number;
-    category?: string;
-    evaluation?: string;
-  };
-}
-
-/**
  * Raw tablebase evaluation data as returned by the chess tablebase
  * Used by the new unified evaluation system
  */
@@ -267,34 +252,3 @@ export interface SimplifiedMoveQualityResult {
 }
 
 // MoveQualityResult has been replaced by SimplifiedMoveQualityResult above
-
-/**
- * BRÜCKENBAU-TRAINER: Enhanced evaluation types
- * For 5-level quality classification of Win→Win moves
- */
-
-/** Move quality classes based on ΔDTM for Win→Win transitions */
-export type MoveQualityClass =
-  | "optimal"
-  | "sicher"
-  | "umweg"
-  | "riskant"
-  | "fehler";
-
-/** Robustness classification based on available winning moves */
-export type RobustnessTag = "robust" | "präzise" | "haarig";
-
-/** Enhanced evaluation display for BRÜCKENBAU-TRAINER feature */
-export interface EnhancedEvaluationDisplay extends EvaluationDisplay {
-  /** Quality classification for the move */
-  qualityClass?: MoveQualityClass;
-
-  /** Robustness of the position */
-  robustness?: RobustnessTag;
-
-  /** Educational tip for learning */
-  educationalTip?: string;
-
-  /** Number of winning moves available */
-  winningMovesCount?: number;
-}

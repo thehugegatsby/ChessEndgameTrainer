@@ -13,6 +13,9 @@ import {
   createMockPositionService,
 } from "@shared/testing/MockPositionServiceFactory";
 import { CACHE } from "@shared/constants";
+import { getLogger } from "@shared/services/logging";
+
+const logger = getLogger().setContext("ServerPositionService");
 
 /**
  * Creates a PositionService instance for server-side usage
@@ -22,7 +25,7 @@ import { CACHE } from "@shared/constants";
 export function createServerPositionService(): IPositionService {
   // Use mock service for E2E tests (server-side)
   if (shouldUseMockService()) {
-    console.log("Creating MockPositionService for server-side E2E testing");
+    logger.info("Creating MockPositionService for server-side E2E testing");
     return createMockPositionService();
   }
 

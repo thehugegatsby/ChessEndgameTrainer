@@ -41,11 +41,3 @@ export const LichessTablebaseResponseSchema = z.object({
   insufficient_material: z.boolean().optional().default(false),
   moves: z.array(TablebaseMoveSchema).optional().default([]),
 });
-
-/**
- * Type inference from schema
- */
-export type ValidatedTablebaseResponse = z.infer<
-  typeof LichessTablebaseResponseSchema
->;
-export type ValidatedTablebaseMove = z.infer<typeof TablebaseMoveSchema>;

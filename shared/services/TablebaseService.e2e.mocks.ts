@@ -1,12 +1,12 @@
 /**
  * @file E2E-specific mocks for TablebaseService
  * @module services/TablebaseService.e2e.mocks
- * 
+ *
  * @description
  * Provides realistic mock implementations for the Lichess Tablebase API
  * specifically designed for end-to-end testing. Contains pre-defined
  * responses for common chess endgame positions used in E2E test scenarios.
- * 
+ *
  * @remarks
  * Key features:
  * - Realistic Lichess API response simulation
@@ -15,20 +15,24 @@
  * - Browser environment fetch mocking
  * - Comprehensive logging for test debugging
  * - Fallback handling for unmocked positions
- * 
+ *
  * The mocks are based on actual E2E test patterns and provide accurate
  * tablebase evaluations for king and pawn endgame scenarios, ensuring
  * predictable test behavior across different test runs.
  */
 
+import { getLogger } from "./logging";
+
+const logger = getLogger().setContext("TablebaseE2EMocks");
+
 /**
  * E2E tablebase mock responses for specific chess positions
- * 
+ *
  * @description
  * Pre-defined mock responses that match real Lichess API data structure.
  * Based on E2E test patterns from actual-position-test.spec.ts and provides
  * accurate tablebase evaluations for king and pawn endgame scenarios.
- * 
+ *
  * @remarks
  * Response structure matches Lichess API:
  * - category: 'win', 'loss', 'draw', or 'unknown'
@@ -36,7 +40,7 @@
  * - dtz: Distance to zero (moves to conversion or mate)
  * - dtm: Distance to mate (usually null for endgames)
  * - precise: Whether the evaluation is exact
- * 
+ *
  * @example
  * ```typescript
  * const response = E2E_TABLEBASE_MOCKS['4k3/8/4K3/4P3/8/8/8/8 w - - 0 1'];
@@ -97,19 +101,19 @@ export const E2E_TABLEBASE_MOCKS: Record<string, any> = {
 
 /**
  * Create fetch mock for E2E tests that returns realistic tablebase data
- * 
+ *
  * @description
  * Creates a Jest mock function that intercepts fetch requests to the
  * Lichess tablebase API and returns pre-defined mock responses. Designed
  * specifically for unit and integration testing environments.
- * 
+ *
  * @returns {jest.Mock} Jest mock function configured for tablebase API testing
- * 
+ *
  * @example
  * ```typescript
  * // In test setup
  * global.fetch = createE2ETablebaseFetchMock();
- * 
+ *
  * // Test will use mock responses
  * const response = await fetch('https://lichess.org/api/tablebase/standard?fen=...');
  * expect(response.ok).toBe(true);
@@ -151,12 +155,12 @@ export function createE2ETablebaseFetchMock() {
 
 /**
  * Setup E2E mocks for browser environment
- * 
+ *
  * @description
  * Sets up fetch mocking in the browser environment for E2E tests.
  * Intercepts requests to Lichess tablebase API and returns mock responses
  * based on pre-defined position data. Only activates in E2E test mode.
- * 
+ *
  * @remarks
  * Browser environment setup:
  * - Only runs when NEXT_PUBLIC_IS_E2E_TEST is true
@@ -164,12 +168,12 @@ export function createE2ETablebaseFetchMock() {
  * - Provides comprehensive logging for debugging
  * - Supports both exact and pattern-based FEN matching
  * - Graceful fallback for unmocked positions
- * 
+ *
  * @example
  * ```typescript
  * // Call during app initialization in E2E mode
  * setupE2ETablebaseMocks();
- * 
+ *
  * // Now all tablebase API calls will use mocks
  * const evaluation = await tablebaseService.getEvaluation(fen);
  * ```
@@ -179,7 +183,7 @@ export function setupE2ETablebaseMocks() {
     typeof window !== "undefined" &&
     process.env.NEXT_PUBLIC_IS_E2E_TEST === "true"
   ) {
-    console.log("🧪 Setting up E2E Tablebase mocks");
+    logger.info("🧪 Setting up E2E Tablebase mocks");
 
     // Override fetch for E2E tests
     const originalFetch = window.fetch;
@@ -194,13 +198,13 @@ export function setupE2ETablebaseMocks() {
         const urlObj = new URL(urlString);
         const fen = urlObj.searchParams.get("fen");
 
-        console.log("🧪 E2E Tablebase mock intercepted FEN:", fen);
+        logger.debug("🧪 E2E Tablebase mock intercepted FEN:", fen);
 
         if (fen) {
           // First try exact match
           if (E2E_TABLEBASE_MOCKS[fen]) {
             const mockData = E2E_TABLEBASE_MOCKS[fen];
-            console.log("🧪 E2E Tablebase mock returning (exact):", mockData);
+            logger.debug("🧪 E2E Tablebase mock returning (exact):", mockData);
             return Promise.resolve(
               new Response(JSON.stringify(mockData), {
                 status: 200,
@@ -245,7 +249,10 @@ export function setupE2ETablebaseMocks() {
           }
 
           if (mockData) {
-            console.log("🧪 E2E Tablebase mock returning (pattern):", mockData);
+            logger.debug(
+              "🧪 E2E Tablebase mock returning (pattern):",
+              mockData,
+            );
             return Promise.resolve(
               new Response(JSON.stringify(mockData), {
                 status: 200,
@@ -257,7 +264,7 @@ export function setupE2ETablebaseMocks() {
         }
 
         // Fallback for unmocked positions
-        console.log("🧪 E2E Tablebase mock - no match found for FEN:", fen);
+        logger.debug("🧪 E2E Tablebase mock - no match found for FEN:", fen);
         return Promise.resolve(
           new Response(
             JSON.stringify({
