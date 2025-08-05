@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useMemo } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   EndgameBoard,
@@ -18,6 +18,7 @@ import {
   useTrainingStore,
   useUIStore,
 } from "@shared/store/hooks";
+import { useInitializePosition } from "@shared/store/hooks/useInitializePosition";
 import {
   getTrainingDisplayTitle,
   formatPositionTitle,
@@ -54,15 +55,11 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
     // Local UI state
     const [resetKey, setResetKey] = useState<number>(0);
 
-    // Extract actions to avoid dependency issues
-    const { loadTrainingContext, completeTraining } = trainingStore;
+    // Initialize position from server data
+    const isPositionInitialized = useInitializePosition(position);
 
-    // Load training context when position changes
-    useEffect(() => {
-      if (position && position.id) {
-        loadTrainingContext(position);
-      }
-    }, [position?.id, loadTrainingContext]);
+    // Extract actions to avoid dependency issues
+    const { completeTraining } = trainingStore;
 
     // Game status
     const gameStatus = useMemo(
@@ -122,6 +119,15 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
       gameStore.currentFen,
       position.fen,
     ]);
+
+    // Show loading state until position is initialized
+    if (!isPositionInitialized) {
+      return (
+        <div className="h-screen flex items-center justify-center bg-slate-800">
+          <div className="text-white text-lg">Loading position...</div>
+        </div>
+      );
+    }
 
     return (
       <div className="trainer-container h-screen flex bg-slate-800 text-white">

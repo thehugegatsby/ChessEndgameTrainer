@@ -1,6 +1,5 @@
 import React from "react";
 import "../styles/globals.css";
-import { PositionServiceProvider } from "@shared/contexts/PositionServiceContext";
 import { AppProviders } from "./providers";
 
 /**
@@ -27,9 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AppProviders>
-          <PositionServiceProvider>{children}</PositionServiceProvider>
-        </AppProviders>
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );

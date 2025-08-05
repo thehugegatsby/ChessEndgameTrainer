@@ -1,13 +1,13 @@
 /**
  * @file Advanced endgame navigation menu component
  * @module components/navigation/AdvancedEndgameMenu
- * 
+ *
  * @description
  * Comprehensive navigation menu for chess endgame training categories.
  * Provides hierarchical navigation through endgame categories and chapters,
  * user statistics display, and progress tracking. Features expandable
  * categories with lazy-loaded chapter data.
- * 
+ *
  * @remarks
  * Key features:
  * - Hierarchical category and chapter navigation
@@ -18,14 +18,14 @@
  * - Responsive sidebar design with slide-out functionality
  * - Error handling with user-friendly messages
  * - Persistent user stats via localStorage
- * 
+ *
  * The component integrates with PositionService for data fetching
  * and provides a comprehensive overview of available training content.
  */
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePositionService } from "@shared/contexts/PositionServiceContext";
+import { getStoreDependencies } from "@shared/store/storeConfig";
 import { EndgameCategory, EndgameChapter } from "@shared/types";
 import { getLogger } from "@shared/services/logging";
 
@@ -33,9 +33,9 @@ const logger = getLogger().setContext("AdvancedEndgameMenu");
 
 /**
  * Props for the AdvancedEndgameMenu component
- * 
+ *
  * @interface AdvancedEndgameMenuProps
- * 
+ *
  * @property {boolean} isOpen - Whether the menu is currently visible
  * @property {() => void} onClose - Callback to close the menu
  * @property {number} [currentPositionId] - ID of currently active position for highlighting
@@ -48,9 +48,9 @@ interface AdvancedEndgameMenuProps {
 
 /**
  * User statistics data structure
- * 
+ *
  * @interface UserStats
- * 
+ *
  * @property {number} rating - User's current rating
  * @property {number} totalPlayed - Total number of games played
  * @property {number} successRate - Success rate as percentage (0-100)
@@ -63,12 +63,12 @@ interface UserStats {
 
 /**
  * Extended category data with navigation state
- * 
+ *
  * @interface CategoryWithDetails
  * @description
  * Extends the base EndgameCategory with additional state for navigation
  * and lazy loading functionality.
- * 
+ *
  * @property {number | null} positionCount - Number of positions in category
  * @property {EndgameChapter[]} [chapters] - Loaded chapters for this category
  * @property {boolean} [isLoadingChapters] - Whether chapters are currently loading
@@ -83,14 +83,14 @@ interface CategoryWithDetails extends EndgameCategory {
 
 /**
  * Advanced endgame navigation menu component
- * 
+ *
  * @component
  * @description
  * Comprehensive navigation sidebar for chess endgame training. Displays
  * hierarchical categories and chapters, user statistics, and provides
  * direct navigation to training positions. Features lazy loading for
  * performance and maintains state across sessions.
- * 
+ *
  * @remarks
  * Component behavior:
  * - Loads all categories on mount with position counts
@@ -99,13 +99,13 @@ interface CategoryWithDetails extends EndgameCategory {
  * - Highlights current position when provided
  * - Handles loading states and error conditions gracefully
  * - Provides responsive design with slide-out functionality
- * 
+ *
  * Data flow:
  * 1. Initial load: Fetch all categories with position counts
  * 2. User stats: Load from localStorage with defaults
  * 3. Category expansion: Lazy load chapters on demand
  * 4. Navigation: Direct links to training positions
- * 
+ *
  * @example
  * ```tsx
  * // Basic usage in layout
@@ -113,7 +113,7 @@ interface CategoryWithDetails extends EndgameCategory {
  *   isOpen={menuOpen}
  *   onClose={() => setMenuOpen(false)}
  * />
- * 
+ *
  * // With current position highlighting
  * <AdvancedEndgameMenu
  *   isOpen={true}
@@ -121,7 +121,7 @@ interface CategoryWithDetails extends EndgameCategory {
  *   currentPositionId={5}
  * />
  * ```
- * 
+ *
  * @param {AdvancedEndgameMenuProps} props - Navigation menu configuration
  * @returns {JSX.Element} Rendered navigation menu with categories and stats
  */
@@ -129,7 +129,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
   isOpen,
   onClose,
 }) => {
-  const positionService = usePositionService();
+  const { positionService } = getStoreDependencies();
   const [categories, setCategories] = useState<CategoryWithDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
