@@ -169,11 +169,20 @@ export const handlePlayerMove = async (
         console.log("  topMovesAvailable:", topMoves.isAvailable);
         console.log(
           "  bestMoves:",
-          topMoves.moves?.map((m) => m.san),
+          JSON.stringify(topMoves.moves?.map((m) => m.san)),
         );
         console.log("  playedMove:", validatedMove.san);
         console.log("  playedMoveWasBest:", playedMoveWasBest);
-        console.log("  topMoves.moves (full objects):", topMoves.moves);
+
+        // Debug each move comparison
+        if (topMoves.moves) {
+          console.log("  Comparing each move:");
+          topMoves.moves.forEach((m, i) => {
+            console.log(
+              `    Move ${i}: "${m.san}" === "${validatedMove.san}" ? ${m.san === validatedMove.san}`,
+            );
+          });
+        }
 
         // Only show error if:
         // 1. Position got worse (WDL decreased from player's perspective) AND
