@@ -95,8 +95,8 @@ describe("TablebasePanel", () => {
     );
 
     expect(screen.getByText("Tablebase")).toBeInTheDocument();
-    // Should show loading animation
-    expect(document.querySelector(".animate-pulse")).toBeInTheDocument();
+    // Should show loading text
+    expect(screen.getByText("Lade Analyse...")).toBeInTheDocument();
   });
 
   it("should handle no tablebase data", () => {

@@ -81,7 +81,7 @@ export const TablebaseAnalysisPanel: React.FC<TablebaseAnalysisPanelProps> = ({
   isVisible,
   previousFen,
 }) => {
-  const { lastEvaluation, isEvaluating } = usePositionAnalysis({
+  const { lastEvaluation, isEvaluating, error } = usePositionAnalysis({
     fen,
     isEnabled: isVisible,
     previousFen,
@@ -126,6 +126,7 @@ export const TablebaseAnalysisPanel: React.FC<TablebaseAnalysisPanelProps> = ({
         onMoveSelect={handleMoveSelect}
         selectedMove={undefined}
         loading={isEvaluating}
+        error={error || undefined}
         compact={false}
       />
     </div>

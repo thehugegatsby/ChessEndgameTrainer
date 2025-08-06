@@ -48,6 +48,8 @@ export interface TablebasePanelProps {
   selectedMove?: string;
   /** Whether the panel is in a loading state */
   loading?: boolean;
+  /** Error message to display */
+  error?: string;
   /** Whether to show compact layout */
   compact?: boolean;
   /** Additional CSS classes */
@@ -99,6 +101,7 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
   onMoveSelect,
   selectedMove,
   loading = false,
+  error,
   compact = false,
   className = "",
 }) => {
@@ -151,6 +154,20 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
     return classifyMovesByDTZ(moves);
   }, [moves]);
 
+  // Error state
+  if (error) {
+    return (
+      <div className={`tablebase-panel ${className}`}>
+        <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+          Tablebase
+        </div>
+        <div className="text-sm text-red-600 dark:text-red-400 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+          Analyse konnte nicht geladen werden
+        </div>
+      </div>
+    );
+  }
+
   // Loading state
   if (loading) {
     return (
@@ -158,10 +175,10 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
         <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
           Tablebase
         </div>
-        <div className="animate-pulse space-y-2">
-          <div className="h-4 bg-gray-200 rounded"></div>
-          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+        <div className="text-center py-4">
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            Lade Analyse...
+          </div>
         </div>
       </div>
     );
