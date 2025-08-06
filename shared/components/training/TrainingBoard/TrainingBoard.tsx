@@ -182,6 +182,9 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     }
   }, [position, trainingActions, trainingState]);
 
+  // CRITICAL: Prevent any interactions if position is not loaded
+  const isPositionReady = !!trainingState.currentPosition;
+
   // === HOOKS ===
 
   // Chess game logic - now using Store as single source of truth
@@ -463,7 +466,19 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   const handleMove = useCallback(
     async (move: any) => {
       const logger = getLogger().setContext("TrainingBoard-handleMove");
-      logger.debug("handleMove called", { move, isGameFinished });
+      logger.debug("handleMove called", {
+        move,
+        isGameFinished,
+        isPositionReady,
+      });
+
+      // CRITICAL: Block moves if position is not ready
+      if (!isPositionReady) {
+        logger.warn("Position not ready, blocking move", {
+          hasCurrentPosition: !!trainingState.currentPosition,
+        });
+        return null;
+      }
 
       // Add these critical debug logs
       const moveLogger = getLogger().setContext("TrainingBoard-handleMove");
@@ -551,6 +566,8 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
       game,
       history,
       position,
+      isPositionReady,
+      trainingState.currentPosition,
     ],
   );
 
@@ -730,7 +747,8 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
    */
   const onDrop = useCallback(
     (sourceSquare: string, targetSquare: string, _piece: string): boolean => {
-      if (isGameFinished) return false;
+      // Block drops if position is not ready or game is finished
+      if (!isPositionReady || isGameFinished) return false;
 
       const move = {
         from: sourceSquare,
@@ -741,7 +759,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
       handleMove(move);
       return true;
     },
-    [handleMove, isGameFinished],
+    [handleMove, isGameFinished, isPositionReady],
   );
 
   // Handle reset trigger from parent
