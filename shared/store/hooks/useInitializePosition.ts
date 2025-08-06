@@ -10,7 +10,7 @@
 
 import { useEffect, useRef } from "react";
 import { EndgamePosition } from "@shared/types/endgame";
-import { useStore } from "@shared/store/rootStore";
+import { useStore } from "@shared/store/StoreContext";
 import { getLogger } from "@shared/services/logging";
 
 const logger = getLogger().setContext("useInitializePosition");

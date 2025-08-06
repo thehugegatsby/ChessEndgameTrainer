@@ -154,9 +154,16 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
      */
     const movePairs = useMemo((): MovePair[] => {
       const pairs: MovePair[] = [];
-      for (let i = 0; i < gameState.moveHistory.length; i += 2) {
-        const whiteMove = gameState.moveHistory[i];
-        const blackMove = gameState.moveHistory[i + 1];
+      
+      // Only show moves up to currentMoveIndex (for undo/redo support)
+      // This correctly handles undo by respecting currentMoveIndex
+      const effectiveHistory = gameState.currentMoveIndex !== undefined
+        ? gameState.moveHistory.slice(0, gameState.currentMoveIndex + 1)
+        : gameState.moveHistory;
+      
+      for (let i = 0; i < effectiveHistory.length; i += 2) {
+        const whiteMove = effectiveHistory[i];
+        const blackMove = effectiveHistory[i + 1]; // undefined if odd number of moves
         // CRITICAL: evaluations array has one extra entry at the beginning (initial position)
         // So we need to offset by 1 to get the evaluation AFTER each move
         const whiteEval = tablebaseState.evaluations[i + 1]; // +1 offset for evaluation after move
@@ -171,17 +178,22 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
         });
       }
       return pairs;
-    }, [gameState.moveHistory, tablebaseState.evaluations]);
+    }, [gameState.moveHistory, gameState.currentMoveIndex, tablebaseState.evaluations]);
 
     const hasContent = movePairs.length > 0 || currentMoveIndex === 0;
     const showE2ESignals = process.env.NEXT_PUBLIC_E2E_SIGNALS === "true";
 
-    if (gameState.moveHistory.length === 0) {
+    // Check if we have any moves to display (considering undo state)
+    const effectiveMoveCount = gameState.currentMoveIndex !== undefined
+      ? gameState.currentMoveIndex + 1
+      : gameState.moveHistory.length;
+    
+    if (effectiveMoveCount === 0) {
       return (
         <div
           className="text-gray-400"
           data-testid={TEST_IDS.MOVE_PANEL.CONTAINER}
-          data-move-count={gameState.moveHistory.length}
+          data-move-count={effectiveMoveCount}
           {...(showE2ESignals && {
             "data-component-ready": hasContent ? "true" : "false",
           })}

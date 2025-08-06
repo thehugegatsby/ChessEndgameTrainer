@@ -14,7 +14,7 @@
  */
 
 import { useMemo } from "react";
-import { useStore } from "../rootStore";
+import { useStore, useStoreApi } from "../StoreContext";
 import { useShallow } from "zustand/react/shallow";
 import type {
   RootState,
@@ -78,7 +78,8 @@ export const useTablebaseState = (): TablebaseStateType => {
  */
 export const useTablebaseActions = (): TablebaseActionsType => {
   // Non-reactive access to avoid SSR issues
-  const state = useStore.getState();
+  const storeApi = useStoreApi();
+  const state = storeApi.getState();
   const actions = state.tablebase;
 
   // Memoize the actions object to ensure stable reference

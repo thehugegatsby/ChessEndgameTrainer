@@ -14,7 +14,7 @@
  */
 
 import { useMemo } from "react";
-import { useStore } from "../rootStore";
+import { useStore, useStoreApi } from "../StoreContext";
 import { useShallow } from "zustand/react/shallow";
 import type {
   RootState,
@@ -74,7 +74,8 @@ export const useGameState = (): GameStateType => {
  */
 export const useGameActions = (): GameActionsType => {
   // Non-reactive access to avoid SSR issues
-  const state = useStore.getState();
+  const storeApi = useStoreApi();
+  const state = storeApi.getState();
   const actions = state.game;
 
   // Memoize the actions object to ensure stable reference

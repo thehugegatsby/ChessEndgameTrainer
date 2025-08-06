@@ -14,7 +14,7 @@
  */
 
 import { useMemo } from "react";
-import { useStore } from "../rootStore";
+import { useStore, useStoreApi } from "../StoreContext";
 import { useShallow } from "zustand/react/shallow";
 import type {
   RootState,
@@ -87,9 +87,11 @@ export const useTrainingState = (): TrainingStateType => {
  */
 export const useTrainingActions = (): ExtendedTrainingActions => {
   // Get actions dynamically to ensure they exist
+  const storeApi = useStoreApi();
   return useMemo(() => {
-    const state = useStore.getState();
-    const actions = state.training;
+    const state = storeApi.getState();
+    // CRITICAL FIX: Access actions from root level where they're preserved
+    const actions = (state as any)._trainingActions || state.training;
 
     return {
       // Training actions
@@ -99,6 +101,7 @@ export const useTrainingActions = (): ExtendedTrainingActions => {
       setNavigationError: actions.setNavigationError,
       setChapterProgress: actions.setChapterProgress,
       setPlayerTurn: actions.setPlayerTurn,
+      clearOpponentThinking: actions.clearOpponentThinking,
       completeTraining: actions.completeTraining,
       incrementHint: actions.incrementHint,
       incrementMistake: actions.incrementMistake,
@@ -111,7 +114,7 @@ export const useTrainingActions = (): ExtendedTrainingActions => {
       handlePlayerMove: state.handlePlayerMove,
       loadTrainingContext: state.loadTrainingContext,
     };
-  }, []);
+  }, [storeApi]);
 };
 
 /**

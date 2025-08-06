@@ -12,12 +12,18 @@ jest.mock("next/navigation", () => ({
   usePathname: jest.fn(),
 }));
 
-// Mock zustand store before importing components that use it
-jest.mock("@shared/store/rootStore", () => ({
+// Mock the StoreContext to provide useStore
+jest.mock("@shared/store/StoreContext", () => ({
   useStore: jest.fn(),
+  StoreProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-import { useStore } from "@shared/store/rootStore";
+// Mock hydration hook
+jest.mock("@shared/hooks/useHydration", () => ({
+  useStoreHydration: jest.fn().mockReturnValue(true),
+}));
+
+import { useStore } from "@shared/store/StoreContext";
 
 // Import component after mocks are set up
 import { AppProviders } from "../../../app/providers";

@@ -32,9 +32,6 @@ import type { StoreApi } from "./types";
 import type { EndgamePosition } from "@shared/types/endgame";
 import type { TrainingPosition } from "../slices/trainingSlice";
 import { getLogger } from "@shared/services/logging";
-import { initialGameState } from "../slices/gameSlice";
-import { initialTrainingState } from "../slices/trainingSlice";
-import { initialTablebaseState } from "../slices/tablebaseSlice";
 import { chessService } from "@shared/services/ChessService";
 
 const logger = getLogger().setContext("loadTrainingContext");
@@ -103,10 +100,21 @@ export const loadTrainingContext = async (
 
     // Step 1: Reset all relevant state via setState using initial states
     setState((draft) => {
-      // Reset slices to their initial states - single source of truth
-      Object.assign(draft.game, initialGameState);
-      Object.assign(draft.training, initialTrainingState);
-      Object.assign(draft.tablebase, initialTablebaseState);
+      // Reset slices to their initial states - PROPERLY preserving action methods
+      // CRITICAL: Reset only data properties, never overwrite the slice objects themselves
+      
+      // Game slice - manual property reset
+      draft.game.moveHistory = [];
+      draft.game.currentMoveIndex = 0;
+      draft.game.isGameFinished = false;
+      
+      // Training slice - DO NOT RESET - Let the position loading handle training state
+      
+      // Tablebase slice - manual property reset
+      draft.tablebase.tablebaseMove = null;
+      draft.tablebase.analysisStatus = 'idle';
+      draft.tablebase.evaluations = [];
+      draft.tablebase.currentEvaluation = undefined;
       
       // Close any open modals
       if (draft.ui.currentModal) {
@@ -191,9 +199,13 @@ export const loadTrainingContext = async (
         duration: 5000,
       });
       
-      // Reset slices to initial states on error
-      Object.assign(draft.game, initialGameState);
-      Object.assign(draft.training, initialTrainingState);
+      // Reset slices to initial states on error - PROPERLY preserving action methods
+      // Game slice - manual property reset
+      draft.game.moveHistory = [];
+      draft.game.currentMoveIndex = 0;
+      draft.game.isGameFinished = false;
+      
+      // Training slice - DO NOT RESET - Let the position loading handle training state
     })
   } finally {
     // Clear loading state

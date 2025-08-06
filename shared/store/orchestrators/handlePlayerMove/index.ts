@@ -30,6 +30,28 @@ import { delay } from "@shared/utils/async";
 export type { MoveEvaluation, MoveExecutionResult } from "./move.types";
 
 /**
+ * Cancels any scheduled opponent turn
+ * 
+ * @description
+ * Called when undoing a move to prevent the opponent from playing
+ * after the undo action completes.
+ */
+export function cancelScheduledOpponentTurn(): void {
+  if (typeof window !== "undefined") {
+    // Set a flag to prevent execution even if timeout already fired
+    (window as any).__opponentTurnCancelled = true;
+    
+    if ((window as any).__opponentTurnTimeout) {
+      clearTimeout((window as any).__opponentTurnTimeout);
+      delete (window as any).__opponentTurnTimeout;
+      console.log("[cancelScheduledOpponentTurn] Successfully cancelled scheduled opponent turn");
+    } else {
+      console.log("[cancelScheduledOpponentTurn] WARNING: No timeout to cancel, but set cancellation flag");
+    }
+  }
+}
+
+/**
  * Handles a player move using slim orchestration
  *
  * @param {StoreApi} api - Store API for accessing state and actions
@@ -246,6 +268,11 @@ export const handlePlayerMove = async (
               bestMove,
             };
           });
+          
+          // CRITICAL: Don't schedule opponent turn when showing error dialog!
+          // The player needs to decide whether to undo or continue
+          console.log("[MoveQuality] Returning early - no opponent turn for suboptimal move");
+          return true;
         }
       } else {
         console.log("[MoveQuality] Skipping evaluation - insufficient data:", {
@@ -271,7 +298,15 @@ export const handlePlayerMove = async (
     const trainingColor =
       state.training.currentPosition?.colorToTrain?.charAt(0);
 
+    console.log("[DEBUG handlePlayerMove] After move check:", {
+      currentTurn,
+      trainingColor,
+      shouldTriggerOpponent: currentTurn !== trainingColor,
+      fen: chessService.getFen()
+    });
+
     if (currentTurn !== trainingColor) {
+      console.log("[DEBUG handlePlayerMove] It's opponent's turn - scheduling opponent move");
       // Trigger opponent turn (delegated to separate function)
       setState((draft) => {
         draft.training.isPlayerTurn = false;
@@ -323,11 +358,51 @@ export const handlePlayerMove = async (
  * Uses testable delay utility instead of raw setTimeout.
  */
 function scheduleOpponentTurn(api: StoreApi): void {
-  // Use async IIFE to handle the promise properly
-  (async () => {
-    await delay(500); // Testable delay
-    await executeOpponentTurn(api);
-  })();
+  console.log("[DEBUG scheduleOpponentTurn] CALLED - Scheduling opponent turn in 500ms");
+  
+  // Store the timeout ID globally so it can be cancelled
+  if (typeof window !== "undefined") {
+    // Cancel any previously scheduled opponent turn
+    if ((window as any).__opponentTurnTimeout) {
+      clearTimeout((window as any).__opponentTurnTimeout);
+      console.log("[DEBUG scheduleOpponentTurn] Cancelled previous opponent turn timeout");
+    }
+    
+    // Clear the cancellation flag when scheduling new turn
+    delete (window as any).__opponentTurnCancelled;
+    
+    // Schedule new opponent turn with cancellable timeout
+    (window as any).__opponentTurnTimeout = setTimeout(async () => {
+      console.log("[DEBUG scheduleOpponentTurn] Timeout fired, checking if we should execute opponent turn");
+      
+      // Check if this turn was cancelled
+      if ((window as any).__opponentTurnCancelled) {
+        console.log("[DEBUG scheduleOpponentTurn] ABORTING - Turn was cancelled by undo");
+        delete (window as any).__opponentTurnCancelled;
+        delete (window as any).__opponentTurnTimeout;
+        return;
+      }
+      
+      // Check state again before executing - player might have undone the move
+      const currentState = api.getState();
+      if (currentState.training.isPlayerTurn) {
+        console.log("[DEBUG scheduleOpponentTurn] ABORTING - It's now player's turn (move was undone)");
+        return;
+      }
+      
+      console.log("[DEBUG scheduleOpponentTurn] Executing opponent turn");
+      await executeOpponentTurn(api);
+      
+      // Clear the timeout reference after execution
+      delete (window as any).__opponentTurnTimeout;
+    }, 500);
+  } else {
+    // Fallback for non-browser environments (tests)
+    (async () => {
+      await delay(500);
+      await executeOpponentTurn(api);
+    })();
+  }
 }
 
 /**
@@ -343,7 +418,31 @@ function scheduleOpponentTurn(api: StoreApi): void {
  * No recursion - clear separation of concerns.
  */
 async function executeOpponentTurn(api: StoreApi): Promise<void> {
-  const { setState } = api;
+  const { getState, setState } = api;
+
+  // DEBUG: Check if we should actually execute opponent turn
+  const state = getState();
+  console.log("[DEBUG executeOpponentTurn] Called with state:", {
+    isPlayerTurn: state.training.isPlayerTurn,
+    isOpponentThinking: state.training.isOpponentThinking,
+    currentFen: chessService.getFen(),
+    currentTurn: chessService.turn(),
+    trainingColor: state.training.currentPosition?.colorToTrain,
+    wasCancelled: (window as any).__opponentTurnCancelled
+  });
+
+  // CRITICAL: Check cancellation flag first
+  if (typeof window !== "undefined" && (window as any).__opponentTurnCancelled) {
+    console.log("[DEBUG executeOpponentTurn] ABORTING - Turn was cancelled!");
+    delete (window as any).__opponentTurnCancelled;
+    return;
+  }
+
+  // CRITICAL: Don't execute if it's the player's turn
+  if (state.training.isPlayerTurn) {
+    console.log("[DEBUG executeOpponentTurn] ABORTING - It's player's turn!");
+    return;
+  }
 
   try {
     // Get current position

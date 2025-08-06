@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { useStore } from "@shared/store/rootStore";
+import { useStore, useStoreApi } from "@shared/store/StoreContext";
 
 /**
  * Hook to check if Zustand store has been hydrated from persisted storage
@@ -41,22 +41,23 @@ import { useStore } from "@shared/store/rootStore";
  */
 export function useHydration(): boolean {
   const [hasHydrated, setHasHydrated] = useState(false);
+  const storeApi = useStoreApi();
 
   useEffect(() => {
     // Access the internal persist API to check hydration status
-    const unsubscribe = useStore.persist?.onFinishHydration(() => {
+    const unsubscribe = (storeApi as any).persist?.onFinishHydration(() => {
       setHasHydrated(true);
     });
 
     // If persist is not configured or hydration already finished
-    if (!useStore.persist || useStore.persist.hasHydrated()) {
+    if (!(storeApi as any).persist || (storeApi as any).persist.hasHydrated()) {
       setHasHydrated(true);
     }
 
     return () => {
       unsubscribe?.();
     };
-  }, []);
+  }, [storeApi]);
 
   return hasHydrated;
 }

@@ -43,6 +43,7 @@ import { getLogger } from "@shared/services/logging";
 import { ANIMATION, DIMENSIONS } from "@shared/constants";
 import { MoveErrorDialog } from "@shared/components/ui/MoveErrorDialog";
 import { toLibraryMove } from "@shared/infrastructure/chess-adapter";
+import { cancelScheduledOpponentTurn } from "@shared/store/orchestrators/handlePlayerMove";
 
 /**
  * Extended evaluation data structure for move panel integration
@@ -306,10 +307,10 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     /**
      *
      */
-    handleDismissMoveError: () => {
+    handleDismissMoveError: useCallback(() => {
       trainingActions.setMoveErrorDialog(null);
       setMoveError(null);
-    },
+    }, [trainingActions]),
     /**
      *
      */
@@ -358,18 +359,40 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   const handleMoveErrorTakeBack = useCallback(() => {
     const logger = getLogger().setContext("TrainingBoard-MoveError");
     logger.info("Undoing suboptimal move using useTrainingSession undoMove");
-
+    
+    // CRITICAL: Cancel any scheduled opponent turn BEFORE undoing
+    // This prevents the opponent from playing after we undo
+    cancelScheduledOpponentTurn();
+    logger.info("Cancelled any scheduled opponent turn");
+    
     // Use the undoMove function from useTrainingSession which properly handles ChessService
     const undoResult = undoMove();
 
     if (undoResult) {
       logger.info("Move successfully undone");
+      
+      // CRITICAL: Set player turn to true after undoing a suboptimal move
+      // This prevents the opponent from playing immediately after undo
+      console.log("[DEBUG TrainingBoard] Before setPlayerTurn - current state:", {
+        isPlayerTurn: trainingState.isPlayerTurn,
+        isOpponentThinking: trainingState.isOpponentThinking
+      });
+      trainingActions.setPlayerTurn(true);
+      trainingActions.clearOpponentThinking(); // Clear opponent thinking flag
+      logger.info("Set player turn to true and cleared opponent thinking - player can try another move");
+      console.log("[DEBUG TrainingBoard] After setPlayerTurn call");
     } else {
       logger.error("Failed to undo move - no moves in history");
     }
 
-    // Close the dialog
-    trainingActions.setMoveErrorDialog(null);
+    // Close the dialog using the trainingActions hook which properly accesses the action
+    // The hook extracts the action from the slice creator, not from the nested store state
+    if (trainingActions && trainingActions.setMoveErrorDialog) {
+      trainingActions.setMoveErrorDialog(null);
+      logger.info("Successfully closed move error dialog via trainingActions hook");
+    } else {
+      logger.error("setMoveErrorDialog not available in trainingActions");
+    }
   }, [undoMove, trainingActions]);
 
   /**

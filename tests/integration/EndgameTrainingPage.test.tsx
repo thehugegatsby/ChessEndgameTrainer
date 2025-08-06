@@ -11,6 +11,7 @@ import { EndgameTrainingPage } from "@shared/pages/EndgameTrainingPage";
 import { EndgamePosition } from "@shared/types";
 import { useRouter } from "next/navigation";
 import { useStore } from "@shared/store/rootStore";
+import { StoreProvider } from "@shared/store/StoreContext";
 
 // Mock Next.js router
 jest.mock("next/navigation", () => ({
@@ -103,7 +104,11 @@ describe("EndgameTrainingPage Integration Tests", () => {
    *
    */
   const renderPage = () => {
-    return render(<EndgameTrainingPage position={mockPosition} />);
+    return render(
+      <StoreProvider>
+        <EndgameTrainingPage position={mockPosition} />
+      </StoreProvider>
+    );
   };
 
   describe("Initial Rendering", () => {

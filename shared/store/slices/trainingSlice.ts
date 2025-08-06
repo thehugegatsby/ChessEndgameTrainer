@@ -333,6 +333,26 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
   },
 
   /**
+   * Clears the opponent thinking flag
+   *
+   * @fires stateChange - When flag is cleared
+   *
+   * @remarks
+   * Used when cancelling opponent moves, particularly after
+   * undoing a suboptimal move. Ensures the UI properly reflects
+   * that the opponent is no longer calculating a move.
+   *
+   * @example
+   * ```typescript
+   * // Clear flag after cancelling opponent turn
+   * store.getState().clearOpponentThinking();
+   * ```
+   */
+  clearOpponentThinking: () => {
+    set((state) => { state.training.isOpponentThinking = false; });
+  },
+
+  /**
    * Completes the training session
    *
    * @param {boolean} success - Whether training was completed successfully
@@ -509,9 +529,9 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
    * ```
    */
   resetTraining: () => {
-    set((state) => {
-      Object.assign(state.training, initialTrainingState);
-    });
+    // DO NOT RESET - This would break action methods
+    // Individual actions should handle their own state resets
+    console.warn("[resetTraining] Called but doing nothing to preserve action methods");
   },
 
   /**

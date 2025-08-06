@@ -30,17 +30,11 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-// Import all slice creators and initial states
-import { createGameSlice, initialGameState } from "./slices/gameSlice";
-import {
-  createTablebaseSlice,
-  initialTablebaseState,
-} from "./slices/tablebaseSlice";
-import {
-  createTrainingSlice,
-  initialTrainingState,
-} from "./slices/trainingSlice";
-import { createUISlice, initialUIState } from "./slices/uiSlice";
+// Import all slice creators
+import { createGameSlice } from "./slices/gameSlice";
+import { createTablebaseSlice } from "./slices/tablebaseSlice";
+import { createTrainingSlice } from "./slices/trainingSlice";
+import { createUISlice } from "./slices/uiSlice";
 
 // Import ChessService for event subscription
 import {
@@ -101,6 +95,24 @@ export const useStore = create<RootState>()(
         const trainingSlice = createTrainingSlice(set, get, store);
         const tablebaseSlice = createTablebaseSlice(set, get, store);
         const uiSlice = createUISlice(set, get, store);
+        
+        // CRITICAL FIX: Store actions separately to prevent Immer from stripping them
+        const trainingActions = {
+          setPosition: trainingSlice.setPosition,
+          setNavigationPositions: trainingSlice.setNavigationPositions,
+          setNavigationLoading: trainingSlice.setNavigationLoading,
+          setNavigationError: trainingSlice.setNavigationError,
+          setChapterProgress: trainingSlice.setChapterProgress,
+          setPlayerTurn: trainingSlice.setPlayerTurn,
+          clearOpponentThinking: trainingSlice.clearOpponentThinking,
+          completeTraining: trainingSlice.completeTraining,
+          incrementHint: trainingSlice.incrementHint,
+          incrementMistake: trainingSlice.incrementMistake,
+          setMoveErrorDialog: trainingSlice.setMoveErrorDialog,
+          addTrainingMove: trainingSlice.addTrainingMove,
+          resetTraining: trainingSlice.resetTraining,
+          resetPosition: trainingSlice.resetPosition,
+        };
 
         return {
           // Nested state structure - each slice in its namespace
@@ -108,6 +120,9 @@ export const useStore = create<RootState>()(
           training: trainingSlice,
           tablebase: tablebaseSlice,
           ui: uiSlice,
+          
+          // CRITICAL: Store training actions at root level to prevent Immer stripping
+          _trainingActions: trainingActions,
 
           // Orchestrator actions - coordinate across multiple slices
           /**
@@ -194,18 +209,26 @@ export const useStore = create<RootState>()(
            */
           reset: () => {
             set((state) => {
-              // Reset only the state properties, not the actions
-              // Game slice
-              Object.assign(state.game, initialGameState);
-
-              // Training slice
-              Object.assign(state.training, initialTrainingState);
-
-              // Tablebase slice
-              Object.assign(state.tablebase, initialTablebaseState);
-
-              // UI slice
-              Object.assign(state.ui, initialUIState);
+              // Reset only the state properties, not the actions - MANUAL PROPERTY RESET
+              // Game slice - explicit property reset
+              state.game.moveHistory = [];
+              state.game.currentMoveIndex = 0;
+              state.game.isGameFinished = false;
+              
+              // Training slice - DO NOT RESET - Preserve all action methods
+              
+              // Tablebase slice - explicit property reset
+              state.tablebase.tablebaseMove = null;
+              state.tablebase.analysisStatus = 'idle';
+              state.tablebase.evaluations = [];
+              state.tablebase.currentEvaluation = undefined;
+              
+              // UI slice - explicit property reset
+              state.ui.isSidebarOpen = false;
+              state.ui.currentModal = null;
+              state.ui.toasts = [];
+              state.ui.loading = { global: false, position: false, tablebase: false, analysis: false };
+              state.ui.analysisPanel = { isOpen: false, activeTab: 'evaluation', showTablebase: false };
             });
           },
 

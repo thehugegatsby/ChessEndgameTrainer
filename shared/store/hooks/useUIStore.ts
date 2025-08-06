@@ -14,7 +14,7 @@
  */
 
 import { useMemo } from "react";
-import { useStore } from "../rootStore";
+import { useStore, useStoreApi } from "../StoreContext";
 import { useShallow } from "zustand/react/shallow";
 import type { RootState, UIActions as UIActionsType } from "../slices/types";
 import type { UIState } from "../types";
@@ -81,7 +81,8 @@ export const useUIState = (): UIState => {
  */
 export const useUIActions = (): UIActionsType => {
   // Non-reactive access to avoid SSR issues
-  const state = useStore.getState();
+  const storeApi = useStoreApi();
+  const state = storeApi.getState();
   const actions = state.ui;
 
   // Memoize the actions object to ensure stable reference

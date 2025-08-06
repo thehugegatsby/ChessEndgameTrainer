@@ -122,6 +122,7 @@ export interface TrainingActions {
     progress: { completed: number; total: number } | null,
   ) => void;
   setPlayerTurn: (isPlayerTurn: boolean) => void;
+  clearOpponentThinking: () => void;
   completeTraining: (success: boolean) => void;
   incrementHint: () => void;
   incrementMistake: () => void;
@@ -180,6 +181,7 @@ export type RootState = BaseState &
   AsyncActions & {
     reset: () => void;
     hydrate: (state: Partial<BaseState>) => void;
+    _trainingActions: TrainingActions;
   };
 
 /**

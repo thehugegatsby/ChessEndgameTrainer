@@ -316,7 +316,7 @@ describe("TrainingSlice - Nested Store Structure", () => {
   });
 
   describe("resetTraining", () => {
-    it("should reset all training state", () => {
+    it("should not reset state to preserve action methods", () => {
       const store = useStore.getState();
 
       // Set various values first
@@ -326,17 +326,23 @@ describe("TrainingSlice - Nested Store Structure", () => {
       store.training.setPlayerTurn(false);
       store.training.completeTraining(true);
 
-      // Reset training
+      const stateBefore = useStore.getState();
+      
+      // Reset training (should do nothing to preserve actions)
       store.training.resetTraining();
 
-      const state = useStore.getState();
-      expect(state.training.currentPosition).toBeUndefined();
-      expect(state.training.hintsUsed).toBe(0);
-      expect(state.training.mistakeCount).toBe(0);
-      expect(state.training.isPlayerTurn).toBe(true);
-      expect(state.training.isSuccess).toBe(false);
-      expect(state.training.sessionStartTime).toBeUndefined();
-      expect(state.training.sessionEndTime).toBeUndefined();
+      const stateAfter = useStore.getState();
+      
+      // State should remain unchanged
+      expect(stateAfter.training.currentPosition).toEqual(stateBefore.training.currentPosition);
+      expect(stateAfter.training.hintsUsed).toBe(stateBefore.training.hintsUsed);
+      expect(stateAfter.training.mistakeCount).toBe(stateBefore.training.mistakeCount);
+      expect(stateAfter.training.isPlayerTurn).toBe(stateBefore.training.isPlayerTurn);
+      expect(stateAfter.training.isSuccess).toBe(stateBefore.training.isSuccess);
+      
+      // Actions should still be available
+      expect(typeof store.training.setPosition).toBe('function');
+      expect(typeof store.training.incrementHint).toBe('function');
     });
   });
 

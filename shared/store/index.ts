@@ -3,8 +3,9 @@
  * Central export point for state management
  */
 
-// Export from new root store
-export { useStore, store } from "./rootStore";
+// Export context-based store and provider
+export { useStore, useStoreApi, StoreProvider } from "./StoreContext";
+export { createStore } from "./createStore";
 
 // Export specific types from old types file (avoid conflicts)
 export type {

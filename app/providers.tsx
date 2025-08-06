@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { useStore } from "@shared/store/rootStore";
+import { useStore, StoreProvider } from "@shared/store/StoreContext";
 import { configureStore } from "@shared/store/storeConfig";
 import { createServerPositionService } from "@shared/services/database/serverPositionService";
 import { getLogger } from "@shared/services/logging";
@@ -20,12 +20,12 @@ if (typeof window !== "undefined") {
 }
 
 /**
- * App providers component
+ * Inner app providers component that uses the store
  * @param props - Component props
  * @param props.children - Child components to render
  * @returns Providers wrapper with app-ready state management
  */
-export function AppProviders({ children }: { children: React.ReactNode }) {
+function AppProvidersInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const analysisStatus = useStore((state) => state.tablebase.analysisStatus);
   const logger = getLogger().setContext("_app");
@@ -96,4 +96,18 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   }
 
   return <>{children}</>;
+}
+
+/**
+ * App providers component with SSR-safe store provider
+ * @param props - Component props
+ * @param props.children - Child components to render
+ * @returns Providers wrapper with SSR-safe store context
+ */
+export function AppProviders({ children }: { children: React.ReactNode }) {
+  return (
+    <StoreProvider>
+      <AppProvidersInner>{children}</AppProvidersInner>
+    </StoreProvider>
+  );
 }
