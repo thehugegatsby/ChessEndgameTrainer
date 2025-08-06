@@ -25,10 +25,7 @@ import type { AsyncActions } from "../slices/types";
 
 // Extend training actions with relevant async actions
 type ExtendedTrainingActions = TrainingActionsType &
-  Pick<
-    AsyncActions,
-    "handlePlayerMove" | "loadTrainingContext"
-  >;
+  Pick<AsyncActions, "handlePlayerMove" | "loadTrainingContext">;
 
 /**
  * Hook for reactive training state properties
@@ -89,13 +86,12 @@ export const useTrainingState = (): TrainingStateType => {
  * ```
  */
 export const useTrainingActions = (): ExtendedTrainingActions => {
-  // Non-reactive access to avoid SSR issues
-  const state = useStore.getState();
-  const actions = state.training;
+  // Get actions dynamically to ensure they exist
+  return useMemo(() => {
+    const state = useStore.getState();
+    const actions = state.training;
 
-  // Memoize the actions object to ensure stable reference
-  return useMemo(
-    () => ({
+    return {
       // Training actions
       setPosition: actions.setPosition,
       setNavigationPositions: actions.setNavigationPositions,
@@ -114,9 +110,8 @@ export const useTrainingActions = (): ExtendedTrainingActions => {
       // Orchestrated actions (from root level)
       handlePlayerMove: state.handlePlayerMove,
       loadTrainingContext: state.loadTrainingContext,
-    }),
-    [actions, state],
-  );
+    };
+  }, []);
 };
 
 /**
