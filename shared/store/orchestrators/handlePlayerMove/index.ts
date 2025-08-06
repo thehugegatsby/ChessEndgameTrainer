@@ -111,6 +111,15 @@ export const handlePlayerMove = async (
         const wdlBefore = evalBefore.result.wdl;
         const wdlAfter = evalAfter.result.wdl;
 
+        console.log("[MoveQuality] Evaluating move quality:", {
+          moveColor: validatedMove.color,
+          moveSan: validatedMove.san,
+          wdlBefore,
+          wdlAfter,
+          fenBefore: fenBefore.split(" ")[0], // Just board position
+          fenAfter: fenAfter.split(" ")[0],
+        });
+
         // WDL values are from white's perspective:
         // Positive = good for white, Negative = good for black
         // IMPORTANT: After white moves, it's black's turn, so the evaluation
@@ -130,6 +139,11 @@ export const handlePlayerMove = async (
         const wdlAfterFromPlayerPerspective =
           movedColor === "w" ? -wdlAfter : wdlAfter;
 
+        console.log("[MoveQuality] WDL from player perspective:", {
+          wdlBeforeFromPlayerPerspective,
+          wdlAfterFromPlayerPerspective,
+        });
+
         // Get best moves for comparison
         const topMoves = await tablebaseService
           .getTopMoves(fenBefore, 3)
@@ -141,6 +155,13 @@ export const handlePlayerMove = async (
           topMoves.moves &&
           topMoves.moves.some((m) => m.san === validatedMove.san);
 
+        console.log("[MoveQuality] Best moves check:", {
+          topMovesAvailable: topMoves.isAvailable,
+          bestMoves: topMoves.moves?.map((m) => m.san),
+          playedMove: validatedMove.san,
+          playedMoveWasBest,
+        });
+
         // Only show error if:
         // 1. Position got worse (WDL decreased from player's perspective) AND
         // 2. The played move was not one of the best moves
@@ -151,11 +172,21 @@ export const handlePlayerMove = async (
           (wdlBeforeFromPlayerPerspective === 0 &&
             wdlAfterFromPlayerPerspective < 0); // Draw -> Loss
 
+        console.log("[MoveQuality] Decision:", {
+          outcomeChanged,
+          showDialog: !playedMoveWasBest && outcomeChanged,
+        });
+
         if (!playedMoveWasBest && outcomeChanged) {
           const bestMove =
             topMoves.isAvailable && topMoves.moves && topMoves.moves.length > 0
               ? topMoves.moves[0].san
               : undefined;
+
+          console.log(
+            "[MoveQuality] Showing error dialog with best move:",
+            bestMove,
+          );
 
           // Show error dialog
           setState((draft) => {
@@ -167,6 +198,13 @@ export const handlePlayerMove = async (
             };
           });
         }
+      } else {
+        console.log("[MoveQuality] Skipping evaluation - insufficient data:", {
+          evalBeforeAvailable: evalBefore?.isAvailable,
+          evalAfterAvailable: evalAfter?.isAvailable,
+          hasBeforeResult: evalBefore && "result" in evalBefore,
+          hasAfterResult: evalAfter && "result" in evalAfter,
+        });
       }
     } catch (error) {
       // Log evaluation error but don't block move
