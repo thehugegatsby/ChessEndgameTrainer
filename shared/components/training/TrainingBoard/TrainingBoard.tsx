@@ -353,13 +353,30 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     const currentHistory = gameState.moveHistory;
     const currentIndex = gameState.currentMoveIndex;
 
-    if (currentIndex >= 0 && currentHistory.length > 0) {
+    // CRITICAL FIX: Ensure currentIndex is within bounds of currentHistory array
+    if (
+      currentIndex >= 0 &&
+      currentIndex < currentHistory.length &&
+      currentHistory.length > 0
+    ) {
+      // Safely access the move at currentIndex
+      const moveToUndo = currentHistory[currentIndex];
+
+      // Check if the move has the required fenBefore property
+      if (!moveToUndo || !moveToUndo.fenBefore) {
+        logger.error("Move at index missing fenBefore", {
+          currentIndex,
+          moveToUndo,
+        });
+        return;
+      }
+
       // Remove the suboptimal move from history
       const newHistory = currentHistory.slice(0, currentIndex);
       const newIndex = currentIndex - 1;
 
       // Set the position to before the suboptimal move
-      const fenBeforeMove = currentHistory[currentIndex].fenBefore;
+      const fenBeforeMove = moveToUndo.fenBefore;
 
       // Update game state
       gameActions.setCurrentFen(fenBeforeMove);
@@ -368,7 +385,10 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
 
       logger.info("Move removed from history and position restored");
     } else {
-      logger.error("No move to undo");
+      logger.error("No move to undo or index out of bounds", {
+        currentIndex,
+        historyLength: currentHistory.length,
+      });
     }
 
     // Close the dialog
