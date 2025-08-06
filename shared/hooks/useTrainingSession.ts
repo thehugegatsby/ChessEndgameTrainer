@@ -130,12 +130,20 @@ export const useTrainingSession = ({
       to: string;
       promotion?: string;
     }): Promise<boolean> => {
+      console.log("[useTrainingSession] makeMove called with:", { move });
       if (gameState.isGameFinished) return false;
 
       try {
         // Simply delegate to Store - no double validation needed
         // Store will validate the move and update all states atomically
+        console.log(
+          "[useTrainingSession] Calling trainingActions.handlePlayerMove",
+        );
         const moveResult = await trainingActions.handlePlayerMove(move as any);
+        console.log(
+          "[useTrainingSession] trainingActions.handlePlayerMove result:",
+          { moveResult },
+        );
         if (!moveResult) return false;
 
         // Check if game is finished after move

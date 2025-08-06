@@ -495,6 +495,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   const handleMove = useCallback(
     async (move: any) => {
       const logger = getLogger().setContext("TrainingBoard-handleMove");
+      console.log("[TrainingBoard] handleMove called with:", { move });
       logger.debug("handleMove called", {
         move,
         isGameFinished,
@@ -543,7 +544,9 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         });
 
         // First make the move on the local game instance
+        console.log("[TrainingBoard] Calling makeMove with:", { move });
         const result = await makeMove(move);
+        console.log("[TrainingBoard] makeMove result:", { result });
 
         // The orchestrator now handles the entire workflow including:
         // - Move validation
