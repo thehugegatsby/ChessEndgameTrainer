@@ -61,6 +61,15 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
     // Extract actions to avoid dependency issues
     const { completeTraining } = trainingActions;
 
+    // Show loading state while position is being initialized
+    if (!isPositionInitialized) {
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-lg text-gray-600">Position wird geladen...</div>
+        </div>
+      );
+    }
+
     // Game status
     const gameStatus = useMemo(
       () => getGameStatus(gameState.currentFen || position.fen, position.goal),

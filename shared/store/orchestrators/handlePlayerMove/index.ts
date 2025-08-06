@@ -113,14 +113,22 @@ export const handlePlayerMove = async (
 
         // WDL values are from white's perspective:
         // Positive = good for white, Negative = good for black
-        // We need to check if the move made position worse for the player who moved
+        // IMPORTANT: After white moves, it's black's turn, so the evaluation
+        // perspective needs careful handling
         const movedColor = validatedMove.color; // 'w' or 'b'
 
-        // Convert WDL to player's perspective
+        // For winning positions, WDL values alternate between moves
+        // If white had +2 (win) and after moving still has a winning position,
+        // the API might return -2 (from black's perspective for black to move)
+        // This doesn't mean the position got worse!
+
+        // Convert WDL to player's perspective consistently
         const wdlBeforeFromPlayerPerspective =
           movedColor === "w" ? wdlBefore : -wdlBefore;
+
+        // After the move, it's the opponent's turn, so we need to invert
         const wdlAfterFromPlayerPerspective =
-          movedColor === "w" ? wdlAfter : -wdlAfter;
+          movedColor === "w" ? -wdlAfter : wdlAfter;
 
         // Get best moves for comparison
         const topMoves = await tablebaseService
@@ -136,10 +144,14 @@ export const handlePlayerMove = async (
         // Only show error if:
         // 1. Position got worse (WDL decreased from player's perspective) AND
         // 2. The played move was not one of the best moves
-        if (
-          !playedMoveWasBest &&
-          wdlAfterFromPlayerPerspective < wdlBeforeFromPlayerPerspective
-        ) {
+        // 3. The position outcome actually changed (not just DTM increase)
+        const outcomeChanged =
+          (wdlBeforeFromPlayerPerspective > 0 &&
+            wdlAfterFromPlayerPerspective <= 0) || // Win -> Draw/Loss
+          (wdlBeforeFromPlayerPerspective === 0 &&
+            wdlAfterFromPlayerPerspective < 0); // Draw -> Loss
+
+        if (!playedMoveWasBest && outcomeChanged) {
           const bestMove =
             topMoves.isAvailable && topMoves.moves && topMoves.moves.length > 0
               ? topMoves.moves[0].san
