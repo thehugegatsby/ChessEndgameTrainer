@@ -503,13 +503,8 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
       // Add these critical debug logs
       const moveLogger = getLogger().setContext("TrainingBoard-handleMove");
       moveLogger.debug("handleMove called", { move });
-      moveLogger.debug("Current FEN", { fen: game.fen() });
-      moveLogger.debug("Possible moves (verbose)", {
-        moves: game
-          .moves({ verbose: true })
-          .map((m: any) => `${m.from}-${m.to}`),
-      });
-      moveLogger.debug("Possible moves (san)", { moves: game.moves() });
+      moveLogger.debug("Current FEN", { fen: currentFen });
+      // Note: game is null now - ChessService handles chess logic
 
       if (isGameFinished) {
         logger.warn("handleMove early return", { isGameFinished });
@@ -527,36 +522,16 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
       try {
         // Debug: Log game state before validation
         logger.debug("Game state before move validation", {
-          hasGame: !!game,
-          gameFen: game?.fen(),
-          possibleMovesCount: game?.moves()?.length || 0,
+          hasGame: false, // game is now null, handled by ChessService
+          currentFen: currentFen,
         });
 
-        // Validate move with chess instance
-        const possibleMoves = game.moves({ verbose: true });
-        const isValidMove = possibleMoves.some(
-          (m: any) => m.from === move.from && m.to === move.to,
-        );
-
-        logger.debug("Move validation result", {
+        // Move validation is handled by ChessService in makeMove
+        // We don't need to validate here anymore
+        logger.debug("Move validation delegated to ChessService", {
           move,
-          isValidMove,
-          possibleMovesCount: possibleMoves.length,
-          firstFewMoves: possibleMoves
-            .slice(0, 3)
-            .map((m: any) => `${m.from}-${m.to}`),
+          currentFen,
         });
-
-        if (!isValidMove) {
-          logger.error("Move validation failed", undefined, {
-            move,
-            possibleMoves: possibleMoves.map((m: any) => `${m.from}-${m.to}`),
-            currentFen: game.fen(), // Add current FEN to error log
-          });
-          uiActions.showToast("Invalid move", "warning");
-          trainingActions.incrementMistake();
-          return null;
-        }
 
         // First make the move on the local game instance
         const result = await makeMove(move);
@@ -738,7 +713,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         delete (window as any).e2e_getGameState;
       }
     };
-  }, [handleMove, game, history]);
+  }, [handleMove, history, isGameFinished, currentFen, gameState]);
 
   // === EVENT HANDLERS ===
 
