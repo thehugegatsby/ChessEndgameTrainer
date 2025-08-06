@@ -165,12 +165,15 @@ export const handlePlayerMove = async (
           topMoves.moves &&
           topMoves.moves.some((m) => m.san === validatedMove.san);
 
-        console.log("[MoveQuality] Best moves check:", {
-          topMovesAvailable: topMoves.isAvailable,
-          bestMoves: topMoves.moves?.map((m) => m.san),
-          playedMove: validatedMove.san,
-          playedMoveWasBest,
-        });
+        console.log("[MoveQuality] Best moves check:");
+        console.log("  topMovesAvailable:", topMoves.isAvailable);
+        console.log(
+          "  bestMoves:",
+          topMoves.moves?.map((m) => m.san),
+        );
+        console.log("  playedMove:", validatedMove.san);
+        console.log("  playedMoveWasBest:", playedMoveWasBest);
+        console.log("  topMoves.moves (full objects):", topMoves.moves);
 
         // Only show error if:
         // 1. Position got worse (WDL decreased from player's perspective) AND
