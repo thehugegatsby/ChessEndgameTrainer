@@ -182,17 +182,30 @@ export const handlePlayerMove = async (
           (wdlBeforeFromPlayerPerspective === 0 &&
             wdlAfterFromPlayerPerspective < 0); // Draw -> Loss
 
-        console.log("[MoveQuality] Decision:", {
-          outcomeChanged,
-          playedMoveWasBest,
-          showDialog: !playedMoveWasBest && outcomeChanged,
+        console.log("[MoveQuality] DECISION VALUES:");
+        console.log("  outcomeChanged:", outcomeChanged);
+        console.log("  playedMoveWasBest:", playedMoveWasBest);
+        console.log(
+          "  wdlBeforeFromPlayerPerspective:",
           wdlBeforeFromPlayerPerspective,
+        );
+        console.log(
+          "  wdlAfterFromPlayerPerspective:",
           wdlAfterFromPlayerPerspective,
-          forceTestDialog: !playedMoveWasBest && topMoves.isAvailable,
-          finalTrigger:
-            (!playedMoveWasBest && outcomeChanged) ||
+        );
+        console.log(
+          "  showDialog (original logic):",
+          !playedMoveWasBest && outcomeChanged,
+        );
+        console.log(
+          "  forceTestDialog:",
+          !playedMoveWasBest && topMoves.isAvailable,
+        );
+        console.log(
+          "  FINAL TRIGGER:",
+          (!playedMoveWasBest && outcomeChanged) ||
             (!playedMoveWasBest && topMoves.isAvailable),
-        });
+        );
 
         // TEMP: Force error dialog for testing (should only trigger if move was not best)
         const forceTestDialog = !playedMoveWasBest && topMoves.isAvailable;
