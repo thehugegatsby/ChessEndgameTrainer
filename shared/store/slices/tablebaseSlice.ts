@@ -27,28 +27,21 @@ import type { PositionAnalysis } from "@shared/types/evaluation";
 import type { AnalysisStatus } from "../types";
 
 /**
- * Creates the initial tablebase state with default values
- *
- * @returns {Object} Initial tablebase state
- * @returns {string|null|undefined} returns.tablebaseMove - Last tablebase move (null=draw, undefined=no lookup)
- * @returns {AnalysisStatus} returns.analysisStatus - Current analysis status
- * @returns {PositionAnalysis[]} returns.evaluations - Array of position evaluations
- * @returns {PositionAnalysis|undefined} returns.currentEvaluation - Current position evaluation
- *
- * @example
- * ```typescript
- * const initialState = createInitialTablebaseState();
- * console.log(initialState.analysisStatus); // "idle"
- * console.log(initialState.evaluations); // []
- * console.log(initialState.tablebaseMove); // undefined
- * ```
+ * Initial state for the tablebase slice
+ * Exported separately to enable proper store reset in tests
  */
-export const createInitialTablebaseState = () => ({
+export const initialTablebaseState = {
   tablebaseMove: undefined as string | null | undefined,
   analysisStatus: "idle" as AnalysisStatus,
   evaluations: [] as PositionAnalysis[],
   currentEvaluation: undefined as PositionAnalysis | undefined,
-});
+};
+
+/**
+ * Creates the initial tablebase state with default values
+ * @deprecated Use initialTablebaseState export directly
+ */
+export const createInitialTablebaseState = () => ({ ...initialTablebaseState });
 
 /**
  * Creates the tablebase slice for the Zustand store
@@ -84,8 +77,11 @@ export const createInitialTablebaseState = () => ({
 export const createTablebaseSlice: ImmerStateCreator<TablebaseSlice> = (
   set,
 ) => ({
-  // Initial state
-  ...createInitialTablebaseState(),
+  // Initial state - use fresh arrays for each instance
+  tablebaseMove: undefined as string | null | undefined,
+  analysisStatus: "idle" as AnalysisStatus,
+  evaluations: [],
+  currentEvaluation: undefined as PositionAnalysis | undefined,
 
   // Actions
   /**
@@ -116,7 +112,9 @@ export const createTablebaseSlice: ImmerStateCreator<TablebaseSlice> = (
    * ```
    */
   setTablebaseMove: (move: string | null | undefined) => {
-    set({ tablebaseMove: move });
+    set((state) => {
+      state.tablebase.tablebaseMove = move;
+    });
   },
 
   /**
@@ -147,7 +145,9 @@ export const createTablebaseSlice: ImmerStateCreator<TablebaseSlice> = (
    * ```
    */
   setAnalysisStatus: (status: AnalysisStatus) => {
-    set({ analysisStatus: status });
+    set((state) => {
+      state.tablebase.analysisStatus = status;
+    });
   },
 
   /**
@@ -181,9 +181,9 @@ export const createTablebaseSlice: ImmerStateCreator<TablebaseSlice> = (
    * ```
    */
   addEvaluation: (evaluation: PositionAnalysis) => {
-    set((state) => ({
-      evaluations: [...state.evaluations, evaluation],
-    }));
+    set((state) => {
+      state.tablebase.evaluations = [...state.tablebase.evaluations, evaluation];
+    });
   },
 
   /**
@@ -216,7 +216,9 @@ export const createTablebaseSlice: ImmerStateCreator<TablebaseSlice> = (
    * ```
    */
   setEvaluations: (evaluations: PositionAnalysis[]) => {
-    set({ evaluations });
+    set((state) => {
+      state.tablebase.evaluations = evaluations;
+    });
   },
 
   /**
@@ -246,7 +248,9 @@ export const createTablebaseSlice: ImmerStateCreator<TablebaseSlice> = (
    * ```
    */
   setCurrentEvaluation: (evaluation: PositionAnalysis | undefined) => {
-    set({ currentEvaluation: evaluation });
+    set((state) => {
+      state.tablebase.currentEvaluation = evaluation;
+    });
   },
 
   /**
@@ -271,7 +275,9 @@ export const createTablebaseSlice: ImmerStateCreator<TablebaseSlice> = (
    * ```
    */
   clearTablebaseState: () => {
-    set(createInitialTablebaseState());
+    set((state) => {
+      Object.assign(state.tablebase, createInitialTablebaseState());
+    });
   },
 });
 

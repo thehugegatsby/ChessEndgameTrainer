@@ -27,7 +27,7 @@ import type { AsyncActions } from "../slices/types";
 type ExtendedTrainingActions = TrainingActionsType &
   Pick<
     AsyncActions,
-    "handlePlayerMove" | "handleOpponentTurn" | "loadTrainingContext"
+    "handlePlayerMove" | "loadTrainingContext"
   >;
 
 /**
@@ -51,20 +51,21 @@ type ExtendedTrainingActions = TrainingActionsType &
 export const useTrainingState = (): TrainingStateType => {
   return useStore(
     useShallow((state: RootState) => ({
-      // Training session state
-      currentPosition: state.currentPosition,
-      nextPosition: state.nextPosition,
-      previousPosition: state.previousPosition,
-      isLoadingNavigation: state.isLoadingNavigation,
-      navigationError: state.navigationError,
-      chapterProgress: state.chapterProgress,
-      isPlayerTurn: state.isPlayerTurn,
-      isSuccess: state.isSuccess,
-      sessionStartTime: state.sessionStartTime,
-      sessionEndTime: state.sessionEndTime,
-      hintsUsed: state.hintsUsed,
-      mistakeCount: state.mistakeCount,
-      moveErrorDialog: state.moveErrorDialog,
+      // Training session state from nested structure
+      currentPosition: state.training.currentPosition,
+      nextPosition: state.training.nextPosition,
+      previousPosition: state.training.previousPosition,
+      isLoadingNavigation: state.training.isLoadingNavigation,
+      navigationError: state.training.navigationError,
+      chapterProgress: state.training.chapterProgress,
+      isPlayerTurn: state.training.isPlayerTurn,
+      isOpponentThinking: state.training.isOpponentThinking,
+      isSuccess: state.training.isSuccess,
+      sessionStartTime: state.training.sessionStartTime,
+      sessionEndTime: state.training.sessionEndTime,
+      hintsUsed: state.training.hintsUsed,
+      mistakeCount: state.training.mistakeCount,
+      moveErrorDialog: state.training.moveErrorDialog,
     })),
   );
 };
@@ -89,7 +90,8 @@ export const useTrainingState = (): TrainingStateType => {
  */
 export const useTrainingActions = (): ExtendedTrainingActions => {
   // Non-reactive access to avoid SSR issues
-  const actions = useStore.getState();
+  const state = useStore.getState();
+  const actions = state.training;
 
   // Memoize the actions object to ensure stable reference
   return useMemo(
@@ -109,12 +111,11 @@ export const useTrainingActions = (): ExtendedTrainingActions => {
       resetTraining: actions.resetTraining,
       resetPosition: actions.resetPosition,
 
-      // Orchestrated actions
-      handlePlayerMove: actions.handlePlayerMove,
-      handleOpponentTurn: actions.handleOpponentTurn,
-      loadTrainingContext: actions.loadTrainingContext,
+      // Orchestrated actions (from root level)
+      handlePlayerMove: state.handlePlayerMove,
+      loadTrainingContext: state.loadTrainingContext,
     }),
-    [actions],
+    [actions, state],
   );
 };
 

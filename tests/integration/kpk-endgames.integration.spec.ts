@@ -140,10 +140,10 @@ describe("KPK Integration Tests (Refactored Store)", () => {
         });
       });
 
-      // The position should be set correctly - note flat structure
+      // The position should be set correctly - note nested structure
       const state = result.current;
-      expect(state.currentPosition?.fen).toBe(KNOWN_POSITIONS.KPK_WIN_WHITE);
-      expect(state.game?.fen()).toBe(KNOWN_POSITIONS.KPK_WIN_WHITE);
+      expect(state.training.currentPosition?.fen).toBe(KNOWN_POSITIONS.KPK_WIN_WHITE);
+      expect(state.game.currentFen).toBe(KNOWN_POSITIONS.KPK_WIN_WHITE);
     });
   });
 
@@ -166,12 +166,12 @@ describe("KPK Integration Tests (Refactored Store)", () => {
         });
       });
 
-      // Verify initial state - note flat structure
+      // Verify initial state - note nested structure
       const state = result.current;
-      expect(state.currentPosition?.fen).toBe(
+      expect(state.training.currentPosition?.fen).toBe(
         KNOWN_POSITIONS.KPK_WIN_AFTER_SETUP,
       );
-      expect(state.moveErrorDialog).toBeNull();
+      expect(state.training.moveErrorDialog).toBeNull();
 
       // CRITICAL TEST: Make a suboptimal but winning move
       // This is the exact scenario that triggered the original WDL perspective bug
@@ -186,11 +186,11 @@ describe("KPK Integration Tests (Refactored Store)", () => {
 
       // ASSERTIONS - The core regression prevention
       expect(moveResult).toBe(true); // Move should be accepted
-      expect(result.current.moveErrorDialog).toBeNull(); // No error dialog should appear
-      expect(result.current.moveHistory).toHaveLength(1); // Move should be in history
+      expect(result.current.training.moveErrorDialog).toBeNull(); // No error dialog should appear
+      expect(result.current.game.moveHistory).toHaveLength(1); // Move should be in history
 
       // Verify the move was actually made
-      const lastMove = result.current.moveHistory[0];
+      const lastMove = result.current.game.moveHistory[0];
       expect(lastMove.from).toBe("d6");
       expect(lastMove.to).toBe("c7");
     });
@@ -219,7 +219,7 @@ describe("KPK Integration Tests (Refactored Store)", () => {
       // extending our MSW handlers with a specific bad move scenario.
 
       // This test ensures our fix didn't break the error detection entirely
-      expect(result.current.moveErrorDialog).toBeNull();
+      expect(result.current.training.moveErrorDialog).toBeNull();
     });
   });
 
@@ -252,8 +252,8 @@ describe("KPK Integration Tests (Refactored Store)", () => {
 
       // After the move, black is to move, but position should still be evaluated
       // as winning for white (the training side)
-      expect(result.current.moveHistory).toHaveLength(1);
-      expect(result.current.moveErrorDialog).toBeNull();
+      expect(result.current.game.moveHistory).toHaveLength(1);
+      expect(result.current.training.moveErrorDialog).toBeNull();
 
       // The key test: perspective should be normalized correctly
       // The API returns the evaluation from black's perspective after white moves,
@@ -291,7 +291,7 @@ describe("KPK Integration Tests (Refactored Store)", () => {
 
       // Move should still be allowed on API failure
       expect(moveResult).toBe(true);
-      expect(result.current.moveHistory).toHaveLength(1);
+      expect(result.current.game.moveHistory).toHaveLength(1);
     });
 
     it("should handle positions with too many pieces", async () => {
@@ -313,7 +313,7 @@ describe("KPK Integration Tests (Refactored Store)", () => {
       });
 
       // Position should be set (validation happens at API level)
-      expect(result.current.currentPosition?.fen).toBe(
+      expect(result.current.training.currentPosition?.fen).toBe(
         KNOWN_POSITIONS.TOO_MANY_PIECES,
       );
     });

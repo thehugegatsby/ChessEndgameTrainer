@@ -45,12 +45,12 @@ import type { UIState } from "../types";
 export const useUIState = (): UIState => {
   return useStore(
     useShallow((state: RootState) => ({
-      // UI state
-      isSidebarOpen: state.isSidebarOpen,
-      currentModal: state.currentModal,
-      toasts: state.toasts,
-      loading: state.loading,
-      analysisPanel: state.analysisPanel,
+      // UI state from nested structure
+      isSidebarOpen: state.ui.isSidebarOpen,
+      currentModal: state.ui.currentModal,
+      toasts: state.ui.toasts,
+      loading: state.ui.loading,
+      analysisPanel: state.ui.analysisPanel,
     })),
   );
 };
@@ -81,7 +81,8 @@ export const useUIState = (): UIState => {
  */
 export const useUIActions = (): UIActionsType => {
   // Non-reactive access to avoid SSR issues
-  const actions = useStore.getState();
+  const state = useStore.getState();
+  const actions = state.ui;
 
   // Memoize the actions object to ensure stable reference
   return useMemo(

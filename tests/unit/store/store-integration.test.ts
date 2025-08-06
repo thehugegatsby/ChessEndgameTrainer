@@ -39,11 +39,11 @@ describe("Store Integration Tests", () => {
       const { result } = renderHook(() => useStore());
 
       act(() => {
-        result.current.setPosition(mockPosition);
+        result.current.training.setPosition(mockPosition);
       });
 
-      expect(result.current.currentPosition).toEqual(mockPosition);
-      expect(result.current.mistakeCount).toBe(0);
+      expect(result.current.training.currentPosition).toEqual(mockPosition);
+      expect(result.current.training.mistakeCount).toBe(0);
     });
 
     it("should reset store to initial state", () => {
@@ -51,7 +51,7 @@ describe("Store Integration Tests", () => {
 
       // First set some state
       act(() => {
-        result.current.setPosition(mockPosition);
+        result.current.training.setPosition(mockPosition);
       });
 
       // Then reset
@@ -59,10 +59,10 @@ describe("Store Integration Tests", () => {
         result.current.reset();
       });
 
-      expect(result.current.currentPosition).toBeUndefined();
-      expect(result.current.mistakeCount).toBe(0);
+      expect(result.current.training.currentPosition).toBeUndefined();
+      expect(result.current.training.mistakeCount).toBe(0);
       // isLoadingNavigation may be undefined in initial state
-      expect(result.current.isLoadingNavigation).toBeFalsy();
+      expect(result.current.training.isLoadingNavigation).toBeFalsy();
     });
   });
 
@@ -79,18 +79,18 @@ describe("Store Integration Tests", () => {
 
       // Set initial position
       act(() => {
-        result.current.setPosition(mockPosition);
+        result.current.training.setPosition(mockPosition);
       });
 
-      expect(result.current.currentPosition?.id).toBe(1);
+      expect(result.current.training.currentPosition?.id).toBe(1);
 
       // Change to new position
       act(() => {
-        result.current.setPosition(newPosition);
+        result.current.training.setPosition(newPosition);
       });
 
-      expect(result.current.currentPosition?.id).toBe(2);
-      expect(result.current.currentPosition?.fen).toBe(
+      expect(result.current.training.currentPosition?.id).toBe(2);
+      expect(result.current.training.currentPosition?.fen).toBe(
         "k7/8/8/8/8/8/1P6/K7 w - - 0 1",
       );
     });
@@ -109,9 +109,9 @@ describe("Store Integration Tests", () => {
 
       positions.forEach((position) => {
         act(() => {
-          result.current.setPosition(position);
+          result.current.training.setPosition(position);
         });
-        expect(result.current.currentPosition?.id).toBe(position.id);
+        expect(result.current.training.currentPosition?.id).toBe(position.id);
       });
     });
   });

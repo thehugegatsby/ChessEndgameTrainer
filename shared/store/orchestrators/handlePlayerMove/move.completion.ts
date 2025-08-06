@@ -10,6 +10,7 @@
 
 import type { StoreApi } from "../types";
 import type { ValidatedMove } from "@shared/types/chess";
+import { chessService } from "@shared/services/ChessService";
 
 /**
  * Handles training completion logic
@@ -36,9 +37,9 @@ export async function handleTrainingCompletion(
 ): Promise<void> {
   const state = api.getState();
 
-  if (!state.currentPosition || !state.sessionStartTime) return;
+  if (!state.training.currentPosition || !state.training.sessionStartTime) return;
 
-  const userMoves = state.moveHistory.filter(
+  const userMoves = state.game.moveHistory.filter(
     (m: ValidatedMove) => (m as any).userMove,
   );
   const optimalMoves = userMoves.filter(
@@ -50,21 +51,21 @@ export async function handleTrainingCompletion(
   // Consider the final move's optimality for perfect game calculation
   const finalMoveOptimal = isOptimal;
   const isPerfectGame =
-    accuracy === 100 && state.mistakeCount === 0 && finalMoveOptimal;
+    accuracy === 100 && state.training.mistakeCount === 0 && finalMoveOptimal;
 
   // Determine success based on game outcome
-  const gameOutcome = state.game?.isCheckmate()
-    ? state.game.turn() === "w"
+  const gameOutcome = chessService.isCheckmate()
+    ? chessService.turn() === "w"
       ? "0-1"
       : "1-0"
-    : state.game?.isDraw()
+    : chessService.isDraw()
       ? "1/2-1/2"
       : null;
 
-  const success = gameOutcome === state.currentPosition.targetOutcome;
+  const success = gameOutcome === state.training.currentPosition.targetOutcome;
 
   // Complete training
-  state.completeTraining(success);
+  state.training.completeTraining(success);
 
   // TODO: Progress tracking removed (was over-engineered, not used in UI)
   // If progress tracking is needed in the future, implement only what's actually displayed
@@ -72,17 +73,17 @@ export async function handleTrainingCompletion(
   // Show completion message
   if (success) {
     if (isPerfectGame) {
-      state.showToast("Perfektes Spiel! 🎉", "success", 5000);
+      state.ui.showToast("Perfektes Spiel! 🎉", "success", 5000);
       // Could check for achievements here
     } else {
-      state.showToast(
+      state.ui.showToast(
         `Training abgeschlossen! Genauigkeit: ${accuracy.toFixed(0)}%`,
         "success",
         4000,
       );
     }
   } else {
-    state.showToast(
+    state.ui.showToast(
       "Training nicht erfolgreich - versuche es erneut!",
       "warning",
       4000,
@@ -90,5 +91,5 @@ export async function handleTrainingCompletion(
   }
 
   // Open completion modal
-  state.openModal("completion");
+  state.ui.openModal("completion");
 }

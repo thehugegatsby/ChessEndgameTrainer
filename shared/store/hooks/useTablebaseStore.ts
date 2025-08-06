@@ -21,11 +21,7 @@ import type {
   TablebaseState as TablebaseStateType,
   TablebaseActions as TablebaseActionsType,
 } from "../slices/types";
-import type { AsyncActions } from "../slices/types";
-
-// Extend tablebase actions with relevant async action
-type ExtendedTablebaseActions = TablebaseActionsType &
-  Pick<AsyncActions, "requestPositionEvaluation">;
+// Note: requestPositionEvaluation removed - use chessService directly
 
 /**
  * Hook for reactive tablebase state properties
@@ -50,11 +46,11 @@ type ExtendedTablebaseActions = TablebaseActionsType &
 export const useTablebaseState = (): TablebaseStateType => {
   return useStore(
     useShallow((state: RootState) => ({
-      // Tablebase state
-      tablebaseMove: state.tablebaseMove,
-      analysisStatus: state.analysisStatus,
-      evaluations: state.evaluations,
-      currentEvaluation: state.currentEvaluation,
+      // Tablebase state from nested structure
+      tablebaseMove: state.tablebase.tablebaseMove,
+      analysisStatus: state.tablebase.analysisStatus,
+      evaluations: state.tablebase.evaluations,
+      currentEvaluation: state.tablebase.currentEvaluation,
     })),
   );
 };
@@ -67,7 +63,7 @@ export const useTablebaseState = (): TablebaseStateType => {
  * Use this in components that only need to trigger tablebase actions
  * without subscribing to state changes.
  *
- * @returns {ExtendedTablebaseActions} Tablebase action functions
+ * @returns {TablebaseActionsType} Tablebase action functions
  *
  * @example
  * ```tsx
@@ -80,9 +76,10 @@ export const useTablebaseState = (): TablebaseStateType => {
  * };
  * ```
  */
-export const useTablebaseActions = (): ExtendedTablebaseActions => {
+export const useTablebaseActions = (): TablebaseActionsType => {
   // Non-reactive access to avoid SSR issues
-  const actions = useStore.getState();
+  const state = useStore.getState();
+  const actions = state.tablebase;
 
   // Memoize the actions object to ensure stable reference
   return useMemo(
@@ -95,8 +92,7 @@ export const useTablebaseActions = (): ExtendedTablebaseActions => {
       setCurrentEvaluation: actions.setCurrentEvaluation,
       clearTablebaseState: actions.clearTablebaseState,
 
-      // Orchestrated action
-      requestPositionEvaluation: actions.requestPositionEvaluation,
+      // Note: requestPositionEvaluation removed - use chessService.fetchEvaluation() directly
     }),
     [actions],
   );
@@ -126,7 +122,7 @@ export const useTablebaseActions = (): ExtendedTablebaseActions => {
  */
 export const useTablebaseStore = (): [
   TablebaseStateType,
-  ExtendedTablebaseActions,
+  TablebaseActionsType,
 ] => {
   return [useTablebaseState(), useTablebaseActions()];
 };

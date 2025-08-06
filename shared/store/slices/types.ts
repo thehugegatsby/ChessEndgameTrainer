@@ -12,7 +12,7 @@ import {
   AnalysisPanelState,
   AnalysisStatus,
 } from "../types";
-import { ValidatedMove, ChessInstance } from "@shared/types/chess";
+import { ValidatedMove } from "@shared/types/chess";
 import { PositionAnalysis } from "@shared/types/evaluation";
 import { EndgamePosition } from "@shared/types/endgame";
 import { Move as ChessJsMove } from "chess.js";
@@ -22,7 +22,7 @@ import type { TrainingPosition } from "./trainingSlice";
  * Game slice - Pure chess game state
  */
 export interface GameState {
-  game?: ChessInstance;
+  // Chess instance removed - created on-demand from currentFen
   currentFen: string;
   currentPgn: string;
   moveHistory: ValidatedMove[];
@@ -33,7 +33,7 @@ export interface GameState {
 
 export interface GameActions {
   // State management
-  setGame: (game: ChessInstance) => void;
+  // setGame removed - Chess instances created on-demand
   updatePosition: (fen: string, pgn: string) => void;
   addMove: (move: ValidatedMove) => void;
   setMoveHistory: (moves: ValidatedMove[]) => void;
@@ -42,7 +42,7 @@ export interface GameActions {
   resetGame: () => void;
 
   // Game operations
-  initializeGame: (fen: string) => ChessInstance | null;
+  initializeGame: (fen: string) => boolean;
   makeMove: (
     move:
       | ChessJsMove
@@ -96,6 +96,7 @@ export interface TrainingState {
     total: number;
   } | null;
   isPlayerTurn: boolean;
+  isOpponentThinking: boolean; // New flag to prevent race conditions
   isSuccess: boolean;
   sessionStartTime?: number;
   sessionEndTime?: number;
@@ -163,12 +164,17 @@ export type UISlice = UIState & UIActions;
 // SettingsSlice removed - was over-engineered and unused in UI
 
 /**
- * Base state combining all slices
+ * Base state with nested structure
  */
-type BaseState = GameSlice & TablebaseSlice & TrainingSlice & UISlice;
+type BaseState = {
+  game: GameSlice;
+  training: TrainingSlice;
+  tablebase: TablebaseSlice;
+  ui: UISlice;
+};
 
 /**
- * Root state combining all slices with orchestrator actions
+ * Root state combining nested slices with orchestrator actions
  */
 export type RootState = BaseState &
   AsyncActions & {
@@ -202,19 +208,14 @@ export interface AsyncActions {
       | { from: string; to: string; promotion?: string }
       | string,
   ) => Promise<boolean>;
-  handleOpponentTurn: () => Promise<void>;
-  requestPositionEvaluation: (fen?: string) => Promise<void>;
+  // handleOpponentTurn and requestPositionEvaluation removed - functionality moved to chessService
   loadTrainingContext: (position: EndgamePosition) => Promise<void>;
 }
 
 /**
  * Complete actions interface
  */
-export type Actions = GameActions &
-  TablebaseActions &
-  TrainingActions &
-  UIActions &
-  AsyncActions & {
-    reset: () => void;
-    hydrate: (state: Partial<RootState>) => void;
-  };
+export type Actions = AsyncActions & {
+  reset: () => void;
+  hydrate: (state: Partial<RootState>) => void;
+};

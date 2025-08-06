@@ -57,31 +57,10 @@ export interface TrainingPosition extends BaseEndgamePosition {
 }
 
 /**
- * Creates the initial training state with default values
- *
- * @returns {Object} Initial training state
- * @returns {TrainingPosition|undefined} returns.currentPosition - Active training position
- * @returns {TrainingPosition|null|undefined} returns.nextPosition - Next position in sequence
- * @returns {TrainingPosition|null|undefined} returns.previousPosition - Previous position
- * @returns {boolean} returns.isLoadingNavigation - Navigation loading state
- * @returns {string|null} returns.navigationError - Navigation error message
- * @returns {Object|null} returns.chapterProgress - Progress within chapter
- * @returns {boolean} returns.isPlayerTurn - Whether it's the player's turn
- * @returns {boolean} returns.isSuccess - Training completed successfully
- * @returns {number|undefined} returns.sessionStartTime - Session start timestamp
- * @returns {number|undefined} returns.sessionEndTime - Session end timestamp
- * @returns {number} returns.hintsUsed - Number of hints used
- * @returns {number} returns.mistakeCount - Number of mistakes made
- *
- * @example
- * ```typescript
- * const initialState = createInitialTrainingState();
- * console.log(initialState.isPlayerTurn); // true
- * console.log(initialState.hintsUsed); // 0
- * console.log(initialState.currentPosition); // undefined
- * ```
+ * Initial state for the training slice
+ * Exported separately to enable proper store reset in tests
  */
-export const createInitialTrainingState = () => ({
+export const initialTrainingState = {
   currentPosition: undefined as TrainingPosition | undefined,
   nextPosition: undefined as TrainingPosition | null | undefined,
   previousPosition: undefined as TrainingPosition | null | undefined,
@@ -89,6 +68,7 @@ export const createInitialTrainingState = () => ({
   navigationError: null as string | null,
   chapterProgress: null as { completed: number; total: number } | null,
   isPlayerTurn: true,
+  isOpponentThinking: false,
   isSuccess: false,
   sessionStartTime: undefined as number | undefined,
   sessionEndTime: undefined as number | undefined,
@@ -100,7 +80,13 @@ export const createInitialTrainingState = () => ({
     wdlAfter?: number;
     bestMove?: string;
   } | null,
-});
+};
+
+/**
+ * Creates the initial training state with default values
+ * @deprecated Use initialTrainingState export directly
+ */
+export const createInitialTrainingState = () => ({ ...initialTrainingState });
 
 /**
  * Creates the training slice for the Zustand store
@@ -140,8 +126,26 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
   set,
   get,
 ) => ({
-  // Initial state
-  ...createInitialTrainingState(),
+  // Initial state - use fresh arrays for each instance
+  currentPosition: undefined as TrainingPosition | undefined,
+  nextPosition: undefined as TrainingPosition | null | undefined,
+  previousPosition: undefined as TrainingPosition | null | undefined,
+  isLoadingNavigation: false,
+  navigationError: null as string | null,
+  chapterProgress: null as { completed: number; total: number } | null,
+  isPlayerTurn: true,
+  isOpponentThinking: false,
+  isSuccess: false,
+  sessionStartTime: undefined as number | undefined,
+  sessionEndTime: undefined as number | undefined,
+  hintsUsed: 0,
+  mistakeCount: 0,
+  moveErrorDialog: null as {
+    isOpen: boolean;
+    wdlBefore?: number;
+    wdlAfter?: number;
+    bestMove?: string;
+  } | null,
 
   // Actions
   /**
@@ -173,14 +177,14 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
    */
   setPosition: (position: TrainingPosition) => {
     set((state) => {
-      state.currentPosition = position;
-      state.isSuccess = false;
-      state.sessionStartTime = Date.now();
-      state.sessionEndTime = undefined;
-      state.hintsUsed = 0;
-      state.mistakeCount = 0;
+      state.training.currentPosition = position;
+      state.training.isSuccess = false;
+      state.training.sessionStartTime = Date.now();
+      state.training.sessionEndTime = undefined;
+      state.training.hintsUsed = 0;
+      state.training.mistakeCount = 0;
       // Set initial turn based on position
-      state.isPlayerTurn = position.sideToMove === position.colorToTrain;
+      state.training.isPlayerTurn = position.sideToMove === position.colorToTrain;
     });
   },
 
@@ -213,9 +217,13 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
     next?: TrainingPosition | null,
     previous?: TrainingPosition | null,
   ) => {
-    set({
-      ...(next !== undefined && { nextPosition: next }),
-      ...(previous !== undefined && { previousPosition: previous }),
+    set((state) => {
+      if (next !== undefined) {
+        state.training.nextPosition = next;
+      }
+      if (previous !== undefined) {
+        state.training.previousPosition = previous;
+      }
     });
   },
 
@@ -241,7 +249,7 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
    * ```
    */
   setNavigationLoading: (loading: boolean) => {
-    set({ isLoadingNavigation: loading });
+    set((state) => { state.training.isLoadingNavigation = loading; });
   },
 
   /**
@@ -265,7 +273,7 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
    * ```
    */
   setNavigationError: (error: string | null) => {
-    set({ navigationError: error });
+    set((state) => { state.training.navigationError = error; });
   },
 
   /**
@@ -296,7 +304,7 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
   setChapterProgress: (
     progress: { completed: number; total: number } | null,
   ) => {
-    set({ chapterProgress: progress });
+    set((state) => { state.training.chapterProgress = progress; });
   },
 
   /**
@@ -321,7 +329,7 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
    * ```
    */
   setPlayerTurn: (isPlayerTurn: boolean) => {
-    set({ isPlayerTurn });
+    set((state) => { state.training.isPlayerTurn = isPlayerTurn; });
   },
 
   /**
@@ -346,9 +354,9 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
    * ```
    */
   completeTraining: (success: boolean) => {
-    set({
-      isSuccess: success,
-      sessionEndTime: Date.now(),
+    set((state) => {
+      state.training.isSuccess = success;
+      state.training.sessionEndTime = Date.now();
     });
   },
 
@@ -376,9 +384,9 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
    * ```
    */
   incrementHint: () => {
-    set((state) => ({
-      hintsUsed: state.hintsUsed + 1,
-    }));
+    set((state) => {
+      state.training.hintsUsed = state.training.hintsUsed + 1;
+    });
   },
 
   /**
@@ -402,9 +410,9 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
    * ```
    */
   incrementMistake: () => {
-    set((state) => ({
-      mistakeCount: state.mistakeCount + 1,
-    }));
+    set((state) => {
+      state.training.mistakeCount = state.training.mistakeCount + 1;
+    });
   },
 
   /**
@@ -445,7 +453,7 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
       bestMove?: string;
     } | null,
   ) => {
-    set({ moveErrorDialog: dialog });
+    set((state) => { state.training.moveErrorDialog = dialog; });
   },
 
   /**
@@ -501,7 +509,9 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
    * ```
    */
   resetTraining: () => {
-    set(createInitialTrainingState());
+    set((state) => {
+      Object.assign(state.training, initialTrainingState);
+    });
   },
 
   /**
@@ -521,18 +531,19 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
    * ```
    */
   resetPosition: () => {
-    const currentPos = get().currentPosition;
-    set({
-      moveHistory: [],
-      hintsUsed: 0,
-      mistakeCount: 0,
-      isSuccess: false,
-      sessionStartTime: Date.now(),
-      sessionEndTime: undefined,
+    const currentPos = get().training.currentPosition;
+    set((state) => {
+      // moveHistory is in game slice, not training slice
+      state.game.moveHistory = [];
+      state.training.hintsUsed = 0;
+      state.training.mistakeCount = 0;
+      state.training.isSuccess = false;
+      state.training.sessionStartTime = Date.now();
+      state.training.sessionEndTime = undefined;
       // Reset turn based on position
-      isPlayerTurn: currentPos
+      state.training.isPlayerTurn = currentPos
         ? currentPos.sideToMove === currentPos.colorToTrain
-        : true,
+        : true;
     });
   },
 });

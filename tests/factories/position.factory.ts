@@ -5,6 +5,7 @@
 
 import { faker } from "@faker-js/faker";
 import { EndgamePosition } from "@shared/types/endgame";
+import { EndgamePositions, getRandomEndgamePosition } from "../fixtures/fenPositions";
 
 export class PositionFactory {
   private static idCounter = 1000; // Start from 1000 to avoid conflicts with fixtures
@@ -89,17 +90,8 @@ export class PositionFactory {
    * Generate a random valid FEN string
    */
   private static generateRandomFEN(): string {
-    // Common endgame FENs as templates
-    const templates = [
-      "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1", // KPK
-      "8/8/8/8/8/8/P7/K2k4 w - - 0 1", // KPK
-      "8/2k5/8/2K5/2P5/8/8/8 w - - 0 1", // KPK
-      "R7/8/8/8/8/8/8/K2k4 w - - 0 1", // KRK
-      "8/8/8/8/8/8/8/K2k2Q1 w - - 0 1", // KQK
-      "4k3/R7/8/8/8/8/8/4K3 w - - 0 1", // KRK
-    ];
-
-    return faker.helpers.arrayElement(templates);
+    // Use the central FEN store helper function
+    return getRandomEndgamePosition();
   }
 
   /**
@@ -130,25 +122,25 @@ export class PositionFactory {
     const scenarios = {
       opposition: {
         title: "Opposition Study",
-        fen: "4k3/8/4K3/8/8/8/8/8 w - - 0 1",
+        fen: EndgamePositions.KK_DRAW,
         hints: ["Take the opposition", "Control key squares"],
         solution: ["Ke6-e7"],
       },
       triangulation: {
         title: "Triangulation Technique",
-        fen: "8/8/8/3k4/8/2KP4/8/8 w - - 0 1",
+        fen: EndgamePositions.KPK_VARIANTS.DRAW_POSITION,
         hints: ["Use triangulation", "Lose a tempo"],
         solution: ["Kc3-c2", "Kc2-c3", "Kc3-d2"],
       },
       bridge: {
         title: "Bridge Building",
-        fen: "1K6/1P6/8/8/8/8/r7/1k6 b - - 0 1",
+        fen: EndgamePositions.LUCENA,
         hints: ["Build a bridge with your rook"],
         solution: ["Ra2-a8+", "Kb8-c7", "Ra8-a7"],
       },
       zugzwang: {
         title: "Zugzwang Position",
-        fen: "8/8/8/3k4/3P4/3K4/8/8 b - - 0 1",
+        fen: EndgamePositions.KPK_VARIANTS.BLACK_TO_MOVE,
         hints: ["Any move worsens your position"],
         solution: ["Kd5-c6", "Kd3-e4"],
       },

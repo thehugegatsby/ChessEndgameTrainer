@@ -104,9 +104,9 @@ describe("Move Validation - Game Outcome Changes", () => {
       expect(mockTablebaseService.getEvaluation).toHaveBeenCalledTimes(2);
 
       const state = useStore.getState();
-      expect(state.moveErrorDialog).toBeNull(); // No error dialog
-      expect(state.moveHistory).toHaveLength(1); // Move was made
-      expect(state.currentFen).toContain("3K"); // King on d6
+      expect(state.training.moveErrorDialog).toBeNull(); // No error dialog
+      expect(state.game.moveHistory).toHaveLength(1); // Move was made
+      expect(state.game.currentFen).toContain("3K"); // King on d6
     });
 
     it.skip("should show error dialog for Kc5 after Kd6 Kf8 (converts win to draw)", async () => {
@@ -124,13 +124,13 @@ describe("Move Validation - Game Outcome Changes", () => {
       // We need to apply these moves to get to the test position
       act(() => {
         // Make setup moves
-        const { makeMove } = useStore.getState();
+        const makeMove = useStore.getState().game.makeMove;
         makeMove({ from: "e6", to: "d6" });
         makeMove({ from: "e8", to: "f8" });
       });
 
       // Verify we're in the expected position
-      expect(useStore.getState().currentFen).toBe(
+      expect(useStore.getState().game.currentFen).toBe(
         "5k2/8/3K4/4P3/8/8/8/8 w - - 2 2",
       );
 
@@ -190,17 +190,17 @@ describe("Move Validation - Game Outcome Changes", () => {
       expect(mockTablebaseService.getTopMoves).toHaveBeenCalledTimes(1);
 
       const state = useStore.getState();
-      expect(state.moveErrorDialog).toEqual({
+      expect(state.training.moveErrorDialog).toEqual({
         isOpen: true,
         wdlBefore: 2,
         wdlAfter: expect.any(Number), // Accept both 0 and -0
         bestMove: "Kd5",
       });
-      expect(Math.abs(state.moveErrorDialog?.wdlAfter || 0)).toBe(0); // Ensure it's actually 0
+      expect(Math.abs(state.training.moveErrorDialog?.wdlAfter || 0)).toBe(0); // Ensure it's actually 0
 
       // Verify the position hasn't changed (move was prevented)
-      expect(state.currentFen).toBe("5k2/8/3K4/4P3/8/8/8/8 w - - 2 2");
-      expect(state.moveHistory).toHaveLength(2); // Only the setup moves
+      expect(state.game.currentFen).toBe("5k2/8/3K4/4P3/8/8/8/8 w - - 2 2");
+      expect(state.game.moveHistory).toHaveLength(2); // Only the setup moves
     });
 
     it.skip("should NOT show error dialog for moves that maintain the game outcome", async () => {
@@ -216,7 +216,7 @@ describe("Move Validation - Game Outcome Changes", () => {
       };
 
       act(() => {
-        useStore.getState().setPosition(drawnPosition);
+        useStore.getState().training.setPosition(drawnPosition);
       });
 
       // Mock tablebase responses - both draw
@@ -255,7 +255,7 @@ describe("Move Validation - Game Outcome Changes", () => {
       // Assert
       expect(moveResult).toBe(true); // Move should be executed
       const state = useStore.getState();
-      expect(state.moveErrorDialog).toBeNull(); // No error dialog
+      expect(state.training.moveErrorDialog).toBeNull(); // No error dialog
     });
   });
 
@@ -286,7 +286,7 @@ describe("Move Validation - Game Outcome Changes", () => {
       // Assert
       expect(moveResult).toBe(true); // Move should still be executed (fail open)
       const state = useStore.getState();
-      expect(state.moveErrorDialog).toBeNull(); // No error dialog on service failure
+      expect(state.training.moveErrorDialog).toBeNull(); // No error dialog on service failure
     });
 
     it("should handle moves when tablebase evaluation is not available", async () => {
@@ -316,7 +316,7 @@ describe("Move Validation - Game Outcome Changes", () => {
       // Assert
       expect(moveResult).toBe(true); // Move should be executed when tablebase unavailable
       const state = useStore.getState();
-      expect(state.moveErrorDialog).toBeNull();
+      expect(state.training.moveErrorDialog).toBeNull();
     });
   });
 });

@@ -13,13 +13,11 @@ jest.mock("next/navigation", () => ({
 }));
 
 // Mock zustand store before importing components that use it
-jest.mock("@shared/store/rootStore");
+jest.mock("@shared/store/rootStore", () => ({
+  useStore: jest.fn(),
+}));
 
-// Import mock helpers
-import {
-  mockRootStoreWithSelector,
-  resetRootStoreMock,
-} from "../../helpers/mockRootStore";
+import { useStore } from "@shared/store/rootStore";
 
 // Import component after mocks are set up
 import { AppProviders } from "../../../app/providers";
@@ -31,8 +29,15 @@ describe("App Ready Signal (App Router)", () => {
     // Setup pathname mock
     mockUsePathname.mockReturnValue("/dashboard");
 
-    // Default store mock
-    mockRootStoreWithSelector({ analysisStatus: "loading" });
+    // Default store mock - analysisStatus is now nested in tablebase slice
+    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        tablebase: {
+          analysisStatus: "loading",
+        },
+      };
+      return selector ? selector(state) : state;
+    });
 
     // Clear body attributes
     document.body.removeAttribute("data-app-ready");
@@ -40,12 +45,18 @@ describe("App Ready Signal (App Router)", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-    resetRootStoreMock();
   });
 
   test("should set data-app-ready to true when engine is initializing on non-training page", async () => {
     mockUsePathname.mockReturnValue("/dashboard");
-    mockRootStoreWithSelector({ analysisStatus: "loading" });
+    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        tablebase: {
+          analysisStatus: "loading",
+        },
+      };
+      return selector ? selector(state) : state;
+    });
 
     render(
       <AppProviders>
@@ -60,7 +71,14 @@ describe("App Ready Signal (App Router)", () => {
 
   test("should set data-app-ready to false when engine is initializing on training page", async () => {
     mockUsePathname.mockReturnValue("/train/1");
-    mockRootStoreWithSelector({ analysisStatus: "loading" });
+    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        tablebase: {
+          analysisStatus: "loading",
+        },
+      };
+      return selector ? selector(state) : state;
+    });
 
     render(
       <AppProviders>
@@ -75,7 +93,14 @@ describe("App Ready Signal (App Router)", () => {
 
   test("should set data-app-ready to true when engine is ready on non-training page", async () => {
     mockUsePathname.mockReturnValue("/dashboard");
-    mockRootStoreWithSelector({ analysisStatus: "idle" });
+    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        tablebase: {
+          analysisStatus: "idle",
+        },
+      };
+      return selector ? selector(state) : state;
+    });
 
     render(
       <AppProviders>
@@ -90,7 +115,14 @@ describe("App Ready Signal (App Router)", () => {
 
   test("should set data-app-ready to true when engine is ready on training page", async () => {
     mockUsePathname.mockReturnValue("/train/1");
-    mockRootStoreWithSelector({ analysisStatus: "idle" });
+    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        tablebase: {
+          analysisStatus: "idle",
+        },
+      };
+      return selector ? selector(state) : state;
+    });
 
     render(
       <AppProviders>
@@ -105,7 +137,14 @@ describe("App Ready Signal (App Router)", () => {
 
   test("should set data-app-ready to error when engine has error", async () => {
     mockUsePathname.mockReturnValue("/train/1");
-    mockRootStoreWithSelector({ analysisStatus: "error" });
+    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        tablebase: {
+          analysisStatus: "error",
+        },
+      };
+      return selector ? selector(state) : state;
+    });
 
     render(
       <AppProviders>
@@ -120,7 +159,14 @@ describe("App Ready Signal (App Router)", () => {
 
   test("should set data-app-ready to error when engine has error on non-training page", async () => {
     mockUsePathname.mockReturnValue("/dashboard");
-    mockRootStoreWithSelector({ analysisStatus: "error" });
+    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        tablebase: {
+          analysisStatus: "error",
+        },
+      };
+      return selector ? selector(state) : state;
+    });
 
     render(
       <AppProviders>
@@ -136,7 +182,14 @@ describe("App Ready Signal (App Router)", () => {
   test("should update data-app-ready when pathname changes", async () => {
     // Start on dashboard page
     mockUsePathname.mockReturnValue("/dashboard");
-    mockRootStoreWithSelector({ analysisStatus: "idle" });
+    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        tablebase: {
+          analysisStatus: "idle",
+        },
+      };
+      return selector ? selector(state) : state;
+    });
 
     const { rerender } = render(
       <AppProviders>
@@ -150,7 +203,14 @@ describe("App Ready Signal (App Router)", () => {
 
     // Change to training page with initializing engine
     mockUsePathname.mockReturnValue("/train/1");
-    mockRootStoreWithSelector({ analysisStatus: "loading" });
+    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        tablebase: {
+          analysisStatus: "loading",
+        },
+      };
+      return selector ? selector(state) : state;
+    });
 
     rerender(
       <AppProviders>
@@ -165,7 +225,14 @@ describe("App Ready Signal (App Router)", () => {
 
   test("should update data-app-ready when engine status changes", async () => {
     mockUsePathname.mockReturnValue("/train/1");
-    mockRootStoreWithSelector({ analysisStatus: "loading" });
+    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        tablebase: {
+          analysisStatus: "loading",
+        },
+      };
+      return selector ? selector(state) : state;
+    });
 
     const { rerender } = render(
       <AppProviders>
@@ -178,7 +245,14 @@ describe("App Ready Signal (App Router)", () => {
     });
 
     // Engine becomes ready
-    mockRootStoreWithSelector({ analysisStatus: "idle" });
+    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        tablebase: {
+          analysisStatus: "idle",
+        },
+      };
+      return selector ? selector(state) : state;
+    });
 
     rerender(
       <AppProviders>
@@ -193,7 +267,14 @@ describe("App Ready Signal (App Router)", () => {
 
   test("should handle null pathname gracefully", async () => {
     mockUsePathname.mockReturnValue(null);
-    mockRootStoreWithSelector({ analysisStatus: "idle" });
+    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        tablebase: {
+          analysisStatus: "idle",
+        },
+      };
+      return selector ? selector(state) : state;
+    });
 
     render(
       <AppProviders>

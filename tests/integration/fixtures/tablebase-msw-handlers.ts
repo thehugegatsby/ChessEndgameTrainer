@@ -6,6 +6,11 @@
  */
 
 import { http, HttpResponse } from "msw";
+import {
+  EndgamePositions,
+  KPKProgression,
+  SpecialPositions,
+} from "../../fixtures/fenPositions";
 
 // Test positions with known tablebase results
 export /**
@@ -13,21 +18,21 @@ export /**
  */
 const KNOWN_POSITIONS = {
   // K+P vs K: White King on a8, Pawn on a7, Black King on a6
-  KPK_WIN_WHITE: "K7/P7/k7/8/8/8/8/8 w - - 0 1",
+  KPK_WIN_WHITE: KPKProgression.INITIAL,
   // After Kd6 - still winning but suboptimal
-  KPK_WIN_AFTER_KD6: "4k3/8/3K4/4P3/8/8/8/8 b - - 1 1",
+  KPK_WIN_AFTER_KD6: KPKProgression.AFTER_KD6,
   // After Kd6 Kf8 - still winning for white to move
-  KPK_WIN_AFTER_SETUP: "5k2/8/3K4/4P3/8/8/8/8 w - - 2 2",
+  KPK_WIN_AFTER_SETUP: KPKProgression.AFTER_KD6_KF8,
   // After Kc7 from the setup position - still winning
-  KPK_WIN_AFTER_KC7: "5k2/2K5/8/4P3/8/8/8/8 b - - 3 2",
+  KPK_WIN_AFTER_KC7: KPKProgression.AFTER_KC7,
   // After Kb8 from initial position - still winning
-  KPK_WIN_AFTER_KB8: "1K6/P7/k7/8/8/8/8/8 b - - 1 1",
+  KPK_WIN_AFTER_KB8: KPKProgression.AFTER_KB8,
   // K vs K - theoretical draw
-  KK_DRAW: "4k3/8/4K3/8/8/8/8/8 w - - 0 1",
+  KK_DRAW: EndgamePositions.KK_DRAW,
   // More pieces than tablebase supports
-  TOO_MANY_PIECES: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  TOO_MANY_PIECES: SpecialPositions.TOO_MANY_PIECES,
   // Special position that triggers API error in MSW
-  API_ERROR: "8/8/8/8/8/8/8/8 w - - 0 1",
+  API_ERROR: SpecialPositions.EMPTY_BOARD,
 } as const;
 
 /**

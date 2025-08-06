@@ -8,6 +8,7 @@
 
 import { tablebaseService } from "../../shared/services/TablebaseService";
 import { TEST_FENS } from "../../shared/testing/TestFixtures";
+import { EndgamePositions, SpecialPositions, StandardPositions } from "../fixtures/fenPositions";
 
 // Mock fetch globally
 global.fetch = jest.fn();
@@ -53,7 +54,7 @@ describe("TablebaseService", () => {
 
   describe("Core Functionality", () => {
     it("should fetch and return evaluation for a position", async () => {
-      const fen = "4k3/8/8/8/8/8/8/4K2Q w - - 0 1";
+      const fen = EndgamePositions.KQK_WIN;
 
       mockFetch.mockResolvedValueOnce(
         createTablebaseResponse({
@@ -87,7 +88,7 @@ describe("TablebaseService", () => {
     });
 
     it("should return top moves with correct perspective", async () => {
-      const fen = "4k3/8/8/8/8/8/8/4K2Q w - - 0 1";
+      const fen = EndgamePositions.KQK_WIN;
 
       mockFetch.mockResolvedValueOnce(
         createTablebaseResponse({
@@ -126,7 +127,7 @@ describe("TablebaseService", () => {
 
   describe("Single API Call Architecture", () => {
     it("should use cached data for subsequent requests", async () => {
-      const fen = "4k3/8/8/8/8/8/8/4K2Q w - - 0 1";
+      const fen = EndgamePositions.KQK_WIN;
 
       mockFetch.mockResolvedValueOnce(
         createTablebaseResponse({
@@ -170,8 +171,8 @@ describe("TablebaseService", () => {
       );
 
       // Different halfmove/fullmove counters but same position
-      const fen1 = "4k3/8/8/8/8/8/8/4K2Q w - - 0 1";
-      const fen2 = "4k3/8/8/8/8/8/8/4K2Q w - - 15 42";
+      const fen1 = EndgamePositions.KQK_WIN;
+      const fen2 = EndgamePositions.KQK_WIN.replace("0 1", "15 42"); // Same position, different counters
 
       await tablebaseService.getEvaluation(fen1);
       await tablebaseService.getEvaluation(fen2);
@@ -203,7 +204,7 @@ describe("TablebaseService", () => {
     });
 
     it("should handle 404 responses gracefully", async () => {
-      const fen = "8/8/8/8/8/8/k7/K6N w - - 0 1"; // Valid but rare position
+      const fen = EndgamePositions.KNK_DRAW; // Valid but rare position
 
       mockFetch.mockResolvedValueOnce({
         ok: false,
@@ -222,7 +223,7 @@ describe("TablebaseService", () => {
     });
 
     it("should retry on rate limiting", async () => {
-      const fen = "4k3/8/8/8/8/8/8/4K2Q w - - 0 1";
+      const fen = EndgamePositions.KQK_WIN;
 
       // First call fails with 429, second succeeds
       mockFetch
@@ -243,7 +244,7 @@ describe("TablebaseService", () => {
 
   describe("Black Perspective Handling", () => {
     it("should handle Black to move positions correctly", async () => {
-      const fen = "4k3/8/8/8/8/8/8/4K2Q b - - 0 1"; // Black to move
+      const fen = EndgamePositions.KQK_BLACK_TO_MOVE; // Black to move
 
       mockFetch.mockResolvedValueOnce(
         createTablebaseResponse({
@@ -305,7 +306,7 @@ describe("TablebaseService", () => {
 
   describe("Request Deduplication", () => {
     it("should handle concurrent requests for same position", async () => {
-      const fen = "4k3/8/8/8/8/8/8/4K2Q w - - 0 1";
+      const fen = EndgamePositions.KQK_WIN;
 
       // Delay the response to ensure requests are concurrent
       mockFetch.mockImplementationOnce(
@@ -344,7 +345,7 @@ describe("TablebaseService", () => {
 
   describe("Move Limiting", () => {
     it("should respect move limit parameter", async () => {
-      const fen = "4k3/8/8/8/8/8/8/4K2Q w - - 0 1";
+      const fen = EndgamePositions.KQK_WIN;
 
       mockFetch.mockResolvedValueOnce(
         createTablebaseResponse({
@@ -376,7 +377,7 @@ describe("TablebaseService", () => {
 
   describe("Empty Moves Handling", () => {
     it("should handle positions with no legal moves", async () => {
-      const fen = "4k3/8/8/8/8/8/8/4K2Q w - - 0 1";
+      const fen = EndgamePositions.KQK_WIN;
 
       mockFetch.mockResolvedValueOnce(
         createTablebaseResponse({
@@ -398,7 +399,7 @@ describe("TablebaseService", () => {
 
   describe("Metrics Tracking", () => {
     it("should track cache hits and API calls", async () => {
-      const fen = "4k3/8/8/8/8/8/8/4K2Q w - - 0 1";
+      const fen = EndgamePositions.KQK_WIN;
 
       mockFetch.mockResolvedValue(
         createTablebaseResponse({
@@ -428,8 +429,8 @@ describe("TablebaseService", () => {
   describe("Edge Cases - En Passant Preservation", () => {
     it("should treat positions with different en passant squares as different", async () => {
       // Use valid endgame positions with ≤7 pieces
-      const fenWithEp = "8/8/8/2pP4/8/8/8/4K2k w - c6 0 1"; // En passant possible
-      const fenWithoutEp = "8/8/8/2pP4/8/8/8/4K2k w - - 0 1"; // No en passant
+      const fenWithEp = StandardPositions.EN_PASSANT_COMPLEX; // En passant possible
+      const fenWithoutEp = StandardPositions.EN_PASSANT_COMPLEX.replace("c6", "-"); // No en passant
 
       mockFetch
         .mockResolvedValueOnce(
@@ -455,7 +456,7 @@ describe("TablebaseService", () => {
 
   describe("Edge Cases - Partial API Responses", () => {
     it("should handle 200 OK with incomplete response gracefully", async () => {
-      const fen = "4k3/8/8/8/8/8/8/4K2Q w - - 0 1";
+      const fen = EndgamePositions.KQK_WIN;
 
       // Mock 200 OK but with empty/incomplete response
       // Service will retry 3 times, so mock all attempts
@@ -492,7 +493,7 @@ describe("TablebaseService", () => {
     });
 
     it("should handle 200 OK with null moves array", async () => {
-      const fen = "4k3/8/8/8/8/8/8/4K2Q w - - 0 1";
+      const fen = EndgamePositions.KQK_WIN;
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -513,7 +514,7 @@ describe("TablebaseService", () => {
 
   describe("Edge Cases - Concurrent Failure Handling", () => {
     it("should properly handle concurrent requests with retry logic", async () => {
-      const fen = "4k3/8/8/8/8/8/8/4K2Q w - - 0 1";
+      const fen = EndgamePositions.KQK_WIN;
 
       let callCount = 0;
       mockFetch.mockImplementation(() => {
@@ -567,7 +568,7 @@ describe("TablebaseService", () => {
   describe("Edge Cases - Terminal States", () => {
     it("should handle checkmate positions correctly", async () => {
       // K+Q vs K checkmate position (Black is checkmated)
-      const checkmatedFen = "4k3/8/8/8/8/8/7Q/4K3 b - - 0 1";
+      const checkmatedFen = SpecialPositions.CHECKMATE;
 
       mockFetch.mockResolvedValueOnce(
         createTablebaseResponse({
@@ -588,7 +589,7 @@ describe("TablebaseService", () => {
 
     it("should handle stalemate positions correctly", async () => {
       // K vs K+pawn stalemate position
-      const stalemateFen = "k7/P7/K7/8/8/8/8/8 b - - 0 1";
+      const stalemateFen = SpecialPositions.STALEMATE;
 
       mockFetch.mockResolvedValueOnce(
         createTablebaseResponse({

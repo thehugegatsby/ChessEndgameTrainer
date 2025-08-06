@@ -139,10 +139,9 @@ export const useTrainingSession = ({
         if (!moveResult) return false;
 
         // Check if game is finished after move
-        if (gameState.game?.isGameOver()) {
-          const success =
-            gameState.game.turn() !==
-            trainingState.currentPosition?.sideToMove?.[0];
+        if (gameState.isGameFinished) {
+          // Game result is already determined by ChessService
+          const success = gameState.gameResult !== null;
           trainingActions.completeTraining(success);
           onComplete?.(success);
         }
@@ -165,7 +164,6 @@ export const useTrainingSession = ({
     },
     [
       gameState.isGameFinished,
-      gameState.game,
       gameState.currentFen,
       gameState.currentPgn,
       trainingActions.handlePlayerMove,
@@ -237,7 +235,7 @@ export const useTrainingSession = ({
   ]);
 
   return {
-    game: gameState.game,
+    game: null, // Chess instance now managed by ChessService, not exposed here
     history: gameState.moveHistory,
     isGameFinished: gameState.isGameFinished,
     currentFen:

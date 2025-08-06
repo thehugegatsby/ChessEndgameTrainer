@@ -1,6 +1,6 @@
 const { FlatCompat } = require("@eslint/eslintrc");
 const path = require("path");
-const jsdoc = require("eslint-plugin-jsdoc");
+const jsdocPlugin = require("eslint-plugin-jsdoc").default;
 
 const compat = new FlatCompat({
   baseDirectory: __dirname,
@@ -19,15 +19,11 @@ module.exports = [
   // Extend Next.js config
   ...compat.extends("next/core-web-vitals"),
 
-  // JSDoc plugin
+  // Global rules with JSDoc plugin
   {
     plugins: {
-      jsdoc,
+      jsdoc: jsdocPlugin,
     },
-  },
-
-  // Global rules
-  {
     rules: {
       // JSDoc rules (warnings for gradual improvement)
       "jsdoc/require-jsdoc": [
@@ -105,10 +101,10 @@ module.exports = [
     rules: {
       // These components are framework-defined entry points.
       // JSDoc on props and return values is often redundant.
+      "jsdoc/require-jsdoc": "off",
       "jsdoc/require-param-description": "off",
       "jsdoc/require-returns": "off",
       "jsdoc/require-returns-description": "off",
-      "jsdoc/require-jsdoc": "off",
     },
   },
 ];

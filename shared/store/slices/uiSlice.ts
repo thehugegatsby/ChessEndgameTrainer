@@ -26,23 +26,10 @@ import { nanoid } from "nanoid";
 import { Toast, ModalType, LoadingState, AnalysisPanelState } from "../types";
 
 /**
- * Creates the initial UI state with default values
- *
- * @returns {Object} Initial UI state
- * @returns {boolean} returns.isSidebarOpen - Sidebar visibility (default: true)
- * @returns {ModalType|null} returns.currentModal - Currently open modal type or null
- * @returns {Toast[]} returns.toasts - Array of active toast notifications
- * @returns {LoadingState} returns.loading - Loading states for different operations
- * @returns {AnalysisPanelState} returns.analysisPanel - Analysis panel configuration
- *
- * @example
- * ```typescript
- * const initialState = createInitialUIState();
- * console.log(initialState.isSidebarOpen); // true
- * console.log(initialState.toasts); // []
- * ```
+ * Initial state for the UI slice
+ * Exported separately to enable proper store reset in tests
  */
-export const createInitialUIState = () => ({
+export const initialUIState = {
   isSidebarOpen: true,
   currentModal: null as ModalType | null,
   toasts: [] as Toast[],
@@ -57,7 +44,13 @@ export const createInitialUIState = () => ({
     activeTab: "moves" as const,
     showTablebase: true,
   } as AnalysisPanelState,
-});
+};
+
+/**
+ * Creates the initial UI state with default values
+ * @deprecated Use initialUIState export directly
+ */
+export const createInitialUIState = () => ({ ...initialUIState });
 
 /**
  * Creates the UI slice for the Zustand store
@@ -85,8 +78,22 @@ export const createInitialUIState = () => ({
  * ```
  */
 export const createUISlice: ImmerStateCreator<UISlice> = (set, get) => ({
-  // Initial state
-  ...createInitialUIState(),
+  // Initial state - use fresh arrays for each instance
+  isSidebarOpen: false,
+  currentModal: null as ModalType | null,
+  toasts: [],
+  lastError: null as Error | null,
+  loading: {
+    global: false,
+    position: false,
+    tablebase: false,
+    analysis: false,
+  } as LoadingState,
+  analysisPanel: {
+    isOpen: false,
+    activeTab: "moves" as const,
+    showTablebase: true,
+  } as AnalysisPanelState,
 
   // Actions
   /**
@@ -101,9 +108,9 @@ export const createUISlice: ImmerStateCreator<UISlice> = (set, get) => ({
    * ```
    */
   toggleSidebar: () =>
-    set((state) => ({
-      isSidebarOpen: !state.isSidebarOpen,
-    })),
+    set((state) => {
+      state.ui.isSidebarOpen = !state.ui.isSidebarOpen;
+    }),
 
   /**
    * Sets the sidebar visibility state explicitly
@@ -121,8 +128,8 @@ export const createUISlice: ImmerStateCreator<UISlice> = (set, get) => ({
    * ```
    */
   setIsSidebarOpen: (isOpen: boolean) =>
-    set({
-      isSidebarOpen: isOpen,
+    set((state) => {
+      state.ui.isSidebarOpen = isOpen;
     }),
 
   /**
@@ -145,8 +152,8 @@ export const createUISlice: ImmerStateCreator<UISlice> = (set, get) => ({
    * ```
    */
   openModal: (type: ModalType) =>
-    set({
-      currentModal: type,
+    set((state) => {
+      state.ui.currentModal = type;
     }),
 
   /**
@@ -161,8 +168,8 @@ export const createUISlice: ImmerStateCreator<UISlice> = (set, get) => ({
    * ```
    */
   closeModal: () =>
-    set({
-      currentModal: null,
+    set((state) => {
+      state.ui.currentModal = null;
     }),
 
   /**
@@ -203,14 +210,14 @@ export const createUISlice: ImmerStateCreator<UISlice> = (set, get) => ({
       duration,
     };
 
-    set((state) => ({
-      toasts: [...state.toasts, toast],
-    }));
+    set((state) => {
+      state.ui.toasts.push(toast);
+    });
 
     // Auto-remove toast after duration
     if (duration && duration > 0) {
       setTimeout(() => {
-        get().removeToast(id);
+        get().ui.removeToast(id);
       }, duration);
     }
   },
@@ -236,9 +243,9 @@ export const createUISlice: ImmerStateCreator<UISlice> = (set, get) => ({
    * ```
    */
   removeToast: (id: string) =>
-    set((state) => ({
-      toasts: state.toasts.filter((toast) => toast.id !== id),
-    })),
+    set((state) => {
+      state.ui.toasts = state.ui.toasts.filter((toast: any) => toast.id !== id);
+    }),
 
   /**
    * Sets the loading state for a specific operation
@@ -264,12 +271,9 @@ export const createUISlice: ImmerStateCreator<UISlice> = (set, get) => ({
    * ```
    */
   setLoading: (key: keyof LoadingState, value: boolean) =>
-    set((state) => ({
-      loading: {
-        ...state.loading,
-        [key]: value,
-      },
-    })),
+    set((state) => {
+      state.ui.loading[key] = value;
+    }),
 
   /**
    * Updates the analysis panel configuration
@@ -299,12 +303,9 @@ export const createUISlice: ImmerStateCreator<UISlice> = (set, get) => ({
    * ```
    */
   updateAnalysisPanel: (update: Partial<AnalysisPanelState>) =>
-    set((state) => ({
-      analysisPanel: {
-        ...state.analysisPanel,
-        ...update,
-      },
-    })),
+    set((state) => {
+      Object.assign(state.ui.analysisPanel, update);
+    }),
 });
 
 /**

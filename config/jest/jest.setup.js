@@ -1,6 +1,10 @@
 // Learn more: https://github.com/testing-library/jest-dom
 require("@testing-library/jest-dom");
 
+// Enable Immer MapSet plugin for Zustand nested structure
+const { enableMapSet } = require("immer");
+enableMapSet();
+
 // Mock für Web Worker
 const mockWorker = {
   postMessage: jest.fn(),

@@ -45,7 +45,7 @@ export function useInitializePosition(
   serverPosition: EndgamePosition,
 ): boolean {
   const loadTrainingContext = useStore((state) => state.loadTrainingContext);
-  const currentPosition = useStore((state) => state.currentPosition);
+  const currentPosition = useStore((state) => state.training.currentPosition);
   const hasInitialized = useRef(false);
   const initPromise = useRef<Promise<void> | null>(null);
 

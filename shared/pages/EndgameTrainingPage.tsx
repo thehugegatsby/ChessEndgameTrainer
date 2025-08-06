@@ -153,7 +153,7 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
               <h2 className="text-3xl font-bold">
                 {getTrainingDisplayTitle(
                   position,
-                  gameState.moveHistory.length,
+                  gameState.moveHistory?.length || 0,
                 )}
               </h2>
             </div>
@@ -246,7 +246,7 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
                 fen={gameState.currentFen || position.fen}
                 isVisible={uiState.analysisPanel.isOpen}
                 previousFen={
-                  gameState.moveHistory.length > 0
+                  gameState.moveHistory && gameState.moveHistory.length > 0
                     ? gameState.moveHistory[gameState.moveHistory.length - 1]
                         ?.fenBefore
                     : undefined

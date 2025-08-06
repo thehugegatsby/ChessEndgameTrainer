@@ -43,14 +43,13 @@ import type {
 export const useGameState = (): GameStateType => {
   return useStore(
     useShallow((state: RootState) => ({
-      // Pure game state
-      game: state.game,
-      currentFen: state.currentFen,
-      currentPgn: state.currentPgn,
-      moveHistory: state.moveHistory,
-      currentMoveIndex: state.currentMoveIndex,
-      isGameFinished: state.isGameFinished,
-      gameResult: state.gameResult,
+      // Pure game state from nested structure
+      currentFen: state.game.currentFen,
+      currentPgn: state.game.currentPgn,
+      moveHistory: state.game.moveHistory,
+      currentMoveIndex: state.game.currentMoveIndex,
+      isGameFinished: state.game.isGameFinished,
+      gameResult: state.game.gameResult,
     })),
   );
 };
@@ -75,13 +74,13 @@ export const useGameState = (): GameStateType => {
  */
 export const useGameActions = (): GameActionsType => {
   // Non-reactive access to avoid SSR issues
-  const actions = useStore.getState();
+  const state = useStore.getState();
+  const actions = state.game;
 
   // Memoize the actions object to ensure stable reference
   return useMemo(
     () => ({
       // State management actions
-      setGame: actions.setGame,
       updatePosition: actions.updatePosition,
       addMove: actions.addMove,
       setMoveHistory: actions.setMoveHistory,

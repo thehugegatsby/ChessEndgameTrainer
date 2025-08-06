@@ -1,11 +1,12 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MovePanelZustand } from "@shared/components/training/MovePanelZustand";
-import { mockRootStore } from "../../helpers/mockRootStore";
 import { createTestValidatedMove } from "../../helpers/validatedMoveFactory";
 
-// Mock the store
-jest.mock("@shared/store/rootStore");
+// Mock the store hooks directly
+jest.mock("@shared/store/hooks");
+
+import { useGameStore, useTablebaseStore } from "@shared/store/hooks";
 
 describe("MovePanelZustand", () => {
   beforeEach(() => {
@@ -42,9 +43,21 @@ describe("MovePanelZustand", () => {
       }),
     ];
 
-    mockRootStore({
+    (useGameStore as jest.Mock).mockReturnValue([{
+      currentFen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+      currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
-    });
+      currentMoveIndex: 2,
+      isGameFinished: false,
+      gameResult: null,
+    }, {}]);
+    
+    (useTablebaseStore as jest.Mock).mockReturnValue([{
+      analysisStatus: "idle",
+      evaluations: [],
+      tablebaseMove: undefined,
+      currentEvaluation: undefined,
+    }, {}]);
 
     render(<MovePanelZustand onMoveClick={jest.fn()} />);
 
@@ -77,10 +90,21 @@ describe("MovePanelZustand", () => {
       }, // After e4
     ];
 
-    mockRootStore({
+    (useGameStore as jest.Mock).mockReturnValue([{
+      currentFen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+      currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
+      currentMoveIndex: 2,
+      isGameFinished: false,
+      gameResult: null,
+    }, {}]);
+    
+    (useTablebaseStore as jest.Mock).mockReturnValue([{
+      analysisStatus: "idle",
       evaluations: mockEvaluations,
-    });
+      tablebaseMove: undefined,
+      currentEvaluation: undefined,
+    }, {}]);
 
     render(<MovePanelZustand showEvaluations={true} onMoveClick={jest.fn()} />);
 
@@ -112,9 +136,21 @@ describe("MovePanelZustand", () => {
       }),
     ];
 
-    mockRootStore({
+    (useGameStore as jest.Mock).mockReturnValue([{
+      currentFen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+      currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
-    });
+      currentMoveIndex: 2,
+      isGameFinished: false,
+      gameResult: null,
+    }, {}]);
+    
+    (useTablebaseStore as jest.Mock).mockReturnValue([{
+      analysisStatus: "idle",
+      evaluations: [],
+      tablebaseMove: undefined,
+      currentEvaluation: undefined,
+    }, {}]);
 
     render(<MovePanelZustand onMoveClick={onMoveClickMock} />);
 
@@ -146,9 +182,21 @@ describe("MovePanelZustand", () => {
       }),
     ];
 
-    mockRootStore({
+    (useGameStore as jest.Mock).mockReturnValue([{
+      currentFen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+      currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
-    });
+      currentMoveIndex: 2,
+      isGameFinished: false,
+      gameResult: null,
+    }, {}]);
+    
+    (useTablebaseStore as jest.Mock).mockReturnValue([{
+      analysisStatus: "idle",
+      evaluations: [],
+      tablebaseMove: undefined,
+      currentEvaluation: undefined,
+    }, {}]);
 
     render(<MovePanelZustand onMoveClick={jest.fn()} currentMoveIndex={1} />);
 
@@ -193,10 +241,21 @@ describe("MovePanelZustand", () => {
       },
     ];
 
-    mockRootStore({
+    (useGameStore as jest.Mock).mockReturnValue([{
+      currentFen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+      currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
+      currentMoveIndex: 2,
+      isGameFinished: false,
+      gameResult: null,
+    }, {}]);
+    
+    (useTablebaseStore as jest.Mock).mockReturnValue([{
+      analysisStatus: "idle",
       evaluations: mockEvaluations,
-    });
+      tablebaseMove: undefined,
+      currentEvaluation: undefined,
+    }, {}]);
 
     render(<MovePanelZustand showEvaluations={true} onMoveClick={jest.fn()} />);
 
@@ -205,9 +264,21 @@ describe("MovePanelZustand", () => {
   });
 
   it("should show empty state when no moves", () => {
-    mockRootStore({
+    (useGameStore as jest.Mock).mockReturnValue([{
+      currentFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      currentPgn: "",
       moveHistory: [],
-    });
+      currentMoveIndex: -1,
+      isGameFinished: false,
+      gameResult: null,
+    }, {}]);
+    
+    (useTablebaseStore as jest.Mock).mockReturnValue([{
+      analysisStatus: "idle",
+      evaluations: [],
+      tablebaseMove: undefined,
+      currentEvaluation: undefined,
+    }, {}]);
 
     render(<MovePanelZustand onMoveClick={jest.fn()} />);
 

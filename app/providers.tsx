@@ -27,7 +27,7 @@ if (typeof window !== "undefined") {
  */
 export function AppProviders({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const analysisStatus = useStore((state) => state.analysisStatus);
+  const analysisStatus = useStore((state) => state.tablebase.analysisStatus);
   const logger = getLogger().setContext("_app");
   const hasHydrated = useStoreHydration();
 

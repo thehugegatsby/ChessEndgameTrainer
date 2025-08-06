@@ -21,10 +21,10 @@ export interface StoreApi {
   getState: () => RootState;
 
   /**
-   * Sets partial state (use slice actions instead when possible)
-   * @param {Partial<RootState>} state - Partial state to merge
+   * Sets partial state using Immer draft syntax
+   * @param {(draft: RootState) => void | Partial<RootState>} updater - State updater function or partial state
    */
-  setState: (state: Partial<RootState>) => void;
+  setState: (updater: (draft: RootState) => void | Partial<RootState>) => void;
 }
 
 /**

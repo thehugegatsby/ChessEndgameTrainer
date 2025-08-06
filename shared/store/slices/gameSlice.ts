@@ -23,40 +23,30 @@
  */
 
 import { ImmerStateCreator, GameSlice } from "./types";
-import { Chess } from "chess.js";
-import type { ChessInstance, ValidatedMove } from "@shared/types";
-import { createValidatedMove } from "@shared/types/chess";
-import { getLogger } from "@shared/services/logging";
-
-const logger = getLogger().setContext("gameSlice");
+import type { ValidatedMove } from "@shared/types";
+import { chessService } from "@shared/services/ChessService";
+// Logger removed - not used in this slice
 
 /**
- * Creates the initial game state with default values
- *
- * @returns {Object} Initial game state
- * @returns {ChessInstance|null} returns.game - Chess.js instance or null
- * @returns {string} returns.currentFen - Current board position in FEN notation
- * @returns {ValidatedMove[]} returns.moveHistory - Array of validated moves
- * @returns {number} returns.currentMoveIndex - Index of current move in history
- * @returns {boolean} returns.isGameOver - Whether the game has ended
- * @returns {string|null} returns.gameResult - Game result ("1-0", "0-1", "1/2-1/2") or null
- *
- * @example
- * ```typescript
- * const initialState = createInitialGameState();
- * console.log(initialState.currentFen); // "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
- * console.log(initialState.moveHistory); // []
- * ```
+ * Initial state for the game slice
+ * Exported separately to enable proper store reset in tests
+ * Note: Chess instance now managed by ChessService, not stored in state
  */
-export const createInitialGameState = () => ({
-  game: undefined as ChessInstance | undefined,
+export const initialGameState = {
+  // game field removed - Chess instance managed by ChessService
   currentFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   currentPgn: "",
   moveHistory: [] as ValidatedMove[],
   currentMoveIndex: -1,
   isGameFinished: false,
   gameResult: null as string | null,
-});
+};
+
+/**
+ * Creates the initial game state with default values
+ * @deprecated Use initialGameState export directly
+ */
+export const createInitialGameState = () => ({ ...initialGameState });
 
 /**
  * Creates the game slice for the Zustand store
@@ -91,21 +81,24 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
   // Actions
 
   // State management actions
-  setGame: (game: ChessInstance) => set({ game }),
+  // setGame removed - Chess instances created on-demand from FEN
   updatePosition: (fen: string, pgn: string) =>
-    set({ currentFen: fen, currentPgn: pgn }),
+    set((state) => { 
+      state.game.currentFen = fen;
+      state.game.currentPgn = pgn;
+    }),
   addMove: (move: ValidatedMove) => {
-    const { moveHistory, currentMoveIndex } = get();
-    const newHistory = moveHistory.slice(0, currentMoveIndex + 1);
+    const { game: gameState } = get();
+    const newHistory = gameState.moveHistory.slice(0, gameState.currentMoveIndex + 1);
     newHistory.push(move);
-    set({
-      moveHistory: newHistory,
-      currentMoveIndex: newHistory.length - 1,
+    set((state) => {
+      state.game.moveHistory = newHistory;
+      state.game.currentMoveIndex = newHistory.length - 1;
     });
   },
-  setMoveHistory: (moves: ValidatedMove[]) => set({ moveHistory: moves }),
-  setCurrentMoveIndex: (index: number) => set({ currentMoveIndex: index }),
-  setGameFinished: (finished: boolean) => set({ isGameFinished: finished }),
+  setMoveHistory: (moves: ValidatedMove[]) => set((state) => { state.game.moveHistory = moves; }),
+  setCurrentMoveIndex: (index: number) => set((state) => { state.game.currentMoveIndex = index; }),
+  setGameFinished: (finished: boolean) => set((state) => { state.game.isGameFinished = finished; }),
 
   /**
    * Initializes a new chess game with the given FEN position
@@ -116,8 +109,7 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
    * @fires stateChange - When game is initialized
    *
    * @remarks
-   * - Creates a new chess.js instance
-   * - Validates the FEN string
+   * - Uses ChessService to validate and initialize position
    * - Resets move history and game state
    * - Returns false if FEN is invalid
    *
@@ -133,21 +125,8 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
    * ```
    */
   initializeGame: (fen: string) => {
-    try {
-      const chess = new Chess(fen);
-      set({
-        game: chess,
-        currentFen: chess.fen(),
-        moveHistory: [],
-        currentMoveIndex: -1,
-        isGameFinished: chess.isGameOver(),
-        gameResult: null,
-      });
-      return chess;
-    } catch (error) {
-      logger.error("Failed to initialize game with FEN", { fen, error });
-      return null;
-    }
+    // ChessService will emit 'load' event, triggering automatic sync via rootStore subscription
+    return chessService.initialize(fen);
   },
 
   /**
@@ -187,41 +166,8 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
   makeMove: (
     move: { from: string; to: string; promotion?: string } | string,
   ) => {
-    const { game, currentMoveIndex, moveHistory } = get();
-    if (!game) return null;
-
-    try {
-      // Create a working copy
-      const gameCopy = new Chess(game.fen());
-      const result = gameCopy.move(move);
-
-      if (!result) return null;
-
-      // Create validated move object
-      const validatedMove = createValidatedMove(
-        result,
-        game.fen(),
-        gameCopy.fen(),
-      );
-
-      // Truncate history if we're not at the end
-      const newHistory = moveHistory.slice(0, currentMoveIndex + 1);
-      newHistory.push(validatedMove);
-
-      set({
-        game: gameCopy,
-        currentFen: gameCopy.fen(),
-        moveHistory: newHistory,
-        currentMoveIndex: newHistory.length - 1,
-        isGameFinished: gameCopy.isGameOver(),
-        gameResult: getGameResult(gameCopy),
-      });
-
-      return validatedMove;
-    } catch (error) {
-      logger.error("Invalid move", { move, error });
-      return null;
-    }
+    // ChessService will emit 'move' event, triggering automatic sync via rootStore subscription
+    return chessService.move(move);
   },
 
   /**
@@ -246,28 +192,8 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
    * ```
    */
   undoMove: () => {
-    const { currentMoveIndex, moveHistory } = get();
-
-    if (currentMoveIndex < 0) return false;
-
-    const newIndex = currentMoveIndex - 1;
-    const newFen =
-      newIndex >= 0 ? moveHistory[newIndex].fenAfter : moveHistory[0].fenBefore;
-
-    try {
-      const chess = new Chess(newFen);
-      set({
-        game: chess,
-        currentFen: newFen,
-        currentMoveIndex: newIndex,
-        isGameFinished: chess.isGameOver(),
-        gameResult: getGameResult(chess),
-      });
-      return true;
-    } catch (error) {
-      logger.error("Failed to undo move", error);
-      return false;
-    }
+    // ChessService will emit 'undo' event, triggering automatic sync via rootStore subscription
+    return chessService.undo();
   },
 
   /**
@@ -292,27 +218,8 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
    * ```
    */
   redoMove: () => {
-    const { currentMoveIndex, moveHistory } = get();
-
-    if (currentMoveIndex >= moveHistory.length - 1) return false;
-
-    const newIndex = currentMoveIndex + 1;
-    const newFen = moveHistory[newIndex].fenAfter;
-
-    try {
-      const chess = new Chess(newFen);
-      set({
-        game: chess,
-        currentFen: newFen,
-        currentMoveIndex: newIndex,
-        isGameFinished: chess.isGameOver(),
-        gameResult: getGameResult(chess),
-      });
-      return true;
-    } catch (error) {
-      logger.error("Failed to redo move", error);
-      return false;
-    }
+    // ChessService will emit 'redo' event, triggering automatic sync via rootStore subscription
+    return chessService.redo();
   },
 
   /**
@@ -343,29 +250,8 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
    * ```
    */
   goToMove: (moveIndex: number) => {
-    const { moveHistory } = get();
-
-    if (moveIndex < -1 || moveIndex >= moveHistory.length) return false;
-
-    const fen =
-      moveIndex === -1
-        ? moveHistory[0]?.fenBefore || get().currentFen
-        : moveHistory[moveIndex].fenAfter;
-
-    try {
-      const chess = new Chess(fen);
-      set({
-        game: chess,
-        currentFen: fen,
-        currentMoveIndex: moveIndex,
-        isGameFinished: chess.isGameOver(),
-        gameResult: getGameResult(chess),
-      });
-      return true;
-    } catch (error) {
-      logger.error("Failed to go to move", { moveIndex, error });
-      return false;
-    }
+    // ChessService will emit 'load' event, triggering automatic sync via rootStore subscription
+    return chessService.goToMove(moveIndex);
   },
 
   /**
@@ -383,7 +269,7 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
    * ```
    */
   goToFirst: () => {
-    get().goToMove(-1);
+    chessService.goToMove(-1);
   },
 
   /**
@@ -401,8 +287,9 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
    * ```
    */
   goToPrevious: () => {
-    const currentIndex = get().currentMoveIndex ?? get().moveHistory.length - 1;
-    get().goToMove(currentIndex - 1);
+    const { game } = get();
+    const currentIndex = game.currentMoveIndex ?? game.moveHistory.length - 1;
+    chessService.goToMove(currentIndex - 1);
   },
 
   /**
@@ -420,8 +307,9 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
    * ```
    */
   goToNext: () => {
-    const currentIndex = get().currentMoveIndex ?? -1;
-    get().goToMove(currentIndex + 1);
+    const { game } = get();
+    const currentIndex = game.currentMoveIndex ?? -1;
+    chessService.goToMove(currentIndex + 1);
   },
 
   /**
@@ -439,7 +327,8 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
    * ```
    */
   goToLast: () => {
-    get().goToMove(get().moveHistory.length - 1);
+    const { game } = get();
+    chessService.goToMove(game.moveHistory.length - 1);
   },
 
   /**
@@ -459,9 +348,8 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
    * ```
    */
   resetGame: () => {
-    const startingFen =
-      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    get().initializeGame(startingFen);
+    // ChessService will emit 'reset' event, triggering automatic sync via rootStore subscription
+    chessService.reset();
   },
 
   /**
@@ -486,27 +374,11 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
    * ```
    */
   setCurrentFen: (fen: string) => {
-    return get().initializeGame(fen);
+    return chessService.initialize(fen);
   },
 });
 
-/**
- * Helper function to determine game result
- *
- * @param {ChessInstance} chess - The chess instance to check
- * @returns {string|null} Game result or null if game is ongoing
- *
- * @private
- */
-function getGameResult(chess: ChessInstance): string | null {
-  if (!chess.isGameOver()) return null;
-
-  if (chess.isCheckmate()) {
-    return chess.turn() === "w" ? "0-1" : "1-0";
-  }
-
-  return "1/2-1/2"; // Draw (stalemate, insufficient material, etc.)
-}
+// Helper function removed - now using chessService.getGameResult()
 
 /**
  * Selector functions for efficient state access
@@ -528,12 +400,7 @@ function getGameResult(chess: ChessInstance): string | null {
  * ```
  */
 export const gameSelectors = {
-  /**
-   * Selects the chess game instance
-   * @param {GameSlice} state - The game slice of the store
-   * @returns {ChessInstance|null} The chess.js instance or null
-   */
-  selectGame: (state: GameSlice) => state.game,
+  // selectGame removed - Chess instance now managed by ChessService
 
   /**
    * Selects the current FEN position
@@ -575,7 +442,11 @@ export const gameSelectors = {
    * @param {GameSlice} state - The game slice of the store
    * @returns {boolean} True if white to move, false if black
    */
-  selectIsWhiteTurn: (state: GameSlice) => state.game?.turn() === "w",
+  selectIsWhiteTurn: (state: GameSlice) => {
+    // Derive from FEN string (turn is the second part)
+    const parts = state.currentFen.split(' ');
+    return parts[1] === 'w';
+  },
 
   /**
    * Selects whether undo is possible
@@ -612,11 +483,10 @@ export const gameSelectors = {
    * const e2Moves = useStore(gameSelectors.selectLegalMoves('e2'));
    * ```
    */
-  selectLegalMoves: (square: string) => (state: GameSlice) => {
-    if (!state.game) return [];
-
+  selectLegalMoves: (square: string) => (_state: GameSlice) => {
+    // Use ChessService to get legal moves
     try {
-      return state.game.moves({ square: square as any, verbose: true });
+      return chessService.moves({ square, verbose: true });
     } catch {
       return [];
     }

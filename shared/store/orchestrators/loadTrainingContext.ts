@@ -31,6 +31,13 @@
 import type { StoreApi } from "./types";
 import type { EndgamePosition } from "@shared/types/endgame";
 import type { TrainingPosition } from "../slices/trainingSlice";
+import { getLogger } from "@shared/services/logging";
+import { initialGameState } from "../slices/gameSlice";
+import { initialTrainingState } from "../slices/trainingSlice";
+import { initialTablebaseState } from "../slices/tablebaseSlice";
+import { chessService } from "@shared/services/ChessService";
+
+const logger = getLogger().setContext("loadTrainingContext");
 
 /**
  * Loads training context for a position
@@ -86,29 +93,37 @@ export const loadTrainingContext = async (
   api: StoreApi,
   position: EndgamePosition,
 ): Promise<void> => {
-  const { getState } = api;
-  const state = getState();
+  const { setState } = api;
 
   try {
-    // Set loading state
-    state.setLoading("position", true);
+    // Set loading state via setState
+    setState((draft) => {
+      draft.ui.loading.position = true;
+    });
 
-    // Step 1: Reset all relevant state
-    state.resetGame();
-    state.resetTraining();
-    state.clearTablebaseState();
+    // Step 1: Reset all relevant state via setState using initial states
+    setState((draft) => {
+      // Reset slices to their initial states - single source of truth
+      Object.assign(draft.game, initialGameState);
+      Object.assign(draft.training, initialTrainingState);
+      Object.assign(draft.tablebase, initialTablebaseState);
+      
+      // Close any open modals
+      if (draft.ui.currentModal) {
+        draft.ui.currentModal = null;
+      }
+    })
 
-    // Close any open modals
-    if (state.currentModal) {
-      state.closeModal();
-    }
-
-    // Step 2: Initialize the chess game
-    const game = state.initializeGame(position.fen);
-
-    if (!game) {
+    // Step 2: Validate FEN and initialize game state
+    // Use ChessService to validate and initialize position
+    const isValidFen = chessService.initialize(position.fen);
+    
+    if (!isValidFen) {
       throw new Error("Ungültige FEN-Position");
     }
+    
+    // Game state will be automatically synced via ChessService event subscription in rootStore
+    // No need to manually update game state here
 
     // Step 3: Create TrainingPosition from EndgamePosition
     const trainingPosition: TrainingPosition = {
@@ -129,44 +144,61 @@ export const loadTrainingContext = async (
       chapterId: (position as any).chapterId || undefined, // Will be set if part of a chapter
     };
 
-    // Step 4: Set the training position
-    state.setPosition(trainingPosition);
-
-    // Step 5: Initialize player turn
-    // Player's turn if the side to move matches the color they're training
+    // Step 4: Set the training position and player turn
+    // Get turn from ChessService
+    const currentTurn = chessService.turn();
     const isPlayerTurn =
-      game.turn() === trainingPosition.colorToTrain.charAt(0);
-    state.setPlayerTurn(isPlayerTurn);
+      currentTurn === trainingPosition.colorToTrain.charAt(0);
+    
+    setState((draft) => {
+      draft.training.currentPosition = trainingPosition;
+      draft.training.isPlayerTurn = isPlayerTurn;
+    })
 
     // Step 6: Request initial tablebase analysis if it's not player's turn
     if (!isPlayerTurn) {
       // Tablebase needs to make the first move
-      setTimeout(async () => {
-        await api.getState().handleOpponentTurn();
-      }, 500);
+      // This is now handled by the training components
+      logger.debug("Opponent's turn - should be handled by component");
     } else {
-      // Get position evaluation for the player
-      setTimeout(async () => {
-        await api.getState().requestPositionEvaluation();
-      }, 300);
+      // Position evaluation now handled by components using chessService
+      logger.debug("Player's turn - evaluation handled by component");
     }
 
     // Step 7: Position progress tracking removed (was unused in UI)
 
     // Step 8: Show success message
-    state.showToast(`Position geladen: ${position.title}`, "success", 2000);
+    setState((draft) => {
+      draft.ui.toasts.push({
+        id: Date.now().toString(),
+        message: `Position geladen: ${position.title}`,
+        type: "success",
+        duration: 2000,
+      });
+    })
   } catch (error) {
     // Handle errors
     const errorMessage =
       error instanceof Error ? error.message : "Fehler beim Laden der Position";
 
-    state.showToast(errorMessage, "error");
-
-    // Reset to clean state on error
-    state.resetGame();
-    state.resetTraining();
+    // Show error and reset state
+    setState((draft) => {
+      // Show error toast
+      draft.ui.toasts.push({
+        id: Date.now().toString(),
+        message: errorMessage,
+        type: "error",
+        duration: 5000,
+      });
+      
+      // Reset slices to initial states on error
+      Object.assign(draft.game, initialGameState);
+      Object.assign(draft.training, initialTrainingState);
+    })
   } finally {
     // Clear loading state
-    state.setLoading("position", false);
+    setState((draft) => {
+      draft.ui.loading.position = false;
+    });
   }
 };

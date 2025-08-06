@@ -213,8 +213,8 @@ describe("Store - String Move Validation", () => {
     const stateAfterLoad = useStore.getState();
     expect(stateAfterLoad.game).toBeDefined();
     expect(stateAfterLoad.game).not.toBeNull();
-    expect(stateAfterLoad.currentPosition).toBeDefined();
-    expect(stateAfterLoad.currentPosition).not.toBeNull();
+    expect(stateAfterLoad.training.currentPosition).toBeDefined();
+    expect(stateAfterLoad.training.currentPosition).not.toBeNull();
 
     // Test making a move with SAN string (as TablebaseAnalysisPanel does)
     const moveResult = await store.handlePlayerMove("Kd6");
@@ -224,11 +224,11 @@ describe("Store - String Move Validation", () => {
 
     // Get updated state
     const stateAfterMove = useStore.getState();
-    expect(stateAfterMove.moveErrorDialog).toBeNull();
+    expect(stateAfterMove.training.moveErrorDialog).toBeNull();
 
     // Move should be in history
-    expect(stateAfterMove.moveHistory).toHaveLength(1);
-    expect(stateAfterMove.moveHistory[0].san).toBe("Kd6");
+    expect(stateAfterMove.game.moveHistory).toHaveLength(1);
+    expect(stateAfterMove.game.moveHistory[0].san).toBe("Kd6");
   });
 
   it("should reject bad SAN string moves that worsen position", async () => {
@@ -296,8 +296,8 @@ describe("Store - String Move Validation", () => {
     const stateAfterLoad = useStore.getState();
     expect(stateAfterLoad.game).toBeDefined();
     expect(stateAfterLoad.game).not.toBeNull();
-    expect(stateAfterLoad.currentPosition).toBeDefined();
-    expect(stateAfterLoad.currentPosition).not.toBeNull();
+    expect(stateAfterLoad.training.currentPosition).toBeDefined();
+    expect(stateAfterLoad.training.currentPosition).not.toBeNull();
 
     // Test making a bad move with SAN string
     const moveResult = await store.handlePlayerMove("Kc5");
@@ -309,7 +309,7 @@ describe("Store - String Move Validation", () => {
     const stateAfterMove = useStore.getState();
 
     // But error dialog should be shown
-    expect(stateAfterMove.moveErrorDialog).toEqual({
+    expect(stateAfterMove.training.moveErrorDialog).toEqual({
       isOpen: true,
       wdlBefore: 2,
       wdlAfter: 0,
@@ -317,7 +317,7 @@ describe("Store - String Move Validation", () => {
     });
 
     // Move should be in history (even if suboptimal)
-    expect(stateAfterMove.moveHistory).toHaveLength(1);
+    expect(stateAfterMove.game.moveHistory).toHaveLength(1);
   });
 
   it("should handle invalid SAN strings gracefully", async () => {
@@ -344,6 +344,6 @@ describe("Store - String Move Validation", () => {
 
     // Get updated state
     const stateAfterMove = useStore.getState();
-    expect(stateAfterMove.moveHistory).toHaveLength(0);
+    expect(stateAfterMove.game.moveHistory).toHaveLength(0);
   });
 });

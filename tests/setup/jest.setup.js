@@ -5,6 +5,10 @@
 // Import jest-dom for additional matchers
 import "@testing-library/jest-dom";
 
+// Enable Immer MapSet plugin for Zustand
+import { enableMapSet } from "immer";
+enableMapSet();
+
 // Global test timeout
 jest.setTimeout(30000);
 

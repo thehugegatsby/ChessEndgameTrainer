@@ -30,15 +30,17 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-// Import all slice creators
-import { createGameSlice } from "./slices/gameSlice";
-import { createTablebaseSlice } from "./slices/tablebaseSlice";
-import { createTrainingSlice } from "./slices/trainingSlice";
-import { createUISlice } from "./slices/uiSlice";
+// Import all slice creators and initial states
+import { createGameSlice, initialGameState } from "./slices/gameSlice";
+import { createTablebaseSlice, initialTablebaseState } from "./slices/tablebaseSlice";
+import { createTrainingSlice, initialTrainingState } from "./slices/trainingSlice";
+import { createUISlice, initialUIState } from "./slices/uiSlice";
+
+// Import ChessService for event subscription
+import { chessService, type ChessServiceEvent } from "@shared/services/ChessService";
+// Logger removed - not currently used
 
 // Import orchestrators
-import { handleOpponentTurn as handleOpponentTurnOrchestrator } from "./orchestrators/handleOpponentTurn";
-import { requestPositionEvaluation as requestPositionEvaluationOrchestrator } from "./orchestrators/requestPositionEvaluation";
 import { loadTrainingContext as loadTrainingContextOrchestrator } from "./orchestrators/loadTrainingContext";
 import { handlePlayerMove as handlePlayerMoveOrchestrator } from "./orchestrators/handlePlayerMove/index";
 
@@ -47,46 +49,7 @@ import type { RootState } from "./slices/types";
 import type { Move as ChessJsMove } from "chess.js";
 import type { EndgamePosition } from "@shared/types/endgame";
 
-/**
- * Creates initial state by combining all slices
- * This is computed once and reused for efficient reset operations
- */
-const createInitialState = () => {
-  // Create temporary store creator functions to get initial state
-  const dummySet = () => {};
-  const dummyGet = () => ({}) as any;
-  const dummyStore = {} as any;
-
-  // Get initial state from each slice but filter out action methods
-  const filterActions = (slice: any) => {
-    const filtered: any = {};
-    for (const [key, value] of Object.entries(slice)) {
-      // Keep state properties (non-functions) but exclude action methods
-      if (typeof value !== "function") {
-        filtered[key] = value;
-      }
-    }
-    return filtered;
-  };
-
-  return {
-    ...filterActions(createGameSlice(dummySet, dummyGet, dummyStore)),
-    ...filterActions(createTablebaseSlice(dummySet, dummyGet, dummyStore)),
-    ...filterActions(createTrainingSlice(dummySet, dummyGet, dummyStore)),
-    ...filterActions(createUISlice(dummySet, dummyGet, dummyStore)),
-
-    // Dummy orchestrator actions (will be overridden in actual store)
-    handlePlayerMove: async () => false,
-    handleOpponentTurn: async () => {},
-    requestPositionEvaluation: async () => {},
-    loadTrainingContext: async () => {},
-    reset: () => {},
-    hydrate: () => {},
-  };
-};
-
-// Capture initial state once for efficient reset
-const initialState = createInitialState();
+// Initial state creation removed - slices are initialized directly in store
 
 /**
  * Creates the root store with all slices and orchestrators integrated
@@ -124,15 +87,18 @@ export const useStore = create<RootState>()(
   devtools(
     persist(
       immer((set, get, store) => {
+        // Create slices with their actions
+        const gameSlice = createGameSlice(set, get, store);
+        const trainingSlice = createTrainingSlice(set, get, store);
+        const tablebaseSlice = createTablebaseSlice(set, get, store);
+        const uiSlice = createUISlice(set, get, store);
+        
         return {
-          // Start with initial state
-          ...initialState,
-
-          // Override with actual slice implementations
-          ...createGameSlice(set, get, store),
-          ...createTablebaseSlice(set, get, store),
-          ...createTrainingSlice(set, get, store),
-          ...createUISlice(set, get, store),
+          // Nested state structure - each slice in its namespace
+          game: gameSlice,
+          training: trainingSlice,
+          tablebase: tablebaseSlice,
+          ui: uiSlice,
 
           // Orchestrator actions - coordinate across multiple slices
           /**
@@ -171,61 +137,8 @@ export const useStore = create<RootState>()(
             return await handlePlayerMoveOrchestrator(storeApi, move);
           },
 
-          /**
-           * Requests tablebase move analysis for current position
-           *
-           * @returns {Promise<void>} Completes when analysis is done
-           *
-           * @remarks
-           * This orchestrator handles the complete tablebase analysis workflow:
-           * - Validates current game state
-           * - Makes API request to tablebase service
-           * - Updates analysis status and results
-           * - Handles errors and edge cases
-           *
-           * @example
-           * ```typescript
-           * const requestMove = useStore(state => state.requestTablebaseMove);
-           *
-           * useEffect(() => {
-           *   if (position && isPlayerTurn) {
-           *     requestMove();
-           *   }
-           * }, [position, isPlayerTurn]);
-           * ```
-           */
-          handleOpponentTurn: async (): Promise<void> => {
-            const storeApi = { getState: get, setState: set };
-            return await handleOpponentTurnOrchestrator(storeApi);
-          },
-
-          /**
-           * Requests position evaluation from tablebase API
-           *
-           * @param {string} [fen] - Optional FEN string to evaluate (defaults to current position)
-           * @returns {Promise<void>} Completes when evaluation is done
-           *
-           * @remarks
-           * This orchestrator provides position analysis functionality:
-           * - Uses current position FEN if none provided
-           * - Leverages caching for performance
-           * - Updates evaluation list with results
-           * - Handles API errors gracefully
-           *
-           * @example
-           * ```typescript
-           * const requestEval = useStore(state => state.requestPositionEvaluation);
-           *
-           * const analyzePosition = async (fen?: string) => {
-           *   await requestEval(fen);
-           *   logger.info('Position analysis complete');
-           * };
-           * ```
-           */
-          requestPositionEvaluation: async (fen?: string): Promise<void> => {
-            const storeApi = { getState: get, setState: set };
-            return await requestPositionEvaluationOrchestrator(storeApi, fen);
-          },
+          // Note: handleOpponentTurn and requestPositionEvaluation removed
+          // Their functionality is now in chessService and handlePlayerMove orchestrator
 
           /**
            * Loads training context for a position
@@ -262,20 +175,22 @@ export const useStore = create<RootState>()(
            *
            * @remarks
            * Uses pre-computed initial state for efficient and reliable reset.
-           * Actions remain functional after reset.
+           * Preserves actions while resetting state to initial values.
            */
           reset: () => {
-            set(() => {
-              // Create a clean initial state without orchestrator functions
-              const stateOnlyInitial = { ...initialState };
-              delete stateOnlyInitial.handlePlayerMove;
-              delete stateOnlyInitial.handleOpponentTurn;
-              delete stateOnlyInitial.requestPositionEvaluation;
-              delete stateOnlyInitial.loadTrainingContext;
-              delete stateOnlyInitial.reset;
-              delete stateOnlyInitial.hydrate;
-
-              return stateOnlyInitial;
+            set((state) => {
+              // Reset only the state properties, not the actions
+              // Game slice
+              Object.assign(state.game, initialGameState);
+              
+              // Training slice
+              Object.assign(state.training, initialTrainingState);
+              
+              // Tablebase slice
+              Object.assign(state.tablebase, initialTablebaseState);
+              
+              // UI slice
+              Object.assign(state.ui, initialUIState);
             });
           },
 
@@ -331,7 +246,9 @@ export const useStore = create<RootState>()(
         // Only persist training position for session continuity
         partialize: (state) => ({
           // Training position - persist for session continuity
-          currentPosition: state.currentPosition,
+          training: {
+            currentPosition: state.training.currentPosition,
+          },
 
           // All other state removed - was over-engineered and unused in UI:
           // - User data (authentication, profile, preferences) - not implemented
@@ -349,6 +266,45 @@ export const useStore = create<RootState>()(
     },
   ),
 );
+
+/**
+ * Subscribe to ChessService events for automatic state synchronization
+ * This ensures the store stays in sync with the ChessService singleton
+ */
+const unsubscribeChessService = chessService.subscribe((event: ChessServiceEvent) => {
+  switch (event.type) {
+    case 'stateUpdate':
+      // Use batched payload for atomic state update
+      // This ensures consistency and reduces getter calls
+      useStore.setState((draft) => {
+        draft.game.currentFen = event.payload.fen;
+        draft.game.currentPgn = event.payload.pgn;
+        draft.game.moveHistory = event.payload.moveHistory;
+        draft.game.currentMoveIndex = event.payload.currentMoveIndex;
+        draft.game.isGameFinished = event.payload.isGameOver;
+        draft.game.gameResult = event.payload.gameResult;
+      });
+      break;
+      
+    case 'error':
+      // Handle errors from ChessService
+      useStore.setState((draft) => {
+        draft.ui.toasts.push({
+          id: crypto.randomUUID(),
+          message: event.payload.message,
+          type: 'error',
+          duration: 5000
+        });
+      });
+      // Logging already done in ChessService, avoid duplication
+      break;
+  }
+});
+
+// Store cleanup function for hot-module reload or testing
+if (typeof window !== 'undefined') {
+  (window as any).__cleanupChessService = unsubscribeChessService;
+}
 
 /**
  * Hook for accessing the complete store state and actions
