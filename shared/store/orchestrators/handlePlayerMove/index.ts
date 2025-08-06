@@ -259,16 +259,57 @@ async function executeOpponentTurn(api: StoreApi): Promise<void> {
   const { setState } = api;
 
   try {
-    // currentFen removed - not used here
+    // Get current position
+    const currentFen = chessService.getFen();
 
-    // TODO: Fetch best move from tablebase service
-    // This functionality needs to be implemented with TablebaseService
+    // Fetch best move from tablebase
+    const topMoves = await tablebaseService.getTopMoves(currentFen, 1);
 
-    // For now, just return - opponent moves need tablebase integration
+    if (
+      !topMoves.isAvailable ||
+      !topMoves.moves ||
+      topMoves.moves.length === 0
+    ) {
+      // No tablebase move available - just return control to player
+      setState((draft) => {
+        draft.training.isPlayerTurn = true;
+        draft.training.isOpponentThinking = false;
+      });
+      return;
+    }
+
+    // Get the best move
+    const bestMove = topMoves.moves[0];
+
+    // Convert SAN move to from/to format for ChessService
+    // The tablebase returns moves in SAN format (e.g., "Ke4", "Rxh7")
+    // We need to convert to { from, to } format
+    const moveResult = chessService.validateMove(bestMove.san);
+    if (!moveResult) {
+      // If validation fails, try to make the move directly
+      const move = chessService.move(bestMove.san);
+      if (!move) {
+        throw new Error(`Invalid tablebase move: ${bestMove.san}`);
+      }
+    } else {
+      // Make the opponent move
+      const move = chessService.move(bestMove.san);
+      if (!move) {
+        throw new Error(`Failed to execute tablebase move: ${bestMove.san}`);
+      }
+    }
+
+    // Update state - switch back to player's turn
     setState((draft) => {
-      // Switch back to player's turn and clear thinking flag
       draft.training.isPlayerTurn = true;
       draft.training.isOpponentThinking = false;
+
+      // Add a toast notification for the opponent's move
+      draft.ui.toasts.push({
+        id: Date.now().toString(),
+        message: `Gegner spielt: ${bestMove.san}`,
+        type: "info",
+      });
     });
 
     // Check if game ended after opponent move
