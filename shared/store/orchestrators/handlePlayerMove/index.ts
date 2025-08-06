@@ -174,10 +174,14 @@ export const handlePlayerMove = async (
 
         console.log("[MoveQuality] Decision:", {
           outcomeChanged,
+          playedMoveWasBest,
           showDialog: !playedMoveWasBest && outcomeChanged,
         });
 
-        if (!playedMoveWasBest && outcomeChanged) {
+        // TEMP: Force error dialog for testing (should only trigger if move was not best)
+        const forceTestDialog = !playedMoveWasBest && topMoves.isAvailable;
+
+        if ((!playedMoveWasBest && outcomeChanged) || forceTestDialog) {
           const bestMove =
             topMoves.isAvailable && topMoves.moves && topMoves.moves.length > 0
               ? topMoves.moves[0].san
@@ -186,6 +190,10 @@ export const handlePlayerMove = async (
           console.log(
             "[MoveQuality] Showing error dialog with best move:",
             bestMove,
+          );
+          console.log(
+            "[MoveQuality] Force test dialog triggered:",
+            forceTestDialog,
           );
 
           // Show error dialog
