@@ -32,12 +32,21 @@ import { immer } from "zustand/middleware/immer";
 
 // Import all slice creators and initial states
 import { createGameSlice, initialGameState } from "./slices/gameSlice";
-import { createTablebaseSlice, initialTablebaseState } from "./slices/tablebaseSlice";
-import { createTrainingSlice, initialTrainingState } from "./slices/trainingSlice";
+import {
+  createTablebaseSlice,
+  initialTablebaseState,
+} from "./slices/tablebaseSlice";
+import {
+  createTrainingSlice,
+  initialTrainingState,
+} from "./slices/trainingSlice";
 import { createUISlice, initialUIState } from "./slices/uiSlice";
 
 // Import ChessService for event subscription
-import { chessService, type ChessServiceEvent } from "@shared/services/ChessService";
+import {
+  chessService,
+  type ChessServiceEvent,
+} from "@shared/services/ChessService";
 // Logger removed - not currently used
 
 // Import orchestrators
@@ -92,7 +101,7 @@ export const useStore = create<RootState>()(
         const trainingSlice = createTrainingSlice(set, get, store);
         const tablebaseSlice = createTablebaseSlice(set, get, store);
         const uiSlice = createUISlice(set, get, store);
-        
+
         return {
           // Nested state structure - each slice in its namespace
           game: gameSlice,
@@ -133,8 +142,14 @@ export const useStore = create<RootState>()(
               | { from: string; to: string; promotion?: string }
               | string,
           ): Promise<boolean> => {
+            console.log("[RootStore] handlePlayerMove called with:", { move });
             const storeApi = { getState: get, setState: set };
-            return await handlePlayerMoveOrchestrator(storeApi, move);
+            console.log("[RootStore] Calling handlePlayerMoveOrchestrator");
+            const result = await handlePlayerMoveOrchestrator(storeApi, move);
+            console.log("[RootStore] handlePlayerMoveOrchestrator result:", {
+              result,
+            });
+            return result;
           },
 
           // Note: handleOpponentTurn and requestPositionEvaluation removed
@@ -182,13 +197,13 @@ export const useStore = create<RootState>()(
               // Reset only the state properties, not the actions
               // Game slice
               Object.assign(state.game, initialGameState);
-              
+
               // Training slice
               Object.assign(state.training, initialTrainingState);
-              
+
               // Tablebase slice
               Object.assign(state.tablebase, initialTablebaseState);
-              
+
               // UI slice
               Object.assign(state.ui, initialUIState);
             });
@@ -271,38 +286,40 @@ export const useStore = create<RootState>()(
  * Subscribe to ChessService events for automatic state synchronization
  * This ensures the store stays in sync with the ChessService singleton
  */
-const unsubscribeChessService = chessService.subscribe((event: ChessServiceEvent) => {
-  switch (event.type) {
-    case 'stateUpdate':
-      // Use batched payload for atomic state update
-      // This ensures consistency and reduces getter calls
-      useStore.setState((draft) => {
-        draft.game.currentFen = event.payload.fen;
-        draft.game.currentPgn = event.payload.pgn;
-        draft.game.moveHistory = event.payload.moveHistory;
-        draft.game.currentMoveIndex = event.payload.currentMoveIndex;
-        draft.game.isGameFinished = event.payload.isGameOver;
-        draft.game.gameResult = event.payload.gameResult;
-      });
-      break;
-      
-    case 'error':
-      // Handle errors from ChessService
-      useStore.setState((draft) => {
-        draft.ui.toasts.push({
-          id: crypto.randomUUID(),
-          message: event.payload.message,
-          type: 'error',
-          duration: 5000
+const unsubscribeChessService = chessService.subscribe(
+  (event: ChessServiceEvent) => {
+    switch (event.type) {
+      case "stateUpdate":
+        // Use batched payload for atomic state update
+        // This ensures consistency and reduces getter calls
+        useStore.setState((draft) => {
+          draft.game.currentFen = event.payload.fen;
+          draft.game.currentPgn = event.payload.pgn;
+          draft.game.moveHistory = event.payload.moveHistory;
+          draft.game.currentMoveIndex = event.payload.currentMoveIndex;
+          draft.game.isGameFinished = event.payload.isGameOver;
+          draft.game.gameResult = event.payload.gameResult;
         });
-      });
-      // Logging already done in ChessService, avoid duplication
-      break;
-  }
-});
+        break;
+
+      case "error":
+        // Handle errors from ChessService
+        useStore.setState((draft) => {
+          draft.ui.toasts.push({
+            id: crypto.randomUUID(),
+            message: event.payload.message,
+            type: "error",
+            duration: 5000,
+          });
+        });
+        // Logging already done in ChessService, avoid duplication
+        break;
+    }
+  },
+);
 
 // Store cleanup function for hot-module reload or testing
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   (window as any).__cleanupChessService = unsubscribeChessService;
 }
 
