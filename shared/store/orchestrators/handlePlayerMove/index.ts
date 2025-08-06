@@ -21,6 +21,7 @@
 import type { StoreApi } from "../types";
 import type { Move as ChessJsMove } from "chess.js";
 import { chessService } from "@shared/services/ChessService";
+import { tablebaseService } from "@shared/services/TablebaseService";
 import { ErrorService } from "@shared/services/ErrorService";
 import { handleTrainingCompletion } from "./move.completion";
 import { delay } from "@shared/utils/async";
@@ -76,17 +77,65 @@ export const handlePlayerMove = async (
       return false;
     }
 
-    // Step 2: Apply move to game state
+    // Step 2: Get position before move for evaluation
+    const fenBefore = chessService.getFen();
+    
+    // Step 3: Apply move to game state
     const validatedMove = chessService.move(move);
     if (!validatedMove) {
       return false;
     }
     
     // Game state will be automatically synced via ChessService event subscription in rootStore
-
-    // Step 3: Move quality evaluation would go here
-    // TODO: Implement move quality evaluation with tablebase service
-    // For now, assume all moves are acceptable
+    
+    // Step 4: Move quality evaluation with tablebase service
+    try {
+      // Get evaluations before and after the move
+      const evalBefore = await tablebaseService.getEvaluation(fenBefore).catch(() => ({ isAvailable: false }));
+      const fenAfter = chessService.getFen();
+      const evalAfter = await tablebaseService.getEvaluation(fenAfter).catch(() => ({ isAvailable: false }));
+      
+      // Check if move worsened position (only if both evaluations are available)
+      if (evalBefore.isAvailable && evalAfter.isAvailable && evalBefore.result && evalAfter.result) {
+        const wdlBefore = evalBefore.result.wdl;
+        const wdlAfter = evalAfter.result.wdl;
+        
+        // WDL values are from white's perspective:
+        // Positive = good for white, Negative = good for black
+        // We need to check if the move made position worse for the player who moved
+        const movedColor = validatedMove.color; // 'w' or 'b'
+        
+        // Convert WDL to player's perspective
+        const wdlBeforeFromPlayerPerspective = movedColor === 'w' ? wdlBefore : -wdlBefore;
+        const wdlAfterFromPlayerPerspective = movedColor === 'w' ? wdlAfter : -wdlAfter;
+        
+        // Get best moves for comparison
+        const topMoves = await tablebaseService.getTopMoves(fenBefore, 3).catch(() => ({ isAvailable: false, moves: [] }));
+        
+        // Check if the played move was one of the best moves
+        const playedMoveWasBest = topMoves.isAvailable && topMoves.moves.some(m => m.san === validatedMove.san);
+        
+        // Only show error if:
+        // 1. Position got worse (WDL decreased from player's perspective) AND
+        // 2. The played move was not one of the best moves
+        if (!playedMoveWasBest && wdlAfterFromPlayerPerspective < wdlBeforeFromPlayerPerspective) {
+          const bestMove = topMoves.isAvailable && topMoves.moves.length > 0 ? topMoves.moves[0].san : undefined;
+          
+          // Show error dialog
+          setState((draft) => {
+            draft.training.moveErrorDialog = {
+              isOpen: true,
+              wdlBefore,
+              wdlAfter,
+              bestMove,
+            };
+          });
+        }
+      }
+    } catch (error) {
+      // Log evaluation error but don't block move
+      console.error('Move quality evaluation failed:', error);
+    }
 
     // Step 5: Check if game is finished
     if (chessService.isGameOver()) {
