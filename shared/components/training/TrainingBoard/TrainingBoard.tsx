@@ -196,6 +196,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     makeMove,
     jumpToMove,
     resetGame,
+    undoMove,
   } = useTrainingSession({
     /**
      *
@@ -356,53 +357,20 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
    */
   const handleMoveErrorTakeBack = useCallback(() => {
     const logger = getLogger().setContext("TrainingBoard-MoveError");
-    logger.info("Undoing suboptimal move");
+    logger.info("Undoing suboptimal move using useTrainingSession undoMove");
 
-    // Get current move history and remove the last move
-    const currentHistory = gameState.moveHistory;
-    const currentIndex = gameState.currentMoveIndex;
+    // Use the undoMove function from useTrainingSession which properly handles ChessService
+    const undoResult = undoMove();
 
-    // CRITICAL FIX: Ensure currentIndex is within bounds of currentHistory array
-    if (
-      currentIndex >= 0 &&
-      currentIndex < currentHistory.length &&
-      currentHistory.length > 0
-    ) {
-      // Safely access the move at currentIndex
-      const moveToUndo = currentHistory[currentIndex];
-
-      // Check if the move has the required fenBefore property
-      if (!moveToUndo || !moveToUndo.fenBefore) {
-        logger.error("Move at index missing fenBefore", {
-          currentIndex,
-          moveToUndo,
-        });
-        return;
-      }
-
-      // Remove the suboptimal move from history
-      const newHistory = currentHistory.slice(0, currentIndex);
-      const newIndex = currentIndex - 1;
-
-      // Set the position to before the suboptimal move
-      const fenBeforeMove = moveToUndo.fenBefore;
-
-      // Update game state
-      gameActions.setCurrentFen(fenBeforeMove);
-      gameActions.setMoveHistory(newHistory);
-      gameActions.setCurrentMoveIndex(newIndex);
-
-      logger.info("Move removed from history and position restored");
+    if (undoResult) {
+      logger.info("Move successfully undone");
     } else {
-      logger.error("No move to undo or index out of bounds", {
-        currentIndex,
-        historyLength: currentHistory.length,
-      });
+      logger.error("Failed to undo move - no moves in history");
     }
 
     // Close the dialog
     trainingActions.setMoveErrorDialog(null);
-  }, [gameState, gameActions, trainingActions]);
+  }, [undoMove, trainingActions]);
 
   /**
    * Restarts the entire training session after move error
