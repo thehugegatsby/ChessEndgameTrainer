@@ -186,6 +186,12 @@ export const handlePlayerMove = async (
           outcomeChanged,
           playedMoveWasBest,
           showDialog: !playedMoveWasBest && outcomeChanged,
+          wdlBeforeFromPlayerPerspective,
+          wdlAfterFromPlayerPerspective,
+          forceTestDialog: !playedMoveWasBest && topMoves.isAvailable,
+          finalTrigger:
+            (!playedMoveWasBest && outcomeChanged) ||
+            (!playedMoveWasBest && topMoves.isAvailable),
         });
 
         // TEMP: Force error dialog for testing (should only trigger if move was not best)
