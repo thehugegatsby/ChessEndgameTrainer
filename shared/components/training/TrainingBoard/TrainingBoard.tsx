@@ -283,6 +283,15 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
       }
     : null;
 
+  // Debug logging for move error dialog state
+  if (trainingState.moveErrorDialog) {
+    console.log("[TrainingBoard] Move error dialog state:", {
+      isOpen: showMoveErrorDialog,
+      dialogData: trainingState.moveErrorDialog,
+      moveErrorData,
+    });
+  }
+
   const trainingUIState = {
     resetKey,
     showMoveErrorDialog,
