@@ -28,7 +28,11 @@ import {
   getSmartMoveEvaluation,
   type MoveEvaluation,
 } from "../../utils/chess/evaluation";
-import { useGameStore, useTablebaseStore } from "@shared/store/hooks";
+import {
+  useGameStore,
+  useTablebaseStore,
+  useTrainingStore,
+} from "@shared/store/hooks";
 import { TEST_IDS, getTestId } from "@shared/constants/testIds";
 import { MoveQualityIndicator } from "../analysis/MoveQualityIndicator";
 
@@ -102,6 +106,8 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
     // Get data from Zustand store using new tuple pattern
     const [gameState] = useGameStore();
     const [tablebaseState] = useTablebaseStore();
+    const trainingStore = useTrainingStore();
+    const [trainingState] = trainingStore || [null];
 
     /**
      * Helper to get FEN position before a specific move
@@ -118,7 +124,12 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
     const getFenBeforeMove = (moveIndex: number): string => {
       // moveHistory contains ValidatedMove objects with 'before' and 'after' FEN fields
       if (moveIndex < 0 || moveIndex >= gameState.moveHistory.length) {
-        return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        // Use the initial training position FEN if available, otherwise use current FEN
+        return (
+          trainingState?.currentPosition?.fen ||
+          gameState.currentFen ||
+          "8/8/8/8/8/8/8/8 w - - 0 1"
+        );
       }
 
       const move = gameState.moveHistory[moveIndex];
