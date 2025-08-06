@@ -8,7 +8,11 @@
 
 import { tablebaseService } from "../../shared/services/TablebaseService";
 import { TEST_FENS } from "../../shared/testing/TestFixtures";
-import { EndgamePositions, SpecialPositions, StandardPositions } from "../fixtures/fenPositions";
+import {
+  EndgamePositions,
+  SpecialPositions,
+  StandardPositions,
+} from "../fixtures/fenPositions";
 
 // Mock fetch globally
 global.fetch = jest.fn();
@@ -23,6 +27,11 @@ describe("TablebaseService", () => {
 
   /**
    * Helper to create a standard tablebase response
+   * @param config
+   * @param config.category
+   * @param config.dtz
+   * @param config.dtm
+   * @param config.moves
    */
   function createTablebaseResponse(config: {
     category?: string;
@@ -38,6 +47,9 @@ describe("TablebaseService", () => {
   }) {
     return {
       ok: true,
+      /**
+       *
+       */
       json: async () => ({
         category: config.category || "draw",
         dtz: config.dtz ?? 0,
@@ -118,10 +130,14 @@ describe("TablebaseService", () => {
 
       expect(result.isAvailable).toBe(true);
       expect(result.moves).toHaveLength(2);
-      // Categories should be inverted to player's perspective
+      // All returned moves should be best moves (same WDL)
       expect(result.moves![0].category).toBe("win");
       expect(result.moves![0].wdl).toBe(2);
-      expect(result.moves![0].uci).toBe("h1b7");
+      expect(result.moves![1].wdl).toBe(2); // Same WDL as first move
+
+      // Should contain both best moves (order may vary due to sorting)
+      const moveUcis = result.moves!.map((m) => m.uci).sort();
+      expect(moveUcis).toEqual(["h1b7", "h1h7"]);
     });
   });
 
@@ -430,7 +446,10 @@ describe("TablebaseService", () => {
     it("should treat positions with different en passant squares as different", async () => {
       // Use valid endgame positions with ≤7 pieces
       const fenWithEp = StandardPositions.EN_PASSANT_COMPLEX; // En passant possible
-      const fenWithoutEp = StandardPositions.EN_PASSANT_COMPLEX.replace("c6", "-"); // No en passant
+      const fenWithoutEp = StandardPositions.EN_PASSANT_COMPLEX.replace(
+        "c6",
+        "-",
+      ); // No en passant
 
       mockFetch
         .mockResolvedValueOnce(
@@ -463,14 +482,23 @@ describe("TablebaseService", () => {
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
+          /**
+           *
+           */
           json: async () => ({}), // Missing required fields
         } as Response)
         .mockResolvedValueOnce({
           ok: true,
+          /**
+           *
+           */
           json: async () => ({}), // Missing required fields
         } as Response)
         .mockResolvedValueOnce({
           ok: true,
+          /**
+           *
+           */
           json: async () => ({}), // Missing required fields
         } as Response);
 
@@ -497,6 +525,9 @@ describe("TablebaseService", () => {
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        /**
+         *
+         */
         json: async () => ({
           category: "win",
           dtz: 13,

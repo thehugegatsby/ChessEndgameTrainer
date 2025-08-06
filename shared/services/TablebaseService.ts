@@ -155,8 +155,38 @@ class TablebaseService {
         };
       }
 
-      // Moves are already sorted by the API (best first)
-      const topInternalMoves = entry.moves.slice(0, limit);
+      // Sort moves by quality (WDL value, then DTZ)
+      // Higher WDL = better for the player, then lower DTZ = faster to goal
+      const sortedMoves = [...entry.moves].sort((a, b) => {
+        // Primary sort: by WDL (higher is better)
+        if (a.wdl !== b.wdl) {
+          return b.wdl - a.wdl;
+        }
+
+        // Secondary sort: for winning positions, prefer faster mate (lower DTM/DTZ)
+        // For drawing/losing positions, prefer slower conversion (higher DTZ)
+        if (a.wdl > 0) {
+          // Winning - prefer faster mate
+          const aDtx = a.dtm ?? a.dtz ?? 0;
+          const bDtx = b.dtm ?? b.dtz ?? 0;
+          return aDtx - bDtx;
+        } else if (a.wdl < 0) {
+          // Losing - prefer slower loss
+          const aDtx = a.dtm ?? a.dtz ?? 0;
+          const bDtx = b.dtm ?? b.dtz ?? 0;
+          return Math.abs(bDtx) - Math.abs(aDtx);
+        }
+
+        // Draw - prefer maintaining draw (DTZ doesn't matter much)
+        return 0;
+      });
+
+      // Take only the best moves (same WDL as the absolute best)
+      const bestWdl = sortedMoves[0]?.wdl ?? 0;
+      const bestMoves = sortedMoves.filter((move) => move.wdl === bestWdl);
+
+      // Return up to 'limit' of the best moves
+      const topInternalMoves = bestMoves.slice(0, limit);
 
       // Convert internal moves to external format (without zeroing field)
       const topMoves: TablebaseMove[] = topInternalMoves.map((move) => ({
