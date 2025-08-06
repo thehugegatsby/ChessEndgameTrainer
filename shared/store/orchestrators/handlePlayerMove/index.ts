@@ -47,11 +47,21 @@ export const handlePlayerMove = async (
   api: StoreApi,
   move: ChessJsMove | { from: string; to: string; promotion?: string } | string,
 ): Promise<boolean> => {
+  console.log("[handlePlayerMove] ORCHESTRATOR CALLED:", { move });
+
   const { getState, setState } = api;
   const state = getState();
 
+  console.log("[handlePlayerMove] Current state:", {
+    isPlayerTurn: state.training.isPlayerTurn,
+    isOpponentThinking: state.training.isOpponentThinking,
+  });
+
   // Check if it's player's turn and opponent is not thinking
   if (!state.training.isPlayerTurn || state.training.isOpponentThinking) {
+    console.log(
+      "[handlePlayerMove] Early return - not player turn or opponent thinking",
+    );
     return false;
   }
 
