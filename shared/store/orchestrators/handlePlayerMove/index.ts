@@ -24,13 +24,69 @@ import { chessService } from "@shared/services/ChessService";
 import { tablebaseService } from "@shared/services/TablebaseService";
 import { ErrorService } from "@shared/services/ErrorService";
 import { handleTrainingCompletion } from "./move.completion";
+import { getLogger } from "@shared/services/logging/Logger";
 
 // Re-export types for consumers
 export type { MoveEvaluation, MoveExecutionResult } from "./move.types";
+import type { TablebaseMove } from "@shared/types/tablebase";
+
+// Create logger instance for this module
+const logger = getLogger().setContext("handlePlayerMove");
 
 // Module-scoped variables for opponent turn management (replaces window globals)
 let opponentTurnTimeout: NodeJS.Timeout | null = null;
 let opponentTurnCancelled = false;
+
+/**
+ * Evaluates move quality by comparing WDL values before and after
+ * @private
+ * @param wdlBefore - WDL value before the move
+ * @param wdlAfter - WDL value after the move
+ * @param movedColor - Color that made the move ('w' or 'b')
+ * @param playedMove - The move that was played (SAN notation)
+ * @param bestMoves - Best moves from tablebase
+ * @returns Evaluation results with perspective-adjusted WDL values
+ */
+function evaluateMoveQuality(
+  wdlBefore: number,
+  wdlAfter: number,
+  movedColor: "w" | "b",
+  playedMove: string,
+  bestMoves: TablebaseMove[] | undefined,
+): {
+  wdlBeforeFromPlayerPerspective: number;
+  wdlAfterFromPlayerPerspective: number;
+  playedMoveWasBest: boolean;
+  outcomeChanged: boolean;
+} {
+  // Convert WDL to player's perspective consistently
+  // WDL values are from white's perspective:
+  // Positive = good for white, Negative = good for black
+  const wdlBeforeFromPlayerPerspective =
+    movedColor === "w" ? wdlBefore : -wdlBefore;
+
+  // After the move, it's the opponent's turn, so we need to invert
+  const wdlAfterFromPlayerPerspective =
+    movedColor === "w" ? -wdlAfter : wdlAfter;
+
+  // Check if the played move was one of the best moves
+  const playedMoveWasBest = bestMoves
+    ? bestMoves.some((m) => m.san === playedMove)
+    : false;
+
+  // Check if position outcome actually changed (not just DTM increase)
+  const outcomeChanged =
+    (wdlBeforeFromPlayerPerspective > 0 &&
+      wdlAfterFromPlayerPerspective <= 0) || // Win -> Draw/Loss
+    (wdlBeforeFromPlayerPerspective === 0 && wdlAfterFromPlayerPerspective < 0); // Draw -> Loss
+
+  return {
+    wdlBeforeFromPlayerPerspective,
+    wdlAfterFromPlayerPerspective,
+    playedMoveWasBest,
+    outcomeChanged,
+  };
+}
 
 /**
  * Cancels any scheduled opponent turn
@@ -46,13 +102,9 @@ export function cancelScheduledOpponentTurn(): void {
   if (opponentTurnTimeout) {
     clearTimeout(opponentTurnTimeout);
     opponentTurnTimeout = null;
-    console.log(
-      "[cancelScheduledOpponentTurn] Successfully cancelled scheduled opponent turn",
-    );
+    logger.debug("Successfully cancelled scheduled opponent turn");
   } else {
-    console.log(
-      "[cancelScheduledOpponentTurn] WARNING: No timeout to cancel, but set cancellation flag",
-    );
+    logger.warn("No timeout to cancel, but set cancellation flag");
   }
 }
 
@@ -126,7 +178,19 @@ export const handlePlayerMove = async (
     // Game state will be automatically synced via ChessService event subscription in rootStore
 
     // Step 3.5: Check for pawn promotion auto-win (any promotion piece)
+    logger.info("Checking for promotion", {
+      hasPromotion: !!validatedMove.promotion,
+      promotion: validatedMove.promotion,
+      move: validatedMove.san,
+      from: validatedMove.from,
+      to: validatedMove.to,
+    });
+
     if (validatedMove.promotion) {
+      logger.info("🎉 Pawn promotion detected!", {
+        promotion: validatedMove.promotion,
+        san: validatedMove.san,
+      });
       console.log(
         "[handlePlayerMove] Pawn promotion detected:",
         validatedMove.promotion,
@@ -213,6 +277,21 @@ export const handlePlayerMove = async (
         const wdlBefore = evalBefore.result.wdl;
         const wdlAfter = evalAfter.result.wdl;
 
+        // Get best moves for comparison
+        const topMoves = await tablebaseService
+          .getTopMoves(fenBefore, 3)
+          .catch(() => ({ isAvailable: false, moves: [] }));
+
+        // Use helper function to evaluate move quality
+        const evaluation = evaluateMoveQuality(
+          wdlBefore,
+          wdlAfter,
+          validatedMove.color,
+          validatedMove.san,
+          topMoves.isAvailable ? topMoves.moves : undefined,
+        );
+
+        // Debug logging (kept in main function for context)
         console.log("[MoveQuality] Evaluating move quality:", {
           moveColor: validatedMove.color,
           moveSan: validatedMove.san,
@@ -222,40 +301,12 @@ export const handlePlayerMove = async (
           fenAfter: fenAfter.split(" ")[0],
         });
 
-        // WDL values are from white's perspective:
-        // Positive = good for white, Negative = good for black
-        // IMPORTANT: After white moves, it's black's turn, so the evaluation
-        // perspective needs careful handling
-        const movedColor = validatedMove.color; // 'w' or 'b'
-
-        // For winning positions, WDL values alternate between moves
-        // If white had +2 (win) and after moving still has a winning position,
-        // the API might return -2 (from black's perspective for black to move)
-        // This doesn't mean the position got worse!
-
-        // Convert WDL to player's perspective consistently
-        const wdlBeforeFromPlayerPerspective =
-          movedColor === "w" ? wdlBefore : -wdlBefore;
-
-        // After the move, it's the opponent's turn, so we need to invert
-        const wdlAfterFromPlayerPerspective =
-          movedColor === "w" ? -wdlAfter : wdlAfter;
-
         console.log("[MoveQuality] WDL from player perspective:", {
-          wdlBeforeFromPlayerPerspective,
-          wdlAfterFromPlayerPerspective,
+          wdlBeforeFromPlayerPerspective:
+            evaluation.wdlBeforeFromPlayerPerspective,
+          wdlAfterFromPlayerPerspective:
+            evaluation.wdlAfterFromPlayerPerspective,
         });
-
-        // Get best moves for comparison
-        const topMoves = await tablebaseService
-          .getTopMoves(fenBefore, 3)
-          .catch(() => ({ isAvailable: false, moves: [] }));
-
-        // Check if the played move was one of the best moves
-        const playedMoveWasBest =
-          topMoves.isAvailable &&
-          topMoves.moves &&
-          topMoves.moves.some((m) => m.san === validatedMove.san);
 
         console.log("[MoveQuality] Best moves check:");
         console.log("  topMovesAvailable:", topMoves.isAvailable);
@@ -264,7 +315,7 @@ export const handlePlayerMove = async (
           JSON.stringify(topMoves.moves?.map((m) => m.san)),
         );
         console.log("  playedMove:", validatedMove.san);
-        console.log("  playedMoveWasBest:", playedMoveWasBest);
+        console.log("  playedMoveWasBest:", evaluation.playedMoveWasBest);
 
         // Debug each move comparison
         if (topMoves.moves) {
@@ -276,45 +327,39 @@ export const handlePlayerMove = async (
           });
         }
 
-        // Only show error if:
-        // 1. Position got worse (WDL decreased from player's perspective) AND
-        // 2. The played move was not one of the best moves
-        // 3. The position outcome actually changed (not just DTM increase)
-        const outcomeChanged =
-          (wdlBeforeFromPlayerPerspective > 0 &&
-            wdlAfterFromPlayerPerspective <= 0) || // Win -> Draw/Loss
-          (wdlBeforeFromPlayerPerspective === 0 &&
-            wdlAfterFromPlayerPerspective < 0); // Draw -> Loss
-
         console.log("[MoveQuality] DECISION VALUES:");
-        console.log("  outcomeChanged:", outcomeChanged);
-        console.log("  playedMoveWasBest:", playedMoveWasBest);
+        console.log("  outcomeChanged:", evaluation.outcomeChanged);
+        console.log("  playedMoveWasBest:", evaluation.playedMoveWasBest);
         console.log(
           "  wdlBeforeFromPlayerPerspective:",
-          wdlBeforeFromPlayerPerspective,
+          evaluation.wdlBeforeFromPlayerPerspective,
         );
         console.log(
           "  wdlAfterFromPlayerPerspective:",
-          wdlAfterFromPlayerPerspective,
+          evaluation.wdlAfterFromPlayerPerspective,
         );
         console.log(
           "  showDialog (original logic):",
-          !playedMoveWasBest && outcomeChanged,
+          !evaluation.playedMoveWasBest && evaluation.outcomeChanged,
         );
         console.log(
           "  forceTestDialog:",
-          !playedMoveWasBest && topMoves.isAvailable,
+          !evaluation.playedMoveWasBest && topMoves.isAvailable,
         );
         console.log(
           "  FINAL TRIGGER:",
-          (!playedMoveWasBest && outcomeChanged) ||
-            (!playedMoveWasBest && topMoves.isAvailable),
+          (!evaluation.playedMoveWasBest && evaluation.outcomeChanged) ||
+            (!evaluation.playedMoveWasBest && topMoves.isAvailable),
         );
 
         // TEMP: Force error dialog for testing (should only trigger if move was not best)
-        const forceTestDialog = !playedMoveWasBest && topMoves.isAvailable;
+        const forceTestDialog =
+          !evaluation.playedMoveWasBest && topMoves.isAvailable;
 
-        if ((!playedMoveWasBest && outcomeChanged) || forceTestDialog) {
+        if (
+          (!evaluation.playedMoveWasBest && evaluation.outcomeChanged) ||
+          forceTestDialog
+        ) {
           const bestMove =
             topMoves.isAvailable && topMoves.moves && topMoves.moves.length > 0
               ? topMoves.moves[0].san
