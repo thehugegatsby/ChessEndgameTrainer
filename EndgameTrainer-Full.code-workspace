@@ -1,0 +1,39 @@
+{
+    "folders": [
+        {
+            "path": ".",
+            "name": "📦 Main"
+        },
+        {
+            "path": "../EndgameTrainer-critical-tests",
+            "name": "🧪 Tests (#80-82)"
+        },
+        {
+            "path": "../EndgameTrainer-progress-core",
+            "name": "🎯 Core (#67-70)"
+        },
+        {
+            "path": "../EndgameTrainer-progress-ui",
+            "name": "🎨 UI (#71-75)"
+        },
+        {
+            "path": "../EndgameTrainer-infrastructure",
+            "name": "🔧 Infra (#76-79,83-84)"
+        }
+    ],
+    "settings": {
+        "typescript.tsdk": "EndgameTrainer/node_modules/typescript/lib",
+        "typescript.enablePromptUseWorkspaceTsdk": true,
+        "eslint.workingDirectories": [
+            { "directory": "EndgameTrainer", "changeProcessCWD": true },
+            { "directory": "../EndgameTrainer-critical-tests", "changeProcessCWD": true },
+            { "directory": "../EndgameTrainer-progress-core", "changeProcessCWD": true },
+            { "directory": "../EndgameTrainer-progress-ui", "changeProcessCWD": true },
+            { "directory": "../EndgameTrainer-infrastructure", "changeProcessCWD": true }
+        ],
+        "search.exclude": {
+            "**/node_modules": true,
+            "**/.next": true
+        }
+    }
+}
