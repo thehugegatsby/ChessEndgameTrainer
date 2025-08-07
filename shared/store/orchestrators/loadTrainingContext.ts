@@ -180,10 +180,45 @@ export const loadTrainingContext = async (
         positionService.getPreviousPosition(position.id, position.category)
       ]);
       
+      // Convert EndgamePosition to TrainingPosition for navigation positions
+      const nextTrainingPos = nextPos ? {
+        ...nextPos,
+        colorToTrain:
+          (nextPos as any).colorToTrain || nextPos.sideToMove || "white",
+        targetOutcome:
+          (nextPos as any).targetOutcome ||
+          (nextPos.goal === "win"
+            ? nextPos.sideToMove === "white"
+              ? "1-0"
+              : "0-1"
+            : nextPos.goal === "draw"
+              ? "1/2-1/2"
+              : "1-0"),
+        timeLimit: (nextPos as any).timeLimit || undefined,
+        chapterId: (nextPos as any).chapterId || undefined,
+      } as TrainingPosition : null;
+      
+      const prevTrainingPos = prevPos ? {
+        ...prevPos,
+        colorToTrain:
+          (prevPos as any).colorToTrain || prevPos.sideToMove || "white",
+        targetOutcome:
+          (prevPos as any).targetOutcome ||
+          (prevPos.goal === "win"
+            ? prevPos.sideToMove === "white"
+              ? "1-0"
+              : "0-1"
+            : prevPos.goal === "draw"
+              ? "1/2-1/2"
+              : "1-0"),
+        timeLimit: (prevPos as any).timeLimit || undefined,
+        chapterId: (prevPos as any).chapterId || undefined,
+      } as TrainingPosition : null;
+      
       // Update navigation positions
       setState((draft) => {
-        draft.training.nextPosition = nextPos;
-        draft.training.previousPosition = prevPos;
+        draft.training.nextPosition = nextTrainingPos;
+        draft.training.previousPosition = prevTrainingPos;
         draft.training.isLoadingNavigation = false;
       });
       

@@ -44,15 +44,34 @@ class MockChessService extends EventEmitter {
   move(
     move: { from: string; to: string; promotion?: string } | string,
   ): ValidatedMove | null {
+    // Generate SAN based on the actual move
+    let san: string;
+    let from: string;
+    let to: string;
+    
+    if (typeof move === "string") {
+      san = move;
+      from = "e2";
+      to = "e4";
+    } else {
+      from = move.from;
+      to = move.to;
+      
+      // Generate proper SAN based on the move
+      // For simplicity in tests, assume King moves (most common in endgames)
+      // Generate SAN like "Ke2" where the destination square is used
+      san = `K${to}`;
+    }
+    
     // Simulate a successful move
     const validatedMove: ValidatedMove = {
-      from: (typeof move === "object" ? move.from : "e2") as Square,
-      to: (typeof move === "object" ? move.to : "e4") as Square,
-      san: typeof move === "string" ? move : "Ke3",
+      from: from as Square,
+      to: to as Square,
+      san: san,
       piece: "k",
       color: "w",
       flags: "",
-      lan: "e2e3",
+      lan: `${from}${to}`,
       fenBefore: this.fen,
       fenAfter: this.fen, // In reality this would change
       // Helper methods
