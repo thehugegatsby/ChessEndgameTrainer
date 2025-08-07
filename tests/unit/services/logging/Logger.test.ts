@@ -23,8 +23,8 @@ class MockTransport implements ILogTransport {
   public logs: LogEntry[] = [];
 
   /**
-   *
-   * @param entry
+   * Log entry to mock storage
+   * @param entry Log entry to store
    */
   log(entry: LogEntry): void {
     this.logs.push(entry);

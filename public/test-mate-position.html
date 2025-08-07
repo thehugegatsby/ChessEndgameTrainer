@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mate Position Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .test-result {
+            background: #2d2d2d;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { border-left: 4px solid #4CAF50; }
+        .error { border-left: 4px solid #f44336; }
+        .warning { border-left: 4px solid #ff9800; }
+        .info { border-left: 4px solid #2196F3; }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .loading {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Mate Position Test</h1>
+    <p>Testing the mate position evaluation from Position 1:</p>
+    <code>FEN: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1</code>
+    
+    <button id="testButton" onclick="runTest()">Run Test</button>
+    <button onclick="clearResults()">Clear Results</button>
+    
+    <div id="results"></div>
+
+    <script>
+        // We'll use the global window object to access the engine
+        let SimpleEngine = null;
+        
+        // Load the engine dynamically
+        async function loadEngine() {
+            try {
+                // Try to get the engine from the global scope (if available)
+                if (window.getSimpleEngine) {
+                    return window.getSimpleEngine();
+                }
+                
+                // Alternative: create a basic test without engine
+                throw new Error('SimpleEngine not available in this context');
+            } catch (error) {
+                console.error('Engine loading error:', error);
+                throw error;
+            }
+        }
+        
+        let engine = null;
+        
+        window.runTest = async function() {
+            const button = document.getElementById('testButton');
+            const results = document.getElementById('results');
+            
+            button.disabled = true;
+            button.classList.add('loading');
+            button.textContent = 'Running Test...';
+            
+            try {
+                results.innerHTML = '<div class="test-result info">🚀 Starting mate position test...</div>';
+                
+                // Get engine instance
+                engine = await loadEngine();
+                results.innerHTML += '<div class="test-result success">✅ Engine instance created</div>';
+                
+                // Initialize engine
+                await engine.initialize();
+                results.innerHTML += '<div class="test-result success">✅ Engine initialized</div>';
+                
+                // FEN from Position 1
+                const fen = '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1';
+                results.innerHTML += `<div class="test-result info">📋 Testing FEN: ${fen}</div>`;
+                
+                // Get evaluation with multi-PV
+                const evaluation = await engine.evaluate(fen, {
+                    depth: 15,
+                    multiPV: 3,
+                    timeout: 10000
+                });
+                
+                results.innerHTML += '<div class="test-result success">✅ Got evaluation results</div>';
+                
+                // Display results
+                if (evaluation.lines && evaluation.lines.length > 0) {
+                    results.innerHTML += '<div class="test-result info"><strong>📊 Evaluation Results:</strong></div>';
+                    
+                    evaluation.lines.forEach((line, index) => {
+                        let scoreDisplay = '';
+                        if (line.score.type === 'mate') {
+                            scoreDisplay = `#${line.score.value}`;
+                        } else {
+                            scoreDisplay = `${line.score.value > 0 ? '+' : ''}${line.score.value}`;
+                        }
+                        
+                        const pvDisplay = line.pv ? line.pv.slice(0, 5).join(' ') : '';
+                        
+                        results.innerHTML += `<div class="test-result success">
+                            ${index + 1}. <strong>${line.move}</strong> - ${scoreDisplay}<br>
+                            PV: ${pvDisplay}
+                        </div>`;
+                    });
+                }
+                
+                // Test specific moves
+                results.innerHTML += '<div class="test-result info"><strong>🔍 Testing specific moves:</strong></div>';
+                
+                const testMoves = ['Kd6', 'Kf6', 'Kd5'];
+                
+                for (const move of testMoves) {
+                    try {
+                        const moveEval = await engine.evaluate(fen, {
+                            depth: 15,
+                            multiPV: 1,
+                            timeout: 5000,
+                            searchMoves: [move]
+                        });
+                        
+                        if (moveEval.lines && moveEval.lines[0]) {
+                            const line = moveEval.lines[0];
+                            let scoreDisplay = '';
+                            
+                            if (line.score.type === 'mate') {
+                                scoreDisplay = `#${line.score.value}`;
+                            } else {
+                                scoreDisplay = `${line.score.value > 0 ? '+' : ''}${line.score.value}`;
+                            }
+                            
+                            results.innerHTML += `<div class="test-result success">
+                                <strong>${move}</strong>: ${scoreDisplay}
+                            </div>`;
+                        }
+                    } catch (err) {
+                        results.innerHTML += `<div class="test-result error">
+                            <strong>${move}</strong>: Error - ${err.message}
+                        </div>`;
+                    }
+                }
+                
+                results.innerHTML += '<div class="test-result success">✅ Test completed successfully!</div>';
+                
+            } catch (error) {
+                results.innerHTML += `<div class="test-result error">❌ Test failed: ${error.message}</div>`;
+                console.error('Test error:', error);
+            } finally {
+                button.disabled = false;
+                button.classList.remove('loading');
+                button.textContent = 'Run Test';
+            }
+        };
+        
+        window.clearResults = function() {
+            document.getElementById('results').innerHTML = '';
+        };
+        
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            if (engine) {
+                engine.terminate();
+            }
+        });
+    </script>
+</body>
+</html>

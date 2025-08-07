@@ -22,7 +22,8 @@
 
 import React from "react";
 import { Chessboard as ReactChessboard } from "react-chessboard";
-import type { PieceDropHandlerArgs } from "react-chessboard/dist/types";
+// Using any for react-chessboard types due to missing type definitions
+type PieceDropHandlerArgs = any;
 
 /**
  * Props for the Chessboard component
