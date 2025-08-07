@@ -1,91 +1,25 @@
-# Dependencies
-node_modules/
-/.pnp
-.pnp.js
-
-# Testing
-/coverage
-
-# Next.js
-/.next/
-/out/
-
-# Production
-/build
-
-# Misc
-.DS_Store
-*.tsbuildinfo
-next-env.d.ts
-
-# Debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Local env files
-.env*.local
+# Symlinked files
+node_modules
+.next
+dist
+build
 .env
-
-# Vercel
-.vercel
-
-# TypeScript
-*.tsbuildinfo
+.env.local
+package.json
+package-lock.json
+tsconfig.json
+.eslintrc.json
+.prettierrc
+*.config.js
 
 # IDE
 .vscode/
 .idea/
-*.swp
-*.swo
-
-# OS
-Thumbs.db
 
 # Logs
-logs
 *.log
-firebase-debug.log
-firestore-debug.log
+npm-debug.log*
 
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage directory used by tools like istanbul
-coverage/
-coverage-business/
-*.lcov
-lcov-report/
-lcov.info
-coverage-summary.json
-*.html
-
-# Playwright
-playwright-report/
-test-results/
-
-# nyc test coverage
-.nyc_output
-
-# Backup files
-*-Backup-*/
-backup/
-*.backup
-
-# Chess engine binaries (if any)
-*.exe
-engines/
-
-# Temporary files
-tmp/
-temp/
-
-# Debug scripts
-debug-*.js
-debug-*.ts
-
-# Pre-commit hooks
-# Run: npm run pre-commit before committing 
+# OS
+.DS_Store
+Thumbs.db

@@ -216,15 +216,20 @@ export interface SessionProgress {
 
 /**
  * Individual card progress for spaced repetition
+ * Field names aligned with supermemo library for compatibility
  */
 export interface CardProgress {
-  id: string; // Unique ID of the chess position/puzzle
-  nextReviewAt: number; // Timestamp for next scheduled review
-  interval: number; // Current interval in days
-  easeFactor: number; // Multiplier that affects interval growth (typically 1.3-2.5)
-  lapses: number; // Times failed after learning
-  repetitions: number; // Total successful reviews
-  lastReviewedAt: number; // Last review timestamp
+  id: string; // Unique identifier for the card progress record
+  nextReviewAt: number; // Timestamp of the next scheduled review
+  lastReviewedAt: number; // Timestamp of the last review
+  
+  // SuperMemo algorithm fields (aligned with supermemo library)
+  interval: number; // Number of days until next review (output from supermemo)
+  repetition: number; // Number of consecutive correct responses (input/output for supermemo)
+  efactor: number; // Ease factor (input/output for supermemo, typically 1.3-2.5)
+  
+  // Application-specific tracking
+  lapses: number; // Number of times the card was answered incorrectly
 }
 
 /**

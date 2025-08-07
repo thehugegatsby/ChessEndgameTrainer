@@ -104,9 +104,9 @@ export const createProgressSlice: ImmerStateCreator<ProgressSlice> = (set) => ({
         id: trimmedId,
         nextReviewAt: Date.now() + 86400000, // 1 day from now
         interval: 1,
-        easeFactor: 2.5,
+        efactor: 2.5,
         lapses: wasCorrect ? 0 : 1,
-        repetitions: wasCorrect ? 1 : 0,
+        repetition: wasCorrect ? 1 : 0,
         lastReviewedAt: Date.now(),
       };
     } else {
@@ -115,17 +115,17 @@ export const createProgressSlice: ImmerStateCreator<ProgressSlice> = (set) => ({
       const now = Date.now();
       
       if (wasCorrect) {
-        card.repetitions++;
+        card.repetition++;
         // SM-2: New interval = old interval * ease factor
-        card.interval = Math.round(card.interval * card.easeFactor);
+        card.interval = Math.round(card.interval * card.efactor);
         // SM-2: Increase ease factor slightly for correct answers
-        card.easeFactor = Math.min(2.5, card.easeFactor + 0.1);
+        card.efactor = Math.min(2.5, card.efactor + 0.1);
       } else {
         card.lapses++;
         // SM-2: Reset interval on failure
         card.interval = 1; // Reset to 1 day
         // SM-2: Decrease ease factor for incorrect answers
-        card.easeFactor = Math.max(1.3, card.easeFactor - 0.2);
+        card.efactor = Math.max(1.3, card.efactor - 0.2);
       }
       
       card.lastReviewedAt = now;

@@ -1,1 +1,1 @@
-config/postcss.config.js
+../EndgameTrainer/postcss.config.js

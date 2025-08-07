@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { createProgressSlice, initialProgressState } from '@shared/store/slices/progressSlice';
+import { createProgressSlice } from '@shared/store/slices/progressSlice';
 import type { ProgressSlice, CardProgress, UserStats } from '@shared/store/slices/types';
 
 // Mock logger to avoid console noise in tests
@@ -18,16 +18,43 @@ jest.mock('@shared/services/logging/Logger', () => ({
   }),
 }));
 
+// Test store with minimal RootState structure
+interface TestRootState {
+  progress: ProgressSlice;
+  // Add minimal mocks for other slices to satisfy type requirements
+  game: any;
+  training: any;
+  tablebase: any;
+  ui: any;
+  handlePlayerMove: any;
+  loadTrainingContext: any;
+  reset: any;
+  hydrate: any;
+  _trainingActions: any;
+}
+
 // Helper to create a test store with only the progress slice
 const createTestStore = () => {
-  return create<{ progress: ProgressSlice }>()(
-    immer((set, get, api) => ({
-      progress: createProgressSlice(
-        (fn) => set((state) => fn(state)),
-        () => get(),
-        api
-      ),
-    }))
+  return create<TestRootState>()(
+    immer((set, get, api) => {
+      // Create the progress slice
+      const progressSlice = createProgressSlice(set as any, get as any, api as any);
+      
+      // Return minimal root state with progress slice
+      return {
+        progress: progressSlice,
+        // Mock other required properties
+        game: {} as any,
+        training: {} as any,
+        tablebase: {} as any,
+        ui: {} as any,
+        handlePlayerMove: jest.fn(),
+        loadTrainingContext: jest.fn(),
+        reset: jest.fn(),
+        hydrate: jest.fn(),
+        _trainingActions: {} as any,
+      };
+    })
   );
 };
 
@@ -109,18 +136,18 @@ describe('ProgressSlice', () => {
           id: 'pos1',
           nextReviewAt: Date.now() + 86400000,
           interval: 1,
-          easeFactor: 2.5,
+          efactor: 2.5,
           lapses: 0,
-          repetitions: 1,
+          repetition: 1,
           lastReviewedAt: Date.now(),
         },
         {
           id: 'pos2',
           nextReviewAt: Date.now() + 172800000,
           interval: 2,
-          easeFactor: 2.3,
+          efactor: 2.3,
           lapses: 1,
-          repetitions: 3,
+          repetition: 3,
           lastReviewedAt: Date.now(),
         },
       ];
@@ -143,8 +170,8 @@ describe('ProgressSlice', () => {
       expect(card).toBeDefined();
       expect(card.id).toBe(positionId);
       expect(card.interval).toBe(1);
-      expect(card.easeFactor).toBe(2.5);
-      expect(card.repetitions).toBe(1);
+      expect(card.efactor).toBe(2.5);
+      expect(card.repetition).toBe(1);
       expect(card.lapses).toBe(0);
     });
 
@@ -158,9 +185,9 @@ describe('ProgressSlice', () => {
       store.getState().progress.recordAttempt(positionId, true);
       
       const card = store.getState().progress.cardProgress[positionId];
-      expect(card.repetitions).toBe(2);
+      expect(card.repetition).toBe(2);
       expect(card.interval).toBeGreaterThan(1); // Should increase
-      expect(card.easeFactor).toBe(2.5); // Capped at 2.5 (already at max)
+      expect(card.efactor).toBe(2.5); // Capped at 2.5 (already at max)
       expect(card.lapses).toBe(0);
     });
 
@@ -180,7 +207,7 @@ describe('ProgressSlice', () => {
       const card = store.getState().progress.cardProgress[positionId];
       expect(card.interval).toBe(1); // Reset to 1
       expect(card.lapses).toBe(1);
-      expect(card.easeFactor).toBeLessThan(2.5); // Should decrease
+      expect(card.efactor).toBeLessThan(2.5); // Should decrease
     });
 
     it('should validate positionId in recordAttempt', () => {
@@ -248,9 +275,9 @@ describe('ProgressSlice', () => {
         id: 'pos3',
         nextReviewAt: Date.now(),
         interval: 5,
-        easeFactor: 2.1,
+        efactor: 2.1,
         lapses: 2,
-        repetitions: 10,
+        repetition: 10,
         lastReviewedAt: Date.now(),
       };
       
@@ -306,7 +333,7 @@ describe('ProgressSlice', () => {
       }
       
       let card = store.getState().progress.cardProgress[positionId];
-      expect(card.easeFactor).toBeLessThanOrEqual(2.5);
+      expect(card.efactor).toBeLessThanOrEqual(2.5);
       
       // Many incorrect attempts - ease factor should floor at 1.3
       for (let i = 0; i < 10; i++) {
@@ -314,7 +341,7 @@ describe('ProgressSlice', () => {
       }
       
       card = store.getState().progress.cardProgress[positionId];
-      expect(card.easeFactor).toBeGreaterThanOrEqual(1.3);
+      expect(card.efactor).toBeGreaterThanOrEqual(1.3);
     });
   });
 });
