@@ -1,12 +1,23 @@
 /**
- * @fileoverview Unit tests for ProgressCard component
- * @description Tests training progress display with stats and difficulty indicators
+ * @file Unit tests for ProgressCard component
+ * @module tests/unit/ui/components/ProgressCard.test
+ * 
+ * @description
+ * Comprehensive test suite for the ProgressCard component which displays
+ * training progress with statistics, difficulty indicators, and category icons.
+ * Tests cover rendering, interaction, accessibility, and edge cases.
+ * 
+ * @see {@link ProgressCard} - Component being tested
  */
 
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { ProgressCard } from "@shared/components/ui/ProgressCard";
 
+/**
+ * Mock progress statistics for testing
+ * @constant
+ */
 const mockProgressStats = {
   total: 20,
   completed: 12,
@@ -15,6 +26,10 @@ const mockProgressStats = {
   streak: 5,
 };
 
+/**
+ * Default props for ProgressCard component tests
+ * @constant
+ */
 const defaultProps = {
   title: "King and Queen vs King",
   description: "Learn basic checkmate patterns",
