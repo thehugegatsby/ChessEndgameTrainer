@@ -152,6 +152,82 @@ export interface TrainingActions {
 }
 
 /**
+ * Progress slice - User progress tracking and statistics
+ */
+export interface ProgressState {
+  // Core progress data
+  userStats: UserStats | null;
+  sessionProgress: SessionProgress;
+  cardProgress: Record<string, CardProgress>; // Map from positionId to progress
+  
+  // Sync status
+  loading: boolean;
+  syncStatus: 'idle' | 'syncing' | 'error';
+  lastSync: number | null;
+  syncError: string | null;
+}
+
+export interface ProgressActions {
+  // State setters
+  setUserStats: (stats: UserStats | null) => void;
+  updateSessionProgress: (progress: Partial<SessionProgress>) => void;
+  setLoading: (loading: boolean) => void;
+  setSyncStatus: (status: 'idle' | 'syncing' | 'error') => void;
+  setLastSync: (timestamp: number | null) => void;
+  setSyncError: (error: string | null) => void;
+  
+  // Card progress management
+  initializeCards: (cards: CardProgress[]) => void;
+  recordAttempt: (positionId: string, wasCorrect: boolean) => void;
+  resetCardProgress: (positionId: string) => void;
+  setCardProgress: (positionId: string, progress: CardProgress) => void;
+  
+  // Batch operations
+  batchUpdateProgress: (updates: {
+    userStats?: Partial<UserStats>;
+    sessionProgress?: Partial<SessionProgress>;
+    cardProgress?: Record<string, CardProgress>;
+  }) => void;
+  
+  // Reset
+  resetProgress: () => void;
+}
+
+/**
+ * Progress data types
+ */
+export interface UserStats {
+  userId: string;
+  totalPositionsCompleted: number;
+  overallSuccessRate: number;
+  totalTimeSpent: number;
+  totalHintsUsed: number;
+  lastActive: number;
+}
+
+export interface SessionProgress {
+  positionsCompleted: number;
+  positionsCorrect: number; // For deriving success rate
+  positionsAttempted: number; // For deriving success rate  
+  timeSpent: number;
+  hintsUsed: number;
+  mistakesMade: number;
+}
+
+/**
+ * Individual card progress for spaced repetition
+ */
+export interface CardProgress {
+  id: string; // Unique ID of the chess position/puzzle
+  nextReviewAt: number; // Timestamp for next scheduled review
+  interval: number; // Current interval in days
+  easeFactor: number; // Multiplier that affects interval growth (typically 1.3-2.5)
+  lapses: number; // Times failed after learning
+  repetitions: number; // Total successful reviews
+  lastReviewedAt: number; // Last review timestamp
+}
+
+/**
  * UI slice actions
  */
 export interface UIActions {
@@ -172,7 +248,7 @@ export interface UIActions {
 export type GameSlice = GameState & GameActions;
 export type TablebaseSlice = TablebaseState & TablebaseActions;
 export type TrainingSlice = TrainingState & TrainingActions;
-// ProgressSlice removed - was over-engineered and unused in UI
+export type ProgressSlice = ProgressState & ProgressActions;
 export type UISlice = UIState & UIActions;
 // SettingsSlice removed - was over-engineered and unused in UI
 
@@ -183,6 +259,7 @@ type BaseState = {
   game: GameSlice;
   training: TrainingSlice;
   tablebase: TablebaseSlice;
+  progress: ProgressSlice;
   ui: UISlice;
 };
 

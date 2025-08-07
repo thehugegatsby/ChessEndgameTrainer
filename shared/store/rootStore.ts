@@ -40,6 +40,7 @@ import {
   createTrainingSlice,
   initialTrainingState,
 } from "./slices/trainingSlice";
+import { createProgressSlice, initialProgressState } from "./slices/progressSlice";
 import { createUISlice, initialUIState } from "./slices/uiSlice";
 
 // Import ChessService for event subscription
@@ -100,6 +101,7 @@ export const useStore = create<RootState>()(
         const gameSlice = createGameSlice(set, get, store);
         const trainingSlice = createTrainingSlice(set, get, store);
         const tablebaseSlice = createTablebaseSlice(set, get, store);
+        const progressSlice = createProgressSlice(set, get, store);
         const uiSlice = createUISlice(set, get, store);
 
         // CRITICAL FIX: Store actions separately to prevent Immer from stripping them
@@ -126,6 +128,7 @@ export const useStore = create<RootState>()(
           game: gameSlice,
           training: trainingSlice,
           tablebase: tablebaseSlice,
+          progress: progressSlice,
           ui: uiSlice,
 
           // CRITICAL: Store training actions at root level to prevent Immer stripping
@@ -226,6 +229,9 @@ export const useStore = create<RootState>()(
 
               // Tablebase slice - merge initial state (preserves actions)
               Object.assign(state.tablebase, initialTablebaseState);
+
+              // Progress slice - merge initial state (preserves actions)
+              Object.assign(state.progress, initialProgressState);
 
               // UI slice - merge initial state (preserves actions)
               Object.assign(state.ui, initialUIState);
