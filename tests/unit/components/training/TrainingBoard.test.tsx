@@ -49,75 +49,118 @@ const mockUsePositionAnalysis = usePositionAnalysis as jest.MockedFunction<typeo
 describe('TrainingBoard', () => {
   const mockTrainingState = {
     currentPosition: {
-      id: 'test-position',
+      id: 1,
       fen: 'K7/P7/k7/8/8/8/8/8 w - - 0 1',
       title: 'Test Position',
-      targetFen: 'K7/P7/k7/8/8/8/8/8 w - - 0 1',
       description: 'Test description',
-      difficulty: 'medium' as const,
+      difficulty: 'intermediate' as const,
       category: 'pawn' as const,
+      colorToTrain: 'white' as const,
+      targetOutcome: '1-0' as const,
     },
+    nextPosition: null,
+    previousPosition: null,
+    isLoadingNavigation: false,
+    navigationError: null,
+    chapterProgress: null,
     isPlayerTurn: true,
+    isOpponentThinking: false,
     isSuccess: false,
+    sessionStartTime: undefined,
+    sessionEndTime: undefined,
+    hintsUsed: 0,
+    mistakeCount: 0,
     moveErrorDialog: null,
     moveSuccessDialog: null,
-    trainingHistory: [],
-    trainingActive: true,
   };
 
   const mockTrainingActions = {
+    setPosition: jest.fn(),
+    setNavigationPositions: jest.fn(),
+    setNavigationLoading: jest.fn(),
+    setNavigationError: jest.fn(),
+    setChapterProgress: jest.fn(),
+    setPlayerTurn: jest.fn(),
+    clearOpponentThinking: jest.fn(),
+    completeTraining: jest.fn(),
+    incrementHint: jest.fn(),
+    incrementMistake: jest.fn(),
     setMoveErrorDialog: jest.fn(),
     setMoveSuccessDialog: jest.fn(),
     addTrainingMove: jest.fn(),
-    completeTraining: jest.fn(),
-    setIsPlayerTurn: jest.fn(),
-    setIsSuccess: jest.fn(),
     resetTraining: jest.fn(),
-    startTraining: jest.fn(),
+    resetPosition: jest.fn(),
+    // Add async actions
+    handlePlayerMove: jest.fn(),
+    loadTrainingContext: jest.fn(),
   };
 
   const mockGameState = {
     currentFen: 'K7/P7/k7/8/8/8/8/8 w - - 0 1',
+    currentPgn: '',
     moveHistory: [],
+    currentMoveIndex: 0,
+    isGameFinished: false,
     gameResult: null,
-    isGameOver: false,
-    selectedSquare: null,
-    legalMoves: [],
-    lastMove: null,
-    capturedPieces: { white: [], black: [] },
   };
 
   const mockGameActions = {
+    updatePosition: jest.fn(),
+    addMove: jest.fn(),
+    setMoveHistory: jest.fn(),
+    setCurrentMoveIndex: jest.fn(),
+    setGameFinished: jest.fn(),
+    resetGame: jest.fn(),
+    initializeGame: jest.fn(),
     makeMove: jest.fn(),
     undoMove: jest.fn(),
-    resetGame: jest.fn(),
-    setSelectedSquare: jest.fn(),
-    setLegalMoves: jest.fn(),
+    redoMove: jest.fn(),
+    goToMove: jest.fn(),
+    goToFirst: jest.fn(),
+    goToPrevious: jest.fn(),
+    goToNext: jest.fn(),
+    goToLast: jest.fn(),
+    setCurrentFen: jest.fn(),
   };
 
   const mockTablebaseState = {
+    tablebaseMove: null,
     analysisStatus: 'idle' as const,
     evaluations: [],
-    tablebaseMove: null,
-    isTablebaseAvailable: true,
+    currentEvaluation: undefined,
   };
 
   const mockTablebaseActions = {
-    requestTablebaseMove: jest.fn(),
+    setTablebaseMove: jest.fn(),
     setAnalysisStatus: jest.fn(),
+    addEvaluation: jest.fn(),
     setEvaluations: jest.fn(),
+    setCurrentEvaluation: jest.fn(),
+    clearTablebaseState: jest.fn(),
   };
 
   const mockUIState = {
-    sidebarOpen: false,
-    activeToast: null,
-    theme: 'light' as const,
+    isSidebarOpen: false,
+    currentModal: null,
+    toasts: [],
+    loading: {
+      global: false,
+      tablebase: false,
+      position: false,
+      analysis: false,
+    },
+    analysisPanel: { isOpen: false, activeTab: 'evaluation' as const, showTablebase: true },
   };
 
   const mockUIActions = {
-    showToast: jest.fn(),
-    clearToast: jest.fn(),
     toggleSidebar: jest.fn(),
+    setIsSidebarOpen: jest.fn(),
+    openModal: jest.fn(),
+    closeModal: jest.fn(),
+    showToast: jest.fn(),
+    removeToast: jest.fn(),
+    setLoading: jest.fn(),
+    updateAnalysisPanel: jest.fn(),
   };
 
   // Mock implementations for custom hooks
@@ -137,6 +180,8 @@ describe('TrainingBoard', () => {
     
     // Setup custom hook mocks
     mockUseTrainingSession.mockReturnValue({
+      game: null,
+      currentPgn: '',
       history: [],
       isGameFinished: false,
       currentFen: mockTrainingState.currentPosition.fen,
@@ -151,6 +196,7 @@ describe('TrainingBoard', () => {
       lastEvaluation: null,
       isEvaluating: false,
       error: null,
+      addEvaluation: jest.fn(),
       clearEvaluations: jest.fn(),
     });
   });
@@ -158,14 +204,12 @@ describe('TrainingBoard', () => {
   describe('Rendering', () => {
     it('renders training board wrapper and mock chessboard', () => {
       const position: EndgamePosition = {
-        id: 'test-position',
+        id: 1,
         fen: 'K7/P7/k7/8/8/8/8/8 w - - 0 1',
         title: 'Test Position',
-        targetFen: 'K7/P7/k7/8/8/8/8/8 w - - 0 1',
         description: 'Test description',
-        difficulty: 'medium',
+        difficulty: 'intermediate',
         category: 'pawn',
-        colorToTrain: 'white',
       };
       
       render(<TrainingBoard position={position} onComplete={jest.fn()} />);
@@ -182,7 +226,7 @@ describe('TrainingBoard', () => {
     });
 
     it('renders with draggable pieces when game is not finished', () => {
-      render(<TrainingBoard position={mockTrainingState.currentPosition} onComplete={jest.fn()} />);
+      render(<TrainingBoard position={mockTrainingState.currentPosition!} onComplete={jest.fn()} />);
       
       const chessboard = screen.getByTestId('mock-chessboard');
       expect(chessboard).toHaveAttribute('data-draggable', 'true');
@@ -190,7 +234,7 @@ describe('TrainingBoard', () => {
 
     it('shows loading state when training position is not loaded', () => {
       mockUseTrainingStore.mockReturnValue([
-        { ...mockTrainingState, currentPosition: null },
+        { ...mockTrainingState, currentPosition: undefined },
         mockTrainingActions
       ]);
       
@@ -207,7 +251,7 @@ describe('TrainingBoard', () => {
 
   describe('Move Handling', () => {
     it('calls makeMove from useTrainingSession when piece is dropped', async () => {
-      render(<TrainingBoard position={mockTrainingState.currentPosition} onComplete={jest.fn()} />);
+      render(<TrainingBoard position={mockTrainingState.currentPosition!} onComplete={jest.fn()} />);
       
       const moveTrigger = screen.getByTestId('piece-drop-trigger');
       fireEvent.click(moveTrigger);
@@ -235,7 +279,7 @@ describe('TrainingBoard', () => {
       
       mockUseTrainingStore.mockReturnValue([stateWithError, mockTrainingActions]);
       
-      render(<TrainingBoard />);
+      render(<TrainingBoard onComplete={jest.fn()} />);
       
       // MoveErrorDialog should be rendered when error state is present
       expect(mockTrainingActions.setMoveErrorDialog).toBeDefined();
@@ -246,13 +290,14 @@ describe('TrainingBoard', () => {
         ...mockTrainingState,
         moveSuccessDialog: {
           isOpen: true,
-          isWin: true,
+          promotionPiece: 'q',
+          moveDescription: 'Excellent move!',
         },
       };
       
       mockUseTrainingStore.mockReturnValue([stateWithSuccess, mockTrainingActions]);
       
-      render(<TrainingBoard />);
+      render(<TrainingBoard onComplete={jest.fn()} />);
       
       // MoveSuccessDialog should be rendered when success state is present
       expect(mockTrainingActions.setMoveSuccessDialog).toBeDefined();
@@ -261,16 +306,18 @@ describe('TrainingBoard', () => {
     it('disables moves when game is finished', () => {
       // Update the mock to return isGameFinished: true
       mockUseTrainingSession.mockReturnValue({
+        game: null,
+        currentPgn: '',
         history: [],
         isGameFinished: true, // Game is finished
-        currentFen: mockTrainingState.currentPosition.fen,
+        currentFen: mockTrainingState.currentPosition!.fen,
         makeMove: mockMakeMove,
         jumpToMove: mockJumpToMove,
         resetGame: mockResetGame,
         undoMove: mockUndoMove,
       });
       
-      render(<TrainingBoard position={mockTrainingState.currentPosition} onComplete={jest.fn()} />);
+      render(<TrainingBoard position={mockTrainingState.currentPosition!} onComplete={jest.fn()} />);
       
       const moveTrigger = screen.getByTestId('piece-drop-trigger');
       expect(moveTrigger).toBeDisabled();
@@ -280,15 +327,15 @@ describe('TrainingBoard', () => {
   describe('Promotion Handling', () => {
     it('handles pawn promotion correctly', async () => {
       // Mock a position where promotion is possible
-      const promotionPosition: EndgamePosition = {
-        id: 'promotion-test',
+      const promotionPosition = {
+        id: 2,
         fen: '8/P7/k7/8/8/8/8/K7 w - - 0 1',
         title: 'Promotion Test',
-        targetFen: 'Q7/8/k7/8/8/8/8/K7 b - - 0 1',
         description: 'Test promotion',
-        difficulty: 'easy',
-        category: 'pawn',
-        colorToTrain: 'white',
+        difficulty: 'beginner' as const,
+        category: 'pawn' as const,
+        colorToTrain: 'white' as const,
+        targetOutcome: '1-0' as const,
       };
       
       mockUseTrainingStore.mockReturnValue([
@@ -297,6 +344,8 @@ describe('TrainingBoard', () => {
       ]);
       
       mockUseTrainingSession.mockReturnValue({
+        game: null,
+        currentPgn: '',
         history: [],
         isGameFinished: false,
         currentFen: promotionPosition.fen,
@@ -325,11 +374,13 @@ describe('TrainingBoard', () => {
 
   describe('Game State Integration', () => {
     it('updates when game state changes', () => {
-      const { rerender } = render(<TrainingBoard position={mockTrainingState.currentPosition} onComplete={jest.fn()} />);
+      const { rerender } = render(<TrainingBoard position={mockTrainingState.currentPosition!} onComplete={jest.fn()} />);
       
       // Update the mock to return new FEN
       const newFen = '8/8/k7/8/8/8/8/K7 w - - 0 1';
       mockUseTrainingSession.mockReturnValue({
+        game: null,
+        currentPgn: '',
         history: [],
         isGameFinished: false,
         currentFen: newFen,
@@ -339,32 +390,22 @@ describe('TrainingBoard', () => {
         undoMove: mockUndoMove,
       });
       
-      rerender(<TrainingBoard position={mockTrainingState.currentPosition} onComplete={jest.fn()} />);
+      rerender(<TrainingBoard position={mockTrainingState.currentPosition!} onComplete={jest.fn()} />);
       
       const wrapper = screen.getByTestId('training-board');
       expect(wrapper).toHaveAttribute('data-fen', newFen);
     });
 
     it('shows last move in game state', () => {
-      const stateWithLastMove = {
-        ...mockGameState,
-        lastMove: { from: 'e2', to: 'e4' },
-      };
-      
-      mockUseGameStore.mockReturnValue([stateWithLastMove, mockGameActions]);
-      
-      render(<TrainingBoard position={mockTrainingState.currentPosition} onComplete={jest.fn()} />);
+      render(<TrainingBoard position={mockTrainingState.currentPosition!} onComplete={jest.fn()} />);
       
       // The board should be rendered with the position
       const wrapper = screen.getByTestId('training-board');
       const chessboard = screen.getByTestId('mock-chessboard');
       
-      // Both should be present and the game state has a last move
+      // Both should be present
       expect(wrapper).toBeInTheDocument();
       expect(chessboard).toBeInTheDocument();
-      expect(stateWithLastMove.lastMove).toBeDefined();
-      expect(stateWithLastMove.lastMove.from).toBe('e2');
-      expect(stateWithLastMove.lastMove.to).toBe('e4');
     });
   });
 
@@ -374,13 +415,13 @@ describe('TrainingBoard', () => {
       mockUseTablebaseStore.mockReturnValue([
         { 
           ...mockTablebaseState, 
-          analysisStatus: 'loading',
-          evaluations: [{ move: 'Kb1', wdl: 2, dtm: 5 }]
+          analysisStatus: 'loading' as const,
+          evaluations: []
         },
         mockTablebaseActions
       ]);
       
-      render(<TrainingBoard position={mockTrainingState.currentPosition} onComplete={jest.fn()} />);
+      render(<TrainingBoard position={mockTrainingState.currentPosition!} onComplete={jest.fn()} />);
       
       const wrapper = screen.getByTestId('training-board');
       // Check that the analysis status is reflected in data attribute
@@ -389,11 +430,11 @@ describe('TrainingBoard', () => {
 
     it('handles tablebase unavailable state', () => {
       mockUseTablebaseStore.mockReturnValue([
-        { ...mockTablebaseState, isTablebaseAvailable: false },
+        mockTablebaseState,
         mockTablebaseActions
       ]);
       
-      render(<TrainingBoard />);
+      render(<TrainingBoard position={mockTrainingState.currentPosition!} onComplete={jest.fn()} />);
       
       // Should still render board even if tablebase is unavailable
       expect(screen.getByTestId('training-board')).toBeInTheDocument();
@@ -405,7 +446,7 @@ describe('TrainingBoard', () => {
       // Mock makeMove to reject
       mockMakeMove.mockRejectedValueOnce(new Error('Invalid move'));
       
-      render(<TrainingBoard position={mockTrainingState.currentPosition} onComplete={jest.fn()} />);
+      render(<TrainingBoard position={mockTrainingState.currentPosition!} onComplete={jest.fn()} />);
       
       const moveTrigger = screen.getByTestId('piece-drop-trigger');
       fireEvent.click(moveTrigger);
@@ -424,10 +465,11 @@ describe('TrainingBoard', () => {
         lastEvaluation: null,
         isEvaluating: false,
         error: 'Failed to analyze position',
+        addEvaluation: jest.fn(),
         clearEvaluations: jest.fn(),
       });
       
-      render(<TrainingBoard position={mockTrainingState.currentPosition} onComplete={jest.fn()} />);
+      render(<TrainingBoard position={mockTrainingState.currentPosition!} onComplete={jest.fn()} />);
       
       // Should render despite analysis error
       expect(screen.getByTestId('training-board')).toBeInTheDocument();
@@ -437,7 +479,7 @@ describe('TrainingBoard', () => {
 
   describe('Accessibility', () => {
     it('provides accessible board structure', () => {
-      render(<TrainingBoard position={mockTrainingState.currentPosition} onComplete={jest.fn()} />);
+      render(<TrainingBoard position={mockTrainingState.currentPosition!} onComplete={jest.fn()} />);
       
       const wrapper = screen.getByTestId('training-board');
       const chessboard = screen.getByTestId('mock-chessboard');
@@ -448,7 +490,7 @@ describe('TrainingBoard', () => {
     });
 
     it('provides proper data attributes for testing', () => {
-      render(<TrainingBoard position={mockTrainingState.currentPosition} onComplete={jest.fn()} />);
+      render(<TrainingBoard position={mockTrainingState.currentPosition!} onComplete={jest.fn()} />);
       
       const wrapper = screen.getByTestId('training-board');
       
