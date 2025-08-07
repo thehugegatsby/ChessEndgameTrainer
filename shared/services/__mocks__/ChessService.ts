@@ -18,12 +18,27 @@ class MockChessService extends EventEmitter {
     super();
   }
 
-  initialize(fen: string): void {
+  initialize(fen: string): boolean {
     this.fen = fen;
     this.pgn = "";
     this.moveHistory = [];
     this.isFinished = false;
-    this.emit("stateChange");
+    this.currentMoveIndex = -1;
+    
+    // Emit stateUpdate event with proper payload
+    this.emit("stateUpdate", {
+      type: "stateUpdate",
+      payload: {
+        fen: this.fen,
+        pgn: this.pgn,
+        moveHistory: this.moveHistory,
+        currentMoveIndex: this.currentMoveIndex,
+        isGameOver: this.isFinished,
+        gameResult: null
+      }
+    });
+    
+    return true;
   }
 
   move(
@@ -53,9 +68,18 @@ class MockChessService extends EventEmitter {
     this.moveHistory = [...this.moveHistory, validatedMove];
     this.currentMoveIndex = this.moveHistory.length - 1;
 
-    // Emit the move event which the store listens to
-    this.emit("move", validatedMove);
-    this.emit("stateChange");
+    // Emit stateUpdate event with proper payload
+    this.emit("stateUpdate", {
+      type: "stateUpdate",
+      payload: {
+        fen: this.fen,
+        pgn: this.getPgn(),
+        moveHistory: this.moveHistory,
+        currentMoveIndex: this.currentMoveIndex,
+        isGameOver: this.isFinished,
+        gameResult: null
+      }
+    });
 
     return validatedMove;
   }
@@ -95,9 +119,10 @@ class MockChessService extends EventEmitter {
           return i % 2 === 0 ? `${moveNum}. ${m.san}` : m.san;
         })
         .join(" ");
-      return moves || "";
+      // Return formatted PGN with starting position
+      return `[FEN "${this.fen}"] ${moves}`;
     }
-    return this.pgn;
+    return this.pgn || "";
   }
 
   getHistory(): ValidatedMove[] {
@@ -137,6 +162,23 @@ class MockChessService extends EventEmitter {
   validateFen(_fen: string): boolean {
     return true;
   }
+  
+  validateMove(_move: any): boolean {
+    return true;
+  }
+  
+  redo(): ValidatedMove | null {
+    // Simple redo implementation
+    return null;
+  }
+  
+  moves(options?: { square?: string; verbose?: boolean }): any[] {
+    // Simple implementation for testing
+    if (options?.verbose) {
+      return [];
+    }
+    return [];
+  }
 
   getSquare(_square: string): { type: string; color: "w" | "b" } | null {
     return null;
@@ -165,42 +207,32 @@ class MockChessService extends EventEmitter {
 
   // Subscribe method for rootStore
   subscribe(callback: (event: any) => void): () => void {
-    // Listen to all events and forward them
-    const handleMove = (_move: ValidatedMove) => {
-      callback({
-        type: "stateUpdate",
-        payload: {
-          fen: this.fen,
-          pgn: this.getPgn(),
-          moveHistory: this.moveHistory,
-          currentMoveIndex: this.getCurrentMoveIndex(),
-          isFinished: this.isFinished,
-          gameResult: null,
-        },
-      });
+    // Forward stateUpdate events properly
+    const handleStateUpdate = (event: any) => {
+      // If event already has the correct structure, pass it through
+      if (event && event.type === "stateUpdate") {
+        callback(event);
+      } else {
+        // Otherwise create the proper structure
+        callback({
+          type: "stateUpdate",
+          payload: {
+            fen: this.fen,
+            pgn: this.getPgn(),
+            moveHistory: this.moveHistory,
+            currentMoveIndex: this.getCurrentMoveIndex(),
+            isGameOver: this.isFinished,
+            gameResult: null,
+          },
+        });
+      }
     };
 
-    const handleStateChange = () => {
-      callback({
-        type: "stateUpdate",
-        payload: {
-          fen: this.fen,
-          pgn: this.getPgn(),
-          moveHistory: this.moveHistory,
-          currentMoveIndex: this.getCurrentMoveIndex(),
-          isFinished: this.isFinished,
-          gameResult: null,
-        },
-      });
-    };
-
-    this.on("move", handleMove);
-    this.on("stateChange", handleStateChange);
+    this.on("stateUpdate", handleStateUpdate);
 
     // Return unsubscribe function
     return () => {
-      this.off("move", handleMove);
-      this.off("stateChange", handleStateChange);
+      this.off("stateUpdate", handleStateUpdate);
     };
   }
 }

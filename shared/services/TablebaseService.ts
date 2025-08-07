@@ -166,12 +166,13 @@ class TablebaseService {
         // Secondary sort: for winning positions, prefer faster mate (lower DTM/DTZ)
         // For drawing/losing positions, prefer slower conversion (higher DTZ)
         if (a.wdl > 0) {
-          // Winning - prefer faster mate
+          // Winning - prefer faster mate (smaller absolute DTM value)
+          // Note: DTM values can be negative (e.g., -12 means mate in 12)
           const aDtx = a.dtm ?? a.dtz ?? 0;
           const bDtx = b.dtm ?? b.dtz ?? 0;
-          return aDtx - bDtx;
+          return Math.abs(aDtx) - Math.abs(bDtx);
         } else if (a.wdl < 0) {
-          // Losing - prefer slower loss
+          // Losing - prefer slower loss (larger absolute DTM value)
           const aDtx = a.dtm ?? a.dtz ?? 0;
           const bDtx = b.dtm ?? b.dtz ?? 0;
           return Math.abs(bDtx) - Math.abs(aDtx);

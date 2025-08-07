@@ -30,11 +30,11 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-// Import all slice creators
-import { createGameSlice } from "./slices/gameSlice";
-import { createTablebaseSlice } from "./slices/tablebaseSlice";
-import { createTrainingSlice } from "./slices/trainingSlice";
-import { createUISlice } from "./slices/uiSlice";
+// Import all slice creators and initial states
+import { createGameSlice, initialGameState } from "./slices/gameSlice";
+import { createTablebaseSlice, initialTablebaseState } from "./slices/tablebaseSlice";
+import { createTrainingSlice, initialTrainingState } from "./slices/trainingSlice";
+import { createUISlice, initialUIState } from "./slices/uiSlice";
 
 // Import ChessService for event subscription
 import {
@@ -209,26 +209,20 @@ export const useStore = create<RootState>()(
            */
           reset: () => {
             set((state) => {
-              // Reset only the state properties, not the actions - MANUAL PROPERTY RESET
-              // Game slice - explicit property reset
-              state.game.moveHistory = [];
-              state.game.currentMoveIndex = 0;
-              state.game.isGameFinished = false;
+              // Reset slices to their initial states (preserving actions)
+              // Use Object.assign to only update state properties, not functions
               
-              // Training slice - DO NOT RESET - Preserve all action methods
+              // Game slice - merge initial state (preserves actions)
+              Object.assign(state.game, initialGameState);
               
-              // Tablebase slice - explicit property reset
-              state.tablebase.tablebaseMove = null;
-              state.tablebase.analysisStatus = 'idle';
-              state.tablebase.evaluations = [];
-              state.tablebase.currentEvaluation = undefined;
+              // Training slice - merge initial state (preserves actions)
+              Object.assign(state.training, initialTrainingState);
               
-              // UI slice - explicit property reset
-              state.ui.isSidebarOpen = false;
-              state.ui.currentModal = null;
-              state.ui.toasts = [];
-              state.ui.loading = { global: false, position: false, tablebase: false, analysis: false };
-              state.ui.analysisPanel = { isOpen: false, activeTab: 'evaluation', showTablebase: false };
+              // Tablebase slice - merge initial state (preserves actions)
+              Object.assign(state.tablebase, initialTablebaseState);
+              
+              // UI slice - merge initial state (preserves actions)
+              Object.assign(state.ui, initialUIState);
             });
           },
 

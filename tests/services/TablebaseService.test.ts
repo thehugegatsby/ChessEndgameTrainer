@@ -596,6 +596,73 @@ describe("TablebaseService", () => {
     });
   });
 
+  describe("Issue #59 - DTM Sorting with Negative Values", () => {
+    it("should correctly sort moves with negative DTM values (pawn promotion bug)", async () => {
+      // This was a real bug where e7 (DTM=-12) was incorrectly sorted after Ke8 (DTM=-20)
+      const mockResponse = {
+        checkmate: false,
+        stalemate: false,
+        variant_win: false,
+        variant_loss: false,
+        insufficient_material: false,
+        dtz: 1,
+        precise_dtz: 1,
+        dtm: 13,
+        category: "win",
+        moves: [
+          {
+            uci: "e6e7",
+            san: "e7",
+            zeroing: true,
+            dtz: -2,
+            precise_dtz: -2,
+            dtm: -12,
+            category: "loss"
+          },
+          {
+            uci: "d7e8",
+            san: "Ke8",
+            zeroing: false,
+            dtz: -2,
+            precise_dtz: -2,
+            dtm: -20,
+            category: "loss"
+          },
+          {
+            uci: "d7d8",
+            san: "Kd8",
+            zeroing: false,
+            dtz: -2,
+            precise_dtz: -2,
+            dtm: -16,
+            category: "loss"
+          }
+        ]
+      };
+
+      mockFetch.mockResolvedValueOnce(
+        createTablebaseResponse(mockResponse)
+      );
+
+      const fen = "6k1/3K4/4P3/8/8/8/8/8 w - - 3 4";
+      const result = await tablebaseService.getTopMoves(fen, 5);
+
+      expect(result.isAvailable).toBe(true);
+      expect(result.moves).toBeDefined();
+      expect(result.moves!.length).toBeGreaterThan(0);
+
+      // e7 should be first (best DTM of -12)
+      expect(result.moves![0].san).toBe("e7");
+      expect(result.moves![0].dtm).toBe(-12);
+
+      // Verify correct order: e7 (-12), Kd8 (-16), Ke8 (-20)
+      if (result.moves!.length >= 3) {
+        expect(result.moves![1].san).toBe("Kd8");
+        expect(result.moves![2].san).toBe("Ke8");
+      }
+    });
+  });
+
   describe("Edge Cases - Terminal States", () => {
     it("should handle checkmate positions correctly", async () => {
       // K+Q vs K checkmate position (Black is checkmated)

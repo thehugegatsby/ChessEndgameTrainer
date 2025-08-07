@@ -118,30 +118,28 @@ export function getShortTitle(position: EndgamePosition): string {
  * Gets the display title for the current training session
  *
  * @param {EndgamePosition} position - The current training position
- * @param {number} [moveCount] - Number of moves played in the session
+ * @param {number} [moveCount] - Number of moves played (kept for compatibility, not used)
  * @param {number} [totalPositions] - Total positions in the category
- * @returns {string} Training session title with optional progress indicator
+ * @returns {string} Training session title
  *
  * @description
- * Creates enriched titles for active training sessions by adding
- * progress indicators based on move count. Shows flame emoji and
- * move number for longer sessions to indicate progress.
+ * Creates titles for active training sessions showing position
+ * information and progress through multiple positions.
  *
  * @example
  * ```typescript
- * // Early in session
- * getTrainingDisplayTitle(position, 2, 10);
- * // Returns: "Brückenbau 3/10"
+ * // Single position
+ * getTrainingDisplayTitle(position);
+ * // Returns: "Brückenbau"
  *
- * // Later in session
+ * // Multiple positions
  * getTrainingDisplayTitle(position, 8, 10);
- * // Returns: "Brückenbau 3/10 🔥 4" (showing move 4)
+ * // Returns: "Brückenbau 3/10"
  * ```
  *
  * @remarks
- * Progress indicator (🔥) appears after 3 moves to avoid clutter
- * in short training sessions. Move count is halved to show full moves
- * rather than half-moves (ply).
+ * The moveCount parameter is kept for backwards compatibility but
+ * is no longer used. Previously showed move progress indicators.
  */
 export function getTrainingDisplayTitle(
   position: EndgamePosition,
@@ -150,11 +148,6 @@ export function getTrainingDisplayTitle(
 ): string {
   const baseTitle = formatPositionTitle(position, totalPositions);
 
-  // Add move progress indicator for longer sessions
-  if (moveCount && moveCount > 3) {
-    const moveNumber = Math.floor(moveCount / 2);
-    return `${baseTitle} 🔥 ${moveNumber}`;
-  }
-
+  // Simply return the base title without move indicators
   return baseTitle;
 }

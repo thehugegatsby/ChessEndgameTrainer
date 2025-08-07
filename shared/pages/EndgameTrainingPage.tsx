@@ -105,17 +105,20 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
     }, [uiActions, uiState]);
 
     const getLichessUrl = useCallback(() => {
-      const currentPgn = gameState.currentPgn || "";
       const currentFen = gameState.currentFen || position.fen;
-
-      if (currentPgn && gameState.moveHistory.length > 0) {
-        return `https://lichess.org/analysis/pgn/${encodeURIComponent(currentPgn)}`;
-      } else {
-        return `https://lichess.org/analysis/${currentFen.replace(/ /g, "_")}`;
+      
+      // Use PGN if we have moves in the history
+      // PGN includes the starting FEN and all moves, providing full context
+      if (gameState.currentPgn && gameState.moveHistory.length > 0) {
+        // Lichess accepts PGN in the URL for complete game analysis
+        return `https://lichess.org/analysis/pgn/${encodeURIComponent(gameState.currentPgn)}`;
       }
+      
+      // Fallback to FEN-only URL for positions without move history
+      return `https://lichess.org/analysis/${currentFen.replace(/ /g, "_")}`;
     }, [
       gameState.currentPgn,
-      gameState.moveHistory,
+      gameState.moveHistory.length,
       gameState.currentFen,
       position.fen,
     ]);

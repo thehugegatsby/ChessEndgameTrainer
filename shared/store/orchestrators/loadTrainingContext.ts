@@ -33,6 +33,7 @@ import type { EndgamePosition } from "@shared/types/endgame";
 import type { TrainingPosition } from "../slices/trainingSlice";
 import { getLogger } from "@shared/services/logging";
 import { chessService } from "@shared/services/ChessService";
+import { getServerPositionService } from "@shared/services/database/serverPositionService";
 
 const logger = getLogger().setContext("loadTrainingContext");
 
@@ -162,6 +163,43 @@ export const loadTrainingContext = async (
       draft.training.currentPosition = trainingPosition;
       draft.training.isPlayerTurn = isPlayerTurn;
     })
+
+    // Step 5: Load navigation positions (next/previous)
+    // This happens in the background to not block the main loading
+    const positionService = getServerPositionService();
+    
+    // Set loading state for navigation
+    setState((draft) => {
+      draft.training.isLoadingNavigation = true;
+    });
+    
+    try {
+      // Load navigation positions in parallel
+      const [nextPos, prevPos] = await Promise.all([
+        positionService.getNextPosition(position.id, position.category),
+        positionService.getPreviousPosition(position.id, position.category)
+      ]);
+      
+      // Update navigation positions
+      setState((draft) => {
+        draft.training.nextPosition = nextPos;
+        draft.training.previousPosition = prevPos;
+        draft.training.isLoadingNavigation = false;
+      });
+      
+      logger.debug("Navigation positions loaded", { 
+        nextId: nextPos?.id, 
+        prevId: prevPos?.id 
+      });
+    } catch (navError) {
+      // Navigation loading is non-critical, just log and continue
+      logger.warn("Failed to load navigation positions", { error: navError });
+      setState((draft) => {
+        draft.training.nextPosition = null;
+        draft.training.previousPosition = null;
+        draft.training.isLoadingNavigation = false;
+      });
+    }
 
     // Step 6: Request initial tablebase analysis if it's not player's turn
     if (!isPlayerTurn) {

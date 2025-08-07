@@ -99,9 +99,9 @@ describe("titleFormatter", () => {
       expect(result).toBe("Brückenbau 12");
     });
 
-    it("adds move progress indicator for longer sessions", () => {
+    it("does not add move progress indicator anymore", () => {
       const result = getTrainingDisplayTitle(brückenbauPosition, 8);
-      expect(result).toBe("Brückenbau 12 🔥 4");
+      expect(result).toBe("Brückenbau 12");
     });
 
     it("does not add progress indicator for short sessions", () => {
@@ -114,9 +114,9 @@ describe("titleFormatter", () => {
       expect(result).toBe("Brückenbau 12/20");
     });
 
-    it("combines progress indicator with total positions", () => {
+    it("shows only position info without move indicator", () => {
       const result = getTrainingDisplayTitle(brückenbauPosition, 10, 20);
-      expect(result).toBe("Brückenbau 12/20 🔥 5");
+      expect(result).toBe("Brückenbau 12/20");
     });
   });
 });
