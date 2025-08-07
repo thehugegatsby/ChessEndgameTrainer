@@ -62,4 +62,4 @@ export { useGameStore } from "./useGameStore";
 export { useTrainingStore } from "./useTrainingStore";
 export { useUIStore } from "./useUIStore";
 export { useTablebaseStore } from "./useTablebaseStore";
-export { useProgressStore, useProgressState, useProgressActions, useDerivedProgress } from "./useProgressStore";
+export { useProgressStore, useProgressState, useProgressActions, useDerivedProgress, useDueCardsCache } from "./useProgressStore";

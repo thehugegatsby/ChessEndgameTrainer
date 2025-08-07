@@ -22,6 +22,7 @@
 import { supermemo } from 'supermemo';
 import type { CardProgress } from '@shared/store/slices/types';
 import { getLogger } from '@shared/services/logging/Logger';
+import { filterDueCards, type DueCard } from '@shared/types/progress';
 
 const logger = getLogger().setContext('SpacedRepetitionService');
 
@@ -155,6 +156,30 @@ export function getDueCardsFromMap(
   now: number = Date.now()
 ): CardProgress[] {
   return getDueCards(Object.values(cardMap), now);
+}
+
+/**
+ * Gets cards due for review with branded types (NEW - Enhanced Version)
+ * 
+ * Type-safe version that returns DueCard branded objects.
+ * Provides better type safety and leverages optimized filterDueCards implementation.
+ * 
+ * @param cardMap - Record of card IDs to CardProgress
+ * @param now - Current timestamp (defaults to Date.now())
+ * @returns Array of type-safe DueCard objects
+ * 
+ * @example
+ * ```typescript
+ * const dueCards: DueCard[] = getDueCardsWithBranding(cardProgress);
+ * // TypeScript knows these are validated due cards
+ * dueCards.forEach(card => processCard(card));
+ * ```
+ */
+export function getDueCardsWithBranding(
+  cardMap: Record<string, CardProgress>,
+  now: number = Date.now()
+): DueCard[] {
+  return filterDueCards(Object.values(cardMap), now);
 }
 
 /**
