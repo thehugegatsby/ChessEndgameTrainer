@@ -1,1 +1,1 @@
-config/jest.config.js
+../EndgameTrainer/jest.config.js

@@ -152,6 +152,99 @@ export interface TrainingActions {
 }
 
 /**
+ * Progress slice - User progress tracking and statistics
+ */
+export interface ProgressState {
+  // Core progress data
+  userStats: UserStats | null;
+  sessionProgress: SessionProgress;
+  cardProgress: Record<string, CardProgress>; // Map from positionId to progress
+  
+  // Sync status
+  loading: boolean;
+  syncStatus: 'idle' | 'syncing' | 'error';
+  lastSync: number | null;
+  syncError: string | null;
+}
+
+export interface ProgressActions {
+  // State setters (synchronous)
+  setUserStats: (stats: UserStats | null) => void;
+  updateSessionProgress: (progress: Partial<SessionProgress>) => void;
+  setLoading: (loading: boolean) => void;
+  setSyncStatus: (status: 'idle' | 'syncing' | 'error') => void;
+  setLastSync: (timestamp: number | null) => void;
+  setSyncError: (error: string | null) => void;
+  
+  // Card progress management (synchronous)
+  initializeCards: (cards: CardProgress[]) => void;
+  recordAttempt: (positionId: string, wasCorrect: boolean) => void;
+  resetCardProgress: (positionId: string) => void;
+  setCardProgress: (positionId: string, progress: CardProgress) => void;
+  
+  // Batch operations (synchronous)
+  batchUpdateProgress: (updates: {
+    userStats?: Partial<UserStats>;
+    sessionProgress?: Partial<SessionProgress>;
+    cardProgress?: Record<string, CardProgress>;
+  }) => void;
+
+  // Async Firebase operations
+  loadUserProgress: (userId: string) => Promise<void>;
+  saveUserStats: (userId: string, updates: Partial<UserStats>) => Promise<void>;
+  saveCardProgress: (userId: string, positionId: string, progress: CardProgress) => Promise<void>;
+  saveSessionComplete: (
+    userId: string, 
+    sessionStats: Partial<UserStats>,
+    cardUpdates: Array<{ positionId: string; progress: CardProgress }>
+  ) => Promise<void>;
+  getDueCards: (userId: string) => Promise<CardProgress[]>;
+  syncAllProgress: (userId: string) => Promise<void>;
+  
+  // Reset
+  resetProgress: () => void;
+}
+
+/**
+ * Progress data types
+ */
+export interface UserStats {
+  userId: string;
+  totalPositionsCompleted: number;
+  overallSuccessRate: number;
+  totalTimeSpent: number;
+  totalHintsUsed: number;
+  lastActive: number;
+}
+
+export interface SessionProgress {
+  positionsCompleted: number;
+  positionsCorrect: number; // For deriving success rate
+  positionsAttempted: number; // For deriving success rate  
+  timeSpent: number;
+  hintsUsed: number;
+  mistakesMade: number;
+}
+
+/**
+ * Individual card progress for spaced repetition
+ * Field names aligned with supermemo library for compatibility
+ */
+export interface CardProgress {
+  id: string; // Unique identifier for the card progress record
+  nextReviewAt: number; // Timestamp of the next scheduled review
+  lastReviewedAt: number; // Timestamp of the last review
+  
+  // SuperMemo algorithm fields (aligned with supermemo library)
+  interval: number; // Number of days until next review (output from supermemo)
+  repetition: number; // Number of consecutive correct responses (input/output for supermemo)
+  efactor: number; // Ease factor (input/output for supermemo, typically 1.3-2.5)
+  
+  // Application-specific tracking
+  lapses: number; // Number of times the card was answered incorrectly
+}
+
+/**
  * UI slice actions
  */
 export interface UIActions {
@@ -172,7 +265,7 @@ export interface UIActions {
 export type GameSlice = GameState & GameActions;
 export type TablebaseSlice = TablebaseState & TablebaseActions;
 export type TrainingSlice = TrainingState & TrainingActions;
-// ProgressSlice removed - was over-engineered and unused in UI
+export type ProgressSlice = ProgressState & ProgressActions;
 export type UISlice = UIState & UIActions;
 // SettingsSlice removed - was over-engineered and unused in UI
 
@@ -183,6 +276,7 @@ type BaseState = {
   game: GameSlice;
   training: TrainingSlice;
   tablebase: TablebaseSlice;
+  progress: ProgressSlice;
   ui: UISlice;
 };
 
