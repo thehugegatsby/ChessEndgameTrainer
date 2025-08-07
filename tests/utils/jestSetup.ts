@@ -3,6 +3,7 @@
  * Common setup patterns for Jest 30 with ServiceContainer
  */
 
+import "@testing-library/jest-dom";
 import React from "react";
 import { IServiceContainer } from "@shared/services/container";
 import {
@@ -19,6 +20,7 @@ let globalTestContainer: IServiceContainer | null = null;
 /**
  * Setup global test container
  * Call in jest.setup.js or describe block
+ * @param overrides
  */
 export function setupGlobalTestContainer(
   overrides?: TestServiceOverrides,
@@ -53,6 +55,7 @@ export function getGlobalTestContainer(): IServiceContainer {
 /**
  * Per-test container setup
  * Preferred approach for better test isolation
+ * @param overrides
  */
 export function setupPerTestContainer(
   overrides?: TestServiceOverrides,
@@ -72,6 +75,7 @@ export function setupPerTestContainer(
 
 /**
  * React Testing Library setup with ServiceContainer
+ * @param overrides
  */
 export function setupReactTestingWithContainer(
   overrides?: TestServiceOverrides,
@@ -83,6 +87,11 @@ export function setupReactTestingWithContainer(
     container = createTestContainer(overrides);
 
     // Create wrapper component
+    /**
+     *
+     * @param root0
+     * @param root0.children
+     */
     wrapper = ({ children }: { children: React.ReactNode }) => {
       const { ServiceProvider } = require("@shared/services/container/adapter");
       return React.createElement(ServiceProvider, { container }, children);
@@ -94,7 +103,13 @@ export function setupReactTestingWithContainer(
   });
 
   return {
+    /**
+     *
+     */
     getContainer: () => container,
+    /**
+     *
+     */
     getWrapper: () => wrapper,
   };
 }
@@ -102,9 +117,15 @@ export function setupReactTestingWithContainer(
 /**
  * Common Jest matchers for platform services
  */
-export const platformServiceMatchers = {
+export /**
+ *
+ */
+const platformServiceMatchers = {
   /**
    * Check if a service method was called
+   * @param service
+   * @param method
+   * @param args
    */
   toHaveBeenCalledOnService: (service: any, method: string, ...args: any[]) => {
     if (typeof jest !== "undefined") {
@@ -114,6 +135,9 @@ export const platformServiceMatchers = {
 
   /**
    * Check storage operations
+   * @param storage
+   * @param key
+   * @param value
    */
   toHaveStorageItem: (storage: Storage, key: string, value: string) => {
     expect(storage.getItem(key)).toBe(value);
@@ -121,6 +145,9 @@ export const platformServiceMatchers = {
 
   /**
    * Check storage calls
+   * @param storage
+   * @param method
+   * @param args
    */
   toHaveCalledStorageMethod: (
     storage: Storage,
@@ -136,7 +163,10 @@ export const platformServiceMatchers = {
 /**
  * Test environment detection
  */
-export const testEnvironment = {
+export /**
+ *
+ */
+const testEnvironment = {
   isJest: typeof jest !== "undefined",
   isJSDOM:
     typeof window !== "undefined" &&
@@ -147,7 +177,10 @@ export const testEnvironment = {
 /**
  * Wait for next tick (useful for async operations)
  */
-export const waitForNextTick = (): Promise<void> => {
+export /**
+ *
+ */
+const waitForNextTick = (): Promise<void> => {
   return new Promise((resolve) => {
     if (typeof setImmediate !== "undefined") {
       setImmediate(resolve);
@@ -160,8 +193,12 @@ export const waitForNextTick = (): Promise<void> => {
 /**
  * Wait for container services to be ready
  * Useful when services have async initialization
+ * @param container
  */
-export const waitForServicesReady = async (
+export /**
+ *
+ */
+const waitForServicesReady = async (
   container: IServiceContainer,
 ): Promise<void> => {
   // Give services time to initialize
@@ -178,6 +215,7 @@ export const waitForServicesReady = async (
 
 /**
  * Debug helper to inspect container state
+ * @param container
  */
 export function debugContainer(container: IServiceContainer): void {
   if (process.env.NODE_ENV === "test" && process.env.DEBUG_CONTAINER) {
@@ -203,16 +241,28 @@ export function mockConsole() {
   });
 
   return {
+    /**
+     *
+     * @param message
+     */
     expectConsoleLog: (message: string) => {
       expect(console.log).toHaveBeenCalledWith(
         expect.stringContaining(message),
       );
     },
+    /**
+     *
+     * @param message
+     */
     expectConsoleWarn: (message: string) => {
       expect(console.warn).toHaveBeenCalledWith(
         expect.stringContaining(message),
       );
     },
+    /**
+     *
+     * @param message
+     */
     expectConsoleError: (message: string) => {
       expect(console.error).toHaveBeenCalledWith(
         expect.stringContaining(message),

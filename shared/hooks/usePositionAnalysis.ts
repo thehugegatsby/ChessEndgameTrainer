@@ -161,7 +161,10 @@ export function usePositionAnalysis({
             action: "evaluatePosition",
             additionalData: { fen },
           });
-          setError(userMessage);
+          // Only set error if component is still mounted and request not aborted
+          if (!abortControllerRef.current?.signal.aborted) {
+            setError(userMessage);
+          }
         } else {
           logger.debug("[usePositionAnalysis] Evaluation aborted");
         }

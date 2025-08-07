@@ -46,6 +46,23 @@ import { mockServerPositionService } from "@shared/services/database/__mocks__/s
 const mockedUseRouter = useRouter as jest.Mock;
 
 describe("EndgameTrainingPage Integration Tests", () => {
+  // Mock ResizeObserver for react-chessboard compatibility
+  beforeAll(() => {
+    global.ResizeObserver = class ResizeObserver {
+      /**
+       *
+       */
+      observe() {}
+      /**
+       *
+       */
+      unobserve() {}
+      /**
+       *
+       */
+      disconnect() {}
+    };
+  });
   // Test data
   const mockPosition: EndgamePosition = {
     id: 1,
@@ -111,9 +128,23 @@ describe("EndgameTrainingPage Integration Tests", () => {
       difficulty: "beginner",
       category: "basic",
     });
-    (mockServerPositionService.getPreviousPosition as jest.Mock).mockResolvedValue(
-      null
-    );
+    (
+      mockServerPositionService.getPreviousPosition as jest.Mock
+    ).mockResolvedValue(null);
+  });
+
+  afterEach(() => {
+    // Clean up event listeners to prevent memory leaks
+    const mockChess =
+      require("@shared/services/__mocks__/ChessService").chessService;
+    if (mockChess && mockChess.removeAllListeners) {
+      mockChess.removeAllListeners();
+    }
+  });
+
+  // Global cleanup after all tests
+  afterAll(() => {
+    delete (global as any).ResizeObserver;
   });
 
   // Helper function to render the page
@@ -124,7 +155,7 @@ describe("EndgameTrainingPage Integration Tests", () => {
     return render(
       <StoreProvider>
         <EndgameTrainingPage position={mockPosition} />
-      </StoreProvider>
+      </StoreProvider>,
     );
   };
 
@@ -173,7 +204,7 @@ describe("EndgameTrainingPage Integration Tests", () => {
         ...mockPosition,
         fen: "4k3/8/8/8/8/8/8/4K3 w - - 0 1", // Kings on e8 and e1
       };
-      
+
       // Setup state with simple position
       act(() => {
         const state = useStore.getState();
@@ -181,7 +212,7 @@ describe("EndgameTrainingPage Integration Tests", () => {
         state.training.setPosition(simplePosition as any);
         state.training.setPlayerTurn(true);
       });
-      
+
       renderPage();
 
       // Simulate making a valid move (King from e1 to e2)
@@ -317,7 +348,7 @@ describe("EndgameTrainingPage Integration Tests", () => {
   describe("Navigation Features", () => {
     it("should navigate to next position when button is clicked", async () => {
       // const user = userEvent.setup(); // Unused in this test
-      
+
       // Set up navigation positions in the store before rendering
       // Use the proper action method with correct signature
       act(() => {
@@ -332,12 +363,12 @@ describe("EndgameTrainingPage Integration Tests", () => {
           colorToTrain: "white" as const,
           targetOutcome: "1-0" as const,
         };
-        
+
         // Use the action method with two separate arguments
         useStore.getState().training.setNavigationPositions(nextPos, null);
         useStore.getState().training.setNavigationLoading(false);
       });
-      
+
       renderPage();
 
       // Since the button click isn't working properly in tests,
@@ -365,7 +396,7 @@ describe("EndgameTrainingPage Integration Tests", () => {
 
     it("should reset position when reset button is clicked", async () => {
       // Test the reset functionality without rendering to avoid component errors
-      
+
       // First add a move to the history
       act(() => {
         const state = useStore.getState();
@@ -385,7 +416,7 @@ describe("EndgameTrainingPage Integration Tests", () => {
       });
 
       // Small delay to allow state updates
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Verify game was reset
       expect(useStore.getState().game.moveHistory).toHaveLength(0);
@@ -396,7 +427,7 @@ describe("EndgameTrainingPage Integration Tests", () => {
   describe("Move History Navigation", () => {
     it("should navigate through move history", async () => {
       // Test move navigation without rendering to avoid component errors
-      
+
       // Add a move to the history
       act(() => {
         const state = useStore.getState();
@@ -494,12 +525,12 @@ describe("EndgameTrainingPage Integration Tests", () => {
       renderPage();
 
       const lichessLink = screen.getByText("Auf Lichess analysieren →");
-      
+
       // After making a move, the URL should include PGN
       // The mock should have a move in history now
       const state = useStore.getState();
       expect(state.game.moveHistory.length).toBeGreaterThan(0);
-      
+
       // The link should use PGN format when moves exist
       // Note: The actual implementation checks for currentPgn and moveHistory.length > 0
       expect(lichessLink).toHaveAttribute(
@@ -514,7 +545,7 @@ describe("EndgameTrainingPage Integration Tests", () => {
   describe("Full User Flow", () => {
     it("should complete a full training session flow", async () => {
       // Test the full flow without component rendering to avoid errors
-      
+
       // Step 1: Enable analysis
       act(() => {
         useStore.getState().ui.updateAnalysisPanel({ isOpen: true });
@@ -536,10 +567,10 @@ describe("EndgameTrainingPage Integration Tests", () => {
       act(() => {
         useStore.getState().game.resetGame();
       });
-      
+
       // Small delay to allow state updates
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       expect(useStore.getState().game.moveHistory).toHaveLength(0);
 
       // Step 4: Complete the training

@@ -16,6 +16,8 @@ class MockChessService extends EventEmitter {
 
   constructor() {
     super();
+    // Increase max listeners to prevent warnings in tests
+    this.setMaxListeners(50);
   }
 
   initialize(fen: string): boolean {
@@ -24,7 +26,7 @@ class MockChessService extends EventEmitter {
     this.moveHistory = [];
     this.isFinished = false;
     this.currentMoveIndex = -1;
-    
+
     // Emit stateUpdate event with proper payload
     this.emit("stateUpdate", {
       type: "stateUpdate",
@@ -34,10 +36,10 @@ class MockChessService extends EventEmitter {
         moveHistory: this.moveHistory,
         currentMoveIndex: this.currentMoveIndex,
         isGameOver: this.isFinished,
-        gameResult: null
-      }
+        gameResult: null,
+      },
     });
-    
+
     return true;
   }
 
@@ -48,7 +50,7 @@ class MockChessService extends EventEmitter {
     let san: string;
     let from: string;
     let to: string;
-    
+
     if (typeof move === "string") {
       san = move;
       from = "e2";
@@ -56,13 +58,13 @@ class MockChessService extends EventEmitter {
     } else {
       from = move.from;
       to = move.to;
-      
+
       // Generate proper SAN based on the move
       // For simplicity in tests, assume King moves (most common in endgames)
       // Generate SAN like "Ke2" where the destination square is used
       san = `K${to}`;
     }
-    
+
     // Simulate a successful move
     const validatedMove: ValidatedMove = {
       from: from as Square,
@@ -96,8 +98,8 @@ class MockChessService extends EventEmitter {
         moveHistory: this.moveHistory,
         currentMoveIndex: this.currentMoveIndex,
         isGameOver: this.isFinished,
-        gameResult: null
-      }
+        gameResult: null,
+      },
     });
 
     return validatedMove;
@@ -116,7 +118,7 @@ class MockChessService extends EventEmitter {
     this.moveHistory = [];
     this.currentMoveIndex = -1;
     this.isFinished = false;
-    
+
     // Emit stateUpdate event with proper payload
     this.emit("stateUpdate", {
       type: "stateUpdate",
@@ -126,15 +128,15 @@ class MockChessService extends EventEmitter {
         moveHistory: this.moveHistory,
         currentMoveIndex: this.currentMoveIndex,
         isGameOver: this.isFinished,
-        gameResult: null
-      }
+        gameResult: null,
+      },
     });
   }
 
   goToMove(index: number): void {
     // Simulate going to a specific move
     this.currentMoveIndex = index;
-    
+
     // Emit stateUpdate event with proper payload
     this.emit("stateUpdate", {
       type: "stateUpdate",
@@ -144,8 +146,8 @@ class MockChessService extends EventEmitter {
         moveHistory: this.moveHistory,
         currentMoveIndex: this.currentMoveIndex,
         isGameOver: this.isFinished,
-        gameResult: null
-      }
+        gameResult: null,
+      },
     });
   }
 
@@ -205,16 +207,16 @@ class MockChessService extends EventEmitter {
   validateFen(_fen: string): boolean {
     return true;
   }
-  
+
   validateMove(_move: any): boolean {
     return true;
   }
-  
+
   redo(): ValidatedMove | null {
     // Simple redo implementation
     return null;
   }
-  
+
   moves(options?: { square?: string; verbose?: boolean }): any[] {
     // Simple implementation for testing
     if (options?.verbose) {
