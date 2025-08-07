@@ -21,10 +21,9 @@ The store is now organized into focused, domain-specific slices:
 - **GameSlice**: Chess game state, moves, position management
 - **TrainingSlice**: Training sessions, progress tracking, scenarios
 - **TablebaseSlice**: Tablebase evaluations, analysis status, cache management
-- **ProgressSlice**: User progress, achievements, statistics, spaced repetition
 - **UISlice**: Interface state, toasts, sidebar, modal management
-- **SettingsSlice**: User preferences, themes, notifications
-- **UserSlice**: Authentication, profile, preferences
+
+*Note: ProgressSlice, SettingsSlice, and UserSlice are planned but not yet implemented.*
 
 Cross-slice operations are handled by orchestrators in `/shared/store/orchestrators/`.
 
@@ -119,17 +118,14 @@ interface RootState {
   // Tablebase slice - API evaluations
   tablebase: TablebaseState;
 
-  // Progress slice - user progress tracking
-  progress: ProgressState;
-
   // UI slice - interface state
   ui: UIState;
 
-  // Settings slice - user preferences
-  settings: SettingsState;
-
-  // User slice - authentication
-  user: UserState;
+  // Orchestrator actions
+  handlePlayerMove: (move) => Promise<boolean>;
+  loadTrainingContext: (position) => Promise<void>;
+  reset: () => void;
+  hydrate: (state: Partial<RootState>) => void;
 }
 ```
 
@@ -180,7 +176,7 @@ Each slice contains its own state and actions, promoting separation of concerns 
 - v3.5: TablebaseService optimization (single API call, smart caching, deduplication)
 - v3.6: AnalysisService extraction, React Error Boundaries, TypeScript improvements
 - **v3.7: Phase 8 Store Refactoring (MAJOR MILESTONE)** ✅
-  - Monolithic store.ts (1,298 lines) → domain-specific slices
+  - Monolithic store.ts (1,298 lines) → 4 domain-specific slices
   - All TypeScript errors resolved (0 compilation errors)
   - All 721+ tests passing with proper Immer middleware patterns
   - Branded types implementation with controlled test factories
@@ -197,6 +193,11 @@ Each slice contains its own state and actions, promoting separation of concerns 
   - Maintained full TypeScript type safety
   - All components migrated to new tuple pattern
   - Documentation added for new patterns
+- **v3.10: Bug Fixes & Refactoring Issues** ✅
+  - Fixed Issue #58: Lichess analysis links now include PGN move history
+  - Fixed Issue #59: Tablebase DTM sorting bug (Math.abs for winning positions)
+  - Created 4 LLM-optimized refactoring issues (#62-#65)
+  - Fixed TypeScript compilation errors with TrainingPosition type mapping
 
 ## Future Considerations (v4.0)
 

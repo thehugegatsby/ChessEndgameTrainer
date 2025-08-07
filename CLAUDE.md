@@ -51,6 +51,12 @@ npm run analyze-code    # Run all code analysis
 
 ## Current Development Focus
 
+**Latest Updates (Aug 7, 2025):**
+- ✅ Fixed Issues #58 & #59 (Lichess PGN URLs, Tablebase DTM sorting)
+- ✅ Created LLM-optimized refactoring issues (#62-#65)
+- ✅ All 721+ tests passing
+- ✅ TypeScript compilation clean
+
 @docs/CURRENT_FOCUS.md
 
 ## Important Notes
@@ -100,16 +106,24 @@ npm run analyze-code    # Run all code analysis
 - `/tests/helpers/validatedMoveFactory.ts` - Branded type test utilities
 - `/shared/store/hooks/README.md` - NEW: State/Action hook pattern documentation
 
-### Technical Debt Status (Phase 9 Complete!)
+### Technical Debt Status
 
-- ✅ **Store Refactoring**: Monolithic store.ts (1,298 lines) → domain slices ✅
-- ✅ **Type Safety**: All TypeScript errors resolved (0 compilation errors) ✅
-- ✅ **Test Coverage**: All 721+ tests passing ✅
-- ✅ **Branded Types**: Clean ValidatedMove implementation ✅
-- ✅ **Performance**: State/Action hook split prevents unnecessary re-renders ✅
-- [ ] **Complex Functions**: `handlePlayerMove` (178 lines) still needs refactoring
-- [ ] **Mixed Concerns**: Some components have E2E test code mixed in
+**Completed:**
+- ✅ **Store Refactoring**: Monolithic store.ts (1,298 lines) → domain slices
+- ✅ **Type Safety**: All TypeScript errors resolved (0 compilation errors)
+- ✅ **Test Coverage**: All 721+ tests passing
+- ✅ **Branded Types**: Clean ValidatedMove implementation
+- ✅ **Performance**: State/Action hook split prevents unnecessary re-renders
 - ✅ **TODOs**: All TODO comments resolved
+- ✅ **Issue Fixes**: #58 (Lichess PGN), #59 (DTM sorting)
+
+**Pending Refactoring (Issues Created):**
+- 📋 **#62**: TablebaseService (646 lines → 6 focused classes)
+- 📋 **#63**: Move Validation Extraction
+- 📋 **#64**: Move Quality Evaluation Extraction  
+- 📋 **#65**: Opponent Turn Handling Extraction
+- [ ] **handlePlayerMove**: 533 lines orchestrator needs decomposition
+- [ ] **Global window variables**: Used for opponent turn cancellation
 
 ### Best Practices for AI
 

@@ -5,7 +5,6 @@ import { StoreProvider } from "@shared/store/StoreContext";
 /**
  * Next.js App component with SSR-safe Zustand store provider
  * 
- * @remarks
  * The StoreProvider ensures that the Zustand store is properly initialized
  * for both server-side rendering and client-side hydration, preventing
  * the "setMoveErrorDialog is not a function" runtime error.

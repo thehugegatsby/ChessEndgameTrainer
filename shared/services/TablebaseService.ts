@@ -94,7 +94,7 @@ class TablebaseService {
    * @example
    * const eval = await tablebaseService.getEvaluation(fen);
    * if (eval.isAvailable) {
-   *   console.log(`Position is ${eval.result.category}`);
+   *   logger.info(`Position is ${eval.result.category}`);
    * }
    */
   async getEvaluation(fen: string): Promise<TablebaseEvaluation> {
@@ -138,7 +138,7 @@ class TablebaseService {
    * @example
    * const moves = await tablebaseService.getTopMoves(fen, 5);
    * if (moves.isAvailable) {
-   *   console.log(`Best move: ${moves.moves[0].san}`);
+   *   logger.info(`Best move: ${moves.moves[0].san}`);
    * }
    */
   async getTopMoves(

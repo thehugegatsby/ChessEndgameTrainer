@@ -27,7 +27,7 @@
 import { ImmerStateCreator, TrainingSlice } from "./types";
 import type { EndgamePosition as BaseEndgamePosition } from "@shared/types/endgame";
 import type { ValidatedMove } from "@shared/types/chess";
-import { getLogger } from "@shared/services/logging";
+import { getLogger } from "@shared/services/logging/Logger";
 
 /**
  * Extended EndgamePosition with training-specific fields
@@ -531,7 +531,8 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
   resetTraining: () => {
     // DO NOT RESET - This would break action methods
     // Individual actions should handle their own state resets
-    console.warn("[resetTraining] Called but doing nothing to preserve action methods");
+    const logger = getLogger().setContext("TrainingSlice");
+    logger.warn("resetTraining called but doing nothing to preserve action methods");
   },
 
   /**

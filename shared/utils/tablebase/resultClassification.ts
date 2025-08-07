@@ -282,13 +282,15 @@ export const sortMovesByResult = (moves: TablebaseMove[]): TablebaseMove[] => {
  *
  * @example
  * ```typescript
+ * import { getLogger } from '@shared/services/logging/Logger';
+ * const logger = getLogger();
  * const moves = getTablebaseMoves(position);
  * const classified = classifyMovesByDTZ(moves);
  *
- * console.log(`Total moves: ${classified.totalMoves}`);
- * console.log(`Winning: ${classified.winningMoves.length}`);
- * console.log(`Drawing: ${classified.drawingMoves.length}`);
- * console.log(`Losing: ${classified.losingMoves.length}`);
+ * logger.info(`Total moves: ${classified.totalMoves}`);
+ * logger.info(`Winning: ${classified.winningMoves.length}`);
+ * logger.info(`Drawing: ${classified.drawingMoves.length}`);
+ * logger.info(`Losing: ${classified.losingMoves.length}`);
  * ```
  *
  * @remarks

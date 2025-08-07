@@ -88,6 +88,23 @@ makeMove: (move) => set((state) => ({
 })),
 ```
 
+### Store Hook Patterns (Performance Optimized)
+
+```typescript
+// ✅ Good - Use split hooks for optimal performance
+// For components that only need actions (no re-renders)
+const actions = useTrainingActions();
+
+// For components that need reactive state
+const state = useTrainingState();
+
+// For components that need both
+const [state, actions] = useTrainingStore();
+
+// ❌ Bad - Using full store when only actions needed
+const store = useStore(); // Causes unnecessary re-renders
+```
+
 ## Documentation
 
 ### JSDoc Comments
@@ -192,6 +209,8 @@ describe('TrainingBoard', () => {
 3. **Lazy load components**: Use `dynamic` imports
 4. **Cache API responses**: LRU cache with TTL
 5. **Avoid unnecessary re-renders**: Use `React.memo`
+6. **Use split store hooks**: Separate state and action hooks to prevent re-renders
+7. **FEN normalization in cache**: Remove halfmove/fullmove counters for better cache hits
 
 ## Security
 

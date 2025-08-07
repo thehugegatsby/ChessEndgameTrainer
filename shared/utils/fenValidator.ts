@@ -26,15 +26,19 @@ export interface FenValidationResult {
  *
  * @example
  * // Valid starting position
+ * import { getLogger } from '@shared/services/logging/Logger';
+ * const logger = getLogger();
  * const result = validateAndSanitizeFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
- * console.log(result.isValid); // true
- * console.log(result.sanitized); // Normalized FEN from chess.js
+ * logger.info("Is valid:", result.isValid); // true
+ * logger.info("Sanitized:", result.sanitized); // Normalized FEN from chess.js
  *
  * @example
  * // Invalid FEN (too many kings)
+ * import { getLogger } from '@shared/services/logging/Logger';
+ * const logger = getLogger();
  * const result = validateAndSanitizeFen("K7/K7/8/8/8/8/8/k7 w - - 0 1");
- * console.log(result.isValid); // false
- * console.log(result.errors); // ["Invalid FEN: too many kings"]
+ * logger.warn("Is valid:", result.isValid); // false
+ * logger.warn("Errors:", result.errors); // ["Invalid FEN: too many kings"]
  *
  * @remarks
  * This is a thin wrapper around chess.js validation. We use chess.js because:

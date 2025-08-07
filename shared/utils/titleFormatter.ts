@@ -143,7 +143,7 @@ export function getShortTitle(position: EndgamePosition): string {
  */
 export function getTrainingDisplayTitle(
   position: EndgamePosition,
-  moveCount?: number,
+  _moveCount?: number,
   totalPositions?: number,
 ): string {
   const baseTitle = formatPositionTitle(position, totalPositions);

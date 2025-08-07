@@ -53,11 +53,14 @@ export interface ToastProps {
  *
  * @example
  * ```tsx
+ * import { getLogger } from '@shared/services/logging/Logger';
+ * const logger = getLogger();
+ * 
  * <Toast
  *   message="Move successful!"
  *   type="success"
  *   duration={3000}
- *   onClose={() => console.log('Toast closed')}
+ *   onClose={() => logger.info('Toast closed')}
  * />
  * ```
  *

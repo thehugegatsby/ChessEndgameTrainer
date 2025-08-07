@@ -362,9 +362,11 @@ export class ErrorService {
    *   - errorsByType: Count of errors grouped by ErrorType
    *   - recentErrors: Array of last 5 errors with details
    * @example
+   * import { getLogger } from '@shared/services/logging/Logger';
+   * const logger = getLogger();
    * const stats = errorService.getErrorStats();
-   * console.log(`Total errors: ${stats.totalErrors}`);
-   * console.log(`UI errors: ${stats.errorsByType.UI_COMPONENT || 0}`);
+   * logger.info(`Total errors: ${stats.totalErrors}`);
+   * logger.info(`UI errors: ${stats.errorsByType.UI_COMPONENT || 0}`);
    */
   getErrorStats() {
     const stats = this.errorLog.reduce(

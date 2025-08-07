@@ -167,6 +167,47 @@ export const MoveSequences = {
 } as const;
 
 /**
+ * E2E test move sequences for complex scenarios
+ */
+export const E2EMoveSequences = {
+  /** Pawn promotion sequence leading to automatic win */
+  PAWN_PROMOTION_TO_WIN: {
+    startPosition: "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1",
+    moves: [
+      "e6-d6",  // 1. Kd6
+      "e8-f7",  // 1... Kf7 (opponent move)
+      "d6-d7",  // 2. Kd7  
+      "f7-f8",  // 2... Kf8 (opponent move)
+      "e5-e6",  // 3. e6
+      "f8-g8",  // 3... Kg8 (opponent move)
+      "e6-e7",  // 4. e7
+      "g8-f7",  // 4... Kf7 (opponent move)
+      "e7-e8=Q" // 5. e8=Q+ (promotion!)
+    ],
+    description: "King and pawn endgame leading to promotion and auto-win detection",
+    expectedResult: "win" // Should trigger auto-completion
+  },
+
+  /** Pawn promotion sequence leading to draw (no auto-win) */
+  PAWN_PROMOTION_TO_DRAW: {
+    startPosition: "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1",
+    moves: [
+      "e6-d6",  // 1. Kd6
+      "e8-f7",  // 1... Kf7 (opponent move)
+      "d6-c7",  // 2. Kc7
+      "f7-g7",  // 2... Kg7 (opponent move)
+      "e5-e6",  // 3. e6
+      "g7-f6",  // 3... Kf6 (opponent move)
+      "e6-e7",  // 4. e7
+      "f6-f7",  // 4... Kf7 (opponent move)
+      "e7-e8=Q" // 5. e8=Q+ (promotion but no auto-win!)
+    ],
+    description: "King and pawn endgame leading to promotion but NOT immediate win",
+    expectedResult: "continue" // Should NOT trigger auto-completion
+  }
+} as const;
+
+/**
  * Helper function to get all FEN positions for validation tests
  */
 export function getAllTestFENs(): string[] {

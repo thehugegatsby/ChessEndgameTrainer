@@ -4,7 +4,6 @@
  */
 
 import { IPositionService } from "../IPositionService";
-import { EndgamePosition } from "@shared/types";
 
 // Mock implementation of IPositionService for tests
 const mockPositionService: IPositionService = {

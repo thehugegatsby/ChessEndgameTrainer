@@ -17,20 +17,20 @@ graph TB
         RS --> GS[GameSlice]
         RS --> TS[TrainingSlice]
         RS --> TBS[TablebaseSlice]
-        RS --> PS[ProgressSlice]
         RS --> US[UISlice]
-        RS --> SS[SettingsSlice]
-        RS --> URS[UserSlice]
     end
 
-    subgraph "DOMAIN SLICES"
+    subgraph "DOMAIN SLICES (IMPLEMENTED)"
         GS --> GSA[Game State & Actions]
         TS --> TSA[Training State & Actions]
         TBS --> TBSA[Tablebase State & Actions]
-        PS --> PSA[Progress State & Actions]
         US --> USA[UI State & Actions]
-        SS --> SSA[Settings State & Actions]
-        URS --> URSA[User State & Actions]
+    end
+
+    subgraph "PLANNED SLICES (FUTURE)"
+        PS[ProgressSlice - TBD]
+        SS[SettingsSlice - TBD]
+        URS[UserSlice - TBD]
     end
 
     subgraph "ORCHESTRATORS"
@@ -60,21 +60,27 @@ graph TB
 shared/store/
 ├── rootStore.ts                      # Combined store with all slices
 ├── index.ts                          # Store exports
-├── slices/                           # Domain-specific slices
+├── slices/                           # Domain-specific slices (4 implemented)
 │   ├── types.ts                      # All slice type definitions
 │   ├── gameSlice.ts                  # Chess game state, moves, position
 │   ├── trainingSlice.ts              # Training sessions, progress, scenarios
 │   ├── tablebaseSlice.ts             # Tablebase evaluations, analysis status
-│   ├── progressSlice.ts              # User progress, achievements, stats
-│   ├── uiSlice.ts                    # Interface state, toasts, sidebar
-│   ├── settingsSlice.ts              # User preferences, themes, notifications
-│   └── userSlice.ts                  # Authentication, profile, preferences
-└── orchestrators/                    # Cross-slice operations
-    ├── types.ts                      # Orchestrator type definitions
-    ├── loadTrainingContext.ts        # Load training session data
-    ├── makeUserMove.ts               # Complex move processing
-    ├── requestTablebaseMove.ts       # Tablebase move requests
-    └── requestPositionEvaluation.ts  # Position analysis requests
+│   └── uiSlice.ts                    # Interface state, toasts, sidebar
+├── orchestrators/                    # Cross-slice operations
+│   ├── handlePlayerMove/             # Complex move processing (533 lines)
+│   │   ├── index.ts                  # Main orchestrator
+│   │   ├── types.ts                  # Type definitions
+│   │   ├── moveValidation.ts         # Move validation logic
+│   │   ├── moveExecution.ts          # Move execution logic
+│   │   ├── moveQuality.ts            # Move quality evaluation
+│   │   └── opponentTurn.ts           # Opponent turn handling
+│   └── loadTrainingContext.ts        # Load training session data
+└── hooks/                            # Performance-optimized hooks
+    ├── README.md                      # Hook usage documentation
+    ├── gameHooks.ts                  # useGameState, useGameActions, useGameStore
+    ├── trainingHooks.ts              # useTrainingState, useTrainingActions, useTrainingStore
+    ├── tablebaseHooks.ts             # useTablebaseState, useTablebaseActions, useTablebaseStore
+    └── uiHooks.ts                    # useUIState, useUIActions, useUIStore
 ```
 
 ---

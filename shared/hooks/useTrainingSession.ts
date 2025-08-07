@@ -12,6 +12,7 @@ import { useCallback } from "react";
 import { useGameStore, useTrainingStore } from "@shared/store/hooks";
 import type { ValidatedMove } from "@shared/types/chess";
 import { ErrorService } from "@shared/services/ErrorService";
+import { getLogger } from "@shared/services/logging/Logger";
 
 /**
  * Configuration options for the useTrainingSession hook
@@ -130,20 +131,16 @@ export const useTrainingSession = ({
       to: string;
       promotion?: string;
     }): Promise<boolean> => {
-      console.log("[useTrainingSession] makeMove called with:", { move });
+      const logger = getLogger().setContext("useTrainingSession");
+      logger.debug("makeMove called", { move });
       if (gameState.isGameFinished) return false;
 
       try {
         // Simply delegate to Store - no double validation needed
         // Store will validate the move and update all states atomically
-        console.log(
-          "[useTrainingSession] Calling trainingActions.handlePlayerMove",
-        );
+        logger.debug("Calling trainingActions.handlePlayerMove");
         const moveResult = await trainingActions.handlePlayerMove(move as any);
-        console.log(
-          "[useTrainingSession] trainingActions.handlePlayerMove result:",
-          { moveResult },
-        );
+        logger.debug("trainingActions.handlePlayerMove result", { moveResult });
         if (!moveResult) return false;
 
         // Check if game is finished after move

@@ -1,7 +1,4 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
-import { EndgameTrainingPage } from "@shared/pages/EndgameTrainingPage";
-import { EndgamePosition } from "@shared/types";
 import { useGameStore, useTrainingStore, useUIStore } from "@shared/store/hooks";
 import { useRouter } from "next/navigation";
 
@@ -28,15 +25,6 @@ jest.mock("@shared/components/training/TablebaseAnalysisPanel", () => ({
 jest.mock("@shared/components/navigation/AdvancedEndgameMenu", () => ({
   AdvancedEndgameMenu: () => <div>AdvancedEndgameMenu</div>,
 }));
-
-const mockPosition: EndgamePosition = {
-  id: "test-position",
-  name: "Test Position",
-  fen: "8/8/8/4k3/8/8/4P3/4K3 w - - 0 1",
-  category: "pawn",
-  difficulty: "medium",
-  description: "Test endgame position",
-};
 
 describe("EndgameTrainingPage - Lichess URL Generation", () => {
   let mockGameState: any;

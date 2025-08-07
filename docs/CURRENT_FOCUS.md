@@ -2,9 +2,11 @@
 
 ## 🎯 Active Development
 
-**🚀 LATEST ACHIEVEMENT: Performance-Optimized State/Action Hook Split Pattern!**
-
-Following the successful Phase 8 Store Refactoring, we've implemented Gemini's performance optimization suggestion for preventing unnecessary re-renders in action-only components.
+**🚀 LATEST ACHIEVEMENTS:**
+- ✅ Fixed GitHub Issues #58 & #59 (Lichess PGN URLs, Tablebase DTM sorting)
+- ✅ TypeScript compilation errors resolved (TrainingPosition type mapping)
+- ✅ Created 4 LLM-optimized refactoring issues (#62-#65)
+- ✅ All 721+ tests passing
 
 ## 🔄 Recent Architecture Changes
 
@@ -92,24 +94,30 @@ The single source of truth for all issues is GitHub Issues:
 - **Bug Reports**: https://github.com/[org]/[repo]/issues?q=is:issue+is:open+label:bug
 - **Feature Requests**: https://github.com/[org]/[repo]/issues?q=is:issue+is:open+label:enhancement
 
-## 🐛 Common Problem Patterns
+## 🐛 Recently Fixed Issues
 
-When debugging, pay special attention to:
+### Issue #58: Lichess URL with PGN
+- **Problem**: Lichess analysis links only included FEN, not move history
+- **Solution**: Modified `getLichessUrl()` to use PGN format when moves exist
+- **Files Changed**: `EndgameTrainingPage.tsx`
 
-1. **Tablebase API Errors**
-   - Rate limiting from Lichess API
-   - Invalid FEN strings causing API rejections
-   - Network timeouts (7 second timeout configured)
+### Issue #59: Tablebase DTM Sorting Bug
+- **Problem**: Moves with negative DTM values sorted incorrectly (e7 with DTM=-12 marked as error)
+- **Solution**: Changed sorting to use `Math.abs()` for winning positions
+- **Files Changed**: `TablebaseService.ts` line 173
 
-2. **State Synchronization**
-   - Store updates not triggering re-renders
-   - Race conditions between user moves and tablebase responses
-   - Stale closures in event handlers
+## 🏗️ Technical Debt & Refactoring
 
-3. **Component Rendering**
-   - Missing data in move display components
-   - Conditional rendering based on wrong state fields
-   - Props not properly passed down component tree
+### Created Refactoring Issues (Following LLM Guidelines)
+1. **#62**: TablebaseService Refactoring (646 lines → 6 focused classes)
+2. **#63**: Move Validation Extraction  
+3. **#64**: Move Quality Evaluation Extraction
+4. **#65**: Opponent Turn Handling Extraction
+
+### Identified Architecture Improvements
+- **handlePlayerMove orchestrator**: 533 lines, needs decomposition
+- **Global window variables**: Used for opponent turn cancellation
+- **Mixed test concerns**: E2E test code mixed in components
 
 ## 🧪 Testing Focus Areas
 

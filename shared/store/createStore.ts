@@ -29,6 +29,7 @@ import {
   chessService,
   type ChessServiceEvent,
 } from '@shared/services/ChessService';
+import { getLogger } from '@shared/services/logging/Logger';
 
 // Import orchestrators
 import { loadTrainingContext as loadTrainingContextOrchestrator } from './orchestrators/loadTrainingContext';
@@ -120,13 +121,12 @@ export const createStore = (initialState?: Partial<RootState>) => {
                 | { from: string; to: string; promotion?: string }
                 | string,
             ): Promise<boolean> => {
-              console.log('[CreateStore] handlePlayerMove called with:', { move });
+              const logger = getLogger().setContext('CreateStore');
+              logger.debug('handlePlayerMove called', { move });
               const storeApi = { getState: get, setState: set };
-              console.log('[CreateStore] Calling handlePlayerMoveOrchestrator');
+              logger.debug('Calling handlePlayerMoveOrchestrator');
               const result = await handlePlayerMoveOrchestrator(storeApi, move);
-              console.log('[CreateStore] handlePlayerMoveOrchestrator result:', {
-                result,
-              });
+              logger.debug('handlePlayerMoveOrchestrator result', { result });
               return result;
             },
 
@@ -202,8 +202,9 @@ export const createStore = (initialState?: Partial<RootState>) => {
   );
 
   // DEBUG: Check what the store actually contains after creation
-  console.log("[CreateStore POST-CREATE] store.getState().training keys:", Object.keys(store.getState().training));
-  console.log("[CreateStore POST-CREATE] store.getState().training has setMoveErrorDialog?", 'setMoveErrorDialog' in store.getState().training);
+  const logger = getLogger().setContext('CreateStore');
+  logger.debug("POST-CREATE store.getState().training keys", { keys: Object.keys(store.getState().training) });
+  logger.debug("POST-CREATE store.getState().training has setMoveErrorDialog?", { hasSetMoveErrorDialog: 'setMoveErrorDialog' in store.getState().training });
   
   // Subscribe to ChessService events for automatic state synchronization
   const unsubscribeChessService = chessService.subscribe(

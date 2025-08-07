@@ -116,13 +116,37 @@ class MockChessService extends EventEmitter {
     this.moveHistory = [];
     this.currentMoveIndex = -1;
     this.isFinished = false;
-    this.emit("stateChange");
+    
+    // Emit stateUpdate event with proper payload
+    this.emit("stateUpdate", {
+      type: "stateUpdate",
+      payload: {
+        fen: this.fen,
+        pgn: "",
+        moveHistory: this.moveHistory,
+        currentMoveIndex: this.currentMoveIndex,
+        isGameOver: this.isFinished,
+        gameResult: null
+      }
+    });
   }
 
   goToMove(index: number): void {
     // Simulate going to a specific move
     this.currentMoveIndex = index;
-    this.emit("stateChange");
+    
+    // Emit stateUpdate event with proper payload
+    this.emit("stateUpdate", {
+      type: "stateUpdate",
+      payload: {
+        fen: this.fen,
+        pgn: this.getPgn(),
+        moveHistory: this.moveHistory,
+        currentMoveIndex: this.currentMoveIndex,
+        isGameOver: this.isFinished,
+        gameResult: null
+      }
+    });
   }
 
   getFen(): string {

@@ -41,7 +41,7 @@ import {
   chessService,
   type ChessServiceEvent,
 } from "@shared/services/ChessService";
-// Logger removed - not currently used
+import { getLogger } from "@shared/services/logging/Logger";
 
 // Import orchestrators
 import { loadTrainingContext as loadTrainingContextOrchestrator } from "./orchestrators/loadTrainingContext";
@@ -157,13 +157,12 @@ export const useStore = create<RootState>()(
               | { from: string; to: string; promotion?: string }
               | string,
           ): Promise<boolean> => {
-            console.log("[RootStore] handlePlayerMove called with:", { move });
+            const logger = getLogger().setContext("RootStore");
+            logger.debug("handlePlayerMove called", { move });
             const storeApi = { getState: get, setState: set };
-            console.log("[RootStore] Calling handlePlayerMoveOrchestrator");
+            logger.debug("Calling handlePlayerMoveOrchestrator");
             const result = await handlePlayerMoveOrchestrator(storeApi, move);
-            console.log("[RootStore] handlePlayerMoveOrchestrator result:", {
-              result,
-            });
+            logger.debug("handlePlayerMoveOrchestrator result", { result });
             return result;
           },
 
