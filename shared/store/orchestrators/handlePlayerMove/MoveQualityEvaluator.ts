@@ -4,27 +4,96 @@
  * 
  * @description
  * Evaluates chess move quality using tablebase analysis.
- * Compares player moves against optimal tablebase recommendations.
+ * Compares player moves against optimal tablebase recommendations to determine
+ * if moves are suboptimal and warrant user feedback through error dialogs.
+ * 
+ * @remarks
+ * Key features:
+ * - Parallel tablebase API calls for performance
+ * - WDL (Win/Draw/Loss) perspective conversion for accurate evaluation
+ * - Best move comparison against top 3 tablebase recommendations
+ * - Outcome change detection (Win->Draw/Loss, Draw->Loss)
+ * - Comprehensive logging for debugging move evaluation logic
+ * 
+ * @example
+ * ```typescript
+ * const evaluator = new MoveQualityEvaluator();
+ * const result = await evaluator.evaluateMoveQuality(
+ *   "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+ *   "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+ *   { from: "e2", to: "e4", san: "e4", color: "w" }
+ * );
+ * if (result.shouldShowErrorDialog) {
+ *   // Show error dialog to user
+ * }
+ * ```
  */
 
 import type { Move as ChessJsMove } from "chess.js";
 import { tablebaseService, type TablebaseEvaluation, type TablebaseMovesResult } from "@shared/services/TablebaseService";
 import { getLogger } from "@shared/services/logging";
 
+/**
+ * Result of move quality evaluation containing recommendation data
+ * @interface MoveQualityResult
+ */
 export interface MoveQualityResult {
+  /** Whether to display an error dialog to the user */
   shouldShowErrorDialog: boolean;
+  /** WDL value before the move (from white's perspective) */
   wdlBefore?: number;
+  /** WDL value after the move (from white's perspective) */
   wdlAfter?: number;
+  /** Best recommended move in algebraic notation */
   bestMove?: string;
+  /** Whether the played move was among the optimal moves */
   wasOptimal: boolean;
+  /** Whether the move significantly changed the game outcome */
   outcomeChanged: boolean;
 }
 
-/** Number of top moves to fetch for comparison */
+/** Number of top moves to fetch from tablebase for comparison */
 const TOP_MOVES_LIMIT = 3;
 
 /**
- * Evaluates chess move quality using tablebase analysis
+ * Evaluates chess move quality using advanced tablebase analysis
+ * @class MoveQualityEvaluator
+ * 
+ * @description
+ * Provides comprehensive move quality assessment including:
+ * - Tablebase evaluation comparison (before/after positions)
+ * - WDL perspective conversion for accurate player-centric evaluation
+ * - Best move detection using top tablebase recommendations
+ * - Outcome change analysis (Win/Draw/Loss transitions)
+ * - Performance-optimized parallel API calls
+ * - Detailed logging for debugging evaluation decisions
+ * 
+ * @remarks
+ * The evaluator uses sophisticated logic to determine when to show error dialogs:
+ * 1. Move must NOT be among the top 3 tablebase recommendations
+ * 2. Move must cause a significant outcome change (Win->Draw/Loss or Draw->Loss)
+ * 
+ * WDL (Win/Draw/Loss) values are handled carefully:
+ * - Tablebase returns values from white's perspective
+ * - Values are converted to moving player's perspective
+ * - After a move, evaluation is from opponent's perspective
+ * 
+ * @example
+ * ```typescript
+ * const evaluator = new MoveQualityEvaluator();
+ * 
+ * // Evaluate a potentially suboptimal move
+ * const result = await evaluator.evaluateMoveQuality(
+ *   fenBefore, 
+ *   fenAfter, 
+ *   playedMove
+ * );
+ * 
+ * if (result.shouldShowErrorDialog) {
+ *   console.log(`Suboptimal move! Best was: ${result.bestMove}`);
+ *   console.log(`WDL change: ${result.wdlBefore} -> ${result.wdlAfter}`);
+ * }
+ * ```
  */
 export class MoveQualityEvaluator {
   

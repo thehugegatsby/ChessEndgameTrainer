@@ -3,8 +3,38 @@
  * @module store/orchestrators/handlePlayerMove/OpponentTurnHandler
  * 
  * @description
- * Handles opponent turn scheduling, execution, and cancellation.
- * Manages timeout state and coordinates with tablebase service.
+ * Handles comprehensive opponent turn management in chess training sessions.
+ * Provides sophisticated scheduling, execution, and cancellation of opponent moves
+ * with race condition prevention and robust error handling.
+ * 
+ * @remarks
+ * Key architectural features:
+ * - **Race condition prevention**: Multiple cancellation checks prevent stale executions
+ * - **Timeout management**: Module-level state for proper cleanup and cancellation
+ * - **Tablebase integration**: Fetches optimal opponent moves from tablebase API
+ * - **State synchronization**: Coordinates with training state for turn management
+ * - **Error resilience**: Graceful handling of tablebase API failures
+ * - **Cross-platform support**: Works in browser and Node.js test environments
+ * 
+ * The handler prevents common issues like:
+ * - Executing opponent moves after user undo operations
+ * - Multiple concurrent opponent turns
+ * - Memory leaks from uncleaned timeouts
+ * - State desynchronization between UI and game logic
+ * 
+ * @example
+ * ```typescript
+ * import { scheduleOpponentTurn, cancelScheduledOpponentTurn } from './OpponentTurnHandler';
+ * 
+ * // Schedule opponent move with default delay
+ * scheduleOpponentTurn(storeApi);
+ * 
+ * // Schedule with custom delay
+ * scheduleOpponentTurn(storeApi, 1000);
+ * 
+ * // Cancel any pending opponent move (e.g., during undo)
+ * cancelScheduledOpponentTurn();
+ * ```
  */
 
 import type { StoreApi } from "../types";
@@ -15,19 +45,38 @@ import { handleTrainingCompletion } from "./move.completion";
 import { delay } from "@shared/utils/async";
 import { getLogger } from "@shared/services/logging";
 
-// Module-level timeout management
+// Module-level timeout management for race condition prevention
 let opponentTurnTimeout: NodeJS.Timeout | undefined;
 let isCancelled = false;
 
-/** Default delay for opponent moves in milliseconds */
+/** Default delay for opponent moves in milliseconds - provides natural game feel */
 const OPPONENT_TURN_DELAY = 500;
 
 /**
- * Cancels any scheduled opponent turn
+ * Cancels any scheduled opponent turn to prevent race conditions
  * 
  * @description
- * Called when undoing a move to prevent the opponent from playing
- * after the undo action completes.
+ * Provides immediate cancellation of pending opponent moves, essential for:
+ * - Undo operations that revert game state
+ * - User navigation away from training session
+ * - Game completion or interruption scenarios
+ * 
+ * @remarks
+ * Uses two-phase cancellation strategy:
+ * 1. Sets global cancellation flag for timeout callbacks
+ * 2. Clears active timeout to prevent execution
+ * 
+ * This dual approach ensures no opponent moves execute after cancellation,
+ * even if the timeout has already fired but not yet executed.
+ * 
+ * @example
+ * ```typescript
+ * // Cancel when user undoes a move
+ * const handleUndo = () => {
+ *   cancelScheduledOpponentTurn();
+ *   undoLastMove();
+ * };
+ * ```
  */
 export function cancelScheduledOpponentTurn(): void {
   isCancelled = true;
@@ -42,14 +91,41 @@ export function cancelScheduledOpponentTurn(): void {
 }
 
 /**
- * Schedules opponent turn execution
+ * Schedules optimal opponent move execution with sophisticated timing control
  *
- * @param api - Store API
- * @param delay - Optional delay in milliseconds (default: 500ms)
+ * @param {StoreApi} api - Zustand store API for state management
+ * @param {number} [delay=500] - Delay in milliseconds before executing opponent move
  *
+ * @description
+ * Coordinates the scheduling and execution of optimal opponent moves using tablebase data.
+ * Provides natural game pacing while ensuring clean state management and error handling.
+ * 
  * @remarks
- * Separates opponent logic from player move handling.
- * Uses testable delay utility instead of raw setTimeout.
+ * **Race Condition Prevention:**
+ * - Cancels any existing scheduled opponent turn before scheduling new one
+ * - Resets cancellation flags for clean state
+ * - Multiple state checks before execution
+ * 
+ * **Cross-Platform Support:**
+ * - Browser: Uses setTimeout with proper cleanup
+ * - Node.js/Tests: Uses async delay utility for deterministic testing
+ * 
+ * **Error Resilience:**
+ * - Graceful handling of tablebase API failures
+ * - State recovery on opponent move execution errors
+ * - Proper timeout cleanup in all scenarios
+ * 
+ * @example
+ * ```typescript
+ * // Schedule with default 500ms delay for natural feel
+ * scheduleOpponentTurn(storeApi);
+ * 
+ * // Schedule with faster response for testing
+ * scheduleOpponentTurn(storeApi, 100);
+ * 
+ * // Schedule with slower response for dramatic effect
+ * scheduleOpponentTurn(storeApi, 2000);
+ * ```
  */
 export function scheduleOpponentTurn(api: StoreApi, delay: number = OPPONENT_TURN_DELAY): void {
   getLogger().info("[OpponentTurnHandler] Scheduling opponent turn in", delay, "ms");
@@ -96,16 +172,44 @@ export function scheduleOpponentTurn(api: StoreApi, delay: number = OPPONENT_TUR
 }
 
 /**
- * Executes opponent turn
+ * Executes optimal opponent move using tablebase recommendations
  *
- * @param api - Store API
- * @returns Promise that resolves when opponent turn is complete
+ * @param {StoreApi} api - Zustand store API for state management
+ * @returns {Promise<void>} Promise that resolves when opponent move execution is complete
  *
  * @private
- *
+ * @description
+ * Core opponent move execution with comprehensive state validation and error handling.
+ * Fetches the best move from tablebase API and executes it with proper state updates.
+ * 
  * @remarks
- * Handles opponent move separately from player moves.
- * No recursion - clear separation of concerns.
+ * **Multi-Layer Validation:**
+ * - Cancellation flag check (prevents stale executions)
+ * - Current turn validation (ensures opponent should move)
+ * - Game state consistency checks
+ * 
+ * **Tablebase Integration:**
+ * - Fetches top 1 move for optimal play
+ * - Handles API unavailability gracefully
+ * - Validates move execution success
+ * 
+ * **State Management:**
+ * - Updates turn state after successful move
+ * - Adds user notification for opponent move
+ * - Triggers game completion check
+ * - Recovers from errors with proper state reset
+ * 
+ * **Error Scenarios Handled:**
+ * - Tablebase API failures (network, rate limits)
+ * - Invalid move execution (corrupted game state)
+ * - State desynchronization issues
+ * 
+ * @example
+ * ```typescript
+ * // This is called internally by scheduleOpponentTurn
+ * // Manual usage not recommended - use scheduleOpponentTurn instead
+ * await executeOpponentTurn(storeApi);
+ * ```
  */
 async function executeOpponentTurn(api: StoreApi): Promise<void> {
   const { getState, setState } = api;

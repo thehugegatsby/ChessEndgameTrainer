@@ -11,22 +11,54 @@ import type { Move as ChessJsMove } from "chess.js";
 import { chessService } from "@shared/services/ChessService";
 import type { TrainingState } from "@shared/store/slices/types";
 
+/**
+ * Result of move validation containing validity status and error information
+ * @interface ValidationResult
+ */
 export interface ValidationResult {
+  /** Whether the move is valid */
   isValid: boolean;
+  /** Error message if move is invalid */
   errorMessage?: string;
 }
 
+/**
+ * Game state information for comprehensive game status checking
+ * @interface GameStateInfo
+ */
 export interface GameStateInfo {
+  /** Whether the game has ended */
   isGameOver: boolean;
+  /** Whether the position is checkmate */
   isCheckmate: boolean;
+  /** Whether the position is a draw */
   isDraw: boolean;
+  /** Whether the position is stalemate */
   isStalemate: boolean;
+  /** Whether threefold repetition has occurred */
   isThreefoldRepetition: boolean;
+  /** Whether insufficient material for checkmate */
   isInsufficientMaterial: boolean;
 }
 
 /**
  * Validates and manages chess move validation
+ * @class MoveValidator
+ * 
+ * @description
+ * Handles comprehensive move validation including:
+ * - Move legality using chess.js engine
+ * - Game state verification (turn, game over checks)
+ * - Error message generation for UI feedback
+ * 
+ * @example
+ * ```typescript
+ * const validator = new MoveValidator();
+ * const result = await validator.validateMove("e2-e4");
+ * if (!result.isValid) {
+ *   console.log(result.errorMessage);
+ * }
+ * ```
  */
 export class MoveValidator {
   /**

@@ -5,29 +5,111 @@
  * @description
  * Manages various move-related dialog interactions including error dialogs,
  * pawn promotion choices, and confirmation dialogs. Centralizes dialog logic
- * for better maintainability and consistent UX.
+ * for better maintainability and consistent UX throughout the chess training application.
+ * 
+ * @remarks
+ * This module provides a unified interface for handling all dialog-based user interactions
+ * that occur during chess move execution. It abstracts dialog state management and provides
+ * consistent formatting for user-facing messages.
+ * 
+ * Key features:
+ * - Error dialog management for suboptimal moves
+ * - Pawn promotion dialog coordination (future enhancement)
+ * - Confirmation dialogs for critical actions
+ * - WDL change formatting with German localization
+ * - Move quality assessment and user feedback
+ * 
+ * @example
+ * ```typescript
+ * const dialogManager = new MoveDialogManager();
+ * 
+ * // Show error for suboptimal move
+ * dialogManager.showMoveErrorDialog(api, -1, 0, "Nf3");
+ * 
+ * // Close error dialog
+ * dialogManager.closeMoveErrorDialog(api);
+ * 
+ * // Format WDL change for user
+ * const message = dialogManager.formatWdlChange(-2, 1);
+ * // Returns: "Position verbessert sich um 3 Punkte"
+ * ```
  */
 
 import { getLogger } from "@shared/services/logging";
 import type { StoreApi } from "../types";
 
+/**
+ * Data structure for move error dialog state
+ * @interface MoveErrorDialogData
+ */
 export interface MoveErrorDialogData {
+  /** Whether the dialog is currently open */
   isOpen: boolean;
+  /** WDL evaluation before the move */
   wdlBefore: number;
+  /** WDL evaluation after the move */
   wdlAfter: number;
+  /** Suggested best move in algebraic notation */
   bestMove?: string;
 }
 
+/**
+ * Data structure for pawn promotion dialog state (future implementation)
+ * @interface PromotionDialogData
+ */
 export interface PromotionDialogData {
+  /** Whether the promotion dialog is currently open */
   isOpen: boolean;
+  /** Source square of the promoting pawn */
   from: string;
+  /** Target square where pawn promotes */
   to: string;
+  /** Available pieces for promotion */
   availablePieces: ('q' | 'r' | 'n' | 'b')[];
+  /** Callback function executed when user selects a piece */
   callback?: (piece: 'q' | 'r' | 'n' | 'b') => void;
 }
 
 /**
- * Manages move-related dialog interactions
+ * Manages comprehensive dialog interactions for chess move feedback
+ * @class MoveDialogManager
+ * 
+ * @description
+ * Centralizes all dialog-related functionality for chess move execution including:
+ * - Error dialogs for suboptimal moves with detailed feedback
+ * - Move quality assessment with German localization
+ * - WDL (Win/Draw/Loss) change formatting for user understanding
+ * - Future support for pawn promotion and confirmation dialogs
+ * - Consistent state management through the Zustand store API
+ * 
+ * @remarks
+ * The MoveDialogManager provides a clean separation between dialog logic and the main
+ * move orchestration flow. It handles all user-facing feedback related to move quality,
+ * ensuring consistent presentation of chess evaluation data.
+ * 
+ * Dialog types handled:
+ * 1. **Move Error Dialog**: Shows when user makes suboptimal move that changes outcome
+ * 2. **Promotion Dialog**: Future enhancement for pawn promotion choices
+ * 3. **Confirmation Dialog**: Future enhancement for critical move confirmation
+ * 
+ * The manager integrates with the training store to update UI state and provides
+ * localized German messages for all user interactions.
+ * 
+ * @example
+ * ```typescript
+ * const dialogManager = new MoveDialogManager();
+ * 
+ * // Show detailed error dialog for move that worsened position
+ * dialogManager.showMoveErrorDialog(api, 2, -1, "Be5");
+ * 
+ * // Check if WDL change is significant enough for dialog
+ * const shouldShow = dialogManager.isSignificantWdlChange(2, -1, 1);
+ * // Returns: true (change of 3 >= threshold of 1)
+ * 
+ * // Get user-friendly description of move quality
+ * const description = dialogManager.getMoveQualityDescription(false, true);
+ * // Returns: "Achtung! Dieser Zug verschlechtert deine Position erheblich."
+ * ```
  */
 export class MoveDialogManager {
 
