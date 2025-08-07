@@ -54,8 +54,9 @@ const createMockMove = (overrides: Partial<TablebaseMove>): TablebaseMove => ({
   uci: 'e2e4',
   san: 'e4',
   wdl: 0,
-  dtm: null,
   dtz: 0,
+  dtm: null,
+  category: 'draw' as const,
   ...overrides,
 });
 
@@ -68,9 +69,6 @@ const createMockMove = (overrides: Partial<TablebaseMove>): TablebaseMove => ({
 const createMockResponse = (moves: TablebaseMove[]) => ({
   isAvailable: true,
   moves,
-  wdl: moves[0]?.wdl || 0,
-  dtm: moves[0]?.dtm || null,
-  dtz: moves[0]?.dtz || 0,
 });
 
 describe('MoveStrategyService', () => {
@@ -162,10 +160,6 @@ describe('MoveStrategyService', () => {
     it('handles tablebase not available', async () => {
       mockTablebaseService.getTopMoves.mockResolvedValue({
         isAvailable: false,
-        moves: [],
-        wdl: 0,
-        dtm: null,
-        dtz: 0,
       });
 
       const result = await moveStrategyService.getLongestResistanceMove(testFen);
@@ -240,10 +234,6 @@ describe('MoveStrategyService', () => {
     it('handles tablebase not available', async () => {
       mockTablebaseService.getTopMoves.mockResolvedValue({
         isAvailable: false,
-        moves: [],
-        wdl: 0,
-        dtm: null,
-        dtz: 0,
       });
 
       const result = await moveStrategyService.getBestMove(testFen);
