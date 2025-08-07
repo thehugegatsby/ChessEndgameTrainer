@@ -223,14 +223,26 @@ describe('ProgressSlice', () => {
       expect(store.getState().progress.cardProgress['valid-id']).toBeDefined();
     });
 
-    it('should reset card progress', () => {
+    it('should reset card progress to default values', () => {
       const positionId = 'test-position';
       
+      // Create and update a card
       store.getState().progress.recordAttempt(positionId, true);
-      expect(store.getState().progress.cardProgress[positionId]).toBeDefined();
+      store.getState().progress.recordAttempt(positionId, true); // Make progress
       
+      const cardBeforeReset = store.getState().progress.cardProgress[positionId];
+      expect(cardBeforeReset.repetition).toBeGreaterThan(0);
+      
+      // Reset the card
       store.getState().progress.resetCardProgress(positionId);
-      expect(store.getState().progress.cardProgress[positionId]).toBeUndefined();
+      
+      const resetCard = store.getState().progress.cardProgress[positionId];
+      expect(resetCard).toBeDefined();
+      expect(resetCard.id).toBe(positionId);
+      expect(resetCard.interval).toBe(0);
+      expect(resetCard.repetition).toBe(0);
+      expect(resetCard.efactor).toBe(2.5);
+      expect(resetCard.lapses).toBe(0);
     });
 
     it('should validate positionId in resetCardProgress', () => {

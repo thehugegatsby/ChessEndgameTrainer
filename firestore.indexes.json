@@ -1,0 +1,15 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "userProgress",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "nextReviewAt",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

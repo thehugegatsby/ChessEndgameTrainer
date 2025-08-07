@@ -23,6 +23,7 @@
 import { useStore } from '../rootStore';
 import { useShallow } from 'zustand/react/shallow';
 import type { ProgressState, ProgressActions } from '../slices/types';
+import { getDueCardsFromMap } from '@shared/services/SpacedRepetitionService';
 
 /**
  * Hook for accessing progress state with shallow equality checks
@@ -82,6 +83,7 @@ export const useProgressState = (): ProgressState => {
 export const useProgressActions = (): ProgressActions => {
   return useStore(
     useShallow((state) => ({
+      // Synchronous actions
       setUserStats: state.progress.setUserStats,
       updateSessionProgress: state.progress.updateSessionProgress,
       setLoading: state.progress.setLoading,
@@ -94,6 +96,14 @@ export const useProgressActions = (): ProgressActions => {
       setCardProgress: state.progress.setCardProgress,
       batchUpdateProgress: state.progress.batchUpdateProgress,
       resetProgress: state.progress.resetProgress,
+      
+      // Async Firebase actions
+      loadUserProgress: state.progress.loadUserProgress,
+      saveUserStats: state.progress.saveUserStats,
+      saveCardProgress: state.progress.saveCardProgress,
+      saveSessionComplete: state.progress.saveSessionComplete,
+      getDueCards: state.progress.getDueCards,
+      syncAllProgress: state.progress.syncAllProgress,
     }))
   );
 };
@@ -164,7 +174,9 @@ export const useDerivedProgress = () => {
     // For large card counts (> 500), consider using useMemo or reselect
     const now = Date.now();
     const allCards = Object.values(state.progress.cardProgress);
-    const dueCards = allCards.filter(card => card.nextReviewAt <= now);
+    
+    // Use SpacedRepetitionService for consistent due cards calculation
+    const dueCards = getDueCardsFromMap(state.progress.cardProgress, now);
     
     // Calculate session success rate
     const { positionsCorrect, positionsAttempted } = state.progress.sessionProgress;

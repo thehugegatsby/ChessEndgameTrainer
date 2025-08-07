@@ -98,7 +98,7 @@ export function updateCardProgress(
       repetition: card.repetition,
       efactor: card.efactor,
     },
-    quality
+    quality as any // Type cast to avoid strict type checking issues
   );
   
   // Handle potential NaN from supermemo library

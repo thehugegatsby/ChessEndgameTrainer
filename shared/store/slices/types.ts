@@ -168,7 +168,7 @@ export interface ProgressState {
 }
 
 export interface ProgressActions {
-  // State setters
+  // State setters (synchronous)
   setUserStats: (stats: UserStats | null) => void;
   updateSessionProgress: (progress: Partial<SessionProgress>) => void;
   setLoading: (loading: boolean) => void;
@@ -176,18 +176,30 @@ export interface ProgressActions {
   setLastSync: (timestamp: number | null) => void;
   setSyncError: (error: string | null) => void;
   
-  // Card progress management
+  // Card progress management (synchronous)
   initializeCards: (cards: CardProgress[]) => void;
   recordAttempt: (positionId: string, wasCorrect: boolean) => void;
   resetCardProgress: (positionId: string) => void;
   setCardProgress: (positionId: string, progress: CardProgress) => void;
   
-  // Batch operations
+  // Batch operations (synchronous)
   batchUpdateProgress: (updates: {
     userStats?: Partial<UserStats>;
     sessionProgress?: Partial<SessionProgress>;
     cardProgress?: Record<string, CardProgress>;
   }) => void;
+
+  // Async Firebase operations
+  loadUserProgress: (userId: string) => Promise<void>;
+  saveUserStats: (userId: string, updates: Partial<UserStats>) => Promise<void>;
+  saveCardProgress: (userId: string, positionId: string, progress: CardProgress) => Promise<void>;
+  saveSessionComplete: (
+    userId: string, 
+    sessionStats: Partial<UserStats>,
+    cardUpdates: Array<{ positionId: string; progress: CardProgress }>
+  ) => Promise<void>;
+  getDueCards: (userId: string) => Promise<CardProgress[]>;
+  syncAllProgress: (userId: string) => Promise<void>;
   
   // Reset
   resetProgress: () => void;

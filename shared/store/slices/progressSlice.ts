@@ -18,6 +18,25 @@
 
 import type { ImmerStateCreator, ProgressSlice, ProgressState, UserStats, CardProgress } from './types';
 import { getLogger } from '@shared/services/logging/Logger';
+import { 
+  updateCardProgress, 
+  mapBinaryToQuality,
+  createNewCard,
+  resetCardProgress as resetCard
+} from '@shared/services/SpacedRepetitionService';
+import { ProgressService } from '@shared/services/ProgressService';
+
+// Lazy initialization to avoid Firebase issues in test environment
+let progressService: ProgressService | null = null;
+
+const getProgressService = (): ProgressService => {
+  if (!progressService) {
+    // Dynamic import to avoid Firebase initialization in tests
+    const { db } = require('../../../firebase/firebase');
+    progressService = new ProgressService(db);
+  }
+  return progressService;
+};
 
 /**
  * Initial state for progress slice
@@ -45,7 +64,7 @@ export const initialProgressState: ProgressState = {
 /**
  * Creates the progress slice with Immer middleware for immutable updates
  */
-export const createProgressSlice: ImmerStateCreator<ProgressSlice> = (set) => ({
+export const createProgressSlice: ImmerStateCreator<ProgressSlice> = (set, get) => ({
   ...initialProgressState,
 
   // State setters
@@ -95,48 +114,34 @@ export const createProgressSlice: ImmerStateCreator<ProgressSlice> = (set) => ({
     }
     
     const trimmedId = positionId.trim();
-    const card = state.progress.cardProgress[trimmedId];
+    let card = state.progress.cardProgress[trimmedId];
     
     if (!card) {
-      // Initialize new card if doesn't exist
+      // Create new card using SpacedRepetitionService
       logger.debug('Creating new card progress', { positionId: trimmedId, wasCorrect });
-      state.progress.cardProgress[trimmedId] = {
-        id: trimmedId,
-        nextReviewAt: Date.now() + 86400000, // 1 day from now
-        interval: 1,
-        efactor: 2.5,
-        lapses: wasCorrect ? 0 : 1,
-        repetition: wasCorrect ? 1 : 0,
-        lastReviewedAt: Date.now(),
-      };
-    } else {
-      // Update existing card using SM-2 algorithm principles
-      // TODO: Replace with rs-card-scheduler for proper SM-2 implementation
-      const now = Date.now();
+      card = createNewCard(trimmedId, Date.now());
+      state.progress.cardProgress[trimmedId] = card;
+    }
+    
+    // Update card using SpacedRepetitionService with proper SuperMemo-2 algorithm
+    try {
+      const quality = mapBinaryToQuality(wasCorrect);
+      const updatedCard = updateCardProgress(card, quality, Date.now());
+      state.progress.cardProgress[trimmedId] = updatedCard;
       
-      if (wasCorrect) {
-        card.repetition++;
-        // SM-2: New interval = old interval * ease factor
-        card.interval = Math.round(card.interval * card.efactor);
-        // SM-2: Increase ease factor slightly for correct answers
-        card.efactor = Math.min(2.5, card.efactor + 0.1);
-      } else {
-        card.lapses++;
-        // SM-2: Reset interval on failure
-        card.interval = 1; // Reset to 1 day
-        // SM-2: Decrease ease factor for incorrect answers
-        card.efactor = Math.max(1.3, card.efactor - 0.2);
-      }
-      
-      card.lastReviewedAt = now;
-      card.nextReviewAt = now + (card.interval * 86400000); // Convert days to ms
-      
-      logger.debug('Updated card progress', { 
+      logger.debug('Updated card progress with SM-2', { 
         positionId: trimmedId, 
         wasCorrect,
-        newInterval: card.interval,
-        nextReviewAt: new Date(card.nextReviewAt).toISOString()
+        quality,
+        oldInterval: card.interval,
+        newInterval: updatedCard.interval,
+        oldEfactor: card.efactor,
+        newEfactor: updatedCard.efactor,
+        nextReviewAt: new Date(updatedCard.nextReviewAt).toISOString()
       });
+    } catch (error) {
+      logger.error('Failed to update card progress', { positionId: trimmedId, error });
+      // Fallback: keep the card unchanged rather than corrupting state
     }
   }),
 
@@ -150,8 +155,9 @@ export const createProgressSlice: ImmerStateCreator<ProgressSlice> = (set) => ({
     
     const trimmedId = positionId.trim();
     if (state.progress.cardProgress[trimmedId]) {
-      delete state.progress.cardProgress[trimmedId];
-      logger.debug('Reset card progress', { positionId: trimmedId });
+      // Use SpacedRepetitionService to create a fresh card instead of deleting
+      state.progress.cardProgress[trimmedId] = resetCard({ id: trimmedId });
+      logger.debug('Reset card progress using SM-2 defaults', { positionId: trimmedId });
     } else {
       logger.debug('Card not found for reset', { positionId: trimmedId });
     }
@@ -203,4 +209,298 @@ export const createProgressSlice: ImmerStateCreator<ProgressSlice> = (set) => ({
     // Only reset the state properties, not the actions
     Object.assign(state.progress, initialProgressState);
   }),
+
+  // ===== ASYNC FIREBASE OPERATIONS =====
+
+  /**
+   * Loads user progress from Firebase
+   * 
+   * @param userId - User identifier
+   */
+  loadUserProgress: async (userId) => {
+    const logger = getLogger().setContext('ProgressSlice');
+    
+    set((state) => {
+      state.progress.loading = true;
+      state.progress.syncStatus = 'syncing';
+      state.progress.syncError = null;
+    });
+
+    try {
+      logger.debug('Loading user progress from Firebase', { userId });
+      
+      // Load user stats and all card progresses in parallel
+      const service = getProgressService();
+      const [userStats, cardProgresses] = await Promise.all([
+        service.getUserStats(userId),
+        service.getAllCardProgresses(userId)
+      ]);
+
+      set((state) => {
+        // Update user stats
+        if (userStats) {
+          state.progress.userStats = userStats;
+        }
+        
+        // Update card progresses
+        const cardMap: Record<string, CardProgress> = {};
+        for (const card of cardProgresses) {
+          cardMap[card.id] = card;
+        }
+        state.progress.cardProgress = cardMap;
+        
+        // Update sync status
+        state.progress.loading = false;
+        state.progress.syncStatus = 'idle';
+        state.progress.lastSync = Date.now();
+        state.progress.syncError = null;
+      });
+      
+      logger.info('User progress loaded successfully', { 
+        userId, 
+        hasStats: !!userStats,
+        cardCount: cardProgresses.length 
+      });
+
+    } catch (error) {
+      logger.error('Failed to load user progress', error as Error, { userId });
+      
+      set((state) => {
+        state.progress.loading = false;
+        state.progress.syncStatus = 'error';
+        state.progress.syncError = (error as Error).message;
+      });
+      
+      throw error; // Re-throw for caller to handle
+    }
+  },
+
+  /**
+   * Saves user stats to Firebase
+   * 
+   * @param userId - User identifier
+   * @param updates - Partial user stats to update
+   */
+  saveUserStats: async (userId, updates) => {
+    const logger = getLogger().setContext('ProgressSlice');
+    
+    try {
+      logger.debug('Saving user stats to Firebase', { userId, updates });
+      
+      await getProgressService().updateUserStats(userId, updates);
+      
+      set((state) => {
+        // Optimistically update local state
+        if (state.progress.userStats) {
+          Object.assign(state.progress.userStats, updates);
+        } else {
+          state.progress.userStats = { userId, ...updates } as UserStats;
+        }
+        state.progress.lastSync = Date.now();
+        state.progress.syncError = null;
+      });
+      
+      logger.debug('User stats saved successfully', { userId });
+
+    } catch (error) {
+      logger.error('Failed to save user stats', error as Error, { userId });
+      
+      set((state) => {
+        state.progress.syncStatus = 'error';
+        state.progress.syncError = (error as Error).message;
+      });
+      
+      throw error;
+    }
+  },
+
+  /**
+   * Saves card progress to Firebase
+   * 
+   * @param userId - User identifier
+   * @param positionId - Position identifier
+   * @param progress - Complete card progress object
+   */
+  saveCardProgress: async (userId, positionId, progress) => {
+    const logger = getLogger().setContext('ProgressSlice');
+    
+    try {
+      logger.debug('Saving card progress to Firebase', { userId, positionId });
+      
+      await getProgressService().upsertCardProgress(userId, positionId, progress);
+      
+      set((state) => {
+        // Optimistically update local state
+        state.progress.cardProgress[positionId] = progress;
+        state.progress.lastSync = Date.now();
+        state.progress.syncError = null;
+      });
+      
+      logger.debug('Card progress saved successfully', { userId, positionId });
+
+    } catch (error) {
+      logger.error('Failed to save card progress', error as Error, { userId, positionId });
+      
+      set((state) => {
+        state.progress.syncStatus = 'error';
+        state.progress.syncError = (error as Error).message;
+      });
+      
+      throw error;
+    }
+  },
+
+  /**
+   * Saves session completion data (user stats + multiple card updates) atomically
+   * 
+   * @param userId - User identifier
+   * @param sessionStats - Partial user stats updates
+   * @param cardUpdates - Array of card progress updates
+   */
+  saveSessionComplete: async (userId, sessionStats, cardUpdates) => {
+    const logger = getLogger().setContext('ProgressSlice');
+    
+    set((state) => {
+      state.progress.loading = true;
+      state.progress.syncStatus = 'syncing';
+    });
+
+    try {
+      logger.debug('Saving session completion to Firebase', { 
+        userId, 
+        sessionStats, 
+        cardCount: cardUpdates.length 
+      });
+      
+      await getProgressService().updateProgressTransaction(
+        userId,
+        sessionStats,
+        cardUpdates
+      );
+      
+      set((state) => {
+        // Optimistically update local state
+        if (state.progress.userStats) {
+          Object.assign(state.progress.userStats, sessionStats);
+        } else {
+          state.progress.userStats = { userId, ...sessionStats } as UserStats;
+        }
+        
+        // Update card progresses
+        for (const { positionId, progress } of cardUpdates) {
+          state.progress.cardProgress[positionId] = progress;
+        }
+        
+        state.progress.loading = false;
+        state.progress.syncStatus = 'idle';
+        state.progress.lastSync = Date.now();
+        state.progress.syncError = null;
+      });
+      
+      logger.info('Session completion saved successfully', { 
+        userId, 
+        cardCount: cardUpdates.length 
+      });
+
+    } catch (error) {
+      logger.error('Failed to save session completion', error as Error, { userId });
+      
+      set((state) => {
+        state.progress.loading = false;
+        state.progress.syncStatus = 'error';
+        state.progress.syncError = (error as Error).message;
+      });
+      
+      throw error;
+    }
+  },
+
+  /**
+   * Gets cards due for review from Firebase
+   * 
+   * @param userId - User identifier
+   * @returns Promise resolving to array of due cards
+   */
+  getDueCards: async (userId) => {
+    const logger = getLogger().setContext('ProgressSlice');
+    
+    try {
+      logger.debug('Getting due cards from Firebase', { userId });
+      
+      const dueCards = await getProgressService().getDueCardProgresses(userId);
+      
+      logger.debug('Due cards retrieved successfully', { 
+        userId, 
+        dueCount: dueCards.length 
+      });
+      
+      return dueCards;
+
+    } catch (error) {
+      logger.error('Failed to get due cards', error as Error, { userId });
+      
+      set((state) => {
+        state.progress.syncStatus = 'error';
+        state.progress.syncError = (error as Error).message;
+      });
+      
+      throw error;
+    }
+  },
+
+  /**
+   * Syncs all progress data to Firebase (full upload)
+   * 
+   * @param userId - User identifier
+   */
+  syncAllProgress: async (userId) => {
+    const logger = getLogger().setContext('ProgressSlice');
+    
+    set((state) => {
+      state.progress.loading = true;
+      state.progress.syncStatus = 'syncing';
+    });
+
+    try {
+      logger.debug('Syncing all progress to Firebase', { userId });
+      
+      // Get current state
+      const currentState = get().progress;
+      
+      // Prepare batch updates
+      const cardUpdates = Object.entries(currentState.cardProgress).map(
+        ([positionId, progress]) => ({ positionId, progress: progress as CardProgress })
+      );
+      
+      // Use transaction to update everything atomically
+      await getProgressService().updateProgressTransaction(
+        userId,
+        currentState.userStats || { userId },
+        cardUpdates
+      );
+      
+      set((state) => {
+        state.progress.loading = false;
+        state.progress.syncStatus = 'idle';
+        state.progress.lastSync = Date.now();
+        state.progress.syncError = null;
+      });
+      
+      logger.info('All progress synced successfully', { 
+        userId, 
+        cardCount: cardUpdates.length 
+      });
+
+    } catch (error) {
+      logger.error('Failed to sync all progress', error as Error, { userId });
+      
+      set((state) => {
+        state.progress.loading = false;
+        state.progress.syncStatus = 'error';
+        state.progress.syncError = (error as Error).message;
+      });
+      
+      throw error;
+    }
+  },
 });

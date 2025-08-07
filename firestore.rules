@@ -1,0 +1,86 @@
+/**
+ * Firestore Security Rules for ChessEndgameTrainer
+ * 
+ * This file defines the security rules for all Firestore collections in the project.
+ * It ensures proper data isolation and access control for user-specific data.
+ * 
+ * Key principles:
+ * - Users can only read/write their own progress data
+ * - Public endgame positions are read-only for authenticated users
+ * - Categories and chapters are read-only for all users
+ * - All operations require authentication
+ */
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===== USER PROGRESS COLLECTION =====
+    
+    /**
+     * User progress subcollection: /users/{userId}/userProgress/{document}
+     * 
+     * Structure:
+     * - /users/{userId}/userProgress/stats - UserStats document
+     * - /users/{userId}/userProgress/{positionId} - CardProgress documents
+     * 
+     * Security:
+     * - Users can only access their own progress data
+     * - Requires authentication
+     * - Full CRUD operations allowed for the owner
+     */
+    match /users/{userId}/userProgress/{document=**} {
+      allow read, write: if request.auth != null 
+                      && request.auth.uid == userId;
+    }
+    
+    // ===== PUBLIC ENDGAME DATA =====
+    
+    /**
+     * Endgame positions collection: /positions/{positionId}
+     * 
+     * Security:
+     * - Read-only access for authenticated users
+     * - No write access (positions managed by admins)
+     */
+    match /positions/{positionId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Positions are managed externally
+    }
+    
+    /**
+     * Categories collection: /categories/{categoryId}
+     * 
+     * Security:
+     * - Read-only access for authenticated users
+     * - Categories define the structure of endgame types
+     */
+    match /categories/{categoryId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Categories are managed externally
+    }
+    
+    /**
+     * Chapters collection: /chapters/{chapterId}
+     * 
+     * Security:
+     * - Read-only access for authenticated users
+     * - Chapters organize positions into training sequences
+     */
+    match /chapters/{chapterId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Chapters are managed externally
+    }
+    
+    // ===== FALLBACK RULE =====
+    
+    /**
+     * Default deny rule for any other documents
+     * Ensures explicit security rules for all collections
+     */
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
