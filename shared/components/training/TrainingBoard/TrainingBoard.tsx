@@ -38,12 +38,14 @@ import {
   useTablebaseStore,
   useUIStore,
 } from "@shared/store/hooks";
+import { useStore } from "@shared/store/rootStore";
 import { EndgamePosition } from "@shared/types";
-import { getLogger } from "@shared/services/logging";
+import { getLogger } from "@shared/services/logging/Logger";
 import { ANIMATION, DIMENSIONS } from "@shared/constants";
 import { MoveErrorDialog } from "@shared/components/ui/MoveErrorDialog";
 import { toLibraryMove } from "@shared/infrastructure/chess-adapter";
 import { cancelScheduledOpponentTurn } from "@shared/store/orchestrators/handlePlayerMove";
+import { chessService } from "@shared/services/ChessService";
 
 /**
  * Extended evaluation data structure for move panel integration
@@ -127,10 +129,13 @@ interface TrainingBoardProps {
  * @example
  * ```tsx
  * // Basic usage with endgame position
+ * import { getLogger } from '@shared/services/logging/Logger';
+ * const logger = getLogger();
+ *
  * <TrainingBoard
  *   position={endgamePosition}
  *   onComplete={(success) => {
- *     console.log('Training completed:', success);
+ *     logger.info('Training completed:', success);
  *   }}
  * />
  *
@@ -190,7 +195,6 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
 
   // Chess game logic - now using Store as single source of truth
   const {
-    game,
     history,
     isGameFinished,
     currentFen,
@@ -287,7 +291,8 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
 
   // Debug logging for move error dialog state
   if (trainingState.moveErrorDialog) {
-    console.log("[TrainingBoard] Move error dialog state:", {
+    const logger = getLogger().setContext("TrainingBoard");
+    logger.debug("Move error dialog state", {
       isOpen: showMoveErrorDialog,
       dialogData: trainingState.moveErrorDialog,
       moveErrorData,
@@ -359,28 +364,30 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   const handleMoveErrorTakeBack = useCallback(() => {
     const logger = getLogger().setContext("TrainingBoard-MoveError");
     logger.info("Undoing suboptimal move using useTrainingSession undoMove");
-    
+
     // CRITICAL: Cancel any scheduled opponent turn BEFORE undoing
     // This prevents the opponent from playing after we undo
     cancelScheduledOpponentTurn();
     logger.info("Cancelled any scheduled opponent turn");
-    
+
     // Use the undoMove function from useTrainingSession which properly handles ChessService
     const undoResult = undoMove();
 
     if (undoResult) {
       logger.info("Move successfully undone");
-      
+
       // CRITICAL: Set player turn to true after undoing a suboptimal move
       // This prevents the opponent from playing immediately after undo
-      console.log("[DEBUG TrainingBoard] Before setPlayerTurn - current state:", {
+      logger.debug("Before setPlayerTurn - current state", {
         isPlayerTurn: trainingState.isPlayerTurn,
-        isOpponentThinking: trainingState.isOpponentThinking
+        isOpponentThinking: trainingState.isOpponentThinking,
       });
       trainingActions.setPlayerTurn(true);
       trainingActions.clearOpponentThinking(); // Clear opponent thinking flag
-      logger.info("Set player turn to true and cleared opponent thinking - player can try another move");
-      console.log("[DEBUG TrainingBoard] After setPlayerTurn call");
+      logger.info(
+        "Set player turn to true and cleared opponent thinking - player can try another move",
+      );
+      logger.debug("After setPlayerTurn call");
     } else {
       logger.error("Failed to undo move - no moves in history");
     }
@@ -389,7 +396,9 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     // The hook extracts the action from the slice creator, not from the nested store state
     if (trainingActions && trainingActions.setMoveErrorDialog) {
       trainingActions.setMoveErrorDialog(null);
-      logger.info("Successfully closed move error dialog via trainingActions hook");
+      logger.info(
+        "Successfully closed move error dialog via trainingActions hook",
+      );
     } else {
       logger.error("setMoveErrorDialog not available in trainingActions");
     }
@@ -486,7 +495,6 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   const handleMove = useCallback(
     async (move: any) => {
       const logger = getLogger().setContext("TrainingBoard-handleMove");
-      console.log("[TrainingBoard] handleMove called with:", { move });
       logger.debug("handleMove called", {
         move,
         isGameFinished,
@@ -535,9 +543,9 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         });
 
         // First make the move on the local game instance
-        console.log("[TrainingBoard] Calling makeMove with:", { move });
+        logger.debug("Calling makeMove", { move });
         const result = await makeMove(move);
-        console.log("[TrainingBoard] makeMove result:", { result });
+        logger.debug("makeMove result", { result });
 
         // The orchestrator now handles the entire workflow including:
         // - Move validation
@@ -561,7 +569,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
       trainingState,
       uiActions,
       gameActions,
-      game,
+      currentFen,
       history,
       position,
       isPositionReady,
@@ -596,6 +604,10 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
       logger.debug("🪄 EndgameBoard: Attaching e2e hooks to window object");
       logger.info("Attaching e2e hooks to window object");
 
+      // Expose store and services for E2E testing
+      (window as any).__zustand_store = useStore;
+      (window as any).__chessService = chessService;
+
       /**
        * E2E test helper for programmatic move execution
        *
@@ -624,28 +636,52 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         logger.debug("Test move requested", { move });
 
         // Debug: Check game state before move
+        const tempChess = new Chess(chessService.getFen());
         logger.debug("Pre-move state check", {
-          hasGame: !!game,
-          gamefen: game?.fen(),
-          movesAvailable: game?.moves()?.length || 0,
+          hasGame: true, // ChessService is always available
+          gamefen: chessService.getFen(),
+          movesAvailable: tempChess.moves().length || 0,
           isGameFinished,
         });
 
-        // Parse move notation (support 'e2-e4', 'e2e4', 'Ke2-e4', 'Ke2e4' formats)
+        let moveObj: any;
+
+        // First try to parse as coordinate format (e2-e4, e2e4, etc.)
         const moveMatch = move.match(
           /^([KQRBN]?)([a-h][1-8])-?([a-h][1-8])([qrbn])?$/i,
         );
-        if (!moveMatch) {
-          logger.error("Invalid move format", undefined, { move });
-          return { success: false, error: "Invalid move format" };
-        }
 
-        const [, , from, to, promotion] = moveMatch;
-        const moveObj = {
-          from: from,
-          to: to,
-          promotion: promotion || "q",
-        };
+        if (moveMatch) {
+          // Coordinate format
+          const [, , from, to, promotion] = moveMatch;
+          moveObj = {
+            from: from,
+            to: to,
+            promotion: promotion || "q",
+          };
+        } else {
+          // Try algebraic notation (Kd6, e4, e8=Q, etc.)
+          try {
+            const tempChess = new Chess(chessService.getFen());
+            const chessMove = tempChess.move(move);
+            if (chessMove) {
+              moveObj = {
+                from: chessMove.from,
+                to: chessMove.to,
+                promotion: chessMove.promotion || "q",
+              };
+            } else {
+              logger.error("Invalid move format", undefined, { move });
+              return { success: false, error: "Invalid move format" };
+            }
+          } catch (err) {
+            logger.error("Failed to parse algebraic notation", undefined, {
+              move,
+              err,
+            });
+            return { success: false, error: "Invalid move format" };
+          }
+        }
 
         try {
           logger.debug("Calling handleMove", { moveObj });
@@ -696,24 +732,39 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
        * expect(state.moveCount).toBe(2);
        * ```
        */
-      (window as any).e2e_getGameState = () => ({
-        fen: game.fen(),
-        turn: game.turn(),
-        isGameOver: game.isGameOver(),
-        moveCount: history.length,
-        pgn: game.pgn(),
-        moves: game
-          .moves({ verbose: true })
-          .map((m: any) => `${m.from}-${m.to}`),
-        possibleMovesCount: game.moves().length,
-      });
+      (window as any).e2e_getGameState = () => {
+        // Use ChessService singleton and game state from store
+        const fen = chessService.getFen();
+        const pgn = chessService.getPgn();
+        const isGameOver = chessService.isGameOver();
+        const turn = chessService.turn();
+
+        // Create a temporary Chess instance to get available moves
+        // Since ChessService doesn't expose getMoves directly
+        const tempChess = new Chess(fen);
+        const moves = tempChess.moves({ verbose: true });
+
+        return {
+          fen: fen,
+          turn: turn,
+          isGameOver: isGameOver,
+          moveCount: history.length,
+          pgn: pgn,
+          moves: moves
+            .filter((m: any) => typeof m === "object" && m.from && m.to)
+            .map((m: any) => `${m.from}-${m.to}`),
+          possibleMovesCount: moves.length,
+        };
+      };
     }
 
     // Cleanup on unmount
     return () => {
-      if (process.env.NEXT_PUBLIC_IS_E2E_TEST === "true") {
+      if (isE2ETest) {
         delete (window as any).e2e_makeMove;
         delete (window as any).e2e_getGameState;
+        delete (window as any).__zustand_store;
+        delete (window as any).__chessService;
       }
     };
   }, [handleMove, history, isGameFinished, currentFen, gameState]);
@@ -807,13 +858,13 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         url: window.location.href,
         search: window.location.search,
         testMoves,
-        gameReady: !!game,
+        gameReady: !!currentFen,
         isGameFinished,
         historyLength: history.length,
         testMoveProcessed,
       });
 
-      if (testMoves && game && !isGameFinished) {
+      if (testMoves && currentFen && !isGameFinished) {
         setTestMoveProcessed(true);
         const moves = testMoves.split(",");
         let moveIndex = 0;
@@ -858,7 +909,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
                 };
               } else {
                 // Format: e4 (SAN) - parse it properly
-                const tempGame = new Chess(game.fen());
+                const tempGame = new Chess(chessService.getFen());
                 move = tempGame.move(moveNotation);
                 if (move) {
                   move = {
@@ -909,13 +960,13 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         setTimeout(playNextMove, ANIMATION.MOVE_PLAY_DELAY_SLOW);
       }
     }
-  }, [game, isGameFinished, handleMove, testMoveProcessed]);
+  }, [currentFen, isGameFinished, handleMove, testMoveProcessed]);
 
   // === PAGE READY DETECTION ===
   const isAnalysisReady =
     tablebaseState.analysisStatus === "success" ||
     tablebaseState.analysisStatus === "idle";
-  const isBoardReady = !!currentFen && !!game;
+  const isBoardReady = !!currentFen;
   const isPageReady = usePageReady([isAnalysisReady, isBoardReady]);
 
   // === RENDER ===

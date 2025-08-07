@@ -49,8 +49,8 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
     const [trainingState, trainingActions] = useTrainingStore();
     const [uiState, uiActions] = useUIStore();
 
-    // Toast hook
-    const { toasts, removeToast, showSuccess, showError } = useToast();
+    // Toast hook - keep for showSuccess/showError, but we'll use store toasts for display
+    const { showSuccess, showError } = useToast();
 
     // Local UI state
     const [resetKey, setResetKey] = useState<number>(0);
@@ -106,14 +106,14 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
 
     const getLichessUrl = useCallback(() => {
       const currentFen = gameState.currentFen || position.fen;
-      
+
       // Use PGN if we have moves in the history
       // PGN includes the starting FEN and all moves, providing full context
       if (gameState.currentPgn && gameState.moveHistory.length > 0) {
         // Lichess accepts PGN in the URL for complete game analysis
         return `https://lichess.org/analysis/pgn/${encodeURIComponent(gameState.currentPgn)}`;
       }
-      
+
       // Fallback to FEN-only URL for positions without move history
       return `https://lichess.org/analysis/${currentFen.replace(/ /g, "_")}`;
     }, [
@@ -135,7 +135,10 @@ const EndgameTrainingPage: React.FC<EndgameTrainingPageProps> = React.memo(
 
     return (
       <div className="trainer-container h-screen flex bg-slate-800 text-white">
-        <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+        <ToastContainer
+          toasts={uiState.toasts}
+          onRemoveToast={(id) => uiActions.removeToast(id)}
+        />
 
         {/* Left Menu */}
         <AdvancedEndgameMenu
