@@ -32,8 +32,14 @@ import { immer } from "zustand/middleware/immer";
 
 // Import all slice creators and initial states
 import { createGameSlice, initialGameState } from "./slices/gameSlice";
-import { createTablebaseSlice, initialTablebaseState } from "./slices/tablebaseSlice";
-import { createTrainingSlice, initialTrainingState } from "./slices/trainingSlice";
+import {
+  createTablebaseSlice,
+  initialTablebaseState,
+} from "./slices/tablebaseSlice";
+import {
+  createTrainingSlice,
+  initialTrainingState,
+} from "./slices/trainingSlice";
 import { createUISlice, initialUIState } from "./slices/uiSlice";
 
 // Import ChessService for event subscription
@@ -95,7 +101,7 @@ export const useStore = create<RootState>()(
         const trainingSlice = createTrainingSlice(set, get, store);
         const tablebaseSlice = createTablebaseSlice(set, get, store);
         const uiSlice = createUISlice(set, get, store);
-        
+
         // CRITICAL FIX: Store actions separately to prevent Immer from stripping them
         const trainingActions = {
           setPosition: trainingSlice.setPosition,
@@ -109,6 +115,7 @@ export const useStore = create<RootState>()(
           incrementHint: trainingSlice.incrementHint,
           incrementMistake: trainingSlice.incrementMistake,
           setMoveErrorDialog: trainingSlice.setMoveErrorDialog,
+          setMoveSuccessDialog: trainingSlice.setMoveSuccessDialog,
           addTrainingMove: trainingSlice.addTrainingMove,
           resetTraining: trainingSlice.resetTraining,
           resetPosition: trainingSlice.resetPosition,
@@ -120,7 +127,7 @@ export const useStore = create<RootState>()(
           training: trainingSlice,
           tablebase: tablebaseSlice,
           ui: uiSlice,
-          
+
           // CRITICAL: Store training actions at root level to prevent Immer stripping
           _trainingActions: trainingActions,
 
@@ -210,16 +217,16 @@ export const useStore = create<RootState>()(
             set((state) => {
               // Reset slices to their initial states (preserving actions)
               // Use Object.assign to only update state properties, not functions
-              
+
               // Game slice - merge initial state (preserves actions)
               Object.assign(state.game, initialGameState);
-              
+
               // Training slice - merge initial state (preserves actions)
               Object.assign(state.training, initialTrainingState);
-              
+
               // Tablebase slice - merge initial state (preserves actions)
               Object.assign(state.tablebase, initialTablebaseState);
-              
+
               // UI slice - merge initial state (preserves actions)
               Object.assign(state.ui, initialUIState);
             });

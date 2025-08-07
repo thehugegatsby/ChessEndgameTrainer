@@ -3,33 +3,33 @@
  * @module tests/unit/store/orchestrators/handlePlayerMove.promotion
  */
 
-import { handlePlayerMove } from '@shared/store/orchestrators/handlePlayerMove';
-import { chessService } from '@shared/services/ChessService';
-import { tablebaseService } from '@shared/services/TablebaseService';
-import { handleTrainingCompletion } from '@shared/store/orchestrators/handlePlayerMove/move.completion';
-import type { StoreApi } from '@shared/store/orchestrators/types';
+import { handlePlayerMove } from "@shared/store/orchestrators/handlePlayerMove";
+import { chessService } from "@shared/services/ChessService";
+import { tablebaseService } from "@shared/services/TablebaseService";
+import { handleTrainingCompletion } from "@shared/store/orchestrators/handlePlayerMove/move.completion";
+import type { StoreApi } from "@shared/store/orchestrators/types";
 
 // Mock services
-jest.mock('@shared/services/ChessService', () => ({
+jest.mock("@shared/services/ChessService", () => ({
   chessService: {
     validateMove: jest.fn(),
     move: jest.fn(),
     getFen: jest.fn(),
     isGameOver: jest.fn(),
-    turn: jest.fn()
-  }
+    turn: jest.fn(),
+  },
 }));
 
-jest.mock('@shared/services/TablebaseService', () => ({
+jest.mock("@shared/services/TablebaseService", () => ({
   tablebaseService: {
     getEvaluation: jest.fn(),
-    getTopMoves: jest.fn()
-  }
+    getTopMoves: jest.fn(),
+  },
 }));
 
-jest.mock('@shared/store/orchestrators/handlePlayerMove/move.completion');
+jest.mock("@shared/store/orchestrators/handlePlayerMove/move.completion");
 
-describe('Pawn Promotion Auto-Win Feature', () => {
+describe("Pawn Promotion Auto-Win Feature", () => {
   let mockApi: StoreApi;
   let mockState: any;
 
@@ -39,12 +39,12 @@ describe('Pawn Promotion Auto-Win Feature', () => {
       training: {
         isPlayerTurn: true,
         isOpponentThinking: false,
-        currentPosition: { colorToTrain: 'white' }
+        currentPosition: { colorToTrain: "white" },
       },
-      ui: { 
+      ui: {
         loading: { position: false },
-        toasts: [] 
-      }
+        toasts: [],
+      },
     };
 
     // Create mock StoreApi
@@ -53,51 +53,57 @@ describe('Pawn Promotion Auto-Win Feature', () => {
       setState: jest.fn((callback) => {
         // Apply Immer-style updates to mockState
         callback(mockState);
-      })
+      }),
     };
 
     // Reset all mocks
     jest.clearAllMocks();
   });
 
-  describe('Test Position: K+P endgame leading to promotion', () => {
+  describe("Test Position: K+P endgame leading to promotion", () => {
     // Position from train/1: 4Q3/3K4/5k2/8/8/8/8/8 w - - 1 6
     // After moves: 1. Kd6 Kf7 2. Kd7 Kf8 3. e6 Kg8 4. e7 Kf7 5. e8=Q+
-    
-    it('should auto-complete training when white promotes pawn to queen with winning position', async () => {
+
+    it("should auto-complete training when white promotes pawn to queen with winning position", async () => {
       // Arrange - Position just before promotion: 4k3/4P3/8/8/8/8/8/4K3 w - - 0 1
-      const moveBeforePromotion = { from: 'e7', to: 'e8', promotion: 'q' };
-      const fenAfterPromotion = '4Q3/8/8/8/8/8/8/4k3 b - - 0 1';
-      
+      const moveBeforePromotion = { from: "e7", to: "e8", promotion: "q" };
+      const fenAfterPromotion = "4Q3/8/8/8/8/8/8/4k3 b - - 0 1";
+
       // Mock chess service
       (chessService.validateMove as jest.Mock).mockReturnValue(true);
       (chessService.move as jest.Mock).mockReturnValue({
-        san: 'e8=Q+',
-        color: 'w',
-        promotion: 'q',
-        from: 'e7',
-        to: 'e8'
+        san: "e8=Q+",
+        color: "w",
+        promotion: "q",
+        from: "e7",
+        to: "e8",
+        flags: "p", // Promotion flag required by checkPromotion method
+        piece: "p", // Pawn piece
       });
       (chessService.getFen as jest.Mock)
-        .mockReturnValueOnce('4k3/4P3/8/8/8/8/8/4K3 w - - 0 1') // Before move
+        .mockReturnValueOnce("4k3/4P3/8/8/8/8/8/4K3 w - - 0 1") // Before move
         .mockReturnValue(fenAfterPromotion); // After move
       (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      (chessService.turn as jest.Mock).mockReturnValue('b'); // Black's turn after white moves
-      
-      // Mock tablebase evaluation - WDL from black's perspective after white promotes
-      // Negative value means black loses = white wins
+      (chessService.turn as jest.Mock).mockReturnValue("b"); // Black's turn after white moves
+
+      // Mock tablebase evaluation - WDL from white's perspective after white promotes
+      // Positive value means white wins
       (tablebaseService.getEvaluation as jest.Mock).mockResolvedValue({
         isAvailable: true,
-        result: { 
-          wdl: -2, // Black loses (from black's perspective)
-          dtm: 15  // Mate in 15 moves
-        }
+        result: {
+          wdl: 2, // White wins (from white's perspective, positive = good for white)
+          dtz: 5,
+          dtm: 5,
+          category: "mate",
+          precise: true,
+          evaluation: "White is winning",
+        },
       });
-      
+
       // Mock getTopMoves for the move quality evaluation
       (tablebaseService.getTopMoves as jest.Mock).mockResolvedValue({
         isAvailable: false,
-        moves: []
+        moves: [],
       });
 
       // Act
@@ -106,38 +112,47 @@ describe('Pawn Promotion Auto-Win Feature', () => {
       // Assert
       expect(result).toBe(true);
       expect(chessService.move).toHaveBeenCalledWith(moveBeforePromotion);
-      expect(tablebaseService.getEvaluation).toHaveBeenCalledWith(fenAfterPromotion);
+      expect(tablebaseService.getEvaluation).toHaveBeenCalledWith(
+        fenAfterPromotion,
+      );
       expect(handleTrainingCompletion).toHaveBeenCalledWith(mockApi, true);
-      
-      // Check that success toast was added
+
+      // Check that success dialog was set (not toast anymore)
       expect(mockApi.setState).toHaveBeenCalled();
-      expect(mockState.ui.toasts).toHaveLength(1);
-      expect(mockState.ui.toasts[0]).toMatchObject({
-        message: expect.stringContaining('Umwandlung'),
-        type: 'success'
+      expect(mockState.training.moveSuccessDialog).toEqual({
+        isOpen: true,
+        promotionPiece: "Dame",
+        moveDescription: "e8=Q+",
       });
     });
 
-    it('should NOT auto-complete if promotion leads to draw position', async () => {
+    it("should NOT auto-complete if promotion leads to draw position", async () => {
       // Arrange - Same position but tablebase returns draw
-      const moveBeforePromotion = { from: 'e7', to: 'e8', promotion: 'q' };
-      const fenAfterPromotion = '4Q3/8/8/8/8/8/8/4k3 b - - 0 1';
-      
+      const moveBeforePromotion = { from: "e7", to: "e8", promotion: "q" };
+      const fenAfterPromotion = "4Q3/8/8/8/8/8/8/4k3 b - - 0 1";
+
       (chessService.validateMove as jest.Mock).mockReturnValue(true);
       (chessService.move as jest.Mock).mockReturnValue({
-        san: 'e8=Q',
-        color: 'w',
-        promotion: 'q'
+        san: "e8=Q",
+        color: "w",
+        promotion: "q",
       });
       (chessService.getFen as jest.Mock)
-        .mockReturnValueOnce('4k3/4P3/8/8/8/8/8/4K3 w - - 0 1')
+        .mockReturnValueOnce("4k3/4P3/8/8/8/8/8/4K3 w - - 0 1")
         .mockReturnValue(fenAfterPromotion);
       (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      
+
       // Mock tablebase returns draw (WDL = 0)
       (tablebaseService.getEvaluation as jest.Mock).mockResolvedValue({
         isAvailable: true,
-        result: { wdl: 0 } // Draw
+        result: {
+          wdl: 0, // Draw
+          dtz: null,
+          dtm: null,
+          category: "draw",
+          precise: true,
+          evaluation: "Drawn position",
+        },
       });
 
       // Act
@@ -147,25 +162,32 @@ describe('Pawn Promotion Auto-Win Feature', () => {
       expect(handleTrainingCompletion).not.toHaveBeenCalled();
     });
 
-    it('should NOT auto-complete on rook promotion that leads to draw', async () => {
+    it("should NOT auto-complete on rook promotion that leads to draw", async () => {
       // Arrange - Rook promotion that doesn't win
-      const moveBeforePromotion = { from: 'e7', to: 'e8', promotion: 'r' };
-      
+      const moveBeforePromotion = { from: "e7", to: "e8", promotion: "r" };
+
       (chessService.validateMove as jest.Mock).mockReturnValue(true);
       (chessService.move as jest.Mock).mockReturnValue({
-        san: 'e8=R',
-        color: 'w',
-        promotion: 'r' // Rook
+        san: "e8=R",
+        color: "w",
+        promotion: "r", // Rook
       });
       (chessService.getFen as jest.Mock)
-        .mockReturnValueOnce('4k3/4P3/8/8/8/8/8/4K3 w - - 0 1')
-        .mockReturnValue('4R3/8/8/8/8/8/8/4k3 b - - 0 1');
+        .mockReturnValueOnce("4k3/4P3/8/8/8/8/8/4K3 w - - 0 1")
+        .mockReturnValue("4R3/8/8/8/8/8/8/4k3 b - - 0 1");
       (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      
+
       // Mock tablebase returns draw for rook promotion
       (tablebaseService.getEvaluation as jest.Mock).mockResolvedValue({
         isAvailable: true,
-        result: { wdl: 0 } // Draw
+        result: {
+          wdl: 0, // Draw
+          dtz: null,
+          dtm: null,
+          category: "draw",
+          precise: true,
+          evaluation: "Drawn position",
+        },
       });
 
       // Act
@@ -175,32 +197,43 @@ describe('Pawn Promotion Auto-Win Feature', () => {
       expect(tablebaseService.getEvaluation).toHaveBeenCalled();
       expect(handleTrainingCompletion).not.toHaveBeenCalled();
     });
-    
-    it('should auto-complete on rook promotion that leads to win', async () => {
+
+    it("should auto-complete on rook promotion that leads to win", async () => {
       // Arrange - Rook promotion that wins
-      const moveBeforePromotion = { from: 'e7', to: 'e8', promotion: 'r' };
-      
+      const moveBeforePromotion = { from: "e7", to: "e8", promotion: "r" };
+
       (chessService.validateMove as jest.Mock).mockReturnValue(true);
       (chessService.move as jest.Mock).mockReturnValue({
-        san: 'e8=R',
-        color: 'w',
-        promotion: 'r'
+        san: "e8=R",
+        color: "w",
+        promotion: "r",
+        from: "e7",
+        to: "e8",
+        flags: "p", // Promotion flag required by checkPromotion method
+        piece: "p", // Pawn piece
       });
       (chessService.getFen as jest.Mock)
-        .mockReturnValueOnce('4k3/4P3/8/8/8/8/8/4K3 w - - 0 1')
-        .mockReturnValue('4R3/8/8/8/8/8/8/4k3 b - - 0 1');
+        .mockReturnValueOnce("4k3/4P3/8/8/8/8/8/4K3 w - - 0 1")
+        .mockReturnValue("4R3/8/8/8/8/8/8/4k3 b - - 0 1");
       (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      
-      // Mock tablebase returns win for rook promotion
+
+      // Mock tablebase returns win for rook promotion - WDL from white's perspective
       (tablebaseService.getEvaluation as jest.Mock).mockResolvedValue({
         isAvailable: true,
-        result: { wdl: -2 } // Black loses = White wins
+        result: {
+          wdl: 2, // White wins (positive = good for white)
+          dtz: 3,
+          dtm: 3,
+          category: "mate",
+          precise: true,
+          evaluation: "White is winning",
+        },
       });
-      
+
       // Mock getTopMoves for move quality evaluation
       (tablebaseService.getTopMoves as jest.Mock).mockResolvedValue({
         isAvailable: false,
-        moves: []
+        moves: [],
       });
 
       // Act
@@ -208,30 +241,57 @@ describe('Pawn Promotion Auto-Win Feature', () => {
 
       // Assert
       expect(result).toBe(true);
+      expect(chessService.move).toHaveBeenCalledWith(moveBeforePromotion);
       expect(handleTrainingCompletion).toHaveBeenCalledWith(mockApi, true);
+
+      // Check that success dialog was set (not toast anymore)
+      expect(mockApi.setState).toHaveBeenCalled();
+      expect(mockState.training.moveSuccessDialog).toEqual({
+        isOpen: true,
+        promotionPiece: "Turm",
+        moveDescription: "e8=R",
+      });
     });
 
-    it('should handle black pawn promotion correctly', async () => {
+    it("should handle black pawn promotion correctly", async () => {
       // Arrange - Black promotes on e1
-      mockState.training.currentPosition.colorToTrain = 'black';
-      const moveBeforePromotion = { from: 'e2', to: 'e1', promotion: 'q' };
-      const fenAfterPromotion = '8/8/8/8/8/8/8/4q3 w - - 0 1';
-      
+      mockState.training.currentPosition.colorToTrain = "black";
+      const moveBeforePromotion = { from: "e2", to: "e1", promotion: "q" };
+      const fenAfterPromotion = "8/8/8/8/8/8/8/4q3 w - - 0 1";
+
       (chessService.validateMove as jest.Mock).mockReturnValue(true);
       (chessService.move as jest.Mock).mockReturnValue({
-        san: 'e1=Q',
-        color: 'b',
-        promotion: 'q'
+        san: "e1=Q",
+        color: "b",
+        promotion: "q",
+        from: "e2",
+        to: "e1",
+        flags: "p", // Promotion flag required by checkPromotion method
+        piece: "p", // Pawn piece
       });
       (chessService.getFen as jest.Mock)
-        .mockReturnValueOnce('8/8/8/8/8/8/4p3/8 b - - 0 1')
+        .mockReturnValueOnce("8/8/8/8/8/8/4p3/8 b - - 0 1")
         .mockReturnValue(fenAfterPromotion);
       (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      
-      // WDL = 2 from white's perspective means white loses = black wins
+
+      // Mock tablebase - for black training, check WDL from white's perspective
+      // WDL = -2 means white loses = black wins (training success)
       (tablebaseService.getEvaluation as jest.Mock).mockResolvedValue({
         isAvailable: true,
-        result: { wdl: 2 }
+        result: {
+          wdl: -2, // White loses = black wins
+          dtz: 5,
+          dtm: 5,
+          category: "mate",
+          precise: true,
+          evaluation: "Black is winning",
+        },
+      });
+
+      // Mock getTopMoves for move quality evaluation
+      (tablebaseService.getTopMoves as jest.Mock).mockResolvedValue({
+        isAvailable: false,
+        moves: [],
       });
 
       // Act
@@ -239,25 +299,36 @@ describe('Pawn Promotion Auto-Win Feature', () => {
 
       // Assert
       expect(result).toBe(true);
+      expect(chessService.move).toHaveBeenCalledWith(moveBeforePromotion);
       expect(handleTrainingCompletion).toHaveBeenCalledWith(mockApi, true);
+
+      // Check that success dialog was set (not toast anymore)
+      expect(mockApi.setState).toHaveBeenCalled();
+      expect(mockState.training.moveSuccessDialog).toEqual({
+        isOpen: true,
+        promotionPiece: "Dame",
+        moveDescription: "e1=Q",
+      });
     });
 
-    it('should continue normal flow if tablebase is unavailable', async () => {
+    it("should continue normal flow if tablebase is unavailable", async () => {
       // Arrange
-      const moveBeforePromotion = { from: 'e7', to: 'e8', promotion: 'q' };
-      
+      const moveBeforePromotion = { from: "e7", to: "e8", promotion: "q" };
+
       (chessService.validateMove as jest.Mock).mockReturnValue(true);
       (chessService.move as jest.Mock).mockReturnValue({
-        san: 'e8=Q',
-        color: 'w',
-        promotion: 'q'
+        san: "e8=Q",
+        color: "w",
+        promotion: "q",
       });
-      (chessService.getFen as jest.Mock).mockReturnValue('4Q3/8/8/8/8/8/8/4k3 b - - 0 1');
+      (chessService.getFen as jest.Mock).mockReturnValue(
+        "4Q3/8/8/8/8/8/8/4k3 b - - 0 1",
+      );
       (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      
+
       // Tablebase unavailable
       (tablebaseService.getEvaluation as jest.Mock).mockResolvedValue({
-        isAvailable: false
+        isAvailable: false,
       });
 
       // Act
@@ -268,22 +339,24 @@ describe('Pawn Promotion Auto-Win Feature', () => {
       // Should continue with normal flow
     });
 
-    it('should handle tablebase errors gracefully', async () => {
+    it("should handle tablebase errors gracefully", async () => {
       // Arrange
-      const moveBeforePromotion = { from: 'e7', to: 'e8', promotion: 'q' };
-      
+      const moveBeforePromotion = { from: "e7", to: "e8", promotion: "q" };
+
       (chessService.validateMove as jest.Mock).mockReturnValue(true);
       (chessService.move as jest.Mock).mockReturnValue({
-        san: 'e8=Q',
-        color: 'w',
-        promotion: 'q'
+        san: "e8=Q",
+        color: "w",
+        promotion: "q",
       });
-      (chessService.getFen as jest.Mock).mockReturnValue('4Q3/8/8/8/8/8/8/4k3 b - - 0 1');
+      (chessService.getFen as jest.Mock).mockReturnValue(
+        "4Q3/8/8/8/8/8/8/4k3 b - - 0 1",
+      );
       (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      
+
       // Tablebase throws error
       (tablebaseService.getEvaluation as jest.Mock).mockRejectedValue(
-        new Error('Network error')
+        new Error("Network error"),
       );
 
       // Act - Should not throw

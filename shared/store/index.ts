@@ -26,7 +26,6 @@ export type {
   DataSyncState,
   AnalysisStatus,
   CompleteEndgameSessionState,
-  EndgameTrainingState,
   TablebaseAnalysisState,
 } from "./types";
 

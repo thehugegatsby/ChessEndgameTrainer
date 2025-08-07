@@ -84,7 +84,6 @@ export interface EndgameSessionState {
 export interface CompleteEndgameSessionState {
   gameState: GameState;
   tablebaseAnalysisState: TablebaseAnalysisState;
-  endgameTrainingState: EndgameTrainingState;
 }
 
 // TrainingState removed - use EndgameSessionState instead
@@ -113,33 +112,7 @@ export interface TablebaseAnalysisState {
   currentEvaluation?: PositionAnalysis;
 }
 
-/**
- * Endgame training specific state
- * @interface EndgameTrainingState
- */
-export interface EndgameTrainingState {
-  currentPosition?: EndgamePosition;
-  nextPosition?: EndgamePosition | null;
-  previousPosition?: EndgamePosition | null;
-  isLoadingNavigation?: boolean;
-  navigationError?: string | null;
-  chapterProgress?: {
-    completed: number;
-    total: number;
-  } | null;
-  isPlayerTurn: boolean;
-  isSuccess: boolean;
-  startTime?: number;
-  endTime?: number;
-  hintsUsed: number;
-  mistakeCount: number;
-  moveErrorDialog?: {
-    isOpen: boolean;
-    wdlBefore?: number;
-    wdlAfter?: number;
-    bestMove?: string;
-  } | null;
-}
+// EndgameTrainingState removed - replaced by TrainingState in slices/types.ts
 
 /**
  *
@@ -365,6 +338,11 @@ export interface TrainingActions {
       wdlAfter?: number;
       bestMove?: string;
     } | null,
+  ) => void;
+  setMoveSuccessDialog: (
+    dialog:
+      | import("@shared/store/orchestrators/handlePlayerMove/move.types").MoveSuccessDialog
+      | null,
   ) => void;
   // Navigation actions
   goToMove: (moveIndex: number) => void;

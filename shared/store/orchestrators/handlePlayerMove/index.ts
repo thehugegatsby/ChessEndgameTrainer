@@ -1,16 +1,18 @@
 /**
- * @file Handle player move orchestrator (slim coordinator)
+ * @file Handle player move orchestrator (refactored modular version)
  * @module store/orchestrators/handlePlayerMove
  *
  * @description
- * Slim orchestrator that coordinates player moves using the chess service layer.
- * Handles state updates and delegates business logic to stateless services.
+ * Clean orchestrator that coordinates player moves using specialized modules.
+ * Demonstrates proper separation of concerns with focused responsibilities.
  *
  * @remarks
- * This orchestrator is now a thin coordination layer that:
- * - Uses chessService for stateless operations
- * - Updates store state based on service results
- * - Maintains clear separation of concerns
+ * This orchestrator uses the following modules:
+ * - MoveValidator: Move validation logic
+ * - MoveQualityEvaluator: Tablebase quality analysis
+ * - PawnPromotionHandler: Pawn promotion detection and handling
+ * - MoveDialogManager: Dialog interactions (error, promotion, confirmation)
+ * - OpponentTurnHandler: Opponent move scheduling and execution
  *
  * @example
  * ```typescript
@@ -21,124 +23,60 @@
 import type { StoreApi } from "../types";
 import type { Move as ChessJsMove } from "chess.js";
 import { chessService } from "@shared/services/ChessService";
-import { tablebaseService } from "@shared/services/TablebaseService";
 import { ErrorService } from "@shared/services/ErrorService";
+import { getLogger } from "@shared/services/logging";
 import { handleTrainingCompletion } from "./move.completion";
-import { getLogger } from "@shared/services/logging/Logger";
+
+// Import specialized modules
+import { MoveValidator } from "./MoveValidator";
+import { MoveQualityEvaluator } from "./MoveQualityEvaluator";
+import { PawnPromotionHandler } from "./PawnPromotionHandler";
+import { MoveDialogManager } from "./MoveDialogManager";
+import {
+  scheduleOpponentTurn,
+  cancelScheduledOpponentTurn,
+} from "./OpponentTurnHandler";
 
 // Re-export types for consumers
 export type { MoveEvaluation, MoveExecutionResult } from "./move.types";
-import type { TablebaseMove } from "@shared/types/tablebase";
 
-// Create logger instance for this module
-const logger = getLogger().setContext("handlePlayerMove");
+// Re-export cancellation function for external use (undo functionality)
+export { cancelScheduledOpponentTurn };
 
-// Module-scoped variables for opponent turn management (replaces window globals)
-let opponentTurnTimeout: NodeJS.Timeout | null = null;
-let opponentTurnCancelled = false;
-
-/**
- * Evaluates move quality by comparing WDL values before and after
- * @private
- * @param wdlBefore - WDL value before the move
- * @param wdlAfter - WDL value after the move
- * @param movedColor - Color that made the move ('w' or 'b')
- * @param playedMove - The move that was played (SAN notation)
- * @param bestMoves - Best moves from tablebase
- * @returns Evaluation results with perspective-adjusted WDL values
- */
-function evaluateMoveQuality(
-  wdlBefore: number,
-  wdlAfter: number,
-  movedColor: "w" | "b",
-  playedMove: string,
-  bestMoves: TablebaseMove[] | undefined,
-): {
-  wdlBeforeFromPlayerPerspective: number;
-  wdlAfterFromPlayerPerspective: number;
-  playedMoveWasBest: boolean;
-  outcomeChanged: boolean;
-} {
-  // Convert WDL to player's perspective consistently
-  // WDL values are from white's perspective:
-  // Positive = good for white, Negative = good for black
-  const wdlBeforeFromPlayerPerspective =
-    movedColor === "w" ? wdlBefore : -wdlBefore;
-
-  // After the move, it's the opponent's turn, so we need to invert
-  const wdlAfterFromPlayerPerspective =
-    movedColor === "w" ? -wdlAfter : wdlAfter;
-
-  // Check if the played move was one of the best moves
-  const playedMoveWasBest = bestMoves
-    ? bestMoves.some((m) => m.san === playedMove)
-    : false;
-
-  // Check if position outcome actually changed (not just DTM increase)
-  const outcomeChanged =
-    (wdlBeforeFromPlayerPerspective > 0 &&
-      wdlAfterFromPlayerPerspective <= 0) || // Win -> Draw/Loss
-    (wdlBeforeFromPlayerPerspective === 0 && wdlAfterFromPlayerPerspective < 0); // Draw -> Loss
-
-  return {
-    wdlBeforeFromPlayerPerspective,
-    wdlAfterFromPlayerPerspective,
-    playedMoveWasBest,
-    outcomeChanged,
-  };
-}
+// Initialize module instances
+const moveValidator = new MoveValidator();
+const moveQualityEvaluator = new MoveQualityEvaluator();
+const pawnPromotionHandler = new PawnPromotionHandler();
+const moveDialogManager = new MoveDialogManager();
 
 /**
- * Cancels any scheduled opponent turn
- *
- * @description
- * Called when undoing a move to prevent the opponent from playing
- * after the undo action completes.
- */
-export function cancelScheduledOpponentTurn(): void {
-  // Set a flag to prevent execution even if timeout already fired
-  opponentTurnCancelled = true;
-
-  if (opponentTurnTimeout) {
-    clearTimeout(opponentTurnTimeout);
-    opponentTurnTimeout = null;
-    logger.debug("Successfully cancelled scheduled opponent turn");
-  } else {
-    logger.warn("No timeout to cancel, but set cancellation flag");
-  }
-}
-
-/**
- * Handles a player move using slim orchestration
+ * Handles a player move using modular orchestration
  *
  * @param {StoreApi} api - Store API for accessing state and actions
  * @param {ChessJsMove | {from: string; to: string; promotion?: string} | string} move - The move to make
  * @returns {Promise<boolean>} Whether the move was successful
  *
  * @remarks
- * Simplified flow using chess service:
- * 1. Validate move using service
+ * Modular flow using specialized handlers:
+ * 1. Validate move using MoveValidator
  * 2. Apply move and update state
- * 3. Evaluate quality using service
- * 4. Handle completion or opponent turn
+ * 3. Handle pawn promotion with PawnPromotionHandler
+ * 4. Evaluate quality using MoveQualityEvaluator
+ * 5. Show dialogs using MoveDialogManager
+ * 6. Handle completion or opponent turn with OpponentTurnHandler
  */
 export const handlePlayerMove = async (
   api: StoreApi,
   move: ChessJsMove | { from: string; to: string; promotion?: string } | string,
 ): Promise<boolean> => {
-  console.log("[handlePlayerMove] ORCHESTRATOR CALLED:", { move });
+  getLogger().info("[handlePlayerMove] Orchestrator called:", { move });
 
   const { getState, setState } = api;
   const state = getState();
 
-  console.log("[handlePlayerMove] Current state:", {
-    isPlayerTurn: state.training.isPlayerTurn,
-    isOpponentThinking: state.training.isOpponentThinking,
-  });
-
-  // Check if it's player's turn and opponent is not thinking
+  // Early validation - check if it's player's turn
   if (!state.training.isPlayerTurn || state.training.isOpponentThinking) {
-    console.log(
+    getLogger().debug(
       "[handlePlayerMove] Early return - not player turn or opponent thinking",
     );
     return false;
@@ -150,16 +88,13 @@ export const handlePlayerMove = async (
       draft.ui.loading.position = true;
     });
 
-    // currentFen removed - not used here
-
-    // Step 1: Validate move using service
-    const isValid = chessService.validateMove(move);
-    if (!isValid) {
-      // Use setState for UI updates instead of direct state access
+    // Step 1: Validate move using MoveValidator
+    const validationResult = await moveValidator.validateMove(move);
+    if (!validationResult.isValid) {
       setState((draft) => {
         draft.ui.toasts.push({
           id: Date.now().toString(),
-          message: "Invalid move",
+          message: validationResult.errorMessage || "Invalid move",
           type: "error",
         });
       });
@@ -172,274 +107,86 @@ export const handlePlayerMove = async (
     // Step 3: Apply move to game state
     const validatedMove = chessService.move(move);
     if (!validatedMove) {
+      getLogger().error(
+        "[handlePlayerMove] Move execution failed after validation",
+      );
       return false;
     }
 
-    // Game state will be automatically synced via ChessService event subscription in rootStore
+    const fenAfter = chessService.getFen();
 
-    // Step 3.5: Check for pawn promotion auto-win (any promotion piece)
-    logger.info("Checking for promotion", {
-      hasPromotion: !!validatedMove.promotion,
-      promotion: validatedMove.promotion,
-      move: validatedMove.san,
-      from: validatedMove.from,
-      to: validatedMove.to,
-    });
-
-    if (validatedMove.promotion) {
-      logger.info("🎉 Pawn promotion detected!", {
-        promotion: validatedMove.promotion,
-        san: validatedMove.san,
-      });
-      console.log(
+    // Step 4: Handle pawn promotion if applicable
+    const promotionInfo = pawnPromotionHandler.checkPromotion(validatedMove);
+    if (promotionInfo.isPromotion) {
+      getLogger().info(
         "[handlePlayerMove] Pawn promotion detected:",
-        validatedMove.promotion,
-        "- checking tablebase evaluation",
+        promotionInfo,
       );
 
-      const fenAfterPromotion = chessService.getFen();
+      // Check if promotion leads to auto-win
+      const isAutoWin = await pawnPromotionHandler.evaluatePromotionOutcome(
+        fenAfter,
+        validatedMove.color,
+      );
 
-      try {
-        const evalResult =
-          await tablebaseService.getEvaluation(fenAfterPromotion);
-
-        if (evalResult.isAvailable && evalResult.result?.wdl !== undefined) {
-          const promotingColor = validatedMove.color;
-
-          // After the move, it's opponent's turn, so we need to invert WDL
-          // Same logic as lines 171-172
-          const wdlFromPromotingPlayerPerspective =
-            promotingColor === "w"
-              ? -evalResult.result.wdl
-              : evalResult.result.wdl;
-
-          console.log("[handlePlayerMove] Promotion evaluation:", {
-            fenAfterPromotion,
-            wdl: evalResult.result.wdl,
-            wdlFromPromotingPlayerPerspective,
-            isWin: wdlFromPromotingPlayerPerspective > 0,
-          });
-
-          // Auto-complete if position is won
-          if (wdlFromPromotingPlayerPerspective > 0) {
-            console.log(
-              "[handlePlayerMove] Promotion leads to win - auto-completing training",
-            );
-
-            // Add success toast
-            const pieceNames = {
-              q: "Dame",
-              r: "Turm",
-              b: "Läufer",
-              n: "Springer",
-            };
-            const pieceName = pieceNames[validatedMove.promotion] || "Figur";
-
-            setState((draft) => {
-              draft.ui.toasts.push({
-                id: Date.now().toString(),
-                message: `Glückwunsch! Umwandlung in ${pieceName} führt zum Sieg!`,
-                type: "success",
-              });
-            });
-
-            // Complete training
-            await handleTrainingCompletion(api, true);
-            return true;
-          }
-        }
-      } catch (error) {
-        console.error("Promotion evaluation failed:", error);
-        // Continue with normal flow if evaluation fails
+      if (isAutoWin) {
+        await pawnPromotionHandler.handleAutoWin(api, {
+          ...promotionInfo,
+          isAutoWin: true,
+        });
+        return true; // Training completed
       }
     }
 
-    // Step 4: Move quality evaluation with tablebase service
-    try {
-      // Get evaluations before and after the move
-      const evalBefore = await tablebaseService
-        .getEvaluation(fenBefore)
-        .catch(() => ({ isAvailable: false }));
-      const fenAfter = chessService.getFen();
-      const evalAfter = await tablebaseService
-        .getEvaluation(fenAfter)
-        .catch(() => ({ isAvailable: false }));
+    // Step 5: Evaluate move quality using MoveQualityEvaluator
+    const qualityResult = await moveQualityEvaluator.evaluateMoveQuality(
+      fenBefore,
+      fenAfter,
+      validatedMove,
+    );
 
-      // Check if move worsened position (only if both evaluations are available)
-      if (
-        evalBefore.isAvailable &&
-        evalAfter.isAvailable &&
-        "result" in evalBefore &&
-        "result" in evalAfter &&
-        evalBefore.result &&
-        evalAfter.result
-      ) {
-        const wdlBefore = evalBefore.result.wdl;
-        const wdlAfter = evalAfter.result.wdl;
+    // Step 6: Show error dialog if move was suboptimal and outcome changed
+    if (qualityResult.shouldShowErrorDialog) {
+      moveDialogManager.showMoveErrorDialog(
+        api,
+        qualityResult.wdlBefore || 0,
+        qualityResult.wdlAfter || 0,
+        qualityResult.bestMove,
+      );
 
-        // Get best moves for comparison
-        const topMoves = await tablebaseService
-          .getTopMoves(fenBefore, 3)
-          .catch(() => ({ isAvailable: false, moves: [] }));
-
-        // Use helper function to evaluate move quality
-        const evaluation = evaluateMoveQuality(
-          wdlBefore,
-          wdlAfter,
-          validatedMove.color,
-          validatedMove.san,
-          topMoves.isAvailable ? topMoves.moves : undefined,
-        );
-
-        // Debug logging (kept in main function for context)
-        console.log("[MoveQuality] Evaluating move quality:", {
-          moveColor: validatedMove.color,
-          moveSan: validatedMove.san,
-          wdlBefore,
-          wdlAfter,
-          fenBefore: fenBefore.split(" ")[0], // Just board position
-          fenAfter: fenAfter.split(" ")[0],
-        });
-
-        console.log("[MoveQuality] WDL from player perspective:", {
-          wdlBeforeFromPlayerPerspective:
-            evaluation.wdlBeforeFromPlayerPerspective,
-          wdlAfterFromPlayerPerspective:
-            evaluation.wdlAfterFromPlayerPerspective,
-        });
-
-        console.log("[MoveQuality] Best moves check:");
-        console.log("  topMovesAvailable:", topMoves.isAvailable);
-        console.log(
-          "  bestMoves:",
-          JSON.stringify(topMoves.moves?.map((m) => m.san)),
-        );
-        console.log("  playedMove:", validatedMove.san);
-        console.log("  playedMoveWasBest:", evaluation.playedMoveWasBest);
-
-        // Debug each move comparison
-        if (topMoves.moves) {
-          console.log("  Comparing each move:");
-          topMoves.moves.forEach((m, i) => {
-            console.log(
-              `    Move ${i}: "${m.san}" === "${validatedMove.san}" ? ${m.san === validatedMove.san}`,
-            );
-          });
-        }
-
-        console.log("[MoveQuality] DECISION VALUES:");
-        console.log("  outcomeChanged:", evaluation.outcomeChanged);
-        console.log("  playedMoveWasBest:", evaluation.playedMoveWasBest);
-        console.log(
-          "  wdlBeforeFromPlayerPerspective:",
-          evaluation.wdlBeforeFromPlayerPerspective,
-        );
-        console.log(
-          "  wdlAfterFromPlayerPerspective:",
-          evaluation.wdlAfterFromPlayerPerspective,
-        );
-        console.log(
-          "  showDialog (original logic):",
-          !evaluation.playedMoveWasBest && evaluation.outcomeChanged,
-        );
-        console.log(
-          "  forceTestDialog:",
-          !evaluation.playedMoveWasBest && topMoves.isAvailable,
-        );
-        console.log(
-          "  FINAL TRIGGER:",
-          (!evaluation.playedMoveWasBest && evaluation.outcomeChanged) ||
-            (!evaluation.playedMoveWasBest && topMoves.isAvailable),
-        );
-
-        // TEMP: Force error dialog for testing (should only trigger if move was not best)
-        const forceTestDialog =
-          !evaluation.playedMoveWasBest && topMoves.isAvailable;
-
-        if (
-          (!evaluation.playedMoveWasBest && evaluation.outcomeChanged) ||
-          forceTestDialog
-        ) {
-          const bestMove =
-            topMoves.isAvailable && topMoves.moves && topMoves.moves.length > 0
-              ? topMoves.moves[0].san
-              : undefined;
-
-          console.log(
-            "[MoveQuality] Showing error dialog with best move:",
-            bestMove,
-          );
-          console.log(
-            "[MoveQuality] Force test dialog triggered:",
-            forceTestDialog,
-          );
-
-          // Show error dialog
-          setState((draft) => {
-            draft.training.moveErrorDialog = {
-              isOpen: true,
-              wdlBefore,
-              wdlAfter,
-              bestMove,
-            };
-          });
-
-          // CRITICAL: Don't schedule opponent turn when showing error dialog!
-          // The player needs to decide whether to undo or continue
-          console.log(
-            "[MoveQuality] Returning early - no opponent turn for suboptimal move",
-          );
-          return true;
-        }
-      } else {
-        console.log("[MoveQuality] Skipping evaluation - insufficient data:", {
-          evalBeforeAvailable: evalBefore?.isAvailable,
-          evalAfterAvailable: evalAfter?.isAvailable,
-          hasBeforeResult: evalBefore && "result" in evalBefore,
-          hasAfterResult: evalAfter && "result" in evalAfter,
-        });
-      }
-    } catch (error) {
-      // Log evaluation error but don't block move
-      console.error("Move quality evaluation failed:", error);
+      // Don't schedule opponent turn when showing error dialog
+      getLogger().info(
+        "[handlePlayerMove] Showing error dialog - no opponent turn",
+      );
+      return true;
     }
 
-    // Step 5: Check if game is finished
+    // Step 7: Check if game is finished
     if (chessService.isGameOver()) {
       await handleTrainingCompletion(api, true);
       return true;
     }
 
-    // Step 6: Check if opponent's turn
+    // Step 8: Handle opponent turn if needed
     const currentTurn = chessService.turn();
     const trainingColor =
       state.training.currentPosition?.colorToTrain?.charAt(0);
 
-    console.log("[DEBUG handlePlayerMove] After move check:", {
-      currentTurn,
-      trainingColor,
-      shouldTriggerOpponent: currentTurn !== trainingColor,
-      fen: chessService.getFen(),
-    });
-
     if (currentTurn !== trainingColor) {
-      console.log(
-        "[DEBUG handlePlayerMove] It's opponent's turn - scheduling opponent move",
-      );
-      // Trigger opponent turn (delegated to separate function)
+      getLogger().debug("[handlePlayerMove] Scheduling opponent turn");
       setState((draft) => {
         draft.training.isPlayerTurn = false;
-        draft.training.isOpponentThinking = true; // Set flag before opponent starts
+        draft.training.isOpponentThinking = true;
       });
 
-      // Schedule opponent turn without recursion
+      // Schedule opponent turn using dedicated handler
       scheduleOpponentTurn(api);
     }
 
     return true;
   } catch (error) {
     const userMessage = ErrorService.handleUIError(
-      error as Error,
+      error instanceof Error ? error : new Error(String(error)),
       "MakeUserMove",
       {
         component: "MakeUserMove",
@@ -447,7 +194,6 @@ export const handlePlayerMove = async (
       },
     );
 
-    // Use setState for error toast
     setState((draft) => {
       draft.ui.toasts.push({
         id: Date.now().toString(),
@@ -456,6 +202,7 @@ export const handlePlayerMove = async (
       });
     });
 
+    getLogger().error("[handlePlayerMove] Move handling failed:", error);
     return false;
   } finally {
     // Clear loading state
@@ -464,189 +211,3 @@ export const handlePlayerMove = async (
     });
   }
 };
-
-/**
- * Schedules opponent turn execution
- *
- * @param {StoreApi} api - Store API
- *
- * @private
- *
- * @remarks
- * Separates opponent logic from player move handling.
- * Uses testable delay utility instead of raw setTimeout.
- */
-function scheduleOpponentTurn(api: StoreApi): void {
-  console.log(
-    "[DEBUG scheduleOpponentTurn] CALLED - Scheduling opponent turn in 500ms",
-  );
-
-  // Cancel any previously scheduled opponent turn
-  if (opponentTurnTimeout) {
-    clearTimeout(opponentTurnTimeout);
-    console.log(
-      "[DEBUG scheduleOpponentTurn] Cancelled previous opponent turn timeout",
-    );
-  }
-
-  // Clear the cancellation flag when scheduling new turn
-  opponentTurnCancelled = false;
-
-  // Schedule new opponent turn with cancellable timeout
-  opponentTurnTimeout = setTimeout(async () => {
-    console.log(
-      "[DEBUG scheduleOpponentTurn] Timeout fired, checking if we should execute opponent turn",
-    );
-
-    // Check if this turn was cancelled
-    if (opponentTurnCancelled) {
-      console.log(
-        "[DEBUG scheduleOpponentTurn] ABORTING - Turn was cancelled by undo",
-      );
-      opponentTurnCancelled = false;
-      opponentTurnTimeout = null;
-      return;
-    }
-
-    // Check state again before executing - player might have undone the move
-    const currentState = api.getState();
-    if (currentState.training.isPlayerTurn) {
-      console.log(
-        "[DEBUG scheduleOpponentTurn] ABORTING - It's now player's turn (move was undone)",
-      );
-      return;
-    }
-
-    console.log("[DEBUG scheduleOpponentTurn] Executing opponent turn");
-    await executeOpponentTurn(api);
-
-    // Clear the timeout reference after execution
-    opponentTurnTimeout = null;
-  }, 500);
-}
-
-/**
- * Executes opponent turn
- *
- * @param {StoreApi} api - Store API
- * @returns {Promise<void>}
- *
- * @private
- *
- * @remarks
- * Handles opponent move separately from player moves.
- * No recursion - clear separation of concerns.
- */
-async function executeOpponentTurn(api: StoreApi): Promise<void> {
-  const { getState, setState } = api;
-
-  // DEBUG: Check if we should actually execute opponent turn
-  const state = getState();
-  console.log("[DEBUG executeOpponentTurn] Called with state:", {
-    isPlayerTurn: state.training.isPlayerTurn,
-    isOpponentThinking: state.training.isOpponentThinking,
-    currentFen: chessService.getFen(),
-    currentTurn: chessService.turn(),
-    trainingColor: state.training.currentPosition?.colorToTrain,
-    wasCancelled: opponentTurnCancelled,
-  });
-
-  // CRITICAL: Check cancellation flag first
-  if (opponentTurnCancelled) {
-    console.log("[DEBUG executeOpponentTurn] ABORTING - Turn was cancelled!");
-    opponentTurnCancelled = false;
-    return;
-  }
-
-  // CRITICAL: Don't execute if it's the player's turn
-  if (state.training.isPlayerTurn) {
-    console.log("[DEBUG executeOpponentTurn] ABORTING - It's player's turn!");
-    return;
-  }
-
-  try {
-    // Get current position
-    const currentFen = chessService.getFen();
-
-    // Fetch best move from tablebase
-    const topMoves = await tablebaseService.getTopMoves(currentFen, 1);
-
-    if (
-      !topMoves.isAvailable ||
-      !topMoves.moves ||
-      topMoves.moves.length === 0
-    ) {
-      // No tablebase move available - just return control to player
-      setState((draft) => {
-        draft.training.isPlayerTurn = true;
-        draft.training.isOpponentThinking = false;
-      });
-      return;
-    }
-
-    // Get the best move
-    const bestMove = topMoves.moves[0];
-
-    // Convert SAN move to from/to format for ChessService
-    // The tablebase returns moves in SAN format (e.g., "Ke4", "Rxh7")
-    // We need to convert to { from, to } format
-    const moveResult = chessService.validateMove(bestMove.san);
-    if (!moveResult) {
-      // If validation fails, try to make the move directly
-      const move = chessService.move(bestMove.san);
-      if (!move) {
-        throw new Error(`Invalid tablebase move: ${bestMove.san}`);
-      }
-    } else {
-      // Make the opponent move
-      const move = chessService.move(bestMove.san);
-      if (!move) {
-        throw new Error(`Failed to execute tablebase move: ${bestMove.san}`);
-      }
-    }
-
-    // Update state - switch back to player's turn
-    setState((draft) => {
-      draft.training.isPlayerTurn = true;
-      draft.training.isOpponentThinking = false;
-
-      // Add a toast notification for the opponent's move
-      draft.ui.toasts.push({
-        id: Date.now().toString(),
-        message: `Gegner spielt: ${bestMove.san}`,
-        type: "info",
-      });
-    });
-
-    // Check if game ended after opponent move
-    if (chessService.isGameOver()) {
-      await handleTrainingCompletion(api, false); // Player didn't win
-    }
-  } catch (error) {
-    // Handle opponent move errors
-    const userMessage = ErrorService.handleUIError(
-      error as Error,
-      "OpponentMove",
-      {
-        component: "OpponentMove",
-        action: "execute",
-      },
-    );
-
-    setState((draft) => {
-      draft.ui.toasts.push({
-        id: Date.now().toString(),
-        message: userMessage,
-        type: "error",
-      });
-      // Reset to player's turn and clear thinking flag on error
-      draft.training.isPlayerTurn = true;
-      draft.training.isOpponentThinking = false;
-    });
-  } finally {
-    // Always clear the thinking flag
-    setState((draft) => {
-      draft.training.isOpponentThinking = false;
-    });
-  }
-}

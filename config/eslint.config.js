@@ -12,7 +12,10 @@ module.exports = [
     ignores: [
       "poc/**/*", // Ignore the entire poc directory
       ".next/**/*", // Standard Next.js ignore
+      "dist/**/*", // Build output
+      "build/**/*", // Build output
       "node_modules/**/*", // Always a good practice
+      ".eslintcache", // Cache files
     ],
   },
 

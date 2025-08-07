@@ -27,7 +27,8 @@
 import { ImmerStateCreator, TrainingSlice } from "./types";
 import type { EndgamePosition as BaseEndgamePosition } from "@shared/types/endgame";
 import type { ValidatedMove } from "@shared/types/chess";
-import { getLogger } from "@shared/services/logging/Logger";
+import type { MoveSuccessDialog } from "@shared/store/orchestrators/handlePlayerMove/move.types";
+import { getLogger } from "@shared/services/logging";
 
 /**
  * Extended EndgamePosition with training-specific fields
@@ -80,6 +81,7 @@ export const initialTrainingState = {
     wdlAfter?: number;
     bestMove?: string;
   } | null,
+  moveSuccessDialog: null as MoveSuccessDialog | null,
 };
 
 /**
@@ -146,6 +148,7 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
     wdlAfter?: number;
     bestMove?: string;
   } | null,
+  moveSuccessDialog: null as MoveSuccessDialog | null,
 
   // Actions
   /**
@@ -184,7 +187,8 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
       state.training.hintsUsed = 0;
       state.training.mistakeCount = 0;
       // Set initial turn based on position
-      state.training.isPlayerTurn = position.sideToMove === position.colorToTrain;
+      state.training.isPlayerTurn =
+        position.sideToMove === position.colorToTrain;
     });
   },
 
@@ -249,7 +253,9 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
    * ```
    */
   setNavigationLoading: (loading: boolean) => {
-    set((state) => { state.training.isLoadingNavigation = loading; });
+    set((state) => {
+      state.training.isLoadingNavigation = loading;
+    });
   },
 
   /**
@@ -273,7 +279,9 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
    * ```
    */
   setNavigationError: (error: string | null) => {
-    set((state) => { state.training.navigationError = error; });
+    set((state) => {
+      state.training.navigationError = error;
+    });
   },
 
   /**
@@ -304,7 +312,9 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
   setChapterProgress: (
     progress: { completed: number; total: number } | null,
   ) => {
-    set((state) => { state.training.chapterProgress = progress; });
+    set((state) => {
+      state.training.chapterProgress = progress;
+    });
   },
 
   /**
@@ -329,7 +339,9 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
    * ```
    */
   setPlayerTurn: (isPlayerTurn: boolean) => {
-    set((state) => { state.training.isPlayerTurn = isPlayerTurn; });
+    set((state) => {
+      state.training.isPlayerTurn = isPlayerTurn;
+    });
   },
 
   /**
@@ -349,7 +361,9 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
    * ```
    */
   clearOpponentThinking: () => {
-    set((state) => { state.training.isOpponentThinking = false; });
+    set((state) => {
+      state.training.isOpponentThinking = false;
+    });
   },
 
   /**
@@ -473,7 +487,49 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
       bestMove?: string;
     } | null,
   ) => {
-    set((state) => { state.training.moveErrorDialog = dialog; });
+    set((state) => {
+      state.training.moveErrorDialog = dialog;
+    });
+  },
+
+  /**
+   * Sets the move success dialog configuration
+   *
+   * @param {Object|null} dialog - Dialog configuration or null to close
+   * @param {boolean} dialog.isOpen - Whether the dialog should be open
+   * @param {string} [dialog.promotionPiece] - The piece promoted to (German label)
+   * @param {string} [dialog.moveDescription] - Description of the winning move
+   *
+   * @fires stateChange - When dialog state changes
+   *
+   * @remarks
+   * This dialog is shown when a user makes a successful move that leads to victory,
+   * particularly after pawn promotion. It provides positive feedback and celebration
+   * to motivate continued learning.
+   *
+   * @example
+   * ```typescript
+   * // Show success dialog
+   * setMoveSuccessDialog({
+   *   isOpen: true,
+   *   promotionPiece: "Dame",
+   *   moveDescription: "e8=Q+"
+   * });
+   *
+   * // Close dialog
+   * setMoveSuccessDialog(null);
+   * ```
+   */
+  setMoveSuccessDialog: (
+    dialog: {
+      isOpen: boolean;
+      promotionPiece?: string;
+      moveDescription?: string;
+    } | null,
+  ) => {
+    set((state) => {
+      state.training.moveSuccessDialog = dialog;
+    });
   },
 
   /**
@@ -532,7 +588,9 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
     // DO NOT RESET - This would break action methods
     // Individual actions should handle their own state resets
     const logger = getLogger().setContext("TrainingSlice");
-    logger.warn("resetTraining called but doing nothing to preserve action methods");
+    logger.warn(
+      "resetTraining called but doing nothing to preserve action methods",
+    );
   },
 
   /**
