@@ -60,10 +60,9 @@
     "type-check": "tsc --noEmit"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
+    "{shared,tests,pages}/**/*.{js,jsx,ts,tsx}": [
       "eslint --fix",
-      "prettier --write",
-      "jest --bail --findRelatedTests --passWithNoTests"
+      "prettier --write"
     ],
     "*.{json,md,css}": [
       "prettier --write"

@@ -12,6 +12,12 @@ tsconfig.json
 .prettierrc
 *.config.js
 
+# Test & Coverage Reports
+coverage/
+test-results/
+playwright-report/
+*.html
+
 # IDE
 .vscode/
 .idea/
