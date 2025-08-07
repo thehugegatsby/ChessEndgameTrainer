@@ -271,12 +271,7 @@ async function executeOpponentTurn(api: StoreApi): Promise<void> {
       draft.training.isPlayerTurn = true;
       draft.training.isOpponentThinking = false;
 
-      // Add a toast notification for the opponent's move
-      draft.ui.toasts.push({
-        id: Date.now().toString(),
-        message: `Gegner spielt: ${bestMove.san}`,
-        type: "info",
-      });
+      // Note: Removed opponent move toast to reduce UI clutter
     });
 
     // Check if game ended after opponent move

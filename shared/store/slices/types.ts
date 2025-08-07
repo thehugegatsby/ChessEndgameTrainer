@@ -108,6 +108,11 @@ export interface TrainingState {
     wdlAfter?: number;
     bestMove?: string;
   } | null;
+  moveSuccessDialog: {
+    isOpen: boolean;
+    promotionPiece?: string;
+    moveDescription?: string;
+  } | null;
 }
 
 export interface TrainingActions {
@@ -132,6 +137,13 @@ export interface TrainingActions {
       wdlBefore?: number;
       wdlAfter?: number;
       bestMove?: string;
+    } | null,
+  ) => void;
+  setMoveSuccessDialog: (
+    dialog: {
+      isOpen: boolean;
+      promotionPiece?: string;
+      moveDescription?: string;
     } | null,
   ) => void;
   addTrainingMove: (move: ValidatedMove) => void;

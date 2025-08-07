@@ -71,6 +71,8 @@ export interface PromotionInfo {
   to?: string;
   /** Whether promotion leads to immediate win */
   isAutoWin?: boolean;
+  /** Move description for display purposes */
+  moveDescription?: string;
 }
 
 /**
@@ -184,7 +186,8 @@ export class PawnPromotionHandler {
       promotionPiece,
       from: move.from,
       to: move.to,
-      isAutoWin: false // Will be determined by evaluatePromotionOutcome
+      isAutoWin: false, // Will be determined by evaluatePromotionOutcome
+      moveDescription: move.san // Include SAN notation for display
     };
   }
 
@@ -217,27 +220,27 @@ export class PawnPromotionHandler {
         .getEvaluation(currentFen)
         .catch(() => ({ isAvailable: false }));
 
-      if (evaluation.isAvailable && evaluation.result) {
+      if (evaluation.isAvailable && 'wdl' in evaluation) {
         // Check if promotion created a winning position from promoting player's perspective
         // WDL is from white's perspective: positive = good for white, negative = good for black
         const wdlFromPromotingPlayerPerspective = promotingColor === 'w' 
-          ? evaluation.result.wdl 
-          : -evaluation.result.wdl;
+          ? evaluation.wdl 
+          : -evaluation.wdl;
         const isWinning = wdlFromPromotingPlayerPerspective > 0;
         
         getLogger().debug("[PawnPromotion] Tablebase evaluation:", {
-          wdl: evaluation.result.wdl,
+          wdl: evaluation.wdl,
           wdlFromPromotingPlayerPerspective,
           promotingColor,
-          category: evaluation.result.category,
+          category: evaluation.category,
           isWinning,
           fen: currentFen.split(" ")[0]
         });
 
         // Consider it an auto-win if it's a forced mate or other winning category
         // Categories like 'mate', 'win', etc. indicate definitive winning scenarios
-        const isAutoWinCategory = evaluation.result.category.includes('mate') || 
-                                 evaluation.result.category.includes('win');
+        const isAutoWinCategory = evaluation.category?.includes('mate') || 
+                                 evaluation.category?.includes('win');
         return isWinning && isAutoWinCategory;
       }
 
@@ -259,13 +262,16 @@ export class PawnPromotionHandler {
     
     const { setState } = api;
     
-    // Show celebration toast
+    // Show celebration dialog instead of toast
+    const promotionPieceLabel = promotionInfo.promotionPiece 
+      ? this.getPromotionPieceLabel(promotionInfo.promotionPiece)
+      : 'Dame'; // Default to queen if undefined
     setState((draft) => {
-      draft.ui.toasts.push({
-        id: Date.now().toString(),
-        message: `Gratulation! Bauernumwandlung führt zum Sieg!`,
-        type: "success",
-      });
+      draft.training.moveSuccessDialog = {
+        isOpen: true,
+        promotionPiece: promotionPieceLabel,
+        moveDescription: promotionInfo.moveDescription,
+      };
     });
 
     // Complete training session as won

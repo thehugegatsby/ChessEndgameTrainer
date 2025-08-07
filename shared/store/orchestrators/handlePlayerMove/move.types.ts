@@ -60,3 +60,12 @@ export interface MoveErrorDialog {
   wdlAfter?: number;
   bestMove?: string;
 }
+
+/**
+ * Success dialog configuration for move celebrations
+ */
+export interface MoveSuccessDialog {
+  isOpen: boolean;
+  promotionPiece?: string;
+  moveDescription?: string;
+}

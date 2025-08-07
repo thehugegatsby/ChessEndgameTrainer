@@ -42,6 +42,7 @@ import { EndgamePosition } from "@shared/types";
 import { getLogger } from "@shared/services/logging";
 import { ANIMATION, DIMENSIONS } from "@shared/constants";
 import { MoveErrorDialog } from "@shared/components/ui/MoveErrorDialog";
+import { MoveSuccessDialog } from "@shared/components/ui/MoveSuccessDialog";
 import { toLibraryMove } from "@shared/infrastructure/chess-adapter";
 import { cancelScheduledOpponentTurn } from "@shared/store/orchestrators/handlePlayerMove";
 
@@ -285,6 +286,15 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
       }
     : null;
 
+  // Get move success dialog state from training slice
+  const showMoveSuccessDialog = trainingState.moveSuccessDialog?.isOpen || false;
+  const moveSuccessData = trainingState.moveSuccessDialog
+    ? {
+        promotionPiece: trainingState.moveSuccessDialog.promotionPiece,
+        moveDescription: trainingState.moveSuccessDialog.moveDescription,
+      }
+    : null;
+
   // Debug logging for move error dialog state
   if (trainingState.moveErrorDialog) {
     console.log("[TrainingBoard] Move error dialog state:", {
@@ -436,6 +446,21 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     }
     trainingActions.setMoveErrorDialog(null);
   }, [moveErrorData, uiActions, trainingActions]);
+
+  /**
+   * Handles success dialog close
+   */
+  const handleMoveSuccessClose = useCallback(() => {
+    trainingActions.setMoveSuccessDialog(null);
+  }, [trainingActions]);
+
+  /**
+   * Handles continuing to next position after success
+   */
+  const handleMoveSuccessContinue = useCallback(() => {
+    trainingActions.setMoveSuccessDialog(null);
+    // Training completion logic is already handled by PawnPromotionHandler
+  }, [trainingActions]);
 
   // Update analysis status based on evaluation state
   useEffect(() => {
@@ -989,6 +1014,17 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
           wdlBefore={moveErrorData.wdlBefore}
           wdlAfter={moveErrorData.wdlAfter}
           bestMove={moveErrorData.bestMove}
+        />
+      )}
+
+      {/* Move Success Dialog */}
+      {showMoveSuccessDialog && moveSuccessData && (
+        <MoveSuccessDialog
+          isOpen={showMoveSuccessDialog}
+          onClose={handleMoveSuccessClose}
+          onContinue={handleMoveSuccessContinue}
+          promotionPiece={moveSuccessData.promotionPiece}
+          moveDescription={moveSuccessData.moveDescription}
         />
       )}
     </div>

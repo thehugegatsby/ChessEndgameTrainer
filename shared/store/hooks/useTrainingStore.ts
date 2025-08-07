@@ -63,6 +63,7 @@ export const useTrainingState = (): TrainingStateType => {
       hintsUsed: state.training.hintsUsed,
       mistakeCount: state.training.mistakeCount,
       moveErrorDialog: state.training.moveErrorDialog,
+      moveSuccessDialog: state.training.moveSuccessDialog,
     })),
   );
 };
@@ -106,6 +107,7 @@ export const useTrainingActions = (): ExtendedTrainingActions => {
       incrementHint: actions.incrementHint,
       incrementMistake: actions.incrementMistake,
       setMoveErrorDialog: actions.setMoveErrorDialog,
+      setMoveSuccessDialog: actions.setMoveSuccessDialog,
       addTrainingMove: actions.addTrainingMove,
       resetTraining: actions.resetTraining,
       resetPosition: actions.resetPosition,

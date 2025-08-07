@@ -98,6 +98,7 @@ export const createStore = (initialState?: Partial<RootState>) => {
             incrementHint: trainingSlice.incrementHint,
             incrementMistake: trainingSlice.incrementMistake,
             setMoveErrorDialog: trainingSlice.setMoveErrorDialog,
+            setMoveSuccessDialog: trainingSlice.setMoveSuccessDialog,
             addTrainingMove: trainingSlice.addTrainingMove,
             resetTraining: trainingSlice.resetTraining,
             resetPosition: trainingSlice.resetPosition,

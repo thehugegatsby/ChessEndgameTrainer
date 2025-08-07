@@ -27,6 +27,7 @@
 import { ImmerStateCreator, TrainingSlice } from "./types";
 import type { EndgamePosition as BaseEndgamePosition } from "@shared/types/endgame";
 import type { ValidatedMove } from "@shared/types/chess";
+import type { MoveSuccessDialog } from "@shared/store/orchestrators/handlePlayerMove/move.types";
 import { getLogger } from "@shared/services/logging";
 
 /**
@@ -80,6 +81,7 @@ export const initialTrainingState = {
     wdlAfter?: number;
     bestMove?: string;
   } | null,
+  moveSuccessDialog: null as MoveSuccessDialog | null,
 };
 
 /**
@@ -146,6 +148,7 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
     wdlAfter?: number;
     bestMove?: string;
   } | null,
+  moveSuccessDialog: null as MoveSuccessDialog | null,
 
   // Actions
   /**
@@ -474,6 +477,44 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
     } | null,
   ) => {
     set((state) => { state.training.moveErrorDialog = dialog; });
+  },
+
+  /**
+   * Sets the move success dialog configuration
+   *
+   * @param {Object|null} dialog - Dialog configuration or null to close
+   * @param {boolean} dialog.isOpen - Whether the dialog should be open
+   * @param {string} [dialog.promotionPiece] - The piece promoted to (German label)
+   * @param {string} [dialog.moveDescription] - Description of the winning move
+   *
+   * @fires stateChange - When dialog state changes
+   *
+   * @remarks
+   * This dialog is shown when a user makes a successful move that leads to victory,
+   * particularly after pawn promotion. It provides positive feedback and celebration
+   * to motivate continued learning.
+   *
+   * @example
+   * ```typescript
+   * // Show success dialog
+   * setMoveSuccessDialog({
+   *   isOpen: true,
+   *   promotionPiece: "Dame",
+   *   moveDescription: "e8=Q+"
+   * });
+   *
+   * // Close dialog
+   * setMoveSuccessDialog(null);
+   * ```
+   */
+  setMoveSuccessDialog: (
+    dialog: {
+      isOpen: boolean;
+      promotionPiece?: string;
+      moveDescription?: string;
+    } | null,
+  ) => {
+    set((state) => { state.training.moveSuccessDialog = dialog; });
   },
 
   /**
