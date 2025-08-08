@@ -121,6 +121,7 @@ export class BrowserTestApi {
     // Expose methods to window
     (window as any).__testApi = {
       makeMove: this.makeMove.bind(this),
+      makeValidatedMove: this.makeValidatedMove.bind(this),
       getGameState: this.getGameState.bind(this),
       resetGame: this.resetGame.bind(this),
       configureTablebase: this.configureTablebase.bind(this),
@@ -192,7 +193,7 @@ export class BrowserTestApi {
   }
 
   /**
-   * Make a move through test API
+   * Make a move through test API (bypasses validation)
    *
    * @private
    * @description
@@ -204,6 +205,21 @@ export class BrowserTestApi {
    */
   private async makeMove(move: string): Promise<TestMoveResponse> {
     return this.testApi.makeMove(move);
+  }
+
+  /**
+   * Make a validated move through test API (full validation pipeline)
+   *
+   * @private
+   * @description
+   * Executes a chess move through the full validation pipeline, including
+   * error dialogs, tablebase checks, etc. This simulates real user interaction.
+   *
+   * @param {string} move - Move in algebraic notation or from-to format
+   * @returns {Promise<TestMoveResponse>} Promise resolving to move execution result
+   */
+  private async makeValidatedMove(move: string): Promise<TestMoveResponse> {
+    return this.testApi.makeValidatedMove(move);
   }
 
   /**

@@ -29,9 +29,9 @@ export interface TestMoveResponse {
 
 /**
  * Game state information for test scenarios
- * 
+ *
  * @interface TestGameState
- * 
+ *
  * @property {string} fen - Current board position in FEN notation
  * @property {'w' | 'b'} turn - Current player to move (white or black)
  * @property {number} moveCount - Total number of moves made in the game
@@ -66,9 +66,9 @@ export interface TestGameState {
 
 /**
  * Configuration options for test tablebase behavior
- * 
+ *
  * @interface TestTablebaseConfig
- * 
+ *
  * @property {boolean} [deterministic] - Whether tablebase should provide predictable responses
  * @property {number} [seed] - Random seed for deterministic behavior
  * @property {Map<string, string>} [fixedResponses] - Pre-defined responses for specific FEN positions
@@ -85,13 +85,13 @@ export interface TestTablebaseConfig {
 
 /**
  * Test API Service
- * 
+ *
  * @class TestApiService
  * @description
  * Provides clean interface for E2E tests to interact with the chess game.
  * Implements singleton pattern for consistent test state management across
  * test scenarios while maintaining separation from UI components.
- * 
+ *
  * @remarks
  * Key responsibilities:
  * - Game state management for test scenarios
@@ -100,25 +100,25 @@ export interface TestTablebaseConfig {
  * - Event emission for test coordination
  * - Store integration without tight coupling
  * - Error handling with proper test feedback
- * 
+ *
  * Architecture features:
  * - Singleton pattern for consistent state
  * - Store access through dependency injection
  * - Event-driven communication with tests
  * - Deterministic tablebase response handling
  * - Clean separation from UI layer
- * 
+ *
  * @example
  * ```typescript
  * // Initialize test API with store access
  * const testApi = TestApiService.getInstance();
  * testApi.initialize(storeAccess, { deterministic: true });
- * 
+ *
  * // Make moves and verify game state
  * await testApi.makeMove('e2-e4');
  * const state = testApi.getGameState();
  * expect(state.fen).toContain('e4');
- * 
+ *
  * // Configure deterministic tablebase
  * testApi.configureTablebase({
  *   deterministic: true,
@@ -150,15 +150,15 @@ export class TestApiService {
 
   /**
    * Get singleton instance of TestApiService
-   * 
+   *
    * @static
    * @description
    * Returns the singleton instance of TestApiService, creating it if
    * it doesn't exist. Ensures consistent test state across all test
    * scenarios and prevents multiple instances from interfering.
-   * 
+   *
    * @returns {TestApiService} The singleton TestApiService instance
-   * 
+   *
    * @example
    * ```typescript
    * const testApi = TestApiService.getInstance();
@@ -223,19 +223,19 @@ export class TestApiService {
 
   /**
    * Clean up test API after test session
-   * 
+   *
    * @description
    * Resets the TestApiService to its initial state, clearing all
    * configuration and store access. Should be called after each
    * test to prevent state leakage between test scenarios.
-   * 
+   *
    * @remarks
    * Cleanup operations:
    * - Reset tablebase configuration to defaults
    * - Clear store access references
    * - Emit cleanup event for test coordination
    * - Destroy singleton instance
-   * 
+   *
    * @example
    * ```typescript
    * // In test teardown
@@ -253,13 +253,13 @@ export class TestApiService {
 
   /**
    * Check if service is initialized and ready for use
-   * 
+   *
    * @description
    * Returns whether the TestApiService has been properly initialized
    * with store access and is ready to handle test operations.
-   * 
+   *
    * @returns {boolean} True if service is initialized and ready
-   * 
+   *
    * @example
    * ```typescript
    * if (!testApi.isInitialized) {
@@ -272,8 +272,84 @@ export class TestApiService {
   }
 
   /**
-   * Make a chess move
+   * Make a chess move through full validation pipeline (like real user interaction)
    * @param move - Move in format 'from-to' (e.g., 'e2-e4') or SAN notation
+   * @returns Promise resolving to move execution result with validation
+   */
+  public async makeValidatedMove(move: string): Promise<TestMoveResponse> {
+    if (!this.storeAccess) {
+      throw new Error("TestApiService not initialized with store access");
+    }
+
+    try {
+      // Parse move format
+      let moveObj: { from: string; to: string; promotion?: string } | string;
+
+      if (move.includes("-")) {
+        // Format: 'e2-e4'
+        const [from, to] = move.split("-");
+        moveObj = { from, to };
+      } else {
+        // SAN notation
+        moveObj = move;
+      }
+
+      // Import handlePlayerMove directly (it's not part of store, it's an orchestrator)
+      const { handlePlayerMove } = await import(
+        "@shared/store/orchestrators/handlePlayerMove"
+      );
+
+      // Create a store API object that handlePlayerMove expects (like in rootStore.ts:186)
+      const storeApi = {
+        getState: this.storeAccess.getState,
+        setState: (updater: any) => {
+          // We need the actual setState from store access - this is the key fix
+          // The storeAccess should provide the actual Zustand setState method
+          if (this.storeAccess && "setState" in this.storeAccess) {
+            // If storeAccess provides setState directly
+            (this.storeAccess as any).setState(updater);
+          } else {
+            // Fallback - log warning but don't fail
+            logger.warn(
+              "TestApiService: setState not available in storeAccess - state updates may not work",
+            );
+          }
+        },
+      };
+
+      // Execute move through the FULL validation pipeline
+      const result = await handlePlayerMove(storeApi, moveObj);
+
+      // Get final state after move processing
+      const finalState = this.storeAccess.getState();
+
+      this.emit("test:validated_move", {
+        move,
+        success: result,
+        fen: finalState.game?.currentFen || finalState.currentFen || "unknown",
+        moveCount: finalState.game?.moveHistory?.length || 0,
+      });
+
+      return {
+        success: result,
+        resultingFen:
+          finalState.game?.currentFen || finalState.currentFen || "unknown",
+        moveCount: finalState.game?.moveHistory?.length || 0,
+        error: result ? undefined : "Move rejected by validation pipeline",
+      };
+    } catch (error) {
+      logger.error("TestApiService.makeValidatedMove error:", error);
+      return {
+        success: false,
+        error: `Error: ${error instanceof Error ? error.message : String(error)}`,
+      };
+    }
+  }
+
+  /**
+   * Make a chess move (bypasses validation for fast test setup)
+   * @param move - Move in format 'from-to' (e.g., 'e2-e4') or SAN notation
+   * @deprecated Use makeValidatedMove for behavior testing, this is for setup only
    */
   public async makeMove(move: string): Promise<TestMoveResponse> {
     if (!this.storeAccess) {
@@ -343,16 +419,16 @@ export class TestApiService {
 
   /**
    * Get current game state for test verification
-   * 
+   *
    * @description
    * Returns comprehensive game state information for test assertions
    * and verification. Constructs a detailed game state object from
    * the current store state with all relevant chess game information.
-   * 
+   *
    * @returns {TestGameState} Current game state with position, moves, and status
-   * 
+   *
    * @throws {Error} If service is not initialized with store access
-   * 
+   *
    * @example
    * ```typescript
    * const state = testApi.getGameState();
@@ -406,16 +482,16 @@ export class TestApiService {
 
   /**
    * Reset game to initial position
-   * 
+   *
    * @description
    * Resets the chess game to its initial starting position, clearing
    * all move history and returning to the standard opening setup.
    * Useful for test scenarios that need a clean game state.
-   * 
+   *
    * @returns {Promise<void>} Promise that resolves when reset is complete
-   * 
+   *
    * @throws {Error} If service is not initialized with store access
-   * 
+   *
    * @example
    * ```typescript
    * // Reset before starting a new test scenario
@@ -588,13 +664,13 @@ export class TestApiService {
 
 /**
  * Convenience function to get TestApiService singleton instance
- * 
+ *
  * @description
  * Provides a convenient way to access the TestApiService singleton
  * instance without having to call the full static method name.
- * 
+ *
  * @returns {TestApiService} The singleton TestApiService instance
- * 
+ *
  * @example
  * ```typescript
  * const testApi = getTestApi();

@@ -92,6 +92,19 @@ export async function performMoveAndWait(
 
   console.log(`[E2E] Move ${move} API result:`, moveResult);
 
+  // 2a. Check if API rejected the move immediately (API-level failures)
+  if (moveResult && moveResult.success === false) {
+    const finalState = (await page.evaluate(() =>
+      (window as any).e2e_getGameState(),
+    )) as GameState;
+
+    return {
+      success: false,
+      finalState,
+      errorMessage: `API rejected move: ${moveResult.error || "Unknown error"}`,
+    };
+  }
+
   // 3. Wait for either success or failure condition
   const successCondition = page.waitForFunction(
     ({ initial, expected }) => {

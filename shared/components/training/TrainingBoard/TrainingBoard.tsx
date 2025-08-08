@@ -842,12 +842,113 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
           possibleMovesCount: moves.length,
         };
       };
+
+      /**
+       * E2E test helper for validated move execution (full validation pipeline)
+       *
+       * @param {string} move - Move in notation format (e.g., "e2-e4", "Nf3")
+       * @returns {Promise<Object>} Result object with success status and validation details
+       *
+       * @description
+       * Executes a chess move through the full validation pipeline, including
+       * error dialogs, tablebase checks, etc. This simulates real user interaction
+       * unlike e2e_makeMove which bypasses validation for setup purposes.
+       *
+       * @remarks
+       * This is the key function for testing the Weiterspielen bug because it:
+       * - Goes through handlePlayerMove orchestrator (full validation)
+       * - Triggers error dialogs for suboptimal moves
+       * - Allows testing user interaction flows like "Weiterspielen" button clicks
+       *
+       * @example
+       * ```javascript
+       * // In E2E test - this will trigger error dialog for suboptimal moves
+       * const result = await window.e2e_makeValidatedMove("Kd5");
+       * expect(result.success).toBe(false); // Move rejected, error dialog shown
+       * ```
+       */
+      (window as any).e2e_makeValidatedMove = async (move: string) => {
+        logger.debug("🎯 e2e_makeValidatedMove called with move:", { move });
+        logger.info("e2e_makeValidatedMove called", { move });
+
+        try {
+          // Parse move format (same logic as e2e_makeMove)
+          let moveObj: any;
+
+          const moveMatch = move.match(
+            /^([KQRBN]?)([a-h][1-8])-?([a-h][1-8])([qrbn])?$/i,
+          );
+
+          if (moveMatch) {
+            // Coordinate format
+            const [, , from, to, promotion] = moveMatch;
+            moveObj = {
+              from: from,
+              to: to,
+              promotion: promotion || "q",
+            };
+          } else {
+            // Try algebraic notation
+            try {
+              const tempChess = new Chess(chessService.getFen());
+              const chessMove = tempChess.move(move);
+              if (chessMove) {
+                moveObj = {
+                  from: chessMove.from,
+                  to: chessMove.to,
+                  promotion: chessMove.promotion || "q",
+                };
+              } else {
+                return { success: false, error: "Invalid move format" };
+              }
+            } catch (err) {
+              return { success: false, error: "Invalid move format" };
+            }
+          }
+
+          // Import and call handlePlayerMove orchestrator directly (full validation pipeline)
+          const { handlePlayerMove } = await import(
+            "@shared/store/orchestrators/handlePlayerMove"
+          );
+
+          // Get the store instance that's exposed to window
+          const store = (window as any).__zustand_store;
+          if (!store) {
+            return { success: false, error: "Store not available for testing" };
+          }
+
+          // Create store API object (like in rootStore.ts handlePlayerMove)
+          const storeApi = {
+            getState: store.getState,
+            setState: store.setState,
+          };
+
+          // Execute through FULL validation pipeline
+          const result = await handlePlayerMove(storeApi, moveObj);
+
+          logger.info("e2e_makeValidatedMove result", { result });
+
+          return {
+            success: result,
+            error: result ? undefined : "Move rejected by validation pipeline",
+          };
+        } catch (error) {
+          logger.error("Error in e2e_makeValidatedMove", error as Error, {
+            move,
+          });
+          return {
+            success: false,
+            error: error instanceof Error ? error.message : "Unknown error",
+          };
+        }
+      };
     }
 
     // Cleanup on unmount
     return () => {
       if (isE2ETest) {
         delete (window as any).e2e_makeMove;
+        delete (window as any).e2e_makeValidatedMove;
         delete (window as any).e2e_getGameState;
         delete (window as any).__zustand_store;
         delete (window as any).__chessService;
