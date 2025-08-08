@@ -54,8 +54,8 @@ import { signOut, signInWithEmailAndPassword } from 'firebase/auth';
 import { waitForEmulator, isEmulatorRunning } from '@tests/utils/firebase-emulator-api';
 import type { UserStats, CardProgress } from '@shared/store/slices/types';
 
-// Increase timeout for integration tests
-jest.setTimeout(30000);
+// Increase timeout for integration tests (60s for Firebase emulator)
+jest.setTimeout(60000);
 
 describe('Firebase Service Integration', () => {
   let testInstance: TestFirebaseInstance;
