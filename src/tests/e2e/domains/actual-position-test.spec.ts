@@ -7,6 +7,12 @@ import { test, expect } from "@playwright/test";
 import { getLogger } from "../../../shared/services/logging";
 import { E2E } from "../../../shared/constants";
 import { TrainingBoardPage } from "../helpers/pageObjects/TrainingBoardPage";
+import { 
+  waitForTablebaseInit,
+  waitForUIReady,
+  waitForMoveAnimation,
+  waitForOpponentMove
+} from "../helpers/deterministicWaiting";
 
 test.describe("Actual Position 1 - King and Pawn vs King", () => {
   const logger = getLogger().setContext("E2E-ActualPosition");
@@ -146,7 +152,7 @@ test.describe("Actual Position 1 - King and Pawn vs King", () => {
     // Set up Page Object Model
     const boardPage = new TrainingBoardPage(page);
     await boardPage.waitForBoardReady();
-    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+    await waitForTablebaseInit(page);
 
     await test.step("Test a potentially bad king move", async () => {
       // In this position (Ke6, Pe5 vs Ke8), let's try Kd6
@@ -161,7 +167,7 @@ test.describe("Actual Position 1 - King and Pawn vs King", () => {
         await expect(errorDialog).not.toBeVisible();
         
         // Wait for opponent's response
-        await page.waitForTimeout(3000);
+        await waitForOpponentMove(page);
         
         const currentState = await boardPage.getGameState();
         logger.info("After Kd6, position is:", currentState.fen);
@@ -177,7 +183,7 @@ test.describe("Actual Position 1 - King and Pawn vs King", () => {
       // Reset to initial position by reloading
       await page.goto(E2E.ROUTES.TRAIN(1));
       await boardPage.waitForBoardReady();
-      await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+      await waitForTablebaseInit(page);
       
       // This should be a valid but slower move
       const moveSuccessful = await boardPage.makeMoveWithValidation("e5", "e6");
@@ -186,7 +192,7 @@ test.describe("Actual Position 1 - King and Pawn vs King", () => {
         logger.info("e5-e6 was accepted");
         
         // Wait for opponent's response
-        await page.waitForTimeout(3000);
+        await waitForOpponentMove(page);
         
         const currentState = await boardPage.getGameState();
         logger.info("After e5-e6, position is:", currentState.fen);
@@ -202,7 +208,7 @@ test.describe("Actual Position 1 - King and Pawn vs King", () => {
       // Reset to initial position
       await page.goto(E2E.ROUTES.TRAIN(1));
       await boardPage.waitForBoardReady();
-      await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+      await waitForTablebaseInit(page);
       
       const initialState = await boardPage.getGameState();
       logger.info("Initial position:", initialState.fen);
@@ -216,7 +222,7 @@ test.describe("Actual Position 1 - King and Pawn vs King", () => {
       await expect(errorDialog).not.toBeVisible();
       
       // Wait for opponent's response
-      await page.waitForTimeout(3000);
+      await waitForOpponentMove(page);
       
       const finalState = await boardPage.getGameState();
       logger.info("After Kd6 and opponent response:", finalState.fen);
@@ -231,7 +237,7 @@ test.describe("Actual Position 1 - King and Pawn vs King", () => {
     
     const boardPage = new TrainingBoardPage(page);
     await boardPage.waitForBoardReady();
-    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+    await waitForTablebaseInit(page);
 
     // Open the analysis panel to see evaluations
     const analyseButton = page.getByRole('button', { name: /Analyse AN/i });
@@ -239,7 +245,7 @@ test.describe("Actual Position 1 - King and Pawn vs King", () => {
     logger.info("Opened analysis panel");
     
     // Wait a moment for the panel to render
-    await page.waitForTimeout(1000);
+    await waitForUIReady(page);
 
     // Wait for the tablebase panel to be visible (either with content or empty state)
     const panelWithContent = page.locator('[data-testid="tablebase-panel"]');
@@ -269,7 +275,7 @@ test.describe("Actual Position 1 - King and Pawn vs King", () => {
     if (await losingMovesHeader.count() > 0) {
       logger.info("Found losing moves group, trying to expand it");
       await losingMovesHeader.click();
-      await page.waitForTimeout(500); // Wait for expansion animation
+      await waitForMoveAnimation(page); // Wait for expansion animation
     }
     
     // Check if we have the expected moves - Kd6 and Kf6 should be visible
@@ -305,7 +311,7 @@ test.describe("Actual Position 1 - King and Pawn vs King", () => {
     expect(moveSuccessful).toBe(true);
     
     // Wait for opponent's response
-    await page.waitForTimeout(3000);
+    await waitForOpponentMove(page);
 
     // Check move history is visible
     const moveHistory = page.locator('[data-testid="move-history"]');

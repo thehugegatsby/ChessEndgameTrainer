@@ -23,6 +23,7 @@
  */
 
 import { Page } from "@playwright/test";
+import { waitForMoveAnimation, waitForUIReady } from "./deterministicWaiting";
 
 /**
  * Types of expectations that can be verified during move sequence testing

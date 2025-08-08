@@ -7,6 +7,10 @@ import { test, expect } from "@playwright/test";
 import { TrainingBoardPage } from "../helpers/pageObjects/TrainingBoardPage";
 import { E2E } from "../../../shared/constants";
 import { getLogger } from "../../../shared/services/logging";
+import { 
+  waitForTablebaseInit,
+  waitForOpponentMove
+} from "../helpers/deterministicWaiting";
 
 test.describe("Pawn Promotion Simple Test", () => {
   const logger = getLogger().setContext("E2E-PawnPromotion");
@@ -47,7 +51,7 @@ test.describe("Pawn Promotion Simple Test", () => {
     
     const boardPage = new TrainingBoardPage(page);
     await boardPage.waitForBoardReady();
-    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+    await waitForTablebaseInit(page);
 
     // Log the initial state
     const initialState = await boardPage.getGameState();
@@ -60,7 +64,7 @@ test.describe("Pawn Promotion Simple Test", () => {
     let moveSuccessful = await boardPage.makeMoveWithValidation("e5", "e6");
     if (moveSuccessful) {
       logger.info("Pawn moved to e6");
-      await page.waitForTimeout(2000); // Wait for opponent response
+      await waitForOpponentMove(page); // Wait for opponent response
     }
     
     // Move pawn from e6 to e7
@@ -69,7 +73,7 @@ test.describe("Pawn Promotion Simple Test", () => {
       moveSuccessful = await boardPage.makeMoveWithValidation("e6", "e7");
       if (moveSuccessful) {
         logger.info("Pawn moved to e7");
-        await page.waitForTimeout(2000); // Wait for opponent response
+        await waitForOpponentMove(page); // Wait for opponent response
       }
     }
     
@@ -119,7 +123,7 @@ test.describe("Pawn Promotion Simple Test", () => {
     
     const boardPage = new TrainingBoardPage(page);
     await boardPage.waitForBoardReady();
-    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+    await waitForTablebaseInit(page);
 
     // Get initial state
     const initialState = await boardPage.getGameState();

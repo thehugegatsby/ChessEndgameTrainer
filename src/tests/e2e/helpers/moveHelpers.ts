@@ -162,7 +162,8 @@ export async function waitForGameState(
       return state;
     }
 
-    await page.waitForTimeout(100);
+    // Small delay before next check
+    await new Promise(resolve => setTimeout(resolve, 100));
     attempts++;
   }
 

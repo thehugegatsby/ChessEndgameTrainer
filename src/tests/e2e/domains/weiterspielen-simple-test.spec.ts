@@ -13,6 +13,11 @@ import { getLogger } from "../../../shared/services/logging";
 import { E2E } from "../../../shared/constants";
 import { performMoveAndWait } from "../helpers/moveHelpers";
 import { TrainingBoardPage } from "../helpers/pageObjects/TrainingBoardPage";
+import { 
+  waitForPageReady,
+  waitForTablebaseInit,
+  waitForOpponentMove
+} from "../helpers/deterministicWaiting";
 
 test.describe("Weiterspielen Simple Test", () => {
   const logger = getLogger().setContext("E2E-WeiterSpielenSimple");
@@ -26,10 +31,10 @@ test.describe("Weiterspielen Simple Test", () => {
 
     // STEP 1: Gehe zu Train/1 (wie in der manuellen App)
     await page.goto(E2E.ROUTES.TRAIN(1));
-    await page.waitForTimeout(E2E.TIMEOUTS.PAGE_LOAD);
+    await waitForPageReady(page);
     await expect(page).toHaveURL(/\/train/);
     await expect(page.locator("[data-testid='training-board']")).toBeVisible();
-    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+    await waitForTablebaseInit(page);
 
     logger.info("✅ Train/1 geladen");
 
@@ -90,8 +95,8 @@ test.describe("Weiterspielen Simple Test", () => {
     logger.info("✅ Error Dialog verschwunden");
 
     // STEP 8: Warte 3 Sekunden auf Gegnerzug
-    logger.info("⏳ Warte 3 Sekunden auf Gegnerzug...");
-    await page.waitForTimeout(3000);
+    logger.info("⏳ Warte auf Gegnerzug...");
+    await waitForOpponentMove(page);
 
     // STEP 9: Game State NACH dem Warten
     const gameStateNachWarten = await boardPage.getGameState();

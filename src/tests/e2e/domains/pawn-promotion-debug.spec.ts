@@ -7,6 +7,10 @@ import { test, expect } from "@playwright/test";
 import { TrainingBoardPage } from "../helpers/pageObjects/TrainingBoardPage";
 import { E2E } from "../../../shared/constants";
 import { getLogger } from "../../../shared/services/logging";
+import { 
+  waitForTablebaseInit,
+  waitForOpponentMove
+} from "../helpers/deterministicWaiting";
 
 test.describe("Pawn Promotion Debug Tests", () => {
   const logger = getLogger().setContext("E2E-PawnPromotionDebug");
@@ -34,7 +38,7 @@ test.describe("Pawn Promotion Debug Tests", () => {
     
     const boardPage = new TrainingBoardPage(page);
     await boardPage.waitForBoardReady();
-    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+    await waitForTablebaseInit(page);
     
     logger.info("✅ Board loaded");
 
@@ -66,7 +70,7 @@ test.describe("Pawn Promotion Debug Tests", () => {
       }
       
       // Wait for opponent's response
-      await page.waitForTimeout(3000);
+      await waitForOpponentMove(page);
       
       const stateAfterE6 = await boardPage.getGameState();
       logger.info("Position after e6:", stateAfterE6.fen);
@@ -80,7 +84,7 @@ test.describe("Pawn Promotion Debug Tests", () => {
           logger.info("✅ Pawn moved to e7");
           
           // Wait for opponent
-          await page.waitForTimeout(3000);
+          await waitForOpponentMove(page);
           
           const stateAfterE7 = await boardPage.getGameState();
           logger.info("Position after e7:", stateAfterE7.fen);

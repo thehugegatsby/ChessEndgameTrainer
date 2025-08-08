@@ -59,8 +59,8 @@ export class TrainingBoardPage {
       }
     }
 
-    // Wait for move animation to complete
-    await this.page.waitForTimeout(300);
+    // Wait for move to be processed (deterministic waiting)
+    await this.waitForMoveProcessed();
   }
 
   /**
@@ -223,8 +223,8 @@ export class TrainingBoardPage {
     try {
       await this.makeMove(from, to, promotion);
 
-      // Wait for state to update
-      await this.page.waitForTimeout(500);
+      // Wait for move to be processed (deterministic waiting)
+      await this.waitForMoveProcessed();
 
       const newState = await this.getGameState();
 
@@ -249,6 +249,27 @@ export class TrainingBoardPage {
       });
       return false;
     }
+  }
+
+  /**
+   * Wait for move to be fully processed (deterministic waiting)
+   * Replaces hardcoded waitForTimeout() with store-based waiting
+   */
+  async waitForMoveProcessed(): Promise<void> {
+    this.logger.info("⏳ Waiting for move to be processed");
+    
+    await this.page.waitForFunction(
+      () => {
+        const store = (window as any).__e2e_store;
+        if (!store) return true; // If no store, assume ready
+        const state = store.getState?.();
+        // Wait for tablebase analysis to complete
+        return state?.tablebase?.analysisStatus !== 'loading';
+      },
+      { timeout: 10000 }
+    );
+    
+    this.logger.info("✅ Move processed");
   }
 
   /**

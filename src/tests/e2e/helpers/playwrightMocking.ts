@@ -148,21 +148,32 @@ export const mockTablebase = {
   },
 
   /**
-   * Mock slow response (3 second delay)
+   * Mock slow response with specified delay
    */
   async slow(page: Page, delayMs: number = 3000): Promise<void> {
     const endpoint = '**/tablebase.lichess.ovh/standard**';
     
-    logger.info(`🐌 Mocking slow tablebase response (${delayMs}ms)`);
+    logger.info(`🐌 Mocking slow tablebase response (${delayMs}ms delay)`);
     
     await page.route(endpoint, async (route) => {
+      // Log when request is received
+      logger.info(`⏱️ Request received, starting ${delayMs}ms delay...`);
+      const startTime = Date.now();
+      
+      // Apply delay
       await new Promise(resolve => setTimeout(resolve, delayMs));
+      
+      const actualDelay = Date.now() - startTime;
+      logger.info(`⏱️ Delay complete after ${actualDelay}ms, sending response`);
+      
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify(TABLEBASE_RESPONSES.WIN)
       });
     });
+    
+    logger.info(`✅ Slow mock configured with ${delayMs}ms delay`);
   },
 
   /**

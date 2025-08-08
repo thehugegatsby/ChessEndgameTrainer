@@ -4,6 +4,11 @@
 
 import { test, expect } from "@playwright/test";
 import { E2EMoveSequences } from "../../fixtures/fenPositions";
+import { 
+  waitForMoveAnimation,
+  waitForUIReady,
+  waitForOpponentMove
+} from "../helpers/deterministicWaiting";
 
 test.describe("Pawn Promotion Auto-Win Feature", () => {
   test.skip("should show success message when promotion leads to win", async ({
@@ -61,19 +66,19 @@ test.describe("Pawn Promotion Auto-Win Feature", () => {
         console.log(
           "🎯 Promotion move successful! Waiting for auto-win detection...",
         );
-        await page.waitForTimeout(2000); // Give time for promotion detection
+        await waitForUIReady(page); // Give time for promotion detection
         break;
       }
 
       // Short wait between moves
-      await page.waitForTimeout(500);
+      await waitForMoveAnimation(page);
     }
 
     // Check if sequence completed successfully
     console.log("🎯 Checking if promotion sequence completed...");
 
     // Give time for promotion detection logic to run
-    await page.waitForTimeout(3000);
+    await waitForUIReady(page);
 
     // Check final state
     const finalState = await page.evaluate(() => {
@@ -154,7 +159,7 @@ test.describe("Pawn Promotion Auto-Win Feature", () => {
       console.log(`Move result:`, result);
 
       // Wait for opponent moves
-      await page.waitForTimeout(1000);
+      await waitForOpponentMove(page);
     }
 
     // Check that NO promotion success was detected

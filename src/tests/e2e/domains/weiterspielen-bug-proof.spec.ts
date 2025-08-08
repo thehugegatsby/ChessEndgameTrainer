@@ -12,13 +12,19 @@ import { test, expect } from "@playwright/test";
 import { getLogger } from "../../../shared/services/logging";
 import { E2E } from "../../../shared/constants";
 import { TrainingBoardPage } from "../helpers/pageObjects/TrainingBoardPage";
+import { 
+  waitForPageReady,
+  waitForTablebaseInit,
+  waitForOpponentMove,
+  waitForUIReady
+} from "../helpers/deterministicWaiting";
 
 test.describe("Weiterspielen Bug Proof", () => {
   const logger = getLogger().setContext("E2E-WeiterSpielenBugProof");
 
   test.beforeEach(async ({ page }) => {
     await page.goto(E2E.ROUTES.TRAIN(1));
-    await page.waitForTimeout(E2E.TIMEOUTS.PAGE_LOAD);
+    await waitForPageReady(page);
     await expect(page).toHaveURL(/\/train/);
     await expect(page.locator("[data-testid='training-board']")).toBeVisible();
     logger.info("Training page loaded for bug proof test");
@@ -31,7 +37,7 @@ test.describe("Weiterspielen Bug Proof", () => {
 
     const boardPage = new TrainingBoardPage(page);
     await boardPage.waitForBoardReady();
-    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+    await waitForTablebaseInit(page);
 
     // Train/1 starts with: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1
     // King on e6, optimal move is Kd6, suboptimal is Kf5 (Kd5 is illegal - blocked by pawn)
@@ -73,8 +79,13 @@ test.describe("Weiterspielen Bug Proof", () => {
     logger.info("✅ Error dialog dismissed successfully");
 
     // STEP 6: Wait 5 seconds for opponent to potentially make a move
-    logger.info("⏳ Waiting 5 seconds for opponent to move...");
-    await page.waitForTimeout(5000);
+    logger.info("⏳ Waiting for opponent to move...");
+    // Try to wait for opponent move, but with timeout since bug may prevent it
+    try {
+      await waitForOpponentMove(page);
+    } catch (e) {
+      logger.info("Opponent move timeout - bug confirmed");
+    }
 
     // STEP 7: Check game state AFTER waiting
     const gameStateAfterWaiting = await boardPage.getGameState();
@@ -134,7 +145,7 @@ test.describe("Weiterspielen Bug Proof", () => {
 
     const boardPage = new TrainingBoardPage(page);
     await boardPage.waitForBoardReady();
-    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+    await waitForTablebaseInit(page);
 
     // Get initial state
     const initialState = await boardPage.getGameState();
@@ -166,7 +177,7 @@ test.describe("Weiterspielen Bug Proof", () => {
     logger.info("✅ Error dialog dismissed");
 
     // Wait for state to update
-    await page.waitForTimeout(1000);
+    await waitForUIReady(page);
 
     // Check if move was undone
     const stateAfterUndo = await boardPage.getGameState();

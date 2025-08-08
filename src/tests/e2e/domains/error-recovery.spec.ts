@@ -9,6 +9,14 @@
 import { test, expect } from "@playwright/test";
 import { getLogger } from "../../../shared/services/logging";
 import { E2E } from "../../../shared/constants";
+import { 
+  waitForPageReady, 
+  waitForTablebaseInit, 
+  waitForUIReady,
+  waitForToast,
+  waitForMoveAnimation,
+  waitForStableState
+} from "../helpers/deterministicWaiting";
 
 test.describe("Error Recovery - Issue #24", () => {
   const logger = getLogger().setContext("E2E-ErrorRecovery");
@@ -16,7 +24,7 @@ test.describe("Error Recovery - Issue #24", () => {
   test.beforeEach(async ({ page }) => {
     // Start fresh for each test
     await page.goto(E2E.ROUTES.TRAIN(1));
-    await page.waitForTimeout(E2E.TIMEOUTS.PAGE_LOAD);
+    await waitForPageReady(page);
 
     // Ensure training page loads
     await expect(page).toHaveURL(/\/train/);
@@ -29,11 +37,11 @@ test.describe("Error Recovery - Issue #24", () => {
     logger.info("Testing invalid move → toast warning → retry flow");
 
     // Wait for board to be interactive
-    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+    await waitForTablebaseInit(page);
 
     // Attempt an invalid move (try to move opponent's piece or illegal move)
     // Wait for any UI overlays to disappear before attempting chess moves
-    await page.waitForTimeout(1000);
+    await waitForUIReady(page);
 
     // Try clicking a square that doesn't have a valid piece to move
     const invalidSquare = page.locator(E2E.SELECTORS.SQUARE("a8")); // Black rook in starting position
@@ -54,7 +62,7 @@ test.describe("Error Recovery - Issue #24", () => {
         .first();
 
       // Give toast time to appear
-      await page.waitForTimeout(1000);
+      await waitForToast(page);
 
       // If toast system is working, verify it
       if (await toast.isVisible()) {
@@ -86,7 +94,7 @@ test.describe("Error Recovery - Issue #24", () => {
       await validToSquare.click();
 
       // Verify valid move is processed
-      await page.waitForTimeout(1000);
+      await waitForMoveAnimation(page);
       logger.info(
         "Valid move executed after invalid move attempt - recovery successful",
       );
@@ -101,7 +109,7 @@ test.describe("Error Recovery - Issue #24", () => {
     logger.info("Testing nav-back undo with state consistency verification");
 
     // Wait for board to be ready
-    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+    await waitForTablebaseInit(page);
 
     // Store initial game state
     const storageKey = E2E.DATA.STORAGE_KEY;
@@ -125,7 +133,7 @@ test.describe("Error Recovery - Issue #24", () => {
       await toSquare.click();
 
       // Wait for move to be processed
-      await page.waitForTimeout(2000);
+      await waitForMoveAnimation(page);
 
       // Verify move was made - store state should change
       const stateAfterMove = await page.evaluate((key) => {
@@ -152,7 +160,7 @@ test.describe("Error Recovery - Issue #24", () => {
           await navBackButton.click();
 
           // Wait for undo to be processed
-          await page.waitForTimeout(1000);
+          await waitForMoveAnimation(page);
 
           // Verify state consistency after undo
           const stateAfterUndo = await page.evaluate((key) => {
@@ -205,7 +213,7 @@ test.describe("Error Recovery - Issue #24", () => {
 
         // Fallback: Try keyboard navigation or other undo methods
         await page.keyboard.press("ArrowLeft"); // Common chess app pattern
-        await page.waitForTimeout(1000);
+        await waitForMoveAnimation(page);
       }
     }
 
@@ -216,7 +224,7 @@ test.describe("Error Recovery - Issue #24", () => {
     logger.info("Testing mistake counter increment for bad moves");
 
     // Wait for training interface to load
-    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+    await waitForTablebaseInit(page);
 
     // Look for mistake counter display
     const mistakeCounter = page
@@ -251,7 +259,7 @@ test.describe("Error Recovery - Issue #24", () => {
       await toSquare.click();
 
       // Wait for tablebase evaluation and mistake detection
-      await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+      await waitForTablebaseInit(page);
 
       // Check if mistake counter increased
       if (await mistakeCounter.isVisible()) {
@@ -280,7 +288,7 @@ test.describe("Error Recovery - Issue #24", () => {
     logger.info("Testing tablebase error recovery scenarios");
 
     // Wait for initial tablebase setup
-    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+    await waitForTablebaseInit(page);
 
     // Look for any tablebase error indicators
     const tablebaseError = page
@@ -302,7 +310,7 @@ test.describe("Error Recovery - Issue #24", () => {
 
       if (await retryButton.isVisible()) {
         await retryButton.click();
-        await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+        await waitForTablebaseInit(page);
 
         // Verify error is cleared after retry
         const errorAfterRetry = await tablebaseError.isVisible();
@@ -331,7 +339,7 @@ test.describe("Error Recovery - Issue #24", () => {
     logger.info("Testing future undo button functionality (conditional)");
 
     // Wait for interface to load
-    await page.waitForTimeout(E2E.TIMEOUTS.PAGE_LOAD);
+    await waitForPageReady(page);
 
     // Check for future dedicated undo button
     const undoButton = page
@@ -349,11 +357,11 @@ test.describe("Error Recovery - Issue #24", () => {
       if ((await fromSquare.isVisible()) && (await toSquare.isVisible())) {
         await fromSquare.click();
         await toSquare.click();
-        await page.waitForTimeout(1000);
+        await waitForMoveAnimation(page);
 
         // Test dedicated undo button
         await undoButton.click();
-        await page.waitForTimeout(1000);
+        await waitForMoveAnimation(page);
 
         logger.info("Dedicated undo button functionality tested");
       }

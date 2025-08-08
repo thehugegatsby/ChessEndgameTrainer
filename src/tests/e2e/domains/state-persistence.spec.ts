@@ -8,6 +8,10 @@
 import { test, expect } from "@playwright/test";
 import { getLogger } from "../../../shared/services/logging";
 import { E2E, RATING } from "../../../shared/constants";
+import { 
+  waitForPageReady,
+  waitForNetworkIdle
+} from "../helpers/deterministicWaiting";
 
 test.describe("State Persistence - Issue #23", () => {
   const logger = getLogger().setContext("E2E-StatePersistence");
@@ -21,7 +25,7 @@ test.describe("State Persistence - Issue #23", () => {
   }) => {
     // 🏁 STEP 1: Navigate to homepage first (which works)
     await page.goto("/");
-    await page.waitForTimeout(E2E.TIMEOUTS.PAGE_LOAD);
+    await waitForPageReady(page);
 
     // Skip board validation for now - focus on state persistence test
     logger.info("Page loaded, testing state persistence");
@@ -55,7 +59,7 @@ test.describe("State Persistence - Issue #23", () => {
 
     // 🔄 STEP 3: Reload the page
     await page.reload();
-    await page.waitForTimeout(E2E.TIMEOUTS.PAGE_RELOAD);
+    await waitForNetworkIdle(page);
 
     // 🧪 STEP 4: Verify state was restored from localStorage
     const restoredState = await page.evaluate((storageKey) => {
@@ -103,14 +107,14 @@ test.describe("State Persistence - Issue #23", () => {
   }) => {
     // 🎯 STEP 1: Navigate to homepage (working route)
     await page.goto(E2E.ROUTES.HOME);
-    await page.waitForTimeout(E2E.TIMEOUTS.PAGE_LOAD);
+    await waitForPageReady(page);
 
     // Capture position context
     const originalUrl = page.url();
 
     // 🔄 STEP 2: Reload and verify position is maintained
     await page.reload();
-    await page.waitForTimeout(E2E.TIMEOUTS.PAGE_LOAD);
+    await waitForPageReady(page);
 
     // 🧪 STEP 3: Verify we're still on the same URL
     const restoredUrl = page.url();
@@ -127,7 +131,7 @@ test.describe("State Persistence - Issue #23", () => {
   test("should handle localStorage corruption gracefully", async ({ page }) => {
     // 🎯 STEP 1: Navigate to homepage and establish normal state
     await page.goto(E2E.ROUTES.HOME);
-    await page.waitForTimeout(E2E.TIMEOUTS.PAGE_LOAD);
+    await waitForPageReady(page);
 
     // 🧨 STEP 2: Corrupt localStorage
     await page.evaluate((storageKey) => {
@@ -136,7 +140,7 @@ test.describe("State Persistence - Issue #23", () => {
 
     // 🔄 STEP 3: Reload with corrupted data
     await page.reload();
-    await page.waitForTimeout(E2E.TIMEOUTS.PAGE_RELOAD);
+    await waitForNetworkIdle(page);
 
     // 🧪 STEP 4: Verify app handles corruption and doesn't crash
     // Should still load the page even with corrupted localStorage
@@ -157,7 +161,7 @@ test.describe("State Persistence - Issue #23", () => {
   test("should preserve user preferences across sessions", async ({ page }) => {
     // 🎯 STEP 1: Load homepage
     await page.goto(E2E.ROUTES.HOME);
-    await page.waitForTimeout(E2E.TIMEOUTS.PAGE_LOAD);
+    await waitForPageReady(page);
 
     // 🔧 STEP 2: Set preferences directly in localStorage
     const testState = {
@@ -183,7 +187,7 @@ test.describe("State Persistence - Issue #23", () => {
 
     // 🔄 STEP 3: Reload page
     await page.reload();
-    await page.waitForTimeout(E2E.TIMEOUTS.PAGE_RELOAD);
+    await waitForNetworkIdle(page);
 
     // 🧪 STEP 4: Verify preferences were restored
     const restoredState = await page.evaluate((storageKey) => {

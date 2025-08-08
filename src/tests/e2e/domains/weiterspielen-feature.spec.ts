@@ -13,6 +13,11 @@ import { test, expect } from "@playwright/test";
 import { getLogger } from "../../../shared/services/logging";
 import { E2E } from "../../../shared/constants";
 import { TrainingBoardPage } from "../helpers/pageObjects/TrainingBoardPage";
+import { 
+  waitForPageReady,
+  waitForTablebaseInit,
+  waitForOpponentMove
+} from "../helpers/deterministicWaiting";
 
 test.describe("Weiterspielen Feature", () => {
   const logger = getLogger().setContext("E2E-WeiterSpielenFeature");
@@ -20,7 +25,7 @@ test.describe("Weiterspielen Feature", () => {
   test.beforeEach(async ({ page }) => {
     // Start fresh for each test
     await page.goto(E2E.ROUTES.TRAIN(1));
-    await page.waitForTimeout(E2E.TIMEOUTS.PAGE_LOAD);
+    await waitForPageReady(page);
 
     // Ensure training page loads
     await expect(page).toHaveURL(/\/train/);
@@ -41,7 +46,7 @@ test.describe("Weiterspielen Feature", () => {
     await boardPage.waitForBoardReady();
     
     // Wait for tablebase to initialize
-    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+    await waitForTablebaseInit(page);
 
     // Train/1 starts with: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1
     // King on e6, optimal move is Kd6, suboptimal is Kf5 (Kd5 is illegal - blocked by pawn)
@@ -93,7 +98,7 @@ test.describe("Weiterspielen Feature", () => {
     logger.info("Step 6: Waiting for opponent to make automatic move...");
     
     // Wait for the game state to change (opponent makes a move)
-    await page.waitForTimeout(3000); // Give opponent time to move
+    await waitForOpponentMove(page); // Give opponent time to move
     
     const gameStateAfterOpponentMove = await boardPage.getGameState();
 
@@ -122,7 +127,7 @@ test.describe("Weiterspielen Feature", () => {
 
     const boardPage = new TrainingBoardPage(page);
     await boardPage.waitForBoardReady();
-    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+    await waitForTablebaseInit(page);
 
     // Test with Kf5 (also suboptimal in this position)
     logger.info("Testing with suboptimal move Kf5");
@@ -144,7 +149,7 @@ test.describe("Weiterspielen Feature", () => {
     await expect(errorDialog).not.toBeVisible({ timeout: 3000 });
     
     // Verify opponent makes a move
-    await page.waitForTimeout(3000);
+    await waitForOpponentMove(page);
     const finalState = await boardPage.getGameState();
     
     // Should have at least 2 moves (player's suboptimal + opponent's response)
@@ -160,7 +165,7 @@ test.describe("Weiterspielen Feature", () => {
 
     const boardPage = new TrainingBoardPage(page);
     await boardPage.waitForBoardReady();
-    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+    await waitForTablebaseInit(page);
 
     // Make suboptimal move
     await boardPage.makeMoveWithValidation("e6", "f5");
