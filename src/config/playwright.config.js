@@ -72,7 +72,13 @@ const config = {
   },
 
   // Projects for different browsers
-  projects: [
+  // Phase 1 Optimization: Chromium-only for PR tests (67% faster)
+  projects: process.env.GITHUB_REF_NAME !== 'main' ? [
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+    },
+  ] : [
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
@@ -85,15 +91,8 @@ const config = {
       name: "webkit",
       use: { ...devices["Desktop Safari"] },
     },
-    // Mobile tests removed - not implemented yet
-    // {
-    //   name: 'mobile-chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'mobile-safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
+  ].concat([
+    // Firebase tests run on all branches
     {
       name: "firebase",
       testDir: "./src/tests/e2e/firebase",
@@ -104,7 +103,7 @@ const config = {
         navigationTimeout: 45000,
       },
     },
-  ],
+  ]),
 
   // Output folder for test artifacts
   outputDir: "test-results/",

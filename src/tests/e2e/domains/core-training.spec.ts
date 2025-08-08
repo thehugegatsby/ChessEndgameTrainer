@@ -8,6 +8,7 @@
 import { test, expect } from "@playwright/test";
 import { getLogger } from "../../../shared/services/logging";
 import { E2E } from "../../../shared/constants";
+import { ChessboardPage } from "../helpers/pageObjects/ChessboardPage";
 
 test.describe("Core Training Workflow", () => {
   const logger = getLogger().setContext("E2E-CoreTraining");
@@ -19,6 +20,7 @@ test.describe("Core Training Workflow", () => {
   test("should complete homepage → training → move → evaluation journey", async ({
     page,
   }) => {
+    const chessboard = new ChessboardPage(page);
     // 🏠 STEP 1: Homepage laden (redirects to /train/1)
     await page.goto(E2E.ROUTES.HOME);
 
@@ -48,28 +50,14 @@ test.describe("Core Training Workflow", () => {
     ).toBeVisible();
 
     // ♟️ STEP 3: Execute a move
-    // Wait for board to be interactive
-    await page.waitForTimeout(E2E.TIMEOUTS.PAGE_LOAD);
+    // Wait for tablebase to be ready (replaces hardcoded timeout)
+    await chessboard.waitForTablebaseReady();
 
-    // Use react-chessboard's data-square attributes
-    // Try to click a piece on e2, then click e4
-    const fromSquare = page.locator('[data-square="e2"]').first();
-    const toSquare = page.locator('[data-square="e4"]').first();
-
-    // Attempt move execution
+    // Execute move using domain helper (replaces manual clicking logic)
     try {
-      // First click the piece or square at e2
-      const piece = page.locator('[data-square="e2"] [draggable]').first();
-      if (await piece.isVisible({ timeout: 1000 }).catch(() => false)) {
-        await piece.click();
-      } else {
-        await fromSquare.click();
-      }
-      
-      // Then click the target square
-      await toSquare.click();
+      await chessboard.makeMove("e2", "e4");
     } catch (error) {
-      logger.warn("Failed to execute move via clicking squares", error);
+      logger.warn("Failed to execute move via domain helper", error);
       // Fallback: look for move input or buttons
       const moveInput = page
         .locator('[data-testid="move-input"]')
@@ -79,12 +67,13 @@ test.describe("Core Training Workflow", () => {
       if (await moveInput.isVisible()) {
         await moveInput.fill("e4");
         await page.keyboard.press("Enter");
+        await chessboard.waitForMoveProcessed();
       }
     }
 
     // 🧠 STEP 4: Wait for and verify evaluation
-    // Wait for tablebase to respond
-    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+    // Wait for tablebase evaluation (replaces hardcoded timeout)
+    await chessboard.assertEvaluationAvailable();
 
     // Look for evaluation display (adapt based on actual UI)
     const evaluation = page
@@ -124,14 +113,14 @@ test.describe("Core Training Workflow", () => {
   });
 
   test("should handle tablebase initialization", async ({ page }) => {
+    const chessboard = new ChessboardPage(page);
     await page.goto(E2E.ROUTES.TRAIN(1));
 
-    // Wait for tablebase to initialize
-    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+    // Wait for tablebase to initialize (deterministic waiting)
+    await chessboard.waitForTablebaseReady();
 
-    // Check tablebase status is not error
-    const tablebaseError = page.locator("text=/tablebase.*error/i").first();
-    await expect(tablebaseError).not.toBeVisible();
+    // Verify evaluation is available
+    await chessboard.assertEvaluationAvailable();
 
     logger.info(E2E.MESSAGES.SUCCESS.TABLEBASE_VERIFIED);
   });
