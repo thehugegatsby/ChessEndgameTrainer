@@ -113,9 +113,9 @@ jobs:
 
     - name: Run unit tests (sharded)
       run: |
-        # Use optimized jest config if available
+        # Use optimized jest config if available, exclude firebase project from sharding
         if [ -f "src/config/jest/jest.config.projects.js" ]; then
-          npx jest --config=src/config/jest/jest.config.projects.js --shard=${{ matrix.shard }}/4 --coverage --passWithNoTests
+          npx jest --config=src/config/jest/jest.config.projects.js --selectProjects react,node --shard=${{ matrix.shard }}/4 --coverage --passWithNoTests
         else
           npx jest --shard=${{ matrix.shard }}/4 --coverage
         fi
