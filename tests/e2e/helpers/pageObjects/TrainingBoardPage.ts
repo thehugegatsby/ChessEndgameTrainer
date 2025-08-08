@@ -48,13 +48,13 @@ export class TrainingBoardPage {
    */
   async getPosition(): Promise<string> {
     const fenAttribute = await this.page.getAttribute(
-      '[data-testid="board-fen"]',
+      '[data-testid="training-board"]',
       "data-fen",
     );
 
     if (!fenAttribute) {
       throw new Error(
-        'Board FEN not found in DOM - ensure data-testid="board-fen" is set',
+        "Board FEN not found in DOM - ensure data-fen attribute is set on training-board",
       );
     }
 
@@ -203,7 +203,7 @@ export class TrainingBoardPage {
     await this.page.waitForFunction(
       (fen) => {
         const boardElement = document.querySelector(
-          '[data-testid="board-fen"]',
+          '[data-testid="training-board"]',
         );
         return boardElement?.getAttribute("data-fen") === fen;
       },

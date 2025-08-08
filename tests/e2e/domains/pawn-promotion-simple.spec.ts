@@ -4,6 +4,7 @@
  */
 
 import { test, expect } from "@playwright/test";
+import { TrainingBoardPage } from "../helpers/pageObjects/TrainingBoardPage";
 
 test.describe("Pawn Promotion Simple Test", () => {
   test("should auto-complete when promoting from e7 to e8=Q", async ({
@@ -100,29 +101,17 @@ test.describe("Pawn Promotion Simple Test", () => {
     });
 
     await page.goto("/train/1");
-    await page.waitForSelector('[data-testid="training-board"]', {
-      timeout: 10000,
-    });
 
-    // Set up E2E test mode
-    await page.evaluate(() => {
-      (window as any).__E2E_TEST_MODE__ = true;
-    });
-
-    // Wait for API
-    await page.waitForFunction(
-      () => typeof (window as any).e2e_makeMove === "function",
-      { timeout: 10000 },
-    );
+    // Initialize Page Object Model
+    const boardPage = new TrainingBoardPage(page);
+    await boardPage.waitForBoardReady();
 
     // Log what we're testing
     console.log("Testing promotion detection with mocked tablebase...");
 
     // Try a sequence of moves that doesn't involve promotion first
-    const normalMove = await page.evaluate(async () => {
-      return await (window as any).e2e_makeMove("Ke6-d6");
-    });
-    console.log("Normal move result:", normalMove);
+    const normalMoveResult = await boardPage.makeMoveWithValidation("e6", "d6");
+    console.log("Normal move result:", normalMoveResult);
 
     // Check that no success dialog appeared for normal move
     const successDialog = page.locator('[data-testid="success-dialog"]');
