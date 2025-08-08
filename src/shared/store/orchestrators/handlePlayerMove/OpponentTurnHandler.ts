@@ -10,7 +10,7 @@
  * @remarks
  * Key architectural features:
  * - **Race condition prevention**: Multiple cancellation checks prevent stale executions
- * - **Timeout management**: Module-level state for proper cleanup and cancellation
+ * - **Encapsulated state management**: OpponentTurnManager class for clean state isolation
  * - **Tablebase integration**: Fetches optimal opponent moves from tablebase API
  * - **State synchronization**: Coordinates with training state for turn management
  * - **Error resilience**: Graceful handling of tablebase API failures
@@ -24,16 +24,18 @@
  *
  * @example
  * ```typescript
- * import { scheduleOpponentTurn, cancelScheduledOpponentTurn } from './OpponentTurnHandler';
- *
+ * import { getOpponentTurnManager } from './OpponentTurnHandler';
+ * 
+ * const manager = getOpponentTurnManager();
+ * 
  * // Schedule opponent move with default delay
- * scheduleOpponentTurn(storeApi);
+ * manager.schedule(storeApi);
  *
  * // Schedule with custom delay
- * scheduleOpponentTurn(storeApi, 1000);
+ * manager.schedule(storeApi, 1000);
  *
  * // Cancel any pending opponent move (e.g., during undo)
- * cancelScheduledOpponentTurn();
+ * manager.cancel();
  * ```
  */
 
@@ -47,12 +49,293 @@ import { ErrorService } from "@shared/services/ErrorService";
 import { handleTrainingCompletion } from "./move.completion";
 import { getLogger } from "@shared/services/logging";
 
-// Module-level timeout management for race condition prevention
-let opponentTurnTimeout: NodeJS.Timeout | undefined;
-let isCancelled = false;
-
 /** Default delay for opponent moves in milliseconds - provides natural game feel */
 const OPPONENT_TURN_DELAY = 500;
+
+/**
+ * Manages opponent turn scheduling and execution with encapsulated state
+ * 
+ * @class OpponentTurnManager
+ * 
+ * @description
+ * Encapsulates timeout management and cancellation state to prevent race conditions
+ * and provide clean separation of concerns. This eliminates the need for module-level
+ * global state that could cause issues in concurrent scenarios.
+ * 
+ * @example
+ * ```typescript
+ * const manager = new OpponentTurnManager();
+ * 
+ * // Schedule opponent turn
+ * manager.schedule(api, 500);
+ * 
+ * // Cancel if needed (e.g., during undo)
+ * manager.cancel();
+ * ```
+ */
+class OpponentTurnManager {
+  private timeout?: NodeJS.Timeout;
+  private isCancelled = false;
+
+  /**
+   * Cancels any scheduled opponent turn to prevent race conditions
+   *
+   * @description
+   * Provides immediate cancellation of pending opponent moves, essential for:
+   * - Undo operations that revert game state
+   * - User navigation away from training session
+   * - Game completion or interruption scenarios
+   *
+   * @remarks
+   * Uses two-phase cancellation strategy:
+   * 1. Sets cancellation flag for timeout callbacks
+   * 2. Clears active timeout to prevent execution
+   *
+   * This dual approach ensures no opponent moves execute after cancellation,
+   * even if the timeout has already fired but not yet executed.
+   */
+  cancel(): void {
+    this.isCancelled = true;
+
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+      this.timeout = undefined;
+      getLogger().debug(
+        "[OpponentTurnHandler] Successfully cancelled scheduled opponent turn",
+      );
+    } else {
+      getLogger().debug(
+        "[OpponentTurnHandler] WARNING: No timeout to cancel, but set cancellation flag",
+      );
+    }
+  }
+
+  /**
+   * Schedules optimal opponent move execution with sophisticated timing control
+   *
+   * @param {StoreApi} api - Zustand store API for state management
+   * @param {number} [delay=500] - Delay in milliseconds before executing opponent move
+   * @param {Object} [options] - Optional configuration
+   * @param {Function} [options.onOpponentMoveComplete] - Callback after opponent move completes
+   *
+   * @description
+   * Coordinates the scheduling and execution of optimal opponent moves using tablebase data.
+   * Provides natural game pacing while ensuring clean state management and error handling.
+   *
+   * @remarks
+   * **Race Condition Prevention:**
+   * - Cancels any existing scheduled opponent turn before scheduling new one
+   * - Resets cancellation flags for clean state
+   * - Multiple state checks before execution
+   */
+  schedule(
+    api: StoreApi,
+    delay: number = OPPONENT_TURN_DELAY,
+    options?: { onOpponentMoveComplete?: () => Promise<void> | void }
+  ): void {
+    const currentState = api.getState();
+    getLogger().info(
+      `[OpponentTurnHandler] 🎯 scheduleOpponentTurn called - delay: ${delay}ms`,
+      {
+        isPlayerTurn: currentState.training.isPlayerTurn,
+        isOpponentThinking: currentState.training.isOpponentThinking,
+        currentFen: chessService.getFen(),
+        currentTurn: chessService.turn(),
+        colorToTrain: currentState.training.currentPosition?.colorToTrain,
+      }
+    );
+
+    // Cancel any previously scheduled opponent turn
+    this.cancel();
+
+    // Clear the cancellation flag when scheduling new turn
+    this.isCancelled = false;
+
+    if (typeof window !== "undefined") {
+      // Schedule new opponent turn with cancellable timeout
+      this.timeout = setTimeout(async () => {
+        getLogger().debug(
+          "[OpponentTurnHandler] Timeout fired, checking if we should execute opponent turn",
+        );
+
+        // Check if this turn was cancelled
+        if (this.isCancelled) {
+          getLogger().debug(
+            "[OpponentTurnHandler] ABORTING - Turn was cancelled by undo",
+          );
+          return;
+        }
+
+        // Check state again before executing - player might have undone the move
+        const currentState = api.getState();
+        if (currentState.training.isPlayerTurn) {
+          getLogger().debug(
+            "[OpponentTurnHandler] ABORTING - It's now player's turn (move was undone)",
+          );
+          return;
+        }
+
+        getLogger().debug("[OpponentTurnHandler] Executing opponent turn");
+        await this.executeOpponentTurn(api, options?.onOpponentMoveComplete);
+
+        // Clear the timeout reference after execution
+        this.timeout = undefined;
+      }, delay);
+    } else {
+      // Fallback for non-browser environments (tests)
+      (async () => {
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        if (!this.isCancelled) {
+          await this.executeOpponentTurn(api, options?.onOpponentMoveComplete);
+        }
+      })();
+    }
+  }
+
+  /**
+   * Executes optimal opponent move using tablebase recommendations
+   *
+   * @param {StoreApi} api - Zustand store API for state management
+   * @param {Function} [onComplete] - Optional callback after move completion
+   * @returns {Promise<void>} Promise that resolves when opponent move execution is complete
+   *
+   * @private
+   * @description
+   * Core opponent move execution with comprehensive state validation and error handling.
+   * Fetches the best move from tablebase API and executes it with proper state updates.
+   */
+  private async executeOpponentTurn(
+    api: StoreApi,
+    onComplete?: () => Promise<void> | void
+  ): Promise<void> {
+    const { getState, setState } = api;
+
+    // Check if we should actually execute opponent turn
+    const state = getState();
+    getLogger().info("[OpponentTurnHandler] 🔍 executeOpponentTurn called:", {
+      isPlayerTurn: state.training.isPlayerTurn,
+      isOpponentThinking: state.training.isOpponentThinking,
+      currentFen: chessService.getFen(),
+      currentTurn: chessService.turn(),
+      trainingColor: state.training.currentPosition?.colorToTrain,
+      wasCancelled: this.isCancelled,
+    });
+
+    // Check cancellation flag first
+    if (this.isCancelled) {
+      getLogger().warn("[OpponentTurnHandler] ❌ ABORTING - Turn was cancelled!");
+      return;
+    }
+
+    // Don't execute if it's the player's turn
+    if (state.training.isPlayerTurn) {
+      getLogger().warn("[OpponentTurnHandler] ❌ ABORTING - It's player's turn! This is the issue!");
+      getLogger().warn("This prevents opponent from moving after 'Weiterspielen' click");
+      return;
+    }
+
+    try {
+      // Get current position
+      const currentFen = chessService.getFen();
+
+      // Fetch ALL moves from tablebase to find optimal one based on DTM
+      // We need all moves to properly evaluate defense in losing positions
+      const topMoves = await tablebaseService.getTopMoves(currentFen, 10);
+
+      getLogger().info(
+        "[OpponentTurnHandler] DEBUG: Fetched moves from tablebase:",
+        {
+          fen: currentFen,
+          movesCount: topMoves.moves?.length || 0,
+          moves: topMoves.moves?.map((m) => ({
+            san: m.san,
+            dtm: m.dtm,
+            wdl: m.wdl,
+            category: m.category,
+          })),
+          firstMove: topMoves.moves?.[0]
+            ? {
+                san: topMoves.moves[0].san,
+                dtm: topMoves.moves[0].dtm,
+                note: "This is what TablebaseService returned as first/best",
+              }
+            : null,
+        },
+      );
+
+      if (
+        !topMoves.isAvailable ||
+        !topMoves.moves ||
+        topMoves.moves.length === 0
+      ) {
+        // No tablebase move available - just return control to player
+        setState((draft) => {
+          draft.training.isPlayerTurn = true;
+          draft.training.isOpponentThinking = false;
+        });
+        return;
+      }
+
+      // Select the optimal move based on game theory:
+      // 1. Prefer best outcome (win > draw > loss) by WDL
+      // 2. Within same outcome:
+      //    - If winning: pick move with LOWEST DTM (fastest win)
+      //    - If losing: pick move with HIGHEST DTM (slowest loss - best defense)
+      //    - If drawing: pick any (all equivalent)
+      const bestMove = selectOptimalMove(topMoves.moves);
+
+      // Execute the opponent move (tablebase moves should always be valid)
+      const move = chessService.move(bestMove.san);
+      if (!move) {
+        throw new Error(`Failed to execute tablebase move: ${bestMove.san}`);
+      }
+
+      // Update state - switch back to player's turn
+      setState((draft) => {
+        draft.training.isPlayerTurn = true;
+        draft.training.isOpponentThinking = false;
+
+        // Note: Removed opponent move toast to reduce UI clutter
+      });
+
+      // Check if game ended after opponent move
+      if (chessService.isGameOver()) {
+        await handleTrainingCompletion(api, false); // Player didn't win
+      }
+
+      // Call completion callback if provided
+      if (onComplete) {
+        try {
+          await onComplete();
+          getLogger().debug("[OpponentTurnHandler] Completion callback executed successfully");
+        } catch (error) {
+          getLogger().error("[OpponentTurnHandler] Completion callback failed:", error);
+        }
+      }
+    } catch (error) {
+      // Handle opponent move errors
+      const userMessage = ErrorService.handleUIError(
+        error instanceof Error ? error : new Error(String(error)),
+        "OpponentMove",
+        {
+          component: "OpponentMove",
+          action: "execute",
+        },
+      );
+
+      setState((draft) => {
+        draft.ui.toasts.push({
+          id: Date.now().toString(),
+          message: userMessage,
+          type: "error",
+        });
+        // Reset to player's turn and clear thinking flag on error
+        draft.training.isPlayerTurn = true;
+        draft.training.isOpponentThinking = false;
+      });
+    }
+  }
+}
 
 /**
  * Selects the optimal move from available tablebase moves based on game theory
@@ -161,327 +444,80 @@ function selectOptimalMove(moves: TablebaseMove[]): TablebaseMove {
   return selected;
 }
 
+// Singleton instance for backward compatibility and global access
+let managerInstance: OpponentTurnManager | null = null;
+
 /**
- * Cancels any scheduled opponent turn to prevent race conditions
- *
+ * Gets the singleton instance of OpponentTurnManager
+ * 
+ * @returns {OpponentTurnManager} The singleton manager instance
+ * 
  * @description
- * Provides immediate cancellation of pending opponent moves, essential for:
- * - Undo operations that revert game state
- * - User navigation away from training session
- * - Game completion or interruption scenarios
- *
- * @remarks
- * Uses two-phase cancellation strategy:
- * 1. Sets global cancellation flag for timeout callbacks
- * 2. Clears active timeout to prevent execution
- *
- * This dual approach ensures no opponent moves execute after cancellation,
- * even if the timeout has already fired but not yet executed.
- *
+ * Provides a singleton instance for backward compatibility with existing code
+ * that expects global functions. This allows gradual migration to the class-based
+ * approach while maintaining existing API contracts.
+ * 
  * @example
  * ```typescript
- * // Cancel when user undoes a move
- * const handleUndo = () => {
- *   cancelScheduledOpponentTurn();
- *   undoLastMove();
- * };
+ * const manager = getOpponentTurnManager();
+ * manager.schedule(api);
  * ```
  */
-export function cancelScheduledOpponentTurn(): void {
-  isCancelled = true;
-
-  if (opponentTurnTimeout) {
-    clearTimeout(opponentTurnTimeout);
-    opponentTurnTimeout = undefined;
-    getLogger().debug(
-      "[OpponentTurnHandler] Successfully cancelled scheduled opponent turn",
-    );
-  } else {
-    getLogger().debug(
-      "[OpponentTurnHandler] WARNING: No timeout to cancel, but set cancellation flag",
-    );
+export function getOpponentTurnManager(): OpponentTurnManager {
+  if (!managerInstance) {
+    managerInstance = new OpponentTurnManager();
   }
+  return managerInstance;
 }
 
 /**
- * Schedules optimal opponent move execution with sophisticated timing control
- *
- * @param {StoreApi} api - Zustand store API for state management
- * @param {number} [delay=500] - Delay in milliseconds before executing opponent move
+ * Schedules opponent turn (backward compatibility wrapper)
+ * 
+ * @deprecated Use getOpponentTurnManager().schedule() instead
+ * 
+ * @param {StoreApi} api - Zustand store API
+ * @param {number} [delay] - Delay in milliseconds
  * @param {Object} [options] - Optional configuration
- * @param {Function} [options.onOpponentMoveComplete] - Callback after opponent move completes
- *
+ * 
  * @description
- * Coordinates the scheduling and execution of optimal opponent moves using tablebase data.
- * Provides natural game pacing while ensuring clean state management and error handling.
- *
- * @remarks
- * **Race Condition Prevention:**
- * - Cancels any existing scheduled opponent turn before scheduling new one
- * - Resets cancellation flags for clean state
- * - Multiple state checks before execution
- *
- * **Cross-Platform Support:**
- * - Browser: Uses setTimeout with proper cleanup
- * - Node.js/Tests: Uses async delay utility for deterministic testing
- *
- * **Error Resilience:**
- * - Graceful handling of tablebase API failures
- * - State recovery on opponent move execution errors
- * - Proper timeout cleanup in all scenarios
- *
+ * Legacy wrapper function for backward compatibility with existing code.
+ * New code should use the OpponentTurnManager class directly.
+ * 
  * @example
  * ```typescript
- * // Schedule with default 500ms delay for natural feel
- * scheduleOpponentTurn(storeApi);
- *
- * // Schedule with callback after opponent move
- * scheduleOpponentTurn(storeApi, 500, {
- *   onOpponentMoveComplete: async () => {
- *     console.log("Opponent move completed!");
- *   }
- * });
- *
- * // Schedule with faster response for testing
- * scheduleOpponentTurn(storeApi, 100);
- *
- * // Schedule with slower response for dramatic effect
- * scheduleOpponentTurn(storeApi, 2000);
+ * // Old way (still works but deprecated)
+ * scheduleOpponentTurn(api);
+ * 
+ * // New way (recommended)
+ * getOpponentTurnManager().schedule(api);
  * ```
  */
 export function scheduleOpponentTurn(
   api: StoreApi,
-  delay: number = OPPONENT_TURN_DELAY,
+  delay?: number,
   options?: { onOpponentMoveComplete?: () => Promise<void> | void }
 ): void {
-  const currentState = api.getState();
-  getLogger().info(
-    `[OpponentTurnHandler] 🎯 scheduleOpponentTurn called - delay: ${delay}ms`,
-    {
-      isPlayerTurn: currentState.training.isPlayerTurn,
-      isOpponentThinking: currentState.training.isOpponentThinking,
-      currentFen: chessService.getFen(),
-      currentTurn: chessService.turn(),
-      colorToTrain: currentState.training.currentPosition?.colorToTrain,
-    }
-  );
-
-  // Cancel any previously scheduled opponent turn
-  cancelScheduledOpponentTurn();
-
-  // Clear the cancellation flag when scheduling new turn
-  isCancelled = false;
-
-  if (typeof window !== "undefined") {
-    // Schedule new opponent turn with cancellable timeout
-    opponentTurnTimeout = setTimeout(async () => {
-      getLogger().debug(
-        "[OpponentTurnHandler] Timeout fired, checking if we should execute opponent turn",
-      );
-
-      // Check if this turn was cancelled
-      if (isCancelled) {
-        getLogger().debug(
-          "[OpponentTurnHandler] ABORTING - Turn was cancelled by undo",
-        );
-        return;
-      }
-
-      // Check state again before executing - player might have undone the move
-      const currentState = api.getState();
-      if (currentState.training.isPlayerTurn) {
-        getLogger().debug(
-          "[OpponentTurnHandler] ABORTING - It's now player's turn (move was undone)",
-        );
-        return;
-      }
-
-      getLogger().debug("[OpponentTurnHandler] Executing opponent turn");
-      await executeOpponentTurn(api, options?.onOpponentMoveComplete);
-
-      // Clear the timeout reference after execution
-      opponentTurnTimeout = undefined;
-    }, delay);
-  } else {
-    // Fallback for non-browser environments (tests)
-    (async () => {
-      await new Promise((resolve) => setTimeout(resolve, delay));
-      if (!isCancelled) {
-        await executeOpponentTurn(api, options?.onOpponentMoveComplete);
-      }
-    })();
-  }
+  getOpponentTurnManager().schedule(api, delay, options);
 }
 
 /**
- * Executes optimal opponent move using tablebase recommendations
- *
- * @param {StoreApi} api - Zustand store API for state management
- * @param {Function} [onComplete] - Optional callback after move completion
- * @returns {Promise<void>} Promise that resolves when opponent move execution is complete
- *
- * @private
+ * Cancels scheduled opponent turn (backward compatibility wrapper)
+ * 
+ * @deprecated Use getOpponentTurnManager().cancel() instead
+ * 
  * @description
- * Core opponent move execution with comprehensive state validation and error handling.
- * Fetches the best move from tablebase API and executes it with proper state updates.
- *
- * @remarks
- * **Multi-Layer Validation:**
- * - Cancellation flag check (prevents stale executions)
- * - Current turn validation (ensures opponent should move)
- * - Game state consistency checks
- *
- * **Tablebase Integration:**
- * - Fetches top 1 move for optimal play
- * - Handles API unavailability gracefully
- * - Validates move execution success
- *
- * **State Management:**
- * - Updates turn state after successful move
- * - Adds user notification for opponent move
- * - Triggers game completion check
- * - Recovers from errors with proper state reset
- *
- * **Error Scenarios Handled:**
- * - Tablebase API failures (network, rate limits)
- * - Invalid move execution (corrupted game state)
- * - State desynchronization issues
- *
+ * Legacy wrapper function for backward compatibility with existing code.
+ * New code should use the OpponentTurnManager class directly.
+ * 
  * @example
  * ```typescript
- * // This is called internally by scheduleOpponentTurn
- * // Manual usage not recommended - use scheduleOpponentTurn instead
- * await executeOpponentTurn(storeApi);
+ * // Old way (still works but deprecated)
+ * cancelScheduledOpponentTurn();
+ * 
+ * // New way (recommended)
+ * getOpponentTurnManager().cancel();
  * ```
  */
-async function executeOpponentTurn(
-  api: StoreApi,
-  onComplete?: () => Promise<void> | void
-): Promise<void> {
-  const { getState, setState } = api;
-
-  // Check if we should actually execute opponent turn
-  const state = getState();
-  getLogger().info("[OpponentTurnHandler] 🔍 executeOpponentTurn called:", {
-    isPlayerTurn: state.training.isPlayerTurn,
-    isOpponentThinking: state.training.isOpponentThinking,
-    currentFen: chessService.getFen(),
-    currentTurn: chessService.turn(),
-    trainingColor: state.training.currentPosition?.colorToTrain,
-    wasCancelled: isCancelled,
-  });
-
-  // Check cancellation flag first
-  if (isCancelled) {
-    getLogger().warn("[OpponentTurnHandler] ❌ ABORTING - Turn was cancelled!");
-    return;
-  }
-
-  // Don't execute if it's the player's turn
-  if (state.training.isPlayerTurn) {
-    getLogger().warn("[OpponentTurnHandler] ❌ ABORTING - It's player's turn! This is the issue!");
-    getLogger().warn("This prevents opponent from moving after 'Weiterspielen' click");
-    return;
-  }
-
-  try {
-    // Get current position
-    const currentFen = chessService.getFen();
-
-    // Fetch ALL moves from tablebase to find optimal one based on DTM
-    // We need all moves to properly evaluate defense in losing positions
-    const topMoves = await tablebaseService.getTopMoves(currentFen, 10);
-
-    getLogger().info(
-      "[OpponentTurnHandler] DEBUG: Fetched moves from tablebase:",
-      {
-        fen: currentFen,
-        movesCount: topMoves.moves?.length || 0,
-        moves: topMoves.moves?.map((m) => ({
-          san: m.san,
-          dtm: m.dtm,
-          wdl: m.wdl,
-          category: m.category,
-        })),
-        firstMove: topMoves.moves?.[0]
-          ? {
-              san: topMoves.moves[0].san,
-              dtm: topMoves.moves[0].dtm,
-              note: "This is what TablebaseService returned as first/best",
-            }
-          : null,
-      },
-    );
-
-    if (
-      !topMoves.isAvailable ||
-      !topMoves.moves ||
-      topMoves.moves.length === 0
-    ) {
-      // No tablebase move available - just return control to player
-      setState((draft) => {
-        draft.training.isPlayerTurn = true;
-        draft.training.isOpponentThinking = false;
-      });
-      return;
-    }
-
-    // Select the optimal move based on game theory:
-    // 1. Prefer best outcome (win > draw > loss) by WDL
-    // 2. Within same outcome:
-    //    - If winning: pick move with LOWEST DTM (fastest win)
-    //    - If losing: pick move with HIGHEST DTM (slowest loss - best defense)
-    //    - If drawing: pick any (all equivalent)
-    const bestMove = selectOptimalMove(topMoves.moves);
-
-    // Execute the opponent move (tablebase moves should always be valid)
-    const move = chessService.move(bestMove.san);
-    if (!move) {
-      throw new Error(`Failed to execute tablebase move: ${bestMove.san}`);
-    }
-
-    // Update state - switch back to player's turn
-    setState((draft) => {
-      draft.training.isPlayerTurn = true;
-      draft.training.isOpponentThinking = false;
-
-      // Note: Removed opponent move toast to reduce UI clutter
-    });
-
-    // Check if game ended after opponent move
-    if (chessService.isGameOver()) {
-      await handleTrainingCompletion(api, false); // Player didn't win
-    }
-
-    // Call completion callback if provided
-    if (onComplete) {
-      try {
-        await onComplete();
-        getLogger().debug("[OpponentTurnHandler] Completion callback executed successfully");
-      } catch (error) {
-        getLogger().error("[OpponentTurnHandler] Completion callback failed:", error);
-      }
-    }
-  } catch (error) {
-    // Handle opponent move errors
-    const userMessage = ErrorService.handleUIError(
-      error instanceof Error ? error : new Error(String(error)),
-      "OpponentMove",
-      {
-        component: "OpponentMove",
-        action: "execute",
-      },
-    );
-
-    setState((draft) => {
-      draft.ui.toasts.push({
-        id: Date.now().toString(),
-        message: userMessage,
-        type: "error",
-      });
-      // Reset to player's turn and clear thinking flag on error
-      draft.training.isPlayerTurn = true;
-      draft.training.isOpponentThinking = false;
-    });
-  }
+export function cancelScheduledOpponentTurn(): void {
+  getOpponentTurnManager().cancel();
 }

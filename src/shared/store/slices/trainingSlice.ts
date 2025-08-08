@@ -597,12 +597,9 @@ export const createTrainingActions = (
    * ```
    */
   resetTraining: () => {
-    // DO NOT RESET - This would break action methods
-    // Individual actions should handle their own state resets
-    const logger = getLogger().setContext("TrainingSlice");
-    logger.warn(
-      "resetTraining called but doing nothing to preserve action methods",
-    );
+    set((state) => {
+      Object.assign(state.training, createInitialTrainingState());
+    });
   },
 
   /**

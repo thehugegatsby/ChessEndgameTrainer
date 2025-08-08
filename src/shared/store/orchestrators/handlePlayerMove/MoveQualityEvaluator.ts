@@ -157,8 +157,11 @@ export class MoveQualityEvaluator {
       const { wdlBeforeFromPlayerPerspective, wdlAfterFromPlayerPerspective } =
         this.convertToPlayerPerspective(wdlBefore, wdlAfter);
 
-      // If training baseline exists, use it for comparison instead of original position
-      const effectiveWdlBefore = trainingBaseline?.wdl ?? wdlBeforeFromPlayerPerspective;
+      // Determine effective baseline for comparison
+      const effectiveWdlBefore = this.determineEffectiveBaseline(
+        trainingBaseline,
+        wdlBeforeFromPlayerPerspective
+      );
 
       getLogger().debug("[MoveQuality] WDL evaluation context:", {
         wdlBeforeFromPlayerPerspective,
@@ -195,7 +198,10 @@ export class MoveQualityEvaluator {
         wdlAfterFromPlayerPerspective,
       );
 
-      const shouldShowErrorDialog = !playedMoveWasBest && outcomeChanged;
+      const shouldShowErrorDialog = this.shouldShowErrorDialog(
+        playedMoveWasBest,
+        outcomeChanged
+      );
       const bestMove = this.getBestMove(topMoves);
 
       getLogger().info("[MoveQuality] Decision to show error dialog:", {
@@ -249,13 +255,17 @@ export class MoveQualityEvaluator {
     evalBefore: TablebaseEvaluation,
     evalAfter: TablebaseEvaluation,
   ): boolean {
+    return this.hasValidResult(evalBefore) && this.hasValidResult(evalAfter);
+  }
+
+  /**
+   * Checks if a single evaluation has a valid result
+   */
+  private hasValidResult(evaluation: TablebaseEvaluation): boolean {
     return (
-      evalBefore.isAvailable &&
-      evalAfter.isAvailable &&
-      "result" in evalBefore &&
-      "result" in evalAfter &&
-      !!evalBefore.result &&
-      !!evalAfter.result
+      evaluation.isAvailable &&
+      "result" in evaluation &&
+      !!evaluation.result
     );
   }
 
@@ -305,11 +315,17 @@ export class MoveQualityEvaluator {
     topMoves: TablebaseMovesResult,
     playedMoveSan: string,
   ): boolean {
-    return !!(
-      topMoves.isAvailable &&
-      topMoves.moves &&
-      topMoves.moves.some((m) => m.san === playedMoveSan)
-    );
+    if (!this.hasAvailableMoves(topMoves)) {
+      return false;
+    }
+    return topMoves.moves!.some((m) => m.san === playedMoveSan);
+  }
+
+  /**
+   * Checks if tablebase moves are available
+   */
+  private hasAvailableMoves(topMoves: TablebaseMovesResult): boolean {
+    return topMoves.isAvailable && !!topMoves.moves && topMoves.moves.length > 0;
   }
 
   /**
@@ -319,12 +335,30 @@ export class MoveQualityEvaluator {
     wdlBeforeFromPlayerPerspective: number,
     wdlAfterFromPlayerPerspective: number,
   ): boolean {
-    return (
-      (wdlBeforeFromPlayerPerspective > 0 &&
-        wdlAfterFromPlayerPerspective <= 0) || // Win -> Draw/Loss
-      (wdlBeforeFromPlayerPerspective === 0 &&
-        wdlAfterFromPlayerPerspective < 0)
-    ); // Draw -> Loss
+    const winTurnedIntoDrawOrLoss = this.isWinToDrawOrLoss(
+      wdlBeforeFromPlayerPerspective,
+      wdlAfterFromPlayerPerspective
+    );
+    const drawTurnedIntoLoss = this.isDrawToLoss(
+      wdlBeforeFromPlayerPerspective,
+      wdlAfterFromPlayerPerspective
+    );
+    
+    return winTurnedIntoDrawOrLoss || drawTurnedIntoLoss;
+  }
+
+  /**
+   * Checks if a winning position turned into a draw or loss
+   */
+  private isWinToDrawOrLoss(wdlBefore: number, wdlAfter: number): boolean {
+    return wdlBefore > 0 && wdlAfter <= 0;
+  }
+
+  /**
+   * Checks if a drawn position turned into a loss
+   */
+  private isDrawToLoss(wdlBefore: number, wdlAfter: number): boolean {
+    return wdlBefore === 0 && wdlAfter < 0;
   }
 
   /**
@@ -362,6 +396,26 @@ export class MoveQualityEvaluator {
         );
       });
     }
+  }
+
+  /**
+   * Determines the effective baseline for comparison
+   */
+  private determineEffectiveBaseline(
+    trainingBaseline: { wdl: number; fen: string } | null | undefined,
+    wdlBeforeFromPlayerPerspective: number
+  ): number {
+    return trainingBaseline?.wdl ?? wdlBeforeFromPlayerPerspective;
+  }
+
+  /**
+   * Determines if error dialog should be shown based on move quality
+   */
+  private shouldShowErrorDialog(
+    playedMoveWasBest: boolean,
+    outcomeChanged: boolean
+  ): boolean {
+    return !playedMoveWasBest && outcomeChanged;
   }
 
   /**
