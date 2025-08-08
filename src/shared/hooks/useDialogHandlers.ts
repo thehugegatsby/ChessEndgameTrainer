@@ -314,6 +314,16 @@ export const useDialogHandlers = ({
       }
     );
 
+    // CRITICAL FIX: Set turn state before scheduling opponent turn
+    // This ensures the opponent can actually execute their move
+    const currentTurn = chessService.turn();
+    const trainingColor = currentState.training.currentPosition?.colorToTrain?.charAt(0);
+    
+    if (currentTurn !== trainingColor) {
+      logger.info("🔧 FIXING BUG: Setting isPlayerTurn=false for opponent to move");
+      trainingActions.setPlayerTurn(false);
+    }
+
     // Close the error dialog
     trainingActions.setMoveErrorDialog(null);
     logger.info("✅ Error dialog closed");

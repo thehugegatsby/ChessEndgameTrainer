@@ -24,10 +24,10 @@ test.describe("Weiterspielen Bug Proof", () => {
     logger.info("Training page loaded for bug proof test");
   });
 
-  test("PROVES: Opponent does NOT move after Weiterspielen", async ({
+  test("FIXED: Opponent DOES move after Weiterspielen", async ({
     page,
   }) => {
-    logger.info("🐛 TESTING: Proving that Weiterspielen bug exists");
+    logger.info("✅ TESTING: Verifying that Weiterspielen bug is FIXED");
 
     const boardPage = new TrainingBoardPage(page);
     await boardPage.waitForBoardReady();
@@ -85,20 +85,20 @@ test.describe("Weiterspielen Bug Proof", () => {
       turn: gameStateAfterWaiting.turn,
     });
 
-    // STEP 8: PROVE THE BUG - Opponent did NOT move
+    // STEP 8: VERIFY FIX - Opponent SHOULD move now
     const opponentMadeMove =
       gameStateAfterWaiting.moveCount >
       gameStateBeforeWeiterspielenClick.moveCount;
 
     if (opponentMadeMove) {
       logger.info(
-        "✅ UNEXPECTED: Opponent DID make a move! Bug might be fixed!",
+        "✅ SUCCESS: Opponent DID make a move! Bug is FIXED!",
       );
       logger.info(
         `Move count changed: ${gameStateBeforeWeiterspielenClick.moveCount} → ${gameStateAfterWaiting.moveCount}`,
       );
     } else {
-      logger.info("🐛 BUG CONFIRMED: Opponent did NOT make a move!");
+      logger.info("❌ BUG STILL EXISTS: Opponent did NOT make a move!");
       logger.info("Evidence:");
       logger.info(
         `- Move count unchanged: ${gameStateBeforeWeiterspielenClick.moveCount} === ${gameStateAfterWaiting.moveCount}`,
@@ -114,17 +114,16 @@ test.describe("Weiterspielen Bug Proof", () => {
       );
     }
 
-    // Document the bug exists (test passes when bug is present)
-    // When bug is fixed, this assertion will fail
-    expect(gameStateAfterWaiting.moveCount).toBe(
+    // Verify the fix works (test passes when bug is FIXED)
+    expect(gameStateAfterWaiting.moveCount).toBeGreaterThan(
       gameStateBeforeWeiterspielenClick.moveCount,
     );
-    expect(gameStateAfterWaiting.fen).toBe(
+    expect(gameStateAfterWaiting.fen).not.toBe(
       gameStateBeforeWeiterspielenClick.fen,
     );
 
     logger.info(
-      "🐛 TEST COMPLETE: Bug documented - opponent does NOT move after Weiterspielen",
+      "✅ TEST COMPLETE: Bug is FIXED - opponent DOES move after Weiterspielen",
     );
   });
 
