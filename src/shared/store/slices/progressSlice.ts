@@ -32,7 +32,7 @@ let progressService: ProgressService | null = null;
 const getProgressService = (): ProgressService => {
   if (!progressService) {
     // Dynamic import to avoid Firebase initialization in tests
-    const { db } = require('../../../firebase/firebase');
+    const { db } = require('@/firebase/firebase');
     progressService = new ProgressService(db);
   }
   return progressService;

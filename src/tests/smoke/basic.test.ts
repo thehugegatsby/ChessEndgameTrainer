@@ -3,7 +3,7 @@
  * These tests ensure critical functionality works after deployment
  */
 
-import { APP_CONFIG } from "../../config/constants";
+import { APP_CONFIG } from "@/config/constants";
 
 describe("Smoke Tests", () => {
   const PRODUCTION_URL = process.env.PRODUCTION_URL || APP_CONFIG.DEV_URL;

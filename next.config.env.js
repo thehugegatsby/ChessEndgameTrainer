@@ -3,7 +3,7 @@
  * This file exports environment-specific settings
  */
 
-const { APP_CONFIG } = require("./config/constants");
+const { APP_CONFIG } = require("./src/config/constants");
 
 module.exports = {
   env: {

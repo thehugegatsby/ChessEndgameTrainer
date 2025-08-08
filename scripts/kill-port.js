@@ -9,7 +9,7 @@ const fs = require("fs");
 const path = require("path");
 
 // Read the TypeScript config file
-const configPath = path.join(__dirname, "../config/constants.ts");
+const configPath = path.join(__dirname, "../src/config/constants.ts");
 const configContent = fs.readFileSync(configPath, "utf8");
 
 // Extract DEV_PORT value

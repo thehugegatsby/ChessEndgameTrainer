@@ -28,7 +28,7 @@ module.exports = {
     '/node_modules/(?!(nanoid|supermemo|react-chessboard|chess.js|react-native|@react-native|@react-navigation|expo|@expo|react-native-.*)/)'
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  setupFilesAfterEnv: ['<rootDir>/tests/utils/jestSetup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/src/tests/utils/jestSetup.ts'],
   testPathIgnorePatterns: [
     '/node_modules/', 
     '/.next/', 
@@ -38,23 +38,23 @@ module.exports = {
     '/tests/e2e/'  // Exclude Playwright tests
   ],
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/$1',
-    '^@app/(.*)$': '<rootDir>/app/$1',
-    '^@shared/(.*)$': '<rootDir>/shared/$1',
-    '^@tests/(.*)$': '<rootDir>/tests/$1',
-    '^@pages/(.*)$': '<rootDir>/pages/$1'
+    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@app/(.*)$': '<rootDir>/src/app/$1',
+    '^@shared/(.*)$': '<rootDir>/src/shared/$1',
+    '^@tests/(.*)$': '<rootDir>/src/tests/$1',
+    '^@pages/(.*)$': '<rootDir>/src/pages/$1'
   },
   testMatch: [
-    '<rootDir>/tests/**/__tests__/**/*.[jt]s?(x)',
-    '<rootDir>/tests/**/*.{spec,test}.[jt]s?(x)',
-    '<rootDir>/shared/**/__tests__/**/*.[jt]s?(x)',
-    '<rootDir>/shared/**/*.{spec,test}.[jt]s?(x)',
-    '!<rootDir>/tests/e2e/**/*'  // Exclude E2E tests
+    '<rootDir>/src/tests/**/__tests__/**/*.[jt]s?(x)',
+    '<rootDir>/src/tests/**/*.{spec,test}.[jt]s?(x)',
+    '<rootDir>/src/shared/**/__tests__/**/*.[jt]s?(x)',
+    '<rootDir>/src/shared/**/*.{spec,test}.[jt]s?(x)',
+    '!<rootDir>/src/tests/e2e/**/*'  // Exclude E2E tests
   ],
   collectCoverageFrom: [
-    'shared/**/*.{ts,tsx}',
-    'app/**/*.{ts,tsx}',
-    'pages/**/*.{ts,tsx}',
+    'src/shared/**/*.{ts,tsx}',
+    'src/app/**/*.{ts,tsx}',
+    'src/pages/**/*.{ts,tsx}',
     '!**/*.d.ts',
     '!**/node_modules/**',
     '!shared/constants/**',

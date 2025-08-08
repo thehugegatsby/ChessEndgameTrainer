@@ -33,9 +33,26 @@ Thumbs.db
 
 # TypeScript build info
 tsconfig.tsbuildinfo
+*.tsbuildinfo
 
 # Firebase service account keys (SECURITY - NEVER COMMIT!)
 config/serviceAccountKey.json
 config/*.json
 serviceAccountKey.json
 *-firebase-adminsdk-*.json
+.firebase/
+firebase-debug.log
+
+# POC and temp files
+/poc
+board-structure.png
+test-*.js
+test-*.html
+test_results.txt
+
+# Logs directory
+/logs
+pm2-*.log
+
+# Zone.Identifier files (Windows WSL)
+*.Zone.Identifier

@@ -21,11 +21,10 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@shared/*": ["shared/*"],
-      "@pages/*": ["pages/*"],
-      "@app/*": ["app/*"],
-      "@tests/*": ["tests/*"]
+      "@/*": ["./src/*"],
+      "@shared/*": ["src/shared/*"],
+      "@app/*": ["src/app/*"],
+      "@tests/*": ["src/tests/*"]
     }
   },
   "include": [

@@ -7,7 +7,7 @@ This directory contains a generic E2E testing framework for chess move sequences
 The framework consists of three main parts:
 
 1. **SequenceRunner** (`helpers/sequenceRunner.ts`) - Core execution engine
-2. **Scenario Definitions** (`scenarios/`) - Test scenario configurations  
+2. **Scenario Definitions** (`scenarios/`) - Test scenario configurations
 3. **Test Files** (`scenarios/*.spec.ts`) - Playwright test implementations
 
 ## Quick Start
@@ -15,18 +15,16 @@ The framework consists of three main parts:
 ### Basic Usage
 
 ```typescript
-import { test } from '@playwright/test';
-import { SequenceRunner, expectation } from '../helpers/sequenceRunner';
+import { test } from "@playwright/test";
+import { SequenceRunner, expectation } from "../helpers/sequenceRunner";
 
 test("My chess scenario", async ({ page }) => {
   const runner = new SequenceRunner(page);
-  
+
   await runner.executeSequence({
     name: "Basic Checkmate",
     moves: ["Qd1-h5", "Ng8-f6", "Qh5-f7#"],
-    expectations: [
-      expectation.successToast("Checkmate!", 2)
-    ]
+    expectations: [expectation.successToast("Checkmate!", 2)],
   });
 });
 ```
@@ -34,7 +32,7 @@ test("My chess scenario", async ({ page }) => {
 ### Using Predefined Scenarios
 
 ```typescript
-import { promotionScenarios } from './promotionScenarios';
+import { promotionScenarios } from "./promotionScenarios";
 
 test("Promotion test", async ({ page }) => {
   const runner = new SequenceRunner(page);
@@ -49,6 +47,7 @@ test("Promotion test", async ({ page }) => {
 The main class that executes move sequences and verifies expectations.
 
 **Key Methods:**
+
 - `executeSequence(config)` - Run a complete test scenario
 - `getStoreState()` - Get current Zustand store state for debugging
 - `getGameState()` - Get current chess game state for debugging
@@ -68,15 +67,15 @@ The framework supports 5 types of expectations:
 Use the `expectation` object to create common expectations:
 
 ```typescript
-import { expectation } from '../helpers/sequenceRunner';
+import { expectation } from "../helpers/sequenceRunner";
 
 const expectations = [
-  expectation.successToast("Great move!", 0),      // After 1st move
-  expectation.errorToast("Invalid move", 2),       // After 3rd move
+  expectation.successToast("Great move!", 0), // After 1st move
+  expectation.errorToast("Invalid move", 2), // After 3rd move
   expectation.storeState("training.isSuccess", true), // At end
-  expectation.trainingSuccess(),                   // At end
-  expectation.modalOpen("completion"),             // At end
-  expectation.modalClosed(5)                       // After 6th move
+  expectation.trainingSuccess(), // At end
+  expectation.modalOpen("completion"), // At end
+  expectation.modalClosed(5), // After 6th move
 ];
 ```
 
@@ -86,13 +85,13 @@ const expectations = [
 
 ```typescript
 interface SequenceConfig {
-  name: string;                    // Human-readable test name
-  description?: string;            // Detailed description
-  moves: string[];                 // Chess moves in coordinate notation
-  expectations: Expectation[];     // What to verify
+  name: string; // Human-readable test name
+  description?: string; // Detailed description
+  moves: string[]; // Chess moves in coordinate notation
+  expectations: Expectation[]; // What to verify
   setup?: {
-    startFen?: string;             // Custom starting position
-    mockTablebase?: boolean;       // Mock API for winning positions
+    startFen?: string; // Custom starting position
+    mockTablebase?: boolean; // Mock API for winning positions
   };
 }
 ```
@@ -101,27 +100,27 @@ interface SequenceConfig {
 
 ```typescript
 interface Expectation {
-  type: 'toast' | 'evaluation' | 'modal' | 'store' | 'completion';
-  moveIndex?: number;              // When to check (0-indexed, undefined = end)
+  type: "toast" | "evaluation" | "modal" | "store" | "completion";
+  moveIndex?: number; // When to check (0-indexed, undefined = end)
   data: {
     // Toast expectations
-    message?: string;              // Text to find (partial match)
-    toastType?: 'success' | 'error' | 'info' | 'warning';
-    
-    // Store expectations  
-    storePath?: string;            // Dot notation (e.g., 'training.isSuccess')
-    expectedValue?: unknown;       // Expected value
-    
+    message?: string; // Text to find (partial match)
+    toastType?: "success" | "error" | "info" | "warning";
+
+    // Store expectations
+    storePath?: string; // Dot notation (e.g., 'training.isSuccess')
+    expectedValue?: unknown; // Expected value
+
     // Modal expectations
-    modalType?: string;            // Modal identifier
-    modalOpen?: boolean;           // Open (true) or closed (false)
-    
+    modalType?: string; // Modal identifier
+    modalOpen?: boolean; // Open (true) or closed (false)
+
     // Completion expectations
-    isSuccess?: boolean;           // Training success state
-    completionStatus?: string;     // Completion status string
-    
+    isSuccess?: boolean; // Training success state
+    completionStatus?: string; // Completion status string
+
     // General
-    timeout?: number;              // Custom timeout (default: 5000ms)
+    timeout?: number; // Custom timeout (default: 5000ms)
   };
 }
 ```
@@ -172,12 +171,12 @@ Use coordinate notation for moves:
 
 ```typescript
 // Check nested store properties
-expectation.storeState("ui.currentModal", "completion")
-expectation.storeState("training.isSuccess", true)
-expectation.storeState("game.moveHistory.length", 5)
+expectation.storeState("ui.currentModal", "completion");
+expectation.storeState("training.isSuccess", true);
+expectation.storeState("game.moveHistory.length", 5);
 
 // Check array contents
-expectation.storeState("ui.toasts.0.type", "success")
+expectation.storeState("ui.toasts.0.type", "success");
 ```
 
 ## Debugging
@@ -187,18 +186,18 @@ expectation.storeState("ui.toasts.0.type", "success")
 ```typescript
 test("Debug test", async ({ page }) => {
   const runner = new SequenceRunner(page);
-  
+
   try {
     await runner.executeSequence(myScenario);
   } catch (error) {
     // Get current state for debugging
     const storeState = await runner.getStoreState();
     const gameState = await runner.getGameState();
-    
+
     console.log("Store toasts:", storeState.ui?.toasts);
     console.log("Training state:", storeState.training);
     console.log("Current position:", gameState.fen);
-    
+
     throw error; // Re-throw to fail test
   }
 });
@@ -241,22 +240,24 @@ tests/e2e/
 Create a new file in `scenarios/` (e.g., `endgameScenarios.ts`):
 
 ```typescript
-import { SequenceConfig, expectation } from '../helpers/sequenceRunner';
+import { SequenceConfig, expectation } from "../helpers/sequenceRunner";
 
 export const basicCheckmate: SequenceConfig = {
   name: "Basic Back Rank Mate",
   description: "Tests recognition of back rank checkmate patterns",
   moves: [
-    "Ra1-a8", "Kb8-c7", "Ra8-a7"  // Checkmate sequence
+    "Ra1-a8",
+    "Kb8-c7",
+    "Ra8-a7", // Checkmate sequence
   ],
   expectations: [
     expectation.successToast("Checkmate!", 2),
-    expectation.modalOpen("completion")
-  ]
+    expectation.modalOpen("completion"),
+  ],
 };
 
 export const endgameScenarios = {
-  basicCheckmate
+  basicCheckmate,
 };
 ```
 
@@ -265,15 +266,17 @@ export const endgameScenarios = {
 Create a corresponding test file (e.g., `endgameTests.spec.ts`):
 
 ```typescript
-import { test } from '@playwright/test';
-import { SequenceRunner } from '../helpers/sequenceRunner';
-import { endgameScenarios } from './endgameScenarios';
+import { test } from "@playwright/test";
+import { SequenceRunner } from "../helpers/sequenceRunner";
+import { endgameScenarios } from "./endgameScenarios";
 
 test.describe("Endgame Scenarios", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/train/1");
     await page.waitForSelector('[data-testid="training-board"]');
-    await page.waitForFunction(() => typeof (window as any).e2e_makeMove === "function");
+    await page.waitForFunction(
+      () => typeof (window as any).e2e_makeMove === "function",
+    );
   });
 
   test("Basic checkmate recognition", async ({ page }) => {

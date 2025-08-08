@@ -20,7 +20,7 @@
 
 import { validateAndSanitizeFen } from "../utils/fenValidator";
 import { getLogger } from "../services/logging";
-import { APP_CONFIG } from "../../config/constants";
+import { APP_CONFIG } from "@/config/constants";
 import { z } from "zod";
 import { LichessTablebaseResponseSchema } from "../types/tablebaseSchemas";
 import type {

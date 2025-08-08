@@ -10,7 +10,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const constantsPath = path.join(__dirname, "../config/constants.ts");
+const constantsPath = path.join(__dirname, "../src/config/constants.ts");
 const constantsContent = fs.readFileSync(constantsPath, "utf8");
 
 // Extract DEV_PORT value using regex

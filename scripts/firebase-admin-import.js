@@ -15,7 +15,7 @@ const fs = require("fs");
 const path = require("path");
 
 // --- Configuration ---
-const SERVICE_ACCOUNT_PATH = "./config/serviceAccountKey.json";
+const SERVICE_ACCOUNT_PATH = "./src/config/serviceAccountKey.json";
 const DATA_ROOT_DIR = "./firestore_import_data";
 const COLLECTIONS_TO_IMPORT = ["positions", "categories", "chapters"];
 const BATCH_SIZE = 400; // Firestore batch limit is 500

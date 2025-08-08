@@ -1,5 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
-import { APP_CONFIG } from "../../config/constants";
+import { APP_CONFIG } from "../constants";
 
 export default defineConfig({
   testDir: "../../tests/e2e",

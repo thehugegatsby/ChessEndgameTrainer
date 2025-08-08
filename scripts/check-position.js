@@ -3,7 +3,7 @@
 const admin = require("firebase-admin");
 const path = require("path");
 
-const SERVICE_ACCOUNT_PATH = "./config/serviceAccountKey.json";
+const SERVICE_ACCOUNT_PATH = "./src/config/serviceAccountKey.json";
 const serviceAccount = require(path.resolve(SERVICE_ACCOUNT_PATH));
 
 admin.initializeApp({
