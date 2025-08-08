@@ -1,22 +1,28 @@
-# Symlinked files
+# Dependencies & Build
 node_modules
 .next
 dist
 build
+
+# Environment
 .env
 .env.local
-package.json
-package-lock.json
-tsconfig.json
-.eslintrc.json
-.prettierrc
-*.config.js
+
+# Config files (DO NOT IGNORE - needed for project)
+# package.json
+# package-lock.json
+# tsconfig.json
+# .eslintrc.json
+# .prettierrc
+# *.config.js
 
 # Test & Coverage Reports
 coverage/
 test-results/
 playwright-report/
-*.html
+# Don't ignore all HTML files - only specific test output
+test-results/**/*.html
+playwright-report/**/*.html
 
 # IDE
 .vscode/
@@ -46,8 +52,9 @@ firebase-debug.log
 # POC and temp files
 /poc
 board-structure.png
-test-*.js
-test-*.html
+# Only ignore test files in root, not in src/tests
+/test-*.js
+/test-*.html
 test_results.txt
 
 # Logs directory
