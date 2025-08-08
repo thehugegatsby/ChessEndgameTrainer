@@ -73,9 +73,10 @@ module.exports = {
   
   // Verbose output
   verbose: false,
+  silent: true, // Disable console output for faster tests
   
   // Performance optimizations
-  maxWorkers: '50%',
+  maxWorkers: 'max', // Use all available CPU cores
   cache: true,
   cacheDirectory: '<rootDir>/.jest-cache',
   

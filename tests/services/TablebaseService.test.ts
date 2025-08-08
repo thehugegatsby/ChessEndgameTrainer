@@ -1,4 +1,6 @@
 /**
+ * @jest-environment node
+ *
  * Comprehensive test suite for optimized TablebaseService
  *
  * @remarks
@@ -617,7 +619,7 @@ describe("TablebaseService", () => {
             dtz: -2,
             precise_dtz: -2,
             dtm: -12,
-            category: "loss"
+            category: "loss",
           },
           {
             uci: "d7e8",
@@ -626,7 +628,7 @@ describe("TablebaseService", () => {
             dtz: -2,
             precise_dtz: -2,
             dtm: -20,
-            category: "loss"
+            category: "loss",
           },
           {
             uci: "d7d8",
@@ -635,14 +637,12 @@ describe("TablebaseService", () => {
             dtz: -2,
             precise_dtz: -2,
             dtm: -16,
-            category: "loss"
-          }
-        ]
+            category: "loss",
+          },
+        ],
       };
 
-      mockFetch.mockResolvedValueOnce(
-        createTablebaseResponse(mockResponse)
-      );
+      mockFetch.mockResolvedValueOnce(createTablebaseResponse(mockResponse));
 
       const fen = "6k1/3K4/4P3/8/8/8/8/8 w - - 3 4";
       const result = await tablebaseService.getTopMoves(fen, 5);

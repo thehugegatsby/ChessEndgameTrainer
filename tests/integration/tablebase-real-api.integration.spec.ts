@@ -14,7 +14,9 @@
 import { tablebaseService } from "../../shared/services/TablebaseService";
 
 // Skip these tests in CI to avoid rate limiting and external dependencies
-const describeIfNotCI = process.env.CI ? describe.skip : describe;
+// Also skip if fetch is not available (e.g., in Node.js test environment without polyfill)
+const describeIfNotCI =
+  process.env.CI || typeof fetch === "undefined" ? describe.skip : describe;
 
 describeIfNotCI("Tablebase Real API Integration Tests", () => {
   beforeEach(() => {

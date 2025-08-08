@@ -35,11 +35,24 @@ A web-based training tool for chess players to master specific endgame scenarios
 
 ```bash
 npm run dev              # Dev server (port 3002)
-npm test                 # Run tests
 npm run lint            # ESLint
 npm run build           # Production build
 npm run analyze-code    # Run all code analysis
 ```
+
+### ⚠️ CRITICAL: Running Tests in WSL/VS Code
+
+**PROBLEM:** When running `npm test 2>&1`, the shell incorrectly passes '2' as an argument to Jest, causing "Pattern: 2 - 0 matches" error.
+
+**SOLUTION - Always use one of these:**
+
+```bash
+sh -c 'npm test'         # Run in clean shell (RECOMMENDED)
+npx jest --config=jest.config.projects.js  # Run jest directly
+npm run test:legacy      # Use legacy config
+```
+
+**DO NOT USE:** `npm test 2>&1` or any redirect operators with npm test!
 
 ## Architecture Overview
 
@@ -52,6 +65,7 @@ npm run analyze-code    # Run all code analysis
 ## Current Development Focus
 
 **Latest Updates (Aug 7, 2025):**
+
 - ✅ Fixed Issues #58 & #59 (Lichess PGN URLs, Tablebase DTM sorting)
 - ✅ Created LLM-optimized refactoring issues (#62-#65)
 - ✅ All 721+ tests passing
@@ -109,6 +123,7 @@ npm run analyze-code    # Run all code analysis
 ### Technical Debt Status
 
 **Completed:**
+
 - ✅ **Store Refactoring**: Monolithic store.ts (1,298 lines) → domain slices
 - ✅ **Type Safety**: All TypeScript errors resolved (0 compilation errors)
 - ✅ **Test Coverage**: All 721+ tests passing
@@ -118,9 +133,10 @@ npm run analyze-code    # Run all code analysis
 - ✅ **Issue Fixes**: #58 (Lichess PGN), #59 (DTM sorting)
 
 **Pending Refactoring (Issues Created):**
+
 - 📋 **#62**: TablebaseService (646 lines → 6 focused classes)
 - 📋 **#63**: Move Validation Extraction
-- 📋 **#64**: Move Quality Evaluation Extraction  
+- 📋 **#64**: Move Quality Evaluation Extraction
 - 📋 **#65**: Opponent Turn Handling Extraction
 - [ ] **handlePlayerMove**: 533 lines orchestrator needs decomposition
 - [ ] **Global window variables**: Used for opponent turn cancellation

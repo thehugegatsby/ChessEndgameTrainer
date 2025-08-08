@@ -21,11 +21,7 @@
  * training system, coordinating between multiple services and state slices.
  */
 
-// CRITICAL DEBUG: Test if TrainingBoard is loading
-console.log(
-  "🎯 CLIENT-SIDE: TrainingBoard module is loading!",
-  new Date().toISOString(),
-);
+// Module loading confirmed - debug logging removed for production
 
 import React, {
   useEffect,
@@ -876,10 +872,20 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         return false;
       }
 
-      const move = {
+      // Check if this is a pawn promotion
+      const isPawn = _piece.toLowerCase().endsWith("p");
+      const targetRank = targetSquare[1];
+      const isPromotionRank = targetRank === "8" || targetRank === "1";
+
+      const move: any = {
         from: sourceSquare,
         to: targetSquare,
       };
+
+      // Add promotion if pawn reaches last rank
+      if (isPawn && isPromotionRank) {
+        move.promotion = "q"; // Default to queen promotion
+      }
 
       logger.debug("✅ onDrop calling handleMove", { move });
       handleMove(move);

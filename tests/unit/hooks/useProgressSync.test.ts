@@ -3,10 +3,10 @@
  * @description Tests debounced sync, optimistic updates, retry logic, and offline handling
  */
 
-import { renderHook, act, waitFor } from '@testing-library/react';
-import { useProgressSync } from '@shared/hooks/useProgressSync';
-import { ProgressService } from '@shared/services/ProgressService';
-import type { UserStats, CardProgress } from '@shared/store/slices/types';
+import { renderHook, act, waitFor } from "@testing-library/react";
+import { useProgressSync } from "@shared/hooks/useProgressSync";
+import { ProgressService } from "@shared/services/ProgressService";
+import type { UserStats, CardProgress } from "@shared/store/slices/types";
 
 // Mock progress actions
 const mockProgressActions = {
@@ -16,12 +16,15 @@ const mockProgressActions = {
   setSyncError: jest.fn(),
 };
 
-jest.mock('@shared/store/hooks/useProgressStore', () => ({
+jest.mock("@shared/store/hooks/useProgressStore", () => ({
+  /**
+   *
+   */
   useProgressActions: () => mockProgressActions,
 }));
 
 // Mock logger
-jest.mock('@shared/services/logging/Logger', () => {
+jest.mock("@shared/services/logging/Logger", () => {
   const mockLogger = {
     debug: jest.fn(),
     info: jest.fn(),
@@ -30,7 +33,13 @@ jest.mock('@shared/services/logging/Logger', () => {
   };
 
   return {
+    /**
+     *
+     */
     getLogger: () => ({
+      /**
+       *
+       */
       setContext: () => mockLogger,
     }),
   };
@@ -41,27 +50,48 @@ const mockLocalStorage = (() => {
   let store: Record<string, string> = {};
 
   return {
+    /**
+     *
+     * @param key
+     */
     getItem: (key: string) => store[key] || null,
+    /**
+     *
+     * @param key
+     * @param value
+     */
     setItem: (key: string, value: string) => {
       store[key] = value;
     },
+    /**
+     *
+     * @param key
+     */
     removeItem: (key: string) => {
       delete store[key];
     },
+    /**
+     *
+     */
     clear: () => {
       store = {};
     },
   };
 })();
 
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(window, "localStorage", {
   value: mockLocalStorage,
 });
 
 // Mock window online/offline events
 const mockWindowEventListeners: { [key: string]: EventListener[] } = {};
 
-Object.defineProperty(window, 'addEventListener', {
+Object.defineProperty(window, "addEventListener", {
+  /**
+   *
+   * @param event
+   * @param listener
+   */
   value: (event: string, listener: EventListener) => {
     if (!mockWindowEventListeners[event]) {
       mockWindowEventListeners[event] = [];
@@ -70,7 +100,12 @@ Object.defineProperty(window, 'addEventListener', {
   },
 });
 
-Object.defineProperty(window, 'removeEventListener', {
+Object.defineProperty(window, "removeEventListener", {
+  /**
+   *
+   * @param event
+   * @param listener
+   */
   value: (event: string, listener: EventListener) => {
     if (mockWindowEventListeners[event]) {
       const index = mockWindowEventListeners[event].indexOf(listener);
@@ -81,42 +116,59 @@ Object.defineProperty(window, 'removeEventListener', {
   },
 });
 
+/**
+ *
+ */
 const triggerOnlineEvent = () => {
   // Mock navigator.onLine
-  Object.defineProperty(navigator, 'onLine', {
+  Object.defineProperty(navigator, "onLine", {
     writable: true,
     value: true,
   });
-  
-  mockWindowEventListeners['online']?.forEach(listener => 
-    listener(new Event('online'))
+
+  mockWindowEventListeners["online"]?.forEach((listener) =>
+    listener(new Event("online")),
   );
 };
 
+/**
+ *
+ */
 const triggerOfflineEvent = () => {
   // Mock navigator.onLine
-  Object.defineProperty(navigator, 'onLine', {
+  Object.defineProperty(navigator, "onLine", {
     writable: true,
     value: false,
   });
-  
-  mockWindowEventListeners['offline']?.forEach(listener => 
-    listener(new Event('offline'))
+
+  mockWindowEventListeners["offline"]?.forEach((listener) =>
+    listener(new Event("offline")),
   );
 };
 
 // Test helpers
-const createMockProgressService = (): jest.Mocked<ProgressService> => ({
-  updateUserStats: jest.fn().mockResolvedValue(undefined),
-  upsertCardProgress: jest.fn().mockResolvedValue(undefined),
-  updateProgressTransaction: jest.fn().mockResolvedValue(undefined),
-} as any);
+/**
+ *
+ */
+const createMockProgressService = (): jest.Mocked<ProgressService> =>
+  ({
+    updateUserStats: jest.fn().mockResolvedValue(undefined),
+    upsertCardProgress: jest.fn().mockResolvedValue(undefined),
+    updateProgressTransaction: jest.fn().mockResolvedValue(undefined),
+  }) as any;
 
+/**
+ *
+ */
 const createTestUserStats = (): Partial<UserStats> => ({
   totalPositionsCompleted: 10,
   overallSuccessRate: 0.85,
 });
 
+/**
+ *
+ * @param id
+ */
 const createTestCardProgress = (id: string): CardProgress => ({
   id,
   nextReviewAt: Date.now() + 86400000, // 24 hours from now
@@ -127,40 +179,44 @@ const createTestCardProgress = (id: string): CardProgress => ({
   lapses: 0,
 });
 
-describe('useProgressSync', () => {
-  const userId = 'test-user-123';
+describe("useProgressSync", () => {
+  const userId = "test-user-123";
   let mockProgressService: jest.Mocked<ProgressService>;
-  
+
   beforeEach(() => {
     mockProgressService = createMockProgressService();
     jest.clearAllMocks();
     mockLocalStorage.clear();
-    
+
     // Clear all window event listeners
-    Object.keys(mockWindowEventListeners).forEach(key => {
+    Object.keys(mockWindowEventListeners).forEach((key) => {
       mockWindowEventListeners[key] = [];
     });
-    
+
     // Reset navigator.onLine to true
-    Object.defineProperty(navigator, 'onLine', {
+    Object.defineProperty(navigator, "onLine", {
       writable: true,
       value: true,
     });
-    
+
     // Reset timers
     jest.clearAllTimers();
     jest.useFakeTimers();
   });
-  
-  afterEach(() => {
-    jest.runOnlyPendingTimers();
+
+  afterEach(async () => {
+    // Properly clean up timers and wait for any pending state updates
+    await act(async () => {
+      jest.runOnlyPendingTimers();
+    });
+    jest.clearAllTimers();
     jest.useRealTimers();
   });
 
-  describe('Basic sync operations', () => {
-    it('should sync user stats with optimistic updates', async () => {
-      const { result } = renderHook(() => 
-        useProgressSync(userId, mockProgressService)
+  describe("Basic sync operations", () => {
+    it("should sync user stats with optimistic updates", async () => {
+      const { result } = renderHook(() =>
+        useProgressSync(userId, mockProgressService),
       );
 
       const statsUpdate = createTestUserStats();
@@ -178,59 +234,59 @@ describe('useProgressSync', () => {
       expect(result.current.syncStatus.pendingCount).toBe(1);
       expect(result.current.syncStatus.isDebounced).toBe(true);
 
-      // Fast-forward debounce timer
-      act(() => {
+      // Fast-forward debounce timer and wait for async operations
+      await act(async () => {
         jest.advanceTimersByTime(2000);
       });
 
       await waitFor(() => {
         expect(mockProgressService.updateUserStats).toHaveBeenCalledWith(
           userId,
-          statsUpdate
+          statsUpdate,
         );
       });
     });
 
-    it('should sync card progress with optimistic updates', async () => {
-      const { result } = renderHook(() => 
-        useProgressSync(userId, mockProgressService)
+    it("should sync card progress with optimistic updates", async () => {
+      const { result } = renderHook(() =>
+        useProgressSync(userId, mockProgressService),
       );
 
-      const cardProgress = createTestCardProgress('test-card-1');
+      const cardProgress = createTestCardProgress("test-card-1");
 
       act(() => {
-        result.current.syncCardProgress('test-card-1', cardProgress);
+        result.current.syncCardProgress("test-card-1", cardProgress);
       });
 
       // Should perform optimistic update immediately
       expect(mockProgressActions.setCardProgress).toHaveBeenCalledWith(
-        'test-card-1',
-        cardProgress
+        "test-card-1",
+        cardProgress,
       );
 
-      // Fast-forward debounce timer
-      act(() => {
+      // Fast-forward debounce timer and wait for async operations
+      await act(async () => {
         jest.advanceTimersByTime(2000);
       });
 
       await waitFor(() => {
         expect(mockProgressService.upsertCardProgress).toHaveBeenCalledWith(
           userId,
-          'test-card-1',
-          cardProgress
+          "test-card-1",
+          cardProgress,
         );
       });
     });
 
-    it('should handle batch sync operations', async () => {
-      const { result } = renderHook(() => 
-        useProgressSync(userId, mockProgressService)
+    it("should handle batch sync operations", async () => {
+      const { result } = renderHook(() =>
+        useProgressSync(userId, mockProgressService),
       );
 
       const statsUpdate = createTestUserStats();
       const cardUpdates = [
-        { positionId: 'card-1', progress: createTestCardProgress('card-1') },
-        { positionId: 'card-2', progress: createTestCardProgress('card-2') },
+        { positionId: "card-1", progress: createTestCardProgress("card-1") },
+        { positionId: "card-2", progress: createTestCardProgress("card-2") },
       ];
 
       act(() => {
@@ -243,36 +299,34 @@ describe('useProgressSync', () => {
       });
       expect(mockProgressActions.batchUpdateProgress).toHaveBeenCalledWith({
         cardProgress: {
-          'card-1': cardUpdates[0].progress,
-          'card-2': cardUpdates[1].progress,
+          "card-1": cardUpdates[0].progress,
+          "card-2": cardUpdates[1].progress,
         },
       });
 
-      // Fast-forward debounce timer
-      act(() => {
+      // Fast-forward debounce timer and wait for async operations
+      await act(async () => {
         jest.advanceTimersByTime(2000);
       });
 
       await waitFor(() => {
-        expect(mockProgressService.updateProgressTransaction).toHaveBeenCalledWith(
-          userId,
-          statsUpdate,
-          cardUpdates
-        );
+        expect(
+          mockProgressService.updateProgressTransaction,
+        ).toHaveBeenCalledWith(userId, statsUpdate, cardUpdates);
       });
     });
   });
 
-  describe('Error handling and retry logic', () => {
-    it.skip('should retry failed operations with exponential backoff', async () => {
-      const { result } = renderHook(() => 
-        useProgressSync(userId, mockProgressService, { maxRetries: 2 })
+  describe("Error handling and retry logic", () => {
+    it.skip("should retry failed operations with exponential backoff", async () => {
+      const { result } = renderHook(() =>
+        useProgressSync(userId, mockProgressService, { maxRetries: 2 }),
       );
 
       // Make service fail initially
       mockProgressService.updateUserStats
-        .mockRejectedValueOnce(new Error('Network error'))
-        .mockRejectedValueOnce(new Error('Network error'))
+        .mockRejectedValueOnce(new Error("Network error"))
+        .mockRejectedValueOnce(new Error("Network error"))
         .mockResolvedValueOnce(undefined);
 
       const statsUpdate = createTestUserStats();
@@ -288,7 +342,7 @@ describe('useProgressSync', () => {
 
       await waitFor(() => {
         expect(mockProgressService.updateUserStats).toHaveBeenCalledTimes(1);
-        expect(result.current.syncStatus.status).toBe('error');
+        expect(result.current.syncStatus.status).toBe("error");
       });
 
       expect(result.current.syncStatus.pendingCount).toBe(1);
@@ -312,17 +366,19 @@ describe('useProgressSync', () => {
       });
 
       // Should eventually succeed
-      expect(result.current.syncStatus.status).toBe('idle');
+      expect(result.current.syncStatus.status).toBe("idle");
       expect(result.current.syncStatus.pendingCount).toBe(0);
     });
 
-    it.skip('should give up after max retries', async () => {
-      const { result } = renderHook(() => 
-        useProgressSync(userId, mockProgressService, { maxRetries: 1 })
+    it.skip("should give up after max retries", async () => {
+      const { result } = renderHook(() =>
+        useProgressSync(userId, mockProgressService, { maxRetries: 1 }),
       );
 
       // Make service always fail
-      mockProgressService.updateUserStats.mockRejectedValue(new Error('Permanent error'));
+      mockProgressService.updateUserStats.mockRejectedValue(
+        new Error("Permanent error"),
+      );
 
       const statsUpdate = createTestUserStats();
 
@@ -344,21 +400,26 @@ describe('useProgressSync', () => {
         jest.advanceTimersByTime(3000); // 1000ms retry delay + 2000ms debounce
       });
 
-      await waitFor(() => {
-        expect(mockProgressService.updateUserStats).toHaveBeenCalledTimes(2);
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(mockProgressService.updateUserStats).toHaveBeenCalledTimes(2);
+        },
+        { timeout: 3000 },
+      );
 
       // Should give up and remove from queue
-      expect(result.current.syncStatus.status).toBe('error');
+      expect(result.current.syncStatus.status).toBe("error");
       expect(result.current.syncStatus.pendingCount).toBe(0);
-      expect(mockProgressActions.setSyncError).toHaveBeenCalledWith('Permanent error');
+      expect(mockProgressActions.setSyncError).toHaveBeenCalledWith(
+        "Permanent error",
+      );
     });
   });
 
-  describe('Offline/Online handling', () => {
-    it('should queue operations while offline', async () => {
-      const { result } = renderHook(() => 
-        useProgressSync(userId, mockProgressService)
+  describe("Offline/Online handling", () => {
+    it("should queue operations while offline", async () => {
+      const { result } = renderHook(() =>
+        useProgressSync(userId, mockProgressService),
       );
 
       // Trigger offline event
@@ -366,7 +427,7 @@ describe('useProgressSync', () => {
         triggerOfflineEvent();
       });
 
-      expect(result.current.syncStatus.status).toBe('offline');
+      expect(result.current.syncStatus.status).toBe("offline");
 
       // Queue operations while offline
       const statsUpdate = createTestUserStats();
@@ -377,16 +438,16 @@ describe('useProgressSync', () => {
       expect(result.current.syncStatus.pendingCount).toBe(1);
 
       // Service should not be called while offline
-      act(() => {
+      await act(async () => {
         jest.advanceTimersByTime(2000);
       });
 
       expect(mockProgressService.updateUserStats).not.toHaveBeenCalled();
     });
 
-    it('should process queue when coming back online', async () => {
-      const { result } = renderHook(() => 
-        useProgressSync(userId, mockProgressService)
+    it("should process queue when coming back online", async () => {
+      const { result } = renderHook(() =>
+        useProgressSync(userId, mockProgressService),
       );
 
       // Go offline and queue operations
@@ -406,26 +467,26 @@ describe('useProgressSync', () => {
         triggerOnlineEvent();
       });
 
-      expect(result.current.syncStatus.status).toBe('idle');
+      expect(result.current.syncStatus.status).toBe("idle");
 
       // Should process queued operations
-      act(() => {
+      await act(async () => {
         jest.advanceTimersByTime(2000);
       });
 
       await waitFor(() => {
         expect(mockProgressService.updateUserStats).toHaveBeenCalledWith(
           userId,
-          statsUpdate
+          statsUpdate,
         );
       });
     });
   });
 
-  describe('Queue management', () => {
-    it('should persist queue to localStorage', () => {
-      const { result } = renderHook(() => 
-        useProgressSync(userId, mockProgressService)
+  describe("Queue management", () => {
+    it("should persist queue to localStorage", () => {
+      const { result } = renderHook(() =>
+        useProgressSync(userId, mockProgressService),
       );
 
       const statsUpdate = createTestUserStats();
@@ -436,38 +497,43 @@ describe('useProgressSync', () => {
       // Should save to localStorage
       const savedQueue = mockLocalStorage.getItem(`syncQueue-${userId}`);
       expect(savedQueue).toBeTruthy();
-      
+
       const parsedQueue = JSON.parse(savedQueue!);
       expect(parsedQueue).toHaveLength(1);
-      expect(parsedQueue[0].operation.type).toBe('userStats');
+      expect(parsedQueue[0].operation.type).toBe("userStats");
     });
 
-    it('should restore queue from localStorage on mount', () => {
+    it("should restore queue from localStorage on mount", () => {
       // Pre-populate localStorage
-      const queueData = [{
-        id: 'test-id',
-        operation: {
-          type: 'userStats',
-          userId,
-          updates: createTestUserStats(),
+      const queueData = [
+        {
+          id: "test-id",
+          operation: {
+            type: "userStats",
+            userId,
+            updates: createTestUserStats(),
+          },
+          timestamp: Date.now(),
+          retries: 0,
+          lastAttempt: null,
         },
-        timestamp: Date.now(),
-        retries: 0,
-        lastAttempt: null,
-      }];
-      
-      mockLocalStorage.setItem(`syncQueue-${userId}`, JSON.stringify(queueData));
+      ];
 
-      const { result } = renderHook(() => 
-        useProgressSync(userId, mockProgressService)
+      mockLocalStorage.setItem(
+        `syncQueue-${userId}`,
+        JSON.stringify(queueData),
+      );
+
+      const { result } = renderHook(() =>
+        useProgressSync(userId, mockProgressService),
       );
 
       expect(result.current.syncStatus.pendingCount).toBe(1);
     });
 
-    it('should enforce queue size limit', () => {
-      const { result } = renderHook(() => 
-        useProgressSync(userId, mockProgressService)
+    it("should enforce queue size limit", () => {
+      const { result } = renderHook(() =>
+        useProgressSync(userId, mockProgressService),
       );
 
       // Fill queue beyond limit (MAX_QUEUE_SIZE = 100)
@@ -481,15 +547,18 @@ describe('useProgressSync', () => {
       expect(result.current.syncStatus.pendingCount).toBeLessThanOrEqual(100);
     });
 
-    it('should clear queue on demand', () => {
-      const { result } = renderHook(() => 
-        useProgressSync(userId, mockProgressService)
+    it("should clear queue on demand", () => {
+      const { result } = renderHook(() =>
+        useProgressSync(userId, mockProgressService),
       );
 
       // Queue some operations
       act(() => {
         result.current.syncUserStats(createTestUserStats());
-        result.current.syncCardProgress('test-card', createTestCardProgress('test-card'));
+        result.current.syncCardProgress(
+          "test-card",
+          createTestCardProgress("test-card"),
+        );
       });
 
       expect(result.current.syncStatus.pendingCount).toBe(2);
@@ -500,23 +569,23 @@ describe('useProgressSync', () => {
       });
 
       expect(result.current.syncStatus.pendingCount).toBe(0);
-      expect(result.current.syncStatus.status).toBe('idle');
+      expect(result.current.syncStatus.status).toBe("idle");
     });
   });
 
-  describe('Batch splitting', () => {
-    it('should split large batches into chunks', async () => {
-      const { result } = renderHook(() => 
-        useProgressSync(userId, mockProgressService, { maxBatchSize: 2 })
+  describe("Batch splitting", () => {
+    it("should split large batches into chunks", async () => {
+      const { result } = renderHook(() =>
+        useProgressSync(userId, mockProgressService, { maxBatchSize: 2 }),
       );
 
       const statsUpdate = createTestUserStats();
       const cardUpdates = [
-        { positionId: 'card-1', progress: createTestCardProgress('card-1') },
-        { positionId: 'card-2', progress: createTestCardProgress('card-2') },
-        { positionId: 'card-3', progress: createTestCardProgress('card-3') },
-        { positionId: 'card-4', progress: createTestCardProgress('card-4') },
-        { positionId: 'card-5', progress: createTestCardProgress('card-5') },
+        { positionId: "card-1", progress: createTestCardProgress("card-1") },
+        { positionId: "card-2", progress: createTestCardProgress("card-2") },
+        { positionId: "card-3", progress: createTestCardProgress("card-3") },
+        { positionId: "card-4", progress: createTestCardProgress("card-4") },
+        { positionId: "card-5", progress: createTestCardProgress("card-5") },
       ];
 
       act(() => {
@@ -526,44 +595,42 @@ describe('useProgressSync', () => {
       // Should split into 3 chunks: [2, 2, 1] cards
       expect(result.current.syncStatus.pendingCount).toBe(3);
 
-      // Fast-forward debounce timer
-      act(() => {
+      // Fast-forward debounce timer and wait for async operations
+      await act(async () => {
         jest.advanceTimersByTime(2000);
       });
 
       await waitFor(() => {
-        expect(mockProgressService.updateProgressTransaction).toHaveBeenCalledTimes(3);
+        expect(
+          mockProgressService.updateProgressTransaction,
+        ).toHaveBeenCalledTimes(3);
       });
 
       // First chunk should include stats update
-      expect(mockProgressService.updateProgressTransaction).toHaveBeenNthCalledWith(
+      expect(
+        mockProgressService.updateProgressTransaction,
+      ).toHaveBeenNthCalledWith(
         1,
         userId,
         statsUpdate,
-        cardUpdates.slice(0, 2)
+        cardUpdates.slice(0, 2),
       );
 
       // Other chunks should have empty stats update
-      expect(mockProgressService.updateProgressTransaction).toHaveBeenNthCalledWith(
-        2,
-        userId,
-        {},
-        cardUpdates.slice(2, 4)
-      );
+      expect(
+        mockProgressService.updateProgressTransaction,
+      ).toHaveBeenNthCalledWith(2, userId, {}, cardUpdates.slice(2, 4));
 
-      expect(mockProgressService.updateProgressTransaction).toHaveBeenNthCalledWith(
-        3,
-        userId,
-        {},
-        cardUpdates.slice(4, 5)
-      );
+      expect(
+        mockProgressService.updateProgressTransaction,
+      ).toHaveBeenNthCalledWith(3, userId, {}, cardUpdates.slice(4, 5));
     });
   });
 
-  describe('Configuration options', () => {
-    it('should respect custom debounce delay', async () => {
-      const { result } = renderHook(() => 
-        useProgressSync(userId, mockProgressService, { debounceMs: 5000 })
+  describe("Configuration options", () => {
+    it("should respect custom debounce delay", async () => {
+      const { result } = renderHook(() =>
+        useProgressSync(userId, mockProgressService, { debounceMs: 5000 }),
       );
 
       act(() => {
@@ -573,14 +640,14 @@ describe('useProgressSync', () => {
       expect(result.current.syncStatus.isDebounced).toBe(true);
 
       // Should not sync before custom debounce time
-      act(() => {
+      await act(async () => {
         jest.advanceTimersByTime(2000);
       });
 
       expect(mockProgressService.updateUserStats).not.toHaveBeenCalled();
 
       // Should sync after custom debounce time
-      act(() => {
+      await act(async () => {
         jest.advanceTimersByTime(3000);
       });
 
@@ -589,9 +656,11 @@ describe('useProgressSync', () => {
       });
     });
 
-    it('should disable optimistic updates when configured', () => {
-      const { result } = renderHook(() => 
-        useProgressSync(userId, mockProgressService, { enableOptimistic: false })
+    it("should disable optimistic updates when configured", () => {
+      const { result } = renderHook(() =>
+        useProgressSync(userId, mockProgressService, {
+          enableOptimistic: false,
+        }),
       );
 
       act(() => {
@@ -603,10 +672,10 @@ describe('useProgressSync', () => {
     });
   });
 
-  describe('Force sync', () => {
-    it('should bypass debounce and sync immediately', async () => {
-      const { result } = renderHook(() => 
-        useProgressSync(userId, mockProgressService)
+  describe("Force sync", () => {
+    it("should bypass debounce and sync immediately", async () => {
+      const { result } = renderHook(() =>
+        useProgressSync(userId, mockProgressService),
       );
 
       act(() => {
@@ -625,43 +694,63 @@ describe('useProgressSync', () => {
     });
   });
 
-  describe('Concurrency protection', () => {
-    it('should prevent concurrent queue processing', async () => {
-      const { result } = renderHook(() => 
-        useProgressSync(userId, mockProgressService)
+  describe("Concurrency protection", () => {
+    it("should prevent concurrent queue processing", async () => {
+      const { result } = renderHook(() =>
+        useProgressSync(userId, mockProgressService),
       );
 
-      // Make the first sync take time
-      mockProgressService.updateUserStats.mockImplementation(
-        () => new Promise(resolve => setTimeout(resolve, 1000))
+      // Make the first sync take time (longer than debounce)
+      let resolveFirst: () => void;
+      mockProgressService.updateUserStats.mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveFirst = resolve;
+          }),
       );
 
+      // Queue first operation
       act(() => {
         result.current.syncUserStats(createTestUserStats());
       });
+
+      expect(result.current.syncStatus.pendingCount).toBe(1);
 
       // Start first sync
-      act(() => {
+      await act(async () => {
         jest.advanceTimersByTime(2000);
       });
 
-      // Try to start second sync while first is in progress
+      // First sync should have started
+      expect(mockProgressService.updateUserStats).toHaveBeenCalledTimes(1);
+
+      // Queue second operation while first is still processing
       act(() => {
         result.current.syncUserStats(createTestUserStats());
+      });
+
+      // Both operations should be in the queue
+      expect(result.current.syncStatus.pendingCount).toBe(2);
+
+      // Try to trigger processing again (should be blocked because first is still processing)
+      await act(async () => {
         jest.advanceTimersByTime(2000);
       });
 
-      // Should only have one sync call despite two triggers
+      // Should still only have one sync call (concurrent processing prevented)
       expect(mockProgressService.updateUserStats).toHaveBeenCalledTimes(1);
-      // The second operation should still be queued
-      expect(result.current.syncStatus.pendingCount).toBe(2);
+
+      // Now resolve the first operation to allow the second to process
+      await act(async () => {
+        resolveFirst!();
+      });
     });
   });
 
-  describe('Edge cases', () => {
-    it('should handle sync without userId gracefully', () => {
-      const { result } = renderHook(() => 
-        useProgressSync(null, mockProgressService)
+  describe("Edge cases", () => {
+    it("should handle sync without userId gracefully", () => {
+      const { result } = renderHook(() =>
+        useProgressSync(null, mockProgressService),
       );
 
       act(() => {
@@ -672,15 +761,15 @@ describe('useProgressSync', () => {
       expect(result.current.syncStatus.pendingCount).toBe(0);
     });
 
-    it('should handle localStorage errors gracefully', () => {
+    it("should handle localStorage errors gracefully", () => {
       // Mock localStorage to throw error
       const originalSetItem = mockLocalStorage.setItem;
       mockLocalStorage.setItem = jest.fn(() => {
-        throw new Error('Storage quota exceeded');
+        throw new Error("Storage quota exceeded");
       });
 
-      const { result } = renderHook(() => 
-        useProgressSync(userId, mockProgressService)
+      const { result } = renderHook(() =>
+        useProgressSync(userId, mockProgressService),
       );
 
       act(() => {
