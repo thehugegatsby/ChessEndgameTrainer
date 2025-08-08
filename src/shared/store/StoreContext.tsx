@@ -110,6 +110,14 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({
 
   if (!storeRef.current) {
     storeRef.current = createStore(initialState);
+    
+    // Expose store globally for E2E tests (deterministic waiting)
+    // Only in test environments to enable state-based waiting
+    if (typeof window !== 'undefined' && 
+        (process.env.NEXT_PUBLIC_IS_E2E_TEST === 'true' || 
+         process.env.NODE_ENV === 'test')) {
+      (window as any).__e2e_store = storeRef.current;
+    }
   }
 
   return (

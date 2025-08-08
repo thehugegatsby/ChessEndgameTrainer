@@ -30,7 +30,13 @@ export class ChessboardPage {
     await this.page.waitForFunction(
       () => {
         // Check if store indicates tablebase is ready
-        const state = (window as any).store?.getState?.();
+        // Using __e2e_store exposed by StoreContext for E2E tests
+        const store = (window as any).__e2e_store;
+        if (!store) {
+          console.warn('E2E Store not available - waiting for initialization');
+          return false;
+        }
+        const state = store.getState?.();
         return state?.tablebase?.analysisStatus !== 'loading';
       },
       { timeout: 15000 }
@@ -48,7 +54,9 @@ export class ChessboardPage {
     
     await this.page.waitForFunction(
       () => {
-        const state = (window as any).store?.getState?.();
+        const store = (window as any).__e2e_store;
+        if (!store) return false;
+        const state = store.getState?.();
         // Wait for move to be processed and tablebase analysis complete
         return state?.tablebase?.analysisStatus !== 'loading' && 
                !state?.game?.isProcessingMove;
@@ -96,7 +104,9 @@ export class ChessboardPage {
     
     await this.page.waitForFunction(
       () => {
-        const state = (window as any).store?.getState?.();
+        const store = (window as any).__e2e_store;
+        if (!store) return false;
+        const state = store.getState?.();
         return state?.training?.isGameOver || 
                state?.training?.isSuccess ||
                state?.training?.gameResult;
@@ -129,7 +139,9 @@ export class ChessboardPage {
    */
   async getCurrentFEN(): Promise<string> {
     const fen = await this.page.evaluate(() => {
-      const state = (window as any).store?.getState?.();
+      const store = (window as any).__e2e_store;
+      if (!store) throw new Error("E2E Store not available");
+      const state = store.getState?.();
       return state?.game?.currentPosition;
     });
     
@@ -149,7 +161,9 @@ export class ChessboardPage {
     
     await this.page.waitForFunction(
       (fen) => {
-        const state = (window as any).store?.getState?.();
+        const store = (window as any).__e2e_store;
+        if (!store) return false;
+        const state = store.getState?.();
         return state?.game?.currentPosition === fen;
       },
       expectedFEN,
@@ -168,7 +182,9 @@ export class ChessboardPage {
     
     await this.page.waitForFunction(
       () => {
-        const state = (window as any).store?.getState?.();
+        const store = (window as any).__e2e_store;
+        if (!store) return false;
+        const state = store.getState?.();
         return state?.tablebase?.evaluation?.isAvailable === true;
       },
       { timeout: 15000 }
@@ -183,7 +199,9 @@ export class ChessboardPage {
    */
   async getMoveCount(): Promise<number> {
     return await this.page.evaluate(() => {
-      const state = (window as any).store?.getState?.();
+      const store = (window as any).__e2e_store;
+      if (!store) return 0;
+      const state = store.getState?.();
       return state?.game?.moveHistory?.length || 0;
     });
   }
@@ -194,7 +212,9 @@ export class ChessboardPage {
    */
   async isPlayerTurn(): Promise<boolean> {
     return await this.page.evaluate(() => {
-      const state = (window as any).store?.getState?.();
+      const store = (window as any).__e2e_store;
+      if (!store) return false;
+      const state = store.getState?.();
       return state?.game?.isPlayerTurn === true;
     });
   }
