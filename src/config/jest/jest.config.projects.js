@@ -75,10 +75,15 @@ module.exports = {
         '<rootDir>/src/tests/**/app/**/*.{test,spec}.[jt]s?(x)',
         // React hooks that use DOM
         '<rootDir>/src/tests/**/hooks/**/*.{test,spec}.[jt]s?(x)',
-        // Integration tests often need DOM
+        // Integration tests often need DOM (but NOT firebase ones)
         '<rootDir>/src/tests/integration/**/*.{test,spec}.[jt]s?(x)',
         // Platform service needs DOM
         '<rootDir>/src/tests/unit/services/platform/WebPlatformService.test.ts'
+      ],
+      // Firebase-Tests explizit aus diesem Projekt ausschließen
+      testPathIgnorePatterns: [
+        ...baseConfig.testPathIgnorePatterns,
+        '<rootDir>/src/tests/integration/firebase/'
       ]
     },
     {
@@ -107,6 +112,18 @@ module.exports = {
         // Exclude WebPlatformService from node tests  
         '.*/WebPlatformService\\.test\\.ts$'
       ]
+    },
+    // Dediziertes Projekt für Firebase-Integrationstests
+    {
+      ...baseConfig,
+      rootDir: projectRoot,
+      displayName: 'firebase',
+      testEnvironment: 'node', // Firebase-Tests laufen in Node
+      testMatch: [
+        '<rootDir>/src/tests/integration/firebase/**/*.{test,spec}.[jt]s?(x)'
+      ],
+      // Override base timeout for long-running emulator tests
+      testTimeout: 60000
     }
   ],
   // Global performance optimizations
