@@ -326,4 +326,105 @@ describe("ChessService Integration Tests", () => {
       }
     });
   });
+
+  describe("Navigation Integration - Issue #86", () => {
+    it("should handle real navigation with actual chess moves", () => {
+      // Make a real opening sequence
+      chessService.move({ from: "e2", to: "e4" });
+      chessService.move({ from: "e7", to: "e5" });
+      chessService.move({ from: "g1", to: "f3" });
+
+      expect(chessService.getCurrentMoveIndex()).toBe(2);
+      expect(chessService.getMoveHistory()).toHaveLength(3);
+
+      // Undo to middle of sequence
+      expect(chessService.undo()).toBe(true);
+      expect(chessService.getCurrentMoveIndex()).toBe(1);
+
+      // Make different move (history truncation) - it's white's turn after undoing Nf3
+      const differentMove = chessService.move({ from: "f1", to: "c4" }); // Bc4 instead of Nf3
+      expect(differentMove).not.toBeNull();
+      expect(chessService.getCurrentMoveIndex()).toBe(2);
+      expect(chessService.getMoveHistory()).toHaveLength(3); // e4, e5, Bc4
+
+      // Navigate to start
+      expect(chessService.goToMove(-1)).toBe(true);
+      expect(chessService.getCurrentMoveIndex()).toBe(-1);
+      expect(chessService.getFen()).toBe(StandardPositions.STARTING);
+
+      // Navigate to middle
+      expect(chessService.goToMove(1)).toBe(true);
+      expect(chessService.getCurrentMoveIndex()).toBe(1);
+      expect(chessService.getFen()).toBe(StandardPositions.AFTER_E4_E5);
+    });
+
+    it("should maintain FEN accuracy throughout navigation", () => {
+      // Create a specific position sequence
+      const moves = [
+        { from: "e2", to: "e4" },
+        { from: "e7", to: "e5" },
+        { from: "g1", to: "f3" },
+        { from: "b8", to: "c6" },
+      ];
+
+      // Capture FENs at each step
+      const fenHistory: string[] = [chessService.getFen()]; // Starting position
+
+      moves.forEach((move) => {
+        chessService.move(move);
+        fenHistory.push(chessService.getFen());
+      });
+
+      // Navigate backwards and verify each FEN matches
+      for (let i = moves.length - 1; i >= -1; i--) {
+        expect(chessService.goToMove(i)).toBe(true);
+        expect(chessService.getCurrentMoveIndex()).toBe(i);
+        expect(chessService.getFen()).toBe(fenHistory[i + 1]); // +1 because fenHistory includes starting pos
+      }
+
+      // Navigate forwards and verify again
+      for (let i = 0; i < moves.length; i++) {
+        expect(chessService.goToMove(i)).toBe(true);
+        expect(chessService.getCurrentMoveIndex()).toBe(i);
+        expect(chessService.getFen()).toBe(fenHistory[i + 1]);
+      }
+    });
+
+    it("should handle reset to custom starting position", () => {
+      // Initialize with KPK endgame
+      chessService.initialize(EndgamePositions.KPK_WIN);
+      const initialFen = chessService.getFen();
+
+      // Make some moves
+      chessService.move({ from: "a8", to: "b8" });
+      chessService.move({ from: "a6", to: "a5" });
+
+      expect(chessService.getCurrentMoveIndex()).toBe(1);
+      expect(chessService.getMoveHistory()).toHaveLength(2);
+
+      // Reset should go back to KPK position, not default starting position
+      chessService.reset();
+
+      expect(chessService.getCurrentMoveIndex()).toBe(-1);
+      expect(chessService.getMoveHistory()).toHaveLength(0);
+      expect(chessService.getFen()).toBe(initialFen);
+    });
+
+    it("should handle navigation error boundaries with real positions", () => {
+      // Make 2 moves
+      chessService.move({ from: "e2", to: "e4" });
+      chessService.move({ from: "e7", to: "e5" });
+
+      // Test invalid indices
+      expect(chessService.goToMove(-2)).toBe(false);
+      expect(chessService.goToMove(5)).toBe(false);
+
+      // Valid indices should still work
+      expect(chessService.goToMove(0)).toBe(true);
+      expect(chessService.getCurrentMoveIndex()).toBe(0);
+
+      expect(chessService.goToMove(-1)).toBe(true);
+      expect(chessService.getCurrentMoveIndex()).toBe(-1);
+    });
+  });
 });

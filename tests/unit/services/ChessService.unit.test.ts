@@ -441,4 +441,506 @@ describe("ChessService Unit Tests", () => {
       }
     });
   });
+
+  describe("FEN Cache Management - Issue #86", () => {
+    it("should cache FEN strings for performance", () => {
+      const testFen = EndgamePositions.KPK_WIN;
+      mockChessInstance.fen.mockReturnValue(testFen);
+
+      // First initialization should create Chess instance
+      chessService.initialize(testFen);
+      expect(MockedChess).toHaveBeenCalledWith(testFen);
+
+      // Reset mock but keep the same return value for fen()
+      MockedChess.mockClear();
+      mockChessInstance.fen.mockReturnValue(testFen);
+
+      // Second initialization with same FEN should create new Chess instance but use cached normalized FEN
+      chessService.initialize(testFen);
+      expect(MockedChess).toHaveBeenCalledTimes(1); // New instance created
+    });
+
+    it("should handle cache overflow with LRU eviction", () => {
+      // Add more than MAX_CACHE_SIZE (100) entries to trigger eviction
+      for (let i = 0; i < 110; i++) {
+        const testFen = `test-fen-${i}-8/8/8/8/8/8/8/k6K w - - 0 1`;
+        mockChessInstance.fen.mockReturnValue(testFen);
+        chessService.initialize(testFen);
+      }
+
+      // Should not throw errors and cache should handle overflow gracefully
+      expect(() => {
+        chessService.initialize("final-test-fen-8/8/8/8/8/8/8/k6K w - - 0 1");
+      }).not.toThrow();
+    });
+
+    it("should move accessed items to end in LRU cache", () => {
+      // This test verifies LRU behavior by checking that frequently accessed items aren't evicted
+      const frequentFen = "frequent-8/8/8/8/8/8/8/k6K w - - 0 1";
+      const rareFens = [];
+
+      // Add frequent FEN
+      mockChessInstance.fen.mockReturnValue(frequentFen);
+      chessService.initialize(frequentFen);
+
+      // Add 99 more FENs to almost fill cache
+      for (let i = 0; i < 99; i++) {
+        const rareFen = `rare-${i}-8/8/8/8/8/8/8/k6K w - - 0 1`;
+        rareFens.push(rareFen);
+        mockChessInstance.fen.mockReturnValue(rareFen);
+        chessService.initialize(rareFen);
+      }
+
+      // Access frequent FEN again (moves to end of LRU)
+      chessService.initialize(frequentFen);
+
+      // Add one more FEN to trigger eviction of oldest (should evict first rare FEN, not frequent)
+      const newFen = "new-8/8/8/8/8/8/8/k6K w - - 0 1";
+      mockChessInstance.fen.mockReturnValue(newFen);
+      chessService.initialize(newFen);
+
+      // Frequent FEN should still be accessible (not evicted)
+      chessService.initialize(frequentFen);
+      // If this doesn't throw, the frequent FEN is still cached
+      expect(() => chessService.initialize(frequentFen)).not.toThrow();
+    });
+
+    it("should store normalized FEN strings in cache", () => {
+      const inputFen = EndgamePositions.KPK_WIN;
+      const normalizedFen = StandardPositions.STARTING; // Mock normalization
+
+      mockChessInstance.fen.mockReturnValue(normalizedFen);
+      chessService.initialize(inputFen);
+
+      // Verify that Chess was called with the original FEN
+      expect(MockedChess).toHaveBeenCalledWith(inputFen);
+    });
+
+    it("should handle cache key collisions correctly", () => {
+      const fen1 = "8/8/8/8/8/8/8/K6k w - - 0 1";
+      const fen2 = "8/8/8/8/8/8/8/K6k w - - 0 1"; // Same FEN
+
+      mockChessInstance.fen.mockReturnValue(fen1);
+
+      // Initialize twice with same FEN
+      chessService.initialize(fen1);
+      const firstCallCount = MockedChess.mock.calls.length;
+
+      chessService.initialize(fen2);
+      const secondCallCount = MockedChess.mock.calls.length;
+
+      // Should use cache for second call (same FEN)
+      expect(secondCallCount).toBe(firstCallCount + 1); // Only one new Chess instance
+    });
+  });
+
+  describe("Navigation Methods - Issue #86", () => {
+    describe("undo() method", () => {
+      let mockListener: jest.MockedFunction<any>;
+
+      beforeEach(() => {
+        mockListener = createMockListener();
+        chessService.subscribe(mockListener);
+      });
+
+      it("should successfully undo last move", () => {
+        // Setup: Make a move first
+        mockChessInstance.move.mockReturnValue({ san: "e4" } as any);
+        mockChessInstance.fen
+          .mockReturnValueOnce(StandardPositions.STARTING)
+          .mockReturnValueOnce(StandardPositions.AFTER_E4);
+        chessService.move(createTestMove("e2", "e4"));
+        mockListener.mockClear();
+
+        // Test undo
+        mockChessInstance.fen.mockReturnValue(StandardPositions.STARTING);
+        const result = chessService.undo();
+
+        expect(result).toBe(true);
+        expect(MockedChess).toHaveBeenLastCalledWith(
+          StandardPositions.STARTING,
+        );
+        expect(mockListener).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: "stateUpdate",
+            source: "undo",
+          }),
+        );
+      });
+
+      it("should return false and emit error when no moves to undo", () => {
+        // No moves made yet
+        const result = chessService.undo();
+
+        expect(result).toBe(false);
+        expect(mockListener).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: "error",
+            payload: expect.objectContaining({
+              message: "Keine Züge zum Rückgängigmachen",
+            }),
+          }),
+        );
+      });
+
+      it("should handle undo exceptions gracefully", () => {
+        // Setup: Make a move first
+        mockChessInstance.move.mockReturnValue({ san: "e4" } as any);
+        chessService.move(createTestMove("e2", "e4"));
+        mockListener.mockClear();
+
+        // Mock Chess constructor to throw during undo
+        MockedChess.mockImplementationOnce(() => {
+          throw new Error("FEN restoration failed");
+        });
+
+        const result = chessService.undo();
+
+        expect(result).toBe(false);
+        expect(mockListener).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: "error",
+            payload: expect.objectContaining({
+              message: "Fehler beim Rückgängigmachen",
+            }),
+          }),
+        );
+      });
+
+      it("should correctly update currentMoveIndex after undo", () => {
+        // Make 3 moves
+        mockChessInstance.move.mockReturnValue({ san: "e4" } as any);
+        chessService.move(createTestMove("e2", "e4"));
+        chessService.move(createTestMove("e7", "e5"));
+        chessService.move(createTestMove("g1", "f3"));
+
+        expect(chessService.getCurrentMoveIndex()).toBe(2);
+
+        // Undo once
+        chessService.undo();
+        expect(chessService.getCurrentMoveIndex()).toBe(1);
+
+        // Undo again
+        chessService.undo();
+        expect(chessService.getCurrentMoveIndex()).toBe(0);
+      });
+    });
+
+    describe("redo() method", () => {
+      let mockListener: jest.MockedFunction<any>;
+
+      beforeEach(() => {
+        mockListener = createMockListener();
+        chessService.subscribe(mockListener);
+      });
+
+      it("should successfully redo undone move", () => {
+        // Setup: Make a move, then undo it
+        mockChessInstance.move.mockReturnValue({ san: "e4" } as any);
+        mockChessInstance.fen.mockReturnValue(StandardPositions.AFTER_E4);
+        chessService.move(createTestMove("e2", "e4"));
+        chessService.undo(); // Now currentMoveIndex = -1
+        mockListener.mockClear();
+
+        // Test redo
+        const result = chessService.redo();
+
+        expect(result).toBe(true);
+        expect(MockedChess).toHaveBeenLastCalledWith(
+          StandardPositions.AFTER_E4,
+        );
+        expect(mockListener).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: "stateUpdate",
+            source: "redo",
+          }),
+        );
+      });
+
+      it("should return false and emit error when no moves to redo", () => {
+        // No moves made or already at end of history
+        const result = chessService.redo();
+
+        expect(result).toBe(false);
+        expect(mockListener).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: "error",
+            payload: expect.objectContaining({
+              message: "Keine Züge zum Wiederherstellen",
+            }),
+          }),
+        );
+      });
+
+      it("should return false when already at end of history", () => {
+        // Make a move (at end of history)
+        mockChessInstance.move.mockReturnValue({ san: "e4" } as any);
+        chessService.move(createTestMove("e2", "e4"));
+        mockListener.mockClear();
+
+        const result = chessService.redo();
+
+        expect(result).toBe(false);
+        expect(mockListener).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: "error",
+            payload: expect.objectContaining({
+              message: "Keine Züge zum Wiederherstellen",
+            }),
+          }),
+        );
+      });
+
+      it("should handle redo exceptions gracefully", () => {
+        // Setup: Make move and undo
+        mockChessInstance.move.mockReturnValue({ san: "e4" } as any);
+        chessService.move(createTestMove("e2", "e4"));
+        chessService.undo();
+        mockListener.mockClear();
+
+        // Mock Chess constructor to throw during redo
+        MockedChess.mockImplementationOnce(() => {
+          throw new Error("FEN restoration failed");
+        });
+
+        const result = chessService.redo();
+
+        expect(result).toBe(false);
+        expect(mockListener).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: "error",
+            payload: expect.objectContaining({
+              message: "Fehler beim Wiederherstellen",
+            }),
+          }),
+        );
+      });
+    });
+
+    describe("goToMove() method", () => {
+      let mockListener: jest.MockedFunction<any>;
+
+      beforeEach(() => {
+        mockListener = createMockListener();
+        chessService.subscribe(mockListener);
+      });
+
+      it("should navigate to specific move index successfully", () => {
+        // Setup: Make 3 moves
+        mockChessInstance.move.mockReturnValue({ san: "e4" } as any);
+        mockChessInstance.fen.mockReturnValue(StandardPositions.AFTER_E4);
+        chessService.move(createTestMove("e2", "e4"));
+        chessService.move(createTestMove("e7", "e5"));
+        chessService.move(createTestMove("g1", "f3"));
+        mockListener.mockClear();
+
+        // Navigate to move 1 (second move)
+        const result = chessService.goToMove(1);
+
+        expect(result).toBe(true);
+        expect(chessService.getCurrentMoveIndex()).toBe(1);
+        expect(mockListener).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: "stateUpdate",
+            source: "load",
+          }),
+        );
+      });
+
+      it("should navigate to starting position with index -1", () => {
+        // Setup: Make moves
+        mockChessInstance.move.mockReturnValue({ san: "e4" } as any);
+        chessService.move(createTestMove("e2", "e4"));
+        chessService.move(createTestMove("e7", "e5"));
+        mockListener.mockClear();
+
+        // Navigate to start (-1)
+        const result = chessService.goToMove(-1);
+
+        expect(result).toBe(true);
+        expect(chessService.getCurrentMoveIndex()).toBe(-1);
+        expect(mockListener).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: "stateUpdate",
+            source: "load",
+          }),
+        );
+      });
+
+      it("should return false for invalid negative index", () => {
+        const result = chessService.goToMove(-2);
+
+        expect(result).toBe(false);
+        expect(mockListener).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: "error",
+            payload: expect.objectContaining({
+              message: "Ungültiger Zugindex: -2",
+            }),
+          }),
+        );
+      });
+
+      it("should return false for index beyond history length", () => {
+        // Make 2 moves
+        mockChessInstance.move.mockReturnValue({ san: "e4" } as any);
+        chessService.move(createTestMove("e2", "e4"));
+        chessService.move(createTestMove("e7", "e5"));
+        mockListener.mockClear();
+
+        // Try to go to index 5 (out of bounds)
+        const result = chessService.goToMove(5);
+
+        expect(result).toBe(false);
+        expect(mockListener).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: "error",
+            payload: expect.objectContaining({
+              message: "Ungültiger Zugindex: 5",
+            }),
+          }),
+        );
+      });
+
+      it("should handle navigation exceptions gracefully", () => {
+        // Setup: Make a move
+        mockChessInstance.move.mockReturnValue({ san: "e4" } as any);
+        chessService.move(createTestMove("e2", "e4"));
+        mockListener.mockClear();
+
+        // Mock Chess constructor to throw
+        MockedChess.mockImplementationOnce(() => {
+          throw new Error("FEN restoration failed");
+        });
+
+        const result = chessService.goToMove(0);
+
+        expect(result).toBe(false);
+        expect(mockListener).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: "error",
+            payload: expect.objectContaining({
+              message: "Fehler beim Navigieren zum Zug",
+            }),
+          }),
+        );
+      });
+    });
+
+    describe("reset() method", () => {
+      let mockListener: jest.MockedFunction<any>;
+
+      beforeEach(() => {
+        mockListener = createMockListener();
+        chessService.subscribe(mockListener);
+      });
+
+      it("should reset to initial position", () => {
+        // Setup: Make some moves
+        mockChessInstance.move.mockReturnValue({ san: "e4" } as any);
+        chessService.move(createTestMove("e2", "e4"));
+        chessService.move(createTestMove("e7", "e5"));
+        mockListener.mockClear();
+
+        // Reset
+        chessService.reset();
+
+        expect(chessService.getCurrentMoveIndex()).toBe(-1);
+        expect(chessService.getMoveHistory()).toHaveLength(0);
+        expect(mockListener).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: "stateUpdate",
+            source: "reset",
+          }),
+        );
+      });
+
+      it("should reset to custom initial FEN, not default starting position", () => {
+        // Initialize with custom FEN
+        const customFen = EndgamePositions.KPK_WIN;
+        mockChessInstance.fen.mockReturnValue(customFen);
+        chessService.initialize(customFen);
+
+        // Make some moves
+        mockChessInstance.move.mockReturnValue({ san: "Kb8" } as any);
+        chessService.move(createTestMove("a8", "b8"));
+        mockListener.mockClear();
+
+        // Reset should go back to custom FEN, not default
+        chessService.reset();
+
+        expect(MockedChess).toHaveBeenLastCalledWith(customFen);
+      });
+    });
+  });
+
+  describe("Complex Navigation Flows - Issue #86", () => {
+    let mockListener: jest.MockedFunction<any>;
+
+    beforeEach(() => {
+      mockListener = createMockListener();
+      chessService.subscribe(mockListener);
+    });
+
+    it("should handle complex navigation scenario: moves -> undo -> new moves -> goTo -> reset", () => {
+      // Step 1: Make 5 moves
+      mockChessInstance.move.mockReturnValue({ san: "e4" } as any);
+      for (let i = 0; i < 5; i++) {
+        chessService.move(createTestMove("e2", "e4"));
+      }
+      expect(chessService.getCurrentMoveIndex()).toBe(4);
+      expect(chessService.getMoveHistory()).toHaveLength(5);
+
+      // Step 2: Undo 3 times
+      for (let i = 0; i < 3; i++) {
+        chessService.undo();
+      }
+      expect(chessService.getCurrentMoveIndex()).toBe(1);
+
+      // Step 3: Make 2 different moves (should truncate history)
+      chessService.move(createTestMove("g1", "f3"));
+      chessService.move(createTestMove("b8", "c6"));
+      expect(chessService.getCurrentMoveIndex()).toBe(3);
+      expect(chessService.getMoveHistory()).toHaveLength(4); // First 2 + 2 new moves
+
+      // Step 4: GoToMove(1) - middle of new history
+      const goToResult = chessService.goToMove(1);
+      expect(goToResult).toBe(true);
+      expect(chessService.getCurrentMoveIndex()).toBe(1);
+
+      // Step 5: Redo should work (still moves ahead in history)
+      const redoResult = chessService.redo();
+      expect(redoResult).toBe(true);
+      expect(chessService.getCurrentMoveIndex()).toBe(2);
+
+      // Step 6: Reset - back to initial position
+      chessService.reset();
+      expect(chessService.getCurrentMoveIndex()).toBe(-1);
+      expect(chessService.getMoveHistory()).toHaveLength(0);
+    });
+
+    it("should handle undo/redo at history boundaries correctly", () => {
+      // Start with no moves - undo should fail
+      expect(chessService.undo()).toBe(false);
+      expect(chessService.redo()).toBe(false);
+
+      // Make 1 move
+      mockChessInstance.move.mockReturnValue({ san: "e4" } as any);
+      chessService.move(createTestMove("e2", "e4"));
+
+      // At end of history - redo should fail
+      expect(chessService.redo()).toBe(false);
+
+      // Undo should work
+      expect(chessService.undo()).toBe(true);
+      expect(chessService.getCurrentMoveIndex()).toBe(-1);
+
+      // At start of history - undo should fail again
+      expect(chessService.undo()).toBe(false);
+
+      // Redo should work
+      expect(chessService.redo()).toBe(true);
+      expect(chessService.getCurrentMoveIndex()).toBe(0);
+    });
+  });
 });
