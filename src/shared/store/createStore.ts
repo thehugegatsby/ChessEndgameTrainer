@@ -48,8 +48,14 @@ const safeStorage: StateStorage = {
 
 // Import all slice creators
 import { createGameSlice } from "./slices/gameSlice";
-import { createTablebaseSlice } from "./slices/tablebaseSlice";
-import { createTrainingSlice } from "./slices/trainingSlice";
+import {
+  createTablebaseState,
+  createTablebaseActions,
+} from "./slices/tablebaseSlice";
+import {
+  createTrainingState,
+  createTrainingActions,
+} from "./slices/trainingSlice";
 import { createProgressSlice } from "./slices/progressSlice";
 import { createUISlice } from "./slices/uiSlice";
 
@@ -108,54 +114,24 @@ export const createStore = (initialState?: Partial<RootState>) => {
     devtools(
       persist(
         immer((set, get, api) => {
-          // Create slices with their actions
+          // Create slices using Slice-in-Slice pattern (clean separation of state and actions)
           const gameSlice = createGameSlice(set, get, api);
-          const trainingSlice = createTrainingSlice(set, get, api);
-          const tablebaseSlice = createTablebaseSlice(set, get, api);
           const progressSlice = createProgressSlice(set, get, api);
           const uiSlice = createUISlice(set, get, api);
 
-          // CRITICAL FIX: Store actions separately to prevent Immer from stripping them
-          // We'll attach them to the root store where they can be accessed directly
-          const trainingActions = {
-            setPosition: trainingSlice.setPosition,
-            setNavigationPositions: trainingSlice.setNavigationPositions,
-            setNavigationLoading: trainingSlice.setNavigationLoading,
-            setNavigationError: trainingSlice.setNavigationError,
-            setChapterProgress: trainingSlice.setChapterProgress,
-            setPlayerTurn: trainingSlice.setPlayerTurn,
-            clearOpponentThinking: trainingSlice.clearOpponentThinking,
-            completeTraining: trainingSlice.completeTraining,
-            incrementHint: trainingSlice.incrementHint,
-            incrementMistake: trainingSlice.incrementMistake,
-            setMoveErrorDialog: trainingSlice.setMoveErrorDialog,
-            setMoveSuccessDialog: trainingSlice.setMoveSuccessDialog,
-            addTrainingMove: trainingSlice.addTrainingMove,
-            resetTraining: trainingSlice.resetTraining,
-            resetPosition: trainingSlice.resetPosition,
-          };
-
-          // CRITICAL FIX: Also store tablebase actions separately
-          const tablebaseActions = {
-            setTablebaseMove: tablebaseSlice.setTablebaseMove,
-            setAnalysisStatus: tablebaseSlice.setAnalysisStatus,
-            addEvaluation: tablebaseSlice.addEvaluation,
-            setEvaluations: tablebaseSlice.setEvaluations,
-            setCurrentEvaluation: tablebaseSlice.setCurrentEvaluation,
-            clearTablebaseState: tablebaseSlice.clearTablebaseState,
-          };
-
           const rootState: RootState = {
-            // Nested state structure - each slice in its namespace
+            // Clean Slice-in-Slice pattern: state and actions preserved at slice level
             game: gameSlice,
-            training: trainingSlice,
-            tablebase: tablebaseSlice,
+            training: {
+              ...createTrainingState(),
+              ...createTrainingActions(set, get),
+            },
+            tablebase: {
+              ...createTablebaseState(),
+              ...createTablebaseActions(set),
+            },
             progress: progressSlice,
             ui: uiSlice,
-
-            // CRITICAL: Store training actions at root level to prevent Immer stripping
-            _trainingActions: trainingActions,
-            _tablebaseActions: tablebaseActions,
 
             // Orchestrator actions - coordinate across multiple slices
             handlePlayerMove: async (

@@ -79,26 +79,24 @@ export const useTablebaseState = (): TablebaseStateType => {
 export const useTablebaseActions = (): TablebaseActionsType => {
   // Non-reactive access to avoid SSR issues
   const storeApi = useStoreApi();
-  const state = storeApi.getState();
-
-  // CRITICAL FIX: Access actions from root level where they're preserved, with fallback
-  const actions = (state as any)._tablebaseActions || state.tablebase;
-
+  
   // Memoize the actions object to ensure stable reference
-  return useMemo(
-    () => ({
-      // Tablebase actions
-      setTablebaseMove: actions?.setTablebaseMove || (() => {}),
-      setAnalysisStatus: actions?.setAnalysisStatus || (() => {}),
-      addEvaluation: actions?.addEvaluation || (() => {}),
-      setEvaluations: actions?.setEvaluations || (() => {}),
-      setCurrentEvaluation: actions?.setCurrentEvaluation || (() => {}),
-      clearTablebaseState: actions?.clearTablebaseState || (() => {}),
+  return useMemo(() => {
+    const state = storeApi.getState();
+    
+    // Clean access: actions are directly available in tablebase slice
+    return {
+      // Tablebase actions - directly from slice (no CRITICAL FIX workaround needed)
+      setTablebaseMove: state.tablebase.setTablebaseMove,
+      setAnalysisStatus: state.tablebase.setAnalysisStatus,
+      addEvaluation: state.tablebase.addEvaluation,
+      setEvaluations: state.tablebase.setEvaluations,
+      setCurrentEvaluation: state.tablebase.setCurrentEvaluation,
+      clearTablebaseState: state.tablebase.clearTablebaseState,
 
       // Note: requestPositionEvaluation removed - use chessService.fetchEvaluation() directly
-    }),
-    [actions],
-  );
+    };
+  }, [storeApi]);
 };
 
 /**

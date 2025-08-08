@@ -24,7 +24,7 @@
  * ```
  */
 
-import { ImmerStateCreator, TrainingSlice } from "./types";
+import { ImmerStateCreator, TrainingSlice, TrainingState, TrainingActions } from "./types";
 import type { EndgamePosition as BaseEndgamePosition } from "@shared/types/endgame";
 import type { ValidatedMove } from "@shared/types/chess";
 import type { MoveSuccessDialog } from "@shared/store/orchestrators/handlePlayerMove/move.types";
@@ -91,44 +91,21 @@ export const initialTrainingState = {
 export const createInitialTrainingState = () => ({ ...initialTrainingState });
 
 /**
- * Creates the training slice for the Zustand store
+ * Creates the training state (data only, no actions)
  *
- * @param {Function} set - Zustand's set function for state updates
- * @param {Function} get - Zustand's get function for accessing current state
- * @returns {TrainingSlice} Complete training slice with state and actions
+ * @returns {TrainingState} Training state properties only
  *
  * @remarks
- * This slice manages training-specific state and provides actions for
- * training flow control. It works closely with the game and tablebase slices
- * through orchestrators for complete training functionality. The slice focuses
- * on training session management while orchestrators handle game coordination.
- *
- * Key concepts:
- * - currentPosition: The active training position with metadata
- * - isPlayerTurn: Controls when user can make moves
- * - hintsUsed/mistakeCount: Track performance metrics
- * - moveErrorDialog: UI state for showing move feedback
+ * This function creates only the state properties for training slice.
+ * Actions are created separately to avoid Immer middleware stripping functions.
  *
  * @example
  * ```typescript
- * // In your root store
- * import { create } from 'zustand';
- * import { createTrainingSlice } from './slices/trainingSlice';
- *
- * const useStore = create<RootState>()((...args) => ({
- *   ...createTrainingSlice(...args),
- *   ...createGameSlice(...args),
- *   // ... other slices
- * }));
+ * const trainingState = createTrainingState();
+ * const trainingActions = createTrainingActions(set, get);
  * ```
  */
-const logger = getLogger().setContext("TrainingSlice");
-
-export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
-  set,
-  get,
-) => ({
-  // Initial state - use fresh arrays for each instance
+export const createTrainingState = (): TrainingState => ({
   currentPosition: undefined as TrainingPosition | undefined,
   nextPosition: undefined as TrainingPosition | null | undefined,
   previousPosition: undefined as TrainingPosition | null | undefined,
@@ -149,8 +126,31 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
     bestMove?: string;
   } | null,
   moveSuccessDialog: null as MoveSuccessDialog | null,
+});
 
-  // Actions
+/**
+ * Creates the training actions (functions only, no state)
+ *
+ * @param {Function} set - Zustand's set function for state updates
+ * @param {Function} get - Zustand's get function for accessing current state
+ * @returns {TrainingActions} Training action functions
+ *
+ * @remarks
+ * This function creates only the action functions for training slice.
+ * Actions are kept separate from state to prevent Immer middleware from stripping them.
+ *
+ * @example
+ * ```typescript
+ * const trainingActions = createTrainingActions(set, get);
+ * ```
+ */
+const logger = getLogger().setContext("TrainingSlice");
+
+export const createTrainingActions = (
+  set: any,
+  get: any,
+): TrainingActions => ({
+
   /**
    * Sets the current training position
    *
@@ -625,6 +625,18 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
         : true;
     });
   },
+});
+
+/**
+ * Legacy slice creator for backwards compatibility
+ * @deprecated Use createTrainingState() and createTrainingActions() separately
+ */
+export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
+  set,
+  get,
+) => ({
+  ...createTrainingState(),
+  ...createTrainingActions(set, get),
 });
 
 /**
