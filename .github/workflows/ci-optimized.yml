@@ -225,6 +225,15 @@ jobs:
       env:
         NEXT_PUBLIC_STOCKFISH_PATH: /stockfish/
 
+    - name: Verify build output
+      run: |
+        if [ ! -d ".next" ] || [ -z "$(ls -A .next)" ]; then
+          echo "Error: Build output directory .next/ is missing or empty."
+          echo "Build command completed but produced no artifacts."
+          exit 1
+        fi
+        echo "✅ Build output verified: .next/ directory contains files"
+
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:

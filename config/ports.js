@@ -21,10 +21,4 @@ const PORTS = {
 };
 
 // Export for Node.js environments (CommonJS)
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { PORTS };
-}
-
-// Export for ES6 environments
-export { PORTS };
-export default PORTS;
+module.exports = { PORTS };
