@@ -46,7 +46,7 @@ import { getLogger } from "@shared/services/logging/Logger";
 import { ANIMATION, DIMENSIONS } from "@shared/constants";
 import { MoveErrorDialog } from "@shared/components/ui/MoveErrorDialog";
 import { MoveSuccessDialog } from "@shared/components/ui/MoveSuccessDialog";
-import { E2ETestHelper } from "@shared/components/testing/E2ETestHelper";
+import { E2ETestHelper } from "../../testing/E2ETestHelper";
 import { toLibraryMove } from "@shared/infrastructure/chess-adapter";
 import {
   cancelScheduledOpponentTurn,
