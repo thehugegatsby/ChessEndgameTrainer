@@ -11,3 +11,9 @@ export { useAnalysisData } from "./useAnalysisData";
 
 // Hydration hook for Zustand v5
 export { useHydration, useStoreHydration } from "./useHydration";
+
+// Component hooks for TrainingBoard refactoring
+export { useMoveHandlers } from "./useMoveHandlers";
+export { useDialogHandlers } from "./useDialogHandlers";
+export { useMoveValidation } from "./useMoveValidation";
+export { useGameNavigation } from "./useGameNavigation";

@@ -255,7 +255,7 @@ export class SequenceRunner {
    * @private
    */
   private async setupTablebaseMock(): Promise<void> {
-    await this.page.route("**/api/tablebase/**", async (route) => {
+    await this.page.route("**/tablebase.lichess.ovh/standard**", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -384,7 +384,8 @@ export class SequenceRunner {
 
     await this.page.waitForFunction(
       ({ message, toastType }) => {
-        const store = (window as any).__zustand_store;
+        // Try both possible store names
+        const store = (window as any).__e2e_store || (window as any).__zustand_store;
         if (!store) return false;
 
         const state = store.getState();
@@ -441,7 +442,7 @@ export class SequenceRunner {
 
     await this.page.waitForFunction(
       ({ modalType, modalOpen }) => {
-        const store = (window as any).__zustand_store;
+        const store = (window as any).__e2e_store || (window as any).__zustand_store;
         if (!store) return false;
 
         const state = store.getState();
@@ -487,7 +488,7 @@ export class SequenceRunner {
 
     await this.page.waitForFunction(
       ({ storePath, expectedValue }) => {
-        const store = (window as any).__zustand_store;
+        const store = (window as any).__e2e_store || (window as any).__zustand_store;
         if (!store) return false;
 
         const state = store.getState();
@@ -524,7 +525,7 @@ export class SequenceRunner {
 
     await this.page.waitForFunction(
       ({ isSuccess, completionStatus }) => {
-        const store = (window as any).__zustand_store;
+        const store = (window as any).__e2e_store || (window as any).__zustand_store;
         if (!store) return false;
 
         const state = store.getState();
@@ -569,7 +570,7 @@ export class SequenceRunner {
 
     await this.page.waitForFunction(
       ({ dialogType, promotionPiece, moveDescription, dialogOpen }) => {
-        const store = (window as any).__zustand_store;
+        const store = (window as any).__e2e_store || (window as any).__zustand_store;
         if (!store) return false;
 
         const state = store.getState();
@@ -630,7 +631,7 @@ export class SequenceRunner {
    */
   async getStoreState(): Promise<any> {
     return await this.page.evaluate(() => {
-      const store = (window as any).__zustand_store;
+      const store = (window as any).__e2e_store || (window as any).__zustand_store;
       return store ? store.getState() : null;
     });
   }

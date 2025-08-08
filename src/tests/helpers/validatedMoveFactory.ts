@@ -30,10 +30,7 @@ import type { ValidatedMove } from "@shared/types/chess";
  * });
  * ```
  */
-export /**
- *
- */
-const createTestValidatedMove = (options: CreateMoveOptions): ValidatedMove => {
+export const createTestValidatedMove = (options: CreateMoveOptions): ValidatedMove => {
   const baseMove = createTestMove(options);
 
   // Single controlled type assertion - this is the only place we "lie" to TypeScript
@@ -44,10 +41,7 @@ const createTestValidatedMove = (options: CreateMoveOptions): ValidatedMove => {
 /**
  * Common validated test moves for reuse across test files
  */
-export /**
- *
- */
-const VALIDATED_TEST_MOVES = {
+export const VALIDATED_TEST_MOVES = {
   E2E4: createTestValidatedMove({
     from: "e2",
     to: "e4",
@@ -88,3 +82,8 @@ const VALIDATED_TEST_MOVES = {
     san: "e8=Q",
   }),
 } as const;
+
+// Legacy export for compatibility - factory object with create method
+export const validatedMoveFactory = {
+  create: createTestValidatedMove,
+};

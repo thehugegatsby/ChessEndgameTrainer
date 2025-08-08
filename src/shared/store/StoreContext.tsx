@@ -44,10 +44,12 @@ import React, {
   createContext,
   useContext,
   useRef,
+  useEffect,
   type ReactNode,
 } from "react";
 import { useStore as useZustandStore } from "zustand";
 import { createStore } from "./createStore";
+import { browserTestApi } from "@shared/services/test/BrowserTestApi";
 import type { RootState } from "./slices/types";
 
 /**
@@ -119,6 +121,45 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({
       (window as any).__e2e_store = storeRef.current;
     }
   }
+
+  // Initialize BrowserTestApi for E2E tests (provides e2e_makeMove, e2e_getGameState)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 
+        (process.env.NEXT_PUBLIC_IS_E2E_TEST === 'true' || 
+         process.env.NODE_ENV === 'test')) {
+      // Get store state to access actions
+      const state = storeRef.current?.getState();
+      
+      // Create storeAccess object with required actions for TestApiService
+      const storeAccess = {
+        getState: () => storeRef.current?.getState(),
+        subscribe: (listener: any) => storeRef.current?.subscribe(listener) || (() => {}),
+        setState: (updater: any) => storeRef.current?.setState(updater),
+        // Extract individual actions from state - these need to be fixed in TestApiService
+        // For now, provide empty functions to avoid runtime errors
+        makeMove: state?.handlePlayerMove || (() => {}),
+        _internalApplyMove: (() => {}), // TO BE REMOVED - see issue #99
+        resetPosition: state?.reset || (() => {}),
+        setPosition: (() => {}), // Not directly available in new architecture
+        goToMove: state?.game?.goToMove || (() => {}),
+        setAnalysisStatus: (() => {}), // Not directly available in new architecture
+      };
+      
+      // Initialize BrowserTestApi which exposes e2e_makeMove to window
+      browserTestApi.initialize(storeAccess).catch((error) => {
+        console.error("Failed to initialize BrowserTestApi:", error);
+      });
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (typeof window !== 'undefined') {
+        browserTestApi.cleanup().catch(() => {
+          // Ignore cleanup errors
+        });
+      }
+    };
+  }, []);
 
   return (
     <StoreContext.Provider value={storeRef.current}>

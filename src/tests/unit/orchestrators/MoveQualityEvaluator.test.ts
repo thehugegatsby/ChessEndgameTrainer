@@ -6,7 +6,7 @@
 import { MoveQualityEvaluator } from "@shared/store/orchestrators/handlePlayerMove/MoveQualityEvaluator";
 import { tablebaseService } from "@shared/services/TablebaseService";
 import { getLogger } from "@shared/services/logging";
-import { validatedMoveFactory } from "@tests/helpers/validatedMoveFactory";
+import { createTestValidatedMove } from "@tests/helpers/validatedMoveFactory";
 
 // Mock dependencies
 jest.mock("@shared/services/TablebaseService", () => ({
@@ -31,7 +31,7 @@ describe("MoveQualityEvaluator", () => {
   // Test data used across multiple test suites
   const fenBefore = "8/8/8/8/8/8/K7/k7 w - - 0 1";
   const fenAfter = "8/8/8/8/8/8/1K6/k7 b - - 1 1";
-  const validatedMove = validatedMoveFactory.create({
+  const validatedMove = createTestValidatedMove({
     san: "Kb2",
     color: "w",
     from: "a2",
@@ -422,7 +422,7 @@ describe("MoveQualityEvaluator", () => {
   describe("WDL perspective conversion", () => {
     it("should handle perspective conversion correctly", async () => {
       // Test case: Black plays, wdlBefore is from black's perspective, wdlAfter is from white's perspective
-      const blackMove = validatedMoveFactory.create({
+      const blackMove = createTestValidatedMove({
         san: "Kd7",
         color: "b",
         from: "d6",

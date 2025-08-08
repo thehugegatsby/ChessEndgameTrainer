@@ -46,6 +46,7 @@ import { getLogger } from "@shared/services/logging/Logger";
 import { ANIMATION, DIMENSIONS } from "@shared/constants";
 import { MoveErrorDialog } from "@shared/components/ui/MoveErrorDialog";
 import { MoveSuccessDialog } from "@shared/components/ui/MoveSuccessDialog";
+import { AlertDisplay } from "@shared/components/ui/AlertDisplay";
 import { DialogManager } from "../DialogManager";
 import { E2ETestHelper } from "../../testing/E2ETestHelper";
 import { toLibraryMove } from "@shared/infrastructure/chess-adapter";
@@ -56,6 +57,8 @@ import {
 import { chessService } from "@shared/services/ChessService";
 import { useMoveHandlers } from "@shared/hooks/useMoveHandlers";
 import { useDialogHandlers } from "@shared/hooks/useDialogHandlers";
+import { useMoveValidation } from "@shared/hooks/useMoveValidation";
+import { useGameNavigation } from "@shared/hooks/useGameNavigation";
 
 /**
  * Extended evaluation data structure for move panel integration
@@ -234,31 +237,15 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     onMove: makeMove,
   });
 
-  // Calculate previous FEN for tablebase move comparison using game state
-  const previousFen = useMemo(() => {
-    if (history.length === 0) {
-      return undefined;
-    }
-
-    if (history.length === 1) {
-      return initialFen;
-    }
-
-    try {
-      const tempGame = new Chess(initialFen);
-      for (let i = 0; i < history.length - 1; i++) {
-        const moveResult = tempGame.move(history[i]);
-        if (!moveResult) {
-          // Move doesn't apply to this position - history is from a different position
-          return undefined;
-        }
-      }
-      return tempGame.fen();
-    } catch (error) {
-      // History doesn't match current position
-      return undefined;
-    }
-  }, [history, initialFen, currentFen]);
+  // Game navigation logic - extracted to custom hook
+  const gameNavigation = useGameNavigation({
+    history,
+    initialFen,
+    currentFen,
+    onHistoryChange,
+    onJumpToMove,
+    jumpToMove,
+  });
 
   // Evaluation logic
   const {
@@ -270,7 +257,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   } = usePositionAnalysis({
     fen: currentFen || initialFen,
     isEnabled: true,
-    previousFen: previousFen,
+    previousFen: gameNavigation.previousFen,
   });
 
   // UI state management - local component state only
@@ -316,63 +303,25 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     trainingUIState,
   });
 
-  // Add useRef to track processed evaluations
-  const processedEvaluationsRef = useRef(new Set<string>());
+  // Move validation logic - extracted to custom hook
+  const moveValidation = useMoveValidation({
+    lastEvaluation,
+    currentFen,
+    evaluations,
+    isEvaluating,
+    tablebaseState,
+    tablebaseActions,
+  });
 
-  // Update Zustand with current evaluation
-  useEffect(() => {
-    if (!lastEvaluation) return;
-
-    // Create unique key for this evaluation using current FEN and evaluation data
-    const evalKey = `${currentFen}_${lastEvaluation.evaluation}_${lastEvaluation.mateInMoves ?? "null"}`;
-
-    if (processedEvaluationsRef.current.has(evalKey)) {
-      return; // Skip if already processed
-    }
-
-    processedEvaluationsRef.current.add(evalKey);
-
-    const currentEvaluations = evaluations || [];
-    const updatedEvaluations = [...currentEvaluations, lastEvaluation];
-
-    // Check if setEvaluations exists before calling
-    if (tablebaseActions?.setEvaluations) {
-      tablebaseActions.setEvaluations(updatedEvaluations);
-    } else {
-      console.error("❌ tablebaseActions.setEvaluations is not available!");
-    }
-  }, [lastEvaluation, currentFen, evaluations, tablebaseActions]);
+  // Note: Evaluation processing now handled by useMoveValidation hook
 
   // Dialog state is now passed directly to DialogManager
   // No local state variables needed - DialogManager reads from trainingState directly
 
   // All dialog handler functions now handled by useDialogHandlers hook
   // See: /shared/hooks/useDialogHandlers.ts for implementation
-
-  // Update analysis status based on evaluation state
-  useEffect(() => {
-    console.debug("🔍 TablebaseActions debug", {
-      hasTablebaseActions: !!tablebaseActions,
-      hasSetAnalysisStatus: !!tablebaseActions?.setAnalysisStatus,
-      tablebaseActionsKeys: Object.keys(tablebaseActions || {}),
-      isEvaluating,
-    });
-
-    // CRITICAL: Safe-guard to prevent crashes
-    if (!tablebaseActions?.setAnalysisStatus) {
-      console.warn(
-        "⚠️ tablebaseActions.setAnalysisStatus not available, skipping",
-      );
-      return;
-    }
-
-    if (isEvaluating) {
-      tablebaseActions.setAnalysisStatus("loading");
-    } else if (tablebaseState.analysisStatus === "loading") {
-      // Only update to success if we were loading
-      tablebaseActions.setAnalysisStatus("success");
-    }
-  }, [isEvaluating, tablebaseState, tablebaseActions]);
+  
+  // Note: Analysis status updates now handled by useMoveValidation hook
 
 
   // === REMOVED E2E WINDOW ATTACHMENTS ===
@@ -391,14 +340,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
 
   // === EFFECTS ===
 
-  // Update parent with move history
-  useEffect(() => {
-    if (onHistoryChange) {
-      // Convert ValidatedMove[] to Move[] for the callback
-      const libraryMoves = history.map(toLibraryMove);
-      onHistoryChange(libraryMoves);
-    }
-  }, [history, onHistoryChange]);
+  // Note: Move history and navigation callbacks now handled by useGameNavigation hook
 
   // Update parent with evaluations
   useEffect(() => {
@@ -406,13 +348,6 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
       onEvaluationsChange(evaluations);
     }
   }, [evaluations, onEvaluationsChange]);
-
-  // Provide jump to move function to parent
-  useEffect(() => {
-    if (onJumpToMove) {
-      onJumpToMove(jumpToMove);
-    }
-  }, [onJumpToMove, jumpToMove]);
 
   // === E2E TEST SUPPORT ===
   // E2E testing logic extracted to separate E2ETestHelper component
@@ -456,29 +391,21 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         />
       </div>
 
-      {/* Error and Warning Displays - inline implementation */}
+      {/* Error and Warning Displays - using AlertDisplay component */}
       {trainingUIState.warning && (
-        <div className="mt-2 p-2 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
-          {trainingUIState.warning}
-          <button
-            onClick={trainingUIState.handleClearWarning}
-            className="ml-2 text-yellow-700 hover:text-yellow-900"
-          >
-            ×
-          </button>
-        </div>
+        <AlertDisplay
+          type="warning"
+          message={trainingUIState.warning}
+          onDismiss={trainingUIState.handleClearWarning}
+        />
       )}
 
       {(trainingUIState.analysisError || evaluationError) && (
-        <div className="mt-2 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
-          {trainingUIState.analysisError || evaluationError}
-          <button
-            onClick={trainingUIState.handleClearAnalysisError}
-            className="ml-2 text-red-700 hover:text-red-900"
-          >
-            ×
-          </button>
-        </div>
+        <AlertDisplay
+          type="error"
+          message={trainingUIState.analysisError || evaluationError || "Unknown error"}
+          onDismiss={trainingUIState.handleClearAnalysisError}
+        />
       )}
 
       {/* Dialog Manager - Handles all training dialogs */}

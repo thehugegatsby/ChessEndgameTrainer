@@ -4,3 +4,4 @@ export { DarkModeToggle } from "./DarkModeToggle";
 export { ProgressCard } from "./ProgressCard";
 export { ErrorBoundary } from "../common/ErrorBoundary";
 export { SettingsIcon } from "./SettingsIcon";
+export { AlertDisplay } from "./AlertDisplay";

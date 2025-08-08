@@ -8,7 +8,7 @@ import { chessService } from "@shared/services/ChessService";
 import { tablebaseService } from "@shared/services/TablebaseService";
 import { getLogger } from "@shared/services/logging";
 import { handleTrainingCompletion } from "@shared/store/orchestrators/handlePlayerMove/move.completion";
-import { validatedMoveFactory } from "@tests/helpers/validatedMoveFactory";
+import { createTestValidatedMove } from "@tests/helpers/validatedMoveFactory";
 import type { StoreApi } from "@shared/store/orchestrators/types";
 
 // Mock dependencies
@@ -76,7 +76,7 @@ describe("PawnPromotionHandler", () => {
 
   describe("checkPromotion", () => {
     it("should detect pawn promotion moves", () => {
-      const promotionMove = validatedMoveFactory.create({
+      const promotionMove = createTestValidatedMove({
         san: "e8=Q",
         from: "e7",
         to: "e8",
@@ -106,7 +106,7 @@ describe("PawnPromotionHandler", () => {
     });
 
     it("should detect non-promotion moves", () => {
-      const normalMove = validatedMoveFactory.create({
+      const normalMove = createTestValidatedMove({
         san: "e4",
         from: "e2",
         to: "e4",
@@ -120,7 +120,7 @@ describe("PawnPromotionHandler", () => {
     });
 
     it("should handle promotion to rook", () => {
-      const rookPromotion = validatedMoveFactory.create({
+      const rookPromotion = createTestValidatedMove({
         san: "a8=R",
         from: "a7",
         to: "a8",
@@ -134,7 +134,7 @@ describe("PawnPromotionHandler", () => {
     });
 
     it("should handle promotion to knight", () => {
-      const knightPromotion = validatedMoveFactory.create({
+      const knightPromotion = createTestValidatedMove({
         san: "b8=N",
         from: "b7",
         to: "b8",
@@ -148,7 +148,7 @@ describe("PawnPromotionHandler", () => {
     });
 
     it("should handle promotion to bishop", () => {
-      const bishopPromotion = validatedMoveFactory.create({
+      const bishopPromotion = createTestValidatedMove({
         san: "c8=B",
         from: "c7",
         to: "c8",
@@ -163,7 +163,7 @@ describe("PawnPromotionHandler", () => {
 
     it("should handle invalid promotion piece", () => {
       // Create a move with invalid promotion manually since factory doesn't support "k"
-      const baseMove = validatedMoveFactory.create({
+      const baseMove = createTestValidatedMove({
         san: "d8=K", // Invalid - can't promote to king
         from: "d7",
         to: "d8",
@@ -180,7 +180,7 @@ describe("PawnPromotionHandler", () => {
     });
 
     it("should handle promotion without piece specified", () => {
-      const promotionWithoutPiece = validatedMoveFactory.create({
+      const promotionWithoutPiece = createTestValidatedMove({
         san: "e8",
         from: "e7",
         to: "e8",
