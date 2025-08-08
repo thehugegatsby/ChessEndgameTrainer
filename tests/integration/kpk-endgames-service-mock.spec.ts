@@ -164,7 +164,7 @@ jest.mock("chess.js", () => {
         }),
         load: jest.fn((newFen) => {
           currentFen = newFen;
-          return true;
+          // Don't return anything (chess.js load returns void)
         }),
         isGameOver: jest.fn(() => false),
         isCheckmate: jest.fn(() => false),
@@ -215,9 +215,11 @@ describe("KPK Integration Tests (Service-Level Mock)", () => {
         await new Promise((resolve) => setTimeout(resolve, 10));
       });
 
-      // Verify position loaded
+      // Verify position loaded in training context
       const state = result.current;
-      expect(state.game.currentFen).toBe("K7/P7/k7/8/8/8/8/8 w - - 0 1");
+      expect(state.training.currentPosition?.fen).toBe(
+        "K7/P7/k7/8/8/8/8/8 w - - 0 1",
+      );
 
       // Note: TablebaseService.getEvaluation is called asynchronously in the background
       // after position load. Since this is an integration test testing the store behavior,

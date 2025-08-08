@@ -5,7 +5,6 @@
 
 import { chromium, FullConfig } from "@playwright/test";
 import { getLogger } from "../../shared/services/logging";
-import { startMSWServer } from "./fixtures/msw-server";
 
 // Configuration constants
 const SERVER_CHECK_RETRIES = 30;
@@ -18,11 +17,10 @@ const SERVER_CHECK_TIMEOUT_MS = 5000;
  */
 async function globalSetup(config: FullConfig) {
   const logger = getLogger().setContext("E2E-GlobalSetup");
-  logger.info("Starting E2E Global Setup - Clean Architecture with MSW");
+  logger.info("Starting E2E Global Setup - Clean Architecture");
 
-  // Start MSW server for API mocking (server-side + client-side)
-  startMSWServer();
-  logger.info("MSW Server started - Industry Standard API mocking");
+  // Note: MSW removed - E2E tests now use real API calls
+  logger.info("Using real Tablebase API for E2E tests");
 
   // Browser setup for shared context
   const browser = await chromium.launch();

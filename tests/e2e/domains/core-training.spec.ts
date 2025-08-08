@@ -8,14 +8,12 @@
 import { test, expect } from "@playwright/test";
 import { getLogger } from "../../../shared/services/logging";
 import { E2E } from "../../../shared/constants";
-import { resetMSWHandlers } from "../fixtures/msw-server";
 
 test.describe("Core Training Workflow", () => {
   const logger = getLogger().setContext("E2E-CoreTraining");
 
   test.beforeEach(async () => {
-    // Reset MSW handlers for clean test isolation
-    resetMSWHandlers();
+    // Note: MSW removed - E2E tests use real API
   });
 
   test("should complete homepage → training → move → evaluation journey", async ({
