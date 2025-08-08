@@ -6,7 +6,7 @@
  */
 module.exports = {
   testEnvironment: "jsdom",
-  rootDir: "..",
+  rootDir: "../..",
   transform: {
     "^.+\\.(ts|tsx|js|jsx)$": "@swc/jest",
   },
@@ -14,7 +14,7 @@ module.exports = {
     "/node_modules/(?!(react-chessboard|chess.js|react-native|@react-native|@react-navigation|expo|@expo|react-native-.*)/)",
   ],
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
-  setupFilesAfterEnv: ["<rootDir>/configs/jest/jest.setup.js"],
+  setupFilesAfterEnv: ["<rootDir>/src/config/jest/jest.setup.js"],
   testPathIgnorePatterns: [
     "/node_modules/",
     "/.next/",
@@ -23,38 +23,38 @@ module.exports = {
     "/e2e/",
   ],
   moduleNameMapper: {
-    "^@/(.*)$": "<rootDir>/shared/$1",
-    "^@app/(.*)$": "<rootDir>/app/$1",
-    "^@shared/(.*)$": "<rootDir>/shared/$1",
-    "^@app/web/(.*)$": "<rootDir>/app/web/$1",
-    "^@web/(.*)$": "<rootDir>/app/web/$1",
-    "^@app/mobile/(.*)$": "<rootDir>/app/mobile/$1",
+    "^@/(.*)$": "<rootDir>/src/$1",
+    "^@app/(.*)$": "<rootDir>/src/app/$1",
+    "^@shared/(.*)$": "<rootDir>/src/shared/$1",
+    "^@app/web/(.*)$": "<rootDir>/src/app/web/$1",
+    "^@web/(.*)$": "<rootDir>/src/app/web/$1",
+    "^@app/mobile/(.*)$": "<rootDir>/src/app/mobile/$1",
     "react-native$": "react-native-web",
     "@react-native-async-storage/async-storage":
-      "<rootDir>/tests/shared/tests/mocks/async-storage.js",
-    "expo-.*": "<rootDir>/tests/shared/tests/mocks/expo.js",
+      "<rootDir>/src/tests/shared/tests/mocks/async-storage.js",
+    "expo-.*": "<rootDir>/src/tests/shared/tests/mocks/expo.js",
     "@react-navigation/.*":
-      "<rootDir>/tests/shared/tests/mocks/react-navigation.js",
+      "<rootDir>/src/tests/shared/tests/mocks/react-navigation.js",
     "react-native-safe-area-context":
-      "<rootDir>/tests/shared/tests/mocks/safe-area-context.js",
+      "<rootDir>/src/tests/shared/tests/mocks/safe-area-context.js",
   },
   testMatch: [
-    "<rootDir>/tests/unit/**/*.{spec,test}.[jt]s?(x)",
-    "<rootDir>/tests/integration/**/*.{spec,test}.[jt]s?(x)",
-    "<rootDir>/tests/performance/**/*.{spec,test}.[jt]s?(x)",
-    "<rootDir>/tests/regression/**/*.{spec,test}.[jt]s?(x)",
-    "<rootDir>/tests/smoke/**/*.{spec,test}.[jt]s?(x)",
-    "<rootDir>/tests/**/*.test.[jt]s?(x)",
+    "<rootDir>/src/tests/unit/**/*.{spec,test}.[jt]s?(x)",
+    "<rootDir>/src/tests/integration/**/*.{spec,test}.[jt]s?(x)",
+    "<rootDir>/src/tests/performance/**/*.{spec,test}.[jt]s?(x)",
+    "<rootDir>/src/tests/regression/**/*.{spec,test}.[jt]s?(x)",
+    "<rootDir>/src/tests/smoke/**/*.{spec,test}.[jt]s?(x)",
+    "<rootDir>/src/tests/**/*.test.[jt]s?(x)",
   ],
   // BUSINESS LOGIC COVERAGE ONLY
   collectCoverageFrom: [
     // Include all business logic modules
-    "<rootDir>/shared/lib/**/*.{ts,tsx}",
-    "<rootDir>/shared/services/**/*.{ts,tsx}",
-    "<rootDir>/shared/hooks/**/*.{ts,tsx}",
-    "<rootDir>/shared/store/**/*.{ts,tsx}",
-    "<rootDir>/shared/contexts/**/*.{ts,tsx}",
-    "<rootDir>/shared/utils/**/*.{ts,tsx}",
+    "<rootDir>/src/shared/lib/**/*.{ts,tsx}",
+    "<rootDir>/src/shared/services/**/*.{ts,tsx}",
+    "<rootDir>/src/shared/hooks/**/*.{ts,tsx}",
+    "<rootDir>/src/shared/store/**/*.{ts,tsx}",
+    "<rootDir>/src/shared/contexts/**/*.{ts,tsx}",
+    "<rootDir>/src/shared/utils/**/*.{ts,tsx}",
 
     // Exclude non-business logic
     "!<rootDir>/shared/components/**", // UI Components
