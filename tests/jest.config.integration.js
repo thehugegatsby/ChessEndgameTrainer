@@ -12,9 +12,6 @@ module.exports = {
   displayName: "Integration Tests",
   // Only match .spec files for integration tests
   testMatch: ["<rootDir>/tests/integration/**/*.spec.[jt]s?(x)"],
-  setupFilesAfterEnv: [
-    "<rootDir>/config/jest/jest.setup.js",
-    "<rootDir>/tests/integration/setup.ts",
-  ],
+  setupFilesAfterEnv: ["<rootDir>/config/jest/jest.setup.js"],
   testTimeout: 10000, // Increase timeout for integration tests
 };
