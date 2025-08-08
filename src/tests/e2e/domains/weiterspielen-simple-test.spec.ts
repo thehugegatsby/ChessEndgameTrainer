@@ -12,15 +12,16 @@ import { test, expect } from "@playwright/test";
 import { getLogger } from "../../../shared/services/logging";
 import { E2E } from "../../../shared/constants";
 import { performMoveAndWait } from "../helpers/moveHelpers";
+import { TrainingBoardPage } from "../helpers/pageObjects/TrainingBoardPage";
 
 test.describe("Weiterspielen Simple Test", () => {
   const logger = getLogger().setContext("E2E-WeiterSpielenSimple");
 
-  test("Train/1 → Kf6 → Weiterspielen → Schwarz macht keinen Zug (BUG)", async ({
+  test("Train/1 → Kd5 → Weiterspielen → Schwarz macht keinen Zug (BUG)", async ({
     page,
   }) => {
     logger.info(
-      "🎯 SIMPLE TEST: Train/1 → Kf6 → Weiterspielen → Schwarz macht keinen Zug",
+      "🎯 SIMPLE TEST: Train/1 → Kd5 → Weiterspielen → Schwarz macht keinen Zug",
     );
 
     // STEP 1: Gehe zu Train/1 (wie in der manuellen App)
@@ -32,29 +33,28 @@ test.describe("Weiterspielen Simple Test", () => {
 
     logger.info("✅ Train/1 geladen");
 
-    // STEP 2: Mache Kf6 (suboptimal) mit dem NEUEN e2e_makeValidatedMove (geht durch volle Validierung)
+    // STEP 2: Mache Kd5 (suboptimal) mit Page Object Model
     // Train/1 Position: 4k3/8/4K3/4P3/8/8/8/8 w - Weiß am Zug, König auf e6
-    // Optimal: Kd6 (Opposition), Suboptimal: Kf6
-    logger.info("📋 Mache Kf6 (suboptimal) mit validierter Move-Funktion...");
+    // Optimal: Kd6 (Opposition), Suboptimal: Kd5 oder Kf5
+    logger.info("📋 Mache Kd5 (suboptimal) mit Page Object Model...");
 
-    const kf6Result = await page.evaluate(async (move) => {
-      return await (window as any).e2e_makeValidatedMove(move);
-    }, "Kf6");
-
-    logger.info("📊 Kf6 Result:", kf6Result);
+    const boardPage = new TrainingBoardPage(page);
+    await boardPage.waitForBoardReady();
+    
+    // Try to make the move Kd5 (King from e6 to d5)
+    const moveSuccessful = await boardPage.makeMoveWithValidation("e6", "d5");
+    
+    logger.info("📊 Kd5 Result:", { success: moveSuccessful });
 
     // STEP 3: Prüfe dass Error Dialog erscheint
-    if (kf6Result.success) {
+    if (!moveSuccessful) {
       logger.error(
-        "❌ PROBLEM: Kf6 wurde akzeptiert, aber sollte Error Dialog zeigen!",
-      );
-      logger.info(
-        "Möglicherweise ist Kf6 doch optimal oder Move-Quality-Evaluation funktioniert nicht",
+        "❌ PROBLEM: Kd5 wurde nicht ausgeführt!",
       );
       return;
     }
 
-    logger.info("✅ Kf6 wurde abgelehnt - Error Dialog sollte da sein");
+    logger.info("✅ Kd5 wurde ausgeführt - Error Dialog sollte erscheinen");
 
     // STEP 4: Prüfe Error Dialog mit "Weiterspielen"
     const errorDialog = page.locator('[data-testid="move-error-dialog"]');
@@ -72,15 +72,12 @@ test.describe("Weiterspielen Simple Test", () => {
     logger.info("✅ Error Dialog ist korrekt da");
 
     // STEP 5: Game State VOR dem Weiterspielen-Klick
-    const gameStateVorWeiterspielen = await page.evaluate(() =>
-      (window as any).e2e_getGameState(),
-    );
+    const gameStateVorWeiterspielen = await boardPage.getGameState();
 
     logger.info("📊 Game State VOR Weiterspielen:", {
       fen: gameStateVorWeiterspielen.fen,
       moveCount: gameStateVorWeiterspielen.moveCount,
       turn: gameStateVorWeiterspielen.turn,
-      pgn: gameStateVorWeiterspielen.pgn,
     });
 
     // STEP 6: Klicke "Weiterspielen"
@@ -96,15 +93,12 @@ test.describe("Weiterspielen Simple Test", () => {
     await page.waitForTimeout(3000);
 
     // STEP 9: Game State NACH dem Warten
-    const gameStateNachWarten = await page.evaluate(() =>
-      (window as any).e2e_getGameState(),
-    );
+    const gameStateNachWarten = await boardPage.getGameState();
 
     logger.info("📊 Game State NACH 3 Sekunden:", {
       fen: gameStateNachWarten.fen,
       moveCount: gameStateNachWarten.moveCount,
       turn: gameStateNachWarten.turn,
-      pgn: gameStateNachWarten.pgn,
     });
 
     // STEP 10: Prüfe ob Schwarz einen Zug gemacht hat

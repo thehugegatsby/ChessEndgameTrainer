@@ -122,6 +122,7 @@ export const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
     <div
       className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
       onClick={onClose}
+      data-testid="move-error-dialog"
     >
       <div
         className="relative bg-gradient-to-br from-red-500 to-pink-600 p-1 rounded-2xl max-w-md w-full mx-4"
