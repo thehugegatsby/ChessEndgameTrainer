@@ -113,3 +113,41 @@ export async function waitForEmulator(
   }
   throw new Error("Firebase Emulator did not start in time");
 }
+
+/**
+ * Clear all data from Auth emulator
+ * Ensures complete cleanup between tests
+ */
+export async function clearAllAuthData(): Promise<void> {
+  const AUTH_EMULATOR_HOST = process.env.AUTH_EMULATOR_HOST || "localhost:9099";
+  const url = `http://${AUTH_EMULATOR_HOST}/emulator/v1/projects/${PROJECT_ID}/accounts`;
+
+  try {
+    const response = await fetch(url, {
+      method: "DELETE",
+    });
+
+    if (!response.ok && response.status !== 404) {
+      // 404 is OK - means no accounts exist
+      throw new Error(
+        `Failed to clear Auth data: ${response.status} ${response.statusText}`,
+      );
+    }
+  } catch (error: any) {
+    // Ignore connection errors if Auth emulator is not running
+    if (error.code !== 'ECONNREFUSED') {
+      console.warn("Warning: Could not clear Auth data:", error.message);
+    }
+  }
+}
+
+/**
+ * Atomic cleanup of all Firebase emulator data
+ * Clears both Firestore and Auth data in parallel
+ */
+export async function clearAllEmulatorData(): Promise<void> {
+  await Promise.all([
+    clearAllFirestoreData(),
+    clearAllAuthData()
+  ]);
+}
