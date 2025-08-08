@@ -92,28 +92,27 @@ export const useTrainingActions = (): ExtendedTrainingActions => {
   const storeApi = useStoreApi();
   return useMemo(() => {
     const state = storeApi.getState();
-    // CRITICAL FIX: Access actions from root level where they're preserved
-    const actions = (state as any)._trainingActions || state.training;
-
+    
+    // Clean access: actions are directly available in training slice
     return {
-      // Training actions
-      setPosition: actions.setPosition,
-      setNavigationPositions: actions.setNavigationPositions,
-      setNavigationLoading: actions.setNavigationLoading,
-      setNavigationError: actions.setNavigationError,
-      setChapterProgress: actions.setChapterProgress,
-      setPlayerTurn: actions.setPlayerTurn,
-      clearOpponentThinking: actions.clearOpponentThinking,
-      completeTraining: actions.completeTraining,
-      incrementHint: actions.incrementHint,
-      incrementMistake: actions.incrementMistake,
-      setMoveErrorDialog: actions.setMoveErrorDialog,
-      setMoveSuccessDialog: actions.setMoveSuccessDialog,
-      addTrainingMove: actions.addTrainingMove,
-      resetTraining: actions.resetTraining,
-      resetPosition: actions.resetPosition,
-      setEvaluationBaseline: actions.setEvaluationBaseline,
-      clearEvaluationBaseline: actions.clearEvaluationBaseline,
+      // Training actions - directly from slice (no CRITICAL FIX workaround needed)
+      setPosition: state.training.setPosition,
+      setNavigationPositions: state.training.setNavigationPositions,
+      setNavigationLoading: state.training.setNavigationLoading,
+      setNavigationError: state.training.setNavigationError,
+      setChapterProgress: state.training.setChapterProgress,
+      setPlayerTurn: state.training.setPlayerTurn,
+      clearOpponentThinking: state.training.clearOpponentThinking,
+      completeTraining: state.training.completeTraining,
+      incrementHint: state.training.incrementHint,
+      incrementMistake: state.training.incrementMistake,
+      setMoveErrorDialog: state.training.setMoveErrorDialog,
+      setMoveSuccessDialog: state.training.setMoveSuccessDialog,
+      addTrainingMove: state.training.addTrainingMove,
+      resetTraining: state.training.resetTraining,
+      resetPosition: state.training.resetPosition,
+      setEvaluationBaseline: state.training.setEvaluationBaseline,
+      clearEvaluationBaseline: state.training.clearEvaluationBaseline,
 
       // Orchestrated actions (from root level)
       handlePlayerMove: state.handlePlayerMove,

@@ -33,11 +33,13 @@ import { immer } from "zustand/middleware/immer";
 // Import all slice creators and initial states
 import { createGameSlice, initialGameState } from "./slices/gameSlice";
 import {
-  createTablebaseSlice,
+  createTablebaseState,
+  createTablebaseActions,
   initialTablebaseState,
 } from "./slices/tablebaseSlice";
 import {
-  createTrainingSlice,
+  createTrainingState,
+  createTrainingActions,
   initialTrainingState,
 } from "./slices/trainingSlice";
 import {
@@ -134,55 +136,24 @@ export const useStore = create<RootState>()(
   devtools(
     persist(
       immer((set, get, store) => {
-        // Create slices with their actions
+        // Create slices using Slice-in-Slice pattern (clean separation of state and actions)
         const gameSlice = createGameSlice(set, get, store);
-        const trainingSlice = createTrainingSlice(set, get, store);
-        const tablebaseSlice = createTablebaseSlice(set, get, store);
         const progressSlice = createProgressSlice(set, get, store);
         const uiSlice = createUISlice(set, get, store);
 
-        // CRITICAL FIX: Store actions separately to prevent Immer from stripping them
-        const trainingActions = {
-          setPosition: trainingSlice.setPosition,
-          setNavigationPositions: trainingSlice.setNavigationPositions,
-          setNavigationLoading: trainingSlice.setNavigationLoading,
-          setNavigationError: trainingSlice.setNavigationError,
-          setChapterProgress: trainingSlice.setChapterProgress,
-          setPlayerTurn: trainingSlice.setPlayerTurn,
-          clearOpponentThinking: trainingSlice.clearOpponentThinking,
-          completeTraining: trainingSlice.completeTraining,
-          incrementHint: trainingSlice.incrementHint,
-          incrementMistake: trainingSlice.incrementMistake,
-          setMoveErrorDialog: trainingSlice.setMoveErrorDialog,
-          setMoveSuccessDialog: trainingSlice.setMoveSuccessDialog,
-          addTrainingMove: trainingSlice.addTrainingMove,
-          resetTraining: trainingSlice.resetTraining,
-          resetPosition: trainingSlice.resetPosition,
-          setEvaluationBaseline: trainingSlice.setEvaluationBaseline,
-          clearEvaluationBaseline: trainingSlice.clearEvaluationBaseline,
-        };
-
-        // CRITICAL FIX: Also store tablebase actions separately
-        const tablebaseActions = {
-          setTablebaseMove: tablebaseSlice.setTablebaseMove,
-          setAnalysisStatus: tablebaseSlice.setAnalysisStatus,
-          addEvaluation: tablebaseSlice.addEvaluation,
-          setEvaluations: tablebaseSlice.setEvaluations,
-          setCurrentEvaluation: tablebaseSlice.setCurrentEvaluation,
-          clearTablebaseState: tablebaseSlice.clearTablebaseState,
-        };
-
         return {
-          // Nested state structure - each slice in its namespace
+          // Clean Slice-in-Slice pattern: state and actions preserved at slice level
           game: gameSlice,
-          training: trainingSlice,
-          tablebase: tablebaseSlice,
+          training: {
+            ...createTrainingState(),
+            ...createTrainingActions(set, get),
+          },
+          tablebase: {
+            ...createTablebaseState(),
+            ...createTablebaseActions(set),
+          },
           progress: progressSlice,
           ui: uiSlice,
-
-          // CRITICAL: Store training actions at root level to prevent Immer stripping
-          _trainingActions: trainingActions,
-          _tablebaseActions: tablebaseActions,
 
           // Orchestrator actions - coordinate across multiple slices
           /**
@@ -275,26 +246,52 @@ export const useStore = create<RootState>()(
            *
            * @remarks
            * Uses pre-computed initial state for efficient and reliable reset.
-           * Preserves actions while resetting state to initial values.
+           * With Slice-in-Slice pattern, actions are preserved automatically.
            */
           reset: () => {
             set((state) => {
-              // Reset slices to their initial states (preserving actions)
-              // Use Object.assign to only update state properties, not functions
-
-              // Game slice - merge initial state (preserves actions)
+              // Reset slices to their initial states (actions preserved automatically)
+              
+              // Game slice - merge initial state
               Object.assign(state.game, initialGameState);
 
-              // Training slice - merge initial state (preserves actions)
-              Object.assign(state.training, initialTrainingState);
+              // Training slice - merge only state properties (actions preserved)
+              Object.assign(state.training, {
+                ...initialTrainingState,
+                // Preserve action functions that are mixed in
+                setPosition: state.training.setPosition,
+                setNavigationPositions: state.training.setNavigationPositions,
+                setNavigationLoading: state.training.setNavigationLoading,
+                setNavigationError: state.training.setNavigationError,
+                setChapterProgress: state.training.setChapterProgress,
+                setPlayerTurn: state.training.setPlayerTurn,
+                clearOpponentThinking: state.training.clearOpponentThinking,
+                completeTraining: state.training.completeTraining,
+                incrementHint: state.training.incrementHint,
+                incrementMistake: state.training.incrementMistake,
+                setMoveErrorDialog: state.training.setMoveErrorDialog,
+                setMoveSuccessDialog: state.training.setMoveSuccessDialog,
+                addTrainingMove: state.training.addTrainingMove,
+                resetTraining: state.training.resetTraining,
+                resetPosition: state.training.resetPosition,
+              });
 
-              // Tablebase slice - merge initial state (preserves actions)
-              Object.assign(state.tablebase, initialTablebaseState);
+              // Tablebase slice - merge only state properties (actions preserved)
+              Object.assign(state.tablebase, {
+                ...initialTablebaseState,
+                // Preserve action functions
+                setTablebaseMove: state.tablebase.setTablebaseMove,
+                setAnalysisStatus: state.tablebase.setAnalysisStatus,
+                addEvaluation: state.tablebase.addEvaluation,
+                setEvaluations: state.tablebase.setEvaluations,
+                setCurrentEvaluation: state.tablebase.setCurrentEvaluation,
+                clearTablebaseState: state.tablebase.clearTablebaseState,
+              });
 
-              // Progress slice - merge initial state (preserves actions)
+              // Progress slice - merge initial state
               Object.assign(state.progress, initialProgressState);
 
-              // UI slice - merge initial state (preserves actions)
+              // UI slice - merge initial state  
               Object.assign(state.ui, initialUIState);
             });
           },

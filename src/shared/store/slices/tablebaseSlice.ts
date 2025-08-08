@@ -22,7 +22,7 @@
  * ```
  */
 
-import { ImmerStateCreator, TablebaseSlice } from "./types";
+import { ImmerStateCreator, TablebaseSlice, TablebaseState, TablebaseActions } from "./types";
 import type { PositionAnalysis } from "@shared/types/evaluation";
 import type { AnalysisStatus } from "../types";
 
@@ -44,46 +44,46 @@ export const initialTablebaseState = {
 export const createInitialTablebaseState = () => ({ ...initialTablebaseState });
 
 /**
- * Creates the tablebase slice for the Zustand store
+ * Creates the tablebase state (data only, no actions)
  *
- * @param {Function} set - Zustand's set function for state updates
- * @param {Function} get - Zustand's get function for accessing current state
- * @returns {TablebaseSlice} Complete tablebase slice with state and actions
+ * @returns {TablebaseState} Tablebase state properties only
  *
  * @remarks
- * This slice manages tablebase-related state and provides actions for updating
- * evaluation data. It works in conjunction with orchestrators that handle the
- * actual API calls through TablebaseService. The slice focuses on state management
- * while orchestrators handle business logic and API coordination.
- *
- * Key concepts:
- * - tablebaseMove: undefined = not checked, null = draw position, string = best move
- * - analysisStatus: tracks async operation states
- * - evaluations: array for history/caching, currentEvaluation for active position
+ * This function creates only the state properties for tablebase slice.
+ * Actions are created separately to avoid Immer middleware stripping functions.
  *
  * @example
  * ```typescript
- * // In your root store
- * import { create } from 'zustand';
- * import { createTablebaseSlice } from './slices/tablebaseSlice';
- *
- * const useStore = create<RootState>()((...args) => ({
- *   ...createTablebaseSlice(...args),
- *   ...createGameSlice(...args),
- *   // ... other slices
- * }));
+ * const tablebaseState = createTablebaseState();
+ * const tablebaseActions = createTablebaseActions(set, get);
  * ```
  */
-export const createTablebaseSlice: ImmerStateCreator<TablebaseSlice> = (
-  set,
-) => ({
-  // Initial state - use fresh arrays for each instance
+export const createTablebaseState = (): TablebaseState => ({
   tablebaseMove: undefined as string | null | undefined,
   analysisStatus: "idle" as AnalysisStatus,
   evaluations: [],
   currentEvaluation: undefined as PositionAnalysis | undefined,
+});
 
-  // Actions
+/**
+ * Creates the tablebase actions (functions only, no state)
+ *
+ * @param {Function} set - Zustand's set function for state updates
+ * @returns {TablebaseActions} Tablebase action functions
+ *
+ * @remarks
+ * This function creates only the action functions for tablebase slice.
+ * Actions are kept separate from state to prevent Immer middleware from stripping them.
+ *
+ * @example
+ * ```typescript
+ * const tablebaseActions = createTablebaseActions(set, get);
+ * ```
+ */
+export const createTablebaseActions = (
+  set: any,
+): TablebaseActions => ({
+
   /**
    * Sets the tablebase move for the current position
    *
@@ -279,6 +279,17 @@ export const createTablebaseSlice: ImmerStateCreator<TablebaseSlice> = (
       Object.assign(state.tablebase, createInitialTablebaseState());
     });
   },
+});
+
+/**
+ * Legacy slice creator for backwards compatibility
+ * @deprecated Use createTablebaseState() and createTablebaseActions() separately
+ */
+export const createTablebaseSlice: ImmerStateCreator<TablebaseSlice> = (
+  set,
+) => ({
+  ...createTablebaseState(),
+  ...createTablebaseActions(set),
 });
 
 /**

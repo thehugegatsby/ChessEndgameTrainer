@@ -301,13 +301,15 @@ type BaseState = {
 
 /**
  * Root state combining nested slices with orchestrator actions
+ * 
+ * @remarks
+ * With Slice-in-Slice pattern, CRITICAL FIX workarounds are eliminated.
+ * Actions are preserved directly within each slice.
  */
 export type RootState = BaseState &
   AsyncActions & {
     reset: () => void;
     hydrate: (state: Partial<BaseState>) => void;
-    _trainingActions: TrainingActions;
-    _tablebaseActions: TablebaseActions;
   };
 
 /**
