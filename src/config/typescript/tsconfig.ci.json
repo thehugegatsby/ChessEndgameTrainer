@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../../tsconfig.json",
   "compilerOptions": {
     "noEmit": true,
     "skipLibCheck": true
@@ -9,14 +9,14 @@
     ".next",
     "out",
     "scripts/**/*",
-    "tests/components/__mocks__/**/*",
-    "tests/e2e/**/*",
+    "src/tests/components/__mocks__/**/*",
+    "src/tests/e2e/**/*",
     "test-results/**/*",
     "playwright-report/**/*",
     "coverage/**/*",
-    "tests/unit/lib/chess/ScenarioEngine/**/*",
-    "tests/unit/services/EngineService.test.ts",
-    "tests/unit/store/store-error-handling.test.ts",
-    "pages/**/*"
+    "src/tests/unit/lib/chess/ScenarioEngine/**/*",
+    "src/tests/unit/services/EngineService.test.ts",
+    "src/tests/unit/store/store-error-handling.test.ts",
+    "src/pages/**/*"
   ]
 }
