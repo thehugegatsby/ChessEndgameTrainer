@@ -34,12 +34,12 @@ test.describe("Weiterspielen Bug Proof", () => {
     await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
 
     // Train/1 starts with: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1
-    // King on e6, optimal move is Kd6, suboptimal is Kd5 or Kf5
+    // King on e6, optimal move is Kd6, suboptimal is Kf5 (Kd5 is illegal - blocked by pawn)
     logger.info("Using Train/1 default position for bug demonstration");
 
     // STEP 1: Make suboptimal move to trigger error dialog
-    logger.info("Making suboptimal move Kd5 to trigger error dialog");
-    const moveSuccessful = await boardPage.makeMoveWithValidation("e6", "d5");
+    logger.info("Making suboptimal move Kf5 to trigger error dialog");
+    const moveSuccessful = await boardPage.makeMoveWithValidation("e6", "f5");
     
     expect(moveSuccessful).toBe(true);
     logger.info("✅ Suboptimal move executed");

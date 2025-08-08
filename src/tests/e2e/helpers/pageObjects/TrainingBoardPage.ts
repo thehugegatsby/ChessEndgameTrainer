@@ -20,7 +20,7 @@ export class TrainingBoardPage {
    * @param promotion - Optional promotion piece ("q", "r", "b", "n")
    */
   async makeMove(from: string, to: string, promotion?: string): Promise<void> {
-    this.logger.debug("Making move via DOM interaction", {
+    this.logger.info("📍 Making move via DOM interaction", {
       from,
       to,
       promotion,
@@ -31,16 +31,21 @@ export class TrainingBoardPage {
     const pieceSelector = `[data-square="${from}"] [draggable]`;
     const squareSelector = `[data-square="${from}"]`;
     
+    this.logger.info(`🎯 Clicking source square: ${from}`);
     try {
       // Try clicking the piece first
       await this.page.click(pieceSelector, { timeout: 1000 });
+      this.logger.info(`✅ Clicked piece on ${from}`);
     } catch {
       // If no piece, click the square itself
       await this.page.click(squareSelector);
+      this.logger.info(`✅ Clicked square ${from}`);
     }
 
     // Click target square
+    this.logger.info(`🎯 Clicking target square: ${to}`);
     await this.page.click(`[data-square="${to}"]`);
+    this.logger.info(`✅ Clicked target square ${to}`);
 
     // Handle promotion if specified
     if (promotion) {

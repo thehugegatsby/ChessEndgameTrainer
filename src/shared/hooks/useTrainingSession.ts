@@ -156,11 +156,7 @@ export const useTrainingSession = ({
       try {
         // Simply delegate to Store - no double validation needed
         // Store will validate the move and update all states atomically
-        logger.debug("About to call trainingActions.handlePlayerMove", {
-          move,
-          handlePlayerMoveExists: !!trainingActions.handlePlayerMove,
-          handlePlayerMoveType: typeof trainingActions.handlePlayerMove
-        });
+        logger.debug("Calling trainingActions.handlePlayerMove");
         const moveResult = await trainingActions.handlePlayerMove(move as any);
         logger.debug("trainingActions.handlePlayerMove result", { moveResult });
         if (!moveResult) return false;

@@ -219,7 +219,18 @@ export const useStore = create<RootState>()(
             logger.debug("handlePlayerMove called", { move });
             const storeApi = { getState: get, setState: set };
             logger.debug("Calling handlePlayerMoveOrchestrator");
-            const result = await handlePlayerMoveOrchestrator(storeApi, move);
+            // Add timeout for E2E tests to prevent hanging
+            let result;
+            if (process.env.NEXT_PUBLIC_IS_E2E_TEST === "true") {
+              result = await Promise.race([
+                handlePlayerMoveOrchestrator(storeApi, move),
+                new Promise<boolean>((_, reject) => 
+                  setTimeout(() => reject(new Error("E2E orchestrator timeout")), 5000)
+                )
+              ]);
+            } else {
+              result = await handlePlayerMoveOrchestrator(storeApi, move);
+            }
             logger.debug("handlePlayerMoveOrchestrator result", { result });
             return result;
           },

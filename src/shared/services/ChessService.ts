@@ -419,15 +419,45 @@ class ChessService {
       const currentFen = this.chess.fen();
       // logger.debug("ChessService.validateMove", { move, currentFen });
 
+      // Additional validation for move object format
+      if (typeof move === 'object' && move !== null) {
+        // Check if it's a move object with from/to properties
+        if ('from' in move && 'to' in move) {
+          const { from, to } = move as { from: string; to: string; promotion?: string };
+          
+          // Basic square format validation (e.g., "e2", "h8")
+          const squareRegex = /^[a-h][1-8]$/;
+          if (!squareRegex.test(from) || !squareRegex.test(to)) {
+            logger.debug("Invalid square format in move object", { from, to });
+            return false;
+          }
+          
+          // Check if source square actually has a piece
+          const tempChess = new Chess(currentFen);
+          const piece = tempChess.get(from as any);
+          if (!piece) {
+            logger.debug("No piece on source square", { from, currentFen });
+            return false;
+          }
+        }
+      }
+
       // Create a temporary chess instance to test the move
       const tempChess = new Chess(currentFen);
       const result = tempChess.move(move);
 
       // Validation result determined
-
       return result !== null;
     } catch (error) {
-      logger.error("ChessService.validateMove error", { error, move });
+      // Enhanced error logging to debug E2E issues
+      logger.error("ChessService.validateMove error", { 
+        error: error instanceof Error ? error.message : String(error),
+        errorType: error ? error.constructor.name : 'unknown',
+        move: typeof move === 'object' ? JSON.stringify(move) : String(move),
+        moveType: typeof move,
+        currentFen: this.chess.fen(),
+        stack: error instanceof Error ? error.stack : undefined
+      });
       return false;
     }
   }

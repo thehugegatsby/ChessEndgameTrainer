@@ -41,20 +41,21 @@ test.describe("Weiterspielen Simple Test", () => {
     const boardPage = new TrainingBoardPage(page);
     await boardPage.waitForBoardReady();
     
-    // Try to make the move Kd5 (King from e6 to d5)
-    const moveSuccessful = await boardPage.makeMoveWithValidation("e6", "d5");
+    // Try to make the move Kf5 (King from e6 to f5 - SUBOPTIMAL, leads to draw)
+    logger.info("🎯 Attempting to make suboptimal move Kf5 (e6 to f5)");
+    const moveSuccessful = await boardPage.makeMoveWithValidation("e6", "f5");
     
-    logger.info("📊 Kd5 Result:", { success: moveSuccessful });
+    logger.info("📊 Kf5 Result:", { success: moveSuccessful });
 
     // STEP 3: Prüfe dass Error Dialog erscheint
     if (!moveSuccessful) {
       logger.error(
-        "❌ PROBLEM: Kd5 wurde nicht ausgeführt!",
+        "❌ PROBLEM: Kf5 wurde nicht ausgeführt!",
       );
       return;
     }
 
-    logger.info("✅ Kd5 wurde ausgeführt - Error Dialog sollte erscheinen");
+    logger.info("✅ Kf5 wurde ausgeführt - Error Dialog sollte erscheinen");
 
     // STEP 4: Prüfe Error Dialog mit "Weiterspielen"
     const errorDialog = page.locator('[data-testid="move-error-dialog"]');

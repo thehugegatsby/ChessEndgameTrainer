@@ -190,6 +190,16 @@ export class MoveQualityEvaluator {
       const shouldShowErrorDialog = !playedMoveWasBest && outcomeChanged;
       const bestMove = this.getBestMove(topMoves);
 
+      getLogger().info("[MoveQuality] Decision to show error dialog:", {
+        shouldShowErrorDialog,
+        playedMoveWasBest,
+        outcomeChanged,
+        wdlBeforeFromPlayerPerspective,
+        wdlAfterFromPlayerPerspective,
+        validatedMove: validatedMove.san,
+        bestMove,
+      });
+
       if (shouldShowErrorDialog) {
         getLogger().info(
           "[MoveQuality] Move quality issue detected - suggesting error dialog",
@@ -325,14 +335,14 @@ export class MoveQualityEvaluator {
     playedMoveSan: string,
     playedMoveWasBest: boolean,
   ): void {
-    getLogger().debug("[MoveQuality] Best moves check:");
-    getLogger().debug("  topMovesAvailable:", topMoves.isAvailable);
-    getLogger().debug(
+    getLogger().info("[MoveQuality] Best moves check:");
+    getLogger().info("  topMovesAvailable:", topMoves.isAvailable);
+    getLogger().info(
       "  bestMoves:",
       JSON.stringify(topMoves.moves?.map((m) => m.san)),
     );
-    getLogger().debug("  playedMove:", playedMoveSan);
-    getLogger().debug("  playedMoveWasBest:", playedMoveWasBest);
+    getLogger().info("  playedMove:", playedMoveSan);
+    getLogger().info("  playedMoveWasBest:", playedMoveWasBest);
 
     // Debug each move comparison
     if (topMoves.moves) {

@@ -201,7 +201,7 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
   // No moves available
   if (moves.length === 0) {
     return (
-      <div className={`tablebase-panel ${className}`}>
+      <div className={`tablebase-panel ${className}`} data-testid="tablebase-panel-empty">
         <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
           Tablebase
         </div>

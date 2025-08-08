@@ -44,7 +44,7 @@ test.describe("Weiterspielen Feature", () => {
     await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
 
     // Train/1 starts with: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1
-    // King on e6, optimal move is Kd6, suboptimal is Kd5 or Kf5
+    // King on e6, optimal move is Kd6, suboptimal is Kf5 (Kd5 is illegal - blocked by pawn)
     
     // Get initial game state
     const initialState = await boardPage.getGameState();
@@ -54,12 +54,12 @@ test.describe("Weiterspielen Feature", () => {
       moveCount: initialState.moveCount,
     });
 
-    // STEP 1: Make suboptimal move Kd5 (from e6 to d5)
-    logger.info("Step 1: Making suboptimal move Kd5");
-    const moveSuccessful = await boardPage.makeMoveWithValidation("e6", "d5");
+    // STEP 1: Make suboptimal move Kf5 (from e6 to f5)
+    logger.info("Step 1: Making suboptimal move Kf5");
+    const moveSuccessful = await boardPage.makeMoveWithValidation("e6", "f5");
     
     expect(moveSuccessful).toBe(true);
-    logger.info("✅ Suboptimal move Kd5 was executed");
+    logger.info("✅ Suboptimal move Kf5 was executed");
 
     // STEP 2: Verify error dialog appears
     const errorDialog = page.locator('[data-testid="move-error-dialog"]');
@@ -163,7 +163,7 @@ test.describe("Weiterspielen Feature", () => {
     await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
 
     // Make suboptimal move
-    await boardPage.makeMoveWithValidation("e6", "d5");
+    await boardPage.makeMoveWithValidation("e6", "f5");
 
     // Check error dialog content
     const errorDialog = page.locator('[data-testid="move-error-dialog"]');

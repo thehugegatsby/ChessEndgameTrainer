@@ -56,6 +56,26 @@ export const E2E_TABLEBASE_MOCKS: Record<string, any> = {
     dtz: 17,
     dtm: null,
     precise: true,
+    moves: [
+      {
+        uci: "e6d6",
+        move: "e6d6",
+        san: "Kd6",
+        dtz: 14,
+        dtm: null,
+        wdl: 2,
+        category: "win"
+      },
+      {
+        uci: "e6f6",
+        move: "e6f6",
+        san: "Kf6",
+        dtz: 18,
+        dtm: null,
+        wdl: 2,
+        category: "win"
+      }
+    ]
   },
 
   // After Kd6 (Black to move) - should be loss for Black = win for White
@@ -66,6 +86,26 @@ export const E2E_TABLEBASE_MOCKS: Record<string, any> = {
     dtz: -14,
     dtm: null,
     precise: true,
+    moves: [
+      {
+        uci: "e8d7",
+        move: "e8d7",
+        san: "Kd7",
+        dtz: -13,
+        dtm: null,
+        wdl: -2,
+        category: "loss"
+      },
+      {
+        uci: "e8f8",
+        move: "e8f8",
+        san: "Kf8",
+        dtz: -15,
+        dtm: null,
+        wdl: -2,
+        category: "loss"
+      }
+    ]
   },
 
   // After Kf6 (Black to move) - should also be loss for Black = win for White
@@ -76,6 +116,26 @@ export const E2E_TABLEBASE_MOCKS: Record<string, any> = {
     dtz: -18,
     dtm: null,
     precise: true,
+    moves: [
+      {
+        uci: "e8d8",
+        move: "e8d8",
+        san: "Kd8",
+        dtz: -17,
+        dtm: null,
+        wdl: -2,
+        category: "loss"
+      },
+      {
+        uci: "e8f7",
+        move: "e8f7",
+        san: "Kf7",
+        dtz: -19,
+        dtm: null,
+        wdl: -2,
+        category: "loss"
+      }
+    ]
   },
 
   // After Kd5 (Black to move) - should be draw
@@ -225,6 +285,26 @@ export function setupE2ETablebaseMocks() {
               dtz: -14,
               dtm: null,
               precise: true,
+              moves: [
+                {
+                  uci: "e8d7",
+                  move: "e8d7",
+                  san: "Kd7",
+                  dtz: -13,
+                  dtm: null,
+                  wdl: -2,
+                  category: "loss"
+                },
+                {
+                  uci: "e8f8",
+                  move: "e8f8",
+                  san: "Kf8",
+                  dtz: -15,
+                  dtm: null,
+                  wdl: -2,
+                  category: "loss"
+                }
+              ]
             };
           }
           // Initial position pattern (test line 66)
@@ -235,6 +315,26 @@ export function setupE2ETablebaseMocks() {
               dtz: 17,
               dtm: null,
               precise: true,
+              moves: [
+                {
+                  uci: "e6d6",
+                  move: "e6d6",
+                  san: "Kd6",
+                  dtz: 14,
+                  dtm: null,
+                  wdl: 2,
+                  category: "win"
+                },
+                {
+                  uci: "e6f6",
+                  move: "e6f6",
+                  san: "Kf6",
+                  dtz: 18,
+                  dtm: null,
+                  wdl: 2,
+                  category: "win"
+                }
+              ]
             };
           }
           // After Kf6 pattern
@@ -245,6 +345,26 @@ export function setupE2ETablebaseMocks() {
               dtz: -18,
               dtm: null,
               precise: true,
+              moves: [
+                {
+                  uci: "e8d8",
+                  move: "e8d8",
+                  san: "Kd8",
+                  dtz: -17,
+                  dtm: null,
+                  wdl: -2,
+                  category: "loss"
+                },
+                {
+                  uci: "e8f7",
+                  move: "e8f7",
+                  san: "Kf7",
+                  dtz: -19,
+                  dtm: null,
+                  wdl: -2,
+                  category: "loss"
+                }
+              ]
             };
           }
 
