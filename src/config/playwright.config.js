@@ -13,7 +13,7 @@ const CI = process.env.CI === "true";
 
 const config = {
   // Test directory
-  testDir: "./tests/e2e",
+  testDir: "./src/tests/e2e",
 
   // Test execution
   fullyParallel: true,
@@ -95,7 +95,7 @@ const config = {
     // },
     {
       name: "firebase",
-      testDir: "./tests/e2e/firebase",
+      testDir: "./src/tests/e2e/firebase",
       use: {
         ...devices["Desktop Chrome"],
         // Firebase tests get more time due to emulator
