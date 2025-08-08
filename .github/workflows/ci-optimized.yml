@@ -205,7 +205,7 @@ jobs:
     - name: Run Firebase Integration Tests
       run: |
         # Run only Firebase integration tests
-        npx jest --testPathPattern="firebase" --runInBand --verbose --testTimeout=60000
+        npx jest --testPathPatterns="firebase" --runInBand --verbose --testTimeout=60000
       env:
         NODE_ENV: test
         FIRESTORE_EMULATOR_HOST: localhost:8080

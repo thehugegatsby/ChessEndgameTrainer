@@ -46,6 +46,7 @@ import { getLogger } from "@shared/services/logging/Logger";
 import { ANIMATION, DIMENSIONS } from "@shared/constants";
 import { MoveErrorDialog } from "@shared/components/ui/MoveErrorDialog";
 import { MoveSuccessDialog } from "@shared/components/ui/MoveSuccessDialog";
+import { E2ETestHelper } from "@shared/components/testing/E2ETestHelper";
 import { toLibraryMove } from "@shared/infrastructure/chess-adapter";
 import {
   cancelScheduledOpponentTurn,
@@ -613,7 +614,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
           currentPositionId: trainingState.currentPosition?.id,
           currentPositionFen: trainingState.currentPosition?.fen,
         });
-        return null;
+        return false;
       }
 
       // Add these critical debug logs
@@ -624,7 +625,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
 
       if (isGameFinished) {
         logger.warn("handleMove early return", { isGameFinished });
-        return null;
+        return false;
       }
 
       // Check if piece was dropped on same square (no move)
@@ -632,7 +633,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         logger.debug("Piece dropped on same square, ignoring", {
           square: move.from,
         });
-        return null;
+        return false;
       }
 
       try {
@@ -665,7 +666,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         const errorMessage =
           error instanceof Error ? error.message : "Move failed";
         uiActions.showToast(errorMessage, "error");
-        return null;
+        return false;
       }
     },
     [
@@ -875,124 +876,8 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     }
   }, [onJumpToMove, jumpToMove]);
 
-  // === TEST MODE: AUTO-PLAY MOVES ===
-  // Für E2E Tests: Spiele Züge automatisch ab via URL-Parameter
-  const [testMoveProcessed, setTestMoveProcessed] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && !testMoveProcessed) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const testMoves = urlParams.get("moves");
-
-      // Debug logging
-      const logger = getLogger().setContext("TrainingBoard-TestMode");
-      logger.debug("URL check", {
-        url: window.location.href,
-        search: window.location.search,
-        testMoves,
-        gameReady: !!currentFen,
-        isGameFinished,
-        historyLength: history.length,
-        testMoveProcessed,
-      });
-
-      if (testMoves && currentFen && !isGameFinished) {
-        setTestMoveProcessed(true);
-        const moves = testMoves.split(",");
-        let moveIndex = 0;
-
-        logger.info("Starting automated moves", {
-          moves,
-          totalMoves: moves.length,
-        });
-
-        /**
-         * Recursively plays moves from URL parameter for automated testing
-         *
-         * @description
-         * Internal function that processes a sequence of moves provided
-         * via URL parameter. Supports multiple notation formats and
-         * includes error recovery.
-         *
-         * @remarks
-         * Moves are played with animation delays to simulate user interaction.
-         * Failed moves are skipped and the sequence continues.
-         */
-        const playNextMove = async () => {
-          if (moveIndex < moves.length) {
-            const moveNotation = moves[moveIndex];
-
-            logger.debug("Attempting move", {
-              moveIndex,
-              moveNotation,
-              currentHistoryLength: history.length,
-            });
-
-            try {
-              // Use the handleMove function which includes validation
-              let move;
-              if (moveNotation.includes("-")) {
-                // Format: e2-e4
-                const [from, to] = moveNotation.split("-");
-                move = {
-                  from: from,
-                  to: to,
-                  promotion: "q",
-                };
-              } else {
-                // Format: e4 (SAN) - parse it properly
-                const tempGame = new Chess(chessService.getFen());
-                move = tempGame.move(moveNotation);
-                if (move) {
-                  move = {
-                    from: move.from,
-                    to: move.to,
-                    promotion: move.promotion || "q",
-                  };
-                }
-              }
-
-              if (move) {
-                logger.debug("Move parsed successfully", { move });
-                const result = await handleMove(move);
-
-                if (result) {
-                  moveIndex++;
-                  logger.debug("Move executed successfully", {
-                    moveIndex,
-                    newHistoryLength: history.length,
-                  });
-
-                  // Warte kurz und dann nächster Zug
-                  setTimeout(playNextMove, ANIMATION.MOVE_PLAY_DELAY_NORMAL);
-                } else {
-                  logger.warn("Move execution failed", { moveNotation });
-                }
-              } else {
-                logger.warn("Move parsing returned null", { moveNotation });
-                // Versuche nächsten Zug
-                moveIndex++;
-                setTimeout(playNextMove, ANIMATION.MOVE_PLAY_DELAY_FAST);
-              }
-            } catch (error) {
-              logger.error("Test move failed", error, { moveNotation });
-              // Versuche nächsten Zug
-              moveIndex++;
-              setTimeout(playNextMove, ANIMATION.MOVE_PLAY_DELAY_FAST);
-            }
-          } else {
-            logger.info("Automated moves completed", {
-              finalMoveIndex: moveIndex,
-              finalHistoryLength: history.length,
-            });
-          }
-        };
-
-        // Starte nach initialem Render
-        setTimeout(playNextMove, ANIMATION.MOVE_PLAY_DELAY_SLOW);
-      }
-    }
-  }, [currentFen, isGameFinished, handleMove, testMoveProcessed]);
+  // === E2E TEST SUPPORT ===
+  // E2E testing logic extracted to separate E2ETestHelper component
 
   // === PAGE READY DETECTION ===
   const isAnalysisReady =
@@ -1084,6 +969,14 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
           moveDescription={moveSuccessData.moveDescription}
         />
       )}
+
+      {/* E2E Test Helper - Handles automated move execution for testing */}
+      <E2ETestHelper
+        currentFen={currentFen}
+        isGameFinished={isGameFinished}
+        onMove={handleMove}
+        moveHistory={history}
+      />
     </div>
   );
 };
