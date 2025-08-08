@@ -1,0 +1,77 @@
+15e5a0d5a5af97abf8530188bea1952a
+/**
+ * Service Container Module
+ * Simplified, focused DI for Jest 30 localStorage migration
+ */ // Core container
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: Object.getOwnPropertyDescriptor(all, name).get
+    });
+}
+_export(exports, {
+    get CircularDependencyError () {
+        return _types.CircularDependencyError;
+    },
+    get ServiceAlreadyRegisteredError () {
+        return _types.ServiceAlreadyRegisteredError;
+    },
+    get ServiceContainer () {
+        return _ServiceContainer.ServiceContainer;
+    },
+    get ServiceNotFoundError () {
+        return _types.ServiceNotFoundError;
+    },
+    get ServiceProvider () {
+        return _adapter.ServiceProvider;
+    },
+    get createMockDocument () {
+        return _mocks.createMockDocument;
+    },
+    get createMockNavigator () {
+        return _mocks.createMockNavigator;
+    },
+    get createMockPerformance () {
+        return _mocks.createMockPerformance;
+    },
+    get createMockStorage () {
+        return _mocks.createMockStorage;
+    },
+    get createMockWindow () {
+        return _mocks.createMockWindow;
+    },
+    get getPlatformService () {
+        return _adapter.getPlatformService;
+    },
+    get resetPlatformService () {
+        return _adapter.resetPlatformService;
+    },
+    get useLocalStorage () {
+        return _adapter.useLocalStorage;
+    },
+    get usePlatformDevice () {
+        return _adapter.usePlatformDevice;
+    },
+    get usePlatformNotifications () {
+        return _adapter.usePlatformNotifications;
+    },
+    get usePlatformStorage () {
+        return _adapter.usePlatformStorage;
+    },
+    get useService () {
+        return _adapter.useService;
+    },
+    get useServiceContainer () {
+        return _adapter.useServiceContainer;
+    }
+});
+const _ServiceContainer = require("./ServiceContainer");
+const _types = require("./types");
+const _mocks = require("./mocks");
+const _adapter = require("./adapter");
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9ob21lL3RoZWh1L2Nvb2xQcm9qZWN0cy9FbmRnYW1lVHJhaW5lci1maXJlYmFzZS10ZXN0aW5nL3NyYy9zaGFyZWQvc2VydmljZXMvY29udGFpbmVyL2luZGV4LnRzIl0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxuICogU2VydmljZSBDb250YWluZXIgTW9kdWxlXG4gKiBTaW1wbGlmaWVkLCBmb2N1c2VkIERJIGZvciBKZXN0IDMwIGxvY2FsU3RvcmFnZSBtaWdyYXRpb25cbiAqL1xuXG4vLyBDb3JlIGNvbnRhaW5lclxuZXhwb3J0IHsgU2VydmljZUNvbnRhaW5lciB9IGZyb20gXCIuL1NlcnZpY2VDb250YWluZXJcIjtcblxuLy8gVHlwZXNcbmV4cG9ydCB0eXBlIHtcbiAgSVNlcnZpY2VDb250YWluZXIsXG4gIFNlcnZpY2VSZWdpc3RyeSxcbiAgU2VydmljZUZhY3RvcnksXG4gIFNlcnZpY2VLZXksXG4gIFNlcnZpY2VPdmVycmlkZXMsXG4gIFNlcnZpY2VDb250YWluZXJDb25maWcsXG4gIElCcm93c2VyQVBJcyxcbn0gZnJvbSBcIi4vdHlwZXNcIjtcblxuLy8gRXJyb3JzXG5leHBvcnQge1xuICBTZXJ2aWNlTm90Rm91bmRFcnJvcixcbiAgU2VydmljZUFscmVhZHlSZWdpc3RlcmVkRXJyb3IsXG4gIENpcmN1bGFyRGVwZW5kZW5jeUVycm9yLFxufSBmcm9tIFwiLi90eXBlc1wiO1xuXG4vLyBNb2NrcyBmb3IgdGVzdGluZ1xuZXhwb3J0IHtcbiAgY3JlYXRlTW9ja1N0b3JhZ2UsXG4gIGNyZWF0ZU1vY2tOYXZpZ2F0b3IsXG4gIGNyZWF0ZU1vY2tXaW5kb3csXG4gIGNyZWF0ZU1vY2tEb2N1bWVudCxcbiAgY3JlYXRlTW9ja1BlcmZvcm1hbmNlLFxufSBmcm9tIFwiLi9tb2Nrc1wiO1xuXG4vLyBSZWFjdCBpbnRlZ3JhdGlvblxuZXhwb3J0IHtcbiAgU2VydmljZVByb3ZpZGVyLFxuICB1c2VTZXJ2aWNlQ29udGFpbmVyLFxuICB1c2VTZXJ2aWNlLFxuICB1c2VQbGF0Zm9ybVN0b3JhZ2UsXG4gIHVzZVBsYXRmb3JtRGV2aWNlLFxuICB1c2VQbGF0Zm9ybU5vdGlmaWNhdGlvbnMsXG4gIHVzZUxvY2FsU3RvcmFnZSxcbiAgZ2V0UGxhdGZvcm1TZXJ2aWNlLFxuICByZXNldFBsYXRmb3JtU2VydmljZSxcbn0gZnJvbSBcIi4vYWRhcHRlclwiO1xuIl0sIm5hbWVzIjpbIkNpcmN1bGFyRGVwZW5kZW5jeUVycm9yIiwiU2VydmljZUFscmVhZHlSZWdpc3RlcmVkRXJyb3IiLCJTZXJ2aWNlQ29udGFpbmVyIiwiU2VydmljZU5vdEZvdW5kRXJyb3IiLCJTZXJ2aWNlUHJvdmlkZXIiLCJjcmVhdGVNb2NrRG9jdW1lbnQiLCJjcmVhdGVNb2NrTmF2aWdhdG9yIiwiY3JlYXRlTW9ja1BlcmZvcm1hbmNlIiwiY3JlYXRlTW9ja1N0b3JhZ2UiLCJjcmVhdGVNb2NrV2luZG93IiwiZ2V0UGxhdGZvcm1TZXJ2aWNlIiwicmVzZXRQbGF0Zm9ybVNlcnZpY2UiLCJ1c2VMb2NhbFN0b3JhZ2UiLCJ1c2VQbGF0Zm9ybURldmljZSIsInVzZVBsYXRmb3JtTm90aWZpY2F0aW9ucyIsInVzZVBsYXRmb3JtU3RvcmFnZSIsInVzZVNlcnZpY2UiLCJ1c2VTZXJ2aWNlQ29udGFpbmVyIl0sIm1hcHBpbmdzIjoiQUFBQTs7O0NBR0MsR0FFRCxpQkFBaUI7Ozs7Ozs7Ozs7OztRQWtCZkE7ZUFBQUEsOEJBQXVCOztRQUR2QkM7ZUFBQUEsb0NBQTZCOztRQWhCdEJDO2VBQUFBLGtDQUFnQjs7UUFldkJDO2VBQUFBLDJCQUFvQjs7UUFnQnBCQztlQUFBQSx3QkFBZTs7UUFOZkM7ZUFBQUEseUJBQWtCOztRQUZsQkM7ZUFBQUEsMEJBQW1COztRQUduQkM7ZUFBQUEsNEJBQXFCOztRQUpyQkM7ZUFBQUEsd0JBQWlCOztRQUVqQkM7ZUFBQUEsdUJBQWdCOztRQWNoQkM7ZUFBQUEsMkJBQWtCOztRQUNsQkM7ZUFBQUEsNkJBQW9COztRQUZwQkM7ZUFBQUEsd0JBQWU7O1FBRmZDO2VBQUFBLDBCQUFpQjs7UUFDakJDO2VBQUFBLGlDQUF3Qjs7UUFGeEJDO2VBQUFBLDJCQUFrQjs7UUFEbEJDO2VBQUFBLG1CQUFVOztRQURWQztlQUFBQSw0QkFBbUI7OztrQ0FoQ1k7dUJBa0IxQjt1QkFTQTt5QkFhQSJ9

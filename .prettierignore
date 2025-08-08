@@ -1,9 +1,1 @@
-node_modules/
-coverage/
-build/
-dist/
-.next/
-playwright-report/
-test-results/
-*.log
-*.lockb
+../EndgameTrainer/.prettierignore

@@ -1,0 +1,22 @@
+fc20315e8648d3c4161f2a0697224c51
+/**
+ * Firebase Test Setup
+ * Configures the test environment for Firebase integration tests
+ */ // Set up fetch for Firebase Auth in Node environment
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+const _nodefetch = /*#__PURE__*/ _interop_require_default(require("node-fetch"));
+function _interop_require_default(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+// Make fetch available globally for Firebase Auth
+global.fetch = _nodefetch.default;
+global.Headers = _nodefetch.default.Headers;
+global.Request = _nodefetch.default.Request;
+global.Response = _nodefetch.default.Response;
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9ob21lL3RoZWh1L2Nvb2xQcm9qZWN0cy9FbmRnYW1lVHJhaW5lci1maXJlYmFzZS10ZXN0aW5nL3NyYy90ZXN0cy9zZXR1cC9maXJlYmFzZS10ZXN0LXNldHVwLnRzIl0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxuICogRmlyZWJhc2UgVGVzdCBTZXR1cFxuICogQ29uZmlndXJlcyB0aGUgdGVzdCBlbnZpcm9ubWVudCBmb3IgRmlyZWJhc2UgaW50ZWdyYXRpb24gdGVzdHNcbiAqL1xuXG4vLyBTZXQgdXAgZmV0Y2ggZm9yIEZpcmViYXNlIEF1dGggaW4gTm9kZSBlbnZpcm9ubWVudFxuaW1wb3J0IGZldGNoIGZyb20gJ25vZGUtZmV0Y2gnO1xuXG4vLyBNYWtlIGZldGNoIGF2YWlsYWJsZSBnbG9iYWxseSBmb3IgRmlyZWJhc2UgQXV0aFxuKGdsb2JhbCBhcyBhbnkpLmZldGNoID0gZmV0Y2g7XG4oZ2xvYmFsIGFzIGFueSkuSGVhZGVycyA9IGZldGNoLkhlYWRlcnM7XG4oZ2xvYmFsIGFzIGFueSkuUmVxdWVzdCA9IGZldGNoLlJlcXVlc3Q7XG4oZ2xvYmFsIGFzIGFueSkuUmVzcG9uc2UgPSBmZXRjaC5SZXNwb25zZTtcblxuLy8gRXhwb3J0IGZvciB1c2UgaW4gdGVzdHNcbmV4cG9ydCB7fTsiXSwibmFtZXMiOlsiZ2xvYmFsIiwiZmV0Y2giLCJIZWFkZXJzIiwiUmVxdWVzdCIsIlJlc3BvbnNlIl0sIm1hcHBpbmdzIjoiQUFBQTs7O0NBR0MsR0FFRCxxREFBcUQ7Ozs7O2tFQUNuQzs7Ozs7O0FBRWxCLGtEQUFrRDtBQUNqREEsT0FBZUMsS0FBSyxHQUFHQSxrQkFBSztBQUM1QkQsT0FBZUUsT0FBTyxHQUFHRCxrQkFBSyxDQUFDQyxPQUFPO0FBQ3RDRixPQUFlRyxPQUFPLEdBQUdGLGtCQUFLLENBQUNFLE9BQU87QUFDdENILE9BQWVJLFFBQVEsR0FBR0gsa0JBQUssQ0FBQ0csUUFBUSJ9

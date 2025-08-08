@@ -1,1 +1,1 @@
-src/config/tailwind.config.js
+../EndgameTrainer/tailwind.config.js

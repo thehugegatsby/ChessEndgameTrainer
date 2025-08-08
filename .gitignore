@@ -1,28 +1,16 @@
-# Dependencies & Build
+# Symlinked files
 node_modules
 .next
 dist
 build
-
-# Environment
 .env
 .env.local
-
-# Config files (DO NOT IGNORE - needed for project)
-# package.json
-# package-lock.json
-# tsconfig.json
-# .eslintrc.json
-# .prettierrc
-# *.config.js
-
-# Test & Coverage Reports
-coverage/
-test-results/
-playwright-report/
-# Don't ignore all HTML files - only specific test output
-test-results/**/*.html
-playwright-report/**/*.html
+package.json
+package-lock.json
+tsconfig.json
+.eslintrc.json
+.prettierrc
+*.config.js
 
 # IDE
 .vscode/
@@ -35,31 +23,3 @@ npm-debug.log*
 # OS
 .DS_Store
 Thumbs.db
-.jest-cache/
-
-# TypeScript build info
-tsconfig.tsbuildinfo
-*.tsbuildinfo
-
-# Firebase service account keys (SECURITY - NEVER COMMIT!)
-config/serviceAccountKey.json
-config/*.json
-serviceAccountKey.json
-*-firebase-adminsdk-*.json
-.firebase/
-firebase-debug.log
-
-# POC and temp files
-/poc
-board-structure.png
-# Only ignore test files in root, not in src/tests
-/test-*.js
-/test-*.html
-test_results.txt
-
-# Logs directory
-/logs
-pm2-*.log
-
-# Zone.Identifier files (Windows WSL)
-*.Zone.Identifier
