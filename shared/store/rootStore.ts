@@ -40,7 +40,10 @@ import {
   createTrainingSlice,
   initialTrainingState,
 } from "./slices/trainingSlice";
-import { createProgressSlice, initialProgressState } from "./slices/progressSlice";
+import {
+  createProgressSlice,
+  initialProgressState,
+} from "./slices/progressSlice";
 import { createUISlice, initialUIState } from "./slices/uiSlice";
 
 // Import ChessService for event subscription
@@ -123,6 +126,16 @@ export const useStore = create<RootState>()(
           resetPosition: trainingSlice.resetPosition,
         };
 
+        // CRITICAL FIX: Also store tablebase actions separately
+        const tablebaseActions = {
+          setTablebaseMove: tablebaseSlice.setTablebaseMove,
+          setAnalysisStatus: tablebaseSlice.setAnalysisStatus,
+          addEvaluation: tablebaseSlice.addEvaluation,
+          setEvaluations: tablebaseSlice.setEvaluations,
+          setCurrentEvaluation: tablebaseSlice.setCurrentEvaluation,
+          clearTablebaseState: tablebaseSlice.clearTablebaseState,
+        };
+
         return {
           // Nested state structure - each slice in its namespace
           game: gameSlice,
@@ -133,6 +146,7 @@ export const useStore = create<RootState>()(
 
           // CRITICAL: Store training actions at root level to prevent Immer stripping
           _trainingActions: trainingActions,
+          _tablebaseActions: tablebaseActions,
 
           // Orchestrator actions - coordinate across multiple slices
           /**
@@ -302,6 +316,25 @@ export const useStore = create<RootState>()(
           // - UI state - ephemeral (toasts, modals, loading)
           // - Tablebase state - ephemeral (analysis data)
         }),
+        // Merge strategy to prevent overwriting the entire slice
+        merge: (persistedState, currentState) => {
+          // Deep merge to preserve slice structure and functions
+          const merged = { ...currentState };
+
+          if (persistedState && typeof persistedState === "object") {
+            const persisted = persistedState as any;
+
+            // Only merge the specific persisted properties, not the entire slice
+            if (persisted.training?.currentPosition) {
+              merged.training = {
+                ...currentState.training,
+                currentPosition: persisted.training.currentPosition,
+              };
+            }
+          }
+
+          return merged;
+        },
       },
     ),
     {

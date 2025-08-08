@@ -107,6 +107,16 @@ export const createStore = (initialState?: Partial<RootState>) => {
             resetPosition: trainingSlice.resetPosition,
           };
 
+          // CRITICAL FIX: Also store tablebase actions separately
+          const tablebaseActions = {
+            setTablebaseMove: tablebaseSlice.setTablebaseMove,
+            setAnalysisStatus: tablebaseSlice.setAnalysisStatus,
+            addEvaluation: tablebaseSlice.addEvaluation,
+            setEvaluations: tablebaseSlice.setEvaluations,
+            setCurrentEvaluation: tablebaseSlice.setCurrentEvaluation,
+            clearTablebaseState: tablebaseSlice.clearTablebaseState,
+          };
+
           const rootState: RootState = {
             // Nested state structure - each slice in its namespace
             game: gameSlice,
@@ -117,6 +127,7 @@ export const createStore = (initialState?: Partial<RootState>) => {
 
             // CRITICAL: Store training actions at root level to prevent Immer stripping
             _trainingActions: trainingActions,
+            _tablebaseActions: tablebaseActions,
 
             // Orchestrator actions - coordinate across multiple slices
             handlePlayerMove: async (
@@ -189,9 +200,47 @@ export const createStore = (initialState?: Partial<RootState>) => {
             },
           };
 
-          // Apply initial state if provided
+          // Apply initial state if provided - Deep merge to preserve slice functions
           if (initialState) {
-            Object.assign(rootState, initialState);
+            // Merge game state properties
+            if (initialState.game) {
+              Object.assign(rootState.game, initialState.game);
+
+              // CRITICAL: Also sync ChessService with initial FEN
+              if (initialState.game.currentFen) {
+                try {
+                  chessService.initialize(initialState.game.currentFen);
+                } catch (error) {
+                  getLogger().error(
+                    "Failed to load initial FEN into ChessService",
+                    {
+                      fen: initialState.game.currentFen,
+                      error,
+                    },
+                  );
+                }
+              }
+            }
+
+            // Merge training state properties
+            if (initialState.training) {
+              Object.assign(rootState.training, initialState.training);
+            }
+
+            // Merge tablebase state properties
+            if (initialState.tablebase) {
+              Object.assign(rootState.tablebase, initialState.tablebase);
+            }
+
+            // Merge progress state properties
+            if (initialState.progress) {
+              Object.assign(rootState.progress, initialState.progress);
+            }
+
+            // Merge UI state properties
+            if (initialState.ui) {
+              Object.assign(rootState.ui, initialState.ui);
+            }
           }
 
           return rootState;
@@ -205,6 +254,25 @@ export const createStore = (initialState?: Partial<RootState>) => {
               currentPosition: state.training.currentPosition,
             },
           }),
+          // Merge strategy to prevent overwriting the entire slice
+          merge: (persistedState, currentState) => {
+            // Deep merge to preserve slice structure and functions
+            const merged = { ...currentState };
+
+            if (persistedState && typeof persistedState === "object") {
+              const persisted = persistedState as any;
+
+              // Only merge the specific persisted properties, not the entire slice
+              if (persisted.training?.currentPosition) {
+                merged.training = {
+                  ...currentState.training,
+                  currentPosition: persisted.training.currentPosition,
+                };
+              }
+            }
+
+            return merged;
+          },
         },
       ),
       {
@@ -212,18 +280,6 @@ export const createStore = (initialState?: Partial<RootState>) => {
         enabled: process.env.NODE_ENV === "development",
       },
     ),
-  );
-
-  // DEBUG: Check what the store actually contains after creation
-  const logger = getLogger().setContext("CreateStore");
-  logger.debug("POST-CREATE store.getState().training keys", {
-    keys: Object.keys(store.getState().training),
-  });
-  logger.debug(
-    "POST-CREATE store.getState().training has setMoveErrorDialog?",
-    {
-      hasSetMoveErrorDialog: "setMoveErrorDialog" in store.getState().training,
-    },
   );
 
   // Subscribe to ChessService events for automatic state synchronization

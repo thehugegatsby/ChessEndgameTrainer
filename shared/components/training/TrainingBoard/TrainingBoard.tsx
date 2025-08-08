@@ -21,6 +21,12 @@
  * training system, coordinating between multiple services and state slices.
  */
 
+// CRITICAL DEBUG: Test if TrainingBoard is loading
+console.log(
+  "🎯 CLIENT-SIDE: TrainingBoard module is loading!",
+  new Date().toISOString(),
+);
+
 import React, {
   useEffect,
   useCallback,
@@ -272,7 +278,13 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
 
     const currentEvaluations = evaluations || [];
     const updatedEvaluations = [...currentEvaluations, lastEvaluation];
-    tablebaseActions.setEvaluations(updatedEvaluations);
+
+    // Check if setEvaluations exists before calling
+    if (tablebaseActions?.setEvaluations) {
+      tablebaseActions.setEvaluations(updatedEvaluations);
+    } else {
+      console.error("❌ tablebaseActions.setEvaluations is not available!");
+    }
   }, [lastEvaluation, currentFen, evaluations, tablebaseActions]);
 
   // UI state management - local component state only
@@ -474,6 +486,21 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
 
   // Update analysis status based on evaluation state
   useEffect(() => {
+    console.debug("🔍 TablebaseActions debug", {
+      hasTablebaseActions: !!tablebaseActions,
+      hasSetAnalysisStatus: !!tablebaseActions?.setAnalysisStatus,
+      tablebaseActionsKeys: Object.keys(tablebaseActions || {}),
+      isEvaluating,
+    });
+
+    // CRITICAL: Safe-guard to prevent crashes
+    if (!tablebaseActions?.setAnalysisStatus) {
+      console.warn(
+        "⚠️ tablebaseActions.setAnalysisStatus not available, skipping",
+      );
+      return;
+    }
+
     if (isEvaluating) {
       tablebaseActions.setAnalysisStatus("loading");
     } else if (tablebaseState.analysisStatus === "loading") {
@@ -521,16 +548,21 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   const handleMove = useCallback(
     async (move: any) => {
       const logger = getLogger().setContext("TrainingBoard-handleMove");
-      logger.debug("handleMove called", {
+      logger.debug("🚀 handleMove called", {
         move,
         isGameFinished,
         isPositionReady,
+        hasCurrentPosition: !!trainingState.currentPosition,
+        currentFen,
+        chessServiceFen: chessService.getFen(),
       });
 
       // CRITICAL: Block moves if position is not ready
       if (!isPositionReady) {
-        logger.warn("Position not ready, blocking move", {
+        logger.warn("⛔ Position not ready, blocking move", {
           hasCurrentPosition: !!trainingState.currentPosition,
+          currentPositionId: trainingState.currentPosition?.id,
+          currentPositionFen: trainingState.currentPosition?.fen,
         });
         return null;
       }
@@ -822,19 +854,44 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
    */
   const onDrop = useCallback(
     (sourceSquare: string, targetSquare: string, _piece: string): boolean => {
+      const logger = getLogger().setContext("TrainingBoard-onDrop");
+
+      logger.debug("🎯 onDrop called", {
+        sourceSquare,
+        targetSquare,
+        piece: _piece,
+        isPositionReady,
+        isGameFinished,
+        hasCurrentPosition: !!trainingState.currentPosition,
+        currentFen,
+      });
+
       // Block drops if position is not ready or game is finished
-      if (!isPositionReady || isGameFinished) return false;
+      if (!isPositionReady || isGameFinished) {
+        logger.warn("⛔ onDrop blocked", {
+          isPositionReady,
+          isGameFinished,
+          reason: !isPositionReady ? "position not ready" : "game finished",
+        });
+        return false;
+      }
 
       const move = {
         from: sourceSquare,
         to: targetSquare,
-        promotion: "q",
       };
 
+      logger.debug("✅ onDrop calling handleMove", { move });
       handleMove(move);
       return true;
     },
-    [handleMove, isGameFinished, isPositionReady],
+    [
+      handleMove,
+      isGameFinished,
+      isPositionReady,
+      trainingState.currentPosition,
+      currentFen,
+    ],
   );
 
   // Handle reset trigger from parent

@@ -293,6 +293,10 @@ export interface RootState {
   progress: ProgressState;
   ui: UIState;
   settings: SettingsState;
+
+  // Internal action references (used to prevent Immer stripping)
+  _trainingActions?: any;
+  _tablebaseActions?: any;
 }
 
 // Action types

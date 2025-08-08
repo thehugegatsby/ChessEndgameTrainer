@@ -1,6 +1,8 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import { EndgameTrainingPage } from "@shared/pages/EndgameTrainingPage";
+import { StoreProvider } from "@shared/store/StoreContext";
+import { createInitialStateForPosition } from "@shared/store/server/createInitialState";
 import { getServerPositionService } from "@shared/services/database/serverPositionService";
 import { getLogger } from "@shared/services/logging";
 import { ErrorService } from "@shared/services/ErrorService";
@@ -42,8 +44,17 @@ export default async function TrainingPage({ params }: TrainingPageProps) {
       notFound();
     }
 
-    return <EndgameTrainingPage position={position} />;
+    // Generate the initial state on the server for SSR hydration
+    logger.info("Creating initial state for position", { positionId: position.id });
+    const initialStoreState = await createInitialStateForPosition(position);
+
+    return (
+      <StoreProvider initialState={initialStoreState as any}>
+        <EndgameTrainingPage />
+      </StoreProvider>
+    );
   } catch (error) {
+    logger.error("Failed to load training page", { error, positionId: id });
     ErrorService.handleNetworkError(error as Error, {
       component: "train",
       action: "load_position",

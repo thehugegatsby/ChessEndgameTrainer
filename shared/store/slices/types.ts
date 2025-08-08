@@ -12,6 +12,9 @@ import {
   AnalysisPanelState,
   AnalysisStatus,
 } from "../types";
+
+// Re-export UIState for external use
+export type { UIState };
 import { ValidatedMove } from "@shared/types/chess";
 import { PositionAnalysis } from "@shared/types/evaluation";
 import { EndgamePosition } from "@shared/types/endgame";
@@ -159,10 +162,10 @@ export interface ProgressState {
   userStats: UserStats | null;
   sessionProgress: SessionProgress;
   cardProgress: Record<string, CardProgress>; // Map from positionId to progress
-  
+
   // Sync status
   loading: boolean;
-  syncStatus: 'idle' | 'syncing' | 'error';
+  syncStatus: "idle" | "syncing" | "error";
   lastSync: number | null;
   syncError: string | null;
 }
@@ -172,16 +175,16 @@ export interface ProgressActions {
   setUserStats: (stats: UserStats | null) => void;
   updateSessionProgress: (progress: Partial<SessionProgress>) => void;
   setLoading: (loading: boolean) => void;
-  setSyncStatus: (status: 'idle' | 'syncing' | 'error') => void;
+  setSyncStatus: (status: "idle" | "syncing" | "error") => void;
   setLastSync: (timestamp: number | null) => void;
   setSyncError: (error: string | null) => void;
-  
+
   // Card progress management (synchronous)
   initializeCards: (cards: CardProgress[]) => void;
   recordAttempt: (positionId: string, wasCorrect: boolean) => void;
   resetCardProgress: (positionId: string) => void;
   setCardProgress: (positionId: string, progress: CardProgress) => void;
-  
+
   // Batch operations (synchronous)
   batchUpdateProgress: (updates: {
     userStats?: Partial<UserStats>;
@@ -192,15 +195,19 @@ export interface ProgressActions {
   // Async Firebase operations
   loadUserProgress: (userId: string) => Promise<void>;
   saveUserStats: (userId: string, updates: Partial<UserStats>) => Promise<void>;
-  saveCardProgress: (userId: string, positionId: string, progress: CardProgress) => Promise<void>;
+  saveCardProgress: (
+    userId: string,
+    positionId: string,
+    progress: CardProgress,
+  ) => Promise<void>;
   saveSessionComplete: (
-    userId: string, 
+    userId: string,
     sessionStats: Partial<UserStats>,
-    cardUpdates: Array<{ positionId: string; progress: CardProgress }>
+    cardUpdates: Array<{ positionId: string; progress: CardProgress }>,
   ) => Promise<void>;
   getDueCards: (userId: string) => Promise<CardProgress[]>;
   syncAllProgress: (userId: string) => Promise<void>;
-  
+
   // Reset
   resetProgress: () => void;
 }
@@ -220,7 +227,7 @@ export interface UserStats {
 export interface SessionProgress {
   positionsCompleted: number;
   positionsCorrect: number; // For deriving success rate
-  positionsAttempted: number; // For deriving success rate  
+  positionsAttempted: number; // For deriving success rate
   timeSpent: number;
   hintsUsed: number;
   mistakesMade: number;
@@ -234,12 +241,12 @@ export interface CardProgress {
   id: string; // Unique identifier for the card progress record
   nextReviewAt: number; // Timestamp of the next scheduled review
   lastReviewedAt: number; // Timestamp of the last review
-  
+
   // SuperMemo algorithm fields (aligned with supermemo library)
   interval: number; // Number of days until next review (output from supermemo)
   repetition: number; // Number of consecutive correct responses (input/output for supermemo)
   efactor: number; // Ease factor (input/output for supermemo, typically 1.3-2.5)
-  
+
   // Application-specific tracking
   lapses: number; // Number of times the card was answered incorrectly
 }
@@ -288,6 +295,7 @@ export type RootState = BaseState &
     reset: () => void;
     hydrate: (state: Partial<BaseState>) => void;
     _trainingActions: TrainingActions;
+    _tablebaseActions: TablebaseActions;
   };
 
 /**

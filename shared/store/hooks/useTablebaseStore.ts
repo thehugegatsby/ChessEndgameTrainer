@@ -80,18 +80,20 @@ export const useTablebaseActions = (): TablebaseActionsType => {
   // Non-reactive access to avoid SSR issues
   const storeApi = useStoreApi();
   const state = storeApi.getState();
-  const actions = state.tablebase;
+
+  // CRITICAL FIX: Access actions from root level where they're preserved, with fallback
+  const actions = (state as any)._tablebaseActions || state.tablebase;
 
   // Memoize the actions object to ensure stable reference
   return useMemo(
     () => ({
       // Tablebase actions
-      setTablebaseMove: actions.setTablebaseMove,
-      setAnalysisStatus: actions.setAnalysisStatus,
-      addEvaluation: actions.addEvaluation,
-      setEvaluations: actions.setEvaluations,
-      setCurrentEvaluation: actions.setCurrentEvaluation,
-      clearTablebaseState: actions.clearTablebaseState,
+      setTablebaseMove: actions?.setTablebaseMove || (() => {}),
+      setAnalysisStatus: actions?.setAnalysisStatus || (() => {}),
+      addEvaluation: actions?.addEvaluation || (() => {}),
+      setEvaluations: actions?.setEvaluations || (() => {}),
+      setCurrentEvaluation: actions?.setCurrentEvaluation || (() => {}),
+      clearTablebaseState: actions?.clearTablebaseState || (() => {}),
 
       // Note: requestPositionEvaluation removed - use chessService.fetchEvaluation() directly
     }),

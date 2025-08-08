@@ -1,1 +1,0 @@
-../EndgameTrainer/next.config.js

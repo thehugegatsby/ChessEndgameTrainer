@@ -104,14 +104,18 @@ class ChessService {
    */
   initialize(fen: string): boolean {
     try {
+      // logger.debug("ChessService.initialize called", { fen });
+
       // Check cache first (storing normalized FEN strings, not Chess instances)
       if (this.fenCache.has(fen)) {
         const cachedFen = this.fenCache.get(fen)!;
         this.chess = new Chess(cachedFen);
+        // Using cached FEN
       } else {
         this.chess = new Chess(fen);
         // Cache the normalized FEN
         this.updateCache(fen, this.chess.fen());
+        // Created new Chess instance
       }
 
       // CRITICAL: Store the initial FEN for reset operations
@@ -119,13 +123,15 @@ class ChessService {
       this.moveHistory = [];
       this.currentMoveIndex = -1;
 
+      // ChessService initialized
+
       this.emit({
         type: "stateUpdate",
         payload: this.buildStatePayload(),
         source: "load",
       });
 
-      logger.debug("Initialized with FEN", { fen });
+      // State update emitted to listeners
       return true;
     } catch (error) {
       // Emit error event for initialization failures
@@ -153,10 +159,17 @@ class ChessService {
   ): ValidatedMove | null {
     try {
       const fenBefore = this.chess.fen();
+      // logger.debug("ChessService.move called", { move, fenBefore });
+
       const result = this.chess.move(move);
 
       if (!result) {
         // Emit error event for invalid moves
+        logger.warn("Invalid move attempted", {
+          move,
+          fenBefore,
+        });
+
         this.emit({
           type: "error",
           payload: {
@@ -165,7 +178,6 @@ class ChessService {
             message: "Ungültiger Zug",
           },
         });
-        logger.warn("Invalid move attempted", { move });
         return null;
       }
 
@@ -404,10 +416,18 @@ class ChessService {
       | string,
   ): boolean {
     try {
+      const currentFen = this.chess.fen();
+      // logger.debug("ChessService.validateMove", { move, currentFen });
+
       // Create a temporary chess instance to test the move
-      const tempChess = new Chess(this.chess.fen());
-      return tempChess.move(move) !== null;
-    } catch {
+      const tempChess = new Chess(currentFen);
+      const result = tempChess.move(move);
+
+      // Validation result determined
+
+      return result !== null;
+    } catch (error) {
+      logger.error("ChessService.validateMove error", { error, move });
       return false;
     }
   }

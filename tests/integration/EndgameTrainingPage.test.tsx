@@ -154,7 +154,7 @@ describe("EndgameTrainingPage Integration Tests", () => {
   const renderPage = () => {
     return render(
       <StoreProvider>
-        <EndgameTrainingPage position={mockPosition} />
+        <EndgameTrainingPage />
       </StoreProvider>,
     );
   };

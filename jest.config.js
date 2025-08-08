@@ -1,13 +1,26 @@
-/** @type {import('ts-jest').JestConfigWithTsJest} */
+/** @type {import('jest').Config} */
 module.exports = {
-  preset: 'ts-jest',
   testEnvironment: 'jsdom',
   transform: {
-    '^.+\\.(ts|tsx|js|jsx)$': ['ts-jest', {
-      tsconfig: {
-        jsx: 'react-jsx',
-        esModuleInterop: true,
-        allowSyntheticDefaultImports: true
+    '^.+\\.(ts|tsx|js|jsx)$': ['@swc/jest', {
+      jsc: {
+        parser: {
+          syntax: 'typescript',
+          tsx: true,
+          decorators: false,
+          dynamicImport: true
+        },
+        transform: {
+          react: {
+            runtime: 'automatic',
+            development: false,
+            refresh: false
+          }
+        },
+        target: 'es2020'
+      },
+      module: {
+        type: 'commonjs'
       }
     }]
   },
@@ -59,5 +72,13 @@ module.exports = {
   restoreMocks: true,
   
   // Verbose output
-  verbose: false
+  verbose: false,
+  
+  // Performance optimizations
+  maxWorkers: '50%',
+  cache: true,
+  cacheDirectory: '<rootDir>/.jest-cache',
+  
+  // Fail fast in CI
+  bail: process.env.CI ? 1 : 0
 };

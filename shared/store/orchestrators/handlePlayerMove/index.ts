@@ -69,27 +69,37 @@ export const handlePlayerMove = async (
   api: StoreApi,
   move: ChessJsMove | { from: string; to: string; promotion?: string } | string,
 ): Promise<boolean> => {
-  getLogger().info("[handlePlayerMove] Orchestrator called:", { move });
+  // getLogger().info("[handlePlayerMove] Orchestrator called:", { move });
 
   const { getState, setState } = api;
   const state = getState();
+
+  // Debug logging removed - state validation
 
   // Early validation - check if it's player's turn
   if (!state.training.isPlayerTurn || state.training.isOpponentThinking) {
     getLogger().debug(
       "[handlePlayerMove] Early return - not player turn or opponent thinking",
+      {
+        isPlayerTurn: state.training.isPlayerTurn,
+        isOpponentThinking: state.training.isOpponentThinking,
+      },
     );
     return false;
   }
 
   try {
+    // Setting loading state
     // Set loading state
     setState((draft) => {
       draft.ui.loading.position = true;
     });
 
     // Step 1: Validate move using MoveValidator
+    // Validating move
     const validationResult = await moveValidator.validateMove(move);
+    // getLogger().info("[handlePlayerMove] Validation result:", validationResult);
+
     if (!validationResult.isValid) {
       setState((draft) => {
         draft.ui.toasts.push({
@@ -103,9 +113,16 @@ export const handlePlayerMove = async (
 
     // Step 2: Get position before move for evaluation
     const fenBefore = chessService.getFen();
+    // getLogger().info("[handlePlayerMove] FEN before move:", fenBefore);
 
     // Step 3: Apply move to game state
+    // Applying move to ChessService
     const validatedMove = chessService.move(move);
+    // getLogger().info("[handlePlayerMove] Move result:", {
+    //   success: !!validatedMove,
+    //   move: validatedMove
+    // });
+
     if (!validatedMove) {
       getLogger().error(
         "[handlePlayerMove] Move execution failed after validation",
@@ -114,6 +131,7 @@ export const handlePlayerMove = async (
     }
 
     const fenAfter = chessService.getFen();
+    // getLogger().info("[handlePlayerMove] FEN after move:", fenAfter);
 
     // Step 4: Handle pawn promotion if applicable
     const promotionInfo = pawnPromotionHandler.checkPromotion(validatedMove);
@@ -135,6 +153,20 @@ export const handlePlayerMove = async (
           isAutoWin: true,
         });
         return true; // Training completed
+      }
+
+      // Show success dialog for all queen promotions, not just auto-win
+      if (promotionInfo.promotionPiece === "q") {
+        const promotionPieceLabel = pawnPromotionHandler.getPromotionPieceLabel(
+          promotionInfo.promotionPiece,
+        );
+        setState((draft) => {
+          draft.training.moveSuccessDialog = {
+            isOpen: true,
+            promotionPiece: promotionPieceLabel,
+            moveDescription: promotionInfo.moveDescription,
+          };
+        });
       }
     }
 
@@ -185,6 +217,7 @@ export const handlePlayerMove = async (
 
     return true;
   } catch (error) {
+    getLogger().error("[handlePlayerMove] Error in orchestrator:", error);
     const userMessage = ErrorService.handleUIError(
       error instanceof Error ? error : new Error(String(error)),
       "MakeUserMove",

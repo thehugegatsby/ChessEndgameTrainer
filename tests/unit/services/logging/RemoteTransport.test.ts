@@ -31,13 +31,17 @@ describe("RemoteTransport.flush", () => {
   const ENDPOINT = "https://api.logs.com/v1/ingest";
 
   // Mock console.error to verify it's called on failure and keep test output clean
-  const consoleErrorSpy = jest
-    .spyOn(console, "error")
-    .mockImplementation(() => {});
+  let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
     // Mock the global fetch function before each test
     global.fetch = jest.fn();
+    // Reset console.error spy for each test
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    // Clear mock calls after each test
     consoleErrorSpy.mockClear();
   });
 
