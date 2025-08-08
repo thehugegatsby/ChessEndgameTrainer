@@ -80,7 +80,8 @@ module.exports = {
   // Global settings that apply to all projects
   rootDir: projectRoot,
   roots: ['<rootDir>/shared', '<rootDir>/tests', '<rootDir>/pages', '<rootDir>/app'], // Explicit roots to prevent unnecessary scanning
-  maxWorkers: '100%', // Use all available CPU cores
+  maxWorkers: 4, // Use fixed 4 workers for consistent performance
+  forceExit: true, // Force Jest to exit after tests complete
   projects: [
     {
       ...baseConfig,

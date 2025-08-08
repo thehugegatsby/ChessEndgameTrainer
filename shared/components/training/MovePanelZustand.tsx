@@ -154,13 +154,11 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
      */
     const movePairs = useMemo((): MovePair[] => {
       const pairs: MovePair[] = [];
-      
-      // Only show moves up to currentMoveIndex (for undo/redo support)
-      // This correctly handles undo by respecting currentMoveIndex
-      const effectiveHistory = gameState.currentMoveIndex !== undefined
-        ? gameState.moveHistory.slice(0, gameState.currentMoveIndex + 1)
-        : gameState.moveHistory;
-      
+
+      // Show ALL moves in history, use currentMoveIndex only for highlighting
+      // This allows navigation through history without hiding future moves
+      const effectiveHistory = gameState.moveHistory;
+
       for (let i = 0; i < effectiveHistory.length; i += 2) {
         const whiteMove = effectiveHistory[i];
         const blackMove = effectiveHistory[i + 1]; // undefined if odd number of moves
@@ -178,16 +176,14 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
         });
       }
       return pairs;
-    }, [gameState.moveHistory, gameState.currentMoveIndex, tablebaseState.evaluations]);
+    }, [gameState.moveHistory, tablebaseState.evaluations]);
 
     const hasContent = movePairs.length > 0 || currentMoveIndex === 0;
     const showE2ESignals = process.env.NEXT_PUBLIC_E2E_SIGNALS === "true";
 
-    // Check if we have any moves to display (considering undo state)
-    const effectiveMoveCount = gameState.currentMoveIndex !== undefined
-      ? gameState.currentMoveIndex + 1
-      : gameState.moveHistory.length;
-    
+    // Check if we have any moves to display
+    const effectiveMoveCount = gameState.moveHistory.length;
+
     if (effectiveMoveCount === 0) {
       return (
         <div

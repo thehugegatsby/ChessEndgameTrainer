@@ -40,8 +40,8 @@ import {
 // Re-export types for consumers
 export type { MoveEvaluation, MoveExecutionResult } from "./move.types";
 
-// Re-export cancellation function for external use (undo functionality)
-export { cancelScheduledOpponentTurn };
+// Re-export opponent turn functions for external use
+export { cancelScheduledOpponentTurn, scheduleOpponentTurn };
 
 // Initialize module instances
 const moveValidator = new MoveValidator();

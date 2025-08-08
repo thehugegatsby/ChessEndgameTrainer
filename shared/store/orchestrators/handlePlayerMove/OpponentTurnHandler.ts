@@ -39,7 +39,10 @@
 
 import type { StoreApi } from "../types";
 import { chessService } from "@shared/services/ChessService";
-import { tablebaseService } from "@shared/services/TablebaseService";
+import {
+  tablebaseService,
+  type TablebaseMove,
+} from "@shared/services/TablebaseService";
 import { ErrorService } from "@shared/services/ErrorService";
 import { handleTrainingCompletion } from "./move.completion";
 import { getLogger } from "@shared/services/logging";
@@ -50,6 +53,113 @@ let isCancelled = false;
 
 /** Default delay for opponent moves in milliseconds - provides natural game feel */
 const OPPONENT_TURN_DELAY = 500;
+
+/**
+ * Selects the optimal move from available tablebase moves based on game theory
+ *
+ * @param moves - Array of available tablebase moves
+ * @returns The optimal move to play
+ *
+ * @description
+ * Implements sophisticated move selection based on endgame principles:
+ *
+ * **Selection Strategy:**
+ * 1. **Outcome Priority**: Win > Draw > Loss (by WDL value)
+ * 2. **Within Same Outcome**:
+ *    - **Winning** (WDL > 0): Choose move with LOWEST DTM (fastest win)
+ *    - **Losing** (WDL < 0): Choose move with HIGHEST DTM (best defense, delays mate)
+ *    - **Drawing** (WDL = 0): All moves equivalent, pick first
+ *
+ * **Rationale:**
+ * - In winning positions: Convert advantage efficiently
+ * - In losing positions: Maximize resistance, make opponent prove technique
+ * - In drawn positions: Maintain draw with any legal move
+ *
+ * @example
+ * ```typescript
+ * // Losing position - will pick Kd7 (DTM -27) over Kc7 (DTM -15)
+ * const moves = [
+ *   { san: "Kc7", dtm: -15, wdl: -1000 },
+ *   { san: "Kd7", dtm: -27, wdl: -1000 }, // Selected - delays mate longest
+ * ];
+ * const best = selectOptimalMove(moves);
+ * ```
+ */
+function selectOptimalMove(moves: TablebaseMove[]): TablebaseMove {
+  // VALIDATION: Check DTM sign consistency
+  moves.forEach((move) => {
+    if (move.wdl < 0 && move.dtm && move.dtm > 0) {
+      getLogger().warn(
+        "[OpponentTurnHandler] WARNING: Positive DTM in losing position!",
+        {
+          san: move.san,
+          wdl: move.wdl,
+          dtm: move.dtm,
+          category: move.category,
+        },
+      );
+    }
+  });
+
+  // Sort moves by optimal criteria
+  const sortedMoves = [...moves].sort((a, b) => {
+    // First priority: Sort by outcome (higher WDL is better)
+    if (a.wdl !== b.wdl) {
+      return b.wdl - a.wdl; // Prefer wins over draws over losses
+    }
+
+    // Same outcome - sort by DTM based on position type
+    if (
+      a.dtm === null ||
+      a.dtm === undefined ||
+      b.dtm === null ||
+      b.dtm === undefined
+    ) {
+      return 0; // Can't compare if DTM is missing
+    }
+
+    // Check position type based on WDL
+    if (a.wdl > 0) {
+      // These are "winning" positions for the opponent after our move
+      // For optimal defense: prefer HIGHER DTM (gives opponent longer path to win)
+      return Math.abs(b.dtm) - Math.abs(a.dtm); // FIXED: Higher DTM first for defense
+    } else if (a.wdl < 0) {
+      // LOSING position: prefer HIGHER DTM (slower loss - better defense)
+      // DTM is negative for losses
+      // Example: -27 is better than -15 (lose in 27 moves vs 15 moves)
+      return Math.abs(b.dtm) - Math.abs(a.dtm);
+    } else {
+      // DRAW: all moves equivalent
+      return 0;
+    }
+  });
+
+  const selected = sortedMoves[0];
+
+  // Log the decision for debugging
+  getLogger().info("[OpponentTurnHandler] Move selection:", {
+    availableMoves: moves.map((m) => ({
+      san: m.san,
+      wdl: m.wdl,
+      dtm: m.dtm,
+      category: m.category,
+    })),
+    selectedMove: {
+      san: selected.san,
+      wdl: selected.wdl,
+      dtm: selected.dtm,
+      category: selected.category,
+    },
+    reason:
+      selected.wdl < 0
+        ? `Best defense - delays mate for ${Math.abs(selected.dtm || 0)} moves`
+        : selected.wdl > 0
+          ? `Fastest win - mate in ${Math.abs(selected.dtm || 0)} moves`
+          : "Draw maintaining move",
+  });
+
+  return selected;
+}
 
 /**
  * Cancels any scheduled opponent turn to prevent race conditions
@@ -255,8 +365,30 @@ async function executeOpponentTurn(api: StoreApi): Promise<void> {
     // Get current position
     const currentFen = chessService.getFen();
 
-    // Fetch best move from tablebase
-    const topMoves = await tablebaseService.getTopMoves(currentFen, 1);
+    // Fetch ALL moves from tablebase to find optimal one based on DTM
+    // We need all moves to properly evaluate defense in losing positions
+    const topMoves = await tablebaseService.getTopMoves(currentFen, 10);
+
+    getLogger().info(
+      "[OpponentTurnHandler] DEBUG: Fetched moves from tablebase:",
+      {
+        fen: currentFen,
+        movesCount: topMoves.moves?.length || 0,
+        moves: topMoves.moves?.map((m) => ({
+          san: m.san,
+          dtm: m.dtm,
+          wdl: m.wdl,
+          category: m.category,
+        })),
+        firstMove: topMoves.moves?.[0]
+          ? {
+              san: topMoves.moves[0].san,
+              dtm: topMoves.moves[0].dtm,
+              note: "This is what TablebaseService returned as first/best",
+            }
+          : null,
+      },
+    );
 
     if (
       !topMoves.isAvailable ||
@@ -271,8 +403,13 @@ async function executeOpponentTurn(api: StoreApi): Promise<void> {
       return;
     }
 
-    // Get the best move
-    const bestMove = topMoves.moves[0];
+    // Select the optimal move based on game theory:
+    // 1. Prefer best outcome (win > draw > loss) by WDL
+    // 2. Within same outcome:
+    //    - If winning: pick move with LOWEST DTM (fastest win)
+    //    - If losing: pick move with HIGHEST DTM (slowest loss - best defense)
+    //    - If drawing: pick any (all equivalent)
+    const bestMove = selectOptimalMove(topMoves.moves);
 
     // Execute the opponent move (tablebase moves should always be valid)
     const move = chessService.move(bestMove.san);

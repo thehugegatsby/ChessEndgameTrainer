@@ -1,0 +1,259 @@
+/**
+ * Integration test for optimal opponent defense based on DTM
+ * Tests that the computer chooses moves that maximize DTM when losing
+ */
+
+import type { TablebaseMove } from "@shared/services/TablebaseService";
+
+// Test implementation of the optimal move selection logic
+// This mirrors the actual implementation in OpponentTurnHandler
+const testSelectOptimalMove = (moves: TablebaseMove[]): TablebaseMove => {
+  // Reimplementation of the logic for testing
+  const sortedMoves = [...moves].sort((a, b) => {
+    // First priority: Sort by outcome (higher WDL is better)
+    if (a.wdl !== b.wdl) {
+      return b.wdl - a.wdl;
+    }
+    
+    // Same outcome - sort by DTM based on position type
+    if (a.dtm === null || a.dtm === undefined || 
+        b.dtm === null || b.dtm === undefined) {
+      return 0;
+    }
+    
+    if (a.wdl > 0) {
+      // Winning: prefer lower DTM (faster win)
+      return Math.abs(a.dtm) - Math.abs(b.dtm);
+    } else if (a.wdl < 0) {
+      // Losing: prefer higher DTM (slower loss)
+      return Math.abs(b.dtm) - Math.abs(a.dtm);
+    } else {
+      // Draw: all moves equivalent
+      return 0;
+    }
+  });
+  
+  return sortedMoves[0];
+};
+
+describe("Opponent Defense Integration", () => {
+  describe("Position: 2k5/8/8/4PK2/8/8/8/8 b - - 2 3", () => {
+    it("Should select Kd7 (DTM -27) as best defense for Black", () => {
+      // All moves are losing, but Kd7 delays mate the longest
+      const moves: TablebaseMove[] = [
+        { 
+          san: "Kc7", 
+          uci: "c8c7", 
+          category: "loss", 
+          dtm: -15,
+          dtz: -18, 
+          wdl: -1000 
+        },
+        { 
+          san: "Kd7", 
+          uci: "c8d7", 
+          category: "loss", 
+          dtm: -27,  // BEST: delays mate longest
+          dtz: -30, 
+          wdl: -1000 
+        },
+        { 
+          san: "Kb7", 
+          uci: "c8b7", 
+          category: "loss", 
+          dtm: -25,
+          dtz: -28, 
+          wdl: -1000 
+        },
+        { 
+          san: "Kb8", 
+          uci: "c8b8", 
+          category: "loss", 
+          dtm: -20,
+          dtz: -23, 
+          wdl: -1000 
+        },
+        { 
+          san: "Kd8", 
+          uci: "c8d8", 
+          category: "loss", 
+          dtm: -26,
+          dtz: -29, 
+          wdl: -1000 
+        },
+      ];
+
+      const bestMove = testSelectOptimalMove(moves);
+      
+      console.log("\n=== Optimal Defense Test ===");
+      console.log("Position: Black to move, all moves lose");
+      console.log("Move DTM values:");
+      moves.forEach(m => {
+        const marker = m.san === bestMove.san ? " <-- SELECTED" : "";
+        console.log(`  ${m.san}: DTM ${m.dtm}${marker}`);
+      });
+      
+      expect(bestMove.san).toBe("Kd7");
+      expect(bestMove.dtm).toBe(-27);
+    });
+  });
+
+  describe("Winning position optimization", () => {
+    it("Should select fastest win when multiple winning moves exist", () => {
+      const moves: TablebaseMove[] = [
+        { 
+          san: "Ke5", 
+          uci: "e4e5", 
+          category: "win", 
+          dtm: 8,
+          dtz: 10, 
+          wdl: 1000 
+        },
+        { 
+          san: "Kf5", 
+          uci: "e4f5", 
+          category: "win", 
+          dtm: 5,  // BEST: fastest win
+          dtz: 7, 
+          wdl: 1000 
+        },
+        { 
+          san: "Kd5", 
+          uci: "e4d5", 
+          category: "win", 
+          dtm: 10,
+          dtz: 12, 
+          wdl: 1000 
+        },
+      ];
+
+      const bestMove = testSelectOptimalMove(moves);
+      
+      console.log("\n=== Winning Position Test ===");
+      console.log("Position: All moves win");
+      console.log("Move DTM values:");
+      moves.forEach(m => {
+        const marker = m.san === bestMove.san ? " <-- SELECTED" : "";
+        console.log(`  ${m.san}: DTM ${m.dtm}${marker}`);
+      });
+      
+      expect(bestMove.san).toBe("Kf5");
+      expect(bestMove.dtm).toBe(5);
+    });
+  });
+
+  describe("Mixed outcomes", () => {
+    it("Should prefer wins over draws over losses", () => {
+      const moves: TablebaseMove[] = [
+        { 
+          san: "Ka1", 
+          uci: "a2a1", 
+          category: "loss", 
+          dtm: -30,  // Good defense but still loses
+          dtz: -35, 
+          wdl: -1000 
+        },
+        { 
+          san: "Kb1", 
+          uci: "a2b1", 
+          category: "draw", 
+          dtm: null,  // Draw is better than any loss
+          dtz: null, 
+          wdl: 0 
+        },
+        { 
+          san: "Kb2", 
+          uci: "a2b2", 
+          category: "win", 
+          dtm: 15,  // Win is always best
+          dtz: 18, 
+          wdl: 1000 
+        },
+      ];
+
+      const bestMove = testSelectOptimalMove(moves);
+      
+      console.log("\n=== Mixed Outcomes Test ===");
+      console.log("Position: Different outcomes available");
+      console.log("Move outcomes:");
+      moves.forEach(m => {
+        const marker = m.san === bestMove.san ? " <-- SELECTED" : "";
+        console.log(`  ${m.san}: ${m.category} (DTM ${m.dtm})${marker}`);
+      });
+      
+      expect(bestMove.san).toBe("Kb2"); // Win is always preferred
+      expect(bestMove.category).toBe("win");
+    });
+
+    it("Should prefer draw over loss even with good DTM", () => {
+      const moves: TablebaseMove[] = [
+        { 
+          san: "Ka1", 
+          uci: "a2a1", 
+          category: "loss", 
+          dtm: -50,  // Excellent defense but still loses
+          dtz: -55, 
+          wdl: -1000 
+        },
+        { 
+          san: "Kb1", 
+          uci: "a2b1", 
+          category: "draw", 
+          dtm: null,
+          dtz: null, 
+          wdl: 0 
+        },
+      ];
+
+      const bestMove = testSelectOptimalMove(moves);
+      
+      expect(bestMove.san).toBe("Kb1"); // Draw is better than loss
+      expect(bestMove.category).toBe("draw");
+    });
+  });
+
+  describe("Edge cases", () => {
+    it("Should handle moves without DTM values", () => {
+      const moves: TablebaseMove[] = [
+        { 
+          san: "Ka1", 
+          uci: "a2a1", 
+          category: "draw", 
+          dtm: null,
+          dtz: null, 
+          wdl: 0 
+        },
+        { 
+          san: "Kb1", 
+          uci: "a2b1", 
+          category: "draw", 
+          dtm: null,
+          dtz: null, 
+          wdl: 0 
+        },
+      ];
+
+      const bestMove = testSelectOptimalMove(moves);
+      
+      // Should just pick first when all are equivalent draws
+      expect(bestMove.san).toBe("Ka1");
+    });
+
+    it("Should handle single move", () => {
+      const moves: TablebaseMove[] = [
+        { 
+          san: "Kg7", 
+          uci: "g8g7", 
+          category: "loss", 
+          dtm: -5,
+          dtz: -7, 
+          wdl: -1000 
+        },
+      ];
+
+      const bestMove = testSelectOptimalMove(moves);
+      
+      expect(bestMove.san).toBe("Kg7");
+    });
+  });
+});

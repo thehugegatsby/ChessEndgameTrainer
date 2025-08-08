@@ -13,7 +13,7 @@
  * - Dynamic error messages based on WDL changes
  * - Shows best move suggestion when available
  * - Gradient border design for visual impact
- * - Options to take back or continue
+ * - Options to take back or continue playing
  * - German language interface
  * - Backdrop click to close
  * - Responsive design
@@ -158,7 +158,7 @@ export const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
               onClick={onClose}
               className="flex-1 px-4 py-2 text-white bg-white/10 backdrop-blur rounded-lg hover:bg-white/20 transition-all"
             >
-              Verstanden
+              Weiterspielen
             </button>
             <button
               onClick={onTakeBack}

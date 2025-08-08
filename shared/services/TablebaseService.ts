@@ -163,14 +163,14 @@ class TablebaseService {
           return b.wdl - a.wdl;
         }
 
-        // Secondary sort: for winning positions, prefer faster mate (lower DTM/DTZ)
-        // For drawing/losing positions, prefer slower conversion (higher DTZ)
+        // Secondary sort: for moves that are "wins" from opponent's perspective after our move,
+        // we want to choose the move that gives the opponent the LONGEST path to win (best defense)
         if (a.wdl > 0) {
-          // Winning - prefer faster mate (smaller absolute DTM value)
-          // Note: DTM values can be negative (e.g., -12 means mate in 12)
+          // These are "winning" positions for the opponent after our move
+          // For optimal defense: prefer moves that give opponent HIGHER DTM (slower win for them)
           const aDtx = a.dtm ?? a.dtz ?? 0;
           const bDtx = b.dtm ?? b.dtz ?? 0;
-          return Math.abs(aDtx) - Math.abs(bDtx);
+          return Math.abs(bDtx) - Math.abs(aDtx); // FIXED: Higher DTM first for defense
         } else if (a.wdl < 0) {
           // Losing - prefer slower loss (larger absolute DTM value)
           const aDtx = a.dtm ?? a.dtz ?? 0;
@@ -199,11 +199,26 @@ class TablebaseService {
         category: move.category,
       }));
 
-      logger.info("Returning top moves from single API call", {
+      // ENHANCED DEBUG LOGGING
+      logger.info("TablebaseService.getTopMoves DETAILED OUTPUT", {
         fen,
-        totalMoves: entry.moves.length,
         requestedLimit: limit,
+        totalMovesFromAPI: entry.moves.length,
+        bestWdl,
+        movesWithBestWdl: bestMoves.length,
         returnedMoves: topMoves.length,
+        returnedMoveDetails: topMoves.map((m) => ({
+          san: m.san,
+          wdl: m.wdl,
+          dtm: m.dtm,
+          category: m.category,
+        })),
+        sortingApplied:
+          bestWdl < 0
+            ? "Defensive (highest DTM first)"
+            : bestWdl > 0
+              ? "Offensive (lowest DTM first)"
+              : "Draw",
       });
 
       return {

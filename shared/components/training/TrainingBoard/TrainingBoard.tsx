@@ -40,14 +40,17 @@ import {
   useTablebaseStore,
   useUIStore,
 } from "@shared/store/hooks";
-import { useStore } from "@shared/store/rootStore";
+import { useStore, useStoreApi } from "@shared/store/StoreContext";
 import { EndgamePosition } from "@shared/types";
 import { getLogger } from "@shared/services/logging/Logger";
 import { ANIMATION, DIMENSIONS } from "@shared/constants";
 import { MoveErrorDialog } from "@shared/components/ui/MoveErrorDialog";
 import { MoveSuccessDialog } from "@shared/components/ui/MoveSuccessDialog";
 import { toLibraryMove } from "@shared/infrastructure/chess-adapter";
-import { cancelScheduledOpponentTurn } from "@shared/store/orchestrators/handlePlayerMove";
+import {
+  cancelScheduledOpponentTurn,
+  scheduleOpponentTurn,
+} from "@shared/store/orchestrators/handlePlayerMove";
 import { chessService } from "@shared/services/ChessService";
 
 /**
@@ -171,6 +174,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   const [trainingState, trainingActions] = useTrainingStore(); // Training session state
   const [tablebaseState, tablebaseActions] = useTablebaseStore(); // Analysis and evaluation data
   const [, uiActions] = useUIStore(); // UI state (toasts, modals, loading)
+  const storeApi = useStoreApi(); // Store API for orchestrator functions
 
   // Set position in store on mount or when position changes
   useEffect(() => {
@@ -440,6 +444,34 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     handleReset();
     trainingActions.setMoveErrorDialog(null);
   }, [handleReset, trainingActions]);
+
+  /**
+   * Handles "Weiterspielen" (continue playing) action from error dialog
+   *
+   * @description
+   * Closes the error dialog and schedules the opponent's turn.
+   * This allows the game to continue even after a suboptimal move,
+   * letting the opponent respond to the player's move.
+   *
+   * @remarks
+   * This provides a smoother training experience by allowing players
+   * to continue playing and learning from their mistakes rather than
+   * always having to take back moves.
+   */
+  const handleMoveErrorContinue = useCallback(() => {
+    const logger = getLogger().setContext("TrainingBoard-MoveError");
+    logger.info(
+      "Continue playing after suboptimal move - scheduling opponent turn",
+    );
+
+    // Close the error dialog
+    trainingActions.setMoveErrorDialog(null);
+
+    // Schedule opponent turn to respond to player's move
+    scheduleOpponentTurn(storeApi);
+
+    logger.info("Opponent turn scheduled after continue playing");
+  }, [trainingActions, storeApi]);
 
   /**
    * Displays the best move as a toast notification
@@ -1118,9 +1150,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
       {showMoveErrorDialog && moveErrorData && (
         <MoveErrorDialog
           isOpen={showMoveErrorDialog}
-          onClose={() => {
-            trainingActions.setMoveErrorDialog(null);
-          }}
+          onClose={handleMoveErrorContinue}
           onTakeBack={handleMoveErrorTakeBack}
           onRestart={handleMoveErrorRestart}
           onShowBestMove={

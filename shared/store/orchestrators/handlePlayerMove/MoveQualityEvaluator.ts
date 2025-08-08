@@ -153,11 +153,7 @@ export class MoveQualityEvaluator {
 
       // Convert WDL values to player perspective
       const { wdlBeforeFromPlayerPerspective, wdlAfterFromPlayerPerspective } =
-        this.convertToPlayerPerspective(
-          wdlBefore,
-          wdlAfter,
-          validatedMove.color,
-        );
+        this.convertToPlayerPerspective(wdlBefore, wdlAfter);
 
       getLogger().debug("[MoveQuality] WDL from player perspective:", {
         wdlBeforeFromPlayerPerspective,
@@ -245,25 +241,40 @@ export class MoveQualityEvaluator {
   }
 
   /**
-   * Converts WDL values to player perspective
+   * Converts WDL values from the Lichess Tablebase API to a consistent perspective
+   * for the player who just moved.
    *
    * @remarks
-   * WDL values are from white's perspective:
-   * - Positive = good for white, Negative = good for black
-   * After white moves, it's black's turn, so evaluation perspective needs careful handling
+   * The Lichess Tablebase API returns WDL from the perspective of the side whose turn it is
+   * (the side-to-move perspective). This is standard behavior for chess tablebases and engines.
+   *
+   * - `wdlBefore`: The WDL score before the move was made. This is from the perspective
+   *   of the player making the move (they were the side-to-move).
+   * - `wdlAfter`: The WDL score after the move was made. The turn has now passed to the
+   *   opponent, so this score is from the opponent's perspective.
+   *
+   * Therefore, to maintain the original player's perspective for comparison:
+   * - `wdlBefore` needs no conversion (already from player's perspective)
+   * - `wdlAfter` must be negated (convert from opponent's to player's perspective)
+   *
+   * @param wdlBefore The WDL score for the position before the move
+   * @param wdlAfter The WDL score for the position after the move
+   * @returns An object with both WDL values from the original player's perspective
+   *
+   * @example
+   * // Black plays a losing move (Kd7 instead of drawing Ke7)
+   * // wdlBefore = 0 (draw from Black's perspective as side-to-move)
+   * // wdlAfter = 1000 (win from White's perspective as side-to-move)
+   * // Returns: { wdlBeforeFromPlayerPerspective: 0, wdlAfterFromPlayerPerspective: -1000 }
+   * // This correctly shows Black went from draw (0) to loss (-1000)
    */
-  private convertToPlayerPerspective(
-    wdlBefore: number,
-    wdlAfter: number,
-    movedColor: "w" | "b",
-  ) {
-    // Convert WDL to player's perspective consistently
-    const wdlBeforeFromPlayerPerspective =
-      movedColor === "w" ? wdlBefore : -wdlBefore;
+  private convertToPlayerPerspective(wdlBefore: number, wdlAfter: number) {
+    // wdlBefore is already from the moving player's perspective (side-to-move)
+    const wdlBeforeFromPlayerPerspective = wdlBefore;
 
-    // After the move, it's the opponent's turn, so we need to invert
-    const wdlAfterFromPlayerPerspective =
-      movedColor === "w" ? -wdlAfter : wdlAfter;
+    // wdlAfter is from opponent's perspective (they are now side-to-move)
+    // We need to negate it to get the moving player's perspective
+    const wdlAfterFromPlayerPerspective = -wdlAfter;
 
     return { wdlBeforeFromPlayerPerspective, wdlAfterFromPlayerPerspective };
   }
