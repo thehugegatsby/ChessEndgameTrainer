@@ -92,7 +92,8 @@ class ChessService {
     return {
       fen: this.chess.fen(),
       pgn: this.chess.pgn(),
-      moveHistory: [...this.moveHistory],
+      // Only include moves up to the current index (for proper undo behavior)
+      moveHistory: this.moveHistory.slice(0, this.currentMoveIndex + 1),
       currentMoveIndex: this.currentMoveIndex,
       isGameOver: this.chess.isGameOver(),
       gameResult: this.getGameResult(),
