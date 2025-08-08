@@ -4,6 +4,7 @@
  */
 
 import { test, expect } from "@playwright/test";
+import { TrainingBoardPage } from "../helpers/pageObjects/TrainingBoardPage";
 
 test.describe("Pawn Promotion Simple Test", () => {
   test("should auto-complete when promoting from e7 to e8=Q", async ({
