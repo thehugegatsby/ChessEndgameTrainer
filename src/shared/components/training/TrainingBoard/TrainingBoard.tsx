@@ -46,6 +46,7 @@ import { getLogger } from "@shared/services/logging/Logger";
 import { ANIMATION, DIMENSIONS } from "@shared/constants";
 import { MoveErrorDialog } from "@shared/components/ui/MoveErrorDialog";
 import { MoveSuccessDialog } from "@shared/components/ui/MoveSuccessDialog";
+import { DialogManager } from "../DialogManager";
 import { E2ETestHelper } from "../../testing/E2ETestHelper";
 import { toLibraryMove } from "@shared/infrastructure/chess-adapter";
 import {
@@ -53,6 +54,7 @@ import {
   scheduleOpponentTurn,
 } from "@shared/store/orchestrators/handlePlayerMove";
 import { chessService } from "@shared/services/ChessService";
+import { useMoveHandlers } from "@shared/hooks/useMoveHandlers";
 
 /**
  * Extended evaluation data structure for move panel integration
@@ -201,9 +203,6 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
 
   // === HOOKS ===
 
-  // Click-to-move state for accessibility and E2E testing support
-  const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
-
   // Chess game logic - now using Store as single source of truth
   const {
     history,
@@ -223,6 +222,15 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
       onComplete(success);
     },
     onPositionChange,
+  });
+
+  // Move handling logic - extracted to custom hook
+  const { onDrop, onSquareClick, selectedSquare } = useMoveHandlers({
+    currentFen: currentFen || initialFen,
+    isGameFinished,
+    isPositionReady,
+    trainingState,
+    onMove: makeMove,
   });
 
   // Calculate previous FEN for tablebase move comparison using game state
@@ -296,39 +304,11 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   const [warning, setWarning] = useState<string | null>(null);
   const [moveError, setMoveError] = useState<string | null>(null);
 
-  // Get move error dialog state from training slice
-  const showMoveErrorDialog = trainingState.moveErrorDialog?.isOpen || false;
-  const moveErrorData = trainingState.moveErrorDialog
-    ? {
-        wdlBefore: trainingState.moveErrorDialog.wdlBefore || 0,
-        wdlAfter: trainingState.moveErrorDialog.wdlAfter || 0,
-        bestMove: trainingState.moveErrorDialog.bestMove,
-      }
-    : null;
-
-  // Get move success dialog state from training slice
-  const showMoveSuccessDialog =
-    trainingState.moveSuccessDialog?.isOpen || false;
-  const moveSuccessData = trainingState.moveSuccessDialog
-    ? {
-        promotionPiece: trainingState.moveSuccessDialog.promotionPiece,
-        moveDescription: trainingState.moveSuccessDialog.moveDescription,
-      }
-    : null;
-
-  // Debug logging for move error dialog state
-  if (trainingState.moveErrorDialog) {
-    const logger = getLogger().setContext("TrainingBoard");
-    logger.debug("Move error dialog state", {
-      isOpen: showMoveErrorDialog,
-      dialogData: trainingState.moveErrorDialog,
-      moveErrorData,
-    });
-  }
+  // Dialog state is now passed directly to DialogManager
+  // No local state variables needed - DialogManager reads from trainingState directly
 
   const trainingUIState = {
     resetKey,
-    showMoveErrorDialog,
     warning,
     analysisError: null, // Analysis errors now handled by store
     moveError,
@@ -340,9 +320,8 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
      *
      */
     handleDismissMoveError: useCallback(() => {
-      trainingActions.setMoveErrorDialog(null);
       setMoveError(null);
-    }, [trainingActions]),
+    }, []),
     /**
      *
      */
@@ -508,16 +487,16 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
    * position before the user's suboptimal move.
    */
   const handleShowBestMove = useCallback(() => {
-    if (moveErrorData?.bestMove) {
+    if (trainingState.moveErrorDialog?.bestMove) {
       const logger = getLogger().setContext("TrainingBoard-MoveError");
-      logger.info("Showing best move", { bestMove: moveErrorData.bestMove });
+      logger.info("Showing best move", { bestMove: trainingState.moveErrorDialog.bestMove });
       uiActions.showToast(
-        `Der beste Zug war: ${moveErrorData.bestMove}`,
+        `Der beste Zug war: ${trainingState.moveErrorDialog.bestMove}`,
         "info",
       );
     }
     trainingActions.setMoveErrorDialog(null);
-  }, [moveErrorData, uiActions, trainingActions]);
+  }, [trainingState.moveErrorDialog, uiActions, trainingActions]);
 
   /**
    * Handles success dialog close
@@ -559,290 +538,13 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     }
   }, [isEvaluating, tablebaseState, tablebaseActions]);
 
-  /**
-   * Handles chess move execution and validation
-   *
-   * @param {Object} move - Move object with from/to squares
-   * @param {string} move.from - Starting square (e.g., "e2")
-   * @param {string} move.to - Target square (e.g., "e4")
-   * @param {string} [move.promotion] - Promotion piece if applicable
-   * @returns {Promise<any>} Move result or null if invalid
-   *
-   * @description
-   * Core move handler that:
-   * 1. Validates move legality using chess.js
-   * 2. Executes the move on the game instance
-   * 3. Triggers tablebase analysis for opponent response
-   * 4. Updates all relevant state slices
-   * 5. Handles errors with user feedback
-   *
-   * @remarks
-   * This function coordinates between multiple services:
-   * - Chess.js for move validation
-   * - TrainingSession hook for game state
-   * - Tablebase orchestrator for opponent moves
-   * - UI actions for user feedback
-   *
-   * Invalid moves increment the mistake counter and show
-   * a warning toast without modifying game state.
-   *
-   * @example
-   * ```typescript
-   * // User drags piece
-   * await handleMove({ from: "e2", to: "e4" });
-   *
-   * // With promotion
-   * await handleMove({ from: "e7", to: "e8", promotion: "q" });
-   * ```
-   */
-  const handleMove = useCallback(
-    async (move: any) => {
-      const logger = getLogger().setContext("TrainingBoard-handleMove");
-      logger.debug("🚀 handleMove called", {
-        move,
-        isGameFinished,
-        isPositionReady,
-        hasCurrentPosition: !!trainingState.currentPosition,
-        currentFen,
-        chessServiceFen: chessService.getFen(),
-      });
-
-      // CRITICAL: Block moves if position is not ready
-      if (!isPositionReady) {
-        logger.warn("⛔ Position not ready, blocking move", {
-          hasCurrentPosition: !!trainingState.currentPosition,
-          currentPositionId: trainingState.currentPosition?.id,
-          currentPositionFen: trainingState.currentPosition?.fen,
-        });
-        return false;
-      }
-
-      // Add these critical debug logs
-      const moveLogger = getLogger().setContext("TrainingBoard-handleMove");
-      moveLogger.debug("handleMove called", { move });
-      moveLogger.debug("Current FEN", { fen: currentFen });
-      // Note: game is null now - ChessService handles chess logic
-
-      if (isGameFinished) {
-        logger.warn("handleMove early return", { isGameFinished });
-        return false;
-      }
-
-      // Check if piece was dropped on same square (no move)
-      if (move.from === move.to) {
-        logger.debug("Piece dropped on same square, ignoring", {
-          square: move.from,
-        });
-        return false;
-      }
-
-      try {
-        // Debug: Log game state before validation
-        logger.debug("Game state before move validation", {
-          hasGame: false, // game is now null, handled by ChessService
-          currentFen: currentFen,
-        });
-
-        // Move validation is handled by ChessService in makeMove
-        // We don't need to validate here anymore
-        logger.debug("Move validation delegated to ChessService", {
-          move,
-          currentFen,
-        });
-
-        // First make the move on the local game instance
-        logger.debug("Calling makeMove", { move });
-        const result = await makeMove(move);
-        logger.debug("makeMove result", { result });
-
-        // The orchestrator now handles the entire workflow including:
-        // - Move validation
-        // - Error dialog for suboptimal moves
-        // - Opponent turn (only if move was optimal)
-        // TrainingBoard should NOT call handleOpponentTurn directly
-
-        return result;
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Move failed";
-        uiActions.showToast(errorMessage, "error");
-        return false;
-      }
-    },
-    [
-      isGameFinished,
-      makeMove,
-      lastEvaluation,
-      trainingActions,
-      trainingState,
-      uiActions,
-      gameActions,
-      currentFen,
-      history,
-      position,
-      isPositionReady,
-      trainingState.currentPosition,
-    ],
-  );
 
   // === REMOVED E2E WINDOW ATTACHMENTS ===
   // E2E tests now use Page Object Model via DOM interaction
   // See: tests/e2e/helpers/pageObjects/TrainingBoardPage.ts
 
   // === EVENT HANDLERS ===
-
-  /**
-   * Handles piece drop events from the chessboard
-   *
-   * @param {string} sourceSquare - Square where piece was picked up
-   * @param {string} targetSquare - Square where piece was dropped
-   * @param {string} _piece - Piece type (unused but required by interface)
-   * @returns {boolean} Whether the drop was accepted
-   *
-   * @description
-   * Converts drag-and-drop events into move objects and delegates
-   * to the main move handler. Always promotes to queen by default.
-   *
-   * @remarks
-   * This is the primary user interaction handler for the chess board.
-   * Returns false if game is finished to prevent further moves.
-   * The actual move validation happens in handleMove.
-   *
-   * @example
-   * ```typescript
-   * // User drags pawn from e2 to e4
-   * onDrop("e2", "e4", "wP") // returns true if valid
-   * ```
-   */
-  const onDrop = useCallback(
-    (sourceSquare: string, targetSquare: string, _piece: string): boolean => {
-      const logger = getLogger().setContext("TrainingBoard-onDrop");
-
-      logger.debug("🎯 onDrop called", {
-        sourceSquare,
-        targetSquare,
-        piece: _piece,
-        isPositionReady,
-        isGameFinished,
-        hasCurrentPosition: !!trainingState.currentPosition,
-        currentFen,
-      });
-
-      // Block drops if position is not ready or game is finished
-      if (!isPositionReady || isGameFinished) {
-        logger.warn("⛔ onDrop blocked", {
-          isPositionReady,
-          isGameFinished,
-          reason: !isPositionReady ? "position not ready" : "game finished",
-        });
-        return false;
-      }
-
-      // Check if this is a pawn promotion
-      const isPawn = _piece.toLowerCase().endsWith("p");
-      const targetRank = targetSquare[1];
-      const isPromotionRank = targetRank === "8" || targetRank === "1";
-
-      const move: any = {
-        from: sourceSquare,
-        to: targetSquare,
-      };
-
-      // Add promotion if pawn reaches last rank
-      if (isPawn && isPromotionRank) {
-        move.promotion = "q"; // Default to queen promotion
-      }
-
-      logger.debug("✅ onDrop calling handleMove", { move });
-      handleMove(move);
-      return true;
-    },
-    [
-      handleMove,
-      isGameFinished,
-      isPositionReady,
-      trainingState.currentPosition,
-      currentFen,
-    ],
-  );
-
-  /**
-   * Handles square click events for click-to-move functionality
-   * 
-   * @param {object} args - Arguments from react-chessboard
-   * @param {any} args.piece - Piece on the clicked square (can be null)
-   * @param {string} args.square - Square that was clicked
-   * @returns {void}
-   * 
-   * @description
-   * Implements click-to-move interaction pattern for accessibility and E2E testing:
-   * - First click selects piece (if valid piece on square)
-   * - Second click attempts move to target square
-   * - Click on same square deselects piece
-   */
-  const onSquareClick = useCallback(
-    ({ piece, square }: { piece: any; square: string }): void => {
-      const logger = getLogger().setContext("TrainingBoard-onSquareClick");
-
-      logger.debug("🖱️ onSquareClick called", {
-        square,
-        selectedSquare,
-        isPositionReady,
-        isGameFinished,
-      });
-
-      // Block clicks if position is not ready or game is finished
-      if (!isPositionReady || isGameFinished) {
-        logger.warn("⛔ onSquareClick blocked", {
-          isPositionReady,
-          isGameFinished,
-          reason: !isPositionReady ? "position not ready" : "game finished",
-        });
-        return;
-      }
-
-      // If no square is selected, select this square if it has a piece
-      if (!selectedSquare) {
-        if (piece) {
-          // Check if it's the right color's turn
-          try {
-            const chess = new Chess(currentFen);
-            const currentTurn = chess.turn();
-            const pieceColor = piece.pieceType?.[0]; // 'w' or 'b'
-            
-            if (pieceColor === currentTurn) {
-              setSelectedSquare(square);
-              logger.debug("✅ Square selected", { square, piece });
-            } else {
-              logger.debug("❌ Wrong color piece", { square, piece, currentTurn });
-            }
-          } catch (error) {
-            logger.error("Failed to validate piece color", error as Error);
-          }
-        } else {
-          logger.debug("❌ No piece on square", { square });
-        }
-        return;
-      }
-
-      // If same square clicked, deselect
-      if (selectedSquare === square) {
-        setSelectedSquare(null);
-        logger.debug("🔄 Square deselected", { square });
-        return;
-      }
-
-      // Try to make move from selected square to clicked square
-      const result = onDrop(selectedSquare, square, ""); // Piece type not needed
-      if (result) {
-        setSelectedSquare(null); // Clear selection after successful move
-        logger.debug("✅ Move completed via click", { from: selectedSquare, to: square });
-      } else {
-        logger.debug("❌ Move failed via click", { from: selectedSquare, to: square });
-      }
-    },
-    [selectedSquare, isPositionReady, isGameFinished, currentFen, onDrop],
-  );
+  // Move handling logic extracted to useMoveHandlers hook
 
   // Handle reset trigger from parent
   useEffect(() => {
@@ -943,38 +645,23 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         </div>
       )}
 
-      {/* Move Error Dialog */}
-      {showMoveErrorDialog && moveErrorData && (
-        <MoveErrorDialog
-          isOpen={showMoveErrorDialog}
-          onClose={handleMoveErrorContinue}
-          onTakeBack={handleMoveErrorTakeBack}
-          onRestart={handleMoveErrorRestart}
-          onShowBestMove={
-            moveErrorData.bestMove ? handleShowBestMove : undefined
-          }
-          wdlBefore={moveErrorData.wdlBefore}
-          wdlAfter={moveErrorData.wdlAfter}
-          bestMove={moveErrorData.bestMove}
-        />
-      )}
-
-      {/* Move Success Dialog */}
-      {showMoveSuccessDialog && moveSuccessData && (
-        <MoveSuccessDialog
-          isOpen={showMoveSuccessDialog}
-          onClose={handleMoveSuccessClose}
-          onContinue={handleMoveSuccessContinue}
-          promotionPiece={moveSuccessData.promotionPiece}
-          moveDescription={moveSuccessData.moveDescription}
-        />
-      )}
+      {/* Dialog Manager - Handles all training dialogs */}
+      <DialogManager
+        errorDialog={trainingState.moveErrorDialog}
+        successDialog={trainingState.moveSuccessDialog}
+        onErrorTakeBack={handleMoveErrorTakeBack}
+        onErrorRestart={handleMoveErrorRestart}
+        onErrorContinue={handleMoveErrorContinue}
+        onErrorShowBestMove={handleShowBestMove}
+        onSuccessClose={handleMoveSuccessClose}
+        onSuccessContinue={handleMoveSuccessContinue}
+      />
 
       {/* E2E Test Helper - Handles automated move execution for testing */}
       <E2ETestHelper
         currentFen={currentFen}
         isGameFinished={isGameFinished}
-        onMove={handleMove}
+        onMove={makeMove}
         moveHistory={history}
       />
     </div>

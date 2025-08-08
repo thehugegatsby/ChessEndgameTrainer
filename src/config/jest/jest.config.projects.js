@@ -87,9 +87,9 @@ module.exports = {
       displayName: 'node',
       testEnvironment: 'node',
       testMatch: [
-        // Service tests (except WebPlatformService)
-        '<rootDir>/src/tests/**/services/**/*.{test,spec}.[jt]s',
-        '<rootDir>/src/tests/unit/services/**/*.{test,spec}.[jt]s',
+        // Service tests (except WebPlatformService which needs DOM)
+        '<rootDir>/src/tests/**/services/**/!(WebPlatformService).{test,spec}.[jt]s',
+        '<rootDir>/src/tests/unit/services/**/!(WebPlatformService).{test,spec}.[jt]s',
         // Store tests (Zustand doesn't need DOM)
         '<rootDir>/src/tests/unit/store/**/*.{test,spec}.[jt]s',
         // Pure logic tests
@@ -104,8 +104,8 @@ module.exports = {
       ],
       testPathIgnorePatterns: [
         ...baseConfig.testPathIgnorePatterns,
-        // Exclude WebPlatformService from node tests
-        'WebPlatformService.test.ts'
+        // Exclude WebPlatformService from node tests  
+        '.*/WebPlatformService\\.test\\.ts$'
       ]
     }
   ],
