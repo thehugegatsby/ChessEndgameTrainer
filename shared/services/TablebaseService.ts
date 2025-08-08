@@ -170,7 +170,7 @@ class TablebaseService {
           // For optimal defense: prefer moves that give opponent HIGHER DTM (slower win for them)
           const aDtx = a.dtm ?? a.dtz ?? 0;
           const bDtx = b.dtm ?? b.dtz ?? 0;
-          return Math.abs(bDtx) - Math.abs(aDtx); // FIXED: Higher DTM first for defense
+          return Math.abs(aDtx) - Math.abs(bDtx); // FIXED: Lower DTM first for faster wins
         } else if (a.wdl < 0) {
           // Losing - prefer slower loss (larger absolute DTM value)
           const aDtx = a.dtm ?? a.dtz ?? 0;
