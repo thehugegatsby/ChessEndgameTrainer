@@ -1,5 +1,5 @@
 import { Page, expect } from "@playwright/test";
-import { getLogger } from "@shared/services/Logger";
+import { getLogger } from "@shared/services/logging";
 
 /**
  * Page Object Model for TrainingBoard E2E testing

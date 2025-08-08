@@ -125,12 +125,12 @@ export async function performClickMoveAndWait(
  * @deprecated - Use TrainingBoardPage.getGameState() instead
  * Waits for specific game state conditions to be met
  * @param page Playwright page object
- * @param conditions Object with expected state conditions
+ * @param conditions Object with expected state conditions OR callback function
  * @param timeout Maximum wait time
  */
 export async function waitForGameState(
   page: Page,
-  conditions: Partial<GameState>,
+  conditions: Partial<GameState> | ((state: GameState) => boolean),
   timeout: number = 5000,
 ): Promise<GameState> {
   const boardPage = new TrainingBoardPage(page);
@@ -142,11 +142,19 @@ export async function waitForGameState(
   while (attempts < maxAttempts) {
     const state = await boardPage.getGameState();
 
-    let conditionsMet = true;
-    for (const [key, expectedValue] of Object.entries(conditions)) {
-      if (state[key as keyof GameState] !== expectedValue) {
-        conditionsMet = false;
-        break;
+    let conditionsMet = false;
+
+    if (typeof conditions === "function") {
+      // Callback function for custom logic
+      conditionsMet = conditions(state);
+    } else {
+      // Object with expected values
+      conditionsMet = true;
+      for (const [key, expectedValue] of Object.entries(conditions)) {
+        if (state[key as keyof GameState] !== expectedValue) {
+          conditionsMet = false;
+          break;
+        }
       }
     }
 
