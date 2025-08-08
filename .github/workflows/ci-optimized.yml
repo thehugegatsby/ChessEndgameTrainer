@@ -77,7 +77,7 @@ jobs:
       run: npm run lint
 
     - name: Run TypeScript compiler check
-      run: npx tsc --project config/typescript/tsconfig.ci.json --noEmit || npx tsc --noEmit
+      run: npx tsc --project src/config/typescript/tsconfig.ci.json --noEmit || npx tsc --noEmit
 
     - name: Check for duplicate components
       run: npm run check-duplicates
@@ -114,8 +114,8 @@ jobs:
     - name: Run unit tests (sharded)
       run: |
         # Use optimized jest config if available
-        if [ -f "jest.config.projects.js" ]; then
-          npx jest --config=jest.config.projects.js --shard=${{ matrix.shard }}/4 --coverage --passWithNoTests
+        if [ -f "src/config/jest/jest.config.projects.js" ]; then
+          npx jest --config=src/config/jest/jest.config.projects.js --shard=${{ matrix.shard }}/4 --coverage --passWithNoTests
         else
           npx jest --shard=${{ matrix.shard }}/4 --coverage
         fi
