@@ -51,25 +51,25 @@ test.describe("Core Training Workflow", () => {
     // Wait for board to be interactive
     await page.waitForTimeout(E2E.TIMEOUTS.PAGE_LOAD);
 
-    // Try to make a move (adapt based on actual board implementation)
-    // Option 1: Click from-square then to-square
-    const fromSquare = page
-      .locator(E2E.SELECTORS.SQUARE("e2"))
-      .or(page.locator('[data-testid="square-e2"]'))
-      .or(page.locator(".square-e2"))
-      .first();
-
-    const toSquare = page
-      .locator(E2E.SELECTORS.SQUARE("e4"))
-      .or(page.locator('[data-testid="square-e4"]'))
-      .or(page.locator(".square-e4"))
-      .first();
+    // Use react-chessboard's data-square attributes
+    // Try to click a piece on e2, then click e4
+    const fromSquare = page.locator('[data-square="e2"]').first();
+    const toSquare = page.locator('[data-square="e4"]').first();
 
     // Attempt move execution
     try {
-      await fromSquare.click();
+      // First click the piece or square at e2
+      const piece = page.locator('[data-square="e2"] [draggable]').first();
+      if (await piece.isVisible({ timeout: 1000 }).catch(() => false)) {
+        await piece.click();
+      } else {
+        await fromSquare.click();
+      }
+      
+      // Then click the target square
       await toSquare.click();
     } catch (error) {
+      logger.warn("Failed to execute move via clicking squares", error);
       // Fallback: look for move input or buttons
       const moveInput = page
         .locator('[data-testid="move-input"]')
