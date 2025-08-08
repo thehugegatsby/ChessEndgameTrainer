@@ -66,13 +66,21 @@ const baseConfig = {
   clearMocks: true,
   restoreMocks: true,
   cache: true,
-  cacheDirectory: '<rootDir>/.jest-cache'
+  cacheDirectory: '<rootDir>/.jest-cache',
+  modulePathIgnorePatterns: [
+    '<rootDir>/node_modules',
+    '<rootDir>/dist',
+    '<rootDir>/.next',
+    '<rootDir>/.cache',
+    '<rootDir>/coverage'
+  ]
 };
 
 module.exports = {
   // Global settings that apply to all projects
   rootDir: projectRoot,
-  silent: true, // Disable console output for performance
+  roots: ['<rootDir>/shared', '<rootDir>/tests', '<rootDir>/pages', '<rootDir>/app'], // Explicit roots to prevent unnecessary scanning
+  maxWorkers: '100%', // Use all available CPU cores
   projects: [
     {
       ...baseConfig,
