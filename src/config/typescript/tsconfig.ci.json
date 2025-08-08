@@ -4,6 +4,10 @@
     "noEmit": true,
     "skipLibCheck": true
   },
+  "include": [
+    "../../../src/**/*",
+    "../../../src/shared/components/testing/**/*"
+  ],
   "exclude": [
     "node_modules",
     ".next",
