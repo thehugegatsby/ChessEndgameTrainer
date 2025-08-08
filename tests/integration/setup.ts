@@ -18,9 +18,9 @@ beforeAll(() => {
   startTablebaseMSW();
 });
 
-afterAll(() => {
+afterAll(async () => {
   // Clean up MSW server
-  stopTablebaseMSW();
+  await stopTablebaseMSW();
 });
 
 // Log when setup is loaded

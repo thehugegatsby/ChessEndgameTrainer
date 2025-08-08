@@ -206,19 +206,23 @@ export const createStore = (initialState?: Partial<RootState>) => {
             if (initialState.game) {
               Object.assign(rootState.game, initialState.game);
 
-              // CRITICAL: Also sync ChessService with initial FEN
+              // CRITICAL: Sync ChessService with initial FEN after render
+              // Use setTimeout to avoid setState during render
               if (initialState.game.currentFen) {
-                try {
-                  chessService.initialize(initialState.game.currentFen);
-                } catch (error) {
-                  getLogger().error(
-                    "Failed to load initial FEN into ChessService",
-                    {
-                      fen: initialState.game.currentFen,
-                      error,
-                    },
-                  );
-                }
+                const fenToLoad = initialState.game.currentFen;
+                setTimeout(() => {
+                  try {
+                    chessService.initialize(fenToLoad);
+                  } catch (error) {
+                    getLogger().error(
+                      "Failed to load initial FEN into ChessService",
+                      {
+                        fen: fenToLoad,
+                        error,
+                      },
+                    );
+                  }
+                }, 0);
               }
             }
 

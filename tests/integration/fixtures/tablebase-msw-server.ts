@@ -43,9 +43,11 @@ export function startTablebaseMSW() {
  * Stop MSW server after tests
  * Clean shutdown to prevent memory leaks
  */
-export function stopTablebaseMSW() {
-  tablebaseServer.close();
+export async function stopTablebaseMSW() {
+  await tablebaseServer.close();
   console.log("🛑 Tablebase MSW Server stopped");
+  // Give time for cleanup to complete
+  await new Promise((resolve) => setTimeout(resolve, 100));
 }
 
 /**

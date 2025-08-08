@@ -33,6 +33,7 @@ import type { EndgamePosition } from "@shared/types/endgame";
 import type { TrainingPosition } from "../slices/trainingSlice";
 import { getLogger } from "@shared/services/logging";
 import { chessService } from "@shared/services/ChessService";
+import { Chess } from "chess.js";
 import { getServerPositionService } from "@shared/services/database/serverPositionService";
 
 const logger = getLogger().setContext("loadTrainingContext");
@@ -103,36 +104,48 @@ export const loadTrainingContext = async (
     setState((draft) => {
       // Reset slices to their initial states - PROPERLY preserving action methods
       // CRITICAL: Reset only data properties, never overwrite the slice objects themselves
-      
+
       // Game slice - manual property reset
       draft.game.moveHistory = [];
       draft.game.currentMoveIndex = 0;
       draft.game.isGameFinished = false;
-      
+
       // Training slice - DO NOT RESET - Let the position loading handle training state
-      
+
       // Tablebase slice - manual property reset
       draft.tablebase.tablebaseMove = null;
-      draft.tablebase.analysisStatus = 'idle';
+      draft.tablebase.analysisStatus = "idle";
       draft.tablebase.evaluations = [];
       draft.tablebase.currentEvaluation = undefined;
-      
+
       // Close any open modals
       if (draft.ui.currentModal) {
         draft.ui.currentModal = null;
       }
-    })
+    });
 
     // Step 2: Validate FEN and initialize game state
-    // Use ChessService to validate and initialize position
-    const isValidFen = chessService.initialize(position.fen);
-    
+    // Defer ChessService initialization to avoid setState during render
+    // First just validate the FEN
+    const chess = new Chess();
+    let isValidFen = false;
+    try {
+      chess.load(position.fen);
+      isValidFen = true;
+    } catch {
+      isValidFen = false;
+    }
+
     if (!isValidFen) {
       throw new Error("Ungültige FEN-Position");
     }
-    
+
+    // Initialize ChessService asynchronously to avoid render-time state updates
+    setTimeout(() => {
+      chessService.initialize(position.fen);
+    }, 0);
+
     // Game state will be automatically synced via ChessService event subscription in rootStore
-    // No need to manually update game state here
 
     // Step 3: Create TrainingPosition from EndgamePosition
     const trainingPosition: TrainingPosition = {
@@ -158,73 +171,77 @@ export const loadTrainingContext = async (
     const currentTurn = chessService.turn();
     const isPlayerTurn =
       currentTurn === trainingPosition.colorToTrain.charAt(0);
-    
+
     setState((draft) => {
       draft.training.currentPosition = trainingPosition;
       draft.training.isPlayerTurn = isPlayerTurn;
-    })
+    });
 
     // Step 5: Load navigation positions (next/previous)
     // This happens in the background to not block the main loading
     const positionService = getServerPositionService();
-    
+
     // Set loading state for navigation
     setState((draft) => {
       draft.training.isLoadingNavigation = true;
     });
-    
+
     try {
       // Load navigation positions in parallel
       const [nextPos, prevPos] = await Promise.all([
         positionService.getNextPosition(position.id, position.category),
-        positionService.getPreviousPosition(position.id, position.category)
+        positionService.getPreviousPosition(position.id, position.category),
       ]);
-      
+
       // Convert EndgamePosition to TrainingPosition for navigation positions
-      const nextTrainingPos = nextPos ? {
-        ...nextPos,
-        colorToTrain:
-          (nextPos as any).colorToTrain || nextPos.sideToMove || "white",
-        targetOutcome:
-          (nextPos as any).targetOutcome ||
-          (nextPos.goal === "win"
-            ? nextPos.sideToMove === "white"
-              ? "1-0"
-              : "0-1"
-            : nextPos.goal === "draw"
-              ? "1/2-1/2"
-              : "1-0"),
-        timeLimit: (nextPos as any).timeLimit || undefined,
-        chapterId: (nextPos as any).chapterId || undefined,
-      } as TrainingPosition : null;
-      
-      const prevTrainingPos = prevPos ? {
-        ...prevPos,
-        colorToTrain:
-          (prevPos as any).colorToTrain || prevPos.sideToMove || "white",
-        targetOutcome:
-          (prevPos as any).targetOutcome ||
-          (prevPos.goal === "win"
-            ? prevPos.sideToMove === "white"
-              ? "1-0"
-              : "0-1"
-            : prevPos.goal === "draw"
-              ? "1/2-1/2"
-              : "1-0"),
-        timeLimit: (prevPos as any).timeLimit || undefined,
-        chapterId: (prevPos as any).chapterId || undefined,
-      } as TrainingPosition : null;
-      
+      const nextTrainingPos = nextPos
+        ? ({
+            ...nextPos,
+            colorToTrain:
+              (nextPos as any).colorToTrain || nextPos.sideToMove || "white",
+            targetOutcome:
+              (nextPos as any).targetOutcome ||
+              (nextPos.goal === "win"
+                ? nextPos.sideToMove === "white"
+                  ? "1-0"
+                  : "0-1"
+                : nextPos.goal === "draw"
+                  ? "1/2-1/2"
+                  : "1-0"),
+            timeLimit: (nextPos as any).timeLimit || undefined,
+            chapterId: (nextPos as any).chapterId || undefined,
+          } as TrainingPosition)
+        : null;
+
+      const prevTrainingPos = prevPos
+        ? ({
+            ...prevPos,
+            colorToTrain:
+              (prevPos as any).colorToTrain || prevPos.sideToMove || "white",
+            targetOutcome:
+              (prevPos as any).targetOutcome ||
+              (prevPos.goal === "win"
+                ? prevPos.sideToMove === "white"
+                  ? "1-0"
+                  : "0-1"
+                : prevPos.goal === "draw"
+                  ? "1/2-1/2"
+                  : "1-0"),
+            timeLimit: (prevPos as any).timeLimit || undefined,
+            chapterId: (prevPos as any).chapterId || undefined,
+          } as TrainingPosition)
+        : null;
+
       // Update navigation positions
       setState((draft) => {
         draft.training.nextPosition = nextTrainingPos;
         draft.training.previousPosition = prevTrainingPos;
         draft.training.isLoadingNavigation = false;
       });
-      
-      logger.debug("Navigation positions loaded", { 
-        nextId: nextPos?.id, 
-        prevId: prevPos?.id 
+
+      logger.debug("Navigation positions loaded", {
+        nextId: nextPos?.id,
+        prevId: prevPos?.id,
       });
     } catch (navError) {
       // Navigation loading is non-critical, just log and continue
@@ -256,7 +273,7 @@ export const loadTrainingContext = async (
         type: "success",
         duration: 2000,
       });
-    })
+    });
   } catch (error) {
     // Handle errors
     const errorMessage =
@@ -271,15 +288,15 @@ export const loadTrainingContext = async (
         type: "error",
         duration: 5000,
       });
-      
+
       // Reset slices to initial states on error - PROPERLY preserving action methods
       // Game slice - manual property reset
       draft.game.moveHistory = [];
       draft.game.currentMoveIndex = 0;
       draft.game.isGameFinished = false;
-      
+
       // Training slice - DO NOT RESET - Let the position loading handle training state
-    })
+    });
   } finally {
     // Clear loading state
     setState((draft) => {

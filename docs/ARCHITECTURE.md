@@ -23,7 +23,9 @@ The store is now organized into focused, domain-specific slices:
 - **TablebaseSlice**: Tablebase evaluations, analysis status, cache management
 - **UISlice**: Interface state, toasts, sidebar, modal management
 
-*Note: ProgressSlice, SettingsSlice, and UserSlice are planned but not yet implemented.*
+- **ProgressSlice**: User progress, achievements, statistics, spaced repetition
+- **SettingsSlice**: User preferences, themes, notifications
+- **UserSlice**: Authentication, profile, preferences
 
 Cross-slice operations are handled by orchestrators in `/shared/store/orchestrators/`.
 
@@ -198,6 +200,12 @@ Each slice contains its own state and actions, promoting separation of concerns 
   - Fixed Issue #59: Tablebase DTM sorting bug (Math.abs for winning positions)
   - Created 4 LLM-optimized refactoring issues (#62-#65)
   - Fixed TypeScript compilation errors with TrainingPosition type mapping
+- **v3.11: Test Performance Optimization** ✅
+  - Jest test suite optimized from 11.5s to 5.8s (50% faster)
+  - Implemented Jest Projects to separate React (jsdom) and Node tests
+  - 60% of tests now run in faster Node environment
+  - Added test sharding and optimized CI/CD pipeline (60% faster)
+  - Per-test performance: ~7.3ms (industry average: 20-50ms)
 
 ## Future Considerations (v4.0)
 

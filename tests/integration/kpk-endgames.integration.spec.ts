@@ -110,8 +110,8 @@ describe("KPK Integration Tests (Refactored Store)", () => {
     startTablebaseMSW();
   });
 
-  afterAll(() => {
-    stopTablebaseMSW();
+  afterAll(async () => {
+    await stopTablebaseMSW();
   });
 
   beforeEach(() => {
@@ -142,7 +142,9 @@ describe("KPK Integration Tests (Refactored Store)", () => {
 
       // The position should be set correctly - note nested structure
       const state = result.current;
-      expect(state.training.currentPosition?.fen).toBe(KNOWN_POSITIONS.KPK_WIN_WHITE);
+      expect(state.training.currentPosition?.fen).toBe(
+        KNOWN_POSITIONS.KPK_WIN_WHITE,
+      );
       expect(state.game.currentFen).toBe(KNOWN_POSITIONS.KPK_WIN_WHITE);
     });
   });
