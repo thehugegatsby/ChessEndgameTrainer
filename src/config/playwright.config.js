@@ -7,7 +7,7 @@
 const { defineConfig, devices } = require("@playwright/test");
 
 // Simple configuration constants
-const DEV_URL = "http://127.0.0.1:3003"; // Use port 3003 for E2E tests to avoid conflicts
+const DEV_URL = "http://127.0.0.1:3009"; // Use port 3009 for E2E tests to avoid conflicts
 const E2E_URL = "http://127.0.0.1:3001";
 const CI = process.env.CI === "true";
 

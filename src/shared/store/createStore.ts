@@ -15,8 +15,36 @@
  */
 
 import { create } from "zustand";
-import { devtools, persist } from "zustand/middleware";
+import { devtools, persist, createJSONStorage, StateStorage } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
+
+// Safe storage adapter that gracefully handles localStorage errors
+const safeStorage: StateStorage = {
+  getItem: (name) => {
+    try {
+      if (typeof window === "undefined") return null;
+      return localStorage.getItem(name);
+    } catch {
+      return null;
+    }
+  },
+  setItem: (name, value) => {
+    try {
+      if (typeof window === "undefined") return;
+      localStorage.setItem(name, value);
+    } catch {
+      // Silently fail in restricted environments
+    }
+  },
+  removeItem: (name) => {
+    try {
+      if (typeof window === "undefined") return;
+      localStorage.removeItem(name);
+    } catch {
+      // Silently fail in restricted environments
+    }
+  },
+};
 
 // Import all slice creators
 import { createGameSlice } from "./slices/gameSlice";
@@ -252,6 +280,7 @@ export const createStore = (initialState?: Partial<RootState>) => {
         {
           name: "endgame-trainer-store",
           version: 1,
+          storage: createJSONStorage(() => safeStorage), // Safe storage that handles errors gracefully
           // Only persist training position for session continuity
           partialize: (state) => ({
             training: {

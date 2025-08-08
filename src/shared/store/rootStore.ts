@@ -65,37 +65,37 @@ import type { EndgamePosition } from "@shared/types/endgame";
 // Initial state creation removed - slices are initialized directly in store
 
 /**
- * No-op storage adapter for E2E tests
- * Prevents localStorage warnings in headless browser environments
+ * Safe storage adapter that gracefully handles localStorage errors
+ * This prevents warnings in E2E tests and other restricted environments
+ * while maintaining functionality in normal browser environments
  */
-const noopStorage: StateStorage = {
-  getItem: () => null,
-  setItem: () => {},
-  removeItem: () => {},
-};
-
-/**
- * Determine which storage to use based on environment
- * - E2E tests: Use no-op storage to prevent warnings
- * - Production/Development: Use localStorage for persistence
- */
-const getStorage = (): StateStorage => {
-  // Check multiple ways to detect E2E test environment
-  if (
-    process.env.NEXT_PUBLIC_IS_E2E_TEST === "true" ||
-    (typeof window !== "undefined" && window.location?.port === "3003") || // E2E test port
-    (typeof window !== "undefined" && 
-     window.navigator?.userAgent?.includes("HeadlessChrome")) // Playwright headless browser
-  ) {
-    return noopStorage;
-  }
-  
-  // In SSR or when localStorage is not available, use no-op storage
-  if (typeof window === "undefined" || !window.localStorage) {
-    return noopStorage;
-  }
-  
-  return localStorage;
+const safeStorage: StateStorage = {
+  getItem: (name) => {
+    try {
+      if (typeof window === "undefined") return null;
+      return localStorage.getItem(name);
+    } catch {
+      // Silently fail in restricted environments (E2E tests, etc.)
+      return null;
+    }
+  },
+  setItem: (name, value) => {
+    try {
+      if (typeof window === "undefined") return;
+      localStorage.setItem(name, value);
+    } catch {
+      // Silently fail in restricted environments
+      // This prevents warnings in E2E tests where localStorage exists but throws
+    }
+  },
+  removeItem: (name) => {
+    try {
+      if (typeof window === "undefined") return;
+      localStorage.removeItem(name);
+    } catch {
+      // Silently fail in restricted environments
+    }
+  },
 };
 
 /**
@@ -335,7 +335,7 @@ export const useStore = create<RootState>()(
       {
         name: "endgame-trainer-store",
         version: 1,
-        storage: createJSONStorage(() => getStorage()), // Lazy evaluation of storage
+        storage: createJSONStorage(() => safeStorage), // Safe storage that handles errors gracefully
         // Only persist training position for session continuity
         partialize: (state) => ({
           // Training position - persist for session continuity

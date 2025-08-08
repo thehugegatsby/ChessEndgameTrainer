@@ -10,7 +10,7 @@
     "dev:pm2:stop": "pm2 stop endgame-trainer-dev",
     "dev:pm2:restart": "pm2 restart endgame-trainer-dev",
     "dev:pm2:logs": "pm2 logs endgame-trainer-dev",
-    "dev:e2e": "cross-env NEXT_PUBLIC_IS_E2E_TEST=true IS_E2E_TEST=true next dev -p 3003",
+    "dev:e2e": "cross-env NEXT_PUBLIC_IS_E2E_TEST=true IS_E2E_TEST=true next dev -p 3009",
     "dev:config": "node scripts/dev-server.js",
     "build": "next build",
     "build:turbo": "next build --turbopack",

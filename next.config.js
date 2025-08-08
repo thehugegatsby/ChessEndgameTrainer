@@ -38,6 +38,16 @@ const nextConfig = {
   experimental: {
     // Enable modern bundling
     esmExternals: true,
+    // Allow cross-origin requests from E2E test environment
+    // Only enabled when running E2E tests to prevent warnings
+    ...(process.env.IS_E2E_TEST === 'true' || process.env.NEXT_PUBLIC_IS_E2E_TEST === 'true' ? {
+      allowedDevOrigins: [
+        'http://127.0.0.1:3009',  // E2E test server IP (new port)
+        'http://localhost:3009',  // E2E test server hostname (new port)
+        'http://127.0.0.1:3002',  // Dev server IP (for test-to-dev communication)
+        'http://localhost:3002',  // Dev server hostname
+      ]
+    } : {}),
   },
 
   // Turbopack configuration (stable in Next.js 15)
