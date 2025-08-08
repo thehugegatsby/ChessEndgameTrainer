@@ -6,11 +6,12 @@
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
+const { PORTS } = require('./config/ports');
 
-// Simplified configuration without external dependencies
+// Simplified configuration using centralized ports
 const APP_CONFIG = {
   DEV_URL: "http://localhost",
-  DEV_PORT: 3002,
+  DEV_PORT: PORTS.DEV,
   DEV_HOST: "localhost",
 };
 
@@ -42,10 +43,10 @@ const nextConfig = {
     // Only enabled when running E2E tests to prevent warnings
     ...(process.env.IS_E2E_TEST === 'true' || process.env.NEXT_PUBLIC_IS_E2E_TEST === 'true' ? {
       allowedDevOrigins: [
-        'http://127.0.0.1:3009',  // E2E test server IP (new port)
-        'http://localhost:3009',  // E2E test server hostname (new port)
-        'http://127.0.0.1:3002',  // Dev server IP (for test-to-dev communication)
-        'http://localhost:3002',  // Dev server hostname
+        `http://127.0.0.1:${PORTS.E2E}`,   // E2E test server IP
+        `http://localhost:${PORTS.E2E}`,   // E2E test server hostname
+        `http://127.0.0.1:${PORTS.DEV}`,   // Dev server IP
+        `http://localhost:${PORTS.DEV}`,   // Dev server hostname
       ]
     } : {}),
   },

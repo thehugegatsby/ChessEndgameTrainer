@@ -5,6 +5,7 @@
 
 import { APIRequestContext } from "@playwright/test";
 import { EndgamePosition } from "@shared/types/endgame";
+import { PORTS } from "../../../config/ports";
 
 export interface TestUser {
   userId: string;
@@ -52,7 +53,7 @@ export class TestApiClient {
   private readonly baseUrl: string;
   private readonly request: APIRequestContext;
 
-  constructor(request: APIRequestContext, baseUrl = "http://localhost:3003") {
+  constructor(request: APIRequestContext, baseUrl = `http://localhost:${PORTS.E2E}`) {
     this.request = request;
     this.baseUrl = baseUrl;
   }
