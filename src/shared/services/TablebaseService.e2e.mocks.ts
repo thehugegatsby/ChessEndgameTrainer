@@ -146,6 +146,35 @@ export const E2E_TABLEBASE_MOCKS: Record<string, any> = {
     dtz: 0,
     dtm: null,
     precise: true,
+    moves: [
+      {
+        uci: "e8d7",
+        move: "e8d7",
+        san: "Kd7",
+        dtz: 0,
+        dtm: null,
+        wdl: 0,
+        category: "draw"
+      },
+      {
+        uci: "e8e7",
+        move: "e8e7",
+        san: "Ke7",
+        dtz: 0,
+        dtm: null,
+        wdl: 0,
+        category: "draw"
+      },
+      {
+        uci: "e8f7",
+        move: "e8f7",
+        san: "Kf7",
+        dtz: 0,
+        dtm: null,
+        wdl: 0,
+        category: "draw"
+      }
+    ]
   },
 
   // After Kf5 (Black to move) - should be draw
@@ -156,6 +185,35 @@ export const E2E_TABLEBASE_MOCKS: Record<string, any> = {
     dtz: 0,
     dtm: null,
     precise: true,
+    moves: [
+      {
+        uci: "e8d7",
+        move: "e8d7",
+        san: "Kd7",
+        dtz: 0,
+        dtm: null,
+        wdl: 0,
+        category: "draw"
+      },
+      {
+        uci: "e8e7",
+        move: "e8e7",
+        san: "Ke7",
+        dtz: 0,
+        dtm: null,
+        wdl: 0,
+        category: "draw"
+      },
+      {
+        uci: "e8f7",
+        move: "e8f7",
+        san: "Kf7",
+        dtz: 0,
+        dtm: null,
+        wdl: 0,
+        category: "draw"
+      }
+    ]
   },
 };
 

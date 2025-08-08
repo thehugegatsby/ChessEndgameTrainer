@@ -179,6 +179,21 @@ export const handlePlayerMove = async (
 
     // Step 6: Show error dialog if move was suboptimal and outcome changed
     if (qualityResult.shouldShowErrorDialog) {
+      // Set turn state before showing dialog so "Weiterspielen" can trigger opponent move
+      const currentTurn = chessService.turn();
+      const trainingColor =
+        state.training.currentPosition?.colorToTrain?.charAt(0);
+      
+      if (currentTurn !== trainingColor) {
+        getLogger().info(
+          "[handlePlayerMove] Setting turn state for opponent before error dialog",
+        );
+        setState((draft) => {
+          draft.training.isPlayerTurn = false;
+          draft.training.isOpponentThinking = false; // Not thinking yet, waiting for dialog
+        });
+      }
+      
       moveDialogManager.showMoveErrorDialog(
         api,
         qualityResult.wdlBefore || 0,
@@ -186,9 +201,8 @@ export const handlePlayerMove = async (
         qualityResult.bestMove,
       );
 
-      // Don't schedule opponent turn when showing error dialog
       getLogger().info(
-        "[handlePlayerMove] Showing error dialog - no opponent turn",
+        "[handlePlayerMove] Showing error dialog - opponent turn will be scheduled after 'Weiterspielen'",
       );
       return true;
     }
