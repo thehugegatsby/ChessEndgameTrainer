@@ -4,6 +4,11 @@
  * Separates React tests (jsdom) from Node tests for optimal performance
  */
 
+const path = require('path');
+
+// Calculate the absolute path to the project root
+const projectRoot = path.resolve(__dirname, '../../');
+
 const baseConfig = {
   transform: {
     '^.+\\.(ts|tsx|js|jsx)$': ['@swc/jest', {
@@ -66,10 +71,12 @@ const baseConfig = {
 
 module.exports = {
   // Global settings that apply to all projects
+  rootDir: projectRoot,
   silent: true, // Disable console output for performance
   projects: [
     {
       ...baseConfig,
+      rootDir: projectRoot,
       displayName: 'react',
       testEnvironment: 'jsdom',
       testMatch: [
@@ -88,6 +95,7 @@ module.exports = {
     },
     {
       ...baseConfig,
+      rootDir: projectRoot,
       displayName: 'node',
       testEnvironment: 'node',
       testMatch: [

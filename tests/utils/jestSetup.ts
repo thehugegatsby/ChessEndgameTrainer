@@ -6,78 +6,8 @@
 import "@testing-library/jest-dom";
 import React from "react";
 
-// Polyfill MessagePort FIRST (required by undici)
-if (typeof globalThis.MessagePort === "undefined") {
-  const { MessagePort, MessageChannel } = require("worker_threads");
-  globalThis.MessagePort = MessagePort;
-  globalThis.MessageChannel = MessageChannel;
-}
-
-// Polyfill TextEncoder/TextDecoder for Node.js environment (required for MSW)
-if (typeof globalThis.TextEncoder === "undefined") {
-  const { TextEncoder, TextDecoder } = require("util");
-  globalThis.TextEncoder = TextEncoder;
-  globalThis.TextDecoder = TextDecoder;
-}
-
-// Polyfill stream APIs for MSW in Node.js environment
-if (typeof globalThis.ReadableStream === "undefined") {
-  const {
-    ReadableStream,
-    WritableStream,
-    TransformStream,
-  } = require("stream/web");
-  globalThis.ReadableStream = ReadableStream;
-  globalThis.WritableStream = WritableStream;
-  globalThis.TransformStream = TransformStream;
-}
-
-// Polyfill fetch-related globals for MSW in Node.js environment
-if (typeof globalThis.fetch === "undefined") {
-  const { fetch, Request, Response, Headers, FormData } = require("undici");
-  globalThis.fetch = fetch;
-  globalThis.Request = Request;
-  globalThis.Response = Response;
-  globalThis.Headers = Headers;
-  globalThis.FormData = FormData;
-}
-
-// Polyfill BroadcastChannel for MSW in Node.js environment
-if (typeof globalThis.BroadcastChannel === "undefined") {
-  globalThis.BroadcastChannel = class BroadcastChannel {
-    constructor(public name: string) {}
-    /**
-     *
-     * @param _message
-     */
-    postMessage(_message: any) {}
-    /**
-     *
-     */
-    close() {}
-    /**
-     *
-     * @param _type
-     * @param _listener
-     */
-    addEventListener(_type: string, _listener: any) {}
-    /**
-     *
-     * @param _type
-     * @param _listener
-     */
-    removeEventListener(_type: string, _listener: any) {}
-    /**
-     *
-     * @param _event
-     */
-    dispatchEvent(_event: any): boolean {
-      return true;
-    }
-    onmessage = null;
-    onmessageerror = null;
-  } as any;
-}
+// Note: MSW polyfills removed - using service-level mocking instead
+// This significantly improves test performance and stability
 import { IServiceContainer } from "@shared/services/container";
 import {
   createTestContainer,

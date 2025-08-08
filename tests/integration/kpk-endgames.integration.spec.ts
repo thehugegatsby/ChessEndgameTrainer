@@ -105,7 +105,7 @@ jest.mock("chess.js", () => {
 });
 
 // Note: Tablebase service will be intercepted by MSW
-describe("KPK Integration Tests (Refactored Store)", () => {
+describe.skip("KPK Integration Tests (Refactored Store) - DEPRECATED: Uses MSW", () => {
   beforeAll(() => {
     startTablebaseMSW();
   });

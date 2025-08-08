@@ -30,3 +30,12 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 .jest-cache/
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+
+# Firebase service account keys (SECURITY - NEVER COMMIT!)
+config/serviceAccountKey.json
+config/*.json
+serviceAccountKey.json
+*-firebase-adminsdk-*.json
