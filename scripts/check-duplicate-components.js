@@ -58,7 +58,7 @@ function findComponents(dir, components = new Map()) {
 function main() {
   console.log("🔍 Checking for duplicate component names...\n");
 
-  const components = findComponents("./shared/components");
+  const components = findComponents("./src/shared/components");
   const duplicates = Array.from(components.entries()).filter(
     ([name, paths]) => paths.length > 1,
   );

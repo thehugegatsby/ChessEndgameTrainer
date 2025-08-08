@@ -22,7 +22,7 @@ module.exports = {
     '^@shared/(.*)$': '<rootDir>/src/shared/$1',
     '^@app/(.*)$': '<rootDir>/src/app/$1',
     '^@tests/(.*)$': '<rootDir>/src/tests/$1'
-  }
+  },
   testMatch: [
     '<rootDir>/src/tests/**/__tests__/**/*.[jt]s?(x)',
     '<rootDir>/src/tests/**/*.{spec,test}.[jt]s?(x)',
