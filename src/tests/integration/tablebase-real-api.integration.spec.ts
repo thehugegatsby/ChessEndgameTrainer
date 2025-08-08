@@ -12,6 +12,7 @@
  */
 
 import { tablebaseService } from "../../shared/services/TablebaseService";
+import { IntegrationTestPositions } from "../fixtures/fenPositions";
 
 // Skip these tests in CI to avoid rate limiting and external dependencies
 // Also skip if fetch is not available (e.g., in Node.js test environment without polyfill)
@@ -105,7 +106,8 @@ describeIfNotCI("Tablebase Real API Integration Tests", () => {
   describe("WDL Perspective Normalization", () => {
     it("should handle perspective correctly for black to move", async () => {
       // Position where black is to move and losing
-      const fen = "1K6/P7/k7/8/8/8/8/8 b - - 1 1";
+      const realApiPosition = IntegrationTestPositions.REAL_API_KPK;
+      const fen = realApiPosition.fen;
 
       const result = await tablebaseService.getEvaluation(fen);
 

@@ -2,6 +2,7 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MovePanelZustand } from "@shared/components/training/MovePanelZustand";
 import { createTestValidatedMove } from "../../helpers/validatedMoveFactory";
+import { getOpeningSequence } from "../../fixtures/fenPositions";
 
 // Mock the store hooks directly
 jest.mock("@shared/store/hooks");
@@ -14,15 +15,16 @@ describe("MovePanelZustand", () => {
   });
 
   it("should display moves from Zustand store", () => {
-    // Set up store with moves using factory
+    // Use centralized opening sequence for consistent testing
+    const openingSequence = getOpeningSequence();
     const mockMoves = [
       createTestValidatedMove({
         from: "e2",
         to: "e4",
         piece: "p",
         san: "e4",
-        before: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        after: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+        before: openingSequence.startPosition,
+        after: openingSequence.positions[0].after,
       }),
       createTestValidatedMove({
         from: "e7",
@@ -30,21 +32,21 @@ describe("MovePanelZustand", () => {
         piece: "p",
         color: "b",
         san: "e5",
-        before: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
-        after: "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+        before: openingSequence.positions[0].after,
+        after: openingSequence.positions[1].after,
       }),
       createTestValidatedMove({
         from: "g1",
         to: "f3",
         piece: "n",
         san: "Nf3",
-        before: "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
-        after: "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+        before: openingSequence.positions[1].after,
+        after: openingSequence.positions[2].after,
       }),
     ];
 
     (useGameStore as jest.Mock).mockReturnValue([{
-      currentFen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+      currentFen: openingSequence.positions[2].after,
       currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
       currentMoveIndex: 2,
@@ -67,14 +69,15 @@ describe("MovePanelZustand", () => {
   });
 
   it("should display evaluations when showEvaluations is true", () => {
+    const openingSequence = getOpeningSequence();
     const mockMoves = [
       createTestValidatedMove({
         from: "e2",
         to: "e4",
         piece: "p",
         san: "e4",
-        before: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        after: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+        before: openingSequence.startPosition,
+        after: openingSequence.positions[0].after,
       }),
     ];
 
@@ -91,7 +94,7 @@ describe("MovePanelZustand", () => {
     ];
 
     (useGameStore as jest.Mock).mockReturnValue([{
-      currentFen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+      currentFen: openingSequence.positions[2].after,
       currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
       currentMoveIndex: 2,
@@ -115,6 +118,7 @@ describe("MovePanelZustand", () => {
   });
 
   it("should handle move click events", () => {
+    const openingSequence = getOpeningSequence();
     const onMoveClickMock = jest.fn();
     const mockMoves = [
       createTestValidatedMove({
@@ -137,7 +141,7 @@ describe("MovePanelZustand", () => {
     ];
 
     (useGameStore as jest.Mock).mockReturnValue([{
-      currentFen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+      currentFen: openingSequence.positions[2].after,
       currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
       currentMoveIndex: 2,
@@ -162,6 +166,7 @@ describe("MovePanelZustand", () => {
   });
 
   it("should highlight current move", () => {
+    const openingSequence = getOpeningSequence();
     const mockMoves = [
       createTestValidatedMove({
         from: "e2",
@@ -183,7 +188,7 @@ describe("MovePanelZustand", () => {
     ];
 
     (useGameStore as jest.Mock).mockReturnValue([{
-      currentFen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+      currentFen: openingSequence.positions[2].after,
       currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
       currentMoveIndex: 2,
@@ -213,6 +218,7 @@ describe("MovePanelZustand", () => {
   });
 
   it("should display tablebase evaluations when available", () => {
+    const openingSequence = getOpeningSequence();
     const mockMoves = [
       createTestValidatedMove({
         from: "e2",
@@ -242,7 +248,7 @@ describe("MovePanelZustand", () => {
     ];
 
     (useGameStore as jest.Mock).mockReturnValue([{
-      currentFen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+      currentFen: openingSequence.positions[2].after,
       currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
       currentMoveIndex: 2,

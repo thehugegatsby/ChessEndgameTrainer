@@ -3,12 +3,13 @@
  */
 
 import { tablebaseService } from "@shared/services/TablebaseService";
+import { getTablebaseDefensePosition } from "../fixtures/fenPositions";
 
 describe("TablebaseService Defense Sorting", () => {
   it("Should return moves sorted by DTM for losing positions", async () => {
-    // Position: 2k5/8/8/4PK2/8/8/8/8 b - - 2 3
-    // Black to move, all moves lose but with different DTM
-    const fen = "2k5/8/8/4PK2/8/8/8/8 b - - 2 3";
+    // Use centralized test position for DTM defense sorting
+    const defensePosition = getTablebaseDefensePosition();
+    const fen = defensePosition.fen;
 
     console.log("\n=== Testing TablebaseService directly ===");
     console.log("FEN:", fen);
@@ -56,7 +57,8 @@ describe("TablebaseService Defense Sorting", () => {
 
   it("Should test the actual Lichess API response", async () => {
     // This will make a real API call to understand what we're getting
-    const fen = "2k5/8/8/4PK2/8/8/8/8 b - - 2 3";
+    const defensePosition = getTablebaseDefensePosition();
+    const fen = defensePosition.fen;
 
     try {
       // Make direct API call

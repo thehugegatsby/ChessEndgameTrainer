@@ -7,14 +7,16 @@
 
 import { renderHook, act } from "@testing-library/react";
 import { useStore } from "../../shared/store/rootStore";
+import { getKPKProgression } from "../fixtures/fenPositions";
 
 // Mock TablebaseService directly - no HTTP mocking needed
 jest.mock("@shared/services/TablebaseService", () => ({
   TablebaseService: {
     getInstance: jest.fn(() => ({
       getEvaluation: jest.fn().mockImplementation((fen) => {
-        // Return appropriate mock data based on FEN
-        if (fen === "K7/P7/k7/8/8/8/8/8 w - - 0 1") {
+        // Use centralized KPK progression positions
+        const kpkProgression = getKPKProgression();
+        if (fen === kpkProgression.positions[0].fen) {
           return Promise.resolve({
             isAvailable: true,
             wdl: { win: 100, draw: 0, loss: 0 },
@@ -22,7 +24,7 @@ jest.mock("@shared/services/TablebaseService", () => ({
             category: "win",
           });
         }
-        if (fen === "5k2/8/3K4/4P3/8/8/8/8 w - - 2 2") {
+        if (fen === kpkProgression.positions[2].fen) {
           return Promise.resolve({
             isAvailable: true,
             wdl: { win: 100, draw: 0, loss: 0 },
@@ -40,7 +42,8 @@ jest.mock("@shared/services/TablebaseService", () => ({
       }),
 
       getTopMoves: jest.fn().mockImplementation((fen) => {
-        if (fen === "5k2/8/3K4/4P3/8/8/8/8 w - - 2 2") {
+        const kpkProgression = getKPKProgression();
+        if (fen === kpkProgression.positions[2].fen) {
           return Promise.resolve([
             { uci: "d6c7", san: "Kc7", dtm: 14 },
             { uci: "d6d7", san: "Kd7", dtm: 12 },
@@ -233,10 +236,11 @@ describe("KPK Integration Tests (Service-Level Mock)", () => {
       const { result } = renderHook(() => useStore());
 
       // Load position
+      const kpkProgression = getKPKProgression();
       await act(async () => {
         await result.current.loadTrainingContext({
           id: 2,
-          fen: "5k2/8/3K4/4P3/8/8/8/8 w - - 2 2",
+          fen: kpkProgression.positions[2].fen,
           title: "KPK Position",
           description: "Test position",
           category: "basic-endgames",

@@ -1,9 +1,15 @@
 /**
- * Central FEN position store for all tests
+ * Centralized Test FEN Database
  *
- * This file contains all FEN positions used across the test suite.
- * Using a central store ensures consistency, reduces duplication,
- * and makes it easier to maintain and discover test positions.
+ * This file contains all FEN positions used across the test suite with metadata
+ * for expected tablebase values, test scenarios, and usage patterns.
+ * 
+ * Benefits:
+ * - Single source of truth for all test positions
+ * - Reduces duplication across test files  
+ * - Self-documenting with metadata and expected outcomes
+ * - Type-safe FEN access with validation
+ * - Easy to discover existing positions for reuse
  */
 
 /**
@@ -294,8 +300,349 @@ export function getRandomEndgamePosition(): string {
   return endgames[Math.floor(Math.random() * endgames.length)];
 }
 
+// =============================================================================
+// ENHANCED DATABASE WITH METADATA AND SCENARIOS
+// =============================================================================
+
 /**
- * Type-safe FEN position type
+ * Enhanced FEN entry with metadata for comprehensive testing
+ */
+export interface TestFenEntry {
+  fen: string;
+  description: string;
+  expectedWdl?: number;
+  expectedDtm?: number;
+  expectedCategory?: 'win' | 'draw' | 'loss' | 'unknown';
+  tags: readonly string[];
+  difficulty: 'basic' | 'intermediate' | 'advanced';
+  endgameType: string;
+  usage: 'unit' | 'integration' | 'e2e' | 'all';
+}
+
+/**
+ * Move sequence for testing complete game flows
+ */
+export interface TestMoveSequence {
+  startPosition: string;
+  moves: string[];
+  description: string;
+  expectedResult: 'win' | 'draw' | 'loss' | 'continue';
+  tags: string[];
+}
+
+/**
+ * FEN pair for before/after move testing
+ */
+export interface FenPair {
+  before: string;
+  after: string;
+  move: string;
+  description: string;
+}
+
+// =============================================================================
+// TABLEBASE DEFENSE SCENARIOS 
+// =============================================================================
+
+/**
+ * Positions specifically for testing tablebase defense and DTM sorting
+ */
+export const TablebaseDefensePositions = {
+  /** 
+   * Black to move, losing position - tests DTM sorting for defense
+   * Expected: Kd7 (DTM -27) should be ranked first as best defense
+   */
+  BLACK_LOSES_DTM_TEST: {
+    fen: "2k5/8/8/4PK2/8/8/8/8 b - - 2 3",
+    description: "Black to move in losing KPK position - DTM defense sorting test",
+    expectedWdl: -2,
+    expectedDtm: -27,
+    expectedCategory: 'loss' as const,
+    tags: ['tablebase', 'defense', 'dtm-sorting', 'kpk'],
+    difficulty: 'intermediate' as const,
+    endgameType: 'KPK',
+    usage: 'integration' as const,
+  },
+  
+  /**
+   * Complex KPK position from mock tests
+   */
+  KPK_MOCK_POSITION: {
+    fen: "5k2/2K5/8/4P3/8/8/8/8 b - - 3 2",
+    description: "KPK position used in service mock tests",
+    expectedWdl: -2,
+    expectedCategory: 'loss' as const,
+    tags: ['kpk', 'mock', 'service-test'],
+    difficulty: 'advanced' as const,
+    endgameType: 'KPK',
+    usage: 'integration' as const,
+  },
+} as const;
+
+// =============================================================================
+// OPENING MOVE SEQUENCES
+// =============================================================================
+
+/**
+ * Complete opening sequences for move flow testing
+ */
+export const OpeningSequences = {
+  /** Classic 1.e4 e5 2.Nf3 sequence */
+  E4_E5_NF3_SEQUENCE: {
+    startPosition: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    moves: ["e2-e4", "e7-e5", "g1-f3"],
+    description: "Classic opening sequence: 1.e4 e5 2.Nf3",
+    expectedResult: 'continue' as const,
+    tags: ['opening', 'ui-test', 'move-flow'],
+    positions: [
+      {
+        after: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+        move: "e4",
+        description: "After 1.e4"
+      },
+      {
+        after: "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2", 
+        move: "e5",
+        description: "After 1...e5"
+      },
+      {
+        after: "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+        move: "Nf3", 
+        description: "After 2.Nf3"
+      }
+    ]
+  },
+} as const;
+
+// =============================================================================
+// KPK ENDGAME PROGRESSIONS
+// =============================================================================
+
+/**
+ * Extended KPK progression scenarios with expected outcomes
+ */
+export const KPKProgressions = {
+  /** Classic winning KPK progression */
+  WINNING_PROGRESSION: {
+    startPosition: "K7/P7/k7/8/8/8/8/8 w - - 0 1",
+    description: "Classic winning KPK endgame progression",
+    moves: ["Kb8", "Kd6", "Kc7"], // Example progression
+    expectedResult: 'win' as const,
+    tags: ['kpk', 'endgame', 'winning', 'progression'],
+    positions: [
+      {
+        fen: "K7/P7/k7/8/8/8/8/8 w - - 0 1",
+        description: "Initial winning position",
+        expectedDtm: 28,
+        expectedWdl: 2,
+      },
+      {
+        fen: "1K6/P7/k7/8/8/8/8/8 b - - 1 1", 
+        description: "After Kb8 (still winning)",
+        expectedDtm: 27,
+        expectedWdl: 2,
+      },
+      {
+        fen: "4k3/8/3K4/4P3/8/8/8/8 b - - 1 1",
+        description: "After Kd6 (suboptimal but winning)", 
+        expectedDtm: 25,
+        expectedWdl: 2,
+      }
+    ]
+  },
+} as const;
+
+// =============================================================================
+// E2E TEST SCENARIOS
+// =============================================================================
+
+/**
+ * Complete E2E test scenarios with pawn promotion
+ */
+export const E2EScenarios = {
+  /** Pawn promotion leading to automatic win */
+  PAWN_PROMOTION_AUTO_WIN: {
+    startPosition: "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1",
+    moves: [
+      "Kd6", "Kf7", "Kd7", "Kf8", "e6", "Kg8", "e7", "Kf7", "e8=Q"
+    ],
+    description: "KPK endgame leading to pawn promotion with auto-win detection",
+    expectedResult: 'win' as const,
+    tags: ['e2e', 'promotion', 'auto-win', 'kpk'],
+  },
+
+  /** Pawn promotion without auto-win */  
+  PAWN_PROMOTION_CONTINUE: {
+    startPosition: "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1",
+    moves: [
+      "Kd6", "Kf7", "Kc7", "Kg7", "e6", "Kf6", "e7", "Kf7", "e8=Q"
+    ],
+    description: "KPK endgame with promotion but no immediate auto-win",
+    expectedResult: 'continue' as const, 
+    tags: ['e2e', 'promotion', 'continue', 'kpk'],
+  },
+} as const;
+
+// =============================================================================
+// INTEGRATION TEST POSITIONS
+// =============================================================================
+
+/**
+ * Positions from integration tests with expected API responses
+ */
+export const IntegrationTestPositions = {
+  /** Real API integration test position */
+  REAL_API_KPK: {
+    fen: "1K6/P7/k7/8/8/8/8/8 b - - 1 1",
+    description: "KPK position for real Lichess API integration testing",
+    expectedWdl: -2,
+    expectedCategory: 'loss' as const,
+    tags: ['integration', 'real-api', 'kpk'],
+    difficulty: 'basic' as const,
+    endgameType: 'KPK',
+    usage: 'integration' as const,
+  },
+
+  /** Complex endgame test position */
+  COMPLEX_ENDGAME: {
+    fen: "8/8/8/8/4k3/4P3/5K2/8 b - - 1 2", 
+    description: "Complex endgame position from page tests",
+    expectedCategory: 'unknown' as const,
+    tags: ['integration', 'complex', 'ui-test'],
+    difficulty: 'advanced' as const,
+    endgameType: 'KPK',
+    usage: 'unit' as const,
+  },
+} as const;
+
+// =============================================================================
+// VALIDATION AND ERROR TEST POSITIONS
+// =============================================================================
+
+/**
+ * Positions for testing validation and error handling
+ */
+export const ValidationTestPositions = {
+  /** Empty position for error testing */
+  EMPTY_POSITION: {
+    fen: "8/8/8/8/8/8/8/8",
+    description: "Empty board position for validation testing",
+    expectedCategory: 'unknown' as const,
+    tags: ['validation', 'error-test', 'empty'],
+    difficulty: 'basic' as const,
+    endgameType: 'None',
+    usage: 'unit' as const,
+  },
+
+  /** Mock service position */
+  MOCK_SERVICE_POSITION: {
+    fen: "2K5/2P2k2/8/8/4R3/8/1r6/8",
+    description: "Complex position from jest setup mocks",
+    tags: ['mock', 'service', 'complex'],
+    difficulty: 'advanced' as const, 
+    endgameType: 'KRPKR',
+    usage: 'unit' as const,
+  },
+} as const;
+
+// =============================================================================
+// HELPER FUNCTIONS
+// =============================================================================
+
+/**
+ * Get all FEN positions from enhanced database
+ */
+export function getAllTestFENsEnhanced(): TestFenEntry[] {
+  const positions: TestFenEntry[] = [];
+
+  // Add tablebase defense positions
+  Object.values(TablebaseDefensePositions).forEach(pos => positions.push(pos));
+  
+  // Add integration test positions  
+  Object.values(IntegrationTestPositions).forEach(pos => positions.push(pos));
+  
+  // Add validation test positions
+  Object.values(ValidationTestPositions).forEach(pos => positions.push(pos));
+
+  return positions;
+}
+
+/**
+ * Get FENs by tag for targeted testing
+ */
+export function getFensByTag(tag: string): TestFenEntry[] {
+  return getAllTestFENsEnhanced().filter(pos => pos.tags.includes(tag));
+}
+
+/**
+ * Get FENs by difficulty level
+ */
+export function getFensByDifficulty(difficulty: 'basic' | 'intermediate' | 'advanced'): TestFenEntry[] {
+  return getAllTestFENsEnhanced().filter(pos => pos.difficulty === difficulty);
+}
+
+/**
+ * Get FENs by usage type
+ */
+export function getFensByUsage(usage: 'unit' | 'integration' | 'e2e' | 'all'): TestFenEntry[] {
+  return getAllTestFENsEnhanced().filter(pos => pos.usage === usage || pos.usage === 'all');
+}
+
+/**
+ * Get FENs by endgame type  
+ */
+export function getFensByEndgameType(endgameType: string): TestFenEntry[] {
+  return getAllTestFENsEnhanced().filter(pos => pos.endgameType === endgameType);
+}
+
+/**
+ * Get a specific position for tablebase defense testing
+ */
+export function getTablebaseDefensePosition(): TestFenEntry {
+  return TablebaseDefensePositions.BLACK_LOSES_DTM_TEST;
+}
+
+/**
+ * Get opening sequence for UI testing
+ */  
+export function getOpeningSequence() {
+  return OpeningSequences.E4_E5_NF3_SEQUENCE;
+}
+
+/**
+ * Get KPK progression for endgame testing
+ */
+export function getKPKProgression() {
+  return KPKProgressions.WINNING_PROGRESSION;
+}
+
+/**
+ * Validate all FEN strings in database
+ */
+export function validateAllTestFens(): { valid: number; invalid: string[] } {
+  const allFens = getAllTestFENsEnhanced();
+  const invalid: string[] = [];
+  let valid = 0;
+
+  allFens.forEach(entry => {
+    // Basic FEN validation - should have 6 space-separated parts
+    const parts = entry.fen.split(' ');
+    if (parts.length === 6) {
+      valid++;
+    } else {
+      invalid.push(entry.fen);
+    }
+  });
+
+  return { valid, invalid };
+}
+
+// =============================================================================
+// LEGACY COMPATIBILITY - Keep existing exports
+// =============================================================================
+
+/**
+ * Type-safe FEN position type (legacy compatibility)
  */
 export type TestFEN =
   | (typeof StandardPositions)[keyof typeof StandardPositions]
