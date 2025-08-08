@@ -13,10 +13,16 @@ global.Worker = jest.fn(() => ({
 }));
 
 // Mock fetch API
+/**
+ * Mock fetch API
+ * @returns {Promise} Mock response
+ */
 global.fetch = jest.fn(() =>
   Promise.resolve({
     ok: true,
+    /** @returns Promise with mock tablebase data */
     json: () => Promise.resolve({ wdl: 2, dtm: 15, dtz: 15 }),
+    /** @returns Promise with mock tablebase text */
     text: () => Promise.resolve("2,15,15"),
   }),
 );
@@ -49,6 +55,9 @@ if (!global.AbortController) {
       };
     }
 
+    /**
+     * Abort the signal
+     */
     abort() {
       this.signal.aborted = true;
     }

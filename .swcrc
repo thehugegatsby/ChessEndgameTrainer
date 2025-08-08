@@ -14,12 +14,10 @@
     "target": "es2019",
     "baseUrl": "./",
     "paths": {
-      "@/*": ["shared/*"],
-      "@app/*": ["app/*"],
-      "@shared/*": ["shared/*"],
-      "@app/web/*": ["app/web/*"],
-      "@web/*": ["app/web/*"],
-      "@app/mobile/*": ["app/mobile/*"]
+      "@/*": ["src/*"],
+      "@shared/*": ["src/shared/*"],
+      "@app/*": ["src/app/*"],
+      "@tests/*": ["src/tests/*"]
     }
   },
   "module": {

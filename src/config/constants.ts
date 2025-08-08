@@ -2,10 +2,15 @@
  * Central configuration constants for the application
  */
 
+/**
+ * Application configuration constants
+ * @constant
+ */
 export const APP_CONFIG = {
   // Development server configuration
   DEV_PORT: 3002,
   DEV_HOST: "127.0.0.1",
+  /** Get the development URL */
   get DEV_URL() {
     return `http://${this.DEV_HOST}:${this.DEV_PORT}`;
   },
@@ -27,11 +32,17 @@ export const APP_CONFIG = {
 } as const;
 
 // Environment helpers
+/** Check if running in development mode */
 export const isDevelopment = process.env.NODE_ENV === "development";
+/** Check if running in production mode */
 export const isProduction = process.env.NODE_ENV === "production";
+/** Check if running in test mode */
 export const isTest = process.env.NODE_ENV === "test";
 
-// Get the appropriate URL based on environment
+/**
+ * Get the appropriate URL based on environment
+ * @returns The application URL
+ */
 export const getAppUrl = () => {
   if (isDevelopment || isTest) {
     return APP_CONFIG.DEV_URL;

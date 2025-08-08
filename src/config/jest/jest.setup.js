@@ -34,9 +34,14 @@ global.Worker = jest.fn(() => mockWorker);
 global.mockWorker = mockWorker;
 
 // Mock für fetch
+/**
+ * @returns Mock fetch response promise
+ */
 global.fetch = jest.fn(() =>
   Promise.resolve({
+    /** @returns Promise with empty object */
     json: () => Promise.resolve({}),
+    /** @returns Promise with empty string */
     text: () => Promise.resolve(""),
     ok: true,
   }),
@@ -44,11 +49,17 @@ global.fetch = jest.fn(() =>
 
 // Mock für ResizeObserver
 global.ResizeObserver = class ResizeObserver {
+  /**
+   * @param callback - Observer callback
+   */
   constructor(callback) {
     this.callback = callback;
   }
+  /** Observe element */
   observe() {}
+  /** Unobserve element */  
   unobserve() {}
+  /** Disconnect observer */
   disconnect() {}
 };
 
@@ -69,6 +80,10 @@ Object.defineProperty(window, "matchMedia", {
 
 // Mock Next.js router (useRouter)
 jest.mock("next/router", () => ({
+  /**
+   * Mock useRouter hook
+   * @returns Mock router object
+   */
   useRouter: () => ({
     query: { id: "test-scenario" },
     push: jest.fn(),

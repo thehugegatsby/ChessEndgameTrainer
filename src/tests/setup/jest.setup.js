@@ -22,61 +22,72 @@ if (typeof Worker === "undefined") {
       this.onmessageerror = null;
     }
 
+    /**
+     * Mock postMessage implementation
+     * @param message - Message to post
+     */
     postMessage(message) {
       // This will be replaced by mock implementations
     }
 
+    /**
+     * Mock terminate implementation
+     */
     terminate() {
       // This will be replaced by mock implementations
     }
   };
 }
 
-// Mock console methods for cleaner test output
+// Store original console methods to restore later
+// eslint-disable-next-line no-console
 const originalConsoleError = console.error;
+// eslint-disable-next-line no-console
 const originalConsoleWarn = console.warn;
 
 beforeEach(() => {
-  // Mock console.error to suppress expected errors in tests
-  console.error = jest.fn((message) => {
+  // Suppress specific console errors that are expected in tests
+  jest.spyOn(console, 'error').mockImplementation((message) => {
     if (
       typeof message === "string" &&
-      message.includes("Warning: ReactDOM.render is deprecated")
+      (message.includes("Warning: ReactDOM.render is deprecated") ||
+       message.includes("Warning: render is deprecated"))
     ) {
       return;
     }
-    if (
-      typeof message === "string" &&
-      message.includes("Warning: render is deprecated")
-    ) {
-      return;
-    }
-    originalConsoleError(message);
+    // Silently ignore without calling original
   });
 
-  // Mock console.warn to suppress warnings
-  console.warn = jest.fn((message) => {
+  // Suppress specific console warnings that are expected in tests
+  jest.spyOn(console, 'warn').mockImplementation((message) => {
     if (
       typeof message === "string" &&
       message.includes("componentWillReceiveProps")
     ) {
       return;
     }
-    originalConsoleWarn(message);
+    // Silently ignore without calling original
   });
 });
 
 afterEach(() => {
   // Restore original console methods
-  console.error = originalConsoleError;
-  console.warn = originalConsoleWarn;
-
+  jest.restoreAllMocks();
+  
   // Clear all mocks
   jest.clearAllMocks();
 });
 
 // Global test utilities
+/**
+ * Global test utilities for creating mock data
+ */
 global.testUtils = {
+  /**
+   * Create a mock FEN string for testing
+   * @param options - FEN components
+   * @returns Valid FEN string
+   */
   createMockFen: (options = {}) => {
     const {
       pieces = "2K5/2P2k2/8/8/4R3/8/1r6/8",
@@ -90,6 +101,13 @@ global.testUtils = {
     return `${pieces} ${activeColor} ${castling} ${enPassant} ${halfmove} ${fullmove}`;
   },
 
+  /**
+   * Create mock tablebase data
+   * @param wdl - Win/Draw/Loss value
+   * @param dtm - Distance to mate
+   * @param dtz - Distance to zeroing
+   * @returns Mock tablebase data
+   */
   createMockTablebaseData: (wdl = 2, dtm = null, dtz = null) => ({
     wdl,
     dtm,
@@ -98,6 +116,12 @@ global.testUtils = {
     precise: true,
   }),
 
+  /**
+   * Create mock engine data
+   * @param score - Engine score
+   * @param mate - Mate in X moves
+   * @returns Mock engine data
+   */
   createMockEngineData: (score = 150, mate = null) => ({
     score,
     mate,

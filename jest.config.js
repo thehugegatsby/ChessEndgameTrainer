@@ -2,27 +2,7 @@
 module.exports = {
   testEnvironment: 'jsdom',
   transform: {
-    '^.+\\.(ts|tsx|js|jsx)$': ['@swc/jest', {
-      jsc: {
-        parser: {
-          syntax: 'typescript',
-          tsx: true,
-          decorators: false,
-          dynamicImport: true
-        },
-        transform: {
-          react: {
-            runtime: 'automatic',
-            development: false,
-            refresh: false
-          }
-        },
-        target: 'es2020'
-      },
-      module: {
-        type: 'commonjs'
-      }
-    }]
+    '^.+\\.(ts|tsx|js|jsx)$': '@swc/jest'
   },
   transformIgnorePatterns: [
     '/node_modules/(?!(nanoid|supermemo|react-chessboard|chess.js|react-native|@react-native|@react-navigation|expo|@expo|react-native-.*)/)'
@@ -39,11 +19,10 @@ module.exports = {
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
-    '^@app/(.*)$': '<rootDir>/src/app/$1',
     '^@shared/(.*)$': '<rootDir>/src/shared/$1',
-    '^@tests/(.*)$': '<rootDir>/src/tests/$1',
-    '^@pages/(.*)$': '<rootDir>/src/pages/$1'
-  },
+    '^@app/(.*)$': '<rootDir>/src/app/$1',
+    '^@tests/(.*)$': '<rootDir>/src/tests/$1'
+  }
   testMatch: [
     '<rootDir>/src/tests/**/__tests__/**/*.[jt]s?(x)',
     '<rootDir>/src/tests/**/*.{spec,test}.[jt]s?(x)',

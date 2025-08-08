@@ -5,6 +5,9 @@
  * Diese Datei enthält nur die Basis-Konfiguration.
  */
 
+/**
+ * Cursor project configuration object
+ */
 export const cursorProjectConfig = {
   name: "Chess Training App",
   description: "Spaced-Repetition-Tool für Endspieltraining - Web & Mobile",

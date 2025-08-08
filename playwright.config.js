@@ -1,1 +1,1 @@
-config/playwright.config.js
+src/config/playwright.config.js

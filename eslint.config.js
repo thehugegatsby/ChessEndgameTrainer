@@ -1,1 +1,1 @@
-config/eslint.config.js
+src/config/eslint.config.js

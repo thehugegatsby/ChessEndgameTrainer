@@ -11,27 +11,7 @@ const projectRoot = path.resolve(__dirname, '../../../');
 
 const baseConfig = {
   transform: {
-    '^.+\\.(ts|tsx|js|jsx)$': ['@swc/jest', {
-      jsc: {
-        parser: {
-          syntax: 'typescript',
-          tsx: true,
-          decorators: false,
-          dynamicImport: true
-        },
-        transform: {
-          react: {
-            runtime: 'automatic',
-            development: false,
-            refresh: false
-          }
-        },
-        target: 'es2020'
-      },
-      module: {
-        type: 'commonjs'
-      }
-    }]
+    '^.+\\.(ts|tsx|js|jsx)$': '@swc/jest'
   },
   transformIgnorePatterns: [
     '/node_modules/(?!(nanoid|supermemo|react-chessboard|chess.js|react-native|@react-native|@react-navigation|expo|@expo|react-native.*)/)'
@@ -40,10 +20,9 @@ const baseConfig = {
   setupFilesAfterEnv: ['<rootDir>/src/tests/utils/jestSetup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
-    '^@app/(.*)$': '<rootDir>/src/app/$1',
     '^@shared/(.*)$': '<rootDir>/src/shared/$1',
-    '^@tests/(.*)$': '<rootDir>/src/tests/$1',
-    '^@pages/(.*)$': '<rootDir>/src/pages/$1'
+    '^@app/(.*)$': '<rootDir>/src/app/$1',
+    '^@tests/(.*)$': '<rootDir>/src/tests/$1'
   },
   testPathIgnorePatterns: [
     '/node_modules/',
@@ -54,13 +33,13 @@ const baseConfig = {
     '/tests/e2e/'
   ],
   collectCoverageFrom: [
-    'shared/**/*.{ts,tsx}',
-    'app/**/*.{ts,tsx}',
-    'pages/**/*.{ts,tsx}',
+    'src/shared/**/*.{ts,tsx}',
+    'src/app/**/*.{ts,tsx}',
+    'src/pages/**/*.{ts,tsx}',
     '!**/*.d.ts',
     '!**/node_modules/**',
-    '!shared/constants/**',
-    '!shared/types/**'
+    '!src/shared/constants/**',
+    '!src/shared/types/**'
   ],
   testTimeout: 10000,
   clearMocks: true,
@@ -109,7 +88,7 @@ module.exports = {
       testEnvironment: 'node',
       testMatch: [
         // Service tests (except WebPlatformService)
-        '<rootDir>/src/tests/services/**/*.{test,spec}.[jt]s',
+        '<rootDir>/src/tests/**/services/**/*.{test,spec}.[jt]s',
         '<rootDir>/src/tests/unit/services/**/*.{test,spec}.[jt]s',
         // Store tests (Zustand doesn't need DOM)
         '<rootDir>/src/tests/unit/store/**/*.{test,spec}.[jt]s',
@@ -121,7 +100,7 @@ module.exports = {
         '<rootDir>/src/tests/smoke/**/*.{test,spec}.[jt]s',
         '<rootDir>/src/tests/validation/**/*.{test,spec}.[jt]s',
         '<rootDir>/src/tests/examples/**/*.{test,spec}.[jt]s',
-        '<rootDir>/src/tests/unit/promotion-detection.test.ts'
+        '<rootDir>/src/tests/unit/*.{test,spec}.[jt]s'
       ],
       testPathIgnorePatterns: [
         ...baseConfig.testPathIgnorePatterns,

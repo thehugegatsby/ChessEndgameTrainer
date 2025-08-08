@@ -35,7 +35,8 @@ global.mockWorker = mockWorker;
 // Mock Next.js router (useRouter)
 jest.mock("next/router", () => ({
   /**
-   *
+   * Mock useRouter hook
+   * @returns Mock router object
    */
   useRouter: () => ({
     query: { id: "test-scenario" },

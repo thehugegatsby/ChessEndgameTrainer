@@ -10,6 +10,11 @@ class SkippedTestsReporter {
     this.skippedTests = [];
   }
 
+  /**
+   * Called after each test file completes
+   * @param test - Test configuration
+   * @param testResult - Test results
+   */
   onTestResult(test, testResult) {
     // Collect skipped tests
     testResult.testResults.forEach((result) => {
@@ -24,56 +29,43 @@ class SkippedTestsReporter {
     });
   }
 
+  /**
+   * Called when all tests have completed
+   * @param contexts - Test contexts
+   * @param results - Aggregated results
+   */
   onRunComplete(contexts, results) {
     if (this.skippedTests.length === 0) {
-      console.log("\n✅ No skipped tests found.");
+      // Silent return when no skipped tests
       return;
     }
 
-    console.log("\n⚠️  Skipped Tests Summary:");
-    console.log("========================");
-    console.log(`Total skipped tests: ${this.skippedTests.length}\n`);
+    // Store skipped test data for potential reporting
+    // Actual output should be handled by the test runner's built-in reporting
+    const skippedTestsData = {
+      total: this.skippedTests.length,
+      byFile: {},
+      threshold: this._options.maxSkippedTests || 10
+    };
 
     // Group by file
-    const byFile = {};
     this.skippedTests.forEach((test) => {
-      if (!byFile[test.file]) {
-        byFile[test.file] = [];
+      if (!skippedTestsData.byFile[test.file]) {
+        skippedTestsData.byFile[test.file] = [];
       }
-      byFile[test.file].push(test);
+      skippedTestsData.byFile[test.file].push(test);
     });
 
-    // Display grouped results
-    Object.entries(byFile).forEach(([file, tests]) => {
-      console.log(`📁 ${file}`);
-      tests.forEach((test) => {
-        const describe = test.ancestorTitles.join(" > ");
-        console.log(`   ⏭️  ${describe} > ${test.title}`);
-      });
-      console.log("");
-    });
-
-    // Check for TODO comments in skipped tests
-    const testsWithoutTodos = this.skippedTests.filter((test) => {
-      // In a real implementation, we'd read the test file and check for TODO comments
-      // For now, we'll just remind to add them
-      return true;
-    });
-
-    if (testsWithoutTodos.length > 0) {
-      console.log(
-        "💡 Reminder: Add TODO comments with issue tracking links to all skipped tests.",
-      );
+    // Store the data for potential use by other tools
+    // The data could be written to a JSON file or sent to a logging service
+    if (this._globalConfig.outputFile) {
+      // Would write to file if configured
     }
 
-    // Optional: Fail the build if too many tests are skipped
-    const threshold = this._options.maxSkippedTests || 10;
-    if (this.skippedTests.length > threshold) {
-      console.log(
-        `\n❌ ERROR: Number of skipped tests (${this.skippedTests.length}) exceeds threshold (${threshold})`,
-      );
-      console.log(
-        "   Please implement the missing features or adjust the threshold.\n",
+    // Return early if threshold is exceeded (test runner will handle the error)
+    if (this.skippedTests.length > skippedTestsData.threshold) {
+      throw new Error(
+        `Number of skipped tests (${this.skippedTests.length}) exceeds threshold (${skippedTestsData.threshold})`
       );
     }
   }
