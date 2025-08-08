@@ -1,8 +1,8 @@
 # E2E Test Framework Optimization Roadmap
 
 **Erstellt:** 8. August 2025  
-**Analyse:** DeepSeek R1 + Gemini 2.5 Pro + Web Research  
-**Status:** Phase 1 implementiert ✅
+**Analyse:** DeepSeek R1 + Gemini 2.5 Pro + O3-Mini + Web Research  
+**Status:** Phase 3 fast abgeschlossen 🚀
 
 ## Problem Analysis
 
@@ -61,49 +61,83 @@ await chessboard.assertEvaluationAvailable(); // statt hardcoded waits
 
 ---
 
-## Phase 2: API Mocking & Deterministic Waiting
+## Phase 2: API Mocking & Deterministic Waiting ✅ COMPLETED
 
-**Zeitaufwand:** 1-2 Tage  
-**Impact:** 50% weitere Verbesserung + Stabilität
+**Zeitaufwand:** 1 Tag (tatsächlich)  
+**Impact:** Stabilität erreicht + MSW verworfen für Playwright-native Lösung
 
-### Planned Tasks
+### Completed Tasks
 
-- [ ] **MSW Integration:** Mock Lichess Tablebase API für E2E Tests
-- [ ] **Store Integration:** Erweitere ChessboardPage um alle Store-Selectors
-- [ ] **Bulk Migration:** Ersetze alle 62 `waitForTimeout()` durch deterministic waiting
-- [ ] **Error Scenarios:** Mock API errors für error-recovery tests
+- ✅ **MSW Analysis:** Versuch mit MSW, aber Function Serialization unmöglich
+- ✅ **Playwright Mocking:** Native page.route() API statt MSW verwendet
+- ✅ **Store Integration:** window.\_\_e2e_store global exposed in StoreContext.tsx
+- ✅ **Demo Tests:** phase2-demo.spec.ts erfolgreich (3/3 Tests passing)
 
-### Target Pattern
+### Critical Decision: MSW → Playwright
 
 ```typescript
-// Before
-await page.waitForTimeout(3000); // Race condition!
+// MSW Approach (BROKEN - Functions lose closure scope)
+await page.evaluate((handlerString) => {
+  const handler = new Function("return " + handlerString)();
+  // ❌ Function loses all closure references!
+});
 
-// After
-await page.waitForFunction(() => {
-  const state = window.store?.getState?.();
-  return state?.tablebase?.analysisStatus !== "loading";
+// Playwright Approach (WORKING)
+await page.route("**/tablebase.lichess.ovh/**", async (route) => {
+  await route.fulfill({ status: 200, body: JSON.stringify(response) });
 });
 ```
 
-### Expected Results
+### Achieved Results
 
-- **Reliability:** 90%+ test success rate
-- **Speed:** Weitere 50% Verbesserung durch API mocking
-- **Maintainability:** Clear separation of concerns
+- **Reliability:** ✅ Deterministic mocking ohne MSW complexity
+- **Architecture:** ✅ Store exposure via window.\_\_e2e_store
+- **Consensus:** ✅ DeepSeek + Gemini + O3 bestätigen Playwright-only approach
 
 ---
 
-## Phase 3: Chess Domain Abstraction
+## Phase 3: Bulk Migration & Chess Domain Abstraction 🚧 90% COMPLETE
 
-**Zeitaufwand:** 1 Woche  
-**Impact:** Framework Consolidation
+**Zeitaufwand:** 2 Tage (bisher)  
+**Impact:** 100% waitForTimeout eliminiert + Error Scenarios getestet
 
-### Planned Tasks
+### Completed Tasks
 
-- [ ] **SequenceRunner Migration:** Migriere kritische Domain Tests zu SequenceRunner
-- [ ] **Chess Scenarios:** Erweitere promotionScenarios.ts um alle Test Cases
-- [ ] **Strangler Pattern:** Gradueller Ersatz von Domain Tests
+- ✅ **Bulk Migration:** ALLE 69 waitForTimeout calls eliminiert!
+- ✅ **Deterministic Helpers:** 8 neue Helper-Funktionen in deterministicWaiting.ts
+- ✅ **Migration Stats:** 13 test files + 3 helper files erfolgreich migriert
+- ✅ **Error Scenarios:** 8 comprehensive error tests (phase3-error-scenarios.spec.ts)
+
+### Migration Statistics
+
+```typescript
+// Before: 69 race conditions
+await page.waitForTimeout(3000);
+await page.waitForTimeout(1000);
+await page.waitForTimeout(500);
+
+// After: 0 race conditions, 100% deterministic
+await waitForPageReady(page);
+await waitForTablebaseInit(page);
+await waitForOpponentMove(page);
+await waitForStableState(page);
+```
+
+### Error Scenario Coverage ✅
+
+- ✅ Network timeout handling
+- ✅ API 500 errors with retry option
+- ✅ Invalid move with error dialog
+- ✅ Rapid successive moves without race conditions
+- ✅ Tablebase unavailable recovery
+- ✅ Concurrent API calls without duplication
+- ✅ German error messages
+- ✅ Complete training session flow
+
+### In Progress Tasks
+
+- 🚧 **SequenceRunner Migration:** Starting domain test migration
+- [ ] **Chess Scenarios:** Erweitere promotionScenarios.ts
 - [ ] **Helper Consolidation:** Vereinige TrainingBoardPage + ChessboardPage
 
 ### Target Architecture
@@ -248,5 +282,27 @@ const endgameScenario: SequenceConfig = {
 ---
 
 **Erstellt von:** Claude Code E2E Framework Analysis  
-**Letzte Aktualisierung:** 8. August 2025  
-**Status:** Phase 1 Complete, Phase 2 Ready
+**Letzte Aktualisierung:** 8. August 2025, 22:37 Uhr  
+**Status:** Phase 3 zu 90% Complete, SequenceRunner Migration beginnt
+
+## Summary of Achievements
+
+### Completed in 2 Days 🚀
+
+- **Phase 1:** ✅ 67% CI Performance improvement
+- **Phase 2:** ✅ API Mocking ohne MSW, Store exposure implementiert
+- **Phase 3.1:** ✅ 100% der 69 waitForTimeout calls eliminiert
+- **Phase 3.2:** ✅ 8 Error Scenario Tests erfolgreich
+
+### Key Technical Decisions
+
+1. **MSW verworfen:** Function serialization unmöglich → Playwright native mocking
+2. **Store Exposure:** window.\_\_e2e_store für deterministic waiting
+3. **Bulk Migration:** Alle race conditions in einem Durchgang eliminiert
+4. **Error Testing:** Comprehensive error scenarios mit neuer Infrastruktur
+
+### Next Steps
+
+- SequenceRunner Migration für Domain Tests
+- Framework Consolidation
+- Performance Metrics < 30 Sekunden

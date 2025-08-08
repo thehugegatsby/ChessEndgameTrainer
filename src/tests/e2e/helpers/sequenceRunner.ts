@@ -237,7 +237,7 @@ export class SequenceRunner {
       await this.checkExpectationsForMove(config.expectations, i);
 
       // Short pause between moves
-      await this.page.waitForTimeout(500);
+      await waitForMoveAnimation(this.page);
     }
 
     // Check final expectations (no moveIndex specified)
@@ -314,7 +314,7 @@ export class SequenceRunner {
 
     // Give some time for final state to settle
     if (finalExpectations.length > 0) {
-      await this.page.waitForTimeout(2000);
+      await waitForUIReady(this.page);
     }
 
     for (const expectation of finalExpectations) {

@@ -1,11 +1,12 @@
 import { test } from "@playwright/test";
+import { waitForPageReady } from "./helpers/deterministicWaiting";
 
 test.describe("Debug react-chessboard v5 structure", () => {
   test("examine board structure", async ({ page }) => {
     await page.goto("/train/1");
 
     // Wait for board to load
-    await page.waitForTimeout(3000);
+    await waitForPageReady(page);
 
     // Try to find elements with data-square
     const dataSquares = await page.locator("[data-square]").count();
