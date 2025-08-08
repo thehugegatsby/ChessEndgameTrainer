@@ -55,6 +55,7 @@ import {
 } from "@shared/store/orchestrators/handlePlayerMove";
 import { chessService } from "@shared/services/ChessService";
 import { useMoveHandlers } from "@shared/hooks/useMoveHandlers";
+import { useDialogHandlers } from "@shared/hooks/useDialogHandlers";
 
 /**
  * Extended evaluation data structure for move panel integration
@@ -272,6 +273,49 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     previousFen: previousFen,
   });
 
+  // UI state management - local component state only
+  const [resetKey, setResetKey] = useState(0);
+  const [warning, setWarning] = useState<string | null>(null);
+  const [moveError, setMoveError] = useState<string | null>(null);
+
+  const trainingUIState = {
+    resetKey,
+    warning,
+    analysisError: null, // Analysis errors now handled by store
+    moveError,
+    /**
+     *
+     */
+    handleReset: () => setResetKey((prev) => prev + 1),
+    /**
+     *
+     */
+    handleDismissMoveError: useCallback(() => {
+      setMoveError(null);
+    }, []),
+    /**
+     *
+     */
+    handleClearWarning: () => setWarning(null),
+    /**
+     *
+     */
+    handleClearAnalysisError: () => {},
+  };
+
+  // Dialog handling logic - extracted to custom hook
+  const dialogHandlers = useDialogHandlers({
+    undoMove,
+    resetGame,
+    clearEvaluations,
+    trainingActions,
+    gameActions,
+    uiActions,
+    trainingState,
+    storeApi,
+    trainingUIState,
+  });
+
   // Add useRef to track processed evaluations
   const processedEvaluationsRef = useRef(new Set<string>());
 
@@ -299,219 +343,11 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     }
   }, [lastEvaluation, currentFen, evaluations, tablebaseActions]);
 
-  // UI state management - local component state only
-  const [resetKey, setResetKey] = useState(0);
-  const [warning, setWarning] = useState<string | null>(null);
-  const [moveError, setMoveError] = useState<string | null>(null);
-
   // Dialog state is now passed directly to DialogManager
   // No local state variables needed - DialogManager reads from trainingState directly
 
-  const trainingUIState = {
-    resetKey,
-    warning,
-    analysisError: null, // Analysis errors now handled by store
-    moveError,
-    /**
-     *
-     */
-    handleReset: () => setResetKey((prev) => prev + 1),
-    /**
-     *
-     */
-    handleDismissMoveError: useCallback(() => {
-      setMoveError(null);
-    }, []),
-    /**
-     *
-     */
-    handleClearWarning: () => setWarning(null),
-    /**
-     *
-     */
-    handleClearAnalysisError: () => {},
-  };
-
-  /**
-   * Resets the training board to initial state
-   *
-   * @description
-   * Performs comprehensive cleanup including:
-   * - Resetting chess game to starting position
-   * - Clearing all position evaluations
-   * - Resetting UI state and dialogs
-   * - Clearing training session data
-   *
-   * @remarks
-   * This handler is called when:
-   * - User clicks reset button
-   * - Training session needs restart
-   * - Parent component triggers reset
-   */
-  const handleReset = useCallback(() => {
-    resetGame();
-    clearEvaluations();
-    trainingUIState.handleReset();
-    gameActions.resetGame();
-  }, [resetGame, clearEvaluations, gameActions]);
-
-  /**
-   * Handles move error dialog dismissal with undo
-   *
-   * @description
-   * Closes the move error dialog and undoes the suboptimal move,
-   * allowing the user to try a different move.
-   *
-   * @remarks
-   * When a suboptimal move is detected, it has already been executed
-   * on the board and added to the move history. This function removes
-   * the move from history and reverts the board position.
-   */
-  const handleMoveErrorTakeBack = useCallback(() => {
-    const logger = getLogger().setContext("TrainingBoard-MoveError");
-    logger.info("Undoing suboptimal move using useTrainingSession undoMove");
-
-    // CRITICAL: Cancel any scheduled opponent turn BEFORE undoing
-    // This prevents the opponent from playing after we undo
-    cancelScheduledOpponentTurn();
-    logger.info("Cancelled any scheduled opponent turn");
-
-    // Use the undoMove function from useTrainingSession which properly handles ChessService
-    const undoResult = undoMove();
-
-    if (undoResult) {
-      logger.info("Move successfully undone");
-
-      // CRITICAL: Set player turn to true after undoing a suboptimal move
-      // This prevents the opponent from playing immediately after undo
-      logger.debug("Before setPlayerTurn - current state", {
-        isPlayerTurn: trainingState.isPlayerTurn,
-        isOpponentThinking: trainingState.isOpponentThinking,
-      });
-      trainingActions.setPlayerTurn(true);
-      trainingActions.clearOpponentThinking(); // Clear opponent thinking flag
-      logger.info(
-        "Set player turn to true and cleared opponent thinking - player can try another move",
-      );
-      logger.debug("After setPlayerTurn call");
-    } else {
-      logger.error("Failed to undo move - no moves in history");
-    }
-
-    // Close the dialog using the trainingActions hook which properly accesses the action
-    // The hook extracts the action from the slice creator, not from the nested store state
-    if (trainingActions && trainingActions.setMoveErrorDialog) {
-      trainingActions.setMoveErrorDialog(null);
-      logger.info(
-        "Successfully closed move error dialog via trainingActions hook",
-      );
-    } else {
-      logger.error("setMoveErrorDialog not available in trainingActions");
-    }
-  }, [undoMove, trainingActions]);
-
-  /**
-   * Restarts the entire training session after move error
-   *
-   * @description
-   * Completely resets the game and closes the error dialog when
-   * the user chooses to restart after making a critical mistake.
-   *
-   * @remarks
-   * This is typically used when the user has made a game-losing
-   * mistake and wants to start the position from the beginning.
-   */
-  const handleMoveErrorRestart = useCallback(() => {
-    const logger = getLogger().setContext("TrainingBoard-MoveError");
-    logger.info("Restarting game due to move error");
-    handleReset();
-    trainingActions.setMoveErrorDialog(null);
-  }, [handleReset, trainingActions]);
-
-  /**
-   * Handles "Weiterspielen" (continue playing) action from error dialog
-   *
-   * @description
-   * Closes the error dialog and schedules the opponent's turn.
-   * This allows the game to continue even after a suboptimal move,
-   * letting the opponent respond to the player's move.
-   *
-   * @remarks
-   * This provides a smoother training experience by allowing players
-   * to continue playing and learning from their mistakes rather than
-   * always having to take back moves.
-   */
-  const handleMoveErrorContinue = useCallback(() => {
-    const logger = getLogger().setContext("TrainingBoard-MoveError");
-    
-    // Get current state for debugging
-    const currentState = storeApi.getState();
-    logger.info(
-      "🎯 WEITERSPIELEN clicked - Current state BEFORE action:",
-      {
-        isPlayerTurn: currentState.training.isPlayerTurn,
-        isOpponentThinking: currentState.training.isOpponentThinking,
-        currentFen: chessService.getFen(),
-        currentTurn: chessService.turn(),
-        colorToTrain: currentState.training.currentPosition?.colorToTrain,
-        moveCount: currentState.game.moveHistory.length,
-      }
-    );
-
-    // Close the error dialog
-    trainingActions.setMoveErrorDialog(null);
-    logger.info("✅ Error dialog closed");
-
-    // Schedule opponent turn to respond to player's move
-    logger.info("📅 Calling scheduleOpponentTurn...");
-    scheduleOpponentTurn(storeApi);
-
-    // Check state after scheduling
-    const stateAfter = storeApi.getState();
-    logger.info("📊 State AFTER scheduling opponent turn:", {
-      isPlayerTurn: stateAfter.training.isPlayerTurn,
-      isOpponentThinking: stateAfter.training.isOpponentThinking,
-    });
-  }, [trainingActions, storeApi]);
-
-  /**
-   * Displays the best move as a toast notification
-   *
-   * @description
-   * Shows the optimal move in a toast message when the user
-   * requests to see the best move after making a mistake.
-   *
-   * @remarks
-   * The best move is determined by tablebase analysis and
-   * represents the objectively best continuation from the
-   * position before the user's suboptimal move.
-   */
-  const handleShowBestMove = useCallback(() => {
-    if (trainingState.moveErrorDialog?.bestMove) {
-      const logger = getLogger().setContext("TrainingBoard-MoveError");
-      logger.info("Showing best move", { bestMove: trainingState.moveErrorDialog.bestMove });
-      uiActions.showToast(
-        `Der beste Zug war: ${trainingState.moveErrorDialog.bestMove}`,
-        "info",
-      );
-    }
-    trainingActions.setMoveErrorDialog(null);
-  }, [trainingState.moveErrorDialog, uiActions, trainingActions]);
-
-  /**
-   * Handles success dialog close
-   */
-  const handleMoveSuccessClose = useCallback(() => {
-    trainingActions.setMoveSuccessDialog(null);
-  }, [trainingActions]);
-
-  /**
-   * Handles continuing to next position after success
-   */
-  const handleMoveSuccessContinue = useCallback(() => {
-    trainingActions.setMoveSuccessDialog(null);
-    // Training completion logic is already handled by PawnPromotionHandler
-  }, [trainingActions]);
+  // All dialog handler functions now handled by useDialogHandlers hook
+  // See: /shared/hooks/useDialogHandlers.ts for implementation
 
   // Update analysis status based on evaluation state
   useEffect(() => {
@@ -549,9 +385,9 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   // Handle reset trigger from parent
   useEffect(() => {
     if (resetTrigger > 0) {
-      handleReset();
+      dialogHandlers.handleReset();
     }
-  }, [resetTrigger, handleReset]);
+  }, [resetTrigger, dialogHandlers]);
 
   // === EFFECTS ===
 
@@ -649,12 +485,12 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
       <DialogManager
         errorDialog={trainingState.moveErrorDialog}
         successDialog={trainingState.moveSuccessDialog}
-        onErrorTakeBack={handleMoveErrorTakeBack}
-        onErrorRestart={handleMoveErrorRestart}
-        onErrorContinue={handleMoveErrorContinue}
-        onErrorShowBestMove={handleShowBestMove}
-        onSuccessClose={handleMoveSuccessClose}
-        onSuccessContinue={handleMoveSuccessContinue}
+        onErrorTakeBack={dialogHandlers.handleMoveErrorTakeBack}
+        onErrorRestart={dialogHandlers.handleMoveErrorRestart}
+        onErrorContinue={dialogHandlers.handleMoveErrorContinue}
+        onErrorShowBestMove={dialogHandlers.handleShowBestMove}
+        onSuccessClose={dialogHandlers.handleMoveSuccessClose}
+        onSuccessContinue={dialogHandlers.handleMoveSuccessContinue}
       />
 
       {/* E2E Test Helper - Handles automated move execution for testing */}
