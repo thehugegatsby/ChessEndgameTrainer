@@ -52,6 +52,7 @@ import {
   scheduleOpponentTurn,
 } from '@shared/store/orchestrators/handlePlayerMove';
 import { chessService } from '@shared/services/ChessService';
+import { tablebaseService } from '@shared/services/TablebaseService';
 import type { StoreApi } from '@shared/store/StoreContext';
 
 /**
@@ -62,6 +63,8 @@ interface TrainingActionsSubset {
   clearOpponentThinking: () => void;
   setMoveErrorDialog: (dialog: any) => void;
   setMoveSuccessDialog: (dialog: any) => void;
+  setEvaluationBaseline: (wdl: number, fen: string) => void;
+  clearEvaluationBaseline: () => void;
 }
 
 /**
@@ -209,7 +212,9 @@ export const useDialogHandlers = ({
     clearEvaluations();
     trainingUIState.handleReset();
     gameActions.resetGame();
-  }, [resetGame, clearEvaluations, gameActions, trainingUIState]);
+    // Clear evaluation baseline when resetting
+    trainingActions.clearEvaluationBaseline();
+  }, [resetGame, clearEvaluations, gameActions, trainingUIState, trainingActions]);
 
   /**
    * Handles move error dialog dismissal with undo
@@ -246,8 +251,9 @@ export const useDialogHandlers = ({
       });
       trainingActions.setPlayerTurn(true);
       trainingActions.clearOpponentThinking(); // Clear opponent thinking flag
+      trainingActions.clearEvaluationBaseline(); // Clear baseline since we're back to original position
       logger.info(
-        "Set player turn to true and cleared opponent thinking - player can try another move",
+        "Set player turn to true, cleared opponent thinking, and cleared evaluation baseline",
       );
       logger.debug("After setPlayerTurn call");
     } else {
@@ -329,8 +335,31 @@ export const useDialogHandlers = ({
     logger.info("✅ Error dialog closed");
 
     // Schedule opponent turn to respond to player's move
-    logger.info("📅 Calling scheduleOpponentTurn...");
-    scheduleOpponentTurn(storeApi);
+    logger.info("📅 Calling scheduleOpponentTurn with evaluation baseline callback...");
+    scheduleOpponentTurn(storeApi, 500, {
+      onOpponentMoveComplete: async () => {
+        logger.info("🎯 Opponent move completed - updating evaluation baseline");
+        
+        try {
+          // Get current position evaluation
+          const currentFen = chessService.getFen();
+          const currentEval = await tablebaseService.getEvaluation(currentFen);
+          
+          if (currentEval.isAvailable && currentEval.result) {
+            // Update baseline to current position's evaluation using the actions provided to this hook
+            trainingActions.setEvaluationBaseline(currentEval.result.wdl, currentFen);
+            logger.info("✅ Evaluation baseline updated successfully", {
+              newBaseline: currentEval.result.wdl,
+              fen: currentFen,
+            });
+          } else {
+            logger.warn("⚠️ Could not get evaluation for baseline update - tablebase unavailable");
+          }
+        } catch (error) {
+          logger.error("❌ Failed to update evaluation baseline:", error);
+        }
+      }
+    });
 
     // Check state after scheduling
     const stateAfter = storeApi.getState();

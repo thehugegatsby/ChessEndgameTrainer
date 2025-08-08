@@ -106,12 +106,14 @@ export class MoveQualityEvaluator {
    * @param fenBefore - FEN position before the move
    * @param fenAfter - FEN position after the move
    * @param validatedMove - The move that was played
+   * @param trainingBaseline - Optional evaluation baseline for training context
    * @returns Quality evaluation result
    */
   async evaluateMoveQuality(
     fenBefore: string,
     fenAfter: string,
     validatedMove: ValidatedMove,
+    trainingBaseline?: { wdl: number; fen: string } | null,
   ): Promise<MoveQualityResult> {
     try {
       // Get evaluations before and after the move in parallel for better performance
@@ -155,9 +157,15 @@ export class MoveQualityEvaluator {
       const { wdlBeforeFromPlayerPerspective, wdlAfterFromPlayerPerspective } =
         this.convertToPlayerPerspective(wdlBefore, wdlAfter);
 
-      getLogger().debug("[MoveQuality] WDL from player perspective:", {
+      // If training baseline exists, use it for comparison instead of original position
+      const effectiveWdlBefore = trainingBaseline?.wdl ?? wdlBeforeFromPlayerPerspective;
+
+      getLogger().debug("[MoveQuality] WDL evaluation context:", {
         wdlBeforeFromPlayerPerspective,
         wdlAfterFromPlayerPerspective,
+        trainingBaselineWdl: trainingBaseline?.wdl,
+        effectiveWdlBefore,
+        usingBaseline: !!trainingBaseline,
       });
 
       // Get best moves for comparison
@@ -174,16 +182,16 @@ export class MoveQualityEvaluator {
         playedMoveWasBest,
       );
 
-      // Determine if outcome changed significantly
+      // Determine if outcome changed significantly - use baseline if available
       const outcomeChanged = this.didOutcomeChange(
-        wdlBeforeFromPlayerPerspective,
+        effectiveWdlBefore,
         wdlAfterFromPlayerPerspective,
       );
 
       this.logDecisionValues(
         outcomeChanged,
         playedMoveWasBest,
-        wdlBeforeFromPlayerPerspective,
+        effectiveWdlBefore,
         wdlAfterFromPlayerPerspective,
       );
 
@@ -194,8 +202,9 @@ export class MoveQualityEvaluator {
         shouldShowErrorDialog,
         playedMoveWasBest,
         outcomeChanged,
-        wdlBeforeFromPlayerPerspective,
+        effectiveWdlBefore,
         wdlAfterFromPlayerPerspective,
+        usingBaseline: !!trainingBaseline,
         validatedMove: validatedMove.san,
         bestMove,
       });
@@ -361,15 +370,15 @@ export class MoveQualityEvaluator {
   private logDecisionValues(
     outcomeChanged: boolean,
     playedMoveWasBest: boolean,
-    wdlBeforeFromPlayerPerspective: number,
+    effectiveWdlBefore: number,
     wdlAfterFromPlayerPerspective: number,
   ): void {
     getLogger().debug("[MoveQuality] DECISION VALUES:");
     getLogger().debug("  outcomeChanged:", outcomeChanged);
     getLogger().debug("  playedMoveWasBest:", playedMoveWasBest);
     getLogger().debug(
-      "  wdlBeforeFromPlayerPerspective:",
-      wdlBeforeFromPlayerPerspective,
+      "  effectiveWdlBefore:",
+      effectiveWdlBefore,
     );
     getLogger().debug(
       "  wdlAfterFromPlayerPerspective:",

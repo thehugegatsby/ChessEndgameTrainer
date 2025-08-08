@@ -64,6 +64,7 @@ export const useTrainingState = (): TrainingStateType => {
       mistakeCount: state.training.mistakeCount,
       moveErrorDialog: state.training.moveErrorDialog,
       moveSuccessDialog: state.training.moveSuccessDialog,
+      evaluationBaseline: state.training.evaluationBaseline,
     })),
   );
 };
@@ -111,6 +112,8 @@ export const useTrainingActions = (): ExtendedTrainingActions => {
       addTrainingMove: actions.addTrainingMove,
       resetTraining: actions.resetTraining,
       resetPosition: actions.resetPosition,
+      setEvaluationBaseline: actions.setEvaluationBaseline,
+      clearEvaluationBaseline: actions.clearEvaluationBaseline,
 
       // Orchestrated actions (from root level)
       handlePlayerMove: state.handlePlayerMove,

@@ -85,6 +85,7 @@ describe("TrainingBoard", () => {
     mistakeCount: 0,
     moveErrorDialog: null,
     moveSuccessDialog: null,
+    evaluationBaseline: null,
   };
 
   const mockTrainingActions = {
@@ -103,6 +104,8 @@ describe("TrainingBoard", () => {
     addTrainingMove: jest.fn(),
     resetTraining: jest.fn(),
     resetPosition: jest.fn(),
+    setEvaluationBaseline: jest.fn(),
+    clearEvaluationBaseline: jest.fn(),
     // Add async actions
     handlePlayerMove: jest.fn(),
     loadTrainingContext: jest.fn(),

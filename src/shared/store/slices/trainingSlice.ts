@@ -82,6 +82,11 @@ export const initialTrainingState = {
     bestMove?: string;
   } | null,
   moveSuccessDialog: null as MoveSuccessDialog | null,
+  evaluationBaseline: null as {
+    wdl: number | null;
+    fen: string | null;
+    timestamp: number | null;
+  } | null,
 };
 
 /**
@@ -149,6 +154,11 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
     bestMove?: string;
   } | null,
   moveSuccessDialog: null as MoveSuccessDialog | null,
+  evaluationBaseline: null as {
+    wdl: number | null;
+    fen: string | null;
+    timestamp: number | null;
+  } | null,
 
   // Actions
   /**
@@ -189,6 +199,8 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
       // Set initial turn based on position
       state.training.isPlayerTurn =
         position.sideToMove === position.colorToTrain;
+      // Clear evaluation baseline when setting new position
+      state.training.evaluationBaseline = null;
     });
   },
 
@@ -623,7 +635,67 @@ export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
       state.training.isPlayerTurn = currentPos
         ? currentPos.sideToMove === currentPos.colorToTrain
         : true;
+      // Clear evaluation baseline when resetting position
+      state.training.evaluationBaseline = null;
     });
+  },
+
+  /**
+   * Sets the evaluation baseline for subsequent move quality assessments
+   *
+   * @param {number} wdl - WDL evaluation to use as baseline
+   * @param {string} fen - FEN position when baseline was established
+   *
+   * @fires stateChange - When baseline is updated
+   *
+   * @remarks
+   * This method is called after "Weiterspielen" when the opponent has moved,
+   * establishing a new evaluation baseline for the training session. Subsequent
+   * player moves will be evaluated relative to this baseline rather than the
+   * original training position expectation.
+   *
+   * @example
+   * ```typescript
+   * // After opponent move following "Weiterspielen"
+   * const currentFen = chessService.getFen();
+   * const evaluation = await tablebaseService.getEvaluation(currentFen);
+   * if (evaluation.isAvailable) {
+   *   trainingActions.setEvaluationBaseline(evaluation.result.wdl, currentFen);
+   * }
+   * ```
+   */
+  setEvaluationBaseline: (wdl: number, fen: string) => {
+    set((state) => {
+      state.training.evaluationBaseline = {
+        wdl,
+        fen,
+        timestamp: Date.now(),
+      };
+    });
+    logger.info("Evaluation baseline updated", { wdl, fen });
+  },
+
+  /**
+   * Clears the evaluation baseline, reverting to original position expectations
+   *
+   * @fires stateChange - When baseline is cleared
+   *
+   * @remarks
+   * This method is called when resetting training sessions or navigating
+   * to different positions. It ensures move evaluation returns to normal
+   * behavior based on the original training position expectations.
+   *
+   * @example
+   * ```typescript
+   * // Clear baseline when starting new training session
+   * trainingActions.clearEvaluationBaseline();
+   * ```
+   */
+  clearEvaluationBaseline: () => {
+    set((state) => {
+      state.training.evaluationBaseline = null;
+    });
+    logger.info("Evaluation baseline cleared");
   },
 });
 

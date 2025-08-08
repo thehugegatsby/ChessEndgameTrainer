@@ -158,6 +158,8 @@ export const useStore = create<RootState>()(
           addTrainingMove: trainingSlice.addTrainingMove,
           resetTraining: trainingSlice.resetTraining,
           resetPosition: trainingSlice.resetPosition,
+          setEvaluationBaseline: trainingSlice.setEvaluationBaseline,
+          clearEvaluationBaseline: trainingSlice.clearEvaluationBaseline,
         };
 
         // CRITICAL FIX: Also store tablebase actions separately

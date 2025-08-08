@@ -121,6 +121,11 @@ export interface TrainingState {
     promotionPiece?: string;
     moveDescription?: string;
   } | null;
+  evaluationBaseline: {
+    wdl: number | null;
+    fen: string | null;
+    timestamp: number | null;
+  } | null;
 }
 
 export interface TrainingActions {
@@ -157,6 +162,8 @@ export interface TrainingActions {
   addTrainingMove: (move: ValidatedMove) => void;
   resetTraining: () => void;
   resetPosition: () => void;
+  setEvaluationBaseline: (wdl: number, fen: string) => void;
+  clearEvaluationBaseline: () => void;
 }
 
 /**

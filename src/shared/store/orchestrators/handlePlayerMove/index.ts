@@ -171,10 +171,18 @@ export const handlePlayerMove = async (
     }
 
     // Step 5: Evaluate move quality using MoveQualityEvaluator
+    // Pass current evaluation baseline if available and valid
+    const currentBaseline = state.training.evaluationBaseline;
+    const validBaseline = currentBaseline && 
+                         currentBaseline.wdl !== null && 
+                         currentBaseline.fen !== null 
+      ? { wdl: currentBaseline.wdl, fen: currentBaseline.fen }
+      : null;
     const qualityResult = await moveQualityEvaluator.evaluateMoveQuality(
       fenBefore,
       fenAfter,
       validatedMove,
+      validBaseline,
     );
 
     // Step 6: Show error dialog if move was suboptimal and outcome changed

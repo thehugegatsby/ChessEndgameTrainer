@@ -208,6 +208,8 @@ export function cancelScheduledOpponentTurn(): void {
  *
  * @param {StoreApi} api - Zustand store API for state management
  * @param {number} [delay=500] - Delay in milliseconds before executing opponent move
+ * @param {Object} [options] - Optional configuration
+ * @param {Function} [options.onOpponentMoveComplete] - Callback after opponent move completes
  *
  * @description
  * Coordinates the scheduling and execution of optimal opponent moves using tablebase data.
@@ -233,6 +235,13 @@ export function cancelScheduledOpponentTurn(): void {
  * // Schedule with default 500ms delay for natural feel
  * scheduleOpponentTurn(storeApi);
  *
+ * // Schedule with callback after opponent move
+ * scheduleOpponentTurn(storeApi, 500, {
+ *   onOpponentMoveComplete: async () => {
+ *     console.log("Opponent move completed!");
+ *   }
+ * });
+ *
  * // Schedule with faster response for testing
  * scheduleOpponentTurn(storeApi, 100);
  *
@@ -243,6 +252,7 @@ export function cancelScheduledOpponentTurn(): void {
 export function scheduleOpponentTurn(
   api: StoreApi,
   delay: number = OPPONENT_TURN_DELAY,
+  options?: { onOpponentMoveComplete?: () => Promise<void> | void }
 ): void {
   const currentState = api.getState();
   getLogger().info(
@@ -287,7 +297,7 @@ export function scheduleOpponentTurn(
       }
 
       getLogger().debug("[OpponentTurnHandler] Executing opponent turn");
-      await executeOpponentTurn(api);
+      await executeOpponentTurn(api, options?.onOpponentMoveComplete);
 
       // Clear the timeout reference after execution
       opponentTurnTimeout = undefined;
@@ -297,7 +307,7 @@ export function scheduleOpponentTurn(
     (async () => {
       await new Promise((resolve) => setTimeout(resolve, delay));
       if (!isCancelled) {
-        await executeOpponentTurn(api);
+        await executeOpponentTurn(api, options?.onOpponentMoveComplete);
       }
     })();
   }
@@ -307,6 +317,7 @@ export function scheduleOpponentTurn(
  * Executes optimal opponent move using tablebase recommendations
  *
  * @param {StoreApi} api - Zustand store API for state management
+ * @param {Function} [onComplete] - Optional callback after move completion
  * @returns {Promise<void>} Promise that resolves when opponent move execution is complete
  *
  * @private
@@ -343,7 +354,10 @@ export function scheduleOpponentTurn(
  * await executeOpponentTurn(storeApi);
  * ```
  */
-async function executeOpponentTurn(api: StoreApi): Promise<void> {
+async function executeOpponentTurn(
+  api: StoreApi,
+  onComplete?: () => Promise<void> | void
+): Promise<void> {
   const { getState, setState } = api;
 
   // Check if we should actually execute opponent turn
@@ -437,6 +451,16 @@ async function executeOpponentTurn(api: StoreApi): Promise<void> {
     // Check if game ended after opponent move
     if (chessService.isGameOver()) {
       await handleTrainingCompletion(api, false); // Player didn't win
+    }
+
+    // Call completion callback if provided
+    if (onComplete) {
+      try {
+        await onComplete();
+        getLogger().debug("[OpponentTurnHandler] Completion callback executed successfully");
+      } catch (error) {
+        getLogger().error("[OpponentTurnHandler] Completion callback failed:", error);
+      }
     }
   } catch (error) {
     // Handle opponent move errors
