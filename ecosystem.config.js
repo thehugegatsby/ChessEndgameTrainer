@@ -3,7 +3,7 @@ module.exports = {
     {
       name: "endgame-trainer-dev",
       script: "./node_modules/.bin/next",
-      args: "dev -p 3002",
+      args: "dev -p 3002 --turbopack",
       cwd: "/home/thehu/coolProjects/EndgameTrainer",
       env: {
         NODE_ENV: "development",

@@ -107,7 +107,7 @@ export const loadTrainingContext = async (
 
       // Game slice - manual property reset
       draft.game.moveHistory = [];
-      draft.game.currentMoveIndex = 0;
+      draft.game.currentMoveIndex = -1; // FIXED: -1 means starting position (no moves played)
       draft.game.isGameFinished = false;
 
       // Training slice - DO NOT RESET - Let the position loading handle training state
@@ -140,10 +140,8 @@ export const loadTrainingContext = async (
       throw new Error("Ungültige FEN-Position");
     }
 
-    // Initialize ChessService asynchronously to avoid render-time state updates
-    setTimeout(() => {
-      chessService.initialize(position.fen);
-    }, 0);
+    // Initialize ChessService synchronously - orchestrators can safely handle state updates
+    chessService.initialize(position.fen);
 
     // Game state will be automatically synced via ChessService event subscription in rootStore
 
@@ -292,7 +290,7 @@ export const loadTrainingContext = async (
       // Reset slices to initial states on error - PROPERLY preserving action methods
       // Game slice - manual property reset
       draft.game.moveHistory = [];
-      draft.game.currentMoveIndex = 0;
+      draft.game.currentMoveIndex = -1; // FIXED: -1 means starting position (no moves played)
       draft.game.isGameFinished = false;
 
       // Training slice - DO NOT RESET - Let the position loading handle training state

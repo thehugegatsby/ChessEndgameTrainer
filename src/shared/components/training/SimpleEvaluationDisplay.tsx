@@ -24,6 +24,7 @@
 
 import React from "react";
 import { usePositionAnalysis } from "@shared/hooks/usePositionAnalysis";
+import { formatDtzDisplay } from "@shared/utils/tablebase/resultClassification";
 
 /**
  * Props for the SimpleEvaluationDisplay component
@@ -95,7 +96,7 @@ export const SimpleEvaluationDisplay: React.FC<
   }
 
   return (
-    <div className="simple-evaluation-display p-4 space-y-4">
+    <div className="simple-evaluation-display p-4 space-y-4" data-testid="evaluation-display">
       {/* Tablebase Moves Only - Engine removed */}
       <div>
         <div className="text-sm font-bold mb-2">📚 Tablebase</div>
@@ -107,7 +108,7 @@ export const SimpleEvaluationDisplay: React.FC<
               .map((move, index) => (
                 <div key={index} className="flex justify-between">
                   <span className="font-mono">{move.san}</span>
-                  <span className="text-sm">DTZ {move.dtz}</span>
+                  <span className="text-sm">{formatDtzDisplay(move.dtz)}</span>
                 </div>
               ))}
           </div>

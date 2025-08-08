@@ -72,6 +72,8 @@ module.exports = [
       "scripts/**/*.ts",
       "config/**/*.js",
       "config/**/*.ts",
+      "src/config/**/*.js",  // ← Fixed path for src/config files
+      "src/config/**/*.ts",  // ← Fixed path for src/config files
     ],
     rules: {
       "no-console": "off", // Scripts need console output

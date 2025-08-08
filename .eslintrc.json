@@ -2,19 +2,5 @@
   "extends": ["next/core-web-vitals", "next/typescript"],
   "rules": {
     "no-console": ["error", { "allow": ["warn", "error"] }]
-  },
-  "overrides": [
-    {
-      "files": [
-        "src/tests/**/*.js",
-        "src/tests/**/*.ts",
-        "src/config/jest/**/*.js"
-      ],
-      "rules": {
-        "no-console": "off",
-        "jsdoc/require-jsdoc": "off",
-        "jsdoc/require-returns": "off"
-      }
-    }
-  ]
+  }
 }

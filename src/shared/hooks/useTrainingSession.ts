@@ -133,12 +133,34 @@ export const useTrainingSession = ({
     }): Promise<boolean> => {
       const logger = getLogger().setContext("useTrainingSession");
       logger.debug("makeMove called", { move });
-      if (gameState.isGameFinished) return false;
+      
+      // CRITICAL DEBUG: Log the exact reason why moves might be blocked
+      logger.debug("gameState.isGameFinished check", {
+        isGameFinished: gameState.isGameFinished,
+        gameResult: gameState.gameResult,
+        currentFen: gameState.currentFen,
+        moveHistoryLength: gameState.moveHistory?.length,
+        checkmate: gameState.isCheckmate,
+        draw: gameState.isDraw,
+        stalemate: gameState.isStalemate
+      });
+      
+      if (gameState.isGameFinished) {
+        logger.warn("EARLY RETURN: gameState.isGameFinished is true, blocking move", {
+          isGameFinished: gameState.isGameFinished,
+          gameResult: gameState.gameResult
+        });
+        return false;
+      }
 
       try {
         // Simply delegate to Store - no double validation needed
         // Store will validate the move and update all states atomically
-        logger.debug("Calling trainingActions.handlePlayerMove");
+        logger.debug("About to call trainingActions.handlePlayerMove", {
+          move,
+          handlePlayerMoveExists: !!trainingActions.handlePlayerMove,
+          handlePlayerMoveType: typeof trainingActions.handlePlayerMove
+        });
         const moveResult = await trainingActions.handlePlayerMove(move as any);
         logger.debug("trainingActions.handlePlayerMove result", { moveResult });
         if (!moveResult) return false;

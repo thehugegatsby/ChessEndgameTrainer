@@ -165,7 +165,7 @@ export const MoveEvaluationBar: React.FC<MoveEvaluationBarProps> = ({
           <span
             className={`text-xs font-medium ${getTextColorClass(resultType)}`}
           >
-            DTZ {dtz === 0 ? "0" : Math.abs(dtz)}
+{dtzDisplay}
           </span>
 
           {/* Accessibility-friendly result indicator */}

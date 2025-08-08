@@ -32,6 +32,10 @@ export interface GameState {
   currentMoveIndex: number;
   isGameFinished: boolean;
   gameResult?: string | null;
+  // Game status flags
+  isCheckmate: boolean;
+  isDraw: boolean;
+  isStalemate: boolean;
 }
 
 export interface GameActions {
@@ -42,6 +46,7 @@ export interface GameActions {
   setMoveHistory: (moves: ValidatedMove[]) => void;
   setCurrentMoveIndex: (index: number) => void;
   setGameFinished: (finished: boolean) => void;
+  setGameStatus: (isCheckmate: boolean, isDraw: boolean, isStalemate: boolean) => void;
   resetGame: () => void;
 
   // Game operations

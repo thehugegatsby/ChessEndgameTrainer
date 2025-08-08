@@ -200,6 +200,9 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
 
   // === HOOKS ===
 
+  // Click-to-move state for accessibility and E2E testing support
+  const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
+
   // Chess game logic - now using Store as single source of truth
   const {
     history,
@@ -744,6 +747,84 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     ],
   );
 
+  /**
+   * Handles square click events for click-to-move functionality
+   * 
+   * @param {object} args - Arguments from react-chessboard
+   * @param {any} args.piece - Piece on the clicked square (can be null)
+   * @param {string} args.square - Square that was clicked
+   * @returns {void}
+   * 
+   * @description
+   * Implements click-to-move interaction pattern for accessibility and E2E testing:
+   * - First click selects piece (if valid piece on square)
+   * - Second click attempts move to target square
+   * - Click on same square deselects piece
+   */
+  const onSquareClick = useCallback(
+    ({ piece, square }: { piece: any; square: string }): void => {
+      const logger = getLogger().setContext("TrainingBoard-onSquareClick");
+
+      logger.debug("🖱️ onSquareClick called", {
+        square,
+        selectedSquare,
+        isPositionReady,
+        isGameFinished,
+      });
+
+      // Block clicks if position is not ready or game is finished
+      if (!isPositionReady || isGameFinished) {
+        logger.warn("⛔ onSquareClick blocked", {
+          isPositionReady,
+          isGameFinished,
+          reason: !isPositionReady ? "position not ready" : "game finished",
+        });
+        return;
+      }
+
+      // If no square is selected, select this square if it has a piece
+      if (!selectedSquare) {
+        if (piece) {
+          // Check if it's the right color's turn
+          try {
+            const chess = new Chess(currentFen);
+            const currentTurn = chess.turn();
+            const pieceColor = piece.pieceType?.[0]; // 'w' or 'b'
+            
+            if (pieceColor === currentTurn) {
+              setSelectedSquare(square);
+              logger.debug("✅ Square selected", { square, piece });
+            } else {
+              logger.debug("❌ Wrong color piece", { square, piece, currentTurn });
+            }
+          } catch (error) {
+            logger.error("Failed to validate piece color", error as Error);
+          }
+        } else {
+          logger.debug("❌ No piece on square", { square });
+        }
+        return;
+      }
+
+      // If same square clicked, deselect
+      if (selectedSquare === square) {
+        setSelectedSquare(null);
+        logger.debug("🔄 Square deselected", { square });
+        return;
+      }
+
+      // Try to make move from selected square to clicked square
+      const result = onDrop(selectedSquare, square, ""); // Piece type not needed
+      if (result) {
+        setSelectedSquare(null); // Clear selection after successful move
+        logger.debug("✅ Move completed via click", { from: selectedSquare, to: square });
+      } else {
+        logger.debug("❌ Move failed via click", { from: selectedSquare, to: square });
+      }
+    },
+    [selectedSquare, isPositionReady, isGameFinished, currentFen, onDrop],
+  );
+
   // Handle reset trigger from parent
   useEffect(() => {
     if (resetTrigger > 0) {
@@ -928,6 +1009,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         <Chessboard
           fen={currentFen}
           onPieceDrop={onDrop}
+          onSquareClick={onSquareClick}
           arePiecesDraggable={!isGameFinished}
           boardWidth={600}
         />

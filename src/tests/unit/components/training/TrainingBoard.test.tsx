@@ -115,6 +115,9 @@ describe("TrainingBoard", () => {
     currentMoveIndex: 0,
     isGameFinished: false,
     gameResult: null,
+    isCheckmate: false,
+    isDraw: false,
+    isStalemate: false,
   };
 
   const mockGameActions = {
@@ -123,6 +126,7 @@ describe("TrainingBoard", () => {
     setMoveHistory: jest.fn(),
     setCurrentMoveIndex: jest.fn(),
     setGameFinished: jest.fn(),
+    setGameStatus: jest.fn(),
     resetGame: jest.fn(),
     initializeGame: jest.fn(),
     makeMove: jest.fn(),

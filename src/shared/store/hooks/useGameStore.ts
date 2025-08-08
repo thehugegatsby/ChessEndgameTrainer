@@ -50,6 +50,9 @@ export const useGameState = (): GameStateType => {
       currentMoveIndex: state.game.currentMoveIndex,
       isGameFinished: state.game.isGameFinished,
       gameResult: state.game.gameResult,
+      isCheckmate: state.game.isCheckmate,
+      isDraw: state.game.isDraw,
+      isStalemate: state.game.isStalemate,
     })),
   );
 };
@@ -87,6 +90,7 @@ export const useGameActions = (): GameActionsType => {
       setMoveHistory: actions.setMoveHistory,
       setCurrentMoveIndex: actions.setCurrentMoveIndex,
       setGameFinished: actions.setGameFinished,
+      setGameStatus: actions.setGameStatus,
       resetGame: actions.resetGame,
 
       // Game operations

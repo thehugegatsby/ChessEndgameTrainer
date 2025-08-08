@@ -35,20 +35,21 @@ const nextConfig = {
     apiUrl: `${APP_CONFIG.DEV_URL}/api`,
   },
 
+  // Allow cross-origin requests from E2E test environment  
+  // Only enabled when running E2E tests to prevent warnings
+  ...(process.env.IS_E2E_TEST === 'true' || process.env.NEXT_PUBLIC_IS_E2E_TEST === 'true' ? {
+    allowedDevOrigins: [
+      `http://127.0.0.1:${PORTS.E2E}`,   // E2E test server IP
+      `http://localhost:${PORTS.E2E}`,   // E2E test server hostname
+      `http://127.0.0.1:${PORTS.DEV}`,   // Dev server IP
+      `http://localhost:${PORTS.DEV}`,   // Dev server hostname
+    ]
+  } : {}),
+
   // Performance optimizations
   experimental: {
     // Enable modern bundling
     esmExternals: true,
-    // Allow cross-origin requests from E2E test environment
-    // Only enabled when running E2E tests to prevent warnings
-    ...(process.env.IS_E2E_TEST === 'true' || process.env.NEXT_PUBLIC_IS_E2E_TEST === 'true' ? {
-      allowedDevOrigins: [
-        `http://127.0.0.1:${PORTS.E2E}`,   // E2E test server IP
-        `http://localhost:${PORTS.E2E}`,   // E2E test server hostname
-        `http://127.0.0.1:${PORTS.DEV}`,   // Dev server IP
-        `http://localhost:${PORTS.DEV}`,   // Dev server hostname
-      ]
-    } : {}),
   },
 
   // Turbopack configuration (stable in Next.js 15)

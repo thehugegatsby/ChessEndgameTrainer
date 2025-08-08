@@ -114,22 +114,28 @@ export class TrainingBoardPage {
    * Get move count from move history UI
    */
   async getMoveCount(): Promise<number> {
-    // Try multiple selectors for move items
+    // FIXED: Only count actual move items, not navigation buttons
     const moveSelectors = [
-      '[data-testid="move-item"]',
-      '[data-testid*="move-"]',
-      '.move-item',
-      '[data-testid="move-list"] > *'
+      '[data-testid^="move-item-"]',                              // Only move-item-0, move-item-1, etc.
+      '[data-testid="move-list"] [data-testid^="move-item-"]',    // More specific: inside move-list container
     ];
     
     for (const selector of moveSelectors) {
       const count = await this.page.locator(selector).count();
       if (count > 0) {
+        this.logger.debug(`getMoveCount found ${count} moves using selector: ${selector}`);
         return count;
       }
     }
     
-    // If no move elements found, return 0
+    // If no actual move items found, check if this is the initial state
+    const noMovesText = await this.page.locator(':text("Noch keine Züge gespielt")').isVisible();
+    if (noMovesText) {
+      this.logger.debug("getMoveCount: Found 'no moves' text, returning 0");
+      return 0;
+    }
+    
+    this.logger.warn("getMoveCount: No move elements found with any selector");
     return 0;
   }
 
@@ -180,13 +186,18 @@ export class TrainingBoardPage {
     moveCount: number;
     availableMovesCount: number;
   }> {
-    return {
+    const state = {
       fen: await this.getPosition(),
       turn: await this.getTurn(),
       isGameOver: await this.isGameOver(),
       moveCount: await this.getMoveCount(),
       availableMovesCount: await this.getAvailableMovesCount(),
     };
+
+    // Enhanced debugging to understand game state
+    this.logger.debug("Complete game state:", state);
+    
+    return state;
   }
 
   /**

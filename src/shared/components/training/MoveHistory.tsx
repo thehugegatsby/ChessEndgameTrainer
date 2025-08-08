@@ -260,6 +260,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
           <div
             className="overflow-y-auto"
             style={{ maxHeight: UI_CONSTANTS.MOVE_HISTORY.MAX_HEIGHT }}
+            data-testid="move-list"
           >
             <div className="space-y-0.5">
               {movePairs.map((pair) => (
@@ -274,7 +275,10 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
                     <div className="flex items-center gap-2">
                       {/* Weißer Zug - links */}
                       <div className="flex flex-col items-center min-w-0 flex-1">
-                        <span className="font-mono text-sm text-gray-800 bg-gray-50 px-1.5 py-0.5 rounded group-hover:bg-white transition-colors truncate w-full text-center">
+                        <span 
+                          className="font-mono text-sm text-gray-800 bg-gray-50 px-1.5 py-0.5 rounded group-hover:bg-white transition-colors truncate w-full text-center"
+                          data-testid={`move-item-${(pair.number - 1) * 2}`}
+                        >
                           {pair.white.san}
                         </span>
                         {showEvaluations && (
@@ -290,7 +294,10 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
                       <div className="flex flex-col items-center min-w-0 flex-1">
                         {pair.black ? (
                           <>
-                            <span className="font-mono text-sm text-gray-600 bg-gray-50 px-1.5 py-0.5 rounded group-hover:bg-white transition-colors truncate w-full text-center">
+                            <span 
+                              className="font-mono text-sm text-gray-600 bg-gray-50 px-1.5 py-0.5 rounded group-hover:bg-white transition-colors truncate w-full text-center"
+                              data-testid={`move-item-${(pair.number - 1) * 2 + 1}`}
+                            >
                               {pair.black.san}
                             </span>
                             {showEvaluations && (

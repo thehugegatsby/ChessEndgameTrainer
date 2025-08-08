@@ -2,7 +2,7 @@ import { test } from "@playwright/test";
 
 test.describe("Debug react-chessboard v5 structure", () => {
   test("examine board structure", async ({ page }) => {
-    await page.goto("http://localhost:3003/train/1");
+    await page.goto("/train/1");
 
     // Wait for board to load
     await page.waitForTimeout(3000);

@@ -32,6 +32,7 @@ type PieceDropHandlerArgs = any;
  *
  * @property {string} fen - FEN string representing the chess position
  * @property {(sourceSquare: string, targetSquare: string, piece: string) => boolean} [onPieceDrop] - Callback for piece drop events
+ * @property {(square: string) => void} [onSquareClick] - Callback for square click events (for click-to-move support)
  * @property {number} [boardWidth=400] - Width of the chess board in pixels
  * @property {boolean} [arePiecesDraggable=true] - Whether pieces can be dragged
  */
@@ -42,6 +43,7 @@ interface ChessboardProps {
     targetSquare: string,
     piece: string,
   ) => boolean;
+  onSquareClick?: (args: { piece: any; square: string }) => void;
   boardWidth?: number;
   arePiecesDraggable?: boolean;
 }
@@ -96,6 +98,7 @@ interface ChessboardProps {
 export const Chessboard: React.FC<ChessboardProps> = ({
   fen,
   onPieceDrop,
+  onSquareClick,
   boardWidth = 400,
   arePiecesDraggable = true,
 }) => {
@@ -148,6 +151,7 @@ export const Chessboard: React.FC<ChessboardProps> = ({
       options={{
         position: fen,
         onPieceDrop: onPieceDrop ? handlePieceDrop : undefined,
+        onSquareClick: onSquareClick,
         boardStyle: { width: `${boardWidth}px`, height: `${boardWidth}px` },
         allowDragging: arePiecesDraggable,
       }}

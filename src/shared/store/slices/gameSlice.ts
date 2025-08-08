@@ -40,6 +40,10 @@ export const initialGameState = {
   currentMoveIndex: -1,
   isGameFinished: false,
   gameResult: null as string | null,
+  // Game status flags
+  isCheckmate: false,
+  isDraw: false,
+  isStalemate: false,
 };
 
 /**
@@ -99,6 +103,11 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
   setMoveHistory: (moves: ValidatedMove[]) => set((state) => { state.game.moveHistory = moves; }),
   setCurrentMoveIndex: (index: number) => set((state) => { state.game.currentMoveIndex = index; }),
   setGameFinished: (finished: boolean) => set((state) => { state.game.isGameFinished = finished; }),
+  setGameStatus: (isCheckmate: boolean, isDraw: boolean, isStalemate: boolean) => set((state) => {
+    state.game.isCheckmate = isCheckmate;
+    state.game.isDraw = isDraw;  
+    state.game.isStalemate = isStalemate;
+  }),
 
   /**
    * Initializes a new chess game with the given FEN position
