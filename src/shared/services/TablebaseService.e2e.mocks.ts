@@ -275,7 +275,7 @@ export function setupE2ETablebaseMocks() {
           }
 
           // Then try partial match based on the patterns from E2E test
-          let mockData = null;
+          let mockData: any = null;
 
           // After Kd6 pattern (test line 47)
           if (fen.includes("4k3/8/3K4/4P3")) {

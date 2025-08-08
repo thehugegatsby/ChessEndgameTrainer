@@ -241,7 +241,7 @@ export class ProgressService {
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists()) {
-        return docSnap.data();
+        return docSnap.data() as UserStats;
       }
       
       logger.debug('User stats not found', { userId });
@@ -303,7 +303,7 @@ export class ProgressService {
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists()) {
-        return docSnap.data();
+        return docSnap.data() as CardProgress;
       }
       
       return null;
@@ -528,7 +528,7 @@ export class ProgressService {
       snapshot.forEach((doc) => {
         // Skip the 'stats' document
         if (doc.id !== 'stats') {
-          cardProgresses.push(doc.data());
+          cardProgresses.push(doc.data() as CardProgress);
         }
       });
       

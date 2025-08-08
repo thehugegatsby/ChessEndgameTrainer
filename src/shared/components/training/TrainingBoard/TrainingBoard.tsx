@@ -463,17 +463,35 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
    */
   const handleMoveErrorContinue = useCallback(() => {
     const logger = getLogger().setContext("TrainingBoard-MoveError");
+    
+    // Get current state for debugging
+    const currentState = storeApi.getState();
     logger.info(
-      "Continue playing after suboptimal move - scheduling opponent turn",
+      "🎯 WEITERSPIELEN clicked - Current state BEFORE action:",
+      {
+        isPlayerTurn: currentState.training.isPlayerTurn,
+        isOpponentThinking: currentState.training.isOpponentThinking,
+        currentFen: chessService.getFen(),
+        currentTurn: chessService.turn(),
+        colorToTrain: currentState.training.currentPosition?.colorToTrain,
+        moveCount: currentState.game.moveHistory.length,
+      }
     );
 
     // Close the error dialog
     trainingActions.setMoveErrorDialog(null);
+    logger.info("✅ Error dialog closed");
 
     // Schedule opponent turn to respond to player's move
+    logger.info("📅 Calling scheduleOpponentTurn...");
     scheduleOpponentTurn(storeApi);
 
-    logger.info("Opponent turn scheduled after continue playing");
+    // Check state after scheduling
+    const stateAfter = storeApi.getState();
+    logger.info("📊 State AFTER scheduling opponent turn:", {
+      isPlayerTurn: stateAfter.training.isPlayerTurn,
+      isOpponentThinking: stateAfter.training.isOpponentThinking,
+    });
   }, [trainingActions, storeApi]);
 
   /**

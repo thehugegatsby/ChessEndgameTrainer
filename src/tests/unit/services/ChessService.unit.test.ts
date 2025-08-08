@@ -289,13 +289,22 @@ describe("ChessService Unit Tests", () => {
 
   describe("validateMove() method - Core Focus", () => {
     it("should validate moves without changing main chess state", () => {
-      // Setup validation mock instance
+      // Setup validation mock instance with all required methods
       const validationMock = {
         fen: jest.fn().mockReturnValue(StandardPositions.STARTING),
-        move: jest.fn().mockReturnValue({ san: "e4" }),
+        get: jest.fn().mockReturnValue({ type: 'p', color: 'w' }), // Add get() for piece validation
+        move: jest.fn().mockReturnValue({ 
+          san: "e4", 
+          from: "e2", 
+          to: "e4", 
+          color: "w", 
+          piece: "p", 
+          flags: "b" 
+        }),
       } as any;
 
-      MockedChess.mockImplementationOnce(() => validationMock);
+      // Use mockImplementation instead of mockImplementationOnce to cover both Chess instances
+      MockedChess.mockImplementation(() => validationMock);
 
       const isValid = chessService.validateMove(createTestMove("e2", "e4"));
 
@@ -306,6 +315,9 @@ describe("ChessService Unit Tests", () => {
       });
       // Main chess instance should not be affected
       expect(mockChessInstance.move).not.toHaveBeenCalled();
+      
+      // Reset mock for next tests
+      MockedChess.mockImplementation(() => mockChessInstance);
     });
 
     it("should return false for invalid moves", () => {
@@ -477,7 +489,7 @@ describe("ChessService Unit Tests", () => {
     it("should move accessed items to end in LRU cache", () => {
       // This test verifies LRU behavior by checking that frequently accessed items aren't evicted
       const frequentFen = "frequent-8/8/8/8/8/8/8/k6K w - - 0 1";
-      const rareFens = [];
+      const rareFens: string[] = [];
 
       // Add frequent FEN
       mockChessInstance.fen.mockReturnValue(frequentFen);

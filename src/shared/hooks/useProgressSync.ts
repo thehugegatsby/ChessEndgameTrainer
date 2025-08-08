@@ -450,7 +450,7 @@ export function useProgressSync(
       });
       
       // Split into chunks and sync iteratively (not recursively to avoid stack issues)
-      const chunks = [];
+      const chunks: Array<{ positionId: string; progress: CardProgress }[]> = [];
       for (let i = 0; i < cardUpdates.length; i += mergedConfig.maxBatchSize) {
         chunks.push(cardUpdates.slice(i, i + mergedConfig.maxBatchSize));
       }

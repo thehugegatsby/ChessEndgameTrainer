@@ -118,7 +118,13 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
   evaluations = [],
 }) => {
   // Erstelle Zugpaare mit korrekter sofortiger Positionierung
-  const movePairs = [];
+  const movePairs: Array<{
+    number: number;
+    white: Move;
+    black: Move;
+    whiteEval: EvaluationData;
+    blackEval: EvaluationData;
+  }> = [];
   for (let i = 0; i < moves.length; i += 2) {
     const moveNumber = Math.floor(i / 2) + 1;
     const whiteMove = moves[i];

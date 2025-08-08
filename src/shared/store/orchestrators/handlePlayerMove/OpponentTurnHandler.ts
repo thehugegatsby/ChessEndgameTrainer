@@ -244,8 +244,16 @@ export function scheduleOpponentTurn(
   api: StoreApi,
   delay: number = OPPONENT_TURN_DELAY,
 ): void {
+  const currentState = api.getState();
   getLogger().info(
-    `[OpponentTurnHandler] Scheduling opponent turn in ${delay}ms`,
+    `[OpponentTurnHandler] 🎯 scheduleOpponentTurn called - delay: ${delay}ms`,
+    {
+      isPlayerTurn: currentState.training.isPlayerTurn,
+      isOpponentThinking: currentState.training.isOpponentThinking,
+      currentFen: chessService.getFen(),
+      currentTurn: chessService.turn(),
+      colorToTrain: currentState.training.currentPosition?.colorToTrain,
+    }
   );
 
   // Cancel any previously scheduled opponent turn
@@ -340,7 +348,7 @@ async function executeOpponentTurn(api: StoreApi): Promise<void> {
 
   // Check if we should actually execute opponent turn
   const state = getState();
-  getLogger().debug("[OpponentTurnHandler] Called with state:", {
+  getLogger().info("[OpponentTurnHandler] 🔍 executeOpponentTurn called:", {
     isPlayerTurn: state.training.isPlayerTurn,
     isOpponentThinking: state.training.isOpponentThinking,
     currentFen: chessService.getFen(),
@@ -351,13 +359,14 @@ async function executeOpponentTurn(api: StoreApi): Promise<void> {
 
   // Check cancellation flag first
   if (isCancelled) {
-    getLogger().debug("[OpponentTurnHandler] ABORTING - Turn was cancelled!");
+    getLogger().warn("[OpponentTurnHandler] ❌ ABORTING - Turn was cancelled!");
     return;
   }
 
   // Don't execute if it's the player's turn
   if (state.training.isPlayerTurn) {
-    getLogger().debug("[OpponentTurnHandler] ABORTING - It's player's turn!");
+    getLogger().warn("[OpponentTurnHandler] ❌ ABORTING - It's player's turn! This is the issue!");
+    getLogger().warn("This prevents opponent from moving after 'Weiterspielen' click");
     return;
   }
 

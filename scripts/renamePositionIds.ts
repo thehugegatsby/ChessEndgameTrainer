@@ -48,7 +48,7 @@ async function renamePositionIds() {
     console.log("📋 Rename mapping:", Object.fromEntries(renameMap));
 
     // Check source and target positions
-    const positionsToRename = [];
+    const positionsToRename: Array<[number, number]> = [];
     for (const [oldId, newId] of renameMap) {
       // Check if source exists
       const sourceDocRef = doc(db, "positions", oldId.toString());
