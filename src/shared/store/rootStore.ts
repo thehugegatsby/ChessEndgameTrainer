@@ -27,7 +27,7 @@
  */
 
 import { create } from "zustand";
-import { devtools, persist } from "zustand/middleware";
+import { devtools, persist, createJSONStorage, StateStorage } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 // Import all slice creators and initial states
@@ -63,6 +63,40 @@ import type { Move as ChessJsMove } from "chess.js";
 import type { EndgamePosition } from "@shared/types/endgame";
 
 // Initial state creation removed - slices are initialized directly in store
+
+/**
+ * No-op storage adapter for E2E tests
+ * Prevents localStorage warnings in headless browser environments
+ */
+const noopStorage: StateStorage = {
+  getItem: () => null,
+  setItem: () => {},
+  removeItem: () => {},
+};
+
+/**
+ * Determine which storage to use based on environment
+ * - E2E tests: Use no-op storage to prevent warnings
+ * - Production/Development: Use localStorage for persistence
+ */
+const getStorage = (): StateStorage => {
+  // Check multiple ways to detect E2E test environment
+  if (
+    process.env.NEXT_PUBLIC_IS_E2E_TEST === "true" ||
+    (typeof window !== "undefined" && window.location?.port === "3003") || // E2E test port
+    (typeof window !== "undefined" && 
+     window.navigator?.userAgent?.includes("HeadlessChrome")) // Playwright headless browser
+  ) {
+    return noopStorage;
+  }
+  
+  // In SSR or when localStorage is not available, use no-op storage
+  if (typeof window === "undefined" || !window.localStorage) {
+    return noopStorage;
+  }
+  
+  return localStorage;
+};
 
 /**
  * Creates the root store with all slices and orchestrators integrated
@@ -301,6 +335,7 @@ export const useStore = create<RootState>()(
       {
         name: "endgame-trainer-store",
         version: 1,
+        storage: createJSONStorage(() => getStorage()), // Lazy evaluation of storage
         // Only persist training position for session continuity
         partialize: (state) => ({
           // Training position - persist for session continuity

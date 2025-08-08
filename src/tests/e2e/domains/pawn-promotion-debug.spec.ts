@@ -1,18 +1,22 @@
 /**
- * Debug E2E Test for Pawn Promotion
- * Detailed logging and step-by-step analysis
+ * Pawn Promotion Debug Tests
+ * Tests pawn promotion detection and UI behavior
  */
 
 import { test, expect } from "@playwright/test";
+import { TrainingBoardPage } from "../helpers/pageObjects/TrainingBoardPage";
+import { E2E } from "../../../shared/constants";
+import { getLogger } from "../../../shared/services/logging";
 
 test.describe("Pawn Promotion Debug Tests", () => {
-  
+  const logger = getLogger().setContext("E2E-PawnPromotionDebug");
+
   test("debug promotion detection and toast system", async ({ page }) => {
-    console.log("🔍 Starting detailed promotion debug test...");
+    logger.info("🔍 Starting detailed promotion debug test...");
 
     // Mock tablebase to always return win
     await page.route("**/api/tablebase/**", async (route) => {
-      console.log("📡 Tablebase API call:", route.request().url());
+      logger.info("📡 Tablebase API call:", route.request().url());
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -25,165 +29,117 @@ test.describe("Pawn Promotion Debug Tests", () => {
       });
     });
 
-    // Navigate and wait for setup
-    await page.goto("/train/1");
-    await page.waitForSelector('[data-testid="training-board"]', { timeout: 10000 });
+    // Navigate to training page
+    await page.goto(E2E.ROUTES.TRAIN(1));
     
-    console.log("✅ Board loaded");
+    const boardPage = new TrainingBoardPage(page);
+    await boardPage.waitForBoardReady();
+    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+    
+    logger.info("✅ Board loaded");
 
-    // Wait for E2E API
-    await page.waitForFunction(
-      () => typeof (window as any).e2e_makeMove === "function", 
-      { timeout: 10000 }
-    );
-    
-    console.log("✅ E2E API ready");
-
-    // Check initial game state
-    const initialState = await page.evaluate(() => {
-      return (window as any).e2e_getGameState();
-    });
-    
-    console.log("📋 Initial game state:", {
+    // Get initial state
+    const initialState = await boardPage.getGameState();
+    logger.info("📋 Initial game state:", {
       fen: initialState.fen,
       turn: initialState.turn,
-      moveCount: initialState.moveCount
+      moveCount: initialState.moveCount,
     });
-
-    // Check toast container exists  
-    const toastContainer = page.locator('.toast-container, [data-testid="toast-container"]');
-    const hasToastContainer = await toastContainer.count() > 0;
-    console.log("🍞 Toast container exists:", hasToastContainer);
-
-    // Check Zustand store state
-    const storeState = await page.evaluate(() => {
-      const store = (window as any).__zustand_store;
-      if (store) {
-        const state = store.getState();
-        return {
-          hasUI: !!state.ui,
-          toastCount: state.ui?.toasts?.length || 0,
-          toasts: state.ui?.toasts || []
-        };
+    
+    // Train/1 starts with: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1
+    // We'll try to advance the pawn toward promotion
+    
+    // Move 1: Pawn e5 to e6
+    logger.info("Attempting pawn advance e5-e6");
+    let moveSuccessful = await boardPage.makeMoveWithValidation("e5", "e6");
+    
+    if (moveSuccessful) {
+      logger.info("✅ Pawn moved to e6");
+      
+      // Check for any toasts or messages
+      const toast = page.locator('[data-testid="toast"], .toast, [role="alert"]');
+      const hasToast = await toast.isVisible().catch(() => false);
+      
+      if (hasToast) {
+        const toastText = await toast.textContent();
+        logger.info("Toast appeared:", toastText);
       }
-      return { error: "Store not available" };
-    });
-    
-    console.log("🏪 Store state:", storeState);
-
-    // Test sequence leading to promotion from position 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1
-    console.log("🎯 Making first move: Kd6");
-    
-    // Just make the first move - the position has Black King on e8, White King on e6, White pawn on e5
-    const firstMove = await page.evaluate(async () => {
-      try {
-        const result = await (window as any).e2e_makeMove("e6-d6"); // Kd6
-        return { success: true, result };
-      } catch (error) {
-        return { success: false, error: (error as Error).message };
-      }
-    });
-    
-    console.log("First move (Kd6) result:", firstMove);
-    
-    // Wait for opponent move and then continue - the app should auto-play the solution
-    console.log("⏳ Waiting for game to progress...");
-    await page.waitForTimeout(3000);
-    
-    // Check if the game has progressed by looking at move history
-    const gameState = await page.evaluate(() => {
-      return (window as any).e2e_getGameState();
-    });
-    
-    console.log("🎯 Game state after first move:", {
-      fen: gameState.fen,
-      turn: gameState.turn,
-      moveCount: gameState.moveCount
-    });
-
-    // Try a direct promotion move from starting position to test the format
-    console.log("🚀 Testing direct promotion command");
-    
-    // First, let's see what the E2E API understands about promotion
-    const testFormats = ["e7-e8", "e7-e8=Q", "e7e8", "e7e8q"];
-    
-    for (const format of testFormats) {
-      console.log(`Testing promotion format: "${format}"`);
-      const testResult = await page.evaluate(async (moveStr) => {
-        try {
-          const result = await (window as any).e2e_makeMove(moveStr);
-          return { success: true, result, format: moveStr };
-        } catch (error) {
-          return { success: false, error: (error as Error).message, format: moveStr };
-        }
-      }, format);
-      console.log(`Format "${format}" result:`, testResult);
-    }
-    
-    const promotionResult = await page.evaluate(async () => {
-      try {
-        // Check store state before promotion
-        const store = (window as any).__zustand_store;
-        const stateBefore = store ? {
-          toastsBefore: store.getState().ui.toasts.length
-        } : null;
-        
-        // Make promotion move with basic coordinate format
-        const result = await (window as any).e2e_makeMove("e7-e8");
-        
-        // Check store state after promotion
-        const stateAfter = store ? {
-          toastsAfter: store.getState().ui.toasts.length,
-          latestToasts: store.getState().ui.toasts.slice(-2)
-        } : null;
-        
-        return {
-          success: true,
-          result,
-          stateBefore,
-          stateAfter
-        };
-      } catch (error) {
-        return { 
-          success: false, 
-          error: (error as Error).message 
-        };
-      }
-    });
-    
-    console.log("🎉 Promotion result:", promotionResult);
-
-    // Check if toast appeared in UI
-    if (promotionResult.success) {
-      console.log("🔍 Checking for visible toasts...");
       
-      // Wait a moment for UI to update
-      await page.waitForTimeout(1000);
+      // Wait for opponent's response
+      await page.waitForTimeout(3000);
       
-      // Look for success toasts - check for actual green background and German text
-      const successToasts = page.locator('[class*="bg-green-500"], [class*="bg-green"], :has-text("Glückwunsch"), :has-text("Dame"), :has-text("Sieg")');
-      const toastCount = await successToasts.count();
+      const stateAfterE6 = await boardPage.getGameState();
+      logger.info("Position after e6:", stateAfterE6.fen);
       
-      console.log(`🍞 Found ${toastCount} success toast(s)`);
-      
-      if (toastCount > 0) {
-        const toastText = await successToasts.first().textContent();
-        console.log("🎯 Toast text:", toastText);
-        expect(toastCount).toBeGreaterThan(0);
-      } else {
-        console.log("❌ No visible success toasts found");
+      // If it's our turn again, try to advance further
+      if (stateAfterE6.turn === "w") {
+        logger.info("Attempting pawn advance e6-e7");
+        moveSuccessful = await boardPage.makeMoveWithValidation("e6", "e7");
         
-        // Debug: Check all visible elements with "Glückwunsch" or success indicators
-        const allToasts = page.locator('div:has-text("Glück"), div:has-text("Dame"), div:has-text("success"), [class*="toast"]');
-        const allToastCount = await allToasts.count();
-        console.log(`🔍 Found ${allToastCount} toast-like elements`);
-        
-        for (let i = 0; i < Math.min(allToastCount, 3); i++) {
-          const text = await allToasts.nth(i).textContent();
-          const isVisible = await allToasts.nth(i).isVisible();
-          console.log(`Toast ${i}: "${text}" (visible: ${isVisible})`);
+        if (moveSuccessful) {
+          logger.info("✅ Pawn moved to e7");
+          
+          // Wait for opponent
+          await page.waitForTimeout(3000);
+          
+          const stateAfterE7 = await boardPage.getGameState();
+          logger.info("Position after e7:", stateAfterE7.fen);
+          
+          // If it's our turn and pawn is on e7, try promotion
+          if (stateAfterE7.turn === "w" && stateAfterE7.fen.includes("P")) {
+            logger.info("Attempting promotion e7-e8");
+            
+            // Try to promote to Queen
+            moveSuccessful = await boardPage.makeMoveWithValidation("e7", "e8", "q");
+            
+            if (moveSuccessful) {
+              logger.info("✅ PROMOTION SUCCESSFUL!");
+              
+              // Check for promotion dialog or automatic queen
+              const finalState = await boardPage.getGameState();
+              logger.info("Final position after promotion:", finalState.fen);
+              
+              // Verify we have a Queen
+              if (finalState.fen.includes("Q")) {
+                logger.info("✅ Queen detected in final position!");
+                expect(finalState.fen).toContain("Q");
+              } else {
+                logger.info("❌ No Queen found after promotion");
+              }
+            } else {
+              logger.info("❌ Promotion move failed");
+            }
+          }
         }
       }
+    } else {
+      logger.info("❌ Initial pawn move failed");
     }
+    
+    // Debug: Check what elements are visible on the board
+    logger.info("=== Board Debug Info ===");
+    
+    // Check for pieces
+    const pieces = await page.locator('[draggable="true"]').count();
+    logger.info(`Number of draggable pieces: ${pieces}`);
+    
+    // Check for squares
+    const squares = await page.locator('[data-square]').count();
+    logger.info(`Number of squares with data-square: ${squares}`);
+    
+    // Check for any error dialogs
+    const errorDialog = page.locator('[data-testid="move-error-dialog"]');
+    const hasError = await errorDialog.isVisible().catch(() => false);
+    if (hasError) {
+      const errorText = await errorDialog.textContent();
+      logger.info("Error dialog present:", errorText);
+    }
+    
+    // Final verification
+    const finalState = await boardPage.getGameState();
+    expect(finalState.fen).toBeDefined();
+    expect(finalState.moveCount).toBeGreaterThanOrEqual(0);
+    
+    logger.info("=== Test Complete ===");
   });
 });

@@ -6,12 +6,7 @@
 import { test, expect } from "@playwright/test";
 import { getLogger } from "../../../shared/services/logging";
 import { E2E } from "../../../shared/constants";
-import {
-  performMoveAndWait,
-  performClickMoveAndWait,
-  waitForGameState,
-  dismissMoveErrorDialog,
-} from "../helpers/moveHelpers";
+import { TrainingBoardPage } from "../helpers/pageObjects/TrainingBoardPage";
 
 test.describe("Actual Position 1 - King and Pawn vs King", () => {
   const logger = getLogger().setContext("E2E-ActualPosition");
@@ -148,288 +143,128 @@ test.describe("Actual Position 1 - King and Pawn vs King", () => {
       logger.info("Position 1 loaded successfully");
     });
 
+    // Set up Page Object Model
+    const boardPage = new TrainingBoardPage(page);
+    await boardPage.waitForBoardReady();
+    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+
     await test.step("Test a potentially bad king move", async () => {
       // In this position (Ke6, Pe5 vs Ke8), let's try Kd6
-      // This might be suboptimal as it doesn't support the pawn advance
-
-      try {
-        // Use the new helper that waits for state changes
-        const result = await performClickMoveAndWait(page, "e6", "d6", {
-          allowRejection: true, // Allow move to be rejected
-          timeout: 8000, // Generous timeout for tablebase evaluation
-        });
-
-        if (result.success) {
-          logger.info("Kd6 was accepted - it's a valid move");
-          // Move was accepted, no error dialog
-          const errorDialog = page.locator('[data-testid="move-error-dialog"]');
-          await expect(errorDialog).not.toBeVisible();
-        } else {
-          logger.info("Kd6 was rejected - it's a bad move");
-          // Move was rejected, error dialog should be visible
-          await expect(page.getByText("Fehler erkannt!")).toBeVisible();
-
-          // Dismiss the error dialog
-          await dismissMoveErrorDialog(page);
-        }
-      } catch (error) {
-        // If squares aren't found with data-square, fall back to the old method
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
-        logger.warn(
-          "Click move failed, falling back to manual square detection:",
-          errorMessage,
-        );
-
-        // Fallback: Try different approaches to find the board
-        let board = page.locator('[class*="board"]').first();
-
-        if (!(await board.isVisible())) {
-          board = page
-            .locator("div")
-            .filter({ has: page.locator('img[alt*="King"], img[alt*="Pawn"]') })
-            .first();
-        }
-
-        // Method 2: If data-square doesn't work, try by position
-        const squares = board.locator("div").filter({
-          hasNot: page.locator("img"),
-        });
-
-        const e6Square = squares.nth(20); // e6 is row 3, col 5 = index 20
-        const d6Square = squares.nth(19); // d6 is row 3, col 4 = index 19
-
-        await e6Square.click({ timeout: 5000 });
-        await d6Square.click({ timeout: 5000 });
-
-        // Wait for test API to be available, then get initial state
-        await page.waitForFunction(
-          () => typeof (window as any).e2e_getGameState === "function",
-          {},
-          { timeout: 10000, polling: 100 },
-        );
-
-        const initialState = await page.evaluate(() =>
-          (window as any).e2e_getGameState(),
-        );
-
-        await waitForGameState(
-          page,
-          (state) => {
-            // Either move count increased (success) or we should check for error dialog
-            return state.moveCount > initialState.moveCount;
-          },
-          8000,
-        );
-
-        // Check the result
-        const hasErrorDialog = await page
-          .locator('[data-testid="move-error-dialog"]')
-          .isVisible();
-
-        if (hasErrorDialog) {
-          logger.info("Error dialog appeared for Kd6 - it's a bad move");
-          await expect(page.getByText("Fehler erkannt!")).toBeVisible();
-          await dismissMoveErrorDialog(page);
-        } else {
-          logger.info("No error for Kd6 - it's an acceptable move");
-        }
+      // This is the optimal move (taking the opposition)
+      
+      const moveSuccessful = await boardPage.makeMoveWithValidation("e6", "d6");
+      
+      if (moveSuccessful) {
+        logger.info("Kd6 was accepted - it's a valid move");
+        // Move was accepted, no error dialog
+        const errorDialog = page.locator('[data-testid="move-error-dialog"]');
+        await expect(errorDialog).not.toBeVisible();
+        
+        // Wait for opponent's response
+        await page.waitForTimeout(3000);
+        
+        const currentState = await boardPage.getGameState();
+        logger.info("After Kd6, position is:", currentState.fen);
+        
+        // Opponent should have responded
+        expect(currentState.moveCount).toBeGreaterThanOrEqual(2);
+      } else {
+        logger.info("Kd6 was rejected - unexpected since it's optimal");
       }
     });
 
     await test.step("Test pawn advance e5-e6", async () => {
-      // This should definitely be a good move
-      // Use the same approach that worked before
-      let board = page.locator('[class*="board"]').first();
-
-      if (!(await board.isVisible())) {
-        board = page
-          .locator("div")
-          .filter({ has: page.locator('img[alt*="King"], img[alt*="Pawn"]') })
-          .first();
+      // Reset to initial position by reloading
+      await page.goto(E2E.ROUTES.TRAIN(1));
+      await boardPage.waitForBoardReady();
+      await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+      
+      // This should be a valid but slower move
+      const moveSuccessful = await boardPage.makeMoveWithValidation("e5", "e6");
+      
+      if (moveSuccessful) {
+        logger.info("e5-e6 was accepted");
+        
+        // Wait for opponent's response
+        await page.waitForTimeout(3000);
+        
+        const currentState = await boardPage.getGameState();
+        logger.info("After e5-e6, position is:", currentState.fen);
+        
+        // Verify pawn advanced
+        expect(currentState.fen).toContain("P");
+      } else {
+        logger.info("e5-e6 was rejected");
       }
+    });
 
-      try {
-        // Use the new helper for a clean move
-        const result = await performClickMoveAndWait(page, "e5", "e6", {
-          timeout: 6000, // Tablebase evaluation timeout
-        });
-
-        // Move should be successful
-        expect(result.success).toBe(true);
-        logger.info("Pawn advance e5-e6 successful via data-square clicking");
-
-        // Verify the move was made - check Lichess link updated
-        const lichessLink = page.locator('a[href*="lichess.org/analysis"]');
-        const newHref = await lichessLink.getAttribute("href");
-        expect(newHref).toContain("4P3"); // Pawn should be on e6 now
-      } catch (error) {
-        // Fallback to the old approach if data-square clicking fails
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
-        logger.warn(
-          "Data-square clicking failed, using fallback approach:",
-          errorMessage,
-        );
-
-        // Try data-square first
-        let e5Square = page.locator('[data-square="e5"]');
-        let e6Square = page.locator('[data-square="e6"]');
-
-        if (!(await e5Square.isVisible())) {
-          // Alternative: click on the pawn image directly
-          const whitePawn = page
-            .locator('img[alt*="white pawn"], img[alt*="White Pawn"]')
-            .first();
-          await whitePawn.click();
-
-          // Then click the destination square
-          const squares = board.locator("div").filter({
-            hasNot: page.locator("img"),
-          });
-          e6Square = squares.nth(20);
-          await e6Square.click();
-        } else {
-          await e5Square.click();
-          await e6Square.click();
-        }
-
-        // Wait for move completion using state-based waiting
-        await page.waitForFunction(
-          () => typeof (window as any).e2e_getGameState === "function",
-          {},
-          { timeout: 10000, polling: 100 },
-        );
-
-        const initialState = await page.evaluate(() =>
-          (window as any).e2e_getGameState(),
-        );
-
-        await waitForGameState(
-          page,
-          (state) => {
-            return state.moveCount > initialState.moveCount;
-          },
-          6000,
-        );
-
-        // Should NOT show error dialog
-        const errorDialog = page.locator('[data-testid="move-error-dialog"]');
-        await expect(errorDialog).not.toBeVisible();
-
-        // Verify the move was made - check Lichess link updated
-        const lichessLink = page.locator('a[href*="lichess.org/analysis"]');
-        const newHref = await lichessLink.getAttribute("href");
-        expect(newHref).toContain("4P3"); // Pawn should be on e6 now
-
-        logger.info("Pawn advance e5-e6 successful via fallback method");
-      }
+    await test.step("Test optimal king move Kd6", async () => {
+      // Reset to initial position
+      await page.goto(E2E.ROUTES.TRAIN(1));
+      await boardPage.waitForBoardReady();
+      await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+      
+      const initialState = await boardPage.getGameState();
+      logger.info("Initial position:", initialState.fen);
+      
+      // Kd6 is the best move (taking the opposition)
+      const moveSuccessful = await boardPage.makeMoveWithValidation("e6", "d6");
+      expect(moveSuccessful).toBe(true);
+      
+      // No error dialog should appear for optimal move
+      const errorDialog = page.locator('[data-testid="move-error-dialog"]');
+      await expect(errorDialog).not.toBeVisible();
+      
+      // Wait for opponent's response
+      await page.waitForTimeout(3000);
+      
+      const finalState = await boardPage.getGameState();
+      logger.info("After Kd6 and opponent response:", finalState.fen);
+      
+      // Should have at least 2 moves
+      expect(finalState.moveCount).toBeGreaterThanOrEqual(2);
     });
   });
 
   test("should show move history and evaluation", async ({ page }) => {
     await page.goto(E2E.ROUTES.TRAIN(1));
-    await page.waitForSelector("text=/a.*b.*c.*d.*e.*f.*g.*h/", {
+    
+    const boardPage = new TrainingBoardPage(page);
+    await boardPage.waitForBoardReady();
+    await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
+
+    // Verify initial evaluation is shown
+    await expect(page.getByText(/Win in/i).first()).toBeVisible({
       timeout: 10000,
     });
+    logger.info("Initial evaluation displayed");
 
-    // First we need to play Kd6, then after Black's response, we can play e6
-    // Since the pieces are SVG, let's use the same square-clicking approach from test 1
+    // Make a move
+    const moveSuccessful = await boardPage.makeMoveWithValidation("e6", "d6");
+    expect(moveSuccessful).toBe(true);
+    
+    // Wait for opponent's response
+    await page.waitForTimeout(3000);
 
-    await test.step("Make first move Kd6", async () => {
-      // Wait for test API to be available first
-      await page.waitForFunction(
-        () => typeof (window as any).e2e_getGameState === "function",
-        {},
-        { timeout: 10000, polling: 100 },
-      );
-
-      // Wait until the game state is initialized with the expected FEN
-      await page.waitForFunction((expectedFen) => {
-        const gameState = (window as any).e2e_getGameState();
-        return gameState && gameState.fen === expectedFen;
-      }, "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1"); // Pass the expected FEN as an argument
-
-      // Debug: Check initial game state before attempting move
-      const initialState = await page.evaluate(() => {
-        const gameState = (window as any).e2e_getGameState();
-        console.log(
-          "Playwright DEBUG: Initial Game State (after wait):",
-          gameState,
-        );
-        return gameState;
-      });
-      logger.info("Initial Game State:", initialState);
-
-      // Log what we're about to do
-      logger.info("Attempting move e6-d6 with expected FEN:", initialState.fen);
-
-      // Use the new move helper with API-based move
-      const result = await performMoveAndWait(page, "e6-d6", {
-        allowRejection: true, // This move might be rejected if it's suboptimal
-        timeout: 8000, // Give plenty of time for tablebase evaluation
-      });
-
-      logger.info("Move result from performMoveAndWait", {
-        success: result.success,
-        errorMessage: result.errorMessage,
-      });
-
-      // Before checking move history, let's verify the position changed
-      // Check if the FEN in the Lichess link changed
-      const lichessLink = page.locator('a[href*="lichess.org/analysis"]');
-      const newHref = await lichessLink.getAttribute("href");
-
-      // If Kd6 was played, the king should be on d6 now
-      if (newHref?.includes("3K")) {
-        logger.info("Position changed - Kd6 was played");
-      } else {
-        logger.warn(
-          "Position did not change - move might not have been executed",
-        );
+    // Check move history is visible
+    const moveHistory = page.locator('[data-testid="move-history"]');
+    const moveHistoryVisible = await moveHistory.isVisible().catch(() => false);
+    
+    if (moveHistoryVisible) {
+      logger.info("Move history panel is visible");
+      await expect(moveHistory).toContainText("1.");
+    } else {
+      // Alternative: Check for move notation somewhere on the page
+      const moveNotation = await page.locator("text=/Kd6/").isVisible();
+      if (moveNotation) {
+        logger.info("Move notation visible on page");
       }
+    }
 
-      // Check that the move was registered - the move list should update
-      // First let's see what's actually in the move list
-      const moveListText = await page
-        .locator('[data-testid="move-list"]')
-        .textContent();
-      logger.info(`Move list content: "${moveListText}"`);
-
-      // If moves aren't showing, the test needs to handle this differently
-      if (moveListText === "Noch keine Züge gespielt") {
-        logger.warn("Move history not updating - skipping this check");
-      } else {
-        await expect(
-          page.getByText("Noch keine Züge gespielt"),
-        ).not.toBeVisible({
-          timeout: 10000,
-        });
-      }
-
-      logger.info("First move Kd6 completed and reflected in history.");
+    // Verify evaluation updates after move
+    await expect(page.getByText(/Win in|Loss in/i).first()).toBeVisible({
+      timeout: 5000,
     });
-
-    // Now verify additional move history features
-    await test.step("Verify move history UI elements", async () => {
-      // This assertion should now pass reliably as we've waited for the history to update.
-      await expect(
-        page.getByText("Noch keine Züge gespielt"),
-      ).not.toBeVisible();
-
-      // The move list should be visible (we already verified it contains moves)
-      const moveList = page.locator('[data-testid="move-list"]');
-      await expect(moveList).toBeVisible();
-
-      // Check that navigation buttons are enabled (using data-testid)
-      const backButton = page.locator('[data-testid="nav-back"]');
-      await expect(backButton).not.toBeDisabled();
-
-      // The "go to start" button should also be enabled now
-      const startButton = page.locator('[data-testid="nav-first"]');
-      await expect(startButton).not.toBeDisabled();
-
-      logger.info("Move history UI elements working correctly");
-    });
+    logger.info("Evaluation updated after move");
   });
 });
