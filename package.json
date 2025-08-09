@@ -28,6 +28,7 @@
     "test:coverage:evaluation": "jest --config=src/config/jest/jest.config.feature-coverage.js --coverage",
     "test:integration": "jest --config=src/tests/jest.config.integration.js",
     "test:real-api": "node scripts/test-real-api.js",
+    "docs:verify": "node scripts/docs-verify.js",
     "test:all": "npm run test:unit && npm run test:integration",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",

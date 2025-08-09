@@ -21,8 +21,8 @@
 import { validateAndSanitizeFen } from "../utils/fenValidator";
 import { getLogger } from "../services/logging";
 import { APP_CONFIG } from "@/config/constants";
-import { z } from "zod";
-import { LichessTablebaseResponseSchema } from "../types/tablebaseSchemas";
+// Removed unused imports - Zod validation now handled by LichessApiClient
+import { LichessApiClient, LichessApiError, LichessApiTimeoutError } from "./api/LichessApiClient";
 import type {
   LichessTablebaseResponse,
   TablebaseEntry,
@@ -50,6 +50,18 @@ class TablebaseService {
   private readonly maxPieces = 7; // Lichess uses 7-piece Syzygy tablebases
   private readonly cacheTtl = 300000; // 5 minutes
   private pendingRequests = new Map<string, Promise<TablebaseEntry | null>>();
+  
+  private readonly apiClient: LichessApiClient;
+
+  constructor(apiClient?: LichessApiClient) {
+    // Use provided client or create default instance
+    this.apiClient = apiClient || new LichessApiClient({
+      baseUrl: APP_CONFIG.TABLEBASE_API_URL,
+      timeoutMs: 5000,
+      maxRetries: 3,
+      maxBackoffMs: 10000
+    });
+  }
 
   // Metrics for monitoring
   private metrics = {
@@ -330,121 +342,58 @@ class TablebaseService {
     fen: string,
     normalizedFen: string,
   ): Promise<TablebaseEntry | null> {
-    const MAX_RETRIES = 3;
     this.metrics.recordApiCall();
 
-    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
+    try {
+      // Use the dedicated API client instead of direct fetch
+      const validatedData = await this.apiClient.lookup(fen, 20);
 
-        // Always request moves to get complete tablebase entry
-        const response = await fetch(
-          `${APP_CONFIG.TABLEBASE_API_URL}/standard?fen=${encodeURIComponent(fen)}&moves=20`,
-          { signal: controller.signal },
-        );
+      // Transform to our internal format
+      const entry = this._transformApiResponse(validatedData, fen);
 
-        clearTimeout(timeoutId);
+      // Cache the transformed entry with normalized FEN
+      this._cacheEntry(normalizedFen, entry);
 
-        if (!response.ok) {
-          this.metrics.recordApiError(response.status);
+      logger.info("Successfully fetched and cached tablebase entry", {
+        fen,
+        positionCategory: entry.position.category,
+        moveCount: entry.moves.length,
+      });
 
-          if (response.status === 404) {
-            // Position not in tablebase - cache this to avoid repeated queries
-            logger.info("Position not in tablebase, caching null", {
-              fen: normalizedFen,
-            });
-            this._cacheEntry(normalizedFen, null);
-            return null;
-          }
+      return entry;
+    } catch (error) {
+      if (error instanceof LichessApiError) {
+        // Record the HTTP error for metrics
+        this.metrics.recordApiError(error.statusCode);
 
-          // Rate limiting - retry with exponential backoff
-          if (response.status === 429) {
-            const delay = Math.min(
-              1000 * Math.pow(2, attempt) + Math.random() * 1000,
-              10000,
-            );
-            logger.warn(`Rate limited, retrying in ${delay}ms`, {
-              attempt,
-              delay,
-            });
-            await new Promise((resolve) => setTimeout(resolve, delay));
-            continue;
-          }
-
-          // Don't retry other client errors
-          if (response.status >= 400 && response.status < 500) {
-            throw new Error(`Client error: ${response.status}`);
-          }
-
-          throw new Error(`API error: ${response.status}`);
+        // Handle 404 specially - position not in tablebase
+        if (error.statusCode === 404) {
+          logger.info("Position not in tablebase, caching null", {
+            fen: normalizedFen,
+          });
+          this._cacheEntry(normalizedFen, null);
+          return null;
         }
 
-        const responseData = await response.json();
-
-        // Validate the API response structure
-        let validatedData: LichessTablebaseResponse;
-        try {
-          validatedData = LichessTablebaseResponseSchema.parse(responseData);
-        } catch (error) {
-          if (error instanceof z.ZodError) {
-            logger.error("Malformed Lichess API response", {
-              fen,
-              errors: error.issues,
-              received: responseData,
-            });
-            throw new Error("Malformed API response");
-          }
-          throw error;
-        }
-
-        // Transform to our internal format
-        const entry = this._transformApiResponse(validatedData, fen);
-
-        // Cache the transformed entry with normalized FEN
-        this._cacheEntry(normalizedFen, entry);
-
-        logger.info("Successfully fetched and cached tablebase entry", {
-          fen,
-          positionCategory: entry.position.category,
-          moveCount: entry.moves.length,
+        // For other API errors, log and re-throw
+        logger.error("Lichess API error", { 
+          fen, 
+          statusCode: error.statusCode, 
+          message: error.message 
         });
-
-        return entry;
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Unknown error";
-        logger.warn(`Tablebase API attempt ${attempt}/${MAX_RETRIES} failed`, {
-          fen,
-          error: errorMessage,
-        });
-
-        // Don't retry client errors
-        if (
-          error instanceof Error &&
-          error.message.startsWith("Client error")
-        ) {
-          throw error;
-        }
-
-        // Last attempt failed
-        if (attempt === MAX_RETRIES) {
-          logger.error("API call failed after max retries", { error, fen });
-          if (error instanceof Error && error.name === "AbortError") {
-            throw new Error(`Request timeout after ${MAX_RETRIES} retries`);
-          }
-          throw new Error(
-            `Max retries (${MAX_RETRIES}) exceeded. Last error: ${errorMessage}`,
-          );
-        }
-
-        // Wait before retry with exponential backoff
-        await new Promise((resolve) => setTimeout(resolve, 250 * attempt));
+        throw new Error(`Tablebase API error: ${error.message}`);
       }
-    }
 
-    // Should never reach here
-    throw new Error("Unexpected error in fetch loop");
+      if (error instanceof LichessApiTimeoutError) {
+        logger.error("Tablebase API timeout", { fen, message: error.message });
+        throw new Error(`Tablebase API timeout: ${error.message}`);
+      }
+
+      // Handle validation errors and other unexpected errors
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      logger.error("Unexpected error during API call", { fen, error: errorMessage });
+      throw new Error(`Unexpected tablebase error: ${errorMessage}`);
+    }
   }
 
   /**
@@ -659,3 +608,6 @@ class TablebaseService {
  * const moves = await tablebaseService.getTopMoves(fen, 5);
  */
 export const tablebaseService = new TablebaseService();
+
+// Also export the class for dependency injection
+export { TablebaseService };
