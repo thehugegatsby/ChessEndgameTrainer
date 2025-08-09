@@ -1,0 +1,44 @@
+60435b9c8e454ce22e3e8b031a0bf53d
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: Object.getOwnPropertyDescriptor(all, name).get
+    });
+}
+_export(exports, {
+    get app () {
+        return app;
+    },
+    get db () {
+        return db;
+    }
+});
+const _app = require("firebase/app");
+const _firestore = require("firebase/firestore");
+const _config = require("./config");
+let app;
+let db;
+// Initialize Firebase only if it hasn't been initialized
+if (!(0, _app.getApps)().length) {
+    app = (0, _app.initializeApp)(_config.firebaseConfig);
+} else {
+    app = (0, _app.getApps)()[0];
+}
+db = (0, _firestore.getFirestore)(app);
+// Connect to Firestore emulator if in test environment
+if ((process.env.NODE_ENV === "test" || process.env.IS_E2E_TEST === "true" || process.env.NEXT_PUBLIC_IS_E2E_TEST === "true") && process.env.FIRESTORE_EMULATOR_HOST) {
+    const [host, port] = process.env.FIRESTORE_EMULATOR_HOST.split(":");
+    try {
+        (0, _firestore.connectFirestoreEmulator)(db, host, parseInt(port));
+    // Connected to Firestore emulator
+    } catch (error) {
+    // Already connected, ignore
+    // Firestore emulator already connected
+    }
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9ob21lL3RoZWh1L2Nvb2xQcm9qZWN0cy9FbmRnYW1lVHJhaW5lci10cmFpbmluZy1ib2FyZC1jb21wbGV0ZS9zcmMvc2hhcmVkL2xpYi9maXJlYmFzZS9pbmRleC50cyJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBpbml0aWFsaXplQXBwLCBnZXRBcHBzLCBGaXJlYmFzZUFwcCB9IGZyb20gXCJmaXJlYmFzZS9hcHBcIjtcbmltcG9ydCB7XG4gIGdldEZpcmVzdG9yZSxcbiAgRmlyZXN0b3JlLFxuICBjb25uZWN0RmlyZXN0b3JlRW11bGF0b3IsXG59IGZyb20gXCJmaXJlYmFzZS9maXJlc3RvcmVcIjtcbmltcG9ydCB7IGZpcmViYXNlQ29uZmlnIH0gZnJvbSBcIi4vY29uZmlnXCI7XG5cbmxldCBhcHA6IEZpcmViYXNlQXBwO1xubGV0IGRiOiBGaXJlc3RvcmU7XG5cbi8vIEluaXRpYWxpemUgRmlyZWJhc2Ugb25seSBpZiBpdCBoYXNuJ3QgYmVlbiBpbml0aWFsaXplZFxuaWYgKCFnZXRBcHBzKCkubGVuZ3RoKSB7XG4gIGFwcCA9IGluaXRpYWxpemVBcHAoZmlyZWJhc2VDb25maWcpO1xufSBlbHNlIHtcbiAgYXBwID0gZ2V0QXBwcygpWzBdO1xufVxuXG5kYiA9IGdldEZpcmVzdG9yZShhcHApO1xuXG4vLyBDb25uZWN0IHRvIEZpcmVzdG9yZSBlbXVsYXRvciBpZiBpbiB0ZXN0IGVudmlyb25tZW50XG5pZiAoXG4gIChwcm9jZXNzLmVudi5OT0RFX0VOViA9PT0gXCJ0ZXN0XCIgfHxcbiAgICBwcm9jZXNzLmVudi5JU19FMkVfVEVTVCA9PT0gXCJ0cnVlXCIgfHxcbiAgICBwcm9jZXNzLmVudi5ORVhUX1BVQkxJQ19JU19FMkVfVEVTVCA9PT0gXCJ0cnVlXCIpICYmXG4gIHByb2Nlc3MuZW52LkZJUkVTVE9SRV9FTVVMQVRPUl9IT1NUXG4pIHtcbiAgY29uc3QgW2hvc3QsIHBvcnRdID0gcHJvY2Vzcy5lbnYuRklSRVNUT1JFX0VNVUxBVE9SX0hPU1Quc3BsaXQoXCI6XCIpO1xuICB0cnkge1xuICAgIGNvbm5lY3RGaXJlc3RvcmVFbXVsYXRvcihkYiwgaG9zdCwgcGFyc2VJbnQocG9ydCkpO1xuICAgIC8vIENvbm5lY3RlZCB0byBGaXJlc3RvcmUgZW11bGF0b3JcbiAgfSBjYXRjaCAoZXJyb3IpIHtcbiAgICAvLyBBbHJlYWR5IGNvbm5lY3RlZCwgaWdub3JlXG4gICAgLy8gRmlyZXN0b3JlIGVtdWxhdG9yIGFscmVhZHkgY29ubmVjdGVkXG4gIH1cbn1cblxuZXhwb3J0IHsgYXBwLCBkYiB9O1xuIl0sIm5hbWVzIjpbImFwcCIsImRiIiwiZ2V0QXBwcyIsImxlbmd0aCIsImluaXRpYWxpemVBcHAiLCJmaXJlYmFzZUNvbmZpZyIsImdldEZpcmVzdG9yZSIsInByb2Nlc3MiLCJlbnYiLCJOT0RFX0VOViIsIklTX0UyRV9URVNUIiwiTkVYVF9QVUJMSUNfSVNfRTJFX1RFU1QiLCJGSVJFU1RPUkVfRU1VTEFUT1JfSE9TVCIsImhvc3QiLCJwb3J0Iiwic3BsaXQiLCJjb25uZWN0RmlyZXN0b3JlRW11bGF0b3IiLCJwYXJzZUludCIsImVycm9yIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7OztRQXFDU0E7ZUFBQUE7O1FBQUtDO2VBQUFBOzs7cUJBckNzQzsyQkFLN0M7d0JBQ3dCO0FBRS9CLElBQUlEO0FBQ0osSUFBSUM7QUFFSix5REFBeUQ7QUFDekQsSUFBSSxDQUFDQyxJQUFBQSxZQUFPLElBQUdDLE1BQU0sRUFBRTtJQUNyQkgsTUFBTUksSUFBQUEsa0JBQWEsRUFBQ0Msc0JBQWM7QUFDcEMsT0FBTztJQUNMTCxNQUFNRSxJQUFBQSxZQUFPLEdBQUUsQ0FBQyxFQUFFO0FBQ3BCO0FBRUFELEtBQUtLLElBQUFBLHVCQUFZLEVBQUNOO0FBRWxCLHVEQUF1RDtBQUN2RCxJQUNFLEFBQUNPLENBQUFBLFFBQVFDLEdBQUcsQ0FBQ0MsUUFBUSxLQUFLLFVBQ3hCRixRQUFRQyxHQUFHLENBQUNFLFdBQVcsS0FBSyxVQUM1QkgsUUFBUUMsR0FBRyxDQUFDRyx1QkFBdUIsS0FBSyxNQUFLLEtBQy9DSixRQUFRQyxHQUFHLENBQUNJLHVCQUF1QixFQUNuQztJQUNBLE1BQU0sQ0FBQ0MsTUFBTUMsS0FBSyxHQUFHUCxRQUFRQyxHQUFHLENBQUNJLHVCQUF1QixDQUFDRyxLQUFLLENBQUM7SUFDL0QsSUFBSTtRQUNGQyxJQUFBQSxtQ0FBd0IsRUFBQ2YsSUFBSVksTUFBTUksU0FBU0g7SUFDNUMsa0NBQWtDO0lBQ3BDLEVBQUUsT0FBT0ksT0FBTztJQUNkLDRCQUE0QjtJQUM1Qix1Q0FBdUM7SUFDekM7QUFDRiJ9

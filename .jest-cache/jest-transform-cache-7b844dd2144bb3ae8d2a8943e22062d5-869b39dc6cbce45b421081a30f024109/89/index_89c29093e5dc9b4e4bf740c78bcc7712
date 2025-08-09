@@ -1,0 +1,63 @@
+15e9ae03466f5d22e8b684b5a8b01be2
+// Export all custom hooks for easy importing
+// Main hooks - use these
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: Object.getOwnPropertyDescriptor(all, name).get
+    });
+}
+_export(exports, {
+    get useAnalysisData () {
+        return _useAnalysisData.useAnalysisData;
+    },
+    get useDebounce () {
+        return _useDebounce.useDebounce;
+    },
+    get useDialogHandlers () {
+        return _useDialogHandlers.useDialogHandlers;
+    },
+    get useGameNavigation () {
+        return _useGameNavigation.useGameNavigation;
+    },
+    get useHydration () {
+        return _useHydration.useHydration;
+    },
+    get useLocalStorage () {
+        return _useLocalStorage.useLocalStorage;
+    },
+    get useLocalStorageWithState () {
+        return _useLocalStorage.useLocalStorageWithState;
+    },
+    get useMoveHandlers () {
+        return _useMoveHandlers.useMoveHandlers;
+    },
+    get useMoveValidation () {
+        return _useMoveValidation.useMoveValidation;
+    },
+    get usePositionAnalysis () {
+        return _usePositionAnalysis.usePositionAnalysis;
+    },
+    get useStoreHydration () {
+        return _useHydration.useStoreHydration;
+    },
+    get useTrainingSession () {
+        return _useTrainingSession.useTrainingSession;
+    }
+});
+const _useTrainingSession = require("./useTrainingSession");
+const _usePositionAnalysis = require("./usePositionAnalysis");
+const _useLocalStorage = require("./useLocalStorage");
+const _useDebounce = require("./useDebounce");
+const _useAnalysisData = require("./useAnalysisData");
+const _useHydration = require("./useHydration");
+const _useMoveHandlers = require("./useMoveHandlers");
+const _useDialogHandlers = require("./useDialogHandlers");
+const _useMoveValidation = require("./useMoveValidation");
+const _useGameNavigation = require("./useGameNavigation");
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9ob21lL3RoZWh1L2Nvb2xQcm9qZWN0cy9FbmRnYW1lVHJhaW5lci10cmFpbmluZy1ib2FyZC1jb21wbGV0ZS9zcmMvc2hhcmVkL2hvb2tzL2luZGV4LnRzIl0sInNvdXJjZXNDb250ZW50IjpbIi8vIEV4cG9ydCBhbGwgY3VzdG9tIGhvb2tzIGZvciBlYXN5IGltcG9ydGluZ1xuXG4vLyBNYWluIGhvb2tzIC0gdXNlIHRoZXNlXG5leHBvcnQgeyB1c2VUcmFpbmluZ1Nlc3Npb24gfSBmcm9tIFwiLi91c2VUcmFpbmluZ1Nlc3Npb25cIjtcbmV4cG9ydCB7IHVzZVBvc2l0aW9uQW5hbHlzaXMgfSBmcm9tIFwiLi91c2VQb3NpdGlvbkFuYWx5c2lzXCI7XG5leHBvcnQgeyB1c2VMb2NhbFN0b3JhZ2UsIHVzZUxvY2FsU3RvcmFnZVdpdGhTdGF0ZSB9IGZyb20gXCIuL3VzZUxvY2FsU3RvcmFnZVwiO1xuZXhwb3J0IHsgdXNlRGVib3VuY2UgfSBmcm9tIFwiLi91c2VEZWJvdW5jZVwiO1xuXG4vLyBSZS1leHBvcnQgZXhpc3RpbmcgaG9va3MgaWYgYW55XG5leHBvcnQgeyB1c2VBbmFseXNpc0RhdGEgfSBmcm9tIFwiLi91c2VBbmFseXNpc0RhdGFcIjtcblxuLy8gSHlkcmF0aW9uIGhvb2sgZm9yIFp1c3RhbmQgdjVcbmV4cG9ydCB7IHVzZUh5ZHJhdGlvbiwgdXNlU3RvcmVIeWRyYXRpb24gfSBmcm9tIFwiLi91c2VIeWRyYXRpb25cIjtcblxuLy8gQ29tcG9uZW50IGhvb2tzIGZvciBUcmFpbmluZ0JvYXJkIHJlZmFjdG9yaW5nXG5leHBvcnQgeyB1c2VNb3ZlSGFuZGxlcnMgfSBmcm9tIFwiLi91c2VNb3ZlSGFuZGxlcnNcIjtcbmV4cG9ydCB7IHVzZURpYWxvZ0hhbmRsZXJzIH0gZnJvbSBcIi4vdXNlRGlhbG9nSGFuZGxlcnNcIjtcbmV4cG9ydCB7IHVzZU1vdmVWYWxpZGF0aW9uIH0gZnJvbSBcIi4vdXNlTW92ZVZhbGlkYXRpb25cIjtcbmV4cG9ydCB7IHVzZUdhbWVOYXZpZ2F0aW9uIH0gZnJvbSBcIi4vdXNlR2FtZU5hdmlnYXRpb25cIjtcbiJdLCJuYW1lcyI6WyJ1c2VBbmFseXNpc0RhdGEiLCJ1c2VEZWJvdW5jZSIsInVzZURpYWxvZ0hhbmRsZXJzIiwidXNlR2FtZU5hdmlnYXRpb24iLCJ1c2VIeWRyYXRpb24iLCJ1c2VMb2NhbFN0b3JhZ2UiLCJ1c2VMb2NhbFN0b3JhZ2VXaXRoU3RhdGUiLCJ1c2VNb3ZlSGFuZGxlcnMiLCJ1c2VNb3ZlVmFsaWRhdGlvbiIsInVzZVBvc2l0aW9uQW5hbHlzaXMiLCJ1c2VTdG9yZUh5ZHJhdGlvbiIsInVzZVRyYWluaW5nU2Vzc2lvbiJdLCJtYXBwaW5ncyI6IkFBQUEsNkNBQTZDO0FBRTdDLHlCQUF5Qjs7Ozs7Ozs7Ozs7O1FBT2hCQTtlQUFBQSxnQ0FBZTs7UUFIZkM7ZUFBQUEsd0JBQVc7O1FBVVhDO2VBQUFBLG9DQUFpQjs7UUFFakJDO2VBQUFBLG9DQUFpQjs7UUFOakJDO2VBQUFBLDBCQUFZOztRQVBaQztlQUFBQSxnQ0FBZTs7UUFBRUM7ZUFBQUEseUNBQXdCOztRQVV6Q0M7ZUFBQUEsZ0NBQWU7O1FBRWZDO2VBQUFBLG9DQUFpQjs7UUFiakJDO2VBQUFBLHdDQUFtQjs7UUFRTEM7ZUFBQUEsK0JBQWlCOztRQVQvQkM7ZUFBQUEsc0NBQWtCOzs7b0NBQVE7cUNBQ0M7aUNBQ3NCOzZCQUM5QjtpQ0FHSTs4QkFHZ0I7aUNBR2hCO21DQUNFO21DQUNBO21DQUNBIn0=

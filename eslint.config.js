@@ -1,1 +1,1 @@
-src/config/eslint.config.js
+../EndgameTrainer/eslint.config.js
