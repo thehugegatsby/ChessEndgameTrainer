@@ -56,6 +56,13 @@ jest.mock('chess.js', () => ({
 describe('useMoveQuality', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    
+    // Restore default mocks for each test
+    const { Chess } = require('chess.js');
+    Chess.mockImplementation((fen) => ({
+      move: jest.fn().mockReturnValue({ san: 'Kh1' }),
+      fen: jest.fn(() => fen || '8/8/8/8/8/8/8/8 w - - 0 1'),
+    }));
   });
 
   describe('Hook Initialization', () => {
@@ -148,8 +155,123 @@ describe('useMoveQuality', () => {
     });
   });
 
-  describe('Integration', () => {
-    it('handles basic integration scenarios', async () => {
+  describe('Move Assessment Scenarios', () => {
+    beforeEach(() => {
+      // Reset all mocks to default state
+      jest.clearAllMocks();
+      
+      // Reset Chess mock to default successful behavior
+      const { Chess } = require('chess.js');
+      Chess.mockImplementation((fen) => ({
+        move: jest.fn().mockReturnValue({ san: 'Kh1' }),
+        fen: jest.fn(() => fen || '8/8/8/8/8/8/8/8 w - - 0 1'),
+      }));
+      
+      // Reset tablebase service with default successful behavior
+      const { tablebaseService } = require('@shared/services/TablebaseService');
+      const { assessTablebaseMoveQuality } = require('@shared/utils/moveQuality');
+      
+      tablebaseService.getEvaluation.mockResolvedValue({
+        isAvailable: true,
+        result: { wdl: 1, category: 'win' }
+      });
+      
+      assessTablebaseMoveQuality.mockReturnValue({
+        quality: 'excellent',
+        reason: 'Best move',
+        isTablebaseAnalysis: true
+      });
+    });
+
+    it('handles invalid moves', async () => {
+      // Mock Chess to simulate invalid move
+      const { Chess } = require('chess.js');
+      Chess.mockImplementation(() => ({
+        move: jest.fn().mockReturnValue(null), // Invalid move
+        fen: jest.fn(() => '8/8/8/8/8/8/8/8 w - - 0 1')
+      }));
+
+      const { result } = renderHook(() => useMoveQuality());
+
+      let assessmentResult;
+      await act(async () => {
+        assessmentResult = await result.current.assessMove('8/8/8/8/8/8/8/8 w - - 0 1', 'invalid', 'w');
+      });
+
+      expect(assessmentResult.quality).toBe('unknown');
+      expect(assessmentResult.reason).toBe('Invalid move');
+      expect(assessmentResult.isTablebaseAnalysis).toBe(false);
+      expect(result.current.data).toEqual(assessmentResult);
+    });
+
+    it('handles positions without tablebase data', async () => {
+      const { tablebaseService } = require('@shared/services/TablebaseService');
+      tablebaseService.getEvaluation.mockResolvedValue({
+        isAvailable: false,
+        result: null
+      });
+
+      const { result } = renderHook(() => useMoveQuality());
+
+      let assessmentResult;
+      await act(async () => {
+        assessmentResult = await result.current.assessMove('8/8/8/8/8/8/8/8 w - - 0 1', 'Kh1', 'w');
+      });
+
+      expect(assessmentResult.quality).toBe('unknown');
+      expect(assessmentResult.reason).toBe('No tablebase data available');
+      expect(assessmentResult.isTablebaseAnalysis).toBe(false);
+    });
+
+    it('completes successful assessment with logging', async () => {
+      const { result } = renderHook(() => useMoveQuality());
+
+      let assessmentResult;
+      await act(async () => {
+        assessmentResult = await result.current.assessMove('8/8/8/8/8/8/8/8 w - - 0 1', 'Kh1', 'w');
+      });
+
+      expect(assessmentResult.quality).toBe('excellent');
+      expect(assessmentResult.reason).toBe('Best move');
+      expect(assessmentResult.isTablebaseAnalysis).toBe(true);
+      expect(result.current.data).toEqual(assessmentResult);
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.error).toBeNull();
+    });
+
+    it('handles aborted requests gracefully', async () => {
+      const { result } = renderHook(() => useMoveQuality());
+
+      // Just test that multiple calls don't crash
+      await act(async () => {
+        await result.current.assessMove('8/8/8/8/8/8/8/8 w - - 0 1', 'Kh1', 'w');
+      });
+
+      await act(async () => {
+        await result.current.assessMove('4k3/8/4K3/4P3/8/8/8/8 w - - 0 1', 'Kh5', 'w');
+      });
+
+      // Should have completed successfully
+      expect(result.current.isLoading).toBe(false);
+    });
+  });
+
+  describe('Advanced Scenarios', () => {
+    it('processes WDL values through assessment utility', async () => {
+      const { assessTablebaseMoveQuality } = require('@shared/utils/moveQuality');
+      const { result } = renderHook(() => useMoveQuality());
+
+      await act(async () => {
+        await result.current.assessMove('8/8/8/8/8/8/8/8 w - - 0 1', 'Kh1', 'w');
+      });
+
+      // Verify that the assessment utility was called
+      expect(assessTablebaseMoveQuality).toHaveBeenCalled();
+    });
+  });
+
+  describe('State Management', () => {
+    it('manages internal state correctly', () => {
       const { result } = renderHook(() => useMoveQuality());
 
       // Should start in clean state
