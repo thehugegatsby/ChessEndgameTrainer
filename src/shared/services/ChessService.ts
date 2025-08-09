@@ -207,15 +207,34 @@ class ChessService {
           normalized: normalizedMove.promotion 
         });
       } else if (typeof move === 'string') {
-        // Handle string notation with German piece letters (e.g., "e8D" for Dame/Queen)
-        const promotionMatch = move.match(/^([a-h][1-8])([a-h][1-8])([DTLSQRBN])?$/i);
+        // Handle string notation with German piece letters
+        // Try different string formats: "e7e8D", "e7-e8D", "e8D", "e8=D"
+        
+        // Format 1: "e7e8D" (from-to-promotion)
+        let promotionMatch = move.match(/^([a-h][1-8])([a-h][1-8])([DTLSQRBN])$/i);
         if (promotionMatch && promotionMatch[3]) {
           const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[3]);
-          normalizedMove = promotionMatch[1] + promotionMatch[2] + (normalizedPromotion || '');
-          logger.debug("Normalized string move with promotion", { 
+          // Convert to object format for chess.js - make sure promotion is a string
+          normalizedMove = {
+            from: promotionMatch[1],
+            to: promotionMatch[2],
+            promotion: normalizedPromotion as string
+          } as { from: string; to: string; promotion?: string };
+          logger.debug("Normalized string move format 1", { 
             original: move, 
             normalized: normalizedMove 
           });
+        } else {
+          // Format 2: "e8D" or "e8=D" (SAN notation with German piece)
+          promotionMatch = move.match(/^([a-h][1-8])=?([DTLSQRBN])$/i);
+          if (promotionMatch && promotionMatch[2]) {
+            const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[2]);
+            normalizedMove = promotionMatch[1] + '=' + (normalizedPromotion || '').toUpperCase();
+            logger.debug("Normalized string move format 2", { 
+              original: move, 
+              normalized: normalizedMove 
+            });
+          }
         }
       }
 
@@ -534,15 +553,34 @@ class ChessService {
           normalized: normalizedMove.promotion 
         });
       } else if (typeof move === 'string') {
-        // Handle string notation with German piece letters (e.g., "e8D" for Dame/Queen)
-        const promotionMatch = move.match(/^([a-h][1-8])([a-h][1-8])([DTLSQRBN])?$/i);
+        // Handle string notation with German piece letters
+        // Try different string formats: "e7e8D", "e7-e8D", "e8D", "e8=D"
+        
+        // Format 1: "e7e8D" (from-to-promotion)
+        let promotionMatch = move.match(/^([a-h][1-8])([a-h][1-8])([DTLSQRBN])$/i);
         if (promotionMatch && promotionMatch[3]) {
           const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[3]);
-          normalizedMove = promotionMatch[1] + promotionMatch[2] + (normalizedPromotion || '');
-          logger.debug("Normalized string move with promotion for validation", { 
+          // Convert to object format for chess.js - make sure promotion is a string
+          normalizedMove = {
+            from: promotionMatch[1],
+            to: promotionMatch[2],
+            promotion: normalizedPromotion as string
+          } as { from: string; to: string; promotion?: string };
+          logger.debug("Normalized string move format 1 for validation", { 
             original: move, 
             normalized: normalizedMove 
           });
+        } else {
+          // Format 2: "e8D" or "e8=D" (SAN notation with German piece)
+          promotionMatch = move.match(/^([a-h][1-8])=?([DTLSQRBN])$/i);
+          if (promotionMatch && promotionMatch[2]) {
+            const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[2]);
+            normalizedMove = promotionMatch[1] + '=' + (normalizedPromotion || '').toUpperCase();
+            logger.debug("Normalized string move format 2 for validation", { 
+              original: move, 
+              normalized: normalizedMove 
+            });
+          }
         }
       }
 

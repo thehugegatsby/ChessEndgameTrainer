@@ -7,7 +7,7 @@
  */
 
 const { defineConfig, devices } = require("@playwright/test");
-const { PORTS } = require("../../config/ports");
+const { PORTS } = require("./config/ports");
 
 // Simple configuration constants using centralized ports
 const DEV_URL = `http://127.0.0.1:${PORTS.E2E}`; // Use E2E port from config
