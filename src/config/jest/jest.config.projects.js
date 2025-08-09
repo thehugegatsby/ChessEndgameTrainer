@@ -14,7 +14,7 @@ const baseConfig = {
     '^.+\\.(ts|tsx|js|jsx)$': '@swc/jest'
   },
   transformIgnorePatterns: [
-    '/node_modules/(?!(nanoid|supermemo|react-chessboard|chess.js|react-native|@react-native|@react-navigation|expo|@expo|react-native.*)/)'
+    '/node_modules/(?!(nanoid|supermemo|react-chessboard|chess.js|react-hotkeys-hook|react-native|@react-native|@react-navigation|expo|@expo|react-native.*)/)'
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   setupFilesAfterEnv: ['<rootDir>/src/tests/utils/jestSetup.ts'],
@@ -45,11 +45,8 @@ const baseConfig = {
   testTimeout: 10000,
   clearMocks: true,
   restoreMocks: true,
-  cache: false, // Disable cache to prevent memory accumulation
-  // Memory optimizations
-  maxWorkers: 2, // Limit workers to reduce memory usage
-  workerIdleMemoryLimit: '512MB', // Kill workers when they use too much memory
-  // cacheDirectory: '<rootDir>/.jest-cache', // Disabled to prevent cache buildup
+  cache: true,
+  cacheDirectory: '<rootDir>/.jest-cache',
   modulePathIgnorePatterns: [
     '<rootDir>/node_modules',
     '<rootDir>/dist',
@@ -63,7 +60,6 @@ module.exports = {
   // Global settings that apply to all projects
   rootDir: projectRoot,
   roots: ['<rootDir>/src/shared', '<rootDir>/src/tests', '<rootDir>/src/pages', '<rootDir>/src/app'], // Explicit roots to prevent unnecessary scanning
-  maxWorkers: 4, // Use fixed 4 workers for consistent performance
   forceExit: true, // Force Jest to exit after tests complete
   projects: [
     {
@@ -134,7 +130,5 @@ module.exports = {
       // Override base timeout for long-running emulator tests
       testTimeout: 60000
     }
-  ],
-  // Global performance optimizations
-  maxWorkers: 'max'
+  ]
 };

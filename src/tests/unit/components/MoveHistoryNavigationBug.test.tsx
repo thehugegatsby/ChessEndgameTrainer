@@ -6,6 +6,7 @@
 
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MovePanelZustand } from "@shared/components/training/MovePanelZustand";
 // import { useStore } from "@shared/store/rootStore"; // Not used in this test file
 import { createTestValidatedMove } from "@tests/helpers/validatedMoveFactory";
@@ -103,8 +104,17 @@ describe("Move History Navigation Bug", () => {
       {},
     ]);
 
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
+
     const { rerender } = render(
-      <MovePanelZustand onMoveClick={onMoveClick} currentMoveIndex={4} />,
+      <QueryClientProvider client={queryClient}>
+        <MovePanelZustand onMoveClick={onMoveClick} currentMoveIndex={4} />
+      </QueryClientProvider>,
     );
 
     // Verify all 5 moves are displayed initially
@@ -131,7 +141,9 @@ describe("Move History Navigation Bug", () => {
     ]);
 
     rerender(
-      <MovePanelZustand onMoveClick={onMoveClick} currentMoveIndex={2} />,
+      <QueryClientProvider client={queryClient}>
+        <MovePanelZustand onMoveClick={onMoveClick} currentMoveIndex={2} />
+      </QueryClientProvider>,
     );
 
     // FIX VERIFICATION: After the fix, ALL moves should remain visible

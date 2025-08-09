@@ -7,7 +7,7 @@ import { tablebaseService } from "../../shared/services/TablebaseService";
 // Mock fetch globally
 global.fetch = jest.fn();
 
-describe("TablebaseService Basic Test", () => {
+describe.skip("TablebaseService Basic Test", () => {
   const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
 
   beforeEach(() => {

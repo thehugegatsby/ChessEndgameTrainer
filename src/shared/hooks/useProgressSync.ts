@@ -357,6 +357,7 @@ export function useProgressSync(
     
     // Always release processing lock
     isProcessingRef.current = false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     updateSyncStatus,
     executeSyncOperation,
@@ -365,7 +366,6 @@ export function useProgressSync(
     mergedConfig.maxRetries,
     calculateRetryDelay,
     // debouncedProcessQueue is intentionally omitted to avoid circular dependency
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   ]);
   
   /**
@@ -382,6 +382,7 @@ export function useProgressSync(
       updateSyncStatus({ isDebounced: false });
       processQueue();
     }, mergedConfig.debounceMs);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [processQueue, mergedConfig.debounceMs, updateSyncStatus]);
   
   /**
