@@ -118,6 +118,8 @@ export interface TrainingState {
     wdlBefore?: number;
     wdlAfter?: number;
     bestMove?: string;
+    playedMove?: string;
+    moveNumber?: number;
   } | null;
   moveSuccessDialog: {
     isOpen: boolean;

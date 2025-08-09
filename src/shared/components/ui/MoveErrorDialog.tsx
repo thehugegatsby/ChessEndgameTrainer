@@ -37,6 +37,8 @@ import React from "react";
  * @property {number} wdlBefore - Win/Draw/Loss value before the move (2=win, 0=draw, -2=loss)
  * @property {number} wdlAfter - Win/Draw/Loss value after the move
  * @property {string} [bestMove] - The best move that should have been played
+ * @property {string} [playedMove] - The move that was actually played
+ * @property {number} [moveNumber] - The current move number
  */
 interface MoveErrorDialogProps {
   isOpen: boolean;
@@ -47,6 +49,8 @@ interface MoveErrorDialogProps {
   wdlBefore: number;
   wdlAfter: number;
   bestMove?: string;
+  playedMove?: string;
+  moveNumber?: number;
 }
 
 /**
@@ -90,8 +94,42 @@ export const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
   wdlBefore,
   wdlAfter,
   bestMove,
+  playedMove,
+  moveNumber,
 }) => {
   if (!isOpen) return null;
+
+  /**
+   * Convert English notation to German notation
+   */
+  const convertToGermanNotation = (move: string): string => {
+    return move
+      .replace(/Q/g, 'D')  // Queen -> Dame
+      .replace(/R/g, 'T')  // Rook -> Turm
+      .replace(/B/g, 'L')  // Bishop -> Läufer
+      .replace(/N/g, 'S'); // Knight -> Springer
+  };
+
+  /**
+   * Get formatted move notation with move number
+   */
+  const getFormattedMove = (move: string | undefined, _isPlayerMove: boolean): string => {
+    if (!move || !moveNumber) return move || "???";
+    
+    // Convert to German notation
+    const germanMove = convertToGermanNotation(move);
+    
+    // Determine if it's a white or black move based on move number
+    // moveNumber starts at 0: 0,2,4,6... = white moves, 1,3,5,7... = black moves
+    const isWhiteMove = (moveNumber % 2 === 0);
+    const displayMoveNumber = Math.floor(moveNumber / 2) + 1;
+    
+    if (isWhiteMove) {
+      return `${displayMoveNumber}.${germanMove}`;
+    } else {
+      return `${displayMoveNumber}...${germanMove}`;
+    }
+  };
 
   /**
    * Determine error message based on WDL change
@@ -101,21 +139,23 @@ export const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
    *
    * @description
    * Analyzes the WDL values before and after the move to provide
-   * context-appropriate feedback:
+   * context-appropriate feedback with specific move notation:
    * - Win to non-win: "Ruins the win"
    * - Draw to loss: "Leads to loss"
    * - Any deterioration: "Worsens the position"
    * - Default: "This move is an error"
    */
   const getMessage = () => {
+    const formattedPlayedMove = getFormattedMove(playedMove, true);
+    
     if (wdlBefore === 2 && wdlAfter < 2) {
-      return "Dieser Zug verdirbt den Gewinn!";
+      return `${formattedPlayedMove} verdirbt den Gewinn!`;
     } else if (wdlBefore === 0 && wdlAfter === -2) {
-      return "Dieser Zug führt zum Verlust!";
+      return `${formattedPlayedMove} führt zum Verlust!`;
     } else if (wdlBefore > wdlAfter) {
-      return "Dieser Zug verschlechtert die Stellung!";
+      return `${formattedPlayedMove} verschlechtert die Stellung!`;
     }
-    return "Dieser Zug ist ein Fehler!";
+    return `${formattedPlayedMove} ist ein Fehler!`;
   };
 
   return (
@@ -150,8 +190,8 @@ export const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
           <p className="text-gray-300 mb-2">{getMessage()}</p>
           {bestMove && (
             <p className="text-gray-400 text-sm mb-4">
-              Bester Zug war:{" "}
-              <strong className="text-gray-200">{bestMove}</strong>
+              Besser war:{" "}
+              <strong className="text-gray-200">{getFormattedMove(bestMove, false)}</strong>
             </p>
           )}
           <div className="flex gap-3">

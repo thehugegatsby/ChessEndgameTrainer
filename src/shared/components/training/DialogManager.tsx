@@ -40,6 +40,8 @@ interface ErrorDialogState {
   wdlBefore?: number;
   wdlAfter?: number;
   bestMove?: string;
+  playedMove?: string;
+  moveNumber?: number;
 }
 
 /**
@@ -123,6 +125,8 @@ export const DialogManager: React.FC<DialogManagerProps> = ({
           wdlBefore={errorDialog.wdlBefore || 0}
           wdlAfter={errorDialog.wdlAfter || 0}
           bestMove={errorDialog.bestMove}
+          playedMove={errorDialog.playedMove}
+          moveNumber={errorDialog.moveNumber}
         />
       )}
 

@@ -38,7 +38,7 @@
  */
 
 import { useCallback, useState } from 'react';
-import { Chess } from 'chess.js';
+import { Chess, Square } from 'chess.js';
 import { getLogger } from '@shared/services/logging/Logger';
 import { useUIStore } from '@shared/store/hooks';
 // import type { ValidatedMove } from '@shared/types/chess';
@@ -89,10 +89,12 @@ interface UseMoveHandlersProps {
  * Return value from useMoveHandlers hook
  */
 interface UseMoveHandlersReturn {
-  /** Event handler for piece drop events from drag-and-drop */
-  onDrop: (sourceSquare: string, targetSquare: string, piece: string) => boolean;
+  /** Event handler for piece drop events from drag-and-drop with promotion support */
+  onDrop: (sourceSquare: string, targetSquare: string, piece: string, promotion?: string) => boolean;
   /** Event handler for square click events (click-to-move) */
   onSquareClick: ({ piece, square }: { piece: PieceType; square: string }) => void;
+  /** Function to check if a move is a pawn promotion */
+  onPromotionCheck: (from: string, to: string) => boolean;
   /** Currently selected square for click-to-move functionality */
   selectedSquare: string | null;
   /** Utility function to clear the current selection */
@@ -142,6 +144,35 @@ export const useMoveHandlers = ({
   const clearSelection = useCallback(() => {
     setSelectedSquare(null);
   }, []);
+
+  /**
+   * Check if a move is a pawn promotion
+   * 
+   * @param {string} from - Starting square
+   * @param {string} to - Target square
+   * @returns {boolean} Whether this move is a promotion
+   */
+  const onPromotionCheck = useCallback((from: string, to: string): boolean => {
+    try {
+      const chess = new Chess(currentFen);
+      const piece = chess.get(from as Square);
+      
+      // Must be a pawn
+      if (!piece || piece.type !== 'p') {
+        return false;
+      }
+      
+      // Must be moving to promotion rank
+      const targetRank = to[1];
+      const isWhitePawn = piece.color === 'w';
+      const isBlackPawn = piece.color === 'b';
+      
+      return (isWhitePawn && targetRank === '8') || (isBlackPawn && targetRank === '1');
+    } catch (error) {
+      getLogger().error("Failed to check promotion", error as Error);
+      return false;
+    }
+  }, [currentFen]);
 
   /**
    * Handles chess move execution and validation
@@ -226,48 +257,39 @@ export const useMoveHandlers = ({
   );
 
   /**
-   * Handles piece drop events from the chessboard
+   * Handles piece drop events from the chessboard with promotion support
    *
    * @param {string} sourceSquare - Square where piece was picked up
    * @param {string} targetSquare - Square where piece was dropped
    * @param {string} piece - Piece type (required by interface)
+   * @param {string} [promotion] - Selected promotion piece (from dialog)
    * @returns {boolean} Whether the drop was accepted
    *
    * @description
    * Converts drag-and-drop events into move objects and delegates
-   * to the main move handler. Always promotes to queen by default.
+   * to the main move handler. Supports custom promotion piece selection
+   * or defaults to queen if no promotion specified.
    *
    * @remarks
    * This is the primary user interaction handler for the chess board.
-   * Returns false if game is finished to prevent further moves.
-   * The actual move validation happens in handleMove.
-   *
-   * @example
-   * ```typescript
-   * // User drags pawn from e2 to e4
-   * onDrop("e2", "e4", "wP") // returns true if valid
-   * ```
+   * The promotion parameter is set by the PromotionDialog when a pawn
+   * reaches the promotion rank.
    */
   const onDrop = useCallback(
-    (sourceSquare: string, targetSquare: string, piece: string): boolean => {
+    (sourceSquare: string, targetSquare: string, piece: string, promotion?: string): boolean => {
       // Block drops if position is not ready or game is finished
       if (!isPositionReady || isGameFinished) {
         return false;
       }
-
-      // Check if this is a pawn promotion
-      const isPawn = piece.toLowerCase().endsWith("p");
-      const targetRank = targetSquare[1];
-      const isPromotionRank = targetRank === "8" || targetRank === "1";
 
       const move: MoveInput = {
         from: sourceSquare,
         to: targetSquare,
       };
 
-      // Add promotion if pawn reaches last rank
-      if (isPawn && isPromotionRank) {
-        move.promotion = "q"; // Default to queen promotion
+      // Add promotion piece if provided
+      if (promotion) {
+        move.promotion = promotion as "q" | "r" | "b" | "n";
       }
 
       handleMove(move);
@@ -338,6 +360,7 @@ export const useMoveHandlers = ({
   return {
     onDrop,
     onSquareClick,
+    onPromotionCheck,
     selectedSquare,
     clearSelection,
   };

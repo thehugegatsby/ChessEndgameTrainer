@@ -450,7 +450,7 @@ class TablebaseService {
 
       // Handle validation errors and other unexpected errors
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      logger.error("Unexpected error during API call", { fen, error: errorMessage });
+      logger.error("Unexpected error during API call", error instanceof Error ? error : new Error(String(error)), { fen });
       throw new Error(`Unexpected tablebase error: ${errorMessage}`);
     }
   }

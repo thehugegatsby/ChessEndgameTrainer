@@ -214,6 +214,8 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
           qualityResult.wdlBefore || 0,
           qualityResult.wdlAfter || 0,
           qualityResult.bestMove,
+          validatedMove.san, // The played move
+          api.getState().game.currentMoveIndex, // Current move number
         );
 
         getLogger().info(

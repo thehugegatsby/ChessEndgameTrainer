@@ -80,6 +80,18 @@ describe('ChessService - German Promotion Notation', () => {
       expect(result?.promotion).toBe('q');
     });
 
+    it('should handle string notation with German promotion and dash "f7-f8D"', () => {
+      service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
+      
+      const result = service.move('f7-f8D');
+      
+      expect(result).not.toBeNull();
+      expect(result?.san).toContain('=Q');
+      expect(result?.from).toBe('f7');
+      expect(result?.to).toBe('f8');
+      expect(result?.promotion).toBe('q');
+    });
+
     it('should still handle English notation correctly', () => {
       service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
 
@@ -113,6 +125,13 @@ describe('ChessService - German Promotion Notation', () => {
       service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
 
       const isValid = service.validateMove('f7f8D');
+      expect(isValid).toBe(true);
+    });
+
+    it('should validate string notation with German promotion and dash', () => {
+      service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
+
+      const isValid = service.validateMove('f7-f8D');
       expect(isValid).toBe(true);
     });
 

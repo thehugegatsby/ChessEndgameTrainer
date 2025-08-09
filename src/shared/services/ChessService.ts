@@ -203,8 +203,8 @@ class ChessService {
         // Handle string notation with German piece letters
         // Try different string formats: "e7e8D", "e7-e8D", "e8D", "e8=D"
         
-        // Format 1: "e7e8D" (from-to-promotion)
-        let promotionMatch = move.match(/^([a-h][1-8])([a-h][1-8])([DTLSQRBN])$/i);
+        // Format 1: "e7e8D" or "e7-e8D" (from-to-promotion with optional dash)
+        let promotionMatch = move.match(/^([a-h][1-8])-?([a-h][1-8])([DTLSQRBN])$/i);
         if (promotionMatch && promotionMatch[3]) {
           const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[3]);
           // Convert to object format for chess.js - make sure promotion is a string
@@ -533,8 +533,8 @@ class ChessService {
         // Handle string notation with German piece letters
         // Try different string formats: "e7e8D", "e7-e8D", "e8D", "e8=D"
         
-        // Format 1: "e7e8D" (from-to-promotion)
-        let promotionMatch = move.match(/^([a-h][1-8])([a-h][1-8])([DTLSQRBN])$/i);
+        // Format 1: "e7e8D" or "e7-e8D" (from-to-promotion with optional dash)
+        let promotionMatch = move.match(/^([a-h][1-8])-?([a-h][1-8])([DTLSQRBN])$/i);
         if (promotionMatch && promotionMatch[3]) {
           const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[3]);
           // Convert to object format for chess.js - make sure promotion is a string

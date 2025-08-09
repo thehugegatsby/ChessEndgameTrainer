@@ -26,6 +26,7 @@
  */
 
 import { z } from "zod";
+import { getLogger } from "../logging";
 import { LichessTablebaseResponseSchema } from "../../types/tablebaseSchemas";
 import type { LichessTablebaseResponse } from "../../types/tablebase";
 
@@ -169,6 +170,7 @@ export class LichessApiClient {
 
     try {
       const url = `${this.baseUrl}?fen=${encodeURIComponent(fen)}&moves=${maxMoves}`;
+      getLogger().debug(`[LichessApiClient] Calling URL: ${url}`);
       
       const response = await fetch(url, {
         signal: controller.signal,
@@ -179,6 +181,7 @@ export class LichessApiClient {
       });
 
       clearTimeout(timeoutId);
+      getLogger().debug(`[LichessApiClient] Response status: ${response.status}, content-type: ${response.headers.get('content-type')}`);
 
       if (!response.ok) {
         throw new LichessApiError(
@@ -187,7 +190,10 @@ export class LichessApiClient {
         );
       }
 
-      const responseData = await response.json();
+      const responseText = await response.text();
+      getLogger().debug(`[LichessApiClient] Response body (first 200 chars): ${responseText.substring(0, 200)}`);
+      
+      const responseData = JSON.parse(responseText);
       
       // Validate response structure with Zod
       try {

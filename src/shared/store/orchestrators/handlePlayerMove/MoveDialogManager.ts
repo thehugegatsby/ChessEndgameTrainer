@@ -10,6 +10,8 @@ export interface MoveErrorDialogData {
   wdlBefore: number;
   wdlAfter: number;
   bestMove?: string;
+  playedMove?: string;
+  moveNumber?: number;
 }
 
 /**
@@ -78,17 +80,23 @@ export class MoveDialogManager {
    * @param wdlBefore - Position evaluation before move
    * @param wdlAfter - Position evaluation after move
    * @param bestMove - Recommended optimal move (optional)
+   * @param playedMove - The actual move that was played (optional)
+   * @param moveNumber - The current move number (optional)
    */
   showMoveErrorDialog(
     api: StoreApi,
     wdlBefore: number,
     wdlAfter: number,
     bestMove?: string,
+    playedMove?: string,
+    moveNumber?: number,
   ): void {
     getLogger().debug("[MoveDialog] Showing move error dialog:", {
       wdlBefore,
       wdlAfter,
       bestMove,
+      playedMove,
+      moveNumber,
     });
 
     const { setState } = api;
@@ -99,6 +107,8 @@ export class MoveDialogManager {
         wdlBefore,
         wdlAfter,
         bestMove,
+        playedMove,
+        moveNumber,
       };
     });
   }

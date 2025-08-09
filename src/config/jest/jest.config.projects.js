@@ -22,7 +22,8 @@ const baseConfig = {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@shared/(.*)$': '<rootDir>/src/shared/$1',
     '^@app/(.*)$': '<rootDir>/src/app/$1',
-    '^@tests/(.*)$': '<rootDir>/src/tests/$1'
+    '^@tests/(.*)$': '<rootDir>/src/tests/$1',
+    '\\.(svg|png|jpg|jpeg|gif)$': 'jest-transform-stub'
   },
   testPathIgnorePatterns: [
     '/node_modules/',

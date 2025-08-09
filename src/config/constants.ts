@@ -26,7 +26,7 @@ export const APP_CONFIG = {
   /** Lichess Tablebase API URL */
   TABLEBASE_API_URL:
     process.env.NEXT_PUBLIC_TABLEBASE_API_URL ||
-    "https://tablebase.lichess.ovh",
+    "https://tablebase.lichess.ovh/standard",
 
   /** Feature flags */
   FEATURES: {
