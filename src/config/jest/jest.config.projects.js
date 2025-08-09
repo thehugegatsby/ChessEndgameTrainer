@@ -109,6 +109,7 @@ module.exports = {
         '<rootDir>/src/tests/smoke/**/*.{test,spec}.[jt]s',
         '<rootDir>/src/tests/validation/**/*.{test,spec}.[jt]s',
         '<rootDir>/src/tests/examples/**/*.{test,spec}.[jt]s',
+        '<rootDir>/src/tests/performance/**/*.{test,spec}.[jt]s',
         '<rootDir>/src/tests/unit/*.{test,spec}.[jt]s'
       ],
       testPathIgnorePatterns: [
