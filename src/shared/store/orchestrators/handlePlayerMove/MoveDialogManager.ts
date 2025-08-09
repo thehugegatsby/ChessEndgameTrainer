@@ -238,11 +238,13 @@ export class MoveDialogManager {
    */
   formatWdlChange(wdlBefore: number, wdlAfter: number): string {
     const difference = wdlAfter - wdlBefore;
+    // Round to avoid floating point precision issues
+    const roundedDifference = Math.round(difference * 10) / 10;
 
-    if (difference > 0) {
-      return `Position verbessert sich um ${difference} Punkte`;
-    } else if (difference < 0) {
-      return `Position verschlechtert sich um ${Math.abs(difference)} Punkte`;
+    if (roundedDifference > 0) {
+      return `Position verbessert sich um ${roundedDifference} Punkte`;
+    } else if (roundedDifference < 0) {
+      return `Position verschlechtert sich um ${Math.abs(roundedDifference)} Punkte`;
     } else {
       return `Position unverändert`;
     }

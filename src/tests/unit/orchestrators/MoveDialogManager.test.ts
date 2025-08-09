@@ -323,7 +323,7 @@ describe("MoveDialogManager", () => {
   describe("isSignificantWdlChange", () => {
     it("should detect significant changes with default threshold", () => {
       expect(dialogManager.isSignificantWdlChange(100, 102)).toBe(true); // Change: 2 >= 1
-      expect(dialogManager.isSignificantWdlChange(100, 99)).toBe(false); // Change: -1 < 1 (absolute)
+      expect(dialogManager.isSignificantWdlChange(100, 99)).toBe(true); // Change: |−1| = 1 >= 1
       expect(dialogManager.isSignificantWdlChange(100, 101)).toBe(true); // Change: 1 >= 1
       expect(dialogManager.isSignificantWdlChange(100, 100)).toBe(false); // Change: 0 < 1
     });

@@ -187,7 +187,12 @@ describe("PawnPromotionHandler", () => {
         san: "e8",
         from: "e7",
         to: "e8",
+        promotion: "q", // Need promotion property to generate 'p' flag, but...
       });
+      
+      // Manually override to simulate a move where promotion piece is undefined
+      // but the move is still flagged as a promotion
+      (promotionWithoutPiece as any).promotion = undefined;
 
       const result = handler.checkPromotion(promotionWithoutPiece);
 

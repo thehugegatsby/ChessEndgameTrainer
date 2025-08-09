@@ -71,15 +71,20 @@ describe("OpponentTurnManager", () => {
 
   describe("cancel", () => {
     it("should cancel scheduled opponent turn", () => {
-      // Schedule a turn first
+      // Schedule a turn first - this will call getFen for logging
       manager.schedule(mockApi, 100);
+      
+      // Clear only chessService mocks to track timeout execution calls
+      (chessService.getFen as jest.Mock).mockClear();
+      (chessService.turn as jest.Mock).mockClear();
       
       // Cancel it
       manager.cancel();
       
-      // Fast-forward time - should not execute
+      // Fast-forward time - should not execute timeout callback
       jest.advanceTimersByTime(200);
       
+      // Should not call getFen again since timeout was cancelled
       expect(chessService.getFen).not.toHaveBeenCalled();
     });
 
@@ -105,31 +110,40 @@ describe("OpponentTurnManager", () => {
     });
 
     it("should cancel previous timeout before scheduling new one", () => {
-      // Schedule first turn
+      // Schedule first turn - calls getFen for logging
       manager.schedule(mockApi, 100);
       
-      // Schedule second turn - should cancel first
+      // Schedule second turn - should cancel first, calls getFen again for logging
       manager.schedule(mockApi, 200);
+      
+      // Clear only chessService mocks to track timeout execution calls
+      (chessService.getFen as jest.Mock).mockClear();
+      (chessService.turn as jest.Mock).mockClear();
       
       // Fast-forward past first delay but not second
       jest.advanceTimersByTime(150);
       
-      // Should not have executed yet
+      // Should not have executed timeout callback yet
       expect(chessService.getFen).not.toHaveBeenCalled();
       
       // Fast-forward past second delay
       jest.advanceTimersByTime(100);
       
-      // Now should execute (mocked)
+      // Now should execute timeout callback - would call getState for execution
       expect(mockApi.getState).toHaveBeenCalled();
     });
 
     it("should not execute if cancelled before timeout", () => {
-      manager.schedule(mockApi, 100);
+      manager.schedule(mockApi, 100); // calls getFen for logging
       manager.cancel();
+      
+      // Clear only chessService mocks to track timeout execution calls
+      (chessService.getFen as jest.Mock).mockClear();
+      (chessService.turn as jest.Mock).mockClear();
       
       jest.advanceTimersByTime(200);
       
+      // Should not call getFen again since timeout was cancelled
       expect(chessService.getFen).not.toHaveBeenCalled();
     });
 
@@ -137,12 +151,16 @@ describe("OpponentTurnManager", () => {
       // Set state to player's turn
       mockState.training.isPlayerTurn = true;
       
-      manager.schedule(mockApi, 0);
+      manager.schedule(mockApi, 0); // calls getFen for logging
+      
+      // Clear only chessService mocks to track timeout execution calls
+      (chessService.getFen as jest.Mock).mockClear();
+      (chessService.turn as jest.Mock).mockClear();
       
       // Fast-forward
       jest.advanceTimersByTime(100);
       
-      // Should not fetch moves since it's player's turn
+      // Should not call getFen again since timeout callback exits early on player turn
       expect(chessService.getFen).not.toHaveBeenCalled();
     });
   });
