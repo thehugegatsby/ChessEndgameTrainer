@@ -9,6 +9,7 @@
 
 import { renderHook, act } from '@testing-library/react';
 import { useMoveQuality } from '@shared/hooks/useMoveQuality';
+import { ChessTestScenarios } from '../../fixtures/chessTestScenarios';
 
 // Mock the logger
 jest.mock('@shared/services/logging/Logger', () => ({
@@ -247,8 +248,11 @@ describe('useMoveQuality', () => {
         await result.current.assessMove('8/8/8/8/8/8/8/8 w - - 0 1', 'Kh1', 'w');
       });
 
+      // Use scenario from central database instead of hardcoded FEN
+      const scenario = ChessTestScenarios.WHITE_TRIES_ILLEGAL_MOVE;
+      
       await act(async () => {
-        await result.current.assessMove('4k3/8/4K3/4P3/8/8/8/8 w - - 0 1', 'Kh5', 'w');
+        await result.current.assessMove(scenario.fen, scenario.testMove.from + scenario.testMove.to, 'w');
       });
 
       // Should have completed successfully
