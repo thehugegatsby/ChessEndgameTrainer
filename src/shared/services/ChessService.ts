@@ -57,6 +57,39 @@ class ChessService {
   private initialFen: string =
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; // Store initial position
 
+  /**
+   * Convert German piece notation to chess.js format
+   * Handles both uppercase and lowercase German notation
+   * @param notation - German piece notation (D, T, L, S) or English (Q, R, B, N, q, r, b, n)
+   * @returns chess.js compatible piece notation (q, r, b, n) or original if already valid
+   */
+  private normalizePromotionPiece(notation: string | undefined): string | undefined {
+    if (!notation) return undefined;
+    
+    // Map German piece names to chess.js format
+    const germanToChessJs: Record<string, string> = {
+      'D': 'q', // Dame (Queen)
+      'd': 'q',
+      'T': 'r', // Turm (Rook)
+      't': 'r',
+      'L': 'b', // Läufer (Bishop)
+      'l': 'b',
+      'S': 'n', // Springer (Knight)
+      's': 'n',
+      // Also support English notation
+      'Q': 'q',
+      'q': 'q',
+      'R': 'r',
+      'r': 'r',
+      'B': 'b',
+      'b': 'b',
+      'N': 'n',
+      'n': 'n',
+    };
+    
+    return germanToChessJs[notation] || notation;
+  }
+
   constructor() {
     this.chess = new Chess();
     logger.debug("ChessService initialized");
@@ -162,7 +195,31 @@ class ChessService {
       const fenBefore = this.chess.fen();
       // logger.debug("ChessService.move called", { move, fenBefore });
 
-      const result = this.chess.move(move);
+      // Normalize promotion piece if move is an object with promotion
+      let normalizedMove = move;
+      if (typeof move === 'object' && move !== null && 'promotion' in move && move.promotion) {
+        normalizedMove = {
+          ...move,
+          promotion: this.normalizePromotionPiece(move.promotion)
+        };
+        logger.debug("Normalized promotion piece", { 
+          original: move.promotion, 
+          normalized: normalizedMove.promotion 
+        });
+      } else if (typeof move === 'string') {
+        // Handle string notation with German piece letters (e.g., "e8D" for Dame/Queen)
+        const promotionMatch = move.match(/^([a-h][1-8])([a-h][1-8])([DTLSQRBN])?$/i);
+        if (promotionMatch && promotionMatch[3]) {
+          const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[3]);
+          normalizedMove = promotionMatch[1] + promotionMatch[2] + (normalizedPromotion || '');
+          logger.debug("Normalized string move with promotion", { 
+            original: move, 
+            normalized: normalizedMove 
+          });
+        }
+      }
+
+      const result = this.chess.move(normalizedMove);
 
       if (!result) {
         // Emit error event for invalid moves
@@ -465,9 +522,33 @@ class ChessService {
         }
       }
 
+      // Normalize promotion piece if move is an object with promotion
+      let normalizedMove = move;
+      if (typeof move === 'object' && move !== null && 'promotion' in move && move.promotion) {
+        normalizedMove = {
+          ...move,
+          promotion: this.normalizePromotionPiece(move.promotion)
+        };
+        logger.debug("Normalized promotion piece for validation", { 
+          original: move.promotion, 
+          normalized: normalizedMove.promotion 
+        });
+      } else if (typeof move === 'string') {
+        // Handle string notation with German piece letters (e.g., "e8D" for Dame/Queen)
+        const promotionMatch = move.match(/^([a-h][1-8])([a-h][1-8])([DTLSQRBN])?$/i);
+        if (promotionMatch && promotionMatch[3]) {
+          const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[3]);
+          normalizedMove = promotionMatch[1] + promotionMatch[2] + (normalizedPromotion || '');
+          logger.debug("Normalized string move with promotion for validation", { 
+            original: move, 
+            normalized: normalizedMove 
+          });
+        }
+      }
+
       // Create a temporary chess instance to test the move
       const tempChess = new Chess(currentFen);
-      const result = tempChess.move(move);
+      const result = tempChess.move(normalizedMove);
 
       // Validation result determined
       return result !== null;
