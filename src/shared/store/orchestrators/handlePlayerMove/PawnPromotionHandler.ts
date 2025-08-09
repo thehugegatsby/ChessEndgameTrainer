@@ -5,7 +5,7 @@
 
 import type { ValidatedMove } from "@shared/types/chess";
 import { chessService } from "@shared/services/ChessService";
-import { tablebaseService } from "@shared/services/TablebaseService";
+import { orchestratorTablebase } from "@shared/services/orchestrator/OrchestratorServices";
 import { getLogger } from "@shared/services/logging";
 import type { StoreApi } from "../types";
 import { handleTrainingCompletion } from "./move.completion";
@@ -115,7 +115,7 @@ export class PawnPromotionHandler {
       }
 
       // Use tablebase to evaluate the resulting position
-      const evaluation = await tablebaseService
+      const evaluation = await orchestratorTablebase
         .getEvaluation(currentFen)
         .catch(() => ({ isAvailable: false }));
 

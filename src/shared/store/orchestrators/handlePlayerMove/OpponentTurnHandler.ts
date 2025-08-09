@@ -6,7 +6,7 @@
 import type { StoreApi } from "../types";
 import { chessService } from "@shared/services/ChessService";
 // Note: Using dynamic import for service instead of React Query hook in orchestrator
-import type { TablebaseMove } from "@shared/services/TablebaseService";
+import type { TablebaseMove } from "@shared/types/tablebase";
 import { ErrorService } from "@shared/services/ErrorService";
 import { handleTrainingCompletion } from "./move.completion";
 import { getLogger } from "@shared/services/logging";
@@ -137,10 +137,9 @@ class OpponentTurnManager {
 
       // Fetch ALL moves from tablebase to find optimal one based on DTM
       // We need all moves to properly evaluate defense in losing positions
-      // Note: Using direct service call here as this runs in orchestrator context
-      // TODO: Consider creating a non-hook service wrapper for orchestrator use
-      const { tablebaseService } = await import("@shared/services/TablebaseService");
-      const topMoves = await tablebaseService.getTopMoves(currentFen, 10);
+      // Using orchestrator service wrapper for clean non-hook access
+      const { orchestratorTablebase } = await import("@shared/services/orchestrator/OrchestratorServices");
+      const topMoves = await orchestratorTablebase.getTopMoves(currentFen, 10);
 
 
       if (
