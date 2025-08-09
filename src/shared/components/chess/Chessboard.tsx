@@ -263,12 +263,12 @@ export const Chessboard: React.FC<ChessboardProps> = ({
           },
           allowDragging: arePiecesDraggable,
           animationDurationInMs: animationDuration,
-          // Enhanced visual options for smoother experience
+          // Standard chess board colors
           darkSquareStyle: {
-            backgroundColor: '#769656',
+            backgroundColor: '#b58863',
           },
           lightSquareStyle: {
-            backgroundColor: '#eeeed2',
+            backgroundColor: '#f0d9b5',
           },
         }}
       />
