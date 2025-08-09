@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MovePanelZustand } from "@shared/components/training/MovePanelZustand";
 import { createTestValidatedMove } from "../../helpers/validatedMoveFactory";
-import { getOpeningSequence } from "../../fixtures/fenPositions";
+import { getOpeningSequence } from "../../fixtures/chessTestScenarios";
 
 // Mock the store hooks directly
 jest.mock("@shared/store/hooks");

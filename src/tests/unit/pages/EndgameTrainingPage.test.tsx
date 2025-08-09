@@ -1,7 +1,7 @@
 import React from "react";
 import { useGameStore, useTrainingStore, useUIStore } from "@shared/store/hooks";
 import { useRouter } from "next/navigation";
-import { IntegrationTestPositions } from "../../fixtures/fenPositions";
+import { COMMON_FENS } from "../../fixtures/commonFens";
 
 // Mock the hooks
 jest.mock("@shared/store/hooks");
@@ -166,8 +166,7 @@ describe("EndgameTrainingPage - Lichess URL Generation", () => {
     it("should handle endgame position with partial game", () => {
       // Simulate an endgame where we've made some moves
       const endgamePgn = "[FEN \"8/8/8/4k3/8/8/4P3/4K3 w - - 0 1\"]\n\n1. e3 Kd5 2. Kf2 Ke4";
-      const complexEndgame = IntegrationTestPositions.COMPLEX_ENDGAME;
-      const currentFen = complexEndgame.fen;
+      const currentFen = COMMON_FENS.COMPLEX_ENDGAME;
       const moveHistory = [
         { from: "e2", to: "e3", san: "e3" },
         { from: "e5", to: "d5", san: "Kd5" },

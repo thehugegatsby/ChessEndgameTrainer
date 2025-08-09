@@ -3,13 +3,13 @@
  */
 
 import { tablebaseService } from "@shared/services/TablebaseService";
-import { getTablebaseDefensePosition } from "../fixtures/fenPositions";
+import { ChessTestScenarios } from "../fixtures/chessTestScenarios";
 
 describe("TablebaseService Defense Sorting", () => {
   it("Should return moves sorted by DTM for losing positions", async () => {
     // Use centralized test position for DTM defense sorting
-    const defensePosition = getTablebaseDefensePosition();
-    const fen = defensePosition.fen;
+    const scenario = ChessTestScenarios.BLACK_FINDS_BEST_DEFENSE_DTM;
+    const fen = scenario.fen;
 
     console.log("\n=== Testing TablebaseService directly ===");
     console.log("FEN:", fen);
@@ -57,8 +57,8 @@ describe("TablebaseService Defense Sorting", () => {
 
   it("Should test the actual Lichess API response", async () => {
     // This will make a real API call to understand what we're getting
-    const defensePosition = getTablebaseDefensePosition();
-    const fen = defensePosition.fen;
+    const scenario = ChessTestScenarios.BLACK_FINDS_BEST_DEFENSE_DTM;
+    const fen = scenario.fen;
 
     try {
       // Make direct API call

@@ -57,7 +57,7 @@ test.describe.skip("Pawn Promotion Simple Test", () => {
     const initialState = await boardPage.getGameState();
     logger.info("Initial state:", initialState);
 
-    // Train/1 starts with: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1
+    // Train/1 starts with: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1 (TRAIN1_KPK_BASIC)
     // We need to advance the pawn to e7 first
     
     // Move pawn from e5 to e6

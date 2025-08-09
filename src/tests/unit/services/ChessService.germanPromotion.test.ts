@@ -6,7 +6,7 @@
 import { ChessService } from '@shared/services/ChessService';
 
 // Import aus der zentralen Fixtures-Datenbank
-import * as Fixtures from '@tests/fixtures/fenPositions';
+import { COMMON_FENS } from '@tests/fixtures/commonFens';
 
 describe('ChessService - German Promotion Notation', () => {
   let service: ChessService;
@@ -17,8 +17,8 @@ describe('ChessService - German Promotion Notation', () => {
 
   describe('German notation conversion', () => {
     it('should handle German "D" for Dame (Queen) promotion', () => {
-      // Verwende PROMOTION aus der zentralen Fixtures-Datenbank
-      service.initialize(Fixtures.SpecialPositions.PROMOTION);
+      // Verwende pawn promotion position aus der zentralen Fixtures-Datenbank
+      service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
 
       // Test move with German notation (f7 to f8)
       const result = service.move({ from: 'f7', to: 'f8', promotion: 'D' });
@@ -29,7 +29,7 @@ describe('ChessService - German Promotion Notation', () => {
     });
 
     it('should handle lowercase German "d" for Dame (Queen) promotion', () => {
-      service.initialize(Fixtures.SpecialPositions.PROMOTION);
+      service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
 
       const result = service.move({ from: 'f7', to: 'f8', promotion: 'd' });
       
@@ -39,7 +39,7 @@ describe('ChessService - German Promotion Notation', () => {
     });
 
     it('should handle German "T" for Turm (Rook) promotion', () => {
-      service.initialize(Fixtures.SpecialPositions.PROMOTION);
+      service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
 
       const result = service.move({ from: 'f7', to: 'f8', promotion: 'T' });
       
@@ -49,7 +49,7 @@ describe('ChessService - German Promotion Notation', () => {
     });
 
     it('should handle German "L" for Läufer (Bishop) promotion', () => {
-      service.initialize(Fixtures.SpecialPositions.PROMOTION);
+      service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
 
       const result = service.move({ from: 'f7', to: 'f8', promotion: 'L' });
       
@@ -59,7 +59,7 @@ describe('ChessService - German Promotion Notation', () => {
     });
 
     it('should handle German "S" for Springer (Knight) promotion', () => {
-      service.initialize(Fixtures.SpecialPositions.PROMOTION);
+      service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
 
       const result = service.move({ from: 'f7', to: 'f8', promotion: 'S' });
       
@@ -69,7 +69,7 @@ describe('ChessService - German Promotion Notation', () => {
     });
 
     it('should handle string notation with German promotion "f7f8D"', () => {
-      service.initialize(Fixtures.SpecialPositions.PROMOTION);
+      service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
       
       const result = service.move('f7f8D');
       
@@ -81,19 +81,19 @@ describe('ChessService - German Promotion Notation', () => {
     });
 
     it('should still handle English notation correctly', () => {
-      service.initialize(Fixtures.SpecialPositions.PROMOTION);
+      service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
 
       // Test with standard English notation
       const resultQ = service.move({ from: 'f7', to: 'f8', promotion: 'Q' });
       expect(resultQ?.promotion).toBe('q');
 
-      service.initialize(Fixtures.SpecialPositions.PROMOTION);
+      service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
       const resultLowerQ = service.move({ from: 'f7', to: 'f8', promotion: 'q' });
       expect(resultLowerQ?.promotion).toBe('q');
     });
 
     it('should validate moves with German promotion notation', () => {
-      service.initialize(Fixtures.SpecialPositions.PROMOTION);
+      service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
 
       // Validate with German notation
       const isValidD = service.validateMove({ from: 'f7', to: 'f8', promotion: 'D' });
@@ -110,14 +110,14 @@ describe('ChessService - German Promotion Notation', () => {
     });
 
     it('should validate string notation with German promotion', () => {
-      service.initialize(Fixtures.SpecialPositions.PROMOTION);
+      service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
 
       const isValid = service.validateMove('f7f8D');
       expect(isValid).toBe(true);
     });
 
     it('should handle invalid German notation gracefully', () => {
-      service.initialize(Fixtures.SpecialPositions.PROMOTION);
+      service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
 
       // Test with invalid notation (should pass through and fail in chess.js)
       const result = service.move({ from: 'f7', to: 'f8', promotion: 'X' });

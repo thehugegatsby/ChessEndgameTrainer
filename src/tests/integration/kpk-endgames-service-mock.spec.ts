@@ -7,7 +7,7 @@
 
 import { renderHook, act } from "@testing-library/react";
 import { useStore } from "../../shared/store/rootStore";
-import { getKPKProgression } from "../fixtures/fenPositions";
+import { getKPKProgression } from "../fixtures/chessTestScenarios";
 
 // Mock TablebaseService directly - no HTTP mocking needed
 jest.mock("@shared/services/TablebaseService", () => ({

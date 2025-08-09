@@ -7,6 +7,7 @@ import { test, expect } from "@playwright/test";
 import { getLogger } from "../../../shared/services/logging";
 import { E2E } from "../../../shared/constants";
 import { TrainingBoardPage } from "../helpers/pageObjects/TrainingBoardPage";
+import { COMMON_FENS } from "../../fixtures/commonFens";
 import { 
   waitForTablebaseInit,
   waitForUIReady,
@@ -144,7 +145,7 @@ test.describe.skip("Actual Position 1 - King and Pawn vs King", () => {
       // Verify the Lichess link contains the expected FEN
       const lichessLink = page.locator('a[href*="lichess.org/analysis"]');
       const href = await lichessLink.getAttribute("href");
-      expect(href).toContain("4k3/8/4K3/4P3/8/8/8/8");
+      expect(href).toContain(COMMON_FENS.TRAIN1_KPK_BASIC);
 
       logger.info("Position 1 loaded successfully");
     });

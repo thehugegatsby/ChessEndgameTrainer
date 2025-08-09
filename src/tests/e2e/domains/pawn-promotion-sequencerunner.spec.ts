@@ -7,7 +7,7 @@
 
 import { test } from "@playwright/test";
 import { SequenceRunner, expectation } from "../helpers/sequenceRunner";
-import { E2EMoveSequences } from "../../fixtures/fenPositions";
+import { ChessMoveSequences } from "../../fixtures/chessTestScenarios";
 import { waitForPageReady, waitForTablebaseInit } from "../helpers/deterministicWaiting";
 import { getLogger } from "@shared/services/logging";
 
@@ -26,7 +26,7 @@ test.describe.skip("Pawn Promotion Auto-Win (SequenceRunner) - SKIPPED: _interna
     const runner = new SequenceRunner(page);
 
     // Get the promotion sequence from central fixtures
-    const sequence = E2EMoveSequences.PAWN_PROMOTION_TO_WIN;
+    const sequence = ChessMoveSequences.PAWN_PROMOTION_TO_WIN_SEQUENCE;
     
     logger.info(`📋 Sequence has ${sequence.moves.length} moves`);
     logger.info(`Moves: ${sequence.moves.join(", ")}`);

@@ -39,7 +39,7 @@ test.describe.skip("Weiterspielen Bug Proof", () => {
     await boardPage.waitForBoardReady();
     await waitForTablebaseInit(page);
 
-    // Train/1 starts with: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1
+    // Train/1 starts with: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1 (TRAIN1_KPK_BASIC)
     // King on e6, optimal move is Kd6, suboptimal is Kf5 (Kd5 is illegal - blocked by pawn)
     logger.info("Using Train/1 default position for bug demonstration");
 

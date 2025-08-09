@@ -10,11 +10,7 @@
 
 import { tablebaseService } from "../../shared/services/TablebaseService";
 import { TEST_FENS } from "../../shared/testing/TestFixtures";
-import {
-  EndgamePositions,
-  SpecialPositions,
-  StandardPositions,
-} from "../fixtures/fenPositions";
+import { EndgamePositions, SpecialPositions, StandardPositions } from "../fixtures/commonFens";
 
 // Mock fetch globally
 global.fetch = jest.fn();

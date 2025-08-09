@@ -15,6 +15,7 @@
 
 import { renderHook, act } from '@testing-library/react';
 import { useMoveValidation } from '@shared/hooks/useMoveValidation';
+import { ChessTestScenarios } from '../../fixtures/chessTestScenarios';
 
 // Mock dependencies
 const mockTablebaseActions = {
@@ -196,8 +197,9 @@ describe('useMoveValidation', () => {
         }
       );
 
-      const newFen = '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1';
-      rerender({ ...defaultProps, currentFen: newFen });
+      // Use scenario from central database instead of hardcoded FEN
+      const scenario = ChessTestScenarios.FEN_CHANGE_TO_KPK_POSITION;
+      rerender({ ...defaultProps, currentFen: scenario.fen });
 
       // Hook should handle FEN changes - this is a passive hook that processes data
       // It may not directly call setAnalysisStatus, depending on implementation

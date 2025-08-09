@@ -1,90 +1,172 @@
-#!/bin/bash
-# Dynamic worktree setup script for EndgameTrainer project
-# Usage: ./setup-worktree.sh <worktree-name>
-# Example: ./setup-worktree.sh feature-xyz
+#!/usr/bin/env bash
 
-set -e
+# Simplified Git Worktree Setup Script  
+# Usage: ./setup-worktree.sh [worktree-name]
+# If no worktree-name provided, assumes script is run from within a worktree
+# If worktree-name provided, sets up that specific worktree
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+# Strict mode for better error handling and debugging
+set -euo pipefail
 
-# Configuration
-PROJECT_NAME="EndgameTrainer"
-MAIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-NODE_VERSION="22.17.0"
+# --- Configuration ---
+# Directories that should be symlinked from main project to worktree
+readonly LINK_DIRS=(
+    "node_modules"
+    ".next"
+    "dist" 
+    "build"
+    "coverage"
+)
 
-# Function to print colored messages
-print_info() { echo -e "${BLUE}ℹ️  $1${NC}"; }
-print_success() { echo -e "${GREEN}✅ $1${NC}"; }
-print_warning() { echo -e "${YELLOW}⚠️  $1${NC}"; }
-print_error() { echo -e "${RED}❌ $1${NC}"; }
+# Files that should be symlinked from main project to worktree
+readonly LINK_FILES=(
+    "package.json"
+    "package-lock.json"
+    "tsconfig.json"
+    ".eslintrc.json"
+    "jest.config.js"
+    "next.config.js"
+    "postcss.config.js"
+    "tailwind.config.js"
+    "playwright.config.js"
+    ".env"
+    ".env.local"
+)
 
-# Function to setup a single worktree
-setup_worktree() {
-    local worktree_name="$1"
-    local worktree_dir="$MAIN_DIR/../${PROJECT_NAME}-${worktree_name}"
+# Config directories to symlink (with nested structure)
+readonly LINK_CONFIG_DIRS=(
+    "src/config"
+)
+
+# --- Helper Functions ---
+print_info() { echo "ℹ️  $1"; }
+print_success() { echo "✅ $1"; }
+print_error() { echo "❌ $1"; }
+
+# --- Main Function ---
+main() {
+    local worktree_name="${1:-}"
     
-    if [ ! -d "$worktree_dir" ]; then
-        print_error "Worktree not found: $worktree_dir"
-        return 1
+    print_info "Starting Git Worktree setup..."
+    
+    # 1. Determine paths
+    local WORKTREE_ROOT
+    local MAIN_PROJECT_ROOT
+    
+    # Get main project root
+    MAIN_PROJECT_ROOT=$(git rev-parse --show-toplevel)
+    
+    if [[ -n "$worktree_name" ]]; then
+        # Specific worktree name provided - find its path
+        local worktree_path
+        if ! worktree_path=$(git worktree list --porcelain | grep -A1 "branch refs/heads/$worktree_name" | grep "worktree " | cut -d' ' -f2); then
+            # Fallback: assume standard naming convention
+            worktree_path="../EndgameTrainer-$worktree_name"
+        fi
+        
+        if [[ -z "$worktree_path" || ! -d "$worktree_path" ]]; then
+            print_error "Worktree for '$worktree_name' not found"
+            print_info "Available worktrees:"
+            git worktree list
+            exit 1
+        fi
+        
+        WORKTREE_ROOT=$(realpath "$worktree_path")
+    else
+        # No worktree name provided - use current directory
+        WORKTREE_ROOT=$(pwd)
+        
+        # Verify we're in a worktree, not the main project
+        if [[ "$WORKTREE_ROOT" == "$MAIN_PROJECT_ROOT" ]]; then
+            print_error "Please specify a worktree name or run from within a worktree"
+            print_info "Usage: $0 [worktree-name]"
+            exit 1
+        fi
     fi
     
-    print_info "Setting up worktree: ${PROJECT_NAME}-${worktree_name}"
-    cd "$worktree_dir"
+    print_info "Main project: ${MAIN_PROJECT_ROOT}"
+    print_info "Worktree: ${WORKTREE_ROOT}"
     
-    # 1. Symlink node_modules
-    print_info "Creating node_modules symlink..."
-    ln -sfn "../${PROJECT_NAME}/node_modules" node_modules
-    
-    # 2. Symlink build directories
-    print_info "Creating build directory symlinks..."
-    ln -sfn "../${PROJECT_NAME}/.next" .next 2>/dev/null || true
-    ln -sfn "../${PROJECT_NAME}/dist" dist 2>/dev/null || true
-    ln -sfn "../${PROJECT_NAME}/build" build 2>/dev/null || true
-    
-    # 3. Symlink TypeScript config
-    print_info "Symlinking TypeScript config..."
-    ln -sfn "../${PROJECT_NAME}/tsconfig.json" tsconfig.json
-    [ -f "$MAIN_DIR/tsconfig.node.json" ] && ln -sfn "../${PROJECT_NAME}/tsconfig.node.json" tsconfig.node.json
-    
-    # 4. Symlink ESLint config
-    print_info "Symlinking ESLint config..."
-    ln -sfn "../${PROJECT_NAME}/.eslintrc.json" .eslintrc.json
-    [ -f "$MAIN_DIR/.eslintignore" ] && ln -sfn "../${PROJECT_NAME}/.eslintignore" .eslintignore
-    
-    # 5. Symlink Prettier config
-    print_info "Symlinking Prettier config..."
-    [ -f "$MAIN_DIR/.prettierrc" ] && ln -sfn "../${PROJECT_NAME}/.prettierrc" .prettierrc
-    [ -f "$MAIN_DIR/.prettierignore" ] && ln -sfn "../${PROJECT_NAME}/.prettierignore" .prettierignore
-    
-    # 6. Symlink other configs
-    print_info "Symlinking other configs..."
-    for config in next.config.js jest.config.js postcss.config.js tailwind.config.js vite.config.ts webpack.config.js; do
-        [ -f "$MAIN_DIR/$config" ] && ln -sfn "../${PROJECT_NAME}/$config" "$config"
+    # 2. Create symlinks for directories
+    print_info "Creating directory symlinks..."
+    for dir in "${LINK_DIRS[@]}"; do
+        local SOURCE_PATH="${MAIN_PROJECT_ROOT}/${dir}"
+        local DEST_PATH="${WORKTREE_ROOT}/${dir}"
+        
+        if [[ ! -d "${SOURCE_PATH}" ]]; then
+            print_info "Skipping '${dir}' - not found in main project"
+            continue
+        fi
+        
+        # Remove existing file/directory/link to avoid conflicts
+        rm -rf "${DEST_PATH}"
+        
+        # Create relative symlink
+        local RELATIVE_SOURCE
+        RELATIVE_SOURCE=$(realpath --relative-to="${WORKTREE_ROOT}" "${SOURCE_PATH}")
+        
+        ln -s "${RELATIVE_SOURCE}" "${DEST_PATH}"
+        print_success "Directory linked: ${dir} -> ${RELATIVE_SOURCE}"
     done
     
-    # 7. Symlink package files
-    ln -sfn "../${PROJECT_NAME}/package.json" package.json
-    ln -sfn "../${PROJECT_NAME}/package-lock.json" package-lock.json
+    # 3. Create symlinks for files
+    print_info "Creating file symlinks..."
+    for file in "${LINK_FILES[@]}"; do
+        local SOURCE_PATH="${MAIN_PROJECT_ROOT}/${file}"
+        local DEST_PATH="${WORKTREE_ROOT}/${file}"
+        
+        if [[ ! -f "${SOURCE_PATH}" ]]; then
+            print_info "Skipping '${file}' - not found in main project"
+            continue
+        fi
+        
+        rm -f "${DEST_PATH}"
+        
+        local RELATIVE_SOURCE
+        RELATIVE_SOURCE=$(realpath --relative-to="${WORKTREE_ROOT}" "${SOURCE_PATH}")
+        
+        ln -s "${RELATIVE_SOURCE}" "${DEST_PATH}"
+        print_success "File linked: ${file} -> ${RELATIVE_SOURCE}"
+    done
     
-    # 8. Symlink environment files
-    print_info "Symlinking environment files..."
-    [ -f "$MAIN_DIR/.env.local" ] && ln -sfn "../${PROJECT_NAME}/.env.local" .env.local
-    [ -f "$MAIN_DIR/.env" ] && ln -sfn "../${PROJECT_NAME}/.env" .env
+    # 4. Create symlinks for config directories (nested paths)
+    print_info "Creating config directory symlinks..."
+    for config_dir in "${LINK_CONFIG_DIRS[@]}"; do
+        local SOURCE_PATH="${MAIN_PROJECT_ROOT}/${config_dir}"
+        local DEST_PATH="${WORKTREE_ROOT}/${config_dir}"
+        
+        if [[ ! -d "${SOURCE_PATH}" ]]; then
+            print_info "Skipping '${config_dir}' - not found in main project"
+            continue
+        fi
+        
+        # Ensure parent directory exists
+        mkdir -p "$(dirname "${DEST_PATH}")"
+        
+        rm -rf "${DEST_PATH}"
+        
+        local RELATIVE_SOURCE
+        RELATIVE_SOURCE=$(realpath --relative-to="$(dirname "${DEST_PATH}")" "${SOURCE_PATH}")
+        
+        ln -s "${RELATIVE_SOURCE}" "${DEST_PATH}"
+        print_success "Config directory linked: ${config_dir} -> ${RELATIVE_SOURCE}"
+    done
     
-    # 9. Setup nvm
+    # 5. Create .nvmrc file
     print_info "Creating .nvmrc..."
-    echo "$NODE_VERSION" > .nvmrc
+    if [[ -f "${MAIN_PROJECT_ROOT}/.nvmrc" ]]; then
+        cp "${MAIN_PROJECT_ROOT}/.nvmrc" "${WORKTREE_ROOT}/.nvmrc"
+        print_success "Copied .nvmrc from main project"
+    else
+        echo "22.17.0" > "${WORKTREE_ROOT}/.nvmrc"
+        print_success "Created .nvmrc with Node 22.17.0"
+    fi
     
-    # 10. VS Code settings
+    # 6. Setup VS Code configuration
     print_info "Setting up VS Code..."
-    mkdir -p .vscode
+    mkdir -p "${WORKTREE_ROOT}/.vscode"
     
-    cat > .vscode/settings.json << 'VSCODE'
+    cat > "${WORKTREE_ROOT}/.vscode/settings.json" << 'VSCODE'
 {
     "typescript.tsdk": "node_modules/typescript/lib",
     "typescript.enablePromptUseWorkspaceTsdk": true,
@@ -93,249 +175,96 @@ setup_worktree() {
     ],
     "eslint.validate": [
         "javascript",
-        "javascriptreact",
+        "javascriptreact", 
         "typescript",
         "typescriptreact"
     ],
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
+        "source.fixAll.eslint": "explicit"
     },
     "files.exclude": {
         "node_modules": false,
-        ".next": true
+        ".next": true,
+        "coverage": true,
+        "dist": true,
+        "build": true
     },
     "search.exclude": {
         "node_modules": true,
         ".next": true,
+        "coverage": true,
         "dist": true,
-        "build": true
-    }
+        "build": true,
+        ".jest-cache": true
+    },
+    "typescript.preferences.includePackageJsonAutoImports": "auto"
 }
 VSCODE
     
-    # Copy extensions recommendations if exists
-    [ -f "$MAIN_DIR/.vscode/extensions.json" ] && cp -f "$MAIN_DIR/.vscode/extensions.json" .vscode/
+    # Copy extensions if they exist
+    if [[ -f "${MAIN_PROJECT_ROOT}/.vscode/extensions.json" ]]; then
+        cp "${MAIN_PROJECT_ROOT}/.vscode/extensions.json" "${WORKTREE_ROOT}/.vscode/"
+        print_success "Copied VS Code extensions recommendations"
+    fi
     
-    # 11. Create .gitignore
-    print_info "Creating .gitignore..."
-    cat > .gitignore << 'GITIGNORE'
-# Symlinked files
-node_modules
-.next
-dist
-build
-.env
-.env.local
-package.json
-package-lock.json
-tsconfig.json
-.eslintrc.json
-.prettierrc
-*.config.js
-
-# IDE
-.vscode/
-.idea/
-
-# Logs
-*.log
-npm-debug.log*
-
-# OS
-.DS_Store
-Thumbs.db
-GITIGNORE
+    # 7. Create comprehensive .gitignore for worktree
+    print_info "Creating worktree-specific .gitignore..."
+    {
+        echo "# Auto-generated by setup-worktree.sh"
+        echo "# Prevents accidentally committing symlinked files/directories"
+        echo ""
+        echo "# Symlinked directories"
+        for dir in "${LINK_DIRS[@]}"; do
+            echo "/${dir}/"
+        done
+        echo ""
+        echo "# Symlinked files"  
+        for file in "${LINK_FILES[@]}"; do
+            echo "/${file}"
+        done
+        echo ""
+        echo "# Symlinked config directories"
+        for config_dir in "${LINK_CONFIG_DIRS[@]}"; do
+            echo "/${config_dir}/"
+        done
+        echo ""
+        echo "# IDE files"
+        echo ".vscode/"
+        echo ".idea/"
+        echo "*.swp"
+        echo "*.swo" 
+        echo ""
+        echo "# OS files"
+        echo ".DS_Store"
+        echo "Thumbs.db"
+        echo ""
+        echo "# Temporary files"
+        echo "*.tmp"
+        echo "*.temp"
+        echo ".cache"
+        echo ""
+        echo "# Jest cache"
+        echo ".jest-cache/"
+        echo ""
+        echo "# Firebase & PM2 logs"
+        echo "firebase-debug.log*"
+        echo "firestore-debug.log*"
+        echo "logs/"
+    } > "${WORKTREE_ROOT}/.gitignore"
     
-    print_success "Worktree setup complete: ${worktree_name}"
-    echo ""
+    print_success "Created comprehensive .gitignore"
+    
+    print_success "Worktree setup completed successfully!"
+    echo
+    print_info "Next steps:"
+    echo "  1. nvm use (to switch to correct Node version)"
+    echo "  2. code . (to open in VS Code)"
+    echo "  3. npm test (to verify everything works)"
+    echo
+    print_info "The worktree is ready for development!"
 }
 
-# Function to test worktree setup
-test_worktree() {
-    local worktree_name="$1"
-    local worktree_dir="$MAIN_DIR/../${PROJECT_NAME}-${worktree_name}"
-    
-    if [ ! -d "$worktree_dir" ]; then
-        return 1
-    fi
-    
-    cd "$worktree_dir"
-    echo -n "  ${PROJECT_NAME}-${worktree_name}: "
-    
-    # Check TypeScript
-    if [ -L "tsconfig.json" ] && [ -L "node_modules" ]; then
-        echo -n "TypeScript ✅ "
-    else
-        echo -n "TypeScript ❌ "
-    fi
-    
-    # Check ESLint
-    if [ -L ".eslintrc.json" ] && [ -L "node_modules" ]; then
-        echo -n "ESLint ✅ "
-    else
-        echo -n "ESLint ❌ "
-    fi
-    
-    # Check Prettier
-    if [ -L ".prettierrc" ] && [ -L "node_modules" ]; then
-        echo "Prettier ✅"
-    else
-        echo "Prettier ❌"
-    fi
-}
-
-# Function to list all worktrees
-list_worktrees() {
-    git worktree list --porcelain | grep "^worktree " | cut -d' ' -f2 | while read -r path; do
-        if [ "$path" != "$MAIN_DIR" ]; then
-            basename "$path" | sed "s/^${PROJECT_NAME}-//"
-        fi
-    done
-}
-
-# Main script
-echo "🚀 ${PROJECT_NAME} Worktree Setup"
-echo "================================="
-echo ""
-
-# Check if we're in a git repository
-if ! git rev-parse --git-dir > /dev/null 2>&1; then
-    print_error "Not in a git repository!"
-    exit 1
-fi
-
-# Parse arguments
-if [ "$1" == "--all" ] || [ "$1" == "-a" ]; then
-    # Setup all worktrees
-    print_info "Setting up all worktrees..."
-    echo ""
-    
-    worktrees=($(list_worktrees))
-    
-    if [ ${#worktrees[@]} -eq 0 ]; then
-        print_warning "No worktrees found!"
-        exit 0
-    fi
-    
-    for worktree in "${worktrees[@]}"; do
-        setup_worktree "$worktree"
-    done
-    
-elif [ "$1" == "--test" ] || [ "$1" == "-t" ]; then
-    # Test all worktrees
-    print_info "Testing worktree setups..."
-    echo ""
-    
-    worktrees=($(list_worktrees))
-    
-    for worktree in "${worktrees[@]}"; do
-        test_worktree "$worktree"
-    done
-    
-elif [ "$1" == "--list" ] || [ "$1" == "-l" ]; then
-    # List all worktrees
-    print_info "Available worktrees:"
-    list_worktrees | while read -r worktree; do
-        echo "  • $worktree"
-    done
-    
-elif [ "$1" == "--workspace" ] || [ "$1" == "-w" ]; then
-    # Create VS Code workspace
-    print_info "Creating VS Code multi-root workspace..."
-    
-    cat > "${PROJECT_NAME}.code-workspace" << EOF
-{
-    "folders": [
-        {
-            "path": ".",
-            "name": "📦 Main"
-        },
-EOF
-    
-    list_worktrees | while read -r worktree; do
-        cat >> "${PROJECT_NAME}.code-workspace" << EOF
-        {
-            "path": "../${PROJECT_NAME}-${worktree}",
-            "name": "🔧 ${worktree}"
-        },
-EOF
-    done
-    
-    # Remove last comma and close the JSON
-    sed -i '$ s/,$//' "${PROJECT_NAME}.code-workspace"
-    
-    cat >> "${PROJECT_NAME}.code-workspace" << EOF
-    ],
-    "settings": {
-        "typescript.tsdk": "${PROJECT_NAME}/node_modules/typescript/lib",
-        "typescript.enablePromptUseWorkspaceTsdk": true,
-        "eslint.workingDirectories": [
-            { "directory": "${PROJECT_NAME}", "changeProcessCWD": true }
-EOF
-    
-    list_worktrees | while read -r worktree; do
-        cat >> "${PROJECT_NAME}.code-workspace" << EOF
-,
-            { "directory": "../${PROJECT_NAME}-${worktree}", "changeProcessCWD": true }
-EOF
-    done
-    
-    cat >> "${PROJECT_NAME}.code-workspace" << EOF
-        ],
-        "search.exclude": {
-            "**/node_modules": true,
-            "**/.next": true
-        }
-    }
-}
-EOF
-    
-    print_success "Workspace created: ${PROJECT_NAME}.code-workspace"
-    
-elif [ "$1" == "--help" ] || [ "$1" == "-h" ] || [ -z "$1" ]; then
-    # Show help
-    cat << EOF
-Usage: ./setup-worktree.sh [OPTIONS] [WORKTREE_NAME]
-
-Setup TypeScript, ESLint, and Prettier for ${PROJECT_NAME} worktrees.
-
-OPTIONS:
-    -a, --all        Setup all existing worktrees
-    -t, --test       Test all worktree setups
-    -l, --list       List all available worktrees
-    -w, --workspace  Create VS Code multi-root workspace
-    -h, --help       Show this help message
-
-EXAMPLES:
-    ./setup-worktree.sh feature-xyz     Setup specific worktree
-    ./setup-worktree.sh --all           Setup all worktrees
-    ./setup-worktree.sh --test          Test all setups
-    ./setup-worktree.sh --workspace     Create VS Code workspace
-
-WHAT IT DOES:
-    • Symlinks node_modules from main repository
-    • Symlinks all config files (TypeScript, ESLint, Prettier)
-    • Creates VS Code settings for each worktree
-    • Sets up .nvmrc for consistent Node version
-    • Creates appropriate .gitignore
-
-EOF
-else
-    # Setup specific worktree
-    setup_worktree "$1"
-    
-    # Test the setup
-    echo "🧪 Testing setup:"
-    test_worktree "$1"
-fi
-
-cd "$MAIN_DIR"
-
-# Final message
-echo ""
-print_success "Done! Next steps:"
-echo "  1. cd ../${PROJECT_NAME}-<worktree-name>"
-echo "  2. code . (or open in your editor)"
-echo "  3. npm test (to verify everything works)"
+# Execute main function
+main "$@"

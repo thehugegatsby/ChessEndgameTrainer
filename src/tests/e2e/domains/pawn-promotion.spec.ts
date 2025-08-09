@@ -3,7 +3,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { E2EMoveSequences } from "../../fixtures/fenPositions";
+import { ChessMoveSequences } from "../../fixtures/chessTestScenarios";
 import { 
   waitForMoveAnimation,
   waitForUIReady,
@@ -41,7 +41,7 @@ test.describe("Pawn Promotion Auto-Win Feature", () => {
     );
 
     // Use the complete sequence from central data - play ALL moves (white and black)
-    const sequence = E2EMoveSequences.PAWN_PROMOTION_TO_WIN;
+    const sequence = ChessMoveSequences.PAWN_PROMOTION_TO_WIN_SEQUENCE;
 
     console.log("🎯 Playing COMPLETE winning promotion sequence...");
     console.log("Sequence moves:", sequence.moves);
@@ -144,7 +144,7 @@ test.describe("Pawn Promotion Auto-Win Feature", () => {
     });
 
     // Use the drawing sequence from central data
-    const sequence = E2EMoveSequences.PAWN_PROMOTION_TO_DRAW;
+    const sequence = ChessMoveSequences.PAWN_PROMOTION_TO_DRAW_SEQUENCE;
 
     console.log("Playing drawing promotion sequence...");
 

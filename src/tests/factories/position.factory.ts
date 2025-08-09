@@ -5,7 +5,7 @@
 
 import { faker } from "@faker-js/faker";
 import { EndgamePosition } from "@shared/types/endgame";
-import { EndgamePositions, getRandomEndgamePosition } from "../fixtures/fenPositions";
+import { EndgamePositions, getRandomEndgamePosition } from "../fixtures/commonFens";
 
 export class PositionFactory {
   private static idCounter = 1000; // Start from 1000 to avoid conflicts with fixtures

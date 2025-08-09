@@ -7,10 +7,7 @@
  */
 
 import { ChessService } from "@shared/services/ChessService";
-import {
-  StandardPositions,
-  EndgamePositions,
-} from "../../fixtures/fenPositions";
+import { StandardPositions, EndgamePositions } from "../../fixtures/commonFens";
 import {
   createMockListener,
   createMockListeners,
