@@ -1,46 +1,144 @@
-# Symlinked files
-node_modules
-.next
-dist
-build
-.env
-.env.local
-package.json
-package-lock.json
-tsconfig.json
-.eslintrc.json
-eslint.config.js
-*.config.js
-*.config.css
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
 
-# IDE
-.vscode/
-.idea/
+# Production
+build/
+dist/
+.next/
+out/
+
+# Testing & Coverage
+coverage/
+.nyc_output/
+playwright-report/
+playwright/.cache/
+test-results/
+.jest-cache/
+jest-coverage/
+*.lcov
+lcov.info
+*.coverage
 
 # Logs
+logs/
 *.log
 npm-debug.log*
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Test caches and reports
-.jest-cache/
-coverage/
-playwright-report/
-test-results/
-
-# Logs
-*.log
-logs/
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
 pm2-logs/
+pm2-*.log
+dev.log
 
-# Build info
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*.bak
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# TypeScript
 *.tsbuildinfo
 tsconfig.tsbuildinfo
+.tsbuildinfo
+src/config/typescript/*.tsbuildinfo
 
-# Temp files
-.tmp/
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+database-debug.log
+pubsub-debug.log
+firebase-export-*
+firestore_export_*
+.firebaserc
+
+# Temporary files
 tmp/
 temp/
+.tmp/
+*.tmp
+*.temp
+.cache/
+.parcel-cache/
+.turbo/
+
+# Build files
+*.pid
+*.seed
+*.pid.lock
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Package manager files (if not needed for lock)
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Next.js specific
+.next/
+out/
+.vercel
+
+# PWA files
+**/public/workbox-*.js
+**/public/sw.js
+**/public/worker-*.js
+
+# Mac specific
+**/.DS_Store
+
+# Test artifacts
+test_moves.js
+*.test.tmp
+
+# Storybook
+storybook-static/
+*.stories.js.map
+
+# Documentation build
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+
+# Misc
+*.pem
+.grunt
+bower_components
+.lock-wscript

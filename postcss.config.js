@@ -1,1 +1,9 @@
-../EndgameTrainer/postcss.config.js
+module.exports = {
+  plugins: {
+    "@tailwindcss/postcss": {
+      // Explizit auf die CSS-Konfigurationsdatei verweisen
+      config: "./tailwind.config.css",
+    },
+    autoprefixer: {},
+  },
+};
