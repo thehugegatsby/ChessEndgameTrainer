@@ -217,8 +217,9 @@ export class PawnPromotionHandler {
 
     const { setState } = api;
 
-    // For now, just auto-promote to queen and call callback
-    // TODO: Implement actual promotion choice UI
+    // Auto-promote to queen by default (UI handles user choice in Chessboard component)
+    // The promotion dialog is shown in the Chessboard component which intercepts
+    // promotion moves before they reach this handler
     const chosenPiece: "q" | "r" | "n" | "b" = "q";
 
     setState((draft) => {
