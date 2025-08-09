@@ -7,7 +7,9 @@
  * This hook provides on-demand move quality assessment.
  */
 
+import React from 'react';
 import { renderHook, act } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useMoveQuality } from '@shared/hooks/useMoveQuality';
 import { ChessTestScenarios } from '../../fixtures/chessTestScenarios';
 
@@ -40,6 +42,16 @@ jest.mock('@shared/services/TablebaseService', () => ({
   },
 }));
 
+// Mock useTablebaseQuery hooks
+jest.mock('@shared/hooks/useTablebaseQuery', () => ({
+  useTablebaseEvaluation: jest.fn(() => ({
+    data: null,
+    isLoading: false,
+    isError: false,
+    error: null,
+  })),
+}));
+
 // Mock move quality utils
 jest.mock('@shared/utils/moveQuality', () => ({
   assessTablebaseMoveQuality: jest.fn(),
@@ -55,8 +67,18 @@ jest.mock('chess.js', () => ({
 }));
 
 describe('useMoveQuality', () => {
+  let queryClient: QueryClient;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    
+    // Create a new QueryClient for each test
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
     
     // Restore default mocks for each test
     const { Chess } = require('chess.js');
@@ -66,9 +88,19 @@ describe('useMoveQuality', () => {
     }));
   });
 
+  // Create wrapper for React Query
+  const createWrapper = () => {
+    const Wrapper = ({ children }: { children: React.ReactNode }) => 
+      React.createElement(QueryClientProvider, { client: queryClient }, children);
+    Wrapper.displayName = 'QueryWrapper';
+    return Wrapper;
+  };
+
   describe('Hook Initialization', () => {
     it('returns correct interface with initial state', () => {
-      const { result } = renderHook(() => useMoveQuality());
+      const { result } = renderHook(() => useMoveQuality(), {
+        wrapper: createWrapper(),
+      });
 
       expect(result.current).toHaveProperty('data');
       expect(result.current).toHaveProperty('isLoading');
@@ -85,7 +117,9 @@ describe('useMoveQuality', () => {
     });
 
     it('works with basic functionality', async () => {
-      const { result } = renderHook(() => useMoveQuality());
+      const { result } = renderHook(() => useMoveQuality(), {
+        wrapper: createWrapper(),
+      });
       
       // Test that clearAnalysis works
       act(() => {
@@ -100,7 +134,9 @@ describe('useMoveQuality', () => {
 
   describe('Basic Functionality', () => {
     it('provides assessMove function that can be called', async () => {
-      const { result } = renderHook(() => useMoveQuality());
+      const { result } = renderHook(() => useMoveQuality(), {
+        wrapper: createWrapper(),
+      });
 
       // Test that function exists and can be called without crashing
       expect(typeof result.current.assessMove).toBe('function');
@@ -120,7 +156,9 @@ describe('useMoveQuality', () => {
     });
 
     it('clearAnalysis resets state', () => {
-      const { result } = renderHook(() => useMoveQuality());
+      const { result } = renderHook(() => useMoveQuality(), {
+        wrapper: createWrapper(),
+      });
       
       act(() => {
         result.current.clearAnalysis();
@@ -134,7 +172,9 @@ describe('useMoveQuality', () => {
 
   describe('Hook Lifecycle', () => {
     it('cleans up properly on unmount', () => {
-      const { unmount } = renderHook(() => useMoveQuality());
+      const { unmount } = renderHook(() => useMoveQuality(), {
+        wrapper: createWrapper(),
+      });
 
       // Should not throw on unmount
       expect(() => {
@@ -143,7 +183,9 @@ describe('useMoveQuality', () => {
     });
 
     it('maintains stable function references', () => {
-      const { result, rerender } = renderHook(() => useMoveQuality());
+      const { result, rerender } = renderHook(() => useMoveQuality(), {
+        wrapper: createWrapper(),
+      });
 
       const initialAssessMove = result.current.assessMove;
       const initialClearAnalysis = result.current.clearAnalysis;
@@ -192,7 +234,9 @@ describe('useMoveQuality', () => {
         fen: jest.fn(() => '8/8/8/8/8/8/8/8 w - - 0 1')
       }));
 
-      const { result } = renderHook(() => useMoveQuality());
+      const { result } = renderHook(() => useMoveQuality(), {
+        wrapper: createWrapper(),
+      });
 
       let assessmentResult;
       await act(async () => {
@@ -212,7 +256,9 @@ describe('useMoveQuality', () => {
         result: null
       });
 
-      const { result } = renderHook(() => useMoveQuality());
+      const { result } = renderHook(() => useMoveQuality(), {
+        wrapper: createWrapper(),
+      });
 
       let assessmentResult;
       await act(async () => {
@@ -225,7 +271,9 @@ describe('useMoveQuality', () => {
     });
 
     it('completes successful assessment with logging', async () => {
-      const { result } = renderHook(() => useMoveQuality());
+      const { result } = renderHook(() => useMoveQuality(), {
+        wrapper: createWrapper(),
+      });
 
       let assessmentResult;
       await act(async () => {
@@ -241,7 +289,9 @@ describe('useMoveQuality', () => {
     });
 
     it('handles aborted requests gracefully', async () => {
-      const { result } = renderHook(() => useMoveQuality());
+      const { result } = renderHook(() => useMoveQuality(), {
+        wrapper: createWrapper(),
+      });
 
       // Just test that multiple calls don't crash
       await act(async () => {
@@ -263,7 +313,9 @@ describe('useMoveQuality', () => {
   describe('Advanced Scenarios', () => {
     it('processes WDL values through assessment utility', async () => {
       const { assessTablebaseMoveQuality } = require('@shared/utils/moveQuality');
-      const { result } = renderHook(() => useMoveQuality());
+      const { result } = renderHook(() => useMoveQuality(), {
+        wrapper: createWrapper(),
+      });
 
       await act(async () => {
         await result.current.assessMove('8/8/8/8/8/8/8/8 w - - 0 1', 'Kh1', 'w');
@@ -276,7 +328,9 @@ describe('useMoveQuality', () => {
 
   describe('State Management', () => {
     it('manages internal state correctly', () => {
-      const { result } = renderHook(() => useMoveQuality());
+      const { result } = renderHook(() => useMoveQuality(), {
+        wrapper: createWrapper(),
+      });
 
       // Should start in clean state
       expect(result.current.data).toBeNull();

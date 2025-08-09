@@ -155,10 +155,10 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
         currentPositionId={position.id}
       />
 
-      {/* Main Content - Horizontal Layout like Lichess - Full Screen */}
-      <div className="main-content flex-1 flex h-full mr-80">
+      {/* Main Content - Chess Board Area - truly centered */}
+      <div className="chessboard-wrapper flex-1 h-full relative mr-72" style={{ marginLeft: '-20px' }}>
         {/* Chessboard Area */}
-        <div className="chessboard-wrapper flex-[5] h-full relative">
+        <div className="w-full h-full relative">
           {/* Progress Header centered above board - always show for E2E test visibility */}
           <div
             className="absolute top-24 left-0 right-0 text-center pointer-events-none"
@@ -181,9 +181,10 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
             />
           </div>
         </div>
+      </div>
 
-        {/* Floating Sidebar */}
-        <div className="sidebar fixed right-0 top-0 bottom-0 w-80 bg-gray-900 border-l border-gray-700 flex flex-col z-20 overflow-y-auto">
+      {/* Right Sidebar - Fixed positioned */}
+      <div className="sidebar fixed right-0 top-0 bottom-0 w-72 bg-gray-900 border-l border-gray-700 flex flex-col z-20 overflow-y-auto">
           {/* Navigation between positions */}
           <div className="nav-section p-4 border-b border-gray-700">
             <h3 className="text-sm font-semibold text-gray-400 mb-2 text-center">
@@ -291,7 +292,6 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
             </a>
           </div>
         </div>
-      </div>
     </div>
   );
 });

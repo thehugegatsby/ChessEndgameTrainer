@@ -6,7 +6,7 @@
  * tablebase data, reducing duplication between hooks and store actions.
  */
 
-import { tablebaseService } from "./TablebaseService";
+// Note: Using direct service import for service-to-service integration
 import { formatPositionAnalysis } from "../utils/positionAnalysisFormatter";
 import { getLogger } from "./logging";
 import type { PositionAnalysis } from "../types";
@@ -53,6 +53,7 @@ class AnalysisService {
     });
 
     // Get tablebase evaluation - this populates the cache
+    const { tablebaseService } = await import("./TablebaseService");
     const tablebaseResult = await tablebaseService.getEvaluation(fen);
 
     if (!tablebaseResult.isAvailable || !tablebaseResult.result) {

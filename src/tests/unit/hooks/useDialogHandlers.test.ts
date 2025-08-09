@@ -44,6 +44,13 @@ jest.mock('@shared/services/ChessService', () => ({
   },
 }));
 
+jest.mock('@shared/utils/toast', () => ({
+  showErrorToast: jest.fn(),
+  showInfoToast: jest.fn(),
+  showSuccessToast: jest.fn(),
+  showWarningToast: jest.fn(),
+}));
+
 jest.mock('@shared/services/TablebaseService', () => ({
   tablebaseService: {
     getEvaluation: jest.fn(),
@@ -375,9 +382,10 @@ describe('useDialogHandlers', () => {
         result.current.handleShowBestMove();
       });
 
-      expect(mockUIActions.showToast).toHaveBeenCalledWith(
+      const { showInfoToast } = require('@shared/utils/toast');
+      expect(showInfoToast).toHaveBeenCalledWith(
         'Der beste Zug war: Kh1',
-        'info'
+        { duration: 4000 }
       );
       expect(mockTrainingActions.setMoveErrorDialog).toHaveBeenCalledWith(null);
     });
@@ -472,9 +480,10 @@ describe('useDialogHandlers', () => {
         result.current.handleShowBestMove();
       });
 
-      expect(mockUIActions.showToast).toHaveBeenCalledWith(
+      const { showInfoToast } = require('@shared/utils/toast');
+      expect(showInfoToast).toHaveBeenCalledWith(
         'Der beste Zug war: Qh8+',
-        'info'
+        { duration: 4000 }
       );
     });
 

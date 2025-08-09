@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lichess-style Promotion Dialog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #1e293b;
+            color: white;
+            font-family: system-ui, sans-serif;
+        }
+        .chessboard {
+            width: 800px;
+            height: 800px;
+            background: linear-gradient(45deg, #f0d9b5, #b58863);
+            background-size: 200px 200px;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+    <div class="relative">
+        <!-- Mock chessboard -->
+        <div class="chessboard border-2 border-gray-600"></div>
+        
+        <!-- Lichess-style Promotion Dialog - grayish circles with white pieces -->
+        <div class="absolute z-50" style="left: 400px; top: 100px; transform: translate(-50%, -50%);">
+            <div class="flex flex-col gap-1">
+                <!-- Queen -->
+                <button class="w-12 h-12 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors shadow-md" title="Dame (Q)">
+                    <span class="text-2xl text-black">♕</span>
+                </button>
+                
+                <!-- Rook -->
+                <button class="w-12 h-12 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors shadow-md" title="Turm (R)">
+                    <span class="text-2xl text-black">♖</span>
+                </button>
+                
+                <!-- Bishop -->
+                <button class="w-12 h-12 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors shadow-md" title="Läufer (B)">
+                    <span class="text-2xl text-black">♗</span>
+                </button>
+                
+                <!-- Knight -->
+                <button class="w-12 h-12 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors shadow-md" title="Springer (N)">
+                    <span class="text-2xl text-black">♘</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="absolute top-[-50px] left-400 text-center">
+            <p class="text-lg text-green-400 font-semibold">✅ Graue Kreise + Weiße Figuren wie Lichess!</p>
+        </div>
+    </div>
+</body>
+</html>

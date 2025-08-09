@@ -112,7 +112,11 @@ class ChessService {
       try {
         listener(event);
       } catch (error) {
-        logger.error("Error in ChessService listener", { error });
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        logger.error(`Error in ChessService listener: ${errorMessage}`, {
+          errorType: error ? error.constructor.name : 'unknown',
+          stack: error instanceof Error ? error.stack : undefined
+        });
       }
     });
   }
@@ -175,7 +179,8 @@ class ChessService {
           message: "Ungültige FEN-Position",
         },
       });
-      logger.error("Failed to initialize with FEN", { fen, error });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error(`Failed to initialize with FEN: ${errorMessage}`, { fen, errorType: error ? error.constructor.name : 'unknown' });
       return false;
     }
   }
@@ -268,7 +273,8 @@ class ChessService {
           message: "Fehler beim Ausführen des Zuges",
         },
       });
-      logger.error("Error making move", { move, error });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error(`Error making move: ${errorMessage}`, { move, errorType: error ? error.constructor.name : 'unknown' });
       return null;
     }
   }
@@ -318,7 +324,8 @@ class ChessService {
           message: "Fehler beim Rückgängigmachen",
         },
       });
-      logger.error("Failed to undo move", { error });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error(`Failed to undo move: ${errorMessage}`, { errorType: error ? error.constructor.name : 'unknown' });
       return false;
     }
   }
@@ -365,7 +372,8 @@ class ChessService {
           message: "Fehler beim Wiederherstellen",
         },
       });
-      logger.error("Failed to redo move", { error });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error(`Failed to redo move: ${errorMessage}`, { errorType: error ? error.constructor.name : 'unknown' });
       return false;
     }
   }
@@ -557,17 +565,29 @@ class ChessService {
       const tempChess = new Chess(currentFen);
       const result = tempChess.move(normalizedMove);
 
+      // Debug log for promotion moves
+      if (typeof move === 'object' && move !== null && 'promotion' in move) {
+        logger.info(`Promotion move validation`, {
+          originalMove: JSON.stringify(move),
+          normalizedMove: typeof normalizedMove === 'object' ? JSON.stringify(normalizedMove) : normalizedMove,
+          result: result ? 'valid' : 'invalid',
+          currentFen: currentFen
+        });
+      }
+
       // Validation result determined
       return result !== null;
     } catch (error) {
       // Enhanced error logging to debug E2E issues
-      logger.error("ChessService.validateMove error", { 
-        error: error instanceof Error ? error.message : String(error),
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      
+      logger.error(`ChessService.validateMove error: ${errorMessage}`, { 
         errorType: error ? error.constructor.name : 'unknown',
         move: typeof move === 'object' ? JSON.stringify(move) : String(move),
         moveType: typeof move,
         currentFen: this.chess.fen(),
-        stack: error instanceof Error ? error.stack : undefined
+        stack: errorStack
       });
       return false;
     }
@@ -625,7 +645,8 @@ class ChessService {
           message: "Ungültiges PGN-Format",
         },
       });
-      logger.error("Failed to load PGN", { error });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error(`Failed to load PGN: ${errorMessage}`, { errorType: error ? error.constructor.name : 'unknown' });
       return false;
     }
   }
@@ -696,7 +717,8 @@ class ChessService {
           message: "Fehler beim Navigieren zum Zug",
         },
       });
-      logger.error("Failed to go to move", { moveIndex, error });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error(`Failed to go to move: ${errorMessage}`, { moveIndex, errorType: error ? error.constructor.name : 'unknown' });
       return false;
     }
   }

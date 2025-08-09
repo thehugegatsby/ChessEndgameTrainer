@@ -1,23 +1,23 @@
 /**
- * @file Hook for on-demand move quality assessment
+ * @file Hook for move quality assessment with React Query
  * @module hooks/useMoveQuality
  *
  * @description
- * Provides controlled move quality analysis with loading/error states.
- * Following clean architecture principles with trigger-based evaluation.
- * Uses tablebase data to determine if moves are optimal, good, or mistakes.
+ * React Query-powered move quality analysis with automatic caching.
+ * Provides controlled move quality analysis with optimal performance.
+ * Uses parallel React Query hooks for position evaluations.
  *
  * @remarks
- * Features:
- * - Race condition protection with AbortController
- * - Robust error handling with state management
- * - Automatic cleanup on unmount
- * - Tablebase-based analysis for endgame positions
- * - Supports both SAN and UCI move notation
+ * Key improvements over original:
+ * - React Query caching eliminates duplicate API calls for same FEN positions
+ * - Parallel query execution for better performance
+ * - Built-in loading/error states from React Query
+ * - Automatic deduplication of identical evaluation requests
+ * - Smart retry logic for network failures
  */
 
-import { useState, useCallback, useRef, useEffect } from "react";
-import { tablebaseService } from "@shared/services/TablebaseService";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import { useTablebaseEvaluation } from "@shared/hooks/useTablebaseQuery";
 import { assessTablebaseMoveQuality } from "@shared/utils/moveQuality";
 import { Chess } from "chess.js";
 import type { SimplifiedMoveQualityResult } from "../types/evaluation";
@@ -27,11 +27,6 @@ const logger = new Logger();
 
 /**
  * State interface for move quality analysis
- *
- * @interface UseMoveQualityState
- * @property {SimplifiedMoveQualityResult | null} data - Current move quality result
- * @property {boolean} isLoading - Whether analysis is in progress
- * @property {Error | null} error - Error from analysis if any
  */
 interface UseMoveQualityState {
   /** Current move quality result */
@@ -40,15 +35,26 @@ interface UseMoveQualityState {
   isLoading: boolean;
   /** Error from analysis */
   error: Error | null;
+  /** FEN positions being analyzed */
+  currentAnalysis: {
+    fenBefore: string;
+    fenAfter: string;
+    move: string;
+  } | null;
 }
 
 /**
- * Hook for on-demand move quality assessment
+ * Hook for move quality assessment using React Query
  *
  * @description
- * Returns state and trigger function for controlled analysis.
- * No automatic evaluation - only when assessMove is called.
- * Uses tablebase API to compare positions before and after moves.
+ * Uses React Query hooks for position evaluations with automatic caching.
+ * Provides better performance through parallel queries and deduplication.
+ * 
+ * Key benefits:
+ * - FEN-based caching prevents duplicate API calls
+ * - Parallel execution of before/after position evaluations
+ * - React Query's built-in loading/error states
+ * - Automatic retry logic for failed requests
  *
  * @returns {Object} Hook return object
  * @returns {SimplifiedMoveQualityResult | null} returns.data - Current move quality result
@@ -79,20 +85,182 @@ export const useMoveQuality = () => {
     data: null,
     isLoading: false,
     error: null,
+    currentAnalysis: null,
   });
 
-  // Ref to manage abort controller and prevent race conditions
+  // Abort controller for race condition protection
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Calculate FEN after move
+  const fenAfter = useMemo(() => {
+    if (!state.currentAnalysis) return null;
+    
+    try {
+      const chess = new Chess(state.currentAnalysis.fenBefore);
+      const moveResult = chess.move(state.currentAnalysis.move);
+      return moveResult ? chess.fen() : null;
+    } catch {
+      return null;
+    }
+  }, [state.currentAnalysis]);
+
+  // React Query hooks for position evaluations
+  const evalBefore = useTablebaseEvaluation(
+    state.currentAnalysis?.fenBefore || null,
+    { 
+      enabled: !!state.currentAnalysis?.fenBefore,
+      staleTime: 30 * 60 * 1000, // 30 minutes - tablebase data is immutable
+    }
+  );
+
+  const evalAfter = useTablebaseEvaluation(
+    fenAfter,
+    { 
+      enabled: !!fenAfter,
+      staleTime: 30 * 60 * 1000, // 30 minutes - tablebase data is immutable
+    }
+  );
+
+  // Track pending assessment promises
+  const pendingAssessmentRef = useRef<{
+    resolve: (result: SimplifiedMoveQualityResult) => void;
+    reject: (error: Error) => void;
+    timeoutId: NodeJS.Timeout;
+  } | null>(null);
+
+  // Process query results
+  useEffect(() => {
+    if (!state.currentAnalysis) return;
+    
+    // Update loading state based on query states
+    const isQueryLoading = evalBefore.isLoading || evalAfter.isLoading;
+    const hasQueryError = evalBefore.isError || evalAfter.isError;
+    
+    if (hasQueryError) {
+      const error = evalBefore.error || evalAfter.error || new Error("Query failed");
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: error as Error,
+        data: null,
+      }));
+      
+      // Resolve pending assessment with error
+      if (pendingAssessmentRef.current) {
+        clearTimeout(pendingAssessmentRef.current.timeoutId);
+        pendingAssessmentRef.current.reject(error as Error);
+        pendingAssessmentRef.current = null;
+      }
+      return;
+    }
+
+    if (isQueryLoading) {
+      setState(prev => ({
+        ...prev,
+        isLoading: true,
+        error: null,
+      }));
+      return;
+    }
+
+    // Process results when both queries complete
+    if (evalBefore.data && evalAfter.data) {
+      try {
+        // Check if both positions have tablebase data
+        if (!evalBefore.data.isAvailable || 
+            !evalAfter.data.isAvailable ||
+            !evalBefore.data.result || 
+            !evalAfter.data.result) {
+          
+          const result: SimplifiedMoveQualityResult = {
+            quality: "unknown",
+            reason: "No tablebase data available",
+            isTablebaseAnalysis: false,
+          };
+          
+          setState(prev => ({
+            ...prev,
+            data: result,
+            isLoading: false,
+            error: null,
+          }));
+          
+          // Resolve pending assessment
+          if (pendingAssessmentRef.current) {
+            clearTimeout(pendingAssessmentRef.current.timeoutId);
+            pendingAssessmentRef.current.resolve(result);
+            pendingAssessmentRef.current = null;
+          }
+          return;
+        }
+
+        // Calculate move quality using helper function
+        const result = assessTablebaseMoveQuality(
+          evalBefore.data.result.wdl,
+          evalAfter.data.result.wdl,
+        );
+
+        // Log the calculation details
+        const wdlChange = -evalAfter.data.result.wdl - evalBefore.data.result.wdl;
+        logger.info("[useMoveQuality] Quality calculation details", {
+          wdlBefore: evalBefore.data.result.wdl,
+          wdlAfter: evalAfter.data.result.wdl,
+          wdlChange,
+          calculatedQuality: result.quality,
+        });
+
+        setState(prev => ({
+          ...prev,
+          data: result,
+          isLoading: false,
+          error: null,
+        }));
+
+        logger.info("[useMoveQuality] Move quality assessment completed", {
+          quality: result.quality,
+          reason: result.reason,
+          isTablebaseAnalysis: result.isTablebaseAnalysis,
+        });
+        
+        // Resolve pending assessment
+        if (pendingAssessmentRef.current) {
+          clearTimeout(pendingAssessmentRef.current.timeoutId);
+          pendingAssessmentRef.current.resolve(result);
+          pendingAssessmentRef.current = null;
+        }
+      } catch (error) {
+        const errorObj = error instanceof Error ? error : new Error("Analysis failed");
+        setState(prev => ({
+          ...prev,
+          data: null,
+          isLoading: false,
+          error: errorObj,
+        }));
+        
+        // Resolve pending assessment with error
+        if (pendingAssessmentRef.current) {
+          clearTimeout(pendingAssessmentRef.current.timeoutId);
+          pendingAssessmentRef.current.reject(errorObj);
+          pendingAssessmentRef.current = null;
+        }
+      }
+    }
+  }, [state.currentAnalysis, evalBefore.data, evalAfter.data, evalBefore.isLoading, evalAfter.isLoading, evalBefore.isError, evalAfter.isError, evalBefore.error, evalAfter.error]);
 
   // Clean up on unmount
   useEffect(() => {
     return () => {
       abortControllerRef.current?.abort();
+      if (pendingAssessmentRef.current) {
+        clearTimeout(pendingAssessmentRef.current.timeoutId);
+        pendingAssessmentRef.current.reject(new Error("Component unmounted"));
+        pendingAssessmentRef.current = null;
+      }
     };
   }, []);
 
   /**
-   * Assess move quality on-demand
+   * Assess move quality using React Query
    *
    * @param fenBefore - FEN position before the move
    * @param move - Move in SAN or UCI notation
@@ -113,17 +281,14 @@ export const useMoveQuality = () => {
       const controller = new AbortController();
       abortControllerRef.current = controller;
 
-      // Set loading state
-      setState({ data: null, isLoading: true, error: null });
+      logger.info("[useMoveQuality] Starting move quality assessment", {
+        fenBefore: fenBefore.slice(0, 30) + "...",
+        move,
+        playerPerspective,
+      });
 
+      // Validate move first
       try {
-        logger.info("[useMoveQuality] Starting move quality assessment", {
-          fenBefore: fenBefore.slice(0, 30) + "...",
-          move,
-          playerPerspective,
-        });
-
-        // Calculate FEN after the move
         const chess = new Chess(fenBefore);
         const moveResult = chess.move(move);
         if (!moveResult) {
@@ -132,94 +297,91 @@ export const useMoveQuality = () => {
             reason: "Invalid move",
             isTablebaseAnalysis: false,
           };
-          setState({ data: result, isLoading: false, error: null });
+          setState(prev => ({
+            ...prev,
+            data: result,
+            isLoading: false,
+            error: null,
+            currentAnalysis: null,
+          }));
           return result;
         }
-        const fenAfter = chess.fen();
-
-        // Get tablebase evaluations for both positions
-        const [evalBefore, evalAfter] = await Promise.all([
-          tablebaseService.getEvaluation(fenBefore),
-          tablebaseService.getEvaluation(fenAfter),
-        ]);
-
-        // Check if both positions have tablebase data
-        if (
-          !evalBefore.isAvailable ||
-          !evalAfter.isAvailable ||
-          !evalBefore.result ||
-          !evalAfter.result
-        ) {
-          const result: SimplifiedMoveQualityResult = {
-            quality: "unknown",
-            reason: "No tablebase data available",
-            isTablebaseAnalysis: false,
-          };
-          setState({ data: result, isLoading: false, error: null });
-          return result;
-        }
-
-        // Detailed logging before assessment
-        logger.info("[useMoveQuality] WDL values before assessment", {
-          move,
-          fenBefore,
-          fenAfter,
-          wdlBefore: evalBefore.result.wdl,
-          wdlAfter: evalAfter.result.wdl,
-          categoryBefore: evalBefore.result.category,
-          categoryAfter: evalAfter.result.category,
-        });
-
-        // Assess move quality using helper function
-        const result = assessTablebaseMoveQuality(
-          evalBefore.result.wdl,
-          evalAfter.result.wdl,
-        );
-
-        // Log the calculation details
-        const wdlChange = -evalAfter.result.wdl - evalBefore.result.wdl;
-        logger.info("[useMoveQuality] Quality calculation details", {
-          wdlBefore: evalBefore.result.wdl,
-          wdlAfter: evalAfter.result.wdl,
-          wdlChange,
-          calculatedQuality: result.quality,
-          formula: `wdlChange = -${evalAfter.result.wdl} - ${evalBefore.result.wdl} = ${wdlChange}`,
-        });
-
-        // Only update state if request wasn't aborted
-        if (!controller.signal.aborted) {
-          setState({ data: result, isLoading: false, error: null });
-          abortControllerRef.current = null; // Request completed
-
-          logger.info("[useMoveQuality] Move quality assessment completed", {
-            quality: result.quality,
-            reason: result.reason,
-            isTablebaseAnalysis: result.isTablebaseAnalysis,
-          });
-        }
-
+      } catch {
+        const result: SimplifiedMoveQualityResult = {
+          quality: "unknown",
+          reason: "Invalid move",
+          isTablebaseAnalysis: false,
+        };
+        setState(prev => ({
+          ...prev,
+          data: result,
+          isLoading: false,
+          error: null,
+          currentAnalysis: null,
+        }));
         return result;
-      } catch (error) {
-        if (controller.signal.aborted) {
-          logger.warn("[useMoveQuality] Assessment aborted by new request");
-          throw new Error("Assessment aborted by new request");
-        }
-
-        const errorObj =
-          error instanceof Error ? error : new Error("Unknown error occurred");
-
-        logger.error(
-          "[useMoveQuality] Move quality assessment failed",
-          errorObj,
-        );
-
-        // Only update state if this was the active request
-        if (abortControllerRef.current === controller) {
-          setState({ data: null, isLoading: false, error: errorObj });
-        }
-
-        throw errorObj;
       }
+
+      // Clean up any existing pending assessment
+      if (pendingAssessmentRef.current) {
+        clearTimeout(pendingAssessmentRef.current.timeoutId);
+        pendingAssessmentRef.current.reject(new Error("Superseded by new assessment"));
+        pendingAssessmentRef.current = null;
+      }
+
+      // Set up analysis - this will trigger the React Query hooks
+      setState(prev => ({
+        ...prev,
+        currentAnalysis: {
+          fenBefore,
+          fenAfter: "", // Will be calculated by useMemo
+          move,
+        },
+        isLoading: true,
+        error: null,
+        data: null,
+      }));
+
+      // Return a promise that resolves when analysis completes
+      return new Promise((resolve, reject) => {
+        // Handle abortion
+        if (controller.signal.aborted) {
+          resolve({
+            quality: "unknown" as const,
+            reason: "Assessment cancelled",
+            isTablebaseAnalysis: false,
+          });
+          return;
+        }
+
+        // Set up timeout (30 seconds instead of 10)
+        const timeoutId = setTimeout(() => {
+          if (pendingAssessmentRef.current) {
+            pendingAssessmentRef.current = null;
+            reject(new Error("Move quality assessment timeout after 30 seconds"));
+          }
+        }, 30000);
+
+        // Store the promise handlers
+        pendingAssessmentRef.current = {
+          resolve,
+          reject,
+          timeoutId,
+        };
+
+        // Listen for abort signal
+        controller.signal.addEventListener('abort', () => {
+          if (pendingAssessmentRef.current) {
+            clearTimeout(pendingAssessmentRef.current.timeoutId);
+            pendingAssessmentRef.current.resolve({
+              quality: "unknown" as const,
+              reason: "Assessment cancelled",
+              isTablebaseAnalysis: false,
+            });
+            pendingAssessmentRef.current = null;
+          }
+        });
+      });
     },
     [],
   );
@@ -228,7 +390,13 @@ export const useMoveQuality = () => {
    * Clear current analysis data
    */
   const clearAnalysis = useCallback(() => {
-    setState({ data: null, isLoading: false, error: null });
+    abortControllerRef.current?.abort();
+    setState({
+      data: null,
+      isLoading: false,
+      error: null,
+      currentAnalysis: null,
+    });
   }, []);
 
   return {

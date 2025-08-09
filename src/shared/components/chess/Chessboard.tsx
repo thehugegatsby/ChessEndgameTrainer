@@ -26,8 +26,19 @@ import {
   type PieceDropHandlerArgs,
   type SquareHandlerArgs
 } from "react-chessboard";
+import { PromotionDialog, type PromotionPiece } from "./PromotionDialog";
+
 // Types for react-chessboard (library has incomplete TypeScript definitions)
 type PieceType = "wP" | "wN" | "wB" | "wR" | "wQ" | "wK" | "bP" | "bN" | "bB" | "bR" | "bQ" | "bK";
+
+/**
+ * Promotion move data stored while waiting for piece selection
+ */
+interface PendingPromotion {
+  from: string;
+  to: string;
+  piece: string;
+}
 
 /**
  * Props for the Chessboard component
@@ -35,8 +46,9 @@ type PieceType = "wP" | "wN" | "wB" | "wR" | "wQ" | "wK" | "bP" | "bN" | "bB" | 
  * @interface ChessboardProps
  *
  * @property {string} fen - FEN string representing the chess position
- * @property {(sourceSquare: string, targetSquare: string, piece: string) => boolean} [onPieceDrop] - Callback for piece drop events
+ * @property {(sourceSquare: string, targetSquare: string, piece: string, promotion?: string) => boolean} [onPieceDrop] - Callback for piece drop events
  * @property {(square: string) => void} [onSquareClick] - Callback for square click events (for click-to-move support)
+ * @property {(from: string, to: string) => boolean} [onPromotionCheck] - Check if a move is a promotion
  * @property {number} [boardWidth=400] - Width of the chess board in pixels
  * @property {boolean} [arePiecesDraggable=true] - Whether pieces can be dragged
  */
@@ -46,10 +58,13 @@ interface ChessboardProps {
     sourceSquare: string,
     targetSquare: string,
     piece: string,
+    promotion?: string,
   ) => boolean;
   onSquareClick?: (args: { piece: PieceType | null; square: string }) => void;
+  onPromotionCheck?: (from: string, to: string) => boolean;
   boardWidth?: number;
   arePiecesDraggable?: boolean;
+  animationDuration?: number;
 }
 
 /**
@@ -103,33 +118,105 @@ export const Chessboard: React.FC<ChessboardProps> = ({
   fen,
   onPieceDrop,
   onSquareClick,
+  onPromotionCheck,
   boardWidth = 400,
   arePiecesDraggable = true,
+  animationDuration = 200,
 }) => {
   // Prevent SSR hydration mismatch by only rendering on client
   const [isClient, setIsClient] = useState(false);
+  // Promotion dialog state
+  const [pendingPromotion, setPendingPromotion] = useState<PendingPromotion | null>(null);
+  const [promotionPosition, setPromotionPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   useEffect(() => {
     setIsClient(true);
   }, []);
   /**
+   * Calculate board-relative position for promotion dialog
+   */
+  const getSquarePosition = (square: string): { x: number; y: number } => {
+    const file = square.charCodeAt(0) - 97; // a=0, b=1, etc.
+    const rank = parseInt(square[1]) - 1; // 1=0, 2=1, etc.
+    
+    const squareSize = boardWidth / 8;
+    const x = (file + 0.5) * squareSize;
+    // Flip rank for display (rank 8 is at top)
+    const y = (7 - rank + 0.5) * squareSize;
+    
+    return { x, y };
+  };
+
+  /**
+   * Handle promotion piece selection
+   */
+  const handlePromotionSelect = (piece: PromotionPiece) => {
+    if (!pendingPromotion || !onPieceDrop) {
+      setPendingPromotion(null);
+      return;
+    }
+
+    const success = onPieceDrop(
+      pendingPromotion.from,
+      pendingPromotion.to,
+      pendingPromotion.piece,
+      piece
+    );
+
+    if (success) {
+      setPendingPromotion(null);
+    }
+  };
+
+  /**
+   * Handle promotion cancellation (defaults to Queen)
+   */
+  const handlePromotionCancel = () => {
+    if (!pendingPromotion || !onPieceDrop) {
+      setPendingPromotion(null);
+      return;
+    }
+
+    // Default to Queen promotion
+    const success = onPieceDrop(
+      pendingPromotion.from,
+      pendingPromotion.to,
+      pendingPromotion.piece,
+      "q"
+    );
+
+    if (success) {
+      setPendingPromotion(null);
+    }
+  };
+
+  /**
    * Adapts piece drop events to react-chessboard v5 API
-   *
-   * @param {PieceDropHandlerArgs} args - Drop event arguments from react-chessboard
-   * @returns {boolean} Whether the move should be allowed
-   *
-   * @description
-   * Converts the react-chessboard v5 API format to the simplified format
-   * expected by the application's move handlers. Extracts the relevant
-   * data and calls the provided onPieceDrop callback.
+   * Now handles promotion detection and dialog display
    */
   const handlePieceDrop = ({ piece, sourceSquare, targetSquare }: PieceDropHandlerArgs): boolean => {
-    if (!onPieceDrop || !targetSquare) return false;
-    return onPieceDrop(
-      sourceSquare,
-      targetSquare,
-      String(piece),
-    );
+    if (!targetSquare) return false;
+
+    // Check if this is a promotion move first (before calling onPieceDrop)
+    if (onPromotionCheck && onPromotionCheck(sourceSquare, targetSquare)) {
+      // Store the pending promotion and show dialog
+      setPendingPromotion({
+        from: sourceSquare,
+        to: targetSquare,
+        piece: String(piece.pieceType),
+      });
+      
+      // Calculate position for promotion dialog
+      const position = getSquarePosition(targetSquare);
+      setPromotionPosition(position);
+      
+      // Return true to accept the visual move, but don't call onPieceDrop yet
+      return true;
+    }
+
+    // Normal move (not a promotion) - call the handler
+    if (!onPieceDrop) return false;
+    return onPieceDrop(sourceSquare, targetSquare, String(piece.pieceType));
   };
 
   const handleSquareClick = ({ piece, square }: SquareHandlerArgs): void => {
@@ -158,15 +245,42 @@ export const Chessboard: React.FC<ChessboardProps> = ({
     );
   }
 
+  // Determine promotion color from the pending move
+  const promotionColor = pendingPromotion?.piece.charAt(0).toLowerCase() === 'w' ? 'w' : 'b';
+
   return (
-    <ReactChessboard
-      options={{
-        position: fen,
-        onPieceDrop: onPieceDrop ? handlePieceDrop : undefined,
-        onSquareClick: onSquareClick ? handleSquareClick : undefined,
-        boardStyle: { width: `${boardWidth}px`, height: `${boardWidth}px` },
-        allowDragging: arePiecesDraggable,
-      }}
-    />
+    <div className="relative chess-board-container">
+      <ReactChessboard
+        options={{
+          position: fen,
+          onPieceDrop: onPieceDrop ? handlePieceDrop : undefined,
+          onSquareClick: onSquareClick ? handleSquareClick : undefined,
+          boardStyle: { 
+            width: `${boardWidth}px`, 
+            height: `${boardWidth}px`,
+            borderRadius: '6px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          },
+          allowDragging: arePiecesDraggable,
+          animationDurationInMs: animationDuration,
+          // Enhanced visual options for smoother experience
+          darkSquareStyle: {
+            backgroundColor: '#769656',
+          },
+          lightSquareStyle: {
+            backgroundColor: '#eeeed2',
+          },
+        }}
+      />
+      
+      {/* Promotion Dialog */}
+      <PromotionDialog
+        isOpen={!!pendingPromotion}
+        color={promotionColor}
+        position={promotionPosition}
+        onSelect={handlePromotionSelect}
+        onCancel={handlePromotionCancel}
+      />
+    </div>
   );
 };

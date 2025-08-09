@@ -280,7 +280,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
       {/* Menu Sidebar */}
       <div
         className={`
-        fixed left-0 top-0 h-full w-[22rem] bg-gray-900 text-white z-50 transform transition-transform duration-300 ease-in-out
+        fixed left-0 top-0 h-full w-[18rem] bg-gray-900 text-white z-50 transform transition-transform duration-300 ease-in-out
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0 lg:static lg:z-auto
       `}

@@ -17,7 +17,7 @@
  * - Positioned relative to the promotion square
  */
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import pieces from "react-chess-pieces/dist/svg-index";
 
 /**
@@ -89,7 +89,6 @@ export const PromotionDialog: React.FC<PromotionDialogProps> = ({
   onSelect,
   onCancel,
 }) => {
-  const dialogRef = useRef<HTMLDivElement>(null);
 
   // Handle keyboard events
   useEffect(() => {
@@ -163,10 +162,9 @@ export const PromotionDialog: React.FC<PromotionDialogProps> = ({
       
       {/* Queen - positioned on target square */}
       <button
-        ref={dialogRef}
         onClick={() => onSelect("q")}
         data-promotion-button="true"
-        className="absolute z-50 w-24 h-24 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors shadow-md"
+        className="absolute z-50 w-24 h-24 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center chess-promotion-piece shadow-md"
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
@@ -181,7 +179,7 @@ export const PromotionDialog: React.FC<PromotionDialogProps> = ({
       <button
         onClick={() => onSelect("r")}
         data-promotion-button="true"
-        className="absolute z-50 w-24 h-24 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors shadow-md"
+        className="absolute z-50 w-24 h-24 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center chess-promotion-piece shadow-md"
         style={{
           left: `${position.x}px`,
           top: `${position.y + squareSize}px`,
@@ -196,7 +194,7 @@ export const PromotionDialog: React.FC<PromotionDialogProps> = ({
       <button
         onClick={() => onSelect("b")}
         data-promotion-button="true"
-        className="absolute z-50 w-24 h-24 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors shadow-md"
+        className="absolute z-50 w-24 h-24 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center chess-promotion-piece shadow-md"
         style={{
           left: `${position.x}px`,
           top: `${position.y + squareSize * 2}px`,
@@ -211,7 +209,7 @@ export const PromotionDialog: React.FC<PromotionDialogProps> = ({
       <button
         onClick={() => onSelect("n")}
         data-promotion-button="true"
-        className="absolute z-50 w-24 h-24 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors shadow-md"
+        className="absolute z-50 w-24 h-24 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center chess-promotion-piece shadow-md"
         style={{
           left: `${position.x}px`,
           top: `${position.y + squareSize * 3}px`,

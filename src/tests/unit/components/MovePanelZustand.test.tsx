@@ -1,5 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MovePanelZustand } from "@shared/components/training/MovePanelZustand";
 import { createTestValidatedMove } from "../../helpers/validatedMoveFactory";
 import { getOpeningSequence } from "../../fixtures/chessTestScenarios";
@@ -7,12 +8,38 @@ import { getOpeningSequence } from "../../fixtures/chessTestScenarios";
 // Mock the store hooks directly
 jest.mock("@shared/store/hooks");
 
+// Mock useTablebaseQuery hooks
+jest.mock("@shared/hooks/useTablebaseQuery", () => ({
+  useTablebaseEvaluation: jest.fn(() => ({
+    data: null,
+    isLoading: false,
+    isError: false,
+    error: null,
+  })),
+}));
+
 import { useGameStore, useTablebaseStore } from "@shared/store/hooks";
 
 describe("MovePanelZustand", () => {
+  let queryClient: QueryClient;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
   });
+
+  const renderWithProviders = (component: React.ReactElement) => {
+    return render(
+      <QueryClientProvider client={queryClient}>
+        {component}
+      </QueryClientProvider>
+    );
+  };
 
   it("should display moves from Zustand store", () => {
     // Use centralized opening sequence for consistent testing
@@ -61,7 +88,7 @@ describe("MovePanelZustand", () => {
       currentEvaluation: undefined,
     }, {}]);
 
-    render(<MovePanelZustand onMoveClick={jest.fn()} />);
+    renderWithProviders(<MovePanelZustand onMoveClick={jest.fn()} />);
 
     expect(screen.getByText("e4")).toBeInTheDocument();
     expect(screen.getByText("e5")).toBeInTheDocument();
@@ -109,7 +136,7 @@ describe("MovePanelZustand", () => {
       currentEvaluation: undefined,
     }, {}]);
 
-    render(<MovePanelZustand showEvaluations={true} onMoveClick={jest.fn()} />);
+    renderWithProviders(<MovePanelZustand showEvaluations={true} onMoveClick={jest.fn()} />);
 
     // Should show the move
     expect(screen.getByText("e4")).toBeInTheDocument();
@@ -156,7 +183,7 @@ describe("MovePanelZustand", () => {
       currentEvaluation: undefined,
     }, {}]);
 
-    render(<MovePanelZustand onMoveClick={onMoveClickMock} />);
+    renderWithProviders(<MovePanelZustand onMoveClick={onMoveClickMock} />);
 
     fireEvent.click(screen.getByText("e4"));
     expect(onMoveClickMock).toHaveBeenCalledWith(0);
@@ -203,7 +230,7 @@ describe("MovePanelZustand", () => {
       currentEvaluation: undefined,
     }, {}]);
 
-    render(<MovePanelZustand onMoveClick={jest.fn()} currentMoveIndex={1} />);
+    renderWithProviders(<MovePanelZustand onMoveClick={jest.fn()} currentMoveIndex={1} />);
 
     const e4Button = screen.getByText("e4");
     const e5Button = screen.getByText("e5");
@@ -263,7 +290,7 @@ describe("MovePanelZustand", () => {
       currentEvaluation: undefined,
     }, {}]);
 
-    render(<MovePanelZustand showEvaluations={true} onMoveClick={jest.fn()} />);
+    renderWithProviders(<MovePanelZustand showEvaluations={true} onMoveClick={jest.fn()} />);
 
     // SIMPLIFIED: Check that evaluation is shown (symbol may vary)
     expect(screen.getByTestId("move-evaluation")).toBeInTheDocument();
@@ -286,7 +313,7 @@ describe("MovePanelZustand", () => {
       currentEvaluation: undefined,
     }, {}]);
 
-    render(<MovePanelZustand onMoveClick={jest.fn()} />);
+    renderWithProviders(<MovePanelZustand onMoveClick={jest.fn()} />);
 
     expect(screen.getByText("Noch keine Züge gespielt")).toBeInTheDocument();
   });

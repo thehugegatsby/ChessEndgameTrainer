@@ -26,8 +26,7 @@
  *   clearEvaluations,
  *   trainingActions,
  *   gameActions,
- *   uiActions,
- *   trainingState,
+ *  *   trainingState,
  *   storeApi,
  *   trainingUIState,
  * });
@@ -48,8 +47,9 @@
 import { useCallback } from 'react';
 import { getLogger } from '@shared/services/logging/Logger';
 import { getOpponentTurnManager } from '@shared/store/orchestrators/handlePlayerMove';
+import { showInfoToast } from '@shared/utils/toast';
 import { chessService } from '@shared/services/ChessService';
-import { tablebaseService } from '@shared/services/TablebaseService';
+// Note: Direct service import maintained for callback context
 import type { StoreApi } from '@shared/store/StoreContext';
 
 /**
@@ -198,7 +198,6 @@ export const useDialogHandlers = ({
   clearEvaluations,
   trainingActions,
   gameActions,
-  uiActions,
   trainingState,
   storeApi,
   trainingUIState,
@@ -356,6 +355,8 @@ export const useDialogHandlers = ({
         try {
           // Get current position evaluation
           const currentFen = chessService.getFen();
+          // Dynamic import for callback context
+          const { tablebaseService } = await import('@shared/services/TablebaseService');
           const currentEval = await tablebaseService.getEvaluation(currentFen);
           
           if (currentEval.isAvailable && currentEval.result) {
@@ -398,13 +399,13 @@ export const useDialogHandlers = ({
     if (trainingState.moveErrorDialog?.bestMove) {
       const logger = getLogger().setContext("useDialogHandlers-MoveError");
       logger.info("Showing best move", { bestMove: trainingState.moveErrorDialog.bestMove });
-      uiActions.showToast(
+      showInfoToast(
         `Der beste Zug war: ${trainingState.moveErrorDialog.bestMove}`,
-        "info",
+        { duration: 4000 }
       );
     }
     trainingActions.setMoveErrorDialog(null);
-  }, [trainingState.moveErrorDialog, uiActions, trainingActions]);
+  }, [trainingState.moveErrorDialog, trainingActions]);
 
   /**
    * Handles success dialog close

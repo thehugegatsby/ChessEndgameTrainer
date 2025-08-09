@@ -1,0 +1,318 @@
+/**
+ * Chess piece animation styles for smoother piece transitions
+ * Enhances the react-chessboard animations with custom CSS for Lichess-like feel
+ */
+
+/* Chess piece movement animations */
+.chess-piece-transition {
+  transition: all 150ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+}
+
+/* Smooth piece dragging */
+.chess-piece-dragging {
+  transition: none !important;
+  z-index: 1000 !important;
+  cursor: grabbing !important;
+  transform: scale(1.05) !important;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3)) !important;
+}
+
+/* Piece drop animation */
+.chess-piece-dropped {
+  animation: pieceDropBounce 200ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes pieceDropBounce {
+  0% {
+    transform: scale(1.1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Square highlight animations */
+.chess-square {
+  transition: all 100ms ease-out;
+}
+
+.chess-square-highlighted {
+  animation: squareHighlight 300ms ease-out;
+}
+
+@keyframes squareHighlight {
+  0% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(59, 130, 246, 0.4);
+  }
+  100% {
+    background-color: rgba(59, 130, 246, 0.2);
+  }
+}
+
+/* Last move square animation */
+.chess-square-last-move {
+  animation: lastMoveGlow 500ms ease-out;
+}
+
+@keyframes lastMoveGlow {
+  0% {
+    background-color: transparent;
+    box-shadow: none;
+  }
+  30% {
+    background-color: rgba(16, 185, 129, 0.3);
+    box-shadow: inset 0 0 8px rgba(16, 185, 129, 0.4);
+  }
+  100% {
+    background-color: rgba(16, 185, 129, 0.15);
+    box-shadow: none;
+  }
+}
+
+/* Check square animation */
+.chess-square-check {
+  animation: checkPulse 1000ms ease-in-out infinite;
+}
+
+@keyframes checkPulse {
+  0%,
+  100% {
+    background-color: rgba(239, 68, 68, 0.2);
+    box-shadow: none;
+  }
+  50% {
+    background-color: rgba(239, 68, 68, 0.4);
+    box-shadow: inset 0 0 12px rgba(239, 68, 68, 0.6);
+  }
+}
+
+/* Piece capture animation */
+.chess-piece-captured {
+  animation: pieceFadeOut 200ms ease-out forwards;
+}
+
+@keyframes pieceFadeOut {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+/* New piece appearance animation */
+.chess-piece-appeared {
+  animation: pieceAppear 250ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes pieceAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Promotion piece selection animation */
+.chess-promotion-piece {
+  transition: all 150ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.chess-promotion-piece:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+.chess-promotion-piece:active {
+  transform: scale(1.05);
+  transition-duration: 50ms;
+}
+
+/* Board rotation animation for flipping */
+.chess-board-flip {
+  animation: boardFlip 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes boardFlip {
+  0% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(90deg);
+  }
+  100% {
+    transform: rotateY(180deg);
+  }
+}
+
+/* Piece hover effects for better interactivity */
+.chess-piece {
+  transition: all 120ms ease-out;
+  cursor: grab;
+}
+
+.chess-piece:hover {
+  transform: scale(1.02);
+  filter: brightness(1.1) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.chess-piece:active {
+  cursor: grabbing;
+  transform: scale(1.05);
+  filter: brightness(1.05) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+/* Smooth square border transitions */
+.chess-square-border {
+  border: 2px solid transparent;
+  transition: border-color 150ms ease-out;
+}
+
+.chess-square-selectable:hover .chess-square-border {
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.chess-square-selected .chess-square-border {
+  border-color: rgba(59, 130, 246, 0.8);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Move hint animations */
+.chess-move-hint {
+  position: relative;
+  overflow: hidden;
+}
+
+.chess-move-hint::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20%;
+  height: 20%;
+  background-color: rgba(59, 130, 246, 0.6);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  animation: moveHintPulse 2000ms ease-in-out infinite;
+}
+
+@keyframes moveHintPulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.7;
+  }
+}
+
+/* Arrow animation for move suggestions */
+.chess-move-arrow {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: drawArrow 400ms ease-out forwards;
+}
+
+@keyframes drawArrow {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Board loading animation */
+.chess-board-loading {
+  opacity: 0.7;
+  animation: boardLoading 1500ms ease-in-out infinite;
+}
+
+@keyframes boardLoading {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Performance optimizations */
+.chess-board-container {
+  /* Enable hardware acceleration */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000;
+}
+
+.chess-piece,
+.chess-square {
+  /* Optimize for animations */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Responsive animation adjustments */
+@media (max-width: 768px) {
+  /* Reduce animation complexity on mobile for better performance */
+  .chess-piece-transition {
+    transition-duration: 100ms;
+  }
+
+  .chess-piece-dropped {
+    animation-duration: 150ms;
+  }
+
+  .chess-square-highlighted {
+    animation-duration: 200ms;
+  }
+
+  /* Reduce hover effects on touch devices */
+  .chess-piece:hover {
+    transform: none;
+    filter: none;
+  }
+}
+
+/* Prefers-reduced-motion support */
+@media (prefers-reduced-motion: reduce) {
+  .chess-piece-transition,
+  .chess-square,
+  .chess-promotion-piece {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .chess-piece:hover,
+  .chess-piece:active {
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/* High contrast mode adjustments */
+@media (prefers-contrast: high) {
+  .chess-square-highlighted {
+    background-color: rgba(59, 130, 246, 0.8) !important;
+  }
+
+  .chess-square-last-move {
+    background-color: rgba(16, 185, 129, 0.6) !important;
+  }
+
+  .chess-square-check {
+    background-color: rgba(239, 68, 68, 0.8) !important;
+  }
+}

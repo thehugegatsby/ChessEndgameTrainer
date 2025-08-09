@@ -114,7 +114,7 @@ export const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
    * Get formatted move notation with move number
    */
   const getFormattedMove = (move: string | undefined, _isPlayerMove: boolean): string => {
-    if (!move || !moveNumber) return move || "???";
+    if (!move || moveNumber === undefined) return move || "???";
     
     // Convert to German notation
     const germanMove = convertToGermanNotation(move);

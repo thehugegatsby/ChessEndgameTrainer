@@ -326,7 +326,7 @@ export /**
 const DIMENSIONS = {
   // Board sizes
   DEFAULT_BOARD_SIZE: 400, // Default chessboard size in pixels
-  TRAINING_BOARD_SIZE: 600, // Training board size in pixels
+  TRAINING_BOARD_SIZE: 800, // Training board size in pixels
 
   // Panel heights
   ANALYSIS_PANEL_HEIGHT: 400, // Analysis panel height in pixels

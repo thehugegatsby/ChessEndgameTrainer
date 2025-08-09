@@ -219,7 +219,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   });
 
   // Move handling logic - extracted to custom hook
-  const { onDrop, onSquareClick } = useMoveHandlers({
+  const { onDrop, onSquareClick, onPromotionCheck } = useMoveHandlers({
     currentFen: currentFen || initialFen,
     isGameFinished,
     isPositionReady,
@@ -376,8 +376,10 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
           fen={currentFen}
           onPieceDrop={onDrop}
           onSquareClick={onSquareClick}
+          onPromotionCheck={onPromotionCheck}
           arePiecesDraggable={!isGameFinished}
-          boardWidth={600}
+          boardWidth={800}
+          animationDuration={150}
         />
       </div>
 
@@ -417,6 +419,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         onMove={makeMove}
         moveHistory={history}
       />
+
     </div>
   );
 };

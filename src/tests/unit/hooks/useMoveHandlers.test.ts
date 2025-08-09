@@ -35,17 +35,33 @@ jest.mock('@shared/services/logging/Logger', () => ({
   })),
 }));
 
-jest.mock('@shared/store/hooks', () => ({
-  useUIStore: jest.fn(() => [
-    {}, // UI state
-    { showToast: jest.fn() } // UI actions
-  ]),
+jest.mock('@shared/utils/toast', () => ({
+  showErrorToast: jest.fn(),
+  showInfoToast: jest.fn(),
+  showSuccessToast: jest.fn(),
+  showWarningToast: jest.fn(),
+}));
+
+jest.mock('@shared/hooks/useChessAudio', () => ({
+  useChessAudio: jest.fn(() => ({
+    playSound: jest.fn(),
+    isSoundLoaded: jest.fn(() => true),
+    getLoadedSoundCount: jest.fn(() => 8),
+    isAudioEnabled: true,
+    audioVolume: 0.7,
+  })),
 }));
 
 jest.mock('chess.js', () => ({
   Chess: jest.fn().mockImplementation((fen) => ({
     turn: jest.fn(() => 'w'), // Default to white's turn
     fen: jest.fn(() => fen),
+    get: jest.fn((square) => {
+      // Mock piece detection for promotion tests
+      if (square === 'e7') return { type: 'p', color: 'w' }; // White pawn on 7th rank
+      if (square === 'e2') return { type: 'p', color: 'b' }; // Black pawn on 2nd rank
+      return null;
+    }),
   })),
 }));
 
@@ -67,14 +83,8 @@ describe('useMoveHandlers', () => {
     onMove: jest.fn(),
   };
 
-  const mockUIActions = { showToast: jest.fn() };
-
   beforeEach(() => {
     jest.clearAllMocks();
-    
-    // Reset useUIStore mock
-    const { useUIStore } = require('@shared/store/hooks');
-    useUIStore.mockReturnValue([{}, mockUIActions]);
   });
 
   describe('Hook Initialization', () => {
@@ -430,7 +440,8 @@ describe('useMoveHandlers', () => {
         await new Promise(resolve => setTimeout(resolve, 0));
       });
 
-      expect(mockUIActions.showToast).toHaveBeenCalledWith('Invalid move', 'error');
+      const { showErrorToast } = require('@shared/utils/toast');
+      expect(showErrorToast).toHaveBeenCalledWith('Invalid move');
     });
 
     it('handles non-Error exceptions gracefully', async () => {
@@ -447,7 +458,8 @@ describe('useMoveHandlers', () => {
         await new Promise(resolve => setTimeout(resolve, 0));
       });
 
-      expect(mockUIActions.showToast).toHaveBeenCalledWith('Move failed', 'error');
+      const { showErrorToast } = require('@shared/utils/toast');
+      expect(showErrorToast).toHaveBeenCalledWith('Move failed');
     });
   });
 

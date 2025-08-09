@@ -9,6 +9,8 @@ describe("MoveErrorDialog", () => {
     wdlBefore: 2,
     wdlAfter: -1,
     bestMove: "Kb1",
+    playedMove: "Ka2",
+    moveNumber: 0,
     onClose: jest.fn(),
     onTakeBack: jest.fn(),
   };
@@ -34,34 +36,35 @@ describe("MoveErrorDialog", () => {
     it("displays the best move", () => {
       render(<MoveErrorDialog {...defaultProps} />);
 
-      expect(screen.getByText(defaultProps.bestMove)).toBeInTheDocument();
-      expect(screen.getByText("Bester Zug war:")).toBeInTheDocument();
+      // Best move is shown with move number (1.Kb1)
+      expect(screen.getByText(/1\.Kb1/)).toBeInTheDocument();
+      expect(screen.getByText(/Besser war:/)).toBeInTheDocument();
     });
 
     it("shows correct message for win to loss", () => {
       render(<MoveErrorDialog {...defaultProps} wdlBefore={2} wdlAfter={0} />);
 
-      // Should show that the move ruins the win
+      // Should show that the move ruins the win (with move number)
       expect(
-        screen.getByText("Dieser Zug verdirbt den Gewinn!"),
+        screen.getByText("1.Ka2 verdirbt den Gewinn!"),
       ).toBeInTheDocument();
     });
 
     it("shows correct message for draw to loss", () => {
       render(<MoveErrorDialog {...defaultProps} wdlBefore={0} wdlAfter={-2} />);
 
-      // Should show that the move leads to loss
+      // Should show that the move leads to loss (with move number)
       expect(
-        screen.getByText("Dieser Zug führt zum Verlust!"),
+        screen.getByText("1.Ka2 führt zum Verlust!"),
       ).toBeInTheDocument();
     });
 
     it("shows correct message for position deterioration", () => {
       render(<MoveErrorDialog {...defaultProps} wdlBefore={2} wdlAfter={0} />);
 
-      // Should show that the position worsens
+      // Should show that the position worsens (with move number)
       expect(
-        screen.getByText("Dieser Zug verdirbt den Gewinn!"),
+        screen.getByText("1.Ka2 verdirbt den Gewinn!"),
       ).toBeInTheDocument();
     });
 
@@ -70,9 +73,9 @@ describe("MoveErrorDialog", () => {
         <MoveErrorDialog {...defaultProps} wdlBefore={-2} wdlAfter={-2} />,
       );
 
-      // Should show default error message
+      // Should show default error message (with move number)
       expect(
-        screen.getByText("Dieser Zug ist ein Fehler!"),
+        screen.getByText("1.Ka2 ist ein Fehler!"),
       ).toBeInTheDocument();
     });
 
@@ -170,7 +173,7 @@ describe("MoveErrorDialog", () => {
 
       // Check for proper text structure
       expect(screen.getByText("Fehler erkannt!")).toBeInTheDocument();
-      expect(screen.getByText(/Dieser Zug/)).toBeInTheDocument();
+      expect(screen.getByText(/1\.Ka2/)).toBeInTheDocument();
     });
   });
 
@@ -185,18 +188,18 @@ describe("MoveErrorDialog", () => {
     it("handles equal WDL values", () => {
       render(<MoveErrorDialog {...defaultProps} wdlBefore={0} wdlAfter={0} />);
 
-      // Should show default error message
+      // Should show default error message (with move number)
       expect(
-        screen.getByText("Dieser Zug ist ein Fehler!"),
+        screen.getByText("1.Ka2 ist ein Fehler!"),
       ).toBeInTheDocument();
     });
 
     it("shows correct message for position worsening", () => {
       render(<MoveErrorDialog {...defaultProps} wdlBefore={1} wdlAfter={-1} />);
 
-      // Should show that position worsens (wdlBefore > wdlAfter)
+      // Should show that position worsens (wdlBefore > wdlAfter, with move number)
       expect(
-        screen.getByText("Dieser Zug verschlechtert die Stellung!"),
+        screen.getByText("1.Ka2 verschlechtert die Stellung!"),
       ).toBeInTheDocument();
     });
   });

@@ -2,12 +2,38 @@
 
 import React, { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "sonner";
 import { useStore, StoreProvider } from "@shared/store/StoreContext";
 import { configureStore } from "@shared/store/storeConfig";
 import { createServerPositionService } from "@shared/services/database/serverPositionService";
 import { getLogger } from "@shared/services/logging";
 import { setupE2ETablebaseMocks } from "@shared/services/TablebaseService.e2e.mocks";
 import { useStoreHydration } from "@shared/hooks/useHydration";
+import { CommandPalette, useCommandPalette, useChessHotkeys } from "@shared/components/ui/CommandPalette";
+
+// Create a client instance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Tablebase data is immutable, so cache it for a long time
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 30 * 60 * 1000, // 30 minutes (formerly cacheTime)
+      refetchOnWindowFocus: false,
+      retry: (failureCount, error: unknown) => {
+        // Don't retry on 4xx errors (client errors)
+        if (error && typeof error === 'object' && 'status' in error) {
+          const status = (error as { status: number }).status;
+          if (status >= 400 && status < 500) {
+            return false;
+          }
+        }
+        // Retry up to 3 times for other errors
+        return failureCount < 3;
+      },
+    },
+  },
+});
 
 // Configure store dependencies once at app initialization
 // This happens before any component renders
@@ -30,6 +56,10 @@ function AppProvidersInner({ children }: { children: React.ReactNode }) {
   const analysisStatus = useStore((state) => state.tablebase.analysisStatus);
   const logger = getLogger().setContext("_app");
   const hasHydrated = useStoreHydration();
+  const { open, setOpen } = useCommandPalette();
+  
+  // Enable global chess hotkeys
+  useChessHotkeys();
 
   useEffect(() => {
     // Update app-ready based on router state
@@ -95,7 +125,19 @@ function AppProvidersInner({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <CommandPalette open={open} onOpenChange={setOpen} />
+      <Toaster 
+        position="bottom-right"
+        richColors
+        theme="dark"
+        closeButton
+        expand
+      />
+    </>
+  );
 }
 
 /**
@@ -106,8 +148,10 @@ function AppProvidersInner({ children }: { children: React.ReactNode }) {
  */
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
-    <StoreProvider>
-      <AppProvidersInner>{children}</AppProvidersInner>
-    </StoreProvider>
+    <QueryClientProvider client={queryClient}>
+      <StoreProvider>
+        <AppProvidersInner>{children}</AppProvidersInner>
+      </StoreProvider>
+    </QueryClientProvider>
   );
 }

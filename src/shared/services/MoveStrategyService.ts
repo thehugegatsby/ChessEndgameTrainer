@@ -1,4 +1,4 @@
-import { tablebaseService } from "./TablebaseService";
+// Note: Using direct service import for service-to-service integration
 import { getLogger } from "./logging";
 
 const logger = getLogger().setContext("MoveStrategyService");
@@ -46,6 +46,7 @@ class MoveStrategyService {
   async getLongestResistanceMove(fen: string): Promise<string | null> {
     try {
       // Get ALL moves efficiently with single API call
+      const { tablebaseService } = await import("./TablebaseService");
       const topMoves = await tablebaseService.getTopMoves(fen, 100);
 
       if (
@@ -185,6 +186,7 @@ class MoveStrategyService {
    */
   async getBestMove(fen: string): Promise<string | null> {
     try {
+      const { tablebaseService } = await import("./TablebaseService");
       const topMoves = await tablebaseService.getTopMoves(fen, 1);
 
       if (
@@ -233,6 +235,7 @@ class MoveStrategyService {
     strength: number = 0.8,
   ): Promise<string | null> {
     try {
+      const { tablebaseService } = await import("./TablebaseService");
       const topMoves = await tablebaseService.getTopMoves(fen, 5);
 
       if (

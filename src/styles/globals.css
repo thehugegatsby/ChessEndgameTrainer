@@ -3,6 +3,9 @@
 /* Import dialog animations */
 @import "./dialog-animations.css";
 
+/* Import chess piece animations */
+@import "./chess-animations.css";
+
 /* Dark Theme Root Variables */
 :root {
   --bg-primary: #0f1419;

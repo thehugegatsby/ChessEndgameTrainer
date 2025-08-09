@@ -40,7 +40,8 @@
 import { useCallback, useState } from 'react';
 import { Chess, Square } from 'chess.js';
 import { getLogger } from '@shared/services/logging/Logger';
-import { useUIStore } from '@shared/store/hooks';
+import { showErrorToast } from '@shared/utils/toast';
+import { useChessAudio } from './useChessAudio';
 // import type { ValidatedMove } from '@shared/types/chess';
 
 /**
@@ -133,10 +134,63 @@ export const useMoveHandlers = ({
   trainingState,
   onMove,
 }: UseMoveHandlersProps): UseMoveHandlersReturn => {
-  const [, uiActions] = useUIStore();
-  
   // Click-to-move state management
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
+  
+  // Chess audio integration
+  const { playSound } = useChessAudio({ volume: 0.7, enabled: true });
+
+  /**
+   * Analyze a move and play appropriate audio
+   * 
+   * @param move - The move that was made
+   * @param beforeFen - FEN position before the move
+   * @param afterFen - FEN position after the move
+   */
+  const analyzeMoveAndPlayAudio = useCallback(async (
+    move: MoveInput,
+    beforeFen: string,
+    afterFen: string
+  ) => {
+    try {
+      const chessAfter = new Chess(afterFen);
+      const chessBefore = new Chess(beforeFen);
+      
+      // Check if move was a capture by comparing piece counts
+      // More reliable than checking target square
+      const piecesBefore = chessBefore.board().flat().filter(p => p !== null).length;
+      const piecesAfter = chessAfter.board().flat().filter(p => p !== null).length;
+      const wasCapture = piecesBefore > piecesAfter;
+      
+      // Check if position is now in check
+      const isInCheck = chessAfter.inCheck();
+      
+      // Check game ending conditions
+      const isCheckmate = chessAfter.isCheckmate();
+      const isDraw = chessAfter.isDraw() || chessAfter.isStalemate();
+      
+      // Check if move was a promotion
+      const wasPromotion = !!move.promotion;
+      
+      // Play appropriate sound based on move characteristics
+      if (isCheckmate) {
+        await playSound('checkmate');
+      } else if (isDraw) {
+        await playSound('draw'); 
+      } else if (wasPromotion) {
+        await playSound('promotion');
+      } else if (isInCheck) {
+        await playSound('check');
+      } else if (wasCapture) {
+        await playSound('capture');
+      } else {
+        await playSound('move');
+      }
+      
+    } catch (error) {
+      getLogger().warn('Failed to analyze move for audio', error as Error);
+    }
+  }, [playSound]);
 
   /**
    * Clear the current square selection
@@ -230,8 +284,29 @@ export const useMoveHandlers = ({
       }
 
       try {
+        // Capture current FEN before making the move for audio analysis
+        const beforeFen = currentFen;
+        
         // Move validation is handled by ChessService in makeMove
         const result = await onMove(move);
+
+        // If the move was successful, analyze it and play appropriate audio
+        if (result) {
+          // Note: We need to get the FEN after the move from the store
+          // This is a bit tricky because the move processing is async
+          // For now, let's use setTimeout to let the store update
+          setTimeout(() => {
+            try {
+              const chess = new Chess(beforeFen);
+              chess.move(move);
+              const afterFen = chess.fen();
+              analyzeMoveAndPlayAudio(move, beforeFen, afterFen);
+            } catch {
+              // Fallback to generic move sound if analysis fails
+              playSound('move');
+            }
+          }, 50);
+        }
 
         // The orchestrator now handles the entire workflow including:
         // - Move validation
@@ -243,7 +318,9 @@ export const useMoveHandlers = ({
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : "Move failed";
-        uiActions.showToast(errorMessage, "error");
+        showErrorToast(errorMessage);
+        // Play error sound for failed moves
+        playSound('error');
         return false;
       }
     },
@@ -251,8 +328,10 @@ export const useMoveHandlers = ({
       isGameFinished,
       onMove,
       trainingState,
-      uiActions,
       isPositionReady,
+      currentFen,
+      analyzeMoveAndPlayAudio,
+      playSound,
     ],
   );
 
@@ -290,6 +369,9 @@ export const useMoveHandlers = ({
       // Add promotion piece if provided
       if (promotion) {
         move.promotion = promotion as "q" | "r" | "b" | "n";
+      } else if (onPromotionCheck(sourceSquare, targetSquare)) {
+        // If no promotion provided but move is a promotion, default to queen
+        move.promotion = "q";
       }
 
       handleMove(move);
@@ -299,6 +381,7 @@ export const useMoveHandlers = ({
       handleMove,
       isGameFinished,
       isPositionReady,
+      onPromotionCheck,
     ],
   );
 
