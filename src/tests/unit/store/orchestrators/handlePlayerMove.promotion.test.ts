@@ -4,6 +4,7 @@
  */
 
 import { handlePlayerMove } from "@shared/store/orchestrators/handlePlayerMove";
+import { getOpponentTurnManager } from "@shared/store/orchestrators/handlePlayerMove/OpponentTurnHandler";
 import { chessService } from "@shared/services/ChessService";
 import { tablebaseService } from "@shared/services/TablebaseService";
 import { handleTrainingCompletion } from "@shared/store/orchestrators/handlePlayerMove/move.completion";
@@ -29,9 +30,24 @@ jest.mock("@shared/services/TablebaseService", () => ({
 
 jest.mock("@shared/store/orchestrators/handlePlayerMove/move.completion");
 
+jest.mock("@shared/store/orchestrators/handlePlayerMove/OpponentTurnHandler", () => ({
+  getOpponentTurnManager: jest.fn(() => ({
+    schedule: jest.fn(),
+    cancel: jest.fn(),
+  })),
+}));
+
 describe("Pawn Promotion Auto-Win Feature", () => {
   let mockApi: StoreApi;
   let mockState: any;
+
+  beforeAll(() => {
+    jest.useFakeTimers();
+  });
+
+  afterAll(() => {
+    jest.useRealTimers();
+  });
 
   beforeEach(() => {
     // Create mock state
@@ -58,6 +74,16 @@ describe("Pawn Promotion Auto-Win Feature", () => {
 
     // Reset all mocks
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    // Clean up any pending timers to prevent the "environment torn down" error
+    jest.clearAllTimers();
+    // Also cancel any pending opponent turns
+    const mockManager = getOpponentTurnManager() as any;
+    if (mockManager && mockManager.cancel) {
+      mockManager.cancel();
+    }
   });
 
   describe("Test Position: K+P endgame leading to promotion", () => {

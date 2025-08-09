@@ -45,8 +45,11 @@ const baseConfig = {
   testTimeout: 10000,
   clearMocks: true,
   restoreMocks: true,
-  cache: true,
-  cacheDirectory: '<rootDir>/.jest-cache',
+  cache: false, // Disable cache to prevent memory accumulation
+  // Memory optimizations
+  maxWorkers: 2, // Limit workers to reduce memory usage
+  workerIdleMemoryLimit: '512MB', // Kill workers when they use too much memory
+  // cacheDirectory: '<rootDir>/.jest-cache', // Disabled to prevent cache buildup
   modulePathIgnorePatterns: [
     '<rootDir>/node_modules',
     '<rootDir>/dist',

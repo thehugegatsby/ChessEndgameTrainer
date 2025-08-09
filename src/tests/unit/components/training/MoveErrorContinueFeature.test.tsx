@@ -29,6 +29,8 @@ describe("MoveErrorDialog - Continue Playing Feature", () => {
     wdlBefore: 2,
     wdlAfter: 0,
     bestMove: "Kf6",
+    playedMove: "Kf5",  // Add the missing playedMove prop
+    moveNumber: 10,     // Add moveNumber for complete formatting
     onClose: jest.fn(),
     onTakeBack: jest.fn(),
   };
@@ -64,11 +66,12 @@ describe("MoveErrorDialog - Continue Playing Feature", () => {
     render(<MoveErrorDialog {...defaultProps} />);
 
     // Should show win-ruining message for wdlBefore=2, wdlAfter=0
+    // The message includes the move number: 6.Kf5 (move 10 = 5th white move, displayed as 6th)
     expect(
-      screen.getByText("Dieser Zug verdirbt den Gewinn!"),
+      screen.getByText("6.Kf5 verdirbt den Gewinn!"),
     ).toBeInTheDocument();
-    expect(screen.getByText("Bester Zug war:")).toBeInTheDocument();
-    expect(screen.getByText("Kf6")).toBeInTheDocument();
+    expect(screen.getByText(/Besser war:/)).toBeInTheDocument();
+    expect(screen.getByText("6.Kf6")).toBeInTheDocument();
   });
 
   it("should display both action buttons", () => {
@@ -88,16 +91,16 @@ describe("MoveErrorDialog - Continue Playing Feature", () => {
       <MoveErrorDialog {...defaultProps} wdlBefore={0} wdlAfter={-2} />,
     );
     expect(
-      screen.getByText("Dieser Zug führt zum Verlust!"),
+      screen.getByText("6.Kf5 führt zum Verlust!"),
     ).toBeInTheDocument();
 
     rerender(<MoveErrorDialog {...defaultProps} wdlBefore={1} wdlAfter={-1} />);
     expect(
-      screen.getByText("Dieser Zug verschlechtert die Stellung!"),
+      screen.getByText("6.Kf5 verschlechtert die Stellung!"),
     ).toBeInTheDocument();
 
     rerender(<MoveErrorDialog {...defaultProps} wdlBefore={0} wdlAfter={0} />);
-    expect(screen.getByText("Dieser Zug ist ein Fehler!")).toBeInTheDocument();
+    expect(screen.getByText("6.Kf5 ist ein Fehler!")).toBeInTheDocument();
   });
 
   describe("Integration with TrainingBoard (mocked scenario)", () => {
@@ -116,10 +119,10 @@ describe("MoveErrorDialog - Continue Playing Feature", () => {
       // Verify the dialog is showing the error state correctly
       expect(screen.getByText("Fehler erkannt!")).toBeInTheDocument();
       expect(
-        screen.getByText("Dieser Zug verdirbt den Gewinn!"),
+        screen.getByText("6.Kf5 verdirbt den Gewinn!"),
       ).toBeInTheDocument();
-      expect(screen.getByText("Bester Zug war:")).toBeInTheDocument();
-      expect(screen.getByText("Kf6")).toBeInTheDocument();
+      expect(screen.getByText(/Besser war:/)).toBeInTheDocument();
+      expect(screen.getByText("6.Kf6")).toBeInTheDocument();
 
       // Click Weiterspielen
       const weiterSpielenButton = screen.getByRole("button", {

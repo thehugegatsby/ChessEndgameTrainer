@@ -7,6 +7,7 @@
 import React from "react";
 import { render, screen, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { EndgameTrainingPage } from "@shared/pages/EndgameTrainingPage";
 import { EndgamePosition } from "@shared/types";
 import { useRouter } from "next/navigation";
@@ -152,10 +153,19 @@ describe("EndgameTrainingPage Integration Tests", () => {
    *
    */
   const renderPage = () => {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
+    
     return render(
-      <StoreProvider>
-        <EndgameTrainingPage />
-      </StoreProvider>,
+      <QueryClientProvider client={queryClient}>
+        <StoreProvider>
+          <EndgameTrainingPage />
+        </StoreProvider>
+      </QueryClientProvider>,
     );
   };
 
