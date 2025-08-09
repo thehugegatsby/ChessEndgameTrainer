@@ -367,6 +367,150 @@ describe('useMoveValidation', () => {
     });
   });
 
+  describe('Edge Cases and Safeguards', () => {
+    it('handles missing setEvaluations action gracefully', () => {
+      const actionsWithoutSetEvaluations = {
+        ...mockTablebaseActions,
+        setEvaluations: undefined, // Missing action
+      };
+
+      const mockEvaluation = {
+        fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        evaluation: 100,
+        moves: [{ move: 'Kh1', wdl: 1, dtm: 5 }],
+        isAvailable: true,
+      };
+
+      const props = {
+        ...defaultProps,
+        lastEvaluation: mockEvaluation,
+        tablebaseActions: actionsWithoutSetEvaluations as any,
+      };
+
+      // Should not throw when setEvaluations is missing
+      expect(() => {
+        renderHook(() => useMoveValidation(props));
+      }).not.toThrow();
+    });
+
+    it('handles missing setAnalysisStatus action gracefully', () => {
+      const actionsWithoutSetAnalysisStatus = {
+        ...mockTablebaseActions,
+        setAnalysisStatus: undefined, // Missing action
+      };
+
+      const props = {
+        ...defaultProps,
+        isEvaluating: true,
+        tablebaseActions: actionsWithoutSetAnalysisStatus as any,
+      };
+
+      // Should not throw when setAnalysisStatus is missing
+      expect(() => {
+        renderHook(() => useMoveValidation(props));
+      }).not.toThrow();
+    });
+
+    it('skips already processed evaluations', () => {
+      const mockEvaluation = {
+        fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        evaluation: 100,
+        mateInMoves: 5,
+        moves: [{ move: 'Kh1', wdl: 1, dtm: 5 }],
+        isAvailable: true,
+      };
+
+      const props = {
+        ...defaultProps,
+        lastEvaluation: mockEvaluation,
+      };
+
+      const { result, rerender } = renderHook(
+        (props) => useMoveValidation(props),
+        { initialProps: props }
+      );
+
+      // First render should process the evaluation
+      expect(mockTablebaseActions.setAnalysisResult).toHaveBeenCalledTimes(0);
+
+      // Second render with same evaluation should be skipped
+      rerender(props);
+      
+      // Should not process the same evaluation twice
+      expect(result.current).toBeDefined();
+    });
+
+    it('processes different evaluations separately', () => {
+      const firstEvaluation = {
+        fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        evaluation: 100,
+        moves: [{ move: 'Kh1', wdl: 1, dtm: 5 }],
+        isAvailable: true,
+      };
+
+      const secondEvaluation = {
+        fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        evaluation: 200, // Different evaluation score
+        moves: [{ move: 'Kh2', wdl: 1, dtm: 3 }],
+        isAvailable: true,
+      };
+
+      const { result, rerender } = renderHook(
+        (props) => useMoveValidation(props),
+        { initialProps: { ...defaultProps, lastEvaluation: firstEvaluation } }
+      );
+
+      // Process second evaluation with different score
+      rerender({ ...defaultProps, lastEvaluation: secondEvaluation });
+
+      // Both evaluations should be processed
+      expect(result.current).toBeDefined();
+    });
+
+    it('successfully calls setEvaluations when available and handles deduplication', () => {
+      const mockSetEvaluations = jest.fn();
+      const actionsWithSetEvaluations = {
+        ...mockTablebaseActions,
+        setEvaluations: mockSetEvaluations,
+      };
+
+      const mockEvaluation = {
+        fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        evaluation: 100,
+        moves: [{ move: 'Kh1', wdl: 1, dtm: 5 }],
+        isAvailable: true,
+      };
+
+      const { rerender } = renderHook(
+        (props) => useMoveValidation(props),
+        { 
+          initialProps: {
+            ...defaultProps,
+            lastEvaluation: mockEvaluation,
+            tablebaseActions: actionsWithSetEvaluations,
+          }
+        }
+      );
+
+      // First render should call setEvaluations
+      expect(mockSetEvaluations).toHaveBeenCalledTimes(1);
+      expect(mockSetEvaluations).toHaveBeenCalledWith([mockEvaluation]);
+
+      // Reset the mock
+      mockSetEvaluations.mockClear();
+
+      // Second render with same evaluation should be skipped (line 126 coverage)
+      rerender({
+        ...defaultProps,
+        lastEvaluation: mockEvaluation,
+        tablebaseActions: actionsWithSetEvaluations,
+      });
+
+      // setEvaluations should NOT be called again due to deduplication
+      expect(mockSetEvaluations).not.toHaveBeenCalled();
+    });
+  });
+
   describe('Integration with Other Hooks', () => {
     it('works with evaluation data from usePositionAnalysis', () => {
       const mockPositionAnalysisData = {

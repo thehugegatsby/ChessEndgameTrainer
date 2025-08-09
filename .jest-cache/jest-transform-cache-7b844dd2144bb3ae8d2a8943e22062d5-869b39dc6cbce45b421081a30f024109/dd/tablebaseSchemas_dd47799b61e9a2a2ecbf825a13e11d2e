@@ -1,0 +1,294 @@
+246edf0f837a264f1d05f5db2a4e8486
+/**
+ * Zod schemas for Lichess Tablebase API responses
+ *
+ * @remarks
+ * These schemas validate the shape of API responses to ensure
+ * data integrity at service boundaries. They provide type safety
+ * and clear documentation of the expected API contract.
+ */"use strict";
+
+/* istanbul ignore next */
+function cov_2nhg48k0ee() {
+  var path = "/home/thehu/coolProjects/EndgameTrainer-training-board-complete/src/shared/types/tablebaseSchemas.ts";
+  var hash = "1cf25aa34496dbe588f808f93e7be896fbca1574";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "/home/thehu/coolProjects/EndgameTrainer-training-board-complete/src/shared/types/tablebaseSchemas.ts",
+    statementMap: {
+      "0": {
+        start: {
+          line: 9,
+          column: 0
+        },
+        end: {
+          line: 11,
+          column: 3
+        }
+      },
+      "1": {
+        start: {
+          line: 13,
+          column: 4
+        },
+        end: {
+          line: 16,
+          column: 7
+        }
+      },
+      "2": {
+        start: {
+          line: 13,
+          column: 24
+        },
+        end: {
+          line: 16,
+          column: 7
+        }
+      },
+      "3": {
+        start: {
+          line: 18,
+          column: 0
+        },
+        end: {
+          line: 25,
+          column: 3
+        }
+      },
+      "4": {
+        start: {
+          line: 20,
+          column: 8
+        },
+        end: {
+          line: 20,
+          column: 46
+        }
+      },
+      "5": {
+        start: {
+          line: 23,
+          column: 8
+        },
+        end: {
+          line: 23,
+          column: 35
+        }
+      },
+      "6": {
+        start: {
+          line: 26,
+          column: 13
+        },
+        end: {
+          line: 26,
+          column: 27
+        }
+      },
+      "7": {
+        start: {
+          line: 27,
+          column: 28
+        },
+        end: {
+          line: 39,
+          column: 2
+        }
+      },
+      "8": {
+        start: {
+          line: 40,
+          column: 39
+        },
+        end: {
+          line: 56,
+          column: 2
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "_export",
+        decl: {
+          start: {
+            line: 12,
+            column: 9
+          },
+          end: {
+            line: 12,
+            column: 16
+          }
+        },
+        loc: {
+          start: {
+            line: 12,
+            column: 30
+          },
+          end: {
+            line: 17,
+            column: 1
+          }
+        },
+        line: 12
+      },
+      "1": {
+        name: "(anonymous_1)",
+        decl: {
+          start: {
+            line: 19,
+            column: 4
+          },
+          end: {
+            line: 19,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 19,
+            column: 42
+          },
+          end: {
+            line: 21,
+            column: 5
+          }
+        },
+        line: 19
+      },
+      "2": {
+        name: "(anonymous_2)",
+        decl: {
+          start: {
+            line: 22,
+            column: 4
+          },
+          end: {
+            line: 22,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 22,
+            column: 31
+          },
+          end: {
+            line: 24,
+            column: 5
+          }
+        },
+        line: 22
+      }
+    },
+    branchMap: {},
+    s: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0,
+      "8": 0
+    },
+    f: {
+      "0": 0,
+      "1": 0,
+      "2": 0
+    },
+    b: {},
+    inputSourceMap: {
+      version: 3,
+      sources: ["/home/thehu/coolProjects/EndgameTrainer-training-board-complete/src/shared/types/tablebaseSchemas.ts"],
+      sourcesContent: ["/**\n * Zod schemas for Lichess Tablebase API responses\n *\n * @remarks\n * These schemas validate the shape of API responses to ensure\n * data integrity at service boundaries. They provide type safety\n * and clear documentation of the expected API contract.\n */\n\nimport { z } from \"zod\";\n\n/**\n * Schema for individual moves in tablebase response\n */\nexport const TablebaseMoveSchema = z.object({\n  uci: z.string(),\n  san: z.string(),\n  category: z.string(),\n  dtz: z.number().nullable(),\n  dtm: z.number().nullable(),\n  zeroing: z.boolean().optional().default(false),\n  checkmate: z.boolean().optional().default(false),\n  stalemate: z.boolean().optional().default(false),\n  variant_win: z.boolean().optional().default(false),\n  variant_loss: z.boolean().optional().default(false),\n  insufficient_material: z.boolean().optional().default(false),\n});\n\n/**\n * Schema for main tablebase API response\n */\nexport const LichessTablebaseResponseSchema = z.object({\n  category: z.string(), // Required - every position has a category\n  dtz: z.number().nullable(), // Required but can be null\n  dtm: z.number().nullable().optional(), // Optional - not always present in API response\n  precise_dtz: z.union([z.number(), z.boolean()]).optional(), // Can be number or boolean\n  dtw: z.number().nullable().optional(), // Add missing fields from actual API\n  dtc: z.number().nullable().optional(),\n  checkmate: z.boolean().optional().default(false),\n  stalemate: z.boolean().optional().default(false),\n  variant_win: z.boolean().optional().default(false),\n  variant_loss: z.boolean().optional().default(false),\n  insufficient_material: z.boolean().optional().default(false),\n  moves: z.array(TablebaseMoveSchema).optional().default([]),\n});\n"],
+      names: ["LichessTablebaseResponseSchema", "TablebaseMoveSchema", "z", "object", "uci", "string", "san", "category", "dtz", "number", "nullable", "dtm", "zeroing", "boolean", "optional", "default", "checkmate", "stalemate", "variant_win", "variant_loss", "insufficient_material", "precise_dtz", "union", "dtw", "dtc", "moves", "array"],
+      mappings: "AAAA;;;;;;;CAOC;;;;;;;;;;;QAwBYA;eAAAA;;QAjBAC;eAAAA;;;qBALK;AAKX,MAAMA,sBAAsBC,MAAC,CAACC,MAAM,CAAC;IAC1CC,KAAKF,MAAC,CAACG,MAAM;IACbC,KAAKJ,MAAC,CAACG,MAAM;IACbE,UAAUL,MAAC,CAACG,MAAM;IAClBG,KAAKN,MAAC,CAACO,MAAM,GAAGC,QAAQ;IACxBC,KAAKT,MAAC,CAACO,MAAM,GAAGC,QAAQ;IACxBE,SAASV,MAAC,CAACW,OAAO,GAAGC,QAAQ,GAAGC,OAAO,CAAC;IACxCC,WAAWd,MAAC,CAACW,OAAO,GAAGC,QAAQ,GAAGC,OAAO,CAAC;IAC1CE,WAAWf,MAAC,CAACW,OAAO,GAAGC,QAAQ,GAAGC,OAAO,CAAC;IAC1CG,aAAahB,MAAC,CAACW,OAAO,GAAGC,QAAQ,GAAGC,OAAO,CAAC;IAC5CI,cAAcjB,MAAC,CAACW,OAAO,GAAGC,QAAQ,GAAGC,OAAO,CAAC;IAC7CK,uBAAuBlB,MAAC,CAACW,OAAO,GAAGC,QAAQ,GAAGC,OAAO,CAAC;AACxD;AAKO,MAAMf,iCAAiCE,MAAC,CAACC,MAAM,CAAC;IACrDI,UAAUL,MAAC,CAACG,MAAM;IAClBG,KAAKN,MAAC,CAACO,MAAM,GAAGC,QAAQ;IACxBC,KAAKT,MAAC,CAACO,MAAM,GAAGC,QAAQ,GAAGI,QAAQ;IACnCO,aAAanB,MAAC,CAACoB,KAAK,CAAC;QAACpB,MAAC,CAACO,MAAM;QAAIP,MAAC,CAACW,OAAO;KAAG,EAAEC,QAAQ;IACxDS,KAAKrB,MAAC,CAACO,MAAM,GAAGC,QAAQ,GAAGI,QAAQ;IACnCU,KAAKtB,MAAC,CAACO,MAAM,GAAGC,QAAQ,GAAGI,QAAQ;IACnCE,WAAWd,MAAC,CAACW,OAAO,GAAGC,QAAQ,GAAGC,OAAO,CAAC;IAC1CE,WAAWf,MAAC,CAACW,OAAO,GAAGC,QAAQ,GAAGC,OAAO,CAAC;IAC1CG,aAAahB,MAAC,CAACW,OAAO,GAAGC,QAAQ,GAAGC,OAAO,CAAC;IAC5CI,cAAcjB,MAAC,CAACW,OAAO,GAAGC,QAAQ,GAAGC,OAAO,CAAC;IAC7CK,uBAAuBlB,MAAC,CAACW,OAAO,GAAGC,QAAQ,GAAGC,OAAO,CAAC;IACtDU,OAAOvB,MAAC,CAACwB,KAAK,CAACzB,qBAAqBa,QAAQ,GAAGC,OAAO,CAAC,EAAE;AAC3D"
+    },
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "1cf25aa34496dbe588f808f93e7be896fbca1574"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    // @ts-ignore
+    cov_2nhg48k0ee = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_2nhg48k0ee();
+cov_2nhg48k0ee().s[0]++;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+function _export(target, all) {
+  /* istanbul ignore next */
+  cov_2nhg48k0ee().f[0]++;
+  cov_2nhg48k0ee().s[1]++;
+  for (var name in all) {
+    /* istanbul ignore next */
+    cov_2nhg48k0ee().s[2]++;
+    Object.defineProperty(target, name, {
+      enumerable: true,
+      get: Object.getOwnPropertyDescriptor(all, name).get
+    });
+  }
+}
+/* istanbul ignore next */
+cov_2nhg48k0ee().s[3]++;
+_export(exports, {
+  get LichessTablebaseResponseSchema() {
+    /* istanbul ignore next */
+    cov_2nhg48k0ee().f[1]++;
+    cov_2nhg48k0ee().s[4]++;
+    return LichessTablebaseResponseSchema;
+  },
+  get TablebaseMoveSchema() {
+    /* istanbul ignore next */
+    cov_2nhg48k0ee().f[2]++;
+    cov_2nhg48k0ee().s[5]++;
+    return TablebaseMoveSchema;
+  }
+});
+const _zod =
+/* istanbul ignore next */
+(cov_2nhg48k0ee().s[6]++, require("zod"));
+const TablebaseMoveSchema =
+/* istanbul ignore next */
+(cov_2nhg48k0ee().s[7]++, _zod.z.object({
+  uci: _zod.z.string(),
+  san: _zod.z.string(),
+  category: _zod.z.string(),
+  dtz: _zod.z.number().nullable(),
+  dtm: _zod.z.number().nullable(),
+  zeroing: _zod.z.boolean().optional().default(false),
+  checkmate: _zod.z.boolean().optional().default(false),
+  stalemate: _zod.z.boolean().optional().default(false),
+  variant_win: _zod.z.boolean().optional().default(false),
+  variant_loss: _zod.z.boolean().optional().default(false),
+  insufficient_material: _zod.z.boolean().optional().default(false)
+}));
+const LichessTablebaseResponseSchema =
+/* istanbul ignore next */
+(cov_2nhg48k0ee().s[8]++, _zod.z.object({
+  category: _zod.z.string(),
+  dtz: _zod.z.number().nullable(),
+  dtm: _zod.z.number().nullable().optional(),
+  precise_dtz: _zod.z.union([_zod.z.number(), _zod.z.boolean()]).optional(),
+  dtw: _zod.z.number().nullable().optional(),
+  dtc: _zod.z.number().nullable().optional(),
+  checkmate: _zod.z.boolean().optional().default(false),
+  stalemate: _zod.z.boolean().optional().default(false),
+  variant_win: _zod.z.boolean().optional().default(false),
+  variant_loss: _zod.z.boolean().optional().default(false),
+  insufficient_material: _zod.z.boolean().optional().default(false),
+  moves: _zod.z.array(TablebaseMoveSchema).optional().default([])
+}));
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJjb3ZfMm5oZzQ4azBlZSIsInBhdGgiLCJoYXNoIiwiZ2xvYmFsIiwiRnVuY3Rpb24iLCJnY3YiLCJjb3ZlcmFnZURhdGEiLCJzdGF0ZW1lbnRNYXAiLCJzdGFydCIsImxpbmUiLCJjb2x1bW4iLCJlbmQiLCJmbk1hcCIsIm5hbWUiLCJkZWNsIiwibG9jIiwiYnJhbmNoTWFwIiwicyIsImYiLCJiIiwiaW5wdXRTb3VyY2VNYXAiLCJ2ZXJzaW9uIiwic291cmNlcyIsInNvdXJjZXNDb250ZW50IiwibmFtZXMiLCJtYXBwaW5ncyIsIl9jb3ZlcmFnZVNjaGVtYSIsImNvdmVyYWdlIiwiYWN0dWFsQ292ZXJhZ2UiLCJMaWNoZXNzVGFibGViYXNlUmVzcG9uc2VTY2hlbWEiLCJUYWJsZWJhc2VNb3ZlU2NoZW1hIiwiX3pvZCIsInoiLCJvYmplY3QiLCJ1Y2kiLCJzdHJpbmciLCJzYW4iLCJjYXRlZ29yeSIsImR0eiIsIm51bWJlciIsIm51bGxhYmxlIiwiZHRtIiwiemVyb2luZyIsImJvb2xlYW4iLCJvcHRpb25hbCIsImRlZmF1bHQiLCJjaGVja21hdGUiLCJzdGFsZW1hdGUiLCJ2YXJpYW50X3dpbiIsInZhcmlhbnRfbG9zcyIsImluc3VmZmljaWVudF9tYXRlcmlhbCIsInByZWNpc2VfZHR6IiwidW5pb24iLCJkdHciLCJkdGMiLCJtb3ZlcyIsImFycmF5Il0sInNvdXJjZXMiOlsiL2hvbWUvdGhlaHUvY29vbFByb2plY3RzL0VuZGdhbWVUcmFpbmVyLXRyYWluaW5nLWJvYXJkLWNvbXBsZXRlL3NyYy9zaGFyZWQvdHlwZXMvdGFibGViYXNlU2NoZW1hcy50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcbiAqIFpvZCBzY2hlbWFzIGZvciBMaWNoZXNzIFRhYmxlYmFzZSBBUEkgcmVzcG9uc2VzXG4gKlxuICogQHJlbWFya3NcbiAqIFRoZXNlIHNjaGVtYXMgdmFsaWRhdGUgdGhlIHNoYXBlIG9mIEFQSSByZXNwb25zZXMgdG8gZW5zdXJlXG4gKiBkYXRhIGludGVncml0eSBhdCBzZXJ2aWNlIGJvdW5kYXJpZXMuIFRoZXkgcHJvdmlkZSB0eXBlIHNhZmV0eVxuICogYW5kIGNsZWFyIGRvY3VtZW50YXRpb24gb2YgdGhlIGV4cGVjdGVkIEFQSSBjb250cmFjdC5cbiAqL1xuXG5pbXBvcnQgeyB6IH0gZnJvbSBcInpvZFwiO1xuXG4vKipcbiAqIFNjaGVtYSBmb3IgaW5kaXZpZHVhbCBtb3ZlcyBpbiB0YWJsZWJhc2UgcmVzcG9uc2VcbiAqL1xuZXhwb3J0IGNvbnN0IFRhYmxlYmFzZU1vdmVTY2hlbWEgPSB6Lm9iamVjdCh7XG4gIHVjaTogei5zdHJpbmcoKSxcbiAgc2FuOiB6LnN0cmluZygpLFxuICBjYXRlZ29yeTogei5zdHJpbmcoKSxcbiAgZHR6OiB6Lm51bWJlcigpLm51bGxhYmxlKCksXG4gIGR0bTogei5udW1iZXIoKS5udWxsYWJsZSgpLFxuICB6ZXJvaW5nOiB6LmJvb2xlYW4oKS5vcHRpb25hbCgpLmRlZmF1bHQoZmFsc2UpLFxuICBjaGVja21hdGU6IHouYm9vbGVhbigpLm9wdGlvbmFsKCkuZGVmYXVsdChmYWxzZSksXG4gIHN0YWxlbWF0ZTogei5ib29sZWFuKCkub3B0aW9uYWwoKS5kZWZhdWx0KGZhbHNlKSxcbiAgdmFyaWFudF93aW46IHouYm9vbGVhbigpLm9wdGlvbmFsKCkuZGVmYXVsdChmYWxzZSksXG4gIHZhcmlhbnRfbG9zczogei5ib29sZWFuKCkub3B0aW9uYWwoKS5kZWZhdWx0KGZhbHNlKSxcbiAgaW5zdWZmaWNpZW50X21hdGVyaWFsOiB6LmJvb2xlYW4oKS5vcHRpb25hbCgpLmRlZmF1bHQoZmFsc2UpLFxufSk7XG5cbi8qKlxuICogU2NoZW1hIGZvciBtYWluIHRhYmxlYmFzZSBBUEkgcmVzcG9uc2VcbiAqL1xuZXhwb3J0IGNvbnN0IExpY2hlc3NUYWJsZWJhc2VSZXNwb25zZVNjaGVtYSA9IHoub2JqZWN0KHtcbiAgY2F0ZWdvcnk6IHouc3RyaW5nKCksIC8vIFJlcXVpcmVkIC0gZXZlcnkgcG9zaXRpb24gaGFzIGEgY2F0ZWdvcnlcbiAgZHR6OiB6Lm51bWJlcigpLm51bGxhYmxlKCksIC8vIFJlcXVpcmVkIGJ1dCBjYW4gYmUgbnVsbFxuICBkdG06IHoubnVtYmVyKCkubnVsbGFibGUoKS5vcHRpb25hbCgpLCAvLyBPcHRpb25hbCAtIG5vdCBhbHdheXMgcHJlc2VudCBpbiBBUEkgcmVzcG9uc2VcbiAgcHJlY2lzZV9kdHo6IHoudW5pb24oW3oubnVtYmVyKCksIHouYm9vbGVhbigpXSkub3B0aW9uYWwoKSwgLy8gQ2FuIGJlIG51bWJlciBvciBib29sZWFuXG4gIGR0dzogei5udW1iZXIoKS5udWxsYWJsZSgpLm9wdGlvbmFsKCksIC8vIEFkZCBtaXNzaW5nIGZpZWxkcyBmcm9tIGFjdHVhbCBBUElcbiAgZHRjOiB6Lm51bWJlcigpLm51bGxhYmxlKCkub3B0aW9uYWwoKSxcbiAgY2hlY2ttYXRlOiB6LmJvb2xlYW4oKS5vcHRpb25hbCgpLmRlZmF1bHQoZmFsc2UpLFxuICBzdGFsZW1hdGU6IHouYm9vbGVhbigpLm9wdGlvbmFsKCkuZGVmYXVsdChmYWxzZSksXG4gIHZhcmlhbnRfd2luOiB6LmJvb2xlYW4oKS5vcHRpb25hbCgpLmRlZmF1bHQoZmFsc2UpLFxuICB2YXJpYW50X2xvc3M6IHouYm9vbGVhbigpLm9wdGlvbmFsKCkuZGVmYXVsdChmYWxzZSksXG4gIGluc3VmZmljaWVudF9tYXRlcmlhbDogei5ib29sZWFuKCkub3B0aW9uYWwoKS5kZWZhdWx0KGZhbHNlKSxcbiAgbW92ZXM6IHouYXJyYXkoVGFibGViYXNlTW92ZVNjaGVtYSkub3B0aW9uYWwoKS5kZWZhdWx0KFtdKSxcbn0pO1xuIl0sIm1hcHBpbmdzIjoiQUFBQTs7Ozs7OztHQU9DOztBQUFBO0FBQUEsU0FBQUEsZUFBQTtFQUFBLElBQUFDLElBQUE7RUFBQSxJQUFBQyxJQUFBO0VBQUEsSUFBQUMsTUFBQSxPQUFBQyxRQUFBO0VBQUEsSUFBQUMsR0FBQTtFQUFBLElBQUFDLFlBQUE7SUFBQUwsSUFBQTtJQUFBTSxZQUFBO01BQUE7UUFBQUMsS0FBQTtVQUFBQyxJQUFBO1VBQUFDLE1BQUE7UUFBQTtRQUFBQyxHQUFBO1VBQUFGLElBQUE7VUFBQUMsTUFBQTtRQUFBO01BQUE7TUFBQTtRQUFBRixLQUFBO1VBQUFDLElBQUE7VUFBQUMsTUFBQTtRQUFBO1FBQUFDLEdBQUE7VUFBQUYsSUFBQTtVQUFBQyxNQUFBO1FBQUE7TUFBQTtNQUFBO1FBQUFGLEtBQUE7VUFBQUMsSUFBQTtVQUFBQyxNQUFBO1FBQUE7UUFBQUMsR0FBQTtVQUFBRixJQUFBO1VBQUFDLE1BQUE7UUFBQTtNQUFBO01BQUE7UUFBQUYsS0FBQTtVQUFBQyxJQUFBO1VBQUFDLE1BQUE7UUFBQTtRQUFBQyxHQUFBO1VBQUFGLElBQUE7VUFBQUMsTUFBQTtRQUFBO01BQUE7TUFBQTtRQUFBRixLQUFBO1VBQUFDLElBQUE7VUFBQUMsTUFBQTtRQUFBO1FBQUFDLEdBQUE7VUFBQUYsSUFBQTtVQUFBQyxNQUFBO1FBQUE7TUFBQTtNQUFBO1FBQUFGLEtBQUE7VUFBQUMsSUFBQTtVQUFBQyxNQUFBO1FBQUE7UUFBQUMsR0FBQTtVQUFBRixJQUFBO1VBQUFDLE1BQUE7UUFBQTtNQUFBO01BQUE7UUFBQUYsS0FBQTtVQUFBQyxJQUFBO1VBQUFDLE1BQUE7UUFBQTtRQUFBQyxHQUFBO1VBQUFGLElBQUE7VUFBQUMsTUFBQTtRQUFBO01BQUE7TUFBQTtRQUFBRixLQUFBO1VBQUFDLElBQUE7VUFBQUMsTUFBQTtRQUFBO1FBQUFDLEdBQUE7VUFBQUYsSUFBQTtVQUFBQyxNQUFBO1FBQUE7TUFBQTtNQUFBO1FBQUFGLEtBQUE7VUFBQUMsSUFBQTtVQUFBQyxNQUFBO1FBQUE7UUFBQUMsR0FBQTtVQUFBRixJQUFBO1VBQUFDLE1BQUE7UUFBQTtNQUFBO0lBQUE7SUFBQUUsS0FBQTtNQUFBO1FBQUFDLElBQUE7UUFBQUMsSUFBQTtVQUFBTixLQUFBO1lBQUFDLElBQUE7WUFBQUMsTUFBQTtVQUFBO1VBQUFDLEdBQUE7WUFBQUYsSUFBQTtZQUFBQyxNQUFBO1VBQUE7UUFBQTtRQUFBSyxHQUFBO1VBQUFQLEtBQUE7WUFBQUMsSUFBQTtZQUFBQyxNQUFBO1VBQUE7VUFBQUMsR0FBQTtZQUFBRixJQUFBO1lBQUFDLE1BQUE7VUFBQTtRQUFBO1FBQUFELElBQUE7TUFBQTtNQUFBO1FBQUFJLElBQUE7UUFBQUMsSUFBQTtVQUFBTixLQUFBO1lBQUFDLElBQUE7WUFBQUMsTUFBQTtVQUFBO1VBQUFDLEdBQUE7WUFBQUYsSUFBQTtZQUFBQyxNQUFBO1VBQUE7UUFBQTtRQUFBSyxHQUFBO1VBQUFQLEtBQUE7WUFBQUMsSUFBQTtZQUFBQyxNQUFBO1VBQUE7VUFBQUMsR0FBQTtZQUFBRixJQUFBO1lBQUFDLE1BQUE7VUFBQTtRQUFBO1FBQUFELElBQUE7TUFBQTtNQUFBO1FBQUFJLElBQUE7UUFBQUMsSUFBQTtVQUFBTixLQUFBO1lBQUFDLElBQUE7WUFBQUMsTUFBQTtVQUFBO1VBQUFDLEdBQUE7WUFBQUYsSUFBQTtZQUFBQyxNQUFBO1VBQUE7UUFBQTtRQUFBSyxHQUFBO1VBQUFQLEtBQUE7WUFBQUMsSUFBQTtZQUFBQyxNQUFBO1VBQUE7VUFBQUMsR0FBQTtZQUFBRixJQUFBO1lBQUFDLE1BQUE7VUFBQTtRQUFBO1FBQUFELElBQUE7TUFBQTtJQUFBO0lBQUFPLFNBQUE7SUFBQUMsQ0FBQTtNQUFBO01BQUE7TUFBQTtNQUFBO01BQUE7TUFBQTtNQUFBO01BQUE7TUFBQTtJQUFBO0lBQUFDLENBQUE7TUFBQTtNQUFBO01BQUE7SUFBQTtJQUFBQyxDQUFBO0lBQUFDLGNBQUE7TUFBQUMsT0FBQTtNQUFBQyxPQUFBO01BQUFDLGNBQUE7TUFBQUMsS0FBQTtNQUFBQyxRQUFBO0lBQUE7SUFBQUMsZUFBQTtJQUFBeEIsSUFBQTtFQUFBO0VBQUEsSUFBQXlCLFFBQUEsR0FBQXhCLE1BQUEsQ0FBQUUsR0FBQSxNQUFBRixNQUFBLENBQUFFLEdBQUE7RUFBQSxLQUFBc0IsUUFBQSxDQUFBMUIsSUFBQSxLQUFBMEIsUUFBQSxDQUFBMUIsSUFBQSxFQUFBQyxJQUFBLEtBQUFBLElBQUE7SUFBQXlCLFFBQUEsQ0FBQTFC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

@@ -1,0 +1,55 @@
+d98576330b0878e9a67b56eea53da5e0
+/**
+ * Centralized Test IDs for E2E Testing
+ *
+ * This file serves as the single source of truth for all data-testid attributes
+ * used throughout the application. It ensures consistency between UI components
+ * and E2E tests while providing type safety and better maintainability.
+ */ "use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: Object.getOwnPropertyDescriptor(all, name).get
+    });
+}
+_export(exports, {
+    get TEST_IDS () {
+        return TEST_IDS;
+    },
+    get getTestId () {
+        return getTestId;
+    }
+});
+const TEST_IDS = {
+    MOVE_PANEL: {
+        CONTAINER: "move-list",
+        ITEM: "move-item",
+        EVALUATION: "move-evaluation",
+        EVAL_SCORE: "eval-score"
+    },
+    NAVIGATION: {
+        FIRST: "nav-first",
+        BACK: "nav-back",
+        FORWARD: "nav-forward",
+        LAST: "nav-last",
+        TRAINING_LINK: "training-link"
+    },
+    CONTROLS: {
+        UNDO: "undo-button"
+    },
+    CHESS: {
+        TRAINING_BOARD: "training-board",
+        CHESSBOARD: "chessboard"
+    },
+    LESSONS: {
+        START_BUTTON: "lesson-start"
+    }
+};
+const getTestId = (base, suffix)=>{
+    return `${base}-${suffix}`;
+};
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9ob21lL3RoZWh1L2Nvb2xQcm9qZWN0cy9FbmRnYW1lVHJhaW5lci10cmFpbmluZy1ib2FyZC1jb21wbGV0ZS9zcmMvc2hhcmVkL2NvbnN0YW50cy90ZXN0SWRzLnRzIl0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxuICogQ2VudHJhbGl6ZWQgVGVzdCBJRHMgZm9yIEUyRSBUZXN0aW5nXG4gKlxuICogVGhpcyBmaWxlIHNlcnZlcyBhcyB0aGUgc2luZ2xlIHNvdXJjZSBvZiB0cnV0aCBmb3IgYWxsIGRhdGEtdGVzdGlkIGF0dHJpYnV0ZXNcbiAqIHVzZWQgdGhyb3VnaG91dCB0aGUgYXBwbGljYXRpb24uIEl0IGVuc3VyZXMgY29uc2lzdGVuY3kgYmV0d2VlbiBVSSBjb21wb25lbnRzXG4gKiBhbmQgRTJFIHRlc3RzIHdoaWxlIHByb3ZpZGluZyB0eXBlIHNhZmV0eSBhbmQgYmV0dGVyIG1haW50YWluYWJpbGl0eS5cbiAqL1xuXG5leHBvcnQgY29uc3QgVEVTVF9JRFMgPSB7XG4gIE1PVkVfUEFORUw6IHtcbiAgICBDT05UQUlORVI6IFwibW92ZS1saXN0XCIsIC8vIFNlbWFudGljIG5hbWUgZm9yIHRoZSBtb3ZlIGxpc3QgY29udGFpbmVyXG4gICAgSVRFTTogXCJtb3ZlLWl0ZW1cIixcbiAgICBFVkFMVUFUSU9OOiBcIm1vdmUtZXZhbHVhdGlvblwiLFxuICAgIEVWQUxfU0NPUkU6IFwiZXZhbC1zY29yZVwiLFxuICB9LFxuICBOQVZJR0FUSU9OOiB7XG4gICAgRklSU1Q6IFwibmF2LWZpcnN0XCIsXG4gICAgQkFDSzogXCJuYXYtYmFja1wiLFxuICAgIEZPUldBUkQ6IFwibmF2LWZvcndhcmRcIixcbiAgICBMQVNUOiBcIm5hdi1sYXN0XCIsXG4gICAgVFJBSU5JTkdfTElOSzogXCJ0cmFpbmluZy1saW5rXCIsXG4gIH0sXG4gIENPTlRST0xTOiB7XG4gICAgVU5ETzogXCJ1bmRvLWJ1dHRvblwiLFxuICB9LFxuICBDSEVTUzoge1xuICAgIFRSQUlOSU5HX0JPQVJEOiBcInRyYWluaW5nLWJvYXJkXCIsXG4gICAgQ0hFU1NCT0FSRDogXCJjaGVzc2JvYXJkXCIsXG4gIH0sXG4gIExFU1NPTlM6IHtcbiAgICBTVEFSVF9CVVRUT046IFwibGVzc29uLXN0YXJ0XCIsXG4gIH0sXG59IGFzIGNvbnN0O1xuXG4vKipcbiAqIEhlbHBlciBmdW5jdGlvbiB0byBjcmVhdGUgZHluYW1pYyB0ZXN0IElEcyB3aXRoIGNvbnNpc3RlbnQgZm9ybWF0dGluZ1xuICogQHBhcmFtIGJhc2UgLSBUaGUgYmFzZSB0ZXN0IElEIGZyb20gVEVTVF9JRFNcbiAqIEBwYXJhbSBzdWZmaXggLSBBIHVuaXF1ZSBpZGVudGlmaWVyIChpbmRleCwgaWQsIGV0Yy4pXG4gKiBAcmV0dXJucyBGb3JtYXR0ZWQgdGVzdCBJRCBzdHJpbmdcbiAqL1xuZXhwb3J0IGNvbnN0IGdldFRlc3RJZCA9IChiYXNlOiBzdHJpbmcsIHN1ZmZpeDogc3RyaW5nIHwgbnVtYmVyKTogc3RyaW5nID0+IHtcbiAgcmV0dXJuIGAke2Jhc2V9LSR7c3VmZml4fWA7XG59O1xuXG4vLyBUeXBlIGV4cG9ydHMgZm9yIHN0cmljdCB0eXBlIHNhZmV0eVxuZXhwb3J0IHR5cGUgVGVzdElkcyA9IHR5cGVvZiBURVNUX0lEUztcbmV4cG9ydCB0eXBlIFRlc3RJZFZhbHVlID0gc3RyaW5nO1xuIl0sIm5hbWVzIjpbIlRFU1RfSURTIiwiZ2V0VGVzdElkIiwiTU9WRV9QQU5FTCIsIkNPTlRBSU5FUiIsIklURU0iLCJFVkFMVUFUSU9OIiwiRVZBTF9TQ09SRSIsIk5BVklHQVRJT04iLCJGSVJTVCIsIkJBQ0siLCJGT1JXQVJEIiwiTEFTVCIsIlRSQUlOSU5HX0xJTksiLCJDT05UUk9MUyIsIlVORE8iLCJDSEVTUyIsIlRSQUlOSU5HX0JPQVJEIiwiQ0hFU1NCT0FSRCIsIkxFU1NPTlMiLCJTVEFSVF9CVVRUT04iLCJiYXNlIiwic3VmZml4Il0sIm1hcHBpbmdzIjoiQUFBQTs7Ozs7O0NBTUM7Ozs7Ozs7Ozs7O1FBRVlBO2VBQUFBOztRQWdDQUM7ZUFBQUE7OztBQWhDTixNQUFNRCxXQUFXO0lBQ3RCRSxZQUFZO1FBQ1ZDLFdBQVc7UUFDWEMsTUFBTTtRQUNOQyxZQUFZO1FBQ1pDLFlBQVk7SUFDZDtJQUNBQyxZQUFZO1FBQ1ZDLE9BQU87UUFDUEMsTUFBTTtRQUNOQyxTQUFTO1FBQ1RDLE1BQU07UUFDTkMsZUFBZTtJQUNqQjtJQUNBQyxVQUFVO1FBQ1JDLE1BQU07SUFDUjtJQUNBQyxPQUFPO1FBQ0xDLGdCQUFnQjtRQUNoQkMsWUFBWTtJQUNkO0lBQ0FDLFNBQVM7UUFDUEMsY0FBYztJQUNoQjtBQUNGO0FBUU8sTUFBTWxCLFlBQVksQ0FBQ21CLE1BQWNDO0lBQ3RDLE9BQU8sR0FBR0QsS0FBSyxDQUFDLEVBQUVDLFFBQVE7QUFDNUIifQ==

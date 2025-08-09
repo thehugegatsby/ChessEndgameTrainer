@@ -1,0 +1,105 @@
+8afde0e0351c8e32d5cc65a32eb62f5a
+/**
+ * @file Store hooks index
+ * @module store/hooks
+ *
+ * @description
+ * Central export point for all Zustand store hooks. Provides consolidated
+ * domain-specific hooks that combine related state and actions for better
+ * ergonomics and performance.
+ *
+ * @remarks
+ * These consolidated hooks provide convenient access to domain-specific state
+ * and actions. However, for optimal performance, prefer direct selectors
+ * from useStore when you only need 1-2 values:
+ *
+ * **Performance Best Practices:**
+ * - Use consolidated hooks for high-level container components that need many values
+ * - Use direct selectors for leaf components that need specific values
+ * - Always use useShallow when selecting multiple properties
+ *
+ * Hook Categories:
+ *
+ * 1. Domain Hooks (focused on single responsibilities):
+ *    - useGameStore: Pure chess game state and operations
+ *    - useTrainingStore: Training sessions and navigation
+ *    - useTablebaseStore: Tablebase evaluations and analysis
+ *    - useUIStore: UI elements, toasts, modals, panels
+ *
+ * @example
+ * ```tsx
+ * import { useStore } from '@/store/rootStore';
+ * import { useShallow } from 'zustand/react/shallow';
+ *
+ * // ✅ Preferred: Direct selectors for specific values
+ * function MoveButton() {
+ *   const makeMove = useStore(state => state.makeMove);
+ *   const isGameFinished = useStore(state => state.isGameFinished);
+ *   // Component only re-renders when these specific values change
+ * }
+ *
+ * // ✅ Good: useShallow for multiple related values
+ * function GameInfo() {
+ *   const { currentFen, moveHistory, gameResult } = useStore(
+ *     useShallow(state => ({
+ *       currentFen: state.currentFen,
+ *       moveHistory: state.moveHistory,
+ *       gameResult: state.gameResult,
+ *     }))
+ *   );
+ * }
+ *
+ * // ⚠️ Use consolidated hooks only for container components
+ * function ChessGameContainer() {
+ *   const gameStore = useGameStore(); // Many values needed
+ *   const trainingStore = useTrainingStore();
+ *   // This is appropriate for a high-level container
+ * }
+ * ```
+ */ // Consolidated Domain Hooks
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: Object.getOwnPropertyDescriptor(all, name).get
+    });
+}
+_export(exports, {
+    get useDerivedProgress () {
+        return _useProgressStore.useDerivedProgress;
+    },
+    get useDueCardsCache () {
+        return _useProgressStore.useDueCardsCache;
+    },
+    get useGameStore () {
+        return _useGameStore.useGameStore;
+    },
+    get useProgressActions () {
+        return _useProgressStore.useProgressActions;
+    },
+    get useProgressState () {
+        return _useProgressStore.useProgressState;
+    },
+    get useProgressStore () {
+        return _useProgressStore.useProgressStore;
+    },
+    get useTablebaseStore () {
+        return _useTablebaseStore.useTablebaseStore;
+    },
+    get useTrainingStore () {
+        return _useTrainingStore.useTrainingStore;
+    },
+    get useUIStore () {
+        return _useUIStore.useUIStore;
+    }
+});
+const _useGameStore = require("./useGameStore");
+const _useTrainingStore = require("./useTrainingStore");
+const _useUIStore = require("./useUIStore");
+const _useTablebaseStore = require("./useTablebaseStore");
+const _useProgressStore = require("./useProgressStore");
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9ob21lL3RoZWh1L2Nvb2xQcm9qZWN0cy9FbmRnYW1lVHJhaW5lci10cmFpbmluZy1ib2FyZC1jb21wbGV0ZS9zcmMvc2hhcmVkL3N0b3JlL2hvb2tzL2luZGV4LnRzIl0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxuICogQGZpbGUgU3RvcmUgaG9va3MgaW5kZXhcbiAqIEBtb2R1bGUgc3RvcmUvaG9va3NcbiAqXG4gKiBAZGVzY3JpcHRpb25cbiAqIENlbnRyYWwgZXhwb3J0IHBvaW50IGZvciBhbGwgWnVzdGFuZCBzdG9yZSBob29rcy4gUHJvdmlkZXMgY29uc29saWRhdGVkXG4gKiBkb21haW4tc3BlY2lmaWMgaG9va3MgdGhhdCBjb21iaW5lIHJlbGF0ZWQgc3RhdGUgYW5kIGFjdGlvbnMgZm9yIGJldHRlclxuICogZXJnb25vbWljcyBhbmQgcGVyZm9ybWFuY2UuXG4gKlxuICogQHJlbWFya3NcbiAqIFRoZXNlIGNvbnNvbGlkYXRlZCBob29rcyBwcm92aWRlIGNvbnZlbmllbnQgYWNjZXNzIHRvIGRvbWFpbi1zcGVjaWZpYyBzdGF0ZVxuICogYW5kIGFjdGlvbnMuIEhvd2V2ZXIsIGZvciBvcHRpbWFsIHBlcmZvcm1hbmNlLCBwcmVmZXIgZGlyZWN0IHNlbGVjdG9yc1xuICogZnJvbSB1c2VTdG9yZSB3aGVuIHlvdSBvbmx5IG5lZWQgMS0yIHZhbHVlczpcbiAqXG4gKiAqKlBlcmZvcm1hbmNlIEJlc3QgUHJhY3RpY2VzOioqXG4gKiAtIFVzZSBjb25zb2xpZGF0ZWQgaG9va3MgZm9yIGhpZ2gtbGV2ZWwgY29udGFpbmVyIGNvbXBvbmVudHMgdGhhdCBuZWVkIG1hbnkgdmFsdWVzXG4gKiAtIFVzZSBkaXJlY3Qgc2VsZWN0b3JzIGZvciBsZWFmIGNvbXBvbmVudHMgdGhhdCBuZWVkIHNwZWNpZmljIHZhbHVlc1xuICogLSBBbHdheXMgdXNlIHVzZVNoYWxsb3cgd2hlbiBzZWxlY3RpbmcgbXVsdGlwbGUgcHJvcGVydGllc1xuICpcbiAqIEhvb2sgQ2F0ZWdvcmllczpcbiAqXG4gKiAxLiBEb21haW4gSG9va3MgKGZvY3VzZWQgb24gc2luZ2xlIHJlc3BvbnNpYmlsaXRpZXMpOlxuICogICAgLSB1c2VHYW1lU3RvcmU6IFB1cmUgY2hlc3MgZ2FtZSBzdGF0ZSBhbmQgb3BlcmF0aW9uc1xuICogICAgLSB1c2VUcmFpbmluZ1N0b3JlOiBUcmFpbmluZyBzZXNzaW9ucyBhbmQgbmF2aWdhdGlvblxuICogICAgLSB1c2VUYWJsZWJhc2VTdG9yZTogVGFibGViYXNlIGV2YWx1YXRpb25zIGFuZCBhbmFseXNpc1xuICogICAgLSB1c2VVSVN0b3JlOiBVSSBlbGVtZW50cywgdG9hc3RzLCBtb2RhbHMsIHBhbmVsc1xuICpcbiAqIEBleGFtcGxlXG4gKiBgYGB0c3hcbiAqIGltcG9ydCB7IHVzZVN0b3JlIH0gZnJvbSAnQC9zdG9yZS9yb290U3RvcmUnO1xuICogaW1wb3J0IHsgdXNlU2hhbGxvdyB9IGZyb20gJ3p1c3RhbmQvcmVhY3Qvc2hhbGxvdyc7XG4gKlxuICogLy8g4pyFIFByZWZlcnJlZDogRGlyZWN0IHNlbGVjdG9ycyBmb3Igc3BlY2lmaWMgdmFsdWVzXG4gKiBmdW5jdGlvbiBNb3ZlQnV0dG9uKCkge1xuICogICBjb25zdCBtYWtlTW92ZSA9IHVzZVN0b3JlKHN0YXRlID0+IHN0YXRlLm1ha2VNb3ZlKTtcbiAqICAgY29uc3QgaXNHYW1lRmluaXNoZWQgPSB1c2VTdG9yZShzdGF0ZSA9PiBzdGF0ZS5pc0dhbWVGaW5pc2hlZCk7XG4gKiAgIC8vIENvbXBvbmVudCBvbmx5IHJlLXJlbmRlcnMgd2hlbiB0aGVzZSBzcGVjaWZpYyB2YWx1ZXMgY2hhbmdlXG4gKiB9XG4gKlxuICogLy8g4pyFIEdvb2Q6IHVzZVNoYWxsb3cgZm9yIG11bHRpcGxlIHJlbGF0ZWQgdmFsdWVzXG4gKiBmdW5jdGlvbiBHYW1lSW5mbygpIHtcbiAqICAgY29uc3QgeyBjdXJyZW50RmVuLCBtb3ZlSGlzdG9yeSwgZ2FtZVJlc3VsdCB9ID0gdXNlU3RvcmUoXG4gKiAgICAgdXNlU2hhbGxvdyhzdGF0ZSA9PiAoe1xuICogICAgICAgY3VycmVudEZlbjogc3RhdGUuY3VycmVudEZlbixcbiAqICAgICAgIG1vdmVIaXN0b3J5OiBzdGF0ZS5tb3ZlSGlzdG9yeSxcbiAqICAgICAgIGdhbWVSZXN1bHQ6IHN0YXRlLmdhbWVSZXN1bHQsXG4gKiAgICAgfSkpXG4gKiAgICk7XG4gKiB9XG4gKlxuICogLy8g4pqg77iPIFVzZSBjb25zb2xpZGF0ZWQgaG9va3Mgb25seSBmb3IgY29udGFpbmVyIGNvbXBvbmVudHNcbiAqIGZ1bmN0aW9uIENoZXNzR2FtZUNvbnRhaW5lcigpIHtcbiAqICAgY29uc3QgZ2FtZVN0b3JlID0gdXNlR2FtZVN0b3JlKCk7IC8vIE1hbnkgdmFsdWVzIG5lZWRlZFxuICogICBjb25zdCB0cmFpbmluZ1N0b3JlID0gdXNlVHJhaW5pbmdTdG9yZSgpO1xuICogICAvLyBUaGlzIGlzIGFwcHJvcHJpYXRlIGZvciBhIGhpZ2gtbGV2ZWwgY29udGFpbmVyXG4gKiB9XG4gKiBgYGBcbiAqL1xuXG4vLyBDb25zb2xpZGF0ZWQgRG9tYWluIEhvb2tzXG5leHBvcnQgeyB1c2VHYW1lU3RvcmUgfSBmcm9tIFwiLi91c2VHYW1lU3RvcmVcIjtcbmV4cG9ydCB7IHVzZVRyYWluaW5nU3RvcmUgfSBmcm9tIFwiLi91c2VUcmFpbmluZ1N0b3JlXCI7XG5leHBvcnQgeyB1c2VVSVN0b3JlIH0gZnJvbSBcIi4vdXNlVUlTdG9yZVwiO1xuZXhwb3J0IHsgdXNlVGFibGViYXNlU3RvcmUgfSBmcm9tIFwiLi91c2VUYWJsZWJhc2VTdG9yZVwiO1xuZXhwb3J0IHsgdXNlUHJvZ3Jlc3NTdG9yZSwgdXNlUHJvZ3Jlc3NTdGF0ZSwgdXNlUHJvZ3Jlc3NBY3Rpb25zLCB1c2VEZXJpdmVkUHJvZ3Jlc3MsIHVzZUR1ZUNhcmRzQ2FjaGUgfSBmcm9tIFwiLi91c2VQcm9ncmVzc1N0b3JlXCI7XG4iXSwibmFtZXMiOlsidXNlRGVyaXZlZFByb2dyZXNzIiwidXNlRHVlQ2FyZHNDYWNoZSIsInVzZUdhbWVTdG9yZSIsInVzZVByb2dyZXNzQWN0aW9ucyIsInVzZVByb2dyZXNzU3RhdGUiLCJ1c2VQcm9ncmVzc1N0b3JlIiwidXNlVGFibGViYXNlU3RvcmUiLCJ1c2VUcmFpbmluZ1N0b3JlIiwidXNlVUlTdG9yZSJdLCJtYXBwaW5ncyI6IkFBQUE7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztDQXlEQyxHQUVELDRCQUE0Qjs7Ozs7Ozs7Ozs7O1FBS3FDQTtlQUFBQSxvQ0FBa0I7O1FBQUVDO2VBQUFBLGtDQUFnQjs7UUFKNUZDO2VBQUFBLDBCQUFZOztRQUl3QkM7ZUFBQUEsb0NBQWtCOztRQUFwQ0M7ZUFBQUEsa0NBQWdCOztRQUFsQ0M7ZUFBQUEsa0NBQWdCOztRQURoQkM7ZUFBQUEsb0NBQWlCOztRQUZqQkM7ZUFBQUEsa0NBQWdCOztRQUNoQkM7ZUFBQUEsc0JBQVU7Ozs4QkFGVTtrQ0FDSTs0QkFDTjttQ0FDTztrQ0FDMkUifQ==

@@ -1,0 +1,411 @@
+a883ef4a1573769a916fa7b5c9dc4ff2
+/**
+ * FEN validation using chess.js
+ * Simple wrapper around chess.js for consistent FEN validation and normalization
+ */"use strict";
+
+/* istanbul ignore next */
+function cov_2csgmekghx() {
+  var path = "/home/thehu/coolProjects/EndgameTrainer-training-board-complete/src/shared/utils/fenValidator.ts";
+  var hash = "6d511aa6652bb4d28e56825e9684dcc5a064f6eb";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "/home/thehu/coolProjects/EndgameTrainer-training-board-complete/src/shared/utils/fenValidator.ts",
+    statementMap: {
+      "0": {
+        start: {
+          line: 5,
+          column: 0
+        },
+        end: {
+          line: 7,
+          column: 3
+        }
+      },
+      "1": {
+        start: {
+          line: 8,
+          column: 0
+        },
+        end: {
+          line: 13,
+          column: 3
+        }
+      },
+      "2": {
+        start: {
+          line: 11,
+          column: 8
+        },
+        end: {
+          line: 11,
+          column: 38
+        }
+      },
+      "3": {
+        start: {
+          line: 14,
+          column: 15
+        },
+        end: {
+          line: 14,
+          column: 34
+        }
+      },
+      "4": {
+        start: {
+          line: 16,
+          column: 4
+        },
+        end: {
+          line: 24,
+          column: 5
+        }
+      },
+      "5": {
+        start: {
+          line: 17,
+          column: 8
+        },
+        end: {
+          line: 23,
+          column: 10
+        }
+      },
+      "6": {
+        start: {
+          line: 25,
+          column: 23
+        },
+        end: {
+          line: 25,
+          column: 33
+        }
+      },
+      "7": {
+        start: {
+          line: 26,
+          column: 4
+        },
+        end: {
+          line: 45,
+          column: 5
+        }
+      },
+      "8": {
+        start: {
+          line: 28,
+          column: 22
+        },
+        end: {
+          line: 28,
+          column: 50
+        }
+      },
+      "9": {
+        start: {
+          line: 30,
+          column: 8
+        },
+        end: {
+          line: 34,
+          column: 10
+        }
+      },
+      "10": {
+        start: {
+          line: 37,
+          column: 29
+        },
+        end: {
+          line: 37,
+          column: 83
+        }
+      },
+      "11": {
+        start: {
+          line: 38,
+          column: 8
+        },
+        end: {
+          line: 44,
+          column: 10
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "(anonymous_0)",
+        decl: {
+          start: {
+            line: 10,
+            column: 9
+          },
+          end: {
+            line: 10,
+            column: 10
+          }
+        },
+        loc: {
+          start: {
+            line: 10,
+            column: 20
+          },
+          end: {
+            line: 12,
+            column: 5
+          }
+        },
+        line: 10
+      },
+      "1": {
+        name: "validateAndSanitizeFen",
+        decl: {
+          start: {
+            line: 15,
+            column: 9
+          },
+          end: {
+            line: 15,
+            column: 31
+          }
+        },
+        loc: {
+          start: {
+            line: 15,
+            column: 37
+          },
+          end: {
+            line: 46,
+            column: 1
+          }
+        },
+        line: 15
+      }
+    },
+    branchMap: {
+      "0": {
+        loc: {
+          start: {
+            line: 16,
+            column: 4
+          },
+          end: {
+            line: 24,
+            column: 5
+          }
+        },
+        type: "if",
+        locations: [{
+          start: {
+            line: 16,
+            column: 4
+          },
+          end: {
+            line: 24,
+            column: 5
+          }
+        }, {
+          start: {
+            line: undefined,
+            column: undefined
+          },
+          end: {
+            line: undefined,
+            column: undefined
+          }
+        }],
+        line: 16
+      },
+      "1": {
+        loc: {
+          start: {
+            line: 16,
+            column: 8
+          },
+          end: {
+            line: 16,
+            column: 39
+          }
+        },
+        type: "binary-expr",
+        locations: [{
+          start: {
+            line: 16,
+            column: 8
+          },
+          end: {
+            line: 16,
+            column: 12
+          }
+        }, {
+          start: {
+            line: 16,
+            column: 16
+          },
+          end: {
+            line: 16,
+            column: 39
+          }
+        }],
+        line: 16
+      },
+      "2": {
+        loc: {
+          start: {
+            line: 37,
+            column: 29
+          },
+          end: {
+            line: 37,
+            column: 83
+          }
+        },
+        type: "cond-expr",
+        locations: [{
+          start: {
+            line: 37,
+            column: 54
+          },
+          end: {
+            line: 37,
+            column: 67
+          }
+        }, {
+          start: {
+            line: 37,
+            column: 70
+          },
+          end: {
+            line: 37,
+            column: 83
+          }
+        }],
+        line: 37
+      }
+    },
+    s: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "10": 0,
+      "11": 0
+    },
+    f: {
+      "0": 0,
+      "1": 0
+    },
+    b: {
+      "0": [0, 0],
+      "1": [0, 0],
+      "2": [0, 0]
+    },
+    inputSourceMap: {
+      version: 3,
+      sources: ["/home/thehu/coolProjects/EndgameTrainer-training-board-complete/src/shared/utils/fenValidator.ts"],
+      sourcesContent: ["/**\n * FEN validation using chess.js\n * Simple wrapper around chess.js for consistent FEN validation and normalization\n */\n\nimport { Chess } from \"chess.js\";\n\n/**\n * Result of FEN string validation\n * @interface FenValidationResult\n * @property {boolean} isValid - Whether the FEN string represents a valid chess position\n * @property {string} sanitized - Normalized FEN string (canonical form from chess.js)\n * @property {string[]} errors - Array of validation error messages if FEN is invalid\n */\nexport interface FenValidationResult {\n  isValid: boolean;\n  sanitized: string;\n  errors: string[];\n}\n\n/**\n * Validates and normalizes a FEN string using chess.js\n *\n * @param {string} fen - The FEN string to validate (Forsyth-Edwards Notation)\n * @returns {FenValidationResult} Validation result with normalized FEN\n *\n * @example\n * // Valid starting position\n * import { getLogger } from '@shared/services/logging/Logger';\n * const logger = getLogger();\n * const result = validateAndSanitizeFen(\"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\");\n * logger.info(\"Is valid:\", result.isValid); // true\n * logger.info(\"Sanitized:\", result.sanitized); // Normalized FEN from chess.js\n *\n * @example\n * // Invalid FEN (too many kings)\n * import { getLogger } from '@shared/services/logging/Logger';\n * const logger = getLogger();\n * const result = validateAndSanitizeFen(\"K7/K7/8/8/8/8/8/k7 w - - 0 1\");\n * logger.warn(\"Is valid:\", result.isValid); // false\n * logger.warn(\"Errors:\", result.errors); // [\"Invalid FEN: too many kings\"]\n *\n * @remarks\n * This is a thin wrapper around chess.js validation. We use chess.js because:\n * - It provides comprehensive FEN validation including piece placement rules\n * - It normalizes FEN to canonical form (important for caching)\n * - It gives descriptive error messages for debugging\n *\n * @performance O(n) where n is FEN string length, typically <1ms\n */\nexport function validateAndSanitizeFen(fen: string): FenValidationResult {\n  if (!fen || typeof fen !== \"string\") {\n    return {\n      isValid: false,\n      sanitized: \"\",\n      errors: [\"FEN must be a valid string\"],\n    };\n  }\n\n  const trimmedFen = fen.trim();\n\n  try {\n    // chess.js constructor throws on invalid FEN\n    const chess = new Chess(trimmedFen);\n\n    // Return normalized FEN from chess.js\n    return {\n      isValid: true,\n      sanitized: chess.fen(), // Normalized/canonical FEN\n      errors: [],\n    };\n  } catch (error) {\n    // chess.js provides descriptive error messages\n    const errorMessage = error instanceof Error ? error.message : \"Invalid FEN\";\n\n    return {\n      isValid: false,\n      sanitized: trimmedFen, // Return trimmed input on failure\n      errors: [errorMessage],\n    };\n  }\n}\n"],
+      names: ["validateAndSanitizeFen", "fen", "isValid", "sanitized", "errors", "trimmedFen", "trim", "chess", "Chess", "error", "errorMessage", "Error", "message"],
+      mappings: "AAAA;;;CAGC;;;;+BA+CeA;;;eAAAA;;;uBA7CM;AA6Cf,SAASA,uBAAuBC,GAAW;IAChD,IAAI,CAACA,OAAO,OAAOA,QAAQ,UAAU;QACnC,OAAO;YACLC,SAAS;YACTC,WAAW;YACXC,QAAQ;gBAAC;aAA6B;QACxC;IACF;IAEA,MAAMC,aAAaJ,IAAIK,IAAI;IAE3B,IAAI;QACF,6CAA6C;QAC7C,MAAMC,QAAQ,IAAIC,YAAK,CAACH;QAExB,sCAAsC;QACtC,OAAO;YACLH,SAAS;YACTC,WAAWI,MAAMN,GAAG;YACpBG,QAAQ,EAAE;QACZ;IACF,EAAE,OAAOK,OAAO;QACd,+CAA+C;QAC/C,MAAMC,eAAeD,iBAAiBE,QAAQF,MAAMG,OAAO,GAAG;QAE9D,OAAO;YACLV,SAAS;YACTC,WAAWE;YACXD,QAAQ;gBAACM;aAAa;QACxB;IACF;AACF"
+    },
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "6d511aa6652bb4d28e56825e9684dcc5a064f6eb"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    // @ts-ignore
+    cov_2csgmekghx = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_2csgmekghx();
+cov_2csgmekghx().s[0]++;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+/* istanbul ignore next */
+cov_2csgmekghx().s[1]++;
+Object.defineProperty(exports, "validateAndSanitizeFen", {
+  enumerable: true,
+  get: function () {
+    /* istanbul ignore next */
+    cov_2csgmekghx().f[0]++;
+    cov_2csgmekghx().s[2]++;
+    return validateAndSanitizeFen;
+  }
+});
+const _chess =
+/* istanbul ignore next */
+(cov_2csgmekghx().s[3]++, require("chess.js"));
+function validateAndSanitizeFen(fen) {
+  /* istanbul ignore next */
+  cov_2csgmekghx().f[1]++;
+  cov_2csgmekghx().s[4]++;
+  if (
+  /* istanbul ignore next */
+  (cov_2csgmekghx().b[1][0]++, !fen) ||
+  /* istanbul ignore next */
+  (cov_2csgmekghx().b[1][1]++, typeof fen !== "string")) {
+    /* istanbul ignore next */
+    cov_2csgmekghx().b[0][0]++;
+    cov_2csgmekghx().s[5]++;
+    return {
+      isValid: false,
+      sanitized: "",
+      errors: ["FEN must be a valid string"]
+    };
+  } else
+  /* istanbul ignore next */
+  {
+    cov_2csgmekghx().b[0][1]++;
+  }
+  const trimmedFen =
+  /* istanbul ignore next */
+  (cov_2csgmekghx().s[6]++, fen.trim());
+  /* istanbul ignore next */
+  cov_2csgmekghx().s[7]++;
+  try {
+    // chess.js constructor throws on invalid FEN
+    const chess =
+    /* istanbul ignore next */
+    (cov_2csgmekghx().s[8]++, new _chess.Chess(trimmedFen));
+    // Return normalized FEN from chess.js
+    /* istanbul ignore next */
+    cov_2csgmekghx().s[9]++;
+    return {
+      isValid: true,
+      sanitized: chess.fen(),
+      errors: []
+    };
+  } catch (error) {
+    // chess.js provides descriptive error messages
+    const errorMessage =
+    /* istanbul ignore next */
+    (cov_2csgmekghx().s[10]++, error instanceof Error ?
+    /* istanbul ignore next */
+    (cov_2csgmekghx().b[2][0]++, error.message) :
+    /* istanbul ignore next */
+    (cov_2csgmekghx().b[2][1]++, "Invalid FEN"));
+    /* istanbul ignore next */
+    cov_2csgmekghx().s[11]++;
+    return {
+      isValid: false,
+      sanitized: trimmedFen,
+      errors: [errorMessage]
+    };
+  }
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJjb3ZfMmNzZ21la2doeCIsInBhdGgiLCJoYXNoIiwiZ2xvYmFsIiwiRnVuY3Rpb24iLCJnY3YiLCJjb3ZlcmFnZURhdGEiLCJzdGF0ZW1lbnRNYXAiLCJzdGFydCIsImxpbmUiLCJjb2x1bW4iLCJlbmQiLCJmbk1hcCIsIm5hbWUiLCJkZWNsIiwibG9jIiwiYnJhbmNoTWFwIiwidHlwZSIsImxvY2F0aW9ucyIsInVuZGVmaW5lZCIsInMiLCJmIiwiYiIsImlucHV0U291cmNlTWFwIiwidmVyc2lvbiIsInNvdXJjZXMiLCJzb3VyY2VzQ29udGVudCIsIm5hbWVzIiwibWFwcGluZ3MiLCJfY292ZXJhZ2VTY2hlbWEiLCJjb3ZlcmFnZSIsImFjdHVhbENvdmVyYWdlIiwidmFsaWRhdGVBbmRTYW5pdGl6ZUZlbiIsImZlbiIsImlzVmFsaWQiLCJzYW5pdGl6ZWQiLCJlcnJvcnMiLCJ0cmltbWVkRmVuIiwidHJpbSIsImNoZXNzIiwiX2NoZXNzIiwiQ2hlc3MiLCJlcnJvciIsImVycm9yTWVzc2FnZSIsIkVycm9yIiwibWVzc2FnZSJdLCJzb3VyY2VzIjpbIi9ob21lL3RoZWh1L2Nvb2xQcm9qZWN0cy9FbmRnYW1lVHJhaW5lci10cmFpbmluZy1ib2FyZC1jb21wbGV0ZS9zcmMvc2hhcmVkL3V0aWxzL2ZlblZhbGlkYXRvci50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcbiAqIEZFTiB2YWxpZGF0aW9uIHVzaW5nIGNoZXNzLmpzXG4gKiBTaW1wbGUgd3JhcHBlciBhcm91bmQgY2hlc3MuanMgZm9yIGNvbnNpc3RlbnQgRkVOIHZhbGlkYXRpb24gYW5kIG5vcm1hbGl6YXRpb25cbiAqL1xuXG5pbXBvcnQgeyBDaGVzcyB9IGZyb20gXCJjaGVzcy5qc1wiO1xuXG4vKipcbiAqIFJlc3VsdCBvZiBGRU4gc3RyaW5nIHZhbGlkYXRpb25cbiAqIEBpbnRlcmZhY2UgRmVuVmFsaWRhdGlvblJlc3VsdFxuICogQHByb3BlcnR5IHtib29sZWFufSBpc1ZhbGlkIC0gV2hldGhlciB0aGUgRkVOIHN0cmluZyByZXByZXNlbnRzIGEgdmFsaWQgY2hlc3MgcG9zaXRpb25cbiAqIEBwcm9wZXJ0eSB7c3RyaW5nfSBzYW5pdGl6ZWQgLSBOb3JtYWxpemVkIEZFTiBzdHJpbmcgKGNhbm9uaWNhbCBmb3JtIGZyb20gY2hlc3MuanMpXG4gKiBAcHJvcGVydHkge3N0cmluZ1tdfSBlcnJvcnMgLSBBcnJheSBvZiB2YWxpZGF0aW9uIGVycm9yIG1lc3NhZ2VzIGlmIEZFTiBpcyBpbnZhbGlkXG4gKi9cbmV4cG9ydCBpbnRlcmZhY2UgRmVuVmFsaWRhdGlvblJlc3VsdCB7XG4gIGlzVmFsaWQ6IGJvb2xlYW47XG4gIHNhbml0aXplZDogc3RyaW5nO1xuICBlcnJvcnM6IHN0cmluZ1tdO1xufVxuXG4vKipcbiAqIFZhbGlkYXRlcyBhbmQgbm9ybWFsaXplcyBhIEZFTiBzdHJpbmcgdXNpbmcgY2hlc3MuanNcbiAqXG4gKiBAcGFyYW0ge3N0cmluZ30gZmVuIC0gVGhlIEZFTiBzdHJpbmcgdG8gdmFsaWRhdGUgKEZvcnN5dGgtRWR3YXJkcyBOb3RhdGlvbilcbiAqIEByZXR1cm5zIHtGZW5WYWxpZGF0aW9uUmVzdWx0fSBWYWxpZGF0aW9uIHJlc3VsdCB3aXRoIG5vcm1hbGl6ZWQgRkVOXG4gKlxuICogQGV4YW1wbGVcbiAqIC8vIFZhbGlkIHN0YXJ0aW5nIHBvc2l0aW9uXG4gKiBpbXBvcnQgeyBnZXRMb2dnZXIgfSBmcm9tICdAc2hhcmVkL3NlcnZpY2VzL2xvZ2dpbmcvTG9nZ2VyJztcbiAqIGNvbnN0IGxvZ2dlciA9IGdldExvZ2dlcigpO1xuICogY29uc3QgcmVzdWx0ID0gdmFsaWRhdGVBbmRTYW5pdGl6ZUZlbihcInJuYnFrYm5yL3BwcHBwcHBwLzgvOC84LzgvUFBQUFBQUFAvUk5CUUtCTlIgdyBLUWtxIC0gMCAxXCIpO1xuICogbG9nZ2VyLmluZm8oXCJJcyB2YWxpZDpcIiwgcmVzdWx0LmlzVmFsaWQpOyAvLyB0cnVlXG4gKiBsb2dnZXIuaW5mbyhcIlNhbml0aXplZDpcIiwgcmVzdWx0LnNhbml0aXplZCk7IC8vIE5vcm1hbGl6ZWQgRkVOIGZyb20gY2hlc3MuanNcbiAqXG4gKiBAZXhhbXBsZVxuICogLy8gSW52YWxpZCBGRU4gKHRvbyBtYW55IGtpbmdzKVxuICogaW1wb3J0IHsgZ2V0TG9nZ2VyIH0gZnJvbSAnQHNoYXJlZC9zZXJ2aWNlcy9sb2dnaW5nL0xvZ2dlcic7XG4gKiBjb25zdCBsb2dnZXIgPSBnZXRMb2dnZXIoKTtcbiAqIGNvbnN0IHJlc3VsdCA9IHZhbGlkYXRlQW5kU2FuaXRpemVGZW4oXCJLNy9LNy84LzgvOC84LzgvazcgdyAtIC0gMCAxXCIpO1xuICogbG9nZ2VyLndhcm4oXCJJcyB2YWxpZDpcIiwgcmVzdWx0LmlzVmFsaWQpOyAvLyBmYWxzZVxuICogbG9nZ2VyLndhcm4oXCJFcnJvcnM6XCIsIHJlc3VsdC5lcnJvcnMpOyAvLyBbXCJJbnZhbGlkIEZFTjogdG9vIG1hbnkga2luZ3NcIl1cbiAqXG4gKiBAcmVtYXJrc1xuICogVGhpcyBpcyBhIHRoaW4gd3JhcHBlciBhcm91bmQgY2hlc3MuanMgdmFsaWRhdGlvbi4gV2UgdXNlIGNoZXNzLmpzIGJlY2F1c2U6XG4gKiAtIEl0IHByb3ZpZGVzIGNvbXByZWhlbnNpdmUgRkVOIHZhbGlkYXRpb24gaW5jbHVkaW5nIHBpZWNlIHBsYWNlbWVudCBydWxlc1xuICogLSBJdCBub3JtYWxpemVzIEZFTiB0byBjYW5vbmljYWwgZm9ybSAoaW1wb3J0YW50IGZvciBjYWNoaW5nKVxuICogLSBJdCBnaXZlcyBkZXNjcmlwdGl2ZSBlcnJvciBtZXNzYWdlcyBmb3IgZGVidWdnaW5nXG4gKlxuICogQHBlcmZvcm1hbmNlIE8obikgd2hlcmUgbiBpcyBGRU4gc3RyaW5nIGxlbmd0aCwgdHlwaWNhbGx5IDwxbXNcbiAqL1xuZXhwb3J0IGZ1bmN0aW9uIHZhbGlkYXRlQW5kU2FuaXRpemVGZW4oZmVuOiBzdHJpbmcpOiBGZW5WYWxpZGF0aW9uUmVzdWx0IHtcbiAgaWYgKCFmZW4gfHwgdHlwZW9mIGZlbiAhPT0gXCJzdHJpbmdcIikge1xuICAgIHJldHVybiB7XG4gICAgICBpc1ZhbGlkOiBmYWxzZSxcbiAgICAgIHNhbml0aXplZDogXCJcIixcbiAgICAgIGVycm9yczogW1wiRkVOIG11c3QgYmUgYSB2YWxpZCBzdHJpbmdcIl0sXG4gICAgfTtcbiAgfVxuXG4gIGNvbnN0IHRyaW1tZWRGZW4gPSBmZW4udHJpbSgpO1xuXG4gIHRyeSB7XG4gICAgLy8gY2hlc3MuanMgY29uc3RydWN0b3IgdGhyb3dzIG9uIGludmFsaWQgRkVOXG4gICAgY29uc3QgY2hlc3MgPSBuZXcgQ2hlc3ModHJpbW1lZEZlbik7XG5cbiAgICAvLyBSZXR1cm4gbm9ybWFsaXplZCBGRU4gZnJvbSBjaGVzcy5qc1xuICAgIHJldHVybiB7XG4gICAgICBpc1ZhbGlkOiB0cnVlLFxuICAgICAgc2FuaXRpemVkOiBjaGVzcy5mZW4oKSwgLy8gTm9ybWFsaXplZC9jYW5vbmljYWwgRkVOXG4gICAgICBlcnJvcnM6IFtdLFxuICAgIH07XG4gIH0gY2F0Y2ggKGVycm9yKSB7XG4gICAgLy8gY2hlc3MuanMgcHJvdmlkZXMgZGVzY3JpcHRpdmUgZXJyb3IgbWVzc2FnZXNcbiAgICBjb25zdCBlcnJvck1lc3NhZ2UgPSBlcnJvciBpbnN0YW5jZW9mIEVycm9yID8gZXJyb3IubWVzc2FnZSA6IFwiSW52YWxpZCBGRU5cIjtcblxuICAgIHJldHVybiB7XG4gICAgICBpc1ZhbGlkOiBmYWxzZSxcbiAgICAgIHNhbml0aXplZDogdHJpbW1lZEZlbiwgLy8gUmV0dXJuIHRyaW1tZWQgaW5wdXQgb24gZmFpbHVyZVxuICAgICAgZXJyb3JzOiBbZXJyb3JNZXNzYWdlXSxcbiAgICB9O1xuICB9XG59XG4iXSwibWFwcGluZ3MiOiJBQUFBOzs7R0FHQzs7QUFBQTtBQUFBLFNBQUFBLGVBQUE7RUFBQSxJQUFBQyxJQUFBO0VBQUEsSUFBQUMsSUFBQTtFQUFBLElBQUFDLE1BQUEsT0FBQUMsUUFBQTtFQUFBLElBQUFDLEdBQUE7RUFBQSxJQUFBQyxZQUFBO0lBQUFMLElBQUE7SUFBQU0sWUFBQTtNQUFBO1FBQUFDLEtBQUE7VUFBQUMsSUFBQTtVQUFBQyxNQUFBO1FBQUE7UUFBQUMsR0FBQTtVQUFBRixJQUFBO1VBQUFDLE1BQUE7UUFBQTtNQUFBO01BQUE7UUFBQUYsS0FBQTtVQUFBQyxJQUFBO1VBQUFDLE1BQUE7UUFBQTtRQUFBQyxHQUFBO1VBQUFGLElBQUE7VUFBQUMsTUFBQTtRQUFBO01BQUE7TUFBQTtRQUFBRixLQUFBO1VBQUFDLElBQUE7VUFBQUMsTUFBQTtRQUFBO1FBQUFDLEdBQUE7VUFBQUYsSUFBQTtVQUFBQyxNQUFBO1FBQUE7TUFBQTtNQUFBO1FBQUFGLEtBQUE7VUFBQUMsSUFBQTtVQUFBQyxNQUFBO1FBQUE7UUFBQUMsR0FBQTtVQUFBRixJQUFBO1VBQUFDLE1BQUE7UUFBQTtNQUFBO01BQUE7UUFBQUYsS0FBQTtVQUFBQyxJQUFBO1VBQUFDLE1BQUE7UUFBQTtRQUFBQyxHQUFBO1VBQUFGLElBQUE7VUFBQUMsTUFBQTtRQUFBO01BQUE7TUFBQTtRQUFBRixLQUFBO1VBQUFDLElBQUE7VUFBQUMsTUFBQTtRQUFBO1FBQUFDLEdBQUE7VUFBQUYsSUFBQTtVQUFBQyxNQUFBO1FBQUE7TUFBQTtNQUFBO1FBQUFGLEtBQUE7VUFBQUMsSUFBQTtVQUFBQyxNQUFBO1FBQUE7UUFBQUMsR0FBQTtVQUFBRixJQUFBO1VBQUFDLE1BQUE7UUFBQTtNQUFBO01BQUE7UUFBQUYsS0FBQTtVQUFBQyxJQUFBO1VBQUFDLE1BQUE7UUFBQTtRQUFBQyxHQUFBO1VBQUFGLElBQUE7VUFBQUMsTUFBQTtRQUFBO01BQUE7TUFBQTtRQUFBRixLQUFBO1VBQUFDLElBQUE7VUFBQUMsTUFBQTtRQUFBO1FBQUFDLEdBQUE7VUFBQUYsSUFBQTtVQUFBQyxNQUFBO1FBQUE7TUFBQTtNQUFBO1FBQUFGLEtBQUE7VUFBQUMsSUFBQTtVQUFBQyxNQUFBO1FBQUE7UUFBQUMsR0FBQTtVQUFBRixJQUFBO1VBQUFDLE1BQUE7UUFBQTtNQUFBO01BQUE7UUFBQUYsS0FBQTtVQUFBQyxJQUFBO1VBQUFDLE1BQUE7UUFBQTtRQUFBQyxHQUFBO1VBQUFGLElBQUE7VUFBQUMsTUFBQTtRQUFBO01BQUE7TUFBQTtRQUFBRixLQUFBO1VBQUFDLElBQUE7VUFBQUMsTUFBQTtRQUFBO1FBQUFDLEdBQUE7VUFBQUYsSUFBQTtVQUFBQyxNQUFBO1FBQUE7TUFBQTtJQUFBO0lBQUFFLEtBQUE7TUFBQTtRQUFBQyxJQUFBO1FBQUFDLElBQUE7VUFBQU4sS0FBQTtZQUFBQyxJQUFBO1lBQUFDLE1BQUE7VUFBQTtVQUFBQyxHQUFBO1lBQUFGLElBQUE7WUFBQUMsTUFBQTtVQUFBO1FBQUE7UUFBQUssR0FBQTtVQUFBUCxLQUFBO1lBQUFDLElBQUE7WUFBQUMsTUFBQTtVQUFBO1VBQUFDLEdBQUE7WUFBQUYsSUFBQTtZQUFBQyxNQUFBO1VBQUE7UUFBQTtRQUFBRCxJQUFBO01BQUE7TUFBQTtRQUFBSSxJQUFBO1FBQUFDLElBQUE7VUFBQU4sS0FBQTtZQUFBQyxJQUFBO1lBQUFDLE1BQUE7VUFBQTtVQUFBQyxHQUFBO1lBQUFGLElBQUE7WUFBQUMsTUFBQTtVQUFBO1FBQUE7UUFBQUssR0FBQTtVQUFBUCxLQUFBO1lBQUFDLElBQUE7WUFBQUMsTUFBQTtVQUFBO1VBQUFDLEdBQUE7WUFBQUYsSUFBQTtZQUFBQyxNQUFBO1VBQUE7UUFBQTtRQUFBRCxJQUFBO01BQUE7SUFBQTtJQUFBTyxTQUFBO01BQUE7UUFBQUQsR0FBQTtVQUFBUCxLQUFBO1lBQUFDLElBQUE7WUFBQUMsTUFBQTtVQUFBO1VBQUFDLEdBQUE7WUFBQUYsSUFBQTtZQUFBQyxNQUFBO1VBQUE7UUFBQTtRQUFBTyxJQUFBO1FBQUFDLFNBQUE7VUFBQVYsS0FBQTtZQUFBQyxJQUFBO1lBQUFDLE1BQUE7VUFBQTtVQUFBQyxHQUFBO1lBQUFGLElBQUE7WUFBQUMsTUFBQTtVQUFBO1FBQUE7VUFBQUYsS0FBQTtZQUFBQyxJQUFBLEVBQUFVLFNBQUE7WUFBQVQsTUFBQSxFQUFBUztVQUFBO1VBQUFSLEdBQUE7WUFBQUYsSUFBQSxFQUFBVSxTQUFBO1lBQUFULE1BQUEsRUFBQVM7VUFBQTtRQUFBO1FBQUFWLElBQUE7TUFBQTtNQUFBO1FBQUFNLEdBQUE7VUFBQVAsS0FBQTtZQUFBQyxJQUFBO1lBQUFDLE1BQUE7VUFBQTtVQUFBQyxHQUFBO1lBQUFGLElBQUE7WUFBQUMsTUFBQTtVQUFBO1FBQUE7UUFBQU8sSUFBQTtRQUFBQyxTQUFBO1VBQUFWLEtBQUE7WUFBQUMsSUFBQTtZQUFBQyxNQUFBO1VBQUE7VUFBQUMsR0FBQTtZQUFBRixJQUFBO1lBQUFDLE1BQUE7VUFBQTtRQUFBO1VBQUFGLEtBQUE7WUFBQUMsSUFBQTtZQUFBQyxNQUFBO1VBQUE7VUFBQUMsR0FBQTtZQUFBRixJQUFBO1lBQUFDLE1BQUE7VUFBQTtRQUFBO1FBQUFELElBQUE7TUFBQTtNQUFBO1FBQUFNLEdBQUE7VUFBQVAsS0FBQTtZQUFBQyxJQUFBO1lBQUFDLE1BQUE7VUFBQTtVQUFBQyxHQUFBO1lBQUFGLElBQUE7WUFBQUMsTUFBQTtVQUFBO1FBQUE7UUFBQU8sSUFBQTtRQUFBQyxTQUFBO1VBQUFWLEtBQUE7WUFBQUMsSUFBQTtZQUFBQyxNQUFBO1VBQUE7VUFBQUMsR0FBQTtZQUFBRixJQUFBO1lBQUFDLE1BQUE7VUFBQTtRQUFBO1VBQUFGLEtBQUE7WUFBQUMsSUFBQTtZQUFBQyxNQUFBO1VBQUE7VUFBQUMsR0FBQTtZQUFBRixJQUFBO1lBQUFDLE1BQUE7VUFBQTtRQUFBO1FBQUFELElBQUE7TUFBQTtJQUFBO0lBQUFXLENBQUE7TUFBQTtNQUFBO01BQUE7TUFBQTtNQUFBO01BQUE7TUFBQTtNQUFBO01BQUE7TUFBQTtNQUFBO01BQUE7SUFBQTtJQUFBQyxDQUFBO01BQUE7TUFBQTtJQUFBO0lBQUFDLENBQUE7TUFBQTtNQUFBO01BQUE7SUFBQTtJQUFBQyxjQUFBO01BQUFDLE9BQUE7TUFBQUMsT0FBQTtNQUFBQyxjQUFBO01BQUFDLEtBQUE7TUFBQUMsUUFBQTtJQUFBO0lBQUFDLGVBQUE7SUFBQTNCLElBQUE7RUFBQTtFQUFBLElBQUE0QixRQUFBLEdBQUEzQixNQUFBLENBQUFFLEdBQUEsTUFBQUYsTUFBQSxDQUFBRSxHQUFBO0VBQUEsS0FBQXlCLFFBQUEsQ0FBQTdCLElBQUEsS0FBQTZCLFFBQUEsQ0FBQTdCLElBQUEsRUFBQUMsSUFBQSxLQUFBQSxJQUFBO0lBQUE0QixRQUFBLENBQUE3QixJQUFBLElBQUFLLFlBQUE7RUFBQTtFQUFBLElBQUF5QixjQUFBLEdBQUFELFFBQUEsQ0FBQTdCLElBQUE7RUFBQTtJQWdETTtJQUFBRCxjQUFBLFlBQUFBLENBQUE7TUFBQSxPQUFBK0IsY0FBQTtJQUFBO0VBQUE7RUFBQSxPQUFBQSxjQUFBO0FBQUE7QUFBQS9CLGNBQUE7QUFBQUEsY0FBQSxHQUFBb0IsQ0FBQTs7Ozs7OytCQURTOzs7Ozs7V0FBQVksc0JBQUE7Ozs7O2tDQTdDTTtBQTZDZixTQUFTQSx1QkFBdUJDLEdBQVc7RUFBQTtFQUFBakMsY0FBQSxHQUFBcUIsQ0FBQTtFQUFBckIsY0FBQSxHQUFBb0IsQ0FBQTtFQUNoRDtFQUFJO0VBQUEsQ0FBQXBCLGNBQUEsR0FBQXNCLENBQUEsV0FBQ1csR0FBQTtFQUFBO0VBQUEsQ0FBQWpDLGNBQUEsR0FBQXNCLENBQUEsVUFBTyxPQUFPVyxHQUFBLEtBQVEsV0FBVTtJQUFBO0lBQUFqQyxjQUFBLEdBQUFzQixDQUFBO0lBQUF0QixjQUFBLEdBQUFvQixDQUFBO0lBQ25DLE9BQU87TUFDTGMsT0FBQSxFQUFTO01BQ1RDLFNBQUEsRUFBVztNQUNYQyxNQUFBLEVBQVEsQ0FBQztJQUNYO0VBQ0Y7RUFBQTtFQUFBO0lBQUFwQyxjQUFBLEdBQUFzQixDQUFBO0VBQUE7RUFFQSxNQUFNZSxVQUFBO0VBQUE7RUFBQSxDQUFBckMsY0FBQSxHQUFBb0IsQ0FBQSxPQUFhYSxHQUFBLENBQUlLLElBQUk7RUFBQTtFQUFBdEMsY0FBQSxHQUFBb0IsQ0FBQTtFQUUzQixJQUFJO0lBQ0Y7SUFDQSxNQUFNbUIsS0FBQTtJQUFBO0lBQUEsQ0FBQXZDLGNBQUEsR0FBQW9CLENBQUEsT0FBUSxJQUFJb0IsTUFBQSxDQUFBQyxLQUFLLENBQUNKLFVBQUE7SUFFeEI7SUFBQTtJQUFBckMsY0FBQSxHQUFBb0IsQ0FBQTtJQUNBLE9BQU87TUFDTGMsT0FBQSxFQUFTO01BQ1RDLFNBQUEsRUFBV0ksS0FBQSxDQUFNTixHQUFHO01BQ3BCRyxNQUFBLEVBQVE7SUFDVjtFQUNGLEVBQUUsT0FBT00sS0FBQSxFQUFPO0lBQ2Q7SUFDQSxNQUFNQyxZQUFBO0lBQUE7SUFBQSxDQUFBM0MsY0FBQSxHQUFBb0IsQ0FBQSxRQUFlc0IsS0FBQSxZQUFpQkUsS0FBQTtJQUFBO0lBQUEsQ0FBQTVDLGNBQUEsR0FBQXNCLENBQUEsVUFBUW9CLEtBQUEsQ0FBTUcsT0FBTztJQUFBO0lBQUEsQ0FBQTdDLGNBQUEsR0FBQXNCLENBQUEsVUFBRztJQUFBO0lBQUF0QixjQUFBLEdBQUFvQixDQUFBO0lBRTlELE9BQU87TUFDTGMsT0FBQSxFQUFTO01BQ1RDLFNBQUEsRUFBV0UsVUFBQTtNQUNYRCxNQUFBLEVBQVEsQ0FBQ08sWUFBQTtJQUNYO0VBQ0Y7QUFDRiIsImlnbm9yZUxpc3QiOltdfQ==

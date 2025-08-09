@@ -1,0 +1,396 @@
+2969599dc237b4181d75627b12cd68ea
+/**
+ * @file Move quality assessment utilities for tablebase analysis
+ * @module utils/moveQuality
+ *
+ * @description
+ * Pure functions for assessing chess move quality based on tablebase WDL
+ * (Win/Draw/Loss) values. Provides comprehensive analysis of move impact
+ * including critical move detection and human-readable quality descriptions.
+ *
+ * @remarks
+ * Key features:
+ * - WDL-based move quality assessment (excellent, good, mistake)
+ * - Critical move detection for position evaluation changes
+ * - Human-readable quality descriptions for UI display
+ * - Perspective-aware analysis (player vs opponent viewpoint)
+ *
+ * All functions are pure and side-effect free, designed for use in
+ * performance-critical contexts like real-time move analysis.
+ */"use strict";
+
+/* istanbul ignore next */
+function cov_cmrazaa5i() {
+  var path = "/home/thehu/coolProjects/EndgameTrainer-training-board-complete/src/shared/utils/moveQuality.ts";
+  var hash = "ab75ec19216a3d1fa1398a444bced0eafe3b4286";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "/home/thehu/coolProjects/EndgameTrainer-training-board-complete/src/shared/utils/moveQuality.ts",
+    statementMap: {
+      "0": {
+        start: {
+          line: 20,
+          column: 0
+        },
+        end: {
+          line: 22,
+          column: 3
+        }
+      },
+      "1": {
+        start: {
+          line: 23,
+          column: 0
+        },
+        end: {
+          line: 28,
+          column: 3
+        }
+      },
+      "2": {
+        start: {
+          line: 26,
+          column: 8
+        },
+        end: {
+          line: 26,
+          column: 42
+        }
+      },
+      "3": {
+        start: {
+          line: 32,
+          column: 22
+        },
+        end: {
+          line: 32,
+          column: 43
+        }
+      },
+      "4": {
+        start: {
+          line: 35,
+          column: 4
+        },
+        end: {
+          line: 44,
+          column: 5
+        }
+      },
+      "5": {
+        start: {
+          line: 36,
+          column: 8
+        },
+        end: {
+          line: 36,
+          column: 30
+        }
+      },
+      "6": {
+        start: {
+          line: 37,
+          column: 8
+        },
+        end: {
+          line: 37,
+          column: 42
+        }
+      },
+      "7": {
+        start: {
+          line: 38,
+          column: 11
+        },
+        end: {
+          line: 44,
+          column: 5
+        }
+      },
+      "8": {
+        start: {
+          line: 39,
+          column: 8
+        },
+        end: {
+          line: 39,
+          column: 25
+        }
+      },
+      "9": {
+        start: {
+          line: 40,
+          column: 8
+        },
+        end: {
+          line: 40,
+          column: 50
+        }
+      },
+      "10": {
+        start: {
+          line: 42,
+          column: 8
+        },
+        end: {
+          line: 42,
+          column: 28
+        }
+      },
+      "11": {
+        start: {
+          line: 43,
+          column: 8
+        },
+        end: {
+          line: 43,
+          column: 46
+        }
+      },
+      "12": {
+        start: {
+          line: 45,
+          column: 4
+        },
+        end: {
+          line: 53,
+          column: 6
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "(anonymous_0)",
+        decl: {
+          start: {
+            line: 25,
+            column: 9
+          },
+          end: {
+            line: 25,
+            column: 10
+          }
+        },
+        loc: {
+          start: {
+            line: 25,
+            column: 20
+          },
+          end: {
+            line: 27,
+            column: 5
+          }
+        },
+        line: 25
+      },
+      "1": {
+        name: "assessTablebaseMoveQuality",
+        decl: {
+          start: {
+            line: 29,
+            column: 9
+          },
+          end: {
+            line: 29,
+            column: 35
+          }
+        },
+        loc: {
+          start: {
+            line: 29,
+            column: 57
+          },
+          end: {
+            line: 54,
+            column: 1
+          }
+        },
+        line: 29
+      }
+    },
+    branchMap: {
+      "0": {
+        loc: {
+          start: {
+            line: 35,
+            column: 4
+          },
+          end: {
+            line: 44,
+            column: 5
+          }
+        },
+        type: "if",
+        locations: [{
+          start: {
+            line: 35,
+            column: 4
+          },
+          end: {
+            line: 44,
+            column: 5
+          }
+        }, {
+          start: {
+            line: 38,
+            column: 11
+          },
+          end: {
+            line: 44,
+            column: 5
+          }
+        }],
+        line: 35
+      },
+      "1": {
+        loc: {
+          start: {
+            line: 38,
+            column: 11
+          },
+          end: {
+            line: 44,
+            column: 5
+          }
+        },
+        type: "if",
+        locations: [{
+          start: {
+            line: 38,
+            column: 11
+          },
+          end: {
+            line: 44,
+            column: 5
+          }
+        }, {
+          start: {
+            line: 41,
+            column: 11
+          },
+          end: {
+            line: 44,
+            column: 5
+          }
+        }],
+        line: 38
+      }
+    },
+    s: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "10": 0,
+      "11": 0,
+      "12": 0
+    },
+    f: {
+      "0": 0,
+      "1": 0
+    },
+    b: {
+      "0": [0, 0],
+      "1": [0, 0]
+    },
+    inputSourceMap: {
+      version: 3,
+      sources: ["/home/thehu/coolProjects/EndgameTrainer-training-board-complete/src/shared/utils/moveQuality.ts"],
+      sourcesContent: ["/**\n * @file Move quality assessment utilities for tablebase analysis\n * @module utils/moveQuality\n *\n * @description\n * Pure functions for assessing chess move quality based on tablebase WDL\n * (Win/Draw/Loss) values. Provides comprehensive analysis of move impact\n * including critical move detection and human-readable quality descriptions.\n *\n * @remarks\n * Key features:\n * - WDL-based move quality assessment (excellent, good, mistake)\n * - Critical move detection for position evaluation changes\n * - Human-readable quality descriptions for UI display\n * - Perspective-aware analysis (player vs opponent viewpoint)\n *\n * All functions are pure and side-effect free, designed for use in\n * performance-critical contexts like real-time move analysis.\n */\n\nimport type {\n  SimplifiedMoveQualityResult,\n  MoveQualityType,\n} from \"@shared/types/evaluation\";\n\n/**\n * Analyzes move quality based on tablebase WDL values\n *\n * @param {number} wdlBefore - WDL value before the move (from player's perspective)\n * @param {number} wdlAfter - WDL value after the move (from opponent's perspective, needs negation)\n * @returns {SimplifiedMoveQualityResult} Comprehensive move quality assessment\n *\n * @description\n * Compares tablebase evaluations before and after a move to determine\n * move quality. Handles perspective conversion since wdlAfter represents\n * the opponent's view and must be negated for player perspective analysis.\n *\n * @remarks\n * Quality categories:\n * - excellent: Move improves WDL evaluation (wdlChange > 0)\n * - good: Move maintains WDL evaluation (wdlChange = 0)\n * - mistake: Move worsens WDL evaluation (wdlChange < 0)\n *\n * The WDL change calculation: -wdlAfter - wdlBefore accounts for\n * perspective flip when it becomes the opponent's turn.\n *\n * @example\n * ```typescript\n * // Excellent move: Win to win (maintains advantage)\n * const result1 = assessTablebaseMoveQuality(2, -2);\n * // { quality: 'excellent', reason: 'Optimal tablebase move' }\n *\n * // Mistake: Win to draw\n * const result2 = assessTablebaseMoveQuality(2, 0);\n * // { quality: 'mistake', reason: 'Worsens tablebase position' }\n * ```\n */\nexport function assessTablebaseMoveQuality(\n  wdlBefore: number,\n  wdlAfter: number,\n): SimplifiedMoveQualityResult {\n  // Since we're analyzing from the player's perspective who made the move,\n  // we need to negate the WDL for the position after (opponent's turn)\n  const wdlChange = -wdlAfter - wdlBefore;\n\n  let quality: MoveQualityType;\n  let reason: string;\n\n  if (wdlChange > 0) {\n    quality = \"excellent\";\n    reason = \"Optimal tablebase move\";\n  } else if (wdlChange === 0) {\n    quality = \"good\";\n    reason = \"Maintains tablebase evaluation\";\n  } else {\n    quality = \"mistake\";\n    reason = \"Worsens tablebase position\";\n  }\n\n  return {\n    quality,\n    reason,\n    isTablebaseAnalysis: true,\n    tablebaseInfo: {\n      wdlBefore,\n      wdlAfter: -wdlAfter,\n    },\n  };\n}\n"],
+      names: ["assessTablebaseMoveQuality", "wdlBefore", "wdlAfter", "wdlChange", "quality", "reason", "isTablebaseAnalysis", "tablebaseInfo"],
+      mappings: "AAAA;;;;;;;;;;;;;;;;;;CAkBC;;;;+BAuCeA;;;eAAAA;;;AAAT,SAASA,2BACdC,SAAiB,EACjBC,QAAgB;IAEhB,yEAAyE;IACzE,qEAAqE;IACrE,MAAMC,YAAY,CAACD,WAAWD;IAE9B,IAAIG;IACJ,IAAIC;IAEJ,IAAIF,YAAY,GAAG;QACjBC,UAAU;QACVC,SAAS;IACX,OAAO,IAAIF,cAAc,GAAG;QAC1BC,UAAU;QACVC,SAAS;IACX,OAAO;QACLD,UAAU;QACVC,SAAS;IACX;IAEA,OAAO;QACLD;QACAC;QACAC,qBAAqB;QACrBC,eAAe;YACbN;YACAC,UAAU,CAACA;QACb;IACF;AACF"
+    },
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "ab75ec19216a3d1fa1398a444bced0eafe3b4286"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    // @ts-ignore
+    cov_cmrazaa5i = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_cmrazaa5i();
+cov_cmrazaa5i().s[0]++;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+/* istanbul ignore next */
+cov_cmrazaa5i().s[1]++;
+Object.defineProperty(exports, "assessTablebaseMoveQuality", {
+  enumerable: true,
+  get: function () {
+    /* istanbul ignore next */
+    cov_cmrazaa5i().f[0]++;
+    cov_cmrazaa5i().s[2]++;
+    return assessTablebaseMoveQuality;
+  }
+});
+function assessTablebaseMoveQuality(wdlBefore, wdlAfter) {
+  /* istanbul ignore next */
+  cov_cmrazaa5i().f[1]++;
+  // Since we're analyzing from the player's perspective who made the move,
+  // we need to negate the WDL for the position after (opponent's turn)
+  const wdlChange =
+  /* istanbul ignore next */
+  (cov_cmrazaa5i().s[3]++, -wdlAfter - wdlBefore);
+  let quality;
+  let reason;
+  /* istanbul ignore next */
+  cov_cmrazaa5i().s[4]++;
+  if (wdlChange > 0) {
+    /* istanbul ignore next */
+    cov_cmrazaa5i().b[0][0]++;
+    cov_cmrazaa5i().s[5]++;
+    quality = "excellent";
+    /* istanbul ignore next */
+    cov_cmrazaa5i().s[6]++;
+    reason = "Optimal tablebase move";
+  } else {
+    /* istanbul ignore next */
+    cov_cmrazaa5i().b[0][1]++;
+    cov_cmrazaa5i().s[7]++;
+    if (wdlChange === 0) {
+      /* istanbul ignore next */
+      cov_cmrazaa5i().b[1][0]++;
+      cov_cmrazaa5i().s[8]++;
+      quality = "good";
+      /* istanbul ignore next */
+      cov_cmrazaa5i().s[9]++;
+      reason = "Maintains tablebase evaluation";
+    } else {
+      /* istanbul ignore next */
+      cov_cmrazaa5i().b[1][1]++;
+      cov_cmrazaa5i().s[10]++;
+      quality = "mistake";
+      /* istanbul ignore next */
+      cov_cmrazaa5i().s[11]++;
+      reason = "Worsens tablebase position";
+    }
+  }
+  /* istanbul ignore next */
+  cov_cmrazaa5i().s[12]++;
+  return {
+    quality,
+    reason,
+    isTablebaseAnalysis: true,
+    tablebaseInfo: {
+      wdlBefore,
+      wdlAfter: -wdlAfter
+    }
+  };
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJjb3ZfY21yYXphYTVpIiwicGF0aCIsImhhc2giLCJnbG9iYWwiLCJGdW5jdGlvbiIsImdjdiIsImNvdmVyYWdlRGF0YSIsInN0YXRlbWVudE1hcCIsInN0YXJ0IiwibGluZSIsImNvbHVtbiIsImVuZCIsImZuTWFwIiwibmFtZSIsImRlY2wiLCJsb2MiLCJicmFuY2hNYXAiLCJ0eXBlIiwibG9jYXRpb25zIiwicyIsImYiLCJiIiwiaW5wdXRTb3VyY2VNYXAiLCJ2ZXJzaW9uIiwic291cmNlcyIsInNvdXJjZXNDb250ZW50IiwibmFtZXMiLCJtYXBwaW5ncyIsIl9jb3ZlcmFnZVNjaGVtYSIsImNvdmVyYWdlIiwiYWN0dWFsQ292ZXJhZ2UiLCJhc3Nlc3NUYWJsZWJhc2VNb3ZlUXVhbGl0eSIsIndkbEJlZm9yZSIsIndkbEFmdGVyIiwid2RsQ2hhbmdlIiwicXVhbGl0eSIsInJlYXNvbiIsImlzVGFibGViYXNlQW5hbHlzaXMiLCJ0YWJsZWJhc2VJbmZvIl0sInNvdXJjZXMiOlsiL2hvbWUvdGhlaHUvY29vbFByb2plY3RzL0VuZGdhbWVUcmFpbmVyLXRyYWluaW5nLWJvYXJkLWNvbXBsZXRlL3NyYy9zaGFyZWQvdXRpbHMvbW92ZVF1YWxpdHkudHMiXSwic291cmNlc0NvbnRlbnQiOlsiLyoqXG4gKiBAZmlsZSBNb3ZlIHF1YWxpdHkgYXNzZXNzbWVudCB1dGlsaXRpZXMgZm9yIHRhYmxlYmFzZSBhbmFseXNpc1xuICogQG1vZHVsZSB1dGlscy9tb3ZlUXVhbGl0eVxuICpcbiAqIEBkZXNjcmlwdGlvblxuICogUHVyZSBmdW5jdGlvbnMgZm9yIGFzc2Vzc2luZyBjaGVzcyBtb3ZlIHF1YWxpdHkgYmFzZWQgb24gdGFibGViYXNlIFdETFxuICogKFdpbi9EcmF3L0xvc3MpIHZhbHVlcy4gUHJvdmlkZXMgY29tcHJlaGVuc2l2ZSBhbmFseXNpcyBvZiBtb3ZlIGltcGFjdFxuICogaW5jbHVkaW5nIGNyaXRpY2FsIG1vdmUgZGV0ZWN0aW9uIGFuZCBodW1hbi1yZWFkYWJsZSBxdWFsaXR5IGRlc2NyaXB0aW9ucy5cbiAqXG4gKiBAcmVtYXJrc1xuICogS2V5IGZlYXR1cmVzOlxuICogLSBXREwtYmFzZWQgbW92ZSBxdWFsaXR5IGFzc2Vzc21lbnQgKGV4Y2VsbGVudCwgZ29vZCwgbWlzdGFrZSlcbiAqIC0gQ3JpdGljYWwgbW92ZSBkZXRlY3Rpb24gZm9yIHBvc2l0aW9uIGV2YWx1YXRpb24gY2hhbmdlc1xuICogLSBIdW1hbi1yZWFkYWJsZSBxdWFsaXR5IGRlc2NyaXB0aW9ucyBmb3IgVUkgZGlzcGxheVxuICogLSBQZXJzcGVjdGl2ZS1hd2FyZSBhbmFseXNpcyAocGxheWVyIHZzIG9wcG9uZW50IHZpZXdwb2ludClcbiAqXG4gKiBBbGwgZnVuY3Rpb25zIGFyZSBwdXJlIGFuZCBzaWRlLWVmZmVjdCBmcmVlLCBkZXNpZ25lZCBmb3IgdXNlIGluXG4gKiBwZXJmb3JtYW5jZS1jcml0aWNhbCBjb250ZXh0cyBsaWtlIHJlYWwtdGltZSBtb3ZlIGFuYWx5c2lzLlxuICovXG5cbmltcG9ydCB0eXBlIHtcbiAgU2ltcGxpZmllZE1vdmVRdWFsaXR5UmVzdWx0LFxuICBNb3ZlUXVhbGl0eVR5cGUsXG59IGZyb20gXCJAc2hhcmVkL3R5cGVzL2V2YWx1YXRpb25cIjtcblxuLyoqXG4gKiBBbmFseXplcyBtb3ZlIHF1YWxpdHkgYmFzZWQgb24gdGFibGViYXNlIFdETCB2YWx1ZXNcbiAqXG4gKiBAcGFyYW0ge251bWJlcn0gd2RsQmVmb3JlIC0gV0RMIHZhbHVlIGJlZm9yZSB0aGUgbW92ZSAoZnJvbSBwbGF5ZXIncyBwZXJzcGVjdGl2ZSlcbiAqIEBwYXJhbSB7bnVtYmVyfSB3ZGxBZnRlciAtIFdETCB2YWx1ZSBhZnRlciB0aGUgbW92ZSAoZnJvbSBvcHBvbmVudCdzIHBlcnNwZWN0aXZlLCBuZWVkcyBuZWdhdGlvbilcbiAqIEByZXR1cm5zIHtTaW1wbGlmaWVkTW92ZVF1YWxpdHlSZXN1bHR9IENvbXByZWhlbnNpdmUgbW92ZSBxdWFsaXR5IGFzc2Vzc21lbnRcbiAqXG4gKiBAZGVzY3JpcHRpb25cbiAqIENvbXBhcmVzIHRhYmxlYmFzZSBldmFsdWF0aW9ucyBiZWZvcmUgYW5kIGFmdGVyIGEgbW92ZSB0byBkZXRlcm1pbmVcbiAqIG1vdmUgcXVhbGl0eS4gSGFuZGxlcyBwZXJzcGVjdGl2ZSBjb252ZXJzaW9uIHNpbmNlIHdkbEFmdGVyIHJlcHJlc2VudHNcbiAqIHRoZSBvcHBvbmVudCdzIHZpZXcgYW5kIG11c3QgYmUgbmVnYXRlZCBmb3IgcGxheWVyIHBlcnNwZWN0aXZlIGFuYWx5c2lzLlxuICpcbiAqIEByZW1hcmtzXG4gKiBRdWFsaXR5IGNhdGVnb3JpZXM6XG4gKiAtIGV4Y2VsbGVudDogTW92ZSBpbXByb3ZlcyBXREwgZXZhbHVhdGlvbiAod2RsQ2hhbmdlID4gMClcbiAqIC0gZ29vZDogTW92ZSBtYWludGFpbnMgV0RMIGV2YWx1YXRpb24gKHdkbENoYW5nZSA9IDApXG4gKiAtIG1pc3Rha2U6IE1vdmUgd29yc2VucyBXREwgZXZhbHVhdGlvbiAod2RsQ2hhbmdlIDwgMClcbiAqXG4gKiBUaGUgV0RMIGNoYW5nZSBjYWxjdWxhdGlvbjogLXdkbEFmdGVyIC0gd2RsQmVmb3JlIGFjY291bnRzIGZvclxuICogcGVyc3BlY3RpdmUgZmxpcCB3aGVuIGl0IGJlY29tZXMgdGhlIG9wcG9uZW50J3MgdHVybi5cbiAqXG4gKiBAZXhhbXBsZVxuICogYGBgdHlwZXNjcmlwdFxuICogLy8gRXhjZWxsZW50IG1vdmU6IFdpbiB0byB3aW4gKG1haW50YWlucyBhZHZhbnRhZ2UpXG4gKiBjb25zdCByZXN1bHQxID0gYXNzZXNzVGFibGViYXNlTW92ZVF1YWxpdHkoMiwgLTIpO1xuICogLy8geyBxdWFsaXR5OiAnZXhjZWxsZW50JywgcmVhc29uOiAnT3B0aW1hbCB0YWJsZWJhc2UgbW92ZScgfVxuICpcbiAqIC8vIE1pc3Rha2U6IFdpbiB0byBkcmF3XG4gKiBjb25zdCByZXN1bHQyID0gYXNzZXNzVGFibGViYXNlTW92ZVF1YWxpdHkoMiwgMCk7XG4gKiAvLyB7IHF1YWxpdHk6ICdtaXN0YWtlJywgcmVhc29uOiAnV29yc2VucyB0YWJsZWJhc2UgcG9zaXRpb24nIH1cbiAqIGBgYFxuICovXG5leHBvcnQgZnVuY3Rpb24gYXNzZXNzVGFibGViYXNlTW92ZVF1YWxpdHkoXG4gIHdkbEJlZm9yZTogbnVtYmVyLFxuICB3ZGxBZnRlcjogbnVtYmVyLFxuKTogU2ltcGxpZmllZE1vdmVRdWFsaXR5UmVzdWx0IHtcbiAgLy8gU2luY2Ugd2UncmUgYW5hbHl6aW5nIGZyb20gdGhlIHBsYXllcidzIHBlcnNwZWN0aXZlIHdobyBtYWRlIHRoZSBtb3ZlLFxuICAvLyB3ZSBuZWVkIHRvIG5lZ2F0ZSB0aGUgV0RMIGZvciB0aGUgcG9zaXRpb24gYWZ0ZXIgKG9wcG9uZW50J3MgdHVybilcbiAgY29uc3Qgd2RsQ2hhbmdlID0gLXdkbEFmdGVyIC0gd2RsQmVmb3JlO1xuXG4gIGxldCBxdWFsaXR5OiBNb3ZlUXVhbGl0eVR5cGU7XG4gIGxldCByZWFzb246IHN0cmluZztcblxuICBpZiAod2RsQ2hhbmdlID4gMCkge1xuICAgIHF1YWxpdHkgPSBcImV4Y2VsbGVudFwiO1xuICAgIHJlYXNvbiA9IFwiT3B0aW1hbCB0YWJsZWJhc2UgbW92ZVwiO1xuICB9IGVsc2UgaWYgKHdkbENoYW5nZSA9PT0gMCkge1xuICAgIHF1YWxpdHkgPSBcImdvb2RcIjtcbiAgICByZWFzb24gPSBcIk1haW50YWlucyB0YWJsZWJhc2UgZXZhbHVhdGlvblwiO1xuICB9IGVsc2Uge1xuICAgIHF1YWxpdHkgPSBcIm1pc3Rha2VcIjtcbiAgICByZWFzb24gPSBcIldvcnNlbnMgdGFibGViYXNlIHBvc2l0aW9uXCI7XG4gIH1cblxuICByZXR1cm4ge1xuICAgIHF1YWxpdHksXG4gICAgcmVhc29uLFxuICAgIGlzVGFibGViYXNlQW5hbHlzaXM6IHRydWUsXG4gICAgdGFibGViYXNlSW5mbzoge1xuICAgICAgd2RsQmVmb3JlLFxuICAgICAgd2RsQWZ0ZXI6IC13ZGxBZnRlcixcbiAgICB9LFxuICB9O1xufVxuIl0sIm1hcHBpbmdzIjoiQUFBQTs7Ozs7Ozs7Ozs7Ozs7Ozs7O0dBa0JDOztBQUFBO0FBQUEsU0FBQUEsY0FBQTtFQUFBLElBQUFDLElBQUE7RUFBQSxJQUFBQyxJQUFBO0VBQUEsSUFBQUMsTUFBQSxPQUFBQyxRQUFBO0VBQUEsSUFBQUMsR0FBQTtFQUFBLElBQUFDLFlBQUE7SUFBQUwsSUFBQTtJQUFBTSxZQUFBO01BQUE7UUFBQUMsS0FBQTtVQUFBQyxJQUFBO1VBQUFDLE1BQUE7UUFBQTtRQUFBQyxHQUFBO1VBQUFGLElBQUE7VUFBQUMsTUFBQTtRQUFBO01BQUE7TUFBQTtRQUFBRixLQUFBO1VBQUFDLElBQUE7VUFBQUMsTUFBQTtRQUFBO1FBQUFDLEdBQUE7VUFBQUYsSUFBQTtVQUFBQyxNQUFBO1FBQUE7TUFBQTtNQUFBO1FBQUFGLEtBQUE7VUFBQUMsSUFBQTtVQUFBQyxNQUFBO1FBQUE7UUFBQUMsR0FBQTtVQUFBRixJQUFBO1VBQUFDLE1BQUE7UUFBQTtNQUFBO01BQUE7UUFBQUYsS0FBQTtVQUFBQyxJQUFBO1VBQUFDLE1BQUE7UUFBQTtRQUFBQyxHQUFBO1VBQUFGLElBQUE7VUFBQUMsTUFBQTtRQUFBO01BQUE7TUFBQTtRQUFBRixLQUFBO1VBQUFDLElBQUE7VUFBQUMsTUFBQTtRQUFBO1FBQUFDLEdBQUE7VUFBQUYsSUFBQTtVQUFBQyxNQUFBO1FBQUE7TUFBQTtNQUFBO1FBQUFGLEtBQUE7VUFBQUMsSUFBQTtVQUFBQyxNQUFBO1FBQUE7UUFBQUMsR0FBQTtVQUFBRixJQUFBO1VBQUFDLE1BQUE7UUFBQTtNQUFBO01BQUE7UUFBQUYsS0FBQTtVQUFBQyxJQUFBO1VBQUFDLE1BQUE7UUFBQTtRQUFBQyxHQUFBO1VBQUFGLElBQUE7VUFBQUMsTUFBQTtRQUFBO01BQUE7TUFBQTtRQUFBRixLQUFBO1VBQUFDLElBQUE7VUFBQUMsTUFBQTtRQUFBO1FBQUFDLEdBQUE7VUFBQUYsSUFBQTtVQUFBQyxNQUFBO1FBQUE7TUFBQTtNQUFBO1FBQUFGLEtBQUE7VUFBQUMsSUFBQTtVQUFBQyxNQUFBO1FBQUE7UUFBQUMsR0FBQTtVQUFBRixJQUFBO1VBQUFDLE1BQUE7UUFBQTtNQUFBO01BQUE7UUFBQUYsS0FBQTtVQUFBQyxJQUFBO1VBQUFDLE1BQUE7UUFBQTtRQUFBQyxHQUFBO1VBQUFGLElBQUE7VUFBQUMsTUFBQTtRQUFBO01BQUE7TUFBQTtRQUFBRixLQUFBO1VBQUFDLElBQUE7VUFBQUMsTUFBQTtRQUFBO1FBQUFDLEdBQUE7VUFBQUYsSUFBQTtVQUFBQyxNQUFBO1FBQUE7TUFBQTtNQUFBO1FBQUFGLEtBQUE7VUFBQUMsSUFBQTtVQUFBQyxNQUFBO1FBQUE7UUFBQUMsR0FBQTtVQUFBRixJQUFBO1VBQUFDLE1BQUE7UUFBQTtNQUFBO01BQUE7UUFBQUYsS0FBQTtVQUFBQyxJQUFBO1VBQUFDLE1BQUE7UUFBQTtRQUFBQyxHQUFBO1VBQUFGLElBQUE7VUFBQUMsTUFBQTtRQUFBO01BQUE7SUFBQTtJQUFBRSxLQUFBO01BQUE7UUFBQUMsSUFBQTtRQUFBQyxJQUFBO1VBQUFOLEtBQUE7WUFBQUMsSUFBQTtZQUFBQyxNQUFBO1VBQUE7VUFBQUMsR0FBQTtZQUFBRixJQUFBO1lBQUFDLE1BQUE7VUFBQTtRQUFBO1FBQUFLLEdBQUE7VUFBQVAsS0FBQTtZQUFBQyxJQUFBO1lBQUFDLE1BQUE7VUFBQTtVQUFBQyxHQUFBO1lBQUFGLElBQUE7WUFBQUMsTUFBQTtVQUFBO1FBQUE7UUFBQUQsSUFBQTtNQUFBO01BQUE7UUFBQUksSUFBQTtRQUFBQyxJQUFBO1VBQUFOLEtBQUE7WUFBQUMsSUFBQTtZQUFBQyxNQUFBO1VBQUE7VUFBQUMsR0FBQTtZQUFBRixJQUFBO1lBQUFDLE1BQUE7VUFBQTtRQUFBO1FBQUFLLEdBQUE7VUFBQVAsS0FBQTtZQUFBQyxJQUFBO1lBQUFDLE1BQUE7VUFBQTtVQUFBQyxHQUFBO1lBQUFGLElBQUE7WUFBQUMsTUFBQTtVQUFBO1FBQUE7UUFBQUQsSUFBQTtNQUFBO0lBQUE7SUFBQU8sU0FBQTtNQUFBO1FBQUFELEdBQUE7VUFBQVAsS0FBQTtZQUFBQyxJQUFBO1lBQUFDLE1BQUE7VUFBQTtVQUFBQyxHQUFBO1lBQUFGLElBQUE7WUFBQUMsTUFBQTtVQUFBO1FBQUE7UUFBQU8sSUFBQTtRQUFBQyxTQUFBO1VBQUFWLEtBQUE7WUFBQUMsSUFBQTtZQUFBQyxNQUFBO1VBQUE7VUFBQUMsR0FBQTtZQUFBRixJQUFBO1lBQUFDLE1BQUE7VUFBQTtRQUFBO1VBQUFGLEtBQUE7WUFBQUMsSUFBQTtZQUFBQyxNQUFBO1VBQUE7VUFBQUMsR0FBQTtZQUFBRixJQUFBO1lBQUFDLE1BQUE7VUFBQTtRQUFBO1FBQUFELElBQUE7TUFBQTtNQUFBO1FBQUFNLEdBQUE7VUFBQVAsS0FBQTtZQUFBQyxJQUFBO1lBQUFDLE1BQUE7VUFBQTtVQUFBQyxHQUFBO1lBQUFGLElBQUE7WUFBQUMsTUFBQTtVQUFBO1FBQUE7UUFBQU8sSUFBQTtRQUFBQyxTQUFBO1VBQUFWLEtBQUE7WUFBQUMsSUFBQTtZQUFBQyxNQUFBO1VBQUE7VUFBQUMsR0FBQTtZQUFBRixJQUFBO1lBQUFDLE1BQUE7VUFBQTtRQUFBO1VBQUFGLEtBQUE7WUFBQUMsSUFBQTtZQUFBQyxNQUFBO1VBQUE7VUFBQUMsR0FBQTtZQUFBRixJQUFBO1lBQUFDLE1BQUE7VUFBQTtRQUFBO1FBQUFELElBQUE7TUFBQTtJQUFBO0lBQUFVLENBQUE7TUFBQTtNQUFBO01BQUE7TUFBQTtNQUFBO01BQUE7TUFBQTtNQUFBO01BQUE7TUFBQTtNQUFBO01BQUE7TUFBQTtJQUFBO0lBQUFDLENBQUE7TUFBQTtNQUFBO0lBQUE7SUFBQUMsQ0FBQTtNQUFBO01BQUE7SUFBQTtJQUFBQyxjQUFBO01BQUFDLE9BQUE7TUFBQUMsT0FBQTtNQUFBQyxjQUFBO01BQUFDLEtBQUE7TUFBQUMsUUFBQTtJQUFBO0lBQUFDLGVBQUE7SUFBQTFCLElBQUE7RUFBQTtFQUFBLElBQUEyQixRQUFBLEdBQUExQixNQUFBLENBQUFFLEdBQUEsTUFBQUYsTUFBQSxDQUFBRSxHQUFBO0VBQUEsS0FBQXdCLFFBQUEsQ0FBQTVCLElBQUEsS0FBQTRCLFFBQUEsQ0FBQTVCLElBQUEsRUFBQUMsSUFBQSxLQUFBQSxJQUFBO0lBQUEyQixRQUFBLENBQUE1QixJQUFBLElBQUFLLFlBQUE7RUFBQTtFQUFBLElBQUF3QixjQUFBLEdBQUFELFFBQUEsQ0FBQTVCLElBQUE7RUFBQTs7Ozs7Ozs7Ozs7Ozs7OytCQXVDZTs7Ozs7O1dBQUE4QiwwQkFBQTs7O0FBQVQsU0FBU0EsMkJBQ2RDLFNBQWlCLEVBQ2pCQyxRQUFnQjtFQUFBO0VBQUFqQyxhQUFBLEdBQUFvQixDQUFBO0VBRWhCO0VBQ0E7RUFDQSxNQUFNYyxTQUFBO0VBQUE7RUFBQSxDQUFBbEMsYUFBQSxHQUFBbUIsQ0FBQSxPQUFZLENBQUNjLFFBQUEsR0FBV0QsU0FBQTtFQUU5QixJQUFJRyxPQUFBO0VBQ0osSUFBSUMsTUFBQTtFQUFBO0VBQUFwQyxhQUFBLEdBQUFtQixDQUFBO0VBRUosSUFBSWUsU0FBQSxHQUFZLEdBQUc7SUFBQTtJQUFBbEMsYUFBQSxHQUFBcUIsQ0FBQTtJQUFBckIsYUFBQSxHQUFBbUIsQ0FBQTtJQUNqQmdCLE9BQUEsR0FBVTtJQUFBO0lBQUFuQyxhQUFBLEdBQUFtQixDQUFBO0lBQ1ZpQixNQUFBLEdBQVM7RUFDWCxPQUFPO0lBQUE7SUFBQXBDLGFBQUEsR0FBQXFCLENBQUE7SUFBQXJCLGFBQUEsR0FBQW1CLENBQUE7SUFBQSxJQUFJZSxTQUFBLEtBQWMsR0FBRztNQUFBO01BQUFsQyxhQUFBLEdBQUFxQixDQUFBO01BQUFyQixhQUFBLEdBQUFtQixDQUFBO01BQzFCZ0IsT0FBQSxHQUFVO01BQUE7TUFBQW5DLGFBQUEsR0FBQW1CLENBQUE7TUFDVmlCLE1BQUEsR0FBUztJQUNYLE9BQU87TUFBQTtNQUFBcEMsYUFBQSxHQUFBcUIsQ0FBQTtNQUFBckIsYUFBQSxHQUFBbUIsQ0FBQTtNQUNMZ0IsT0FBQSxHQUFVO01BQUE7TUFBQW5DLGFBQUEsR0FBQW1CLENBQUE7TUFDVmlCLE1BQUEsR0FBUztJQUNYO0VBQUE7RUFBQTtFQUFBcEMsYUFBQSxHQUFBbUIsQ0FBQTtFQUVBLE9BQU87SUFDTGdCLE9BQUE7SUFDQUMsTUFBQTtJQUNBQyxtQkFBQSxFQUFxQjtJQUNyQkMsYUFBQSxFQUFlO01BQ2JOLFNBQUE7TUFDQUMsUUFBQSxFQUFVLENBQUNBO0lBQ2I7RUFDRjtBQUNGIiwiaWdub3JlTGlzdCI6W119

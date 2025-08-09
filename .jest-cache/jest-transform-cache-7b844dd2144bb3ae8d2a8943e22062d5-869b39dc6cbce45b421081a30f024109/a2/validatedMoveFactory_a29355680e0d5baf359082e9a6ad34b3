@@ -1,0 +1,83 @@
+0551260aad282473d8187c713ecca6cf
+/**
+ * Test factory for creating ValidatedMove objects
+ *
+ * This utility creates ValidatedMove objects for testing purposes by leveraging
+ * the base createTestMove factory and applying the necessary branding.
+ *
+ * IMPORTANT: This should ONLY be used in tests, as it bypasses any real
+ * validation logic that might exist in the application.
+ */ "use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: Object.getOwnPropertyDescriptor(all, name).get
+    });
+}
+_export(exports, {
+    get VALIDATED_TEST_MOVES () {
+        return VALIDATED_TEST_MOVES;
+    },
+    get createTestValidatedMove () {
+        return createTestValidatedMove;
+    },
+    get validatedMoveFactory () {
+        return validatedMoveFactory;
+    }
+});
+const _moveFactory = require("./moveFactory");
+const createTestValidatedMove = (options)=>{
+    const baseMove = (0, _moveFactory.createTestMove)(options);
+    // Single controlled type assertion - this is the only place we "lie" to TypeScript
+    // Since ValidatedMove extends Move with branded symbols, this cast is sufficient for tests
+    return baseMove;
+};
+const VALIDATED_TEST_MOVES = {
+    E2E4: createTestValidatedMove({
+        from: "e2",
+        to: "e4",
+        piece: "p",
+        san: "e4"
+    }),
+    E7E5: createTestValidatedMove({
+        from: "e7",
+        to: "e5",
+        piece: "p",
+        color: "b",
+        san: "e5"
+    }),
+    NG1F3: createTestValidatedMove({
+        from: "g1",
+        to: "f3",
+        piece: "n",
+        san: "Nf3"
+    }),
+    KINGSIDE_CASTLE: createTestValidatedMove({
+        from: "e1",
+        to: "g1",
+        piece: "k",
+        san: "O-O"
+    }),
+    CAPTURE: createTestValidatedMove({
+        from: "e4",
+        to: "d5",
+        piece: "p",
+        captured: "p",
+        san: "exd5"
+    }),
+    PROMOTION: createTestValidatedMove({
+        from: "e7",
+        to: "e8",
+        piece: "p",
+        promotion: "q",
+        san: "e8=Q"
+    })
+};
+const validatedMoveFactory = {
+    create: createTestValidatedMove
+};
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9ob21lL3RoZWh1L2Nvb2xQcm9qZWN0cy9FbmRnYW1lVHJhaW5lci10cmFpbmluZy1ib2FyZC1jb21wbGV0ZS9zcmMvdGVzdHMvaGVscGVycy92YWxpZGF0ZWRNb3ZlRmFjdG9yeS50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcbiAqIFRlc3QgZmFjdG9yeSBmb3IgY3JlYXRpbmcgVmFsaWRhdGVkTW92ZSBvYmplY3RzXG4gKlxuICogVGhpcyB1dGlsaXR5IGNyZWF0ZXMgVmFsaWRhdGVkTW92ZSBvYmplY3RzIGZvciB0ZXN0aW5nIHB1cnBvc2VzIGJ5IGxldmVyYWdpbmdcbiAqIHRoZSBiYXNlIGNyZWF0ZVRlc3RNb3ZlIGZhY3RvcnkgYW5kIGFwcGx5aW5nIHRoZSBuZWNlc3NhcnkgYnJhbmRpbmcuXG4gKlxuICogSU1QT1JUQU5UOiBUaGlzIHNob3VsZCBPTkxZIGJlIHVzZWQgaW4gdGVzdHMsIGFzIGl0IGJ5cGFzc2VzIGFueSByZWFsXG4gKiB2YWxpZGF0aW9uIGxvZ2ljIHRoYXQgbWlnaHQgZXhpc3QgaW4gdGhlIGFwcGxpY2F0aW9uLlxuICovXG5cbmltcG9ydCB7IGNyZWF0ZVRlc3RNb3ZlLCB0eXBlIENyZWF0ZU1vdmVPcHRpb25zIH0gZnJvbSBcIi4vbW92ZUZhY3RvcnlcIjtcbmltcG9ydCB0eXBlIHsgVmFsaWRhdGVkTW92ZSB9IGZyb20gXCJAc2hhcmVkL3R5cGVzL2NoZXNzXCI7XG5cbi8qKlxuICogQ3JlYXRlcyBhIFZhbGlkYXRlZE1vdmUgZm9yIHRlc3RpbmcgcHVycG9zZXNcbiAqXG4gKiBUaGlzIGlzIHRoZSBzaW5nbGUsIGNvbnRyb2xsZWQgbG9jYXRpb24gZm9yIHR5cGUgYXNzZXJ0aW9uIHRvIFZhbGlkYXRlZE1vdmUuXG4gKiBXZSBlbmNhcHN1bGF0ZSB0aGUgXCJsaWVcIiB0byBUeXBlU2NyaXB0IGhlcmUgc28gdGVzdHMgcmVtYWluIGNsZWFuIGFuZCB0eXBlLXNhZmUuXG4gKlxuICogQHBhcmFtIG9wdGlvbnMgLSBUaGUgb3B0aW9ucyB0byBjcmVhdGUgdGhlIGJhc2UgbW92ZVxuICogQHJldHVybnMgQSBWYWxpZGF0ZWRNb3ZlIG9iamVjdCBmb3IgdXNlIGluIHRlc3RzXG4gKlxuICogQGV4YW1wbGVcbiAqIGBgYHR5cGVzY3JpcHRcbiAqIGNvbnN0IG1vdmUgPSBjcmVhdGVUZXN0VmFsaWRhdGVkTW92ZSh7XG4gKiAgIGZyb206ICdlMicsXG4gKiAgIHRvOiAnZTQnLFxuICogICBwaWVjZTogJ3AnLFxuICogICBzYW46ICdlNCdcbiAqIH0pO1xuICogYGBgXG4gKi9cbmV4cG9ydCBjb25zdCBjcmVhdGVUZXN0VmFsaWRhdGVkTW92ZSA9IChvcHRpb25zOiBDcmVhdGVNb3ZlT3B0aW9ucyk6IFZhbGlkYXRlZE1vdmUgPT4ge1xuICBjb25zdCBiYXNlTW92ZSA9IGNyZWF0ZVRlc3RNb3ZlKG9wdGlvbnMpO1xuXG4gIC8vIFNpbmdsZSBjb250cm9sbGVkIHR5cGUgYXNzZXJ0aW9uIC0gdGhpcyBpcyB0aGUgb25seSBwbGFjZSB3ZSBcImxpZVwiIHRvIFR5cGVTY3JpcHRcbiAgLy8gU2luY2UgVmFsaWRhdGVkTW92ZSBleHRlbmRzIE1vdmUgd2l0aCBicmFuZGVkIHN5bWJvbHMsIHRoaXMgY2FzdCBpcyBzdWZmaWNpZW50IGZvciB0ZXN0c1xuICByZXR1cm4gYmFzZU1vdmUgYXMgVmFsaWRhdGVkTW92ZTtcbn07XG5cbi8qKlxuICogQ29tbW9uIHZhbGlkYXRlZCB0ZXN0IG1vdmVzIGZvciByZXVzZSBhY3Jvc3MgdGVzdCBmaWxlc1xuICovXG5leHBvcnQgY29uc3QgVkFMSURBVEVEX1RFU1RfTU9WRVMgPSB7XG4gIEUyRTQ6IGNyZWF0ZVRlc3RWYWxpZGF0ZWRNb3ZlKHtcbiAgICBmcm9tOiBcImUyXCIsXG4gICAgdG86IFwiZTRcIixcbiAgICBwaWVjZTogXCJwXCIsXG4gICAgc2FuOiBcImU0XCIsXG4gIH0pLFxuICBFN0U1OiBjcmVhdGVUZXN0VmFsaWRhdGVkTW92ZSh7XG4gICAgZnJvbTogXCJlN1wiLFxuICAgIHRvOiBcImU1XCIsXG4gICAgcGllY2U6IFwicFwiLFxuICAgIGNvbG9yOiBcImJcIixcbiAgICBzYW46IFwiZTVcIixcbiAgfSksXG4gIE5HMUYzOiBjcmVhdGVUZXN0VmFsaWRhdGVkTW92ZSh7XG4gICAgZnJvbTogXCJnMVwiLFxuICAgIHRvOiBcImYzXCIsXG4gICAgcGllY2U6IFwiblwiLFxuICAgIHNhbjogXCJOZjNcIixcbiAgfSksXG4gIEtJTkdTSURFX0NBU1RMRTogY3JlYXRlVGVzdFZhbGlkYXRlZE1vdmUoe1xuICAgIGZyb206IFwiZTFcIixcbiAgICB0bzogXCJnMVwiLFxuICAgIHBpZWNlOiBcImtcIixcbiAgICBzYW46IFwiTy1PXCIsXG4gIH0pLFxuICBDQVBUVVJFOiBjcmVhdGVUZXN0VmFsaWRhdGVkTW92ZSh7XG4gICAgZnJvbTogXCJlNFwiLFxuICAgIHRvOiBcImQ1XCIsXG4gICAgcGllY2U6IFwicFwiLFxuICAgIGNhcHR1cmVkOiBcInBcIixcbiAgICBzYW46IFwiZXhkNVwiLFxuICB9KSxcbiAgUFJPTU9USU9OOiBjcmVhdGVUZXN0VmFsaWRhdGVkTW92ZSh7XG4gICAgZnJvbTogXCJlN1wiLFxuICAgIHRvOiBcImU4XCIsXG4gICAgcGllY2U6IFwicFwiLFxuICAgIHByb21vdGlvbjogXCJxXCIsXG4gICAgc2FuOiBcImU4PVFcIixcbiAgfSksXG59IGFzIGNvbnN0O1xuXG4vLyBMZWdhY3kgZXhwb3J0IGZvciBjb21wYXRpYmlsaXR5IC0gZmFjdG9yeSBvYmplY3Qgd2l0aCBjcmVhdGUgbWV0aG9kXG5leHBvcnQgY29uc3QgdmFsaWRhdGVkTW92ZUZhY3RvcnkgPSB7XG4gIGNyZWF0ZTogY3JlYXRlVGVzdFZhbGlkYXRlZE1vdmUsXG59O1xuIl0sIm5hbWVzIjpbIlZBTElEQVRFRF9URVNUX01PVkVTIiwiY3JlYXRlVGVzdFZhbGlkYXRlZE1vdmUiLCJ2YWxpZGF0ZWRNb3ZlRmFjdG9yeSIsIm9wdGlvbnMiLCJiYXNlTW92ZSIsImNyZWF0ZVRlc3RNb3ZlIiwiRTJFNCIsImZyb20iLCJ0byIsInBpZWNlIiwic2FuIiwiRTdFNSIsImNvbG9yIiwiTkcxRjMiLCJLSU5HU0lERV9DQVNUTEUiLCJDQVBUVVJFIiwiY2FwdHVyZWQiLCJQUk9NT1RJT04iLCJwcm9tb3Rpb24iLCJjcmVhdGUiXSwibWFwcGluZ3MiOiJBQUFBOzs7Ozs7OztDQVFDOzs7Ozs7Ozs7OztRQW1DWUE7ZUFBQUE7O1FBWEFDO2VBQUFBOztRQXNEQUM7ZUFBQUE7Ozs2QkE1RTBDO0FBc0JoRCxNQUFNRCwwQkFBMEIsQ0FBQ0U7SUFDdEMsTUFBTUMsV0FBV0MsSUFBQUEsMkJBQWMsRUFBQ0Y7SUFFaEMsbUZBQW1GO0lBQ25GLDJGQUEyRjtJQUMzRixPQUFPQztBQUNUO0FBS08sTUFBTUosdUJBQXVCO0lBQ2xDTSxNQUFNTCx3QkFBd0I7UUFDNUJNLE1BQU07UUFDTkMsSUFBSTtRQUNKQyxPQUFPO1FBQ1BDLEtBQUs7SUFDUDtJQUNBQyxNQUFNVix3QkFBd0I7UUFDNUJNLE1BQU07UUFDTkMsSUFBSTtRQUNKQyxPQUFPO1FBQ1BHLE9BQU87UUFDUEYsS0FBSztJQUNQO0lBQ0FHLE9BQU9aLHdCQUF3QjtRQUM3Qk0sTUFBTTtRQUNOQyxJQUFJO1FBQ0pDLE9BQU87UUFDUEMsS0FBSztJQUNQO0lBQ0FJLGlCQUFpQmIsd0JBQXdCO1FBQ3ZDTSxNQUFNO1FBQ05DLElBQUk7UUFDSkMsT0FBTztRQUNQQyxLQUFLO0lBQ1A7SUFDQUssU0FBU2Qsd0JBQXdCO1FBQy9CTSxNQUFNO1FBQ05DLElBQUk7UUFDSkMsT0FBTztRQUNQTyxVQUFVO1FBQ1ZOLEtBQUs7SUFDUDtJQUNBTyxXQUFXaEIsd0JBQXdCO1FBQ2pDTSxNQUFNO1FBQ05DLElBQUk7UUFDSkMsT0FBTztRQUNQUyxXQUFXO1FBQ1hSLEtBQUs7SUFDUDtBQUNGO0FBR08sTUFBTVIsdUJBQXVCO0lBQ2xDaUIsUUFBUWxCO0FBQ1YifQ==

@@ -1,0 +1,40 @@
+2b854adb5edefcebbc7ad2d91f2f5ac6
+/**
+ * @file Hook for managing page ready state
+ * @module hooks/usePageReady
+ *
+ * @description
+ * Provides a consistent way to signal when a page/component is fully loaded.
+ * Essential for E2E tests to know when to start interacting with the page.
+ */ "use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "usePageReady", {
+    enumerable: true,
+    get: function() {
+        return usePageReady;
+    }
+});
+const _react = require("react");
+function usePageReady(dependencies = []) {
+    const [isPageReady, setIsPageReady] = (0, _react.useState)(false);
+    (0, _react.useEffect)(()=>{
+        // Check if all dependencies are true
+        const allReady = dependencies.length === 0 || dependencies.every((dep)=>dep === true);
+        if (allReady && !isPageReady) {
+            setIsPageReady(true);
+            // Optional: Emit custom event for debugging
+            if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_E2E_SIGNALS === "true") {
+                window.dispatchEvent(new CustomEvent("page-ready", {
+                    detail: {
+                        timestamp: Date.now()
+                    }
+                }));
+            }
+        }
+    }, dependencies);
+    return isPageReady;
+}
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9ob21lL3RoZWh1L2Nvb2xQcm9qZWN0cy9FbmRnYW1lVHJhaW5lci10cmFpbmluZy1ib2FyZC1jb21wbGV0ZS9zcmMvc2hhcmVkL2hvb2tzL3VzZVBhZ2VSZWFkeS50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIvKipcbiAqIEBmaWxlIEhvb2sgZm9yIG1hbmFnaW5nIHBhZ2UgcmVhZHkgc3RhdGVcbiAqIEBtb2R1bGUgaG9va3MvdXNlUGFnZVJlYWR5XG4gKlxuICogQGRlc2NyaXB0aW9uXG4gKiBQcm92aWRlcyBhIGNvbnNpc3RlbnQgd2F5IHRvIHNpZ25hbCB3aGVuIGEgcGFnZS9jb21wb25lbnQgaXMgZnVsbHkgbG9hZGVkLlxuICogRXNzZW50aWFsIGZvciBFMkUgdGVzdHMgdG8ga25vdyB3aGVuIHRvIHN0YXJ0IGludGVyYWN0aW5nIHdpdGggdGhlIHBhZ2UuXG4gKi9cblxuaW1wb3J0IHsgdXNlU3RhdGUsIHVzZUVmZmVjdCB9IGZyb20gXCJyZWFjdFwiO1xuXG4vKipcbiAqIEN1c3RvbSBob29rIGZvciBtYW5hZ2luZyBwYWdlIHJlYWR5IHN0YXRlIGluIEUyRSB0ZXN0c1xuICpcbiAqIEBkZXNjcmlwdGlvblxuICogUHJvdmlkZXMgYSBjb25zaXN0ZW50IHdheSB0byBzaWduYWwgd2hlbiBhIHBhZ2UvY29tcG9uZW50IGlzIGZ1bGx5IGxvYWRlZC5cbiAqIE1vbml0b3JzIG11bHRpcGxlIGxvYWRpbmcgY29uZGl0aW9ucyBhbmQgb25seSByZXR1cm5zIHRydWUgd2hlbiBhbGwgYXJlIGNvbXBsZXRlLlxuICogT3B0aW9uYWxseSBlbWl0cyBhIGN1c3RvbSBldmVudCBmb3IgRTJFIHRlc3QgZnJhbWV3b3JrcyB0byBsaXN0ZW4gdG8uXG4gKlxuICogQHBhcmFtIHtib29sZWFuW119IGRlcGVuZGVuY2llcyAtIEFycmF5IG9mIGJvb2xlYW4gY29uZGl0aW9ucyB0aGF0IG11c3QgYWxsIGJlIHRydWVcbiAqIEByZXR1cm5zIHtib29sZWFufSBXaGV0aGVyIGFsbCBkZXBlbmRlbmNpZXMgYXJlIHJlYWR5IGFuZCB0aGUgcGFnZSBpcyBmdWxseSBsb2FkZWRcbiAqXG4gKiBAZXhhbXBsZVxuICogYGBgdHN4XG4gKiBmdW5jdGlvbiBDaGVzc0JvYXJkKCkge1xuICogICBjb25zdCBbZGF0YUxvYWRlZCwgc2V0RGF0YUxvYWRlZF0gPSB1c2VTdGF0ZShmYWxzZSk7XG4gKiAgIGNvbnN0IFtib2FyZEluaXRpYWxpemVkLCBzZXRCb2FyZEluaXRpYWxpemVkXSA9IHVzZVN0YXRlKGZhbHNlKTtcbiAqICAgY29uc3QgW2FuYWx5c2lzUmVhZHksIHNldEFuYWx5c2lzUmVhZHldID0gdXNlU3RhdGUoZmFsc2UpO1xuICpcbiAqICAgY29uc3QgaXNQYWdlUmVhZHkgPSB1c2VQYWdlUmVhZHkoW1xuICogICAgIGRhdGFMb2FkZWQsXG4gKiAgICAgYm9hcmRJbml0aWFsaXplZCxcbiAqICAgICBhbmFseXNpc1JlYWR5XG4gKiAgIF0pO1xuICpcbiAqICAgcmV0dXJuIChcbiAqICAgICA8ZGl2IGRhdGEtcGFnZS1yZWFkeT17aXNQYWdlUmVhZHl9PlxuICogICAgICAgeyFpc1BhZ2VSZWFkeSAmJiA8TG9hZGluZ1NwaW5uZXIgLz59XG4gKiAgICAgICA8Qm9hcmQgLz5cbiAqICAgICA8L2Rpdj5cbiAqICAgKTtcbiAqIH1cbiAqIGBgYFxuICpcbiAqIEByZW1hcmtzXG4gKiAtIFJldHVybnMgZmFsc2UgdW50aWwgYWxsIGRlcGVuZGVuY2llcyBhcmUgdHJ1ZVxuICogLSBPbmNlIHRydWUsIHN0YXlzIHRydWUgKGRvZXNuJ3QgZmxpcCBiYWNrIHRvIGZhbHNlKVxuICogLSBFbWl0cyAncGFnZS1yZWFkeScgY3VzdG9tIGV2ZW50IHdoZW4gTkVYVF9QVUJMSUNfRTJFX1NJR05BTFMgaXMgZW5hYmxlZFxuICogLSBFbXB0eSBkZXBlbmRlbmNpZXMgYXJyYXkgcmVzdWx0cyBpbiBpbW1lZGlhdGUgcmVhZHkgc3RhdGVcbiAqL1xuZXhwb3J0IGZ1bmN0aW9uIHVzZVBhZ2VSZWFkeShkZXBlbmRlbmNpZXM6IGJvb2xlYW5bXSA9IFtdKTogYm9vbGVhbiB7XG4gIGNvbnN0IFtpc1BhZ2VSZWFkeSwgc2V0SXNQYWdlUmVhZHldID0gdXNlU3RhdGUoZmFsc2UpO1xuXG4gIHVzZUVmZmVjdCgoKSA9PiB7XG4gICAgLy8gQ2hlY2sgaWYgYWxsIGRlcGVuZGVuY2llcyBhcmUgdHJ1ZVxuICAgIGNvbnN0IGFsbFJlYWR5ID1cbiAgICAgIGRlcGVuZGVuY2llcy5sZW5ndGggPT09IDAgfHwgZGVwZW5kZW5jaWVzLmV2ZXJ5KChkZXApID0+IGRlcCA9PT0gdHJ1ZSk7XG5cbiAgICBpZiAoYWxsUmVhZHkgJiYgIWlzUGFnZVJlYWR5KSB7XG4gICAgICBzZXRJc1BhZ2VSZWFkeSh0cnVlKTtcblxuICAgICAgLy8gT3B0aW9uYWw6IEVtaXQgY3VzdG9tIGV2ZW50IGZvciBkZWJ1Z2dpbmdcbiAgICAgIGlmIChcbiAgICAgICAgdHlwZW9mIHdpbmRvdyAhPT0gXCJ1bmRlZmluZWRcIiAmJlxuICAgICAgICBwcm9jZXNzLmVudi5ORVhUX1BVQkxJQ19FMkVfU0lHTkFMUyA9PT0gXCJ0cnVlXCJcbiAgICAgICkge1xuICAgICAgICB3aW5kb3cuZGlzcGF0Y2hFdmVudChcbiAgICAgICAgICBuZXcgQ3VzdG9tRXZlbnQoXCJwYWdlLXJlYWR5XCIsIHtcbiAgICAgICAgICAgIGRldGFpbDogeyB0aW1lc3RhbXA6IERhdGUubm93KCkgfSxcbiAgICAgICAgICB9KSxcbiAgICAgICAgKTtcbiAgICAgIH1cbiAgICB9XG4gIH0sIGRlcGVuZGVuY2llcyk7XG5cbiAgcmV0dXJuIGlzUGFnZVJlYWR5O1xufVxuIl0sIm5hbWVzIjpbInVzZVBhZ2VSZWFkeSIsImRlcGVuZGVuY2llcyIsImlzUGFnZVJlYWR5Iiwic2V0SXNQYWdlUmVhZHkiLCJ1c2VTdGF0ZSIsInVzZUVmZmVjdCIsImFsbFJlYWR5IiwibGVuZ3RoIiwiZXZlcnkiLCJkZXAiLCJ3aW5kb3ciLCJwcm9jZXNzIiwiZW52IiwiTkVYVF9QVUJMSUNfRTJFX1NJR05BTFMiLCJkaXNwYXRjaEV2ZW50IiwiQ3VzdG9tRXZlbnQiLCJkZXRhaWwiLCJ0aW1lc3RhbXAiLCJEYXRlIiwibm93Il0sIm1hcHBpbmdzIjoiQUFBQTs7Ozs7OztDQU9DOzs7OytCQTJDZUE7OztlQUFBQTs7O3VCQXpDb0I7QUF5QzdCLFNBQVNBLGFBQWFDLGVBQTBCLEVBQUU7SUFDdkQsTUFBTSxDQUFDQyxhQUFhQyxlQUFlLEdBQUdDLElBQUFBLGVBQVEsRUFBQztJQUUvQ0MsSUFBQUEsZ0JBQVMsRUFBQztRQUNSLHFDQUFxQztRQUNyQyxNQUFNQyxXQUNKTCxhQUFhTSxNQUFNLEtBQUssS0FBS04sYUFBYU8sS0FBSyxDQUFDLENBQUNDLE1BQVFBLFFBQVE7UUFFbkUsSUFBSUgsWUFBWSxDQUFDSixhQUFhO1lBQzVCQyxlQUFlO1lBRWYsNENBQTRDO1lBQzVDLElBQ0UsT0FBT08sV0FBVyxlQUNsQkMsUUFBUUMsR0FBRyxDQUFDQyx1QkFBdUIsS0FBSyxRQUN4QztnQkFDQUgsT0FBT0ksYUFBYSxDQUNsQixJQUFJQyxZQUFZLGNBQWM7b0JBQzVCQyxRQUFRO3dCQUFFQyxXQUFXQyxLQUFLQyxHQUFHO29CQUFHO2dCQUNsQztZQUVKO1FBQ0Y7SUFDRixHQUFHbEI7SUFFSCxPQUFPQztBQUNUIn0=

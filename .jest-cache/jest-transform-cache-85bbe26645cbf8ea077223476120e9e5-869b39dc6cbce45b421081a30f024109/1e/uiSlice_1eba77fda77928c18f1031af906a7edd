@@ -1,0 +1,320 @@
+101afa9088093826fec2af611912cc85
+/**
+ * @file UI state slice for Zustand store
+ * @module store/slices/uiSlice
+ * @description Manages all UI-related state including modals, toasts, loading states, and sidebar visibility.
+ * This slice is responsible for transient UI state that doesn't need to be persisted.
+ *
+ * @example
+ * ```typescript
+ * // Using the UI slice in a component
+ * import { useStore } from '@/store';
+ * import { uiSelectors } from '@/store/slices/uiSlice';
+ *
+ * function MyComponent() {
+ *   const toasts = useStore(uiSelectors.selectToasts);
+ *   const showToast = useStore(state => state.showToast);
+ *
+ *   const handleSuccess = () => {
+ *     showToast('Operation successful!', 'success');
+ *   };
+ * }
+ * ```
+ */ "use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: Object.getOwnPropertyDescriptor(all, name).get
+    });
+}
+_export(exports, {
+    get createInitialUIState () {
+        return createInitialUIState;
+    },
+    get createUISlice () {
+        return createUISlice;
+    },
+    get initialUIState () {
+        return initialUIState;
+    },
+    get uiSelectors () {
+        return uiSelectors;
+    }
+});
+const _nanoid = require("nanoid");
+const initialUIState = {
+    isSidebarOpen: true,
+    currentModal: null,
+    toasts: [],
+    loading: {
+        global: false,
+        tablebase: false,
+        position: false,
+        analysis: false
+    },
+    analysisPanel: {
+        isOpen: false,
+        activeTab: "moves",
+        showTablebase: true
+    }
+};
+const createInitialUIState = ()=>({
+        ...initialUIState
+    });
+const createUISlice = (set, get)=>({
+        // Initial state - use fresh arrays for each instance
+        isSidebarOpen: false,
+        currentModal: null,
+        toasts: [],
+        lastError: null,
+        loading: {
+            global: false,
+            position: false,
+            tablebase: false,
+            analysis: false
+        },
+        analysisPanel: {
+            isOpen: false,
+            activeTab: "moves",
+            showTablebase: true
+        },
+        // Actions
+        /**
+   * Toggles the sidebar visibility state
+   *
+   * @fires stateChange - When sidebar state changes
+   *
+   * @example
+   * ```typescript
+   * // Toggle sidebar from open to closed or vice versa
+   * store.getState().toggleSidebar();
+   * ```
+   */ toggleSidebar: ()=>set((state)=>{
+                state.ui.isSidebarOpen = !state.ui.isSidebarOpen;
+            }),
+        /**
+   * Sets the sidebar visibility state explicitly
+   *
+   * @param {boolean} isOpen - Whether the sidebar should be open
+   * @fires stateChange - When sidebar state changes
+   *
+   * @example
+   * ```typescript
+   * // Open sidebar
+   * store.getState().setIsSidebarOpen(true);
+   *
+   * // Close sidebar
+   * store.getState().setIsSidebarOpen(false);
+   * ```
+   */ setIsSidebarOpen: (isOpen)=>set((state)=>{
+                state.ui.isSidebarOpen = isOpen;
+            }),
+        /**
+   * Opens a modal by type, closing any currently open modal
+   *
+   * @param {ModalType} type - The type of modal to open
+   * @fires stateChange - When modal state changes
+   *
+   * @remarks
+   * Only one modal can be open at a time. Opening a new modal will close
+   * any currently open modal.
+   *
+   * @example
+   * ```typescript
+   * // Open settings modal
+   * store.getState().openModal('settings');
+   *
+   * // Open achievements modal
+   * store.getState().openModal('achievements');
+   * ```
+   */ openModal: (type)=>set((state)=>{
+                state.ui.currentModal = type;
+            }),
+        /**
+   * Closes the currently open modal
+   *
+   * @fires stateChange - When modal is closed
+   *
+   * @example
+   * ```typescript
+   * // Close any open modal
+   * store.getState().closeModal();
+   * ```
+   */ closeModal: ()=>set((state)=>{
+                state.ui.currentModal = null;
+            }),
+        /**
+   * Shows a toast notification with auto-removal
+   *
+   * @param {string} message - The message to display in the toast
+   * @param {Toast["type"]} type - Toast type determining appearance and icon
+   * @param {number} [duration=3000] - Duration in milliseconds before auto-removal (0 = no auto-removal)
+   * @returns {void}
+   *
+   * @fires stateChange - When toast is added
+   * @fires stateChange - When toast is auto-removed after duration
+   *
+   * @remarks
+   * - Each toast gets a unique ID using nanoid
+   * - Toasts are automatically removed after the specified duration
+   * - Set duration to 0 or negative to disable auto-removal
+   * - Multiple toasts can be shown simultaneously
+   *
+   * @example
+   * ```typescript
+   * // Show success toast (auto-removes after 3 seconds)
+   * store.getState().showToast('File saved successfully!', 'success');
+   *
+   * // Show error toast with custom duration
+   * store.getState().showToast('Network error occurred', 'error', 5000);
+   *
+   * // Show permanent toast (no auto-removal)
+   * store.getState().showToast('Important message', 'info', 0);
+   * ```
+   */ showToast: (message, type, duration = 3000)=>{
+            const id = (0, _nanoid.nanoid)();
+            const toast = {
+                id,
+                message,
+                type,
+                duration
+            };
+            set((state)=>{
+                state.ui.toasts.push(toast);
+            });
+            // Auto-remove toast after duration
+            if (duration && duration > 0) {
+                setTimeout(()=>{
+                    get().ui.removeToast(id);
+                }, duration);
+            }
+        },
+        /**
+   * Removes a specific toast notification by ID
+   *
+   * @param {string} id - The unique ID of the toast to remove
+   * @fires stateChange - When toast is removed
+   *
+   * @remarks
+   * This is typically called automatically by the showToast timer,
+   * but can be called manually for user-dismissible toasts.
+   *
+   * @example
+   * ```typescript
+   * // Remove a specific toast
+   * store.getState().removeToast('toast-id-123');
+   *
+   * // Remove all toasts
+   * const state = store.getState();
+   * state.toasts.forEach(toast => state.removeToast(toast.id));
+   * ```
+   */ removeToast: (id)=>set((state)=>{
+                state.ui.toasts = state.ui.toasts.filter((toast)=>toast.id !== id);
+            }),
+        /**
+   * Sets the loading state for a specific operation
+   *
+   * @param {keyof LoadingState} key - The loading state key to update
+   * @param {boolean} value - The loading state value (true = loading, false = not loading)
+   * @fires stateChange - When loading state changes
+   *
+   * @remarks
+   * Loading states are used to show spinners or disable UI elements
+   * during async operations. Each key represents a different operation type.
+   *
+   * @example
+   * ```typescript
+   * // Start global loading
+   * store.getState().setLoading('global', true);
+   *
+   * // Start tablebase loading
+   * store.getState().setLoading('tablebase', true);
+   *
+   * // Stop position loading
+   * store.getState().setLoading('position', false);
+   * ```
+   */ setLoading: (key, value)=>set((state)=>{
+                state.ui.loading[key] = value;
+            }),
+        /**
+   * Updates the analysis panel configuration
+   *
+   * @param {Partial<AnalysisPanelState>} update - Partial update to merge with current state
+   * @fires stateChange - When analysis panel state changes
+   *
+   * @remarks
+   * This method performs a shallow merge of the update object with
+   * the current analysis panel state. Use this to update one or more
+   * properties without affecting others.
+   *
+   * @example
+   * ```typescript
+   * // Open analysis panel
+   * store.getState().updateAnalysisPanel({ isOpen: true });
+   *
+   * // Change active tab
+   * store.getState().updateAnalysisPanel({ activeTab: 'evaluation' });
+   *
+   * // Update multiple properties
+   * store.getState().updateAnalysisPanel({
+   *   isOpen: true,
+   *   activeTab: 'variations',
+   *   showTablebase: false
+   * });
+   * ```
+   */ updateAnalysisPanel: (update)=>set((state)=>{
+                Object.assign(state.ui.analysisPanel, update);
+            })
+    });
+const uiSelectors = {
+    /**
+   * Selects the sidebar open state
+   * @param {UISlice} state - The UI slice of the store
+   * @returns {boolean} Whether the sidebar is open
+   */ selectSidebarOpen: (state)=>state.isSidebarOpen,
+    /**
+   * Selects the currently open modal type
+   * @param {UISlice} state - The UI slice of the store
+   * @returns {ModalType | null} The open modal type or null if no modal is open
+   */ selectCurrentModal: (state)=>state.currentModal,
+    /**
+   * Selects all active toasts
+   * @param {UISlice} state - The UI slice of the store
+   * @returns {Toast[]} Array of active toast notifications
+   */ selectToasts: (state)=>state.toasts,
+    /**
+   * Selects the entire loading state object
+   * @param {UISlice} state - The UI slice of the store
+   * @returns {LoadingState} Object containing all loading states
+   */ selectLoading: (state)=>state.loading,
+    /**
+   * Selects the global loading state
+   * @param {UISlice} state - The UI slice of the store
+   * @returns {boolean} Whether global loading is active
+   */ selectGlobalLoading: (state)=>state.loading.global,
+    /**
+   * Selects the tablebase loading state
+   * @param {UISlice} state - The UI slice of the store
+   * @returns {boolean} Whether tablebase loading is active
+   */ selectTablebaseLoading: (state)=>state.loading.tablebase,
+    /**
+   * Selects the analysis panel state
+   * @param {UISlice} state - The UI slice of the store
+   * @returns {AnalysisPanelState} The analysis panel configuration
+   */ selectAnalysisPanel: (state)=>state.analysisPanel,
+    /**
+   * Creates a selector to check if a specific modal is open
+   * @param {ModalType} type - The modal type to check
+   * @returns {Function} Selector function that returns true if the specified modal is open
+   *
+   * @example
+   * ```typescript
+   * const isSettingsOpen = useStore(uiSelectors.selectIsModalOpen('settings'));
+   * ```
+   */ selectIsModalOpen: (type)=>(state)=>state.currentModal === type
+};
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9ob21lL3RoZWh1L2Nvb2xQcm9qZWN0cy9FbmRnYW1lVHJhaW5lci10cmFpbmluZy1ib2FyZC1jb21wbGV0ZS9zcmMvc2hhcmVkL3N0b3JlL3NsaWNlcy91aVNsaWNlLnRzIl0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxuICogQGZpbGUgVUkgc3RhdGUgc2xpY2UgZm9yIFp1c3RhbmQgc3RvcmVcbiAqIEBtb2R1bGUgc3RvcmUvc2xpY2VzL3VpU2xpY2VcbiAqIEBkZXNjcmlwdGlvbiBNYW5hZ2VzIGFsbCBVSS1yZWxhdGVkIHN0YXRlIGluY2x1ZGluZyBtb2RhbHMsIHRvYXN0cywgbG9hZGluZyBzdGF0ZXMsIGFuZCBzaWRlYmFyIHZpc2liaWxpdHkuXG4gKiBUaGlzIHNsaWNlIGlzIHJlc3BvbnNpYmxlIGZvciB0cmFuc2llbnQgVUkgc3RhdGUgdGhhdCBkb2Vzbid0IG5lZWQgdG8gYmUgcGVyc2lzdGVkLlxuICpcbiAqIEBleGFtcGxlXG4gKiBgYGB0eXBlc2NyaXB0XG4gKiAvLyBVc2luZyB0aGUgVUkgc2xpY2UgaW4gYSBjb21wb25lbnRcbiAqIGltcG9ydCB7IHVzZVN0b3JlIH0gZnJvbSAnQC9zdG9yZSc7XG4gKiBpbXBvcnQgeyB1aVNlbGVjdG9ycyB9IGZyb20gJ0Avc3RvcmUvc2xpY2VzL3VpU2xpY2UnO1xuICpcbiAqIGZ1bmN0aW9uIE15Q29tcG9uZW50KCkge1xuICogICBjb25zdCB0b2FzdHMgPSB1c2VTdG9yZSh1aVNlbGVjdG9ycy5zZWxlY3RUb2FzdHMpO1xuICogICBjb25zdCBzaG93VG9hc3QgPSB1c2VTdG9yZShzdGF0ZSA9PiBzdGF0ZS5zaG93VG9hc3QpO1xuICpcbiAqICAgY29uc3QgaGFuZGxlU3VjY2VzcyA9ICgpID0+IHtcbiAqICAgICBzaG93VG9hc3QoJ09wZXJhdGlvbiBzdWNjZXNzZnVsIScsICdzdWNjZXNzJyk7XG4gKiAgIH07XG4gKiB9XG4gKiBgYGBcbiAqL1xuXG5pbXBvcnQgeyBJbW1lclN0YXRlQ3JlYXRvciwgVUlTbGljZSB9IGZyb20gXCIuL3R5cGVzXCI7XG5pbXBvcnQgeyBuYW5vaWQgfSBmcm9tIFwibmFub2lkXCI7XG5pbXBvcnQgeyBUb2FzdCwgTW9kYWxUeXBlLCBMb2FkaW5nU3RhdGUsIEFuYWx5c2lzUGFuZWxTdGF0ZSB9IGZyb20gXCIuLi90eXBlc1wiO1xuXG4vKipcbiAqIEluaXRpYWwgc3RhdGUgZm9yIHRoZSBVSSBzbGljZVxuICogRXhwb3J0ZWQgc2VwYXJhdGVseSB0byBlbmFibGUgcHJvcGVyIHN0b3JlIHJlc2V0IGluIHRlc3RzXG4gKi9cbmV4cG9ydCBjb25zdCBpbml0aWFsVUlTdGF0ZSA9IHtcbiAgaXNTaWRlYmFyT3BlbjogdHJ1ZSxcbiAgY3VycmVudE1vZGFsOiBudWxsIGFzIE1vZGFsVHlwZSB8IG51bGwsXG4gIHRvYXN0czogW10gYXMgVG9hc3RbXSxcbiAgbG9hZGluZzoge1xuICAgIGdsb2JhbDogZmFsc2UsXG4gICAgdGFibGViYXNlOiBmYWxzZSxcbiAgICBwb3NpdGlvbjogZmFsc2UsXG4gICAgYW5hbHlzaXM6IGZhbHNlLFxuICB9IGFzIExvYWRpbmdTdGF0ZSxcbiAgYW5hbHlzaXNQYW5lbDoge1xuICAgIGlzT3BlbjogZmFsc2UsXG4gICAgYWN0aXZlVGFiOiBcIm1vdmVzXCIgYXMgY29uc3QsXG4gICAgc2hvd1RhYmxlYmFzZTogdHJ1ZSxcbiAgfSBhcyBBbmFseXNpc1BhbmVsU3RhdGUsXG59O1xuXG4vKipcbiAqIENyZWF0ZXMgdGhlIGluaXRpYWwgVUkgc3RhdGUgd2l0aCBkZWZhdWx0IHZhbHVlc1xuICogQGRlcHJlY2F0ZWQgVXNlIGluaXRpYWxVSVN0YXRlIGV4cG9ydCBkaXJlY3RseVxuICovXG5leHBvcnQgY29uc3QgY3JlYXRlSW5pdGlhbFVJU3RhdGUgPSAoKSA9PiAoeyAuLi5pbml0aWFsVUlTdGF0ZSB9KTtcblxuLyoqXG4gKiBDcmVhdGVzIHRoZSBVSSBzbGljZSBmb3IgdGhlIFp1c3RhbmQgc3RvcmVcbiAqXG4gKiBAcGFyYW0ge0Z1bmN0aW9ufSBzZXQgLSBadXN0YW5kJ3Mgc2V0IGZ1bmN0aW9uIGZvciBzdGF0ZSB1cGRhdGVzXG4gKiBAcGFyYW0ge0Z1bmN0aW9ufSBnZXQgLSBadXN0YW5kJ3MgZ2V0IGZ1bmN0aW9uIGZvciBhY2Nlc3NpbmcgY3VycmVudCBzdGF0ZVxuICogQHJldHVybnMge1VJU2xpY2V9IENvbXBsZXRlIFVJIHNsaWNlIHdpdGggc3RhdGUgYW5kIGFjdGlvbnNcbiAqXG4gKiBAcmVtYXJrc1xuICogVGhpcyBzbGljZSBmb2xsb3dzIHRoZSBadXN0YW5kIHNsaWNlIHBhdHRlcm4gYW5kIGlzIGRlc2lnbmVkIHRvIGJlIGNvbWJpbmVkXG4gKiB3aXRoIG90aGVyIHNsaWNlcyBpbiB0aGUgcm9vdCBzdG9yZS4gQWxsIGFjdGlvbnMgYXJlIHN5bmNocm9ub3VzIGFuZCBzaWRlLWVmZmVjdCBmcmVlLFxuICogZXhjZXB0IGZvciB0aGUgYXV0by1yZW1vdmFsIHRpbWVyIGluIHNob3dUb2FzdC5cbiAqXG4gKiBAZXhhbXBsZVxuICogYGBgdHlwZXNjcmlwdFxuICogLy8gSW4geW91ciByb290IHN0b3JlXG4gKiBpbXBvcnQgeyBjcmVhdGUgfSBmcm9tICd6dXN0YW5kJztcbiAqIGltcG9ydCB7IGNyZWF0ZVVJU2xpY2UgfSBmcm9tICcuL3NsaWNlcy91aVNsaWNlJztcbiAqXG4gKiBjb25zdCB1c2VTdG9yZSA9IGNyZWF0ZTxSb290U3RhdGU+KCkoKC4uLmFyZ3MpID0+ICh7XG4gKiAgIC4uLmNyZWF0ZVVJU2xpY2UoLi4uYXJncyksXG4gKiAgIC4uLmNyZWF0ZUdhbWVTbGljZSguLi5hcmdzKSxcbiAqICAgLy8gLi4uIG90aGVyIHNsaWNlc1xuICogfSkpO1xuICogYGBgXG4gKi9cbmV4cG9ydCBjb25zdCBjcmVhdGVVSVNsaWNlOiBJbW1lclN0YXRlQ3JlYXRvcjxVSVNsaWNlPiA9IChzZXQsIGdldCkgPT4gKHtcbiAgLy8gSW5pdGlhbCBzdGF0ZSAtIHVzZSBmcmVzaCBhcnJheXMgZm9yIGVhY2ggaW5zdGFuY2VcbiAgaXNTaWRlYmFyT3BlbjogZmFsc2UsXG4gIGN1cnJlbnRNb2RhbDogbnVsbCBhcyBNb2RhbFR5cGUgfCBudWxsLFxuICB0b2FzdHM6IFtdLFxuICBsYXN0RXJyb3I6IG51bGwgYXMgRXJyb3IgfCBudWxsLFxuICBsb2FkaW5nOiB7XG4gICAgZ2xvYmFsOiBmYWxzZSxcbiAgICBwb3NpdGlvbjogZmFsc2UsXG4gICAgdGFibGViYXNlOiBmYWxzZSxcbiAgICBhbmFseXNpczogZmFsc2UsXG4gIH0gYXMgTG9hZGluZ1N0YXRlLFxuICBhbmFseXNpc1BhbmVsOiB7XG4gICAgaXNPcGVuOiBmYWxzZSxcbiAgICBhY3RpdmVUYWI6IFwibW92ZXNcIiBhcyBjb25zdCxcbiAgICBzaG93VGFibGViYXNlOiB0cnVlLFxuICB9IGFzIEFuYWx5c2lzUGFuZWxTdGF0ZSxcblxuICAvLyBBY3Rpb25zXG4gIC8qKlxuICAgKiBUb2dnbGVzIHRoZSBzaWRlYmFyIHZpc2liaWxpdHkgc3RhdGVcbiAgICpcbiAgICogQGZpcmVzIHN0YXRlQ2hhbmdlIC0gV2hlbiBzaWRlYmFyIHN0YXRlIGNoYW5nZXNcbiAgICpcbiAgICogQGV4YW1wbGVcbiAgICogYGBgdHlwZXNjcmlwdFxuICAgKiAvLyBUb2dnbGUgc2lkZWJhciBmcm9tIG9wZW4gdG8gY2xvc2VkIG9yIHZpY2UgdmVyc2FcbiAgICogc3RvcmUuZ2V0U3RhdGUoKS50b2dnbGVTaWRlYmFyKCk7XG4gICAqIGBgYFxuICAgKi9cbiAgdG9nZ2xlU2lkZWJhcjogKCkgPT5cbiAgICBzZXQoKHN0YXRlKSA9PiB7XG4gICAgICBzdGF0ZS51aS5pc1NpZGViYXJPcGVuID0gIXN0YXRlLnVpLmlzU2lkZWJhck9wZW47XG4gICAgfSksXG5cbiAgLyoqXG4gICAqIFNldHMgdGhlIHNpZGViYXIgdmlzaWJpbGl0eSBzdGF0ZSBleHBsaWNpdGx5XG4gICAqXG4gICAqIEBwYXJhbSB7Ym9vbGVhbn0gaXNPcGVuIC0gV2hldGhlciB0aGUgc2lkZWJhciBzaG91bGQgYmUgb3BlblxuICAgKiBAZmlyZXMgc3RhdGVDaGFuZ2UgLSBXaGVuIHNpZGViYXIgc3RhdGUgY2hhbmdlc1xuICAgKlxuICAgKiBAZXhhbXBsZVxuICAgKiBgYGB0eXBlc2NyaXB0XG4gICAqIC8vIE9wZW4gc2lkZWJhclxuICAgKiBzdG9yZS5nZXRTdGF0ZSgpLnNldElzU2lkZWJhck9wZW4odHJ1ZSk7XG4gICAqXG4gICAqIC8vIENsb3NlIHNpZGViYXJcbiAgICogc3RvcmUuZ2V0U3RhdGUoKS5zZXRJc1NpZGViYXJPcGVuKGZhbHNlKTtcbiAgICogYGBgXG4gICAqL1xuICBzZXRJc1NpZGViYXJPcGVuOiAoaXNPcGVuOiBib29sZWFuKSA9PlxuICAgIHNldCgoc3RhdGUpID0+IHtcbiAgICAgIHN0YXRlLnVpLmlzU2lkZWJhck9wZW4gPSBpc09wZW47XG4gICAgfSksXG5cbiAgLyoqXG4gICAqIE9wZW5zIGEgbW9kYWwgYnkgdHlwZSwgY2xvc2luZyBhbnkgY3VycmVudGx5IG9wZW4gbW9kYWxcbiAgICpcbiAgICogQHBhcmFtIHtNb2RhbFR5cGV9IHR5cGUgLSBUaGUgdHlwZSBvZiBtb2RhbCB0byBvcGVuXG4gICAqIEBmaXJlcyBzdGF0ZUNoYW5nZSAtIFdoZW4gbW9kYWwgc3RhdGUgY2hhbmdlc1xuICAgKlxuICAgKiBAcmVtYXJrc1xuICAgKiBPbmx5IG9uZSBtb2RhbCBjYW4gYmUgb3BlbiBhdCBhIHRpbWUuIE9wZW5pbmcgYSBuZXcgbW9kYWwgd2lsbCBjbG9zZVxuICAgKiBhbnkgY3VycmVudGx5IG9wZW4gbW9kYWwuXG4gICAqXG4gICAqIEBleGFtcGxlXG4gICAqIGBgYHR5cGVzY3JpcHRcbiAgICogLy8gT3BlbiBzZXR0aW5ncyBtb2RhbFxuICAgKiBzdG9yZS5nZXRTdGF0ZSgpLm9wZW5Nb2RhbCgnc2V0dGluZ3MnKTtcbiAgICpcbiAgICogLy8gT3BlbiBhY2hpZXZlbWVudHMgbW9kYWxcbiAgICogc3RvcmUuZ2V0U3RhdGUoKS5vcGVuTW9kYWwoJ2FjaGlldmVtZW50cycpO1xuICAgKiBgYGBcbiAgICovXG4gIG9wZW5Nb2RhbDogKHR5cGU6IE1vZGFsVHlwZSkgPT5cbiAgICBzZXQoKHN0YXRlKSA9PiB7XG4gICAgICBzdGF0ZS51aS5jdXJyZW50TW9kYWwgPSB0eXBlO1xuICAgIH0pLFxuXG4gIC8qKlxuICAgKiBDbG9zZXMgdGhlIGN1cnJlbnRseSBvcGVuIG1vZGFsXG4gICAqXG4gICAqIEBmaXJlcyBzdGF0ZUNoYW5nZSAtIFdoZW4gbW9kYWwgaXMgY2xvc2VkXG4gICAqXG4gICAqIEBleGFtcGxlXG4gICAqIGBgYHR5cGVzY3JpcHRcbiAgICogLy8gQ2xvc2UgYW55IG9wZW4gbW9kYWxcbiAgICogc3RvcmUuZ2V0U3RhdGUoKS5jbG9zZU1vZGFsKCk7XG4gICAqIGBgYFxuICAgKi9cbiAgY2xvc2VNb2RhbDogKCkgPT5cbiAgICBzZXQoKHN0YXRlKSA9PiB7XG4gICAgICBzdGF0ZS51aS5jdXJyZW50TW9kYWwgPSBudWxsO1xuICAgIH0pLFxuXG4gIC8qKlxuICAgKiBTaG93cyBhIHRvYXN0IG5vdGlmaWNhdGlvbiB3aXRoIGF1dG8tcmVtb3ZhbFxuICAgKlxuICAgKiBAcGFyYW0ge3N0cmluZ30gbWVzc2FnZSAtIFRoZSBtZXNzYWdlIHRvIGRpc3BsYXkgaW4gdGhlIHRvYXN0XG4gICAqIEBwYXJhbSB7VG9hc3RbXCJ0eXBlXCJdfSB0eXBlIC0gVG9hc3QgdHlwZSBkZXRlcm1pbmluZyBhcHBlYXJhbmNlIGFuZCBpY29uXG4gICAqIEBwYXJhbSB7bnVtYmVyfSBbZHVyYXRpb249MzAwMF0gLSBEdXJhdGlvbiBpbiBtaWxsaXNlY29uZHMgYmVmb3JlIGF1dG8tcmVtb3ZhbCAoMCA9IG5vIGF1dG8tcmVtb3ZhbClcbiAgICogQHJldHVybnMge3ZvaWR9XG4gICAqXG4gICAqIEBmaXJlcyBzdGF0ZUNoYW5nZSAtIFdoZW4gdG9hc3QgaXMgYWRkZWRcbiAgICogQGZpcmVzIHN0YXRlQ2hhbmdlIC0gV2hlbiB0b2FzdCBpcyBhdXRvLXJlbW92ZWQgYWZ0ZXIgZHVyYXRpb25cbiAgICpcbiAgICogQHJlbWFya3NcbiAgICogLSBFYWNoIHRvYXN0IGdldHMgYSB1bmlxdWUgSUQgdXNpbmcgbmFub2lkXG4gICAqIC0gVG9hc3RzIGFyZSBhdXRvbWF0aWNhbGx5IHJlbW92ZWQgYWZ0ZXIgdGhlIHNwZWNpZmllZCBkdXJhdGlvblxuICAgKiAtIFNldCBkdXJhdGlvbiB0byAwIG9yIG5lZ2F0aXZlIHRvIGRpc2FibGUgYXV0by1yZW1vdmFsXG4gICAqIC0gTXVsdGlwbGUgdG9hc3RzIGNhbiBiZSBzaG93biBzaW11bHRhbmVvdXNseVxuICAgKlxuICAgKiBAZXhhbXBsZVxuICAgKiBgYGB0eXBlc2NyaXB0XG4gICAqIC8vIFNob3cgc3VjY2VzcyB0b2FzdCAoYXV0by1yZW1vdmVzIGFmdGVyIDMgc2Vjb25kcylcbiAgICogc3RvcmUuZ2V0U3RhdGUoKS5zaG93VG9hc3QoJ0ZpbGUgc2F2ZWQgc3VjY2Vzc2Z1bGx5IScsICdzdWNjZXNzJyk7XG4gICAqXG4gICAqIC8vIFNob3cgZXJyb3IgdG9hc3Qgd2l0aCBjdXN0b20gZHVyYXRpb25cbiAgICogc3RvcmUuZ2V0U3RhdGUoKS5zaG93VG9hc3QoJ05ldHdvcmsgZXJyb3Igb2NjdXJyZWQnLCAnZXJyb3InLCA1MDAwKTtcbiAgICpcbiAgICogLy8gU2hvdyBwZXJtYW5lbnQgdG9hc3QgKG5vIGF1dG8tcmVtb3ZhbClcbiAgICogc3RvcmUuZ2V0U3RhdGUoKS5zaG93VG9hc3QoJ0ltcG9ydGFudCBtZXNzYWdlJywgJ2luZm8nLCAwKTtcbiAgICogYGBgXG4gICAqL1xuICBzaG93VG9hc3Q6IChtZXNzYWdlOiBzdHJpbmcsIHR5cGU6IFRvYXN0W1widHlwZVwiXSwgZHVyYXRpb24gPSAzMDAwKSA9PiB7XG4gICAgY29uc3QgaWQgPSBuYW5vaWQoKTtcbiAgICBjb25zdCB0b2FzdDogVG9hc3QgPSB7XG4gICAgICBpZCxcbiAgICAgIG1lc3NhZ2UsXG4gICAgICB0eXBlLFxuICAgICAgZHVyYXRpb24sXG4gICAgfTtcblxuICAgIHNldCgoc3RhdGUpID0+IHtcbiAgICAgIHN0YXRlLnVpLnRvYXN0cy5wdXNoKHRvYXN0KTtcbiAgICB9KTtcblxuICAgIC8vIEF1dG8tcmVtb3ZlIHRvYXN0IGFmdGVyIGR1cmF0aW9uXG4gICAgaWYgKGR1cmF0aW9uICYmIGR1cmF0aW9uID4gMCkge1xuICAgICAgc2V0VGltZW91dCgoKSA9PiB7XG4gICAgICAgIGdldCgpLnVpLnJlbW92ZVRvYXN0KGlkKTtcbiAgICAgIH0sIGR1cmF0aW9uKTtcbiAgICB9XG4gIH0sXG5cbiAgLyoqXG4gICAqIFJlbW92ZXMgYSBzcGVjaWZpYyB0b2FzdCBub3RpZmljYXRpb24gYnkgSURcbiAgICpcbiAgICogQHBhcmFtIHtzdHJpbmd9IGlkIC0gVGhlIHVuaXF1ZSBJRCBvZiB0aGUgdG9hc3QgdG8gcmVtb3ZlXG4gICAqIEBmaXJlcyBzdGF0ZUNoYW5nZSAtIFdoZW4gdG9hc3QgaXMgcmVtb3ZlZFxuICAgKlxuICAgKiBAcmVtYXJrc1xuICAgKiBUaGlzIGlzIHR5cGljYWxseSBjYWxsZWQgYXV0b21hdGljYWxseSBieSB0aGUgc2hvd1RvYXN0IHRpbWVyLFxuICAgKiBidXQgY2FuIGJlIGNhbGxlZCBtYW51YWxseSBmb3IgdXNlci1kaXNtaXNzaWJsZSB0b2FzdHMuXG4gICAqXG4gICAqIEBleGFtcGxlXG4gICAqIGBgYHR5cGVzY3JpcHRcbiAgICogLy8gUmVtb3ZlIGEgc3BlY2lmaWMgdG9hc3RcbiAgICogc3RvcmUuZ2V0U3RhdGUoKS5yZW1vdmVUb2FzdCgndG9hc3QtaWQtMTIzJyk7XG4gICAqXG4gICAqIC8vIFJlbW92ZSBhbGwgdG9hc3RzXG4gICAqIGNvbnN0IHN0YXRlID0gc3RvcmUuZ2V0U3RhdGUoKTtcbiAgICogc3RhdGUudG9hc3RzLmZvckVhY2godG9hc3QgPT4gc3RhdGUucmVtb3ZlVG9hc3QodG9hc3QuaWQpKTtcbiAgICogYGBgXG4gICAqL1xuICByZW1vdmVUb2FzdDogKGlkOiBzdHJpbmcpID0+XG4gICAgc2V0KChzdGF0ZSkgPT4ge1xuICAgICAgc3RhdGUudWkudG9hc3RzID0gc3RhdGUudWkudG9hc3RzLmZpbHRlcigodG9hc3Q6IGFueSkgPT4gdG9hc3QuaWQgIT09IGlkKTtcbiAgICB9KSxcblxuICAvKipcbiAgICogU2V0cyB0aGUgbG9hZGluZyBzdGF0ZSBmb3IgYSBzcGVjaWZpYyBvcGVyYXRpb25cbiAgICpcbiAgICogQHBhcmFtIHtrZXlvZiBMb2FkaW5nU3RhdGV9IGtleSAtIFRoZSBsb2FkaW5nIHN0YXRlIGtleSB0byB1cGRhdGVcbiAgICogQHBhcmFtIHtib29sZWFufSB2YWx1ZSAtIFRoZSBsb2FkaW5nIHN0YXRlIHZhbHVlICh0cnVlID0gbG9hZGluZywgZmFsc2UgPSBub3QgbG9hZGluZylcbiAgICogQGZpcmVzIHN0YXRlQ2hhbmdlIC0gV2hlbiBsb2FkaW5nIHN0YXRlIGNoYW5nZXNcbiAgICpcbiAgICogQHJlbWFya3NcbiAgICogTG9hZGluZyBzdGF0ZXMgYXJlIHVzZWQgdG8gc2hvdyBzcGlubmVycyBvciBkaXNhYmxlIFVJIGVsZW1lbnRzXG4gICAqIGR1cmluZyBhc3luYyBvcGVyYXRpb25zLiBFYWNoIGtleSByZXByZXNlbnRzIGEgZGlmZmVyZW50IG9wZXJhdGlvbiB0eXBlLlxuICAgKlxuICAgKiBAZXhhbXBsZVxuICAgKiBgYGB0eXBlc2NyaXB0XG4gICAqIC8vIFN0YXJ0IGdsb2JhbCBsb2FkaW5nXG4gICAqIHN0b3JlLmdldFN0YXRlKCkuc2V0TG9hZGluZygnZ2xvYmFsJywgdHJ1ZSk7XG4gICAqXG4gICAqIC8vIFN0YXJ0IHRhYmxlYmFzZSBsb2FkaW5nXG4gICAqIHN0b3JlLmdldFN0YXRlKCkuc2V0TG9hZGluZygndGFibGViYXNlJywgdHJ1ZSk7XG4gICAqXG4gICAqIC8vIFN0b3AgcG9zaXRpb24gbG9hZGluZ1xuICAgKiBzdG9yZS5nZXRTdGF0ZSgpLnNldExvYWRpbmcoJ3Bvc2l0aW9uJywgZmFsc2UpO1xuICAgKiBgYGBcbiAgICovXG4gIHNldExvYWRpbmc6IChrZXk6IGtleW9mIExvYWRpbmdTdGF0ZSwgdmFsdWU6IGJvb2xlYW4pID0+XG4gICAgc2V0KChzdGF0ZSkgPT4ge1xuICAgICAgc3RhdGUudWkubG9hZGluZ1trZXldID0gdmFsdWU7XG4gICAgfSksXG5cbiAgLyoqXG4gICAqIFVwZGF0ZXMgdGhlIGFuYWx5c2lzIHBhbmVsIGNvbmZpZ3VyYXRpb25cbiAgICpcbiAgICogQHBhcmFtIHtQYXJ0aWFsPEFuYWx5c2lzUGFuZWxTdGF0ZT59IHVwZGF0ZSAtIFBhcnRpYWwgdXBkYXRlIHRvIG1lcmdlIHdpdGggY3VycmVudCBzdGF0ZVxuICAgKiBAZmlyZXMgc3RhdGVDaGFuZ2UgLSBXaGVuIGFuYWx5c2lzIHBhbmVsIHN0YXRlIGNoYW5nZXNcbiAgICpcbiAgICogQHJlbWFya3NcbiAgICogVGhpcyBtZXRob2QgcGVyZm9ybXMgYSBzaGFsbG93IG1lcmdlIG9mIHRoZSB1cGRhdGUgb2JqZWN0IHdpdGhcbiAgICogdGhlIGN1cnJlbnQgYW5hbHlzaXMgcGFuZWwgc3RhdGUuIFVzZSB0aGlzIHRvIHVwZGF0ZSBvbmUgb3IgbW9yZVxuICAgKiBwcm9wZXJ0aWVzIHdpdGhvdXQgYWZmZWN0aW5nIG90aGVycy5cbiAgICpcbiAgICogQGV4YW1wbGVcbiAgICogYGBgdHlwZXNjcmlwdFxuICAgKiAvLyBPcGVuIGFuYWx5c2lzIHBhbmVsXG4gICAqIHN0b3JlLmdldFN0YXRlKCkudXBkYXRlQW5hbHlzaXNQYW5lbCh7IGlzT3BlbjogdHJ1ZSB9KTtcbiAgICpcbiAgICogLy8gQ2hhbmdlIGFjdGl2ZSB0YWJcbiAgICogc3RvcmUuZ2V0U3RhdGUoKS51cGRhdGVBbmFseXNpc1BhbmVsKHsgYWN0aXZlVGFiOiAnZXZhbHVhdGlvbicgfSk7XG4gICAqXG4gICAqIC8vIFVwZGF0ZSBtdWx0aXBsZSBwcm9wZXJ0aWVzXG4gICAqIHN0b3JlLmdldFN0YXRlKCkudXBkYXRlQW5hbHlzaXNQYW5lbCh7XG4gICAqICAgaXNPcGVuOiB0cnVlLFxuICAgKiAgIGFjdGl2ZVRhYjogJ3ZhcmlhdGlvbnMnLFxuICAgKiAgIHNob3dUYWJsZWJhc2U6IGZhbHNlXG4gICAqIH0pO1xuICAgKiBgYGBcbiAgICovXG4gIHVwZGF0ZUFuYWx5c2lzUGFuZWw6ICh1cGRhdGU6IFBhcnRpYWw8QW5hbHlzaXNQYW5lbFN0YXRlPikgPT5cbiAgICBzZXQoKHN0YXRlKSA9PiB7XG4gICAgICBPYmplY3QuYXNzaWduKHN0YXRlLnVpLmFuYWx5c2lzUGFuZWwsIHVwZGF0ZSk7XG4gICAgfSksXG59KTtcblxuLyoqXG4gKiBTZWxlY3RvciBmdW5jdGlvbnMgZm9yIGVmZmljaWVudCBzdGF0ZSBhY2Nlc3NcbiAqXG4gKiBAcmVtYXJrc1xuICogVGhlc2Ugc2VsZWN0b3JzIHByb3ZpZGUgYSBjb25zaXN0ZW50IEFQSSBmb3IgYWNjZXNzaW5nIFVJIHN0YXRlXG4gKiBhbmQgY2FuIGJlIHVzZWQgd2l0aCBadXN0YW5kJ3Mgc3Vic2NyaWJlIG1lY2hhbmlzbSBmb3Igb3B0aW1hbFxuICogcmUtcmVuZGVycy4gVXNlIHRoZXNlIGluc3RlYWQgb2YgaW5saW5lIHNlbGVjdG9ycyB3aGVuIHBvc3NpYmxlLlxuICpcbiAqIEBleGFtcGxlXG4gKiBgYGB0eXBlc2NyaXB0XG4gKiBpbXBvcnQgeyB1c2VTdG9yZSB9IGZyb20gJ0Avc3RvcmUnO1xuICogaW1wb3J0IHsgdWlTZWxlY3RvcnMgfSBmcm9tICdAL3N0b3JlL3NsaWNlcy91aVNsaWNlJztcbiAqXG4gKiAvLyBJbiBhIGNvbXBvbmVudFxuICogY29uc3QgdG9hc3RzID0gdXNlU3RvcmUodWlTZWxlY3RvcnMuc2VsZWN0VG9hc3RzKTtcbiAqIGNvbnN0IGlzU2V0dGluZ3NPcGVuID0gdXNlU3RvcmUodWlTZWxlY3RvcnMuc2VsZWN0SXNNb2RhbE9wZW4oJ3NldHRpbmdzJykpO1xuICogY29uc3QgaXNMb2FkaW5nID0gdXNlU3RvcmUodWlTZWxlY3RvcnMuc2VsZWN0R2xvYmFsTG9hZGluZyk7XG4gKiBgYGBcbiAqL1xuZXhwb3J0IGNvbnN0IHVpU2VsZWN0b3JzID0ge1xuICAvKipcbiAgICogU2VsZWN0cyB0aGUgc2lkZWJhciBvcGVuIHN0YXRlXG4gICAqIEBwYXJhbSB7VUlTbGljZX0gc3RhdGUgLSBUaGUgVUkgc2xpY2Ugb2YgdGhlIHN0b3JlXG4gICAqIEByZXR1cm5zIHtib29sZWFufSBXaGV0aGVyIHRoZSBzaWRlYmFyIGlzIG9wZW5cbiAgICovXG4gIHNlbGVjdFNpZGViYXJPcGVuOiAoc3RhdGU6IFVJU2xpY2UpID0+IHN0YXRlLmlzU2lkZWJhck9wZW4sXG5cbiAgLyoqXG4gICAqIFNlbGVjdHMgdGhlIGN1cnJlbnRseSBvcGVuIG1vZGFsIHR5cGVcbiAgICogQHBhcmFtIHtVSVNsaWNlfSBzdGF0ZSAtIFRoZSBVSSBzbGljZSBvZiB0aGUgc3RvcmVcbiAgICogQHJldHVybnMge01vZGFsVHlwZSB8IG51bGx9IFRoZSBvcGVuIG1vZGFsIHR5cGUgb3IgbnVsbCBpZiBubyBtb2RhbCBpcyBvcGVuXG4gICAqL1xuICBzZWxlY3RDdXJyZW50TW9kYWw6IChzdGF0ZTogVUlTbGljZSkgPT4gc3RhdGUuY3VycmVudE1vZGFsLFxuXG4gIC8qKlxuICAgKiBTZWxlY3RzIGFsbCBhY3RpdmUgdG9hc3RzXG4gICAqIEBwYXJhbSB7VUlTbGljZX0gc3RhdGUgLSBUaGUgVUkgc2xpY2Ugb2YgdGhlIHN0b3JlXG4gICAqIEByZXR1cm5zIHtUb2FzdFtdfSBBcnJheSBvZiBhY3RpdmUgdG9hc3Qgbm90aWZpY2F0aW9uc1xuICAgKi9cbiAgc2VsZWN0VG9hc3RzOiAoc3RhdGU6IFVJU2xpY2UpID0+IHN0YXRlLnRvYXN0cyxcblxuICAvKipcbiAgICogU2VsZWN0cyB0aGUgZW50aXJlIGxvYWRpbmcgc3RhdGUgb2JqZWN0XG4gICAqIEBwYXJhbSB7VUlTbGljZX0gc3RhdGUgLSBUaGUgVUkgc2xpY2Ugb2YgdGhlIHN0b3JlXG4gICAqIEByZXR1cm5zIHtMb2FkaW5nU3RhdGV9IE9iamVjdCBjb250YWluaW5nIGFsbCBsb2FkaW5nIHN0YXRlc1xuICAgKi9cbiAgc2VsZWN0TG9hZGluZzogKHN0YXRlOiBVSVNsaWNlKSA9PiBzdGF0ZS5sb2FkaW5nLFxuXG4gIC8qKlxuICAgKiBTZWxlY3RzIHRoZSBnbG9iYWwgbG9hZGluZyBzdGF0ZVxuICAgKiBAcGFyYW0ge1VJU2xpY2V9IHN0YXRlIC0gVGhlIFVJIHNsaWNlIG9mIHRoZSBzdG9yZVxuICAgKiBAcmV0dXJucyB7Ym9vbGVhbn0gV2hldGhlciBnbG9iYWwgbG9hZGluZyBpcyBhY3RpdmVcbiAgICovXG4gIHNlbGVjdEdsb2JhbExvYWRpbmc6IChzdGF0ZTogVUlTbGljZSkgPT4gc3RhdGUubG9hZGluZy5nbG9iYWwsXG5cbiAgLyoqXG4gICAqIFNlbGVjdHMgdGhlIHRhYmxlYmFzZSBsb2FkaW5nIHN0YXRlXG4gICAqIEBwYXJhbSB7VUlTbGljZX0gc3RhdGUgLSBUaGUgVUkgc2xpY2Ugb2YgdGhlIHN0b3JlXG4gICAqIEByZXR1cm5zIHtib29sZWFufSBXaGV0aGVyIHRhYmxlYmFzZSBsb2FkaW5nIGlzIGFjdGl2ZVxuICAgKi9cbiAgc2VsZWN0VGFibGViYXNlTG9hZGluZzogKHN0YXRlOiBVSVNsaWNlKSA9PiBzdGF0ZS5sb2FkaW5nLnRhYmxlYmFzZSxcblxuICAvKipcbiAgICogU2VsZWN0cyB0aGUgYW5hbHlzaXMgcGFuZWwgc3RhdGVcbiAgICogQHBhcmFtIHtVSVNsaWNlfSBzdGF0ZSAtIFRoZSBVSSBzbGljZSBvZiB0aGUgc3RvcmVcbiAgICogQHJldHVybnMge0FuYWx5c2lzUGFuZWxTdGF0ZX0gVGhlIGFuYWx5c2lzIHBhbmVsIGNvbmZpZ3VyYXRpb25cbiAgICovXG4gIHNlbGVjdEFuYWx5c2lzUGFuZWw6IChzdGF0ZTogVUlTbGljZSkgPT4gc3RhdGUuYW5hbHlzaXNQYW5lbCxcblxuICAvKipcbiAgICogQ3JlYXRlcyBhIHNlbGVjdG9yIHRvIGNoZWNrIGlmIGEgc3BlY2lmaWMgbW9kYWwgaXMgb3BlblxuICAgKiBAcGFyYW0ge01vZGFsVHlwZX0gdHlwZSAtIFRoZSBtb2RhbCB0eXBlIHRvIGNoZWNrXG4gICAqIEByZXR1cm5zIHtGdW5jdGlvbn0gU2VsZWN0b3IgZnVuY3Rpb24gdGhhdCByZXR1cm5zIHRydWUgaWYgdGhlIHNwZWNpZmllZCBtb2RhbCBpcyBvcGVuXG4gICAqXG4gICAqIEBleGFtcGxlXG4gICAqIGBgYHR5cGVzY3JpcHRcbiAgICogY29uc3QgaXNTZXR0aW5nc09wZW4gPSB1c2VTdG9yZSh1aVNlbGVjdG9ycy5zZWxlY3RJc01vZGFsT3Blbignc2V0dGluZ3MnKSk7XG4gICAqIGBgYFxuICAgKi9cbiAgc2VsZWN0SXNNb2RhbE9wZW46ICh0eXBlOiBNb2RhbFR5cGUpID0+IChzdGF0ZTogVUlTbGljZSkgPT5cbiAgICBzdGF0ZS5jdXJyZW50TW9kYWwgPT09IHR5cGUsXG59O1xuIl0sIm5hbWVzIjpbImNyZWF0ZUluaXRpYWxVSVN0YXRlIiwiY3JlYXRlVUlTbGljZSIsImluaXRpYWxVSVN0YXRlIiwidWlTZWxlY3RvcnMiLCJpc1NpZGViYXJPcGVuIiwiY3VycmVudE1vZGFsIiwidG9hc3RzIiwibG9hZGluZyIsImdsb2JhbCIsInRhYmxlYmFzZSIsInBvc2l0aW9uIiwiYW5hbHlzaXMiLCJhbmFseXNpc1BhbmVsIiwiaXNPcGVuIiwiYWN0aXZlVGFiIiwic2hvd1RhYmxlYmFzZSIsInNldCIsImdldCIsImxhc3RFcnJvciIsInRvZ2dsZVNpZGViYXIiLCJzdGF0ZSIsInVpIiwic2V0SXNTaWRlYmFyT3BlbiIsIm9wZW5Nb2RhbCIsInR5cGUiLCJjbG9zZU1vZGFsIiwic2hvd1RvYXN0IiwibWVzc2FnZSIsImR1cmF0aW9uIiwiaWQiLCJuYW5vaWQiLCJ0b2FzdCIsInB1c2giLCJzZXRUaW1lb3V0IiwicmVtb3ZlVG9hc3QiLCJmaWx0ZXIiLCJzZXRMb2FkaW5nIiwia2V5IiwidmFsdWUiLCJ1cGRhdGVBbmFseXNpc1BhbmVsIiwidXBkYXRlIiwiT2JqZWN0IiwiYXNzaWduIiwic2VsZWN0U2lkZWJhck9wZW4iLCJzZWxlY3RDdXJyZW50TW9kYWwiLCJzZWxlY3RUb2FzdHMiLCJzZWxlY3RMb2FkaW5nIiwic2VsZWN0R2xvYmFsTG9hZGluZyIsInNlbGVjdFRhYmxlYmFzZUxvYWRpbmciLCJzZWxlY3RBbmFseXNpc1BhbmVsIiwic2VsZWN0SXNNb2RhbE9wZW4iXSwibWFwcGluZ3MiOiJBQUFBOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Q0FxQkM7Ozs7Ozs7Ozs7O1FBK0JZQTtlQUFBQTs7UUEyQkFDO2VBQUFBOztRQWhEQUM7ZUFBQUE7O1FBMFNBQztlQUFBQTs7O3dCQWpUVTtBQU9oQixNQUFNRCxpQkFBaUI7SUFDNUJFLGVBQWU7SUFDZkMsY0FBYztJQUNkQyxRQUFRLEVBQUU7SUFDVkMsU0FBUztRQUNQQyxRQUFRO1FBQ1JDLFdBQVc7UUFDWEMsVUFBVTtRQUNWQyxVQUFVO0lBQ1o7SUFDQUMsZUFBZTtRQUNiQyxRQUFRO1FBQ1JDLFdBQVc7UUFDWEMsZUFBZTtJQUNqQjtBQUNGO0FBTU8sTUFBTWYsdUJBQXVCLElBQU8sQ0FBQTtRQUFFLEdBQUdFLGNBQWM7SUFBQyxDQUFBO0FBMkJ4RCxNQUFNRCxnQkFBNEMsQ0FBQ2UsS0FBS0MsTUFBUyxDQUFBO1FBQ3RFLHFEQUFxRDtRQUNyRGIsZUFBZTtRQUNmQyxjQUFjO1FBQ2RDLFFBQVEsRUFBRTtRQUNWWSxXQUFXO1FBQ1hYLFNBQVM7WUFDUEMsUUFBUTtZQUNSRSxVQUFVO1lBQ1ZELFdBQVc7WUFDWEUsVUFBVTtRQUNaO1FBQ0FDLGVBQWU7WUFDYkMsUUFBUTtZQUNSQyxXQUFXO1lBQ1hDLGVBQWU7UUFDakI7UUFFQSxVQUFVO1FBQ1Y7Ozs7Ozs7Ozs7R0FVQyxHQUNESSxlQUFlLElBQ2JILElBQUksQ0FBQ0k7Z0JBQ0hBLE1BQU1DLEVBQUUsQ0FBQ2pCLGFBQWEsR0FBRyxDQUFDZ0IsTUFBTUMsRUFBRSxDQUFDakIsYUFBYTtZQUNsRDtRQUVGOzs7Ozs7Ozs7Ozs7OztHQWNDLEdBQ0RrQixrQkFBa0IsQ0FBQ1QsU0FDakJHLElBQUksQ0FBQ0k7Z0JBQ0hBLE1BQU1DLEVBQUUsQ0FBQ2pCLGFBQWEsR0FBR1M7WUFDM0I7UUFFRjs7Ozs7Ozs7Ozs7Ozs7Ozs7O0dBa0JDLEdBQ0RVLFdBQVcsQ0FBQ0MsT0FDVlIsSUFBSSxDQUFDSTtnQkFDSEEsTUFBTUMsRUFBRSxDQUFDaEIsWUFBWSxHQUFHbUI7WUFDMUI7UUFFRjs7Ozs7Ozs7OztHQVVDLEdBQ0RDLFlBQVksSUFDVlQsSUFBSSxDQUFDSTtnQkFDSEEsTUFBTUMsRUFBRSxDQUFDaEIsWUFBWSxHQUFHO1lBQzFCO1FBRUY7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7R0E0QkMsR0FDRHFCLFdBQVcsQ0FBQ0MsU0FBaUJILE1BQXFCSSxXQUFXLElBQUk7WUFDL0QsTUFBTUMsS0FBS0MsSUFBQUEsY0FBTTtZQUNqQixNQUFNQyxRQUFlO2dCQUNuQkY7Z0JBQ0FGO2dCQUNBSDtnQkFDQUk7WUFDRjtZQUVBWixJQUFJLENBQUNJO2dCQUNIQSxNQUFNQyxFQUFFLENBQUNmLE1BQU0sQ0FBQzBCLElBQUksQ0FBQ0Q7WUFDdkI7WUFFQSxtQ0FBbUM7WUFDbkMsSUFBSUgsWUFBWUEsV0FBVyxHQUFHO2dCQUM1QkssV0FBVztvQkFDVGhCLE1BQU1JLEVBQUUsQ0FBQ2EsV0FBVyxDQUFDTDtnQkFDdkIsR0FBR0Q7WUFDTDtRQUNGO1FBRUE7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7R0FtQkMsR0FDRE0sYUFBYSxDQUFDTCxLQUNaYixJQUFJLENBQUNJO2dCQUNIQSxNQUFNQyxFQUFFLENBQUNmLE1BQU0sR0FBR2MsTUFBTUMsRUFBRSxDQUFDZixNQUFNLENBQUM2QixNQUFNLENBQUMsQ0FBQ0osUUFBZUEsTUFBTUYsRUFBRSxLQUFLQTtZQUN4RTtRQUVGOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0dBc0JDLEdBQ0RPLFlBQVksQ0FBQ0MsS0FBeUJDLFFBQ3BDdEIsSUFBSSxDQUFDSTtnQkFDSEEsTUFBTUMsRUFBRSxDQUFDZCxPQUFPLENBQUM4QixJQUFJLEdBQUdDO1lBQzFCO1FBRUY7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0dBMEJDLEdBQ0RDLHFCQUFxQixDQUFDQyxTQUNwQnhCLElBQUksQ0FBQ0k7Z0JBQ0hxQixPQUFPQyxNQUFNLENBQUN0QixNQUFNQyxFQUFFLENBQUNULGFBQWEsRUFBRTRCO1lBQ3hDO0lBQ0osQ0FBQTtBQXFCTyxNQUFNckMsY0FBYztJQUN6Qjs7OztHQUlDLEdBQ0R3QyxtQkFBbUIsQ0FBQ3ZCLFFBQW1CQSxNQUFNaEIsYUFBYTtJQUUxRDs7OztHQUlDLEdBQ0R3QyxvQkFBb0IsQ0FBQ3hCLFFBQW1CQSxNQUFNZixZQUFZO0lBRTFEOzs7O0dBSUMsR0FDRHdDLGNBQWMsQ0FBQ3pCLFFBQW1CQSxNQUFNZCxNQUFNO0lBRTlDOzs7O0dBSUMsR0FDRHdDLGVBQWUsQ0FBQzFCLFFBQW1CQSxNQUFNYixPQUFPO0lBRWhEOzs7O0dBSUMsR0FDRHdDLHFCQUFxQixDQUFDM0IsUUFBbUJBLE1BQU1iLE9BQU8sQ0FBQ0MsTUFBTTtJQUU3RDs7OztHQUlDLEdBQ0R3Qyx3QkFBd0IsQ0FBQzVCLFFBQW1CQSxNQUFNYixPQUFPLENBQUNFLFNBQVM7SUFFbkU7Ozs7R0FJQyxHQUNEd0MscUJBQXFCLENBQUM3QixRQUFtQkEsTUFBTVIsYUFBYTtJQUU1RDs7Ozs7Ozs7O0dBU0MsR0FDRHNDLG1CQUFtQixDQUFDMUIsT0FBb0IsQ0FBQ0osUUFDdkNBLE1BQU1mLFlBQVksS0FBS21CO0FBQzNCIn0=
