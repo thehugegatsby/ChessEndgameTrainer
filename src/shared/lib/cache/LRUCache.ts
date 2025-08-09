@@ -116,6 +116,11 @@ export class LRUCache<T> {
    * updates the value and marks it as recently used.
    */
   set(key: string, value: T): void {
+    // Handle zero-size cache - don't store anything
+    if (this.maxSize <= 0) {
+      return;
+    }
+
     // Remove if exists (to reorder)
     if (this.cache.has(key)) {
       this.cache.delete(key);

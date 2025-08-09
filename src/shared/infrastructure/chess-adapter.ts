@@ -26,7 +26,7 @@ const logger = getLogger();
 /**
  * Valid promotion pieces according to chess rules
  */
-const VALID_PROMOTION_PIECES = ["q", "r", "b", "n"] as const;
+const VALID_PROMOTION_PIECES = Object.freeze(["q", "r", "b", "n"] as const);
 type ValidPromotionPiece = (typeof VALID_PROMOTION_PIECES)[number];
 
 /**
