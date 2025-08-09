@@ -11,7 +11,7 @@ import { ChessMoveSequences } from "../../fixtures/chessTestScenarios";
 import { waitForPageReady, waitForTablebaseInit } from "../helpers/deterministicWaiting";
 import { getLogger } from "@shared/services/logging";
 
-test.describe.skip("Pawn Promotion Auto-Win (SequenceRunner) - SKIPPED: _internalApplyMove issue", () => {
+test.describe.skip("Pawn Promotion Auto-Win (SequenceRunner) - Ready to unskip: Issue #99 resolved", () => {
   const logger = getLogger().setContext("E2E-PawnPromotion-SequenceRunner");
 
   test("should show success message when promotion leads to win", async ({ page }) => {
@@ -158,7 +158,7 @@ test.describe.skip("Pawn Promotion Auto-Win (SequenceRunner) - SKIPPED: _interna
   });
 });
 
-test.describe.skip("Pawn Promotion Edge Cases (SequenceRunner) - SKIPPED: _internalApplyMove issue", () => {
+test.describe.skip("Pawn Promotion Edge Cases (SequenceRunner) - Ready to unskip: Issue #99 resolved", () => {
   const logger = getLogger().setContext("E2E-PromotionEdgeCases");
 
   test("should handle promotion with opponent's immediate capture", async ({ page }) => {

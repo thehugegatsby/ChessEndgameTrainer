@@ -86,7 +86,7 @@ describe("TestApiService - Store-Based Architecture", () => {
       })),
       subscribe: jest.fn(() => jest.fn()),
       makeMove: jest.fn(),
-      _internalApplyMove: jest.fn(),
+      applyMove: jest.fn(),
       resetPosition: jest.fn(),
       setPosition: jest.fn(),
       goToMove: jest.fn(),
@@ -178,7 +178,7 @@ describe("TestApiService - Store-Based Architecture", () => {
 
       const result = await service.makeMove("e2-e4");
 
-      expect(mockStoreAccess._internalApplyMove).toHaveBeenCalledWith(
+      expect(mockStoreAccess.applyMove).toHaveBeenCalledWith(
         expect.objectContaining({
           from: "e2",
           to: "e4",

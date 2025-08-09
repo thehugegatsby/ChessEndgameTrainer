@@ -57,6 +57,9 @@ export interface GameActions {
       | { from: string; to: string; promotion?: string }
       | string,
   ) => ValidatedMove | null;
+  applyMove: (
+    move: { from: string; to: string; promotion?: string } | string,
+  ) => ValidatedMove | null;
   undoMove: () => boolean;
   redoMove: () => boolean;
 

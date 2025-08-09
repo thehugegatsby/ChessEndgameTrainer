@@ -133,6 +133,7 @@ describe("TrainingBoard", () => {
     resetGame: jest.fn(),
     initializeGame: jest.fn(),
     makeMove: jest.fn(),
+    applyMove: jest.fn(),
     undoMove: jest.fn(),
     redoMove: jest.fn(),
     goToMove: jest.fn(),

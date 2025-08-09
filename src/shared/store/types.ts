@@ -324,7 +324,7 @@ export interface TrainingActions {
       | { from: string; to: string; promotion?: string }
       | string,
   ) => Promise<boolean>;
-  _internalApplyMove: (
+  applyMove: (
     move: ChessJsMove | { from: string; to: string; promotion?: string },
   ) => void;
   undoMove: () => void;

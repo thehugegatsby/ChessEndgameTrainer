@@ -138,7 +138,7 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({
         // Extract individual actions from state - these need to be fixed in TestApiService
         // For now, provide empty functions to avoid runtime errors
         makeMove: state?.handlePlayerMove || (() => Promise.resolve(false)),
-        _internalApplyMove: (() => {}), // TO BE REMOVED - see issue #99
+        applyMove: state?.game?.applyMove || (() => null), // Test-only action for applying moves
         resetPosition: state?.reset || (() => {}),
         setPosition: (() => {}), // Not directly available in new architecture
         goToMove: state?.game?.goToMove || (() => {}),

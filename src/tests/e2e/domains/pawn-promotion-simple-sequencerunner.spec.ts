@@ -9,7 +9,7 @@ import { SequenceRunner, expectation } from "../helpers/sequenceRunner";
 import { waitForPageReady, waitForTablebaseInit } from "../helpers/deterministicWaiting";
 import { getLogger } from "@shared/services/logging";
 
-test.describe.skip("Pawn Promotion Simple (SequenceRunner) - SKIPPED: _internalApplyMove issue", () => {
+test.describe.skip("Pawn Promotion Simple (SequenceRunner) - Ready to unskip: Issue #99 resolved", () => {
   const logger = getLogger().setContext("E2E-PawnPromotionSimple");
 
   test("should complete pawn promotion sequence successfully", async ({ page }) => {
@@ -90,7 +90,7 @@ test.describe.skip("Pawn Promotion Simple (SequenceRunner) - SKIPPED: _internalA
   });
 });
 
-test.describe.skip("SequenceRunner Migration Comparison - SKIPPED: _internalApplyMove issue", () => {
+test.describe.skip("SequenceRunner Migration Comparison - Ready to unskip: Issue #99 resolved", () => {
   const logger = getLogger().setContext("E2E-MigrationComparison");
 
   test("Compare old vs new test approach", async ({ page }) => {

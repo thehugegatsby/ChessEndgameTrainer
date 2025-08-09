@@ -96,6 +96,7 @@ export const useGameActions = (): GameActionsType => {
       // Game operations
       initializeGame: actions.initializeGame,
       makeMove: actions.makeMove,
+      applyMove: actions.applyMove,
       undoMove: actions.undoMove,
       redoMove: actions.redoMove,
 

@@ -141,7 +141,7 @@ export class TestApiService {
     subscribe: (listener: (state: RootState, prevState: RootState) => void) => () => void;
     // Individual action functions extracted from store state
     makeMove: (move: ChessJsMove | { from: string; to: string; promotion?: string } | string) => void;
-    _internalApplyMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => void;
+    applyMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => void;
     resetPosition: () => void;
     setPosition: (position: EndgamePosition) => void;
     goToMove: (moveIndex: number) => void;
@@ -180,7 +180,7 @@ export class TestApiService {
    * @param storeAccess.getState
    * @param storeAccess.subscribe
    * @param storeAccess.makeMove
-   * @param storeAccess._internalApplyMove
+   * @param storeAccess.applyMove
    * @param storeAccess.resetPosition
    * @param storeAccess.setPosition
    * @param storeAccess.goToMove
@@ -193,7 +193,7 @@ export class TestApiService {
       subscribe: (listener: (state: RootState, prevState: RootState) => void) => () => void;
       // Individual action functions extracted from store state
       makeMove: (move: ChessJsMove | { from: string; to: string; promotion?: string } | string) => void;
-      _internalApplyMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => void;
+      applyMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => void;
       resetPosition: () => void;
       setPosition: (position: EndgamePosition) => void;
       goToMove: (moveIndex: number) => void;
@@ -408,7 +408,7 @@ export class TestApiService {
       }
 
       // Execute move through store actions (bypass validation for tests)
-      this.storeAccess._internalApplyMove(moveObj);
+      this.storeAccess.applyMove(moveObj);
       const success = true; // makeMove is synchronous in Zustand
 
       if (success) {

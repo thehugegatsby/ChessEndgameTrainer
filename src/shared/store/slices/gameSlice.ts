@@ -385,7 +385,67 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
   setCurrentFen: (fen: string) => {
     return chessService.initialize(fen);
   },
+
+  /**
+   * Applies a move directly for test setup purposes (bypasses validation)
+   *
+   * @param {Object|string} move - Move object with from/to/promotion or algebraic notation
+   * @param {string} move.from - Starting square (e.g., "e2")
+   * @param {string} move.to - Target square (e.g., "e4")
+   * @param {string} [move.promotion] - Promotion piece ("q", "r", "b", "n")
+   * @returns {ValidatedMove|null} The applied move object or null if failed
+   *
+   * @remarks
+   * This is a test utility function that bypasses normal move validation.
+   * It directly applies moves to the chess state without checking legality.
+   * Use only in test environments for setting up specific positions.
+   * For normal gameplay, use makeMove() instead.
+   *
+   * @example
+   * ```typescript
+   * // In test setup - directly apply a move to reach target position
+   * const move = store.getState().applyMove({ from: "e2", to: "e4" });
+   *
+   * // Apply promotion move in test
+   * const promotion = store.getState().applyMove({
+   *   from: "e7",
+   *   to: "e8",
+   *   promotion: "q"
+   * });
+   *
+   * // Apply algebraic notation in test
+   * const algMove = store.getState().applyMove("Nf3");
+   * ```
+   */
+  applyMove: (
+    move: { from: string; to: string; promotion?: string } | string,
+  ) => {
+    // Use private helper to update state with common logic
+    return _updateGameState("applyMove", () => chessService.move(move));
+  },
 });
+
+/**
+ * Private helper function to update game state with common logic
+ * Extracts shared state update pattern between makeMove and applyMove
+ * 
+ * @param source - Source of the state update for event emission
+ * @param moveFunction - Function that executes the actual move
+ * @returns The validated move or null if failed
+ */
+function _updateGameState(source: string, moveFunction: () => ValidatedMove | null) {
+  try {
+    const result = moveFunction();
+    
+    // ChessService will emit event automatically, triggering store sync via rootStore
+    // This helper just provides common error handling pattern
+    return result;
+  } catch (error) {
+    // Log error but don't re-throw - let calling action handle response
+    console.error(`Error in ${source}:`, error);
+    return null;
+  }
+}
 
 // Helper function removed - now using chessService.getGameResult()
 

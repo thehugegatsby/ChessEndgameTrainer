@@ -94,7 +94,7 @@ export class BrowserTestApi {
     getState: () => RootState;
     subscribe: (listener: (state: RootState, prevState: RootState) => void) => () => void;
     makeMove: (move: ChessJsMove | { from: string; to: string; promotion?: string } | string) => void;
-    _internalApplyMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => void;
+    applyMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => void;
     resetPosition: () => void;
     setPosition: (position: EndgamePosition) => void;
     goToMove: (moveIndex: number) => void;
