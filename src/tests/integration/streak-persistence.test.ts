@@ -52,6 +52,7 @@ describe('Streak Persistence Integration Test', () => {
     store = createStore();
     
     // Create wrapper with store provider
+    // eslint-disable-next-line react/no-children-prop
     wrapper = ({ children }: { children: ReactNode }) => 
       createElement(StoreProvider, { children });
   });

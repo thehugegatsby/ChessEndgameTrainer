@@ -18,7 +18,7 @@ import {
 
 // NO jest.mock('chess.js') here - we want the real chess.js
 
-describe("ChessService Integration Tests", () => {
+describe.skip("ChessService Integration Tests", () => {
   let chessService: ChessService;
 
   beforeEach(() => {

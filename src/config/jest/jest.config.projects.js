@@ -17,7 +17,11 @@ const baseConfig = {
     '/node_modules/(?!(nanoid|supermemo|react-chessboard|chess.js|react-hotkeys-hook|react-native|@react-native|@react-navigation|expo|@expo|react-native.*)/)'
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js', '<rootDir>/src/tests/utils/jestSetup.ts'],
+  setupFilesAfterEnv: [
+    '<rootDir>/jest.setup.js',
+    '<rootDir>/src/tests/utils/jestSetup.ts',
+    '<rootDir>/src/tests/setup/global-test-cleanup.ts'
+  ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@shared/(.*)$': '<rootDir>/src/shared/$1',
