@@ -457,7 +457,8 @@ export class SequenceRunner {
     _data: Expectation["data"],
     _timeout: number,
   ): Promise<void> {
-    // TODO: Implement when we have evaluation data exposed
+    // Evaluation data is available via tablebase components (AnalysisPanel, MoveEvaluationBar)
+    // but E2E test implementation is pending
     console.log(`⚠️ Evaluation expectations not implemented yet`);
   }
 

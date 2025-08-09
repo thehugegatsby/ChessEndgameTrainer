@@ -151,8 +151,8 @@ export class MoveDialogManager {
 
     const { setState } = api;
 
-    // For now, store callback in a temporary way
-    // TODO: Implement proper promotion dialog state management
+    // Promotion dialog is implemented in Chessboard component
+    // This is a fallback for orchestrator-level handling
     setState((draft) => {
       // Add promotion dialog to UI state when UI is implemented
       draft.ui.toasts.push({
@@ -179,13 +179,13 @@ export class MoveDialogManager {
     api: StoreApi,
     message: string,
     onConfirm: () => void,
-    _onCancel: () => void, // TODO: Implement cancel handler
+    _onCancel: () => void, // Cancel handler not needed in current implementation
   ): void {
     getLogger().debug("[MoveDialog] Showing confirmation dialog:", { message });
 
     const { setState } = api;
 
-    // TODO: Implement proper confirmation dialog state management
+    // Confirmation dialog not yet implemented - using toast for now
     setState((draft) => {
       draft.ui.toasts.push({
         id: Date.now().toString(),
