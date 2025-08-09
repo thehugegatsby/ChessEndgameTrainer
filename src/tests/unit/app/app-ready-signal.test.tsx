@@ -48,6 +48,9 @@ describe("App Ready Signal (App Router)", () => {
       resetGame: jest.fn(),
       currentFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
     },
+    progress: {
+      resetProgress: jest.fn(),
+    },
   });
 
   beforeEach(() => {
