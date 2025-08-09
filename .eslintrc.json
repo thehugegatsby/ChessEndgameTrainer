@@ -3,13 +3,21 @@
   "rules": {
     "no-console": ["error", { "allow": ["warn", "error"] }],
     "prefer-const": "error",
-    "@typescript-eslint/no-explicit-any": "error"
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "args": "after-used",
+        "varsIgnorePattern": "^_",
+        "argsIgnorePattern": "^_"
+      }
+    ]
   },
   "overrides": [
     {
       "files": [
         "scripts/**/*.js",
-        "scripts/**/*.ts", 
+        "scripts/**/*.ts",
         "config/**/*.js",
         "config/**/*.ts",
         "src/config/**/*.js",
@@ -51,6 +59,14 @@
         "no-console": "off",
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-require-imports": "off",
+        "@typescript-eslint/no-unused-vars": [
+          "warn",
+          {
+            "args": "after-used",
+            "varsIgnorePattern": "^_",
+            "argsIgnorePattern": "^_"
+          }
+        ],
         "@typescript-eslint/ban-ts-comment": [
           "error",
           {
@@ -66,7 +82,7 @@
       "files": [
         "tests/**/*.ts",
         "tests/**/*.tsx",
-        "tests/**/*.js", 
+        "tests/**/*.js",
         "tests/**/*.jsx",
         "src/tests/**/*.ts",
         "src/tests/**/*.tsx",
@@ -82,6 +98,14 @@
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-require-imports": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-unused-vars": [
+          "warn",
+          {
+            "args": "after-used",
+            "varsIgnorePattern": "^_",
+            "argsIgnorePattern": "^_"
+          }
+        ],
         "@typescript-eslint/ban-ts-comment": [
           "error",
           {
@@ -98,13 +122,16 @@
       "files": [
         "pages/**/*.tsx",
         "pages/**/*.ts",
-        "app/**/*.tsx", 
+        "app/**/*.tsx",
         "app/**/*.ts",
         "src/app/**/*.tsx",
         "src/app/**/*.ts"
       ],
       "rules": {
-        "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }]
+        "@typescript-eslint/no-unused-vars": [
+          "warn",
+          { "argsIgnorePattern": "^_" }
+        ]
       }
     }
   ]

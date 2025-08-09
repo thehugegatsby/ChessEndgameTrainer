@@ -126,7 +126,6 @@ out/
 **/.DS_Store
 
 # Test artifacts
-test_moves.js
 *.test.tmp
 
 # Storybook
