@@ -85,6 +85,40 @@ describe('LichessApiClient', () => {
       const client = new LichessApiClient(config);
       expect(client).toBeInstanceOf(LichessApiClient);
     });
+
+    it('should validate configuration parameters', () => {
+      // Test negative timeoutMs
+      expect(() => new LichessApiClient({ timeoutMs: -1 }))
+        .toThrow('timeoutMs must be positive');
+      
+      // Test zero timeoutMs
+      expect(() => new LichessApiClient({ timeoutMs: 0 }))
+        .toThrow('timeoutMs must be positive');
+
+      // Test negative maxRetries
+      expect(() => new LichessApiClient({ maxRetries: -1 }))
+        .toThrow('maxRetries must be non-negative');
+
+      // Test negative maxBackoffMs
+      expect(() => new LichessApiClient({ maxBackoffMs: -1 }))
+        .toThrow('maxBackoffMs must be positive');
+      
+      // Test zero maxBackoffMs
+      expect(() => new LichessApiClient({ maxBackoffMs: 0 }))
+        .toThrow('maxBackoffMs must be positive');
+
+      // Test empty baseUrl
+      expect(() => new LichessApiClient({ baseUrl: '' }))
+        .toThrow('baseUrl cannot be empty');
+      
+      // Test whitespace-only baseUrl
+      expect(() => new LichessApiClient({ baseUrl: '   ' }))
+        .toThrow('baseUrl cannot be empty');
+
+      // Test that maxRetries = 0 is allowed (no retries)
+      expect(() => new LichessApiClient({ maxRetries: 0 }))
+        .not.toThrow();
+    });
   });
 
   describe('Successful API Communication', () => {

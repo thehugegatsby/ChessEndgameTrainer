@@ -21,6 +21,7 @@
 import { validateAndSanitizeFen } from "../utils/fenValidator";
 import { getLogger } from "../services/logging";
 import { APP_CONFIG } from "@/config/constants";
+import { Result, ok, err, isErr, AppError } from "@shared/utils/result";
 // Removed unused imports - Zod validation now handled by LichessApiClient
 import { LichessApiClient, LichessApiError, LichessApiTimeoutError } from "./api/LichessApiClient";
 import type {
@@ -110,30 +111,52 @@ class TablebaseService {
    * }
    */
   async getEvaluation(fen: string): Promise<TablebaseEvaluation> {
+    // Adapter pattern: internal Result, external legacy API
+    const result = await this._getEvaluationInternal(fen);
+    
+    if (isErr(result)) {
+      return {
+        isAvailable: false,
+        error: result.error.message,
+      };
+    }
+    
+    if (!result.value) {
+      return { isAvailable: false };
+    }
+    
+    return {
+      isAvailable: true,
+      result: result.value,
+    };
+  }
+  
+  /**
+   * Internal implementation using Result pattern
+   * @private
+   */
+  private async _getEvaluationInternal(fen: string): Promise<Result<TablebaseResult | null, AppError>> {
     try {
       const entry = await this._getOrFetchTablebaseEntry(fen);
 
       if (!entry) {
-        return { isAvailable: false };
+        return ok(null);
       }
 
-      return {
-        isAvailable: true,
-        result: {
-          wdl: entry.position.wdl,
-          dtz: entry.position.dtz,
-          dtm: entry.position.dtm,
-          category: entry.position.category,
-          precise: entry.position.precise,
-          evaluation: entry.position.evaluation,
-        },
-      };
+      return ok({
+        wdl: entry.position.wdl,
+        dtz: entry.position.dtz,
+        dtm: entry.position.dtm,
+        category: entry.position.category,
+        precise: entry.position.precise,
+        evaluation: entry.position.evaluation,
+      });
     } catch (error) {
       logger.error("Failed to get evaluation", error as Error, { fen });
-      return {
-        isAvailable: false,
-        error: error instanceof Error ? error.message : "Unknown error",
-      };
+      return err(new AppError(
+        error instanceof Error ? error.message : "Unknown error",
+        { fen, operation: "getEvaluation" }
+      ));
     }
   }
 
@@ -157,14 +180,42 @@ class TablebaseService {
     fen: string,
     limit: number = 3,
   ): Promise<TablebaseMovesResult> {
+    // Adapter pattern: internal Result, external legacy API
+    const result = await this._getTopMovesInternal(fen, limit);
+    
+    if (isErr(result)) {
+      return {
+        isAvailable: false,
+        error: result.error.message,
+      };
+    }
+    
+    if (!result.value) {
+      return {
+        isAvailable: false,
+        error: "No moves available for this position",
+      };
+    }
+    
+    return {
+      isAvailable: true,
+      moves: result.value,
+    };
+  }
+  
+  /**
+   * Internal implementation using Result pattern
+   * @private
+   */
+  private async _getTopMovesInternal(
+    fen: string,
+    limit: number = 3,
+  ): Promise<Result<TablebaseMove[] | null, AppError>> {
     try {
       const entry = await this._getOrFetchTablebaseEntry(fen);
 
       if (!entry || !entry.moves.length) {
-        return {
-          isAvailable: false,
-          error: "No moves available for this position",
-        };
+        return ok(null);
       }
 
       // Sort moves by quality (WDL value, then DTZ)
@@ -233,16 +284,13 @@ class TablebaseService {
               : "Draw",
       });
 
-      return {
-        isAvailable: true,
-        moves: topMoves,
-      };
+      return ok(topMoves);
     } catch (error) {
       logger.error("Failed to get top moves", error as Error, { fen });
-      return {
-        isAvailable: false,
-        error: error instanceof Error ? error.message : "Unknown error",
-      };
+      return err(new AppError(
+        error instanceof Error ? error.message : "Unknown error",
+        { fen, limit, operation: "getTopMoves" }
+      ));
     }
   }
 

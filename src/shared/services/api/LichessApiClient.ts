@@ -92,6 +92,20 @@ export class LichessApiClient {
   private readonly maxBackoffMs: number;
 
   constructor(config: LichessApiClientConfig = {}) {
+    // Validate configuration parameters
+    if (config.timeoutMs !== undefined && config.timeoutMs <= 0) {
+      throw new Error('timeoutMs must be positive');
+    }
+    if (config.maxRetries !== undefined && config.maxRetries < 0) {
+      throw new Error('maxRetries must be non-negative');
+    }
+    if (config.maxBackoffMs !== undefined && config.maxBackoffMs <= 0) {
+      throw new Error('maxBackoffMs must be positive');
+    }
+    if (config.baseUrl !== undefined && !config.baseUrl.trim()) {
+      throw new Error('baseUrl cannot be empty');
+    }
+
     this.baseUrl = config.baseUrl || 'https://tablebase.lichess.ovh/standard';
     this.timeoutMs = config.timeoutMs || 5000;
     this.maxRetries = config.maxRetries || 3;
