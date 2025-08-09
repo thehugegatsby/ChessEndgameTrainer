@@ -71,7 +71,7 @@ export function usePageReady(dependencies: boolean[] = []): boolean {
         );
       }
     }
-  }, dependencies);
+  }, [dependencies.join(','), isPageReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return isPageReady;
 }

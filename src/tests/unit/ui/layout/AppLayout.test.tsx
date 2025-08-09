@@ -375,7 +375,7 @@ describe("AppLayout Component", () => {
 
   describe("Edge Cases", () => {
     it("should handle missing children gracefully", () => {
-      render(<AppLayout children={undefined} />);
+      render(<AppLayout>{undefined}</AppLayout>);
 
       const mainContent = screen.getByRole("main");
       expect(mainContent).toBeInTheDocument();
@@ -415,7 +415,7 @@ describe("AppLayout Component", () => {
         </div>
       );
 
-      render(<AppLayout children={complexChildren} />);
+      render(<AppLayout>{complexChildren}</AppLayout>);
 
       expect(screen.getByText("Complex Content")).toBeInTheDocument();
       expect(screen.getByText("Nested content")).toBeInTheDocument();

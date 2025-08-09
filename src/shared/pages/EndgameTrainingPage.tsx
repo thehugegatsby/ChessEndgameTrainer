@@ -1,9 +1,11 @@
 "use client";
 
 // CRITICAL DEBUG: Test if client-side JavaScript is running
-console.log(
+import { getLogger } from '@shared/services/logging/Logger';
+
+getLogger().info(
   "🚀 CLIENT-SIDE: EndgameTrainingPage module is loading!",
-  new Date().toISOString(),
+  { timestamp: new Date().toISOString() }
 );
 
 import React, { useState, useCallback, useMemo } from "react";
@@ -57,7 +59,7 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
   const position = trainingState.currentPosition;
 
   // Debug: Log component state
-  console.debug("🏠 EndgameTrainingPage rendered", {
+  getLogger().debug("🏠 EndgameTrainingPage rendered", {
     hasPosition: !!position,
     positionId: position?.id,
     positionFen: position?.fen,
@@ -68,19 +70,10 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
   // Extract actions to avoid dependency issues
   const { completeTraining } = trainingActions;
 
-  // Early return if position is not available (shouldn't happen with SSR hydration)
-  if (!position) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-gray-600">Position wird geladen...</div>
-      </div>
-    );
-  }
-
-  // Game status - MUST be before any conditional returns (React Hook Rules)
+  // Game status - ALL HOOKS MUST BE BEFORE CONDITIONAL RETURNS (React Hook Rules)
   const gameStatus = useMemo(
-    () => getGameStatus(gameState.currentFen || position.fen, position.goal),
-    [gameState.currentFen, position.fen, position.goal],
+    () => position ? getGameStatus(gameState.currentFen || position.fen, position.goal) : null,
+    [gameState.currentFen, position],
   );
 
   // Navigation data from store
@@ -121,7 +114,7 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
   }, [uiActions, uiState]);
 
   const getLichessUrl = useCallback(() => {
-    const currentFen = gameState.currentFen || position.fen;
+    const currentFen = gameState.currentFen || (position?.fen ?? "");
 
     // Use PGN if we have moves in the history
     // PGN includes the starting FEN and all moves, providing full context
@@ -136,10 +129,17 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
     gameState.currentPgn,
     gameState.moveHistory.length,
     gameState.currentFen,
-    position.fen,
+    position?.fen,
   ]);
 
-  // No longer needed - SSR hydration ensures position is available on first render
+  // Early return if position is not available (shouldn't happen with SSR hydration)
+  if (!position) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg text-gray-600">Position wird geladen...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="trainer-container h-screen flex bg-slate-800 text-white">
@@ -228,10 +228,10 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
           <div className="game-status p-4 border-b border-gray-700">
             <div className="text-sm font-medium flex items-center gap-2">
               <span className="text-base">♔</span>
-              {gameStatus.sideToMoveDisplay}
+              {gameStatus?.sideToMoveDisplay}
             </div>
             <div className="text-xs text-gray-300 mt-1">
-              {gameStatus.objectiveDisplay}
+              {gameStatus?.objectiveDisplay}
             </div>
           </div>
 

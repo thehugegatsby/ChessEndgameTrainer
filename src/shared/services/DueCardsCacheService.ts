@@ -404,16 +404,16 @@ export class DueCardsCacheService {
   /**
    * Validate cache entry structure
    */
-  private isValidCacheEntry(entry: any): entry is DueCacheEntry {
+  private isValidCacheEntry(entry: unknown): entry is DueCacheEntry {
     return (
       typeof entry === 'object' &&
       entry !== null &&
-      Array.isArray(entry.dueCards) &&
-      typeof entry.calculatedAt === 'number' &&
-      typeof entry.stats === 'object' &&
-      typeof entry.inputHash === 'string' &&
-      typeof entry.createdAt === 'number' &&
-      typeof entry.lastAccessedAt === 'number'
+      Array.isArray((entry as DueCacheEntry).dueCards) &&
+      typeof (entry as DueCacheEntry).calculatedAt === 'number' &&
+      typeof (entry as DueCacheEntry).stats === 'object' &&
+      typeof (entry as DueCacheEntry).inputHash === 'string' &&
+      typeof (entry as DueCacheEntry).createdAt === 'number' &&
+      typeof (entry as DueCacheEntry).lastAccessedAt === 'number'
     );
   }
 
@@ -621,7 +621,7 @@ export class DueCardsCacheService {
  * @param input - Input to hash
  * @returns Simple hash string
  */
-export function createInputHash(input: any): string {
+export function createInputHash(input: unknown): string {
   const str = typeof input === 'string' ? input : JSON.stringify(input);
   let hash = 0;
   

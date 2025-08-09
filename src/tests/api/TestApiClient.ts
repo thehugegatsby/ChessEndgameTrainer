@@ -4,8 +4,16 @@
  */
 
 import { APIRequestContext } from "@playwright/test";
-import { EndgamePosition } from "@shared/types/endgame";
+import { EndgamePosition, EndgameCategory, EndgameChapter } from "@shared/types/endgame";
 import { PORTS } from "../../../config/ports";
+
+// Type definitions for Firebase test data
+interface FirebaseUser {
+  uid: string;
+  email: string;
+  displayName?: string;
+  customClaims?: Record<string, string | number | boolean>;
+}
 
 export interface TestUser {
   userId: string;
@@ -363,10 +371,10 @@ export class TestApiClient {
       overrides?: {
         email?: string;
         displayName?: string;
-        customClaims?: Record<string, any>;
+        customClaims?: Record<string, string | number | boolean>;
       };
     } = {},
-  ): Promise<{ success: boolean; user: any; progressEntries: number }> {
+  ): Promise<{ success: boolean; user: FirebaseUser; progressEntries: number }> {
     const response = await this.request.post(
       `${this.baseUrl}/e2e/firebase/create-user`,
       {
@@ -391,8 +399,13 @@ export class TestApiClient {
   ): Promise<{
     success: boolean;
     scenario: string;
-    seeded: any;
-    users: any[];
+    seeded: {
+      positions?: number;
+      categories?: number;
+      chapters?: number;
+      users?: number;
+    };
+    users: FirebaseUser[];
   }> {
     const response = await this.request.post(
       `${this.baseUrl}/e2e/firebase/seed-scenario`,
@@ -457,8 +470,8 @@ export class TestApiClient {
    */
   async seedFirebaseBatch(data: {
     positions?: EndgamePosition[];
-    categories?: any[];
-    chapters?: any[];
+    categories?: EndgameCategory[];
+    chapters?: EndgameChapter[];
     users?: Array<{
       template?: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT";
       overrides?: { email?: string; displayName?: string };
@@ -484,14 +497,14 @@ export class TestApiClient {
    */
   async seedFirebaseBatchAdvanced(data: {
     positions?: EndgamePosition[];
-    categories?: any[];
-    chapters?: any[];
+    categories?: EndgameCategory[];
+    chapters?: EndgameChapter[];
     users?: Array<{
       template?: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT";
       overrides?: {
         email?: string;
         displayName?: string;
-        customClaims?: Record<string, any>;
+        customClaims?: Record<string, string | number | boolean>;
       };
     }>;
     options?: {
@@ -504,13 +517,13 @@ export class TestApiClient {
       includeUsers?: boolean;
       userOptions?: {
         templates?: Array<"BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT">;
-        customClaims?: Record<string, any>;
+        customClaims?: Record<string, string | number | boolean>;
       };
     };
   }): Promise<{
     success: boolean;
     results: Record<string, number>;
-    errors: Array<{ operation: string; error: string; data?: any }>;
+    errors: Array<{ operation: string; error: string; data?: Record<string, unknown> }>;
     duration: number;
     progress: {
       total: number;
@@ -554,13 +567,13 @@ export class TestApiClient {
       includeUsers?: boolean;
       userOptions?: {
         templates?: Array<"BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT">;
-        customClaims?: Record<string, any>;
+        customClaims?: Record<string, string | number | boolean>;
       };
     },
   ): Promise<{
     success: boolean;
     results: Record<string, number>;
-    errors: Array<{ operation: string; error: string; data?: any }>;
+    errors: Array<{ operation: string; error: string; data?: Record<string, unknown> }>;
     duration: number;
     progress: {
       total: number;

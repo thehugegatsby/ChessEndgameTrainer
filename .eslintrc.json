@@ -1,1 +1,111 @@
-../EndgameTrainer/.eslintrc.json
+{
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "rules": {
+    "no-console": ["error", { "allow": ["warn", "error"] }],
+    "prefer-const": "error",
+    "@typescript-eslint/no-explicit-any": "error"
+  },
+  "overrides": [
+    {
+      "files": [
+        "scripts/**/*.js",
+        "scripts/**/*.ts", 
+        "config/**/*.js",
+        "config/**/*.ts",
+        "src/config/**/*.js",
+        "src/config/**/*.ts",
+        "src/config/jest/**/*.js",
+        "src/config/jest/**/*.ts",
+        "src/shared/services/logging/Logger.ts",
+        "src/shared/services/container/ServiceContainer.ts",
+        "src/shared/store/slices/progressSlice.ts"
+      ],
+      "rules": {
+        "no-console": "off",
+        "@typescript-eslint/no-require-imports": "off"
+      }
+    },
+    {
+      "files": [
+        "**/*.mock.ts",
+        "**/*.factory.ts",
+        "**/__mocks__/**/*",
+        "**/test-utils.ts",
+        "**/mockFactories.ts",
+        "**/mockRootStore.ts",
+        "**/createTestContainer.ts",
+        "**/mocks.setup.js",
+        "src/tests/setup/**/*",
+        "src/tests/__mocks__/**/*",
+        "src/tests/helpers/**/*",
+        "src/tests/utils/**/*",
+        "src/tests/factories/**/*",
+        "src/tests/api/**/*",
+        "src/tests/constants/**/*",
+        "src/shared/services/container/mocks.ts",
+        "src/shared/testing/**/*",
+        "**/*e2e*.ts",
+        "src/tests/e2e/**/*"
+      ],
+      "rules": {
+        "no-console": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-require-imports": "off",
+        "@typescript-eslint/ban-ts-comment": [
+          "error",
+          {
+            "ts-expect-error": "allow-with-description",
+            "ts-ignore": true,
+            "ts-nocheck": "allow-with-description",
+            "ts-check": false
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "tests/**/*.ts",
+        "tests/**/*.tsx",
+        "tests/**/*.js", 
+        "tests/**/*.jsx",
+        "src/tests/**/*.ts",
+        "src/tests/**/*.tsx",
+        "src/tests/**/*.js",
+        "src/tests/**/*.jsx",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.spec.ts",
+        "**/*.spec.tsx"
+      ],
+      "rules": {
+        "no-console": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-require-imports": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/ban-ts-comment": [
+          "error",
+          {
+            "ts-expect-error": "allow-with-description",
+            "ts-ignore": true,
+            "ts-nocheck": false,
+            "ts-check": false
+          }
+        ],
+        "max-lines-per-function": "off"
+      }
+    },
+    {
+      "files": [
+        "pages/**/*.tsx",
+        "pages/**/*.ts",
+        "app/**/*.tsx", 
+        "app/**/*.ts",
+        "src/app/**/*.tsx",
+        "src/app/**/*.ts"
+      ],
+      "rules": {
+        "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }]
+      }
+    }
+  ]
+}

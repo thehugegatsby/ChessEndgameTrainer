@@ -70,7 +70,7 @@ export const MoveSuccessDialog: React.FC<MoveSuccessDialogProps> = ({
   isOpen,
   onClose,
   onContinue,
-  onReplay: _onReplay,
+  onReplay: _onReplay, // Currently unused but part of the interface
   promotionPiece,
   moveDescription,
 }) => {

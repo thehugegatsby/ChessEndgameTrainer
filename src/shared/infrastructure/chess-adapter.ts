@@ -150,12 +150,12 @@ export function fromLibraryMove(libraryMove: ChessJsMove): ValidatedMove {
     fenBefore: libraryMove.before || "",
     fenAfter: libraryMove.after || "",
     // Helper methods - these will be added by the chess.js library when needed
-    isCapture: () => !!(libraryMove as any).captured,
-    isPromotion: () => !!(libraryMove as any).promotion,
-    isEnPassant: () => (libraryMove as any).flags?.includes("e") || false,
-    isKingsideCastle: () => (libraryMove as any).flags?.includes("k") || false,
-    isQueensideCastle: () => (libraryMove as any).flags?.includes("q") || false,
-    isBigPawn: () => (libraryMove as any).flags?.includes("b") || false,
+    isCapture: () => !!libraryMove.captured,
+    isPromotion: () => !!libraryMove.promotion,
+    isEnPassant: () => libraryMove.flags?.includes("e") || false,
+    isKingsideCastle: () => libraryMove.flags?.includes("k") || false,
+    isQueensideCastle: () => libraryMove.flags?.includes("q") || false,
+    isBigPawn: () => libraryMove.flags?.includes("b") || false,
   } as ValidatedMove;
 
   logger.debug("Successfully converted library move to domain move", {
@@ -193,13 +193,25 @@ export function fromLibraryMoves(libraryMoves: ChessJsMove[]): ValidatedMove[] {
 }
 
 /**
+ * Context data for chess adapter errors
+ */
+interface ChessAdapterErrorContext {
+  move?: ChessJsMove;
+  invalidField?: string;
+  missingFields?: string[];
+  validPromotions?: readonly string[];
+  moveIndex?: number;
+  totalMoves?: number;
+}
+
+/**
  * Custom error class for chess adapter validation failures
  * Provides rich context for debugging
  */
 export class ChessAdapterError extends Error {
-  public readonly context?: Record<string, any>;
+  public readonly context?: ChessAdapterErrorContext;
 
-  constructor(message: string, context?: Record<string, any>) {
+  constructor(message: string, context?: ChessAdapterErrorContext) {
     super(message);
     this.name = "ChessAdapterError";
     this.context = context;

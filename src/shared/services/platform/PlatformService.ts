@@ -66,7 +66,7 @@ class PlatformDetection implements IPlatformDetection {
     if (typeof window === "undefined") return false;
 
     // Check for React Native
-    if ((window as any).ReactNativeWebView) return true;
+    if ((window as unknown as Record<string, unknown>).ReactNativeWebView) return true;
 
     // Check for mobile user agents
     const userAgent = navigator.userAgent.toLowerCase();
@@ -79,14 +79,14 @@ class PlatformDetection implements IPlatformDetection {
     if (typeof window === "undefined") return false;
 
     const userAgent = navigator.userAgent.toLowerCase();
-    return userAgent.includes("android") || (window as any).isAndroid === true;
+    return userAgent.includes("android") || (window as unknown as Record<string, unknown>).isAndroid === true;
   }
 
   isIOS(): boolean {
     if (typeof window === "undefined") return false;
 
     const userAgent = navigator.userAgent.toLowerCase();
-    return /iphone|ipad|ipod/.test(userAgent) || (window as any).isIOS === true;
+    return /iphone|ipad|ipod/.test(userAgent) || (window as unknown as Record<string, unknown>).isIOS === true;
   }
 
   isDesktop(): boolean {
@@ -99,7 +99,7 @@ class PlatformDetection implements IPlatformDetection {
     return (
       "ontouchstart" in window ||
       navigator.maxTouchPoints > 0 ||
-      (navigator as any).msMaxTouchPoints > 0
+      ((navigator as unknown as Record<string, unknown>).msMaxTouchPoints as number) > 0
     );
   }
 
@@ -109,7 +109,7 @@ class PlatformDetection implements IPlatformDetection {
     // Check if running as PWA
     return (
       window.matchMedia("(display-mode: standalone)").matches ||
-      (window.navigator as any).standalone === true ||
+      (window.navigator as unknown as Record<string, unknown>).standalone === true ||
       document.referrer.includes("android-app://")
     );
   }

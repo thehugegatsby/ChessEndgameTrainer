@@ -36,7 +36,7 @@ export interface ErrorContext {
   user?: string;
   timestamp?: Date;
   type?: ErrorType;
-  additionalData?: Record<string, any>;
+  additionalData?: Record<string, string | number | boolean | Date>;
 }
 
 /**
@@ -140,7 +140,7 @@ export class ErrorService {
     service.logger.error("Tablebase Error", error, enhancedContext);
 
     service.logError(error, enhancedContext);
-    return service.getUserFriendlyMessage(ErrorType.TABLEBASE, error);
+    return service.getUserFriendlyMessage(ErrorType.TABLEBASE);
   }
 
   /**
@@ -211,7 +211,7 @@ export class ErrorService {
     );
 
     service.logError(error, enhancedContext);
-    return service.getUserFriendlyMessage(ErrorType.UI_COMPONENT, error);
+    return service.getUserFriendlyMessage(ErrorType.UI_COMPONENT);
   }
 
   /**
@@ -289,7 +289,7 @@ export class ErrorService {
     service.logger.error("Network Error", error, enhancedContext);
 
     service.logError(error, enhancedContext);
-    return service.getUserFriendlyMessage(ErrorType.NETWORK, error);
+    return service.getUserFriendlyMessage(ErrorType.NETWORK);
   }
 
   /**
@@ -328,7 +328,7 @@ export class ErrorService {
    * @param {Error} _error - The error object (unused, for future extension)
    * @returns {string} A German error message suitable for user display
    */
-  private getUserFriendlyMessage(type: ErrorType, _error: Error): string {
+  private getUserFriendlyMessage(type: ErrorType): string {
     switch (type) {
       case ErrorType.TABLEBASE:
         return "Die Tablebase-Datenbank konnte nicht geladen werden. Bitte aktualisieren Sie die Seite.";

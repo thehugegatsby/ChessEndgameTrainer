@@ -146,22 +146,25 @@ export const loadTrainingContext = async (
     // Game state will be automatically synced via ChessService event subscription in rootStore
 
     // Step 3: Create TrainingPosition from EndgamePosition
-    const trainingPosition: TrainingPosition = {
+    // Check if this is already a TrainingPosition (has the required fields)
+    const isTrainingPosition = (pos: EndgamePosition): pos is TrainingPosition => {
+      return 'colorToTrain' in pos && 'targetOutcome' in pos;
+    };
+    
+    const trainingPosition: TrainingPosition = isTrainingPosition(position) ? position : {
       ...position,
-      // Add training-specific fields with sensible defaults if not already present
-      colorToTrain:
-        (position as any).colorToTrain || position.sideToMove || "white",
+      // Add training-specific fields with sensible defaults
+      colorToTrain: position.sideToMove || "white",
       targetOutcome:
-        (position as any).targetOutcome ||
-        (position.goal === "win"
+        position.goal === "win"
           ? position.sideToMove === "white"
             ? "1-0"
             : "0-1"
           : position.goal === "draw"
             ? "1/2-1/2"
-            : "1-0"), // Default to win for white
-      timeLimit: (position as any).timeLimit || undefined, // No time limit by default
-      chapterId: (position as any).chapterId || undefined, // Will be set if part of a chapter
+            : "1-0", // Default to win for white
+      timeLimit: undefined, // No time limit by default
+      chapterId: undefined, // Will be set if part of a chapter
     };
 
     // Step 4: Set the training position and player turn
@@ -192,43 +195,31 @@ export const loadTrainingContext = async (
       ]);
 
       // Convert EndgamePosition to TrainingPosition for navigation positions
-      const nextTrainingPos = nextPos
-        ? ({
-            ...nextPos,
-            colorToTrain:
-              (nextPos as any).colorToTrain || nextPos.sideToMove || "white",
-            targetOutcome:
-              (nextPos as any).targetOutcome ||
-              (nextPos.goal === "win"
-                ? nextPos.sideToMove === "white"
-                  ? "1-0"
-                  : "0-1"
-                : nextPos.goal === "draw"
-                  ? "1/2-1/2"
-                  : "1-0"),
-            timeLimit: (nextPos as any).timeLimit || undefined,
-            chapterId: (nextPos as any).chapterId || undefined,
-          } as TrainingPosition)
-        : null;
-
-      const prevTrainingPos = prevPos
-        ? ({
-            ...prevPos,
-            colorToTrain:
-              (prevPos as any).colorToTrain || prevPos.sideToMove || "white",
-            targetOutcome:
-              (prevPos as any).targetOutcome ||
-              (prevPos.goal === "win"
-                ? prevPos.sideToMove === "white"
-                  ? "1-0"
-                  : "0-1"
-                : prevPos.goal === "draw"
-                  ? "1/2-1/2"
-                  : "1-0"),
-            timeLimit: (prevPos as any).timeLimit || undefined,
-            chapterId: (prevPos as any).chapterId || undefined,
-          } as TrainingPosition)
-        : null;
+      const convertToTrainingPosition = (pos: EndgamePosition | null): TrainingPosition | null => {
+        if (!pos) return null;
+        
+        // Check if already a TrainingPosition
+        if (isTrainingPosition(pos)) return pos;
+        
+        // Convert EndgamePosition to TrainingPosition
+        return {
+          ...pos,
+          colorToTrain: pos.sideToMove || "white",
+          targetOutcome:
+            pos.goal === "win"
+              ? pos.sideToMove === "white"
+                ? "1-0"
+                : "0-1"
+              : pos.goal === "draw"
+                ? "1/2-1/2"
+                : "1-0",
+          timeLimit: undefined,
+          chapterId: undefined,
+        };
+      };
+      
+      const nextTrainingPos = convertToTrainingPosition(nextPos);
+      const prevTrainingPos = convertToTrainingPosition(prevPos);
 
       // Update navigation positions
       setState((draft) => {

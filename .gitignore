@@ -24,3 +24,8 @@ npm-debug.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Test caches
+.jest-cache/
+coverage/
+playwright-report/

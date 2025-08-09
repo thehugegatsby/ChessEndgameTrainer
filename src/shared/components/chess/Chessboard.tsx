@@ -21,9 +21,13 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { Chessboard as ReactChessboard } from "react-chessboard";
-// Using any for react-chessboard types due to missing type definitions
-type PieceDropHandlerArgs = any;
+import { 
+  Chessboard as ReactChessboard,
+  type PieceDropHandlerArgs,
+  type SquareHandlerArgs
+} from "react-chessboard";
+// Types for react-chessboard (library has incomplete TypeScript definitions)
+type PieceType = "wP" | "wN" | "wB" | "wR" | "wQ" | "wK" | "bP" | "bN" | "bB" | "bR" | "bQ" | "bK";
 
 /**
  * Props for the Chessboard component
@@ -43,7 +47,7 @@ interface ChessboardProps {
     targetSquare: string,
     piece: string,
   ) => boolean;
-  onSquareClick?: (args: { piece: any; square: string }) => void;
+  onSquareClick?: (args: { piece: PieceType | null; square: string }) => void;
   boardWidth?: number;
   arePiecesDraggable?: boolean;
 }
@@ -119,13 +123,21 @@ export const Chessboard: React.FC<ChessboardProps> = ({
    * expected by the application's move handlers. Extracts the relevant
    * data and calls the provided onPieceDrop callback.
    */
-  const handlePieceDrop = (args: PieceDropHandlerArgs): boolean => {
-    if (!onPieceDrop || !args.targetSquare) return false;
+  const handlePieceDrop = ({ piece, sourceSquare, targetSquare }: PieceDropHandlerArgs): boolean => {
+    if (!onPieceDrop || !targetSquare) return false;
     return onPieceDrop(
-      args.sourceSquare,
-      args.targetSquare,
-      args.piece.pieceType,
+      sourceSquare,
+      targetSquare,
+      String(piece),
     );
+  };
+
+  const handleSquareClick = ({ piece, square }: SquareHandlerArgs): void => {
+    if (!onSquareClick) return;
+    onSquareClick({
+      piece: piece as PieceType | null,
+      square,
+    });
   };
 
   // Render placeholder during SSR to avoid hydration mismatch
@@ -151,7 +163,7 @@ export const Chessboard: React.FC<ChessboardProps> = ({
       options={{
         position: fen,
         onPieceDrop: onPieceDrop ? handlePieceDrop : undefined,
-        onSquareClick: onSquareClick,
+        onSquareClick: onSquareClick ? handleSquareClick : undefined,
         boardStyle: { width: `${boardWidth}px`, height: `${boardWidth}px` },
         allowDragging: arePiecesDraggable,
       }}

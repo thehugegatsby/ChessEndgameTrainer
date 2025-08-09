@@ -26,11 +26,9 @@
 import React, {
   useEffect,
   useCallback,
-  useMemo,
   useState,
-  useRef,
 } from "react";
-import { Chess, Move } from "chess.js";
+import { Move } from "chess.js";
 import { Chessboard } from "@shared/components/chess/Chessboard";
 import { usePositionAnalysis, useTrainingSession } from "../../../hooks";
 import { usePageReady } from "../../../hooks/usePageReady";
@@ -40,21 +38,13 @@ import {
   useTablebaseStore,
   useUIStore,
 } from "@shared/store/hooks";
-import { useStore, useStoreApi } from "@shared/store/StoreContext";
+import { useStoreApi } from "@shared/store/StoreContext";
 import { EndgamePosition } from "@shared/types";
 import { getLogger } from "@shared/services/logging/Logger";
-import { ANIMATION, DIMENSIONS } from "@shared/constants";
-import { MoveErrorDialog } from "@shared/components/ui/MoveErrorDialog";
-import { MoveSuccessDialog } from "@shared/components/ui/MoveSuccessDialog";
+import { DIMENSIONS } from "@shared/constants";
 import { AlertDisplay } from "@shared/components/ui/AlertDisplay";
 import { DialogManager } from "../DialogManager";
 import { E2ETestHelper } from "../../testing/E2ETestHelper";
-import { toLibraryMove } from "@shared/infrastructure/chess-adapter";
-import {
-  cancelScheduledOpponentTurn,
-  scheduleOpponentTurn,
-} from "@shared/store/orchestrators/handlePlayerMove";
-import { chessService } from "@shared/services/ChessService";
 import { useMoveHandlers } from "@shared/hooks/useMoveHandlers";
 import { useDialogHandlers } from "@shared/hooks/useDialogHandlers";
 import { useMoveValidation } from "@shared/hooks/useMoveValidation";
@@ -177,7 +167,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   const initialFen = fen || position?.fen || "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1";
 
   // === ZUSTAND STORE - Using domain-specific hooks for performance ===
-  const [gameState, gameActions] = useGameStore(); // Pure chess state
+  const [, gameActions] = useGameStore(); // Pure chess state
   const [trainingState, trainingActions] = useTrainingStore(); // Training session state
   const [tablebaseState, tablebaseActions] = useTablebaseStore(); // Analysis and evaluation data
   const [, uiActions] = useUIStore(); // UI state (toasts, modals, loading)
@@ -229,7 +219,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   });
 
   // Move handling logic - extracted to custom hook
-  const { onDrop, onSquareClick, selectedSquare } = useMoveHandlers({
+  const { onDrop, onSquareClick } = useMoveHandlers({
     currentFen: currentFen || initialFen,
     isGameFinished,
     isPositionReady,
@@ -304,7 +294,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   });
 
   // Move validation logic - extracted to custom hook
-  const moveValidation = useMoveValidation({
+  useMoveValidation({
     lastEvaluation,
     currentFen,
     evaluations,

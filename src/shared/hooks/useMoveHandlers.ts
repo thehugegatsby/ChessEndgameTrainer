@@ -41,6 +41,21 @@ import { useCallback, useState } from 'react';
 import { Chess } from 'chess.js';
 import { getLogger } from '@shared/services/logging/Logger';
 import { useUIStore } from '@shared/store/hooks';
+// import type { ValidatedMove } from '@shared/types/chess';
+
+/**
+ * Piece types from react-chessboard
+ */
+type PieceType = "wP" | "wN" | "wB" | "wR" | "wQ" | "wK" | "bP" | "bN" | "bB" | "bR" | "bQ" | "bK" | null;
+
+/**
+ * Basic move interface for chess moves
+ */
+interface MoveInput {
+  from: string;
+  to: string;
+  promotion?: "q" | "r" | "b" | "n";
+}
 
 /**
  * Training state structure (subset needed for move handling)
@@ -67,7 +82,7 @@ interface UseMoveHandlersProps {
   /** Training state subset needed for move validation */
   trainingState: TrainingStateSubset;
   /** Callback to execute moves - should be the makeMove function from useTrainingSession */
-  onMove: (move: any) => Promise<boolean | null>;
+  onMove: (move: MoveInput) => Promise<boolean | null>;
 }
 
 /**
@@ -77,7 +92,7 @@ interface UseMoveHandlersReturn {
   /** Event handler for piece drop events from drag-and-drop */
   onDrop: (sourceSquare: string, targetSquare: string, piece: string) => boolean;
   /** Event handler for square click events (click-to-move) */
-  onSquareClick: ({ piece, square }: { piece: any; square: string }) => void;
+  onSquareClick: ({ piece, square }: { piece: PieceType; square: string }) => void;
   /** Currently selected square for click-to-move functionality */
   selectedSquare: string | null;
   /** Utility function to clear the current selection */
@@ -165,7 +180,7 @@ export const useMoveHandlers = ({
    * ```
    */
   const handleMove = useCallback(
-    async (move: any) => {
+    async (move: MoveInput) => {
       const logger = getLogger().setContext("useMoveHandlers-handleMove");
       logger.debug("🚀 handleMove called", {
         move,
@@ -243,7 +258,6 @@ export const useMoveHandlers = ({
       uiActions,
       currentFen,
       isPositionReady,
-      trainingState.currentPosition,
     ],
   );
 
@@ -299,7 +313,7 @@ export const useMoveHandlers = ({
       const targetRank = targetSquare[1];
       const isPromotionRank = targetRank === "8" || targetRank === "1";
 
-      const move: any = {
+      const move: MoveInput = {
         from: sourceSquare,
         to: targetSquare,
       };
@@ -326,7 +340,7 @@ export const useMoveHandlers = ({
    * Handles square click events for click-to-move functionality
    * 
    * @param {object} args - Arguments from react-chessboard
-   * @param {any} args.piece - Piece on the clicked square (can be null)
+   * @param {PieceType} args.piece - Piece on the clicked square (can be null)
    * @param {string} args.square - Square that was clicked
    * @returns {void}
    * 
@@ -337,7 +351,7 @@ export const useMoveHandlers = ({
    * - Click on same square deselects piece
    */
   const onSquareClick = useCallback(
-    ({ piece, square }: { piece: any; square: string }): void => {
+    ({ piece, square }: { piece: PieceType; square: string }): void => {
       const logger = getLogger().setContext("useMoveHandlers-onSquareClick");
 
       logger.debug("🖱️ onSquareClick called", {
@@ -364,7 +378,7 @@ export const useMoveHandlers = ({
           try {
             const chess = new Chess(currentFen);
             const currentTurn = chess.turn();
-            const pieceColor = piece.pieceType?.[0]; // 'w' or 'b'
+            const pieceColor = piece?.[0]; // 'w' or 'b'
             
             if (pieceColor === currentTurn) {
               setSelectedSquare(square);

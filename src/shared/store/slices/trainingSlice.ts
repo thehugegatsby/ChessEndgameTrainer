@@ -157,8 +157,8 @@ export const createTrainingState = (): TrainingState => ({
 const logger = getLogger().setContext("TrainingSlice");
 
 export const createTrainingActions = (
-  set: any,
-  get: any,
+  set: (fn: (state: { training: TrainingState; game: { moveHistory: ValidatedMove[] } }) => void) => void,
+  get: () => { training: TrainingState },
 ): TrainingActions => ({
 
   /**

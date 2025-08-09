@@ -295,8 +295,8 @@ export interface RootState {
   settings: SettingsState;
 
   // Internal action references (used to prevent Immer stripping)
-  _trainingActions?: any;
-  _tablebaseActions?: any;
+  _trainingActions?: TrainingActions;
+  _tablebaseActions?: Record<string, (...args: unknown[]) => void>;
 }
 
 // Action types

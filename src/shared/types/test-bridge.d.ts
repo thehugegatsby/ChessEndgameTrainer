@@ -11,12 +11,8 @@
  * - Extensible for future services
  */
 
-// Tablebase analysis type for E2E test configuration
-/**
- *
- */
-type TablebaseAnalysis = any;
 import type { AnalysisStatus } from "../store/types";
+import type { TablebaseData } from "./evaluation";
 
 /**
  * Tablebase control API for E2E tests
@@ -36,7 +32,7 @@ export interface TestBridgeTablebaseAPI {
   /**
    * Add a complete custom response for a position
    */
-  addCustomResponse: (fen: string, analysis: TablebaseAnalysis) => void;
+  addCustomResponse: (fen: string, analysis: TablebaseData) => void;
 
   /**
    * Clear all custom responses

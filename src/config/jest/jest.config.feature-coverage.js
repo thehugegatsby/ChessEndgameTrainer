@@ -1,3 +1,5 @@
+/** @type {import('jest').Config} */
+
 // Feature-specific Jest configuration for accurate coverage
 const nextJest = require("next/jest");
 

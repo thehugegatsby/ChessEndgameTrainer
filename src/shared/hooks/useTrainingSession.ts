@@ -9,6 +9,7 @@
  */
 
 import { useCallback } from "react";
+import { Chess } from "chess.js";
 import { useGameStore, useTrainingStore } from "@shared/store/hooks";
 import type { ValidatedMove } from "@shared/types/chess";
 import { ErrorService } from "@shared/services/ErrorService";
@@ -40,7 +41,7 @@ interface UseTrainingSessionOptions {
  * @property {Function} undoMove - Take back the last move
  */
 interface UseTrainingSessionReturn {
-  game: any; // Chess instance from store
+  game: Chess | null; // Chess instance now managed by ChessService, not exposed here
   history: ValidatedMove[];
   isGameFinished: boolean;
   currentFen: string;
@@ -157,7 +158,7 @@ export const useTrainingSession = ({
         // Simply delegate to Store - no double validation needed
         // Store will validate the move and update all states atomically
         logger.debug("Calling trainingActions.handlePlayerMove");
-        const moveResult = await trainingActions.handlePlayerMove(move as any);
+        const moveResult = await trainingActions.handlePlayerMove(move);
         logger.debug("trainingActions.handlePlayerMove result", { moveResult });
         if (!moveResult) return false;
 
@@ -180,18 +181,21 @@ export const useTrainingSession = ({
         ErrorService.handleUIError(
           error instanceof Error ? error : new Error(String(error)),
           "useTrainingSession",
-          { action: "makeMove", additionalData: { move } },
+          { action: "makeMove", additionalData: { move: String(move) } },
         );
         return false;
       }
     },
     [
+      gameState.gameResult,
+      gameState.isCheckmate,
+      gameState.isDraw,
+      gameState.isStalemate,
       gameState.isGameFinished,
       gameState.currentFen,
       gameState.currentPgn,
-      trainingActions.handlePlayerMove,
-      trainingActions.completeTraining,
-      trainingState.currentPosition,
+      gameState.moveHistory?.length,
+      trainingActions,
       onComplete,
       onPositionChange,
     ],
@@ -213,7 +217,7 @@ export const useTrainingSession = ({
       }
     },
     [
-      gameActions.goToMove,
+      gameActions,
       gameState.currentFen,
       gameState.currentPgn,
       onPositionChange,
@@ -231,7 +235,7 @@ export const useTrainingSession = ({
     if (onPositionChange && trainingState.currentPosition) {
       onPositionChange(trainingState.currentPosition.fen, "");
     }
-  }, [gameActions.resetGame, trainingState.currentPosition, onPositionChange]);
+  }, [gameActions, trainingState.currentPosition, onPositionChange]);
 
   /**
    * Undo the last move in the game
@@ -253,7 +257,7 @@ export const useTrainingSession = ({
     gameState.moveHistory,
     gameState.currentFen,
     gameState.currentPgn,
-    gameActions.undoMove,
+    gameActions,
     onPositionChange,
   ]);
 

@@ -367,13 +367,14 @@ export const useStore = create<RootState>()(
           const merged = { ...currentState };
 
           if (persistedState && typeof persistedState === "object") {
-            const persisted = persistedState as any;
+            const persisted = persistedState as Record<string, unknown>;
 
             // Only merge the specific persisted properties, not the entire slice
-            if (persisted.training?.currentPosition) {
+            const training = persisted.training as { currentPosition?: unknown } | undefined;
+            if (training?.currentPosition) {
               merged.training = {
                 ...currentState.training,
-                currentPosition: persisted.training.currentPosition,
+                currentPosition: training.currentPosition as typeof currentState.training.currentPosition,
               };
             }
           }
@@ -427,7 +428,7 @@ const unsubscribeChessService = chessService.subscribe(
 
 // Store cleanup function for hot-module reload or testing
 if (typeof window !== "undefined") {
-  (window as any).__cleanupChessService = unsubscribeChessService;
+  (window as unknown as { __cleanupChessService?: () => void }).__cleanupChessService = unsubscribeChessService;
 }
 
 /**

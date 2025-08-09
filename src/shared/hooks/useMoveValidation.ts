@@ -34,6 +34,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { PositionAnalysis } from '@shared/types';
+import { getLogger } from '@shared/services/logging/Logger';
 
 /**
  * Configuration options for move validation hook
@@ -142,7 +143,7 @@ export const useMoveValidation = ({
   
   // Update analysis status based on evaluation state
   useEffect(() => {
-    console.debug("🔍 TablebaseActions debug", {
+    getLogger().debug("🔍 TablebaseActions debug", {
       hasTablebaseActions: !!tablebaseActions,
       hasSetAnalysisStatus: !!tablebaseActions?.setAnalysisStatus,
       tablebaseActionsKeys: Object.keys(tablebaseActions || {}),

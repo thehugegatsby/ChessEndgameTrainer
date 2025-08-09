@@ -118,7 +118,7 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({
     if (typeof window !== 'undefined' && 
         (process.env.NEXT_PUBLIC_IS_E2E_TEST === 'true' || 
          process.env.NODE_ENV === 'test')) {
-      (window as any).__e2e_store = storeRef.current;
+      (window as unknown as Record<string, unknown>).__e2e_store = storeRef.current;
     }
   }
 
@@ -132,12 +132,12 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({
       
       // Create storeAccess object with required actions for TestApiService
       const storeAccess = {
-        getState: () => storeRef.current?.getState(),
-        subscribe: (listener: any) => storeRef.current?.subscribe(listener) || (() => {}),
-        setState: (updater: any) => storeRef.current?.setState(updater),
+        getState: () => storeRef.current?.getState() as RootState,
+        subscribe: (listener: (state: RootState, prevState: RootState) => void) => storeRef.current?.subscribe(listener) || (() => {}),
+        setState: (updater: RootState | Partial<RootState> | ((state: RootState) => RootState | Partial<RootState> | void)) => storeRef.current?.setState(updater),
         // Extract individual actions from state - these need to be fixed in TestApiService
         // For now, provide empty functions to avoid runtime errors
-        makeMove: state?.handlePlayerMove || (() => {}),
+        makeMove: state?.handlePlayerMove || (() => Promise.resolve(false)),
         _internalApplyMove: (() => {}), // TO BE REMOVED - see issue #99
         resetPosition: state?.reset || (() => {}),
         setPosition: (() => {}), // Not directly available in new architecture
@@ -216,7 +216,7 @@ export const useStore = <T = RootState,>(
     );
   }
 
-  return useZustandStore(store, selector as any);
+  return useZustandStore(store, selector!) as T extends RootState ? RootState : T;
 };
 
 /**

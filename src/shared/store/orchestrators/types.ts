@@ -7,6 +7,7 @@
 import { RootState } from "../slices/types";
 // ChessInstance imported where needed
 import { Move as ChessJsMove } from "chess.js";
+import type { EndgamePosition } from "@shared/types/endgame";
 
 /**
  * Store API interface provided to orchestrators
@@ -56,8 +57,8 @@ export interface WDLPerspective {
  * @interface TablebaseEvalResult
  */
 export interface TablebaseEvalResult {
-  evalBefore?: any; // TablebaseResult type
-  evalAfter?: any; // TablebaseResult type
+  evalBefore?: unknown; // TablebaseResult type - using unknown for flexibility
+  evalAfter?: unknown; // TablebaseResult type - using unknown for flexibility
   bestMove?: string;
 }
 
@@ -66,7 +67,7 @@ export interface TablebaseEvalResult {
  * @template TArgs - Arguments type
  * @template TReturn - Return type
  */
-export type OrchestratorFunction<TArgs extends any[] = any[], TReturn = any> = (
+export type OrchestratorFunction<TArgs extends unknown[] = unknown[], TReturn = unknown> = (
   api: StoreApi,
   ...args: TArgs
 ) => TReturn;
@@ -113,8 +114,8 @@ export interface Orchestrators {
   /**
    * Loads training context for a position
    * @param {StoreApi} api - Store API
-   * @param {any} position - The endgame position to load
+   * @param {EndgamePosition} position - The endgame position to load
    * @returns {Promise<void>}
    */
-  loadTrainingContext: OrchestratorFunction<[position: any], Promise<void>>;
+  loadTrainingContext: OrchestratorFunction<[position: EndgamePosition], Promise<void>>;
 }

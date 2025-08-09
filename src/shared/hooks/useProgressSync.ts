@@ -255,7 +255,7 @@ export function useProgressSync(
           break;
           
         default:
-          throw new Error(`Unknown operation type: ${(operation as any).type}`);
+          throw new Error(`Unknown operation type: ${(operation as { type?: string }).type}`);
       }
     } catch (error) {
       logger.error('Sync operation failed', error as Error, { operation });
@@ -364,6 +364,8 @@ export function useProgressSync(
     progressActions,
     mergedConfig.maxRetries,
     calculateRetryDelay,
+    // debouncedProcessQueue is intentionally omitted to avoid circular dependency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   ]);
   
   /**

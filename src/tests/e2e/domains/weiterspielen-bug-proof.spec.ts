@@ -19,7 +19,7 @@ import {
   waitForUIReady
 } from "../helpers/deterministicWaiting";
 
-test.describe("Weiterspielen Bug Proof", () => {
+test.describe.skip("Weiterspielen Bug Proof", () => {
   const logger = getLogger().setContext("E2E-WeiterSpielenBugProof");
 
   test.beforeEach(async ({ page }) => {

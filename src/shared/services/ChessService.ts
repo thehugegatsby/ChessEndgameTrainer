@@ -36,7 +36,7 @@ export type ChessServiceEvent =
       payload: GameStatePayload;
       source: "move" | "reset" | "undo" | "redo" | "load";
     }
-  | { type: "error"; payload: { error: Error; move?: any; message: string } };
+  | { type: "error"; payload: { error: Error; move?: ValidatedMove | string; message: string } };
 
 /**
  * Listener function type for ChessService events
@@ -175,7 +175,7 @@ class ChessService {
           type: "error",
           payload: {
             error: new Error("Invalid move"),
-            move,
+            move: typeof move === 'string' ? move : `${move.from}-${move.to}`,
             message: "Ungültiger Zug",
           },
         });
@@ -203,7 +203,7 @@ class ChessService {
         type: "error",
         payload: {
           error: error instanceof Error ? error : new Error(String(error)),
-          move,
+          move: typeof move === 'string' ? move : `${move.from}-${move.to}`,
           message: "Fehler beim Ausführen des Zuges",
         },
       });
@@ -404,7 +404,20 @@ class ChessService {
     square?: string;
     verbose?: boolean;
   }): string[] | ChessJsMove[] {
-    return this.chess.moves(options as any);
+    if (!options) {
+      return this.chess.moves();
+    }
+    
+    // Handle chess.js type requirements
+    const chessOptions: { square?: string; verbose?: boolean } = {};
+    if (options.verbose !== undefined) {
+      chessOptions.verbose = options.verbose;
+    }
+    if (options.square && /^[a-h][1-8]$/.test(options.square)) {
+      chessOptions.square = options.square as 'a1'; // Type assertion after validation
+    }
+    
+    return this.chess.moves(chessOptions);
   }
 
   /**
@@ -435,7 +448,16 @@ class ChessService {
           
           // Check if source square actually has a piece
           const tempChess = new Chess(currentFen);
-          const piece = tempChess.get(from as any);
+          // Type guard to check if string is valid square
+          const isValidSquare = (square: string): square is 'a1' | 'a2' | 'a3' | 'a4' | 'a5' | 'a6' | 'a7' | 'a8' | 'b1' | 'b2' | 'b3' | 'b4' | 'b5' | 'b6' | 'b7' | 'b8' | 'c1' | 'c2' | 'c3' | 'c4' | 'c5' | 'c6' | 'c7' | 'c8' | 'd1' | 'd2' | 'd3' | 'd4' | 'd5' | 'd6' | 'd7' | 'd8' | 'e1' | 'e2' | 'e3' | 'e4' | 'e5' | 'e6' | 'e7' | 'e8' | 'f1' | 'f2' | 'f3' | 'f4' | 'f5' | 'f6' | 'f7' | 'f8' | 'g1' | 'g2' | 'g3' | 'g4' | 'g5' | 'g6' | 'g7' | 'g8' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'h7' | 'h8' => {
+            return /^[a-h][1-8]$/.test(square);
+          };
+          
+          if (!isValidSquare(from)) {
+            return false;
+          }
+          
+          const piece = tempChess.get(from);
           if (!piece) {
             logger.debug("No piece on source square", { from, currentFen });
             return false;

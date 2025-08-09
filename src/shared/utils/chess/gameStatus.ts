@@ -81,8 +81,8 @@ export function getGameStatus(
 
   try {
     chess.load(fen);
-  } catch (error) {
-    // Fallback for invalid FEN
+  } catch {
+    // Fallback for invalid FEN - error details not needed
     return {
       sideToMove: "white",
       sideToMoveDisplay: "Weiß am Zug",

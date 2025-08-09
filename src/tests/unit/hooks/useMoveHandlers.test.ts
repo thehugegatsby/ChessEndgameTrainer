@@ -243,7 +243,7 @@ describe('useMoveHandlers', () => {
 
       act(() => {
         result.current.onSquareClick({ 
-          piece: { pieceType: 'wP' }, 
+          piece: 'wP', 
           square: 'e2' 
         });
       });
@@ -270,7 +270,7 @@ describe('useMoveHandlers', () => {
       // First click selects
       act(() => {
         result.current.onSquareClick({ 
-          piece: { pieceType: 'wP' }, 
+          piece: 'wP', 
           square: 'e2' 
         });
       });
@@ -280,7 +280,7 @@ describe('useMoveHandlers', () => {
       // Second click deselects
       act(() => {
         result.current.onSquareClick({ 
-          piece: { pieceType: 'wP' }, 
+          piece: 'wP', 
           square: 'e2' 
         });
       });
@@ -297,7 +297,7 @@ describe('useMoveHandlers', () => {
       // First click selects
       act(() => {
         result.current.onSquareClick({ 
-          piece: { pieceType: 'wP' }, 
+          piece: 'wP', 
           square: 'e2' 
         });
       });
@@ -320,7 +320,7 @@ describe('useMoveHandlers', () => {
 
       act(() => {
         result.current.onSquareClick({ 
-          piece: { pieceType: 'wP' }, 
+          piece: 'wP', 
           square: 'e2' 
         });
       });
@@ -334,7 +334,7 @@ describe('useMoveHandlers', () => {
 
       act(() => {
         result.current.onSquareClick({ 
-          piece: { pieceType: 'wP' }, 
+          piece: 'wP', 
           square: 'e2' 
         });
       });
@@ -354,7 +354,7 @@ describe('useMoveHandlers', () => {
       // White piece should be selectable
       act(() => {
         result.current.onSquareClick({ 
-          piece: { pieceType: 'wP' }, 
+          piece: 'wP', 
           square: 'e2' 
         });
       });
@@ -369,7 +369,7 @@ describe('useMoveHandlers', () => {
       // Black piece should not be selectable on white's turn
       act(() => {
         result.current.onSquareClick({ 
-          piece: { pieceType: 'bP' }, 
+          piece: 'bP', 
           square: 'e7' 
         });
       });
@@ -385,7 +385,7 @@ describe('useMoveHandlers', () => {
       // Select a square
       act(() => {
         result.current.onSquareClick({ 
-          piece: { pieceType: 'wP' }, 
+          piece: 'wP', 
           square: 'e2' 
         });
       });
@@ -500,7 +500,7 @@ describe('useMoveHandlers', () => {
       // Should not crash on validation error
       act(() => {
         result.current.onSquareClick({ 
-          piece: { pieceType: 'wP' }, 
+          piece: 'wP', 
           square: 'e2' 
         });
       });

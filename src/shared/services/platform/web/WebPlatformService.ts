@@ -63,7 +63,7 @@ class WebStorage implements IPlatformStorage {
     this.storage = storage;
   }
 
-  async save(key: string, data: any): Promise<void> {
+  async save(key: string, data: unknown): Promise<void> {
     // Validate key format
     if (!VALID_KEY_REGEX.test(key)) {
       throw new Error(
@@ -82,7 +82,7 @@ class WebStorage implements IPlatformStorage {
     }
   }
 
-  async load<T = any>(key: string): Promise<T | null> {
+  async load<T = unknown>(key: string): Promise<T | null> {
     // Validate key format
     if (!VALID_KEY_REGEX.test(key)) {
       console.error(
@@ -161,13 +161,13 @@ class WebNotification implements IPlatformNotification {
     });
   }
 
-  async schedule(_notification: ScheduledNotification): Promise<string> {
+  async schedule(_notification: ScheduledNotification /* unused */): Promise<string> {
     // Web doesn't support scheduled notifications natively
     // Would need service worker implementation
     throw new Error("Scheduled notifications not supported on web");
   }
 
-  async cancel(_id: string): Promise<void> {
+  async cancel(_id: string /* unused */): Promise<void> {
     // Not supported on web
   }
 
@@ -217,7 +217,7 @@ class WebDevice implements IPlatformDevice {
   }
 
   getMemoryInfo(): MemoryInfo {
-    const nav = this.navigator as any;
+    const nav = this.navigator as Navigator & { deviceMemory?: number };
     if (nav.deviceMemory) {
       return {
         totalMemory: nav.deviceMemory * SYSTEM.GB_TO_BYTES_FACTOR, // Convert GB to bytes
@@ -227,20 +227,29 @@ class WebDevice implements IPlatformDevice {
   }
 
   getNetworkStatus(): NetworkStatus {
-    const nav = this.navigator as any;
+    const nav = this.navigator as Navigator & { 
+      connection?: { type?: string; effectiveType?: string; downlink?: number };
+      mozConnection?: { type?: string; effectiveType?: string; downlink?: number };
+      webkitConnection?: { type?: string; effectiveType?: string; downlink?: number };
+    };
     const connection =
       nav.connection || nav.mozConnection || nav.webkitConnection;
 
     return {
       isOnline: this.navigator.onLine,
-      type: connection?.type,
+      type: connection?.type as "wifi" | "4g" | "3g" | "2g" | "none" | undefined,
       effectiveType: connection?.effectiveType,
       downlink: connection?.downlink,
     };
   }
 
   isLowEndDevice(): boolean {
-    const nav = this.navigator as any;
+    const nav = this.navigator as Navigator & { 
+      deviceMemory?: number;
+      connection?: { effectiveType?: string };
+      mozConnection?: { effectiveType?: string };
+      webkitConnection?: { effectiveType?: string };
+    };
     // Consider device low-end if it has less than 4GB RAM or slow network
     const memoryGB = nav.deviceMemory || SYSTEM.DEFAULT_MEMORY_GB;
     const connection =
@@ -418,15 +427,15 @@ class WebShare implements IPlatformShare {
 
 // Web Analytics Implementation (stub for now)
 class WebAnalytics implements IPlatformAnalytics {
-  track(_event: string, _properties?: Record<string, any>): void {
+  track(_event: string /* unused */, _properties?: Record<string, unknown> /* unused */): void {
     // Implement actual analytics (Google Analytics, Mixpanel, etc.)
   }
 
-  identify(_userId: string, _traits?: Record<string, any>): void {}
+  identify(_userId: string /* unused */, _traits?: Record<string, unknown> /* unused */): void { /* Interface requirement */ }
 
-  page(_name: string, _properties?: Record<string, any>): void {}
+  page(_name: string /* unused */, _properties?: Record<string, unknown> /* unused */): void { /* Interface requirement */ }
 
-  setUserProperties(_properties: Record<string, any>): void {}
+  setUserProperties(_properties: Record<string, unknown> /* unused */): void { /* Interface requirement */ }
 }
 
 // Main Web Platform Service with dependency injection

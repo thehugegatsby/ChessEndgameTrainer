@@ -65,12 +65,12 @@ describe("FEN Validator", () => {
     });
 
     it("should handle null and undefined inputs", () => {
-      // @ts-ignore - testing runtime behavior
+      // @ts-expect-error - testing runtime behavior
       const nullResult = validateAndSanitizeFen(null);
       expect(nullResult.isValid).toBe(false);
       expect(nullResult.errors[0]).toBe("FEN must be a valid string");
 
-      // @ts-ignore - testing runtime behavior
+      // @ts-expect-error - testing runtime behavior
       const undefinedResult = validateAndSanitizeFen(undefined);
       expect(undefinedResult.isValid).toBe(false);
       expect(undefinedResult.errors[0]).toBe("FEN must be a valid string");

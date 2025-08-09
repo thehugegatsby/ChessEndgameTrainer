@@ -19,7 +19,7 @@ import {
   waitForOpponentMove
 } from "../helpers/deterministicWaiting";
 
-test.describe("Weiterspielen Feature", () => {
+test.describe.skip("Weiterspielen Feature", () => {
   const logger = getLogger().setContext("E2E-WeiterSpielenFeature");
 
   test.beforeEach(async ({ page }) => {

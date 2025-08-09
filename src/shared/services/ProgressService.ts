@@ -35,6 +35,7 @@ import {
   serverTimestamp,
   runTransaction,
   Transaction,
+  QueryDocumentSnapshot,
 } from 'firebase/firestore';
 
 import type { UserStats, CardProgress } from '@shared/store/slices/types';
@@ -84,7 +85,7 @@ const userStatsConverter = {
     };
   },
   
-  fromFirestore(snapshot: any): UserStats {
+  fromFirestore(snapshot: QueryDocumentSnapshot<DocumentData>): UserStats {
     const data = snapshot.data();
     return {
       userId: data.userId,
@@ -121,7 +122,7 @@ const cardProgressConverter = {
     };
   },
   
-  fromFirestore(snapshot: any): CardProgress {
+  fromFirestore(snapshot: QueryDocumentSnapshot<DocumentData>): CardProgress {
     const data = snapshot.data();
     return {
       id: snapshot.id, // Use document ID as card ID

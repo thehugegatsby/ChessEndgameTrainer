@@ -11,15 +11,10 @@ import { EVALUATION, UI } from "@shared/constants";
  * QUIRK: isPlayerMove parameter is unused - legacy from earlier version.
  * @param evaluation
  * @param mate
- * @param _isPlayerMove
  */
-export /**
- *
- */
-const getMoveQualityDisplay = (
+export const getMoveQualityDisplay = (
   evaluation: number,
   mate?: number,
-  _isPlayerMove: boolean = true,
 ): EvaluationDisplay => {
   // For move quality, we want to show how good the move was
   // regardless of who played it
@@ -98,10 +93,7 @@ const getMoveQualityDisplay = (
  * @param evaluation
  * @param mate
  */
-export /**
- *
- */
-const getEvaluationDisplay = (
+export const getEvaluationDisplay = (
   evaluation: number,
   mate?: number,
 ): EvaluationDisplay => {

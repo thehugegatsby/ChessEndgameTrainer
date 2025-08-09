@@ -37,7 +37,7 @@ export interface MoveEvaluation {
  * Context required for validating a move
  */
 export interface MoveContext {
-  game?: any; // ChessInstance type
+  game?: unknown; // ChessInstance type - avoid circular import
   currentPosition?: TrainingPosition;
   currentFen: string;
   isGameFinished: boolean;

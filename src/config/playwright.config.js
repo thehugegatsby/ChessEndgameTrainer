@@ -1,3 +1,5 @@
+/** @type {import('@playwright/test').PlaywrightTestConfig} */
+
 /**
  * Playwright Configuration - Clean Architecture E2E Tests
  * Converted to JavaScript to avoid TypeScript type conflicts

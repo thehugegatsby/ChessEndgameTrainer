@@ -16,7 +16,7 @@ export interface LogEntry {
   message: string;
   timestamp: Date;
   context?: string;
-  data?: any;
+  data?: unknown;
   error?: Error;
   stack?: string;
 }
@@ -34,11 +34,11 @@ export interface LoggerConfig {
 }
 
 export interface ILogger {
-  debug(message: string, data?: any): void;
-  info(message: string, data?: any): void;
-  warn(message: string, data?: any): void;
-  error(message: string, error?: Error | any, data?: any): void;
-  fatal(message: string, error?: Error | any, data?: any): void;
+  debug(message: string, data?: unknown): void;
+  info(message: string, data?: unknown): void;
+  warn(message: string, data?: unknown): void;
+  error(message: string, error?: Error | unknown, data?: unknown): void;
+  fatal(message: string, error?: Error | unknown, data?: unknown): void;
 
   setContext(context: string): ILogger;
   clearContext(): void;
@@ -54,7 +54,7 @@ export interface ILogger {
   timeEnd(label: string): void;
 
   // Structured logging
-  withFields(fields: Record<string, any>): ILogger;
+  withFields(fields: Record<string, unknown>): ILogger;
 }
 
 export interface LogFilter {

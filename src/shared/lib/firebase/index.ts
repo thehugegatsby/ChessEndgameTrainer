@@ -6,17 +6,15 @@ import {
 } from "firebase/firestore";
 import { firebaseConfig } from "./config";
 
-let app: FirebaseApp;
-let db: Firestore;
-
 // Initialize Firebase only if it hasn't been initialized
+let app: FirebaseApp;
 if (!getApps().length) {
   app = initializeApp(firebaseConfig);
 } else {
   app = getApps()[0];
 }
 
-db = getFirestore(app);
+const db: Firestore = getFirestore(app);
 
 // Connect to Firestore emulator if in test environment
 if (
@@ -29,7 +27,7 @@ if (
   try {
     connectFirestoreEmulator(db, host, parseInt(port));
     // Connected to Firestore emulator
-  } catch (error) {
+  } catch {
     // Already connected, ignore
     // Firestore emulator already connected
   }

@@ -177,7 +177,7 @@ describe("ChessService validateMove Edge Cases", () => {
       const result = chessService.moves() as string[];
       
       expect(result).toEqual(["e4", "e3", "Nf3"]);
-      expect(mockChessInstance.moves).toHaveBeenCalledWith(undefined);
+      expect(mockChessInstance.moves).toHaveBeenCalledWith();
     });
 
     it("should call chess.js moves() method with square option", () => {

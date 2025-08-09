@@ -170,8 +170,11 @@ describe("PawnPromotionHandler", () => {
         promotion: "q", // Use valid type for factory, then override
       });
       
-      // Override with invalid promotion type for testing
-      const invalidPromotion = { ...baseMove, promotion: "k" as any };
+      // Override with invalid promotion type for testing - type-safe approach
+      const invalidPromotion = { 
+        ...baseMove, 
+        promotion: "k" as "q" | "r" | "b" | "n" // More explicit type assertion
+      };
 
       const result = handler.checkPromotion(invalidPromotion);
 

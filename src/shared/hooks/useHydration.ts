@@ -11,6 +11,22 @@ import { useEffect, useState } from "react";
 import { useStore, useStoreApi } from "@shared/store/StoreContext";
 
 /**
+ * Type for Zustand persist API (internal/undocumented)
+ */
+interface PersistAPI {
+  onFinishHydration?: (callback: () => void) => (() => void) | undefined;
+  hasHydrated?: () => boolean;
+}
+
+interface StoreApiWithPersist {
+  persist?: PersistAPI;
+}
+
+interface StateWithHydration {
+  _hasHydrated?: boolean;
+}
+
+/**
  * Hook to check if Zustand store has been hydrated from persisted storage
  *
  * @description
@@ -45,12 +61,13 @@ export function useHydration(): boolean {
 
   useEffect(() => {
     // Access the internal persist API to check hydration status
-    const unsubscribe = (storeApi as any).persist?.onFinishHydration(() => {
+    const persistApi = (storeApi as StoreApiWithPersist).persist;
+    const unsubscribe = persistApi?.onFinishHydration?.(() => {
       setHasHydrated(true);
     });
 
     // If persist is not configured or hydration already finished
-    if (!(storeApi as any).persist || (storeApi as any).persist.hasHydrated()) {
+    if (!persistApi || persistApi.hasHydrated?.()) {
       setHasHydrated(true);
     }
 
@@ -96,5 +113,5 @@ export function useHydration(): boolean {
  */
 export function useStoreHydration(): boolean {
   // This property is automatically added by persist middleware in v5
-  return useStore((state) => (state as any)._hasHydrated ?? true);
+  return useStore((state) => (state as StateWithHydration)._hasHydrated ?? true);
 }

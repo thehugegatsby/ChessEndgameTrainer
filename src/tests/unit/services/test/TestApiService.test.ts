@@ -192,12 +192,12 @@ describe("TestApiService - Store-Based Architecture", () => {
     it("should make move with SAN notation", async () => {
       const result = await service.makeMove("e4");
 
-      expect(mockStoreAccess._internalApplyMove).toHaveBeenCalledWith("e4");
+      expect(mockStoreAccess.makeMove).toHaveBeenCalledWith("e4");
       expect(result.success).toBe(true);
     });
 
     it("should handle errors gracefully", async () => {
-      mockStoreAccess._internalApplyMove.mockImplementation(() => {
+      mockStoreAccess.makeMove.mockImplementation(() => {
         throw new Error("Invalid move");
       });
 

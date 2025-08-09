@@ -79,7 +79,7 @@ class DefaultLogFormatter implements ILogFormatter {
     if (entry.data) {
       try {
         message += ` ${JSON.stringify(entry.data, null, 2)}`;
-      } catch (e) {
+      } catch {
         // Fallback for circular references or other stringify errors
         message += ` ${String(entry.data)}`;
       }
@@ -364,7 +364,7 @@ export class Logger implements ILogger {
   private logs: LogEntry[] = [];
   private transports: ILogTransport[] = [];
   private timers: Map<string, number> = new Map();
-  private fields: Record<string, any> = {};
+  private fields: Record<string, unknown> = {};
 
   /**
    * Creates a new logger instance
@@ -449,8 +449,8 @@ export class Logger implements ILogger {
    * @private
    * @param {LogLevel} level - The severity level
    * @param {string} message - The log message
-   * @param {Error|any} [error] - Optional error object
-   * @param {any} [data] - Optional structured data
+   * @param {Error|unknown} [error] - Optional error object
+   * @param {unknown} [data] - Optional structured data
    *
    * @remarks
    * - Checks if log should be processed
@@ -461,8 +461,8 @@ export class Logger implements ILogger {
   private log(
     level: LogLevel,
     message: string,
-    error?: Error | any,
-    data?: any,
+    error?: Error | unknown,
+    data?: unknown,
   ): void {
     if (!this.shouldLog(level, this.context)) return;
 
@@ -471,7 +471,7 @@ export class Logger implements ILogger {
       message,
       timestamp: new Date(),
       context: this.context,
-      data: { ...this.fields, ...data },
+      data: { ...this.fields, ...(data as Record<string, unknown>) },
     };
 
     if (error !== undefined && error !== null) {
@@ -501,7 +501,7 @@ export class Logger implements ILogger {
    * filtered out in production environments unless explicitly enabled.
    *
    * @param {string} message - The primary log message to record.
-   * @param {any} [data] - Optional structured data to include with the log entry.
+   * @param {unknown} [data] - Optional structured data to include with the log entry.
    *   This data will be serialized and attached to the log for additional context.
    * @returns {void}
    * @example
@@ -516,7 +516,7 @@ export class Logger implements ILogger {
    * @see {@link Logger.withFields} - To add persistent fields to all logs
    * @memberof Logger
    */
-  debug(message: string, data?: any): void {
+  debug(message: string, data?: unknown): void {
     this.log(LogLevel.DEBUG, message, undefined, data);
   }
 
@@ -528,7 +528,7 @@ export class Logger implements ILogger {
    * shown in production environments.
    *
    * @param {string} message - The primary log message to record.
-   * @param {any} [data] - Optional structured data to include with the log entry.
+   * @param {unknown} [data] - Optional structured data to include with the log entry.
    *   This data will be serialized and attached to the log for additional context.
    * @returns {void}
    * @example
@@ -543,7 +543,7 @@ export class Logger implements ILogger {
    * @see {@link Logger.warn} - For warning messages
    * @memberof Logger
    */
-  info(message: string, data?: any): void {
+  info(message: string, data?: unknown): void {
     this.log(LogLevel.INFO, message, undefined, data);
   }
 
@@ -554,7 +554,7 @@ export class Logger implements ILogger {
    * that should be addressed but don't prevent the application from functioning.
    *
    * @param {string} message - The primary log message to record.
-   * @param {any} [data] - Optional structured data to include with the log entry.
+   * @param {unknown} [data] - Optional structured data to include with the log entry.
    *   This data will be serialized and attached to the log for additional context.
    * @returns {void}
    * @example
@@ -569,7 +569,7 @@ export class Logger implements ILogger {
    * @see {@link Logger.info} - For general information
    * @memberof Logger
    */
-  warn(message: string, data?: any): void {
+  warn(message: string, data?: unknown): void {
     this.log(LogLevel.WARN, message, undefined, data);
   }
 
@@ -581,9 +581,9 @@ export class Logger implements ILogger {
    * object is provided.
    *
    * @param {string} message - The primary log message describing the error.
-   * @param {Error|any} [error] - Optional error object or any value that caused the error.
+   * @param {Error|unknown} [error] - Optional error object or any value that caused the error.
    *   If an Error object is provided, its stack trace will be captured.
-   * @param {any} [data] - Optional additional context data about the error.
+   * @param {unknown} [data] - Optional additional context data about the error.
    * @returns {void}
    * @example
    * // Simple error message
@@ -601,7 +601,7 @@ export class Logger implements ILogger {
    * @see {@link Logger.warn} - For warning conditions
    * @memberof Logger
    */
-  error(message: string, error?: Error | any, data?: any): void {
+  error(message: string, error?: Error | unknown, data?: unknown): void {
     this.log(LogLevel.ERROR, message, error, data);
   }
 
@@ -612,9 +612,9 @@ export class Logger implements ILogger {
    * application to abort. These should be reserved for unrecoverable errors.
    *
    * @param {string} message - The primary log message describing the fatal error.
-   * @param {Error|any} [error] - Optional error object or any value that caused the fatal error.
+   * @param {Error|unknown} [error] - Optional error object or any value that caused the fatal error.
    *   If an Error object is provided, its stack trace will be captured.
-   * @param {any} [data] - Optional additional context data about the fatal error.
+   * @param {unknown} [data] - Optional additional context data about the fatal error.
    * @returns {void}
    * @example
    * // Fatal error with process exit
@@ -633,7 +633,7 @@ export class Logger implements ILogger {
    * @see {@link Logger.error} - For recoverable errors
    * @memberof Logger
    */
-  fatal(message: string, error?: Error | any, data?: any): void {
+  fatal(message: string, error?: Error | unknown, data?: unknown): void {
     this.log(LogLevel.FATAL, message, error, data);
   }
 
@@ -905,7 +905,7 @@ export class Logger implements ILogger {
    * request IDs, user IDs, or session information. Fields are merged with
    * any fields provided directly to log methods.
    *
-   * @param {Record<string, any>} fields - Key-value pairs to include in all logs
+   * @param {Record<string, unknown>} fields - Key-value pairs to include in all logs
    *   from the returned logger instance.
    * @returns {ILogger} A new logger instance with the additional fields.
    * @example
@@ -925,7 +925,7 @@ export class Logger implements ILogger {
    * @see {@link Logger.setContext} - To add a context identifier
    * @memberof Logger
    */
-  withFields(fields: Record<string, any>): ILogger {
+  withFields(fields: Record<string, unknown>): ILogger {
     const fieldLogger = new Logger({
       ...this.config,
       transports: this.transports,

@@ -525,7 +525,7 @@ describe('chess-adapter', () => {
 
   describe('ChessAdapterError', () => {
     it('should create error with message and context', () => {
-      const context = { field: 'color', value: 'invalid' };
+      const context = { invalidField: 'color', missingFields: ['value'] };
       const error = new ChessAdapterError('Test error message', context);
 
       expect(error.message).toBe('Test error message');

@@ -81,7 +81,7 @@ export const createTablebaseState = (): TablebaseState => ({
  * ```
  */
 export const createTablebaseActions = (
-  set: any,
+  set: (fn: (state: { tablebase: TablebaseState }) => void) => void,
 ): TablebaseActions => ({
 
   /**

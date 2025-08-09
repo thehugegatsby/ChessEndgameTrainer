@@ -42,10 +42,10 @@ export async function handleTrainingCompletion(
     return;
 
   const userMoves = state.game.moveHistory.filter(
-    (m: ValidatedMove) => (m as any).userMove,
+    (m: ValidatedMove) => 'userMove' in m && (m as Record<string, unknown>).userMove,
   );
   const optimalMoves = userMoves.filter(
-    (m: ValidatedMove) => (m as any).isOptimal,
+    (m: ValidatedMove) => 'isOptimal' in m && (m as Record<string, unknown>).isOptimal,
   ).length;
   const totalMoves = userMoves.length;
   const accuracy = totalMoves > 0 ? (optimalMoves / totalMoves) * 100 : 0;

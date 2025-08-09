@@ -492,7 +492,7 @@ export const gameSelectors = {
    * const e2Moves = useStore(gameSelectors.selectLegalMoves('e2'));
    * ```
    */
-  selectLegalMoves: (square: string) => (_state: GameSlice) => {
+  selectLegalMoves: (square: string) => () => {
     // Use ChessService to get legal moves
     try {
       return chessService.moves({ square, verbose: true });

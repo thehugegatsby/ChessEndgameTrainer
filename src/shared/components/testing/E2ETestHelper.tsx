@@ -21,6 +21,7 @@ import { Chess } from 'chess.js';
 import { chessService } from '@shared/services/ChessService';
 import { getLogger } from '@shared/services/logging';
 import { ANIMATION } from '@shared/constants';
+import type { ValidatedMove } from '@shared/types/chess';
 
 /**
  * Props for E2ETestHelper component
@@ -31,9 +32,9 @@ interface E2ETestHelperProps {
   /** Whether the game has finished */
   isGameFinished: boolean;
   /** Callback to execute moves - should match TrainingBoard's handleMove signature */
-  onMove: (move: any) => Promise<boolean | null>;
+  onMove: (move: ValidatedMove) => Promise<boolean | null>;
   /** Move history for logging/debugging */
-  moveHistory: any[];
+  moveHistory: ValidatedMove[];
 }
 
 /**

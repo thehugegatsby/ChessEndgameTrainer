@@ -502,7 +502,7 @@ describe("Logger", () => {
       expect(mockTransport.logs).toHaveLength(1);
       expect(mockTransport.logs[0].level).toBe(LogLevel.DEBUG);
       expect(mockTransport.logs[0].message).toContain("operation:");
-      expect(mockTransport.logs[0].data.duration).toBeGreaterThan(0);
+      expect((mockTransport.logs[0].data as any).duration).toBeGreaterThan(0);
     });
 
     it("should warn if timer does not exist", () => {

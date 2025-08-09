@@ -18,13 +18,32 @@ import { getServerPositionService } from "@shared/services/database/serverPositi
 import type { EndgamePosition } from "@shared/types/endgame";
 import type { TrainingPosition } from "@shared/store/slices/trainingSlice";
 import type {
-  RootState,
   GameState,
   TrainingState,
   TablebaseState,
 } from "@shared/store/slices/types";
 import type { UIState } from "@shared/store/slices/types";
 import type { ValidatedMove } from "@shared/types";
+
+/**
+ * Helper function to convert EndgamePosition to TrainingPosition with proper defaults
+ */
+function toTrainingPosition(position: EndgamePosition & Partial<TrainingPosition>): TrainingPosition {
+  return {
+    ...position,
+    colorToTrain: position.colorToTrain || position.sideToMove || "white",
+    targetOutcome: position.targetOutcome ||
+      (position.goal === "win"
+        ? position.sideToMove === "white"
+          ? "1-0"
+          : "0-1"
+        : position.goal === "draw"
+          ? "1/2-1/2"
+          : "1-0"), // Default to win for white
+    timeLimit: position.timeLimit || undefined,
+    chapterId: position.chapterId || undefined,
+  };
+}
 
 /**
  * Creates the initial store state for a given position on the server.
@@ -64,29 +83,14 @@ export async function createInitialStateForPosition(
   const chess = new Chess();
   try {
     chess.load(position.fen);
-  } catch (error) {
+  } catch {
     throw new Error(
       `Invalid FEN provided for position ${position.id}: ${position.fen}`,
     );
   }
 
   // 2. Create the TrainingPosition object with proper defaults
-  const trainingPosition: TrainingPosition = {
-    ...position,
-    colorToTrain:
-      (position as any).colorToTrain || position.sideToMove || "white",
-    targetOutcome:
-      (position as any).targetOutcome ||
-      (position.goal === "win"
-        ? position.sideToMove === "white"
-          ? "1-0"
-          : "0-1"
-        : position.goal === "draw"
-          ? "1/2-1/2"
-          : "1-0"), // Default to win for white
-    timeLimit: (position as any).timeLimit || undefined,
-    chapterId: (position as any).chapterId || undefined,
-  };
+  const trainingPosition = toTrainingPosition(position as EndgamePosition & Partial<TrainingPosition>);
 
   // 3. Determine player's turn
   const currentTurn = chess.turn();
@@ -96,7 +100,7 @@ export async function createInitialStateForPosition(
   const positionService = getServerPositionService();
   let nextPosition: EndgamePosition | null = null;
   let previousPosition: EndgamePosition | null = null;
-  let isLoadingNavigation = false;
+  const isLoadingNavigation = false;
 
   try {
     const [nextPos, prevPos] = await Promise.all([
@@ -113,41 +117,11 @@ export async function createInitialStateForPosition(
 
   // Convert navigation positions to TrainingPositions
   const nextTrainingPos = nextPosition
-    ? ({
-        ...nextPosition,
-        colorToTrain:
-          (nextPosition as any).colorToTrain ||
-          nextPosition.sideToMove ||
-          "white",
-        targetOutcome:
-          (nextPosition as any).targetOutcome ||
-          (nextPosition.goal === "win"
-            ? nextPosition.sideToMove === "white"
-              ? "1-0"
-              : "0-1"
-            : "1/2-1/2"),
-        timeLimit: (nextPosition as any).timeLimit || undefined,
-        chapterId: (nextPosition as any).chapterId || undefined,
-      } as TrainingPosition)
+    ? toTrainingPosition(nextPosition as EndgamePosition & Partial<TrainingPosition>)
     : null;
 
   const prevTrainingPos = previousPosition
-    ? ({
-        ...previousPosition,
-        colorToTrain:
-          (previousPosition as any).colorToTrain ||
-          previousPosition.sideToMove ||
-          "white",
-        targetOutcome:
-          (previousPosition as any).targetOutcome ||
-          (previousPosition.goal === "win"
-            ? previousPosition.sideToMove === "white"
-              ? "1-0"
-              : "0-1"
-            : "1/2-1/2"),
-        timeLimit: (previousPosition as any).timeLimit || undefined,
-        chapterId: (previousPosition as any).chapterId || undefined,
-      } as TrainingPosition)
+    ? toTrainingPosition(previousPosition as EndgamePosition & Partial<TrainingPosition>)
     : null;
 
   // 5. Generate move history from chess.js - simplified for server-side
@@ -163,6 +137,9 @@ export async function createInitialStateForPosition(
       currentMoveIndex: moveHistory.length,
       isGameFinished: false,
       gameResult: null,
+      isCheckmate: false,
+      isDraw: false,
+      isStalemate: false,
     },
 
     // Training state - pre-populated with position and navigation
@@ -182,6 +159,7 @@ export async function createInitialStateForPosition(
       mistakeCount: 0,
       moveErrorDialog: null,
       moveSuccessDialog: null,
+      evaluationBaseline: undefined,
     },
 
     // Tablebase state - clean initial state

@@ -210,7 +210,7 @@ export class MoveDialogManager {
     api: StoreApi,
     message: string,
     onConfirm: () => void,
-    _onCancel: () => void,
+    _onCancel: () => void, // TODO: Implement cancel handler
   ): void {
     getLogger().debug("[MoveDialog] Showing confirmation dialog:", { message });
 

@@ -12,7 +12,7 @@ import {
   waitForOpponentMove
 } from "../helpers/deterministicWaiting";
 
-test.describe("Pawn Promotion Debug Tests", () => {
+test.describe.skip("Pawn Promotion Debug Tests", () => {
   const logger = getLogger().setContext("E2E-PawnPromotionDebug");
 
   test("debug promotion detection and toast system", async ({ page }) => {

@@ -5,9 +5,6 @@
 
 import { getMoveQualityDisplay } from "./displayHelpers";
 
-/**
- *
- */
 export interface MoveEvaluation {
   evaluation: number;
   mateInMoves?: number;
@@ -23,17 +20,11 @@ export interface MoveEvaluation {
  * Smart evaluation function that uses tablebase WDL comparison for accurate move quality assessment
  * @param evaluation - The move evaluation data including tablebase WDL states
  * @param isWhite - Whether the player is white
- * @param moveIndex - The index of the move (for future use)
- * @param _moveIndex
  * @returns The evaluation display data based on WDL transition quality
  */
-export /**
- *
- */
-const getSmartMoveEvaluation = (
+export const getSmartMoveEvaluation = (
   evaluation: MoveEvaluation,
   isWhite: boolean,
-  _moveIndex: number,
 ) => {
   const { evaluation: rawEvaluation, mateInMoves, tablebase } = evaluation;
 
@@ -55,9 +46,9 @@ const getSmartMoveEvaluation = (
     else if (wdlAfter < wdlBefore) qualityScore = -300; // Worsened position (e.g., Win -> Draw) -> Blunder
     // If wdlAfter === wdlBefore, qualityScore remains 0 (neutral move)
 
-    return getMoveQualityDisplay(qualityScore, mateInMoves, isWhite);
+    return getMoveQualityDisplay(qualityScore, mateInMoves);
   }
 
   // Fallback to numeric evaluation if tablebase WDL data is not available
-  return getMoveQualityDisplay(rawEvaluation, mateInMoves, isWhite);
+  return getMoveQualityDisplay(rawEvaluation, mateInMoves);
 };

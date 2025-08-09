@@ -8,8 +8,8 @@
  *
  * // In your test
  * mockRootStore({
- *   analysisStatus: 'loading',
- *   isPlayerTurn: true
+ *   game: { analysisStatus: 'loading' },
+ *   training: { isPlayerTurn: true }
  * });
  * ```
  */
@@ -21,9 +21,13 @@ import type { RootState } from "@shared/store/slices/types";
 jest.mock("@shared/store/rootStore");
 
 /**
- * Type for partial root state overrides
+ * Type for partial root state overrides with nested structure
  */
-type MockRootState = Partial<RootState>;
+type DeepPartial<T> = T extends object ? {
+  [P in keyof T]?: DeepPartial<T[P]>;
+} : T;
+
+type MockRootState = DeepPartial<RootState>;
 
 /**
  * Creates a mock implementation of the useStore hook
@@ -34,193 +38,203 @@ type MockRootState = Partial<RootState>;
  * @example
  * ```typescript
  * const mock = mockRootStore({
- *   analysisStatus: 'error',
- *   currentModal: 'settings'
+ *   tablebase: { analysisStatus: 'error' },
+ *   ui: { currentModal: 'settings' }
  * });
  *
  * // Component will see these values
  * const Component = () => {
  *   const state = useStore();
- *   console.log(state.analysisStatus); // 'error'
+ *   console.log(state.tablebase.analysisStatus); // 'error'
  * };
  * ```
  */
-export /**
- *
- */
-const mockRootStore = (overrides: MockRootState = {}) => {
-  // Define sensible defaults that match the actual store
-  const defaultState: RootState = {
-    // User state
-    id: undefined,
-    username: undefined,
-    email: undefined,
-    rating: 1200,
-    completedPositions: [],
-    currentStreak: 0,
-    bestStreak: 0,
-    totalTrainingTime: 0,
-    lastActiveDate: new Date().toISOString(),
-    preferences: {
-      theme: "dark",
-      soundEnabled: true,
-      notificationsEnabled: true,
-      boardOrientation: "white",
-      pieceTheme: "standard",
-      autoPromoteToQueen: true,
-      showCoordinates: true,
-      showLegalMoves: true,
-      animationSpeed: "normal",
+export const mockRootStore = (overrides: MockRootState = {}) => {
+  // Define sensible defaults that match the actual store with nested structure
+  const defaultState = {
+    // Game slice
+    game: {
+      currentFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      currentPgn: "",
+      moveHistory: [],
+      currentMoveIndex: -1,
+      isGameFinished: false,
+      gameResult: null,
+      isCheckmate: false,
+      isDraw: false,
+      isStalemate: false,
+      // Game actions
+      updatePosition: jest.fn(),
+      addMove: jest.fn(),
+      setMoveHistory: jest.fn(),
+      setCurrentMoveIndex: jest.fn(),
+      setGameFinished: jest.fn(),
+      setGameStatus: jest.fn(),
+      resetGame: jest.fn(),
+      initializeGame: jest.fn(),
+      makeMove: jest.fn(),
+      undoMove: jest.fn(),
+      redoMove: jest.fn(),
+      goToMove: jest.fn(),
+      goToFirst: jest.fn(),
+      goToPrevious: jest.fn(),
+      goToNext: jest.fn(),
+      goToLast: jest.fn(),
+      setCurrentFen: jest.fn(),
     },
 
-    // Game state
-    game: null,
-    currentFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-    moveHistory: [],
-    currentMoveIndex: -1,
-    isGameOver: false,
-    gameResult: null,
-
-    // Tablebase state
-    tablebaseMove: undefined,
-    analysisStatus: "idle",
-    evaluations: [],
-    currentEvaluation: undefined,
-    lastEvaluatedFen: undefined,
-
-    // Training state
-    currentPosition: undefined,
-    nextPosition: undefined,
-    previousPosition: undefined,
-    isLoadingNavigation: false,
-    navigationError: null,
-    chapterProgress: null,
-    isPlayerTurn: true,
-    isSuccess: false,
-    sessionStartTime: undefined,
-    sessionEndTime: undefined,
-    hintsUsed: 0,
-    mistakeCount: 0,
-    moveErrorDialog: null,
-
-    // Progress state
-    positionProgress: {},
-    dailyStats: {},
-    achievements: [],
-    favoritePositions: [],
-    totalPoints: 0,
-    level: 1,
-
-    // UI state
-    isSidebarOpen: true,
-    currentModal: null,
-    toasts: [],
-    loading: {
-      global: false,
-      tablebase: false,
-      position: false,
-      analysis: false,
-    },
-    analysisPanel: {
-      isOpen: false,
-      position: "right",
-      showEvaluation: true,
-      showBestMove: true,
-      showDepth: false,
-      showThinkingTime: false,
+    // Training slice
+    training: {
+      currentPosition: undefined,
+      nextPosition: undefined,
+      previousPosition: undefined,
+      isLoadingNavigation: false,
+      navigationError: null,
+      chapterProgress: null,
+      isPlayerTurn: true,
+      isOpponentThinking: false,
+      isSuccess: false,
+      sessionStartTime: undefined,
+      sessionEndTime: undefined,
+      hintsUsed: 0,
+      mistakeCount: 0,
+      moveErrorDialog: null,
+      moveSuccessDialog: null,
+      evaluationBaseline: null,
+      // Training actions
+      setPosition: jest.fn(),
+      setNavigationPositions: jest.fn(),
+      setNavigationLoading: jest.fn(),
+      setNavigationError: jest.fn(),
+      setChapterProgress: jest.fn(),
+      setPlayerTurn: jest.fn(),
+      clearOpponentThinking: jest.fn(),
+      completeTraining: jest.fn(),
+      incrementHint: jest.fn(),
+      incrementMistake: jest.fn(),
+      setMoveErrorDialog: jest.fn(),
+      setMoveSuccessDialog: jest.fn(),
+      addTrainingMove: jest.fn(),
+      resetTraining: jest.fn(),
+      resetPosition: jest.fn(),
+      setEvaluationBaseline: jest.fn(),
+      clearEvaluationBaseline: jest.fn(),
     },
 
-    // Settings state
-    theme: {
-      mode: "light",
-      customColors: {},
+    // Tablebase slice
+    tablebase: {
+      tablebaseMove: undefined,
+      analysisStatus: "idle" as const,
+      evaluations: [],
+      currentEvaluation: undefined,
+      // Tablebase actions
+      setTablebaseMove: jest.fn(),
+      setAnalysisStatus: jest.fn(),
+      addEvaluation: jest.fn(),
+      setEvaluations: jest.fn(),
+      setCurrentEvaluation: jest.fn(),
+      clearTablebaseState: jest.fn(),
     },
-    notifications: {
-      enabled: true,
-      moves: true,
-      analysis: true,
-      achievements: true,
-      reminders: false,
-    },
-    difficulty: {
-      level: "intermediate",
-      showHints: true,
-      allowTakebacks: true,
-      adjustDynamically: false,
-    },
-    privacy: {
-      collectAnalytics: true,
-      shareProgress: false,
-      publicProfile: false,
-    },
-    experimentalFeatures: {
-      betaUI: false,
-      advancedAnalysis: false,
-      multiPV: false,
-      cloudSave: false,
-    },
-    dataSync: {
-      enabled: false,
+
+    // Progress slice
+    progress: {
+      userStats: null,
+      sessionProgress: {
+        positionsCompleted: 0,
+        positionsCorrect: 0,
+        positionsAttempted: 0,
+        timeSpent: 0,
+        hintsUsed: 0,
+        mistakesMade: 0,
+      },
+      cardProgress: {},
+      loading: false,
+      syncStatus: "idle" as const,
       lastSync: null,
-      syncInProgress: false,
       syncError: null,
+      // Progress actions
+      setUserStats: jest.fn(),
+      updateSessionProgress: jest.fn(),
+      setLoading: jest.fn(),
+      setSyncStatus: jest.fn(),
+      setLastSync: jest.fn(),
+      setSyncError: jest.fn(),
+      initializeCards: jest.fn(),
+      recordAttempt: jest.fn(),
+      resetCardProgress: jest.fn(),
+      setCardProgress: jest.fn(),
+      batchUpdateProgress: jest.fn(),
+      loadUserProgress: jest.fn(),
+      saveUserStats: jest.fn(),
+      saveCardProgress: jest.fn(),
+      saveSessionComplete: jest.fn(),
+      getDueCards: jest.fn(),
+      syncAllProgress: jest.fn(),
+      resetProgress: jest.fn(),
     },
-    language: "de",
-    timezone: "Europe/Berlin",
-    firstTimeUser: false,
-    lastSettingsUpdate: new Date().toISOString(),
-    restartRequired: false,
 
-    // Add all action mocks
-    setUser: jest.fn(),
-    updatePreferences: jest.fn(),
-    incrementStreak: jest.fn(),
-    resetStreak: jest.fn(),
-    initializeGame: jest.fn(),
-    makeMove: jest.fn(),
-    resetGame: jest.fn(),
-    goToMove: jest.fn(),
-    setTablebaseMove: jest.fn(),
-    setAnalysisStatus: jest.fn(),
-    clearTablebaseState: jest.fn(),
-    setPosition: jest.fn(),
-    setPlayerTurn: jest.fn(),
-    incrementHint: jest.fn(),
-    incrementMistake: jest.fn(),
-    setMoveErrorDialog: jest.fn(),
-    updatePositionProgress: jest.fn(),
-    unlockAchievement: jest.fn(),
-    toggleFavorite: jest.fn(),
-    setIsSidebarOpen: jest.fn(),
-    openModal: jest.fn(),
-    closeModal: jest.fn(),
-    showToast: jest.fn(),
-    removeToast: jest.fn(),
-    setLoading: jest.fn(),
-    updateTheme: jest.fn(),
-    updateNotifications: jest.fn(),
-    updateDifficulty: jest.fn(),
-    updateSettings: jest.fn(),
+    // UI slice
+    ui: {
+      isSidebarOpen: true,
+      currentModal: null,
+      toasts: [],
+      loading: {
+        global: false,
+        tablebase: false,
+        position: false,
+        analysis: false,
+      },
+      analysisPanel: {
+        isOpen: false,
+        position: "right" as const,
+        showEvaluation: true,
+        showBestMove: true,
+        showDepth: false,
+        showThinkingTime: false,
+      },
+      // UI actions
+      toggleSidebar: jest.fn(),
+      setIsSidebarOpen: jest.fn(),
+      openModal: jest.fn(),
+      closeModal: jest.fn(),
+      showToast: jest.fn(),
+      removeToast: jest.fn(),
+      setLoading: jest.fn(),
+      updateAnalysisPanel: jest.fn(),
+    },
 
     // Orchestrator actions
-    makeUserMove: jest.fn(),
-    requestTablebaseMove: jest.fn(),
-    requestPositionEvaluation: jest.fn(),
+    handlePlayerMove: jest.fn(),
     loadTrainingContext: jest.fn(),
 
     // Utility actions
     reset: jest.fn(),
     hydrate: jest.fn(),
-  } as any; // Using any to avoid having to mock every single action
+  };
 
-  // Merge defaults with overrides
-  const mockState = { ...defaultState, ...overrides };
+  // Deep merge defaults with overrides
+  const deepMerge = (target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> => {
+    const result = { ...target };
+    for (const key in source) {
+      if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key]) && !jest.isMockFunction(source[key])) {
+        result[key] = deepMerge(
+          (target[key] as Record<string, unknown>) || {}, 
+          source[key] as Record<string, unknown>
+        );
+      } else {
+        result[key] = source[key];
+      }
+    }
+    return result;
+  };
+
+  const mockState = deepMerge(defaultState, overrides as Record<string, unknown>) as unknown as RootState;
 
   // Configure the mock to return our state
   (useStore as jest.MockedFunction<typeof useStore>).mockReturnValue(mockState);
 
   // Also mock the selector pattern
-  (useStore as any).mockImplementation((selector?: any) => {
+  (useStore as jest.MockedFunction<typeof useStore>).mockImplementation((selector?: (state: RootState) => unknown) => {
     if (typeof selector === "function") {
       return selector(mockState);
     }
@@ -228,7 +242,7 @@ const mockRootStore = (overrides: MockRootState = {}) => {
   });
 
   // CRITICAL: Mock getState() method which is used by useGameActions()
-  (useStore as any).getState = jest.fn().mockReturnValue(mockState);
+  (useStore as jest.MockedFunction<typeof useStore> & { getState: jest.Mock }).getState = jest.fn().mockReturnValue(mockState);
 
   // Return the mock for additional assertions if needed
   return useStore as jest.MockedFunction<typeof useStore>;
@@ -243,22 +257,37 @@ const mockRootStore = (overrides: MockRootState = {}) => {
  * @example
  * ```typescript
  * mockRootStoreWithSelector({
- *   analysisStatus: 'loading'
+ *   tablebase: { analysisStatus: 'loading' }
  * });
  *
  * // Now selectors work:
- * const status = useStore((state) => state.analysisStatus); // 'loading'
+ * const status = useStore((state) => state.tablebase.analysisStatus); // 'loading'
  * ```
  */
-export /**
- *
- */
-const mockRootStoreWithSelector = (overrides: MockRootState = {}) => {
+export const mockRootStoreWithSelector = (overrides: MockRootState = {}) => {
   const mock = mockRootStore(overrides);
 
   // Ensure selector pattern works
   mock.setState = jest.fn();
-  mock.getState = jest.fn(() => ({ ...mock(), ...overrides }));
+  mock.getState = jest.fn(() => {
+    const state = mock();
+    // Deep merge the state with overrides
+    const deepMerge = (target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> => {
+      const result = { ...target };
+      for (const key in source) {
+        if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key]) && !jest.isMockFunction(source[key])) {
+          result[key] = deepMerge(
+            (target[key] as Record<string, unknown>) || {}, 
+            source[key] as Record<string, unknown>
+          );
+        } else {
+          result[key] = source[key];
+        }
+      }
+      return result;
+    };
+    return deepMerge(state as unknown as Record<string, unknown>, overrides as unknown as Record<string, unknown>) as unknown as RootState;
+  });
 
   return mock;
 };
@@ -267,11 +296,8 @@ const mockRootStoreWithSelector = (overrides: MockRootState = {}) => {
  * Resets the useStore mock
  * Call this in afterEach hooks to ensure test isolation
  */
-export /**
- *
- */
-const resetRootStoreMock = () => {
-  (useStore as unknown as jest.Mock).mockClear();
+export const resetRootStoreMock = () => {
+  (useStore as jest.MockedFunction<typeof useStore>).mockClear();
 };
 
 /**
@@ -280,10 +306,7 @@ const resetRootStoreMock = () => {
  * @param mock - The mocked function
  * @param expectedCalls - Expected number of calls
  */
-export /**
- *
- */
-const verifyRootStoreCalls = (
+export const verifyRootStoreCalls = (
   mock: jest.MockedFunction<typeof useStore>,
   expectedCalls: number,
 ) => {

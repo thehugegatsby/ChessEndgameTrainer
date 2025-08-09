@@ -56,13 +56,29 @@ import { tablebaseService } from '@shared/services/TablebaseService';
 import type { StoreApi } from '@shared/store/StoreContext';
 
 /**
+ * Dialog types for training actions
+ */
+type MoveErrorDialog = {
+  isOpen: boolean;
+  wdlBefore?: number;
+  wdlAfter?: number;
+  bestMove?: string;
+} | null;
+
+type MoveSuccessDialog = {
+  isOpen: boolean;
+  promotionPiece?: string;
+  moveDescription?: string;
+} | null;
+
+/**
  * Training actions interface (subset needed for dialog handling)
  */
 interface TrainingActionsSubset {
   setPlayerTurn: (isPlayerTurn: boolean) => void;
   clearOpponentThinking: () => void;
-  setMoveErrorDialog: (dialog: any) => void;
-  setMoveSuccessDialog: (dialog: any) => void;
+  setMoveErrorDialog: (dialog: MoveErrorDialog) => void;
+  setMoveSuccessDialog: (dialog: MoveSuccessDialog) => void;
   setEvaluationBaseline: (wdl: number, fen: string) => void;
   clearEvaluationBaseline: () => void;
 }

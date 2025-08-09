@@ -274,7 +274,7 @@ export type ServiceOverrides = Partial<{
  * Dynamic overrides for custom services not in the registry.
  * Provides flexibility for test-specific services.
  */
-export type CustomServiceOverrides = Record<string, any>;
+export type CustomServiceOverrides = Record<string, unknown>;
 
 /**
  * Combined overrides for test containers

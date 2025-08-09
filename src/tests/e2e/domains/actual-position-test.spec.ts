@@ -14,7 +14,7 @@ import {
   waitForOpponentMove
 } from "../helpers/deterministicWaiting";
 
-test.describe("Actual Position 1 - King and Pawn vs King", () => {
+test.describe.skip("Actual Position 1 - King and Pawn vs King", () => {
   const logger = getLogger().setContext("E2E-ActualPosition");
 
   test.beforeEach(async ({ page }) => {

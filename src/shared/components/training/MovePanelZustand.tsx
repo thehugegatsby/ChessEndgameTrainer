@@ -247,7 +247,6 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
                   const evalDisplay = getSmartMoveEvaluation(
                     pair.whiteEval,
                     true,
-                    (pair.moveNumber - 1) * 2,
                   );
                   return (
                     <span
@@ -293,7 +292,6 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
                       const evalDisplay = getSmartMoveEvaluation(
                         pair.blackEval,
                         false,
-                        (pair.moveNumber - 1) * 2 + 1,
                       );
                       return (
                         <span

@@ -74,6 +74,7 @@ import { handlePlayerMove as handlePlayerMoveOrchestrator } from "./orchestrator
 import type { RootState } from "./slices/types";
 import type { Move as ChessJsMove } from "chess.js";
 import type { EndgamePosition } from "@shared/types/endgame";
+import type { TrainingPosition } from "./slices/trainingSlice";
 
 /**
  * Creates a fresh store instance with all slices and middleware
@@ -268,13 +269,14 @@ export const createStore = (initialState?: Partial<RootState>) => {
             const merged = { ...currentState };
 
             if (persistedState && typeof persistedState === "object") {
-              const persisted = persistedState as any;
+              const persisted = persistedState as Record<string, unknown>;
 
               // Only merge the specific persisted properties, not the entire slice
-              if (persisted.training?.currentPosition) {
+              if (persisted.training && typeof persisted.training === 'object' && 
+                  'currentPosition' in persisted.training) {
                 merged.training = {
                   ...currentState.training,
-                  currentPosition: persisted.training.currentPosition,
+                  currentPosition: (persisted.training as Record<string, unknown>).currentPosition as TrainingPosition | undefined,
                 };
               }
             }
@@ -322,7 +324,7 @@ export const createStore = (initialState?: Partial<RootState>) => {
   );
 
   // Attach cleanup function to store instance
-  (store as any).__cleanup = unsubscribeChessService;
+  (store as unknown as { __cleanup: () => void }).__cleanup = unsubscribeChessService;
 
   return store;
 };

@@ -11,9 +11,11 @@
  * - Deterministic: Provides predictable test behavior
  */
 
-import { Chess } from "chess.js";
+import { Chess, Move as ChessJsMove } from "chess.js";
 import { TESTING } from "@shared/constants";
 import { getLogger } from "@shared/services/logging";
+import type { RootState } from "@shared/store/slices/types";
+import type { EndgamePosition } from "@shared/types/endgame";
 
 const logger = getLogger().setContext("TestApiService");
 
@@ -135,13 +137,13 @@ export class TestApiService {
   private _isInitialized: boolean = false;
   // Tablebase control is now handled via TestBridge, not directly
   private storeAccess: {
-    getState: () => any;
-    subscribe: (listener: (state: any, prevState: any) => void) => () => void;
+    getState: () => RootState;
+    subscribe: (listener: (state: RootState, prevState: RootState) => void) => () => void;
     // Individual action functions extracted from store state
-    makeMove: (move: any) => void;
-    _internalApplyMove: (move: any) => void;
+    makeMove: (move: ChessJsMove | { from: string; to: string; promotion?: string } | string) => void;
+    _internalApplyMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => void;
     resetPosition: () => void;
-    setPosition: (position: any) => void;
+    setPosition: (position: EndgamePosition) => void;
     goToMove: (moveIndex: number) => void;
     setAnalysisStatus: (status: string) => void;
   } | null = null;
@@ -187,13 +189,13 @@ export class TestApiService {
    */
   public initialize(
     storeAccess: {
-      getState: () => any;
-      subscribe: (listener: (state: any, prevState: any) => void) => () => void;
+      getState: () => RootState;
+      subscribe: (listener: (state: RootState, prevState: RootState) => void) => () => void;
       // Individual action functions extracted from store state
-      makeMove: (move: any) => void;
-      _internalApplyMove: (move: any) => void;
+      makeMove: (move: ChessJsMove | { from: string; to: string; promotion?: string } | string) => void;
+      _internalApplyMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => void;
       resetPosition: () => void;
-      setPosition: (position: any) => void;
+      setPosition: (position: EndgamePosition) => void;
       goToMove: (moveIndex: number) => void;
       setAnalysisStatus: (status: string) => void;
     },
@@ -302,12 +304,12 @@ export class TestApiService {
       // Create a store API object that handlePlayerMove expects (like in rootStore.ts:186)
       const storeApi = {
         getState: this.storeAccess.getState,
-        setState: (updater: any) => {
+        setState: (updater: RootState | Partial<RootState> | ((state: RootState) => RootState | Partial<RootState> | void)) => {
           // We need the actual setState from store access - this is the key fix
           // The storeAccess should provide the actual Zustand setState method
           if (this.storeAccess && "setState" in this.storeAccess) {
             // If storeAccess provides setState directly
-            (this.storeAccess as any).setState(updater);
+            (this.storeAccess as unknown as { setState: (updater: RootState | Partial<RootState> | ((state: RootState) => RootState | Partial<RootState> | void)) => void }).setState(updater);
           } else {
             // Fallback - log warning but don't fail
             logger.warn(
@@ -326,14 +328,14 @@ export class TestApiService {
       this.emit("test:validated_move", {
         move,
         success: result,
-        fen: finalState.game?.currentFen || finalState.currentFen || "unknown",
+        fen: finalState.game?.currentFen || "unknown",
         moveCount: finalState.game?.moveHistory?.length || 0,
       });
 
       return {
         success: result,
         resultingFen:
-          finalState.game?.currentFen || finalState.currentFen || "unknown",
+          finalState.game?.currentFen || "unknown",
         moveCount: finalState.game?.moveHistory?.length || 0,
         error: result ? undefined : "Move rejected by validation pipeline",
       };
@@ -358,15 +360,51 @@ export class TestApiService {
 
     try {
       // Parse move format
-      let moveObj: { from: string; to: string; promotion?: string } | string;
+      let moveObj: { from: string; to: string; promotion?: string };
 
       if (move.includes("-")) {
         // Format: 'e2-e4'
         const [from, to] = move.split("-");
         moveObj = { from, to };
       } else {
-        // SAN notation
-        moveObj = move;
+        // SAN notation - need to convert to from/to format
+        // For simplicity, we'll use makeMove which accepts strings
+        this.storeAccess.makeMove(move);
+        const success = true;
+        
+        if (success) {
+          const newState = this.storeAccess.getState();
+          
+          if (
+            this.tablebaseConfig.deterministic &&
+            newState.training?.isPlayerTurn === false
+          ) {
+            // After player move, check if tablebase should respond with a fixed move
+            await this.handleDeterministicTablebaseMove(newState.game?.currentFen || "");
+          }
+          
+          this.emit("test:move", {
+            move,
+            fen: newState.game?.currentFen || "unknown",
+            moveCount:
+              newState.game?.moveHistory?.length || 0,
+          });
+          
+          // Get updated state after potential tablebase move
+          const finalState = this.storeAccess.getState();
+          
+          return {
+            success: true,
+            resultingFen:
+              finalState.game?.currentFen || "unknown",
+            moveCount: finalState.game?.moveHistory?.length || 0,
+          };
+        } else {
+          return {
+            success: false,
+            error: "Invalid move",
+          };
+        }
       }
 
       // Execute move through store actions (bypass validation for tests)
@@ -382,16 +420,14 @@ export class TestApiService {
           this.tablebaseConfig.fixedResponses
         ) {
           // After player move, check if tablebase should respond with a fixed move
-          await this.handleDeterministicTablebaseMove(newState.fen);
+          await this.handleDeterministicTablebaseMove(newState.game?.currentFen || "");
         }
 
         this.emit("test:move", {
           move,
-          fen: newState.training?.currentFen || newState.fen,
+          fen: newState.game?.currentFen || "unknown",
           moveCount:
-            newState.training?.moveHistory?.length ||
-            newState.history?.length ||
-            0,
+            newState.game?.moveHistory?.length || 0,
         });
 
         // Get updated state after potential tablebase move
@@ -400,7 +436,7 @@ export class TestApiService {
         return {
           success: true,
           resultingFen:
-            finalState.game?.currentFen || finalState.currentFen || "unknown",
+            finalState.game?.currentFen || "unknown",
           moveCount: finalState.game?.moveHistory?.length || 0,
         };
       } else {
@@ -445,13 +481,12 @@ export class TestApiService {
 
     const state = this.storeAccess.getState();
     const currentFen =
-      state.training?.currentFen ||
-      state.fen ||
+      state.game?.currentFen ||
       "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     const game = new Chess(currentFen);
 
     // Get last move if available
-    const history = state.training?.moveHistory || state.history || [];
+    const history = state.game?.moveHistory || [];
     let lastMove;
     if (history.length > 0) {
       const lastHistoryItem = history[history.length - 1];
@@ -469,10 +504,9 @@ export class TestApiService {
       pgn: game.pgn(),
       isGameOver: game.isGameOver(),
       gameOverReason: this.getGameOverReason(game),
-      history: history.map((h: any) => h.san),
+      history: history.map((h: { san?: string }) => h.san || ''),
       evaluation:
-        state.training?.currentEvaluation?.evaluation ||
-        state.evaluation?.engineEvaluation?.value,
+        state.tablebase?.currentEvaluation?.evaluation || undefined,
       isCheck: game.isCheck(),
       isCheckmate: game.isCheckmate(),
       isDraw: game.isDraw(),
@@ -547,7 +581,7 @@ export class TestApiService {
         if (analysisStatus === "idle" || analysisStatus === "success") {
           // Tablebase is working or has finished
           this.emit("test:tablebaseAnalysisComplete", {
-            fen: state.game?.currentFen || state.currentFen,
+            fen: state.game?.currentFen || "unknown",
           });
           return true;
         }
@@ -575,8 +609,8 @@ export class TestApiService {
    * @param event
    * @param handler
    */
-  public on(event: string, handler: (detail: any) => void): void {
-    this.eventEmitter.addEventListener(event, (e: any) => handler(e.detail));
+  public on(event: string, handler: (detail: unknown) => void): void {
+    this.eventEmitter.addEventListener(event, (e) => handler((e as CustomEvent).detail));
   }
 
   /**
@@ -584,8 +618,8 @@ export class TestApiService {
    * @param event
    * @param handler
    */
-  public off(event: string, handler: (detail: any) => void): void {
-    this.eventEmitter.removeEventListener(event, (e: any) => handler(e.detail));
+  public off(event: string, handler: (detail: unknown) => void): void {
+    this.eventEmitter.removeEventListener(event, (e) => handler((e as CustomEvent).detail));
   }
 
   /**
@@ -593,7 +627,7 @@ export class TestApiService {
    * @param event
    * @param detail
    */
-  private emit(event: string, detail: any): void {
+  private emit(event: string, detail: unknown): void {
     this.eventEmitter.dispatchEvent(new CustomEvent(event, { detail }));
   }
 

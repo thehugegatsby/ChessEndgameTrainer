@@ -5,8 +5,8 @@
 
 // Storage abstraction
 export interface IPlatformStorage {
-  save(key: string, data: any): Promise<void>;
-  load<T = any>(key: string): Promise<T | null>;
+  save(key: string, data: unknown): Promise<void>;
+  load<T = unknown>(key: string): Promise<T | null>;
   remove(key: string): Promise<void>;
   clear(): Promise<void>;
   getAllKeys(): Promise<string[]>;
@@ -26,14 +26,14 @@ export interface NotificationOptions {
   icon?: string;
   badge?: string;
   tag?: string;
-  data?: any;
+  data?: unknown;
 }
 
 export interface ScheduledNotification {
   title: string;
   body: string;
   trigger: Date | { seconds: number };
-  data?: any;
+  data?: unknown;
 }
 
 // Device info abstraction
@@ -125,10 +125,10 @@ export interface ShareOptions {
 
 // Analytics abstraction
 export interface IPlatformAnalytics {
-  track(event: string, properties?: Record<string, any>): void;
-  identify(userId: string, traits?: Record<string, any>): void;
-  page(name: string, properties?: Record<string, any>): void;
-  setUserProperties(properties: Record<string, any>): void;
+  track(event: string, properties?: Record<string, unknown>): void;
+  identify(userId: string, traits?: Record<string, unknown>): void;
+  page(name: string, properties?: Record<string, unknown>): void;
+  setUserProperties(properties: Record<string, unknown>): void;
 }
 
 // Main platform service interface

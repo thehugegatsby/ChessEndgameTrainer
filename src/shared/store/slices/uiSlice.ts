@@ -244,7 +244,7 @@ export const createUISlice: ImmerStateCreator<UISlice> = (set, get) => ({
    */
   removeToast: (id: string) =>
     set((state) => {
-      state.ui.toasts = state.ui.toasts.filter((toast: any) => toast.id !== id);
+      state.ui.toasts = state.ui.toasts.filter((toast: Toast) => toast.id !== id);
     }),
 
   /**

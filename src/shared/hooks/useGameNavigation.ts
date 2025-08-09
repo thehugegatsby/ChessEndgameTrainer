@@ -108,7 +108,7 @@ export interface GameNavigationResult {
 export const useGameNavigation = ({
   history,
   initialFen,
-  currentFen,
+  currentFen: _currentFen, // Reserved for future use
   onHistoryChange,
   onJumpToMove,
   jumpToMove
@@ -135,7 +135,7 @@ export const useGameNavigation = ({
         }
       }
       return tempGame.fen();
-    } catch (error) {
+    } catch {
       // History doesn't match current position
       return undefined;
     }

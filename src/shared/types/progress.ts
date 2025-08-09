@@ -169,7 +169,8 @@ export function filterDueCards(
  * @returns CardProgress object
  */
 export function fromDueCard(dueCard: DueCard): CardProgress {
-  const { __isDue, __brand, ...cardProgress } = dueCard;
+  const { __isDue: _isDue, __brand: _brand, ...cardProgress } = dueCard;
+  // _isDue and _brand are intentionally unused - they're type brands stripped here
   return cardProgress;
 }
 
@@ -185,7 +186,7 @@ export function areDueCards(cards: unknown[]): cards is DueCard[] {
     card !== null && 
     '__isDue' in card && 
     '__brand' in card &&
-    (card as any).__brand === 'DueCard'
+    (card as DueCard).__brand === 'DueCard'
   );
 }
 

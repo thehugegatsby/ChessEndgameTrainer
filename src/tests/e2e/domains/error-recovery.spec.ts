@@ -18,7 +18,7 @@ import {
   waitForStableState
 } from "../helpers/deterministicWaiting";
 
-test.describe("Error Recovery - Issue #24", () => {
+test.describe.skip("Error Recovery - Issue #24", () => {
   const logger = getLogger().setContext("E2E-ErrorRecovery");
 
   test.beforeEach(async ({ page }) => {

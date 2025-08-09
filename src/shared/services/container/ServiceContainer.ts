@@ -27,6 +27,15 @@ import {
   CircularDependencyError,
   IBrowserAPIs,
 } from "./types";
+import type {
+  IPlatformStorage,
+  IPlatformNotification,
+  IPlatformDevice,
+  IPlatformPerformance,
+  IPlatformClipboard,
+  IPlatformShare,
+  IPlatformAnalytics,
+} from "../platform/types";
 import {
   createMockStorage,
   createMockNavigator,
@@ -61,8 +70,8 @@ import {
  * ```
  */
 export class ServiceContainer implements IServiceContainer {
-  private factories = new Map<string, ServiceFactory<any>>();
-  private instances = new Map<string, any>();
+  private factories = new Map<string, ServiceFactory<unknown>>();
+  private instances = new Map<string, unknown>();
   private resolving = new Set<string>(); // For circular dependency detection
   private config: ServiceContainerConfig;
 
@@ -194,7 +203,7 @@ export class ServiceContainer implements IServiceContainer {
   /**
    * Internal registration method
    */
-  private registerInternal(key: string, factory: ServiceFactory<any>): void {
+  private registerInternal(key: string, factory: ServiceFactory<unknown>): void {
     if (this.config.validateKeys && this.factories.has(key)) {
       throw new ServiceAlreadyRegisteredError(key);
     }
@@ -236,7 +245,7 @@ export class ServiceContainer implements IServiceContainer {
     // Return existing instance if using singletons
     if (this.config.useSingletons && this.instances.has(key)) {
       this.config.logger!(`Returning cached instance: ${key}`);
-      return this.instances.get(key);
+      return this.instances.get(key) as T;
     }
 
     // Check if factory is registered
@@ -257,7 +266,7 @@ export class ServiceContainer implements IServiceContainer {
         this.instances.set(key, instance);
       }
 
-      return instance;
+      return instance as T;
     } finally {
       // Always remove from resolving set
       this.resolving.delete(key);
@@ -373,51 +382,51 @@ export class ServiceContainer implements IServiceContainer {
 
     // Register individual services that delegate to the main service
     this.register("platform.storage", (container) => {
-      const platformService = container.resolveCustom(
-        "platform.service",
-      ) as any;
+      const platformService = container.resolveCustom<{
+        storage: IPlatformStorage;
+      }>("platform.service");
       return platformService.storage;
     });
 
     this.register("platform.notifications", (container) => {
-      const platformService = container.resolveCustom(
-        "platform.service",
-      ) as any;
+      const platformService = container.resolveCustom<{
+        notifications: IPlatformNotification;
+      }>("platform.service");
       return platformService.notifications;
     });
 
     this.register("platform.device", (container) => {
-      const platformService = container.resolveCustom(
-        "platform.service",
-      ) as any;
+      const platformService = container.resolveCustom<{
+        device: IPlatformDevice;
+      }>("platform.service");
       return platformService.device;
     });
 
     this.register("platform.performance", (container) => {
-      const platformService = container.resolveCustom(
-        "platform.service",
-      ) as any;
+      const platformService = container.resolveCustom<{
+        performance: IPlatformPerformance;
+      }>("platform.service");
       return platformService.performance;
     });
 
     this.register("platform.clipboard", (container) => {
-      const platformService = container.resolveCustom(
-        "platform.service",
-      ) as any;
+      const platformService = container.resolveCustom<{
+        clipboard: IPlatformClipboard;
+      }>("platform.service");
       return platformService.clipboard;
     });
 
     this.register("platform.share", (container) => {
-      const platformService = container.resolveCustom(
-        "platform.service",
-      ) as any;
+      const platformService = container.resolveCustom<{
+        share: IPlatformShare;
+      }>("platform.service");
       return platformService.share;
     });
 
     this.register("platform.analytics", (container) => {
-      const platformService = container.resolveCustom(
-        "platform.service",
-      ) as any;
+      const platformService = container.resolveCustom<{
+        analytics: IPlatformAnalytics;
+      }>("platform.service");
       return platformService.analytics;
     });
   }

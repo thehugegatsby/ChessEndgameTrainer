@@ -1,1 +1,0 @@
-../EndgameTrainer/eslint.config.js

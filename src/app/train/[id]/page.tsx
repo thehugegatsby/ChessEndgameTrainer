@@ -6,6 +6,7 @@ import { createInitialStateForPosition } from "@shared/store/server/createInitia
 import { getServerPositionService } from "@shared/services/database/serverPositionService";
 import { getLogger } from "@shared/services/logging";
 import { ErrorService } from "@shared/services/ErrorService";
+import type { RootState } from "@shared/store/slices/types";
 
 /**
  * Training page props
@@ -49,7 +50,7 @@ export default async function TrainingPage({ params }: TrainingPageProps) {
     const initialStoreState = await createInitialStateForPosition(position);
 
     return (
-      <StoreProvider initialState={initialStoreState as any}>
+      <StoreProvider initialState={initialStoreState as Partial<RootState>}>
         <EndgameTrainingPage />
       </StoreProvider>
     );
