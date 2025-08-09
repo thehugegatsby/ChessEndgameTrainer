@@ -25,7 +25,22 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 
-# Test caches
+# Test caches and reports
 .jest-cache/
 coverage/
 playwright-report/
+test-results/
+
+# Logs
+*.log
+logs/
+pm2-logs/
+
+# Build info
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Temp files
+.tmp/
+tmp/
+temp/
