@@ -246,7 +246,8 @@ export const useStore = <T = RootState,>(
  * // For manual subscriptions (rare)
  * const store = useStoreApi();
  * const unsubscribe = store.subscribe((state) => {
- *   console.log('State changed:', state);
+ *   // Log state changes for debugging
+ *   // logger.info('State changed:', state);
  * });
  * ```
  */

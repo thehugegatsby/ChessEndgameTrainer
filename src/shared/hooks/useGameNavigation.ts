@@ -101,7 +101,8 @@ export interface GameNavigationResult {
  * 
  * // Access previous position for comparison
  * if (gameNavigation.previousFen) {
- *   console.log('Previous position:', gameNavigation.previousFen);
+ *   // Log previous position for debugging
+ *   // console.log('Previous position:', gameNavigation.previousFen);
  * }
  * ```
  */

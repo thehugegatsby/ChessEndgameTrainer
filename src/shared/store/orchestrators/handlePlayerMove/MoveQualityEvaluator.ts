@@ -1,32 +1,6 @@
 /**
- * @file Move quality evaluation module
- * @module store/orchestrators/handlePlayerMove/MoveQualityEvaluator
- *
- * @description
- * Evaluates chess move quality using tablebase analysis.
- * Compares player moves against optimal tablebase recommendations to determine
- * if moves are suboptimal and warrant user feedback through error dialogs.
- *
- * @remarks
- * Key features:
- * - Parallel tablebase API calls for performance
- * - WDL (Win/Draw/Loss) perspective conversion for accurate evaluation
- * - Best move comparison against top 3 tablebase recommendations
- * - Outcome change detection (Win->Draw/Loss, Draw->Loss)
- * - Comprehensive logging for debugging move evaluation logic
- *
- * @example
- * ```typescript
- * const evaluator = new MoveQualityEvaluator();
- * const result = await evaluator.evaluateMoveQuality(
- *   "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
- *   "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
- *   { from: "e2", to: "e4", san: "e4", color: "w" }
- * );
- * if (result.shouldShowErrorDialog) {
- *   // Show error dialog to user
- * }
- * ```
+ * Move quality evaluator - compares moves against tablebase recommendations
+ * @see docs/orchestrators/handlePlayerMove/MoveQualityEvaluator.md
  */
 
 import type { ValidatedMove } from "@shared/types/chess";
@@ -38,10 +12,7 @@ import {
 import { getLogger } from "@shared/services/logging";
 import { WdlAdapter } from "@shared/utils/tablebase/wdl";
 
-/**
- * Result of move quality evaluation containing recommendation data
- * @interface MoveQualityResult
- */
+/** Result of move quality evaluation */
 export interface MoveQualityResult {
   /** Whether to display an error dialog to the user */
   shouldShowErrorDialog: boolean;
@@ -57,59 +28,13 @@ export interface MoveQualityResult {
   outcomeChanged: boolean;
 }
 
-/** Number of top moves to fetch from tablebase for comparison */
 const TOP_MOVES_LIMIT = 3;
 
-/**
- * Evaluates chess move quality using advanced tablebase analysis
- * @class MoveQualityEvaluator
- *
- * @description
- * Provides comprehensive move quality assessment including:
- * - Tablebase evaluation comparison (before/after positions)
- * - WDL perspective conversion for accurate player-centric evaluation
- * - Best move detection using top tablebase recommendations
- * - Outcome change analysis (Win/Draw/Loss transitions)
- * - Performance-optimized parallel API calls
- * - Detailed logging for debugging evaluation decisions
- *
- * @remarks
- * The evaluator uses sophisticated logic to determine when to show error dialogs:
- * 1. Move must NOT be among the top 3 tablebase recommendations
- * 2. Move must cause a significant outcome change (Win->Draw/Loss or Draw->Loss)
- *
- * WDL (Win/Draw/Loss) values are handled carefully:
- * - Tablebase returns values from white's perspective
- * - Values are converted to moving player's perspective
- * - After a move, evaluation is from opponent's perspective
- *
- * @example
- * ```typescript
- * const evaluator = new MoveQualityEvaluator();
- *
- * // Evaluate a potentially suboptimal move
- * const result = await evaluator.evaluateMoveQuality(
- *   fenBefore,
- *   fenAfter,
- *   playedMove
- * );
- *
- * if (result.shouldShowErrorDialog) {
- *   console.log(`Suboptimal move! Best was: ${result.bestMove}`);
- *   console.log(`WDL change: ${result.wdlBefore} -> ${result.wdlAfter}`);
- * }
- * ```
- */
+const logger = getLogger().setContext("MoveQualityEvaluator");
+
+/** Evaluates move quality using tablebase analysis */
 export class MoveQualityEvaluator {
-  /**
-   * Evaluates the quality of a played move against tablebase recommendations
-   *
-   * @param fenBefore - FEN position before the move
-   * @param fenAfter - FEN position after the move
-   * @param validatedMove - The move that was played
-   * @param trainingBaseline - Optional evaluation baseline for training context
-   * @returns Quality evaluation result
-   */
+  /** Evaluates move quality against tablebase recommendations */
   async evaluateMoveQuality(
     fenBefore: string,
     fenAfter: string,
@@ -125,7 +50,7 @@ export class MoveQualityEvaluator {
 
       // Check if both evaluations are available
       if (!this.areEvaluationsValid(evalBefore, evalAfter)) {
-        getLogger().debug(
+        logger.debug(
           "[MoveQuality] Skipping evaluation - insufficient data:",
           {
             evalBeforeAvailable: evalBefore?.isAvailable,
@@ -145,7 +70,7 @@ export class MoveQualityEvaluator {
       const wdlBefore = evalBefore.result!.wdl;
       const wdlAfter = evalAfter.result!.wdl;
 
-      getLogger().debug("[MoveQuality] Evaluating move quality:", {
+      logger.debug("[MoveQuality] Evaluating move quality:", {
         moveColor: validatedMove.color,
         moveSan: validatedMove.san,
         wdlBefore,
@@ -159,12 +84,9 @@ export class MoveQualityEvaluator {
         this.convertToPlayerPerspective(wdlBefore, wdlAfter);
 
       // Determine effective baseline for comparison
-      const effectiveWdlBefore = this.determineEffectiveBaseline(
-        trainingBaseline,
-        wdlBeforeFromPlayerPerspective
-      );
+      const effectiveWdlBefore = trainingBaseline?.wdl ?? wdlBeforeFromPlayerPerspective;
 
-      getLogger().debug("[MoveQuality] WDL evaluation context:", {
+      logger.debug("[MoveQuality] WDL evaluation context:", {
         wdlBeforeFromPlayerPerspective,
         wdlAfterFromPlayerPerspective,
         trainingBaselineWdl: trainingBaseline?.wdl,
@@ -187,25 +109,17 @@ export class MoveQualityEvaluator {
       );
 
       // Determine if outcome changed significantly - use baseline if available
-      const outcomeChanged = this.didOutcomeChange(
+      const outcomeChanged = WdlAdapter.didOutcomeChange(
         effectiveWdlBefore,
         wdlAfterFromPlayerPerspective,
       );
 
-      this.logDecisionValues(
-        outcomeChanged,
-        playedMoveWasBest,
-        effectiveWdlBefore,
-        wdlAfterFromPlayerPerspective,
-      );
+      const shouldShowErrorDialog = !playedMoveWasBest && outcomeChanged;
+      const bestMove = topMoves.isAvailable && topMoves.moves && topMoves.moves.length > 0
+        ? topMoves.moves[0].san
+        : undefined;
 
-      const shouldShowErrorDialog = this.shouldShowErrorDialog(
-        playedMoveWasBest,
-        outcomeChanged
-      );
-      const bestMove = this.getBestMove(topMoves);
-
-      getLogger().info("[MoveQuality] Decision to show error dialog:", {
+      logger.info("[MoveQuality] Decision to show error dialog:", {
         shouldShowErrorDialog,
         playedMoveWasBest,
         outcomeChanged,
@@ -217,7 +131,7 @@ export class MoveQualityEvaluator {
       });
 
       if (shouldShowErrorDialog) {
-        getLogger().info(
+        logger.info(
           "[MoveQuality] Move quality issue detected - suggesting error dialog",
         );
       }
@@ -309,51 +223,16 @@ export class MoveQualityEvaluator {
     topMoves: TablebaseMovesResult,
     playedMoveSan: string,
   ): boolean {
-    if (!this.hasAvailableMoves(topMoves)) {
+    if (!(topMoves.isAvailable && topMoves.moves && topMoves.moves.length > 0)) {
       return false;
     }
     return topMoves.moves!.some((m) => m.san === playedMoveSan);
   }
 
-  /**
-   * Checks if tablebase moves are available
-   */
-  private hasAvailableMoves(topMoves: TablebaseMovesResult): boolean {
-    return topMoves.isAvailable && !!topMoves.moves && topMoves.moves.length > 0;
-  }
 
-  /**
-   * Determines if the move outcome changed significantly
-   */
-  private didOutcomeChange(
-    wdlBeforeFromPlayerPerspective: number,
-    wdlAfterFromPlayerPerspective: number,
-  ): boolean {
-    return WdlAdapter.didOutcomeChange(wdlBeforeFromPlayerPerspective, wdlAfterFromPlayerPerspective);
-  }
 
-  /**
-   * Checks if a winning position turned into a draw or loss
-   */
-  private isWinToDrawOrLoss(wdlBefore: number, wdlAfter: number): boolean {
-    return WdlAdapter.isWinToDrawOrLoss(wdlBefore, wdlAfter);
-  }
 
-  /**
-   * Checks if a drawn position turned into a loss
-   */
-  private isDrawToLoss(wdlBefore: number, wdlAfter: number): boolean {
-    return WdlAdapter.isDrawToLoss(wdlBefore, wdlAfter);
-  }
 
-  /**
-   * Gets the best move from top moves result
-   */
-  private getBestMove(topMoves: TablebaseMovesResult): string | undefined {
-    return topMoves.isAvailable && topMoves.moves && topMoves.moves.length > 0
-      ? topMoves.moves[0].san
-      : undefined;
-  }
 
   /**
    * Logs best moves comparison for debugging
@@ -374,55 +253,15 @@ export class MoveQualityEvaluator {
 
     // Debug each move comparison
     if (topMoves.moves) {
-      getLogger().debug("  Comparing each move:");
+      logger.debug("  Comparing each move:");
       topMoves.moves.forEach((m, i) => {
-        getLogger().debug(
+        logger.debug(
           `    Move ${i}: "${m.san}" === "${playedMoveSan}" ? ${m.san === playedMoveSan}`,
         );
       });
     }
   }
 
-  /**
-   * Determines the effective baseline for comparison
-   */
-  private determineEffectiveBaseline(
-    trainingBaseline: { wdl: number; fen: string } | null | undefined,
-    wdlBeforeFromPlayerPerspective: number
-  ): number {
-    return trainingBaseline?.wdl ?? wdlBeforeFromPlayerPerspective;
-  }
 
-  /**
-   * Determines if error dialog should be shown based on move quality
-   */
-  private shouldShowErrorDialog(
-    playedMoveWasBest: boolean,
-    outcomeChanged: boolean
-  ): boolean {
-    return !playedMoveWasBest && outcomeChanged;
-  }
 
-  /**
-   * Logs decision values for debugging
-   */
-  private logDecisionValues(
-    outcomeChanged: boolean,
-    playedMoveWasBest: boolean,
-    effectiveWdlBefore: number,
-    wdlAfterFromPlayerPerspective: number,
-  ): void {
-    getLogger().debug("[MoveQuality] DECISION VALUES:");
-    getLogger().debug("  outcomeChanged:", outcomeChanged);
-    getLogger().debug("  playedMoveWasBest:", playedMoveWasBest);
-    getLogger().debug(
-      "  effectiveWdlBefore:",
-      effectiveWdlBefore,
-    );
-    getLogger().debug(
-      "  wdlAfterFromPlayerPerspective:",
-      wdlAfterFromPlayerPerspective,
-    );
-    getLogger().debug("  showDialog:", !playedMoveWasBest && outcomeChanged);
-  }
 }

@@ -13,7 +13,7 @@ import { Chess } from "chess.js";
 import { useGameStore, useTrainingStore } from "@shared/store/hooks";
 import type { ValidatedMove } from "@shared/types/chess";
 import { ErrorService } from "@shared/services/ErrorService";
-import { getLogger } from "@shared/services/logging/Logger";
+import { getLogger } from "@shared/services/logging";
 
 /**
  * Configuration options for the useTrainingSession hook
@@ -89,7 +89,7 @@ interface UseTrainingSessionReturn {
  *       }
  *     },
  *     onPositionChange: (fen, pgn) => {
- *       console.log('New position:', fen);
+ *       // console.log('New position:', fen);
  *       updateAnalysis(fen);
  *     }
  *   });

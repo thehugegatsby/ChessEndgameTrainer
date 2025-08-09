@@ -17,9 +17,9 @@
  * 
  * const result = await apiCall();
  * if (isOk(result)) {
- *   console.log(result.value.name); // TypeScript knows this is safe
+ *   // Access result.value.name safely - TypeScript knows this is safe
  * } else {
- *   console.error(result.error.message);
+ *   // Handle error: result.error.message
  * }
  * ```
  */

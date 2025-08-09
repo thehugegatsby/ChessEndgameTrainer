@@ -34,7 +34,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { PositionAnalysis } from '@shared/types';
-import { getLogger } from '@shared/services/logging/Logger';
+import { getLogger } from '@shared/services/logging';
 
 /**
  * Configuration options for move validation hook
@@ -99,7 +99,7 @@ export interface MoveValidationResult {
  * 
  * // Access processing state
  * if (moveValidation.isProcessing) {
- *   console.log('Processing evaluation...');
+ *   // console.log('Processing evaluation...');
  * }
  * ```
  */

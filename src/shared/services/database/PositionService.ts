@@ -123,7 +123,7 @@ export class PositionService implements IPositionService {
    * ```typescript
    * const position = await service.getPosition(1);
    * if (position) {
-   *   console.log(position.title);
+   *   logger.info(position.title);
    * }
    * ```
    */
@@ -167,7 +167,7 @@ export class PositionService implements IPositionService {
    * @example
    * ```typescript
    * const allPositions = await service.getAllPositions();
-   * console.log(`Total positions: ${allPositions.length}`);
+   * logger.info(`Total positions: ${allPositions.length}`);
    * ```
    */
   async getAllPositions(): Promise<EndgamePosition[]> {
@@ -300,7 +300,7 @@ export class PositionService implements IPositionService {
    * @example
    * ```typescript
    * service.clearCache();
-   * console.log('Cache cleared');
+   * logger.info('Cache cleared');
    * ```
    */
   clearCache(): void {
@@ -322,8 +322,8 @@ export class PositionService implements IPositionService {
    * @example
    * ```typescript
    * const stats = service.getCacheStats();
-   * console.log(`Cached positions: ${stats.size}`);
-   * console.log(`Cache enabled: ${stats.enabled}`);
+   * logger.info(`Cached positions: ${stats.size}`);
+   * logger.info(`Cache enabled: ${stats.enabled}`);
    * ```
    */
   getCacheStats(): { size: number; keys: number[]; enabled: boolean } {

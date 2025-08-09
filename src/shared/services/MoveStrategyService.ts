@@ -40,7 +40,7 @@ class MoveStrategyService {
    * @example
    * const move = await moveStrategyService.getLongestResistanceMove(fen);
    * if (move) {
-   *   console.log('Best defensive move:', move); // e.g., "e7e8"
+   *   logger.info('Best defensive move:', move); // e.g., "e7e8"
    * }
    */
   async getLongestResistanceMove(fen: string): Promise<string | null> {
@@ -181,7 +181,7 @@ class MoveStrategyService {
    *
    * @example
    * const move = await moveStrategyService.getBestMove(fen);
-   * console.log('Tablebase says best is:', move); // e.g., "a7a8q"
+   * logger.info('Tablebase says best is:', move); // e.g., "a7a8q"
    */
   async getBestMove(fen: string): Promise<string | null> {
     try {

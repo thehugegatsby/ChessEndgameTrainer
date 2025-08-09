@@ -52,7 +52,7 @@ export interface GameStateInfo {
  * const validator = new MoveValidator();
  * const result = await validator.validateMove("e2-e4");
  * if (!result.isValid) {
- *   console.log(result.errorMessage);
+ *   // console.log(result.errorMessage);
  * }
  * ```
  */

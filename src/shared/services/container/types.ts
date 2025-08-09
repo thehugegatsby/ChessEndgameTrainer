@@ -323,7 +323,7 @@ export interface TestContainerOverrides {
  * const config: ServiceContainerConfig = {
  *   useSingletons: true,
  *   validateKeys: true,
- *   logger: (msg) => console.log(`[Container] ${msg}`)
+ *   logger: (msg) => logger.info(`[Container] ${msg}`)
  * };
  *
  * const container = new ServiceContainer(config);

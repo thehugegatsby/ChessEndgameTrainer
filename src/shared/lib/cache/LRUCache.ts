@@ -62,7 +62,7 @@ export interface CacheStats {
  * 
  * // Monitor performance
  * const stats = positionCache.getStats();
- * console.log(`Hit rate: ${(stats.hitRate * 100).toFixed(1)}%`);
+ * // logger.info(`Hit rate: ${(stats.hitRate * 100).toFixed(1)}%`);
  * ```
  */
 export class LRUCache<T> {

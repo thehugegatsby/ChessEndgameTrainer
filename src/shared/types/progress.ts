@@ -117,7 +117,7 @@ export function toDueCard(
  * ```typescript
  * const allCards = Object.values(cardProgress);
  * const dueCards = filterDueCards(allCards);
- * console.log(`${dueCards.length} cards are due for review`);
+ * // logger.info(`${dueCards.length} cards are due for review`);
  * ```
  */
 export function filterDueCards(

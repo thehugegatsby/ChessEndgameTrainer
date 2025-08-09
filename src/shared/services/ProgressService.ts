@@ -230,7 +230,7 @@ export class ProgressService {
    * ```typescript
    * const stats = await service.getUserStats('user123');
    * if (stats) {
-   *   console.log(`Completed: ${stats.totalPositionsCompleted}`);
+   *   logger.info(`Completed: ${stats.totalPositionsCompleted}`);
    * }
    * ```
    */
@@ -360,7 +360,7 @@ export class ProgressService {
    * ```typescript
    * const deleted = await service.deleteCardProgress('user123', 'pos456');
    * if (deleted) {
-   *   console.log('Card progress deleted successfully');
+   *   logger.info('Card progress deleted successfully');
    * }
    * ```
    */
@@ -552,7 +552,7 @@ export class ProgressService {
    * @example
    * ```typescript
    * const dueCards = await service.getDueCardProgresses('user123');
-   * console.log(`${dueCards.length} cards are due for review`);
+   * logger.info(`${dueCards.length} cards are due for review`);
    * ```
    */
   async getDueCardProgresses(

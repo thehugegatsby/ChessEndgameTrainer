@@ -25,7 +25,6 @@
 import { ImmerStateCreator, GameSlice } from "./types";
 import type { ValidatedMove } from "@shared/types";
 import { chessService } from "@shared/services/ChessService";
-// Logger removed - not used in this slice
 
 /**
  * Initial state for the game slice
@@ -196,7 +195,7 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
    * // Undo the last move
    * const success = store.getState().undoMove();
    * if (!success) {
-   *   console.log("No moves to undo");
+   *   // console.log("No moves to undo");
    * }
    * ```
    */
@@ -222,7 +221,7 @@ export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
    * // Redo a previously undone move
    * const success = store.getState().redoMove();
    * if (!success) {
-   *   console.log("No moves to redo");
+   *   // console.log("No moves to redo");
    * }
    * ```
    */

@@ -1,52 +1,6 @@
 /**
- * @file Pawn promotion handler module
- * @module store/orchestrators/handlePlayerMove/PawnPromotionHandler
- *
- * @description
- * Comprehensive pawn promotion management for chess endgame training.
- * Handles detection, evaluation, auto-win scenarios, and future UI integration
- * with sophisticated tablebase analysis for optimal training feedback.
- *
- * @remarks
- * **Core Functionality:**
- * - Detects pawn promotion moves using chess.js flags and properties
- * - Evaluates promotion outcomes using tablebase analysis
- * - Identifies auto-win scenarios for immediate training completion
- * - Provides foundation for future promotion choice UI
- *
- * **Tablebase Integration:**
- * - WDL perspective conversion for accurate player evaluation
- * - Category analysis (mate, win) for auto-win detection
- * - Error resilient evaluation with graceful fallbacks
- *
- * **Training Flow Integration:**
- * - Seamless integration with move orchestration
- * - Automatic training completion for winning promotions
- * - User feedback through German localized messages
- *
- * **Future Extensibility:**
- * - Designed for promotion choice UI implementation
- * - Supports all promotion pieces (Q, R, N, B)
- * - Modular architecture for easy UI integration
- *
- * @example
- * ```typescript
- * const promotionHandler = new PawnPromotionHandler();
- *
- * // Check if move involves promotion
- * const promotionInfo = promotionHandler.checkPromotion(validatedMove);
- * if (promotionInfo.isPromotion) {
- *   // Evaluate if promotion leads to auto-win
- *   const isAutoWin = await promotionHandler.evaluatePromotionOutcome(
- *     fenAfter,
- *     validatedMove.color
- *   );
- *
- *   if (isAutoWin) {
- *     await promotionHandler.handleAutoWin(api, { ...promotionInfo, isAutoWin: true });
- *   }
- * }
- * ```
+ * Pawn promotion handler - detects and manages pawn promotions
+ * @see docs/orchestrators/handlePlayerMove/PawnPromotionHandler.md
  */
 
 import type { ValidatedMove } from "@shared/types/chess";
@@ -56,10 +10,7 @@ import { getLogger } from "@shared/services/logging";
 import type { StoreApi } from "../types";
 import { handleTrainingCompletion } from "./move.completion";
 
-/**
- * Information about a pawn promotion move
- * @interface PromotionInfo
- */
+/** Information about a pawn promotion move */
 export interface PromotionInfo {
   /** Whether the move involves pawn promotion */
   isPromotion: boolean;
@@ -75,10 +26,7 @@ export interface PromotionInfo {
   moveDescription?: string;
 }
 
-/**
- * Available promotion choice with German localization
- * @interface PromotionChoice
- */
+/** Promotion choice with German localization */
 export interface PromotionChoice {
   /** Single character piece identifier */
   piece: "q" | "r" | "n" | "b";
@@ -88,11 +36,7 @@ export interface PromotionChoice {
   description: string;
 }
 
-/**
- * Complete set of promotion pieces with German localization
- * @constant PROMOTION_CHOICES
- * @description Provides user-friendly German labels and descriptions for all promotion pieces
- */
+/** Promotion pieces with German labels */
 export const PROMOTION_CHOICES: PromotionChoice[] = [
   {
     piece: "q",
@@ -108,64 +52,9 @@ export const PROMOTION_CHOICES: PromotionChoice[] = [
   { piece: "b", label: "Läufer", description: "Zieht diagonal" },
 ];
 
-/**
- * Advanced pawn promotion handler with tablebase integration
- * @class PawnPromotionHandler
- *
- * @description
- * Manages all aspects of pawn promotion in chess endgame training:
- *
- * **Detection & Analysis:**
- * - Identifies promotion moves using chess.js move flags
- * - Validates promotion piece types
- * - Extracts move coordinates for UI display
- *
- * **Outcome Evaluation:**
- * - Uses tablebase analysis to evaluate promotion results
- * - Converts WDL values to player perspective for accurate assessment
- * - Detects auto-win scenarios (forced mate, winning positions)
- * - Handles immediate checkmate detection
- *
- * **Training Integration:**
- * - Triggers automatic training completion for winning promotions
- * - Provides user feedback through localized messages
- * - Integrates seamlessly with move orchestration flow
- *
- * **Future UI Support:**
- * - Foundation for promotion choice dialog implementation
- * - Supports all promotion pieces with German localization
- * - Modular architecture for easy UI component integration
- *
- * @remarks
- * The handler uses sophisticated WDL (Win/Draw/Loss) perspective conversion:
- * - Tablebase returns WDL from white's perspective
- * - Values are converted to promoting player's perspective
- * - Auto-win detection considers both WDL values and result categories
- *
- * @example
- * ```typescript
- * const handler = new PawnPromotionHandler();
- *
- * // Complete promotion workflow
- * const promotionInfo = handler.checkPromotion(move);
- * if (promotionInfo.isPromotion) {
- *   const isAutoWin = await handler.evaluatePromotionOutcome(fen, 'w');
- *   if (isAutoWin) {
- *     await handler.handleAutoWin(api, { ...promotionInfo, isAutoWin: true });
- *   }
- * }
- *
- * // Get piece label for UI
- * const label = handler.getPromotionPieceLabel('q'); // Returns: "Dame"
- * ```
- */
+/** Handles pawn promotion detection and auto-win evaluation */
 export class PawnPromotionHandler {
-  /**
-   * Checks if a move involves pawn promotion
-   *
-   * @param move - The validated move that was executed
-   * @returns Promotion information
-   */
+  /** Checks if move involves pawn promotion */
   checkPromotion(move: ValidatedMove): PromotionInfo {
     // chess.js sets the 'promotion' property in the move object
     // and flags contain 'p' for promotion

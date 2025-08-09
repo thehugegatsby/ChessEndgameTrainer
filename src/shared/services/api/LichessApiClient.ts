@@ -17,10 +17,10 @@
  * const client = new LichessApiClient();
  * try {
  *   const response = await client.lookup(fen);
- *   console.log(`Category: ${response.category}`);
+ *   // console.log(`Category: ${response.category}`);
  * } catch (error) {
  *   if (error instanceof LichessApiError) {
- *     console.error(`API Error ${error.statusCode}: ${error.message}`);
+ *     // console.error(`API Error ${error.statusCode}: ${error.message}`);
  *   }
  * }
  */
