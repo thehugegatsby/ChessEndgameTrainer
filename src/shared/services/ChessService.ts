@@ -92,7 +92,6 @@ class ChessService {
 
   constructor() {
     this.chess = new Chess();
-    logger.debug("ChessService initialized");
   }
 
   /**
@@ -138,7 +137,6 @@ class ChessService {
    */
   initialize(fen: string): boolean {
     try {
-      // logger.debug("ChessService.initialize called", { fen });
 
       // Check cache first (storing normalized FEN strings, not Chess instances)
       if (this.fenCache.has(fen)) {
@@ -193,7 +191,6 @@ class ChessService {
   ): ValidatedMove | null {
     try {
       const fenBefore = this.chess.fen();
-      // logger.debug("ChessService.move called", { move, fenBefore });
 
       // Normalize promotion piece if move is an object with promotion
       let normalizedMove = move;
@@ -202,10 +199,6 @@ class ChessService {
           ...move,
           promotion: this.normalizePromotionPiece(move.promotion)
         };
-        logger.debug("Normalized promotion piece", { 
-          original: move.promotion, 
-          normalized: normalizedMove.promotion 
-        });
       } else if (typeof move === 'string') {
         // Handle string notation with German piece letters
         // Try different string formats: "e7e8D", "e7-e8D", "e8D", "e8=D"
@@ -220,20 +213,12 @@ class ChessService {
             to: promotionMatch[2],
             promotion: normalizedPromotion as string
           } as { from: string; to: string; promotion?: string };
-          logger.debug("Normalized string move format 1", { 
-            original: move, 
-            normalized: normalizedMove 
-          });
         } else {
           // Format 2: "e8D" or "e8=D" (SAN notation with German piece)
           promotionMatch = move.match(/^([a-h][1-8])=?([DTLSQRBN])$/i);
           if (promotionMatch && promotionMatch[2]) {
             const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[2]);
             normalizedMove = promotionMatch[1] + '=' + (normalizedPromotion || '').toUpperCase();
-            logger.debug("Normalized string move format 2", { 
-              original: move, 
-              normalized: normalizedMove 
-            });
           }
         }
       }
@@ -400,7 +385,6 @@ class ChessService {
       source: "reset",
     });
 
-    logger.debug("Reset to starting position");
   }
 
   /**
@@ -507,7 +491,6 @@ class ChessService {
   ): boolean {
     try {
       const currentFen = this.chess.fen();
-      // logger.debug("ChessService.validateMove", { move, currentFen });
 
       // Additional validation for move object format
       if (typeof move === 'object' && move !== null) {
@@ -518,7 +501,6 @@ class ChessService {
           // Basic square format validation (e.g., "e2", "h8")
           const squareRegex = /^[a-h][1-8]$/;
           if (!squareRegex.test(from) || !squareRegex.test(to)) {
-            logger.debug("Invalid square format in move object", { from, to });
             return false;
           }
           
@@ -535,7 +517,6 @@ class ChessService {
           
           const piece = tempChess.get(from);
           if (!piece) {
-            logger.debug("No piece on source square", { from, currentFen });
             return false;
           }
         }
@@ -548,10 +529,6 @@ class ChessService {
           ...move,
           promotion: this.normalizePromotionPiece(move.promotion)
         };
-        logger.debug("Normalized promotion piece for validation", { 
-          original: move.promotion, 
-          normalized: normalizedMove.promotion 
-        });
       } else if (typeof move === 'string') {
         // Handle string notation with German piece letters
         // Try different string formats: "e7e8D", "e7-e8D", "e8D", "e8=D"
@@ -566,20 +543,12 @@ class ChessService {
             to: promotionMatch[2],
             promotion: normalizedPromotion as string
           } as { from: string; to: string; promotion?: string };
-          logger.debug("Normalized string move format 1 for validation", { 
-            original: move, 
-            normalized: normalizedMove 
-          });
         } else {
           // Format 2: "e8D" or "e8=D" (SAN notation with German piece)
           promotionMatch = move.match(/^([a-h][1-8])=?([DTLSQRBN])$/i);
           if (promotionMatch && promotionMatch[2]) {
             const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[2]);
             normalizedMove = promotionMatch[1] + '=' + (normalizedPromotion || '').toUpperCase();
-            logger.debug("Normalized string move format 2 for validation", { 
-              original: move, 
-              normalized: normalizedMove 
-            });
           }
         }
       }

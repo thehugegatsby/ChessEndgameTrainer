@@ -197,14 +197,3 @@ export class WdlAdapter {
   }
 }
 
-/**
- * Legacy compatibility - gradually replace direct numeric comparisons with these helpers
- */
-export const WdlUtils = {
-  /** @deprecated Use WdlAdapter.isWinning() */
-  isPositive: (wdl: RawWdlValue) => WdlAdapter.isWinning(wdl),
-  /** @deprecated Use WdlAdapter.isDrawing() */
-  isZero: (wdl: RawWdlValue) => WdlAdapter.isDrawing(wdl),
-  /** @deprecated Use WdlAdapter.isLosing() */
-  isNegative: (wdl: RawWdlValue) => WdlAdapter.isLosing(wdl),
-};

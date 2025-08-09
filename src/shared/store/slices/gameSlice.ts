@@ -22,7 +22,7 @@
  * ```
  */
 
-import { ImmerStateCreator, GameSlice } from "./types";
+import { GameSlice, GameState, GameActions } from "./types";
 import type { ValidatedMove } from "@shared/types";
 import { chessService } from "@shared/services/ChessService";
 
@@ -46,41 +46,42 @@ export const initialGameState = {
 };
 
 /**
- * Creates the initial game state with default values
- * @deprecated Use initialGameState export directly
- */
-export const createInitialGameState = () => ({ ...initialGameState });
-
-/**
- * Creates the game slice for the Zustand store
+ * Creates the game state (data only, no actions)
  *
- * @param {Function} set - Zustand's set function for state updates
- * @param {Function} get - Zustand's get function for accessing current state
- * @returns {GameSlice} Complete game slice with state and actions
+ * @returns {GameState} Game state properties only
  *
  * @remarks
- * This slice manages the core chess game state and provides actions for
- * game manipulation. It works closely with the training and tablebase slices
- * for complete functionality. The slice uses chess.js for move validation
- * and game rule enforcement.
+ * This function creates only the state properties for game slice.
+ * Actions are created separately to avoid Immer middleware stripping functions.
  *
  * @example
  * ```typescript
- * // In your root store
- * import { create } from 'zustand';
- * import { createGameSlice } from './slices/gameSlice';
- *
- * const useStore = create<RootState>()((...args) => ({
- *   ...createGameSlice(...args),
- *   ...createUISlice(...args),
- *   // ... other slices
- * }));
+ * const gameState = createGameState();
+ * const gameActions = createGameActions(set, get);
  * ```
  */
-export const createGameSlice: ImmerStateCreator<GameSlice> = (set, get) => ({
-  // Initial state
-  ...createInitialGameState(),
+export const createGameState = (): GameState => ({ ...initialGameState });
 
+/**
+ * Creates the game actions (functions only, no state)
+ *
+ * @param {Function} set - Zustand's set function for state updates
+ * @param {Function} get - Zustand's get function for accessing current state
+ * @returns {GameActions} Game action functions
+ *
+ * @remarks
+ * This function creates only the action functions for game slice.
+ * Actions are kept separate from state to prevent Immer middleware from stripping them.
+ *
+ * @example
+ * ```typescript
+ * const gameActions = createGameActions(set, get);
+ * ```
+ */
+export const createGameActions = (
+  set: (fn: (state: { game: GameState }) => void) => void,
+  get: () => { game: GameState },
+): GameActions => ({
   // Actions
 
   // State management actions

@@ -31,7 +31,7 @@ import { devtools, persist, createJSONStorage, StateStorage } from "zustand/midd
 import { immer } from "zustand/middleware/immer";
 
 // Import all slice creators and initial states
-import { createGameSlice, initialGameState } from "./slices/gameSlice";
+import { createGameState, createGameActions, initialGameState } from "./slices/gameSlice";
 import {
   createTablebaseState,
   createTablebaseActions,
@@ -46,7 +46,7 @@ import {
   createProgressSlice,
   initialProgressState,
 } from "./slices/progressSlice";
-import { createUISlice, initialUIState } from "./slices/uiSlice";
+import { createUIState, createUIActions, initialUIState } from "./slices/uiSlice";
 
 // Import ChessService for event subscription
 import {
@@ -136,14 +136,15 @@ export const useStore = create<RootState>()(
   devtools(
     persist(
       immer((set, get, store) => {
-        // Create slices using Slice-in-Slice pattern (clean separation of state and actions)
-        const gameSlice = createGameSlice(set, get, store);
+        // Create slices using new pattern (clean separation of state and actions)
         const progressSlice = createProgressSlice(set, get, store);
-        const uiSlice = createUISlice(set, get, store);
 
         return {
-          // Clean Slice-in-Slice pattern: state and actions preserved at slice level
-          game: gameSlice,
+          // Clean separation pattern: state and actions composed
+          game: {
+            ...createGameState(),
+            ...createGameActions(set, get),
+          },
           training: {
             ...createTrainingState(),
             ...createTrainingActions(set, get),
@@ -153,7 +154,10 @@ export const useStore = create<RootState>()(
             ...createTablebaseActions(set),
           },
           progress: progressSlice,
-          ui: uiSlice,
+          ui: {
+            ...createUIState(),
+            ...createUIActions(set, get),
+          },
 
           // Orchestrator actions - coordinate across multiple slices
           /**

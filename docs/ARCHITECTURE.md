@@ -56,8 +56,8 @@ Cross-slice operations are handled by orchestrators in `/shared/store/orchestrat
 
 - `rootStore.ts` - Combined store with all domain slices
 - `slices/` - Individual domain-specific slices
-- `orchestrators/handlePlayerMove/` - 2202 lines across 7 files ⚠️
-- **ISSUE**: Over-engineered move handling with excessive abstraction
+- `orchestrators/handlePlayerMove/` - 1052 lines of code across 7 files ✅
+- **UPDATE**: Well-structured with Single Responsibility (not over-engineered!)
 
 ### 5. **React Hooks** (`/shared/hooks/`)
 
@@ -81,11 +81,11 @@ Cross-slice operations are handled by orchestrators in `/shared/store/orchestrat
 - **ChessService**: 740 lines singleton - needs repository pattern
 - **TestApiService**: 716 lines of test code mixed with production
 
-### 2. **Orchestrator Over-Engineering** (MEDIUM PRIORITY)
+### 2. **~~Orchestrator Over-Engineering~~** (RESOLVED ✅)
 
-- `handlePlayerMove`: 2202 lines split across 7 files
-- Complex abstraction for simple move validation
-- Should be simplified to 200-300 lines total
+- `handlePlayerMove`: Only 1052 lines of actual code (not 2202!)
+- Well-structured with proper separation of concerns
+- No refactoring needed - just removed 59 lines of deprecated code
 
 ### 3. **Missing Abstractions** (LOW PRIORITY)
 
@@ -158,10 +158,10 @@ Position changes → usePositionAnalysis hook
 
 ## Recommended Refactoring Priority
 
-1. **HIGH**: Split Logger service into modules
-2. **HIGH**: Simplify handlePlayerMove orchestrator
+1. **HIGH**: Split Logger service into modules (1082 lines)
+2. **~~HIGH: Simplify handlePlayerMove~~** ✅ DONE - Was not over-engineered!
 3. **MEDIUM**: Convert ChessService to repository pattern
-4. **LOW**: Abstract Firebase behind interfaces
+4. **LOW**: Abstract Firebase behind interfaces (only if switching providers)
 5. **LOW**: Clean up test infrastructure files
 
 ---

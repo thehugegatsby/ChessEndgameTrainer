@@ -181,61 +181,26 @@ export const useMoveHandlers = ({
    */
   const handleMove = useCallback(
     async (move: MoveInput) => {
-      const logger = getLogger().setContext("useMoveHandlers-handleMove");
-      logger.debug("🚀 handleMove called", {
-        move,
-        isGameFinished,
-        isPositionReady,
-        hasCurrentPosition: !!trainingState.currentPosition,
-        currentFen,
-      });
-
       // CRITICAL: Block moves if position is not ready
       if (!isPositionReady) {
-        logger.warn("⛔ Position not ready, blocking move", {
-          hasCurrentPosition: !!trainingState.currentPosition,
+        getLogger().warn("Position not ready, blocking move", {
           currentPositionId: trainingState.currentPosition?.id,
-          currentPositionFen: trainingState.currentPosition?.fen,
         });
         return false;
       }
 
-      // Add these critical debug logs
-      const moveLogger = getLogger().setContext("useMoveHandlers-handleMove");
-      moveLogger.debug("handleMove called", { move });
-      moveLogger.debug("Current FEN", { fen: currentFen });
-
       if (isGameFinished) {
-        logger.warn("handleMove early return", { isGameFinished });
         return false;
       }
 
       // Check if piece was dropped on same square (no move)
       if (move.from === move.to) {
-        logger.debug("Piece dropped on same square, ignoring", {
-          square: move.from,
-        });
         return false;
       }
 
       try {
-        // Debug: Log game state before validation
-        logger.debug("Game state before move validation", {
-          hasGame: false, // game is now null, handled by ChessService
-          currentFen: currentFen,
-        });
-
         // Move validation is handled by ChessService in makeMove
-        // We don't need to validate here anymore
-        logger.debug("Move validation delegated to ChessService", {
-          move,
-          currentFen,
-        });
-
-        // First make the move on the local game instance
-        logger.debug("Calling onMove callback", { move });
         const result = await onMove(move);
-        logger.debug("onMove result", { result });
 
         // The orchestrator now handles the entire workflow including:
         // - Move validation
@@ -256,7 +221,6 @@ export const useMoveHandlers = ({
       onMove,
       trainingState,
       uiActions,
-      currentFen,
       isPositionReady,
     ],
   );
@@ -286,25 +250,8 @@ export const useMoveHandlers = ({
    */
   const onDrop = useCallback(
     (sourceSquare: string, targetSquare: string, piece: string): boolean => {
-      const logger = getLogger().setContext("useMoveHandlers-onDrop");
-
-      logger.debug("🎯 onDrop called", {
-        sourceSquare,
-        targetSquare,
-        piece,
-        isPositionReady,
-        isGameFinished,
-        hasCurrentPosition: !!trainingState.currentPosition,
-        currentFen,
-      });
-
       // Block drops if position is not ready or game is finished
       if (!isPositionReady || isGameFinished) {
-        logger.warn("⛔ onDrop blocked", {
-          isPositionReady,
-          isGameFinished,
-          reason: !isPositionReady ? "position not ready" : "game finished",
-        });
         return false;
       }
 
@@ -323,7 +270,6 @@ export const useMoveHandlers = ({
         move.promotion = "q"; // Default to queen promotion
       }
 
-      logger.debug("✅ onDrop calling handleMove", { move });
       handleMove(move);
       return true;
     },
@@ -331,8 +277,6 @@ export const useMoveHandlers = ({
       handleMove,
       isGameFinished,
       isPositionReady,
-      trainingState.currentPosition,
-      currentFen,
     ],
   );
 
@@ -352,22 +296,8 @@ export const useMoveHandlers = ({
    */
   const onSquareClick = useCallback(
     ({ piece, square }: { piece: PieceType; square: string }): void => {
-      const logger = getLogger().setContext("useMoveHandlers-onSquareClick");
-
-      logger.debug("🖱️ onSquareClick called", {
-        square,
-        selectedSquare,
-        isPositionReady,
-        isGameFinished,
-      });
-
       // Block clicks if position is not ready or game is finished
       if (!isPositionReady || isGameFinished) {
-        logger.warn("⛔ onSquareClick blocked", {
-          isPositionReady,
-          isGameFinished,
-          reason: !isPositionReady ? "position not ready" : "game finished",
-        });
         return;
       }
 
@@ -382,15 +312,10 @@ export const useMoveHandlers = ({
             
             if (pieceColor === currentTurn) {
               setSelectedSquare(square);
-              logger.debug("✅ Square selected", { square, piece });
-            } else {
-              logger.debug("❌ Wrong color piece", { square, piece, currentTurn });
             }
           } catch (error) {
-            logger.error("Failed to validate piece color", error as Error);
+            getLogger().error("Failed to validate piece color", error as Error);
           }
-        } else {
-          logger.debug("❌ No piece on square", { square });
         }
         return;
       }
@@ -398,7 +323,6 @@ export const useMoveHandlers = ({
       // If same square clicked, deselect
       if (selectedSquare === square) {
         setSelectedSquare(null);
-        logger.debug("🔄 Square deselected", { square });
         return;
       }
 
@@ -406,9 +330,6 @@ export const useMoveHandlers = ({
       const result = onDrop(selectedSquare, square, ""); // Piece type not needed
       if (result) {
         setSelectedSquare(null); // Clear selection after successful move
-        logger.debug("✅ Move completed via click", { from: selectedSquare, to: square });
-      } else {
-        logger.debug("❌ Move failed via click", { from: selectedSquare, to: square });
       }
     },
     [selectedSquare, isPositionReady, isGameFinished, currentFen, onDrop],

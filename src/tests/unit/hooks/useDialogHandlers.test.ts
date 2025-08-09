@@ -19,10 +19,7 @@ import { useDialogHandlers } from '@shared/hooks/useDialogHandlers';
 // import { getLogger } from '@shared/services/logging/Logger'; // Not used in this test file
 import { chessService } from '@shared/services/ChessService';
 import { tablebaseService } from '@shared/services/TablebaseService';
-import {
-  cancelScheduledOpponentTurn,
-  scheduleOpponentTurn,
-} from '@shared/store/orchestrators/handlePlayerMove';
+import { getOpponentTurnManager } from '@shared/store/orchestrators/handlePlayerMove';
 
 // Mock dependencies
 jest.mock('@shared/services/logging/Logger', () => ({
@@ -53,9 +50,14 @@ jest.mock('@shared/services/TablebaseService', () => ({
   },
 }));
 
+// Mock the opponent turn manager
+const mockOpponentTurnManager = {
+  schedule: jest.fn(),
+  cancel: jest.fn(),
+};
+
 jest.mock('@shared/store/orchestrators/handlePlayerMove', () => ({
-  cancelScheduledOpponentTurn: jest.fn(),
-  scheduleOpponentTurn: jest.fn(),
+  getOpponentTurnManager: jest.fn(() => mockOpponentTurnManager),
 }));
 
 describe('useDialogHandlers', () => {
@@ -124,6 +126,10 @@ describe('useDialogHandlers', () => {
       isAvailable: true,
       result: { wdl: 1 },
     });
+    
+    // Clear mock calls for opponent turn manager
+    mockOpponentTurnManager.schedule.mockClear();
+    mockOpponentTurnManager.cancel.mockClear();
   });
 
   describe('Hook Initialization', () => {
@@ -172,7 +178,7 @@ describe('useDialogHandlers', () => {
         result.current.handleMoveErrorTakeBack();
       });
 
-      expect(cancelScheduledOpponentTurn).toHaveBeenCalledTimes(1);
+      expect(mockOpponentTurnManager.cancel).toHaveBeenCalledTimes(1);
       expect(mockUndoMove).toHaveBeenCalledTimes(1);
     });
 
@@ -289,7 +295,7 @@ describe('useDialogHandlers', () => {
       });
 
       expect(mockTrainingActions.setMoveErrorDialog).toHaveBeenCalledWith(null);
-      expect(scheduleOpponentTurn).toHaveBeenCalledWith(
+      expect(mockOpponentTurnManager.schedule).toHaveBeenCalledWith(
         mockStoreApi, 
         500, 
         expect.objectContaining({
@@ -306,7 +312,7 @@ describe('useDialogHandlers', () => {
       });
 
       // Get the callback passed to scheduleOpponentTurn
-      const scheduleCall = (scheduleOpponentTurn as jest.Mock).mock.calls[0];
+      const scheduleCall = mockOpponentTurnManager.schedule.mock.calls[0];
       const callback = scheduleCall[2].onOpponentMoveComplete;
 
       // Execute the callback
@@ -329,7 +335,7 @@ describe('useDialogHandlers', () => {
         result.current.handleMoveErrorContinue();
       });
 
-      const scheduleCall = (scheduleOpponentTurn as jest.Mock).mock.calls[0];
+      const scheduleCall = mockOpponentTurnManager.schedule.mock.calls[0];
       const callback = scheduleCall[2].onOpponentMoveComplete;
 
       // Should not throw
@@ -349,7 +355,7 @@ describe('useDialogHandlers', () => {
         result.current.handleMoveErrorContinue();
       });
 
-      const scheduleCall = (scheduleOpponentTurn as jest.Mock).mock.calls[0];
+      const scheduleCall = mockOpponentTurnManager.schedule.mock.calls[0];
       const callback = scheduleCall[2].onOpponentMoveComplete;
 
       // Should not throw
@@ -576,7 +582,7 @@ describe('useDialogHandlers', () => {
       });
 
       // Verify complete workflow
-      expect(cancelScheduledOpponentTurn).toHaveBeenCalled();
+      expect(mockOpponentTurnManager.cancel).toHaveBeenCalled();
       expect(mockUndoMove).toHaveBeenCalled();
       expect(mockTrainingActions.setPlayerTurn).toHaveBeenCalledWith(true);
       expect(mockTrainingActions.clearOpponentThinking).toHaveBeenCalled();
@@ -592,10 +598,10 @@ describe('useDialogHandlers', () => {
       });
 
       expect(mockTrainingActions.setMoveErrorDialog).toHaveBeenCalledWith(null);
-      expect(scheduleOpponentTurn).toHaveBeenCalled();
+      expect(mockOpponentTurnManager.schedule).toHaveBeenCalled();
 
       // Simulate opponent move completion
-      const callback = (scheduleOpponentTurn as jest.Mock).mock.calls[0][2].onOpponentMoveComplete;
+      const callback = mockOpponentTurnManager.schedule.mock.calls[0][2].onOpponentMoveComplete;
       
       await act(async () => {
         await callback();

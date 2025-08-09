@@ -6,16 +6,21 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MoveErrorDialog } from "@shared/components/ui/MoveErrorDialog";
-import { scheduleOpponentTurn } from "@shared/store/orchestrators/handlePlayerMove";
+import { getOpponentTurnManager } from "@shared/store/orchestrators/handlePlayerMove";
 
-// Mock the scheduleOpponentTurn function to verify it's called
+// Mock the opponent turn manager
+const mockOpponentTurnManager = {
+  schedule: jest.fn(),
+  cancel: jest.fn(),
+};
+
+// Mock the getOpponentTurnManager function to verify it's called
 jest.mock("@shared/store/orchestrators/handlePlayerMove", () => ({
-  scheduleOpponentTurn: jest.fn(),
-  cancelScheduledOpponentTurn: jest.fn(),
+  getOpponentTurnManager: jest.fn(() => mockOpponentTurnManager),
 }));
 
-const mockScheduleOpponentTurn = scheduleOpponentTurn as jest.MockedFunction<
-  typeof scheduleOpponentTurn
+const mockGetOpponentTurnManager = getOpponentTurnManager as jest.MockedFunction<
+  typeof getOpponentTurnManager
 >;
 
 describe("MoveErrorDialog - Continue Playing Feature", () => {

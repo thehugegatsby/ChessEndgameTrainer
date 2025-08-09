@@ -47,10 +47,7 @@
 
 import { useCallback } from 'react';
 import { getLogger } from '@shared/services/logging/Logger';
-import {
-  cancelScheduledOpponentTurn,
-  scheduleOpponentTurn,
-} from '@shared/store/orchestrators/handlePlayerMove';
+import { getOpponentTurnManager } from '@shared/store/orchestrators/handlePlayerMove';
 import { chessService } from '@shared/services/ChessService';
 import { tablebaseService } from '@shared/services/TablebaseService';
 import type { StoreApi } from '@shared/store/StoreContext';
@@ -250,7 +247,7 @@ export const useDialogHandlers = ({
 
     // CRITICAL: Cancel any scheduled opponent turn BEFORE undoing
     // This prevents the opponent from playing after we undo
-    cancelScheduledOpponentTurn();
+    getOpponentTurnManager().cancel();
     logger.info("Cancelled any scheduled opponent turn");
 
     // Use the undoMove function from useTrainingSession which properly handles ChessService
@@ -352,7 +349,7 @@ export const useDialogHandlers = ({
 
     // Schedule opponent turn to respond to player's move
     logger.info("📅 Calling scheduleOpponentTurn with evaluation baseline callback...");
-    scheduleOpponentTurn(storeApi, 500, {
+    getOpponentTurnManager().schedule(storeApi, 500, {
       onOpponentMoveComplete: async () => {
         logger.info("🎯 Opponent move completed - updating evaluation baseline");
         

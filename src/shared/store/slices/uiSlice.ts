@@ -21,7 +21,7 @@
  * ```
  */
 
-import { ImmerStateCreator, UISlice } from "./types";
+import { UISlice, UIState, UIActions } from "./types";
 import { nanoid } from "nanoid";
 import { Toast, ModalType, LoadingState, AnalysisPanelState } from "../types";
 
@@ -47,54 +47,42 @@ export const initialUIState = {
 };
 
 /**
- * Creates the initial UI state with default values
- * @deprecated Use initialUIState export directly
- */
-export const createInitialUIState = () => ({ ...initialUIState });
-
-/**
- * Creates the UI slice for the Zustand store
+ * Creates the UI state (data only, no actions)
  *
- * @param {Function} set - Zustand's set function for state updates
- * @param {Function} get - Zustand's get function for accessing current state
- * @returns {UISlice} Complete UI slice with state and actions
+ * @returns {UIState} UI state properties only
  *
  * @remarks
- * This slice follows the Zustand slice pattern and is designed to be combined
- * with other slices in the root store. All actions are synchronous and side-effect free,
- * except for the auto-removal timer in showToast.
+ * This function creates only the state properties for UI slice.
+ * Actions are created separately to avoid Immer middleware stripping functions.
  *
  * @example
  * ```typescript
- * // In your root store
- * import { create } from 'zustand';
- * import { createUISlice } from './slices/uiSlice';
- *
- * const useStore = create<RootState>()((...args) => ({
- *   ...createUISlice(...args),
- *   ...createGameSlice(...args),
- *   // ... other slices
- * }));
+ * const uiState = createUIState();
+ * const uiActions = createUIActions(set, get);
  * ```
  */
-export const createUISlice: ImmerStateCreator<UISlice> = (set, get) => ({
-  // Initial state - use fresh arrays for each instance
-  isSidebarOpen: false,
-  currentModal: null as ModalType | null,
-  toasts: [],
-  lastError: null as Error | null,
-  loading: {
-    global: false,
-    position: false,
-    tablebase: false,
-    analysis: false,
-  } as LoadingState,
-  analysisPanel: {
-    isOpen: false,
-    activeTab: "moves" as const,
-    showTablebase: true,
-  } as AnalysisPanelState,
+export const createUIState = (): UIState => ({ ...initialUIState });
 
+/**
+ * Creates the UI actions (functions only, no state)
+ *
+ * @param {Function} set - Zustand's set function for state updates
+ * @param {Function} get - Zustand's get function for accessing current state
+ * @returns {UIActions} UI action functions
+ *
+ * @remarks
+ * This function creates only the action functions for UI slice.
+ * Actions are kept separate from state to prevent Immer middleware from stripping them.
+ *
+ * @example
+ * ```typescript
+ * const uiActions = createUIActions(set, get);
+ * ```
+ */
+export const createUIActions = (
+  set: (fn: (state: { ui: UIState }) => void) => void,
+  get: () => { ui: UIState & UIActions },
+): UIActions => ({
   // Actions
   /**
    * Toggles the sidebar visibility state

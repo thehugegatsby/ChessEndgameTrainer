@@ -22,7 +22,7 @@
  * ```
  */
 
-import { ImmerStateCreator, TablebaseSlice, TablebaseState, TablebaseActions } from "./types";
+import { TablebaseSlice, TablebaseState, TablebaseActions } from "./types";
 import type { PositionAnalysis } from "@shared/types/evaluation";
 import type { AnalysisStatus } from "../types";
 
@@ -37,11 +37,6 @@ export const initialTablebaseState = {
   currentEvaluation: undefined as PositionAnalysis | undefined,
 };
 
-/**
- * Creates the initial tablebase state with default values
- * @deprecated Use initialTablebaseState export directly
- */
-export const createInitialTablebaseState = () => ({ ...initialTablebaseState });
 
 /**
  * Creates the tablebase state (data only, no actions)
@@ -276,21 +271,11 @@ export const createTablebaseActions = (
    */
   clearTablebaseState: () => {
     set((state) => {
-      Object.assign(state.tablebase, createInitialTablebaseState());
+      Object.assign(state.tablebase, initialTablebaseState);
     });
   },
 });
 
-/**
- * Legacy slice creator for backwards compatibility
- * @deprecated Use createTablebaseState() and createTablebaseActions() separately
- */
-export const createTablebaseSlice: ImmerStateCreator<TablebaseSlice> = (
-  set,
-) => ({
-  ...createTablebaseState(),
-  ...createTablebaseActions(set),
-});
 
 /**
  * Selector functions for efficient state access

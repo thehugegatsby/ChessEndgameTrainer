@@ -24,7 +24,7 @@
  * ```
  */
 
-import { ImmerStateCreator, TrainingSlice, TrainingState, TrainingActions } from "./types";
+import { TrainingSlice, TrainingState, TrainingActions } from "./types";
 import type { EndgamePosition as BaseEndgamePosition } from "@shared/types/endgame";
 import type { ValidatedMove } from "@shared/types/chess";
 import type { MoveSuccessDialog } from "@shared/store/orchestrators/handlePlayerMove/move.types";
@@ -89,11 +89,6 @@ export const initialTrainingState = {
   } | null,
 };
 
-/**
- * Creates the initial training state with default values
- * @deprecated Use initialTrainingState export directly
- */
-export const createInitialTrainingState = () => ({ ...initialTrainingState });
 
 /**
  * Creates the training state (data only, no actions)
@@ -598,7 +593,7 @@ export const createTrainingActions = (
    */
   resetTraining: () => {
     set((state) => {
-      Object.assign(state.training, createInitialTrainingState());
+      Object.assign(state.training, initialTrainingState);
     });
   },
 
@@ -696,17 +691,6 @@ export const createTrainingActions = (
   },
 });
 
-/**
- * Legacy slice creator for backwards compatibility
- * @deprecated Use createTrainingState() and createTrainingActions() separately
- */
-export const createTrainingSlice: ImmerStateCreator<TrainingSlice> = (
-  set,
-  get,
-) => ({
-  ...createTrainingState(),
-  ...createTrainingActions(set, get),
-});
 
 /**
  * Selector functions for efficient state access

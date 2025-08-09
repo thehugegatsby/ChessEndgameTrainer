@@ -1,55 +1,14 @@
 /**
- * @file Move dialog manager module
- * @module store/orchestrators/handlePlayerMove/MoveDialogManager
- *
- * @description
- * Manages various move-related dialog interactions including error dialogs,
- * pawn promotion choices, and confirmation dialogs. Centralizes dialog logic
- * for better maintainability and consistent UX throughout the chess training application.
- *
- * @remarks
- * This module provides a unified interface for handling all dialog-based user interactions
- * that occur during chess move execution. It abstracts dialog state management and provides
- * consistent formatting for user-facing messages.
- *
- * Key features:
- * - Error dialog management for suboptimal moves
- * - Pawn promotion dialog coordination (future enhancement)
- * - Confirmation dialogs for critical actions
- * - WDL change formatting with German localization
- * - Move quality assessment and user feedback
- *
- * @example
- * ```typescript
- * const dialogManager = new MoveDialogManager();
- *
- * // Show error for suboptimal move
- * dialogManager.showMoveErrorDialog(api, -1, 0, "Nf3");
- *
- * // Close error dialog
- * dialogManager.closeMoveErrorDialog(api);
- *
- * // Format WDL change for user
- * const message = dialogManager.formatWdlChange(-2, 1);
- * // Returns: "Position verbessert sich um 3 Punkte"
- * ```
+ * Move dialog manager - handles error dialogs and user feedback
  */
 
 import { getLogger } from "@shared/services/logging";
 import type { StoreApi } from "../types";
 
-/**
- * Data structure for move error dialog state
- * @interface MoveErrorDialogData
- */
 export interface MoveErrorDialogData {
-  /** Whether the dialog is currently open */
   isOpen: boolean;
-  /** WDL evaluation before the move */
   wdlBefore: number;
-  /** WDL evaluation after the move */
   wdlAfter: number;
-  /** Suggested best move in algebraic notation */
   bestMove?: string;
 }
 

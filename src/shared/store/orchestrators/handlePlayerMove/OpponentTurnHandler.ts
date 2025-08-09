@@ -275,7 +275,7 @@ function selectOptimalMove(moves: TablebaseMove[]): TablebaseMove {
   return selected;
 }
 
-// Singleton instance for backward compatibility and global access
+// Singleton instance
 let managerInstance: OpponentTurnManager | null = null;
 
 /** Gets singleton OpponentTurnManager instance */
@@ -284,56 +284,4 @@ export function getOpponentTurnManager(): OpponentTurnManager {
     managerInstance = new OpponentTurnManager();
   }
   return managerInstance;
-}
-
-/**
- * Schedules opponent turn (backward compatibility wrapper)
- * 
- * @deprecated Use getOpponentTurnManager().schedule() instead
- * 
- * @param {StoreApi} api - Zustand store API
- * @param {number} [delay] - Delay in milliseconds
- * @param {Object} [options] - Optional configuration
- * 
- * @description
- * Legacy wrapper function for backward compatibility with existing code.
- * New code should use the OpponentTurnManager class directly.
- * 
- * @example
- * ```typescript
- * // Old way (still works but deprecated)
- * scheduleOpponentTurn(api);
- * 
- * // New way (recommended)
- * getOpponentTurnManager().schedule(api);
- * ```
- */
-export function scheduleOpponentTurn(
-  api: StoreApi,
-  delay?: number,
-  options?: { onOpponentMoveComplete?: () => Promise<void> | void }
-): void {
-  getOpponentTurnManager().schedule(api, delay, options);
-}
-
-/**
- * Cancels scheduled opponent turn (backward compatibility wrapper)
- * 
- * @deprecated Use getOpponentTurnManager().cancel() instead
- * 
- * @description
- * Legacy wrapper function for backward compatibility with existing code.
- * New code should use the OpponentTurnManager class directly.
- * 
- * @example
- * ```typescript
- * // Old way (still works but deprecated)
- * cancelScheduledOpponentTurn();
- * 
- * // New way (recommended)
- * getOpponentTurnManager().cancel();
- * ```
- */
-export function cancelScheduledOpponentTurn(): void {
-  getOpponentTurnManager().cancel();
 }

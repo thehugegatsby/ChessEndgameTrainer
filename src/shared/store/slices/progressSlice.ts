@@ -118,7 +118,6 @@ export const createProgressSlice: ImmerStateCreator<ProgressSlice> = (set, get) 
     
     if (!card) {
       // Create new card using SpacedRepetitionService
-      logger.debug('Creating new card progress', { positionId: trimmedId, wasCorrect });
       card = createNewCard(trimmedId, Date.now());
       state.progress.cardProgress[trimmedId] = card;
     }
@@ -129,16 +128,6 @@ export const createProgressSlice: ImmerStateCreator<ProgressSlice> = (set, get) 
       const updatedCard = updateCardProgress(card, quality, Date.now());
       state.progress.cardProgress[trimmedId] = updatedCard;
       
-      logger.debug('Updated card progress with SM-2', { 
-        positionId: trimmedId, 
-        wasCorrect,
-        quality,
-        oldInterval: card.interval,
-        newInterval: updatedCard.interval,
-        oldEfactor: card.efactor,
-        newEfactor: updatedCard.efactor,
-        nextReviewAt: new Date(updatedCard.nextReviewAt).toISOString()
-      });
     } catch (error) {
       logger.error('Failed to update card progress', { positionId: trimmedId, error });
       // Fallback: keep the card unchanged rather than corrupting state
@@ -157,9 +146,7 @@ export const createProgressSlice: ImmerStateCreator<ProgressSlice> = (set, get) 
     if (state.progress.cardProgress[trimmedId]) {
       // Use SpacedRepetitionService to create a fresh card instead of deleting
       state.progress.cardProgress[trimmedId] = resetCard({ id: trimmedId });
-      logger.debug('Reset card progress using SM-2 defaults', { positionId: trimmedId });
     } else {
-      logger.debug('Card not found for reset', { positionId: trimmedId });
     }
   }),
 
@@ -366,11 +353,6 @@ export const createProgressSlice: ImmerStateCreator<ProgressSlice> = (set, get) 
     });
 
     try {
-      logger.debug('Saving session completion to Firebase', { 
-        userId, 
-        sessionStats, 
-        cardCount: cardUpdates.length 
-      });
       
       await getProgressService().updateProgressTransaction(
         userId,
@@ -429,10 +411,6 @@ export const createProgressSlice: ImmerStateCreator<ProgressSlice> = (set, get) 
       
       const dueCards = await getProgressService().getDueCardProgresses(userId);
       
-      logger.debug('Due cards retrieved successfully', { 
-        userId, 
-        dueCount: dueCards.length 
-      });
       
       return dueCards;
 

@@ -47,7 +47,7 @@ const safeStorage: StateStorage = {
 };
 
 // Import all slice creators
-import { createGameSlice } from "./slices/gameSlice";
+import { createGameState, createGameActions } from "./slices/gameSlice";
 import {
   createTablebaseState,
   createTablebaseActions,
@@ -57,7 +57,7 @@ import {
   createTrainingActions,
 } from "./slices/trainingSlice";
 import { createProgressSlice } from "./slices/progressSlice";
-import { createUISlice } from "./slices/uiSlice";
+import { createUIState, createUIActions } from "./slices/uiSlice";
 
 // Import ChessService for event subscription
 import {
@@ -115,13 +115,14 @@ export const createStore = (initialState?: Partial<RootState>) => {
     devtools(
       persist(
         immer((set, get, api) => {
-          // Create slices using Slice-in-Slice pattern (clean separation of state and actions)
-          const gameSlice = createGameSlice(set, get, api);
+          // Create slices using new pattern (clean separation of state and actions)
           const progressSlice = createProgressSlice(set, get, api);
-          const uiSlice = createUISlice(set, get, api);
           const rootState: RootState = {
-            // Clean Slice-in-Slice pattern: state and actions preserved at slice level
-            game: gameSlice,
+            // Clean separation pattern: state and actions composed
+            game: {
+              ...createGameState(),
+              ...createGameActions(set, get),
+            },
             training: {
               ...createTrainingState(),
               ...createTrainingActions(set, get),
@@ -131,7 +132,10 @@ export const createStore = (initialState?: Partial<RootState>) => {
               ...createTablebaseActions(set),
             },
             progress: progressSlice,
-            ui: uiSlice,
+            ui: {
+              ...createUIState(),
+              ...createUIActions(set, get),
+            },
 
             // Orchestrator actions - coordinate across multiple slices
             handlePlayerMove: async (

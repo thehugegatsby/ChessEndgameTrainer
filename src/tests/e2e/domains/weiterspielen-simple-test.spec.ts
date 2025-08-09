@@ -11,7 +11,6 @@
 import { test, expect } from "@playwright/test";
 import { getLogger } from "../../../shared/services/logging";
 import { E2E } from "../../../shared/constants";
-import { performMoveAndWait } from "../helpers/moveHelpers";
 import { TrainingBoardPage } from "../helpers/pageObjects/TrainingBoardPage";
 import { 
   waitForPageReady,

@@ -1,6 +1,6 @@
 /**
- * Comprehensive test suite for the FIXED WDL perspective conversion in MoveQualityEvaluator
- * These tests verify the bug is fixed and cover all major outcome change scenarios
+ * Comprehensive test suite for WDL perspective conversion in MoveQualityEvaluator
+ * These tests verify correct perspective handling and cover all major outcome change scenarios
  */
 
 import { MoveQualityEvaluator } from "@shared/store/orchestrators/handlePlayerMove/MoveQualityEvaluator";
@@ -9,7 +9,7 @@ import { createTestValidatedMove } from "@tests/helpers/validatedMoveFactory";
 
 jest.mock("@shared/services/TablebaseService");
 
-describe("MoveQualityEvaluator - Fixed WDL Perspective", () => {
+describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
   let evaluator: MoveQualityEvaluator;
   const mockTablebaseService = tablebaseService as jest.Mocked<
     typeof tablebaseService

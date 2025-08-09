@@ -32,16 +32,13 @@ import { MoveValidator } from "./MoveValidator";
 import { MoveQualityEvaluator } from "./MoveQualityEvaluator";
 import { PawnPromotionHandler } from "./PawnPromotionHandler";
 import { MoveDialogManager } from "./MoveDialogManager";
-import {
-  scheduleOpponentTurn,
-  cancelScheduledOpponentTurn,
-} from "./OpponentTurnHandler";
+import { getOpponentTurnManager } from "./OpponentTurnHandler";
 
 // Re-export types for consumers
 export type { MoveEvaluation, MoveExecutionResult } from "./move.types";
 
-// Re-export opponent turn functions for external use
-export { cancelScheduledOpponentTurn, scheduleOpponentTurn };
+// Re-export opponent turn manager for external use
+export { getOpponentTurnManager };
 
 /**
  * Dependencies for the handlePlayerMove orchestrator
@@ -244,7 +241,7 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
         });
 
         // Schedule opponent turn using dedicated handler
-        scheduleOpponentTurn(api);
+        getOpponentTurnManager().schedule(api);
       }
 
       return true;
