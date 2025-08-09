@@ -17,7 +17,7 @@ const baseConfig = {
     '/node_modules/(?!(nanoid|supermemo|react-chessboard|chess.js|react-hotkeys-hook|react-native|@react-native|@react-navigation|expo|@expo|react-native.*)/)'
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  setupFilesAfterEnv: ['<rootDir>/src/tests/utils/jestSetup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js', '<rootDir>/src/tests/utils/jestSetup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@shared/(.*)$': '<rootDir>/src/shared/$1',
@@ -68,13 +68,10 @@ module.exports = {
       displayName: 'react',
       testEnvironment: 'jsdom',
       testMatch: [
-        // React component tests
-        '<rootDir>/src/tests/**/components/**/*.{test,spec}.[jt]s?(x)',
-        '<rootDir>/src/tests/**/ui/**/*.{test,spec}.[jt]s?(x)',
-        '<rootDir>/src/tests/**/pages/**/*.{test,spec}.[jt]s?(x)',
-        '<rootDir>/src/tests/**/app/**/*.{test,spec}.[jt]s?(x)',
-        // React hooks that use DOM
-        '<rootDir>/src/tests/**/hooks/**/*.{test,spec}.[jt]s?(x)',
+        // Unit tests for React hooks that use DOM
+        '<rootDir>/src/tests/unit/hooks/**/*.{test,spec}.[jt]s?(x)',
+        // Unit tests for React components that use DOM
+        '<rootDir>/src/tests/unit/components/**/*.{test,spec}.[jt]s?(x)',
         // Integration tests often need DOM (but NOT firebase ones)
         '<rootDir>/src/tests/integration/**/*.{test,spec}.[jt]s?(x)',
         // Platform service needs DOM
@@ -92,8 +89,8 @@ module.exports = {
       displayName: 'node',
       testEnvironment: 'node',
       testMatch: [
-        // Service tests (except WebPlatformService which needs DOM)
-        '<rootDir>/src/tests/**/services/**/!(WebPlatformService).{test,spec}.[jt]s',
+        // Direct service tests (except WebPlatformService which needs DOM)
+        '<rootDir>/src/tests/services/**/!(WebPlatformService).{test,spec}.[jt]s',
         '<rootDir>/src/tests/unit/services/**/!(WebPlatformService).{test,spec}.[jt]s',
         // Store tests (Zustand doesn't need DOM)
         '<rootDir>/src/tests/unit/store/**/*.{test,spec}.[jt]s',

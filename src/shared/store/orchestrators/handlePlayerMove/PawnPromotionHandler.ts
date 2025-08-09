@@ -190,10 +190,23 @@ export class PawnPromotionHandler {
         promotionPiece: promotionPieceLabel,
         moveDescription: promotionInfo.moveDescription,
       };
+      
+      // CRITICAL: End the training session immediately
+      draft.training.isPlayerTurn = false;
+      draft.training.isOpponentThinking = false;
+      draft.training.isSuccess = true;
+      draft.training.sessionEndTime = Date.now();
+      
+      // Mark game as finished so useTrainingSession calls onComplete(true) -> incrementStreak()
+      draft.game.isGameFinished = true;
     });
 
     // Complete training session as won
     await handleTrainingCompletion(api, true);
+    
+    getLogger().info(
+      "[PawnPromotion] Training session completed successfully after promotion",
+    );
   }
 
   /**

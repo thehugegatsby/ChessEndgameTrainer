@@ -249,7 +249,7 @@ describe("ChessService Integration Tests", () => {
     });
 
     it("should detect insufficient material correctly", () => {
-      chessService.initialize(SpecialPositions.INSUFFICIENT_MATERIAL.KK);
+      chessService.initialize(SpecialPositions.INSUFFICIENT_MATERIAL);
 
       expect(chessService.isGameOver()).toBe(true);
     });

@@ -289,9 +289,20 @@ export class TestApiService {
       let moveObj: { from: string; to: string; promotion?: string } | string;
 
       if (move.includes("-")) {
-        // Format: 'e2-e4'
-        const [from, to] = move.split("-");
-        moveObj = { from, to };
+        // Format: 'e2-e4' or 'e7-e8=D'
+        const [from, toPart] = move.split("-");
+        if (toPart.includes("=")) {
+          const [to, promotionPart] = toPart.split("=");
+          let promotion = promotionPart;
+          // Convert German to English notation
+          if (promotion === "D") promotion = "q"; // Dame -> Queen
+          if (promotion === "T") promotion = "r"; // Turm -> Rook
+          if (promotion === "L") promotion = "b"; // Läufer -> Bishop
+          if (promotion === "S") promotion = "n"; // Springer -> Knight
+          moveObj = { from, to, promotion };
+        } else {
+          moveObj = { from, to: toPart };
+        }
       } else {
         // SAN notation
         moveObj = move;
@@ -382,13 +393,24 @@ export class TestApiService {
     }
 
     try {
-      // Parse move format
-      let moveObj: { from: string; to: string; promotion?: string };
-
+      // Parse move format - note: moveObj was unused, using direct makeMove call
       if (move.includes("-")) {
-        // Format: 'e2-e4'
-        const [from, to] = move.split("-");
-        moveObj = { from, to };
+        // Format: 'e2-e4' or 'e7-e8=D'
+        const [from, toPart] = move.split("-");
+        if (toPart.includes("=")) {
+          const [to, promotionPart] = toPart.split("=");
+          let promotion = promotionPart;
+          // Convert German to English notation
+          if (promotion === "D") promotion = "q"; // Dame -> Queen
+          if (promotion === "T") promotion = "r"; // Turm -> Rook
+          if (promotion === "L") promotion = "b"; // Läufer -> Bishop
+          if (promotion === "S") promotion = "n"; // Springer -> Knight
+          // Use direct makeMove call instead of creating unused moveObj
+          this.storeAccess.makeMove({ from, to, promotion });
+        } else {
+          // Use direct makeMove call instead of creating unused moveObj
+          this.storeAccess.makeMove({ from, to: toPart });
+        }
       } else {
         // SAN notation - need to convert to from/to format
         // For simplicity, we'll use makeMove which accepts strings
@@ -420,8 +442,19 @@ export class TestApiService {
         });
       }
 
-      // Execute move through store actions (bypass validation for tests)
-      this.storeAccess.applyMove(moveObj);
+      // REFACTORED: Use centralized TrainingService for consistent move execution
+      // This ensures the same business logic runs for both UI and E2E test paths
+      const { trainingService } = await import('@shared/services/TrainingService');
+      
+      // Create StoreApi interface from storeAccess
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const storeApi = this.storeAccess as any; // TrainingService expects StoreApi but we have a subset
+      
+      const result = await trainingService.executeMove(storeApi, move);
+      if (!result.success) {
+        return err(new AppError(result.error || "TrainingService move execution failed"));
+      }
+      
       const newState = this.storeAccess.getState();
 
       // Check if deterministic mode is enabled and if we should mock tablebase response

@@ -68,9 +68,31 @@ export async function handleTrainingCompletion(
 
   // Complete training using setState
   setState((draft) => {
-    // Training slice updates - we need to use completeTraining action instead
-    // as TrainingPosition doesn't have completed and lastAttemptSuccess fields
-    // For now, just mark training as complete via the proper action
+    // Mark training as complete
+    draft.training.isSuccess = success;
+    draft.training.sessionEndTime = Date.now();
+    draft.training.isPlayerTurn = false;
+    draft.training.isOpponentThinking = false;
+
+    // Update streak based on success
+    if (success) {
+      // Increment streak and show checkmark
+      draft.training.currentStreak = draft.training.currentStreak + 1;
+      if (draft.training.currentStreak > draft.training.bestStreak) {
+        draft.training.bestStreak = draft.training.currentStreak;
+      }
+      draft.training.showCheckmark = true;
+      
+      // Auto-hide checkmark after 2 seconds
+      setTimeout(() => {
+        api.setState((state) => {
+          state.training.showCheckmark = false;
+        });
+      }, 2000);
+    } else {
+      // Reset streak on failure
+      draft.training.currentStreak = 0;
+    }
 
     // Show completion message
     if (success) {
@@ -103,4 +125,8 @@ export async function handleTrainingCompletion(
     // Note: We'd need a separate way to pass completion data (success, accuracy, isPerfectGame)
     // For now, just showing the toast is enough to fix the immediate issue
   });
+
+  // Auto-progress is now handled by the success dialog "Weiter" button
+  // or by the EndgameTrainingPage handleComplete callback
+  // No automatic navigation here to avoid conflicts with dialog interaction
 }

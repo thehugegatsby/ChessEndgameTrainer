@@ -143,6 +143,11 @@ interface UseDialogHandlersProps {
   
   /** Training UI state management */
   trainingUIState: TrainingUIStateSubset;
+  
+  /** Optional Next.js router for client-side navigation */
+  router?: {
+    push: (url: string) => void;
+  };
 }
 
 /**
@@ -201,6 +206,7 @@ export const useDialogHandlers = ({
   trainingState,
   storeApi,
   trainingUIState,
+  router,
 }: UseDialogHandlersProps): UseDialogHandlersReturn => {
 
   /**
@@ -421,13 +427,43 @@ export const useDialogHandlers = ({
    * Handles continuing to next position after success
    *
    * @description
-   * Closes the success dialog and allows training to continue.
-   * Training completion logic is handled elsewhere in the system.
+   * Closes the success dialog and triggers training completion.
+   * This should navigate to the next position or end the training session.
    */
   const handleMoveSuccessContinue = useCallback(() => {
+    const logger = getLogger().setContext("useDialogHandlers-MoveSuccess");
+    logger.info("Success dialog 'Weiter' clicked - continuing training");
+    
+    // Close the success dialog
     trainingActions.setMoveSuccessDialog(null);
-    // Training completion logic is already handled by PawnPromotionHandler
-  }, [trainingActions]);
+    
+    // Get current state to check for next position and auto-progression setting
+    const currentState = storeApi.getState();
+    const hasNextPosition = currentState.training.nextPosition;
+    const autoProgressEnabled = currentState.training.autoProgressEnabled;
+    
+    logger.info("Checking navigation options", {
+      hasNextPosition: !!hasNextPosition,
+      nextPositionId: hasNextPosition?.id,
+      autoProgressEnabled,
+    });
+    
+    // Navigate to next position if available
+    if (hasNextPosition) {
+      if (router) {
+        logger.info("Using Next.js router for fast client-side navigation", { nextId: hasNextPosition.id });
+        router.push(`/train/${hasNextPosition.id}`);
+      } else if (typeof window !== 'undefined') {
+        logger.info("Fallback to page reload navigation", { nextId: hasNextPosition.id });
+        window.location.href = `/train/${hasNextPosition.id}`;
+      } else {
+        logger.warn("No navigation method available");
+      }
+    } else {
+      logger.info("No next position available - training session complete");
+      // Could show a "Training complete" message or return to menu
+    }
+  }, [trainingActions, storeApi, router]);
 
   return {
     handleMoveErrorTakeBack,

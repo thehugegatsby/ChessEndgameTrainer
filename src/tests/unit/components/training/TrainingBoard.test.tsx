@@ -86,6 +86,10 @@ describe("TrainingBoard", () => {
     moveErrorDialog: null,
     moveSuccessDialog: null,
     evaluationBaseline: null,
+    currentStreak: 0,
+    bestStreak: 0,
+    showCheckmark: false,
+    autoProgressEnabled: false,
   };
 
   const mockTrainingActions = {
@@ -109,6 +113,11 @@ describe("TrainingBoard", () => {
     // Add async actions
     handlePlayerMove: jest.fn(),
     loadTrainingContext: jest.fn(),
+    // Add missing streak and UI actions
+    incrementStreak: jest.fn(),
+    resetStreak: jest.fn(),
+    showCheckmarkAnimation: jest.fn(),
+    setAutoProgressEnabled: jest.fn(),
   };
 
   const mockGameState = {

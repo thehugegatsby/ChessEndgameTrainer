@@ -56,6 +56,10 @@ describe("PawnPromotionHandler", () => {
 
     // Create mock state and API
     mockState = {
+      game: {
+        isGameFinished: false,
+        currentFen: "8/4P3/4K3/8/8/8/8/4k3 w - - 0 1",
+      },
       training: {
         moveSuccessDialog: null,
       },

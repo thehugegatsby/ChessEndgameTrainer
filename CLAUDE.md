@@ -11,7 +11,7 @@ npm run dev              # Development server (port 3002)
 npm run build            # Production build
 npm run lint             # ESLint + format
 npm run analyze-code     # Code analysis
-npm test                 # Jest test runner (ISSUE: needs config fix)
+npm test                 # Jest test runner (1119 tests)
 ```
 
 ## Tech Stack (Current)
@@ -21,7 +21,7 @@ npm test                 # Jest test runner (ISSUE: needs config fix)
 - **State:** Zustand 5.0.7 (domain-specific slices)
 - **UI:** Tailwind CSS 4.1.11, Radix UI, react-chessboard 2.1.3
 - **Chess:** chess.js 1.0.0-beta.6
-- **Testing:** Jest 29.7.0 (config broken - no tests found)
+- **Testing:** Jest 29.7.0 (1119 tests, minor memory leaks)
 - **API:** Lichess Tablebase (no local engine)
 
 ## Project Architecture
@@ -55,9 +55,9 @@ User → React Component → Zustand Hook → Store Action → Service (ChessSer
 
 ## Current Issues (CRITICAL)
 
-1. **Test System Broken**: `npm test` shows "No tests found" despite claims of 721+ tests
-2. **Architecture Drift**: Documentation claims don't match actual code
-3. **Config Issues**: Jest configuration likely pointing to wrong paths
+1. **Memory Leaks in Tests**: Jest workers need `--detectOpenHandles` to identify test cleanup issues
+2. **Architecture Drift**: Some documentation claims don't match actual code
+3. **Config Issues**: Minor cleanup needed in test configurations
 
 ## Coding Conventions
 
@@ -85,7 +85,7 @@ User → React Component → Zustand Hook → Store Action → Service (ChessSer
 
 **Goal**: Documentation restructuring for Claude Code optimization
 **Status**: In progress - creating lean AI-focused documentation
-**Next**: Fix test configuration to match actual codebase
+**Next**: Identify and fix test memory leaks
 
 ## Archive & Deep Docs
 
@@ -104,7 +104,7 @@ For historical context and detailed explanations:
 find src -name "*.ts" | wc -l                    # TypeScript file count
 find src/shared/store/slices -name "*.ts" | wc -l # Slice count
 npm list --depth=0 | grep -E "(next|typescript|zustand)" # Version check
-npm test 2>&1 | head -10                          # Test status
+npm test                                           # Run 1119 tests
 ```
 
 ---

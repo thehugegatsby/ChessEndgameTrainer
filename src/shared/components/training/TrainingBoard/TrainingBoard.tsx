@@ -107,6 +107,10 @@ interface TrainingBoardProps {
   currentMoveIndex?: number;
   /** Trigger value to force board reset */
   resetTrigger?: number;
+  /** Optional Next.js router for client-side navigation */
+  router?: {
+    push: (url: string) => void;
+  };
 }
 
 /**
@@ -163,6 +167,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   onPositionChange,
   onJumpToMove,
   resetTrigger = 0,
+  router,
 }) => {
   const initialFen = fen || position?.fen || "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1";
 
@@ -291,6 +296,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     trainingState,
     storeApi,
     trainingUIState,
+    router,
   });
 
   // Move validation logic - extracted to custom hook

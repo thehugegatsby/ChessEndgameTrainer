@@ -62,6 +62,10 @@ export const useTrainingState = (): TrainingStateType => {
       sessionEndTime: state.training.sessionEndTime,
       hintsUsed: state.training.hintsUsed,
       mistakeCount: state.training.mistakeCount,
+      currentStreak: state.training.currentStreak,
+      bestStreak: state.training.bestStreak,
+      showCheckmark: state.training.showCheckmark,
+      autoProgressEnabled: state.training.autoProgressEnabled,
       moveErrorDialog: state.training.moveErrorDialog,
       moveSuccessDialog: state.training.moveSuccessDialog,
       evaluationBaseline: state.training.evaluationBaseline,
@@ -113,6 +117,12 @@ export const useTrainingActions = (): ExtendedTrainingActions => {
       resetPosition: state.training.resetPosition,
       setEvaluationBaseline: state.training.setEvaluationBaseline,
       clearEvaluationBaseline: state.training.clearEvaluationBaseline,
+      
+      // Streak actions
+      incrementStreak: state.training.incrementStreak,
+      resetStreak: state.training.resetStreak,
+      showCheckmarkAnimation: state.training.showCheckmarkAnimation,
+      setAutoProgressEnabled: state.training.setAutoProgressEnabled,
 
       // Orchestrated actions (from root level)
       handlePlayerMove: state.handlePlayerMove,

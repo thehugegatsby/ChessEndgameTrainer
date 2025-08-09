@@ -20,6 +20,8 @@ import { AdvancedEndgameMenu } from "@shared/components/navigation/AdvancedEndga
 // EndgamePosition import no longer needed - position comes from store
 import { useToast } from "@shared/hooks/useToast";
 import { ToastContainer } from "@shared/components/ui/Toast";
+import { StreakCounter } from "@shared/components/ui/StreakCounter";
+import { CheckmarkAnimation } from "@shared/components/ui/CheckmarkAnimation";
 import { getGameStatus } from "@shared/utils/chess/gameStatus";
 import {
   useGameStore,
@@ -84,16 +86,37 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
   const handleComplete = useCallback(
     (isSuccess: boolean) => {
       if (isSuccess) {
+        // Update streak
+        trainingActions.incrementStreak();
+        
+        // Show checkmark animation
+        trainingActions.showCheckmarkAnimation(2000);
+        
+        // Show success toast
         showSuccess(
           "Geschafft! Position erfolgreich gelöst!",
           ANIMATION.SUCCESS_TOAST_DURATION,
         );
+        
+        // Auto-progress to next position if enabled
+        if (trainingState.autoProgressEnabled && nextPosition) {
+          getLogger().info("🚀 Auto-progressing to next position", { 
+            nextPositionId: nextPosition.id, 
+            delayMs: 2500 
+          });
+          setTimeout(() => {
+            router.push(`/train/${nextPosition.id}`);
+          }, 2500); // Wait for checkmark animation + 500ms buffer
+        }
       } else {
+        getLogger().info("❌ Failure - resetting streak");
+        // Reset streak on failure
+        trainingActions.resetStreak();
         showError("Versuch es erneut", ANIMATION.ERROR_TOAST_DURATION);
       }
       completeTraining(isSuccess);
     },
-    [completeTraining, showSuccess, showError],
+    [completeTraining, showSuccess, showError, trainingActions, trainingState.autoProgressEnabled, nextPosition, router],
   );
 
   const handleResetPosition = useCallback(() => {
@@ -147,6 +170,9 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
         toasts={uiState.toasts}
         onRemoveToast={(id) => uiActions.removeToast(id)}
       />
+      
+      {/* Checkmark Animation Overlay */}
+      <CheckmarkAnimation isVisible={trainingState.showCheckmark} />
 
       {/* Left Menu */}
       <AdvancedEndgameMenu
@@ -177,7 +203,8 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
             <TrainingBoard
               key={`${position.id}-${resetKey}`}
               position={position}
-              onComplete={() => handleComplete(true)}
+              onComplete={handleComplete}
+              router={router}
             />
           </div>
         </div>
@@ -223,6 +250,14 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
                 </span>
               </button>
             </div>
+          </div>
+
+          {/* Streak Counter */}
+          <div className="streak-section p-4 border-b border-gray-700">
+            <StreakCounter 
+              currentStreak={trainingState.currentStreak}
+              bestStreak={trainingState.bestStreak}
+            />
           </div>
 
           {/* Game Status */}

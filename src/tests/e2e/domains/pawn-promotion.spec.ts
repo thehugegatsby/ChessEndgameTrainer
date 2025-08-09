@@ -3,7 +3,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { ChessMoveSequences } from "../../fixtures/chessTestScenarios";
+import { TRAIN_SCENARIOS } from "../../fixtures/trainPositions";
 import { 
   waitForMoveAnimation,
   waitForUIReady,
@@ -40,8 +40,12 @@ test.describe("Pawn Promotion Auto-Win Feature", () => {
       () => typeof (window as any).e2e_makeMove === "function",
     );
 
-    // Use the complete sequence from central data - play ALL moves (white and black)
-    const sequence = ChessMoveSequences.PAWN_PROMOTION_TO_WIN_SEQUENCE;
+    // Use TRAIN_1 WIN sequence - complete pawn promotion to auto-win
+    const train1 = TRAIN_SCENARIOS.TRAIN_1;
+    const sequence = {
+      moves: train1.sequences.WIN.moves,
+      expectedOutcome: 'win' as const
+    };
 
     console.log("🎯 Playing COMPLETE winning promotion sequence...");
     console.log("Sequence moves:", sequence.moves);
@@ -143,8 +147,12 @@ test.describe("Pawn Promotion Auto-Win Feature", () => {
       timeout: 10000,
     });
 
-    // Use the drawing sequence from central data
-    const sequence = ChessMoveSequences.PAWN_PROMOTION_TO_DRAW_SEQUENCE;
+    // Use TRAIN_1 PAWN_PROMOTION_TO_DRAW sequence for testing draw scenario
+    const train1 = TRAIN_SCENARIOS.TRAIN_1;
+    const sequence = {
+      moves: train1.sequences.PAWN_PROMOTION_TO_DRAW.moves,
+      expectedOutcome: 'draw' as const
+    };
 
     console.log("Playing drawing promotion sequence...");
 

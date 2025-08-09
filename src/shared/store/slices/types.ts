@@ -113,6 +113,10 @@ export interface TrainingState {
   sessionEndTime?: number;
   hintsUsed: number;
   mistakeCount: number;
+  currentStreak: number;
+  bestStreak: number;
+  showCheckmark: boolean;
+  autoProgressEnabled: boolean;
   moveErrorDialog: {
     isOpen: boolean;
     wdlBefore?: number;
@@ -149,6 +153,10 @@ export interface TrainingActions {
   completeTraining: (success: boolean) => void;
   incrementHint: () => void;
   incrementMistake: () => void;
+  incrementStreak: () => void;
+  resetStreak: () => void;
+  showCheckmarkAnimation: (duration?: number) => void;
+  setAutoProgressEnabled: (enabled: boolean) => void;
   setMoveErrorDialog: (
     dialog: {
       isOpen: boolean;

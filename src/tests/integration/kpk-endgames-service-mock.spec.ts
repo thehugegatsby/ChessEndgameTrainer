@@ -7,16 +7,20 @@
 
 import { renderHook, act } from "@testing-library/react";
 import { useStore } from "../../shared/store/rootStore";
-import { getKPKProgression } from "../fixtures/chessTestScenarios";
+import { COMMON_FENS } from "../fixtures/commonFens";
 
 // Mock TablebaseService directly - no HTTP mocking needed
 jest.mock("@shared/services/TablebaseService", () => ({
   TablebaseService: {
     getInstance: jest.fn(() => ({
       getEvaluation: jest.fn().mockImplementation((fen) => {
-        // Use centralized KPK progression positions
-        const kpkProgression = getKPKProgression();
-        if (fen === kpkProgression.positions[0].fen) {
+        // KPK progression positions for testing
+        const kpkPositions = {
+          initial: "K7/P7/k7/8/8/8/8/8 w - - 0 1",
+          advanced: "5k2/2K5/8/4P3/8/8/8/8 b - - 3 2"
+        };
+        
+        if (fen === kpkPositions.initial) {
           return Promise.resolve({
             isAvailable: true,
             wdl: { win: 100, draw: 0, loss: 0 },
@@ -24,7 +28,7 @@ jest.mock("@shared/services/TablebaseService", () => ({
             category: "win",
           });
         }
-        if (fen === kpkProgression.positions[2].fen) {
+        if (fen === kpkPositions.advanced) {
           return Promise.resolve({
             isAvailable: true,
             wdl: { win: 100, draw: 0, loss: 0 },
@@ -42,8 +46,11 @@ jest.mock("@shared/services/TablebaseService", () => ({
       }),
 
       getTopMoves: jest.fn().mockImplementation((fen) => {
-        const kpkProgression = getKPKProgression();
-        if (fen === kpkProgression.positions[2].fen) {
+        const kpkPositions = {
+          advanced: "5k2/2K5/8/4P3/8/8/8/8 b - - 3 2"
+        };
+        
+        if (fen === kpkPositions.advanced) {
           return Promise.resolve([
             { uci: "d6c7", san: "Kc7", dtm: 14 },
             { uci: "d6d7", san: "Kd7", dtm: 12 },
@@ -236,11 +243,11 @@ describe("KPK Integration Tests (Service-Level Mock)", () => {
       const { result } = renderHook(() => useStore());
 
       // Load position
-      const kpkProgression = getKPKProgression();
+      const kpkAdvancedPosition = "5k2/2K5/8/4P3/8/8/8/8 b - - 3 2";
       await act(async () => {
         await result.current.loadTrainingContext({
           id: 2,
-          fen: kpkProgression.positions[2].fen,
+          fen: kpkAdvancedPosition,
           title: "KPK Position",
           description: "Test position",
           category: "basic-endgames",

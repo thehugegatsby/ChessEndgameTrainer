@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MovePanelZustand } from "@shared/components/training/MovePanelZustand";
 import { createTestValidatedMove } from "../../helpers/validatedMoveFactory";
-import { getOpeningSequence } from "../../fixtures/chessTestScenarios";
+import { COMMON_FENS } from "../../fixtures/commonFens";
 
 // Mock the store hooks directly
 jest.mock("@shared/store/hooks");
@@ -42,16 +42,15 @@ describe("MovePanelZustand", () => {
   };
 
   it("should display moves from Zustand store", () => {
-    // Use centralized opening sequence for consistent testing
-    const openingSequence = getOpeningSequence();
+    // Use centralized opening positions for consistent testing
     const mockMoves = [
       createTestValidatedMove({
         from: "e2",
         to: "e4",
         piece: "p",
         san: "e4",
-        before: openingSequence.startPosition,
-        after: openingSequence.positions[0].after,
+        before: COMMON_FENS.STARTING_POSITION,
+        after: COMMON_FENS.OPENING_AFTER_E4,
       }),
       createTestValidatedMove({
         from: "e7",
@@ -59,21 +58,21 @@ describe("MovePanelZustand", () => {
         piece: "p",
         color: "b",
         san: "e5",
-        before: openingSequence.positions[0].after,
-        after: openingSequence.positions[1].after,
+        before: COMMON_FENS.OPENING_AFTER_E4,
+        after: COMMON_FENS.OPENING_AFTER_E4_E5,
       }),
       createTestValidatedMove({
         from: "g1",
         to: "f3",
         piece: "n",
         san: "Nf3",
-        before: openingSequence.positions[1].after,
-        after: openingSequence.positions[2].after,
+        before: COMMON_FENS.OPENING_AFTER_E4_E5,
+        after: COMMON_FENS.OPENING_AFTER_E4_E5_NF3,
       }),
     ];
 
     (useGameStore as jest.Mock).mockReturnValue([{
-      currentFen: openingSequence.positions[2].after,
+      currentFen: COMMON_FENS.OPENING_AFTER_E4_E5_NF3,
       currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
       currentMoveIndex: 2,
@@ -96,15 +95,15 @@ describe("MovePanelZustand", () => {
   });
 
   it("should display evaluations when showEvaluations is true", () => {
-    const openingSequence = getOpeningSequence();
+    // Use centralized opening positions
     const mockMoves = [
       createTestValidatedMove({
         from: "e2",
         to: "e4",
         piece: "p",
         san: "e4",
-        before: openingSequence.startPosition,
-        after: openingSequence.positions[0].after,
+        before: COMMON_FENS.STARTING_POSITION,
+        after: COMMON_FENS.OPENING_AFTER_E4,
       }),
     ];
 
@@ -121,7 +120,7 @@ describe("MovePanelZustand", () => {
     ];
 
     (useGameStore as jest.Mock).mockReturnValue([{
-      currentFen: openingSequence.positions[2].after,
+      currentFen: COMMON_FENS.OPENING_AFTER_E4_E5_NF3,
       currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
       currentMoveIndex: 2,
@@ -145,7 +144,7 @@ describe("MovePanelZustand", () => {
   });
 
   it("should handle move click events", () => {
-    const openingSequence = getOpeningSequence();
+    // Use centralized opening positions
     const onMoveClickMock = jest.fn();
     const mockMoves = [
       createTestValidatedMove({
@@ -168,7 +167,7 @@ describe("MovePanelZustand", () => {
     ];
 
     (useGameStore as jest.Mock).mockReturnValue([{
-      currentFen: openingSequence.positions[2].after,
+      currentFen: COMMON_FENS.OPENING_AFTER_E4_E5_NF3,
       currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
       currentMoveIndex: 2,
@@ -193,7 +192,7 @@ describe("MovePanelZustand", () => {
   });
 
   it("should highlight current move", () => {
-    const openingSequence = getOpeningSequence();
+    // Use centralized opening positions
     const mockMoves = [
       createTestValidatedMove({
         from: "e2",
@@ -215,7 +214,7 @@ describe("MovePanelZustand", () => {
     ];
 
     (useGameStore as jest.Mock).mockReturnValue([{
-      currentFen: openingSequence.positions[2].after,
+      currentFen: COMMON_FENS.OPENING_AFTER_E4_E5_NF3,
       currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
       currentMoveIndex: 2,
@@ -245,7 +244,7 @@ describe("MovePanelZustand", () => {
   });
 
   it("should display tablebase evaluations when available", () => {
-    const openingSequence = getOpeningSequence();
+    // Use centralized opening positions
     const mockMoves = [
       createTestValidatedMove({
         from: "e2",
@@ -275,7 +274,7 @@ describe("MovePanelZustand", () => {
     ];
 
     (useGameStore as jest.Mock).mockReturnValue([{
-      currentFen: openingSequence.positions[2].after,
+      currentFen: COMMON_FENS.OPENING_AFTER_E4_E5_NF3,
       currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
       currentMoveIndex: 2,

@@ -172,6 +172,38 @@ export const TestPositions: Record<string, TestScenario> = {
       "c8=Q",
     ],
   },
+
+  POSITION_2_KPK_ADVANCED: {
+    id: "2", // TestScenario uses string IDs
+    title: "König und Bauer vs König - Fortgeschritten",
+    description: "Fortgeschrittene K+B vs K Position - Opposition und Bauernumwandlung",
+    fen: "8/3k4/8/3K4/3P4/8/8/8 w - - 0 1", // Different position from position 1
+    category: "endgame",
+    difficulty: "beginner",
+    targetMoves: 10, // Estimated moves to win
+    sideToMove: "white",
+    goal: "win",
+    hints: [
+      "Der Bauer muss zur Umwandlung gebracht werden",
+      "König muss den Bauern unterstützen",
+      "Opposition ist der Schlüssel zum Sieg",
+    ],
+    solution: [
+      "Kd6",
+      "Ke8", 
+      "d5",
+      "Kf7",
+      "Kd7",
+      "Kf6",
+      "d6",
+      "Kf7",
+      "Kd8",
+      "Kf8",
+      "d7+",
+      "Kf7", 
+      "d8=Q"
+    ],
+  },
 };
 
 /**
@@ -182,6 +214,7 @@ export /**
  */
 const PositionIdMap = new Map<number, keyof typeof TestPositions>([
   [1, "POSITION_1_OPPOSITION_BASICS"],
+  [2, "POSITION_2_KPK_ADVANCED"],
   [9, "POSITION_9_BRIDGE_ZICKZACK"], // Was 12
   [10, "POSITION_10_BRIDGE_POSITIONING"], // Was 13
   [11, "POSITION_11_BRIDGE_DEFLECTION"], // Was 14

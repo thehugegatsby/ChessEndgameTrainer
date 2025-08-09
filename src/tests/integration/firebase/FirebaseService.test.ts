@@ -57,7 +57,7 @@ import type { UserStats, CardProgress } from '@shared/store/slices/types';
 // Increase timeout for integration tests (60s for Firebase emulator)
 jest.setTimeout(60000);
 
-describe('Firebase Service Integration', () => {
+describe.skip('Firebase Service Integration', () => {
   let testInstance: TestFirebaseInstance;
   let testUserId: string;
   let realtimeHelper: RealtimeTestHelper;

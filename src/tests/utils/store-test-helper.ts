@@ -176,7 +176,7 @@ const chessPositions = {
   startingPosition: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // Standard starting position
   endgameKRK: "8/8/8/8/8/8/R7/K3k3 w - - 0 1", // King and Rook vs King
   endgameKQK: "8/8/8/8/8/8/1Q6/K3k3 w - - 0 1", // King and Queen vs King 
-  endgameKPK: COMMON_FENS.TRAIN1_KPK_BASIC, // King and Pawn vs King from Train/1
+  endgameKPK: COMMON_FENS.KPK_WHITE_TO_MOVE, // King and Pawn vs King from Train/1
   drawPosition: "8/8/8/8/8/8/8/K3k3 w - - 0 1", // King vs King draw
 } as const;
 

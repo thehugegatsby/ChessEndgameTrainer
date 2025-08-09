@@ -7,7 +7,7 @@
 
 import { test } from "@playwright/test";
 import { SequenceRunner, expectation } from "../helpers/sequenceRunner";
-import { ChessMoveSequences } from "../../fixtures/chessTestScenarios";
+import { TRAIN_SCENARIOS } from "../../fixtures/trainPositions";
 import { waitForPageReady, waitForTablebaseInit } from "../helpers/deterministicWaiting";
 import { getLogger } from "@shared/services/logging";
 
@@ -25,8 +25,12 @@ test.describe.skip("Pawn Promotion Auto-Win (SequenceRunner) - Ready to unskip: 
     // Initialize SequenceRunner
     const runner = new SequenceRunner(page);
 
-    // Get the promotion sequence from central fixtures
-    const sequence = ChessMoveSequences.PAWN_PROMOTION_TO_WIN_SEQUENCE;
+    // Get the promotion sequence from TRAIN_1 WIN sequence
+    const train1 = TRAIN_SCENARIOS.TRAIN_1;
+    const sequence = {
+      moves: train1.sequences.WIN.moves,
+      expectedOutcome: 'win' as const
+    };
     
     logger.info(`📋 Sequence has ${sequence.moves.length} moves`);
     logger.info(`Moves: ${sequence.moves.join(", ")}`);

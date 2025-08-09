@@ -11,6 +11,7 @@
 import { useCallback } from "react";
 import { Chess } from "chess.js";
 import { useGameStore, useTrainingStore } from "@shared/store/hooks";
+import { useStoreApi } from "@shared/store/StoreContext";
 import type { ValidatedMove } from "@shared/types/chess";
 import { ErrorService } from "@shared/services/ErrorService";
 import { getLogger } from "@shared/services/logging";
@@ -116,7 +117,8 @@ export const useTrainingSession = ({
   onPositionChange,
 }: UseTrainingSessionOptions): UseTrainingSessionReturn => {
   const [gameState, gameActions] = useGameStore();
-  const [trainingState, trainingActions] = useTrainingStore();
+  const [trainingState] = useTrainingStore();
+  const storeApi = useStoreApi();
 
   /**
    * Execute a chess move and update the game state
@@ -155,20 +157,20 @@ export const useTrainingSession = ({
       }
 
       try {
-        // Simply delegate to Store - no double validation needed
-        // Store will validate the move and update all states atomically
-        logger.debug("Calling trainingActions.handlePlayerMove");
-        const moveResult = await trainingActions.handlePlayerMove(move);
-        logger.debug("trainingActions.handlePlayerMove result", { moveResult });
-        if (!moveResult) return false;
-
-        // Check if game is finished after move
-        if (gameState.isGameFinished) {
-          // Game result is already determined by ChessService
-          const success = gameState.gameResult !== null;
-          trainingActions.completeTraining(success);
-          onComplete?.(success);
+        // REFACTORED: Use centralized TrainingService for consistent move execution
+        // This ensures the same business logic runs for both UI and E2E test paths
+        const { trainingService } = await import('@shared/services/TrainingService');
+        logger.debug("🚀 Delegating to centralized TrainingService");
+        
+        // Convert move object to string format (e.g., "e2e4" or "e7e8q")
+        const moveString = move.from + move.to + (move.promotion || '');
+        const result = await trainingService.executeMove(storeApi, moveString, onComplete);
+        if (!result.success) {
+          logger.warn("❌ TrainingService.executeMove failed", { error: result.error });
+          return false;
         }
+        
+        logger.debug("✅ TrainingService.executeMove succeeded");
 
         // Notify position change with current Store state
         onPositionChange?.(
@@ -195,9 +197,9 @@ export const useTrainingSession = ({
       gameState.currentFen,
       gameState.currentPgn,
       gameState.moveHistory?.length,
-      trainingActions,
       onComplete,
       onPositionChange,
+      storeApi,
     ],
   );
 

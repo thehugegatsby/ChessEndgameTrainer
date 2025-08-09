@@ -22,14 +22,14 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
 
   describe("Black moves", () => {
     it("Should detect outcome change: Draw → Loss", async () => {
-      // Black plays losing move instead of drawing move
-      const fenBefore = "4k3/8/8/4K3/4P3/8/8/8 b - - 0 1";
-      const fenAfter = "8/3k4/8/4K3/4P3/8/8/8 w - - 1 2";
+      // Black plays losing move instead of defending move  
+      const fenBefore = "8/3k4/8/4K3/3P4/8/8/8 b - - 0 1";
+      const fenAfter = "8/8/3k4/4K3/3P4/8/8/8 w - - 1 2";
 
       const playedMove = createTestValidatedMove({
-        from: "e8",
-        to: "d7",
-        san: "Kd7",
+        from: "d7",
+        to: "d6", 
+        san: "Kd6",
         color: "b",
         piece: "k",
         before: fenBefore,

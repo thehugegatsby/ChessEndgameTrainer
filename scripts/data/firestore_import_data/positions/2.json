@@ -1,28 +1,33 @@
 {
   "id": 2,
-  "title": "King and Pawn vs King - Draw",
-  "description": "White to move but Black can draw. Show defensive technique.",
-  "fen": "4k3/8/8/4K3/4P3/8/8/8 w - - 0 1",
+  "title": "King and Pawn vs King - Advanced Win",
+  "description": "White to move and win. Advanced K+P vs K technique.",
+  "fen": "8/3k4/8/4K3/3P4/8/8/8 w - - 0 1",
   "category": "pawn-endgames",
   "difficulty": "beginner",
-  "goal": "draw",
-  "targetMoves": 10,
+  "goal": "win",
+  "targetMoves": 13,
   "hints": [
-    "Keep the king in front of the pawn",
-    "Use opposition to stop the advance"
+    "Support the pawn advance with your king",
+    "Use opposition to control key squares"
   ],
   "solution": [
-    "1.Kf6",
-    "1...Kd7",
-    "2.e5",
-    "2...Kd8",
-    "3.e6",
-    "3...Ke8",
-    "4.e7",
-    "4...Kd7="
+    "1.Kd6",
+    "1...Ke8",
+    "2.d5",
+    "2...Kf7",
+    "3.Kd7",
+    "3...Kf6",
+    "4.d6",
+    "4...Kf7",
+    "5.Kd8",
+    "5...Kf8",
+    "6.d7+",
+    "6...Kf7",
+    "7.d8=Q"
   ],
   "nextPositionId": null,
-  "tags": ["basic", "king-pawn", "defensive"],
+  "tags": ["basic", "king-pawn", "winning"],
   "created": "2024-01-01T00:00:00Z",
   "updated": "2024-01-01T00:00:00Z"
 }

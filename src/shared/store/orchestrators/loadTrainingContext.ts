@@ -174,8 +174,18 @@ export const loadTrainingContext = async (
       currentTurn === trainingPosition.colorToTrain.charAt(0);
 
     setState((draft) => {
+      logger.info("🔥 DEBUG: Setting training position", {
+        positionId: trainingPosition.id,
+        currentStreakBefore: draft.training.currentStreak,
+        bestStreakBefore: draft.training.bestStreak
+      });
       draft.training.currentPosition = trainingPosition;
       draft.training.isPlayerTurn = isPlayerTurn;
+      logger.info("🔥 DEBUG: After setting position", {
+        positionId: trainingPosition.id,
+        currentStreakAfter: draft.training.currentStreak,
+        bestStreakAfter: draft.training.bestStreak
+      });
     });
 
     // Step 5: Load navigation positions (next/previous)

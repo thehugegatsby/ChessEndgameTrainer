@@ -117,8 +117,10 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({
     // Only in test environments to enable state-based waiting
     if (typeof window !== 'undefined' && 
         (process.env.NEXT_PUBLIC_IS_E2E_TEST === 'true' || 
-         process.env.NODE_ENV === 'test')) {
+         process.env.NODE_ENV === 'test' ||
+         process.env.NODE_ENV === 'development')) {
       (window as unknown as Record<string, unknown>).__e2e_store = storeRef.current;
+      (window as unknown as Record<string, unknown>).__zustand_store = storeRef.current;
     }
   }
 

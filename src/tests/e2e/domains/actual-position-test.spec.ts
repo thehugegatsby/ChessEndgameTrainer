@@ -145,7 +145,7 @@ test.describe.skip("Actual Position 1 - King and Pawn vs King", () => {
       // Verify the Lichess link contains the expected FEN
       const lichessLink = page.locator('a[href*="lichess.org/analysis"]');
       const href = await lichessLink.getAttribute("href");
-      expect(href).toContain(COMMON_FENS.TRAIN1_KPK_BASIC);
+      expect(href).toContain(COMMON_FENS.KPK_WHITE_TO_MOVE);
 
       logger.info("Position 1 loaded successfully");
     });

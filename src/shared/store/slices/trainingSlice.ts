@@ -75,6 +75,10 @@ export const initialTrainingState = {
   sessionEndTime: undefined as number | undefined,
   hintsUsed: 0,
   mistakeCount: 0,
+  currentStreak: 0,
+  bestStreak: 0,
+  showCheckmark: false,
+  autoProgressEnabled: true,
   moveErrorDialog: null as {
     isOpen: boolean;
     wdlBefore?: number;
@@ -119,6 +123,10 @@ export const createTrainingState = (): TrainingState => ({
   sessionEndTime: undefined as number | undefined,
   hintsUsed: 0,
   mistakeCount: 0,
+  currentStreak: 0,
+  bestStreak: 0,
+  showCheckmark: false,
+  autoProgressEnabled: true,
   moveErrorDialog: null as {
     isOpen: boolean;
     wdlBefore?: number;
@@ -453,6 +461,11 @@ export const createTrainingActions = (
   incrementMistake: () => {
     set((state) => {
       state.training.mistakeCount = state.training.mistakeCount + 1;
+      // Reset streak when a mistake is made
+      state.training.currentStreak = 0;
+    });
+    logger.info("Mistake incremented and streak reset", { 
+      mistakeCount: get().training.mistakeCount 
     });
   },
 
@@ -689,6 +702,118 @@ export const createTrainingActions = (
     });
     logger.info("Evaluation baseline cleared");
   },
+
+  /**
+   * Increments the current streak and updates best streak if needed
+   *
+   * @fires stateChange - When streak is incremented
+   *
+   * @remarks
+   * Called when a training position is completed successfully.
+   * Updates both current and best streak counters.
+   *
+   * @example
+   * ```typescript
+   * // User completed position successfully
+   * store.getState().incrementStreak();
+   * ```
+   */
+  incrementStreak: () => {
+    set((state) => {
+      state.training.currentStreak = state.training.currentStreak + 1;
+      if (state.training.currentStreak > state.training.bestStreak) {
+        state.training.bestStreak = state.training.currentStreak;
+      }
+    });
+    logger.info("Streak incremented", { 
+      currentStreak: get().training.currentStreak,
+      bestStreak: get().training.bestStreak 
+    });
+  },
+
+  /**
+   * Resets the current streak to 0
+   *
+   * @fires stateChange - When streak is reset
+   *
+   * @remarks
+   * Called when a training position is failed or user makes a mistake.
+   * Best streak is preserved.
+   *
+   * @example
+   * ```typescript
+   * // User failed position
+   * store.getState().resetStreak();
+   * ```
+   */
+  resetStreak: () => {
+    set((state) => {
+      state.training.currentStreak = 0;
+    });
+    logger.info("Streak reset");
+  },
+
+  /**
+   * Shows the checkmark animation
+   *
+   * @param {number} [duration=2000] - Duration in milliseconds to show checkmark
+   *
+   * @fires stateChange - When checkmark is shown/hidden
+   *
+   * @remarks
+   * Displays a checkmark animation when a position is completed successfully.
+   * Automatically hides after the specified duration.
+   *
+   * @example
+   * ```typescript
+   * // Show checkmark for 2 seconds
+   * store.getState().showCheckmarkAnimation();
+   * 
+   * // Show for custom duration
+   * store.getState().showCheckmarkAnimation(1500);
+   * ```
+   */
+  showCheckmarkAnimation: (duration: number = 2000) => {
+    set((state) => {
+      state.training.showCheckmark = true;
+    });
+    
+    // Auto-hide after duration
+    setTimeout(() => {
+      set((state) => {
+        state.training.showCheckmark = false;
+      });
+    }, duration);
+    
+    logger.info("Checkmark animation shown", { duration });
+  },
+
+  /**
+   * Sets auto-progression enabled state
+   *
+   * @param {boolean} enabled - Whether auto-progression is enabled
+   *
+   * @fires stateChange - When auto-progression setting changes
+   *
+   * @remarks
+   * Controls whether the training automatically progresses to the next
+   * position after successful completion.
+   *
+   * @example
+   * ```typescript
+   * // Enable auto-progression
+   * store.getState().setAutoProgressEnabled(true);
+   * 
+   * // Disable auto-progression
+   * store.getState().setAutoProgressEnabled(false);
+   * ```
+   */
+  setAutoProgressEnabled: (enabled: boolean) => {
+    set((state) => {
+      state.training.autoProgressEnabled = enabled;
+    });
+    logger.info("Auto-progression setting changed", { enabled });
+  },
 });
 
 
@@ -855,4 +980,32 @@ export const trainingSelectors = {
     const penalties = state.mistakeCount + state.hintsUsed * 0.5;
     return Math.max(0, 100 - penalties * 10);
   },
+
+  /**
+   * Selects current streak count
+   * @param {TrainingSlice} state - The training slice of the store
+   * @returns {number} Current streak count
+   */
+  selectCurrentStreak: (state: TrainingSlice) => state.currentStreak,
+
+  /**
+   * Selects best streak count
+   * @param {TrainingSlice} state - The training slice of the store
+   * @returns {number} Best streak count
+   */
+  selectBestStreak: (state: TrainingSlice) => state.bestStreak,
+
+  /**
+   * Selects whether checkmark animation should be shown
+   * @param {TrainingSlice} state - The training slice of the store
+   * @returns {boolean} Whether to show checkmark
+   */
+  selectShowCheckmark: (state: TrainingSlice) => state.showCheckmark,
+
+  /**
+   * Selects whether auto-progression is enabled
+   * @param {TrainingSlice} state - The training slice of the store
+   * @returns {boolean} Whether auto-progression is enabled
+   */
+  selectAutoProgressEnabled: (state: TrainingSlice) => state.autoProgressEnabled,
 };

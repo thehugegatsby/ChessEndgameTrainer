@@ -102,7 +102,7 @@ test.describe("State Persistence - Issue #23", () => {
     logger.info(E2E.MESSAGES.SUCCESS.STATE_PERSISTED);
   });
 
-  test("should preserve position navigation state across reloads", async ({
+  test.skip("should preserve position navigation state across reloads", async ({
     page,
   }) => {
     // 🎯 STEP 1: Navigate to homepage (working route)

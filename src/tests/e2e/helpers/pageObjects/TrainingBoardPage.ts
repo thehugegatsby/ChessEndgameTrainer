@@ -13,6 +13,29 @@ export class TrainingBoardPage {
   constructor(private page: Page) {}
 
   /**
+   * Wait for the training page to be ready for interaction
+   */
+  async waitForPageReady(): Promise<void> {
+    this.logger.info("⏳ Waiting for training page to be ready");
+    
+    // Wait for essential elements to be visible
+    await this.page.waitForSelector('[data-testid="training-board"]', { timeout: 10000 });
+    await this.page.waitForSelector('[data-testid="current-streak"]', { timeout: 5000 });
+    await this.page.waitForSelector('[data-testid="best-streak"]', { timeout: 5000 });
+    
+    // Wait for board to have position data
+    await this.page.waitForFunction(() => {
+      const board = document.querySelector('[data-testid="training-board"]');
+      return board && board.getAttribute('data-fen');
+    }, { timeout: 5000 });
+    
+    // Small delay for final settling
+    await this.page.waitForTimeout(500);
+    
+    this.logger.info("✅ Training page is ready");
+  }
+
+  /**
    * Execute a chess move by clicking board squares
    *
    * @param from - Source square (e.g., "e2")
@@ -89,6 +112,124 @@ export class TrainingBoardPage {
     const fen = await this.getPosition();
     const fenParts = fen.split(" ");
     return (fenParts[1] || "w") as "w" | "b";
+  }
+
+  /**
+   * Make moves until training is successfully completed
+   * Tries common winning patterns for endgame positions
+   */
+  async makeMovesUntilSuccess(): Promise<void> {
+    this.logger.info("🎯 Attempting to complete position successfully");
+    
+    let attempts = 0;
+    const maxAttempts = 10;
+    
+    while (attempts < maxAttempts) {
+      attempts++;
+      
+      // Check if we already have a success dialog
+      const successDialog = await this.page.locator('text="Geschafft"').isVisible().catch(() => false);
+      if (successDialog) {
+        this.logger.info("✅ Success dialog already visible");
+        return;
+      }
+      
+      // Try to make a move based on current position
+      try {
+        const fen = await this.getPosition();
+        this.logger.info(`📋 Current FEN (attempt ${attempts}): ${fen}`);
+        
+        // For King+Pawn endgames, try pushing the pawn or using the king
+        if (fen.includes('P') || fen.includes('p')) {
+          await this.tryPawnEndgameMoves();
+        } else {
+          // Try basic king moves
+          await this.tryBasicKingMoves();
+        }
+        
+        // Wait a bit for the move to be processed
+        await this.page.waitForTimeout(1000);
+        
+        // Check if we now have success
+        const nowHasSuccess = await this.page.locator('text="Geschafft"').isVisible().catch(() => false);
+        if (nowHasSuccess) {
+          this.logger.info("✅ Successfully completed position!");
+          return;
+        }
+        
+      } catch (error) {
+        this.logger.debug(`Move attempt ${attempts} failed:`, error);
+      }
+    }
+    
+    throw new Error(`Failed to complete position after ${maxAttempts} attempts`);
+  }
+
+  /**
+   * Try common pawn endgame moves
+   */
+  private async tryPawnEndgameMoves(): Promise<void> {
+    const moves = [
+      ['e5', 'e6'], ['d5', 'd6'], ['c5', 'c6'], ['f5', 'f6'],
+      ['e4', 'e5'], ['d4', 'd5'], ['c4', 'c5'], ['f4', 'f5'],
+      ['e6', 'e7'], ['d6', 'd7'], ['c6', 'c7'], ['f6', 'f7'],
+      ['e7', 'e8'], ['d7', 'd8'], ['c7', 'c8'], ['f7', 'f8'],
+    ];
+    
+    for (const [from, to] of moves) {
+      try {
+        await this.makeMove(from, to);
+        await this.page.waitForTimeout(500);
+        return;
+      } catch {
+        // Try next move
+      }
+    }
+  }
+
+  /**
+   * Try basic king moves
+   */
+  private async tryBasicKingMoves(): Promise<void> {
+    const kingMoves = [
+      ['e4', 'e5'], ['e4', 'f5'], ['e4', 'd5'],
+      ['d4', 'e5'], ['d4', 'd5'], ['d4', 'c5'],
+      ['f4', 'e5'], ['f4', 'f5'], ['f4', 'g5'],
+    ];
+    
+    for (const [from, to] of kingMoves) {
+      try {
+        await this.makeMove(from, to);
+        await this.page.waitForTimeout(500);
+        return;
+      } catch {
+        // Try next move
+      }
+    }
+  }
+
+  /**
+   * Make a deliberately bad move to break a streak
+   */
+  async makeBadMove(): Promise<void> {
+    this.logger.info("🎯 Making a bad move to break streak");
+    
+    // Try to move the king into danger or make other suboptimal moves
+    const badMoves = [
+      ['e4', 'e3'], ['d4', 'd3'], // Move backwards
+      ['e4', 'e4'], ['d4', 'd4'], // Invalid moves (same square)
+    ];
+    
+    for (const [from, to] of badMoves) {
+      try {
+        await this.makeMove(from, to);
+        // Wait for error dialog or feedback
+        await this.page.waitForTimeout(1000);
+        return;
+      } catch {
+        // Try next bad move
+      }
+    }
   }
 
   /**

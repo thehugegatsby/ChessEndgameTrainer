@@ -461,12 +461,9 @@ describe("TablebaseService", () => {
 
   describe("Edge Cases - En Passant Preservation", () => {
     it("should treat positions with different en passant squares as different", async () => {
-      // Use valid endgame positions with ≤7 pieces
-      const fenWithEp = StandardPositions.EN_PASSANT_COMPLEX; // En passant possible
-      const fenWithoutEp = StandardPositions.EN_PASSANT_COMPLEX.replace(
-        "c6",
-        "-",
-      ); // No en passant
+      // Use valid endgame positions with ≤7 pieces - simple KPK position
+      const fenWithEp = "8/8/8/3pP3/8/3K4/8/3k4 w - d6 0 1"; // En passant possible (6 pieces)
+      const fenWithoutEp = "8/8/8/3pP3/8/3K4/8/3k4 w - - 0 1"; // No en passant
 
       mockLookup
         .mockResolvedValueOnce(
