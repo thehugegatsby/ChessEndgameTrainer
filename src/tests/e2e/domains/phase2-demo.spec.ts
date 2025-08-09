@@ -143,17 +143,66 @@ test.describe("Phase 2 Infrastructure Demo", () => {
       [initialFEN, { 
         dtz: 12, 
         category: "win",
+        checkmate: false,
+        stalemate: false,
+        variant_win: false,
+        variant_loss: false,
+        insufficient_material: false,
         moves: [
-          { uci: "a1b1", san: "Kb1", category: "loss", dtz: -11 },
-          { uci: "a1a2", san: "Ka2", category: "loss", dtz: -11 }
+          { 
+            uci: "a1b1", 
+            san: "Kb1", 
+            category: "loss", 
+            dtz: -11,
+            dtm: -11,
+            precise_dtz: -11,
+            zeroing: false,
+            checkmate: false,
+            stalemate: false,
+            variant_win: false,
+            variant_loss: false,
+            insufficient_material: false
+          },
+          { 
+            uci: "a1a2", 
+            san: "Ka2", 
+            category: "loss", 
+            dtz: -11,
+            dtm: -11,
+            precise_dtz: -11,
+            zeroing: false,
+            checkmate: false,
+            stalemate: false,
+            variant_win: false,
+            variant_loss: false,
+            insufficient_material: false
+          }
         ]
       }],
       // Add a response for any potential next position
       ["*", {
         dtz: -11,
-        category: "loss", 
+        category: "loss",
+        checkmate: false,
+        stalemate: false,
+        variant_win: false,
+        variant_loss: false,
+        insufficient_material: false,
         moves: [
-          { uci: "e8f8", san: "Kf8", category: "win", dtz: 10 }
+          { 
+            uci: "e8f8", 
+            san: "Kf8", 
+            category: "win", 
+            dtz: 10,
+            dtm: 10,
+            precise_dtz: 10,
+            zeroing: false,
+            checkmate: false,
+            stalemate: false,
+            variant_win: false,
+            variant_loss: false,
+            insufficient_material: false
+          }
         ]
       }]
     ]);

@@ -68,14 +68,18 @@ test.describe("Chess Move Scenarios", () => {
       console.log("🐛 Sequence failed, debugging:");
 
       const storeState = await runner.getStoreState();
-      console.log(
-        "Store state:",
-        JSON.stringify(storeState.ui?.toasts, null, 2),
-      );
-      console.log(
-        "Training state:",
-        JSON.stringify(storeState.training, null, 2),
-      );
+      if (storeState) {
+        console.log(
+          "Store state:",
+          JSON.stringify(storeState.ui?.toasts, null, 2),
+        );
+        console.log(
+          "Training state:",
+          JSON.stringify(storeState.training, null, 2),
+        );
+      } else {
+        console.log("Could not get store state");
+      }
 
       const gameState = await runner.getGameState();
       console.log("Game state:", JSON.stringify(gameState, null, 2));

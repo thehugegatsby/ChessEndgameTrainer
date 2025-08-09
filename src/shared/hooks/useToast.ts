@@ -47,8 +47,6 @@ interface Toast {
  * @returns {Function} returns.showInfo - Show an info toast
  * @returns {Function} returns.showWarning - Show a warning toast
  * @returns {Function} returns.clearAllToasts - Remove all active toasts
- * @returns {Function} returns.dismissToast - Alias for removeToast (backward compatibility)
- * @returns {Function} returns.clearToasts - Alias for clearAllToasts (backward compatibility)
  */
 export const useToast = () => {
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -124,8 +122,5 @@ export const useToast = () => {
     showInfo,
     showWarning,
     clearAllToasts,
-    // Aliases for backward compatibility with tests
-    dismissToast: removeToast,
-    clearToasts: clearAllToasts,
   };
 };

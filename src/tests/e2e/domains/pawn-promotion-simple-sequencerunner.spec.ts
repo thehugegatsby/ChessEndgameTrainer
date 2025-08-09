@@ -49,12 +49,16 @@ test.describe.skip("Pawn Promotion Simple (SequenceRunner) - Ready to unskip: Is
 
     // Verify the sequence completed
     const finalState = await runner.getGameState();
-    logger.info(`✅ Promotion sequence completed. Final FEN: ${finalState.fen}`);
-    logger.info(`✅ Move count: ${finalState.moveCount}`);
-    
-    // Check if FEN contains a Queen (Q)
-    if (finalState.fen && finalState.fen.includes('Q')) {
-      logger.info("✅ Queen found in final position - promotion successful!");
+    if (finalState) {
+      logger.info(`✅ Promotion sequence completed. Final FEN: ${finalState.fen}`);
+      logger.info(`✅ Move count: ${finalState.moveCount}`);
+      
+      // Check if FEN contains a Queen (Q)
+      if (finalState.fen && finalState.fen.includes('Q')) {
+        logger.info("✅ Queen found in final position - promotion successful!");
+      }
+    } else {
+      logger.error("❌ Could not get final game state");
     }
   });
 
@@ -86,7 +90,11 @@ test.describe.skip("Pawn Promotion Simple (SequenceRunner) - Ready to unskip: Is
     });
 
     const gameState = await runner.getGameState();
-    logger.info(`✅ Quick test completed. Moves: ${gameState.moveCount}`);
+    if (gameState) {
+      logger.info(`✅ Quick test completed. Moves: ${gameState.moveCount}`);
+    } else {
+      logger.error("❌ Could not get game state");
+    }
   });
 });
 

@@ -17,6 +17,7 @@
 
 import { Page } from '@playwright/test';
 import { getLogger } from '@shared/services/logging';
+import type { LichessTablebaseResponse } from '@shared/types/tablebase';
 
 const logger = getLogger().setContext('E2E-PlaywrightMocking');
 
@@ -97,7 +98,7 @@ const TABLEBASE_RESPONSES = {
  */
 export async function mockTablebaseAPI(
   page: Page, 
-  response: any, 
+  response: LichessTablebaseResponse | { error: string }, 
   status: number = 200
 ): Promise<void> {
   const endpoint = '**/tablebase.lichess.ovh/standard**';
@@ -182,7 +183,7 @@ export const mockTablebase = {
    * @param page - Playwright page
    * @param fenToResponse - Map of FEN positions to responses
    */
-  async dynamic(page: Page, fenToResponse: Map<string, any>): Promise<void> {
+  async dynamic(page: Page, fenToResponse: Map<string, LichessTablebaseResponse | { error: string }>): Promise<void> {
     const endpoint = '**/tablebase.lichess.ovh/standard**';
     
     logger.info(`🎯 Mocking dynamic tablebase responses for ${fenToResponse.size} positions`);
@@ -192,7 +193,7 @@ export const mockTablebase = {
       const fen = url.searchParams.get('fen');
       
       // Find matching FEN in map
-      let response = TABLEBASE_RESPONSES.WIN; // default
+      let response: LichessTablebaseResponse | { error: string } = TABLEBASE_RESPONSES.WIN; // default
       
       if (fen) {
         // Try exact match first
@@ -238,7 +239,7 @@ export const mockTablebase = {
 export async function mockAPI(
   page: Page,
   pattern: string,
-  response: any,
+  response: unknown,
   status: number = 200
 ): Promise<void> {
   logger.info(`🎭 Mocking API: ${pattern}`);

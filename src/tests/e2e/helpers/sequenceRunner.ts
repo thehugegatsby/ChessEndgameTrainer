@@ -25,6 +25,43 @@
 import { Page } from "@playwright/test";
 import { waitForMoveAnimation, waitForUIReady } from "./deterministicWaiting";
 
+// Type definitions for E2E test window globals
+interface E2ETestWindow extends Window {
+  __e2e_store?: {
+    getState(): {
+      ui?: {
+        toasts?: Array<{
+          id: string;
+          message: string;
+          type: 'success' | 'error' | 'warning' | 'info';
+        }>;
+        currentModal?: string | null;
+      };
+      training?: {
+        isSuccess?: boolean;
+        completionStatus?: string;
+        moveSuccessDialog?: {
+          isOpen: boolean;
+          promotionPiece?: string;
+          moveDescription?: string;
+        };
+      };
+    };
+  };
+  __zustand_store?: E2ETestWindow['__e2e_store'];
+  e2e_makeMove?: (moveStr: string) => Promise<{ success: boolean; error?: string }>;
+  e2e_getGameState?: () => {
+    fen: string;
+    turn: 'w' | 'b';
+    isGameOver: boolean;
+    isCheck: boolean;
+    isCheckmate: boolean;
+    moveCount: number;
+  };
+}
+
+declare const window: E2ETestWindow;
+
 /**
  * Types of expectations that can be verified during move sequence testing
  */
@@ -224,12 +261,12 @@ export class SequenceRunner {
 
       // Play the move
       const result = await this.page.evaluate(async (moveStr) => {
-        const result = await (window as any).e2e_makeMove(moveStr);
+        const result = await window.e2e_makeMove?.(moveStr);
         console.log(`Move result:`, result);
         return result;
       }, move);
 
-      if (!result.success) {
+      if (!result || !result.success) {
         throw new Error(`Move ${move} failed: ${JSON.stringify(result)}`);
       }
 
@@ -385,13 +422,13 @@ export class SequenceRunner {
     await this.page.waitForFunction(
       ({ message, toastType }) => {
         // Try both possible store names
-        const store = (window as any).__e2e_store || (window as any).__zustand_store;
+        const store = window.__e2e_store || window.__zustand_store;
         if (!store) return false;
 
         const state = store.getState();
         const toasts = state.ui?.toasts || [];
 
-        return toasts.some((toast: any) => {
+        return toasts.some((toast) => {
           const messageMatch = message
             ? toast.message?.includes(message)
             : true;
@@ -442,7 +479,7 @@ export class SequenceRunner {
 
     await this.page.waitForFunction(
       ({ modalType, modalOpen }) => {
-        const store = (window as any).__e2e_store || (window as any).__zustand_store;
+        const store = window.__e2e_store || window.__zustand_store;
         if (!store) return false;
 
         const state = store.getState();
@@ -488,7 +525,7 @@ export class SequenceRunner {
 
     await this.page.waitForFunction(
       ({ storePath, expectedValue }) => {
-        const store = (window as any).__e2e_store || (window as any).__zustand_store;
+        const store = window.__e2e_store || window.__zustand_store;
         if (!store) return false;
 
         const state = store.getState();
@@ -525,7 +562,7 @@ export class SequenceRunner {
 
     await this.page.waitForFunction(
       ({ isSuccess, completionStatus }) => {
-        const store = (window as any).__e2e_store || (window as any).__zustand_store;
+        const store = window.__e2e_store || window.__zustand_store;
         if (!store) return false;
 
         const state = store.getState();
@@ -570,7 +607,7 @@ export class SequenceRunner {
 
     await this.page.waitForFunction(
       ({ dialogType, promotionPiece, moveDescription, dialogOpen }) => {
-        const store = (window as any).__e2e_store || (window as any).__zustand_store;
+        const store = window.__e2e_store || window.__zustand_store;
         if (!store) return false;
 
         const state = store.getState();
@@ -629,9 +666,9 @@ export class SequenceRunner {
    * console.log('Current toasts:', state.ui?.toasts);
    * ```
    */
-  async getStoreState(): Promise<any> {
+  async getStoreState(): Promise<ReturnType<NonNullable<E2ETestWindow['__e2e_store']>['getState']> | null> {
     return await this.page.evaluate(() => {
-      const store = (window as any).__e2e_store || (window as any).__zustand_store;
+      const store = window.__e2e_store || window.__zustand_store;
       return store ? store.getState() : null;
     });
   }
@@ -647,9 +684,9 @@ export class SequenceRunner {
    * console.log('Current position:', gameState.fen);
    * ```
    */
-  async getGameState(): Promise<any> {
-    return await this.page.evaluate(async () => {
-      return await (window as any).e2e_getGameState();
+  async getGameState(): Promise<ReturnType<NonNullable<E2ETestWindow['e2e_getGameState']>> | null> {
+    return await this.page.evaluate(() => {
+      return window.e2e_getGameState ? window.e2e_getGameState() : null;
     });
   }
 }
