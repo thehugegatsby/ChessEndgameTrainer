@@ -16,6 +16,7 @@ import { TESTING } from "@shared/constants";
 import { getLogger } from "@shared/services/logging";
 import type { RootState } from "@shared/store/slices/types";
 import type { EndgamePosition } from "@shared/types/endgame";
+import { Result, ok, err, isErr, AppError } from "@shared/utils/result";
 
 const logger = getLogger().setContext("TestApiService");
 
@@ -354,8 +355,30 @@ export class TestApiService {
    * @deprecated Use makeValidatedMove for behavior testing, this is for setup only
    */
   public async makeMove(move: string): Promise<TestMoveResponse> {
+    // Adapter pattern: internal Result, external legacy API
+    const result = await this._makeMoveInternal(move);
+    
+    if (isErr(result)) {
+      return {
+        success: false,
+        error: result.error.message,
+      };
+    }
+    
+    return {
+      success: true,
+      resultingFen: result.value.resultingFen,
+      moveCount: result.value.moveCount,
+    };
+  }
+  
+  /**
+   * Internal implementation using Result pattern
+   * @private
+   */
+  private async _makeMoveInternal(move: string): Promise<Result<{resultingFen: string; moveCount: number}, AppError>> {
     if (!this.storeAccess) {
-      throw new Error("TestApiService not initialized with store access");
+      return err(new AppError("TestApiService not initialized with store access"));
     }
 
     try {
@@ -370,86 +393,65 @@ export class TestApiService {
         // SAN notation - need to convert to from/to format
         // For simplicity, we'll use makeMove which accepts strings
         this.storeAccess.makeMove(move);
-        const success = true;
         
-        if (success) {
-          const newState = this.storeAccess.getState();
-          
-          if (
-            this.tablebaseConfig.deterministic &&
-            newState.training?.isPlayerTurn === false
-          ) {
-            // After player move, check if tablebase should respond with a fixed move
-            await this.handleDeterministicTablebaseMove(newState.game?.currentFen || "");
-          }
-          
-          this.emit("test:move", {
-            move,
-            fen: newState.game?.currentFen || "unknown",
-            moveCount:
-              newState.game?.moveHistory?.length || 0,
-          });
-          
-          // Get updated state after potential tablebase move
-          const finalState = this.storeAccess.getState();
-          
-          return {
-            success: true,
-            resultingFen:
-              finalState.game?.currentFen || "unknown",
-            moveCount: finalState.game?.moveHistory?.length || 0,
-          };
-        } else {
-          return {
-            success: false,
-            error: "Invalid move",
-          };
-        }
-      }
-
-      // Execute move through store actions (bypass validation for tests)
-      this.storeAccess.applyMove(moveObj);
-      const success = true; // makeMove is synchronous in Zustand
-
-      if (success) {
         const newState = this.storeAccess.getState();
-
-        // Check if deterministic mode is enabled and if we should mock tablebase response
+        
         if (
           this.tablebaseConfig.deterministic &&
-          this.tablebaseConfig.fixedResponses
+          newState.training?.isPlayerTurn === false
         ) {
           // After player move, check if tablebase should respond with a fixed move
           await this.handleDeterministicTablebaseMove(newState.game?.currentFen || "");
         }
-
+        
         this.emit("test:move", {
           move,
           fen: newState.game?.currentFen || "unknown",
           moveCount:
             newState.game?.moveHistory?.length || 0,
         });
-
+        
         // Get updated state after potential tablebase move
         const finalState = this.storeAccess.getState();
-
-        return {
-          success: true,
-          resultingFen:
-            finalState.game?.currentFen || "unknown",
+        
+        return ok({
+          resultingFen: finalState.game?.currentFen || "unknown",
           moveCount: finalState.game?.moveHistory?.length || 0,
-        };
-      } else {
-        return {
-          success: false,
-          error: "Invalid move",
-        };
+        });
       }
+
+      // Execute move through store actions (bypass validation for tests)
+      this.storeAccess.applyMove(moveObj);
+      const newState = this.storeAccess.getState();
+
+      // Check if deterministic mode is enabled and if we should mock tablebase response
+      if (
+        this.tablebaseConfig.deterministic &&
+        this.tablebaseConfig.fixedResponses
+      ) {
+        // After player move, check if tablebase should respond with a fixed move
+        await this.handleDeterministicTablebaseMove(newState.game?.currentFen || "");
+      }
+
+      this.emit("test:move", {
+        move,
+        fen: newState.game?.currentFen || "unknown",
+        moveCount:
+          newState.game?.moveHistory?.length || 0,
+      });
+
+      // Get updated state after potential tablebase move
+      const finalState = this.storeAccess.getState();
+
+      return ok({
+        resultingFen: finalState.game?.currentFen || "unknown",
+        moveCount: finalState.game?.moveHistory?.length || 0,
+      });
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
-      };
+      return err(new AppError(
+        error instanceof Error ? error.message : "Unknown error",
+        { move, operation: "makeMove" }
+      ));
     }
   }
 

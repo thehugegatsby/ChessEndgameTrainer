@@ -7,7 +7,7 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MovePanelZustand } from "@shared/components/training/MovePanelZustand";
-import { useStore } from "@shared/store/rootStore";
+// import { useStore } from "@shared/store/rootStore"; // Not used in this test file
 import { createTestValidatedMove } from "@tests/helpers/validatedMoveFactory";
 import type { ValidatedMove } from "@shared/types/chess";
 

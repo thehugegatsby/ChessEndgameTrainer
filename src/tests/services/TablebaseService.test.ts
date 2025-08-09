@@ -8,7 +8,7 @@
  * of the optimized TablebaseService implementation.
  */
 
-import { tablebaseService } from "../../shared/services/TablebaseService";
+import { tablebaseService, TablebaseService } from "../../shared/services/TablebaseService";
 import { TEST_FENS } from "../../shared/testing/TestFixtures";
 import { EndgamePositions, SpecialPositions, StandardPositions } from "../fixtures/commonFens";
 
@@ -704,6 +704,141 @@ describe("TablebaseService", () => {
       const movesResult = await tablebaseService.getTopMoves(stalemateFen, 5);
       expect(movesResult.isAvailable).toBe(false);
       expect(movesResult.error).toContain("No moves available");
+    });
+  });
+
+  describe('CacheManager Integration', () => {
+    beforeEach(() => {
+      // Clear mock call counts and reset mock state
+      jest.clearAllMocks();
+    });
+
+    it('should accept custom CacheManager via constructor injection', async () => {
+      const mockCacheManager = {
+        get: jest.fn().mockReturnValue(undefined),
+        set: jest.fn(),
+        has: jest.fn().mockReturnValue(false),
+        delete: jest.fn().mockReturnValue(true),
+        clear: jest.fn(),
+        size: 0
+      };
+
+      const customService = new TablebaseService(undefined, mockCacheManager);
+
+      // Mock successful response
+      const responseData = { 
+        category: 'win', 
+        dtz: 1,
+        dtm: 1,
+        checkmate: false,
+        stalemate: false,
+        variant_win: false,
+        variant_loss: false,
+        insufficient_material: false,
+        moves: [{ uci: 'a1a2', san: 'Ka2', category: 'loss', dtz: -2, dtm: -2 }]
+      };
+      
+      mockFetch.mockResolvedValueOnce(createTablebaseResponse(responseData));
+
+      const testFen = 'K7/8/k7/8/8/8/8/8 w - - 0 1';
+      await customService.getEvaluation(testFen);
+
+      // Verify cache manager was used
+      expect(mockCacheManager.get).toHaveBeenCalled();
+      expect(mockCacheManager.set).toHaveBeenCalled();
+    });
+
+    it('should use default LRUCacheManager when none provided', async () => {
+      const defaultService = new TablebaseService();
+      
+      const responseData = { 
+        category: 'win', 
+        dtz: 1,
+        moves: [{ uci: 'a1a2', san: 'Ka2', category: 'loss', dtz: -2, dtm: -2 }]
+      };
+      
+      mockFetch.mockResolvedValue(createTablebaseResponse(responseData));
+
+      const testFen = 'K7/8/k7/8/8/8/8/8 w - - 0 1';
+      
+      // First call should miss cache
+      await defaultService.getEvaluation(testFen);
+      
+      // Second call should hit cache (LRU should work)
+      await defaultService.getEvaluation(testFen);
+      
+      // Should have made only one API call due to caching
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('should maintain cache behavior consistency with CacheManager', async () => {
+      // Start with fresh mock state
+      mockFetch.mockClear();
+      
+      const responseData = { 
+        category: 'win', 
+        dtz: 1,
+        moves: [{ uci: 'a1a2', san: 'Ka2', category: 'loss', dtz: -2, dtm: -2 }]
+      };
+      
+      mockFetch.mockResolvedValue(createTablebaseResponse(responseData));
+
+      const testFen = 'K7/8/k7/8/8/8/8/8 w - - 0 1';
+      
+      // First call - cache miss
+      const result1 = await tablebaseService.getEvaluation(testFen);
+      expect(result1.isAvailable).toBe(true);
+      
+      // Second call - should be cache hit
+      const result2 = await tablebaseService.getEvaluation(testFen);
+      expect(result2.isAvailable).toBe(true);
+      expect(result1).toEqual(result2);
+      
+      // Should have made only one API call
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      
+      // Clear cache
+      tablebaseService.clearCache();
+      
+      // Third call - cache miss again after clear
+      const result3 = await tablebaseService.getEvaluation(testFen);
+      expect(result3.isAvailable).toBe(true);
+      expect(result3).toEqual(result1); // Same result, but fetched again
+      
+      // Should have made second API call after cache clear
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
+
+    it('should work with both constructor parameters', async () => {
+      const responseData = { 
+        category: 'win', 
+        dtz: 1,
+        moves: [{ uci: 'a1a2', san: 'Ka2', category: 'loss', dtz: -2, dtm: -2 }]
+      };
+      
+      const mockApiClient = {
+        lookup: jest.fn().mockResolvedValue(responseData),
+        healthCheck: jest.fn().mockResolvedValue(true)
+      };
+
+      const mockCacheManager = {
+        get: jest.fn().mockReturnValue(undefined),
+        set: jest.fn(),
+        has: jest.fn().mockReturnValue(false),
+        delete: jest.fn().mockReturnValue(true),
+        clear: jest.fn(),
+        size: 0
+      };
+
+      const customService = new TablebaseService(mockApiClient as any, mockCacheManager);
+
+      const testFen = 'K7/8/k7/8/8/8/8/8 w - - 0 1';
+      const result = await customService.getEvaluation(testFen);
+
+      expect(result.isAvailable).toBe(true);
+      expect(mockApiClient.lookup).toHaveBeenCalled();
+      expect(mockCacheManager.get).toHaveBeenCalled();
+      expect(mockCacheManager.set).toHaveBeenCalled();
     });
   });
 });

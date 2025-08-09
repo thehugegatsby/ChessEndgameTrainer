@@ -441,17 +441,17 @@ describe("Chess.js Integration and Game Logic", () => {
       // Try various invalid operations (they throw but don't change state)
       try {
         game.move("invalid");
-      } catch (e) {
+      } catch (_e) {
         /* expected */
       }
       try {
         game.load("invalid fen");
-      } catch (e) {
+      } catch (_e) {
         /* expected - now throws */
       }
       try {
         game.move({ from: "z9", to: "a1" });
-      } catch (e) {
+      } catch (_e) {
         /* expected */
       }
 

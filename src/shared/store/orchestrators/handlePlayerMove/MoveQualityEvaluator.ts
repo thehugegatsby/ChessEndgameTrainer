@@ -36,6 +36,7 @@ import {
   type TablebaseMovesResult,
 } from "@shared/services/TablebaseService";
 import { getLogger } from "@shared/services/logging";
+import { WdlAdapter } from "@shared/utils/tablebase/wdl";
 
 /**
  * Result of move quality evaluation containing recommendation data
@@ -298,14 +299,7 @@ export class MoveQualityEvaluator {
    * // This correctly shows Black went from draw (0) to loss (-1000)
    */
   private convertToPlayerPerspective(wdlBefore: number, wdlAfter: number) {
-    // wdlBefore is already from the moving player's perspective (side-to-move)
-    const wdlBeforeFromPlayerPerspective = wdlBefore;
-
-    // wdlAfter is from opponent's perspective (they are now side-to-move)
-    // We need to negate it to get the moving player's perspective
-    const wdlAfterFromPlayerPerspective = -wdlAfter;
-
-    return { wdlBeforeFromPlayerPerspective, wdlAfterFromPlayerPerspective };
+    return WdlAdapter.convertToPlayerPerspective(wdlBefore, wdlAfter);
   }
 
   /**
@@ -335,30 +329,21 @@ export class MoveQualityEvaluator {
     wdlBeforeFromPlayerPerspective: number,
     wdlAfterFromPlayerPerspective: number,
   ): boolean {
-    const winTurnedIntoDrawOrLoss = this.isWinToDrawOrLoss(
-      wdlBeforeFromPlayerPerspective,
-      wdlAfterFromPlayerPerspective
-    );
-    const drawTurnedIntoLoss = this.isDrawToLoss(
-      wdlBeforeFromPlayerPerspective,
-      wdlAfterFromPlayerPerspective
-    );
-    
-    return winTurnedIntoDrawOrLoss || drawTurnedIntoLoss;
+    return WdlAdapter.didOutcomeChange(wdlBeforeFromPlayerPerspective, wdlAfterFromPlayerPerspective);
   }
 
   /**
    * Checks if a winning position turned into a draw or loss
    */
   private isWinToDrawOrLoss(wdlBefore: number, wdlAfter: number): boolean {
-    return wdlBefore > 0 && wdlAfter <= 0;
+    return WdlAdapter.isWinToDrawOrLoss(wdlBefore, wdlAfter);
   }
 
   /**
    * Checks if a drawn position turned into a loss
    */
   private isDrawToLoss(wdlBefore: number, wdlAfter: number): boolean {
-    return wdlBefore === 0 && wdlAfter < 0;
+    return WdlAdapter.isDrawToLoss(wdlBefore, wdlAfter);
   }
 
   /**

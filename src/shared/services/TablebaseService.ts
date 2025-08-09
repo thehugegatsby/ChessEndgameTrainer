@@ -24,6 +24,8 @@ import { APP_CONFIG } from "@/config/constants";
 import { Result, ok, err, isErr, AppError } from "@shared/utils/result";
 // Removed unused imports - Zod validation now handled by LichessApiClient
 import { LichessApiClient, LichessApiError, LichessApiTimeoutError } from "./api/LichessApiClient";
+import type { CacheManager } from "../lib/cache/types";
+import { LRUCacheManager } from "../lib/cache/LRUCacheManager";
 import type {
   LichessTablebaseResponse,
   TablebaseEntry,
@@ -47,14 +49,17 @@ export type {
 const logger = getLogger().setContext("TablebaseService");
 
 class TablebaseService {
-  private cache = new Map<string, TablebaseCacheEntry>();
+  private readonly cacheManager: CacheManager<string, TablebaseCacheEntry>;
   private readonly maxPieces = 7; // Lichess uses 7-piece Syzygy tablebases
   private readonly cacheTtl = 300000; // 5 minutes
   private pendingRequests = new Map<string, Promise<TablebaseEntry | null>>();
   
   private readonly apiClient: LichessApiClient;
 
-  constructor(apiClient?: LichessApiClient) {
+  constructor(
+    apiClient?: LichessApiClient,
+    cacheManager?: CacheManager<string, TablebaseCacheEntry>
+  ) {
     // Use provided client or create default instance
     this.apiClient = apiClient || new LichessApiClient({
       baseUrl: APP_CONFIG.TABLEBASE_API_URL,
@@ -62,6 +67,12 @@ class TablebaseService {
       maxRetries: 3,
       maxBackoffMs: 10000
     });
+
+    // Use provided cache manager or create default LRU cache
+    this.cacheManager = cacheManager || new LRUCacheManager<string, TablebaseCacheEntry>(
+      200,     // maxSize (same as before)
+      this.cacheTtl  // defaultTtlMs (5 minutes)
+    );
   }
 
   // Metrics for monitoring
@@ -349,8 +360,8 @@ class TablebaseService {
     }
 
     // Check cache with normalized FEN
-    const cached = this.cache.get(normalizedFen);
-    if (cached && cached.expiry > Date.now()) {
+    const cached = this.cacheManager.get(normalizedFen);
+    if (cached) {
       logger.debug("Cache hit for tablebase entry", { fen: normalizedFen });
       this.metrics.recordCacheHit();
       return cached.entry;
@@ -517,20 +528,13 @@ class TablebaseService {
    * @private
    */
   private _cacheEntry(fen: string, entry: TablebaseEntry | null): void {
-    this.cache.set(fen, {
+    const cacheEntry: TablebaseCacheEntry = {
       entry,
-      expiry: Date.now() + this.cacheTtl,
-    });
-
-    // Clean up old entries if cache is getting large
-    if (this.cache.size > 200) {
-      const now = Date.now();
-      for (const [key, value] of this.cache.entries()) {
-        if (value.expiry < now) {
-          this.cache.delete(key);
-        }
-      }
-    }
+      expiry: Date.now() + this.cacheTtl, // Keep expiry for compatibility with existing types
+    };
+    
+    // Use cache manager with TTL - it handles size limits and cleanup automatically
+    this.cacheManager.set(fen, cacheEntry, this.cacheTtl);
   }
 
   /**
@@ -630,7 +634,7 @@ class TablebaseService {
    * Clear cache (for testing)
    */
   clearCache(): void {
-    this.cache.clear();
+    this.cacheManager.clear();
     this.pendingRequests.clear();
   }
 

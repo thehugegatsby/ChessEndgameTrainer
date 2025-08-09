@@ -16,7 +16,7 @@
 
 import { renderHook, act } from '@testing-library/react';
 import { useDialogHandlers } from '@shared/hooks/useDialogHandlers';
-import { getLogger } from '@shared/services/logging/Logger';
+// import { getLogger } from '@shared/services/logging/Logger'; // Not used in this test file
 import { chessService } from '@shared/services/ChessService';
 import { tablebaseService } from '@shared/services/TablebaseService';
 import {

@@ -14,6 +14,10 @@
     ]
   },
   "overrides": [
+    // NOTE: Test files and mocks have relaxed linting rules because:
+    // - Unused variables are common in test fixtures and destructuring
+    // - Mock implementations often have unused parameters
+    // - Test setup code may use patterns not suitable for production
     {
       "files": [
         "scripts/**/*.js",
@@ -59,14 +63,9 @@
         "no-console": "off",
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-require-imports": "off",
-        "@typescript-eslint/no-unused-vars": [
-          "warn",
-          {
-            "args": "after-used",
-            "varsIgnorePattern": "^_",
-            "argsIgnorePattern": "^_"
-          }
-        ],
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-unused-expressions": "off",
+        "import/no-anonymous-default-export": "off",
         "@typescript-eslint/ban-ts-comment": [
           "error",
           {
@@ -98,14 +97,9 @@
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-require-imports": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
-        "@typescript-eslint/no-unused-vars": [
-          "warn",
-          {
-            "args": "after-used",
-            "varsIgnorePattern": "^_",
-            "argsIgnorePattern": "^_"
-          }
-        ],
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-unused-expressions": "off",
+        "import/no-anonymous-default-export": "off",
         "@typescript-eslint/ban-ts-comment": [
           "error",
           {

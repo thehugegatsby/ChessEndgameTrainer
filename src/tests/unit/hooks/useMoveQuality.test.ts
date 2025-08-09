@@ -111,7 +111,7 @@ describe('useMoveQuality', () => {
         await act(async () => {
           await result.current.assessMove('8/8/8/8/8/8/8/8 w - - 0 1', 'Kh1', 'w');
         });
-      } catch (error) {
+      } catch (_error) {
         // Error handling is implementation-dependent
       }
       

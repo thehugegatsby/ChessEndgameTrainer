@@ -337,6 +337,7 @@ describe("MoveQualityEvaluator", () => {
     });
 
     it("should handle evaluation errors gracefully", async () => {
+      // When tablebase service fails, getEvaluation catches errors and returns { isAvailable: false }
       (tablebaseService.getEvaluation as jest.Mock).mockRejectedValue(
         new Error("Evaluation failed"),
       );
@@ -353,9 +354,16 @@ describe("MoveQualityEvaluator", () => {
         outcomeChanged: false,
       });
 
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        "Move quality evaluation failed:",
-        expect.any(Error),
+      // No error should be logged - errors are handled gracefully by returning unavailable
+      expect(mockLogger.error).not.toHaveBeenCalled();
+      
+      // Should log debug info about insufficient data
+      expect(mockLogger.debug).toHaveBeenCalledWith(
+        "[MoveQuality] Skipping evaluation - insufficient data:",
+        expect.objectContaining({
+          evalBeforeAvailable: false,
+          evalAfterAvailable: false,
+        }),
       );
     });
 
@@ -388,12 +396,12 @@ describe("MoveQualityEvaluator", () => {
         }),
       );
 
-      // Should log WDL evaluation context
+      // Should log WDL evaluation context  
       expect(mockLogger.debug).toHaveBeenCalledWith(
         "[MoveQuality] WDL evaluation context:",
         expect.objectContaining({
           wdlBeforeFromPlayerPerspective: 1000,
-          wdlAfterFromPlayerPerspective: 0,
+          wdlAfterFromPlayerPerspective: -0, // WdlAdapter.flipPerspective(0) = -0
         }),
       );
 

@@ -17,7 +17,7 @@
 
 import { renderHook, act } from '@testing-library/react';
 import { useMoveHandlers } from '@shared/hooks/useMoveHandlers';
-import { getLogger } from '@shared/services/logging/Logger';
+// import { getLogger } from '@shared/services/logging/Logger'; // Not used in this test file
 
 // Mock dependencies
 jest.mock('@shared/services/logging/Logger', () => ({

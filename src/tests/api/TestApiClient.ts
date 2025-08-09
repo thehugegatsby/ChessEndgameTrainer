@@ -272,7 +272,7 @@ export class TestApiClient {
       try {
         await this.health();
         return;
-      } catch (error) {
+      } catch (_error) {
         if (i === maxAttempts - 1) {
           throw new Error("Test API did not become ready in time");
         }

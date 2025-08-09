@@ -103,6 +103,8 @@ module.exports = {
         '<rootDir>/src/tests/unit/types/**/*.{test,spec}.[jt]s',
         '<rootDir>/src/tests/unit/lib/**/*.{test,spec}.[jt]s',
         '<rootDir>/src/tests/unit/infrastructure/**/*.{test,spec}.[jt]s',
+        // Orchestrator tests (move quality, validation, etc.)
+        '<rootDir>/src/tests/unit/orchestrators/**/*.{test,spec}.[jt]s',
         // Other non-React tests
         '<rootDir>/src/tests/smoke/**/*.{test,spec}.[jt]s',
         '<rootDir>/src/tests/validation/**/*.{test,spec}.[jt]s',

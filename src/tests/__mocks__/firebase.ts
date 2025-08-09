@@ -66,7 +66,9 @@ jest.mock('@shared/lib/firebase', () => ({
   getFirestore: jest.fn(() => mockFirestore),
 }));
 
-export default {
+const firebaseMock = {
   auth: mockAuth,
   db: mockFirestore,
 };
+
+export default firebaseMock;

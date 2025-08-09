@@ -83,7 +83,7 @@ test.describe.skip("Weiterspielen Bug Proof", () => {
     // Try to wait for opponent move, but with timeout since bug may prevent it
     try {
       await waitForOpponentMove(page);
-    } catch (e) {
+    } catch (_e) {
       logger.info("Opponent move timeout - bug confirmed");
     }
 
