@@ -25,6 +25,9 @@ import { UISlice, UIState, UIActions } from "./types";
 import { nanoid } from "nanoid";
 import { Toast, ModalType, LoadingState, AnalysisPanelState } from "../types";
 
+// Re-export types for external use
+export type { UIState, UIActions } from "./types";
+
 /**
  * Initial state for the UI slice
  * Exported separately to enable proper store reset in tests

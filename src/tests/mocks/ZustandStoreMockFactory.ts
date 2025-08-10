@@ -31,7 +31,7 @@ export interface MockStoreResult {
 
 export class ZustandStoreMockFactory extends BaseMockFactory<MockStoreResult, StoreMockOverrides> {
   private storeInstance: StoreApi<RootStore> | null = null;
-  private unsubscribe: (() => void) | null = null;
+  private subscriptions: Set<() => void> = new Set();
 
   /**
    * Override create to handle Zustand's specific setup
@@ -42,8 +42,8 @@ export class ZustandStoreMockFactory extends BaseMockFactory<MockStoreResult, St
       this.cleanup();
     }
 
-    // Get the real store instance
-    this.storeInstance = useStore as unknown as StoreApi<RootStore>;
+    // Get the real store instance with proper typing
+    this.storeInstance = useStore as StoreApi<RootStore>;
     
     // Reset store to initial state
     this._resetStore();
@@ -63,7 +63,9 @@ export class ZustandStoreMockFactory extends BaseMockFactory<MockStoreResult, St
         });
       },
       subscribe: (listener) => {
-        return this.storeInstance!.subscribe(listener);
+        const unsubscribe = this.storeInstance!.subscribe(listener);
+        this.subscriptions.add(unsubscribe);
+        return unsubscribe;
       },
     };
 

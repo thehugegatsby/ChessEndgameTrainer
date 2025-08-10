@@ -3,21 +3,93 @@
  * These tests verify correct perspective handling and cover all major outcome change scenarios
  */
 
-import { MoveQualityEvaluator } from "@shared/store/orchestrators/handlePlayerMove/MoveQualityEvaluator";
-import { tablebaseService } from "@shared/services/TablebaseService";
 import { createTestValidatedMove } from "@tests/helpers/validatedMoveFactory";
 
+// Mock tablebaseService module completely
 jest.mock("@shared/services/TablebaseService");
+
+import { MoveQualityEvaluator } from "@shared/store/orchestrators/handlePlayerMove/MoveQualityEvaluator";
+import { tablebaseService } from "@shared/services/TablebaseService";
 
 describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
   let evaluator: MoveQualityEvaluator;
-  const mockTablebaseService = tablebaseService as jest.Mocked<
-    typeof tablebaseService
-  >;
+  let mockTablebaseService: jest.Mocked<typeof tablebaseService>;
 
   beforeEach(() => {
+    // Set up fresh mocks for each test
+    mockTablebaseService = {
+      getEvaluation: jest.fn(),
+      getTopMoves: jest.fn(),
+    } as any;
+    
+    // Override the imported tablebaseService with our mock
+    (tablebaseService.getEvaluation as any) = mockTablebaseService.getEvaluation;
+    (tablebaseService.getTopMoves as any) = mockTablebaseService.getTopMoves;
+    
     evaluator = new MoveQualityEvaluator();
     jest.clearAllMocks();
+  });
+
+  describe("Mock Verification", () => {
+    it("Should verify mocks work", async () => {
+      // Set up mock
+      mockTablebaseService.getEvaluation.mockResolvedValue({
+        isAvailable: true,
+        result: {
+          wdl: 100,
+          category: "win",
+          dtm: 5,
+          dtz: 7,
+          precise: true,
+          evaluation: "Win",
+        },
+      });
+
+      // Test mock directly
+      const result = await mockTablebaseService.getEvaluation("test");
+      expect(result.isAvailable).toBe(true);
+      expect(result.result?.wdl).toBe(100);
+    });
+
+    it("Should verify MoveQualityEvaluator uses mocked service", async () => {
+      // Set up the two required mocks
+      mockTablebaseService.getEvaluation
+        .mockResolvedValueOnce({
+          isAvailable: true,
+          result: { wdl: 0, category: "draw", dtm: null, dtz: null, precise: false, evaluation: "Draw" },
+        })
+        .mockResolvedValueOnce({
+          isAvailable: true,  
+          result: { wdl: 1000, category: "win", dtm: 15, dtz: 20, precise: true, evaluation: "Win" },
+        });
+
+      mockTablebaseService.getTopMoves.mockResolvedValue({
+        isAvailable: true,
+        moves: [{ san: "Ke7", uci: "d7e7", category: "draw", dtm: null, dtz: null, wdl: 0 }],
+      });
+
+      // Create a simple move
+      const move = createTestValidatedMove({
+        from: "d7", to: "d6", san: "Kd6", color: "b", piece: "k",
+        before: "8/3k4/8/4K3/3P4/8/8/8 b - - 0 1",
+        after: "8/8/3k4/4K3/3P4/8/8/8 w - - 1 2",
+      });
+
+      // Call evaluateMoveQuality
+      const result = await evaluator.evaluateMoveQuality(
+        "8/3k4/8/4K3/3P4/8/8/8 b - - 0 1",
+        "8/8/3k4/4K3/3P4/8/8/8 w - - 1 2",
+        move
+      );
+
+      // Check that mocks were called
+      expect(mockTablebaseService.getEvaluation).toHaveBeenCalledTimes(2);
+      expect(mockTablebaseService.getTopMoves).toHaveBeenCalledTimes(1);
+      
+      // Check result structure (should NOT be early return values)
+      expect(result).toHaveProperty('wdlBefore');
+      expect(result).toHaveProperty('wdlAfter');
+    });
   });
 
   describe("Black moves", () => {

@@ -69,12 +69,42 @@ export class ChessServiceMockFactory extends BaseMockFactory<ChessService, Chess
 
       // Move operations
       move: jest.fn().mockImplementation((move) => {
+        // Handle different input formats dynamically
+        let from: string, to: string, san: string;
+        
+        if (typeof move === 'string') {
+          // Handle algebraic notation (e.g., "e4", "Nf3")
+          san = move;
+          // Simple parsing for common moves
+          if (move.length === 2) {
+            // Pawn move like "e4"
+            from = `${move[0]}2`;
+            to = move;
+          } else if (move.length === 3) {
+            // Piece move like "Nf3"
+            from = 'g1'; // Default square for demo
+            to = move.substring(1);
+          } else {
+            // UCI format like "e2e4"
+            from = move.substring(0, 2);
+            to = move.substring(2, 4);
+            san = to;
+          }
+        } else if (typeof move === 'object' && move) {
+          from = move.from;
+          to = move.to;
+          san = move.san || to;
+        } else {
+          // Fallback for invalid input
+          return null;
+        }
+        
         const mockMove: ChessMove = {
-          from: typeof move === 'object' && move ? move.from : 'e2',
-          to: typeof move === 'object' && move ? move.to : 'e4',
-          san: 'e4',
-          piece: 'p',
-          color: 'w',
+          from,
+          to,
+          san,
+          piece: from[1] === '2' || from[1] === '7' ? 'p' : 'n',
+          color: this.moveHistory.length % 2 === 0 ? 'w' : 'b',
           flags: 'n',
           fenAfter: this.currentFen,
           fenBefore: this.currentFen,
@@ -126,7 +156,7 @@ export class ChessServiceMockFactory extends BaseMockFactory<ChessService, Chess
       getSquare: jest.fn().mockReturnValue(null),
       removeSquare: jest.fn().mockReturnValue(null),
       putSquare: jest.fn().mockReturnValue(true),
-    } as any;
+    } as jest.Mocked<ChessService>;
 
     return mock;
   }
@@ -182,8 +212,12 @@ export class ChessServiceMockFactory extends BaseMockFactory<ChessService, Chess
     // Clear all listeners
     this.listeners.clear();
     
-    // Reset state
+    // Reset state completely to free memory
     this.currentFen = COMMON_FENS.STARTING_POSITION;
+    this.moveHistory.length = 0; // More efficient than creating new array
+    
+    // Clear any remaining references
+    this.listeners = new Set();
     this.moveHistory = [];
   }
 
@@ -215,16 +249,28 @@ export class ChessServiceMockFactory extends BaseMockFactory<ChessService, Chess
    * Utility method to simulate a specific game position
    */
   public setupPosition(position: keyof typeof COMMON_FENS): void {
-    const mock = this.get();
+    if (!this.mockInstance) {
+      throw new Error('[ChessServiceMockFactory] Mock not initialized. Call create() first.');
+    }
     const fen = COMMON_FENS[position];
-    mock.initialize(fen);
+    this.mockInstance.initialize(fen);
   }
 
   /**
    * Utility method to simulate a move sequence
    */
   public simulateMoves(moves: string[]): void {
-    const mock = this.get();
-    moves.forEach(move => mock.move(move));
+    if (!this.mockInstance) {
+      throw new Error('[ChessServiceMockFactory] Mock not initialized. Call create() first.');
+    }
+    if (!Array.isArray(moves)) {
+      throw new Error('[ChessServiceMockFactory] Moves must be an array of strings.');
+    }
+    moves.forEach(move => {
+      const result = this.mockInstance!.move(move);
+      if (!result) {
+        console.warn(`[ChessServiceMockFactory] Move "${move}" returned null`);
+      }
+    });
   }
 }

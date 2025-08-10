@@ -28,6 +28,9 @@ import { TrainingSlice, TrainingState, TrainingActions } from "./types";
 import type { EndgamePosition as BaseEndgamePosition } from "@shared/types/endgame";
 import type { ValidatedMove } from "@shared/types/chess";
 import type { MoveSuccessDialog } from "@shared/store/orchestrators/handlePlayerMove/move.types";
+
+// Re-export types for external use
+export type { TrainingState, TrainingActions } from "./types";
 import { getLogger } from "@shared/services/logging";
 
 /**

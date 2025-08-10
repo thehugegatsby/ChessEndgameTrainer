@@ -26,6 +26,9 @@ import { GameSlice, GameState, GameActions } from "./types";
 import type { ValidatedMove } from "@shared/types";
 import { chessService } from "@shared/services/ChessService";
 
+// Re-export types for external use
+export type { GameState, GameActions } from "./types";
+
 /**
  * Initial state for the game slice
  * Exported separately to enable proper store reset in tests

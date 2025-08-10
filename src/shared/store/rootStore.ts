@@ -64,6 +64,9 @@ import type { RootState } from "./slices/types";
 import type { Move as ChessJsMove } from "chess.js";
 import type { EndgamePosition } from "@shared/types/endgame";
 
+// Re-export RootStore type for external use
+export type RootStore = RootState;
+
 // Initial state creation removed - slices are initialized directly in store
 
 /**

@@ -26,6 +26,9 @@ import { TablebaseSlice, TablebaseState, TablebaseActions } from "./types";
 import type { PositionAnalysis } from "@shared/types/evaluation";
 import type { AnalysisStatus } from "../types";
 
+// Re-export types for external use
+export type { TablebaseState, TablebaseActions } from "./types";
+
 /**
  * Initial state for the tablebase slice
  * Exported separately to enable proper store reset in tests

@@ -160,3 +160,7 @@ export type ChessInstance = Chess;
 // Utility types
 export type FEN = string;
 export type PGN = string;
+
+// Aliases for common naming patterns
+export type ChessMove = Move;
+export type ChessEvent = import("../services/ChessService").ChessServiceEvent;

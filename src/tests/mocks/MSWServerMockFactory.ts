@@ -6,17 +6,17 @@
  */
 
 import { setupServer, SetupServer } from 'msw/node';
-import { rest, RestHandler } from 'msw';
+import { http, HttpHandler } from 'msw';
 import { BaseMockFactory } from './BaseMockFactory';
 
 export interface MSWServerMockOverrides {
-  handlers?: RestHandler[];
+  handlers?: HttpHandler[];
   baseUrl?: string;
 }
 
 export interface MockedMSWServer {
   server: SetupServer;
-  addHandler: (handler: RestHandler) => void;
+  addHandler: (handler: HttpHandler) => void;
   resetHandlers: () => void;
   close: () => void;
 }
@@ -29,10 +29,9 @@ export class MSWServerMockFactory extends BaseMockFactory<MockedMSWServer, MSWSe
     // Create default handlers for common endpoints
     const defaultHandlers = [
       // Lichess Tablebase API
-      rest.get(`${this.baseUrl}/standard`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json({
+      http.get(`${this.baseUrl}/standard`, () => {
+        return new Response(
+          JSON.stringify({
             category: 'win',
             dtz: 5,
             dtm: 3,
@@ -45,13 +44,23 @@ export class MSWServerMockFactory extends BaseMockFactory<MockedMSWServer, MSWSe
                 dtm: 2,
               },
             ],
-          })
+          }),
+          {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          }
         );
       }),
 
       // Health check endpoint
-      rest.get(`${this.baseUrl}/health`, (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json({ status: 'ok' }));
+      http.get(`${this.baseUrl}/health`, () => {
+        return new Response(
+          JSON.stringify({ status: 'ok' }),
+          {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
       }),
     ];
 
@@ -73,7 +82,7 @@ export class MSWServerMockFactory extends BaseMockFactory<MockedMSWServer, MSWSe
     // Return mock interface
     return {
       server: this.server,
-      addHandler: (handler: RestHandler) => {
+      addHandler: (handler: HttpHandler) => {
         this.server!.use(handler);
       },
       resetHandlers: () => {

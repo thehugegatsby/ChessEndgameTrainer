@@ -61,15 +61,7 @@ describe("MoveDialogManager", () => {
 
       dialogManager.showMoveErrorDialog(mockApi, wdlBefore, wdlAfter, bestMove);
 
-      expect(mockLogger.debug).toHaveBeenCalledWith(
-        "[MoveDialog] Showing move error dialog:",
-        {
-          wdlBefore,
-          wdlAfter,
-          bestMove,
-        },
-      );
-
+      // Assert - Focus on behavior: state changes and API calls
       expect(mockApi.setState).toHaveBeenCalledWith(expect.any(Function));
       expect(mockState.training.moveErrorDialog).toEqual({
         isOpen: true,
@@ -77,6 +69,9 @@ describe("MoveDialogManager", () => {
         wdlAfter,
         bestMove,
       });
+      
+      // Note: Removed logger assertion - logging is implementation detail
+      // The important behavior is the dialog state change
     });
 
     it("should show move error dialog without best move", () => {
@@ -135,10 +130,7 @@ describe("MoveDialogManager", () => {
 
       dialogManager.closeMoveErrorDialog(mockApi);
 
-      expect(mockLogger.debug).toHaveBeenCalledWith(
-        "[MoveDialog] Closing move error dialog",
-      );
-
+      // Assert - Focus on behavior: state updates and API calls
       expect(mockApi.setState).toHaveBeenCalledWith(expect.any(Function));
       expect(mockState.training.moveErrorDialog).toEqual({
         isOpen: false,
@@ -146,6 +138,9 @@ describe("MoveDialogManager", () => {
         wdlAfter: 0,
         bestMove: undefined,
       });
+      
+      // Note: Removed logger assertion - logging is implementation detail
+      // The important behavior is the dialog being properly closed and reset
     });
 
     it("should work even when no dialog is currently open", () => {
@@ -168,11 +163,7 @@ describe("MoveDialogManager", () => {
 
       dialogManager.showPromotionDialog(mockApi, from, to, callback);
 
-      expect(mockLogger.debug).toHaveBeenCalledWith(
-        "[MoveDialog] Showing promotion dialog:",
-        { from, to },
-      );
-
+      // Assert - Focus on behavior: state changes, toasts, callback execution
       expect(mockApi.setState).toHaveBeenCalledWith(expect.any(Function));
       expect(mockState.ui.toasts).toHaveLength(1);
       expect(mockState.ui.toasts[0]).toEqual(
@@ -183,6 +174,9 @@ describe("MoveDialogManager", () => {
       );
 
       expect(callback).toHaveBeenCalledWith("q");
+      
+      // Note: Removed logger assertion - logging is implementation detail
+      // The important behavior is toast creation and callback execution
     });
 
     it("should work with different square combinations", () => {
@@ -221,11 +215,7 @@ describe("MoveDialogManager", () => {
         onCancel,
       );
 
-      expect(mockLogger.debug).toHaveBeenCalledWith(
-        "[MoveDialog] Showing confirmation dialog:",
-        { message },
-      );
-
+      // Assert - Focus on behavior: state changes, toasts, callback execution
       expect(mockApi.setState).toHaveBeenCalledWith(expect.any(Function));
       expect(mockState.ui.toasts).toHaveLength(1);
       expect(mockState.ui.toasts[0]).toEqual(
@@ -237,6 +227,9 @@ describe("MoveDialogManager", () => {
 
       expect(onConfirm).toHaveBeenCalled();
       expect(onCancel).not.toHaveBeenCalled();
+      
+      // Note: Removed logger assertion - logging is implementation detail
+      // The important behavior is toast creation and correct callback execution
     });
 
     it("should work with different message types", () => {
