@@ -19,19 +19,14 @@ module.exports = {
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
-    '^@features/(.*)$': '<rootDir>/src/features/$1',
-    '^@lib/(.*)$': '<rootDir>/src/lib/$1',
-    '^@shared/(.*)$': '<rootDir>/src/lib/$1',
+    '^@shared/(.*)$': '<rootDir>/src/shared/$1',
     '^@app/(.*)$': '<rootDir>/src/app/$1',
-    '^@tests/(.*)$': '<rootDir>/src/tests/$1',
-    '\\.(svg)$': '<rootDir>/src/tests/__mocks__/fileMock.js'
+    '^@tests/(.*)$': '<rootDir>/src/tests/$1'
   },
   testMatch: [
-    '<rootDir>/src/tests/**/__tests__/**/*.[jt]s?(x)',
-    '<rootDir>/src/tests/**/*.{spec,test}.[jt]s?(x)',
-    '<rootDir>/src/shared/**/__tests__/**/*.[jt]s?(x)',
-    '<rootDir>/src/shared/**/*.{spec,test}.[jt]s?(x)',
-    '!<rootDir>/src/tests/e2e/**/*'  // Exclude E2E tests
+    '<rootDir>/src/**/*.test.[jt]s?(x)',
+    '<rootDir>/src/**/*.spec.[jt]s?(x)',
+    '!<rootDir>/src/tests/e2e/**/*'
   ],
   collectCoverageFrom: [
     'src/shared/**/*.{ts,tsx}',

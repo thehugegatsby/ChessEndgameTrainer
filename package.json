@@ -17,7 +17,7 @@
     "build:analyze": "cross-env ANALYZE=true next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "cross-env NODE_OPTIONS='--max-old-space-size=4096' jest --config=src/config/jest/jest.config.projects.js --no-coverage --passWithNoTests --silent",
+    "test": "cross-env NODE_OPTIONS='--max-old-space-size=4096' jest --config=jest.config.js --no-coverage --passWithNoTests",
     "test:unit": "cross-env NODE_OPTIONS='--max-old-space-size=2048' jest --config=src/config/jest/jest.config.projects.js --testPathIgnorePatterns 'integration\\.test\\.ts$' --silent",
     "test:integration": "cross-env RUN_INTEGRATION_TESTS=true NODE_OPTIONS='--max-old-space-size=2048' jest --config=src/config/jest/jest.config.projects.js --testPathPatterns 'integration\\.test\\.ts$'",
     "test:watch": "cross-env NODE_OPTIONS='--max-old-space-size=2048' jest --config=src/config/jest/jest.config.projects.js --watch",

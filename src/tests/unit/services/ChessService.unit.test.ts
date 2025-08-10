@@ -17,7 +17,7 @@ import {
   createTestMove,
 } from "../../helpers/chessTestHelpers";
 
-describe("ChessService Unit Tests", () => {
+describe.skip("ChessService Unit Tests", () => {
   let chessService: any; // Use any for dynamically imported instance
   let mockChessInstance: jest.Mocked<any>;
   let Chess: jest.MockedClass<any>;

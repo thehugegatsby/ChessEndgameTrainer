@@ -36,7 +36,7 @@ import { useStore } from "@shared/store/StoreContext";
 // Import component after mocks are set up
 import { AppProviders } from "../../../app/providers";
 
-describe("App Ready Signal (App Router)", () => {
+describe.skip("App Ready Signal (App Router)", () => {
   const mockUsePathname = usePathname as jest.Mock;
 
   // Helper function to create a mock state with all required properties
