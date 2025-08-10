@@ -51,7 +51,7 @@ class MockManager {
         const { MSWServerMockFactory } = require('./MSWServerMockFactory');
         this._mswServer = new MSWServerMockFactory();
       } catch (error) {
-        console.warn('MSW not available in this environment:', error.message);
+        console.warn('MSW not available in this environment:', error instanceof Error ? error.message : String(error));
         // Return a mock that does nothing
         this._mswServer = {
           create: () => ({ server: null, addHandler: () => {}, resetHandlers: () => {}, close: () => {} }),

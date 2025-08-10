@@ -93,7 +93,7 @@ describe("TablebaseService Defense Sorting - Unit Tests", () => {
 });
 
 // Integration tests with real API calls (slower, requires network)
-describeIf(global.isIntegrationTest)("TablebaseService Defense Sorting - Integration Tests", () => {
+describeIf((global as any).isIntegrationTest)("TablebaseService Defense Sorting - Integration Tests", () => {
   beforeEach(() => {
     // Disable fetch mock for real API calls
     (fetch as any).dontMock();

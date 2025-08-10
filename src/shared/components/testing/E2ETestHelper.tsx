@@ -17,7 +17,6 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Chess } from 'chess.js';
 import { chessService } from '@shared/services/ChessService';
 import { getLogger } from '@shared/services/logging';
 import { ANIMATION } from '@shared/constants';
@@ -119,31 +118,28 @@ export const E2ETestHelper: React.FC<E2ETestHelperProps> = ({
 
             try {
               // Parse move notation to standardized format
-              let move;
+              let validatedMove: ValidatedMove | null = null;
               if (moveNotation.includes("-")) {
                 // Format: e2-e4
                 const [from, to] = moveNotation.split("-");
-                move = {
-                  from: from,
-                  to: to,
-                  promotion: "q",
-                };
+                // Use ChessService to validate and get the proper move
+                validatedMove = chessService.move({ from, to, promotion: "q" });
+                if (validatedMove) {
+                  // Undo the move since we're just validating
+                  chessService.undo();
+                }
               } else {
-                // Format: e4 (SAN) - parse it properly
-                const tempGame = new Chess(chessService.getFen());
-                const parsedMove = tempGame.move(moveNotation);
-                if (parsedMove) {
-                  move = {
-                    from: parsedMove.from,
-                    to: parsedMove.to,
-                    promotion: parsedMove.promotion || "q",
-                  };
+                // Format: e4 (SAN) - validate through ChessService
+                validatedMove = chessService.move(moveNotation);
+                if (validatedMove) {
+                  // Undo the move since we're just validating
+                  chessService.undo();
                 }
               }
 
-              if (move) {
-                logger.debug("Move parsed successfully", { move });
-                const result = await onMove(move);
+              if (validatedMove) {
+                logger.debug("Move parsed successfully", { move: validatedMove });
+                const result = await onMove(validatedMove);
 
                 if (result) {
                   moveIndex++;

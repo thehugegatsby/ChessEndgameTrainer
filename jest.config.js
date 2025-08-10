@@ -8,7 +8,7 @@ module.exports = {
     '/node_modules/(?!(nanoid|supermemo|react-chessboard|chess.js|react-native|@react-native|@react-navigation|expo|@expo|react-native-.*)/)'
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  setupFilesAfterEnv: ['<rootDir>/src/tests/utils/jestSetup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/src/tests/utils/jestSetup.minimal.ts'],
   testPathIgnorePatterns: [
     '/node_modules/', 
     '/.next/', 
@@ -19,9 +19,12 @@ module.exports = {
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
-    '^@shared/(.*)$': '<rootDir>/src/shared/$1',
+    '^@features/(.*)$': '<rootDir>/src/features/$1',
+    '^@lib/(.*)$': '<rootDir>/src/lib/$1',
+    '^@shared/(.*)$': '<rootDir>/src/lib/$1',
     '^@app/(.*)$': '<rootDir>/src/app/$1',
-    '^@tests/(.*)$': '<rootDir>/src/tests/$1'
+    '^@tests/(.*)$': '<rootDir>/src/tests/$1',
+    '\\.(svg)$': '<rootDir>/src/tests/__mocks__/fileMock.js'
   },
   testMatch: [
     '<rootDir>/src/tests/**/__tests__/**/*.[jt]s?(x)',

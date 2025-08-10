@@ -199,7 +199,7 @@ test.describe('Streak Counter E2E', () => {
           return result;
         } catch (error) {
           console.log(`Browser: Move ${moveStr} failed with error:`, error);
-          return { success: false, error: error.message || String(error) };
+          return { success: false, error: error instanceof Error ? error.message : String(error) };
         }
       }, move);
       
@@ -210,7 +210,7 @@ test.describe('Streak Counter E2E', () => {
         try {
           return (window as any).e2e_getGameState ? (window as any).e2e_getGameState() : null;
         } catch (error) {
-          return { error: error.message || String(error) };
+          return { error: error instanceof Error ? error.message : String(error) };
         }
       });
       

@@ -532,7 +532,7 @@ export class SequenceRunner {
         const state = store.getState();
         const actualValue = storePath
           .split(".")
-          .reduce((obj, key) => obj?.[key], state);
+          .reduce((obj: any, key) => obj?.[key], state as any);
 
         return JSON.stringify(actualValue) === JSON.stringify(expectedValue);
       },

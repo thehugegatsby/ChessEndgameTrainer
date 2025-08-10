@@ -91,7 +91,7 @@ interface GameActionsSubset {
  * UI actions interface (subset needed for dialog handling)
  */
 interface UIActionsSubset {
-  showToast: (message: string, type: string) => void;
+  showToast: (message: string, type: "error" | "success" | "warning" | "info") => void;
 }
 
 /**

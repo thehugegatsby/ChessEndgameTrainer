@@ -48,7 +48,7 @@ test.describe("Store Debug", () => {
           tablebaseKeys: state?.tablebase ? Object.keys(state.tablebase) : []
         };
       } catch (error) {
-        return { error: error.message };
+        return { error: error instanceof Error ? error.message : String(error) };
       }
     });
     
