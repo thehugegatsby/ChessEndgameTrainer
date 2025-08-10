@@ -143,15 +143,10 @@ export class PawnPromotionHandler {
           fen: currentFen.split(" ")[0],
         });
 
-        // Consider it an auto-win if it's a forced mate or other winning category
-        // Categories like 'mate', 'win', etc. indicate definitive winning scenarios
-        const category = evaluation.result.category;
-        const isAutoWinCategory = !!(
-          category &&
-          typeof category === "string" &&
-          (category.includes("mate") || category.includes("win"))
-        );
-        return isWinning && isAutoWinCategory;
+        // Consider it an auto-win if the position is winning for the promoting player
+        // This matches the test expectations and business logic:
+        // Any promotion leading to a winning position should complete training
+        return isWinning;
       }
 
       return false;

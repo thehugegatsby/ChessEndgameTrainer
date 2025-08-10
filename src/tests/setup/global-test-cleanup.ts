@@ -3,6 +3,10 @@
  * 
  * Automatically registers cleanup handlers for all tests.
  * This file is loaded via setupFilesAfterEnv in Jest config.
+ * 
+ * CRITICAL: We CANNOT import MockManager here as it would cause modules 
+ * to be cached before jest.mock() can hoist in test files.
+ * Instead, we provide minimal cleanup without MockManager.
  */
 
 // Polyfill TextEncoder/TextDecoder for Node.js tests (required by MSW)
@@ -15,29 +19,24 @@ if (typeof global.TextDecoder === 'undefined') {
   global.TextDecoder = TextDecoder as any;
 }
 
-import { mockManager } from '../mocks/MockManager';
-
 // Register global cleanup after each test
 afterEach(() => {
-  // Clean up all mock factories
-  mockManager.cleanupAfterEach();
+  // Clear mock call history but NOT mock implementations
+  // This is safe and doesn't interfere with jest.mock() hoisting
+  jest.clearAllMocks();
   
-  // Verify cleanup in development/debug mode
-  if (process.env.DEBUG_MOCKS === 'true') {
-    mockManager.verifyCleanup();
+  // Clear any fake timers
+  if (jest.isMockFunction(setTimeout)) {
+    jest.clearAllTimers();
   }
 });
 
 // Additional cleanup after all tests in a file
 afterAll(() => {
-  // More thorough cleanup
-  mockManager.resetAll();
-  
   // Clear all intervals and timeouts
   jest.clearAllTimers();
   
-  // Restore all mocks
-  jest.restoreAllMocks();
+  // Note: Do NOT use jest.restoreAllMocks() as it interferes with module mocks
 });
 
 // Handle unhandled promise rejections in tests
@@ -47,5 +46,5 @@ if (typeof process !== 'undefined') {
   });
 }
 
-// Export for explicit use in test files if needed
-export { mockManager };
+// Note: MockManager must be imported directly in test files that need it,
+// NOT here in the global setup to avoid interfering with jest.mock() hoisting

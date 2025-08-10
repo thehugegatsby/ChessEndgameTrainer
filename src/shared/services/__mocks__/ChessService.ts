@@ -174,25 +174,15 @@ class MockChessService extends EventEmitter {
     return this.moveHistory;
   }
 
-  isGameOver(): boolean {
-    return this.isFinished;
-  }
+  isGameOver = jest.fn(() => this.isFinished);
 
-  isCheck(): boolean {
-    return false;
-  }
+  isCheck = jest.fn(() => false);
 
-  isCheckmate(): boolean {
-    return false;
-  }
+  isCheckmate = jest.fn(() => false);
 
-  isStalemate(): boolean {
-    return false;
-  }
+  isStalemate = jest.fn(() => false);
 
-  isDraw(): boolean {
-    return false;
-  }
+  isDraw = jest.fn(() => false);
 
   turn(): "w" | "b" {
     return "w";
@@ -208,9 +198,7 @@ class MockChessService extends EventEmitter {
     return true;
   }
 
-  validateMove(_move: any): boolean {
-    return true;
-  }
+  validateMove = jest.fn().mockReturnValue(true);
 
   redo(): ValidatedMove | null {
     // Simple redo implementation
