@@ -29,12 +29,40 @@ class MockManager {
   // Store mocks
   public readonly zustandStore = new ZustandStoreMockFactory();
   
-  // API mocks
-  public readonly mswServer = new MSWServerMockFactory();
+  // API mocks (lazy loaded to avoid MSW import issues in Node tests)
+  private _mswServer?: any;
   
   // Track all active mocks for cleanup
   private activeMocks = new Set<BaseMockFactory<any>>();
   
+  constructor() {
+    // Register this instance globally for factories to access
+    if (typeof global !== 'undefined') {
+      (global as any).__mockManager = this;
+    }
+  }
+  
+  /**
+   * Get MSW server factory with lazy loading
+   */
+  public get mswServer() {
+    if (!this._mswServer) {
+      try {
+        const { MSWServerMockFactory } = require('./MSWServerMockFactory');
+        this._mswServer = new MSWServerMockFactory();
+      } catch (error) {
+        console.warn('MSW not available in this environment:', error.message);
+        // Return a mock that does nothing
+        this._mswServer = {
+          create: () => ({ server: null, addHandler: () => {}, resetHandlers: () => {}, close: () => {} }),
+          cleanup: () => {},
+          exists: () => false,
+        };
+      }
+    }
+    return this._mswServer;
+  }
+
   /**
    * Get all registered mock factories
    */
@@ -43,7 +71,7 @@ class MockManager {
       this.chessService,
       this.tablebaseService,
       this.zustandStore,
-      this.mswServer,
+      ...(this._mswServer ? [this._mswServer] : []),
     ];
   }
 

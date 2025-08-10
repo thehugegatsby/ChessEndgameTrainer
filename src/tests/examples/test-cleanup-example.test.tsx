@@ -9,6 +9,20 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { setupTestCleanup, trackedTimers, createTrackedAbortController } from '../utils/test-cleanup';
 import React, { useEffect, useState } from 'react';
 
+// Mock fetch globally for this test
+beforeEach(() => {
+  global.fetch = jest.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({ data: 'mocked data' }),
+    }) as any
+  );
+});
+
+afterEach(() => {
+  jest.restoreAllMocks();
+});
+
 // Example component with potential memory leak issues
 const ExampleComponent: React.FC = () => {
   const [data, setData] = useState<string>('');

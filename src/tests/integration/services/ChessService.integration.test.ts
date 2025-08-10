@@ -18,7 +18,7 @@ import {
 
 // NO jest.mock('chess.js') here - we want the real chess.js
 
-describe.skip("ChessService Integration Tests", () => {
+describe("ChessService Integration Tests", () => {
   let chessService: ChessService;
 
   beforeEach(() => {
@@ -63,11 +63,12 @@ describe.skip("ChessService Integration Tests", () => {
     it("should handle pawn promotion correctly", () => {
       chessService.initialize(SpecialPositions.PROMOTION);
 
-      const result = chessService.move(createTestMove("f7", "f8", "q"));
+      // chess.js expects promotion in the move format: "e8=Q+"
+      const result = chessService.move("e8=Q+");
 
       expect(result).not.toBeNull();
       expect(result?.promotion).toBe("q");
-      expect(chessService.getFen()).toContain("Q"); // Queen on f8
+      expect(chessService.getFen()).toContain("Q"); // Queen on e8
     });
 
     it("should detect checkmate correctly", () => {
@@ -137,12 +138,8 @@ describe.skip("ChessService Integration Tests", () => {
     it("should validate promotion moves correctly", () => {
       chessService.initialize(SpecialPositions.PROMOTION);
 
-      const validPromotion = chessService.validateMove(
-        createTestMove("f7", "f8", "q"),
-      );
-      const invalidNoPromotion = chessService.validateMove(
-        createTestMove("f7", "f8"),
-      ); // Missing promotion
+      const validPromotion = chessService.validateMove("e8=Q+"); // chess.js format
+      const invalidNoPromotion = chessService.validateMove("e8"); // Missing promotion
 
       expect(validPromotion).toBe(true);
       expect(invalidNoPromotion).toBe(false);
@@ -308,18 +305,18 @@ describe.skip("ChessService Integration Tests", () => {
 
     it("should handle check restrictions correctly", () => {
       // Set up a position where black king is in check from white queen on g5
-      chessService.initialize(SpecialPositions.BLACK_IN_CHECK);
+      chessService.initialize(SpecialPositions.CHECK);
 
-      // Black king is in check from white queen on g5
-      // Should only allow moves that get out of check
-      const illegalMove = chessService.move(createTestMove("a7", "a6")); // Doesn't address check
-      expect(illegalMove).toBeNull();
+      // First verify king is actually in check
+      expect(chessService.isCheck()).toBe(true);
 
-      // Legal move that blocks check
-      const legalMove = chessService.move(createTestMove("f7", "f6")); // Block with pawn on f6
-      if (legalMove) {
-        expect(legalMove.san).toBe("f6");
-      }
+      // Validate that moves that don't address check are invalid
+      const isIllegalMoveValid = chessService.validateMove(createTestMove("a7", "a6"));
+      expect(isIllegalMoveValid).toBe(false);
+
+      // Legal move that blocks check should be valid (f6 blocks the diagonal)
+      const isLegalMoveValid = chessService.validateMove(createTestMove("f7", "f6")); // Block check
+      expect(isLegalMoveValid).toBe(true);
     });
   });
 

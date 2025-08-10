@@ -5,6 +5,16 @@
  * This file is loaded via setupFilesAfterEnv in Jest config.
  */
 
+// Polyfill TextEncoder/TextDecoder for Node.js tests (required by MSW)
+import { TextEncoder, TextDecoder } from 'util';
+
+if (typeof global.TextEncoder === 'undefined') {
+  global.TextEncoder = TextEncoder as any;
+}
+if (typeof global.TextDecoder === 'undefined') {
+  global.TextDecoder = TextDecoder as any;
+}
+
 import { mockManager } from '../mocks/MockManager';
 
 // Register global cleanup after each test

@@ -26,10 +26,11 @@ describe("ChessService Status Methods Coverage", () => {
     normal: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", // Normal position
   };
 
+  
   beforeEach(() => {
     MockedChess.mockClear();
 
-    // Create comprehensive mock Chess instance with status methods
+    // Create comprehensive mock Chess instance
     mockChessInstance = {
       move: jest.fn(),
       fen: jest.fn().mockReturnValue(statusTestFens.normal),
@@ -44,13 +45,15 @@ describe("ChessService Status Methods Coverage", () => {
       isCheckmate: jest.fn().mockReturnValue(false),
       isStalemate: jest.fn().mockReturnValue(false),
       isDraw: jest.fn().mockReturnValue(false),
+      isThreefoldRepetition: jest.fn().mockReturnValue(false),
+      isInsufficientMaterial: jest.fn().mockReturnValue(false),
     } as any;
 
     MockedChess.mockImplementation(() => mockChessInstance);
     chessService = new ChessService();
     
-    // Initialize service with normal position
-    chessService.initialize(statusTestFens.normal);
+    // IMPORTANT: Replace the internal chess instance with our mock
+    (chessService as any).chess = mockChessInstance;
   });
 
   describe("isCheck() - Line 368", () => {
@@ -60,6 +63,7 @@ describe("ChessService Status Methods Coverage", () => {
       
       // Initialize with check position
       chessService.initialize(statusTestFens.check);
+      (chessService as any).chess = mockChessInstance;
       
       // Test the method
       const result = chessService.isCheck();
@@ -74,6 +78,7 @@ describe("ChessService Status Methods Coverage", () => {
       
       // Initialize with normal position
       chessService.initialize(statusTestFens.normal);
+      (chessService as any).chess = mockChessInstance;
       
       // Test the method
       const result = chessService.isCheck();
@@ -91,6 +96,7 @@ describe("ChessService Status Methods Coverage", () => {
       
       // Initialize with checkmate position
       chessService.initialize(statusTestFens.checkmate);
+      (chessService as any).chess = mockChessInstance;
       
       // Test the method
       const result = chessService.isCheckmate();
@@ -105,6 +111,7 @@ describe("ChessService Status Methods Coverage", () => {
       
       // Initialize with normal position
       chessService.initialize(statusTestFens.normal);
+      (chessService as any).chess = mockChessInstance;
       
       // Test the method
       const result = chessService.isCheckmate();
@@ -120,6 +127,7 @@ describe("ChessService Status Methods Coverage", () => {
       
       // Initialize with check position
       chessService.initialize(statusTestFens.check);
+      (chessService as any).chess = mockChessInstance;
       
       // Test the method
       const result = chessService.isCheckmate();
@@ -137,6 +145,7 @@ describe("ChessService Status Methods Coverage", () => {
       
       // Initialize with stalemate position
       chessService.initialize(statusTestFens.stalemate);
+      (chessService as any).chess = mockChessInstance;
       
       // Test the method
       const result = chessService.isStalemate();
@@ -151,6 +160,7 @@ describe("ChessService Status Methods Coverage", () => {
       
       // Initialize with normal position
       chessService.initialize(statusTestFens.normal);
+      (chessService as any).chess = mockChessInstance;
       
       // Test the method
       const result = chessService.isStalemate();
@@ -167,6 +177,7 @@ describe("ChessService Status Methods Coverage", () => {
       
       // Initialize with checkmate position
       chessService.initialize(statusTestFens.checkmate);
+      (chessService as any).chess = mockChessInstance;
       
       // Test the method
       const result = chessService.isStalemate();
@@ -184,6 +195,7 @@ describe("ChessService Status Methods Coverage", () => {
       
       // Initialize with 50-move rule position
       chessService.initialize(statusTestFens.draw50);
+      (chessService as any).chess = mockChessInstance;
       
       // Test the method
       const result = chessService.isDraw();
@@ -199,6 +211,7 @@ describe("ChessService Status Methods Coverage", () => {
       
       // Initialize with repetition position
       chessService.initialize(statusTestFens.drawRepetition);
+      (chessService as any).chess = mockChessInstance;
       
       // Test the method
       const result = chessService.isDraw();
@@ -213,6 +226,7 @@ describe("ChessService Status Methods Coverage", () => {
       
       // Initialize with normal position
       chessService.initialize(statusTestFens.normal);
+      (chessService as any).chess = mockChessInstance;
       
       // Test the method
       const result = chessService.isDraw();
@@ -229,6 +243,7 @@ describe("ChessService Status Methods Coverage", () => {
       
       // Initialize with checkmate position
       chessService.initialize(statusTestFens.checkmate);
+      (chessService as any).chess = mockChessInstance;
       
       // Test the method
       const result = chessService.isDraw();
@@ -248,6 +263,7 @@ describe("ChessService Status Methods Coverage", () => {
       
       // Initialize with check position
       chessService.initialize(statusTestFens.check);
+      (chessService as any).chess = mockChessInstance;
       
       // Test multiple methods
       expect(chessService.isCheck()).toBe(true);
@@ -272,6 +288,7 @@ describe("ChessService Status Methods Coverage", () => {
       
       // Initialize with stalemate position
       chessService.initialize(statusTestFens.stalemate);
+      (chessService as any).chess = mockChessInstance;
       
       // Test stalemate logic
       expect(chessService.isCheck()).toBe(false); // Stalemate = no check

@@ -4,7 +4,6 @@
  */
 
 import { MoveValidator } from "@shared/store/orchestrators/handlePlayerMove/MoveValidator";
-import { chessService } from "@shared/services/ChessService";
 import type { TrainingState } from "@shared/store/slices/types";
 
 // Mock ChessService
@@ -14,12 +13,17 @@ jest.mock("@shared/services/ChessService", () => ({
   },
 }));
 
+// Import after mock
+import { chessService } from "@shared/services/ChessService";
+
 describe("MoveValidator", () => {
   let validator: MoveValidator;
   
   beforeEach(() => {
     validator = new MoveValidator();
     jest.clearAllMocks();
+    // Reset mock implementation
+    (chessService.validateMove as jest.Mock).mockReturnValue(true);
   });
 
   describe("validateTurn", () => {

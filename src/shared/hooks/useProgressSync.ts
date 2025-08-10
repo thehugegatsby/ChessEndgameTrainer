@@ -138,6 +138,7 @@ export function useProgressSync(
   const syncIdCounterRef = useRef(0);
   const isProcessingRef = useRef(false);
   const lastSyncRef = useRef<number | null>(null);
+  const processQueueRef = useRef<(() => Promise<void>) | undefined>(undefined);
   
   // Queue size limit to prevent memory bloat
   const MAX_QUEUE_SIZE = 100;
@@ -326,8 +327,10 @@ export function useProgressSync(
                 retryDelay,
               });
               
-              // Trigger processing for retry
-              debouncedProcessQueue();
+              // Trigger processing for retry (use ref to call processQueue)
+              if (processQueueRef.current) {
+                void processQueueRef.current();
+              }
             }
           }, retryDelay);
           
@@ -367,6 +370,9 @@ export function useProgressSync(
     calculateRetryDelay,
     // debouncedProcessQueue is intentionally omitted to avoid circular dependency
   ]);
+  
+  // Store processQueue in ref for self-reference in retry logic
+  processQueueRef.current = processQueue;
   
   /**
    * Debounced queue processing

@@ -73,7 +73,7 @@ jest.mock("@shared/store/orchestrators/handlePlayerMove/PawnPromotionHandler", (
   },
 }));
 
-describe.skip("Pawn Promotion Auto-Win Feature", () => {
+describe("Pawn Promotion Auto-Win Feature", () => {
   let mockApi: StoreApi;
   let mockState: any;
 
@@ -132,7 +132,7 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
     // Position from train/1: 4Q3/3K4/5k2/8/8/8/8/8 w - - 1 6
     // After moves: 1. Kd6 Kf7 2. Kd7 Kf8 3. e6 Kg8 4. e7 Kf7 5. e8=Q+
 
-    it.skip("should auto-complete training when white promotes pawn to queen with winning position", async () => {
+    it("should auto-complete training when white promotes pawn to queen with winning position", async () => {
       // Arrange - Position just before promotion: 4k3/4P3/8/8/8/8/8/4K3 w - - 0 1
       const moveBeforePromotion = { from: "e7", to: "e8", promotion: "q" };
       const fenAfterPromotion = "4Q3/8/8/8/8/8/8/4k3 b - - 0 1";
@@ -242,7 +242,7 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
       expect(handleTrainingCompletion).not.toHaveBeenCalled();
     });
 
-    it.skip("should NOT auto-complete on rook promotion that leads to draw", async () => {
+    it("should NOT auto-complete on rook promotion that leads to draw", async () => {
       // Arrange - Rook promotion that doesn't win
       const moveBeforePromotion = { from: "e7", to: "e8", promotion: "r" };
 
@@ -278,7 +278,7 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
       expect(handleTrainingCompletion).not.toHaveBeenCalled();
     });
 
-    it.skip("should auto-complete on rook promotion that leads to win", async () => {
+    it("should auto-complete on rook promotion that leads to win", async () => {
       // Arrange - Rook promotion that wins
       const moveBeforePromotion = { from: "e7", to: "e8", promotion: "r" };
 
@@ -333,7 +333,7 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
       });
     });
 
-    it.skip("should handle black pawn promotion correctly", async () => {
+    it("should handle black pawn promotion correctly", async () => {
       // Arrange - Black promotes on e1
       mockState.training.currentPosition.colorToTrain = "black";
       const moveBeforePromotion = { from: "e2", to: "e1", promotion: "q" };
@@ -419,7 +419,7 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
       // Should continue with normal flow
     });
 
-    it.skip("should handle tablebase errors gracefully", async () => {
+    it("should handle tablebase errors gracefully", async () => {
       // Arrange
       const moveBeforePromotion = { from: "e7", to: "e8", promotion: "q" };
 

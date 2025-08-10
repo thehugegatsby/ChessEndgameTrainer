@@ -172,7 +172,7 @@ describe("TestApiService - Store-Based Architecture", () => {
       service.initialize(mockStoreAccess);
     });
 
-    it.skip("should make move with dash notation", async () => {
+    it("should make move with dash notation", async () => {
       const eventHandler = jest.fn();
       service.on("test:move", eventHandler);
 

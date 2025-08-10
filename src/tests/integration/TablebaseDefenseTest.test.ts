@@ -14,12 +14,16 @@ const describeIf = (condition: boolean) => condition ? describe : describe.skip;
 // Unit tests with mocked data (fast, deterministic)
 describe("TablebaseService Defense Sorting - Unit Tests", () => {
   beforeEach(() => {
-    (fetch as any).resetMocks();
+    // Reset fetch mock
+    jest.clearAllMocks();
+    global.fetch = jest.fn();
   });
 
   it("Should sort DTM moves correctly with mocked data", async () => {
     // Mock complete Lichess API response structure
-    (fetch as any).mockResponseOnce(JSON.stringify({
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
       dtz: 25,
       precise_dtz: 25,
       dtm: null,
@@ -69,7 +73,8 @@ describe("TablebaseService Defense Sorting - Unit Tests", () => {
           category: "loss" 
         }
       ]
-    }));
+      })
+    });
 
     const scenario = TRAIN_SCENARIOS.TRAIN_2;
     const fen = '8/4k3/8/3PK3/8/8/8/8 b - - 2 3';

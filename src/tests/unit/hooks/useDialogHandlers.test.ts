@@ -16,12 +16,17 @@
 
 import { renderHook, act } from '@testing-library/react';
 import { useDialogHandlers } from '@shared/hooks/useDialogHandlers';
-// import { getLogger } from '@shared/services/logging/Logger'; // Not used in this test file
 import { chessService } from '@shared/services/ChessService';
 import { tablebaseService } from '@shared/services/TablebaseService';
 import { getOpponentTurnManager } from '@shared/store/orchestrators/handlePlayerMove';
+import { ChessServiceMockFactory } from '../../mocks/ChessServiceMockFactory';
+import { TablebaseServiceMockFactory } from '../../mocks/TablebaseServiceMockFactory';
 
-// Mock dependencies
+// Initialize mock factories for consistent behavior
+const chessServiceMockFactory = new ChessServiceMockFactory();
+const tablebaseServiceMockFactory = new TablebaseServiceMockFactory();
+
+// Mock dependencies with factories for more realistic behavior
 jest.mock('@shared/services/logging/Logger', () => ({
   getLogger: jest.fn(() => ({
     setContext: jest.fn(() => ({
@@ -37,6 +42,7 @@ jest.mock('@shared/services/logging/Logger', () => ({
   })),
 }));
 
+// Simple mocks that will be enhanced with factory behavior
 jest.mock('@shared/services/ChessService', () => ({
   chessService: {
     getFen: jest.fn(),
@@ -76,6 +82,24 @@ describe('useDialogHandlers', () => {
     setEvaluationBaseline: jest.fn(),
     clearEvaluationBaseline: jest.fn(),
   };
+
+  beforeEach(() => {
+    // Enhance simple mocks with factory behavior for more realistic testing
+    const mockChessService = chessServiceMockFactory.create();
+    const mockTablebaseService = tablebaseServiceMockFactory.create();
+    
+    // Assign factory mock behavior to the simple mocks
+    Object.assign(chessService, mockChessService);
+    Object.assign(tablebaseService, mockTablebaseService);
+    
+    // Clear all other mocks
+    jest.clearAllMocks();
+  });
+  
+  afterEach(() => {
+    chessServiceMockFactory.cleanup();
+    tablebaseServiceMockFactory.cleanup();
+  });
 
   const mockGameActions = {
     resetGame: jest.fn(),

@@ -318,7 +318,7 @@ describe("useProgressSync", () => {
   });
 
   describe("Error handling and retry logic", () => {
-    it.skip("should retry failed operations with exponential backoff", async () => {
+    it("should retry failed operations with exponential backoff", async () => {
       const { result } = renderHook(() =>
         useProgressSync(userId, mockProgressService, { maxRetries: 2 }),
       );
@@ -370,7 +370,7 @@ describe("useProgressSync", () => {
       expect(result.current.syncStatus.pendingCount).toBe(0);
     });
 
-    it.skip("should give up after max retries", async () => {
+    it("should give up after max retries", async () => {
       const { result } = renderHook(() =>
         useProgressSync(userId, mockProgressService, { maxRetries: 1 }),
       );
@@ -395,9 +395,9 @@ describe("useProgressSync", () => {
         expect(mockProgressService.updateUserStats).toHaveBeenCalledTimes(1);
       });
 
-      // Wait longer for retry attempt + debounce
+      // First retry attempt (1000ms retry delay)
       act(() => {
-        jest.advanceTimersByTime(3000); // 1000ms retry delay + 2000ms debounce
+        jest.advanceTimersByTime(1000);
       });
 
       await waitFor(

@@ -57,6 +57,9 @@ describe("GameSlice - Nested Store Structure", () => {
   describe("resetGame", () => {
     it("should call ChessService reset", () => {
       const store = useStore.getState();
+      
+      // Clear previous calls to ensure clean state
+      (chessService.reset as jest.Mock).mockClear();
 
       // Modify some state first
       store.game.setGameFinished(true);

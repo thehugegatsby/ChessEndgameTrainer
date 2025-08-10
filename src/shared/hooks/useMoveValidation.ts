@@ -137,7 +137,11 @@ export const useMoveValidation = ({
     if (tablebaseActions?.setEvaluations) {
       tablebaseActions.setEvaluations(updatedEvaluations);
     } else {
-      console.error("❌ tablebaseActions.setEvaluations is not available!");
+      const logger = getLogger().setContext("useMoveValidation");
+      logger.error("tablebaseActions.setEvaluations is not available", {
+        hasTablebaseActions: !!tablebaseActions,
+        availableMethods: tablebaseActions ? Object.keys(tablebaseActions) : []
+      });
     }
   }, [lastEvaluation, currentFen, evaluations, tablebaseActions]);
   
@@ -152,9 +156,12 @@ export const useMoveValidation = ({
 
     // CRITICAL: Safe-guard to prevent crashes
     if (!tablebaseActions?.setAnalysisStatus) {
-      console.warn(
-        "⚠️ tablebaseActions.setAnalysisStatus not available, skipping",
-      );
+      const logger = getLogger().setContext("useMoveValidation");
+      logger.warn("tablebaseActions.setAnalysisStatus not available, skipping analysis status update", {
+        hasTablebaseActions: !!tablebaseActions,
+        isEvaluating,
+        currentFen: currentFen?.substring(0, 20) + "..."
+      });
       return;
     }
 
@@ -164,7 +171,7 @@ export const useMoveValidation = ({
       // Only update to success if we were loading
       tablebaseActions.setAnalysisStatus("success");
     }
-  }, [isEvaluating, tablebaseState, tablebaseActions]);
+  }, [isEvaluating, tablebaseState, tablebaseActions, currentFen]);
   
   // Return validation state
   return {

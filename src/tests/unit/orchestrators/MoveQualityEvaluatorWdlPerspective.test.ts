@@ -4,56 +4,28 @@
  */
 
 import { createTestValidatedMove } from "@tests/helpers/validatedMoveFactory";
-
-// Mock tablebaseService module completely
-jest.mock("@shared/services/TablebaseService");
-
 import { MoveQualityEvaluator } from "@shared/store/orchestrators/handlePlayerMove/MoveQualityEvaluator";
 import { tablebaseService } from "@shared/services/TablebaseService";
 
 describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
   let evaluator: MoveQualityEvaluator;
-  let mockTablebaseService: jest.Mocked<typeof tablebaseService>;
 
   beforeEach(() => {
-    // Set up fresh mocks for each test
-    mockTablebaseService = {
-      getEvaluation: jest.fn(),
-      getTopMoves: jest.fn(),
-    } as any;
-    
-    // Override the imported tablebaseService with our mock
-    (tablebaseService.getEvaluation as any) = mockTablebaseService.getEvaluation;
-    (tablebaseService.getTopMoves as any) = mockTablebaseService.getTopMoves;
-    
     evaluator = new MoveQualityEvaluator();
-    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   describe("Mock Verification", () => {
-    it("Should verify mocks work", async () => {
-      // Set up mock
-      mockTablebaseService.getEvaluation.mockResolvedValue({
-        isAvailable: true,
-        result: {
-          wdl: 100,
-          category: "win",
-          dtm: 5,
-          dtz: 7,
-          precise: true,
-          evaluation: "Win",
-        },
-      });
+    it("Should verify MoveQualityEvaluator works with jest.spyOn", async () => {
+      // Use jest.spyOn to mock the service methods
+      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
 
-      // Test mock directly
-      const result = await mockTablebaseService.getEvaluation("test");
-      expect(result.isAvailable).toBe(true);
-      expect(result.result?.wdl).toBe(100);
-    });
-
-    it("Should verify MoveQualityEvaluator uses mocked service", async () => {
-      // Set up the two required mocks
-      mockTablebaseService.getEvaluation
+      // Set up the two required mocks  
+      getEvaluationSpy
         .mockResolvedValueOnce({
           isAvailable: true,
           result: { wdl: 0, category: "draw", dtm: null, dtz: null, precise: false, evaluation: "Draw" },
@@ -63,7 +35,7 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
           result: { wdl: 1000, category: "win", dtm: 15, dtz: 20, precise: true, evaluation: "Win" },
         });
 
-      mockTablebaseService.getTopMoves.mockResolvedValue({
+      getTopMovesSpy.mockResolvedValue({
         isAvailable: true,
         moves: [{ san: "Ke7", uci: "d7e7", category: "draw", dtm: null, dtz: null, wdl: 0 }],
       });
@@ -83,12 +55,17 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
       );
 
       // Check that mocks were called
-      expect(mockTablebaseService.getEvaluation).toHaveBeenCalledTimes(2);
-      expect(mockTablebaseService.getTopMoves).toHaveBeenCalledTimes(1);
+      expect(getEvaluationSpy).toHaveBeenCalledTimes(2);
+      expect(getTopMovesSpy).toHaveBeenCalledTimes(1);
       
       // Check result structure (should NOT be early return values)
       expect(result).toHaveProperty('wdlBefore');
       expect(result).toHaveProperty('wdlAfter');
+      expect(result).toHaveProperty('bestMove');
+      
+      // This test should pass now
+      expect(result.wasOptimal).toBe(false);
+      expect(result.outcomeChanged).toBe(true);
     });
   });
 
@@ -108,7 +85,11 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         after: fenAfter,
       });
 
-      mockTablebaseService.getEvaluation
+      // Use jest.spyOn to mock the service methods
+      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+
+      getEvaluationSpy
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
@@ -132,7 +113,7 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
           },
         });
 
-      mockTablebaseService.getTopMoves.mockResolvedValue({
+      getTopMovesSpy.mockResolvedValue({
         isAvailable: true,
         moves: [
           {
@@ -172,7 +153,19 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         after: fenAfter,
       });
 
-      mockTablebaseService.getEvaluation
+      // Use jest.spyOn to mock the service methods
+
+
+      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
+
+
+      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+
+
+
+      getEvaluationSpy
+
+
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
@@ -184,6 +177,8 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
             evaluation: "Win",
           },
         })
+
+
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
@@ -196,7 +191,7 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
           },
         });
 
-      mockTablebaseService.getTopMoves.mockResolvedValue({
+      getTopMovesSpy.mockResolvedValue({
         isAvailable: true,
         moves: [
           {
@@ -244,7 +239,19 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         after: fenAfter,
       });
 
-      mockTablebaseService.getEvaluation
+      // Use jest.spyOn to mock the service methods
+
+
+      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
+
+
+      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+
+
+
+      getEvaluationSpy
+
+
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
@@ -256,6 +263,8 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
             evaluation: "Win",
           },
         })
+
+
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
@@ -268,7 +277,7 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
           },
         });
 
-      mockTablebaseService.getTopMoves.mockResolvedValue({
+      getTopMovesSpy.mockResolvedValue({
         isAvailable: true,
         moves: [
           {
@@ -310,7 +319,19 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         after: fenAfter,
       });
 
-      mockTablebaseService.getEvaluation
+      // Use jest.spyOn to mock the service methods
+
+
+      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
+
+
+      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+
+
+
+      getEvaluationSpy
+
+
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
@@ -322,6 +343,8 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
             evaluation: "Win",
           },
         })
+
+
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
@@ -334,7 +357,7 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
           },
         });
 
-      mockTablebaseService.getTopMoves.mockResolvedValue({
+      getTopMovesSpy.mockResolvedValue({
         isAvailable: true,
         moves: [
           {
@@ -382,7 +405,19 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         after: fenAfter,
       });
 
-      mockTablebaseService.getEvaluation
+      // Use jest.spyOn to mock the service methods
+
+
+      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
+
+
+      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+
+
+
+      getEvaluationSpy
+
+
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
@@ -394,6 +429,8 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
             evaluation: "Draw",
           },
         })
+
+
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
@@ -406,7 +443,7 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
           },
         });
 
-      mockTablebaseService.getTopMoves.mockResolvedValue({
+      getTopMovesSpy.mockResolvedValue({
         isAvailable: true,
         moves: [
           {
@@ -454,7 +491,19 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         after: fenAfter,
       });
 
-      mockTablebaseService.getEvaluation
+      // Use jest.spyOn to mock the service methods
+
+
+      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
+
+
+      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+
+
+
+      getEvaluationSpy
+
+
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
@@ -466,6 +515,8 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
             evaluation: "Win",
           },
         })
+
+
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
@@ -478,7 +529,7 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
           },
         });
 
-      mockTablebaseService.getTopMoves.mockResolvedValue({
+      getTopMovesSpy.mockResolvedValue({
         isAvailable: true,
         moves: [
           {
@@ -518,7 +569,19 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         after: fenAfter,
       });
 
-      mockTablebaseService.getEvaluation
+      // Use jest.spyOn to mock the service methods
+
+
+      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
+
+
+      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+
+
+
+      getEvaluationSpy
+
+
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
@@ -530,6 +593,8 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
             evaluation: "Draw",
           },
         })
+
+
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
@@ -542,7 +607,7 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
           },
         });
 
-      mockTablebaseService.getTopMoves.mockResolvedValue({
+      getTopMovesSpy.mockResolvedValue({
         isAvailable: true,
         moves: [
           {
@@ -592,7 +657,19 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         after: fenAfter,
       });
 
-      mockTablebaseService.getEvaluation
+      // Use jest.spyOn to mock the service methods
+
+
+      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
+
+
+      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+
+
+
+      getEvaluationSpy
+
+
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
@@ -604,6 +681,8 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
             evaluation: "Draw",
           },
         })
+
+
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
@@ -616,7 +695,7 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
           },
         });
 
-      mockTablebaseService.getTopMoves.mockResolvedValue({
+      getTopMovesSpy.mockResolvedValue({
         isAvailable: true,
         moves: [
           {

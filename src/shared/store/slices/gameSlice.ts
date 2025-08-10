@@ -25,6 +25,7 @@
 import { GameSlice, GameState, GameActions } from "./types";
 import type { ValidatedMove } from "@shared/types";
 import { chessService } from "@shared/services/ChessService";
+import { getLogger } from "@shared/services/logging";
 
 // Re-export types for external use
 export type { GameState, GameActions } from "./types";
@@ -445,7 +446,12 @@ function _updateGameState(source: string, moveFunction: () => ValidatedMove | nu
     return result;
   } catch (error) {
     // Log error but don't re-throw - let calling action handle response
-    console.error(`Error in ${source}:`, error);
+    const logger = getLogger().setContext("gameSlice");
+    logger.error(`Error in ${source}`, {
+      error: error instanceof Error ? error.message : String(error),
+      source,
+      stack: error instanceof Error ? error.stack : undefined
+    });
     return null;
   }
 }

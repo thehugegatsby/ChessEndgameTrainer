@@ -6,7 +6,7 @@
  * Strategy: Mock chess.js to test ChessService orchestration logic
  */
 
-import { ChessService } from "@shared/services/ChessService";
+// Import test helpers and fixtures that don't depend on ChessService
 import { StandardPositions, EndgamePositions } from "../../fixtures/commonFens";
 import {
   createMockListener,
@@ -16,18 +16,28 @@ import {
   isValidErrorEvent,
   createTestMove,
 } from "../../helpers/chessTestHelpers";
-import { Chess } from "chess.js";
-
-// Mock chess.js for all unit tests
-jest.mock("chess.js");
-
-const MockedChess = Chess as jest.MockedClass<typeof Chess>;
 
 describe("ChessService Unit Tests", () => {
-  let chessService: ChessService;
-  let mockChessInstance: jest.Mocked<InstanceType<typeof Chess>>;
+  let chessService: any; // Use any for dynamically imported instance
+  let mockChessInstance: jest.Mocked<any>;
+  let Chess: jest.MockedClass<any>;
+  let MockedChess: jest.MockedClass<any>;
+  let ChessService: any; // Use any for dynamically imported class
 
   beforeEach(() => {
+    // Reset the module registry to ensure clean module loading
+    jest.resetModules();
+    
+    // Mock chess.js module before any imports
+    jest.doMock("chess.js", () => ({
+      Chess: jest.fn()
+    }));
+    
+    // Now require modules in the correct order
+    const chessModule = require("chess.js");
+    Chess = chessModule.Chess;
+    MockedChess = Chess as jest.MockedClass<typeof import("chess.js").Chess>;
+    
     MockedChess.mockClear();
 
     // Create comprehensive mock Chess instance
@@ -40,16 +50,26 @@ describe("ChessService Unit Tests", () => {
       isGameOver: jest.fn().mockReturnValue(false),
       turn: jest.fn().mockReturnValue("w"),
       moves: jest.fn().mockReturnValue(["e4", "e3", "Nf3"]),
+      isCheck: jest.fn().mockReturnValue(false),
+      isCheckmate: jest.fn().mockReturnValue(false),
+      isStalemate: jest.fn().mockReturnValue(false),
+      isDraw: jest.fn().mockReturnValue(false),
+      isThreefoldRepetition: jest.fn().mockReturnValue(false),
+      isInsufficientMaterial: jest.fn().mockReturnValue(false),
     } as any;
 
     MockedChess.mockImplementation(() => mockChessInstance);
+    
+    // Now import ChessService dynamically after mocks are configured
+    const ChessServiceModule = require("@shared/services/ChessService");
+    ChessService = ChessServiceModule.ChessService;
     chessService = new ChessService();
   });
 
   describe("Constructor & Initialization", () => {
     it("should create ChessService instance", () => {
       expect(chessService).toBeInstanceOf(ChessService);
-      expect(MockedChess).toHaveBeenCalledTimes(1);
+      expect(MockedChess).toHaveBeenCalledTimes(2); // One for singleton, one for test instance
     });
 
     it("should initialize with custom FEN", () => {
@@ -401,7 +421,7 @@ describe("ChessService Unit Tests", () => {
 
       // Initialize once to populate cache
       chessService.initialize(testFen);
-      expect(MockedChess).toHaveBeenCalledTimes(2); // Constructor + initialize
+      expect(MockedChess).toHaveBeenCalledTimes(3); // Singleton + test instance + initialize
 
       // Clear mock call count to test cache usage
       MockedChess.mockClear();

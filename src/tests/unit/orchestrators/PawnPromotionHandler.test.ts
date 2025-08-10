@@ -9,6 +9,7 @@ import { orchestratorTablebase } from "@shared/services/orchestrator/Orchestrato
 import { getLogger } from "@shared/services/logging";
 import { handleTrainingCompletion } from "@shared/store/orchestrators/handlePlayerMove/move.completion";
 import { createTestValidatedMove } from "@tests/helpers/validatedMoveFactory";
+import { tablebaseService } from "@shared/services/TablebaseService";
 import type { StoreApi } from "@shared/store/orchestrators/types";
 
 // Mock dependencies
@@ -38,13 +39,25 @@ jest.mock("@shared/store/orchestrators/handlePlayerMove/move.completion", () => 
   handleTrainingCompletion: jest.fn(),
 }));
 
+// Helper function to create complete TablebaseResult objects
+function createTablebaseResult(partial: { wdl: number; category: string; dtm?: number | null; dtz?: number | null }): any {
+  return {
+    wdl: partial.wdl,
+    dtm: partial.dtm ?? null,
+    dtz: partial.dtz ?? null,
+    category: partial.category,
+    precise: false,
+    evaluation: "Test evaluation"
+  };
+}
+
 describe("PawnPromotionHandler", () => {
   let handler: PawnPromotionHandler;
   let mockLogger: any;
   let mockApi: StoreApi;
   let mockState: any;
 
-  beforeEach(() => {
+    beforeEach(() => {
     handler = new PawnPromotionHandler();
     mockLogger = {
       debug: jest.fn(),
@@ -59,9 +72,12 @@ describe("PawnPromotionHandler", () => {
       game: {
         isGameFinished: false,
         currentFen: "8/4P3/4K3/8/8/8/8/4k3 w - - 0 1",
+        moveHistory: []  // Add moveHistory array
       },
       training: {
         moveSuccessDialog: null,
+        currentPosition: { fen: "8/4P3/4K3/8/8/8/8/4k3 w - - 0 1" }, // Add currentPosition
+        sessionStartTime: Date.now() // Add sessionStartTime
       },
       ui: {
         toasts: [],
@@ -75,12 +91,12 @@ describe("PawnPromotionHandler", () => {
       }),
     };
 
-    // Clear all mocks and reset return values
-    jest.clearAllMocks();
-    (chessService.isGameOver as jest.Mock).mockReset();
-    (chessService.isCheckmate as jest.Mock).mockReset();
-    (orchestratorTablebase.getEvaluation as jest.Mock).mockReset();
-    (handleTrainingCompletion as jest.Mock).mockReset();
+    // Reset all mocks to clear return values and call history
+    jest.resetAllMocks();
+    
+    // Re-configure mocks that need specific behaviors after reset
+    (getLogger as jest.Mock).mockReturnValue(mockLogger);
+    (handleTrainingCompletion as jest.Mock).mockResolvedValue(undefined);
   });
 
   describe("checkPromotion", () => {
@@ -224,8 +240,7 @@ describe("PawnPromotionHandler", () => {
     });
 
     it("should detect checkmate as auto-win", async () => {
-      // Ensure clean mock state
-      jest.resetAllMocks();
+      // Configure mocks before calling the handler
       (chessService.isGameOver as jest.Mock).mockReturnValue(true);
       (chessService.isCheckmate as jest.Mock).mockReturnValue(true);
 
@@ -237,6 +252,7 @@ describe("PawnPromotionHandler", () => {
     });
 
     it("should not consider stalemate as auto-win", async () => {
+      // Access the mocked functions directly (they're already mocked at module level)
       (chessService.isGameOver as jest.Mock).mockReturnValue(true);
       (chessService.isCheckmate as jest.Mock).mockReturnValue(false);
 
@@ -246,15 +262,14 @@ describe("PawnPromotionHandler", () => {
     });
 
     it("should detect winning positions for white with tablebase", async () => {
-      // Ensure clean mock state
-      jest.resetAllMocks();
+      // Access the mocked functions directly
       (chessService.isGameOver as jest.Mock).mockReturnValue(false);
       (orchestratorTablebase.getEvaluation as jest.Mock).mockResolvedValue({
         isAvailable: true,
-        result: {
+        result: createTablebaseResult({
           wdl: 1000, // Win for white
-          category: "mate",
-        },
+          category: "win", // Changed from "mate" to valid category
+        }),
       });
 
       const result = await handler.evaluatePromotionOutcome(validFen, "w");
@@ -265,15 +280,14 @@ describe("PawnPromotionHandler", () => {
     });
 
     it("should detect winning positions for black with tablebase", async () => {
-      // Ensure clean mock state
-      jest.resetAllMocks();
+      // Access the mocked functions directly
       (chessService.isGameOver as jest.Mock).mockReturnValue(false);
       (orchestratorTablebase.getEvaluation as jest.Mock).mockResolvedValue({
         isAvailable: true,
-        result: {
+        result: createTablebaseResult({
           wdl: -1000, // Loss for white = win for black
           category: "win",
-        },
+        }),
       });
 
       const result = await handler.evaluatePromotionOutcome(validFen, "b");
@@ -284,13 +298,19 @@ describe("PawnPromotionHandler", () => {
     });
 
     it("should not consider winning positions without auto-win category", async () => {
+      // Use jest.spyOn to mock the chess service methods
+      (chessService.isGameOver as jest.Mock).mockClear();
+      (chessService.isCheckmate as jest.Mock).mockClear();
+
+      // Use jest.spyOn to mock the tablebase service methods
+
       (chessService.isGameOver as jest.Mock).mockReturnValue(false);
       (orchestratorTablebase.getEvaluation as jest.Mock).mockResolvedValue({
         isAvailable: true,
-        result: {
+        result: createTablebaseResult({
           wdl: 1000, // Winning
           category: "unknown", // Not auto-win category
-        },
+        }),
       });
 
       const result = await handler.evaluatePromotionOutcome(validFen, "w");
@@ -299,13 +319,19 @@ describe("PawnPromotionHandler", () => {
     });
 
     it("should handle draw positions", async () => {
+      // Use jest.spyOn to mock the chess service methods
+      (chessService.isGameOver as jest.Mock).mockClear();
+      (chessService.isCheckmate as jest.Mock).mockClear();
+
+      // Use jest.spyOn to mock the tablebase service methods
+
       (chessService.isGameOver as jest.Mock).mockReturnValue(false);
       (orchestratorTablebase.getEvaluation as jest.Mock).mockResolvedValue({
         isAvailable: true,
-        result: {
+        result: createTablebaseResult({
           wdl: 0, // Draw
           category: "draw",
-        },
+        }),
       });
 
       const result = await handler.evaluatePromotionOutcome(validFen, "w");
@@ -314,13 +340,19 @@ describe("PawnPromotionHandler", () => {
     });
 
     it("should handle losing positions", async () => {
+      // Use jest.spyOn to mock the chess service methods
+      (chessService.isGameOver as jest.Mock).mockClear();
+      (chessService.isCheckmate as jest.Mock).mockClear();
+
+      // Use jest.spyOn to mock the tablebase service methods
+
       (chessService.isGameOver as jest.Mock).mockReturnValue(false);
       (orchestratorTablebase.getEvaluation as jest.Mock).mockResolvedValue({
         isAvailable: true,
-        result: {
+        result: createTablebaseResult({
           wdl: -1000, // Loss for white
           category: "loss",
-        },
+        }),
       });
 
       const result = await handler.evaluatePromotionOutcome(validFen, "w");
@@ -329,6 +361,12 @@ describe("PawnPromotionHandler", () => {
     });
 
     it("should handle tablebase unavailable", async () => {
+      // Use jest.spyOn to mock the chess service methods
+      (chessService.isGameOver as jest.Mock).mockClear();
+      (chessService.isCheckmate as jest.Mock).mockClear();
+
+      // Use jest.spyOn to mock the tablebase service methods
+
       (chessService.isGameOver as jest.Mock).mockReturnValue(false);
       (orchestratorTablebase.getEvaluation as jest.Mock).mockResolvedValue({
         isAvailable: false,
@@ -340,6 +378,10 @@ describe("PawnPromotionHandler", () => {
     });
 
     it("should handle tablebase errors gracefully", async () => {
+      // Use jest.spyOn to mock the tablebase service methods
+      (chessService.isGameOver as jest.Mock).mockClear();
+      (chessService.isCheckmate as jest.Mock).mockClear();
+      
       (chessService.isGameOver as jest.Mock).mockReturnValue(false);
       (orchestratorTablebase.getEvaluation as jest.Mock).mockRejectedValue(
         new Error("API error"),
@@ -352,6 +394,12 @@ describe("PawnPromotionHandler", () => {
     });
 
     it("should handle evaluation without result field", async () => {
+      // Use jest.spyOn to mock the chess service methods
+      (chessService.isGameOver as jest.Mock).mockClear();
+      (chessService.isCheckmate as jest.Mock).mockClear();
+
+      // Use jest.spyOn to mock the tablebase service methods
+
       (chessService.isGameOver as jest.Mock).mockReturnValue(false);
       (orchestratorTablebase.getEvaluation as jest.Mock).mockResolvedValue({
         isAvailable: true,
@@ -364,10 +412,16 @@ describe("PawnPromotionHandler", () => {
     });
 
     it("should handle evaluation with null result", async () => {
+      // Use jest.spyOn to mock the chess service methods
+      (chessService.isGameOver as jest.Mock).mockClear();
+      (chessService.isCheckmate as jest.Mock).mockClear();
+
+      // Use jest.spyOn to mock the tablebase service methods
+
       (chessService.isGameOver as jest.Mock).mockReturnValue(false);
       (orchestratorTablebase.getEvaluation as jest.Mock).mockResolvedValue({
         isAvailable: true,
-        result: null,
+        result: undefined,
       });
 
       const result = await handler.evaluatePromotionOutcome(validFen, "w");
@@ -376,21 +430,34 @@ describe("PawnPromotionHandler", () => {
     });
 
     it("should handle evaluation with invalid WDL", async () => {
+      // Access the mocked functions directly (they're already mocked at module level)
       (chessService.isGameOver as jest.Mock).mockReturnValue(false);
+
+      // Use jest.spyOn to mock the tablebase service methods
+
+      // Test with actually invalid WDL - string instead of number
       (orchestratorTablebase.getEvaluation as jest.Mock).mockResolvedValue({
         isAvailable: true,
         result: {
-          wdl: "invalid", // Should be number
-          category: "mate",
+          wdl: "invalid" as any, // Invalid: should be number
+          category: "win",
+          dtm: null,
+          dtz: null,
+          precise: false,
+          evaluation: "Test evaluation"
         },
       });
 
       const result = await handler.evaluatePromotionOutcome(validFen, "w");
 
-      expect(result).toBe(false);
+      expect(result).toBe(false); // Should return false for invalid WDL type
     });
 
     it("should handle unexpected errors", async () => {
+      // Use jest.spyOn to mock the chess service methods
+      (chessService.isGameOver as jest.Mock).mockClear();
+      (chessService.isCheckmate as jest.Mock).mockClear();
+
       (chessService.isGameOver as jest.Mock).mockImplementation(() => {
         throw new Error("Unexpected error");
       });
@@ -406,7 +473,12 @@ describe("PawnPromotionHandler", () => {
   describe("handleAutoWin", () => {
     it("should handle auto-win with promotion piece", async () => {
       // Ensure clean mock state
-      jest.resetAllMocks();
+      
+      
+      // Ensure mockState has required training properties for handleTrainingCompletion
+      mockState.training.currentPosition = { fen: "8/4P3/4K3/8/8/8/8/4k3 w - - 0 1" };
+      mockState.training.sessionStartTime = Date.now();
+      mockState.game.moveHistory = [];
       
       const promotionInfo = {
         isPromotion: true,

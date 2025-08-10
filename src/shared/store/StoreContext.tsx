@@ -48,6 +48,7 @@ import React, {
   type ReactNode,
 } from "react";
 import { useStore as useZustandStore } from "zustand";
+import { getLogger } from "@shared/services/logging";
 import { createStore } from "./createStore";
 import { browserTestApi } from "@shared/services/test/BrowserTestApi";
 import type { RootState } from "./slices/types";
@@ -149,7 +150,11 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({
       
       // Initialize BrowserTestApi which exposes e2e_makeMove to window
       browserTestApi.initialize(storeAccess).catch((error) => {
-        console.error("Failed to initialize BrowserTestApi:", error);
+        const logger = getLogger().setContext("StoreContext");
+        logger.error("Failed to initialize BrowserTestApi", {
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined
+        });
       });
     }
 

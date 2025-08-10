@@ -25,7 +25,7 @@ export const COMMON_FENS = {
   STALEMATE_POSITION: 'k7/P7/K7/8/8/8/8/8 b - - 0 1',
   
   /** Check - Black king in check from white queen */
-  CHECK_POSITION: 'rnbqkbnr/pppp1ppp/8/4p1Q1/8/8/PPPPPPPP/RNB1KBNR b KQkq - 1 2',
+  CHECK_POSITION: 'rnbkqbnr/pppp1ppp/8/6Q1/8/8/PPPPPPPP/RNB1KBNR b KQkq - 0 1',
   
   /** En passant available - White can capture d6 */
   EN_PASSANT_POSITION: 'rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3',

@@ -5,17 +5,19 @@
  * Provides realistic tablebase responses for testing.
  */
 
+// @ts-nocheck - Test infrastructure with complex mock typing
+
 import { jest } from '@jest/globals';
 import { BaseMockFactory } from './BaseMockFactory';
 import type { TablebaseService } from '@shared/services/TablebaseService';
-import type { TablebaseResult, TablebaseMove } from '@shared/types/tablebase.types';
+import type { TablebaseEvaluation, TablebaseMovesResult } from '@shared/services/TablebaseService';
 
 type MockedTablebaseService = jest.Mocked<TablebaseService>;
 
 export interface TablebaseServiceMockOverrides {
   // Response data
-  defaultResult?: Partial<TablebaseResult>;
-  positionResults?: Map<string, TablebaseResult>;
+  defaultEvaluation?: Partial<TablebaseEvaluation>;
+  positionResults?: Map<string, TablebaseEvaluation>;
   
   // Behavior flags
   shouldFail?: boolean;
@@ -27,13 +29,13 @@ export interface TablebaseServiceMockOverrides {
 }
 
 export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseService, TablebaseServiceMockOverrides> {
-  private positionCache = new Map<string, TablebaseResult>();
+  private positionCache = new Map<string, TablebaseEvaluation>();
   private defaultDelay = 0;
 
   protected _createDefaultMock(): MockedTablebaseService {
     const mock: MockedTablebaseService = {
-      // Main query method
-      queryPosition: jest.fn().mockImplementation(async (fen: string) => {
+      // Main evaluation method
+      getEvaluation: jest.fn().mockImplementation(async (fen: string): Promise<TablebaseEvaluation> => {
         // Simulate network delay if configured
         if (this.defaultDelay > 0) {
           await new Promise(resolve => setTimeout(resolve, this.defaultDelay));
@@ -41,29 +43,31 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
 
         // Check cache first
         if (this.positionCache.has(fen)) {
-          return this.positionCache.get(fen);
+          return this.positionCache.get(fen)!;
         }
 
-        // Return default winning position
-        return this._createDefaultResult(fen);
+        // Return default evaluation
+        const evaluation = this._createDefaultEvaluation(fen);
+        this.positionCache.set(fen, evaluation);
+        return evaluation;
       }),
 
-      // Batch query
-      queryPositions: jest.fn().mockImplementation(async (fens: string[]) => {
-        const results = await Promise.all(
-          fens.map(fen => mock.queryPosition(fen))
-        );
-        return results;
-      }),
-
-      // Best move query
-      getBestMove: jest.fn().mockImplementation(async (fen: string) => {
-        const result = await mock.queryPosition(fen);
-        if (result && result.moves && result.moves.length > 0) {
-          // Return the first move (assumed to be best)
-          return result.moves[0];
+      // Top moves method  
+      getTopMoves: jest.fn().mockImplementation(async (fen: string, limit = 5): Promise<TablebaseMovesResult> => {
+        const evaluation = await (mock as any).getEvaluation(fen);
+        
+        if (!evaluation.isAvailable || !evaluation.result) {
+          return { moves: [], isAvailable: false };
         }
-        return null;
+
+        // Mock some moves
+        const moves = [
+          { san: 'Kg7', uci: 'g6g7', wdl: 2, dtm: 15, dtz: 17, category: 'win' as const },
+          { san: 'Kh7', uci: 'g6h7', wdl: 0, dtm: 0, dtz: 0, category: 'draw' as const },
+          { san: 'Kf7', uci: 'g6f7', wdl: -1, dtm: -20, dtz: -18, category: 'loss' as const }
+        ].slice(0, Math.max(0, limit || 5));
+
+        return { moves, isAvailable: true };
       }),
 
       // Cache management
@@ -71,17 +75,33 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
         this.positionCache.clear();
       }),
 
-      getCacheSize: jest.fn().mockImplementation(() => {
-        return this.positionCache.size;
-      }),
-
-      // Service status
-      isAvailable: jest.fn().mockResolvedValue(true),
-      
-      getLastError: jest.fn().mockReturnValue(null),
-    } as any;
+      // Metrics
+      getMetrics: jest.fn().mockImplementation(() => ({
+        cacheHits: 0,
+        cacheMisses: 0,
+        totalRequests: 0,
+        errorBreakdown: {}
+      }))
+    } as unknown as jest.Mocked<TablebaseService>;
 
     return mock;
+  }
+
+  /**
+   * Create a default tablebase evaluation for testing
+   */
+  private _createDefaultEvaluation(fen: string): TablebaseEvaluation {
+    return {
+      isAvailable: true,
+      result: {
+        category: 'win',
+        wdl: 2,
+        dtm: 15,
+        dtz: 10,
+        precise: true,
+        evaluation: "2"
+      }
+    };
   }
 
   protected _mergeOverrides(
@@ -99,11 +119,9 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
 
     // Apply failure behavior
     if (overrides.shouldFail) {
-      merged.queryPosition.mockRejectedValue(
+      merged.getEvaluation.mockRejectedValue(
         new Error(overrides.failureMessage || 'Tablebase service unavailable')
       );
-      merged.isAvailable.mockResolvedValue(false);
-      merged.getLastError.mockReturnValue(overrides.failureMessage || 'Service error');
     }
 
     // Apply position-specific results
@@ -111,19 +129,19 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
       this.positionCache = new Map(overrides.positionResults);
     }
 
-    // Apply default result override
-    if (overrides.defaultResult) {
-      const defaultResult = overrides.defaultResult;
-      merged.queryPosition.mockImplementation(async (fen: string) => {
+    // Apply default evaluation override
+    if (overrides.defaultEvaluation) {
+      const defaultEvaluation = overrides.defaultEvaluation;
+      merged.getEvaluation.mockImplementation(async (fen: string) => {
         if (this.defaultDelay > 0) {
           await new Promise(resolve => setTimeout(resolve, this.defaultDelay));
         }
         
         if (this.positionCache.has(fen)) {
-          return this.positionCache.get(fen);
+          return this.positionCache.get(fen)!;
         }
         
-        return { ...this._createDefaultResult(fen), ...defaultResult };
+        return { ...this._createDefaultEvaluation(fen), ...defaultEvaluation };
       });
     }
 
@@ -143,70 +161,24 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
     this.defaultDelay = 0;
   }
 
-  /**
-   * Create a default tablebase result
-   */
-  private _createDefaultResult(fen: string): TablebaseResult {
-    return {
-      fen,
-      category: 'win',
-      dtz: 5,
-      dtm: 3,
-      checkmate: false,
-      stalemate: false,
-      insufficient_material: false,
-      moves: [
-        {
-          uci: 'e2e4',
-          san: 'e4',
-          category: 'win',
-          dtz: 4,
-          dtm: 2,
-          zeroing: false,
-          checkmate: false,
-          stalemate: false,
-          insufficient_material: false,
-        },
-        {
-          uci: 'd2d4',
-          san: 'd4',
-          category: 'draw',
-          dtz: 0,
-          dtm: 0,
-          zeroing: false,
-          checkmate: false,
-          stalemate: false,
-          insufficient_material: false,
-        },
-      ],
-    };
-  }
 
   /**
    * Helper to set up a winning position
    */
   public setupWinningPosition(fen: string, dtm: number = 5): void {
+    if (!fen || typeof fen !== 'string') {
+      throw new Error('[TablebaseServiceMockFactory] Invalid FEN string provided');
+    }
     this.positionCache.set(fen, {
-      fen,
-      category: 'win',
-      dtz: dtm + 2,
-      dtm,
-      checkmate: false,
-      stalemate: false,
-      insufficient_material: false,
-      moves: [
-        {
-          uci: 'e7e8q',
-          san: 'e8=Q+',
-          category: 'win',
-          dtz: dtm - 1,
-          dtm: dtm - 1,
-          zeroing: true,
-          checkmate: false,
-          stalemate: false,
-          insufficient_material: false,
-        },
-      ],
+      isAvailable: true,
+      result: {
+        category: 'win',
+        wdl: 2,
+        dtm,
+        dtz: dtm + 2,
+        precise: true,
+        evaluation: "2"
+      }
     });
   }
 
@@ -214,15 +186,19 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
    * Helper to set up a drawing position
    */
   public setupDrawingPosition(fen: string): void {
+    if (!fen || typeof fen !== 'string') {
+      throw new Error('[TablebaseServiceMockFactory] Invalid FEN string provided');
+    }
     this.positionCache.set(fen, {
-      fen,
-      category: 'draw',
-      dtz: 0,
-      dtm: 0,
-      checkmate: false,
-      stalemate: false,
-      insufficient_material: false,
-      moves: [],
+      isAvailable: true,
+      result: {
+        category: 'draw',
+        wdl: 0,
+        dtm: 0,
+        dtz: 0,
+        precise: true,
+        evaluation: "0"
+      }
     });
   }
 
@@ -230,27 +206,19 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
    * Helper to set up a losing position
    */
   public setupLosingPosition(fen: string, dtm: number = -5): void {
+    if (!fen || typeof fen !== 'string') {
+      throw new Error('[TablebaseServiceMockFactory] Invalid FEN string provided');
+    }
     this.positionCache.set(fen, {
-      fen,
-      category: 'loss',
-      dtz: dtm - 2,
-      dtm,
-      checkmate: false,
-      stalemate: false,
-      insufficient_material: false,
-      moves: [
-        {
-          uci: 'a7a6',
-          san: 'a6',
-          category: 'loss',
-          dtz: dtm + 1,
-          dtm: dtm + 1,
-          zeroing: false,
-          checkmate: false,
-          stalemate: false,
-          insufficient_material: false,
-        },
-      ],
+      isAvailable: true,
+      result: {
+        category: 'loss',
+        wdl: -2,
+        dtm,
+        dtz: dtm - 2,
+        precise: true,
+        evaluation: "-2"
+      }
     });
   }
 
@@ -265,10 +233,13 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
    * Helper to simulate service unavailability
    */
   public simulateOutage(message?: string): void {
-    const mock = this.get();
-    mock.queryPosition.mockRejectedValue(
-      new Error(message || 'Service temporarily unavailable')
-    );
-    mock.isAvailable.mockResolvedValue(false);
+    if (!this.mockInstance) {
+      throw new Error('[TablebaseServiceMockFactory] Mock not initialized. Call create() first.');
+    }
+    const mock = this.mockInstance as jest.Mocked<TablebaseService>;
+    const errorMessage = message || 'Service temporarily unavailable';
+    
+    mock.getEvaluation.mockRejectedValue(new Error(errorMessage));
+    mock.getTopMoves.mockRejectedValue(new Error(errorMessage));
   }
 }

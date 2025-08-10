@@ -4,19 +4,27 @@
  * Target: Complete 100% coverage for ChessService
  */
 
-import { ChessService } from "@shared/services/ChessService";
-import { Chess } from "chess.js";
-
-// Mock chess.js following existing pattern
-jest.mock("chess.js");
-
-const MockedChess = Chess as jest.MockedClass<typeof Chess>;
-
 describe("ChessService Cache & Performance Tests", () => {
-  let chessService: ChessService;
-  let mockChessInstance: jest.Mocked<InstanceType<typeof Chess>>;
+  let chessService: any; // Use any for dynamically imported instance
+  let mockChessInstance: jest.Mocked<any>;
+  let Chess: jest.MockedClass<any>;
+  let MockedChess: jest.MockedClass<any>;
+  let ChessService: any; // Use any for dynamically imported class
 
   beforeEach(() => {
+    // Reset the module registry to ensure clean module loading
+    jest.resetModules();
+    
+    // Mock chess.js module before any imports
+    jest.doMock("chess.js", () => ({
+      Chess: jest.fn()
+    }));
+    
+    // Now require modules in the correct order
+    const chessModule = require("chess.js");
+    Chess = chessModule.Chess;
+    MockedChess = Chess as jest.MockedClass<any>;
+    
     MockedChess.mockClear();
 
     // Create comprehensive mock Chess instance
@@ -37,6 +45,10 @@ describe("ChessService Cache & Performance Tests", () => {
     } as any;
 
     MockedChess.mockImplementation(() => mockChessInstance);
+    
+    // Now import ChessService dynamically after mocks are configured
+    const ChessServiceModule = require("@shared/services/ChessService");
+    ChessService = ChessServiceModule.ChessService;
     chessService = new ChessService();
   });
 

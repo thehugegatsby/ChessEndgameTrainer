@@ -160,7 +160,7 @@ describe("useLocalStorage Hook - Refactored Version", () => {
         });
       });
 
-      test.skip("should handle function-based updates", async () => {
+      test("should handle function-based updates", async () => {
         jest.spyOn(mockStorageService, "load").mockResolvedValue({ count: 0 });
         jest.spyOn(mockStorageService, "save").mockResolvedValue(undefined);
 

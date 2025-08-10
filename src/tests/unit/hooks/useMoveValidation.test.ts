@@ -29,7 +29,7 @@ const mockTablebaseState = {
   cache: new Map(),
 };
 
-describe.skip('useMoveValidation', () => {
+describe('useMoveValidation', () => {
   const defaultProps = {
     lastEvaluation: null,
     currentFen: '8/8/8/8/8/8/8/8 w - - 0 1',

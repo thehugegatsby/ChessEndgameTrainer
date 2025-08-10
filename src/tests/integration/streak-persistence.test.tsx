@@ -13,7 +13,7 @@
  */
 
 import { renderHook, act } from '@testing-library/react';
-import { createElement, ReactNode } from 'react';
+import { ReactNode } from 'react';
 import type { JSX } from 'react';
 import { createStore } from '@shared/store/createStore';
 import { useTrainingStore } from '@shared/store/hooks';
@@ -52,9 +52,9 @@ describe('Streak Persistence Integration Test', () => {
     store = createStore();
     
     // Create wrapper with store provider
-    // eslint-disable-next-line react/no-children-prop
-    wrapper = ({ children }: { children: ReactNode }) => 
-      createElement(StoreProvider, { children });
+    wrapper = ({ children }: { children: ReactNode }) => (
+      <StoreProvider>{children}</StoreProvider>
+    );
   });
 
   it('should persist and increment streak when navigating between positions after success', async () => {
