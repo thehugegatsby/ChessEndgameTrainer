@@ -42,7 +42,7 @@ jobs:
       run: pnpm run lint
 
     - name: Run TypeScript compiler check
-      run: pnpm exec tsc --project src/config/typescript/tsconfig.ci.json --noEmit
+      run: pnpm exec tsc --noEmit
 
     - name: Check for duplicate components
       run: pnpm run check-duplicates

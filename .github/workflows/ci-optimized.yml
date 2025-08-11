@@ -88,7 +88,7 @@ jobs:
       run: pnpm run lint
 
     - name: Run TypeScript compiler check
-      run: pnpm exec tsc --project src/config/typescript/tsconfig.ci.json --noEmit || pnpm exec tsc --noEmit
+      run: pnpm exec tsc --noEmit
 
     - name: Check for duplicate components
       run: pnpm run check-duplicates
@@ -129,12 +129,8 @@ jobs:
 
     - name: Run unit tests (sharded)
       run: |
-        # Use optimized jest config if available, exclude firebase project from sharding
-        if [ -f "src/config/jest/jest.config.projects.js" ]; then
-          pnpm exec jest --config=src/config/jest/jest.config.projects.js --selectProjects react,node --shard=${{ matrix.shard }}/4 --coverage --passWithNoTests
-        else
-          pnpm exec jest --shard=${{ matrix.shard }}/4 --coverage
-        fi
+        # Use new centralized Jest config
+        pnpm exec jest --config=config/testing/jest.config.ts --selectProjects unit --shard=${{ matrix.shard }}/4 --coverage --passWithNoTests
 
     - name: Upload coverage report
       uses: actions/upload-artifact@v4
@@ -225,8 +221,8 @@ jobs:
 
     - name: Run Firebase Integration Tests
       run: |
-        # Run only the 'firebase' Jest project
-        pnpm exec jest --config=src/config/jest/jest.config.projects.js --selectProjects firebase --runInBand --verbose
+        # Run Firebase integration tests with new config
+        pnpm exec jest --config=config/testing/jest.config.ts --selectProjects firebase --runInBand --verbose
       env:
         NODE_ENV: test
         FIRESTORE_EMULATOR_HOST: localhost:8080
