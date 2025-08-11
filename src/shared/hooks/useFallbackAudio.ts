@@ -7,7 +7,7 @@
  * Creates simple synthesized sounds for chess events.
  */
 
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { getLogger } from '@shared/services/logging/Logger';
 import type { ChessSoundType } from './useChessAudio';
 
@@ -25,6 +25,12 @@ export const useFallbackAudio = (volume: number = 0.7): {
    */
   const playFallbackSound = useCallback(async (soundType: ChessSoundType) => {
     try {
+      // Guard against SSR - only create audio context on client
+      if (typeof window === 'undefined') {
+        logger.debug('Skipping audio playback on server');
+        return;
+      }
+
       const audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
       
       // Different sound characteristics for each chess event
@@ -67,14 +73,21 @@ export const useFallbackAudio = (volume: number = 0.7): {
   }, [volume, logger]);
 
   /**
-   * Check if Web Audio API is supported
+   * Check if Web Audio API is supported (SSR-safe)
    */
-  const isSupported = useCallback((): boolean => {
-    return Boolean(window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext);
+  const [isSupported, setIsSupported] = useState(false);
+
+  useEffect(() => {
+    // Only check for Web Audio API support on the client
+    const audioContextAvailable = !!(
+      typeof window !== 'undefined' &&
+      (window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext)
+    );
+    setIsSupported(audioContextAvailable);
   }, []);
 
   return {
     playFallbackSound,
-    isSupported: isSupported(),
+    isSupported,
   };
 };
