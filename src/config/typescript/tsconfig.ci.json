@@ -6,23 +6,18 @@
     "exactOptionalPropertyTypes": false,
     "noPropertyAccessFromIndexSignature": false
   },
-  "include": [
-    "../../../src/**/*",
-    "../../../src/shared/components/testing/**/*"
-  ],
+  "include": ["../../../src/**/*"],
   "exclude": [
     "node_modules",
     ".next",
     "out",
     "scripts/**/*",
-    "src/tests/components/__mocks__/**/*",
-    "src/tests/e2e/**/*",
+    "../../../src/tests/**/*",
+    "../../../src/config/**/*",
+    "../../../config/**/*",
     "test-results/**/*",
     "playwright-report/**/*",
     "coverage/**/*",
-    "src/tests/unit/lib/chess/ScenarioEngine/**/*",
-    "src/tests/unit/services/EngineService.test.ts",
-    "src/tests/unit/store/store-error-handling.test.ts",
     "src/pages/**/*"
   ]
 }
