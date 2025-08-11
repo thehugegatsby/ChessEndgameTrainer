@@ -155,7 +155,7 @@ describe('CacheManager Performance Validation', () => {
       cache = new LRUCacheManager<string, MockTablebaseEntry>(100, 50); // 50ms TTL for fast test
       
       // Skip memory measurement in CI environment where it's unreliable
-      if (process.env.CI) {
+      if (process.env['CI']) {
         // Just verify the cache works and cleans up
         for (let batch = 0; batch < 3; batch++) {
           for (let i = 0; i < 50; i++) {

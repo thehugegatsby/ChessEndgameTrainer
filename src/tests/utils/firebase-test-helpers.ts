@@ -40,7 +40,7 @@ import { clearAllEmulatorData } from "./firebase-emulator-api";
 
 // Test Firebase configuration for emulator
 const TEST_CONFIG = {
-  projectId: process.env.TEST_PROJECT_ID || "endgame-trainer-test",
+  projectId: process.env['TEST_PROJECT_ID'] || "endgame-trainer-test",
   apiKey: "test-api-key",
   authDomain: "localhost",
 };

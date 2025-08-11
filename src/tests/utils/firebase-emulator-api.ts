@@ -119,7 +119,7 @@ export async function waitForEmulator(
  * Ensures complete cleanup between tests
  */
 export async function clearAllAuthData(): Promise<void> {
-  const AUTH_EMULATOR_HOST = process.env.AUTH_EMULATOR_HOST || "localhost:9099";
+  const AUTH_EMULATOR_HOST = process.env['AUTH_EMULATOR_HOST'] || "localhost:9099";
   const url = `http://${AUTH_EMULATOR_HOST}/emulator/v1/projects/${PROJECT_ID}/accounts`;
 
   try {

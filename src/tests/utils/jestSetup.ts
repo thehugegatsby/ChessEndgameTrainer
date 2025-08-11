@@ -218,7 +218,7 @@ const waitForServicesReady = async (
  * @param container
  */
 export function debugContainer(container: ServiceContainer): void {
-  if (process.env.NODE_ENV === "test" && process.env.DEBUG_CONTAINER) {
+  if (process.env['NODE_ENV'] === "test" && process.env['DEBUG_CONTAINER']) {
     console.log("Container Stats:", (container as any).getStats?.());
     console.log("Registered Keys:", (container as any).getRegisteredKeys?.());
   }

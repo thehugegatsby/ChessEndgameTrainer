@@ -3,7 +3,7 @@
  * Comprehensive coverage for all platform service implementations
  */
 
-import { WebPlatformService } from "@shared/services/platform/web/WebPlatformService";
+import { WebPlatformService, type BrowserAPIs } from "@shared/services/platform/web/WebPlatformService";
 import {
   type PlatformService,
   type Platform,
@@ -112,7 +112,18 @@ describe("WebPlatformService", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new WebPlatformService();
+    
+    // Inject mocked browser APIs to ensure test isolation
+    const mockBrowserAPIs: BrowserAPIs = {
+      localStorage: mockLocalStorage,
+      sessionStorage: mockLocalStorage, // Reuse for simplicity
+      navigator: mockNavigator,
+      window: mockWindow,
+      document: global.document || ({} as Document),
+      performance: mockPerformance,
+    };
+    
+    service = new WebPlatformService(mockBrowserAPIs);
   });
 
   describe("Service Initialization", () => {

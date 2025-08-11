@@ -6,10 +6,10 @@
 import { APP_CONFIG } from "@/config/constants";
 
 describe("Smoke Tests", () => {
-  const PRODUCTION_URL = process.env.PRODUCTION_URL || APP_CONFIG.DEV_URL;
+  const PRODUCTION_URL = process.env['PRODUCTION_URL'] || APP_CONFIG.DEV_URL;
 
   beforeAll(() => {
-    if (!process.env.SMOKE_TEST) {
+    if (!process.env['SMOKE_TEST']) {
       console.log("Skipping smoke tests - set SMOKE_TEST=true to run");
     }
   });

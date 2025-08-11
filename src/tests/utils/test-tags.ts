@@ -339,7 +339,7 @@ export function conditionalTest(
     // Check environment
     if (
       condition.environment &&
-      process.env.TEST_ENV !== condition.environment
+      process.env['TEST_ENV'] !== condition.environment
     ) {
       testInfo.skip();
       return;

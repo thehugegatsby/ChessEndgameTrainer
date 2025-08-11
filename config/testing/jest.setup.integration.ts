@@ -1,9 +1,14 @@
 /**
  * Integration Test Setup
  * Additional setup specifically for integration tests
+ * NOTE: This runs AFTER jest.setup.ts, so fetch mock is already enabled
  */
 
-import 'cross-fetch/polyfill'; // Enable real API calls for integration tests
+import 'cross-fetch/polyfill'; // Enable real API calls for integration tests  
+import fetchMock from 'jest-fetch-mock';
+
+// Re-enable jest-fetch-mock after cross-fetch polyfill potentially overwrites it
+fetchMock.enableMocks();
 
 // ============================================
 // Integration Test Environment

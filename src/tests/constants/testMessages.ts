@@ -70,7 +70,7 @@ const TEST_MESSAGES = deepFreezeConst({
  */
 export function getTestTimeout(): number {
   const isCI =
-    process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+    process.env['CI'] === "true" || process.env['GITHUB_ACTIONS'] === "true";
   return isCI ? 5000 : 2000;
 }
 
@@ -108,7 +108,7 @@ export function getMessage(path: string, fallback = "Unknown message"): string {
       ) {
         current = (current as Record<string, unknown>)[key];
       } else {
-        if (process.env.NODE_ENV === "development") {
+        if (process.env['NODE_ENV'] === "development") {
           console.warn(`Message not found: ${path}`);
         }
         return fallback;
@@ -118,7 +118,7 @@ export function getMessage(path: string, fallback = "Unknown message"): string {
     // Final type check
     return typeof current === "string" ? current : fallback;
   } catch (error) {
-    if (process.env.NODE_ENV === "development") {
+    if (process.env['NODE_ENV'] === "development") {
       console.error(`Error accessing message: ${path}`, error);
     }
     return fallback;
