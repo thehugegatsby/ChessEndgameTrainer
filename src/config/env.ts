@@ -37,7 +37,7 @@ const envSchema = z.object({
   // App configuration
   NEXT_PUBLIC_APP_URL: z.string().url().optional(),
   NEXT_PUBLIC_API_URL: z.string().url().optional(),
-  NEXT_PUBLIC_TABLEBASE_API_URL: z.string().url().default('https://tablebase.lichess.ovh'),
+  NEXT_PUBLIC_TABLEBASE_API_URL: z.string().url().default('https://tablebase.lichess.ovh/standard'),
   
   // Feature flags
   NEXT_PUBLIC_FIREBASE_ENABLED: z.coerce.boolean().default(false),
