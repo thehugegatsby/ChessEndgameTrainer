@@ -156,34 +156,152 @@ ChessEndgameTrainer/
 
 ## Migration Guide
 
-### Phase 1: Create Features Structure
+### GitHub Issues & Implementation Strategy
 
-1. Create `src/features/` directory
-2. Identify main features (training, move-quality, tablebase, game-state, etc.)
-3. Create feature folders with standard subfolders
+**Active Migration Issues:**
+
+- **Phase 0** (#127): `priority: critical` - Architecture Foundation Setup
+- **Phase 1** (#129): `priority: high` - Chess Core TDD Implementation + Complexity Reduction
+- **Component Refactoring** (#140, #141): `priority: medium` - UI Layer Improvements
+
+**Integration with Code Quality:**
+
+- Complexity reduction (ESLint violations) integrated into migration phases
+- Clean architecture from start rather than refactoring legacy code
+- TDD approach ensures quality during migration
+
+### Phase 0: Architecture Foundation (#127)
+
+**Critical Prerequisites:**
+
+1. Install and configure Vitest alongside Jest
+2. Set up feature flags system for A/B testing
+3. Create `src/features/` directory structure
+4. Configure TypeScript path aliases (@shared/_, @training/_, etc.)
+5. Set up barrel file templates (index.ts)
+6. Document migration guidelines
+
+### Phase 1: Chess Core Implementation (#129)
+
+**Enhanced Implementation with Complexity Reduction:**
+
+1. Create chess-core feature with TDD approach
+2. **Complexity Targets**: All functions ≤18 cyclomatic complexity
+3. Apply Strategy Pattern for move validation
+4. Extract helpers: `_preValidateMoveObject()`, `_normalizeMoveInput()`
+5. Use Guard Clauses for early validation exits
+6. Separate move normalization from validation logic
+7. Handle German promotion notation in focused functions
+
+**AI Implementation Notes:**
+
+- Use Extract Method pattern extensively
+- Apply Single Responsibility Principle
+- Test-drive all complexity reductions
+- Maintain Strangler Fig pattern (legacy code continues working)
+
+**Critical Complexity Issues to Address:**
+
+- Current ChessService.validateMove: **30** complexity → Target ≤18
+- Current MoveStrategyService.getLongestResistanceMove: **35** → Target ≤18
+- Apply Guard Clauses pattern for early exits
+- Use Strategy Pattern for piece-specific validation
+- Extract normalization logic to separate functions
 
 ### Phase 2: Move Components
 
 1. Analyze each component in `src/shared/components/`
-2. Move to appropriate feature or `lib/ui/`
-3. Update imports
+2. Move to appropriate feature or `shared/ui/`
+3. **Integrate with Component Decomposition** (#140, #141)
+4. Break large components (>170 lines) during migration
+5. Extract custom hooks for complex state logic
+6. Update imports using new path aliases
 
 ### Phase 3: Move Services
 
 1. Analyze each service in `src/shared/services/`
 2. Move to appropriate feature
-3. Update imports and dependencies
+3. **Apply complexity reduction during move**
+4. Split services with high cyclomatic complexity
+5. Update imports and dependencies
+6. Maintain service interfaces for backward compatibility
 
 ### Phase 4: Move Store Slices
 
 1. Move feature-specific slices to `features/*/store/`
-2. Keep only global store setup in `lib/store/`
+2. **Decompose large slices** (progressSlice: 274 lines)
+3. Keep only global store setup in `shared/store/`
+4. Apply Single Responsibility Principle to slices
 
 ### Phase 5: Co-locate Tests
 
 1. Move tests from `src/tests/` to `features/*/__tests__/`
-2. Update Jest configuration
-3. Verify all tests still run
+2. **Prioritize Vitest migration** over Jest for new features
+3. Update Jest configuration for legacy tests
+4. Ensure 100% test coverage for new implementations
+5. Verify all tests still run
+
+## AI Implementation Guidance
+
+### Code Quality Integration
+
+**ESLint Violations to Address During Migration:**
+
+- Functions >170 lines: AdvancedEndgameMenu (300), useProgressSync (373), useMoveQuality (260)
+- High complexity: ChessService.validateMove (30), MoveStrategyService (35), TestApiService (45)
+- Deep nesting: DueCardsCacheService (6 levels), E2E tests (8 levels)
+
+**Refactoring Patterns for AI Implementation:**
+
+1. **Extract Method Pattern**:
+
+```typescript
+// Before: One large function
+validateMove(move) { /* 100+ lines */ }
+
+// After: Orchestrator + helpers
+validateMove(move) {
+  if (!this._preValidateMoveObject(move)) return false;
+  const normalized = this._normalizeMoveInput(move);
+  return this._executeValidation(normalized);
+}
+```
+
+2. **Strategy Pattern for Chess Rules**:
+
+```typescript
+const moveValidators = {
+  p: pawnMoveValidator,
+  n: knightMoveValidator,
+  // ... other pieces
+};
+```
+
+3. **Component Decomposition**:
+
+```typescript
+// Large component → Container + smaller components
+<AdvancedEndgameMenu>
+  <DifficultySelector />
+  <ThemeSelector />
+  <PieceSelection />
+</AdvancedEndgameMenu>
+```
+
+### Testing Strategy
+
+- **Legacy**: Jest for existing tests
+- **New Features**: Vitest with TDD approach
+- **Target**: 100% coverage for new implementations
+- **Focus**: Test complexity edge cases during refactoring
+
+### File Naming Conventions
+
+- **Components**: PascalCase.tsx (TrainingBoard.tsx)
+- **Services**: PascalCase.ts (ChessService.ts)
+- **Utils**: camelCase.ts (moveValidation.ts)
+- **Types**: kebab-case (chess-core.types.ts)
+- **Tests**: ComponentName.test.tsx
 
 ## Benefits
 

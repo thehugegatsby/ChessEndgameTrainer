@@ -130,7 +130,13 @@ test.describe('Streak Counter E2E', () => {
     console.log('✓ Streak incremented to 1/1 after success');
 
     // Step 5: Click "Weiter" button to navigate to next position
-    await page.locator('button:has-text("Weiter")').click();
+    const weiterButton = page.locator('button:has-text("Weiter")');
+    
+    // Wait for the button to be visible (handles useEffect timing)
+    await expect(weiterButton).toBeVisible();
+    
+    // Now click the button
+    await weiterButton.click();
     
     console.log('✓ Clicked Weiter button');
 
@@ -346,8 +352,14 @@ test.describe('Streak Counter E2E', () => {
     // Wait a bit to see logs
     await page.waitForTimeout(1000);
     
-    // Navigate and see what happens to streak
-    await page.locator('button:has-text("Weiter")').click();
+    // Navigate and see what happens to streak  
+    const weiterButton = page.locator('button:has-text("Weiter")');
+    
+    // Wait for the button to be visible (handles useEffect timing)
+    await expect(weiterButton).toBeVisible();
+    
+    // Now click the button
+    await weiterButton.click();
     await page.waitForURL('**/train/*'); // Accept any training position
     
     // Wait to see logs during navigation

@@ -98,6 +98,12 @@ test.describe("Phase 2 Infrastructure Demo", () => {
   test("should handle error scenarios with mocked failures", async ({ page }) => {
     logger.info("🔥 Testing error handling");
 
+    // Remove AudioContext to create unsupported environment
+    await page.addInitScript(() => {
+      delete (window as any).AudioContext;
+      delete (window as any).webkitAudioContext;
+    });
+
     // Mock tablebase error
     await mockTablebase.error(page, 503);
     
