@@ -79,7 +79,7 @@ export const useFallbackAudio = (volume: number = 0.7): {
 
   useEffect(() => {
     // Only check for Web Audio API support on the client
-    const audioContextAvailable = !!(
+    const audioContextAvailable = Boolean(
       typeof window !== 'undefined' &&
       (window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext)
     );
