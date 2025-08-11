@@ -10,8 +10,10 @@ import tsconfig from '../../tsconfig.json';
 
 // Base configuration shared by all projects
 const baseConfig = {
-  // Use ts-jest for TypeScript compilation
-  preset: 'ts-jest',
+  // Use SWC for faster transpilation
+  transform: {
+    '^.+\\.(ts|tsx|js|jsx)$': '@swc/jest'
+  },
   
   // Transform these node_modules that use ES modules
   transformIgnorePatterns: [
@@ -55,7 +57,7 @@ const config: Config = {
     {
       ...baseConfig,
       displayName: 'unit',
-      rootDir: '/home/thehu/coolProjects/EndgameTrainer',
+      rootDir: process.cwd(),
       testEnvironment: 'jsdom',
       testMatch: [
         '<rootDir>/src/**/*.unit.test.[jt]s?(x)',
@@ -71,7 +73,7 @@ const config: Config = {
     {
       ...baseConfig,
       displayName: 'integration',
-      rootDir: '/home/thehu/coolProjects/EndgameTrainer',
+      rootDir: process.cwd(),
       testEnvironment: 'jsdom',
       testMatch: [
         '<rootDir>/src/**/*.int.test.[jt]s?(x)',
@@ -86,7 +88,7 @@ const config: Config = {
     {
       ...baseConfig,
       displayName: 'services',
-      rootDir: '/home/thehu/coolProjects/EndgameTrainer',
+      rootDir: process.cwd(),
       testEnvironment: 'node', // Services run in Node environment
       testMatch: [
         '<rootDir>/src/tests/unit/services/**/*.test.[jt]s',
@@ -96,7 +98,7 @@ const config: Config = {
     {
       ...baseConfig,
       displayName: 'store',
-      rootDir: '/home/thehu/coolProjects/EndgameTrainer',
+      rootDir: process.cwd(),
       testEnvironment: 'node', // Zustand doesn't need DOM
       testMatch: [
         '<rootDir>/src/tests/unit/store/**/*.test.[jt]s',
@@ -105,7 +107,7 @@ const config: Config = {
     {
       ...baseConfig,
       displayName: 'firebase',
-      rootDir: '/home/thehu/coolProjects/EndgameTrainer',
+      rootDir: process.cwd(),
       testEnvironment: 'node',
       testMatch: [
         '<rootDir>/src/tests/integration/firebase/**/*.test.[jt]s?(x)',
