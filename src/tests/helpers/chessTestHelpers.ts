@@ -4,8 +4,8 @@
  */
 
 import {
-  ChessServiceListener,
-  ChessServiceEvent,
+  type ChessServiceListener,
+  type ChessServiceEvent,
 } from "@shared/services/ChessService";
 
 /**

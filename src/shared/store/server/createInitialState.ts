@@ -32,16 +32,17 @@ function toTrainingPosition(position: EndgamePosition & Partial<TrainingPosition
   return {
     ...position,
     colorToTrain: position.colorToTrain || position.sideToMove || "white",
-    targetOutcome: position.targetOutcome ||
-      (position.goal === "win"
-        ? position.sideToMove === "white"
-          ? "1-0"
-          : "0-1"
-        : position.goal === "draw"
-          ? "1/2-1/2"
-          : "1-0"), // Default to win for white
-    timeLimit: position.timeLimit || undefined,
-    chapterId: position.chapterId || undefined,
+    targetOutcome: position.targetOutcome || (() => {
+      if (position.goal === "win") {
+        return position.sideToMove === "white" ? "1-0" : "0-1";
+      }
+      if (position.goal === "draw") {
+        return "1/2-1/2";
+      }
+      return "1-0"; // Default to win for white
+    })(),
+    ...(position.timeLimit !== undefined && { timeLimit: position.timeLimit }),
+    ...(position.chapterId !== undefined && { chapterId: position.chapterId }),
   };
 }
 
@@ -153,13 +154,13 @@ export async function createInitialStateForPosition(
       isPlayerTurn,
       isOpponentThinking: false,
       isSuccess: false,
-      sessionStartTime: undefined,
-      sessionEndTime: undefined,
+      // sessionStartTime: undefined - omit instead of undefined
+      // sessionEndTime: undefined - omit instead of undefined
       hintsUsed: 0,
       mistakeCount: 0,
       moveErrorDialog: null,
       moveSuccessDialog: null,
-      evaluationBaseline: undefined,
+      // evaluationBaseline: undefined - omit instead of undefined
     },
 
     // Tablebase state - clean initial state

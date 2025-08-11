@@ -21,6 +21,25 @@ export enum ErrorType {
 }
 
 /**
+ * Recent error information for statistics reporting
+ */
+export interface RecentError {
+  type?: ErrorType;
+  component?: string;
+  timestamp: Date;
+  message: string;
+}
+
+/**
+ * Error statistics summary
+ */
+export interface ErrorStats {
+  totalErrors: number;
+  errorsByType: Record<string, number>;
+  recentErrors: RecentError[];
+}
+
+/**
  * Context information for error tracking and debugging
  * @interface ErrorContext
  * @property {string} [component] - Component where error occurred
@@ -129,7 +148,7 @@ export class ErrorService {
    * - Rate limiting: "API error: 429"
    * - Too many pieces: Position has >7 pieces
    */
-  static handleTablebaseError(error: Error, context: ErrorContext = {}) {
+  static handleTablebaseError(error: Error, context: ErrorContext = {}): string {
     const service = ErrorService.getInstance();
     const enhancedContext = {
       ...context,
@@ -195,7 +214,7 @@ export class ErrorService {
     error: Error,
     componentName: string,
     context: ErrorContext = {},
-  ) {
+  ): string {
     const service = ErrorService.getInstance();
     const enhancedContext = {
       ...context,
@@ -278,7 +297,7 @@ export class ErrorService {
    * - HTTP 500: Server error
    * - CORS errors: Cross-origin request blocked
    */
-  static handleNetworkError(error: Error, context: ErrorContext = {}) {
+  static handleNetworkError(error: Error, context: ErrorContext = {}): string {
     const service = ErrorService.getInstance();
     const enhancedContext = {
       ...context,
@@ -303,7 +322,7 @@ export class ErrorService {
    * @param {Error} error - The error object to log
    * @param {ErrorContext} context - Additional context information
    */
-  private logError(error: Error, context: ErrorContext) {
+  private logError(error: Error, context: ErrorContext): void {
     this.errorLog.push({
       error,
       context,
@@ -368,7 +387,7 @@ export class ErrorService {
    * logger.info(`Total errors: ${stats.totalErrors}`);
    * logger.info(`UI errors: ${stats.errorsByType.UI_COMPONENT || 0}`);
    */
-  getErrorStats() {
+  getErrorStats(): ErrorStats {
     const stats = this.errorLog.reduce(
       (acc, log) => {
         const type = log.context.type || "UNKNOWN";
@@ -382,8 +401,7 @@ export class ErrorService {
       totalErrors: this.errorLog.length,
       errorsByType: stats,
       recentErrors: this.errorLog.slice(-5).map((log) => ({
-        type: log.context.type,
-        component: log.context.component,
+        ...log.context,
         timestamp: log.timestamp,
         message: log.error.message,
       })),
@@ -404,7 +422,7 @@ export class ErrorService {
    * await sendErrorReport(stats);
    * errorService.clearErrorLog();
    */
-  clearErrorLog() {
+  clearErrorLog(): void {
     this.errorLog = [];
   }
 }

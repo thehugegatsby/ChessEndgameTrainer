@@ -5,9 +5,9 @@
 
 // Interfaces
 export type {
-  IPositionRepository,
-  IPositionRepositoryConfig,
-  IPositionRepositoryEvents,
+  PositionRepository,
+  PositionRepositoryConfig,
+  PositionRepositoryEvents,
 } from "./IPositionRepository";
 
 // Implementations

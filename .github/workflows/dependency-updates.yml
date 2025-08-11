@@ -15,11 +15,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: '8'
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
+        cache: 'pnpm'
 
     - name: Check for outdated packages
       run: |
@@ -27,7 +32,7 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         
         # Check for outdated packages
-        OUTDATED=$(npm outdated --json || echo "{}")
+        OUTDATED=$(pnpm outdated --format json || echo "{}")
         
         if [ "$OUTDATED" != "{}" ]; then
           echo "### Outdated Packages Found:" >> $GITHUB_STEP_SUMMARY
@@ -41,7 +46,7 @@ jobs:
         # Security audit
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### Security Audit:" >> $GITHUB_STEP_SUMMARY
-        npm audit --production >> $GITHUB_STEP_SUMMARY 2>&1 || true
+        pnpm audit --production >> $GITHUB_STEP_SUMMARY 2>&1 || true
 
   update-dependencies:
     name: Create Dependency Update PR
@@ -54,11 +59,16 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: '8'
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
+        cache: 'pnpm'
 
     - name: Update dependencies
       id: update
@@ -68,7 +78,7 @@ jobs:
         git checkout -b $BRANCH_NAME
         
         # Update dependencies (patch and minor only for safety)
-        npm update
+        pnpm update
         
         # Check if there are changes
         if [ -n "$(git status --porcelain)" ]; then
@@ -80,14 +90,14 @@ jobs:
 
     - name: Run tests
       if: steps.update.outputs.has_changes == 'true'
-      run: npm test
+      run: pnpm test
 
     - name: Commit and push changes
       if: steps.update.outputs.has_changes == 'true'
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add package.json package-lock.json
+        git add package.json pnpm-lock.yaml
         git commit -m "chore(deps): update dependencies"
         git push origin ${{ steps.update.outputs.branch_name }}
 
@@ -104,11 +114,11 @@ jobs:
           This PR contains automated dependency updates for patch and minor versions.
           
           ### What's included:
-          - Updated npm dependencies to their latest compatible versions
+          - Updated pnpm dependencies to their latest compatible versions
           - All tests have been run and passed
           
           ### Review checklist:
-          - [ ] Review the changes in package-lock.json
+          - [ ] Review the changes in pnpm-lock.yaml
           - [ ] Check for any breaking changes in the updated packages
           - [ ] Verify that the application still works as expected
           

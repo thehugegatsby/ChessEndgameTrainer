@@ -4,9 +4,9 @@
  */
 
 import {
-  TablebaseEvaluation,
-  TablebaseMove,
-  TablebaseResult,
+  type TablebaseEvaluation,
+  type TablebaseMove,
+  type TablebaseResult,
 } from "@shared/types/tablebase";
 
 export /**

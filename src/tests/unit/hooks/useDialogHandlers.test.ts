@@ -327,7 +327,10 @@ describe('useDialogHandlers', () => {
 
       expect(mockTrainingActions.setMoveErrorDialog).toHaveBeenCalledWith(null);
       expect(mockOpponentTurnManager.schedule).toHaveBeenCalledWith(
-        mockStoreApi, 
+        expect.objectContaining({
+          getState: expect.any(Function),
+          setState: expect.any(Function)
+        }), 
         500, 
         expect.objectContaining({
           onOpponentMoveComplete: expect.any(Function)

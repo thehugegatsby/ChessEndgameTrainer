@@ -3,7 +3,7 @@
  * Enterprise test organization and observability
  */
 
-import { test as base, TestInfo, Page } from "@playwright/test";
+import { test as base, type TestInfo, type Page } from "@playwright/test";
 
 // Custom type for test function since TestFn is not exported
 type TestFunction = (
@@ -28,7 +28,6 @@ export const TestTags = {
   AUTH: "@auth",
   CHESS_BOARD: "@chess-board",
   TRAINING: "@training",
-  DASHBOARD: "@dashboard",
   REAL_TIME: "@real-time",
   OFFLINE: "@offline",
 
@@ -373,7 +372,7 @@ export function flakyTest(
     expectedFailureRate?: number;
   },
   testFunction: TestFunction,
-) {
+): ReturnType<typeof base> {
   const taggedTitle = `${title} ${TestTags.FLAKY}`;
 
   return base(taggedTitle, async (fixtures, testInfo) => {

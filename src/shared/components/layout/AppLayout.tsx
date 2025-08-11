@@ -12,7 +12,7 @@
  * Key features:
  * - Fixed header with app title and settings
  * - Responsive sidebar navigation with collapse functionality
- * - Desktop floating action buttons (Dashboard, Dark Mode)
+ * - Desktop floating action buttons (Dark Mode)
  * - Mobile bottom navigation bar
  * - Adaptive menu visibility (shown by default on desktop)
  * - Integration with AdvancedEndgameMenu for position navigation
@@ -24,7 +24,7 @@
 
 "use client";
 
-import React, { useState, ReactNode } from "react";
+import React, { useState, type ReactNode } from "react";
 import { AdvancedEndgameMenu } from "../navigation/AdvancedEndgameMenu";
 import { DarkModeToggle } from "../ui/DarkModeToggle";
 import { SettingsIcon } from "../ui/SettingsIcon";
@@ -116,7 +116,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         <AdvancedEndgameMenu
           isOpen={showMenu}
           onClose={() => setShowMenu(false)}
-          currentPositionId={currentPositionId}
+          {...(currentPositionId !== undefined && { currentPositionId })}
         />
         {/* Main Content */}
         <div className="flex-1">
@@ -137,13 +137,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 
       {/* Desktop Floating Action Button */}
       <div className="hidden lg:flex fixed bottom-6 right-6 flex-col gap-3">
-        <Link
-          href="/dashboard"
-          className="p-3 dark-button-primary rounded-full shadow-xl hover:bg-blue-600 transition-all duration-200 hover:scale-105"
-          title="Dashboard"
-        >
-          📊
-        </Link>
         <div className="p-2">
           <DarkModeToggle />
         </div>
@@ -153,12 +146,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       {showMobileBottomNav && (
         <div className="lg:hidden fixed bottom-0 left-0 right-0 dark-card-elevated border-t p-3">
           <div className="flex justify-center gap-4">
-            <Link
-              href="/dashboard"
-              className="px-4 py-2 dark-button-primary rounded-lg text-sm hover:bg-blue-600 transition-colors"
-            >
-              📊 Dashboard
-            </Link>
             <Link
               href="/"
               className="px-4 py-2 dark-button-secondary rounded-lg text-sm hover:bg-gray-600 transition-colors"

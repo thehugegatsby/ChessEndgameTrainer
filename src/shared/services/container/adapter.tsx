@@ -5,13 +5,14 @@
 
 "use client";
 
-import React, { createContext, useContext, useMemo, ReactNode } from "react";
-import { ServiceContainer, IServiceContainer, ServiceRegistry } from "./index";
+import React, { createContext, useContext, useMemo, type ReactNode } from "react";
+import { ServiceContainer as DefaultServiceContainer } from "./ServiceContainer";
+import { type ServiceContainerType as ServiceContainer, type ServiceRegistry } from "./index";
 
 /**
  * Context for ServiceContainer
  */
-const ServiceContainerContext = createContext<IServiceContainer | undefined>(
+const ServiceContainerContext = createContext<ServiceContainer | undefined>(
   undefined,
 );
 
@@ -23,7 +24,7 @@ interface ServiceProviderProps {
   /**
    * Container instance (if not provided, creates production container)
    */
-  container?: IServiceContainer;
+  container?: ServiceContainer;
 }
 
 /**
@@ -34,7 +35,7 @@ export const ServiceProvider: React.FC<ServiceProviderProps> = ({
   container,
 }) => {
   const serviceContainer = useMemo(() => {
-    return container || ServiceContainer.createProductionContainer();
+    return container || DefaultServiceContainer.createProductionContainer();
   }, [container]);
 
   return (
@@ -47,7 +48,7 @@ export const ServiceProvider: React.FC<ServiceProviderProps> = ({
 /**
  * Hook to get the container
  */
-export const useServiceContainer = (): IServiceContainer => {
+export const useServiceContainer = (): ServiceContainer => {
   const container = useContext(ServiceContainerContext);
   if (!container) {
     throw new Error("useServiceContainer must be used within ServiceProvider");
@@ -68,15 +69,15 @@ export const useService = <K extends keyof ServiceRegistry>(
 /**
  * Hook shortcuts for common services
  */
-export const usePlatformStorage = () => useService("platform.storage");
-export const usePlatformDevice = () => useService("platform.device");
-export const usePlatformNotifications = () =>
+export const usePlatformStorage = (): ServiceRegistry["platform.storage"] => useService("platform.storage");
+export const usePlatformDevice = (): ServiceRegistry["platform.device"] => useService("platform.device");
+export const usePlatformNotifications = (): ServiceRegistry["platform.notifications"] =>
   useService("platform.notifications");
 
 /**
  * Hook for localStorage (the main Jest 30 fix)
  */
-export const useLocalStorage = () => {
+export const useLocalStorage = (): Storage => {
   const container = useServiceContainer();
   return container.resolveCustom<Storage>("browser.localStorage");
 };
@@ -85,14 +86,17 @@ export const useLocalStorage = () => {
  * Factory function for backward compatibility
  * Replaces the original getPlatformService()
  */
-let globalContainer: IServiceContainer | null = null;
+let globalContainer: ServiceContainer | null = null;
 
-export function getPlatformService() {
+export function getPlatformService(): unknown {
   if (!globalContainer) {
-    globalContainer = ServiceContainer.createProductionContainer();
+    globalContainer = DefaultServiceContainer.createProductionContainer() as ServiceContainer;
   }
 
   // Return platform service object - will be properly typed when services are registered
+  if (!globalContainer) {
+    throw new Error("Platform service container not initialized");
+  }
   return globalContainer.resolveCustom("platform.service");
 }
 

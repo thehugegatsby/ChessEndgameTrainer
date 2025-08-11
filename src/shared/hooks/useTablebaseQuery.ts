@@ -3,7 +3,7 @@
  * @description Wraps TablebaseService with React Query for optimal caching and data fetching
  */
 
-import { useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
+import { useQuery, useQueryClient, type UseQueryOptions, type UseQueryResult } from '@tanstack/react-query';
 import { tablebaseService } from '@shared/services/TablebaseService';
 import type { TablebaseEvaluation, TablebaseMovesResult } from '@shared/services/TablebaseService';
 import { getLogger } from '@shared/services/logging';
@@ -30,7 +30,7 @@ export const tablebaseKeys = {
 export function useTablebaseEvaluation(
   fen: string | null,
   options?: Partial<UseQueryOptions<TablebaseEvaluation, Error>>
-) {
+): UseQueryResult<TablebaseEvaluation, Error> {
   return useQuery({
     queryKey: fen ? tablebaseKeys.evaluation(fen) : [],
     queryFn: async () => {
@@ -54,7 +54,7 @@ export function useTablebaseEvaluation(
       
       return result;
     },
-    enabled: !!fen,
+    enabled: Boolean(fen),
     staleTime: 30 * 60 * 1000, // 30 minutes (tablebase data is immutable)
     gcTime: 60 * 60 * 1000, // 1 hour
     refetchOnWindowFocus: false,
@@ -81,7 +81,7 @@ export function useTablebaseTopMoves(
   fen: string | null,
   limit: number = 3,
   options?: Partial<UseQueryOptions<TablebaseMovesResult, Error>>
-) {
+): UseQueryResult<TablebaseMovesResult, Error> {
   return useQuery({
     queryKey: fen ? tablebaseKeys.topMoves(fen, limit) : [],
     queryFn: async () => {
@@ -105,7 +105,7 @@ export function useTablebaseTopMoves(
       
       return result;
     },
-    enabled: !!fen,
+    enabled: Boolean(fen),
     staleTime: 30 * 60 * 1000, // 30 minutes (tablebase data is immutable)
     gcTime: 60 * 60 * 1000, // 1 hour
     refetchOnWindowFocus: false,
@@ -140,7 +140,7 @@ export function usePrefetchTablebaseEvaluation() {
  * Hook to get tablebase service metrics
  * @returns Service metrics
  */
-export function useTablebaseMetrics() {
+export function useTablebaseMetrics(): UseQueryResult<{ cacheHitRate: number; totalApiCalls: number; errorBreakdown: Record<string, number>; dedupedRequests: number }, Error> {
   return useQuery({
     queryKey: [...tablebaseKeys.all, 'metrics'],
     queryFn: () => tablebaseService.getMetrics(),

@@ -8,6 +8,10 @@ import { getLogger } from "@shared/services/logging";
 import { ErrorService } from "@shared/services/ErrorService";
 import type { RootState } from "@shared/store/slices/types";
 
+// Force dynamic rendering for this page - no static generation
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+
 /**
  * Training page props
  */
@@ -23,7 +27,7 @@ interface TrainingPageProps {
  * @param props.params - Route parameters
  * @returns Training page with position
  */
-export default async function TrainingPage({ params }: TrainingPageProps) {
+export default async function TrainingPage({ params }: TrainingPageProps): Promise<React.JSX.Element> {
   const { id: paramId } = await params;
   const id = Number(paramId);
 
@@ -69,7 +73,7 @@ export default async function TrainingPage({ params }: TrainingPageProps) {
  * Generate static paths for available test positions
  * @returns Array of position IDs
  */
-export async function generateStaticParams() {
+export async function generateStaticParams(): Promise<Array<{ id: string }>> {
   // Use actual available position IDs
   const availablePositionIds = [1, 2]; // Only existing positions
 

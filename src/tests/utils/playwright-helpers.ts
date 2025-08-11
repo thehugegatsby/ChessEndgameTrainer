@@ -3,7 +3,7 @@
  * Common utility functions for Playwright tests
  */
 
-import { Locator } from "@playwright/test";
+import { type Locator } from "@playwright/test";
 
 /**
  * Safely get text content from a locator

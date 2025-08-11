@@ -105,8 +105,8 @@ export const SimpleEvaluationDisplay: React.FC<
           <div className="space-y-1">
             {lastEvaluation.tablebase.topMoves
               .slice(0, 3)
-              .map((move, index) => (
-                <div key={index} className="flex justify-between">
+              .map((move, _index) => (
+                <div key={`${move.san}-${move.dtz}`} className="flex justify-between">
                   <span className="font-mono">{move.san}</span>
                   <span className="text-sm">{formatDtzDisplay(move.dtz)}</span>
                 </div>

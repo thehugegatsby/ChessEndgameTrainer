@@ -47,7 +47,7 @@ export const AudioTestPanel: React.FC = () => {
   /**
    * Test playing a specific sound type
    */
-  const testSound = async (soundType: ChessSoundType) => {
+  const testSound = async (soundType: ChessSoundType): Promise<void> => {
     logger.info(`Testing ${soundType} sound`);
     try {
       await playSound(soundType);
@@ -118,11 +118,11 @@ export const AudioTestPanel: React.FC = () => {
 /**
  * Simple hook for using audio test panel in development
  */
-export const useAudioTestPanelToggle = () => {
+export const useAudioTestPanelToggle = (): { showPanel: boolean; togglePanel: () => void } => {
   const [showPanel, setShowPanel] = React.useState(false);
 
   React.useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
+    const handleKeyPress = (e: KeyboardEvent): void => {
       // Toggle panel with Ctrl+Alt+A
       if (e.ctrlKey && e.altKey && e.key === 'a') {
         setShowPanel(prev => !prev);
@@ -133,5 +133,7 @@ export const useAudioTestPanelToggle = () => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
 
-  return { showPanel, setShowPanel };
+  const togglePanel = (): void => setShowPanel(prev => !prev);
+  
+  return { showPanel, togglePanel };
 };

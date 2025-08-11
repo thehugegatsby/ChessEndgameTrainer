@@ -28,6 +28,7 @@ import { useMemo } from 'react';
 import { dueCardsCacheService, createInputHash } from '@shared/services/DueCardsCacheService';
 import { filterDueCards, calculateDueCardsStats } from '@shared/types/progress';
 import { getLogger } from '@shared/services/logging/Logger';
+import type { CardProgress } from '@shared/store/slices/types';
 
 /**
  * Hook for accessing progress state with shallow equality checks
@@ -181,7 +182,7 @@ export const useProgressStore = (): [ProgressState, ProgressActions] => {
  * }
  * ```
  */
-export const useDerivedProgress = (userId: string | null = null) => {
+export const useDerivedProgress = (userId: string | null = null): { dueCardCount: number; dueCards: CardProgress[]; successRate: number } => {
   const logger = useMemo(() => getLogger().setContext('useDerivedProgress'), []);
 
   // Get stable state values
@@ -296,7 +297,7 @@ export const useDerivedProgress = (userId: string | null = null) => {
  * }
  * ```
  */
-export const useDueCardsCache = () => {
+export const useDueCardsCache = (): { clearUserCache: (userId: string) => void; clearAllCache: () => void; getCacheStats: () => unknown; forceCleanup: () => void } => {
   return useMemo(() => ({
     clearUserCache: (userId: string) => dueCardsCacheService.clearUserCache(userId),
     clearAllCache: () => dueCardsCacheService.clearAllCache(),

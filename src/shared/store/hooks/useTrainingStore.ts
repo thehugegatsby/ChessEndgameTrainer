@@ -47,29 +47,46 @@ type ExtendedTrainingActions = TrainingActionsType &
  */
 export const useTrainingState = (): TrainingStateType => {
   return useStore(
-    useShallow((state: RootState) => ({
-      // Training session state from nested structure
-      currentPosition: state.training.currentPosition,
-      nextPosition: state.training.nextPosition,
-      previousPosition: state.training.previousPosition,
-      isLoadingNavigation: state.training.isLoadingNavigation,
-      navigationError: state.training.navigationError,
-      chapterProgress: state.training.chapterProgress,
-      isPlayerTurn: state.training.isPlayerTurn,
-      isOpponentThinking: state.training.isOpponentThinking,
-      isSuccess: state.training.isSuccess,
-      sessionStartTime: state.training.sessionStartTime,
-      sessionEndTime: state.training.sessionEndTime,
-      hintsUsed: state.training.hintsUsed,
-      mistakeCount: state.training.mistakeCount,
-      currentStreak: state.training.currentStreak,
-      bestStreak: state.training.bestStreak,
-      showCheckmark: state.training.showCheckmark,
-      autoProgressEnabled: state.training.autoProgressEnabled,
-      moveErrorDialog: state.training.moveErrorDialog,
-      moveSuccessDialog: state.training.moveSuccessDialog,
-      evaluationBaseline: state.training.evaluationBaseline,
-    })),
+    useShallow((state: RootState) => {
+      const result: Partial<TrainingStateType> = {
+        isLoadingNavigation: state.training.isLoadingNavigation,
+        navigationError: state.training.navigationError,
+        chapterProgress: state.training.chapterProgress,
+        isPlayerTurn: state.training.isPlayerTurn,
+        isOpponentThinking: state.training.isOpponentThinking,
+        isSuccess: state.training.isSuccess,
+        hintsUsed: state.training.hintsUsed,
+        mistakeCount: state.training.mistakeCount,
+        currentStreak: state.training.currentStreak,
+        bestStreak: state.training.bestStreak,
+        showCheckmark: state.training.showCheckmark,
+        autoProgressEnabled: state.training.autoProgressEnabled,
+        moveErrorDialog: state.training.moveErrorDialog,
+        moveSuccessDialog: state.training.moveSuccessDialog,
+      };
+
+      // Only add optional properties if they have defined values
+      if (state.training.currentPosition !== undefined) {
+        result.currentPosition = state.training.currentPosition;
+      }
+      if (state.training.nextPosition !== undefined && state.training.nextPosition !== null) {
+        result.nextPosition = state.training.nextPosition;
+      }
+      if (state.training.previousPosition !== undefined && state.training.previousPosition !== null) {
+        result.previousPosition = state.training.previousPosition;
+      }
+      if (state.training.sessionStartTime !== undefined) {
+        result.sessionStartTime = state.training.sessionStartTime;
+      }
+      if (state.training.sessionEndTime !== undefined) {
+        result.sessionEndTime = state.training.sessionEndTime;
+      }
+      if (state.training.evaluationBaseline !== null) {
+        result.evaluationBaseline = state.training.evaluationBaseline;
+      }
+
+      return result as TrainingStateType;
+    }),
   );
 };
 

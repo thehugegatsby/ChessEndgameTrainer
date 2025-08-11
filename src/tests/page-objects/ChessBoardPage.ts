@@ -3,7 +3,7 @@
  * Encapsulates all chess board interactions and validations
  */
 
-import { Page, Locator, expect } from "@playwright/test";
+import { type Page, type Locator, expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
 /**

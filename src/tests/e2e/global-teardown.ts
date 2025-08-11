@@ -2,7 +2,7 @@
  * Global E2E Test Teardown - Clean Architecture
  */
 
-import { FullConfig } from "@playwright/test";
+import { type FullConfig } from "@playwright/test";
 import { getLogger } from "../../shared/services/logging";
 
 /**

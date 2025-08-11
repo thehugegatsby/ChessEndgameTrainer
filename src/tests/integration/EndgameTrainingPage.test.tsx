@@ -9,7 +9,7 @@ import { render, screen, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { EndgameTrainingPage } from "@shared/pages/EndgameTrainingPage";
-import { EndgamePosition } from "@shared/types";
+import { type EndgamePosition } from "@shared/types";
 import { useRouter } from "next/navigation";
 import { useStore } from "@shared/store/rootStore";
 import { StoreProvider } from "@shared/store/StoreContext";

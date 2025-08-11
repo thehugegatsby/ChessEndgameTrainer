@@ -4,22 +4,18 @@
  */
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Move } from "chess.js";
+import { type Move } from "chess.js";
 import { Chess } from "chess.js";
 import { useTablebaseEvaluation, useTablebaseTopMoves } from "@shared/hooks/useTablebaseQuery";
 import { MoveAnalysis } from "./MoveAnalysis";
 import { AnalysisDetails } from "./AnalysisDetails";
 import { DIMENSIONS } from "@shared/constants";
+import type { MoveAnalysisData } from "./types";
 import { getLogger } from "@shared/services/logging";
 
 const logger = getLogger().setContext("AnalysisPanel");
 
-interface MoveAnalysisData {
-  move: Move;
-  evaluation?: number;
-  bestMove?: string;
-  classification?: "excellent" | "good" | "inaccuracy" | "mistake" | "blunder";
-}
+// MoveAnalysisData interface moved to ./types.ts to prevent duplicate definitions
 
 interface AnalysisPanelProps {
   history: Move[];
@@ -41,7 +37,7 @@ interface PositionData {
 /**
  * Custom hook for single move analysis using React Query
  */
-function useMoveAnalysis(position: PositionData | null, enabled: boolean) {
+function useMoveAnalysis(position: PositionData | null, enabled: boolean): { analysisData: MoveAnalysisData | null; isLoading: boolean; isError: boolean } {
   const evalBefore = useTablebaseEvaluation(position?.fenBefore || null, { enabled });
   const evalAfter = useTablebaseEvaluation(position?.fenAfter || null, { enabled });
   const topMoves = useTablebaseTopMoves(position?.fenBefore || null, 1, { enabled });
@@ -70,17 +66,20 @@ function useMoveAnalysis(position: PositionData | null, enabled: boolean) {
       else classification = "good"; // Improved position
     }
 
+    const bestMoveValue = topMoves.data.isAvailable && 
+                          topMoves.data.moves && 
+                          topMoves.data.moves.length > 0 &&
+                          topMoves.data.moves[0]
+      ? topMoves.data.moves[0].san
+      : undefined;
+
     return {
       move: position.move,
       evaluation: evalAfter.data.isAvailable && evalAfter.data.result
         ? evalAfter.data.result.wdl
         : 0,
       classification,
-      bestMove: topMoves.data.isAvailable && 
-               topMoves.data.moves && 
-               topMoves.data.moves.length > 0
-        ? topMoves.data.moves[0].san
-        : undefined,
+      ...(bestMoveValue !== undefined && { bestMove: bestMoveValue }),
     };
   }, [position, evalBefore.data, evalAfter.data, topMoves.data]);
 
@@ -115,6 +114,10 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
 
       for (let i = 0; i < history.length; i++) {
         const move = history[i];
+        if (!move) {
+          // Skip invalid moves
+          continue;
+        }
         const fenBefore = chess.fen();
         
         chess.move(move);
@@ -209,34 +212,41 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
         </div>
 
         <div className="flex flex-1 overflow-hidden">
-          {isLoading ? (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Lade Analyse mit React Query...
-                </p>
-                <p className="text-xs text-gray-400 dark:text-gray-500">
-                  {analysisData.length}/{maxAnalyzedMoves} Züge analysiert
-                </p>
-              </div>
-            </div>
-          ) : hasError ? (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center">
-                <span className="text-2xl mb-2 block">⚠️</span>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Fehler beim Laden der Analyse
-                </p>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="mt-2 px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  Neu laden
-                </button>
-              </div>
-            </div>
-          ) : (
+          {(() => {
+            if (isLoading) {
+              return (
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Lade Analyse mit React Query...
+                    </p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">
+                      {analysisData.length}/{maxAnalyzedMoves} Züge analysiert
+                    </p>
+                  </div>
+                </div>
+              );
+            }
+            if (hasError) {
+              return (
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="text-center">
+                    <span className="text-2xl mb-2 block">⚠️</span>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Fehler beim Laden der Analyse
+                    </p>
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="mt-2 px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                    >
+                      Neu laden
+                    </button>
+                  </div>
+                </div>
+              );
+            }
+            return (
             <>
               {/* Move Analysis List */}
               <MoveAnalysis
@@ -251,7 +261,8 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
                 analysisData={analysisData}
               />
             </>
-          )}
+            );
+          })()}
         </div>
       </div>
     );

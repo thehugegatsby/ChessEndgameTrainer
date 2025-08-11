@@ -4,8 +4,8 @@
  * where React hooks are not available
  */
 
-import { PositionService } from "./PositionService";
-import { IPositionService } from "./IPositionService";
+import { PositionService as DefaultPositionService } from "./PositionService";
+import { type PositionService } from "./IPositionService";
 import { FirebasePositionRepository } from "@shared/repositories/implementations/FirebasePositionRepository";
 import { db } from "@shared/lib/firebase";
 import {
@@ -22,7 +22,7 @@ const logger = getLogger().setContext("ServerPositionService");
  * This is needed for Next.js getStaticProps/getServerSideProps
  * where React Context/hooks are not available
  */
-export function createServerPositionService(): IPositionService {
+export function createServerPositionService(): PositionService {
   // Use mock service for E2E tests (server-side)
   if (shouldUseMockService()) {
     logger.info("Creating MockPositionService for server-side E2E testing");
@@ -36,7 +36,7 @@ export function createServerPositionService(): IPositionService {
     cacheTTL: CACHE.ANALYSIS_CACHE_TTL,
   });
 
-  return new PositionService(repository, {
+  return new DefaultPositionService(repository, {
     cacheEnabled: true,
     cacheSize: CACHE.POSITION_CACHE_SIZE,
     cacheTTL: CACHE.ANALYSIS_CACHE_TTL,
@@ -44,13 +44,13 @@ export function createServerPositionService(): IPositionService {
 }
 
 // Create a singleton instance for server-side usage
-let serverPositionService: IPositionService | null = null;
+let serverPositionService: PositionService | null = null;
 
 /**
  * Get or create the server-side position service singleton
  * This ensures we reuse the same service instance across server-side renders
  */
-export function getServerPositionService(): IPositionService {
+export function getServerPositionService(): PositionService {
   if (!serverPositionService) {
     serverPositionService = createServerPositionService();
   }

@@ -78,7 +78,7 @@ export const E2ETestHelper: React.FC<E2ETestHelperProps> = ({
         url: window.location.href,
         search: window.location.search,
         testMoves,
-        gameReady: !!currentFen,
+        gameReady: Boolean(currentFen),
         isGameFinished,
         historyLength: moveHistory.length,
         testMoveProcessed,
@@ -106,7 +106,7 @@ export const E2ETestHelper: React.FC<E2ETestHelperProps> = ({
          * Moves are played with animation delays to simulate user interaction.
          * Failed moves are skipped and the sequence continues.
          */
-        const playNextMove = async () => {
+        const playNextMove = async (): Promise<void> => {
           if (moveIndex < moves.length) {
             const moveNotation = moves[moveIndex];
 
@@ -116,12 +116,23 @@ export const E2ETestHelper: React.FC<E2ETestHelperProps> = ({
               currentHistoryLength: moveHistory.length,
             });
 
+            if (!moveNotation) {
+              logger.warn("Empty move notation, skipping");
+              moveIndex++;
+              setTimeout(playNextMove, ANIMATION.MOVE_PLAY_DELAY_NORMAL);
+              return;
+            }
+
             try {
               // Parse move notation to standardized format
               let validatedMove: ValidatedMove | null = null;
               if (moveNotation.includes("-")) {
                 // Format: e2-e4
-                const [from, to] = moveNotation.split("-");
+                const parts = moveNotation.split("-");
+                if (!parts || parts.length !== 2 || !parts[0] || !parts[1]) {
+                  throw new Error(`Invalid move notation format: ${moveNotation}`);
+                }
+                const [from, to] = parts;
                 // Use ChessService to validate and get the proper move
                 validatedMove = chessService.move({ from, to, promotion: "q" });
                 if (validatedMove) {

@@ -3,7 +3,7 @@
  * Centralized mock for consistent router testing across the application
  */
 
-import { NextRouter } from "next/router";
+import { type NextRouter } from "next/router";
 
 /**
  * Creates a complete mock of the Next.js Router with all properties
@@ -196,16 +196,6 @@ export const createMockRouterScenarios = {
       route: "/train/[id]",
       query: { id },
       asPath: `/train/${id}`,
-    }),
-
-  /**
-   * Router on dashboard
-   */
-  dashboard: () =>
-    createMockRouter({
-      pathname: "/dashboard",
-      route: "/dashboard",
-      asPath: "/dashboard",
     }),
 
   /**

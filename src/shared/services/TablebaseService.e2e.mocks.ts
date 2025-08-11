@@ -237,7 +237,7 @@ export const E2E_TABLEBASE_MOCKS: Record<string, any> = {
  * expect(response.ok).toBe(true);
  * ```
  */
-export function createE2ETablebaseFetchMock() {
+export function createE2ETablebaseFetchMock(): jest.Mock {
   return jest.fn((url: string) => {
     if (url.includes("lichess.org/api/tablebase/standard")) {
       // Extract FEN from URL
@@ -296,10 +296,10 @@ export function createE2ETablebaseFetchMock() {
  * const evaluation = await tablebaseService.getEvaluation(fen);
  * ```
  */
-export function setupE2ETablebaseMocks() {
+export function setupE2ETablebaseMocks(): void {
   if (
     typeof window !== "undefined" &&
-    process.env.NEXT_PUBLIC_IS_E2E_TEST === "true"
+    process.env['NEXT_PUBLIC_IS_E2E_TEST'] === "true"
   ) {
     logger.info("🧪 Setting up E2E Tablebase mocks");
 

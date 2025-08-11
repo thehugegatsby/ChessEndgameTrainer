@@ -8,17 +8,17 @@ import React from "react";
 
 // Note: MSW polyfills removed - using service-level mocking instead
 // This significantly improves test performance and stability
-import { IServiceContainer } from "@shared/services/container";
+import { type ServiceContainer } from "@shared/services/container";
 import {
   createTestContainer,
-  TestServiceOverrides,
+  type TestServiceOverrides,
 } from "./createTestContainer";
 
 /**
  * Global test container for tests that need shared state
  * Use sparingly - prefer per-test containers for better isolation
  */
-let globalTestContainer: IServiceContainer | null = null;
+let globalTestContainer: ServiceContainer | null = null;
 
 /**
  * Setup global test container
@@ -46,7 +46,7 @@ export function setupGlobalTestContainer(
  * Get global test container
  * Throws error if not set up
  */
-export function getGlobalTestContainer(): IServiceContainer {
+export function getGlobalTestContainer(): ServiceContainer {
   if (!globalTestContainer) {
     throw new Error(
       "Global test container not set up. Call setupGlobalTestContainer() first.",
@@ -63,7 +63,7 @@ export function getGlobalTestContainer(): IServiceContainer {
 export function setupPerTestContainer(
   overrides?: TestServiceOverrides,
 ): () => IServiceContainer {
-  let container: IServiceContainer;
+  let container: ServiceContainer;
 
   beforeEach(() => {
     container = createTestContainer(overrides);
@@ -82,8 +82,8 @@ export function setupPerTestContainer(
  */
 export function setupReactTestingWithContainer(
   overrides?: TestServiceOverrides,
-) {
-  let container: IServiceContainer;
+): { getContainer: () => ServiceContainer; getWrapper: () => React.ComponentType<{ children: React.ReactNode }> } {
+  let container: ServiceContainer;
   let wrapper: React.ComponentType<{ children: React.ReactNode }>;
 
   beforeEach(() => {
@@ -120,10 +120,7 @@ export function setupReactTestingWithContainer(
 /**
  * Common Jest matchers for platform services
  */
-export /**
- *
- */
-const platformServiceMatchers = {
+export const platformServiceMatchers = {
   /**
    * Check if a service method was called
    * @param service
@@ -202,7 +199,7 @@ export /**
  *
  */
 const waitForServicesReady = async (
-  container: IServiceContainer,
+  container: ServiceContainer,
 ): Promise<void> => {
   // Give services time to initialize
   await waitForNextTick();
@@ -220,7 +217,7 @@ const waitForServicesReady = async (
  * Debug helper to inspect container state
  * @param container
  */
-export function debugContainer(container: IServiceContainer): void {
+export function debugContainer(container: ServiceContainer): void {
   if (process.env.NODE_ENV === "test" && process.env.DEBUG_CONTAINER) {
     console.log("Container Stats:", (container as any).getStats?.());
     console.log("Registered Keys:", (container as any).getRegisteredKeys?.());
@@ -230,7 +227,11 @@ export function debugContainer(container: IServiceContainer): void {
 /**
  * Mock console methods for tests
  */
-export function mockConsole() {
+export function mockConsole(): {
+  expectConsoleLog: (message: string) => void;
+  expectConsoleWarn: (message: string) => void;
+  expectConsoleError: (message: string) => void;
+} {
   const originalConsole = { ...console };
 
   beforeEach(() => {

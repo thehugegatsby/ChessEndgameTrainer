@@ -4,6 +4,7 @@
  */
 
 import { getMoveQualityDisplay } from "./displayHelpers";
+import type { EvaluationDisplay } from "@shared/types";
 
 export interface MoveEvaluation {
   evaluation: number;
@@ -25,7 +26,7 @@ export interface MoveEvaluation {
 export const getSmartMoveEvaluation = (
   evaluation: MoveEvaluation,
   isWhite: boolean,
-) => {
+): EvaluationDisplay => {
   const { evaluation: rawEvaluation, mateInMoves, tablebase } = evaluation;
 
   // If tablebase WDL data is available, use it for accurate move quality assessment

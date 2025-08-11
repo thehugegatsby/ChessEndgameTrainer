@@ -126,6 +126,9 @@ main() {
     # 2. Configure pnpm store
     configure_pnpm_store "$WORKTREE_ROOT"
     
+    # 2b. Create worktree tracking file for cleanup
+    echo "$(date -Iseconds) | $WORKTREE_ROOT" >> "${MAIN_PROJECT_ROOT}/.worktree-registry"
+    
     # 3. Create symlinks for directories (NOT node_modules!)
     print_info "Creating directory symlinks (excluding node_modules)..."
     for dir in "${LINK_DIRS[@]}"; do

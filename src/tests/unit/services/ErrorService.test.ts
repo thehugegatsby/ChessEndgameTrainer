@@ -186,9 +186,12 @@ describe("ErrorService", () => {
       // Check recent errors structure
       const recentError = stats.recentErrors[0];
       expect(recentError).toHaveProperty("type");
-      expect(recentError).toHaveProperty("component");
       expect(recentError).toHaveProperty("timestamp");
       expect(recentError).toHaveProperty("message");
+      // component is optional
+      if (recentError.type === ErrorType.UI_COMPONENT) {
+        expect(recentError).toHaveProperty("component");
+      }
     });
 
     it("should handle empty error log", () => {

@@ -117,18 +117,18 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({
     // Expose store globally for E2E tests (deterministic waiting)
     // Only in test environments to enable state-based waiting
     if (typeof window !== 'undefined' && 
-        (process.env.NEXT_PUBLIC_IS_E2E_TEST === 'true' || 
+        (process.env['NEXT_PUBLIC_IS_E2E_TEST'] === 'true' || 
          process.env.NODE_ENV === 'test' ||
          process.env.NODE_ENV === 'development')) {
-      (window as unknown as Record<string, unknown>).__e2e_store = storeRef.current;
-      (window as unknown as Record<string, unknown>).__zustand_store = storeRef.current;
+      (window as unknown as Record<string, unknown>)['__e2e_store'] = storeRef.current;
+      (window as unknown as Record<string, unknown>)['__zustand_store'] = storeRef.current;
     }
   }
 
   // Initialize BrowserTestApi for E2E tests (provides e2e_makeMove, e2e_getGameState)
   useEffect(() => {
     if (typeof window !== 'undefined' && 
-        (process.env.NEXT_PUBLIC_IS_E2E_TEST === 'true' || 
+        (process.env['NEXT_PUBLIC_IS_E2E_TEST'] === 'true' || 
          process.env.NODE_ENV === 'test')) {
       // Get store state to access actions
       const state = storeRef.current?.getState();
@@ -137,7 +137,16 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({
       const storeAccess = {
         getState: () => storeRef.current?.getState() as RootState,
         subscribe: (listener: (state: RootState, prevState: RootState) => void) => storeRef.current?.subscribe(listener) || (() => {}),
-        setState: (updater: RootState | Partial<RootState> | ((state: RootState) => RootState | Partial<RootState> | void)) => storeRef.current?.setState(updater),
+        setState: (updater: RootState | Partial<RootState> | ((state: RootState) => RootState | Partial<RootState> | void)) => {
+          if (typeof updater === 'function') {
+            storeRef.current?.setState((state) => {
+              const result = updater(state);
+              return result === undefined ? state : result;
+            });
+          } else {
+            storeRef.current?.setState(updater);
+          }
+        },
         // Extract individual actions from state - these need to be fixed in TestApiService
         // For now, provide empty functions to avoid runtime errors
         makeMove: state?.handlePlayerMove || (() => Promise.resolve(false)),
@@ -223,7 +232,9 @@ export const useStore = <T = RootState,>(
     );
   }
 
-  return useZustandStore(store, selector!) as T extends RootState ? RootState : T;
+  // Always call the hook, but with different parameters
+  const actualSelector = selector || ((state: RootState) => state as T);
+  return useZustandStore(store, actualSelector) as T extends RootState ? RootState : T;
 };
 
 /**

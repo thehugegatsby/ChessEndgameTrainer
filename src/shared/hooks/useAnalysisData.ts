@@ -8,7 +8,15 @@
  */
 
 import { useState } from "react";
-import { AnalysisData } from "@shared/types/analysisTypes";
+import { type AnalysisData } from "@shared/types/analysisTypes";
+
+/**
+ * Return type for useAnalysisData hook
+ */
+export type UseAnalysisDataReturn = {
+  readonly analysisData: AnalysisData | null;
+  readonly setAnalysisData: (data: AnalysisData | null) => void;
+};
 
 /**
  * Hook for managing chess analysis data state
@@ -44,7 +52,7 @@ import { AnalysisData } from "@shared/types/analysisTypes";
  *
  * @see {@link AnalysisData} for the data structure
  */
-export function useAnalysisData() {
+export function useAnalysisData(): UseAnalysisDataReturn {
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
   return { analysisData, setAnalysisData } as const;
 }

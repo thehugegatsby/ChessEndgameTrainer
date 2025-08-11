@@ -18,10 +18,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { analysisService } from "@shared/services/AnalysisService";
 import { ErrorService } from "@shared/services/ErrorService";
-import { Logger } from "@shared/services/logging/Logger";
+import { getLogger } from "@shared/services/logging";
 import type { PositionAnalysis } from "@shared/types";
 
-const logger = new Logger();
+const logger = getLogger().setContext('usePositionAnalysis');
 
 /**
  * Options for position analysis hook
@@ -126,7 +126,7 @@ export function usePositionAnalysis({
      * Evaluate current position using tablebase
      * @performance Typical latency: 50-200ms (cached: <1ms)
      */
-    const evaluatePosition = async () => {
+    const evaluatePosition = async (): Promise<void> => {
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
 
@@ -146,7 +146,7 @@ export function usePositionAnalysis({
         }
 
         logger.info("[usePositionAnalysis] Got tablebase evaluation", {
-          hasTablebase: !!evaluation.tablebase,
+          hasTablebase: Boolean(evaluation.tablebase),
           topMovesCount: evaluation.tablebase?.topMoves?.length,
         });
 

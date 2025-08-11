@@ -62,7 +62,7 @@ export function usePageReady(dependencies: boolean[] = []): boolean {
       // Optional: Emit custom event for debugging
       if (
         typeof window !== "undefined" &&
-        process.env.NEXT_PUBLIC_E2E_SIGNALS === "true"
+        process.env['NEXT_PUBLIC_E2E_SIGNALS'] === "true"
       ) {
         window.dispatchEvent(
           new CustomEvent("page-ready", {

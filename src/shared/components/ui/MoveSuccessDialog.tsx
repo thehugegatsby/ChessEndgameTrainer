@@ -90,7 +90,7 @@ export const MoveSuccessDialog: React.FC<MoveSuccessDialogProps> = ({
    * - Springer: "Clever knight promotion!"
    * - Default: "Great promotion leads to victory!"
    */
-  const getMessage = () => {
+  const getMessage = (): string => {
     if (promotionPiece) {
       switch (promotionPiece.toLowerCase()) {
         case "dame":

@@ -65,11 +65,11 @@ const createTestStats = (dueCount: number): DueCardsStats => ({
 
 // Mock Date.now for TTL testing
 const originalDateNow = Date.now;
-const mockDateNow = (timestamp: number) => {
+const mockDateNow = (timestamp: number): void => {
   Date.now = jest.fn(() => timestamp);
 };
 
-const restoreDateNow = () => {
+const restoreDateNow = (): void => {
   Date.now = originalDateNow;
 };
 

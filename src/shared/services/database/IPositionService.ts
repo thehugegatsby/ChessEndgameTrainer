@@ -5,9 +5,9 @@
  */
 
 import {
-  EndgamePosition,
-  EndgameCategory,
-  EndgameChapter,
+  type EndgamePosition,
+  type EndgameCategory,
+  type EndgameChapter,
 } from "@shared/types";
 
 /**
@@ -18,7 +18,7 @@ import {
  * - Easy swapping of service implementations
  * - Clear API contract documentation
  */
-export interface IPositionService {
+export interface PositionService {
   // Single position operations
   getPosition(id: number): Promise<EndgamePosition | null>;
   createPosition(
@@ -67,7 +67,7 @@ export interface IPositionService {
 /**
  * Service configuration options
  */
-export interface IPositionServiceConfig {
+export interface PositionServiceConfig {
   cacheEnabled?: boolean;
   cacheSize?: number;
   cacheTTL?: number;

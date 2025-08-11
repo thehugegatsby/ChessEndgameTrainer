@@ -36,7 +36,6 @@ const TEST_MESSAGES = deepFreezeConst({
 
   // Navigation
   NAVIGATION: {
-    BACK_TO_DASHBOARD: "Back to Dashboard",
     NEXT_POSITION: "Next Position",
     PREVIOUS_POSITION: "Previous Position",
   },

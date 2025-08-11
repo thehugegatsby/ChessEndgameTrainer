@@ -106,9 +106,9 @@ export class MoveDialogManager {
         isOpen: true,
         wdlBefore,
         wdlAfter,
-        bestMove,
-        playedMove,
-        moveNumber,
+        ...(bestMove !== undefined && { bestMove }),
+        ...(playedMove !== undefined && { playedMove }),
+        ...(moveNumber !== undefined && { moveNumber }),
       };
     });
   }
@@ -128,7 +128,7 @@ export class MoveDialogManager {
         isOpen: false,
         wdlBefore: 0,
         wdlAfter: 0,
-        bestMove: undefined,
+        // bestMove: undefined - omit instead of setting undefined
       };
     });
   }

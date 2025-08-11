@@ -8,7 +8,7 @@
  * of concerns. Provides event-driven updates for store synchronization.
  */
 
-import { Chess, Move as ChessJsMove } from "chess.js";
+import { Chess, type Move as ChessJsMove } from "chess.js";
 import type { ValidatedMove } from "@shared/types/chess";
 import { createValidatedMove } from "@shared/types/chess";
 import { getLogger } from "./logging";
@@ -143,8 +143,8 @@ class ChessService {
     try {
 
       // Check cache first (storing normalized FEN strings, not Chess instances)
-      if (this.fenCache.has(fen)) {
-        const cachedFen = this.fenCache.get(fen)!;
+      const cachedFen = this.fenCache.get(fen);
+      if (cachedFen) {
         this.chess = new Chess(cachedFen);
         // Using cached FEN
       } else {
@@ -175,7 +175,7 @@ class ChessService {
         type: "error",
         payload: {
           error: error instanceof Error ? error : new Error(String(error)),
-          move: undefined,
+          // Omit move property instead of setting to undefined for exactOptionalPropertyTypes
           message: "Ungültige FEN-Position",
         },
       });
@@ -200,10 +200,14 @@ class ChessService {
       // Normalize promotion piece if move is an object with promotion
       let normalizedMove = move;
       if (typeof move === 'object' && move !== null && 'promotion' in move && move.promotion) {
+        // Create type adapter for promotion handling with exactOptionalPropertyTypes
+        const normalizedPromotion = this.normalizePromotionPiece(move.promotion);
         normalizedMove = {
           ...move,
-          promotion: this.normalizePromotionPiece(move.promotion)
         };
+        if (normalizedPromotion) {
+          normalizedMove.promotion = normalizedPromotion;
+        }
       } else if (typeof move === 'string') {
         // Handle string notation with German piece letters
         // Try different string formats: "e7e8D", "e7-e8D", "e8D", "e8=D"
@@ -289,7 +293,7 @@ class ChessService {
         type: "error",
         payload: {
           error: new Error("No moves to undo"),
-          move: undefined,
+          // Omit move property for exactOptionalPropertyTypes compatibility
           message: "Keine Züge zum Rückgängigmachen",
         },
       });
@@ -301,8 +305,8 @@ class ChessService {
       const targetIndex = this.currentMoveIndex - 1;
       const targetFen =
         targetIndex >= 0
-          ? this.moveHistory[targetIndex].fenAfter
-          : this.moveHistory[0].fenBefore;
+          ? this.moveHistory[targetIndex]?.fenAfter
+          : this.moveHistory[0]?.fenBefore;
 
       this.chess = new Chess(targetFen);
       this.currentMoveIndex = targetIndex;
@@ -320,7 +324,7 @@ class ChessService {
         type: "error",
         payload: {
           error: error instanceof Error ? error : new Error(String(error)),
-          move: undefined,
+          // Omit move property for exactOptionalPropertyTypes compatibility
           message: "Fehler beim Rückgängigmachen",
         },
       });
@@ -340,7 +344,7 @@ class ChessService {
         type: "error",
         payload: {
           error: new Error("No moves to redo"),
-          move: undefined,
+          // Omit move property for exactOptionalPropertyTypes compatibility
           message: "Keine Züge zum Wiederherstellen",
         },
       });
@@ -350,7 +354,12 @@ class ChessService {
 
     try {
       const targetIndex = this.currentMoveIndex + 1;
-      const targetFen = this.moveHistory[targetIndex].fenAfter;
+      const targetMove = this.moveHistory[targetIndex];
+      if (!targetMove) {
+        logger.warn("No move found at target index");
+        return false;
+      }
+      const targetFen = targetMove.fenAfter;
 
       this.chess = new Chess(targetFen);
       this.currentMoveIndex = targetIndex;
@@ -368,7 +377,7 @@ class ChessService {
         type: "error",
         payload: {
           error: error instanceof Error ? error : new Error(String(error)),
-          move: undefined,
+          // Omit move property for exactOptionalPropertyTypes compatibility
           message: "Fehler beim Wiederherstellen",
         },
       });
@@ -533,10 +542,14 @@ class ChessService {
       // Normalize promotion piece if move is an object with promotion
       let normalizedMove = move;
       if (typeof move === 'object' && move !== null && 'promotion' in move && move.promotion) {
+        // Create type adapter for promotion handling with exactOptionalPropertyTypes
+        const normalizedPromotion = this.normalizePromotionPiece(move.promotion);
         normalizedMove = {
           ...move,
-          promotion: this.normalizePromotionPiece(move.promotion)
         };
+        if (normalizedPromotion) {
+          normalizedMove.promotion = normalizedPromotion;
+        }
       } else if (typeof move === 'string') {
         // Handle string notation with German piece letters
         // Try different string formats: "e7e8D", "e7-e8D", "e8D", "e8=D"
@@ -641,7 +654,7 @@ class ChessService {
         type: "error",
         payload: {
           error: error instanceof Error ? error : new Error(String(error)),
-          move: undefined,
+          // Omit move property for exactOptionalPropertyTypes compatibility
           message: "Ungültiges PGN-Format",
         },
       });
@@ -683,7 +696,7 @@ class ChessService {
         type: "error",
         payload: {
           error: new Error(`Invalid move index: ${moveIndex}`),
-          move: undefined,
+          // Omit move property for exactOptionalPropertyTypes compatibility
           message: `Ungültiger Zugindex: ${moveIndex}`,
         },
       });
@@ -695,7 +708,7 @@ class ChessService {
       const targetFen =
         moveIndex === -1
           ? this.moveHistory[0]?.fenBefore || this.initialFen
-          : this.moveHistory[moveIndex].fenAfter;
+          : this.moveHistory[moveIndex]?.fenAfter;
 
       this.chess = new Chess(targetFen);
       this.currentMoveIndex = moveIndex;
@@ -713,7 +726,7 @@ class ChessService {
         type: "error",
         payload: {
           error: error instanceof Error ? error : new Error(String(error)),
-          move: undefined,
+          // Omit move property for exactOptionalPropertyTypes compatibility
           message: "Fehler beim Navigieren zum Zug",
         },
       });

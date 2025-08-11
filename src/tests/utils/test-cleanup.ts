@@ -269,9 +269,9 @@ export function mockResizeObserver(): void {
     constructor(callback: ResizeObserverCallback) {
       cleanupManager.trackResizeObserver(this);
     }
-    observe() {}
-    unobserve() {}
-    disconnect() {}
+    observe(): void {}
+    unobserve(): void {}
+    disconnect(): void {}
   };
 }
 
@@ -283,10 +283,10 @@ export function mockIntersectionObserver(): void {
     constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
       cleanupManager.trackIntersectionObserver(this);
     }
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-    takeRecords() { return []; }
+    observe(): void {}
+    unobserve(): void {}
+    disconnect(): void {}
+    takeRecords(): IntersectionObserverEntry[] { return []; }
     root = null;
     rootMargin = '';
     thresholds = [];

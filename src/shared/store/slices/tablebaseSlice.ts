@@ -22,7 +22,7 @@
  * ```
  */
 
-import { TablebaseSlice, TablebaseState, TablebaseActions } from "./types";
+import { type TablebaseSlice, type TablebaseState, type TablebaseActions } from "./types";
 import type { PositionAnalysis } from "@shared/types/evaluation";
 import type { AnalysisStatus } from "../types";
 

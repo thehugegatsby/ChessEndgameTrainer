@@ -10,7 +10,7 @@
 import { TrainingService } from '@shared/services/TrainingService';
 import { TRAIN_SCENARIOS } from '../fixtures/trainPositions';
 import { useStore } from '@shared/store/rootStore';
-import { EndgamePosition } from '@shared/types/endgame';
+import { type EndgamePosition } from '@shared/types/endgame';
 
 describe('TrainingService Integration', () => {
   let trainingService: TrainingService;

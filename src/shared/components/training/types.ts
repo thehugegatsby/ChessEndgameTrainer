@@ -1,5 +1,5 @@
-import { Move } from "chess.js";
-import { MoveEvaluation } from "@shared/types";
+import { type Move } from "chess.js";
+import { type MoveEvaluation } from "@shared/types";
 
 /**
  * Common interfaces for Training components

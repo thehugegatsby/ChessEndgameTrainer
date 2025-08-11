@@ -3,7 +3,7 @@
  * Foundation for all page objects with common functionality
  */
 
-import { Page, Locator, expect } from "@playwright/test";
+import { type Page, type Locator, expect } from "@playwright/test";
 
 export abstract class BasePage {
   protected readonly page: Page;
@@ -33,10 +33,6 @@ export abstract class BasePage {
 
   get navbarLogo(): Locator {
     return this.navbar.locator('[data-testid="navbar-logo"]');
-  }
-
-  get navbarDashboardLink(): Locator {
-    return this.navbar.locator('[data-testid="nav-dashboard"]');
   }
 
   /**

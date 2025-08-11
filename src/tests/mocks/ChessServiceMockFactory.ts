@@ -8,6 +8,7 @@
 // @ts-nocheck - Test infrastructure with complex mock typing
 
 import { jest } from '@jest/globals';
+import type { Move } from "chess.js";
 import { BaseMockFactory } from './BaseMockFactory';
 import type { ChessService } from '@shared/services/ChessService';
 import type { ValidatedMove, ChessEvent } from '@shared/types/index';
@@ -115,7 +116,7 @@ export class ChessServiceMockFactory extends BaseMockFactory<ChessService, Chess
           lan: `${from}${to}`,
           captured: undefined,
           promotion: undefined
-        } as import("chess.js").Move;
+        } as Move;
         
         // Use the proper factory to create ValidatedMove with branding
         const validatedMove = createValidatedMove(

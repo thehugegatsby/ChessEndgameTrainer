@@ -22,7 +22,7 @@
  */
 
 import React from "react";
-import { Move } from "chess.js";
+import { type Move } from "chess.js";
 import { getEvaluationBarWidth } from "../../../utils/chess/evaluation";
 import { PrincipalVariation } from "../PrincipalVariation";
 
@@ -76,7 +76,7 @@ interface AnalysisDetailsProps {
  * formatEvaluation(undefined) // "0.00"
  * ```
  */
-const formatEvaluation = (evaluation?: number) => {
+const formatEvaluation = (evaluation?: number): string => {
   if (evaluation === undefined) return "0.00";
   return evaluation > 0 ? `+${evaluation.toFixed(2)}` : evaluation.toFixed(2);
 };
@@ -193,9 +193,9 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = React.memo(
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
                   <PrincipalVariation
                     pv={selectedAnalysis.pv}
-                    pvString={selectedAnalysis.pvString}
-                    evaluation={selectedAnalysis.evaluation}
-                    depth={selectedAnalysis.depth}
+                    {...(selectedAnalysis.pvString !== undefined && { pvString: selectedAnalysis.pvString })}
+                    {...(selectedAnalysis.evaluation !== undefined && { evaluation: selectedAnalysis.evaluation })}
+                    {...(selectedAnalysis.depth !== undefined && { depth: selectedAnalysis.depth })}
                     interactive={true}
                     maxMoves={8} // Limit for mobile UI
                     onMoveClick={() => {
@@ -218,27 +218,37 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = React.memo(
                         Kategorie:
                       </span>
                       <span
-                        className={`text-xs font-medium capitalize ${
-                          selectedAnalysis.classification === "excellent"
-                            ? "text-green-600 dark:text-green-400"
-                            : selectedAnalysis.classification === "good"
-                              ? "text-blue-600 dark:text-blue-400"
-                              : selectedAnalysis.classification === "inaccuracy"
-                                ? "text-yellow-600 dark:text-yellow-400"
-                                : selectedAnalysis.classification === "mistake"
-                                  ? "text-orange-600 dark:text-orange-400"
-                                  : "text-red-600 dark:text-red-400"
-                        }`}
+                        className={`text-xs font-medium capitalize ${(() => {
+                          if (selectedAnalysis.classification === "excellent") {
+                            return "text-green-600 dark:text-green-400";
+                          }
+                          if (selectedAnalysis.classification === "good") {
+                            return "text-blue-600 dark:text-blue-400";
+                          }
+                          if (selectedAnalysis.classification === "inaccuracy") {
+                            return "text-yellow-600 dark:text-yellow-400";
+                          }
+                          if (selectedAnalysis.classification === "mistake") {
+                            return "text-orange-600 dark:text-orange-400";
+                          }
+                          return "text-red-600 dark:text-red-400";
+                        })()}`}
                       >
-                        {selectedAnalysis.classification === "excellent"
-                          ? "Ausgezeichnet"
-                          : selectedAnalysis.classification === "good"
-                            ? "Gut"
-                            : selectedAnalysis.classification === "inaccuracy"
-                              ? "Ungenauigkeit"
-                              : selectedAnalysis.classification === "mistake"
-                                ? "Fehler"
-                                : "Patzer"}
+                        {(() => {
+                          if (selectedAnalysis.classification === "excellent") {
+                            return "Ausgezeichnet";
+                          }
+                          if (selectedAnalysis.classification === "good") {
+                            return "Gut";
+                          }
+                          if (selectedAnalysis.classification === "inaccuracy") {
+                            return "Ungenauigkeit";
+                          }
+                          if (selectedAnalysis.classification === "mistake") {
+                            return "Fehler";
+                          }
+                          return "Patzer";
+                        })()}
                       </span>
                     </div>
                   </div>
@@ -251,17 +261,24 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = React.memo(
                   Positionseinschätzung
                 </h5>
                 <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                  {selectedAnalysis.evaluation !== undefined
-                    ? selectedAnalysis.evaluation > 2
-                      ? "Weiß steht deutlich besser. Die Position sollte gewonnen werden können."
-                      : selectedAnalysis.evaluation > 0.5
-                        ? "Weiß hat einen kleinen Vorteil. Präzises Spiel ist erforderlich."
-                        : selectedAnalysis.evaluation > -0.5
-                          ? "Die Position ist ausgeglichen. Beide Seiten haben gleiche Chancen."
-                          : selectedAnalysis.evaluation > -2
-                            ? "Schwarz hat einen kleinen Vorteil. Vorsichtiges Spiel ist angebracht."
-                            : "Schwarz steht deutlich besser. Die Position ist schwierig zu verteidigen."
-                    : "Keine detaillierte Bewertung verfügbar."}
+                  {(() => {
+                    if (selectedAnalysis.evaluation === undefined) {
+                      return "Keine detaillierte Bewertung verfügbar.";
+                    }
+                    if (selectedAnalysis.evaluation > 2) {
+                      return "Weiß steht deutlich besser. Die Position sollte gewonnen werden können.";
+                    }
+                    if (selectedAnalysis.evaluation > 0.5) {
+                      return "Weiß hat einen kleinen Vorteil. Präzises Spiel ist erforderlich.";
+                    }
+                    if (selectedAnalysis.evaluation > -0.5) {
+                      return "Die Position ist ausgeglichen. Beide Seiten haben gleiche Chancen.";
+                    }
+                    if (selectedAnalysis.evaluation > -2) {
+                      return "Schwarz hat einen kleinen Vorteil. Vorsichtiges Spiel ist angebracht.";
+                    }
+                    return "Schwarz steht deutlich besser. Die Position ist schwierig zu verteidigen.";
+                  })()}
                 </div>
               </div>
             </div>

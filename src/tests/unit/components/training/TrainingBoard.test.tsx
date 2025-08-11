@@ -8,7 +8,7 @@ import { useGameStore } from "@shared/store/hooks/useGameStore";
 import { useTablebaseStore } from "@shared/store/hooks/useTablebaseStore";
 import { useUIStore } from "@shared/store/hooks/useUIStore";
 import { useTrainingSession, usePositionAnalysis } from "@shared/hooks";
-import { EndgamePosition } from "@shared/types";
+import { type EndgamePosition } from "@shared/types";
 
 // Mock all store hooks
 jest.mock("@shared/store/hooks/useTrainingStore");
@@ -618,7 +618,7 @@ describe("TrainingBoard", () => {
    *
    * @param ui
    */
-  const renderWithStoreProvider = (ui: React.ReactElement) => {
+  const renderWithStoreProvider = (ui: React.ReactElement): ReturnType<typeof render> => {
     return render(<StoreProvider>{ui}</StoreProvider>);
   };
 });

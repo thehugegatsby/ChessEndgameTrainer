@@ -33,7 +33,7 @@ describe("MovePanelZustand", () => {
     });
   });
 
-  const renderWithProviders = (component: React.ReactElement) => {
+  const renderWithProviders = (component: React.ReactElement): ReturnType<typeof render> => {
     return render(
       <QueryClientProvider client={queryClient}>
         {component}

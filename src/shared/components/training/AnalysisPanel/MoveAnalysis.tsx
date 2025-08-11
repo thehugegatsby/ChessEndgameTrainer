@@ -24,7 +24,7 @@
  */
 
 import React from "react";
-import { Move } from "chess.js";
+import type { MoveAnalysisData } from "./types";
 
 /**
  * Move analysis data structure for move list display
@@ -36,12 +36,7 @@ import { Move } from "chess.js";
  * @property {string} [bestMove] - Best move according to analysis (not displayed in list)
  * @property {'excellent' | 'good' | 'inaccuracy' | 'mistake' | 'blunder'} [classification] - Move quality classification
  */
-interface MoveAnalysisData {
-  move: Move;
-  evaluation?: number;
-  bestMove?: string;
-  classification?: "excellent" | "good" | "inaccuracy" | "mistake" | "blunder";
-}
+// MoveAnalysisData interface moved to ./types.ts
 
 /**
  * Props for the MoveAnalysis component
@@ -72,7 +67,7 @@ interface MoveAnalysisProps {
  */
 const getClassificationColor = (
   classification?: MoveAnalysisData["classification"],
-) => {
+): string => {
   switch (classification) {
     case "excellent":
       return "text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-900/30";
@@ -112,7 +107,7 @@ const getClassificationColor = (
  */
 const getClassificationSymbol = (
   classification?: MoveAnalysisData["classification"],
-) => {
+): string => {
   switch (classification) {
     case "excellent":
       return "!!";
@@ -202,7 +197,7 @@ export const MoveAnalysis: React.FC<MoveAnalysisProps> = React.memo(
 
               return (
                 <div
-                  key={index}
+                  key={`${analysis.move.san}-${moveNumber}-${isWhiteMove ? 'w' : 'b'}`}
                   className={`flex items-center gap-2 p-1.5 rounded cursor-pointer transition-colors text-sm ${
                     selectedMoveIndex === index
                       ? "bg-blue-100 border border-blue-200 dark:bg-blue-900/30 dark:border-blue-700"
@@ -234,11 +229,15 @@ export const MoveAnalysis: React.FC<MoveAnalysisProps> = React.memo(
 
                   {/* Evaluation */}
                   <span className="text-xs font-mono text-gray-600 dark:text-gray-400 ml-auto">
-                    {analysis.evaluation !== undefined
-                      ? analysis.evaluation > 0
-                        ? `+${analysis.evaluation.toFixed(2)}`
-                        : analysis.evaluation.toFixed(2)
-                      : "0.00"}
+                    {(() => {
+                      if (analysis.evaluation === undefined) {
+                        return "0.00";
+                      }
+                      if (analysis.evaluation > 0) {
+                        return `+${analysis.evaluation.toFixed(2)}`;
+                      }
+                      return analysis.evaluation.toFixed(2);
+                    })()}
                   </span>
                 </div>
               );

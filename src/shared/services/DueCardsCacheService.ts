@@ -338,7 +338,14 @@ export class DueCardsCacheService {
    * 
    * @returns Cache statistics
    */
-  public getCacheStats() {
+  public getCacheStats(): {
+    available: boolean;
+    totalEntries: number;
+    estimatedSize: number;
+    lastCleanup: Date | null;
+    maxEntries?: number;
+    maxSize?: number;
+  } {
     if (!this.isLocalStorageAvailable()) {
       return {
         available: false,
@@ -567,7 +574,9 @@ export class DueCardsCacheService {
         
         const toRemove = remaining.length - CACHE_CONFIG.MAX_ENTRIES;
         for (let i = 0; i < toRemove; i++) {
-          const { key, entry } = remaining[i];
+          const item = remaining[i];
+          if (!item) continue;
+          const { key, entry } = item;
           const serialized = JSON.stringify(entry);
           localStorage.removeItem(key);
           removedCount++;

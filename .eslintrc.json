@@ -11,7 +11,63 @@
         "varsIgnorePattern": "^_",
         "argsIgnorePattern": "^_"
       }
-    ]
+    ],
+    "@typescript-eslint/explicit-function-return-type": [
+      "error",
+      {
+        "allowExpressions": true,
+        "allowTypedFunctionExpressions": true,
+        "allowHigherOrderFunctions": true,
+        "allowDirectConstAssertionInArrowFunctions": true
+      }
+    ],
+    "@typescript-eslint/no-non-null-assertion": "error",
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "type-imports",
+        "fixStyle": "inline-type-imports"
+      }
+    ],
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "interface",
+        "format": ["PascalCase"],
+        "custom": {
+          "regex": "^I[A-Z]",
+          "match": false
+        }
+      },
+      {
+        "selector": "typeAlias",
+        "format": ["PascalCase"]
+      },
+      {
+        "selector": "enum",
+        "format": ["PascalCase"]
+      }
+    ],
+    "react-hooks/exhaustive-deps": "error",
+    "react/no-array-index-key": "warn",
+    "no-implicit-coercion": "error",
+    "no-param-reassign": [
+      "error",
+      {
+        "props": true,
+        "ignorePropertyModificationsFor": ["acc"]
+      }
+    ],
+    "no-nested-ternary": "warn",
+    // AI-first development: Adjusted complexity limits for chess domain
+    // Complex chess logic (move validation, tablebase analysis) requires higher thresholds
+    // These limits balance maintainability with domain-specific complexity needs
+    "complexity": ["warn", { "max": 18 }],
+    "max-lines-per-function": [
+      "warn",
+      { "max": 170, "skipBlankLines": true, "skipComments": true }
+    ],
+    "max-depth": ["warn", { "max": 4 }]
   },
   "overrides": [
     // NOTE: Test files and mocks have relaxed linting rules because:
@@ -65,6 +121,7 @@
         "@typescript-eslint/no-require-imports": "off",
         "@typescript-eslint/no-unused-vars": "off",
         "@typescript-eslint/no-unused-expressions": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
         "import/no-anonymous-default-export": "off",
         "@typescript-eslint/ban-ts-comment": [
           "error",
@@ -74,7 +131,10 @@
             "ts-nocheck": "allow-with-description",
             "ts-check": false
           }
-        ]
+        ],
+        "max-lines-per-function": "off",
+        "complexity": "off",
+        "max-depth": "off"
       }
     },
     {
@@ -99,6 +159,7 @@
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-unused-vars": "off",
         "@typescript-eslint/no-unused-expressions": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
         "import/no-anonymous-default-export": "off",
         "@typescript-eslint/ban-ts-comment": [
           "error",
@@ -109,7 +170,9 @@
             "ts-check": false
           }
         ],
-        "max-lines-per-function": "off"
+        "max-lines-per-function": "off",
+        "complexity": ["warn", { "max": 25 }],
+        "max-depth": ["warn", { "max": 6 }]
       }
     },
     {
@@ -126,6 +189,38 @@
           "warn",
           { "argsIgnorePattern": "^_" }
         ]
+      }
+    },
+    {
+      "files": [
+        "src/shared/store/createStore.ts",
+        "src/shared/store/slices/**/*.ts",
+        "src/shared/store/orchestrators/**/*.ts",
+        "src/shared/store/rootStore.ts",
+        "src/tests/unit/store/**/*.ts",
+        "src/tests/utils/firebase-mocks.ts",
+        "src/tests/utils/test-tags.ts",
+        "src/tests/integration/kpk-endgames-service-mock.spec.ts"
+      ],
+      "rules": {
+        "no-param-reassign": [
+          "error",
+          {
+            "props": true,
+            "ignorePropertyModificationsFor": ["state", "draft", "testInfo"]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/tests/reporters/**/*.js",
+        "src/tests/setup/*.js",
+        "src/tests/e2e/global-*.ts"
+      ],
+      "rules": {
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "no-console": "off"
       }
     }
   ]

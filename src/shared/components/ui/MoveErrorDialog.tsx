@@ -145,7 +145,7 @@ export const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
    * - Any deterioration: "Worsens the position"
    * - Default: "This move is an error"
    */
-  const getMessage = () => {
+  const getMessage = (): string => {
     const formattedPlayedMove = getFormattedMove(playedMove, true);
     
     if (wdlBefore === 2 && wdlAfter < 2) {

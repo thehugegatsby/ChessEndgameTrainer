@@ -20,7 +20,7 @@
  * realistic move targets and German language hints for training purposes.
  */
 
-import { EndgamePosition } from "@shared/types/endgame";
+import { type EndgamePosition } from "@shared/types/endgame";
 
 // REMOVED: EngineMove and TestInteraction interfaces
 // These were unused legacy code. Use TablebaseMove from TablebaseService instead.
@@ -247,6 +247,11 @@ export function getPositionByPositionId(
   if (!positionKey) return null;
 
   const scenario = TestPositions[positionKey];
+  // Validate scenario exists (TS18048 fix with early validation pattern)
+  if (!scenario) {
+    return null;
+  }
+  
   // Convert TestScenario to EndgamePosition
   return {
     id: parseInt(scenario.id),
@@ -255,12 +260,12 @@ export function getPositionByPositionId(
     fen: scenario.fen,
     category: scenario.category,
     difficulty: scenario.difficulty,
-    targetMoves: scenario.targetMoves,
-    hints: scenario.hints,
-    solution: scenario.solution,
-    sideToMove: scenario.sideToMove,
-    goal: scenario.goal,
-    nextPositionId: scenario.nextPositionId,
+    ...(scenario.targetMoves !== undefined && { targetMoves: scenario.targetMoves }),
+    ...(scenario.hints !== undefined && { hints: scenario.hints }),
+    ...(scenario.solution !== undefined && { solution: scenario.solution }),
+    ...(scenario.sideToMove !== undefined && { sideToMove: scenario.sideToMove }),
+    ...(scenario.goal !== undefined && { goal: scenario.goal }),
+    ...(scenario.nextPositionId !== undefined && { nextPositionId: scenario.nextPositionId }),
   };
 }
 
@@ -290,7 +295,12 @@ export function getScenarioByPositionId(
 ): TestScenario | null {
   const positionKey = PositionIdMap.get(positionId);
   if (!positionKey) return null;
+  
   const position = TestPositions[positionKey];
+  // Validate position exists (TS18048 fix with early validation pattern)
+  if (!position) {
+    return null;
+  }
 
   // Return the complete TestScenario (TestPositions already stores TestScenario objects)
   return position;
@@ -362,12 +372,12 @@ export class TestPositionUtils {
       fen: scenario.fen,
       category: scenario.category,
       difficulty: scenario.difficulty,
-      targetMoves: scenario.targetMoves,
-      hints: scenario.hints,
-      solution: scenario.solution,
-      sideToMove: scenario.sideToMove,
-      goal: scenario.goal,
-      nextPositionId: scenario.nextPositionId,
+      ...(scenario.targetMoves !== undefined && { targetMoves: scenario.targetMoves }),
+      ...(scenario.hints !== undefined && { hints: scenario.hints }),
+      ...(scenario.solution !== undefined && { solution: scenario.solution }),
+      ...(scenario.sideToMove !== undefined && { sideToMove: scenario.sideToMove }),
+      ...(scenario.goal !== undefined && { goal: scenario.goal }),
+      ...(scenario.nextPositionId !== undefined && { nextPositionId: scenario.nextPositionId }),
     };
   }
 
@@ -404,12 +414,12 @@ export class TestPositionUtils {
       fen: scenario.fen,
       category: scenario.category,
       difficulty: scenario.difficulty,
-      targetMoves: scenario.targetMoves,
-      hints: scenario.hints,
-      solution: scenario.solution,
-      sideToMove: scenario.sideToMove,
-      goal: scenario.goal,
-      nextPositionId: scenario.nextPositionId,
+      ...(scenario.targetMoves !== undefined && { targetMoves: scenario.targetMoves }),
+      ...(scenario.hints !== undefined && { hints: scenario.hints }),
+      ...(scenario.solution !== undefined && { solution: scenario.solution }),
+      ...(scenario.sideToMove !== undefined && { sideToMove: scenario.sideToMove }),
+      ...(scenario.goal !== undefined && { goal: scenario.goal }),
+      ...(scenario.nextPositionId !== undefined && { nextPositionId: scenario.nextPositionId }),
     };
   }
 }
@@ -436,8 +446,8 @@ const FenToPositionMap = new Map<string, EndgamePosition>(
       sideToMove: scenario.sideToMove,
       goal: scenario.goal,
       nextPositionId: scenario.nextPositionId,
-    },
-  ]),
+    } as EndgamePosition,
+  ] as [string, EndgamePosition]),
 );
 
 /**

@@ -51,6 +51,7 @@ import { showInfoToast } from '@shared/utils/toast';
 import { chessService } from '@shared/services/ChessService';
 // Note: Direct service import maintained for callback context
 import type { StoreApi } from '@shared/store/StoreContext';
+import type { RootState } from '@shared/store/slices/types';
 
 /**
  * Dialog types for training actions
@@ -354,7 +355,24 @@ export const useDialogHandlers = ({
 
     // Schedule opponent turn to respond to player's move
     logger.info("📅 Calling scheduleOpponentTurn with evaluation baseline callback...");
-    getOpponentTurnManager().schedule(storeApi, 500, {
+    
+    // Create adapter for Zustand store to match orchestrator's StoreApi interface
+    const orchestratorApi = {
+      getState: storeApi.getState,
+      setState: (updater: (draft: RootState) => void | Partial<RootState>) => {
+        // Handle both function and partial state forms
+        if (typeof updater === 'function') {
+          storeApi.setState((state) => {
+            const result = updater(state);
+            return result === undefined ? state : result;
+          });
+        } else {
+          storeApi.setState(updater);
+        }
+      }
+    };
+    
+    getOpponentTurnManager().schedule(orchestratorApi, 500, {
       onOpponentMoveComplete: async () => {
         logger.info("🎯 Opponent move completed - updating evaluation baseline");
         
@@ -443,7 +461,7 @@ export const useDialogHandlers = ({
     const autoProgressEnabled = currentState.training.autoProgressEnabled;
     
     logger.info("Checking navigation options", {
-      hasNextPosition: !!hasNextPosition,
+      hasNextPosition: Boolean(hasNextPosition),
       nextPositionId: hasNextPosition?.id,
       autoProgressEnabled,
     });

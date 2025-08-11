@@ -4,7 +4,7 @@
  */
 
 import { faker } from "@faker-js/faker";
-import { EndgamePosition } from "@shared/types/endgame";
+import { type EndgamePosition } from "@shared/types/endgame";
 import { EndgamePositions, getRandomEndgamePosition } from "../fixtures/commonFens";
 
 export class PositionFactory {

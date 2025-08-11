@@ -5,8 +5,8 @@
  */
 
 import { MockPositionRepository } from "@shared/repositories/implementations/MockPositionRepository";
-import { PositionService } from "@shared/services/database/PositionService";
-import { IPositionService } from "@shared/services/database/IPositionService";
+import { PositionService as DefaultPositionService } from "@shared/services/database/PositionService";
+import { type PositionService } from "@shared/services/database/IPositionService";
 import { TestPositions } from "./TestScenarios";
 import type { EndgamePosition } from "@shared/types/endgame";
 import { getLogger } from "@shared/services/logging/Logger";
@@ -17,19 +17,19 @@ const logger = getLogger().setContext("MockPositionServiceFactory");
  * Create a fully configured MockPositionService for E2E tests
  * Pre-seeded with TestPositions data for immediate test usage
  */
-export function createMockPositionService(): IPositionService {
+export function createMockPositionService(): PositionService {
   // Create mock repository
   const repository = new MockPositionRepository({
     enableCache: false, // Disable cache for deterministic tests
     events: {
       onDataFetched: (operation, count) => {
         // Silent logging for tests - only in debug mode
-        if (process.env.DEBUG_MOCK_SERVICE) {
+        if (process.env['DEBUG_MOCK_SERVICE']) {
           logger.debug(`[MockRepo] ${operation}: ${count} items`);
         }
       },
       onDataModified: (operation, ids) => {
-        if (process.env.DEBUG_MOCK_SERVICE) {
+        if (process.env['DEBUG_MOCK_SERVICE']) {
           logger.debug(`[MockRepo] ${operation}: ${ids.length} items`);
         }
       },
@@ -48,13 +48,14 @@ export function createMockPositionService(): IPositionService {
       fen: scenario.fen,
       category: scenario.category,
       difficulty: scenario.difficulty,
-      targetMoves: scenario.targetMoves,
-      hints: scenario.hints,
-      solution: scenario.solution,
-      sideToMove: scenario.sideToMove,
-      goal: scenario.goal,
+      // Use conditional assignment to handle exactOptionalPropertyTypes
+      ...(scenario.targetMoves !== undefined && { targetMoves: scenario.targetMoves }),
+      ...(scenario.hints !== undefined && { hints: scenario.hints }),
+      ...(scenario.solution !== undefined && { solution: scenario.solution }),
+      ...(scenario.sideToMove !== undefined && { sideToMove: scenario.sideToMove }),
+      ...(scenario.goal !== undefined && { goal: scenario.goal }),
       // Conditional mapping for optional fields to prevent undefined serialization issues
-      ...(scenario.nextPositionId && {
+      ...(scenario.nextPositionId !== undefined && {
         nextPositionId: scenario.nextPositionId,
       }),
       // Note: Test-specific fields (initialExpectedMove, expectsDrawEvaluation) are NOT included
@@ -68,7 +69,7 @@ export function createMockPositionService(): IPositionService {
   });
 
   // Create service with mock repository
-  const service = new PositionService(repository, {
+  const service = new DefaultPositionService(repository, {
     cacheEnabled: false, // Disable service-level cache for tests
     cacheSize: 0,
     cacheTTL: 0,
@@ -96,13 +97,14 @@ export function createMockPositionRepository(): MockPositionRepository {
       fen: scenario.fen,
       category: scenario.category,
       difficulty: scenario.difficulty,
-      targetMoves: scenario.targetMoves,
-      hints: scenario.hints,
-      solution: scenario.solution,
-      sideToMove: scenario.sideToMove,
-      goal: scenario.goal,
+      // Use conditional assignment to handle exactOptionalPropertyTypes
+      ...(scenario.targetMoves !== undefined && { targetMoves: scenario.targetMoves }),
+      ...(scenario.hints !== undefined && { hints: scenario.hints }),
+      ...(scenario.solution !== undefined && { solution: scenario.solution }),
+      ...(scenario.sideToMove !== undefined && { sideToMove: scenario.sideToMove }),
+      ...(scenario.goal !== undefined && { goal: scenario.goal }),
       // Conditional mapping for optional fields to prevent undefined serialization issues
-      ...(scenario.nextPositionId && {
+      ...(scenario.nextPositionId !== undefined && {
         nextPositionId: scenario.nextPositionId,
       }),
     }),
@@ -121,9 +123,9 @@ export function createMockPositionRepository(): MockPositionRepository {
  */
 export function shouldUseMockService(): boolean {
   const nodeEnv = process.env.NODE_ENV;
-  const nextPublicE2E = process.env.NEXT_PUBLIC_IS_E2E_TEST;
-  const isE2E = process.env.IS_E2E_TEST;
-  const useFirestore = process.env.NEXT_PUBLIC_USE_FIRESTORE;
+  const nextPublicE2E = process.env['NEXT_PUBLIC_IS_E2E_TEST'];
+  const isE2E = process.env['IS_E2E_TEST'];
+  const useFirestore = process.env['NEXT_PUBLIC_USE_FIRESTORE'];
 
   // Debug logging for environment detection
   logger.debug("[MockServiceFactory] Environment check", {

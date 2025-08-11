@@ -3,7 +3,7 @@
  * Expert validated aggressive implementation
  */
 
-import { chromium, FullConfig } from "@playwright/test";
+import { chromium, type FullConfig } from "@playwright/test";
 import { getLogger } from "../../shared/services/logging";
 
 // Configuration constants

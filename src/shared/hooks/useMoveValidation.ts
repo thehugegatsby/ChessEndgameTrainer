@@ -33,7 +33,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { PositionAnalysis } from '@shared/types';
+import { type PositionAnalysis } from '@shared/types';
 import { getLogger } from '@shared/services/logging';
 
 /**
@@ -139,7 +139,7 @@ export const useMoveValidation = ({
     } else {
       const logger = getLogger().setContext("useMoveValidation");
       logger.error("tablebaseActions.setEvaluations is not available", {
-        hasTablebaseActions: !!tablebaseActions,
+        hasTablebaseActions: Boolean(tablebaseActions),
         availableMethods: tablebaseActions ? Object.keys(tablebaseActions) : []
       });
     }
@@ -148,8 +148,8 @@ export const useMoveValidation = ({
   // Update analysis status based on evaluation state
   useEffect(() => {
     getLogger().debug("🔍 TablebaseActions debug", {
-      hasTablebaseActions: !!tablebaseActions,
-      hasSetAnalysisStatus: !!tablebaseActions?.setAnalysisStatus,
+      hasTablebaseActions: Boolean(tablebaseActions),
+      hasSetAnalysisStatus: Boolean(tablebaseActions?.setAnalysisStatus),
       tablebaseActionsKeys: Object.keys(tablebaseActions || {}),
       isEvaluating,
     });
@@ -158,7 +158,7 @@ export const useMoveValidation = ({
     if (!tablebaseActions?.setAnalysisStatus) {
       const logger = getLogger().setContext("useMoveValidation");
       logger.warn("tablebaseActions.setAnalysisStatus not available, skipping analysis status update", {
-        hasTablebaseActions: !!tablebaseActions,
+        hasTablebaseActions: Boolean(tablebaseActions),
         isEvaluating,
         currentFen: currentFen?.substring(0, 20) + "..."
       });

@@ -235,7 +235,7 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
             moves={categorizedMoves.winningMoves}
             resultType="win"
             onMoveSelect={onMoveSelect}
-            selectedMove={selectedMove}
+            {...(selectedMove !== undefined && { selectedMove })}
             initiallyExpanded={true}
             compact={compact}
           />
@@ -247,7 +247,7 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
             moves={categorizedMoves.drawingMoves}
             resultType="draw"
             onMoveSelect={onMoveSelect}
-            selectedMove={selectedMove}
+            {...(selectedMove !== undefined && { selectedMove })}
             initiallyExpanded={true}
             compact={compact}
           />
@@ -259,7 +259,7 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
             moves={categorizedMoves.losingMoves}
             resultType="loss"
             onMoveSelect={onMoveSelect}
-            selectedMove={selectedMove}
+            {...(selectedMove !== undefined && { selectedMove })}
             initiallyExpanded={false}
             compact={compact}
           />

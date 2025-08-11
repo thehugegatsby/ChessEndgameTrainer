@@ -11,10 +11,10 @@
  */
 
 import {
-  TablebaseEvaluation,
-  TablebaseMovesResult,
-  TablebaseMove,
-  TablebaseResult,
+  type TablebaseEvaluation,
+  type TablebaseMovesResult,
+  type TablebaseMove,
+  type TablebaseResult,
 } from "@shared/types/tablebase";
 
 /**
@@ -59,7 +59,7 @@ class MockTablebaseService {
   /**
    * Setup default mock implementations
    */
-  setupDefaults() {
+  setupDefaults(): void {
     // Default getEvaluation - returns draw position
     this.getEvaluation.mockImplementation(async (_fen: string) => ({
       isAvailable: true,
@@ -89,7 +89,7 @@ class MockTablebaseService {
   /**
    * Helper: Mock a winning position
    */
-  mockWinPosition(fen?: string, dtm: number = 5) {
+  mockWinPosition(fen?: string, dtm: number = 5): void {
     const result: TablebaseResult = {
       wdl: 2,
       dtz: dtm * 2,
@@ -126,7 +126,7 @@ class MockTablebaseService {
   /**
    * Helper: Mock a draw position
    */
-  mockDrawPosition(fen?: string) {
+  mockDrawPosition(fen?: string): void {
     const result: TablebaseResult = {
       wdl: 0,
       dtz: 0,
@@ -163,7 +163,7 @@ class MockTablebaseService {
   /**
    * Helper: Mock a losing position
    */
-  mockLossPosition(fen?: string, dtm: number = -5) {
+  mockLossPosition(fen?: string, dtm: number = -5): void {
     const result: TablebaseResult = {
       wdl: -2,
       dtz: dtm * 2,
@@ -200,7 +200,7 @@ class MockTablebaseService {
   /**
    * Helper: Mock API error
    */
-  mockApiError(errorMessage: string = "Tablebase API unavailable") {
+  mockApiError(errorMessage: string = "Tablebase API unavailable"): void {
     this.getEvaluation.mockRejectedValue(new Error(errorMessage));
     this.getTopMoves.mockRejectedValue(new Error(errorMessage));
   }
@@ -208,7 +208,7 @@ class MockTablebaseService {
   /**
    * Helper: Mock position not in tablebase
    */
-  mockNotAvailable(fen?: string) {
+  mockNotAvailable(fen?: string): void {
     const response: TablebaseEvaluation = {
       isAvailable: false,
       error: "Position not in tablebase",
@@ -239,7 +239,7 @@ class MockTablebaseService {
   /**
    * Helper: Mock loading state
    */
-  mockLoading(delayMs: number = 1000) {
+  mockLoading(delayMs: number = 1000): void {
     this.getEvaluation.mockImplementation(
       () =>
         new Promise((resolve) =>
@@ -288,7 +288,7 @@ class MockTablebaseService {
   /**
    * Helper: Reset all mocks to defaults
    */
-  reset() {
+  reset(): void {
     this.getEvaluation.mockClear();
     this.getTopMoves.mockClear();
     this.clearCache.mockClear();
@@ -299,7 +299,7 @@ class MockTablebaseService {
   /**
    * Helper: Clear mock calls but keep implementations
    */
-  clearCalls() {
+  clearCalls(): void {
     this.getEvaluation.mockClear();
     this.getTopMoves.mockClear();
     this.clearCache.mockClear();
@@ -314,24 +314,24 @@ const mockTablebaseService = new MockTablebaseService();
 export const tablebaseService = mockTablebaseService;
 
 // Export helper functions for easy test setup
-export const mockWinPosition = (fen?: string, dtm?: number) =>
+export const mockWinPosition = (fen?: string, dtm?: number): void =>
   mockTablebaseService.mockWinPosition(fen, dtm);
 
-export const mockDrawPosition = (fen?: string) =>
+export const mockDrawPosition = (fen?: string): void =>
   mockTablebaseService.mockDrawPosition(fen);
 
-export const mockLossPosition = (fen?: string, dtm?: number) =>
+export const mockLossPosition = (fen?: string, dtm?: number): void =>
   mockTablebaseService.mockLossPosition(fen, dtm);
 
-export const mockApiError = (message?: string) =>
+export const mockApiError = (message?: string): void =>
   mockTablebaseService.mockApiError(message);
 
-export const mockNotAvailable = (fen?: string) =>
+export const mockNotAvailable = (fen?: string): void =>
   mockTablebaseService.mockNotAvailable(fen);
 
-export const mockLoading = (delayMs?: number) =>
+export const mockLoading = (delayMs?: number): void =>
   mockTablebaseService.mockLoading(delayMs);
 
-export const resetMock = () => mockTablebaseService.reset();
+export const resetMock = (): void => mockTablebaseService.reset();
 
-export const clearMockCalls = () => mockTablebaseService.clearCalls();
+export const clearMockCalls = (): void => mockTablebaseService.clearCalls();

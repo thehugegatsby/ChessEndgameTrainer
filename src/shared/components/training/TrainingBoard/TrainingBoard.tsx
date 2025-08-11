@@ -28,7 +28,7 @@ import React, {
   useCallback,
   useState,
 } from "react";
-import { Move } from "chess.js";
+import { type Move } from "chess.js";
 import { Chessboard } from "@shared/components/chess/Chessboard";
 import { usePositionAnalysis, useTrainingSession } from "../../../hooks";
 import { usePageReady } from "../../../hooks/usePageReady";
@@ -39,7 +39,7 @@ import {
   useUIStore,
 } from "@shared/store/hooks";
 import { useStoreApi } from "@shared/store/StoreContext";
-import { EndgamePosition } from "@shared/types";
+import { type EndgamePosition } from "@shared/types";
 import { getLogger } from "@shared/services/logging/Logger";
 import { DIMENSIONS } from "@shared/constants";
 import { AlertDisplay } from "@shared/components/ui/AlertDisplay";
@@ -198,7 +198,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   }, [position, trainingActions, trainingState]);
 
   // CRITICAL: Prevent any interactions if position is not loaded
-  const isPositionReady = !!trainingState.currentPosition;
+  const isPositionReady = Boolean(trainingState.currentPosition);
 
   // === HOOKS ===
 
@@ -220,7 +220,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
       // Call parent callback
       onComplete(success);
     },
-    onPositionChange,
+    ...(onPositionChange && { onPositionChange }),
   });
 
   // Move handling logic - extracted to custom hook
@@ -237,8 +237,8 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     history,
     initialFen,
     currentFen,
-    onHistoryChange,
-    onJumpToMove,
+    ...(onHistoryChange && { onHistoryChange }),
+    ...(onJumpToMove && { onJumpToMove }),
     jumpToMove,
   });
 
@@ -252,7 +252,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   } = usePositionAnalysis({
     fen: currentFen || initialFen,
     isEnabled: true,
-    previousFen: gameNavigation.previousFen,
+    ...(gameNavigation.previousFen !== undefined && { previousFen: gameNavigation.previousFen }),
   });
 
   // UI state management - local component state only
@@ -296,7 +296,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     trainingState,
     storeApi,
     trainingUIState,
-    router,
+    ...(router && { router }),
   });
 
   // Move validation logic - extracted to custom hook
@@ -352,14 +352,14 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   const isAnalysisReady =
     tablebaseState.analysisStatus === "success" ||
     tablebaseState.analysisStatus === "idle";
-  const isBoardReady = !!currentFen;
+  const isBoardReady = Boolean(currentFen);
   const isPageReady = usePageReady([isAnalysisReady, isBoardReady]);
 
   // === RENDER ===
   // Note: customSquareRenderer was removed as it's not supported in react-chessboard v2.1.3
   // E2E tests should use the board's data-testid="training-board" and other available selectors
 
-  const showE2ESignals = process.env.NEXT_PUBLIC_E2E_SIGNALS === "true";
+  const showE2ESignals = process.env['NEXT_PUBLIC_E2E_SIGNALS'] === "true";
 
   return (
     <div

@@ -30,20 +30,20 @@
  */
 
 import {
-  IPlatformStorage,
-  IPlatformNotification,
-  IPlatformDevice,
-  IPlatformPerformance,
-  IPlatformClipboard,
-  IPlatformShare,
-  IPlatformAnalytics,
-  IPlatformDetection,
+  type PlatformStorage,
+  type PlatformNotification,
+  type PlatformDevice,
+  type PlatformPerformance,
+  type PlatformClipboard,
+  type PlatformShare,
+  type PlatformAnalytics,
+  type PlatformDetection,
 } from "../platform/types";
 
 /**
  * Browser API abstractions for dependency injection
  *
- * @interface IBrowserAPIs
+ * @interface BrowserAPIs
  *
  * @description
  * Provides abstracted interfaces for browser APIs to enable
@@ -58,7 +58,7 @@ import {
  *
  * @example
  * ```typescript
- * const apis: IBrowserAPIs = {
+ * const apis: BrowserAPIs = {
  *   localStorage: window.localStorage,
  *   sessionStorage: window.sessionStorage,
  *   navigator: window.navigator,
@@ -68,7 +68,7 @@ import {
  * };
  * ```
  */
-export interface IBrowserAPIs {
+export interface BrowserAPIs {
   localStorage: Storage;
   sessionStorage: Storage;
   navigator: Navigator;
@@ -93,7 +93,7 @@ export type ServiceKey = string;
  *
  * @typedef {Function} ServiceFactory
  * @template T - The service type being created
- * @param {IServiceContainer} container - Container for resolving dependencies
+ * @param {ServiceContainer} container - Container for resolving dependencies
  * @returns {T} The service instance
  *
  * @description
@@ -108,7 +108,7 @@ export type ServiceKey = string;
  * };
  * ```
  */
-export type ServiceFactory<T> = (container: IServiceContainer) => T;
+export type ServiceFactory<T> = (container: ServiceContainer) => T;
 
 /**
  * Service registry interface
@@ -138,17 +138,17 @@ export type ServiceFactory<T> = (container: IServiceContainer) => T;
  */
 export interface ServiceRegistry {
   // Platform services
-  "platform.storage": IPlatformStorage;
-  "platform.notifications": IPlatformNotification;
-  "platform.device": IPlatformDevice;
-  "platform.performance": IPlatformPerformance;
-  "platform.clipboard": IPlatformClipboard;
-  "platform.share": IPlatformShare;
-  "platform.analytics": IPlatformAnalytics;
-  "platform.detection": IPlatformDetection;
+  "platform.storage": PlatformStorage;
+  "platform.notifications": PlatformNotification;
+  "platform.device": PlatformDevice;
+  "platform.performance": PlatformPerformance;
+  "platform.clipboard": PlatformClipboard;
+  "platform.share": PlatformShare;
+  "platform.analytics": PlatformAnalytics;
+  "platform.detection": PlatformDetection;
 
   // Browser API abstractions
-  "browser.apis": IBrowserAPIs;
+  "browser.apis": BrowserAPIs;
   "browser.localStorage": Storage;
   "browser.navigator": Navigator;
   "browser.window": Window;
@@ -159,7 +159,7 @@ export interface ServiceRegistry {
 /**
  * Service container interface
  *
- * @interface IServiceContainer
+ * @interface ServiceContainer
  *
  * @description
  * Main interface for the dependency injection container.
@@ -177,7 +177,7 @@ export interface ServiceRegistry {
  *
  * @example
  * ```typescript
- * const container: IServiceContainer = new ServiceContainer();
+ * const container: ServiceContainer = new DefaultServiceContainer();
  *
  * // Register services
  * container.register('platform.storage', () => new WebStorage());
@@ -186,7 +186,7 @@ export interface ServiceRegistry {
  * const storage = container.resolve('platform.storage');
  * ```
  */
-export interface IServiceContainer {
+export interface ServiceContainer {
   /**
    * Register a service with the container
    * @param key - Service identifier
@@ -326,7 +326,7 @@ export interface TestContainerOverrides {
  *   logger: (msg) => logger.info(`[Container] ${msg}`)
  * };
  *
- * const container = new ServiceContainer(config);
+ * const container = new DefaultServiceContainer(config);
  * ```
  */
 export interface ServiceContainerConfig {

@@ -3,7 +3,7 @@
  * Systematic error injection for resilience testing
  */
 
-import { Page } from "@playwright/test";
+import { type Page } from "@playwright/test";
 
 export type FaultType =
   | "network-error"

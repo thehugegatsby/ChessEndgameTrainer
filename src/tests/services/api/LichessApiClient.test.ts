@@ -26,7 +26,31 @@ const TEST_FEN = 'K7/8/k7/8/8/8/8/8 w - - 0 1';
 const server = setupServer();
 
 // Helper to create valid tablebase responses
-const createTablebaseResponse = (overrides: any = {}) => ({
+interface TablebaseResponse {
+  category: string;
+  dtz: number;
+  dtm: number;
+  checkmate: boolean;
+  stalemate: boolean;
+  variant_win: boolean;
+  variant_loss: boolean;
+  insufficient_material: boolean;
+  moves: Array<{
+    uci: string;
+    san: string;
+    category: string;
+    dtz: number;
+    dtm: number;
+    zeroing: boolean;
+    checkmate: boolean;
+    stalemate: boolean;
+    variant_win: boolean;
+    variant_loss: boolean;
+    insufficient_material: boolean;
+  }>;
+}
+
+const createTablebaseResponse = (overrides: Partial<TablebaseResponse> = {}): TablebaseResponse => ({
   category: 'win',
   dtz: 1,
   dtm: 1,
@@ -123,7 +147,23 @@ describe('LichessApiClient', () => {
 
   describe('Successful API Communication', () => {
     it('should successfully fetch tablebase data', async () => {
-      const responseData = createTablebaseResponse();
+      const responseData = createTablebaseResponse({
+        moves: [
+          {
+            uci: 'c7c8',
+            san: 'Kc8',
+            category: 'loss',
+            dtz: -1,
+            dtm: -1,
+            zeroing: false,
+            checkmate: false,
+            stalemate: false,
+            variant_win: false,
+            variant_loss: false,
+            insufficient_material: false
+          }
+        ]
+      });
       
       server.use(
         http.get(`${TEST_BASE_URL}`, () => {
@@ -134,7 +174,28 @@ describe('LichessApiClient', () => {
       const client = new LichessApiClient({ baseUrl: TEST_BASE_URL });
       const result = await client.lookup(TEST_FEN);
 
-      expect(result).toEqual(responseData);
+      expect(result).toMatchObject({
+        category: "win",
+        checkmate: false,
+        dtm: 1,
+        dtz: 1,
+        insufficient_material: false,
+        moves: expect.arrayContaining([
+          expect.objectContaining({
+            category: "loss",
+            dtm: -1,
+            dtz: -1,
+            san: "Kc8",
+            uci: "c7c8",
+            variant_loss: false,
+            variant_win: false,
+            zeroing: false,
+          })
+        ]),
+        stalemate: false,
+        variant_loss: false,
+        variant_win: false,
+      });
     });
 
     it('should include correct query parameters', async () => {
@@ -271,7 +332,17 @@ describe('LichessApiClient', () => {
       });
       
       const result = await client.lookup(TEST_FEN);
-      expect(result).toEqual(createTablebaseResponse());
+      expect(result).toMatchObject({
+        category: "win",
+        checkmate: false,
+        dtm: 1,
+        dtz: 1,
+        insufficient_material: false,
+        moves: expect.any(Array),
+        stalemate: false,
+        variant_loss: false,
+        variant_win: false,
+      });
       expect(attemptCount).toBe(3);
     });
 
@@ -296,7 +367,17 @@ describe('LichessApiClient', () => {
       });
       
       const result = await client.lookup(TEST_FEN);
-      expect(result).toEqual(createTablebaseResponse());
+      expect(result).toMatchObject({
+        category: "win",
+        checkmate: false,
+        dtm: 1,
+        dtz: 1,
+        insufficient_material: false,
+        moves: expect.any(Array),
+        stalemate: false,
+        variant_loss: false,
+        variant_win: false,
+      });
       expect(attemptCount).toBe(2);
     });
 

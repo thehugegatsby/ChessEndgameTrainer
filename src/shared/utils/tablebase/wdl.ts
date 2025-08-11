@@ -99,7 +99,7 @@ export class WdlAdapter {
    * @param wdlAfter - WDL after move (opponent's perspective) 
    * @returns Both values from original player's perspective
    */
-  static convertToPlayerPerspective(wdlBefore: RawWdlValue, wdlAfter: RawWdlValue) {
+  static convertToPlayerPerspective(wdlBefore: RawWdlValue, wdlAfter: RawWdlValue): { wdlBeforeFromPlayerPerspective: RawWdlValue; wdlAfterFromPlayerPerspective: RawWdlValue } {
     return {
       wdlBeforeFromPlayerPerspective: wdlBefore,
       wdlAfterFromPlayerPerspective: WdlAdapter.flipPerspective(wdlAfter)

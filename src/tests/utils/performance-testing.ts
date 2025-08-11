@@ -3,7 +3,7 @@
  * Measure and assert performance metrics
  */
 
-import { Page, CDPSession } from "@playwright/test";
+import { type Page, type CDPSession } from "@playwright/test";
 
 export interface PerformanceMetrics {
   // Navigation Timing

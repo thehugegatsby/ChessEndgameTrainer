@@ -7,8 +7,8 @@
 
 // @ts-nocheck - Test infrastructure with complex mock typing
 
-import { setupServer, SetupServer } from 'msw/node';
-import { http, HttpHandler } from 'msw';
+import { setupServer, type SetupServer } from 'msw/node';
+import { http, type HttpHandler } from 'msw';
 import { BaseMockFactory } from './BaseMockFactory';
 
 export interface MSWServerMockOverrides {

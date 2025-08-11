@@ -197,7 +197,6 @@ for (const file of allFiles) {
 const entryPoints = [
   path.join(projectRoot, "pages", "_app.tsx"),
   path.join(projectRoot, "pages", "index.tsx"),
-  path.join(projectRoot, "pages", "dashboard.tsx"),
   path.join(projectRoot, "pages", "train", "[id].tsx"),
   path.join(projectRoot, "app", "mobile", "App.tsx"),
 ];

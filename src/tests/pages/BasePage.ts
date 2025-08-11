@@ -3,7 +3,7 @@
  * Common functionality for all page objects
  */
 
-import { Page, Locator } from "@playwright/test";
+import { type Page, type Locator } from "@playwright/test";
 
 export abstract class BasePage {
   constructor(protected page: Page) {}

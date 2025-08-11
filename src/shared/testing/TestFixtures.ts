@@ -52,12 +52,12 @@ export const TEST_MOVES: Record<string, TestMove> = {
 
 // A declarative constant array is simpler and more direct than a getter function for static data.
 export const TABLEBASE_POSITION_FENS: string[] = [
-  TEST_FENS.KQK_TABLEBASE_WIN,
-  TEST_FENS.KRK_TABLEBASE_DRAW,
-  TEST_FENS.KPK_WINNING,
-  TEST_FENS.KPK_DRAWING,
-  TEST_FENS.ROOK_ENDGAME,
-  TEST_FENS.QUEEN_ENDGAME,
+  TEST_FENS['KQK_TABLEBASE_WIN'] ?? "",
+  TEST_FENS['KRK_TABLEBASE_DRAW'] ?? "", 
+  TEST_FENS['KPK_WINNING'] ?? "",
+  TEST_FENS['KPK_DRAWING'] ?? "",
+  TEST_FENS['ROOK_ENDGAME'] ?? "",
+  TEST_FENS['QUEEN_ENDGAME'] ?? "",
 ];
 
 // Legacy compatibility function for getTablebasePositions()

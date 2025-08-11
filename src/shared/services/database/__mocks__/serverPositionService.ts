@@ -3,10 +3,10 @@
  * Used in tests to simulate position navigation without database calls
  */
 
-import { IPositionService } from "../IPositionService";
+import { type PositionService } from "../IPositionService";
 
-// Mock implementation of IPositionService for tests
-const mockPositionService: IPositionService = {
+// Mock implementation of PositionService for tests
+const mockPositionService: PositionService = {
   // Single position operations
   getPosition: jest.fn().mockResolvedValue(null),
   createPosition: jest.fn().mockResolvedValue(null),

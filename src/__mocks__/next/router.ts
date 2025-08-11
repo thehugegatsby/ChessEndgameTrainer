@@ -1,4 +1,4 @@
-import { NextRouter } from "next/router";
+import { type NextRouter } from "next/router";
 // Import the pre-instantiated mock router directly
 import mockRouter from "next-router-mock";
 

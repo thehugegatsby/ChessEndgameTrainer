@@ -35,6 +35,9 @@ import {
 } from "@shared/store/hooks";
 import { TEST_IDS, getTestId } from "@shared/constants/testIds";
 import { MoveQualityIndicator } from "../analysis/MoveQualityIndicator";
+import { getLogger } from "@shared/services/logging/Logger";
+
+const logger = getLogger().setContext("MovePanelZustand");
 
 /**
  * Props for the MovePanelZustand component
@@ -133,6 +136,11 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
       }
 
       const move = gameState.moveHistory[moveIndex];
+      if (!move) {
+        logger.warn("Move not found at index", { moveIndex, historyLength: gameState.moveHistory.length });
+        // Return fallback FEN instead of null
+        return gameState.currentFen || "8/8/8/8/8/8/8/8 w - - 0 1";
+      }
       // Each ValidatedMove has a 'fenBefore' field with the FEN before the move
       return move.fenBefore;
     };
@@ -167,19 +175,24 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
         const whiteEval = tablebaseState.evaluations[i + 1]; // +1 offset for evaluation after move
         const blackEval = tablebaseState.evaluations[i + 2]; // +2 for evaluation after black's move
 
+        // Pre-validate required whiteMove (blackMove can be optional)
+        if (!whiteMove) {
+          continue; // Skip invalid move pairs
+        }
+
         pairs.push({
           moveNumber: Math.floor(i / 2) + 1,
           whiteMove,
-          blackMove,
-          whiteEval,
-          blackEval,
+          ...(blackMove !== undefined && { blackMove }),
+          ...(whiteEval !== undefined && { whiteEval }),
+          ...(blackEval !== undefined && { blackEval }),
         });
       }
       return pairs;
     }, [gameState.moveHistory, tablebaseState.evaluations]);
 
     const hasContent = movePairs.length > 0 || currentMoveIndex === 0;
-    const showE2ESignals = process.env.NEXT_PUBLIC_E2E_SIGNALS === "true";
+    const showE2ESignals = process.env['NEXT_PUBLIC_E2E_SIGNALS'] === "true";
 
     // Check if we have any moves to display
     const effectiveMoveCount = gameState.moveHistory.length;

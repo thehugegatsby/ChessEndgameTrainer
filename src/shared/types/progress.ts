@@ -244,7 +244,7 @@ export function calculateDueCardsStats(
     .filter(card => card.nextReviewAt > now)
     .sort((a, b) => a.nextReviewAt - b.nextReviewAt);
   
-  const nextDueAt = futureDueCards.length > 0 ? futureDueCards[0].nextReviewAt : null;
+  const nextDueAt = futureDueCards.length > 0 && futureDueCards[0] ? futureDueCards[0].nextReviewAt : null;
   
   // Calculate average interval for due cards
   const totalInterval = dueCards.reduce((sum, card) => sum + card.interval, 0);

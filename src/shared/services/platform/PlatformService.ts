@@ -15,7 +15,7 @@
  * - Platform-specific APIs
  */
 
-import { IPlatformService, IPlatformDetection } from "./types";
+import { type PlatformService, type PlatformDetection } from "./types";
 import { WebPlatformService } from "./web/WebPlatformService";
 import { getLogger } from "@shared/services/logging";
 
@@ -23,13 +23,13 @@ import { getLogger } from "@shared/services/logging";
  * Platform detection implementation
  *
  * @class PlatformDetection
- * @implements {IPlatformDetection}
+ * @implements {PlatformDetection}
  *
  * @description
  * Provides methods to detect the current platform and device type.
  * Uses user agent analysis and platform-specific APIs for detection.
  */
-class PlatformDetection implements IPlatformDetection {
+class PlatformDetectionImpl implements PlatformDetection {
   /**
    * Detects if running in a web browser environment
    *
@@ -66,7 +66,7 @@ class PlatformDetection implements IPlatformDetection {
     if (typeof window === "undefined") return false;
 
     // Check for React Native
-    if ((window as unknown as Record<string, unknown>).ReactNativeWebView) return true;
+    if ((window as unknown as Record<string, unknown>)['ReactNativeWebView']) return true;
 
     // Check for mobile user agents
     const userAgent = navigator.userAgent.toLowerCase();
@@ -79,14 +79,14 @@ class PlatformDetection implements IPlatformDetection {
     if (typeof window === "undefined") return false;
 
     const userAgent = navigator.userAgent.toLowerCase();
-    return userAgent.includes("android") || (window as unknown as Record<string, unknown>).isAndroid === true;
+    return userAgent.includes("android") || (window as unknown as Record<string, unknown>)['isAndroid'] === true;
   }
 
   isIOS(): boolean {
     if (typeof window === "undefined") return false;
 
     const userAgent = navigator.userAgent.toLowerCase();
-    return /iphone|ipad|ipod/.test(userAgent) || (window as unknown as Record<string, unknown>).isIOS === true;
+    return /iphone|ipad|ipod/.test(userAgent) || (window as unknown as Record<string, unknown>)['isIOS'] === true;
   }
 
   isDesktop(): boolean {
@@ -99,7 +99,7 @@ class PlatformDetection implements IPlatformDetection {
     return (
       "ontouchstart" in window ||
       navigator.maxTouchPoints > 0 ||
-      ((navigator as unknown as Record<string, unknown>).msMaxTouchPoints as number) > 0
+      ((navigator as unknown as Record<string, unknown>)['msMaxTouchPoints'] as number) > 0
     );
   }
 
@@ -109,21 +109,21 @@ class PlatformDetection implements IPlatformDetection {
     // Check if running as PWA
     return (
       window.matchMedia("(display-mode: standalone)").matches ||
-      (window.navigator as unknown as Record<string, unknown>).standalone === true ||
+      (window.navigator as unknown as Record<string, unknown>)['standalone'] === true ||
       document.referrer.includes("android-app://")
     );
   }
 }
 
 // Singleton instance
-let platformServiceInstance: IPlatformService | null = null;
-let platformDetectionInstance: IPlatformDetection | null = null;
+let platformServiceInstance: PlatformService | null = null;
+let platformDetectionInstance: PlatformDetection | null = null;
 
 /**
  * Get the platform service instance
  * This will return the appropriate implementation based on the platform
  */
-export function getPlatformService(): IPlatformService {
+export function getPlatformService(): PlatformService {
   if (!platformServiceInstance) {
     const detection = getPlatformDetection();
 
@@ -148,9 +148,9 @@ export function getPlatformService(): IPlatformService {
 /**
  * Get the platform detection instance
  */
-export function getPlatformDetection(): IPlatformDetection {
+export function getPlatformDetection(): PlatformDetection {
   if (!platformDetectionInstance) {
-    platformDetectionInstance = new PlatformDetection();
+    platformDetectionInstance = new PlatformDetectionImpl();
   }
   return platformDetectionInstance;
 }

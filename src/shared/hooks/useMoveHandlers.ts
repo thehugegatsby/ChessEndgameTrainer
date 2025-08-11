@@ -38,7 +38,7 @@
  */
 
 import { useCallback, useState } from 'react';
-import { Chess, Square } from 'chess.js';
+import { Chess, type Square } from 'chess.js';
 import { getLogger } from '@shared/services/logging/Logger';
 import { showErrorToast } from '@shared/utils/toast';
 import { useChessAudio } from './useChessAudio';
@@ -170,7 +170,7 @@ export const useMoveHandlers = ({
       const isDraw = chessAfter.isDraw() || chessAfter.isStalemate();
       
       // Check if move was a promotion
-      const wasPromotion = !!move.promotion;
+      const wasPromotion = Boolean(move.promotion);
       
       // Play appropriate sound based on move characteristics
       if (isCheckmate) {
@@ -355,7 +355,7 @@ export const useMoveHandlers = ({
    * reaches the promotion rank.
    */
   const onDrop = useCallback(
-    (sourceSquare: string, targetSquare: string, piece: string, promotion?: string): boolean => {
+    (sourceSquare: string, targetSquare: string, _piece: string, promotion?: string): boolean => {
       // Block drops if position is not ready or game is finished
       if (!isPositionReady || isGameFinished) {
         return false;

@@ -36,7 +36,7 @@ describe.skip("ChessService Unit Tests", () => {
     // Now require modules in the correct order
     const chessModule = require("chess.js");
     Chess = chessModule.Chess;
-    MockedChess = Chess as jest.MockedClass<typeof import("chess.js").Chess>;
+    MockedChess = Chess as jest.MockedClass<any>;
     
     MockedChess.mockClear();
 

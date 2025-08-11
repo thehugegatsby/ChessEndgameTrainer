@@ -6,6 +6,18 @@ import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+// Mock logging service
+jest.mock('@shared/services/logging', () => ({
+  getLogger: () => ({
+    setContext: () => ({
+      debug: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+    }),
+  }),
+}));
+
 // Mock the hooks BEFORE importing the component that uses them
 jest.mock('@shared/hooks/useTablebaseQuery', () => ({
   useTablebaseEvaluation: jest.fn(() => ({
@@ -60,7 +72,7 @@ describe('useMoveQuality simple test', () => {
       },
     });
 
-    const wrapper = ({ children }: { children: React.ReactNode }) => 
+    const wrapper = ({ children }: { children: React.ReactNode }): React.ReactElement => 
       React.createElement(QueryClientProvider, { client: queryClient }, children);
 
     const { result } = renderHook(() => useMoveQuality(), { wrapper });

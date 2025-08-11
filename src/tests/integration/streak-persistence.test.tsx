@@ -13,7 +13,7 @@
  */
 
 import { renderHook, act } from '@testing-library/react';
-import { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import type { JSX } from 'react';
 import { createStore } from '@shared/store/createStore';
 import { useTrainingStore } from '@shared/store/hooks';

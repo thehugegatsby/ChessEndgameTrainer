@@ -3,12 +3,13 @@
  * Defines the shape of the application state and actions
  */
 
-import { ValidatedMove, ChessInstance } from "../types";
-import { Move as ChessJsMove } from "chess.js";
+import { type ValidatedMove, type ChessInstance } from "../types";
+import { type Move as ChessJsMove } from "chess.js";
 
-import { PositionAnalysis } from "../types/evaluation";
+import { type PositionAnalysis } from "../types/evaluation";
 
-import { EndgamePosition } from "../types/endgame";
+import { type EndgamePosition } from "../types/endgame";
+import { type MoveSuccessDialog } from "@shared/store/orchestrators/handlePlayerMove/move.types";
 
 // User state
 /**
@@ -58,7 +59,7 @@ export interface EndgameSessionState {
   } | null;
   game?: ChessInstance;
   moveHistory: ValidatedMove[];
-  tablebaseMove?: string | null;
+  tablebaseMove?: string | null | undefined;
   evaluations: PositionAnalysis[];
   isPlayerTurn: boolean;
   isGameFinished: boolean;
@@ -67,7 +68,7 @@ export interface EndgameSessionState {
   endTime?: number;
   hintsUsed: number;
   mistakeCount: number;
-  currentEvaluation?: PositionAnalysis;
+  currentEvaluation?: PositionAnalysis | undefined;
   analysisStatus: AnalysisStatus;
   currentFen?: string;
   currentPgn?: string;
@@ -106,10 +107,10 @@ export interface GameState {
  * @interface TablebaseAnalysisState
  */
 export interface TablebaseAnalysisState {
-  tablebaseMove?: string | null;
+  tablebaseMove?: string | null | undefined;
   analysisStatus: AnalysisStatus;
   evaluations: PositionAnalysis[];
-  currentEvaluation?: PositionAnalysis;
+  currentEvaluation?: PositionAnalysis | undefined;
 }
 
 // EndgameTrainingState removed - replaced by TrainingState in slices/types.ts
@@ -345,7 +346,7 @@ export interface TrainingActions {
   ) => void;
   setMoveSuccessDialog: (
     dialog:
-      | import("@shared/store/orchestrators/handlePlayerMove/move.types").MoveSuccessDialog
+      | MoveSuccessDialog
       | null,
   ) => void;
   // Navigation actions

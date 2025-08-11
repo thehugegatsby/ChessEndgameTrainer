@@ -12,6 +12,7 @@ import {
   setDoc,
   deleteDoc,
 } from "firebase/firestore";
+import { env } from "../src/config/env";
 
 async function renamePositionIds() {
   console.log("🔄 Starting position ID rename process...");
@@ -19,15 +20,15 @@ async function renamePositionIds() {
   try {
     // Initialize Firebase with production config or emulator
     const app = initializeApp({
-      projectId: process.env.FIREBASE_PROJECT_ID || "endgametrainer-dev",
-      apiKey: process.env.FIREBASE_API_KEY || "test-key",
-      authDomain: process.env.FIREBASE_AUTH_DOMAIN || "test.firebaseapp.com",
+      projectId: env.FIREBASE_PROJECT_ID || "endgametrainer-dev",
+      apiKey: env.FIREBASE_API_KEY || "test-key",
+      authDomain: env.FIREBASE_AUTH_DOMAIN || "test.firebaseapp.com",
     });
 
     const db = getFirestore(app);
 
     // Use emulator only if explicitly requested
-    if (process.env.USE_EMULATOR === "true") {
+    if (env.USE_EMULATOR) {
       console.log("📡 Connecting to Firestore emulator...");
       try {
         connectFirestoreEmulator(db, "localhost", 8080);
@@ -131,7 +132,7 @@ async function renamePositionIds() {
       if (newSnap.exists()) {
         const position = newSnap.data();
         console.log(
-          `✅ Position ${newId}: "${position?.title}" (ID: ${position?.id})`,
+          `✅ Position ${newId}: "${position?.['title']}" (ID: ${position?.['id']})`,
         );
       } else {
         console.error(`❌ Position ${newId} not found after rename!`);

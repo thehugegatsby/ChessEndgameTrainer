@@ -1,5 +1,5 @@
 declare module 'react-chess-pieces/dist/svg-index' {
-  import { FC, SVGProps } from 'react';
+  import { type FC, type SVGProps } from 'react';
   
   // White pieces
   export const K: FC<SVGProps<SVGSVGElement>>; // White King

@@ -2,7 +2,7 @@
  * Test helper factory for creating Move objects compatible with chess.js
  */
 
-import { Move, Color, PieceSymbol } from "../../shared/types/chess";
+import { type Move, type Color, type PieceSymbol } from "../../shared/types/chess";
 import type { Square as ChessJsSquare } from "chess.js";
 
 export interface CreateMoveOptions {
@@ -56,8 +56,8 @@ export const createTestMove = (options: CreateMoveOptions): Move => {
     fenBefore: before,
     fenAfter: after,
     // Helper methods
-    isCapture: () => !!captured,
-    isPromotion: () => !!promotion,
+    isCapture: () => Boolean(captured),
+    isPromotion: () => Boolean(promotion),
     isEnPassant: () => flags.includes("e"),
     isKingsideCastle: () => flags.includes("k"),
     isQueensideCastle: () => flags.includes("q"),

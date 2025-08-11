@@ -22,7 +22,7 @@
  */
 
 import React from "react";
-import { Move } from "chess.js";
+import { type Move } from "chess.js";
 import { UI_CONSTANTS } from "@shared/constants/uiConstants";
 
 /**
@@ -129,13 +129,20 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
     const moveNumber = Math.floor(i / 2) + 1;
     const whiteMove = moves[i];
     const blackMove = moves[i + 1];
+    const whiteEval = evaluations[i];
+    const blackEval = evaluations[i + 1];
+
+    // Pre-validate all required data before creating move pair
+    if (!whiteMove || !blackMove || !whiteEval || !blackEval) {
+      continue; // Skip incomplete move pairs
+    }
 
     movePairs.push({
       number: moveNumber,
       white: whiteMove,
       black: blackMove,
-      whiteEval: evaluations[i],
-      blackEval: evaluations[i + 1],
+      whiteEval: whiteEval,
+      blackEval: blackEval,
     });
   }
 
@@ -148,7 +155,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
       wdl?: number;
       dtm?: number;
     };
-  }) => {
+  }): string => {
     if (!evalData) return "";
 
     // Tablebase evaluation with emojis
@@ -205,7 +212,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
       category?: "win" | "loss" | "draw";
       wdl?: number;
     };
-  }) => {
+  }): string => {
     if (!evalData) return "";
 
     // Tablebase evaluation colors

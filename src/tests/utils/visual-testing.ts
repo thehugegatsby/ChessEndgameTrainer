@@ -3,7 +3,7 @@
  * Enterprise-grade visual and a11y testing
  */
 
-import { Page, Locator, expect } from "@playwright/test";
+import { type Page, type Locator, expect } from "@playwright/test";
 import { injectAxe, checkA11y, configureAxe } from "axe-playwright";
 
 export interface VisualTestOptions {

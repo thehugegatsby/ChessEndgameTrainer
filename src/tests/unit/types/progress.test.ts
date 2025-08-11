@@ -4,7 +4,7 @@
  */
 
 import {
-  DueCard,
+  type DueCard,
   isDueCard,
   toDueCard,
   filterDueCards,

@@ -45,7 +45,7 @@ export function createMockStorage(): Storage {
   const store: Record<string, string> = {};
 
   // Helper to create mock function that works with or without Jest
-  const mockFn = (impl: (...args: any[]) => any) => {
+  const mockFn = (impl: (...args: any[]) => any): any => {
     if (typeof jest !== "undefined" && jest.fn) {
       return jest.fn(impl);
     }
@@ -91,7 +91,7 @@ export function createMockStorage(): Storage {
  * ```
  */
 export function createMockNavigator(): Navigator {
-  const mockFn = (impl?: (...args: any[]) => any) => {
+  const mockFn = (impl?: (...args: any[]) => any): any => {
     if (typeof jest !== "undefined" && jest.fn) {
       return impl ? jest.fn(impl) : jest.fn().mockResolvedValue(undefined);
     }
@@ -128,7 +128,7 @@ export function createMockNavigator(): Navigator {
  * ```
  */
 export function createMockWindow(): Window {
-  const mockFn = (impl?: (...args: any[]) => any) => {
+  const mockFn = (impl?: (...args: any[]) => any): any => {
     if (typeof jest !== "undefined" && jest.fn) {
       return impl ? jest.fn(impl) : jest.fn();
     }
@@ -174,7 +174,7 @@ export function createMockWindow(): Window {
  * ```
  */
 export function createMockDocument(): Document {
-  const mockFn = (impl?: (...args: any[]) => any) => {
+  const mockFn = (impl?: (...args: any[]) => any): any => {
     if (typeof jest !== "undefined" && jest.fn) {
       return impl ? jest.fn(impl) : jest.fn();
     }
@@ -219,7 +219,7 @@ export function createMockDocument(): Document {
 export function createMockPerformance(): Performance {
   let mockTime = 0;
 
-  const mockFn = (impl?: (...args: any[]) => any) => {
+  const mockFn = (impl?: (...args: any[]) => any): any => {
     if (typeof jest !== "undefined" && jest.fn) {
       return impl ? jest.fn(impl) : jest.fn();
     }

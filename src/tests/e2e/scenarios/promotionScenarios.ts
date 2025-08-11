@@ -17,7 +17,7 @@
  * @version 1.0.0
  */
 
-import { SequenceConfig, expectation } from "../helpers/sequenceRunner";
+import { type SequenceConfig, expectation } from "../helpers/sequenceRunner";
 
 /**
  * Test scenario: Pawn promotion leading to automatic win detection

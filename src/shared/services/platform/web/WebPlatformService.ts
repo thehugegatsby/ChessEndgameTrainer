@@ -4,22 +4,22 @@
  */
 
 import {
-  IPlatformService,
-  IPlatformStorage,
-  IPlatformNotification,
-  IPlatformDevice,
-  IPlatformPerformance,
-  IPlatformClipboard,
-  IPlatformShare,
-  IPlatformAnalytics,
-  Platform,
-  DeviceInfo,
-  MemoryInfo,
-  NetworkStatus,
-  NotificationOptions,
-  ScheduledNotification,
-  PerformanceMetrics,
-  ShareOptions,
+  type PlatformService,
+  type PlatformStorage,
+  type PlatformNotification,
+  type PlatformDevice,
+  type PlatformPerformance,
+  type PlatformClipboard,
+  type PlatformShare,
+  type PlatformAnalytics,
+  type Platform,
+  type DeviceInfo,
+  type MemoryInfo,
+  type NetworkStatus,
+  type NotificationOptions,
+  type ScheduledNotification,
+  type PerformanceMetrics,
+  type ShareOptions,
 } from "../types";
 import { STORAGE, SYSTEM } from "@shared/constants";
 // Using console directly to avoid circular dependency with Logger
@@ -51,7 +51,7 @@ const getLiveBrowserAPIs = (): BrowserAPIs => ({
 });
 
 // Web Storage Implementation with dependency injection
-class WebStorage implements IPlatformStorage {
+class WebStorage implements PlatformStorage {
   private prefix = STORAGE.PREFIX;
   private storage: Storage;
 
@@ -137,7 +137,7 @@ class WebStorage implements IPlatformStorage {
 }
 
 // Web Notification Implementation
-class WebNotification implements IPlatformNotification {
+class WebNotification implements PlatformNotification {
   async requestPermission(): Promise<boolean> {
     if (!("Notification" in window)) {
       return false;
@@ -153,11 +153,11 @@ class WebNotification implements IPlatformNotification {
     }
 
     new Notification(title, {
-      body: options?.body,
-      icon: options?.icon,
-      badge: options?.badge,
-      tag: options?.tag,
-      data: options?.data,
+      ...(options?.body !== undefined && { body: options.body }),
+      ...(options?.icon !== undefined && { icon: options.icon }),
+      ...(options?.badge !== undefined && { badge: options.badge }),
+      ...(options?.tag !== undefined && { tag: options.tag }),
+      ...(options?.data !== undefined && { data: options.data }),
     });
   }
 
@@ -177,7 +177,7 @@ class WebNotification implements IPlatformNotification {
 }
 
 // Web Device Implementation with dependency injection
-class WebDevice implements IPlatformDevice {
+class WebDevice implements PlatformDevice {
   private navigator: Navigator;
   private window?: Window;
 
@@ -237,9 +237,9 @@ class WebDevice implements IPlatformDevice {
 
     return {
       isOnline: this.navigator.onLine,
-      type: connection?.type as "wifi" | "4g" | "3g" | "2g" | "none" | undefined,
-      effectiveType: connection?.effectiveType,
-      downlink: connection?.downlink,
+      ...(connection?.type !== undefined && { type: connection.type as "wifi" | "4g" | "3g" | "2g" | "none" }),
+      ...(connection?.effectiveType !== undefined && { effectiveType: connection.effectiveType }),
+      ...(connection?.downlink !== undefined && { downlink: connection.downlink }),
     };
   }
 
@@ -270,7 +270,7 @@ class WebDevice implements IPlatformDevice {
     );
 
     return (
-      !!hasTouch &&
+      Boolean(hasTouch) &&
       screenSize >= 768 &&
       (userAgent.includes("tablet") || userAgent.includes("ipad"))
     );
@@ -278,7 +278,7 @@ class WebDevice implements IPlatformDevice {
 }
 
 // Web Performance Implementation
-class WebPerformance implements IPlatformPerformance {
+class WebPerformance implements PlatformPerformance {
   private measures: Record<string, number[]> = {};
   private marks: Record<string, number> = {};
 
@@ -345,7 +345,7 @@ class WebPerformance implements IPlatformPerformance {
 }
 
 // Web Clipboard Implementation with dependency injection
-class WebClipboard implements IPlatformClipboard {
+class WebClipboard implements PlatformClipboard {
   private navigator: Navigator;
   private document?: Document;
 
@@ -364,16 +364,18 @@ class WebClipboard implements IPlatformClipboard {
   async copy(text: string): Promise<void> {
     if (this.navigator.clipboard) {
       await this.navigator.clipboard.writeText(text);
-    } else {
+    } else if (this.document && typeof this.document.createElement === 'function') {
       // Fallback for older browsers
-      const textArea = this.document!.createElement("textarea");
+      const textArea = this.document.createElement("textarea");
       textArea.value = text;
       textArea.style.position = "fixed";
       textArea.style.opacity = "0";
-      this.document!.body.appendChild(textArea);
+      this.document.body.appendChild(textArea);
       textArea.select();
-      this.document!.execCommand("copy");
-      this.document!.body.removeChild(textArea);
+      this.document.execCommand("copy");
+      this.document.body.removeChild(textArea);
+    } else {
+      throw new Error("Clipboard API not supported and no DOM available for fallback");
     }
   }
 
@@ -391,7 +393,7 @@ class WebClipboard implements IPlatformClipboard {
 }
 
 // Web Share Implementation with dependency injection
-class WebShare implements IPlatformShare {
+class WebShare implements PlatformShare {
   private navigator: Navigator;
 
   constructor(
@@ -413,9 +415,9 @@ class WebShare implements IPlatformShare {
 
     try {
       await this.navigator.share({
-        title: options.title,
-        text: options.text,
-        url: options.url,
+        ...(options.title !== undefined && { title: options.title }),
+        ...(options.text !== undefined && { text: options.text }),
+        ...(options.url !== undefined && { url: options.url }),
       });
     } catch (error) {
       if ((error as Error).name !== "AbortError") {
@@ -426,7 +428,7 @@ class WebShare implements IPlatformShare {
 }
 
 // Web Analytics Implementation (stub for now)
-class WebAnalytics implements IPlatformAnalytics {
+class WebAnalytics implements PlatformAnalytics {
   track(_event: string /* unused */, _properties?: Record<string, unknown> /* unused */): void {
     // Implement actual analytics (Google Analytics, Mixpanel, etc.)
   }
@@ -439,14 +441,14 @@ class WebAnalytics implements IPlatformAnalytics {
 }
 
 // Main Web Platform Service with dependency injection
-export class WebPlatformService implements IPlatformService {
-  storage: IPlatformStorage;
-  notifications: IPlatformNotification;
-  device: IPlatformDevice;
-  performance: IPlatformPerformance;
-  clipboard: IPlatformClipboard;
-  share: IPlatformShare;
-  analytics: IPlatformAnalytics;
+export class WebPlatformService implements PlatformService {
+  storage: PlatformStorage;
+  notifications: PlatformNotification;
+  device: PlatformDevice;
+  performance: PlatformPerformance;
+  clipboard: PlatformClipboard;
+  share: PlatformShare;
+  analytics: PlatformAnalytics;
 
   private readonly apis: BrowserAPIs;
 

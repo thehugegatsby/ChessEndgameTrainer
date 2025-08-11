@@ -26,14 +26,14 @@ if (typeof Worker === "undefined") {
      * Mock postMessage implementation
      * @param message - Message to post
      */
-    postMessage(message) {
+    postMessage(message): void {
       // This will be replaced by mock implementations
     }
 
     /**
      * Mock terminate implementation
      */
-    terminate() {
+    terminate(): void {
       // This will be replaced by mock implementations
     }
   };
@@ -112,7 +112,11 @@ global.testUtils = {
     wdl,
     dtm,
     dtz,
-    category: wdl > 0 ? "win" : wdl < 0 ? "loss" : "draw",
+    category: (() => {
+      if (wdl > 0) return "win";
+      if (wdl < 0) return "loss";
+      return "draw";
+    })(),
     precise: true,
   }),
 

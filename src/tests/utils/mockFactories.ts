@@ -5,13 +5,13 @@
  */
 
 import type {
-  IPlatformStorage,
-  IPlatformNotification,
-  IPlatformDevice,
-  IPlatformPerformance,
-  IPlatformClipboard,
-  IPlatformShare,
-  IPlatformAnalytics,
+  PlatformStorage,
+  PlatformNotification,
+  PlatformDevice,
+  PlatformPerformance,
+  PlatformClipboard,
+  PlatformShare,
+  PlatformAnalytics,
   DeviceInfo,
   MemoryInfo,
   NetworkStatus,
@@ -21,7 +21,7 @@ import type {
 // Helper to create mock functions that work with or without Jest
 const mockFn = <TArgs extends unknown[] = unknown[], TReturn = unknown>(
   impl?: (...args: TArgs) => TReturn
-) => {
+): jest.Mock<TReturn, TArgs> | ((...args: TArgs) => TReturn) => {
   if (typeof jest !== "undefined" && jest.fn) {
     return impl ? jest.fn(impl) : jest.fn();
   }
@@ -30,7 +30,7 @@ const mockFn = <TArgs extends unknown[] = unknown[], TReturn = unknown>(
 
 const asyncMockFn = <TArgs extends unknown[] = unknown[], TReturn = unknown>(
   impl?: (...args: TArgs) => Promise<TReturn>
-) => {
+): jest.Mock<Promise<TReturn>, TArgs> | ((...args: TArgs) => Promise<TReturn | undefined>) => {
   if (typeof jest !== "undefined" && jest.fn) {
     return impl ? jest.fn(impl) : jest.fn().mockResolvedValue(undefined);
   }
@@ -41,11 +41,11 @@ const asyncMockFn = <TArgs extends unknown[] = unknown[], TReturn = unknown>(
  * Mock Platform Storage Service
  */
 export function createMockPlatformStorage(
-  overrides: Partial<IPlatformStorage> = {}
-): jest.Mocked<IPlatformStorage> {
+  overrides: Partial<PlatformStorage> = {}
+): jest.Mocked<PlatformStorage> {
   const store: Record<string, unknown> = {};
 
-  const defaults: jest.Mocked<IPlatformStorage> = {
+  const defaults: jest.Mocked<PlatformStorage> = {
     save: asyncMockFn(async (key: string, data: unknown) => {
       store[key] = data;
     }),
@@ -70,8 +70,8 @@ export function createMockPlatformStorage(
  * Mock Platform Device Service
  */
 export function createMockPlatformDevice(
-  overrides: Partial<IPlatformDevice> = {}
-): jest.Mocked<IPlatformDevice> {
+  overrides: Partial<PlatformDevice> = {}
+): jest.Mocked<PlatformDevice> {
   const mockDeviceInfo: DeviceInfo = {
     model: "Test Device",
     brand: "Test Brand",
@@ -100,16 +100,16 @@ export function createMockPlatformDevice(
     getMemoryInfo: mockFn(() => mockMemoryInfo),
     getNetworkStatus: mockFn(() => mockNetworkStatus),
     isLowEndDevice: mockFn(() => false),
-  } as jest.Mocked<IPlatformDevice>;
+  } as jest.Mocked<PlatformDevice>;
 }
 
 /**
  * Mock Platform Notification Service
  */
 export function createMockPlatformNotification(
-  overrides: Partial<IPlatformNotification> = {}
-): jest.Mocked<IPlatformNotification> {
-  const defaults: jest.Mocked<IPlatformNotification> = {
+  overrides: Partial<PlatformNotification> = {}
+): jest.Mocked<PlatformNotification> {
+  const defaults: jest.Mocked<PlatformNotification> = {
     requestPermission: asyncMockFn(async () => true),
     show: asyncMockFn(),
     schedule: asyncMockFn(async () => "mock-notification-id"),
@@ -124,8 +124,8 @@ export function createMockPlatformNotification(
  * Mock Platform Performance Service
  */
 export function createMockPlatformPerformance(
-  overrides: Partial<IPlatformPerformance> = {}
-): jest.Mocked<IPlatformPerformance> {
+  overrides: Partial<PlatformPerformance> = {}
+): jest.Mocked<PlatformPerformance> {
   let mockTime = 0;
   const measures: Record<string, number[]> = {};
   const marks: Record<string, number> = {};
@@ -136,7 +136,7 @@ export function createMockPlatformPerformance(
     averages: {},
   };
 
-  const defaults: jest.Mocked<IPlatformPerformance> = {
+  const defaults: jest.Mocked<PlatformPerformance> = {
     startMeasure: mockFn((name: string) => {
       marks[`${name}_start`] = mockTime;
     }),
@@ -172,11 +172,11 @@ export function createMockPlatformPerformance(
  * Mock Platform Clipboard Service
  */
 export function createMockPlatformClipboard(
-  overrides: Partial<IPlatformClipboard> = {}
-): jest.Mocked<IPlatformClipboard> {
+  overrides: Partial<PlatformClipboard> = {}
+): jest.Mocked<PlatformClipboard> {
   let clipboardContent = "";
 
-  const defaults: jest.Mocked<IPlatformClipboard> = {
+  const defaults: jest.Mocked<PlatformClipboard> = {
     copy: asyncMockFn(async (text: string) => {
       clipboardContent = text;
     }),
@@ -191,9 +191,9 @@ export function createMockPlatformClipboard(
  * Mock Platform Share Service
  */
 export function createMockPlatformShare(
-  overrides: Partial<IPlatformShare> = {}
-): jest.Mocked<IPlatformShare> {
-  const defaults: jest.Mocked<IPlatformShare> = {
+  overrides: Partial<PlatformShare> = {}
+): jest.Mocked<PlatformShare> {
+  const defaults: jest.Mocked<PlatformShare> = {
     canShare: mockFn(() => true),
     share: asyncMockFn(),
   };
@@ -205,9 +205,9 @@ export function createMockPlatformShare(
  * Mock Platform Analytics Service
  */
 export function createMockPlatformAnalytics(
-  overrides: Partial<IPlatformAnalytics> = {}
-): jest.Mocked<IPlatformAnalytics> {
-  const defaults: jest.Mocked<IPlatformAnalytics> = {
+  overrides: Partial<PlatformAnalytics> = {}
+): jest.Mocked<PlatformAnalytics> {
+  const defaults: jest.Mocked<PlatformAnalytics> = {
     track: mockFn(),
     identify: mockFn(),
     page: mockFn(),
@@ -220,7 +220,17 @@ export function createMockPlatformAnalytics(
 /**
  * Complete mock platform service
  */
-export function createMockPlatformService() {
+interface MockPlatformService {
+  storage: jest.Mocked<PlatformStorage>;
+  notifications: jest.Mocked<PlatformNotification>;
+  device: jest.Mocked<PlatformDevice>;
+  performance: jest.Mocked<PlatformPerformance>;
+  clipboard: jest.Mocked<PlatformClipboard>;
+  share: jest.Mocked<PlatformShare>;
+  analytics: jest.Mocked<PlatformAnalytics>;
+}
+
+export function createMockPlatformService(): MockPlatformService {
   return {
     storage: createMockPlatformStorage(),
     notifications: createMockPlatformNotification(),
@@ -244,7 +254,7 @@ export const MockScenarios = {
   /**
    * Offline device scenario
    */
-  offline: () => {
+  offline: (): MockPlatformService => {
     const service = createMockPlatformService();
     service.device = createMockPlatformDevice({
       getNetworkStatus: mockFn(() => ({
@@ -260,7 +270,7 @@ export const MockScenarios = {
   /**
    * Low-end device scenario
    */
-  lowEndDevice: () => {
+  lowEndDevice: (): MockPlatformService => {
     const service = createMockPlatformService();
     service.device = createMockPlatformDevice({
       isLowEndDevice: mockFn(() => true),

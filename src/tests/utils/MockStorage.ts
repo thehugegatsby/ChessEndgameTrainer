@@ -33,7 +33,7 @@ export class MockStorage implements Storage {
   });
 
   // Helper to pre-populate storage for tests
-  public seed(data: Record<string, string>) {
+  public seed(data: Record<string, string>): void {
     this.store = { ...data };
     // Reset call counts when seeding
     this.getItem.mockClear();

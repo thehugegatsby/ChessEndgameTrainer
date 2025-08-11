@@ -79,7 +79,7 @@ export class PawnPromotionHandler {
 
     return {
       isPromotion: true,
-      promotionPiece,
+      ...(promotionPiece !== undefined && { promotionPiece }),
       from: move.from,
       to: move.to,
       isAutoWin: false, // Will be determined by evaluatePromotionOutcome
@@ -183,7 +183,7 @@ export class PawnPromotionHandler {
       draft.training.moveSuccessDialog = {
         isOpen: true,
         promotionPiece: promotionPieceLabel,
-        moveDescription: promotionInfo.moveDescription,
+        ...(promotionInfo.moveDescription !== undefined && { moveDescription: promotionInfo.moveDescription }),
       };
       
       // CRITICAL: End the training session immediately

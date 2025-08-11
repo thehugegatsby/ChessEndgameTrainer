@@ -5,7 +5,7 @@
  * scattered negation anti-patterns throughout the codebase.
  */
 
-import { WdlAdapter, WdlValue, RawWdlValue, MoveQuality } from '@shared/utils/tablebase/wdl';
+import { WdlAdapter, WdlValue, type RawWdlValue, MoveQuality } from '@shared/utils/tablebase/wdl';
 
 describe('WdlAdapter', () => {
   describe('rawToCanonical', () => {

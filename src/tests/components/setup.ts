@@ -59,12 +59,26 @@ afterEach(() => {
 
 // Helper to create test bridge mock
 /**
- *
+ * Creates a mock test bridge for E2E testing
  */
-export /**
- *
- */
-const createTestBridgeMock = () => ({
+interface TestBridgeMock {
+  waitForReady: jest.Mock;
+  enableDebugLogging: jest.Mock;
+  disableDebugLogging: jest.Mock;
+  reset: jest.Mock;
+  addCustomResponse: jest.Mock;
+  getResponseTime: jest.Mock;
+  diagnostic: {
+    getCurrentFen: jest.Mock;
+    getStatus: jest.Mock;
+  };
+  tablebase: {
+    setPosition: jest.Mock;
+    getEvaluation: jest.Mock;
+  };
+}
+
+export const createTestBridgeMock = (): TestBridgeMock => ({
   waitForReady: jest.fn().mockResolvedValue(true),
   enableDebugLogging: jest.fn(),
   disableDebugLogging: jest.fn(),

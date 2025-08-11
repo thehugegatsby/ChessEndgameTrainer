@@ -21,9 +21,9 @@ import { useTablebaseEvaluation } from "@shared/hooks/useTablebaseQuery";
 import { assessTablebaseMoveQuality } from "@shared/utils/moveQuality";
 import { Chess } from "chess.js";
 import type { SimplifiedMoveQualityResult } from "../types/evaluation";
-import { Logger } from "../services/logging/Logger";
+import { getLogger } from "@shared/services/logging";
 
-const logger = new Logger();
+const logger = getLogger().setContext('useMoveQuality');
 
 /**
  * State interface for move quality analysis
@@ -80,7 +80,18 @@ interface UseMoveQualityState {
  * };
  * ```
  */
-export const useMoveQuality = () => {
+/**
+ * Return type for useMoveQuality hook
+ */
+export type UseMoveQualityReturn = {
+  readonly data: SimplifiedMoveQualityResult | null;
+  readonly isLoading: boolean;
+  readonly error: string | null;
+  readonly assessMove: (fenBefore: string, move: string, playerPerspective: "w" | "b") => Promise<SimplifiedMoveQualityResult>;
+  readonly clearAnalysis: () => void;
+};
+
+export const useMoveQuality = (): UseMoveQualityReturn => {
   const [state, setState] = useState<UseMoveQualityState>({
     data: null,
     isLoading: false,
@@ -108,7 +119,7 @@ export const useMoveQuality = () => {
   const evalBefore = useTablebaseEvaluation(
     state.currentAnalysis?.fenBefore || null,
     { 
-      enabled: !!state.currentAnalysis?.fenBefore,
+      enabled: Boolean(state.currentAnalysis?.fenBefore),
       staleTime: 30 * 60 * 1000, // 30 minutes - tablebase data is immutable
     }
   );
@@ -116,7 +127,7 @@ export const useMoveQuality = () => {
   const evalAfter = useTablebaseEvaluation(
     fenAfter,
     { 
-      enabled: !!fenAfter,
+      enabled: Boolean(fenAfter),
       staleTime: 30 * 60 * 1000, // 30 minutes - tablebase data is immutable
     }
   );
@@ -405,7 +416,11 @@ export const useMoveQuality = () => {
     /** Whether analysis is in progress */
     isLoading: state.isLoading,
     /** Error from analysis */
-    error: state.error,
+    error: (() => {
+      if (!state.error) return null;
+      if (state.error instanceof Error) return state.error.message;
+      return String(state.error);
+    })(),
     /** Trigger function for move quality assessment */
     assessMove,
     /** Clear current analysis data */

@@ -14,8 +14,8 @@
  * per-request instantiation without singleton conflicts.
  */
 
-import { create } from "zustand";
-import { devtools, persist, createJSONStorage, StateStorage } from "zustand/middleware";
+import { create, type UseBoundStore, type StoreApi } from "zustand";
+import { devtools, persist, createJSONStorage, type StateStorage } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 // Safe storage adapter that gracefully handles localStorage errors
@@ -110,7 +110,7 @@ import type { TrainingPosition } from "./slices/trainingSlice";
  * }
  * ```
  */
-export const createStore = (initialState?: Partial<RootState>) => {
+export const createStore = (initialState?: Partial<RootState>): UseBoundStore<StoreApi<RootState>> => {
   const store = create<RootState>()(
     devtools(
       persist(
@@ -276,11 +276,13 @@ export const createStore = (initialState?: Partial<RootState>) => {
               const persisted = persistedState as Record<string, unknown>;
 
               // Only merge the specific persisted properties, not the entire slice
-              if (persisted.training && typeof persisted.training === 'object' && 
-                  'currentPosition' in persisted.training) {
+              if (persisted['training'] && typeof persisted['training'] === 'object' && 
+                  'currentPosition' in persisted['training']) {
+                const currentPositionValue = (persisted['training'] as Record<string, unknown>)['currentPosition'] as TrainingPosition | undefined;
+                
                 merged.training = {
                   ...currentState.training,
-                  currentPosition: (persisted.training as Record<string, unknown>).currentPosition as TrainingPosition | undefined,
+                  ...(currentPositionValue !== undefined && { currentPosition: currentPositionValue }),
                 };
               }
             }

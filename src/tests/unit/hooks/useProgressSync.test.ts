@@ -5,7 +5,7 @@
 
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { useProgressSync } from "@shared/hooks/useProgressSync";
-import { ProgressService } from "@shared/services/ProgressService";
+import { type ProgressService } from "@shared/services/ProgressService";
 import type { UserStats, CardProgress } from "@shared/store/slices/types";
 
 // Mock progress actions
@@ -119,7 +119,7 @@ Object.defineProperty(window, "removeEventListener", {
 /**
  *
  */
-const triggerOnlineEvent = () => {
+const triggerOnlineEvent = (): void => {
   // Mock navigator.onLine
   Object.defineProperty(navigator, "onLine", {
     writable: true,
@@ -134,7 +134,7 @@ const triggerOnlineEvent = () => {
 /**
  *
  */
-const triggerOfflineEvent = () => {
+const triggerOfflineEvent = (): void => {
   // Mock navigator.onLine
   Object.defineProperty(navigator, "onLine", {
     writable: true,

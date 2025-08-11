@@ -5,4 +5,4 @@
 
 export { getLogger, createLogger, resetLogger } from "./Logger";
 export { LogLevel } from "./types";
-export type { ILogger, LogEntry, LoggerConfig, LogFilter } from "./types";
+export type { Logger, LogEntry, LoggerConfig, LogFilter } from "./types";

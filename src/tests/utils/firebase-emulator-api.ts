@@ -5,7 +5,7 @@
 
 // Node.js 18+ has native fetch, no import needed
 
-const EMULATOR_HOST = process.env.FIRESTORE_EMULATOR_HOST || "localhost:8080";
+const EMULATOR_HOST = process.env['FIRESTORE_EMULATOR_HOST'] || "localhost:8080";
 const PROJECT_ID = "endgame-trainer-test";
 
 /**

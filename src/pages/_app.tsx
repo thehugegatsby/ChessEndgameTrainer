@@ -13,7 +13,7 @@ import { StoreProvider } from "@shared/store/StoreContext";
  * @param root0.Component
  * @param root0.pageProps
  */
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({ Component, pageProps }: AppProps): React.JSX.Element {
   return (
     <StoreProvider>
       <Component {...pageProps} />

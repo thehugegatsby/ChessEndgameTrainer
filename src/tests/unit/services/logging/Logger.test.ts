@@ -14,12 +14,12 @@
 import { createLogger, resetLogger } from "@shared/services/logging/Logger";
 import {
   LogLevel,
-  LogEntry,
-  ILogTransport,
+  type LogEntry,
+  type LogTransport,
 } from "@shared/services/logging/types";
 
 // Mock transport for testing
-class MockTransport implements ILogTransport {
+class MockTransport implements LogTransport {
   public logs: LogEntry[] = [];
 
   /**

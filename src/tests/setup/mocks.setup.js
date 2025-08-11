@@ -58,7 +58,7 @@ if (!global.AbortController) {
     /**
      * Abort the signal
      */
-    abort() {
+    abort(): void {
       this.signal.aborted = true;
     }
   };

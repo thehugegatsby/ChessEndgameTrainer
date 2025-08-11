@@ -3,7 +3,7 @@
  * Creates test positions with realistic data
  */
 
-import { EndgamePosition } from "@shared/types/endgame";
+import { type EndgamePosition } from "@shared/types/endgame";
 
 export class PositionFactory {
   private static idCounter = 1000;

@@ -5,7 +5,7 @@
  * Part of Phase 3 E2E optimization - bulk migration from timeout-based to deterministic waiting.
  */
 
-import { Page } from '@playwright/test';
+import { type Page } from '@playwright/test';
 import { getLogger } from '@shared/services/logging';
 
 const logger = getLogger().setContext('E2E-DeterministicWaiting');

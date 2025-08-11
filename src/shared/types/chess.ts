@@ -4,10 +4,12 @@
  */
 
 import {
-  Chess,
-  Square as ChessJsSquare,
-  PieceSymbol as ChessJsPieceSymbol,
+  type Chess,
+  type Square as ChessJsSquare,
+  type PieceSymbol as ChessJsPieceSymbol,
+  type Move as ChessJsMove,
 } from "chess.js";
+import { type ChessServiceEvent } from "../services/ChessService";
 
 // Basic chess types
 export type Square = ChessJsSquare; // Use chess.js Square type directly
@@ -81,7 +83,7 @@ export type ValidatedMove = DomainMove & {
  * ```
  */
 export function createValidatedMove(
-  chessMove: import("chess.js").Move,
+  chessMove: ChessJsMove,
   fenBefore: string,
   fenAfter: string,
 ): ValidatedMove {
@@ -90,8 +92,8 @@ export function createValidatedMove(
     from: chessMove.from,
     to: chessMove.to,
     piece: chessMove.piece,
-    captured: chessMove.captured,
-    promotion: chessMove.promotion as "q" | "r" | "b" | "n" | undefined,
+    ...(chessMove.captured !== undefined && { captured: chessMove.captured }),
+    ...(chessMove.promotion !== undefined && { promotion: chessMove.promotion as "q" | "r" | "b" | "n" }),
     flags: chessMove.flags,
     san: chessMove.san,
     lan: chessMove.lan,
@@ -100,8 +102,8 @@ export function createValidatedMove(
     timestamp: Date.now(),
 
     // Helper methods
-    isCapture: () => !!chessMove.captured,
-    isPromotion: () => !!chessMove.promotion,
+    isCapture: () => Boolean(chessMove.captured),
+    isPromotion: () => Boolean(chessMove.promotion),
     isEnPassant: () => chessMove.flags.includes("e"),
     isKingsideCastle: () => chessMove.flags.includes("k"),
     isQueensideCastle: () => chessMove.flags.includes("q"),
@@ -163,4 +165,4 @@ export type PGN = string;
 
 // Aliases for common naming patterns
 export type ChessMove = Move;
-export type ChessEvent = import("../services/ChessService").ChessServiceEvent;
+export type ChessEvent = ChessServiceEvent;

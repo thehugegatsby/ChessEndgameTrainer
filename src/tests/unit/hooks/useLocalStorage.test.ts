@@ -7,7 +7,7 @@
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { useLocalStorageWithState } from "@shared/hooks/useLocalStorage";
 import { createTestContainer } from "../../utils";
-import type { IPlatformStorage } from "@shared/services/platform/types";
+import type { PlatformStorage } from "@shared/services/platform/types";
 
 // Mock logger
 jest.mock("@shared/services/logging", () => ({
@@ -19,7 +19,7 @@ jest.mock("@shared/services/logging", () => ({
 
 // Test container and mock service
 let testContainer: ReturnType<typeof createTestContainer>;
-let mockStorageService: IPlatformStorage;
+let mockStorageService: PlatformStorage;
 
 // Mock the platform service module to use our test container
 jest.mock("@shared/services/platform", () => ({

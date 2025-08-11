@@ -94,7 +94,7 @@ export const PromotionDialog: React.FC<PromotionDialogProps> = ({
   useEffect(() => {
     if (!isOpen) return;
 
-    const handleKeydown = (e: KeyboardEvent) => {
+    const handleKeydown = (e: KeyboardEvent): void => {
       if (e.key === "Escape") {
         onCancel();
       }
@@ -118,7 +118,7 @@ export const PromotionDialog: React.FC<PromotionDialogProps> = ({
   useEffect(() => {
     if (!isOpen) return;
 
-    const handleClickOutside = (e: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent): void => {
       // Check if click is outside all promotion buttons
       const target = e.target as Node;
       const allButtons = document.querySelectorAll('[data-promotion-button="true"]');

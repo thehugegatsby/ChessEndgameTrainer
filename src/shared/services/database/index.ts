@@ -2,12 +2,12 @@
  * Database service exports
  */
 
-// Export interfaces
+// Export interfaces and implementation
 export type {
-  IPositionService,
-  IPositionServiceConfig,
+  PositionService,
+  PositionServiceConfig,
 } from "./IPositionService";
-export { PositionService } from "./PositionService";
+// Note: PositionService class is exported from ./PositionService.ts with alias
 
 // Export server-side helpers
 export {

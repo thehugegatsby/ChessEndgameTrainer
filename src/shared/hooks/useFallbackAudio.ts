@@ -14,7 +14,10 @@ import type { ChessSoundType } from './useChessAudio';
 /**
  * Hook for fallback audio using Web Audio API
  */
-export const useFallbackAudio = (volume: number = 0.7) => {
+export const useFallbackAudio = (volume: number = 0.7): { 
+  playFallbackSound: (soundType: ChessSoundType) => void;
+  isSupported: boolean;
+} => {
   const logger = getLogger();
 
   /**
@@ -67,11 +70,11 @@ export const useFallbackAudio = (volume: number = 0.7) => {
    * Check if Web Audio API is supported
    */
   const isSupported = useCallback((): boolean => {
-    return !!(window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext);
+    return Boolean(window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext);
   }, []);
 
   return {
     playFallbackSound,
-    isSupported,
+    isSupported: isSupported(),
   };
 };

@@ -22,11 +22,12 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { Move } from "chess.js";
+import { type Move } from "chess.js";
 import { Chess } from "chess.js";
 import { MoveAnalysis } from "./MoveAnalysis";
 import { AnalysisDetails } from "./AnalysisDetails";
 import { DIMENSIONS } from "@shared/constants";
+import type { MoveAnalysisData } from "./types";
 import { tablebaseService } from "@shared/services/TablebaseService";
 import { getLogger } from "@shared/services/logging";
 
@@ -49,23 +50,7 @@ interface AnalysisPanelProps {
   isVisible: boolean;
 }
 
-/**
- * Internal data structure for move analysis
- *
- * @interface MoveAnalysisData
- * @private
- *
- * @property {Move} move - The chess move object
- * @property {number} [evaluation] - Position evaluation after the move
- * @property {string} [bestMove] - Best move according to analysis
- * @property {string} [classification] - Quality classification of the move
- */
-interface MoveAnalysisData {
-  move: Move;
-  evaluation?: number;
-  bestMove?: string;
-  classification?: "excellent" | "good" | "inaccuracy" | "mistake" | "blunder";
-}
+// MoveAnalysisData interface moved to ./types.ts to prevent duplicate definitions
 
 /**
  * Game analysis panel component
@@ -112,7 +97,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
     useEffect(() => {
       if (!isVisible || history.length === 0) return;
 
-      const loadAnalysisData = async () => {
+      const loadAnalysisData = async (): Promise<void> => {
         setIsLoading(true);
         try {
           // Reconstruct all FENs from move history
@@ -130,6 +115,15 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
           const analysisPromises = history.map(async (move, index) => {
             const fenBefore = positions[index];
             const fenAfter = positions[index + 1];
+
+            if (!fenBefore || !fenAfter) {
+              logger.warn("Missing FEN positions for analysis", { 
+                index, 
+                fenBefore: fenBefore ?? "[undefined]", 
+                fenAfter: fenAfter ?? "[undefined]" 
+              });
+              return null;
+            }
 
             const [evalBefore, evalAfter, topMoves] = await Promise.all([
               tablebaseService.getEvaluation(fenBefore),
@@ -160,6 +154,13 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
               else classification = "good"; // Improved position
             }
 
+            const bestMoveValue = topMoves.isAvailable &&
+                                   topMoves.moves &&
+                                   topMoves.moves.length > 0 &&
+                                   topMoves.moves[0]
+              ? topMoves.moves[0].san
+              : undefined;
+
             return {
               move,
               evaluation:
@@ -167,17 +168,20 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
                   ? evalAfter.result.wdl
                   : 0,
               classification,
-              bestMove:
-                topMoves.isAvailable &&
-                topMoves.moves &&
-                topMoves.moves.length > 0
-                  ? topMoves.moves[0].san
-                  : undefined,
+              ...(bestMoveValue !== undefined && { bestMove: bestMoveValue }),
             };
           });
 
           const results = await Promise.all(analysisPromises);
-          setAnalysisData(results);
+          // Create proper type guard for complex MoveAnalysisData filtering
+          const isValidAnalysisData = (result: unknown): result is MoveAnalysisData => {
+            return result !== null && 
+                   typeof result === 'object' && 
+                   'move' in result && 
+                   'classification' in result;
+          };
+          const validResults = results.filter(isValidAnalysisData).filter((result): result is NonNullable<typeof result> => result !== null);
+          setAnalysisData(validResults);
         } catch (error) {
           logger.error("Failed to load analysis data:", error);
           // Fallback to empty analysis
@@ -186,7 +190,6 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
               move,
               evaluation: 0,
               classification: "good" as const,
-              bestMove: undefined,
             })),
           );
         } finally {

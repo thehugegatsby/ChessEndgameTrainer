@@ -38,7 +38,7 @@
 
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useProgressActions } from '@shared/store/hooks/useProgressStore';
-import { ProgressService } from '@shared/services/ProgressService';
+import { type ProgressService } from '@shared/services/ProgressService';
 import { getLogger } from '@shared/services/logging/Logger';
 import type { UserStats, CardProgress } from '@shared/store/slices/types';
 import type { WithFieldValue } from 'firebase/firestore';
@@ -115,11 +115,26 @@ const DEFAULT_CONFIG: Required<ProgressSyncConfig> = {
  * @param config - Optional configuration for sync behavior
  * @returns Sync functions and status information
  */
+/**
+ * Return type for useProgressSync hook
+ */
+export type UseProgressSyncReturn = {
+  readonly syncUserStats: (updates: Partial<WithFieldValue<UserStats>>) => void;
+  readonly syncCardProgress: (positionId: string, progress: CardProgress) => void;
+  readonly syncBatch: (statsUpdate: Partial<WithFieldValue<UserStats>>, cardUpdates: Array<{ positionId: string; progress: CardProgress }>) => void;
+  readonly forceSync: () => Promise<void>;
+  readonly clearQueue: () => void;
+  readonly syncStatus: SyncStatus;
+  readonly hasPendingChanges: boolean;
+  readonly config: Required<ProgressSyncConfig>;
+  readonly getPendingOperations: () => Array<{ id: string; type: string; timestamp: number; retries: number }>;
+};
+
 export function useProgressSync(
   userId: string | null,
   progressService: ProgressService,
   config: ProgressSyncConfig = {}
-) {
+): UseProgressSyncReturn {
   const mergedConfig = useMemo(() => ({ ...DEFAULT_CONFIG, ...config }), [config]);
   const progressActions = useProgressActions();
   
@@ -600,13 +615,13 @@ export function useProgressSync(
   
   // Auto-retry when coming back online
   useEffect(() => {
-    const handleOnline = () => {
+    const handleOnline = (): void => {
       logger.info('Network connection restored, processing pending queue');
       updateSyncStatus({ status: 'idle' });
       debouncedProcessQueue();
     };
     
-    const handleOffline = () => {
+    const handleOffline = (): void => {
       logger.info('Network connection lost');
       updateSyncStatus({ status: 'offline' });
     };
@@ -639,8 +654,10 @@ export function useProgressSync(
     
     // Status information
     syncStatus,
-    lastSync: syncStatus.lastSync,
-    pendingOperations: getPendingOperations(),
+    hasPendingChanges: syncStatus.pendingCount > 0,
+    
+    // Debug functions
+    getPendingOperations,
     
     // Configuration
     config: mergedConfig,
@@ -650,7 +667,7 @@ export function useProgressSync(
 /**
  * Lightweight version of useProgressSync for components that only need status
  */
-export function useProgressSyncStatus() {
+export function useProgressSyncStatus(): Pick<SyncStatus, 'status' | 'lastSync' | 'error'> {
   const [syncStatus] = useState<Pick<SyncStatus, 'status' | 'lastSync' | 'error'>>({
     status: 'idle',
     lastSync: null,

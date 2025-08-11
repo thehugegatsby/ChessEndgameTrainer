@@ -34,7 +34,7 @@ interface TestRootState {
 }
 
 // Helper to create a test store with only the progress slice
-const createTestStore = () => {
+const createTestStore = (): ReturnType<typeof create<TestRootState>> => {
   return create<TestRootState>()(
     immer((set, get, api) => {
       // Create the progress slice

@@ -22,54 +22,54 @@ export interface ToastOptions {
 /**
  * Show a success toast
  */
-export const showSuccessToast = (message: string, options?: ToastOptions) => {
+export const showSuccessToast = (message: string, options?: ToastOptions): string | number => {
   return toast.success(message, {
     duration: options?.duration ?? 4000,
-    description: options?.description,
-    id: options?.id,
+    ...(options?.description !== undefined && { description: options.description }),
+    ...(options?.id !== undefined && { id: options.id }),
   });
 };
 
 /**
  * Show an error toast  
  */
-export const showErrorToast = (message: string, options?: ToastOptions) => {
+export const showErrorToast = (message: string, options?: ToastOptions): string | number => {
   return toast.error(message, {
     duration: options?.duration ?? 6000, // Longer for errors
-    description: options?.description,
-    id: options?.id,
+    ...(options?.description !== undefined && { description: options.description }),
+    ...(options?.id !== undefined && { id: options.id }),
   });
 };
 
 /**
  * Show an info toast
  */
-export const showInfoToast = (message: string, options?: ToastOptions) => {
+export const showInfoToast = (message: string, options?: ToastOptions): string | number => {
   return toast.info(message, {
     duration: options?.duration ?? 4000,
-    description: options?.description,
-    id: options?.id,
+    ...(options?.description !== undefined && { description: options.description }),
+    ...(options?.id !== undefined && { id: options.id }),
   });
 };
 
 /**
  * Show a warning toast
  */
-export const showWarningToast = (message: string, options?: ToastOptions) => {
+export const showWarningToast = (message: string, options?: ToastOptions): string | number => {
   return toast.warning(message, {
     duration: options?.duration ?? 5000,
-    description: options?.description,
-    id: options?.id,
+    ...(options?.description !== undefined && { description: options.description }),
+    ...(options?.id !== undefined && { id: options.id }),
   });
 };
 
 /**
  * Show a loading toast
  */
-export const showLoadingToast = (message: string, options?: ToastOptions) => {
+export const showLoadingToast = (message: string, options?: ToastOptions): string | number => {
   return toast.loading(message, {
-    description: options?.description,
-    id: options?.id,
+    ...(options?.description !== undefined && { description: options.description }),
+    ...(options?.id !== undefined && { id: options.id }),
   });
 };
 
@@ -84,27 +84,27 @@ export const showPromiseToast = <T>(
     error: string | ((error: unknown) => string);
   },
   options?: ToastOptions
-) => {
+): ReturnType<typeof toast.promise> => {
   return toast.promise(promise, {
     loading: messages.loading,
     success: messages.success,
     error: messages.error,
-    id: options?.id,
-    description: options?.description,
+    ...(options?.id !== undefined && { id: options.id }),
+    ...(options?.description !== undefined && { description: options.description }),
   });
 };
 
 /**
  * Dismiss a specific toast
  */
-export const dismissToast = (id: string | number) => {
+export const dismissToast = (id: string | number): void => {
   toast.dismiss(id);
 };
 
 /**
  * Dismiss all toasts
  */
-export const dismissAllToasts = () => {
+export const dismissAllToasts = (): void => {
   toast.dismiss();
 };
 
@@ -112,24 +112,24 @@ export const dismissAllToasts = () => {
  * Chess-specific toast variants with German text
  */
 export const chessToasts = {
-  moveSuccess: (move: string) => 
+  moveSuccess: (move: string): string | number => 
     showSuccessToast('Zug ausgeführt', { 
       description: `${move} gespielt`,
       duration: 2000 
     }),
     
-  moveError: (error: string) =>
+  moveError: (error: string): string | number =>
     showErrorToast('Ungültiger Zug', {
       description: error,
       duration: 4000
     }),
     
-  analysisStarted: () =>
+  analysisStarted: (): string | number =>
     showLoadingToast('Analysiere Position...', {
       id: 'analysis'
     }),
     
-  analysisComplete: (evaluation: string) => {
+  analysisComplete: (evaluation: string): void => {
     dismissToast('analysis');
     showSuccessToast('Analyse abgeschlossen', {
       description: evaluation,
@@ -137,7 +137,7 @@ export const chessToasts = {
     });
   },
   
-  analysisFailed: (error: string) => {
+  analysisFailed: (error: string): void => {
     dismissToast('analysis');
     showErrorToast('Analyse fehlgeschlagen', {
       description: error,
@@ -145,31 +145,31 @@ export const chessToasts = {
     });
   },
   
-  promotionSuccess: (piece: string) =>
+  promotionSuccess: (piece: string): string | number =>
     showSuccessToast('Bauernumwandlung', {
       description: `Umgewandelt in ${piece}`,
       duration: 2000
     }),
     
-  trainingSessionComplete: (moves: number) =>
+  trainingSessionComplete: (moves: number): string | number =>
     showSuccessToast('Trainingssession abgeschlossen!', {
       description: `${moves} Züge gespielt`,
       duration: 4000
     }),
     
-  positionSaved: () =>
+  positionSaved: (): string | number =>
     showSuccessToast('Position gespeichert', {
       duration: 2000
     }),
     
-  positionLoaded: () =>
+  positionLoaded: (): string | number =>
     showInfoToast('Position geladen', {
       duration: 2000  
     }),
 };
 
 // Legacy compatibility - can be gradually migrated away from
-export const showToast = (type: ToastType, message: string, options?: ToastOptions) => {
+export const showToast = (type: ToastType, message: string, options?: ToastOptions): string | number => {
   switch (type) {
     case 'success':
       return showSuccessToast(message, options);

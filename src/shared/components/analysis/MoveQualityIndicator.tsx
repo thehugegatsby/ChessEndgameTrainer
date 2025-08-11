@@ -176,7 +176,7 @@ export const MoveQualityIndicator: React.FC<MoveQualityIndicatorProps> = ({
       <button
         onClick={handleAssess}
         className="ml-1 text-xs hover:text-red-400 transition-colors opacity-60 hover:opacity-100"
-        title={`Error: ${error.message}. Click to retry.`}
+        title={`Error: ${error}. Click to retry.`}
       >
         ❗️
       </button>

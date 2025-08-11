@@ -22,7 +22,7 @@
  * ```
  */
 
-import { GameSlice, GameState, GameActions } from "./types";
+import { type GameSlice, type GameState, type GameActions } from "./types";
 import type { ValidatedMove } from "@shared/types";
 import { chessService } from "@shared/services/ChessService";
 import { getLogger } from "@shared/services/logging";
@@ -437,7 +437,7 @@ export const createGameActions = (
  * @param moveFunction - Function that executes the actual move
  * @returns The validated move or null if failed
  */
-function _updateGameState(source: string, moveFunction: () => ValidatedMove | null) {
+function _updateGameState(source: string, moveFunction: () => ValidatedMove | null): ValidatedMove | null {
   try {
     const result = moveFunction();
     

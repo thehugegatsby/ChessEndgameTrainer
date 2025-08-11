@@ -60,7 +60,7 @@ export class OrchestratorTablebaseService {
    * 
    * @returns Service metrics including cache stats
    */
-  static getMetrics() {
+  static getMetrics(): { cacheHitRate: number; totalApiCalls: number; errorBreakdown: Record<string, number>; dedupedRequests: number } {
     return tablebaseService.getMetrics();
   }
 

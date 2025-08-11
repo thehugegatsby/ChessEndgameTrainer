@@ -40,7 +40,7 @@ export const TablebasePanelWithBoundary: React.FC<TablebasePanelProps> = (
 ) => {
   return (
     <ErrorBoundary
-      fallback={<TablebaseErrorFallback className={props.className} />}
+      fallback={<TablebaseErrorFallback {...(props.className && { className: props.className })} />}
       onError={(error) => {
         logger.error("TablebasePanel error", error);
       }}

@@ -71,15 +71,14 @@ class AnalysisService {
     const evaluation: PositionAnalysis = {
       fen,
       evaluation: displayData.score,
-      mateInMoves:
-        displayData.isWin && tablebaseResult.result.dtz
-          ? Math.abs(tablebaseResult.result.dtz)
-          : undefined,
+      ...(displayData.isWin && tablebaseResult.result.dtz && {
+        mateInMoves: Math.abs(tablebaseResult.result.dtz),
+      }),
       tablebase: {
         isTablebasePosition: true,
         wdlAfter: tablebaseResult.result.wdl,
         category: tablebaseResult.result.category as "win" | "draw" | "loss",
-        dtz: tablebaseResult.result.dtz ?? undefined,
+        ...(tablebaseResult.result.dtz !== null && { dtz: tablebaseResult.result.dtz }),
         topMoves:
           topMoves.isAvailable && topMoves.moves
             ? topMoves.moves.map((move) => ({
@@ -123,7 +122,7 @@ class AnalysisService {
       return {
         fen,
         evaluation: 0,
-        tablebase: undefined,
+        // tablebase: undefined - omit instead of undefined
       };
     }
 

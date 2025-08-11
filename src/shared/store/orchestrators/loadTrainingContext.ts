@@ -155,16 +155,17 @@ export const loadTrainingContext = async (
       ...position,
       // Add training-specific fields with sensible defaults
       colorToTrain: position.sideToMove || "white",
-      targetOutcome:
-        position.goal === "win"
-          ? position.sideToMove === "white"
-            ? "1-0"
-            : "0-1"
-          : position.goal === "draw"
-            ? "1/2-1/2"
-            : "1-0", // Default to win for white
-      timeLimit: undefined, // No time limit by default
-      chapterId: undefined, // Will be set if part of a chapter
+      targetOutcome: (() => {
+        if (position.goal === "win") {
+          return position.sideToMove === "white" ? "1-0" : "0-1";
+        }
+        if (position.goal === "draw") {
+          return "1/2-1/2";
+        }
+        return "1-0"; // Default to win for white
+      })(),
+      // timeLimit: undefined - omit instead of undefined
+      // chapterId: undefined - omit instead of undefined
     };
 
     // Step 4: Set the training position and player turn
@@ -215,16 +216,17 @@ export const loadTrainingContext = async (
         return {
           ...pos,
           colorToTrain: pos.sideToMove || "white",
-          targetOutcome:
-            pos.goal === "win"
-              ? pos.sideToMove === "white"
-                ? "1-0"
-                : "0-1"
-              : pos.goal === "draw"
-                ? "1/2-1/2"
-                : "1-0",
-          timeLimit: undefined,
-          chapterId: undefined,
+          targetOutcome: (() => {
+            if (pos.goal === "win") {
+              return pos.sideToMove === "white" ? "1-0" : "0-1";
+            }
+            if (pos.goal === "draw") {
+              return "1/2-1/2";
+            }
+            return "1-0";
+          })(),
+          // timeLimit: undefined - omit instead of undefined
+          // chapterId: undefined - omit instead of undefined
         };
       };
       

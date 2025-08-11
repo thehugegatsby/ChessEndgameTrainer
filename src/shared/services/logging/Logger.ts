@@ -4,13 +4,13 @@
  */
 
 import {
-  ILogger,
+  type Logger,
   LogLevel,
-  LogEntry,
-  LoggerConfig,
-  LogFilter,
-  ILogTransport,
-  ILogFormatter,
+  type LogEntry,
+  type LoggerConfig,
+  type LogFilter,
+  type LogTransport,
+  type LogFormatter,
 } from "./types";
 import { getPlatformDetection } from "../platform";
 
@@ -25,7 +25,7 @@ const DEFAULT_CONFIG: LoggerConfig = {
 };
 
 /** Default log formatter - formats entries as: timestamp level [context] message {data} */
-class DefaultLogFormatter implements ILogFormatter {
+class DefaultLogFormatter implements LogFormatter {
   format(entry: LogEntry): string {
     const timestamp = entry.timestamp.toISOString();
     const level = LogLevel[entry.level];
@@ -54,10 +54,10 @@ class DefaultLogFormatter implements ILogFormatter {
 }
 
 /** Console transport - outputs to browser/Node.js console */
-class ConsoleTransport implements ILogTransport {
-  private formatter: ILogFormatter;
+class ConsoleTransport implements LogTransport {
+  private formatter: LogFormatter;
 
-  constructor(formatter?: ILogFormatter) {
+  constructor(formatter?: LogFormatter) {
     this.formatter = formatter || new DefaultLogFormatter();
   }
 
@@ -106,7 +106,7 @@ class ConsoleTransport implements ILogTransport {
 }
 
 /** Remote transport - batches and sends logs to remote endpoint */
-class RemoteTransport implements ILogTransport {
+class RemoteTransport implements LogTransport {
   private buffer: LogEntry[] = [];
   private batchSize = 50;
   private endpoint: string;
@@ -168,11 +168,11 @@ class RemoteTransport implements ILogTransport {
  * Main Logger implementation
  * @see docs/services/Logger.md for usage examples and complete documentation
  */
-export class Logger implements ILogger {
+export class DefaultLogger implements Logger {
   private config: LoggerConfig;
-  private context?: string;
+  private context?: string | undefined;
   private logs: LogEntry[] = [];
-  private transports: ILogTransport[] = [];
+  private transports: LogTransport[] = [];
   private timers: Map<string, number> = new Map();
   private fields: Record<string, unknown> = {};
 
@@ -227,7 +227,7 @@ export class Logger implements ILogger {
       level,
       message,
       timestamp: new Date(),
-      context: this.context,
+      ...(this.context !== undefined && { context: this.context }),
       data: { ...this.fields, ...(data as Record<string, unknown>) },
     };
 
@@ -271,8 +271,8 @@ export class Logger implements ILogger {
   }
 
   /** Creates a new logger instance with the specified context */
-  setContext(context: string): ILogger {
-    const contextLogger = new Logger({
+  setContext(context: string): Logger {
+    const contextLogger = new DefaultLogger({
       ...this.config,
       transports: this.transports,
     });
@@ -348,8 +348,8 @@ export class Logger implements ILogger {
   }
 
   /** Creates a new logger instance with additional persistent fields */
-  withFields(fields: Record<string, unknown>): ILogger {
-    const fieldLogger = new Logger({
+  withFields(fields: Record<string, unknown>): Logger {
+    const fieldLogger = new DefaultLogger({
       ...this.config,
       transports: this.transports,
     });
@@ -369,9 +369,9 @@ export class Logger implements ILogger {
 let loggerInstance: Logger | null = null;
 
 /** Retrieves the global singleton logger instance */
-export function getLogger(): ILogger {
+export function getLogger(): Logger {
   if (!loggerInstance) {
-    loggerInstance = new Logger();
+    loggerInstance = new DefaultLogger();
 
     // Add platform info to all logs
     const platform = getPlatformDetection();
@@ -388,8 +388,8 @@ export function getLogger(): ILogger {
 }
 
 /** Creates a new logger instance with custom configuration */
-export function createLogger(config?: Partial<LoggerConfig>): ILogger {
-  return new Logger(config);
+export function createLogger(config?: Partial<LoggerConfig>): Logger {
+  return new DefaultLogger(config);
 }
 
 /** Resets the global logger instance (primarily for testing) */

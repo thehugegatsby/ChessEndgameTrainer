@@ -171,7 +171,7 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
             draft.training.moveSuccessDialog = {
               isOpen: true,
               promotionPiece: promotionPieceLabel,
-              moveDescription: promotionInfo.moveDescription,
+              ...(promotionInfo.moveDescription !== undefined && { moveDescription: promotionInfo.moveDescription }),
             };
           });
         }

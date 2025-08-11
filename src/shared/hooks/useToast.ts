@@ -1,17 +1,22 @@
 import { useState, useCallback } from "react";
 
 /**
+ * Toast type definitions
+ */
+type ToastType = "success" | "error" | "info" | "warning";
+
+/**
  * Toast notification object
  * @interface Toast
  * @property {string} id - Unique identifier for the toast
  * @property {string} message - Message to display
- * @property {'success' | 'error' | 'info' | 'warning'} type - Toast type for styling
+ * @property {ToastType} type - Toast type for styling
  * @property {number} [duration] - Auto-dismiss duration in milliseconds
  */
 interface Toast {
   id: string;
   message: string;
-  type: "success" | "error" | "info" | "warning";
+  type: ToastType;
   duration?: number;
 }
 
@@ -48,7 +53,16 @@ interface Toast {
  * @returns {Function} returns.showWarning - Show a warning toast
  * @returns {Function} returns.clearAllToasts - Remove all active toasts
  */
-export const useToast = () => {
+export const useToast = (): {
+  toasts: Toast[];
+  addToast: (message: string, type: ToastType, duration?: number) => void;
+  removeToast: (id: string) => void;
+  showSuccess: (message: string, duration?: number) => void;
+  showError: (message: string, duration?: number) => void;
+  showInfo: (message: string, duration?: number) => void;
+  showWarning: (message: string, duration?: number) => void;
+  clearAllToasts: () => void;
+} => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const removeToast = useCallback((id: string) => {
@@ -66,7 +80,7 @@ export const useToast = () => {
         id,
         message,
         type,
-        duration,
+        ...(duration !== undefined && { duration }),
       };
 
       setToasts((prev) => [...prev, newToast]);

@@ -4,26 +4,26 @@
  */
 
 import {
-  IPositionRepository,
-  IPositionRepositoryConfig,
+  type PositionRepository,
+  type PositionRepositoryConfig,
 } from "../IPositionRepository";
 import { getLogger } from "@shared/services/logging";
 
 const logger = getLogger().setContext("MockPositionRepository");
 import {
-  EndgamePosition,
-  EndgameCategory,
-  EndgameChapter,
+  type EndgamePosition,
+  type EndgameCategory,
+  type EndgameChapter,
 } from "@shared/types";
 
-export class MockPositionRepository implements IPositionRepository {
+export class MockPositionRepository implements PositionRepository {
   private positions: Map<number, EndgamePosition> = new Map();
   private categories: Map<string, EndgameCategory> = new Map();
   private chapters: Map<string, EndgameChapter> = new Map();
-  private config: IPositionRepositoryConfig;
+  private config: PositionRepositoryConfig;
   private nextId: number = 1;
 
-  constructor(config: IPositionRepositoryConfig = {}) {
+  constructor(config: PositionRepositoryConfig = {}) {
     this.config = config;
   }
 
@@ -51,7 +51,7 @@ export class MockPositionRepository implements IPositionRepository {
     }
   }
 
-  // IPositionRepository implementation
+  // PositionRepository implementation
   async getPosition(id: number): Promise<EndgamePosition | null> {
     const position = this.positions.get(id) || null;
     if (position) {

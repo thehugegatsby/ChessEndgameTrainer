@@ -1,4 +1,4 @@
-import { Page, expect } from "@playwright/test";
+import { type Page, expect } from "@playwright/test";
 import { getLogger } from "@shared/services/logging";
 
 /**
@@ -194,7 +194,7 @@ export class ChessboardPage {
     const hasEvaluation = await this.page.evaluate(() => {
       const store = (window as any).__e2e_store;
       const state = store.getState?.();
-      return !!(state?.tablebase?.currentEvaluation || 
+      return Boolean(state?.tablebase?.currentEvaluation || 
                 state?.tablebase?.evaluations?.length > 0 ||
                 state?.tablebase?.tablebaseMove);
     });

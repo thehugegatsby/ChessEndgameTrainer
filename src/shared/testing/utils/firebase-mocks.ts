@@ -7,13 +7,13 @@
 const mockDataStore = new Map<string, Map<string, any>>();
 
 // Helper functions
-export const createMockDoc = (exists: boolean, data: any = {}) => ({
+export const createMockDoc = (exists: boolean, data: any = {}): any => ({
   exists: () => exists,
   data: () => data,
   id: data.id || "1",
 });
 
-export const createMockSnapshot = (docs: any[] = []) => ({
+export const createMockSnapshot = (docs: any[] = []): any => ({
   empty: docs.length === 0,
   size: docs.length,
   docs: docs.map((data) => ({
@@ -42,7 +42,7 @@ const mockGetDoc = jest.fn(async (docRef: any) => {
     return createMockDoc(false);
   }
   const docData = collectionData.get(docRef._id);
-  return createMockDoc(!!docData, docData);
+  return createMockDoc(Boolean(docData), docData);
 });
 
 const mockCollection = jest.fn((_, collectionName: string) => ({
@@ -137,7 +137,7 @@ const mockLimit = jest.fn((value: number) => ({
 }));
 
 // Reset function to clear all mock state
-export const resetMockFirestore = () => {
+export const resetMockFirestore = (): void => {
   mockDataStore.clear();
   mockDoc.mockClear();
   mockGetDoc.mockClear();
@@ -150,15 +150,18 @@ export const resetMockFirestore = () => {
 };
 
 // Test helper to set document data
-export const setMockDoc = (collection: string, id: string, data: any) => {
+export const setMockDoc = (collection: string, id: string, data: any): void => {
   if (!mockDataStore.has(collection)) {
     mockDataStore.set(collection, new Map());
   }
-  mockDataStore.get(collection)!.set(id, { ...data, id });
+  const collectionData = mockDataStore.get(collection);
+  if (collectionData) {
+    collectionData.set(id, { ...data, id });
+  }
 };
 
 // Test helper to set collection data
-export const setMockCollection = (collection: string, documents: any[]) => {
+export const setMockCollection = (collection: string, documents: any[]): void => {
   const collectionMap = new Map();
   documents.forEach((doc) => {
     collectionMap.set(doc.id.toString(), doc);
@@ -167,7 +170,7 @@ export const setMockCollection = (collection: string, documents: any[]) => {
 };
 
 // Main factory function
-export const createMockFirestore = () => {
+export const createMockFirestore = (): any => {
   return {
     doc: mockDoc,
     getDoc: mockGetDoc,

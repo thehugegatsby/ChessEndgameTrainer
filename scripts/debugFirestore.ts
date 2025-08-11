@@ -40,7 +40,7 @@ async function debugFirestore() {
     snapshot.forEach((doc) => {
       const data = doc.data();
       console.log(
-        `- Position ${doc.id}: "${data.title}" (data.id: ${data.id})`,
+        `- Position ${doc.id}: "${data['title']}" (data.id: ${data['id']})`,
       );
     });
   } catch (error) {

@@ -5,11 +5,11 @@
 
 import { WebPlatformService } from "@shared/services/platform/web/WebPlatformService";
 import {
-  IPlatformService,
-  Platform,
-  DeviceInfo,
-  MemoryInfo,
-  NetworkStatus,
+  type PlatformService,
+  type Platform,
+  type DeviceInfo,
+  type MemoryInfo,
+  type NetworkStatus,
 } from "@shared/services/platform/types";
 import { STORAGE, TABLEBASE } from "@shared/constants/index";
 

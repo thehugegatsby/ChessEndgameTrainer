@@ -19,6 +19,7 @@
 import { getLogger } from '@shared/services/logging/Logger';
 import { chessService } from '@shared/services/ChessService';
 import type { StoreApi } from '@shared/store/StoreContext';
+import type { ValidatedMove } from '@shared/types/chess';
 
 const logger = getLogger().setContext('TrainingService');
 
@@ -78,15 +79,31 @@ export class TrainingService {
       if (move.includes("-")) {
         // Format: 'e2-e4' or 'e7-e8=D'
         const [from, toPart] = move.split("-");
+        if (!from || !toPart) {
+          throw new Error(`Invalid move format: ${move}`);
+        }
         if (toPart.includes("=")) {
-          const [to, promotionPart] = toPart.split("=");
-          let promotion = promotionPart;
+          const parts = toPart.split("=");
+          const to = parts[0];
+          let promotion = parts[1];
+          
+          // Guard against undefined to/promotion from array access
+          if (!to) {
+            throw new Error(`Invalid promotion move format: ${move}`);
+          }
+          
           // Convert German to English notation
           if (promotion === "D") promotion = "q"; // Dame -> Queen
           if (promotion === "T") promotion = "r"; // Turm -> Rook
           if (promotion === "L") promotion = "b"; // Läufer -> Bishop
           if (promotion === "S") promotion = "n"; // Springer -> Knight
-          moveObj = { from, to, promotion };
+          
+          // Guard against undefined promotion for exactOptionalPropertyTypes
+          if (promotion) {
+            moveObj = { from, to, promotion };
+          } else {
+            moveObj = { from, to };
+          }
         } else {
           moveObj = { from, to: toPart };
         }
@@ -152,7 +169,20 @@ export class TrainingService {
    * @param api - Zustand store API
    * @returns Current game state snapshot
    */
-  getGameState(api: StoreApi) {
+  getGameState(api: StoreApi): {
+    fen: string;
+    turn: 'w' | 'b';
+    moveCount: number;
+    pgn: string;
+    isGameOver: boolean;
+    gameOverReason: string | undefined;
+    history: ValidatedMove[];
+    evaluation: undefined;
+    isCheck: boolean;
+    isCheckmate: boolean;
+    isDraw: boolean;
+    lastMove: ValidatedMove | undefined;
+  } {
     const state = api.getState();
     return {
       fen: state.game.currentFen || chessService.getFen(),
@@ -160,11 +190,13 @@ export class TrainingService {
       moveCount: state.game.moveHistory.length,
       pgn: state.game.currentPgn || chessService.getPgn(),
       isGameOver: chessService.isGameOver(),
-      gameOverReason: chessService.isGameOver() 
-        ? (chessService.isCheckmate() ? 'checkmate' : 
-           chessService.isDraw() ? 'draw' : 
-           chessService.isStalemate() ? 'stalemate' : 'unknown') 
-        : undefined,
+      gameOverReason: (() => {
+        if (!chessService.isGameOver()) return undefined;
+        if (chessService.isCheckmate()) return 'checkmate';
+        if (chessService.isDraw()) return 'draw';
+        if (chessService.isStalemate()) return 'stalemate';
+        return 'unknown';
+      })(),
       history: chessService.getMoveHistory(),
       evaluation: undefined, // Could be extended if needed
       isCheck: chessService.isCheck(),

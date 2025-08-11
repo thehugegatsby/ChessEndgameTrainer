@@ -239,7 +239,7 @@ describe('useErrorBoundary hook', () => {
      * 
      * @returns Component with error boundary and reset button
      */
-    const TestComponent = () => {
+    const TestComponent = (): JSX.Element => {
       const { resetKey, resetErrorBoundary } = useErrorBoundary();
       const [hasError, setHasError] = React.useState(true);
       

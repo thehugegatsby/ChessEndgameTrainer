@@ -18,7 +18,7 @@
  * while handling edge cases and special position types.
  */
 
-import { EndgamePosition } from "@shared/types";
+import { type EndgamePosition } from "@shared/types";
 
 /**
  * Formats position titles according to UI requirements

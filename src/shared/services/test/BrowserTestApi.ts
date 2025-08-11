@@ -46,12 +46,12 @@ const logger = getLogger().setContext("BrowserTestApi");
  * @example
  * ```typescript
  * // Browser usage (exposed to window)
- * const result = await window.__testApi.makeMove('e2-e4');
- * const state = window.__testApi.getGameState();
+ * const result = await window['__testApi'].makeMove('e2-e4');
+ * const state = window['__testApi'].getGameState();
  *
  * // Legacy compatibility
- * await window.e2e_makeMove('Nf3');
- * const gameState = window.e2e_getGameState();
+ * await window['e2e_makeMove']('Nf3');
+ * const gameState = window['e2e_getGameState']();
  * ```
  */
 export class BrowserTestApi {
@@ -79,7 +79,7 @@ export class BrowserTestApi {
    * - Validates test environment (NODE_ENV=test or NEXT_PUBLIC_IS_E2E_TEST=true)
    * - Initializes underlying TestApiService
    * - Connects to TestBridge for tablebase control
-   * - Exposes modern API methods to window.__testApi
+   * - Exposes modern API methods to window['__testApi']
    * - Sets up legacy compatibility methods (e2e_makeMove, e2e_getGameState)
    * - Registers cleanup handlers for page unload
    *
@@ -87,7 +87,7 @@ export class BrowserTestApi {
    * ```typescript
    * const browserTestApi = new BrowserTestApi();
    * await browserTestApi.initialize(storeAccess);
-   * // Now window.__testApi is available
+   * // Now window['__testApi'] is available
    * ```
    */
   public async initialize(storeAccess?: {
@@ -102,7 +102,7 @@ export class BrowserTestApi {
   }): Promise<void> {
     if (
       process.env.NODE_ENV !== "test" &&
-      process.env.NEXT_PUBLIC_IS_E2E_TEST !== "true"
+      process.env['NEXT_PUBLIC_IS_E2E_TEST'] !== "true"
     ) {
       logger.warn("Test API is only available in test environment");
       return;
@@ -134,7 +134,7 @@ export class BrowserTestApi {
 
     // Expose methods to window
     const windowWithApi = window as unknown as Record<string, unknown>;
-    windowWithApi.__testApi = {
+    windowWithApi['__testApi'] = {
       makeMove: this.makeMove.bind(this),
       makeValidatedMove: this.makeValidatedMove.bind(this),
       getGameState: this.getGameState.bind(this),
@@ -150,7 +150,7 @@ export class BrowserTestApi {
      *
      * @param move
      */
-    windowWithApi.e2e_makeMove = async (move: string) => {
+    windowWithApi['e2e_makeMove'] = async (move: string) => {
       const result = await this.makeMove(move);
       return result;
     };
@@ -158,7 +158,7 @@ export class BrowserTestApi {
     /**
      *
      */
-    windowWithApi.e2e_getGameState = () => {
+    windowWithApi['e2e_getGameState'] = () => {
       return this.getGameState();
     };
 
@@ -198,9 +198,9 @@ export class BrowserTestApi {
 
     // Remove from window
     const windowWithApi = window as unknown as Record<string, unknown>;
-    delete windowWithApi.__testApi;
-    delete windowWithApi.e2e_makeMove;
-    delete windowWithApi.e2e_getGameState;
+    delete windowWithApi['__testApi'];
+    delete windowWithApi['e2e_makeMove'];
+    delete windowWithApi['e2e_getGameState'];
 
     // Clean up test API
     this.testApi.cleanup();

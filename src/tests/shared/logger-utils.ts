@@ -9,8 +9,8 @@
  */
 
 import {
-  ILogger,
-  LoggerConfig,
+  type Logger,
+  type LoggerConfig,
   LogLevel,
 } from "../../shared/services/logging/types";
 
@@ -32,7 +32,7 @@ export function createNoopLoggerConfig(): LoggerConfig {
  * A complete no-op logger implementation for use in tests
  * All methods are no-ops and configuration is minimal
  */
-export const noopLogger: ILogger = {
+export const noopLogger: Logger = {
   // Logging methods - all no-op
   debug: () => {},
   info: () => {},
@@ -64,7 +64,7 @@ export const noopLogger: ILogger = {
  * Creates a silent logger that only logs FATAL messages
  * Useful for tests where you want to suppress all but critical errors
  */
-export function createSilentLogger(): ILogger {
+export function createSilentLogger(): Logger {
   return {
     ...noopLogger,
     getConfig: () => ({
@@ -81,7 +81,7 @@ export function createSilentLogger(): ILogger {
  * Creates a test logger that captures logs in memory for assertions
  * Useful for tests that need to verify logging behavior
  */
-export function createTestLogger(): ILogger {
+export function createTestLogger(): Logger {
   const logs: Array<{ level: LogLevel; message: string; data?: any }> = [];
 
   const logMethod = (level: LogLevel) => (message: string, data?: any) => {
@@ -133,7 +133,7 @@ export function createTestLogger(): ILogger {
  * Creates a debug logger for development that outputs to console
  * WARNING: Only use during test development, not in CI
  */
-export function createDebugLogger(): ILogger {
+export function createDebugLogger(): Logger {
   return {
     ...noopLogger,
     debug: console.debug,

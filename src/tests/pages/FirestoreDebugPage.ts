@@ -4,9 +4,9 @@
  * Integrates with Firebase Test Infrastructure (A.1-A.5)
  */
 
-import { Page, Locator, expect } from "@playwright/test";
+import { type Page, type Locator, expect } from "@playwright/test";
 import { BasePage } from "./BasePage";
-import { TestApiClient } from "../api/TestApiClient";
+import { type TestApiClient } from "../api/TestApiClient";
 
 export interface FirestoreConnectionInfo {
   status: "connected" | "disconnected" | "error";

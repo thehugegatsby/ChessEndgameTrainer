@@ -16,7 +16,7 @@ const logger = getLogger().setContext("TablebaseDemo");
  * Tablebase demo page component
  * @returns Demo page showing tablebase functionality
  */
-export default function TablebaseDemoPage() {
+export default function TablebaseDemoPage(): React.JSX.Element {
   const [selectedMove, setSelectedMove] = useState<string | undefined>(
     undefined,
   );
@@ -53,7 +53,7 @@ export default function TablebaseDemoPage() {
    * Handle move selection
    * @param move - Selected move
    */
-  const handleMoveSelect = (move: string) => {
+  const handleMoveSelect = (move: string): void => {
     setSelectedMove(move);
     logger.debug("Selected move", { move });
   };
@@ -61,8 +61,14 @@ export default function TablebaseDemoPage() {
   // Debug: Log the actual move classifications
   logger.debug("Move classifications", {
     moves: mockTablebaseData.topMoves?.map((move) => {
-      const resultType =
-        move.dtz > 0 ? "win" : move.dtz === 0 ? "draw" : "loss";
+      let resultType: string;
+      if (move.dtz > 0) {
+        resultType = "win";
+      } else if (move.dtz === 0) {
+        resultType = "draw";
+      } else {
+        resultType = "loss";
+      }
       return {
         san: move.san,
         dtz: move.dtz,
@@ -110,7 +116,7 @@ export default function TablebaseDemoPage() {
               <TablebasePanel
                 tablebaseData={mockTablebaseData}
                 onMoveSelect={handleMoveSelect}
-                selectedMove={selectedMove}
+                {...(selectedMove !== undefined && { selectedMove })}
                 loading={false}
                 compact={false}
               />
@@ -139,7 +145,7 @@ export default function TablebaseDemoPage() {
               <TablebasePanel
                 tablebaseData={mockTablebaseData}
                 onMoveSelect={handleMoveSelect}
-                selectedMove={selectedMove}
+                {...(selectedMove !== undefined && { selectedMove })}
                 loading={false}
                 compact={true}
               />

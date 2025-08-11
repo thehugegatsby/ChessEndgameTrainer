@@ -11,15 +11,15 @@ type LogData =
   | Record<string, string | number | boolean | null | undefined>
   | Array<string | number | boolean>;
 
-export interface ILogger {
-  setContext(context: string): ILogger;
+export interface Logger {
+  setContext(context: string): Logger;
   debug(message: string, data?: LogData): void;
   info(message: string, data?: LogData): void;
   warn(message: string, data?: LogData): void;
   error(message: string, error?: Error | LogData, data?: LogData): void;
 }
 
-const mockLogger: ILogger = {
+const mockLogger: Logger = {
   setContext: () => mockLogger,
   debug: jest.fn(),
   info: jest.fn(),
@@ -27,4 +27,4 @@ const mockLogger: ILogger = {
   error: jest.fn(),
 };
 
-export const getLogger = () => mockLogger;
+export const getLogger = (): Logger => mockLogger;

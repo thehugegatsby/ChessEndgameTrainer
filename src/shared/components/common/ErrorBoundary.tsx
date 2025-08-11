@@ -6,7 +6,7 @@
  * component tree, logs them, and displays a fallback UI.
  */
 
-import React, { Component, ErrorInfo, ReactNode } from "react";
+import React, { Component, type ErrorInfo, type ReactNode } from "react";
 import { getLogger } from "@shared/services/logging";
 
 const logger = getLogger().setContext("ErrorBoundary");
@@ -33,7 +33,7 @@ export class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  override componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     // Log the error to error reporting service
     logger.error("Component error caught by boundary", error, {
       componentStack: errorInfo.componentStack,
@@ -45,7 +45,7 @@ export class ErrorBoundary extends Component<Props, State> {
     }
   }
 
-  render() {
+  override render(): React.ReactNode {
     if (this.state.hasError) {
       // You can render any custom fallback UI
       return (
@@ -80,7 +80,7 @@ export class ErrorBoundary extends Component<Props, State> {
 /**
  * Hook to reset error boundary from child components
  */
-export function useErrorBoundary() {
+export function useErrorBoundary(): { resetKey: number; resetErrorBoundary: () => void } {
   const [resetKey, setResetKey] = React.useState(0);
 
   const resetErrorBoundary = React.useCallback(() => {

@@ -49,7 +49,7 @@ export const useGameState = (): GameStateType => {
       moveHistory: state.game.moveHistory,
       currentMoveIndex: state.game.currentMoveIndex,
       isGameFinished: state.game.isGameFinished,
-      gameResult: state.game.gameResult,
+      ...(state.game.gameResult !== null && state.game.gameResult !== undefined && { gameResult: state.game.gameResult }),
       isCheckmate: state.game.isCheckmate,
       isDraw: state.game.isDraw,
       isStalemate: state.game.isStalemate,

@@ -11,12 +11,12 @@
  * - Deterministic: Provides predictable test behavior
  */
 
-import { Chess, Move as ChessJsMove } from "chess.js";
+import { Chess, type Move as ChessJsMove } from "chess.js";
 import { TESTING } from "@shared/constants";
 import { getLogger } from "@shared/services/logging";
 import type { RootState } from "@shared/store/slices/types";
 import type { EndgamePosition } from "@shared/types/endgame";
-import { Result, ok, err, isErr, AppError } from "@shared/utils/result";
+import { type Result, ok, err, isErr, AppError } from "@shared/utils/result";
 
 const logger = getLogger().setContext("TestApiService");
 
@@ -290,18 +290,38 @@ export class TestApiService {
 
       if (move.includes("-")) {
         // Format: 'e2-e4' or 'e7-e8=D'
-        const [from, toPart] = move.split("-");
+        const parts = move.split("-");
+        const from = parts[0];
+        const toPart = parts[1];
+        
+        if (!from || !toPart) {
+          throw new Error(`Invalid move format: ${move}`);
+        }
+        
+        // At this point, TypeScript knows from and toPart are strings
         if (toPart.includes("=")) {
-          const [to, promotionPart] = toPart.split("=");
+          const promotionParts = toPart.split("=");
+          const to = promotionParts[0];
+          const promotionPart = promotionParts[1];
+          
+          if (!to) {
+            throw new Error(`Invalid promotion format: ${move}`);
+          }
+          
           let promotion = promotionPart;
           // Convert German to English notation
           if (promotion === "D") promotion = "q"; // Dame -> Queen
           if (promotion === "T") promotion = "r"; // Turm -> Rook
           if (promotion === "L") promotion = "b"; // Läufer -> Bishop
           if (promotion === "S") promotion = "n"; // Springer -> Knight
-          moveObj = { from, to, promotion };
+          
+          moveObj = {
+            from: from,
+            to: to,
+            ...(promotion && { promotion }),
+          };
         } else {
-          moveObj = { from, to: toPart };
+          moveObj = { from: from, to: toPart };
         }
       } else {
         // SAN notation
@@ -349,7 +369,7 @@ export class TestApiService {
         resultingFen:
           finalState.game?.currentFen || "unknown",
         moveCount: finalState.game?.moveHistory?.length || 0,
-        error: result ? undefined : "Move rejected by validation pipeline",
+        ...(!result && { error: "Move rejected by validation pipeline" }),
       };
     } catch (error) {
       logger.error("TestApiService.makeValidatedMove error:", error);
@@ -396,9 +416,24 @@ export class TestApiService {
       // Parse move format - note: moveObj was unused, using direct makeMove call
       if (move.includes("-")) {
         // Format: 'e2-e4' or 'e7-e8=D'
-        const [from, toPart] = move.split("-");
+        const parts = move.split("-");
+        const from = parts[0];
+        const toPart = parts[1];
+        
+        if (!from || !toPart) {
+          throw new Error(`Invalid move format: ${move}`);
+        }
+        
+        // At this point, TypeScript knows from and toPart are strings
         if (toPart.includes("=")) {
-          const [to, promotionPart] = toPart.split("=");
+          const promotionParts = toPart.split("=");
+          const to = promotionParts[0];
+          const promotionPart = promotionParts[1];
+          
+          if (!to) {
+            throw new Error(`Invalid promotion format: ${move}`);
+          }
+          
           let promotion = promotionPart;
           // Convert German to English notation
           if (promotion === "D") promotion = "q"; // Dame -> Queen
@@ -406,10 +441,14 @@ export class TestApiService {
           if (promotion === "L") promotion = "b"; // Läufer -> Bishop
           if (promotion === "S") promotion = "n"; // Springer -> Knight
           // Use direct makeMove call instead of creating unused moveObj
-          this.storeAccess.makeMove({ from, to, promotion });
+          this.storeAccess.makeMove({
+            from: from,
+            to: to,
+            ...(promotion && { promotion }),
+          });
         } else {
           // Use direct makeMove call instead of creating unused moveObj
-          this.storeAccess.makeMove({ from, to: toPart });
+          this.storeAccess.makeMove({ from: from, to: toPart });
         }
       } else {
         // SAN notation - need to convert to from/to format
@@ -525,27 +564,31 @@ export class TestApiService {
     let lastMove;
     if (history.length > 0) {
       const lastHistoryItem = history[history.length - 1];
-      lastMove = {
-        from: lastHistoryItem.from || "",
-        to: lastHistoryItem.to || "",
-        san: lastHistoryItem.san,
-      };
+      if (lastHistoryItem) {
+        lastMove = {
+          from: lastHistoryItem.from || "",
+          to: lastHistoryItem.to || "",
+          san: lastHistoryItem.san,
+        };
+      }
     }
 
+    const gameOverReason = this.getGameOverReason(game);
+    const evaluation = state.tablebase?.currentEvaluation?.evaluation;
+    
     return {
       fen: currentFen,
       turn: game.turn(),
       moveCount: history.length,
       pgn: game.pgn(),
       isGameOver: game.isGameOver(),
-      gameOverReason: this.getGameOverReason(game),
+      ...(gameOverReason !== undefined && { gameOverReason }),
       history: history.map((h: { san?: string }) => h.san || ''),
-      evaluation:
-        state.tablebase?.currentEvaluation?.evaluation || undefined,
+      ...(evaluation !== undefined && { evaluation }),
       isCheck: game.isCheck(),
       isCheckmate: game.isCheckmate(),
       isDraw: game.isDraw(),
-      lastMove,
+      ...(lastMove !== undefined && { lastMove }),
     };
   }
 
@@ -746,4 +789,4 @@ export class TestApiService {
  * await testApi.initialize(storeAccess);
  * ```
  */
-export const getTestApi = () => TestApiService.getInstance();
+export const getTestApi = (): TestApiService => TestApiService.getInstance();

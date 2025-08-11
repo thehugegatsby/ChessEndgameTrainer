@@ -188,9 +188,9 @@ export const MoveResultGroup: React.FC<MoveResultGroupProps> = ({
       {/* Moves List */}
       {isExpanded && (
         <div className="mt-1 space-y-0">
-          {moves.map((move, index) => (
+          {moves.map((move, _index) => (
             <MoveEvaluationBar
-              key={`${move.san}-${index}`}
+              key={`${move.san}-${move.dtz}-${move.dtm}`}
               move={move.san}
               dtz={move.dtz}
               maxDtz={maxDtz}

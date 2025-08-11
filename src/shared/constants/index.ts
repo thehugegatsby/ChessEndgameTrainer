@@ -240,7 +240,7 @@ const TRAINING = {
 
   // Mock data for development
   MOCK: {
-    DEFAULT_LESSON_COUNT: 10, // Default number of lessons in dashboard
+    DEFAULT_LESSON_COUNT: 10, // Default number of lessons
     SUCCESS_RATE_MIN: 0.7, // Minimum success rate for mock data
     SUCCESS_RATE_RANGE: 0.3, // Range for success rate variation
     DUE_TODAY_MAX: 3, // Maximum lessons due today
@@ -351,7 +351,7 @@ const E2E = {
     PAGE_LOAD: 2 * TIME.SECOND, // 2 seconds for page loads
     PAGE_RELOAD: 3 * TIME.SECOND, // 3 seconds for page reloads
     TABLEBASE_INIT: 3 * TIME.SECOND, // 3 seconds for tablebase initialization
-    MODAL_APPEAR: 1 * TIME.SECOND, // 1 second for modals to appear
+    MODAL_APPEAR: TIME.SECOND, // 1 second for modals to appear
     ANIMATION: 500, // 500ms for animations
   },
 
@@ -379,7 +379,6 @@ const E2E = {
     // Navigation
     NAV: {
       TRAINING_LINK: '[data-testid="training-link"]',
-      DASHBOARD_LINK: '[data-testid="nav-dashboard"]',
       NAVBAR: '[data-testid="navbar"]',
       NAVBAR_LOGO: '[data-testid="navbar-logo"]',
     },
@@ -442,7 +441,6 @@ const E2E = {
      * @param id
      */
     TRAIN: (id: number) => `/train/${id}`,
-    DASHBOARD: "/dashboard",
   },
 
   // Expected Messages/Texts

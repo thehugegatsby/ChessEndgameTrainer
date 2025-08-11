@@ -21,9 +21,9 @@
  * ```
  */
 
-import { UISlice, UIState, UIActions } from "./types";
+import { type UISlice, type UIState, type UIActions } from "./types";
 import { nanoid } from "nanoid";
-import { Toast, ModalType, LoadingState, AnalysisPanelState } from "../types";
+import { type Toast, type ModalType, type LoadingState, type AnalysisPanelState } from "../types";
 
 // Re-export types for external use
 export type { UIState, UIActions } from "./types";

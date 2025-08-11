@@ -4,9 +4,9 @@
  * @description Type definitions for async orchestrators that coordinate actions across multiple slices
  */
 
-import { RootState } from "../slices/types";
+import { type RootState } from "../slices/types";
 // ChessInstance imported where needed
-import { Move as ChessJsMove } from "chess.js";
+import { type Move as ChessJsMove } from "chess.js";
 import type { EndgamePosition } from "@shared/types/endgame";
 
 /**

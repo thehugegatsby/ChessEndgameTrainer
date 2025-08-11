@@ -71,8 +71,8 @@ const createTestCard = (id: string, nextReviewAt: number): CardProgress => ({
   lapses: 0
 });
 
-const createDueCard = (id: string) => createTestCard(id, Date.now() - 1000); // Due 1 second ago
-const createFutureCard = (id: string) => createTestCard(id, Date.now() + 86400000); // Due in 24 hours
+const createDueCard = (id: string): ReturnType<typeof createTestCard> => createTestCard(id, Date.now() - 1000); // Due 1 second ago
+const createFutureCard = (id: string): ReturnType<typeof createTestCard> => createTestCard(id, Date.now() + 86400000); // Due in 24 hours
 
 describe('useDerivedProgress Hook (Enhanced with Cache)', () => {
   const userId = 'test-user-123';

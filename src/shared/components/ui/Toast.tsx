@@ -90,7 +90,7 @@ export const Toast: React.FC<ToastProps> = ({
    * @private
    * @returns {string} Combined Tailwind classes
    */
-  const getToastStyles = () => {
+  const getToastStyles = (): string => {
     const baseStyles =
       "fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm transition-all duration-300 max-w-sm";
 
@@ -114,7 +114,7 @@ export const Toast: React.FC<ToastProps> = ({
    * @private
    * @returns {string} Emoji icon
    */
-  const getIcon = () => {
+  const getIcon = (): string => {
     switch (type) {
       case "success":
         return "🎉";
@@ -211,7 +211,7 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({
           key={toast.id}
           message={toast.message}
           type={toast.type}
-          duration={toast.duration}
+          {...(toast.duration !== undefined && { duration: toast.duration })}
           onClose={() => onRemoveToast(toast.id)}
         />
       ))}

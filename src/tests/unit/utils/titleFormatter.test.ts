@@ -7,7 +7,7 @@ import {
   getShortTitle,
   getTrainingDisplayTitle,
 } from "@shared/utils/titleFormatter";
-import { EndgamePosition } from "@shared/types";
+import { type EndgamePosition } from "@shared/types";
 
 describe("titleFormatter", () => {
   const brückenbauPosition: EndgamePosition = {

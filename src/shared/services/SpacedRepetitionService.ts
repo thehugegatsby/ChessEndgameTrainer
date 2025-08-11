@@ -103,9 +103,9 @@ export function updateCardProgress(
   );
   
   // Handle potential NaN from supermemo library
-  const interval = isNaN(result.interval) ? 1 : result.interval;
-  const efactor = isNaN(result.efactor) ? 2.5 : result.efactor;
-  const repetition = isNaN(result.repetition) ? 0 : result.repetition;
+  const interval = isNaN(result['interval']) ? 1 : result['interval'];
+  const efactor = isNaN(result['efactor']) ? 2.5 : result['efactor'];
+  const repetition = isNaN(result['repetition']) ? 0 : result['repetition'];
 
   // Calculate next review date (interval is in days)
   const nextReviewAt = now + (interval * 86400000); // Convert days to milliseconds
@@ -258,7 +258,16 @@ export function batchUpdateCards(
 export function calculateCardStatistics(
   cards: CardProgress[],
   now: number = Date.now()
-) {
+): {
+  totalCards: number;
+  dueCards: number;
+  masteredCards: number;
+  learningCards: number;
+  newCards: number;
+  averageEfactor: number;
+  totalLapses: number;
+  duePercentage: number;
+} {
   const dueCards = getDueCards(cards, now);
   const totalCards = cards.length;
   const masteredCards = cards.filter(c => c.interval >= 21).length; // 3+ weeks

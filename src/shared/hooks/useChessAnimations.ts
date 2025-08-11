@@ -17,7 +17,7 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import { Chess, Square } from 'chess.js';
+import { Chess, type Square } from 'chess.js';
 import { getLogger } from '@shared/services/logging/Logger';
 
 /**
@@ -94,7 +94,21 @@ const DEFAULT_CONFIG: ChessAnimationConfig = {
  * const classes = getSquareClasses('e1');
  * ```
  */
-export const useChessAnimations = (config: Partial<ChessAnimationConfig> = {}) => {
+/**
+ * Return type for useChessAnimations hook
+ */
+export type UseChessAnimationsReturn = {
+  readonly highlightLastMove: (fromSquare: string, toSquare: string) => void;
+  readonly updateCheckState: (fen: string) => void;
+  readonly clearHighlights: () => void;
+  readonly highlightSquare: (square: string, duration?: number) => void;
+  readonly getSquareClasses: (square: string) => string;
+  readonly areAnimationsEnabled: () => boolean;
+  readonly lastMoveSquares: string[];
+  readonly animationConfig: ChessAnimationConfig;
+};
+
+export const useChessAnimations = (config: Partial<ChessAnimationConfig> = {}): UseChessAnimationsReturn => {
   const animationConfig = { ...DEFAULT_CONFIG, ...config };
   const logger = getLogger();
 
@@ -256,9 +270,12 @@ export const useChessAnimations = (config: Partial<ChessAnimationConfig> = {}) =
     setSquareStates(prevStates => ({
       ...prevStates,
       [square]: {
-        ...prevStates[square],
+        isLastMove: false,
+        isCheck: false,
+        showMoveHint: false,
+        ...(prevStates[square] || {}),
         isHighlighted: true,
-      },
+      } as SquareAnimationState,
     }));
 
     // Clear highlight after duration
@@ -266,9 +283,12 @@ export const useChessAnimations = (config: Partial<ChessAnimationConfig> = {}) =
       setSquareStates(prevStates => ({
         ...prevStates,
         [square]: {
-          ...prevStates[square],
+          isLastMove: false,
+          isCheck: false,
+          showMoveHint: false,
+          ...(prevStates[square] || {}),
           isHighlighted: false,
-        },
+        } as SquareAnimationState,
       }));
     }, duration);
   }, [animationConfig.reducedMotion]);
@@ -320,7 +340,7 @@ export const useChessAnimations = (config: Partial<ChessAnimationConfig> = {}) =
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     
-    const handleChange = (e: MediaQueryListEvent) => {
+    const handleChange = (e: MediaQueryListEvent): void => {
       if (e.matches) {
         clearHighlights();
       }

@@ -137,7 +137,7 @@ export const Chessboard: React.FC<ChessboardProps> = ({
    */
   const getSquarePosition = (square: string): { x: number; y: number } => {
     const file = square.charCodeAt(0) - 97; // a=0, b=1, etc.
-    const rank = parseInt(square[1]) - 1; // 1=0, 2=1, etc.
+    const rank = parseInt(square.charAt(1)) - 1; // 1=0, 2=1, etc.
     
     const squareSize = boardWidth / 8;
     const x = (file + 0.5) * squareSize;
@@ -150,7 +150,7 @@ export const Chessboard: React.FC<ChessboardProps> = ({
   /**
    * Handle promotion piece selection
    */
-  const handlePromotionSelect = (piece: PromotionPiece) => {
+  const handlePromotionSelect = (piece: PromotionPiece): void => {
     if (!pendingPromotion || !onPieceDrop) {
       setPendingPromotion(null);
       return;
@@ -171,7 +171,7 @@ export const Chessboard: React.FC<ChessboardProps> = ({
   /**
    * Handle promotion cancellation (defaults to Queen)
    */
-  const handlePromotionCancel = () => {
+  const handlePromotionCancel = (): void => {
     if (!pendingPromotion || !onPieceDrop) {
       setPendingPromotion(null);
       return;
@@ -253,8 +253,8 @@ export const Chessboard: React.FC<ChessboardProps> = ({
       <ReactChessboard
         options={{
           position: fen,
-          onPieceDrop: onPieceDrop ? handlePieceDrop : undefined,
-          onSquareClick: onSquareClick ? handleSquareClick : undefined,
+          ...(onPieceDrop && { onPieceDrop: handlePieceDrop }),
+          ...(onSquareClick && { onSquareClick: handleSquareClick }),
           boardStyle: { 
             width: `${boardWidth}px`, 
             height: `${boardWidth}px`,
@@ -275,7 +275,7 @@ export const Chessboard: React.FC<ChessboardProps> = ({
       
       {/* Promotion Dialog */}
       <PromotionDialog
-        isOpen={!!pendingPromotion}
+        isOpen={Boolean(pendingPromotion)}
         color={promotionColor}
         position={promotionPosition}
         onSelect={handlePromotionSelect}

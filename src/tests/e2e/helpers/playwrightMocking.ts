@@ -15,7 +15,7 @@
  * ```
  */
 
-import { Page } from '@playwright/test';
+import { type Page } from '@playwright/test';
 import { getLogger } from '@shared/services/logging';
 import type { LichessTablebaseResponse } from '@shared/types/tablebase';
 

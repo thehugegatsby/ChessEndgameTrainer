@@ -15,7 +15,7 @@ const OPPONENT_TURN_DELAY = 500; // ms
 
 /** Manages opponent turn scheduling with race condition prevention */
 class OpponentTurnManager {
-  private timeout?: NodeJS.Timeout;
+  private timeout?: NodeJS.Timeout | undefined;
   private isCancelled = false;
 
   /** Cancels any scheduled opponent turn */
@@ -249,6 +249,9 @@ function selectOptimalMove(moves: TablebaseMove[]): TablebaseMove {
   });
 
   const selected = sortedMoves[0];
+  if (!selected) {
+    throw new Error('No moves available for selection');
+  }
 
   // Log the decision for debugging
   getLogger().info("[OpponentTurnHandler] Move selection:", {
@@ -264,12 +267,11 @@ function selectOptimalMove(moves: TablebaseMove[]): TablebaseMove {
       dtm: selected.dtm,
       category: selected.category,
     },
-    reason:
-      selected.wdl < 0
-        ? `Best defense - delays mate for ${Math.abs(selected.dtm || 0)} moves`
-        : selected.wdl > 0
-          ? `Fastest win - mate in ${Math.abs(selected.dtm || 0)} moves`
-          : "Draw maintaining move",
+    reason: (() => {
+      if (selected.wdl < 0) return `Best defense - delays mate for ${Math.abs(selected.dtm || 0)} moves`;
+      if (selected.wdl > 0) return `Fastest win - mate in ${Math.abs(selected.dtm || 0)} moves`;
+      return "Draw maintaining move";
+    })(),
   });
 
   return selected;

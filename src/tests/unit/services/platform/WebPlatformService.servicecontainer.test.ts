@@ -9,14 +9,14 @@ import {
   TestAssertions,
 } from "../../../utils";
 import type {
-  IPlatformService,
-  IPlatformStorage,
-  IPlatformDevice,
-  IPlatformPerformance,
-  IPlatformClipboard,
-  IPlatformShare,
-  IPlatformNotification,
-  IPlatformAnalytics,
+  PlatformService,
+  PlatformStorage,
+  PlatformDevice,
+  PlatformPerformance,
+  PlatformClipboard,
+  PlatformShare,
+  PlatformNotification,
+  PlatformAnalytics,
   Platform,
   DeviceInfo,
   MemoryInfo,
@@ -27,14 +27,14 @@ import { MockStorage } from "../../../utils/MockStorage";
 
 describe("WebPlatformService - ServiceContainer Migration", () => {
   let container: ReturnType<typeof createTestContainer>;
-  let platformService: IPlatformService;
-  let storageService: IPlatformStorage;
-  let deviceService: IPlatformDevice;
-  let performanceService: IPlatformPerformance;
-  let clipboardService: IPlatformClipboard;
-  let shareService: IPlatformShare;
-  let notificationService: IPlatformNotification;
-  let analyticsService: IPlatformAnalytics;
+  let platformService: PlatformService;
+  let storageService: PlatformStorage;
+  let deviceService: PlatformDevice;
+  let performanceService: PlatformPerformance;
+  let clipboardService: PlatformClipboard;
+  let shareService: PlatformShare;
+  let notificationService: PlatformNotification;
+  let analyticsService: PlatformAnalytics;
   let mockStorage: MockStorage;
   let mockNavigator: Navigator;
 

@@ -21,7 +21,7 @@
 import { validateAndSanitizeFen } from "../utils/fenValidator";
 import { getLogger } from "../services/logging";
 import { APP_CONFIG } from "@/config/constants";
-import { Result, ok, err, isErr, AppError } from "@shared/utils/result";
+import { type Result, ok, err, isErr, AppError } from "@shared/utils/result";
 // Removed unused imports - Zod validation now handled by LichessApiClient
 import { LichessApiClient, LichessApiError, LichessApiTimeoutError } from "./api/LichessApiClient";
 import type { CacheManager } from "../lib/cache/types";
@@ -287,12 +287,11 @@ class TablebaseService {
           dtm: m.dtm,
           category: m.category,
         })),
-        sortingApplied:
-          bestWdl < 0
-            ? "Defensive (highest DTM first)"
-            : bestWdl > 0
-              ? "Offensive (lowest DTM first)"
-              : "Draw",
+        sortingApplied: (() => {
+          if (bestWdl < 0) return "Defensive (highest DTM first)";
+          if (bestWdl > 0) return "Offensive (lowest DTM first)";
+          return "Draw";
+        })(),
       });
 
       return ok(topMoves);
@@ -627,6 +626,9 @@ class TablebaseService {
    */
   private _countPieces(fen: string): number {
     const piecesPart = fen.split(" ")[0];
+    if (!piecesPart) {
+      throw new Error("Invalid FEN: missing pieces part");
+    }
     return piecesPart.replace(/[^a-zA-Z]/g, "").length;
   }
 
@@ -642,7 +644,12 @@ class TablebaseService {
    * Get service metrics for monitoring
    * @returns {object} Current metrics
    */
-  getMetrics() {
+  getMetrics(): {
+    cacheHitRate: number;
+    totalApiCalls: number;
+    errorBreakdown: Record<string, number>;
+    dedupedRequests: number;
+  } {
     return this.metrics.getMetrics();
   }
 }

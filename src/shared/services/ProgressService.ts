@@ -22,7 +22,7 @@
  */
 
 import {
-  Firestore,
+  type Firestore,
   doc,
   getDoc,
   setDoc,
@@ -30,12 +30,14 @@ import {
   writeBatch,
   collection,
   getDocs,
-  WithFieldValue,
-  DocumentData,
+  type WithFieldValue,
+  type DocumentData,
+  type DocumentReference,
+  type CollectionReference,
   serverTimestamp,
   runTransaction,
-  Transaction,
-  QueryDocumentSnapshot,
+  type Transaction,
+  type QueryDocumentSnapshot,
 } from 'firebase/firestore';
 
 import type { UserStats, CardProgress } from '@shared/store/slices/types';
@@ -88,12 +90,12 @@ const userStatsConverter = {
   fromFirestore(snapshot: QueryDocumentSnapshot<DocumentData>): UserStats {
     const data = snapshot.data();
     return {
-      userId: data.userId,
-      totalPositionsCompleted: data.totalPositionsCompleted || 0,
-      overallSuccessRate: data.overallSuccessRate || 0,
-      totalTimeSpent: data.totalTimeSpent || 0,
-      totalHintsUsed: data.totalHintsUsed || 0,
-      lastActive: data.lastActive?.toMillis?.() || data.lastActive || Date.now(),
+      userId: data['userId'],
+      totalPositionsCompleted: data['totalPositionsCompleted'] || 0,
+      overallSuccessRate: data['overallSuccessRate'] || 0,
+      totalTimeSpent: data['totalTimeSpent'] || 0,
+      totalHintsUsed: data['totalHintsUsed'] || 0,
+      lastActive: data['lastActive']?.toMillis?.() || data['lastActive'] || Date.now(),
     };
   },
 };
@@ -107,13 +109,13 @@ const cardProgressConverter = {
     const { id, ...data } = progress as CardProgress;
     
     // Validate ease factor bounds (SuperMemo-2 standard)
-    if ('efactor' in data && (data.efactor < 1.3 || data.efactor > 2.5)) {
+    if ('efactor' in data && (data['efactor'] < 1.3 || data['efactor'] > 2.5)) {
       logger.warn('EFactor out of bounds, clamping', { 
         id, 
-        efactor: data.efactor,
-        clamped: Math.max(1.3, Math.min(2.5, data.efactor))
+        efactor: data['efactor'],
+        clamped: Math.max(1.3, Math.min(2.5, data['efactor']))
       });
-      data.efactor = Math.max(1.3, Math.min(2.5, data.efactor));
+      data['efactor'] = Math.max(1.3, Math.min(2.5, data['efactor']));
     }
     
     return {
@@ -126,12 +128,12 @@ const cardProgressConverter = {
     const data = snapshot.data();
     return {
       id: snapshot.id, // Use document ID as card ID
-      nextReviewAt: data.nextReviewAt || 0,
-      lastReviewedAt: data.lastReviewedAt || 0,
-      interval: data.interval || 0,
-      repetition: data.repetition || 0,
-      efactor: data.efactor || 2.5,
-      lapses: data.lapses || 0,
+      nextReviewAt: data['nextReviewAt'] || 0,
+      lastReviewedAt: data['lastReviewedAt'] || 0,
+      interval: data['interval'] || 0,
+      repetition: data['repetition'] || 0,
+      efactor: data['efactor'] || 2.5,
+      lapses: data['lapses'] || 0,
     };
   },
 };
@@ -161,7 +163,7 @@ export class ProgressService {
   /**
    * Creates a typed reference to the user stats document
    */
-  private userStatsRef(userId: string) {
+  private userStatsRef(userId: string): DocumentReference<UserStats> {
     return doc(this.db, 'users', userId, 'userProgress', 'stats')
       .withConverter(userStatsConverter);
   }
@@ -169,7 +171,7 @@ export class ProgressService {
   /**
    * Creates a typed reference to a card progress document
    */
-  private cardProgressRef(userId: string, positionId: string) {
+  private cardProgressRef(userId: string, positionId: string): DocumentReference<CardProgress> {
     return doc(this.db, 'users', userId, 'userProgress', positionId)
       .withConverter(cardProgressConverter);
   }
@@ -177,8 +179,9 @@ export class ProgressService {
   /**
    * Creates a reference to the userProgress subcollection
    */
-  private userProgressCollection(userId: string) {
-    return collection(this.db, 'users', userId, 'userProgress');
+  private userProgressCollection(userId: string): CollectionReference<CardProgress> {
+    return collection(this.db, 'users', userId, 'userProgress')
+      .withConverter(cardProgressConverter);
   }
 
   /**
@@ -343,8 +346,8 @@ export class ProgressService {
       logger.debug('Card progress updated', { 
         userId, 
         positionId, 
-        interval: progress.interval,
-        nextReview: new Date(progress.nextReviewAt).toISOString()
+        interval: progress['interval'],
+        nextReview: new Date(progress['nextReviewAt']).toISOString()
       });
     }, 'upsertCardProgress');
   }

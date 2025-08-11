@@ -18,23 +18,23 @@
  */
 
 import {
-  IServiceContainer,
-  ServiceRegistry,
-  ServiceFactory,
-  ServiceContainerConfig,
+  type ServiceContainer,
+  type ServiceRegistry,
+  type ServiceFactory,
+  type ServiceContainerConfig,
   ServiceNotFoundError,
   ServiceAlreadyRegisteredError,
   CircularDependencyError,
-  IBrowserAPIs,
+  type BrowserAPIs,
 } from "./types";
 import type {
-  IPlatformStorage,
-  IPlatformNotification,
-  IPlatformDevice,
-  IPlatformPerformance,
-  IPlatformClipboard,
-  IPlatformShare,
-  IPlatformAnalytics,
+  PlatformStorage,
+  PlatformNotification,
+  PlatformDevice,
+  PlatformPerformance,
+  PlatformClipboard,
+  PlatformShare,
+  PlatformAnalytics,
 } from "../platform/types";
 import {
   createMockStorage,
@@ -47,8 +47,8 @@ import {
 /**
  * Service Container implementation for dependency injection
  *
- * @class ServiceContainer
- * @implements {IServiceContainer}
+ * @class DefaultServiceContainer
+ * @implements {ServiceContainer}
  *
  * @description
  * Manages service registration, instantiation, and dependency resolution.
@@ -58,7 +58,7 @@ import {
  * @example
  * ```typescript
  * // Create a container
- * const container = new ServiceContainer({ useSingletons: true });
+ * const container = new DefaultServiceContainer({ useSingletons: true });
  *
  * // Register a service factory
  * container.register('storage', (container) => {
@@ -69,11 +69,18 @@ import {
  * const storage = container.get<IStorageService>('storage');
  * ```
  */
-export class ServiceContainer implements IServiceContainer {
+// Internal config type with required properties after initialization
+interface ResolvedServiceContainerConfig {
+  useSingletons: boolean;
+  validateKeys: boolean;
+  logger: (message: string) => void;
+}
+
+export class DefaultServiceContainer implements ServiceContainer {
   private factories = new Map<string, ServiceFactory<unknown>>();
   private instances = new Map<string, unknown>();
   private resolving = new Set<string>(); // For circular dependency detection
-  private config: ServiceContainerConfig;
+  private config: ResolvedServiceContainerConfig;
 
   /**
    * Creates a new service container
@@ -84,11 +91,11 @@ export class ServiceContainer implements IServiceContainer {
    * @param {Function} [config.logger] - Optional logger function
    */
   constructor(config: ServiceContainerConfig = {}) {
+    // Create a resolved config with all required properties
     this.config = {
-      useSingletons: true,
-      validateKeys: true,
-      logger: config.logger || (() => {}), // No-op logger by default
-      ...config,
+      useSingletons: config.useSingletons ?? true,
+      validateKeys: config.validateKeys ?? true,
+      logger: config.logger ?? (() => {}), // No-op logger by default
     };
   }
 
@@ -105,7 +112,7 @@ export class ServiceContainer implements IServiceContainer {
    * ```
    */
   static createProductionContainer(): ServiceContainer {
-    const container = new ServiceContainer();
+    const container = new DefaultServiceContainer();
 
     if (typeof window !== "undefined") {
       container.registerBrowserAPIs({
@@ -132,7 +139,7 @@ export class ServiceContainer implements IServiceContainer {
    * mocked browser APIs and platform services suitable for testing.
    *
    * @static
-   * @param {Partial<IBrowserAPIs>} [mockAPIs] - Optional custom mock implementations
+   * @param {Partial<BrowserAPIs>} [mockAPIs] - Optional custom mock implementations
    * @returns {ServiceContainer} Container configured for testing
    *
    * @example
@@ -147,9 +154,9 @@ export class ServiceContainer implements IServiceContainer {
    * ```
    */
   static createTestContainer(
-    mockAPIs?: Partial<IBrowserAPIs>,
+    mockAPIs?: Partial<BrowserAPIs>,
   ): ServiceContainer {
-    const container = new ServiceContainer();
+    const container = new DefaultServiceContainer();
 
     // Register mock browser APIs
     const apis = {
@@ -208,7 +215,7 @@ export class ServiceContainer implements IServiceContainer {
       throw new ServiceAlreadyRegisteredError(key);
     }
 
-    this.config.logger!(`Registering service: ${key}`);
+    this.config.logger(`Registering service: ${key}`);
     this.factories.set(key, factory);
 
     // Clear existing instance if re-registering
@@ -244,7 +251,7 @@ export class ServiceContainer implements IServiceContainer {
 
     // Return existing instance if using singletons
     if (this.config.useSingletons && this.instances.has(key)) {
-      this.config.logger!(`Returning cached instance: ${key}`);
+      this.config.logger(`Returning cached instance: ${key}`);
       return this.instances.get(key) as T;
     }
 
@@ -258,7 +265,7 @@ export class ServiceContainer implements IServiceContainer {
     this.resolving.add(key);
 
     try {
-      this.config.logger!(`Creating instance: ${key}`);
+      this.config.logger(`Creating instance: ${key}`);
       const instance = factory(this);
 
       // Cache instance if using singletons
@@ -291,7 +298,7 @@ export class ServiceContainer implements IServiceContainer {
    * Clear all resolved instances
    */
   clearInstances(): void {
-    this.config.logger!("Clearing all service instances");
+    this.config.logger("Clearing all service instances");
     this.instances.clear();
     this.resolving.clear();
   }
@@ -339,31 +346,45 @@ export class ServiceContainer implements IServiceContainer {
       apis.document &&
       apis.performance
     ) {
+      // Store validated APIs in local variables to satisfy TypeScript
+      const validatedApis = {
+        localStorage: apis.localStorage,
+        navigator: apis.navigator,
+        window: apis.window,
+        document: apis.document,
+        performance: apis.performance,
+      };
+      
       this.registerCustom("browser.apis", () => ({
-        localStorage: apis.localStorage!,
-        sessionStorage: apis.sessionStorage || apis.window!.sessionStorage,
-        navigator: apis.navigator!,
-        window: apis.window!,
-        document: apis.document!,
-        performance: apis.performance!,
+        localStorage: validatedApis.localStorage,
+        sessionStorage: apis.sessionStorage || validatedApis.window.sessionStorage,
+        navigator: validatedApis.navigator,
+        window: validatedApis.window,
+        document: validatedApis.document,
+        performance: validatedApis.performance,
       }));
     }
 
-    // Register individual APIs
+    // Register individual APIs - use closures to capture validated values
     if (apis.localStorage) {
-      this.registerCustom("browser.localStorage", () => apis.localStorage!);
+      const localStorage = apis.localStorage;
+      this.registerCustom("browser.localStorage", () => localStorage);
     }
     if (apis.navigator) {
-      this.registerCustom("browser.navigator", () => apis.navigator!);
+      const navigator = apis.navigator;
+      this.registerCustom("browser.navigator", () => navigator);
     }
     if (apis.window) {
-      this.registerCustom("browser.window", () => apis.window!);
+      const window = apis.window;
+      this.registerCustom("browser.window", () => window);
     }
     if (apis.document) {
-      this.registerCustom("browser.document", () => apis.document!);
+      const document = apis.document;
+      this.registerCustom("browser.document", () => document);
     }
     if (apis.performance) {
-      this.registerCustom("browser.performance", () => apis.performance!);
+      const performance = apis.performance;
+      this.registerCustom("browser.performance", () => performance);
     }
   }
 
@@ -383,49 +404,49 @@ export class ServiceContainer implements IServiceContainer {
     // Register individual services that delegate to the main service
     this.register("platform.storage", (container) => {
       const platformService = container.resolveCustom<{
-        storage: IPlatformStorage;
+        storage: PlatformStorage;
       }>("platform.service");
       return platformService.storage;
     });
 
     this.register("platform.notifications", (container) => {
       const platformService = container.resolveCustom<{
-        notifications: IPlatformNotification;
+        notifications: PlatformNotification;
       }>("platform.service");
       return platformService.notifications;
     });
 
     this.register("platform.device", (container) => {
       const platformService = container.resolveCustom<{
-        device: IPlatformDevice;
+        device: PlatformDevice;
       }>("platform.service");
       return platformService.device;
     });
 
     this.register("platform.performance", (container) => {
       const platformService = container.resolveCustom<{
-        performance: IPlatformPerformance;
+        performance: PlatformPerformance;
       }>("platform.service");
       return platformService.performance;
     });
 
     this.register("platform.clipboard", (container) => {
       const platformService = container.resolveCustom<{
-        clipboard: IPlatformClipboard;
+        clipboard: PlatformClipboard;
       }>("platform.service");
       return platformService.clipboard;
     });
 
     this.register("platform.share", (container) => {
       const platformService = container.resolveCustom<{
-        share: IPlatformShare;
+        share: PlatformShare;
       }>("platform.service");
       return platformService.share;
     });
 
     this.register("platform.analytics", (container) => {
       const platformService = container.resolveCustom<{
-        analytics: IPlatformAnalytics;
+        analytics: PlatformAnalytics;
       }>("platform.service");
       return platformService.analytics;
     });
@@ -435,7 +456,7 @@ export class ServiceContainer implements IServiceContainer {
    * Create a child container with same factories but separate instances
    */
   createChild(config?: Partial<ServiceContainerConfig>): ServiceContainer {
-    const child = new ServiceContainer({
+    const child = new DefaultServiceContainer({
       ...this.config,
       ...config,
     });
@@ -448,3 +469,6 @@ export class ServiceContainer implements IServiceContainer {
     return child;
   }
 }
+
+// Export alias for backward compatibility
+export { DefaultServiceContainer as ServiceContainer };

@@ -245,7 +245,7 @@ export const createProgressSlice: ImmerStateCreator<ProgressSlice> = (set, get) 
       
       logger.info('User progress loaded successfully', { 
         userId, 
-        hasStats: !!userStats,
+        hasStats: Boolean(userStats),
         cardCount: cardProgresses.length 
       });
 

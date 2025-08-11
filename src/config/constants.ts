@@ -2,6 +2,8 @@
  * Central configuration constants for the application
  */
 
+import { env } from './env';
+
 /**
  * Application configuration constants containing all app-wide settings
  */
@@ -19,21 +21,19 @@ export const APP_CONFIG = {
   },
 
   /** Production URL */
-  PROD_URL: process.env.NEXT_PUBLIC_APP_URL || "https://endgametrainer.com",
+  PROD_URL: env.NEXT_PUBLIC_APP_URL || "https://endgametrainer.com",
 
   /** API base URL */
-  API_BASE_URL: process.env.NEXT_PUBLIC_API_URL || "/api",
+  API_BASE_URL: env.NEXT_PUBLIC_API_URL || "/api",
   /** Lichess Tablebase API URL */
-  TABLEBASE_API_URL:
-    process.env.NEXT_PUBLIC_TABLEBASE_API_URL ||
-    "https://tablebase.lichess.ovh/standard",
+  TABLEBASE_API_URL: env.NEXT_PUBLIC_TABLEBASE_API_URL,
 
   /** Feature flags */
   FEATURES: {
     /** Firebase integration enabled */
-    FIREBASE_ENABLED: process.env.NEXT_PUBLIC_FIREBASE_ENABLED === "true",
+    FIREBASE_ENABLED: env.NEXT_PUBLIC_FIREBASE_ENABLED,
     /** Analytics tracking enabled */
-    ANALYTICS_ENABLED: process.env.NEXT_PUBLIC_ANALYTICS_ENABLED === "true",
+    ANALYTICS_ENABLED: env.NEXT_PUBLIC_ANALYTICS_ENABLED,
   },
 } as const;
 

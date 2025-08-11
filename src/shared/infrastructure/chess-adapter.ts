@@ -11,13 +11,13 @@
  * 4. Library-Austausch ohne Domain-Änderungen möglich
  */
 
-import { Move as ChessJsMove } from "chess.js";
+import { type Move as ChessJsMove } from "chess.js";
 import {
-  Move as DomainMove,
-  Color,
-  Square,
-  PieceSymbol,
-  ValidatedMove,
+  type Move as DomainMove,
+  type Color,
+  type Square,
+  type PieceSymbol,
+  type ValidatedMove,
 } from "../types/chess";
 import { getLogger } from "../services/logging";
 
@@ -150,8 +150,8 @@ export function fromLibraryMove(libraryMove: ChessJsMove): ValidatedMove {
     fenBefore: libraryMove.before || "",
     fenAfter: libraryMove.after || "",
     // Helper methods - these will be added by the chess.js library when needed
-    isCapture: () => !!libraryMove.captured,
-    isPromotion: () => !!libraryMove.promotion,
+    isCapture: () => Boolean(libraryMove.captured),
+    isPromotion: () => Boolean(libraryMove.promotion),
     isEnPassant: () => libraryMove.flags?.includes("e") || false,
     isKingsideCastle: () => libraryMove.flags?.includes("k") || false,
     isQueensideCastle: () => libraryMove.flags?.includes("q") || false,
@@ -196,12 +196,12 @@ export function fromLibraryMoves(libraryMoves: ChessJsMove[]): ValidatedMove[] {
  * Context data for chess adapter errors
  */
 interface ChessAdapterErrorContext {
-  move?: ChessJsMove;
-  invalidField?: string;
-  missingFields?: string[];
-  validPromotions?: readonly string[];
-  moveIndex?: number;
-  totalMoves?: number;
+  move?: ChessJsMove | undefined;
+  invalidField?: string | undefined;
+  missingFields?: string[] | undefined;
+  validPromotions?: readonly string[] | undefined;
+  moveIndex?: number | undefined;
+  totalMoves?: number | undefined;
 }
 
 /**
@@ -209,7 +209,7 @@ interface ChessAdapterErrorContext {
  * Provides rich context for debugging
  */
 export class ChessAdapterError extends Error {
-  public readonly context?: ChessAdapterErrorContext;
+  public readonly context?: ChessAdapterErrorContext | undefined;
 
   constructor(message: string, context?: ChessAdapterErrorContext) {
     super(message);

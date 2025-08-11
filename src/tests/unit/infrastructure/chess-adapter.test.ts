@@ -8,7 +8,7 @@
  * Target: 95%+ coverage for Foundation Infrastructure.
  */
 
-import { Move as ChessJsMove } from 'chess.js';
+import { type Move as ChessJsMove } from 'chess.js';
 import {
   toLibraryMove,
   fromLibraryMove,
@@ -16,7 +16,7 @@ import {
   ChessAdapterError,
   ChessAdapter
 } from '@shared/infrastructure/chess-adapter';
-import { ValidatedMove, Color, PieceSymbol, Square } from '@shared/types/chess';
+import { ValidatedMove, type Color, type PieceSymbol, type Square } from '@shared/types/chess';
 import { createTestValidatedMove } from '@tests/helpers/validatedMoveFactory';
 
 // Mock the logger to prevent console output during tests
@@ -45,8 +45,8 @@ const createChessJsMove = (overrides: Partial<Omit<ChessJsMove, 'isCapture' | 'i
   // Create the complete chess.js Move object with all required methods
   return {
     ...baseMove,
-    isCapture: () => !!baseMove.captured,
-    isPromotion: () => !!baseMove.promotion,
+    isCapture: () => Boolean(baseMove.captured),
+    isPromotion: () => Boolean(baseMove.promotion),
     isEnPassant: () => (baseMove.flags || '').includes('e'),
     isKingsideCastle: () => (baseMove.flags || '').includes('k'),
     isQueensideCastle: () => (baseMove.flags || '').includes('q'),

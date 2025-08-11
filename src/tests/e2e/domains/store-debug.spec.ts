@@ -24,7 +24,7 @@ test.describe("Store Debug", () => {
       return {
         allKeys: keys.length,
         storeKeys: storeRelated,
-        hasE2EStore: !!(window as any).__e2e_store,
+        hasE2EStore: Boolean((window as any).__e2e_store),
         e2eStoreType: typeof (window as any).__e2e_store,
         processEnv: (window as any).process?.env?.NEXT_PUBLIC_IS_E2E_TEST,
         nodeEnv: (window as any).process?.env?.NODE_ENV
@@ -41,7 +41,7 @@ test.describe("Store Debug", () => {
       try {
         const state = store.getState?.();
         return {
-          hasGetState: !!store.getState,
+          hasGetState: Boolean(store.getState),
           stateKeys: state ? Object.keys(state) : [],
           gameKeys: state?.game ? Object.keys(state.game) : [],
           trainingKeys: state?.training ? Object.keys(state.training) : [],

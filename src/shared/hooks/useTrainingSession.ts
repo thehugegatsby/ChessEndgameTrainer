@@ -9,7 +9,7 @@
  */
 
 import { useCallback } from "react";
-import { Chess } from "chess.js";
+import { type Chess } from "chess.js";
 import { useGameStore, useTrainingStore } from "@shared/store/hooks";
 import { useStoreApi } from "@shared/store/StoreContext";
 import type { ValidatedMove } from "@shared/types/chess";

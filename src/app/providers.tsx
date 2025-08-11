@@ -51,7 +51,7 @@ if (typeof window !== "undefined") {
  * @param props.children - Child components to render
  * @returns Providers wrapper with app-ready state management
  */
-function AppProvidersInner({ children }: { children: React.ReactNode }) {
+function AppProvidersInner({ children }: { children: React.ReactNode }): React.JSX.Element {
   const pathname = usePathname();
   const analysisStatus = useStore((state) => state.tablebase.analysisStatus);
   const logger = getLogger().setContext("_app");
@@ -85,7 +85,7 @@ function AppProvidersInner({ children }: { children: React.ReactNode }) {
       }
 
       // Track transitions for debugging and monitoring
-      const previousState = document.body.dataset.appReady || "null";
+      const previousState = document.body.dataset['appReady'] || "null";
       const currentState = appReadyState;
 
       if (previousState !== currentState) {
@@ -102,7 +102,7 @@ function AppProvidersInner({ children }: { children: React.ReactNode }) {
       }
 
       // Set the global app-ready state for other components and tests
-      document.body.dataset.appReady = appReadyState;
+      document.body.dataset['appReady'] = appReadyState;
     }
   }, [pathname, analysisStatus, logger]);
 
@@ -146,7 +146,7 @@ function AppProvidersInner({ children }: { children: React.ReactNode }) {
  * @param props.children - Child components to render
  * @returns Providers wrapper with SSR-safe store context
  */
-export function AppProviders({ children }: { children: React.ReactNode }) {
+export function AppProviders({ children }: { children: React.ReactNode }): React.JSX.Element {
   return (
     <QueryClientProvider client={queryClient}>
       <StoreProvider>

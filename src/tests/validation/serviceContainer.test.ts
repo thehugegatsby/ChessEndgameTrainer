@@ -4,13 +4,13 @@
  */
 
 import { createTestContainer, TestScenarios, TestAssertions } from "../utils";
-import type { IPlatformStorage } from "@shared/services/platform/types";
+import type { PlatformStorage } from "@shared/services/platform/types";
 import { STORAGE } from "@shared/constants/index";
 
 describe("ServiceContainer Validation - Jest 30 Migration", () => {
   describe("Basic Container Functionality", () => {
     let container: ReturnType<typeof createTestContainer>;
-    let storageService: IPlatformStorage;
+    let storageService: PlatformStorage;
     let mockStorage: Storage;
 
     beforeEach(() => {

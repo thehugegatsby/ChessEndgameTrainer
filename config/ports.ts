@@ -4,6 +4,9 @@
  * to ensure consistency and easy configuration changes
  */
 
+// Import env config for typed process.env access
+import { env } from '../src/config/env';
+
 export const PORTS = {
   // Development server port
   DEV: 3002,
@@ -12,7 +15,7 @@ export const PORTS = {
   E2E: 3009,
   
   // Production server port (can be overridden by PORT env var)
-  PRODUCTION: process.env.PORT ? parseInt(process.env.PORT) : 3000,
+  PRODUCTION: env.PORT || 3000,
   
   // Firebase emulator ports (if needed)
   FIREBASE_AUTH: 9099,

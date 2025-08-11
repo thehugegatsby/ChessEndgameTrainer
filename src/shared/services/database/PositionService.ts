@@ -24,7 +24,7 @@
  * ```typescript
  * // Create service with repository
  * const repository = new SQLitePositionRepository();
- * const service = new PositionService(repository, {
+ * const service = new DefaultPositionService(repository, {
  *   cacheEnabled: true,
  *   cacheSize: 100
  * });
@@ -35,12 +35,12 @@
  * ```
  */
 
-import { IPositionRepository } from "@shared/repositories/IPositionRepository";
-import { IPositionService, IPositionServiceConfig } from "./IPositionService";
+import { type PositionRepository } from "@shared/repositories/IPositionRepository";
+import { type PositionService, type PositionServiceConfig } from "./IPositionService";
 import {
-  EndgamePosition,
-  EndgameCategory,
-  EndgameChapter,
+  type EndgamePosition,
+  type EndgameCategory,
+  type EndgameChapter,
 } from "@shared/types";
 import { getLogger } from "@shared/services/logging";
 import { LRUCache } from "@shared/lib/cache/LRUCache";
@@ -52,8 +52,8 @@ const logger = getLogger().setContext("PositionService");
 /**
  * Service for managing chess positions
  *
- * @class PositionService
- * @implements {IPositionService}
+ * @class DefaultPositionService
+ * @implements {PositionService}
  *
  * @description
  * Implements the position service interface with caching and business logic.
@@ -62,35 +62,35 @@ const logger = getLogger().setContext("PositionService");
  *
  * @example
  * ```typescript
- * const service = new PositionService(repository, {
+ * const service = new DefaultPositionService(repository, {
  *   cacheEnabled: true,
  *   cacheSize: 200,
  *   cacheTTL: 300000 // 5 minutes
  * });
  * ```
  */
-export class PositionService implements IPositionService {
-  private repository: IPositionRepository;
+export class DefaultPositionService implements PositionService {
+  private repository: PositionRepository;
   private cache?: LRUCache<EndgamePosition>;
-  private config: IPositionServiceConfig;
+  private config: PositionServiceConfig;
 
   /**
-   * Creates a new PositionService instance
+   * Creates a new DefaultPositionService instance
    *
-   * @param {IPositionRepository} repository - Data access repository
-   * @param {IPositionServiceConfig} [config={}] - Service configuration
+   * @param {PositionRepository} repository - Data access repository
+   * @param {PositionServiceConfig} [config={}] - Service configuration
    *
    * @example
    * ```typescript
-   * const service = new PositionService(repository, {
+   * const service = new DefaultPositionService(repository, {
    *   cacheEnabled: true,
    *   cacheSize: 100
    * });
    * ```
    */
   constructor(
-    repository: IPositionRepository,
-    config: IPositionServiceConfig = {},
+    repository: PositionRepository,
+    config: PositionServiceConfig = {},
   ) {
     this.repository = repository;
     this.config = {
@@ -101,7 +101,8 @@ export class PositionService implements IPositionService {
     };
 
     if (this.config.cacheEnabled) {
-      this.cache = new LRUCache<EndgamePosition>(this.config.cacheSize!);
+      const cacheSize = this.config.cacheSize || CACHE.POSITION_CACHE_SIZE;
+      this.cache = new LRUCache<EndgamePosition>(cacheSize);
     }
 
     logger.info("PositionService initialized", { config: this.config });
@@ -130,9 +131,12 @@ export class PositionService implements IPositionService {
   async getPosition(id: number): Promise<EndgamePosition | null> {
     // Check cache first
     const cacheKey = id.toString();
-    if (this.cache?.has(cacheKey)) {
-      logger.debug("Cache hit for position", { id });
-      return this.cache.get(cacheKey)!;
+    if (this.cache) {
+      const cached = this.cache.get(cacheKey);
+      if (cached) {
+        logger.debug("Cache hit for position", { id });
+        return cached;
+      }
     }
 
     try {
@@ -176,8 +180,9 @@ export class PositionService implements IPositionService {
 
       // Cache individual positions
       if (this.cache) {
+        const cache = this.cache;
         positions.forEach((position) => {
-          this.cache!.set(position.id.toString(), position);
+          cache.set(position.id.toString(), position);
         });
       }
 
@@ -211,8 +216,9 @@ export class PositionService implements IPositionService {
 
       // Cache individual positions
       if (this.cache) {
+        const cache = this.cache;
         positions.forEach((position) => {
-          this.cache!.set(position.id.toString(), position);
+          cache.set(position.id.toString(), position);
         });
       }
 
@@ -236,8 +242,9 @@ export class PositionService implements IPositionService {
 
       // Cache individual positions
       if (this.cache) {
+        const cache = this.cache;
         positions.forEach((position) => {
-          this.cache!.set(position.id.toString(), position);
+          cache.set(position.id.toString(), position);
         });
       }
 
@@ -278,8 +285,9 @@ export class PositionService implements IPositionService {
 
       // Cache individual positions
       if (this.cache) {
+        const cache = this.cache;
         positions.forEach((position) => {
-          this.cache!.set(position.id.toString(), position);
+          cache.set(position.id.toString(), position);
         });
       }
 
@@ -566,3 +574,6 @@ export class PositionService implements IPositionService {
     }
   }
 }
+
+// Export alias for backward compatibility
+export { DefaultPositionService as PositionService };

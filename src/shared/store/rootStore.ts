@@ -27,7 +27,7 @@
  */
 
 import { create } from "zustand";
-import { devtools, persist, createJSONStorage, StateStorage } from "zustand/middleware";
+import { devtools, persist, createJSONStorage, type StateStorage } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 // Import all slice creators and initial states
@@ -201,7 +201,7 @@ export const useStore = create<RootState>()(
             logger.debug("Calling handlePlayerMoveOrchestrator");
             // Add timeout for E2E tests to prevent hanging
             let result;
-            if (process.env.NEXT_PUBLIC_IS_E2E_TEST === "true") {
+            if (process.env['NEXT_PUBLIC_IS_E2E_TEST'] === "true") {
               result = await Promise.race([
                 handlePlayerMoveOrchestrator(storeApi, move),
                 new Promise<boolean>((_, reject) => 
@@ -377,11 +377,13 @@ export const useStore = create<RootState>()(
             const persisted = persistedState as Record<string, unknown>;
 
             // Only merge the specific persisted properties, not the entire slice
-            const training = persisted.training as { currentPosition?: unknown } | undefined;
+            const training = persisted['training'] as { currentPosition?: unknown } | undefined;
             if (training?.currentPosition) {
               merged.training = {
                 ...currentState.training,
-                currentPosition: training.currentPosition as typeof currentState.training.currentPosition,
+                ...(training.currentPosition !== undefined && { 
+                  currentPosition: training.currentPosition as typeof currentState.training.currentPosition 
+                }),
               };
             }
           }

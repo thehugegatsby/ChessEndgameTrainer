@@ -567,7 +567,7 @@ export const ChessMoveSequences = {
  * Helper function for legacy tests that need KPK progression data
  * Provides compatibility with old getKPKProgression() function
  */
-export function getKPKProgression() {
+export function getKPKProgression(): { positions: Array<{ fen: string; description: string; expectedDtm: number; expectedWdl: number }> } {
   return {
     positions: [
       {
@@ -596,7 +596,7 @@ export function getKPKProgression() {
  * Helper function for legacy tests that need opening sequence data
  * Provides compatibility with old getOpeningSequence() function
  */
-export function getOpeningSequence() {
+export function getOpeningSequence(): { startPosition: string; moves: string[]; description: string; expectedResult: 'continue'; tags: string[]; positions: Array<{ after: string; move: string }> } {
   return {
     startPosition: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
     moves: ["e2-e4", "e7-e5", "g1-f3"],

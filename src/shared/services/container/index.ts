@@ -3,18 +3,15 @@
  * Simplified, focused DI for Jest 30 localStorage migration
  */
 
-// Core container
-export { ServiceContainer } from "./ServiceContainer";
-
 // Types
 export type {
-  IServiceContainer,
+  ServiceContainer as ServiceContainerType,
   ServiceRegistry,
   ServiceFactory,
   ServiceKey,
   ServiceOverrides,
   ServiceContainerConfig,
-  IBrowserAPIs,
+  BrowserAPIs,
 } from "./types";
 
 // Errors
@@ -32,6 +29,9 @@ export {
   createMockDocument,
   createMockPerformance,
 } from "./mocks";
+
+// Implementation
+export { ServiceContainer } from "./ServiceContainer";
 
 // React integration
 export {

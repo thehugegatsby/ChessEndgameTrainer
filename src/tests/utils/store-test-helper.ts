@@ -31,7 +31,7 @@ import type { StateCreator } from "zustand";
 export function createTestStore<T>(
   createSlice: StateCreator<T, [], [], T>,
   initialState?: Partial<T>,
-) {
+): ReturnType<typeof createZustandStore<T>> {
   const store = createZustandStore<T>()((set, get, api) => {
     const slice = createSlice(set, get, api);
     return {
@@ -67,7 +67,7 @@ export function createTestStore<T>(
 export function createCombinedTestStore(
   sliceCreators: Record<string, StateCreator<any, [], [], any>>,
   initialState?: Partial<RootState>,
-) {
+): ReturnType<typeof createZustandStore<RootState>> {
   const store = createZustandStore<RootState>()((set, get, api) => {
     const slices = Object.entries(sliceCreators).reduce(
       (acc, [_name, createSlice]) => {
@@ -110,7 +110,7 @@ export async function waitForState(
     /**
      *
      */
-    const check = () => {
+    const check = (): void => {
       if (callback()) {
         resolve();
       } else if (Date.now() - startTime > timeout) {
@@ -141,7 +141,10 @@ export async function waitForState(
  * await makeUserMove(api, 'e4');
  * ```
  */
-export function createMockStoreApi(initialState: Partial<RootState> = {}) {
+export function createMockStoreApi(initialState: Partial<RootState> = {}): {
+  getState: () => RootState;
+  setState: (updater: Partial<RootState> | ((state: RootState) => Partial<RootState>)) => void;
+} {
   let state = initialState as RootState;
 
   return {

@@ -1,4 +1,4 @@
-import { Page, expect } from "@playwright/test";
+import { type Page, expect } from "@playwright/test";
 import { getLogger } from "@shared/services/logging";
 
 /**
@@ -323,7 +323,7 @@ export class TrainingBoardPage {
   /**
    * Get comprehensive game state by reading from UI elements
    *
-   * This replaces the window.e2e_getGameState() function
+   * This replaces the window['e2e_getGameState']() function
    */
   async getGameState(): Promise<{
     fen: string;

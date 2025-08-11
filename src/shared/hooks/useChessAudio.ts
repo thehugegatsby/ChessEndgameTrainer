@@ -96,7 +96,18 @@ const SOUND_PATHS = {
  * playSound('capture');
  * ```
  */
-export const useChessAudio = (config: Partial<AudioConfig> = {}) => {
+/**
+ * Return type for useChessAudio hook
+ */
+export type UseChessAudioReturn = {
+  readonly playSound: (soundType: ChessSoundType) => Promise<void>;
+  readonly isSoundLoaded: (soundType: ChessSoundType) => boolean;
+  readonly getLoadedSoundCount: () => number;
+  readonly isAudioEnabled: boolean;
+  readonly audioVolume: number;
+};
+
+export const useChessAudio = (config: Partial<AudioConfig> = {}): UseChessAudioReturn => {
   const audioConfig = { ...DEFAULT_CONFIG, ...config };
   const logger = getLogger();
   const loadedSounds = useRef<Set<ChessSoundType>>(new Set());

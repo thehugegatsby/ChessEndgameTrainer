@@ -1,12 +1,6 @@
 "use client";
 
-// CRITICAL DEBUG: Test if client-side JavaScript is running
 import { getLogger } from '@shared/services/logging/Logger';
-
-getLogger().info(
-  "🚀 CLIENT-SIDE: EndgameTrainingPage module is loading!",
-  { timestamp: new Date().toISOString() }
-);
 
 import React, { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
@@ -62,7 +56,7 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
 
   // Debug: Log component state
   getLogger().debug("🏠 EndgameTrainingPage rendered", {
-    hasPosition: !!position,
+    hasPosition: Boolean(position),
     positionId: position?.id,
     positionFen: position?.fen,
     currentFen: gameState.currentFen,
@@ -294,12 +288,12 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
             <TablebaseAnalysisPanel
               fen={gameState.currentFen || position.fen}
               isVisible={uiState.analysisPanel.isOpen}
-              previousFen={
-                gameState.moveHistory && gameState.moveHistory.length > 0
-                  ? gameState.moveHistory[gameState.moveHistory.length - 1]
-                      ?.fenBefore
-                  : undefined
-              }
+              {...(() => {
+                const previousFen = gameState.moveHistory && gameState.moveHistory.length > 0
+                  ? gameState.moveHistory[gameState.moveHistory.length - 1]?.fenBefore
+                  : undefined;
+                return previousFen !== undefined ? { previousFen } : {};
+              })()}
             />
           </div>
 

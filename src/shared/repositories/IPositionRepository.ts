@@ -5,9 +5,9 @@
  */
 
 import {
-  EndgamePosition,
-  EndgameCategory,
-  EndgameChapter,
+  type EndgamePosition,
+  type EndgameCategory,
+  type EndgameChapter,
 } from "@shared/types";
 
 /**
@@ -18,7 +18,7 @@ import {
  * - LocalStoragePositionRepository (offline)
  * - APIPositionRepository (future migration)
  */
-export interface IPositionRepository {
+export interface PositionRepository {
   // Single position operations
   getPosition(id: number): Promise<EndgamePosition | null>;
   createPosition(
@@ -78,7 +78,7 @@ export interface IPositionRepository {
 /**
  * Repository events for observability
  */
-export interface IPositionRepositoryEvents {
+export interface PositionRepositoryEvents {
   onDataFetched?: (operation: string, count: number) => void;
   onDataModified?: (operation: string, ids: number[]) => void;
   onError?: (operation: string, error: Error) => void;
@@ -87,10 +87,10 @@ export interface IPositionRepositoryEvents {
 /**
  * Repository configuration
  */
-export interface IPositionRepositoryConfig {
+export interface PositionRepositoryConfig {
   enableCache?: boolean;
   cacheSize?: number;
   cacheTTL?: number;
   enableOfflineSupport?: boolean;
-  events?: IPositionRepositoryEvents;
+  events?: PositionRepositoryEvents;
 }

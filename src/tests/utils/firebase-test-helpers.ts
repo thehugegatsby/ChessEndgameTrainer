@@ -6,11 +6,11 @@
  * for Issue #83 - Firebase service integration test infrastructure
  */
 
-import { initializeApp, deleteApp, FirebaseApp } from "firebase/app";
+import { initializeApp, deleteApp, type FirebaseApp } from "firebase/app";
 import {
   getFirestore,
   connectFirestoreEmulator,
-  Firestore,
+  type Firestore,
   collection,
   doc,
   getDocs,
@@ -26,14 +26,14 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  Auth,
-  UserCredential,
-  User
+  type Auth,
+  type UserCredential,
+  type User
 } from "firebase/auth";
 import {
-  EndgamePosition,
-  EndgameCategory,
-  EndgameChapter,
+  type EndgamePosition,
+  type EndgameCategory,
+  type EndgameChapter,
 } from "@shared/types/endgame";
 import type { UserStats, CardProgress } from "@shared/store/slices/types";
 import { clearAllEmulatorData } from "./firebase-emulator-api";
@@ -316,7 +316,7 @@ export class RealtimeTestHelper {
       }, timeoutMs);
       
       let updateCount = 0;
-      const checkUpdates = () => {
+      const checkUpdates = (): void => {
         updateCount++;
         if (updateCount >= expectedUpdates) {
           clearTimeout(timeout);

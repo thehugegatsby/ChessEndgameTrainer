@@ -119,14 +119,12 @@ export const DialogManager: React.FC<DialogManagerProps> = ({
           onClose={onErrorContinue}
           onTakeBack={onErrorTakeBack}
           onRestart={onErrorRestart}
-          onShowBestMove={
-            errorDialog.bestMove ? onErrorShowBestMove : undefined
-          }
+          {...(errorDialog.bestMove && { onShowBestMove: onErrorShowBestMove })}
           wdlBefore={errorDialog.wdlBefore || 0}
           wdlAfter={errorDialog.wdlAfter || 0}
-          bestMove={errorDialog.bestMove}
-          playedMove={errorDialog.playedMove}
-          moveNumber={errorDialog.moveNumber}
+          {...(errorDialog.bestMove !== undefined && { bestMove: errorDialog.bestMove })}
+          {...(errorDialog.playedMove !== undefined && { playedMove: errorDialog.playedMove })}
+          {...(errorDialog.moveNumber !== undefined && { moveNumber: errorDialog.moveNumber })}
         />
       )}
 
@@ -136,8 +134,8 @@ export const DialogManager: React.FC<DialogManagerProps> = ({
           isOpen={successDialog.isOpen}
           onClose={onSuccessClose}
           onContinue={onSuccessContinue}
-          promotionPiece={successDialog.promotionPiece}
-          moveDescription={successDialog.moveDescription}
+          {...(successDialog.promotionPiece !== undefined && { promotionPiece: successDialog.promotionPiece })}
+          {...(successDialog.moveDescription !== undefined && { moveDescription: successDialog.moveDescription })}
         />
       )}
     </>

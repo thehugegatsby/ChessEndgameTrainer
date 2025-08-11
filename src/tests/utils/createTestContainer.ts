@@ -4,11 +4,8 @@
  */
 
 import React from "react";
-import {
-  ServiceContainer,
-  IServiceContainer,
-} from "@shared/services/container";
-import { BrowserAPIs } from "@shared/services/platform/web/WebPlatformService";
+import type { BrowserAPIs } from "@shared/services/platform/web/WebPlatformService";
+import { ServiceContainer } from "@shared/services/container";
 import { MockStorage } from "./MockStorage";
 
 /**
@@ -29,7 +26,7 @@ export interface TestServiceOverrides {
  */
 export function createTestContainer(
   overrides?: TestServiceOverrides,
-): IServiceContainer {
+): ServiceContainer {
   const container = new ServiceContainer();
 
   // Create mock instances
@@ -145,8 +142,8 @@ export function createTestContainer(
  */
 export function setupTestContainer(
   overrides?: TestServiceOverrides,
-): () => IServiceContainer {
-  let container: IServiceContainer;
+): () => ServiceContainer {
+  let container: ServiceContainer;
 
   beforeEach(() => {
     container = createTestContainer(overrides);
@@ -175,7 +172,7 @@ export function createTestWrapper(overrides?: TestServiceOverrides) {
 export function createMockLocalStorage(): Storage {
   const store: Record<string, string> = {};
 
-  const mockFn = (impl: (...args: any[]) => any) => {
+  const mockFn = <T extends (...args: any[]) => any>(impl: T): T => {
     if (typeof jest !== "undefined" && jest.fn) {
       return jest.fn(impl);
     }

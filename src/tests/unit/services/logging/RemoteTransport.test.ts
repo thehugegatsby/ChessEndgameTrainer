@@ -10,7 +10,7 @@
  */
 
 import { RemoteTransport } from "@shared/services/logging/Logger";
-import { LogLevel, LogEntry } from "@shared/services/logging/types";
+import { LogLevel, type LogEntry } from "@shared/services/logging/types";
 
 // Helper to create log entries for tests
 /**

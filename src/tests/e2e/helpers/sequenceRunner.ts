@@ -22,7 +22,7 @@
  * @version 1.0.0
  */
 
-import { Page } from "@playwright/test";
+import { type Page } from "@playwright/test";
 import { waitForMoveAnimation, waitForUIReady } from "./deterministicWaiting";
 
 // Type definitions for E2E test window globals
@@ -261,7 +261,7 @@ export class SequenceRunner {
 
       // Play the move
       const result = await this.page.evaluate(async (moveStr) => {
-        const result = await window.e2e_makeMove?.(moveStr);
+        const result = await window['e2e_makeMove']?.(moveStr);
         console.log(`Move result:`, result);
         return result;
       }, move);
@@ -422,7 +422,7 @@ export class SequenceRunner {
     await this.page.waitForFunction(
       ({ message, toastType }) => {
         // Try both possible store names
-        const store = window.__e2e_store || window.__zustand_store;
+        const store = window['__e2e_store'] || window['__zustand_store'];
         if (!store) return false;
 
         const state = store.getState();
@@ -480,7 +480,7 @@ export class SequenceRunner {
 
     await this.page.waitForFunction(
       ({ modalType, modalOpen }) => {
-        const store = window.__e2e_store || window.__zustand_store;
+        const store = window['__e2e_store'] || window['__zustand_store'];
         if (!store) return false;
 
         const state = store.getState();
@@ -526,7 +526,7 @@ export class SequenceRunner {
 
     await this.page.waitForFunction(
       ({ storePath, expectedValue }) => {
-        const store = window.__e2e_store || window.__zustand_store;
+        const store = window['__e2e_store'] || window['__zustand_store'];
         if (!store) return false;
 
         const state = store.getState();
@@ -563,7 +563,7 @@ export class SequenceRunner {
 
     await this.page.waitForFunction(
       ({ isSuccess, completionStatus }) => {
-        const store = window.__e2e_store || window.__zustand_store;
+        const store = window['__e2e_store'] || window['__zustand_store'];
         if (!store) return false;
 
         const state = store.getState();
@@ -608,7 +608,7 @@ export class SequenceRunner {
 
     await this.page.waitForFunction(
       ({ dialogType, promotionPiece, moveDescription, dialogOpen }) => {
-        const store = window.__e2e_store || window.__zustand_store;
+        const store = window['__e2e_store'] || window['__zustand_store'];
         if (!store) return false;
 
         const state = store.getState();
@@ -669,7 +669,7 @@ export class SequenceRunner {
    */
   async getStoreState(): Promise<ReturnType<NonNullable<E2ETestWindow['__e2e_store']>['getState']> | null> {
     return await this.page.evaluate(() => {
-      const store = window.__e2e_store || window.__zustand_store;
+      const store = window['__e2e_store'] || window['__zustand_store'];
       return store ? store.getState() : null;
     });
   }
@@ -687,7 +687,7 @@ export class SequenceRunner {
    */
   async getGameState(): Promise<ReturnType<NonNullable<E2ETestWindow['e2e_getGameState']>> | null> {
     return await this.page.evaluate(() => {
-      return window.e2e_getGameState ? window.e2e_getGameState() : null;
+      return window['e2e_getGameState'] ? window['e2e_getGameState']() : null;
     });
   }
 }

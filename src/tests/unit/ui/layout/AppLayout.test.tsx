@@ -209,13 +209,6 @@ describe("AppLayout Component", () => {
   });
 
   describe("Desktop Floating Actions", () => {
-    it("should render desktop floating action buttons", () => {
-      render(<AppLayout {...defaultProps} />);
-
-      const dashboardLink = screen.getByText("📊");
-      expect(dashboardLink).toHaveAttribute("href", "/dashboard");
-      expect(dashboardLink).toHaveTextContent("📊");
-    });
 
     it("should render dark mode toggle in floating actions", () => {
       render(<AppLayout {...defaultProps} />);
@@ -237,13 +230,6 @@ describe("AppLayout Component", () => {
   });
 
   describe("Mobile Bottom Navigation", () => {
-    it("should render mobile bottom navigation by default", () => {
-      render(<AppLayout {...defaultProps} />);
-
-      const bottomNav = screen.getByText("📊 Dashboard");
-      expect(bottomNav).toBeInTheDocument();
-      expect(bottomNav.closest("a")).toHaveAttribute("href", "/dashboard");
-    });
 
     it("should render home link in bottom navigation", () => {
       render(<AppLayout {...defaultProps} />);
@@ -255,7 +241,6 @@ describe("AppLayout Component", () => {
     it("should hide bottom navigation when showMobileBottomNav is false", () => {
       render(<AppLayout {...defaultProps} showMobileBottomNav={false} />);
 
-      expect(screen.queryByText("📊 Dashboard")).not.toBeInTheDocument();
       expect(screen.queryByText("🏠 Home")).not.toBeInTheDocument();
     });
 
@@ -300,14 +285,6 @@ describe("AppLayout Component", () => {
   });
 
   describe("Link Navigation", () => {
-    it("should render dashboard links correctly", () => {
-      render(<AppLayout {...defaultProps} />);
-
-      const dashboardLinks = screen.getAllByText(/Dashboard/);
-      dashboardLinks.forEach((link) => {
-        expect(link.closest("a")).toHaveAttribute("href", "/dashboard");
-      });
-    });
 
     it("should render home link correctly", () => {
       render(<AppLayout {...defaultProps} />);
@@ -316,13 +293,6 @@ describe("AppLayout Component", () => {
       expect(homeLink.closest("a")).toHaveAttribute("href", "/");
     });
 
-    it("should have proper button styling for navigation links", () => {
-      render(<AppLayout {...defaultProps} />);
-
-      const dashboardButton = screen.getByText("📊 Dashboard");
-      // Button styling is handled by Link component
-      expect(dashboardButton).toBeInTheDocument();
-    });
   });
 
   describe("CSS Layout Classes", () => {
@@ -473,7 +443,7 @@ describe("AppLayout Component", () => {
       expect(menu).toHaveAttribute("data-is-open", "true");
 
       // Mobile bottom nav should be shown by default
-      expect(screen.getByText("📊 Dashboard")).toBeInTheDocument();
+      expect(screen.getByText("🏠 Home")).toBeInTheDocument();
     });
   });
 });

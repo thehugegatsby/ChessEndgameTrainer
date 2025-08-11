@@ -26,7 +26,7 @@ interface CommandPaletteProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
+export function CommandPalette({ open, onOpenChange }: CommandPaletteProps): React.ReactElement | null {
   const [search, setSearch] = useState('');
   const router = useRouter();
   
@@ -44,14 +44,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       category: 'navigation',
       action: () => router.push('/'),
       keywords: ['home', 'start', 'haupt'],
-    },
-    {
-      id: 'nav-dashboard',
-      label: 'Dashboard',
-      description: 'Öffne das Dashboard',
-      category: 'navigation', 
-      action: () => router.push('/dashboard'),
-      keywords: ['dashboard', 'übersicht'],
     },
     {
       id: 'nav-tablebase-demo',
@@ -140,7 +132,10 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     if (!acc[cmd.category]) {
       acc[cmd.category] = [];
     }
-    acc[cmd.category].push(cmd);
+    const categoryArray = acc[cmd.category];
+    if (categoryArray) {
+      categoryArray.push(cmd);
+    }
     return acc;
   }, {} as Record<string, CommandItem[]>);
 
@@ -153,7 +148,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 
   // Handle escape key and clicks outside
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') {
         onOpenChange(false);
       }
@@ -163,6 +158,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       document.addEventListener('keydown', handleKeyDown);
       return () => document.removeEventListener('keydown', handleKeyDown);
     }
+    return undefined;
   }, [open, onOpenChange]);
 
   if (!open) return null;
@@ -243,7 +239,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 /**
  * Hook to manage command palette state and keyboard shortcuts
  */
-export function useCommandPalette() {
+export function useCommandPalette(): { open: boolean; setOpen: (open: boolean) => void } {
   const [open, setOpen] = useState(false);
 
   // Use react-hotkeys-hook for more reliable keyboard handling
@@ -265,7 +261,7 @@ export function useCommandPalette() {
 /**
  * Hook for global chess-specific keyboard shortcuts
  */
-export function useChessHotkeys() {
+export function useChessHotkeys(): void {
   const router = useRouter();
   const resetGame = useStore((state) => state.game.resetGame);
   const currentFen = useStore((state) => state.game.currentFen);
@@ -274,10 +270,6 @@ export function useChessHotkeys() {
   useHotkeys('ctrl+shift+h, cmd+shift+h', () => {
     router.push('/');
   }, { description: 'Zur Startseite navigieren' });
-
-  useHotkeys('ctrl+shift+d, cmd+shift+d', () => {
-    router.push('/dashboard');
-  }, { description: 'Dashboard öffnen' });
 
   // Game shortcuts
   useHotkeys('ctrl+r, cmd+r', (e) => {

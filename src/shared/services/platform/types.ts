@@ -4,7 +4,7 @@
  */
 
 // Storage abstraction
-export interface IPlatformStorage {
+export interface PlatformStorage {
   save(key: string, data: unknown): Promise<void>;
   load<T = unknown>(key: string): Promise<T | null>;
   remove(key: string): Promise<void>;
@@ -13,7 +13,7 @@ export interface IPlatformStorage {
 }
 
 // Notification abstraction
-export interface IPlatformNotification {
+export interface PlatformNotification {
   requestPermission(): Promise<boolean>;
   show(title: string, options?: NotificationOptions): Promise<void>;
   schedule(notification: ScheduledNotification): Promise<string>;
@@ -37,7 +37,7 @@ export interface ScheduledNotification {
 }
 
 // Device info abstraction
-export interface IPlatformDevice {
+export interface PlatformDevice {
   getPlatform(): Platform;
   getDeviceInfo(): DeviceInfo;
   getMemoryInfo(): MemoryInfo;
@@ -76,7 +76,7 @@ export interface NetworkStatus {
 }
 
 // Performance monitoring abstraction
-export interface IPlatformPerformance {
+export interface PlatformPerformance {
   startMeasure(name: string): void;
   endMeasure(name: string): number;
   mark(name: string): void;
@@ -92,7 +92,7 @@ export interface PerformanceMetrics {
 }
 
 // File system abstraction (for mobile)
-export interface IPlatformFileSystem {
+export interface PlatformFileSystem {
   readFile(path: string): Promise<string>;
   writeFile(path: string, content: string): Promise<void>;
   deleteFile(path: string): Promise<void>;
@@ -104,14 +104,14 @@ export interface IPlatformFileSystem {
 }
 
 // Clipboard abstraction
-export interface IPlatformClipboard {
+export interface PlatformClipboard {
   copy(text: string): Promise<void>;
   paste(): Promise<string>;
   hasContent(): Promise<boolean>;
 }
 
 // Share abstraction
-export interface IPlatformShare {
+export interface PlatformShare {
   canShare(): boolean;
   share(options: ShareOptions): Promise<void>;
 }
@@ -124,7 +124,7 @@ export interface ShareOptions {
 }
 
 // Analytics abstraction
-export interface IPlatformAnalytics {
+export interface PlatformAnalytics {
   track(event: string, properties?: Record<string, unknown>): void;
   identify(userId: string, traits?: Record<string, unknown>): void;
   page(name: string, properties?: Record<string, unknown>): void;
@@ -132,19 +132,19 @@ export interface IPlatformAnalytics {
 }
 
 // Main platform service interface
-export interface IPlatformService {
-  storage: IPlatformStorage;
-  notifications: IPlatformNotification;
-  device: IPlatformDevice;
-  performance: IPlatformPerformance;
-  fileSystem?: IPlatformFileSystem;
-  clipboard: IPlatformClipboard;
-  share: IPlatformShare;
-  analytics: IPlatformAnalytics;
+export interface PlatformService {
+  storage: PlatformStorage;
+  notifications: PlatformNotification;
+  device: PlatformDevice;
+  performance: PlatformPerformance;
+  fileSystem?: PlatformFileSystem;
+  clipboard: PlatformClipboard;
+  share: PlatformShare;
+  analytics: PlatformAnalytics;
 }
 
 // Platform detection utilities
-export interface IPlatformDetection {
+export interface PlatformDetection {
   isWeb(): boolean;
   isMobile(): boolean;
   isAndroid(): boolean;

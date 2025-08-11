@@ -8,13 +8,13 @@
 
 import React from "react";
 import { createTestContainer, TestScenarios, TestAssertions } from "../utils";
-import type { IPlatformStorage } from "@shared/services/platform/types";
+import type { PlatformStorage } from "@shared/services/platform/types";
 
 describe("WebStorageService - Example Tests", () => {
   // APPROACH 1: Per-test container (recommended for isolation)
   describe("Per-test container approach", () => {
     let container: ReturnType<typeof createTestContainer>;
-    let storageService: IPlatformStorage;
+    let storageService: PlatformStorage;
     let mockStorage: Storage;
 
     beforeEach(() => {

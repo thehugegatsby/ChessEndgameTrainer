@@ -63,7 +63,12 @@ class MoveStrategyService {
 
       // Determine the position evaluation from the first move
       // wdl values: -2 (loss), 0 (draw), 2 (win) from side to move perspective
-      const positionWdl = moves[0].wdl;
+      const firstMove = moves[0];
+      if (!firstMove || !selectedMove) {
+        logger.warn("No moves available");
+        return null;
+      }
+      const positionWdl = firstMove.wdl;
 
       if (positionWdl === 2) {
         // Position is winning - find the fastest win (lowest DTZ)
@@ -95,12 +100,15 @@ class MoveStrategyService {
 
         if (movesWithDtm.length > 0) {
           // We have DTM values - use them directly
-          let maxDtm = Math.abs(movesWithDtm[0].dtm!);
-          let maxDtz = Math.abs(movesWithDtm[0].dtz || 0);
-          selectedMove = movesWithDtm[0];
+          const firstMoveWithDtm = movesWithDtm[0];
+          if (!firstMoveWithDtm || firstMoveWithDtm.dtm === null || firstMoveWithDtm.dtm === undefined) return null;
+          let maxDtm = Math.abs(firstMoveWithDtm.dtm);
+          let maxDtz = Math.abs(firstMoveWithDtm.dtz || 0);
+          selectedMove = firstMoveWithDtm;
 
           for (const move of movesWithDtm) {
-            const absDtm = Math.abs(move.dtm!);
+            if (move.dtm === null || move.dtm === undefined) continue;
+            const absDtm = Math.abs(move.dtm);
             const absDtz = Math.abs(move.dtz || 0);
 
             // Primary criterion: maximize DTM (delay mate as long as possible)
@@ -199,7 +207,8 @@ class MoveStrategyService {
       }
 
       // The API already returns moves sorted by best first
-      return topMoves.moves[0].uci;
+      const bestMove = topMoves.moves[0];
+      return bestMove ? bestMove.uci : null;
     } catch (error) {
       logger.error("Failed to get best move", error as Error, { fen });
       return null;
@@ -247,22 +256,29 @@ class MoveStrategyService {
       }
 
       // With perfect strength, always play the best move
+      const firstMove = topMoves.moves[0];
+      if (!firstMove) {
+        logger.warn("No moves available for position", { fen });
+        return null;
+      }
+      
       if (strength >= 1) {
-        return topMoves.moves[0].uci;
+        return firstMove.uci;
       }
 
       // Otherwise, occasionally pick a suboptimal move
       // Higher strength = higher chance of picking the best move
       const random = Math.random();
       if (random < strength) {
-        return topMoves.moves[0].uci;
+        return firstMove.uci;
       }
 
       // Pick a random move from the top moves
       const moveIndex = Math.floor(
         Math.random() * Math.min(3, topMoves.moves.length),
       );
-      return topMoves.moves[moveIndex].uci;
+      const selectedMove = topMoves.moves[moveIndex];
+      return selectedMove ? selectedMove.uci : firstMove.uci;
     } catch (error) {
       logger.error("Failed to get human-like move", error as Error, { fen });
       return null;

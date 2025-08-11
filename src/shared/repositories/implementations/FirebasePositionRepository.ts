@@ -15,31 +15,31 @@ import {
   where,
   orderBy,
   limit,
-  DocumentData,
-  Firestore,
+  type DocumentData,
+  type Firestore,
   writeBatch,
-  Query,
+  type Query,
 } from "firebase/firestore";
 
 import {
-  IPositionRepository,
-  IPositionRepositoryConfig,
+  type PositionRepository,
+  type PositionRepositoryConfig,
 } from "../IPositionRepository";
 import {
-  EndgamePosition,
-  EndgameCategory,
-  EndgameChapter,
+  type EndgamePosition,
+  type EndgameCategory,
+  type EndgameChapter,
 } from "@shared/types";
 import { validateAndSanitizeFen } from "@shared/utils/fenValidator";
 import { getLogger } from "@shared/services/logging";
 
 const logger = getLogger().setContext("FirebasePositionRepository");
 
-export class FirebasePositionRepository implements IPositionRepository {
+export class FirebasePositionRepository implements PositionRepository {
   private db: Firestore;
-  private config: IPositionRepositoryConfig;
+  private config: PositionRepositoryConfig;
 
-  constructor(firestore: Firestore, config: IPositionRepositoryConfig = {}) {
+  constructor(firestore: Firestore, config: PositionRepositoryConfig = {}) {
     this.db = firestore;
     this.config = config;
     logger.info("FirebasePositionRepository initialized", { config });
@@ -86,9 +86,9 @@ export class FirebasePositionRepository implements IPositionRepository {
       // Convert to number for compatibility with existing EndgamePosition.id type
       // Using hash code of the UUID string
       const id = Math.abs(
-        uniqueId.split("").reduce((a, b) => {
-          a = (a << 5) - a + b.charCodeAt(0);
-          return a & a;
+        uniqueId.split("").reduce((acc, char) => {
+          const hash = (acc << 5) - acc + char.charCodeAt(0);
+          return hash & hash;
         }, 0),
       );
       const position: EndgamePosition = { ...data, id };
@@ -120,16 +120,17 @@ export class FirebasePositionRepository implements IPositionRepository {
   ): Promise<EndgamePosition | null> {
     try {
       // Validate FEN if provided
+      let sanitizedUpdates = updates;
       if (updates.fen) {
         const validation = validateAndSanitizeFen(updates.fen);
         if (!validation.isValid) {
           throw new Error(`Invalid FEN: ${validation.errors.join(", ")}`);
         }
-        updates.fen = validation.sanitized;
+        sanitizedUpdates = { ...updates, fen: validation.sanitized };
       }
 
       const docRef = doc(this.db, "positions", id.toString());
-      await updateDoc(docRef, updates as DocumentData);
+      await updateDoc(docRef, sanitizedUpdates as DocumentData);
 
       this.config.events?.onDataModified?.("updatePosition", [id]);
       return this.getPosition(id);
@@ -367,10 +368,15 @@ export class FirebasePositionRepository implements IPositionRepository {
         return null;
       }
 
-      const data = snapshot.docs[0].data();
+      const firstDoc = snapshot.docs[0];
+      if (!firstDoc) {
+        logger.error("No document found in snapshot");
+        return null;
+      }
+      const data = firstDoc.data();
       const position: EndgamePosition = {
         ...data,
-        id: parseInt(snapshot.docs[0].id),
+        id: parseInt(firstDoc.id),
       } as EndgamePosition;
 
       // Validate FEN
@@ -428,10 +434,15 @@ export class FirebasePositionRepository implements IPositionRepository {
         return null;
       }
 
-      const data = snapshot.docs[0].data();
+      const firstDoc = snapshot.docs[0];
+      if (!firstDoc) {
+        logger.error("No document found in snapshot");
+        return null;
+      }
+      const data = firstDoc.data();
       const position: EndgamePosition = {
         ...data,
-        id: parseInt(snapshot.docs[0].id),
+        id: parseInt(firstDoc.id),
       } as EndgamePosition;
 
       // Validate FEN
@@ -617,9 +628,9 @@ export class FirebasePositionRepository implements IPositionRepository {
         // Generate unique ID using crypto.randomUUID for each position
         const uniqueId = crypto.randomUUID();
         const id = Math.abs(
-          uniqueId.split("").reduce((a, b) => {
-            a = (a << 5) - a + b.charCodeAt(0);
-            return a & a;
+          uniqueId.split("").reduce((acc, char) => {
+            const hash = (acc << 5) - acc + char.charCodeAt(0);
+            return hash & hash;
           }, 0),
         );
         const position: EndgamePosition = { ...data, id };

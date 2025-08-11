@@ -233,7 +233,7 @@ class MockChessService extends EventEmitter {
     this.on("stateChange", callback);
   }
 
-  removeAllListeners(): this {
+  override removeAllListeners(): this {
     super.removeAllListeners();
     return this;
   }
@@ -241,7 +241,7 @@ class MockChessService extends EventEmitter {
   // Subscribe method for rootStore
   subscribe(callback: (event: any) => void): () => void {
     // Forward stateUpdate events properly
-    const handleStateUpdate = (event: any) => {
+    const handleStateUpdate = (event: any): void => {
       // If event already has the correct structure, pass it through
       if (event && event.type === "stateUpdate") {
         callback(event);

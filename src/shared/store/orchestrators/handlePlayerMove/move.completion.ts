@@ -42,10 +42,10 @@ export async function handleTrainingCompletion(
     return;
 
   const userMoves = state.game.moveHistory.filter(
-    (m: ValidatedMove) => 'userMove' in m && (m as Record<string, unknown>).userMove,
+    (m: ValidatedMove) => 'userMove' in m && (m as Record<string, unknown>)['userMove'],
   );
   const optimalMoves = userMoves.filter(
-    (m: ValidatedMove) => 'isOptimal' in m && (m as Record<string, unknown>).isOptimal,
+    (m: ValidatedMove) => 'isOptimal' in m && (m as Record<string, unknown>)['isOptimal'],
   ).length;
   const totalMoves = userMoves.length;
   const accuracy = totalMoves > 0 ? (optimalMoves / totalMoves) * 100 : 0;
@@ -56,13 +56,15 @@ export async function handleTrainingCompletion(
     accuracy === 100 && state.training.mistakeCount === 0 && finalMoveOptimal;
 
   // Determine success based on game outcome
-  const gameOutcome = chessService.isCheckmate()
-    ? chessService.turn() === "w"
-      ? "0-1"
-      : "1-0"
-    : chessService.isDraw()
-      ? "1/2-1/2"
-      : null;
+  const gameOutcome = (() => {
+    if (chessService.isCheckmate()) {
+      return chessService.turn() === "w" ? "0-1" : "1-0";
+    }
+    if (chessService.isDraw()) {
+      return "1/2-1/2";
+    }
+    return null;
+  })();
 
   const success = gameOutcome === state.training.currentPosition.targetOutcome;
 

@@ -3,8 +3,8 @@
  * Type-safe client for test API server interactions
  */
 
-import { APIRequestContext } from "@playwright/test";
-import { EndgamePosition, EndgameCategory, EndgameChapter } from "@shared/types/endgame";
+import { type APIRequestContext } from "@playwright/test";
+import { type EndgamePosition, type EndgameCategory, type EndgameChapter } from "@shared/types/endgame";
 import { PORTS } from "../../../config/ports";
 
 // Type definitions for Firebase test data

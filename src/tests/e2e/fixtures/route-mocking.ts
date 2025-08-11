@@ -4,7 +4,7 @@
  * Expert consensus: Gemini 9/10, O3-mini 9/10, Claude 8/10 confidence
  */
 
-import { Page } from "@playwright/test";
+import { type Page } from "@playwright/test";
 import { E2E } from "../../../shared/constants";
 
 /**

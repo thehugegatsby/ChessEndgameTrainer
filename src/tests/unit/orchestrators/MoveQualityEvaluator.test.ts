@@ -42,7 +42,11 @@ function createTablebaseResult(partial: { wdl: number; dtm: number | null; categ
     wdl: partial.wdl,
     dtm: partial.dtm,
     dtz: partial.dtm, // Use dtm as dtz for simplicity in tests
-    category: partial.category || (partial.wdl > 0 ? "win" : partial.wdl < 0 ? "loss" : "draw"),
+    category: partial.category || (() => {
+      if (partial.wdl > 0) return "win";
+      if (partial.wdl < 0) return "loss";
+      return "draw";
+    })(),
     precise: false,
     evaluation: "Test evaluation"
   };

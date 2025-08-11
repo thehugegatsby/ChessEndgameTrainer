@@ -24,7 +24,7 @@
  * ```
  */
 
-import { TrainingSlice, TrainingState, TrainingActions } from "./types";
+import { type TrainingSlice, type TrainingState, type TrainingActions } from "./types";
 import type { EndgamePosition as BaseEndgamePosition } from "@shared/types/endgame";
 import type { ValidatedMove } from "@shared/types/chess";
 import type { MoveSuccessDialog } from "@shared/store/orchestrators/handlePlayerMove/move.types";
@@ -74,8 +74,8 @@ export const initialTrainingState = {
   isPlayerTurn: true,
   isOpponentThinking: false,
   isSuccess: false,
-  sessionStartTime: undefined as number | undefined,
-  sessionEndTime: undefined as number | undefined,
+  // sessionStartTime: undefined - omit instead of undefined
+  // sessionEndTime: undefined - omit instead of undefined
   hintsUsed: 0,
   mistakeCount: 0,
   currentStreak: 0,
@@ -113,17 +113,17 @@ export const initialTrainingState = {
  * ```
  */
 export const createTrainingState = (): TrainingState => ({
-  currentPosition: undefined as TrainingPosition | undefined,
-  nextPosition: undefined as TrainingPosition | null | undefined,
-  previousPosition: undefined as TrainingPosition | null | undefined,
+  // currentPosition: undefined - omit instead of undefined
+  // nextPosition: undefined - omit instead of undefined  
+  // previousPosition: undefined - omit instead of undefined
   isLoadingNavigation: false,
   navigationError: null as string | null,
   chapterProgress: null as { completed: number; total: number } | null,
   isPlayerTurn: true,
   isOpponentThinking: false,
   isSuccess: false,
-  sessionStartTime: undefined as number | undefined,
-  sessionEndTime: undefined as number | undefined,
+  // sessionStartTime: undefined - omit instead of undefined
+  // sessionEndTime: undefined - omit instead of undefined
   hintsUsed: 0,
   mistakeCount: 0,
   currentStreak: 0,
@@ -199,7 +199,7 @@ export const createTrainingActions = (
       state.training.currentPosition = position;
       state.training.isSuccess = false;
       state.training.sessionStartTime = Date.now();
-      state.training.sessionEndTime = undefined;
+      delete state.training.sessionEndTime; // Omit instead of undefined
       state.training.hintsUsed = 0;
       state.training.mistakeCount = 0;
       // Set initial turn based on position
@@ -638,7 +638,7 @@ export const createTrainingActions = (
       state.training.mistakeCount = 0;
       state.training.isSuccess = false;
       state.training.sessionStartTime = Date.now();
-      state.training.sessionEndTime = undefined;
+      delete state.training.sessionEndTime; // Omit instead of undefined
       // Reset turn based on position
       state.training.isPlayerTurn = currentPos
         ? currentPos.sideToMove === currentPos.colorToTrain

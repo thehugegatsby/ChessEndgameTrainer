@@ -3,22 +3,22 @@
  * @description Defines the structure and interfaces for each store slice
  */
 
-import { StateCreator } from "zustand";
+import { type StateCreator } from "zustand";
 import {
-  UIState,
-  Toast,
-  ModalType,
-  LoadingState,
-  AnalysisPanelState,
-  AnalysisStatus,
+  type UIState,
+  type Toast,
+  type ModalType,
+  type LoadingState,
+  type AnalysisPanelState,
+  type AnalysisStatus,
 } from "../types";
 
 // Re-export UIState for external use
 export type { UIState };
-import { ValidatedMove } from "@shared/types/chess";
-import { PositionAnalysis } from "@shared/types/evaluation";
-import { EndgamePosition } from "@shared/types/endgame";
-import { Move as ChessJsMove } from "chess.js";
+import { type ValidatedMove } from "@shared/types/chess";
+import { type PositionAnalysis } from "@shared/types/evaluation";
+import { type EndgamePosition } from "@shared/types/endgame";
+import { type Move as ChessJsMove } from "chess.js";
 import type { TrainingPosition } from "./trainingSlice";
 
 /**
@@ -78,10 +78,10 @@ export interface GameActions {
  * Tablebase slice - API interactions and caching
  */
 export interface TablebaseState {
-  tablebaseMove?: string | null;
+  tablebaseMove?: string | null | undefined;
   analysisStatus: AnalysisStatus;
   evaluations: PositionAnalysis[];
-  currentEvaluation?: PositionAnalysis;
+  currentEvaluation?: PositionAnalysis | undefined;
 }
 
 export interface TablebaseActions {
@@ -98,8 +98,8 @@ export interface TablebaseActions {
  */
 export interface TrainingState {
   currentPosition?: TrainingPosition;
-  nextPosition?: TrainingPosition | null | undefined;
-  previousPosition?: TrainingPosition | null | undefined;
+  nextPosition?: TrainingPosition | null;
+  previousPosition?: TrainingPosition | null;
   isLoadingNavigation: boolean;
   navigationError: string | null;
   chapterProgress: {

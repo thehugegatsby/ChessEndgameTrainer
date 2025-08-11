@@ -32,10 +32,10 @@ export const TablebaseMoveSchema = z.object({
 export const LichessTablebaseResponseSchema = z.object({
   category: z.string(), // Required - every position has a category
   dtz: z.number().nullable(), // Required but can be null
-  dtm: z.number().nullable().optional(), // Optional - not always present in API response
-  precise_dtz: z.union([z.number(), z.boolean()]).optional(), // Can be number or boolean
-  dtw: z.number().nullable().optional(), // Add missing fields from actual API
-  dtc: z.number().nullable().optional(),
+  dtm: z.number().nullable().default(null), // Can be null, defaults to null if not present
+  precise_dtz: z.union([z.number(), z.boolean()]).default(false), // Can be number or boolean
+  dtw: z.number().nullable().default(null), // Add missing fields from actual API  
+  dtc: z.number().nullable().default(null),
   checkmate: z.boolean().optional().default(false),
   stalemate: z.boolean().optional().default(false),
   variant_win: z.boolean().optional().default(false),

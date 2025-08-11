@@ -40,7 +40,7 @@ jest.mock("chess.js", () => {
 
 import {
   TestApiService,
-  TestTablebaseConfig,
+  type TestTablebaseConfig,
   getTestApi,
 } from "../../../../shared/services/test/TestApiService";
 import { getLogger } from "../../../../shared/services/logging";

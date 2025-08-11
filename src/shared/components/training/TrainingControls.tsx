@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { EndgamePosition } from "@shared/types";
+import { type EndgamePosition } from "@shared/types";
 import { getShortTitle } from "@shared/utils/titleFormatter";
 
 interface TrainingControlsProps {

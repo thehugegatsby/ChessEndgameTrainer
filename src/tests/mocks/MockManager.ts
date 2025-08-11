@@ -18,8 +18,8 @@
 import { ChessServiceMockFactory } from './ChessServiceMockFactory';
 import { ZustandStoreMockFactory } from './ZustandStoreMockFactory';
 import { TablebaseServiceMockFactory } from './TablebaseServiceMockFactory';
-import { MSWServerMockFactory } from './MSWServerMockFactory';
-import { BaseMockFactory } from './BaseMockFactory';
+import { type MSWServerMockFactory } from './MSWServerMockFactory';
+import { type BaseMockFactory } from './BaseMockFactory';
 
 class MockManager {
   // Service mocks

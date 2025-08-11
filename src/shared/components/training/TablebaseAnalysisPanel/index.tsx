@@ -84,7 +84,7 @@ export const TablebaseAnalysisPanel: React.FC<TablebaseAnalysisPanelProps> = ({
   const { lastEvaluation, isEvaluating, error } = usePositionAnalysis({
     fen,
     isEnabled: isVisible,
-    previousFen,
+    ...(previousFen !== undefined && { previousFen }),
   });
 
   const [, trainingActions] = useTrainingStore();
@@ -104,7 +104,7 @@ export const TablebaseAnalysisPanel: React.FC<TablebaseAnalysisPanelProps> = ({
    * The store's handlePlayerMove action accepts SAN strings directly
    * and handles all validation, state updates, and side effects.
    */
-  const handleMoveSelect = (moveSan: string) => {
+  const handleMoveSelect = (moveSan: string): void => {
     // The store action accepts SAN strings directly
     // MoveResultGroup passes move.san, which chess.js can parse
     trainingActions.handlePlayerMove(moveSan);
@@ -124,9 +124,8 @@ export const TablebaseAnalysisPanel: React.FC<TablebaseAnalysisPanelProps> = ({
           lastEvaluation?.tablebase || { isTablebasePosition: false }
         }
         onMoveSelect={handleMoveSelect}
-        selectedMove={undefined}
         loading={isEvaluating}
-        error={error || undefined}
+        {...(error && { error })}
         compact={false}
       />
     </div>

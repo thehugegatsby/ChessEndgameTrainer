@@ -66,7 +66,7 @@ const createMockMove = (overrides: Partial<TablebaseMove>): TablebaseMove => ({
  * @param moves - Array of moves to include in response
  * @returns Mocked tablebase response object
  */
-const createMockResponse = (moves: TablebaseMove[]) => ({
+const createMockResponse = (moves: TablebaseMove[]): { isAvailable: boolean; moves: TablebaseMove[] } => ({
   isAvailable: true,
   moves,
 });

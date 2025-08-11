@@ -3,12 +3,12 @@
  * Clean architecture using Admin SDK for complete control over test data
  */
 
-import { initializeApp, App, deleteApp } from "firebase-admin/app";
-import { getFirestore, Firestore, Timestamp } from "firebase-admin/firestore";
+import { initializeApp, type App, deleteApp } from "firebase-admin/app";
+import { getFirestore, type Firestore, Timestamp } from "firebase-admin/firestore";
 import {
-  EndgamePosition,
-  EndgameCategory,
-  EndgameChapter,
+  type EndgamePosition,
+  type EndgameCategory,
+  type EndgameChapter,
 } from "@shared/types/endgame";
 import * as fs from "fs/promises";
 import * as path from "path";
@@ -35,9 +35,9 @@ export class FirebaseTestAdmin {
     this.db = getFirestore(this.app);
 
     // Use emulator if available
-    if (process.env.FIRESTORE_EMULATOR_HOST) {
+    if (process.env['FIRESTORE_EMULATOR_HOST']) {
       this.db.settings({
-        host: process.env.FIRESTORE_EMULATOR_HOST,
+        host: process.env['FIRESTORE_EMULATOR_HOST'],
         ssl: false,
       });
     }

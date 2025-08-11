@@ -26,7 +26,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { getStoreDependencies } from "@shared/store/storeConfig";
-import { EndgameCategory, EndgameChapter } from "@shared/types";
+import { type EndgameCategory, type EndgameChapter } from "@shared/types";
 import { getLogger } from "@shared/services/logging";
 
 const logger = getLogger().setContext("AdvancedEndgameMenu");
@@ -143,7 +143,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
 
   // Load categories and user stats
   useEffect(() => {
-    const loadData = async () => {
+    const loadData = async (): Promise<void> => {
       try {
         // Load user stats from localStorage
         const savedStats = localStorage.getItem("endgame-user-stats");
@@ -206,11 +206,12 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
     }
   }, [isOpen, positionService]);
 
-  const toggleCategory = async (categoryId: string) => {
+  const toggleCategory = async (categoryId: string): Promise<void> => {
     const categoryIndex = categories.findIndex((c) => c.id === categoryId);
     if (categoryIndex === -1) return;
 
     const category = categories[categoryIndex];
+    if (!category) return; // Type guard for safety
 
     // Toggle expansion state
     if (category.isExpanded) {
@@ -264,7 +265,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
     }
   };
 
-  const getCompletedPositions = () =>
+  const getCompletedPositions = (): number =>
     Math.floor(totalPositions * (userStats.successRate / 100));
 
   if (!isOpen) return null;
@@ -310,7 +311,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
         <div className="flex-1 overflow-y-auto">
           {/* All (rated) */}
           <div className="p-4">
-            <Link href="/dashboard">
+            <Link href="/">
               <div className="flex items-center gap-3 p-3 bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
                 <span className="text-lg">🎯</span>
                 <span className="font-medium">All (rated)</span>
@@ -421,11 +422,11 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
               >
                 <div className="flex items-center gap-3">
                   <span className="text-lg">
-                    {name.includes("Queen")
-                      ? "♛"
-                      : name.includes("Knight")
-                        ? "♞"
-                        : "♝"}
+                    {(() => {
+                      if (name.includes("Queen")) return "♛";
+                      if (name.includes("Knight")) return "♞";
+                      return "♝";
+                    })()}
                   </span>
                   <span className="font-medium">{name}</span>
                 </div>

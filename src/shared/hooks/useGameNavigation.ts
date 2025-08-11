@@ -37,8 +37,8 @@
  */
 
 import { useMemo, useEffect } from 'react';
-import { Chess, Move } from 'chess.js';
-import { ValidatedMove } from '@shared/types';
+import { Chess, type Move } from 'chess.js';
+import { type ValidatedMove } from '@shared/types';
 import { toLibraryMove } from '@shared/infrastructure/chess-adapter';
 
 /**
@@ -129,7 +129,12 @@ export const useGameNavigation = ({
       const tempGame = new Chess(initialFen);
       // Replay all moves except the last one to get previous position
       for (let i = 0; i < history.length - 1; i++) {
-        const moveResult = tempGame.move(history[i]);
+        const move = history[i];
+        if (!move) {
+          // Invalid move in history
+          return undefined;
+        }
+        const moveResult = tempGame.move(move);
         if (!moveResult) {
           // Move doesn't apply to this position - history is from a different position
           return undefined;

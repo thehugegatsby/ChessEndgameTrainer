@@ -18,7 +18,7 @@ export interface LogEntry {
   context?: string;
   data?: unknown;
   error?: Error;
-  stack?: string;
+  stack?: string | undefined;
 }
 
 export interface LoggerConfig {
@@ -30,17 +30,17 @@ export interface LoggerConfig {
   remoteEndpoint?: string;
   contextWhitelist?: string[]; // Only log from these contexts
   contextBlacklist?: string[]; // Don't log from these contexts
-  transports?: ILogTransport[]; // Optional custom transports for testing
+  transports?: LogTransport[]; // Optional custom transports for testing
 }
 
-export interface ILogger {
+export interface Logger {
   debug(message: string, data?: unknown): void;
   info(message: string, data?: unknown): void;
   warn(message: string, data?: unknown): void;
   error(message: string, error?: Error | unknown, data?: unknown): void;
   fatal(message: string, error?: Error | unknown, data?: unknown): void;
 
-  setContext(context: string): ILogger;
+  setContext(context: string): Logger;
   clearContext(): void;
 
   getConfig(): LoggerConfig;
@@ -54,7 +54,7 @@ export interface ILogger {
   timeEnd(label: string): void;
 
   // Structured logging
-  withFields(fields: Record<string, unknown>): ILogger;
+  withFields(fields: Record<string, unknown>): Logger;
 }
 
 export interface LogFilter {
@@ -66,11 +66,11 @@ export interface LogFilter {
   searchText?: string;
 }
 
-export interface ILogTransport {
+export interface LogTransport {
   log(entry: LogEntry): void;
   flush(): Promise<void>;
 }
 
-export interface ILogFormatter {
+export interface LogFormatter {
   format(entry: LogEntry): string;
 }

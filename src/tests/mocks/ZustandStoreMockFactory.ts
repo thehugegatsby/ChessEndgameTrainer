@@ -10,9 +10,9 @@
 
 import { jest } from '@jest/globals';
 import { act } from '@testing-library/react';
-import { StoreApi } from 'zustand';
+import { type StoreApi } from 'zustand';
 import { BaseMockFactory } from './BaseMockFactory';
-import { useStore, RootStore } from '@shared/store/rootStore';
+import { useStore, type RootStore } from '@shared/store/rootStore';
 import type { GameSlice, TrainingSlice, TablebaseSlice, UISlice } from '@shared/store/slices/types';
 
 export interface StoreMockOverrides {

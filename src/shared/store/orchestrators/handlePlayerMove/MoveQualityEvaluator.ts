@@ -9,6 +9,7 @@ import {
   type TablebaseEvaluation,
   type TablebaseMovesResult,
 } from "@shared/services/TablebaseService";
+import type { TablebaseResult } from "@shared/types/tablebase";
 import { getLogger } from "@shared/services/logging";
 import { WdlAdapter } from "@shared/utils/tablebase/wdl";
 
@@ -32,6 +33,16 @@ const TOP_MOVES_LIMIT = 3;
 
 const logger = getLogger().setContext("MoveQualityEvaluator");
 
+/** TablebaseEvaluation with guaranteed result property */
+type ValidatedTablebaseEvaluation = TablebaseEvaluation & {
+  result: TablebaseResult;
+};
+
+/** TablebaseMovesResult with guaranteed moves array */
+type ValidatedTablebaseMovesResult = TablebaseMovesResult & {
+  moves: NonNullable<TablebaseMovesResult['moves']>;
+};
+
 /** Evaluates move quality using tablebase analysis */
 export class MoveQualityEvaluator {
   /** Evaluates move quality against tablebase recommendations */
@@ -48,8 +59,8 @@ export class MoveQualityEvaluator {
         this.getEvaluation(fenAfter),
       ]);
 
-      // Check if both evaluations are available
-      if (!this.areEvaluationsValid(evalBefore, evalAfter)) {
+      // Check if both evaluations are available using type guards
+      if (!this.hasValidResult(evalBefore) || !this.hasValidResult(evalAfter)) {
         logger.debug(
           "[MoveQuality] Skipping evaluation - insufficient data:",
           {
@@ -67,8 +78,9 @@ export class MoveQualityEvaluator {
         };
       }
 
-      const wdlBefore = evalBefore.result!.wdl;
-      const wdlAfter = evalAfter.result!.wdl;
+      // TypeScript now knows that both evaluations have valid results
+      const wdlBefore = evalBefore.result.wdl;
+      const wdlAfter = evalAfter.result.wdl;
 
       logger.debug("[MoveQuality] Evaluating move quality:", {
         moveColor: validatedMove.color,
@@ -91,7 +103,7 @@ export class MoveQualityEvaluator {
         wdlAfterFromPlayerPerspective,
         trainingBaselineWdl: trainingBaseline?.wdl,
         effectiveWdlBefore,
-        usingBaseline: !!trainingBaseline,
+        usingBaseline: Boolean(trainingBaseline),
       });
 
       // Get best moves for comparison
@@ -115,7 +127,7 @@ export class MoveQualityEvaluator {
       );
 
       const shouldShowErrorDialog = !playedMoveWasBest && outcomeChanged;
-      const bestMove = topMoves.isAvailable && topMoves.moves && topMoves.moves.length > 0
+      const bestMove = topMoves.isAvailable && topMoves.moves && topMoves.moves.length > 0 && topMoves.moves[0]
         ? topMoves.moves[0].san
         : undefined;
 
@@ -125,7 +137,7 @@ export class MoveQualityEvaluator {
         outcomeChanged,
         effectiveWdlBefore,
         wdlAfterFromPlayerPerspective,
-        usingBaseline: !!trainingBaseline,
+        usingBaseline: Boolean(trainingBaseline),
         validatedMove: validatedMove.san,
         bestMove,
       });
@@ -140,7 +152,7 @@ export class MoveQualityEvaluator {
         shouldShowErrorDialog,
         wdlBefore,
         wdlAfter,
-        bestMove,
+        ...(bestMove !== undefined && { bestMove }),
         wasOptimal: playedMoveWasBest,
         outcomeChanged,
       };
@@ -163,24 +175,15 @@ export class MoveQualityEvaluator {
       .catch(() => ({ isAvailable: false }));
   }
 
-  /**
-   * Validates that both evaluations are available and have results
-   */
-  private areEvaluationsValid(
-    evalBefore: TablebaseEvaluation,
-    evalAfter: TablebaseEvaluation,
-  ): boolean {
-    return this.hasValidResult(evalBefore) && this.hasValidResult(evalAfter);
-  }
 
   /**
-   * Checks if a single evaluation has a valid result
+   * Type guard to check if a single evaluation has a valid result
    */
-  private hasValidResult(evaluation: TablebaseEvaluation): boolean {
+  private hasValidResult(evaluation: TablebaseEvaluation): evaluation is ValidatedTablebaseEvaluation {
     return (
       evaluation.isAvailable &&
       "result" in evaluation &&
-      !!evaluation.result
+      Boolean(evaluation.result)
     );
   }
 
@@ -212,8 +215,15 @@ export class MoveQualityEvaluator {
    * // Returns: { wdlBeforeFromPlayerPerspective: 0, wdlAfterFromPlayerPerspective: -1000 }
    * // This correctly shows Black went from draw (0) to loss (-1000)
    */
-  private convertToPlayerPerspective(wdlBefore: number, wdlAfter: number) {
+  private convertToPlayerPerspective(wdlBefore: number, wdlAfter: number): { wdlBeforeFromPlayerPerspective: number; wdlAfterFromPlayerPerspective: number } {
     return WdlAdapter.convertToPlayerPerspective(wdlBefore, wdlAfter);
+  }
+
+  /**
+   * Type guard to check if TablebaseMovesResult has valid moves
+   */
+  private hasValidMoves(topMoves: TablebaseMovesResult): topMoves is ValidatedTablebaseMovesResult {
+    return topMoves.isAvailable && Boolean(topMoves.moves) && topMoves.moves !== undefined && topMoves.moves.length > 0;
   }
 
   /**
@@ -223,10 +233,11 @@ export class MoveQualityEvaluator {
     topMoves: TablebaseMovesResult,
     playedMoveSan: string,
   ): boolean {
-    if (!(topMoves.isAvailable && topMoves.moves && topMoves.moves.length > 0)) {
+    if (!this.hasValidMoves(topMoves)) {
       return false;
     }
-    return topMoves.moves!.some((m) => m.san === playedMoveSan);
+    // TypeScript now knows that topMoves.moves is a non-empty array
+    return topMoves.moves.some((m) => m.san === playedMoveSan);
   }
 
 

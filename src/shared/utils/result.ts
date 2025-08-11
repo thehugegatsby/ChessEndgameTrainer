@@ -31,7 +31,7 @@
  * (e.g., ApiError, ValidationError).
  */
 export class AppError extends Error {
-  public readonly context?: Record<string, unknown>;
+  public readonly context?: Record<string, unknown> | undefined;
 
   constructor(message: string, context?: Record<string, unknown>) {
     super(message);
