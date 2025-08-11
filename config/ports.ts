@@ -1,10 +1,18 @@
 /**
- * Central port configuration for all environments (TypeScript version)
- * This file defines all ports used across the application
- * to ensure consistency and easy configuration changes
+ * Central Port Configuration - SINGLE SOURCE OF TRUTH (TypeScript)
+ * 
+ * 🤖 AI-NOTE: This is the MASTER file for all port configurations
+ * 🤖 AI-RULE: ONLY edit this file, never edit config/ports.js
+ * 🤖 AI-RULE: After editing, regenerate config/ports.js via build script
+ * 
+ * PURPOSE: Centralized port definitions for consistency across:
+ * - Development server (DEV)
+ * - E2E testing (E2E) 
+ * - Production deployment (PRODUCTION)
+ * - Firebase emulators (FIREBASE_*)
  */
 
-// Import env config for typed process.env access
+// Import env config for typed process.env access  
 import { env } from '../src/config/env';
 
 export const PORTS = {

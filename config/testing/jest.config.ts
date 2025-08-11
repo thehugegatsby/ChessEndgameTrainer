@@ -10,9 +10,34 @@ import tsconfig from '../../tsconfig.json';
 
 // Base configuration shared by all projects
 const baseConfig = {
-  // Use SWC for faster transpilation
+  // Use SWC for faster transpilation with TypeScript support
   transform: {
-    '^.+\\.(ts|tsx|js|jsx)$': '@swc/jest'
+    '^.+\\.(ts|tsx|js|jsx)$': ['@swc/jest', {
+      jsc: {
+        parser: {
+          syntax: 'typescript',
+          tsx: true,
+          decorators: false,
+        },
+        target: 'es2018',
+        loose: false,
+        externalHelpers: false,
+        keepClassNames: false,
+        transform: {
+          react: {
+            pragma: 'React.createElement',
+            pragmaFrag: 'React.Fragment',
+            throwIfNamespace: true,
+            development: false,
+            useBuiltins: false,
+            runtime: 'automatic'
+          }
+        }
+      },
+      module: {
+        type: 'commonjs'
+      }
+    }]
   },
   
   // Transform these node_modules that use ES modules
