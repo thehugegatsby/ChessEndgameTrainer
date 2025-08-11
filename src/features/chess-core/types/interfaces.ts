@@ -168,6 +168,17 @@ export interface ChessEventPayload {
 // Event handler
 export type ChessEventHandler = (payload: ChessEventPayload) => void;
 
+// ========== GermanNotation Interface ==========
+// Handles conversion between German and English chess notation
+export interface IGermanNotation {
+  toChessJs(piece: string): string | undefined;
+  toGerman(piece: string): string | undefined;
+  normalizeMove(move: string): string | { from: string; to: string; promotion?: string } | undefined;
+  hasGermanNotation(move: string): boolean;
+  sanToGerman(san: string): string;
+  germanToSan(germanSan: string): string;
+}
+
 // ========== ChessServiceFacade Interface ==========
 // Orchestrates all components (implements IChessService)
 export interface IChessServiceFacade {
