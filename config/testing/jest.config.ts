@@ -54,9 +54,9 @@ const baseConfig = {
     }]
   },
   
-  // Transform these node_modules that use ES modules
+  // Transform these node_modules that use ES modules (including pnpm nested paths)
   transformIgnorePatterns: [
-    '/node_modules/(?!(nanoid|supermemo|react-chessboard|chess.js|react-hotkeys-hook|react-chess-pieces|react-native|@react-native|@react-navigation|expo|@expo|react-native-.*)/)'
+    '/node_modules/(?!((\\.pnpm/)?(nanoid|supermemo|react-chessboard|chess.js|react-hotkeys-hook|react-chess-pieces|react-native|@react-native|@react-navigation|expo|@expo|react-native-.*))/)/'
   ],
   
   // Module file extensions
@@ -65,6 +65,8 @@ const baseConfig = {
   // Path mapping from tsconfig
   moduleNameMapper: {
     ...pathsToModuleNameMapper(tsconfig.compilerOptions.paths || {}, { prefix: '<rootDir>/' }),
+    // Force nanoid to use CommonJS version (fallback for pnpm issues)
+    '^nanoid$': 'nanoid/non-secure',
     // Mock static assets
     '\\.(svg)$': fileMock,
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',

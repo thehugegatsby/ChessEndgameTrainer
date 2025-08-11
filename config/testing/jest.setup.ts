@@ -5,9 +5,13 @@
 
 import '@testing-library/jest-dom';
 import { enableMapSet } from 'immer';
+import fetchMock from 'jest-fetch-mock';
 
 // Enable Immer MapSet plugin for Zustand
 enableMapSet();
+
+// Enable jest-fetch-mock
+fetchMock.enableMocks();
 
 // ============================================
 // Global Mocks
