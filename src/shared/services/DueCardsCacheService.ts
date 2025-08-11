@@ -116,8 +116,14 @@ export class DueCardsCacheService {
    * Private constructor for singleton pattern
    */
   private constructor() {
-    this.scheduleCleanup();
-    logger.debug('DueCardsCacheService initialized');
+    // Skip cleanup timer in test environment to prevent Jest hanging
+    // This will be properly addressed in Vitest migration (Phase 1, #129)
+    if (process.env.NODE_ENV !== 'test') {
+      this.scheduleCleanup();
+    }
+    logger.debug('DueCardsCacheService initialized', {
+      cleanupEnabled: process.env.NODE_ENV !== 'test'
+    });
   }
 
   /**
