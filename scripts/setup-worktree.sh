@@ -1,30 +1,33 @@
 #!/usr/bin/env bash
 
-# Simplified Git Worktree Setup Script  
-# Usage: ./setup-worktree.sh [worktree-name]
-# If no worktree-name provided, assumes script is run from within a worktree
-# If worktree-name provided, sets up that specific worktree
+# Git Worktree Setup Script for pnpm
+# Optimized for pnpm's global store architecture
+# Usage: ./setup-worktree-pnpm.sh [worktree-name]
 
-# Strict mode for better error handling and debugging
 set -euo pipefail
 
 # --- Configuration ---
-# Directories that should be symlinked from main project to worktree
+
+# Directories that should be symlinked (NOT node_modules!)
 readonly LINK_DIRS=(
-    "node_modules"
     ".next"
     "dist" 
     "build"
     "coverage"
+    "playwright-report"
+    "test-results"
 )
 
-# Files that should be symlinked from main project to worktree
+# Files that should be symlinked from main project
 readonly LINK_FILES=(
     "package.json"
-    "package-lock.json"
+    "pnpm-lock.yaml"
+    "pnpm-workspace.yaml"  # if using workspaces
+    ".npmrc"               # pnpm config
     "tsconfig.json"
     ".eslintrc.json"
     "jest.config.js"
+    "vitest.config.ts"
     "next.config.js"
     "postcss.config.js"
     "tailwind.config.js"
@@ -33,34 +36,69 @@ readonly LINK_FILES=(
     ".env.local"
 )
 
-# Config directories to symlink (with nested structure)
+# Config directories to symlink
 readonly LINK_CONFIG_DIRS=(
     "src/config"
 )
+
+# pnpm store configuration
+readonly PNPM_STORE_DIR="${PNPM_STORE_DIR:-$HOME/.pnpm-store}"
 
 # --- Helper Functions ---
 print_info() { echo "ℹ️  $1"; }
 print_success() { echo "✅ $1"; }
 print_error() { echo "❌ $1"; }
+print_warning() { echo "⚠️  $1"; }
+
+# Check if pnpm is installed
+check_pnpm() {
+    if ! command -v pnpm &> /dev/null; then
+        print_error "pnpm is not installed!"
+        print_info "Install with: npm install -g pnpm"
+        exit 1
+    fi
+    print_success "pnpm found: $(pnpm --version)"
+}
+
+# Configure pnpm store location
+configure_pnpm_store() {
+    local worktree_root="$1"
+    
+    print_info "Configuring pnpm store location: $PNPM_STORE_DIR"
+    
+    # Create .npmrc in worktree with store configuration
+    cat > "${worktree_root}/.npmrc" << EOF
+# pnpm configuration for worktree
+store-dir=${PNPM_STORE_DIR}
+shared-workspace-lockfile=true
+link-workspace-packages=true
+prefer-workspace-packages=true
+auto-install-peers=true
+strict-peer-dependencies=false
+EOF
+    
+    print_success "pnpm store configured at: $PNPM_STORE_DIR"
+}
 
 # --- Main Function ---
 main() {
     local worktree_name="${1:-}"
     
-    print_info "Starting Git Worktree setup..."
+    print_info "Starting Git Worktree setup for pnpm..."
+    
+    # Check pnpm installation
+    check_pnpm
     
     # 1. Determine paths
     local WORKTREE_ROOT
     local MAIN_PROJECT_ROOT
     
-    # Get main project root
     MAIN_PROJECT_ROOT=$(git rev-parse --show-toplevel)
     
     if [[ -n "$worktree_name" ]]; then
-        # Specific worktree name provided - find its path
+        # Specific worktree name provided
         local worktree_path
         if ! worktree_path=$(git worktree list --porcelain | grep -A1 "branch refs/heads/$worktree_name" | grep "worktree " | cut -d' ' -f2); then
-            # Fallback: assume standard naming convention
             worktree_path="../EndgameTrainer-$worktree_name"
         fi
         
@@ -73,10 +111,8 @@ main() {
         
         WORKTREE_ROOT=$(realpath "$worktree_path")
     else
-        # No worktree name provided - use current directory
         WORKTREE_ROOT=$(pwd)
         
-        # Verify we're in a worktree, not the main project
         if [[ "$WORKTREE_ROOT" == "$MAIN_PROJECT_ROOT" ]]; then
             print_error "Please specify a worktree name or run from within a worktree"
             print_info "Usage: $0 [worktree-name]"
@@ -87,8 +123,11 @@ main() {
     print_info "Main project: ${MAIN_PROJECT_ROOT}"
     print_info "Worktree: ${WORKTREE_ROOT}"
     
-    # 2. Create symlinks for directories
-    print_info "Creating directory symlinks..."
+    # 2. Configure pnpm store
+    configure_pnpm_store "$WORKTREE_ROOT"
+    
+    # 3. Create symlinks for directories (NOT node_modules!)
+    print_info "Creating directory symlinks (excluding node_modules)..."
     for dir in "${LINK_DIRS[@]}"; do
         local SOURCE_PATH="${MAIN_PROJECT_ROOT}/${dir}"
         local DEST_PATH="${WORKTREE_ROOT}/${dir}"
@@ -98,10 +137,8 @@ main() {
             continue
         fi
         
-        # Remove existing file/directory/link to avoid conflicts
         rm -rf "${DEST_PATH}"
         
-        # Create relative symlink
         local RELATIVE_SOURCE
         RELATIVE_SOURCE=$(realpath --relative-to="${WORKTREE_ROOT}" "${SOURCE_PATH}")
         
@@ -109,7 +146,7 @@ main() {
         print_success "Directory linked: ${dir} -> ${RELATIVE_SOURCE}"
     done
     
-    # 3. Create symlinks for files
+    # 4. Create symlinks for files
     print_info "Creating file symlinks..."
     for file in "${LINK_FILES[@]}"; do
         local SOURCE_PATH="${MAIN_PROJECT_ROOT}/${file}"
@@ -129,7 +166,7 @@ main() {
         print_success "File linked: ${file} -> ${RELATIVE_SOURCE}"
     done
     
-    # 4. Create symlinks for config directories (nested paths)
+    # 5. Create symlinks for config directories
     print_info "Creating config directory symlinks..."
     for config_dir in "${LINK_CONFIG_DIRS[@]}"; do
         local SOURCE_PATH="${MAIN_PROJECT_ROOT}/${config_dir}"
@@ -140,9 +177,7 @@ main() {
             continue
         fi
         
-        # Ensure parent directory exists
         mkdir -p "$(dirname "${DEST_PATH}")"
-        
         rm -rf "${DEST_PATH}"
         
         local RELATIVE_SOURCE
@@ -152,7 +187,27 @@ main() {
         print_success "Config directory linked: ${config_dir} -> ${RELATIVE_SOURCE}"
     done
     
-    # 5. Create .nvmrc file
+    # 6. Run pnpm install in worktree
+    print_info "Running pnpm install in worktree..."
+    print_info "This will use the global store at: $PNPM_STORE_DIR"
+    
+    cd "${WORKTREE_ROOT}"
+    
+    # Remove old node_modules if it exists (in case switching from npm)
+    if [[ -d "node_modules" ]] && [[ ! -L "node_modules" ]]; then
+        print_warning "Removing old node_modules directory..."
+        rm -rf node_modules
+    fi
+    
+    # Run pnpm install
+    if pnpm install --frozen-lockfile; then
+        print_success "pnpm install completed successfully"
+    else
+        print_warning "pnpm install with frozen-lockfile failed, trying without..."
+        pnpm install
+    fi
+    
+    # 7. Create .nvmrc file
     print_info "Creating .nvmrc..."
     if [[ -f "${MAIN_PROJECT_ROOT}/.nvmrc" ]]; then
         cp "${MAIN_PROJECT_ROOT}/.nvmrc" "${WORKTREE_ROOT}/.nvmrc"
@@ -162,7 +217,7 @@ main() {
         print_success "Created .nvmrc with Node 22.17.0"
     fi
     
-    # 6. Setup VS Code configuration
+    # 8. Setup VS Code configuration
     print_info "Setting up VS Code..."
     mkdir -p "${WORKTREE_ROOT}/.vscode"
     
@@ -185,7 +240,6 @@ main() {
         "source.fixAll.eslint": "explicit"
     },
     "files.exclude": {
-        "node_modules": false,
         ".next": true,
         "coverage": true,
         "dist": true,
@@ -197,23 +251,26 @@ main() {
         "coverage": true,
         "dist": true,
         "build": true,
-        ".jest-cache": true
+        ".pnpm": true
     },
-    "typescript.preferences.includePackageJsonAutoImports": "auto"
+    "typescript.preferences.includePackageJsonAutoImports": "auto",
+    "npm.packageManager": "pnpm"
 }
 VSCODE
     
-    # Copy extensions if they exist
     if [[ -f "${MAIN_PROJECT_ROOT}/.vscode/extensions.json" ]]; then
         cp "${MAIN_PROJECT_ROOT}/.vscode/extensions.json" "${WORKTREE_ROOT}/.vscode/"
         print_success "Copied VS Code extensions recommendations"
     fi
     
-    # 7. Create comprehensive .gitignore for worktree
+    # 9. Create comprehensive .gitignore for worktree
     print_info "Creating worktree-specific .gitignore..."
     {
-        echo "# Auto-generated by setup-worktree.sh"
-        echo "# Prevents accidentally committing symlinked files/directories"
+        echo "# Auto-generated by setup-worktree-pnpm.sh"
+        echo ""
+        echo "# pnpm files (NOT symlinked, each worktree has its own)"
+        echo "node_modules/"
+        echo ".pnpm/"
         echo ""
         echo "# Symlinked directories"
         for dir in "${LINK_DIRS[@]}"; do
@@ -245,25 +302,45 @@ VSCODE
         echo "*.temp"
         echo ".cache"
         echo ""
-        echo "# Jest cache"
+        echo "# Test caches"
         echo ".jest-cache/"
+        echo ".vitest/"
         echo ""
-        echo "# Firebase & PM2 logs"
-        echo "firebase-debug.log*"
-        echo "firestore-debug.log*"
+        echo "# Logs"
+        echo "*.log"
         echo "logs/"
+        echo "pnpm-debug.log*"
     } > "${WORKTREE_ROOT}/.gitignore"
     
     print_success "Created comprehensive .gitignore"
     
+    # 10. Show disk space savings
+    print_info "Disk space analysis:"
+    if [[ -d "$PNPM_STORE_DIR" ]]; then
+        local store_size=$(du -sh "$PNPM_STORE_DIR" 2>/dev/null | cut -f1)
+        print_info "Global pnpm store size: $store_size (shared across all projects)"
+    fi
+    
+    if [[ -d "${WORKTREE_ROOT}/node_modules" ]]; then
+        local modules_size=$(du -sh "${WORKTREE_ROOT}/node_modules" 2>/dev/null | cut -f1)
+        print_info "Worktree node_modules size: $modules_size (hard links to store)"
+    fi
+    
     print_success "Worktree setup completed successfully!"
     echo
-    print_info "Next steps:"
-    echo "  1. nvm use (to switch to correct Node version)"
-    echo "  2. code . (to open in VS Code)"
-    echo "  3. npm test (to verify everything works)"
+    print_info "Key differences with pnpm:"
+    echo "  • node_modules is NOT symlinked (each worktree has its own)"
+    echo "  • All packages use hard links to global store at: $PNPM_STORE_DIR"
+    echo "  • Significant disk space savings through deduplication"
+    echo "  • Faster installs after first download"
     echo
-    print_info "The worktree is ready for development!"
+    print_info "Next steps:"
+    echo "  1. cd ${WORKTREE_ROOT}"
+    echo "  2. nvm use (switch to correct Node version)"
+    echo "  3. code . (open in VS Code)"
+    echo "  4. pnpm test (verify everything works)"
+    echo
+    print_success "The worktree is ready for development with pnpm!"
 }
 
 # Execute main function
