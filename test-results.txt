@@ -1,4 +1,0 @@
-
-> endgamebook@0.1.0 test
-> cross-env NODE_OPTIONS='--max-old-space-size=4096' jest --config=src/config/jest/jest.config.projects.js --no-coverage --passWithNoTests --silent
-

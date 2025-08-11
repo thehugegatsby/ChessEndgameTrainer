@@ -56,11 +56,11 @@ global.ResizeObserver = class ResizeObserver {
     this.callback = callback;
   }
   /** Observe element */
-  observe(): void {}
+  observe() {}
   /** Unobserve element */  
-  unobserve(): void {}
+  unobserve() {}
   /** Disconnect observer */
-  disconnect(): void {}
+  disconnect() {}
 };
 
 // Mock für window.matchMedia

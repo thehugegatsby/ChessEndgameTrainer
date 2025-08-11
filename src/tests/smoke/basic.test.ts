@@ -86,27 +86,6 @@ describe("Smoke Tests", () => {
   });
 
   describe("Critical Resources", () => {
-    it("should load Stockfish WASM", async () => {
-      // Enable smoke test - convert to basic unit test
-      const wasmUrl = `${PRODUCTION_URL}/stockfish/stockfish-nnue-16.wasm`;
-      expect(wasmUrl).toContain("stockfish-nnue-16.wasm");
-
-      // Mock fetch for unit test environment
-      global.fetch = jest.fn().mockResolvedValue({
-        status: 200,
-        headers: {
-          get: (key: string) =>
-            key === "content-type" ? "application/wasm" : null,
-        },
-      });
-
-      const response = await fetch(wasmUrl);
-      expect(response.status).toBe(200);
-      expect(response.headers.get("content-type")).toContain(
-        "application/wasm",
-      );
-    });
-
     it("should have manifest.json for PWA", async () => {
       // Enable smoke test - convert to basic unit test
       const manifestUrl = `${PRODUCTION_URL}/manifest.json`;

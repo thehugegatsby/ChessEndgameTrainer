@@ -1,3 +1,6 @@
+// Load environment variables from .env.local
+require('dotenv').config({ path: '.env.local' });
+
 module.exports = {
   apps: [
     {
@@ -7,16 +10,14 @@ module.exports = {
       cwd: "/home/thehu/coolProjects/EndgameTrainer",
       env: {
         NODE_ENV: "development",
-        NEXT_PUBLIC_USE_FIRESTORE: "true",
-        NEXT_PUBLIC_FIREBASE_API_KEY: "AIzaSyAtMncqDwhbZtbIjYjTlL1ViKqW3sJSHjs",
-        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN:
-          "chess-endgame-trainer-c1ea6.firebaseapp.com",
-        NEXT_PUBLIC_FIREBASE_PROJECT_ID: "chess-endgame-trainer-c1ea6",
-        NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET:
-          "chess-endgame-trainer-c1ea6.firebasestorage.app",
-        NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "884956836859",
-        NEXT_PUBLIC_FIREBASE_APP_ID:
-          "1:884956836859:web:e8fef7fd2bcdc3cd46115e",
+        // Load Firebase config from environment variables
+        NEXT_PUBLIC_USE_FIRESTORE: process.env.NEXT_PUBLIC_USE_FIRESTORE,
+        NEXT_PUBLIC_FIREBASE_API_KEY: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+        NEXT_PUBLIC_FIREBASE_PROJECT_ID: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+        NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+        NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+        NEXT_PUBLIC_FIREBASE_APP_ID: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
       },
       watch: false,
       ignore_watch: ["node_modules", ".next", "coverage"],

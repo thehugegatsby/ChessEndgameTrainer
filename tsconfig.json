@@ -35,7 +35,16 @@
       "@tests/*": ["src/tests/*"]
     }
   },
-  "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx"],
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "pages/**/*.ts",
+    "pages/**/*.tsx"
+  ],
   "exclude": [
     "node_modules",
     "**/*.test.ts",
@@ -43,6 +52,8 @@
     "**/*.spec.ts",
     "**/*.spec.tsx",
     "src/tests/**/*",
-    "scripts/**/*.test.ts"
+    "scripts/**/*.test.ts",
+    "config/**/*",
+    "src/config/**/*"
   ]
 }

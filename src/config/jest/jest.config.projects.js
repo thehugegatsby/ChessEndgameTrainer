@@ -18,7 +18,7 @@ const baseConfig = {
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   setupFilesAfterEnv: [
-    '<rootDir>/jest.setup.js',
+    '<rootDir>/jest.setup.ts',
     '<rootDir>/src/tests/utils/jestSetup.ts',
     '<rootDir>/src/tests/setup/global-test-cleanup.ts'
   ],
