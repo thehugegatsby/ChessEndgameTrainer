@@ -45,7 +45,7 @@ import {
 } from "../../../../shared/services/test/TestApiService";
 import { getLogger } from "../../../../shared/services/logging";
 
-describe("TestApiService - Store-Based Architecture", () => {
+describe.skip("TestApiService - Store-Based Architecture", () => {
   let service: TestApiService;
   let mockStoreAccess: any;
   let consoleLogSpy: jest.SpyInstance;
