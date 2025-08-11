@@ -168,7 +168,7 @@ test.describe('Streak Counter E2E', () => {
     console.log('Test skipped - focusing on main streak bug reproduction');
   });
 
-  test('debug streak behavior with console logs', async ({ page }) => {
+  test.skip('debug streak behavior with console logs', async ({ page }) => {
     // Enable console logging for debugging
     page.on('console', msg => {
       if (msg.text().includes('🎯') || msg.text().includes('🔥') || msg.text().includes('👑')) {

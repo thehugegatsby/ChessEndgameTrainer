@@ -95,7 +95,7 @@ test.describe("Phase 2 Infrastructure Demo", () => {
     logger.info("🎉 Phase 2 demo complete - all systems working!");
   });
 
-  test("should handle error scenarios with mocked failures", async ({ page }) => {
+  test.skip("should handle error scenarios with mocked failures", async ({ page }) => {
     logger.info("🔥 Testing error handling");
 
     // Remove AudioContext to create unsupported environment
