@@ -1,14 +1,14 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import path from 'path';
+import { featuresTestSetup, featuresDir, srcDir, sharedDir } from '../paths';
 
 export default defineConfig({
   plugins: [react()],
   test: {
     environment: 'happy-dom',
     globals: true,
-    setupFiles: './src/features/test-setup.ts',
-    include: ['src/features/**/*.{test,spec}.{ts,tsx}'],
+    setupFiles: featuresTestSetup,
+    include: [`${featuresDir}/**/*.{test,spec}.{ts,tsx}`],
     exclude: ['node_modules', 'dist', '.next'],
     coverage: {
       reporter: ['text', 'lcov'],
@@ -24,10 +24,10 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@features': path.resolve(__dirname, './src/features'),
-      '@lib': path.resolve(__dirname, './src/lib'),
-      '@shared': path.resolve(__dirname, './src/shared'),
-      '@': path.resolve(__dirname, './src'),
+      '@features': featuresDir,
+      '@lib': `${srcDir}/lib`,
+      '@shared': sharedDir,
+      '@': srcDir,
     },
   },
 });

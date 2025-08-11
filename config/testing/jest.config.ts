@@ -2,6 +2,16 @@ import type { Config } from 'jest';
 import { pathsToModuleNameMapper } from 'ts-jest';
 // @ts-ignore - importing JSON
 import tsconfig from '../../tsconfig.json';
+import { 
+  projectRoot, 
+  testSetupFile, 
+  integrationSetupFile,
+  fileMock,
+  coverageDir,
+  jestCacheDir,
+  unitTestsDir,
+  integrationTestsDir
+} from '../paths';
 
 /**
  * Consolidated Jest Configuration
@@ -18,24 +28,28 @@ const baseConfig = {
           syntax: 'typescript',
           tsx: true,
           decorators: false,
+          importAttributes: true,
+          dynamicImport: true,
         },
         target: 'es2018',
         loose: false,
         externalHelpers: false,
-        keepClassNames: false,
+        keepClassNames: true,
         transform: {
           react: {
             pragma: 'React.createElement',
             pragmaFrag: 'React.Fragment',
             throwIfNamespace: true,
-            development: false,
+            development: true,
             useBuiltins: false,
             runtime: 'automatic'
           }
         }
       },
       module: {
-        type: 'commonjs'
+        type: 'commonjs',
+        strict: true,
+        noInterop: false
       }
     }]
   },
@@ -52,13 +66,13 @@ const baseConfig = {
   moduleNameMapper: {
     ...pathsToModuleNameMapper(tsconfig.compilerOptions.paths || {}, { prefix: '<rootDir>/' }),
     // Mock static assets
-    '\\.(svg)$': '<rootDir>/src/tests/__mocks__/fileMock.js',
+    '\\.(svg)$': fileMock,
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-    'react-chess-pieces/dist/.*\\.svg$': '<rootDir>/src/tests/__mocks__/fileMock.js'
+    'react-chess-pieces/dist/.*\\.svg$': fileMock
   },
   
   // Base setup files
-  setupFilesAfterEnv: ['<rootDir>/config/testing/jest.setup.ts'],
+  setupFilesAfterEnv: [testSetupFile],
   
   // Test environment defaults
   clearMocks: true,
@@ -66,7 +80,7 @@ const baseConfig = {
   
   // Performance optimizations
   cache: true,
-  cacheDirectory: '<rootDir>/.jest-cache',
+  cacheDirectory: jestCacheDir,
 };
 
 const config: Config = {
@@ -82,11 +96,10 @@ const config: Config = {
     {
       ...baseConfig,
       displayName: 'unit',
-      rootDir: process.cwd(),
+      rootDir: projectRoot,
       testEnvironment: 'jsdom',
       testMatch: [
-        '<rootDir>/src/**/*.unit.test.[jt]s?(x)',
-        '<rootDir>/src/tests/unit/**/*.test.[jt]s?(x)',
+        `${unitTestsDir}/**/*.test.[jt]s?(x)`,
       ],
       testPathIgnorePatterns: [
         '/node_modules/',
@@ -98,44 +111,42 @@ const config: Config = {
     {
       ...baseConfig,
       displayName: 'integration',
-      rootDir: process.cwd(),
+      rootDir: projectRoot,
       testEnvironment: 'jsdom',
       testMatch: [
-        '<rootDir>/src/**/*.int.test.[jt]s?(x)',
-        '<rootDir>/src/tests/integration/**/*.test.[jt]s?(x)',
+        `${integrationTestsDir}/**/*.test.[jt]s?(x)`,
       ],
       setupFilesAfterEnv: [
-        '<rootDir>/config/testing/jest.setup.ts',
-        '<rootDir>/config/testing/jest.setup.integration.ts', // Additional setup for integration tests
+        testSetupFile,
+        integrationSetupFile, // Additional setup for integration tests
       ],
       testTimeout: 30000, // Longer timeout for integration tests
     },
     {
       ...baseConfig,
       displayName: 'services',
-      rootDir: process.cwd(),
+      rootDir: projectRoot,
       testEnvironment: 'node', // Services run in Node environment
       testMatch: [
-        '<rootDir>/src/tests/unit/services/**/*.test.[jt]s',
-        '<rootDir>/src/tests/services/**/*.test.[jt]s',
+        `${unitTestsDir}/services/**/*.test.[jt]s`,
       ],
     },
     {
       ...baseConfig,
       displayName: 'store',
-      rootDir: process.cwd(),
+      rootDir: projectRoot,
       testEnvironment: 'node', // Zustand doesn't need DOM
       testMatch: [
-        '<rootDir>/src/tests/unit/store/**/*.test.[jt]s',
+        `${unitTestsDir}/store/**/*.test.[jt]s`,
       ],
     },
     {
       ...baseConfig,
       displayName: 'firebase',
-      rootDir: process.cwd(),
+      rootDir: projectRoot,
       testEnvironment: 'node',
       testMatch: [
-        '<rootDir>/src/tests/integration/firebase/**/*.test.[jt]s?(x)',
+        `${integrationTestsDir}/firebase/**/*.test.[jt]s?(x)`,
       ],
       testTimeout: 60000, // Firebase emulator tests need more time
     },
@@ -152,7 +163,7 @@ const config: Config = {
     '!**/*.test.{ts,tsx}',
     '!**/*.spec.{ts,tsx}',
   ],
-  coverageDirectory: '<rootDir>/coverage',
+  coverageDirectory: coverageDir,
   coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
 };
 

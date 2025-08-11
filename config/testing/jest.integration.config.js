@@ -1,17 +1,19 @@
 /** @type {import('jest').Config} */
-const path = require("path");
-const baseConfig = require("./jest.config.ts");
+
+// Import the main Jest config and customize for integration tests  
+const baseConfig = require('./jest.config.ts').default;
 
 module.exports = {
   ...baseConfig,
-  // Set root directory to project root, not tests folder
-  rootDir: path.resolve(__dirname, "../.."),
-  // Use jest-fixed-jsdom for MSW v2 compatibility with React Testing Library
-  testEnvironment: "jest-fixed-jsdom",
-  // Specific config for integration tests
-  displayName: "Integration Tests",
-  // Only match .spec files for integration tests
-  testMatch: ["<rootDir>/src/tests/integration/**/*.spec.[jt]s?(x)"],
-  setupFilesAfterEnv: ["<rootDir>/config/testing/jest.setup.ts"],
-  testTimeout: 10000, // Increase timeout for integration tests
+  // Override projects to only run integration tests
+  projects: baseConfig.projects.filter(project => 
+    project.displayName === 'integration'
+  ).map(project => ({
+    ...project,
+    // Use jest-fixed-jsdom for MSW v2 compatibility
+    testEnvironment: "jest-fixed-jsdom", 
+    // Override to match .spec files specifically
+    testMatch: [`${project.testMatch[0].replace('*.test.', '*.spec.')}`],
+    testTimeout: 10000,
+  })),
 };

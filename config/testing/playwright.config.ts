@@ -5,6 +5,7 @@
 
 import { defineConfig, devices } from '@playwright/test';
 import { PORTS } from '../ports';
+import { e2eTestsDir, e2eFirebaseDir, testResultsDir } from '../paths';
 
 // Simple configuration constants using centralized ports
 const DEV_URL = `http://127.0.0.1:${PORTS.E2E}`; // Use E2E port from config
@@ -12,7 +13,7 @@ const CI = process.env.CI === "true";
 
 const config = {
   // Test directory
-  testDir: "./src/tests/e2e",
+  testDir: e2eTestsDir,
 
   // Test execution
   fullyParallel: true,
@@ -93,7 +94,7 @@ const config = {
     // Firebase tests run on all branches
     {
       name: "firebase",
-      testDir: "./src/tests/e2e/firebase",
+      testDir: e2eFirebaseDir,
       use: {
         ...devices["Desktop Chrome"],
         // Firebase tests get more time due to emulator
@@ -104,7 +105,7 @@ const config = {
   ]),
 
   // Output folder for test artifacts
-  outputDir: "test-results/",
+  outputDir: testResultsDir,
 
   // E2E development server with mock environment
   webServer: {

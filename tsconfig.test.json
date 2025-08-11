@@ -9,6 +9,7 @@
 
     // Tests brauchen CommonJS für Jest
     "module": "commonjs",
+    "moduleResolution": "node",
 
     // Allow test-specific patterns
     "allowSyntheticDefaultImports": true

@@ -1,19 +1,21 @@
 # Chess Endgame Trainer - Project Structure
 
-**Version:** 2.0.0  
-**Last Updated:** 2025-01-10  
-**Status:** ✅ Consensus-Based Architecture
+**Version:** 3.0.0  
+**Last Updated:** 2025-01-11  
+**Status:** ✅ AI-Optimized Feature Architecture
 
 ## Overview
 
-This document describes the new feature-based project structure, designed and validated by multiple AI models (DeepSeek, Gemini Pro, O3-Mini) with unanimous 9/10 confidence rating.
+This document describes the AI-optimized feature-based project structure, designed and validated by multiple AI models (Gemini Pro, OpenAI O3) with detailed recommendations for AI-driven development workflows.
 
 ## Core Principles
 
 1. **Feature-Based Organization**: Business logic grouped by domain features
-2. **Co-located Tests**: Tests live next to the code they test
-3. **Clear Separation**: Strict boundaries between features, infrastructure, and routing
-4. **App Router First**: Full Next.js 15 App Router adoption
+2. **AI-Optimized Navigation**: Clear patterns for code discovery and context understanding
+3. **Co-located Tests**: Flattened test structure for better maintainability
+4. **Barrel File Exports**: Clean public APIs via index.ts files
+5. **Shared Infrastructure**: Cross-cutting concerns in dedicated shared/ directory
+6. **TypeScript Path Aliases**: Simplified imports for AI code generation
 
 ## Directory Structure
 
@@ -21,7 +23,6 @@ This document describes the new feature-based project structure, designed and va
 ChessEndgameTrainer/
 ├── src/
 │   ├── app/                    # Next.js App Router (Routes ONLY!)
-│   │   ├── (auth)/            # Route Groups for authentication
 │   │   ├── train/             # Training routes
 │   │   │   └── [id]/          # Dynamic training session routes
 │   │   ├── dashboard/         # Dashboard route
@@ -30,59 +31,67 @@ ChessEndgameTrainer/
 │   │   ├── error.tsx          # Error boundary
 │   │   └── not-found.tsx     # 404 page
 │   │
-│   ├── features/              # Domain Features (Business Logic)
-│   │   ├── training/          # Training feature module
-│   │   │   ├── components/   # Feature-specific components
-│   │   │   ├── hooks/       # Feature-specific hooks
-│   │   │   ├── services/    # Feature-specific services
-│   │   │   ├── store/       # Feature Zustand slices
-│   │   │   ├── types/       # Feature TypeScript types
-│   │   │   ├── utils/       # Feature utilities
-│   │   │   └── __tests__/   # Co-located tests
-│   │   │
-│   │   ├── move-quality/     # Move quality analysis feature
-│   │   │   ├── components/
-│   │   │   ├── services/
-│   │   │   ├── store/
-│   │   │   └── __tests__/
-│   │   │
-│   │   ├── tablebase/        # Tablebase integration feature
-│   │   │   ├── services/
-│   │   │   ├── hooks/
-│   │   │   ├── types/
-│   │   │   └── __tests__/
-│   │   │
-│   │   ├── game-state/       # Game state management and chess logic
-│   │   │   ├── components/
-│   │   │   ├── utils/
-│   │   │   └── __tests__/
-│   │   │
-│   │   └── progress/         # Progress tracking feature
-│   │       ├── components/
-│   │       ├── hooks/
-│   │       ├── store/
-│   │       └── __tests__/
-│   │
-│   ├── lib/                  # Shared Infrastructure (NO Business Logic!)
-│   │   ├── ui/              # Design System Components
-│   │   │   ├── button/      # Generic button component
-│   │   │   ├── modal/       # Generic modal component
-│   │   │   ├── card/        # Generic card component
-│   │   │   └── layout/      # Generic layout components
-│   │   │
-│   │   ├── hooks/           # Global utility hooks
+│   ├── shared/               # Cross-cutting Concerns
+│   │   ├── chess/            # Chess.js wrapper, FEN utilities
+│   │   │   ├── ChessEngine.ts
+│   │   │   ├── fenUtils.ts
+│   │   │   └── validation.ts
+│   │   ├── ui/               # Design System Components
+│   │   │   ├── button/       # Generic button component
+│   │   │   ├── modal/        # Generic modal component
+│   │   │   └── layout/       # Generic layout components
+│   │   ├── hooks/            # Global utility hooks
 │   │   │   ├── useDebounce.ts
 │   │   │   └── useMediaQuery.ts
-│   │   │
-│   │   ├── utils/           # Pure utility functions
+│   │   ├── utils/            # Pure global utility functions
 │   │   │   ├── formatters.ts
 │   │   │   └── validators.ts
-│   │   │
-│   │   ├── store/           # Global store configuration
+│   │   ├── store/            # Global store configuration
 │   │   │   └── StoreProvider.tsx
-│   │   │
-│   │   └── types/           # Shared TypeScript types
+│   │   └── types/            # Shared TypeScript types
 │   │       └── global.d.ts
+│   │
+│   ├── features/             # Domain Features (Vertical Slices)
+│   │   ├── training/         # Training session management
+│   │   │   ├── components/   # TrainingBoard.tsx, SessionControls.tsx
+│   │   │   ├── services/     # TrainingService.ts (async I/O, side effects)
+│   │   │   ├── utils/        # sessionCalculations.ts (pure functions)
+│   │   │   ├── hooks/        # useTrainingSession.ts, useSessionProgress.ts
+│   │   │   ├── store/        # trainingSlice.ts
+│   │   │   ├── types/        # training.types.ts
+│   │   │   ├── __tests__/    # Flattened test structure
+│   │   │   │   ├── TrainingBoard.test.tsx
+│   │   │   │   ├── TrainingService.test.ts
+│   │   │   │   └── sessionCalculations.test.ts
+│   │   │   └── index.ts      # Barrel file (public API)
+│   │   │
+│   │   ├── move-quality/     # Move analysis & evaluation
+│   │   │   ├── components/   # MoveEvaluator.tsx, QualityIndicator.tsx
+│   │   │   ├── services/     # MoveAnalysisService.ts
+│   │   │   ├── utils/        # qualityCalculations.ts
+│   │   │   ├── hooks/        # useMoveAnalysis.ts
+│   │   │   ├── store/        # moveQualitySlice.ts
+│   │   │   ├── types/        # moveQuality.types.ts
+│   │   │   ├── __tests__/    # Flattened tests
+│   │   │   └── index.ts      # Barrel file
+│   │   │
+│   │   ├── tablebase/        # Lichess API integration
+│   │   │   ├── components/   # TablebasePanel.tsx, EvaluationDisplay.tsx
+│   │   │   ├── services/     # TablebaseService.ts, LichessApiClient.ts
+│   │   │   ├── hooks/        # useTablebaseQuery.ts, usePositionAnalysis.ts
+│   │   │   ├── store/        # tablebaseSlice.ts
+│   │   │   ├── types/        # tablebase.types.ts
+│   │   │   ├── __tests__/    # Flattened tests
+│   │   │   └── index.ts      # Barrel file
+│   │   │
+│   │   └── progress/         # User progress & statistics
+│   │       ├── components/   # ProgressDashboard.tsx, StatsChart.tsx
+│   │       ├── services/     # ProgressService.ts, StatisticsCalculator.ts
+│   │       ├── hooks/        # useProgressTracking.ts, useUserStats.ts
+│   │       ├── store/        # progressSlice.ts
+│   │       ├── types/        # progress.types.ts
+│   │       ├── __tests__/    # Flattened tests
+│   │       └── index.ts      # Barrel file
 │   │
 │   └── styles/              # Global styles
 │       └── globals.css
@@ -115,28 +124,35 @@ ChessEndgameTrainer/
 - **NO** complex state management
 - Uses features/ for all functionality
 
-### 2. features/ Directory
+### 2. shared/ Directory
 
-- **Self-contained** feature modules
-- **Co-located** tests in **tests**/
-- **Feature-specific** components, hooks, services
-- **Can** import from lib/
-- **Cannot** import from other features (use composition)
-
-### 3. lib/ Directory
-
-- **ONLY** truly shared, generic code
-- **NO** business logic
+- **Cross-cutting concerns** only (chess engine, design system)
 - **NO** feature-specific code
-- **Pure** functions and components
 - **Reusable** across multiple features
+- Contains: chess/, ui/, hooks/, utils/, store/, types/
+
+### 3. features/ Directory
+
+- **Self-contained** vertical slices
+- **Co-located** flattened tests in `__tests__/`
+- **Barrel files** (index.ts) for public API
+- **Can** import from shared/
+- **Cannot** import from other features (use composition)
+- **services/**: Side effects, async I/O, API calls
+- **utils/**: Pure functions, deterministic helpers
 
 ### 4. Test Organization
 
-- Unit tests: `feature/__tests__/unit/`
-- Integration tests: `feature/__tests__/integration/`
-- E2E tests: Still in root `e2e/` directory
-- Test files named: `*.test.ts` or `*.spec.ts`
+- **Flattened structure**: `feature/__tests__/ComponentName.test.tsx`
+- **No nested folders** within **tests**/
+- **Mirror naming**: TrainingBoard.tsx → TrainingBoard.test.tsx
+- **E2E tests**: Still in root e2e/ directory
+
+### 5. Import Rules
+
+- **Use path aliases**: @training/_, @shared/_
+- **Import from barrel files**: import { TrainingBoard } from '@training'
+- **No deep imports**: Avoid @training/components/TrainingBoard
 
 ## Migration Guide
 
@@ -180,38 +196,63 @@ ChessEndgameTrainer/
 
 ## Examples
 
-### Feature Component Import
+### Feature Component Import (via Barrel Files)
 
 ```typescript
 // In app/train/[id]/page.tsx
-import { TrainingSession } from "@/features/training/components/TrainingSession";
-import { useTrainingStore } from "@/features/training/store";
+import { TrainingSession, useTrainingStore } from "@training";
+import { TablebasePanel } from "@tablebase";
 ```
 
-### Shared UI Import
+### Shared Infrastructure Import
 
 ```typescript
 // In features/training/components/TrainingCard.tsx
-import { Button } from "@/lib/ui/button";
-import { Card } from "@/lib/ui/card";
+import { Button, Card } from "@shared/ui";
+import { ChessEngine } from "@shared/chess";
 ```
 
-### Cross-Feature Communication
+### Barrel File Example
 
 ```typescript
-// Use composition in app layer, not direct imports
-// app/train/[id]/page.tsx
-import { TrainingSession } from '@/features/training/components/TrainingSession';
-import { TablebasePanel } from '@/features/tablebase/components/TablebasePanel';
+// features/training/index.ts
+export { TrainingBoard } from "./components/TrainingBoard";
+export { SessionControls } from "./components/SessionControls";
+export { useTrainingSession } from "./hooks/useTrainingSession";
+export { trainingSlice } from "./store/trainingSlice";
+export type { TrainingSession, Mistake } from "./types/training.types";
+```
 
-export default function TrainingPage() {
-  // Compose features at route level
-  return (
-    <>
-      <TrainingSession />
-      <TablebasePanel />
-    </>
-  );
+### TypeScript Path Aliases
+
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@training/*": ["src/features/training/*"],
+      "@tablebase/*": ["src/features/tablebase/*"],
+      "@progress/*": ["src/features/progress/*"],
+      "@shared/*": ["src/shared/*"]
+    }
+  }
+}
+```
+
+### Services vs Utils Guidelines
+
+```typescript
+// services/ - Side effects, async I/O
+export class TrainingService {
+  async saveProgress(data: ProgressData): Promise<void> {
+    await api.post("/progress", data);
+  }
+}
+
+// utils/ - Pure functions
+export function calculateAccuracy(moves: Move[]): number {
+  return moves.filter((m) => m.isCorrect).length / moves.length;
 }
 ```
 
@@ -219,18 +260,24 @@ export default function TrainingPage() {
 
 This structure was validated by:
 
-- **DeepSeek R1**: 9/10 confidence
-- **Gemini 2.5 Pro**: 9/10 confidence
-- **OpenAI O3-Mini**: 9/10 confidence
+- **Gemini 2.5 Pro**: "Exzellent für AI-driven Development" (Perfect rating)
+- **OpenAI O3**: 8/10 confidence, becomes 9/10 with optimizations
 
-All models agreed this structure:
+Both AI models specifically validated for:
 
-- Solves the monolithic shared/ problem
-- Follows Next.js 15 best practices
-- Implements industry-standard patterns
-- Improves developer productivity
-- Reduces technical debt
+- **AI Code Discovery**: Feature-first reduces AI search space dramatically
+- **Context Understanding**: Stable mental models for LLM code generation
+- **Test Maintainability**: Flattened structure reduces path complexity
+- **Naming Consistency**: Predictable patterns for AI navigation
+- **Optimal Granularity**: Right balance of organization vs simplicity
+
+Key AI-specific benefits:
+
+- **Reduced cognitive load** for AI when working within feature boundaries
+- **Faster code generation** through predictable patterns
+- **Better import management** via barrel files and path aliases
+- **Efficient test location** through flattened co-located structure
 
 ---
 
-_This structure represents a consensus-based architecture design validated by multiple AI models for optimal maintainability and scalability._
+_This structure represents an AI-optimized architecture design specifically validated for AI-driven development workflows, ensuring maximum efficiency for both human developers and AI code generation._
