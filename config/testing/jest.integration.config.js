@@ -1,6 +1,6 @@
 /** @type {import('jest').Config} */
 const path = require("path");
-const baseConfig = require("../../jest.config.js");
+const baseConfig = require("./jest.config.ts");
 
 module.exports = {
   ...baseConfig,
@@ -12,6 +12,6 @@ module.exports = {
   displayName: "Integration Tests",
   // Only match .spec files for integration tests
   testMatch: ["<rootDir>/src/tests/integration/**/*.spec.[jt]s?(x)"],
-  setupFilesAfterEnv: ["<rootDir>/src/config/jest/jest.setup.ts"],
+  setupFilesAfterEnv: ["<rootDir>/config/testing/jest.setup.ts"],
   testTimeout: 10000, // Increase timeout for integration tests
 };

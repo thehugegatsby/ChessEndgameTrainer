@@ -1,112 +1,64 @@
-# ChessEndgameTrainer - AI Working Memory
+# CLAUDE.md - Permanent AI Rules
 
-**Version:** 1.0.0  
-**Last Updated:** 2025-01-09  
-**Status:** ✅ Active Development
+## CRITICAL RULES
+
+### Bash Commands
+
+**NEVER use pipes (|) with Node.js commands in WSL/VS Code** - they cause tools to detect non-TTY mode and crash.
+
+- ❌ Bad: `pnpm test 2>&1 | tail`
+- ✅ Good: `pnpm test`
+
+### Code Quality
+
+**ALWAYS run linter and TypeScript after code changes** - prevents introducing errors:
+
+```bash
+pnpm run lint     # Fix linting errors
+pnpm tsc          # Fix TypeScript errors
+```
+
+**NEVER modify this file** - it contains permanent rules only.  
+_Temporary notes and current work: see SCRATCHPAD.md_
 
 ## Core Commands
 
 ```bash
-npm run dev              # Development server (port 3002)
-npm run build            # Production build
-npm run lint             # ESLint + format
-npm run analyze-code     # Code analysis
-npm test                 # Jest test runner (1119 tests)
+pnpm run dev       # Development server
+pnpm run build     # Production build
+pnpm run lint      # ESLint + format
+pnpm test          # Run all tests
+pnpm tsc           # TypeScript check
 ```
 
-## Tech Stack (Current)
+## Architecture Rules
 
-- **Framework:** Next.js 15.4.5 (App Router)
-- **Language:** TypeScript 5.9.2
-- **State:** Zustand 5.0.7 (domain-specific slices)
-- **UI:** Tailwind CSS 4.1.11, Radix UI, react-chessboard 2.1.3
-- **Chess:** chess.js 1.0.0-beta.6
-- **Testing:** Jest 29.7.0 (1119 tests, minor memory leaks)
-- **API:** Lichess Tablebase (no local engine)
-
-## Project Architecture
-
-### Directory Structure
-
-```
-src/
-├── app/              # Next.js App Router pages
-├── shared/
-│   ├── components/   # React UI components
-│   ├── hooks/        # Business logic hooks
-│   ├── services/     # External integrations
-│   ├── store/        # Zustand state (domain slices)
-│   │   ├── slices/   # gameSlice, trainingSlice, tablebaseSlice, uiSlice
-│   │   └── orchestrators/ # Cross-slice operations
-│   ├── types/        # TypeScript definitions
-│   └── utils/        # Utility functions
-```
-
-### Active Zustand Slices
-
-- `gameSlice.ts` - Chess game state, moves, position
-- `trainingSlice.ts` - Training sessions, progress
-- `tablebaseSlice.ts` - Lichess API evaluations
-- `uiSlice.ts` - Interface state, modals, toasts
-
-### Data Flow
-
-User → React Component → Zustand Hook → Store Action → Service (ChessService/TablebaseService) → API → Store Update → UI Re-render
-
-## Current Issues (CRITICAL)
-
-1. **Memory Leaks in Tests**: Jest workers need `--detectOpenHandles` to identify test cleanup issues
-2. **Architecture Drift**: Some documentation claims don't match actual code
-3. **Config Issues**: Minor cleanup needed in test configurations
-
-## Coding Conventions
-
-- **State Management**: All business state in Zustand slices, no component state for shared data
-- **File Naming**: PascalCase.tsx for components, camelCase.ts for utilities
-- **Imports**: Use absolute paths with `@shared/` alias
-- **API Calls**: Only through services (TablebaseService, ChessService)
-- **Error Handling**: Use ErrorService for user messages (German)
-
-## Key Services
-
-- **ChessService**: Singleton managing chess.js instance, move validation
-- **TablebaseService**: Lichess tablebase integration with caching
-- **ErrorService**: Centralized error handling with German messages
-- **Logger**: Logging service (avoid console.log)
+- **State**: Zustand slices only (gameSlice, trainingSlice, tablebaseSlice, uiSlice)
+- **Services**: ChessService (singleton), TablebaseService, ErrorService, Logger
+- **Files**: PascalCase.tsx for components, camelCase.ts for utilities
+- **Imports**: Use `@shared/` alias, never relative paths
+- **German**: Error messages in German (ErrorService)
 
 ## Critical Files
 
-- `src/shared/store/rootStore.ts` - Main store configuration
+- `src/shared/store/rootStore.ts` - Main store
 - `src/shared/services/ChessService.ts` - Chess logic singleton
-- `src/shared/services/TablebaseService.ts` - API integration
-- `src/shared/store/orchestrators/handlePlayerMove/` - Main move logic (533 lines)
+- `src/shared/services/TablebaseService.ts` - Lichess API
+- `src/shared/store/orchestrators/handlePlayerMove/` - Move logic (533 lines)
 
-## Current Focus
+## Test Structure
 
-**Goal**: Documentation restructuring for Claude Code optimization
-**Status**: In progress - creating lean AI-focused documentation
-**Next**: Identify and fix test memory leaks
+- Jest: Legacy tests (unit/integration/services/store projects)
+- Vitest: New features only (`src/features/`)
+- Config: `config/testing/jest.config.ts` and `config/testing/vitest.config.ts`
 
-## Archive & Deep Docs
+## Permanent Constraints
 
-For historical context and detailed explanations:
-
-- `docs/ARCHITECTURE.md` - Detailed system design
-- `docs/CURRENT_FOCUS.md` - Historical development phases
-- `docs/STANDARDS.md` - Detailed coding standards
-- `CHANGELOG.md` - Version history
-- `UNIFIED_FIXTURE_PROPOSAL.md` - Test structure proposal
-
-## Verification Commands
-
-```bash
-# Check architecture claims
-find src -name "*.ts" | wc -l                    # TypeScript file count
-find src/shared/store/slices -name "*.ts" | wc -l # Slice count
-npm list --depth=0 | grep -E "(next|typescript|zustand)" # Version check
-npm test                                           # Run 1119 tests
-```
+- No engine code (removed Stockfish completely)
+- No pipes with Node.js commands in WSL/VS Code
+- Always use pnpm (not npm)
+- Read-only file (chmod 444)
 
 ---
 
-_This document is optimized for Claude Code AI consumption. For human-readable docs, see README.md_
+_For temporary notes and current work: see SCRATCHPAD.md_

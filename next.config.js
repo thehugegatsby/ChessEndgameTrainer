@@ -6,7 +6,7 @@
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
-const { PORTS } = require('./config/ports');
+const { PORTS } = require('./config/ports.js');
 
 // Simplified configuration using centralized ports
 const APP_CONFIG = {

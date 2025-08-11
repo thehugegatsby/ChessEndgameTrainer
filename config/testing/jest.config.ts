@@ -10,10 +10,8 @@ import tsconfig from '../../tsconfig.json';
 
 // Base configuration shared by all projects
 const baseConfig = {
-  // Use SWC for faster transpilation
-  transform: {
-    '^.+\\.(ts|tsx|js|jsx)$': '@swc/jest'
-  },
+  // Use ts-jest for TypeScript compilation
+  preset: 'ts-jest',
   
   // Transform these node_modules that use ES modules
   transformIgnorePatterns: [
@@ -25,15 +23,15 @@ const baseConfig = {
   
   // Path mapping from tsconfig
   moduleNameMapper: {
-    ...pathsToModuleNameMapper(tsconfig.compilerOptions.paths || {}, { prefix: '<rootDir>/../../' }),
+    ...pathsToModuleNameMapper(tsconfig.compilerOptions.paths || {}, { prefix: '<rootDir>/' }),
     // Mock static assets
-    '\\.(svg)$': '<rootDir>/../../src/tests/__mocks__/fileMock.js',
+    '\\.(svg)$': '<rootDir>/src/tests/__mocks__/fileMock.js',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-    'react-chess-pieces/dist/.*\\.svg$': '<rootDir>/../../src/tests/__mocks__/fileMock.js'
+    'react-chess-pieces/dist/.*\\.svg$': '<rootDir>/src/tests/__mocks__/fileMock.js'
   },
   
   // Base setup files
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/config/testing/jest.setup.ts'],
   
   // Test environment defaults
   clearMocks: true,
@@ -41,13 +39,10 @@ const baseConfig = {
   
   // Performance optimizations
   cache: true,
-  cacheDirectory: '<rootDir>/../../.jest-cache',
+  cacheDirectory: '<rootDir>/.jest-cache',
 };
 
 const config: Config = {
-  // Root directory for all projects
-  rootDir: '.',
-  
   // Global settings
   verbose: false,
   silent: process.env['CI'] === 'true',
@@ -60,10 +55,11 @@ const config: Config = {
     {
       ...baseConfig,
       displayName: 'unit',
+      rootDir: '/home/thehu/coolProjects/EndgameTrainer',
       testEnvironment: 'jsdom',
       testMatch: [
-        '<rootDir>/../../src/**/*.unit.test.[jt]s?(x)',
-        '<rootDir>/../../src/tests/unit/**/*.test.[jt]s?(x)',
+        '<rootDir>/src/**/*.unit.test.[jt]s?(x)',
+        '<rootDir>/src/tests/unit/**/*.test.[jt]s?(x)',
       ],
       testPathIgnorePatterns: [
         '/node_modules/',
@@ -75,40 +71,44 @@ const config: Config = {
     {
       ...baseConfig,
       displayName: 'integration',
+      rootDir: '/home/thehu/coolProjects/EndgameTrainer',
       testEnvironment: 'jsdom',
       testMatch: [
-        '<rootDir>/../../src/**/*.int.test.[jt]s?(x)',
-        '<rootDir>/../../src/tests/integration/**/*.test.[jt]s?(x)',
+        '<rootDir>/src/**/*.int.test.[jt]s?(x)',
+        '<rootDir>/src/tests/integration/**/*.test.[jt]s?(x)',
       ],
       setupFilesAfterEnv: [
-        '<rootDir>/jest.setup.ts',
-        '<rootDir>/jest.setup.integration.ts', // Additional setup for integration tests
+        '<rootDir>/config/testing/jest.setup.ts',
+        '<rootDir>/config/testing/jest.setup.integration.ts', // Additional setup for integration tests
       ],
       testTimeout: 30000, // Longer timeout for integration tests
     },
     {
       ...baseConfig,
       displayName: 'services',
+      rootDir: '/home/thehu/coolProjects/EndgameTrainer',
       testEnvironment: 'node', // Services run in Node environment
       testMatch: [
-        '<rootDir>/../../src/tests/unit/services/**/*.test.[jt]s',
-        '<rootDir>/../../src/tests/services/**/*.test.[jt]s',
+        '<rootDir>/src/tests/unit/services/**/*.test.[jt]s',
+        '<rootDir>/src/tests/services/**/*.test.[jt]s',
       ],
     },
     {
       ...baseConfig,
       displayName: 'store',
+      rootDir: '/home/thehu/coolProjects/EndgameTrainer',
       testEnvironment: 'node', // Zustand doesn't need DOM
       testMatch: [
-        '<rootDir>/../../src/tests/unit/store/**/*.test.[jt]s',
+        '<rootDir>/src/tests/unit/store/**/*.test.[jt]s',
       ],
     },
     {
       ...baseConfig,
       displayName: 'firebase',
+      rootDir: '/home/thehu/coolProjects/EndgameTrainer',
       testEnvironment: 'node',
       testMatch: [
-        '<rootDir>/../../src/tests/integration/firebase/**/*.test.[jt]s?(x)',
+        '<rootDir>/src/tests/integration/firebase/**/*.test.[jt]s?(x)',
       ],
       testTimeout: 60000, // Firebase emulator tests need more time
     },
@@ -125,7 +125,7 @@ const config: Config = {
     '!**/*.test.{ts,tsx}',
     '!**/*.spec.{ts,tsx}',
   ],
-  coverageDirectory: '<rootDir>/../../coverage',
+  coverageDirectory: '<rootDir>/coverage',
   coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
 };
 

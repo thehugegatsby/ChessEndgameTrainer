@@ -59,9 +59,6 @@
       }
     ],
     "no-nested-ternary": "warn",
-    // AI-first development: Adjusted complexity limits for chess domain
-    // Complex chess logic (move validation, tablebase analysis) requires higher thresholds
-    // These limits balance maintainability with domain-specific complexity needs
     "complexity": ["warn", { "max": 18 }],
     "max-lines-per-function": [
       "warn",
@@ -70,10 +67,6 @@
     "max-depth": ["warn", { "max": 4 }]
   },
   "overrides": [
-    // NOTE: Test files and mocks have relaxed linting rules because:
-    // - Unused variables are common in test fixtures and destructuring
-    // - Mock implementations often have unused parameters
-    // - Test setup code may use patterns not suitable for production
     {
       "files": [
         "scripts/**/*.js",
@@ -82,8 +75,8 @@
         "config/**/*.ts",
         "src/config/**/*.js",
         "src/config/**/*.ts",
-        "src/config/jest/**/*.js",
-        "src/config/jest/**/*.ts",
+        "config/testing/**/*.js",
+        "config/testing/**/*.ts",
         "src/shared/services/logging/Logger.ts",
         "src/shared/services/container/ServiceContainer.ts",
         "src/shared/store/slices/progressSlice.ts"
