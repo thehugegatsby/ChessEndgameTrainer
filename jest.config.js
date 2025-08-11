@@ -15,7 +15,8 @@ module.exports = {
     '/playwright-report/',
     '/test-results/',
     'jest.setup.ts',
-    '/tests/e2e/'  // Exclude Playwright tests
+    '/e2e/',  // Exclude all E2E directories
+    '\.spec\.ts$'  // Exclude .spec.ts files (Playwright uses these)
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
@@ -29,8 +30,8 @@ module.exports = {
   },
   testMatch: [
     '<rootDir>/src/**/*.test.[jt]s?(x)',
-    '<rootDir>/src/**/*.spec.[jt]s?(x)',
-    '!<rootDir>/src/tests/e2e/**/*'
+    '!<rootDir>/src/**/*.spec.[jt]s?(x)',  // Exclude .spec files (Playwright)
+    '!<rootDir>/src/tests/e2e/**/*'  // Explicitly exclude E2E directory
   ],
   collectCoverageFrom: [
     'src/shared/**/*.{ts,tsx}',
