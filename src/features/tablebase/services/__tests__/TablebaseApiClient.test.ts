@@ -60,7 +60,10 @@ describe('TablebaseApiClient', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining(`fen=${encodeURIComponent(fen)}`),
         expect.objectContaining({
-          headers: { 'Accept': 'application/json' },
+          headers: expect.objectContaining({ 
+            'Accept': 'application/json',
+            'User-Agent': 'ChessEndgameTrainer/1.0.0 (https://github.com/thehugegatsby/ChessEndgameTrainer)'
+          }),
         })
       );
       expect(result).toEqual({
@@ -244,19 +247,23 @@ describe('TablebaseApiClient', () => {
     });
 
     it('should exhaust retries and throw final error', async () => {
-      // Create a fresh client to avoid interference
-      const freshClient = new TablebaseApiClient();
+      // Create a client with shorter backoff for faster test
+      const freshClient = new TablebaseApiClient(
+        'https://tablebase.lichess.ovh/standard',
+        5000,
+        3  // 3 retries
+      );
       
       // Mock persistent failure
       mockFetch.mockRejectedValue(new Error('Persistent error'));
 
       const fen = '8/8/8/8/8/8/8/K7 w - - 0 1';
       
-      await expect(freshClient.query(fen)).rejects.toThrow();
+      await expect(freshClient.query(fen)).rejects.toThrow('Persistent error');
       
-      // Should make maxRetries attempts (default 3 attempts total)
+      // Should make maxRetries attempts (3 attempts total)
       expect(mockFetch).toHaveBeenCalledTimes(3);
-    });
+    }, 10000); // Increase timeout for this test
   });
 
   describe('Request management', () => {

@@ -60,16 +60,19 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
       return existingRequest;
     }
     
-    // Create new request with cleanup
+    // Create new request promise
     const requestPromise = this.executeQuery(fen);
     
-    // Store promise with cleanup on completion
-    const requestWithCleanup = requestPromise.finally(() => {
+    // Store the promise IMMEDIATELY before adding cleanup
+    // This prevents race conditions where multiple calls arrive between promise creation and storage
+    this.pendingRequests.set(normalizedFen, requestPromise);
+    
+    // Add cleanup after the promise settles (resolve or reject)
+    requestPromise.finally(() => {
       this.pendingRequests.delete(normalizedFen);
     });
     
-    this.pendingRequests.set(normalizedFen, requestWithCleanup);
-    return requestWithCleanup;
+    return requestPromise;
   }
 
   /**
@@ -147,6 +150,7 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
         signal: controller.signal,
         headers: {
           'Accept': 'application/json',
+          'User-Agent': 'ChessEndgameTrainer/1.0.0 (https://github.com/thehugegatsby/ChessEndgameTrainer)',
         },
       });
       
