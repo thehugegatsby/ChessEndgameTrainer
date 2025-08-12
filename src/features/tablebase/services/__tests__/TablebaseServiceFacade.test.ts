@@ -28,18 +28,16 @@ describe('TablebaseServiceFacade', () => {
   let featureFlagService: FeatureFlagService;
   
   const mockEvaluation: TablebaseEvaluation = {
-    wdl: 100,
-    dtm: 5,
-    category: 'win'
+    outcome: 'win',
+    dtm: 5
   };
   
   const mockMoves: TablebaseMove[] = [
     {
       uci: 'e2e4',
       san: 'e4',
-      wdl: 100,
-      dtm: 4,
-      category: 'win'
+      outcome: 'win',
+      dtm: 4
     }
   ];
 
