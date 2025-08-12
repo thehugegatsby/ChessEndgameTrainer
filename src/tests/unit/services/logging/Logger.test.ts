@@ -11,7 +11,7 @@
  * - withFields functionality
  */
 
-import { createLogger, resetLogger } from "@shared/services/logging/Logger";
+import { createLogger, resetLogger } from "@shared/services/logging";
 import {
   LogLevel,
   type LogEntry,

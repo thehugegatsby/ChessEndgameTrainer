@@ -1,27 +1,26 @@
-# CLAUDE.md - Permanent AI Rules
+# CLAUDE.md
 
-## CRITICAL RULES
+## CRITICAL: Environment Constraints
 
-### Bash Commands
-
-**NEVER use pipes (|) or double dash (--) with Node.js commands in WSL/VS Code** - they cause tools to detect non-TTY mode and crash.
-
-- ❌ Bad: `pnpm test 2>&1 | tail`
-- ❌ Bad: `pnpm test -- --run path/to/test.tsx`
-- ✅ Good: `pnpm test`
-- ✅ Good: `pnpm test path/to/test.tsx`
-
-### Code Quality
-
-**ALWAYS run linter and TypeScript after code changes** - prevents introducing errors:
+### Bash in WSL
 
 ```bash
-pnpm run lint     # Fix linting errors
-pnpm tsc          # Fix TypeScript errors
+# ❌ NEVER - crashes when piping
+pnpm test 2>&1 | tail
+
+# ✅ ALWAYS - run directly
+pnpm test
 ```
 
-**NEVER modify this file** - it contains permanent rules only.  
-_Temporary notes and current work: see SCRATCHPAD.md_
+## Standard Validation Workflow
+
+Before finalizing changes, run this sequence:
+
+```bash
+pnpm run lint     # 1. Lint and format
+pnpm tsc          # 2. TypeScript check
+pnpm test         # 3. Run tests
+```
 
 ## Core Commands
 
@@ -48,11 +47,9 @@ pnpm tsc           # TypeScript check
 - `src/shared/services/TablebaseService.ts` - Lichess API
 - `src/shared/store/orchestrators/handlePlayerMove/` - Move logic (533 lines)
 
-## Test Structure
+## Testing
 
-- Jest: Legacy tests (unit/integration/services/store projects)
-- Vitest: New features only (`src/features/`)
-- Config: `config/testing/jest.config.ts` and `config/testing/vitest.config.ts`
+See @docs/claude/testing.md for comprehensive testing guidelines and patterns.
 
 ## Permanent Constraints
 
