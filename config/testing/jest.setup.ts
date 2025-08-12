@@ -7,6 +7,28 @@ import '@testing-library/jest-dom';
 import { enableMapSet } from 'immer';
 import fetchMock from 'jest-fetch-mock';
 
+// ============================================
+// Logger Mock - Silence debug/info/warn in tests
+// ============================================
+jest.mock('@shared/services/logging/Logger', () => ({
+  getLogger: () => ({
+    setContext: jest.fn(() => ({
+      debug: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: console.error, // Keep errors visible
+      log: jest.fn(),
+    })),
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: console.error, // Keep errors visible
+    log: jest.fn(),
+  }),
+  DefaultLogger: jest.fn(),
+  ConsoleTransport: jest.fn(),
+}));
+
 // Enable Immer MapSet plugin for Zustand
 enableMapSet();
 
