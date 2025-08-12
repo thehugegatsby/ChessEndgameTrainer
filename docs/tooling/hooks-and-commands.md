@@ -1,5 +1,7 @@
 # Claude Code Hooks & Custom Commands
 
+<!-- nav: docs/README#environment | tags: [hooks, commands] | updated: 2025-08-12 -->
+
 This document tracks all hooks and custom commands configured for the EndgameTrainer project.
 
 ## Overview
@@ -65,12 +67,42 @@ _Custom commands will be documented here as they are created_
 
 3. **Exit Codes:**
    - `0` = Allow command
-   - `2` = Block command with error message
+   - `2` = Block command with error message (per Claude Code docs)
+   - **KNOWN ISSUE**: Exit codes may not work as expected in all environments
 
 4. **Testing:**
    - Test with problematic patterns
    - Verify allowed commands still work
    - Document test cases
+
+## Current Status
+
+**⚠️ HOOK FUNCTIONALITY ISSUE**
+
+**Problem**: Der WSL-Safety Hook wird trotz korrekter Konfiguration nicht ausgeführt oder ignoriert Exit-Codes.
+
+**Investigation Results**:
+
+- Hook-Skript funktioniert korrekt (Exit-Code 0/2)
+- Konfiguration entspricht Claude Code-Dokumentation
+- Verschiedene Exit-Codes getestet (1, 2, 3, 125, 126, 127)
+- Sowohl einfache als auch strukturierte Hook-Konfiguration getestet
+- Debug-Hook wird nicht aufgerufen
+
+**Possible Causes**:
+
+1. Claude Code Hook-System funktioniert nicht in dieser Umgebung
+2. Hooks erfordern Session-Neustart oder andere Aktivierung
+3. WSL-spezifische Probleme mit Hook-Ausführung
+4. Claude Code Version unterstützt Hooks nicht vollständig
+
+**Workaround**: Manual validation required until hooks work properly
+
+**Next Steps**:
+
+1. Session restart to test hook activation
+2. Report issue to Claude Code team
+3. Consider alternative validation strategies
 
 ## References
 

@@ -1,6 +1,10 @@
 # TESTING_STRATEGY.md
 
+<!-- nav: docs/README#development | tags: [testing, wsl] | updated: 2025-08-12 -->
+
 ## 1. ⚠️ CRITICAL: Test Execution in WSL
+
+**WSL Rules:** → [WSL2_ENV.md](./WSL2_ENV.md#testing-commands)
 
 **NEVER** use `--` with `pnpm test` as it causes crashes in WSL environments. Always specify the file path directly.
 

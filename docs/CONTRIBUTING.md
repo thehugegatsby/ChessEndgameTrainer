@@ -1,5 +1,7 @@
 # CONTRIBUTING.md
 
+<!-- nav: docs/README#development | tags: [git, workflow] | updated: 2025-08-12 -->
+
 ## 1. Git Workflow
 
 Feature-branch workflow: Create branches from `main`, integrate via Pull Requests. No direct commits to `main`.

@@ -1,5 +1,7 @@
 # MCP Tool Usage Guidelines
 
+<!-- nav: docs/README#environment | tags: [mcp, tools] | updated: 2025-08-12 -->
+
 ## Tool Hierarchy (Use in this order)
 
 The tool selection follows a simple principle: from most specific and efficient to most general.

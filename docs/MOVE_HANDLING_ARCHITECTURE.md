@@ -1,5 +1,9 @@
 # Move Handling Architecture
 
+<!-- nav: docs/README#architecture | tags: [architecture, moves] | updated: 2025-08-12 -->
+
+**Quick Overview:** → [SYSTEM_GUIDE.md#orchestrators](./SYSTEM_GUIDE.md#orchestrators)
+
 ## Overview
 
 The chess move handling in ChessEndgameTrainer follows a layered architecture with clear separation of concerns. After the Phase 8 refactoring, the system uses domain-specific slices, orchestrators, and services to handle moves consistently.
@@ -25,6 +29,7 @@ UI Re-renders
 ## Key Components
 
 ### 1. TrainingBoard Component
+
 **File**: `/shared/components/training/TrainingBoard/TrainingBoard.tsx`
 
 The main UI component that handles user interactions:
@@ -39,12 +44,14 @@ const handleMove = useCallback(async (move: any) => {
 ```
 
 **Responsibilities**:
+
 - User input handling (drag & drop)
 - Position readiness validation
 - Error dialog management
 - E2E test hooks
 
 ### 2. useTrainingSession Hook
+
 **File**: `/shared/hooks/useTrainingSession.ts`
 
 Bridge between UI and store:
@@ -53,27 +60,29 @@ Bridge between UI and store:
 const makeMove = useCallback(async (move) => {
   // Delegates to store orchestrator
   const moveResult = await trainingActions.handlePlayerMove(move);
-  
+
   // Check game completion
   if (gameState.isGameFinished) {
     trainingActions.completeTraining(success);
     onComplete?.(success);
   }
-  
+
   // Notify position change
   onPositionChange?.(gameState.currentFen, gameState.currentPgn);
-  
+
   return moveResult;
 }, [...]);
 ```
 
 **Responsibilities**:
+
 - Store interaction abstraction
 - Game completion detection
 - Position change notifications
 - Error handling
 
 ### 3. Store Orchestrator
+
 **File**: `/shared/store/orchestrators/handlePlayerMove/index.ts`
 
 The main orchestrator (533 lines) that coordinates the entire move flow:
@@ -81,23 +90,23 @@ The main orchestrator (533 lines) that coordinates the entire move flow:
 ```typescript
 export const handlePlayerMove = async (
   api: StoreApi,
-  move: ChessJsMove | {from: string; to: string} | string
+  move: ChessJsMove | { from: string; to: string } | string,
 ): Promise<boolean> => {
   // 1. Validate turn
   if (!state.training.isPlayerTurn || state.training.isOpponentThinking) {
     return false;
   }
-  
+
   // 2. Validate move with ChessService
   const isValid = chessService.validateMove(move);
-  
+
   // 3. Execute move
   const validatedMove = chessService.move(move);
-  
+
   // 4. Evaluate move quality with tablebase
   const evalBefore = await tablebaseService.getEvaluation(fenBefore);
   const evalAfter = await tablebaseService.getEvaluation(fenAfter);
-  
+
   // 5. Check for suboptimal moves
   if (!playedMoveWasBest && outcomeChanged) {
     setState((draft) => {
@@ -105,28 +114,29 @@ export const handlePlayerMove = async (
         isOpen: true,
         wdlBefore,
         wdlAfter,
-        bestMove
+        bestMove,
       };
     });
     return true; // No opponent turn for errors
   }
-  
+
   // 6. Check game completion
   if (chessService.isGameOver()) {
     await handleTrainingCompletion(api, true);
     return true;
   }
-  
+
   // 7. Schedule opponent turn if needed
   if (currentTurn !== trainingColor) {
     scheduleOpponentTurn(api);
   }
-  
+
   return true;
 };
 ```
 
 **Key Features**:
+
 - Move validation
 - Move quality evaluation
 - Suboptimal move detection
@@ -143,12 +153,14 @@ The orchestrator performs sophisticated move quality checks:
 const topMoves = await tablebaseService.getTopMoves(fenBefore, 3);
 
 // Check if played move was best
-const playedMoveWasBest = topMoves.moves?.some(m => m.san === validatedMove.san);
+const playedMoveWasBest = topMoves.moves?.some(
+  (m) => m.san === validatedMove.san,
+);
 
 // Check if position outcome changed
-const outcomeChanged = 
+const outcomeChanged =
   (wdlBeforeFromPlayerPerspective > 0 && wdlAfterFromPlayerPerspective <= 0) || // Win -> Draw/Loss
-  (wdlBeforeFromPlayerPerspective === 0 && wdlAfterFromPlayerPerspective < 0);  // Draw -> Loss
+  (wdlBeforeFromPlayerPerspective === 0 && wdlAfterFromPlayerPerspective < 0); // Draw -> Loss
 
 // Show error dialog for suboptimal moves
 if (!playedMoveWasBest && outcomeChanged) {
@@ -166,7 +178,7 @@ function scheduleOpponentTurn(api: StoreApi): void {
   window.__opponentTurnTimeout = setTimeout(async () => {
     // Check if cancelled (e.g., by undo)
     if (window.__opponentTurnCancelled) return;
-    
+
     // Execute opponent turn
     await executeOpponentTurn(api);
   }, 500);
@@ -175,10 +187,10 @@ function scheduleOpponentTurn(api: StoreApi): void {
 async function executeOpponentTurn(api: StoreApi): Promise<void> {
   // Get best move from tablebase
   const topMoves = await tablebaseService.getTopMoves(currentFen, 1);
-  
+
   // Execute move
   const move = chessService.move(bestMove.san);
-  
+
   // Update state
   setState((draft) => {
     draft.training.isPlayerTurn = true;
@@ -190,9 +202,11 @@ async function executeOpponentTurn(api: StoreApi): Promise<void> {
 ### 6. Services
 
 #### ChessService
+
 **File**: `/shared/services/ChessService.ts`
 
 Singleton service managing chess.js instance:
+
 - Move validation
 - Move execution
 - FEN management
@@ -200,9 +214,11 @@ Singleton service managing chess.js instance:
 - Event emission for state updates
 
 #### TablebaseService
+
 **File**: `/shared/services/TablebaseService.ts`
 
 Lichess tablebase API integration:
+
 - Position evaluation
 - Best move calculation
 - Move quality assessment
@@ -211,6 +227,7 @@ Lichess tablebase API integration:
 ### 7. State Management
 
 #### Game Slice
+
 ```typescript
 interface GameState {
   currentFen: string | null;
@@ -223,6 +240,7 @@ interface GameState {
 ```
 
 #### Training Slice
+
 ```typescript
 interface TrainingState {
   currentPosition: EndgamePosition | null;
@@ -252,19 +270,21 @@ interface TrainingState {
 ## Error Handling
 
 ### Move Errors
+
 - Invalid moves → Toast notification
 - Suboptimal moves → Error dialog with best move
 - Network errors → Graceful degradation
 
 ### Error Dialog Flow
+
 ```typescript
 // When suboptimal move detected
 setState((draft) => {
   draft.training.moveErrorDialog = {
     isOpen: true,
-    wdlBefore: 2,  // Was winning
-    wdlAfter: 0,   // Now draw
-    bestMove: "Qb7+"
+    wdlBefore: 2, // Was winning
+    wdlAfter: 0, // Now draw
+    bestMove: "Qb7+",
   };
 });
 
@@ -280,14 +300,14 @@ setState((draft) => {
 const handleMoveErrorTakeBack = useCallback(() => {
   // Cancel scheduled opponent turn
   cancelScheduledOpponentTurn();
-  
+
   // Undo move
   const undoResult = undoMove();
-  
+
   // Reset turn
   trainingActions.setPlayerTurn(true);
   trainingActions.clearOpponentThinking();
-  
+
   // Close dialog
   trainingActions.setMoveErrorDialog(null);
 }, [...]);

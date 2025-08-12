@@ -1,10 +1,39 @@
 # SYSTEM_GUIDE.md
 
+<!-- nav: docs/README#architecture | tags: [architecture, system] | updated: 2025-08-12 -->
+
 ## 1. System Overview
 
 Chess Endgame Trainer built with React, TypeScript, and Zustand. Domain-driven design with central reactive state store as Single Source of Truth.
 
 ## 2. Architecture
+
+```mermaid
+graph TD
+    subgraph "Frontend Layer"
+        A[React Components] --> B[React Hooks]
+    end
+    subgraph "State Management"
+        B --> C{Zustand Root Store}
+        C --> D[GameSlice]
+        C --> E[TrainingSlice]
+        C --> F[TablebaseSlice]
+        C --> G[UISlice]
+    end
+    subgraph "Business Logic"
+        C --> H[Orchestrators]
+        H --> I[ChessService]
+        H --> J[TablebaseService]
+    end
+    subgraph "External APIs"
+        J --> K((Lichess API))
+    end
+
+    style C fill:#e1f5fe
+    style H fill:#f3e5f5
+    style I fill:#e8f5e8
+    style J fill:#e8f5e8
+```
 
 ### Zustand Domain Slices
 
@@ -28,6 +57,7 @@ Complex operations spanning multiple slices:
 
 - **Location**: `/shared/store/orchestrators/`
 - **Example**: `handlePlayerMove` coordinates move validation (GameSlice), training progress (TrainingSlice), UI feedback (UISlice)
+- **Deep dive**: → [MOVE_HANDLING_ARCHITECTURE.md](./MOVE_HANDLING_ARCHITECTURE.md)
 
 ## 3. Code Standards
 

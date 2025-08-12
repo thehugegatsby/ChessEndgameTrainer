@@ -1,28 +1,17 @@
 # CLAUDE.md
 
-## CRITICAL: WSL2 Environment
+<!-- nav: root | tags: [main, guide] | updated: 2025-08-12 -->
 
-**THIS PROJECT RUNS IN WSL2 (Windows Subsystem for Linux)**
+## Quick Start
 
-- Platform: Linux 6.6.87.2-microsoft-standard-WSL2
-- Working Directory: /home/thehu/coolProjects/EndgameTrainer
-- Package Manager: pnpm (NOT npm)
+**New to this project?** → [CLAUDE_QUICKSTART.md](CLAUDE_QUICKSTART.md)
 
-### WSL-Specific Command Rules
+## Essential Info
 
-**DO NOT use these patterns - they crash in WSL:**
+**Platform:** WSL2 Linux | **Package Manager:** pnpm | **Key Rule:** No pipes with Node.js
 
-- ❌ `pnpm test -- --run path/to/test.tsx`
-- ❌ `pnpm test 2>&1 | tail`
-- ❌ `npm run build | grep error`
-- ❌ Any Node.js command with pipes (`|`) or stderr redirect (`2>&1`)
-
-**DO use these patterns instead:**
-
-- ✅ `pnpm test path/to/test.tsx` (direct path)
-- ✅ `pnpm test` (run all)
-- ✅ `pnpm run build` (no pipes)
-- ✅ `pnpm run lint && pnpm tsc` (use && not pipes)
+**WSL Safety:** → [docs/WSL2_ENV.md](docs/WSL2_ENV.md)  
+**Documentation Index:** → [docs/README.md](docs/README.md)
 
 ## MCP Tools
 
@@ -35,7 +24,7 @@ Quick reference - use the right tool for the task:
 - Tests: `mcp__zen__testgen`
 - Major decisions: `mcp__zen__consensus` (MANDATORY for architecture changes)
 
-**Full decision tree and guidelines:** @docs/claude/mcp-tools.md
+**Full decision tree and guidelines:** → [docs/tooling/mcp-tools.md](docs/tooling/mcp-tools.md)
 
 ## Architecture & Code Structure
 
@@ -46,7 +35,7 @@ Key rules:
 - **Imports**: Use `@shared/` alias, never relative paths
 - **German**: Error messages in German
 
-**Full details:** @docs/SYSTEM_GUIDE.md
+**Full details:** → [docs/SYSTEM_GUIDE.md](docs/SYSTEM_GUIDE.md)
 
 ## Standard Validation Workflow
 
@@ -84,7 +73,7 @@ pnpm tsc           # TypeScript check
 - ✅ `pnpm test path/to/test.tsx`
 - ❌ `pnpm test -- --run path/to/test.tsx`
 
-**Full testing guidelines:** @docs/TESTING_STRATEGY.md
+**Full testing guidelines:** → [docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md)
 
 ## Permanent Constraints
 
@@ -95,9 +84,9 @@ pnpm tsc           # TypeScript check
 
 ## Additional Documentation
 
-- **Contributing & Git:** @docs/CONTRIBUTING.md
-- **Hooks & Commands:** @docs/claude/hooks-and-commands.md
-- **Move Logic Details:** @docs/MOVE_HANDLING_ARCHITECTURE.md
+- **Contributing & Git:** → [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)
+- **Hooks & Commands:** → [docs/tooling/hooks-and-commands.md](docs/tooling/hooks-and-commands.md)
+- **Move Logic Details:** → [docs/MOVE_HANDLING_ARCHITECTURE.md](docs/MOVE_HANDLING_ARCHITECTURE.md)
 
 ---
 

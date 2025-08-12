@@ -1,39 +1,67 @@
-# EndgameTrainer Documentation Archive
+# Documentation Index
 
-This directory contains detailed technical documentation for human consumption and historical reference.
+<!-- nav: root | tags: [navigation, docs] | updated: 2025-08-12 -->
 
-**For Claude Code AI**: Use `/CLAUDE.md` as the primary context document.
+This index provides structured navigation through all project documentation for efficient LLM assistance.
 
-## Organization
+## Quick Start
 
-### Architectural Documentation
+- **First time here?** → [CLAUDE_QUICKSTART.md](../CLAUDE_QUICKSTART.md)
+- **Project root guide** → [CLAUDE.md](../CLAUDE.md)
 
-- `ARCHITECTURE.md` - System design details and patterns
-- `MOVE_HANDLING_ARCHITECTURE.md` - Move processing flow
-- `TABLEBASE_REFACTORING.md` - Service refactoring plans
+## Environment & Tooling
 
-### Development Guidelines
+| Document                                                         | Purpose               | Key Info                           |
+| ---------------------------------------------------------------- | --------------------- | ---------------------------------- |
+| [WSL2_ENV.md](./WSL2_ENV.md)                                     | WSL environment rules | Command syntax, forbidden patterns |
+| [tooling/mcp-tools.md](./tooling/mcp-tools.md)                   | MCP tool selection    | Hierarchy, decision tree           |
+| [tooling/hooks-and-commands.md](./tooling/hooks-and-commands.md) | Hook configuration    | Debug, safety hooks                |
 
-- `STANDARDS.md` - Detailed coding conventions
-- `GITHUB_ISSUE_CONVENTION.md` - Issue templates
-- `LLM_ISSUE_GUIDELINES.md` - AI-optimized issue writing
+## Architecture
 
-### Project History
+| Document                                                         | Purpose           | Key Info                           |
+| ---------------------------------------------------------------- | ----------------- | ---------------------------------- |
+| [SYSTEM_GUIDE.md](./SYSTEM_GUIDE.md)                             | System overview   | Zustand slices, services, patterns |
+| [MOVE_HANDLING_ARCHITECTURE.md](./MOVE_HANDLING_ARCHITECTURE.md) | Move flow details | 533-line orchestrator breakdown    |
+| [GLOSSARY.md](./GLOSSARY.md)                                     | Term definitions  | WDL, FEN, Slice, Orchestrator      |
 
-- `CURRENT_FOCUS.md` - Historical development phases
-- `DEPENDENCY_UPDATES_2025.md` - Major updates log
-- `E2E_OPTIMIZATION_ROADMAP.md` - Testing improvements
-- `CLAUDE_legacy_2025-01-09.md` - Previous AI context (archived)
+## Development
 
-### Configuration & Setup
+| Document                                     | Purpose              | Key Info                  |
+| -------------------------------------------- | -------------------- | ------------------------- |
+| [TESTING_STRATEGY.md](./TESTING_STRATEGY.md) | Test framework rules | Jest/Vitest, WSL commands |
+| [CONTRIBUTING.md](./CONTRIBUTING.md)         | Git workflow         | Branch naming, PR format  |
 
-- `FIREBASE_SETUP.md` - Database configuration
-- `WDL_REFERENCE.md` - Tablebase value system
-- `ISSUE_VALIDATION_CHECKLIST.md` - Quality gates
+## Specialized Guides
 
-## Key Principle
+| Directory                          | Purpose                       |
+| ---------------------------------- | ----------------------------- |
+| [archive/](./archive/)             | Historical documentation      |
+| [adr/](./adr/)                     | Architecture decision records |
+| [checklists/](./checklists/)       | Maintenance checklists        |
+| [orchestrators/](./orchestrators/) | Orchestrator-specific docs    |
+| [services/](./services/)           | Service-specific docs         |
 
-**CLAUDE.md** = AI Working Memory (lean, current, operational)  
-**docs/** = Human Archive (detailed, historical, explanatory)
+## Quick Reference
 
-This separation prevents documentation bloat while maintaining comprehensive project knowledge.
+**Critical Files:**
+
+- `src/shared/store/rootStore.ts` - Main store
+- `src/shared/services/ChessService.ts` - Chess logic singleton
+- `src/shared/store/orchestrators/handlePlayerMove/` - Move logic (533 lines)
+
+**Core Commands:**
+
+```bash
+pnpm run dev       # Development server
+pnpm run build     # Production build
+pnpm run lint      # ESLint + format
+pnpm test          # Run all tests
+pnpm tsc           # TypeScript check
+```
+
+**Validation Workflow:**
+
+```bash
+pnpm run lint && pnpm tsc && pnpm test
+```
