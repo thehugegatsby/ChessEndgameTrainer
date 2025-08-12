@@ -4,10 +4,12 @@
 
 ### Bash Commands
 
-**NEVER use pipes (|) with Node.js commands in WSL/VS Code** - they cause tools to detect non-TTY mode and crash.
+**NEVER use pipes (|) or double dash (--) with Node.js commands in WSL/VS Code** - they cause tools to detect non-TTY mode and crash.
 
 - ❌ Bad: `pnpm test 2>&1 | tail`
+- ❌ Bad: `pnpm test -- --run path/to/test.tsx`
 - ✅ Good: `pnpm test`
+- ✅ Good: `pnpm test path/to/test.tsx`
 
 ### Code Quality
 
