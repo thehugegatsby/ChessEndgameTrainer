@@ -149,52 +149,88 @@
 
 ---
 
-### ⏳ **Phase 2: Tablebase Service Migration** 🔄 PENDING
+### ⏳ **Phase 2: Tablebase Service Migration** 🚧 IN PROGRESS
 
 #### **Analysis & Planning**
 
-- [ ] **Phase 2: Analyze TablebaseService dependencies**
-  - [ ] Lichess API integration analysis
-  - [ ] Current caching mechanisms
-  - [ ] Error handling patterns
-  - [ ] Performance bottlenecks identification
+- [x] **Phase 2: Analyze TablebaseService dependencies**
+  - ✅ 673 Zeilen alter Code analysiert
+  - ✅ Nur win/draw/loss nötig (keine 7 Kategorien)
+  - ✅ Perspektiven-Problem identifiziert und Lösung gefunden
+  - ✅ React Query als einziger Cache entschieden
 
-- [ ] **Phase 2: Define Tablebase interfaces**
-  - [ ] ITablebaseService - Main service interface
-  - [ ] ITablebaseCache - Caching layer interface
-  - [ ] ITablebaseAPI - API abstraction interface
-  - [ ] ITablebaseResult - Result type definitions
+- [x] **Phase 2: User Requirements geklärt**
+  - ✅ Nur win/draw/loss Kategorien
+  - ✅ Kein Metrics/Monitoring nötig
+  - ✅ Error anzeigen wenn Tablebase nicht verfügbar
+  - ✅ Deutsche Texte in UI Layer
+
+- [x] **Phase 2: LLM Consensus (3x 9/10 Confidence)**
+  - ✅ Gemini: Strangler Pattern, Mock API für Tests
+  - ✅ O3-Mini: Loading States, Error Recovery
+  - ✅ DeepSeek: FEN Edge Cases, Prefetching Strategie
 
 #### **Core Implementation**
 
-- [ ] **Phase 2: Extract Tablebase API layer**
-  - [ ] Lichess API wrapper erstellen
-  - [ ] HTTP client abstraction
-  - [ ] Rate limiting implementation
-  - [ ] Error handling und retry logic
+- [ ] **Phase 2: Define Clean Interfaces**
+  - [ ] ITablebaseService - Domain interface
+  - [ ] TablebaseEvaluation - Nur win/draw/loss
+  - [ ] TablebaseMove - Simplified structure
 
-- [ ] **Phase 2: Create Tablebase caching system**
-  - [ ] Multi-level caching strategy
-  - [ ] Memory cache für frequent lookups
-  - [ ] Persistent storage für offline usage
-  - [ ] Cache invalidation logic
+- [ ] **Phase 2: Implement TablebaseTransformer** ⭐ KRITISCH
+  - [ ] normalizePositionEvaluation() - Perspektiven-Korrektur
+  - [ ] normalizeMoveEvaluation() - Andere Logik für Moves!
+  - [ ] Comprehensive FEN validation
+  - [ ] Edge case handling
 
-- [ ] **Phase 2: Implement TablebaseService facade**
-  - [ ] Clean API für tablebase queries
-  - [ ] Result formatting und validation
-  - [ ] Performance monitoring
-  - [ ] Error recovery mechanisms
+- [ ] **Phase 2: Create Thin API Client**
+  - [ ] Simple fetch wrapper
+  - [ ] Zod validation für Responses
+  - [ ] Exponential backoff retry
+  - [ ] Error class für structured errors
+
+- [ ] **Phase 2: Implement TablebaseService**
+  - [ ] evaluate(fen) - Position bewerten
+  - [ ] getBestMoves(fen, limit) - Beste Züge
+  - [ ] NO caching (React Query handles it)
+  - [ ] Use Transformer for perspective
+
+- [ ] **Phase 2: Create React Hooks**
+  - [ ] useTablebaseEvaluation() mit React Query
+  - [ ] useTablebaseMoves() mit React Query
+  - [ ] Error boundaries
+  - [ ] Loading states (Skeleton/Optimistic)
+
+#### **Testing**
+
+- [ ] **Phase 2: Transformer Tests** ⭐ PRIORITÄT
+  - [ ] Alle Perspektiven-Kombinationen
+  - [ ] FEN Edge Cases
+  - [ ] Invalid input handling
+
+- [ ] **Phase 2: Service Tests**
+  - [ ] Mock API Client
+  - [ ] Happy path scenarios
+  - [ ] Error scenarios
+
+- [ ] **Phase 2: Integration Tests**
+  - [ ] Real API call (nur 1 Test)
+  - [ ] E2E mit Mock Service Worker
 
 #### **Integration**
 
-- [ ] **Phase 2: Integrate with StranglerFacade**
+- [ ] **Phase 2: Strangler Fig Integration**
   - [ ] Feature flag: USE_NEW_TABLEBASE_SERVICE
-  - [ ] Legacy compatibility layer
-  - [ ] A/B testing infrastructure
-  - [ ] Rollback mechanisms
+  - [ ] Parallel operation mit legacy
+  - [ ] Performance comparison
+  - [ ] Rollback capability
 
-- [ ] **Phase 2: Update UI components**
-  - [ ] Feature flag: USE_NEW_TABLEBASE_UI
+- [ ] **Phase 2: Migration Strategy**
+  - [ ] Phase 1: Internal testing
+  - [ ] Phase 2: 10% traffic (A/B)
+  - [ ] Phase 3: Monitoring
+  - [ ] Phase 4: 100% rollout
+  - [ ] Phase 5: Remove legacy
   - [ ] Component migration strategy
   - [ ] State management updates
   - [ ] User experience consistency
