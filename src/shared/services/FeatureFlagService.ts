@@ -168,6 +168,10 @@ class FeatureFlagService {
   public clearOverrides(): void {
     this.overrides.clear();
     
+    // Reset flags to original state (reload from environment)
+    this.flags = {};
+    this.loadFlags();
+    
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.removeItem('featureFlags');
     }

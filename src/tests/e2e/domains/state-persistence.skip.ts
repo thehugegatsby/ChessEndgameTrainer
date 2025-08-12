@@ -1,3 +1,4 @@
+// @vitest-skip
 /**
  * State Persistence E2E Test - Issue #23
  * Tests save/restore game state on page reload

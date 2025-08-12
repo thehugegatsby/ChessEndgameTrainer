@@ -1,3 +1,4 @@
+// @vitest-skip
 /**
  * Simple E2E Test für Weiterspielen Bug
  *

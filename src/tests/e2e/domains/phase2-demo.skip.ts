@@ -1,3 +1,4 @@
+// @vitest-skip
 /**
  * Phase 2 Demo Test - Showcasing new E2E infrastructure
  * 

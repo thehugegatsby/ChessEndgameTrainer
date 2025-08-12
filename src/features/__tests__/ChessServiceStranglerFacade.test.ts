@@ -4,8 +4,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { FeatureFlag, featureFlags } from '@shared/services/FeatureFlagService';
-import { ChessService } from '@shared/services/ChessServiceStranglerFacade';
+import { FeatureFlag, featureFlags } from '../../shared/services/FeatureFlagService';
+import { ChessService } from '../../shared/services/ChessServiceStranglerFacade';
 import { COMMON_FENS } from '../../tests/fixtures/commonFens';
 
 describe('ChessServiceStranglerFacade', () => {

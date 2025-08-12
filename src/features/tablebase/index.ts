@@ -1,36 +1,40 @@
 /**
  * Tablebase Feature - Public API
  * 
- * This barrel file exports all public components, hooks, services, and types
- * from the tablebase feature module.
+ * This is the main entry point for the tablebase feature.
+ * Only exports what's needed by the rest of the application.
  */
 
-// Components
-// export { TablebasePanel } from './components/TablebasePanel';
-// export { EvaluationDisplay } from './components/EvaluationDisplay';
-// export { MoveRecommendation } from './components/MoveRecommendation';
+// Service
+export { tablebaseService } from './services/TablebaseService';
 
 // Hooks
-// export { useTablebaseQuery } from './hooks/useTablebaseQuery';
-// export { usePositionAnalysis } from './hooks/usePositionAnalysis';
-// export { useTablebaseCache } from './hooks/useTablebaseCache';
-
-// Services
-// export { TablebaseService } from './services/TablebaseService';
-// export { LichessApiClient } from './services/LichessApiClient';
-// export { TablebaseCacheService } from './services/TablebaseCacheService';
+export {
+  useTablebaseEvaluation,
+  useTablebaseMoves,
+  useTablebase,
+  tablebaseQueryKeys,
+} from './hooks/useTablebase';
 
 // Types
-// export type { 
-//   TablebaseResult, 
-//   TablebaseMove, 
-//   PositionEvaluation,
-//   TablebaseQueryOptions 
-// } from './types/tablebase.types';
+export type {
+  TablebaseServiceInterface,
+  TablebaseEvaluation,
+  TablebaseMove,
+  TablebaseOutcome,
+} from './types/interfaces';
 
-// Utils
-// export { formatTablebaseResult } from './utils/formatters';
-// export { calculateBestMove } from './utils/calculations';
+export { TablebaseError } from './types/interfaces';
 
-// Store
-// export { useTablebaseStore } from './store/tablebaseStore';
+// Formatters
+export {
+  formatEvaluationGerman,
+  formatMoveGerman,
+  formatOutcomeGerman,
+  formatErrorGerman,
+  getMoveQualityIndicator,
+  getMoveQualityClass,
+} from './utils/formatters';
+
+// Configuration (if needed externally)
+export { TablebaseConfig } from './types/models';

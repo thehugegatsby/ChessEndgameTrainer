@@ -1,3 +1,4 @@
+// @vitest-skip
 import { test } from "@playwright/test";
 import { waitForPageReady } from "./helpers/deterministicWaiting";
 

@@ -6,9 +6,9 @@
  */
 
 import type { Move as ChessJsMove } from "chess.js";
-import type { ValidatedMove } from "@shared/types/chess";
+import type { ValidatedMove } from "../types/chess";
 import { FeatureFlag, featureFlags } from "./FeatureFlagService";
-import { createServiceFacade } from "@shared/components/StranglerFacade";
+import { createServiceFacade } from "../components/StranglerFacade";
 
 // Legacy service
 import { ChessService as LegacyChessService } from "./ChessService";

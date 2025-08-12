@@ -1,3 +1,4 @@
+// @vitest-skip
 /**
  * E2E Test for Actual Position 1
  * Tests the real position that the app loads

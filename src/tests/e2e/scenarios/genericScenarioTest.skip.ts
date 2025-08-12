@@ -1,3 +1,4 @@
+// @vitest-skip
 /**
  * @file Generic E2E Test for Chess Move Scenarios
  *

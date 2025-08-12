@@ -6,8 +6,8 @@
  */
 
 import React from 'react';
-import { useFeatureFlag } from '@shared/hooks/useFeatureFlag';
-import { type FeatureFlag } from '@shared/services/FeatureFlagService';
+import { useFeatureFlag } from '../hooks/useFeatureFlag';
+import { type FeatureFlag } from '../services/FeatureFlagService';
 
 interface StranglerFacadeProps<T> {
   flag: FeatureFlag;
@@ -26,7 +26,7 @@ export function StranglerFacade<T extends Record<string, unknown>>({
   newComponent: NewComponent,
   componentProps,
   fallbackToLegacy = true,
-}: StranglerFacadeProps<T>): React.ReactElement {
+}: StranglerFacadeProps<T>): React.ReactElement | null {
   const useNewImplementation = useFeatureFlag(flag);
 
   // Error boundary for new implementation
@@ -36,14 +36,19 @@ export function StranglerFacade<T extends Record<string, unknown>>({
     setHasError(false);
   }, [useNewImplementation]);
 
-  if (hasError && fallbackToLegacy) {
-    console.error(`New implementation failed for ${flag}, falling back to legacy`);
-    return <LegacyComponent {...componentProps} />;
+
+  // Render LegacyComponent outside ErrorBoundary when error occurred
+  if (hasError) {
+    if (fallbackToLegacy) {
+      console.error(`New implementation failed for ${flag}, falling back to legacy`);
+      return <LegacyComponent {...componentProps} />;
+    }
+    return null;
   }
 
   if (useNewImplementation) {
     return (
-      <ErrorBoundary onError={() => setHasError(true)}>
+      <ErrorBoundary onError={() => setHasError(true)} fallbackToLegacy={fallbackToLegacy}>
         <NewComponent {...componentProps} />
       </ErrorBoundary>
     );
@@ -53,13 +58,15 @@ export function StranglerFacade<T extends Record<string, unknown>>({
 }
 
 /**
- * Simple error boundary for catching errors in new implementations
+ * Error boundary that immediately notifies parent without managing its own error state
  */
 class ErrorBoundary extends React.Component<
-  { children: React.ReactNode; onError: () => void },
+  { children: React.ReactNode; onError: () => void; fallbackToLegacy: boolean },
   { hasError: boolean }
 > {
-  constructor(props: { children: React.ReactNode; onError: () => void }) {
+  private hasNotifiedParent = false;
+
+  constructor(props: { children: React.ReactNode; onError: () => void; fallbackToLegacy: boolean }) {
     super(props);
     this.state = { hasError: false };
   }
@@ -70,14 +77,22 @@ class ErrorBoundary extends React.Component<
 
   override componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     console.error('Error in new implementation:', error, errorInfo);
-    this.props.onError();
+    
+    // Notify parent immediately and only once
+    if (!this.hasNotifiedParent) {
+      this.hasNotifiedParent = true;
+      // Use setTimeout to break out of the React render cycle
+      setTimeout(() => {
+        this.props.onError();
+      }, 0);
+    }
   }
 
   override render(): React.ReactNode {
     if (this.state.hasError) {
-      return null;
+      // Return empty fragment - parent will handle the fallback
+      return <></>;
     }
-
     return this.props.children;
   }
 }

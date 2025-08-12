@@ -3,7 +3,7 @@
  */
 
 import { useEffect, useState, useSyncExternalStore, useMemo } from 'react';
-import { featureFlags, type FeatureFlag } from '@shared/services/FeatureFlagService';
+import { featureFlags, type FeatureFlag } from '../services/FeatureFlagService';
 
 /**
  * Hook to check if a feature flag is enabled
@@ -12,7 +12,11 @@ import { featureFlags, type FeatureFlag } from '@shared/services/FeatureFlagServ
 export function useFeatureFlag(flag: FeatureFlag): boolean {
   const isEnabled = useSyncExternalStore(
     (callback) => {
-      // Subscribe to feature flag changes
+      // Subscribe to feature flag changes only in browser environment
+      if (typeof window === 'undefined') {
+        return () => {}; // No-op unsubscribe for SSR
+      }
+      
       const handleChange = (event: Event): void => {
         if (event instanceof CustomEvent) {
           const { flag: changedFlag } = event.detail;
@@ -52,6 +56,18 @@ export function useFeatureFlags(...flags: FeatureFlag[]): Record<FeatureFlag, bo
   const flagsKey = useMemo(() => flags.sort().join(','), [flags]);
 
   useEffect(() => {
+    // Update initial states
+    const current: Record<FeatureFlag, boolean> = {} as Record<FeatureFlag, boolean>;
+    flags.forEach(flag => {
+      current[flag] = featureFlags.isEnabled(flag);
+    });
+    setFlagStates(current);
+    
+    // Only set up event listeners in browser environment
+    if (typeof window === 'undefined') {
+      return;
+    }
+    
     const handleChange = (event: Event): void => {
       if (event instanceof CustomEvent) {
         const { flag: changedFlag, enabled } = event.detail;
@@ -65,13 +81,6 @@ export function useFeatureFlags(...flags: FeatureFlag[]): Record<FeatureFlag, bo
     };
 
     window.addEventListener('featureFlagChanged', handleChange);
-    
-    // Update initial states
-    const current: Record<FeatureFlag, boolean> = {} as Record<FeatureFlag, boolean>;
-    flags.forEach(flag => {
-      current[flag] = featureFlags.isEnabled(flag);
-    });
-    setFlagStates(current);
 
     return () => {
       window.removeEventListener('featureFlagChanged', handleChange);
@@ -100,6 +109,10 @@ export function useFeatureFlagControls(): {
   };
 
   useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    
     window.addEventListener('featureFlagChanged', handleChange);
     return () => {
       window.removeEventListener('featureFlagChanged', handleChange);

@@ -1,3 +1,4 @@
+// @vitest-skip
 /**
  * @file E2E test for streak counter functionality
  * @module tests/e2e/streak-counter

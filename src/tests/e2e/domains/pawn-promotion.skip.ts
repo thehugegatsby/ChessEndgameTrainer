@@ -1,3 +1,4 @@
+// @vitest-skip
 /**
  * E2E Test for Pawn Promotion Auto-Win Feature
  */

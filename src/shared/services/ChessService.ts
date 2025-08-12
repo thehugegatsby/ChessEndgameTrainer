@@ -210,24 +210,43 @@ class ChessService {
         }
       } else if (typeof move === 'string') {
         // Handle string notation with German piece letters
-        // Try different string formats: "e7e8D", "e7-e8D", "e8D", "e8=D"
         
-        // Format 1: "e7e8D" or "e7-e8D" (from-to-promotion with optional dash)
-        let promotionMatch = move.match(/^([a-h][1-8])-?([a-h][1-8])([DTLSQRBN])$/i);
-        if (promotionMatch && promotionMatch[3]) {
-          const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[3]);
-          // Convert to object format for chess.js - make sure promotion is a string
-          normalizedMove = {
-            from: promotionMatch[1],
-            to: promotionMatch[2],
-            promotion: normalizedPromotion as string
-          } as { from: string; to: string; promotion?: string };
+        // First check if it's a regular move with German piece notation (e.g., "Dh5", "Ta4")
+        const germanPieceRegex = /^([DTLS])([a-h]?[1-8]?[x]?)([a-h][1-8])([+#])?$/;
+        const germanMatch = move.match(germanPieceRegex);
+        if (germanMatch && germanMatch.length >= 4) {
+          // Convert German piece notation to English
+          const germanToEnglish: Record<string, string> = {
+            'D': 'Q', // Dame -> Queen
+            'T': 'R', // Turm -> Rook
+            'L': 'B', // Läufer -> Bishop
+            'S': 'N', // Springer -> Knight
+          };
+          // When regex matches, these groups are guaranteed to exist (but group 2 can be empty string)
+          const [, piece = '', middle = '', target = '', suffix = ''] = germanMatch;
+          if (piece && target && germanToEnglish[piece]) {
+            normalizedMove = germanToEnglish[piece] + middle + target + suffix;
+          }
         } else {
-          // Format 2: "e8D" or "e8=D" (SAN notation with German piece)
-          promotionMatch = move.match(/^([a-h][1-8])=?([DTLSQRBN])$/i);
-          if (promotionMatch && promotionMatch[2]) {
-            const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[2]);
-            normalizedMove = promotionMatch[1] + '=' + (normalizedPromotion || '').toUpperCase();
+          // Try different promotion formats: "e7e8D", "e7-e8D", "e8D", "e8=D"
+          
+          // Format 1: "e7e8D" or "e7-e8D" (from-to-promotion with optional dash)
+          let promotionMatch = move.match(/^([a-h][1-8])-?([a-h][1-8])([DTLSQRBN])$/i);
+          if (promotionMatch && promotionMatch[3]) {
+            const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[3]);
+            // Convert to object format for chess.js - make sure promotion is a string
+            normalizedMove = {
+              from: promotionMatch[1],
+              to: promotionMatch[2],
+              promotion: normalizedPromotion as string
+            } as { from: string; to: string; promotion?: string };
+          } else {
+            // Format 2: "e8D" or "e8=D" (SAN notation with German piece)
+            promotionMatch = move.match(/^([a-h][1-8])=?([DTLSQRBN])$/i);
+            if (promotionMatch && promotionMatch[2]) {
+              const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[2]);
+              normalizedMove = promotionMatch[1] + '=' + (normalizedPromotion || '').toUpperCase();
+            }
           }
         }
       }
@@ -552,24 +571,43 @@ class ChessService {
         }
       } else if (typeof move === 'string') {
         // Handle string notation with German piece letters
-        // Try different string formats: "e7e8D", "e7-e8D", "e8D", "e8=D"
         
-        // Format 1: "e7e8D" or "e7-e8D" (from-to-promotion with optional dash)
-        let promotionMatch = move.match(/^([a-h][1-8])-?([a-h][1-8])([DTLSQRBN])$/i);
-        if (promotionMatch && promotionMatch[3]) {
-          const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[3]);
-          // Convert to object format for chess.js - make sure promotion is a string
-          normalizedMove = {
-            from: promotionMatch[1],
-            to: promotionMatch[2],
-            promotion: normalizedPromotion as string
-          } as { from: string; to: string; promotion?: string };
+        // First check if it's a regular move with German piece notation (e.g., "Dh5", "Ta4")
+        const germanPieceRegex = /^([DTLS])([a-h]?[1-8]?[x]?)([a-h][1-8])([+#])?$/;
+        const germanMatch = move.match(germanPieceRegex);
+        if (germanMatch && germanMatch.length >= 4) {
+          // Convert German piece notation to English
+          const germanToEnglish: Record<string, string> = {
+            'D': 'Q', // Dame -> Queen
+            'T': 'R', // Turm -> Rook
+            'L': 'B', // Läufer -> Bishop
+            'S': 'N', // Springer -> Knight
+          };
+          // When regex matches, these groups are guaranteed to exist (but group 2 can be empty string)
+          const [, piece = '', middle = '', target = '', suffix = ''] = germanMatch;
+          if (piece && target && germanToEnglish[piece]) {
+            normalizedMove = germanToEnglish[piece] + middle + target + suffix;
+          }
         } else {
-          // Format 2: "e8D" or "e8=D" (SAN notation with German piece)
-          promotionMatch = move.match(/^([a-h][1-8])=?([DTLSQRBN])$/i);
-          if (promotionMatch && promotionMatch[2]) {
-            const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[2]);
-            normalizedMove = promotionMatch[1] + '=' + (normalizedPromotion || '').toUpperCase();
+          // Try different promotion formats: "e7e8D", "e7-e8D", "e8D", "e8=D"
+          
+          // Format 1: "e7e8D" or "e7-e8D" (from-to-promotion with optional dash)
+          let promotionMatch = move.match(/^([a-h][1-8])-?([a-h][1-8])([DTLSQRBN])$/i);
+          if (promotionMatch && promotionMatch[3]) {
+            const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[3]);
+            // Convert to object format for chess.js - make sure promotion is a string
+            normalizedMove = {
+              from: promotionMatch[1],
+              to: promotionMatch[2],
+              promotion: normalizedPromotion as string
+            } as { from: string; to: string; promotion?: string };
+          } else {
+            // Format 2: "e8D" or "e8=D" (SAN notation with German piece)
+            promotionMatch = move.match(/^([a-h][1-8])=?([DTLSQRBN])$/i);
+            if (promotionMatch && promotionMatch[2]) {
+              const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[2]);
+              normalizedMove = promotionMatch[1] + '=' + (normalizedPromotion || '').toUpperCase();
+            }
           }
         }
       }

@@ -1,3 +1,4 @@
+// @vitest-skip
 /**
  * E2E Test for "Weiterspielen" (Continue Playing) Feature
  *

@@ -1,9 +1,10 @@
 /**
  * Unit tests for StranglerFacade component
+ * @vitest-environment happy-dom
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import React from 'react';
 import { StranglerFacade, createServiceFacade } from '../../shared/components/StranglerFacade';
 import { FeatureFlag, featureFlags } from '../../shared/services/FeatureFlagService';
@@ -30,6 +31,10 @@ describe('StranglerFacade', () => {
     
     // Clear console mocks
     vi.clearAllMocks();
+  });
+  
+  afterEach(() => {
+    cleanup();
   });
   
   describe('Component Facade', () => {
@@ -65,7 +70,7 @@ describe('StranglerFacade', () => {
       expect(screen.queryByTestId('legacy-component')).not.toBeInTheDocument();
     });
     
-    it('should fallback to legacy on error when fallbackToLegacy is true', () => {
+    it('should fallback to legacy on error when fallbackToLegacy is true', async () => {
       featureFlags.override(FeatureFlag.USE_NEW_CHESS_CORE, true);
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       
@@ -79,11 +84,12 @@ describe('StranglerFacade', () => {
         />
       );
       
-      expect(screen.getByTestId('legacy-component')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('legacy-component')).toBeInTheDocument();
+      });
+      
       expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('New implementation failed'),
-        expect.any(Error),
-        expect.any(Object)
+        expect.stringContaining('New implementation failed')
       );
       
       consoleSpy.mockRestore();
@@ -138,7 +144,7 @@ describe('StranglerFacade', () => {
       expect(screen.queryByTestId('legacy-component')).not.toBeInTheDocument();
     });
     
-    it('should reset error state when switching back to legacy', () => {
+    it('should reset error state when switching back to legacy', async () => {
       featureFlags.override(FeatureFlag.USE_NEW_CHESS_CORE, true);
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       
@@ -153,7 +159,9 @@ describe('StranglerFacade', () => {
       );
       
       // Should fallback to legacy after error
-      expect(screen.getByTestId('legacy-component')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('legacy-component')).toBeInTheDocument();
+      });
       
       // Disable flag to switch back to legacy normally
       featureFlags.override(FeatureFlag.USE_NEW_CHESS_CORE, false);

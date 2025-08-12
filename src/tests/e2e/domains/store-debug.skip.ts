@@ -1,3 +1,4 @@
+// @vitest-skip
 /**
  * Debug test to check store availability
  */

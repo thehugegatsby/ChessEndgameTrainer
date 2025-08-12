@@ -1,3 +1,4 @@
+// @vitest-skip
 /**
  * Simplified Pawn Promotion Test with SequenceRunner
  * 

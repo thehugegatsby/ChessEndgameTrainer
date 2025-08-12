@@ -1,3 +1,4 @@
+// @vitest-skip
 /**
  * Pawn Promotion Debug Tests
  * Tests pawn promotion detection and UI behavior

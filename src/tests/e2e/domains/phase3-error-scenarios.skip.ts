@@ -1,3 +1,4 @@
+// @vitest-skip
 /**
  * Phase 3 Error Scenarios Test
  * 

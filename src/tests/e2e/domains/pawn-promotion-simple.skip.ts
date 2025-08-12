@@ -1,3 +1,4 @@
+// @vitest-skip
 /**
  * Simple Pawn Promotion Test
  * Tests just the promotion move itself from a pre-set position

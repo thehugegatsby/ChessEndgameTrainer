@@ -1,3 +1,4 @@
+// @vitest-skip
 /**
  * Core Training Workflow E2E Test
  * Journey: Homepage → Training → Move → Evaluation

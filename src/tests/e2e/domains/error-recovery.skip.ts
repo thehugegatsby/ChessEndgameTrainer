@@ -1,3 +1,4 @@
+// @vitest-skip
 /**
  * Error Recovery E2E Tests - Issue #24
  * Tests error recovery and undo functionality with feedback
