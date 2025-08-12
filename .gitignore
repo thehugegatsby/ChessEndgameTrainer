@@ -49,6 +49,7 @@ dev.log
 *.swn
 *.bak
 *~
+#*#
 .project
 .classpath
 .c9/
