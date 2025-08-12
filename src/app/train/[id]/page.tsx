@@ -1,12 +1,19 @@
 import React from "react";
 import { notFound } from "next/navigation";
-import { EndgameTrainingPage } from "@shared/pages/EndgameTrainingPage";
-import { StoreProvider } from "@shared/store/StoreContext";
+import dynamicImport from "next/dynamic";
 import { createInitialStateForPosition } from "@shared/store/server/createInitialState";
 import { getServerPositionService } from "@shared/services/database/serverPositionService";
 import { getLogger } from "@shared/services/logging";
 import { ErrorService } from "@shared/services/ErrorService";
-import type { RootState } from "@shared/store/slices/types";
+
+// Dynamically import the client page to reduce initial bundle
+const ClientPage = dynamicImport(() => import("./ClientPage"), {
+  loading: () => (
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600"></div>
+    </div>
+  ),
+});
 
 // Force dynamic rendering for this page - no static generation
 export const dynamic = 'force-dynamic';
@@ -53,11 +60,7 @@ export default async function TrainingPage({ params }: TrainingPageProps): Promi
     logger.info("Creating initial state for position", { positionId: position.id });
     const initialStoreState = await createInitialStateForPosition(position);
 
-    return (
-      <StoreProvider initialState={initialStoreState as Partial<RootState>}>
-        <EndgameTrainingPage />
-      </StoreProvider>
-    );
+    return <ClientPage initialState={initialStoreState} />;
   } catch (error) {
     logger.error("Failed to load training page", { error, positionId: id });
     ErrorService.handleNetworkError(error as Error, {
