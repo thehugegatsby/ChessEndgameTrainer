@@ -28,7 +28,7 @@ export const COMMON_FENS = {
   CHECK_POSITION: 'rnbkqbnr/pppp1ppp/8/6Q1/8/8/PPPPPPPP/RNB1KBNR b KQkq - 0 1',
   
   /** En passant available - White can capture d6 */
-  EN_PASSANT_POSITION: 'rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3',
+  EN_PASSANT_POSITION: 'rnbqkbnr/pp2pppp/8/2ppP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3',
   
   /** Castling available for both sides */
   CASTLING_AVAILABLE: 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1',
@@ -55,7 +55,7 @@ export const COMMON_FENS = {
   COMPLEX_MIDDLE_GAME: 'r2qkb1r/pp2nppp/3p1n2/2pP4/2P1P3/2N2N2/PP1B1PPP/R2QK2R w KQkq c6 0 8',
   
   /** Opening sequence positions for UI testing */
-  OPENING_AFTER_E4: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
+  OPENING_AFTER_E4: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
   OPENING_AFTER_E4_E5: 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2',
   OPENING_AFTER_E4_E5_NF3: 'rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2',
   

@@ -105,6 +105,11 @@ export interface IFenCache {
   // Size management
   size(): number;
   setMaxSize(size: number): void;
+  getMaxSize(): number;
+  
+  // Utility methods
+  keys(): string[];
+  getStats(): { size: number; maxSize: number; hitRate?: number };
 }
 
 // ========== ChessEventBus Interface ==========
