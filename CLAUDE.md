@@ -47,6 +47,16 @@ pnpm tsc           # TypeScript check
 - `src/shared/services/TablebaseService.ts` - Lichess API
 - `src/shared/store/orchestrators/handlePlayerMove/` - Move logic (533 lines)
 
+## MCP Tools
+
+Use specialized tools for complex tasks. See @docs/claude/mcp-tools.md
+
+**Golden Rules:**
+
+1. ALWAYS search docs first: `mcp__ref__ref_search_documentation`
+2. Use specific workflows: Bug → `mcp__zen__debug`, Review → `mcp__zen__codereview`
+3. GET CONSENSUS on: Architecture, new dependencies, breaking changes → `mcp__zen__consensus`
+
 ## Testing
 
 See @docs/claude/testing.md for comprehensive testing guidelines and patterns.
