@@ -93,25 +93,6 @@ export interface IMoveHistory {
   setInitialFen(fen: string): void;
 }
 
-// ========== GermanNotation Interface ==========
-// Handles German chess notation conversion
-export interface IGermanNotation {
-  // Piece notation conversion
-  toPieceNotation(germanPiece: string): string | undefined;
-  fromPieceNotation(piece: string): string | undefined;
-  
-  // Move notation conversion
-  normalizeMove(move: string): string;
-  denormalizeMove(move: string): string;
-  
-  // Promotion handling
-  normalizePromotion(promotion: string | undefined): string | undefined;
-  
-  // Validation
-  isGermanNotation(notation: string): boolean;
-  isValidGermanPiece(piece: string): boolean;
-}
-
 // ========== FenCache Interface ==========
 // LRU cache for FEN positions
 export interface IFenCache {
@@ -129,44 +110,57 @@ export interface IFenCache {
 // ========== ChessEventBus Interface ==========
 // Event system for chess state updates
 export interface IChessEventBus {
-  // Event types
-  on(event: ChessEventType, handler: ChessEventHandler): () => void;
-  off(event: ChessEventType, handler: ChessEventHandler): void;
-  emit(event: ChessEventType, payload: ChessEventPayload): void;
+  // Subscription
+  subscribe(handler: ChessEventHandler): () => void;
   
-  // Batch operations
-  emitBatch(events: Array<{ type: ChessEventType; payload: ChessEventPayload }>): void;
+  // Emission
+  emit(event: ChessEventPayload): void;
   
-  // Clear all listeners
+  // Listener management
   clear(): void;
+  clearHistory(): void;
+  removeListener(handler: ChessEventHandler): boolean;
+  hasListener(handler: ChessEventHandler): boolean;
+  getListenerCount(): number;
+  
+  // History
+  getHistory(): ChessEventPayload[];
+  getLastEvent(): ChessEventPayload | undefined;
+  getEventsByType(type: ChessEventPayload['type']): ChessEventPayload[];
+  
+  // State
+  setEnabled(enabled: boolean): void;
+  isEventBusEnabled(): boolean;
 }
 
-// Event types
-export type ChessEventType = 
-  | "stateUpdate"
-  | "moveExecuted"
-  | "moveUndone"
-  | "moveRedone"
-  | "positionLoaded"
-  | "gameReset"
-  | "error";
-
-// Event payload
+// Event payload with type
 export interface ChessEventPayload {
-  fen?: string;
-  pgn?: string;
-  move?: ValidatedMove;
-  moveHistory?: ValidatedMove[];
-  currentMoveIndex?: number;
-  isGameOver?: boolean;
-  gameResult?: string | null;
-  error?: Error;
-  message?: string;
-  source?: "move" | "reset" | "undo" | "redo" | "load";
+  type: "move" | "reset" | "stateUpdate" | "error";
+  payload: {
+    fen?: string;
+    pgn?: string;
+    move?: ValidatedMove | {
+      from: string;
+      to: string;
+      isCheck?: boolean;
+      isCheckmate?: boolean;
+      isStalemate?: boolean;
+      isDraw?: boolean;
+      moveNumber?: number;
+      currentMoveIndex?: number;
+    };
+    moveHistory?: ValidatedMove[];
+    currentMoveIndex?: number;
+    isGameOver?: boolean;
+    gameResult?: string | null;
+    error?: Error;
+    message?: string;
+    source?: "move" | "reset" | "undo" | "redo" | "load";
+  };
 }
 
 // Event handler
-export type ChessEventHandler = (payload: ChessEventPayload) => void;
+export type ChessEventHandler = (event: ChessEventPayload) => void;
 
 // ========== GermanNotation Interface ==========
 // Handles conversion between German and English chess notation
