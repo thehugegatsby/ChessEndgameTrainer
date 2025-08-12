@@ -48,6 +48,23 @@ export interface TrainingEvents {
     to: string;
     color: 'w' | 'b';
   };
+  'tablebase:evaluation': {
+    fen: string;
+    outcome: 'win' | 'draw' | 'loss';
+    dtm?: number;
+    dtz?: number;
+    isLoading: boolean;
+  };
+  'tablebase:moves': {
+    fen: string;
+    moves: Array<{
+      uci: string;
+      san: string;
+      outcome: 'win' | 'draw' | 'loss';
+      dtm?: number;
+    }>;
+    isLoading: boolean;
+  };
 }
 
 /** Event handler function type */

@@ -66,11 +66,42 @@ export function TrainingEventListener(): null {
       });
     });
     
+    // Subscribe to tablebase evaluation events
+    const unsubscribeTablebaseEval = trainingEvents.on('tablebase:evaluation', (data) => {
+      useStore.setState((draft: WritableDraft<RootState>) => {
+        // Store tablebase evaluation in UI state for other components
+        draft.ui.tablebaseData = {
+          fen: data.fen,
+          evaluation: {
+            outcome: data.outcome,
+            ...(data.dtm !== undefined && { dtm: data.dtm }),
+            ...(data.dtz !== undefined && { dtz: data.dtz }),
+          },
+          isLoading: data.isLoading,
+          lastUpdated: Date.now(),
+        };
+      });
+    });
+    
+    // Subscribe to tablebase moves events
+    const unsubscribeTablebaseMoves = trainingEvents.on('tablebase:moves', (data) => {
+      useStore.setState((draft: WritableDraft<RootState>) => {
+        // Update tablebase data with moves
+        if (draft.ui.tablebaseData && draft.ui.tablebaseData.fen === data.fen) {
+          draft.ui.tablebaseData.moves = data.moves;
+          draft.ui.tablebaseData.isLoading = data.isLoading;
+          draft.ui.tablebaseData.lastUpdated = Date.now();
+        }
+      });
+    });
+    
     // Cleanup on unmount
     return () => {
       unsubscribeFeedback();
       unsubscribeComplete();
       unsubscribeThinking();
+      unsubscribeTablebaseEval();
+      unsubscribeTablebaseMoves();
     };
   }, [isEventDriven]);
   

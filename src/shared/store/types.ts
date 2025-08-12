@@ -209,6 +209,22 @@ export interface UIState {
   toasts: Toast[];
   loading: LoadingState;
   analysisPanel: AnalysisPanelState;
+  tablebaseData?: {
+    fen: string;
+    evaluation: {
+      outcome: 'win' | 'draw' | 'loss';
+      dtm?: number;
+      dtz?: number;
+    };
+    moves?: Array<{
+      uci: string;
+      san: string;
+      outcome: 'win' | 'draw' | 'loss';
+      dtm?: number;
+    }>;
+    isLoading: boolean;
+    lastUpdated: number;
+  };
 }
 
 /**
