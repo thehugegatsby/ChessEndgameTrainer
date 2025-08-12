@@ -170,7 +170,8 @@ export class LichessApiClient {
 
     try {
       const url = `${this.baseUrl}?fen=${encodeURIComponent(fen)}&moves=${maxMoves}`;
-      getLogger().debug(`[LichessApiClient] Calling URL: ${url}`);
+      getLogger().info(`[LichessApiClient] Calling URL: ${url}`);
+      getLogger().info(`[LichessApiClient] Raw FEN: "${fen}"`);
       
       const response = await fetch(url, {
         signal: controller.signal,

@@ -141,3 +141,11 @@ docs/.vitepress/cache/
 .grunt
 bower_components
 .lock-wscript
+
+# Git Worktree Registry (local only)
+.worktree-registry
+
+# Temporary test files
+test-*.js
+*.test.tmp
+train-page.png
