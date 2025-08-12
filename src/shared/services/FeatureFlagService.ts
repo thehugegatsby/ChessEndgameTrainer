@@ -26,6 +26,9 @@ export enum FeatureFlag {
   
   // UI Components
   USE_NEW_COMPONENT_LIBRARY = 'use_new_component_library',
+  
+  // Event System
+  USE_EVENT_DRIVEN_TRAINING = 'use_event_driven_training',
 }
 
 interface FeatureFlagConfig {

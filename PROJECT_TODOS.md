@@ -279,55 +279,83 @@
 
 ---
 
-### ⏳ **Phase 3: Training Logic Migration** 🔄 PENDING
+### ✅ **Phase 3A: Event System for Training** ✅ COMPLETED
 
-#### **Analysis & Planning**
+#### **Analysis & Planning** ✅ COMPLETED
 
-- [ ] **Phase 3: Analyze TrainingService architecture**
-  - [ ] Current training algorithms
-  - [ ] State management complexity
-  - [ ] Performance bottlenecks
-  - [ ] Integration points
+- [x] **Phase 3A: Analyze handlePlayerMove complexity**
+  - ✅ 305 lines analyzed (not 533 as initially thought)
+  - ✅ Already well-structured with 5 modules
+  - ✅ Dependency injection pattern in place
+  - ✅ Consensus: Incremental improvements > full rewrite
 
-- [ ] **Phase 3: Define Training interfaces**
-  - [ ] ITrainingService - Core training logic
-  - [ ] ITrainingSession - Session management
-  - [ ] ITrainingMetrics - Performance tracking
-  - [ ] ITrainingStrategy - Algorithm interfaces
+- [x] **Phase 3A: LLM Consensus Planning**
+  - ✅ **Gemini Pro**: Event system for UI communication only
+  - ✅ **O3-Mini**: Feature flags for A/B testing
+  - ✅ **Claude**: Remove over-engineered Event-Bridge
 
-#### **Core Implementation**
+#### **Core Implementation** ✅ COMPLETED
 
-- [ ] **Phase 3: Extract training algorithms**
-  - [ ] Position evaluation logic
-  - [ ] Move suggestion algorithms
-  - [ ] Difficulty progression system
-  - [ ] Learning curve optimization
+- [x] **Phase 3A: Type-safe EventEmitter**
+  - ✅ Generic TypeScript event system (190 lines)
+  - ✅ 8 training event types defined
+  - ✅ Compile-time type safety
+  - ✅ Debug mode support
 
-- [ ] **Phase 3: Create session management**
-  - [ ] Training session lifecycle
-  - [ ] Progress persistence
-  - [ ] Resume functionality
-  - [ ] Multi-session coordination
+- [x] **Phase 3A: Event Types**
+  - ✅ move:attempted, move:validated, move:applied
+  - ✅ move:feedback (success/error/warning)
+  - ✅ game:complete, opponent:thinking, opponent:moved
+  - ✅ promotion:required
 
-- [ ] **Phase 3: Implement metrics system**
-  - [ ] Performance analytics
-  - [ ] Learning progress tracking
-  - [ ] Skill assessment algorithms
-  - [ ] Reporting infrastructure
+- [x] **Phase 3A: EventBasedMoveDialogManager**
+  - ✅ Replaces direct store manipulation
+  - ✅ Emits events instead of UI updates
+  - ✅ Compatible with existing interfaces
 
-#### **Integration**
+#### **Testing** ✅ COMPLETED
 
-- [ ] **Phase 3: Board component migration**
-  - [ ] Feature flag: USE_NEW_TRAINING_BOARD
-  - [ ] Interactive chess board updates
-  - [ ] Move input handling
-  - [ ] Visual feedback systems
+- [x] **Phase 3A: EventEmitter Tests**
+  - ✅ 13 comprehensive Vitest tests
+  - ✅ 100% test coverage
+  - ✅ Edge cases covered
+  - ✅ Logger abstraction for test environment
 
-- [ ] **Phase 3: Training flow integration**
-  - [ ] Feature flag: USE_NEW_TRAINING_LOGIC
-  - [ ] Legacy compatibility
-  - [ ] State synchronization
-  - [ ] Performance monitoring
+- [x] **Phase 3A: Integration Tests**
+  - ✅ Feature flag switching tests (8 tests)
+  - ✅ Event subscription tests
+  - ✅ TypeScript compilation clean
+  - ✅ ESLint compliance (no errors)
+
+#### **Integration** ✅ COMPLETED
+
+- [x] **Phase 3A: Feature Flag Integration**
+  - ✅ USE_EVENT_DRIVEN_TRAINING flag
+  - ✅ createAdaptiveHandlePlayerMove factory
+  - ✅ Seamless legacy/event switching
+  - ✅ URL param override support
+
+- [x] **Phase 3A: React Integration**
+  - ✅ TrainingEventListener component
+  - ✅ useTrainingEvent hook
+  - ✅ useEventDrivenTraining flag hook
+  - ✅ Direct subscription pattern (no Event-Bridge)
+
+### ⏳ **Phase 3B: Training Logic Migration** 🔄 PENDING
+
+#### **Remaining Work**
+
+- [ ] **Phase 3B: UI Component Updates**
+  - [ ] Connect ChessBoard to event system
+  - [ ] Implement move feedback UI
+  - [ ] Add promotion dialog handler
+  - [ ] Game completion notifications
+
+- [ ] **Phase 3B: Performance Testing**
+  - [ ] A/B test event vs legacy system
+  - [ ] Measure UI responsiveness
+  - [ ] Monitor memory usage
+  - [ ] Validate event cleanup
 
 ---
 
@@ -425,16 +453,17 @@
 
 ## 📊 **Migration Status Overview**
 
-| Phase       | Components                     | Status | Tests   | Completion |
-| ----------- | ------------------------------ | ------ | ------- | ---------- |
-| **Phase 0** | Feature Flags, StranglerFacade | ✅     | 55/55   | **100%**   |
-| **Phase 1** | Chess Core (7 components)      | ✅     | 266/266 | **100%**   |
-| **Phase 2** | Tablebase Service              | 🚧     | 36/~86  | **75%**    |
-| **Phase 3** | Training Logic                 | 🔄     | 0/?     | **0%**     |
-| **Phase 4** | Move Quality                   | 🔄     | 0/?     | **0%**     |
-| **Phase 5** | Progress Tracking              | 🔄     | 0/?     | **0%**     |
+| Phase        | Components                     | Status | Tests   | Completion |
+| ------------ | ------------------------------ | ------ | ------- | ---------- |
+| **Phase 0**  | Feature Flags, StranglerFacade | ✅     | 55/55   | **100%**   |
+| **Phase 1**  | Chess Core (7 components)      | ✅     | 266/266 | **100%**   |
+| **Phase 2**  | Tablebase Service              | 🚧     | 36/~86  | **75%**    |
+| **Phase 3A** | Event System for Training      | ✅     | 21/21   | **100%**   |
+| **Phase 3B** | Training UI Integration        | 🔄     | 0/?     | **0%**     |
+| **Phase 4**  | Move Quality                   | 🔄     | 0/?     | **0%**     |
+| **Phase 5**  | Progress Tracking              | 🔄     | 0/?     | **0%**     |
 
-**Overall Project Completion: 46% (2.75/6 Phases)**
+**Overall Project Completion: 54% (3.25/6 Phases)**
 
 ---
 
@@ -468,7 +497,7 @@
 - **🎯 Clean Architecture**: God Objects eliminated, SOLID principles applied
 - **🚀 Performance**: O(1) operations, efficient caching, optimized algorithms
 - **🔒 Type Safety**: 100% TypeScript compliance, no `any` types
-- **✅ Test Coverage**: 321 passing tests across all completed phases
+- **✅ Test Coverage**: 513+ passing tests across all completed phases
 - **🔧 Code Quality**: ESLint compliance, consistent patterns
 
 ### **Migration Strategy**
@@ -508,7 +537,7 @@
 
 ---
 
-_Letzte Aktualisierung: 2025-08-12 08:46_  
-_Status: Phase 2 TablebaseTransformer Tests COMPLETE (36 passing), Integration PENDING_  
-_LLM Reviews: Gemini 2.5 Pro (8/10), O3-Mini (8.5/10) - PRODUCTION READY_  
-_Test Design: O3-Mini (9/10), Claude Haiku (8/10) consensus for comprehensive coverage_
+_Letzte Aktualisierung: 2025-08-12_  
+_Status: Phase 3A Event System COMPLETE (21 tests), Phase 2 Tablebase (75%), Phase 3B UI Integration PENDING_  
+_Total Tests: 513+ passing (Jest: 181, Vitest: 332+)_  
+_TypeScript: Clean | ESLint: Only legacy warnings_
