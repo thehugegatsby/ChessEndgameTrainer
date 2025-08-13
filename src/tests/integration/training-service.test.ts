@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Integration test for TrainingService
  * @module tests/integration/training-service
@@ -14,7 +15,7 @@ import { type EndgamePosition } from '@shared/types/endgame';
 
 describe('TrainingService Integration', () => {
   let trainingService: TrainingService;
-  let onCompleteMock: jest.Mock;
+  let onCompleteMock: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     // Reset the real store to clean state
@@ -34,7 +35,7 @@ describe('TrainingService Integration', () => {
     await useStore.getState().loadTrainingContext(testPosition);
     
     trainingService = new TrainingService();
-    onCompleteMock = jest.fn();
+    onCompleteMock = vi.fn();
   });
 
   it('should execute moves through real store orchestrator', async () => {

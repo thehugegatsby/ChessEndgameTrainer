@@ -8,6 +8,7 @@
  * Focus: Basic operations, LRU eviction policy, statistics, edge cases.
  */
 
+import { describe, it, test, expect, beforeEach } from 'vitest';
 import { LRUCache, CacheStats } from '@shared/lib/cache/LRUCache';
 
 describe('LRUCache', () => {

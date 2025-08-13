@@ -45,13 +45,13 @@ export /**
  *
  */
 const mockTablebaseService = {
-  getEvaluation: jest.fn().mockResolvedValue(mockTablebaseEvaluation),
-  getTopMoves: jest.fn().mockResolvedValue({
+  getEvaluation: vi.fn().mockResolvedValue(mockTablebaseEvaluation),
+  getTopMoves: vi.fn().mockResolvedValue({
     isAvailable: true,
     moves: [mockTablebaseMove],
   }),
-  clearCache: jest.fn(),
-  getCacheStats: jest.fn().mockReturnValue({
+  clearCache: vi.fn(),
+  getCacheStats: vi.fn().mockReturnValue({
     size: 0,
     maxSize: 200,
     hits: 0,
@@ -60,8 +60,8 @@ const mockTablebaseService = {
 };
 
 // Mock the TablebaseService module
-jest.mock("@shared/services/TablebaseService", () => ({
-  TablebaseService: jest.fn(() => mockTablebaseService),
+vi.mock("@shared/services/TablebaseService", () => ({
+  TablebaseService: vi.fn(() => mockTablebaseService),
   default: mockTablebaseService,
 }));
 

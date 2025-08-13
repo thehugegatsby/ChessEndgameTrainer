@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * ChessService Integration Tests - Issue #85 Phase 1
  *
@@ -16,7 +17,7 @@ import {
   expectFenToEqual,
 } from "../../helpers/chessTestHelpers";
 
-// NO jest.mock('chess.js') here - we want the real chess.js
+// NO vi.mock('chess.js') here - we want the real chess.js
 
 describe("ChessService Integration Tests", () => {
   let chessService: ChessService;

@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @fileoverview Unit tests for useDebounce hook
  * @description Tests debouncing functionality for performance optimization
@@ -8,11 +9,11 @@ import { useDebounce } from "@shared/hooks/useDebounce";
 
 describe("useDebounce Hook", () => {
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   describe("Basic Functionality", () => {
@@ -41,14 +42,14 @@ describe("useDebounce Hook", () => {
 
       // Fast forward time but not enough
       act(() => {
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
       });
 
       expect(result.current).toBe("initial");
 
       // Fast forward enough time
       act(() => {
-        jest.advanceTimersByTime(200);
+        vi.advanceTimersByTime(200);
       });
 
       expect(result.current).toBe("changed");
@@ -70,7 +71,7 @@ describe("useDebounce Hook", () => {
       expect(result.current).toBe(0);
 
       act(() => {
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
       });
 
       expect(result.current).toBe(42);
@@ -95,7 +96,7 @@ describe("useDebounce Hook", () => {
       expect(result.current).toBe(initialObject);
 
       act(() => {
-        jest.advanceTimersByTime(200);
+        vi.advanceTimersByTime(200);
       });
 
       expect(result.current).toBe(changedObject);
@@ -118,7 +119,7 @@ describe("useDebounce Hook", () => {
       rerender({ value: changedArray, delay: 150 });
 
       act(() => {
-        jest.advanceTimersByTime(150);
+        vi.advanceTimersByTime(150);
       });
 
       expect(result.current).toBe(changedArray);
@@ -139,7 +140,7 @@ describe("useDebounce Hook", () => {
 
       // Should use new delay
       act(() => {
-        jest.advanceTimersByTime(200);
+        vi.advanceTimersByTime(200);
       });
 
       expect(result.current).toBe("changed");
@@ -158,7 +159,7 @@ describe("useDebounce Hook", () => {
 
       // Advance partway
       act(() => {
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
       });
 
       // Change delay - should restart timer
@@ -166,13 +167,13 @@ describe("useDebounce Hook", () => {
 
       // Old timer should be cleared, new timer starts
       act(() => {
-        jest.advanceTimersByTime(100);
+        vi.advanceTimersByTime(100);
       });
 
       expect(result.current).toBe("initial"); // Still old value
 
       act(() => {
-        jest.advanceTimersByTime(100);
+        vi.advanceTimersByTime(100);
       });
 
       expect(result.current).toBe("changed"); // Now updated
@@ -199,7 +200,7 @@ describe("useDebounce Hook", () => {
 
       // Fast forward
       act(() => {
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
       });
 
       // Should show final value only
@@ -218,7 +219,7 @@ describe("useDebounce Hook", () => {
 
       // Advance partway
       act(() => {
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
       });
 
       // Change again before first timer completes
@@ -226,7 +227,7 @@ describe("useDebounce Hook", () => {
 
       // Complete the original timer duration
       act(() => {
-        jest.advanceTimersByTime(200);
+        vi.advanceTimersByTime(200);
       });
 
       // Should still be initial (intermediate update was cancelled)
@@ -234,7 +235,7 @@ describe("useDebounce Hook", () => {
 
       // Complete the new timer
       act(() => {
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
       });
 
       expect(result.current).toBe("final");
@@ -254,7 +255,7 @@ describe("useDebounce Hook", () => {
 
       // With zero delay, should update immediately after next tick
       act(() => {
-        jest.advanceTimersByTime(0);
+        vi.advanceTimersByTime(0);
       });
 
       expect(result.current).toBe("changed");
@@ -272,7 +273,7 @@ describe("useDebounce Hook", () => {
 
       // Negative delay should still work (setTimeout handles it)
       act(() => {
-        jest.advanceTimersByTime(0);
+        vi.advanceTimersByTime(0);
       });
 
       expect(result.current).toBe("changed");
@@ -289,7 +290,7 @@ describe("useDebounce Hook", () => {
       rerender({ value: undefined });
 
       act(() => {
-        jest.advanceTimersByTime(200);
+        vi.advanceTimersByTime(200);
       });
 
       expect(result.current).toBeUndefined();
@@ -306,7 +307,7 @@ describe("useDebounce Hook", () => {
       rerender({ value: null });
 
       act(() => {
-        jest.advanceTimersByTime(200);
+        vi.advanceTimersByTime(200);
       });
 
       expect(result.current).toBeNull();
@@ -323,7 +324,7 @@ describe("useDebounce Hook", () => {
       rerender({ value: false });
 
       act(() => {
-        jest.advanceTimersByTime(100);
+        vi.advanceTimersByTime(100);
       });
 
       expect(result.current).toBe(false);
@@ -332,7 +333,7 @@ describe("useDebounce Hook", () => {
 
   describe("Cleanup", () => {
     it("should clear timer on unmount", () => {
-      const clearTimeoutSpy = jest.spyOn(global, "clearTimeout");
+      const clearTimeoutSpy = vi.spyOn(global, "clearTimeout");
 
       const { unmount } = renderHook(
         ({ value }: { value: string }) => useDebounce(value, 500),
@@ -364,7 +365,7 @@ describe("useDebounce Hook", () => {
 
       // Timer should be cleared, no update should happen
       act(() => {
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
       });
 
       // Value should remain the same as before unmount
@@ -394,7 +395,7 @@ describe("useDebounce Hook", () => {
 
       // After debounce period
       act(() => {
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
       });
 
       expect(result.current).toBe("hello");
@@ -421,7 +422,7 @@ describe("useDebounce Hook", () => {
       expect(result.current.params).toEqual({ q: "initial" });
 
       act(() => {
-        jest.advanceTimersByTime(500);
+        vi.advanceTimersByTime(500);
       });
 
       expect(result.current).toBe(newApiParam);
@@ -444,7 +445,7 @@ describe("useDebounce Hook", () => {
       expect(result.current).toEqual({ width: 1024, height: 768 });
 
       act(() => {
-        jest.advanceTimersByTime(250);
+        vi.advanceTimersByTime(250);
       });
 
       expect(result.current).toEqual({ width: 1200, height: 800 });

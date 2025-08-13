@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file ChessService PGN Loading Tests
  * @description Coverage tests for PGN loading and reconstruction (Lines 482-518)
@@ -6,16 +7,16 @@
 
 import { ChessService } from "@shared/services/ChessService";
 import { Chess } from "chess.js";
-import { createValidatedMove } from "@shared/types/chess";
+import { createValidatedMove } from '@shared/types/chess.js';
 
 // Mock chess.js following existing pattern
-jest.mock("chess.js");
+vi.mock("chess.js");
 
-const MockedChess = Chess as jest.MockedClass<typeof Chess>;
+const MockedChess = Chess as any<typeof Chess>;
 
 describe("ChessService PGN Loading Tests", () => {
   let chessService: ChessService;
-  let mockChessInstance: jest.Mocked<InstanceType<typeof Chess>>;
+  let mockChessInstance: any<InstanceType<typeof Chess>>;
 
   // PGN test fixtures for comprehensive testing
   const pgnTestFixtures = {
@@ -41,19 +42,19 @@ describe("ChessService PGN Loading Tests", () => {
 
     // Create comprehensive mock Chess instance
     mockChessInstance = {
-      move: jest.fn(),
-      fen: jest.fn().mockReturnValue("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
-      pgn: jest.fn().mockReturnValue(""),
-      history: jest.fn().mockReturnValue([]),
-      load: jest.fn(),
-      loadPgn: jest.fn(),
-      isGameOver: jest.fn().mockReturnValue(false),
-      turn: jest.fn().mockReturnValue("w"),
-      moves: jest.fn().mockReturnValue(["e4", "e3", "Nf3"]),
-      isCheck: jest.fn().mockReturnValue(false),
-      isCheckmate: jest.fn().mockReturnValue(false),
-      isStalemate: jest.fn().mockReturnValue(false),
-      isDraw: jest.fn().mockReturnValue(false),
+      move: vi.fn(),
+      fen: vi.fn().mockReturnValue("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
+      pgn: vi.fn().mockReturnValue(""),
+      history: vi.fn().mockReturnValue([]),
+      load: vi.fn(),
+      loadPgn: vi.fn(),
+      isGameOver: vi.fn().mockReturnValue(false),
+      turn: vi.fn().mockReturnValue("w"),
+      moves: vi.fn().mockReturnValue(["e4", "e3", "Nf3"]),
+      isCheck: vi.fn().mockReturnValue(false),
+      isCheckmate: vi.fn().mockReturnValue(false),
+      isStalemate: vi.fn().mockReturnValue(false),
+      isDraw: vi.fn().mockReturnValue(false),
     } as any;
 
     MockedChess.mockImplementation(() => mockChessInstance);
@@ -82,7 +83,7 @@ describe("ChessService PGN Loading Tests", () => {
       });
 
       // Mock event listener to track state updates
-      const mockListener = jest.fn();
+      const mockListener = vi.fn();
       chessService.subscribe(mockListener);
 
       // Test PGN loading
@@ -171,7 +172,7 @@ describe("ChessService PGN Loading Tests", () => {
       });
 
       // Mock event listener to capture error
-      const mockListener = jest.fn();
+      const mockListener = vi.fn();
       chessService.subscribe(mockListener);
 
       const result = chessService.loadPgn(pgnTestFixtures.invalid);
@@ -198,7 +199,7 @@ describe("ChessService PGN Loading Tests", () => {
         throw malformedError;
       });
 
-      const mockListener = jest.fn();
+      const mockListener = vi.fn();
       chessService.subscribe(mockListener);
 
       const result = chessService.loadPgn(pgnTestFixtures.malformed);
@@ -284,7 +285,7 @@ describe("ChessService PGN Loading Tests", () => {
         throw new Error("Move reconstruction failed");
       });
 
-      const mockListener = jest.fn();
+      const mockListener = vi.fn();
       chessService.subscribe(mockListener);
 
       const result = chessService.loadPgn(pgnTestFixtures.valid);

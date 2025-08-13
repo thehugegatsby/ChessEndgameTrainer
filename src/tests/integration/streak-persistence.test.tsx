@@ -12,6 +12,7 @@
  * when loading a new training position.
  */
 
+import { describe, it, test, expect, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { type ReactNode } from 'react';
 import type { JSX } from 'react';

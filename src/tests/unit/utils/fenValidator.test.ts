@@ -1,3 +1,4 @@
+import { describe, it, test, expect } from 'vitest';
 import { validateAndSanitizeFen } from "@shared/utils/fenValidator";
 
 describe("FEN Validator", () => {

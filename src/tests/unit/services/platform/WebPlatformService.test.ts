@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Jest 30 compatible tests for WebPlatformService
  * Comprehensive coverage for all platform service implementations
@@ -14,16 +15,16 @@ import {
 import { STORAGE, TABLEBASE } from "@shared/constants/index";
 
 // Mock browser APIs for Jest 30 compatibility
-const mockNotification = jest.fn();
+const mockNotification = vi.fn();
 const mockNavigator = {
   userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
   onLine: true,
   deviceMemory: 8,
   clipboard: {
-    writeText: jest.fn().mockResolvedValue(undefined),
-    readText: jest.fn().mockResolvedValue("mocked text"),
+    writeText: vi.fn().mockResolvedValue(undefined),
+    readText: vi.fn().mockResolvedValue("mocked text"),
   },
-  share: jest.fn().mockResolvedValue(undefined),
+  share: vi.fn().mockResolvedValue(undefined),
 };
 
 // Use centralized constants for consistent performance timing
@@ -32,16 +33,16 @@ const MOCK_PERFORMANCE_DURATION = TABLEBASE.EVALUATION_TIMEOUT / 5; // 1400ms (7
 const MOCK_PERFORMANCE_END = MOCK_PERFORMANCE_START + MOCK_PERFORMANCE_DURATION;
 
 const mockPerformance = {
-  now: jest.fn().mockReturnValue(MOCK_PERFORMANCE_START),
+  now: vi.fn().mockReturnValue(MOCK_PERFORMANCE_START),
 };
 
 const mockLocalStorage = {
-  setItem: jest.fn(),
-  getItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
+  setItem: vi.fn(),
+  getItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
   length: 0,
-  key: jest.fn(),
+  key: vi.fn(),
 };
 
 const mockWindow = {
@@ -111,7 +112,7 @@ describe("WebPlatformService", () => {
   let service: WebPlatformService;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // Inject mocked browser APIs to ensure test isolation
     const mockBrowserAPIs: BrowserAPIs = {
@@ -409,15 +410,15 @@ describe("WebPlatformService", () => {
       const mockTextArea = {
         value: "",
         style: {},
-        select: jest.fn(),
-        remove: jest.fn(),
+        select: vi.fn(),
+        remove: vi.fn(),
       } as unknown as HTMLTextAreaElement;
       const mockDocument = {
-        createElement: jest.fn().mockReturnValue(mockTextArea),
-        execCommand: jest.fn(),
+        createElement: vi.fn().mockReturnValue(mockTextArea),
+        execCommand: vi.fn(),
         body: {
-          appendChild: jest.fn(),
-          removeChild: jest.fn(),
+          appendChild: vi.fn(),
+          removeChild: vi.fn(),
         },
       } as unknown as Document;
 
@@ -483,12 +484,12 @@ describe("WebPlatformService", () => {
     beforeEach(() => {
       // Mock the global Notification constructor and its static methods
       const mockNotificationConstructor =
-        jest.fn() as jest.MockedFunction<any> & {
+        vi.fn() as any & {
           permission: string;
-          requestPermission: jest.MockedFunction<() => Promise<string>>;
+          requestPermission: any;
         };
       mockNotificationConstructor.permission = "granted";
-      mockNotificationConstructor.requestPermission = jest
+      mockNotificationConstructor.requestPermission = vi
         .fn()
         .mockResolvedValue("granted");
 
@@ -568,8 +569,8 @@ describe("WebPlatformService", () => {
       // This will be addressed during the Vitest migration (Phase 1, #129)
       
       // Test that mocks are properly isolated
-      expect(jest.isMockFunction(mockLocalStorage.setItem)).toBe(true);
-      expect(jest.isMockFunction(mockNavigator.clipboard.writeText)).toBe(true);
+      expect(vi.isMockFunction(mockLocalStorage.setItem)).toBe(true);
+      expect(vi.isMockFunction(mockNavigator.clipboard.writeText)).toBe(true);
     });
 
     it("should support async/await patterns", async () => {

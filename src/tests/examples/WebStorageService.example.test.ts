@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * WebStorageService Testing Example
  * Shows how to test storage services using ServiceContainer with dependency injection
@@ -110,13 +111,13 @@ describe("WebStorageService - Example Tests", () => {
     test("should handle localStorage quota exceeded", async () => {
       // Create container with localStorage that throws quota error
       const mockStorageWithQuota = {
-        getItem: jest.fn(),
-        setItem: jest.fn().mockImplementation(() => {
+        getItem: vi.fn(),
+        setItem: vi.fn().mockImplementation(() => {
           throw new Error("QuotaExceededError");
         }),
-        removeItem: jest.fn(),
-        clear: jest.fn(),
-        key: jest.fn(),
+        removeItem: vi.fn(),
+        clear: vi.fn(),
+        key: vi.fn(),
         length: 0,
       } as Storage;
 
@@ -135,11 +136,11 @@ describe("WebStorageService - Example Tests", () => {
     test("should handle corrupted JSON data", async () => {
       // Create localStorage with corrupted data
       const mockStorageWithCorruption = {
-        getItem: jest.fn().mockReturnValue("invalid-json{"),
-        setItem: jest.fn(),
-        removeItem: jest.fn(),
-        clear: jest.fn(),
-        key: jest.fn(),
+        getItem: vi.fn().mockReturnValue("invalid-json{"),
+        setItem: vi.fn(),
+        removeItem: vi.fn(),
+        clear: vi.fn(),
+        key: vi.fn(),
         length: 1,
       } as Storage;
 

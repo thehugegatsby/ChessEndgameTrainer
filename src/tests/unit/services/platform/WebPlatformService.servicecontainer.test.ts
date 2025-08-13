@@ -22,6 +22,7 @@ import type {
   MemoryInfo,
   NetworkStatus,
 } from "@shared/services/platform/types";
+import { describe, it, test, expect, beforeEach } from 'vitest';
 import { STORAGE, SYSTEM } from "@shared/constants/index";
 import { MockStorage } from "../../../utils/MockStorage";
 
@@ -419,8 +420,8 @@ describe("WebPlatformService - ServiceContainer Migration", () => {
 
     test("should work with Jest mocking system", () => {
       // Verify mocks are properly isolated to container
-      expect(jest.isMockFunction(mockStorage.setItem)).toBe(true);
-      expect(jest.isMockFunction(mockNavigator.clipboard.writeText)).toBe(true);
+      expect(vi.isMockFunction(mockStorage.setItem)).toBe(true);
+      expect(vi.isMockFunction(mockNavigator.clipboard.writeText)).toBe(true);
 
       // Different containers should have different mocks
       const container2 = createTestContainer();
@@ -429,7 +430,7 @@ describe("WebPlatformService - ServiceContainer Migration", () => {
       );
 
       expect(mockStorage2).not.toBe(mockStorage);
-      expect(jest.isMockFunction(mockStorage2.setItem)).toBe(true);
+      expect(vi.isMockFunction(mockStorage2.setItem)).toBe(true);
     });
 
     test("should support async patterns with proper cleanup", async () => {

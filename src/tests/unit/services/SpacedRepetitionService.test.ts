@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Unit tests for SpacedRepetitionService
  * @description Tests the spaced repetition algorithm implementation and utilities
@@ -19,13 +20,13 @@ import {
 import type { CardProgress } from '@shared/store/slices/types';
 
 // Mock logger to avoid console noise in tests
-jest.mock('@shared/services/logging/Logger', () => ({
+vi.mock('@shared/services/logging/Logger', () => ({
   getLogger: () => ({
-    setContext: jest.fn().mockReturnThis(),
-    debug: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    info: jest.fn(),
+    setContext: vi.fn().mockReturnThis(),
+    debug: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
   }),
 }));
 

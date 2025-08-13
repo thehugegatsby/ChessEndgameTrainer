@@ -2,8 +2,9 @@
  * Unit test for promotion detection
  */
 
+import { describe, it, test, expect } from 'vitest';
 import { Chess } from "chess.js";
-import { createValidatedMove } from "@shared/types/chess";
+import { createValidatedMove } from '@shared/types/chess.js';
 
 describe("Promotion Detection", () => {
   it("should detect promotion in chess.js move", () => {

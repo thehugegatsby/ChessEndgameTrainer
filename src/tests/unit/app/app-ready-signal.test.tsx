@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Unit test for app-ready signal in App Router providers
  * @description Tests that the app-ready attribute is correctly set based on pathname and engine status
@@ -8,27 +9,27 @@ import { render, waitFor } from "@testing-library/react";
 import { usePathname } from "next/navigation";
 
 // Mock Next.js navigation
-jest.mock("next/navigation", () => ({
-  usePathname: jest.fn(),
-  useRouter: jest.fn(() => ({
-    push: jest.fn(),
-    back: jest.fn(),
-    forward: jest.fn(),
-    refresh: jest.fn(),
-    replace: jest.fn(),
-    prefetch: jest.fn(),
+vi.mock("next/navigation", () => ({
+  usePathname: vi.fn(),
+  useRouter: vi.fn(() => ({
+    push: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
   })),
 }));
 
 // Mock the StoreContext to provide useStore
-jest.mock("@shared/store/StoreContext", () => ({
-  useStore: jest.fn(),
+vi.mock("@shared/store/StoreContext", () => ({
+  useStore: vi.fn(),
   StoreProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 // Mock hydration hook
-jest.mock("@shared/hooks/useHydration", () => ({
-  useStoreHydration: jest.fn().mockReturnValue(true),
+vi.mock("@shared/hooks/useHydration", () => ({
+  useStoreHydration: vi.fn().mockReturnValue(true),
 }));
 
 import { useStore } from "@shared/store/StoreContext";
@@ -37,7 +38,7 @@ import { useStore } from "@shared/store/StoreContext";
 import { AppProviders } from "../../../app/providers";
 
 describe.skip("App Ready Signal (App Router)", () => {
-  const mockUsePathname = usePathname as jest.Mock;
+  const mockUsePathname = usePathname as ReturnType<typeof vi.fn>;
 
   // Helper function to create a mock state with all required properties
   const createMockState = (analysisStatus: string): any => ({
@@ -45,11 +46,11 @@ describe.skip("App Ready Signal (App Router)", () => {
       analysisStatus,
     },
     game: {
-      resetGame: jest.fn(),
+      resetGame: vi.fn(),
       currentFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
     },
     progress: {
-      resetProgress: jest.fn(),
+      resetProgress: vi.fn(),
     },
   });
 
@@ -58,7 +59,7 @@ describe.skip("App Ready Signal (App Router)", () => {
     mockUsePathname.mockReturnValue("/");
 
     // Default store mock - analysisStatus is now nested in tablebase slice
-    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
       const state = createMockState("loading");
       return selector ? selector(state) : state;
     });
@@ -68,12 +69,12 @@ describe.skip("App Ready Signal (App Router)", () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test("should set data-app-ready to true when engine is initializing on non-training page", async () => {
     mockUsePathname.mockReturnValue("/");
-    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
       const state = createMockState("loading");
       return selector ? selector(state) : state;
     });
@@ -91,7 +92,7 @@ describe.skip("App Ready Signal (App Router)", () => {
 
   test("should set data-app-ready to false when engine is initializing on training page", async () => {
     mockUsePathname.mockReturnValue("/train/1");
-    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
       const state = createMockState("loading");
       return selector ? selector(state) : state;
     });
@@ -109,7 +110,7 @@ describe.skip("App Ready Signal (App Router)", () => {
 
   test("should set data-app-ready to true when engine is ready on non-training page", async () => {
     mockUsePathname.mockReturnValue("/");
-    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
       const state = createMockState("idle");
       return selector ? selector(state) : state;
     });
@@ -127,7 +128,7 @@ describe.skip("App Ready Signal (App Router)", () => {
 
   test("should set data-app-ready to true when engine is ready on training page", async () => {
     mockUsePathname.mockReturnValue("/train/1");
-    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
       const state = createMockState("idle");
       return selector ? selector(state) : state;
     });
@@ -145,7 +146,7 @@ describe.skip("App Ready Signal (App Router)", () => {
 
   test("should set data-app-ready to error when engine has error", async () => {
     mockUsePathname.mockReturnValue("/train/1");
-    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
       const state = createMockState("error");
       return selector ? selector(state) : state;
     });
@@ -163,7 +164,7 @@ describe.skip("App Ready Signal (App Router)", () => {
 
   test("should set data-app-ready to error when engine has error on non-training page", async () => {
     mockUsePathname.mockReturnValue("/");
-    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
       const state = createMockState("error");
       return selector ? selector(state) : state;
     });
@@ -182,7 +183,7 @@ describe.skip("App Ready Signal (App Router)", () => {
   test("should update data-app-ready when pathname changes", async () => {
     // Start on home page
     mockUsePathname.mockReturnValue("/");
-    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
       const state = createMockState("idle");
       return selector ? selector(state) : state;
     });
@@ -199,7 +200,7 @@ describe.skip("App Ready Signal (App Router)", () => {
 
     // Change to training page with initializing engine
     mockUsePathname.mockReturnValue("/train/1");
-    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
       const state = createMockState("loading");
       return selector ? selector(state) : state;
     });
@@ -217,7 +218,7 @@ describe.skip("App Ready Signal (App Router)", () => {
 
   test("should update data-app-ready when engine status changes", async () => {
     mockUsePathname.mockReturnValue("/train/1");
-    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
       const state = createMockState("loading");
       return selector ? selector(state) : state;
     });
@@ -233,7 +234,7 @@ describe.skip("App Ready Signal (App Router)", () => {
     });
 
     // Engine becomes ready
-    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
       const state = createMockState("idle");
       return selector ? selector(state) : state;
     });
@@ -251,7 +252,7 @@ describe.skip("App Ready Signal (App Router)", () => {
 
   test("should handle null pathname gracefully", async () => {
     mockUsePathname.mockReturnValue(null);
-    (useStore as unknown as jest.Mock).mockImplementation((selector) => {
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
       const state = createMockState("idle");
       return selector ? selector(state) : state;
     });

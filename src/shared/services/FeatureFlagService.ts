@@ -52,6 +52,16 @@ class FeatureFlagService {
   }
 
   /**
+   * Reset the singleton instance - FOR TESTING ONLY
+   * This allows tests to reinitialize the service with different environment variables
+   */
+  public static resetForTesting(): void {
+    if (process.env.NODE_ENV === 'test') {
+      FeatureFlagService.instance = null as any;
+    }
+  }
+
+  /**
    * Load feature flags from environment or localStorage
    */
   private loadFlags(): void {

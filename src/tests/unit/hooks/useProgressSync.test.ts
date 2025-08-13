@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Unit tests for useProgressSync hook
  * @description Tests debounced sync, optimistic updates, retry logic, and offline handling
@@ -10,13 +11,13 @@ import type { UserStats, CardProgress } from "@shared/store/slices/types";
 
 // Mock progress actions
 const mockProgressActions = {
-  batchUpdateProgress: jest.fn(),
-  setCardProgress: jest.fn(),
-  setLastSync: jest.fn(),
-  setSyncError: jest.fn(),
+  batchUpdateProgress: vi.fn(),
+  setCardProgress: vi.fn(),
+  setLastSync: vi.fn(),
+  setSyncError: vi.fn(),
 };
 
-jest.mock("@shared/store/hooks/useProgressStore", () => ({
+vi.mock("@shared/store/hooks/useProgressStore", () => ({
   /**
    *
    */
@@ -24,12 +25,12 @@ jest.mock("@shared/store/hooks/useProgressStore", () => ({
 }));
 
 // Mock logger
-jest.mock("@shared/services/logging/Logger", () => {
+vi.mock("@shared/services/logging/Logger", () => {
   const mockLogger = {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   };
 
   return {
@@ -150,11 +151,11 @@ const triggerOfflineEvent = (): void => {
 /**
  *
  */
-const createMockProgressService = (): jest.Mocked<ProgressService> =>
+const createMockProgressService = (): any<ProgressService> =>
   ({
-    updateUserStats: jest.fn().mockResolvedValue(undefined),
-    upsertCardProgress: jest.fn().mockResolvedValue(undefined),
-    updateProgressTransaction: jest.fn().mockResolvedValue(undefined),
+    updateUserStats: vi.fn().mockResolvedValue(undefined),
+    upsertCardProgress: vi.fn().mockResolvedValue(undefined),
+    updateProgressTransaction: vi.fn().mockResolvedValue(undefined),
   }) as any;
 
 /**
@@ -181,11 +182,11 @@ const createTestCardProgress = (id: string): CardProgress => ({
 
 describe("useProgressSync", () => {
   const userId = "test-user-123";
-  let mockProgressService: jest.Mocked<ProgressService>;
+  let mockProgressService: any<ProgressService>;
 
   beforeEach(() => {
     mockProgressService = createMockProgressService();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockLocalStorage.clear();
 
     // Clear all window event listeners
@@ -200,17 +201,17 @@ describe("useProgressSync", () => {
     });
 
     // Reset timers
-    jest.clearAllTimers();
-    jest.useFakeTimers();
+    vi.clearAllTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(async () => {
     // Properly clean up timers and wait for any pending state updates
     await act(async () => {
-      jest.runOnlyPendingTimers();
+      vi.runOnlyPendingTimers();
     });
-    jest.clearAllTimers();
-    jest.useRealTimers();
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
 
   describe("Basic sync operations", () => {
@@ -236,7 +237,7 @@ describe("useProgressSync", () => {
 
       // Fast-forward debounce timer and wait for async operations
       await act(async () => {
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
       });
 
       await waitFor(() => {
@@ -266,7 +267,7 @@ describe("useProgressSync", () => {
 
       // Fast-forward debounce timer and wait for async operations
       await act(async () => {
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
       });
 
       await waitFor(() => {
@@ -306,7 +307,7 @@ describe("useProgressSync", () => {
 
       // Fast-forward debounce timer and wait for async operations
       await act(async () => {
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
       });
 
       await waitFor(() => {
@@ -337,7 +338,7 @@ describe("useProgressSync", () => {
 
       // Initial sync attempt
       act(() => {
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
       });
 
       await waitFor(() => {
@@ -349,7 +350,7 @@ describe("useProgressSync", () => {
 
       // First retry (after 1s exponential backoff)
       act(() => {
-        jest.advanceTimersByTime(1000);
+        vi.advanceTimersByTime(1000);
       });
 
       await waitFor(() => {
@@ -358,7 +359,7 @@ describe("useProgressSync", () => {
 
       // Second retry (after 2s exponential backoff)
       act(() => {
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
       });
 
       await waitFor(() => {
@@ -388,7 +389,7 @@ describe("useProgressSync", () => {
 
       // Initial attempt
       act(() => {
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
       });
 
       await waitFor(() => {
@@ -397,7 +398,7 @@ describe("useProgressSync", () => {
 
       // First retry attempt (1000ms retry delay)
       act(() => {
-        jest.advanceTimersByTime(1000);
+        vi.advanceTimersByTime(1000);
       });
 
       await waitFor(
@@ -439,7 +440,7 @@ describe("useProgressSync", () => {
 
       // Service should not be called while offline
       await act(async () => {
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
       });
 
       expect(mockProgressService.updateUserStats).not.toHaveBeenCalled();
@@ -471,7 +472,7 @@ describe("useProgressSync", () => {
 
       // Should process queued operations
       await act(async () => {
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
       });
 
       await waitFor(() => {
@@ -597,7 +598,7 @@ describe("useProgressSync", () => {
 
       // Fast-forward debounce timer and wait for async operations
       await act(async () => {
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
       });
 
       await waitFor(() => {
@@ -641,14 +642,14 @@ describe("useProgressSync", () => {
 
       // Should not sync before custom debounce time
       await act(async () => {
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
       });
 
       expect(mockProgressService.updateUserStats).not.toHaveBeenCalled();
 
       // Should sync after custom debounce time
       await act(async () => {
-        jest.advanceTimersByTime(3000);
+        vi.advanceTimersByTime(3000);
       });
 
       await waitFor(() => {
@@ -718,7 +719,7 @@ describe("useProgressSync", () => {
 
       // Start first sync
       await act(async () => {
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
       });
 
       // First sync should have started
@@ -734,7 +735,7 @@ describe("useProgressSync", () => {
 
       // Try to trigger processing again (should be blocked because first is still processing)
       await act(async () => {
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
       });
 
       // Should still only have one sync call (concurrent processing prevented)
@@ -764,7 +765,7 @@ describe("useProgressSync", () => {
     it("should handle localStorage errors gracefully", () => {
       // Mock localStorage to throw error
       const originalSetItem = mockLocalStorage.setItem;
-      mockLocalStorage.setItem = jest.fn(() => {
+      mockLocalStorage.setItem = vi.fn(() => {
         throw new Error("Storage quota exceeded");
       });
 

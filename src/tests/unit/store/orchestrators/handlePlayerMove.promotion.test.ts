@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Tests for pawn promotion auto-win feature
  * @module tests/unit/store/orchestrators/handlePlayerMove.promotion
@@ -12,64 +13,64 @@ import { PawnPromotionHandler } from "@shared/store/orchestrators/handlePlayerMo
 import type { StoreApi } from "@shared/store/orchestrators/types";
 
 // Mock services
-jest.mock("@shared/services/ChessService", () => ({
+vi.mock("@shared/services/ChessService", () => ({
   chessService: {
-    validateMove: jest.fn(),
-    move: jest.fn(),
-    getFen: jest.fn(),
-    isGameOver: jest.fn(),
-    turn: jest.fn(),
+    validateMove: vi.fn(),
+    move: vi.fn(),
+    getFen: vi.fn(),
+    isGameOver: vi.fn(),
+    turn: vi.fn(),
   },
 }));
 
-jest.mock("@shared/services/TablebaseService", () => ({
+vi.mock("@shared/services/TablebaseService", () => ({
   tablebaseService: {
-    getEvaluation: jest.fn(),
-    getTopMoves: jest.fn(),
+    getEvaluation: vi.fn(),
+    getTopMoves: vi.fn(),
   },
 }));
 
-jest.mock("@shared/store/orchestrators/handlePlayerMove/move.completion");
+vi.mock("@shared/store/orchestrators/handlePlayerMove/move.completion");
 
 // Mock other orchestrators
-jest.mock("@shared/store/orchestrators/handlePlayerMove/MoveValidator", () => ({
-  MoveValidator: jest.fn().mockImplementation(() => ({
-    validate: jest.fn().mockReturnValue({ isValid: true }),
+vi.mock("@shared/store/orchestrators/handlePlayerMove/MoveValidator", () => ({
+  MoveValidator: vi.fn().mockImplementation(() => ({
+    validate: vi.fn().mockReturnValue({ isValid: true }),
   })),
 }));
 
-jest.mock("@shared/store/orchestrators/handlePlayerMove/MoveQualityEvaluator", () => ({
-  MoveQualityEvaluator: jest.fn().mockImplementation(() => ({
-    evaluate: jest.fn(),
+vi.mock("@shared/store/orchestrators/handlePlayerMove/MoveQualityEvaluator", () => ({
+  MoveQualityEvaluator: vi.fn().mockImplementation(() => ({
+    evaluate: vi.fn(),
   })),
 }));
 
-jest.mock("@shared/store/orchestrators/handlePlayerMove/MoveDialogManager", () => ({
-  MoveDialogManager: jest.fn().mockImplementation(() => ({
-    handleMoveQuality: jest.fn(),
+vi.mock("@shared/store/orchestrators/handlePlayerMove/MoveDialogManager", () => ({
+  MoveDialogManager: vi.fn().mockImplementation(() => ({
+    handleMoveQuality: vi.fn(),
   })),
 }));
 
-jest.mock("@shared/store/orchestrators/handlePlayerMove/OpponentTurnHandler", () => ({
-  getOpponentTurnManager: jest.fn(() => ({
-    schedule: jest.fn(),
-    cancel: jest.fn(),
+vi.mock("@shared/store/orchestrators/handlePlayerMove/OpponentTurnHandler", () => ({
+  getOpponentTurnManager: vi.fn(() => ({
+    schedule: vi.fn(),
+    cancel: vi.fn(),
   })),
 }));
 
 // Mock pawnPromotionHandler  
-jest.mock("@shared/store/orchestrators/handlePlayerMove/PawnPromotionHandler", () => ({
-  PawnPromotionHandler: jest.fn().mockImplementation(() => ({
-    checkPromotion: jest.fn(),
-    evaluatePromotionOutcome: jest.fn(),
-    handleAutoWin: jest.fn(),
-    getPromotionPieceLabel: jest.fn(),
+vi.mock("@shared/store/orchestrators/handlePlayerMove/PawnPromotionHandler", () => ({
+  PawnPromotionHandler: vi.fn().mockImplementation(() => ({
+    checkPromotion: vi.fn(),
+    evaluatePromotionOutcome: vi.fn(),
+    handleAutoWin: vi.fn(),
+    getPromotionPieceLabel: vi.fn(),
   })),
   pawnPromotionHandler: {
-    checkPromotion: jest.fn(),
-    evaluatePromotionOutcome: jest.fn(), 
-    handleAutoWin: jest.fn(),
-    getPromotionPieceLabel: jest.fn(),
+    checkPromotion: vi.fn(),
+    evaluatePromotionOutcome: vi.fn(), 
+    handleAutoWin: vi.fn(),
+    getPromotionPieceLabel: vi.fn(),
   },
 }));
 
@@ -78,11 +79,11 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
   let mockState: any;
 
   beforeAll(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterAll(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   beforeEach(() => {
@@ -107,20 +108,20 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
 
     // Create mock StoreApi
     mockApi = {
-      getState: jest.fn(() => mockState),
-      setState: jest.fn((callback) => {
+      getState: vi.fn(() => mockState),
+      setState: vi.fn((callback) => {
         // Apply Immer-style updates to mockState
         callback(mockState);
       }),
     };
 
     // Reset all mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
     // Clean up any pending timers to prevent the "environment torn down" error
-    jest.clearAllTimers();
+    vi.clearAllTimers();
     // Also cancel any pending opponent turns
     const mockManager = getOpponentTurnManager() as any;
     if (mockManager && mockManager.cancel) {
@@ -138,11 +139,11 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
       const fenAfterPromotion = "4Q3/8/8/8/8/8/8/4k3 b - - 0 1";
 
       // Mock chess service
-      (chessService.validateMove as jest.Mock).mockReturnValue(true);
-      (chessService.getFen as jest.Mock).mockReturnValue(fenAfterPromotion);
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      (chessService.turn as jest.Mock).mockReturnValue("b");
-      (chessService.move as jest.Mock).mockReturnValue({
+      (chessService.validateMove as ReturnType<typeof vi.fn>).mockReturnValue(true);
+      (chessService.getFen as ReturnType<typeof vi.fn>).mockReturnValue(fenAfterPromotion);
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (chessService.turn as ReturnType<typeof vi.fn>).mockReturnValue("b");
+      (chessService.move as ReturnType<typeof vi.fn>).mockReturnValue({
         san: "e8=Q+",
         color: "w",
         promotion: "q",
@@ -151,15 +152,15 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
         flags: "p", // Promotion flag required by checkPromotion method
         piece: "p", // Pawn piece
       });
-      (chessService.getFen as jest.Mock)
+      (chessService.getFen as ReturnType<typeof vi.fn>)
         .mockReturnValueOnce("4k3/4P3/8/8/8/8/8/4K3 w - - 0 1") // Before move
         .mockReturnValue(fenAfterPromotion); // After move
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      (chessService.turn as jest.Mock).mockReturnValue("b"); // Black's turn after white moves
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (chessService.turn as ReturnType<typeof vi.fn>).mockReturnValue("b"); // Black's turn after white moves
 
       // Mock tablebase evaluation - WDL from white's perspective after white promotes
       // Positive value means white wins
-      (tablebaseService.getEvaluation as jest.Mock).mockResolvedValue({
+      (tablebaseService.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         result: {
           wdl: 2, // White wins (from white's perspective, positive = good for white)
@@ -172,7 +173,7 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
       });
 
       // Mock getTopMoves for the move quality evaluation
-      (tablebaseService.getTopMoves as jest.Mock).mockResolvedValue({
+      (tablebaseService.getTopMoves as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: false,
         moves: [],
       });
@@ -181,7 +182,7 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
       // This test needs to be rewritten for the new PawnPromotionHandler class structure
 
       // Mock handleTrainingCompletion
-      (handleTrainingCompletion as jest.Mock).mockResolvedValue(undefined);
+      (handleTrainingCompletion as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
 
       // Act
       const result = await handlePlayerMove(mockApi, moveBeforePromotion);
@@ -208,22 +209,22 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
       const moveBeforePromotion = { from: "e7", to: "e8", promotion: "q" };
       const fenAfterPromotion = "4Q3/8/8/8/8/8/8/4k3 b - - 0 1";
 
-      (chessService.validateMove as jest.Mock).mockReturnValue(true);
-      (chessService.getFen as jest.Mock).mockReturnValue(fenAfterPromotion);
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      (chessService.turn as jest.Mock).mockReturnValue("b");
-      (chessService.move as jest.Mock).mockReturnValue({
+      (chessService.validateMove as ReturnType<typeof vi.fn>).mockReturnValue(true);
+      (chessService.getFen as ReturnType<typeof vi.fn>).mockReturnValue(fenAfterPromotion);
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (chessService.turn as ReturnType<typeof vi.fn>).mockReturnValue("b");
+      (chessService.move as ReturnType<typeof vi.fn>).mockReturnValue({
         san: "e8=Q",
         color: "w",
         promotion: "q",
       });
-      (chessService.getFen as jest.Mock)
+      (chessService.getFen as ReturnType<typeof vi.fn>)
         .mockReturnValueOnce("4k3/4P3/8/8/8/8/8/4K3 w - - 0 1")
         .mockReturnValue(fenAfterPromotion);
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
 
       // Mock tablebase returns draw (WDL = 0)
-      (tablebaseService.getEvaluation as jest.Mock).mockResolvedValue({
+      (tablebaseService.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         result: {
           wdl: 0, // Draw
@@ -246,19 +247,19 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
       // Arrange - Rook promotion that doesn't win
       const moveBeforePromotion = { from: "e7", to: "e8", promotion: "r" };
 
-      (chessService.validateMove as jest.Mock).mockReturnValue(true);
-      (chessService.move as jest.Mock).mockReturnValue({
+      (chessService.validateMove as ReturnType<typeof vi.fn>).mockReturnValue(true);
+      (chessService.move as ReturnType<typeof vi.fn>).mockReturnValue({
         san: "e8=R",
         color: "w",
         promotion: "r", // Rook
       });
-      (chessService.getFen as jest.Mock)
+      (chessService.getFen as ReturnType<typeof vi.fn>)
         .mockReturnValueOnce("4k3/4P3/8/8/8/8/8/4K3 w - - 0 1")
         .mockReturnValue("4R3/8/8/8/8/8/8/4k3 b - - 0 1");
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
 
       // Mock tablebase returns draw for rook promotion
-      (tablebaseService.getEvaluation as jest.Mock).mockResolvedValue({
+      (tablebaseService.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         result: {
           wdl: 0, // Draw
@@ -282,8 +283,8 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
       // Arrange - Rook promotion that wins
       const moveBeforePromotion = { from: "e7", to: "e8", promotion: "r" };
 
-      (chessService.validateMove as jest.Mock).mockReturnValue(true);
-      (chessService.move as jest.Mock).mockReturnValue({
+      (chessService.validateMove as ReturnType<typeof vi.fn>).mockReturnValue(true);
+      (chessService.move as ReturnType<typeof vi.fn>).mockReturnValue({
         san: "e8=R",
         color: "w",
         promotion: "r",
@@ -292,13 +293,13 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
         flags: "p", // Promotion flag required by checkPromotion method
         piece: "p", // Pawn piece
       });
-      (chessService.getFen as jest.Mock)
+      (chessService.getFen as ReturnType<typeof vi.fn>)
         .mockReturnValueOnce("4k3/4P3/8/8/8/8/8/4K3 w - - 0 1")
         .mockReturnValue("4R3/8/8/8/8/8/8/4k3 b - - 0 1");
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
 
       // Mock tablebase returns win for rook promotion - WDL from white's perspective
-      (tablebaseService.getEvaluation as jest.Mock).mockResolvedValue({
+      (tablebaseService.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         result: {
           wdl: 2, // White wins (positive = good for white)
@@ -311,7 +312,7 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
       });
 
       // Mock getTopMoves for move quality evaluation
-      (tablebaseService.getTopMoves as jest.Mock).mockResolvedValue({
+      (tablebaseService.getTopMoves as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: false,
         moves: [],
       });
@@ -339,8 +340,8 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
       const moveBeforePromotion = { from: "e2", to: "e1", promotion: "q" };
       const fenAfterPromotion = "8/8/8/8/8/8/8/4q3 w - - 0 1";
 
-      (chessService.validateMove as jest.Mock).mockReturnValue(true);
-      (chessService.move as jest.Mock).mockReturnValue({
+      (chessService.validateMove as ReturnType<typeof vi.fn>).mockReturnValue(true);
+      (chessService.move as ReturnType<typeof vi.fn>).mockReturnValue({
         san: "e1=Q",
         color: "b",
         promotion: "q",
@@ -349,14 +350,14 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
         flags: "p", // Promotion flag required by checkPromotion method
         piece: "p", // Pawn piece
       });
-      (chessService.getFen as jest.Mock)
+      (chessService.getFen as ReturnType<typeof vi.fn>)
         .mockReturnValueOnce("8/8/8/8/8/8/4p3/8 b - - 0 1")
         .mockReturnValue(fenAfterPromotion);
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
 
       // Mock tablebase - for black training, check WDL from white's perspective
       // WDL = -2 means white loses = black wins (training success)
-      (tablebaseService.getEvaluation as jest.Mock).mockResolvedValue({
+      (tablebaseService.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         result: {
           wdl: -2, // White loses = black wins
@@ -369,7 +370,7 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
       });
 
       // Mock getTopMoves for move quality evaluation
-      (tablebaseService.getTopMoves as jest.Mock).mockResolvedValue({
+      (tablebaseService.getTopMoves as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: false,
         moves: [],
       });
@@ -395,19 +396,19 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
       // Arrange
       const moveBeforePromotion = { from: "e7", to: "e8", promotion: "q" };
 
-      (chessService.validateMove as jest.Mock).mockReturnValue(true);
-      (chessService.move as jest.Mock).mockReturnValue({
+      (chessService.validateMove as ReturnType<typeof vi.fn>).mockReturnValue(true);
+      (chessService.move as ReturnType<typeof vi.fn>).mockReturnValue({
         san: "e8=Q",
         color: "w",
         promotion: "q",
       });
-      (chessService.getFen as jest.Mock).mockReturnValue(
+      (chessService.getFen as ReturnType<typeof vi.fn>).mockReturnValue(
         "4Q3/8/8/8/8/8/8/4k3 b - - 0 1",
       );
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
 
       // Tablebase unavailable
-      (tablebaseService.getEvaluation as jest.Mock).mockResolvedValue({
+      (tablebaseService.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: false,
       });
 
@@ -423,19 +424,19 @@ describe.skip("Pawn Promotion Auto-Win Feature", () => {
       // Arrange
       const moveBeforePromotion = { from: "e7", to: "e8", promotion: "q" };
 
-      (chessService.validateMove as jest.Mock).mockReturnValue(true);
-      (chessService.move as jest.Mock).mockReturnValue({
+      (chessService.validateMove as ReturnType<typeof vi.fn>).mockReturnValue(true);
+      (chessService.move as ReturnType<typeof vi.fn>).mockReturnValue({
         san: "e8=Q",
         color: "w",
         promotion: "q",
       });
-      (chessService.getFen as jest.Mock).mockReturnValue(
+      (chessService.getFen as ReturnType<typeof vi.fn>).mockReturnValue(
         "4Q3/8/8/8/8/8/8/4k3 b - - 0 1",
       );
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
 
       // Tablebase throws error
-      (tablebaseService.getEvaluation as jest.Mock).mockRejectedValue(
+      (tablebaseService.getEvaluation as ReturnType<typeof vi.fn>).mockRejectedValue(
         new Error("Network error"),
       );
 

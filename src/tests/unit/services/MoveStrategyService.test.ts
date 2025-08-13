@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Unit tests for MoveStrategyService
  * @module tests/unit/services/MoveStrategyService.test
@@ -14,17 +15,17 @@
 import type { TablebaseMove } from '@shared/types/tablebase';
 
 // Mock dependencies BEFORE importing the service
-jest.mock('@shared/services/logging', () => {
+vi.mock('@shared/services/logging', () => {
   const mockLoggerInstance = {
-    error: jest.fn(),
-    warn: jest.fn(), 
-    debug: jest.fn(),
-    setContext: jest.fn(function() { return this; }),
+    error: vi.fn(),
+    warn: vi.fn(), 
+    debug: vi.fn(),
+    setContext: vi.fn(function() { return this; }),
   };
   mockLoggerInstance.setContext.mockReturnValue(mockLoggerInstance);
   
   return {
-    getLogger: jest.fn(() => mockLoggerInstance),
+    getLogger: vi.fn(() => mockLoggerInstance),
     /**
      * Helper to access mock logger instance in tests
      * @returns Mock logger instance
@@ -33,7 +34,7 @@ jest.mock('@shared/services/logging', () => {
   };
 });
 
-jest.mock('@shared/services/TablebaseService');
+vi.mock('@shared/services/TablebaseService');
 
 // Now import the service and dependencies
 import { moveStrategyService } from '@shared/services/MoveStrategyService';
@@ -42,7 +43,7 @@ import { tablebaseService } from '@shared/services/TablebaseService';
 // Get the mock logger instance
 const { __getMockLogger } = require('@shared/services/logging');
 const mockLogger = __getMockLogger();
-const mockTablebaseService = tablebaseService as jest.Mocked<typeof tablebaseService>;
+const mockTablebaseService = tablebaseService as any;
 
 /**
  * Create a mock TablebaseMove object for testing
@@ -75,7 +76,7 @@ describe('MoveStrategyService', () => {
   const testFen = 'K7/P7/k7/8/8/8/8/8 w - - 0 1';
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockLogger.error.mockClear();
     mockLogger.warn.mockClear();
     mockLogger.debug.mockClear();
@@ -253,7 +254,7 @@ describe('MoveStrategyService', () => {
 
       // Mock Math.random to return value below strength threshold (0.8)
       const originalRandom = Math.random;
-      Math.random = jest.fn().mockReturnValue(0.5);
+      Math.random = vi.fn().mockReturnValue(0.5);
 
       const result = await moveStrategyService.getHumanLikeMove(testFen);
 
@@ -272,7 +273,7 @@ describe('MoveStrategyService', () => {
 
       // Mock Math.random to return value above strength threshold
       const originalRandom = Math.random;
-      Math.random = jest.fn()
+      Math.random = vi.fn()
         .mockReturnValueOnce(0.85) // Above 0.8 threshold
         .mockReturnValueOnce(0.6); // For move selection
 
@@ -336,7 +337,7 @@ describe('MoveStrategyService', () => {
       mockTablebaseService.getTopMoves.mockResolvedValue(createMockResponse(mockMoves));
 
       const originalRandom = Math.random;
-      Math.random = jest.fn().mockReturnValue(0.3); // Below 0.5 strength
+      Math.random = vi.fn().mockReturnValue(0.3); // Below 0.5 strength
 
       const result = await moveStrategyService.getHumanLikeMove(testFen, 0.5);
 

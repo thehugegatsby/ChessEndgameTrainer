@@ -1,29 +1,30 @@
+import { vi } from 'vitest';
 import React from "react";
 import { useGameStore, useTrainingStore, useUIStore } from "@shared/store/hooks";
 import { useRouter } from "next/navigation";
 import { COMMON_FENS } from "../../fixtures/commonFens";
 
 // Mock the hooks
-jest.mock("@shared/store/hooks");
-jest.mock("next/navigation");
-jest.mock("@shared/hooks/useToast", () => ({
+vi.mock("@shared/store/hooks");
+vi.mock("next/navigation");
+vi.mock("@shared/hooks/useToast", () => ({
   useToast: () => ({
-    showToast: jest.fn(),
+    showToast: vi.fn(),
   }),
 }));
 
 // Mock the components
-jest.mock("@shared/components/training", () => ({
+vi.mock("@shared/components/training", () => ({
   TrainingBoard: () => <div>TrainingBoard</div>,
   MovePanelZustand: () => <div>MovePanelZustand</div>,
   NavigationControls: () => <div>NavigationControls</div>,
 }));
 
-jest.mock("@shared/components/training/TablebaseAnalysisPanel", () => ({
+vi.mock("@shared/components/training/TablebaseAnalysisPanel", () => ({
   TablebaseAnalysisPanel: () => <div>TablebaseAnalysisPanel</div>,
 }));
 
-jest.mock("@shared/components/navigation/AdvancedEndgameMenu", () => ({
+vi.mock("@shared/components/navigation/AdvancedEndgameMenu", () => ({
   AdvancedEndgameMenu: () => <div>AdvancedEndgameMenu</div>,
 }));
 
@@ -47,10 +48,10 @@ describe("EndgameTrainingPage - Lichess URL Generation", () => {
     };
 
     mockGameActions = {
-      initializeGame: jest.fn(),
-      makeMove: jest.fn(),
-      undoMove: jest.fn(),
-      goToMove: jest.fn(),
+      initializeGame: vi.fn(),
+      makeMove: vi.fn(),
+      undoMove: vi.fn(),
+      goToMove: vi.fn(),
     };
 
     mockTrainingState = {
@@ -60,8 +61,8 @@ describe("EndgameTrainingPage - Lichess URL Generation", () => {
     };
 
     mockTrainingActions = {
-      startTraining: jest.fn(),
-      stopTraining: jest.fn(),
+      startTraining: vi.fn(),
+      stopTraining: vi.fn(),
     };
 
     mockUIState = {
@@ -71,15 +72,15 @@ describe("EndgameTrainingPage - Lichess URL Generation", () => {
     };
 
     mockUIActions = {
-      updateAnalysisPanel: jest.fn(),
+      updateAnalysisPanel: vi.fn(),
     };
 
     // Setup mock implementations
-    (useGameStore as jest.Mock).mockReturnValue([mockGameState, mockGameActions]);
-    (useTrainingStore as jest.Mock).mockReturnValue([mockTrainingState, mockTrainingActions]);
-    (useUIStore as jest.Mock).mockReturnValue([mockUIState, mockUIActions]);
-    (useRouter as jest.Mock).mockReturnValue({
-      push: jest.fn(),
+    (useGameStore as ReturnType<typeof vi.fn>).mockReturnValue([mockGameState, mockGameActions]);
+    (useTrainingStore as ReturnType<typeof vi.fn>).mockReturnValue([mockTrainingState, mockTrainingActions]);
+    (useUIStore as ReturnType<typeof vi.fn>).mockReturnValue([mockUIState, mockUIActions]);
+    (useRouter as ReturnType<typeof vi.fn>).mockReturnValue({
+      push: vi.fn(),
     });
   });
 

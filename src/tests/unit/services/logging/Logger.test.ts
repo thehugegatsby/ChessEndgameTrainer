@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Tests for core Logger functionality
  *
@@ -41,10 +42,10 @@ class MockTransport implements LogTransport {
 describe("Logger", () => {
   let mockTransport: MockTransport;
   let consoleSpies: {
-    debug: jest.SpyInstance;
-    info: jest.SpyInstance;
-    warn: jest.SpyInstance;
-    error: jest.SpyInstance;
+    debug: vi.SpyInstance;
+    info: vi.SpyInstance;
+    warn: vi.SpyInstance;
+    error: vi.SpyInstance;
   };
 
   beforeEach(() => {
@@ -56,10 +57,10 @@ describe("Logger", () => {
 
     // Spy on console methods
     consoleSpies = {
-      debug: jest.spyOn(console, "debug").mockImplementation(),
-      info: jest.spyOn(console, "info").mockImplementation(),
-      warn: jest.spyOn(console, "warn").mockImplementation(),
-      error: jest.spyOn(console, "error").mockImplementation(),
+      debug: vi.spyOn(console, "debug").mockImplementation(),
+      info: vi.spyOn(console, "info").mockImplementation(),
+      warn: vi.spyOn(console, "warn").mockImplementation(),
+      error: vi.spyOn(console, "error").mockImplementation(),
     };
   });
 

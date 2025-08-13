@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * MockStorage Implementation
  * Jest-compatible mock that implements Storage interface with realistic behavior
@@ -7,19 +8,19 @@ export class MockStorage implements Storage {
   private store: Record<string, string> = {};
 
   // Public Jest mocks for spying
-  public getItem = jest.fn((key: string): string | null => {
+  public getItem = vi.fn((key: string): string | null => {
     return this.store[key] || null;
   });
 
-  public setItem = jest.fn((key: string, value: string): void => {
+  public setItem = vi.fn((key: string, value: string): void => {
     this.store[key] = String(value); // Ensure value is a string, like in real localStorage
   });
 
-  public removeItem = jest.fn((key: string): void => {
+  public removeItem = vi.fn((key: string): void => {
     delete this.store[key];
   });
 
-  public clear = jest.fn((): void => {
+  public clear = vi.fn((): void => {
     this.store = {};
   });
 
@@ -27,7 +28,7 @@ export class MockStorage implements Storage {
     return Object.keys(this.store).length;
   }
 
-  public key = jest.fn((index: number): string | null => {
+  public key = vi.fn((index: number): string | null => {
     const keys = Object.keys(this.store);
     return keys[index] || null;
   });

@@ -13,18 +13,18 @@ export const mockUser = {
 
 export const mockAuth = {
   currentUser: mockUser,
-  signInWithEmailAndPassword: jest.fn().mockResolvedValue({ user: mockUser }),
-  signOut: jest.fn().mockResolvedValue(undefined),
-  onAuthStateChanged: jest.fn((callback) => {
+  signInWithEmailAndPassword: vi.fn().mockResolvedValue({ user: mockUser }),
+  signOut: vi.fn().mockResolvedValue(undefined),
+  onAuthStateChanged: vi.fn((callback) => {
     callback(mockUser);
-    return jest.fn(); // unsubscribe function
+    return vi.fn(); // unsubscribe function
   }),
 };
 
 export const mockFirestore = {
-  collection: jest.fn(() => ({
-    doc: jest.fn((id: string) => ({
-      get: jest.fn().mockResolvedValue({
+  collection: vi.fn(() => ({
+    doc: vi.fn((id: string) => ({
+      get: vi.fn().mockResolvedValue({
         exists: true,
         id,
         data: () => ({
@@ -36,34 +36,34 @@ export const mockFirestore = {
           difficulty: 'medium',
         }),
       }),
-      set: jest.fn().mockResolvedValue(undefined),
-      update: jest.fn().mockResolvedValue(undefined),
-      delete: jest.fn().mockResolvedValue(undefined),
+      set: vi.fn().mockResolvedValue(undefined),
+      update: vi.fn().mockResolvedValue(undefined),
+      delete: vi.fn().mockResolvedValue(undefined),
     })),
-    where: jest.fn().mockReturnThis(),
-    orderBy: jest.fn().mockReturnThis(),
-    limit: jest.fn().mockReturnThis(),
-    get: jest.fn().mockResolvedValue({
+    where: vi.fn().mockReturnThis(),
+    orderBy: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    get: vi.fn().mockResolvedValue({
       docs: [],
       empty: true,
     }),
   })),
-  doc: jest.fn(),
-  batch: jest.fn(() => ({
-    set: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    commit: jest.fn().mockResolvedValue(undefined),
+  doc: vi.fn(),
+  batch: vi.fn(() => ({
+    set: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    commit: vi.fn().mockResolvedValue(undefined),
   })),
 };
 
 // Mock the Firebase modules
-jest.mock('@shared/lib/firebase', () => ({
+vi.mock('@shared/lib/firebase', () => ({
   auth: mockAuth,
   db: mockFirestore,
-  initializeApp: jest.fn(),
-  getAuth: jest.fn(() => mockAuth),
-  getFirestore: jest.fn(() => mockFirestore),
+  initializeApp: vi.fn(),
+  getAuth: vi.fn(() => mockAuth),
+  getFirestore: vi.fn(() => mockFirestore),
 }));
 
 const firebaseMock = {

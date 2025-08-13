@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Tests for useMoveValidation hook
  * @module tests/unit/hooks/useMoveValidation
@@ -19,8 +20,8 @@ import { TRAIN_SCENARIOS } from '../../fixtures/trainPositions';
 
 // Mock dependencies
 const mockTablebaseActions = {
-  setAnalysisStatus: jest.fn(),
-  setAnalysisResult: jest.fn(),
+  setAnalysisStatus: vi.fn(),
+  setAnalysisResult: vi.fn(),
 };
 
 const mockTablebaseState = {
@@ -40,7 +41,7 @@ describe('useMoveValidation', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Hook Initialization', () => {
@@ -646,7 +647,7 @@ describe('useMoveValidation', () => {
     });
 
     it('successfully calls setEvaluations when available and handles deduplication', () => {
-      const mockSetEvaluations = jest.fn();
+      const mockSetEvaluations = vi.fn();
       const actionsWithSetEvaluations = {
         ...mockTablebaseActions,
         setEvaluations: mockSetEvaluations,

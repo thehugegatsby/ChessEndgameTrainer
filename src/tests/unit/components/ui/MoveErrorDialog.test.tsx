@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
@@ -11,12 +12,12 @@ describe("MoveErrorDialog", () => {
     bestMove: "Kb1",
     playedMove: "Ka2",
     moveNumber: 0,
-    onClose: jest.fn(),
-    onTakeBack: jest.fn(),
+    onClose: vi.fn(),
+    onTakeBack: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("Rendering", () => {
@@ -129,7 +130,7 @@ describe("MoveErrorDialog", () => {
     });
 
     it("prevents event propagation when clicking dialog content", () => {
-      const mockOnClick = jest.fn();
+      const mockOnClick = vi.fn();
 
       render(
         <div onClick={mockOnClick}>

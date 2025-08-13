@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Example of proper test cleanup implementation
  * 
@@ -11,7 +12,7 @@ import React, { useEffect, useState } from 'react';
 
 // Mock fetch globally for this test
 beforeEach(() => {
-  global.fetch = jest.fn(() =>
+  global.fetch = vi.fn(() =>
     Promise.resolve({
       ok: true,
       json: () => Promise.resolve({ data: 'mocked data' }),
@@ -20,7 +21,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  vi.restoreAllMocks();
 });
 
 // Example component with potential memory leak issues
@@ -128,13 +129,13 @@ describe('Unit Test with Proper Cleanup', () => {
     // Setup mocks and services
     mockService = {
       listeners: new Map(),
-      on: jest.fn((event, handler) => {
+      on: vi.fn((event, handler) => {
         mockService.listeners.set(event, handler);
       }),
-      off: jest.fn((event) => {
+      off: vi.fn((event) => {
         mockService.listeners.delete(event);
       }),
-      cleanup: jest.fn(() => {
+      cleanup: vi.fn(() => {
         mockService.listeners.clear();
       })
     };
@@ -177,7 +178,7 @@ describe('Unit Test with Proper Cleanup', () => {
   });
 
   it('should handle service operations without leaks', () => {
-    const handler = jest.fn();
+    const handler = vi.fn();
     
     // Add event listener
     mockService.on('data', handler);
@@ -193,7 +194,7 @@ describe('Unit Test with Proper Cleanup', () => {
   });
 
   it('should handle async operations with timers', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     
     let resolved = false;
     const promise = new Promise(resolve => {
@@ -204,7 +205,7 @@ describe('Unit Test with Proper Cleanup', () => {
     });
     
     // Fast-forward time
-    jest.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(1000);
     
     await promise;
     expect(resolved).toBe(true);
@@ -227,10 +228,10 @@ describe('Zustand Store Test with Cleanup', () => {
 
   it('should reset store state between tests', () => {
     // Mock Zustand store
-    const useStore = jest.fn(() => ({
+    const useStore = vi.fn(() => ({
       count: 0,
-      increment: jest.fn(),
-      reset: jest.fn()
+      increment: vi.fn(),
+      reset: vi.fn()
     }));
 
     const { result } = renderHook(() => useStore());

@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Integration Tests for EndgameTrainingPage
  * Tests the complete user journey and component integration
@@ -8,28 +9,28 @@ import React from "react";
 import { render, screen, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { EndgameTrainingPage } from "@shared/pages/EndgameTrainingPage";
+import { EndgameTrainingPage } from '@shared/pages/EndgameTrainingPage';
 import { type EndgamePosition } from "@shared/types";
 import { useRouter } from "next/navigation";
 import { useStore } from "@shared/store/rootStore";
 import { StoreProvider } from "@shared/store/StoreContext";
 
 // Mock Next.js router
-jest.mock("next/navigation", () => ({
-  useRouter: jest.fn(),
+vi.mock("next/navigation", () => ({
+  useRouter: vi.fn(),
 }));
 
 // Mock Firebase - uses central mock
-jest.mock("@shared/lib/firebase");
+vi.mock("@shared/lib/firebase");
 
 // Mock TablebaseService - uses central mock from __mocks__ folder
-jest.mock("@shared/services/TablebaseService");
+vi.mock("@shared/services/TablebaseService");
 
 // Mock ChessService - uses central mock from __mocks__ folder
-jest.mock("@shared/services/ChessService");
+vi.mock("@shared/services/ChessService");
 
 // Mock serverPositionService - uses mock from __mocks__ folder
-jest.mock("@shared/services/database/serverPositionService");
+vi.mock("@shared/services/database/serverPositionService");
 
 // Import the mocked service
 import { tablebaseService as mockTablebaseService } from "@shared/services/TablebaseService";
@@ -44,7 +45,7 @@ import {
 import { mockServerPositionService } from "@shared/services/database/__mocks__/serverPositionService";
 
 // Type the mocked router
-const mockedUseRouter = useRouter as jest.Mock;
+const mockedUseRouter = useRouter as ReturnType<typeof vi.fn>;
 
 describe.skip("EndgameTrainingPage Integration Tests", () => {
   // Mock ResizeObserver for react-chessboard compatibility
@@ -76,19 +77,19 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
   };
 
   // Mock router
-  const mockPush = jest.fn();
+  const mockPush = vi.fn();
   const mockRouter = {
     push: mockPush,
-    back: jest.fn(),
-    forward: jest.fn(),
-    refresh: jest.fn(),
-    replace: jest.fn(),
-    prefetch: jest.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
   };
 
   beforeEach(() => {
     // Reset all mocks and their implementations
-    jest.resetAllMocks();
+    vi.resetAllMocks();
 
     // Reset the tablebase mock to defaults
     resetMock();
@@ -120,7 +121,7 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
     mockWinPosition(undefined, 5);
 
     // Setup PositionService mock with navigation positions
-    (mockServerPositionService.getNextPosition as jest.Mock).mockResolvedValue({
+    (mockServerPositionService.getNextPosition as ReturnType<typeof vi.fn>).mockResolvedValue({
       id: 2, // Numeric ID for next position
       title: "Next Position",
       fen: "8/8/8/8/4k3/8/4K3/8 w - - 0 1",
@@ -130,7 +131,7 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
       category: "basic",
     });
     (
-      mockServerPositionService.getPreviousPosition as jest.Mock
+      mockServerPositionService.getPreviousPosition as ReturnType<typeof vi.fn>
     ).mockResolvedValue(null);
   });
 
@@ -306,10 +307,10 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
       });
 
       // Mock with our controllable promise
-      (mockTablebaseService.getEvaluation as jest.Mock).mockImplementation(
+      (mockTablebaseService.getEvaluation as ReturnType<typeof vi.fn>).mockImplementation(
         () => evaluationPromise,
       );
-      (mockTablebaseService.getTopMoves as jest.Mock).mockImplementation(
+      (mockTablebaseService.getTopMoves as ReturnType<typeof vi.fn>).mockImplementation(
         () => evaluationPromise,
       );
 
@@ -594,11 +595,11 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
       const user = userEvent.setup();
 
       // Use mockReset to completely clear the mock including implementation
-      (mockTablebaseService.getEvaluation as jest.Mock).mockReset();
-      (mockTablebaseService.getTopMoves as jest.Mock).mockReset();
+      (mockTablebaseService.getEvaluation as ReturnType<typeof vi.fn>).mockReset();
+      (mockTablebaseService.getTopMoves as ReturnType<typeof vi.fn>).mockReset();
 
       // Setup API to fail first, then succeed
-      (mockTablebaseService.getEvaluation as jest.Mock)
+      (mockTablebaseService.getEvaluation as ReturnType<typeof vi.fn>)
         .mockRejectedValueOnce(new Error("API Error"))
         .mockResolvedValueOnce({
           isAvailable: true,
@@ -613,7 +614,7 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
         });
 
       // Also mock getTopMoves to avoid undefined errors
-      (mockTablebaseService.getTopMoves as jest.Mock)
+      (mockTablebaseService.getTopMoves as ReturnType<typeof vi.fn>)
         .mockRejectedValueOnce(new Error("API Error"))
         .mockResolvedValueOnce({
           isAvailable: true,
@@ -649,7 +650,7 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
       // There might be an additional call from component lifecycle
       // Accept 2 or 3 calls as both are valid scenarios
       await waitFor(() => {
-        const callCount = (mockTablebaseService.getEvaluation as jest.Mock).mock
+        const callCount = (mockTablebaseService.getEvaluation as ReturnType<typeof vi.fn>).mock
           .calls.length;
         expect(callCount).toBeGreaterThanOrEqual(2);
         expect(callCount).toBeLessThanOrEqual(3);

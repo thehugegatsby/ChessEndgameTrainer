@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Tests for ErrorService
  *
@@ -14,13 +15,13 @@ import { ErrorService, ErrorType } from "@shared/services/ErrorService";
 import { getLogger } from "@shared/services/logging/Logger";
 
 // Mock the Logger module
-jest.mock("@shared/services/logging/Logger", () => ({
-  getLogger: jest.fn().mockReturnValue({
-    setContext: jest.fn().mockReturnThis(),
-    error: jest.fn(),
-    warn: jest.fn(),
-    info: jest.fn(),
-    debug: jest.fn(),
+vi.mock("@shared/services/logging/Logger", () => ({
+  getLogger: vi.fn().mockReturnValue({
+    setContext: vi.fn().mockReturnThis(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
   }),
 }));
 
@@ -29,7 +30,7 @@ describe("ErrorService", () => {
 
   beforeEach(() => {
     // Clear all mocks before each test
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Get the mocked logger instance
     loggerMock = getLogger();

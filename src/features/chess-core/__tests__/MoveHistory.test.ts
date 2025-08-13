@@ -1,10 +1,11 @@
+import { vi } from 'vitest';
 /**
  * Tests for MoveHistory service
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { IMoveHistory } from '../types/interfaces';
-import type { ValidatedMove } from '@shared/types/chess';
+import type { ValidatedMove } from '@shared/types/chess.js';
 import MoveHistory from '../services/MoveHistory';
 
 // Helper function to create a mock ValidatedMove

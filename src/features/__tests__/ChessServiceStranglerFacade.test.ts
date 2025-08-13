@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Tests for ChessServiceStranglerFacade
  * Verifies that the Strangler Pattern correctly switches between legacy and new implementations

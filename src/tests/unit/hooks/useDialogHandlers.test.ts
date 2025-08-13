@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Tests for useDialogHandlers hook
  * @module tests/unit/hooks/useDialogHandlers
@@ -27,60 +28,60 @@ const chessServiceMockFactory = new ChessServiceMockFactory();
 const tablebaseServiceMockFactory = new TablebaseServiceMockFactory();
 
 // Mock dependencies with factories for more realistic behavior
-jest.mock('@shared/services/logging/Logger', () => ({
-  getLogger: jest.fn(() => ({
-    setContext: jest.fn(() => ({
-      debug: jest.fn(),
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
+vi.mock('@shared/services/logging/Logger', () => ({
+  getLogger: vi.fn(() => ({
+    setContext: vi.fn(() => ({
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
     })),
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   })),
 }));
 
 // Simple mocks that will be enhanced with factory behavior
-jest.mock('@shared/services/ChessService', () => ({
+vi.mock('@shared/services/ChessService', () => ({
   chessService: {
-    getFen: jest.fn(),
-    turn: jest.fn(),
+    getFen: vi.fn(),
+    turn: vi.fn(),
   },
 }));
 
-jest.mock('@shared/utils/toast', () => ({
-  showErrorToast: jest.fn(),
-  showInfoToast: jest.fn(),
-  showSuccessToast: jest.fn(),
-  showWarningToast: jest.fn(),
+vi.mock('@shared/utils/toast', () => ({
+  showErrorToast: vi.fn(),
+  showInfoToast: vi.fn(),
+  showSuccessToast: vi.fn(),
+  showWarningToast: vi.fn(),
 }));
 
-jest.mock('@shared/services/TablebaseService', () => ({
+vi.mock('@shared/services/TablebaseService', () => ({
   tablebaseService: {
-    getEvaluation: jest.fn(),
+    getEvaluation: vi.fn(),
   },
 }));
 
 // Mock the opponent turn manager
 const mockOpponentTurnManager = {
-  schedule: jest.fn(),
-  cancel: jest.fn(),
+  schedule: vi.fn(),
+  cancel: vi.fn(),
 };
 
-jest.mock('@shared/store/orchestrators/handlePlayerMove', () => ({
-  getOpponentTurnManager: jest.fn(() => mockOpponentTurnManager),
+vi.mock('@shared/store/orchestrators/handlePlayerMove', () => ({
+  getOpponentTurnManager: vi.fn(() => mockOpponentTurnManager),
 }));
 
 describe('useDialogHandlers', () => {
   const mockTrainingActions = {
-    setPlayerTurn: jest.fn(),
-    clearOpponentThinking: jest.fn(),
-    setMoveErrorDialog: jest.fn(),
-    setMoveSuccessDialog: jest.fn(),
-    setEvaluationBaseline: jest.fn(),
-    clearEvaluationBaseline: jest.fn(),
+    setPlayerTurn: vi.fn(),
+    clearOpponentThinking: vi.fn(),
+    setMoveErrorDialog: vi.fn(),
+    setMoveSuccessDialog: vi.fn(),
+    setEvaluationBaseline: vi.fn(),
+    clearEvaluationBaseline: vi.fn(),
   };
 
   beforeEach(() => {
@@ -93,7 +94,7 @@ describe('useDialogHandlers', () => {
     Object.assign(tablebaseService, mockTablebaseService);
     
     // Clear all other mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
   
   afterEach(() => {
@@ -102,11 +103,11 @@ describe('useDialogHandlers', () => {
   });
 
   const mockGameActions = {
-    resetGame: jest.fn(),
+    resetGame: vi.fn(),
   };
 
   const mockUIActions = {
-    showToast: jest.fn(),
+    showToast: vi.fn(),
   };
 
   const mockTrainingState = {
@@ -122,23 +123,23 @@ describe('useDialogHandlers', () => {
   };
 
   const mockStoreApi = {
-    getState: jest.fn(() => ({
+    getState: vi.fn(() => ({
       training: mockTrainingState,
       game: {
         moveHistory: ['e4', 'e5'],
       },
     })),
-    setState: jest.fn(),
+    setState: vi.fn(),
   } as any;
 
   const mockTrainingUIState = {
-    handleReset: jest.fn(),
+    handleReset: vi.fn(),
   };
 
   const defaultProps = {
-    undoMove: jest.fn(),
-    resetGame: jest.fn(),
-    clearEvaluations: jest.fn(),
+    undoMove: vi.fn(),
+    resetGame: vi.fn(),
+    clearEvaluations: vi.fn(),
     trainingActions: mockTrainingActions,
     gameActions: mockGameActions,
     uiActions: mockUIActions,
@@ -148,12 +149,12 @@ describe('useDialogHandlers', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // Reset mocked services
-    (chessService.getFen as jest.Mock).mockReturnValue('8/8/8/8/8/8/8/8 w - - 0 1');
-    (chessService.turn as jest.Mock).mockReturnValue('w');
-    (tablebaseService.getEvaluation as jest.Mock).mockResolvedValue({
+    (chessService.getFen as ReturnType<typeof vi.fn>).mockReturnValue('8/8/8/8/8/8/8/8 w - - 0 1');
+    (chessService.turn as ReturnType<typeof vi.fn>).mockReturnValue('w');
+    (tablebaseService.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
       isAvailable: true,
       result: { wdl: 1 },
     });
@@ -200,7 +201,7 @@ describe('useDialogHandlers', () => {
 
   describe('handleMoveErrorTakeBack', () => {
     it('cancels scheduled opponent turn before undoing move', () => {
-      const mockUndoMove = jest.fn().mockReturnValue(true);
+      const mockUndoMove = vi.fn().mockReturnValue(true);
       const props = { ...defaultProps, undoMove: mockUndoMove };
       
       const { result } = renderHook(() => useDialogHandlers(props));
@@ -214,7 +215,7 @@ describe('useDialogHandlers', () => {
     });
 
     it('sets player turn and clears opponent thinking after successful undo', () => {
-      const mockUndoMove = jest.fn().mockReturnValue(true);
+      const mockUndoMove = vi.fn().mockReturnValue(true);
       const props = { ...defaultProps, undoMove: mockUndoMove };
       
       const { result } = renderHook(() => useDialogHandlers(props));
@@ -229,7 +230,7 @@ describe('useDialogHandlers', () => {
     });
 
     it('closes move error dialog after successful undo', () => {
-      const mockUndoMove = jest.fn().mockReturnValue(true);
+      const mockUndoMove = vi.fn().mockReturnValue(true);
       const props = { ...defaultProps, undoMove: mockUndoMove };
       
       const { result } = renderHook(() => useDialogHandlers(props));
@@ -242,7 +243,7 @@ describe('useDialogHandlers', () => {
     });
 
     it('handles failed undo gracefully', () => {
-      const mockUndoMove = jest.fn().mockReturnValue(false);
+      const mockUndoMove = vi.fn().mockReturnValue(false);
       const props = { ...defaultProps, undoMove: mockUndoMove };
       
       const { result } = renderHook(() => useDialogHandlers(props));
@@ -298,11 +299,11 @@ describe('useDialogHandlers', () => {
 
       const mockStoreApiWithBlackTurn = {
         ...mockStoreApi,
-        getState: jest.fn(() => stateWithBlackTurn),
+        getState: vi.fn(() => stateWithBlackTurn),
       } as any;
 
       // Mock chess service to return black's turn
-      (chessService.turn as jest.Mock).mockReturnValue('b');
+      (chessService.turn as ReturnType<typeof vi.fn>).mockReturnValue('b');
 
       const props = { 
         ...defaultProps, 
@@ -359,7 +360,7 @@ describe('useDialogHandlers', () => {
     });
 
     it('handles tablebase unavailable gracefully in callback', async () => {
-      (tablebaseService.getEvaluation as jest.Mock).mockResolvedValue({
+      (tablebaseService.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: false,
       });
 
@@ -381,7 +382,7 @@ describe('useDialogHandlers', () => {
     });
 
     it('handles tablebase error gracefully in callback', async () => {
-      (tablebaseService.getEvaluation as jest.Mock).mockRejectedValue(new Error('API Error'));
+      (tablebaseService.getEvaluation as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('API Error'));
 
       const { result } = renderHook(() => useDialogHandlers(defaultProps));
 
@@ -536,7 +537,7 @@ describe('useDialogHandlers', () => {
         { initialProps: defaultProps }
       );
 
-      const newUndoMove = jest.fn().mockReturnValue(true);
+      const newUndoMove = vi.fn().mockReturnValue(true);
       const newProps = { ...defaultProps, undoMove: newUndoMove };
 
       rerender(newProps);
@@ -555,7 +556,7 @@ describe('useDialogHandlers', () => {
       const propsWithoutActions = {
         ...defaultProps,
         trainingActions: {
-          setMoveSuccessDialog: jest.fn(), // Provide minimal required interface
+          setMoveSuccessDialog: vi.fn(), // Provide minimal required interface
         } as any,
       };
       
@@ -575,7 +576,7 @@ describe('useDialogHandlers', () => {
       // which is expected behavior - store errors should propagate
       const mockStoreApiWithError = {
         ...mockStoreApi,
-        getState: jest.fn(() => mockStoreApi.getState()), // Use working implementation
+        getState: vi.fn(() => mockStoreApi.getState()), // Use working implementation
       } as any;
 
       const props = { ...defaultProps, storeApi: mockStoreApiWithError };
@@ -592,7 +593,7 @@ describe('useDialogHandlers', () => {
 
     it('handles chessService in normal operation', () => {
       // Reset to normal behavior after previous tests
-      (chessService.getFen as jest.Mock).mockReturnValue('8/8/8/8/8/8/8/8 w - - 0 1');
+      (chessService.getFen as ReturnType<typeof vi.fn>).mockReturnValue('8/8/8/8/8/8/8/8 w - - 0 1');
 
       const { result } = renderHook(() => useDialogHandlers(defaultProps));
 
@@ -607,7 +608,7 @@ describe('useDialogHandlers', () => {
 
   describe('Complex Integration Scenarios', () => {
     it('handles complete error dialog workflow', () => {
-      const mockUndoMove = jest.fn().mockReturnValue(true);
+      const mockUndoMove = vi.fn().mockReturnValue(true);
       const props = { ...defaultProps, undoMove: mockUndoMove };
       
       const { result } = renderHook(() => useDialogHandlers(props));

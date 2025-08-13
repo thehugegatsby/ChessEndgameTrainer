@@ -1,27 +1,25 @@
-/**
- * @jest-environment jsdom
- */
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MoveFeedbackPanel } from '../MoveFeedbackPanel';
 import { trainingEvents } from '../../../training/events/EventEmitter';
 
-// Mock store
-const mockTablebaseData = {
-  fen: 'test-fen',
-  evaluation: { outcome: 'win' as const, dtm: 5 },
-  moves: [
-    { uci: 'e2e4', san: 'e4', outcome: 'win' as const, dtm: 4 },
-    { uci: 'd2d4', san: 'd4', outcome: 'draw' as const },
-    { uci: 'g1f3', san: 'Nf3', outcome: 'loss' as const, dtm: -8 },
-  ],
-  isLoading: false,
-  lastUpdated: Date.now(),
-};
-
+// Mock store - must be hoisted before imports
 vi.mock('@shared/store/rootStore', () => ({
-  useStore: vi.fn(() => ({ ui: { tablebaseData: mockTablebaseData } })),
+  useStore: vi.fn(() => ({ 
+    ui: { 
+      tablebaseData: {
+        fen: 'test-fen',
+        evaluation: { outcome: 'win', dtm: 5 },
+        moves: [
+          { uci: 'e2e4', san: 'e4', outcome: 'win', dtm: 4 },
+          { uci: 'd2d4', san: 'd4', outcome: 'draw' },
+          { uci: 'g1f3', san: 'Nf3', outcome: 'loss', dtm: -8 },
+        ],
+        isLoading: false,
+        lastUpdated: Date.now(),
+      }
+    } 
+  })),
 }));
 
 // Mock training hooks
@@ -30,9 +28,8 @@ vi.mock('../../../training/hooks/useEventDrivenTraining', () => ({
 }));
 
 // Mock the useTrainingEvent hook
-const mockUseTrainingEvent = vi.fn();
 vi.mock('../../../training/components/TrainingEventListener', () => ({
-  useTrainingEvent: mockUseTrainingEvent,
+  useTrainingEvent: vi.fn(),
 }));
 
 describe('MoveFeedbackPanel', () => {
@@ -41,21 +38,7 @@ describe('MoveFeedbackPanel', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
-    // Reset the useTrainingEvent mock to capture event handlers
-    mockUseTrainingEvent.mockImplementation((eventName, handler) => {
-      // Store the handler for later triggering
-      mockUseTrainingEvent._handlers = mockUseTrainingEvent._handlers || {};
-      mockUseTrainingEvent._handlers[eventName] = handler;
-    });
   });
-
-  const triggerMoveEvent = (eventData: any) => {
-    const handler = mockUseTrainingEvent._handlers?.['move:feedback'];
-    if (handler) {
-      handler(eventData);
-    }
-  };
 
   it('should not render when no feedback data', () => {
     render(

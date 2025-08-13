@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Mock Browser APIs for testing environments
  * @module services/container/mocks
@@ -46,8 +47,8 @@ export function createMockStorage(): Storage {
 
   // Helper to create mock function that works with or without Jest
   const mockFn = (impl: (...args: any[]) => any): any => {
-    if (typeof jest !== "undefined" && jest.fn) {
-      return jest.fn(impl);
+    if (typeof vi !== "undefined" && vi.fn) {
+      return vi.fn(impl);
     }
     return impl;
   };
@@ -92,8 +93,8 @@ export function createMockStorage(): Storage {
  */
 export function createMockNavigator(): Navigator {
   const mockFn = (impl?: (...args: any[]) => any): any => {
-    if (typeof jest !== "undefined" && jest.fn) {
-      return impl ? jest.fn(impl) : jest.fn().mockResolvedValue(undefined);
+    if (typeof vi !== "undefined" && vi.fn) {
+      return impl ? vi.fn(impl) : vi.fn().mockResolvedValue(undefined);
     }
     return impl || (() => Promise.resolve(undefined));
   };
@@ -129,8 +130,8 @@ export function createMockNavigator(): Navigator {
  */
 export function createMockWindow(): Window {
   const mockFn = (impl?: (...args: any[]) => any): any => {
-    if (typeof jest !== "undefined" && jest.fn) {
-      return impl ? jest.fn(impl) : jest.fn();
+    if (typeof vi !== "undefined" && vi.fn) {
+      return impl ? vi.fn(impl) : vi.fn();
     }
     return impl || (() => {});
   };
@@ -175,8 +176,8 @@ export function createMockWindow(): Window {
  */
 export function createMockDocument(): Document {
   const mockFn = (impl?: (...args: any[]) => any): any => {
-    if (typeof jest !== "undefined" && jest.fn) {
-      return impl ? jest.fn(impl) : jest.fn();
+    if (typeof vi !== "undefined" && vi.fn) {
+      return impl ? vi.fn(impl) : vi.fn();
     }
     return impl || (() => {});
   };
@@ -220,8 +221,8 @@ export function createMockPerformance(): Performance {
   let mockTime = 0;
 
   const mockFn = (impl?: (...args: any[]) => any): any => {
-    if (typeof jest !== "undefined" && jest.fn) {
-      return impl ? jest.fn(impl) : jest.fn();
+    if (typeof vi !== "undefined" && vi.fn) {
+      return impl ? vi.fn(impl) : vi.fn();
     }
     return impl || (() => {});
   };

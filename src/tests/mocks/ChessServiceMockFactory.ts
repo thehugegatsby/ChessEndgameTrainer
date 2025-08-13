@@ -17,7 +17,7 @@ import { COMMON_FENS } from '../fixtures/commonFens';
 
 type ChessListener = (event: ChessEvent) => void;
 
-type MockedChessService = jest.Mocked<ChessService>;
+type MockedChessService = any<ChessService>;
 
 export interface ChessServiceMockOverrides {
   // State
@@ -42,39 +42,39 @@ export class ChessServiceMockFactory extends BaseMockFactory<ChessService, Chess
   protected _createDefaultMock(): MockedChessService {
     const mock: MockedChessService = {
       // Initialization
-      initialize: jest.fn().mockImplementation((fen?: string) => {
+      initialize: vi.fn().mockImplementation((fen?: string) => {
         this.currentFen = fen || COMMON_FENS.STARTING_POSITION;
         this.moveHistory = [];
         this._emitStateUpdate('load');
         return true;
       }),
 
-      reset: jest.fn().mockImplementation(() => {
+      reset: vi.fn().mockImplementation(() => {
         this.currentFen = COMMON_FENS.STARTING_POSITION;
         this.moveHistory = [];
         this._emitStateUpdate('reset');
       }),
 
       // State getters
-      getFen: jest.fn().mockImplementation(() => this.currentFen),
-      getPgn: jest.fn().mockReturnValue(''),
-      getMoveHistory: jest.fn().mockImplementation(() => [...this.moveHistory]),
-      getCurrentMoveIndex: jest.fn().mockImplementation(() => this.moveHistory.length - 1),
-      turn: jest.fn().mockReturnValue('w'),
+      getFen: vi.fn().mockImplementation(() => this.currentFen),
+      getPgn: vi.fn().mockReturnValue(''),
+      getMoveHistory: vi.fn().mockImplementation(() => [...this.moveHistory]),
+      getCurrentMoveIndex: vi.fn().mockImplementation(() => this.moveHistory.length - 1),
+      turn: vi.fn().mockReturnValue('w'),
       
       // Game status
-      isGameOver: jest.fn().mockReturnValue(false),
-      isCheckmate: jest.fn().mockReturnValue(false),
-      isDraw: jest.fn().mockReturnValue(false),
-      isStalemate: jest.fn().mockReturnValue(false),
-      isInsufficientMaterial: jest.fn().mockReturnValue(false),
-      isThreefoldRepetition: jest.fn().mockReturnValue(false),
-      isCheck: jest.fn().mockReturnValue(false),
+      isGameOver: vi.fn().mockReturnValue(false),
+      isCheckmate: vi.fn().mockReturnValue(false),
+      isDraw: vi.fn().mockReturnValue(false),
+      isStalemate: vi.fn().mockReturnValue(false),
+      isInsufficientMaterial: vi.fn().mockReturnValue(false),
+      isThreefoldRepetition: vi.fn().mockReturnValue(false),
+      isCheck: vi.fn().mockReturnValue(false),
       
-      getGameResult: jest.fn().mockReturnValue(null),
+      getGameResult: vi.fn().mockReturnValue(null),
 
       // Move operations
-      move: jest.fn().mockImplementation((move) => {
+      move: vi.fn().mockImplementation((move) => {
         // Handle different input formats dynamically
         let from: string, to: string, san: string;
         
@@ -130,8 +130,8 @@ export class ChessServiceMockFactory extends BaseMockFactory<ChessService, Chess
         return validatedMove;
       }),
 
-      validateMove: jest.fn().mockReturnValue(true),
-      moves: jest.fn().mockImplementation((options?: any) => {
+      validateMove: vi.fn().mockReturnValue(true),
+      moves: vi.fn().mockImplementation((options?: any) => {
         if (options?.square) {
           return ['e4', 'e3']; // Moves from specific square
         }
@@ -139,7 +139,7 @@ export class ChessServiceMockFactory extends BaseMockFactory<ChessService, Chess
       }),
 
       // Navigation
-      undo: jest.fn().mockImplementation(() => {
+      undo: vi.fn().mockImplementation(() => {
         if (this.moveHistory.length > 0) {
           this.moveHistory.pop();
           this._emitStateUpdate('undo');
@@ -148,33 +148,33 @@ export class ChessServiceMockFactory extends BaseMockFactory<ChessService, Chess
         return false;
       }),
 
-      redo: jest.fn().mockReturnValue(true),
-      goToMove: jest.fn().mockReturnValue(true),
-      goToFirst: jest.fn().mockImplementation(() => {
+      redo: vi.fn().mockReturnValue(true),
+      goToMove: vi.fn().mockReturnValue(true),
+      goToFirst: vi.fn().mockImplementation(() => {
         this.moveHistory = [];
         this._emitStateUpdate('redo');
         return true;
       }),
-      goToLast: jest.fn().mockReturnValue(true),
+      goToLast: vi.fn().mockReturnValue(true),
 
       // Event system
-      subscribe: jest.fn().mockImplementation((listener: ChessListener) => {
+      subscribe: vi.fn().mockImplementation((listener: ChessListener) => {
         this.listeners.add(listener);
         return () => this.listeners.delete(listener);
       }),
 
-      unsubscribe: jest.fn().mockImplementation((listener: ChessListener) => {
+      unsubscribe: vi.fn().mockImplementation((listener: ChessListener) => {
         this.listeners.delete(listener);
       }),
 
       // Utility
-      ascii: jest.fn().mockReturnValue('ASCII board representation'),
-      loadPgn: jest.fn().mockReturnValue(true),
-      header: jest.fn().mockReturnValue({}),
-      getSquare: jest.fn().mockReturnValue(null),
-      removeSquare: jest.fn().mockReturnValue(null),
-      putSquare: jest.fn().mockReturnValue(true),
-    } as unknown as jest.Mocked<ChessService>;
+      ascii: vi.fn().mockReturnValue('ASCII board representation'),
+      loadPgn: vi.fn().mockReturnValue(true),
+      header: vi.fn().mockReturnValue({}),
+      getSquare: vi.fn().mockReturnValue(null),
+      removeSquare: vi.fn().mockReturnValue(null),
+      putSquare: vi.fn().mockReturnValue(true),
+    } as unknown as any<ChessService>;
 
     return mock;
   }

@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Unit tests for enhanced useDerivedProgress hook with cache-first strategy
  * @description Tests cache integration, fallback scenarios, and performance optimizations
@@ -10,7 +11,7 @@ import { dueCardsCacheService } from '@shared/services/DueCardsCacheService';
 import type { CardProgress } from '@shared/store/slices/types';
 
 // Mock the cache service
-jest.mock('@shared/services/DueCardsCacheService', () => {
+vi.mock('@shared/services/DueCardsCacheService', () => {
   let mockCacheData: any = null;
   let mockCacheStats = {
     available: true,
@@ -20,21 +21,21 @@ jest.mock('@shared/services/DueCardsCacheService', () => {
   };
 
   const mockCacheService = {
-    getDueCards: jest.fn(() => mockCacheData),
-    setDueCards: jest.fn(() => {
+    getDueCards: vi.fn(() => mockCacheData),
+    setDueCards: vi.fn(() => {
       mockCacheStats.totalEntries += 1;
       mockCacheStats.estimatedSize += 1000; // Simulate size growth
     }),
-    clearUserCache: jest.fn(() => {
+    clearUserCache: vi.fn(() => {
       mockCacheData = null;
       mockCacheStats.totalEntries = Math.max(0, mockCacheStats.totalEntries - 1);
     }),
-    clearAllCache: jest.fn(() => {
+    clearAllCache: vi.fn(() => {
       mockCacheData = null;
       mockCacheStats = { available: true, totalEntries: 0, estimatedSize: 0, lastCleanup: null };
     }),
-    getCacheStats: jest.fn(() => mockCacheStats),
-    forceCleanup: jest.fn()
+    getCacheStats: vi.fn(() => mockCacheStats),
+    forceCleanup: vi.fn()
   };
 
   // Helper to set mock cache data for tests
@@ -44,18 +45,18 @@ jest.mock('@shared/services/DueCardsCacheService', () => {
 
   return {
     dueCardsCacheService: mockCacheService,
-    createInputHash: jest.fn((input: any) => 'mock-hash-' + JSON.stringify(input).length)
+    createInputHash: vi.fn((input: any) => 'mock-hash-' + JSON.stringify(input).length)
   };
 });
 
 // Mock logger to avoid console spam in tests
-jest.mock('@shared/services/logging/Logger', () => ({
+vi.mock('@shared/services/logging/Logger', () => ({
   getLogger: () => ({
     setContext: () => ({
-      debug: jest.fn(),
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn()
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn()
     })
   })
 }));
@@ -83,14 +84,14 @@ describe('useDerivedProgress Hook (Enhanced with Cache)', () => {
     mockCacheService.__setMockCacheData(null);
     
     // Reset cache stats
-    jest.mocked(mockCacheService.getCacheStats).mockReturnValue({
+    vi.mocked(mockCacheService.getCacheStats).mockReturnValue({
       available: true,
       totalEntries: 0,
       estimatedSize: 0,
       lastCleanup: null
     });
 
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // Reset store to initial state
     useStore.getState().progress.resetProgress();
@@ -218,7 +219,7 @@ describe('useDerivedProgress Hook (Enhanced with Cache)', () => {
       });
 
       // Mock cache service to throw error
-      jest.mocked(mockCacheService.setDueCards).mockImplementation(() => {
+      vi.mocked(mockCacheService.setDueCards).mockImplementation(() => {
         throw new Error('Cache write error');
       });
 
@@ -304,7 +305,7 @@ describe('useDerivedProgress Hook (Enhanced with Cache)', () => {
       // Mock time to be mid-bucket
       const originalDateNow = Date.now;
       const fixedTime = 1700000000000; // Fixed timestamp
-      Date.now = jest.fn(() => fixedTime + 2 * 60 * 1000); // +2 minutes
+      Date.now = vi.fn(() => fixedTime + 2 * 60 * 1000); // +2 minutes
 
       renderHook(() => useDerivedProgress(userId));
 
@@ -321,7 +322,7 @@ describe('useDueCardsCache Hook', () => {
 
   beforeEach(() => {
     mockCacheService = dueCardsCacheService as any;
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should provide cache management functions', () => {

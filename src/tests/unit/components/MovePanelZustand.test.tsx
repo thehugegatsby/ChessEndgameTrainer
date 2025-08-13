@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -6,11 +7,11 @@ import { createTestValidatedMove } from "../../helpers/validatedMoveFactory";
 import { COMMON_FENS } from "../../fixtures/commonFens";
 
 // Mock the store hooks directly
-jest.mock("@shared/store/hooks");
+vi.mock("@shared/store/hooks");
 
 // Mock useTablebaseQuery hooks
-jest.mock("@shared/hooks/useTablebaseQuery", () => ({
-  useTablebaseEvaluation: jest.fn(() => ({
+vi.mock("@shared/hooks/useTablebaseQuery", () => ({
+  useTablebaseEvaluation: vi.fn(() => ({
     data: null,
     isLoading: false,
     isError: false,
@@ -24,7 +25,7 @@ describe("MovePanelZustand", () => {
   let queryClient: QueryClient;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     queryClient = new QueryClient({
       defaultOptions: {
         queries: { retry: false },
@@ -71,7 +72,7 @@ describe("MovePanelZustand", () => {
       }),
     ];
 
-    (useGameStore as jest.Mock).mockReturnValue([{
+    (useGameStore as ReturnType<typeof vi.fn>).mockReturnValue([{
       currentFen: COMMON_FENS.OPENING_AFTER_E4_E5_NF3,
       currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
@@ -80,14 +81,14 @@ describe("MovePanelZustand", () => {
       gameResult: null,
     }, {}]);
     
-    (useTablebaseStore as jest.Mock).mockReturnValue([{
+    (useTablebaseStore as ReturnType<typeof vi.fn>).mockReturnValue([{
       analysisStatus: "idle",
       evaluations: [],
       tablebaseMove: undefined,
       currentEvaluation: undefined,
     }, {}]);
 
-    renderWithProviders(<MovePanelZustand onMoveClick={jest.fn()} />);
+    renderWithProviders(<MovePanelZustand onMoveClick={vi.fn()} />);
 
     expect(screen.getByText("e4")).toBeInTheDocument();
     expect(screen.getByText("e5")).toBeInTheDocument();
@@ -119,7 +120,7 @@ describe("MovePanelZustand", () => {
       }, // After e4
     ];
 
-    (useGameStore as jest.Mock).mockReturnValue([{
+    (useGameStore as ReturnType<typeof vi.fn>).mockReturnValue([{
       currentFen: COMMON_FENS.OPENING_AFTER_E4_E5_NF3,
       currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
@@ -128,14 +129,14 @@ describe("MovePanelZustand", () => {
       gameResult: null,
     }, {}]);
     
-    (useTablebaseStore as jest.Mock).mockReturnValue([{
+    (useTablebaseStore as ReturnType<typeof vi.fn>).mockReturnValue([{
       analysisStatus: "idle",
       evaluations: mockEvaluations,
       tablebaseMove: undefined,
       currentEvaluation: undefined,
     }, {}]);
 
-    renderWithProviders(<MovePanelZustand showEvaluations={true} onMoveClick={jest.fn()} />);
+    renderWithProviders(<MovePanelZustand showEvaluations={true} onMoveClick={vi.fn()} />);
 
     // Should show the move
     expect(screen.getByText("e4")).toBeInTheDocument();
@@ -145,7 +146,7 @@ describe("MovePanelZustand", () => {
 
   it("should handle move click events", () => {
     // Use centralized opening positions
-    const onMoveClickMock = jest.fn();
+    const onMoveClickMock = vi.fn();
     const mockMoves = [
       createTestValidatedMove({
         from: "e2",
@@ -166,7 +167,7 @@ describe("MovePanelZustand", () => {
       }),
     ];
 
-    (useGameStore as jest.Mock).mockReturnValue([{
+    (useGameStore as ReturnType<typeof vi.fn>).mockReturnValue([{
       currentFen: COMMON_FENS.OPENING_AFTER_E4_E5_NF3,
       currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
@@ -175,7 +176,7 @@ describe("MovePanelZustand", () => {
       gameResult: null,
     }, {}]);
     
-    (useTablebaseStore as jest.Mock).mockReturnValue([{
+    (useTablebaseStore as ReturnType<typeof vi.fn>).mockReturnValue([{
       analysisStatus: "idle",
       evaluations: [],
       tablebaseMove: undefined,
@@ -213,7 +214,7 @@ describe("MovePanelZustand", () => {
       }),
     ];
 
-    (useGameStore as jest.Mock).mockReturnValue([{
+    (useGameStore as ReturnType<typeof vi.fn>).mockReturnValue([{
       currentFen: COMMON_FENS.OPENING_AFTER_E4_E5_NF3,
       currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
@@ -222,14 +223,14 @@ describe("MovePanelZustand", () => {
       gameResult: null,
     }, {}]);
     
-    (useTablebaseStore as jest.Mock).mockReturnValue([{
+    (useTablebaseStore as ReturnType<typeof vi.fn>).mockReturnValue([{
       analysisStatus: "idle",
       evaluations: [],
       tablebaseMove: undefined,
       currentEvaluation: undefined,
     }, {}]);
 
-    renderWithProviders(<MovePanelZustand onMoveClick={jest.fn()} currentMoveIndex={1} />);
+    renderWithProviders(<MovePanelZustand onMoveClick={vi.fn()} currentMoveIndex={1} />);
 
     const e4Button = screen.getByText("e4");
     const e5Button = screen.getByText("e5");
@@ -273,7 +274,7 @@ describe("MovePanelZustand", () => {
       },
     ];
 
-    (useGameStore as jest.Mock).mockReturnValue([{
+    (useGameStore as ReturnType<typeof vi.fn>).mockReturnValue([{
       currentFen: COMMON_FENS.OPENING_AFTER_E4_E5_NF3,
       currentPgn: "1. e4 e5 2. Nf3",
       moveHistory: mockMoves,
@@ -282,21 +283,21 @@ describe("MovePanelZustand", () => {
       gameResult: null,
     }, {}]);
     
-    (useTablebaseStore as jest.Mock).mockReturnValue([{
+    (useTablebaseStore as ReturnType<typeof vi.fn>).mockReturnValue([{
       analysisStatus: "idle",
       evaluations: mockEvaluations,
       tablebaseMove: undefined,
       currentEvaluation: undefined,
     }, {}]);
 
-    renderWithProviders(<MovePanelZustand showEvaluations={true} onMoveClick={jest.fn()} />);
+    renderWithProviders(<MovePanelZustand showEvaluations={true} onMoveClick={vi.fn()} />);
 
     // SIMPLIFIED: Check that evaluation is shown (symbol may vary)
     expect(screen.getByTestId("move-evaluation")).toBeInTheDocument();
   });
 
   it("should show empty state when no moves", () => {
-    (useGameStore as jest.Mock).mockReturnValue([{
+    (useGameStore as ReturnType<typeof vi.fn>).mockReturnValue([{
       currentFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
       currentPgn: "",
       moveHistory: [],
@@ -305,14 +306,14 @@ describe("MovePanelZustand", () => {
       gameResult: null,
     }, {}]);
     
-    (useTablebaseStore as jest.Mock).mockReturnValue([{
+    (useTablebaseStore as ReturnType<typeof vi.fn>).mockReturnValue([{
       analysisStatus: "idle",
       evaluations: [],
       tablebaseMove: undefined,
       currentEvaluation: undefined,
     }, {}]);
 
-    renderWithProviders(<MovePanelZustand onMoveClick={jest.fn()} />);
+    renderWithProviders(<MovePanelZustand onMoveClick={vi.fn()} />);
 
     expect(screen.getByText("Noch keine Züge gespielt")).toBeInTheDocument();
   });

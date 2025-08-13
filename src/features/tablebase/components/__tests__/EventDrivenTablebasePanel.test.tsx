@@ -1,42 +1,37 @@
-/**
- * @jest-environment jsdom
- */
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { EventDrivenTablebasePanel } from '../EventDrivenTablebasePanel';
 import { trainingEvents } from '../../../training/events/EventEmitter';
+import { useTablebase } from '../../hooks/useTablebase';
 
-// Mock the tablebase hooks
-const mockUseTablebase = vi.fn(() => ({
-  evaluation: {
-    outcome: 'win',
-    dtm: 5,
-    dtz: 12,
-  },
-  moves: [
-    {
-      uci: 'e2e4',
-      san: 'e4',
-      outcome: 'win',
-      dtm: 4,
-    },
-    {
-      uci: 'd2d4',
-      san: 'd4',
-      outcome: 'draw',
-      dtm: undefined,
-    },
-  ],
-  isLoading: false,
-  isEvaluationLoading: false,
-  isMovesLoading: false,
-  error: null,
-}));
-
+// Mock the tablebase hooks - must be hoisted before imports
 vi.mock('../../hooks/useTablebase', () => ({
-  useTablebase: mockUseTablebase,
+  useTablebase: vi.fn(() => ({
+    evaluation: {
+      outcome: 'win',
+      dtm: 5,
+      dtz: 12,
+    },
+    moves: [
+      {
+        uci: 'e2e4',
+        san: 'e4',
+        outcome: 'win',
+        dtm: 4,
+      },
+      {
+        uci: 'd2d4',
+        san: 'd4',
+        outcome: 'draw',
+        dtm: undefined,
+      },
+    ],
+    isLoading: false,
+    isEvaluationLoading: false,
+    isMovesLoading: false,
+    error: null,
+  })),
 }));
 
 // Mock the training hooks
@@ -216,7 +211,7 @@ describe('EventDrivenTablebasePanel', () => {
   });
 
   it('should show loading state', () => {
-    mockUseTablebase.mockReturnValueOnce({
+    vi.mocked(useTablebase).mockReturnValueOnce({
       evaluation: null,
       moves: null,
       isLoading: true,
@@ -241,7 +236,7 @@ describe('EventDrivenTablebasePanel', () => {
   });
 
   it('should show error state', () => {
-    mockUseTablebase.mockReturnValueOnce({
+    vi.mocked(useTablebase).mockReturnValueOnce({
       evaluation: null,
       moves: null,
       isLoading: false,

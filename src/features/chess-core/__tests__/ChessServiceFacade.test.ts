@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Tests for ChessServiceFacade
  * Tests the orchestrator that coordinates all chess components

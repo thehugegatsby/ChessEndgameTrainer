@@ -3,46 +3,47 @@
  * Used in tests to simulate position navigation without database calls
  */
 
+import { vi } from 'vitest';
 import { type PositionService } from "../IPositionService";
 
 // Mock implementation of PositionService for tests
 const mockPositionService: PositionService = {
   // Single position operations
-  getPosition: jest.fn().mockResolvedValue(null),
-  createPosition: jest.fn().mockResolvedValue(null),
-  updatePosition: jest.fn().mockResolvedValue(null),
-  deletePosition: jest.fn().mockResolvedValue(false),
+  getPosition: vi.fn().mockResolvedValue(null),
+  createPosition: vi.fn().mockResolvedValue(null),
+  updatePosition: vi.fn().mockResolvedValue(null),
+  deletePosition: vi.fn().mockResolvedValue(false),
 
   // Bulk position operations
-  getAllPositions: jest.fn().mockResolvedValue([]),
-  getPositionsByCategory: jest.fn().mockResolvedValue([]),
-  getPositionsByDifficulty: jest.fn().mockResolvedValue([]),
+  getAllPositions: vi.fn().mockResolvedValue([]),
+  getPositionsByCategory: vi.fn().mockResolvedValue([]),
+  getPositionsByDifficulty: vi.fn().mockResolvedValue([]),
 
   // Search and filtering
-  searchPositions: jest.fn().mockResolvedValue([]),
+  searchPositions: vi.fn().mockResolvedValue([]),
 
   // Navigation - Return null by default (no next/previous positions)
-  getNextPosition: jest.fn().mockResolvedValue(null),
-  getPreviousPosition: jest.fn().mockResolvedValue(null),
+  getNextPosition: vi.fn().mockResolvedValue(null),
+  getPreviousPosition: vi.fn().mockResolvedValue(null),
 
   // Categories and chapters
-  getCategories: jest.fn().mockResolvedValue([]),
-  getChapters: jest.fn().mockResolvedValue([]),
-  getChaptersByCategory: jest.fn().mockResolvedValue([]),
+  getCategories: vi.fn().mockResolvedValue([]),
+  getChapters: vi.fn().mockResolvedValue([]),
+  getChaptersByCategory: vi.fn().mockResolvedValue([]),
 
   // Statistics
-  getTotalPositionCount: jest.fn().mockResolvedValue(0),
-  getPositionCountByCategory: jest.fn().mockResolvedValue(0),
+  getTotalPositionCount: vi.fn().mockResolvedValue(0),
+  getPositionCountByCategory: vi.fn().mockResolvedValue(0),
 
   // Cache management
-  clearCache: jest.fn(),
-  getCacheStats: jest.fn().mockReturnValue({ size: 0, keys: [], enabled: false }),
+  clearCache: vi.fn(),
+  getCacheStats: vi.fn().mockReturnValue({ size: 0, keys: [], enabled: false }),
 };
 
 // Export the factory functions that are used in the actual code
-export const createServerPositionService = jest.fn(() => mockPositionService);
-export const getServerPositionService = jest.fn(() => mockPositionService);
-export const resetServerPositionService = jest.fn();
+export const createServerPositionService = vi.fn(() => mockPositionService);
+export const getServerPositionService = vi.fn(() => mockPositionService);
+export const resetServerPositionService = vi.fn();
 
 // Export the mock service for test access
 export const mockServerPositionService = mockPositionService;

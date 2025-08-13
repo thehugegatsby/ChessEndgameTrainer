@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Central Mock for TablebaseService
  *
@@ -45,11 +46,11 @@ const createDefaultMove = (): TablebaseMove => ({
  * Mock TablebaseService implementation
  */
 class MockTablebaseService {
-  // Mock methods as jest functions
-  getEvaluation = jest.fn<Promise<TablebaseEvaluation>, [string]>();
-  getTopMoves = jest.fn<Promise<TablebaseMovesResult>, [string, number?]>();
-  clearCache = jest.fn<void, []>();
-  getMetrics = jest.fn();
+  // Mock methods as vi functions
+  getEvaluation = vi.fn();
+  getTopMoves = vi.fn();
+  clearCache = vi.fn();
+  getMetrics = vi.fn();
 
   constructor() {
     // Set up default implementations

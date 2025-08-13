@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Smoke tests for production deployment verification
  * These tests ensure critical functionality works after deployment
@@ -21,7 +22,7 @@ describe("Smoke Tests", () => {
       expect(PRODUCTION_URL).toBeDefined();
 
       // Mock fetch for unit test environment
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         status: 200,
         text: jest
           .fn()
@@ -40,7 +41,7 @@ describe("Smoke Tests", () => {
       expect(`${PRODUCTION_URL}/train/1`).toContain("/train/1");
 
       // Mock fetch for unit test environment
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         status: 200,
       });
 
@@ -56,7 +57,7 @@ describe("Smoke Tests", () => {
       expect(staticUrl).toContain("_next/static");
 
       // Mock fetch for unit test environment
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         status: 200,
       });
 
@@ -71,7 +72,7 @@ describe("Smoke Tests", () => {
       mockHeaders.set("content-type", "text/html; charset=utf-8");
 
       // Mock fetch for unit test environment
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         headers: {
           get: (key: string) => mockHeaders.get(key),
         },
@@ -92,9 +93,9 @@ describe("Smoke Tests", () => {
       expect(manifestUrl).toContain("manifest.json");
 
       // Mock fetch for unit test environment
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         status: 200,
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           name: "Chess Endgame Trainer",
           short_name: "Chess Trainer",
           theme_color: "#000000",

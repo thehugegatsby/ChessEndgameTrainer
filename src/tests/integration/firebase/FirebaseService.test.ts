@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Firebase Service Integration Tests
  * @description Comprehensive Firebase integration tests with emulator
@@ -55,7 +56,7 @@ import { waitForEmulator, isEmulatorRunning } from '@tests/utils/firebase-emulat
 import type { UserStats, CardProgress } from '@shared/store/slices/types';
 
 // Increase timeout for integration tests (60s for Firebase emulator)
-jest.setTimeout(60000);
+vi.setConfig({ testTimeout: 60000);
 
 describe.skip('Firebase Service Integration', () => {
   let testInstance: TestFirebaseInstance;

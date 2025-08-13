@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Direct test of TablebaseService DTM sorting for defense
  */
@@ -15,13 +16,13 @@ const describeIf = (condition: boolean) => condition ? describe : describe.skip;
 describe.skip("TablebaseService Defense Sorting - Unit Tests", () => {
   beforeEach(() => {
     // Reset fetch mock
-    jest.clearAllMocks();
-    global.fetch = jest.fn();
+    vi.clearAllMocks();
+    global.fetch = vi.fn();
   });
 
   it("Should sort DTM moves correctly with mocked data", async () => {
     // Mock complete Lichess API response structure
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
       dtz: 25,

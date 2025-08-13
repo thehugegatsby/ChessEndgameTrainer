@@ -5,7 +5,7 @@
  * This file is loaded via setupFilesAfterEnv in Jest config.
  * 
  * CRITICAL: We CANNOT import MockManager here as it would cause modules 
- * to be cached before jest.mock() can hoist in test files.
+ * to be cached before vi.mock() can hoist in test files.
  * Instead, we provide minimal cleanup without MockManager.
  */
 
@@ -22,21 +22,21 @@ if (typeof global.TextDecoder === 'undefined') {
 // Register global cleanup after each test
 afterEach(() => {
   // Clear mock call history but NOT mock implementations
-  // This is safe and doesn't interfere with jest.mock() hoisting
-  jest.clearAllMocks();
+  // This is safe and doesn't interfere with vi.mock() hoisting
+  vi.clearAllMocks();
   
   // Clear any fake timers
-  if (jest.isMockFunction(setTimeout)) {
-    jest.clearAllTimers();
+  if (vi.isMockFunction(setTimeout)) {
+    vi.clearAllTimers();
   }
 });
 
 // Additional cleanup after all tests in a file
 afterAll(() => {
   // Clear all intervals and timeouts
-  jest.clearAllTimers();
+  vi.clearAllTimers();
   
-  // Note: Do NOT use jest.restoreAllMocks() as it interferes with module mocks
+  // Note: Do NOT use vi.restoreAllMocks() as it interferes with module mocks
 });
 
 // Handle unhandled promise rejections in tests
@@ -47,4 +47,4 @@ if (typeof process !== 'undefined') {
 }
 
 // Note: MockManager must be imported directly in test files that need it,
-// NOT here in the global setup to avoid interfering with jest.mock() hoisting
+// NOT here in the global setup to avoid interfering with vi.mock() hoisting

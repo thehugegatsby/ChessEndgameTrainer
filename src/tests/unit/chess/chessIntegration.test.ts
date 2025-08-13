@@ -3,6 +3,7 @@
  * @description Tests move validation, game rules, position analysis, and chess state management
  */
 
+import { describe, it, test, expect, beforeEach } from 'vitest';
 import { describe, test, expect, beforeEach } from "@jest/globals";
 import { Chess } from "chess.js";
 import { TEST_FENS, TEST_MOVES } from "../../../shared/testing/TestFixtures";
