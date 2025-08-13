@@ -4,7 +4,7 @@
 
 ## Quick Start
 
-**New to this project?** → [CLAUDE_QUICKSTART.md](CLAUDE_QUICKSTART.md)
+**New to this project?** → [CLAUDE_QUICKSTART.md](docs/CLAUDE_QUICKSTART.md)
 
 ## Essential Info
 
@@ -23,8 +23,9 @@ Quick reference - use the right tool for the task:
 - Refactoring: `mcp__zen__refactor`
 - Tests: `mcp__zen__testgen`
 - Major decisions: `mcp__zen__consensus` (MANDATORY for architecture changes)
+- **Browser E2E tests:** `mcp__playwright__*` (chessboard interactions, visual testing)
 
-**Full decision tree and guidelines:** → [docs/tooling/mcp-tools.md](docs/tooling/mcp-tools.md)
+**Full decision tree and guidelines:** → [docs/tooling/mcp-overview.md](docs/tooling/mcp-overview.md)
 
 ## Architecture & Code Structure
 

@@ -150,3 +150,11 @@ bower_components
 test-*.js
 *.test.tmp
 train-page.png
+
+# Generated analysis reports
+DEEP_ANALYSIS_REPORT.md
+UNUSED_FILES_DETAILED_REPORT.md
+UNUSED_SERVICES_REPORT.md
+
+# Log files in root
+corrected_hook.log

@@ -50,6 +50,9 @@ const nextConfig = {
   experimental: {
     // Enable modern bundling
     esmExternals: true,
+    // Allow importing and transpiling files from outside the project root
+    // This is needed for pnpm worktree setup with symlinked config files
+    externalDir: true,
   },
 
   // Turbopack configuration (stable in Next.js 15)

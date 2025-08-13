@@ -12,6 +12,15 @@ function findDuplicateComponents(dir, components = new Map()) {
     if (file.isDirectory() && !file.name.startsWith('.') && file.name !== 'node_modules') {
       findDuplicateComponents(filePath, components);
     } else if (file.isFile() && (file.name.endsWith('.tsx') || file.name.endsWith('.jsx'))) {
+      // Skip Next.js page files and test files
+      if (file.name === 'page.tsx' || file.name === 'layout.tsx' || 
+          file.name === 'error.tsx' || file.name === 'loading.tsx' ||
+          file.name === 'not-found.tsx' || file.name.endsWith('.test.tsx') ||
+          file.name.endsWith('.test.jsx') || file.name === 'index.tsx' ||
+          file.name === 'index.jsx') {
+        continue;
+      }
+      
       const componentName = file.name.replace(/\.(tsx|jsx)$/, '');
       if (!components.has(componentName)) {
         components.set(componentName, []);
