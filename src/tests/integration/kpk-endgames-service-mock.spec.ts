@@ -7,7 +7,7 @@ import { vi } from 'vitest';
  */
 
 import { renderHook, act } from "@testing-library/react";
-import { useStore } from "../../shared/store/rootStore";
+import { useStore } from "@shared/store/rootStore";
 import { COMMON_FENS } from "../fixtures/commonFens";
 
 // Mock TablebaseService directly - no HTTP mocking needed
