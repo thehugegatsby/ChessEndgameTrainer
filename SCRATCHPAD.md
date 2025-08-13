@@ -30,11 +30,12 @@
 
 ### Memory Leak in Tests (2025-08-13)
 
-**Root Cause Found**: FeatureFlagService.test.ts causes memory exhaustion
-- Test mocks global window and localStorage objects
-- Never properly cleans up global mocks in afterEach
+**Root Cause Found**: FeatureFlagService tests cause memory exhaustion
+- Both FeatureFlagService.test.ts and useFeatureFlag.test.tsx affected
+- Tests mock global window and localStorage objects
+- Never properly clean up global mocks in afterEach
 - Causes memory accumulation leading to CI crashes
-- Temporarily skipped with describe.skip
+- Both tests temporarily skipped with describe.skip
 
 ### Skipped Test Failures (2025-08-13)
 
