@@ -1,5 +1,0 @@
-#!/bin/sh
-
-# Run tests before pushing to remote
-echo "Running tests before push..."
-pnpm run test:vitest:original

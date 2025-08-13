@@ -1,101 +1,67 @@
 # CLAUDE.md
 
-<!-- nav: root | tags: [main, guide] | updated: 2025-08-12 -->
+<!-- nav: root | tags: [main, guide] | updated: 2025-08-13 -->
 
-## Quick Start
+## 🎯 Projekt & Tech Stack
 
-**New to this project?** → [CLAUDE_QUICKSTART.md](docs/CLAUDE_QUICKSTART.md)
+**Chess Endgame Trainer** - Modernes Trainingstool für Schach-Endspiele
 
-## Essential Info
+**Tech Stack:** React 19, TypeScript, Zustand, Next.js 15, Tailwind CSS  
+**Entwicklung:** 100% LLM-entwickelt | **Platform:** WSL2 Linux | **Bundle:** 288kB
 
-**Platform:** WSL2 Linux | **Package Manager:** pnpm | **Key Rule:** No pipes with Node.js
+## 🚧 Aktueller Fokus & Prioritäten
 
-**WSL Safety:** → [docs/WSL2_ENV.md](docs/WSL2_ENV.md)  
-**Documentation Index:** → [docs/README.md](docs/README.md)
+- **Jest→Vitest Migration:** ~25% abgeschlossen - **neue Tests NUR in Vitest**
+- **Feature Architecture:** ✅ Komplett (Strangler Fig Pattern erfolgreich)
+- **Bundle Optimierung:** 288kB halten bei neuen Features
 
-## MCP Tools
+**Details:** → [TEST_MIGRATION_STATUS.md](TEST_MIGRATION_STATUS.md) | [MERGE.md](MERGE.md)
 
-Quick reference - use the right tool for the task:
+## 🤖 LLM Golden Rules
 
-- Documentation search: `mcp__ref__ref_search_documentation`
-- Bug/debug: `mcp__zen__debug`
-- Code review: `mcp__zen__codereview`
-- Refactoring: `mcp__zen__refactor`
-- Tests: `mcp__zen__testgen`
-- Major decisions: `mcp__zen__consensus` (MANDATORY for architecture changes)
-- **Browser E2E tests:** `mcp__playwright__*` (chessboard interactions, visual testing)
+**KRITISCH für WSL2:**
+- ❌ `pnpm test -- --run file.test.tsx` (crashes)
+- ❌ `pnpm build | grep error` (pipes crash)
+- ✅ `pnpm test file.test.tsx` (direct paths)
+- ✅ `pnpm run lint && pnpm tsc` (use && not |)
 
-**Full decision tree and guidelines:** → [docs/tooling/mcp-overview.md](docs/tooling/mcp-overview.md)  
-**GitHub Issue Standards:** → [docs/tooling/GITHUB_ISSUE_GUIDELINES.md](docs/tooling/GITHUB_ISSUE_GUIDELINES.md)
+**Code Quality:**
+- Tests sind Pflicht (neue Tests in Vitest)
+- Keine `any` Types - strikte TypeScript Typisierung
+- Error messages auf Deutsch für UI
+- Imports: `@shared/` alias, nie relative Pfade
 
-## Architecture & Code Structure
+**Mehr:** → [docs/WSL2_ENV.md](docs/WSL2_ENV.md) | [config/linting/eslint.config.js](config/linting/eslint.config.js)
 
-Key rules:
-
-- **State**: Zustand with domain slices (game, training, tablebase, ui)
-- **Services**: ChessService, TablebaseService, ErrorService, Logger
-- **Features**: `src/features/` with chess-core, tablebase, training, move-quality domains
-- **Imports**: Use `@shared/` alias, never relative paths
-- **German**: Error messages in German
-
-**Full details:** → [docs/SYSTEM_GUIDE.md](docs/SYSTEM_GUIDE.md)
-
-## Standard Validation Workflow
-
-Before finalizing changes, run this sequence:
-
-```bash
-pnpm run lint     # 1. Lint and format
-pnpm tsc          # 2. TypeScript check
-pnpm test         # 3. Run tests
-```
-
-## Core Commands
+## ⚡ Core Commands
 
 ```bash
 pnpm run dev       # Development server
-pnpm run build     # Production build
+pnpm run build     # Production build  
+pnpm test          # Unit tests (Vitest)
 pnpm run lint      # ESLint + format
-pnpm test          # Run all tests
 pnpm tsc           # TypeScript check
 ```
 
-## Critical Files
-
-- `src/shared/store/rootStore.ts` - Main store
-- `src/shared/services/ChessService.ts` - Chess logic singleton
-- `src/shared/services/TablebaseService.ts` - Lichess API
-- `src/shared/store/orchestrators/handlePlayerMove/` - Move logic (533 lines)
-
-## Testing
-
-**Framework:** Vitest only | **Bundle:** 288kB
-
-**Commands:**
+**Validation Workflow:**
 ```bash
-pnpm test              # Unit tests (src/tests/unit/)
-pnpm test:features     # Feature tests (src/features/)
-pnpm test:integration  # Integration tests
-pnpm test:coverage     # With coverage
+pnpm run lint && pnpm tsc && pnpm test
 ```
 
-**Never use:** `pnpm test -- ...` or `pnpm run test:jest` (removed)
+**Alle Commands:** → [docs/README.md](docs/README.md) | [docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md)
 
-**Full testing guidelines:** → [docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md)
+## 🔧 MCP Tools & Architecture
 
-## Permanent Constraints
+**Quick Reference:**
+- **Bug/Debug:** `mcp__zen__debug`
+- **Code Review:** `mcp__zen__codereview` 
+- **Refactoring:** `mcp__zen__refactor`
+- **Tests:** `mcp__zen__testgen`
+- **Browser E2E:** `mcp__playwright__*`
+- **Documentation:** `mcp__ref__ref_search_documentation`
 
-- No engine code (removed Stockfish completely)
-- No pipes with Node.js commands in WSL/VS Code
-- Always use pnpm (not npm)
-- Read-only file (chmod 444)
-
-## Additional Documentation
-
-- **Contributing & Git:** → [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)
-- **Hooks & Commands:** → [docs/tooling/hooks-and-commands.md](docs/tooling/hooks-and-commands.md)
-- **Move Logic Details:** → [docs/MOVE_HANDLING_ARCHITECTURE.md](docs/MOVE_HANDLING_ARCHITECTURE.md)
+**Architecture:** → [docs/SYSTEM_GUIDE.md](docs/SYSTEM_GUIDE.md) | [docs/tooling/mcp-overview.md](docs/tooling/mcp-overview.md)
 
 ---
 
-_For temporary notes and current work: see SCRATCHPAD.md_
+_Für aktuelle Arbeitsnotizen: siehe [SCRATCHPAD.md](SCRATCHPAD.md)_
