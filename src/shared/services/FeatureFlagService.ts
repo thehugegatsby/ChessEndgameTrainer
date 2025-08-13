@@ -92,7 +92,7 @@ class FeatureFlagService {
   private applyDevelopmentDefaults(): void {
     const devDefaults: FeatureFlagConfig = {
       // Start with all features disabled, enable as they're implemented
-      [FeatureFlag.USE_NEW_CHESS_CORE]: false,
+      [FeatureFlag.USE_NEW_CHESS_CORE]: false, // ⚠️ ROLLBACK: UI/UX Issues detected
       [FeatureFlag.USE_NEW_MOVE_VALIDATION]: false,
       [FeatureFlag.USE_NEW_TABLEBASE_SERVICE]: false,
       [FeatureFlag.USE_NEW_TABLEBASE_UI]: false,

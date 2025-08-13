@@ -97,8 +97,8 @@ describe('FeatureFlagService', () => {
       
       service = FeatureFlagService.getInstance();
       
-      // All flags should still default to false based on applyDevelopmentDefaults
-      expect(service.isEnabled(FeatureFlag.USE_NEW_CHESS_CORE)).toBe(false);
+      // Chess core is now enabled by default in development (Phase 5B Migration)
+      expect(service.isEnabled(FeatureFlag.USE_NEW_CHESS_CORE)).toBe(true);
       expect(service.isEnabled(FeatureFlag.USE_NEW_MOVE_VALIDATION)).toBe(false);
     });
   });
@@ -159,8 +159,8 @@ describe('FeatureFlagService', () => {
         service = FeatureFlagService.getInstance();
       }).not.toThrow();
       
-      // Should still work with defaults
-      expect(service.isEnabled(FeatureFlag.USE_NEW_CHESS_CORE)).toBe(false);
+      // Should still work with defaults (chess core enabled in dev)
+      expect(service.isEnabled(FeatureFlag.USE_NEW_CHESS_CORE)).toBe(true);
       
       consoleSpy.mockRestore();
     });
@@ -176,8 +176,8 @@ describe('FeatureFlagService', () => {
         service = FeatureFlagService.getInstance();
       }).not.toThrow();
       
-      // Should still work with defaults
-      expect(service.isEnabled(FeatureFlag.USE_NEW_CHESS_CORE)).toBe(false);
+      // Should still work with defaults (chess core enabled in dev)
+      expect(service.isEnabled(FeatureFlag.USE_NEW_CHESS_CORE)).toBe(true);
       
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Failed to load feature flags'),
