@@ -41,9 +41,19 @@ describe('TablebaseApiClient', () => {
     mockHttp.mockFetchJson(mockApiResponse);
   });
 
-  afterEach(() => {
-    client.clearPendingRequests();
-    mockHttp.cleanup(); // Use new cleanup method
+  afterEach(async () => {
+    // Wait for any in-flight requests from the test to complete.
+    // This prevents race conditions where a promise resolves *after* the test is done.
+    await client.awaitPendingRequests();
+    
+    // Now that all requests are settled, we can safely check the final state.
+    expect(client.getPendingRequestsCount()).toBe(0);
+    
+    // The explicit clearPendingRequests() call is now redundant and can be removed,
+    // as the .finally() block in the production code should have already cleaned up.
+    // client.clearPendingRequests();
+    
+    mockHttp.cleanup();
   });
 
   describe('Basic functionality', () => {
@@ -80,6 +90,11 @@ describe('TablebaseApiClient', () => {
       // Verify the config is used
       expect(customMockHttp.fetchCalls[0].url).toContain('https://custom.api.com');
       expect(customMockHttp.fetchCalls[0].timeoutMs).toBe(10000);
+      
+      // Clean up custom client and mock
+      await customClient.awaitPendingRequests();
+      customMockHttp.cleanup();
+      expect(customClient.getPendingRequestsCount()).toBe(0);
     });
 
     it('should use default configuration', () => {
@@ -168,10 +183,19 @@ describe('TablebaseApiClient', () => {
       
       expect(client.getPendingRequestsCount()).toBe(0);
       
-      const promise = client.query(fen);
-      expect(client.getPendingRequestsCount()).toBe(1);
+      try {
+        // Act and await immediately inside the try block
+        await client.query(fen);
+        
+        // This line should not be reached
+        expect.fail('Expected query to reject, but it resolved');
+      } catch (error) {
+        // Assert that the error was caught correctly
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toBe('Network error');
+      }
       
-      await expect(promise).rejects.toThrow('Network error');
+      // Assert that the cleanup logic in .finally() has run
       expect(client.getPendingRequestsCount()).toBe(0);
     });
   });
@@ -183,9 +207,17 @@ describe('TablebaseApiClient', () => {
       const fen = '8/8/8/8/8/8/8/K7 w - - 0 1';
       
       // Test error type and message
-      await expect(client.query(fen)).rejects.toThrowError(
-        new ApiError('Position not in tablebase', 404, 'NOT_FOUND')
-      );
+      try {
+        await client.query(fen);
+        expect.fail('Expected query to reject with 404, but it resolved');
+      } catch (error) {
+        expect(error).toBeInstanceOf(ApiError);
+        if (error instanceof ApiError) {
+          expect(error.message).toBe('Position not in tablebase');
+          expect(error.status).toBe(404);
+          expect(error.code).toBe('NOT_FOUND');
+        }
+      }
       
       // Should not retry on 404
       expect(mockHttp.fetchCalls.length).toBe(1);
@@ -264,12 +296,21 @@ describe('TablebaseApiClient', () => {
       mockHttp.mockFetchError(persistentError);
 
       const fen = '8/8/8/8/8/8/8/K7 w - - 0 1';
-      await expect(customClient.query(fen)).rejects.toThrow(persistentError);
+      
+      try {
+        await customClient.query(fen);
+        expect.fail('Expected query to reject after retries, but it resolved');
+      } catch (error) {
+        expect(error).toBe(persistentError);
+      }
 
       // 1 initial attempt + 2 retries = 3 total attempts
       expect(mockHttp.fetchCalls.length).toBe(3);
       // A sleep should be called after the first and second failed attempts
       expect(mockHttp.sleepCalls.length).toBe(2);
+      
+      // Clean up custom client
+      await customClient.awaitPendingRequests();
     });
 
     it('should handle API errors (500, 503, etc.) with retries', async () => {
@@ -312,7 +353,13 @@ describe('TablebaseApiClient', () => {
       const fen = '8/8/8/8/8/8/8/K7 w - - 0 1';
       
       // Will throw on JSON parse, which should trigger retries
-      await expect(client.query(fen)).rejects.toThrow();
+      try {
+        await client.query(fen);
+        expect.fail('Expected query to reject with JSON parse error, but it resolved');
+      } catch (error) {
+        expect(error).toBeDefined();
+        expect(error).toBeInstanceOf(SyntaxError);
+      }
       
       // Should retry on JSON parse errors
       expect(mockHttp.fetchCalls.length).toBe(TablebaseConfig.MAX_RETRIES);
@@ -330,7 +377,13 @@ describe('TablebaseApiClient', () => {
       
       const fen = '8/8/8/8/8/8/8/K7 w - - 0 1';
       
-      await expect(customClient.query(fen)).rejects.toThrow();
+      try {
+        await customClient.query(fen);
+        expect.fail('Expected query to reject after retries, but it resolved');
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toBe('Persistent error');
+      }
       
       // Check that delays follow exponential pattern
       expect(mockHttp.sleepCalls.length).toBe(4); // 4 retries after initial attempt
@@ -343,6 +396,9 @@ describe('TablebaseApiClient', () => {
       expect(mockHttp.sleepCalls[1]).toBeCloseTo(baseDelay * 2 * (1 + jitterFactor), 1);
       expect(mockHttp.sleepCalls[2]).toBeCloseTo(baseDelay * 4 * (1 + jitterFactor), 1);
       expect(mockHttp.sleepCalls[3]).toBeCloseTo(baseDelay * 8 * (1 + jitterFactor), 1);
+      
+      // Clean up custom client
+      await customClient.awaitPendingRequests();
     });
 
     it('should cap backoff delay at maximum', async () => {
@@ -354,7 +410,13 @@ describe('TablebaseApiClient', () => {
       
       const fen = '8/8/8/8/8/8/8/K7 w - - 0 1';
       
-      await expect(customClient.query(fen)).rejects.toThrow();
+      try {
+        await customClient.query(fen);
+        expect.fail('Expected query to reject after retries, but it resolved');
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toBe('Persistent error');
+      }
       
       const baseDelay = TablebaseConfig.BACKOFF_BASE_DELAY;
       const maxDelay = baseDelay * Math.pow(2, 4); // Cap at 16x base
@@ -362,6 +424,9 @@ describe('TablebaseApiClient', () => {
       // Last delay should be capped
       const lastDelay = mockHttp.sleepCalls[mockHttp.sleepCalls.length - 1];
       expect(lastDelay).toBeLessThanOrEqual(maxDelay);
+      
+      // Clean up custom client
+      await customClient.awaitPendingRequests();
     });
   });
 
@@ -392,21 +457,33 @@ describe('TablebaseApiClient', () => {
       expect(fetchCall.url).toContain(`fen=${encodeURIComponent(complexFen)}`);
     });
 
-    it('should clear all pending requests', async () => {
-      const fen1 = '8/8/8/8/8/8/8/K7 w - - 0 1';
-      const fen2 = '8/8/8/8/8/8/8/7K w - - 0 1';
+    it('should allow new requests after clearing pending ones', async () => {
+      const fen = '8/8/8/8/8/8/8/K7 w - - 0 1';
       
-      // Slow responses to keep requests pending
-      mockHttp.fetchHandler = () => new Promise(() => {}); // Never resolves
-      
-      // Start requests but don't await
-      client.query(fen1);
-      client.query(fen2);
-      
-      expect(client.getPendingRequestsCount()).toBe(2);
-      
+      // Mock a sequence of two successful responses
+      mockHttp.mockFetchSequence([
+        { data: mockApiResponse, status: 200 },
+        { data: mockApiResponse, status: 200 }
+      ]);
+
+      // Start the first request. It gets stored in pendingRequests.
+      const promise1 = client.query(fen);
+      expect(client.getPendingRequestsCount()).toBe(1);
+      expect(mockHttp.fetchCalls.length).toBe(1); // First API call is made
+
+      // Immediately clear the pending request map.
       client.clearPendingRequests();
       expect(client.getPendingRequestsCount()).toBe(0);
+
+      // Now, make the *same* query again. Since the map was cleared,
+      // it should NOT be deduplicated and should trigger a new API call.
+      const promise2 = client.query(fen);
+      expect(client.getPendingRequestsCount()).toBe(1);
+      expect(mockHttp.fetchCalls.length).toBe(2); // A second API call proves it wasn't deduplicated
+
+      // Await both promises to ensure they complete cleanly before the test ends.
+      // This is critical to prevent lifecycle errors.
+      await Promise.all([promise1, promise2]);
     });
   });
 });

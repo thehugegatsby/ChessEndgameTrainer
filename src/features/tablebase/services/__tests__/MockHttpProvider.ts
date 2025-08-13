@@ -36,7 +36,7 @@ export class MockHttpProvider implements HttpProvider {
     this.reset();
   }
 
-  async fetchWithTimeout(url: string, timeoutMs: number, options?: RequestInit): Promise<Response> {
+  fetchWithTimeout(url: string, timeoutMs: number, options?: RequestInit): Promise<Response> {
     if (options) {
       this.fetchCalls.push({ url, timeoutMs, options });
     } else {
@@ -45,7 +45,7 @@ export class MockHttpProvider implements HttpProvider {
     return this.fetchHandler(url, timeoutMs, options);
   }
 
-  async sleep(ms: number): Promise<void> {
+  sleep(ms: number): Promise<void> {
     this.sleepCalls.push(ms);
     // In tests, sleep resolves immediately for deterministic behavior
     return Promise.resolve();
@@ -85,7 +85,7 @@ export class MockHttpProvider implements HttpProvider {
    * Mock a JSON response
    */
   mockFetchJson(data: unknown, status = 200, statusText = 'OK'): void {
-    this.fetchHandler = async () => {
+    this.fetchHandler = () => {
       const body = JSON.stringify(data);
       const init: ResponseInit = {
         status,
@@ -95,26 +95,32 @@ export class MockHttpProvider implements HttpProvider {
       
       // Create Response with proper json() method
       const response = new Response(body, init);
-      return response;
+      return Promise.resolve(response);
     };
   }
 
   /**
    * Mock an error response
+   * Uses async rejection to avoid Vitest unhandled rejection warnings
    */
   mockFetchError(error: Error): void {
-    this.fetchHandler = () => Promise.reject(error);
+    this.fetchHandler = async () => {
+      // Add microtask delay to ensure promise rejection happens asynchronously
+      // This prevents Vitest from detecting it as an unhandled rejection
+      await Promise.resolve();
+      throw error;
+    };
   }
 
   /**
    * Mock a specific status code response
    */
   mockFetchStatus(status: number, statusText?: string): void {
-    this.fetchHandler = async () => {
-      return new Response(null, { 
+    this.fetchHandler = () => {
+      return Promise.resolve(new Response(null, { 
         status, 
         statusText: statusText || this.getDefaultStatusText(status) 
-      });
+      }));
     };
   }
 
@@ -127,10 +133,14 @@ export class MockHttpProvider implements HttpProvider {
       const response = responses[callCount++];
       
       if (!response) {
+        // Add async delay for rejection
+        await Promise.resolve();
         throw new Error('Mock fetch sequence exhausted');
       }
       
       if (response.error) {
+        // Add async delay for rejection
+        await Promise.resolve();
         throw response.error;
       }
       
@@ -141,11 +151,11 @@ export class MockHttpProvider implements HttpProvider {
         headers.set('Content-Type', 'application/json');
       }
       
-      return new Response(body, {
+      return Promise.resolve(new Response(body, {
         status: response.status || 200,
         statusText: response.statusText || this.getDefaultStatusText(response.status || 200),
         headers
-      });
+      }));
     };
   }
 

@@ -14,6 +14,12 @@ import { z } from 'zod';
 import type { HttpProvider } from './HttpProvider';
 import { RealHttpProvider } from './HttpProvider';
 
+// HTTP Status constants
+const HTTP_STATUS = {
+  NOT_FOUND: 404,
+  TOO_MANY_REQUESTS: 429,
+} as const;
+
 /**
  * Custom error for API-specific failures
  */
@@ -59,7 +65,7 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
    * @throws {ApiError} for HTTP errors
    * @throws {z.ZodError} for validation errors
    */
-  async query(fen: string): Promise<TablebaseApiResponse> {
+  query(fen: string): Promise<TablebaseApiResponse> {
     // Normalize FEN for consistent caching (remove halfmove clock and fullmove number)
     const normalizedFen = fen.split(' ').slice(0, 4).join(' ');
     
@@ -103,16 +109,16 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
         });
         
         // Handle different status codes
-        if (response.status === 404) {
+        if (response.status === HTTP_STATUS.NOT_FOUND) {
           // Position not in tablebase - this is expected for some positions
-          throw new ApiError('Position not in tablebase', 404, 'NOT_FOUND');
+          throw new ApiError('Position not in tablebase', HTTP_STATUS.NOT_FOUND, 'NOT_FOUND');
         }
         
-        if (response.status === 429) {
+        if (response.status === HTTP_STATUS.TOO_MANY_REQUESTS) {
           // Rate limited - wait before retry
           const delay = this.getBackoffDelay(attempt);
           await this.http.sleep(delay);
-          lastError = new ApiError('Rate limited', 429, 'RATE_LIMITED');
+          lastError = new ApiError('Rate limited', HTTP_STATUS.TOO_MANY_REQUESTS, 'RATE_LIMITED');
           continue;
         }
         
@@ -135,7 +141,7 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
         
         // Don't retry on validation errors or 404s
         if (error instanceof z.ZodError || 
-            (error instanceof ApiError && error.status === 404)) {
+            (error instanceof ApiError && error.status === HTTP_STATUS.NOT_FOUND)) {
           throw error;
         }
         
@@ -178,6 +184,14 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
    */
   getPendingRequestsCount(): number {
     return this.pendingRequests.size;
+  }
+
+  /**
+   * Waits for all pending requests to settle (for testing).
+   * This ensures that async operations are complete before test cleanup.
+   */
+  async awaitPendingRequests(): Promise<void> {
+    await Promise.allSettled(this.pendingRequests.values());
   }
 }
 
