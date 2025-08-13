@@ -93,7 +93,6 @@
     "axe-playwright": "^2.1.0",
     "bundlesize": "^0.18.2",
     "cross-env": "^10.0.0",
-    "cross-fetch": "^4.1.0",
     "depcheck": "^1.4.7",
     "dotenv": "^17.0.1",
     "eslint": "^9.31.0",
@@ -103,7 +102,6 @@
     "glob": "^11.0.3",
     "happy-dom": "^18.0.1",
     "husky": "^9.1.7",
-    "jsdom": "^26.1.0",
     "lint-staged": "^16.1.2",
     "madge": "^8.0.0",
     "msw": "^2.10.4",
@@ -118,8 +116,7 @@
     "typescript": "^5.9.2",
     "undici": "^7.13.0",
     "vitest": "^3.2.4",
-    "webpack-bundle-analyzer": "^4.10.2",
-    "whatwg-fetch": "^3.6.20"
+    "webpack-bundle-analyzer": "^4.10.2"
   },
   "description": "Ein modernes Tool zum Training von Schachendspielen mit Spaced Repetition.",
   "keywords": [],

@@ -23,6 +23,7 @@ describe('TablebaseApiClient', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers(); // Use fake timers to prevent real delays
     client = new TablebaseApiClient();
     
     // Default successful response mock
@@ -51,6 +52,8 @@ describe('TablebaseApiClient', () => {
 
   afterEach(() => {
     client.clearPendingRequests();
+    vi.clearAllTimers(); // Clear any pending timers
+    vi.useRealTimers(); // Restore real timers for other tests
   });
 
   describe('Basic functionality', () => {
@@ -210,7 +213,12 @@ describe('TablebaseApiClient', () => {
 
       const fen = '8/8/8/8/8/8/8/K7 w - - 0 1';
       
-      const result = await client.query(fen);
+      const promise = client.query(fen);
+      
+      // Advance timers to skip the retry delay
+      await vi.advanceTimersByTimeAsync(2000);
+      
+      const result = await promise;
       
       expect(mockFetch).toHaveBeenCalledTimes(2);
       expect(result).toBeDefined();
@@ -231,7 +239,7 @@ describe('TablebaseApiClient', () => {
       
       await expect(client.query(fen)).rejects.toThrow(ApiError);
       await expect(client.query(fen)).rejects.toThrow('timeout');
-    }, 10000); // Increase timeout to 10 seconds
+    }); // Normal timeout with fake timers
 
     it('should retry on transient errors', async () => {
       // Mock network error, then success
