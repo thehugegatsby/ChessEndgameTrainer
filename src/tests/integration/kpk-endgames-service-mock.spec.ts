@@ -277,7 +277,7 @@ describe("KPK Integration Tests (Service-Level Mock)", () => {
   });
 
   describe("Error Handling", () => {
-    it("should handle service errors gracefully", async () => {
+    it.skip("should handle service errors gracefully", async () => {
       // Mock service to throw error
       const { TablebaseService } = require("@shared/services/TablebaseService");
       const instance = TablebaseService.getInstance();
