@@ -62,8 +62,16 @@ jobs:
         echo "--- Available CPUs ---"
         nproc
 
-    - name: Run unit tests
-      run: NODE_OPTIONS="--max-old-space-size=2048" pnpm run test:unit
+    - name: Run unit tests (split into chunks)
+      run: |
+        echo "Running chess-core tests..."
+        pnpm run test:unit:chess
+        echo "Running tablebase tests..."
+        pnpm run test:unit:tablebase
+        echo "Running training tests..."
+        pnpm run test:unit:training
+        echo "Running other feature tests..."
+        pnpm run test:unit:other
     
     - name: Run integration tests
       run: NODE_OPTIONS="--max-old-space-size=2048" pnpm run test:integration
