@@ -1,212 +1,326 @@
 "use client";
 
-import React, { useState, useMemo, lazy, Suspense } from "react";
+import { getLogger } from '@shared/services/logging/Logger';
 
-// Lightweight immediate imports
+import React, { useState, useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import {
+  TrainingBoard,
+  MovePanelZustand,
+  NavigationControls,
+} from "@shared/components/training";
+import { TablebaseAnalysisPanel } from "@shared/components/training/TablebaseAnalysisPanel";
+import { AdvancedEndgameMenu } from "@shared/components/navigation/AdvancedEndgameMenu";
+// EndgamePosition import no longer needed - position comes from store
+import { useToast } from "@shared/hooks/useToast";
 import { ToastContainer } from "@shared/components/ui/Toast";
 import { StreakCounter } from "@shared/components/ui/StreakCounter";
 import { CheckmarkAnimation } from "@shared/components/ui/CheckmarkAnimation";
+import { getGameStatus } from "@shared/utils/chess/gameStatus";
 import {
   useGameStore,
   useTrainingStore,
   useUIStore,
 } from "@shared/store/hooks";
+// useInitializePosition no longer needed - SSR hydration handles initialization
 import {
   getTrainingDisplayTitle,
+  formatPositionTitle,
 } from "@shared/utils/titleFormatter";
+import { ANIMATION } from "@shared/constants";
 
-// Heavy components loaded on demand
-const TrainingBoard = lazy(() => 
-  import("@shared/components/training/TrainingBoard/TrainingBoard").then(m => ({
-    default: m.TrainingBoard
-  }))
-);
-
-const MovePanelZustand = lazy(() => 
-  import("@shared/components/training/MovePanelZustand").then(m => ({
-    default: m.MovePanelZustand
-  }))
-);
-
-const NavigationControls = lazy(() => 
-  import("@shared/components/training/NavigationControls").then(m => ({
-    default: m.NavigationControls
-  }))
-);
-
-const TablebaseAnalysisPanel = lazy(() => 
-  import("@shared/components/training/TablebaseAnalysisPanel").then(m => ({
-    default: m.TablebaseAnalysisPanel
-  }))
-);
-
-const AdvancedEndgameMenu = lazy(() => 
-  import("@shared/components/navigation/AdvancedEndgameMenu").then(m => ({
-    default: m.AdvancedEndgameMenu
-  }))
-);
-
-// Simple loading placeholder
-const ComponentLoading = (): React.JSX.Element => (
-  <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 animate-pulse">
-    <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-  </div>
-);
-
-// Board loading placeholder
-const BoardLoading = (): React.JSX.Element => (
-  <div className="aspect-square bg-white dark:bg-gray-800 rounded-lg shadow animate-pulse">
-    <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 rounded-lg"></div>
-  </div>
-);
+// No props needed anymore - all data comes from hydrated store
 
 /**
- * Lightweight Endgame training page with lazy-loaded heavy components
+ * Endgame training page component using Zustand store
+ * Provides the main training interface for endgame positions
+ * All position data comes from the pre-hydrated store state
  */
 export const EndgameTrainingPageLite: React.FC = React.memo(() => {
-  // Zustand store hooks
-  const [gameState] = useGameStore();
-  const [trainingState] = useTrainingStore();
+  // Next.js router
+  const router = useRouter();
+
+  // Zustand store hooks - consolidated
+  const [gameState, gameActions] = useGameStore();
+  const [trainingState, trainingActions] = useTrainingStore();
   const [uiState, uiActions] = useUIStore();
 
-  // Local state
-  const [currentView, setCurrentView] = useState<"board" | "analysis">("board");
+  // Toast hook - keep for showSuccess/showError, but we'll use store toasts for display
+  const { showSuccess, showError } = useToast();
 
-  // Check if the game is won (removed as not used in lite version)
+  // Local UI state
+  const [resetKey, setResetKey] = useState<number>(0);
 
-  // Position title
-  const positionTitle = useMemo(() => {
-    if (!trainingState.currentPosition) return '';
-    
-    const displayTitle = getTrainingDisplayTitle(
-      trainingState.currentPosition
-    );
-    return displayTitle;
-  }, [trainingState.currentPosition]);
+  // The position now comes directly from the hydrated store
+  const position = trainingState.currentPosition;
 
-  // Handle successful completion (removed as not used in lite version)
+  // Debug: Log component state
+  getLogger().debug("🏠 EndgameTrainingPage rendered", {
+    hasPosition: Boolean(position),
+    positionId: position?.id,
+    positionFen: position?.fen,
+    currentFen: gameState.currentFen,
+    timestamp: new Date().toISOString(),
+  });
 
-  // Note: Navigation and reset handlers removed - not used in lite version
-  // Navigation is handled by NavigationControls component
+  // Extract actions to avoid dependency issues
+  const { completeTraining } = trainingActions;
 
-  // Handle error (removed as not used in lite version)
+  // Game status - ALL HOOKS MUST BE BEFORE CONDITIONAL RETURNS (React Hook Rules)
+  const gameStatus = useMemo(
+    () => position ? getGameStatus(gameState.currentFen || position.fen, position.goal) : null,
+    [gameState.currentFen, position],
+  );
 
-  // Loading state
-  if (!trainingState.currentPosition || !gameState.currentFen) {
+  // Navigation data from store
+  const prevPosition = trainingState.previousPosition;
+  const nextPosition = trainingState.nextPosition;
+  const isLoadingNavigation = trainingState.isLoadingNavigation;
+
+  const handleComplete = useCallback(
+    (isSuccess: boolean) => {
+      if (isSuccess) {
+        // Update streak
+        trainingActions.incrementStreak();
+        
+        // Show checkmark animation
+        trainingActions.showCheckmarkAnimation(2000);
+        
+        // Show success toast
+        showSuccess(
+          "Geschafft! Position erfolgreich gelöst!",
+          ANIMATION.SUCCESS_TOAST_DURATION,
+        );
+        
+        // Auto-progress to next position if enabled
+        if (trainingState.autoProgressEnabled && nextPosition) {
+          getLogger().info("🚀 Auto-progressing to next position", { 
+            nextPositionId: nextPosition.id, 
+            delayMs: 2500 
+          });
+          setTimeout(() => {
+            router.push(`/train/${nextPosition.id}`);
+          }, 2500); // Wait for checkmark animation + 500ms buffer
+        }
+      } else {
+        getLogger().info("❌ Failure - resetting streak");
+        // Reset streak on failure
+        trainingActions.resetStreak();
+        showError("Versuch es erneut", ANIMATION.ERROR_TOAST_DURATION);
+      }
+      completeTraining(isSuccess);
+    },
+    [completeTraining, showSuccess, showError, trainingActions, trainingState.autoProgressEnabled, nextPosition, router],
+  );
+
+  const handleResetPosition = useCallback(() => {
+    gameActions.resetGame();
+    setResetKey((prev) => prev + 1);
+  }, [gameActions]);
+
+  const handleMoveClick = useCallback(
+    (moveIndex: number) => {
+      // Navigate to the clicked move
+      gameActions.goToMove(moveIndex);
+    },
+    [gameActions],
+  );
+
+  const handleToggleAnalysis = useCallback(() => {
+    uiActions.updateAnalysisPanel({ isOpen: !uiState.analysisPanel.isOpen });
+  }, [uiActions, uiState]);
+
+  const getLichessUrl = useCallback(() => {
+    const currentFen = gameState.currentFen || (position?.fen ?? "");
+
+    // Use PGN if we have moves in the history
+    // PGN includes the starting FEN and all moves, providing full context
+    if (gameState.currentPgn && gameState.moveHistory.length > 0) {
+      // Lichess accepts PGN in the URL for complete game analysis
+      return `https://lichess.org/analysis/pgn/${encodeURIComponent(gameState.currentPgn)}`;
+    }
+
+    // Fallback to FEN-only URL for positions without move history
+    return `https://lichess.org/analysis/${currentFen.replace(/ /g, "_")}`;
+  }, [
+    gameState.currentPgn,
+    gameState.moveHistory.length,
+    gameState.currentFen,
+    position?.fen,
+  ]);
+
+  // Early return if position is not available (shouldn't happen with SSR hydration)
+  if (!position) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Lade Training...</p>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg text-gray-600">Position wird geladen...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {positionTitle}
-            </h1>
-            <div className="flex items-center space-x-4">
-              <StreakCounter 
-                currentStreak={trainingState.currentStreak} 
-                bestStreak={trainingState.bestStreak}
-              />
-              <Suspense fallback={
-                <button className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 animate-pulse">
-                  <div className="w-6 h-6"></div>
-                </button>
-              }>
-                <AdvancedEndgameMenu 
-                  isOpen={false}
-                  onClose={() => {}}
-                />
-              </Suspense>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Board Section */}
-          <div className="lg:col-span-2">
-            <Suspense fallback={<BoardLoading />}>
-              <TrainingBoard 
-                onComplete={() => {
-                  // Handle completion if needed
-                }}
-              />
-            </Suspense>
-            
-            {/* Navigation Controls */}
-            <div className="mt-4">
-              <Suspense fallback={<ComponentLoading />}>
-                <NavigationControls />
-              </Suspense>
-            </div>
-          </div>
-
-          {/* Side Panel */}
-          <div className="space-y-6">
-            {/* View Toggle */}
-            <div className="flex space-x-2 bg-white dark:bg-gray-800 rounded-lg p-1 shadow">
-              <button
-                onClick={() => setCurrentView("board")}
-                className={`flex-1 py-2 px-4 rounded-md transition-colors ${
-                  currentView === "board"
-                    ? "bg-blue-500 text-white"
-                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
-              >
-                Züge
-              </button>
-              <button
-                onClick={() => setCurrentView("analysis")}
-                className={`flex-1 py-2 px-4 rounded-md transition-colors ${
-                  currentView === "analysis"
-                    ? "bg-blue-500 text-white"
-                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
-              >
-                Analyse
-              </button>
-            </div>
-
-            {/* Content based on view */}
-            {currentView === "board" ? (
-              <Suspense fallback={<ComponentLoading />}>
-                <MovePanelZustand />
-              </Suspense>
-            ) : (
-              <Suspense fallback={<ComponentLoading />}>
-                <TablebaseAnalysisPanel 
-                  fen={gameState.currentFen}
-                  isVisible={true}
-                />
-              </Suspense>
-            )}
-          </div>
-        </div>
-      </main>
-
-      {/* Toast Container */}
-      <ToastContainer 
+    <div className="trainer-container h-screen flex bg-slate-800 text-white">
+      <ToastContainer
         toasts={uiState.toasts}
         onRemoveToast={(id) => uiActions.removeToast(id)}
       />
+      
+      {/* Checkmark Animation Overlay */}
+      <CheckmarkAnimation isVisible={trainingState.showCheckmark} />
 
-      {/* Success Animation */}
-      {trainingState.showCheckmark && (
-        <CheckmarkAnimation isVisible={true} />
-      )}
+      {/* Left Menu */}
+      <AdvancedEndgameMenu
+        isOpen={true}
+        onClose={() => {}}
+        currentPositionId={position.id}
+      />
+
+      {/* Main Content - Chess Board Area - truly centered */}
+      <div className="chessboard-wrapper flex-1 h-full relative mr-72" style={{ marginLeft: '-20px' }}>
+        {/* Chessboard Area */}
+        <div className="w-full h-full relative">
+          {/* Progress Header centered above board - always show for E2E test visibility */}
+          <div
+            className="absolute top-24 left-0 right-0 text-center pointer-events-none"
+            data-testid="position-title"
+            style={{ zIndex: 5 }}
+          >
+            <h2 className="text-3xl font-bold">
+              {getTrainingDisplayTitle(
+                position,
+                gameState.moveHistory?.length || 0,
+              )}
+            </h2>
+          </div>
+
+          <div className="w-full h-full flex items-center justify-center">
+            <TrainingBoard
+              key={`${position.id}-${resetKey}`}
+              position={position}
+              onComplete={handleComplete}
+              router={router}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Right Sidebar - Fixed positioned */}
+      <div className="sidebar fixed right-0 top-0 bottom-0 w-72 bg-gray-900 border-l border-gray-700 flex flex-col z-20 overflow-y-auto">
+          {/* Navigation between positions */}
+          <div className="nav-section p-4 border-b border-gray-700">
+            <h3 className="text-sm font-semibold text-gray-400 mb-2 text-center">
+              Stellungsnavigation
+            </h3>
+            <div className="flex items-center justify-center gap-4">
+              <button
+                onClick={() =>
+                  prevPosition && router.push(`/train/${prevPosition.id}`)
+                }
+                disabled={!prevPosition || isLoadingNavigation}
+                className="p-2 hover:bg-gray-800 rounded disabled:opacity-30 transition-colors"
+                title="Vorherige Stellung"
+              >
+                <span className="text-lg">
+                  {isLoadingNavigation ? "⏳" : "←"} Vorherige Stellung
+                </span>
+              </button>
+              <button
+                onClick={handleResetPosition}
+                className="p-2 hover:bg-gray-800 rounded transition-colors"
+                title="Position zurücksetzen"
+              >
+                <span className="text-lg">↻</span>
+              </button>
+              <button
+                onClick={() =>
+                  nextPosition && router.push(`/train/${nextPosition.id}`)
+                }
+                disabled={!nextPosition || isLoadingNavigation}
+                className="p-2 hover:bg-gray-800 rounded disabled:opacity-30 transition-colors"
+                title="Nächste Stellung"
+              >
+                <span className="text-lg">
+                  Nächste Stellung {isLoadingNavigation ? "⏳" : "→"}
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Streak Counter */}
+          <div className="streak-section p-4 border-b border-gray-700">
+            <StreakCounter 
+              currentStreak={trainingState.currentStreak}
+              bestStreak={trainingState.bestStreak}
+            />
+          </div>
+
+          {/* Game Status */}
+          <div className="game-status p-4 border-b border-gray-700">
+            <div className="text-sm font-medium flex items-center gap-2">
+              <span className="text-base">♔</span>
+              {gameStatus?.sideToMoveDisplay}
+            </div>
+            <div className="text-xs text-gray-300 mt-1">
+              {gameStatus?.objectiveDisplay}
+            </div>
+          </div>
+
+          {/* Instructions */}
+          <div className="instructions p-4 border-b border-gray-700">
+            <h3 className="font-bold mb-2">{formatPositionTitle(position)}</h3>
+            <p className="text-sm text-gray-400">{position.description}</p>
+          </div>
+
+          {/* Toggles */}
+          <div className="toggles p-4 border-b border-gray-700">
+            <button
+              onClick={handleToggleAnalysis}
+              data-testid="toggle-analysis"
+              className={`w-full p-2 rounded mb-2 transition-colors ${
+                uiState.analysisPanel.isOpen
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-gray-700 hover:bg-gray-600"
+              }`}
+            >
+              Analyse {uiState.analysisPanel.isOpen ? "AUS" : "AN"}
+            </button>
+
+            <TablebaseAnalysisPanel
+              fen={gameState.currentFen || position.fen}
+              isVisible={uiState.analysisPanel.isOpen}
+              {...(() => {
+                const previousFen = gameState.moveHistory && gameState.moveHistory.length > 0
+                  ? gameState.moveHistory[gameState.moveHistory.length - 1]?.fenBefore
+                  : undefined;
+                return previousFen !== undefined ? { previousFen } : {};
+              })()}
+            />
+          </div>
+
+          {/* Move History */}
+          <div className="move-history flex-1 p-4 border-b border-gray-700 overflow-y-auto">
+            <MovePanelZustand
+              showEvaluations={uiState.analysisPanel.isOpen}
+              onMoveClick={handleMoveClick}
+              currentMoveIndex={gameState.currentMoveIndex}
+            />
+            <div className="mt-2">
+              <NavigationControls />
+            </div>
+          </div>
+
+          {/* External Links */}
+          <div className="external-links p-4">
+            <a
+              href={getLichessUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-center p-2 bg-gray-700 hover:bg-gray-600 rounded transition-colors"
+            >
+              Auf Lichess analysieren →
+            </a>
+          </div>
+        </div>
     </div>
   );
 });

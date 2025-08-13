@@ -269,7 +269,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
     Math.floor(totalPositions * (userStats.successRate / 100));
 
   if (!isOpen) return null;
-
+  
   return (
     <>
       {/* Backdrop */}
