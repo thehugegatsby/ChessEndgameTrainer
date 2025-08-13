@@ -261,9 +261,9 @@ export class SequenceRunner {
 
       // Play the move
       const result = await this.page.evaluate(async (moveStr) => {
-        const result = await window['e2e_makeMove']?.(moveStr);
-        console.log(`Move result:`, result);
-        return result;
+        const moveResult = await window['e2e_makeMove']?.(moveStr);
+        console.log(`Move result:`, moveResult);
+        return moveResult;
       }, move);
 
       if (!result || !result.success) {
@@ -420,7 +420,7 @@ export class SequenceRunner {
     const { message, toastType } = data;
 
     await this.page.waitForFunction(
-      ({ message, toastType }) => {
+      ({ message: expectedMessage, toastType: expectedToastType }) => {
         // Try both possible store names
         const store = window['__e2e_store'] || window['__zustand_store'];
         if (!store) return false;
@@ -429,10 +429,10 @@ export class SequenceRunner {
         const toasts = state.ui?.toasts || [];
 
         return toasts.some((toast) => {
-          const messageMatch = message
-            ? toast.message?.includes(message)
+          const messageMatch = expectedMessage
+            ? toast.message?.includes(expectedMessage)
             : true;
-          const typeMatch = toastType ? toast.type === toastType : true;
+          const typeMatch = expectedToastType ? toast.type === expectedToastType : true;
           return messageMatch && typeMatch;
         });
       },
@@ -479,22 +479,22 @@ export class SequenceRunner {
     const { modalType, modalOpen } = data;
 
     await this.page.waitForFunction(
-      ({ modalType, modalOpen }) => {
+      ({ modalType: expectedModalType, modalOpen: expectedModalOpen }) => {
         const store = window['__e2e_store'] || window['__zustand_store'];
         if (!store) return false;
 
         const state = store.getState();
         const currentModal = state.ui?.currentModal;
 
-        if (modalOpen === false) {
+        if (expectedModalOpen === false) {
           return currentModal === null;
         }
 
-        if (modalType) {
-          return currentModal === modalType;
+        if (expectedModalType) {
+          return currentModal === expectedModalType;
         }
 
-        return modalOpen ? currentModal !== null : true;
+        return expectedModalOpen ? currentModal !== null : true;
       },
       { modalType, modalOpen },
       { timeout },
@@ -525,16 +525,16 @@ export class SequenceRunner {
     }
 
     await this.page.waitForFunction(
-      ({ storePath, expectedValue }) => {
+      ({ storePath: path, expectedValue: expected }) => {
         const store = window['__e2e_store'] || window['__zustand_store'];
         if (!store) return false;
 
         const state = store.getState();
-        const actualValue = storePath
+        const actualValue = path
           .split(".")
           .reduce((obj: any, key) => obj?.[key], state as any);
 
-        return JSON.stringify(actualValue) === JSON.stringify(expectedValue);
+        return JSON.stringify(actualValue) === JSON.stringify(expected);
       },
       { storePath, expectedValue },
       { timeout },
@@ -562,20 +562,20 @@ export class SequenceRunner {
     const { isSuccess, completionStatus } = data;
 
     await this.page.waitForFunction(
-      ({ isSuccess, completionStatus }) => {
+      ({ isSuccess: expectedSuccess, completionStatus: expectedStatus }) => {
         const store = window['__e2e_store'] || window['__zustand_store'];
         if (!store) return false;
 
         const state = store.getState();
 
-        if (isSuccess !== undefined) {
+        if (expectedSuccess !== undefined) {
           const success = state.training?.isSuccess;
-          if (success !== isSuccess) return false;
+          if (success !== expectedSuccess) return false;
         }
 
-        if (completionStatus !== undefined) {
+        if (expectedStatus !== undefined) {
           const status = state.training?.completionStatus;
-          if (status !== completionStatus) return false;
+          if (status !== expectedStatus) return false;
         }
 
         return true;
@@ -607,35 +607,35 @@ export class SequenceRunner {
     const { dialogType, promotionPiece, moveDescription, dialogOpen } = data;
 
     await this.page.waitForFunction(
-      ({ dialogType, promotionPiece, moveDescription, dialogOpen }) => {
+      ({ dialogType: expectedDialogType, promotionPiece: expectedPromotionPiece, moveDescription: expectedMoveDescription, dialogOpen: expectedDialogOpen }) => {
         const store = window['__e2e_store'] || window['__zustand_store'];
         if (!store) return false;
 
         const state = store.getState();
 
         // Check moveSuccessDialog specifically
-        if (dialogType === "moveSuccess") {
+        if (expectedDialogType === "moveSuccess") {
           const dialog = state.training?.moveSuccessDialog;
 
           // Check if dialog should be open or closed
-          if (dialogOpen !== undefined) {
+          if (expectedDialogOpen !== undefined) {
             const isOpen = dialog?.isOpen || false;
-            if (isOpen !== dialogOpen) return false;
+            if (isOpen !== expectedDialogOpen) return false;
           }
 
           // If we expect it to be closed, that's enough
-          if (dialogOpen === false) return true;
+          if (expectedDialogOpen === false) return true;
 
           // For open dialogs, check content
           if (dialog?.isOpen) {
             if (
-              promotionPiece &&
-              !dialog.promotionPiece?.includes(promotionPiece)
+              expectedPromotionPiece &&
+              !dialog.promotionPiece?.includes(expectedPromotionPiece)
             )
               return false;
             if (
-              moveDescription &&
-              !dialog.moveDescription?.includes(moveDescription)
+              expectedMoveDescription &&
+              !dialog.moveDescription?.includes(expectedMoveDescription)
             )
               return false;
             return true;

@@ -10,11 +10,15 @@ import { Chess } from "chess.js";
 import type { ValidatedMove } from "@shared/types/chess";
 import type { IMoveHistory } from "../types/interfaces";
 
+// Constants
+const MAX_HISTORY_SIZE = 500; // Prevent memory issues in very long games
+const HISTORY_RETENTION_RATIO = 0.9; // Keep 90% of max size when trimming
+
 export default class MoveHistory implements IMoveHistory {
   private moves: ValidatedMove[] = [];
   private currentIndex: number = -1;
   private initialFen: string = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-  private static readonly MAX_HISTORY_SIZE = 500; // Prevent memory issues in very long games
+  private static readonly MAX_HISTORY_SIZE = MAX_HISTORY_SIZE;
 
   /**
    * Add a move to history
@@ -33,7 +37,7 @@ export default class MoveHistory implements IMoveHistory {
     // Enforce maximum history size to prevent memory issues
     if (this.moves.length >= MoveHistory.MAX_HISTORY_SIZE) {
       // Remove oldest moves, keeping 90% of max size
-      const keepCount = Math.floor(MoveHistory.MAX_HISTORY_SIZE * 0.9);
+      const keepCount = Math.floor(MoveHistory.MAX_HISTORY_SIZE * HISTORY_RETENTION_RATIO);
       const removeCount = this.moves.length - keepCount;
       this.moves = this.moves.slice(removeCount);
       this.currentIndex = Math.max(-1, this.currentIndex - removeCount);

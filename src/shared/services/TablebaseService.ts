@@ -48,10 +48,15 @@ export type {
 
 const logger = getLogger().setContext("TablebaseService");
 
+// Tablebase configuration constants
+const MAX_PIECES_IN_TABLEBASE = 7; // Lichess uses 7-piece Syzygy tablebases
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const CACHE_SIZE = 200;
+
 class TablebaseService {
   private readonly cacheManager: CacheManager<string, TablebaseCacheEntry>;
-  private readonly maxPieces = 7; // Lichess uses 7-piece Syzygy tablebases
-  private readonly cacheTtl = 300000; // 5 minutes
+  private readonly maxPieces = MAX_PIECES_IN_TABLEBASE;
+  private readonly cacheTtl = CACHE_TTL_MS;
   private pendingRequests = new Map<string, Promise<TablebaseEntry | null>>();
   
   private readonly apiClient: LichessApiClient;
@@ -70,7 +75,7 @@ class TablebaseService {
 
     // Use provided cache manager or create default LRU cache
     this.cacheManager = cacheManager || new LRUCacheManager<string, TablebaseCacheEntry>(
-      200,     // maxSize (same as before)
+      CACHE_SIZE,     // maxSize (same as before)
       this.cacheTtl  // defaultTtlMs (5 minutes)
     );
   }

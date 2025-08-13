@@ -326,7 +326,7 @@ export class FirebasePositionRepository implements PositionRepository {
     }
   }
 
-  async getPositionsByTags(tags: string[]): Promise<EndgamePosition[]> {
+  getPositionsByTags(tags: string[]): Promise<EndgamePosition[]> {
     // Tags are not yet implemented in EndgamePosition type
     // Return empty array for now
     logger.warn(
@@ -334,7 +334,7 @@ export class FirebasePositionRepository implements PositionRepository {
       { tags }
     );
     this.config.events?.onDataFetched?.("getPositionsByTags", 0);
-    return [];
+    return Promise.resolve([]);
   }
 
   async getNextPosition(

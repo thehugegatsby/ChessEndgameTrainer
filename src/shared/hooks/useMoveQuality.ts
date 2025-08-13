@@ -293,7 +293,7 @@ export const useMoveQuality = (): UseMoveQualityReturn => {
       abortControllerRef.current = controller;
 
       logger.info("[useMoveQuality] Starting move quality assessment", {
-        fenBefore: fenBefore.slice(0, 30) + "...",
+        fenBefore: `${fenBefore.slice(0, 30)  }...`,
         move,
         playerPerspective,
       });

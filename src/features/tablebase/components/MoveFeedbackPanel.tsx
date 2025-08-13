@@ -119,7 +119,7 @@ export const MoveFeedbackPanel: React.FC<MoveFeedbackPanelProps> = ({
       move.san !== data.playedMove
     ).slice(0, 3); // Show top 3 alternatives
 
-    const feedbackData: MoveFeedbackData = {
+    const newFeedbackData: MoveFeedbackData = {
       type: data.type,
       message,
       wasOptimal: data.wasOptimal,
@@ -131,11 +131,12 @@ export const MoveFeedbackPanel: React.FC<MoveFeedbackPanelProps> = ({
       ...(suggestions && suggestions.length > 0 && { suggestions }),
     };
     
-    setFeedbackData(feedbackData);
+    setFeedbackData(newFeedbackData);
 
     // Auto-hide after 10 seconds for success messages
+    const AUTO_HIDE_DELAY_MS = 10000;
     if (data.type === 'success') {
-      setTimeout(() => setFeedbackData(null), 10000);
+      setTimeout(() => setFeedbackData(null), AUTO_HIDE_DELAY_MS);
     }
   });
 
@@ -244,9 +245,9 @@ export const MoveFeedbackPanel: React.FC<MoveFeedbackPanelProps> = ({
           </div>
           
           <div className="space-y-1">
-            {feedbackData.suggestions.map((move, index) => (
+            {feedbackData.suggestions.map((move) => (
               <button
-                key={`${move.uci}-${index}`}
+                key={move.uci}
                 onClick={() => onMoveSelect?.(move)}
                 className="w-full flex items-center justify-between p-2 text-sm bg-white dark:bg-gray-800 border rounded hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 title={`${move.san} leads to ${move.outcome}${move.dtm ? ` in ${Math.abs(move.dtm)} moves` : ''}`}

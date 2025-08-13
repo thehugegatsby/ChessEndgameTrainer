@@ -45,7 +45,7 @@ vi.mock('@shared/services/DueCardsCacheService', () => {
 
   return {
     dueCardsCacheService: mockCacheService,
-    createInputHash: vi.fn((input: any) => 'mock-hash-' + JSON.stringify(input).length)
+    createInputHash: vi.fn((input: any) => `mock-hash-${  JSON.stringify(input).length}`)
   };
 });
 

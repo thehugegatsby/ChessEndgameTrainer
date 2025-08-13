@@ -309,7 +309,7 @@ export function taggedDescribe(
   suiteFunction: () => void,
 ) {
   base.describe(`${title} ${tags.join(" ")}`, () => {
-    base.beforeEach(async ({}, testInfo) => {
+    base.beforeEach(({}, testInfo) => {
       // Add suite tags to each test
       tags.forEach((tag) => {
         testInfo.annotations.push({ type: "tag", description: tag });

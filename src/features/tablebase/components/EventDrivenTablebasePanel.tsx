@@ -178,9 +178,9 @@ export const EventDrivenTablebasePanel: React.FC<EventDrivenTablebasePanelProps>
           <div className="tablebase-moves">
             <h4 className="tablebase-moves__title">Best Moves</h4>
             <div className="tablebase-moves__list">
-              {moves.map((move, index) => (
+              {moves.map((move) => (
                 <button
-                  key={`${move.uci}-${index}`}
+                  key={move.uci}
                   className={`tablebase-move tablebase-move--${move.outcome}`}
                   onClick={() => onMoveSelect?.(move)}
                   title={`${move.san} leads to ${move.outcome}${move.dtm ? ` in ${Math.abs(move.dtm)} moves` : ''}`}

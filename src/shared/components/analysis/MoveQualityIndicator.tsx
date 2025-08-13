@@ -130,15 +130,15 @@ export const MoveQualityIndicator: React.FC<MoveQualityIndicatorProps> = ({
       await assessMove(fenBefore, moveSan, player);
     } catch (err) {
       // Check if this is just a cancelled assessment (not a real error)
-      const error = err instanceof Error ? err : new Error(String(err));
-      if (error.message?.includes("Assessment cancelled") || 
-          error.message?.includes("aborted")) {
+      const assessmentError = err instanceof Error ? err : new Error(String(err));
+      if (assessmentError.message?.includes("Assessment cancelled") || 
+          assessmentError.message?.includes("aborted")) {
         // This is normal when a new assessment starts - just log debug
         logger.debug("Assessment cancelled - this is normal behavior");
       } else {
         // Only log real errors
         ErrorService.handleUIError(
-          error,
+          assessmentError,
           "MoveQualityIndicator",
           {
             action: "assess-move",

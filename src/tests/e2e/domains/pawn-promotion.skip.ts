@@ -56,9 +56,9 @@ test.describe("Pawn Promotion Auto-Win Feature", () => {
       console.log(`Making move ${i + 1}/${sequence.moves.length}: ${move}`);
 
       const result = await page.evaluate(async (moveStr) => {
-        const result = await (window as any).e2e_makeMove(moveStr);
-        console.log(`Move result:`, result);
-        return result;
+        const moveExecutionResult = await (window as any).e2e_makeMove(moveStr);
+        console.log(`Move result:`, moveExecutionResult);
+        return moveExecutionResult;
       }, move);
 
       if (!result.success) {
@@ -161,11 +161,11 @@ test.describe("Pawn Promotion Auto-Win Feature", () => {
       const move = sequence.moves[i];
       console.log(`Making move ${i + 1}: ${move}`);
 
-      const result = await page.evaluate(async (moveStr) => {
+      const moveResult = await page.evaluate(async (moveStr) => {
         return await (window as any).e2e_makeMove(moveStr);
       }, move);
 
-      console.log(`Move result:`, result);
+      console.log(`Move result:`, moveResult);
 
       // Wait for opponent moves
       await waitForOpponentMove(page);

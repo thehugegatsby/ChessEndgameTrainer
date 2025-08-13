@@ -175,6 +175,24 @@ export const useChessAnimations = (config: Partial<ChessAnimationConfig> = {}): 
   }, [animationConfig.showLastMove, animationConfig.reducedMotion, logger]);
 
   /**
+   * Find the king square for a given color
+   */
+  const findKingSquare = (chess: Chess, color: 'w' | 'b'): string | null => {
+    for (let file = 0; file < 8; file++) {
+      for (let rank = 1; rank <= 8; rank++) {
+        const ASCII_LOWERCASE_A = 97;
+        const square = String.fromCharCode(ASCII_LOWERCASE_A + file) + rank as Square;
+        const piece = chess.get(square);
+        
+        if (piece && piece.type === 'k' && piece.color === color) {
+          return square;
+        }
+      }
+    }
+    return null;
+  };
+
+  /**
    * Update check state for the current position
    * 
    * @param fen - Current FEN position
@@ -215,23 +233,6 @@ export const useChessAnimations = (config: Partial<ChessAnimationConfig> = {}): 
       logger.warn('Failed to update check state', error as Error);
     }
   }, [animationConfig.showCheck, animationConfig.reducedMotion, logger]);
-
-  /**
-   * Find the king square for a given color
-   */
-  const findKingSquare = (chess: Chess, color: 'w' | 'b'): string | null => {
-    for (let file = 0; file < 8; file++) {
-      for (let rank = 1; rank <= 8; rank++) {
-        const square = String.fromCharCode(97 + file) + rank as Square;
-        const piece = chess.get(square);
-        
-        if (piece && piece.type === 'k' && piece.color === color) {
-          return square;
-        }
-      }
-    }
-    return null;
-  };
 
   /**
    * Clear all highlights and animations

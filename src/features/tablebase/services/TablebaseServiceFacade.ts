@@ -24,14 +24,14 @@ const logger = getLogger().setContext('TablebaseServiceFacade');
  * this would be the old service we're migrating from
  */
 class LegacyTablebaseService implements TablebaseServiceInterface {
-  async evaluate(_fen: string): Promise<TablebaseEvaluation> {
+  evaluate(_fen: string): Promise<TablebaseEvaluation> {
     // In production, this would be the old implementation
     // For now, we'll throw to indicate legacy path
-    throw new Error('Legacy tablebase service not implemented');
+    return Promise.reject(new Error('Legacy tablebase service not implemented'));
   }
 
-  async getBestMoves(_fen: string, _limit?: number): Promise<TablebaseMove[]> {
-    throw new Error('Legacy tablebase service not implemented');
+  getBestMoves(_fen: string, _limit?: number): Promise<TablebaseMove[]> {
+    return Promise.reject(new Error('Legacy tablebase service not implemented'));
   }
 }
 

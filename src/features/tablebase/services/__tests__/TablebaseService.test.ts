@@ -15,7 +15,7 @@ vi.mock('../TablebaseApiClient', () => ({
   tablebaseApiClient: {
     query: vi.fn()
   },
-  ApiError: class ApiError extends Error {
+  ApiError: class MockApiError extends Error {
     constructor(message: string, public status?: number, public code?: string) {
       super(message);
       this.name = 'ApiError';

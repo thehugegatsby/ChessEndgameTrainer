@@ -10,6 +10,10 @@
 import { trainingEvents } from './EventEmitter';
 import type { TrainingEvents } from './EventEmitter';
 
+// WDL change thresholds
+const MAJOR_MISTAKE_THRESHOLD = -50;
+const MINOR_MISTAKE_THRESHOLD = -20;
+
 export class EventBasedMoveDialogManager {
   /**
    * Emits move feedback event for UI to handle
@@ -86,9 +90,9 @@ export class EventBasedMoveDialogManager {
   getFeedbackSeverity(wdlBefore: number, wdlAfter: number): 'error' | 'warning' | 'success' {
     const change = wdlAfter - wdlBefore;
     
-    if (change < -50) {
+    if (change < MAJOR_MISTAKE_THRESHOLD) {
       return 'error'; // Major mistake
-    } else if (change < -20) {
+    } else if (change < MINOR_MISTAKE_THRESHOLD) {
       return 'warning'; // Minor mistake
     } else {
       return 'success'; // Good move

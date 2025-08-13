@@ -48,7 +48,7 @@ class AnalysisService {
     moveLimit: number = 5,
   ): Promise<AnalysisResult | null> {
     logger.info("Getting position analysis", {
-      fen: fen.slice(0, 20) + "...",
+      fen: `${fen.slice(0, 20)  }...`,
       moveLimit,
     });
 

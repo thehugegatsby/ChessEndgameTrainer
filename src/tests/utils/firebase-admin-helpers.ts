@@ -240,6 +240,9 @@ export class FirebaseTestAdmin {
       case "empty":
         // No data seeded
         break;
+      default:
+        // Throw error for unknown scenarios
+        throw new Error(`Unknown test scenario: ${scenario}`);
     }
   }
 

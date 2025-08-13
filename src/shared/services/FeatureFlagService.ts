@@ -226,6 +226,10 @@ class FeatureFlagService {
       case 'progress':
         this.override(FeatureFlag.USE_NEW_PROGRESS_TRACKING, true);
         break;
+      default:
+        // Exhaustive check - should never happen
+        const exhaustiveCheck: never = phase;
+        throw new Error(`Unhandled phase: ${exhaustiveCheck}`);
     }
   }
 
@@ -252,6 +256,10 @@ class FeatureFlagService {
       case 'progress':
         this.override(FeatureFlag.USE_NEW_PROGRESS_TRACKING, false);
         break;
+      default:
+        // Exhaustive check - should never happen
+        const exhaustiveCheck: never = phase;
+        throw new Error(`Unhandled phase: ${exhaustiveCheck}`);
     }
   }
 }

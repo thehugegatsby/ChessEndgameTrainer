@@ -10,6 +10,13 @@ import { tablebaseService } from '../services/TablebaseService';
 import type { TablebaseEvaluation, TablebaseMove } from '../types/interfaces';
 import { TablebaseError } from '../types/interfaces';
 
+// Time constants
+const SECONDS_TO_MS = 1000;
+const MINUTE_IN_SECONDS = 60;
+const HOUR_IN_MINUTES = 60;
+const HOURS_TO_MS = HOUR_IN_MINUTES * MINUTE_IN_SECONDS * SECONDS_TO_MS;
+const CACHE_TIME_HOURS = 24;
+
 /**
  * Query key factory for tablebase operations
  */
@@ -44,7 +51,7 @@ export function useTablebaseEvaluation(
   return useQuery({
     queryKey: fen ? tablebaseQueryKeys.evaluation(fen) : ['disabled'],
     
-    queryFn: async () => {
+    queryFn: () => {
       if (!fen) {
         throw new TablebaseError('FEN is required', 'INVALID_FEN');
       }
@@ -56,7 +63,7 @@ export function useTablebaseEvaluation(
     
     // Tablebase data is immutable - cache forever
     staleTime: Infinity,
-    gcTime: 24 * 60 * 60 * 1000, // 24 hours
+    gcTime: CACHE_TIME_HOURS * HOURS_TO_MS, // 24 hours
     
     // Don't refetch on window focus
     refetchOnWindowFocus: false,
@@ -107,7 +114,7 @@ export function useTablebaseMoves(
   return useQuery({
     queryKey: fen ? tablebaseQueryKeys.moves(fen, limit) : ['disabled'],
     
-    queryFn: async () => {
+    queryFn: () => {
       if (!fen) {
         throw new TablebaseError('FEN is required', 'INVALID_FEN');
       }
@@ -119,7 +126,7 @@ export function useTablebaseMoves(
     
     // Tablebase data is immutable - cache forever
     staleTime: Infinity,
-    gcTime: 24 * 60 * 60 * 1000, // 24 hours
+    gcTime: CACHE_TIME_HOURS * HOURS_TO_MS, // 24 hours
     
     // Don't refetch on window focus
     refetchOnWindowFocus: false,

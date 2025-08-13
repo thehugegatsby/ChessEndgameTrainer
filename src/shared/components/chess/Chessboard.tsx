@@ -136,13 +136,17 @@ export const Chessboard: React.FC<ChessboardProps> = ({
    * Calculate board-relative position for promotion dialog
    */
   const getSquarePosition = (square: string): { x: number; y: number } => {
-    const file = square.charCodeAt(0) - 97; // a=0, b=1, etc.
+    const ASCII_LOWERCASE_A = 97;
+    const file = square.charCodeAt(0) - ASCII_LOWERCASE_A; // a=0, b=1, etc.
     const rank = parseInt(square.charAt(1)) - 1; // 1=0, 2=1, etc.
     
-    const squareSize = boardWidth / 8;
-    const x = (file + 0.5) * squareSize;
+    const BOARD_SIZE = 8;
+    const squareSize = boardWidth / BOARD_SIZE;
+    const SQUARE_CENTER_OFFSET = 0.5;
+    const x = (file + SQUARE_CENTER_OFFSET) * squareSize;
     // Flip rank for display (rank 8 is at top)
-    const y = (7 - rank + 0.5) * squareSize;
+    const MAX_RANK_INDEX = 7;
+    const y = (MAX_RANK_INDEX - rank + SQUARE_CENTER_OFFSET) * squareSize;
     
     return { x, y };
   };

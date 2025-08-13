@@ -178,6 +178,10 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
             emoji = "⚖️";
             text = "Draw";
             break;
+          default:
+            // Exhaustive check - should never happen
+            const exhaustiveCheck: never = category;
+            throw new Error(`Unhandled category: ${exhaustiveCheck}`);
         }
       } else if (wdl !== undefined) {
         if (wdl === 2) {

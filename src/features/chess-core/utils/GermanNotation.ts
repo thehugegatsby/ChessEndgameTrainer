@@ -85,7 +85,7 @@ export default class GermanNotation implements IGermanNotation {
       const normalizedPromotion = this.toChessJs(promotionMatch[2]);
       if (normalizedPromotion) {
         // Return in SAN format for chess.js
-        return promotionMatch[1] + "=" + normalizedPromotion.toUpperCase();
+        return `${promotionMatch[1]  }=${  normalizedPromotion.toUpperCase()}`;
       }
     }
 
@@ -123,7 +123,7 @@ export default class GermanNotation implements IGermanNotation {
     if (promotionMatch && promotionMatch[1]) {
       const germanPiece = this.toGerman(promotionMatch[1].toLowerCase());
       if (germanPiece) {
-        result = result.replace("=" + promotionMatch[1], "=" + germanPiece);
+        result = result.replace(`=${  promotionMatch[1]}`, `=${  germanPiece}`);
       }
     }
 
@@ -151,7 +151,7 @@ export default class GermanNotation implements IGermanNotation {
     if (promotionMatch && promotionMatch[1]) {
       const chessPiece = this.toChessJs(promotionMatch[1]);
       if (chessPiece) {
-        result = result.replace("=" + promotionMatch[1], "=" + chessPiece.toUpperCase());
+        result = result.replace(`=${  promotionMatch[1]}`, `=${  chessPiece.toUpperCase()}`);
       }
     }
 

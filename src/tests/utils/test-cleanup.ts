@@ -133,8 +133,9 @@ const cleanupManager = new TestCleanupManager();
  */
 export async function cleanupReactTest(): Promise<void> {
   // Clean up React Testing Library
-  await act(async () => {
+  await act(() => {
     rtlCleanup();
+    return Promise.resolve();
   });
 
   // Clean up tracked resources

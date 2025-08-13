@@ -61,9 +61,9 @@ const testInstances: TestFirebaseInstance[] = [];
  * @param instanceName - Optional unique name for the app instance (defaults to timestamp)
  * @returns Test Firebase instance with app, db, and auth
  */
-export async function initializeTestFirebase(
+export function initializeTestFirebase(
   instanceName?: string
-): Promise<TestFirebaseInstance> {
+): TestFirebaseInstance {
   // Create unique instance name to prevent conflicts
   const appName = instanceName || `test-app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   

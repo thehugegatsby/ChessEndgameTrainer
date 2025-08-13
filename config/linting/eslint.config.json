@@ -182,7 +182,9 @@
         ],
         "max-lines-per-function": "off",
         "complexity": "off",
-        "max-depth": "off"
+        "max-depth": "off",
+        "require-await": "off",
+        "no-use-before-define": "off"
       }
     },
     {

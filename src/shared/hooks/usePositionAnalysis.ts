@@ -106,7 +106,7 @@ export function usePositionAnalysis({
   useEffect(() => {
     logger.info("[usePositionAnalysis] Effect triggered", {
       isEnabled,
-      fen: fen?.slice(0, 20) + "...",
+      fen: `${fen?.slice(0, 20)  }...`,
     });
 
     if (!isEnabled || !fen) {

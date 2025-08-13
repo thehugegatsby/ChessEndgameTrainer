@@ -62,6 +62,9 @@ export class FaultInjector {
       case "offline":
         await this.injectOffline();
         break;
+      default:
+        // Throw error for unknown fault types
+        throw new Error(`Unknown fault type: ${(fault as any).type}`);
     }
 
     // Auto-remove after duration if specified
@@ -219,7 +222,7 @@ export class FaultInjector {
             body = JSON.stringify(data);
           } catch {
             // If not valid JSON, corrupt the string
-            body = body.substring(0, body.length - 10) + "...corrupted";
+            body = `${body.substring(0, body.length - 10)  }...corrupted`;
           }
         }
 

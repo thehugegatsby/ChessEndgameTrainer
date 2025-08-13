@@ -47,20 +47,23 @@ export function createMockPlatformStorage(
   const store: Record<string, unknown> = {};
 
   const defaults: vi.Mocked<PlatformStorage> = {
-    save: asyncMockFn(async (key: string, data: unknown) => {
+    save: asyncMockFn((key: string, data: unknown) => {
       store[key] = data;
+      return Promise.resolve();
     }),
-    load: asyncMockFn(async (key: string) => {
-      return store[key] || null;
+    load: asyncMockFn((key: string) => {
+      return Promise.resolve(store[key] || null);
     }),
-    remove: asyncMockFn(async (key: string) => {
+    remove: asyncMockFn((key: string) => {
       delete store[key];
+      return Promise.resolve();
     }),
-    clear: asyncMockFn(async () => {
+    clear: asyncMockFn(() => {
       Object.keys(store).forEach((key) => delete store[key]);
+      return Promise.resolve();
     }),
-    getAllKeys: asyncMockFn(async () => {
-      return Object.keys(store);
+    getAllKeys: asyncMockFn(() => {
+      return Promise.resolve(Object.keys(store));
     }),
   };
 
@@ -111,9 +114,9 @@ export function createMockPlatformNotification(
   overrides: Partial<PlatformNotification> = {}
 ): vi.Mocked<PlatformNotification> {
   const defaults: vi.Mocked<PlatformNotification> = {
-    requestPermission: asyncMockFn(async () => true),
+    requestPermission: asyncMockFn(() => Promise.resolve(true)),
     show: asyncMockFn(),
-    schedule: asyncMockFn(async () => "mock-notification-id"),
+    schedule: asyncMockFn(() => Promise.resolve("mock-notification-id")),
     cancel: asyncMockFn(),
     cancelAll: asyncMockFn(),
   };
@@ -178,11 +181,12 @@ export function createMockPlatformClipboard(
   let clipboardContent = "";
 
   const defaults: vi.Mocked<PlatformClipboard> = {
-    copy: asyncMockFn(async (text: string) => {
+    copy: asyncMockFn((text: string) => {
       clipboardContent = text;
+      return Promise.resolve();
     }),
-    paste: asyncMockFn(async () => clipboardContent),
-    hasContent: asyncMockFn(async () => clipboardContent.length > 0),
+    paste: asyncMockFn(() => Promise.resolve(clipboardContent)),
+    hasContent: asyncMockFn(() => Promise.resolve(clipboardContent.length > 0)),
   };
 
   return { ...defaults, ...overrides };
@@ -290,10 +294,10 @@ export const MockScenarios = {
   noPermissions: () => {
     const service = createMockPlatformService();
     service.notifications = createMockPlatformNotification({
-      requestPermission: asyncMockFn(async () => false),
+      requestPermission: asyncMockFn(() => Promise.resolve(false)),
     });
     service.clipboard = createMockPlatformClipboard({
-      hasContent: asyncMockFn(async () => false),
+      hasContent: asyncMockFn(() => Promise.resolve(false)),
     });
     service.share = createMockPlatformShare({
       canShare: mockFn(() => false),

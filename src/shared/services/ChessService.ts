@@ -245,7 +245,7 @@ class ChessService {
             promotionMatch = move.match(/^([a-h][1-8])=?([DTLSQRBN])$/i);
             if (promotionMatch && promotionMatch[2]) {
               const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[2]);
-              normalizedMove = promotionMatch[1] + '=' + (normalizedPromotion || '').toUpperCase();
+              normalizedMove = `${promotionMatch[1]  }=${  (normalizedPromotion || '').toUpperCase()}`;
             }
           }
         }
@@ -606,7 +606,7 @@ class ChessService {
             promotionMatch = move.match(/^([a-h][1-8])=?([DTLSQRBN])$/i);
             if (promotionMatch && promotionMatch[2]) {
               const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[2]);
-              normalizedMove = promotionMatch[1] + '=' + (normalizedPromotion || '').toUpperCase();
+              normalizedMove = `${promotionMatch[1]  }=${  (normalizedPromotion || '').toUpperCase()}`;
             }
           }
         }

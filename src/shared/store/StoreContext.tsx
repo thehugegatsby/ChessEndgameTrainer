@@ -139,9 +139,9 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({
         subscribe: (listener: (state: RootState, prevState: RootState) => void) => storeRef.current?.subscribe(listener) || (() => {}),
         setState: (updater: RootState | Partial<RootState> | ((state: RootState) => RootState | Partial<RootState> | void)) => {
           if (typeof updater === 'function') {
-            storeRef.current?.setState((state) => {
-              const result = updater(state);
-              return result === undefined ? state : result;
+            storeRef.current?.setState((currentState) => {
+              const result = updater(currentState);
+              return result === undefined ? currentState : result;
             });
           } else {
             storeRef.current?.setState(updater);

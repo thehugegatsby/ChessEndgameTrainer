@@ -25,6 +25,9 @@ const logger = getLogger().setContext("ChessServiceV2");
  * Modern chess service implementation
  * Singleton pattern with improved architecture
  */
+// Constants
+const MAX_FEN_CACHE_SIZE = 100;
+
 class ChessServiceV2 implements IChessService {
   private static instance: ChessServiceV2;
   private chess: Chess;
@@ -32,7 +35,7 @@ class ChessServiceV2 implements IChessService {
   private moveHistory: ValidatedMove[] = [];
   private currentMoveIndex = -1;
   private fenCache = new Map<string, string>();
-  private readonly MAX_CACHE_SIZE = 100;
+  private readonly MAX_CACHE_SIZE = MAX_FEN_CACHE_SIZE;
   private initialFen: string = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
   private constructor() {
@@ -531,7 +534,7 @@ class ChessServiceV2 implements IChessService {
       promotionMatch = move.match(/^([a-h][1-8])=?([DTLSQRBN])$/i);
       if (promotionMatch && promotionMatch[2]) {
         const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[2]);
-        return promotionMatch[1] + "=" + (normalizedPromotion || "").toUpperCase();
+        return `${promotionMatch[1]  }=${  (normalizedPromotion || "").toUpperCase()}`;
       }
     }
 

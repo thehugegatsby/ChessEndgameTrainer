@@ -30,6 +30,14 @@ interface CacheEntry<T> {
   fen: string;
 }
 
+// Cache configuration constants
+const CACHE_DEFAULT_MAX_SIZE = 100;
+const CACHE_DEFAULT_TTL_MINUTES = 5;
+const CACHE_EVALUATIONS_SIZE = 100;
+const CACHE_MOVES_SIZE = 50;
+const MINUTE_IN_SECONDS = 60;
+const SECONDS_TO_MS = 1000;
+
 /**
  * Simple in-memory LRU cache implementation
  */
@@ -38,9 +46,9 @@ class LRUCache<T> {
   private readonly maxSize: number;
   private readonly ttl: number; // Time to live in ms
 
-  constructor(maxSize: number = 100, ttlMinutes: number = 5) {
+  constructor(maxSize: number = CACHE_DEFAULT_MAX_SIZE, ttlMinutes: number = CACHE_DEFAULT_TTL_MINUTES) {
     this.maxSize = maxSize;
-    this.ttl = ttlMinutes * 60 * 1000;
+    this.ttl = ttlMinutes * MINUTE_IN_SECONDS * SECONDS_TO_MS;
   }
 
   get(key: string): T | null {
@@ -94,8 +102,8 @@ export class TablebaseService implements TablebaseServiceInterface {
 
   constructor() {
     // Initialize caches: 100 evaluations, 50 move lists, 5-minute TTL
-    this.evaluationCache = new LRUCache<TablebaseEvaluation>(100, 5);
-    this.movesCache = new LRUCache<TablebaseMove[]>(50, 5);
+    this.evaluationCache = new LRUCache<TablebaseEvaluation>(CACHE_EVALUATIONS_SIZE, CACHE_DEFAULT_TTL_MINUTES);
+    this.movesCache = new LRUCache<TablebaseMove[]>(CACHE_MOVES_SIZE, CACHE_DEFAULT_TTL_MINUTES);
   }
 
   /**
@@ -243,6 +251,11 @@ export class TablebaseService implements TablebaseServiceInterface {
           case 'win': return 1;
           case 'draw': return 0;
           case 'loss': return -1;
+          default: {
+            // This should never happen - TablebaseOutcome is exhaustive
+            const exhaustiveCheck: never = outcome;
+            throw new Error(`Unknown outcome: ${exhaustiveCheck}`);
+          }
         }
       };
       
@@ -284,7 +297,8 @@ export class TablebaseService implements TablebaseServiceInterface {
     
     // API errors
     if (error instanceof ApiError) {
-      if (error.status === 404 || error.code === 'NOT_FOUND') {
+      const HTTP_NOT_FOUND = 404;
+      if (error.status === HTTP_NOT_FOUND || error.code === 'NOT_FOUND') {
         return new TablebaseError(
           'Position not in tablebase',
           'NOT_FOUND'

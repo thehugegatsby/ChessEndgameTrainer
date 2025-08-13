@@ -80,6 +80,10 @@ class ConsoleTransport implements LogTransport {
         case LogLevel.FATAL:
           console.error(formatted, entry.data);
           break;
+        default:
+          // Log as info for any unknown log levels
+          console.info(formatted, entry.data);
+          break;
       }
     } else {
       switch (entry.level) {
@@ -95,6 +99,10 @@ class ConsoleTransport implements LogTransport {
         case LogLevel.ERROR:
         case LogLevel.FATAL:
           console.error(formatted);
+          break;
+        default:
+          // Log as info for any unknown log levels
+          console.info(formatted);
           break;
       }
     }

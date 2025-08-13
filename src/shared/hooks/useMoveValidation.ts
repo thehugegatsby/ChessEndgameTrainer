@@ -160,7 +160,7 @@ export const useMoveValidation = ({
       logger.warn("tablebaseActions.setAnalysisStatus not available, skipping analysis status update", {
         hasTablebaseActions: Boolean(tablebaseActions),
         isEvaluating,
-        currentFen: currentFen?.substring(0, 20) + "..."
+        currentFen: `${currentFen?.substring(0, 20)  }...`
       });
       return;
     }

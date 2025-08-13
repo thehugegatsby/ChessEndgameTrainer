@@ -193,13 +193,13 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps): Rea
               Keine Befehle gefunden.
             </Command.Empty>
             
-            {Object.entries(groupedCommands).map(([category, commands]) => (
+            {Object.entries(groupedCommands).map(([category, categoryCommands]) => (
               <Command.Group 
                 key={category} 
                 heading={categoryLabels[category as keyof typeof categoryLabels]}
                 className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-gray-500 dark:[&_[cmdk-group-heading]]:text-gray-400"
               >
-                {commands.map((cmd) => (
+                {categoryCommands.map((cmd) => (
                   <Command.Item
                     key={cmd.id}
                     value={cmd.label}

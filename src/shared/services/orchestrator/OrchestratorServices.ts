@@ -29,7 +29,7 @@ export class OrchestratorTablebaseService {
    * @param fen - Position in FEN notation
    * @returns Promise resolving to tablebase evaluation
    */
-  static async getEvaluation(fen: string): Promise<TablebaseEvaluation> {
+  static getEvaluation(fen: string): Promise<TablebaseEvaluation> {
     return tablebaseService.getEvaluation(fen);
   }
 
@@ -40,7 +40,7 @@ export class OrchestratorTablebaseService {
    * @param limit - Maximum number of moves to return (default: 10)
    * @returns Promise resolving to tablebase moves
    */
-  static async getTopMoves(fen: string, limit: number = 10): Promise<TablebaseMovesResult> {
+  static getTopMoves(fen: string, limit: number = 10): Promise<TablebaseMovesResult> {
     return tablebaseService.getTopMoves(fen, limit);
   }
 

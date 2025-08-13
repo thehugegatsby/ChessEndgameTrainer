@@ -18,7 +18,7 @@ vi.mock("../../../../shared/services/logging", () => ({
 // Mock chess.js
 vi.mock("chess.js", () => {
   return {
-    Chess: vi.fn().mockImplementation(function (fen?: string) {
+    Chess: vi.fn().mockImplementation((fen?: string) => {
       return {
         fen: vi.fn(
           () =>

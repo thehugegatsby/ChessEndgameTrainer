@@ -62,7 +62,7 @@ class MockTablebaseService {
    */
   setupDefaults(): void {
     // Default getEvaluation - returns draw position
-    this.getEvaluation.mockImplementation(async (_fen: string) => ({
+    this.getEvaluation.mockImplementation((_fen: string) => Promise.resolve({
       isAvailable: true,
       result: createDefaultResult(),
     }));

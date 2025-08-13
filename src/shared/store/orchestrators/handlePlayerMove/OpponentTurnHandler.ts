@@ -84,8 +84,8 @@ class OpponentTurnManager {
         if (this.isCancelled) return;
 
         // Check state again before executing - player might have undone the move
-        const currentState = api.getState();
-        if (currentState.training.isPlayerTurn) return;
+        const latestState = api.getState();
+        if (latestState.training.isPlayerTurn) return;
 
         getLogger().debug("[OpponentTurnHandler] Executing opponent turn");
         await this.executeOpponentTurn(api, options?.onOpponentMoveComplete);

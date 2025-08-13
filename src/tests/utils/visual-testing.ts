@@ -357,11 +357,11 @@ export class QualityAssuranceTester {
   /**
    * Generate QA report
    */
-  async generateReport(): Promise<{
+  generateReport(): {
     visualTests: number;
     a11yIssues: any[];
     keyboardNavigation: boolean;
-  }> {
+  } {
     // This would integrate with your reporting system
     return {
       visualTests: 0, // Count from actual tests

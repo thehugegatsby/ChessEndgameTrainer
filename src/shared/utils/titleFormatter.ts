@@ -108,7 +108,7 @@ export function getShortTitle(position: EndgamePosition): string {
 
   // For other long titles, truncate if needed
   if (formatted.length > 30) {
-    return formatted.substring(0, 27) + "...";
+    return `${formatted.substring(0, 27)  }...`;
   }
 
   return formatted;
