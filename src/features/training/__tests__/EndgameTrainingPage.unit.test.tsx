@@ -2,7 +2,7 @@ import { vi } from 'vitest';
 import React from "react";
 import { useGameStore, useTrainingStore, useUIStore } from "@shared/store/hooks";
 import { useRouter } from "next/navigation";
-import { COMMON_FENS } from "../../fixtures/commonFens";
+import { COMMON_FENS } from "@tests/fixtures/commonFens";
 
 // Mock the hooks
 vi.mock("@shared/store/hooks");
