@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * ServiceContainer Validation Test
  * Simple test to validate core Jest 30 migration functionality
@@ -34,9 +35,9 @@ describe("ServiceContainer Validation - Jest 30 Migration", () => {
     });
 
     test("should provide working mocks", () => {
-      expect(jest.isMockFunction(mockStorage.setItem)).toBe(true);
-      expect(jest.isMockFunction(mockStorage.getItem)).toBe(true);
-      expect(jest.isMockFunction(mockStorage.removeItem)).toBe(true);
+      expect(vi.isMockFunction(mockStorage.setItem)).toBe(true);
+      expect(vi.isMockFunction(mockStorage.getItem)).toBe(true);
+      expect(vi.isMockFunction(mockStorage.removeItem)).toBe(true);
     });
 
     test("should save data with proper prefix", async () => {
@@ -58,7 +59,7 @@ describe("ServiceContainer Validation - Jest 30 Migration", () => {
       const testData = { loaded: true };
 
       // Mock return value
-      (mockStorage.getItem as jest.Mock).mockReturnValue(
+      (mockStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue(
         JSON.stringify(testData),
       );
 
@@ -71,7 +72,7 @@ describe("ServiceContainer Validation - Jest 30 Migration", () => {
     });
 
     test("should handle null values", async () => {
-      (mockStorage.getItem as jest.Mock).mockReturnValue(null);
+      (mockStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue(null);
 
       const result = await storageService.load("non-existent");
       expect(result).toBeNull();
@@ -124,13 +125,13 @@ describe("ServiceContainer Validation - Jest 30 Migration", () => {
   describe("Error Handling", () => {
     test("should handle storage errors gracefully", async () => {
       const failingStorage = {
-        setItem: jest.fn().mockImplementation(() => {
+        setItem: vi.fn().mockImplementation(() => {
           throw new Error("QuotaExceededError");
         }),
-        getItem: jest.fn(),
-        removeItem: jest.fn(),
-        clear: jest.fn(),
-        key: jest.fn(),
+        getItem: vi.fn(),
+        removeItem: vi.fn(),
+        clear: vi.fn(),
+        key: vi.fn(),
         length: 0,
       } as Storage;
 
@@ -144,11 +145,11 @@ describe("ServiceContainer Validation - Jest 30 Migration", () => {
 
     test("should handle corrupted JSON gracefully", async () => {
       const corruptedStorage = {
-        getItem: jest.fn().mockReturnValue("invalid-json{"),
-        setItem: jest.fn(),
-        removeItem: jest.fn(),
-        clear: jest.fn(),
-        key: jest.fn(),
+        getItem: vi.fn().mockReturnValue("invalid-json{"),
+        setItem: vi.fn(),
+        removeItem: vi.fn(),
+        clear: vi.fn(),
+        key: vi.fn(),
         length: 0,
       } as Storage;
 
@@ -212,11 +213,11 @@ describe("ServiceContainer Validation - Jest 30 Migration", () => {
       );
 
       // Mock is isolated to container, not global
-      expect(jest.isMockFunction(mockStorage.setItem)).toBe(true);
+      expect(vi.isMockFunction(mockStorage.setItem)).toBe(true);
 
       // Global localStorage should be unaffected
       if (typeof window !== "undefined" && window.localStorage) {
-        expect(jest.isMockFunction(window.localStorage.setItem)).toBe(false);
+        expect(vi.isMockFunction(window.localStorage.setItem)).toBe(false);
       }
     });
 
@@ -231,8 +232,8 @@ describe("ServiceContainer Validation - Jest 30 Migration", () => {
       expect(mock1).not.toBe(mock2);
 
       // Both should be mocks
-      expect(jest.isMockFunction(mock1.setItem)).toBe(true);
-      expect(jest.isMockFunction(mock2.setItem)).toBe(true);
+      expect(vi.isMockFunction(mock1.setItem)).toBe(true);
+      expect(vi.isMockFunction(mock2.setItem)).toBe(true);
     });
 
     test("should support async patterns with proper cleanup", async () => {

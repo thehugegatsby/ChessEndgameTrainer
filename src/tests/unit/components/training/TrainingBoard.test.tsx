@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
@@ -11,18 +12,18 @@ import { useTrainingSession, usePositionAnalysis } from "@shared/hooks";
 import { type EndgamePosition } from "@shared/types";
 
 // Mock all store hooks
-jest.mock("@shared/store/hooks/useTrainingStore");
-jest.mock("@shared/store/hooks/useGameStore");
-jest.mock("@shared/store/hooks/useTablebaseStore");
-jest.mock("@shared/store/hooks/useUIStore");
+vi.mock("@shared/store/hooks/useTrainingStore");
+vi.mock("@shared/store/hooks/useGameStore");
+vi.mock("@shared/store/hooks/useTablebaseStore");
+vi.mock("@shared/store/hooks/useUIStore");
 
 // Mock custom hooks
-jest.mock("@shared/hooks/useTrainingSession");
-jest.mock("@shared/hooks/usePositionAnalysis");
+vi.mock("@shared/hooks/useTrainingSession");
+vi.mock("@shared/hooks/usePositionAnalysis");
 
 // Mock the Chessboard wrapper component (not react-chessboard directly)
-jest.mock("@shared/components/chess/Chessboard", () => ({
-  Chessboard: jest.fn(
+vi.mock("@shared/components/chess/Chessboard", () => ({
+  Chessboard: vi.fn(
     ({ onPieceDrop, fen, arePiecesDraggable, boardWidth }) => (
       <div
         data-testid="mock-chessboard"
@@ -42,22 +43,12 @@ jest.mock("@shared/components/chess/Chessboard", () => ({
   ),
 }));
 
-const mockUseTrainingStore = useTrainingStore as jest.MockedFunction<
-  typeof useTrainingStore
->;
-const mockUseGameStore = useGameStore as jest.MockedFunction<
-  typeof useGameStore
->;
-const mockUseTablebaseStore = useTablebaseStore as jest.MockedFunction<
-  typeof useTablebaseStore
->;
-const mockUseUIStore = useUIStore as jest.MockedFunction<typeof useUIStore>;
-const mockUseTrainingSession = useTrainingSession as jest.MockedFunction<
-  typeof useTrainingSession
->;
-const mockUsePositionAnalysis = usePositionAnalysis as jest.MockedFunction<
-  typeof usePositionAnalysis
->;
+const mockUseTrainingStore = useTrainingStore as any;
+const mockUseGameStore = useGameStore as any;
+const mockUseTablebaseStore = useTablebaseStore as any;
+const mockUseUIStore = useUIStore as any;
+const mockUseTrainingSession = useTrainingSession as any;
+const mockUsePositionAnalysis = usePositionAnalysis as any;
 
 describe("TrainingBoard", () => {
   const mockTrainingState = {
@@ -93,31 +84,31 @@ describe("TrainingBoard", () => {
   };
 
   const mockTrainingActions = {
-    setPosition: jest.fn(),
-    setNavigationPositions: jest.fn(),
-    setNavigationLoading: jest.fn(),
-    setNavigationError: jest.fn(),
-    setChapterProgress: jest.fn(),
-    setPlayerTurn: jest.fn(),
-    clearOpponentThinking: jest.fn(),
-    completeTraining: jest.fn(),
-    incrementHint: jest.fn(),
-    incrementMistake: jest.fn(),
-    setMoveErrorDialog: jest.fn(),
-    setMoveSuccessDialog: jest.fn(),
-    addTrainingMove: jest.fn(),
-    resetTraining: jest.fn(),
-    resetPosition: jest.fn(),
-    setEvaluationBaseline: jest.fn(),
-    clearEvaluationBaseline: jest.fn(),
+    setPosition: vi.fn(),
+    setNavigationPositions: vi.fn(),
+    setNavigationLoading: vi.fn(),
+    setNavigationError: vi.fn(),
+    setChapterProgress: vi.fn(),
+    setPlayerTurn: vi.fn(),
+    clearOpponentThinking: vi.fn(),
+    completeTraining: vi.fn(),
+    incrementHint: vi.fn(),
+    incrementMistake: vi.fn(),
+    setMoveErrorDialog: vi.fn(),
+    setMoveSuccessDialog: vi.fn(),
+    addTrainingMove: vi.fn(),
+    resetTraining: vi.fn(),
+    resetPosition: vi.fn(),
+    setEvaluationBaseline: vi.fn(),
+    clearEvaluationBaseline: vi.fn(),
     // Add async actions
-    handlePlayerMove: jest.fn(),
-    loadTrainingContext: jest.fn(),
+    handlePlayerMove: vi.fn(),
+    loadTrainingContext: vi.fn(),
     // Add missing streak and UI actions
-    incrementStreak: jest.fn(),
-    resetStreak: jest.fn(),
-    showCheckmarkAnimation: jest.fn(),
-    setAutoProgressEnabled: jest.fn(),
+    incrementStreak: vi.fn(),
+    resetStreak: vi.fn(),
+    showCheckmarkAnimation: vi.fn(),
+    setAutoProgressEnabled: vi.fn(),
   };
 
   const mockGameState = {
@@ -133,24 +124,24 @@ describe("TrainingBoard", () => {
   };
 
   const mockGameActions = {
-    updatePosition: jest.fn(),
-    addMove: jest.fn(),
-    setMoveHistory: jest.fn(),
-    setCurrentMoveIndex: jest.fn(),
-    setGameFinished: jest.fn(),
-    setGameStatus: jest.fn(),
-    resetGame: jest.fn(),
-    initializeGame: jest.fn(),
-    makeMove: jest.fn(),
-    applyMove: jest.fn(),
-    undoMove: jest.fn(),
-    redoMove: jest.fn(),
-    goToMove: jest.fn(),
-    goToFirst: jest.fn(),
-    goToPrevious: jest.fn(),
-    goToNext: jest.fn(),
-    goToLast: jest.fn(),
-    setCurrentFen: jest.fn(),
+    updatePosition: vi.fn(),
+    addMove: vi.fn(),
+    setMoveHistory: vi.fn(),
+    setCurrentMoveIndex: vi.fn(),
+    setGameFinished: vi.fn(),
+    setGameStatus: vi.fn(),
+    resetGame: vi.fn(),
+    initializeGame: vi.fn(),
+    makeMove: vi.fn(),
+    applyMove: vi.fn(),
+    undoMove: vi.fn(),
+    redoMove: vi.fn(),
+    goToMove: vi.fn(),
+    goToFirst: vi.fn(),
+    goToPrevious: vi.fn(),
+    goToNext: vi.fn(),
+    goToLast: vi.fn(),
+    setCurrentFen: vi.fn(),
   };
 
   const mockTablebaseState = {
@@ -161,12 +152,12 @@ describe("TrainingBoard", () => {
   };
 
   const mockTablebaseActions = {
-    setTablebaseMove: jest.fn(),
-    setAnalysisStatus: jest.fn(),
-    addEvaluation: jest.fn(),
-    setEvaluations: jest.fn(),
-    setCurrentEvaluation: jest.fn(),
-    clearTablebaseState: jest.fn(),
+    setTablebaseMove: vi.fn(),
+    setAnalysisStatus: vi.fn(),
+    addEvaluation: vi.fn(),
+    setEvaluations: vi.fn(),
+    setCurrentEvaluation: vi.fn(),
+    clearTablebaseState: vi.fn(),
   };
 
   const mockUIState = {
@@ -187,24 +178,24 @@ describe("TrainingBoard", () => {
   };
 
   const mockUIActions = {
-    toggleSidebar: jest.fn(),
-    setIsSidebarOpen: jest.fn(),
-    openModal: jest.fn(),
-    closeModal: jest.fn(),
-    showToast: jest.fn(),
-    removeToast: jest.fn(),
-    setLoading: jest.fn(),
-    updateAnalysisPanel: jest.fn(),
+    toggleSidebar: vi.fn(),
+    setIsSidebarOpen: vi.fn(),
+    openModal: vi.fn(),
+    closeModal: vi.fn(),
+    showToast: vi.fn(),
+    removeToast: vi.fn(),
+    setLoading: vi.fn(),
+    updateAnalysisPanel: vi.fn(),
   };
 
   // Mock implementations for custom hooks
-  const mockMakeMove = jest.fn().mockResolvedValue(true);
-  const mockUndoMove = jest.fn();
-  const mockJumpToMove = jest.fn();
-  const mockResetGame = jest.fn();
+  const mockMakeMove = vi.fn().mockResolvedValue(true);
+  const mockUndoMove = vi.fn();
+  const mockJumpToMove = vi.fn();
+  const mockResetGame = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Setup store mocks
     mockUseTrainingStore.mockReturnValue([
@@ -236,8 +227,8 @@ describe("TrainingBoard", () => {
       lastEvaluation: null,
       isEvaluating: false,
       error: null,
-      addEvaluation: jest.fn(),
-      clearEvaluations: jest.fn(),
+      addEvaluation: vi.fn(),
+      clearEvaluations: vi.fn(),
     });
   });
 
@@ -253,7 +244,7 @@ describe("TrainingBoard", () => {
       };
 
       renderWithStoreProvider(
-        <TrainingBoard position={position} onComplete={jest.fn()} />,
+        <TrainingBoard position={position} onComplete={vi.fn()} />,
       );
 
       // Check wrapper exists
@@ -271,7 +262,7 @@ describe("TrainingBoard", () => {
       renderWithStoreProvider(
         <TrainingBoard
           position={mockTrainingState.currentPosition!}
-          onComplete={jest.fn()}
+          onComplete={vi.fn()}
         />,
       );
 
@@ -286,7 +277,7 @@ describe("TrainingBoard", () => {
       ]);
 
       // The component should still render but in a loading state
-      renderWithStoreProvider(<TrainingBoard onComplete={jest.fn()} />);
+      renderWithStoreProvider(<TrainingBoard onComplete={vi.fn()} />);
 
       // The wrapper might still be rendered, but chessboard should not be
       // or we check for a loading indicator
@@ -301,7 +292,7 @@ describe("TrainingBoard", () => {
       renderWithStoreProvider(
         <TrainingBoard
           position={mockTrainingState.currentPosition!}
-          onComplete={jest.fn()}
+          onComplete={vi.fn()}
         />,
       );
 
@@ -334,7 +325,7 @@ describe("TrainingBoard", () => {
         mockTrainingActions,
       ]);
 
-      renderWithStoreProvider(<TrainingBoard onComplete={jest.fn()} />);
+      renderWithStoreProvider(<TrainingBoard onComplete={vi.fn()} />);
 
       // MoveErrorDialog should be rendered when error state is present
       expect(mockTrainingActions.setMoveErrorDialog).toBeDefined();
@@ -355,7 +346,7 @@ describe("TrainingBoard", () => {
         mockTrainingActions,
       ]);
 
-      renderWithStoreProvider(<TrainingBoard onComplete={jest.fn()} />);
+      renderWithStoreProvider(<TrainingBoard onComplete={vi.fn()} />);
 
       // MoveSuccessDialog should be rendered when success state is present
       expect(mockTrainingActions.setMoveSuccessDialog).toBeDefined();
@@ -378,7 +369,7 @@ describe("TrainingBoard", () => {
       renderWithStoreProvider(
         <TrainingBoard
           position={mockTrainingState.currentPosition!}
-          onComplete={jest.fn()}
+          onComplete={vi.fn()}
         />,
       );
 
@@ -419,7 +410,7 @@ describe("TrainingBoard", () => {
       });
 
       renderWithStoreProvider(
-        <TrainingBoard position={promotionPosition} onComplete={jest.fn()} />,
+        <TrainingBoard position={promotionPosition} onComplete={vi.fn()} />,
       );
 
       // Simulate promotion move
@@ -442,7 +433,7 @@ describe("TrainingBoard", () => {
       const { rerender } = renderWithStoreProvider(
         <TrainingBoard
           position={mockTrainingState.currentPosition!}
-          onComplete={jest.fn()}
+          onComplete={vi.fn()}
         />,
       );
 
@@ -464,7 +455,7 @@ describe("TrainingBoard", () => {
         <StoreProvider>
           <TrainingBoard
             position={mockTrainingState.currentPosition!}
-            onComplete={jest.fn()}
+            onComplete={vi.fn()}
           />
         </StoreProvider>,
       );
@@ -477,7 +468,7 @@ describe("TrainingBoard", () => {
       renderWithStoreProvider(
         <TrainingBoard
           position={mockTrainingState.currentPosition!}
-          onComplete={jest.fn()}
+          onComplete={vi.fn()}
         />,
       );
 
@@ -506,7 +497,7 @@ describe("TrainingBoard", () => {
       renderWithStoreProvider(
         <TrainingBoard
           position={mockTrainingState.currentPosition!}
-          onComplete={jest.fn()}
+          onComplete={vi.fn()}
         />,
       );
 
@@ -524,7 +515,7 @@ describe("TrainingBoard", () => {
       renderWithStoreProvider(
         <TrainingBoard
           position={mockTrainingState.currentPosition!}
-          onComplete={jest.fn()}
+          onComplete={vi.fn()}
         />,
       );
 
@@ -541,7 +532,7 @@ describe("TrainingBoard", () => {
       renderWithStoreProvider(
         <TrainingBoard
           position={mockTrainingState.currentPosition!}
-          onComplete={jest.fn()}
+          onComplete={vi.fn()}
         />,
       );
 
@@ -562,14 +553,14 @@ describe("TrainingBoard", () => {
         lastEvaluation: null,
         isEvaluating: false,
         error: "Failed to analyze position",
-        addEvaluation: jest.fn(),
-        clearEvaluations: jest.fn(),
+        addEvaluation: vi.fn(),
+        clearEvaluations: vi.fn(),
       });
 
       renderWithStoreProvider(
         <TrainingBoard
           position={mockTrainingState.currentPosition!}
-          onComplete={jest.fn()}
+          onComplete={vi.fn()}
         />,
       );
 
@@ -584,7 +575,7 @@ describe("TrainingBoard", () => {
       renderWithStoreProvider(
         <TrainingBoard
           position={mockTrainingState.currentPosition!}
-          onComplete={jest.fn()}
+          onComplete={vi.fn()}
         />,
       );
 
@@ -600,7 +591,7 @@ describe("TrainingBoard", () => {
       renderWithStoreProvider(
         <TrainingBoard
           position={mockTrainingState.currentPosition!}
-          onComplete={jest.fn()}
+          onComplete={vi.fn()}
         />,
       );
 

@@ -3,6 +3,7 @@
  * @description Tests getMoveQualityDisplay function with various evaluations
  */
 
+import { describe, it, test, expect } from 'vitest';
 import { describe, test, expect } from "@jest/globals";
 import { getMoveQualityDisplay } from "../../../shared/utils/chess/evaluation";
 

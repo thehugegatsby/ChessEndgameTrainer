@@ -3,11 +3,11 @@
 [![Next.js](https://img.shields.io/badge/Next.js-15.4.5-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue)](https://www.typescriptlang.org/)
 [![Zustand](https://img.shields.io/badge/Zustand-5.0.7-orange)](https://zustand-demo.pmnd.rs/)
-[![Test Coverage](https://img.shields.io/badge/Tests-1417_passing-green)](./coverage/lcov-report/index.html)
-[![Phase 9](https://img.shields.io/badge/Phase_9-COMPLETE-brightgreen)](./docs/CURRENT_FOCUS.md)
-[![Architecture](https://img.shields.io/badge/Architecture-Domain_Slices-blue)](./docs/ARCHITECTURE.md)
+[![Test Coverage](https://img.shields.io/badge/Tests-513+_passing-green)](./coverage/lcov-report/index.html)
+[![Phase 3B](https://img.shields.io/badge/Phase_3B-COMPLETE-brightgreen)](./PROJECT_STATUS.md)
+[![Architecture](https://img.shields.io/badge/Architecture-Event_Driven-blue)](./docs/ARCHITECTURE.md)
 
-Eine moderne **Web-first** Anwendung zum systematischen Lernen von Schachendspielen mit KI-Unterstützung. **🎉 PHASE 9 COMPLETE** - Performance-optimierte Hook-Architektur und Bugfixes!
+Eine moderne **Web-first** Anwendung zum systematischen Lernen von Schachendspielen mit KI-Unterstützung. **🎉 PHASE 3B COMPLETE** - Event-driven Architecture mit Tablebase Integration!
 
 ## 🎯 Features
 

@@ -69,7 +69,7 @@ export class ZustandStoreMockFactory extends BaseMockFactory<MockStoreResult, St
       },
     };
 
-    this.mockInstance = mockResult as unknown as jest.Mocked<MockStoreResult>;
+    this.mockInstance = mockResult as unknown as MockStoreResult;
     return mockResult;
   }
 
@@ -216,17 +216,17 @@ export class ZustandStoreMockFactory extends BaseMockFactory<MockStoreResult, St
     });
   }
 
-  protected _createDefaultMock(): jest.Mocked<MockStoreResult> {
+  protected _createDefaultMock(): MockStoreResult {
     // Note: This factory overrides create() method completely,
     // but we provide a valid implementation to satisfy base class contract
     const mockStore = {
-      getState: jest.fn(),
-      setState: jest.fn(),
-      subscribe: jest.fn(),
+      getState: vi.fn(),
+      setState: vi.fn(),
+      subscribe: vi.fn(),
       store: {} as StoreApi<RootStore>,
     };
     
-    return mockStore as unknown as jest.Mocked<MockStoreResult>;
+    return mockStore as unknown as MockStoreResult;
   }
 
   protected _beforeCleanup(): void {

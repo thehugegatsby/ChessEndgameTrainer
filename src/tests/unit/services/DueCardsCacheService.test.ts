@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Unit tests for DueCardsCacheService
  * @description Comprehensive tests for localStorage cache with TTL, LRU, and midnight invalidation
@@ -66,7 +67,7 @@ const createTestStats = (dueCount: number): DueCardsStats => ({
 // Mock Date.now for TTL testing
 const originalDateNow = Date.now;
 const mockDateNow = (timestamp: number): void => {
-  Date.now = jest.fn(() => timestamp);
+  Date.now = vi.fn(() => timestamp);
 };
 
 const restoreDateNow = (): void => {
@@ -91,7 +92,7 @@ describe('DueCardsCacheService', () => {
     // Create fresh instance
     cacheService = DueCardsCacheService.getInstance();
     
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -164,7 +165,7 @@ describe('DueCardsCacheService', () => {
 
     it('should handle localStorage errors gracefully', () => {
       // Mock localStorage to throw errors
-      jest.spyOn(mockLocalStorage, 'getItem').mockImplementation(() => {
+      vi.spyOn(mockLocalStorage, 'getItem').mockImplementation(() => {
         throw new Error('LocalStorage error');
       });
 
@@ -285,7 +286,7 @@ describe('DueCardsCacheService', () => {
 
     it('should handle large collections with performance warning', () => {
       // Mock console.warn to capture performance warnings
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation();
 
       const dueCards = createDueTestCards(600); // Over threshold
       const stats = createTestStats(600);
@@ -422,7 +423,7 @@ describe('DueCardsCacheService', () => {
 
     it('should handle localStorage quota exceeded', () => {
       // Mock setItem to throw quota exceeded error
-      jest.spyOn(mockLocalStorage, 'setItem').mockImplementation(() => {
+      vi.spyOn(mockLocalStorage, 'setItem').mockImplementation(() => {
         throw new Error('QuotaExceededError');
       });
 

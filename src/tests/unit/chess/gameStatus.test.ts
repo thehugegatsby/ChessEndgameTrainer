@@ -3,6 +3,7 @@
  * @description Tests game status detection, objective determination, and turn management
  */
 
+import { describe, it, test, expect } from 'vitest';
 import { describe, test, expect } from "@jest/globals";
 import { getGameStatus } from "../../../shared/utils/chess/gameStatus";
 import { TEST_FENS } from "../../../shared/testing/TestFixtures";

@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file ChessService Status Methods Tests
  * @description Coverage tests for chess status detection methods (Lines 368-389)
@@ -8,13 +9,13 @@ import { ChessService } from "@shared/services/ChessService";
 import { Chess } from "chess.js";
 
 // Mock chess.js following existing pattern
-jest.mock("chess.js");
+vi.mock("chess.js");
 
-const MockedChess = Chess as jest.MockedClass<typeof Chess>;
+const MockedChess = Chess as any;
 
 describe("ChessService Status Methods Coverage", () => {
   let chessService: ChessService;
-  let mockChessInstance: jest.Mocked<InstanceType<typeof Chess>>;
+  let mockChessInstance: any;
 
   // Test fixtures - specific FEN positions for each status
   const statusTestFens = {
@@ -32,21 +33,21 @@ describe("ChessService Status Methods Coverage", () => {
 
     // Create comprehensive mock Chess instance
     mockChessInstance = {
-      move: jest.fn(),
-      fen: jest.fn().mockReturnValue(statusTestFens.normal),
-      pgn: jest.fn().mockReturnValue(""),
-      history: jest.fn().mockReturnValue([]),
-      load: jest.fn(),
-      isGameOver: jest.fn().mockReturnValue(false),
-      turn: jest.fn().mockReturnValue("w"),
-      moves: jest.fn().mockReturnValue(["e4", "e3", "Nf3"]),
+      move: vi.fn(),
+      fen: vi.fn().mockReturnValue(statusTestFens.normal),
+      pgn: vi.fn().mockReturnValue(""),
+      history: vi.fn().mockReturnValue([]),
+      load: vi.fn(),
+      isGameOver: vi.fn().mockReturnValue(false),
+      turn: vi.fn().mockReturnValue("w"),
+      moves: vi.fn().mockReturnValue(["e4", "e3", "Nf3"]),
       // Add the status methods we're testing
-      isCheck: jest.fn().mockReturnValue(false),
-      isCheckmate: jest.fn().mockReturnValue(false),
-      isStalemate: jest.fn().mockReturnValue(false),
-      isDraw: jest.fn().mockReturnValue(false),
-      isThreefoldRepetition: jest.fn().mockReturnValue(false),
-      isInsufficientMaterial: jest.fn().mockReturnValue(false),
+      isCheck: vi.fn().mockReturnValue(false),
+      isCheckmate: vi.fn().mockReturnValue(false),
+      isStalemate: vi.fn().mockReturnValue(false),
+      isDraw: vi.fn().mockReturnValue(false),
+      isThreefoldRepetition: vi.fn().mockReturnValue(false),
+      isInsufficientMaterial: vi.fn().mockReturnValue(false),
     } as any;
 
     MockedChess.mockImplementation(() => mockChessInstance);

@@ -167,32 +167,32 @@ export function createDebugLogger(): Logger {
  * @example
  * ```typescript
  * // In your test file:
- * jest.mock('../../../shared/services/logging', getMockLoggerDefinition);
+ * vi.mock('../../../shared/services/logging', getMockLoggerDefinition);
  * ```
  */
 export function getMockLoggerDefinition() {
   // Pre-create mock functions for reuse across test instances
   const mockLogger = {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
-    fatal: jest.fn(),
-    setContext: jest.fn().mockReturnThis(),
-    clearContext: jest.fn(),
-    getConfig: jest.fn(() => createNoopLoggerConfig()),
-    updateConfig: jest.fn(),
-    getLogs: jest.fn(() => []),
-    clearLogs: jest.fn(),
-    time: jest.fn(),
-    timeEnd: jest.fn(),
-    withFields: jest.fn().mockReturnThis(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    fatal: vi.fn(),
+    setContext: vi.fn().mockReturnThis(),
+    clearContext: vi.fn(),
+    getConfig: vi.fn(() => createNoopLoggerConfig()),
+    updateConfig: vi.fn(),
+    getLogs: vi.fn(() => []),
+    clearLogs: vi.fn(),
+    time: vi.fn(),
+    timeEnd: vi.fn(),
+    withFields: vi.fn().mockReturnThis(),
   };
 
   return () => ({
-    getLogger: jest.fn(() => mockLogger),
-    createLogger: jest.fn(() => mockLogger),
-    resetLogger: jest.fn(),
+    getLogger: vi.fn(() => mockLogger),
+    createLogger: vi.fn(() => mockLogger),
+    resetLogger: vi.fn(),
   });
 }
 
@@ -204,14 +204,14 @@ export function getMockLoggerDefinition() {
  */
 export function getBasicMockLoggerDefinition() {
   return () => ({
-    getLogger: jest.fn(() => ({
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
-      debug: jest.fn(),
-      fatal: jest.fn(),
-      setContext: jest.fn().mockReturnThis(),
-      clearContext: jest.fn(),
+    getLogger: vi.fn(() => ({
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      debug: vi.fn(),
+      fatal: vi.fn(),
+      setContext: vi.fn().mockReturnThis(),
+      clearContext: vi.fn(),
     })),
   });
 }

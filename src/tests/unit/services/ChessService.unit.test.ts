@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * ChessService Unit Tests - Issue #85 Phase 1
  *
@@ -19,43 +20,43 @@ import {
 
 describe.skip("ChessService Unit Tests", () => {
   let chessService: any; // Use any for dynamically imported instance
-  let mockChessInstance: jest.Mocked<any>;
-  let Chess: jest.MockedClass<any>;
-  let MockedChess: jest.MockedClass<any>;
+  let mockChessInstance: any;
+  let Chess: any;
+  let MockedChess: any;
   let ChessService: any; // Use any for dynamically imported class
 
   beforeEach(() => {
     // Reset the module registry to ensure clean module loading
-    jest.resetModules();
+    vi.resetModules();
     
     // Mock chess.js module before any imports
-    jest.doMock("chess.js", () => ({
-      Chess: jest.fn()
+    vi.doMock("chess.js", () => ({
+      Chess: vi.fn()
     }));
     
     // Now require modules in the correct order
     const chessModule = require("chess.js");
     Chess = chessModule.Chess;
-    MockedChess = Chess as jest.MockedClass<any>;
+    MockedChess = Chess as any;
     
     MockedChess.mockClear();
 
     // Create comprehensive mock Chess instance
     mockChessInstance = {
-      move: jest.fn(),
-      fen: jest.fn().mockReturnValue(StandardPositions.STARTING),
-      pgn: jest.fn().mockReturnValue(""),
-      history: jest.fn().mockReturnValue([]),
-      load: jest.fn(),
-      isGameOver: jest.fn().mockReturnValue(false),
-      turn: jest.fn().mockReturnValue("w"),
-      moves: jest.fn().mockReturnValue(["e4", "e3", "Nf3"]),
-      isCheck: jest.fn().mockReturnValue(false),
-      isCheckmate: jest.fn().mockReturnValue(false),
-      isStalemate: jest.fn().mockReturnValue(false),
-      isDraw: jest.fn().mockReturnValue(false),
-      isThreefoldRepetition: jest.fn().mockReturnValue(false),
-      isInsufficientMaterial: jest.fn().mockReturnValue(false),
+      move: vi.fn(),
+      fen: vi.fn().mockReturnValue(StandardPositions.STARTING),
+      pgn: vi.fn().mockReturnValue(""),
+      history: vi.fn().mockReturnValue([]),
+      load: vi.fn(),
+      isGameOver: vi.fn().mockReturnValue(false),
+      turn: vi.fn().mockReturnValue("w"),
+      moves: vi.fn().mockReturnValue(["e4", "e3", "Nf3"]),
+      isCheck: vi.fn().mockReturnValue(false),
+      isCheckmate: vi.fn().mockReturnValue(false),
+      isStalemate: vi.fn().mockReturnValue(false),
+      isDraw: vi.fn().mockReturnValue(false),
+      isThreefoldRepetition: vi.fn().mockReturnValue(false),
+      isInsufficientMaterial: vi.fn().mockReturnValue(false),
     } as any;
 
     MockedChess.mockImplementation(() => mockChessInstance);
@@ -106,7 +107,7 @@ describe.skip("ChessService Unit Tests", () => {
   });
 
   describe("Event System", () => {
-    let mockListener: jest.MockedFunction<any>;
+    let mockListener: any;
 
     beforeEach(() => {
       mockListener = createMockListener();
@@ -161,7 +162,7 @@ describe.skip("ChessService Unit Tests", () => {
     });
 
     it("should handle listener exceptions gracefully", () => {
-      const errorListener = jest.fn().mockImplementation(() => {
+      const errorListener = vi.fn().mockImplementation(() => {
         throw new Error("Listener error");
       });
       chessService.subscribe(errorListener);
@@ -177,7 +178,7 @@ describe.skip("ChessService Unit Tests", () => {
   });
 
   describe("move() method - Core Focus", () => {
-    let mockListener: jest.MockedFunction<any>;
+    let mockListener: any;
 
     beforeEach(() => {
       mockListener = createMockListener();
@@ -308,9 +309,9 @@ describe.skip("ChessService Unit Tests", () => {
     it("should validate moves without changing main chess state", () => {
       // Setup validation mock instance with all required methods
       const validationMock = {
-        fen: jest.fn().mockReturnValue(StandardPositions.STARTING),
-        get: jest.fn().mockReturnValue({ type: 'p', color: 'w' }), // Add get() for piece validation
-        move: jest.fn().mockReturnValue({ 
+        fen: vi.fn().mockReturnValue(StandardPositions.STARTING),
+        get: vi.fn().mockReturnValue({ type: 'p', color: 'w' }), // Add get() for piece validation
+        move: vi.fn().mockReturnValue({ 
           san: "e4", 
           from: "e2", 
           to: "e4", 
@@ -339,8 +340,8 @@ describe.skip("ChessService Unit Tests", () => {
 
     it("should return false for invalid moves", () => {
       const validationMock = {
-        fen: jest.fn().mockReturnValue(StandardPositions.STARTING),
-        move: jest.fn().mockReturnValue(null),
+        fen: vi.fn().mockReturnValue(StandardPositions.STARTING),
+        move: vi.fn().mockReturnValue(null),
       } as any;
 
       MockedChess.mockImplementationOnce(() => validationMock);
@@ -352,7 +353,7 @@ describe.skip("ChessService Unit Tests", () => {
 
     it("should handle validation errors gracefully", () => {
       const validationMock = {
-        fen: jest.fn().mockImplementation(() => {
+        fen: vi.fn().mockImplementation(() => {
           throw new Error("Validation error");
         }),
       } as any;
@@ -366,8 +367,8 @@ describe.skip("ChessService Unit Tests", () => {
 
     it("should validate string moves correctly", () => {
       const validationMock = {
-        fen: jest.fn().mockReturnValue(StandardPositions.STARTING),
-        move: jest.fn().mockReturnValue({ san: "Nf3" }),
+        fen: vi.fn().mockReturnValue(StandardPositions.STARTING),
+        move: vi.fn().mockReturnValue({ san: "Nf3" }),
       } as any;
 
       MockedChess.mockImplementationOnce(() => validationMock);
@@ -565,7 +566,7 @@ describe.skip("ChessService Unit Tests", () => {
 
   describe("Navigation Methods - Issue #86", () => {
     describe("undo() method", () => {
-      let mockListener: jest.MockedFunction<any>;
+      let mockListener: any;
 
       beforeEach(() => {
         mockListener = createMockListener();
@@ -656,7 +657,7 @@ describe.skip("ChessService Unit Tests", () => {
     });
 
     describe("redo() method", () => {
-      let mockListener: jest.MockedFunction<any>;
+      let mockListener: any;
 
       beforeEach(() => {
         mockListener = createMockListener();
@@ -747,7 +748,7 @@ describe.skip("ChessService Unit Tests", () => {
     });
 
     describe("goToMove() method", () => {
-      let mockListener: jest.MockedFunction<any>;
+      let mockListener: any;
 
       beforeEach(() => {
         mockListener = createMockListener();
@@ -857,7 +858,7 @@ describe.skip("ChessService Unit Tests", () => {
     });
 
     describe("reset() method", () => {
-      let mockListener: jest.MockedFunction<any>;
+      let mockListener: any;
 
       beforeEach(() => {
         mockListener = createMockListener();
@@ -904,7 +905,7 @@ describe.skip("ChessService Unit Tests", () => {
   });
 
   describe("Complex Navigation Flows - Issue #86", () => {
-    let mockListener: jest.MockedFunction<any>;
+    let mockListener: any;
 
     beforeEach(() => {
       mockListener = createMockListener();

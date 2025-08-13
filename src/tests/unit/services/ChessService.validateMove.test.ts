@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file ChessService validateMove Edge Cases Tests
  * @description Coverage tests for validateMove edge cases (Lines 431-432, 439-440, 406)
@@ -8,33 +9,33 @@ import { ChessService } from "@shared/services/ChessService";
 import { Chess } from "chess.js";
 
 // Mock chess.js following existing pattern
-jest.mock("chess.js");
+vi.mock("chess.js");
 
-const MockedChess = Chess as jest.MockedClass<typeof Chess>;
+const MockedChess = Chess as any;
 
 describe("ChessService validateMove Edge Cases", () => {
   let chessService: ChessService;
-  let mockChessInstance: jest.Mocked<InstanceType<typeof Chess>>;
+  let mockChessInstance: any;
 
   beforeEach(() => {
     MockedChess.mockClear();
 
     // Create comprehensive mock Chess instance
     mockChessInstance = {
-      move: jest.fn(),
-      fen: jest.fn().mockReturnValue("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
-      pgn: jest.fn().mockReturnValue(""),
-      history: jest.fn().mockReturnValue([]),
-      load: jest.fn(),
-      loadPgn: jest.fn(),
-      isGameOver: jest.fn().mockReturnValue(false),
-      turn: jest.fn().mockReturnValue("w"),
-      moves: jest.fn().mockReturnValue(["e4", "e3", "Nf3"] as any),
-      isCheck: jest.fn().mockReturnValue(false),
-      isCheckmate: jest.fn().mockReturnValue(false),
-      isStalemate: jest.fn().mockReturnValue(false),
-      isDraw: jest.fn().mockReturnValue(false),
-      get: jest.fn(), // For piece checking in validateMove
+      move: vi.fn(),
+      fen: vi.fn().mockReturnValue("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
+      pgn: vi.fn().mockReturnValue(""),
+      history: vi.fn().mockReturnValue([]),
+      load: vi.fn(),
+      loadPgn: vi.fn(),
+      isGameOver: vi.fn().mockReturnValue(false),
+      turn: vi.fn().mockReturnValue("w"),
+      moves: vi.fn().mockReturnValue(["e4", "e3", "Nf3"] as any),
+      isCheck: vi.fn().mockReturnValue(false),
+      isCheckmate: vi.fn().mockReturnValue(false),
+      isStalemate: vi.fn().mockReturnValue(false),
+      isDraw: vi.fn().mockReturnValue(false),
+      get: vi.fn(), // For piece checking in validateMove
     } as any;
 
     MockedChess.mockImplementation(() => mockChessInstance);
@@ -74,8 +75,8 @@ describe("ChessService validateMove Edge Cases", () => {
     it("should handle no piece on source square - Line 439-440", () => {
       // Create temp chess instance that returns null for get()
       const tempChessInstance = {
-        get: jest.fn().mockReturnValue(null),
-        move: jest.fn(),
+        get: vi.fn().mockReturnValue(null),
+        move: vi.fn(),
       };
       MockedChess.mockImplementation(() => tempChessInstance as any);
       
@@ -90,8 +91,8 @@ describe("ChessService validateMove Edge Cases", () => {
     it("should handle valid square format with piece present", () => {
       // Mock get() to return a piece (this will be called on the temp instance)
       const tempChessInstance = {
-        move: jest.fn().mockReturnValue({ from: "e2", to: "e4", san: "e4" }),
-        get: jest.fn().mockReturnValue({ type: "p", color: "w" }),
+        move: vi.fn().mockReturnValue({ from: "e2", to: "e4", san: "e4" }),
+        get: vi.fn().mockReturnValue({ type: "p", color: "w" }),
       };
       
       // Mock Chess constructor to return temp instance for validation
@@ -108,8 +109,8 @@ describe("ChessService validateMove Edge Cases", () => {
 
     it("should handle promotion move validation", () => {
       const tempChessInstance = {
-        move: jest.fn().mockReturnValue({ from: "e7", to: "e8", san: "e8=Q", promotion: "q" }),
-        get: jest.fn().mockReturnValue({ type: "p", color: "w" }),
+        move: vi.fn().mockReturnValue({ from: "e7", to: "e8", san: "e8=Q", promotion: "q" }),
+        get: vi.fn().mockReturnValue({ type: "p", color: "w" }),
       };
       MockedChess.mockImplementation(() => tempChessInstance as any);
       
@@ -123,7 +124,7 @@ describe("ChessService validateMove Edge Cases", () => {
 
     it("should handle string moves (not object format)", () => {
       const tempChessInstance = {
-        move: jest.fn().mockReturnValue({ from: "e2", to: "e4", san: "e4" }),
+        move: vi.fn().mockReturnValue({ from: "e2", to: "e4", san: "e4" }),
       };
       MockedChess.mockImplementation(() => tempChessInstance as any);
       
@@ -139,8 +140,8 @@ describe("ChessService validateMove Edge Cases", () => {
 
     it("should handle chess.js move objects", () => {
       const tempChessInstance = {
-        move: jest.fn().mockReturnValue({ from: "e2", to: "e4", san: "e4" }),
-        get: jest.fn().mockReturnValue({ type: "p", color: "w" }),
+        move: vi.fn().mockReturnValue({ from: "e2", to: "e4", san: "e4" }),
+        get: vi.fn().mockReturnValue({ type: "p", color: "w" }),
       };
       MockedChess.mockImplementation(() => tempChessInstance as any);
       
@@ -155,7 +156,7 @@ describe("ChessService validateMove Edge Cases", () => {
     it("should handle validation error exceptions", () => {
       // Mock exception during validation
       const tempChessInstance = {
-        move: jest.fn().mockImplementation(() => {
+        move: vi.fn().mockImplementation(() => {
           throw new Error("Validation failed");
         }),
       };
@@ -222,7 +223,7 @@ describe("ChessService validateMove Edge Cases", () => {
       mockChessInstance.get.mockReturnValue({ type: "p", color: "w" });
       
       const tempChessInstance = {
-        move: jest.fn().mockReturnValue({ from: "e2", to: "e4", san: "e4" }),
+        move: vi.fn().mockReturnValue({ from: "e2", to: "e4", san: "e4" }),
       };
       MockedChess.mockImplementation(() => tempChessInstance as any);
       
@@ -231,8 +232,8 @@ describe("ChessService validateMove Edge Cases", () => {
       // validateMove should return true  
       // Need to reset mock for validation call
       const tempValidationInstance = {
-        move: jest.fn().mockReturnValue({ from: "e2", to: "e4", san: "e4" }),
-        get: jest.fn().mockReturnValue({ type: "p", color: "w" }),
+        move: vi.fn().mockReturnValue({ from: "e2", to: "e4", san: "e4" }),
+        get: vi.fn().mockReturnValue({ type: "p", color: "w" }),
       };
       MockedChess.mockImplementation(() => tempValidationInstance as any);
       

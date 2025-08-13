@@ -45,7 +45,6 @@ jobs:
         path: |
           node_modules
           ~/.pnpm-store
-          .jest-cache
         key: ${{ runner.os }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}
         restore-keys: |
           ${{ runner.os }}-node-
@@ -81,7 +80,6 @@ jobs:
         path: |
           node_modules
           ~/.pnpm-store
-          .jest-cache
         key: ${{ runner.os }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}
 
     - name: Run ESLint
@@ -124,13 +122,12 @@ jobs:
         path: |
           node_modules
           ~/.pnpm-store
-          .jest-cache
         key: ${{ runner.os }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}
 
     - name: Run unit tests (sharded)
       run: |
-        # Use new centralized Jest config
-        pnpm exec jest --config=config/testing/jest.config.ts --selectProjects unit --shard=${{ matrix.shard }}/4 --coverage --passWithNoTests
+        # Use Vitest for all tests
+        pnpm test -- --shard=${{ matrix.shard }}/4 --coverage
 
     - name: Upload coverage report
       uses: actions/upload-artifact@v4
@@ -187,7 +184,6 @@ jobs:
         path: |
           node_modules
           ~/.pnpm-store
-          .jest-cache
         key: ${{ runner.os }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}
 
     - name: Install Firebase CLI
@@ -221,8 +217,8 @@ jobs:
 
     - name: Run Firebase Integration Tests
       run: |
-        # Run Firebase integration tests with new config
-        pnpm exec jest --config=config/testing/jest.config.ts --selectProjects firebase --runInBand --verbose
+        # Run Firebase integration tests with Vitest
+        pnpm test src/tests/integration/firebase
       env:
         NODE_ENV: test
         FIRESTORE_EMULATOR_HOST: localhost:8080
@@ -273,7 +269,6 @@ jobs:
         path: |
           node_modules
           ~/.pnpm-store
-          .jest-cache
         key: ${{ runner.os }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}
 
     - name: Cache Next.js build
@@ -336,7 +331,6 @@ jobs:
         path: |
           node_modules
           ~/.pnpm-store
-          .jest-cache
         key: ${{ runner.os }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}
 
     - name: Cache Playwright browsers

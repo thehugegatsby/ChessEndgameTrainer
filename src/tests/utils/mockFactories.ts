@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 // @ts-nocheck
 /**
  * Mock Factories for Platform Services
@@ -21,18 +22,18 @@ import type {
 // Helper to create mock functions that work with or without Jest
 const mockFn = <TArgs extends unknown[] = unknown[], TReturn = unknown>(
   impl?: (...args: TArgs) => TReturn
-): jest.Mock<TReturn, TArgs> | ((...args: TArgs) => TReturn) => {
-  if (typeof jest !== "undefined" && jest.fn) {
-    return impl ? jest.fn(impl) : jest.fn();
+): vi.Mock<TReturn, TArgs> | ((...args: TArgs) => TReturn) => {
+  if (typeof jest !== "undefined" && vi.fn) {
+    return impl ? vi.fn(impl) : vi.fn();
   }
   return impl || (() => {});
 };
 
 const asyncMockFn = <TArgs extends unknown[] = unknown[], TReturn = unknown>(
   impl?: (...args: TArgs) => Promise<TReturn>
-): jest.Mock<Promise<TReturn>, TArgs> | ((...args: TArgs) => Promise<TReturn | undefined>) => {
-  if (typeof jest !== "undefined" && jest.fn) {
-    return impl ? jest.fn(impl) : jest.fn().mockResolvedValue(undefined);
+): vi.Mock<Promise<TReturn>, TArgs> | ((...args: TArgs) => Promise<TReturn | undefined>) => {
+  if (typeof jest !== "undefined" && vi.fn) {
+    return impl ? vi.fn(impl) : vi.fn().mockResolvedValue(undefined);
   }
   return impl || (() => Promise.resolve(undefined));
 };
@@ -42,10 +43,10 @@ const asyncMockFn = <TArgs extends unknown[] = unknown[], TReturn = unknown>(
  */
 export function createMockPlatformStorage(
   overrides: Partial<PlatformStorage> = {}
-): jest.Mocked<PlatformStorage> {
+): vi.Mocked<PlatformStorage> {
   const store: Record<string, unknown> = {};
 
-  const defaults: jest.Mocked<PlatformStorage> = {
+  const defaults: vi.Mocked<PlatformStorage> = {
     save: asyncMockFn(async (key: string, data: unknown) => {
       store[key] = data;
     }),
@@ -71,7 +72,7 @@ export function createMockPlatformStorage(
  */
 export function createMockPlatformDevice(
   overrides: Partial<PlatformDevice> = {}
-): jest.Mocked<PlatformDevice> {
+): vi.Mocked<PlatformDevice> {
   const mockDeviceInfo: DeviceInfo = {
     model: "Test Device",
     brand: "Test Brand",
@@ -100,7 +101,7 @@ export function createMockPlatformDevice(
     getMemoryInfo: mockFn(() => mockMemoryInfo),
     getNetworkStatus: mockFn(() => mockNetworkStatus),
     isLowEndDevice: mockFn(() => false),
-  } as jest.Mocked<PlatformDevice>;
+  } as vi.Mocked<PlatformDevice>;
 }
 
 /**
@@ -108,8 +109,8 @@ export function createMockPlatformDevice(
  */
 export function createMockPlatformNotification(
   overrides: Partial<PlatformNotification> = {}
-): jest.Mocked<PlatformNotification> {
-  const defaults: jest.Mocked<PlatformNotification> = {
+): vi.Mocked<PlatformNotification> {
+  const defaults: vi.Mocked<PlatformNotification> = {
     requestPermission: asyncMockFn(async () => true),
     show: asyncMockFn(),
     schedule: asyncMockFn(async () => "mock-notification-id"),
@@ -125,7 +126,7 @@ export function createMockPlatformNotification(
  */
 export function createMockPlatformPerformance(
   overrides: Partial<PlatformPerformance> = {}
-): jest.Mocked<PlatformPerformance> {
+): vi.Mocked<PlatformPerformance> {
   let mockTime = 0;
   const measures: Record<string, number[]> = {};
   const marks: Record<string, number> = {};
@@ -136,7 +137,7 @@ export function createMockPlatformPerformance(
     averages: {},
   };
 
-  const defaults: jest.Mocked<PlatformPerformance> = {
+  const defaults: vi.Mocked<PlatformPerformance> = {
     startMeasure: mockFn((name: string) => {
       marks[`${name}_start`] = mockTime;
     }),
@@ -173,10 +174,10 @@ export function createMockPlatformPerformance(
  */
 export function createMockPlatformClipboard(
   overrides: Partial<PlatformClipboard> = {}
-): jest.Mocked<PlatformClipboard> {
+): vi.Mocked<PlatformClipboard> {
   let clipboardContent = "";
 
-  const defaults: jest.Mocked<PlatformClipboard> = {
+  const defaults: vi.Mocked<PlatformClipboard> = {
     copy: asyncMockFn(async (text: string) => {
       clipboardContent = text;
     }),
@@ -192,8 +193,8 @@ export function createMockPlatformClipboard(
  */
 export function createMockPlatformShare(
   overrides: Partial<PlatformShare> = {}
-): jest.Mocked<PlatformShare> {
-  const defaults: jest.Mocked<PlatformShare> = {
+): vi.Mocked<PlatformShare> {
+  const defaults: vi.Mocked<PlatformShare> = {
     canShare: mockFn(() => true),
     share: asyncMockFn(),
   };
@@ -206,8 +207,8 @@ export function createMockPlatformShare(
  */
 export function createMockPlatformAnalytics(
   overrides: Partial<PlatformAnalytics> = {}
-): jest.Mocked<PlatformAnalytics> {
-  const defaults: jest.Mocked<PlatformAnalytics> = {
+): vi.Mocked<PlatformAnalytics> {
+  const defaults: vi.Mocked<PlatformAnalytics> = {
     track: mockFn(),
     identify: mockFn(),
     page: mockFn(),
@@ -221,13 +222,13 @@ export function createMockPlatformAnalytics(
  * Complete mock platform service
  */
 interface MockPlatformService {
-  storage: jest.Mocked<PlatformStorage>;
-  notifications: jest.Mocked<PlatformNotification>;
-  device: jest.Mocked<PlatformDevice>;
-  performance: jest.Mocked<PlatformPerformance>;
-  clipboard: jest.Mocked<PlatformClipboard>;
-  share: jest.Mocked<PlatformShare>;
-  analytics: jest.Mocked<PlatformAnalytics>;
+  storage: vi.Mocked<PlatformStorage>;
+  notifications: vi.Mocked<PlatformNotification>;
+  device: vi.Mocked<PlatformDevice>;
+  performance: vi.Mocked<PlatformPerformance>;
+  clipboard: vi.Mocked<PlatformClipboard>;
+  share: vi.Mocked<PlatformShare>;
+  analytics: vi.Mocked<PlatformAnalytics>;
 }
 
 export function createMockPlatformService(): MockPlatformService {

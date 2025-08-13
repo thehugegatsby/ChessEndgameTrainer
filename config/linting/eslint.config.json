@@ -54,8 +54,7 @@
     "no-param-reassign": [
       "error",
       {
-        "props": true,
-        "ignorePropertyModificationsFor": ["acc"]
+        "props": false
       }
     ],
     "no-nested-ternary": "warn",

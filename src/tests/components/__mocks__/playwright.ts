@@ -7,35 +7,31 @@
  */
 
 export interface MockLocator {
-  click: jest.MockedFunction<() => Promise<void>>;
-  isVisible: jest.MockedFunction<() => Promise<boolean>>;
-  getAttribute: jest.MockedFunction<(name: string) => Promise<string | null>>;
-  textContent: jest.MockedFunction<() => Promise<string | null>>;
-  count: jest.MockedFunction<() => Promise<number>>;
-  first: jest.MockedFunction<() => MockLocator>;
-  locator: jest.MockedFunction<(selector: string) => MockLocator>;
-  all: jest.MockedFunction<() => Promise<MockLocator[]>>;
-  waitFor: jest.MockedFunction<(options?: any) => Promise<void>>;
+  click: () => Promise<void>;
+  isVisible: () => Promise<boolean>;
+  getAttribute: (name: string) => Promise<string | null>;
+  textContent: () => Promise<string | null>;
+  count: () => Promise<number>;
+  first: () => MockLocator;
+  locator: (selector: string) => MockLocator;
+  all: () => Promise<MockLocator[]>;
+  waitFor: (options?: any) => Promise<void>;
 }
 
 export interface MockPage {
-  locator: jest.MockedFunction<(selector: string) => MockLocator>;
-  evaluate: jest.MockedFunction<(fn: any, ...args: any[]) => Promise<any>>;
-  waitForTimeout: jest.MockedFunction<(timeout: number) => Promise<void>>;
-  waitForSelector: jest.MockedFunction<
-    (selector: string, options?: any) => Promise<MockLocator>
-  >;
-  waitForFunction: jest.MockedFunction<
-    (fn: any, arg?: any, options?: any) => Promise<void>
-  >;
-  on: jest.MockedFunction<(event: string, handler: any) => void>;
-  addInitScript: jest.MockedFunction<(script: any) => Promise<void>>;
-  goto: jest.MockedFunction<(url: string, options?: any) => Promise<void>>;
+  locator: (selector: string) => MockLocator;
+  evaluate: (fn: any, ...args: any[]) => Promise<any>;
+  waitForTimeout: (timeout: number) => Promise<void>;
+  waitForSelector: (selector: string, options?: any) => Promise<MockLocator>;
+  waitForFunction: (fn: any, arg?: any, options?: any) => Promise<void>;
+  on: (event: string, handler: any) => void;
+  addInitScript: (script: any) => Promise<void>;
+  goto: (url: string, options?: any) => Promise<void>;
 }
 
 export interface MockConsoleMessage {
-  type: jest.MockedFunction<() => string>;
-  text: jest.MockedFunction<() => string>;
+  type: () => string;
+  text: () => string;
 }
 
 /**
@@ -45,15 +41,15 @@ export interface MockConsoleMessage {
 export const createMockLocator = (
   overrides?: Partial<MockLocator>,
 ): MockLocator => ({
-  click: jest.fn().mockResolvedValue(undefined),
-  isVisible: jest.fn().mockResolvedValue(true),
-  getAttribute: jest.fn().mockResolvedValue(null),
-  textContent: jest.fn().mockResolvedValue(null),
-  count: jest.fn().mockResolvedValue(0),
-  first: jest.fn().mockReturnThis(),
-  locator: jest.fn().mockReturnThis(),
-  all: jest.fn().mockResolvedValue([]),
-  waitFor: jest.fn().mockResolvedValue(undefined),
+  click: vi.fn().mockResolvedValue(undefined),
+  isVisible: vi.fn().mockResolvedValue(true),
+  getAttribute: vi.fn().mockResolvedValue(null),
+  textContent: vi.fn().mockResolvedValue(null),
+  count: vi.fn().mockResolvedValue(0),
+  first: vi.fn().mockReturnThis(),
+  locator: vi.fn().mockReturnThis(),
+  all: vi.fn().mockResolvedValue([]),
+  waitFor: vi.fn().mockResolvedValue(undefined),
   ...overrides,
 });
 
@@ -64,14 +60,14 @@ export const createMockLocator = (
 export const createMockPage = (overrides?: Partial<MockPage>): MockPage => {
   const defaultLocator = createMockLocator();
   return {
-    locator: jest.fn().mockReturnValue(defaultLocator),
-    evaluate: jest.fn().mockResolvedValue(undefined),
-    waitForTimeout: jest.fn().mockResolvedValue(undefined),
-    waitForSelector: jest.fn().mockResolvedValue(defaultLocator),
-    waitForFunction: jest.fn().mockResolvedValue(undefined),
-    on: jest.fn(),
-    addInitScript: jest.fn().mockResolvedValue(undefined),
-    goto: jest.fn().mockResolvedValue(undefined),
+    locator: vi.fn().mockReturnValue(defaultLocator),
+    evaluate: vi.fn().mockResolvedValue(undefined),
+    waitForTimeout: vi.fn().mockResolvedValue(undefined),
+    waitForSelector: vi.fn().mockResolvedValue(defaultLocator),
+    waitForFunction: vi.fn().mockResolvedValue(undefined),
+    on: vi.fn(),
+    addInitScript: vi.fn().mockResolvedValue(undefined),
+    goto: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 };
@@ -83,8 +79,8 @@ export const createMockConsoleMessage = (
   type: string = "log",
   text: string = "",
 ): MockConsoleMessage => ({
-  type: jest.fn().mockReturnValue(type),
-  text: jest.fn().mockReturnValue(text),
+  type: vi.fn().mockReturnValue(type),
+  text: vi.fn().mockReturnValue(text),
 });
 
 // Type exports matching Playwright's actual types
@@ -102,12 +98,12 @@ export const createMockLocatorWithElement = (
   } = {},
 ): MockLocator =>
   createMockLocator({
-    isVisible: jest.fn().mockResolvedValue(elementState.visible ?? true),
+    isVisible: vi.fn().mockResolvedValue(elementState.visible ?? true),
     getAttribute: jest
       .fn()
       .mockImplementation((name: string) =>
         Promise.resolve(elementState.attributes?.[name] ?? null),
       ),
-    textContent: jest.fn().mockResolvedValue(elementState.text ?? null),
-    count: jest.fn().mockResolvedValue(elementState.count ?? 1),
+    textContent: vi.fn().mockResolvedValue(elementState.text ?? null),
+    count: vi.fn().mockResolvedValue(elementState.count ?? 1),
   });

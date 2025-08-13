@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Tests for MoveDialogManager
  * @module tests/unit/orchestrators/MoveDialogManager
@@ -8,12 +9,12 @@ import { getLogger } from "@shared/services/logging";
 import type { StoreApi } from "@shared/store/orchestrators/types";
 
 // Mock dependencies
-jest.mock("@shared/services/logging", () => ({
-  getLogger: jest.fn(() => ({
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
+vi.mock("@shared/services/logging", () => ({
+  getLogger: vi.fn(() => ({
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   })),
 }));
 
@@ -26,12 +27,12 @@ describe("MoveDialogManager", () => {
   beforeEach(() => {
     dialogManager = new MoveDialogManager();
     mockLogger = {
-      debug: jest.fn(),
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
     };
-    (getLogger as jest.Mock).mockReturnValue(mockLogger);
+    (getLogger as ReturnType<typeof vi.fn>).mockReturnValue(mockLogger);
 
     // Create mock state and API
     mockState = {
@@ -44,13 +45,13 @@ describe("MoveDialogManager", () => {
     };
 
     mockApi = {
-      getState: jest.fn(() => mockState),
-      setState: jest.fn((callback) => {
+      getState: vi.fn(() => mockState),
+      setState: vi.fn((callback) => {
         callback(mockState);
       }),
     };
 
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("showMoveErrorDialog", () => {
@@ -157,7 +158,7 @@ describe("MoveDialogManager", () => {
 
   describe("showPromotionDialog", () => {
     it("should show promotion dialog and auto-promote to queen", () => {
-      const callback = jest.fn();
+      const callback = vi.fn();
       const from = "e7";
       const to = "e8";
 
@@ -180,7 +181,7 @@ describe("MoveDialogManager", () => {
     });
 
     it("should work with different square combinations", () => {
-      const callback = jest.fn();
+      const callback = vi.fn();
 
       const testCases = [
         { from: "a7", to: "a8" },
@@ -189,7 +190,7 @@ describe("MoveDialogManager", () => {
       ];
 
       for (const { from, to } of testCases) {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         mockState.ui.toasts = []; // Reset toasts
 
         dialogManager.showPromotionDialog(mockApi, from, to, callback);
@@ -204,8 +205,8 @@ describe("MoveDialogManager", () => {
 
   describe("showConfirmationDialog", () => {
     it("should show confirmation dialog and auto-confirm", () => {
-      const onConfirm = jest.fn();
-      const onCancel = jest.fn();
+      const onConfirm = vi.fn();
+      const onCancel = vi.fn();
       const message = "Sind Sie sicher?";
 
       dialogManager.showConfirmationDialog(
@@ -233,8 +234,8 @@ describe("MoveDialogManager", () => {
     });
 
     it("should work with different message types", () => {
-      const onConfirm = jest.fn();
-      const onCancel = jest.fn();
+      const onConfirm = vi.fn();
+      const onCancel = vi.fn();
 
       const messages = [
         "Zug rückgängig machen?",
@@ -243,7 +244,7 @@ describe("MoveDialogManager", () => {
       ];
 
       for (const message of messages) {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         mockState.ui.toasts = [];
 
         dialogManager.showConfirmationDialog(
@@ -445,11 +446,11 @@ describe("MoveDialogManager", () => {
     });
 
     it("should handle multiple toast messages", () => {
-      const onConfirm = jest.fn();
-      const onCancel = jest.fn();
+      const onConfirm = vi.fn();
+      const onCancel = vi.fn();
 
       // Add multiple dialogs that create toasts
-      dialogManager.showPromotionDialog(mockApi, "e7", "e8", jest.fn());
+      dialogManager.showPromotionDialog(mockApi, "e7", "e8", vi.fn());
       dialogManager.showConfirmationDialog(
         mockApi,
         "Test message",

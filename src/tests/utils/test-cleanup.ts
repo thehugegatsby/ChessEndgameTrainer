@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Test Cleanup Utilities
  * 
@@ -140,17 +141,17 @@ export async function cleanupReactTest(): Promise<void> {
   cleanupManager.cleanupAll();
 
   // Clear all mock timers if using fake timers
-  if (jest.isMockFunction(setTimeout)) {
-    jest.clearAllTimers();
-    jest.useRealTimers();
+  if (vi.isMockFunction(setTimeout)) {
+    vi.clearAllTimers();
+    vi.useRealTimers();
   }
 
   // Clear all mocks
-  jest.clearAllMocks();
-  jest.restoreAllMocks();
+  vi.clearAllMocks();
+  vi.restoreAllMocks();
 
   // Clear module registry to prevent state leakage
-  jest.resetModules();
+  vi.resetModules();
 
   // Force garbage collection if available (V8 only)
   if (global.gc) {
@@ -166,17 +167,17 @@ export function cleanupUnitTest(): void {
   cleanupManager.cleanupAll();
 
   // Clear all mock timers
-  if (jest.isMockFunction(setTimeout)) {
-    jest.clearAllTimers();
-    jest.useRealTimers();
+  if (vi.isMockFunction(setTimeout)) {
+    vi.clearAllTimers();
+    vi.useRealTimers();
   }
 
   // Clear all mocks
-  jest.clearAllMocks();
-  jest.restoreAllMocks();
+  vi.clearAllMocks();
+  vi.restoreAllMocks();
 
   // Reset modules
-  jest.resetModules();
+  vi.resetModules();
 
   // Force garbage collection if available
   if (global.gc) {
@@ -202,10 +203,10 @@ export function setupTestCleanup(isReactTest = false): void {
     cleanupManager.cleanupAll();
     
     // Ensure real timers are restored
-    jest.useRealTimers();
+    vi.useRealTimers();
     
     // Clear all mocks one final time
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 }
 

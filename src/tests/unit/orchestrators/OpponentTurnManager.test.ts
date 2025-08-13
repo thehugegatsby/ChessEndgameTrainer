@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Tests for OpponentTurnManager
  * @module tests/unit/orchestrators/OpponentTurnManager
@@ -10,32 +11,32 @@ import { handleTrainingCompletion } from "@shared/store/orchestrators/handlePlay
 import type { StoreApi } from "@shared/store/orchestrators/types";
 
 // Mock dependencies
-jest.mock("@shared/services/ChessService", () => ({
+vi.mock("@shared/services/ChessService", () => ({
   chessService: {
-    getFen: jest.fn(),
-    turn: jest.fn(),
-    move: jest.fn(),
-    isGameOver: jest.fn(),
+    getFen: vi.fn(),
+    turn: vi.fn(),
+    move: vi.fn(),
+    isGameOver: vi.fn(),
   },
 }));
 
-jest.mock("@shared/services/TablebaseService", () => ({
+vi.mock("@shared/services/TablebaseService", () => ({
   tablebaseService: {
-    getTopMoves: jest.fn(),
+    getTopMoves: vi.fn(),
   },
 }));
 
-jest.mock("@shared/store/orchestrators/handlePlayerMove/move.completion");
+vi.mock("@shared/store/orchestrators/handlePlayerMove/move.completion");
 
 // Mock the dynamic import at module level
-jest.mock("@shared/services/orchestrator/OrchestratorServices", () => ({
+vi.mock("@shared/services/orchestrator/OrchestratorServices", () => ({
   orchestratorTablebase: {
-    getTopMoves: jest.fn(),
+    getTopMoves: vi.fn(),
   },
 }));
 
 // Mock timers
-jest.useFakeTimers();
+vi.useFakeTimers();
 
 describe("OpponentTurnManager", () => {
   let mockApi: StoreApi;
@@ -57,15 +58,15 @@ describe("OpponentTurnManager", () => {
 
     // Create mock StoreApi
     mockApi = {
-      getState: jest.fn(() => mockState),
-      setState: jest.fn((callback) => {
+      getState: vi.fn(() => mockState),
+      setState: vi.fn((callback) => {
         // Apply Immer-style updates to mockState
         callback(mockState);
       }),
     };
 
     // Reset all mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // Cancel any existing timeouts
     manager.cancel();
@@ -73,7 +74,7 @@ describe("OpponentTurnManager", () => {
 
   afterEach(() => {
     manager.cancel();
-    jest.clearAllTimers();
+    vi.clearAllTimers();
   });
 
   describe("cancel", () => {
@@ -82,14 +83,14 @@ describe("OpponentTurnManager", () => {
       manager.schedule(mockApi, 100);
       
       // Clear only chessService mocks to track timeout execution calls
-      (chessService.getFen as jest.Mock).mockClear();
-      (chessService.turn as jest.Mock).mockClear();
+      (chessService.getFen as ReturnType<typeof vi.fn>).mockClear();
+      (chessService.turn as ReturnType<typeof vi.fn>).mockClear();
       
       // Cancel it
       manager.cancel();
       
       // Fast-forward time - should not execute timeout callback
-      jest.advanceTimersByTime(200);
+      vi.advanceTimersByTime(200);
       
       // Should not call getFen again since timeout was cancelled
       expect(chessService.getFen).not.toHaveBeenCalled();
@@ -124,17 +125,17 @@ describe("OpponentTurnManager", () => {
       manager.schedule(mockApi, 200);
       
       // Clear only chessService mocks to track timeout execution calls
-      (chessService.getFen as jest.Mock).mockClear();
-      (chessService.turn as jest.Mock).mockClear();
+      (chessService.getFen as ReturnType<typeof vi.fn>).mockClear();
+      (chessService.turn as ReturnType<typeof vi.fn>).mockClear();
       
       // Fast-forward past first delay but not second
-      jest.advanceTimersByTime(150);
+      vi.advanceTimersByTime(150);
       
       // Should not have executed timeout callback yet
       expect(chessService.getFen).not.toHaveBeenCalled();
       
       // Fast-forward past second delay
-      jest.advanceTimersByTime(100);
+      vi.advanceTimersByTime(100);
       
       // Now should execute timeout callback - would call getState for execution
       expect(mockApi.getState).toHaveBeenCalled();
@@ -145,10 +146,10 @@ describe("OpponentTurnManager", () => {
       manager.cancel();
       
       // Clear only chessService mocks to track timeout execution calls
-      (chessService.getFen as jest.Mock).mockClear();
-      (chessService.turn as jest.Mock).mockClear();
+      (chessService.getFen as ReturnType<typeof vi.fn>).mockClear();
+      (chessService.turn as ReturnType<typeof vi.fn>).mockClear();
       
-      jest.advanceTimersByTime(200);
+      vi.advanceTimersByTime(200);
       
       // Should not call getFen again since timeout was cancelled
       expect(chessService.getFen).not.toHaveBeenCalled();
@@ -161,11 +162,11 @@ describe("OpponentTurnManager", () => {
       manager.schedule(mockApi, 0); // calls getFen for logging
       
       // Clear only chessService mocks to track timeout execution calls
-      (chessService.getFen as jest.Mock).mockClear();
-      (chessService.turn as jest.Mock).mockClear();
+      (chessService.getFen as ReturnType<typeof vi.fn>).mockClear();
+      (chessService.turn as ReturnType<typeof vi.fn>).mockClear();
       
       // Fast-forward
-      jest.advanceTimersByTime(100);
+      vi.advanceTimersByTime(100);
       
       // Should not call getFen again since timeout callback exits early on player turn
       expect(chessService.getFen).not.toHaveBeenCalled();
@@ -185,7 +186,7 @@ describe("OpponentTurnManager", () => {
       mockOrchestratorTablebase = orchestratorTablebase;
 
       // Set up default mock behavior
-      (mockOrchestratorTablebase.getTopMoves as jest.Mock).mockResolvedValue({
+      (mockOrchestratorTablebase.getTopMoves as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         moves: [
           { san: "Kd7", wdl: -1000, dtm: -27, category: "loss" },
@@ -193,9 +194,9 @@ describe("OpponentTurnManager", () => {
         ],
       });
 
-      (chessService.getFen as jest.Mock).mockReturnValue("test-fen");
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      (chessService.move as jest.Mock).mockReturnValue({
+      (chessService.getFen as ReturnType<typeof vi.fn>).mockReturnValue("test-fen");
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (chessService.move as ReturnType<typeof vi.fn>).mockReturnValue({
         san: "Kd7",
         from: "d6",
         to: "d7",
@@ -224,14 +225,14 @@ describe("OpponentTurnManager", () => {
 
     it("should handle tablebase service failure gracefully", async () => {
       // Arrange - Override mock to throw error
-      (mockOrchestratorTablebase.getTopMoves as jest.Mock).mockRejectedValue(new Error("Network timeout"));
+      (mockOrchestratorTablebase.getTopMoves as ReturnType<typeof vi.fn>).mockRejectedValue(new Error("Network timeout"));
 
       mockState.training.isPlayerTurn = false;
       mockState.training.isOpponentThinking = true;
       
       // Act - Schedule opponent move that will fail
       manager.schedule(mockApi, 0);
-      await jest.runOnlyPendingTimersAsync();
+      await vi.runOnlyPendingTimersAsync();
       
       // Assert - State should be reset to player turn on error
       expect(mockState.training.isPlayerTurn).toBe(true);
@@ -252,7 +253,7 @@ describe("OpponentTurnManager", () => {
 
     it("should handle tablebase unavailable", async () => {
       // Arrange - Override mock to return unavailable
-      (mockOrchestratorTablebase.getTopMoves as jest.Mock).mockResolvedValue({
+      (mockOrchestratorTablebase.getTopMoves as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: false,
         moves: [],
       });
@@ -262,7 +263,7 @@ describe("OpponentTurnManager", () => {
       
       // Act - Schedule move when tablebase unavailable
       manager.schedule(mockApi, 0);
-      await jest.runOnlyPendingTimersAsync();
+      await vi.runOnlyPendingTimersAsync();
       
       // Assert - Should return control to player without making a move
       expect(mockState.training.isPlayerTurn).toBe(true);
@@ -272,7 +273,7 @@ describe("OpponentTurnManager", () => {
 
     it("should handle game over scenario correctly", () => {
       // Arrange - Set up game over condition
-      (chessService.isGameOver as jest.Mock).mockReturnValue(true);
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(true);
       mockState.training.isPlayerTurn = false;
       mockState.training.isOpponentThinking = true;
       
@@ -287,11 +288,11 @@ describe("OpponentTurnManager", () => {
     });
 
     it("should handle move execution failure", async () => {
-      (chessService.move as jest.Mock).mockReturnValue(null);
+      (chessService.move as ReturnType<typeof vi.fn>).mockReturnValue(null);
       
       manager.schedule(mockApi, 0);
       
-      await jest.runOnlyPendingTimersAsync();
+      await vi.runOnlyPendingTimersAsync();
       
       // Should set error state
       expect(mockApi.setState).toHaveBeenCalledWith(expect.any(Function));
@@ -299,7 +300,7 @@ describe("OpponentTurnManager", () => {
 
     it("should accept completion callback in schedule options", () => {
       // Arrange - Provide a completion callback
-      const onComplete = jest.fn().mockResolvedValue(undefined);
+      const onComplete = vi.fn().mockResolvedValue(undefined);
       mockState.training.isPlayerTurn = false;
       mockState.training.isOpponentThinking = true;
       
@@ -313,7 +314,7 @@ describe("OpponentTurnManager", () => {
 
     it("should handle callback errors gracefully during scheduling", () => {
       // Arrange - Callback that will fail (but scheduling should still work)
-      const onComplete = jest.fn().mockRejectedValue(new Error("Callback error"));
+      const onComplete = vi.fn().mockRejectedValue(new Error("Callback error"));
       mockState.training.isPlayerTurn = false;
       mockState.training.isOpponentThinking = true;
       

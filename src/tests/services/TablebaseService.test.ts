@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @jest-environment node
  *
@@ -13,9 +14,9 @@ import { TEST_FENS } from "../../shared/testing/TestFixtures";
 import { EndgamePositions, SpecialPositions, StandardPositions } from "../fixtures/commonFens";
 
 // Mock the LichessApiClient
-jest.mock("../../shared/services/api/LichessApiClient", () => ({
-  LichessApiClient: jest.fn().mockImplementation(() => ({
-    lookup: jest.fn(),
+vi.mock("../../shared/services/api/LichessApiClient", () => ({
+  LichessApiClient: vi.fn().mockImplementation(() => ({
+    lookup: vi.fn(),
   })),
   LichessApiError: class LichessApiError extends Error {
     constructor(public statusCode: number, message: string) {
@@ -26,22 +27,22 @@ jest.mock("../../shared/services/api/LichessApiClient", () => ({
 }));
 
 // Mock fetch globally (for other uses)
-global.fetch = jest.fn();
+global.fetch = vi.fn();
 
 // Import the mocked LichessApiClient to get the mock instance
 import { LichessApiClient } from "../../shared/services/api/LichessApiClient";
 
 describe("TablebaseService", () => {
-  const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
-  let mockLookup: jest.Mock;
+  const mockFetch = global.fetch as typeof fetch;
+  let mockLookup: ReturnType<typeof vi.fn>;
   let mockApiClient: any;
   let testService: TablebaseService;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // Create a new mock instance with a mock lookup function
-    mockLookup = jest.fn();
+    mockLookup = vi.fn();
     mockApiClient = {
       lookup: mockLookup
     };
@@ -695,16 +696,16 @@ describe("TablebaseService", () => {
   describe('CacheManager Integration', () => {
     beforeEach(() => {
       // Clear mock call counts and reset mock state
-      jest.clearAllMocks();
+      vi.clearAllMocks();
     });
 
     it('should accept custom CacheManager via constructor injection', async () => {
       const mockCacheManager = {
-        get: jest.fn().mockReturnValue(undefined),
-        set: jest.fn(),
-        has: jest.fn().mockReturnValue(false),
-        delete: jest.fn().mockReturnValue(true),
-        clear: jest.fn(),
+        get: vi.fn().mockReturnValue(undefined),
+        set: vi.fn(),
+        has: vi.fn().mockReturnValue(false),
+        delete: vi.fn().mockReturnValue(true),
+        clear: vi.fn(),
         size: 0
       };
 
@@ -802,16 +803,16 @@ describe("TablebaseService", () => {
       };
       
       const mockApiClient = {
-        lookup: jest.fn().mockResolvedValue(responseData),
-        healthCheck: jest.fn().mockResolvedValue(true)
+        lookup: vi.fn().mockResolvedValue(responseData),
+        healthCheck: vi.fn().mockResolvedValue(true)
       };
 
       const mockCacheManager = {
-        get: jest.fn().mockReturnValue(undefined),
-        set: jest.fn(),
-        has: jest.fn().mockReturnValue(false),
-        delete: jest.fn().mockReturnValue(true),
-        clear: jest.fn(),
+        get: vi.fn().mockReturnValue(undefined),
+        set: vi.fn(),
+        has: vi.fn().mockReturnValue(false),
+        delete: vi.fn().mockReturnValue(true),
+        clear: vi.fn(),
         size: 0
       };
 

@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Test utilities for store testing
  * @module tests/utils/store-test-helper
@@ -200,7 +201,7 @@ const mockTimers = {
    * ```
    */
   setup: () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   },
 
   /**
@@ -213,7 +214,7 @@ const mockTimers = {
    * ```
    */
   cleanup: () => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   },
 
   /**
@@ -221,13 +222,13 @@ const mockTimers = {
    * @param ms - Milliseconds to advance
    */
   advance: (ms: number) => {
-    jest.advanceTimersByTime(ms);
+    vi.advanceTimersByTime(ms);
   },
 
   /**
    * Runs all pending timers
    */
   runAll: () => {
-    jest.runAllTimers();
+    vi.runAllTimers();
   },
 };

@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file ChessService Cache & Performance Tests
  * @description Coverage tests for cache management (Line 528) and performance optimization
@@ -6,42 +7,42 @@
 
 describe("ChessService Cache & Performance Tests", () => {
   let chessService: any; // Use any for dynamically imported instance
-  let mockChessInstance: jest.Mocked<any>;
-  let Chess: jest.MockedClass<any>;
-  let MockedChess: jest.MockedClass<any>;
+  let mockChessInstance: any;
+  let Chess: any;
+  let MockedChess: any;
   let ChessService: any; // Use any for dynamically imported class
 
   beforeEach(() => {
     // Reset the module registry to ensure clean module loading
-    jest.resetModules();
+    vi.resetModules();
     
     // Mock chess.js module before any imports
-    jest.doMock("chess.js", () => ({
-      Chess: jest.fn()
+    vi.doMock("chess.js", () => ({
+      Chess: vi.fn()
     }));
     
     // Now require modules in the correct order
     const chessModule = require("chess.js");
     Chess = chessModule.Chess;
-    MockedChess = Chess as jest.MockedClass<any>;
+    MockedChess = Chess as any;
     
     MockedChess.mockClear();
 
     // Create comprehensive mock Chess instance
     mockChessInstance = {
-      move: jest.fn(),
-      fen: jest.fn().mockReturnValue("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
-      pgn: jest.fn().mockReturnValue(""),
-      history: jest.fn().mockReturnValue([]),
-      load: jest.fn(),
-      loadPgn: jest.fn(),
-      isGameOver: jest.fn().mockReturnValue(false),
-      turn: jest.fn().mockReturnValue("w"),
-      moves: jest.fn().mockReturnValue(["e4", "e3", "Nf3"]),
-      isCheck: jest.fn().mockReturnValue(false),
-      isCheckmate: jest.fn().mockReturnValue(false),
-      isStalemate: jest.fn().mockReturnValue(false),
-      isDraw: jest.fn().mockReturnValue(false),
+      move: vi.fn(),
+      fen: vi.fn().mockReturnValue("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
+      pgn: vi.fn().mockReturnValue(""),
+      history: vi.fn().mockReturnValue([]),
+      load: vi.fn(),
+      loadPgn: vi.fn(),
+      isGameOver: vi.fn().mockReturnValue(false),
+      turn: vi.fn().mockReturnValue("w"),
+      moves: vi.fn().mockReturnValue(["e4", "e3", "Nf3"]),
+      isCheck: vi.fn().mockReturnValue(false),
+      isCheckmate: vi.fn().mockReturnValue(false),
+      isStalemate: vi.fn().mockReturnValue(false),
+      isDraw: vi.fn().mockReturnValue(false),
     } as any;
 
     MockedChess.mockImplementation(() => mockChessInstance);
@@ -78,7 +79,7 @@ describe("ChessService Cache & Performance Tests", () => {
       MockedChess.mockImplementationOnce(() => {
         const mockInstance = {
           ...mockChessInstance,
-          fen: jest.fn().mockReturnValue(normalizedFen)
+          fen: vi.fn().mockReturnValue(normalizedFen)
         };
         return mockInstance as any;
       });

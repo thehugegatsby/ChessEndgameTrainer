@@ -31,6 +31,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@shared/*": ["src/shared/*"],
+      "@features/*": ["src/features/*"],
+      "@lib/*": ["src/lib/*"],
       "@app/*": ["src/app/*"],
       "@tests/*": ["src/tests/*"]
     }

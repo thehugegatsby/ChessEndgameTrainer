@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Unit tests for ErrorBoundary component
  * @module tests/unit/components/common/ErrorBoundary.test
@@ -15,15 +16,15 @@ import React from 'react';
 import { render, screen, fireEvent, renderHook, act } from '@testing-library/react';
 
 // Mock logger before importing ErrorBoundary to intercept module-level initialization
-jest.mock('@shared/services/logging', () => {
+vi.mock('@shared/services/logging', () => {
   const mockLoggerInstance = {
-    error: jest.fn(),
-    setContext: jest.fn(function() { return this; }),
+    error: vi.fn(),
+    setContext: vi.fn(function() { return this; }),
   };
   mockLoggerInstance.setContext.mockReturnValue(mockLoggerInstance);
   
   return {
-    getLogger: jest.fn(() => mockLoggerInstance),
+    getLogger: vi.fn(() => mockLoggerInstance),
     /** 
      * Helper to access mock logger instance in tests 
      * @returns Mock logger instance
@@ -63,7 +64,7 @@ const ThrowError: React.FC<{ shouldThrow: boolean }> = ({ shouldThrow }) => {
 
 describe('ErrorBoundary', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockLoggerInstance.error.mockClear();
     mockLoggerInstance.setContext.mockClear();
   });
@@ -80,7 +81,7 @@ describe('ErrorBoundary', () => {
 
   it('renders fallback UI when error occurs', () => {
     // Suppress console.error for this test
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
     
     render(
       <ErrorBoundary>
@@ -94,7 +95,7 @@ describe('ErrorBoundary', () => {
   });
 
   it('renders custom fallback when provided', () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
     const customFallback = <div>Custom error message</div>;
     
     render(
@@ -109,7 +110,7 @@ describe('ErrorBoundary', () => {
   });
 
   it('logs error when componentDidCatch is called', () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
     
     render(
       <ErrorBoundary>
@@ -129,8 +130,8 @@ describe('ErrorBoundary', () => {
   });
 
   it('calls custom onError handler when provided', () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-    const onError = jest.fn();
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
+    const onError = vi.fn();
     
     render(
       <ErrorBoundary onError={onError}>
@@ -155,7 +156,7 @@ describe('ErrorBoundary', () => {
       writable: true,
       configurable: true
     });
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
     
     render(
       <ErrorBoundary>
@@ -181,7 +182,7 @@ describe('ErrorBoundary', () => {
       writable: true,
       configurable: true
     });
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
     
     render(
       <ErrorBoundary>
@@ -227,7 +228,7 @@ describe('useErrorBoundary hook', () => {
   });
 
   it('allows error recovery through key reset', () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
     
     /**
      * Test component demonstrating error recovery pattern

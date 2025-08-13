@@ -7,12 +7,12 @@
 
 // @ts-nocheck - Test infrastructure with complex mock typing
 
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 import { BaseMockFactory } from './BaseMockFactory';
 import type { TablebaseService } from '@shared/services/TablebaseService';
 import type { TablebaseEvaluation, TablebaseMovesResult } from '@shared/services/TablebaseService';
 
-type MockedTablebaseService = jest.Mocked<TablebaseService>;
+type MockedTablebaseService = TablebaseService;
 
 export interface TablebaseServiceMockOverrides {
   // Response data
@@ -35,7 +35,7 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
   protected _createDefaultMock(): MockedTablebaseService {
     const mock: MockedTablebaseService = {
       // Main evaluation method
-      getEvaluation: jest.fn().mockImplementation(async (fen: string): Promise<TablebaseEvaluation> => {
+      getEvaluation: vi.fn().mockImplementation(async (fen: string): Promise<TablebaseEvaluation> => {
         // Simulate network delay if configured
         if (this.defaultDelay > 0) {
           await new Promise(resolve => setTimeout(resolve, this.defaultDelay));
@@ -53,7 +53,7 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
       }),
 
       // Top moves method  
-      getTopMoves: jest.fn().mockImplementation(async (fen: string, limit = 5): Promise<TablebaseMovesResult> => {
+      getTopMoves: vi.fn().mockImplementation(async (fen: string, limit = 5): Promise<TablebaseMovesResult> => {
         const evaluation = await (mock as any).getEvaluation(fen);
         
         if (!evaluation.isAvailable || !evaluation.result) {
@@ -71,18 +71,18 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
       }),
 
       // Cache management
-      clearCache: jest.fn().mockImplementation(() => {
+      clearCache: vi.fn().mockImplementation(() => {
         this.positionCache.clear();
       }),
 
       // Metrics
-      getMetrics: jest.fn().mockImplementation(() => ({
+      getMetrics: vi.fn().mockImplementation(() => ({
         cacheHits: 0,
         cacheMisses: 0,
         totalRequests: 0,
         errorBreakdown: {}
       }))
-    } as unknown as jest.Mocked<TablebaseService>;
+    } as unknown as TablebaseService;
 
     return mock;
   }
@@ -236,7 +236,7 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
     if (!this.mockInstance) {
       throw new Error('[TablebaseServiceMockFactory] Mock not initialized. Call create() first.');
     }
-    const mock = this.mockInstance as jest.Mocked<TablebaseService>;
+    const mock = this.mockInstance as any;
     const errorMessage = message || 'Service temporarily unavailable';
     
     mock.getEvaluation.mockRejectedValue(new Error(errorMessage));

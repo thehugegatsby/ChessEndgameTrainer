@@ -9,6 +9,7 @@
  * Focuses on network concerns: timeouts, retries, error handling, response validation.
  */
 
+import { describe, it, test, expect, afterEach, beforeAll, afterAll } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { 

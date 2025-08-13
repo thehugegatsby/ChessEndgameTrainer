@@ -3,6 +3,7 @@
  * @description Tests FEN validation, move validation, and chess position parsing
  */
 
+import { describe, it, test, expect } from 'vitest';
 import { describe, test, expect } from "@jest/globals";
 import { validateAndSanitizeFen } from "../../../shared/utils/fenValidator";
 

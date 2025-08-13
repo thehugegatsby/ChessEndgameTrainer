@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Unit tests for TablebasePanel component
  * Comprehensive test suite with >75% coverage target
@@ -28,10 +29,10 @@ describe("TablebasePanel", () => {
     ],
   };
 
-  const mockOnMoveSelect = jest.fn();
+  const mockOnMoveSelect = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should render tablebase panel with moves", () => {
@@ -518,7 +519,7 @@ describe('CompactTablebasePanel', () => {
     render(
       <CompactTablebasePanel
         tablebaseData={mockTablebaseData}
-        onMoveSelect={jest.fn()}
+        onMoveSelect={vi.fn()}
       />
     );
 
@@ -531,7 +532,7 @@ describe('CompactTablebasePanel', () => {
     render(
       <CompactTablebasePanel
         tablebaseData={mockTablebaseData}
-        onMoveSelect={jest.fn()}
+        onMoveSelect={vi.fn()}
         className="custom-compact-class"
       />
     );
@@ -541,7 +542,7 @@ describe('CompactTablebasePanel', () => {
   });
 
   it('should pass through all props correctly', () => {
-    const mockOnMoveSelect = jest.fn();
+    const mockOnMoveSelect = vi.fn();
     render(
       <CompactTablebasePanel
         tablebaseData={mockTablebaseData}
@@ -573,7 +574,7 @@ describe('TablebasePanelWithErrorBoundary', () => {
     render(
       <TablebasePanelWithErrorBoundary
         tablebaseData={mockTablebaseData}
-        onMoveSelect={jest.fn()}
+        onMoveSelect={vi.fn()}
       />
     );
 
@@ -587,7 +588,7 @@ describe('TablebasePanelWithErrorBoundary', () => {
   });
 
   it('should pass through all props correctly', () => {
-    const mockOnMoveSelect = jest.fn();
+    const mockOnMoveSelect = vi.fn();
     render(
       <TablebasePanelWithErrorBoundary
         tablebaseData={mockTablebaseData}

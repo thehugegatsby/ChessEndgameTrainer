@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Mock ChessService for testing
  * Simulates chess move validation and game state management
@@ -174,15 +175,15 @@ class MockChessService extends EventEmitter {
     return this.moveHistory;
   }
 
-  isGameOver = jest.fn(() => this.isFinished);
+  isGameOver = vi.fn(() => this.isFinished);
 
-  isCheck = jest.fn(() => false);
+  isCheck = vi.fn(() => false);
 
-  isCheckmate = jest.fn(() => false);
+  isCheckmate = vi.fn(() => false);
 
-  isStalemate = jest.fn(() => false);
+  isStalemate = vi.fn(() => false);
 
-  isDraw = jest.fn(() => false);
+  isDraw = vi.fn(() => false);
 
   turn(): "w" | "b" {
     return "w";
@@ -198,7 +199,7 @@ class MockChessService extends EventEmitter {
     return true;
   }
 
-  validateMove = jest.fn().mockReturnValue(true);
+  validateMove = vi.fn().mockReturnValue(true);
 
   redo(): ValidatedMove | null {
     // Simple redo implementation

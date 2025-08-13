@@ -3,6 +3,7 @@
  * Using Mock Factory System
  */
 
+import { describe, it, test, expect, beforeEach } from 'vitest';
 import { mockManager } from "../mocks/MockManager";
 
 describe("TablebaseService Basic Test", () => {

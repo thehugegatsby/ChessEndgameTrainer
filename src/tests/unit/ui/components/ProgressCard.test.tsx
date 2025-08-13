@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Unit tests for ProgressCard component
  * @module tests/unit/ui/components/ProgressCard.test
@@ -36,12 +37,12 @@ const defaultProps = {
   stats: mockProgressStats,
   difficulty: "beginner" as const,
   category: "queen" as const,
-  onStartTraining: jest.fn(),
+  onStartTraining: vi.fn(),
 };
 
 describe("ProgressCard Component", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("Rendering", () => {
@@ -162,7 +163,7 @@ describe("ProgressCard Component", () => {
 
   describe("Button Behavior", () => {
     it("should call onStartTraining when button clicked", () => {
-      const onStartTraining = jest.fn();
+      const onStartTraining = vi.fn();
 
       render(
         <ProgressCard {...defaultProps} onStartTraining={onStartTraining} />,
@@ -277,7 +278,7 @@ describe("ProgressCard Component", () => {
     });
 
     it("should support keyboard interaction", () => {
-      const onStartTraining = jest.fn();
+      const onStartTraining = vi.fn();
 
       render(
         <ProgressCard {...defaultProps} onStartTraining={onStartTraining} />,

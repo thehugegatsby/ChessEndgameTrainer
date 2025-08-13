@@ -11,6 +11,7 @@
  * or: jest tests/integration/tablebase-real-api.integration.spec.ts
  */
 
+import { describe, it, test, expect, beforeEach } from 'vitest';
 import { tablebaseService } from "../../shared/services/TablebaseService";
 import { COMMON_FENS } from "../fixtures/commonFens";
 

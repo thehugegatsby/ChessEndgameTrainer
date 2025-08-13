@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Tests for useMoveHandlers hook
  * @module tests/unit/hooks/useMoveHandlers
@@ -20,43 +21,43 @@ import { useMoveHandlers } from '@shared/hooks/useMoveHandlers';
 // import { getLogger } from '@shared/services/logging/Logger'; // Not used in this test file
 
 // Mock dependencies
-jest.mock('@shared/services/logging/Logger', () => ({
-  getLogger: jest.fn(() => ({
-    setContext: jest.fn(() => ({
-      debug: jest.fn(),
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
+vi.mock('@shared/services/logging/Logger', () => ({
+  getLogger: vi.fn(() => ({
+    setContext: vi.fn(() => ({
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
     })),
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   })),
 }));
 
-jest.mock('@shared/utils/toast', () => ({
-  showErrorToast: jest.fn(),
-  showInfoToast: jest.fn(),
-  showSuccessToast: jest.fn(),
-  showWarningToast: jest.fn(),
+vi.mock('@shared/utils/toast', () => ({
+  showErrorToast: vi.fn(),
+  showInfoToast: vi.fn(),
+  showSuccessToast: vi.fn(),
+  showWarningToast: vi.fn(),
 }));
 
-jest.mock('@shared/hooks/useChessAudio', () => ({
-  useChessAudio: jest.fn(() => ({
-    playSound: jest.fn(),
-    isSoundLoaded: jest.fn(() => true),
-    getLoadedSoundCount: jest.fn(() => 8),
+vi.mock('@shared/hooks/useChessAudio', () => ({
+  useChessAudio: vi.fn(() => ({
+    playSound: vi.fn(),
+    isSoundLoaded: vi.fn(() => true),
+    getLoadedSoundCount: vi.fn(() => 8),
     isAudioEnabled: true,
     audioVolume: 0.7,
   })),
 }));
 
-jest.mock('chess.js', () => ({
-  Chess: jest.fn().mockImplementation((fen) => ({
-    turn: jest.fn(() => 'w'), // Default to white's turn
-    fen: jest.fn(() => fen),
-    get: jest.fn((square) => {
+vi.mock('chess.js', () => ({
+  Chess: vi.fn().mockImplementation((fen) => ({
+    turn: vi.fn(() => 'w'), // Default to white's turn
+    fen: vi.fn(() => fen),
+    get: vi.fn((square) => {
       // Mock piece detection for promotion tests
       if (square === 'e7') return { type: 'p', color: 'w' }; // White pawn on 7th rank
       if (square === 'e2') return { type: 'p', color: 'b' }; // Black pawn on 2nd rank
@@ -80,11 +81,11 @@ describe('useMoveHandlers', () => {
     isGameFinished: false,
     isPositionReady: true,
     trainingState: mockTrainingState,
-    onMove: jest.fn(),
+    onMove: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Hook Initialization', () => {
@@ -110,7 +111,7 @@ describe('useMoveHandlers', () => {
 
   describe('onDrop Handling', () => {
     it('executes move when position is ready and game not finished', async () => {
-      const mockOnMove = jest.fn().mockResolvedValue(true);
+      const mockOnMove = vi.fn().mockResolvedValue(true);
       const props = { ...defaultProps, onMove: mockOnMove };
       
       const { result } = renderHook(() => useMoveHandlers(props));
@@ -127,7 +128,7 @@ describe('useMoveHandlers', () => {
     });
 
     it('blocks moves when position is not ready', () => {
-      const mockOnMove = jest.fn();
+      const mockOnMove = vi.fn();
       const props = { 
         ...defaultProps, 
         isPositionReady: false,
@@ -145,7 +146,7 @@ describe('useMoveHandlers', () => {
     });
 
     it('blocks moves when game is finished', () => {
-      const mockOnMove = jest.fn();
+      const mockOnMove = vi.fn();
       const props = { 
         ...defaultProps, 
         isGameFinished: true,
@@ -163,7 +164,7 @@ describe('useMoveHandlers', () => {
     });
 
     it('detects pawn promotion and adds promotion property', async () => {
-      const mockOnMove = jest.fn().mockResolvedValue(true);
+      const mockOnMove = vi.fn().mockResolvedValue(true);
       const props = { ...defaultProps, onMove: mockOnMove };
       
       const { result } = renderHook(() => useMoveHandlers(props));
@@ -186,7 +187,7 @@ describe('useMoveHandlers', () => {
     });
 
     it('handles black pawn promotion to first rank', async () => {
-      const mockOnMove = jest.fn().mockResolvedValue(true);
+      const mockOnMove = vi.fn().mockResolvedValue(true);
       const props = { ...defaultProps, onMove: mockOnMove };
       
       const { result } = renderHook(() => useMoveHandlers(props));
@@ -207,7 +208,7 @@ describe('useMoveHandlers', () => {
     });
 
     it('does not add promotion for non-pawn pieces', async () => {
-      const mockOnMove = jest.fn().mockResolvedValue(true);
+      const mockOnMove = vi.fn().mockResolvedValue(true);
       const props = { ...defaultProps, onMove: mockOnMove };
       
       const { result } = renderHook(() => useMoveHandlers(props));
@@ -227,7 +228,7 @@ describe('useMoveHandlers', () => {
     });
 
     it('does not add promotion for pawn not reaching promotion rank', async () => {
-      const mockOnMove = jest.fn().mockResolvedValue(true);
+      const mockOnMove = vi.fn().mockResolvedValue(true);
       const props = { ...defaultProps, onMove: mockOnMove };
       
       const { result } = renderHook(() => useMoveHandlers(props));
@@ -299,7 +300,7 @@ describe('useMoveHandlers', () => {
     });
 
     it('attempts move when different square is clicked after selection', async () => {
-      const mockOnMove = jest.fn().mockResolvedValue(true);
+      const mockOnMove = vi.fn().mockResolvedValue(true);
       const props = { ...defaultProps, onMove: mockOnMove };
       
       const { result } = renderHook(() => useMoveHandlers(props));
@@ -426,7 +427,7 @@ describe('useMoveHandlers', () => {
 
   describe('Move Execution Error Handling', () => {
     it('shows toast on move execution error', async () => {
-      const mockOnMove = jest.fn().mockRejectedValue(new Error('Invalid move'));
+      const mockOnMove = vi.fn().mockRejectedValue(new Error('Invalid move'));
       const props = { ...defaultProps, onMove: mockOnMove };
       
       const { result } = renderHook(() => useMoveHandlers(props));
@@ -445,7 +446,7 @@ describe('useMoveHandlers', () => {
     });
 
     it('handles non-Error exceptions gracefully', async () => {
-      const mockOnMove = jest.fn().mockRejectedValue('String error');
+      const mockOnMove = vi.fn().mockRejectedValue('String error');
       const props = { ...defaultProps, onMove: mockOnMove };
       
       const { result } = renderHook(() => useMoveHandlers(props));
@@ -465,7 +466,7 @@ describe('useMoveHandlers', () => {
 
   describe('Edge Cases', () => {
     it('handles same-square drop (no move)', () => {
-      const mockOnMove = jest.fn();
+      const mockOnMove = vi.fn();
       const props = { ...defaultProps, onMove: mockOnMove };
       
       const { result } = renderHook(() => useMoveHandlers(props));

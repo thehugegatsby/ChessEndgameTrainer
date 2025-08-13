@@ -1,38 +1,39 @@
+import { vi } from 'vitest';
 /**
  * @file Tests for TestApiService - Clean Store-Based Architecture
  * @description Test coverage for E2E test API service with store interactions only
  */
 
 // Mock the logging module BEFORE imports
-jest.mock("../../../../shared/services/logging", () => ({
-  getLogger: jest.fn().mockReturnValue({
-    setContext: jest.fn().mockReturnThis(),
-    info: jest.fn(),
-    error: jest.fn(),
-    warn: jest.fn(),
-    debug: jest.fn(),
+vi.mock("../../../../shared/services/logging", () => ({
+  getLogger: vi.fn().mockReturnValue({
+    setContext: vi.fn().mockReturnThis(),
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
   }),
 }));
 
 // Mock chess.js
-jest.mock("chess.js", () => {
+vi.mock("chess.js", () => {
   return {
-    Chess: jest.fn().mockImplementation(function (fen?: string) {
+    Chess: vi.fn().mockImplementation(function (fen?: string) {
       return {
-        fen: jest.fn(
+        fen: vi.fn(
           () =>
             fen || "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         ),
-        turn: jest.fn(() => "w"),
-        pgn: jest.fn(() => "1. e4 e5"),
-        isGameOver: jest.fn(() => false),
-        isCheck: jest.fn(() => false),
-        isCheckmate: jest.fn(() => false),
-        isDraw: jest.fn(() => false),
-        isStalemate: jest.fn(() => false),
-        isThreefoldRepetition: jest.fn(() => false),
-        isInsufficientMaterial: jest.fn(() => false),
-        move: jest.fn((_move) => ({ from: "e2", to: "e4", san: "e4" })),
+        turn: vi.fn(() => "w"),
+        pgn: vi.fn(() => "1. e4 e5"),
+        isGameOver: vi.fn(() => false),
+        isCheck: vi.fn(() => false),
+        isCheckmate: vi.fn(() => false),
+        isDraw: vi.fn(() => false),
+        isStalemate: vi.fn(() => false),
+        isThreefoldRepetition: vi.fn(() => false),
+        isInsufficientMaterial: vi.fn(() => false),
+        move: vi.fn((_move) => ({ from: "e2", to: "e4", san: "e4" })),
       };
     }),
   };
@@ -48,15 +49,15 @@ import { getLogger } from "../../../../shared/services/logging";
 describe.skip("TestApiService - Store-Based Architecture", () => {
   let service: TestApiService;
   let mockStoreAccess: any;
-  let consoleLogSpy: jest.SpyInstance;
-  let consoleErrorSpy: jest.SpyInstance;
-  let consoleWarnSpy: jest.SpyInstance;
+  let consoleLogSpy: vi.SpyInstance;
+  let consoleErrorSpy: vi.SpyInstance;
+  let consoleWarnSpy: vi.SpyInstance;
   let mockLogger: any;
 
   beforeEach(() => {
     // Get the mocked logger instance and clear all mocks
     mockLogger = getLogger();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Reset singleton
     TestApiService["instance"] = null;
@@ -64,7 +65,7 @@ describe.skip("TestApiService - Store-Based Architecture", () => {
 
     // Mock store access - the ONLY dependency
     mockStoreAccess = {
-      getState: jest.fn(() => ({
+      getState: vi.fn(() => ({
         game: {
           currentFen:
             "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
@@ -84,24 +85,24 @@ describe.skip("TestApiService - Store-Based Architecture", () => {
         evaluation: { tablebaseEvaluation: { value: 0.1 } },
         analysisStatus: "idle",
       })),
-      subscribe: jest.fn(() => jest.fn()),
-      makeMove: jest.fn(),
-      applyMove: jest.fn(),
-      resetPosition: jest.fn(),
-      setPosition: jest.fn(),
-      goToMove: jest.fn(),
-      setAnalysisStatus: jest.fn(),
+      subscribe: vi.fn(() => vi.fn()),
+      makeMove: vi.fn(),
+      applyMove: vi.fn(),
+      resetPosition: vi.fn(),
+      setPosition: vi.fn(),
+      goToMove: vi.fn(),
+      setAnalysisStatus: vi.fn(),
     };
 
     // Mock console methods
-    consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
-    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-    consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
+    consoleLogSpy = vi.spyOn(console, "log").mockImplementation();
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation();
+    consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation();
   });
 
   afterEach(() => {
     service.cleanup();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     consoleLogSpy.mockRestore();
     consoleErrorSpy.mockRestore();
     consoleWarnSpy.mockRestore();
@@ -122,7 +123,7 @@ describe.skip("TestApiService - Store-Based Architecture", () => {
 
   describe("Initialization", () => {
     it("should initialize with store access", () => {
-      const eventHandler = jest.fn();
+      const eventHandler = vi.fn();
       service.on("test:initialized", eventHandler);
 
       service.initialize(mockStoreAccess);
@@ -152,8 +153,8 @@ describe.skip("TestApiService - Store-Based Architecture", () => {
 
     it("should fail initialization if required actions are missing", () => {
       const invalidStoreAccess = {
-        getState: jest.fn(),
-        subscribe: jest.fn(),
+        getState: vi.fn(),
+        subscribe: vi.fn(),
         // Missing required actions: makeMove, resetPosition
       };
 
@@ -173,7 +174,7 @@ describe.skip("TestApiService - Store-Based Architecture", () => {
     });
 
     it("should make move with dash notation", async () => {
-      const eventHandler = jest.fn();
+      const eventHandler = vi.fn();
       service.on("test:move", eventHandler);
 
       const result = await service.makeMove("e2-e4");
@@ -242,7 +243,7 @@ describe.skip("TestApiService - Store-Based Architecture", () => {
     });
 
     it("should reset game position", async () => {
-      const eventHandler = jest.fn();
+      const eventHandler = vi.fn();
       service.on("test:reset", eventHandler);
 
       await service.resetGame();
@@ -258,7 +259,7 @@ describe.skip("TestApiService - Store-Based Architecture", () => {
     });
 
     it("should trigger tablebase analysis", async () => {
-      const eventHandler = jest.fn();
+      const eventHandler = vi.fn();
       service.on("test:tablebaseAnalysisComplete", eventHandler);
 
       const result = await service.triggerTablebaseAnalysis(2000);
@@ -304,7 +305,7 @@ describe.skip("TestApiService - Store-Based Architecture", () => {
   describe("cleanup", () => {
     it("should clean up all state", () => {
       service.initialize(mockStoreAccess);
-      const unsubscribe = jest.fn();
+      const unsubscribe = vi.fn();
       mockStoreAccess.subscribe.mockReturnValue(unsubscribe);
 
       service.cleanup();

@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Tests for DialogManager component
  * @module tests/unit/components/training/DialogManager
@@ -19,7 +20,7 @@ import userEvent from '@testing-library/user-event';
 import { DialogManager } from '@shared/components/training/DialogManager';
 
 // Mock the dialog components
-jest.mock('@shared/components/ui/MoveErrorDialog', () => ({
+vi.mock('@shared/components/ui/MoveErrorDialog', () => ({
   MoveErrorDialog: ({ 
     isOpen, 
     onClose, 
@@ -47,7 +48,7 @@ jest.mock('@shared/components/ui/MoveErrorDialog', () => ({
   )
 }));
 
-jest.mock('@shared/components/ui/MoveSuccessDialog', () => ({
+vi.mock('@shared/components/ui/MoveSuccessDialog', () => ({
   MoveSuccessDialog: ({ 
     isOpen, 
     onClose, 
@@ -68,16 +69,16 @@ jest.mock('@shared/components/ui/MoveSuccessDialog', () => ({
 
 describe('DialogManager', () => {
   const mockHandlers = {
-    onErrorTakeBack: jest.fn(),
-    onErrorRestart: jest.fn(),
-    onErrorContinue: jest.fn(),
-    onErrorShowBestMove: jest.fn(),
-    onSuccessClose: jest.fn(),
-    onSuccessContinue: jest.fn(),
+    onErrorTakeBack: vi.fn(),
+    onErrorRestart: vi.fn(),
+    onErrorContinue: vi.fn(),
+    onErrorShowBestMove: vi.fn(),
+    onSuccessClose: vi.fn(),
+    onSuccessContinue: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Error Dialog Handling', () => {

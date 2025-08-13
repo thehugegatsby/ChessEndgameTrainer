@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Tests for MoveValidator
  * @module tests/unit/orchestrators/MoveValidator
@@ -7,9 +8,9 @@ import { MoveValidator } from "@shared/store/orchestrators/handlePlayerMove/Move
 import type { TrainingState } from "@shared/store/slices/types";
 
 // Mock ChessService
-jest.mock("@shared/services/ChessService", () => ({
+vi.mock("@shared/services/ChessService", () => ({
   chessService: {
-    validateMove: jest.fn(),
+    validateMove: vi.fn(),
   },
 }));
 
@@ -21,9 +22,9 @@ describe("MoveValidator", () => {
   
   beforeEach(() => {
     validator = new MoveValidator();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     // Reset mock implementation
-    (chessService.validateMove as jest.Mock).mockReturnValue(true);
+    (chessService.validateMove as ReturnType<typeof vi.fn>).mockReturnValue(true);
   });
 
   describe("validateTurn", () => {
@@ -74,7 +75,7 @@ describe("MoveValidator", () => {
 
   describe("validateMove", () => {
     it("should return valid result for legal move", () => {
-      (chessService.validateMove as jest.Mock).mockReturnValue(true);
+      (chessService.validateMove as ReturnType<typeof vi.fn>).mockReturnValue(true);
 
       const result = validator.validateMove("e4");
 
@@ -85,7 +86,7 @@ describe("MoveValidator", () => {
     });
 
     it("should return invalid result for illegal move", () => {
-      (chessService.validateMove as jest.Mock).mockReturnValue(false);
+      (chessService.validateMove as ReturnType<typeof vi.fn>).mockReturnValue(false);
 
       const result = validator.validateMove("invalid");
 
@@ -96,7 +97,7 @@ describe("MoveValidator", () => {
     });
 
     it("should handle ChessJS move object", () => {
-      (chessService.validateMove as jest.Mock).mockReturnValue(true);
+      (chessService.validateMove as ReturnType<typeof vi.fn>).mockReturnValue(true);
       
       const move = { from: "e2", to: "e4", promotion: "q" };
       const result = validator.validateMove(move);
@@ -106,7 +107,7 @@ describe("MoveValidator", () => {
     });
 
     it("should handle move object with from/to", () => {
-      (chessService.validateMove as jest.Mock).mockReturnValue(true);
+      (chessService.validateMove as ReturnType<typeof vi.fn>).mockReturnValue(true);
       
       const move = { from: "e2", to: "e4" };
       const result = validator.validateMove(move);
@@ -116,7 +117,7 @@ describe("MoveValidator", () => {
     });
 
     it("should return error message when ChessService throws", () => {
-      (chessService.validateMove as jest.Mock).mockImplementation(() => {
+      (chessService.validateMove as ReturnType<typeof vi.fn>).mockImplementation(() => {
         throw new Error("Position is checkmate");
       });
 
@@ -129,7 +130,7 @@ describe("MoveValidator", () => {
     });
 
     it("should handle non-Error exceptions", () => {
-      (chessService.validateMove as jest.Mock).mockImplementation(() => {
+      (chessService.validateMove as ReturnType<typeof vi.fn>).mockImplementation(() => {
         throw "String error";
       });
 

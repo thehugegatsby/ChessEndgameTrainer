@@ -107,13 +107,13 @@ class MockManager {
    * Perform additional global cleanup tasks
    */
   private performGlobalCleanup(): void {
-    // IMPORTANT: Do NOT use jest.clearAllMocks() here!
+    // IMPORTANT: Do NOT use vi.clearAllMocks() here!
     // It destroys module mock implementations defined at the top of test files.
     // Individual mock factories handle their own cleanup in their cleanup() methods.
     
     // Clear all timers if using fake timers
-    if (jest.isMockFunction(setTimeout)) {
-      jest.clearAllTimers();
+    if (vi.isMockFunction(setTimeout)) {
+      vi.clearAllTimers();
     }
     
     // Clear any pending promises

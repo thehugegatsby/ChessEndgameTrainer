@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Test suite to reproduce the Move History navigation bug
  * Bug: When clicking on a move in history, subsequent moves appear to be deleted
@@ -10,20 +11,20 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MovePanelZustand } from "@shared/components/training/MovePanelZustand";
 // import { useStore } from "@shared/store/rootStore"; // Not used in this test file
 import { createTestValidatedMove } from "@tests/helpers/validatedMoveFactory";
-import type { ValidatedMove } from "@shared/types/chess";
+import type { ValidatedMove } from '@shared/types/chess.js';
 
 // Mock the store hooks
-jest.mock("@shared/store/hooks", () => ({
-  useGameStore: jest.fn(),
-  useTablebaseStore: jest.fn(),
-  useTrainingStore: jest.fn(),
+vi.mock("@shared/store/hooks", () => ({
+  useGameStore: vi.fn(),
+  useTablebaseStore: vi.fn(),
+  useTrainingStore: vi.fn(),
 }));
 
-const mockUseGameStore = jest.requireMock("@shared/store/hooks").useGameStore;
-const mockUseTablebaseStore = jest.requireMock(
+const mockUseGameStore = vi.importMock("@shared/store/hooks").useGameStore;
+const mockUseTablebaseStore = vi.importMock(
   "@shared/store/hooks",
 ).useTablebaseStore;
-const mockUseTrainingStore = jest.requireMock(
+const mockUseTrainingStore = vi.importMock(
   "@shared/store/hooks",
 ).useTrainingStore;
 
@@ -87,12 +88,12 @@ describe("Move History Navigation Bug", () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("FIX VERIFICATION: Should show ALL moves even when navigating to an earlier move", () => {
     const mockMoves = createMockMoves();
-    const onMoveClick = jest.fn();
+    const onMoveClick = vi.fn();
 
     // Initial state: All 5 moves played, viewing the last move (index 4)
     mockUseGameStore.mockReturnValue([
@@ -166,7 +167,7 @@ describe("Move History Navigation Bug", () => {
 
   it("EXPECTED BEHAVIOR: Should display all moves with proper highlighting", () => {
     const mockMoves = createMockMoves();
-    const onMoveClick = jest.fn();
+    const onMoveClick = vi.fn();
 
     // This test shows what SHOULD happen
     mockUseGameStore.mockReturnValue([

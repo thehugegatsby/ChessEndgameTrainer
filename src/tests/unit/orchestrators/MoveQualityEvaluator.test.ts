@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Tests for MoveQualityEvaluator
  * @module tests/unit/orchestrators/MoveQualityEvaluator
@@ -7,23 +8,23 @@ import { tablebaseService } from "@shared/services/TablebaseService";
 import { createTestValidatedMove } from "@tests/helpers/validatedMoveFactory";
 import { MoveQualityEvaluator } from "@shared/store/orchestrators/handlePlayerMove/MoveQualityEvaluator";
 
-// Mock dependencies will be handled with jest.spyOn in individual tests
+// Mock dependencies will be handled with vi.spyOn in individual tests
 
 // Mock the logging service
-jest.mock("@shared/services/logging", () => {
-  const mockDebug = jest.fn();
-  const mockInfo = jest.fn();
-  const mockWarn = jest.fn();
-  const mockError = jest.fn();
+vi.mock("@shared/services/logging", () => {
+  const mockDebug = vi.fn();
+  const mockInfo = vi.fn();
+  const mockWarn = vi.fn();
+  const mockError = vi.fn();
   
-  const mockSetContext = jest.fn(() => ({
+  const mockSetContext = vi.fn(() => ({
     debug: mockDebug,
     info: mockInfo,
     warn: mockWarn,
     error: mockError,
   }));
   
-  const mockGetLogger = jest.fn(() => ({
+  const mockGetLogger = vi.fn(() => ({
     setContext: mockSetContext,
     debug: mockDebug,
     info: mockInfo,
@@ -80,20 +81,20 @@ describe("MoveQualityEvaluator", () => {
   
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     evaluator = new MoveQualityEvaluator();
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe("evaluateMoveQuality", () => {
 
     it("should return no error dialog when evaluations are unavailable", async () => {
-      // Use jest.spyOn to mock the service methods
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      // Use vi.spyOn to mock the service methods
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
       getEvaluationSpy
         .mockResolvedValueOnce({ isAvailable: false })
@@ -113,9 +114,9 @@ describe("MoveQualityEvaluator", () => {
     });
 
     it("should return no error dialog when evaluation before is unavailable", async () => {
-      // Use jest.spyOn to mock the service methods
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      // Use vi.spyOn to mock the service methods
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
       getEvaluationSpy
         .mockResolvedValueOnce({ isAvailable: false })
@@ -134,9 +135,9 @@ describe("MoveQualityEvaluator", () => {
     });
 
     it("should return no error dialog when evaluation after is unavailable", async () => {
-      // Use jest.spyOn to mock the service methods
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      // Use vi.spyOn to mock the service methods
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
       getEvaluationSpy
         .mockResolvedValueOnce({
@@ -155,9 +156,9 @@ describe("MoveQualityEvaluator", () => {
     });
 
     it("should handle optimal moves correctly", async () => {
-      // Use jest.spyOn to mock the service methods
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      // Use vi.spyOn to mock the service methods
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
       // Mock evaluations
       // Mock evaluations: draw before and after
@@ -197,9 +198,9 @@ describe("MoveQualityEvaluator", () => {
     });
 
     it("should detect suboptimal moves with outcome change", async () => {
-      // Use jest.spyOn to mock the service methods
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      // Use vi.spyOn to mock the service methods
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
       // Mock evaluations
       // Mock evaluations: win before, draw after (from white's perspective)
@@ -239,9 +240,9 @@ describe("MoveQualityEvaluator", () => {
     });
 
     it("should handle draw to loss correctly", async () => {
-      // Use jest.spyOn to mock the service methods
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      // Use vi.spyOn to mock the service methods
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
       // Mock evaluations
       // Mock evaluations: draw before, loss after (from player's perspective)
@@ -280,9 +281,9 @@ describe("MoveQualityEvaluator", () => {
     });
 
     it("should not show error dialog for suboptimal move without outcome change", async () => {
-      // Use jest.spyOn to mock the service methods
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      // Use vi.spyOn to mock the service methods
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
       // Mock evaluations
       // Mock evaluations: win before and after (same outcome)
@@ -321,9 +322,9 @@ describe("MoveQualityEvaluator", () => {
     });
 
     it("should use training baseline when provided", async () => {
-      // Use jest.spyOn to mock the service methods
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      // Use vi.spyOn to mock the service methods
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
       // Mock evaluations
       // Mock evaluations
@@ -360,9 +361,9 @@ describe("MoveQualityEvaluator", () => {
     });
 
     it("should handle null training baseline", async () => {
-      // Use jest.spyOn to mock the service methods
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      // Use vi.spyOn to mock the service methods
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
       // Mock evaluations
       getEvaluationSpy
@@ -391,9 +392,9 @@ describe("MoveQualityEvaluator", () => {
     });
 
     it("should handle getTopMoves failure gracefully", async () => {
-      // Use jest.spyOn to mock the service methods
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      // Use vi.spyOn to mock the service methods
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
       getEvaluationSpy
         .mockResolvedValueOnce({
@@ -422,9 +423,9 @@ describe("MoveQualityEvaluator", () => {
     });
 
     it("should handle evaluation errors gracefully", async () => {
-      // Use jest.spyOn to mock the service methods
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      // Use vi.spyOn to mock the service methods
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
       // When tablebase service fails, getEvaluation catches errors and returns { isAvailable: false }
       getEvaluationSpy.mockRejectedValue(
@@ -451,9 +452,9 @@ describe("MoveQualityEvaluator", () => {
     });
 
     it("should log comprehensive debugging information", async () => {
-      // Use jest.spyOn to mock the service methods
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      // Use vi.spyOn to mock the service methods
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
       getEvaluationSpy
         .mockResolvedValueOnce({
@@ -483,9 +484,9 @@ describe("MoveQualityEvaluator", () => {
 
   describe("WDL perspective conversion", () => {
     it("should handle perspective conversion correctly", async () => {
-      // Use jest.spyOn to mock the service methods
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      // Use vi.spyOn to mock the service methods
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
       // Mock evaluations
       // Test case: Black plays, wdlBefore is from black's perspective, wdlAfter is from white's perspective
@@ -527,9 +528,9 @@ describe("MoveQualityEvaluator", () => {
 
   describe("edge cases", () => {
     it("should handle empty top moves list", async () => {
-      // Use jest.spyOn to mock the service methods
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      // Use vi.spyOn to mock the service methods
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
       getEvaluationSpy
         .mockResolvedValueOnce({
@@ -557,9 +558,9 @@ describe("MoveQualityEvaluator", () => {
     });
 
     it("should handle top moves unavailable", async () => {
-      // Use jest.spyOn to mock the service methods
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      // Use vi.spyOn to mock the service methods
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
       getEvaluationSpy
         .mockResolvedValueOnce({
@@ -587,9 +588,9 @@ describe("MoveQualityEvaluator", () => {
     });
 
     it("should handle evaluations without result field", async () => {
-      // Use jest.spyOn to mock the service methods
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      // Use vi.spyOn to mock the service methods
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
       getEvaluationSpy
         .mockResolvedValueOnce({
@@ -611,9 +612,9 @@ describe("MoveQualityEvaluator", () => {
     });
 
     it("should handle evaluations with null result", async () => {
-      // Use jest.spyOn to mock the service methods
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      // Use vi.spyOn to mock the service methods
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
       getEvaluationSpy
         .mockResolvedValueOnce({
