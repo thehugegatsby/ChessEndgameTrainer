@@ -37,8 +37,10 @@ readonly LINK_FILES=(
 )
 
 # Config directories to symlink
+# DISABLED: src/config caused symlink issues in commits
+# If config needs to be shared, copy it instead of symlinking
 readonly LINK_CONFIG_DIRS=(
-    "src/config"
+    # "src/config"  # Disabled - causes git issues
 )
 
 # pnpm store configuration

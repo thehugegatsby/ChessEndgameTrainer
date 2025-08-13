@@ -126,6 +126,20 @@ out/
 # Mac specific
 **/.DS_Store
 
+# Worktree safety - prevent accidental commits
+# Symlinks that might be created by worktrees
+src/config
+**/src/config
+# Worktree-specific files
+.git/worktrees/
+# Any broken symlinks
+**/*.lnk
+# Prevent committing symlinks to directories
+**/*/link
+# Backup files from conflict resolution
+*.orig
+*.rej
+
 # Test artifacts
 *.test.tmp
 
