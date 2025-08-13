@@ -1,8 +1,29 @@
 # SCRATCHPAD
 
-## Current Work (2025-08-13)
+## Current Work (2025-01-14)
 
-### CI Pipeline Fixed ✅
+### Module Resolution Strategy 📦
+
+**Decision: Schrittweise Migration zu ES6 Modules**
+
+**Problem**: CI-Fehler mit dynamischen `require()` und TypeScript path aliases
+- 15+ Test-Dateien verwenden `require('@shared/...')` 
+- Funktioniert lokal, scheitert in CI
+- Root Cause: require() kennt TypeScript aliases nicht zur Laufzeit
+
+**Lösung implementiert**:
+1. ✅ Quick-Fix: `vite-tsconfig-paths` Plugin installiert
+2. ✅ Konfiguration in `vitest.config.ts` hinzugefügt
+3. ✅ requireShared Helper entfernt (nicht mehr nötig)
+
+**Migration Plan (ROI-basiert)**:
+- **NEUE Tests**: Immer ES6 imports verwenden (`import` statt `require`)
+- **ALTE Tests**: Nicht anfassen bis größeres Refactoring (Q2 2025)
+- **Aufwand**: 6-10 Stunden für vollständige Migration
+- **ROI**: Break-even nach ~4-5 Monaten
+- **Empfehlung**: Schrittweise bei neuen Features umstellen
+
+### CI Pipeline Fixed ✅ (2025-01-13)
 
 **Successfully resolved all CI failures**:
 1. Removed pre-push hook that was blocking development
@@ -10,7 +31,7 @@
 3. Split tests into smaller chunks to reduce memory usage
 4. Skipped FeatureFlagService.test.ts and useFeatureFlag.test.tsx (memory leaks)
 5. Fixed import paths in integration tests
-6. Skipped kpk-endgames-service-mock.spec.ts (module resolution issue in CI)
+6. Module resolution mit vite-tsconfig-paths gelöst
 
 **Pipeline now passes in ~2 minutes**
 

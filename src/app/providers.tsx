@@ -90,7 +90,7 @@ function AppProvidersInner({ children }: { children: React.ReactNode }): React.J
 
       if (previousState !== currentState) {
         logger.info(
-          "App ready state transition: " + previousState + " → " + currentState,
+          `App ready state transition: ${previousState} → ${currentState}`,
           {
             router: {
               isReady,

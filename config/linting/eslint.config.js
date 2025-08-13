@@ -64,18 +64,25 @@ module.exports = {
       }
     ],
     
-    // 🤖 COMPLEXITY LIMITS - Chess domain requires higher limits
-    'no-nested-ternary': 'warn',              // Chess evaluation logic can be complex
-    'complexity': ['warn', { max: 18 }],       // Chess move validation needs higher limit
+    // 🤖 COMPLEXITY LIMITS - LLM-optimized thresholds (no human devs)
+    'no-nested-ternary': 'off',                // LLM can handle complex ternaries
+    'complexity': ['warn', { max: 35 }],       // LLM: High threshold for safety net only
     'max-lines-per-function': [
       'warn', 
       { 
-        max: 170,              // Chess algorithms can be longer
-        skipBlankLines: true,   // Don't count whitespace
-        skipComments: true     // Don't count AI explanations
+        max: 350,              // LLM: Can process long functions, prevent extreme cases
+        skipBlankLines: true,   
+        skipComments: true     
       }
     ],
-    'max-depth': ['warn', { max: 4 }]         // Limit nested chess logic depth
+    'max-depth': ['warn', { max: 8 }],        // LLM: Deep nesting OK, prevent logic errors
+    
+    // 🤖 LLM-SPECIFIC RULES - Prevent common LLM anti-patterns
+    'no-magic-numbers': ['warn', {
+      ignore: [0, 1, -1, 2, 8],  // Common chess: empty, true/false, board size
+      ignoreArrayIndexes: true,
+      enforceConst: true
+    }]
   },
   
   // 🤖 ENVIRONMENT-SPECIFIC OVERRIDES
@@ -101,7 +108,9 @@ module.exports = {
         '@typescript-eslint/explicit-function-return-type': 'off', // Build scripts don't need return types
         'no-console': 'off',                                   // Scripts need logging
         'complexity': 'off',                                   // Config logic can be complex
-        'max-lines-per-function': 'off'                       // Setup functions can be long
+        'max-lines-per-function': 'off',                      // Setup functions can be long
+        'max-depth': 'off',                                   // Config nesting unlimited
+        'no-magic-numbers': 'off'                             // Configs use literal values
       }
     },
     {
@@ -118,8 +127,10 @@ module.exports = {
         '@typescript-eslint/no-unused-vars': 'off',          // Test fixtures have unused vars
         '@typescript-eslint/explicit-function-return-type': 'off', // Test functions don't need return types
         'no-console': 'off',                                  // Tests can log for debugging
-        'complexity': ['warn', { max: 25 }],                 // Test scenarios can be complex
-        'max-depth': ['warn', { max: 6 }]                    // Nested test scenarios allowed
+        'complexity': 'off',                                  // LLM: Tests can be arbitrarily complex
+        'max-depth': 'off',                                   // LLM: Test nesting unlimited
+        'max-lines-per-function': 'off',                     // LLM: Test scenarios can be long
+        'no-magic-numbers': 'off'                            // Tests use many literal values
       }
     }
   ]

@@ -26,6 +26,24 @@ pnpm test path/to/test.tsx
 - **Integration tests**: Dedicated integration test files
 - **Configs**: `vitest.unit.config.ts`, `vitest.integration.config.ts`
 
+### 📦 Module Resolution Strategy (2025-01-13)
+
+**Migration Plan:** Schrittweise von CommonJS zu ES6 Modules
+
+```typescript
+// ✅ NEUE Tests - ES6 imports verwenden
+import { showErrorToast } from '@shared/utils/toast';
+import { useGameStore } from '@shared/store/hooks';
+
+// ⚠️ ALTE Tests - Nicht anfassen (require bleibt)
+const { showErrorToast } = require('@shared/utils/toast'); // Legacy
+```
+
+**CI-Fix:** `vite-tsconfig-paths` Plugin löst TypeScript path aliases
+- Installiert und konfiguriert in `vitest.config.ts`
+- Ermöglicht `@shared/` imports in CI-Umgebung
+- Keine Änderungen an alten Tests nötig
+
 ## 3. Test Commands
 
 Execute tests using `pnpm` for consistent WSL compatibility:

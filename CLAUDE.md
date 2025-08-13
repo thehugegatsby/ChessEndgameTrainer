@@ -13,6 +13,11 @@
 **Code Standards:**
 - Neue Tests in Vitest | Keine `any` Types | UI-Errors auf Deutsch | `@shared/` imports
 
+**Test Migration Strategy (2025-01-13):**
+- ✅ NEUE Tests: ES6 imports verwenden (`import` statt `require`)
+- ⚠️ ALTE Tests: Nicht anfassen (require bleibt bis größeres Refactoring)
+- 📦 CI-Fix: `vite-tsconfig-paths` löst Module Resolution
+
 ## ⚡ Commands
 
 ```bash

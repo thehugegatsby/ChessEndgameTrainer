@@ -76,7 +76,7 @@ export default async function TrainingPage({ params }: TrainingPageProps): Promi
  * Generate static paths for available test positions
  * @returns Array of position IDs
  */
-export async function generateStaticParams(): Promise<Array<{ id: string }>> {
+export function generateStaticParams(): Array<{ id: string }> {
   // Use actual available position IDs
   const availablePositionIds = [1, 2]; // Only existing positions
 
