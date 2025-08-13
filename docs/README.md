@@ -6,15 +6,15 @@ This index provides structured navigation through all project documentation for 
 
 ## Quick Start
 
-- **First time here?** → [CLAUDE_QUICKSTART.md](../CLAUDE_QUICKSTART.md)
-- **Project root guide** → [CLAUDE.md](../CLAUDE.md)
+- **First time here?** → [CLAUDE.md](../CLAUDE.md)
+- **Core Architecture** → [CORE.md](./CORE.md)
 
 ## Environment & Tooling
 
 | Document                                                           | Purpose               | Key Info                           |
 | ------------------------------------------------------------------ | --------------------- | ---------------------------------- |
-| [WSL2_ENV.md](./WSL2_ENV.md)                                       | WSL environment rules | Command syntax, forbidden patterns |
-| [tooling/mcp-tools.md](./tooling/mcp-tools.md)                     | MCP tool selection    | Hierarchy, decision tree           |
+| [guides/wsl2.md](./guides/wsl2.md)                                 | WSL environment rules | Command syntax, forbidden patterns |
+| [tooling/mcp-overview.md](./tooling/mcp-overview.md)               | MCP tool selection    | Hierarchy, decision tree           |
 | [tooling/hooks-and-commands.md](./tooling/hooks-and-commands.md)   | Hook configuration    | Debug, safety hooks                |
 | [tooling/GITHUB_ISSUE_GUIDELINES.md](./tooling/GITHUB_ISSUE_GUIDELINES.md) | GitHub issue standards | LLM-optimized templates, naming    |
 
@@ -22,7 +22,8 @@ This index provides structured navigation through all project documentation for 
 
 | Document                                                         | Purpose           | Key Info                           |
 | ---------------------------------------------------------------- | ----------------- | ---------------------------------- |
-| [SYSTEM_GUIDE.md](./SYSTEM_GUIDE.md)                             | System overview   | Zustand slices, services, patterns |
+| [CORE.md](./CORE.md)                                             | System overview   | Consolidated architecture guide    |
+| [SYSTEM_GUIDE.md](./SYSTEM_GUIDE.md)                             | Detailed patterns | Implementation patterns, examples  |
 | [MOVE_HANDLING_ARCHITECTURE.md](./MOVE_HANDLING_ARCHITECTURE.md) | Move flow details | 533-line orchestrator breakdown    |
 | [GLOSSARY.md](./GLOSSARY.md)                                     | Term definitions  | WDL, FEN, Slice, Orchestrator      |
 
@@ -30,7 +31,7 @@ This index provides structured navigation through all project documentation for 
 
 | Document                                     | Purpose              | Key Info                  |
 | -------------------------------------------- | -------------------- | ------------------------- |
-| [TESTING_STRATEGY.md](./TESTING_STRATEGY.md) | Test framework rules | Jest/Vitest, WSL commands |
+| [guides/testing.md](./guides/testing.md)     | Test framework rules | Vitest, WSL commands      |
 | [CONTRIBUTING.md](./CONTRIBUTING.md)         | Git workflow         | Branch naming, PR format  |
 
 ## Specialized Guides

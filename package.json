@@ -72,6 +72,10 @@
     "zod": "^4.0.14",
     "zustand": "^5.0.7"
   },
+  "engines": {
+    "node": ">=20.0.0 <21.0.0",
+    "pnpm": ">=10.0.0"
+  },
   "devDependencies": {
     "@babel/preset-env": "^7.27.2",
     "@babel/preset-react": "^7.27.1",

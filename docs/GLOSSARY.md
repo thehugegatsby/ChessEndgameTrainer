@@ -10,7 +10,7 @@ Essential terms for Chess Endgame Trainer development.
 | ------------- | --------------------------------------------------------- |
 | **FEN**       | Forsyth-Edwards Notation - standard chess position format |
 | **PGN**       | Portable Game Notation - chess game/move recording format |
-| **WDL**       | Win/Draw/Loss - tablebase evaluation values (-2 to +2)    |
+| **WDL**       | Win/Draw/Loss - tablebase evaluation (-2 to +2, see below) |
 | **Tablebase** | Endgame database with perfect play evaluation             |
 | **Endgame**   | Chess position with few pieces (≤7 pieces total)          |
 
@@ -73,3 +73,24 @@ Essential terms for Chess Endgame Trainer development.
 | **TypeScript Check** | Type validation without compilation             |
 | **Pre-commit Hook**  | Validation script before git commit             |
 | **Hot Reload**       | Live code updates during development            |
+
+## WDL Values Detail
+
+Tablebase evaluation from **White's perspective**:
+
+| Value | Category | Meaning | Example |
+|-------|----------|---------|---------|
+| **+2** | Win | White wins with perfect play | K+Q vs K |
+| **+1** | Cursed-win | White wins but 50-move rule applies | Complex endgames |
+| **0** | Draw | Theoretical draw | K vs K |
+| **-1** | Blessed-loss | White loses but 50-move rule saves | Defensive fortresses |
+| **-2** | Loss | White loses with perfect play | K vs K+Q |
+
+**For Black:** Negate all values (+2 → -2, etc.)
+
+## DTZ vs DTM
+
+| Term | Definition | Use Case |
+|------|------------|----------|
+| **DTZ** | Distance to Zeroing - moves until 50-move counter resets | Available in most tablebases |
+| **DTM** | Distance to Mate - total moves to checkmate | Better for resistance calculation |

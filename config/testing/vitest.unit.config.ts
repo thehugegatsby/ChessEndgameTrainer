@@ -42,16 +42,19 @@ export default defineConfig({
       `${testsDir}/pages/**`,
       `${testsDir}/shared/**`,
     ],
-    // PERFORMANCE OPTIMIZATIONS
-    pool: 'vmThreads',  // VM threads for better isolation than threads
+    // PERFORMANCE OPTIMIZATIONS - Fix worker issues
+    pool: 'forks',  // Use forks instead of threads to avoid IPC issues
     poolOptions: {
-      vmThreads: {
-        maxMemoryLimitBeforeRecycle: 0.8,  // Recycle worker at 80% memory
-        memoryLimit: '1GB',  // Increase memory limit per worker
+      forks: {
+        maxForks: 1,  // Only one fork at a time to prevent memory issues
+        minForks: 1,
+        isolate: false,  // No isolation - reuse same context
       }
     },
-    isolate: false,   // Run tests in same context (faster)
+    // Remove isolate setting - let Vitest handle it
     testTimeout: 5000,  // Faster timeout for unit tests
+    maxWorkers: 1,  // Only one worker to prevent memory issues
+    fileParallelism: false,  // Run files sequentially
     coverage: {
       reporter: ['text', 'lcov'],
       exclude: [

@@ -1,0 +1,143 @@
+# CORE.md - Chess Endgame Trainer Architecture
+
+## System Overview
+
+React 19 + TypeScript + Zustand. Domain-driven design with reactive state store as Single Source of Truth.
+
+## Architecture
+
+```mermaid
+graph TD
+    subgraph "Frontend Layer"
+        A[React Components] --> B[React Hooks]
+    end
+    subgraph "State Management"
+        B --> C{Zustand Root Store}
+        C --> D[GameSlice]
+        C --> E[TrainingSlice]
+        C --> F[TablebaseSlice]
+        C --> G[UISlice]
+    end
+    subgraph "Business Logic"
+        C --> H[Orchestrators]
+        H --> I[ChessService]
+        H --> J[TablebaseService]
+    end
+    subgraph "External APIs"
+        J --> K((Lichess API))
+    end
+
+    style C fill:#e1f5fe
+    style H fill:#f3e5f5
+    style I fill:#e8f5e8
+    style J fill:#e8f5e8
+```
+
+### Zustand Domain Slices
+
+| Slice | Purpose | Key State |
+|-------|---------|-----------|
+| **GameSlice** | Chess logic, FEN, history | `position`, `moveHistory`, `gameStatus` |
+| **TrainingSlice** | Training sessions, progress | `scenarios`, `userProgress`, `sessionStatus` |
+| **TablebaseSlice** | Lichess API cache | `evaluations`, `cache`, `requestStatus` |
+| **UISlice** | UI state management | `modals`, `toasts`, `isLoading` |
+
+### Services
+
+- **TablebaseService**: Lichess API with LRU cache, deduplication, Zod validation
+- **ChessService**: chess.js wrapper (legacy singleton - prefer GameSlice)
+
+### Orchestrators
+
+Complex operations across slices: `/shared/store/orchestrators/`
+
+**Example: handlePlayerMove**
+1. Validates move (GameSlice)
+2. Updates progress (TrainingSlice)  
+3. Shows feedback (UISlice)
+4. Fetches evaluation (TablebaseSlice)
+
+## Code Standards
+
+### Naming
+- Components: `PascalCase.tsx`
+- Hooks: `useCamelCase.ts`
+- Services: `PascalCaseService.ts`
+- Constants: `UPPER_CASE`
+
+### Language
+- Code/Comments: English
+- UI Text: German (`showToast("Ungültiger Zug", "error")`)
+
+### Imports
+1. External (`react`, `zustand`)
+2. Aliases (`@shared/...`)
+3. Types (`import type {...}`)
+
+## Implementation Patterns
+
+### Container/Presentation
+
+```typescript
+// Container: Logic via hooks
+function BoardContainer() {
+  const { position, makeMove } = useGameActions();
+  return <BoardPresentation fen={position.fen()} onMove={makeMove} />;
+}
+
+// Presentation: Pure UI
+function BoardPresentation({ fen, onMove }) {
+  return <Chessboard position={fen} onMove={onMove} />;
+}
+```
+
+### Zustand with Immer
+
+```typescript
+// ✅ Clean with Immer
+makeMove: (move) => set((state) => {
+  state.game.moveHistory.push(move);
+})
+
+// ❌ Avoid manual spreading
+makeMove: (move) => set((state) => ({
+  ...state,
+  game: { ...state.game, moveHistory: [...state.game.moveHistory, move] }
+}))
+```
+
+### Optimized Hooks
+
+```typescript
+// ✅ Specific hooks prevent re-renders
+const { makeMove } = useGameActions();     // Actions only
+const { fen } = useGameState();            // State only
+const [state, actions] = useGameStore();   // Both (rare)
+
+// ❌ Subscribes to entire slice
+const gameStore = useGameStore();
+```
+
+## Critical Files
+
+```
+src/shared/store/rootStore.ts                 # Main store
+src/shared/services/ChessService.ts           # Chess logic  
+src/shared/store/orchestrators/handlePlayerMove/  # Move handling (533 lines)
+```
+
+## Testing Strategy
+
+- **Framework**: Vitest (Jest removed)
+- **Structure**: `src/tests/unit/`, `src/features/*/`
+- **WSL Critical**: `pnpm test file.tsx` (never use `--`)
+
+## Feature Architecture
+
+4 bounded domains with co-located tests:
+- `chess-core/`: Game logic, validation
+- `tablebase/`: Lichess API integration  
+- `training/`: Session management
+- `move-quality/`: Move evaluation
+
+Migration ~25% complete - new tests ONLY in Vitest.

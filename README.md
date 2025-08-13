@@ -4,8 +4,8 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue)](https://www.typescriptlang.org/)
 [![Zustand](https://img.shields.io/badge/Zustand-5.0.7-orange)](https://zustand-demo.pmnd.rs/)
 [![Test Coverage](https://img.shields.io/badge/Tests-513+_passing-green)](./coverage/lcov-report/index.html)
-[![Phase 3B](https://img.shields.io/badge/Phase_3B-COMPLETE-brightgreen)](./PROJECT_STATUS.md)
-[![Architecture](https://img.shields.io/badge/Architecture-Event_Driven-blue)](./docs/ARCHITECTURE.md)
+[![Phase 3B](https://img.shields.io/badge/Phase_3B-COMPLETE-brightgreen)](./docs/.archive/PROJECT_STATUS.md)
+[![Architecture](https://img.shields.io/badge/Architecture-Event_Driven-blue)](./docs/CORE.md)
 
 Eine moderne **Web-first** Anwendung zum systematischen Lernen von Schachendspielen mit KI-Unterstützung. **🎉 PHASE 3B COMPLETE** - Event-driven Architecture mit Tablebase Integration!
 
@@ -65,7 +65,7 @@ ChessEndgameTrainer/
 - **Chess Logic**: chess.js 1.0.0-beta.6 für Zugvalidierung
 - **State Management**: Zustand 5.0.7 (Domain-Specific Slices Architecture)
 - **Testing**: Jest 30.0.4, React Testing Library 14.2.1
-- **Environment**: Node.js 20+
+- **Environment**: Node.js 20.x (Required - see .nvmrc)
 
 ## 📊 Projekt Status (August 2025)
 
@@ -99,19 +99,23 @@ Ready for new feature development! No critical bugs blocking progress.
 
 ### Voraussetzungen
 
-- Node.js 20+
-- npm
+- Node.js 20.x (LTS) - **Required**, see `.nvmrc`
+- pnpm 10+
 
 ### Installation
 
 ```bash
-npm install
+# Use Node 20 (with nvm)
+nvm use
+
+# Install dependencies
+pnpm install
 ```
 
 ### Entwicklungsserver starten
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 Server läuft auf http://localhost:3002 (Dev) oder http://localhost:3003 (E2E Tests)
@@ -124,21 +128,21 @@ Die Anwendung unterstützt Firebase Firestore als Backend-Datenbank für persist
 
 ```bash
 # Unit Tests
-npm test
+pnpm test
 
 # Mit Coverage
-npm run test:coverage
+pnpm run test:coverage
 
 # Watch Mode
-npm run test:watch
+pnpm run test:watch
 
 # All test suites
-npm run test:all
+pnpm run test:all
 
 # Specific test categories
-npm run test:unit
-npm run test:integration
-npm run test:performance
+pnpm run test:unit
+pnpm run test:integration
+pnpm run test:performance
 ```
 
 #### Test-Architektur
@@ -253,7 +257,7 @@ Detaillierte Performance-Metriken und technische Details finden Sie in der Codeb
 
 - **[CLAUDE.md](./CLAUDE.md)** - AI Assistant Context & Architektur-Richtlinien
 - **[CHANGELOG.md](./CHANGELOG.md)** - Versionshistorie und Änderungen
-- **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - System-Architektur Details
+- **[docs/CORE.md](./docs/CORE.md)** - System-Architektur Übersicht
 - **[GitHub Issues](https://github.com/thehugegatsby/ChessEndgameTrainer/issues)** - Aktuelle Prioritäten und Roadmap
 
 ### 🏗️ **Web-First Architektur-Prinzipien**
