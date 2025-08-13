@@ -6,6 +6,7 @@ import { vi } from 'vitest';
 
 import "@testing-library/jest-dom/vitest";
 import React from "react";
+import { requireShared } from './requireHelper';
 
 // Note: MSW polyfills removed - using service-level mocking instead
 // This significantly improves test performance and stability
@@ -97,7 +98,7 @@ export function setupReactTestingWithContainer(
      * @param root0.children
      */
     wrapper = ({ children }: { children: React.ReactNode }) => {
-      const { ServiceProvider } = require("@shared/services/container/adapter");
+      const { ServiceProvider } = requireShared("@shared/services/container/adapter");
       return React.createElement(ServiceProvider, { container }, children);
     };
   });

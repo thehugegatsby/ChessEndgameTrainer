@@ -3,6 +3,9 @@
  * Central export for all Jest 30 compatible test utilities
  */
 
+// Require Helper for dynamic imports
+export { requireShared } from './requireHelper';
+
 // Test Container Utilities
 export {
   createTestContainer,

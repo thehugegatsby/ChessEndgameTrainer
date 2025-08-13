@@ -18,6 +18,7 @@ import { vi } from 'vitest';
 
 import { renderHook, act } from '@testing-library/react';
 import { useMoveHandlers } from '@shared/hooks/useMoveHandlers';
+import { requireShared } from '../../utils/requireHelper';
 // import { getLogger } from '@shared/services/logging/Logger'; // Not used in this test file
 
 // Mock dependencies
@@ -445,7 +446,7 @@ describe('useMoveHandlers', () => {
         await new Promise(resolve => setTimeout(resolve, 0));
       });
 
-      const { showErrorToast } = require('@shared/utils/toast');
+      const { showErrorToast } = requireShared('@shared/utils/toast');
       expect(showErrorToast).toHaveBeenCalledWith('Invalid move');
     });
 
@@ -463,7 +464,7 @@ describe('useMoveHandlers', () => {
         await new Promise(resolve => setTimeout(resolve, 0));
       });
 
-      const { showErrorToast } = require('@shared/utils/toast');
+      const { showErrorToast } = requireShared('@shared/utils/toast');
       expect(showErrorToast).toHaveBeenCalledWith('Move failed');
     });
   });

@@ -8,6 +8,7 @@ import React from "react";
 import type { BrowserAPIs } from "@shared/services/platform/web/WebPlatformService";
 import { ServiceContainer } from "@shared/services/container";
 import { MockStorage } from "./MockStorage";
+import { requireShared } from './requireHelper';
 
 /**
  * Service overrides for specific tests
@@ -94,7 +95,7 @@ export function createTestContainer(
   container.registerCustom("platform.service", () => {
     const {
       WebPlatformService,
-    } = require("@shared/services/platform/web/WebPlatformService");
+    } = requireShared("@shared/services/platform/web/WebPlatformService");
     return new WebPlatformService(browserAPIs);
   });
 
@@ -162,7 +163,7 @@ export function createTestWrapper(overrides?: TestServiceOverrides) {
 
   return function TestWrapper({ children }: { children: React.ReactNode }) {
     // Dynamic import to avoid SSR issues
-    const { ServiceProvider } = require("@shared/services/container/adapter");
+    const { ServiceProvider } = requireShared("@shared/services/container/adapter");
     return React.createElement(ServiceProvider, { container }, children);
   };
 }

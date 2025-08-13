@@ -1,4 +1,5 @@
 import { vi } from 'vitest';
+import { requireShared } from '../../utils/requireHelper';
 /**
  * @file Tests for useDialogHandlers hook
  * @module tests/unit/hooks/useDialogHandlers
@@ -410,7 +411,7 @@ describe('useDialogHandlers', () => {
         result.current.handleShowBestMove();
       });
 
-      const { showInfoToast } = require('@shared/utils/toast');
+      const { showInfoToast } = requireShared('@shared/utils/toast');
       expect(showInfoToast).toHaveBeenCalledWith(
         'Der beste Zug war: Kh1',
         { duration: 4000 }
@@ -508,7 +509,7 @@ describe('useDialogHandlers', () => {
         result.current.handleShowBestMove();
       });
 
-      const { showInfoToast } = require('@shared/utils/toast');
+      const { showInfoToast } = requireShared('@shared/utils/toast');
       expect(showInfoToast).toHaveBeenCalledWith(
         'Der beste Zug war: Qh8+',
         { duration: 4000 }
