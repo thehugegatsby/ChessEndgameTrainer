@@ -53,11 +53,20 @@ jobs:
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
 
+    - name: Check available memory
+      run: |
+        echo "--- Memory Usage Before Tests ---"
+        free -h
+        echo "--- Node Version ---"
+        node --version
+        echo "--- Available CPUs ---"
+        nproc
+
     - name: Run unit tests
-      run: NODE_OPTIONS="--max-old-space-size=4096" pnpm run test:unit
+      run: NODE_OPTIONS="--max-old-space-size=2048" pnpm run test:unit
     
     - name: Run integration tests
-      run: NODE_OPTIONS="--max-old-space-size=4096" pnpm run test:integration
+      run: NODE_OPTIONS="--max-old-space-size=2048" pnpm run test:integration
       env:
         CI: true  # Skip real API tests in CI
 

@@ -48,7 +48,7 @@ export default defineConfig({
       forks: {
         maxForks: 1,  // Only one fork at a time to prevent memory issues
         minForks: 1,
-        isolate: false,  // No isolation - reuse same context
+        isolate: true,  // Enable isolation to prevent memory leaks between test files
       }
     },
     // Remove isolate setting - let Vitest handle it
