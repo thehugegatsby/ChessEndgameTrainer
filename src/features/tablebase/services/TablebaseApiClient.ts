@@ -11,6 +11,8 @@ import type {
 } from '../types/interfaces';
 import { TablebaseApiResponseSchema, TablebaseConfig } from '../types/models';
 import { z } from 'zod';
+import type { HttpProvider } from './HttpProvider';
+import { RealHttpProvider } from './HttpProvider';
 
 /**
  * Custom error for API-specific failures
@@ -26,20 +28,27 @@ export class ApiError extends Error {
   }
 }
 
+export interface TablebaseApiClientConfig {
+  baseUrl?: string;
+  timeout?: number;
+  maxRetries?: number;
+}
+
 export class TablebaseApiClient implements TablebaseApiClientInterface {
   private readonly baseUrl: string;
   private readonly timeout: number;
   private readonly maxRetries: number;
   private readonly pendingRequests = new Map<string, Promise<TablebaseApiResponse>>();
+  private readonly http: HttpProvider;
 
   constructor(
-    baseUrl: string = TablebaseConfig.API_BASE_URL,
-    timeout: number = TablebaseConfig.REQUEST_TIMEOUT,
-    maxRetries: number = TablebaseConfig.MAX_RETRIES
+    config: TablebaseApiClientConfig = {},
+    httpProvider: HttpProvider = new RealHttpProvider()
   ) {
-    this.baseUrl = baseUrl;
-    this.timeout = timeout;
-    this.maxRetries = maxRetries;
+    this.baseUrl = config.baseUrl ?? TablebaseConfig.API_BASE_URL;
+    this.timeout = config.timeout ?? TablebaseConfig.REQUEST_TIMEOUT;
+    this.maxRetries = config.maxRetries ?? TablebaseConfig.MAX_RETRIES;
+    this.http = httpProvider;
   }
 
   /**
@@ -86,7 +95,12 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
     
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
       try {
-        const response = await this.fetchWithTimeout(url);
+        const response = await this.http.fetchWithTimeout(url, this.timeout, {
+          headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'ChessEndgameTrainer/1.0.0 (https://github.com/thehugegatsby/ChessEndgameTrainer)',
+          },
+        });
         
         // Handle different status codes
         if (response.status === 404) {
@@ -97,7 +111,7 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
         if (response.status === 429) {
           // Rate limited - wait before retry
           const delay = this.getBackoffDelay(attempt);
-          await this.sleep(delay);
+          await this.http.sleep(delay);
           lastError = new ApiError('Rate limited', 429, 'RATE_LIMITED');
           continue;
         }
@@ -128,7 +142,7 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
         // For other errors, retry if we have attempts left
         if (attempt < this.maxRetries) {
           const delay = this.getBackoffDelay(attempt);
-          await this.sleep(delay);
+          await this.http.sleep(delay);
           continue;
         }
       }
@@ -139,53 +153,17 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
   }
 
   /**
-   * Fetch with timeout support
-   */
-  private async fetchWithTimeout(url: string): Promise<Response> {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
-    
-    try {
-      const response = await fetch(url, {
-        signal: controller.signal,
-        headers: {
-          'Accept': 'application/json',
-          'User-Agent': 'ChessEndgameTrainer/1.0.0 (https://github.com/thehugegatsby/ChessEndgameTrainer)',
-        },
-      });
-      
-      return response;
-      
-    } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new ApiError(`Request timeout after ${this.timeout}ms`, undefined, 'TIMEOUT');
-      }
-      throw error;
-      
-    } finally {
-      clearTimeout(timeoutId);
-    }
-  }
-
-  /**
-   * Calculate exponential backoff delay
+   * Calculate exponential backoff delay with deterministic jitter
    */
   private getBackoffDelay(attempt: number): number {
     const baseDelay = TablebaseConfig.BACKOFF_BASE_DELAY;
     const maxDelay = baseDelay * Math.pow(2, 4); // Cap at 16 seconds
     const delay = Math.min(baseDelay * Math.pow(2, attempt - 1), maxDelay);
     
-    // Add jitter to prevent thundering herd
-    const jitter = Math.random() * 0.3 * delay;
+    // Add jitter to prevent thundering herd (using injected random)
+    const jitter = this.http.random() * 0.3 * delay;
     
     return delay + jitter;
-  }
-
-  /**
-   * Sleep utility for delays
-   */
-  private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**
