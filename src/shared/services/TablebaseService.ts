@@ -477,10 +477,6 @@ class TablebaseService {
 
     // WDL is already from the perspective of the side to move
     // No need to negate for Black positions - the API gives the result from the mover's perspective
-    // Handle -0 case to ensure it's just 0
-    if (positionWdl === -0) {
-      positionWdl = 0;
-    }
 
     // Transform moves with correct perspective (moves array guaranteed by schema)
     const moves: TablebaseMoveInternal[] = (api.moves || []).map((apiMove) => {
