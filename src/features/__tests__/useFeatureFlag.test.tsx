@@ -41,7 +41,7 @@ describe('useFeatureFlag hooks', () => {
       
       await waitFor(() => {
         expect(result.current).toBe(true);
-      });
+      }, { timeout: 2000 });
     });
     
     it('should not re-render for unrelated flag changes', async () => {

@@ -40,6 +40,13 @@ describe('MoveFeedbackPanel', () => {
     vi.clearAllMocks();
   });
 
+  // Helper to trigger move feedback events
+  const triggerMoveEvent = (eventData: any) => {
+    window.dispatchEvent(new CustomEvent('move:feedback', { 
+      detail: eventData 
+    }));
+  };
+
   it('should not render when no feedback data', () => {
     render(
       <MoveFeedbackPanel
