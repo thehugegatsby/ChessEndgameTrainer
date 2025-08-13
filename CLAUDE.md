@@ -80,6 +80,15 @@ pnpm test:coverage     # With coverage
 
 **Never use:** `pnpm test -- ...` or `pnpm run test:jest` (removed)
 
+**IMPORTANT - Individual Test Execution:**
+```bash
+# ❌ WRONG - Ignores path mappings (@shared, @tests, etc.)
+pnpm exec vitest run path/to/test.ts
+
+# ✅ CORRECT - Uses proper config with path aliases  
+pnpm exec vitest --config=config/testing/vitest.unit.config.ts run path/to/test.ts
+```
+
 **Full testing guidelines:** → [docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md)
 
 ## Permanent Constraints

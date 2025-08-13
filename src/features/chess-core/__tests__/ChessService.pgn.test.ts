@@ -7,7 +7,7 @@ import { vi } from 'vitest';
 
 import { ChessService } from "@shared/services/ChessService";
 import { Chess } from "chess.js";
-import { createValidatedMove } from '@shared/types/chess.js';
+import { createValidatedMove } from "@shared/types/chess";
 
 // Mock chess.js following existing pattern
 vi.mock("chess.js");

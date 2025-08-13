@@ -112,4 +112,17 @@ Each learning entry should follow the template below. Copy it and fill in the de
 
 ---
 
-*Last Updated: 2025-01-13*
+### Vitest Path Mapping Configuration Issue
+**Date:** 2025-08-13  
+**Tags:** `Vitest`, `TypeScript`, `Path-Mapping`, `Configuration`  
+**Commit:** -
+
+**Problem/Context:**
+> When running individual vitest tests with `pnpm exec vitest run path/to/test.ts`, TypeScript path mappings like `@shared/*`, `@tests/*`, `@features/*` fail to resolve, causing import errors like "Cannot find package '@shared/services/ChessService'".
+
+**Solution/Learning:**
+> Always include the proper vitest config when running individual tests: `pnpm exec vitest --config=config/testing/vitest.unit.config.ts run path/to/test.ts`. The standard `pnpm test` commands automatically include the correct config. Without the config flag, vitest cannot resolve the custom TypeScript path aliases defined in the project.
+
+---
+
+*Last Updated: 2025-08-13*

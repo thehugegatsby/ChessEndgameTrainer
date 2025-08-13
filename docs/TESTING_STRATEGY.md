@@ -40,6 +40,24 @@ pnpm test:coverage           # Tests with coverage report
 pnpm test:watch              # Watch mode for development
 ```
 
+### 🚨 Individual Test Execution
+
+When running individual test files, always use the proper vitest config to ensure path mappings work:
+
+```bash
+# ❌ WRONG - Ignores @shared, @tests, @features path mappings
+pnpm exec vitest run path/to/test.ts
+
+# ✅ CORRECT - Uses proper config with all path aliases
+pnpm exec vitest --config=config/testing/vitest.unit.config.ts run path/to/test.ts
+
+# Alternative: Use standard commands that include proper config
+pnpm test path/to/test.ts                    # For unit tests
+pnpm test:features path/to/feature.test.ts   # For feature tests
+```
+
+**Why this matters:** Without the proper config, TypeScript path mappings like `@shared/*`, `@tests/*`, `@features/*` will fail to resolve, causing import errors.
+
 ## 4. Test Patterns
 
 ### Test Directory Structure
