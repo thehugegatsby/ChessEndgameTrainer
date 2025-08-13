@@ -2,4 +2,4 @@
 
 # Run tests before pushing to remote
 echo "Running tests before push..."
-npm test
+pnpm run test:vitest:original
