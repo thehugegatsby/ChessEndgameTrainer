@@ -13,20 +13,19 @@ import { MovePanelZustand } from "@shared/components/training/MovePanelZustand";
 import { createTestValidatedMove } from "@tests/helpers/validatedMoveFactory";
 import type { ValidatedMove } from '@shared/types/chess.js';
 
-// Mock the store hooks
-vi.mock("@shared/store/hooks", () => ({
+// Hoist mocks before vi.mock
+const { useGameStore, useTablebaseStore, useTrainingStore } = vi.hoisted(() => ({
   useGameStore: vi.fn(),
   useTablebaseStore: vi.fn(),
   useTrainingStore: vi.fn(),
 }));
 
-const mockUseGameStore = vi.importMock("@shared/store/hooks").useGameStore;
-const mockUseTablebaseStore = vi.importMock(
-  "@shared/store/hooks",
-).useTablebaseStore;
-const mockUseTrainingStore = vi.importMock(
-  "@shared/store/hooks",
-).useTrainingStore;
+// Mock the store hooks
+vi.mock("@shared/store/hooks", () => ({
+  useGameStore,
+  useTablebaseStore,
+  useTrainingStore,
+}));
 
 describe("Move History Navigation Bug", () => {
   /**
@@ -72,14 +71,14 @@ describe("Move History Navigation Bug", () => {
 
   beforeEach(() => {
     // Setup default mock returns
-    mockUseTablebaseStore.mockReturnValue([
+    useTablebaseStore.mockReturnValue([
       {
         evaluations: [],
       },
       {},
     ]);
 
-    mockUseTrainingStore.mockReturnValue([
+    useTrainingStore.mockReturnValue([
       {
         currentPosition: null,
       },
@@ -96,7 +95,7 @@ describe("Move History Navigation Bug", () => {
     const onMoveClick = vi.fn();
 
     // Initial state: All 5 moves played, viewing the last move (index 4)
-    mockUseGameStore.mockReturnValue([
+    useGameStore.mockReturnValue([
       {
         moveHistory: mockMoves,
         currentMoveIndex: 4, // Viewing the last move
@@ -132,7 +131,7 @@ describe("Move History Navigation Bug", () => {
 
     // Simulate the state update after navigation
     // The bug is that currentMoveIndex changes to 2
-    mockUseGameStore.mockReturnValue([
+    useGameStore.mockReturnValue([
       {
         moveHistory: mockMoves, // All moves still in history
         currentMoveIndex: 2, // Now viewing move 2
@@ -170,7 +169,7 @@ describe("Move History Navigation Bug", () => {
     const onMoveClick = vi.fn();
 
     // This test shows what SHOULD happen
-    mockUseGameStore.mockReturnValue([
+    useGameStore.mockReturnValue([
       {
         moveHistory: mockMoves,
         currentMoveIndex: 2, // Viewing move 2, but all moves in history
