@@ -17,32 +17,27 @@ pnpm test -- path/to/test.tsx
 pnpm test path/to/test.tsx
 ```
 
-## 2. Framework Selection
+## 2. Framework
 
-We employ a dual-framework approach based on test location:
+**Vitest** - Single framework for all tests (Jest removed completely)
 
-### Jest
-
-- **Use for**: `src/shared/`, `tests/unit/`, `tests/integration/`
-- **Example**: `tests/unit/chess.test.ts` for `src/shared/utils/chess.ts`
-
-### Vitest
-
-- **Use for**: `src/features/*/`
-- **Example**: `src/features/auth/LoginForm.test.tsx` for `src/features/auth/LoginForm.tsx`
+- **Unit tests**: `src/tests/unit/`
+- **Feature tests**: `src/features/*/` (4 domains: chess-core, tablebase, training, move-quality)
+- **Integration tests**: Dedicated integration test files
+- **Configs**: `vitest.unit.config.ts`, `vitest.integration.config.ts`
 
 ## 3. Test Commands
 
 Execute tests using `pnpm` for consistent WSL compatibility:
 
 ```bash
-pnpm test                    # Run all unit tests
-pnpm test path/to/test.tsx   # Run specific test file
-pnpm test:unit               # Jest unit tests only
-pnpm test:integration        # Jest integration tests only
-pnpm test:real-api           # Real API tests (skipped in CI)
+pnpm test                    # Run unit tests (src/tests/unit/)
+pnpm test:features           # Run feature tests (src/features/)
+pnpm test:unit               # Unit tests with unit config
+pnpm test:integration        # Integration tests
 pnpm test:e2e                # Playwright E2E tests
 pnpm test:coverage           # Tests with coverage report
+pnpm test:watch              # Watch mode for development
 ```
 
 ## 4. Test Patterns

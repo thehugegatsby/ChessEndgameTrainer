@@ -33,6 +33,7 @@ Key rules:
 
 - **State**: Zustand with domain slices (game, training, tablebase, ui)
 - **Services**: ChessService, TablebaseService, ErrorService, Logger
+- **Features**: `src/features/` with chess-core, tablebase, training, move-quality domains
 - **Imports**: Use `@shared/` alias, never relative paths
 - **German**: Error messages in German
 
@@ -67,23 +68,17 @@ pnpm tsc           # TypeScript check
 
 ## Testing
 
-**Framework:** Jest for `src/shared/`, Vitest for `src/features/`
+**Framework:** Vitest only | **Bundle:** 288kB
 
-**CRITICAL TEST COMMANDS - USE EXACT PATTERNS:**
+**Commands:**
+```bash
+pnpm test              # Unit tests (src/tests/unit/)
+pnpm test:features     # Feature tests (src/features/)
+pnpm test:integration  # Integration tests
+pnpm test:coverage     # With coverage
+```
 
-❌ **NEVER:**
-
-- `pnpm run test:vitest ...`
-- `pnpm run test:jest ...`
-- `pnpm test ... 2>&1`
-- `pnpm test -- --run ...`
-
-✅ **ALWAYS:**
-
-- `pnpm test path/to/test.tsx`
-- `pnpm test services` (all service tests)
-- `pnpm test store` (all store tests)
-- `pnpm test` (all tests)
+**Never use:** `pnpm test -- ...` or `pnpm run test:jest` (removed)
 
 **Full testing guidelines:** → [docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md)
 
