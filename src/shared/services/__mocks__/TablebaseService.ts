@@ -69,7 +69,7 @@ class MockTablebaseService {
 
     // Default getTopMoves - returns one draw move
     this.getTopMoves.mockImplementation(
-      async (_fen: string, _limit?: number) => ({
+      (_fen: string, _limit?: number) => ({
         isAvailable: true,
         moves: [createDefaultMove()],
       }),
@@ -110,10 +110,10 @@ class MockTablebaseService {
     };
 
     if (fen) {
-      this.getEvaluation.mockImplementation(async (f: string) =>
+      this.getEvaluation.mockImplementation((f: string) =>
         f === fen ? { isAvailable: true, result } : { isAvailable: false },
       );
-      this.getTopMoves.mockImplementation(async (f: string) =>
+      this.getTopMoves.mockImplementation((f: string) =>
         f === fen
           ? { isAvailable: true, moves: [move] }
           : { isAvailable: false },
@@ -147,10 +147,10 @@ class MockTablebaseService {
     };
 
     if (fen) {
-      this.getEvaluation.mockImplementation(async (f: string) =>
+      this.getEvaluation.mockImplementation((f: string) =>
         f === fen ? { isAvailable: true, result } : { isAvailable: false },
       );
-      this.getTopMoves.mockImplementation(async (f: string) =>
+      this.getTopMoves.mockImplementation((f: string) =>
         f === fen
           ? { isAvailable: true, moves: [move] }
           : { isAvailable: false },
@@ -184,10 +184,10 @@ class MockTablebaseService {
     };
 
     if (fen) {
-      this.getEvaluation.mockImplementation(async (f: string) =>
+      this.getEvaluation.mockImplementation((f: string) =>
         f === fen ? { isAvailable: true, result } : { isAvailable: false },
       );
-      this.getTopMoves.mockImplementation(async (f: string) =>
+      this.getTopMoves.mockImplementation((f: string) =>
         f === fen
           ? { isAvailable: true, moves: [move] }
           : { isAvailable: false },
@@ -221,12 +221,12 @@ class MockTablebaseService {
     };
 
     if (fen) {
-      this.getEvaluation.mockImplementation(async (f: string) =>
+      this.getEvaluation.mockImplementation((f: string) =>
         f === fen
           ? response
           : { isAvailable: true, result: createDefaultResult() },
       );
-      this.getTopMoves.mockImplementation(async (f: string) =>
+      this.getTopMoves.mockImplementation((f: string) =>
         f === fen
           ? movesResponse
           : { isAvailable: true, moves: [createDefaultMove()] },

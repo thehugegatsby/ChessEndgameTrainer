@@ -237,7 +237,7 @@ export class ProgressService {
    * }
    * ```
    */
-  async getUserStats(userId: string): Promise<UserStats | null> {
+  getUserStats(userId: string): Promise<UserStats | null> {
     this.validateUserId(userId);
     
     return this.firestoreOp(async () => {
@@ -269,7 +269,7 @@ export class ProgressService {
    * });
    * ```
    */
-  async updateUserStats(
+  updateUserStats(
     userId: string, 
     updates: Partial<WithFieldValue<UserStats>>
   ): Promise<void> {
@@ -295,7 +295,7 @@ export class ProgressService {
    * @param positionId - Position identifier
    * @returns CardProgress or null if not found
    */
-  async getCardProgress(
+  getCardProgress(
     userId: string, 
     positionId: string
   ): Promise<CardProgress | null> {
@@ -327,7 +327,7 @@ export class ProgressService {
    * await service.upsertCardProgress('user123', 'pos456', updatedCard);
    * ```
    */
-  async upsertCardProgress(
+  upsertCardProgress(
     userId: string,
     positionId: string,
     progress: CardProgress
@@ -367,7 +367,7 @@ export class ProgressService {
    * }
    * ```
    */
-  async deleteCardProgress(
+  deleteCardProgress(
     userId: string,
     positionId: string
   ): Promise<boolean> {
@@ -409,7 +409,7 @@ export class ProgressService {
    * ]);
    * ```
    */
-  async bulkUpdateCardProgresses(
+  bulkUpdateCardProgresses(
     userId: string,
     updates: Array<{ positionId: string; progress: CardProgress }>
   ): Promise<void> {
@@ -467,7 +467,7 @@ export class ProgressService {
    * );
    * ```
    */
-  async updateProgressTransaction(
+  updateProgressTransaction(
     userId: string,
     statsUpdate: Partial<WithFieldValue<UserStats>>,
     cardUpdates: Array<{ positionId: string; progress: CardProgress }>
@@ -484,7 +484,7 @@ export class ProgressService {
     }
 
     return this.firestoreOp(async () => {
-      await runTransaction(this.db, async (transaction: Transaction) => {
+      await runTransaction(this.db, (transaction: Transaction) => {
         // Update user stats
         const userStatsDocRef = this.userStatsRef(userId);
         transaction.set(userStatsDocRef, {
@@ -519,7 +519,7 @@ export class ProgressService {
    * @warning This can be expensive for users with many cards.
    * Consider pagination for large datasets.
    */
-  async getAllCardProgresses(userId: string): Promise<CardProgress[]> {
+  getAllCardProgresses(userId: string): Promise<CardProgress[]> {
     this.validateUserId(userId);
     
     return this.firestoreOp(async () => {
@@ -558,7 +558,7 @@ export class ProgressService {
    * logger.info(`${dueCards.length} cards are due for review`);
    * ```
    */
-  async getDueCardProgresses(
+  getDueCardProgresses(
     userId: string,
     now: number = Date.now()
   ): Promise<CardProgress[]> {
@@ -595,7 +595,7 @@ export class ProgressService {
    * });
    * ```
    */
-  async initializeUser(
+  initializeUser(
     userId: string,
     initialStats?: Partial<UserStats>
   ): Promise<void> {
@@ -622,7 +622,7 @@ export class ProgressService {
    * 
    * @warning This operation cannot be undone
    */
-  async deleteAllUserProgress(userId: string): Promise<number> {
+  deleteAllUserProgress(userId: string): Promise<number> {
     this.validateUserId(userId);
     
     return this.firestoreOp(async () => {

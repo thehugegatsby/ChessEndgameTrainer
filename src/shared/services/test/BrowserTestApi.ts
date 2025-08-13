@@ -90,7 +90,7 @@ export class BrowserTestApi {
    * // Now window['__testApi'] is available
    * ```
    */
-  public async initialize(storeAccess?: {
+  public initialize(storeAccess?: {
     getState: () => RootState;
     subscribe: (listener: (state: RootState, prevState: RootState) => void) => () => void;
     makeMove: (move: ChessJsMove | { from: string; to: string; promotion?: string } | string) => void;
@@ -99,7 +99,7 @@ export class BrowserTestApi {
     setPosition: (position: EndgamePosition) => void;
     goToMove: (moveIndex: number) => void;
     setAnalysisStatus: (status: string) => void;
-  }): Promise<void> {
+  }): void {
     if (
       process.env.NODE_ENV !== "test" &&
       process.env['NEXT_PUBLIC_IS_E2E_TEST'] !== "true"
@@ -191,7 +191,7 @@ export class BrowserTestApi {
    * // Automatic cleanup on page unload (already handled)
    * ```
    */
-  public async cleanup(): Promise<void> {
+  public cleanup(): void {
     if (!this.initialized) {
       return;
     }
@@ -219,7 +219,7 @@ export class BrowserTestApi {
    * @param {string} move - Move in algebraic notation or from-to format
    * @returns {Promise<TestMoveResponse>} Promise resolving to move execution result
    */
-  private async makeMove(move: string): Promise<TestMoveResponse> {
+  private makeMove(move: string): TestMoveResponse {
     return this.testApi.makeMove(move);
   }
 
@@ -234,7 +234,7 @@ export class BrowserTestApi {
    * @param {string} move - Move in algebraic notation or from-to format
    * @returns {Promise<TestMoveResponse>} Promise resolving to move execution result
    */
-  private async makeValidatedMove(move: string): Promise<TestMoveResponse> {
+  private makeValidatedMove(move: string): TestMoveResponse {
     return this.testApi.makeValidatedMove(move);
   }
 
@@ -248,7 +248,7 @@ export class BrowserTestApi {
   /**
    * Reset game through test API
    */
-  private async resetGame(): Promise<void> {
+  private resetGame(): void {
     return this.testApi.resetGame();
   }
 
@@ -264,7 +264,7 @@ export class BrowserTestApi {
    * Trigger tablebase analysis (instant with mock)
    * @param timeout
    */
-  private async triggerTablebaseAnalysis(timeout?: number): Promise<boolean> {
+  private triggerTablebaseAnalysis(timeout?: number): boolean {
     return this.testApi.triggerTablebaseAnalysis(timeout);
   }
 

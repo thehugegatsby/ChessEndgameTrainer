@@ -85,12 +85,12 @@ export function TrainingEventListener(): null {
     
     // Subscribe to tablebase moves events
     const unsubscribeTablebaseMoves = trainingEvents.on('tablebase:moves', (data) => {
-      useStore.setState((draft: WritableDraft<RootState>) => {
+      useStore.setState((state: WritableDraft<RootState>) => {
         // Update tablebase data with moves
-        if (draft.ui.tablebaseData && draft.ui.tablebaseData.fen === data.fen) {
-          draft.ui.tablebaseData.moves = data.moves;
-          draft.ui.tablebaseData.isLoading = data.isLoading;
-          draft.ui.tablebaseData.lastUpdated = Date.now();
+        if (state.ui.tablebaseData && state.ui.tablebaseData.fen === data.fen) {
+          state.ui.tablebaseData.moves = data.moves;
+          state.ui.tablebaseData.isLoading = data.isLoading;
+          state.ui.tablebaseData.lastUpdated = Date.now();
         }
       });
     });

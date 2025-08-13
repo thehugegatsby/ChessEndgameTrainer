@@ -31,10 +31,10 @@ import { chessService } from "@shared/services/ChessService";
  * A "perfect game" requires 100% accuracy, no mistakes, and optimal final move.
  * Success is determined by matching the target outcome (win/draw/loss).
  */
-export async function handleTrainingCompletion(
+export function handleTrainingCompletion(
   api: StoreApi,
   isOptimal: boolean,
-): Promise<void> {
+): void {
   const { getState, setState } = api;
   const state = getState();
 
@@ -87,8 +87,9 @@ export async function handleTrainingCompletion(
       
       // Auto-hide checkmark after 2 seconds
       setTimeout(() => {
-        api.setState((state) => {
-          state.training.showCheckmark = false;
+        api.setState((stateDraft) => {
+          // eslint-disable-next-line no-param-reassign
+          stateDraft.training.showCheckmark = false;
         });
       }, 2000);
     } else {

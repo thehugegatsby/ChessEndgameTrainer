@@ -154,10 +154,10 @@ export function usePositionAnalysis({
           addEvaluation(evaluation);
         }
       } catch (err: unknown) {
-        const error = err instanceof Error ? err : new Error(String(err));
-        if (error.name !== "AbortError") {
-          logger.error("[usePositionAnalysis] Evaluation failed", error);
-          const userMessage = ErrorService.handleTablebaseError(error, {
+        const evalError = err instanceof Error ? err : new Error(String(err));
+        if (evalError.name !== "AbortError") {
+          logger.error("[usePositionAnalysis] Evaluation failed", evalError);
+          const userMessage = ErrorService.handleTablebaseError(evalError, {
             component: "usePositionAnalysis",
             action: "evaluatePosition",
             additionalData: { fen },

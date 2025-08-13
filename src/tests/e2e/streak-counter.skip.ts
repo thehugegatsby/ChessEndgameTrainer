@@ -199,11 +199,11 @@ test.describe('Streak Counter E2E', () => {
           // Use validated move for the final promotion to trigger win detection
           const isPromotion = moveStr.includes("=");
           const testApi = (window as any).__testApi;
-          const result = isPromotion && testApi?.makeValidatedMove
+          const moveResult = isPromotion && testApi?.makeValidatedMove
             ? await testApi.makeValidatedMove(moveStr)
             : await (window as any).e2e_makeMove(moveStr);
-          console.log(`Browser: Move ${moveStr} completed with result:`, result);
-          return result;
+          console.log(`Browser: Move ${moveStr} completed with result:`, moveResult);
+          return moveResult;
         } catch (error) {
           console.log(`Browser: Move ${moveStr} failed with error:`, error);
           return { success: false, error: error instanceof Error ? error.message : String(error) };

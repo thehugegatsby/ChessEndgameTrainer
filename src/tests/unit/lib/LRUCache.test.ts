@@ -426,6 +426,9 @@ describe('LRUCache', () => {
           case 'delete':
             benchmarkCache.delete('bench_key_500');
             break;
+          default:
+            // Should never reach here with the defined operations
+            break;
         }
         
         const end = performance.now();

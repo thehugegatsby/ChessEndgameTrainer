@@ -117,8 +117,8 @@ vi.mock("@shared/services/ChessService", () => ({
     initialize: vi.fn((fen) => {
       // This should update the game state
       setTimeout(() => {
-        const { useStore } = require("@shared/store/rootStore");
-        useStore.setState((draft: any) => {
+        const { useStore: storeHook } = require("@shared/store/rootStore");
+        storeHook.setState((draft: any) => {
           draft.game.currentFen = fen;
         });
       }, 0);

@@ -23,7 +23,7 @@ export const useFallbackAudio = (volume: number = 0.7): {
   /**
    * Create and play a synthesized sound
    */
-  const playFallbackSound = useCallback(async (soundType: ChessSoundType) => {
+  const playFallbackSound = useCallback((soundType: ChessSoundType) => {
     try {
       // Guard against SSR - only create audio context on client
       if (typeof window === 'undefined') {

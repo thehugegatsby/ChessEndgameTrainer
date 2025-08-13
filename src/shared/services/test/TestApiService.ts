@@ -612,7 +612,7 @@ export class TestApiService {
    * expect(state.fen).toBe('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
    * ```
    */
-  public async resetGame(): Promise<void> {
+  public resetGame(): void {
     if (!this.storeAccess) {
       throw new Error("TestApiService not initialized with store access");
     }

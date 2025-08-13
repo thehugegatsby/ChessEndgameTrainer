@@ -280,7 +280,7 @@ export const useMoveQuality = (): UseMoveQualityReturn => {
    * @throws Error if assessment fails
    */
   const assessMove = useCallback(
-    async (
+    (
       fenBefore: string,
       move: string,
       playerPerspective: "w" | "b",

@@ -431,6 +431,11 @@ const unsubscribeChessService = chessService.subscribe(
         });
         // Logging already done in ChessService, avoid duplication
         break;
+
+      default:
+        // Handle unknown event types
+        console.warn('Unknown ChessService event type:', event.type);
+        break;
     }
   },
 );

@@ -802,7 +802,7 @@ describe("TablebaseService", () => {
         moves: [{ uci: 'a1a2', san: 'Ka2', category: 'loss', dtz: -2, dtm: -2 }]
       };
       
-      const mockApiClient = {
+      const mockTablebaseClient = {
         lookup: vi.fn().mockResolvedValue(responseData),
         healthCheck: vi.fn().mockResolvedValue(true)
       };
@@ -816,7 +816,7 @@ describe("TablebaseService", () => {
         size: 0
       };
 
-      const customService = new TablebaseService(mockApiClient as any, mockCacheManager);
+      const customService = new TablebaseService(mockTablebaseClient as any, mockCacheManager);
 
       const testFen = 'K7/8/k7/8/8/8/8/8 w - - 0 1';
       const result = await customService.getEvaluation(testFen);

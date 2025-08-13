@@ -172,6 +172,7 @@ export class WdlAdapter {
       case 1: return 'Winning';
       case 0: return 'Drawing'; 
       case -1: return 'Losing';
+      default: return 'Unknown';
     }
   }
 

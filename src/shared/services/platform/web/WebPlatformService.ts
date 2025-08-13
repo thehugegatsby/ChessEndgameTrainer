@@ -63,7 +63,7 @@ class WebStorage implements PlatformStorage {
     this.storage = storage;
   }
 
-  async save(key: string, data: unknown): Promise<void> {
+  save(key: string, data: unknown): void {
     // Validate key format
     if (!VALID_KEY_REGEX.test(key)) {
       throw new Error(
@@ -82,7 +82,7 @@ class WebStorage implements PlatformStorage {
     }
   }
 
-  async load<T = unknown>(key: string): Promise<T | null> {
+  load<T = unknown>(key: string): T | null {
     // Validate key format
     if (!VALID_KEY_REGEX.test(key)) {
       console.error(
@@ -107,7 +107,7 @@ class WebStorage implements PlatformStorage {
     }
   }
 
-  async remove(key: string): Promise<void> {
+  remove(key: string): void {
     // Validate key format
     if (!VALID_KEY_REGEX.test(key)) {
       console.error(
@@ -119,12 +119,12 @@ class WebStorage implements PlatformStorage {
     this.storage.removeItem(this.prefix + key);
   }
 
-  async clear(): Promise<void> {
-    const keys = await this.getAllKeys();
+  clear(): void {
+    const keys = this.getAllKeys();
     keys.forEach((key) => this.storage.removeItem(this.prefix + key));
   }
 
-  async getAllKeys(): Promise<string[]> {
+  getAllKeys(): string[] {
     const keys: string[] = [];
     for (let i = 0; i < this.storage.length; i++) {
       const key = this.storage.key(i);
@@ -147,7 +147,7 @@ class WebNotification implements PlatformNotification {
     return result === "granted";
   }
 
-  async show(title: string, options?: NotificationOptions): Promise<void> {
+  show(title: string, options?: NotificationOptions): void {
     if (!("Notification" in window) || Notification.permission !== "granted") {
       throw new Error("Notifications not supported or not permitted");
     }
@@ -161,7 +161,7 @@ class WebNotification implements PlatformNotification {
     });
   }
 
-  async schedule(_notification: ScheduledNotification /* unused */): Promise<string> {
+  schedule(_notification: ScheduledNotification /* unused */): string {
     // Web doesn't support scheduled notifications natively
     // Would need service worker implementation
     throw new Error("Scheduled notifications not supported on web");
@@ -386,7 +386,7 @@ class WebClipboard implements PlatformClipboard {
     throw new Error("Clipboard paste not supported");
   }
 
-  async hasContent(): Promise<boolean> {
+  hasContent(): boolean {
     // Web doesn't provide a way to check clipboard content without reading it
     return false;
   }

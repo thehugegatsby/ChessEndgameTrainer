@@ -342,7 +342,7 @@ class TablebaseService {
    * 4. Transforms the response to our internal format
    * 5. Caches the complete entry including all moves
    */
-  private async _getOrFetchTablebaseEntry(
+  private _getOrFetchTablebaseEntry(
     fen: string,
   ): Promise<TablebaseEntry | null> {
     // Validate FEN

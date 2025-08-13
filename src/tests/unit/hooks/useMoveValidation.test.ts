@@ -605,7 +605,7 @@ describe('useMoveValidation', () => {
       };
 
       const { result, rerender } = renderHook(
-        (props) => useMoveValidation(props),
+        (hookProps) => useMoveValidation(hookProps),
         { initialProps: props }
       );
 

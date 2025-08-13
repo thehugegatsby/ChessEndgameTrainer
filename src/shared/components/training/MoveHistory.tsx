@@ -231,6 +231,8 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
             return "text-red-700";
           case "draw":
             return "text-yellow-600";
+          default:
+            return "text-gray-600";
         }
       } else if (wdl !== undefined) {
         if (wdl === 2) return "text-green-700";
