@@ -1,5 +1,4 @@
 # Check if learnings are documented
 ./.husky/check-learnings.sh || exit 1
 
-# Run tests
-npm test
+# Tests moved to pre-push hook for better performance

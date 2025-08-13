@@ -11,9 +11,8 @@ if [ ! -f "docs/LEARNINGS.md" ]; then
   exit 0
 fi
 
-# Check if this is a trivial commit that doesn't need learnings
-# (e.g., dependency updates, formatting, etc.)
-COMMIT_MSG=$(git diff --cached --name-only)
+# Get list of staged files for analysis
+STAGED_FILES=$(git diff --cached --name-only)
 
 # Check if LEARNINGS.md is staged
 if git diff --cached --quiet docs/LEARNINGS.md 2>/dev/null; then
@@ -23,12 +22,12 @@ if git diff --cached --quiet docs/LEARNINGS.md 2>/dev/null; then
     exit 0
   fi
 
-  # Check if this looks like a significant change
-  CHANGED_FILES=$(git diff --cached --name-only | wc -l)
+  # Optimize: Use already fetched STAGED_FILES instead of calling git diff again
+  CHANGED_FILES=$(echo "$STAGED_FILES" | wc -l)
   
   # If only package files changed, it's probably a dependency update
-  if git diff --cached --name-only | grep -qE "^(package\.json|pnpm-lock\.yaml|package-lock\.json)$"; then
-    ONLY_DEPS=$(git diff --cached --name-only | grep -vE "^(package\.json|pnpm-lock\.yaml|package-lock\.json)$" | wc -l)
+  if echo "$STAGED_FILES" | grep -qE "^(package\.json|pnpm-lock\.yaml|package-lock\.json)$"; then
+    ONLY_DEPS=$(echo "$STAGED_FILES" | grep -vE "^(package\.json|pnpm-lock\.yaml|package-lock\.json)$" | wc -l)
     if [ "$ONLY_DEPS" = "0" ]; then
       echo "✓ Dependency update detected - no learnings required"
       exit 0

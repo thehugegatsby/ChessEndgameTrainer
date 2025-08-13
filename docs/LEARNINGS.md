@@ -99,4 +99,17 @@ Each learning entry should follow the template below. Copy it and fill in the de
 
 ---
 
+### Git Pre-commit Hook Optimization
+**Date:** 2025-01-13  
+**Tags:** `Git`, `Hooks`, `Performance`, `Workflow`  
+**Commit:** -
+
+**Problem/Context:**
+> Initial pre-commit hook ran full test suite on every commit, causing significant delays. Also had misleading variable naming (COMMIT_MSG contained file list) and redundant git diff calls.
+
+**Solution/Learning:**
+> Move test execution to pre-push hook to maintain fast commit workflow while still ensuring quality before code reaches remote. Optimize git operations by caching staged files list. This balances enforcement with developer experience - commits stay fast, pushes stay safe.
+
+---
+
 *Last Updated: 2025-01-13*
