@@ -125,6 +125,7 @@
     "tsx": "^4.20.3",
     "typescript": "^5.9.2",
     "undici": "^7.13.0",
+    "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4",
     "webpack-bundle-analyzer": "^4.10.2"
   },
