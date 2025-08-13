@@ -158,21 +158,25 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({
       };
       
       // Initialize BrowserTestApi which exposes e2e_makeMove to window
-      browserTestApi.initialize(storeAccess).catch((error) => {
+      try {
+        browserTestApi.initialize(storeAccess);
+      } catch (error) {
         const logger = getLogger().setContext("StoreContext");
         logger.error("Failed to initialize BrowserTestApi", {
           error: error instanceof Error ? error.message : String(error),
           stack: error instanceof Error ? error.stack : undefined
         });
-      });
+      }
     }
 
     // Cleanup on unmount
     return () => {
       if (typeof window !== 'undefined') {
-        browserTestApi.cleanup().catch(() => {
+        try {
+          browserTestApi.cleanup();
+        } catch {
           // Ignore cleanup errors
-        });
+        }
       }
     };
   }, []);

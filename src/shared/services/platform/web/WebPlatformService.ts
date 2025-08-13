@@ -63,7 +63,7 @@ class WebStorage implements PlatformStorage {
     this.storage = storage;
   }
 
-  save(key: string, data: unknown): void {
+  save(key: string, data: unknown): Promise<void> {
     // Validate key format
     if (!VALID_KEY_REGEX.test(key)) {
       throw new Error(
@@ -74,6 +74,7 @@ class WebStorage implements PlatformStorage {
     try {
       const serialized = JSON.stringify(data);
       this.storage.setItem(this.prefix + key, serialized);
+      return Promise.resolve();
     } catch (error) {
       // Preserve original error context for debugging
       throw new Error(
@@ -82,49 +83,50 @@ class WebStorage implements PlatformStorage {
     }
   }
 
-  load<T = unknown>(key: string): T | null {
+  load<T = unknown>(key: string): Promise<T | null> {
     // Validate key format
     if (!VALID_KEY_REGEX.test(key)) {
       console.error(
         `[WebPlatformService] Invalid storage key requested: ${key}`,
       );
-      return null;
+      return Promise.resolve(null);
     }
 
     try {
       const item = this.storage.getItem(this.prefix + key);
-      if (!item) return null;
+      if (!item) return Promise.resolve(null);
 
       // Parse JSON with error handling
       const data = JSON.parse(item);
-      return data as T;
+      return Promise.resolve(data as T);
     } catch (error) {
       console.error(
         `[WebPlatformService] Failed to parse stored data for key '${key}':`,
         error,
       );
-      return null;
+      return Promise.resolve(null);
     }
   }
 
-  remove(key: string): void {
+  remove(key: string): Promise<void> {
     // Validate key format
     if (!VALID_KEY_REGEX.test(key)) {
       console.error(
         `[WebPlatformService] Invalid storage key for removal: ${key}`,
       );
-      return;
+      return Promise.resolve();
     }
 
     this.storage.removeItem(this.prefix + key);
+    return Promise.resolve();
   }
 
-  clear(): void {
-    const keys = this.getAllKeys();
+  async clear(): Promise<void> {
+    const keys = await this.getAllKeys();
     keys.forEach((key) => this.storage.removeItem(this.prefix + key));
   }
 
-  getAllKeys(): string[] {
+  getAllKeys(): Promise<string[]> {
     const keys: string[] = [];
     for (let i = 0; i < this.storage.length; i++) {
       const key = this.storage.key(i);
@@ -132,7 +134,7 @@ class WebStorage implements PlatformStorage {
         keys.push(key.replace(this.prefix, ""));
       }
     }
-    return keys;
+    return Promise.resolve(keys);
   }
 }
 
@@ -147,7 +149,7 @@ class WebNotification implements PlatformNotification {
     return result === "granted";
   }
 
-  show(title: string, options?: NotificationOptions): void {
+  show(title: string, options?: NotificationOptions): Promise<void> {
     if (!("Notification" in window) || Notification.permission !== "granted") {
       throw new Error("Notifications not supported or not permitted");
     }
@@ -159,9 +161,11 @@ class WebNotification implements PlatformNotification {
       ...(options?.tag !== undefined && { tag: options.tag }),
       ...(options?.data !== undefined && { data: options.data }),
     });
+    
+    return Promise.resolve();
   }
 
-  schedule(_notification: ScheduledNotification /* unused */): string {
+  schedule(_notification: ScheduledNotification /* unused */): Promise<string> {
     // Web doesn't support scheduled notifications natively
     // Would need service worker implementation
     throw new Error("Scheduled notifications not supported on web");
@@ -386,9 +390,9 @@ class WebClipboard implements PlatformClipboard {
     throw new Error("Clipboard paste not supported");
   }
 
-  hasContent(): boolean {
+  hasContent(): Promise<boolean> {
     // Web doesn't provide a way to check clipboard content without reading it
-    return false;
+    return Promise.resolve(false);
   }
 }
 

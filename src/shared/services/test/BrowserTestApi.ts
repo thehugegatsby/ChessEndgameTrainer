@@ -219,8 +219,8 @@ export class BrowserTestApi {
    * @param {string} move - Move in algebraic notation or from-to format
    * @returns {Promise<TestMoveResponse>} Promise resolving to move execution result
    */
-  private makeMove(move: string): TestMoveResponse {
-    return this.testApi.makeMove(move);
+  private makeMove(move: string): Promise<TestMoveResponse> {
+    return Promise.resolve(this.testApi.makeMove(move));
   }
 
   /**
@@ -234,8 +234,8 @@ export class BrowserTestApi {
    * @param {string} move - Move in algebraic notation or from-to format
    * @returns {Promise<TestMoveResponse>} Promise resolving to move execution result
    */
-  private makeValidatedMove(move: string): TestMoveResponse {
-    return this.testApi.makeValidatedMove(move);
+  private makeValidatedMove(move: string): Promise<TestMoveResponse> {
+    return Promise.resolve(this.testApi.makeValidatedMove(move));
   }
 
   /**
@@ -264,8 +264,8 @@ export class BrowserTestApi {
    * Trigger tablebase analysis (instant with mock)
    * @param timeout
    */
-  private triggerTablebaseAnalysis(timeout?: number): boolean {
-    return this.testApi.triggerTablebaseAnalysis(timeout);
+  private triggerTablebaseAnalysis(timeout?: number): Promise<boolean> {
+    return Promise.resolve(this.testApi.triggerTablebaseAnalysis(timeout));
   }
 
   /**

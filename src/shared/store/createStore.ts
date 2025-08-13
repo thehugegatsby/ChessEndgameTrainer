@@ -327,7 +327,7 @@ export const createStore = (initialState?: Partial<RootState>): UseBoundStore<St
           break;
         default:
           // Log unhandled event types for debugging
-          console.warn(`Unhandled ChessService event type: ${(event as Record<string, unknown>).type}`);
+          console.warn(`Unhandled ChessService event type: ${(event as Record<string, unknown>)['type']}`);
           break;
       }
     },

@@ -37,7 +37,7 @@ const mockDoc = vi.fn((_, collection: string, id: string) => ({
   _id: id,
 }));
 
-const mockGetDoc = vi.fn(async (docRef: any) => {
+const mockGetDoc = vi.fn((docRef: any) => {
   const collectionData = mockDataStore.get(docRef._collection);
   if (!collectionData) {
     return createMockDoc(false);
@@ -50,7 +50,7 @@ const mockCollection = vi.fn((_, collectionName: string) => ({
   _name: collectionName,
 }));
 
-const mockGetDocs = vi.fn(async (queryOrCollection: any) => {
+const mockGetDocs = vi.fn((queryOrCollection: any) => {
   const collectionName =
     queryOrCollection._name || queryOrCollection._collection;
   const collectionData = mockDataStore.get(collectionName);

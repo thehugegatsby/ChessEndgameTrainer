@@ -434,7 +434,7 @@ const unsubscribeChessService = chessService.subscribe(
 
       default:
         // Handle unknown event types
-        console.warn('Unknown ChessService event type:', event.type);
+        console.warn('Unknown ChessService event type:', (event as Record<string, unknown>)['type']);
         break;
     }
   },
