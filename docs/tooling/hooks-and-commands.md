@@ -77,32 +77,160 @@ _Custom commands will be documented here as they are created_
 
 ## Current Status
 
-**⚠️ HOOK FUNCTIONALITY ISSUE**
+**❌ HOOKS DEFINITIV DEFEKT - KONFIGURATION ENTFERNT**
 
-**Problem**: Der WSL-Safety Hook wird trotz korrekter Konfiguration nicht ausgeführt oder ignoriert Exit-Codes.
+**Update 2025-08-13**: Hook-System ist fundamentell defekt. Konfiguration wurde aus `.claude/settings.local.json` entfernt bis Claude Code das Problem behebt.
 
-**Investigation Results**:
+**Latest Investigation Results (2025-08-12)**:
 
-- Hook-Skript funktioniert korrekt (Exit-Code 0/2)
-- Konfiguration entspricht Claude Code-Dokumentation
-- Verschiedene Exit-Codes getestet (1, 2, 3, 125, 126, 127)
-- Sowohl einfache als auch strukturierte Hook-Konfiguration getestet
-- Debug-Hook wird nicht aufgerufen
+### Current Evidence
 
-**Possible Causes**:
+- ✅ Hook wird geladen ("Running hook" sichtbar in UI)
+- ❌ Hook-Commands werden nicht ausgeführt (keine Log-Dateien erstellt)
+- ❌ Exit Code 2 blockiert Commands nicht
+- ❌ Echo-Commands in Hooks erzeugen keine Ausgabe
+- ❌ Python-Script wird nicht aufgerufen (kein Debug-Log)
 
-1. Claude Code Hook-System funktioniert nicht in dieser Umgebung
-2. Hooks erfordern Session-Neustart oder andere Aktivierung
-3. WSL-spezifische Probleme mit Hook-Ausführung
-4. Claude Code Version unterstützt Hooks nicht vollständig
+### Multiple Hook Types Tested
 
-**Workaround**: Manual validation required until hooks work properly
+- **PreToolUse**: Python-Script + Echo-Commands (beide nicht ausgeführt)
+- **PostToolUse**: Echo-Commands (nicht ausgeführt)
+- **notification**: Echo-Commands (nicht ausgeführt)
+- **stop**: Echo-Commands (nicht ausgeführt)
 
-**Next Steps**:
+### Core Problem
 
-1. Session restart to test hook activation
-2. Report issue to Claude Code team
-3. Consider alternative validation strategies
+**Hook-Runner startet, aber Commands innerhalb der Hooks werden nicht ausgeführt.**
+
+**Comprehensive Investigation Results (2025-08-13)**:
+
+### Environment Details
+
+- **Claude Code Version**: 1.0.77 (downgrade to 1.0.48 also tested - same issue)
+- **Platform**: WSL2 Ubuntu on Windows
+- **Project Location**: `/home/thehu/` (Linux filesystem, NOT /mnt/c)
+- **Node.js**: v22.17.0
+
+### Tests Performed
+
+1. **Hook Script Functionality**: ✅ Works manually with correct exit codes
+2. **Project-Level Config**: ❌ `.claude/settings.local.json` - not executed
+3. **User-Level Config**: ❌ `~/.claude/settings.json` - not executed
+4. **Simple Hook Test**: ❌ Minimal `echo` command - not executed
+5. **Multiple Syntax Variants**: ❌ All failed
+
+### Configuration Syntaxes Tested
+
+#### 1. Original Complex Syntax (Failed)
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": {
+          "tools": ["Bash"]
+        },
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 $CLAUDE_PROJECT_DIR/.claude/hooks/pre-bash-wsl-safety.py"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+#### 2. Corrected Syntax from GitHub Issues (Failed)
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'hook test' >> log.file"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+#### 3. Simple cctoast-wsl Style (Failed)
+
+```json
+{
+  "hooks": {
+    "notification": ["echo 'notification hook' >> log.file"],
+    "stop": ["echo 'stop hook' >> log.file"]
+  }
+}
+```
+
+### Research Findings
+
+#### Known Issues
+
+- **GitHub #3579**: User settings hooks not loading in v1.0.51-1.0.52 (still open)
+- **GitHub #2906**: Excessive settings.json I/O in WSL (1000x/sec)
+- **GitHub #3091**: Project-level hooks not working
+- **GitHub #3417**: Hooks DO work in WSL for some users (contradicts our experience)
+
+#### Multi-LLM Analysis
+
+- Consulted 5 different LLMs via MCP tools
+- Consensus: Likely Claude Code bug in hook loading system
+- inotify limitations ruled out (project on Linux filesystem)
+
+### Diagnostic Evidence
+
+- **No log files created**: None of the test hooks created any output files
+- **No error messages**: Claude Code provides no feedback about hook failures
+- **Manual execution works**: All hook scripts function correctly when run manually
+- **Version independence**: Problem exists in both 1.0.48 and 1.0.77
+
+### Root Cause Assessment
+
+**Hook-Runner lädt und startet, aber Hook-Commands werden überhaupt nicht ausgeführt.**
+
+**Evidence 2025-08-12:**
+
+- ✅ Hook-System wird geladen ("Running hook" message visible)
+- ❌ Hook-Commands werden nicht ausgeführt (keine Logs, keine Exit-Codes)
+- ❌ Weder Python-Scripts noch einfache Echo-Commands funktionieren
+- **Problem**: Fundamentaler Bug in Hook-Command-Execution
+
+Not caused by:
+
+- ❌ Script syntax errors (manual execution works)
+- ❌ File permissions (chmod +x applied)
+- ❌ WSL filesystem issues (project on Linux FS)
+- ❌ Version-specific regression (tested multiple versions)
+- ❌ Configuration syntax (multiple formats tested)
+
+### Current Workaround
+
+**Package.json Redirects implementiert** - Falsche Test-Commands (`pnpm run test:vitest`) zeigen Warnung und leiten automatisch zum richtigen Command um. Siehe `package.json` Scripts.
+
+### Failed Workaround Attempts
+
+1. **Wrapper-Script Approach**: Shell-Redirects (`2>&1`) werden vor Script-Ausführung verarbeitet - Wrapper kann sie nicht abfangen
+2. **Multiple Hook Types**: PreToolUse, PostToolUse, notification, stop - alle zeigen gleiches Problem
+3. **Simple vs Complex Commands**: Sowohl einfache echo-Commands als auch Python-Scripts werden nicht ausgeführt
+
+### Recommended Actions
+
+1. **Report comprehensive bug** to Claude Code team with full diagnostic data
+2. **Monitor GitHub issues** #3579, #3091 for resolution
+3. **Continue manual validation** until hooks are functional
+4. **Document hook requirements** in CLAUDE.md for future reference
 
 ## References
 

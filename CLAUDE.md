@@ -68,10 +68,21 @@ pnpm tsc           # TypeScript check
 
 **Framework:** Jest for `src/shared/`, Vitest for `src/features/`
 
-**WSL Critical:** Never use `--` with pnpm test
+**CRITICAL TEST COMMANDS - USE EXACT PATTERNS:**
 
-- ✅ `pnpm test path/to/test.tsx`
-- ❌ `pnpm test -- --run path/to/test.tsx`
+❌ **NEVER:**
+
+- `pnpm run test:vitest ...`
+- `pnpm run test:jest ...`
+- `pnpm test ... 2>&1`
+- `pnpm test -- --run ...`
+
+✅ **ALWAYS:**
+
+- `pnpm test path/to/test.tsx`
+- `pnpm test services` (all service tests)
+- `pnpm test store` (all store tests)
+- `pnpm test` (all tests)
 
 **Full testing guidelines:** → [docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md)
 
