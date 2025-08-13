@@ -7,12 +7,12 @@
 
 // @ts-nocheck - Test infrastructure with complex mock typing
 
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 import { BaseMockFactory } from './BaseMockFactory';
 import type { TablebaseService } from '@shared/services/TablebaseService';
 import type { TablebaseEvaluation, TablebaseMovesResult } from '@shared/services/TablebaseService';
 
-type MockedTablebaseService = any<TablebaseService>;
+type MockedTablebaseService = TablebaseService;
 
 export interface TablebaseServiceMockOverrides {
   // Response data
@@ -82,7 +82,7 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
         totalRequests: 0,
         errorBreakdown: {}
       }))
-    } as unknown as any<TablebaseService>;
+    } as unknown as TablebaseService;
 
     return mock;
   }
@@ -236,7 +236,7 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
     if (!this.mockInstance) {
       throw new Error('[TablebaseServiceMockFactory] Mock not initialized. Call create() first.');
     }
-    const mock = this.mockInstance as any<TablebaseService>;
+    const mock = this.mockInstance as any;
     const errorMessage = message || 'Service temporarily unavailable';
     
     mock.getEvaluation.mockRejectedValue(new Error(errorMessage));

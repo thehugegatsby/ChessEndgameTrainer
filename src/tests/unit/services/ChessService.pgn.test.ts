@@ -12,11 +12,11 @@ import { createValidatedMove } from '@shared/types/chess.js';
 // Mock chess.js following existing pattern
 vi.mock("chess.js");
 
-const MockedChess = Chess as any<typeof Chess>;
+const MockedChess = Chess as any;
 
 describe("ChessService PGN Loading Tests", () => {
   let chessService: ChessService;
-  let mockChessInstance: any<InstanceType<typeof Chess>>;
+  let mockChessInstance: any;
 
   // PGN test fixtures for comprehensive testing
   const pgnTestFixtures = {

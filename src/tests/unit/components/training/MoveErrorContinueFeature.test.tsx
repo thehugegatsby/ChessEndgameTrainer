@@ -20,9 +20,7 @@ vi.mock("@shared/store/orchestrators/handlePlayerMove", () => ({
   getOpponentTurnManager: vi.fn(() => mockOpponentTurnManager),
 }));
 
-const mockGetOpponentTurnManager = getOpponentTurnManager as any<
-  typeof getOpponentTurnManager
->;
+const mockGetOpponentTurnManager = getOpponentTurnManager as any;
 
 describe("MoveErrorDialog - Continue Playing Feature", () => {
   const defaultProps = {

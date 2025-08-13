@@ -231,7 +231,7 @@ export const createMockRouterScenarios = {
  * Type guard to check if an object is a mocked router
  * Useful for assertions in tests
  */
-export function isMockedRouter(router: any): router is any<NextRouter> {
+export function isMockedRouter(router: any): router is NextRouter {
   return (
     router &&
     typeof router.push === "function" &&

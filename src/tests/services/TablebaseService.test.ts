@@ -33,7 +33,7 @@ global.fetch = vi.fn();
 import { LichessApiClient } from "../../shared/services/api/LichessApiClient";
 
 describe("TablebaseService", () => {
-  const mockFetch = global.fetch as any<typeof fetch>;
+  const mockFetch = global.fetch as typeof fetch;
   let mockLookup: ReturnType<typeof vi.fn>;
   let mockApiClient: any;
   let testService: TablebaseService;

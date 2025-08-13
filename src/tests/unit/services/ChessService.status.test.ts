@@ -11,11 +11,11 @@ import { Chess } from "chess.js";
 // Mock chess.js following existing pattern
 vi.mock("chess.js");
 
-const MockedChess = Chess as any<typeof Chess>;
+const MockedChess = Chess as any;
 
 describe("ChessService Status Methods Coverage", () => {
   let chessService: ChessService;
-  let mockChessInstance: any<InstanceType<typeof Chess>>;
+  let mockChessInstance: any;
 
   // Test fixtures - specific FEN positions for each status
   const statusTestFens = {

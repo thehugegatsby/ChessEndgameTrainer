@@ -11,11 +11,11 @@ import { Chess } from "chess.js";
 // Mock chess.js following existing pattern
 vi.mock("chess.js");
 
-const MockedChess = Chess as any<typeof Chess>;
+const MockedChess = Chess as any;
 
 describe("ChessService validateMove Edge Cases", () => {
   let chessService: ChessService;
-  let mockChessInstance: any<InstanceType<typeof Chess>>;
+  let mockChessInstance: any;
 
   beforeEach(() => {
     MockedChess.mockClear();

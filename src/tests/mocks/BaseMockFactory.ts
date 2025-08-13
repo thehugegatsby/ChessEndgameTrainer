@@ -8,10 +8,10 @@
  * @template C - The type for creation-time overrides (defaults to Partial<any<T>>)
  */
 
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 
-export abstract class BaseMockFactory<T extends object, C = Partial<any<T>>> {
-  protected mockInstance: any<T> | null = null;
+export abstract class BaseMockFactory<T extends object, C = Partial<T>> {
+  protected mockInstance: T | null = null;
   private cleanupCallbacks: Array<() => void> = [];
 
   /**
@@ -21,7 +21,7 @@ export abstract class BaseMockFactory<T extends object, C = Partial<any<T>>> {
    * @param overrides - Optional overrides for the default mock behavior
    * @returns A fresh mock instance with type safety
    */
-  public create(overrides?: C): any<T> {
+  public create(overrides?: C): T {
     // Ensure we don't accidentally reuse a mock across tests
     if (this.mockInstance) {
       this.cleanup();
@@ -32,7 +32,7 @@ export abstract class BaseMockFactory<T extends object, C = Partial<any<T>>> {
     // Deep merge overrides onto the default mock
     const finalMock = this._mergeOverrides(defaultMock, overrides);
     
-    this.mockInstance = finalMock as any<T>;
+    this.mockInstance = finalMock as T;
     this._afterCreate(this.mockInstance);
     
     // Register this factory as active with the MockManager
@@ -45,7 +45,7 @@ export abstract class BaseMockFactory<T extends object, C = Partial<any<T>>> {
    * Returns the current mock instance.
    * Throws if create() has not been called for the current test.
    */
-  public get(): any<T> {
+  public get(): T {
     if (!this.mockInstance) {
       throw new Error(
         `[MockFactory] Mock for ${this.constructor.name} has not been created. ` +
@@ -90,11 +90,11 @@ export abstract class BaseMockFactory<T extends object, C = Partial<any<T>>> {
    * Merges overrides with the default mock.
    * Can be overridden for custom merge strategies.
    */
-  protected _mergeOverrides(defaultMock: any<T>, overrides?: C): any<T> {
+  protected _mergeOverrides(defaultMock: T, overrides?: C): T {
     if (!overrides) return defaultMock;
     
     // Deep merge for nested objects
-    return this._deepMerge(defaultMock, overrides as any) as any<T>;
+    return this._deepMerge(defaultMock, overrides as any) as T;
   }
 
   /**
@@ -142,7 +142,7 @@ export abstract class BaseMockFactory<T extends object, C = Partial<any<T>>> {
    * Hook called after creating a mock instance.
    * Override to add custom initialization logic.
    */
-  protected _afterCreate(instance: any<T>): void {
+  protected _afterCreate(instance: T): void {
     // Default: no-op
   }
 
@@ -150,7 +150,7 @@ export abstract class BaseMockFactory<T extends object, C = Partial<any<T>>> {
    * Hook called before cleaning up a mock instance.
    * Override to add custom cleanup logic.
    */
-  protected _beforeCleanup(instance: any<T>): void {
+  protected _beforeCleanup(instance: T): void {
     // Default: no-op
   }
 
@@ -158,7 +158,7 @@ export abstract class BaseMockFactory<T extends object, C = Partial<any<T>>> {
    * Each concrete factory MUST implement this to provide
    * a default version of the mock with all methods stubbed.
    */
-  protected abstract _createDefaultMock(): any<T>;
+  protected abstract _createDefaultMock(): T;
   
   /**
    * Register this factory with the MockManager for tracking.

@@ -7,7 +7,7 @@
 
 // @ts-nocheck - Test infrastructure with complex mock typing
 
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 import type { Move } from "chess.js";
 import { BaseMockFactory } from './BaseMockFactory';
 import type { ChessService } from '@shared/services/ChessService';
@@ -17,7 +17,7 @@ import { COMMON_FENS } from '../fixtures/commonFens';
 
 type ChessListener = (event: ChessEvent) => void;
 
-type MockedChessService = any<ChessService>;
+type MockedChessService = ChessService;
 
 export interface ChessServiceMockOverrides {
   // State
@@ -174,7 +174,7 @@ export class ChessServiceMockFactory extends BaseMockFactory<ChessService, Chess
       getSquare: vi.fn().mockReturnValue(null),
       removeSquare: vi.fn().mockReturnValue(null),
       putSquare: vi.fn().mockReturnValue(true),
-    } as unknown as any<ChessService>;
+    } as unknown as ChessService;
 
     return mock;
   }

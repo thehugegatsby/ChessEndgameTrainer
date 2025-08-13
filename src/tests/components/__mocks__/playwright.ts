@@ -7,35 +7,31 @@
  */
 
 export interface MockLocator {
-  click: any<() => Promise<void>>;
-  isVisible: any<() => Promise<boolean>>;
-  getAttribute: any<(name: string) => Promise<string | null>>;
-  textContent: any<() => Promise<string | null>>;
-  count: any<() => Promise<number>>;
-  first: any<() => MockLocator>;
-  locator: any<(selector: string) => MockLocator>;
-  all: any<() => Promise<MockLocator[]>>;
-  waitFor: any<(options?: any) => Promise<void>>;
+  click: () => Promise<void>;
+  isVisible: () => Promise<boolean>;
+  getAttribute: (name: string) => Promise<string | null>;
+  textContent: () => Promise<string | null>;
+  count: () => Promise<number>;
+  first: () => MockLocator;
+  locator: (selector: string) => MockLocator;
+  all: () => Promise<MockLocator[]>;
+  waitFor: (options?: any) => Promise<void>;
 }
 
 export interface MockPage {
-  locator: any<(selector: string) => MockLocator>;
-  evaluate: any<(fn: any, ...args: any[]) => Promise<any>>;
-  waitForTimeout: any<(timeout: number) => Promise<void>>;
-  waitForSelector: any<
-    (selector: string, options?: any) => Promise<MockLocator>
-  >;
-  waitForFunction: any<
-    (fn: any, arg?: any, options?: any) => Promise<void>
-  >;
-  on: any<(event: string, handler: any) => void>;
-  addInitScript: any<(script: any) => Promise<void>>;
-  goto: any<(url: string, options?: any) => Promise<void>>;
+  locator: (selector: string) => MockLocator;
+  evaluate: (fn: any, ...args: any[]) => Promise<any>;
+  waitForTimeout: (timeout: number) => Promise<void>;
+  waitForSelector: (selector: string, options?: any) => Promise<MockLocator>;
+  waitForFunction: (fn: any, arg?: any, options?: any) => Promise<void>;
+  on: (event: string, handler: any) => void;
+  addInitScript: (script: any) => Promise<void>;
+  goto: (url: string, options?: any) => Promise<void>;
 }
 
 export interface MockConsoleMessage {
-  type: any<() => string>;
-  text: any<() => string>;
+  type: () => string;
+  text: () => string;
 }
 
 /**

@@ -2,48 +2,70 @@
  * Vitest Test Setup
  * 
  * This file configures the test environment for all Vitest tests
- * in the features/ directory.
+ * in the features/ directory. It handles both Node.js and DOM environments.
  */
 
 import '@testing-library/jest-dom';
 import { vi, beforeAll, afterAll, afterEach } from 'vitest';
 
-// Mock localStorage
-const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-  length: 0,
-  key: vi.fn(),
-};
+// --- Global Setup (Environment-Agnostic) ---
+// This runs in ALL environments (node and jsdom)
 
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
-  writable: true,
-  configurable: true,
+// Clean up after each test
+afterEach(() => {
+  vi.clearAllMocks();
 });
 
-// Mock addEventListener/removeEventListener/dispatchEvent on window
-window.addEventListener = vi.fn();
-window.removeEventListener = vi.fn();
-window.dispatchEvent = vi.fn();
+// --- Browser-Only Setup (jsdom/happy-dom) ---
+// Guard all browser-specific mocks and setup here
+if (typeof window !== 'undefined' && typeof globalThis.window !== 'undefined') {
+  // Mock localStorage
+  const createLocalStorageMock = (): Storage => {
+    let store: { [key: string]: string } = {};
+    return {
+      getItem: (key: string) => store[key] || null,
+      setItem: (key: string, value: string) => {
+        store[key] = value.toString();
+      },
+      removeItem: (key: string) => {
+        delete store[key];
+      },
+      clear: () => {
+        store = {};
+      },
+      length: Object.keys(store).length,
+      key: vi.fn(),
+    };
+  };
 
-// Mock window.matchMedia for components that use media queries
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: vi.fn().mockImplementation((query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })),
-});
+  Object.defineProperty(window, 'localStorage', {
+    value: createLocalStorageMock(),
+    writable: true,
+    configurable: true,
+  });
 
+  // Mock addEventListener/removeEventListener/dispatchEvent on window
+  window.addEventListener = vi.fn();
+  window.removeEventListener = vi.fn();
+  window.dispatchEvent = vi.fn();
+
+  // Mock window.matchMedia for components that use media queries
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: vi.fn().mockImplementation((query) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+}
+
+// --- Global Mock Objects (All Environments) ---
 // Mock IntersectionObserver for components that use it
 global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
@@ -58,6 +80,7 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
   disconnect: vi.fn(),
 }));
 
+// --- Console Management ---
 // Suppress console errors in tests unless explicitly testing error cases
 const originalError = console.error;
 beforeAll(() => {
@@ -76,9 +99,4 @@ beforeAll(() => {
 
 afterAll(() => {
   console.error = originalError;
-});
-
-// Clean up after each test
-afterEach(() => {
-  vi.clearAllMocks();
 });

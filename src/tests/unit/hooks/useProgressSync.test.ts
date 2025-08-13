@@ -151,7 +151,7 @@ const triggerOfflineEvent = (): void => {
 /**
  *
  */
-const createMockProgressService = (): any<ProgressService> =>
+const createMockProgressService = (): ProgressService =>
   ({
     updateUserStats: vi.fn().mockResolvedValue(undefined),
     upsertCardProgress: vi.fn().mockResolvedValue(undefined),
@@ -182,7 +182,7 @@ const createTestCardProgress = (id: string): CardProgress => ({
 
 describe("useProgressSync", () => {
   const userId = "test-user-123";
-  let mockProgressService: any<ProgressService>;
+  let mockProgressService: ProgressService;
 
   beforeEach(() => {
     mockProgressService = createMockProgressService();

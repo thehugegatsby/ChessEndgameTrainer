@@ -43,22 +43,12 @@ vi.mock("@shared/components/chess/Chessboard", () => ({
   ),
 }));
 
-const mockUseTrainingStore = useTrainingStore as any<
-  typeof useTrainingStore
->;
-const mockUseGameStore = useGameStore as any<
-  typeof useGameStore
->;
-const mockUseTablebaseStore = useTablebaseStore as any<
-  typeof useTablebaseStore
->;
-const mockUseUIStore = useUIStore as any<typeof useUIStore>;
-const mockUseTrainingSession = useTrainingSession as any<
-  typeof useTrainingSession
->;
-const mockUsePositionAnalysis = usePositionAnalysis as any<
-  typeof usePositionAnalysis
->;
+const mockUseTrainingStore = useTrainingStore as any;
+const mockUseGameStore = useGameStore as any;
+const mockUseTablebaseStore = useTablebaseStore as any;
+const mockUseUIStore = useUIStore as any;
+const mockUseTrainingSession = useTrainingSession as any;
+const mockUsePositionAnalysis = usePositionAnalysis as any;
 
 describe("TrainingBoard", () => {
   const mockTrainingState = {

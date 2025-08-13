@@ -57,7 +57,7 @@ class FeatureFlagService {
    */
   public static resetForTesting(): void {
     if (process.env.NODE_ENV === 'test') {
-      FeatureFlagService.instance = null as any;
+      FeatureFlagService.instance = null as unknown as FeatureFlagService;
     }
   }
 

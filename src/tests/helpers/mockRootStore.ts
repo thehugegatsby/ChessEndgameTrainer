@@ -231,10 +231,10 @@ export const mockRootStore = (overrides: MockRootState = {}) => {
   const mockState = deepMerge(defaultState, overrides as Record<string, unknown>) as unknown as RootState;
 
   // Configure the mock to return our state
-  (useStore as any<typeof useStore>).mockReturnValue(mockState);
+  (useStore as any).mockReturnValue(mockState);
 
   // Also mock the selector pattern
-  (useStore as any<typeof useStore>).mockImplementation((selector?: (state: RootState) => unknown) => {
+  (useStore as any).mockImplementation((selector?: (state: RootState) => unknown) => {
     if (typeof selector === "function") {
       return selector(mockState);
     }
@@ -242,10 +242,10 @@ export const mockRootStore = (overrides: MockRootState = {}) => {
   });
 
   // CRITICAL: Mock getState() method which is used by useGameActions()
-  (useStore as any<typeof useStore> & { getState: ReturnType<typeof vi.fn> }).getState = vi.fn().mockReturnValue(mockState);
+  (useStore as any).getState = vi.fn().mockReturnValue(mockState);
 
   // Return the mock for additional assertions if needed
-  return useStore as any<typeof useStore>;
+  return useStore as any;
 };
 
 /**
@@ -297,7 +297,7 @@ export const mockRootStoreWithSelector = (overrides: MockRootState = {}) => {
  * Call this in afterEach hooks to ensure test isolation
  */
 export const resetRootStoreMock = () => {
-  (useStore as any<typeof useStore>).mockClear();
+  (useStore as any).mockClear();
 };
 
 /**
@@ -307,7 +307,7 @@ export const resetRootStoreMock = () => {
  * @param expectedCalls - Expected number of calls
  */
 export const verifyRootStoreCalls = (
-  mock: any<typeof useStore>,
+  mock: any,
   expectedCalls: number,
 ) => {
   expect(mock).toHaveBeenCalledTimes(expectedCalls);

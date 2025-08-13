@@ -69,7 +69,7 @@ export class ZustandStoreMockFactory extends BaseMockFactory<MockStoreResult, St
       },
     };
 
-    this.mockInstance = mockResult as unknown as any<MockStoreResult>;
+    this.mockInstance = mockResult as unknown as MockStoreResult;
     return mockResult;
   }
 
@@ -216,7 +216,7 @@ export class ZustandStoreMockFactory extends BaseMockFactory<MockStoreResult, St
     });
   }
 
-  protected _createDefaultMock(): any<MockStoreResult> {
+  protected _createDefaultMock(): MockStoreResult {
     // Note: This factory overrides create() method completely,
     // but we provide a valid implementation to satisfy base class contract
     const mockStore = {
@@ -226,7 +226,7 @@ export class ZustandStoreMockFactory extends BaseMockFactory<MockStoreResult, St
       store: {} as StoreApi<RootStore>,
     };
     
-    return mockStore as unknown as any<MockStoreResult>;
+    return mockStore as unknown as MockStoreResult;
   }
 
   protected _beforeCleanup(): void {
