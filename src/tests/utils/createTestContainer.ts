@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Test Container Utilities
  * Easy setup for Jest tests with ServiceContainer
@@ -38,10 +39,10 @@ export function createTestContainer(
       onLine: true,
       deviceMemory: 8,
       clipboard: {
-        writeText: jest.fn().mockResolvedValue(undefined),
-        readText: jest.fn().mockResolvedValue("mocked text"),
+        writeText: vi.fn().mockResolvedValue(undefined),
+        readText: vi.fn().mockResolvedValue("mocked text"),
       },
-      share: jest.fn().mockResolvedValue(undefined),
+      share: vi.fn().mockResolvedValue(undefined),
     } as any);
 
   const mockWindow =
@@ -56,14 +57,14 @@ export function createTestContainer(
   const mockDocument =
     overrides?.document ||
     ({
-      createElement: jest.fn(),
-      body: { appendChild: jest.fn(), removeChild: jest.fn() },
+      createElement: vi.fn(),
+      body: { appendChild: vi.fn(), removeChild: vi.fn() },
     } as any);
 
   const mockPerformance =
     overrides?.performance ||
     ({
-      now: jest.fn().mockReturnValue(1000),
+      now: vi.fn().mockReturnValue(1000),
     } as any);
 
   // Build browser APIs object
@@ -173,8 +174,8 @@ export function createMockLocalStorage(): Storage {
   const store: Record<string, string> = {};
 
   const mockFn = <T extends (...args: any[]) => any>(impl: T): T => {
-    if (typeof jest !== "undefined" && jest.fn) {
-      return jest.fn(impl);
+    if (typeof jest !== "undefined" && vi.fn) {
+      return vi.fn(impl);
     }
     return impl;
   };
@@ -233,10 +234,10 @@ export const TestScenarios = {
       mozConnection: { type: "none", effectiveType: undefined, downlink: 0 },
       webkitConnection: { type: "none", effectiveType: undefined, downlink: 0 },
       clipboard: {
-        writeText: jest.fn().mockResolvedValue(undefined),
-        readText: jest.fn().mockResolvedValue("mocked text"),
+        writeText: vi.fn().mockResolvedValue(undefined),
+        readText: vi.fn().mockResolvedValue("mocked text"),
       },
-      share: jest.fn().mockResolvedValue(undefined),
+      share: vi.fn().mockResolvedValue(undefined),
     } as any;
 
     return createTestContainer({ navigator: mockNavigator });
@@ -271,10 +272,10 @@ export const TestScenarios = {
       onLine: true,
       userAgent: "Mozilla/5.0 (Test Environment - Low Memory)",
       clipboard: {
-        writeText: jest.fn().mockResolvedValue(undefined),
-        readText: jest.fn().mockResolvedValue("mocked text"),
+        writeText: vi.fn().mockResolvedValue(undefined),
+        readText: vi.fn().mockResolvedValue("mocked text"),
       },
-      share: jest.fn().mockResolvedValue(undefined),
+      share: vi.fn().mockResolvedValue(undefined),
     } as any;
 
     return createTestContainer({ navigator: mockNavigator });

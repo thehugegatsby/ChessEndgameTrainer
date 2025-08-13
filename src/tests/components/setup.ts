@@ -8,13 +8,13 @@ import "@testing-library/jest-dom";
 
 // Mock timers for debounce/throttle testing
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
 });
 
 afterEach(() => {
-  jest.runOnlyPendingTimers();
-  jest.useRealTimers();
-  jest.clearAllMocks();
+  vi.runOnlyPendingTimers();
+  vi.useRealTimers();
+  vi.clearAllMocks();
 });
 
 // Mock window objects for test bridge
@@ -38,11 +38,11 @@ Object.defineProperty(window, "__E2E_TEST_MODE__", {
 const originalConsole = { ...console };
 global.console = {
   ...console,
-  log: jest.fn(),
-  debug: jest.fn(),
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
+  log: vi.fn(),
+  debug: vi.fn(),
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
 };
 
 // Restore console for test failures
@@ -62,40 +62,40 @@ afterEach(() => {
  * Creates a mock test bridge for E2E testing
  */
 interface TestBridgeMock {
-  waitForReady: jest.Mock;
-  enableDebugLogging: jest.Mock;
-  disableDebugLogging: jest.Mock;
-  reset: jest.Mock;
-  addCustomResponse: jest.Mock;
-  getResponseTime: jest.Mock;
+  waitForReady: ReturnType<typeof vi.fn>;
+  enableDebugLogging: ReturnType<typeof vi.fn>;
+  disableDebugLogging: ReturnType<typeof vi.fn>;
+  reset: ReturnType<typeof vi.fn>;
+  addCustomResponse: ReturnType<typeof vi.fn>;
+  getResponseTime: ReturnType<typeof vi.fn>;
   diagnostic: {
-    getCurrentFen: jest.Mock;
-    getStatus: jest.Mock;
+    getCurrentFen: ReturnType<typeof vi.fn>;
+    getStatus: ReturnType<typeof vi.fn>;
   };
   tablebase: {
-    setPosition: jest.Mock;
-    getEvaluation: jest.Mock;
+    setPosition: ReturnType<typeof vi.fn>;
+    getEvaluation: ReturnType<typeof vi.fn>;
   };
 }
 
 export const createTestBridgeMock = (): TestBridgeMock => ({
-  waitForReady: jest.fn().mockResolvedValue(true),
-  enableDebugLogging: jest.fn(),
-  disableDebugLogging: jest.fn(),
-  reset: jest.fn().mockResolvedValue(undefined),
-  addCustomResponse: jest.fn().mockResolvedValue(undefined),
-  getResponseTime: jest.fn().mockReturnValue(100),
+  waitForReady: vi.fn().mockResolvedValue(true),
+  enableDebugLogging: vi.fn(),
+  disableDebugLogging: vi.fn(),
+  reset: vi.fn().mockResolvedValue(undefined),
+  addCustomResponse: vi.fn().mockResolvedValue(undefined),
+  getResponseTime: vi.fn().mockReturnValue(100),
   diagnostic: {
     getCurrentFen: jest
       .fn()
       .mockReturnValue(
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
       ),
-    getStatus: jest.fn().mockReturnValue({ ready: true, initialized: true }),
+    getStatus: vi.fn().mockReturnValue({ ready: true, initialized: true }),
   },
   tablebase: {
-    setPosition: jest.fn(),
-    getEvaluation: jest.fn().mockResolvedValue({ evaluation: 0.15, depth: 10 }),
+    setPosition: vi.fn(),
+    getEvaluation: vi.fn().mockResolvedValue({ evaluation: 0.15, depth: 10 }),
   },
 });
 

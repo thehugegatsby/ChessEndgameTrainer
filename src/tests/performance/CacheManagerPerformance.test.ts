@@ -13,6 +13,7 @@
  * Based on performance validation plan for Issue #93
  */
 
+import { describe, it, test, expect, beforeEach, afterEach } from 'vitest';
 import { LRUCacheManager } from '../../shared/lib/cache/LRUCacheManager';
 import type { CacheManager } from '../../shared/lib/cache/types';
 

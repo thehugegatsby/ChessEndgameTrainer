@@ -1,3 +1,4 @@
+import { describe, it, test, expect } from 'vitest';
 /**
  * Unit tests for tablebase result classification utilities
  */

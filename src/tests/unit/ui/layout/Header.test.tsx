@@ -3,6 +3,7 @@
  * @description Tests main application header with title and styling
  */
 
+import { describe, it, test, expect } from 'vitest';
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { Header } from "@shared/components/layout/Header";

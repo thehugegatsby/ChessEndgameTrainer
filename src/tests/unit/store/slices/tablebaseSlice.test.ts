@@ -3,6 +3,7 @@
  * @module tests/unit/store/slices/tablebaseSlice.nested
  */
 
+import { describe, it, test, expect, beforeEach } from 'vitest';
 import { useStore } from "@shared/store/rootStore";
 import type { PositionAnalysis } from "@shared/types";
 

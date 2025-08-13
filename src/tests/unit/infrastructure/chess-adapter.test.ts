@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Comprehensive unit tests for chess-adapter
  * @module tests/unit/infrastructure/chess-adapter
@@ -16,14 +17,14 @@ import {
   ChessAdapterError,
   ChessAdapter
 } from '@shared/infrastructure/chess-adapter';
-import { ValidatedMove, type Color, type PieceSymbol, type Square } from '@shared/types/chess';
+import { ValidatedMove, type Color, type PieceSymbol, type Square } from '@shared/types/chess.js';
 import { createTestValidatedMove } from '@tests/helpers/validatedMoveFactory';
 
 // Mock the logger to prevent console output during tests
-jest.mock('@shared/services/logging', () => ({
+vi.mock('@shared/services/logging', () => ({
   getLogger: () => ({
-    debug: jest.fn(),
-    error: jest.fn(),
+    debug: vi.fn(),
+    error: vi.fn(),
   }),
 }));
 

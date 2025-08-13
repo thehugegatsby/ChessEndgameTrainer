@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Unit tests for ProgressSlice
  * @description Tests the progress tracking and spaced repetition functionality
@@ -9,12 +10,12 @@ import { createProgressSlice } from '@shared/store/slices/progressSlice';
 import type { ProgressSlice, CardProgress, UserStats } from '@shared/store/slices/types';
 
 // Mock logger to avoid console noise in tests
-jest.mock('@shared/services/logging/Logger', () => ({
+vi.mock('@shared/services/logging/Logger', () => ({
   getLogger: () => ({
-    setContext: jest.fn().mockReturnThis(),
-    debug: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
+    setContext: vi.fn().mockReturnThis(),
+    debug: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   }),
 }));
 
@@ -48,10 +49,10 @@ const createTestStore = (): ReturnType<typeof create<TestRootState>> => {
         training: {} as any,
         tablebase: {} as any,
         ui: {} as any,
-        handlePlayerMove: jest.fn(),
-        loadTrainingContext: jest.fn(),
-        reset: jest.fn(),
-        hydrate: jest.fn(),
+        handlePlayerMove: vi.fn(),
+        loadTrainingContext: vi.fn(),
+        reset: vi.fn(),
+        hydrate: vi.fn(),
         _trainingActions: {} as any,
       };
     })

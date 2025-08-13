@@ -3,6 +3,7 @@
  * @module tests/unit/store/slices/uiSlice.nested
  */
 
+import { describe, it, test, expect, beforeEach } from 'vitest';
 import { useStore } from "@shared/store/rootStore";
 
 describe("UISlice - Nested Store Structure", () => {

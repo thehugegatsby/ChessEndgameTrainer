@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Tests for RemoteTransport flush() method
  *
@@ -31,13 +32,13 @@ describe("RemoteTransport.flush", () => {
   const ENDPOINT = "https://api.logs.com/v1/ingest";
 
   // Mock console.error to verify it's called on failure and keep test output clean
-  let consoleErrorSpy: jest.SpyInstance;
+  let consoleErrorSpy: vi.SpyInstance;
 
   beforeEach(() => {
     // Mock the global fetch function before each test
-    global.fetch = jest.fn();
+    global.fetch = vi.fn();
     // Reset console.error spy for each test
-    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -59,7 +60,7 @@ describe("RemoteTransport.flush", () => {
     // Access private buffer for testing
     (transport as any).buffer.push(log1, log2);
 
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
       ok: true,
       /**
        *
@@ -91,7 +92,7 @@ describe("RemoteTransport.flush", () => {
     (transport as any).buffer.push(...originalLogs);
 
     const networkError = new Error("Network connection failed");
-    (fetch as jest.Mock).mockRejectedValueOnce(networkError);
+    (fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(networkError);
 
     // Act
     await transport.flush();
@@ -113,7 +114,7 @@ describe("RemoteTransport.flush", () => {
     const originalLogs = [log1];
     (transport as any).buffer.push(...originalLogs);
 
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
       ok: false,
       status: 500,
     });
@@ -136,7 +137,7 @@ describe("RemoteTransport.flush", () => {
     const failedLog2 = createLogEntry("failed log 2");
     (transport as any).buffer.push(failedLog1, failedLog2);
 
-    (fetch as jest.Mock).mockRejectedValueOnce(new Error("Network failure"));
+    (fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("Network failure"));
 
     // Act 1: First flush fails
     await transport.flush();
@@ -150,11 +151,11 @@ describe("RemoteTransport.flush", () => {
     expect((transport as any).buffer).toEqual([failedLog1, failedLog2, newLog]);
 
     // Act 2: Second flush succeeds
-    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true });
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ ok: true });
     await transport.flush();
 
     // Assert 2: Fetch was called with all three logs in the correct order
-    const sentBody = JSON.parse((fetch as jest.Mock).mock.calls[1][1].body);
+    const sentBody = JSON.parse((fetch as ReturnType<typeof vi.fn>).mock.calls[1][1].body);
     expect(sentBody.logs).toHaveLength(3);
     expect(sentBody.logs[0].message).toBe("failed log 1");
     expect(sentBody.logs[1].message).toBe("failed log 2");
@@ -172,7 +173,7 @@ describe("RemoteTransport.flush", () => {
     const fetchPromise = new Promise<{ ok: boolean }>((resolve) => {
       resolveFetch = resolve;
     });
-    (fetch as jest.Mock).mockReturnValue(fetchPromise);
+    (fetch as ReturnType<typeof vi.fn>).mockReturnValue(fetchPromise);
 
     // Act
     // Start the first flush, but don't wait for it to complete

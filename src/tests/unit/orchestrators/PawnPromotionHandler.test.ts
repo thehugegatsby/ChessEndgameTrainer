@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Tests for PawnPromotionHandler
  * @module tests/unit/orchestrators/PawnPromotionHandler
@@ -13,30 +14,30 @@ import { tablebaseService } from "@shared/services/TablebaseService";
 import type { StoreApi } from "@shared/store/orchestrators/types";
 
 // Mock dependencies
-jest.mock("@shared/services/ChessService", () => ({
+vi.mock("@shared/services/ChessService", () => ({
   chessService: {
-    isGameOver: jest.fn(),
-    isCheckmate: jest.fn(),
+    isGameOver: vi.fn(),
+    isCheckmate: vi.fn(),
   },
 }));
 
-jest.mock("@shared/services/orchestrator/OrchestratorServices", () => ({
+vi.mock("@shared/services/orchestrator/OrchestratorServices", () => ({
   orchestratorTablebase: {
-    getEvaluation: jest.fn(),
+    getEvaluation: vi.fn(),
   },
 }));
 
-jest.mock("@shared/services/logging", () => ({
-  getLogger: jest.fn(() => ({
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
+vi.mock("@shared/services/logging", () => ({
+  getLogger: vi.fn(() => ({
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   })),
 }));
 
-jest.mock("@shared/store/orchestrators/handlePlayerMove/move.completion", () => ({
-  handleTrainingCompletion: jest.fn(),
+vi.mock("@shared/store/orchestrators/handlePlayerMove/move.completion", () => ({
+  handleTrainingCompletion: vi.fn(),
 }));
 
 // Helper function to create complete TablebaseResult objects
@@ -60,12 +61,12 @@ describe.skip("PawnPromotionHandler", () => {
     beforeEach(() => {
     handler = new PawnPromotionHandler();
     mockLogger = {
-      debug: jest.fn(),
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
     };
-    (getLogger as jest.Mock).mockReturnValue(mockLogger);
+    (getLogger as ReturnType<typeof vi.fn>).mockReturnValue(mockLogger);
 
     // Create mock state and API
     mockState = {
@@ -85,8 +86,8 @@ describe.skip("PawnPromotionHandler", () => {
     };
 
     mockApi = {
-      getState: jest.fn(() => mockState),
-      setState: jest.fn((callback) => {
+      getState: vi.fn(() => mockState),
+      setState: vi.fn((callback) => {
         // Actually apply the state updates from the callback
         const updates = callback(mockState);
         if (updates) {
@@ -96,11 +97,11 @@ describe.skip("PawnPromotionHandler", () => {
     };
 
     // Reset all mocks to clear return values and call history
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     
     // Re-configure mocks that need specific behaviors after reset
-    (getLogger as jest.Mock).mockReturnValue(mockLogger);
-    (handleTrainingCompletion as jest.Mock).mockResolvedValue(undefined);
+    (getLogger as ReturnType<typeof vi.fn>).mockReturnValue(mockLogger);
+    (handleTrainingCompletion as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
   });
 
   describe("checkPromotion", () => {
@@ -245,8 +246,8 @@ describe.skip("PawnPromotionHandler", () => {
 
     it("should detect checkmate as auto-win", async () => {
       // Configure mocks before calling the handler
-      (chessService.isGameOver as jest.Mock).mockReturnValue(true);
-      (chessService.isCheckmate as jest.Mock).mockReturnValue(true);
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(true);
+      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockReturnValue(true);
 
       const result = await handler.evaluatePromotionOutcome(validFen, "w");
 
@@ -257,8 +258,8 @@ describe.skip("PawnPromotionHandler", () => {
 
     it("should not consider stalemate as auto-win", async () => {
       // Access the mocked functions directly (they're already mocked at module level)
-      (chessService.isGameOver as jest.Mock).mockReturnValue(true);
-      (chessService.isCheckmate as jest.Mock).mockReturnValue(false);
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(true);
+      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockReturnValue(false);
 
       const result = await handler.evaluatePromotionOutcome(validFen, "w");
 
@@ -267,8 +268,8 @@ describe.skip("PawnPromotionHandler", () => {
 
     it("should detect winning positions for white with tablebase", async () => {
       // Access the mocked functions directly
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      (orchestratorTablebase.getEvaluation as jest.Mock).mockResolvedValue({
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (orchestratorTablebase.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         result: createTablebaseResult({
           wdl: 1000, // Win for white
@@ -285,8 +286,8 @@ describe.skip("PawnPromotionHandler", () => {
 
     it("should detect winning positions for black with tablebase", async () => {
       // Access the mocked functions directly
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      (orchestratorTablebase.getEvaluation as jest.Mock).mockResolvedValue({
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (orchestratorTablebase.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         result: createTablebaseResult({
           wdl: -1000, // Loss for white = win for black
@@ -302,14 +303,14 @@ describe.skip("PawnPromotionHandler", () => {
     });
 
     it("should not consider winning positions without auto-win category", async () => {
-      // Use jest.spyOn to mock the chess service methods
-      (chessService.isGameOver as jest.Mock).mockClear();
-      (chessService.isCheckmate as jest.Mock).mockClear();
+      // Use vi.spyOn to mock the chess service methods
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockClear();
+      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockClear();
 
-      // Use jest.spyOn to mock the tablebase service methods
+      // Use vi.spyOn to mock the tablebase service methods
 
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      (orchestratorTablebase.getEvaluation as jest.Mock).mockResolvedValue({
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (orchestratorTablebase.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         result: createTablebaseResult({
           wdl: 1000, // Winning
@@ -323,14 +324,14 @@ describe.skip("PawnPromotionHandler", () => {
     });
 
     it("should handle draw positions", async () => {
-      // Use jest.spyOn to mock the chess service methods
-      (chessService.isGameOver as jest.Mock).mockClear();
-      (chessService.isCheckmate as jest.Mock).mockClear();
+      // Use vi.spyOn to mock the chess service methods
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockClear();
+      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockClear();
 
-      // Use jest.spyOn to mock the tablebase service methods
+      // Use vi.spyOn to mock the tablebase service methods
 
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      (orchestratorTablebase.getEvaluation as jest.Mock).mockResolvedValue({
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (orchestratorTablebase.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         result: createTablebaseResult({
           wdl: 0, // Draw
@@ -344,14 +345,14 @@ describe.skip("PawnPromotionHandler", () => {
     });
 
     it("should handle losing positions", async () => {
-      // Use jest.spyOn to mock the chess service methods
-      (chessService.isGameOver as jest.Mock).mockClear();
-      (chessService.isCheckmate as jest.Mock).mockClear();
+      // Use vi.spyOn to mock the chess service methods
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockClear();
+      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockClear();
 
-      // Use jest.spyOn to mock the tablebase service methods
+      // Use vi.spyOn to mock the tablebase service methods
 
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      (orchestratorTablebase.getEvaluation as jest.Mock).mockResolvedValue({
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (orchestratorTablebase.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         result: createTablebaseResult({
           wdl: -1000, // Loss for white
@@ -365,14 +366,14 @@ describe.skip("PawnPromotionHandler", () => {
     });
 
     it("should handle tablebase unavailable", async () => {
-      // Use jest.spyOn to mock the chess service methods
-      (chessService.isGameOver as jest.Mock).mockClear();
-      (chessService.isCheckmate as jest.Mock).mockClear();
+      // Use vi.spyOn to mock the chess service methods
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockClear();
+      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockClear();
 
-      // Use jest.spyOn to mock the tablebase service methods
+      // Use vi.spyOn to mock the tablebase service methods
 
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      (orchestratorTablebase.getEvaluation as jest.Mock).mockResolvedValue({
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (orchestratorTablebase.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: false,
       });
 
@@ -382,12 +383,12 @@ describe.skip("PawnPromotionHandler", () => {
     });
 
     it("should handle tablebase errors gracefully", async () => {
-      // Use jest.spyOn to mock the tablebase service methods
-      (chessService.isGameOver as jest.Mock).mockClear();
-      (chessService.isCheckmate as jest.Mock).mockClear();
+      // Use vi.spyOn to mock the tablebase service methods
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockClear();
+      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockClear();
       
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      (orchestratorTablebase.getEvaluation as jest.Mock).mockRejectedValue(
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (orchestratorTablebase.getEvaluation as ReturnType<typeof vi.fn>).mockRejectedValue(
         new Error("API error"),
       );
 
@@ -398,14 +399,14 @@ describe.skip("PawnPromotionHandler", () => {
     });
 
     it("should handle evaluation without result field", async () => {
-      // Use jest.spyOn to mock the chess service methods
-      (chessService.isGameOver as jest.Mock).mockClear();
-      (chessService.isCheckmate as jest.Mock).mockClear();
+      // Use vi.spyOn to mock the chess service methods
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockClear();
+      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockClear();
 
-      // Use jest.spyOn to mock the tablebase service methods
+      // Use vi.spyOn to mock the tablebase service methods
 
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      (orchestratorTablebase.getEvaluation as jest.Mock).mockResolvedValue({
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (orchestratorTablebase.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         // Missing result field
       });
@@ -416,14 +417,14 @@ describe.skip("PawnPromotionHandler", () => {
     });
 
     it("should handle evaluation with null result", async () => {
-      // Use jest.spyOn to mock the chess service methods
-      (chessService.isGameOver as jest.Mock).mockClear();
-      (chessService.isCheckmate as jest.Mock).mockClear();
+      // Use vi.spyOn to mock the chess service methods
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockClear();
+      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockClear();
 
-      // Use jest.spyOn to mock the tablebase service methods
+      // Use vi.spyOn to mock the tablebase service methods
 
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
-      (orchestratorTablebase.getEvaluation as jest.Mock).mockResolvedValue({
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (orchestratorTablebase.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         result: undefined,
       });
@@ -435,12 +436,12 @@ describe.skip("PawnPromotionHandler", () => {
 
     it("should handle evaluation with invalid WDL", async () => {
       // Access the mocked functions directly (they're already mocked at module level)
-      (chessService.isGameOver as jest.Mock).mockReturnValue(false);
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
 
-      // Use jest.spyOn to mock the tablebase service methods
+      // Use vi.spyOn to mock the tablebase service methods
 
       // Test with actually invalid WDL - string instead of number
-      (orchestratorTablebase.getEvaluation as jest.Mock).mockResolvedValue({
+      (orchestratorTablebase.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         result: {
           wdl: "invalid" as any, // Invalid: should be number
@@ -458,11 +459,11 @@ describe.skip("PawnPromotionHandler", () => {
     });
 
     it("should handle unexpected errors", async () => {
-      // Use jest.spyOn to mock the chess service methods
-      (chessService.isGameOver as jest.Mock).mockClear();
-      (chessService.isCheckmate as jest.Mock).mockClear();
+      // Use vi.spyOn to mock the chess service methods
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockClear();
+      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockClear();
 
-      (chessService.isGameOver as jest.Mock).mockImplementation(() => {
+      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockImplementation(() => {
         throw new Error("Unexpected error");
       });
 
@@ -550,7 +551,7 @@ describe.skip("PawnPromotionHandler", () => {
 
   describe("showPromotionDialog", () => {
     it("should show promotion dialog and auto-select queen", () => {
-      const callback = jest.fn();
+      const callback = vi.fn();
 
       handler.showPromotionDialog(mockApi, "e7", "e8", callback);
 

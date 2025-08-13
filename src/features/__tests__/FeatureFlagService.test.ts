@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Comprehensive Unit Tests for FeatureFlagService
  * Tests the Strangler Fig Pattern Feature Flag System
@@ -60,8 +61,8 @@ describe('FeatureFlagService', () => {
     // Restore original environment
     process.env = originalEnv;
     
-    // Clean up singleton
-    (FeatureFlagService as any).instance = undefined;
+    // Clean up singleton using the proper method
+    FeatureFlagService.resetForTesting();
   });
   
   describe('Singleton Pattern', () => {
@@ -94,11 +95,12 @@ describe('FeatureFlagService', () => {
     
     it('should apply development defaults when NODE_ENV is development', () => {
       process.env.NODE_ENV = 'development';
+      FeatureFlagService.resetForTesting();
       
       service = FeatureFlagService.getInstance();
       
-      // Chess core is now enabled by default in development (Phase 5B Migration)
-      expect(service.isEnabled(FeatureFlag.USE_NEW_CHESS_CORE)).toBe(true);
+      // Chess core was rolled back due to UI/UX issues
+      expect(service.isEnabled(FeatureFlag.USE_NEW_CHESS_CORE)).toBe(false);
       expect(service.isEnabled(FeatureFlag.USE_NEW_MOVE_VALIDATION)).toBe(false);
     });
   });
@@ -159,8 +161,8 @@ describe('FeatureFlagService', () => {
         service = FeatureFlagService.getInstance();
       }).not.toThrow();
       
-      // Should still work with defaults (chess core enabled in dev)
-      expect(service.isEnabled(FeatureFlag.USE_NEW_CHESS_CORE)).toBe(true);
+      // Should still work with defaults (chess core disabled in dev due to rollback)
+      expect(service.isEnabled(FeatureFlag.USE_NEW_CHESS_CORE)).toBe(false);
       
       consoleSpy.mockRestore();
     });
@@ -176,8 +178,8 @@ describe('FeatureFlagService', () => {
         service = FeatureFlagService.getInstance();
       }).not.toThrow();
       
-      // Should still work with defaults (chess core enabled in dev)
-      expect(service.isEnabled(FeatureFlag.USE_NEW_CHESS_CORE)).toBe(true);
+      // Should still work with defaults (chess core disabled in dev due to rollback)
+      expect(service.isEnabled(FeatureFlag.USE_NEW_CHESS_CORE)).toBe(false);
       
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Failed to load feature flags'),

@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file E2E-specific mocks for TablebaseService
  * @module services/TablebaseService.e2e.mocks
@@ -225,7 +226,7 @@ export const E2E_TABLEBASE_MOCKS: Record<string, any> = {
  * Lichess tablebase API and returns pre-defined mock responses. Designed
  * specifically for unit and integration testing environments.
  *
- * @returns {jest.Mock} Jest mock function configured for tablebase API testing
+ * @returns {ReturnType<typeof vi.fn>} Jest mock function configured for tablebase API testing
  *
  * @example
  * ```typescript
@@ -237,8 +238,8 @@ export const E2E_TABLEBASE_MOCKS: Record<string, any> = {
  * expect(response.ok).toBe(true);
  * ```
  */
-export function createE2ETablebaseFetchMock(): jest.Mock {
-  return jest.fn((url: string) => {
+export function createE2ETablebaseFetchMock(): ReturnType<typeof vi.fn> {
+  return vi.fn((url: string) => {
     if (url.includes("lichess.org/api/tablebase/standard")) {
       // Extract FEN from URL
       const urlObj = new URL(url);

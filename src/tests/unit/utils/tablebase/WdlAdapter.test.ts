@@ -5,6 +5,7 @@
  * scattered negation anti-patterns throughout the codebase.
  */
 
+import { describe, it, test, expect } from 'vitest';
 import { WdlAdapter, WdlValue, type RawWdlValue, MoveQuality } from '@shared/utils/tablebase/wdl';
 
 describe('WdlAdapter', () => {

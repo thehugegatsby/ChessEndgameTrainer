@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @fileoverview Unit tests for AppLayout component
  * @description Tests main layout component with header, menu, and navigation
@@ -8,7 +9,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { AppLayout } from "@shared/components/layout/AppLayout";
 
 // Mock Next.js Link component
-jest.mock("next/link", () => {
+vi.mock("next/link", () => {
   return function MockLink({
     children,
     href,
@@ -21,11 +22,11 @@ jest.mock("next/link", () => {
 });
 
 // Mock child components
-jest.mock("@shared/components/layout/Header", () => ({
+vi.mock("@shared/components/layout/Header", () => ({
   Header: () => <div data-testid="mock-header">Header Component</div>,
 }));
 
-jest.mock("@shared/components/navigation/AdvancedEndgameMenu", () => ({
+vi.mock("@shared/components/navigation/AdvancedEndgameMenu", () => ({
   AdvancedEndgameMenu: ({ isOpen, onClose, currentPositionId }: any) => (
     <div
       data-testid="mock-menu"
@@ -38,13 +39,13 @@ jest.mock("@shared/components/navigation/AdvancedEndgameMenu", () => ({
   ),
 }));
 
-jest.mock("@shared/components/ui/DarkModeToggle", () => ({
+vi.mock("@shared/components/ui/DarkModeToggle", () => ({
   DarkModeToggle: () => (
     <div data-testid="mock-dark-toggle">Dark Mode Toggle</div>
   ),
 }));
 
-jest.mock("@shared/components/ui/SettingsIcon", () => ({
+vi.mock("@shared/components/ui/SettingsIcon", () => ({
   SettingsIcon: () => <div data-testid="mock-settings">Settings Icon</div>,
 }));
 
@@ -56,7 +57,7 @@ describe("AppLayout Component", () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("Basic Rendering", () => {

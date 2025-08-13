@@ -3,6 +3,7 @@
  * Provides utilities for creating mock listeners, service instances, and validation
  */
 
+import { vi } from 'vitest';
 import {
   type ChessServiceListener,
   type ChessServiceEvent,
@@ -10,7 +11,7 @@ import {
 
 /**
  * Creates a mock event listener for ChessService events
- * @returns A Jest mock function that can track calls and arguments
+ * @returns A Vitest mock function that can track calls and arguments
  *
  * @example
  * ```typescript
@@ -26,8 +27,8 @@ import {
 export /**
  *
  */
-const createMockListener = (): jest.MockedFunction<ChessServiceListener> => {
-  return jest.fn();
+const createMockListener = (): ReturnType<typeof vi.fn<[ChessServiceEvent], void>> => {
+  return vi.fn();
 };
 
 /**
@@ -40,7 +41,7 @@ export /**
  */
 const createMockListeners = (
   count: number,
-): jest.MockedFunction<ChessServiceListener>[] => {
+): ReturnType<typeof vi.fn<[ChessServiceEvent], void>>[] => {
   return Array.from({ length: count }, () => createMockListener());
 };
 
@@ -53,7 +54,7 @@ export /**
  *
  */
 const getLastEmittedEvent = (
-  mockListener: jest.MockedFunction<ChessServiceListener>,
+  mockListener: ReturnType<typeof vi.fn<[ChessServiceEvent], void>>,
 ): ChessServiceEvent | undefined => {
   const calls = mockListener.mock.calls;
   if (calls.length === 0) return undefined;
@@ -69,7 +70,7 @@ export /**
  *
  */
 const getAllEmittedEvents = (
-  mockListener: jest.MockedFunction<ChessServiceListener>,
+  mockListener: ReturnType<typeof vi.fn<[ChessServiceEvent], void>>,
 ): ChessServiceEvent[] => {
   return mockListener.mock.calls.map((call) => call[0]);
 };
@@ -85,7 +86,7 @@ export /**
  *
  */
 const waitForEvent = (
-  mockListener: jest.MockedFunction<ChessServiceListener>,
+  mockListener: ReturnType<typeof vi.fn<[ChessServiceEvent], void>>,
   eventType: ChessServiceEvent["type"],
   timeout = 1000,
 ): Promise<ChessServiceEvent> => {

@@ -7,6 +7,7 @@ import {
   getShortTitle,
   getTrainingDisplayTitle,
 } from "@shared/utils/titleFormatter";
+import { describe, it, test, expect } from 'vitest';
 import { type EndgamePosition } from "@shared/types";
 
 describe("titleFormatter", () => {

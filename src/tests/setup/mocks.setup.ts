@@ -3,11 +3,11 @@
  */
 
 // Mock Worker API
-global.Worker = jest.fn(() => ({
-  postMessage: jest.fn(),
-  terminate: jest.fn(),
-  addEventListener: jest.fn(),
-  removeEventListener: jest.fn(),
+global.Worker = vi.fn(() => ({
+  postMessage: vi.fn(),
+  terminate: vi.fn(),
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn(),
   onmessage: null,
   onerror: null,
 }));
@@ -17,7 +17,7 @@ global.Worker = jest.fn(() => ({
  * Mock fetch API
  * @returns {Promise} Mock response
  */
-global.fetch = jest.fn(() =>
+global.fetch = vi.fn(() =>
   Promise.resolve({
     ok: true,
     /** @returns Promise with mock tablebase data */
@@ -29,18 +29,18 @@ global.fetch = jest.fn(() =>
 
 // Mock logger for evaluation tests
 const mockLogger = {
-  debug: jest.fn(),
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
-  getInstance: jest.fn(() => mockLogger),
+  debug: vi.fn(),
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  getInstance: vi.fn(() => mockLogger),
 };
 
 // Set up module mocks
-jest.mock("@shared/services/loggerService", () => ({
-  getLogger: jest.fn(() => mockLogger),
+vi.mock("@shared/services/loggerService", () => ({
+  getLogger: vi.fn(() => mockLogger),
   Logger: {
-    getInstance: jest.fn(() => mockLogger),
+    getInstance: vi.fn(() => mockLogger),
   },
 }));
 
@@ -50,8 +50,8 @@ if (!global.AbortController) {
     constructor() {
       this.signal = {
         aborted: false,
-        addEventListener: jest.fn(),
-        removeEventListener: jest.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
       };
     }
 

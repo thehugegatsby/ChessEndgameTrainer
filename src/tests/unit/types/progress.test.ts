@@ -13,6 +13,7 @@ import {
   createDueCardsMap,
   calculateDueCardsStats
 } from '@shared/types/progress';
+import { describe, it, test, expect } from 'vitest';
 import type { CardProgress } from '@shared/store/slices/types';
 
 // Test helpers

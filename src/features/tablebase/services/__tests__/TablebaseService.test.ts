@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Tests for TablebaseService - Main Orchestration Service
  */

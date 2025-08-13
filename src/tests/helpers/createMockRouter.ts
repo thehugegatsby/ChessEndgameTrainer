@@ -76,7 +76,7 @@ export function createMockRouter(router?: Partial<NextRouter>): NextRouter {
     },
 
     // Navigation methods with state updates
-    push: jest.fn(async (url: string) => {
+    push: vi.fn(async (url: string) => {
       const { pathname, query } = parseUrl(url);
       internalState = {
         ...internalState,
@@ -86,12 +86,12 @@ export function createMockRouter(router?: Partial<NextRouter>): NextRouter {
         route: pathname, // Simplified - in reality this might differ
       };
       // Emit route change events
-      (mockRouter.events.emit as jest.Mock)("routeChangeStart", url);
-      (mockRouter.events.emit as jest.Mock)("routeChangeComplete", url);
+      (mockRouter.events.emit as ReturnType<typeof vi.fn>)("routeChangeStart", url);
+      (mockRouter.events.emit as ReturnType<typeof vi.fn>)("routeChangeComplete", url);
       return true;
     }),
 
-    replace: jest.fn(async (url: string) => {
+    replace: vi.fn(async (url: string) => {
       const { pathname, query } = parseUrl(url);
       internalState = {
         ...internalState,
@@ -100,45 +100,45 @@ export function createMockRouter(router?: Partial<NextRouter>): NextRouter {
         asPath: url,
         route: pathname,
       };
-      (mockRouter.events.emit as jest.Mock)("routeChangeStart", url);
-      (mockRouter.events.emit as jest.Mock)("routeChangeComplete", url);
+      (mockRouter.events.emit as ReturnType<typeof vi.fn>)("routeChangeStart", url);
+      (mockRouter.events.emit as ReturnType<typeof vi.fn>)("routeChangeComplete", url);
       return true;
     }),
 
-    reload: jest.fn(() => {
+    reload: vi.fn(() => {
       // Reload doesn't change state but might emit events
-      (mockRouter.events.emit as jest.Mock)(
+      (mockRouter.events.emit as ReturnType<typeof vi.fn>)(
         "routeChangeStart",
         internalState.asPath,
       );
-      (mockRouter.events.emit as jest.Mock)(
+      (mockRouter.events.emit as ReturnType<typeof vi.fn>)(
         "routeChangeComplete",
         internalState.asPath,
       );
     }),
 
-    back: jest.fn(() => {
+    back: vi.fn(() => {
       // In a real router, this would use history
       // For testing, we'll just emit events
-      (mockRouter.events.emit as jest.Mock)(
+      (mockRouter.events.emit as ReturnType<typeof vi.fn>)(
         "routeChangeStart",
         internalState.asPath,
       );
-      (mockRouter.events.emit as jest.Mock)(
+      (mockRouter.events.emit as ReturnType<typeof vi.fn>)(
         "routeChangeComplete",
         internalState.asPath,
       );
     }),
 
-    forward: jest.fn(),
-    prefetch: jest.fn(() => Promise.resolve()),
-    beforePopState: jest.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(() => Promise.resolve()),
+    beforePopState: vi.fn(),
 
     // Event system
     events: {
-      on: jest.fn(),
-      off: jest.fn(),
-      emit: jest.fn(),
+      on: vi.fn(),
+      off: vi.fn(),
+      emit: vi.fn(),
     },
 
     // i18n properties - getters for stateful behavior
@@ -231,11 +231,11 @@ export const createMockRouterScenarios = {
  * Type guard to check if an object is a mocked router
  * Useful for assertions in tests
  */
-export function isMockedRouter(router: any): router is jest.Mocked<NextRouter> {
+export function isMockedRouter(router: any): router is any<NextRouter> {
   return (
     router &&
     typeof router.push === "function" &&
-    jest.isMockFunction(router.push)
+    vi.isMockFunction(router.push)
   );
 }
 
@@ -256,9 +256,9 @@ export function resetMockRouter(router: NextRouter): void {
 
     // Reset event methods
     if (router.events) {
-      (router.events.on as jest.Mock).mockClear();
-      (router.events.off as jest.Mock).mockClear();
-      (router.events.emit as jest.Mock).mockClear();
+      (router.events.on as ReturnType<typeof vi.fn>).mockClear();
+      (router.events.off as ReturnType<typeof vi.fn>).mockClear();
+      (router.events.emit as ReturnType<typeof vi.fn>).mockClear();
     }
   }
 }

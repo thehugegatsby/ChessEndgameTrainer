@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Tests for ChessEventBus service
  * Tests event subscription, emission, and management

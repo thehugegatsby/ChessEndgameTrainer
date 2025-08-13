@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Jest Setup Utilities
  * Common setup patterns for Jest 30 with ServiceContainer
@@ -22,7 +23,7 @@ let globalTestContainer: ServiceContainer | null = null;
 
 /**
  * Setup global test container
- * Call in jest.setup.js or describe block
+ * Call in vi.setup.js or describe block
  * @param overrides
  */
 export function setupGlobalTestContainer(
@@ -235,9 +236,9 @@ export function mockConsole(): {
   const originalConsole = { ...console };
 
   beforeEach(() => {
-    jest.spyOn(console, "log").mockImplementation(() => {});
-    jest.spyOn(console, "warn").mockImplementation(() => {});
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {

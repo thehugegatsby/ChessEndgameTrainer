@@ -18,7 +18,7 @@ import { useStore } from "@shared/store/rootStore";
 import type { RootState } from "@shared/store/slices/types";
 
 // Mock the store module
-jest.mock("@shared/store/rootStore");
+vi.mock("@shared/store/rootStore");
 
 /**
  * Type for partial root state overrides with nested structure
@@ -64,23 +64,23 @@ export const mockRootStore = (overrides: MockRootState = {}) => {
       isDraw: false,
       isStalemate: false,
       // Game actions
-      updatePosition: jest.fn(),
-      addMove: jest.fn(),
-      setMoveHistory: jest.fn(),
-      setCurrentMoveIndex: jest.fn(),
-      setGameFinished: jest.fn(),
-      setGameStatus: jest.fn(),
-      resetGame: jest.fn(),
-      initializeGame: jest.fn(),
-      makeMove: jest.fn(),
-      undoMove: jest.fn(),
-      redoMove: jest.fn(),
-      goToMove: jest.fn(),
-      goToFirst: jest.fn(),
-      goToPrevious: jest.fn(),
-      goToNext: jest.fn(),
-      goToLast: jest.fn(),
-      setCurrentFen: jest.fn(),
+      updatePosition: vi.fn(),
+      addMove: vi.fn(),
+      setMoveHistory: vi.fn(),
+      setCurrentMoveIndex: vi.fn(),
+      setGameFinished: vi.fn(),
+      setGameStatus: vi.fn(),
+      resetGame: vi.fn(),
+      initializeGame: vi.fn(),
+      makeMove: vi.fn(),
+      undoMove: vi.fn(),
+      redoMove: vi.fn(),
+      goToMove: vi.fn(),
+      goToFirst: vi.fn(),
+      goToPrevious: vi.fn(),
+      goToNext: vi.fn(),
+      goToLast: vi.fn(),
+      setCurrentFen: vi.fn(),
     },
 
     // Training slice
@@ -102,23 +102,23 @@ export const mockRootStore = (overrides: MockRootState = {}) => {
       moveSuccessDialog: null,
       evaluationBaseline: null,
       // Training actions
-      setPosition: jest.fn(),
-      setNavigationPositions: jest.fn(),
-      setNavigationLoading: jest.fn(),
-      setNavigationError: jest.fn(),
-      setChapterProgress: jest.fn(),
-      setPlayerTurn: jest.fn(),
-      clearOpponentThinking: jest.fn(),
-      completeTraining: jest.fn(),
-      incrementHint: jest.fn(),
-      incrementMistake: jest.fn(),
-      setMoveErrorDialog: jest.fn(),
-      setMoveSuccessDialog: jest.fn(),
-      addTrainingMove: jest.fn(),
-      resetTraining: jest.fn(),
-      resetPosition: jest.fn(),
-      setEvaluationBaseline: jest.fn(),
-      clearEvaluationBaseline: jest.fn(),
+      setPosition: vi.fn(),
+      setNavigationPositions: vi.fn(),
+      setNavigationLoading: vi.fn(),
+      setNavigationError: vi.fn(),
+      setChapterProgress: vi.fn(),
+      setPlayerTurn: vi.fn(),
+      clearOpponentThinking: vi.fn(),
+      completeTraining: vi.fn(),
+      incrementHint: vi.fn(),
+      incrementMistake: vi.fn(),
+      setMoveErrorDialog: vi.fn(),
+      setMoveSuccessDialog: vi.fn(),
+      addTrainingMove: vi.fn(),
+      resetTraining: vi.fn(),
+      resetPosition: vi.fn(),
+      setEvaluationBaseline: vi.fn(),
+      clearEvaluationBaseline: vi.fn(),
     },
 
     // Tablebase slice
@@ -128,12 +128,12 @@ export const mockRootStore = (overrides: MockRootState = {}) => {
       evaluations: [],
       currentEvaluation: undefined,
       // Tablebase actions
-      setTablebaseMove: jest.fn(),
-      setAnalysisStatus: jest.fn(),
-      addEvaluation: jest.fn(),
-      setEvaluations: jest.fn(),
-      setCurrentEvaluation: jest.fn(),
-      clearTablebaseState: jest.fn(),
+      setTablebaseMove: vi.fn(),
+      setAnalysisStatus: vi.fn(),
+      addEvaluation: vi.fn(),
+      setEvaluations: vi.fn(),
+      setCurrentEvaluation: vi.fn(),
+      clearTablebaseState: vi.fn(),
     },
 
     // Progress slice
@@ -153,24 +153,24 @@ export const mockRootStore = (overrides: MockRootState = {}) => {
       lastSync: null,
       syncError: null,
       // Progress actions
-      setUserStats: jest.fn(),
-      updateSessionProgress: jest.fn(),
-      setLoading: jest.fn(),
-      setSyncStatus: jest.fn(),
-      setLastSync: jest.fn(),
-      setSyncError: jest.fn(),
-      initializeCards: jest.fn(),
-      recordAttempt: jest.fn(),
-      resetCardProgress: jest.fn(),
-      setCardProgress: jest.fn(),
-      batchUpdateProgress: jest.fn(),
-      loadUserProgress: jest.fn(),
-      saveUserStats: jest.fn(),
-      saveCardProgress: jest.fn(),
-      saveSessionComplete: jest.fn(),
-      getDueCards: jest.fn(),
-      syncAllProgress: jest.fn(),
-      resetProgress: jest.fn(),
+      setUserStats: vi.fn(),
+      updateSessionProgress: vi.fn(),
+      setLoading: vi.fn(),
+      setSyncStatus: vi.fn(),
+      setLastSync: vi.fn(),
+      setSyncError: vi.fn(),
+      initializeCards: vi.fn(),
+      recordAttempt: vi.fn(),
+      resetCardProgress: vi.fn(),
+      setCardProgress: vi.fn(),
+      batchUpdateProgress: vi.fn(),
+      loadUserProgress: vi.fn(),
+      saveUserStats: vi.fn(),
+      saveCardProgress: vi.fn(),
+      saveSessionComplete: vi.fn(),
+      getDueCards: vi.fn(),
+      syncAllProgress: vi.fn(),
+      resetProgress: vi.fn(),
     },
 
     // UI slice
@@ -193,30 +193,30 @@ export const mockRootStore = (overrides: MockRootState = {}) => {
         showThinkingTime: false,
       },
       // UI actions
-      toggleSidebar: jest.fn(),
-      setIsSidebarOpen: jest.fn(),
-      openModal: jest.fn(),
-      closeModal: jest.fn(),
-      showToast: jest.fn(),
-      removeToast: jest.fn(),
-      setLoading: jest.fn(),
-      updateAnalysisPanel: jest.fn(),
+      toggleSidebar: vi.fn(),
+      setIsSidebarOpen: vi.fn(),
+      openModal: vi.fn(),
+      closeModal: vi.fn(),
+      showToast: vi.fn(),
+      removeToast: vi.fn(),
+      setLoading: vi.fn(),
+      updateAnalysisPanel: vi.fn(),
     },
 
     // Orchestrator actions
-    handlePlayerMove: jest.fn(),
-    loadTrainingContext: jest.fn(),
+    handlePlayerMove: vi.fn(),
+    loadTrainingContext: vi.fn(),
 
     // Utility actions
-    reset: jest.fn(),
-    hydrate: jest.fn(),
+    reset: vi.fn(),
+    hydrate: vi.fn(),
   };
 
   // Deep merge defaults with overrides
   const deepMerge = (target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> => {
     const result = { ...target };
     for (const key in source) {
-      if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key]) && !jest.isMockFunction(source[key])) {
+      if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key]) && !vi.isMockFunction(source[key])) {
         result[key] = deepMerge(
           (target[key] as Record<string, unknown>) || {}, 
           source[key] as Record<string, unknown>
@@ -231,10 +231,10 @@ export const mockRootStore = (overrides: MockRootState = {}) => {
   const mockState = deepMerge(defaultState, overrides as Record<string, unknown>) as unknown as RootState;
 
   // Configure the mock to return our state
-  (useStore as jest.MockedFunction<typeof useStore>).mockReturnValue(mockState);
+  (useStore as any<typeof useStore>).mockReturnValue(mockState);
 
   // Also mock the selector pattern
-  (useStore as jest.MockedFunction<typeof useStore>).mockImplementation((selector?: (state: RootState) => unknown) => {
+  (useStore as any<typeof useStore>).mockImplementation((selector?: (state: RootState) => unknown) => {
     if (typeof selector === "function") {
       return selector(mockState);
     }
@@ -242,10 +242,10 @@ export const mockRootStore = (overrides: MockRootState = {}) => {
   });
 
   // CRITICAL: Mock getState() method which is used by useGameActions()
-  (useStore as jest.MockedFunction<typeof useStore> & { getState: jest.Mock }).getState = jest.fn().mockReturnValue(mockState);
+  (useStore as any<typeof useStore> & { getState: ReturnType<typeof vi.fn> }).getState = vi.fn().mockReturnValue(mockState);
 
   // Return the mock for additional assertions if needed
-  return useStore as jest.MockedFunction<typeof useStore>;
+  return useStore as any<typeof useStore>;
 };
 
 /**
@@ -268,14 +268,14 @@ export const mockRootStoreWithSelector = (overrides: MockRootState = {}) => {
   const mock = mockRootStore(overrides);
 
   // Ensure selector pattern works
-  mock.setState = jest.fn();
-  mock.getState = jest.fn(() => {
+  mock.setState = vi.fn();
+  mock.getState = vi.fn(() => {
     const state = mock();
     // Deep merge the state with overrides
     const deepMerge = (target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> => {
       const result = { ...target };
       for (const key in source) {
-        if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key]) && !jest.isMockFunction(source[key])) {
+        if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key]) && !vi.isMockFunction(source[key])) {
           result[key] = deepMerge(
             (target[key] as Record<string, unknown>) || {}, 
             source[key] as Record<string, unknown>
@@ -297,7 +297,7 @@ export const mockRootStoreWithSelector = (overrides: MockRootState = {}) => {
  * Call this in afterEach hooks to ensure test isolation
  */
 export const resetRootStoreMock = () => {
-  (useStore as jest.MockedFunction<typeof useStore>).mockClear();
+  (useStore as any<typeof useStore>).mockClear();
 };
 
 /**
@@ -307,7 +307,7 @@ export const resetRootStoreMock = () => {
  * @param expectedCalls - Expected number of calls
  */
 export const verifyRootStoreCalls = (
-  mock: jest.MockedFunction<typeof useStore>,
+  mock: any<typeof useStore>,
   expectedCalls: number,
 ) => {
   expect(mock).toHaveBeenCalledTimes(expectedCalls);

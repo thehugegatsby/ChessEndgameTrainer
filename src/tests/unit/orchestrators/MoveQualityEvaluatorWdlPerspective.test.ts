@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Comprehensive test suite for WDL perspective conversion in MoveQualityEvaluator
  * These tests verify correct perspective handling and cover all major outcome change scenarios
@@ -15,14 +16,14 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe("Mock Verification", () => {
-    it("Should verify MoveQualityEvaluator works with jest.spyOn", async () => {
-      // Use jest.spyOn to mock the service methods
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+    it("Should verify MoveQualityEvaluator works with vi.spyOn", async () => {
+      // Use vi.spyOn to mock the service methods
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
       // Set up the two required mocks  
       getEvaluationSpy
@@ -85,9 +86,9 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         after: fenAfter,
       });
 
-      // Use jest.spyOn to mock the service methods
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      // Use vi.spyOn to mock the service methods
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
       getEvaluationSpy
         .mockResolvedValueOnce({
@@ -153,13 +154,13 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         after: fenAfter,
       });
 
-      // Use jest.spyOn to mock the service methods
+      // Use vi.spyOn to mock the service methods
 
 
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
 
 
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
 
 
@@ -239,13 +240,13 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         after: fenAfter,
       });
 
-      // Use jest.spyOn to mock the service methods
+      // Use vi.spyOn to mock the service methods
 
 
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
 
 
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
 
 
@@ -319,13 +320,13 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         after: fenAfter,
       });
 
-      // Use jest.spyOn to mock the service methods
+      // Use vi.spyOn to mock the service methods
 
 
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
 
 
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
 
 
@@ -405,13 +406,13 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         after: fenAfter,
       });
 
-      // Use jest.spyOn to mock the service methods
+      // Use vi.spyOn to mock the service methods
 
 
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
 
 
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
 
 
@@ -491,13 +492,13 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         after: fenAfter,
       });
 
-      // Use jest.spyOn to mock the service methods
+      // Use vi.spyOn to mock the service methods
 
 
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
 
 
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
 
 
@@ -569,13 +570,13 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         after: fenAfter,
       });
 
-      // Use jest.spyOn to mock the service methods
+      // Use vi.spyOn to mock the service methods
 
 
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
 
 
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
 
 
@@ -657,13 +658,13 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         after: fenAfter,
       });
 
-      // Use jest.spyOn to mock the service methods
+      // Use vi.spyOn to mock the service methods
 
 
-      const getEvaluationSpy = jest.spyOn(tablebaseService, 'getEvaluation');
+      const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
 
 
-      const getTopMovesSpy = jest.spyOn(tablebaseService, 'getTopMoves');
+      const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
 
 

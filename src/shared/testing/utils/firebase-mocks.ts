@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Firebase Mock Utilities
  * Provides mock implementations for Firestore operations
@@ -31,12 +32,12 @@ export const createMockSnapshot = (docs: any[] = []): any => ({
 });
 
 // Mock function instances - defined outside to allow reset
-const mockDoc = jest.fn((_, collection: string, id: string) => ({
+const mockDoc = vi.fn((_, collection: string, id: string) => ({
   _collection: collection,
   _id: id,
 }));
 
-const mockGetDoc = jest.fn(async (docRef: any) => {
+const mockGetDoc = vi.fn(async (docRef: any) => {
   const collectionData = mockDataStore.get(docRef._collection);
   if (!collectionData) {
     return createMockDoc(false);
@@ -45,11 +46,11 @@ const mockGetDoc = jest.fn(async (docRef: any) => {
   return createMockDoc(Boolean(docData), docData);
 });
 
-const mockCollection = jest.fn((_, collectionName: string) => ({
+const mockCollection = vi.fn((_, collectionName: string) => ({
   _name: collectionName,
 }));
 
-const mockGetDocs = jest.fn(async (queryOrCollection: any) => {
+const mockGetDocs = vi.fn(async (queryOrCollection: any) => {
   const collectionName =
     queryOrCollection._name || queryOrCollection._collection;
   const collectionData = mockDataStore.get(collectionName);
@@ -97,7 +98,7 @@ const mockGetDocs = jest.fn(async (queryOrCollection: any) => {
   return createMockSnapshot(results);
 });
 
-const mockQuery = jest.fn((collection: any, ...constraints: any[]) => {
+const mockQuery = vi.fn((collection: any, ...constraints: any[]) => {
   const query = {
     _collection: collection._name,
     _filters: [] as any[],
@@ -118,20 +119,20 @@ const mockQuery = jest.fn((collection: any, ...constraints: any[]) => {
   return query;
 });
 
-const mockWhere = jest.fn((field: string, op: string, value: any) => ({
+const mockWhere = vi.fn((field: string, op: string, value: any) => ({
   type: "where",
   field,
   op,
   value,
 }));
 
-const mockOrderBy = jest.fn((field: string, direction: string = "asc") => ({
+const mockOrderBy = vi.fn((field: string, direction: string = "asc") => ({
   type: "orderBy",
   field,
   direction,
 }));
 
-const mockLimit = jest.fn((value: number) => ({
+const mockLimit = vi.fn((value: number) => ({
   type: "limit",
   value,
 }));

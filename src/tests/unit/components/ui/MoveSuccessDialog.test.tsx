@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -8,12 +9,12 @@ describe('MoveSuccessDialog', () => {
     isOpen: true,
     promotionPiece: 'Dame',
     moveDescription: 'e8=Q+',
-    onClose: jest.fn(),
-    onContinue: jest.fn(),
+    onClose: vi.fn(),
+    onContinue: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Rendering', () => {
@@ -152,7 +153,7 @@ describe('MoveSuccessDialog', () => {
     });
 
     it('prevents event propagation when clicking dialog content', () => {
-      const mockOnClick = jest.fn();
+      const mockOnClick = vi.fn();
       
       render(
         <div onClick={mockOnClick}>
@@ -242,8 +243,8 @@ describe('MoveSuccessDialog', () => {
       render(
         <MoveSuccessDialog 
           isOpen={true} 
-          onClose={jest.fn()} 
-          onContinue={jest.fn()} 
+          onClose={vi.fn()} 
+          onContinue={vi.fn()} 
           promotionPiece={undefined} 
           moveDescription={undefined} 
         />
@@ -256,8 +257,8 @@ describe('MoveSuccessDialog', () => {
     it('maintains button functionality with minimal props', () => {
       const minimalProps = {
         isOpen: true,
-        onClose: jest.fn(),
-        onContinue: jest.fn(),
+        onClose: vi.fn(),
+        onContinue: vi.fn(),
       };
       
       render(<MoveSuccessDialog {...minimalProps} />);

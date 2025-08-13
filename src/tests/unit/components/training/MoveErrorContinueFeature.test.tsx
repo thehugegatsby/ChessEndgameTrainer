@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Test suite for the new "Weiterspielen" (continue playing) feature
  * Verifies that after clicking "Weiterspielen", the opponent makes a move
@@ -10,16 +11,16 @@ import { getOpponentTurnManager } from "@shared/store/orchestrators/handlePlayer
 
 // Mock the opponent turn manager
 const mockOpponentTurnManager = {
-  schedule: jest.fn(),
-  cancel: jest.fn(),
+  schedule: vi.fn(),
+  cancel: vi.fn(),
 };
 
 // Mock the getOpponentTurnManager function to verify it's called
-jest.mock("@shared/store/orchestrators/handlePlayerMove", () => ({
-  getOpponentTurnManager: jest.fn(() => mockOpponentTurnManager),
+vi.mock("@shared/store/orchestrators/handlePlayerMove", () => ({
+  getOpponentTurnManager: vi.fn(() => mockOpponentTurnManager),
 }));
 
-const mockGetOpponentTurnManager = getOpponentTurnManager as jest.MockedFunction<
+const mockGetOpponentTurnManager = getOpponentTurnManager as any<
   typeof getOpponentTurnManager
 >;
 
@@ -31,12 +32,12 @@ describe("MoveErrorDialog - Continue Playing Feature", () => {
     bestMove: "Kf6",
     playedMove: "Kf5",  // Add the missing playedMove prop
     moveNumber: 10,     // Add moveNumber for complete formatting
-    onClose: jest.fn(),
-    onTakeBack: jest.fn(),
+    onClose: vi.fn(),
+    onTakeBack: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should show 'Weiterspielen' button instead of 'Verstanden'", () => {

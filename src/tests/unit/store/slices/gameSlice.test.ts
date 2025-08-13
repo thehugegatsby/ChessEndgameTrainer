@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Tests for GameSlice with nested store structure
  * @module tests/unit/store/slices/gameSlice.nested
@@ -7,40 +8,40 @@ import { useStore } from "@shared/store/rootStore";
 import { chessService } from "@shared/services/ChessService";
 
 // Mock ChessService
-jest.mock("@shared/services/ChessService", () => ({
+vi.mock("@shared/services/ChessService", () => ({
   chessService: {
-    reset: jest.fn(),
-    initialize: jest.fn().mockReturnValue(true), // Mock initialize method
-    loadPosition: jest.fn(),
+    reset: vi.fn(),
+    initialize: vi.fn().mockReturnValue(true), // Mock initialize method
+    loadPosition: vi.fn(),
     getFen: jest
       .fn()
       .mockReturnValue(
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
       ),
-    getPgn: jest.fn().mockReturnValue(""),
-    getHistory: jest.fn().mockReturnValue([]),
-    turn: jest.fn().mockReturnValue("w"),
-    isGameOver: jest.fn().mockReturnValue(false),
-    isCheck: jest.fn().mockReturnValue(false),
-    isCheckmate: jest.fn().mockReturnValue(false),
-    isDraw: jest.fn().mockReturnValue(false),
-    isStalemate: jest.fn().mockReturnValue(false),
-    isThreefoldRepetition: jest.fn().mockReturnValue(false),
-    isInsufficientMaterial: jest.fn().mockReturnValue(false),
-    onStateChange: jest.fn(),
-    move: jest.fn(),
-    undo: jest.fn(),
-    validateMove: jest.fn(),
-    getMoves: jest.fn().mockReturnValue([]),
-    subscribe: jest.fn().mockReturnValue(jest.fn()), // Mock subscribe to return unsubscribe function
-    emit: jest.fn(),
+    getPgn: vi.fn().mockReturnValue(""),
+    getHistory: vi.fn().mockReturnValue([]),
+    turn: vi.fn().mockReturnValue("w"),
+    isGameOver: vi.fn().mockReturnValue(false),
+    isCheck: vi.fn().mockReturnValue(false),
+    isCheckmate: vi.fn().mockReturnValue(false),
+    isDraw: vi.fn().mockReturnValue(false),
+    isStalemate: vi.fn().mockReturnValue(false),
+    isThreefoldRepetition: vi.fn().mockReturnValue(false),
+    isInsufficientMaterial: vi.fn().mockReturnValue(false),
+    onStateChange: vi.fn(),
+    move: vi.fn(),
+    undo: vi.fn(),
+    validateMove: vi.fn(),
+    getMoves: vi.fn().mockReturnValue([]),
+    subscribe: vi.fn().mockReturnValue(vi.fn()), // Mock subscribe to return unsubscribe function
+    emit: vi.fn(),
   },
 }));
 
 describe("GameSlice - Nested Store Structure", () => {
   beforeEach(() => {
     // Reset mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Reset store to initial state - preserve actions by only updating state properties
     useStore.setState((state) => {
@@ -59,7 +60,7 @@ describe("GameSlice - Nested Store Structure", () => {
       const store = useStore.getState();
       
       // Clear previous calls to ensure clean state
-      (chessService.reset as jest.Mock).mockClear();
+      (chessService.reset as ReturnType<typeof vi.fn>).mockClear();
 
       // Modify some state first
       store.game.setGameFinished(true);

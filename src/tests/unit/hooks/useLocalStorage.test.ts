@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * @file Unit tests for refactored useLocalStorage hook
  * @description Tests the new fully async, ServiceContainer-compatible hook
@@ -10,7 +11,7 @@ import { createTestContainer } from "../../utils";
 import type { PlatformStorage } from "@shared/services/platform/types";
 
 // Mock logger
-jest.mock("@shared/services/logging", () => ({
+vi.mock("@shared/services/logging", () => ({
   /**
    *
    */
@@ -22,7 +23,7 @@ let testContainer: ReturnType<typeof createTestContainer>;
 let mockStorageService: PlatformStorage;
 
 // Mock the platform service module to use our test container
-jest.mock("@shared/services/platform", () => ({
+vi.mock("@shared/services/platform", () => ({
   /**
    *
    */
@@ -42,13 +43,13 @@ describe("useLocalStorage Hook - Refactored Version", () => {
     mockStorageService = testContainer.resolve("platform.storage");
 
     // Reset all mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("Async Hook - useLocalStorageWithState", () => {
     describe("Initialization", () => {
       test("should initialize with loading state", () => {
-        jest.spyOn(mockStorageService, "load").mockResolvedValue(null);
+        vi.spyOn(mockStorageService, "load").mockResolvedValue(null);
 
         const { result } = renderHook(() =>
           useLocalStorageWithState(testKey, testString),
@@ -62,7 +63,7 @@ describe("useLocalStorage Hook - Refactored Version", () => {
       });
 
       test("should load existing value from storage", async () => {
-        jest.spyOn(mockStorageService, "load").mockResolvedValue(testValue);
+        vi.spyOn(mockStorageService, "load").mockResolvedValue(testValue);
 
         const { result } = renderHook(() =>
           useLocalStorageWithState(testKey, "default"),
@@ -81,7 +82,7 @@ describe("useLocalStorage Hook - Refactored Version", () => {
       });
 
       test("should use initial value when storage is empty", async () => {
-        jest.spyOn(mockStorageService, "load").mockResolvedValue(null);
+        vi.spyOn(mockStorageService, "load").mockResolvedValue(null);
 
         const { result } = renderHook(() =>
           useLocalStorageWithState(testKey, testString),
@@ -96,8 +97,8 @@ describe("useLocalStorage Hook - Refactored Version", () => {
       });
 
       test("should handle function-based initial value", async () => {
-        const initialValueFn = jest.fn(() => testValue);
-        jest.spyOn(mockStorageService, "load").mockResolvedValue(null);
+        const initialValueFn = vi.fn(() => testValue);
+        vi.spyOn(mockStorageService, "load").mockResolvedValue(null);
 
         const { result } = renderHook(() =>
           useLocalStorageWithState(testKey, initialValueFn),
@@ -132,8 +133,8 @@ describe("useLocalStorage Hook - Refactored Version", () => {
 
     describe("Setting Values", () => {
       test("should update state and save to storage", async () => {
-        jest.spyOn(mockStorageService, "load").mockResolvedValue(null);
-        jest.spyOn(mockStorageService, "save").mockResolvedValue(undefined);
+        vi.spyOn(mockStorageService, "load").mockResolvedValue(null);
+        vi.spyOn(mockStorageService, "save").mockResolvedValue(undefined);
 
         const { result } = renderHook(() =>
           useLocalStorageWithState(testKey, testString),
@@ -161,8 +162,8 @@ describe("useLocalStorage Hook - Refactored Version", () => {
       });
 
       test("should handle function-based updates", async () => {
-        jest.spyOn(mockStorageService, "load").mockResolvedValue({ count: 0 });
-        jest.spyOn(mockStorageService, "save").mockResolvedValue(undefined);
+        vi.spyOn(mockStorageService, "load").mockResolvedValue({ count: 0 });
+        vi.spyOn(mockStorageService, "save").mockResolvedValue(undefined);
 
         const { result } = renderHook(() =>
           useLocalStorageWithState(testKey, { count: 0 }),
@@ -196,7 +197,7 @@ describe("useLocalStorage Hook - Refactored Version", () => {
       });
 
       test("should handle save errors by setting error state", async () => {
-        jest.spyOn(mockStorageService, "load").mockResolvedValue(null);
+        vi.spyOn(mockStorageService, "load").mockResolvedValue(null);
         jest
           .spyOn(mockStorageService, "save")
           .mockRejectedValue(new Error("Save failed"));
@@ -260,7 +261,7 @@ describe("useLocalStorage Hook - Refactored Version", () => {
 
   describe("useLocalStorageWithState Hook", () => {
     test("should provide state-based interface", async () => {
-      jest.spyOn(mockStorageService, "load").mockResolvedValue(testValue);
+      vi.spyOn(mockStorageService, "load").mockResolvedValue(testValue);
 
       const { result } = renderHook(() =>
         useLocalStorageWithState(testKey, "default"),
@@ -276,8 +277,8 @@ describe("useLocalStorage Hook - Refactored Version", () => {
     });
 
     test("should maintain useState-like API", async () => {
-      jest.spyOn(mockStorageService, "load").mockResolvedValue(null);
-      jest.spyOn(mockStorageService, "save").mockResolvedValue(undefined);
+      vi.spyOn(mockStorageService, "load").mockResolvedValue(null);
+      vi.spyOn(mockStorageService, "save").mockResolvedValue(undefined);
 
       const { result } = renderHook(() =>
         useLocalStorageWithState(testKey, testString),
@@ -297,8 +298,8 @@ describe("useLocalStorage Hook - Refactored Version", () => {
 
   describe("ServiceContainer Integration", () => {
     test("should use only platform service for storage operations", async () => {
-      jest.spyOn(mockStorageService, "load").mockResolvedValue(testValue);
-      jest.spyOn(mockStorageService, "save").mockResolvedValue(undefined);
+      vi.spyOn(mockStorageService, "load").mockResolvedValue(testValue);
+      vi.spyOn(mockStorageService, "save").mockResolvedValue(undefined);
 
       const { result } = renderHook(() =>
         useLocalStorageWithState(testKey, "initial"),
@@ -317,8 +318,8 @@ describe("useLocalStorage Hook - Refactored Version", () => {
       expect(mockStorageService.save).toHaveBeenCalledWith(testKey, "updated");
 
       // No window.localStorage access at all!
-      expect(jest.isMockFunction(mockStorageService.load)).toBe(true);
-      expect(jest.isMockFunction(mockStorageService.save)).toBe(true);
+      expect(vi.isMockFunction(mockStorageService.load)).toBe(true);
+      expect(vi.isMockFunction(mockStorageService.save)).toBe(true);
     });
 
     test("should provide perfect test isolation", async () => {
@@ -345,7 +346,7 @@ describe("useLocalStorage Hook - Refactored Version", () => {
       // ✅ Pure dependency injection through ServiceContainer
       // ✅ Perfect mock isolation per test
 
-      jest.spyOn(mockStorageService, "load").mockResolvedValue("test-data");
+      vi.spyOn(mockStorageService, "load").mockResolvedValue("test-data");
 
       const { result } = renderHook(() =>
         useLocalStorageWithState("test", "default"),
@@ -360,14 +361,14 @@ describe("useLocalStorage Hook - Refactored Version", () => {
       // Verify service container pattern works
       expect(testContainer).toBeDefined();
       expect(mockStorageService).toBeDefined();
-      expect(jest.isMockFunction(mockStorageService.load)).toBe(true);
+      expect(vi.isMockFunction(mockStorageService.load)).toBe(true);
     });
   });
 
   describe("Performance Characteristics", () => {
     test("should not create unnecessary re-renders", async () => {
-      const renderCount = jest.fn();
-      jest.spyOn(mockStorageService, "load").mockResolvedValue(testValue);
+      const renderCount = vi.fn();
+      vi.spyOn(mockStorageService, "load").mockResolvedValue(testValue);
 
       const { result, rerender } = renderHook(() => {
         renderCount();
@@ -388,8 +389,8 @@ describe("useLocalStorage Hook - Refactored Version", () => {
     });
 
     test("should handle rapid successive updates correctly", async () => {
-      jest.spyOn(mockStorageService, "load").mockResolvedValue(null);
-      jest.spyOn(mockStorageService, "save").mockResolvedValue(undefined);
+      vi.spyOn(mockStorageService, "load").mockResolvedValue(null);
+      vi.spyOn(mockStorageService, "save").mockResolvedValue(undefined);
 
       const { result } = renderHook(() => useLocalStorageWithState(testKey, 0));
 

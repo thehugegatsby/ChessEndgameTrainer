@@ -3,6 +3,7 @@
  * @description Tests for handling German piece notation in pawn promotion
  */
 
+import { describe, it, test, expect, beforeEach } from 'vitest';
 import { ChessService } from '@shared/services/ChessService';
 
 // Import aus der zentralen Fixtures-Datenbank

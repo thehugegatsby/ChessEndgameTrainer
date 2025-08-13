@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Unit tests for StranglerFacade component
  * @vitest-environment happy-dom
