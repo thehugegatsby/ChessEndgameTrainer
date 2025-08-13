@@ -4,7 +4,7 @@
  */
 
 import { describe, it, test, expect, beforeEach } from 'vitest';
-import { describe, test, expect, beforeEach } from "@jest/globals";
+import { describe, test, expect, beforeEach } from "vitest";
 import { Chess } from "chess.js";
 import { TEST_FENS, TEST_MOVES } from "../../../shared/testing/TestFixtures";
 

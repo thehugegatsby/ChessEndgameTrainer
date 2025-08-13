@@ -4,14 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TablebaseIntegration, SimpleTablebaseIntegration } from '../TablebaseIntegration';
 import { trainingEvents } from '../../../training/events/EventEmitter';
 
-// Define mock functions in module scope to fix hoisting issues with describe.skip
-const mockUseTrainingStore = vi.fn(() => [
-  null,
-  {
-    handlePlayerMove: vi.fn(),
-  },
-]);
-const mockUseTrainingEvent = vi.fn();
+// Note: Mock functions are now defined inline in vi.mock() calls to avoid hoisting issues
 
 // Mock the tablebase hooks
 vi.mock('../../hooks/useTablebase', () => ({
@@ -47,13 +40,19 @@ vi.mock('../../../training/hooks/useEventDrivenTraining', () => ({
   useEventDrivenTraining: vi.fn(() => true),
 }));
 
+// Mock training store hooks - define inline to avoid hoisting issues
 vi.mock('@shared/store/hooks', () => ({
-  useTrainingStore: mockUseTrainingStore,
+  useTrainingStore: vi.fn(() => [
+    null,
+    {
+      handlePlayerMove: vi.fn(),
+    },
+  ]),
 }));
 
-// Mock training event listener
+// Mock training event listener - define inline to avoid hoisting issues
 vi.mock('../../../training/components/TrainingEventListener', () => ({
-  useTrainingEvent: mockUseTrainingEvent,
+  useTrainingEvent: vi.fn(),
 }));
 
 // Mock store

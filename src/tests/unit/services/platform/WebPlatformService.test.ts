@@ -299,7 +299,7 @@ describe("WebPlatformService", () => {
 
     it("should start and end measure", () => {
       // Mock specific to this test
-      const performanceSpy = jest
+      const performanceSpy = vi
         .spyOn(performance, "now")
         .mockReturnValueOnce(MOCK_PERFORMANCE_START) // startMeasure
         .mockReturnValueOnce(MOCK_PERFORMANCE_END); // endMeasure
@@ -320,7 +320,7 @@ describe("WebPlatformService", () => {
 
     it("should create marks", () => {
       // Mock specific to this test
-      const performanceSpy = jest
+      const performanceSpy = vi
         .spyOn(performance, "now")
         .mockReturnValue(MOCK_PERFORMANCE_START);
 
@@ -334,7 +334,7 @@ describe("WebPlatformService", () => {
 
     it("should measure between marks", () => {
       // Mock specific to this test - isolated mock calls
-      const performanceSpy = jest
+      const performanceSpy = vi
         .spyOn(performance, "now")
         .mockReturnValueOnce(MOCK_PERFORMANCE_START) // start mark: 1000
         .mockReturnValueOnce(MOCK_PERFORMANCE_END); // end mark: 1600
@@ -351,7 +351,7 @@ describe("WebPlatformService", () => {
 
     it("should get metrics with averages", () => {
       // Mock specific to this test
-      const performanceSpy = jest
+      const performanceSpy = vi
         .spyOn(performance, "now")
         .mockReturnValueOnce(MOCK_PERFORMANCE_START) // startMeasure
         .mockReturnValueOnce(MOCK_PERFORMANCE_END); // endMeasure

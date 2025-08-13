@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
+// Vitest matchers are available through the setup file
 import { MoveSuccessDialog } from '@shared/components/ui/MoveSuccessDialog';
 
 describe('MoveSuccessDialog', () => {

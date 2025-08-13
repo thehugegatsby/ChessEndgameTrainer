@@ -4,7 +4,7 @@
  */
 
 import { describe, it, test, expect } from 'vitest';
-import { describe, test, expect } from "@jest/globals";
+import { describe, test, expect } from "vitest";
 import { validateAndSanitizeFen } from "../../../shared/utils/fenValidator";
 
 // Helper functions to match the old API

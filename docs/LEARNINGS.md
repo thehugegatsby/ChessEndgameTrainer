@@ -31,6 +31,23 @@ Each learning entry should follow the template below. Copy it and fill in the de
 
 ## Learnings Log
 
+### Jest to Vitest Migration - Test Visibility Issue
+**Date:** 2025-08-13  
+**Tags:** `testing`, `CI/CD`, `vitest`, `jest`, `migration`  
+**Commit:** Fixing CI pipeline failures
+
+**Problem/Context:**
+> Jest references in test files caused CI failures but weren't visible locally. Tests passed locally but failed in CI with "jest is not defined" errors.
+
+**Solution/Learning:**
+> Local test commands (`pnpm test`) only run against `src/features` directory. CI runs `pnpm test:integration` which includes `src/tests` directory with different module resolution and test configurations. To catch these errors locally:
+> 1. Run `pnpm test:integration` to test integration suite
+> 2. Run specific test files with `pnpm vitest run src/tests/unit/[file]`
+> 3. CI and local environments use different test paths - always test both configurations
+> Key migration patterns: `jest.fn()` → `vi.fn()`, `jest.spyOn()` → `vi.spyOn()`, `Chess.mockImplementation()` → `vi.mocked(Chess).mockImplementation()`
+
+---
+
 ### Claude Code Hooks Broken in WSL2
 **Date:** 2025-01-13  
 **Tags:** `WSL`, `Claude-Code`, `Hooks`, `Automation`  

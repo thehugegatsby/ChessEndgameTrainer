@@ -3,8 +3,7 @@
  * @description Tests getEvaluationDisplay function for position assessment
  */
 
-import { describe, it, test, expect } from 'vitest';
-import { describe, test, expect } from "@jest/globals";
+import { describe, it, test, expect } from "vitest";
 import { getEvaluationDisplay } from "../../../shared/utils/chess/evaluation";
 
 describe("Position Evaluation - getEvaluationDisplay", () => {

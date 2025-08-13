@@ -4,7 +4,7 @@
  */
 
 import { describe, it, test, expect } from 'vitest';
-import { describe, test, expect } from "@jest/globals";
+import { describe, test, expect } from "vitest";
 import { getMoveQualityDisplay } from "../../../shared/utils/chess/evaluation";
 
 describe("Tablebase Evaluation - Move Quality Display", () => {

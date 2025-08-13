@@ -44,6 +44,12 @@ export default defineConfig({
     ],
     // PERFORMANCE OPTIMIZATIONS
     pool: 'vmThreads',  // VM threads for better isolation than threads
+    poolOptions: {
+      vmThreads: {
+        maxMemoryLimitBeforeRecycle: 0.8,  // Recycle worker at 80% memory
+        memoryLimit: '1GB',  // Increase memory limit per worker
+      }
+    },
     isolate: false,   // Run tests in same context (faster)
     testTimeout: 5000,  // Faster timeout for unit tests
     coverage: {

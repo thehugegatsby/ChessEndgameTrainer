@@ -53,17 +53,10 @@ vi.mock('@shared/hooks/useChessAudio', () => ({
   })),
 }));
 
+import { Chess } from 'chess.js';
+
 vi.mock('chess.js', () => ({
-  Chess: vi.fn().mockImplementation((fen) => ({
-    turn: vi.fn(() => 'w'), // Default to white's turn
-    fen: vi.fn(() => fen),
-    get: vi.fn((square) => {
-      // Mock piece detection for promotion tests
-      if (square === 'e7') return { type: 'p', color: 'w' }; // White pawn on 7th rank
-      if (square === 'e2') return { type: 'p', color: 'b' }; // Black pawn on 2nd rank
-      return null;
-    }),
-  })),
+  Chess: vi.fn(),
 }));
 
 describe('useMoveHandlers', () => {
@@ -86,6 +79,18 @@ describe('useMoveHandlers', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    
+    // Set up default Chess mock implementation
+    vi.mocked(Chess).mockImplementation((fen?: string) => ({
+      turn: vi.fn(() => 'w'), // Default to white's turn
+      fen: vi.fn(() => fen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'),
+      get: vi.fn((square: string) => {
+        // Mock piece detection for promotion tests
+        if (square === 'e7') return { type: 'p', color: 'w' }; // White pawn on 7th rank
+        if (square === 'e2') return { type: 'p', color: 'b' }; // Black pawn on 2nd rank
+        return null;
+      }),
+    }) as any);
   });
 
   describe('Hook Initialization', () => {
@@ -355,10 +360,9 @@ describe('useMoveHandlers', () => {
 
     it('validates piece color matches current turn', () => {
       // Mock Chess to return white's turn
-      const { Chess } = require('chess.js');
-      Chess.mockImplementation(() => ({
+      vi.mocked(Chess).mockImplementation(() => ({
         turn: () => 'w',
-      }));
+      }) as any);
 
       const { result } = renderHook(() => useMoveHandlers(defaultProps));
 
@@ -503,8 +507,7 @@ describe('useMoveHandlers', () => {
 
     it('handles chess.js validation error in onSquareClick', () => {
       // Mock Chess to throw error
-      const { Chess } = require('chess.js');
-      Chess.mockImplementation(() => {
+      vi.mocked(Chess).mockImplementation(() => {
         throw new Error('Invalid FEN');
       });
 

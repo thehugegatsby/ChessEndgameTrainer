@@ -7,7 +7,7 @@
     "dev": "node -e \"const {PORTS} = require('./config/ports'); require('child_process').execSync('next dev -p ' + PORTS.DEV, {stdio: 'inherit'})\"",
     "build": "next build",
     "start": "next start",
-    "test": "vitest --config=config/testing/vitest.unit.config.ts run src/features",
+    "test": "NODE_OPTIONS='--max-old-space-size=4096' vitest --config=config/testing/vitest.unit.config.ts run src/features",
     "test:watch": "vitest --config=config/testing/vitest.unit.config.ts watch",
     "lint": "next lint",
     "type-check": "tsc --noEmit",

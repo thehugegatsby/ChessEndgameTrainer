@@ -4,7 +4,7 @@
  */
 
 import { describe, it, test, expect } from 'vitest';
-import { describe, test, expect } from "@jest/globals";
+import { describe, test, expect } from "vitest";
 import { getGameStatus } from "../../../shared/utils/chess/gameStatus";
 import { TEST_FENS } from "../../../shared/testing/TestFixtures";
 

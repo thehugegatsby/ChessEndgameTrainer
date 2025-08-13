@@ -114,7 +114,7 @@ describe("useLocalStorage Hook - Refactored Version", () => {
       });
 
       test("should handle storage load errors gracefully", async () => {
-        jest
+        vi
           .spyOn(mockStorageService, "load")
           .mockRejectedValue(new Error("Storage error"));
 
@@ -198,7 +198,7 @@ describe("useLocalStorage Hook - Refactored Version", () => {
 
       test("should handle save errors by setting error state", async () => {
         vi.spyOn(mockStorageService, "load").mockResolvedValue(null);
-        jest
+        vi
           .spyOn(mockStorageService, "save")
           .mockRejectedValue(new Error("Save failed"));
 
@@ -233,7 +233,7 @@ describe("useLocalStorage Hook - Refactored Version", () => {
 
     describe("Component Lifecycle", () => {
       test("should not update state after unmount", async () => {
-        jest
+        vi
           .spyOn(mockStorageService, "load")
           .mockImplementation(
             () =>

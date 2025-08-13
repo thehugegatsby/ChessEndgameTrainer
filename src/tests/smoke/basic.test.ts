@@ -24,7 +24,7 @@ describe("Smoke Tests", () => {
       // Mock fetch for unit test environment
       global.fetch = vi.fn().mockResolvedValue({
         status: 200,
-        text: jest
+        text: vi
           .fn()
           .mockResolvedValue("<html><title>ChessEndgameTrainer</title></html>"),
       });

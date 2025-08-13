@@ -13,7 +13,7 @@ vi.mock("@shared/services/ChessService", () => ({
     reset: vi.fn(),
     initialize: vi.fn().mockReturnValue(true), // Mock initialize method
     loadPosition: vi.fn(),
-    getFen: jest
+    getFen: vi
       .fn()
       .mockReturnValue(
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
