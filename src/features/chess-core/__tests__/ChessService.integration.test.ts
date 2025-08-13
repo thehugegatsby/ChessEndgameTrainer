@@ -8,14 +8,14 @@ import { vi } from 'vitest';
  */
 
 import { ChessService } from "@shared/services/ChessService";
-import { COMMON_FENS, StandardPositions, EndgamePositions, SpecialPositions } from "../../fixtures/commonFens";
+import { COMMON_FENS, StandardPositions, EndgamePositions, SpecialPositions } from "@tests/fixtures/commonFens";
 import {
   createMockListener,
   getLastEmittedEvent,
   isValidStateUpdateEvent,
   createTestMove,
   expectFenToEqual,
-} from "../../helpers/chessTestHelpers";
+} from "@tests/helpers/chessTestHelpers";
 
 // NO vi.mock('chess.js') here - we want the real chess.js
 
