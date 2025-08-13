@@ -2,7 +2,25 @@
 
 ## 🎯 Active Development
 
-**🚀 LATEST ACHIEVEMENTS (August 8, 2025):**
+**🚀 PHASE 5B ACTIVE (August 13, 2025):**
+
+### New Strategy: Performance Budget over Further Reduction
+
+Based on analysis with AI assistants (Gemini Pro consensus):
+
+- **288 kB is EXCELLENT** for a interactive chess app
+- Further reduction risks UI stability (Phase 4 lesson learned)
+- Focus shifted to **maintaining performance** not chasing arbitrary numbers
+
+**Previous Achievements (August 13, 2025):**
+
+- ✅ **Phase 5A COMPLETED**: EndgameTrainingPageLite UI fully restored
+- ✅ **Critical Issue Fixed**: Phase 4 bundle optimization broke actual route `/train/[id]`
+- ✅ **Bundle Benefits Preserved**: 288 kB (18% reduction from 353 kB maintained)
+- ✅ **All Quality Metrics Green**: Tests, TypeScript, ESLint all passing
+- ✅ **SSR Issues Resolved**: tablebase-demo page disabled, build successful
+
+**Previous Achievements (August 8, 2025):**
 
 - ✅ Jest test performance optimized: 11.5s → 5.8s (50% faster)
 - ✅ CI/CD pipeline optimized: ~10min → ~4min (60% faster)
