@@ -20,6 +20,25 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Check for forbidden symlinks
+      run: |
+        echo "Checking for symlinks that should not be committed..."
+        if [ -L "src/config" ]; then
+          echo "❌ ERROR: src/config is a symlink. This is not allowed."
+          echo "This usually happens when worktree setup goes wrong."
+          exit 1
+        fi
+        
+        # Check for any symlinks in src (except node_modules)
+        SYMLINKS=$(find src -type l -not -path "*/node_modules/*" 2>/dev/null || true)
+        if [ -n "$SYMLINKS" ]; then
+          echo "⚠️ WARNING: Symlinks found in src directory:"
+          echo "$SYMLINKS"
+          echo "Please verify these are intentional."
+        fi
+        
+        echo "✅ No forbidden symlinks found"
+
     - name: Setup pnpm
       uses: pnpm/action-setup@v3
       with:

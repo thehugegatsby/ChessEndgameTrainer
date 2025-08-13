@@ -89,13 +89,34 @@ git worktree remove ../EndgameTrainer-[name]
 git worktree prune
 ```
 
-## Merge Strategy
+## Merge Strategy & Order
+
+### Merge Precedence (IMPORTANT!)
+PRs must be merged in this specific order to minimize conflicts:
+
+1. **First:** Critical Training/Chess (Issues #154, #155)
+2. **Second:** Unit Tests Batch 1 & 2 (Issue #156) - can be parallel
+3. **Third:** Integration/E2E (Issue #157)  
+4. **Last:** Final Cleanup (Issue #158) - ONLY after ALL others
+
+### Workflow for Each Worktree
 
 1. Complete work in worktree
-2. Push branch: `git push -u origin feature/[name]`
-3. Create PR via GitHub
-4. After merge, remove worktree locally
-5. Delete remote branch
+2. **Before PR:** Rebase against main if other PRs merged
+   ```bash
+   git fetch origin main
+   git rebase origin/main
+   # Resolve any conflicts
+   ```
+3. Push branch: `git push -u origin feature/[name]`
+4. Create PR via GitHub
+5. After merge, remove worktree locally
+6. Delete remote branch
+
+### Handling Conflicts
+- **ALWAYS rebase** your worktree after another migration PR merges
+- This catches conflicts early and keeps history clean
+- If conflicts in shared utilities, coordinate with other worktrees
 
 ## Current Progress
 

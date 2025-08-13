@@ -2,6 +2,15 @@
 
 **Objective:** Complete migration from `src/tests/` to `src/features/` with Vitest
 
+## Pre-Migration Baseline (IMPORTANT!)
+
+Before starting ANY migration work:
+```bash
+# Capture current coverage baseline
+pnpm test:coverage > coverage-baseline.txt
+# Document: Coverage is currently XX%
+```
+
 ## Phase 1: Critical Training Domain Migration 🔴
 **Issue:** #154  
 **Priority:** CRITICAL  
@@ -14,6 +23,8 @@
 - [ ] Migrate `src/tests/integration/EndgameTrainingPage.test.tsx` → `src/features/training/__tests__/`
 - [ ] Update imports from Jest to Vitest (`jest.fn()` → `vi.fn()`)
 - [ ] Verify all training tests pass
+- [ ] **Update CI:** Exclude `src/tests/training/` from test paths
+- [ ] **Verify:** Coverage for training domain ≥ baseline
 
 ## Phase 2: Chess Domain Deduplication 🟡
 **Issue:** #155  
