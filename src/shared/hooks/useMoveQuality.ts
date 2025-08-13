@@ -315,7 +315,7 @@ export const useMoveQuality = (): UseMoveQualityReturn => {
             error: null,
             currentAnalysis: null,
           }));
-          return result;
+          return Promise.resolve(result);
         }
       } catch {
         const result: SimplifiedMoveQualityResult = {
@@ -330,7 +330,7 @@ export const useMoveQuality = (): UseMoveQualityReturn => {
           error: null,
           currentAnalysis: null,
         }));
-        return result;
+        return Promise.resolve(result);
       }
 
       // Clean up any existing pending assessment

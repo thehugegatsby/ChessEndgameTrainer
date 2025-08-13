@@ -360,7 +360,7 @@ class TablebaseService {
         fen: sanitizedFen,
         pieceCount,
       });
-      return null;
+      return Promise.resolve(null);
     }
 
     // Check cache with normalized FEN
@@ -368,7 +368,7 @@ class TablebaseService {
     if (cached) {
       logger.debug("Cache hit for tablebase entry", { fen: normalizedFen });
       this.metrics.recordCacheHit();
-      return cached.entry;
+      return Promise.resolve(cached.entry);
     }
     this.metrics.recordCacheMiss();
 
