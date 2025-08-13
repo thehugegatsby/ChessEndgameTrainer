@@ -484,7 +484,7 @@ export class ProgressService {
     }
 
     return this.firestoreOp(async () => {
-      await runTransaction(this.db, (transaction: Transaction) => {
+      await runTransaction(this.db, async (transaction: Transaction) => {
         // Update user stats
         const userStatsDocRef = this.userStatsRef(userId);
         transaction.set(userStatsDocRef, {
