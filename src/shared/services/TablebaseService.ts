@@ -473,7 +473,7 @@ class TablebaseService {
 
     // Transform position evaluation
     const positionCategory = api.category as TablebaseCategory;
-    let positionWdl = this._categoryToWdl(positionCategory);
+    const positionWdl = this._categoryToWdl(positionCategory);
 
     // WDL is already from the perspective of the side to move
     // No need to negate for Black positions - the API gives the result from the mover's perspective
