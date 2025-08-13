@@ -11,11 +11,12 @@ This index provides structured navigation through all project documentation for 
 
 ## Environment & Tooling
 
-| Document                                                         | Purpose               | Key Info                           |
-| ---------------------------------------------------------------- | --------------------- | ---------------------------------- |
-| [WSL2_ENV.md](./WSL2_ENV.md)                                     | WSL environment rules | Command syntax, forbidden patterns |
-| [tooling/mcp-tools.md](./tooling/mcp-tools.md)                   | MCP tool selection    | Hierarchy, decision tree           |
-| [tooling/hooks-and-commands.md](./tooling/hooks-and-commands.md) | Hook configuration    | Debug, safety hooks                |
+| Document                                                           | Purpose               | Key Info                           |
+| ------------------------------------------------------------------ | --------------------- | ---------------------------------- |
+| [WSL2_ENV.md](./WSL2_ENV.md)                                       | WSL environment rules | Command syntax, forbidden patterns |
+| [tooling/mcp-tools.md](./tooling/mcp-tools.md)                     | MCP tool selection    | Hierarchy, decision tree           |
+| [tooling/hooks-and-commands.md](./tooling/hooks-and-commands.md)   | Hook configuration    | Debug, safety hooks                |
+| [tooling/GITHUB_ISSUE_GUIDELINES.md](./tooling/GITHUB_ISSUE_GUIDELINES.md) | GitHub issue standards | LLM-optimized templates, naming    |
 
 ## Architecture
 

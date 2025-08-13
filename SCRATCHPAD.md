@@ -41,3 +41,20 @@
 3. **Split Concerns:** Unit test logic, integration test HTTP/timing
 
 ### STATUS: Ready for GitHub issues
+
+## GitHub Issue Template Enhancement (2025-08-13)
+
+### 🎯 CONSENSUS ANALYSIS COMPLETED
+User feedback: "wenige Infos" in Template → AI-Consensus mit Gemini, O3, DeepSeek
+
+**ERGEBNIS:** Enhanced Template mit LLM-Optimierung:
+- **Enhanced YAML**: `technical_complexity`, `impact_score`, `risk_level` 
+- **Structured Data Blocks**: Machine-readable AC, DoD, Dependencies
+- **Hybrid Approach**: Human-readable + Machine-friendly
+- **Industry-Aligned**: Kubernetes/VS Code migration patterns
+
+**DATEIEN AKTUALISIERT:**
+- `docs/tooling/GITHUB_ISSUE_GUIDELINES.md` - Enhanced template with LLM optimization
+- Separate enhanced template file removed for simplicity
+
+**NEXT STEPS:** Apply enhanced template to new issues, consider GitHub Issue Forms migration

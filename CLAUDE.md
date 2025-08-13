@@ -25,7 +25,8 @@ Quick reference - use the right tool for the task:
 - Major decisions: `mcp__zen__consensus` (MANDATORY for architecture changes)
 - **Browser E2E tests:** `mcp__playwright__*` (chessboard interactions, visual testing)
 
-**Full decision tree and guidelines:** → [docs/tooling/mcp-overview.md](docs/tooling/mcp-overview.md)
+**Full decision tree and guidelines:** → [docs/tooling/mcp-overview.md](docs/tooling/mcp-overview.md)  
+**GitHub Issue Standards:** → [docs/tooling/GITHUB_ISSUE_GUIDELINES.md](docs/tooling/GITHUB_ISSUE_GUIDELINES.md)
 
 ## Architecture & Code Structure
 
