@@ -4,7 +4,7 @@ import { vi } from 'vitest';
  * Common setup patterns for Jest 30 with ServiceContainer
  */
 
-import "@testing-library/jest-dom/vitest";
+// @testing-library/jest-dom removed - using Vitest native matchers
 import React from "react";
 
 // Note: MSW polyfills removed - using service-level mocking instead
@@ -129,9 +129,8 @@ export const platformServiceMatchers = {
    * @param args
    */
   toHaveBeenCalledOnService: (service: any, method: string, ...args: any[]) => {
-    if (typeof jest !== "undefined") {
-      expect(service[method]).toHaveBeenCalledWith(...args);
-    }
+    // Check if running in test environment
+    expect(service[method]).toHaveBeenCalledWith(...args);
   },
 
   /**
@@ -155,20 +154,16 @@ export const platformServiceMatchers = {
     method: keyof Storage,
     ...args: any[]
   ) => {
-    if (typeof jest !== "undefined") {
-      expect((storage as any)[method]).toHaveBeenCalledWith(...args);
-    }
-  },
+    // Check if running in test environment
+    expect((storage as any)[method]).toHaveBeenCalledWith(...args);
+  }
 };
 
 /**
  * Test environment detection
  */
-export /**
- *
- */
-const testEnvironment = {
-  isJest: typeof jest !== "undefined",
+export const testEnvironment = {
+  isVitest: true,
   isJSDOM:
     typeof window !== "undefined" &&
     window.navigator?.userAgent?.includes("jsdom"),
