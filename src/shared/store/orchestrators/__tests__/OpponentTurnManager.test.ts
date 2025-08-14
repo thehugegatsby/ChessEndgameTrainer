@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 /**
  * @file Tests for OpponentTurnManager
  * @module tests/unit/orchestrators/OpponentTurnManager
