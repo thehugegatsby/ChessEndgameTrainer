@@ -76,7 +76,28 @@ pnpm test:features path/to/feature.test.ts   # For feature tests
 
 **Why this matters:** Without the proper config, TypeScript path mappings like `@shared/*`, `@tests/*`, `@features/*` will fail to resolve, causing import errors.
 
-## 4. Test Patterns
+## 4. Common Vitest Issues
+
+### Async Promise Patterns
+
+For **unhandled promise rejections** and race conditions in promise cleanup:  
+→ **[Vitest Async Patterns](../troubleshooting/vitest-async-patterns.md)**
+
+**Keywords for search:** unhandled promise rejection, finally handler, Promise.allSettled, race condition, afterEach cleanup
+
+**Quick Fix Pattern:**
+```typescript
+// ❌ WRONG: Store promise WITH finally()
+const promise = executeQuery().finally(() => cleanup());
+pendingRequests.set(id, promise);
+
+// ✅ CORRECT: Store raw promise, attach finally() to return
+const promise = executeQuery();
+pendingRequests.set(id, promise);
+return promise.finally(() => cleanup());
+```
+
+## 5. Test Patterns
 
 ### Test Directory Structure
 
