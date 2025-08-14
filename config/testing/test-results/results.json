@@ -1,7 +1,7 @@
 {
   "config": {
-    "configFile": "/home/thehu/coolProjects/EndgameTrainer-ci-fix/config/testing/playwright.config.ts",
-    "rootDir": "/home/thehu/coolProjects/EndgameTrainer-ci-fix/src/tests/e2e",
+    "configFile": "/home/thehu/coolProjects/EndgameTrainer/config/testing/playwright.config.ts",
+    "rootDir": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e",
     "forbidOnly": false,
     "fullyParallel": true,
     "globalSetup": null,
@@ -10,7 +10,9 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {},
+    "metadata": {
+      "actualWorkers": 1
+    },
     "preserveOutput": "always",
     "reporter": [
       [
@@ -37,13 +39,15 @@
     "quiet": false,
     "projects": [
       {
-        "outputDir": "/home/thehu/coolProjects/EndgameTrainer-ci-fix/test-results",
+        "outputDir": "/home/thehu/coolProjects/EndgameTrainer/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {},
+        "metadata": {
+          "actualWorkers": 1
+        },
         "id": "chromium",
         "name": "chromium",
-        "testDir": "/home/thehu/coolProjects/EndgameTrainer-ci-fix/src/tests/e2e",
+        "testDir": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
@@ -66,19 +70,92 @@
       }
     }
   },
-  "suites": [],
-  "errors": [
+  "suites": [
     {
-      "message": "Error: No tests found",
-      "stack": "Error: No tests found"
+      "title": "smoke.spec.ts",
+      "file": "smoke.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "app loads without crashing",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5874,
+                  "error": {
+                    "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveTitle\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/Chess Endgame Trainer/\u001b[39m\nReceived string:  \u001b[31m\"\"\u001b[39m\nCall log:\n\u001b[2m  - Expect \"toHaveTitle\" with timeout 5000ms\u001b[22m\n\u001b[2m    9 × unexpected value \"\"\u001b[22m\n",
+                    "stack": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveTitle\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/Chess Endgame Trainer/\u001b[39m\nReceived string:  \u001b[31m\"\"\u001b[39m\nCall log:\n\u001b[2m  - Expect \"toHaveTitle\" with timeout 5000ms\u001b[22m\n\u001b[2m    9 × unexpected value \"\"\u001b[22m\n\n    at /home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/smoke.spec.ts:5:22",
+                    "location": {
+                      "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/smoke.spec.ts",
+                      "column": 22,
+                      "line": 5
+                    },
+                    "snippet": "  3 | test('app loads without crashing', async ({ page }) => {\n  4 |   await page.goto('/');\n> 5 |   await expect(page).toHaveTitle(/Chess Endgame Trainer/);\n    |                      ^\n  6 | });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/smoke.spec.ts",
+                        "column": 22,
+                        "line": 5
+                      },
+                      "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveTitle\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/Chess Endgame Trainer/\u001b[39m\nReceived string:  \u001b[31m\"\"\u001b[39m\nCall log:\n\u001b[2m  - Expect \"toHaveTitle\" with timeout 5000ms\u001b[22m\n\u001b[2m    9 × unexpected value \"\"\u001b[22m\n\n\n  3 | test('app loads without crashing', async ({ page }) => {\n  4 |   await page.goto('/');\n> 5 |   await expect(page).toHaveTitle(/Chess Endgame Trainer/);\n    |                      ^\n  6 | });\n    at /home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/smoke.spec.ts:5:22"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2025-08-14T07:27:14.705Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/smoke-app-loads-without-crashing-chromium/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/smoke-app-loads-without-crashing-chromium/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/smoke.spec.ts",
+                    "column": 22,
+                    "line": 5
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "4219922fea2e2bd3c691-8349c1aa897a183ae78b",
+          "file": "smoke.spec.ts",
+          "line": 3,
+          "column": 5
+        }
+      ]
     }
   ],
+  "errors": [],
   "stats": {
-    "startTime": "2025-08-14T06:40:49.046Z",
-    "duration": 14906.484,
+    "startTime": "2025-08-14T07:27:00.784Z",
+    "duration": 20375.232,
     "expected": 0,
     "skipped": 0,
-    "unexpected": 0,
+    "unexpected": 1,
     "flaky": 0
   }
 }

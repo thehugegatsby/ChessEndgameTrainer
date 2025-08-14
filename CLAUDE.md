@@ -7,8 +7,15 @@
 **IMMER ZUERST:** → [docs/CORE.md](docs/CORE.md) lesen (Architektur, Zustand, Services)
 
 **WSL2 Critical:**
-- ❌ `pnpm test file.test.tsx` (läuft ALLE Tests!) → ✅ `pnpm run test:vitest:file file.test.tsx`
+- ✅ `pnpm test file.test.tsx` → **AUTO-REDIRECTS** zu `pnpm run test:vitest:file file.test.tsx` 
+- ✅ Alternative: `pnpm run test:file file.test.tsx` (kürzer)
+- ✅ Backup: `pnpm run test:original` (alle Tests)
 - ❌ `cmd | grep` → ✅ `cmd && cmd2`
+
+**Smart Test System:**
+Das `pnpm test` Command ist jetzt intelligent und leitet automatisch um:
+- `pnpm test file.test.tsx` → Nur diese Datei 
+- `pnpm test` → Alle Tests
 
 **Code Standards:**
 - Neue Tests in Vitest | Keine `any` Types | UI-Errors auf Deutsch | `@shared/` imports
