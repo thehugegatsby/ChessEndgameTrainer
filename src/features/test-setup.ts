@@ -105,6 +105,23 @@ const ResizeObserverMock = vi.fn().mockImplementation((_callback: ResizeObserver
 // Use vi.stubGlobal for proper Vitest integration and automatic cleanup
 vi.stubGlobal('ResizeObserver', ResizeObserverMock);
 
+// CRITICAL: Additional global assignment for Next.js compatibility
+// Next.js use-intersection hook may access these via different global context
+if (typeof globalThis !== 'undefined') {
+  globalThis.IntersectionObserver = IntersectionObserverMock as any;
+  globalThis.ResizeObserver = ResizeObserverMock as any;
+}
+
+if (typeof global !== 'undefined') {
+  (global as any).IntersectionObserver = IntersectionObserverMock;
+  (global as any).ResizeObserver = ResizeObserverMock;
+}
+
+if (typeof window !== 'undefined') {
+  (window as any).IntersectionObserver = IntersectionObserverMock;
+  (window as any).ResizeObserver = ResizeObserverMock;
+}
+
 // --- Console Management ---
 // Suppress console errors in tests unless explicitly testing error cases
 const originalError = console.error;

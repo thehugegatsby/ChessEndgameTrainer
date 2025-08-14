@@ -20,6 +20,8 @@ vi.mock("next/navigation", () => ({
   useRouter: vi.fn(),
 }));
 
+// Observer API mocks are handled globally via integration project's setupFiles
+
 // Mock Firebase - uses central mock
 vi.mock("@shared/lib/firebase");
 
@@ -48,13 +50,27 @@ import { mockServerPositionService } from "@shared/services/database/__mocks__/s
 const mockedUseRouter = useRouter as ReturnType<typeof vi.fn>;
 
 describe("EndgameTrainingPage Integration Tests", () => {
-  // Mock ResizeObserver for react-chessboard compatibility
+  // Observer API mocks are handled globally in test-setup.ts via vi.stubGlobal
+  // But we need additional inline mocks for Next.js integration scenarios
   beforeAll(() => {
-    global.ResizeObserver = vi.fn().mockImplementation(() => ({
-      observe: vi.fn(),
-      unobserve: vi.fn(),
-      disconnect: vi.fn(),
-    }));
+    // Ensure IntersectionObserver is available for Next.js use-intersection hook
+    Object.assign(globalThis, {
+      IntersectionObserver: vi.fn().mockImplementation((callback: any, options?: any) => ({
+        root: options?.root ?? null,
+        rootMargin: options?.rootMargin ?? '0px',
+        thresholds: Array.isArray(options?.threshold) ? options.threshold : [options?.threshold ?? 0],
+        observe: vi.fn(),
+        unobserve: vi.fn(),
+        disconnect: vi.fn(),
+        takeRecords: vi.fn(() => []),
+      })),
+      ResizeObserver: vi.fn().mockImplementation((callback: any) => ({
+        observe: vi.fn(),
+        unobserve: vi.fn(),
+        disconnect: vi.fn(),
+        takeRecords: vi.fn(() => []),
+      })),
+    });
   });
   // Test data
   const mockPosition: EndgamePosition = {
@@ -133,7 +149,9 @@ describe("EndgameTrainingPage Integration Tests", () => {
 
   // Global cleanup after all tests
   afterAll(() => {
-    delete (global as any).ResizeObserver;
+    // Clean up our inline mocks
+    delete (globalThis as any).IntersectionObserver;
+    delete (globalThis as any).ResizeObserver;
   });
 
   // Helper function to render the page

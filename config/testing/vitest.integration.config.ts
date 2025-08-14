@@ -23,6 +23,8 @@ export default defineConfig({
       `${testsDir}/integration/**/*.{test,spec}.{ts,tsx}`,
       `${testsDir}/performance/**/*.{test,spec}.{ts,tsx}`,
       `${testsDir}/smoke/**/*.{test,spec}.{ts,tsx}`,
+      // Feature-specific integration tests (co-located with features)
+      `${featuresDir}/**/__tests__/integration/**/*.{test,spec}.{ts,tsx}`,
     ],
     exclude: [
       'node_modules', 
