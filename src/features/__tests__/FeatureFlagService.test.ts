@@ -28,7 +28,7 @@ if (typeof global !== 'undefined') {
   (global as any).localStorage = localStorageMock;
 }
 
-describe.skip('FeatureFlagService - TODO: Fix memory leak with global mocks', () => {
+describe('FeatureFlagService - TODO: Fix memory leak with global mocks', () => {
   let service: FeatureFlagService;
   let originalEnv: NodeJS.ProcessEnv;
   
