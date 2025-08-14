@@ -15,13 +15,16 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, renderHook, act } from '@testing-library/react';
 
-// Mock logger before importing ErrorBoundary to intercept module-level initialization
+// Create mock logger instance
 const mockLoggerInstance = {
   error: vi.fn(),
-  setContext: vi.fn(function() { return this; }),
+  setContext: vi.fn(),
 };
+
+// Setup setContext to return the logger instance
 mockLoggerInstance.setContext.mockReturnValue(mockLoggerInstance);
 
+// Mock logging module before importing ErrorBoundary
 vi.mock('@shared/services/logging', () => ({
   getLogger: vi.fn(() => mockLoggerInstance),
 }));

@@ -14,25 +14,19 @@ import { vi } from 'vitest';
 
 import type { TablebaseMove } from '@shared/types/tablebase';
 
+// Create mock logger instance
+const mockLoggerInstance = {
+  error: vi.fn(),
+  warn: vi.fn(), 
+  debug: vi.fn(),
+  setContext: vi.fn(),
+};
+mockLoggerInstance.setContext.mockReturnValue(mockLoggerInstance);
+
 // Mock dependencies BEFORE importing the service
-vi.mock('@shared/services/logging', () => {
-  const mockLoggerInstance = {
-    error: vi.fn(),
-    warn: vi.fn(), 
-    debug: vi.fn(),
-    setContext: vi.fn(function() { return this; }),
-  };
-  mockLoggerInstance.setContext.mockReturnValue(mockLoggerInstance);
-  
-  return {
-    getLogger: vi.fn(() => mockLoggerInstance),
-    /**
-     * Helper to access mock logger instance in tests
-     * @returns Mock logger instance
-     */
-    __getMockLogger: () => mockLoggerInstance,
-  };
-});
+vi.mock('@shared/services/logging', () => ({
+  getLogger: vi.fn(() => mockLoggerInstance),
+}));
 
 vi.mock('@shared/services/TablebaseService');
 
@@ -40,9 +34,8 @@ vi.mock('@shared/services/TablebaseService');
 import { moveStrategyService } from '@shared/services/MoveStrategyService';
 import { tablebaseService } from '@shared/services/TablebaseService';
 
-// Get the mock logger instance
-const { __getMockLogger } = require('@shared/services/logging');
-const mockLogger = __getMockLogger();
+// Use the mock logger instance directly
+const mockLogger = mockLoggerInstance;
 const mockTablebaseService = tablebaseService as any;
 
 /**

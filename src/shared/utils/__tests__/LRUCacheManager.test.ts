@@ -14,8 +14,8 @@
  */
 
 import { describe, it, test, expect, beforeEach } from 'vitest';
-import { LRUCacheManager } from '../../../../shared/lib/cache/LRUCacheManager';
-import type { CacheManager } from '../../../../shared/lib/cache/types';
+import { LRUCacheManager } from '@shared/lib/cache/LRUCacheManager';
+import type { CacheManager } from '@shared/lib/cache/types';
 
 // Test data types
 interface TestData {
