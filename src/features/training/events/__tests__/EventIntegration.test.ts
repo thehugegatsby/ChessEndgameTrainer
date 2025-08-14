@@ -93,7 +93,7 @@ describe('Event Integration Tests', () => {
   });
   
   describe('Feature Flag Integration', () => {
-    it.skip('should store and retrieve feature flag from localStorage', () => {
+    it('should store and retrieve feature flag from localStorage', () => {
       // Set feature flag
       const flagData = { eventDrivenTraining: true };
       localStorage.setItem('featureFlags', JSON.stringify(flagData));
