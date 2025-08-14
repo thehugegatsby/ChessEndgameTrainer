@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 /**
  * Unit tests for TablebasePanel component
  * Comprehensive test suite with >75% coverage target

@@ -1,84 +1,50 @@
 # CLAUDE.md
 
-**Chess Endgame Trainer** - React 19, TypeScript, Zustand, Next.js 15 | WSL2 Linux | 288kB Bundle
+**Chess Endgame Trainer** - React 19, TypeScript, Zustand, Next.js 15 | WSL2 Linux
 
-## 🎯 Core Instructions
-
-**IMMER ZUERST:** → [docs/CORE.md](docs/CORE.md) lesen (Architektur, Zustand, Services)
-
-**WSL2 Critical:**
-- ✅ `pnpm test file.test.tsx` → **AUTO-REDIRECTS** zu `pnpm run test:vitest:file file.test.tsx` 
-- ✅ Alternative: `pnpm run test:file file.test.tsx` (kürzer)
-- ✅ Backup: `pnpm run test:original` (alle Tests)
-- ❌ `cmd | grep` → ✅ `cmd && cmd2`
-
-**Smart Test System:**
-Das `pnpm test` Command ist jetzt intelligent und leitet automatisch um:
-- `pnpm test file.test.tsx` → Nur diese Datei 
-- `pnpm test` → Alle Tests
-
-**Code Standards:**
-- Neue Tests in Vitest | Keine `any` Types | UI-Errors auf Deutsch | `@shared/` imports
-
-**Test Migration Strategy (2025-01-13):**
-- ✅ NEUE Tests: ES6 imports verwenden (`import` statt `require`)
-- ⚠️ ALTE Tests: Nicht anfassen (require bleibt bis größeres Refactoring)
-- 📦 CI-Fix: `vite-tsconfig-paths` löst Module Resolution
-
-## ⚡ Commands
+## ⚡ Quick Start
 
 ```bash
 pnpm run dev              # Dev server (MCP auto-starts)
 pnpm run build            # Production  
-pnpm test                 # Vitest
+pnpm test file.test.tsx   # Single test (auto-redirects to vitest)
+pnpm test                 # All tests
 pnpm run lint && pnpm tsc # Validation
 ```
 
-## 🔧 MCP Organization
+## 🔧 WSL2 Critical
 
-**Aktive MCP-Server:**
-- **zen**: AI-Assistant Tools (chat, debug, analyze, refactor, etc.)
-- **playwright**: Browser Automation & Testing
-- **claude-context**: Codebase Indexing & Semantic Search
+- ✅ `pnpm test file.test.tsx` → Auto-redirects to vitest
+- ❌ `cmd | grep` → ✅ `cmd && cmd2` (no pipes)
+- 📦 CI-Fix: `vite-tsconfig-paths` resolves modules
 
-**Local Development:**
-- MCP servers configured in `.mcp.json` (project-scoped)
-- Personal settings in `.claude/settings.local.json` (gitignored)
-- Start with `pnpm run dev` (MCP auto-configured)
+## 📚 Load Documentation
 
-**Test Environment:**
-- Zen test server: `~/mcp-servers/zen-test-server/`
-- Shared/centralized for integration testing
+| Task | Always Load | Path |
+|------|------------|------|
+| **Any Task** | ✅ | [`docs/CORE.md`](docs/CORE.md) - Architecture |
+| Testing | → | [`docs/guides/testing.md`](docs/guides/testing.md) |
+| WSL2 Issues | → | [`docs/guides/wsl2.md`](docs/guides/wsl2.md) |
+| MCP Tools | → | [`docs/tooling/mcp-matrix.md`](docs/tooling/mcp-matrix.md) |
+| All Docs | → | [`docs/README.md`](docs/README.md) - Navigation Hub |
 
-**Setup für neue Entwickler:**
-```bash
-git clone <repo>
-cd EndgameTrainer
-cp .claude/settings.local.example .claude/settings.local.json
-pnpm install
-pnpm run dev
-```
+## 🤖 MCP Servers Active
 
-## 📁 Documentation Router
+- **zen**: AI workflows (debug, refactor, test, analyze)
+- **playwright**: Browser automation & E2E testing
+- **claude-context**: Semantic code search
+- **context7**: Live framework docs (`use context7` in prompts)
 
-| Zweck | Pfad | Wann laden |
-|-------|------|------------|
-| **Architektur** | [docs/CORE.md](docs/CORE.md) | IMMER |
-| Testing | [docs/guides/testing.md](docs/guides/testing.md) | Bei Test-Tasks |
-| WSL2 Env | [docs/guides/wsl2.md](docs/guides/wsl2.md) | Bei Env-Problemen |
-| MCP Tools | [docs/tooling/](docs/tooling/) | Bei Tool-Auswahl |
+## 📝 LLM Workflow
 
-## 🔧 Troubleshooting Quick Reference
+1. **ALWAYS**: Load `docs/CORE.md` first
+2. **TASK-SPECIFIC**: Load relevant guide from table above
+3. **MCP SELECTION**: Check `docs/tooling/mcp-matrix.md`
+4. **LIVE DOCS**: Add "use context7" for React/Next.js docs
 
-### Common Issues
-- **vitest unhandled promise rejection** → [Async Patterns](docs/troubleshooting/vitest-async-patterns.md)
-- **WSL test command failures** → [WSL2 Environment](docs/guides/wsl2.md#testing-commands)
-- **Module resolution errors** → [Testing Guide](docs/guides/testing.md#module-resolution)
+## 🚀 Code Standards
 
-## ⛔ IGNORE These Files
-
-```
-docs/.archive/*    # Alte Prozess-Notizen
-CHANGELOG.md       # Nicht relevant für Code
-*.REPORT.md        # Veraltete Analysen
-```
+- **Tests**: Vitest with ES6 imports (new only)
+- **Types**: No `any` - always typed
+- **UI Errors**: German (`"Ungültiger Zug"`)
+- **Imports**: Use `@shared/` aliases

@@ -6,35 +6,26 @@
 ## 📊 AKTUELLER STATUS (2025-01-14)
 
 ### ✅ FORTSCHRITT
-- **Files migrated**: 23/50 (46%)
+- **Files migrated**: 25/50 (50%)
 - **Tests passing**: 424/424 ✅
-- **Current batch**: BATCH 4 - Orchestrators (2/4 completed)
+- **Current batch**: BATCH 4 - Orchestrators ✅ COMPLETE!
 
 ### 🚀 ERFOLGREICH ABGESCHLOSSEN
 - **BATCH 1**: Store slice tests (4 files) → **COMMITTED: 1aa4a88**
 - **BATCH 2**: Utils & Hooks (13 files) → **COMMITTED: c7d2068**  
 - **BATCH 3**: Services (4 files) → **COMMITTED: 83c5670**
-- **µBatch 4a**: MoveDialogManager.test.ts → **COMMITTED: a2dd740**
-- **µBatch 4b**: MoveQualityEvaluator.test.ts → **COMMITTED: 8b190aa**
+- **BATCH 4**: Orchestrators (4 files) → **COMPLETE!**
+  - µBatch 4a: MoveDialogManager.test.ts → **COMMITTED: a2dd740**
+  - µBatch 4b: MoveQualityEvaluator.test.ts → **COMMITTED: 8b190aa**
+  - µBatch 4c: MoveValidator.test.ts → **COMMITTED: 764ea91**
+  - µBatch 4d: OpponentTurnManager.test.ts → **COMMITTED: cf7c6e4**
 
-## 🔄 AKTUELLE AUFGABE: BATCH 4 - Orchestrators
+## 🔄 NÄCHSTE AUFGABE: BATCH 5 - Components
 
-### BATCH 4 Progress
-```
-1. ✅ MoveDialogManager.test.ts → COMMITTED: a2dd740
-2. ✅ MoveQualityEvaluator.test.ts → COMMITTED: 8b190aa
-3. 🔄 MoveValidator.test.ts → NEXT (µBatch 4c - CONFLICT!)
-4. ⏳ OpponentTurnManager.test.ts → PENDING (µBatch 4d)
-```
-
-### ⚠️ KRITISCH: µBatch 4c - Conflict Resolution
-**Problem**: MoveValidator.test.ts bereits in beiden Ordnern vorhanden!
-
-**Locations**:
-- `src/tests/unit/orchestrators/MoveValidator.test.ts` (alt, zu migrieren)
-- `src/shared/store/orchestrators/__tests__/MoveValidator.test.ts` (bereits existiert)
-
-**Required Action**: Manueller Vergleich und Merge der beiden Dateien erforderlich!
+### Vorbereitung für BATCH 5:
+- 7 Component Tests zu migrieren
+- TrainingBoard.test.tsx überspringen (12 failing tests)
+- Start mit ChessBoard.test.tsx
 
 ## 📋 MICRO-BATCH WORKFLOW (Bewährt!)
 
@@ -57,11 +48,7 @@ pnpm run lint
 pnpm test
 ```
 
-## 📁 REMAINING WORK: 27 Files
-
-### BATCH 4 - Orchestrators (2/4 remaining)
-- 🔄 `MoveValidator.test.ts` → **CONFLICT RESOLUTION**
-- ⏳ `OpponentTurnManager.test.ts`
+## 📁 REMAINING WORK: 25 Files
 
 ### BATCH 5 - Components (7 files)
 **Target**: `src/features/training/components/__tests__/`

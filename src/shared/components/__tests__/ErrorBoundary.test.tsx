@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 /**
  * @file Unit tests for ErrorBoundary component
  * @module tests/unit/components/common/ErrorBoundary.test

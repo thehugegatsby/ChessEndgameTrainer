@@ -307,14 +307,12 @@ describe("useProgressSync", () => {
 
       // Fast-forward debounce timer and wait for async operations
       await act(async () => {
-        vi.advanceTimersByTime(2000);
+        await vi.runAllTimersAsync();
       });
 
-      await waitFor(() => {
-        expect(
-          mockProgressService.updateProgressTransaction,
-        ).toHaveBeenCalledWith(userId, statsUpdate, cardUpdates);
-      });
+      expect(
+        mockProgressService.updateProgressTransaction,
+      ).toHaveBeenCalledWith(userId, statsUpdate, cardUpdates);
     });
   });
 
@@ -472,15 +470,13 @@ describe("useProgressSync", () => {
 
       // Should process queued operations
       await act(async () => {
-        vi.advanceTimersByTime(2000);
+        await vi.runAllTimersAsync();
       });
 
-      await waitFor(() => {
-        expect(mockProgressService.updateUserStats).toHaveBeenCalledWith(
-          userId,
-          statsUpdate,
-        );
-      });
+      expect(mockProgressService.updateUserStats).toHaveBeenCalledWith(
+        userId,
+        statsUpdate,
+      );
     });
   });
 
@@ -598,14 +594,12 @@ describe("useProgressSync", () => {
 
       // Fast-forward debounce timer and wait for async operations
       await act(async () => {
-        vi.advanceTimersByTime(2000);
+        await vi.runAllTimersAsync();
       });
 
-      await waitFor(() => {
-        expect(
-          mockProgressService.updateProgressTransaction,
-        ).toHaveBeenCalledTimes(3);
-      });
+      expect(
+        mockProgressService.updateProgressTransaction,
+      ).toHaveBeenCalledTimes(3);
 
       // First chunk should include stats update
       expect(
@@ -650,11 +644,10 @@ describe("useProgressSync", () => {
       // Should sync after custom debounce time
       await act(async () => {
         vi.advanceTimersByTime(3000);
+        await vi.runAllTimersAsync();
       });
 
-      await waitFor(() => {
-        expect(mockProgressService.updateUserStats).toHaveBeenCalled();
-      });
+      expect(mockProgressService.updateUserStats).toHaveBeenCalled();
     });
 
     it("should disable optimistic updates when configured", () => {

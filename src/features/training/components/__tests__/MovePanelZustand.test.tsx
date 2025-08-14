@@ -1,10 +1,10 @@
-import { vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MovePanelZustand } from "@shared/components/training/MovePanelZustand";
-import { createTestValidatedMove } from "../../helpers/validatedMoveFactory";
-import { COMMON_FENS } from "../../fixtures/commonFens";
+import { createTestValidatedMove } from "@tests/helpers/validatedMoveFactory";
+import { COMMON_FENS } from "@tests/fixtures/commonFens";
 
 // Mock the store hooks directly
 vi.mock("@shared/store/hooks");
