@@ -352,7 +352,7 @@ jobs:
         path: .next/
 
     - name: Run Playwright tests
-      run: pnpm run test:e2e:critical || pnpm run test:e2e
+      run: pnpm run test:e2e
       env:
         PLAYWRIGHT_JUNIT_OUTPUT_NAME: results.xml
 
