@@ -67,60 +67,8 @@ if (typeof window !== 'undefined' && typeof globalThis.window !== 'undefined') {
   });
 }
 
-// --- Global Observer API Mocks (All Environments) ---
-// Critical: These mocks MUST be available in every Vitest project to prevent
-// "observer.observe is not a function" errors in react-chessboard and Next.js
-
-// Mock IntersectionObserver for components that use it (including Next.js)
-const IntersectionObserverMock = vi.fn().mockImplementation((_callback: IntersectionObserverCallback, options?: IntersectionObserverInit) => {
-  const root = options?.root ?? null;
-  const rootMargin = options?.rootMargin ?? '0px';
-  const t = options?.threshold;
-  const thresholds = t === null || t === undefined ? [0] : Array.isArray(t) ? t : [t];
-  
-  return {
-    root,
-    rootMargin,
-    thresholds,
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-    disconnect: vi.fn(),
-    takeRecords: vi.fn(() => []),
-  };
-});
-
-// Use vi.stubGlobal for proper Vitest integration and automatic cleanup
-vi.stubGlobal('IntersectionObserver', IntersectionObserverMock);
-
-// Mock ResizeObserver for components that use it (including react-chessboard)
-const ResizeObserverMock = vi.fn().mockImplementation((_callback: ResizeObserverCallback) => {
-  return {
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-    disconnect: vi.fn(),
-    takeRecords: vi.fn(() => []),
-  };
-});
-
-// Use vi.stubGlobal for proper Vitest integration and automatic cleanup
-vi.stubGlobal('ResizeObserver', ResizeObserverMock);
-
-// CRITICAL: Additional global assignment for Next.js compatibility
-// Next.js use-intersection hook may access these via different global context
-if (typeof globalThis !== 'undefined') {
-  globalThis.IntersectionObserver = IntersectionObserverMock as any;
-  globalThis.ResizeObserver = ResizeObserverMock as any;
-}
-
-if (typeof global !== 'undefined') {
-  (global as any).IntersectionObserver = IntersectionObserverMock;
-  (global as any).ResizeObserver = ResizeObserverMock;
-}
-
-if (typeof window !== 'undefined') {
-  (window as any).IntersectionObserver = IntersectionObserverMock;
-  (window as any).ResizeObserver = ResizeObserverMock;
-}
+// Observer API mocks are now handled by tests/setup/observer-polyfill.ts
+// which provides proper ES6 class implementations that pass instanceof checks
 
 // --- Console Management ---
 // Suppress console errors in tests unless explicitly testing error cases

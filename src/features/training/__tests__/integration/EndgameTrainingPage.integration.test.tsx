@@ -20,7 +20,14 @@ vi.mock("next/navigation", () => ({
   useRouter: vi.fn(),
 }));
 
-// Observer API mocks are handled globally via integration project's setupFiles
+// Mock Next.js Link component
+vi.mock('next/link', () => ({
+  default: ({ children, href, ...props }: any) => {
+    return React.createElement('a', { href, ...props }, children);
+  }
+}));
+
+// Observer APIs are now handled by globalSetup which runs BEFORE module loading
 
 // Mock Firebase - uses central mock
 vi.mock("@shared/lib/firebase");
@@ -53,24 +60,34 @@ describe("EndgameTrainingPage Integration Tests", () => {
   // Observer API mocks are handled globally in test-setup.ts via vi.stubGlobal
   // But we need additional inline mocks for Next.js integration scenarios
   beforeAll(() => {
-    // Ensure IntersectionObserver is available for Next.js use-intersection hook
+    // Create proper mock instances that return objects with methods
+    const mockIntersectionObserver = vi.fn(() => ({
+      root: null,
+      rootMargin: '0px',
+      thresholds: [0],
+      observe: vi.fn(),
+      unobserve: vi.fn(),
+      disconnect: vi.fn(),
+      takeRecords: vi.fn(() => []),
+    }));
+
+    const mockResizeObserver = vi.fn(() => ({
+      observe: vi.fn(),
+      unobserve: vi.fn(),
+      disconnect: vi.fn(),
+    }));
+
+    // Ensure IntersectionObserver and ResizeObserver are available globally
     Object.assign(globalThis, {
-      IntersectionObserver: vi.fn().mockImplementation((callback: any, options?: any) => ({
-        root: options?.root ?? null,
-        rootMargin: options?.rootMargin ?? '0px',
-        thresholds: Array.isArray(options?.threshold) ? options.threshold : [options?.threshold ?? 0],
-        observe: vi.fn(),
-        unobserve: vi.fn(),
-        disconnect: vi.fn(),
-        takeRecords: vi.fn(() => []),
-      })),
-      ResizeObserver: vi.fn().mockImplementation((callback: any) => ({
-        observe: vi.fn(),
-        unobserve: vi.fn(),
-        disconnect: vi.fn(),
-        takeRecords: vi.fn(() => []),
-      })),
+      IntersectionObserver: mockIntersectionObserver,
+      ResizeObserver: mockResizeObserver,
     });
+    
+    // Also set on window for browser environment
+    if (typeof window !== 'undefined') {
+      (window as any).IntersectionObserver = mockIntersectionObserver;
+      (window as any).ResizeObserver = mockResizeObserver;
+    }
   });
   // Test data
   const mockPosition: EndgamePosition = {
@@ -116,6 +133,8 @@ describe("EndgameTrainingPage Integration Tests", () => {
       state.training.setPosition(mockPosition as any);
       // Set player turn to true so moves can be made
       state.training.setPlayerTurn(true);
+      // CRITICAL: Explicitly clear isOpponentThinking flag
+      state.training.clearOpponentThinking();
 
       // Set up UI state (nested access)
       state.ui.updateAnalysisPanel({ isOpen: false });
@@ -149,9 +168,7 @@ describe("EndgameTrainingPage Integration Tests", () => {
 
   // Global cleanup after all tests
   afterAll(() => {
-    // Clean up our inline mocks
-    delete (globalThis as any).IntersectionObserver;
-    delete (globalThis as any).ResizeObserver;
+    // Mocks are cleaned up automatically by Vitest
   });
 
   // Helper function to render the page
@@ -227,6 +244,8 @@ describe("EndgameTrainingPage Integration Tests", () => {
         state.game.initializeGame(simplePosition.fen);
         state.training.setPosition(simplePosition as any);
         state.training.setPlayerTurn(true);
+        // CRITICAL: Explicitly clear isOpponentThinking flag
+        state.training.clearOpponentThinking();
       });
 
       renderPage();
@@ -512,9 +531,8 @@ describe("EndgameTrainingPage Integration Tests", () => {
       renderPage();
 
       const lichessLink = screen.getByText("Auf Lichess analysieren →");
-      expect(lichessLink.getAttribute(
-        "href")).toBe(expect.stringContaining("lichess.org/analysis"),
-      );
+      const href = lichessLink.getAttribute("href");
+      expect(href).toContain("lichess.org/analysis");
       expect(lichessLink.getAttribute("target")).toBe("_blank");
       expect(lichessLink.getAttribute("rel")).toBe("noopener noreferrer");
     });
@@ -533,6 +551,8 @@ describe("EndgameTrainingPage Integration Tests", () => {
         state.game.initializeGame(trainPosition1.fen);
         // Set player turn
         state.training.setPlayerTurn(true);
+        // CRITICAL: Explicitly clear isOpponentThinking flag
+        state.training.clearOpponentThinking();
         // Make the moves: 1.Kd6 Kb7 2.e5
         await state.handlePlayerMove({ from: "d7", to: "d6" }); // Kd6
         // For simplicity, just check after one move
@@ -549,9 +569,8 @@ describe("EndgameTrainingPage Integration Tests", () => {
 
       // The link should use PGN format when moves exist
       // Note: The actual implementation checks for currentPgn and moveHistory.length > 0
-      expect(lichessLink.getAttribute(
-        "href")).toBe(expect.stringContaining("lichess.org/analysis"),
-      );
+      const lichessHref = lichessLink.getAttribute("href");
+      expect(lichessHref).toContain("lichess.org/analysis");
     });
   });
 

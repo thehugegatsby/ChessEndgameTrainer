@@ -16,9 +16,13 @@ export default defineConfig({
   plugins: [react()],
   test: {
     name: 'integration',
-    environment: 'happy-dom',
+    environment: 'jsdom',
     globals: true,
-    setupFiles: [featuresTestSetup, path.resolve(testsDir, 'utils/vitestSetup.ts')],
+    setupFiles: [
+      path.resolve(testsDir, 'setup/observer-polyfill.ts'), // Still needed for per-test setup
+      path.resolve(testsDir, 'utils/vitestSetup.ts'), // Next.js mocks
+      featuresTestSetup
+    ],
     include: [
       `${testsDir}/integration/**/*.{test,spec}.{ts,tsx}`,
       `${testsDir}/performance/**/*.{test,spec}.{ts,tsx}`,
@@ -34,15 +38,15 @@ export default defineConfig({
       '**/unit/**',
       '**/e2e/**',
     ],
-    // ISOLATION FOR INTEGRATION TESTS
+    // CRITICAL: Disable isolation to fix IntersectionObserver realm issues
     pool: 'forks',
     poolOptions: {
       forks: {
-        maxForks: 4,  // Increased parallelization
+        maxForks: 2,  // Reduced for stability with shared environment
         minForks: 1,
       }
     },
-    isolate: true,  // Clean environment for each test
+    isolate: false,  // CHANGED: Share environment to preserve polyfills
     testTimeout: 30000,  // 30 seconds for integration tests
     hookTimeout: 30000,
     coverage: {

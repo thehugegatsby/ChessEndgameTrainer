@@ -18,9 +18,13 @@ const isWSL2 = process.env.WSL_DISTRO_NAME !== undefined;
 export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   test: {
-    environment: 'happy-dom',  // Browser environment for DOM-dependent tests
+    environment: 'jsdom',  // Browser environment for DOM-dependent tests
     globals: true,
-    setupFiles: [featuresTestSetup, path.resolve(testsDir, 'utils/vitestSetup.ts')],
+    setupFiles: [
+      path.resolve(testsDir, 'setup/observer-polyfill.ts'), // MUST be first!
+      featuresTestSetup,
+      path.resolve(testsDir, 'utils/vitestSetup.ts')
+    ],
     include: [
       // Feature tests (unit tests with TDD)
       `${featuresDir}/**/*.{test,spec}.{ts,tsx}`,

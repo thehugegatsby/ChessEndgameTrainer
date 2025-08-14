@@ -199,7 +199,12 @@ class MockChessService extends EventEmitter {
     return true;
   }
 
-  validateMove = vi.fn().mockReturnValue(true);
+  validateMove(
+    _move: { from: string; to: string; promotion?: string } | string
+  ): boolean {
+    // Always return true for testing - moves are valid
+    return true;
+  }
 
   redo(): ValidatedMove | null {
     // Simple redo implementation
@@ -207,19 +212,35 @@ class MockChessService extends EventEmitter {
   }
 
   moves(options?: { square?: string; verbose?: boolean }): any[] {
-    // Simple implementation for testing
+    // Return some valid moves for testing
+    // For King endgames, return typical king moves
     if (options?.verbose) {
-      return [];
+      return [
+        { from: 'e1', to: 'e2', san: 'Ke2' },
+        { from: 'e1', to: 'd1', san: 'Kd1' },
+        { from: 'e1', to: 'f1', san: 'Kf1' },
+        { from: 'd7', to: 'd6', san: 'Kd6' },
+      ];
     }
-    return [];
+    // Return simple move strings when not verbose
+    return ['Ke2', 'Kd1', 'Kf1', 'Kd6'];
   }
 
   getSquare(_square: string): { type: string; color: "w" | "b" } | null {
     return null;
   }
 
-  getLegalMoves(_square?: string): string[] {
-    return [];
+  getLegalMoves(square?: string): string[] {
+    // Return legal moves for testing
+    // Support common test squares
+    if (square === 'e1') {
+      return ['e2', 'd1', 'f1', 'd2', 'f2'];
+    }
+    if (square === 'd7') {
+      return ['d6', 'd8', 'c6', 'c7', 'c8', 'e6', 'e7', 'e8'];
+    }
+    // Default to some moves for any square
+    return ['e2', 'e3', 'e4'];
   }
 
   onMove(callback: (move: ValidatedMove) => void): void {

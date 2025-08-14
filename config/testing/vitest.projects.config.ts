@@ -48,9 +48,13 @@ export default defineConfig({
     ],
     
     // Global test settings
-    environment: 'happy-dom',
+    environment: 'jsdom',
     globals: true,
-    setupFiles: [featuresTestSetup, path.resolve(testsDir, 'utils/vitestSetup.ts')],
+    setupFiles: [
+      path.resolve(testsDir, 'setup/observer-polyfill.ts'), // MUST be first!
+      featuresTestSetup,
+      path.resolve(testsDir, 'utils/vitestSetup.ts')
+    ],
     
     // WSL2-OPTIMIZED PERFORMANCE SETTINGS
     pool: isWSL2 ? 'forks' : 'threads',

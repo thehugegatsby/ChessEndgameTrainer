@@ -7,6 +7,23 @@ import { vi } from 'vitest';
 // @testing-library/jest-dom removed - using Vitest native matchers
 import React from "react";
 
+// Mock Next.js components that use IntersectionObserver
+// This prevents "observer.observe is not a function" errors
+vi.mock('next/link', () => ({
+  default: ({ children, href, ...props }: any) => {
+    return React.createElement('a', { href, ...props }, children);
+  }
+}));
+
+// Mock Next.js internal use-intersection hook directly
+vi.mock('next/dist/client/use-intersection', () => ({
+  useIntersection: () => ({
+    rootRef: { current: null },
+    isIntersecting: false,
+    entry: undefined,
+  }),
+}));
+
 // Note: MSW polyfills removed - using service-level mocking instead
 // This significantly improves test performance and stability
 import { type ServiceContainer } from "@shared/services/container";

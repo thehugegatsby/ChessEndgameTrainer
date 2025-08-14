@@ -1,6 +1,6 @@
 # Chess Endgame Trainer 🎯
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.4.5-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.4.6-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue)](https://www.typescriptlang.org/)
 [![Zustand](https://img.shields.io/badge/Zustand-5.0.7-orange)](https://zustand-demo.pmnd.rs/)
 [![Test Coverage](https://img.shields.io/badge/Tests-513+_passing-green)](./coverage/lcov-report/index.html)
@@ -59,9 +59,9 @@ ChessEndgameTrainer/
 
 ## 🛠️ Technologien
 
-- **Frontend**: Next.js 15.3.3, React 18.3
+- **Frontend**: Next.js 15.4.6, React 19.1.1
 - **Language**: TypeScript 5.9.2
-- **Styling**: Tailwind CSS 3.4.1
+- **Styling**: Tailwind CSS 3.4.17
 - **Chess Logic**: chess.js 1.0.0-beta.6 für Zugvalidierung
 - **State Management**: Zustand 5.0.7 (Domain-Specific Slices Architecture)
 - **Testing**: Jest 30.0.4, React Testing Library 14.2.1
@@ -85,7 +85,7 @@ ChessEndgameTrainer/
 - **TypeScript**: 0 errors (100% clean) | Complete Clean Compilation
 - **Architecture**: v3.8 Domain-Specific Slices - Clean separation mit Orchestrators
 - **State Management**: Zustand 5.0.7 mit Domain Slices (GameSlice, TrainingSlice, etc.)
-- **UI Framework**: TailwindCSS 4.1.11 (CSS-first configuration)
+- **UI Framework**: TailwindCSS 3.4.17 (Stable version)
 - **Backend**: Firebase 12.0.0 (Modular SDK)
 - **Security**: FEN Input Sanitization implemented
 - **Performance**: LRU Cache, Debouncing, Tree-Shaking optimized

@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-**Chess Endgame Trainer** - React 19, TypeScript, Zustand, Next.js 15 | WSL2 Linux
+**Chess Endgame Trainer** - React 19, TypeScript, Zustand, Next.js 15, Tailwind CSS 3.4 | WSL2 Linux
 
 ## ⚡ Quick Start
 

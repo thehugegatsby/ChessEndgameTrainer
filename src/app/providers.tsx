@@ -8,7 +8,7 @@ import { useStore, StoreProvider } from "@shared/store/StoreContext";
 import { configureStore } from "@shared/store/storeConfig";
 import { createServerPositionService } from "@shared/services/database/serverPositionService";
 import { getLogger } from "@shared/services/logging";
-import { setupE2ETablebaseMocks } from "@shared/services/TablebaseService.e2e.mocks";
+// Removed E2E mock import - should not be used in production code
 import { useStoreHydration } from "@shared/hooks/useHydration";
 import { CommandPalette, useCommandPalette, useChessHotkeys } from "@shared/components/ui/CommandPalette";
 import { DURATIONS } from "@shared/constants/time.constants";
@@ -46,8 +46,7 @@ if (typeof window !== "undefined") {
   const positionService = createServerPositionService();
   configureStore({ positionService });
 
-  // Setup E2E mocks if in test environment
-  setupE2ETablebaseMocks();
+  // E2E mocks removed - should be handled by test setup files only
 }
 
 /**

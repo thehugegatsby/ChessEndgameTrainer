@@ -7,9 +7,13 @@ import { featuresTestSetup, featuresDir, srcDir, sharedDir, testsDir } from '../
 export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   test: {
-    environment: 'happy-dom',
+    environment: 'jsdom',
     globals: true,
-    setupFiles: featuresTestSetup,
+    setupFiles: [
+      path.resolve(testsDir, 'setup/observer-polyfill.ts'), // MUST be first!
+      path.resolve(testsDir, 'utils/vitestSetup.ts'), // Next.js mocks
+      featuresTestSetup
+    ],
     include: [
       `${featuresDir}/**/*.{test,spec}.{ts,tsx}`,
       `${testsDir}/**/*.{test,spec}.{ts,tsx}`,
