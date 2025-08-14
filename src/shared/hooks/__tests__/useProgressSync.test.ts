@@ -208,14 +208,15 @@ describe("useProgressSync", () => {
   afterEach(async () => {
     // Properly clean up timers and wait for any pending state updates
     await act(async () => {
-      vi.runOnlyPendingTimers();
+      // Use runAllTimersAsync to ensure all pending timers and microtasks are settled
+      await vi.runAllTimersAsync();
     });
     vi.clearAllTimers();
     vi.useRealTimers();
   });
 
   describe("Basic sync operations", () => {
-    it.skip("should sync user stats with optimistic updates", async () => {
+    it("should sync user stats with optimistic updates", async () => {
       const { result } = renderHook(() =>
         useProgressSync(userId, mockProgressService),
       );
@@ -237,7 +238,9 @@ describe("useProgressSync", () => {
 
       // Fast-forward debounce timer and wait for async operations
       await act(async () => {
-        vi.advanceTimersByTime(2000);
+        // This will advance time past the debounce delay and ensure all
+        // subsequent async operations complete
+        await vi.runAllTimersAsync();
       });
 
       await waitFor(() => {
@@ -245,10 +248,13 @@ describe("useProgressSync", () => {
           userId,
           statsUpdate,
         );
+        // Add assertions for syncStatus to confirm completion
+        expect(result.current.syncStatus.pendingCount).toBe(0);
+        expect(result.current.syncStatus.status).toBe("idle");
       });
     });
 
-    it.skip("should sync card progress with optimistic updates", async () => {
+    it("should sync card progress with optimistic updates", async () => {
       const { result } = renderHook(() =>
         useProgressSync(userId, mockProgressService),
       );
@@ -267,7 +273,7 @@ describe("useProgressSync", () => {
 
       // Fast-forward debounce timer and wait for async operations
       await act(async () => {
-        vi.advanceTimersByTime(2000);
+        await vi.runAllTimersAsync();
       });
 
       await waitFor(() => {
@@ -276,6 +282,9 @@ describe("useProgressSync", () => {
           "test-card-1",
           cardProgress,
         );
+        // Add assertions for syncStatus to confirm completion
+        expect(result.current.syncStatus.pendingCount).toBe(0);
+        expect(result.current.syncStatus.status).toBe("idle");
       });
     });
 
@@ -317,7 +326,7 @@ describe("useProgressSync", () => {
   });
 
   describe("Error handling and retry logic", () => {
-    it.skip("should retry failed operations with exponential backoff", async () => {
+    it("should retry failed operations with exponential backoff", async () => {
       const { result } = renderHook(() =>
         useProgressSync(userId, mockProgressService, { maxRetries: 2 }),
       );
@@ -334,9 +343,13 @@ describe("useProgressSync", () => {
         result.current.syncUserStats(statsUpdate);
       });
 
-      // Initial sync attempt
-      act(() => {
-        vi.advanceTimersByTime(2000);
+      // Initial sync attempt (debounce + first failure)
+      await act(async () => {
+        // Advance past the initial debounce time (2000ms)
+        await vi.advanceTimersByTime(2000);
+        // Run all timers and microtasks to process the initial failed service call
+        // and schedule the first retry
+        await vi.runAllTimersAsync();
       });
 
       await waitFor(() => {
@@ -347,8 +360,11 @@ describe("useProgressSync", () => {
       expect(result.current.syncStatus.pendingCount).toBe(1);
 
       // First retry (after 1s exponential backoff)
-      act(() => {
-        vi.advanceTimersByTime(1000);
+      await act(async () => {
+        // Advance time to trigger the first retry (1000ms after initial failure)
+        await vi.advanceTimersByTime(1000);
+        // Run all timers and microtasks to process the failed retry and schedule the second retry
+        await vi.runAllTimersAsync();
       });
 
       await waitFor(() => {
@@ -356,20 +372,22 @@ describe("useProgressSync", () => {
       });
 
       // Second retry (after 2s exponential backoff)
-      act(() => {
-        vi.advanceTimersByTime(2000);
+      await act(async () => {
+        // Advance time to trigger the second retry (2000ms after first retry failure)
+        await vi.advanceTimersByTime(2000);
+        // Run all timers and microtasks to process the successful retry
+        await vi.runAllTimersAsync();
       });
 
       await waitFor(() => {
         expect(mockProgressService.updateUserStats).toHaveBeenCalledTimes(3);
+        // Should eventually succeed
+        expect(result.current.syncStatus.status).toBe("idle");
+        expect(result.current.syncStatus.pendingCount).toBe(0);
       });
-
-      // Should eventually succeed
-      expect(result.current.syncStatus.status).toBe("idle");
-      expect(result.current.syncStatus.pendingCount).toBe(0);
     });
 
-    it.skip("should give up after max retries", async () => {
+    it("should give up after max retries", async () => {
       const { result } = renderHook(() =>
         useProgressSync(userId, mockProgressService, { maxRetries: 1 }),
       );
@@ -385,33 +403,39 @@ describe("useProgressSync", () => {
         result.current.syncUserStats(statsUpdate);
       });
 
-      // Initial attempt
-      act(() => {
-        vi.advanceTimersByTime(2000);
+      // Initial attempt (debounce + first failure)
+      await act(async () => {
+        // Advance past the initial debounce time (2000ms)
+        await vi.advanceTimersByTime(2000);
+        // Run all timers and microtasks to process the initial failed service call
+        await vi.runAllTimersAsync();
       });
 
       await waitFor(() => {
         expect(mockProgressService.updateUserStats).toHaveBeenCalledTimes(1);
+        expect(result.current.syncStatus.status).toBe("error");
       });
 
       // First retry attempt (1000ms retry delay)
-      act(() => {
-        vi.advanceTimersByTime(1000);
+      await act(async () => {
+        // Advance time to trigger the retry (1000ms after initial failure)
+        await vi.advanceTimersByTime(1000);
+        // Run all timers and microtasks to process the failed retry
+        await vi.runAllTimersAsync();
       });
 
-      await waitFor(
-        () => {
-          expect(mockProgressService.updateUserStats).toHaveBeenCalledTimes(2);
-        },
-        { timeout: 3000 },
-      );
+      await waitFor(() => {
+        expect(mockProgressService.updateUserStats).toHaveBeenCalledTimes(2);
+      });
 
-      // Should give up and remove from queue
-      expect(result.current.syncStatus.status).toBe("error");
-      expect(result.current.syncStatus.pendingCount).toBe(0);
-      expect(mockProgressActions.setSyncError).toHaveBeenCalledWith(
-        "Permanent error",
-      );
+      // Should give up after max retries and remove from queue
+      await waitFor(() => {
+        expect(result.current.syncStatus.status).toBe("error");
+        expect(result.current.syncStatus.pendingCount).toBe(0);
+        expect(mockProgressActions.setSyncError).toHaveBeenCalledWith(
+          "Permanent error",
+        );
+      });
     });
   });
 
