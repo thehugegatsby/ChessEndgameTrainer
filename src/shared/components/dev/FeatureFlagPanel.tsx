@@ -25,9 +25,6 @@ const FEATURE_GROUPS = {
   'Move Quality': [
     { flag: FeatureFlag.USE_NEW_MOVE_QUALITY, label: 'New Move Quality System' },
   ],
-  'Progress': [
-    { flag: FeatureFlag.USE_NEW_PROGRESS_TRACKING, label: 'New Progress Tracking' },
-  ],
   'UI Components': [
     { flag: FeatureFlag.USE_NEW_COMPONENT_LIBRARY, label: 'New Component Library' },
   ],

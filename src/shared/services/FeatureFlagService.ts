@@ -21,8 +21,6 @@ export enum FeatureFlag {
   // Move Quality Features
   USE_NEW_MOVE_QUALITY = 'use_new_move_quality',
   
-  // Progress Features
-  USE_NEW_PROGRESS_TRACKING = 'use_new_progress_tracking',
   
   // UI Components
   USE_NEW_COMPONENT_LIBRARY = 'use_new_component_library',
@@ -109,7 +107,6 @@ class FeatureFlagService {
       [FeatureFlag.USE_NEW_TRAINING_LOGIC]: false,
       [FeatureFlag.USE_NEW_TRAINING_BOARD]: false,
       [FeatureFlag.USE_NEW_MOVE_QUALITY]: false,
-      [FeatureFlag.USE_NEW_PROGRESS_TRACKING]: false,
       [FeatureFlag.USE_NEW_COMPONENT_LIBRARY]: false,
     };
 
@@ -206,7 +203,7 @@ class FeatureFlagService {
   /**
    * Enable a specific migration phase (convenience method)
    */
-  public enablePhase(phase: 'chess' | 'tablebase' | 'training' | 'move-quality' | 'progress'): void {
+  public enablePhase(phase: 'chess' | 'tablebase' | 'training' | 'move-quality'): void {
     switch (phase) {
       case 'chess':
         this.override(FeatureFlag.USE_NEW_CHESS_CORE, true);
@@ -223,9 +220,6 @@ class FeatureFlagService {
       case 'move-quality':
         this.override(FeatureFlag.USE_NEW_MOVE_QUALITY, true);
         break;
-      case 'progress':
-        this.override(FeatureFlag.USE_NEW_PROGRESS_TRACKING, true);
-        break;
       default:
         // Exhaustive check - should never happen
         const exhaustiveCheck: never = phase;
@@ -236,7 +230,7 @@ class FeatureFlagService {
   /**
    * Disable a specific migration phase (rollback)
    */
-  public disablePhase(phase: 'chess' | 'tablebase' | 'training' | 'move-quality' | 'progress'): void {
+  public disablePhase(phase: 'chess' | 'tablebase' | 'training' | 'move-quality'): void {
     switch (phase) {
       case 'chess':
         this.override(FeatureFlag.USE_NEW_CHESS_CORE, false);
@@ -252,9 +246,6 @@ class FeatureFlagService {
         break;
       case 'move-quality':
         this.override(FeatureFlag.USE_NEW_MOVE_QUALITY, false);
-        break;
-      case 'progress':
-        this.override(FeatureFlag.USE_NEW_PROGRESS_TRACKING, false);
         break;
       default:
         // Exhaustive check - should never happen

@@ -56,7 +56,6 @@ import {
   createTrainingState,
   createTrainingActions,
 } from "./slices/trainingSlice";
-import { createProgressSlice } from "./slices/progressSlice";
 import { createUIState, createUIActions } from "./slices/uiSlice";
 
 // Import ChessService for event subscription
@@ -114,9 +113,8 @@ export const createStore = (initialState?: Partial<RootState>): UseBoundStore<St
   const store = create<RootState>()(
     devtools(
       persist(
-        immer((set, get, api) => {
+        immer((set, get, _api) => {
           // Create slices using new pattern (clean separation of state and actions)
-          const progressSlice = createProgressSlice(set, get, api);
           const rootState: RootState = {
             // Clean separation pattern: state and actions composed
             game: {
@@ -131,7 +129,6 @@ export const createStore = (initialState?: Partial<RootState>): UseBoundStore<St
               ...createTablebaseState(),
               ...createTablebaseActions(set),
             },
-            progress: progressSlice,
             ui: {
               ...createUIState(),
               ...createUIActions(set, get),
@@ -244,10 +241,6 @@ export const createStore = (initialState?: Partial<RootState>): UseBoundStore<St
               Object.assign(rootState.tablebase, initialState.tablebase);
             }
 
-            // Merge progress state properties
-            if (initialState.progress) {
-              Object.assign(rootState.progress, initialState.progress);
-            }
 
             // Merge UI state properties
             if (initialState.ui) {

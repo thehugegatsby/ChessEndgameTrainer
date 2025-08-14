@@ -98,8 +98,8 @@ export function useFeatureFlagControls(): {
   toggle: (flag: FeatureFlag) => void;
   enable: (flag: FeatureFlag) => void;
   disable: (flag: FeatureFlag) => void;
-  enablePhase: (phase: 'chess' | 'tablebase' | 'training' | 'move-quality' | 'progress') => void;
-  disablePhase: (phase: 'chess' | 'tablebase' | 'training' | 'move-quality' | 'progress') => void;
+  enablePhase: (phase: 'chess' | 'tablebase' | 'training' | 'move-quality') => void;
+  disablePhase: (phase: 'chess' | 'tablebase' | 'training' | 'move-quality') => void;
   getAllFlags: () => Record<string, boolean>;
 } {
   const [, forceUpdate] = useState({});

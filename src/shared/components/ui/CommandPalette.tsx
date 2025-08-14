@@ -32,7 +32,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps): Rea
   
   // Store actions
   const resetGame = useStore((state) => state.game.resetGame);
-  const resetProgress = useStore((state) => state.progress.resetProgress);
   const currentFen = useStore((state) => state.game.currentFen);
 
   const commands: CommandItem[] = [
@@ -98,20 +97,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps): Rea
         onOpenChange(false);
       },
       keywords: ['fen', 'kopieren', 'copy', 'position'],
-    },
-    {
-      id: 'action-clear-progress',
-      label: 'Fortschritt löschen',
-      description: 'Lösche den gesamten Trainingsfortschritt (Vorsicht!)',
-      category: 'settings',
-      action: () => {
-        if (confirm('Wirklich allen Fortschritt löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
-          resetProgress();
-          showSuccessToast('Fortschritt gelöscht');
-        }
-        onOpenChange(false);
-      },
-      keywords: ['progress', 'fortschritt', 'löschen', 'clear', 'reset'],
     },
   ];
 

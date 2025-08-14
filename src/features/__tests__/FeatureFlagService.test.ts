@@ -351,11 +351,6 @@ describe('FeatureFlagService - TODO: Fix memory leak with global mocks', () => {
       expect(service.isEnabled(FeatureFlag.USE_NEW_MOVE_QUALITY)).toBe(true);
     });
     
-    it('should enable progress phase flag', () => {
-      service.enablePhase('progress');
-      
-      expect(service.isEnabled(FeatureFlag.USE_NEW_PROGRESS_TRACKING)).toBe(true);
-    });
     
     it('should disable phase flags', () => {
       service.enablePhase('chess');

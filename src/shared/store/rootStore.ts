@@ -42,10 +42,6 @@ import {
   createTrainingActions,
   initialTrainingState,
 } from "./slices/trainingSlice";
-import {
-  createProgressSlice,
-  initialProgressState,
-} from "./slices/progressSlice";
 import { createUIState, createUIActions, initialUIState } from "./slices/uiSlice";
 
 // Import ChessService for event subscription
@@ -139,9 +135,8 @@ const safeStorage: StateStorage = {
 export const useStore = create<RootState>()(
   devtools(
     persist(
-      immer((set, get, store) => {
+      immer((set, get, _store) => {
         // Create slices using new pattern (clean separation of state and actions)
-        const progressSlice = createProgressSlice(set, get, store);
 
         return {
           // Clean separation pattern: state and actions composed
@@ -157,7 +152,6 @@ export const useStore = create<RootState>()(
             ...createTablebaseState(),
             ...createTablebaseActions(set),
           },
-          progress: progressSlice,
           ui: {
             ...createUIState(),
             ...createUIActions(set, get),
@@ -175,7 +169,6 @@ export const useStore = create<RootState>()(
            * - Validates move through Game slice
            * - Updates Training slice with move result
            * - Requests tablebase analysis via Tablebase slice
-           * - Updates Progress slice with attempt data
            * - Shows UI feedback for errors
            *
            * @example
@@ -229,7 +222,7 @@ export const useStore = create<RootState>()(
            * This orchestrator sets up the complete training context:
            * - Loads position into Game slice
            * - Initializes Training slice state
-           * - Resets UI and Progress tracking
+           * - Resets UI state
            * - Prepares for user interaction
            *
            * @example
@@ -274,8 +267,6 @@ export const useStore = create<RootState>()(
               );
               Object.assign(state.tablebase, initialTablebaseState, preservedTablebaseActions);
 
-              // Progress slice - merge initial state
-              Object.assign(state.progress, initialProgressState);
 
               // UI slice - merge initial state  
               Object.assign(state.ui, initialUIState);
