@@ -221,7 +221,7 @@ export const useDerivedProgress = (userId: string | null = null): { dueCardCount
       userId,
       cardCount: allCards.length,
       cardIds: allCards.map(c => c.id).sort(), // Sorted for consistency
-      timestamp: Math.floor(now / (5 * 60 * 1000)) * (5 * 60 * 1000) // 5-minute buckets
+      timestamp: Math.floor(now / TIME_BUCKETS_MS.FIVE_MINUTES) * TIME_BUCKETS_MS.FIVE_MINUTES // 5-minute buckets
     });
 
     // Try to get cached result

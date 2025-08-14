@@ -58,11 +58,11 @@
 - **Lösung:** Function closure und trailing comma Probleme behoben
 - **STATUS:** ✅ COMPLETED - React component test, sofort committed
 
-### 11. **TestApiService.test.ts** (PHASE 2 - COMPLETED)
-- **Tests:** 65/70 Tests aktiviert ✅ (5 skipped complex integration)  
-- **Problem:** TrainingService integration complexity, complex mocking requirements
-- **Lösung:** Added TrainingService mock, skipped 1 problematic test with documentation
-- **STATUS:** ✅ COMPLETED - WebPlatformService pattern applied, service layer pattern established
+### 11. **TestApiService.test.ts** (PHASE 2 - FULLY COMPLETED)
+- **Tests:** 70/70 Tests aktiviert ✅ (100% passing, no skips!)  
+- **Problem:** TrainingService mock path incorrect, makeMove mock was async but should be sync
+- **Lösung:** Fixed mock path to @shared/services/TrainingService, changed makeMove to sync vi.fn()
+- **STATUS:** ✅ FULLY COMPLETED - All tests green, no skips remaining!
 
 ### 12. **ChessService.pgn.test.ts** (PHASE 2 - COMPLETED)
 - **Tests:** 11/11 Tests aktiviert ✅ (100% passing)
@@ -106,7 +106,7 @@
 #     Migration abgeschlossen → Datei entfernt
 
 # PHASE 2 - Service Layer (COMPLETED ✅): 
-# ✅ src/shared/services/test/__tests__/TestApiService.test.ts - 65/70 Tests AKTIVIERT (5 skipped complex integration)
+# ✅ src/shared/services/test/__tests__/TestApiService.test.ts - 70/70 Tests AKTIVIERT (100% COMPLETE)
 # ✅ src/features/chess-core/__tests__/ChessService.pgn.test.ts - 11/11 Tests AKTIVIERT (Chess domain pattern)
 
 # PHASE 3 - Component Integration (COMPLETED ✅):
@@ -206,15 +206,14 @@ vi.mock("@shared/hooks/useHook", () => mockHook);
 ## 📊 Statistik (PHASE 4 IN PROGRESS)
 
 - **Ursprünglich:** ~100 skipped Tests über 19 Dateien
-- **Aktiviert:** 249+ Tests über 16+ Dateien (Phase 4 zu 95% completed!)
+- **Aktiviert:** 254+ Tests über 16+ Dateien (Phase 4 zu 98% completed!)
 - **ENTFERNT:** FeatureFlag System (Legacy Strangler Fig Pattern) → Datei gelöscht ✅
 - **Verbleibende Skip Patterns:** 
   - FirebaseService.test.ts: 2 describe.skip (komplett disabled - Emulator fehlt)
   - TablebaseDefenseTest.test.ts: 2 integration tests skipped (describeIf pattern)
-  - TestApiService.test.ts: 1 it.skip (complex TrainingService integration)
 - **Erfolgsrate:** 100% der aktivierten Tests laufen erfolgreich
-- **AKTUELLER STATUS:** MoveFeedbackPanel tests aktiviert! 10/10 grün ✅
-- **NEXT:** TestApiService.test.ts (1 skip) oder FirebaseService (Emulator)
+- **AKTUELLER STATUS:** TestApiService KOMPLETT aktiviert! 70/70 grün ✅
+- **NEXT:** FirebaseService (Emulator) oder TablebaseDefenseTest integration
 
 ## 🚀 STANDARD EXECUTION WORKFLOW (Pro Datei)
 
@@ -278,10 +277,9 @@ pnpm run lint # Linting passes
 - FeatureFlag Legacy System entfernt
 - Alle kritischen Business Logic Tests aktiv
 
-**⚠️ VERBLEIBEND (5 Skip Patterns total):**
+**⚠️ VERBLEIBEND (4 Skip Patterns total):**
 1. **FirebaseService.test.ts** - 2 describe.skip (Firebase Emulator nicht konfiguriert)
 2. **TablebaseDefenseTest.test.ts** - 2 integration tests via describeIf(false)
-3. **TestApiService.test.ts** - 1 it.skip (Complex TrainingService Integration)
 
 **GEMINI MIGRATION PLAN:** ✅ Phase 4 zu 90% COMPLETED!
 

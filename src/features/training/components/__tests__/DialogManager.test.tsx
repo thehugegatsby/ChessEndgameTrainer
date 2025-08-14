@@ -99,8 +99,8 @@ describe('DialogManager', () => {
       );
 
       expect(screen.getByTestId('move-error-dialog')?.isConnected).toBe(true);
-      expect(screen.getByTestId('wdl-before')).toHaveTextContent('1');
-      expect(screen.getByTestId('wdl-after')).toHaveTextContent('-1');
+      expect(screen.getByTestId('wdl-before').textContent).toBe('1');
+      expect(screen.getByTestId('wdl-after').textContent).toBe('-1');
     });
 
     it('does not render error dialog when errorDialog is null', () => {
@@ -249,8 +249,8 @@ describe('DialogManager', () => {
         />
       );
 
-      expect(screen.getByTestId('wdl-before')).toHaveTextContent('0');
-      expect(screen.getByTestId('wdl-after')).toHaveTextContent('0');
+      expect(screen.getByTestId('wdl-before').textContent).toBe('0');
+      expect(screen.getByTestId('wdl-after').textContent).toBe('0');
     });
   });
 
@@ -271,8 +271,8 @@ describe('DialogManager', () => {
       );
 
       expect(screen.getByTestId('move-success-dialog')?.isConnected).toBe(true);
-      expect(screen.getByTestId('promotion-piece')).toHaveTextContent('Q');
-      expect(screen.getByTestId('move-description')).toHaveTextContent('Excellent move!');
+      expect(screen.getByTestId('promotion-piece').textContent).toBe('Q');
+      expect(screen.getByTestId('move-description').textContent).toBe('Excellent move!');
     });
 
     it('does not render success dialog when successDialog is null', () => {

@@ -11,6 +11,8 @@
 import type { StoreApi } from "../types";
 import type { ValidatedMove } from "@shared/types/chess";
 import { chessService } from "@shared/services/ChessService";
+import { PERCENT } from "@/constants/number.constants";
+import { UI_DURATIONS_MS } from "@/constants/time.constants";
 
 /**
  * Handles training completion logic
@@ -48,12 +50,12 @@ export function handleTrainingCompletion(
     (m: ValidatedMove) => 'isOptimal' in m && (m as Record<string, unknown>)['isOptimal'],
   ).length;
   const totalMoves = userMoves.length;
-  const accuracy = totalMoves > 0 ? (optimalMoves / totalMoves) * 100 : 0;
+  const accuracy = totalMoves > 0 ? (optimalMoves / totalMoves) * PERCENT : 0;
 
   // Consider the final move's optimality for perfect game calculation
   const finalMoveOptimal = isOptimal;
   const isPerfectGame =
-    accuracy === 100 && state.training.mistakeCount === 0 && finalMoveOptimal;
+    accuracy === PERCENT && state.training.mistakeCount === 0 && finalMoveOptimal;
 
   // Determine success based on game outcome
   const gameOutcome = (() => {
@@ -91,7 +93,7 @@ export function handleTrainingCompletion(
           // eslint-disable-next-line no-param-reassign
           stateDraft.training.showCheckmark = false;
         });
-      }, 2000);
+      }, UI_DURATIONS_MS.ENDGAME_FEEDBACK_SHORT);
     } else {
       // Reset streak on failure
       draft.training.currentStreak = 0;

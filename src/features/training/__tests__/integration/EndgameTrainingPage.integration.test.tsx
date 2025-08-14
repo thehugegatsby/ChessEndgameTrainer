@@ -166,7 +166,7 @@ describe("EndgameTrainingPage Integration Tests", () => {
       renderPage();
 
       // Check title
-      expect(screen.getByTestId("position-title")).toHaveTextContent(
+      expect(screen.getByTestId("position-title").textContent).toBe(
         "König gegen König",
       );
 
@@ -182,7 +182,7 @@ describe("EndgameTrainingPage Integration Tests", () => {
       expect(screen.getByText("Grundlegendes Endspiel")?.isConnected).toBe(true);
 
       // Check analysis toggle
-      expect(screen.getByTestId("toggle-analysis")).toHaveTextContent(
+      expect(screen.getByTestId("toggle-analysis").textContent).toBe(
         "Analyse AN",
       );
 
@@ -246,7 +246,7 @@ describe("EndgameTrainingPage Integration Tests", () => {
       renderPage();
 
       // Initially panel should be closed
-      expect(screen.getByTestId("toggle-analysis")).toHaveTextContent(
+      expect(screen.getByTestId("toggle-analysis").textContent).toBe(
         "Analyse AN",
       );
 

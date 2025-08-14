@@ -18,6 +18,8 @@
  * while handling edge cases and special position types.
  */
 
+import { TEXT_LENGTHS } from '@/constants/text.constants';
+
 import { type EndgamePosition } from "@shared/types";
 
 /**
@@ -107,8 +109,8 @@ export function getShortTitle(position: EndgamePosition): string {
   }
 
   // For other long titles, truncate if needed
-  if (formatted.length > 30) {
-    return `${formatted.substring(0, 27)  }...`;
+  if (formatted.length > TEXT_LENGTHS.TITLE_MAX_LENGTH) {
+    return `${formatted.substring(0, TEXT_LENGTHS.SUBTITLE_MAX_LENGTH)  }...`;
   }
 
   return formatted;

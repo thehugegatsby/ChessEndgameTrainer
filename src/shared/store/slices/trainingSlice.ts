@@ -29,6 +29,7 @@ import type { EndgamePosition as BaseEndgamePosition } from "@shared/types/endga
 import type { ValidatedMove } from "@shared/types/chess";
 import type { MoveSuccessDialog } from "@shared/store/orchestrators/handlePlayerMove/move.types";
 import { PERCENTAGE_MULTIPLIERS, ALGORITHM_MULTIPLIERS } from "@shared/constants/multipliers";
+import { PERCENT } from "@/constants/number.constants";
 
 // Re-export types for external use
 export type { TrainingState, TrainingActions } from "./types";
@@ -982,7 +983,7 @@ export const trainingSelectors = {
    */
   selectAccuracy: (state: TrainingSlice) => {
     const penalties = state.mistakeCount + state.hintsUsed * PERCENTAGE_MULTIPLIERS.FIFTY_PERCENT;
-    return Math.max(0, 100 - penalties * ALGORITHM_MULTIPLIERS.DEFAULT_BATCH_SIZE);
+    return Math.max(0, PERCENT - penalties * ALGORITHM_MULTIPLIERS.DEFAULT_BATCH_SIZE);
   },
 
   /**

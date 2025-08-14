@@ -10,6 +10,7 @@ import type { TablebaseMove } from "@shared/types/tablebase";
 import { ErrorService } from "@shared/services/ErrorService";
 import { handleTrainingCompletion } from "./move.completion";
 import { getLogger } from "@shared/services/logging";
+import { ALGORITHM_MULTIPLIERS } from "@shared/constants/multipliers";
 
 const OPPONENT_TURN_DELAY = 500; // ms
 
@@ -139,7 +140,7 @@ class OpponentTurnManager {
       // We need all moves to properly evaluate defense in losing positions
       // Using orchestrator service wrapper for clean non-hook access
       const { orchestratorTablebase } = await import("@shared/services/orchestrator/OrchestratorServices");
-      const topMoves = await orchestratorTablebase.getTopMoves(currentFen, 10);
+      const topMoves = await orchestratorTablebase.getTopMoves(currentFen, ALGORITHM_MULTIPLIERS.DEFAULT_BATCH_SIZE);
 
 
       if (

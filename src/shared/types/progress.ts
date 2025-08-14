@@ -21,6 +21,7 @@
 
 import type { CardProgress } from '@shared/store/slices/types';
 import { getLogger } from '@shared/services/logging/Logger';
+import { PERCENT } from '@/constants/number.constants';
 
 const logger = getLogger().setContext('ProgressTypes');
 
@@ -153,7 +154,7 @@ export function filterDueCards(
   logger.debug('Filtered due cards', { 
     totalCards: cards.length, 
     dueCards: dueCards.length,
-    percentage: Math.round((dueCards.length / cards.length) * 100) || 0
+    percentage: Math.round((dueCards.length / cards.length) * PERCENT) || 0
   });
   
   return dueCards;
@@ -237,7 +238,7 @@ export function calculateDueCardsStats(
 ): DueCardsStats {
   const totalCards = allCards.length;
   const dueCount = dueCards.length;
-  const duePercentage = totalCards > 0 ? Math.round((dueCount / totalCards) * 100) : 0;
+  const duePercentage = totalCards > 0 ? Math.round((dueCount / totalCards) * PERCENT) : 0;
   
   // Find next due card
   const futureDueCards = allCards

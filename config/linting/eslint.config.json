@@ -212,6 +212,28 @@
     },
     {
       "files": [
+        "**/constants/**/*.ts",
+        "**/constants/**/*.js",
+        "src/constants/**/*.ts",
+        "**/*.config.js",
+        "**/*.config.ts",
+        "**/*.config.mjs",
+        "**/*.config.cjs",
+        ".eslintrc.js",
+        ".eslintrc.*.js",
+        "eslint.config.js",
+        "next.config.js",
+        "playwright.config.ts",
+        "vitest.config.ts",
+        "tailwind.config.ts",
+        "postcss.config.js"
+      ],
+      "rules": {
+        "no-magic-numbers": "off"
+      }
+    },
+    {
+      "files": [
         "pages/**/*.tsx",
         "pages/**/*.ts",
         "app/**/*.tsx",
