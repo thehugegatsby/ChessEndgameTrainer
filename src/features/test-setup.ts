@@ -86,12 +86,19 @@ class MockIntersectionObserver {
 
 global.IntersectionObserver = MockIntersectionObserver as any;
 
-// Mock ResizeObserver for components that use it
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
+// Mock ResizeObserver for components that use it (including react-chessboard)
+class MockResizeObserver {
+  constructor(callback) {
+    // Store callback if needed for advanced testing
+  }
+  
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
+  takeRecords = vi.fn(() => []);
+}
+
+global.ResizeObserver = MockResizeObserver as any;
 
 // --- Console Management ---
 // Suppress console errors in tests unless explicitly testing error cases
