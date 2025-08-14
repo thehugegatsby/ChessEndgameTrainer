@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 /**
  * Comprehensive test suite for WDL perspective conversion in MoveQualityEvaluator
  * These tests verify correct perspective handling and cover all major outcome change scenarios

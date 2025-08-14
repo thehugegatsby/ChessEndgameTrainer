@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 /**
  * @file Comprehensive unit tests for chess-adapter
  * @module tests/unit/infrastructure/chess-adapter

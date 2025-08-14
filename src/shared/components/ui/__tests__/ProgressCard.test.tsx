@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 /**
  * @file Unit tests for ProgressCard component
  * @module tests/unit/ui/components/ProgressCard.test

@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 /**
  * @file Tests for TestApiService - Clean Store-Based Architecture
  * @description Test coverage for E2E test API service with store interactions only

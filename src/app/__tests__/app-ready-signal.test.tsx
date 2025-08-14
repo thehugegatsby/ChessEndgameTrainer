@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 /**
  * @file Unit test for app-ready signal in App Router providers
  * @description Tests that the app-ready attribute is correctly set based on pathname and engine status

@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 /**
  * @fileoverview Unit tests for AppLayout component
  * @description Tests main layout component with header, menu, and navigation

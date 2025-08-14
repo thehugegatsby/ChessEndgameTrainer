@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 /**
  * @file Tests for pawn promotion auto-win feature
  * @module tests/unit/store/orchestrators/handlePlayerMove.promotion
