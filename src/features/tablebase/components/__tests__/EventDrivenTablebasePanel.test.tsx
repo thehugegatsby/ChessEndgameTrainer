@@ -84,9 +84,9 @@ describe('EventDrivenTablebasePanel', () => {
       </Wrapper>
     );
 
-    expect(screen.getByText('Tablebase Analysis')).toBeInTheDocument();
-    expect(screen.getByText('WIN')).toBeInTheDocument();
-    expect(screen.getByText('Best Moves')).toBeInTheDocument();
+    expect(screen.getByText('Tablebase Analysis')?.isConnected).toBe(true);
+    expect(screen.getByText('WIN')?.isConnected).toBe(true);
+    expect(screen.getByText('Best Moves')?.isConnected).toBe(true);
   });
 
   it('should display evaluation outcome correctly', () => {
@@ -102,7 +102,7 @@ describe('EventDrivenTablebasePanel', () => {
     );
 
     const outcomeElement = screen.getByText('WIN');
-    expect(outcomeElement).toHaveClass('tablebase-evaluation__outcome--win');
+    expect(outcomeElement.classList.contains('tablebase-evaluation__outcome--win')).toBe(true);
   });
 
   it('should display moves with correct outcomes', () => {
@@ -118,14 +118,14 @@ describe('EventDrivenTablebasePanel', () => {
       </Wrapper>
     );
 
-    expect(screen.getByText('e4')).toBeInTheDocument();
-    expect(screen.getByText('d4')).toBeInTheDocument();
+    expect(screen.getByText('e4')?.isConnected).toBe(true);
+    expect(screen.getByText('d4')?.isConnected).toBe(true);
     
     const winMove = screen.getByText('+');
     const drawMove = screen.getByText('=');
     
-    expect(winMove).toBeInTheDocument();
-    expect(drawMove).toBeInTheDocument();
+    expect(winMove?.isConnected).toBe(true);
+    expect(drawMove?.isConnected).toBe(true);
   });
 
   it('should call onMoveSelect when move is clicked', () => {
@@ -207,7 +207,7 @@ describe('EventDrivenTablebasePanel', () => {
       </Wrapper>
     );
 
-    expect(screen.queryByText('Tablebase Analysis')).not.toBeInTheDocument();
+    expect(screen.queryByText('Tablebase Analysis')).toBeNull();
   });
 
   it('should show loading state', () => {
@@ -231,8 +231,8 @@ describe('EventDrivenTablebasePanel', () => {
       </Wrapper>
     );
 
-    expect(screen.getByText('Loading analysis...')).toBeInTheDocument();
-    expect(screen.getByText('Tablebase Analysis')).toBeInTheDocument();
+    expect(screen.getByText('Loading analysis...')?.isConnected).toBe(true);
+    expect(screen.getByText('Tablebase Analysis')?.isConnected).toBe(true);
   });
 
   it('should show error state', () => {
@@ -259,6 +259,6 @@ describe('EventDrivenTablebasePanel', () => {
       </Wrapper>
     );
 
-    expect(screen.getByText('Position not in tablebase')).toBeInTheDocument();
+    expect(screen.getByText('Position not in tablebase')?.isConnected).toBe(true);
   });
 });

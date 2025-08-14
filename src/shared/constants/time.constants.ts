@@ -6,7 +6,12 @@
  * Provides a clear, readable, and consistent way to define time durations.
  * Base units are defined and then composed into common durations.
  * All values are in milliseconds for JavaScript compatibility.
- * 
+ */
+
+/* eslint-disable no-magic-numbers */
+// Time unit calculations use fundamental temporal constants (60 seconds/minute, 24 hours/day, etc.)
+
+/**
  * @example
  * ```typescript
  * import { TIME_UNITS } from '@/shared/constants/time.constants';

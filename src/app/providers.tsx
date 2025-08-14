@@ -11,30 +11,25 @@ import { getLogger } from "@shared/services/logging";
 import { setupE2ETablebaseMocks } from "@shared/services/TablebaseService.e2e.mocks";
 import { useStoreHydration } from "@shared/hooks/useHydration";
 import { CommandPalette, useCommandPalette, useChessHotkeys } from "@shared/components/ui/CommandPalette";
+import { DURATIONS } from "@shared/constants/time.constants";
+import { HttpStatus } from "@shared/constants/http";
 
 // Query client configuration constants
-const SECONDS_TO_MS = 1000;
-const MINUTE_IN_SECONDS = 60;
-const MINUTES_TO_MS = MINUTE_IN_SECONDS * SECONDS_TO_MS;
-const STALE_TIME_MINUTES = 5;
-const GC_TIME_MINUTES = 30;
 const MAX_RETRY_COUNT = 3;
-const HTTP_CLIENT_ERROR_MIN = 400;
-const HTTP_CLIENT_ERROR_MAX = 500;
 
 // Create a client instance
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       // Tablebase data is immutable, so cache it for a long time
-      staleTime: STALE_TIME_MINUTES * MINUTES_TO_MS, // 5 minutes
-      gcTime: GC_TIME_MINUTES * MINUTES_TO_MS, // 30 minutes (formerly cacheTime)
+      staleTime: DURATIONS.CACHE_TTL.MEDIUM, // 5 minutes
+      gcTime: DURATIONS.CACHE_TTL.LONG, // 30 minutes (formerly cacheTime)
       refetchOnWindowFocus: false,
       retry: (failureCount, error: unknown) => {
         // Don't retry on 4xx errors (client errors)
         if (error && typeof error === 'object' && 'status' in error) {
           const status = (error as { status: number }).status;
-          if (status >= HTTP_CLIENT_ERROR_MIN && status < HTTP_CLIENT_ERROR_MAX) {
+          if (status >= HttpStatus.BAD_REQUEST && status < HttpStatus.INTERNAL_SERVER_ERROR) {
             return false;
           }
         }

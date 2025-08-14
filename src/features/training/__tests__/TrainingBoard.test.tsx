@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import "@testing-library/jest-dom";
+// @testing-library/jest-dom removed - using Vitest native matchers
 import { TrainingBoard } from "@shared/components/training/TrainingBoard/TrainingBoard";
 import { StoreProvider } from "@shared/store/StoreContext";
 import { useTrainingStore } from "@shared/store/hooks/useTrainingStore";
@@ -262,13 +262,13 @@ describe("TrainingBoard", () => {
 
       // Check wrapper exists
       const wrapper = screen.getByTestId("training-board");
-      expect(wrapper).toBeInTheDocument();
-      expect(wrapper).toHaveAttribute("data-fen", position.fen);
+      expect(wrapper?.isConnected).toBe(true);
+      expect(wrapper.getAttribute("data-fen")).toBe(position.fen);
 
       // Check mock chessboard exists
       const chessboard = screen.getByTestId("mock-chessboard");
-      expect(chessboard).toBeInTheDocument();
-      expect(chessboard).toHaveAttribute("data-fen", position.fen);
+      expect(chessboard?.isConnected).toBe(true);
+      expect(chessboard.getAttribute("data-fen")).toBe(position.fen);
     });
 
     it("renders with draggable pieces when game is not finished", () => {
@@ -280,7 +280,7 @@ describe("TrainingBoard", () => {
       );
 
       const chessboard = screen.getByTestId("mock-chessboard");
-      expect(chessboard).toHaveAttribute("data-draggable", "true");
+      expect(chessboard.getAttribute("data-draggable")).toBe("true");
     });
 
     it("shows loading state when training position is not loaded", () => {
@@ -295,7 +295,7 @@ describe("TrainingBoard", () => {
       // The wrapper might still be rendered, but chessboard should not be
       // or we check for a loading indicator
       // Since the actual component behavior needs to be checked, we'll adjust this
-      expect(screen.queryByTestId("mock-chessboard")).toBeInTheDocument();
+      expect(screen.queryByTestId("mock-chessboard")?.isConnected).toBe(true);
       // But the training is not active without a position
     });
   });
@@ -387,7 +387,7 @@ describe("TrainingBoard", () => {
       );
 
       const moveTrigger = screen.getByTestId("piece-drop-trigger");
-      expect(moveTrigger).toBeDisabled();
+      expect(moveTrigger.disabled).toBe(true);
     });
   });
 
@@ -474,7 +474,7 @@ describe("TrainingBoard", () => {
       );
 
       const wrapper = screen.getByTestId("training-board");
-      expect(wrapper).toHaveAttribute("data-fen", newFen);
+      expect(wrapper.getAttribute("data-fen")).toBe(newFen);
     });
 
     it("shows last move in game state", () => {
@@ -490,8 +490,8 @@ describe("TrainingBoard", () => {
       const chessboard = screen.getByTestId("mock-chessboard");
 
       // Both should be present
-      expect(wrapper).toBeInTheDocument();
-      expect(chessboard).toBeInTheDocument();
+      expect(wrapper?.isConnected).toBe(true);
+      expect(chessboard?.isConnected).toBe(true);
     });
   });
 
@@ -516,7 +516,7 @@ describe("TrainingBoard", () => {
 
       const wrapper = screen.getByTestId("training-board");
       // Check that the analysis status is reflected in data attribute
-      expect(wrapper).toHaveAttribute("data-analysis-status", "loading");
+      expect(wrapper.getAttribute("data-analysis-status")).toBe("loading");
     });
 
     it("handles tablebase unavailable state", () => {
@@ -533,7 +533,7 @@ describe("TrainingBoard", () => {
       );
 
       // Should still render board even if tablebase is unavailable
-      expect(screen.getByTestId("training-board")).toBeInTheDocument();
+      expect(screen.getByTestId("training-board")?.isConnected).toBe(true);
     });
   });
 
@@ -555,7 +555,7 @@ describe("TrainingBoard", () => {
       await waitFor(() => {
         expect(mockMakeMove).toHaveBeenCalled();
         // The component should still be rendered despite the error
-        expect(screen.getByTestId("training-board")).toBeInTheDocument();
+        expect(screen.getByTestId("training-board")?.isConnected).toBe(true);
       });
     });
 
@@ -578,8 +578,8 @@ describe("TrainingBoard", () => {
       );
 
       // Should render despite analysis error
-      expect(screen.getByTestId("training-board")).toBeInTheDocument();
-      expect(screen.getByTestId("mock-chessboard")).toBeInTheDocument();
+      expect(screen.getByTestId("training-board")?.isConnected).toBe(true);
+      expect(screen.getByTestId("mock-chessboard")?.isConnected).toBe(true);
     });
   });
 
@@ -596,8 +596,8 @@ describe("TrainingBoard", () => {
       const chessboard = screen.getByTestId("mock-chessboard");
 
       // Both components should be rendered and accessible
-      expect(wrapper).toBeInTheDocument();
-      expect(chessboard).toBeInTheDocument();
+      expect(wrapper?.isConnected).toBe(true);
+      expect(chessboard?.isConnected).toBe(true);
     });
 
     it("provides proper data attributes for testing", () => {
@@ -611,9 +611,9 @@ describe("TrainingBoard", () => {
       const wrapper = screen.getByTestId("training-board");
 
       // Check data attributes used for testing and debugging
-      expect(wrapper).toHaveAttribute("data-testid", "training-board");
-      expect(wrapper).toHaveAttribute("data-fen");
-      expect(wrapper).toHaveAttribute("data-analysis-status");
+      expect(wrapper.getAttribute("data-testid")).toBe("training-board");
+      expect(wrapper.getAttribute("data-fen")).toBeTruthy();
+      expect(wrapper.getAttribute("data-analysis-status")).toBeTruthy();
     });
   });
 

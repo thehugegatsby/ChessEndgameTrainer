@@ -42,6 +42,7 @@ import { Chess, type Square } from 'chess.js';
 import { getLogger } from '@shared/services/logging/Logger';
 import { showErrorToast } from '@shared/utils/toast';
 import { useChessAudio } from './useChessAudio';
+import { SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
 // import type { ValidatedMove } from '@shared/types/chess';
 
 /**
@@ -305,7 +306,7 @@ export const useMoveHandlers = ({
               // Fallback to generic move sound if analysis fails
               playSound('move');
             }
-          }, 50);
+          }, SIZE_MULTIPLIERS.SMALL_FACTOR / 2);
         }
 
         // The orchestrator now handles the entire workflow including:

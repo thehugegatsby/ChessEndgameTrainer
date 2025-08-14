@@ -22,93 +22,93 @@ describe('MoveSuccessDialog', () => {
       render(<MoveSuccessDialog {...defaultProps} />);
       
       // Check for German success message header
-      expect(screen.getByText('Erfolg!')).toBeInTheDocument();
+      expect(screen.getByText('Erfolg!')?.isConnected).toBe(true);
     });
 
     it('does not render when closed', () => {
       render(<MoveSuccessDialog {...defaultProps} isOpen={false} />);
       
-      expect(screen.queryByText('Erfolg!')).not.toBeInTheDocument();
+      expect(screen.queryByText('Erfolg!')?.isConnected).not.toBe(true);
     });
 
     it('displays the move description', () => {
       render(<MoveSuccessDialog {...defaultProps} />);
       
-      expect(screen.getByText(defaultProps.moveDescription)).toBeInTheDocument();
-      expect(screen.getByText('Gewinnzug:')).toBeInTheDocument();
+      expect(screen.getByText(defaultProps.moveDescription)?.isConnected).toBe(true);
+      expect(screen.getByText('Gewinnzug:')?.isConnected).toBe(true);
     });
 
     it('hides move description when not provided', () => {
       render(<MoveSuccessDialog {...defaultProps} moveDescription={undefined} />);
       
-      expect(screen.queryByText('Gewinnzug:')).not.toBeInTheDocument();
+      expect(screen.queryByText('Gewinnzug:')?.isConnected).not.toBe(true);
     });
 
     it('shows correct message for Dame promotion', () => {
       render(<MoveSuccessDialog {...defaultProps} promotionPiece="Dame" />);
       
-      expect(screen.getByText('Ausgezeichnet! Umwandlung in Dame führt zum Sieg!')).toBeInTheDocument();
+      expect(screen.getByText('Ausgezeichnet! Umwandlung in Dame führt zum Sieg!')?.isConnected).toBe(true);
     });
 
     it('shows correct message for Queen promotion (English)', () => {
       render(<MoveSuccessDialog {...defaultProps} promotionPiece="Queen" />);
       
-      expect(screen.getByText('Ausgezeichnet! Umwandlung in Queen führt zum Sieg!')).toBeInTheDocument();
+      expect(screen.getByText('Ausgezeichnet! Umwandlung in Queen führt zum Sieg!')?.isConnected).toBe(true);
     });
 
     it('shows correct message for Turm promotion', () => {
       render(<MoveSuccessDialog {...defaultProps} promotionPiece="Turm" />);
       
-      expect(screen.getByText('Großartig! Umwandlung in Turm führt zum Sieg!')).toBeInTheDocument();
+      expect(screen.getByText('Großartig! Umwandlung in Turm führt zum Sieg!')?.isConnected).toBe(true);
     });
 
     it('shows correct message for Rook promotion (English)', () => {
       render(<MoveSuccessDialog {...defaultProps} promotionPiece="Rook" />);
       
-      expect(screen.getByText('Großartig! Umwandlung in Rook führt zum Sieg!')).toBeInTheDocument();
+      expect(screen.getByText('Großartig! Umwandlung in Rook führt zum Sieg!')?.isConnected).toBe(true);
     });
 
     it('shows correct message for Läufer promotion', () => {
       render(<MoveSuccessDialog {...defaultProps} promotionPiece="Läufer" />);
       
-      expect(screen.getByText('Klug! Umwandlung in Läufer führt zum Sieg!')).toBeInTheDocument();
+      expect(screen.getByText('Klug! Umwandlung in Läufer führt zum Sieg!')?.isConnected).toBe(true);
     });
 
     it('shows correct message for Bishop promotion (English)', () => {
       render(<MoveSuccessDialog {...defaultProps} promotionPiece="Bishop" />);
       
-      expect(screen.getByText('Klug! Umwandlung in Bishop führt zum Sieg!')).toBeInTheDocument();
+      expect(screen.getByText('Klug! Umwandlung in Bishop führt zum Sieg!')?.isConnected).toBe(true);
     });
 
     it('shows correct message for Springer promotion', () => {
       render(<MoveSuccessDialog {...defaultProps} promotionPiece="Springer" />);
       
-      expect(screen.getByText('Clever! Umwandlung in Springer führt zum Sieg!')).toBeInTheDocument();
+      expect(screen.getByText('Clever! Umwandlung in Springer führt zum Sieg!')?.isConnected).toBe(true);
     });
 
     it('shows correct message for Knight promotion (English)', () => {
       render(<MoveSuccessDialog {...defaultProps} promotionPiece="Knight" />);
       
-      expect(screen.getByText('Clever! Umwandlung in Knight führt zum Sieg!')).toBeInTheDocument();
+      expect(screen.getByText('Clever! Umwandlung in Knight führt zum Sieg!')?.isConnected).toBe(true);
     });
 
     it('shows default message for unknown promotion piece', () => {
       render(<MoveSuccessDialog {...defaultProps} promotionPiece="Unknown" />);
       
-      expect(screen.getByText('Perfekt! Umwandlung in Unknown führt zum Sieg!')).toBeInTheDocument();
+      expect(screen.getByText('Perfekt! Umwandlung in Unknown führt zum Sieg!')?.isConnected).toBe(true);
     });
 
     it('shows default message when no promotion piece provided', () => {
       render(<MoveSuccessDialog {...defaultProps} promotionPiece={undefined} />);
       
-      expect(screen.getByText('Glückwunsch! Die Umwandlung führt zum Sieg!')).toBeInTheDocument();
+      expect(screen.getByText('Glückwunsch! Die Umwandlung führt zum Sieg!')?.isConnected).toBe(true);
     });
 
     it('handles case-insensitive promotion piece names', () => {
       render(<MoveSuccessDialog {...defaultProps} promotionPiece="DAME" />);
       
       // Should still match despite uppercase
-      expect(screen.getByText('Ausgezeichnet! Umwandlung in DAME führt zum Sieg!')).toBeInTheDocument();
+      expect(screen.getByText('Ausgezeichnet! Umwandlung in DAME führt zum Sieg!')?.isConnected).toBe(true);
     });
   });
 
@@ -174,7 +174,7 @@ describe('MoveSuccessDialog', () => {
       render(<MoveSuccessDialog {...defaultProps} />);
       
       const heading = screen.getByRole('heading', { name: 'Erfolg!' });
-      expect(heading).toBeInTheDocument();
+      expect(heading?.isConnected).toBe(true);
     });
 
     it('has interactive buttons', () => {
@@ -186,16 +186,16 @@ describe('MoveSuccessDialog', () => {
       const verstanden = screen.getByRole('button', { name: 'Verstanden' });
       const weiter = screen.getByRole('button', { name: 'Weiter' });
       
-      expect(verstanden).toBeInTheDocument();
-      expect(weiter).toBeInTheDocument();
+      expect(verstanden?.isConnected).toBe(true);
+      expect(weiter?.isConnected).toBe(true);
     });
 
     it('renders semantic structure', () => {
       render(<MoveSuccessDialog {...defaultProps} />);
       
       // Check for proper text structure
-      expect(screen.getByText('Erfolg!')).toBeInTheDocument();
-      expect(screen.getByText(/Umwandlung/)).toBeInTheDocument();
+      expect(screen.getByText('Erfolg!')?.isConnected).toBe(true);
+      expect(screen.getByText(/Umwandlung/)?.isConnected).toBe(true);
     });
   });
 
@@ -209,18 +209,18 @@ describe('MoveSuccessDialog', () => {
       
       // Check the checkmark circle path is present
       const pathElement = document.querySelector('path[d*="M9 12l2 2 4-4m6 2a9 9 0"]');
-      expect(pathElement).toBeInTheDocument();
+      expect(pathElement?.isConnected).toBe(true);
     });
 
     it('has proper styling classes for success theme', () => {
       render(<MoveSuccessDialog {...defaultProps} />);
       
       const backdrop = screen.getByText('Erfolg!').closest('.fixed');
-      expect(backdrop).toHaveClass('fixed', 'inset-0', 'bg-black', 'bg-opacity-80');
+      expect(backdrop.classList.contains('fixed', 'inset-0', 'bg-black', 'bg-opacity-80')).toBe(true);
       
       // Check for green gradient (success theme)
       const gradientContainer = document.querySelector('.bg-gradient-to-br.from-green-500.to-emerald-600');
-      expect(gradientContainer).toBeInTheDocument();
+      expect(gradientContainer?.isConnected).toBe(true);
     });
   });
 
@@ -229,14 +229,14 @@ describe('MoveSuccessDialog', () => {
       render(<MoveSuccessDialog {...defaultProps} promotionPiece="" />);
       
       // Should show default message when promotion piece is empty string
-      expect(screen.getByText('Glückwunsch! Die Umwandlung führt zum Sieg!')).toBeInTheDocument();
+      expect(screen.getByText('Glückwunsch! Die Umwandlung führt zum Sieg!')?.isConnected).toBe(true);
     });
 
     it('handles empty move description', () => {
       render(<MoveSuccessDialog {...defaultProps} moveDescription="" />);
       
       // Should not display the move description section
-      expect(screen.queryByText('Gewinnzug:')).not.toBeInTheDocument();
+      expect(screen.queryByText('Gewinnzug:')?.isConnected).not.toBe(true);
     });
 
     it('handles all props being undefined', () => {
@@ -250,8 +250,8 @@ describe('MoveSuccessDialog', () => {
         />
       );
       
-      expect(screen.getByText('Erfolg!')).toBeInTheDocument();
-      expect(screen.getByText('Glückwunsch! Die Umwandlung führt zum Sieg!')).toBeInTheDocument();
+      expect(screen.getByText('Erfolg!')?.isConnected).toBe(true);
+      expect(screen.getByText('Glückwunsch! Die Umwandlung führt zum Sieg!')?.isConnected).toBe(true);
     });
 
     it('maintains button functionality with minimal props', () => {

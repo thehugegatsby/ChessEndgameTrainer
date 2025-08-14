@@ -23,6 +23,7 @@
  */
 
 import React from "react";
+import { CHESS_EVALUATION } from '@shared/constants/multipliers';
 
 /**
  * Props for the MoveErrorDialog component
@@ -148,9 +149,9 @@ export const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
   const getMessage = (): string => {
     const formattedPlayedMove = getFormattedMove(playedMove, true);
     
-    if (wdlBefore === 2 && wdlAfter < 2) {
+    if (wdlBefore === CHESS_EVALUATION.WDL_WIN && wdlAfter < CHESS_EVALUATION.WDL_WIN) {
       return `${formattedPlayedMove} verdirbt den Gewinn!`;
-    } else if (wdlBefore === 0 && wdlAfter === -2) {
+    } else if (wdlBefore === CHESS_EVALUATION.WDL_DRAW && wdlAfter === CHESS_EVALUATION.WDL_LOSS) {
       return `${formattedPlayedMove} führt zum Verlust!`;
     } else if (wdlBefore > wdlAfter) {
       return `${formattedPlayedMove} verschlechtert die Stellung!`;

@@ -7,6 +7,9 @@
  * for API responses and error handling.
  */
 
+/* eslint-disable no-magic-numbers */
+// HTTP Status codes are international standards (RFC 7231), not "magic numbers"
+
 /**
  * HTTP Status codes enum for type-safe status code handling
  */
@@ -41,19 +44,26 @@ export enum HttpStatus {
 }
 
 /**
+ * HTTP Status Code Range Boundaries
+ * For use in range checking helper functions
+ */
+export const HTTP_REDIRECTION_START = 300;
+export const HTTP_STATUS_MAX_EXCLUSIVE = 600;
+
+/**
  * Helper to check if status code indicates success
  */
 export const isSuccessStatus = (status: number): boolean =>
-  status >= 200 && status < 300;
+  status >= HttpStatus.OK && status < HTTP_REDIRECTION_START;
 
 /**
  * Helper to check if status code indicates client error
  */
 export const isClientErrorStatus = (status: number): boolean =>
-  status >= 400 && status < 500;
+  status >= HttpStatus.BAD_REQUEST && status < HttpStatus.INTERNAL_SERVER_ERROR;
 
 /**
  * Helper to check if status code indicates server error
  */
 export const isServerErrorStatus = (status: number): boolean =>
-  status >= 500 && status < 600;
+  status >= HttpStatus.INTERNAL_SERVER_ERROR && status < HTTP_STATUS_MAX_EXCLUSIVE;

@@ -23,6 +23,9 @@ import { supermemo } from 'supermemo';
 import type { CardProgress } from '@shared/store/slices/types';
 import { getLogger } from '@shared/services/logging/Logger';
 import { filterDueCards, type DueCard } from '@shared/types/progress';
+import { ALGORITHM_MULTIPLIERS } from '@shared/constants/multipliers';
+import { TIME_UNITS } from '@shared/constants/time.constants';
+import { SPACED_REPETITION, SUCCESS_METRICS } from '@shared/constants/progress.constants';
 
 const logger = getLogger().setContext('SpacedRepetitionService');
 
@@ -104,11 +107,11 @@ export function updateCardProgress(
   
   // Handle potential NaN from supermemo library
   const interval = isNaN(result['interval']) ? 1 : result['interval'];
-  const efactor = isNaN(result['efactor']) ? 2.5 : result['efactor'];
+  const efactor = isNaN(result['efactor']) ? ALGORITHM_MULTIPLIERS.SUPERMEMO_MAX_EFACTOR : result['efactor'];
   const repetition = isNaN(result['repetition']) ? 0 : result['repetition'];
 
   // Calculate next review date (interval is in days)
-  const nextReviewAt = now + (interval * 86400000); // Convert days to milliseconds
+  const nextReviewAt = now + (interval * TIME_UNITS.DAY); // Convert days to milliseconds
 
   const updatedCard: CardProgress = {
     ...card,
@@ -199,7 +202,7 @@ export function createNewCard(
     lastReviewedAt: 0,
     interval: 0,
     repetition: 0,
-    efactor: 2.5, // SM-2 default ease factor
+    efactor: SPACED_REPETITION.SUCCESS_INTERVAL_MULTIPLIER, // SM-2 default ease factor
     lapses: 0,
   };
 }
@@ -219,7 +222,7 @@ export function resetCardProgress(
     lastReviewedAt: 0,
     interval: 0,
     repetition: 0,
-    efactor: 2.5,
+    efactor: SPACED_REPETITION.SUCCESS_INTERVAL_MULTIPLIER,
     lapses: 0,
     ...base, // ID and any overrides
   };
@@ -270,10 +273,10 @@ export function calculateCardStatistics(
 } {
   const dueCards = getDueCards(cards, now);
   const totalCards = cards.length;
-  const masteredCards = cards.filter(c => c.interval >= 21).length; // 3+ weeks
-  const learningCards = cards.filter(c => c.interval > 0 && c.interval < 21).length;
+  const masteredCards = cards.filter(c => c.interval >= SUCCESS_METRICS.LEARNED_INTERVAL_DAYS).length; // 3+ weeks
+  const learningCards = cards.filter(c => c.interval > 0 && c.interval < SUCCESS_METRICS.LEARNED_INTERVAL_DAYS).length;
   const newCards = cards.filter(c => c.repetition === 0).length;
-  const averageEfactor = cards.reduce((sum, c) => sum + c.efactor, 0) / totalCards || 2.5;
+  const averageEfactor = cards.reduce((sum, c) => sum + c.efactor, 0) / totalCards || SPACED_REPETITION.SUCCESS_INTERVAL_MULTIPLIER;
   const totalLapses = cards.reduce((sum, c) => sum + c.lapses, 0);
 
   return {
@@ -284,7 +287,7 @@ export function calculateCardStatistics(
     newCards,
     averageEfactor,
     totalLapses,
-    duePercentage: totalCards > 0 ? (dueCards.length / totalCards) * 100 : 0,
+    duePercentage: totalCards > 0 ? (dueCards.length / totalCards) * SPACED_REPETITION.PERCENTAGE_BASE : 0,
   };
 }
 

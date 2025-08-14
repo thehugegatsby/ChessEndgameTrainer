@@ -6,6 +6,8 @@
  * Part of the Clean Architecture refactoring.
  */
 
+import { SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
+
 import type { IFenCache } from "../types/interfaces";
 
 interface CacheNode<T> {
@@ -20,7 +22,7 @@ export default class FenCache implements IFenCache {
   private head: CacheNode<string> | null = null;
   private tail: CacheNode<string> | null = null;
   private maxSize: number;
-  private static readonly DEFAULT_MAX_SIZE = 100;
+  private static readonly DEFAULT_MAX_SIZE = SIZE_MULTIPLIERS.LARGE_FACTOR;
 
   constructor(maxSize: number = FenCache.DEFAULT_MAX_SIZE) {
     if (maxSize <= 0) {

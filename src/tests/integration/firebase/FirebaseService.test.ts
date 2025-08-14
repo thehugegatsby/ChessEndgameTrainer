@@ -6,7 +6,6 @@ import { vi, describe, it } from 'vitest';
  * Tests for Issue #83: Firebase service integration test infrastructure
  * Covers User Progress CRUD, Authentication, Real-time updates, and concurrency
  * 
- * @jest-environment node
  */
 
 describe.skip('FirebaseService', () => {

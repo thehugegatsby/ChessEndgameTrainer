@@ -49,35 +49,35 @@ describe("ProgressCard Component", () => {
     it("should render basic card information", () => {
       render(<ProgressCard {...defaultProps} />);
 
-      expect(screen.getByText("King and Queen vs King")).toBeInTheDocument();
+      expect(screen.getByText("King and Queen vs King")?.isConnected).toBe(true);
       expect(
-        screen.getByText("Learn basic checkmate patterns"),
-      ).toBeInTheDocument();
+        screen.getByText("Learn basic checkmate patterns")?.isConnected,
+      ).toBe(true);
     });
 
     it("should display correct progress stats", () => {
       render(<ProgressCard {...defaultProps} />);
 
       // Progress fraction
-      expect(screen.getByText("12/20")).toBeInTheDocument();
+      expect(screen.getByText("12/20")?.isConnected).toBe(true);
 
       // Progress percentage (60%)
-      expect(screen.getByText("60% abgeschlossen")).toBeInTheDocument();
+      expect(screen.getByText("60% abgeschlossen")?.isConnected).toBe(true);
 
       // Success rate (75%)
-      expect(screen.getByText("75%")).toBeInTheDocument();
-      expect(screen.getByText("Erfolgsrate")).toBeInTheDocument();
+      expect(screen.getByText("75%")?.isConnected).toBe(true);
+      expect(screen.getByText("Erfolgsrate")?.isConnected).toBe(true);
 
       // Due today
-      expect(screen.getByText("3")).toBeInTheDocument();
-      expect(screen.getByText("Heute fällig")).toBeInTheDocument();
+      expect(screen.getByText("3")?.isConnected).toBe(true);
+      expect(screen.getByText("Heute fällig")?.isConnected).toBe(true);
     });
 
     it("should display streak when present", () => {
       render(<ProgressCard {...defaultProps} />);
 
-      expect(screen.getByText("5 Tage Streak")).toBeInTheDocument();
-      expect(screen.getByText("🔥")).toBeInTheDocument();
+      expect(screen.getByText("5 Tage Streak")?.isConnected).toBe(true);
+      expect(screen.getByText("🔥")?.isConnected).toBe(true);
     });
 
     it("should not display streak when zero", () => {
@@ -88,7 +88,7 @@ describe("ProgressCard Component", () => {
 
       render(<ProgressCard {...propsWithoutStreak} />);
 
-      expect(screen.queryByText("0 Tage Streak")).not.toBeInTheDocument();
+      expect(screen.queryByText("0 Tage Streak")).not?.isConnected).toBe(true);
     });
 
     it("should handle zero total correctly", () => {
@@ -99,8 +99,8 @@ describe("ProgressCard Component", () => {
 
       render(<ProgressCard {...propsWithZeroTotal} />);
 
-      expect(screen.getByText("0/0")).toBeInTheDocument();
-      expect(screen.getByText("0% abgeschlossen")).toBeInTheDocument();
+      expect(screen.getByText("0/0")?.isConnected).toBe(true);
+      expect(screen.getByText("0% abgeschlossen")?.isConnected).toBe(true);
     });
   });
 
@@ -108,15 +108,15 @@ describe("ProgressCard Component", () => {
     it("should display beginner difficulty", () => {
       render(<ProgressCard {...defaultProps} difficulty="beginner" />);
 
-      expect(screen.getByText("🌱")).toBeInTheDocument();
-      expect(screen.getByText("beginner")).toBeInTheDocument();
+      expect(screen.getByText("🌱")?.isConnected).toBe(true);
+      expect(screen.getByText("beginner")?.isConnected).toBe(true);
     });
 
     it("should display intermediate difficulty", () => {
       render(<ProgressCard {...defaultProps} difficulty="intermediate" />);
 
-      expect(screen.getByText("⚡")).toBeInTheDocument();
-      expect(screen.getByText("intermediate")).toBeInTheDocument();
+      expect(screen.getByText("⚡")?.isConnected).toBe(true);
+      expect(screen.getByText("intermediate")?.isConnected).toBe(true);
     });
 
     it("should display advanced difficulty", () => {
@@ -125,7 +125,7 @@ describe("ProgressCard Component", () => {
       // There are multiple fire emojis (difficulty and streak)
       const fireEmojis = screen.getAllByText("🔥");
       expect(fireEmojis.length).toBeGreaterThan(0);
-      expect(screen.getByText("advanced")).toBeInTheDocument();
+      expect(screen.getByText("advanced")?.isConnected).toBe(true);
     });
   });
 
@@ -133,31 +133,31 @@ describe("ProgressCard Component", () => {
     it("should display queen category icon", () => {
       render(<ProgressCard {...defaultProps} category="queen" />);
 
-      expect(screen.getByText("♛")).toBeInTheDocument();
+      expect(screen.getByText("♛")?.isConnected).toBe(true);
     });
 
     it("should display rook category icon", () => {
       render(<ProgressCard {...defaultProps} category="rook" />);
 
-      expect(screen.getByText("♜")).toBeInTheDocument();
+      expect(screen.getByText("♜")?.isConnected).toBe(true);
     });
 
     it("should display pawn category icon", () => {
       render(<ProgressCard {...defaultProps} category="pawn" />);
 
-      expect(screen.getByText("♟️")).toBeInTheDocument();
+      expect(screen.getByText("♟️")?.isConnected).toBe(true);
     });
 
     it("should display minor pieces category icon", () => {
       render(<ProgressCard {...defaultProps} category="minor" />);
 
-      expect(screen.getByText("♝")).toBeInTheDocument();
+      expect(screen.getByText("♝")?.isConnected).toBe(true);
     });
 
     it("should display other category icon", () => {
       render(<ProgressCard {...defaultProps} category="other" />);
 
-      expect(screen.getByText("🎯")).toBeInTheDocument();
+      expect(screen.getByText("🎯")?.isConnected).toBe(true);
     });
   });
 
@@ -178,7 +178,7 @@ describe("ProgressCard Component", () => {
     it("should show due tasks in button text when tasks are due", () => {
       render(<ProgressCard {...defaultProps} />);
 
-      expect(screen.getByText("3 Aufgaben trainieren")).toBeInTheDocument();
+      expect(screen.getByText("3 Aufgaben trainieren")?.isConnected).toBe(true);
     });
 
     it("should show generic text when no tasks due", () => {
@@ -189,7 +189,7 @@ describe("ProgressCard Component", () => {
 
       render(<ProgressCard {...propsWithoutDueTasks} />);
 
-      expect(screen.getByText("Training starten")).toBeInTheDocument();
+      expect(screen.getByText("Training starten")?.isConnected).toBe(true);
     });
   });
 
@@ -200,7 +200,7 @@ describe("ProgressCard Component", () => {
       // Find progress bar element by looking for the div with width style
       const progressBar = container.querySelector('div[style*="width: 60%"]');
 
-      expect(progressBar).toBeInTheDocument();
+      expect(progressBar?.isConnected).toBe(true);
     });
 
     it("should handle 100% completion", () => {
@@ -212,7 +212,7 @@ describe("ProgressCard Component", () => {
 
       render(<ProgressCard {...defaultProps} stats={completeStats} />);
 
-      expect(screen.getByText("100% abgeschlossen")).toBeInTheDocument();
+      expect(screen.getByText("100% abgeschlossen")?.isConnected).toBe(true);
     });
 
     it("should handle 0% completion", () => {
@@ -224,7 +224,7 @@ describe("ProgressCard Component", () => {
 
       render(<ProgressCard {...defaultProps} stats={zeroStats} />);
 
-      expect(screen.getByText("0% abgeschlossen")).toBeInTheDocument();
+      expect(screen.getByText("0% abgeschlossen")?.isConnected).toBe(true);
     });
   });
 
@@ -274,7 +274,7 @@ describe("ProgressCard Component", () => {
       render(<ProgressCard {...defaultProps} />);
 
       const button = screen.getByRole("button");
-      expect(button).toBeInTheDocument();
+      expect(button?.isConnected).toBe(true);
     });
 
     it("should support keyboard interaction", () => {
@@ -301,9 +301,9 @@ describe("ProgressCard Component", () => {
       render(<ProgressCard {...defaultProps} />);
 
       // Important content should be visible to screen readers
-      expect(screen.getByText("Fortschritt")).toBeInTheDocument();
-      expect(screen.getByText("Erfolgsrate")).toBeInTheDocument();
-      expect(screen.getByText("Heute fällig")).toBeInTheDocument();
+      expect(screen.getByText("Fortschritt")?.isConnected).toBe(true);
+      expect(screen.getByText("Erfolgsrate")?.isConnected).toBe(true);
+      expect(screen.getByText("Heute fällig")?.isConnected).toBe(true);
     });
   });
 
@@ -316,7 +316,7 @@ describe("ProgressCard Component", () => {
 
       render(<ProgressCard {...defaultProps} stats={highSuccessStats} />);
 
-      expect(screen.getByText("100%")).toBeInTheDocument(); // Rounded to 100%
+      expect(screen.getByText("100%")?.isConnected).toBe(true); // Rounded to 100%
     });
 
     it("should handle very low success rates", () => {
@@ -327,7 +327,7 @@ describe("ProgressCard Component", () => {
 
       render(<ProgressCard {...defaultProps} stats={lowSuccessStats} />);
 
-      expect(screen.getByText("0%")).toBeInTheDocument(); // Rounded to 0%
+      expect(screen.getByText("0%")?.isConnected).toBe(true); // Rounded to 0%
     });
 
     it("should handle large numbers", () => {
@@ -341,11 +341,11 @@ describe("ProgressCard Component", () => {
 
       render(<ProgressCard {...defaultProps} stats={largeStats} />);
 
-      expect(screen.getByText("567/1000")).toBeInTheDocument();
-      expect(screen.getByText("57% abgeschlossen")).toBeInTheDocument(); // 567/1000 = 56.7% → 57%
-      expect(screen.getByText("84%")).toBeInTheDocument(); // 84.3% → 84%
-      expect(screen.getByText("99")).toBeInTheDocument();
-      expect(screen.getByText("150 Tage Streak")).toBeInTheDocument();
+      expect(screen.getByText("567/1000")?.isConnected).toBe(true);
+      expect(screen.getByText("57% abgeschlossen")?.isConnected).toBe(true); // 567/1000 = 56.7% → 57%
+      expect(screen.getByText("84%")?.isConnected).toBe(true); // 84.3% → 84%
+      expect(screen.getByText("99")?.isConnected).toBe(true);
+      expect(screen.getByText("150 Tage Streak")?.isConnected).toBe(true);
     });
 
     it("should handle completed > total gracefully", () => {
@@ -357,8 +357,8 @@ describe("ProgressCard Component", () => {
 
       render(<ProgressCard {...defaultProps} stats={invalidStats} />);
 
-      expect(screen.getByText("15/10")).toBeInTheDocument();
-      expect(screen.getByText("150% abgeschlossen")).toBeInTheDocument(); // 15/10 = 150%
+      expect(screen.getByText("15/10")?.isConnected).toBe(true);
+      expect(screen.getByText("150% abgeschlossen")?.isConnected).toBe(true); // 15/10 = 150%
     });
   });
 

@@ -90,9 +90,9 @@ describe("MovePanelZustand", () => {
 
     renderWithProviders(<MovePanelZustand onMoveClick={vi.fn()} />);
 
-    expect(screen.getByText("e4")).toBeInTheDocument();
-    expect(screen.getByText("e5")).toBeInTheDocument();
-    expect(screen.getByText("Nf3")).toBeInTheDocument();
+    expect(screen.getByText("e4")?.isConnected).toBe(true);
+    expect(screen.getByText("e5")?.isConnected).toBe(true);
+    expect(screen.getByText("Nf3")?.isConnected).toBe(true);
   });
 
   it("should display evaluations when showEvaluations is true", () => {
@@ -139,9 +139,9 @@ describe("MovePanelZustand", () => {
     renderWithProviders(<MovePanelZustand showEvaluations={true} onMoveClick={vi.fn()} />);
 
     // Should show the move
-    expect(screen.getByText("e4")).toBeInTheDocument();
+    expect(screen.getByText("e4")?.isConnected).toBe(true);
     // Should show evaluation indicator (⚪ for neutral evaluation)
-    expect(screen.getByText("⚪")).toBeInTheDocument();
+    expect(screen.getByText("⚪")?.isConnected).toBe(true);
   });
 
   it("should handle move click events", () => {
@@ -293,7 +293,7 @@ describe("MovePanelZustand", () => {
     renderWithProviders(<MovePanelZustand showEvaluations={true} onMoveClick={vi.fn()} />);
 
     // SIMPLIFIED: Check that evaluation is shown (symbol may vary)
-    expect(screen.getByTestId("move-evaluation")).toBeInTheDocument();
+    expect(screen.getByTestId("move-evaluation")?.isConnected).toBe(true);
   });
 
   it("should show empty state when no moves", () => {
@@ -315,6 +315,6 @@ describe("MovePanelZustand", () => {
 
     renderWithProviders(<MovePanelZustand onMoveClick={vi.fn()} />);
 
-    expect(screen.getByText("Noch keine Züge gespielt")).toBeInTheDocument();
+    expect(screen.getByText("Noch keine Züge gespielt")?.isConnected).toBe(true);
   });
 });

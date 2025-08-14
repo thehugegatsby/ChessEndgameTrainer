@@ -40,6 +40,7 @@ import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useProgressActions } from '@shared/store/hooks/useProgressStore';
 import { type ProgressService } from '@shared/services/ProgressService';
 import { getLogger } from '@shared/services/logging/Logger';
+import { SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
 import type { UserStats, CardProgress } from '@shared/store/slices/types';
 import type { WithFieldValue } from 'firebase/firestore';
 
@@ -194,7 +195,7 @@ export function useProgressSync(
         maxSize: MAX_QUEUE_SIZE,
       });
       // Remove oldest operations (FIFO)
-      queueRef.current = queueRef.current.slice(-MAX_QUEUE_SIZE + 10); // Keep some buffer
+      queueRef.current = queueRef.current.slice(-MAX_QUEUE_SIZE + SIZE_MULTIPLIERS.SMALL_FACTOR); // Keep some buffer
     }
     
     const id = generateSyncId();

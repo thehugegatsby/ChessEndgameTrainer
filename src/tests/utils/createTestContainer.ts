@@ -174,7 +174,7 @@ export function createMockLocalStorage(): Storage {
   const store: Record<string, string> = {};
 
   const mockFn = <T extends (...args: any[]) => any>(impl: T): T => {
-    if (typeof jest !== "undefined" && vi.fn) {
+    if (vi.fn) {
       return vi.fn(impl);
     }
     return impl;
@@ -294,9 +294,8 @@ export const TestAssertions = {
     method: keyof Storage,
     ...args: any[]
   ) => {
-    if (typeof jest !== "undefined") {
-      expect(storage[method]).toHaveBeenCalledWith(...args);
-    }
+    // Running in Vitest environment
+    expect(storage[method]).toHaveBeenCalledWith(...args);
   },
 
   /**

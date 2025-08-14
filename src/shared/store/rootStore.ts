@@ -54,6 +54,7 @@ import {
   type ChessServiceEvent,
 } from "@shared/services/ChessService";
 import { getLogger } from "@shared/services/logging/Logger";
+import { UI_DURATIONS_MS, TOAST_DURATIONS_MS } from "../../constants/time.constants";
 
 // Import orchestrators
 import { loadTrainingContext as loadTrainingContextOrchestrator } from "./orchestrators/loadTrainingContext";
@@ -205,7 +206,7 @@ export const useStore = create<RootState>()(
               result = await Promise.race([
                 handlePlayerMoveOrchestrator(storeApi, move),
                 new Promise<boolean>((_, reject) => 
-                  setTimeout(() => reject(new Error("E2E orchestrator timeout")), 5000)
+                  setTimeout(() => reject(new Error("E2E orchestrator timeout")), UI_DURATIONS_MS.STORE_TIMEOUT)
                 )
               ]);
             } else {
@@ -426,7 +427,7 @@ const unsubscribeChessService = chessService.subscribe(
             id: crypto.randomUUID(),
             message: event.payload.message,
             type: "error",
-            duration: 5000,
+            duration: TOAST_DURATIONS_MS.ERROR,
           });
         });
         // Logging already done in ChessService, avoid duplication

@@ -1,6 +1,5 @@
 import { vi } from 'vitest';
 /**
- * @jest-environment node
  *
  * Comprehensive test suite for optimized TablebaseService
  *

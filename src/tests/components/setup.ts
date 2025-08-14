@@ -4,7 +4,7 @@
  */
 
 // Global test setup
-import "@testing-library/jest-dom";
+// @testing-library/jest-dom removed - using Vitest native matchers
 
 // Mock timers for debounce/throttle testing
 beforeEach(() => {
@@ -86,7 +86,7 @@ export const createTestBridgeMock = (): TestBridgeMock => ({
   addCustomResponse: vi.fn().mockResolvedValue(undefined),
   getResponseTime: vi.fn().mockReturnValue(100),
   diagnostic: {
-    getCurrentFen: jest
+    getCurrentFen: vi.fn()
       .fn()
       .mockReturnValue(
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",

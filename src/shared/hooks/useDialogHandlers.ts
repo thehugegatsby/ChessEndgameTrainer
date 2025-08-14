@@ -49,6 +49,7 @@ import { getLogger } from '@shared/services/logging/Logger';
 import { getOpponentTurnManager } from '@shared/store/orchestrators/handlePlayerMove';
 import { showInfoToast } from '@shared/utils/toast';
 import { chessService } from '@shared/services/ChessService';
+import { UI_DURATIONS_MS } from '../../constants/time.constants';
 // Note: Direct service import maintained for callback context
 import type { StoreApi } from '@shared/store/StoreContext';
 import type { RootState } from '@shared/store/slices/types';
@@ -372,7 +373,7 @@ export const useDialogHandlers = ({
       }
     };
     
-    getOpponentTurnManager().schedule(orchestratorApi, 500, {
+    getOpponentTurnManager().schedule(orchestratorApi, UI_DURATIONS_MS.DIALOG_CLOSE_DELAY, {
       onOpponentMoveComplete: async () => {
         logger.info("🎯 Opponent move completed - updating evaluation baseline");
         

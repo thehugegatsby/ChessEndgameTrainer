@@ -1,5 +1,4 @@
 /**
- * @jest-environment node
  *
  * Performance validation tests for CacheManager
  * 

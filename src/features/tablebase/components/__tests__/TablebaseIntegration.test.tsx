@@ -123,7 +123,7 @@ describe('TablebaseIntegration', () => {
         </Wrapper>
       );
 
-      expect(screen.getByText('Tablebase Analysis')).toBeInTheDocument();
+      expect(screen.getByText('Tablebase Analysis')?.isConnected).toBe(true);
     });
 
     it('should only show analysis when feedback disabled', () => {
@@ -140,7 +140,7 @@ describe('TablebaseIntegration', () => {
         </Wrapper>
       );
 
-      expect(screen.getByText('Tablebase Analysis')).toBeInTheDocument();
+      expect(screen.getByText('Tablebase Analysis')?.isConnected).toBe(true);
       // Feedback panel is not visible without feedback data
     });
   });
@@ -161,7 +161,7 @@ describe('TablebaseIntegration', () => {
       );
 
       const container = screen.getByText('Tablebase Analysis').closest('.tablebase-integration');
-      expect(container).toHaveClass('flex');
+      expect(container.classList.contains('flex')).toBe(true);
     });
   });
 
@@ -180,8 +180,8 @@ describe('TablebaseIntegration', () => {
         </Wrapper>
       );
 
-      expect(screen.getByText('Analysis')).toBeInTheDocument();
-      expect(screen.getByText('Feedback')).toBeInTheDocument();
+      expect(screen.getByText('Analysis')?.isConnected).toBe(true);
+      expect(screen.getByText('Feedback')?.isConnected).toBe(true);
     });
 
     it('should switch tabs on click', () => {
@@ -201,7 +201,7 @@ describe('TablebaseIntegration', () => {
       const feedbackTab = screen.getByText('Feedback');
       fireEvent.click(feedbackTab);
 
-      expect(feedbackTab.closest('button')).toHaveClass('border-blue-500');
+      expect(feedbackTab.closest('button').classList.contains('border-blue-500')).toBe(true);
     });
   });
 
@@ -269,7 +269,7 @@ describe('TablebaseIntegration', () => {
         </Wrapper>
       );
 
-      expect(screen.getByText('Tablebase Analysis')).toBeInTheDocument();
+      expect(screen.getByText('Tablebase Analysis')?.isConnected).toBe(true);
     });
   });
 
@@ -306,7 +306,7 @@ describe('TablebaseIntegration', () => {
 
       // Should render container even if analysis is disabled
       const container = document.querySelector('.tablebase-integration');
-      expect(container).toBeInTheDocument();
+      expect(container?.isConnected).toBe(true);
     });
   });
 });

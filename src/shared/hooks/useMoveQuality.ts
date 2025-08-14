@@ -22,6 +22,8 @@ import { assessTablebaseMoveQuality } from "@shared/utils/moveQuality";
 import { Chess } from "chess.js";
 import type { SimplifiedMoveQualityResult } from "../types/evaluation";
 import { getLogger } from "@shared/services/logging";
+import { TIME_MULTIPLIERS } from '@shared/constants/multipliers';
+import { TIME_UNITS } from '@shared/constants/time.constants';
 
 const logger = getLogger().setContext('useMoveQuality');
 
@@ -120,7 +122,7 @@ export const useMoveQuality = (): UseMoveQualityReturn => {
     state.currentAnalysis?.fenBefore || null,
     { 
       enabled: Boolean(state.currentAnalysis?.fenBefore),
-      staleTime: 30 * 60 * 1000, // 30 minutes - tablebase data is immutable
+      staleTime: TIME_MULTIPLIERS.STANDARD * TIME_UNITS.MINUTE, // 30 minutes - tablebase data is immutable
     }
   );
 
@@ -128,7 +130,7 @@ export const useMoveQuality = (): UseMoveQualityReturn => {
     fenAfter,
     { 
       enabled: Boolean(fenAfter),
-      staleTime: 30 * 60 * 1000, // 30 minutes - tablebase data is immutable
+      staleTime: TIME_MULTIPLIERS.STANDARD * TIME_UNITS.MINUTE, // 30 minutes - tablebase data is immutable
     }
   );
 
@@ -293,7 +295,7 @@ export const useMoveQuality = (): UseMoveQualityReturn => {
       abortControllerRef.current = controller;
 
       logger.info("[useMoveQuality] Starting move quality assessment", {
-        fenBefore: `${fenBefore.slice(0, 30)  }...`,
+        fenBefore: `${fenBefore.slice(0, TIME_MULTIPLIERS.STANDARD)  }...`,
         move,
         playerPerspective,
       });
@@ -371,7 +373,7 @@ export const useMoveQuality = (): UseMoveQualityReturn => {
             pendingAssessmentRef.current = null;
             reject(new Error("Move quality assessment timeout after 30 seconds"));
           }
-        }, 30000);
+        }, TIME_MULTIPLIERS.STANDARD * TIME_UNITS.SECOND);
 
         // Store the promise handlers
         pendingAssessmentRef.current = {

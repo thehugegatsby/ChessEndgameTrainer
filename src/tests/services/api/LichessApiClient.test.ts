@@ -1,5 +1,4 @@
 /**
- * @jest-environment node
  *
  * Comprehensive test suite for LichessApiClient
  *

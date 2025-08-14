@@ -81,7 +81,24 @@
     "no-loop-func": "error",
     "require-await": "error",
     "prefer-arrow-callback": "error",
-    "prefer-template": "error"
+    "prefer-template": "error",
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["jest", "**/jest", "@types/jest"],
+            "message": "Use Vitest instead of Jest. Import from 'vitest' instead."
+          }
+        ],
+        "paths": [
+          {
+            "name": "jest",
+            "message": "Use Vitest instead of Jest. Import { vi, describe, it, expect } from 'vitest' instead."
+          }
+        ]
+      }
+    ]
   },
   "overrides": [
     {

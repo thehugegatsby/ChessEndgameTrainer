@@ -25,21 +25,21 @@ describe("MoveErrorDialog", () => {
       render(<MoveErrorDialog {...defaultProps} />);
 
       // Check for German error message header
-      expect(screen.getByText("Fehler erkannt!")).toBeInTheDocument();
+      expect(screen.getByText("Fehler erkannt!")?.isConnected).toBe(true);
     });
 
     it("does not render when closed", () => {
       render(<MoveErrorDialog {...defaultProps} isOpen={false} />);
 
-      expect(screen.queryByText("Fehler erkannt!")).not.toBeInTheDocument();
+      expect(screen.queryByText("Fehler erkannt!")?.isConnected).not.toBe(true);
     });
 
     it("displays the best move", () => {
       render(<MoveErrorDialog {...defaultProps} />);
 
       // Best move is shown with move number (1.Kb1)
-      expect(screen.getByText(/1\.Kb1/)).toBeInTheDocument();
-      expect(screen.getByText(/Besser war:/)).toBeInTheDocument();
+      expect(screen.getByText(/1\.Kb1/)?.isConnected).toBe(true);
+      expect(screen.getByText(/Besser war:/)?.isConnected).toBe(true);
     });
 
     it("shows correct message for win to loss", () => {
@@ -48,7 +48,7 @@ describe("MoveErrorDialog", () => {
       // Should show that the move ruins the win (with move number)
       expect(
         screen.getByText("1.Ka2 verdirbt den Gewinn!"),
-      ).toBeInTheDocument();
+      )?.isConnected).toBe(true);
     });
 
     it("shows correct message for draw to loss", () => {
@@ -57,7 +57,7 @@ describe("MoveErrorDialog", () => {
       // Should show that the move leads to loss (with move number)
       expect(
         screen.getByText("1.Ka2 führt zum Verlust!"),
-      ).toBeInTheDocument();
+      )?.isConnected).toBe(true);
     });
 
     it("shows correct message for position deterioration", () => {
@@ -66,7 +66,7 @@ describe("MoveErrorDialog", () => {
       // Should show that the position worsens (with move number)
       expect(
         screen.getByText("1.Ka2 verdirbt den Gewinn!"),
-      ).toBeInTheDocument();
+      )?.isConnected).toBe(true);
     });
 
     it("shows default error message", () => {
@@ -77,13 +77,13 @@ describe("MoveErrorDialog", () => {
       // Should show default error message (with move number)
       expect(
         screen.getByText("1.Ka2 ist ein Fehler!"),
-      ).toBeInTheDocument();
+      )?.isConnected).toBe(true);
     });
 
     it("hides best move when not provided", () => {
       render(<MoveErrorDialog {...defaultProps} bestMove={undefined} />);
 
-      expect(screen.queryByText("Bester Zug war:")).not.toBeInTheDocument();
+      expect(screen.queryByText("Bester Zug war:")?.isConnected).not.toBe(true);
     });
   });
 
@@ -151,7 +151,7 @@ describe("MoveErrorDialog", () => {
       render(<MoveErrorDialog {...defaultProps} />);
 
       const heading = screen.getByRole("heading", { name: "Fehler erkannt!" });
-      expect(heading).toBeInTheDocument();
+      expect(heading?.isConnected).toBe(true);
     });
 
     it("has interactive buttons", () => {
@@ -165,16 +165,16 @@ describe("MoveErrorDialog", () => {
       });
       const zurücknehmen = screen.getByRole("button", { name: "Zurücknehmen" });
 
-      expect(weiterspielen).toBeInTheDocument();
-      expect(zurücknehmen).toBeInTheDocument();
+      expect(weiterspielen?.isConnected).toBe(true);
+      expect(zurücknehmen?.isConnected).toBe(true);
     });
 
     it("renders semantic structure", () => {
       render(<MoveErrorDialog {...defaultProps} />);
 
       // Check for proper text structure
-      expect(screen.getByText("Fehler erkannt!")).toBeInTheDocument();
-      expect(screen.getByText(/1\.Ka2/)).toBeInTheDocument();
+      expect(screen.getByText("Fehler erkannt!")?.isConnected).toBe(true);
+      expect(screen.getByText(/1\.Ka2/)?.isConnected).toBe(true);
     });
   });
 
@@ -182,8 +182,8 @@ describe("MoveErrorDialog", () => {
     it("handles missing bestMove gracefully", () => {
       render(<MoveErrorDialog {...defaultProps} bestMove={undefined} />);
 
-      expect(screen.getByText("Fehler erkannt!")).toBeInTheDocument();
-      expect(screen.queryByText("Bester Zug war:")).not.toBeInTheDocument();
+      expect(screen.getByText("Fehler erkannt!")?.isConnected).toBe(true);
+      expect(screen.queryByText("Bester Zug war:")?.isConnected).not.toBe(true);
     });
 
     it("handles equal WDL values", () => {
@@ -192,7 +192,7 @@ describe("MoveErrorDialog", () => {
       // Should show default error message (with move number)
       expect(
         screen.getByText("1.Ka2 ist ein Fehler!"),
-      ).toBeInTheDocument();
+      )?.isConnected).toBe(true);
     });
 
     it("shows correct message for position worsening", () => {
@@ -201,7 +201,7 @@ describe("MoveErrorDialog", () => {
       // Should show that position worsens (wdlBefore > wdlAfter, with move number)
       expect(
         screen.getByText("1.Ka2 verschlechtert die Stellung!"),
-      ).toBeInTheDocument();
+      )?.isConnected).toBe(true);
     });
   });
 
@@ -215,19 +215,19 @@ describe("MoveErrorDialog", () => {
 
       // Check the warning triangle path is present
       const pathElement = document.querySelector('path[d*="M12 9v2m0 4h.01"]');
-      expect(pathElement).toBeInTheDocument();
+      expect(pathElement?.isConnected).toBe(true);
     });
 
     it("has proper styling classes", () => {
       render(<MoveErrorDialog {...defaultProps} />);
 
       const backdrop = screen.getByText("Fehler erkannt!").closest(".fixed");
-      expect(backdrop).toHaveClass(
+      expect(backdrop.classList.contains(
         "fixed",
         "inset-0",
         "bg-black",
         "bg-opacity-80",
-      );
+      )).toBe(true);
     });
   });
 });

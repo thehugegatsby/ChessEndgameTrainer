@@ -98,7 +98,7 @@ describe('DialogManager', () => {
         />
       );
 
-      expect(screen.getByTestId('move-error-dialog')).toBeInTheDocument();
+      expect(screen.getByTestId('move-error-dialog')?.isConnected).toBe(true);
       expect(screen.getByTestId('wdl-before')).toHaveTextContent('1');
       expect(screen.getByTestId('wdl-after')).toHaveTextContent('-1');
     });
@@ -112,7 +112,7 @@ describe('DialogManager', () => {
         />
       );
 
-      expect(screen.queryByTestId('move-error-dialog')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('move-error-dialog')?.isConnected).not.toBe(true);
     });
 
     it('does not render error dialog when errorDialog.isOpen is false', () => {
@@ -130,7 +130,7 @@ describe('DialogManager', () => {
         />
       );
 
-      expect(screen.queryByTestId('move-error-dialog')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('move-error-dialog')?.isConnected).not.toBe(true);
     });
 
     it('calls onErrorTakeBack when take back button is clicked', async () => {
@@ -211,8 +211,8 @@ describe('DialogManager', () => {
       );
 
       const showBestButton = screen.getByTestId('error-show-best');
-      expect(showBestButton).toBeInTheDocument();
-      expect(showBestButton).toHaveTextContent('Show Best: Qh8+');
+      expect(showBestButton?.isConnected).toBe(true);
+      expect(showBestButton.textContent).toBe('Show Best: Qh8+');
 
       await user.click(showBestButton);
       expect(mockHandlers.onErrorShowBestMove).toHaveBeenCalledTimes(1);
@@ -233,7 +233,7 @@ describe('DialogManager', () => {
         />
       );
 
-      expect(screen.queryByTestId('error-show-best')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('error-show-best')?.isConnected).not.toBe(true);
     });
 
     it('provides default wdl values when not specified', () => {
@@ -270,7 +270,7 @@ describe('DialogManager', () => {
         />
       );
 
-      expect(screen.getByTestId('move-success-dialog')).toBeInTheDocument();
+      expect(screen.getByTestId('move-success-dialog')?.isConnected).toBe(true);
       expect(screen.getByTestId('promotion-piece')).toHaveTextContent('Q');
       expect(screen.getByTestId('move-description')).toHaveTextContent('Excellent move!');
     });
@@ -284,7 +284,7 @@ describe('DialogManager', () => {
         />
       );
 
-      expect(screen.queryByTestId('move-success-dialog')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('move-success-dialog')?.isConnected).not.toBe(true);
     });
 
     it('does not render success dialog when successDialog.isOpen is false', () => {
@@ -301,7 +301,7 @@ describe('DialogManager', () => {
         />
       );
 
-      expect(screen.queryByTestId('move-success-dialog')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('move-success-dialog')?.isConnected).not.toBe(true);
     });
 
     it('calls onSuccessClose when close button is clicked', async () => {
@@ -355,9 +355,9 @@ describe('DialogManager', () => {
         />
       );
 
-      expect(screen.getByTestId('move-success-dialog')).toBeInTheDocument();
-      expect(screen.queryByTestId('promotion-piece')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('move-description')).not.toBeInTheDocument();
+      expect(screen.getByTestId('move-success-dialog')?.isConnected).toBe(true);
+      expect(screen.queryByTestId('promotion-piece')?.isConnected).not.toBe(true);
+      expect(screen.queryByTestId('move-description')?.isConnected).not.toBe(true);
     });
   });
 
@@ -382,8 +382,8 @@ describe('DialogManager', () => {
         />
       );
 
-      expect(screen.getByTestId('move-error-dialog')).toBeInTheDocument();
-      expect(screen.getByTestId('move-success-dialog')).toBeInTheDocument();
+      expect(screen.getByTestId('move-error-dialog')?.isConnected).toBe(true);
+      expect(screen.getByTestId('move-success-dialog')?.isConnected).toBe(true);
     });
 
     it('renders nothing when both dialogs are closed', () => {
@@ -406,8 +406,8 @@ describe('DialogManager', () => {
         />
       );
 
-      expect(screen.queryByTestId('move-error-dialog')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('move-success-dialog')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('move-error-dialog')?.isConnected).not.toBe(true);
+      expect(screen.queryByTestId('move-success-dialog')?.isConnected).not.toBe(true);
     });
   });
 
@@ -429,13 +429,13 @@ describe('DialogManager', () => {
       );
 
       const dialog = screen.getByTestId('move-error-dialog');
-      expect(dialog).toBeInTheDocument();
+      expect(dialog?.isConnected).toBe(true);
       
       // Verify all buttons are present
-      expect(screen.getByTestId('error-close')).toBeInTheDocument();
-      expect(screen.getByTestId('error-takeback')).toBeInTheDocument();
-      expect(screen.getByTestId('error-restart')).toBeInTheDocument();
-      expect(screen.getByTestId('error-show-best')).toBeInTheDocument();
+      expect(screen.getByTestId('error-close')?.isConnected).toBe(true);
+      expect(screen.getByTestId('error-takeback')?.isConnected).toBe(true);
+      expect(screen.getByTestId('error-restart')?.isConnected).toBe(true);
+      expect(screen.getByTestId('error-show-best')?.isConnected).toBe(true);
     });
 
     it('passes all required props to success dialog component', () => {
@@ -454,11 +454,11 @@ describe('DialogManager', () => {
       );
 
       const dialog = screen.getByTestId('move-success-dialog');
-      expect(dialog).toBeInTheDocument();
+      expect(dialog?.isConnected).toBe(true);
       
       // Verify all buttons are present
-      expect(screen.getByTestId('success-close')).toBeInTheDocument();
-      expect(screen.getByTestId('success-continue')).toBeInTheDocument();
+      expect(screen.getByTestId('success-close')?.isConnected).toBe(true);
+      expect(screen.getByTestId('success-continue')?.isConnected).toBe(true);
     });
   });
 
@@ -485,7 +485,7 @@ describe('DialogManager', () => {
       );
 
       // Should not render show best move button when callback is undefined
-      expect(screen.queryByTestId('error-show-best')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('error-show-best')?.isConnected).not.toBe(true);
     });
   });
 });

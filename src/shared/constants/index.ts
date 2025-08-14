@@ -23,7 +23,7 @@
  * All constants use `as const` assertion for type safety and immutability.
  */
 
-import { SIZE_MULTIPLIERS, BINARY_MULTIPLIERS } from './multipliers';
+import { SIZE_MULTIPLIERS, BINARY_MULTIPLIERS, TIME_MULTIPLIERS, LEARNING_INTERVALS } from './multipliers';
 import { TIME_UNITS } from './time.constants';
 
 /**
@@ -76,12 +76,12 @@ export const CACHE = {
   PARALLEL_EVALUATION_CACHE_SIZE: 200, // ParallelEvaluationService cache size
 
   // Cache timeouts - Standardized TTL values
-  TABLEBASE_CACHE_TIMEOUT: 5 * 60 * 1000, // 5 minutes for tablebase cache
-  ANALYSIS_CACHE_TTL: 5 * 60 * 1000, // 5 minutes for analysis cache TTL
-  EVALUATION_CACHE_TTL: 30 * 60 * 1000, // 30 minutes for evaluation cache
-  BEST_MOVE_CACHE_TTL: 10 * 60 * 1000, // 10 minutes for best move cache (more volatile)
-  DEDUPLICATION_TTL: 10 * 1000, // 10 seconds for deduplication
-  CLEANUP_INTERVAL_TTL: 30 * 1000, // 30 seconds for cleanup intervals
+  TABLEBASE_CACHE_TIMEOUT: 5 * TIME_UNITS.MINUTE, // 5 minutes for tablebase cache
+  ANALYSIS_CACHE_TTL: 5 * TIME_UNITS.MINUTE, // 5 minutes for analysis cache TTL
+  EVALUATION_CACHE_TTL: TIME_MULTIPLIERS.STANDARD * TIME_UNITS.MINUTE, // 30 minutes for evaluation cache
+  BEST_MOVE_CACHE_TTL: TIME_MULTIPLIERS.QUICK * TIME_UNITS.MINUTE, // 10 minutes for best move cache (more volatile)
+  DEDUPLICATION_TTL: TIME_MULTIPLIERS.QUICK * TIME_UNITS.SECOND, // 10 seconds for deduplication
+  CLEANUP_INTERVAL_TTL: TIME_MULTIPLIERS.STANDARD * TIME_UNITS.SECOND, // 30 seconds for cleanup intervals
 } as const;
 
 // Tablebase Constants
@@ -92,7 +92,7 @@ export const TABLEBASE = {
   // Timeouts
   EVALUATION_TIMEOUT: 7000, // 7 seconds for tablebase evaluation
   TIMEOUT_BUFFER: 1000, // 1 second buffer added to timeouts
-  CACHE_TTL: 5 * 60 * 1000, // 5 minutes cache TTL
+  CACHE_TTL: 5 * TIME_UNITS.MINUTE, // 5 minutes cache TTL
   MAX_PIECES: 7, // Maximum pieces for tablebase lookup
 } as const;
 
@@ -107,7 +107,7 @@ const UI = {
   TOUCH_TARGET_MIN: 44, // 44px minimum touch target
   BREAKPOINTS: {
     MOBILE: 640, // Mobile breakpoint
-    TABLET: 1024, // Tablet breakpoint
+    TABLET: BINARY_MULTIPLIERS.KILOBYTE, // Tablet breakpoint
     DESKTOP: 1280, // Desktop breakpoint
   },
 
@@ -234,7 +234,7 @@ export /**
 const TRAINING = {
   MIN_MOVES_FOR_COMPLETION: 3, // Minimum moves to complete position
   SUCCESS_RATE_THRESHOLD: 0.8, // 80% success rate
-  REPETITION_INTERVALS: [1, 3, 7, 14, 30], // Days for spaced repetition
+  REPETITION_INTERVALS: [LEARNING_INTERVALS.SHORT_TERM, LEARNING_INTERVALS.MEDIUM_TERM, LEARNING_INTERVALS.WEEKLY, LEARNING_INTERVALS.BI_WEEKLY, LEARNING_INTERVALS.MONTHLY], // Days for spaced repetition
   MAX_HINTS: 3, // Maximum hints per position
 
   // Spaced repetition multipliers
@@ -283,17 +283,7 @@ const NETWORK = {
   BATCH_UPLOAD_SIZE: 10, // Items to upload in batch
 } as const;
 
-// Time Constants (in milliseconds)
-export /**
- *
- */
-const TIME = {
-  SECOND: 1000,
-  MINUTE: 60 * 1000,
-  HOUR: 60 * 60 * 1000,
-  DAY: 24 * 60 * 60 * 1000,
-  WEEK: 7 * 24 * 60 * 60 * 1000,
-} as const;
+// Time Constants (in milliseconds) - using imported TIME_UNITS
 
 // Animation and Feedback Constants
 export /**
@@ -341,7 +331,7 @@ const DIMENSIONS = {
 
   // Breakpoint values (for E2E tests)
   MOBILE_BREAKPOINT: 768, // Mobile breakpoint threshold
-  TABLET_BREAKPOINT: 1024, // Tablet breakpoint threshold
+  TABLET_BREAKPOINT: BINARY_MULTIPLIERS.KILOBYTE, // Tablet breakpoint threshold
 } as const;
 
 // E2E Testing Constants
@@ -351,10 +341,10 @@ export /**
 const E2E = {
   // Timeouts
   TIMEOUTS: {
-    PAGE_LOAD: 2 * TIME.SECOND, // 2 seconds for page loads
-    PAGE_RELOAD: 3 * TIME.SECOND, // 3 seconds for page reloads
-    TABLEBASE_INIT: 3 * TIME.SECOND, // 3 seconds for tablebase initialization
-    MODAL_APPEAR: TIME.SECOND, // 1 second for modals to appear
+    PAGE_LOAD: 2 * TIME_UNITS.SECOND, // 2 seconds for page loads
+    PAGE_RELOAD: 3 * TIME_UNITS.SECOND, // 3 seconds for page reloads
+    TABLEBASE_INIT: 3 * TIME_UNITS.SECOND, // 3 seconds for tablebase initialization
+    MODAL_APPEAR: TIME_UNITS.SECOND, // 1 second for modals to appear
     ANIMATION: 500, // 500ms for animations
   },
 
@@ -490,7 +480,7 @@ export /**
  *
  */
 const SYSTEM = {
-  GB_TO_BYTES_FACTOR: 1024 * 1024 * 1024, // Conversion factor GB to bytes
+  GB_TO_BYTES_FACTOR: BINARY_MULTIPLIERS.KILOBYTE * BINARY_MULTIPLIERS.KILOBYTE * BINARY_MULTIPLIERS.KILOBYTE, // Conversion factor GB to bytes
   DEFAULT_MEMORY_GB: 4, // Default system memory allocation
   LOW_MEMORY_THRESHOLD_GB: 4, // Low memory warning threshold
 } as const;
@@ -511,7 +501,7 @@ export type EvaluationConstants = typeof EVALUATION;
 export type TrainingConstants = typeof TRAINING;
 export type RatingConstants = typeof RATING;
 export type NetworkConstants = typeof NETWORK;
-export type TimeConstants = typeof TIME;
+export type TimeConstants = typeof TIME_UNITS;
 export type AnimationConstants = typeof ANIMATION;
 export type DimensionsConstants = typeof DIMENSIONS;
 export type E2EConstants = typeof E2E;

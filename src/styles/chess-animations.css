@@ -3,16 +3,53 @@
  * Enhances the react-chessboard animations with custom CSS for Lichess-like feel
  */
 
+:root {
+  /* Animation durations */
+  --chess-animation-very-fast: 50ms;
+  --chess-animation-fast: 100ms;
+  --chess-animation-quick: 120ms;
+  --chess-animation-normal: 150ms;
+  --chess-animation-medium: 200ms;
+  --chess-animation-slow: 250ms;
+  --chess-animation-slower: 300ms;
+  --chess-animation-very-slow: 400ms;
+  --chess-animation-extra-slow: 500ms;
+  --chess-animation-ultra-slow: 600ms;
+  --chess-animation-check-pulse: 1000ms;
+  --chess-animation-board-loading: 1500ms;
+  --chess-animation-move-hint: 2000ms;
+
+  /* Z-index layers */
+  --chess-z-dragging: 1000;
+  --chess-z-perspective: 1000;
+
+  /* Opacity values */
+  --chess-opacity-hint: 0.2;
+  --chess-opacity-hover: 0.4;
+  --chess-opacity-semi: 0.5;
+  --chess-opacity-active: 0.6;
+  --chess-opacity-dim: 0.7;
+  --chess-opacity-bright: 0.8;
+
+  /* Percentage values */
+  --chess-size-small: 20%;
+  --chess-size-half: 50%;
+  --chess-size-full: 100%;
+
+  /* Mobile breakpoint */
+  --chess-mobile-breakpoint: 768px;
+}
+
 /* Chess piece movement animations */
 .chess-piece-transition {
-  transition: all 150ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all var(--chess-animation-normal) cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: transform;
 }
 
 /* Smooth piece dragging */
 .chess-piece-dragging {
   transition: none !important;
-  z-index: 1000 !important;
+  z-index: var(--chess-z-dragging) !important;
   cursor: grabbing !important;
   transform: scale(1.05) !important;
   filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3)) !important;
@@ -20,7 +57,7 @@
 
 /* Piece drop animation */
 .chess-piece-dropped {
-  animation: pieceDropBounce 200ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation: pieceDropBounce var(--chess-animation-medium) cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 @keyframes pieceDropBounce {
@@ -37,11 +74,11 @@
 
 /* Square highlight animations */
 .chess-square {
-  transition: all 100ms ease-out;
+  transition: all var(--chess-animation-fast) ease-out;
 }
 
 .chess-square-highlighted {
-  animation: squareHighlight 300ms ease-out;
+  animation: squareHighlight var(--chess-animation-slower) ease-out;
 }
 
 @keyframes squareHighlight {
@@ -49,16 +86,16 @@
     background-color: transparent;
   }
   50% {
-    background-color: rgba(59, 130, 246, 0.4);
+    background-color: rgba(59, 130, 246, var(--chess-opacity-hover));
   }
   100% {
-    background-color: rgba(59, 130, 246, 0.2);
+    background-color: rgba(59, 130, 246, var(--chess-opacity-hint));
   }
 }
 
 /* Last move square animation */
 .chess-square-last-move {
-  animation: lastMoveGlow 500ms ease-out;
+  animation: lastMoveGlow var(--chess-animation-extra-slow) ease-out;
 }
 
 @keyframes lastMoveGlow {
@@ -78,7 +115,7 @@
 
 /* Check square animation */
 .chess-square-check {
-  animation: checkPulse 1000ms ease-in-out infinite;
+  animation: checkPulse var(--chess-animation-check-pulse) ease-in-out infinite;
 }
 
 @keyframes checkPulse {
@@ -88,14 +125,14 @@
     box-shadow: none;
   }
   50% {
-    background-color: rgba(239, 68, 68, 0.4);
+    background-color: rgba(239, 68, 68, var(--chess-opacity-hover));
     box-shadow: inset 0 0 12px rgba(239, 68, 68, 0.6);
   }
 }
 
 /* Piece capture animation */
 .chess-piece-captured {
-  animation: pieceFadeOut 200ms ease-out forwards;
+  animation: pieceFadeOut var(--chess-animation-medium) ease-out forwards;
 }
 
 @keyframes pieceFadeOut {
@@ -111,7 +148,7 @@
 
 /* New piece appearance animation */
 .chess-piece-appeared {
-  animation: pieceAppear 250ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation: pieceAppear var(--chess-animation-slow) cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 @keyframes pieceAppear {
@@ -127,7 +164,7 @@
 
 /* Promotion piece selection animation */
 .chess-promotion-piece {
-  transition: all 150ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all var(--chess-animation-normal) cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .chess-promotion-piece:hover {
@@ -137,12 +174,12 @@
 
 .chess-promotion-piece:active {
   transform: scale(1.05);
-  transition-duration: 50ms;
+  transition-duration: var(--chess-animation-very-fast);
 }
 
 /* Board rotation animation for flipping */
 .chess-board-flip {
-  animation: boardFlip 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation: boardFlip var(--chess-animation-ultra-slow) cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 @keyframes boardFlip {
@@ -159,7 +196,7 @@
 
 /* Piece hover effects for better interactivity */
 .chess-piece {
-  transition: all 120ms ease-out;
+  transition: all var(--chess-animation-quick) ease-out;
   cursor: grab;
 }
 
@@ -177,7 +214,7 @@
 /* Smooth square border transitions */
 .chess-square-border {
   border: 2px solid transparent;
-  transition: border-color 150ms ease-out;
+  transition: border-color var(--chess-animation-normal) ease-out;
 }
 
 .chess-square-selectable:hover .chess-square-border {
@@ -198,14 +235,14 @@
 .chess-move-hint::before {
   content: "";
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 20%;
-  height: 20%;
+  top: var(--chess-size-half);
+  left: var(--chess-size-half);
+  width: var(--chess-size-small);
+  height: var(--chess-size-small);
   background-color: rgba(59, 130, 246, 0.6);
   border-radius: 50%;
   transform: translate(-50%, -50%) scale(0);
-  animation: moveHintPulse 2000ms ease-in-out infinite;
+  animation: moveHintPulse var(--chess-animation-move-hint) ease-in-out infinite;
 }
 
 @keyframes moveHintPulse {
@@ -224,7 +261,7 @@
 .chess-move-arrow {
   stroke-dasharray: 100;
   stroke-dashoffset: 100;
-  animation: drawArrow 400ms ease-out forwards;
+  animation: drawArrow var(--chess-animation-very-slow) ease-out forwards;
 }
 
 @keyframes drawArrow {
@@ -235,14 +272,14 @@
 
 /* Board loading animation */
 .chess-board-loading {
-  opacity: 0.7;
-  animation: boardLoading 1500ms ease-in-out infinite;
+  opacity: var(--chess-opacity-dim);
+  animation: boardLoading var(--chess-animation-board-loading) ease-in-out infinite;
 }
 
 @keyframes boardLoading {
   0%,
   100% {
-    opacity: 0.7;
+    opacity: var(--chess-opacity-dim);
   }
   50% {
     opacity: 1;
@@ -254,7 +291,7 @@
   /* Enable hardware acceleration */
   transform: translateZ(0);
   backface-visibility: hidden;
-  perspective: 1000;
+  perspective: var(--chess-z-perspective);
 }
 
 .chess-piece,
@@ -265,18 +302,18 @@
 }
 
 /* Responsive animation adjustments */
-@media (max-width: 768px) {
+@media (max-width: var(--chess-mobile-breakpoint)) {
   /* Reduce animation complexity on mobile for better performance */
   .chess-piece-transition {
-    transition-duration: 100ms;
+    transition-duration: var(--chess-animation-fast);
   }
 
   .chess-piece-dropped {
-    animation-duration: 150ms;
+    animation-duration: var(--chess-animation-normal);
   }
 
   .chess-square-highlighted {
-    animation-duration: 200ms;
+    animation-duration: var(--chess-animation-medium);
   }
 
   /* Reduce hover effects on touch devices */

@@ -14,6 +14,8 @@
  * with explicit perspective conversion only when needed for display or analysis.
  */
 
+import { WDL_CONVERSION } from "../../../constants/chess.constants";
+
 /**
  * Canonical WDL value type
  * -1 = Loss, 0 = Draw, 1 = Win (from current perspective)
@@ -65,7 +67,7 @@ export class WdlAdapter {
    * @returns Raw numeric WDL value
    */
   static canonicalToRaw(wdl: WdlValue): RawWdlValue {
-    return wdl * 1000; // -1000, 0, or 1000
+    return wdl * WDL_CONVERSION.SCORE_DIVISOR; // -1000, 0, or 1000
   }
 
   /**

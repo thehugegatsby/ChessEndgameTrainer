@@ -29,6 +29,8 @@ import { z } from "zod";
 import { getLogger } from "../logging";
 import { LichessTablebaseResponseSchema } from "../../types/tablebaseSchemas";
 import type { LichessTablebaseResponse } from "../../types/tablebase";
+import { API_TIMEOUTS_MS } from "../../../constants/time.constants";
+import { HTTP_STATUS } from "../../../constants/api.constants";
 
 /**
  * API-specific error for Lichess Tablebase communication
@@ -108,9 +110,9 @@ export class LichessApiClient {
     }
 
     this.baseUrl = config.baseUrl || 'https://tablebase.lichess.ovh/standard';
-    this.timeoutMs = config.timeoutMs || 5000;
+    this.timeoutMs = config.timeoutMs || API_TIMEOUTS_MS.LICHESS_DEFAULT;
     this.maxRetries = config.maxRetries || 3;
-    this.maxBackoffMs = config.maxBackoffMs || 10000;
+    this.maxBackoffMs = config.maxBackoffMs || API_TIMEOUTS_MS.LICHESS_TABLEBASE;
   }
 
   /**
@@ -134,7 +136,7 @@ export class LichessApiClient {
       } catch (error) {
         // Don't retry on client errors (4xx) except 429 (rate limiting)
         if (error instanceof LichessApiError) {
-          if (error.statusCode >= 400 && error.statusCode < 500 && error.statusCode !== 429) {
+          if (error.statusCode >= HTTP_STATUS.BAD_REQUEST && error.statusCode < HTTP_STATUS.INTERNAL_SERVER_ERROR && error.statusCode !== HTTP_STATUS.TOO_MANY_REQUESTS) {
             throw error;
           }
         }
@@ -148,8 +150,8 @@ export class LichessApiClient {
         }
 
         // Calculate backoff delay for retry
-        const baseDelay = 250 * attempt;
-        const jitter = Math.random() * 1000;
+        const baseDelay = API_TIMEOUTS_MS.RETRY_DELAY_BASE * attempt;
+        const jitter = Math.random() * API_TIMEOUTS_MS.RETRY_DELAY_MAX;
         const delay = Math.min(baseDelay + jitter, this.maxBackoffMs);
 
         await this._sleep(delay);
@@ -192,7 +194,7 @@ export class LichessApiClient {
       }
 
       const responseText = await response.text();
-      getLogger().debug(`[LichessApiClient] Response body (first 200 chars): ${responseText.substring(0, 200)}`);
+      getLogger().debug(`[LichessApiClient] Response body (first ${HTTP_STATUS.OK} chars): ${responseText.substring(0, HTTP_STATUS.OK)}`);
       
       const responseData = JSON.parse(responseText);
       

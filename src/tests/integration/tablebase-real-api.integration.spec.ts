@@ -8,7 +8,7 @@
  * from the main test suite to avoid rate limiting.
  *
  * Run with: npm run test:integration:real-api (if configured)
- * or: jest tests/integration/tablebase-real-api.integration.spec.ts
+ * or: vitest run tests/integration/tablebase-real-api.integration.spec.ts
  */
 
 import { describe, it, test, expect, beforeEach } from 'vitest';

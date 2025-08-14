@@ -42,6 +42,7 @@ import {
 
 import type { UserStats, CardProgress } from '@shared/store/slices/types';
 import { getLogger } from '@shared/services/logging/Logger';
+import { ALGORITHM_MULTIPLIERS } from '@shared/constants/multipliers';
 
 const logger = getLogger().setContext('ProgressService');
 
@@ -109,13 +110,13 @@ const cardProgressConverter = {
     const { id, ...data } = progress as CardProgress;
     
     // Validate ease factor bounds (SuperMemo-2 standard)
-    if ('efactor' in data && (data['efactor'] < 1.3 || data['efactor'] > 2.5)) {
+    if ('efactor' in data && (data['efactor'] < ALGORITHM_MULTIPLIERS.SUPERMEMO_MIN_EFACTOR || data['efactor'] > ALGORITHM_MULTIPLIERS.SUPERMEMO_MAX_EFACTOR)) {
       logger.warn('EFactor out of bounds, clamping', { 
         id, 
         efactor: data['efactor'],
-        clamped: Math.max(1.3, Math.min(2.5, data['efactor']))
+        clamped: Math.max(ALGORITHM_MULTIPLIERS.SUPERMEMO_MIN_EFACTOR, Math.min(ALGORITHM_MULTIPLIERS.SUPERMEMO_MAX_EFACTOR, data['efactor']))
       });
-      data['efactor'] = Math.max(1.3, Math.min(2.5, data['efactor']));
+      data['efactor'] = Math.max(ALGORITHM_MULTIPLIERS.SUPERMEMO_MIN_EFACTOR, Math.min(ALGORITHM_MULTIPLIERS.SUPERMEMO_MAX_EFACTOR, data['efactor']));
     }
     
     return {

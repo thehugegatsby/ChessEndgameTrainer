@@ -97,6 +97,38 @@ export const SIZE_MULTIPLIERS = {
 } as const;
 
 /**
+ * Audio-related constants for fallback sound generation
+ * Used in useFallbackAudio.ts
+ */
+export const AUDIO_CONSTANTS = {
+  /**
+   * Volume multiplier for audio fade-in (30% of max volume)
+   */
+  FADE_IN_VOLUME: 0.3,
+  
+  /**
+   * Attack duration for audio envelope (10ms)
+   */
+  ATTACK_DURATION: 0.01,
+  
+  /**
+   * Minimum volume for exponential decay (0.001)
+   */
+  MIN_DECAY_VOLUME: 0.001,
+} as const;
+
+/**
+ * String handling and truncation constants
+ * Used for logging and debugging purposes
+ */
+export const STRING_CONSTANTS = {
+  /**
+   * Standard truncation length for logging FEN strings
+   */
+  FEN_TRUNCATE_LENGTH: 20,
+} as const;
+
+/**
  * Percentage multipliers (as decimals)
  */
 export const PERCENTAGE_MULTIPLIERS = {
@@ -152,6 +184,36 @@ export const BINARY_MULTIPLIERS = {
 } as const;
 
 /**
+ * Learning and spaced repetition intervals (in days)
+ */
+export const LEARNING_INTERVALS = {
+  /**
+   * Short-term review (1 day)
+   */
+  SHORT_TERM: 1,
+  
+  /**
+   * Medium-term review (3 days)
+   */
+  MEDIUM_TERM: 3,
+  
+  /**
+   * Weekly review (7 days)
+   */
+  WEEKLY: 7,
+  
+  /**
+   * Bi-weekly review (14 days)
+   */
+  BI_WEEKLY: 14,
+  
+  /**
+   * Monthly review (30 days)
+   */
+  MONTHLY: 30,
+} as const;
+
+/**
  * Algorithm-specific multipliers
  */
 export const ALGORITHM_MULTIPLIERS = {
@@ -159,6 +221,12 @@ export const ALGORITHM_MULTIPLIERS = {
    * Default batch size (10)
    */
   DEFAULT_BATCH_SIZE: 10,
+  
+  /**
+   * SuperMemo-2 algorithm ease factor bounds
+   */
+  SUPERMEMO_MIN_EFACTOR: 1.3,
+  SUPERMEMO_MAX_EFACTOR: 2.5,
   
   /**
    * Default page size (20)
@@ -179,6 +247,26 @@ export const ALGORITHM_MULTIPLIERS = {
    * Retry multiplier for exponential backoff (2)
    */
   RETRY_BACKOFF_FACTOR: 2,
+} as const;
+
+/**
+ * Chess-specific evaluation constants
+ */
+export const CHESS_EVALUATION = {
+  /**
+   * Win-Draw-Loss (WDL) evaluation constants
+   */
+  WDL_WIN: 2,
+  WDL_DRAW: 0,
+  WDL_LOSS: -2,
+  
+  /**
+   * Evaluation advantage thresholds
+   */
+  SLIGHT_ADVANTAGE: 0.5,
+  SLIGHT_DISADVANTAGE: -0.5,
+  SIGNIFICANT_ADVANTAGE: 2,
+  SIGNIFICANT_DISADVANTAGE: -2,
 } as const;
 
 /**

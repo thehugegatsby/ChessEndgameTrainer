@@ -4,6 +4,7 @@
  */
 
 import { toast } from 'sonner';
+import { TOAST_DURATIONS_MS } from '../../constants/time.constants';
 
 /**
  * Toast message types
@@ -24,7 +25,7 @@ export interface ToastOptions {
  */
 export const showSuccessToast = (message: string, options?: ToastOptions): string | number => {
   return toast.success(message, {
-    duration: options?.duration ?? 4000,
+    duration: options?.duration ?? TOAST_DURATIONS_MS.INFO,
     ...(options?.description !== undefined && { description: options.description }),
     ...(options?.id !== undefined && { id: options.id }),
   });
@@ -35,7 +36,7 @@ export const showSuccessToast = (message: string, options?: ToastOptions): strin
  */
 export const showErrorToast = (message: string, options?: ToastOptions): string | number => {
   return toast.error(message, {
-    duration: options?.duration ?? 6000, // Longer for errors
+    duration: options?.duration ?? TOAST_DURATIONS_MS.ERROR, // Longer for errors
     ...(options?.description !== undefined && { description: options.description }),
     ...(options?.id !== undefined && { id: options.id }),
   });
@@ -46,7 +47,7 @@ export const showErrorToast = (message: string, options?: ToastOptions): string 
  */
 export const showInfoToast = (message: string, options?: ToastOptions): string | number => {
   return toast.info(message, {
-    duration: options?.duration ?? 4000,
+    duration: options?.duration ?? TOAST_DURATIONS_MS.INFO,
     ...(options?.description !== undefined && { description: options.description }),
     ...(options?.id !== undefined && { id: options.id }),
   });
@@ -57,7 +58,7 @@ export const showInfoToast = (message: string, options?: ToastOptions): string |
  */
 export const showWarningToast = (message: string, options?: ToastOptions): string | number => {
   return toast.warning(message, {
-    duration: options?.duration ?? 5000,
+    duration: options?.duration ?? TOAST_DURATIONS_MS.SUCCESS,
     ...(options?.description !== undefined && { description: options.description }),
     ...(options?.id !== undefined && { id: options.id }),
   });

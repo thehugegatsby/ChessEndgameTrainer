@@ -80,6 +80,11 @@ export const BOARD = {
    * Size of the board (for square boards, width = height)
    */
   SIZE: 8,
+
+  /**
+   * ASCII code for file 'a' (used for board coordinate calculations)
+   */
+  FILE_A_ASCII: 97,
 } as const;
 
 /**

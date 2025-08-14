@@ -20,6 +20,8 @@
  * and provides optimized sorting algorithms for each move category.
  */
 
+import { RESULT_CLASSIFICATION } from "../../../constants/chess.constants";
+
 /**
  * Move result type classification
  * @typedef {'win' | 'draw' | 'loss'} MoveResultType
@@ -449,16 +451,16 @@ export const getResultIcon = (resultType: MoveResultType): string => {
  * - Special handling for zero values (draws)
  */
 export const calculateBarWidth = (dtz: number, maxDtz: number): number => {
-  if (maxDtz === 0) return 50; // Default width for draws
+  if (maxDtz === 0) return RESULT_CLASSIFICATION.MISTAKE_THRESHOLD; // Default width for draws
 
   const absDtz = Math.abs(dtz);
   const absMaxDtz = Math.abs(maxDtz);
 
-  if (absMaxDtz === 0) return 50;
+  if (absMaxDtz === 0) return RESULT_CLASSIFICATION.MISTAKE_THRESHOLD;
 
   // Calculate width: minimum 20%, maximum 100%
-  const baseWidth = (absDtz / absMaxDtz) * 80 + 20;
-  return Math.min(100, Math.max(20, baseWidth));
+  const baseWidth = (absDtz / absMaxDtz) * RESULT_CLASSIFICATION.BLUNDER_THRESHOLD + RESULT_CLASSIFICATION.ADVANTAGE_THRESHOLD;
+  return Math.min(RESULT_CLASSIFICATION.PERCENTAGE_BASE, Math.max(RESULT_CLASSIFICATION.ADVANTAGE_THRESHOLD, baseWidth));
 };
 
 /**

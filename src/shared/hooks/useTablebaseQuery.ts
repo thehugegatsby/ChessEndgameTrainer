@@ -7,6 +7,8 @@ import { useQuery, useQueryClient, type UseQueryOptions, type UseQueryResult } f
 import { tablebaseService } from '@shared/services/TablebaseService';
 import type { TablebaseEvaluation, TablebaseMovesResult } from '@shared/services/TablebaseService';
 import { getLogger } from '@shared/services/logging';
+import { TIME_MULTIPLIERS } from '@shared/constants/multipliers';
+import { TIME_UNITS } from '@shared/constants/time.constants';
 
 const logger = getLogger().setContext('useTablebaseQuery');
 
@@ -55,8 +57,8 @@ export function useTablebaseEvaluation(
       return result;
     },
     enabled: Boolean(fen),
-    staleTime: 30 * 60 * 1000, // 30 minutes (tablebase data is immutable)
-    gcTime: 60 * 60 * 1000, // 1 hour
+    staleTime: TIME_MULTIPLIERS.STANDARD * TIME_UNITS.MINUTE, // 30 minutes (tablebase data is immutable)
+    gcTime: TIME_UNITS.HOUR, // 1 hour
     refetchOnWindowFocus: false,
     retry: (failureCount, error) => {
       // Don't retry if the position is simply not in tablebase (not an error)
@@ -106,8 +108,8 @@ export function useTablebaseTopMoves(
       return result;
     },
     enabled: Boolean(fen),
-    staleTime: 30 * 60 * 1000, // 30 minutes (tablebase data is immutable)
-    gcTime: 60 * 60 * 1000, // 1 hour
+    staleTime: TIME_MULTIPLIERS.STANDARD * TIME_UNITS.MINUTE, // 30 minutes (tablebase data is immutable)
+    gcTime: TIME_UNITS.HOUR, // 1 hour
     refetchOnWindowFocus: false,
     retry: (failureCount, error) => {
       // Don't retry if the position is simply not in tablebase
@@ -131,7 +133,7 @@ export function usePrefetchTablebaseEvaluation() {
     queryClient.prefetchQuery({
       queryKey: tablebaseKeys.evaluation(fen),
       queryFn: () => tablebaseService.getEvaluation(fen),
-      staleTime: 30 * 60 * 1000,
+      staleTime: TIME_MULTIPLIERS.STANDARD * TIME_UNITS.MINUTE,
     });
   };
 }
@@ -144,7 +146,7 @@ export function useTablebaseMetrics(): UseQueryResult<{ cacheHitRate: number; to
   return useQuery({
     queryKey: [...tablebaseKeys.all, 'metrics'],
     queryFn: () => tablebaseService.getMetrics(),
-    staleTime: 10 * 1000, // 10 seconds
-    refetchInterval: 30 * 1000, // Refresh every 30 seconds
+    staleTime: TIME_MULTIPLIERS.QUICK * TIME_UNITS.SECOND, // 10 seconds
+    refetchInterval: TIME_MULTIPLIERS.STANDARD * TIME_UNITS.SECOND, // Refresh every 30 seconds
   });
 }

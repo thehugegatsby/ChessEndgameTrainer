@@ -118,11 +118,11 @@ describe("Move History Navigation Bug", () => {
     );
 
     // Verify all 5 moves are displayed initially
-    expect(screen.getByText("e4")).toBeInTheDocument();
-    expect(screen.getByText("e5")).toBeInTheDocument();
-    expect(screen.getByText("Nf3")).toBeInTheDocument();
-    expect(screen.getByText("Nc6")).toBeInTheDocument();
-    expect(screen.getByText("Bc4")).toBeInTheDocument();
+    expect(screen.getByText("e4")?.isConnected).toBe(true);
+    expect(screen.getByText("e5")?.isConnected).toBe(true);
+    expect(screen.getByText("Nf3")?.isConnected).toBe(true);
+    expect(screen.getByText("Nc6")?.isConnected).toBe(true);
+    expect(screen.getByText("Bc4")?.isConnected).toBe(true);
 
     // User clicks on move 2 (Nf3) to navigate there
     const nf3Button = screen.getByText("Nf3");
@@ -155,13 +155,13 @@ describe("Move History Navigation Bug", () => {
     console.log("With fix: All moves should now be visible!");
 
     // These assertions verify the fix works:
-    expect(screen.getByText("e4")).toBeInTheDocument();
-    expect(screen.getByText("e5")).toBeInTheDocument();
-    expect(screen.getByText("Nf3")).toBeInTheDocument();
+    expect(screen.getByText("e4")?.isConnected).toBe(true);
+    expect(screen.getByText("e5")?.isConnected).toBe(true);
+    expect(screen.getByText("Nf3")?.isConnected).toBe(true);
 
     // FIXED: These moves should now be visible!
-    expect(screen.getByText("Nc6")).toBeInTheDocument(); // Now visible!
-    expect(screen.getByText("Bc4")).toBeInTheDocument(); // Now visible!
+    expect(screen.getByText("Nc6")?.isConnected).toBe(true); // Now visible!
+    expect(screen.getByText("Bc4")?.isConnected).toBe(true); // Now visible!
   });
 
   it("EXPECTED BEHAVIOR: Should display all moves with proper highlighting", () => {

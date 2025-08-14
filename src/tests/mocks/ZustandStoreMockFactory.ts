@@ -8,7 +8,7 @@
 
 // @ts-nocheck - Test infrastructure with complex mock typing
 
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 import { act } from '@testing-library/react';
 import { type StoreApi } from 'zustand';
 import { BaseMockFactory } from './BaseMockFactory';

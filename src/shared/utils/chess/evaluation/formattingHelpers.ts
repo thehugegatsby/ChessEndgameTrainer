@@ -1,5 +1,6 @@
 import type { PositionAnalysis } from "@shared/types";
 import { EVALUATION } from "@shared/constants";
+import { EVALUATION_FORMATTING } from "../../../../constants/chess.constants";
 
 export const formatEvaluation = (evalData?: PositionAnalysis): string => {
   if (!evalData) return "0.00";
@@ -9,7 +10,7 @@ export const formatEvaluation = (evalData?: PositionAnalysis): string => {
   }
 
   const eval_ = evalData.evaluation;
-  if (Math.abs(eval_) < 0.1) return "0.0";
+  if (Math.abs(eval_) < EVALUATION_FORMATTING.DECIMAL_THRESHOLD) return "0.0";
   return eval_ > 0 ? `+${eval_.toFixed(1)}` : eval_.toFixed(1);
 };
 
@@ -29,7 +30,7 @@ export const getEvaluationColor = (evalData?: PositionAnalysis): string => {
 };
 
 export const getEvaluationBarWidth = (evaluation?: number): number => {
-  if (evaluation === undefined) return 50;
+  if (evaluation === undefined) return EVALUATION_FORMATTING.PERCENTAGE_HALF;
   // Convert evaluation to percentage (clamped between 0-100)
-  return Math.max(0, Math.min(100, 50 + evaluation * 10));
+  return Math.max(0, Math.min(EVALUATION_FORMATTING.PERCENTAGE_BASE, EVALUATION_FORMATTING.PERCENTAGE_HALF + evaluation * EVALUATION_FORMATTING.RATING_DIVISOR));
 };

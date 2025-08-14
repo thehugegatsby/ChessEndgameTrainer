@@ -13,26 +13,26 @@ describe("Header Component", () => {
     it("should render main title", () => {
       render(<Header />);
 
-      expect(screen.getByText("Schach Endspiel Training")).toBeInTheDocument();
+      expect(screen.getByText("Schach Endspiel Training")?.isConnected).toBe(true);
     });
 
     it("should render subtitle", () => {
       render(<Header />);
 
-      expect(screen.getByText("Verbessere dein Endspiel")).toBeInTheDocument();
+      expect(screen.getByText("Verbessere dein Endspiel")?.isConnected).toBe(true);
     });
 
     it("should render chess king icon", () => {
       render(<Header />);
 
-      expect(screen.getByText("♔")).toBeInTheDocument();
+      expect(screen.getByText("♔")?.isConnected).toBe(true);
     });
 
     it("should be rendered as header element", () => {
       render(<Header />);
 
       const header = screen.getByRole("banner");
-      expect(header).toBeInTheDocument();
+      expect(header?.isConnected).toBe(true);
       expect(header.tagName).toBe("HEADER");
     });
   });
@@ -42,17 +42,17 @@ describe("Header Component", () => {
       const { container } = render(<Header />);
 
       const header = container.querySelector("header");
-      expect(header).toBeInTheDocument();
+      expect(header?.isConnected).toBe(true);
 
       // Should have max-width container
       const container_div = header?.querySelector(".max-w-7xl");
-      expect(container_div).toBeInTheDocument();
+      expect(container_div?.isConnected).toBe(true);
 
       // Should have flex layout
       const flexDiv = container_div?.querySelector(
         ".flex.items-center.justify-between",
       );
-      expect(flexDiv).toBeInTheDocument();
+      expect(flexDiv?.isConnected).toBe(true);
     });
 
     it("should have left section with icon and title", () => {
@@ -62,11 +62,11 @@ describe("Header Component", () => {
       const leftSection = container.querySelector(
         ".flex.items-center.space-x-3",
       );
-      expect(leftSection).toBeInTheDocument();
+      expect(leftSection?.isConnected).toBe(true);
 
       // Should contain icon and title
-      expect(leftSection).toHaveTextContent("♔");
-      expect(leftSection).toHaveTextContent("Schach Endspiel Training");
+      expect(leftSection.textContent).toBe("♔");
+      expect(leftSection.textContent).toBe("Schach Endspiel Training");
     });
 
     it("should have right section with subtitle", () => {
@@ -74,7 +74,7 @@ describe("Header Component", () => {
 
       // The subtitle should be in the right section
       const subtitle = screen.getByText("Verbessere dein Endspiel");
-      expect(subtitle).toBeInTheDocument();
+      expect(subtitle?.isConnected).toBe(true);
     });
   });
 
@@ -107,14 +107,14 @@ describe("Header Component", () => {
       const { container } = render(<Header />);
 
       const containerDiv = container.querySelector(".max-w-7xl.mx-auto");
-      expect(containerDiv).toBeInTheDocument();
+      expect(containerDiv?.isConnected).toBe(true);
     });
 
     it("should have proper padding", () => {
       const { container } = render(<Header />);
 
       const containerDiv = container.querySelector(".px-4.py-3");
-      expect(containerDiv).toBeInTheDocument();
+      expect(containerDiv?.isConnected).toBe(true);
     });
 
     it("should use CSS custom properties for colors", () => {
@@ -125,8 +125,8 @@ describe("Header Component", () => {
 
       // Check that the elements have the correct inline styles set
       // Note: JSDOM may not parse CSS custom properties, so we check for the property being set
-      expect(title).toHaveStyle({ color: "var(--text-primary)" });
-      expect(subtitle).toHaveStyle({ color: "var(--text-secondary)" });
+      expect(title.style).toMatchObject({ color: "var(--text-primary)" });
+      expect(subtitle.style).toMatchObject({ color: "var(--text-secondary)" });
     });
   });
 
@@ -166,16 +166,16 @@ describe("Header Component", () => {
       render(<Header />);
 
       const heading = screen.getByRole("heading", { level: 1 });
-      expect(heading).toHaveTextContent("Schach Endspiel Training");
+      expect(heading.textContent).toBe("Schach Endspiel Training");
     });
 
     it("should have accessible text content", () => {
       render(<Header />);
 
       // All text should be visible and accessible
-      expect(screen.getByText("Schach Endspiel Training")).toBeVisible();
-      expect(screen.getByText("Verbessere dein Endspiel")).toBeVisible();
-      expect(screen.getByText("♔")).toBeVisible();
+      expect(screen.getByText("Schach Endspiel Training")?.isConnected).toBe(true);
+      expect(screen.getByText("Verbessere dein Endspiel")?.isConnected).toBe(true);
+      expect(screen.getByText("♔")?.isConnected).toBe(true);
     });
   });
 
@@ -186,7 +186,7 @@ describe("Header Component", () => {
       const responsiveContainer = container.querySelector(
         ".max-w-7xl.mx-auto.px-4",
       );
-      expect(responsiveContainer).toBeInTheDocument();
+      expect(responsiveContainer?.isConnected).toBe(true);
     });
 
     it("should have flexible layout", () => {
@@ -195,14 +195,14 @@ describe("Header Component", () => {
       const flexContainer = container.querySelector(
         ".flex.items-center.justify-between",
       );
-      expect(flexContainer).toBeInTheDocument();
+      expect(flexContainer?.isConnected).toBe(true);
     });
 
     it("should have proper spacing classes", () => {
       const { container } = render(<Header />);
 
       const spacedContainer = container.querySelector(".space-x-3");
-      expect(spacedContainer).toBeInTheDocument();
+      expect(spacedContainer?.isConnected).toBe(true);
     });
   });
 
@@ -255,15 +255,15 @@ describe("Header Component", () => {
       render(<Header />);
 
       // Should handle German characters correctly
-      expect(screen.getByText("Schach Endspiel Training")).toBeInTheDocument();
-      expect(screen.getByText("Verbessere dein Endspiel")).toBeInTheDocument();
+      expect(screen.getByText("Schach Endspiel Training")?.isConnected).toBe(true);
+      expect(screen.getByText("Verbessere dein Endspiel")?.isConnected).toBe(true);
     });
 
     it("should display Unicode chess symbol correctly", () => {
       render(<Header />);
 
       const icon = screen.getByText("♔");
-      expect(icon).toBeInTheDocument();
+      expect(icon?.isConnected).toBe(true);
       expect(icon.textContent).toBe("♔");
     });
   });

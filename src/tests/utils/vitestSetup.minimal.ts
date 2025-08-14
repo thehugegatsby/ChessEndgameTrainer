@@ -3,7 +3,7 @@ import { vi } from 'vitest';
  * Minimal Jest Setup - Temporary while fixing tests
  */
 
-import "@testing-library/jest-dom/vitest";
+// @testing-library/jest-dom removed - using Vitest native matchers
 
 // Mock console to reduce noise
 global.console = {

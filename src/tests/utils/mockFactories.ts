@@ -23,7 +23,7 @@ import type {
 const mockFn = <TArgs extends unknown[] = unknown[], TReturn = unknown>(
   impl?: (...args: TArgs) => TReturn
 ): vi.Mock<TReturn, TArgs> | ((...args: TArgs) => TReturn) => {
-  if (typeof jest !== "undefined" && vi.fn) {
+  if (vi.fn) {
     return impl ? vi.fn(impl) : vi.fn();
   }
   return impl || (() => {});
@@ -32,7 +32,7 @@ const mockFn = <TArgs extends unknown[] = unknown[], TReturn = unknown>(
 const asyncMockFn = <TArgs extends unknown[] = unknown[], TReturn = unknown>(
   impl?: (...args: TArgs) => Promise<TReturn>
 ): vi.Mock<Promise<TReturn>, TArgs> | ((...args: TArgs) => Promise<TReturn | undefined>) => {
-  if (typeof jest !== "undefined" && vi.fn) {
+  if (vi.fn) {
     return impl ? vi.fn(impl) : vi.fn().mockResolvedValue(undefined);
   }
   return impl || (() => Promise.resolve(undefined));

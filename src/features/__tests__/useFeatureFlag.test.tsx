@@ -7,7 +7,7 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { useFeatureFlag, useFeatureFlags, useFeatureFlagControls } from '../../shared/hooks/useFeatureFlag';
 import { FeatureFlag, featureFlags } from '../../shared/services/FeatureFlagService';
 
-describe.skip('useFeatureFlag hooks - TODO: Fix memory issues with FeatureFlagService', () => {
+describe.skip('useFeatureFlag hooks - DEPRECATED: Strangler Fig Pattern completed, remove system', () => {
   beforeEach(() => {
     // Reset all feature flags
     Object.values(FeatureFlag).forEach(flag => {
@@ -28,7 +28,7 @@ describe.skip('useFeatureFlag hooks - TODO: Fix memory issues with FeatureFlagSe
       expect(result.current).toBe(false);
     });
     
-    it.skip('should update when flag changes', async () => {
+    it.skip('should update when flag changes - SKIP: Event loop timeout', async () => {
       const { result } = renderHook(() => 
         useFeatureFlag(FeatureFlag.USE_NEW_CHESS_CORE)
       );

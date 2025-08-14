@@ -5,6 +5,9 @@
  * They are based on a modified SM-2 algorithm for spaced repetition.
  */
 
+import { TIME_MULTIPLIERS } from './multipliers';
+import { TIME_UNITS } from './time.constants';
+
 // ============================================================================
 // SPACED REPETITION
 // ============================================================================
@@ -23,9 +26,9 @@ export const SPACED_REPETITION = Object.freeze({
    * Step 3: 1 day
    */
   INITIAL_INTERVALS_MS: [
-    10 * 60 * 1000,  // 10 minutes
-    60 * 60 * 1000,  // 1 hour
-    24 * 60 * 60 * 1000,  // 1 day
+    TIME_MULTIPLIERS.QUICK * TIME_UNITS.MINUTE,  // 10 minutes
+    TIME_UNITS.HOUR,  // 1 hour
+    TIME_UNITS.DAY,  // 1 day
   ],
 
   /**
@@ -64,6 +67,11 @@ export const SPACED_REPETITION = Object.freeze({
    * Not currently implemented in the core logic, but here for future extension.
    */
   EASINESS_FACTOR_ADJUSTMENT: 0.1,
+
+  /**
+   * Base percentage value for calculations
+   */
+  PERCENTAGE_BASE: 100,
 });
 
 
@@ -161,5 +169,5 @@ export const PROGRESS_CONFIG = Object.freeze({
    * The time (in milliseconds) after which a puzzle is considered "timed out"
    * and should be marked as incomplete/failed.
    */
-  ATTEMPT_TIMEOUT_MS: 10 * 60 * 1000, // 10 minutes
+  ATTEMPT_TIMEOUT_MS: TIME_MULTIPLIERS.QUICK * TIME_UNITS.MINUTE, // 10 minutes
 });

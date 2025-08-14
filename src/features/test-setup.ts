@@ -5,7 +5,7 @@
  * in the features/ directory. It handles both Node.js and DOM environments.
  */
 
-import '@testing-library/jest-dom';
+// @testing-library/jest-dom removed - using Vitest native matchers
 import { vi, beforeAll, afterAll, afterEach } from 'vitest';
 
 // --- Global Setup (Environment-Agnostic) ---

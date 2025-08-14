@@ -35,6 +35,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { type PositionAnalysis } from '@shared/types';
 import { getLogger } from '@shared/services/logging';
+import { STRING_CONSTANTS } from '@shared/constants/multipliers';
 
 /**
  * Configuration options for move validation hook
@@ -160,7 +161,7 @@ export const useMoveValidation = ({
       logger.warn("tablebaseActions.setAnalysisStatus not available, skipping analysis status update", {
         hasTablebaseActions: Boolean(tablebaseActions),
         isEvaluating,
-        currentFen: `${currentFen?.substring(0, 20)  }...`
+        currentFen: `${currentFen?.substring(0, STRING_CONSTANTS.FEN_TRUNCATE_LENGTH)  }...`
       });
       return;
     }

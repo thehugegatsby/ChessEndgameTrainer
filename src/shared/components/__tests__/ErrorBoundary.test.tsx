@@ -76,7 +76,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
     
-    expect(screen.getByText('No error')).toBeInTheDocument();
+    expect(screen.getByText('No error')?.isConnected).toBe(true);
   });
 
   it('renders fallback UI when error occurs', () => {
@@ -89,7 +89,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
     
-    expect(screen.getByText(/etwas ist schiefgelaufen/i)).toBeInTheDocument();
+    expect(screen.getByText(/etwas ist schiefgelaufen/i)?.isConnected).toBe(true);
     
     consoleSpy.mockRestore();
   });
@@ -104,7 +104,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
     
-    expect(screen.getByText('Custom error message')).toBeInTheDocument();
+    expect(screen.getByText('Custom error message')?.isConnected).toBe(true);
     
     consoleSpy.mockRestore();
   });
@@ -164,8 +164,8 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
     
-    expect(screen.getByText(/Fehlerdetails/)).toBeInTheDocument();
-    expect(screen.getByText(/Test error/)).toBeInTheDocument();
+    expect(screen.getByText(/Fehlerdetails/)?.isConnected).toBe(true);
+    expect(screen.getByText(/Test error/)?.isConnected).toBe(true);
     
     consoleSpy.mockRestore();
     Object.defineProperty(process.env, 'NODE_ENV', {
@@ -190,7 +190,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
     
-    expect(screen.queryByText(/Fehlerdetails/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Fehlerdetails/)).not?.isConnected).toBe(true);
     
     consoleSpy.mockRestore();
     Object.defineProperty(process.env, 'NODE_ENV', {
@@ -262,14 +262,14 @@ describe('useErrorBoundary hook', () => {
     render(<TestComponent />);
     
     // Initially shows error
-    expect(screen.getByText(/etwas ist schiefgelaufen/i)).toBeInTheDocument();
+    expect(screen.getByText(/etwas ist schiefgelaufen/i)?.isConnected).toBe(true);
     
     // Click reset
     fireEvent.click(screen.getByText('Reset'));
     
     // Now shows normal content
-    expect(screen.getByText('No error')).toBeInTheDocument();
-    expect(screen.queryByText(/etwas ist schiefgelaufen/i)).not.toBeInTheDocument();
+    expect(screen.getByText('No error')?.isConnected).toBe(true);
+    expect(screen.queryByText(/etwas ist schiefgelaufen/i)).not?.isConnected).toBe(true);
     
     consoleSpy.mockRestore();
   });

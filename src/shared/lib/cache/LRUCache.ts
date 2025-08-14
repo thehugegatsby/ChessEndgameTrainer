@@ -21,6 +21,8 @@
  * insertion order for efficient LRU tracking.
  */
 
+import { LRU_CACHE_CONFIG } from "../../../constants/cache.constants";
+
 /**
  * Cache statistics interface for performance monitoring
  * 
@@ -199,7 +201,7 @@ export class LRUCache<T> {
    */
   getMemoryUsage(): number {
     // Rough estimate
-    return this.cache.size * 1000; // Assume 1KB per entry
+    return this.cache.size * LRU_CACHE_CONFIG.ESTIMATED_ENTRY_SIZE_BYTES; // Assume 1KB per entry
   }
 
   /**

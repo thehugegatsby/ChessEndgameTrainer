@@ -1,5 +1,6 @@
 // Note: Using direct service import for service-to-service integration
 import { getLogger } from "./logging";
+import { CHESS_EVALUATION, SIZE_MULTIPLIERS } from "@shared/constants/multipliers";
 
 const logger = getLogger().setContext("MoveStrategyService");
 
@@ -47,7 +48,7 @@ class MoveStrategyService {
     try {
       // Get ALL moves efficiently with single API call
       const { tablebaseService } = await import("./TablebaseService");
-      const topMoves = await tablebaseService.getTopMoves(fen, 100);
+      const topMoves = await tablebaseService.getTopMoves(fen, SIZE_MULTIPLIERS.LARGE_FACTOR);
 
       if (
         !topMoves.isAvailable ||
@@ -70,14 +71,14 @@ class MoveStrategyService {
       }
       const positionWdl = firstMove.wdl;
 
-      if (positionWdl === 2) {
+      if (positionWdl === CHESS_EVALUATION.WDL_WIN) {
         // Position is winning - find the fastest win (lowest DTZ)
         let minDtz =
           selectedMove.dtz !== null && selectedMove.dtz !== undefined
             ? Math.abs(selectedMove.dtz)
             : Infinity;
         for (const move of moves) {
-          if (move.wdl === 2 && move.dtz !== undefined && move.dtz !== null) {
+          if (move.wdl === CHESS_EVALUATION.WDL_WIN && move.dtz !== undefined && move.dtz !== null) {
             const absDtz = Math.abs(move.dtz);
             if (absDtz < minDtz) {
               minDtz = absDtz;
@@ -89,13 +90,13 @@ class MoveStrategyService {
           move: selectedMove.san,
           dtz: selectedMove.dtz,
         });
-      } else if (positionWdl === -2) {
+      } else if (positionWdl === CHESS_EVALUATION.WDL_LOSS) {
         // Position is losing - find the longest resistance (highest DTM, not DTZ!)
         // DTM shows actual moves to mate, DTZ only shows moves to 50-move rule
 
         // Check if we have DTM values directly in the moves
         const movesWithDtm = moves.filter(
-          (m) => m.wdl === -2 && m.dtm !== null && m.dtm !== undefined,
+          (m) => m.wdl === CHESS_EVALUATION.WDL_LOSS && m.dtm !== null && m.dtm !== undefined,
         );
 
         if (movesWithDtm.length > 0) {
@@ -134,7 +135,7 @@ class MoveStrategyService {
 
           for (const move of moves) {
             if (
-              move.wdl === -2 &&
+              move.wdl === CHESS_EVALUATION.WDL_LOSS &&
               move.dtz !== null &&
               move.dtz !== undefined
             ) {

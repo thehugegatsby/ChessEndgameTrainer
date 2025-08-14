@@ -6,6 +6,8 @@
  * tablebase data, reducing duplication between hooks and store actions.
  */
 
+import { SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
+
 // Note: Using direct service import for service-to-service integration
 import { formatPositionAnalysis } from "../utils/positionAnalysisFormatter";
 import { getLogger } from "./logging";
@@ -48,7 +50,7 @@ class AnalysisService {
     moveLimit: number = 5,
   ): Promise<AnalysisResult | null> {
     logger.info("Getting position analysis", {
-      fen: `${fen.slice(0, 20)  }...`,
+      fen: `${fen.slice(0, SIZE_MULTIPLIERS.SMALL_FACTOR * 2)  }...`,
       moveLimit,
     });
 

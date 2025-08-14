@@ -8,6 +8,8 @@
  * optimal LLM readability with comprehensive documentation.
  */
 
+import { HTTP_BUFFER_SIZES } from "../../constants/cache.constants";
+
 /**
  * HTTP configuration defaults
  * 
@@ -36,7 +38,7 @@ export const HTTP_CONFIG = {
   /**
    * Maximum payload size in bytes (10MB)
    */
-  MAX_PAYLOAD_SIZE: 10 * 1024 * 1024,
+  MAX_PAYLOAD_SIZE: HTTP_BUFFER_SIZES.MAX_BODY_SIZE_BYTES,
 } as const;
 
 /**

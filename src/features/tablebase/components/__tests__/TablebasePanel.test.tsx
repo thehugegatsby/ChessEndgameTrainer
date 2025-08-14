@@ -43,9 +43,9 @@ describe("TablebasePanel", () => {
       />,
     );
 
-    expect(screen.getByTestId("tablebase-panel")).toBeInTheDocument();
-    expect(screen.getByText("Tablebase")).toBeInTheDocument();
-    expect(screen.getByText("4 moves")).toBeInTheDocument();
+    expect(screen.getByTestId("tablebase-panel")?.isConnected).toBe(true);
+    expect(screen.getByText("Tablebase")?.isConnected).toBe(true);
+    expect(screen.getByText("4 moves")?.isConnected).toBe(true);
   });
 
   it("should render move groups correctly", () => {
@@ -57,16 +57,16 @@ describe("TablebasePanel", () => {
     );
 
     // Check for winning moves group
-    expect(screen.getByText("Winning Moves")).toBeInTheDocument();
-    expect(screen.getByText("e4")).toBeInTheDocument();
-    expect(screen.getByText("f4")).toBeInTheDocument();
+    expect(screen.getByText("Winning Moves")?.isConnected).toBe(true);
+    expect(screen.getByText("e4")?.isConnected).toBe(true);
+    expect(screen.getByText("f4")?.isConnected).toBe(true);
 
     // Check for drawing moves group
-    expect(screen.getByText("Drawing Moves")).toBeInTheDocument();
-    expect(screen.getByText("e5")).toBeInTheDocument();
+    expect(screen.getByText("Drawing Moves")?.isConnected).toBe(true);
+    expect(screen.getByText("e5")?.isConnected).toBe(true);
 
     // Check for losing moves group (collapsed by default)
-    expect(screen.getByText("Losing Moves")).toBeInTheDocument();
+    expect(screen.getByText("Losing Moves")?.isConnected).toBe(true);
 
     // Click to expand losing moves group
     const losingMovesHeader = screen
@@ -75,7 +75,7 @@ describe("TablebasePanel", () => {
     fireEvent.click(losingMovesHeader!);
 
     // Now f6 should be visible
-    expect(screen.getByText("f6")).toBeInTheDocument();
+    expect(screen.getByText("f6")?.isConnected).toBe(true);
   });
 
   it("should handle move selection", () => {
@@ -101,9 +101,9 @@ describe("TablebasePanel", () => {
       />,
     );
 
-    expect(screen.getByText("Tablebase")).toBeInTheDocument();
+    expect(screen.getByText("Tablebase")?.isConnected).toBe(true);
     // Should show loading text
-    expect(screen.getByText("Lade Analyse...")).toBeInTheDocument();
+    expect(screen.getByText("Lade Analyse...")?.isConnected).toBe(true);
   });
 
   it("should handle no tablebase data", () => {
@@ -118,10 +118,10 @@ describe("TablebasePanel", () => {
       />,
     );
 
-    expect(screen.getByText("Tablebase")).toBeInTheDocument();
+    expect(screen.getByText("Tablebase")?.isConnected).toBe(true);
     expect(
-      screen.getByText("Keine Tablebase-Daten verfügbar"),
-    ).toBeInTheDocument();
+      screen.getByText("Keine Tablebase-Daten verfügbar")?.isConnected,
+    ).toBe(true);
   });
 
   it("should handle empty moves", () => {
@@ -137,10 +137,10 @@ describe("TablebasePanel", () => {
       />,
     );
 
-    expect(screen.getByText("Tablebase")).toBeInTheDocument();
+    expect(screen.getByText("Tablebase")?.isConnected).toBe(true);
     expect(
-      screen.getByText("Warte auf Tablebase-Analyse..."),
-    ).toBeInTheDocument();
+      screen.getByText("Warte auf Tablebase-Analyse...")?.isConnected,
+    ).toBe(true);
   });
 
   it("should render statistics correctly", () => {
@@ -153,25 +153,25 @@ describe("TablebasePanel", () => {
 
     // Check statistics section - use more specific selectors to avoid conflicts
     const winningMovesSection = screen.getByText("Winning Moves");
-    expect(winningMovesSection).toBeInTheDocument();
+    expect(winningMovesSection?.isConnected).toBe(true);
 
     // Check counts are displayed correctly
     const winningCount = screen
       .getByText("Winning Moves")
       .parentElement?.querySelector(".text-xs");
-    expect(winningCount).toHaveTextContent("2");
+    expect(winningCount.textContent).toBe("2");
 
     const drawingMovesSection = screen.getByText("Drawing Moves");
-    expect(drawingMovesSection).toBeInTheDocument();
+    expect(drawingMovesSection?.isConnected).toBe(true);
     const drawingCount =
       drawingMovesSection.parentElement?.querySelector(".text-xs");
-    expect(drawingCount).toHaveTextContent("1");
+    expect(drawingCount.textContent).toBe("1");
 
     const losingMovesSection = screen.getByText("Losing Moves");
-    expect(losingMovesSection).toBeInTheDocument();
+    expect(losingMovesSection?.isConnected).toBe(true);
     const losingCount =
       losingMovesSection.parentElement?.querySelector(".text-xs");
-    expect(losingCount).toHaveTextContent("1");
+    expect(losingCount.textContent).toBe("1");
   });
 
   it("should handle compact mode", () => {
@@ -183,12 +183,12 @@ describe("TablebasePanel", () => {
       />,
     );
 
-    expect(screen.getByTestId("tablebase-panel")).toBeInTheDocument();
-    expect(screen.getByText("Tablebase")).toBeInTheDocument();
+    expect(screen.getByTestId("tablebase-panel")?.isConnected).toBe(true);
+    expect(screen.getByText("Tablebase")?.isConnected).toBe(true);
 
     // Statistics should not be visible in compact mode
     const statisticsSection = screen.queryByText("Winning");
-    expect(statisticsSection).not.toBeInTheDocument();
+    expect(statisticsSection).toBeNull();
   });
 
   it("should highlight selected move", () => {
@@ -203,10 +203,10 @@ describe("TablebasePanel", () => {
     const selectedMoveElement = screen
       .getByText("e4")
       .closest('[role="button"]');
-    expect(selectedMoveElement).toHaveClass(
+    expect(selectedMoveElement.classList.contains(
       "bg-blue-50",
       "dark:bg-blue-900/20",
-    );
+    )).toBe(true);
   });
 
   describe('Error Handling', () => {
@@ -219,15 +219,15 @@ describe("TablebasePanel", () => {
         />
       );
 
-      expect(screen.getByText('Tablebase')).toBeInTheDocument();
-      expect(screen.getByText('Analyse konnte nicht geladen werden')).toBeInTheDocument();
+      expect(screen.getByText('Tablebase')?.isConnected).toBe(true);
+      expect(screen.getByText('Analyse konnte nicht geladen werden')?.isConnected).toBe(true);
       
       // Error state doesn't have data-testid, just the CSS class
       const panel = screen.getByText('Tablebase').closest('.tablebase-panel');
-      expect(panel).toBeInTheDocument();
+      expect(panel?.isConnected).toBe(true);
       
       // Should not show move groups when there's an error
-      expect(screen.queryByText('Winning Moves')).not.toBeInTheDocument();
+      expect(screen.queryByText('Winning Moves')).toBeNull();
     });
 
     it('should have correct error styling', () => {
@@ -240,8 +240,8 @@ describe("TablebasePanel", () => {
       );
 
       const errorElement = screen.getByText('Analyse konnte nicht geladen werden');
-      expect(errorElement).toHaveClass('text-sm', 'text-red-600', 'dark:text-red-400');
-      expect(errorElement).toHaveClass('bg-red-50', 'dark:bg-red-900/20');
+      expect(errorElement.classList.contains('text-sm', 'text-red-600', 'dark:text-red-400')).toBe(true);
+      expect(errorElement.classList.contains('bg-red-50', 'dark:bg-red-900/20')).toBe(true);
     });
   });
 
@@ -256,7 +256,7 @@ describe("TablebasePanel", () => {
       );
 
       const panel = screen.getByTestId('tablebase-panel');
-      expect(panel).toHaveClass('tablebase-panel', 'custom-panel-class');
+      expect(panel.classList.contains('tablebase-panel', 'custom-panel-class')).toBe(true);
     });
 
     it('should handle undefined selectedMove gracefully', () => {
@@ -269,12 +269,12 @@ describe("TablebasePanel", () => {
       );
 
       // Should render without errors
-      expect(screen.getByTestId('tablebase-panel')).toBeInTheDocument();
+      expect(screen.getByTestId('tablebase-panel')?.isConnected).toBe(true);
       
       // No moves should have selected styling
       const moveButtons = screen.getAllByRole('button');
       moveButtons.forEach(button => {
-        expect(button).not.toHaveClass('bg-blue-50');
+        expect(button.classList.contains('bg-blue-50')).toBe(false);
       });
     });
 
@@ -286,8 +286,8 @@ describe("TablebasePanel", () => {
         />
       );
 
-      expect(screen.getByTestId('tablebase-panel')).toBeInTheDocument();
-      expect(screen.getByText('Tablebase')).toBeInTheDocument();
+      expect(screen.getByTestId('tablebase-panel')?.isConnected).toBe(true);
+      expect(screen.getByText('Tablebase')?.isConnected).toBe(true);
     });
   });
 
@@ -305,7 +305,7 @@ describe("TablebasePanel", () => {
         />
       );
 
-      expect(screen.getByText('Warte auf Tablebase-Analyse...')).toBeInTheDocument();
+      expect(screen.getByText('Warte auf Tablebase-Analyse...')?.isConnected).toBe(true);
     });
 
     it('should handle moves with missing DTM values', () => {
@@ -323,9 +323,9 @@ describe("TablebasePanel", () => {
         />
       );
 
-      expect(screen.getByText('Tablebase')).toBeInTheDocument();
-      expect(screen.getByText('1 moves')).toBeInTheDocument();
-      expect(screen.getByText('e4')).toBeInTheDocument();
+      expect(screen.getByText('Tablebase')?.isConnected).toBe(true);
+      expect(screen.getByText('1 moves')?.isConnected).toBe(true);
+      expect(screen.getByText('e4')?.isConnected).toBe(true);
     });
 
     it('should handle only winning moves', () => {
@@ -344,10 +344,10 @@ describe("TablebasePanel", () => {
         />
       );
 
-      expect(screen.getByText('Winning Moves')).toBeInTheDocument();
-      expect(screen.queryByText('Drawing Moves')).not.toBeInTheDocument();
-      expect(screen.queryByText('Losing Moves')).not.toBeInTheDocument();
-      expect(screen.getByText('2 moves')).toBeInTheDocument();
+      expect(screen.getByText('Winning Moves')?.isConnected).toBe(true);
+      expect(screen.queryByText('Drawing Moves')).toBeNull();
+      expect(screen.queryByText('Losing Moves')).toBeNull();
+      expect(screen.getByText('2 moves')?.isConnected).toBe(true);
     });
 
     it('should handle only drawing moves', () => {
@@ -365,10 +365,10 @@ describe("TablebasePanel", () => {
         />
       );
 
-      expect(screen.queryByText('Winning Moves')).not.toBeInTheDocument();
-      expect(screen.getByText('Drawing Moves')).toBeInTheDocument();
-      expect(screen.queryByText('Losing Moves')).not.toBeInTheDocument();
-      expect(screen.getByText('1 moves')).toBeInTheDocument();
+      expect(screen.queryByText('Winning Moves')).toBeNull();
+      expect(screen.getByText('Drawing Moves')?.isConnected).toBe(true);
+      expect(screen.queryByText('Losing Moves')).toBeNull();
+      expect(screen.getByText('1 moves')?.isConnected).toBe(true);
     });
 
     it('should handle only losing moves', () => {
@@ -386,10 +386,10 @@ describe("TablebasePanel", () => {
         />
       );
 
-      expect(screen.queryByText('Winning Moves')).not.toBeInTheDocument();
-      expect(screen.queryByText('Drawing Moves')).not.toBeInTheDocument();
-      expect(screen.getByText('Losing Moves')).toBeInTheDocument();
-      expect(screen.getByText('1 moves')).toBeInTheDocument();
+      expect(screen.queryByText('Winning Moves')).toBeNull();
+      expect(screen.queryByText('Drawing Moves')).toBeNull();
+      expect(screen.getByText('Losing Moves')?.isConnected).toBe(true);
+      expect(screen.getByText('1 moves')?.isConnected).toBe(true);
     });
   });
 
@@ -405,7 +405,7 @@ describe("TablebasePanel", () => {
       );
 
       const panel = screen.getByText('Lade Analyse...').closest('.tablebase-panel');
-      expect(panel).toHaveClass('loading-custom-class');
+      expect(panel.classList.contains('loading-custom-class')).toBe(true);
     });
 
     it('should prioritize error over loading state', () => {
@@ -419,8 +419,8 @@ describe("TablebasePanel", () => {
       );
 
       // Error state takes priority - checked first in the component
-      expect(screen.getByText('Analyse konnte nicht geladen werden')).toBeInTheDocument();
-      expect(screen.queryByText('Lade Analyse...')).not.toBeInTheDocument();
+      expect(screen.getByText('Analyse konnte nicht geladen werden')?.isConnected).toBe(true);
+      expect(screen.queryByText('Lade Analyse...')).toBeNull();
     });
   });
 
@@ -438,8 +438,8 @@ describe("TablebasePanel", () => {
         />
       );
 
-      expect(screen.getByText('Analyse konnte nicht geladen werden')).toBeInTheDocument();
-      expect(screen.queryByText('Keine Tablebase-Daten verfügbar')).not.toBeInTheDocument();
+      expect(screen.getByText('Analyse konnte nicht geladen werden')?.isConnected).toBe(true);
+      expect(screen.queryByText('Keine Tablebase-Daten verfügbar')).toBeNull();
     });
 
     it('should prioritize loading over no tablebase data', () => {
@@ -455,8 +455,8 @@ describe("TablebasePanel", () => {
         />
       );
 
-      expect(screen.getByText('Lade Analyse...')).toBeInTheDocument();
-      expect(screen.queryByText('Keine Tablebase-Daten verfügbar')).not.toBeInTheDocument();
+      expect(screen.getByText('Lade Analyse...')?.isConnected).toBe(true);
+      expect(screen.queryByText('Keine Tablebase-Daten verfügbar')).toBeNull();
     });
   });
 
@@ -472,7 +472,7 @@ describe("TablebasePanel", () => {
       );
 
       // Error state
-      expect(screen.getByText('Analyse konnte nicht geladen werden')).toHaveClass('text-red-600');
+      expect(screen.getByText('Analyse konnte nicht geladen werden').classList.contains('text-red-600')).toBe(true);
 
       // Loading state
       rerender(
@@ -482,7 +482,7 @@ describe("TablebasePanel", () => {
           loading={true}
         />
       );
-      expect(screen.getByText('Lade Analyse...')).toHaveClass('text-gray-500');
+      expect(screen.getByText('Lade Analyse...').classList.contains('text-gray-500')).toBe(true);
 
       // No tablebase data
       const noTablebaseData: TablebaseData = { isTablebasePosition: false };
@@ -492,7 +492,7 @@ describe("TablebasePanel", () => {
           onMoveSelect={mockOnMoveSelect}
         />
       );
-      expect(screen.getByText('Keine Tablebase-Daten verfügbar')).toHaveClass('text-amber-600');
+      expect(screen.getByText('Keine Tablebase-Daten verfügbar').classList.contains('text-amber-600')).toBe(true);
 
       // Waiting for analysis
       const emptyMovesData: TablebaseData = { isTablebasePosition: true, topMoves: [] };
@@ -502,7 +502,7 @@ describe("TablebasePanel", () => {
           onMoveSelect={mockOnMoveSelect}
         />
       );
-      expect(screen.getByText('Warte auf Tablebase-Analyse...')).toHaveClass('text-green-600');
+      expect(screen.getByText('Warte auf Tablebase-Analyse...').classList.contains('text-green-600')).toBe(true);
     });
   });
 });
@@ -524,8 +524,8 @@ describe('CompactTablebasePanel', () => {
     );
 
     const panel = screen.getByTestId('tablebase-panel');
-    expect(panel).toBeInTheDocument();
-    expect(panel).toHaveClass('compact-tablebase-panel');
+    expect(panel?.isConnected).toBe(true);
+    expect(panel.classList.contains('compact-tablebase-panel')).toBe(true);
   });
 
   it('should combine custom className with compact class', () => {
@@ -538,7 +538,7 @@ describe('CompactTablebasePanel', () => {
     );
 
     const panel = screen.getByTestId('tablebase-panel');
-    expect(panel).toHaveClass('compact-tablebase-panel', 'custom-compact-class');
+    expect(panel.classList.contains('compact-tablebase-panel', 'custom-compact-class')).toBe(true);
   });
 
   it('should pass through all props correctly', () => {
@@ -553,8 +553,8 @@ describe('CompactTablebasePanel', () => {
       />
     );
 
-    expect(screen.getByText('Tablebase')).toBeInTheDocument();
-    expect(screen.getByText('1 moves')).toBeInTheDocument();
+    expect(screen.getByText('Tablebase')?.isConnected).toBe(true);
+    expect(screen.getByText('1 moves')?.isConnected).toBe(true);
 
     const moveButton = screen.getByText('e4').closest('[role="button"]');
     fireEvent.click(moveButton!);
@@ -578,8 +578,8 @@ describe('TablebasePanelWithErrorBoundary', () => {
       />
     );
 
-    expect(screen.getByTestId('tablebase-panel')).toBeInTheDocument();
-    expect(screen.getByText('Tablebase')).toBeInTheDocument();
+    expect(screen.getByTestId('tablebase-panel')?.isConnected).toBe(true);
+    expect(screen.getByText('Tablebase')?.isConnected).toBe(true);
   });
 
   it('should be the same component as TablebasePanel', () => {
@@ -598,7 +598,7 @@ describe('TablebasePanelWithErrorBoundary', () => {
     );
 
     const panel = screen.getByTestId('tablebase-panel');
-    expect(panel).toHaveClass('error-boundary-test');
+    expect(panel.classList.contains('error-boundary-test')).toBe(true);
 
     const moveButton = screen.getByText('e4').closest('[role="button"]');
     fireEvent.click(moveButton!);

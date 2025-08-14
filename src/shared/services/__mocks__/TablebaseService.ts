@@ -6,7 +6,7 @@ import { vi } from 'vitest';
  * that can be used across all test files. It follows Jest's manual mock pattern.
  *
  * Usage:
- * - Jest will automatically use this mock when `jest.mock('@shared/services/TablebaseService')` is called
+ * - Vitest will automatically use this mock when `vi.mock('@shared/services/TablebaseService')` is called
  * - Test files can import helper methods to customize mock behavior
  * - Default implementations return sensible test data
  */

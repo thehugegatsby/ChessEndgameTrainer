@@ -24,6 +24,7 @@
 import React from "react";
 import { type Move } from "chess.js";
 import { UI_CONSTANTS } from "@shared/constants/uiConstants";
+import { CHESS_EVALUATION, PERCENTAGE_MULTIPLIERS } from '@shared/constants/multipliers';
 
 /**
  * Evaluation data structure for move analysis
@@ -184,10 +185,10 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
             throw new Error(`Unhandled category: ${exhaustiveCheck}`);
         }
       } else if (wdl !== undefined) {
-        if (wdl === 2) {
+        if (wdl === CHESS_EVALUATION.WDL_WIN) {
           emoji = "🏆";
           text = dtm ? `W${dtm}` : "Win";
-        } else if (wdl === -2) {
+        } else if (wdl === CHESS_EVALUATION.WDL_LOSS) {
           emoji = "❌";
           text = dtm ? `L${dtm}` : "Loss";
         } else {
@@ -204,7 +205,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
     }
 
     const eval_ = evalData.evaluation;
-    if (Math.abs(eval_) < 0.1) return "0.0";
+    if (Math.abs(eval_) < PERCENTAGE_MULTIPLIERS.TEN_PERCENT) return "0.0";
     return eval_ > 0 ? `+${eval_.toFixed(1)}` : eval_.toFixed(1);
   };
 
@@ -235,8 +236,8 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
             return "text-gray-600";
         }
       } else if (wdl !== undefined) {
-        if (wdl === 2) return "text-green-700";
-        if (wdl === -2) return "text-red-700";
+        if (wdl === CHESS_EVALUATION.WDL_WIN) return "text-green-700";
+        if (wdl === CHESS_EVALUATION.WDL_LOSS) return "text-red-700";
         return "text-yellow-600";
       }
     }
@@ -246,10 +247,10 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
     }
 
     const eval_ = evalData.evaluation;
-    if (eval_ > 2) return "text-green-700";
-    if (eval_ > 0.5) return "text-green-600";
-    if (eval_ > -0.5) return "text-gray-600";
-    if (eval_ > -2) return "text-orange-600";
+    if (eval_ > CHESS_EVALUATION.SIGNIFICANT_ADVANTAGE) return "text-green-700";
+    if (eval_ > CHESS_EVALUATION.SLIGHT_ADVANTAGE) return "text-green-600";
+    if (eval_ > CHESS_EVALUATION.SLIGHT_DISADVANTAGE) return "text-gray-600";
+    if (eval_ > CHESS_EVALUATION.SIGNIFICANT_DISADVANTAGE) return "text-orange-600";
     return "text-red-600";
   };
 

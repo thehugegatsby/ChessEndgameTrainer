@@ -94,7 +94,7 @@ describe.skip("TablebaseService Defense Sorting - Unit Tests", () => {
 });
 
 // Integration tests with real API calls (slower, requires network)
-// TODO: TEMPORARILY SKIPPED - jest-fetch-mock vs cross-fetch/polyfill conflict
+// TODO: TEMPORARILY SKIPPED - API mocking needs review
 // Will be rewritten during Vitest migration with proper fetch handling
 describeIf(false && (global as any).isIntegrationTest)("TablebaseService Defense Sorting - Integration Tests", () => {
   beforeEach(() => {

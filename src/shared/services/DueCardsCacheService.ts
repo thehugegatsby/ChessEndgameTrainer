@@ -25,6 +25,8 @@
 
 import type { DueCard, DueCardsStats } from '@shared/types/progress';
 import { getLogger } from '@shared/services/logging/Logger';
+import { TIME_UNITS } from '@shared/constants/time.constants';
+import { SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
 
 const logger = getLogger().setContext('DueCardsCacheService');
 
@@ -82,16 +84,16 @@ const CACHE_CONFIG = {
   VERSION: 1,
   
   /** TTL in milliseconds (24 hours) */
-  TTL_MS: 24 * 60 * 60 * 1000,
+  TTL_MS: TIME_UNITS.DAY,
   
   /** Maximum entries before LRU cleanup */
   MAX_ENTRIES: 50,
   
   /** Maximum estimated size in bytes (5MB) */
-  MAX_SIZE_BYTES: 5 * 1024 * 1024,
+  MAX_SIZE_BYTES: 5 * SIZE_MULTIPLIERS.BINARY_MULTIPLIER * SIZE_MULTIPLIERS.BINARY_MULTIPLIER,
   
   /** Cleanup interval in milliseconds (1 hour) */
-  CLEANUP_INTERVAL_MS: 60 * 60 * 1000,
+  CLEANUP_INTERVAL_MS: TIME_UNITS.HOUR,
   
   /** Large collection threshold for performance warnings */
   LARGE_COLLECTION_THRESHOLD: 500,

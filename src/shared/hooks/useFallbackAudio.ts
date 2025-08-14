@@ -9,6 +9,7 @@
 
 import { useCallback, useState, useEffect } from 'react';
 import { getLogger } from '@shared/services/logging/Logger';
+import { AUDIO_CONSTANTS } from '@shared/constants/multipliers';
 import type { ChessSoundType } from './useChessAudio';
 
 /**
@@ -60,8 +61,8 @@ export const useFallbackAudio = (volume: number = 0.7): {
       // Create a smooth attack and decay
       const currentTime = audioContext.currentTime;
       gainNode.gain.setValueAtTime(0, currentTime);
-      gainNode.gain.linearRampToValueAtTime(volume * 0.3, currentTime + 0.01);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, currentTime + config.duration);
+      gainNode.gain.linearRampToValueAtTime(volume * AUDIO_CONSTANTS.FADE_IN_VOLUME, currentTime + AUDIO_CONSTANTS.ATTACK_DURATION);
+      gainNode.gain.exponentialRampToValueAtTime(AUDIO_CONSTANTS.MIN_DECAY_VOLUME, currentTime + config.duration);
 
       oscillator.start(currentTime);
       oscillator.stop(currentTime + config.duration);

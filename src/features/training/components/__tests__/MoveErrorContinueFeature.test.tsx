@@ -29,11 +29,11 @@ describe("MoveErrorDialog - Continue Playing Feature", () => {
 
     // Verify the new button text
     expect(
-      screen.getByRole("button", { name: "Weiterspielen" }),
-    ).toBeInTheDocument();
+      screen.getByRole("button", { name: "Weiterspielen" })?.isConnected,
+    ).toBe(true);
     expect(
-      screen.queryByRole("button", { name: "Verstanden" }),
-    ).not.toBeInTheDocument();
+      screen.queryByRole("button", { name: "Verstanden" })?.isConnected,
+    ).not.toBe(true);
   });
 
   it("should call onClose when Weiterspielen button is clicked", () => {
@@ -53,10 +53,10 @@ describe("MoveErrorDialog - Continue Playing Feature", () => {
     // Should show win-ruining message for wdlBefore=2, wdlAfter=0
     // The message includes the move number: 6.Kf5 (move 10 = 5th white move, displayed as 6th)
     expect(
-      screen.getByText("6.Kf5 verdirbt den Gewinn!"),
-    ).toBeInTheDocument();
-    expect(screen.getByText(/Besser war:/)).toBeInTheDocument();
-    expect(screen.getByText("6.Kf6")).toBeInTheDocument();
+      screen.getByText("6.Kf5 verdirbt den Gewinn!")?.isConnected,
+    ).toBe(true);
+    expect(screen.getByText(/Besser war:/)?.isConnected).toBe(true);
+    expect(screen.getByText("6.Kf6")?.isConnected).toBe(true);
   });
 
   it("should display both action buttons", () => {
@@ -64,11 +64,11 @@ describe("MoveErrorDialog - Continue Playing Feature", () => {
 
     // Should have both Weiterspielen and Zurücknehmen buttons
     expect(
-      screen.getByRole("button", { name: "Weiterspielen" }),
-    ).toBeInTheDocument();
+      screen.getByRole("button", { name: "Weiterspielen" })?.isConnected,
+    ).toBe(true);
     expect(
-      screen.getByRole("button", { name: "Zurücknehmen" }),
-    ).toBeInTheDocument();
+      screen.getByRole("button", { name: "Zurücknehmen" })?.isConnected,
+    ).toBe(true);
   });
 
   it("should show different messages for different WDL changes", () => {
@@ -77,15 +77,17 @@ describe("MoveErrorDialog - Continue Playing Feature", () => {
     );
     expect(
       screen.getByText("6.Kf5 führt zum Verlust!"),
-    ).toBeInTheDocument();
+    )?.isConnected,
+    ).toBe(true);
 
     rerender(<MoveErrorDialog {...defaultProps} wdlBefore={1} wdlAfter={-1} />);
     expect(
       screen.getByText("6.Kf5 verschlechtert die Stellung!"),
-    ).toBeInTheDocument();
+    )?.isConnected,
+    ).toBe(true);
 
     rerender(<MoveErrorDialog {...defaultProps} wdlBefore={0} wdlAfter={0} />);
-    expect(screen.getByText("6.Kf5 ist ein Fehler!")).toBeInTheDocument();
+    expect(screen.getByText("6.Kf5 ist ein Fehler!")?.isConnected).toBe(true);
   });
 
   describe("Integration scenarios", () => {
@@ -102,12 +104,13 @@ describe("MoveErrorDialog - Continue Playing Feature", () => {
       render(<MoveErrorDialog {...defaultProps} />);
 
       // Verify the dialog is showing the error state correctly
-      expect(screen.getByText("Fehler erkannt!")).toBeInTheDocument();
+      expect(screen.getByText("Fehler erkannt!")?.isConnected).toBe(true);
       expect(
         screen.getByText("6.Kf5 verdirbt den Gewinn!"),
-      ).toBeInTheDocument();
-      expect(screen.getByText(/Besser war:/)).toBeInTheDocument();
-      expect(screen.getByText("6.Kf6")).toBeInTheDocument();
+      )?.isConnected,
+    ).toBe(true);
+      expect(screen.getByText(/Besser war:/)?.isConnected).toBe(true);
+      expect(screen.getByText("6.Kf6")?.isConnected).toBe(true);
 
       // Click Weiterspielen
       const weiterSpielenButton = screen.getByRole("button", {

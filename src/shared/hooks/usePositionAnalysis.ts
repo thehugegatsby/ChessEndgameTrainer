@@ -19,6 +19,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { analysisService } from "@shared/services/AnalysisService";
 import { ErrorService } from "@shared/services/ErrorService";
 import { getLogger } from "@shared/services/logging";
+import { STRING_CONSTANTS } from '@shared/constants/multipliers';
 import type { PositionAnalysis } from "@shared/types";
 
 const logger = getLogger().setContext('usePositionAnalysis');
@@ -106,7 +107,7 @@ export function usePositionAnalysis({
   useEffect(() => {
     logger.info("[usePositionAnalysis] Effect triggered", {
       isEnabled,
-      fen: `${fen?.slice(0, 20)  }...`,
+      fen: `${fen?.slice(0, STRING_CONSTANTS.FEN_TRUNCATE_LENGTH)  }...`,
     });
 
     if (!isEnabled || !fen) {

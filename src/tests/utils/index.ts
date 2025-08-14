@@ -39,4 +39,4 @@ export {
   waitForServicesReady,
   debugContainer,
   mockConsole,
-} from "./jestSetup";
+} from "./vitestSetup";

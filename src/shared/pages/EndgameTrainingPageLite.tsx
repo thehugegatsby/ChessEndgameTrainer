@@ -1,6 +1,7 @@
 "use client";
 
 import { getLogger } from '@shared/services/logging/Logger';
+import { UI_DURATIONS_MS } from '../../constants/time.constants';
 
 import React, { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
@@ -84,7 +85,7 @@ export const EndgameTrainingPageLite: React.FC = React.memo(() => {
         trainingActions.incrementStreak();
         
         // Show checkmark animation
-        trainingActions.showCheckmarkAnimation(2000);
+        trainingActions.showCheckmarkAnimation(UI_DURATIONS_MS.ENDGAME_FEEDBACK_SHORT);
         
         // Show success toast
         showSuccess(
@@ -96,11 +97,11 @@ export const EndgameTrainingPageLite: React.FC = React.memo(() => {
         if (trainingState.autoProgressEnabled && nextPosition) {
           getLogger().info("🚀 Auto-progressing to next position", { 
             nextPositionId: nextPosition.id, 
-            delayMs: 2500 
+            delayMs: UI_DURATIONS_MS.ENDGAME_FEEDBACK_LONG 
           });
           setTimeout(() => {
             router.push(`/train/${nextPosition.id}`);
-          }, 2500); // Wait for checkmark animation + 500ms buffer
+          }, UI_DURATIONS_MS.ENDGAME_FEEDBACK_LONG); // Wait for checkmark animation + 500ms buffer
         }
       } else {
         getLogger().info("❌ Failure - resetting streak");

@@ -20,6 +20,7 @@
  */
 
 import type { TablebaseResult } from "@shared/services/TablebaseService";
+import { CHESS_EVALUATION, POSITION_ANALYSIS } from "../../constants/chess.constants";
 
 /**
  * Formatted position analysis for UI display
@@ -117,15 +118,15 @@ export function wdlToScore(wdl: number, dtz: number | null): number {
   if (wdl === 2) {
     // Win: High positive score, reduced by DTZ (faster wins are better)
     return BASE_SCORE - Math.abs(dtz || 0);
-  } else if (wdl === -2) {
+  } else if (wdl === CHESS_EVALUATION.WDL_LOSS) {
     // Loss: High negative score, increased by DTZ (longer resistance is better)
     return -BASE_SCORE + Math.abs(dtz || 0);
   } else if (wdl === 1) {
     // Cursed win (50-move rule)
-    return BASE_SCORE * 0.8 - Math.abs(dtz || 0);
+    return BASE_SCORE * POSITION_ANALYSIS.CURSED_BLESSED_FACTOR - Math.abs(dtz || 0);
   } else if (wdl === -1) {
     // Blessed loss (50-move rule)
-    return -BASE_SCORE * 0.8 + Math.abs(dtz || 0);
+    return -BASE_SCORE * POSITION_ANALYSIS.CURSED_BLESSED_FACTOR + Math.abs(dtz || 0);
   }
   // Draw
   return 0;

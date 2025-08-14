@@ -5,6 +5,7 @@
 
 import { getMoveQualityDisplay } from "./displayHelpers";
 import type { EvaluationDisplay } from "@shared/types";
+import { SMART_EVALUATION_THRESHOLDS } from "../../../../constants/chess.constants";
 
 export interface MoveEvaluation {
   evaluation: number;
@@ -43,8 +44,8 @@ export const getSmartMoveEvaluation = (
     // This score represents the quality of the move, not the position state
     let qualityScore = 0;
     if (wdlAfter > wdlBefore)
-      qualityScore = 300; // Improved position (e.g., Draw -> Win) -> Brilliant
-    else if (wdlAfter < wdlBefore) qualityScore = -300; // Worsened position (e.g., Win -> Draw) -> Blunder
+      qualityScore = SMART_EVALUATION_THRESHOLDS.SIGNIFICANT_ADVANTAGE; // Improved position (e.g., Draw -> Win) -> Brilliant
+    else if (wdlAfter < wdlBefore) qualityScore = SMART_EVALUATION_THRESHOLDS.SIGNIFICANT_DISADVANTAGE; // Worsened position (e.g., Win -> Draw) -> Blunder
     // If wdlAfter === wdlBefore, qualityScore remains 0 (neutral move)
 
     return getMoveQualityDisplay(qualityScore, mateInMoves);

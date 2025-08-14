@@ -24,6 +24,7 @@
  */
 
 import React from "react";
+import { SPACED_REPETITION } from '@shared/constants/progress.constants';
 
 /**
  * Progress statistics data structure
@@ -144,8 +145,8 @@ const categoryIcons = {
 export const ProgressCard: React.FC<ProgressCardProps> = React.memo(
   ({ title, description, stats, difficulty, category, onStartTraining }) => {
     const progressPercentage =
-      stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
-    const successPercentage = Math.round(stats.successRate * 100);
+      stats.total > 0 ? Math.round((stats.completed / stats.total) * SPACED_REPETITION.PERCENTAGE_BASE) : 0;
+    const successPercentage = Math.round(stats.successRate * SPACED_REPETITION.PERCENTAGE_BASE);
 
     return (
       <div

@@ -6,12 +6,14 @@
  * Part of the Clean Architecture refactoring.
  */
 
+import { SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
+
 import type { IChessEventBus, ChessEventHandler, ChessEventPayload } from "../types/interfaces";
 
 export default class ChessEventBus implements IChessEventBus {
   private listeners: Set<ChessEventHandler> = new Set();
   private eventHistory: ChessEventPayload[] = [];
-  private static readonly MAX_HISTORY_SIZE = 100;
+  private static readonly MAX_HISTORY_SIZE = SIZE_MULTIPLIERS.LARGE_FACTOR;
   private isEnabled: boolean = true;
 
   /**

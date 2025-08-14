@@ -19,6 +19,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Chess, type Square } from 'chess.js';
 import { getLogger } from '@shared/services/logging/Logger';
+import { BOARD } from '@shared/constants/chess.constants';
 
 /**
  * Animation state for chess squares
@@ -125,7 +126,7 @@ export const useChessAnimations = (config: Partial<ChessAnimationConfig> = {}): 
     // Initialize all 64 squares
     for (let file = 0; file < 8; file++) {
       for (let rank = 1; rank <= 8; rank++) {
-        const square = String.fromCharCode(97 + file) + rank; // a1, b1, etc.
+        const square = String.fromCharCode(BOARD.FILE_A_ASCII + file) + rank; // a1, b1, etc.
         initialStates[square] = {
           isLastMove: false,
           isHighlighted: false,

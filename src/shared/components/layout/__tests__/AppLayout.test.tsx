@@ -64,30 +64,30 @@ describe("AppLayout Component", () => {
     it("should render main layout structure", () => {
       render(<AppLayout {...defaultProps} />);
 
-      expect(screen.getByTestId("test-content")).toBeInTheDocument();
-      expect(screen.getByTestId("mock-menu")).toBeInTheDocument();
-      expect(screen.getByTestId("mock-settings")).toBeInTheDocument();
+      expect(screen.getByTestId("test-content")?.isConnected).toBe(true);
+      expect(screen.getByTestId("mock-menu")?.isConnected).toBe(true);
+      expect(screen.getByTestId("mock-settings")?.isConnected).toBe(true);
     });
 
     it("should render header section", () => {
       render(<AppLayout {...defaultProps} />);
 
-      expect(screen.getByText("Endgame Training")).toBeInTheDocument();
-      expect(screen.getByTestId("mock-settings")).toBeInTheDocument();
+      expect(screen.getByText("Endgame Training")?.isConnected).toBe(true);
+      expect(screen.getByTestId("mock-settings")?.isConnected).toBe(true);
     });
 
     it("should pass currentPositionId to menu", () => {
       render(<AppLayout {...defaultProps} currentPositionId={42} />);
 
       const menu = screen.getByTestId("mock-menu");
-      expect(menu).toHaveAttribute("data-position-id", "42");
+      expect(menu.getAttribute("data-position-id")).toBe("42");
     });
 
     it("should render children in main content area", () => {
       render(<AppLayout {...defaultProps} />);
 
       const mainContent = screen.getByRole("main");
-      expect(mainContent).toBeInTheDocument();
+      expect(mainContent?.isConnected).toBe(true);
       expect(mainContent).toContainElement(screen.getByTestId("test-content"));
     });
   });
@@ -97,7 +97,7 @@ describe("AppLayout Component", () => {
       render(<AppLayout {...defaultProps} />);
 
       const menu = screen.getByTestId("mock-menu");
-      expect(menu).toHaveAttribute("data-is-open", "true");
+      expect(menu.getAttribute("data-is-open")).toBe("true");
     });
 
     it("should close menu when close button clicked", () => {
@@ -107,7 +107,7 @@ describe("AppLayout Component", () => {
       fireEvent.click(closeButton);
 
       const menu = screen.getByTestId("mock-menu");
-      expect(menu).toHaveAttribute("data-is-open", "false");
+      expect(menu.getAttribute("data-is-open")).toBe("false");
     });
 
     it("should toggle menu with mobile toggle button", () => {
@@ -115,23 +115,23 @@ describe("AppLayout Component", () => {
 
       // Initially open
       let menu = screen.getByTestId("mock-menu");
-      expect(menu).toHaveAttribute("data-is-open", "true");
+      expect(menu.getAttribute("data-is-open")).toBe("true");
 
       // Find and click mobile toggle button
       const toggleButton = screen.getByText("❌ Menü schließen");
       fireEvent.click(toggleButton);
 
       menu = screen.getByTestId("mock-menu");
-      expect(menu).toHaveAttribute("data-is-open", "false");
+      expect(menu.getAttribute("data-is-open")).toBe("false");
 
       // Should change button text when closed
-      expect(screen.getByText("📖 Navigation")).toBeInTheDocument();
+      expect(screen.getByText("📖 Navigation")?.isConnected).toBe(true);
 
       // Click again to open
       fireEvent.click(screen.getByText("📖 Navigation"));
 
       menu = screen.getByTestId("mock-menu");
-      expect(menu).toHaveAttribute("data-is-open", "true");
+      expect(menu.getAttribute("data-is-open")).toBe("true");
     });
   });
 
@@ -165,17 +165,17 @@ describe("AppLayout Component", () => {
       const { container } = render(<AppLayout {...defaultProps} />);
 
       const mainLayout = container.querySelector(".flex.pt-14");
-      expect(mainLayout).toBeInTheDocument();
+      expect(mainLayout?.isConnected).toBe(true);
 
       const flexContent = container.querySelector(".flex-1");
-      expect(flexContent).toBeInTheDocument();
+      expect(flexContent?.isConnected).toBe(true);
     });
 
     it("should have container with proper styling", () => {
       const { container } = render(<AppLayout {...defaultProps} />);
 
       const mainContainer = container.querySelector(".container.mx-auto.p-4");
-      expect(mainContainer).toBeInTheDocument();
+      expect(mainContainer?.isConnected).toBe(true);
     });
 
     it("should apply background color from CSS variables", () => {
@@ -183,7 +183,7 @@ describe("AppLayout Component", () => {
 
       const rootDiv = container.firstChild as HTMLElement;
       // CSS variables are not evaluated in jsdom
-      expect(rootDiv).toHaveClass("min-h-screen");
+      expect(rootDiv.classList.contains("min-h-screen")).toBe(true);
     });
   });
 
@@ -193,7 +193,7 @@ describe("AppLayout Component", () => {
 
       const mobileToggle = screen.getByText("❌ Menü schließen");
       // Check parent container has responsive class
-      expect(mobileToggle.parentElement).toHaveClass("lg:hidden");
+      expect(mobileToggle.parentElement.classList.contains("lg:hidden")).toBe(true);
     });
 
     it("should have responsive classes for mobile toggle", () => {
@@ -215,7 +215,7 @@ describe("AppLayout Component", () => {
       render(<AppLayout {...defaultProps} />);
 
       const darkToggle = screen.getAllByTestId("mock-dark-toggle")[0]; // Desktop version
-      expect(darkToggle).toBeInTheDocument();
+      expect(darkToggle?.isConnected).toBe(true);
     });
 
     it("should have proper styling for floating actions", () => {
@@ -224,7 +224,7 @@ describe("AppLayout Component", () => {
       const floatingContainer = container.querySelector(
         ".fixed.bottom-6.right-6",
       );
-      expect(floatingContainer).toBeInTheDocument();
+      expect(floatingContainer?.isConnected).toBe(true);
       expect(floatingContainer?.className).toContain("hidden");
       expect(floatingContainer?.className).toContain("lg:flex");
     });
@@ -236,20 +236,20 @@ describe("AppLayout Component", () => {
       render(<AppLayout {...defaultProps} />);
 
       const homeLink = screen.getByText("🏠 Home");
-      expect(homeLink.closest("a")).toHaveAttribute("href", "/");
+      expect(homeLink.closest("a")).getAttribute("href")).toBe("/");
     });
 
     it("should hide bottom navigation when showMobileBottomNav is false", () => {
       render(<AppLayout {...defaultProps} showMobileBottomNav={false} />);
 
-      expect(screen.queryByText("🏠 Home")).not.toBeInTheDocument();
+      expect(screen.queryByText("🏠 Home")).not?.isConnected).toBe(true);
     });
 
     it("should have proper bottom navigation styling", () => {
       const { container } = render(<AppLayout {...defaultProps} />);
 
       const bottomNav = container.querySelector(".lg\\:hidden.fixed.bottom-0");
-      expect(bottomNav).toBeInTheDocument();
+      expect(bottomNav?.isConnected).toBe(true);
       expect(bottomNav?.className).toContain("dark-card-elevated");
       expect(bottomNav?.className).toContain("border-t");
     });
@@ -269,19 +269,19 @@ describe("AppLayout Component", () => {
 
       // Mobile toggle should be hidden on large screens
       const mobileSection = container.querySelector(".lg\\:hidden.p-4");
-      expect(mobileSection).toBeInTheDocument();
+      expect(mobileSection?.isConnected).toBe(true);
 
       // Floating actions should be hidden on mobile
       const desktopActions = container.querySelector(".hidden.lg\\:flex");
-      expect(desktopActions).toBeInTheDocument();
+      expect(desktopActions?.isConnected).toBe(true);
     });
 
     it("should handle window resize gracefully", () => {
       render(<AppLayout {...defaultProps} />);
 
       // Should not break with different viewport sizes
-      expect(screen.getByTestId("test-content")).toBeInTheDocument();
-      expect(screen.getByTestId("mock-menu")).toBeInTheDocument();
+      expect(screen.getByTestId("test-content")?.isConnected).toBe(true);
+      expect(screen.getByTestId("mock-menu")?.isConnected).toBe(true);
     });
   });
 
@@ -291,7 +291,7 @@ describe("AppLayout Component", () => {
       render(<AppLayout {...defaultProps} />);
 
       const homeLink = screen.getByText("🏠 Home");
-      expect(homeLink.closest("a")).toHaveAttribute("href", "/");
+      expect(homeLink.closest("a")).getAttribute("href")).toBe("/");
     });
 
   });
@@ -308,7 +308,7 @@ describe("AppLayout Component", () => {
       const { container } = render(<AppLayout {...defaultProps} />);
 
       const flexContainer = container.querySelector(".flex.pt-14");
-      expect(flexContainer).toBeInTheDocument();
+      expect(flexContainer?.isConnected).toBe(true);
     });
 
     it("should have proper spacing and padding", () => {
@@ -317,8 +317,8 @@ describe("AppLayout Component", () => {
       const headerPadding = container.querySelector(".px-4.py-3");
       const contentPadding = container.querySelector(".container.mx-auto.p-4");
 
-      expect(headerPadding).toBeInTheDocument();
-      expect(contentPadding).toBeInTheDocument();
+      expect(headerPadding?.isConnected).toBe(true);
+      expect(contentPadding?.isConnected).toBe(true);
     });
   });
 
@@ -327,20 +327,20 @@ describe("AppLayout Component", () => {
       render(<AppLayout {...defaultProps} currentPositionId={123} />);
 
       const menu = screen.getByTestId("mock-menu");
-      expect(menu).toHaveAttribute("data-position-id", "123");
-      expect(menu).toHaveAttribute("data-is-open", "true");
+      expect(menu.getAttribute("data-position-id")).toBe("123");
+      expect(menu.getAttribute("data-is-open")).toBe("true");
     });
 
     it("should handle menu close callback", () => {
       render(<AppLayout {...defaultProps} />);
 
       const menu = screen.getByTestId("mock-menu");
-      expect(menu).toHaveAttribute("data-is-open", "true");
+      expect(menu.getAttribute("data-is-open")).toBe("true");
 
       const closeButton = screen.getByText("Close Menu");
       fireEvent.click(closeButton);
 
-      expect(menu).toHaveAttribute("data-is-open", "false");
+      expect(menu.getAttribute("data-is-open")).toBe("false");
     });
   });
 
@@ -349,7 +349,7 @@ describe("AppLayout Component", () => {
       render(<AppLayout>{undefined}</AppLayout>);
 
       const mainContent = screen.getByRole("main");
-      expect(mainContent).toBeInTheDocument();
+      expect(mainContent?.isConnected).toBe(true);
     });
 
     it("should handle undefined currentPositionId", () => {
@@ -357,7 +357,7 @@ describe("AppLayout Component", () => {
 
       const menu = screen.getByTestId("mock-menu");
       // Check menu exists, data attributes are optional
-      expect(menu).toBeInTheDocument();
+      expect(menu?.isConnected).toBe(true);
     });
 
     it("should handle rapid menu toggle clicks", () => {
@@ -372,7 +372,7 @@ describe("AppLayout Component", () => {
 
       // Final state depends on implementation
       const menu = screen.getByTestId("mock-menu");
-      expect(menu).toBeInTheDocument();
+      expect(menu?.isConnected).toBe(true);
     });
 
     it("should handle complex children content", () => {
@@ -388,9 +388,9 @@ describe("AppLayout Component", () => {
 
       render(<AppLayout>{complexChildren}</AppLayout>);
 
-      expect(screen.getByText("Complex Content")).toBeInTheDocument();
-      expect(screen.getByText("Nested content")).toBeInTheDocument();
-      expect(screen.getByText("Action Button")).toBeInTheDocument();
+      expect(screen.getByText("Complex Content")?.isConnected).toBe(true);
+      expect(screen.getByText("Nested content")?.isConnected).toBe(true);
+      expect(screen.getByText("Action Button")?.isConnected).toBe(true);
     });
   });
 
@@ -411,9 +411,9 @@ describe("AppLayout Component", () => {
         rerender(<AppLayout {...defaultProps} currentPositionId={i} />);
       }
 
-      expect(screen.getByTestId("test-content")).toBeInTheDocument();
+      expect(screen.getByTestId("test-content")?.isConnected).toBe(true);
       const menu = screen.getByTestId("mock-menu");
-      expect(menu).toHaveAttribute("data-position-id", "20");
+      expect(menu.getAttribute("data-position-id")).toBe("20");
     });
   });
 
@@ -426,14 +426,14 @@ describe("AppLayout Component", () => {
       fireEvent.click(closeButton);
 
       let menu = screen.getByTestId("mock-menu");
-      expect(menu).toHaveAttribute("data-is-open", "false");
+      expect(menu.getAttribute("data-is-open")).toBe("false");
 
       // Re-render with different props
       rerender(<AppLayout {...defaultProps} currentPositionId={42} />);
 
       // Menu should still be closed
       menu = screen.getByTestId("mock-menu");
-      expect(menu).toHaveAttribute("data-is-open", "false");
+      expect(menu.getAttribute("data-is-open")).toBe("false");
     });
 
     it("should initialize with correct default state", () => {
@@ -441,10 +441,10 @@ describe("AppLayout Component", () => {
 
       // Menu should start open
       const menu = screen.getByTestId("mock-menu");
-      expect(menu).toHaveAttribute("data-is-open", "true");
+      expect(menu.getAttribute("data-is-open")).toBe("true");
 
       // Mobile bottom nav should be shown by default
-      expect(screen.getByText("🏠 Home")).toBeInTheDocument();
+      expect(screen.getByText("🏠 Home")?.isConnected).toBe(true);
     });
   });
 });

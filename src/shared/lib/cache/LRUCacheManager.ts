@@ -21,7 +21,7 @@
  * @example
  * ```typescript
  * // Create cache: 200 max entries, 5-minute default TTL
- * const cache = new LRUCacheManager<string, TablebaseEntry>(200, 300000);
+ * const cache = new LRUCacheManager<string, TablebaseEntry>(200, LRU_CACHE_CONFIG.DUE_CARDS_MAX_AGE_MS);
  *
  * // Store with default TTL
  * cache.set('position1', tablebaseData);
@@ -35,6 +35,7 @@
  */
 
 import type { CacheManager, CacheEntry, CacheStats, CacheOptions } from './types';
+import { LRU_CACHE_CONFIG } from "../../../constants/cache.constants";
 
 export class LRUCacheManager<K, V> implements CacheManager<K, V> {
   private readonly cache = new Map<K, CacheEntry<V>>();
@@ -57,7 +58,7 @@ export class LRUCacheManager<K, V> implements CacheManager<K, V> {
    *
    * @throws {Error} If maxSize <= 0 or defaultTtlMs <= 0
    */
-  constructor(maxSize: number = 100, defaultTtlMs: number = 300000) {
+  constructor(maxSize: number = LRU_CACHE_CONFIG.DUE_CARDS_SIZE, defaultTtlMs: number = LRU_CACHE_CONFIG.DUE_CARDS_MAX_AGE_MS) {
     if (maxSize <= 0) {
       throw new Error('maxSize must be positive');
     }
@@ -250,8 +251,8 @@ export class LRUCacheManager<K, V> implements CacheManager<K, V> {
    */
   static fromOptions<K, V>(options: CacheOptions): LRUCacheManager<K, V> {
     return new LRUCacheManager<K, V>(
-      options.maxSize ?? 100,
-      options.defaultTtlMs ?? 300000
+      options.maxSize ?? LRU_CACHE_CONFIG.DUE_CARDS_SIZE,
+      options.defaultTtlMs ?? LRU_CACHE_CONFIG.DUE_CARDS_MAX_AGE_MS
     );
   }
 }

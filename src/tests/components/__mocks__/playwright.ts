@@ -99,7 +99,7 @@ export const createMockLocatorWithElement = (
 ): MockLocator =>
   createMockLocator({
     isVisible: vi.fn().mockResolvedValue(elementState.visible ?? true),
-    getAttribute: jest
+    getAttribute: vi.fn()
       .fn()
       .mockImplementation((name: string) =>
         Promise.resolve(elementState.attributes?.[name] ?? null),

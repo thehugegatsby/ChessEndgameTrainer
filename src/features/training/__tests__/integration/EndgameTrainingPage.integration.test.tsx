@@ -180,15 +180,15 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
       );
 
       // Check navigation buttons
-      expect(screen.getByTitle("Vorherige Stellung")).toBeInTheDocument();
-      expect(screen.getByTitle("Position zurücksetzen")).toBeInTheDocument();
-      expect(screen.getByTitle("Nächste Stellung")).toBeInTheDocument();
+      expect(screen.getByTitle("Vorherige Stellung")?.isConnected).toBe(true);
+      expect(screen.getByTitle("Position zurücksetzen")?.isConnected).toBe(true);
+      expect(screen.getByTitle("Nächste Stellung")?.isConnected).toBe(true);
 
       // Check game status
-      expect(screen.getByText(/♔/)).toBeInTheDocument();
+      expect(screen.getByText(/♔/)?.isConnected).toBe(true);
 
       // Check instructions
-      expect(screen.getByText("Grundlegendes Endspiel")).toBeInTheDocument();
+      expect(screen.getByText("Grundlegendes Endspiel")?.isConnected).toBe(true);
 
       // Check analysis toggle
       expect(screen.getByTestId("toggle-analysis")).toHaveTextContent(
@@ -196,7 +196,7 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
       );
 
       // Check external link
-      expect(screen.getByText("Auf Lichess analysieren →")).toBeInTheDocument();
+      expect(screen.getByText("Auf Lichess analysieren →")?.isConnected).toBe(true);
     });
 
     it("should initialize with correct position", () => {
@@ -204,7 +204,7 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
 
       // Verify the TrainingBoard received the correct position
       // This would be visible through the board rendering
-      expect(screen.getByTestId("position-title")).toBeInTheDocument();
+      expect(screen.getByTestId("position-title")?.isConnected).toBe(true);
     });
   });
 
@@ -245,7 +245,7 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
       // Verify the UI reflects the change
       // The MovePanelZustand should show the move
       await waitFor(() => {
-        expect(screen.getByText(/Ke2/)).toBeInTheDocument();
+        expect(screen.getByText(/Ke2/)?.isConnected).toBe(true);
       });
     });
   });
@@ -293,7 +293,8 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
       await waitFor(() => {
         expect(
           screen.getByText(/Analyse konnte nicht geladen werden/i),
-        ).toBeInTheDocument();
+        )?.isConnected,
+      ).toBe(true);
       });
     });
 
@@ -326,7 +327,7 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
 
       // Now the loading state should be visible
       await waitFor(() => {
-        expect(screen.getByText(/Lade Analyse.../i)).toBeInTheDocument();
+        expect(screen.getByText(/Lade Analyse.../i)?.isConnected).toBe(true);
       });
 
       // Resolve the promise to complete the loading
@@ -348,8 +349,8 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
       await waitFor(
         () => {
           expect(
-            screen.queryByText(/Lade Analyse.../i),
-          ).not.toBeInTheDocument();
+            screen.queryByText(/Lade Analyse.../i)?.isConnected,
+          ).not.toBe(true);
         },
         { timeout: 2000 },
       );
@@ -402,7 +403,7 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
       renderPage();
 
       const nextButton = screen.getByTitle("Nächste Stellung");
-      expect(nextButton).toBeDisabled();
+      expect(nextButton.disabled).toBe(true);
     });
 
     it("should reset position when reset button is clicked", async () => {
@@ -506,12 +507,11 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
       renderPage();
 
       const lichessLink = screen.getByText("Auf Lichess analysieren →");
-      expect(lichessLink).toHaveAttribute(
-        "href",
-        expect.stringContaining("lichess.org/analysis"),
+      expect(lichessLink.getAttribute(
+        "href")).toBe(expect.stringContaining("lichess.org/analysis"),
       );
-      expect(lichessLink).toHaveAttribute("target", "_blank");
-      expect(lichessLink).toHaveAttribute("rel", "noopener noreferrer");
+      expect(lichessLink.getAttribute("target")).toBe("_blank");
+      expect(lichessLink.getAttribute("rel")).toBe("noopener noreferrer");
     });
 
     it("should include PGN in Lichess URL when moves are made", async () => {
@@ -544,9 +544,8 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
 
       // The link should use PGN format when moves exist
       // Note: The actual implementation checks for currentPgn and moveHistory.length > 0
-      expect(lichessLink).toHaveAttribute(
-        "href",
-        expect.stringContaining("lichess.org/analysis"),
+      expect(lichessLink.getAttribute(
+        "href")).toBe(expect.stringContaining("lichess.org/analysis"),
       );
     });
   });
@@ -640,7 +639,8 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
       await waitFor(() => {
         expect(
           screen.getByText(/Analyse konnte nicht geladen werden/i),
-        ).toBeInTheDocument();
+        )?.isConnected,
+      ).toBe(true);
       });
 
       // Try again - should succeed

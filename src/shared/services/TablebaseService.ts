@@ -29,6 +29,8 @@ import { LRUCacheManager } from "../lib/cache/LRUCacheManager";
 import { HTTP_CONFIG, HTTP_RETRY } from "@shared/constants/http.constants";
 import { CACHE_SIZES, CACHE_TTL } from "@shared/constants/cache";
 import { INPUT_LIMITS } from "@shared/constants/validation.constants";
+import { CHESS_EVALUATION } from "@shared/constants/multipliers";
+import { HTTP_STATUS } from "../../constants/api.constants";
 import type {
   LichessTablebaseResponse,
   TablebaseEntry,
@@ -431,7 +433,7 @@ class TablebaseService {
         this.metrics.recordApiError(error.statusCode);
 
         // Handle 404 specially - position not in tablebase
-        if (error.statusCode === 404) {
+        if (error.statusCode === HTTP_STATUS.NOT_FOUND) {
           logger.info("Position not in tablebase, caching null", {
             fen: normalizedFen,
           });
@@ -556,7 +558,7 @@ class TablebaseService {
       case "maybe-loss":
         return -1;
       case "loss":
-        return -2;
+        return CHESS_EVALUATION.WDL_LOSS;
       default:
         return 0;
     }
