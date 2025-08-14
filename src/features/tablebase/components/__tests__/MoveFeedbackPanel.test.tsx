@@ -4,24 +4,33 @@ import { MoveFeedbackPanel } from '../MoveFeedbackPanel';
 import { trainingEvents } from '../../../training/events/EventEmitter';
 
 // Mock store - must be hoisted before imports
+const mockStoreData = {
+  ui: { 
+    tablebaseData: {
+      fen: 'test-fen',
+      evaluation: { outcome: 'win', dtm: 5 },
+      moves: [
+        { uci: 'e2e4', san: 'e4', outcome: 'win', dtm: 4 },
+        { uci: 'd2d4', san: 'd4', outcome: 'draw', dtm: 0 },
+        { uci: 'g1f3', san: 'Nf3', outcome: 'loss', dtm: -8 },
+        { uci: 'b1c3', san: 'Nc3', outcome: 'win', dtm: 6 },
+        { uci: 'f1c4', san: 'Bc4', outcome: 'win', dtm: 5 },
+      ],
+      isLoading: false,
+      lastUpdated: Date.now(),
+    }
+  } 
+};
+
 vi.mock('@shared/store/rootStore', () => ({
-  useStore: vi.fn(() => ({ 
-    ui: { 
-      tablebaseData: {
-        fen: 'test-fen',
-        evaluation: { outcome: 'win', dtm: 5 },
-        moves: [
-          { uci: 'e2e4', san: 'e4', outcome: 'win', dtm: 4 },
-          { uci: 'd2d4', san: 'd4', outcome: 'draw', dtm: 0 },
-          { uci: 'g1f3', san: 'Nf3', outcome: 'loss', dtm: -8 },
-          { uci: 'b1c3', san: 'Nc3', outcome: 'win', dtm: 6 },
-          { uci: 'f1c4', san: 'Bc4', outcome: 'win', dtm: 5 },
-        ],
-        isLoading: false,
-        lastUpdated: Date.now(),
-      }
-    } 
-  })),
+  useStore: vi.fn((selector) => {
+    // If a selector is provided, call it with the mock store data
+    if (typeof selector === 'function') {
+      return selector(mockStoreData);
+    }
+    // Otherwise return the whole store
+    return mockStoreData;
+  }),
 }));
 
 // Mock training hooks
@@ -199,7 +208,9 @@ describe('MoveFeedbackPanel', () => {
       expect(screen.getByText('Played:')).toBeTruthy();
       expect(screen.getByText('Nf3')).toBeTruthy();
       expect(screen.getByText('Best:')).toBeTruthy();
-      expect(screen.getByText('e4')).toBeTruthy();
+      // Use getAllByText since e4 appears multiple times (as best move and in suggestions)
+      const e4Elements = screen.getAllByText('e4');
+      expect(e4Elements.length).toBeGreaterThan(0);
     });
   });
 

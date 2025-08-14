@@ -28,6 +28,8 @@ import { useMemo } from 'react';
 import { dueCardsCacheService, createInputHash } from '@shared/services/DueCardsCacheService';
 import { filterDueCards, calculateDueCardsStats } from '@shared/types/progress';
 import { getLogger } from '@shared/services/logging/Logger';
+import { PERCENT } from '@/constants/number.constants';
+import { TIME_BUCKETS_MS } from '@/constants/time.constants';
 import type { CardProgress } from '@shared/store/slices/types';
 
 /**
@@ -196,7 +198,7 @@ export const useDerivedProgress = (userId: string | null = null): { dueCardCount
     // Calculate session success rate (always computed fresh)
     const { positionsCorrect, positionsAttempted } = sessionProgress;
     const successRate = positionsAttempted > 0 
-      ? (positionsCorrect / positionsAttempted) * 100 
+      ? (positionsCorrect / positionsAttempted) * PERCENT 
       : 0;
 
     // If no userId provided, fall back to direct computation
