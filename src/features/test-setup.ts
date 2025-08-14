@@ -69,75 +69,56 @@ if (typeof window !== 'undefined' && typeof globalThis.window !== 'undefined') {
 
 // --- Global Mock Objects (All Environments) ---
 // Mock IntersectionObserver for components that use it (including Next.js)
-class MockIntersectionObserver implements IntersectionObserver {
-  readonly root: Element | Document | null = null;
-  readonly rootMargin: string = '0px';
-  readonly thresholds: ReadonlyArray<number> = [0];
-
-  constructor(_callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
-    this.root = options?.root ?? null;
-    this.rootMargin = options?.rootMargin ?? '0px';
-    const t = options?.threshold;
-    this.thresholds = t === null || t === undefined ? [0] : Array.isArray(t) ? t : [t];
-  }
-
-  // Define as prototype methods (some libs check IntersectionObserver.prototype.*)
-  observe(_target: Element): void {}
-  unobserve(_target: Element): void {}
-  disconnect(): void {}
-  takeRecords(): IntersectionObserverEntry[] { return []; }
-}
-
-// Attach spies to the prototype so methods are real functions and spy-able
-MockIntersectionObserver.prototype.observe = vi.fn();
-MockIntersectionObserver.prototype.unobserve = vi.fn();
-MockIntersectionObserver.prototype.disconnect = vi.fn();
-MockIntersectionObserver.prototype.takeRecords = vi.fn(() => []);
+const IntersectionObserverMock = vi.fn().mockImplementation((_callback: IntersectionObserverCallback, options?: IntersectionObserverInit) => {
+  const root = options?.root ?? null;
+  const rootMargin = options?.rootMargin ?? '0px';
+  const t = options?.threshold;
+  const thresholds = t === null || t === undefined ? [0] : Array.isArray(t) ? t : [t];
+  
+  return {
+    root,
+    rootMargin,
+    thresholds,
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
+    takeRecords: vi.fn(() => []),
+  };
+});
 
 Object.defineProperty(globalThis, 'IntersectionObserver', {
-  value: MockIntersectionObserver,
+  value: IntersectionObserverMock,
   writable: true,
   configurable: true,
 });
 
-// Also set it on window to satisfy libraries that read from window directly
 if (typeof window !== 'undefined') {
   Object.defineProperty(window, 'IntersectionObserver', {
-    value: MockIntersectionObserver,
+    value: IntersectionObserverMock,
     writable: true,
     configurable: true,
   });
 }
 
 // Mock ResizeObserver for components that use it (including react-chessboard)
-class MockResizeObserver implements ResizeObserver {
-  constructor(_callback: ResizeObserverCallback) {
-    // Store callback if needed for advanced testing
-  }
-
-  // Define as prototype methods (some libs check ResizeObserver.prototype.*)
-  observe(_target: Element, _options?: ResizeObserverOptions): void {}
-  unobserve(_target: Element): void {}
-  disconnect(): void {}
-  takeRecords(): ResizeObserverEntry[] { return []; }
-}
-
-// Attach spies to the prototype so methods are real functions and spy-able
-MockResizeObserver.prototype.observe = vi.fn();
-MockResizeObserver.prototype.unobserve = vi.fn();
-MockResizeObserver.prototype.disconnect = vi.fn();
-MockResizeObserver.prototype.takeRecords = vi.fn(() => []);
+const ResizeObserverMock = vi.fn().mockImplementation((_callback: ResizeObserverCallback) => {
+  return {
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
+    takeRecords: vi.fn(() => []),
+  };
+});
 
 Object.defineProperty(globalThis, 'ResizeObserver', {
-  value: MockResizeObserver,
+  value: ResizeObserverMock,
   writable: true,
   configurable: true,
 });
 
-// Also set it on window to satisfy libraries that read from window directly
 if (typeof window !== 'undefined') {
   Object.defineProperty(window, 'ResizeObserver', {
-    value: MockResizeObserver,
+    value: ResizeObserverMock,
     writable: true,
     configurable: true,
   });
