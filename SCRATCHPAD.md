@@ -12,20 +12,21 @@
 - **BATCH 3**: Services (4 files) - **COMMITTED: 83c5670**
 
 #### Migration Status
-- **Files migrated**: 22/50 (44%) ✅
+- **Files migrated**: 23/50 (46%) ✅
 - **Test status**: **424 tests PASSING** ✅
 - **Principle**: Fix-Everything-First erfolgreich
 - **µBatch 4a**: MoveDialogManager.test.ts ✅ **COMMITTED: a2dd740**
+- **µBatch 4b**: MoveQualityEvaluator.test.ts ✅ **COMMITTED: 8b190aa**
 
 #### BATCH 4 - Orchestrators Progress
 ```
 1. ✅ MoveDialogManager.test.ts → COMMITTED: a2dd740
-2. 🔄 MoveQualityEvaluator.test.ts → NEXT (µBatch 4b)
-3. ⏳ MoveValidator.test.ts → PENDING (µBatch 4c - Conflict Resolution)
+2. ✅ MoveQualityEvaluator.test.ts → COMMITTED: 8b190aa
+3. 🔄 MoveValidator.test.ts → NEXT (µBatch 4c - Conflict Resolution)
 4. ⏳ OpponentTurnManager.test.ts → PENDING (µBatch 4d)
 ```
 
-#### Remaining Work: 29 files
+#### Remaining Work: 27 files
 - Orchestrators (6), Components (7), Platform (3), Chess Logic (6), Misc (7)
 
 ---

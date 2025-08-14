@@ -22,10 +22,9 @@ This document describes how MCP servers are organized in the EndgameTrainer proj
 ├── scripts/start-dev.sh           # Dev environment startup
 └── docs/tooling/                  # This documentation
 
-~/services/                        # Central services
-└── mcp-servers/
-    ├── zen-test-server/           # Shared test environment
-    └── other-shared-tools/        # Other centralized services
+~/mcp-servers/                     # Central services
+├── zen-test-server/               # Shared test environment
+└── other-shared-tools/            # Other centralized services
 ```
 
 ## Configuration Files
@@ -37,12 +36,20 @@ Contains MCP servers that the entire team uses:
 {
   "$schema": "https://json.schemastore.org/mcp.json",
   "mcpServers": {
+    "claude-context": {
+      "command": "npx",
+      "args": ["-y", "@zilliz/claude-context-mcp@latest"]
+    },
     "zen": {
       "command": "python",
-      "args": ["~/services/mcp-servers/zen-test-server/server.py"],
+      "args": ["~/mcp-servers/zen-test-server/server.py"],
       "env": {
         "NODE_ENV": "development"
       }
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
     }
   }
 }
@@ -88,10 +95,11 @@ Contains personal Claude Code settings including permissions and hooks:
 - Use `./scripts/start-dev.sh` for complete environment setup
 - MCP servers start automatically based on `.mcp.json`
 - Personal settings are isolated and don't affect other developers
+- Claude Context indexes codebase on first use for semantic search
 
 ### For Shared Testing
 
-- Central test server runs at `~/services/mcp-servers/zen-test-server/`
+- Central test server runs at `~/mcp-servers/zen-test-server/`
 - Accessible by multiple developers/CI systems
 - Managed separately from individual projects
 
@@ -109,6 +117,7 @@ This structure was established to resolve confusion between project-local and ce
 
 ## See Also
 
+- [Claude Context MCP](mcp-claude-context.md)
 - [WSL2 Environment Guide](../guides/wsl2.md)
 - [MCP Tools Overview](mcp-overview.md)
 - [Development Setup](../../CLAUDE.md)

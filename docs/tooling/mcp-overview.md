@@ -4,15 +4,20 @@
 
 ## Available MCP Servers
 
-| Server         | Purpose                                             | Documentation                          |
-| -------------- | --------------------------------------------------- | -------------------------------------- |
-| **Zen**        | Development workflows (debug, refactor, test, etc.) | [mcp-zen.md](mcp-zen.md)               |
-| **Playwright** | Browser automation & E2E testing                    | [mcp-playwright.md](mcp-playwright.md) |
-| **REF**        | Documentation search                                | [mcp-ref.md](mcp-ref.md)               |
+| Server            | Purpose                                             | Documentation                                    |
+| ----------------- | --------------------------------------------------- | ------------------------------------------------ |
+| **Claude Context**| Semantic code search & navigation                  | [mcp-claude-context.md](mcp-claude-context.md)   |
+| **Zen**           | Development workflows (debug, refactor, test, etc.) | [mcp-zen.md](mcp-zen.md)                         |
+| **Playwright**    | Browser automation & E2E testing                    | [mcp-playwright.md](mcp-playwright.md)           |
+| **REF**           | Documentation search                                | [mcp-ref.md](mcp-ref.md)                         |
 
 ## Quick Decision Tree
 
 ```
+Need to find code or understand implementation?
+  → YES: mcp__claude-context__search_code → [mcp-claude-context.md](mcp-claude-context.md)
+  → NO: Continue ↓
+
 Is it about finding documentation?
   → YES: mcp__ref__ref_search_documentation → [mcp-ref.md](mcp-ref.md)
   → NO: Continue ↓
@@ -37,9 +42,10 @@ Is it complex multi-step work?
 ## Tool Selection Principles
 
 1. **Most specific first** - Use the tool designed for your exact task
-2. **Token efficiency** - REF (54 tokens) vs WebSearch (20k+ tokens)
-3. **Workflow over chat** - Specific tools provide better structure
-4. **Model sizing** - Flash for simple, Pro for complex
+2. **Semantic over literal** - Claude Context for understanding code vs Grep for exact matches
+3. **Token efficiency** - REF (54 tokens) vs WebSearch (20k+ tokens)
+4. **Workflow over chat** - Specific tools provide better structure
+5. **Model sizing** - Flash for simple, Pro for complex
 
 ## Anti-Patterns (DON'T DO THIS)
 
