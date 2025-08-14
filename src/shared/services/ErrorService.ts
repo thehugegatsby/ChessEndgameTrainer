@@ -6,6 +6,7 @@
  */
 
 import { getLogger } from "./logging";
+import { STRING_OPERATIONS, PRIORITY_VALUES } from "@/constants/utility.constants";
 
 /**
  * Error types for categorizing different error scenarios
@@ -329,8 +330,8 @@ export class ErrorService {
       timestamp: new Date(),
     });
 
-    // Keep only last 50 errors in memory
-    if (this.errorLog.length > 50) {
+    // Keep only last N errors in memory
+    if (this.errorLog.length > STRING_OPERATIONS.ERROR_TRUNCATE_LENGTH) {
       this.errorLog.shift();
     }
   }
@@ -400,7 +401,7 @@ export class ErrorService {
     return {
       totalErrors: this.errorLog.length,
       errorsByType: stats,
-      recentErrors: this.errorLog.slice(-5).map((log) => ({
+      recentErrors: this.errorLog.slice(PRIORITY_VALUES.ERROR_PRIORITY_OFFSET).map((log) => ({
         ...log.context,
         timestamp: log.timestamp,
         message: log.error.message,

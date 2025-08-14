@@ -133,7 +133,7 @@ const cardProgressConverter = {
       lastReviewedAt: data['lastReviewedAt'] || 0,
       interval: data['interval'] || 0,
       repetition: data['repetition'] || 0,
-      efactor: data['efactor'] || 2.5,
+      efactor: data['efactor'] || ALGORITHM_MULTIPLIERS.SUPERMEMO_MAX_EFACTOR,
       lapses: data['lapses'] || 0,
     };
   },

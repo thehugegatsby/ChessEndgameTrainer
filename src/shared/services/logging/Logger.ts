@@ -13,6 +13,7 @@ import {
   type LogFormatter,
 } from "./types";
 import { getPlatformDetection } from "../platform";
+import { STRING_OPERATIONS } from "@/constants/utility.constants";
 
 // Default configuration
 const DEFAULT_CONFIG: LoggerConfig = {
@@ -116,7 +117,7 @@ class ConsoleTransport implements LogTransport {
 /** Remote transport - batches and sends logs to remote endpoint */
 class RemoteTransport implements LogTransport {
   private buffer: LogEntry[] = [];
-  private batchSize = 50;
+  private batchSize = STRING_OPERATIONS.ERROR_TRUNCATE_LENGTH;
   private endpoint: string;
   private isFlushing = false;
 

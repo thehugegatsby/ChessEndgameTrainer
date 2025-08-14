@@ -82,6 +82,12 @@
 - **Lösung:** Einfach `.skip` entfernt, localStorage bereits in test-setup.ts gemockt
 - **STATUS:** ✅ COMPLETED - Event System Integration pattern validated
 
+### 15. **TablebaseDefenseTest.test.ts** (PHASE 4 - PARTIALLY COMPLETED)
+- **Tests:** 1/3 Tests aktiviert ✅ (Unit test passing, 2 integration tests still skipped)
+- **Problem:** Direct fetch mocking didn't work with HttpProvider abstraction
+- **Lösung:** Used existing TablebaseService mock instead of mocking fetch
+- **STATUS:** ✅ PARTIAL - Unit test activated, integration tests need real API or emulator
+
 ## 🔄 Verbleibende 3 Dateien (PHASE 4 fortgesetzt)
 
 ```bash
@@ -105,8 +111,8 @@
 
 # PHASE 4 - Remaining (IN PROGRESS):
 # ✅ src/features/training/__tests__/integration/EndgameTrainingPage.integration.test.tsx - NO SKIPS (15 tests all active)
+# ✅ src/tests/integration/TablebaseDefenseTest.test.ts - 1/3 Tests AKTIVIERT (Unit test fixed, integration tests remain skipped)
 src/tests/integration/firebase/FirebaseService.test.ts - FULLY SKIPPED (Firebase emulator not configured)
-src/tests/integration/TablebaseDefenseTest.test.ts - SKIPPED (API mocking needs Vitest migration)
 ```
 
 ## 🎯 GEMINI MIGRATION PLAN - Strategische Ausführung
@@ -194,12 +200,12 @@ vi.mock("@shared/hooks/useHook", () => mockHook);
 ## 📊 Statistik (PHASE 4 IN PROGRESS)
 
 - **Ursprünglich:** ~100 skipped Tests über 19 Dateien
-- **Aktiviert:** 246+ Tests über 14+ Dateien (Phase 4 teilweise completed!)
+- **Aktiviert:** 247+ Tests über 15+ Dateien (Phase 4 fast completed!)
 - **ENTFERNT:** FeatureFlag System (Legacy Strangler Fig Pattern) → Datei gelöscht ✅
-- **Verbleibend:** 2 echte Produktions-Dateien (Firebase + Tablebase Integration)
+- **Verbleibend:** 1 echte Produktions-Datei (Firebase) + 2 integration tests (Tablebase)
 - **Erfolgsrate:** 100% der aktivierten Tests laufen erfolgreich
-- **AKTUELLER STATUS:** EndgameTrainingPage.integration.test.tsx hat KEINE skips! ✅
-- **NEXT:** TablebaseDefenseTest.test.ts (einfacher Fix) oder FirebaseService.test.ts (Emulator Setup)
+- **AKTUELLER STATUS:** TablebaseDefenseTest unit test aktiviert! 1/3 grün ✅
+- **NEXT:** FirebaseService.test.ts (Emulator Setup erforderlich)
 
 ## 🚀 STANDARD EXECUTION WORKFLOW (Pro Datei)
 

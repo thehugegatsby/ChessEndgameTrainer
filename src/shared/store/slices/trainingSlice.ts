@@ -28,6 +28,7 @@ import { type TrainingSlice, type TrainingState, type TrainingActions } from "./
 import type { EndgamePosition as BaseEndgamePosition } from "@shared/types/endgame";
 import type { ValidatedMove } from "@shared/types/chess";
 import type { MoveSuccessDialog } from "@shared/store/orchestrators/handlePlayerMove/move.types";
+import { PERCENTAGE_MULTIPLIERS, ALGORITHM_MULTIPLIERS } from "@shared/constants/multipliers";
 
 // Re-export types for external use
 export type { TrainingState, TrainingActions } from "./types";
@@ -980,8 +981,8 @@ export const trainingSelectors = {
    * A more sophisticated calculation would consider move optimality.
    */
   selectAccuracy: (state: TrainingSlice) => {
-    const penalties = state.mistakeCount + state.hintsUsed * 0.5;
-    return Math.max(0, 100 - penalties * 10);
+    const penalties = state.mistakeCount + state.hintsUsed * PERCENTAGE_MULTIPLIERS.FIFTY_PERCENT;
+    return Math.max(0, 100 - penalties * ALGORITHM_MULTIPLIERS.DEFAULT_BATCH_SIZE);
   },
 
   /**

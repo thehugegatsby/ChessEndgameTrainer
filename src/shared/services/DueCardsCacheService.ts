@@ -26,7 +26,7 @@
 import type { DueCard, DueCardsStats } from '@shared/types/progress';
 import { getLogger } from '@shared/services/logging/Logger';
 import { TIME_UNITS } from '@shared/constants/time.constants';
-import { SIZE_MULTIPLIERS, BINARY_MULTIPLIERS } from '@shared/constants/multipliers';
+import { BINARY_MULTIPLIERS } from '@shared/constants/multipliers';
 import { ENCODING_BASES } from '@/constants/utility.constants';
 
 const logger = getLogger().setContext('DueCardsCacheService');
@@ -91,7 +91,7 @@ const CACHE_CONFIG = {
   MAX_ENTRIES: 50,
   
   /** Maximum estimated size in bytes (5MB) */
-  MAX_SIZE_BYTES: 5 * SIZE_MULTIPLIERS.BINARY_MULTIPLIER * SIZE_MULTIPLIERS.BINARY_MULTIPLIER,
+  MAX_SIZE_BYTES: 5 * BINARY_MULTIPLIERS.KILOBYTE * BINARY_MULTIPLIERS.KILOBYTE,
   
   /** Cleanup interval in milliseconds (1 hour) */
   CLEANUP_INTERVAL_MS: TIME_UNITS.HOUR,
@@ -649,7 +649,7 @@ export function createInputHash(input: unknown): string {
     hash = hash & hash; // Convert to 32-bit integer
   }
   
-  return Math.abs(hash).toString(36);
+  return Math.abs(hash).toString(ENCODING_BASES.BASE36);
 }
 
 // Export singleton instance for convenience

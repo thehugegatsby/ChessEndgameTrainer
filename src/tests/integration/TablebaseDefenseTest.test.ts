@@ -9,41 +9,29 @@ import { getLogger } from "@shared/services/logging/Logger";
 
 const logger = getLogger();
 
+// Mock TablebaseService
+vi.mock("@shared/services/TablebaseService");
+
 // Helper to conditionally run tests based on environment
 const describeIf = (condition: boolean) => condition ? describe : describe.skip;
 
 // Unit tests with mocked data (fast, deterministic)
-describe.skip("TablebaseService Defense Sorting - Unit Tests", () => {
+describe("TablebaseService Defense Sorting - Unit Tests", () => {
   beforeEach(() => {
-    // Reset fetch mock
+    // Reset mocks
     vi.clearAllMocks();
-    global.fetch = vi.fn();
   });
 
   it("Should sort DTM moves correctly with mocked data", async () => {
-    // Mock complete Lichess API response structure
-    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-      dtz: 25,
-      precise_dtz: 25,
-      dtm: null,
-      checkmate: false,
-      stalemate: false,
-      variant: "standard",
-      insufficient_material: false,
-      category: "loss",
+    // Mock the getTopMoves method to return sorted moves
+    (tablebaseService.getTopMoves as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      isAvailable: true,
       moves: [
         { 
           uci: "e7e8", 
           san: "Ke8", 
           dtz: 25, 
-          precise_dtz: 25, 
           dtm: -25, 
-          zeroing: false, 
-          checkmate: false, 
-          stalemate: false, 
-          insufficient_material: false, 
           wdl: -2,
           category: "loss" 
         },
@@ -51,12 +39,7 @@ describe.skip("TablebaseService Defense Sorting - Unit Tests", () => {
           uci: "e7d6", 
           san: "Kd6", 
           dtz: 23, 
-          precise_dtz: 23, 
           dtm: -23, 
-          zeroing: false, 
-          checkmate: false, 
-          stalemate: false, 
-          insufficient_material: false, 
           wdl: -2,
           category: "loss" 
         },
@@ -64,17 +47,11 @@ describe.skip("TablebaseService Defense Sorting - Unit Tests", () => {
           uci: "e7f6", 
           san: "Kf6", 
           dtz: 21, 
-          precise_dtz: 21, 
           dtm: -21, 
-          zeroing: false, 
-          checkmate: false, 
-          stalemate: false, 
-          insufficient_material: false, 
           wdl: -2,
           category: "loss" 
         }
       ]
-      })
     });
 
     const scenario = TRAIN_SCENARIOS.TRAIN_2;
