@@ -4,55 +4,34 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TablebaseIntegration, SimpleTablebaseIntegration } from '../TablebaseIntegration';
 import { trainingEvents } from '../../../training/events/EventEmitter';
 
-// Note: Mock functions are now defined inline in vi.mock() calls to avoid hoisting issues
+// Use vi.hoisted to define mocks before module evaluation
+const mockUseTablebase = vi.hoisted(() => vi.fn());
+const mockUseEventDrivenTraining = vi.hoisted(() => vi.fn());
+const mockUseTrainingStore = vi.hoisted(() => vi.fn());
+const mockUseTrainingEvent = vi.hoisted(() => vi.fn());
 
 // Mock the tablebase hooks
 vi.mock('../../hooks/useTablebase', () => ({
-  useTablebase: vi.fn(() => ({
-    evaluation: {
-      outcome: 'win',
-      dtm: 5,
-      dtz: 12,
-    },
-    moves: [
-      {
-        uci: 'e2e4',
-        san: 'e4',
-        outcome: 'win',
-        dtm: 4,
-      },
-      {
-        uci: 'd2d4',
-        san: 'd4',
-        outcome: 'draw',
-        dtm: undefined,
-      },
-    ],
-    isLoading: false,
-    isEvaluationLoading: false,
-    isMovesLoading: false,
-    error: null,
-  })),
+  useTablebase: mockUseTablebase,
 }));
 
-// Mock training hooks - define vi.fn directly in the mock to avoid hoisting issues
+// Mock training hooks
 vi.mock('../../../training/hooks/useEventDrivenTraining', () => ({
-  useEventDrivenTraining: vi.fn(() => true),
+  useEventDrivenTraining: mockUseEventDrivenTraining,
 }));
 
-// Mock training store hooks - define inline to avoid hoisting issues
+// Mock training store hooks
 vi.mock('@shared/store/hooks', () => ({
-  useTrainingStore: vi.fn(() => [
-    null,
-    {
-      handlePlayerMove: vi.fn(),
-    },
-  ]),
+  useTrainingStore: mockUseTrainingStore,
+  // Add other exports if needed to prevent breaking imports
+  useGameStore: vi.fn(() => [{}, {}]),
+  useTablebaseStore: vi.fn(() => [{}, {}]),
+  useUIStore: vi.fn(() => [{}, {}]),
 }));
 
-// Mock training event listener - define inline to avoid hoisting issues
+// Mock training event listener
 vi.mock('../../../training/components/TrainingEventListener', () => ({
-  useTrainingEvent: vi.fn(),
+  useTrainingEvent: mockUseTrainingEvent,
 }));
 
 // Mock store
@@ -84,11 +63,49 @@ const createWrapper = () => {
   };
 };
 
-describe.skip('TablebaseIntegration', () => {
+describe('TablebaseIntegration', () => {
   const testFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
   beforeEach(() => {
     vi.clearAllMocks();
+    
+    // Set default mock implementations
+    mockUseTablebase.mockReturnValue({
+      evaluation: {
+        outcome: 'win',
+        dtm: 5,
+        dtz: 12,
+      },
+      moves: [
+        {
+          uci: 'e2e4',
+          san: 'e4',
+          outcome: 'win',
+          dtm: 4,
+        },
+        {
+          uci: 'd2d4',
+          san: 'd4',
+          outcome: 'draw',
+          dtm: undefined,
+        },
+      ],
+      isLoading: false,
+      isEvaluationLoading: false,
+      isMovesLoading: false,
+      error: null,
+    });
+    
+    mockUseEventDrivenTraining.mockReturnValue(true);
+    
+    mockUseTrainingStore.mockReturnValue([
+      null,
+      {
+        handlePlayerMove: vi.fn(),
+      },
+    ]);
+    
+    mockUseTrainingEvent.mockImplementation(() => {});
   });
 
   describe('stacked layout', () => {
@@ -189,8 +206,8 @@ describe.skip('TablebaseIntegration', () => {
   });
 
   describe('move handling', () => {
-    it.skip('should emit move attempted event when event-driven', () => {
-      // mockUseEventDrivenTraining.mockReturnValue(true); // Skipped - mock access issue
+    it('should emit move attempted event when event-driven', () => {
+      mockUseEventDrivenTraining.mockReturnValue(true);
       const Wrapper = createWrapper();
       
       render(
@@ -212,9 +229,9 @@ describe.skip('TablebaseIntegration', () => {
       });
     });
 
-    it.skip('should use store action when not event-driven', () => {
+    it('should use store action when not event-driven', () => {
       const mockHandlePlayerMove = vi.fn();
-      // mockUseEventDrivenTraining.mockReturnValue(false); // Skipped - mock access issue
+      mockUseEventDrivenTraining.mockReturnValue(false);
       mockUseTrainingStore.mockReturnValue([
         null,
         { handlePlayerMove: mockHandlePlayerMove },
@@ -257,8 +274,8 @@ describe.skip('TablebaseIntegration', () => {
   });
 
   describe('conditional rendering', () => {
-    it.skip('should not render when not event-driven and no analysis', () => {
-      // mockUseEventDrivenTraining.mockReturnValue(false); // Skipped - mock access issue
+    it('should not render when not event-driven and no analysis', () => {
+      mockUseEventDrivenTraining.mockReturnValue(false);
       const Wrapper = createWrapper();
       
       const { container } = render(
@@ -273,8 +290,8 @@ describe.skip('TablebaseIntegration', () => {
       expect(container.firstChild).toBeNull();
     });
 
-    it.skip('should render when event-driven even without analysis', () => {
-      // mockUseEventDrivenTraining.mockReturnValue(true); // Skipped - mock access issue
+    it('should render when event-driven even without analysis', () => {
+      mockUseEventDrivenTraining.mockReturnValue(true);
       const Wrapper = createWrapper();
       
       render(
