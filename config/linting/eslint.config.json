@@ -184,7 +184,8 @@
         "complexity": "off",
         "max-depth": "off",
         "require-await": "off",
-        "no-use-before-define": "off"
+        "no-use-before-define": "off",
+        "no-magic-numbers": "off"
       }
     },
     {

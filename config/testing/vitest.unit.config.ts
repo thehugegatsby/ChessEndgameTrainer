@@ -4,13 +4,16 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import path from 'path';
 import { featuresTestSetup, featuresDir, srcDir, sharedDir, testsDir } from '../paths';
 
+// WSL2 Detection
+const isWSL2 = process.env.WSL_DISTRO_NAME !== undefined;
+
 /**
  * Vitest Configuration for UNIT TESTS ONLY
  * 
- * Optimized for speed:
- * - No isolation (tests run in same context)
- * - Threads pool for parallelization
- * - Only unit test directories included
+ * Optimized for WSL2 and feature-based testing:
+ * - Projects for feature-based test organization
+ * - WSL2-optimized pool settings
+ * - Smart coverage exclusions
  */
 export default defineConfig({
   plugins: [react(), tsconfigPaths()],
@@ -45,19 +48,22 @@ export default defineConfig({
       `${testsDir}/pages/**`,
       `${testsDir}/shared/**`,
     ],
-    // PERFORMANCE OPTIMIZATIONS - Fix worker issues
-    pool: 'forks',  // Use forks instead of threads to avoid IPC issues
+    // WSL2-OPTIMIZED PERFORMANCE SETTINGS
+    pool: isWSL2 ? 'forks' : 'threads',  // WSL2: Use forks to avoid pipe issues
     poolOptions: {
+      threads: {
+        maxThreads: isWSL2 ? 2 : 4,  // WSL2: Limit threads
+        minThreads: 1,
+      },
       forks: {
-        maxForks: 1,  // Only one fork at a time to prevent memory issues
+        maxForks: isWSL2 ? 2 : 4,  // WSL2: Conservative fork limit
         minForks: 1,
-        isolate: true,  // Enable isolation to prevent memory leaks between test files
+        isolate: true,  // Enable isolation to prevent memory leaks
       }
     },
-    // Remove isolate setting - let Vitest handle it
     testTimeout: 10000,  // Extended timeout for complex async tests
-    maxWorkers: 1,  // Only one worker to prevent memory issues
-    fileParallelism: false,  // Run files sequentially
+    maxWorkers: isWSL2 ? 2 : 4,  // WSL2: Limited workers
+    fileParallelism: !isWSL2,  // WSL2: Sequential execution for stability
     coverage: {
       reporter: ['text', 'lcov'],
       exclude: [
@@ -67,6 +73,15 @@ export default defineConfig({
         '**/*.spec.tsx',
         '**/test-setup.ts',
         '**/__tests__/**',
+        '**/node_modules/**',
+        '**/.next/**',
+        '**/dist/**',
+        '**/coverage/**',
+        '**/*.mock.ts',
+        '**/*.mock.tsx',
+        '**/test-utils/**',
+        '**/TestFixtures.ts',
+        '**/mocks/**',
       ],
     },
   },

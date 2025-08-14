@@ -19,12 +19,13 @@ pnpm test path/to/test.tsx
 
 ## 2. Framework
 
-**Vitest** - Single framework for all tests (Jest removed completely)
+**Vitest** - Single framework for all tests (Migration complete as of 2025-08-14)
 
-- **Unit tests**: `src/tests/unit/`
+- **Unit tests**: `src/features/*/`, `src/shared/*/` (co-located with source)
 - **Feature tests**: `src/features/*/` (4 domains: chess-core, tablebase, training, move-quality)
-- **Integration tests**: Dedicated integration test files
-- **Configs**: `vitest.unit.config.ts`, `vitest.integration.config.ts`
+- **Integration tests**: `src/tests/integration/` (API mocking, cross-feature)
+- **E2E tests**: `src/tests/e2e/` (Playwright, separate pipeline)
+- **Configs**: `config/testing/vitest.*.config.ts`
 
 ### 📦 Module Resolution Strategy (2025-01-13)
 
@@ -102,10 +103,13 @@ return promise.finally(() => cleanup());
 ### Test Directory Structure
 
 ```
-tests/
-├── unit/             # Jest unit tests
-├── integration/      # Jest integration tests (MSW-based)
-└── e2e/              # Playwright E2E tests
+src/
+├── features/*/       # Unit & feature tests (co-located)
+├── shared/*/         # Shared utility tests (co-located)
+└── tests/
+    ├── integration/  # Cross-feature integration tests (Vitest)
+    ├── e2e/          # End-to-end tests (Playwright)
+    └── helpers/      # Test utilities and fixtures
 ```
 
 ### 4.1. Unit Tests (`.test.ts`)
