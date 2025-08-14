@@ -7,14 +7,17 @@
 ```bash
 pnpm run dev              # Dev server (MCP auto-starts)
 pnpm run build            # Production  
-pnpm test file.test.tsx   # Single test (auto-redirects to vitest)
-pnpm test                 # All tests
+pnpm test file.test.tsx   # Single test (auto-detects feature)
+pnpm test:chess           # Test chess-core feature only
+pnpm test                 # All tests (warns if >100 files)
 pnpm run lint && pnpm tsc # Validation
 ```
 
 ## 🔧 WSL2 Critical
 
-- ✅ `pnpm test file.test.tsx` → Auto-redirects to vitest
+- ✅ `pnpm test file.test.tsx` → Auto-detects WSL2, sets optimal config
+- ✅ Performance guard → Warns before running >100 tests
+- ✅ Feature routing → Auto-detects chess-core/tablebase/training
 - ❌ `cmd | grep` → ✅ `cmd && cmd2` (no pipes)
 - 📦 CI-Fix: `vite-tsconfig-paths` resolves modules
 

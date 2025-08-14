@@ -49,14 +49,56 @@ const { showErrorToast } = require('@shared/utils/toast'); // Legacy
 
 Execute tests using `pnpm` for consistent WSL compatibility:
 
+### Basic Commands
 ```bash
-pnpm test                    # Run unit tests (src/tests/unit/)
-pnpm test:features           # Run feature tests (src/features/)
+pnpm test                    # Smart test runner (auto-detects WSL2, warns >100 tests)
+pnpm test <file>             # Run specific test file
+pnpm test --project <name>   # Run feature-specific tests
+pnpm test:watch              # Watch mode for development
+pnpm test:coverage           # Tests with coverage report
+```
+
+### Feature-Based Testing (NEW - Phase 0+1 Implementation)
+```bash
+pnpm test:chess              # Test chess-core feature only
+pnpm test:tablebase          # Test tablebase feature only
+pnpm test:training           # Test training feature only
+pnpm test:shared             # Test shared utilities only
+pnpm test:feature <name>     # Generic feature test command
+```
+
+**Note:** Currently using `vitest.workspace.ts` for project separation. This shows a deprecation warning but works correctly. Will migrate to `test.projects` field in root config in future update.
+
+### Legacy Commands
+```bash
 pnpm test:unit               # Unit tests with unit config
 pnpm test:integration        # Integration tests
 pnpm test:e2e                # Playwright E2E tests
-pnpm test:coverage           # Tests with coverage report
-pnpm test:watch              # Watch mode for development
+pnpm test:all                # Run all test suites
+```
+
+### WSL2 Optimizations (Auto-Applied)
+- Automatic detection: `WSL_DISTRO_NAME` environment variable
+- Pool type: `forks` instead of `threads` (avoids pipe issues)
+- Worker limits: Max 2 workers (prevents memory issues)
+- Sequential execution: `fileParallelism: false` for stability
+
+### 🚨 Performance Guard (NEW)
+
+The smart test runner includes a performance guard to prevent accidental full-suite runs:
+
+```bash
+# When running >100 tests, you'll see:
+⚠️  WARNING: About to run 142 test files
+This may take several minutes. Continue? (y/n/s)
+  y = Yes, run all tests
+  n = No, cancel
+  s = Skip to specific feature tests
+
+# To bypass the guard:
+CONFIRM_ALL=1 pnpm test        # Auto-confirm
+FORCE_TEST=1 pnpm test          # Skip all confirmations
+CI=true pnpm test               # CI mode (auto-confirm)
 ```
 
 ### 🚨 Individual Test Execution
@@ -71,8 +113,8 @@ pnpm exec vitest run path/to/test.ts
 pnpm exec vitest --config=config/testing/vitest.unit.config.ts run path/to/test.ts
 
 # Alternative: Use standard commands that include proper config
-pnpm test path/to/test.ts                    # For unit tests
-pnpm test:features path/to/feature.test.ts   # For feature tests
+pnpm test path/to/test.ts                    # Smart router auto-detects
+pnpm test:feature chess-core                 # Feature-specific tests
 ```
 
 **Why this matters:** Without the proper config, TypeScript path mappings like `@shared/*`, `@tests/*`, `@features/*` will fail to resolve, causing import errors.
