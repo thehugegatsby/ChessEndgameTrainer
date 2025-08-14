@@ -533,14 +533,14 @@ describe("WebPlatformService", () => {
       });
     });
 
-    it("should throw error for scheduled notifications", async () => {
-      await expect(
-        service.notifications.schedule({
+    it("should throw error for scheduled notifications", () => {
+      expect(
+        () => service.notifications.schedule({
           title: "Test",
           body: "Test body",
           trigger: new Date(),
-        }),
-      ).rejects.toThrow("Scheduled notifications not supported on web");
+        })
+      ).toThrow("Scheduled notifications not supported on web");
     });
   });
 
@@ -578,14 +578,14 @@ describe("WebPlatformService", () => {
       await expect(promise).resolves.toBeUndefined();
     });
 
-    it("should handle error cases properly", async () => {
+    it("should handle error cases properly", () => {
       mockLocalStorage.setItem.mockImplementation(() => {
         throw new Error("Storage quota exceeded");
       });
 
-      await expect(
-        service.storage.save("test", { data: "large" }),
-      ).rejects.toThrow("Failed to save data");
+      expect(
+        () => service.storage.save("test", { data: "large" })
+      ).toThrow("Failed to save data for key 'test': Storage quota exceeded");
     });
   });
 });
