@@ -70,18 +70,11 @@ describe("TablebaseService Defense Sorting - Unit Tests", () => {
   });
 });
 
-// Integration tests with real API calls (slower, requires network)
-// TODO: TEMPORARILY SKIPPED - API mocking needs review
-// Will be rewritten during Vitest migration with proper fetch handling
-describeIf(false && (global as any).isIntegrationTest)("TablebaseService Defense Sorting - Integration Tests", () => {
+// Integration tests with mocked API responses (converted from real API tests)
+describe("TablebaseService Defense Sorting - Integration Tests (Mocked)", () => {
   beforeEach(() => {
-    // Disable fetch mock for real API calls
-    (fetch as any).dontMock();
-  });
-  
-  afterEach(() => {
-    // Re-enable mocks after integration tests
-    (fetch as any).enableMocks();
+    // Reset mocks before each test
+    vi.clearAllMocks();
   });
 
   it("Should return moves sorted by DTM for losing positions", async () => {
