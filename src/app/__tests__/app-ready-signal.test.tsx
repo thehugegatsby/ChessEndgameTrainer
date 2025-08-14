@@ -35,9 +35,9 @@ vi.mock("@shared/hooks/useHydration", () => ({
 import { useStore } from "@shared/store/StoreContext";
 
 // Import component after mocks are set up
-import { AppProviders } from "../../../app/providers";
+import { AppProviders } from "../providers";
 
-describe.skip("App Ready Signal (App Router)", () => {
+describe("App Ready Signal (App Router)", () => {
   const mockUsePathname = usePathname as ReturnType<typeof vi.fn>;
 
   // Helper function to create a mock state with all required properties

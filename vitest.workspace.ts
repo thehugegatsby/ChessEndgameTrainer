@@ -38,7 +38,10 @@ export default defineWorkspace([
     extends: './config/testing/vitest.unit.config.ts',
     test: {
       name: 'shared',
-      include: [`${sharedDir}/**/*.{test,spec}.{ts,tsx}`],
+      include: [
+        `${sharedDir}/**/*.{test,spec}.{ts,tsx}`,
+        `src/app/**/*.{test,spec}.{ts,tsx}`
+      ],
     },
   },
   {
