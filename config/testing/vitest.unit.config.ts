@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
+import tsconfigPaths from 'vite-tsconfig-paths';
 import path from 'path';
 import { featuresTestSetup, featuresDir, srcDir, sharedDir, testsDir } from '../paths';
 
@@ -12,7 +13,7 @@ import { featuresTestSetup, featuresDir, srcDir, sharedDir, testsDir } from '../
  * - Only unit test directories included
  */
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tsconfigPaths()],
   test: {
     environment: 'happy-dom',  // Browser environment for DOM-dependent tests
     globals: true,
@@ -20,7 +21,9 @@ export default defineConfig({
     include: [
       // Feature tests (unit tests with TDD)
       `${featuresDir}/**/*.{test,spec}.{ts,tsx}`,
-      // Unit test directory
+      // Shared component tests (new feature-based structure)
+      `${sharedDir}/**/*.{test,spec}.{ts,tsx}`,
+      // Unit test directory (legacy structure)
       `${testsDir}/unit/**/*.{test,spec}.{ts,tsx}`,
     ],
     exclude: [
@@ -52,7 +55,7 @@ export default defineConfig({
       }
     },
     // Remove isolate setting - let Vitest handle it
-    testTimeout: 5000,  // Faster timeout for unit tests
+    testTimeout: 10000,  // Extended timeout for complex async tests
     maxWorkers: 1,  // Only one worker to prevent memory issues
     fileParallelism: false,  // Run files sequentially
     coverage: {

@@ -15,7 +15,7 @@ vi.mock("@shared/services/logging", () => ({
   /**
    *
    */
-  getLogger: () => require("../../shared/logger-utils").createTestLogger(),
+  getLogger: () => require("../../../tests/shared/logger-utils").createTestLogger(),
 }));
 
 // Test container and mock service
