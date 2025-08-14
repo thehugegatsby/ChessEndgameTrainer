@@ -5,18 +5,35 @@ import { vi } from 'vitest';
  * Target: loadPgn() method - biggest coverage gain (37 lines)
  */
 
+// Mock chess.js with vi.hoisted() pattern for proper spy tracking
+const mockChessInstance = vi.hoisted(() => ({
+  move: vi.fn(),
+  fen: vi.fn().mockReturnValue("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
+  pgn: vi.fn().mockReturnValue(""),
+  history: vi.fn().mockReturnValue([]),
+  load: vi.fn(),
+  loadPgn: vi.fn(),
+  isGameOver: vi.fn().mockReturnValue(false),
+  turn: vi.fn().mockReturnValue("w"),
+  moves: vi.fn().mockReturnValue(["e4", "e3", "Nf3"]),
+  isCheck: vi.fn().mockReturnValue(false),
+  isCheckmate: vi.fn().mockReturnValue(false),
+  isStalemate: vi.fn().mockReturnValue(false),
+  isDraw: vi.fn().mockReturnValue(false),
+}));
+
+vi.mock("chess.js", () => ({
+  Chess: vi.fn().mockImplementation(() => mockChessInstance),
+}));
+
 import { ChessService } from "@shared/services/ChessService";
 import { Chess } from "chess.js";
 import { createValidatedMove } from "@shared/types/chess";
-
-// Mock chess.js following existing pattern
-vi.mock("chess.js");
 
 const MockedChess = Chess as any;
 
 describe("ChessService PGN Loading Tests", () => {
   let chessService: ChessService;
-  let mockChessInstance: any;
 
   // PGN test fixtures for comprehensive testing
   const pgnTestFixtures = {
@@ -38,33 +55,13 @@ describe("ChessService PGN Loading Tests", () => {
   ];
 
   beforeEach(() => {
-    MockedChess.mockClear();
-
-    // Create comprehensive mock Chess instance
-    mockChessInstance = {
-      move: vi.fn(),
-      fen: vi.fn().mockReturnValue("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
-      pgn: vi.fn().mockReturnValue(""),
-      history: vi.fn().mockReturnValue([]),
-      load: vi.fn(),
-      loadPgn: vi.fn(),
-      isGameOver: vi.fn().mockReturnValue(false),
-      turn: vi.fn().mockReturnValue("w"),
-      moves: vi.fn().mockReturnValue(["e4", "e3", "Nf3"]),
-      isCheck: vi.fn().mockReturnValue(false),
-      isCheckmate: vi.fn().mockReturnValue(false),
-      isStalemate: vi.fn().mockReturnValue(false),
-      isDraw: vi.fn().mockReturnValue(false),
-    } as any;
-
-    MockedChess.mockImplementation(() => mockChessInstance);
+    // Clear all mocks before each test
+    vi.clearAllMocks();
     chessService = new ChessService();
   });
 
-  // TODO: Fix PGN loading tests - mock spy not being called as expected
-  // 8 tests failing due to spy configuration issues
   describe("loadPgn() - Lines 482-518", () => {
-    it.skip("should load valid PGN and reconstruct move history", () => {
+    it("should load valid PGN and reconstruct move history", () => {
       // Setup mock for successful PGN loading
       mockChessInstance.loadPgn.mockImplementation(() => true as any);
       mockChessInstance.history.mockReturnValue(mockMoves as any);
@@ -116,7 +113,7 @@ describe("ChessService PGN Loading Tests", () => {
       );
     });
 
-    it.skip("should handle complex PGN with castling", () => {
+    it("should handle complex PGN with castling", () => {
       // Setup more complex move sequence
       const complexMoves = [
         { from: "e2", to: "e4", san: "e4", piece: "p", color: "w" },
@@ -143,7 +140,7 @@ describe("ChessService PGN Loading Tests", () => {
       expect(chessService.getCurrentMoveIndex()).toBe(complexMoves.length - 1);
     });
 
-    it.skip("should handle empty PGN string", () => {
+    it("should handle empty PGN string", () => {
       // Setup for empty PGN
       mockChessInstance.loadPgn.mockImplementation(() => true as any);
       mockChessInstance.history.mockReturnValue([] as any);
@@ -166,7 +163,7 @@ describe("ChessService PGN Loading Tests", () => {
       expect(chessService.getMoveHistory()).toHaveLength(0);
     });
 
-    it.skip("should handle invalid PGN and emit error event", () => {
+    it("should handle invalid PGN and emit error event", () => {
       // Setup mock to throw error for invalid PGN
       const pgnError = new Error("Invalid PGN format");
       mockChessInstance.loadPgn.mockImplementation(() => {
@@ -217,7 +214,7 @@ describe("ChessService PGN Loading Tests", () => {
       );
     });
 
-    it.skip("should handle partially valid PGN", () => {
+    it("should handle partially valid PGN", () => {
       const partialError = new Error("Invalid move in PGN");
       mockChessInstance.loadPgn.mockImplementation(() => {
         throw partialError;
@@ -229,7 +226,7 @@ describe("ChessService PGN Loading Tests", () => {
       expect(mockChessInstance.loadPgn).toHaveBeenCalledWith(pgnTestFixtures.partialValid);
     });
 
-    it.skip("should reset chess instance and rebuild from scratch", () => {
+    it("should reset chess instance and rebuild from scratch", () => {
       // This tests the critical logic in lines 485-496
       mockChessInstance.loadPgn.mockImplementation(() => true as any);
       mockChessInstance.history.mockReturnValue(mockMoves as any);
@@ -278,7 +275,7 @@ describe("ChessService PGN Loading Tests", () => {
       });
     });
 
-    it.skip("should handle error during move reconstruction", () => {
+    it("should handle error during move reconstruction", () => {
       mockChessInstance.loadPgn.mockImplementation(() => true as any);
       mockChessInstance.history.mockReturnValue(mockMoves as any);
 
@@ -303,10 +300,26 @@ describe("ChessService PGN Loading Tests", () => {
   });
 
   describe("PGN Integration with other methods", () => {
-    it.skip("should maintain consistency after PGN load", () => {
+    it("should maintain consistency after PGN load", () => {
       mockChessInstance.loadPgn.mockImplementation(() => true as any);
       mockChessInstance.history.mockReturnValue(mockMoves as any);
       mockChessInstance.pgn.mockReturnValue(pgnTestFixtures.valid);
+
+      // Mock FEN progression to enable proper move reconstruction
+      let fenIndex = 0;
+      const fenProgression = [
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+        "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2",
+        "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+      ];
+
+      mockChessInstance.fen.mockImplementation(() => fenProgression[fenIndex] || fenProgression[0]);
+      mockChessInstance.move.mockImplementation(() => {
+        const move = mockMoves[fenIndex];
+        fenIndex++;
+        return (move || null) as any;
+      });
 
       chessService.loadPgn(pgnTestFixtures.valid);
 
