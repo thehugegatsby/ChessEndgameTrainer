@@ -3,6 +3,7 @@
  * @module store/rootStore
  * @description Combines all domain-specific slices into a unified store with middleware
  * integration. Uses a clean, maintainable architecture with domain-driven slices.
+ * @note Cache-bust: 2025-08-14 CI build refresh
  *
  * @example
  * ```typescript
