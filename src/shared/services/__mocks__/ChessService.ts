@@ -273,4 +273,5 @@ class MockChessService extends EventEmitter {
 
 // Export singleton instance
 export const chessService = new MockChessService();
+export const ChessService = MockChessService;
 export default chessService;

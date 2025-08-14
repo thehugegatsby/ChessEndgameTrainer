@@ -8,10 +8,6 @@
 // @testing-library/jest-dom removed - using Vitest native matchers
 import { vi, beforeAll, afterAll, afterEach } from 'vitest';
 
-// Setup global mock resolution for __mocks__ directories
-import { setupGlobalMocks } from '../../config/testing/vitest.mocks';
-setupGlobalMocks();
-
 // --- Global Setup (Environment-Agnostic) ---
 // This runs in ALL environments (node and jsdom)
 

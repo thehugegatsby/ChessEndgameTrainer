@@ -128,11 +128,7 @@ describe("EndgameTrainingPage Integration Tests", () => {
 
   afterEach(() => {
     // Clean up event listeners to prevent memory leaks
-    const mockChess =
-      require("@shared/services/__mocks__/ChessService").chessService;
-    if (mockChess && mockChess.removeAllListeners) {
-      mockChess.removeAllListeners();
-    }
+    // Note: Mock cleanup handled by vi.clearAllMocks() in test setup
   });
 
   // Global cleanup after all tests
