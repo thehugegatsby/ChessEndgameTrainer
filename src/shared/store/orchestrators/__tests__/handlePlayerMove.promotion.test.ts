@@ -74,7 +74,7 @@ vi.mock("@shared/store/orchestrators/handlePlayerMove/PawnPromotionHandler", () 
   },
 }));
 
-describe.skip("Pawn Promotion Auto-Win Feature", () => {
+describe("Pawn Promotion Auto-Win Feature", () => {
   let mockApi: StoreApi;
   let mockState: any;
 
