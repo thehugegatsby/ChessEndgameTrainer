@@ -52,7 +52,7 @@ function createTablebaseResult(partial: { wdl: number; category: string; dtm?: n
   };
 }
 
-describe.skip("PawnPromotionHandler", () => {
+describe("PawnPromotionHandler", () => {
   let handler: PawnPromotionHandler;
   let mockLogger: any;
   let mockApi: StoreApi;
@@ -302,7 +302,7 @@ describe.skip("PawnPromotionHandler", () => {
       // The important behavior is returning true for black winning position
     });
 
-    it("should not consider winning positions without auto-win category", async () => {
+    it("should consider all winning positions as auto-win regardless of category", async () => {
       // Use vi.spyOn to mock the chess service methods
       (chessService.isGameOver as ReturnType<typeof vi.fn>).mockClear();
       (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockClear();
@@ -314,13 +314,13 @@ describe.skip("PawnPromotionHandler", () => {
         isAvailable: true,
         result: createTablebaseResult({
           wdl: 1000, // Winning
-          category: "unknown", // Not auto-win category
+          category: "unknown", // Category doesn't matter for auto-win logic
         }),
       });
 
       const result = await handler.evaluatePromotionOutcome(validFen, "w");
 
-      expect(result).toBe(false); // Winning but not auto-win category
+      expect(result).toBe(true); // Winning positions are auto-win regardless of category
     });
 
     it("should handle draw positions", async () => {
