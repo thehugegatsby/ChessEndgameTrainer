@@ -38,7 +38,7 @@ graph TD
 | Slice | Purpose | Key State |
 |-------|---------|-----------|
 | **GameSlice** | Chess logic, FEN, history | `position`, `moveHistory`, `gameStatus` |
-| **TrainingSlice** | Training sessions, progress | `scenarios`, `userProgress`, `sessionStatus` |
+| **TrainingSlice** | Training sessions | `scenarios`, `sessionStatus` |
 | **TablebaseSlice** | Lichess API cache | `evaluations`, `cache`, `requestStatus` |
 | **UISlice** | UI state management | `modals`, `toasts`, `isLoading` |
 
@@ -53,7 +53,7 @@ Complex operations across slices: `/shared/store/orchestrators/`
 
 **Example: handlePlayerMove**
 1. Validates move (GameSlice)
-2. Updates progress (TrainingSlice)  
+2. Updates session (TrainingSlice)  
 3. Shows feedback (UISlice)
 4. Fetches evaluation (TablebaseSlice)
 
@@ -134,10 +134,9 @@ src/shared/store/orchestrators/handlePlayerMove/  # Move handling (533 lines)
 
 ## Feature Architecture
 
-4 bounded domains with co-located tests:
+3 bounded domains with co-located tests:
 - `chess-core/`: Game logic, validation
 - `tablebase/`: Lichess API integration  
 - `training/`: Session management
-- `move-quality/`: Move evaluation
 
-Migration ~25% complete - new tests ONLY in Vitest.
+Migration complete - all tests migrated to Vitest.

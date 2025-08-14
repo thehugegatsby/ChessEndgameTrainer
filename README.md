@@ -17,9 +17,7 @@ Eine moderne **Web-first** Anwendung zum systematischen Lernen von Schachendspie
 - **Tablebase Evaluation** - Perfekte Endspiel-Bewertungen
 - **Best Moves Display** - Top 3 Züge mit Bewertungen (Lichess-Style)
 - **Brückenbau-Trainer** - Strukturiertes Lernen mit 5 Lektionen
-- **Spaced Repetition** - FSRS-basiertes Lernsystem
 - **Performance Optimiert** - 75% weniger API-Calls, LRU Cache
-- **Database Ready** - Firestore migration mit Dual-Read Pattern
 - **Responsive Design** - Desktop & Mobile optimiert
 - **Dark Mode** - Augenschonend trainieren
 - **Production Ready** - Vercel Deployment mit Security Headers
@@ -31,7 +29,6 @@ ChessEndgameTrainer/
 ├── app/                            # Next.js App Router
 │   ├── layout.tsx                  # Root Layout mit Providers
 │   ├── page.tsx                    # Homepage mit Endgame-Kategorien
-│   ├── dashboard/page.tsx          # Training Progress Dashboard
 │   ├── train/[id]/page.tsx         # Haupttraining-Interface
 │   └── providers.tsx               # Client-side Providers
 │
@@ -53,8 +50,6 @@ ChessEndgameTrainer/
 │   └── constants.ts                # App constants (ports, URLs)
 │
 └── firebase/                       # Firebase Konfiguration
-    ├── rules/                      # Firestore-Regeln
-    └── mockData/                   # Testdaten
 ```
 
 ## 🛠️ Technologien
@@ -86,7 +81,6 @@ ChessEndgameTrainer/
 - **Architecture**: v3.8 Domain-Specific Slices - Clean separation mit Orchestrators
 - **State Management**: Zustand 5.0.7 mit Domain Slices (GameSlice, TrainingSlice, etc.)
 - **UI Framework**: TailwindCSS 3.4.17 (Stable version)
-- **Backend**: Firebase 12.0.0 (Modular SDK)
 - **Security**: FEN Input Sanitization implemented
 - **Performance**: LRU Cache, Debouncing, Tree-Shaking optimized
 - **CI/CD**: Stabilized pipeline with automated quality gates

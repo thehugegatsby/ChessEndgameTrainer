@@ -1,6 +1,33 @@
 # SCRATCHPAD
 
-## 🚀 CURRENT SESSION: Jest → Vitest Migration (2025-01-14)
+## 🧹 CURRENT SESSION: YAGNI Cleanup (2025-01-14)
+
+### ✅ YAGNI Violations Eliminated
+
+**Progress: Major YAGNI cleanup completed**
+
+#### Removed Components
+- ✅ **SpacedRepetitionService**: 300+ lines sophisticated SM-2 algorithm (never used)
+- ✅ **ProgressService**: Firebase integration (never activated)  
+- ✅ **Progress Store Slice**: progressSlice & hooks (commented exports)
+- ✅ **ProgressCard**: UI component (broken import)
+- ✅ **Progress Feature Flags**: USE_NEW_PROGRESS_TRACKING (disabled)
+- ✅ **Firebase Integration Tests**: 567 lines commented code (never activated)
+- ✅ **DueCardsCacheService**: Test file for non-existent service
+
+#### Impact
+- **~900+ lines** of YAGNI code eliminated
+- **Firebase emulator dependency** removed (never setup)
+- **Over-engineered progress system** deleted
+- **Codebase focused** on actual features
+
+### Documentation Updates
+- ✅ README.md: Removed Spaced Repetition, Dashboard, Firebase references
+- ✅ CORE.md: Updated TrainingSlice description (removed progress)
+
+---
+
+## Previous Session: Jest → Vitest Migration (2025-01-14)
 
 ### ✅ BATCH PROGRESS - Issue #156 Implementation
 

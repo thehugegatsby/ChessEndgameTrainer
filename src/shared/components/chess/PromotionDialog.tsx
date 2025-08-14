@@ -20,7 +20,6 @@
 import React, { useEffect } from "react";
 import { UI_MULTIPLIERS } from '@shared/constants/multipliers';
 import { DURATIONS } from '@shared/constants/time.constants';
-import pieces from "react-chess-pieces/dist/svg-index";
 
 /**
  * Promotion piece types
@@ -47,20 +46,20 @@ interface PromotionDialogProps {
 }
 
 /**
- * Piece SVG components for chess pieces from react-chess-pieces
+ * Chess piece Unicode symbols (clean and professional)
  */
-const PIECE_SVGS = {
+const PIECE_SYMBOLS = {
   white: {
-    q: pieces.Q, // White Queen
-    r: pieces.R, // White Rook
-    b: pieces.B, // White Bishop
-    n: pieces.N, // White Knight
+    q: "♕", // White Queen
+    r: "♖", // White Rook
+    b: "♗", // White Bishop
+    n: "♘", // White Knight
   },
   black: {
-    q: pieces.q, // Black Queen
-    r: pieces.r, // Black Rook
-    b: pieces.b, // Black Bishop
-    n: pieces.n, // Black Knight
+    q: "♛", // Black Queen
+    r: "♜", // Black Rook
+    b: "♝", // Black Bishop
+    n: "♞", // Black Knight
   },
 } as const;
 
@@ -86,7 +85,7 @@ const PIECE_SVGS = {
  */
 export const PromotionDialog: React.FC<PromotionDialogProps> = ({
   isOpen,
-  color: _color,
+  color,
   position,
   onSelect,
   onCancel,
@@ -151,8 +150,8 @@ export const PromotionDialog: React.FC<PromotionDialogProps> = ({
 
   if (!isOpen) return null;
 
-  // Use white pieces for better visibility on gray circles like Lichess
-  const pieceComponents = PIECE_SVGS.white;
+  // Use appropriate color for the promoting pawn
+  const pieces = color === 'w' ? PIECE_SYMBOLS.white : PIECE_SYMBOLS.black;
 
   // Calculate square size based on board width (assuming 800px board)
   const BOARD_WIDTH = 8 * UI_MULTIPLIERS.ANIMATION_BASE; // 800px
@@ -168,7 +167,7 @@ export const PromotionDialog: React.FC<PromotionDialogProps> = ({
       <button
         onClick={() => onSelect("q")}
         data-promotion-button="true"
-        className="absolute z-50 w-24 h-24 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center chess-promotion-piece shadow-md"
+        className="absolute z-50 w-20 h-20 rounded-xl bg-white hover:bg-gray-50 flex items-center justify-center shadow-lg border border-gray-200 hover:border-blue-300 transition-all duration-200 hover:scale-105"
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
@@ -176,14 +175,14 @@ export const PromotionDialog: React.FC<PromotionDialogProps> = ({
         }}
         title="Dame (Q)"
       >
-        <pieceComponents.q className="w-16 h-16" />
+        <span className="text-3xl select-none">{pieces.q}</span>
       </button>
 
       {/* Rook - one square below */}
       <button
         onClick={() => onSelect("r")}
         data-promotion-button="true"
-        className="absolute z-50 w-24 h-24 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center chess-promotion-piece shadow-md"
+        className="absolute z-50 w-20 h-20 rounded-xl bg-white hover:bg-gray-50 flex items-center justify-center shadow-lg border border-gray-200 hover:border-blue-300 transition-all duration-200 hover:scale-105"
         style={{
           left: `${position.x}px`,
           top: `${position.y + squareSize}px`,
@@ -191,14 +190,14 @@ export const PromotionDialog: React.FC<PromotionDialogProps> = ({
         }}
         title="Turm (R)"
       >
-        <pieceComponents.r className="w-16 h-16" />
+        <span className="text-3xl select-none">{pieces.r}</span>
       </button>
 
       {/* Bishop - two squares below */}
       <button
         onClick={() => onSelect("b")}
         data-promotion-button="true"
-        className="absolute z-50 w-24 h-24 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center chess-promotion-piece shadow-md"
+        className="absolute z-50 w-20 h-20 rounded-xl bg-white hover:bg-gray-50 flex items-center justify-center shadow-lg border border-gray-200 hover:border-blue-300 transition-all duration-200 hover:scale-105"
         style={{
           left: `${position.x}px`,
           top: `${position.y + squareSize * 2}px`,
@@ -206,14 +205,14 @@ export const PromotionDialog: React.FC<PromotionDialogProps> = ({
         }}
         title="Läufer (B)"
       >
-        <pieceComponents.b className="w-16 h-16" />
+        <span className="text-3xl select-none">{pieces.b}</span>
       </button>
 
       {/* Knight - three squares below */}
       <button
         onClick={() => onSelect("n")}
         data-promotion-button="true"
-        className="absolute z-50 w-24 h-24 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center chess-promotion-piece shadow-md"
+        className="absolute z-50 w-20 h-20 rounded-xl bg-white hover:bg-gray-50 flex items-center justify-center shadow-lg border border-gray-200 hover:border-blue-300 transition-all duration-200 hover:scale-105"
         style={{
           left: `${position.x}px`,
           top: `${position.y + squareSize * 3}px`,
@@ -221,7 +220,7 @@ export const PromotionDialog: React.FC<PromotionDialogProps> = ({
         }}
         title="Springer (N)"
       >
-        <pieceComponents.n className="w-16 h-16" />
+        <span className="text-3xl select-none">{pieces.n}</span>
       </button>
     </>
   );

@@ -26,6 +26,7 @@
     "test:unit:tablebase": "NODE_OPTIONS='--max-old-space-size=2048' vitest --config=config/testing/vitest.unit.config.ts run src/features/tablebase",
     "test:unit:training": "NODE_OPTIONS='--max-old-space-size=2048' vitest --config=config/testing/vitest.unit.config.ts run src/features/training",
     "test:unit:other": "NODE_OPTIONS='--max-old-space-size=2048' vitest --config=config/testing/vitest.unit.config.ts run src/features/__tests__",
+    "new-feature": "node scripts/new-feature.js",
     "test:unit:ci": "pnpm run test:unit:chess && pnpm run test:unit:tablebase && pnpm run test:unit:training && pnpm run test:unit:other",
     "test:integration": "vitest --config=config/testing/vitest.integration.config.ts run",
     "test:e2e": "playwright test --config=config/testing/playwright.config.ts",

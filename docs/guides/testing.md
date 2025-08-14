@@ -22,7 +22,7 @@ pnpm test path/to/test.tsx
 **Vitest** - Single framework for all tests (Migration complete as of 2025-08-14)
 
 - **Unit tests**: `src/features/*/`, `src/shared/*/` (co-located with source)
-- **Feature tests**: `src/features/*/` (4 domains: chess-core, tablebase, training, move-quality)
+- **Feature tests**: `src/features/*/` (3 domains: chess-core, tablebase, training)
 - **Integration tests**: `src/tests/integration/` (API mocking, cross-feature)
 - **E2E tests**: `src/tests/e2e/` (Playwright, separate pipeline)
 - **Configs**: `config/testing/vitest.*.config.ts`
