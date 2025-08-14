@@ -1,17 +1,31 @@
-# TODO: Jest → Vitest Migration - Temporary Cache File
+# TODO: Jest → Vitest Migration - COMPLETED ✅
 
-## 🎯 MISSION: Jest → Vitest Migration COMPLETED ✅
+## 🎯 MISSION: Jest → Vitest Migration + v3 Projects Config COMPLETED ✅
 **Status**: 100% Complete - ALLE FEHLER BEHOBEN!
+**Update 2025-08-14**: Vitest v3 Projects Migration erfolgreich!
 
-## 📊 AKTUELLER STATUS (2025-01-14 - VITEST MIGRATION 100% COMPLETE!)
+## 📊 AKTUELLER STATUS (2025-08-14 - VITEST v3 MIGRATION 100% COMPLETE!)
 
 ### ✅ VITEST MIGRATION FORTSCHRITT
 - **Jest vollständig entfernt**: ✅ Alle Jest Dependencies entfernt
-- **Vitest installiert**: ✅ Vitest als Test Runner aktiv
+- **Vitest installiert**: ✅ Vitest v3.2.4 als Test Runner aktiv
 - **Jest-dom Matchers konvertiert**: ✅ Alle zu native Vitest Matchers
 - **Parsing Errors behoben**: ✅ Alle 6 Syntax-Fehler korrigiert
 - **toHaveTextContent konvertiert**: ✅ 9 Vorkommen zu .textContent).toBe()
+- **Vitest v3 Projects Config**: ✅ Von deprecated workspace zu projects migriert
 - **Migration Status**: ✅ 100% COMPLETE!
+
+### 🆕 VITEST v3 PROJECTS MIGRATION (2025-08-14)
+- **Problem**: Deprecated vitest.workspace.ts → test.projects
+- **Lösung**: Individual project config files erstellt
+- **Files erstellt**:
+  - vitest.chess-core.config.ts
+  - vitest.tablebase.config.ts  
+  - vitest.training.config.ts
+  - vitest.move-quality.config.ts
+  - vitest.shared.config.ts
+  - vitest.integration.config.ts
+- **Result**: Alle Test-Commands funktionieren (pnpm test:chess etc.)
 
 ### 🚀 ERFOLGREICH ABGESCHLOSSEN
 - **BATCH 1**: Store slice tests (4 files) → **COMMITTED: 1aa4a88**

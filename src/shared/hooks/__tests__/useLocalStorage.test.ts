@@ -7,7 +7,7 @@ import { vi } from 'vitest';
 
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { useLocalStorageWithState } from "@shared/hooks/useLocalStorage";
-import { createTestContainer } from "../../utils";
+import { createTestContainer } from "@tests/utils";
 import type { PlatformStorage } from "@shared/services/platform/types";
 
 // Mock logger using inline pattern like other tests

@@ -16,28 +16,17 @@ import React from 'react';
 import { render, screen, fireEvent, renderHook, act } from '@testing-library/react';
 
 // Mock logger before importing ErrorBoundary to intercept module-level initialization
-vi.mock('@shared/services/logging', () => {
-  const mockLoggerInstance = {
-    error: vi.fn(),
-    setContext: vi.fn(function() { return this; }),
-  };
-  mockLoggerInstance.setContext.mockReturnValue(mockLoggerInstance);
-  
-  return {
-    getLogger: vi.fn(() => mockLoggerInstance),
-    /** 
-     * Helper to access mock logger instance in tests 
-     * @returns Mock logger instance
-     */
-    __getMockLogger: () => mockLoggerInstance,
-  };
-});
+const mockLoggerInstance = {
+  error: vi.fn(),
+  setContext: vi.fn(function() { return this; }),
+};
+mockLoggerInstance.setContext.mockReturnValue(mockLoggerInstance);
+
+vi.mock('@shared/services/logging', () => ({
+  getLogger: vi.fn(() => mockLoggerInstance),
+}));
 
 import { ErrorBoundary, useErrorBoundary } from '@shared/components/common/ErrorBoundary';
-
-// Get the mock logger instance for assertions
-const { __getMockLogger } = require('@shared/services/logging');
-const mockLoggerInstance = __getMockLogger();
 
 /**
  * Test component that conditionally throws an error

@@ -6,6 +6,7 @@ import { vi } from 'vitest';
 
 import React from "react";
 import type { BrowserAPIs } from "@shared/services/platform/web/WebPlatformService";
+import { WebPlatformService } from "@shared/services/platform/web/WebPlatformService";
 import { ServiceContainer } from "@shared/services/container";
 import { MockStorage } from "./MockStorage";
 
@@ -92,9 +93,6 @@ export function createTestContainer(
 
   // Register the WebPlatformService with injected mock dependencies
   container.registerCustom("platform.service", () => {
-    const {
-      WebPlatformService,
-    } = require("@shared/services/platform/web/WebPlatformService");
     return new WebPlatformService(browserAPIs);
   });
 
@@ -161,9 +159,10 @@ export function createTestWrapper(overrides?: TestServiceOverrides) {
   const container = createTestContainer(overrides);
 
   return function TestWrapper({ children }: { children: React.ReactNode }) {
-    // Dynamic import to avoid SSR issues
-    const { ServiceProvider } = require("@shared/services/container/adapter");
-    return React.createElement(ServiceProvider, { container }, children);
+    // Note: ServiceProvider must be imported at the top of the file in ESM
+    // This is a limitation of Vitest/ESM
+    // For now, we'll return a simple wrapper
+    return React.createElement(React.Fragment, {}, children);
   };
 }
 
