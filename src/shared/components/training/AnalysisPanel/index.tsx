@@ -7,6 +7,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { type Move } from "chess.js";
 import { Chess } from "chess.js";
 import { useTablebaseEvaluation, useTablebaseTopMoves } from "@shared/hooks/useTablebaseQuery";
+import { SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
 import { MoveAnalysis } from "./MoveAnalysis";
 import { AnalysisDetails } from "./AnalysisDetails";
 import { DIMENSIONS } from "@shared/constants";
@@ -142,7 +143,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
     // Use React Query hooks for each position
     // For demonstration, we'll analyze the first few moves
     // In production, you might want to implement virtual scrolling for large games
-    const maxAnalyzedMoves = Math.min(positions.length, 10); // Limit to prevent too many concurrent requests
+    const maxAnalyzedMoves = Math.min(positions.length, SIZE_MULTIPLIERS.SMALL_FACTOR); // Limit to prevent too many concurrent requests
     
     const moveAnalyses = Array.from({ length: maxAnalyzedMoves }, (_, i) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks

@@ -32,59 +32,66 @@ vi.mock("@shared/services/TablebaseService", () => ({
 
 vi.mock("@shared/store/orchestrators/handlePlayerMove/move.completion");
 
-// Mock other orchestrators
+// Use vi.hoisted to define mocks before module evaluation
+const mockMoveValidator = vi.hoisted(() => ({
+  validateMove: vi.fn().mockResolvedValue({ isValid: true }),
+}));
+
+const mockMoveQualityEvaluator = vi.hoisted(() => ({
+  evaluate: vi.fn(),
+}));
+
+const mockMoveDialogManager = vi.hoisted(() => ({
+  handleMoveQuality: vi.fn(),
+}));
+
+const mockOpponentTurnManager = vi.hoisted(() => ({
+  schedule: vi.fn(),
+  cancel: vi.fn(),
+}));
+
+// Mock orchestrator dependencies with vi.hoisted pattern
 vi.mock("@shared/store/orchestrators/handlePlayerMove/MoveValidator", () => ({
-  MoveValidator: vi.fn().mockImplementation(() => ({
-    validate: vi.fn().mockReturnValue({ isValid: true }),
-  })),
+  MoveValidator: vi.fn().mockImplementation(() => mockMoveValidator),
 }));
 
 vi.mock("@shared/store/orchestrators/handlePlayerMove/MoveQualityEvaluator", () => ({
-  MoveQualityEvaluator: vi.fn().mockImplementation(() => ({
-    evaluate: vi.fn(),
-  })),
+  MoveQualityEvaluator: vi.fn().mockImplementation(() => mockMoveQualityEvaluator),
 }));
 
 vi.mock("@shared/store/orchestrators/handlePlayerMove/MoveDialogManager", () => ({
-  MoveDialogManager: vi.fn().mockImplementation(() => ({
-    handleMoveQuality: vi.fn(),
-  })),
+  MoveDialogManager: vi.fn().mockImplementation(() => mockMoveDialogManager),
 }));
 
 vi.mock("@shared/store/orchestrators/handlePlayerMove/OpponentTurnHandler", () => ({
-  getOpponentTurnManager: vi.fn(() => ({
-    schedule: vi.fn(),
-    cancel: vi.fn(),
-  })),
+  getOpponentTurnManager: vi.fn(() => mockOpponentTurnManager),
+}));
+
+// Use vi.hoisted for PawnPromotionHandler mock
+const mockPawnPromotionHandler = vi.hoisted(() => ({
+  checkPromotion: vi.fn().mockReturnValue({
+    isPromotion: true,
+    promotionPiece: "q",
+    from: "e7",
+    to: "e8",
+    isAutoWin: false,
+    moveDescription: "e8=Q+",
+  }),
+  evaluatePromotionOutcome: vi.fn().mockResolvedValue(true),
+  handleAutoWin: vi.fn(),
+  getPromotionPieceLabel: vi.fn().mockReturnValue("Dame"),
 }));
 
 // Mock pawnPromotionHandler  
 vi.mock("@shared/store/orchestrators/handlePlayerMove/PawnPromotionHandler", () => ({
-  PawnPromotionHandler: vi.fn().mockImplementation(() => ({
-    checkPromotion: vi.fn(),
-    evaluatePromotionOutcome: vi.fn(),
-    handleAutoWin: vi.fn(),
-    getPromotionPieceLabel: vi.fn(),
-  })),
-  pawnPromotionHandler: {
-    checkPromotion: vi.fn(),
-    evaluatePromotionOutcome: vi.fn(), 
-    handleAutoWin: vi.fn(),
-    getPromotionPieceLabel: vi.fn(),
-  },
+  PawnPromotionHandler: vi.fn().mockImplementation(() => mockPawnPromotionHandler),
+  pawnPromotionHandler: mockPawnPromotionHandler,
 }));
 
 describe("Pawn Promotion Auto-Win Feature", () => {
   let mockApi: StoreApi;
   let mockState: any;
 
-  beforeAll(() => {
-    vi.useFakeTimers();
-  });
-
-  afterAll(() => {
-    vi.useRealTimers();
-  });
 
   beforeEach(() => {
     // Create mock state

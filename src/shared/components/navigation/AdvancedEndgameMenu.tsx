@@ -28,6 +28,7 @@ import Link from "next/link";
 import { getStoreDependencies } from "@shared/store/storeConfig";
 import { type EndgameCategory, type EndgameChapter } from "@shared/types";
 import { getLogger } from "@shared/services/logging";
+import { SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
 
 const logger = getLogger().setContext("AdvancedEndgameMenu");
 
@@ -266,7 +267,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
   };
 
   const getCompletedPositions = (): number =>
-    Math.floor(totalPositions * (userStats.successRate / 100));
+    Math.floor(totalPositions * (userStats.successRate / SIZE_MULTIPLIERS.LARGE_FACTOR));
 
   if (!isOpen) return null;
   

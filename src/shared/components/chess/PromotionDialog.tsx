@@ -18,6 +18,8 @@
  */
 
 import React, { useEffect } from "react";
+import { UI_MULTIPLIERS } from '@shared/constants/multipliers';
+import { DURATIONS } from '@shared/constants/time.constants';
 import pieces from "react-chess-pieces/dist/svg-index";
 
 /**
@@ -139,7 +141,7 @@ export const PromotionDialog: React.FC<PromotionDialogProps> = ({
     // Delay to prevent immediate closing when the promotion dialog opens
     const timeoutId = setTimeout(() => {
       document.addEventListener("mousedown", handleClickOutside);
-    }, 200);
+    }, DURATIONS.ANIMATION.FAST);
 
     return () => {
       clearTimeout(timeoutId);
@@ -153,7 +155,9 @@ export const PromotionDialog: React.FC<PromotionDialogProps> = ({
   const pieceComponents = PIECE_SVGS.white;
 
   // Calculate square size based on board width (assuming 800px board)
-  const squareSize = 800 / 8; // 100px per square
+  const BOARD_WIDTH = 8 * UI_MULTIPLIERS.ANIMATION_BASE; // 800px
+  const SQUARES_PER_ROW = 8;
+  const squareSize = BOARD_WIDTH / SQUARES_PER_ROW; // 100px per square
   
   return (
     <>

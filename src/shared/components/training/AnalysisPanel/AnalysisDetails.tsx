@@ -25,6 +25,7 @@ import React from "react";
 import { type Move } from "chess.js";
 import { getEvaluationBarWidth } from "../../../utils/chess/evaluation";
 import { PrincipalVariation } from "../PrincipalVariation";
+import { PERCENTAGE_MULTIPLIERS } from '@shared/constants/multipliers';
 
 /**
  * Move analysis data structure for detailed analysis display
@@ -268,13 +269,14 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = React.memo(
                     if (selectedAnalysis.evaluation > 2) {
                       return "Weiß steht deutlich besser. Die Position sollte gewonnen werden können.";
                     }
-                    if (selectedAnalysis.evaluation > 0.5) {
+                    if (selectedAnalysis.evaluation > PERCENTAGE_MULTIPLIERS.FIFTY_PERCENT) {
                       return "Weiß hat einen kleinen Vorteil. Präzises Spiel ist erforderlich.";
                     }
-                    if (selectedAnalysis.evaluation > -0.5) {
+                    if (selectedAnalysis.evaluation > -PERCENTAGE_MULTIPLIERS.FIFTY_PERCENT) {
                       return "Die Position ist ausgeglichen. Beide Seiten haben gleiche Chancen.";
                     }
-                    if (selectedAnalysis.evaluation > -2) {
+                    const SIGNIFICANT_DISADVANTAGE = -2;
+                    if (selectedAnalysis.evaluation > SIGNIFICANT_DISADVANTAGE) {
                       return "Schwarz hat einen kleinen Vorteil. Vorsichtiges Spiel ist angebracht.";
                     }
                     return "Schwarz steht deutlich besser. Die Position ist schwierig zu verteidigen.";
