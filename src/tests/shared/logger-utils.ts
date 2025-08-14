@@ -74,7 +74,7 @@ export function createSilentLogger(): Logger {
       enableFileLogging: false,
       maxLogSize: 0,
     }),
-  } satisfies ILogger;
+  } satisfies Logger;
 }
 
 /**
@@ -126,7 +126,7 @@ export function createTestLogger(): Logger {
     withFields: function () {
       return this;
     },
-  } satisfies ILogger;
+  } satisfies Logger;
 }
 
 /**
@@ -149,7 +149,7 @@ export function createDebugLogger(): Logger {
       enableFileLogging: false,
       maxLogSize: 0,
     }),
-  } satisfies ILogger;
+  } satisfies Logger;
 }
 
 /**

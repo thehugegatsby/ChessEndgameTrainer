@@ -10,12 +10,16 @@ import { useLocalStorageWithState } from "@shared/hooks/useLocalStorage";
 import { createTestContainer } from "../../utils";
 import type { PlatformStorage } from "@shared/services/platform/types";
 
-// Mock logger
+// Mock logger using inline pattern like other tests
 vi.mock("@shared/services/logging", () => ({
-  /**
-   *
-   */
-  getLogger: () => require("../../../tests/shared/logger-utils").createTestLogger(),
+  getLogger: () => ({
+    setContext: vi.fn().mockReturnThis(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    fatal: vi.fn(),
+  }),
 }));
 
 // Test container and mock service
