@@ -14,9 +14,12 @@ on:
 env:
   NODE_VERSION: '20'
   PNPM_VERSION: '10'
-  # WSL2-optimized settings for Vitest
-  VITEST_POOL: 'forks'
-  # Let Vitest auto-optimize thread count based on CI runner
+  # CI-optimized settings for Vitest
+  VITEST_POOL: 'threads'  # Changed from 'forks' to fix timing issues
+  # Fixed locale and timezone for consistent test results
+  LANG: 'en_US.UTF-8'
+  LC_ALL: 'en_US.UTF-8'
+  TZ: 'UTC'
 
 jobs:
   # Single job for dependency installation and caching

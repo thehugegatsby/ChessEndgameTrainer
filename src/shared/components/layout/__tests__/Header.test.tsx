@@ -65,8 +65,8 @@ describe("Header Component", () => {
       expect(leftSection?.isConnected).toBe(true);
 
       // Should contain icon and title
-      expect(leftSection.textContent).toBe("♔");
-      expect(leftSection.textContent).toBe("Schach Endspiel Training");
+      expect(leftSection.textContent).toContain("♔");
+      expect(leftSection.textContent).toContain("Schach Endspiel Training");
     });
 
     it("should have right section with subtitle", () => {

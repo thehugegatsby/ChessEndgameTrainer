@@ -14,14 +14,17 @@ import { vi } from 'vitest';
 
 import type { TablebaseMove } from '@shared/types/tablebase';
 
-// Create mock logger instance
-const mockLoggerInstance = {
-  error: vi.fn(),
-  warn: vi.fn(), 
-  debug: vi.fn(),
-  setContext: vi.fn(),
-};
-mockLoggerInstance.setContext.mockReturnValue(mockLoggerInstance);
+// Use vi.hoisted to ensure mock is available before module imports
+const { mockLoggerInstance } = vi.hoisted(() => {
+  const mockLoggerInstance = {
+    error: vi.fn(),
+    warn: vi.fn(), 
+    debug: vi.fn(),
+    setContext: vi.fn(),
+  };
+  mockLoggerInstance.setContext.mockReturnValue(mockLoggerInstance);
+  return { mockLoggerInstance };
+});
 
 // Mock dependencies BEFORE importing the service
 vi.mock('@shared/services/logging', () => ({
