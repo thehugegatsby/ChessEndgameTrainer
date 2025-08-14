@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll, vi } from 'vitest';
 /**
- * Jest 30 compatible tests for WebPlatformService
+ * Vitest tests for WebPlatformService
  * Comprehensive coverage for all platform service implementations
  */
 
@@ -14,7 +14,7 @@ import {
 } from "@shared/services/platform/types";
 import { STORAGE, TABLEBASE } from "@shared/constants/index";
 
-// Mock browser APIs for Jest 30 compatibility
+// Mock browser APIs for Vitest
 const mockNotification = vi.fn();
 const mockNavigator = {
   userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -54,7 +54,7 @@ const mockWindow = {
   Notification: mockNotification,
 };
 
-// Setup global mocks - Jest 30 compatible approach
+// Setup global mocks - Vitest approach
 const originalNavigator = global.navigator;
 const originalPerformance = global.performance;
 const originalLocalStorage = global.localStorage;
@@ -393,7 +393,7 @@ describe("WebPlatformService", () => {
       expect(result).toBe("mocked text");
     });
 
-    it.skip("should handle clipboard API not available", async () => {
+    it("should handle clipboard API not available", async () => {
       // SKIPPED: Test fails with "Clipboard API not supported and no DOM available for fallback"
       // This will be addressed during the Vitest migration (Phase 1, #129)
       // The jsdom environment conflicts with the fallback mechanism testing
@@ -562,11 +562,9 @@ describe("WebPlatformService", () => {
     });
   });
 
-  describe("Jest 30 Compatibility", () => {
-    it.skip("should work with Jest 30 mocking system", () => {
-      // SKIPPED: Test fails with "Cannot read properties of undefined (reading 'writeText')"
-      // mockNavigator.clipboard is undefined in the test environment
-      // This will be addressed during the Vitest migration (Phase 1, #129)
+  describe("Vitest Compatibility", () => {
+    it("should work with Vitest mocking system", () => {
+      // Test that mocks are properly isolated and working with Vitest
       
       // Test that mocks are properly isolated
       expect(vi.isMockFunction(mockLocalStorage.setItem)).toBe(true);
