@@ -66,12 +66,25 @@ if (typeof window !== 'undefined' && typeof globalThis.window !== 'undefined') {
 }
 
 // --- Global Mock Objects (All Environments) ---
-// Mock IntersectionObserver for components that use it
-global.IntersectionObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
+// Mock IntersectionObserver for components that use it (including Next.js)
+class MockIntersectionObserver {
+  root = null;
+  rootMargin = '0px';
+  thresholds = [0];
+  
+  constructor(callback, options) {
+    this.root = options?.root || null;
+    this.rootMargin = options?.rootMargin || '0px';
+    this.thresholds = options?.threshold ? [].concat(options.threshold) : [0];
+  }
+  
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
+  takeRecords = vi.fn(() => []);
+}
+
+global.IntersectionObserver = MockIntersectionObserver as any;
 
 // Mock ResizeObserver for components that use it
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
