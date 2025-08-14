@@ -88,6 +88,12 @@
 - **Lösung:** Used existing TablebaseService mock instead of mocking fetch
 - **STATUS:** ✅ PARTIAL - Unit test activated, integration tests need real API or emulator
 
+### 16. **MoveFeedbackPanel.test.tsx** (PHASE 4 - COMPLETED with Gemini)
+- **Tests:** 10/10 Tests aktiviert ✅ (2 previously skipped tests now passing)
+- **Problem:** Component gets suggestions from store.ui.tablebaseData, not from event
+- **Lösung:** Fixed store mock to handle selector functions, removed betterMoves from events
+- **STATUS:** ✅ COMPLETED - All tests green, complex store integration solved
+
 ## 🔄 Verbleibende 3 Dateien (PHASE 4 fortgesetzt)
 
 ```bash
@@ -200,16 +206,15 @@ vi.mock("@shared/hooks/useHook", () => mockHook);
 ## 📊 Statistik (PHASE 4 IN PROGRESS)
 
 - **Ursprünglich:** ~100 skipped Tests über 19 Dateien
-- **Aktiviert:** 247+ Tests über 15+ Dateien (Phase 4 fast completed!)
+- **Aktiviert:** 249+ Tests über 16+ Dateien (Phase 4 zu 95% completed!)
 - **ENTFERNT:** FeatureFlag System (Legacy Strangler Fig Pattern) → Datei gelöscht ✅
 - **Verbleibende Skip Patterns:** 
   - FirebaseService.test.ts: 2 describe.skip (komplett disabled - Emulator fehlt)
   - TablebaseDefenseTest.test.ts: 2 integration tests skipped (describeIf pattern)
-  - MoveFeedbackPanel.test.tsx: 2 it.skip (complex store integration)
   - TestApiService.test.ts: 1 it.skip (complex TrainingService integration)
 - **Erfolgsrate:** 100% der aktivierten Tests laufen erfolgreich
-- **AKTUELLER STATUS:** TablebaseDefenseTest unit test aktiviert! 1/3 grün ✅
-- **NEXT:** FirebaseService.test.ts (Emulator Setup erforderlich)
+- **AKTUELLER STATUS:** MoveFeedbackPanel tests aktiviert! 10/10 grün ✅
+- **NEXT:** TestApiService.test.ts (1 skip) oder FirebaseService (Emulator)
 
 ## 🚀 STANDARD EXECUTION WORKFLOW (Pro Datei)
 
@@ -273,11 +278,10 @@ pnpm run lint # Linting passes
 - FeatureFlag Legacy System entfernt
 - Alle kritischen Business Logic Tests aktiv
 
-**⚠️ VERBLEIBEND (7 Skip Patterns total):**
+**⚠️ VERBLEIBEND (5 Skip Patterns total):**
 1. **FirebaseService.test.ts** - 2 describe.skip (Firebase Emulator nicht konfiguriert)
 2. **TablebaseDefenseTest.test.ts** - 2 integration tests via describeIf(false)
-3. **MoveFeedbackPanel.test.tsx** - 2 it.skip (Complex Store Integration)  
-4. **TestApiService.test.ts** - 1 it.skip (Complex TrainingService Integration)
+3. **TestApiService.test.ts** - 1 it.skip (Complex TrainingService Integration)
 
 **GEMINI MIGRATION PLAN:** ✅ Phase 4 zu 90% COMPLETED!
 
