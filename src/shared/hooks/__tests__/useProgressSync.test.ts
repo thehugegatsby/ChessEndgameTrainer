@@ -223,11 +223,7 @@ describe("useProgressSync", () => {
       expect(result.current.syncStatus.isDebounced).toBe(true);
 
       // Fast-forward debounce timer and wait for async operations
-      await act(async () => {
-        // This will advance time past the debounce delay and ensure all
-        // subsequent async operations complete
-        await vi.runAllTimersAsync();
-      });
+      await flushAsync();
 
       await waitFor(() => {
         expect(mockProgressService.updateUserStats).toHaveBeenCalledWith(
@@ -258,9 +254,7 @@ describe("useProgressSync", () => {
       );
 
       // Fast-forward debounce timer and wait for async operations
-      await act(async () => {
-        await vi.runAllTimersAsync();
-      });
+      await flushAsync();
 
       await waitFor(() => {
         expect(mockProgressService.upsertCardProgress).toHaveBeenCalledWith(
@@ -301,9 +295,7 @@ describe("useProgressSync", () => {
       });
 
       // Fast-forward debounce timer and wait for async operations
-      await act(async () => {
-        await vi.runAllTimersAsync();
-      });
+      await flushAsync();
 
       expect(
         mockProgressService.updateProgressTransaction,
@@ -330,13 +322,7 @@ describe("useProgressSync", () => {
       });
 
       // Initial sync attempt (debounce + first failure)
-      await act(async () => {
-        // Advance past the initial debounce time (2000ms)
-        await vi.advanceTimersByTime(2000);
-        // Run all timers and microtasks to process the initial failed service call
-        // and schedule the first retry
-        await vi.runAllTimersAsync();
-      });
+      await flushAsync();
 
       await waitFor(() => {
         expect(mockProgressService.updateUserStats).toHaveBeenCalledTimes(1);
@@ -346,24 +332,14 @@ describe("useProgressSync", () => {
       expect(result.current.syncStatus.pendingCount).toBe(1);
 
       // First retry (after 1s exponential backoff)
-      await act(async () => {
-        // Advance time to trigger the first retry (1000ms after initial failure)
-        await vi.advanceTimersByTime(1000);
-        // Run all timers and microtasks to process the failed retry and schedule the second retry
-        await vi.runAllTimersAsync();
-      });
+      await flushAsync();
 
       await waitFor(() => {
         expect(mockProgressService.updateUserStats).toHaveBeenCalledTimes(2);
       });
 
       // Second retry (after 2s exponential backoff)
-      await act(async () => {
-        // Advance time to trigger the second retry (2000ms after first retry failure)
-        await vi.advanceTimersByTime(2000);
-        // Run all timers and microtasks to process the successful retry
-        await vi.runAllTimersAsync();
-      });
+      await flushAsync();
 
       await waitFor(() => {
         expect(mockProgressService.updateUserStats).toHaveBeenCalledTimes(3);
@@ -390,12 +366,7 @@ describe("useProgressSync", () => {
       });
 
       // Initial attempt (debounce + first failure)
-      await act(async () => {
-        // Advance past the initial debounce time (2000ms)
-        await vi.advanceTimersByTime(2000);
-        // Run all timers and microtasks to process the initial failed service call
-        await vi.runAllTimersAsync();
-      });
+      await flushAsync();
 
       await waitFor(() => {
         expect(mockProgressService.updateUserStats).toHaveBeenCalledTimes(1);
@@ -403,12 +374,7 @@ describe("useProgressSync", () => {
       });
 
       // First retry attempt (1000ms retry delay)
-      await act(async () => {
-        // Advance time to trigger the retry (1000ms after initial failure)
-        await vi.advanceTimersByTime(1000);
-        // Run all timers and microtasks to process the failed retry
-        await vi.runAllTimersAsync();
-      });
+      await flushAsync();
 
       await waitFor(() => {
         expect(mockProgressService.updateUserStats).toHaveBeenCalledTimes(2);
@@ -479,9 +445,7 @@ describe("useProgressSync", () => {
       expect(result.current.syncStatus.status).toBe("idle");
 
       // Should process queued operations
-      await act(async () => {
-        await vi.runAllTimersAsync();
-      });
+      await flushAsync();
 
       expect(mockProgressService.updateUserStats).toHaveBeenCalledWith(
         userId,
@@ -603,9 +567,7 @@ describe("useProgressSync", () => {
       expect(result.current.syncStatus.pendingCount).toBe(3);
 
       // Fast-forward debounce timer and wait for async operations
-      await act(async () => {
-        await vi.runAllTimersAsync();
-      });
+      await flushAsync();
 
       expect(
         mockProgressService.updateProgressTransaction,
@@ -652,10 +614,7 @@ describe("useProgressSync", () => {
       expect(mockProgressService.updateUserStats).not.toHaveBeenCalled();
 
       // Should sync after custom debounce time
-      await act(async () => {
-        vi.advanceTimersByTime(3000);
-        await vi.runAllTimersAsync();
-      });
+      await flushAsync();
 
       expect(mockProgressService.updateUserStats).toHaveBeenCalled();
     });

@@ -18,7 +18,8 @@ export default defineConfig({
       `${featuresDir}/**/*.{test,spec}.{ts,tsx}`,
       `${testsDir}/**/*.{test,spec}.{ts,tsx}`,
       `${testsDir}/**/*.test.ts`,
-      `${testsDir}/**/*.test.tsx`
+      `${testsDir}/**/*.test.tsx`,
+      `${sharedDir}/**/*.{test,spec}.{ts,tsx}`
     ],
     exclude: ['node_modules', 'dist', '.next', '**/node_modules/**'],
     pool: 'forks',
