@@ -8,7 +8,6 @@ import { useTrainingStore } from "@shared/store/hooks/useTrainingStore";
 import { useGameStore } from "@shared/store/hooks/useGameStore";
 import { useTablebaseStore } from "@shared/store/hooks/useTablebaseStore";
 import { useUIStore } from "@shared/store/hooks/useUIStore";
-import { useTrainingSession, usePositionAnalysis } from "@shared/hooks";
 import { type EndgamePosition } from "@shared/types";
 
 // Mock all store hooks
@@ -17,9 +16,22 @@ vi.mock("@shared/store/hooks/useGameStore");
 vi.mock("@shared/store/hooks/useTablebaseStore");
 vi.mock("@shared/store/hooks/useUIStore");
 
-// Mock custom hooks
-vi.mock("@shared/hooks/useTrainingSession");
-vi.mock("@shared/hooks/usePositionAnalysis");
+// Use vi.hoisted pattern for custom hooks to ensure proper mocking
+const mockUseTrainingSession = vi.hoisted(() => vi.fn());
+const mockUsePositionAnalysis = vi.hoisted(() => vi.fn());
+
+// Mock the barrel export that contains both hooks
+vi.mock("@shared/hooks", () => ({
+  useTrainingSession: mockUseTrainingSession,
+  usePositionAnalysis: mockUsePositionAnalysis,
+  // Add other exports from @shared/hooks if needed to prevent breaking other imports
+  useChessAnimations: vi.fn(() => ({})),
+  useDialogHandlers: vi.fn(() => ({})),
+  useMoveHandlers: vi.fn(() => ({})),
+  useMoveQuality: vi.fn(() => ({})),
+  useMoveValidation: vi.fn(() => ({})),
+  useTablebaseQuery: vi.fn(() => ({})),
+}))
 
 // Mock the Chessboard wrapper component (not react-chessboard directly)
 vi.mock("@shared/components/chess/Chessboard", () => ({
@@ -47,13 +59,11 @@ const mockUseTrainingStore = useTrainingStore as any;
 const mockUseGameStore = useGameStore as any;
 const mockUseTablebaseStore = useTablebaseStore as any;
 const mockUseUIStore = useUIStore as any;
-const mockUseTrainingSession = useTrainingSession as any;
-const mockUsePositionAnalysis = usePositionAnalysis as any;
 
-// TODO: Fix mock setup for useTrainingSession hook
-// Error: mockUseTrainingSession.mockReturnValue is not a function
-// Skipping 12 tests until mock configuration is fixed
-describe.skip("TrainingBoard", () => {
+// Custom hooks are now properly mocked via vi.hoisted pattern
+// No need to cast them as they are already vi.fn() mocks
+
+describe("TrainingBoard", () => {
   const mockTrainingState = {
     currentPosition: {
       id: 1,
