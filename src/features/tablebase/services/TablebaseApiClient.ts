@@ -71,19 +71,17 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
       return existingRequest;
     }
     
-    // Create new request promise
+    // Create new request promise WITHOUT finally() for clean tracking
     const requestPromise = this.executeQuery(fen);
     
-    // Store the promise IMMEDIATELY before adding cleanup
-    // This prevents race conditions where multiple calls arrive between promise creation and storage
+    // Store the raw promise for deduplication (without finally() to avoid race condition)
+    // See docs/troubleshooting/vitest-async-patterns.md for detailed explanation
     this.pendingRequests.set(normalizedFen, requestPromise);
     
-    // Add cleanup after the promise settles (resolve or reject)
-    requestPromise.finally(() => {
+    // Return promise with cleanup attached (but don't store this version)
+    return requestPromise.finally(() => {
       this.pendingRequests.delete(normalizedFen);
     });
-    
-    return requestPromise;
   }
 
   /**

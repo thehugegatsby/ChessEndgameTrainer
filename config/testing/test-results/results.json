@@ -1,0 +1,84 @@
+{
+  "config": {
+    "configFile": "/home/thehu/coolProjects/EndgameTrainer-ci-fix/config/testing/playwright.config.ts",
+    "rootDir": "/home/thehu/coolProjects/EndgameTrainer-ci-fix/src/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "open": true
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/home/thehu/coolProjects/EndgameTrainer-ci-fix/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/thehu/coolProjects/EndgameTrainer-ci-fix/src/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.54.2",
+    "workers": 12,
+    "webServer": {
+      "command": "npm run dev:e2e",
+      "url": "http://127.0.0.1:3009",
+      "timeout": 60000,
+      "reuseExistingServer": false,
+      "env": {
+        "NEXT_PUBLIC_IS_E2E_TEST": "true"
+      }
+    }
+  },
+  "suites": [],
+  "errors": [
+    {
+      "message": "Error: No tests found",
+      "stack": "Error: No tests found"
+    }
+  ],
+  "stats": {
+    "startTime": "2025-08-14T06:40:49.046Z",
+    "duration": 14906.484,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

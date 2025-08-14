@@ -36,6 +36,13 @@ pnpm run lint && pnpm tsc  # Validation
 | WSL2 Env | [docs/guides/wsl2.md](docs/guides/wsl2.md) | Bei Env-Problemen |
 | MCP Tools | [docs/tooling/](docs/tooling/) | Bei Tool-Auswahl |
 
+## 🔧 Troubleshooting Quick Reference
+
+### Common Issues
+- **vitest unhandled promise rejection** → [Async Patterns](docs/troubleshooting/vitest-async-patterns.md)
+- **WSL test command failures** → [WSL2 Environment](docs/guides/wsl2.md#testing-commands)
+- **Module resolution errors** → [Testing Guide](docs/guides/testing.md#module-resolution)
+
 ## ⛔ IGNORE These Files
 
 ```

@@ -180,23 +180,17 @@ describe('TablebaseApiClient', () => {
       expect(client.getPendingRequestsCount()).toBe(0);
     });
 
-    it.skip('should clean up pending requests after error', async () => {
+    it('should clean up pending requests after error', async () => {
       const fen = '8/8/8/8/8/8/8/K7 w - - 0 1';
       mockHttp.mockFetchError(new Error('Network error'));
       
       expect(client.getPendingRequestsCount()).toBe(0);
       
-      try {
-        // Act and await immediately inside the try block
-        await client.query(fen);
-        
-        // This line should not be reached
-        expect.fail('Expected query to reject, but it resolved');
-      } catch (error) {
-        // Assert that the error was caught correctly
-        expect(error).toBeInstanceOf(Error);
-        expect((error as Error).message).toBe('Network error');
-      }
+      // Use expect().rejects pattern for cleaner promise rejection handling
+      await expect(client.query(fen)).rejects.toThrow('Network error');
+      
+      // Wait for cleanup to complete
+      await client.awaitPendingRequests();
       
       // Assert that the cleanup logic in .finally() has run
       expect(client.getPendingRequestsCount()).toBe(0);
@@ -204,7 +198,7 @@ describe('TablebaseApiClient', () => {
   });
 
   describe('Error handling', () => {
-    it.skip('should handle 404 not found without retrying', async () => {
+    it('should handle 404 not found without retrying', async () => {
       mockHttp.mockFetchStatus(HttpStatus.NOT_FOUND, 'Not Found');
       
       const fen = '8/8/8/8/8/8/8/K7 w - - 0 1';
@@ -293,7 +287,7 @@ describe('TablebaseApiClient', () => {
       expect(result).toEqual(mockApiResponse);
     });
 
-    it.skip('should exhaust retries and throw final error', async () => {
+    it('should exhaust retries and throw final error', async () => {
       const customClient = new TablebaseApiClient({ maxRetries: 3 }, mockHttp);
       const persistentError = new Error('Network Error');
       mockHttp.mockFetchError(persistentError);
@@ -331,7 +325,7 @@ describe('TablebaseApiClient', () => {
       expect(result).toEqual(mockApiResponse);
     });
 
-    it.skip('should not retry on validation errors', async () => {
+    it('should not retry on validation errors', async () => {
       const invalidResponse = { invalid: 'data' };
       mockHttp.mockFetchJson(invalidResponse);
       
@@ -344,7 +338,7 @@ describe('TablebaseApiClient', () => {
       expect(mockHttp.sleepCalls.length).toBe(0);
     });
 
-    it.skip('should handle malformed JSON response', async () => {
+    it('should handle malformed JSON response', async () => {
       // Mock a response that will fail JSON parsing
       mockHttp.fetchHandler = async () => {
         return new Response('not json', {
@@ -370,7 +364,7 @@ describe('TablebaseApiClient', () => {
   });
 
   describe('Exponential backoff', () => {
-    it.skip('should apply exponential backoff with jitter', async () => {
+    it('should apply exponential backoff with jitter', async () => {
       const config: TablebaseApiClientConfig = { maxRetries: 5 };
       const customClient = new TablebaseApiClient(config, mockHttp);
       
@@ -404,7 +398,7 @@ describe('TablebaseApiClient', () => {
       await customClient.awaitPendingRequests();
     });
 
-    it.skip('should cap backoff delay at maximum', async () => {
+    it('should cap backoff delay at maximum', async () => {
       const config: TablebaseApiClientConfig = { maxRetries: 6 };
       const customClient = new TablebaseApiClient(config, mockHttp);
       
@@ -460,7 +454,7 @@ describe('TablebaseApiClient', () => {
       expect(fetchCall.url).toContain(`fen=${encodeURIComponent(complexFen)}`);
     });
 
-    it.skip('should allow new requests after clearing pending ones', async () => {
+    it('should allow new requests after clearing pending ones', async () => {
       const fen = '8/8/8/8/8/8/8/K7 w - - 0 1';
       
       // Mock a sequence of two successful responses

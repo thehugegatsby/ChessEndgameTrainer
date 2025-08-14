@@ -17,10 +17,6 @@ export default defineConfig({
     environment: 'happy-dom',  // Browser environment for DOM-dependent tests
     globals: true,
     setupFiles: [featuresTestSetup, path.resolve(testsDir, 'utils/vitestSetup.ts')],
-    // TODO-VITEST: Remove after fixing unhandled rejections in TablebaseApiClient tests
-    // Migration artifact from Jest -> Vitest (Issue #160)
-    // Affected: 7 mock tests in src/features/tablebase/services/__tests__/TablebaseApiClient.test.ts
-    dangerouslyIgnoreUnhandledErrors: true,
     include: [
       // Feature tests (unit tests with TDD)
       `${featuresDir}/**/*.{test,spec}.{ts,tsx}`,
