@@ -131,6 +131,7 @@ export type UseProgressSyncReturn = {
   readonly getPendingOperations: () => Array<{ id: string; type: string; timestamp: number; retries: number }>;
 };
 
+// eslint-disable-next-line max-lines-per-function
 export function useProgressSync(
   userId: string | null,
   progressService: ProgressService,

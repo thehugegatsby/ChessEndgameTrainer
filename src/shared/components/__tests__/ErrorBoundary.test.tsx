@@ -17,13 +17,13 @@ import { render, screen, fireEvent, renderHook, act } from '@testing-library/rea
 
 // Use vi.hoisted to ensure mock is available before module imports
 const { mockLoggerInstance } = vi.hoisted(() => {
-  const mockLoggerInstance = {
+  const loggerInstance = {
     error: vi.fn(),
     setContext: vi.fn(),
   };
   // Setup setContext to return the logger instance
-  mockLoggerInstance.setContext.mockReturnValue(mockLoggerInstance);
-  return { mockLoggerInstance };
+  loggerInstance.setContext.mockReturnValue(loggerInstance);
+  return { mockLoggerInstance: loggerInstance };
 });
 
 // Mock logging module before importing ErrorBoundary
