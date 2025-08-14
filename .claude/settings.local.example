@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "mcp__zen__challenge",
+      "Bash(gh issue create:*)",
+      "WebFetch(domain:lichess.org)",
+      "mcp__zen__chat",
+      "Bash(npm run dev:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh run list:*)",
+      "Bash(pnpm test:*)"
+    ],
+    "deny": []
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": {
+          "tools": ["Bash"]
+        },
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 $CLAUDE_PROJECT_DIR/.claude/hooks/pre-bash-wsl-safety.py"
+          }
+        ]
+      }
+    ]
+  }
+}

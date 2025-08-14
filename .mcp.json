@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/mcp.json",
+  "mcpServers": {
+    "zen": {
+      "command": "python",
+      "args": [
+        "~/services/mcp-servers/zen-test-server/server.py"
+      ],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
+  }
+}

@@ -28,10 +28,30 @@ Das `pnpm test` Command ist jetzt intelligent und leitet automatisch um:
 ## ⚡ Commands
 
 ```bash
-pnpm run dev       # Dev server
-pnpm run build     # Production  
-pnpm test          # Vitest
-pnpm run lint && pnpm tsc  # Validation
+./scripts/start-dev.sh     # Start local dev environment (includes MCP setup)
+pnpm run dev              # Dev server only
+pnpm run build            # Production  
+pnpm test                 # Vitest
+pnpm run lint && pnpm tsc # Validation
+```
+
+## 🔧 MCP Organization
+
+**Local Development:**
+- MCP servers configured in `.mcp.json` (project-scoped)
+- Personal settings in `.claude/settings.local.json` (gitignored)
+- Use `./scripts/start-dev.sh` for complete setup
+
+**Test Environment:**
+- Zen test server: `~/services/mcp-servers/zen-test-server/`
+- Shared/centralized for integration testing
+
+**Setup für neue Entwickler:**
+```bash
+git clone <repo>
+cd EndgameTrainer
+cp .claude/settings.local.example .claude/settings.local.json
+./scripts/start-dev.sh
 ```
 
 ## 📁 Documentation Router

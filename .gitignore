@@ -53,3 +53,6 @@ Thumbs.db
 *.log
 logs/
 pnpm-debug.log*
+
+# Claude Code local settings (contains personal preferences/tokens)
+.claude/settings.local.json
