@@ -67,3 +67,20 @@ export const EVALUATION_FORMATTING = {
 export const POSITION_ANALYSIS = {
   CURSED_BLESSED_FACTOR: 0.8,  // Discount factor for 50-move rule positions
 } as const;
+
+/**
+ * Chess evaluation constants for Win-Draw-Loss (WDL) 
+ * and advantage thresholds
+ */
+export const CHESS_EVALUATION = {
+  // Win-Draw-Loss (WDL) evaluation constants
+  WDL_WIN: 2,
+  WDL_DRAW: 0,
+  WDL_LOSS: -2,
+  
+  // Evaluation advantage thresholds
+  SLIGHT_ADVANTAGE: 0.5,
+  SLIGHT_DISADVANTAGE: -0.5,
+  SIGNIFICANT_ADVANTAGE: 2,
+  SIGNIFICANT_DISADVANTAGE: -2,
+} as const;

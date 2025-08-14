@@ -47,23 +47,14 @@ import { mockServerPositionService } from "@shared/services/database/__mocks__/s
 // Type the mocked router
 const mockedUseRouter = useRouter as ReturnType<typeof vi.fn>;
 
-describe.skip("EndgameTrainingPage Integration Tests", () => {
+describe("EndgameTrainingPage Integration Tests", () => {
   // Mock ResizeObserver for react-chessboard compatibility
   beforeAll(() => {
-    global.ResizeObserver = class ResizeObserver {
-      /**
-       *
-       */
-      observe() {}
-      /**
-       *
-       */
-      unobserve() {}
-      /**
-       *
-       */
-      disconnect() {}
-    };
+    global.ResizeObserver = vi.fn().mockImplementation(() => ({
+      observe: vi.fn(),
+      unobserve: vi.fn(),
+      disconnect: vi.fn(),
+    }));
   });
   // Test data
   const mockPosition: EndgamePosition = {
@@ -292,9 +283,9 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
       // Wait for error message
       await waitFor(() => {
         expect(
-          screen.getByText(/Analyse konnte nicht geladen werden/i),
-        )?.isConnected,
-      ).toBe(true);
+          screen.getByText(/Analyse konnte nicht geladen werden/i)
+            ?.isConnected,
+        ).toBe(true);
       });
     });
 
@@ -638,9 +629,9 @@ describe.skip("EndgameTrainingPage Integration Tests", () => {
       // Wait for error
       await waitFor(() => {
         expect(
-          screen.getByText(/Analyse konnte nicht geladen werden/i),
-        )?.isConnected,
-      ).toBe(true);
+          screen.getByText(/Analyse konnte nicht geladen werden/i)
+            ?.isConnected,
+        ).toBe(true);
       });
 
       // Try again - should succeed

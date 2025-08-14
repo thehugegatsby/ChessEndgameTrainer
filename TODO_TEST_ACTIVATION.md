@@ -76,16 +76,22 @@
 - **Lösung:** vi.hoisted() für Event Handler capture, act() wrappers, Vitest native matchers
 - **STATUS:** ✅ COMPLETED - Component Integration pattern established
 
-## 🔄 Verbleibende 4 Dateien (PHASE 4) + DISCOVERY
+### 14. **EventIntegration.test.ts** (PHASE 4 - COMPLETED)
+- **Tests:** 8/8 Tests aktiviert ✅ (100% passing)
+- **Problem:** Nur `.skip` bei einem localStorage Test
+- **Lösung:** Einfach `.skip` entfernt, localStorage bereits in test-setup.ts gemockt
+- **STATUS:** ✅ COMPLETED - Event System Integration pattern validated
+
+## 🔄 Verbleibende 3 Dateien (PHASE 4 fortgesetzt)
 
 ```bash
 # PHASE 1 - COMPLETED ✅:
 # ✅ src/app/__tests__/app-ready-signal.test.tsx - 9 Tests AKTIVIERT (vitestSetup.ts fixed)
 
-# DISCOVERY - DEPRECATED SYSTEM ⚠️:
-# ⚠️ src/features/__tests__/useFeatureFlag.test.tsx - SKIP: Strangler Fig Pattern completed
-#     FeatureFlag System ist Legacy-Code für A/B Testing während Migration
-#     Migration ist abgeschlossen → System kann entfernt werden
+# DEPRECATED SYSTEM - REMOVED ✅:
+# ✅ src/features/__tests__/useFeatureFlag.test.tsx - REMOVED (2025-08-14)
+#     FeatureFlag System war Legacy-Code für A/B Testing während Migration
+#     Migration abgeschlossen → Datei entfernt
 
 # PHASE 2 - Service Layer (COMPLETED ✅): 
 # ✅ src/shared/services/test/__tests__/TestApiService.test.ts - 65/70 Tests AKTIVIERT (5 skipped complex integration)
@@ -95,10 +101,12 @@
 # ✅ src/features/tablebase/components/__tests__/MoveFeedbackPanel.test.tsx - 8/8 Tests AKTIVIERT (2 skipped store integration)
 
 # PHASE 4 - Complex Integration (mit Fallback):
-src/features/training/events/__tests__/EventIntegration.test.ts
-src/features/training/__tests__/integration/EndgameTrainingPage.integration.test.tsx
-src/tests/integration/firebase/FirebaseService.test.ts
-src/tests/integration/TablebaseDefenseTest.test.ts
+# ✅ src/features/training/events/__tests__/EventIntegration.test.ts - 8/8 Tests AKTIVIERT (Event system)
+
+# PHASE 4 - Remaining (IN PROGRESS):
+# ✅ src/features/training/__tests__/integration/EndgameTrainingPage.integration.test.tsx - NO SKIPS (15 tests all active)
+src/tests/integration/firebase/FirebaseService.test.ts - FULLY SKIPPED (Firebase emulator not configured)
+src/tests/integration/TablebaseDefenseTest.test.ts - SKIPPED (API mocking needs Vitest migration)
 ```
 
 ## 🎯 GEMINI MIGRATION PLAN - Strategische Ausführung
@@ -144,8 +152,8 @@ Read src/features/__tests__/FeatureFlagService.test.ts
 5. `src/features/tablebase/components/__tests__/MoveFeedbackPanel.test.tsx` - React + API Integration
 
 ### **PHASE 4 - Complex Integration:**
-6. `src/features/training/events/__tests__/EventIntegration.test.ts`
-7. `src/features/training/__tests__/integration/EndgameTrainingPage.integration.test.tsx`
+6. ✅ `src/features/training/events/__tests__/EventIntegration.test.ts` - COMPLETED
+7. 🔄 `src/features/training/__tests__/integration/EndgameTrainingPage.integration.test.tsx` - IN PROGRESS
 8. `src/tests/integration/firebase/FirebaseService.test.ts`
 9. `src/tests/integration/TablebaseDefenseTest.test.ts`
 
@@ -183,15 +191,15 @@ const mockHook = vi.hoisted(() => ({
 vi.mock("@shared/hooks/useHook", () => mockHook);
 ```
 
-## 📊 Statistik (PHASE 1 COMPLETED + DISCOVERY)
+## 📊 Statistik (PHASE 4 IN PROGRESS)
 
 - **Ursprünglich:** ~100 skipped Tests über 19 Dateien
-- **Aktiviert:** 238+ Tests über 13+ Dateien (Phase 3 completed!)
-- **DISCOVERY:** FeatureFlag System ist Legacy Strangler Fig Pattern → Skip berechtigt
-- **Verbleibend:** 4 echte Produktions-Dateien (Complex Integration)
+- **Aktiviert:** 246+ Tests über 14+ Dateien (Phase 4 teilweise completed!)
+- **ENTFERNT:** FeatureFlag System (Legacy Strangler Fig Pattern) → Datei gelöscht ✅
+- **Verbleibend:** 2 echte Produktions-Dateien (Firebase + Tablebase Integration)
 - **Erfolgsrate:** 100% der aktivierten Tests laufen erfolgreich
-- **AKTUELLER STATUS:** MoveFeedbackPanel.test.tsx abgeschlossen! 8/8 grün ✅ (2 skipped)
-- **NEXT:** Phase 4 Complex Integration - EventIntegration.test.ts
+- **AKTUELLER STATUS:** EndgameTrainingPage.integration.test.tsx hat KEINE skips! ✅
+- **NEXT:** TablebaseDefenseTest.test.ts (einfacher Fix) oder FirebaseService.test.ts (Emulator Setup)
 
 ## 🚀 STANDARD EXECUTION WORKFLOW (Pro Datei)
 

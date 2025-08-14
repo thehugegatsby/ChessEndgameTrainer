@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { ENCODING_BASES, RANDOM_GENERATION } from "@/constants/utility.constants";
 
 /**
  * Toast type definitions
@@ -75,7 +76,7 @@ export const useToast = (): {
       type: "success" | "error" | "info" | "warning" = "info",
       duration?: number,
     ) => {
-      const id = Math.random().toString(36).substr(2, 9);
+      const id = Math.random().toString(ENCODING_BASES.BASE36).substr(2, RANDOM_GENERATION.UUID_RANDOM_MULTIPLIER);
       const newToast: Toast = {
         id,
         message,

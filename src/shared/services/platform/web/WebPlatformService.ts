@@ -22,6 +22,7 @@ import {
   type ShareOptions,
 } from "../types";
 import { STORAGE, SYSTEM } from "@shared/constants";
+import { DISPLAY_DEFAULTS, DEVICE_THRESHOLDS } from "@/constants/display.constants";
 // Using console directly to avoid circular dependency with Logger
 
 // Storage key validation regex
@@ -212,8 +213,8 @@ class WebDevice implements PlatformDevice {
       model: this.navigator.userAgent,
       osVersion: this.navigator.userAgent,
       screenSize: {
-        width: this.window?.screen?.width || 1920,
-        height: this.window?.screen?.height || 1080,
+        width: this.window?.screen?.width || DISPLAY_DEFAULTS.SCREEN_FALLBACK_WIDTH_PX,
+        height: this.window?.screen?.height || DISPLAY_DEFAULTS.SCREEN_FALLBACK_HEIGHT_PX,
       },
       pixelRatio: this.window?.devicePixelRatio || 1,
       isTablet: this.checkIsTablet(),
@@ -269,13 +270,13 @@ class WebDevice implements PlatformDevice {
     const userAgent = this.navigator.userAgent.toLowerCase();
     const hasTouch = this.window && "ontouchstart" in this.window;
     const screenSize = Math.min(
-      this.window?.screen?.width || 1920,
-      this.window?.screen?.height || 1080,
+      this.window?.screen?.width || DISPLAY_DEFAULTS.SCREEN_FALLBACK_WIDTH_PX,
+      this.window?.screen?.height || DISPLAY_DEFAULTS.SCREEN_FALLBACK_HEIGHT_PX,
     );
 
     return (
       Boolean(hasTouch) &&
-      screenSize >= 768 &&
+      screenSize >= DEVICE_THRESHOLDS.TABLET_MIN_SHORT_EDGE_PX &&
       (userAgent.includes("tablet") || userAgent.includes("ipad"))
     );
   }

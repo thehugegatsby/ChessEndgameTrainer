@@ -26,7 +26,8 @@
 import type { DueCard, DueCardsStats } from '@shared/types/progress';
 import { getLogger } from '@shared/services/logging/Logger';
 import { TIME_UNITS } from '@shared/constants/time.constants';
-import { SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
+import { SIZE_MULTIPLIERS, BINARY_MULTIPLIERS } from '@shared/constants/multipliers';
+import { ENCODING_BASES } from '@/constants/utility.constants';
 
 const logger = getLogger().setContext('DueCardsCacheService');
 
