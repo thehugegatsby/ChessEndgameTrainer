@@ -81,11 +81,18 @@ class MockIntersectionObserver implements IntersectionObserver {
     this.thresholds = t === null || t === undefined ? [0] : Array.isArray(t) ? t : [t];
   }
 
-  observe: (target: Element) => void = vi.fn();
-  unobserve: (target: Element) => void = vi.fn();
-  disconnect: () => void = vi.fn();
-  takeRecords: () => IntersectionObserverEntry[] = vi.fn(() => []);
+  // Define as prototype methods (some libs check IntersectionObserver.prototype.*)
+  observe(_target: Element): void {}
+  unobserve(_target: Element): void {}
+  disconnect(): void {}
+  takeRecords(): IntersectionObserverEntry[] { return []; }
 }
+
+// Attach spies to the prototype so methods are real functions and spy-able
+MockIntersectionObserver.prototype.observe = vi.fn();
+MockIntersectionObserver.prototype.unobserve = vi.fn();
+MockIntersectionObserver.prototype.disconnect = vi.fn();
+MockIntersectionObserver.prototype.takeRecords = vi.fn(() => []);
 
 Object.defineProperty(globalThis, 'IntersectionObserver', {
   value: MockIntersectionObserver,
@@ -93,23 +100,48 @@ Object.defineProperty(globalThis, 'IntersectionObserver', {
   configurable: true,
 });
 
+// Also set it on window to satisfy libraries that read from window directly
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'IntersectionObserver', {
+    value: MockIntersectionObserver,
+    writable: true,
+    configurable: true,
+  });
+}
+
 // Mock ResizeObserver for components that use it (including react-chessboard)
 class MockResizeObserver implements ResizeObserver {
   constructor(_callback: ResizeObserverCallback) {
     // Store callback if needed for advanced testing
   }
 
-  observe: (target: Element, options?: ResizeObserverOptions) => void = vi.fn();
-  unobserve: (target: Element) => void = vi.fn();
-  disconnect: () => void = vi.fn();
-  takeRecords: () => ResizeObserverEntry[] = vi.fn(() => []);
+  // Define as prototype methods (some libs check ResizeObserver.prototype.*)
+  observe(_target: Element, _options?: ResizeObserverOptions): void {}
+  unobserve(_target: Element): void {}
+  disconnect(): void {}
+  takeRecords(): ResizeObserverEntry[] { return []; }
 }
+
+// Attach spies to the prototype so methods are real functions and spy-able
+MockResizeObserver.prototype.observe = vi.fn();
+MockResizeObserver.prototype.unobserve = vi.fn();
+MockResizeObserver.prototype.disconnect = vi.fn();
+MockResizeObserver.prototype.takeRecords = vi.fn(() => []);
 
 Object.defineProperty(globalThis, 'ResizeObserver', {
   value: MockResizeObserver,
   writable: true,
   configurable: true,
 });
+
+// Also set it on window to satisfy libraries that read from window directly
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'ResizeObserver', {
+    value: MockResizeObserver,
+    writable: true,
+    configurable: true,
+  });
+}
 
 // --- Console Management ---
 // Suppress console errors in tests unless explicitly testing error cases
