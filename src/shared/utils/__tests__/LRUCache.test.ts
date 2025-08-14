@@ -401,7 +401,7 @@ describe('LRUCache', () => {
       expect(performanceCache.getStats().size).toBe(100); // Maintained capacity
     });
 
-    it.skip('should maintain O(1) characteristics for basic operations', () => {
+    it('should maintain O(1) characteristics for basic operations', () => {
       const benchmarkCache = new LRUCache<string>(1000);
       
       // Fill cache
