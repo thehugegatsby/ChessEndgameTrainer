@@ -76,14 +76,12 @@ describe("MoveErrorDialog - Continue Playing Feature", () => {
       <MoveErrorDialog {...defaultProps} wdlBefore={0} wdlAfter={-2} />,
     );
     expect(
-      screen.getByText("6.Kf5 führt zum Verlust!"),
-    )?.isConnected,
+      screen.getByText("6.Kf5 führt zum Verlust!")?.isConnected
     ).toBe(true);
 
     rerender(<MoveErrorDialog {...defaultProps} wdlBefore={1} wdlAfter={-1} />);
     expect(
-      screen.getByText("6.Kf5 verschlechtert die Stellung!"),
-    )?.isConnected,
+      screen.getByText("6.Kf5 verschlechtert die Stellung!")?.isConnected
     ).toBe(true);
 
     rerender(<MoveErrorDialog {...defaultProps} wdlBefore={0} wdlAfter={0} />);
@@ -106,9 +104,8 @@ describe("MoveErrorDialog - Continue Playing Feature", () => {
       // Verify the dialog is showing the error state correctly
       expect(screen.getByText("Fehler erkannt!")?.isConnected).toBe(true);
       expect(
-        screen.getByText("6.Kf5 verdirbt den Gewinn!"),
-      )?.isConnected,
-    ).toBe(true);
+        screen.getByText("6.Kf5 verdirbt den Gewinn!")?.isConnected
+      ).toBe(true);
       expect(screen.getByText(/Besser war:/)?.isConnected).toBe(true);
       expect(screen.getByText("6.Kf6")?.isConnected).toBe(true);
 

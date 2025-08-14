@@ -236,13 +236,13 @@ describe("AppLayout Component", () => {
       render(<AppLayout {...defaultProps} />);
 
       const homeLink = screen.getByText("🏠 Home");
-      expect(homeLink.closest("a")).getAttribute("href")).toBe("/");
+      expect(homeLink.closest("a")?.getAttribute("href")).toBe("/");
     });
 
     it("should hide bottom navigation when showMobileBottomNav is false", () => {
       render(<AppLayout {...defaultProps} showMobileBottomNav={false} />);
 
-      expect(screen.queryByText("🏠 Home")).not?.isConnected).toBe(true);
+      expect(screen.queryByText("🏠 Home")?.isConnected).not.toBe(true);
     });
 
     it("should have proper bottom navigation styling", () => {
@@ -291,7 +291,7 @@ describe("AppLayout Component", () => {
       render(<AppLayout {...defaultProps} />);
 
       const homeLink = screen.getByText("🏠 Home");
-      expect(homeLink.closest("a")).getAttribute("href")).toBe("/");
+      expect(homeLink.closest("a")?.getAttribute("href")).toBe("/");
     });
 
   });

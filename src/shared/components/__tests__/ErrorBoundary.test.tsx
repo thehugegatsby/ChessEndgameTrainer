@@ -190,7 +190,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
     
-    expect(screen.queryByText(/Fehlerdetails/)).not?.isConnected).toBe(true);
+    expect(screen.queryByText(/Fehlerdetails/)?.isConnected).not.toBe(true);
     
     consoleSpy.mockRestore();
     Object.defineProperty(process.env, 'NODE_ENV', {
@@ -269,7 +269,7 @@ describe('useErrorBoundary hook', () => {
     
     // Now shows normal content
     expect(screen.getByText('No error')?.isConnected).toBe(true);
-    expect(screen.queryByText(/etwas ist schiefgelaufen/i)).not?.isConnected).toBe(true);
+    expect(screen.queryByText(/etwas ist schiefgelaufen/i)?.isConnected).not.toBe(true);
     
     consoleSpy.mockRestore();
   });

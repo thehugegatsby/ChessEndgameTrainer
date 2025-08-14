@@ -4,14 +4,32 @@
  */
 
 /**
+ * Fundamental time unit constants
+ * These are the base units from which all other time values are derived
+ */
+export const TIME_BASE_UNITS = {
+  MS_PER_SECOND: 1000,
+  SECONDS_PER_MINUTE: 60,
+  MINUTES_PER_HOUR: 60,
+  HOURS_PER_DAY: 24,
+} as const;
+
+/**
  * Base time units in milliseconds
- * Already defined in shared/constants/time.constants.ts but extended here
+ * Derived from TIME_BASE_UNITS to avoid magic numbers
  */
 export const TIME_IN_MS = {
-  SECOND: 1000,
-  MINUTE: 60 * 1000,
-  HOUR: 60 * 60 * 1000,
-  DAY: 24 * 60 * 60 * 1000,
+  SECOND: TIME_BASE_UNITS.MS_PER_SECOND,
+  MINUTE: TIME_BASE_UNITS.SECONDS_PER_MINUTE * TIME_BASE_UNITS.MS_PER_SECOND,
+  HOUR: TIME_BASE_UNITS.MINUTES_PER_HOUR * TIME_BASE_UNITS.SECONDS_PER_MINUTE * TIME_BASE_UNITS.MS_PER_SECOND,
+  DAY: TIME_BASE_UNITS.HOURS_PER_DAY * TIME_BASE_UNITS.MINUTES_PER_HOUR * TIME_BASE_UNITS.SECONDS_PER_MINUTE * TIME_BASE_UNITS.MS_PER_SECOND,
+} as const;
+
+/**
+ * Common time buckets for data aggregation
+ */
+export const TIME_BUCKETS_MS = {
+  FIVE_MINUTES: 5 * TIME_IN_MS.MINUTE,
 } as const;
 
 /**

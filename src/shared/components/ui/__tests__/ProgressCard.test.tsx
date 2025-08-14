@@ -88,7 +88,7 @@ describe("ProgressCard Component", () => {
 
       render(<ProgressCard {...propsWithoutStreak} />);
 
-      expect(screen.queryByText("0 Tage Streak")).not?.isConnected).toBe(true);
+      expect(screen.queryByText("0 Tage Streak")?.isConnected).not.toBe(true);
     });
 
     it("should handle zero total correctly", () => {

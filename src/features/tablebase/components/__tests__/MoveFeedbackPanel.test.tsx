@@ -203,7 +203,7 @@ describe('MoveFeedbackPanel', () => {
     });
   });
 
-  it.skip('should handle move selection from suggestions - SKIP: Complex store integration', async () => {
+  it('should handle move selection from suggestions', async () => {
     render(
       <MoveFeedbackPanel
         isVisible={true}
@@ -211,19 +211,36 @@ describe('MoveFeedbackPanel', () => {
       />
     );
 
+    // Trigger a warning event with a playedMove that exists in the mock store
+    // The mock store has moves: e4, d4, Nf3, Nc3, Bc4
+    // If we play Nf3, the component will filter it out and show other moves as suggestions
     act(() => {
       triggerMoveEvent({
         type: 'warning',
         wasOptimal: false,
-        playedMove: 'Nf3',
+        playedMove: 'Nf3', // This move exists in mock and will be filtered out
       });
     });
 
+    // Wait for the component to render with suggestions
     await waitFor(() => {
-      const suggestionButton = screen.getByRole('button', { name: /e4 leads to win/ });
-      fireEvent.click(suggestionButton);
+      expect(screen.getByText('Suboptimal move. There was a better option.')).toBeTruthy();
     });
 
+    // The suggestions should include e4 (first move that's not Nf3)
+    // Find and click the e4 suggestion button
+    const suggestionButtons = screen.getAllByRole('button');
+    const e4Button = suggestionButtons.find(btn => 
+      btn.textContent?.includes('e4') && btn.title?.includes('win')
+    );
+    
+    expect(e4Button).toBeTruthy();
+    
+    act(() => {
+      fireEvent.click(e4Button!);
+    });
+
+    // Verify the callback was called with the e4 move from mock store
     expect(mockOnMoveSelect).toHaveBeenCalledWith({
       uci: 'e2e4',
       san: 'e4',
@@ -232,7 +249,7 @@ describe('MoveFeedbackPanel', () => {
     });
   });
 
-  it.skip('should handle show suggestions callback - SKIP: Complex store integration', async () => {
+  it('should handle show suggestions callback', async () => {
     render(
       <MoveFeedbackPanel
         isVisible={true}
@@ -240,19 +257,31 @@ describe('MoveFeedbackPanel', () => {
       />
     );
 
+    // Trigger a warning event - the mock store already has 5 moves
+    // When we play Nf3, it will be filtered out leaving 4 suggestions
+    // The component shows top 3, so "Show all" button should appear
     act(() => {
       triggerMoveEvent({
         type: 'warning',
         wasOptimal: false,
-        playedMove: 'Nf3',
+        playedMove: 'Nf3', // Filtered out from suggestions
       });
     });
 
+    // Wait for the component to render
     await waitFor(() => {
-      const showAllButton = screen.getByText('Show all');
+      expect(screen.getByText('Suboptimal move. There was a better option.')).toBeTruthy();
+    });
+
+    // The "Show all" button should be present since we have more than 3 suggestions
+    const showAllButton = screen.getByText('Show all');
+    expect(showAllButton).toBeTruthy();
+    
+    act(() => {
       fireEvent.click(showAllButton);
     });
 
+    // Verify the callback was called
     expect(mockOnShowSuggestions).toHaveBeenCalled();
   });
 

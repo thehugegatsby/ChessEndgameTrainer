@@ -47,8 +47,8 @@ describe("MoveErrorDialog", () => {
 
       // Should show that the move ruins the win (with move number)
       expect(
-        screen.getByText("1.Ka2 verdirbt den Gewinn!"),
-      )?.isConnected).toBe(true);
+        screen.getByText("1.Ka2 verdirbt den Gewinn!")?.isConnected
+      ).toBe(true);
     });
 
     it("shows correct message for draw to loss", () => {
@@ -56,8 +56,8 @@ describe("MoveErrorDialog", () => {
 
       // Should show that the move leads to loss (with move number)
       expect(
-        screen.getByText("1.Ka2 führt zum Verlust!"),
-      )?.isConnected).toBe(true);
+        screen.getByText("1.Ka2 führt zum Verlust!")?.isConnected
+      ).toBe(true);
     });
 
     it("shows correct message for position deterioration", () => {
@@ -65,8 +65,8 @@ describe("MoveErrorDialog", () => {
 
       // Should show that the position worsens (with move number)
       expect(
-        screen.getByText("1.Ka2 verdirbt den Gewinn!"),
-      )?.isConnected).toBe(true);
+        screen.getByText("1.Ka2 verdirbt den Gewinn!")?.isConnected
+      ).toBe(true);
     });
 
     it("shows default error message", () => {
@@ -76,8 +76,8 @@ describe("MoveErrorDialog", () => {
 
       // Should show default error message (with move number)
       expect(
-        screen.getByText("1.Ka2 ist ein Fehler!"),
-      )?.isConnected).toBe(true);
+        screen.getByText("1.Ka2 ist ein Fehler!")?.isConnected
+      ).toBe(true);
     });
 
     it("hides best move when not provided", () => {
@@ -191,8 +191,8 @@ describe("MoveErrorDialog", () => {
 
       // Should show default error message (with move number)
       expect(
-        screen.getByText("1.Ka2 ist ein Fehler!"),
-      )?.isConnected).toBe(true);
+        screen.getByText("1.Ka2 ist ein Fehler!")?.isConnected
+      ).toBe(true);
     });
 
     it("shows correct message for position worsening", () => {
@@ -200,8 +200,8 @@ describe("MoveErrorDialog", () => {
 
       // Should show that position worsens (wdlBefore > wdlAfter, with move number)
       expect(
-        screen.getByText("1.Ka2 verschlechtert die Stellung!"),
-      )?.isConnected).toBe(true);
+        screen.getByText("1.Ka2 verschlechtert die Stellung!")?.isConnected
+      ).toBe(true);
     });
   });
 

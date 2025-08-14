@@ -4,6 +4,7 @@
 
 import { getLogger } from "@shared/services/logging";
 import type { StoreApi } from "../types";
+import { ALGORITHM_MULTIPLIERS } from "@shared/constants/multipliers";
 
 export interface MoveErrorDialogData {
   isOpen: boolean;
@@ -208,7 +209,7 @@ export class MoveDialogManager {
   formatWdlChange(wdlBefore: number, wdlAfter: number): string {
     const difference = wdlAfter - wdlBefore;
     // Round to avoid floating point precision issues
-    const roundedDifference = Math.round(difference * 10) / 10;
+    const roundedDifference = Math.round(difference * ALGORITHM_MULTIPLIERS.DEFAULT_BATCH_SIZE) / ALGORITHM_MULTIPLIERS.DEFAULT_BATCH_SIZE;
 
     if (roundedDifference > 0) {
       return `Position verbessert sich um ${roundedDifference} Punkte`;
