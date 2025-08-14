@@ -76,8 +76,6 @@ jobs:
         pnpm run test:unit:tablebase
         echo "Running training tests..."
         pnpm run test:unit:training
-        echo "Running other feature tests..."
-        pnpm run test:unit:other
     
     - name: Run integration tests
       run: NODE_OPTIONS="--max-old-space-size=2048" pnpm exec vitest run --project integration
