@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 /**
  * @file Tests for MoveValidator
  * @module tests/unit/orchestrators/MoveValidator
