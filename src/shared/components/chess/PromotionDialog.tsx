@@ -45,23 +45,6 @@ interface PromotionDialogProps {
   onCancel: () => void;
 }
 
-/**
- * Chess piece Unicode symbols (clean and professional)
- */
-const PIECE_SYMBOLS = {
-  white: {
-    q: "♕", // White Queen
-    r: "♖", // White Rook
-    b: "♗", // White Bishop
-    n: "♘", // White Knight
-  },
-  black: {
-    q: "♛", // Black Queen
-    r: "♜", // Black Rook
-    b: "♝", // Black Bishop
-    n: "♞", // Black Knight
-  },
-} as const;
 
 /**
  * Pawn promotion dialog component
@@ -150,78 +133,50 @@ export const PromotionDialog: React.FC<PromotionDialogProps> = ({
 
   if (!isOpen) return null;
 
-  // Use appropriate color for the promoting pawn
-  const pieces = color === 'w' ? PIECE_SYMBOLS.white : PIECE_SYMBOLS.black;
-
   // Calculate square size based on board width (assuming 800px board)
   const BOARD_WIDTH = 8 * UI_MULTIPLIERS.ANIMATION_BASE; // 800px
   const SQUARES_PER_ROW = 8;
   const squareSize = BOARD_WIDTH / SQUARES_PER_ROW; // 100px per square
+
+  const promotionPieces: { piece: PromotionPiece; title: string; symbol: string }[] = [
+    { piece: "q", title: "Dame (Q)", symbol: color === "w" ? "♕" : "♛" },
+    { piece: "r", title: "Turm (R)", symbol: color === "w" ? "♖" : "♜" },
+    { piece: "b", title: "Läufer (B)", symbol: color === "w" ? "♗" : "♝" },
+    { piece: "n", title: "Springer (N)", symbol: color === "w" ? "♘" : "♞" },
+  ];
   
   return (
     <>
       {/* Board dimming overlay like Lichess */}
       <div className="absolute inset-0 bg-[rgba(0,0,0,0.60)] z-40" />
       
-      {/* Queen - positioned on target square */}
-      <button
-        onClick={() => onSelect("q")}
-        data-promotion-button="true"
-        className="absolute z-50 w-20 h-20 rounded-xl bg-white hover:bg-gray-50 flex items-center justify-center shadow-lg border border-gray-200 hover:border-blue-300 transition-all duration-200 hover:scale-105"
-        style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          transform: "translate(-50%, -50%)",
-        }}
-        title="Dame (Q)"
-      >
-        <span className="text-3xl select-none">{pieces.q}</span>
-      </button>
-
-      {/* Rook - one square below */}
-      <button
-        onClick={() => onSelect("r")}
-        data-promotion-button="true"
-        className="absolute z-50 w-20 h-20 rounded-xl bg-white hover:bg-gray-50 flex items-center justify-center shadow-lg border border-gray-200 hover:border-blue-300 transition-all duration-200 hover:scale-105"
-        style={{
-          left: `${position.x}px`,
-          top: `${position.y + squareSize}px`,
-          transform: "translate(-50%, -50%)",
-        }}
-        title="Turm (R)"
-      >
-        <span className="text-3xl select-none">{pieces.r}</span>
-      </button>
-
-      {/* Bishop - two squares below */}
-      <button
-        onClick={() => onSelect("b")}
-        data-promotion-button="true"
-        className="absolute z-50 w-20 h-20 rounded-xl bg-white hover:bg-gray-50 flex items-center justify-center shadow-lg border border-gray-200 hover:border-blue-300 transition-all duration-200 hover:scale-105"
-        style={{
-          left: `${position.x}px`,
-          top: `${position.y + squareSize * 2}px`,
-          transform: "translate(-50%, -50%)",
-        }}
-        title="Läufer (B)"
-      >
-        <span className="text-3xl select-none">{pieces.b}</span>
-      </button>
-
-      {/* Knight - three squares below */}
-      <button
-        onClick={() => onSelect("n")}
-        data-promotion-button="true"
-        className="absolute z-50 w-20 h-20 rounded-xl bg-white hover:bg-gray-50 flex items-center justify-center shadow-lg border border-gray-200 hover:border-blue-300 transition-all duration-200 hover:scale-105"
-        style={{
-          left: `${position.x}px`,
-          top: `${position.y + squareSize * 3}px`,
-          transform: "translate(-50%, -50%)",
-        }}
-        title="Springer (N)"
-      >
-        <span className="text-3xl select-none">{pieces.n}</span>
-      </button>
+      {promotionPieces.map(({ piece, title, symbol }, index) => {
+        return (
+          <button
+            key={piece}
+            onClick={() => onSelect(piece)}
+            data-promotion-button="true"
+            className="absolute z-50 w-20 h-20 rounded-full bg-white hover:bg-gray-50 flex items-center justify-center shadow-lg border border-gray-200 hover:border-blue-300 transition-all duration-200 hover:scale-105"
+            style={{
+              left: `${position.x}px`,
+              top: `${position.y + squareSize * index}px`,
+              transform: "translate(-50%, -50%)",
+            }}
+            title={title}
+          >
+            <span 
+              className="text-4xl select-none"
+              style={{ 
+                fontFamily: "'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', system-ui, sans-serif",
+                textShadow: "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 2px 2px 0 #000, -2px 2px 0 #000, 2px -2px 0 #000, -2px -2px 0 #000",
+                filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.3))"
+              }}
+            >
+              {symbol}
+            </span>
+          </button>
+        );
+      })}
     </>
   );
 };

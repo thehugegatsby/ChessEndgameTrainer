@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 import { trainingEvents } from '../events/EventEmitter';
 import type { TrainingEvents } from '../events/EventEmitter';
 import { useStore } from '@shared/store/rootStore';
-import { useEventDrivenTraining } from '../hooks/useEventDrivenTraining';
+// Event-driven is now standard - no feature flag needed
 import type { WritableDraft } from 'immer';
 import type { RootState } from '@shared/store/slices/types';
 
@@ -19,13 +19,8 @@ import type { RootState } from '@shared/store/slices/types';
  * This is a simpler alternative to the Event-Bridge pattern
  */
 export function TrainingEventListener(): null {
-  const isEventDriven = useEventDrivenTraining();
-  
   useEffect(() => {
-    // Only subscribe if event-driven mode is enabled
-    if (!isEventDriven) {
-      return;
-    }
+    // Event-driven is now standard - always subscribe
     
     // Subscribe to move feedback events
     const unsubscribeFeedback = trainingEvents.on('move:feedback', (data) => {
@@ -103,7 +98,7 @@ export function TrainingEventListener(): null {
       unsubscribeTablebaseEval();
       unsubscribeTablebaseMoves();
     };
-  }, [isEventDriven]);
+  }, []);
   
   // This component doesn't render anything
   return null;
@@ -118,15 +113,10 @@ export function useTrainingEvent<K extends keyof TrainingEvents>(
   handler: (data: TrainingEvents[K]) => void,
   _deps: React.DependencyList = []
 ): void {
-  const isEventDriven = useEventDrivenTraining();
-  
   useEffect(() => {
-    if (!isEventDriven) {
-      return;
-    }
-    
+    // Event-driven is now standard - always subscribe
     const unsubscribe = trainingEvents.on(event, handler);
     return unsubscribe;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [event, isEventDriven]);
+  }, [event]);
 }

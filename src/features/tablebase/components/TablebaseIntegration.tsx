@@ -12,9 +12,7 @@
 import React from 'react';
 import { EventDrivenTablebasePanel } from './EventDrivenTablebasePanel';
 import { MoveFeedbackPanel } from './MoveFeedbackPanel';
-import { useEventDrivenTraining } from '../../training/hooks/useEventDrivenTraining';
 import { useTrainingStore } from '@shared/store/hooks';
-import { trainingEvents } from '../../training/events/EventEmitter';
 import type { TablebaseMove } from '../types/interfaces';
 
 /**
@@ -48,7 +46,7 @@ interface TablebaseIntegrationProps {
  * - Move feedback with suggestions
  * - Automatic move execution through training store
  * - Responsive layout options
- * - Integration with feature flags
+ * - Direct integration with training store
  * 
  * @example
  * ```tsx
@@ -69,7 +67,6 @@ export const TablebaseIntegration: React.FC<TablebaseIntegrationProps> = ({
   layout = 'stacked',
   className = '',
 }) => {
-  const isEventDriven = useEventDrivenTraining();
   const [, trainingActions] = useTrainingStore();
   const [activeTab, setActiveTab] = React.useState<'analysis' | 'feedback'>('analysis');
 
@@ -79,21 +76,12 @@ export const TablebaseIntegration: React.FC<TablebaseIntegrationProps> = ({
     const to = move.uci.substring(2, 4);
     const promotion = move.uci.length > 4 ? move.uci.substring(4) : undefined;
     
-    if (!isEventDriven) {
-      // Fallback to direct store action
-      const moveData = promotion 
-        ? { from, to, promotion }
-        : { from, to };
-      trainingActions.handlePlayerMove(moveData);
-      return;
-    }
-
-    // Emit move attempted event for event-driven handling
-    const eventData = promotion
+    // Use direct store action (legacy path)
+    const moveData = promotion 
       ? { from, to, promotion }
       : { from, to };
-    trainingEvents.emit('move:attempted', eventData);
-  }, [isEventDriven, trainingActions]);
+    trainingActions.handlePlayerMove(moveData);
+  }, [trainingActions]);
 
   // Show suggestions by switching to analysis tab
   const handleShowSuggestions = React.useCallback(() => {
@@ -102,8 +90,8 @@ export const TablebaseIntegration: React.FC<TablebaseIntegrationProps> = ({
     }
   }, [layout]);
 
-  // Don't render if not event-driven and no fallback needed
-  if (!isEventDriven && !showAnalysis) {
+  // Don't render if analysis is disabled
+  if (!showAnalysis) {
     return null;
   }
 

@@ -13,7 +13,7 @@
 import React, { useEffect } from 'react';
 import { useTablebase } from '../hooks/useTablebase';
 import { trainingEvents } from '../../training/events/EventEmitter';
-import { useEventDrivenTraining } from '../../training/hooks/useEventDrivenTraining';
+// Event-driven is now standard - no feature flag needed
 import type { TablebaseMove } from '../types/interfaces';
 
 /**
@@ -62,7 +62,7 @@ export const EventDrivenTablebasePanel: React.FC<EventDrivenTablebasePanelProps>
   className = '',
   onMoveSelect,
 }) => {
-  const isEventDriven = useEventDrivenTraining();
+  // Event-driven is now always enabled
   
   const {
     evaluation,
@@ -75,7 +75,7 @@ export const EventDrivenTablebasePanel: React.FC<EventDrivenTablebasePanelProps>
 
   // Emit evaluation events
   useEffect(() => {
-    if (!isEventDriven || !fen) return;
+    if (!fen) return;
 
     trainingEvents.emit('tablebase:evaluation', {
       fen,
@@ -84,11 +84,11 @@ export const EventDrivenTablebasePanel: React.FC<EventDrivenTablebasePanelProps>
       ...(evaluation?.dtz !== undefined && { dtz: evaluation.dtz }),
       isLoading: isEvaluationLoading,
     });
-  }, [evaluation, isEvaluationLoading, fen, isEventDriven]);
+  }, [evaluation, isEvaluationLoading, fen]);
 
   // Emit moves events
   useEffect(() => {
-    if (!isEventDriven || !fen) return;
+    if (!fen) return;
 
     trainingEvents.emit('tablebase:moves', {
       fen,
@@ -100,7 +100,7 @@ export const EventDrivenTablebasePanel: React.FC<EventDrivenTablebasePanelProps>
       })) || [],
       isLoading: isMovesLoading,
     });
-  }, [moves, isMovesLoading, fen, isEventDriven]);
+  }, [moves, isMovesLoading, fen]);
 
   // Don't render if not visible
   if (!isVisible) {

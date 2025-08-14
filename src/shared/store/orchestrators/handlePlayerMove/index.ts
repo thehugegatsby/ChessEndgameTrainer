@@ -31,7 +31,7 @@ import { handleTrainingCompletion } from "./move.completion";
 import { MoveValidator } from "./MoveValidator";
 import { MoveQualityEvaluator } from "./MoveQualityEvaluator";
 import { PawnPromotionHandler } from "./PawnPromotionHandler";
-import { MoveDialogManager } from "./MoveDialogManager";
+import { EventBasedMoveDialogManager } from "../../../../features/training/events/EventBasedMoveDialogManager";
 import { getOpponentTurnManager } from "./OpponentTurnHandler";
 
 // Re-export types for consumers
@@ -53,15 +53,15 @@ export interface HandlePlayerMoveDependencies {
   moveValidator?: MoveValidator;
   moveQualityEvaluator?: MoveQualityEvaluator;
   pawnPromotionHandler?: PawnPromotionHandler;
-  moveDialogManager?: MoveDialogManager;
+  moveDialogManager?: EventBasedMoveDialogManager;
 }
 
-// Default module instances for backward compatibility
+// Default module instances (event-driven)
 const defaultDependencies: Required<HandlePlayerMoveDependencies> = {
   moveValidator: new MoveValidator(),
   moveQualityEvaluator: new MoveQualityEvaluator(),
   pawnPromotionHandler: new PawnPromotionHandler(),
-  moveDialogManager: new MoveDialogManager(),
+  moveDialogManager: new EventBasedMoveDialogManager(),
 };
 
 /**
@@ -210,7 +210,6 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
         }
         
         deps.moveDialogManager.showMoveErrorDialog(
-          api,
           qualityResult.wdlBefore || 0,
           qualityResult.wdlAfter || 0,
           qualityResult.bestMove,
