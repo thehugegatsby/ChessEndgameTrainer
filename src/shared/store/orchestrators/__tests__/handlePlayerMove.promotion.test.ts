@@ -185,8 +185,16 @@ describe("Pawn Promotion Auto-Win Feature", () => {
         moves: [],
       });
 
-      // Mock PawnPromotionHandler - SKIPPED TEST
-      // This test needs to be rewritten for the new PawnPromotionHandler class structure
+      // Mock PawnPromotionHandler for winning promotion
+      mockPawnPromotionHandler.checkPromotion.mockReturnValue({
+        isPromotion: true,
+        promotionPiece: "q",
+        from: "e7",
+        to: "e8",
+        isAutoWin: true, // Set to true for winning position
+        moveDescription: "e8=Q+",
+      });
+      mockPawnPromotionHandler.evaluatePromotionOutcome.mockResolvedValue(true);
 
       // Mock handleTrainingCompletion
       (handleTrainingCompletion as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
@@ -230,6 +238,17 @@ describe("Pawn Promotion Auto-Win Feature", () => {
         .mockReturnValue(fenAfterPromotion);
       (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
 
+      // Mock PawnPromotionHandler for draw promotion
+      mockPawnPromotionHandler.checkPromotion.mockReturnValue({
+        isPromotion: true,
+        promotionPiece: "q",
+        from: "e7",
+        to: "e8",
+        isAutoWin: false, // Not a winning position
+        moveDescription: "e8=Q",
+      });
+      mockPawnPromotionHandler.evaluatePromotionOutcome.mockResolvedValue(false); // Not winning
+
       // Mock tablebase returns draw (WDL = 0)
       (tablebaseService.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
@@ -264,6 +283,17 @@ describe("Pawn Promotion Auto-Win Feature", () => {
         .mockReturnValueOnce("4k3/4P3/8/8/8/8/8/4K3 w - - 0 1")
         .mockReturnValue("4R3/8/8/8/8/8/8/4k3 b - - 0 1");
       (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+
+      // Mock PawnPromotionHandler for rook promotion
+      mockPawnPromotionHandler.checkPromotion.mockReturnValue({
+        isPromotion: true,
+        promotionPiece: "r",
+        from: "e7",
+        to: "e8",
+        isAutoWin: false, // Rook promotion doesn't win
+        moveDescription: "e8=R",
+      });
+      mockPawnPromotionHandler.evaluatePromotionOutcome.mockResolvedValue(false); // Not winning
 
       // Mock tablebase returns draw for rook promotion
       (tablebaseService.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({

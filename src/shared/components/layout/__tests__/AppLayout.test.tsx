@@ -88,7 +88,7 @@ describe("AppLayout Component", () => {
 
       const mainContent = screen.getByRole("main");
       expect(mainContent?.isConnected).toBe(true);
-      expect(mainContent).toContainElement(screen.getByTestId("test-content"));
+      expect(mainContent.contains(screen.getByTestId("test-content"))).toBe(true);
     });
   });
 

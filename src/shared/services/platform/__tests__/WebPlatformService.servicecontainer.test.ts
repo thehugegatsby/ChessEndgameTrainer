@@ -192,7 +192,7 @@ describe("WebPlatformService - ServiceContainer Migration", () => {
         failingContainer.resolve("platform.storage");
 
       await expect(failingStorageService.save("key", "data")).rejects.toThrow(
-        "Failed to save data",
+        "Failed to save data for key 'key': QuotaExceededError",
       );
     });
   });
