@@ -36,6 +36,11 @@ pnpm run lint && pnpm tsc # Validation
 
 ## 🔧 MCP Organization
 
+**Aktive MCP-Server:**
+- **zen**: AI-Assistant Tools (chat, debug, analyze, refactor, etc.)
+- **playwright**: Browser Automation & Testing
+- **claude-context**: Codebase Indexing & Semantic Search
+
 **Local Development:**
 - MCP servers configured in `.mcp.json` (project-scoped)
 - Personal settings in `.claude/settings.local.json` (gitignored)

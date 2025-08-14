@@ -34,26 +34,20 @@ Contains MCP servers that the entire team uses:
 
 ```json
 {
-  "$schema": "https://json.schemastore.org/mcp.json",
   "mcpServers": {
-    "claude-context": {
-      "command": "npx",
-      "args": ["-y", "@zilliz/claude-context-mcp@latest"]
-    },
-    "zen": {
-      "command": "python",
-      "args": ["~/mcp-servers/zen-test-server/server.py"],
-      "env": {
-        "NODE_ENV": "development"
-      }
-    },
     "playwright": {
       "command": "npx",
       "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "claude-context": {
+      "command": "npx", 
+      "args": ["-y", "@zilliz/claude-context-mcp@latest"]
     }
   }
 }
 ```
+
+**Note**: The Zen server runs globally or from `~/mcp-servers/zen-test-server/` and is not configured in `.mcp.json`.
 
 ### `.claude/settings.local.json` (Personal, gitignored)
 Contains personal Claude Code settings including permissions and hooks:
