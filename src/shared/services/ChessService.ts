@@ -12,6 +12,7 @@ import { Chess, type Move as ChessJsMove } from "chess.js";
 import type { ValidatedMove } from "@shared/types/chess";
 import { createValidatedMove } from "@shared/types/chess";
 import { getLogger } from "./logging";
+import { CACHE_SIZES } from "@/shared/constants/cache";
 
 const logger = getLogger().setContext("ChessService");
 
@@ -53,7 +54,7 @@ class ChessService {
   private moveHistory: ValidatedMove[] = [];
   private currentMoveIndex = -1;
   private fenCache = new Map<string, string>(); // LRU cache for FEN strings (not Chess instances!)
-  private readonly MAX_CACHE_SIZE = 100;
+  private readonly MAX_CACHE_SIZE = CACHE_SIZES.MEDIUM;
   private initialFen: string =
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; // Store initial position
 

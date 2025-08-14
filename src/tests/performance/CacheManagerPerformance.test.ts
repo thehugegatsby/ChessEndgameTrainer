@@ -228,18 +228,20 @@ describe('CacheManager Performance Validation', () => {
       const promises: Promise<void>[] = [];
 
       for (let i = 0; i < concurrentOperations; i++) {
+        const index = i; // Capture loop variable
+        const cacheRef = cache; // Capture cache reference
         const promise = new Promise<void>((resolve) => {
           // Simulate async work with setTimeout
           setTimeout(() => {
-            const key = `async${i % 10}`; // Some key overlap to test race conditions
-            const existing = cache.get(key);
+            const key = `async${index % 10}`; // Some key overlap to test race conditions
+            const existing = cacheRef.get(key);
             
             if (!existing) {
-              cache.set(key, createMockEntry(i));
+              cacheRef.set(key, createMockEntry(index));
             }
             
             // Verify we can still read what we wrote
-            const retrieved = cache.get(key);
+            const retrieved = cacheRef.get(key);
             expect(retrieved).toBeDefined();
             
             resolve();

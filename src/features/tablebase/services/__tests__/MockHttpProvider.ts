@@ -104,11 +104,10 @@ export class MockHttpProvider implements HttpProvider {
    * Uses async rejection to avoid Vitest unhandled rejection warnings
    */
   mockFetchError(error: Error): void {
-    this.fetchHandler = async () => {
-      // Add microtask delay to ensure promise rejection happens asynchronously
-      // This prevents Vitest from detecting it as an unhandled rejection
-      await Promise.resolve();
-      throw error;
+    this.fetchHandler = () => {
+      // Return a rejected promise directly instead of throwing
+      // This ensures the rejection is properly handled in the promise chain
+      return Promise.reject(error);
     };
   }
 
@@ -129,19 +128,17 @@ export class MockHttpProvider implements HttpProvider {
    */
   mockFetchSequence(responses: MockResponse[]): void {
     let callCount = 0;
-    this.fetchHandler = async () => {
+    this.fetchHandler = () => {
       const response = responses[callCount++];
       
       if (!response) {
-        // Add async delay for rejection
-        await Promise.resolve();
-        throw new Error('Mock fetch sequence exhausted');
+        // Return rejected promise instead of throwing
+        return Promise.reject(new Error('Mock fetch sequence exhausted'));
       }
       
       if (response.error) {
-        // Add async delay for rejection
-        await Promise.resolve();
-        throw response.error;
+        // Return rejected promise instead of throwing
+        return Promise.reject(response.error);
       }
       
       const body = response.data ? JSON.stringify(response.data) : null;

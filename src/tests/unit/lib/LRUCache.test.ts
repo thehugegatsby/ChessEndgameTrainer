@@ -228,7 +228,9 @@ describe('LRUCache', () => {
       
       expect(cache.getStats().size).toBe(3);
       expect(cache.get('key2')).toBe('updated_value2');
-      expect(cache.keys()).toEqual(['key1', 'key3', 'key2']); // key2 moved to end
+      
+      const keys = cache.keys();
+      expect(keys).toEqual(['key1', 'key3', 'key2']); // key2 moved to end
     });
   });
 
@@ -410,7 +412,7 @@ describe('LRUCache', () => {
       // Time single operations
       const operations = ['get', 'set', 'has', 'delete'] as const;
       
-      operations.forEach(operation => {
+      for (const operation of operations) {
         const start = performance.now();
         
         switch (operation) {
@@ -436,7 +438,7 @@ describe('LRUCache', () => {
         
         // Each operation should be very fast (< 1ms)
         expect(operationTime).toBeLessThan(1);
-      });
+      }
     });
   });
 

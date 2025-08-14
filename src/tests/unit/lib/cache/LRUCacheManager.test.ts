@@ -228,13 +228,15 @@ describe('LRUCacheManager', () => {
       expect(cache.size).toBe(maxSize);
       
       // Only the last 3 items should remain
-      expect(cache.has('key8')).toBe(true);
-      expect(cache.has('key9')).toBe(true);
-      expect(cache.has('key10')).toBe(true);
+      // eslint-disable-next-line no-loop-func
+      const cacheRef = cache;
+      expect(cacheRef.has('key8')).toBe(true);
+      expect(cacheRef.has('key9')).toBe(true);
+      expect(cacheRef.has('key10')).toBe(true);
       
       // Earlier items should be evicted
       for (let i = 1; i <= 7; i++) {
-        expect(cache.has(`key${i}`)).toBe(false);
+        expect(cacheRef.has(`key${i}`)).toBe(false);
       }
     });
   });
@@ -472,10 +474,12 @@ describe('LRUCacheManager', () => {
       const promises: Promise<void>[] = [];
       
       for (let i = 0; i < 10; i++) {
+        const index = i; // Capture loop variable
+        const cacheRef = cache; // Capture cache reference
         promises.push(
           new Promise(resolve => {
-            cache.set(`concurrent${i}`, createTestData(i));
-            cache.get(`concurrent${i}`);
+            cacheRef.set(`concurrent${index}`, createTestData(index));
+            cacheRef.get(`concurrent${index}`);
             resolve();
           })
         );

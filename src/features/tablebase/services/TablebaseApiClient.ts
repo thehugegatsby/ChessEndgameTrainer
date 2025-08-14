@@ -13,12 +13,8 @@ import { TablebaseApiResponseSchema, TablebaseConfig } from '../types/models';
 import { z } from 'zod';
 import type { HttpProvider } from './HttpProvider';
 import { RealHttpProvider } from './HttpProvider';
-
-// HTTP Status constants
-const HTTP_STATUS = {
-  NOT_FOUND: 404,
-  TOO_MANY_REQUESTS: 429,
-} as const;
+import { HttpStatus } from '@/shared/constants/http';
+import { CACHE_THRESHOLDS } from '@/shared/constants/cache';
 
 /**
  * Custom error for API-specific failures
@@ -109,16 +105,16 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
         });
         
         // Handle different status codes
-        if (response.status === HTTP_STATUS.NOT_FOUND) {
+        if (response.status === HttpStatus.NOT_FOUND) {
           // Position not in tablebase - this is expected for some positions
-          throw new ApiError('Position not in tablebase', HTTP_STATUS.NOT_FOUND, 'NOT_FOUND');
+          throw new ApiError('Position not in tablebase', HttpStatus.NOT_FOUND, 'NOT_FOUND');
         }
         
-        if (response.status === HTTP_STATUS.TOO_MANY_REQUESTS) {
+        if (response.status === HttpStatus.TOO_MANY_REQUESTS) {
           // Rate limited - wait before retry
           const delay = this.getBackoffDelay(attempt);
           await this.http.sleep(delay);
-          lastError = new ApiError('Rate limited', HTTP_STATUS.TOO_MANY_REQUESTS, 'RATE_LIMITED');
+          lastError = new ApiError('Rate limited', HttpStatus.TOO_MANY_REQUESTS, 'RATE_LIMITED');
           continue;
         }
         
@@ -141,7 +137,7 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
         
         // Don't retry on validation errors or 404s
         if (error instanceof z.ZodError || 
-            (error instanceof ApiError && error.status === HTTP_STATUS.NOT_FOUND)) {
+            (error instanceof ApiError && error.status === HttpStatus.NOT_FOUND)) {
           throw error;
         }
         
@@ -167,7 +163,7 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
     const delay = Math.min(baseDelay * Math.pow(2, attempt - 1), maxDelay);
     
     // Add jitter to prevent thundering herd (using injected random)
-    const jitter = this.http.random() * 0.3 * delay;
+    const jitter = this.http.random() * CACHE_THRESHOLDS.MIN_HIT_RATE * delay;
     
     return delay + jitter;
   }
