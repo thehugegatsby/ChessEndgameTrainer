@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 /**
  * Test suite to reproduce the Move History navigation bug
  * Bug: When clicking on a move in history, subsequent moves appear to be deleted
