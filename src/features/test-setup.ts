@@ -67,7 +67,10 @@ if (typeof window !== 'undefined' && typeof globalThis.window !== 'undefined') {
   });
 }
 
-// --- Global Mock Objects (All Environments) ---
+// --- Global Observer API Mocks (All Environments) ---
+// Critical: These mocks MUST be available in every Vitest project to prevent
+// "observer.observe is not a function" errors in react-chessboard and Next.js
+
 // Mock IntersectionObserver for components that use it (including Next.js)
 const IntersectionObserverMock = vi.fn().mockImplementation((_callback: IntersectionObserverCallback, options?: IntersectionObserverInit) => {
   const root = options?.root ?? null;
@@ -86,19 +89,8 @@ const IntersectionObserverMock = vi.fn().mockImplementation((_callback: Intersec
   };
 });
 
-Object.defineProperty(globalThis, 'IntersectionObserver', {
-  value: IntersectionObserverMock,
-  writable: true,
-  configurable: true,
-});
-
-if (typeof window !== 'undefined') {
-  Object.defineProperty(window, 'IntersectionObserver', {
-    value: IntersectionObserverMock,
-    writable: true,
-    configurable: true,
-  });
-}
+// Use vi.stubGlobal for proper Vitest integration and automatic cleanup
+vi.stubGlobal('IntersectionObserver', IntersectionObserverMock);
 
 // Mock ResizeObserver for components that use it (including react-chessboard)
 const ResizeObserverMock = vi.fn().mockImplementation((_callback: ResizeObserverCallback) => {
@@ -110,19 +102,8 @@ const ResizeObserverMock = vi.fn().mockImplementation((_callback: ResizeObserver
   };
 });
 
-Object.defineProperty(globalThis, 'ResizeObserver', {
-  value: ResizeObserverMock,
-  writable: true,
-  configurable: true,
-});
-
-if (typeof window !== 'undefined') {
-  Object.defineProperty(window, 'ResizeObserver', {
-    value: ResizeObserverMock,
-    writable: true,
-    configurable: true,
-  });
-}
+// Use vi.stubGlobal for proper Vitest integration and automatic cleanup
+vi.stubGlobal('ResizeObserver', ResizeObserverMock);
 
 // --- Console Management ---
 // Suppress console errors in tests unless explicitly testing error cases

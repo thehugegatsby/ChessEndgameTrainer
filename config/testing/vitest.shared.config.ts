@@ -1,49 +1,23 @@
-import { defineProject } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-import tsconfigPaths from 'vite-tsconfig-paths';
-import path from 'path';
-import { featuresTestSetup, featuresDir, srcDir, sharedDir, testsDir } from '../paths';
+import { defineConfig, mergeConfig } from 'vitest/config';
+import { sharedDir } from '../paths';
+import baseConfig from '../../vitest.base.config';
 
-export default defineProject({
-  plugins: [react(), tsconfigPaths()],
-  test: {
-    name: 'shared',
-    environment: 'happy-dom',
-    globals: true,
-    setupFiles: featuresTestSetup,
-    include: [
-      `${sharedDir}/**/*.{test,spec}.{ts,tsx}`,
-      `src/app/**/*.{test,spec}.{ts,tsx}`
-    ],
-    exclude: ['node_modules', 'dist', '.next', '**/node_modules/**'],
-    pool: 'forks',
-    poolOptions: {
-      forks: {
-        maxForks: 2,
-        minForks: 1,
-      }
-    },
-    isolate: true,
-    coverage: {
-      reporter: ['text', 'lcov'],
-      exclude: [
-        '**/*.test.ts',
-        '**/*.test.tsx',
-        '**/*.spec.ts',
-        '**/*.spec.tsx',
-        '**/test-setup.ts',
-        '**/__tests__/**',
+/**
+ * Vitest Shared Project Configuration
+ * 
+ * Merges the base configuration with shared-specific settings.
+ * This ensures Observer API mocks are properly loaded from the shared setupFiles.
+ */
+export default mergeConfig(
+  baseConfig,
+  defineConfig({
+    test: {
+      name: 'shared',
+      include: [
+        `${sharedDir}/**/*.{test,spec}.{ts,tsx}`,
+        `src/app/**/*.{test,spec}.{ts,tsx}`
       ],
+      exclude: ['node_modules', 'dist', '.next', '**/node_modules/**'],
     },
-  },
-  resolve: {
-    alias: {
-      '@features': featuresDir,
-      '@lib': path.resolve(srcDir, 'lib'),
-      '@shared': sharedDir,
-      '@tests': testsDir,
-      '@': srcDir,
-    },
-    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
-  },
-});
+  })
+);
