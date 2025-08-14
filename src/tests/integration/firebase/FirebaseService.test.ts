@@ -6,13 +6,32 @@ import { vi, describe, it } from 'vitest';
  * Tests for Issue #83: Firebase service integration test infrastructure
  * Covers User Progress CRUD, Authentication, Real-time updates, and concurrency
  * 
+ * ⚠️ FIREBASE EMULATOR REQUIRED ⚠️
+ * These tests require Firebase Emulator Suite to be running.
+ * 
+ * To enable these tests:
+ * 1. Install Firebase Emulator: `npm install -g firebase-tools`
+ * 2. Initialize emulator: `firebase init emulators`
+ * 3. Start emulator: `firebase emulators:start`
+ * 4. Remove the describe.skip() blocks below
+ * 
+ * Current status: SKIPPED - Infrastructure dependency
+ * Total tests available: ~25 comprehensive integration tests
  */
 
-describe.skip('FirebaseService', () => {
-  it('should be skipped', () => {});
+describe.skip('FirebaseService - Emulator Required', () => {
+  it('Firebase emulator must be configured and running', () => {
+    // Placeholder test - see comprehensive test suite below
+  });
 });
 
-/* TEMPORARILY DISABLED - Firebase emulator not configured
+describe.skip('FirebaseService - Full Test Suite (547 lines)', () => {
+  it('See commented code below for full test implementation', () => {
+    // Full test suite commented out below
+  });
+});
+
+/* FIREBASE EMULATOR INTEGRATION TESTS - REQUIRES SETUP
 
 // Setup fetch for Firebase Auth in Node environment
 import '../../setup/firebase-test-setup';

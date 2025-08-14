@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi, beforeAll, afterEach, afterAll } from 'vitest';
 /**
  * Direct test of TablebaseService DTM sorting for defense
  */
@@ -6,11 +6,16 @@ import { vi } from 'vitest';
 import { tablebaseService } from "@shared/services/TablebaseService";
 import { TRAIN_SCENARIOS } from "../fixtures/trainPositions";
 import { getLogger } from "@shared/services/logging/Logger";
+import { MSWServerMockFactory } from "../mocks/MSWServerMockFactory";
+import { http } from 'msw';
 
 const logger = getLogger();
 
-// Mock TablebaseService
+// Mock TablebaseService for unit tests only
 vi.mock("@shared/services/TablebaseService");
+
+// MSW server for integration tests
+let mswFactory: MSWServerMockFactory | null = null;
 
 // Helper to conditionally run tests based on environment
 const describeIf = (condition: boolean) => condition ? describe : describe.skip;
@@ -70,25 +75,64 @@ describe("TablebaseService Defense Sorting - Unit Tests", () => {
   });
 });
 
-// Integration tests with mocked API responses (converted from real API tests)
-describe("TablebaseService Defense Sorting - Integration Tests (Mocked)", () => {
-  beforeEach(() => {
-    // Reset mocks before each test
-    vi.clearAllMocks();
+// Integration tests with MSW-mocked API responses  
+describe("TablebaseService Defense Sorting - Integration Tests (MSW)", () => {
+  beforeAll(async () => {
+    // Unmock the TablebaseService for integration tests
+    vi.doUnmock("@shared/services/TablebaseService");
+    
+    // Initialize MSW server
+    mswFactory = new MSWServerMockFactory();
+    const mockServer = mswFactory.create();
+  });
+
+  afterEach(() => {
+    // Reset MSW handlers after each test
+    if (mswFactory) {
+      mswFactory.reset();
+    }
+  });
+
+  afterAll(() => {
+    // Clean up MSW server
+    if (mswFactory) {
+      mswFactory.cleanup();
+      mswFactory = null;
+    }
   });
 
   it("Should return moves sorted by DTM for losing positions", async () => {
+    // Position after 1.Kd5 Ke7 2.Kc6 (black to move, Ke8 is best defense with DTM 25)
+    const fen = '8/4k3/8/3PK3/8/8/8/8 b - - 2 3';
+    
+    // Set up MSW to return the expected response
+    if (mswFactory) {
+      mswFactory.mockTablebaseSuccess(fen, {
+        category: "loss",
+        dtz: -25,
+        dtm: -25,
+        moves: [
+          { uci: "e7e8", san: "Ke8", dtz: -25, dtm: -25, wdl: -2, category: "loss" },
+          { uci: "e7d6", san: "Kd6", dtz: -23, dtm: -23, wdl: -2, category: "loss" },
+          { uci: "e7f6", san: "Kf6", dtz: -21, dtm: -21, wdl: -2, category: "loss" },
+          { uci: "e7d7", san: "Kd7", dtz: -19, dtm: -19, wdl: -2, category: "loss" },
+          { uci: "e7f7", san: "Kf7", dtz: -17, dtm: -17, wdl: -2, category: "loss" }
+        ]
+      });
+    }
+
     // Use TRAIN_2 BLACK_FINDS_BEST_DEFENSE sequence
     const scenario = TRAIN_SCENARIOS.TRAIN_2;
     const sequence = scenario.sequences.BLACK_FINDS_BEST_DEFENSE;
-    // Position after 1.Kd5 Ke7 2.Kc6 (black to move, Ke8 is best defense with DTM 25)
-    const fen = '8/4k3/8/3PK3/8/8/8/8 b - - 2 3';
 
-    logger.info("\n=== Testing TablebaseService directly ===");
+    logger.info("\n=== Testing TablebaseService with MSW ===");
     logger.info("FEN:", fen);
 
-    // Get top 10 moves from tablebase
-    const result = await tablebaseService.getTopMoves(fen, 10);
+    // Import the real service dynamically (not mocked)
+    const { tablebaseService: realService } = await import("@shared/services/TablebaseService");
+    
+    // Get top 10 moves from tablebase (will hit MSW mock)
+    const result = await realService.getTopMoves(fen, 10);
 
     logger.info(`API returned: ${result.moves?.length} moves`);
 
@@ -129,48 +173,60 @@ describe("TablebaseService Defense Sorting - Integration Tests (Mocked)", () => 
     }
   });
 
-  it("Should test the actual Lichess API response", async () => {
-    // This will make a real API call to understand what we're getting
-    const scenario = TRAIN_SCENARIOS.TRAIN_2;
-    const sequence = scenario.sequences.BLACK_FINDS_BEST_DEFENSE;
+  it("Should validate Lichess API response structure", async () => {
     // Position after 1.Kd5 Ke7 2.Kc6 - black should play Ke8 (DTM 25)
     const fen = '8/4k3/8/3PK3/8/8/8/8 b - - 2 3';
+    
+    // Mock the Lichess API response structure
+    const mockLichessResponse = {
+      category: "loss",
+      dtz: -25,
+      dtm: -25,
+      moves: [
+        { san: "Ke8", uci: "e7e8", dtm: -25, dtz: -25, wdl: -2, category: "loss" },
+        { san: "Kd6", uci: "e7d6", dtm: -23, dtz: -23, wdl: -2, category: "loss" },
+        { san: "Kf6", uci: "e7f6", dtm: -21, dtz: -21, wdl: -2, category: "loss" }
+      ]
+    };
 
-    try {
-      // Make direct API call (using cross-fetch polyfill)
-      const response = await fetch(
-        `https://tablebase.lichess.ovh/standard?fen=${encodeURIComponent(fen)}`,
-      );
-      const data = await response.json();
-
-      logger.info("\n=== Direct Lichess API Response ===");
-      logger.info("Category:", data.category);
-      logger.info("Moves count:", data.moves?.length);
-
-      if (data.moves) {
-        logger.info("\nAll moves from API:");
-        data.moves.forEach((move: any) => {
-          logger.info(
-            `  ${move.san}: DTM ${move.dtm}, DTZ ${move.dtz}, Category: ${move.category}`,
-          );
-        });
-        
-        // Assert API structure is as expected
-        expect(data.moves).toBeDefined();
-        expect(Array.isArray(data.moves)).toBe(true);
-        expect(data.moves.length).toBeGreaterThan(0);
-        
-        // Check that moves have required properties
-        data.moves.forEach((move: any) => {
-          expect(move).toHaveProperty('san');
-          expect(move).toHaveProperty('dtm');
-          expect(move).toHaveProperty('wdl');
-        });
-      }
-    } catch (error) {
-      logger.error("Could not fetch from Lichess API:", error);
-      // Don't fail test if API is down - just log it
-      logger.warn("⚠️  Skipping real API test due to network error");
+    // Set up MSW to return the expected response
+    if (mswFactory) {
+      mswFactory.mockTablebaseSuccess(fen, mockLichessResponse);
     }
-  }, 15000); // Longer timeout for real API calls
+
+    const scenario = TRAIN_SCENARIOS.TRAIN_2;
+    const sequence = scenario.sequences.BLACK_FINDS_BEST_DEFENSE;
+
+    // Import the real service dynamically (not mocked)
+    const { tablebaseService: realService } = await import("@shared/services/TablebaseService");
+    
+    // Call the service (will hit MSW mock)
+    const result = await realService.getTopMoves(fen, 10);
+    const data = { ...mockLichessResponse, moves: result.moves };
+
+    logger.info("\n=== Mocked Lichess API Response ===");
+    logger.info("Category:", data.category);
+    logger.info("Moves count:", data.moves?.length);
+
+    if (data.moves) {
+      logger.info("\nAll moves from API:");
+      data.moves.forEach((move: any) => {
+        logger.info(
+          `  ${move.san}: DTM ${move.dtm}, DTZ ${move.dtz}, Category: ${move.category}`,
+        );
+      });
+      
+      // Assert API structure is as expected
+      expect(data.moves).toBeDefined();
+      expect(Array.isArray(data.moves)).toBe(true);
+      expect(data.moves.length).toBeGreaterThan(0);
+      
+      // Check that moves have required properties
+      data.moves.forEach((move: any) => {
+        expect(move).toHaveProperty('san');
+        expect(move).toHaveProperty('dtm');
+        expect(move).toHaveProperty('wdl');
+      });
+    }
+  });
 });

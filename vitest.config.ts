@@ -22,52 +22,14 @@ export default defineConfig({
   },
   test: {
     // Define projects (replaces workspace file)
+    // In Vitest v3, projects should reference config files or patterns
     projects: [
-      {
-        name: 'chess-core',
-        extends: './config/testing/vitest.unit.config.ts',
-        test: {
-          include: [`${featuresDir}/chess-core/**/*.{test,spec}.{ts,tsx}`],
-        },
-      },
-      {
-        name: 'tablebase',
-        extends: './config/testing/vitest.unit.config.ts',
-        test: {
-          include: [`${featuresDir}/tablebase/**/*.{test,spec}.{ts,tsx}`],
-        },
-      },
-      {
-        name: 'training',
-        extends: './config/testing/vitest.unit.config.ts',
-        test: {
-          include: [`${featuresDir}/training/**/*.{test,spec}.{ts,tsx}`],
-        },
-      },
-      {
-        name: 'move-quality',
-        extends: './config/testing/vitest.unit.config.ts',
-        test: {
-          include: [`${featuresDir}/move-quality/**/*.{test,spec}.{ts,tsx}`],
-        },
-      },
-      {
-        name: 'shared',
-        extends: './config/testing/vitest.unit.config.ts',
-        test: {
-          include: [
-            `${sharedDir}/**/*.{test,spec}.{ts,tsx}`,
-            `src/app/**/*.{test,spec}.{ts,tsx}`
-          ],
-        },
-      },
-      {
-        name: 'integration',
-        extends: './config/testing/vitest.integration.config.ts',
-        test: {
-          include: [`${testsDir}/integration/**/*.{test,spec}.{ts,tsx}`],
-        },
-      },
+      './config/testing/vitest.chess-core.config.ts',
+      './config/testing/vitest.tablebase.config.ts',
+      './config/testing/vitest.training.config.ts',
+      './config/testing/vitest.move-quality.config.ts',
+      './config/testing/vitest.shared.config.ts',
+      './config/testing/vitest.integration.config.ts',
     ],
   },
 });

@@ -12,7 +12,7 @@
     "test:original": "NODE_OPTIONS='--max-old-space-size=2048' vitest --config=config/testing/vitest.unit.config.ts run src/features",
     "test:file": "pnpm run test:vitest:file",
     "test:watch": "vitest --config=config/testing/vitest.unit.config.ts watch",
-    "test:feature": "vitest --workspace vitest.workspace.ts run --project",
+    "test:feature": "vitest run --project",
     "test:chess": "pnpm test:feature chess-core",
     "test:tablebase": "pnpm test:feature tablebase",
     "test:training": "pnpm test:feature training",
