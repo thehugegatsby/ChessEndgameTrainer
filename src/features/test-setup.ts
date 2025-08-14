@@ -33,7 +33,9 @@ if (typeof window !== 'undefined' && typeof globalThis.window !== 'undefined') {
       clear: () => {
         store = {};
       },
-      length: Object.keys(store).length,
+      get length() {
+        return Object.keys(store).length;
+      },
       key: vi.fn(),
     };
   };
@@ -67,38 +69,47 @@ if (typeof window !== 'undefined' && typeof globalThis.window !== 'undefined') {
 
 // --- Global Mock Objects (All Environments) ---
 // Mock IntersectionObserver for components that use it (including Next.js)
-class MockIntersectionObserver {
-  root = null;
-  rootMargin = '0px';
-  thresholds = [0];
-  
-  constructor(callback, options) {
-    this.root = options?.root || null;
-    this.rootMargin = options?.rootMargin || '0px';
-    this.thresholds = options?.threshold ? [].concat(options.threshold) : [0];
+class MockIntersectionObserver implements IntersectionObserver {
+  readonly root: Element | Document | null = null;
+  readonly rootMargin: string = '0px';
+  readonly thresholds: ReadonlyArray<number> = [0];
+
+  constructor(_callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
+    this.root = options?.root ?? null;
+    this.rootMargin = options?.rootMargin ?? '0px';
+    const t = options?.threshold;
+    this.thresholds = t == null ? [0] : Array.isArray(t) ? t : [t];
   }
-  
-  observe = vi.fn();
-  unobserve = vi.fn();
-  disconnect = vi.fn();
-  takeRecords = vi.fn(() => []);
+
+  observe: (target: Element) => void = vi.fn();
+  unobserve: (target: Element) => void = vi.fn();
+  disconnect: () => void = vi.fn();
+  takeRecords: () => IntersectionObserverEntry[] = vi.fn(() => []);
 }
 
-global.IntersectionObserver = MockIntersectionObserver as any;
+Object.defineProperty(globalThis, 'IntersectionObserver', {
+  value: MockIntersectionObserver,
+  writable: true,
+  configurable: true,
+});
 
 // Mock ResizeObserver for components that use it (including react-chessboard)
-class MockResizeObserver {
-  constructor(callback) {
+class MockResizeObserver implements ResizeObserver {
+  constructor(_callback: ResizeObserverCallback) {
     // Store callback if needed for advanced testing
   }
-  
-  observe = vi.fn();
-  unobserve = vi.fn();
-  disconnect = vi.fn();
-  takeRecords = vi.fn(() => []);
+
+  observe: (target: Element, options?: ResizeObserverOptions) => void = vi.fn();
+  unobserve: (target: Element) => void = vi.fn();
+  disconnect: () => void = vi.fn();
+  takeRecords: () => ResizeObserverEntry[] = vi.fn(() => []);
 }
 
-global.ResizeObserver = MockResizeObserver as any;
+Object.defineProperty(globalThis, 'ResizeObserver', {
+  value: MockResizeObserver,
+  writable: true,
+  configurable: true,
+});
 
 // --- Console Management ---
 // Suppress console errors in tests unless explicitly testing error cases

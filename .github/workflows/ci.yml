@@ -129,8 +129,8 @@ jobs:
 
     - name: Run tests for ${{ matrix.project }}
       run: |
-        # Run project-specific tests using workspace config
-        pnpm exec vitest --workspace vitest.workspace.ts run \
+        # Run project-specific tests using Vitest v3 projects
+        pnpm exec vitest run \
           --project ${{ matrix.project }} \
           --coverage
 
@@ -193,8 +193,8 @@ jobs:
 
     - name: Run integration tests
       run: |
-        # Run integration project from workspace
-        pnpm exec vitest --workspace vitest.workspace.ts run \
+        # Run integration project using Vitest v3 projects
+        pnpm exec vitest run \
           --project integration
       env:
         CI: true

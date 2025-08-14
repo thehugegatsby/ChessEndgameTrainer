@@ -15,6 +15,7 @@ import { featuresTestSetup, featuresDir, srcDir, sharedDir, testsDir } from '../
 export default defineConfig({
   plugins: [react()],
   test: {
+    name: 'integration',
     environment: 'happy-dom',
     globals: true,
     setupFiles: [featuresTestSetup, path.resolve(testsDir, 'utils/vitestSetup.ts')],
