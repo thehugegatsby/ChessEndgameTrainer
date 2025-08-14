@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 /**
  * Jest 30 compatible tests for WebPlatformService
  * Comprehensive coverage for all platform service implementations
