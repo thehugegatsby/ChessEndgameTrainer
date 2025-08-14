@@ -197,7 +197,7 @@ jobs:
     - name: Run integration tests
       run: |
         # Run integration project using Vitest v3 projects
-        pnpm exec vitest run \
+        NODE_OPTIONS="--max-old-space-size=2048" pnpm exec vitest run \
           --project integration
       env:
         CI: true

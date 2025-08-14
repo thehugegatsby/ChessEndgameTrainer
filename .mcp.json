@@ -6,7 +6,14 @@
     },
     "claude-context": {
       "command": "npx", 
-      "args": ["-y", "@zilliz/claude-context-mcp@latest"]
+      "args": ["-y", "@zilliz/claude-context-mcp@latest"],
+      "env": {
+        "OPENAI_API_KEY": "your-openai-api-key",
+        "MILVUS_TOKEN": "your-zilliz-cloud-api-key"
+      }
+    },
+    "context7": {
+      "url": "https://context7.liam.sh/mcp"
     }
   }
 }

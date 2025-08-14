@@ -9,6 +9,12 @@ on:
 env:
   NODE_VERSION: '20'
   PNPM_VERSION: '10'
+  # CI-optimized settings for Vitest (match ci.yml)
+  VITEST_POOL: 'threads'
+  # Fixed locale and timezone for consistent test results
+  LANG: 'en_US.UTF-8'
+  LC_ALL: 'en_US.UTF-8'
+  TZ: 'UTC'
 
 jobs:
   build-and-test:
@@ -74,7 +80,7 @@ jobs:
         pnpm run test:unit:other
     
     - name: Run integration tests
-      run: NODE_OPTIONS="--max-old-space-size=2048" pnpm run test:integration
+      run: NODE_OPTIONS="--max-old-space-size=2048" pnpm exec vitest run --project integration
       env:
         CI: true  # Skip real API tests in CI
 

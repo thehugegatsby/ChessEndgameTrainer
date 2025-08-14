@@ -38,15 +38,15 @@ export default defineConfig({
       '**/unit/**',
       '**/e2e/**',
     ],
-    // CRITICAL: Disable isolation to fix IntersectionObserver realm issues
+    // Use forks pool for better process isolation
     pool: 'forks',
     poolOptions: {
       forks: {
-        maxForks: 2,  // Reduced for stability with shared environment
+        maxForks: 2,  // Reduced for stability 
         minForks: 1,
       }
     },
-    isolate: false,  // CHANGED: Share environment to preserve polyfills
+    isolate: true,  // FIXED: Re-enable isolation - polyfills moved to setupFiles
     testTimeout: 30000,  // 30 seconds for integration tests
     hookTimeout: 30000,
     coverage: {

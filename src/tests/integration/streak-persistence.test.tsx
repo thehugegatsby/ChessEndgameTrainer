@@ -52,9 +52,9 @@ describe('Streak Persistence Integration Test', () => {
     // Create fresh store for each test
     store = createStore();
     
-    // Create wrapper with store provider
+    // Create wrapper with store provider using the test store
     wrapper = ({ children }: { children: ReactNode }) => (
-      <StoreProvider>{children}</StoreProvider>
+      <StoreProvider store={store}>{children}</StoreProvider>
     );
   });
 

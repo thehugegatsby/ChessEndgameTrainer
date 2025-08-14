@@ -71,6 +71,8 @@ interface StoreProviderProps {
   children: ReactNode;
   /** Optional initial state for SSR hydration */
   initialState?: Partial<RootState>;
+  /** Optional pre-created store instance (for testing) */
+  store?: StoreApi;
 }
 
 /**
@@ -106,13 +108,15 @@ interface StoreProviderProps {
 export const StoreProvider: React.FC<StoreProviderProps> = ({
   children,
   initialState,
+  store,
 }) => {
   // Create store instance once per provider instance
   // This ensures fresh store per request on server, stable store on client
   const storeRef = useRef<StoreApi | undefined>(undefined);
 
   if (!storeRef.current) {
-    storeRef.current = createStore(initialState);
+    // Use provided store (for testing) or create new one
+    storeRef.current = store || createStore(initialState);
     
     // Expose store globally for E2E tests (deterministic waiting)
     // Only in test environments to enable state-based waiting
