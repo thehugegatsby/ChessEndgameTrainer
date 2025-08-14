@@ -8,6 +8,7 @@ import { renderHook, act, waitFor } from "@testing-library/react";
 import { useProgressSync } from "@shared/hooks/useProgressSync";
 import { type ProgressService } from "@shared/services/ProgressService";
 import type { UserStats, CardProgress } from "@shared/store/slices/types";
+import { flushAsync, MemoryStorage } from "../../../tests/utils/test-helpers";
 
 // Mock progress actions
 const mockProgressActions = {
@@ -46,76 +47,18 @@ vi.mock("@shared/services/logging/Logger", () => {
   };
 });
 
-// Mock localStorage
-const mockLocalStorage = (() => {
-  let store: Record<string, string> = {};
+// Use MemoryStorage to avoid localStorage quota issues in CI
+const testStorage = new MemoryStorage();
 
-  return {
-    /**
-     *
-     * @param key
-     */
-    getItem: (key: string) => store[key] || null,
-    /**
-     *
-     * @param key
-     * @param value
-     */
-    setItem: (key: string, value: string) => {
-      store[key] = value;
-    },
-    /**
-     *
-     * @param key
-     */
-    removeItem: (key: string) => {
-      delete store[key];
-    },
-    /**
-     *
-     */
-    clear: () => {
-      store = {};
-    },
-  };
-})();
-
-Object.defineProperty(window, "localStorage", {
-  value: mockLocalStorage,
-});
+// Store original globals for restoration
+let originalAddEventListener: typeof window.addEventListener;
+let originalRemoveEventListener: typeof window.removeEventListener;
+let originalLocalStorage: Storage;
 
 // Mock window online/offline events
 const mockWindowEventListeners: { [key: string]: EventListener[] } = {};
 
-Object.defineProperty(window, "addEventListener", {
-  /**
-   *
-   * @param event
-   * @param listener
-   */
-  value: (event: string, listener: EventListener) => {
-    if (!mockWindowEventListeners[event]) {
-      mockWindowEventListeners[event] = [];
-    }
-    mockWindowEventListeners[event].push(listener);
-  },
-});
-
-Object.defineProperty(window, "removeEventListener", {
-  /**
-   *
-   * @param event
-   * @param listener
-   */
-  value: (event: string, listener: EventListener) => {
-    if (mockWindowEventListeners[event]) {
-      const index = mockWindowEventListeners[event].indexOf(listener);
-      if (index > -1) {
-        mockWindowEventListeners[event].splice(index, 1);
-      }
-    }
-  },
-});
+// Mock window online/offline events will be set up with spies in beforeEach
 
 /**
  *
@@ -185,14 +128,44 @@ describe("useProgressSync", () => {
   let mockProgressService: ProgressService;
 
   beforeEach(() => {
-    mockProgressService = createMockProgressService();
-    vi.clearAllMocks();
-    mockLocalStorage.clear();
+    // Store originals for restoration
+    originalAddEventListener = window.addEventListener;
+    originalRemoveEventListener = window.removeEventListener;
+    originalLocalStorage = window.localStorage;
 
-    // Clear all window event listeners
+    // Setup clean event listener tracking
     Object.keys(mockWindowEventListeners).forEach((key) => {
       mockWindowEventListeners[key] = [];
     });
+
+    // Use spies instead of direct property override
+    vi.spyOn(window, 'addEventListener').mockImplementation((event: string, listener: EventListener | EventListenerObject) => {
+      const eventListener = typeof listener === 'function' ? listener : listener.handleEvent;
+      if (!mockWindowEventListeners[event]) {
+        mockWindowEventListeners[event] = [];
+      }
+      mockWindowEventListeners[event].push(eventListener);
+    });
+
+    vi.spyOn(window, 'removeEventListener').mockImplementation((event: string, listener: EventListener | EventListenerObject) => {
+      const eventListener = typeof listener === 'function' ? listener : listener.handleEvent;
+      if (mockWindowEventListeners[event]) {
+        const index = mockWindowEventListeners[event].indexOf(eventListener);
+        if (index > -1) {
+          mockWindowEventListeners[event].splice(index, 1);
+        }
+      }
+    });
+
+    // Replace localStorage with MemoryStorage
+    Object.defineProperty(window, "localStorage", {
+      value: testStorage,
+      configurable: true,
+    });
+
+    mockProgressService = createMockProgressService();
+    vi.clearAllMocks();
+    testStorage.clear();
 
     // Reset navigator.onLine to true
     Object.defineProperty(navigator, "onLine", {
@@ -200,18 +173,31 @@ describe("useProgressSync", () => {
       value: true,
     });
 
-    // Reset timers
-    vi.clearAllTimers();
-    vi.useFakeTimers();
+    // Setup fake timers with fixed time
+    vi.useFakeTimers({ now: new Date('2024-01-01T00:00:00Z') });
   });
 
   afterEach(async () => {
     // Properly clean up timers and wait for any pending state updates
-    await act(async () => {
-      // Use runAllTimersAsync to ensure all pending timers and microtasks are settled
-      await vi.runAllTimersAsync();
+    await flushAsync();
+    
+    // Restore all mocks and globals
+    vi.restoreAllMocks();
+    
+    // Restore original globals
+    Object.defineProperty(window, "addEventListener", {
+      value: originalAddEventListener,
+      configurable: true,
     });
-    vi.clearAllTimers();
+    Object.defineProperty(window, "removeEventListener", {
+      value: originalRemoveEventListener,
+      configurable: true,
+    });
+    Object.defineProperty(window, "localStorage", {
+      value: originalLocalStorage,
+      configurable: true,
+    });
+    
     vi.useRealTimers();
   });
 
@@ -516,7 +502,7 @@ describe("useProgressSync", () => {
       });
 
       // Should save to localStorage
-      const savedQueue = mockLocalStorage.getItem(`syncQueue-${userId}`);
+      const savedQueue = testStorage.getItem(`syncQueue-${userId}`);
       expect(savedQueue).toBeTruthy();
 
       const parsedQueue = JSON.parse(savedQueue!);
@@ -540,7 +526,7 @@ describe("useProgressSync", () => {
         },
       ];
 
-      mockLocalStorage.setItem(
+      testStorage.setItem(
         `syncQueue-${userId}`,
         JSON.stringify(queueData),
       );
@@ -781,8 +767,8 @@ describe("useProgressSync", () => {
 
     it("should handle localStorage errors gracefully", () => {
       // Mock localStorage to throw error
-      const originalSetItem = mockLocalStorage.setItem;
-      mockLocalStorage.setItem = vi.fn(() => {
+      const originalSetItem = testStorage.setItem;
+      testStorage.setItem = vi.fn(() => {
         throw new Error("Storage quota exceeded");
       });
 
@@ -798,7 +784,7 @@ describe("useProgressSync", () => {
       expect(result.current.syncStatus.pendingCount).toBe(1);
 
       // Restore original method
-      mockLocalStorage.setItem = originalSetItem;
+      testStorage.setItem = originalSetItem;
     });
   });
 });
