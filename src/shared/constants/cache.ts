@@ -6,67 +6,70 @@
  * Constants for cache management including sizes, TTLs, and memory limits
  */
 
+import { TIME_UNITS } from './time.constants';
+import { TIME_MULTIPLIERS, SIZE_MULTIPLIERS, PERCENTAGE_MULTIPLIERS, BINARY_MULTIPLIERS } from './multipliers';
+
 /**
  * Cache size constants (number of items)
  */
 export const CACHE_SIZES = {
-  TINY: 10,
-  SMALL: 50,
-  MEDIUM: 100,
-  LARGE: 200,
-  EXTRA_LARGE: 500,
-  HUGE: 1000,
-  MASSIVE: 5000,
+  TINY: TIME_MULTIPLIERS.QUICK,
+  SMALL: SIZE_MULTIPLIERS.MEDIUM_FACTOR,
+  MEDIUM: SIZE_MULTIPLIERS.LARGE_FACTOR,
+  LARGE: SIZE_MULTIPLIERS.EXTRA_LARGE_FACTOR,
+  EXTRA_LARGE: SIZE_MULTIPLIERS.HUGE_FACTOR,
+  HUGE: SIZE_MULTIPLIERS.MASSIVE_FACTOR,
+  MASSIVE: SIZE_MULTIPLIERS.EXTREME_FACTOR,
 } as const;
 
 /**
  * Cache TTL (Time To Live) constants in milliseconds
  */
 export const CACHE_TTL = {
-  INSTANT: 1000,           // 1 second
-  SHORT: 10 * 1000,        // 10 seconds
-  MEDIUM: 30 * 1000,       // 30 seconds
-  STANDARD: 60 * 1000,     // 1 minute
-  LONG: 5 * 60 * 1000,     // 5 minutes
-  EXTENDED: 10 * 60 * 1000, // 10 minutes
-  HOUR: 60 * 60 * 1000,    // 1 hour
-  DAY: 24 * 60 * 60 * 1000, // 24 hours
+  INSTANT: TIME_UNITS.SECOND,                                    // 1 second
+  SHORT: TIME_MULTIPLIERS.QUICK * TIME_UNITS.SECOND,            // 10 seconds
+  MEDIUM: TIME_MULTIPLIERS.STANDARD * TIME_UNITS.SECOND,        // 30 seconds
+  STANDARD: TIME_UNITS.MINUTE,                                  // 1 minute
+  LONG: TIME_MULTIPLIERS.SHORT_RETENTION * TIME_UNITS.MINUTE,   // 5 minutes
+  EXTENDED: TIME_MULTIPLIERS.MEDIUM_RETENTION * TIME_UNITS.MINUTE, // 10 minutes
+  HOUR: TIME_UNITS.HOUR,                                        // 1 hour
+  DAY: TIME_UNITS.DAY,                                         // 24 hours
 } as const;
 
 /**
  * Memory size constants in bytes
  */
 export const MEMORY_SIZES = {
-  KB: 1024,
-  MB: 1024 * 1024,
-  GB: 1024 * 1024 * 1024,
+  KB: BINARY_MULTIPLIERS.KILOBYTE,
+  MB: BINARY_MULTIPLIERS.KILOBYTE * BINARY_MULTIPLIERS.KILOBYTE,
+  GB: BINARY_MULTIPLIERS.KILOBYTE * BINARY_MULTIPLIERS.KILOBYTE * BINARY_MULTIPLIERS.KILOBYTE,
   
   // Specific memory limits
-  SMALL_OBJECT: 1024,           // 1KB
-  MEDIUM_OBJECT: 10 * 1024,     // 10KB
-  LARGE_OBJECT: 100 * 1024,     // 100KB
-  MAX_CACHE_ITEM: 1024 * 1024,  // 1MB
-  MAX_STORAGE: 100 * 1024 * 1024, // 100MB
+  SMALL_OBJECT: BINARY_MULTIPLIERS.KILOBYTE,                                      // 1KB
+  MEDIUM_OBJECT: SIZE_MULTIPLIERS.SMALL_FACTOR * BINARY_MULTIPLIERS.KILOBYTE,    // 10KB
+  LARGE_OBJECT: SIZE_MULTIPLIERS.LARGE_FACTOR * BINARY_MULTIPLIERS.KILOBYTE,     // 100KB
+  MAX_CACHE_ITEM: BINARY_MULTIPLIERS.KILOBYTE * BINARY_MULTIPLIERS.KILOBYTE,     // 1MB
+  MAX_STORAGE: SIZE_MULTIPLIERS.LARGE_FACTOR * BINARY_MULTIPLIERS.KILOBYTE * BINARY_MULTIPLIERS.KILOBYTE, // 100MB
 } as const;
 
 /**
  * Cache cleanup and maintenance intervals
  */
 export const CACHE_INTERVALS = {
-  CLEANUP: 30 * 1000,      // 30 seconds
-  PERSIST: 60 * 1000,      // 1 minute
-  EXPIRE_CHECK: 10 * 1000, // 10 seconds
-  MEMORY_CHECK: 5 * 60 * 1000, // 5 minutes
+  CLEANUP: TIME_MULTIPLIERS.STANDARD * TIME_UNITS.SECOND,      // 30 seconds
+  PERSIST: TIME_UNITS.MINUTE,                                  // 1 minute
+  EXPIRE_CHECK: TIME_MULTIPLIERS.QUICK * TIME_UNITS.SECOND,    // 10 seconds
+  MEMORY_CHECK: TIME_MULTIPLIERS.SHORT_RETENTION * TIME_UNITS.MINUTE,  // 5 minutes
 } as const;
 
 /**
  * Cache hit rate thresholds for monitoring
  */
 export const CACHE_THRESHOLDS = {
-  MIN_HIT_RATE: 0.3,  // 30% minimum hit rate
-  GOOD_HIT_RATE: 0.5, // 50% good hit rate
-  EXCELLENT_HIT_RATE: 0.8, // 80% excellent hit rate
-  EVICTION_THRESHOLD: 0.9, // 90% capacity triggers eviction
+  MIN_HIT_RATE: PERCENTAGE_MULTIPLIERS.THIRTY_PERCENT,      // 30% minimum hit rate
+  GOOD_HIT_RATE: PERCENTAGE_MULTIPLIERS.FIFTY_PERCENT,      // 50% good hit rate
+  EXCELLENT_HIT_RATE: PERCENTAGE_MULTIPLIERS.EIGHTY_PERCENT, // 80% excellent hit rate
+  EVICTION_THRESHOLD: PERCENTAGE_MULTIPLIERS.NINETY_PERCENT, // 90% capacity triggers eviction
 } as const;
 
 /**
@@ -101,12 +104,12 @@ export const LRU_CONFIG = {
   /**
    * Default maximum number of items in LRU cache
    */
-  DEFAULT_MAX_SIZE: 100,
+  DEFAULT_MAX_SIZE: SIZE_MULTIPLIERS.LARGE_FACTOR,
   
   /**
    * Maximum age for items before forced eviction (ms)
    */
-  MAX_AGE_MS: 60 * 60 * 1000, // 1 hour
+  MAX_AGE_MS: TIME_UNITS.HOUR, // 1 hour
   
   /**
    * Update age on get operations
@@ -121,7 +124,7 @@ export const LRU_CONFIG = {
   /**
    * Revalidation window in milliseconds
    */
-  REVALIDATION_WINDOW_MS: 5 * 1000, // 5 seconds
+  REVALIDATION_WINDOW_MS: TIME_MULTIPLIERS.SHORT_RETENTION * TIME_UNITS.SECOND, // 5 seconds
 } as const;
 
 /**

@@ -8,6 +8,8 @@
  * with comprehensive documentation.
  */
 
+import { TIME_UNITS } from '@shared/constants/time.constants';
+
 /**
  * Tablebase API error definitions
  * 
@@ -108,7 +110,7 @@ export const TABLEBASE_CONFIG = {
      * Time-to-live for cached results (5 minutes)
      * Tablebase results are static, so can be cached longer
      */
-    TTL: 5 * 60 * 1000,
+    TTL: 5 * TIME_UNITS.MINUTE,
     
     /**
      * Maximum number of positions to cache
@@ -125,12 +127,12 @@ export const TABLEBASE_CONFIG = {
    * Query timeout specific to tablebase (7 seconds)
    * Slightly longer than general HTTP timeout due to computation
    */
-  QUERY_TIMEOUT: 7000,
+  QUERY_TIMEOUT: 7 * TIME_UNITS.SECOND,
   
   /**
    * Buffer time added to timeout for cleanup (1 second)
    */
-  TIMEOUT_BUFFER: 1000,
+  TIMEOUT_BUFFER: TIME_UNITS.SECOND,
 } as const;
 
 /**

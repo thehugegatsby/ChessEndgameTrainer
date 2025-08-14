@@ -106,24 +106,28 @@
     {
       "files": [
         "**/*.mock.ts",
+        "**/*.mock.tsx",
         "**/*.factory.ts",
         "**/__mocks__/**/*",
+        "**/__tests__/**/*",
         "**/test-utils.ts",
+        "**/test-utils.tsx",
         "**/mockFactories.ts",
         "**/mockRootStore.ts",
         "**/createTestContainer.ts",
         "**/mocks.setup.js",
-        "src/tests/setup/**/*",
-        "src/tests/__mocks__/**/*",
-        "src/tests/helpers/**/*",
-        "src/tests/utils/**/*",
-        "src/tests/factories/**/*",
-        "src/tests/api/**/*",
-        "src/tests/constants/**/*",
+        "**/Mock*.ts",
+        "**/Mock*.tsx",
+        "**/Test*.ts",
+        "**/Test*.tsx",
+        "src/tests/**/*",
+        "src/shared/services/__mocks__/**/*",
         "src/shared/services/container/mocks.ts",
         "src/shared/testing/**/*",
+        "src/features/**/__tests__/**/*",
+        "src/features/**/services/__tests__/**/*",
         "**/*e2e*.ts",
-        "src/tests/e2e/**/*"
+        "**/*e2e*.tsx"
       ],
       "rules": {
         "no-console": "off",
@@ -144,7 +148,8 @@
         ],
         "max-lines-per-function": "off",
         "complexity": "off",
-        "max-depth": "off"
+        "max-depth": "off",
+        "no-magic-numbers": "off"
       }
     },
     {

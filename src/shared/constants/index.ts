@@ -23,6 +23,9 @@
  * All constants use `as const` assertion for type safety and immutability.
  */
 
+import { SIZE_MULTIPLIERS, BINARY_MULTIPLIERS } from './multipliers';
+import { TIME_UNITS } from './time.constants';
+
 /**
  * Storage configuration constants
  *
@@ -40,10 +43,10 @@
  */
 export const STORAGE = {
   PREFIX: "chess_trainer_",
-  MAX_SIZE_WEB: 100 * 1024 * 1024, // 100MB for web
-  MAX_SIZE_MOBILE: 50 * 1024 * 1024, // 50MB for mobile
-  COMPRESSION_THRESHOLD: 1024, // 1KB - compress data larger than this
-  CACHE_DURATION: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
+  MAX_SIZE_WEB: SIZE_MULTIPLIERS.LARGE_FACTOR * BINARY_MULTIPLIERS.KILOBYTE * BINARY_MULTIPLIERS.KILOBYTE, // 100MB for web
+  MAX_SIZE_MOBILE: SIZE_MULTIPLIERS.MEDIUM_FACTOR * BINARY_MULTIPLIERS.KILOBYTE * BINARY_MULTIPLIERS.KILOBYTE, // 50MB for mobile
+  COMPRESSION_THRESHOLD: BINARY_MULTIPLIERS.KILOBYTE, // 1KB - compress data larger than this
+  CACHE_DURATION: TIME_UNITS.DAY, // 24 hours in milliseconds
 } as const;
 
 /**
