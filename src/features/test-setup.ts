@@ -78,7 +78,7 @@ class MockIntersectionObserver implements IntersectionObserver {
     this.root = options?.root ?? null;
     this.rootMargin = options?.rootMargin ?? '0px';
     const t = options?.threshold;
-    this.thresholds = t == null ? [0] : Array.isArray(t) ? t : [t];
+    this.thresholds = t === null || t === undefined ? [0] : Array.isArray(t) ? t : [t];
   }
 
   observe: (target: Element) => void = vi.fn();
