@@ -2,22 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TablebaseIntegration, SimpleTablebaseIntegration } from '../TablebaseIntegration';
-import { trainingEvents } from '../../../training/events/EventEmitter';
 
 // Use vi.hoisted to define mocks before module evaluation
 const mockUseTablebase = vi.hoisted(() => vi.fn());
-const mockUseEventDrivenTraining = vi.hoisted(() => vi.fn());
 const mockUseTrainingStore = vi.hoisted(() => vi.fn());
-const mockUseTrainingEvent = vi.hoisted(() => vi.fn());
 
 // Mock the tablebase hooks
 vi.mock('../../hooks/useTablebase', () => ({
   useTablebase: mockUseTablebase,
-}));
-
-// Mock training hooks
-vi.mock('../../../training/hooks/useEventDrivenTraining', () => ({
-  useEventDrivenTraining: mockUseEventDrivenTraining,
 }));
 
 // Mock training store hooks
@@ -29,124 +21,103 @@ vi.mock('@shared/store/hooks', () => ({
   useUIStore: vi.fn(() => [{}, {}]),
 }));
 
-// Mock training event listener
-vi.mock('../../../training/components/TrainingEventListener', () => ({
-  useTrainingEvent: mockUseTrainingEvent,
-}));
-
 // Mock store
 vi.mock('@shared/store/rootStore', () => ({
   useStore: vi.fn(() => ({ ui: { tablebaseData: null } })),
 }));
 
-// Mock training events
-vi.mock('../../../training/events/EventEmitter', () => ({
-  trainingEvents: {
-    emit: vi.fn(),
-  },
-}));
-
 const createWrapper = () => {
   const queryClient = new QueryClient({
     defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
+      queries: {
+        retry: false,
+      },
     },
   });
-  
-  return function Wrapper({ children }: { children: React.ReactNode }) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
-    );
-  };
+  const Wrapper = ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+  Wrapper.displayName = 'TestWrapper';
+  return Wrapper;
 };
 
-describe('TablebaseIntegration', () => {
-  const testFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+const testFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
+describe('TablebaseIntegration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // Set default mock implementations
+    // Default mock implementations
     mockUseTablebase.mockReturnValue({
-      evaluation: {
-        outcome: 'win',
-        dtm: 5,
-        dtz: 12,
-      },
+      evaluation: { outcome: 'win', dtm: 5, dtz: 12 },
       moves: [
-        {
-          uci: 'e2e4',
-          san: 'e4',
-          outcome: 'win',
-          dtm: 4,
-        },
-        {
-          uci: 'd2d4',
-          san: 'd4',
-          outcome: 'draw',
-          dtm: undefined,
-        },
+        { uci: 'e2e4', san: 'e4', outcome: 'win', dtm: 4 },
+        { uci: 'd2d4', san: 'd4', outcome: 'draw' },
       ],
       isLoading: false,
       isEvaluationLoading: false,
       isMovesLoading: false,
       error: null,
     });
-    
-    mockUseEventDrivenTraining.mockReturnValue(true);
-    
+
     mockUseTrainingStore.mockReturnValue([
       null,
-      {
-        handlePlayerMove: vi.fn(),
-      },
+      { handlePlayerMove: vi.fn() },
     ]);
-    
-    mockUseTrainingEvent.mockImplementation(() => {});
   });
 
-  describe('stacked layout', () => {
-    it('should render both analysis and feedback panels', () => {
+  describe('basic rendering', () => {
+    it('should render tablebase panel with analysis', () => {
       const Wrapper = createWrapper();
       
       render(
         <Wrapper>
           <TablebaseIntegration
             fen={testFen}
-            layout="stacked"
             showAnalysis={true}
-            showFeedback={true}
           />
         </Wrapper>
       );
 
-      expect(screen.getByText('Tablebase Analysis')?.isConnected).toBe(true);
+      expect(screen.getByText('Tablebase Analysis')).toBeTruthy();
+      expect(screen.getByText('WIN')).toBeTruthy();
+      expect(screen.getByText('Best Moves')).toBeTruthy();
     });
 
-    it('should only show analysis when feedback disabled', () => {
+    it('should not render when showAnalysis is false', () => {
+      const Wrapper = createWrapper();
+      
+      const { container } = render(
+        <Wrapper>
+          <TablebaseIntegration
+            fen={testFen}
+            showAnalysis={false}
+          />
+        </Wrapper>
+      );
+
+      expect(container.firstChild).toBeNull();
+    });
+
+    it('should render with stacked layout by default', () => {
       const Wrapper = createWrapper();
       
       render(
         <Wrapper>
           <TablebaseIntegration
             fen={testFen}
-            layout="stacked"
             showAnalysis={true}
-            showFeedback={false}
           />
         </Wrapper>
       );
 
-      expect(screen.getByText('Tablebase Analysis')?.isConnected).toBe(true);
-      // Feedback panel is not visible without feedback data
+      const container = document.querySelector('.tablebase-integration.space-y-4');
+      expect(container).toBeTruthy();
     });
   });
 
-  describe('side-by-side layout', () => {
-    it('should render with flex layout', () => {
+  describe('layout variants', () => {
+    it('should render side-by-side layout', () => {
       const Wrapper = createWrapper();
       
       render(
@@ -155,18 +126,15 @@ describe('TablebaseIntegration', () => {
             fen={testFen}
             layout="side-by-side"
             showAnalysis={true}
-            showFeedback={true}
           />
         </Wrapper>
       );
 
-      const container = screen.getByText('Tablebase Analysis').closest('.tablebase-integration');
-      expect(container.classList.contains('flex')).toBe(true);
+      const container = document.querySelector('.tablebase-integration.flex.gap-4');
+      expect(container).toBeTruthy();
     });
-  });
 
-  describe('tabs layout', () => {
-    it('should render tab navigation', () => {
+    it('should render tabbed layout with navigation', () => {
       const Wrapper = createWrapper();
       
       render(
@@ -180,11 +148,11 @@ describe('TablebaseIntegration', () => {
         </Wrapper>
       );
 
-      expect(screen.getByText('Analysis')?.isConnected).toBe(true);
-      expect(screen.getByText('Feedback')?.isConnected).toBe(true);
+      expect(screen.getByText('Analysis')).toBeTruthy();
+      expect(screen.getByText('Feedback')).toBeTruthy();
     });
 
-    it('should switch tabs on click', () => {
+    it('should switch tabs correctly', () => {
       const Wrapper = createWrapper();
       
       render(
@@ -206,32 +174,8 @@ describe('TablebaseIntegration', () => {
   });
 
   describe('move handling', () => {
-    it('should emit move attempted event when event-driven', () => {
-      mockUseEventDrivenTraining.mockReturnValue(true);
-      const Wrapper = createWrapper();
-      
-      render(
-        <Wrapper>
-          <TablebaseIntegration
-            fen={testFen}
-            showAnalysis={true}
-          />
-        </Wrapper>
-      );
-
-      const moveButton = screen.getByRole('button', { name: 'e4 + 4' });
-      fireEvent.click(moveButton);
-
-      expect(trainingEvents.emit).toHaveBeenCalledWith('move:attempted', {
-        from: 'e2',
-        to: 'e4',
-        promotion: undefined,
-      });
-    });
-
-    it('should use store action when not event-driven', () => {
+    it('should call training store action for move selection', () => {
       const mockHandlePlayerMove = vi.fn();
-      mockUseEventDrivenTraining.mockReturnValue(false);
       mockUseTrainingStore.mockReturnValue([
         null,
         { handlePlayerMove: mockHandlePlayerMove },
@@ -254,7 +198,46 @@ describe('TablebaseIntegration', () => {
       expect(mockHandlePlayerMove).toHaveBeenCalledWith({
         from: 'e2',
         to: 'e4',
-        promotion: undefined,
+      });
+    });
+
+    it('should handle promotion moves correctly', () => {
+      const mockHandlePlayerMove = vi.fn();
+      mockUseTrainingStore.mockReturnValue([
+        null,
+        { handlePlayerMove: mockHandlePlayerMove },
+      ]);
+
+      // Mock promotion move
+      mockUseTablebase.mockReturnValue({
+        evaluation: { outcome: 'win', dtm: 1 },
+        moves: [
+          { uci: 'e7e8q', san: 'e8=Q+', outcome: 'win', dtm: 1 },
+        ],
+        isLoading: false,
+        isEvaluationLoading: false,
+        isMovesLoading: false,
+        error: null,
+      });
+      
+      const Wrapper = createWrapper();
+      
+      render(
+        <Wrapper>
+          <TablebaseIntegration
+            fen={testFen}
+            showAnalysis={true}
+          />
+        </Wrapper>
+      );
+
+      const moveButton = screen.getByRole('button', { name: 'e8=Q+ + 1' });
+      fireEvent.click(moveButton);
+
+      expect(mockHandlePlayerMove).toHaveBeenCalledWith({
+        from: 'e7',
+        to: 'e8',
+        promotion: 'q',
       });
     });
   });
@@ -269,44 +252,7 @@ describe('TablebaseIntegration', () => {
         </Wrapper>
       );
 
-      expect(screen.getByText('Tablebase Analysis')?.isConnected).toBe(true);
-    });
-  });
-
-  describe('conditional rendering', () => {
-    it('should not render when not event-driven and no analysis', () => {
-      mockUseEventDrivenTraining.mockReturnValue(false);
-      const Wrapper = createWrapper();
-      
-      const { container } = render(
-        <Wrapper>
-          <TablebaseIntegration
-            fen={testFen}
-            showAnalysis={false}
-          />
-        </Wrapper>
-      );
-
-      expect(container.firstChild).toBeNull();
-    });
-
-    it('should render when event-driven even without analysis', () => {
-      mockUseEventDrivenTraining.mockReturnValue(true);
-      const Wrapper = createWrapper();
-      
-      render(
-        <Wrapper>
-          <TablebaseIntegration
-            fen={testFen}
-            showAnalysis={false}
-            showFeedback={true}
-          />
-        </Wrapper>
-      );
-
-      // Should render container even if analysis is disabled
-      const container = document.querySelector('.tablebase-integration');
-      expect(container?.isConnected).toBe(true);
+      expect(screen.getByText('Tablebase Analysis')).toBeTruthy();
     });
   });
 });

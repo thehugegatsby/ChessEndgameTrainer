@@ -20,6 +20,7 @@
 import React, { useEffect } from "react";
 import { UI_MULTIPLIERS } from '@shared/constants/multipliers';
 import { DURATIONS } from '@shared/constants/time.constants';
+import { ChessPiece, type PieceId } from './ChessPiece';
 
 /**
  * Promotion piece types
@@ -138,11 +139,11 @@ export const PromotionDialog: React.FC<PromotionDialogProps> = ({
   const SQUARES_PER_ROW = 8;
   const squareSize = BOARD_WIDTH / SQUARES_PER_ROW; // 100px per square
 
-  const promotionPieces: { piece: PromotionPiece; title: string; symbol: string }[] = [
-    { piece: "q", title: "Dame (Q)", symbol: color === "w" ? "♕" : "♛" },
-    { piece: "r", title: "Turm (R)", symbol: color === "w" ? "♖" : "♜" },
-    { piece: "b", title: "Läufer (B)", symbol: color === "w" ? "♗" : "♝" },
-    { piece: "n", title: "Springer (N)", symbol: color === "w" ? "♘" : "♞" },
+  const promotionPieces: { piece: PromotionPiece; title: string; pieceId: PieceId }[] = [
+    { piece: "q", title: "Dame (Q)", pieceId: `${color}Q` as PieceId },
+    { piece: "r", title: "Turm (R)", pieceId: `${color}R` as PieceId },
+    { piece: "b", title: "Läufer (B)", pieceId: `${color}B` as PieceId },
+    { piece: "n", title: "Springer (N)", pieceId: `${color}N` as PieceId },
   ];
   
   return (
@@ -150,7 +151,7 @@ export const PromotionDialog: React.FC<PromotionDialogProps> = ({
       {/* Board dimming overlay like Lichess */}
       <div className="absolute inset-0 bg-[rgba(0,0,0,0.60)] z-40" />
       
-      {promotionPieces.map(({ piece, title, symbol }, index) => {
+      {promotionPieces.map(({ piece, title, pieceId }, index) => {
         return (
           <button
             key={piece}
@@ -164,16 +165,13 @@ export const PromotionDialog: React.FC<PromotionDialogProps> = ({
             }}
             title={title}
           >
-            <span 
-              className="text-4xl select-none"
+            <ChessPiece 
+              piece={pieceId}
+              size={56}
               style={{ 
-                fontFamily: "'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', system-ui, sans-serif",
-                textShadow: "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 2px 2px 0 #000, -2px 2px 0 #000, 2px -2px 0 #000, -2px -2px 0 #000",
                 filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.3))"
               }}
-            >
-              {symbol}
-            </span>
+            />
           </button>
         );
       })}
