@@ -5,22 +5,8 @@ import { vi } from 'vitest';
  */
 
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { MoveErrorDialog } from "@shared/components/ui/MoveErrorDialog";
-import { getOpponentTurnManager } from "@shared/store/orchestrators/handlePlayerMove";
-
-// Mock the opponent turn manager
-const mockOpponentTurnManager = {
-  schedule: vi.fn(),
-  cancel: vi.fn(),
-};
-
-// Mock the getOpponentTurnManager function to verify it's called
-vi.mock("@shared/store/orchestrators/handlePlayerMove", () => ({
-  getOpponentTurnManager: vi.fn(() => mockOpponentTurnManager),
-}));
-
-const mockGetOpponentTurnManager = getOpponentTurnManager as any;
 
 describe("MoveErrorDialog - Continue Playing Feature", () => {
   const defaultProps = {
@@ -102,7 +88,7 @@ describe("MoveErrorDialog - Continue Playing Feature", () => {
     expect(screen.getByText("6.Kf5 ist ein Fehler!")).toBeInTheDocument();
   });
 
-  describe("Integration with TrainingBoard (mocked scenario)", () => {
+  describe("Integration scenarios", () => {
     it("verifies the expected behavior flow", () => {
       // This test documents the expected behavior:
       // 1. User makes suboptimal move
@@ -134,13 +120,6 @@ describe("MoveErrorDialog - Continue Playing Feature", () => {
 
       // Note: The actual scheduleOpponentTurn call happens in TrainingBoard's
       // handleMoveErrorContinue function, not directly in the dialog
-      console.log("\n=== EXPECTED BEHAVIOR ===");
-      console.log("1. User clicks 'Weiterspielen'");
-      console.log("2. Dialog closes (onClose called)");
-      console.log("3. TrainingBoard.handleMoveErrorContinue executes:");
-      console.log("   - trainingActions.setMoveErrorDialog(null)");
-      console.log("   - scheduleOpponentTurn(storeApi)");
-      console.log("4. Opponent makes next move automatically");
     });
   });
 });

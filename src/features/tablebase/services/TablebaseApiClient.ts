@@ -9,12 +9,15 @@ import type {
   TablebaseApiClientInterface, 
   TablebaseApiResponse
 } from '../types/interfaces';
-import { TablebaseApiResponseSchema, TablebaseConfig } from '../types/models';
+import { TablebaseApiResponseSchema } from '../types/models';
 import { z } from 'zod';
 import type { HttpProvider } from './HttpProvider';
 import { RealHttpProvider } from './HttpProvider';
 import { HttpStatus } from '@/shared/constants/http';
-import { CACHE_THRESHOLDS } from '@/shared/constants/cache';
+import { HTTP_RETRY, HTTP_HEADERS } from '@/shared/constants/http.constants';
+import { EXTERNAL_APIS, APP_META } from '@/shared/constants/meta.constants';
+import { FEN, ARRAY_INDICES } from '@/shared/constants/chess.constants';
+import { TABLEBASE_API_ERRORS, TABLEBASE_CONFIG } from '../constants/tablebase.constants';
 
 /**
  * Custom error for API-specific failures
@@ -47,9 +50,9 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
     config: TablebaseApiClientConfig = {},
     httpProvider: HttpProvider = new RealHttpProvider()
   ) {
-    this.baseUrl = config.baseUrl ?? TablebaseConfig.API_BASE_URL;
-    this.timeout = config.timeout ?? TablebaseConfig.REQUEST_TIMEOUT;
-    this.maxRetries = config.maxRetries ?? TablebaseConfig.MAX_RETRIES;
+    this.baseUrl = config.baseUrl ?? EXTERNAL_APIS.LICHESS_TABLEBASE.BASE_URL;
+    this.timeout = config.timeout ?? TABLEBASE_CONFIG.QUERY_TIMEOUT;
+    this.maxRetries = config.maxRetries ?? HTTP_RETRY.MAX_RETRIES;
     this.http = httpProvider;
   }
 
@@ -63,7 +66,7 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
    */
   query(fen: string): Promise<TablebaseApiResponse> {
     // Normalize FEN for consistent caching (remove halfmove clock and fullmove number)
-    const normalizedFen = fen.split(' ').slice(0, 4).join(' ');
+    const normalizedFen = fen.split(' ').slice(0, FEN.NORMALIZATION_FIELDS).join(' ');
     
     // Check if request is already in flight (request deduplication)
     const existingRequest = this.pendingRequests.get(normalizedFen);
@@ -93,34 +96,42 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
     // Try with retries
     let lastError: Error | undefined;
     
-    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+    for (let attempt = ARRAY_INDICES.LOOP_START; attempt <= this.maxRetries; attempt++) {
       try {
         const response = await this.http.fetchWithTimeout(url, this.timeout, {
           headers: {
-            'Accept': 'application/json',
-            'User-Agent': 'ChessEndgameTrainer/1.0.0 (https://github.com/thehugegatsby/ChessEndgameTrainer)',
+            ...HTTP_HEADERS.ACCEPT_JSON,
+            'User-Agent': APP_META.USER_AGENT,
           },
         });
         
         // Handle different status codes
         if (response.status === HttpStatus.NOT_FOUND) {
           // Position not in tablebase - this is expected for some positions
-          throw new ApiError('Position not in tablebase', HttpStatus.NOT_FOUND, 'NOT_FOUND');
+          throw new ApiError(
+            TABLEBASE_API_ERRORS.NOT_FOUND.MESSAGE,
+            HttpStatus.NOT_FOUND,
+            TABLEBASE_API_ERRORS.NOT_FOUND.CODE
+          );
         }
         
         if (response.status === HttpStatus.TOO_MANY_REQUESTS) {
           // Rate limited - wait before retry
           const delay = this.getBackoffDelay(attempt);
           await this.http.sleep(delay);
-          lastError = new ApiError('Rate limited', HttpStatus.TOO_MANY_REQUESTS, 'RATE_LIMITED');
+          lastError = new ApiError(
+            TABLEBASE_API_ERRORS.RATE_LIMITED.MESSAGE,
+            HttpStatus.TOO_MANY_REQUESTS,
+            TABLEBASE_API_ERRORS.RATE_LIMITED.CODE
+          );
           continue;
         }
         
         if (!response.ok) {
           throw new ApiError(
-            `API error: ${response.status} ${response.statusText}`,
+            `${TABLEBASE_API_ERRORS.GENERIC_ERROR.MESSAGE}: ${response.status} ${response.statusText}`,
             response.status,
-            'API_ERROR'
+            TABLEBASE_API_ERRORS.GENERIC_ERROR.CODE
           );
         }
         
@@ -149,19 +160,26 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
     }
     
     // All retries exhausted
-    throw lastError || new ApiError('Max retries exceeded');
+    throw lastError || new ApiError(
+      TABLEBASE_API_ERRORS.MAX_RETRIES_EXCEEDED.MESSAGE,
+      undefined,
+      TABLEBASE_API_ERRORS.MAX_RETRIES_EXCEEDED.CODE
+    );
   }
 
   /**
    * Calculate exponential backoff delay with deterministic jitter
    */
   private getBackoffDelay(attempt: number): number {
-    const baseDelay = TablebaseConfig.BACKOFF_BASE_DELAY;
-    const maxDelay = baseDelay * Math.pow(2, 4); // Cap at 16 seconds
-    const delay = Math.min(baseDelay * Math.pow(2, attempt - 1), maxDelay);
+    const baseDelay = HTTP_RETRY.BACKOFF_BASE_DELAY;
+    const maxDelay = baseDelay * Math.pow(HTTP_RETRY.BACKOFF_FACTOR, HTTP_RETRY.MAX_BACKOFF_EXPONENT);
+    const delay = Math.min(
+      baseDelay * Math.pow(HTTP_RETRY.BACKOFF_FACTOR, attempt - 1),
+      maxDelay
+    );
     
     // Add jitter to prevent thundering herd (using injected random)
-    const jitter = this.http.random() * CACHE_THRESHOLDS.MIN_HIT_RATE * delay;
+    const jitter = this.http.random() * HTTP_RETRY.JITTER_FACTOR * delay;
     
     return delay + jitter;
   }

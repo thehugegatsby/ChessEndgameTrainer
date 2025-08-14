@@ -26,6 +26,9 @@ import { type Result, ok, err, isErr, AppError } from "@shared/utils/result";
 import { LichessApiClient, LichessApiError, LichessApiTimeoutError } from "./api/LichessApiClient";
 import type { CacheManager } from "../lib/cache/types";
 import { LRUCacheManager } from "../lib/cache/LRUCacheManager";
+import { HTTP_CONFIG, HTTP_RETRY } from "@shared/constants/http.constants";
+import { CACHE_SIZES, CACHE_TTL } from "@shared/constants/cache";
+import { INPUT_LIMITS } from "@shared/constants/validation.constants";
 import type {
   LichessTablebaseResponse,
   TablebaseEntry,
@@ -50,13 +53,11 @@ const logger = getLogger().setContext("TablebaseService");
 
 // Tablebase configuration constants
 const MAX_PIECES_IN_TABLEBASE = 7; // Lichess uses 7-piece Syzygy tablebases
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-const CACHE_SIZE = 200;
 
 class TablebaseService {
   private readonly cacheManager: CacheManager<string, TablebaseCacheEntry>;
   private readonly maxPieces = MAX_PIECES_IN_TABLEBASE;
-  private readonly cacheTtl = CACHE_TTL_MS;
+  private readonly cacheTtl = CACHE_TTL.EXTENDED;
   private pendingRequests = new Map<string, Promise<TablebaseEntry | null>>();
   
   private readonly apiClient: LichessApiClient;
@@ -68,15 +69,15 @@ class TablebaseService {
     // Use provided client or create default instance
     this.apiClient = apiClient || new LichessApiClient({
       baseUrl: APP_CONFIG.TABLEBASE_API_URL,
-      timeoutMs: 5000,
-      maxRetries: 3,
-      maxBackoffMs: 10000
+      timeoutMs: HTTP_CONFIG.REQUEST_TIMEOUT_SHORT,
+      maxRetries: HTTP_RETRY.MAX_RETRIES,
+      maxBackoffMs: HTTP_RETRY.BACKOFF_BASE_DELAY * Math.pow(HTTP_RETRY.BACKOFF_FACTOR, HTTP_RETRY.MAX_BACKOFF_EXPONENT)
     });
 
     // Use provided cache manager or create default LRU cache
     this.cacheManager = cacheManager || new LRUCacheManager<string, TablebaseCacheEntry>(
-      CACHE_SIZE,     // maxSize (same as before)
-      this.cacheTtl  // defaultTtlMs (5 minutes)
+      CACHE_SIZES.LARGE,     // maxSize (same as before)
+      this.cacheTtl  // defaultTtlMs (extended timeout)
     );
   }
 
@@ -409,7 +410,7 @@ class TablebaseService {
 
     try {
       // Use the dedicated API client instead of direct fetch
-      const validatedData = await this.apiClient.lookup(fen, 20);
+      const validatedData = await this.apiClient.lookup(fen, INPUT_LIMITS.NUMBERS.MAX_VARIATIONS);
 
       // Transform to our internal format
       const entry = this._transformApiResponse(validatedData, fen);

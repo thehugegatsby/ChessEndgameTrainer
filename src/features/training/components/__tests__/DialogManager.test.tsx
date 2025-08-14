@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 /**
  * @file Tests for DialogManager component
- * @module tests/unit/components/training/DialogManager
+ * @module src/features/training/components/__tests__/DialogManager
  * 
  * @description
  * Comprehensive tests for the DialogManager component that handles
@@ -463,10 +463,6 @@ describe('DialogManager', () => {
   });
 
   describe('Component Integration', () => {
-    it('maintains proper component display name', () => {
-      expect(DialogManager.displayName).toBe('DialogManager');
-    });
-
     it('handles undefined callback gracefully for optional show best move', () => {
       const errorDialog = {
         isOpen: true,

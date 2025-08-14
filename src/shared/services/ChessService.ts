@@ -13,6 +13,7 @@ import type { ValidatedMove } from "@shared/types/chess";
 import { createValidatedMove } from "@shared/types/chess";
 import { getLogger } from "./logging";
 import { CACHE_SIZES } from "@/shared/constants/cache";
+import { FEN, ARRAY_INDICES } from "@/shared/constants/chess.constants";
 
 const logger = getLogger().setContext("ChessService");
 
@@ -52,11 +53,10 @@ class ChessService {
   private chess: Chess;
   private listeners = new Set<ChessServiceListener>();
   private moveHistory: ValidatedMove[] = [];
-  private currentMoveIndex = -1;
+  private currentMoveIndex = ARRAY_INDICES.INITIAL_MOVE_INDEX;
   private fenCache = new Map<string, string>(); // LRU cache for FEN strings (not Chess instances!)
   private readonly MAX_CACHE_SIZE = CACHE_SIZES.MEDIUM;
-  private initialFen: string =
-    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; // Store initial position
+  private initialFen: string = FEN.STARTING_POSITION; // Store initial position
 
   /**
    * Convert German piece notation to chess.js format
@@ -518,6 +518,79 @@ class ChessService {
   }
 
   /**
+   * Helper: Validate move object has valid squares
+   */
+  private validateMoveObject(move: { from: string; to: string; promotion?: string }, currentFen: string): boolean {
+    const { from, to } = move;
+    const squareRegex = /^[a-h][1-8]$/;
+    
+    // Basic square format validation
+    if (!squareRegex.test(from) || !squareRegex.test(to)) {
+      return false;
+    }
+    
+    // Check if source square has a piece
+    const tempChess = new Chess(currentFen);
+    const isValidSquare = (square: string): square is 'a1' | 'a2' | 'a3' | 'a4' | 'a5' | 'a6' | 'a7' | 'a8' | 'b1' | 'b2' | 'b3' | 'b4' | 'b5' | 'b6' | 'b7' | 'b8' | 'c1' | 'c2' | 'c3' | 'c4' | 'c5' | 'c6' | 'c7' | 'c8' | 'd1' | 'd2' | 'd3' | 'd4' | 'd5' | 'd6' | 'd7' | 'd8' | 'e1' | 'e2' | 'e3' | 'e4' | 'e5' | 'e6' | 'e7' | 'e8' | 'f1' | 'f2' | 'f3' | 'f4' | 'f5' | 'f6' | 'f7' | 'f8' | 'g1' | 'g2' | 'g3' | 'g4' | 'g5' | 'g6' | 'g7' | 'g8' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'h7' | 'h8' => {
+      return /^[a-h][1-8]$/.test(square);
+    };
+    
+    if (!isValidSquare(from)) {
+      return false;
+    }
+    
+    const piece = tempChess.get(from);
+    return piece !== null;
+  }
+
+  /**
+   * Helper: Normalize German piece notation
+   */
+  private normalizeGermanNotation(move: string): string {
+    const germanPieceRegex = /^([DTLS])([a-h]?[1-8]?[x]?)([a-h][1-8])([+#])?$/;
+    const germanMatch = move.match(germanPieceRegex);
+    
+    if (germanMatch && germanMatch.length >= 4) {
+      const germanToEnglish: Record<string, string> = {
+        'D': 'Q', // Dame -> Queen
+        'T': 'R', // Turm -> Rook
+        'L': 'B', // Läufer -> Bishop
+        'S': 'N', // Springer -> Knight
+      };
+      const [, piece = '', middle = '', target = '', suffix = ''] = germanMatch;
+      if (piece && target && germanToEnglish[piece]) {
+        return germanToEnglish[piece] + middle + target + suffix;
+      }
+    }
+    return move;
+  }
+
+  /**
+   * Helper: Handle promotion notation
+   */
+  private handlePromotionNotation(move: string): string | { from: string; to: string; promotion?: string } {
+    // Format 1: "e7e8D" or "e7-e8D" (from-to-promotion with optional dash)
+    let promotionMatch = move.match(/^([a-h][1-8])-?([a-h][1-8])([DTLSQRBN])$/i);
+    if (promotionMatch && promotionMatch[1] && promotionMatch[2] && promotionMatch[3]) {
+      const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[3]);
+      return {
+        from: promotionMatch[1],
+        to: promotionMatch[2],
+        promotion: normalizedPromotion as string
+      };
+    }
+    
+    // Format 2: "e8D" or "e8=D" (SAN notation with German piece)
+    promotionMatch = move.match(/^([a-h][1-8])=?([DTLSQRBN])$/i);
+    if (promotionMatch && promotionMatch[1] && promotionMatch[2]) {
+      const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[2]);
+      return `${promotionMatch[1]}=${(normalizedPromotion || '').toUpperCase()}`;
+    }
+    
+    return move;
+  }
+
+  /**
    * Validate a move without making it
    */
   validateMove(
@@ -529,87 +602,29 @@ class ChessService {
     try {
       const currentFen = this.chess.fen();
 
-      // Additional validation for move object format
-      if (typeof move === 'object' && move !== null) {
-        // Check if it's a move object with from/to properties
-        if ('from' in move && 'to' in move) {
-          const { from, to } = move as { from: string; to: string; promotion?: string };
-          
-          // Basic square format validation (e.g., "e2", "h8")
-          const squareRegex = /^[a-h][1-8]$/;
-          if (!squareRegex.test(from) || !squareRegex.test(to)) {
-            return false;
-          }
-          
-          // Check if source square actually has a piece
-          const tempChess = new Chess(currentFen);
-          // Type guard to check if string is valid square
-          const isValidSquare = (square: string): square is 'a1' | 'a2' | 'a3' | 'a4' | 'a5' | 'a6' | 'a7' | 'a8' | 'b1' | 'b2' | 'b3' | 'b4' | 'b5' | 'b6' | 'b7' | 'b8' | 'c1' | 'c2' | 'c3' | 'c4' | 'c5' | 'c6' | 'c7' | 'c8' | 'd1' | 'd2' | 'd3' | 'd4' | 'd5' | 'd6' | 'd7' | 'd8' | 'e1' | 'e2' | 'e3' | 'e4' | 'e5' | 'e6' | 'e7' | 'e8' | 'f1' | 'f2' | 'f3' | 'f4' | 'f5' | 'f6' | 'f7' | 'f8' | 'g1' | 'g2' | 'g3' | 'g4' | 'g5' | 'g6' | 'g7' | 'g8' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'h7' | 'h8' => {
-            return /^[a-h][1-8]$/.test(square);
-          };
-          
-          if (!isValidSquare(from)) {
-            return false;
-          }
-          
-          const piece = tempChess.get(from);
-          if (!piece) {
-            return false;
-          }
+      // Validate move object format
+      if (typeof move === 'object' && move !== null && 'from' in move && 'to' in move) {
+        if (!this.validateMoveObject(move as { from: string; to: string; promotion?: string }, currentFen)) {
+          return false;
         }
       }
 
-      // Normalize promotion piece if move is an object with promotion
+      // Normalize the move
       let normalizedMove = move;
       if (typeof move === 'object' && move !== null && 'promotion' in move && move.promotion) {
-        // Create type adapter for promotion handling with exactOptionalPropertyTypes
         const normalizedPromotion = this.normalizePromotionPiece(move.promotion);
-        normalizedMove = {
-          ...move,
-        };
+        normalizedMove = { ...move };
         if (normalizedPromotion) {
           normalizedMove.promotion = normalizedPromotion;
         }
       } else if (typeof move === 'string') {
-        // Handle string notation with German piece letters
-        
-        // First check if it's a regular move with German piece notation (e.g., "Dh5", "Ta4")
-        const germanPieceRegex = /^([DTLS])([a-h]?[1-8]?[x]?)([a-h][1-8])([+#])?$/;
-        const germanMatch = move.match(germanPieceRegex);
-        if (germanMatch && germanMatch.length >= 4) {
-          // Convert German piece notation to English
-          const germanToEnglish: Record<string, string> = {
-            'D': 'Q', // Dame -> Queen
-            'T': 'R', // Turm -> Rook
-            'L': 'B', // Läufer -> Bishop
-            'S': 'N', // Springer -> Knight
-          };
-          // When regex matches, these groups are guaranteed to exist (but group 2 can be empty string)
-          const [, piece = '', middle = '', target = '', suffix = ''] = germanMatch;
-          if (piece && target && germanToEnglish[piece]) {
-            normalizedMove = germanToEnglish[piece] + middle + target + suffix;
-          }
+        // Try German notation first
+        const germanNormalized = this.normalizeGermanNotation(move);
+        if (germanNormalized !== move) {
+          normalizedMove = germanNormalized;
         } else {
-          // Try different promotion formats: "e7e8D", "e7-e8D", "e8D", "e8=D"
-          
-          // Format 1: "e7e8D" or "e7-e8D" (from-to-promotion with optional dash)
-          let promotionMatch = move.match(/^([a-h][1-8])-?([a-h][1-8])([DTLSQRBN])$/i);
-          if (promotionMatch && promotionMatch[3]) {
-            const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[3]);
-            // Convert to object format for chess.js - make sure promotion is a string
-            normalizedMove = {
-              from: promotionMatch[1],
-              to: promotionMatch[2],
-              promotion: normalizedPromotion as string
-            } as { from: string; to: string; promotion?: string };
-          } else {
-            // Format 2: "e8D" or "e8=D" (SAN notation with German piece)
-            promotionMatch = move.match(/^([a-h][1-8])=?([DTLSQRBN])$/i);
-            if (promotionMatch && promotionMatch[2]) {
-              const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[2]);
-              normalizedMove = `${promotionMatch[1]  }=${  (normalizedPromotion || '').toUpperCase()}`;
-            }
-          }
+          // Try promotion notation
+          normalizedMove = this.handlePromotionNotation(move);
         }
       }
 

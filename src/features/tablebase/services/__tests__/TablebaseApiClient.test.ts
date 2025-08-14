@@ -9,10 +9,12 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { TablebaseApiClient, ApiError, type TablebaseApiClientConfig } from '../TablebaseApiClient';
 import { MockHttpProvider } from './MockHttpProvider';
 import { TablebaseConfig } from '../../types/models';
+import { TABLEBASE_CONFIG, TABLEBASE_API_ERRORS } from '../../constants/tablebase.constants';
 import { z } from 'zod';
 import { TEST_TIMEOUTS } from '@/shared/constants/test';
 import { HttpStatus } from '@/shared/constants/http';
 import { CACHE_THRESHOLDS } from '@/shared/constants/cache';
+import { HTTP_RETRY } from '@/shared/constants/http.constants';
 
 describe('TablebaseApiClient', () => {
   let client: TablebaseApiClient;
@@ -68,7 +70,7 @@ describe('TablebaseApiClient', () => {
       expect(mockHttp.fetchCalls.length).toBe(1);
       const fetchCall = mockHttp.fetchCalls[0];
       expect(fetchCall.url).toContain(`fen=${encodeURIComponent(fen)}`);
-      expect(fetchCall.timeoutMs).toBe(TablebaseConfig.REQUEST_TIMEOUT);
+      expect(fetchCall.timeoutMs).toBe(TABLEBASE_CONFIG.QUERY_TIMEOUT);
       expect(fetchCall.options?.headers).toEqual({
         'Accept': 'application/json',
         'User-Agent': 'ChessEndgameTrainer/1.0.0 (https://github.com/thehugegatsby/ChessEndgameTrainer)',
@@ -212,7 +214,7 @@ describe('TablebaseApiClient', () => {
         if (error instanceof ApiError) {
           expect(error.message).toBe('Position not in tablebase');
           expect(error.status).toBe(HttpStatus.NOT_FOUND);
-          expect(error.code).toBe('NOT_FOUND');
+          expect(error.code).toBe(TABLEBASE_API_ERRORS.NOT_FOUND.CODE);
         }
       }
       
@@ -238,8 +240,8 @@ describe('TablebaseApiClient', () => {
       expect(mockHttp.sleepCalls.length).toBe(1); // One sleep for the backoff
       
       // Check the backoff delay calculation
-      const baseDelay = TablebaseConfig.BACKOFF_BASE_DELAY;
-      const jitter = CACHE_THRESHOLDS.GOOD_HIT_RATE * CACHE_THRESHOLDS.MIN_HIT_RATE * baseDelay;
+      const baseDelay = HTTP_RETRY.BACKOFF_BASE_DELAY;
+      const jitter = CACHE_THRESHOLDS.GOOD_HIT_RATE * HTTP_RETRY.JITTER_FACTOR * baseDelay;
       expect(mockHttp.sleepCalls[0]).toBe(baseDelay + jitter);
 
       expect(result).toEqual(mockApiResponse);
@@ -264,7 +266,7 @@ describe('TablebaseApiClient', () => {
       expect(mockHttp.sleepCalls.length).toBe(2);
       
       // Check exponential backoff
-      const baseDelay = TablebaseConfig.BACKOFF_BASE_DELAY;
+      const baseDelay = HTTP_RETRY.BACKOFF_BASE_DELAY;
       expect(mockHttp.sleepCalls[0]).toBe(baseDelay); // First retry: base delay
       expect(mockHttp.sleepCalls[1]).toBe(baseDelay * 2); // Second retry: doubled
       
@@ -358,8 +360,8 @@ describe('TablebaseApiClient', () => {
         expect(error).toBeInstanceOf(SyntaxError);
       }
       
-      // Should retry on JSON parse errors
-      expect(mockHttp.fetchCalls.length).toBe(TablebaseConfig.MAX_RETRIES);
+      // Should retry on JSON parse errors  
+      expect(mockHttp.fetchCalls.length).toBe(HTTP_RETRY.MAX_RETRIES);
     });
   });
 
@@ -370,7 +372,7 @@ describe('TablebaseApiClient', () => {
       
       // All attempts fail to test all backoff delays
       mockHttp.mockFetchError(new Error('Persistent error'));
-      mockHttp.setRandomValue(CACHE_THRESHOLDS.GOOD_HIT_RATE); // Deterministic jitter
+      mockHttp.setRandomValue(CACHE_THRESHOLDS.GOOD_HIT_RATE); // Deterministic jitter (0.5)
       
       const fen = '8/8/8/8/8/8/8/K7 w - - 0 1';
       
@@ -385,8 +387,8 @@ describe('TablebaseApiClient', () => {
       // Check that delays follow exponential pattern
       expect(mockHttp.sleepCalls.length).toBe(4); // 4 retries after initial attempt
       
-      const baseDelay = TablebaseConfig.BACKOFF_BASE_DELAY;
-      const jitterFactor = CACHE_THRESHOLDS.GOOD_HIT_RATE * CACHE_THRESHOLDS.MIN_HIT_RATE; // random() * 0.3
+      const baseDelay = HTTP_RETRY.BACKOFF_BASE_DELAY;
+      const jitterFactor = CACHE_THRESHOLDS.GOOD_HIT_RATE * HTTP_RETRY.JITTER_FACTOR; // 0.5 * 0.1 = 0.05
       
       // Expected delays with exponential backoff and jitter
       expect(mockHttp.sleepCalls[0]).toBeCloseTo(baseDelay * (1 + jitterFactor), 1);
@@ -415,8 +417,8 @@ describe('TablebaseApiClient', () => {
         expect((error as Error).message).toBe('Persistent error');
       }
       
-      const baseDelay = TablebaseConfig.BACKOFF_BASE_DELAY;
-      const maxDelay = baseDelay * Math.pow(2, 4); // Cap at 16x base
+      const baseDelay = HTTP_RETRY.BACKOFF_BASE_DELAY;
+      const maxDelay = baseDelay * Math.pow(HTTP_RETRY.BACKOFF_FACTOR, HTTP_RETRY.MAX_BACKOFF_EXPONENT); // Cap at 16x base
       
       // Last delay should be capped
       const lastDelay = mockHttp.sleepCalls[mockHttp.sleepCalls.length - 1];

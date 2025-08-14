@@ -7,7 +7,7 @@
 **IMMER ZUERST:** → [docs/CORE.md](docs/CORE.md) lesen (Architektur, Zustand, Services)
 
 **WSL2 Critical:**
-- ❌ `pnpm test -- file.test.tsx` → ✅ `pnpm test file.test.tsx`
+- ❌ `pnpm test file.test.tsx` (läuft ALLE Tests!) → ✅ `pnpm run test:vitest:file file.test.tsx`
 - ❌ `cmd | grep` → ✅ `cmd && cmd2`
 
 **Code Standards:**

@@ -68,3 +68,119 @@ export const CACHE_THRESHOLDS = {
   EXCELLENT_HIT_RATE: 0.8, // 80% excellent hit rate
   EVICTION_THRESHOLD: 0.9, // 90% capacity triggers eviction
 } as const;
+
+/**
+ * Cache strategies and algorithms
+ */
+export const CACHE_STRATEGIES = {
+  /**
+   * Least Recently Used - removes least recently accessed items
+   */
+  LRU: 'lru',
+  
+  /**
+   * First In First Out - removes oldest items first
+   */
+  FIFO: 'fifo',
+  
+  /**
+   * Least Frequently Used - removes least frequently accessed items
+   */
+  LFU: 'lfu',
+  
+  /**
+   * Time-based eviction - removes items after TTL expires
+   */
+  TTL: 'ttl',
+} as const;
+
+/**
+ * LRU Cache specific configurations
+ */
+export const LRU_CONFIG = {
+  /**
+   * Default maximum number of items in LRU cache
+   */
+  DEFAULT_MAX_SIZE: 100,
+  
+  /**
+   * Maximum age for items before forced eviction (ms)
+   */
+  MAX_AGE_MS: 60 * 60 * 1000, // 1 hour
+  
+  /**
+   * Update age on get operations
+   */
+  UPDATE_AGE_ON_GET: true,
+  
+  /**
+   * Allow stale items while revalidating
+   */
+  STALE_WHILE_REVALIDATE: true,
+  
+  /**
+   * Revalidation window in milliseconds
+   */
+  REVALIDATION_WINDOW_MS: 5 * 1000, // 5 seconds
+} as const;
+
+/**
+ * Memory management and limits
+ */
+export const MEMORY_LIMITS = {
+  /**
+   * Maximum memory per cache instance
+   */
+  PER_CACHE_MAX_MB: 50,
+  
+  /**
+   * Global cache memory limit
+   */
+  GLOBAL_MAX_MB: 200,
+  
+  /**
+   * Memory warning threshold (percentage)
+   */
+  WARNING_THRESHOLD: 0.75, // 75%
+  
+  /**
+   * Memory critical threshold (percentage)
+   */
+  CRITICAL_THRESHOLD: 0.95, // 95%
+  
+  /**
+   * Minimum free memory to maintain (MB)
+   */
+  MIN_FREE_MEMORY_MB: 10,
+} as const;
+
+/**
+ * Cache invalidation rules
+ */
+export const CACHE_INVALIDATION = {
+  /**
+   * Invalidate on data mutation
+   */
+  ON_MUTATION: true,
+  
+  /**
+   * Invalidate on error
+   */
+  ON_ERROR: false,
+  
+  /**
+   * Batch invalidation delay (ms)
+   */
+  BATCH_DELAY_MS: 100,
+  
+  /**
+   * Maximum items in invalidation batch
+   */
+  MAX_BATCH_SIZE: 50,
+  
+  /**
+   * Cascade invalidation to related caches
+   */
+  CASCADE: true,
+} as const;
+
