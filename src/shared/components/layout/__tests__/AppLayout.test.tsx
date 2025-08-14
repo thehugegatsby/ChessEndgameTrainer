@@ -9,8 +9,8 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { AppLayout } from "@shared/components/layout/AppLayout";
 
 // Mock Next.js Link component
-vi.mock("next/link", () => {
-  return function MockLink({
+vi.mock("next/link", () => ({
+  default: function MockLink({
     children,
     href,
   }: {
@@ -18,8 +18,8 @@ vi.mock("next/link", () => {
     href: string;
   }) {
     return <a href={href}>{children}</a>;
-  };
-});
+  }
+}));
 
 // Mock child components
 vi.mock("@shared/components/layout/Header", () => ({

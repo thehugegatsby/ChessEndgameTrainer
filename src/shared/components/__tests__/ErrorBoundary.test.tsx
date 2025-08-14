@@ -144,12 +144,7 @@ describe('ErrorBoundary', () => {
   });
 
   it('displays error details in development mode', () => {
-    const originalEnv = process.env.NODE_ENV;
-    Object.defineProperty(process.env, 'NODE_ENV', {
-      value: 'development',
-      writable: true,
-      configurable: true
-    });
+    vi.stubEnv('NODE_ENV', 'development');
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
     
     render(
@@ -162,20 +157,11 @@ describe('ErrorBoundary', () => {
     expect(screen.getByText(/Test error/)?.isConnected).toBe(true);
     
     consoleSpy.mockRestore();
-    Object.defineProperty(process.env, 'NODE_ENV', {
-      value: originalEnv,
-      writable: true,
-      configurable: true
-    });
+    vi.unstubAllEnvs();
   });
 
   it('does not display error details in production mode', () => {
-    const originalEnv = process.env.NODE_ENV;
-    Object.defineProperty(process.env, 'NODE_ENV', {
-      value: 'production',
-      writable: true,
-      configurable: true
-    });
+    vi.stubEnv('NODE_ENV', 'production');
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
     
     render(
@@ -187,11 +173,7 @@ describe('ErrorBoundary', () => {
     expect(screen.queryByText(/Fehlerdetails/)?.isConnected).not.toBe(true);
     
     consoleSpy.mockRestore();
-    Object.defineProperty(process.env, 'NODE_ENV', {
-      value: originalEnv,
-      writable: true,
-      configurable: true
-    });
+    vi.unstubAllEnvs();
   });
 });
 

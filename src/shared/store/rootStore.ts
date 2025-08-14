@@ -253,48 +253,26 @@ export const useStore = create<RootState>()(
            * Resets entire store to initial state
            *
            * @remarks
-           * Uses pre-computed initial state for efficient and reliable reset.
-           * With Slice-in-Slice pattern, actions are preserved automatically.
+           * Resets store to initial state while preserving action functions.
+           * INVARIANT: initialState objects must contain only data properties.
+           * Actions are automatically preserved via programmatic filtering.
            */
           reset: () => {
             set((state) => {
-              // Reset slices to their initial states (actions preserved automatically)
-              
               // Game slice - merge initial state
               Object.assign(state.game, initialGameState);
 
-              // Training slice - merge only state properties (actions preserved)
-              Object.assign(state.training, {
-                ...initialTrainingState,
-                // Preserve action functions that are mixed in
-                setPosition: state.training.setPosition,
-                setNavigationPositions: state.training.setNavigationPositions,
-                setNavigationLoading: state.training.setNavigationLoading,
-                setNavigationError: state.training.setNavigationError,
-                setChapterProgress: state.training.setChapterProgress,
-                setPlayerTurn: state.training.setPlayerTurn,
-                clearOpponentThinking: state.training.clearOpponentThinking,
-                completeTraining: state.training.completeTraining,
-                incrementHint: state.training.incrementHint,
-                incrementMistake: state.training.incrementMistake,
-                setMoveErrorDialog: state.training.setMoveErrorDialog,
-                setMoveSuccessDialog: state.training.setMoveSuccessDialog,
-                addTrainingMove: state.training.addTrainingMove,
-                resetTraining: state.training.resetTraining,
-                resetPosition: state.training.resetPosition,
-              });
+              // Training slice - programmatically preserve functions
+              const preservedTrainingActions = Object.fromEntries(
+                Object.entries(state.training).filter(([_, v]) => typeof v === "function")
+              );
+              Object.assign(state.training, initialTrainingState, preservedTrainingActions);
 
-              // Tablebase slice - merge only state properties (actions preserved)
-              Object.assign(state.tablebase, {
-                ...initialTablebaseState,
-                // Preserve action functions
-                setTablebaseMove: state.tablebase.setTablebaseMove,
-                setAnalysisStatus: state.tablebase.setAnalysisStatus,
-                addEvaluation: state.tablebase.addEvaluation,
-                setEvaluations: state.tablebase.setEvaluations,
-                setCurrentEvaluation: state.tablebase.setCurrentEvaluation,
-                clearTablebaseState: state.tablebase.clearTablebaseState,
-              });
+              // Tablebase slice - programmatically preserve functions
+              const preservedTablebaseActions = Object.fromEntries(
+                Object.entries(state.tablebase).filter(([_, v]) => typeof v === "function")
+              );
+              Object.assign(state.tablebase, initialTablebaseState, preservedTablebaseActions);
 
               // Progress slice - merge initial state
               Object.assign(state.progress, initialProgressState);

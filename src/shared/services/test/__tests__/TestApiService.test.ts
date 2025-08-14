@@ -189,10 +189,6 @@ describe("TestApiService - Store-Based Architecture", () => {
 
       const result = await service.makeMove("e2-e4");
 
-      // Debug output
-      if (!result.success) {
-        console.log("Move failed with error:", result.error);
-      }
 
       expect(mockStoreAccess.makeMove).toHaveBeenCalledWith(
         expect.objectContaining({

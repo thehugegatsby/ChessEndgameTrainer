@@ -7,7 +7,7 @@ import {
   createTestContainer,
   TestScenarios,
   TestAssertions,
-} from "../../../utils";
+} from "@tests/utils";
 import type {
   PlatformService,
   PlatformStorage,
@@ -24,7 +24,7 @@ import type {
 } from "@shared/services/platform/types";
 import { describe, it, test, expect, beforeEach } from 'vitest';
 import { STORAGE, SYSTEM } from "@shared/constants/index";
-import { MockStorage } from "../../../utils/MockStorage";
+import { MockStorage } from "@tests/utils/MockStorage";
 
 describe("WebPlatformService - ServiceContainer Migration", () => {
   let container: ReturnType<typeof createTestContainer>;

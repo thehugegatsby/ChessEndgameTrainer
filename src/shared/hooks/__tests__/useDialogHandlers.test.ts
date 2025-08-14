@@ -21,8 +21,8 @@ import { useDialogHandlers } from '@shared/hooks/useDialogHandlers';
 import { chessService } from '@shared/services/ChessService';
 import { tablebaseService } from '@shared/services/TablebaseService';
 import { getOpponentTurnManager } from '@shared/store/orchestrators/handlePlayerMove';
-import { ChessServiceMockFactory } from '../../mocks/ChessServiceMockFactory';
-import { TablebaseServiceMockFactory } from '../../mocks/TablebaseServiceMockFactory';
+import { ChessServiceMockFactory } from '@tests/mocks/ChessServiceMockFactory';
+import { TablebaseServiceMockFactory } from '@tests/mocks/TablebaseServiceMockFactory';
 
 // Initialize mock factories for consistent behavior
 const chessServiceMockFactory = new ChessServiceMockFactory();

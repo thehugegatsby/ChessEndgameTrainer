@@ -149,11 +149,6 @@ describe("Move History Navigation Bug", () => {
     // FIX VERIFICATION: After the fix, ALL moves should remain visible
     // when navigating to an earlier move
 
-    console.log("\n=== FIX VERIFICATION ===");
-    console.log("After clicking on move 2 (Nf3):");
-    console.log("Expected: All 5 moves visible (e4, e5, Nf3, Nc6, Bc4)");
-    console.log("With fix: All moves should now be visible!");
-
     // These assertions verify the fix works:
     expect(screen.getByText("e4")?.isConnected).toBe(true);
     expect(screen.getByText("e5")?.isConnected).toBe(true);
@@ -179,35 +174,35 @@ describe("Move History Navigation Bug", () => {
     ]);
 
     // If the bug was fixed, this is what we'd see:
-    console.log("\n=== EXPECTED BEHAVIOR ===");
-    console.log("When viewing move 2:");
-    console.log("- All 5 moves should be visible");
-    console.log("- Move 3 (Nf3) should be highlighted as current");
-    console.log("- Moves 4-5 (Nc6, Bc4) should appear grayed out or different");
-    console.log("- User can click any move to jump there");
+    // When viewing move 2:
+    // - All 5 moves should be visible
+    // - Move 3 (Nf3) should be highlighted as current
+    // - Moves 4-5 (Nc6, Bc4) should appear grayed out or different
+    // - User can click any move to jump there
   });
 
   it("Verifies the actual data flow", () => {
     const mockMoves = createMockMoves();
 
-    // Log the actual data to understand the bug
-    console.log("\n=== DATA FLOW ANALYSIS ===");
-    console.log("1. Initial state:");
-    console.log(`   - moveHistory.length: ${mockMoves.length}`);
-    console.log(`   - currentMoveIndex: 4`);
-    console.log(`   - All moves: ${mockMoves.map((m) => m.san).join(", ")}`);
+    // Data flow analysis:
+    // 1. Initial state:
+    //    - moveHistory.length: 5
+    //    - currentMoveIndex: 4
+    //    - All moves: e4, e5, Nf3, Nc6, Bc4
+    //
+    // 2. After clicking move 2:
+    //    - moveHistory.length: 5 (unchanged)
+    //    - currentMoveIndex: 2 (changed)
+    //    - All moves still in store: e4, e5, Nf3, Nc6, Bc4
+    //
+    // 3. Bug in MovePanelZustand:
+    //    - Line 160-162 slices moveHistory:
+    //      gameState.moveHistory.slice(0, currentMoveIndex + 1)
+    //    - This creates: slice(0, 3) = first 3 moves only
+    //    - Result: Moves 4-5 disappear from UI!
 
-    console.log("\n2. After clicking move 2:");
-    console.log(`   - moveHistory.length: ${mockMoves.length} (unchanged)`);
-    console.log(`   - currentMoveIndex: 2 (changed)`);
-    console.log(
-      `   - All moves still in store: ${mockMoves.map((m) => m.san).join(", ")}`,
-    );
-
-    console.log("\n3. Bug in MovePanelZustand:");
-    console.log("   - Line 160-162 slices moveHistory:");
-    console.log("     gameState.moveHistory.slice(0, currentMoveIndex + 1)");
-    console.log(`   - This creates: slice(0, 3) = first 3 moves only`);
-    console.log("   - Result: Moves 4-5 disappear from UI!");
+    // Verify that all moves are in the mock data
+    expect(mockMoves).toHaveLength(5);
+    expect(mockMoves.map(m => m.san)).toEqual(['e4', 'e5', 'Nf3', 'Nc6', 'Bc4']);
   });
 });

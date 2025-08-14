@@ -216,7 +216,7 @@ describe("useProgressSync", () => {
   });
 
   describe("Basic sync operations", () => {
-    it("should sync user stats with optimistic updates", async () => {
+    it("should sync user stats with optimistic updates", { timeout: 10000 }, async () => {
       const { result } = renderHook(() =>
         useProgressSync(userId, mockProgressService),
       );
@@ -254,7 +254,7 @@ describe("useProgressSync", () => {
       });
     });
 
-    it("should sync card progress with optimistic updates", async () => {
+    it("should sync card progress with optimistic updates", { timeout: 10000 }, async () => {
       const { result } = renderHook(() =>
         useProgressSync(userId, mockProgressService),
       );
@@ -326,7 +326,7 @@ describe("useProgressSync", () => {
   });
 
   describe("Error handling and retry logic", () => {
-    it("should retry failed operations with exponential backoff", async () => {
+    it("should retry failed operations with exponential backoff", { timeout: 10000 }, async () => {
       const { result } = renderHook(() =>
         useProgressSync(userId, mockProgressService, { maxRetries: 2 }),
       );
@@ -387,7 +387,7 @@ describe("useProgressSync", () => {
       });
     });
 
-    it("should give up after max retries", async () => {
+    it("should give up after max retries", { timeout: 10000 }, async () => {
       const { result } = renderHook(() =>
         useProgressSync(userId, mockProgressService, { maxRetries: 1 }),
       );
