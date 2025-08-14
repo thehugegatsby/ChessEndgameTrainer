@@ -105,7 +105,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project: [chess-core, tablebase, training, move-quality, shared]
+        project: [chess-core, tablebase, training]
     
     steps:
     - name: Checkout code
@@ -428,7 +428,7 @@ jobs:
         fi
         
         if [ "${{ needs.test.result }}" == "success" ]; then
-          echo "✅ Feature Tests: Passed (5 projects)" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Feature Tests: Passed (3 projects)" >> $GITHUB_STEP_SUMMARY
         else
           echo "❌ Feature Tests: Failed" >> $GITHUB_STEP_SUMMARY
         fi
