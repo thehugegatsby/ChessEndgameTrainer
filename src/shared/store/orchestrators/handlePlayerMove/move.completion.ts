@@ -40,7 +40,7 @@ export function handleTrainingCompletion(
   const { getState, setState } = api;
   const state = getState();
 
-  if (!state.training.currentPosition || !state.training.sessionStartTime)
+  if (!state.training.currentPosition)
     return;
 
   const userMoves = state.game.moveHistory.filter(
@@ -74,7 +74,6 @@ export function handleTrainingCompletion(
   setState((draft) => {
     // Mark training as complete
     draft.training.isSuccess = success;
-    draft.training.sessionEndTime = Date.now();
     draft.training.isPlayerTurn = false;
     draft.training.isOpponentThinking = false;
 

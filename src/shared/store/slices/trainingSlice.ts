@@ -632,8 +632,6 @@ export const createTrainingActions = (
       state.training.hintsUsed = 0;
       state.training.mistakeCount = 0;
       state.training.isSuccess = false;
-      state.training.sessionStartTime = Date.now();
-      delete state.training.sessionEndTime; // Omit instead of undefined
       // Reset turn based on position
       state.training.isPlayerTurn = currentPos
         ? currentPos.sideToMove === currentPos.colorToTrain
@@ -900,14 +898,12 @@ export const trainingSelectors = {
    * @param {TrainingSlice} state - The training slice of the store
    * @returns {number|undefined} Start timestamp or undefined
    */
-  selectSessionStartTime: (state: TrainingSlice) => state.sessionStartTime,
 
   /**
    * Selects session end time
    * @param {TrainingSlice} state - The training slice of the store
    * @returns {number|undefined} End timestamp or undefined
    */
-  selectSessionEndTime: (state: TrainingSlice) => state.sessionEndTime,
 
   /**
    * Selects number of hints used
@@ -952,18 +948,7 @@ export const trainingSelectors = {
    * @returns {boolean} True if session started but not ended
    */
   selectIsTrainingActive: (state: TrainingSlice) =>
-    state.sessionStartTime !== undefined && state.sessionEndTime === undefined,
-
-  /**
-   * Selects session duration in milliseconds
-   * @param {TrainingSlice} state - The training slice of the store
-   * @returns {number|null} Duration or null if not available
-   */
-  selectSessionDuration: (state: TrainingSlice) => {
-    if (!state.sessionStartTime) return null;
-    const endTime = state.sessionEndTime ?? Date.now();
-    return endTime - state.sessionStartTime;
-  },
+    state.currentPosition !== undefined,
 
   /**
    * Selects performance accuracy (hints as negative impact)

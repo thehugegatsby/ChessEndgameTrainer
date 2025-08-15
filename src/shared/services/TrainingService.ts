@@ -134,7 +134,6 @@ export class TrainingService {
       logger.debug('🔍 Training completion check', {
         isGameFinished: gameState.isGameFinished,
         isSuccess: trainingState.isSuccess,
-        sessionEndTime: trainingState.sessionEndTime,
         willCallOnComplete: gameState.isGameFinished && trainingState.isSuccess
       });
 
@@ -142,7 +141,7 @@ export class TrainingService {
       if (gameState.isGameFinished && trainingState.isSuccess) {
         logger.info('🎉 Training completed successfully - calling onComplete(true)');
         onComplete?.(true);
-      } else if (gameState.isGameFinished && trainingState.sessionEndTime) {
+      } else if (gameState.isGameFinished && !trainingState.isSuccess) {
         // Training ended unsuccessfully
         logger.info('❌ Training ended unsuccessfully - calling onComplete(false)');
         onComplete?.(false);

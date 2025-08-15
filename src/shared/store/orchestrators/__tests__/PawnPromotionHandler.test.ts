@@ -78,7 +78,6 @@ describe("PawnPromotionHandler", () => {
       training: {
         moveSuccessDialog: null,
         currentPosition: { fen: "8/4P3/4K3/8/8/8/8/4k3 w - - 0 1" }, // Add currentPosition
-        sessionStartTime: Date.now() // Add sessionStartTime
       },
       ui: {
         toasts: [],
@@ -482,7 +481,6 @@ describe("PawnPromotionHandler", () => {
       
       // Ensure mockState has required training properties for handleTrainingCompletion
       mockState.training.currentPosition = { fen: "8/4P3/4K3/8/8/8/8/4k3 w - - 0 1" };
-      mockState.training.sessionStartTime = Date.now();
       mockState.game.moveHistory = [];
       
       const promotionInfo = {

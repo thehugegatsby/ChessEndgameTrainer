@@ -190,7 +190,6 @@ export class PawnPromotionHandler {
       draft.training.isPlayerTurn = false;
       draft.training.isOpponentThinking = false;
       draft.training.isSuccess = true;
-      draft.training.sessionEndTime = Date.now();
       
       // Mark game as finished so useTrainingSession calls onComplete(true) -> incrementStreak()
       draft.game.isGameFinished = true;
