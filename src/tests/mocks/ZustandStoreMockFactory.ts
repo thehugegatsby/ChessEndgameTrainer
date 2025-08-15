@@ -128,8 +128,6 @@ export class ZustandStoreMockFactory extends BaseMockFactory<MockStoreResult, St
           isPlayerTurn: true,
           isOpponentThinking: false,
           isSuccess: false,
-          sessionStartTime: undefined,
-          sessionEndTime: undefined,
           hintsUsed: 0,
           mistakeCount: 0,
           moveErrorDialog: null,

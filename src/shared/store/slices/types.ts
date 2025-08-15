@@ -109,8 +109,6 @@ export interface TrainingState {
   isPlayerTurn: boolean;
   isOpponentThinking: boolean; // New flag to prevent race conditions
   isSuccess: boolean;
-  sessionStartTime?: number;
-  sessionEndTime?: number;
   hintsUsed: number;
   mistakeCount: number;
   currentStreak: number;

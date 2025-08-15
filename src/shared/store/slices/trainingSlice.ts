@@ -76,8 +76,6 @@ export const initialTrainingState = {
   isPlayerTurn: true,
   isOpponentThinking: false,
   isSuccess: false,
-  // sessionStartTime: undefined - omit instead of undefined
-  // sessionEndTime: undefined - omit instead of undefined
   hintsUsed: 0,
   mistakeCount: 0,
   currentStreak: 0,
@@ -124,8 +122,6 @@ export const createTrainingState = (): TrainingState => ({
   isPlayerTurn: true,
   isOpponentThinking: false,
   isSuccess: false,
-  // sessionStartTime: undefined - omit instead of undefined
-  // sessionEndTime: undefined - omit instead of undefined
   hintsUsed: 0,
   mistakeCount: 0,
   currentStreak: 0,
@@ -200,8 +196,6 @@ export const createTrainingActions = (
     set((state) => {
       state.training.currentPosition = position;
       state.training.isSuccess = false;
-      state.training.sessionStartTime = Date.now();
-      delete state.training.sessionEndTime; // Omit instead of undefined
       state.training.hintsUsed = 0;
       state.training.mistakeCount = 0;
       // Set initial turn based on position
@@ -410,7 +404,6 @@ export const createTrainingActions = (
   completeTraining: (success: boolean) => {
     set((state) => {
       state.training.isSuccess = success;
-      state.training.sessionEndTime = Date.now();
     });
   },
 

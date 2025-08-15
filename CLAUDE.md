@@ -51,3 +51,9 @@ pnpm run lint && pnpm tsc # Validation
 - **Types**: No `any` - always typed
 - **UI Errors**: German (`"Ungültiger Zug"`)
 - **Imports**: Use `@shared/` aliases
+
+## 📸 Screenshot Integration
+
+When I type "ss" in a message, automatically run `~/.local/bin/lastshot` and use the Read tool to display my latest screenshot.
+
+**Setup**: The `lastshot` script finds the latest screenshot from Windows and creates a symlink in `./tmp/` for easy access.

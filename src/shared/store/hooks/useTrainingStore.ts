@@ -75,12 +75,6 @@ export const useTrainingState = (): TrainingStateType => {
       if (state.training.previousPosition !== undefined && state.training.previousPosition !== null) {
         result.previousPosition = state.training.previousPosition;
       }
-      if (state.training.sessionStartTime !== undefined) {
-        result.sessionStartTime = state.training.sessionStartTime;
-      }
-      if (state.training.sessionEndTime !== undefined) {
-        result.sessionEndTime = state.training.sessionEndTime;
-      }
       if (state.training.evaluationBaseline !== null) {
         result.evaluationBaseline = state.training.evaluationBaseline;
       }

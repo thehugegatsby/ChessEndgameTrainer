@@ -149,8 +149,6 @@ export async function createInitialStateForPosition(
       isPlayerTurn,
       isOpponentThinking: false,
       isSuccess: false,
-      // sessionStartTime: undefined - omit instead of undefined
-      // sessionEndTime: undefined - omit instead of undefined
       hintsUsed: 0,
       mistakeCount: 0,
       currentStreak: 0,

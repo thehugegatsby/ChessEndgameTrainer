@@ -7,14 +7,7 @@
       "attempts": 1,
       "bestResult": "solved_correctly",
       "lastAttempt": "2024-01-01T12:00:00Z",
-      "averageTime": 45000,
-      "hintsUsed": 0,
-      "spacedRepetition": {
-        "interval": 1,
-        "repetitions": 1,
-        "easeFactor": 2.5,
-        "nextReview": "2024-01-02T12:00:00Z"
-      }
+      "hintsUsed": 0
     },
     "2": {
       "positionId": 2,
@@ -22,14 +15,7 @@
       "attempts": 3,
       "bestResult": "solved_with_hints",
       "lastAttempt": "2024-01-01T12:30:00Z",
-      "averageTime": 120000,
-      "hintsUsed": 2,
-      "spacedRepetition": {
-        "interval": 1,
-        "repetitions": 0,
-        "easeFactor": 2.5,
-        "nextReview": "2024-01-01T18:00:00Z"
-      }
+      "hintsUsed": 2
     }
   },
   "categories": {
@@ -38,7 +24,6 @@
       "solvedCorrectly": 1,
       "solvedWithHints": 1,
       "failed": 0,
-      "averageTime": 82500,
       "lastActivity": "2024-01-01T12:30:00Z"
     }
   },
@@ -47,15 +32,7 @@
     "solvedCorrectly": 1,
     "solvedWithHints": 1,
     "failed": 0,
-    "totalTime": 165000,
-    "averageTime": 82500,
     "streak": 2,
     "lastActivity": "2024-01-01T12:30:00Z"
-  },
-  "spacedRepetition": {
-    "dueToday": 1,
-    "reviewedToday": 0,
-    "memoryRate": 0.85,
-    "difficultPositions": [2]
   }
 }

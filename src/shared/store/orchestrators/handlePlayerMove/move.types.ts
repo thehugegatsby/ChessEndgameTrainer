@@ -41,7 +41,6 @@ export interface MoveContext {
   currentPosition?: TrainingPosition;
   currentFen: string;
   isGameFinished: boolean;
-  sessionStartTime?: number;
   moveHistory: ValidatedMove[];
   mistakeCount: number;
   showToast?: (

@@ -32,8 +32,6 @@ describe("TrainingSlice - Nested Store Structure", () => {
       state.training.isPlayerTurn = true;
       state.training.isOpponentThinking = false;
       state.training.isSuccess = false;
-      state.training.sessionStartTime = undefined;
-      state.training.sessionEndTime = undefined;
       state.training.hintsUsed = 0;
       state.training.mistakeCount = 0;
       state.training.moveErrorDialog = null;
@@ -54,11 +52,6 @@ describe("TrainingSlice - Nested Store Structure", () => {
       expect(state.training.isSuccess).toBe(false);
       expect(state.training.hintsUsed).toBe(0);
       expect(state.training.mistakeCount).toBe(0);
-      expect(state.training.sessionStartTime).toBeGreaterThanOrEqual(
-        beforeTime,
-      );
-      expect(state.training.sessionStartTime).toBeLessThanOrEqual(afterTime);
-      expect(state.training.sessionEndTime).toBeUndefined();
     });
 
     it("should set player turn based on position color", () => {
@@ -231,16 +224,12 @@ describe("TrainingSlice - Nested Store Structure", () => {
   describe("completeTraining", () => {
     it("should mark training as successful", () => {
       const store = useStore.getState();
-      const beforeTime = Date.now();
 
       store.training.completeTraining(true);
 
       const state = useStore.getState();
-      const afterTime = Date.now();
 
       expect(state.training.isSuccess).toBe(true);
-      expect(state.training.sessionEndTime).toBeGreaterThanOrEqual(beforeTime);
-      expect(state.training.sessionEndTime).toBeLessThanOrEqual(afterTime);
     });
 
     it("should mark training as failed", () => {
@@ -250,7 +239,6 @@ describe("TrainingSlice - Nested Store Structure", () => {
 
       const state = useStore.getState();
       expect(state.training.isSuccess).toBe(false);
-      expect(state.training.sessionEndTime).toBeDefined();
     });
   });
 

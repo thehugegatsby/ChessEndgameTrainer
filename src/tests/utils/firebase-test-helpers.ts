@@ -181,39 +181,6 @@ export const TEST_USER_STATS: UserStats = {
 };
 
 /**
- * Test CardProgress fixtures for spaced repetition
- */
-export const TEST_CARD_PROGRESS: CardProgress[] = [
-  {
-    id: "pos-1",
-    nextReviewAt: Date.now() + 86400000, // Due in 1 day
-    lastReviewedAt: Date.now(),
-    interval: 1,
-    repetition: 1,
-    efactor: 2.5,
-    lapses: 0,
-  },
-  {
-    id: "pos-2", 
-    nextReviewAt: Date.now() - 3600000, // Overdue by 1 hour
-    lastReviewedAt: Date.now() - 90000000,
-    interval: 3,
-    repetition: 3,
-    efactor: 2.3,
-    lapses: 1,
-  },
-  {
-    id: "pos-3",
-    nextReviewAt: Date.now() + 604800000, // Due in 1 week
-    lastReviewedAt: Date.now() - 86400000,
-    interval: 7,
-    repetition: 5,
-    efactor: 2.6,
-    lapses: 0,
-  },
-];
-
-/**
  * Seed User Progress data with authentication
  * @param db - Firestore instance
  * @param userId - User ID
