@@ -189,6 +189,7 @@ export const MoveResultGroup: React.FC<MoveResultGroupProps> = ({
               key={`${move.san}-${move.dtz}-${move.dtm}`}
               move={move.san}
               dtz={move.dtz}
+              dtm={move.dtm}
               maxDtz={maxDtz}
               onClick={() => onMoveSelect(move.san)}
               isSelected={selectedMove === move.san}

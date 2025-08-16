@@ -494,6 +494,37 @@ export const formatDtzDisplay = (dtz: number): string => {
 };
 
 /**
+ * Formats DTM value for display with training-focused terminology
+ *
+ * @function formatDtmDisplay
+ * @param {number | null} dtm - Distance to Mate value
+ * @returns {string} Human-readable mate description
+ *
+ * @description
+ * Converts DTM numbers into training-focused descriptions that emphasize
+ * mate timing over 50-move rule considerations. Prioritizes instructional
+ * value for endgame learning.
+ *
+ * @example
+ * ```typescript
+ * formatDtmDisplay(null);  // "No forced mate"
+ * formatDtmDisplay(12);    // "Mate in 12"
+ * formatDtmDisplay(-20);   // "Mated in 20"
+ * ```
+ *
+ * @remarks
+ * DTM represents the shortest path to checkmate with optimal play.
+ * For training purposes, this is often more valuable than DTZ since
+ * students learn faster, more decisive patterns.
+ */
+export const formatDtmDisplay = (dtm: number | null): string => {
+  if (dtm === null) return 'No forced mate';
+  if (dtm === 0) return 'Mate now';
+  if (dtm > 0) return `Mate in ${dtm}`;
+  return `Mated in ${Math.abs(dtm)}`;
+};
+
+/**
  * Gets the result type title for group headers
  *
  * @function getResultTypeTitle

@@ -29,6 +29,7 @@ import {
   getResultIcon,
   calculateBarWidth,
   formatDtzDisplay,
+  formatDtmDisplay,
   getMoveResultType,
 } from '@shared/utils/tablebase/resultClassification';
 
@@ -46,6 +47,8 @@ interface MoveEvaluationBarProps {
   move: string;
   /** Distance to Zero value from tablebase */
   dtz: number;
+  /** Distance to Mate value from tablebase (optional) */
+  dtm?: number | null;
   /** Maximum DTZ value in current set for width normalization */
   maxDtz: number;
   /** Click handler for move selection */
@@ -96,6 +99,7 @@ interface MoveEvaluationBarProps {
 export const MoveEvaluationBar: React.FC<MoveEvaluationBarProps> = ({
   move,
   dtz,
+  dtm,
   maxDtz,
   onClick,
   isSelected = false,
@@ -106,6 +110,7 @@ export const MoveEvaluationBar: React.FC<MoveEvaluationBarProps> = ({
   const barWidth = calculateBarWidth(dtz, maxDtz);
   const barColor = getEvaluationBarColor(resultType);
   const dtzDisplay = formatDtzDisplay(dtz);
+  const dtmDisplay = dtm !== undefined ? formatDtmDisplay(dtm) : null;
 
   const getTextColorClass = (type: MoveResultType): string => {
     switch (type) {
@@ -158,14 +163,19 @@ export const MoveEvaluationBar: React.FC<MoveEvaluationBarProps> = ({
           </span>
         </div>
 
-        {/* DTZ display */}
+        {/* DTZ and DTM display */}
         <div className="flex items-center space-x-2">
           <span className={`text-xs font-medium ${getTextColorClass(resultType)}`}>
             {dtzDisplay}
           </span>
+          {dtmDisplay && (
+            <span className={`text-xs font-medium ${getTextColorClass(resultType)} opacity-75`}>
+              | {dtmDisplay}
+            </span>
+          )}
 
           {/* Accessibility-friendly result indicator */}
-          <span className="sr-only">{dtzDisplay}</span>
+          <span className="sr-only">{dtzDisplay} {dtmDisplay ? `, ${dtmDisplay}` : ''}</span>
         </div>
       </div>
     </div>

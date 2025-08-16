@@ -111,20 +111,12 @@ export const TablebaseTestScenarios: Record<string, TablebaseRankingScenario> = 
     notes: 'Verified with Lichess API 2025-08-16. Position is winning for White.'
   },
 
-  // DTM vs DTZ Priority Test - Real scenario where DTM and DTZ conflict
-  DTM_PRIORITY_OVER_DTZ: {
-    description: 'Tests DTM priority over DTZ: Fast mate vs 50-move safety',
+  // DTM vs DTZ Priority Test - Training optimization over 50-move rule safety
+  DTM_PRIORITY_CONFLICT: {
+    description: 'Tests DTM priority over DTZ: Training chooses faster mate over 50-move safety',
     fen: '5k2/2P5/1K6/8/8/2r5/8/4R3 w - - 6 4',
     category: 'dtm',
     moves: [
-      {
-        uci: 'e1e5',
-        san: 'Re5',
-        wdl: 2,
-        dtz: 6,
-        dtm: 20,
-        category: 'win'
-      },
       {
         uci: 'e1b1',
         san: 'Rb1',
@@ -132,10 +124,18 @@ export const TablebaseTestScenarios: Record<string, TablebaseRankingScenario> = 
         dtz: 4,
         dtm: 38,
         category: 'win'
+      },
+      {
+        uci: 'e1e5',
+        san: 'Re5',
+        wdl: 2,
+        dtz: 6,
+        dtm: 20,
+        category: 'win'
       }
     ],
-    expectedRanking: ['e1e5', 'e1b1'], // Re5 first due to faster mate (DTM=20 < DTM=38)
-    notes: 'DTM-optimized ranking: Re5 faster mate despite worse DTZ. Training-focused hierarchy.'
+    expectedRanking: ['e1e5', 'e1b1'],
+    notes: 'DTZ hierarchy would prefer Rb1 (DTZ=4), but DTM hierarchy prefers Re5 (DTM=20) for faster, more instructive mate. Verified with Lichess API 2025-08-16.'
   },
 
   // Placeholder for DTM Tiebreaker Test

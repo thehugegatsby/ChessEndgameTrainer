@@ -450,39 +450,33 @@ class TablebaseService {
    * @private
    *
    * @remarks
-   * Critical transformations:
-   * 1. Convert category strings to typed categories
-   * 2. Calculate WDL values from categories
-   * 3. Invert move evaluations to player-to-move perspective
-   * 4. Handle Black's perspective correctly
+   * Simplified WDL perspective conversion:
+   * 1. Convert category strings to WDL values directly
+   * 2. Use mathematical negation for perspective conversion
+   * 3. Player-to-move always gets positive WDL for wins
+   * 4. Clear separation between API data and player perspective
    */
   private _transformApiResponse(api: LichessTablebaseResponse, fen: string): TablebaseEntry {
-    const isBlackToMove = fen.split(' ')[1] === 'b';
 
-    // Transform position evaluation
+    // Transform position evaluation (already from player's perspective)
     const positionCategory = api.category as TablebaseCategory;
     const positionWdl = this._categoryToWdl(positionCategory);
 
-    // WDL is already from the perspective of the side to move
-    // No need to negate for Black positions - the API gives the result from the mover's perspective
-
-    // Transform moves with correct perspective (moves array guaranteed by schema)
+    // Transform moves with mathematical perspective conversion
     const moves: TablebaseMoveInternal[] = (api.moves || []).map(apiMove => {
-      // API gives evaluation AFTER the move (from opponent's perspective)
-      // We need to invert it to get the evaluation FROM the mover's perspective
-      const moveCategory = this._invertCategory(apiMove.category) as TablebaseCategory;
-      let moveWdl = this._categoryToWdl(moveCategory);
+      // API gives evaluation AFTER the move (from opponent's perspective after player moves)
+      // Convert to player perspective using mathematical negation
+      const rawWdl = this._categoryToWdl(apiMove.category);
+      const playerWdl = -rawWdl; // Always negate because API gives opponent's result after move
 
-      // For Black, we need to negate WDL since it's from White's perspective
-      if (isBlackToMove) {
-        moveWdl = -moveWdl;
-      }
+      // Determine final category based on player perspective
+      const playerCategory = this._wdlToCategory(playerWdl) as TablebaseCategory;
 
       return {
         uci: apiMove.uci,
         san: apiMove.san,
-        category: moveCategory,
-        wdl: moveWdl,
+        category: playerCategory,
+        wdl: playerWdl,
         dtz: apiMove.dtz,
         dtm: apiMove.dtm,
         zeroing: apiMove.zeroing || false,
@@ -543,29 +537,26 @@ class TablebaseService {
   }
 
   /**
-   * Invert category for perspective change
+   * Convert WDL value back to category
    * @private
    */
-  private _invertCategory(category: string): string {
-    switch (category) {
-      case 'win':
-        return 'loss';
-      case 'loss':
+  private _wdlToCategory(wdl: number): string {
+    switch (wdl) {
+      case 2:
         return 'win';
-      case 'cursed-win':
-        return 'blessed-loss';
-      case 'blessed-loss':
+      case 1:
         return 'cursed-win';
-      case 'maybe-win':
-        return 'maybe-loss';
-      case 'maybe-loss':
-        return 'maybe-win';
-      case 'draw':
-      case 'unknown':
+      case 0:
+        return 'draw';
+      case -1:
+        return 'blessed-loss';
+      case -2:
+        return 'loss';
       default:
-        return category;
+        return 'unknown';
     }
   }
+
 
   /**
    * Compare two tablebase moves using hierarchical ranking

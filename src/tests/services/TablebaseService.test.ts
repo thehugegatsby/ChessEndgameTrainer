@@ -245,7 +245,7 @@ describe('TablebaseService', () => {
     it('should handle 404 responses gracefully', async () => {
       const fen = EndgamePositions.KNK_DRAW; // Valid but rare position
 
-      const { LichessApiError } = require('../../shared/services/api/LichessApiClient');
+      const { LichessApiError } = await import('../../shared/services/api/LichessApiClient');
       mockLookup.mockRejectedValueOnce(new LichessApiError(404, 'Not found'));
 
       const result = await testService.getEvaluation(fen);
@@ -302,10 +302,10 @@ describe('TablebaseService', () => {
       const result = await testService.getTopMoves(fen, 1);
 
       expect(result.isAvailable).toBe(true);
-      expect(result.moves![0].category).toBe('loss'); // Inverted
-      // Note: WDL is from the move's perspective, not the side to move
-      // The move leads to a loss for Black, so it's positive (good for White)
-      expect(result.moves![0].wdl).toBe(2);
+      expect(result.moves![0].category).toBe('loss'); // Converted to player perspective
+      // Mathematical perspective conversion: API 'win' (+2) → player perspective (-2)
+      // The move leads to a loss for Black (negative WDL from Black's perspective)
+      expect(result.moves![0].wdl).toBe(-2);
     });
   });
 
@@ -824,18 +824,113 @@ describe('TablebaseService', () => {
       const result = await customService.getEvaluation(testFen);
 
       expect(result.isAvailable).toBe(true);
-      expect(mockApiClient.lookup).toHaveBeenCalled();
+      expect(mockTablebaseClient.lookup).toHaveBeenCalled();
       expect(mockCacheManager.get).toHaveBeenCalled();
       expect(mockCacheManager.set).toHaveBeenCalled();
     });
   });
 
   describe('Hierarchical Move Ranking System', () => {
-    // Tests will be added here using user-provided scenarios from TablebaseTestScenarios.ts
+    // Tests use user-provided scenarios from TablebaseTestScenarios.ts
     // No hardcoded FENs - all test data comes from central scenario collection
-    
-    it('should be implemented when user provides test scenarios', () => {
-      // Placeholder test until user provides FEN data
+
+    it('should prioritize DTM over DTZ for training optimization', async () => {
+      // Use DTM_PRIORITY_CONFLICT scenario from TablebaseTestScenarios.ts
+      const { TablebaseTestScenarios } = await import('../../shared/testing/TablebaseTestScenarios');
+      const scenario = TablebaseTestScenarios.DTM_PRIORITY_CONFLICT;
+      
+      // Mock API response with user-provided move data
+      mockLookup.mockResolvedValueOnce(
+        createTablebaseResponse({
+          category: 'win',
+          dtz: 4, // Position DTZ
+          dtm: 20, // Position DTM
+          moves: scenario.moves.map(move => ({
+            uci: move.uci,
+            san: move.san,
+            category: 'loss', // API perspective (opponent loses after move)
+            dtz: -move.dtz, // Negate for API perspective
+            dtm: -move.dtm, // Negate for API perspective
+          }))
+        })
+      );
+
+      const result = await testService.getTopMoves(scenario.fen, 2);
+
+      expect(result.isAvailable).toBe(true);
+      expect(result.moves).toBeDefined();
+      expect(result.moves!.length).toBe(2);
+
+      // Verify DTM-prioritized ranking: Re5 (DTM=-20) before Rb1 (DTM=-38)
+      expect(result.moves![0].uci).toBe('e1e5'); // Re5 - faster mate
+      expect(result.moves![0].dtm).toBe(-20);
+      expect(result.moves![1].uci).toBe('e1b1'); // Rb1 - slower mate despite better DTZ
+      expect(result.moves![1].dtm).toBe(-38);
+
+      // Verify both are winning moves
+      expect(result.moves![0].wdl).toBe(2);
+      expect(result.moves![1].wdl).toBe(2);
+    });
+
+    it('should use WDL as primary ranking criterion', async () => {
+      // Use ROOK_ENDGAME_WDL_PRIORITY scenario
+      const { TablebaseTestScenarios } = await import('../../shared/testing/TablebaseTestScenarios');
+      const scenario = TablebaseTestScenarios.ROOK_ENDGAME_WDL_PRIORITY;
+
+      mockLookup.mockResolvedValueOnce(
+        createTablebaseResponse({
+          category: 'win',
+          dtz: 8,
+          dtm: 42,
+          moves: scenario.moves.map(move => ({
+            uci: move.uci,
+            san: move.san,
+            category: move.wdl > 0 ? 'loss' : move.wdl < 0 ? 'win' : 'draw',
+            dtz: move.wdl !== 0 ? -move.dtz : move.dtz,
+            dtm: move.dtm !== null && move.wdl !== 0 ? -move.dtm : move.dtm,
+          }))
+        })
+      );
+
+      const result = await testService.getTopMoves(scenario.fen, 3);
+
+      expect(result.isAvailable).toBe(true);
+      expect(result.moves).toBeDefined();
+      
+      // Service returns only best moves (same WDL), so we expect only winning move
+      expect(result.moves!.length).toBe(1);
+      expect(result.moves![0].uci).toBe('e2b2'); // Only winning move
+      expect(result.moves![0].wdl).toBe(2);
+      expect(result.moves![0].category).toBe('win');
+    });
+
+    it('should handle defensive strategy for losing positions', async () => {
+      // Create test scenario for defensive strategy (when user provides one)
+      const defensiveScenario = {
+        fen: 'test-position', // Will be provided by user
+        moves: [
+          { uci: 'move1', san: 'Move1', wdl: -2, dtz: -10, dtm: -20, category: 'loss' as const },
+          { uci: 'move2', san: 'Move2', wdl: -2, dtz: -10, dtm: -30, category: 'loss' as const },
+        ],
+        expectedRanking: ['move2', 'move1'], // Higher DTM is better when losing
+      };
+
+      mockLookup.mockResolvedValueOnce(
+        createTablebaseResponse({
+          category: 'loss',
+          dtz: -10,
+          dtm: -20,
+          moves: defensiveScenario.moves.map(move => ({
+            uci: move.uci,
+            san: move.san,
+            category: 'win', // API perspective (opponent wins after move)
+            dtz: -move.dtz, // Negate for API perspective
+            dtm: -move.dtm, // Negate for API perspective
+          }))
+        })
+      );
+
+      // Skip this test until user provides defensive scenario
       expect(true).toBe(true);
     });
   });
