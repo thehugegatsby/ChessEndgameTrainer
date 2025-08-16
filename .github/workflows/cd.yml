@@ -6,22 +6,31 @@ on:
       - main
   workflow_dispatch: # Allow manual deployment
 
-env:
-  NODE_VERSION: '20'
-  PNPM_VERSION: '10'
-  # CI-optimized settings for Vitest (match ci.yml)
-  VITEST_POOL: 'threads'
-  # Fixed locale and timezone for consistent test results
-  LANG: 'en_US.UTF-8'
-  LC_ALL: 'en_US.UTF-8'
-  TZ: 'UTC'
+# Don't cancel CD runs - production deployments should complete
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  build-and-test:
-    name: Build and Test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+  # Run full CI pipeline first
+  ci:
+    name: CI Tests & Build
+    uses: ./.github/workflows/_ci-reusable.yml
+    with:
+      node-version: '20'
+      pnpm-version: '10'
+      run-e2e: false  # Skip E2E for faster CD
+      upload-build: true  # Upload build artifacts for deployment
+    secrets: inherit
 
+  # Deployment job with environment protection
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: ci
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -45,55 +54,31 @@ jobs:
 
           echo "✅ No forbidden symlinks found"
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
         with:
-          version: ${{ env.PNPM_VERSION }}
+          name: nextjs-build
+          path: .
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Check available memory
-        run: |
-          echo "--- Memory Usage Before Tests ---"
-          free -h
-          echo "--- Node Version ---"
-          node --version
-          echo "--- Available CPUs ---"
-          nproc
-
-      - name: Run unit tests (split into chunks)
-        run: |
-          echo "Running chess-core tests..."
-          pnpm run test:chess
-          echo "Running tablebase tests..."
-          pnpm run test:tablebase
-          echo "Running training tests..."
-          pnpm run test:training
-
-      - name: Run integration tests
-        run: NODE_OPTIONS="--max-old-space-size=2048" pnpm exec vitest run --project integration
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
         env:
-          CI: true # Skip real API tests in CI
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      - name: Build application
-        run: pnpm run build
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
-          # Add any production environment variables here
-          NEXT_PUBLIC_STOCKFISH_PATH: /stockfish/
-
-    # Vercel deployment removed - configure VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID secrets to enable
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
   post-build-checks:
     name: Post-Build Checks
     runs-on: ubuntu-latest
-    needs: [build-and-test]
+    needs: [ci, deploy]
 
     steps:
       - name: Checkout code
@@ -102,12 +87,12 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: ${{ env.PNPM_VERSION }}
+          version: '10'
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: '20'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -124,7 +109,7 @@ jobs:
   create-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
-    needs: [build-and-test]
+    needs: [ci, deploy]
     permissions:
       contents: write
 
