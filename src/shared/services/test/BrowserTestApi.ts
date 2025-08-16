@@ -136,22 +136,6 @@ export class BrowserTestApi {
       cleanup: this.cleanup.bind(this),
     };
 
-    // Legacy compatibility - expose old API names
-    /**
-     *
-     * @param move
-     */
-    windowWithApi['e2e_makeMove'] = async (move: string) => {
-      const result = await this.makeMove(move);
-      return result;
-    };
-
-    /**
-     *
-     */
-    windowWithApi['e2e_getGameState'] = () => {
-      return this.getGameState();
-    };
 
     this.initialized = true;
     logger.info('Browser Test API initialized');
@@ -190,8 +174,6 @@ export class BrowserTestApi {
     // Remove from window
     const windowWithApi = window as unknown as Record<string, unknown>;
     delete windowWithApi['__testApi'];
-    delete windowWithApi['e2e_makeMove'];
-    delete windowWithApi['e2e_getGameState'];
 
     // Clean up test API
     this.testApi.cleanup();

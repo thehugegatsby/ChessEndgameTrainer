@@ -829,4 +829,14 @@ describe('TablebaseService', () => {
       expect(mockCacheManager.set).toHaveBeenCalled();
     });
   });
+
+  describe('Hierarchical Move Ranking System', () => {
+    // Tests will be added here using user-provided scenarios from TablebaseTestScenarios.ts
+    // No hardcoded FENs - all test data comes from central scenario collection
+    
+    it('should be implemented when user provides test scenarios', () => {
+      // Placeholder test until user provides FEN data
+      expect(true).toBe(true);
+    });
+  });
 });

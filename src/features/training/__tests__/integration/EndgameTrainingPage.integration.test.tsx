@@ -161,15 +161,6 @@ describe('EndgameTrainingPage Integration Tests', () => {
     );
   });
 
-  afterEach(() => {
-    // Clean up event listeners to prevent memory leaks
-    // Note: Mock cleanup handled by vi.clearAllMocks() in test setup
-  });
-
-  // Global cleanup after all tests
-  afterAll(() => {
-    // Mocks are cleaned up automatically by Vitest
-  });
 
   // Helper function to render the page
   /**

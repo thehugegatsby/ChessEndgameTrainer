@@ -239,32 +239,8 @@ class TablebaseService {
         return ok(null);
       }
 
-      // Sort moves by quality (WDL value, then DTZ)
-      // Higher WDL = better for the player, then lower DTZ = faster to goal
-      const sortedMoves = [...entry.moves].sort((a, b) => {
-        // Primary sort: by WDL (higher is better)
-        if (a.wdl !== b.wdl) {
-          return b.wdl - a.wdl;
-        }
-
-        // Secondary sort: for moves that are "wins" from opponent's perspective after our move,
-        // we want to choose the move that gives the opponent the LONGEST path to win (best defense)
-        if (a.wdl > 0) {
-          // These are "winning" positions for the opponent after our move
-          // For optimal defense: prefer moves that give opponent HIGHER DTM (slower win for them)
-          const aDtx = a.dtm ?? a.dtz ?? 0;
-          const bDtx = b.dtm ?? b.dtz ?? 0;
-          return Math.abs(aDtx) - Math.abs(bDtx); // FIXED: Lower DTM first for faster wins
-        } else if (a.wdl < 0) {
-          // Losing - prefer slower loss (larger absolute DTM value)
-          const aDtx = a.dtm ?? a.dtz ?? 0;
-          const bDtx = b.dtm ?? b.dtz ?? 0;
-          return Math.abs(bDtx) - Math.abs(aDtx);
-        }
-
-        // Draw - prefer maintaining draw (DTZ doesn't matter much)
-        return 0;
-      });
+      // Sort moves using hierarchical ranking: WDL → DTZ → DTM
+      const sortedMoves = [...entry.moves].sort((a, b) => this._compareTablebaseMoves(a, b));
 
       // Take only the best moves (same WDL as the absolute best)
       const bestWdl = sortedMoves[0]?.wdl ?? 0;
@@ -589,6 +565,69 @@ class TablebaseService {
       default:
         return category;
     }
+  }
+
+  /**
+   * Compare two tablebase moves using hierarchical ranking
+   * @private
+   * @param {TablebaseMoveInternal} a - First move to compare
+   * @param {TablebaseMoveInternal} b - Second move to compare
+   * @returns {number} Negative if a is better, positive if b is better, 0 if equal
+   *
+   * @remarks
+   * Implements training-optimized hierarchical move ranking:
+   * 1. WDL (Win/Draw/Loss) - Primary ranking criterion
+   * 2. DTM (Distance to Mate) - Secondary tiebreaker (prioritized for training)
+   * 3. DTZ (Distance to Zeroing) - Final tiebreaker
+   *
+   * This hierarchy prioritizes instructive, fast mate paths over theoretical
+   * 50-move rule safety, making it ideal for endgame training.
+   *
+   * For winning positions: Lower DTM/DTZ is better (faster path to goal)
+   * For losing positions: Higher DTM/DTZ is better (defensive strategy - prolong game)
+   * For draws: DTM/DTZ are irrelevant for ranking
+   */
+  private _compareTablebaseMoves(a: TablebaseMoveInternal, b: TablebaseMoveInternal): number {
+    // 1. Primary criterion: WDL (Win/Draw/Loss)
+    // Higher WDL value is always better regardless of DTM/DTZ
+    if (a.wdl !== b.wdl) {
+      return b.wdl - a.wdl; // Descending order: Win(2) > Draw(0) > Loss(-2)
+    }
+
+    // From here on, WDL values are equal, so we use DTM as tiebreaker
+
+    // 2. Secondary criterion: DTM (Distance to Mate) - Training Priority
+    const aDtm = a.dtm ?? 0; // Use 0 for null DTM (positions with >5 pieces)
+    const bDtm = b.dtm ?? 0;
+
+    if (aDtm !== bDtm) {
+      if (a.wdl > 0) {
+        // Winning positions: Lower absolute DTM is better (faster mate - more instructive)
+        return Math.abs(aDtm) - Math.abs(bDtm);
+      } else if (a.wdl < 0) {
+        // Losing positions: Higher absolute DTM is better (defensive strategy)
+        return Math.abs(bDtm) - Math.abs(aDtm);
+      }
+      // For draws (wdl === 0): DTM doesn't affect ranking, continue to DTZ
+    }
+
+    // 3. Final criterion: DTZ (Distance to Zeroing) - 50-move rule safety
+    const aDtz = a.dtz ?? 0;
+    const bDtz = b.dtz ?? 0;
+
+    if (aDtz !== bDtz) {
+      if (a.wdl > 0) {
+        // Winning positions: Lower absolute DTZ is better (safer against 50-move rule)
+        return Math.abs(aDtz) - Math.abs(bDtz);
+      } else if (a.wdl < 0) {
+        // Losing positions: Higher absolute DTZ is better (defensive strategy)
+        return Math.abs(bDtz) - Math.abs(aDtz);
+      }
+      // For draws: DTZ doesn't affect ranking
+    }
+
+    // 4. All criteria are equal - moves are equivalent
+    return 0;
   }
 
   /**

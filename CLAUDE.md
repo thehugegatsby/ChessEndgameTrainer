@@ -54,4 +54,4 @@ Always load `CORE.md` first, then task-specific docs from table above. For MCP s
 
 When I type "ss" in a message, automatically run `~/.local/bin/lastshot` and use the Read tool to display my latest screenshot.
 
-**Setup**: The `lastshot` script finds the latest screenshot from Windows and creates a symlink in `./tmp/` for easy access.
+**Setup**: The `lastshot` script finds the latest screenshot from Windows and creates a symlink in `./.screenshots/` for easy access.

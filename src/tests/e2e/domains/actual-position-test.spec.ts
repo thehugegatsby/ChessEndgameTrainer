@@ -126,7 +126,7 @@ test.describe('Actual Position 1 - King and Pawn vs King', () => {
 
   test.skip('should handle moves in the actual K+P position', async ({ page }) => {
     // SKIPPED: Chessboard move execution fails due to react-chessboard + React 19 incompatibility
-    // Will be fixed by chessground migration (Epic #182)
+    // TODO: Fix E2E interaction issues
     await test.step('Load Position 1 and verify', async () => {
       await page.goto(E2E.ROUTES.TRAIN(1));
 
@@ -232,7 +232,7 @@ test.describe('Actual Position 1 - King and Pawn vs King', () => {
 
   test.skip('should show move history and evaluation', async ({ page }) => {
     // SKIPPED: Chessboard move execution fails due to react-chessboard + React 19 incompatibility
-    // Will be fixed by chessground migration (Epic #182)
+    // TODO: Fix E2E interaction issues
     await page.goto(E2E.ROUTES.TRAIN(1));
 
     const boardPage = new TrainingBoardPage(page);

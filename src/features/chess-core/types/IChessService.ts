@@ -3,7 +3,7 @@
  *
  * Defines the public API for chess services.
  * This interface ensures compatibility between legacy ChessService
- * and new ChessServiceV2 during the Strangler Fig Pattern migration.
+ * Legacy interface for chess service compatibility.
  */
 
 /* eslint-disable @typescript-eslint/naming-convention */
