@@ -64,18 +64,35 @@ module.exports = {
       }
     ],
     
-    // 🤖 COMPLEXITY LIMITS - LLM-optimized thresholds (no human devs)
+    // 🤖 COMPLEXITY LIMITS - Hybrid soft/hard thresholds based on AI model consensus
+    // Gemini-2.5-Pro: "Low-cost insurance for maintainability"
+    // GPT-5 + O3: "Soft thresholds with justified exceptions"
     'no-nested-ternary': 'off',                // LLM can handle complex ternaries
-    'complexity': ['warn', { max: 35 }],       // LLM: High threshold for safety net only
+    
+    // BASELINE LIMITS - Apply to most code
+    'complexity': ['warn', { max: 25 }],       // Moderate: Balanced for AI + structure
     'max-lines-per-function': [
       'warn', 
       { 
-        max: 350,              // LLM: Can process long functions, prevent extreme cases
+        max: 150,              // Reduced: Better AI navigation, still flexible
         skipBlankLines: true,   
         skipComments: true     
       }
     ],
-    'max-depth': ['warn', { max: 8 }],        // LLM: Deep nesting OK, prevent logic errors
+    'max-depth': ['warn', { max: 6 }],        // Reduced: Prevent deep nesting bugs
+    
+    // HARD LIMITS - Prevent extreme cases only
+    '@typescript-eslint/max-params': ['error', { max: 6 }],  // Too many params = design issue
+    'max-nested-callbacks': ['error', { max: 5 }],           // Callback hell prevention
+    
+    // EXCEPTION MECHANISM - Allow justified complexity
+    'no-warning-comments': [
+      'warn',
+      {
+        terms: ['complexity-waiver', 'TODO-REFACTOR'],
+        location: 'start'
+      }
+    ]
     
     // 🤖 LLM-SPECIFIC RULES - Prevent common LLM anti-patterns
     'no-magic-numbers': ['warn', {
@@ -88,7 +105,33 @@ module.exports = {
   // 🤖 ENVIRONMENT-SPECIFIC OVERRIDES
   overrides: [
     {
-      // 🤖 TEST FILES - Relaxed rules for chess test scenarios
+      // 🤖 CORE BUSINESS LOGIC - Stricter limits for critical code
+      files: [
+        'src/features/**/*.ts',
+        'src/features/**/*.tsx',
+        'src/shared/chess/**/*.ts',
+        'src/shared/game/**/*.ts'
+      ],
+      rules: {
+        'complexity': ['warn', { max: 15 }],           // Strict: Critical chess logic
+        'max-lines-per-function': ['warn', { max: 80 }], // Strict: Core functions small
+        'max-depth': ['warn', { max: 4 }]               // Strict: Reduce nesting
+      }
+    },
+    {
+      // 🤖 ORCHESTRATORS - Legacy limits until refactoring
+      files: [
+        'src/shared/store/orchestrators/**/*.ts',
+        'src/shared/store/slices/**/*.ts'
+      ],
+      rules: {
+        'complexity': ['warn', { max: 35 }],           // Legacy: Keep current until #172
+        'max-lines-per-function': ['warn', { max: 350 }], // Legacy: Allow long orchestrators
+        'max-depth': ['warn', { max: 8 }]               // Legacy: Deep state logic OK
+      }
+    },
+    {
+      // 🤖 CONFIG & SCRIPT FILES - Relaxed rules for setup logic
       files: [
         'scripts/**/*.js',
         'scripts/**/*.ts', 
