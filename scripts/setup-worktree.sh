@@ -22,25 +22,25 @@ readonly LINK_DIRS=(
 readonly LINK_FILES=(
     "package.json"
     "pnpm-lock.yaml"
-    "pnpm-workspace.yaml"  # if using workspaces
     ".npmrc"               # pnpm config
     "tsconfig.json"
-    ".eslintrc.json"
-    "jest.config.js"
     "vitest.config.ts"
+    "vitest.base.config.ts"
     "next.config.js"
     "postcss.config.js"
     "tailwind.config.js"
-    "playwright.config.js"
-    ".env"
+    "playwright.config.ts"
+    "commitlint.config.js"
+    ".env.development"
+    ".env.test"
     ".env.local"
+    ".env.local.example"
 )
 
 # Config directories to symlink
-# DISABLED: src/config caused symlink issues in commits
-# If config needs to be shared, copy it instead of symlinking
+# Shared config directory for consistent settings across worktrees
 readonly LINK_CONFIG_DIRS=(
-    # "src/config"  # Disabled - causes git issues
+    "config"  # Main config directory with testing, build, firebase configs
 )
 
 # pnpm store configuration
@@ -218,8 +218,8 @@ main() {
         cp "${MAIN_PROJECT_ROOT}/.nvmrc" "${WORKTREE_ROOT}/.nvmrc"
         print_success "Copied .nvmrc from main project"
     else
-        echo "22.17.0" > "${WORKTREE_ROOT}/.nvmrc"
-        print_success "Created .nvmrc with Node 22.17.0"
+        echo "20.19.4" > "${WORKTREE_ROOT}/.nvmrc"
+        print_success "Created .nvmrc with Node 20.19.4 LTS"
     fi
     
     # 8. Setup VS Code configuration
@@ -239,6 +239,9 @@ main() {
         "typescript",
         "typescriptreact"
     ],
+    "eslint.options": {
+        "overrideConfigFile": "./config/linting/eslint.config.js"
+    },
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.codeActionsOnSave": {
@@ -248,7 +251,9 @@ main() {
         ".next": true,
         "coverage": true,
         "dist": true,
-        "build": true
+        "build": true,
+        "playwright-report": true,
+        "test-results": true
     },
     "search.exclude": {
         "node_modules": true,
@@ -256,7 +261,10 @@ main() {
         "coverage": true,
         "dist": true,
         "build": true,
-        ".pnpm": true
+        ".pnpm": true,
+        "playwright-report": true,
+        "test-results": true,
+        "config/testing/test-results": true
     },
     "typescript.preferences.includePackageJsonAutoImports": "auto",
     "npm.packageManager": "pnpm"
@@ -307,9 +315,12 @@ VSCODE
         echo "*.temp"
         echo ".cache"
         echo ""
-        echo "# Test caches"
+        echo "# Test artifacts and caches"
         echo ".jest-cache/"
         echo ".vitest/"
+        echo "playwright-report/"
+        echo "test-results/"
+        echo "coverage/"
         echo ""
         echo "# Logs"
         echo "*.log"
@@ -341,9 +352,11 @@ VSCODE
     echo
     print_info "Next steps:"
     echo "  1. cd ${WORKTREE_ROOT}"
-    echo "  2. nvm use (switch to correct Node version)"
+    echo "  2. nvm use (switch to Node 20.19.4 LTS)"
     echo "  3. code . (open in VS Code)"
-    echo "  4. pnpm test (verify everything works)"
+    echo "  4. pnpm run dev (start development server)"
+    echo "  5. pnpm test (verify everything works)"
+    echo "  6. pnpm test:e2e (run E2E tests)"
     echo
     print_success "The worktree is ready for development with pnpm!"
 }
