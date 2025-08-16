@@ -6,143 +6,25 @@
  * Tests the new pure function architecture that will replace ChessService
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { Chess, type Move as ChessJsMove } from 'chess.js';
 import { COMMON_FENS } from '@tests/fixtures/commonFens';
-
-// =============================================================================
-// PURE FUNCTIONS TO BE IMPLEMENTED (Issue #185)
-// =============================================================================
-
-export interface MoveResult {
-  newFen: string;
-  move: ChessJsMove;
-  isCheckmate: boolean;
-  isStalemate: boolean;
-  isDraw: boolean;
-  isCheck: boolean;
-  gameResult: string | null;
-}
-
-export interface GameStatus {
-  isGameOver: boolean;
-  isCheckmate: boolean;
-  isStalemate: boolean;
-  isDraw: boolean;
-  isCheck: boolean;
-  gameResult: string | null;
-  turn: 'w' | 'b';
-}
-
-/**
- * Pure function: Make a move on a chess position
- * @param fen - Current position in FEN notation
- * @param move - Move to make (string or object format)
- * @returns MoveResult or null if move is invalid
- */
-export function makeMove(fen: string, move: string | { from: string; to: string; promotion?: string }): MoveResult | null {
-  try {
-    const chess = new Chess(fen);
-    const result = chess.move(move);
-    
-    if (!result) {
-      return null;
-    }
-
-    return {
-      newFen: chess.fen(),
-      move: result,
-      isCheckmate: chess.isCheckmate(),
-      isStalemate: chess.isStalemate(),
-      isDraw: chess.isDraw(),
-      isCheck: chess.isCheck(),
-      gameResult: getGameResultFromChess(chess),
-    };
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Pure function: Validate a move without making it
- * @param fen - Current position in FEN notation
- * @param move - Move to validate
- * @returns true if move is legal, false otherwise
- */
-export function validateMove(fen: string, move: string | { from: string; to: string; promotion?: string }): boolean {
-  try {
-    const chess = new Chess(fen);
-    const result = chess.move(move);
-    return result !== null;
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Pure function: Get all possible moves from a position
- * @param fen - Current position in FEN notation
- * @param square - Optional square to get moves from (e.g., 'e4')
- * @returns Array of possible moves
- */
-export function getPossibleMoves(fen: string, square?: string): ChessJsMove[] {
-  try {
-    const chess = new Chess(fen);
-    
-    if (square) {
-      // For invalid squares, return empty array
-      if (!/^[a-h][1-8]$/.test(square)) {
-        return [];
-      }
-      // For valid squares, get moves from that square
-      const options: { verbose: true; square: string } = { verbose: true, square };
-      return chess.moves(options) as ChessJsMove[];
-    }
-    
-    // Get all moves
-    return chess.moves({ verbose: true }) as ChessJsMove[];
-  } catch {
-    return [];
-  }
-}
-
-/**
- * Pure function: Get game status from a position
- * @param fen - Current position in FEN notation
- * @returns Game status information
- */
-export function getGameStatus(fen: string): GameStatus {
-  try {
-    const chess = new Chess(fen);
-    
-    return {
-      isGameOver: chess.isGameOver(),
-      isCheckmate: chess.isCheckmate(),
-      isStalemate: chess.isStalemate(),
-      isDraw: chess.isDraw(),
-      isCheck: chess.isCheck(),
-      gameResult: getGameResultFromChess(chess),
-      turn: chess.turn(),
-    };
-  } catch {
-    return {
-      isGameOver: true,
-      isCheckmate: false,
-      isStalemate: false,
-      isDraw: false,
-      isCheck: false,
-      gameResult: null,
-      turn: 'w',
-    };
-  }
-}
+import {
+  makeMove,
+  validateMove,
+  getPossibleMoves,
+  getGameStatus,
+  normalizePromotionPiece,
+  type MoveResult,
+  type GameStatus,
+} from '../chess-logic';
 
 /**
  * Pure function: Normalize German piece notation to chess.js format
  * @param move - Move in German notation (e.g., "Dh5", "e8D")
  * @returns Move in chess.js compatible format
  */
-export function normalizeGermanNotation(move: string): string {
+function normalizeGermanNotation(move: string): string {
   // Handle German piece notation (D=Dame/Queen, T=Turm/Rook, L=Läufer/Bishop, S=Springer/Knight)
   const germanPieceRegex = /^([DTLS])([a-h]?[1-8]?[x]?)([a-h][1-8])([+#])?$/;
   const germanMatch = move.match(germanPieceRegex);
@@ -388,8 +270,7 @@ describe('Chess Logic Pure Functions', () => {
     it('should handle invalid FEN gracefully', () => {
       const status = getGameStatus('invalid-fen');
       
-      expect(status.isGameOver).toBe(true);
-      expect(status.gameResult).toBeNull();
+      expect(status).toBeNull();
     });
 
     it('should return correct turn', () => {
@@ -489,7 +370,7 @@ describe('Chess Logic Pure Functions', () => {
       expect(getPossibleMoves(invalidFen)).toEqual([]);
       
       const status = getGameStatus(invalidFen);
-      expect(status.isGameOver).toBe(true);
+      expect(status).toBeNull();
     });
   });
 
