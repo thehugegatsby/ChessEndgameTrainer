@@ -4,6 +4,7 @@
  */
 
 import { type StateCreator } from 'zustand';
+import type { MoveResult, GameStatus } from '@shared/utils/chess-logic';
 import {
   type UIState,
   type Toast,
@@ -71,10 +72,10 @@ export interface GameActions {
   setCurrentFen: (fen: string) => void;
 
   // Pure function actions (ChessService replacement)
-  makeMovePure: (move: { from: string; to: string; promotion?: string } | string) => import('@shared/utils/chess-logic').MoveResult | null;
+  makeMovePure: (move: { from: string; to: string; promotion?: string } | string) => MoveResult | null;
   validateMovePure: (move: { from: string; to: string; promotion?: string } | string) => boolean;
-  getGameStatusPure: () => import('@shared/utils/chess-logic').GameStatus | null;
-  getPossibleMovesPure: (square?: string) => any[];
+  getGameStatusPure: () => GameStatus | null;
+  getPossibleMovesPure: (square?: string) => string[];
   goToMovePure: (targetIndex: number) => boolean;
   initializeGamePure: (fen: string) => boolean;
   resetGamePure: () => void;

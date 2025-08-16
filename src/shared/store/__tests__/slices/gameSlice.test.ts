@@ -5,12 +5,13 @@ import { vi } from 'vitest';
  */
 
 import { useStore } from '@shared/store/rootStore';
+import { COMMON_FENS } from '@tests/fixtures/commonFens';
 
 describe('GameSlice - Pure Functions Integration', () => {
   beforeEach(() => {
     // Reset store to initial state - preserve actions by only updating state properties
     useStore.setState(state => {
-      state.game.currentFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+      state.game.currentFen = COMMON_FENS.STARTING_POSITION;
       state.game.currentPgn = '';
       state.game.moveHistory = [];
       state.game.currentMoveIndex = -1;
@@ -19,38 +20,53 @@ describe('GameSlice - Pure Functions Integration', () => {
     });
   });
 
-  describe('resetGame', () => {
-    it('should call ChessService reset', () => {
+  describe('resetGamePure', () => {
+    it('should reset game to initial position using pure functions', () => {
       const store = useStore.getState();
-
-      // Clear previous calls to ensure clean state
-      (chessService.reset as ReturnType<typeof vi.fn>).mockClear();
 
       // Modify some state first
       store.game.setGameFinished(true);
+      store.game.setCurrentMoveIndex(5);
       expect(useStore.getState().game.isGameFinished).toBe(true);
+      expect(useStore.getState().game.currentMoveIndex).toBe(5);
 
-      // Reset game - this calls chessService.reset() which should emit an event
-      // In a real scenario, the rootStore subscription would sync the state
-      store.game.resetGame();
+      // Reset game using pure functions
+      store.game.resetGamePure();
 
-      // Verify that ChessService.reset was called
-      expect(chessService.reset).toHaveBeenCalled();
-
-      // In unit tests, we'd need to manually trigger the state sync or mock the event system
-      // For now, just test that the service method was called
+      // Verify state was reset
+      const state = useStore.getState();
+      expect(state.game.currentFen).toBe(COMMON_FENS.STARTING_POSITION);
+      expect(state.game.moveHistory).toEqual([]);
+      expect(state.game.currentMoveIndex).toBe(-1);
+      expect(state.game.isGameFinished).toBe(false);
+      expect(state.game.gameResult).toBeNull();
     });
   });
 
-  describe('initializeGame', () => {
-    it('should initialize game with FEN', () => {
+  describe('initializeGamePure', () => {
+    it('should initialize game with valid FEN using pure functions', () => {
       const store = useStore.getState();
       const testFen = '8/8/8/8/8/8/8/8 w - - 0 1';
 
-      const result = store.game.initializeGame(testFen);
+      const result = store.game.initializeGamePure(testFen);
 
-      // The actual implementation would use chessService
-      expect(result).toBeDefined();
+      expect(result).toBe(true);
+      const state = useStore.getState();
+      expect(state.game.currentFen).toBe(testFen);
+      expect(state.game.moveHistory).toEqual([]);
+      expect(state.game.currentMoveIndex).toBe(-1);
+    });
+
+    it('should reject invalid FEN', () => {
+      const store = useStore.getState();
+      const invalidFen = 'invalid-fen-string';
+
+      const result = store.game.initializeGamePure(invalidFen);
+
+      expect(result).toBe(false);
+      // State should remain unchanged
+      const state = useStore.getState();
+      expect(state.game.currentFen).toBe(COMMON_FENS.STARTING_POSITION);
     });
   });
 
@@ -128,6 +144,71 @@ describe('GameSlice - Pure Functions Integration', () => {
     });
   });
 
+  describe('Pure function actions', () => {
+    it('should make valid moves with makeMovePure', () => {
+      const store = useStore.getState();
+
+      const result = store.game.makeMovePure('e4');
+
+      expect(result).not.toBeNull();
+      if (result) {
+        expect(result.newFen).toBe(COMMON_FENS.OPENING_AFTER_E4);
+        
+        const state = useStore.getState();
+        expect(state.game.currentFen).toBe(result.newFen);
+        expect(state.game.moveHistory).toHaveLength(1);
+        expect(state.game.currentMoveIndex).toBe(0);
+      }
+    });
+
+    it('should reject invalid moves with makeMovePure', () => {
+      const store = useStore.getState();
+
+      const result = store.game.makeMovePure('e5'); // Invalid opening move
+
+      expect(result).toBeNull();
+      
+      const state = useStore.getState();
+      expect(state.game.currentFen).toBe(COMMON_FENS.STARTING_POSITION);
+      expect(state.game.moveHistory).toHaveLength(0);
+    });
+
+    it('should validate moves with validateMovePure', () => {
+      const store = useStore.getState();
+
+      expect(store.game.validateMovePure('e4')).toBe(true);
+      expect(store.game.validateMovePure('Nf3')).toBe(true);
+      expect(store.game.validateMovePure('e5')).toBe(false);
+      expect(store.game.validateMovePure('Ke2')).toBe(false);
+    });
+
+    it('should get game status with getGameStatusPure', () => {
+      const store = useStore.getState();
+
+      const status = store.game.getGameStatusPure();
+
+      expect(status).not.toBeNull();
+      if (status) {
+        expect(status.isGameOver).toBe(false);
+        expect(status.isCheckmate).toBe(false);
+        expect(status.isStalemate).toBe(false);
+        expect(status.turn).toBe('w');
+      }
+    });
+
+    it('should get possible moves with getPossibleMovesPure', () => {
+      const store = useStore.getState();
+
+      const allMoves = store.game.getPossibleMovesPure();
+      const e2Moves = store.game.getPossibleMovesPure('e2');
+
+      expect(allMoves).toHaveLength(20); // 16 pawn + 4 knight moves
+      expect(e2Moves).toHaveLength(2); // e3, e4
+      expect(e2Moves.some(move => move.san === 'e3')).toBe(true);
+      expect(e2Moves.some(move => move.san === 'e4')).toBe(true);
+    });
+  });
+
   describe('Integration with nested structure', () => {
     it('should work with other slices in the store', () => {
       const store = useStore.getState();
@@ -137,12 +218,12 @@ describe('GameSlice - Pure Functions Integration', () => {
       expect(store.training).toBeDefined();
       expect(store.ui).toBeDefined();
 
-      // Set game data
-      store.game.setGameFinished(true);
+      // Set game data using pure functions
+      store.game.makeMovePure('e4');
 
       // Verify it doesn't affect other slices
       const state = useStore.getState();
-      expect(state.game.isGameFinished).toBe(true);
+      expect(state.game.currentFen).toBe(COMMON_FENS.OPENING_AFTER_E4);
       expect(state.tablebase.analysisStatus).toBeDefined();
       expect(state.training.isPlayerTurn).toBeDefined();
     });
@@ -150,19 +231,21 @@ describe('GameSlice - Pure Functions Integration', () => {
     it('should maintain proper nesting in state updates', () => {
       const store = useStore.getState();
 
-      // Make multiple updates
+      // Make multiple updates using pure functions
+      store.game.makeMovePure('e4');
       store.game.setGameFinished(true);
-      store.game.setCurrentMoveIndex(3);
 
       // Check all updates were applied correctly
       const state = useStore.getState();
+      expect(state.game.currentFen).toBe('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1');
       expect(state.game.isGameFinished).toBe(true);
-      expect(state.game.currentMoveIndex).toBe(3);
+      expect(state.game.moveHistory).toHaveLength(1);
 
       // Verify structure is maintained
       expect(state.game).toHaveProperty('currentFen');
       expect(state.game).toHaveProperty('moveHistory');
-      expect(state.game).toHaveProperty('resetGame');
+      expect(state.game).toHaveProperty('resetGamePure');
+      expect(state.game).toHaveProperty('makeMovePure');
     });
   });
 });
