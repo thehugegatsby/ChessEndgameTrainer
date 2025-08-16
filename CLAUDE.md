@@ -26,6 +26,7 @@ pnpm run lint && pnpm tsc # Validation
 | Task                | Always Load | Path                                                                       |
 | ------------------- | ----------- | -------------------------------------------------------------------------- |
 | **Any Task**        | ✅          | [`docs/CORE.md`](docs/CORE.md) - Architecture                              |
+| **Session Memory**  | ✅          | [`SCRATCHPAD.md`](SCRATCHPAD.md) - Context between sessions                |
 | **Product Context** | →           | [`docs/VISION.md`](docs/VISION.md) - Product Vision                        |
 | **Quality Tasks**   | →           | [`docs/AGENT_CONFIG.json`](docs/AGENT_CONFIG.json) - Standards & Workflows |
 | Testing             | →           | [`docs/guides/testing.md`](docs/guides/testing.md)                         |
