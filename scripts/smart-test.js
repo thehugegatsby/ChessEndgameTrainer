@@ -128,7 +128,7 @@ async function main() {
 
     console.log(`🔄 Running all tests (${testCount} files)`);
     try {
-      execSync('pnpm run test:original', { stdio: 'inherit' });
+      execSync('pnpm run test:all', { stdio: 'inherit' });
     } catch (error) {
       console.error('❌ Test execution failed');
       process.exit(error.status || 1);
