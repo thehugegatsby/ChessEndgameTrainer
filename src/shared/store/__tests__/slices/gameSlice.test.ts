@@ -46,7 +46,7 @@ describe('GameSlice - Pure Functions Integration', () => {
   describe('initializeGamePure', () => {
     it('should initialize game with valid FEN using pure functions', () => {
       const store = useStore.getState();
-      const testFen = '8/8/8/8/8/8/8/8 w - - 0 1';
+      const testFen = COMMON_FENS.KPK_WHITE_TO_MOVE; // Valid endgame position
 
       const result = store.game.initializeGamePure(testFen);
 
@@ -237,7 +237,7 @@ describe('GameSlice - Pure Functions Integration', () => {
 
       // Check all updates were applied correctly
       const state = useStore.getState();
-      expect(state.game.currentFen).toBe('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1');
+      expect(state.game.currentFen).toBe(COMMON_FENS.OPENING_AFTER_E4);
       expect(state.game.isGameFinished).toBe(true);
       expect(state.game.moveHistory).toHaveLength(1);
 

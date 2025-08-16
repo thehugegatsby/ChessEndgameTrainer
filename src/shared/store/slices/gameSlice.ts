@@ -509,7 +509,7 @@ export const createGameActions = (
    */
   getPossibleMovesPure: (square?: string) => {
     const { game } = get();
-    return getPossibleMoves(game.currentFen, square || undefined);
+    return getPossibleMoves(game.currentFen, (square as any) || undefined);
   },
 
   /**

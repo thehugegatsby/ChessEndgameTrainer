@@ -75,7 +75,7 @@ export interface GameActions {
   makeMovePure: (move: { from: string; to: string; promotion?: string } | string) => MoveResult | null;
   validateMovePure: (move: { from: string; to: string; promotion?: string } | string) => boolean;
   getGameStatusPure: () => GameStatus | null;
-  getPossibleMovesPure: (square?: string) => string[];
+  getPossibleMovesPure: (square?: string) => ChessJsMove[];
   goToMovePure: (targetIndex: number) => boolean;
   initializeGamePure: (fen: string) => boolean;
   resetGamePure: () => void;
