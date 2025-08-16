@@ -35,13 +35,13 @@
  */
 
 import type { CacheManager, CacheEntry, CacheStats, CacheOptions } from './types';
-import { LRU_CACHE_CONFIG } from "../../../constants/cache.constants";
+import { LRU_CACHE_CONFIG } from '../../../constants/cache.constants';
 
 export class LRUCacheManager<K, V> implements CacheManager<K, V> {
   private readonly cache = new Map<K, CacheEntry<V>>();
   private readonly maxSize: number;
   private readonly defaultTtlMs: number;
-  
+
   // Statistics for monitoring
   private stats = {
     hits: 0,
@@ -58,7 +58,10 @@ export class LRUCacheManager<K, V> implements CacheManager<K, V> {
    *
    * @throws {Error} If maxSize <= 0 or defaultTtlMs <= 0
    */
-  constructor(maxSize: number = LRU_CACHE_CONFIG.DUE_CARDS_SIZE, defaultTtlMs: number = LRU_CACHE_CONFIG.DUE_CARDS_MAX_AGE_MS) {
+  constructor(
+    maxSize: number = LRU_CACHE_CONFIG.DUE_CARDS_SIZE,
+    defaultTtlMs: number = LRU_CACHE_CONFIG.DUE_CARDS_MAX_AGE_MS
+  ) {
     if (maxSize <= 0) {
       throw new Error('maxSize must be positive');
     }
@@ -78,7 +81,7 @@ export class LRUCacheManager<K, V> implements CacheManager<K, V> {
    */
   get(key: K): V | undefined {
     const entry = this.cache.get(key);
-    
+
     if (!entry) {
       this.stats.misses++;
       return undefined;
@@ -96,7 +99,7 @@ export class LRUCacheManager<K, V> implements CacheManager<K, V> {
     // Move to end (most recently used) by re-inserting
     this.cache.delete(key);
     this.cache.set(key, entry);
-    
+
     this.stats.hits++;
     return entry.value;
   }
@@ -111,12 +114,12 @@ export class LRUCacheManager<K, V> implements CacheManager<K, V> {
   set(key: K, value: V, ttlMs?: number): void {
     const now = Date.now();
     const actualTtl = ttlMs ?? this.defaultTtlMs;
-    
+
     // Create cache entry with expiration
     const entry: CacheEntry<V> = {
       value,
       expiry: now + actualTtl,
-      lastAccess: now
+      lastAccess: now,
     };
 
     // If key already exists, remove it first (will be re-added at end)
@@ -139,7 +142,7 @@ export class LRUCacheManager<K, V> implements CacheManager<K, V> {
    */
   has(key: K): boolean {
     const entry = this.cache.get(key);
-    
+
     if (!entry) {
       return false;
     }
@@ -191,9 +194,9 @@ export class LRUCacheManager<K, V> implements CacheManager<K, V> {
    */
   getStats(): CacheStats {
     this._cleanupExpired();
-    
+
     const totalRequests = this.stats.hits + this.stats.misses;
-    
+
     return {
       hits: this.stats.hits,
       misses: this.stats.misses,
@@ -201,7 +204,7 @@ export class LRUCacheManager<K, V> implements CacheManager<K, V> {
       maxSize: this.maxSize,
       hitRate: totalRequests > 0 ? this.stats.hits / totalRequests : 0,
       evictions: this.stats.evictions,
-      expirations: this.stats.expirations
+      expirations: this.stats.expirations,
     };
   }
 

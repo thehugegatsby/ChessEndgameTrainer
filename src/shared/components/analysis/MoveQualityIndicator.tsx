@@ -1,12 +1,12 @@
 /**
  * @file Move quality indicator component
  * @module components/analysis/MoveQualityIndicator
- * 
+ *
  * @description
  * Isolated component for displaying move quality assessment indicators.
  * Each instance manages its own state independently to avoid shared state
  * issues and provides clean separation of concerns with minimal UI footprint.
- * 
+ *
  * @remarks
  * Key features:
  * - Independent state management per move
@@ -16,27 +16,24 @@
  * - Error handling with graceful degradation
  * - Clean architecture with isolated responsibilities
  * - Optimized performance with per-move analysis
- * 
+ *
  * The component integrates with the move quality analysis system to provide
  * immediate feedback on chess move quality without affecting other moves.
  */
 
-import React from "react";
-import { useMoveQuality } from "../../hooks/useMoveQuality";
-import {
-  getQualityEmoji,
-  formatQualityTooltip,
-} from "../../utils/moveQualityFormatters";
-import { getLogger } from "../../services/logging/Logger";
-import { ErrorService } from "../../services/ErrorService";
+import React from 'react';
+import { useMoveQuality } from '../../hooks/useMoveQuality';
+import { getQualityEmoji, formatQualityTooltip } from '../../utils/moveQualityFormatters';
+import { getLogger } from '../../services/logging/Logger';
+import { ErrorService } from '../../services/ErrorService';
 
-const logger = getLogger().setContext("MoveQualityIndicator");
+const logger = getLogger().setContext('MoveQualityIndicator');
 
 /**
  * Props for the MoveQualityIndicator component
- * 
+ *
  * @interface MoveQualityIndicatorProps
- * 
+ *
  * @property {number} moveIndex - Index of the move in the game history
  * @property {string} moveSan - Move in Standard Algebraic Notation (e.g., "Nf3")
  * @property {'w' | 'b'} player - Player who made the move (white or black)
@@ -48,21 +45,21 @@ interface MoveQualityIndicatorProps {
   /** Move in SAN notation */
   moveSan: string;
   /** Player who made the move */
-  player: "w" | "b";
+  player: 'w' | 'b';
   /** Function to get FEN before the move */
   getFenBefore: (moveIndex: number) => string;
 }
 
 /**
  * Move quality indicator component
- * 
+ *
  * @component
  * @description
  * Displays a visual indicator for chess move quality assessment.
  * Each instance independently analyzes and displays the quality of a specific
  * move using tablebase data, providing immediate feedback to users about
  * their move choices.
- * 
+ *
  * @remarks
  * Component behavior:
  * - Analyzes move quality using useMoveQuality hook
@@ -71,17 +68,17 @@ interface MoveQualityIndicatorProps {
  * - Handles loading states during analysis
  * - Gracefully handles errors with fallback display
  * - Each instance maintains independent state
- * 
+ *
  * Quality levels:
  * - Excellent: 🏆 (best possible move)
  * - Good: 👍 (solid move)
  * - Inaccuracy: ⚠️ (minor error)
  * - Mistake: ❌ (significant error)
  * - Blunder: 💥 (critical error)
- * 
+ *
  * The component integrates seamlessly with move lists and provides
  * non-intrusive visual feedback about move quality.
- * 
+ *
  * @example
  * ```tsx
  * // Basic usage in move list
@@ -91,7 +88,7 @@ interface MoveQualityIndicatorProps {
  *   player="w"
  *   getFenBefore={(index) => gameHistory[index].fenBefore}
  * />
- * 
+ *
  * // In a move panel component
  * {moveHistory.map((move, index) => (
  *   <div key={index} className="move-item">
@@ -105,7 +102,7 @@ interface MoveQualityIndicatorProps {
  *   </div>
  * ))}
  * ```
- * 
+ *
  * @param {MoveQualityIndicatorProps} props - Component configuration
  * @returns {JSX.Element} Move quality indicator with emoji feedback
  */
@@ -131,24 +128,22 @@ export const MoveQualityIndicator: React.FC<MoveQualityIndicatorProps> = ({
     } catch (err) {
       // Check if this is just a cancelled assessment (not a real error)
       const assessmentError = err instanceof Error ? err : new Error(String(err));
-      if (assessmentError.message?.includes("Assessment cancelled") || 
-          assessmentError.message?.includes("aborted")) {
+      if (
+        assessmentError.message?.includes('Assessment cancelled') ||
+        assessmentError.message?.includes('aborted')
+      ) {
         // This is normal when a new assessment starts - just log debug
-        logger.debug("Assessment cancelled - this is normal behavior");
+        logger.debug('Assessment cancelled - this is normal behavior');
       } else {
         // Only log real errors
-        ErrorService.handleUIError(
-          assessmentError,
-          "MoveQualityIndicator",
-          {
-            action: "assess-move",
-            additionalData: {
-              moveIndex,
-              moveSan,
-              player,
-            },
+        ErrorService.handleUIError(assessmentError, 'MoveQualityIndicator', {
+          action: 'assess-move',
+          additionalData: {
+            moveIndex,
+            moveSan,
+            player,
           },
-        );
+        });
       }
     }
   }, [moveIndex, moveSan, player, getFenBefore, assessMove]);
@@ -186,10 +181,7 @@ export const MoveQualityIndicator: React.FC<MoveQualityIndicatorProps> = ({
   // Result state
   if (data) {
     return (
-      <span
-        className="ml-1 text-xs cursor-help"
-        title={formatQualityTooltip(data)}
-      >
+      <span className="ml-1 text-xs cursor-help" title={formatQualityTooltip(data)}>
         {getQualityEmoji(data.quality)}
       </span>
     );
@@ -207,4 +199,4 @@ export const MoveQualityIndicator: React.FC<MoveQualityIndicatorProps> = ({
   );
 };
 
-MoveQualityIndicator.displayName = "MoveQualityIndicator";
+MoveQualityIndicator.displayName = 'MoveQualityIndicator';

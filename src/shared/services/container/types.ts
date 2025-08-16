@@ -38,7 +38,7 @@ import {
   type PlatformShare,
   type PlatformAnalytics,
   type PlatformDetection,
-} from "../platform/types";
+} from '../platform/types';
 
 /**
  * Browser API abstractions for dependency injection
@@ -138,22 +138,22 @@ export type ServiceFactory<T> = (container: ServiceContainer) => T;
  */
 export interface ServiceRegistry {
   // Platform services
-  "platform.storage": PlatformStorage;
-  "platform.notifications": PlatformNotification;
-  "platform.device": PlatformDevice;
-  "platform.performance": PlatformPerformance;
-  "platform.clipboard": PlatformClipboard;
-  "platform.share": PlatformShare;
-  "platform.analytics": PlatformAnalytics;
-  "platform.detection": PlatformDetection;
+  'platform.storage': PlatformStorage;
+  'platform.notifications': PlatformNotification;
+  'platform.device': PlatformDevice;
+  'platform.performance': PlatformPerformance;
+  'platform.clipboard': PlatformClipboard;
+  'platform.share': PlatformShare;
+  'platform.analytics': PlatformAnalytics;
+  'platform.detection': PlatformDetection;
 
   // Browser API abstractions
-  "browser.apis": BrowserAPIs;
-  "browser.localStorage": Storage;
-  "browser.navigator": Navigator;
-  "browser.window": Window;
-  "browser.document": Document;
-  "browser.performance": Performance;
+  'browser.apis': BrowserAPIs;
+  'browser.localStorage': Storage;
+  'browser.navigator': Navigator;
+  'browser.window': Window;
+  'browser.document': Document;
+  'browser.performance': Performance;
 }
 
 /**
@@ -194,7 +194,7 @@ export interface ServiceContainer {
    */
   register<K extends keyof ServiceRegistry>(
     key: K,
-    factory: ServiceFactory<ServiceRegistry[K]>,
+    factory: ServiceFactory<ServiceRegistry[K]>
   ): void;
 
   /**
@@ -364,7 +364,7 @@ export interface ServiceContainerConfig {
 export class ServiceNotFoundError extends Error {
   constructor(key: string) {
     super(`Service not found for key: ${key}`);
-    this.name = "ServiceNotFoundError";
+    this.name = 'ServiceNotFoundError';
   }
 }
 
@@ -391,7 +391,7 @@ export class ServiceNotFoundError extends Error {
 export class ServiceAlreadyRegisteredError extends Error {
   constructor(key: string) {
     super(`Service already registered for key: ${key}`);
-    this.name = "ServiceAlreadyRegisteredError";
+    this.name = 'ServiceAlreadyRegisteredError';
   }
 }
 
@@ -421,7 +421,7 @@ export class ServiceAlreadyRegisteredError extends Error {
  */
 export class CircularDependencyError extends Error {
   constructor(chain: string[]) {
-    super(`Circular dependency detected: ${chain.join(" -> ")}`);
-    this.name = "CircularDependencyError";
+    super(`Circular dependency detected: ${chain.join(' -> ')}`);
+    this.name = 'CircularDependencyError';
   }
 }

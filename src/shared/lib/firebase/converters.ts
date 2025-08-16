@@ -1,6 +1,6 @@
 /**
  * Firestore Data Converters for Type Safety
- * 
+ *
  * Solves TS4111 errors by providing type-safe converters
  * for Firestore documents, eliminating index signature access.
  */
@@ -22,13 +22,10 @@ export const positionConverter: FirestoreDataConverter<EndgamePosition> = {
     const { id: _id, ...data } = position;
     return data;
   },
-  
-  fromFirestore(
-    snapshot: QueryDocumentSnapshot,
-    options: SnapshotOptions
-  ): EndgamePosition {
+
+  fromFirestore(snapshot: QueryDocumentSnapshot, options: SnapshotOptions): EndgamePosition {
     const data = snapshot.data(options);
-    
+
     // Safely construct the EndgamePosition from document data
     return {
       id: parseInt(snapshot.id),
@@ -44,7 +41,7 @@ export const positionConverter: FirestoreDataConverter<EndgamePosition> = {
       sideToMove: data['sideToMove'],
       goal: data['goal'],
     } as EndgamePosition;
-  }
+  },
 };
 
 /**
@@ -60,13 +57,10 @@ export const categoryConverter: FirestoreDataConverter<EndgameCategory> = {
       subcategories: category.subcategories || [],
     };
   },
-  
-  fromFirestore(
-    snapshot: QueryDocumentSnapshot,
-    options: SnapshotOptions
-  ): EndgameCategory {
+
+  fromFirestore(snapshot: QueryDocumentSnapshot, options: SnapshotOptions): EndgameCategory {
     const data = snapshot.data(options);
-    
+
     return {
       id: snapshot.id,
       name: data['name'] || '',
@@ -75,7 +69,7 @@ export const categoryConverter: FirestoreDataConverter<EndgameCategory> = {
       positions: data['positions'] || [],
       subcategories: data['subcategories'] || [],
     };
-  }
+  },
 };
 
 /**
@@ -91,13 +85,10 @@ export const chapterConverter: FirestoreDataConverter<EndgameChapter> = {
       totalLessons: chapter.totalLessons || 0,
     };
   },
-  
-  fromFirestore(
-    snapshot: QueryDocumentSnapshot,
-    options: SnapshotOptions
-  ): EndgameChapter {
+
+  fromFirestore(snapshot: QueryDocumentSnapshot, options: SnapshotOptions): EndgameChapter {
     const data = snapshot.data(options);
-    
+
     return {
       id: snapshot.id,
       name: data['name'] || '',
@@ -106,24 +97,23 @@ export const chapterConverter: FirestoreDataConverter<EndgameChapter> = {
       lessons: data['lessons'] || [],
       totalLessons: data['totalLessons'] || 0,
     };
-  }
+  },
 };
 
 /**
  * Generic converter for simple key-value documents
  * Use this for documents where you just need basic type safety
  */
-export function createGenericConverter<T extends Record<string, unknown>>(): FirestoreDataConverter<T> {
+export function createGenericConverter<
+  T extends Record<string, unknown>,
+>(): FirestoreDataConverter<T> {
   return {
     toFirestore(data: T): DocumentData {
       return data as DocumentData;
     },
-    
-    fromFirestore(
-      snapshot: QueryDocumentSnapshot,
-      options: SnapshotOptions
-    ): T {
+
+    fromFirestore(snapshot: QueryDocumentSnapshot, options: SnapshotOptions): T {
       return snapshot.data(options) as T;
-    }
+    },
   };
 }

@@ -1,7 +1,7 @@
 /**
  * UI-specific constants
  * @module constants/ui
- * 
+ *
  * @description
  * Constants for UI interactions, animations, and display settings
  */

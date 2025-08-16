@@ -1,8 +1,8 @@
 // Note: Using direct service import for service-to-service integration
-import { getLogger } from "./logging";
-import { CHESS_EVALUATION, SIZE_MULTIPLIERS } from "@shared/constants/multipliers";
+import { getLogger } from './logging';
+import { CHESS_EVALUATION, SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
 
-const logger = getLogger().setContext("MoveStrategyService");
+const logger = getLogger().setContext('MoveStrategyService');
 
 /**
  * Service for chess move selection strategies
@@ -47,15 +47,11 @@ class MoveStrategyService {
   async getLongestResistanceMove(fen: string): Promise<string | null> {
     try {
       // Get ALL moves efficiently with single API call
-      const { tablebaseService } = await import("./TablebaseService");
+      const { tablebaseService } = await import('./TablebaseService');
       const topMoves = await tablebaseService.getTopMoves(fen, SIZE_MULTIPLIERS.LARGE_FACTOR);
 
-      if (
-        !topMoves.isAvailable ||
-        !topMoves.moves ||
-        topMoves.moves.length === 0
-      ) {
-        logger.warn("No tablebase moves available for position", { fen });
+      if (!topMoves.isAvailable || !topMoves.moves || topMoves.moves.length === 0) {
+        logger.warn('No tablebase moves available for position', { fen });
         return null;
       }
 
@@ -66,7 +62,7 @@ class MoveStrategyService {
       // wdl values: -2 (loss), 0 (draw), 2 (win) from side to move perspective
       const firstMove = moves[0];
       if (!firstMove || !selectedMove) {
-        logger.warn("No moves available");
+        logger.warn('No moves available');
         return null;
       }
       const positionWdl = firstMove.wdl;
@@ -78,7 +74,11 @@ class MoveStrategyService {
             ? Math.abs(selectedMove.dtz)
             : Infinity;
         for (const move of moves) {
-          if (move.wdl === CHESS_EVALUATION.WDL_WIN && move.dtz !== undefined && move.dtz !== null) {
+          if (
+            move.wdl === CHESS_EVALUATION.WDL_WIN &&
+            move.dtz !== undefined &&
+            move.dtz !== null
+          ) {
             const absDtz = Math.abs(move.dtz);
             if (absDtz < minDtz) {
               minDtz = absDtz;
@@ -86,7 +86,7 @@ class MoveStrategyService {
             }
           }
         }
-        logger.debug("Selected fastest winning move", {
+        logger.debug('Selected fastest winning move', {
           move: selectedMove.san,
           dtz: selectedMove.dtz,
         });
@@ -96,13 +96,18 @@ class MoveStrategyService {
 
         // Check if we have DTM values directly in the moves
         const movesWithDtm = moves.filter(
-          (m) => m.wdl === CHESS_EVALUATION.WDL_LOSS && m.dtm !== null && m.dtm !== undefined,
+          m => m.wdl === CHESS_EVALUATION.WDL_LOSS && m.dtm !== null && m.dtm !== undefined
         );
 
         if (movesWithDtm.length > 0) {
           // We have DTM values - use them directly
           const firstMoveWithDtm = movesWithDtm[0];
-          if (!firstMoveWithDtm || firstMoveWithDtm.dtm === null || firstMoveWithDtm.dtm === undefined) return null;
+          if (
+            !firstMoveWithDtm ||
+            firstMoveWithDtm.dtm === null ||
+            firstMoveWithDtm.dtm === undefined
+          )
+            return null;
           let maxDtm = Math.abs(firstMoveWithDtm.dtm);
           let maxDtz = Math.abs(firstMoveWithDtm.dtz || 0);
           selectedMove = firstMoveWithDtm;
@@ -126,9 +131,7 @@ class MoveStrategyService {
           }
         } else {
           // No DTM values in moves - need to fetch DTM from resulting positions
-          logger.debug(
-            "No DTM values in moves, fetching from resulting positions",
-          );
+          logger.debug('No DTM values in moves, fetching from resulting positions');
 
           // For now, fall back to DTZ-based selection
           let maxDtz = Math.abs(selectedMove.dtz || 0);
@@ -151,25 +154,25 @@ class MoveStrategyService {
           // For 6-7 piece positions, we must use DTZ for resistance calculation
         }
 
-        logger.debug("Selected longest resistance move", {
+        logger.debug('Selected longest resistance move', {
           move: selectedMove.san,
           dtm: selectedMove.dtm,
           dtz: selectedMove.dtz,
         });
       } else {
         // Position is drawn - maintain the draw
-        const drawMove = moves.find((m) => m.wdl === 0);
+        const drawMove = moves.find(m => m.wdl === 0);
         if (drawMove) {
           selectedMove = drawMove;
         }
-        logger.debug("Selected draw maintaining move", {
+        logger.debug('Selected draw maintaining move', {
           move: selectedMove.san,
         });
       }
 
       return selectedMove.uci;
     } catch (error) {
-      logger.error("Failed to get longest resistance move", error as Error, {
+      logger.error('Failed to get longest resistance move', error as Error, {
         fen,
       });
       return null;
@@ -195,15 +198,11 @@ class MoveStrategyService {
    */
   async getBestMove(fen: string): Promise<string | null> {
     try {
-      const { tablebaseService } = await import("./TablebaseService");
+      const { tablebaseService } = await import('./TablebaseService');
       const topMoves = await tablebaseService.getTopMoves(fen, 1);
 
-      if (
-        !topMoves.isAvailable ||
-        !topMoves.moves ||
-        topMoves.moves.length === 0
-      ) {
-        logger.warn("No tablebase moves available for position", { fen });
+      if (!topMoves.isAvailable || !topMoves.moves || topMoves.moves.length === 0) {
+        logger.warn('No tablebase moves available for position', { fen });
         return null;
       }
 
@@ -211,7 +210,7 @@ class MoveStrategyService {
       const bestMove = topMoves.moves[0];
       return bestMove ? bestMove.uci : null;
     } catch (error) {
-      logger.error("Failed to get best move", error as Error, { fen });
+      logger.error('Failed to get best move', error as Error, { fen });
       return null;
     }
   }
@@ -240,29 +239,22 @@ class MoveStrategyService {
    * // Very strong but not perfect
    * const move = await moveStrategyService.getHumanLikeMove(fen, 0.95);
    */
-  async getHumanLikeMove(
-    fen: string,
-    strength: number = 0.8,
-  ): Promise<string | null> {
+  async getHumanLikeMove(fen: string, strength: number = 0.8): Promise<string | null> {
     try {
-      const { tablebaseService } = await import("./TablebaseService");
+      const { tablebaseService } = await import('./TablebaseService');
       const topMoves = await tablebaseService.getTopMoves(fen, 5);
 
-      if (
-        !topMoves.isAvailable ||
-        !topMoves.moves ||
-        topMoves.moves.length === 0
-      ) {
+      if (!topMoves.isAvailable || !topMoves.moves || topMoves.moves.length === 0) {
         return null;
       }
 
       // With perfect strength, always play the best move
       const firstMove = topMoves.moves[0];
       if (!firstMove) {
-        logger.warn("No moves available for position", { fen });
+        logger.warn('No moves available for position', { fen });
         return null;
       }
-      
+
       if (strength >= 1) {
         return firstMove.uci;
       }
@@ -275,13 +267,11 @@ class MoveStrategyService {
       }
 
       // Pick a random move from the top moves
-      const moveIndex = Math.floor(
-        Math.random() * Math.min(3, topMoves.moves.length),
-      );
+      const moveIndex = Math.floor(Math.random() * Math.min(3, topMoves.moves.length));
       const selectedMove = topMoves.moves[moveIndex];
       return selectedMove ? selectedMove.uci : firstMove.uci;
     } catch (error) {
-      logger.error("Failed to get human-like move", error as Error, { fen });
+      logger.error('Failed to get human-like move', error as Error, { fen });
       return null;
     }
   }

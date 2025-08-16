@@ -1,6 +1,6 @@
 /**
  * Vitest Test Setup
- * 
+ *
  * This file configures the test environment for all Vitest tests
  * in the features/ directory. It handles both Node.js and DOM environments.
  */
@@ -54,7 +54,7 @@ if (typeof window !== 'undefined' && typeof globalThis.window !== 'undefined') {
   // Mock window.matchMedia for components that use media queries
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
-    value: vi.fn().mockImplementation((query) => ({
+    value: vi.fn().mockImplementation(query => ({
       matches: false,
       media: query,
       onchange: null,

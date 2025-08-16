@@ -2,11 +2,11 @@ import { vi } from 'vitest';
 /**
  * @file Tests for DialogManager component
  * @module src/features/training/components/__tests__/DialogManager
- * 
+ *
  * @description
  * Comprehensive tests for the DialogManager component that handles
  * move error and success dialogs in the chess training interface.
- * 
+ *
  * Tests cover:
  * - Dialog rendering based on state props
  * - Callback delegation to parent handlers
@@ -21,21 +21,27 @@ import { DialogManager } from '@shared/components/training/DialogManager';
 
 // Mock the dialog components
 vi.mock('@shared/components/ui/MoveErrorDialog', () => ({
-  MoveErrorDialog: ({ 
-    isOpen, 
-    onClose, 
-    onTakeBack, 
-    onRestart, 
+  MoveErrorDialog: ({
+    isOpen,
+    onClose,
+    onTakeBack,
+    onRestart,
     onShowBestMove,
     wdlBefore,
     wdlAfter,
-    bestMove 
-  }: any) => (
+    bestMove,
+  }: any) =>
     isOpen ? (
       <div data-testid="move-error-dialog">
-        <button onClick={onClose} data-testid="error-close">Close</button>
-        <button onClick={onTakeBack} data-testid="error-takeback">Take Back</button>
-        <button onClick={onRestart} data-testid="error-restart">Restart</button>
+        <button onClick={onClose} data-testid="error-close">
+          Close
+        </button>
+        <button onClick={onTakeBack} data-testid="error-takeback">
+          Take Back
+        </button>
+        <button onClick={onRestart} data-testid="error-restart">
+          Restart
+        </button>
         {onShowBestMove && (
           <button onClick={onShowBestMove} data-testid="error-show-best">
             Show Best: {bestMove}
@@ -44,27 +50,23 @@ vi.mock('@shared/components/ui/MoveErrorDialog', () => ({
         <span data-testid="wdl-before">{wdlBefore}</span>
         <span data-testid="wdl-after">{wdlAfter}</span>
       </div>
-    ) : null
-  )
+    ) : null,
 }));
 
 vi.mock('@shared/components/ui/MoveSuccessDialog', () => ({
-  MoveSuccessDialog: ({ 
-    isOpen, 
-    onClose, 
-    onContinue, 
-    promotionPiece, 
-    moveDescription 
-  }: any) => (
+  MoveSuccessDialog: ({ isOpen, onClose, onContinue, promotionPiece, moveDescription }: any) =>
     isOpen ? (
       <div data-testid="move-success-dialog">
-        <button onClick={onClose} data-testid="success-close">Close</button>
-        <button onClick={onContinue} data-testid="success-continue">Continue</button>
+        <button onClick={onClose} data-testid="success-close">
+          Close
+        </button>
+        <button onClick={onContinue} data-testid="success-continue">
+          Continue
+        </button>
         {promotionPiece && <span data-testid="promotion-piece">{promotionPiece}</span>}
         {moveDescription && <span data-testid="move-description">{moveDescription}</span>}
       </div>
-    ) : null
-  )
+    ) : null,
 }));
 
 describe('DialogManager', () => {
@@ -90,13 +92,7 @@ describe('DialogManager', () => {
         bestMove: 'Kh1',
       };
 
-      render(
-        <DialogManager
-          errorDialog={errorDialog}
-          successDialog={null}
-          {...mockHandlers}
-        />
-      );
+      render(<DialogManager errorDialog={errorDialog} successDialog={null} {...mockHandlers} />);
 
       expect(screen.getByTestId('move-error-dialog')?.isConnected).toBe(true);
       expect(screen.getByTestId('wdl-before').textContent).toBe('1');
@@ -104,13 +100,7 @@ describe('DialogManager', () => {
     });
 
     it('does not render error dialog when errorDialog is null', () => {
-      render(
-        <DialogManager
-          errorDialog={null}
-          successDialog={null}
-          {...mockHandlers}
-        />
-      );
+      render(<DialogManager errorDialog={null} successDialog={null} {...mockHandlers} />);
 
       expect(screen.queryByTestId('move-error-dialog')?.isConnected).not.toBe(true);
     });
@@ -122,13 +112,7 @@ describe('DialogManager', () => {
         wdlAfter: -1,
       };
 
-      render(
-        <DialogManager
-          errorDialog={errorDialog}
-          successDialog={null}
-          {...mockHandlers}
-        />
-      );
+      render(<DialogManager errorDialog={errorDialog} successDialog={null} {...mockHandlers} />);
 
       expect(screen.queryByTestId('move-error-dialog')?.isConnected).not.toBe(true);
     });
@@ -141,13 +125,7 @@ describe('DialogManager', () => {
         wdlAfter: -1,
       };
 
-      render(
-        <DialogManager
-          errorDialog={errorDialog}
-          successDialog={null}
-          {...mockHandlers}
-        />
-      );
+      render(<DialogManager errorDialog={errorDialog} successDialog={null} {...mockHandlers} />);
 
       await user.click(screen.getByTestId('error-takeback'));
       expect(mockHandlers.onErrorTakeBack).toHaveBeenCalledTimes(1);
@@ -161,13 +139,7 @@ describe('DialogManager', () => {
         wdlAfter: -1,
       };
 
-      render(
-        <DialogManager
-          errorDialog={errorDialog}
-          successDialog={null}
-          {...mockHandlers}
-        />
-      );
+      render(<DialogManager errorDialog={errorDialog} successDialog={null} {...mockHandlers} />);
 
       await user.click(screen.getByTestId('error-restart'));
       expect(mockHandlers.onErrorRestart).toHaveBeenCalledTimes(1);
@@ -181,13 +153,7 @@ describe('DialogManager', () => {
         wdlAfter: -1,
       };
 
-      render(
-        <DialogManager
-          errorDialog={errorDialog}
-          successDialog={null}
-          {...mockHandlers}
-        />
-      );
+      render(<DialogManager errorDialog={errorDialog} successDialog={null} {...mockHandlers} />);
 
       await user.click(screen.getByTestId('error-close'));
       expect(mockHandlers.onErrorContinue).toHaveBeenCalledTimes(1);
@@ -202,13 +168,7 @@ describe('DialogManager', () => {
         bestMove: 'Qh8+',
       };
 
-      render(
-        <DialogManager
-          errorDialog={errorDialog}
-          successDialog={null}
-          {...mockHandlers}
-        />
-      );
+      render(<DialogManager errorDialog={errorDialog} successDialog={null} {...mockHandlers} />);
 
       const showBestButton = screen.getByTestId('error-show-best');
       expect(showBestButton?.isConnected).toBe(true);
@@ -225,13 +185,7 @@ describe('DialogManager', () => {
         wdlAfter: -1,
       };
 
-      render(
-        <DialogManager
-          errorDialog={errorDialog}
-          successDialog={null}
-          {...mockHandlers}
-        />
-      );
+      render(<DialogManager errorDialog={errorDialog} successDialog={null} {...mockHandlers} />);
 
       expect(screen.queryByTestId('error-show-best')?.isConnected).not.toBe(true);
     });
@@ -241,13 +195,7 @@ describe('DialogManager', () => {
         isOpen: true,
       };
 
-      render(
-        <DialogManager
-          errorDialog={errorDialog}
-          successDialog={null}
-          {...mockHandlers}
-        />
-      );
+      render(<DialogManager errorDialog={errorDialog} successDialog={null} {...mockHandlers} />);
 
       expect(screen.getByTestId('wdl-before').textContent).toBe('0');
       expect(screen.getByTestId('wdl-after').textContent).toBe('0');
@@ -262,13 +210,7 @@ describe('DialogManager', () => {
         moveDescription: 'Excellent move!',
       };
 
-      render(
-        <DialogManager
-          errorDialog={null}
-          successDialog={successDialog}
-          {...mockHandlers}
-        />
-      );
+      render(<DialogManager errorDialog={null} successDialog={successDialog} {...mockHandlers} />);
 
       expect(screen.getByTestId('move-success-dialog')?.isConnected).toBe(true);
       expect(screen.getByTestId('promotion-piece').textContent).toBe('Q');
@@ -276,13 +218,7 @@ describe('DialogManager', () => {
     });
 
     it('does not render success dialog when successDialog is null', () => {
-      render(
-        <DialogManager
-          errorDialog={null}
-          successDialog={null}
-          {...mockHandlers}
-        />
-      );
+      render(<DialogManager errorDialog={null} successDialog={null} {...mockHandlers} />);
 
       expect(screen.queryByTestId('move-success-dialog')?.isConnected).not.toBe(true);
     });
@@ -293,13 +229,7 @@ describe('DialogManager', () => {
         promotionPiece: 'Q',
       };
 
-      render(
-        <DialogManager
-          errorDialog={null}
-          successDialog={successDialog}
-          {...mockHandlers}
-        />
-      );
+      render(<DialogManager errorDialog={null} successDialog={successDialog} {...mockHandlers} />);
 
       expect(screen.queryByTestId('move-success-dialog')?.isConnected).not.toBe(true);
     });
@@ -311,13 +241,7 @@ describe('DialogManager', () => {
         moveDescription: 'Great job!',
       };
 
-      render(
-        <DialogManager
-          errorDialog={null}
-          successDialog={successDialog}
-          {...mockHandlers}
-        />
-      );
+      render(<DialogManager errorDialog={null} successDialog={successDialog} {...mockHandlers} />);
 
       await user.click(screen.getByTestId('success-close'));
       expect(mockHandlers.onSuccessClose).toHaveBeenCalledTimes(1);
@@ -330,13 +254,7 @@ describe('DialogManager', () => {
         moveDescription: 'Perfect!',
       };
 
-      render(
-        <DialogManager
-          errorDialog={null}
-          successDialog={successDialog}
-          {...mockHandlers}
-        />
-      );
+      render(<DialogManager errorDialog={null} successDialog={successDialog} {...mockHandlers} />);
 
       await user.click(screen.getByTestId('success-continue'));
       expect(mockHandlers.onSuccessContinue).toHaveBeenCalledTimes(1);
@@ -347,13 +265,7 @@ describe('DialogManager', () => {
         isOpen: true,
       };
 
-      render(
-        <DialogManager
-          errorDialog={null}
-          successDialog={successDialog}
-          {...mockHandlers}
-        />
-      );
+      render(<DialogManager errorDialog={null} successDialog={successDialog} {...mockHandlers} />);
 
       expect(screen.getByTestId('move-success-dialog')?.isConnected).toBe(true);
       expect(screen.queryByTestId('promotion-piece')?.isConnected).not.toBe(true);
@@ -375,11 +287,7 @@ describe('DialogManager', () => {
       };
 
       render(
-        <DialogManager
-          errorDialog={errorDialog}
-          successDialog={successDialog}
-          {...mockHandlers}
-        />
+        <DialogManager errorDialog={errorDialog} successDialog={successDialog} {...mockHandlers} />
       );
 
       expect(screen.getByTestId('move-error-dialog')?.isConnected).toBe(true);
@@ -399,11 +307,7 @@ describe('DialogManager', () => {
       };
 
       render(
-        <DialogManager
-          errorDialog={errorDialog}
-          successDialog={successDialog}
-          {...mockHandlers}
-        />
+        <DialogManager errorDialog={errorDialog} successDialog={successDialog} {...mockHandlers} />
       );
 
       expect(screen.queryByTestId('move-error-dialog')?.isConnected).not.toBe(true);
@@ -420,17 +324,11 @@ describe('DialogManager', () => {
         bestMove: 'Rxd7',
       };
 
-      render(
-        <DialogManager
-          errorDialog={errorDialog}
-          successDialog={null}
-          {...mockHandlers}
-        />
-      );
+      render(<DialogManager errorDialog={errorDialog} successDialog={null} {...mockHandlers} />);
 
       const dialog = screen.getByTestId('move-error-dialog');
       expect(dialog?.isConnected).toBe(true);
-      
+
       // Verify all buttons are present
       expect(screen.getByTestId('error-close')?.isConnected).toBe(true);
       expect(screen.getByTestId('error-takeback')?.isConnected).toBe(true);
@@ -445,17 +343,11 @@ describe('DialogManager', () => {
         moveDescription: 'Brilliant sacrifice!',
       };
 
-      render(
-        <DialogManager
-          errorDialog={null}
-          successDialog={successDialog}
-          {...mockHandlers}
-        />
-      );
+      render(<DialogManager errorDialog={null} successDialog={successDialog} {...mockHandlers} />);
 
       const dialog = screen.getByTestId('move-success-dialog');
       expect(dialog?.isConnected).toBe(true);
-      
+
       // Verify all buttons are present
       expect(screen.getByTestId('success-close')?.isConnected).toBe(true);
       expect(screen.getByTestId('success-continue')?.isConnected).toBe(true);

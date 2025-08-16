@@ -1,28 +1,28 @@
-"use client";
+'use client';
 
 /**
  * Position Service Context
  * Provides dependency injection for PositionService throughout the React app
  */
 
-import React, { createContext, useContext, useMemo } from "react";
-import { PositionService as DefaultPositionService } from "@shared/services/database/PositionService";
+import React, { createContext, useContext, useMemo } from 'react';
+import { PositionService as DefaultPositionService } from '@shared/services/database/PositionService';
 import {
   type PositionService,
   type PositionServiceConfig,
-} from "@shared/services/database/IPositionService";
-import { type PositionRepository } from "@shared/repositories/IPositionRepository";
-import { FirebasePositionRepository } from "@shared/repositories/implementations/FirebasePositionRepository";
-import { MockPositionRepository } from "@shared/repositories/implementations/MockPositionRepository";
-import { db } from "@shared/lib/firebase";
+} from '@shared/services/database/IPositionService';
+import { type PositionRepository } from '@shared/repositories/IPositionRepository';
+import { FirebasePositionRepository } from '@shared/repositories/implementations/FirebasePositionRepository';
+import { MockPositionRepository } from '@shared/repositories/implementations/MockPositionRepository';
+import { db } from '@shared/lib/firebase';
 import {
   shouldUseMockService,
   createMockPositionRepository,
-} from "@shared/testing/MockPositionServiceFactory";
-import { CACHE } from "@shared/constants";
-import { getLogger } from "@shared/services/logging";
+} from '@shared/testing/MockPositionServiceFactory';
+import { CACHE } from '@shared/constants';
+import { getLogger } from '@shared/services/logging';
 
-const logger = getLogger().setContext("PositionServiceContext");
+const logger = getLogger().setContext('PositionServiceContext');
 
 /**
  * Context value type
@@ -35,9 +35,7 @@ interface PositionServiceContextValue {
 /**
  * React Context
  */
-const PositionServiceContext = createContext<
-  PositionServiceContextValue | undefined
->(undefined);
+const PositionServiceContext = createContext<PositionServiceContextValue | undefined>(undefined);
 
 /**
  * Provider props
@@ -84,9 +82,7 @@ const PositionServiceProvider: React.FC<PositionServiceProviderProps> = ({
   }, [repository, config]);
 
   return (
-    <PositionServiceContext.Provider value={value}>
-      {children}
-    </PositionServiceContext.Provider>
+    <PositionServiceContext.Provider value={value}>{children}</PositionServiceContext.Provider>
   );
 };
 
@@ -118,9 +114,7 @@ const usePositionRepository = (): PositionRepository => {
   const context = useContext(PositionServiceContext);
 
   if (!context) {
-    throw new Error(
-      "usePositionRepository must be used within PositionServiceProvider",
-    );
+    throw new Error('usePositionRepository must be used within PositionServiceProvider');
   }
 
   return context.repository;
@@ -132,15 +126,13 @@ const usePositionRepository = (): PositionRepository => {
 function createDefaultRepository(): PositionRepository {
   // Use pre-seeded mock repository for E2E tests (bypasses Firebase completely)
   if (shouldUseMockService()) {
-    logger.info(
-      "Using MockPositionRepository with pre-seeded test data for E2E testing",
-    );
+    logger.info('Using MockPositionRepository with pre-seeded test data for E2E testing');
     return createMockPositionRepository();
   }
 
   // Use mock repository in unit test environment
-  if (process.env.NODE_ENV === "test" && !process.env['USE_REAL_FIREBASE']) {
-    logger.info("Using MockPositionRepository for unit testing");
+  if (process.env.NODE_ENV === 'test' && !process.env['USE_REAL_FIREBASE']) {
+    logger.info('Using MockPositionRepository for unit testing');
     return new MockPositionRepository({
       enableCache: true,
       events: {
@@ -157,7 +149,7 @@ function createDefaultRepository(): PositionRepository {
   }
 
   // Use Firebase repository in production/development
-  logger.info("Using FirebasePositionRepository");
+  logger.info('Using FirebasePositionRepository');
   return new FirebasePositionRepository(db, {
     enableCache: true,
     cacheSize: CACHE.POSITION_CACHE_SIZE,
@@ -195,14 +187,10 @@ function createDefaultRepository(): PositionRepository {
  * HOC for components that need PositionService
  * @param Component
  */
-export function withPositionService<
-  P extends { positionService: PositionService },
->(
-  Component: React.ComponentType<P>,
-): React.ComponentType<Omit<P, "positionService">> {
-  return function WithPositionServiceComponent(
-    props: Omit<P, "positionService">,
-  ) {
+export function withPositionService<P extends { positionService: PositionService }>(
+  Component: React.ComponentType<P>
+): React.ComponentType<Omit<P, 'positionService'>> {
+  return function WithPositionServiceComponent(props: Omit<P, 'positionService'>) {
     const positionService = usePositionService();
 
     // Handle SSR case where service might be null

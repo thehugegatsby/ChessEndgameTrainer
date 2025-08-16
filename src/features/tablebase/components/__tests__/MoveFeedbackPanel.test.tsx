@@ -5,7 +5,7 @@ import { trainingEvents } from '../../../training/events/EventEmitter';
 
 // Mock store - must be hoisted before imports
 const mockStoreData = {
-  ui: { 
+  ui: {
     tablebaseData: {
       fen: 'test-fen',
       evaluation: { outcome: 'win', dtm: 5 },
@@ -18,12 +18,12 @@ const mockStoreData = {
       ],
       isLoading: false,
       lastUpdated: Date.now(),
-    }
-  } 
+    },
+  },
 };
 
 vi.mock('@shared/store/rootStore', () => ({
-  useStore: vi.fn((selector) => {
+  useStore: vi.fn(selector => {
     // If a selector is provided, call it with the mock store data
     if (typeof selector === 'function') {
       return selector(mockStoreData);
@@ -51,7 +51,7 @@ describe('MoveFeedbackPanel', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Mock useTrainingEvent to capture the event handler
     mockUseTrainingEvent.mockImplementation((event: string, handler: (data: any) => void) => {
       if (event === 'move:feedback') {
@@ -68,23 +68,13 @@ describe('MoveFeedbackPanel', () => {
   };
 
   it('should not render when no feedback data', () => {
-    render(
-      <MoveFeedbackPanel
-        isVisible={true}
-        onMoveSelect={mockOnMoveSelect}
-      />
-    );
+    render(<MoveFeedbackPanel isVisible={true} onMoveSelect={mockOnMoveSelect} />);
 
     expect(screen.queryByText('Move Feedback')).toBeNull();
   });
 
   it('should render success feedback correctly', async () => {
-    render(
-      <MoveFeedbackPanel
-        isVisible={true}
-        onMoveSelect={mockOnMoveSelect}
-      />
-    );
+    render(<MoveFeedbackPanel isVisible={true} onMoveSelect={mockOnMoveSelect} />);
 
     // Trigger a success event
     act(() => {
@@ -135,12 +125,7 @@ describe('MoveFeedbackPanel', () => {
   });
 
   it('should render error feedback', async () => {
-    render(
-      <MoveFeedbackPanel
-        isVisible={true}
-        onMoveSelect={mockOnMoveSelect}
-      />
-    );
+    render(<MoveFeedbackPanel isVisible={true} onMoveSelect={mockOnMoveSelect} />);
 
     // Trigger an error event
     act(() => {
@@ -161,12 +146,7 @@ describe('MoveFeedbackPanel', () => {
   });
 
   it('should show evaluation change', async () => {
-    render(
-      <MoveFeedbackPanel
-        isVisible={true}
-        onMoveSelect={mockOnMoveSelect}
-      />
-    );
+    render(<MoveFeedbackPanel isVisible={true} onMoveSelect={mockOnMoveSelect} />);
 
     // Trigger event with evaluation change
     act(() => {
@@ -188,12 +168,7 @@ describe('MoveFeedbackPanel', () => {
   });
 
   it('should display played and best moves', async () => {
-    render(
-      <MoveFeedbackPanel
-        isVisible={true}
-        onMoveSelect={mockOnMoveSelect}
-      />
-    );
+    render(<MoveFeedbackPanel isVisible={true} onMoveSelect={mockOnMoveSelect} />);
 
     act(() => {
       triggerMoveEvent({
@@ -215,12 +190,7 @@ describe('MoveFeedbackPanel', () => {
   });
 
   it('should handle move selection from suggestions', async () => {
-    render(
-      <MoveFeedbackPanel
-        isVisible={true}
-        onMoveSelect={mockOnMoveSelect}
-      />
-    );
+    render(<MoveFeedbackPanel isVisible={true} onMoveSelect={mockOnMoveSelect} />);
 
     // Trigger a warning event with a playedMove that exists in the mock store
     // The mock store has moves: e4, d4, Nf3, Nc3, Bc4
@@ -241,12 +211,12 @@ describe('MoveFeedbackPanel', () => {
     // The suggestions should include e4 (first move that's not Nf3)
     // Find and click the e4 suggestion button
     const suggestionButtons = screen.getAllByRole('button');
-    const e4Button = suggestionButtons.find(btn => 
-      btn.textContent?.includes('e4') && btn.title?.includes('win')
+    const e4Button = suggestionButtons.find(
+      btn => btn.textContent?.includes('e4') && btn.title?.includes('win')
     );
-    
+
     expect(e4Button).toBeTruthy();
-    
+
     act(() => {
       fireEvent.click(e4Button!);
     });
@@ -261,12 +231,7 @@ describe('MoveFeedbackPanel', () => {
   });
 
   it('should handle show suggestions callback', async () => {
-    render(
-      <MoveFeedbackPanel
-        isVisible={true}
-        onShowSuggestions={mockOnShowSuggestions}
-      />
-    );
+    render(<MoveFeedbackPanel isVisible={true} onShowSuggestions={mockOnShowSuggestions} />);
 
     // Trigger a warning event - the mock store already has 5 moves
     // When we play Nf3, it will be filtered out leaving 4 suggestions
@@ -287,7 +252,7 @@ describe('MoveFeedbackPanel', () => {
     // The "Show all" button should be present since we have more than 3 suggestions
     const showAllButton = screen.getByText('Show all');
     expect(showAllButton).toBeTruthy();
-    
+
     act(() => {
       fireEvent.click(showAllButton);
     });
@@ -297,12 +262,7 @@ describe('MoveFeedbackPanel', () => {
   });
 
   it('should allow closing feedback panel', async () => {
-    render(
-      <MoveFeedbackPanel
-        isVisible={true}
-        onMoveSelect={mockOnMoveSelect}
-      />
-    );
+    render(<MoveFeedbackPanel isVisible={true} onMoveSelect={mockOnMoveSelect} />);
 
     act(() => {
       triggerMoveEvent({
@@ -324,12 +284,7 @@ describe('MoveFeedbackPanel', () => {
   });
 
   it('should not render when not visible', async () => {
-    render(
-      <MoveFeedbackPanel
-        isVisible={false}
-        onMoveSelect={mockOnMoveSelect}
-      />
-    );
+    render(<MoveFeedbackPanel isVisible={false} onMoveSelect={mockOnMoveSelect} />);
 
     act(() => {
       triggerMoveEvent({
@@ -340,7 +295,7 @@ describe('MoveFeedbackPanel', () => {
 
     // Wait a bit to ensure it doesn't appear
     await new Promise(resolve => setTimeout(resolve, 100));
-    
+
     expect(screen.queryByText('Move Feedback')).toBeNull();
   });
 });

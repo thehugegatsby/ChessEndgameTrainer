@@ -13,11 +13,11 @@
  * - useUIStore(): Convenience hook returning [state, actions] tuple
  */
 
-import { useMemo } from "react";
-import { useStore, useStoreApi } from "../StoreContext";
-import { useShallow } from "zustand/react/shallow";
-import type { RootState, UIActions as UIActionsType } from "../slices/types";
-import type { UIState } from "../types";
+import { useMemo } from 'react';
+import { useStore, useStoreApi } from '../StoreContext';
+import { useShallow } from 'zustand/react/shallow';
+import type { RootState, UIActions as UIActionsType } from '../slices/types';
+import type { UIState } from '../types';
 
 /**
  * Hook for reactive UI state properties
@@ -51,7 +51,7 @@ export const useUIState = (): UIState => {
       toasts: state.ui.toasts,
       loading: state.ui.loading,
       analysisPanel: state.ui.analysisPanel,
-    })),
+    }))
   );
 };
 
@@ -98,7 +98,7 @@ export const useUIActions = (): UIActionsType => {
       setLoading: actions.setLoading,
       updateAnalysisPanel: actions.updateAnalysisPanel,
     }),
-    [actions],
+    [actions]
   );
 };
 

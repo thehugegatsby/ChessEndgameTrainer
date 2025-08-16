@@ -1,9 +1,9 @@
 /**
  * Global Observer Setup for Vitest
- * 
+ *
  * This runs BEFORE Vite scans any modules, ensuring IntersectionObserver
  * is available when Next.js checks for it during module evaluation.
- * 
+ *
  * CRITICAL: This must run via globalSetup, NOT setupFiles!
  */
 
@@ -77,7 +77,10 @@ if (typeof global !== 'undefined') {
 }
 
 console.log('🚀 Global Observer Setup: Polyfills installed BEFORE module loading');
-console.log('   IntersectionObserver installed:', typeof (globalThis as any).IntersectionObserver === 'function');
+console.log(
+  '   IntersectionObserver installed:',
+  typeof (globalThis as any).IntersectionObserver === 'function'
+);
 
 export default async () => {
   console.log('🚀 Global setup function called');

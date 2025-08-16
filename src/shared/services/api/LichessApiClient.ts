@@ -25,12 +25,12 @@
  * }
  */
 
-import { z } from "zod";
-import { getLogger } from "../logging";
-import { LichessTablebaseResponseSchema } from "../../types/tablebaseSchemas";
-import type { LichessTablebaseResponse } from "../../types/tablebase";
-import { API_TIMEOUTS_MS } from "../../../constants/time.constants";
-import { HTTP_STATUS } from "../../../constants/api.constants";
+import { z } from 'zod';
+import { getLogger } from '../logging';
+import { LichessTablebaseResponseSchema } from '../../types/tablebaseSchemas';
+import type { LichessTablebaseResponse } from '../../types/tablebase';
+import { API_TIMEOUTS_MS } from '../../../constants/time.constants';
+import { HTTP_STATUS } from '../../../constants/api.constants';
 
 /**
  * API-specific error for Lichess Tablebase communication
@@ -43,7 +43,7 @@ export class LichessApiError extends Error {
   ) {
     super(message);
     this.name = 'LichessApiError';
-    
+
     // Maintain proper stack trace for debugging
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, LichessApiError);
@@ -58,7 +58,7 @@ export class LichessApiTimeoutError extends Error {
   constructor(timeoutMs: number) {
     super(`Request timed out after ${timeoutMs}ms`);
     this.name = 'LichessApiTimeoutError';
-    
+
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, LichessApiTimeoutError);
     }
@@ -71,20 +71,20 @@ export class LichessApiTimeoutError extends Error {
 export interface LichessApiClientConfig {
   /** Base URL for the Lichess Tablebase API */
   baseUrl?: string;
-  
+
   /** Request timeout in milliseconds */
   timeoutMs?: number;
-  
+
   /** Maximum number of retry attempts */
   maxRetries?: number;
-  
+
   /** Maximum delay for exponential backoff in milliseconds */
   maxBackoffMs?: number;
 }
 
 /**
  * HTTP client for Lichess Tablebase API
- * 
+ *
  * Handles all network communication with proper error handling,
  * retry logic, and timeout management.
  */
@@ -117,14 +117,14 @@ export class LichessApiClient {
 
   /**
    * Fetch tablebase data for a given position
-   * 
+   *
    * @param fen - Position in FEN notation
    * @param maxMoves - Maximum number of moves to request (default: 20)
    * @returns Promise resolving to validated API response
    * @throws {LichessApiError} For HTTP errors (4xx, 5xx)
    * @throws {LichessApiTimeoutError} For request timeouts
    * @throws {Error} For validation errors or unexpected failures
-   * 
+   *
    * @example
    * const response = await client.lookup("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
    */
@@ -136,7 +136,11 @@ export class LichessApiClient {
       } catch (error) {
         // Don't retry on client errors (4xx) except 429 (rate limiting)
         if (error instanceof LichessApiError) {
-          if (error.statusCode >= HTTP_STATUS.BAD_REQUEST && error.statusCode < HTTP_STATUS.INTERNAL_SERVER_ERROR && error.statusCode !== HTTP_STATUS.TOO_MANY_REQUESTS) {
+          if (
+            error.statusCode >= HTTP_STATUS.BAD_REQUEST &&
+            error.statusCode < HTTP_STATUS.INTERNAL_SERVER_ERROR &&
+            error.statusCode !== HTTP_STATUS.TOO_MANY_REQUESTS
+          ) {
             throw error;
           }
         }
@@ -159,7 +163,7 @@ export class LichessApiClient {
     }
 
     // Should never reach here due to maxRetries check above
-    throw new Error("Unexpected error in retry loop");
+    throw new Error('Unexpected error in retry loop');
   }
 
   /**
@@ -174,17 +178,19 @@ export class LichessApiClient {
       const url = `${this.baseUrl}?fen=${encodeURIComponent(fen)}&moves=${maxMoves}`;
       getLogger().info(`[LichessApiClient] Calling URL: ${url}`);
       getLogger().info(`[LichessApiClient] Raw FEN: "${fen}"`);
-      
+
       const response = await fetch(url, {
         signal: controller.signal,
         headers: {
-          'Accept': 'application/json',
-          'User-Agent': 'ChessEndgameTrainer/1.0'
-        }
+          Accept: 'application/json',
+          'User-Agent': 'ChessEndgameTrainer/1.0',
+        },
       });
 
       clearTimeout(timeoutId);
-      getLogger().debug(`[LichessApiClient] Response status: ${response.status}, content-type: ${response.headers.get('content-type')}`);
+      getLogger().debug(
+        `[LichessApiClient] Response status: ${response.status}, content-type: ${response.headers.get('content-type')}`
+      );
 
       if (!response.ok) {
         throw new LichessApiError(
@@ -194,35 +200,38 @@ export class LichessApiClient {
       }
 
       const responseText = await response.text();
-      getLogger().debug(`[LichessApiClient] Response body (first ${HTTP_STATUS.OK} chars): ${responseText.substring(0, HTTP_STATUS.OK)}`);
-      
+      getLogger().debug(
+        `[LichessApiClient] Response body (first ${HTTP_STATUS.OK} chars): ${responseText.substring(0, HTTP_STATUS.OK)}`
+      );
+
       const responseData = JSON.parse(responseText);
-      
+
       // Validate response structure with Zod
       try {
         return LichessTablebaseResponseSchema.parse(responseData);
       } catch (validationError) {
         if (validationError instanceof z.ZodError) {
           // Use the same error message format as the original TablebaseService
-          throw new Error("Malformed API response");
+          throw new Error('Malformed API response');
         }
         throw validationError;
       }
-
     } catch (error) {
       clearTimeout(timeoutId);
-      
+
       // Handle AbortError (timeout) - can be Error or DOMException
-      if ((error instanceof Error && error.name === 'AbortError') || 
-          (error instanceof DOMException && error.name === 'AbortError')) {
+      if (
+        (error instanceof Error && error.name === 'AbortError') ||
+        (error instanceof DOMException && error.name === 'AbortError')
+      ) {
         throw new LichessApiTimeoutError(this.timeoutMs);
       }
-      
+
       // Handle fetch errors (network issues, etc.)
       if (error instanceof TypeError && error.message.includes('fetch')) {
         throw new LichessApiError('Network error during API request', 0, error);
       }
-      
+
       // Re-throw API errors and validation errors as-is
       throw error;
     }
@@ -238,9 +247,9 @@ export class LichessApiClient {
 
   /**
    * Health check for the API endpoint
-   * 
+   *
    * @returns Promise resolving to true if API is reachable
-   * 
+   *
    * @example
    * const isHealthy = await client.healthCheck();
    * if (!isHealthy) {
@@ -250,7 +259,7 @@ export class LichessApiClient {
   async healthCheck(): Promise<boolean> {
     try {
       // Use a simple, known position for health check
-      const testFen = "8/8/8/8/8/8/8/K7 w - - 0 1"; // King vs empty board
+      const testFen = '8/8/8/8/8/8/8/K7 w - - 0 1'; // King vs empty board
       await this.lookup(testFen, 1);
       return true;
     } catch {

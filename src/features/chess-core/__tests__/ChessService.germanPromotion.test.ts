@@ -23,7 +23,7 @@ describe('ChessService - German Promotion Notation', () => {
 
       // Test move with German notation (e7 to e8)
       const result = service.move({ from: 'e7', to: 'e8', promotion: 'D' });
-      
+
       expect(result).not.toBeNull();
       expect(result?.san).toContain('=Q'); // Should be converted to Queen
       expect(result?.promotion).toBe('q'); // Internal representation should be 'q'
@@ -33,7 +33,7 @@ describe('ChessService - German Promotion Notation', () => {
       service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
 
       const result = service.move({ from: 'e7', to: 'e8', promotion: 'd' });
-      
+
       expect(result).not.toBeNull();
       expect(result?.san).toContain('=Q');
       expect(result?.promotion).toBe('q');
@@ -43,7 +43,7 @@ describe('ChessService - German Promotion Notation', () => {
       service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
 
       const result = service.move({ from: 'e7', to: 'e8', promotion: 'T' });
-      
+
       expect(result).not.toBeNull();
       expect(result?.san).toContain('=R');
       expect(result?.promotion).toBe('r');
@@ -53,7 +53,7 @@ describe('ChessService - German Promotion Notation', () => {
       service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
 
       const result = service.move({ from: 'e7', to: 'e8', promotion: 'L' });
-      
+
       expect(result).not.toBeNull();
       expect(result?.san).toContain('=B');
       expect(result?.promotion).toBe('b');
@@ -63,7 +63,7 @@ describe('ChessService - German Promotion Notation', () => {
       service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
 
       const result = service.move({ from: 'e7', to: 'e8', promotion: 'S' });
-      
+
       expect(result).not.toBeNull();
       expect(result?.san).toContain('=N');
       expect(result?.promotion).toBe('n');
@@ -71,9 +71,9 @@ describe('ChessService - German Promotion Notation', () => {
 
     it('should handle string notation with German promotion "f7f8D"', () => {
       service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
-      
+
       const result = service.move('e7e8D');
-      
+
       expect(result).not.toBeNull();
       expect(result?.san).toContain('=Q');
       expect(result?.from).toBe('e7');
@@ -83,9 +83,9 @@ describe('ChessService - German Promotion Notation', () => {
 
     it('should handle string notation with German promotion and dash "f7-f8D"', () => {
       service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
-      
+
       const result = service.move('e7-e8D');
-      
+
       expect(result).not.toBeNull();
       expect(result?.san).toContain('=Q');
       expect(result?.from).toBe('e7');

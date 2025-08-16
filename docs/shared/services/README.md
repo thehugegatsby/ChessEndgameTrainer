@@ -94,13 +94,13 @@ interface ITablebaseService {
 ```typescript
 // File: /shared/services/tablebase/index.ts:15-25
 export function createTablebaseService(
-  type: "mock" | "syzygy" | "gaviota",
-  config: TablebaseServiceConfig,
+  type: 'mock' | 'syzygy' | 'gaviota',
+  config: TablebaseServiceConfig
 ): ITablebaseService {
   switch (type) {
-    case "mock":
+    case 'mock':
       return new MockTablebaseService(config);
-    case "syzygy":
+    case 'syzygy':
       return new SyzygyTablebaseService(config);
     default:
       throw new Error(`Unknown tablebase service type: ${type}`);
@@ -117,10 +117,7 @@ export function createTablebaseService(
 class TablebaseServiceAdapter {
   constructor(private tablebaseService: ITablebaseService) {}
 
-  async getEvaluation(
-    fen: string,
-    playerToMove: "w" | "b",
-  ): Promise<TablebaseResult | null> {
+  async getEvaluation(fen: string, playerToMove: 'w' | 'b'): Promise<TablebaseResult | null> {
     try {
       const serviceResult = await this.tablebaseService.lookupPosition(fen);
 
@@ -135,7 +132,7 @@ class TablebaseServiceAdapter {
         precise: serviceResult.precise,
       };
     } catch (error) {
-      console.warn("TablebaseServiceAdapter error:", error);
+      console.warn('TablebaseServiceAdapter error:', error);
       return null;
     }
   }
@@ -223,10 +220,10 @@ class MockTablebaseService implements ITablebaseService {
 // Pattern: Environment-specific service configuration
 export const serviceConfig = {
   tablebase: {
-    type: process.env.NODE_ENV === "test" ? "mock" : "syzygy",
+    type: process.env.NODE_ENV === 'test' ? 'mock' : 'syzygy',
     maxPieces: 7,
     enableCaching: true,
-    timeout: process.env.NODE_ENV === "development" ? 5000 : 2000,
+    timeout: process.env.NODE_ENV === 'development' ? 5000 : 2000,
   },
 };
 ```
@@ -237,7 +234,7 @@ export const serviceConfig = {
 
 ```typescript
 // File: /tests/unit/services/tablebase/MockTablebaseService.test.ts:20-40
-describe("MockTablebaseService", () => {
+describe('MockTablebaseService', () => {
   let service: MockTablebaseService;
 
   beforeEach(() => {
@@ -249,14 +246,12 @@ describe("MockTablebaseService", () => {
     });
   });
 
-  it("should return win for KQvK endgame", async () => {
-    const result = await service.lookupPosition(
-      "8/8/8/8/8/8/4K3/4k1Q1 w - - 0 1",
-    );
+  it('should return win for KQvK endgame', async () => {
+    const result = await service.lookupPosition('8/8/8/8/8/8/4K3/4k1Q1 w - - 0 1');
 
     expect(result).not.toBeNull();
     expect(result!.wdl).toBe(2);
-    expect(result!.category).toBe("win");
+    expect(result!.category).toBe('win');
   });
 });
 ```
@@ -267,7 +262,7 @@ describe("MockTablebaseService", () => {
 // Pattern: Test with Vitest mocks
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-describe("TablebaseService", () => {
+describe('TablebaseService', () => {
   let service: TablebaseService;
 
   beforeEach(() => {
@@ -275,9 +270,9 @@ describe("TablebaseService", () => {
     service = new TablebaseService();
   });
 
-  it("should use single API call for all moves", async () => {
+  it('should use single API call for all moves', async () => {
     const result = await service.getTopMoves(TEST_FEN);
-    
+
     // Should make only 1 API call, not N+1
     expect(fetchSpy).toHaveBeenCalledTimes(1);
     expect(result.moves).toHaveLength(3);

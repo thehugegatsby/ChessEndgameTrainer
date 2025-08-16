@@ -260,31 +260,19 @@
 
     "integration_tests": {
       "coverage_target": 70,
-      "required_for": [
-        "API integrations",
-        "Store actions",
-        "Engine communication"
-      ],
+      "required_for": ["API integrations", "Store actions", "Engine communication"],
       "realistic_mocks": "Use realistic data and timing"
     },
 
     "e2e_tests": {
       "smoke_suite_max_time_seconds": 30,
       "full_suite_max_time_minutes": 5,
-      "required_scenarios": [
-        "Critical user paths",
-        "Error scenarios",
-        "Performance validation"
-      ],
+      "required_scenarios": ["Critical user paths", "Error scenarios", "Performance validation"],
       "architecture": "MockEngineService for deterministic results"
     },
 
     "performance_tests": {
-      "required_for": [
-        "Evaluation pipeline",
-        "Cache operations",
-        "Heavy computations"
-      ],
+      "required_for": ["Evaluation pipeline", "Cache operations", "Heavy computations"],
       "benchmarks": {
         "evaluation_time_ms": 100,
         "cache_lookup_ms": 1,

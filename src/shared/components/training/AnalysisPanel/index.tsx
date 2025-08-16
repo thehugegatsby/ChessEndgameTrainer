@@ -3,18 +3,18 @@
  * @description Migrated version of AnalysisPanel using React Query hooks
  */
 
-import React, { useState, useEffect, useMemo } from "react";
-import { type Move } from "chess.js";
-import { Chess } from "chess.js";
-import { useTablebaseEvaluation, useTablebaseTopMoves } from "@shared/hooks/useTablebaseQuery";
+import React, { useState, useEffect, useMemo } from 'react';
+import { type Move } from 'chess.js';
+import { Chess } from 'chess.js';
+import { useTablebaseEvaluation, useTablebaseTopMoves } from '@shared/hooks/useTablebaseQuery';
 import { SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
-import { MoveAnalysis } from "./MoveAnalysis";
-import { AnalysisDetails } from "./AnalysisDetails";
-import { DIMENSIONS } from "@shared/constants";
-import type { MoveAnalysisData } from "./types";
-import { getLogger } from "@shared/services/logging";
+import { MoveAnalysis } from './MoveAnalysis';
+import { AnalysisDetails } from './AnalysisDetails';
+import { DIMENSIONS } from '@shared/constants';
+import type { MoveAnalysisData } from './types';
+import { getLogger } from '@shared/services/logging';
 
-const logger = getLogger().setContext("AnalysisPanel");
+const logger = getLogger().setContext('AnalysisPanel');
 
 // MoveAnalysisData interface moved to ./types.ts to prevent duplicate definitions
 
@@ -38,7 +38,10 @@ interface PositionData {
 /**
  * Custom hook for single move analysis using React Query
  */
-function useMoveAnalysis(position: PositionData | null, enabled: boolean): { analysisData: MoveAnalysisData | null; isLoading: boolean; isError: boolean } {
+function useMoveAnalysis(
+  position: PositionData | null,
+  enabled: boolean
+): { analysisData: MoveAnalysisData | null; isLoading: boolean; isError: boolean } {
   const evalBefore = useTablebaseEvaluation(position?.fenBefore || null, { enabled });
   const evalAfter = useTablebaseEvaluation(position?.fenAfter || null, { enabled });
   const topMoves = useTablebaseTopMoves(position?.fenBefore || null, 1, { enabled });
@@ -49,36 +52,41 @@ function useMoveAnalysis(position: PositionData | null, enabled: boolean): { ana
     }
 
     // Calculate move quality based on WDL change
-    let classification: MoveAnalysisData["classification"] = "good";
-    
-    if (evalBefore.data.isAvailable && 
-        evalAfter.data.isAvailable &&
-        evalBefore.data.result && 
-        evalAfter.data.result) {
-      
+    let classification: MoveAnalysisData['classification'] = 'good';
+
+    if (
+      evalBefore.data.isAvailable &&
+      evalAfter.data.isAvailable &&
+      evalBefore.data.result &&
+      evalAfter.data.result
+    ) {
       const wdlBefore = evalBefore.data.result.wdl;
       const wdlAfter = evalAfter.data.result.wdl;
       const wdlChange = wdlBefore - wdlAfter; // From player's perspective
 
-      if (wdlChange >= 2) classification = "blunder"; // Win to loss
-      else if (wdlChange >= 1) classification = "mistake"; // Win to draw or draw to loss  
-      else if (wdlChange > 0) classification = "inaccuracy"; // Small loss
-      else if (wdlChange === 0) classification = "excellent"; // Maintained evaluation
-      else classification = "good"; // Improved position
+      if (wdlChange >= 2)
+        classification = 'blunder'; // Win to loss
+      else if (wdlChange >= 1)
+        classification = 'mistake'; // Win to draw or draw to loss
+      else if (wdlChange > 0)
+        classification = 'inaccuracy'; // Small loss
+      else if (wdlChange === 0)
+        classification = 'excellent'; // Maintained evaluation
+      else classification = 'good'; // Improved position
     }
 
-    const bestMoveValue = topMoves.data.isAvailable && 
-                          topMoves.data.moves && 
-                          topMoves.data.moves.length > 0 &&
-                          topMoves.data.moves[0]
-      ? topMoves.data.moves[0].san
-      : undefined;
+    const bestMoveValue =
+      topMoves.data.isAvailable &&
+      topMoves.data.moves &&
+      topMoves.data.moves.length > 0 &&
+      topMoves.data.moves[0]
+        ? topMoves.data.moves[0].san
+        : undefined;
 
     return {
       move: position.move,
-      evaluation: evalAfter.data.isAvailable && evalAfter.data.result
-        ? evalAfter.data.result.wdl
-        : 0,
+      evaluation:
+        evalAfter.data.isAvailable && evalAfter.data.result ? evalAfter.data.result.wdl : 0,
       classification,
       ...(bestMoveValue !== undefined && { bestMove: bestMoveValue }),
     };
@@ -93,7 +101,7 @@ function useMoveAnalysis(position: PositionData | null, enabled: boolean): { ana
 
 /**
  * Analysis Panel with React Query integration
- * 
+ *
  * This version uses React Query hooks for optimal caching and parallel data fetching.
  * Key improvements:
  * - Individual React Query hooks for each position evaluation
@@ -109,7 +117,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
     const positions = useMemo((): PositionData[] => {
       if (!isVisible || history.length === 0) return [];
 
-      const startFen = initialFen || "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1";
+      const startFen = initialFen || '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1';
       const chess = new Chess(startFen);
       const result: PositionData[] = [];
 
@@ -120,10 +128,10 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
           continue;
         }
         const fenBefore = chess.fen();
-        
+
         chess.move(move);
         const fenAfter = chess.fen();
-        
+
         result.push({
           fenBefore,
           fenAfter,
@@ -132,7 +140,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
         });
       }
 
-      logger.info("Calculated positions for React Query analysis", {
+      logger.info('Calculated positions for React Query analysis', {
         totalMoves: history.length,
         positionsGenerated: result.length,
       });
@@ -144,13 +152,10 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
     // For demonstration, we'll analyze the first few moves
     // In production, you might want to implement virtual scrolling for large games
     const maxAnalyzedMoves = Math.min(positions.length, SIZE_MULTIPLIERS.SMALL_FACTOR); // Limit to prevent too many concurrent requests
-    
+
     const moveAnalyses = Array.from({ length: maxAnalyzedMoves }, (_, i) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      return useMoveAnalysis(
-        positions[i] || null, 
-        isVisible && i < positions.length
-      );
+      return useMoveAnalysis(positions[i] || null, isVisible && i < positions.length);
     });
 
     // Aggregate analysis data
@@ -167,7 +172,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
     // Log analysis progress
     useEffect(() => {
       if (isVisible && positions.length > 0) {
-        logger.info("React Query analysis progress", {
+        logger.info('React Query analysis progress', {
           totalPositions: positions.length,
           analyzedPositions: maxAnalyzedMoves,
           completedAnalyses: analysisData.length,
@@ -178,13 +183,13 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
     }, [positions.length, maxAnalyzedMoves, analysisData.length, isLoading, hasError, isVisible]);
 
     if (hasError) {
-      logger.warn("React Query analysis encountered errors");
+      logger.warn('React Query analysis encountered errors');
     }
 
     return (
       <div
         className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-xl shadow-lg border-t border-gray-200 dark:border-gray-700 flex flex-col transform transition-transform duration-300 ease-in-out z-50 ${
-          isVisible ? "translate-y-0" : "translate-y-full"
+          isVisible ? 'translate-y-0' : 'translate-y-full'
         }`}
         style={{ height: `${DIMENSIONS.ANALYSIS_PANEL_HEIGHT}px` }}
       >
@@ -248,26 +253,26 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
               );
             }
             return (
-            <>
-              {/* Move Analysis List */}
-              <MoveAnalysis
-                analysisData={analysisData}
-                selectedMoveIndex={selectedMoveIndex}
-                onMoveSelect={setSelectedMoveIndex}
-              />
+              <>
+                {/* Move Analysis List */}
+                <MoveAnalysis
+                  analysisData={analysisData}
+                  selectedMoveIndex={selectedMoveIndex}
+                  onMoveSelect={setSelectedMoveIndex}
+                />
 
-              {/* Analysis Details */}
-              <AnalysisDetails
-                selectedMoveIndex={selectedMoveIndex}
-                analysisData={analysisData}
-              />
-            </>
+                {/* Analysis Details */}
+                <AnalysisDetails
+                  selectedMoveIndex={selectedMoveIndex}
+                  analysisData={analysisData}
+                />
+              </>
             );
           })()}
         </div>
       </div>
     );
-  },
+  }
 );
 
-AnalysisPanel.displayName = "AnalysisPanel";
+AnalysisPanel.displayName = 'AnalysisPanel';

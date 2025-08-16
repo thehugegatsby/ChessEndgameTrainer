@@ -5,7 +5,7 @@ import { featuresTestSetup, featuresDir, srcDir, sharedDir, testsDir } from '../
 
 /**
  * Vitest Configuration for INTEGRATION TESTS ONLY
- * 
+ *
  * Optimized for reliability:
  * - Isolation enabled (each test in clean environment)
  * - Forks pool for better isolation
@@ -21,7 +21,7 @@ export default defineConfig({
     setupFiles: [
       path.resolve(testsDir, 'setup/observer-polyfill.ts'), // Still needed for per-test setup
       path.resolve(testsDir, 'utils/vitestSetup.ts'), // Next.js mocks
-      featuresTestSetup
+      featuresTestSetup,
     ],
     include: [
       `${testsDir}/integration/**/*.{test,spec}.{ts,tsx}`,
@@ -30,24 +30,17 @@ export default defineConfig({
       // Feature-specific integration tests (co-located with features)
       `${featuresDir}/**/__tests__/integration/**/*.{test,spec}.{ts,tsx}`,
     ],
-    exclude: [
-      'node_modules', 
-      'dist', 
-      '.next', 
-      '**/node_modules/**',
-      '**/unit/**',
-      '**/e2e/**',
-    ],
+    exclude: ['node_modules', 'dist', '.next', '**/node_modules/**', '**/unit/**', '**/e2e/**'],
     // Use forks pool for better process isolation
     pool: 'forks',
     poolOptions: {
       forks: {
-        maxForks: 2,  // Reduced for stability 
+        maxForks: 2, // Reduced for stability
         minForks: 1,
-      }
+      },
     },
-    isolate: true,  // FIXED: Re-enable isolation - polyfills moved to setupFiles
-    testTimeout: 30000,  // 30 seconds for integration tests
+    isolate: true, // FIXED: Re-enable isolation - polyfills moved to setupFiles
+    testTimeout: 30000, // 30 seconds for integration tests
     hookTimeout: 30000,
     coverage: {
       reporter: ['text', 'lcov'],

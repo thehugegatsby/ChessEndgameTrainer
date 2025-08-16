@@ -13,19 +13,19 @@
  * - useTrainingStore(): Convenience hook returning [state, actions] tuple
  */
 
-import { useMemo } from "react";
-import { useStore, useStoreApi } from "../StoreContext";
-import { useShallow } from "zustand/react/shallow";
+import { useMemo } from 'react';
+import { useStore, useStoreApi } from '../StoreContext';
+import { useShallow } from 'zustand/react/shallow';
 import type {
   RootState,
   TrainingState as TrainingStateType,
   TrainingActions as TrainingActionsType,
-} from "../slices/types";
-import type { AsyncActions } from "../slices/types";
+} from '../slices/types';
+import type { AsyncActions } from '../slices/types';
 
 // Extend training actions with relevant async actions
 type ExtendedTrainingActions = TrainingActionsType &
-  Pick<AsyncActions, "handlePlayerMove" | "loadTrainingContext">;
+  Pick<AsyncActions, 'handlePlayerMove' | 'loadTrainingContext'>;
 
 /**
  * Hook for reactive training state properties
@@ -72,7 +72,10 @@ export const useTrainingState = (): TrainingStateType => {
       if (state.training.nextPosition !== undefined && state.training.nextPosition !== null) {
         result.nextPosition = state.training.nextPosition;
       }
-      if (state.training.previousPosition !== undefined && state.training.previousPosition !== null) {
+      if (
+        state.training.previousPosition !== undefined &&
+        state.training.previousPosition !== null
+      ) {
         result.previousPosition = state.training.previousPosition;
       }
       if (state.training.evaluationBaseline !== null) {
@@ -80,7 +83,7 @@ export const useTrainingState = (): TrainingStateType => {
       }
 
       return result as TrainingStateType;
-    }),
+    })
   );
 };
 
@@ -107,7 +110,7 @@ export const useTrainingActions = (): ExtendedTrainingActions => {
   const storeApi = useStoreApi();
   return useMemo(() => {
     const state = storeApi.getState();
-    
+
     // Clean access: actions are directly available in training slice
     return {
       // Training actions - directly from slice (no CRITICAL FIX workaround needed)
@@ -128,7 +131,7 @@ export const useTrainingActions = (): ExtendedTrainingActions => {
       resetPosition: state.training.resetPosition,
       setEvaluationBaseline: state.training.setEvaluationBaseline,
       clearEvaluationBaseline: state.training.clearEvaluationBaseline,
-      
+
       // Streak actions
       incrementStreak: state.training.incrementStreak,
       resetStreak: state.training.resetStreak,
@@ -163,9 +166,6 @@ export const useTrainingActions = (): ExtendedTrainingActions => {
  * };
  * ```
  */
-export const useTrainingStore = (): [
-  TrainingStateType,
-  ExtendedTrainingActions,
-] => {
+export const useTrainingStore = (): [TrainingStateType, ExtendedTrainingActions] => {
   return [useTrainingState(), useTrainingActions()];
 };

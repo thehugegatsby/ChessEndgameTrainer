@@ -22,8 +22,8 @@
  * @version 1.0.0
  */
 
-import { type Page } from "@playwright/test";
-import { waitForMoveAnimation, waitForUIReady } from "./deterministicWaiting";
+import { type Page } from '@playwright/test';
+import { waitForMoveAnimation, waitForUIReady } from './deterministicWaiting';
 
 // Type definitions for E2E test window globals
 interface E2ETestWindow extends Window {
@@ -65,18 +65,12 @@ declare const window: E2ETestWindow;
 /**
  * Types of expectations that can be verified during move sequence testing
  */
-export type ExpectationType =
-  | "toast"
-  | "evaluation"
-  | "modal"
-  | "store"
-  | "completion"
-  | "dialog";
+export type ExpectationType = 'toast' | 'evaluation' | 'modal' | 'store' | 'completion' | 'dialog';
 
 /**
  * Types of toast notifications in the application
  */
-export type ToastType = "success" | "error" | "info" | "warning";
+export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 /**
  * Configuration interface for a single expectation to be verified during testing
@@ -260,7 +254,7 @@ export class SequenceRunner {
       console.log(`Making move ${i + 1}/${config.moves.length}: ${move}`);
 
       // Play the move
-      const result = await this.page.evaluate(async (moveStr) => {
+      const result = await this.page.evaluate(async moveStr => {
         const moveResult = await window['e2e_makeMove']?.(moveStr);
         console.log(`Move result:`, moveResult);
         return moveResult;
@@ -292,12 +286,12 @@ export class SequenceRunner {
    * @private
    */
   private async setupTablebaseMock(): Promise<void> {
-    await this.page.route("**/tablebase.lichess.ovh/standard**", async (route) => {
+    await this.page.route('**/tablebase.lichess.ovh/standard**', async route => {
       await route.fulfill({
         status: 200,
-        contentType: "application/json",
+        contentType: 'application/json',
         body: JSON.stringify({
-          category: "win",
+          category: 'win',
           wdl: 2, // Win for white
           dtz: 5,
           dtm: 5,
@@ -322,16 +316,12 @@ export class SequenceRunner {
    */
   private async checkExpectationsForMove(
     expectations: Expectation[],
-    moveIndex: number,
+    moveIndex: number
   ): Promise<void> {
-    const relevantExpectations = expectations.filter(
-      (exp) => exp.moveIndex === moveIndex,
-    );
+    const relevantExpectations = expectations.filter(exp => exp.moveIndex === moveIndex);
 
     for (const expectation of relevantExpectations) {
-      console.log(
-        `🔍 Checking expectation after move ${moveIndex + 1}: ${expectation.type}`,
-      );
+      console.log(`🔍 Checking expectation after move ${moveIndex + 1}: ${expectation.type}`);
       await this.verifyExpectation(expectation);
     }
   }
@@ -342,12 +332,8 @@ export class SequenceRunner {
    * @param expectations - All expectations for this sequence
    * @private
    */
-  private async checkFinalExpectations(
-    expectations: Expectation[],
-  ): Promise<void> {
-    const finalExpectations = expectations.filter(
-      (exp) => exp.moveIndex === undefined,
-    );
+  private async checkFinalExpectations(expectations: Expectation[]): Promise<void> {
+    const finalExpectations = expectations.filter(exp => exp.moveIndex === undefined);
 
     // Give some time for final state to settle
     if (finalExpectations.length > 0) {
@@ -374,22 +360,22 @@ export class SequenceRunner {
 
     try {
       switch (exp.type) {
-        case "toast":
+        case 'toast':
           await this.verifyToast(exp.data, timeout);
           break;
-        case "evaluation":
+        case 'evaluation':
           await this.verifyEvaluation(exp.data, timeout);
           break;
-        case "modal":
+        case 'modal':
           await this.verifyModal(exp.data, timeout);
           break;
-        case "store":
+        case 'store':
           await this.verifyStoreState(exp.data, timeout);
           break;
-        case "completion":
+        case 'completion':
           await this.verifyCompletion(exp.data, timeout);
           break;
-        case "dialog":
+        case 'dialog':
           await this.verifyDialog(exp.data, timeout);
           break;
         default:
@@ -397,7 +383,7 @@ export class SequenceRunner {
       }
     } catch (error) {
       throw new Error(
-        `Expectation failed (${exp.type}): ${error instanceof Error ? error.message : String(error)}`,
+        `Expectation failed (${exp.type}): ${error instanceof Error ? error.message : String(error)}`
       );
     }
   }
@@ -413,10 +399,7 @@ export class SequenceRunner {
    * @throws {Error} If toast doesn't appear within timeout
    * @private
    */
-  private async verifyToast(
-    data: Expectation["data"],
-    timeout: number,
-  ): Promise<void> {
+  private async verifyToast(data: Expectation['data'], timeout: number): Promise<void> {
     const { message, toastType } = data;
 
     await this.page.waitForFunction(
@@ -428,16 +411,14 @@ export class SequenceRunner {
         const state = store.getState();
         const toasts = state.ui?.toasts || [];
 
-        return toasts.some((toast) => {
-          const messageMatch = expectedMessage
-            ? toast.message?.includes(expectedMessage)
-            : true;
+        return toasts.some(toast => {
+          const messageMatch = expectedMessage ? toast.message?.includes(expectedMessage) : true;
           const typeMatch = expectedToastType ? toast.type === expectedToastType : true;
           return messageMatch && typeMatch;
         });
       },
       { message, toastType },
-      { timeout },
+      { timeout }
     );
 
     console.log(`✅ Toast expectation met: ${message} (${toastType})`);
@@ -453,10 +434,7 @@ export class SequenceRunner {
    * @todo Implement when evaluation data is exposed to E2E tests
    * @private
    */
-  private async verifyEvaluation(
-    _data: Expectation["data"],
-    _timeout: number,
-  ): Promise<void> {
+  private async verifyEvaluation(_data: Expectation['data'], _timeout: number): Promise<void> {
     // Evaluation data is available via tablebase components (AnalysisPanel, MoveEvaluationBar)
     // but E2E test implementation is pending
     console.log(`⚠️ Evaluation expectations not implemented yet`);
@@ -472,10 +450,7 @@ export class SequenceRunner {
    * @throws {Error} If modal state doesn't match within timeout
    * @private
    */
-  private async verifyModal(
-    data: Expectation["data"],
-    timeout: number,
-  ): Promise<void> {
+  private async verifyModal(data: Expectation['data'], timeout: number): Promise<void> {
     const { modalType, modalOpen } = data;
 
     await this.page.waitForFunction(
@@ -497,7 +472,7 @@ export class SequenceRunner {
         return expectedModalOpen ? currentModal !== null : true;
       },
       { modalType, modalOpen },
-      { timeout },
+      { timeout }
     );
 
     console.log(`✅ Modal expectation met: ${modalType} open=${modalOpen}`);
@@ -514,14 +489,11 @@ export class SequenceRunner {
    * @throws {Error} If store state doesn't match within timeout
    * @private
    */
-  private async verifyStoreState(
-    data: Expectation["data"],
-    timeout: number,
-  ): Promise<void> {
+  private async verifyStoreState(data: Expectation['data'], timeout: number): Promise<void> {
     const { storePath, expectedValue } = data;
 
     if (!storePath) {
-      throw new Error("storePath required for store expectation");
+      throw new Error('storePath required for store expectation');
     }
 
     await this.page.waitForFunction(
@@ -530,19 +502,15 @@ export class SequenceRunner {
         if (!store) return false;
 
         const state = store.getState();
-        const actualValue = path
-          .split(".")
-          .reduce((obj: any, key) => obj?.[key], state as any);
+        const actualValue = path.split('.').reduce((obj: any, key) => obj?.[key], state as any);
 
         return JSON.stringify(actualValue) === JSON.stringify(expected);
       },
       { storePath, expectedValue },
-      { timeout },
+      { timeout }
     );
 
-    console.log(
-      `✅ Store expectation met: ${storePath} = ${JSON.stringify(expectedValue)}`,
-    );
+    console.log(`✅ Store expectation met: ${storePath} = ${JSON.stringify(expectedValue)}`);
   }
 
   /**
@@ -555,10 +523,7 @@ export class SequenceRunner {
    * @throws {Error} If completion state doesn't match within timeout
    * @private
    */
-  private async verifyCompletion(
-    data: Expectation["data"],
-    timeout: number,
-  ): Promise<void> {
+  private async verifyCompletion(data: Expectation['data'], timeout: number): Promise<void> {
     const { isSuccess, completionStatus } = data;
 
     await this.page.waitForFunction(
@@ -581,12 +546,10 @@ export class SequenceRunner {
         return true;
       },
       { isSuccess, completionStatus },
-      { timeout },
+      { timeout }
     );
 
-    console.log(
-      `✅ Completion expectation met: success=${isSuccess}, status=${completionStatus}`,
-    );
+    console.log(`✅ Completion expectation met: success=${isSuccess}, status=${completionStatus}`);
   }
 
   /**
@@ -600,21 +563,23 @@ export class SequenceRunner {
    * @throws {Error} If dialog expectation is not met within timeout
    * @private
    */
-  private async verifyDialog(
-    data: Expectation["data"],
-    timeout: number,
-  ): Promise<void> {
+  private async verifyDialog(data: Expectation['data'], timeout: number): Promise<void> {
     const { dialogType, promotionPiece, moveDescription, dialogOpen } = data;
 
     await this.page.waitForFunction(
-      ({ dialogType: expectedDialogType, promotionPiece: expectedPromotionPiece, moveDescription: expectedMoveDescription, dialogOpen: expectedDialogOpen }) => {
+      ({
+        dialogType: expectedDialogType,
+        promotionPiece: expectedPromotionPiece,
+        moveDescription: expectedMoveDescription,
+        dialogOpen: expectedDialogOpen,
+      }) => {
         const store = window['__e2e_store'] || window['__zustand_store'];
         if (!store) return false;
 
         const state = store.getState();
 
         // Check moveSuccessDialog specifically
-        if (expectedDialogType === "moveSuccess") {
+        if (expectedDialogType === 'moveSuccess') {
           const dialog = state.training?.moveSuccessDialog;
 
           // Check if dialog should be open or closed
@@ -628,10 +593,7 @@ export class SequenceRunner {
 
           // For open dialogs, check content
           if (dialog?.isOpen) {
-            if (
-              expectedPromotionPiece &&
-              !dialog.promotionPiece?.includes(expectedPromotionPiece)
-            )
+            if (expectedPromotionPiece && !dialog.promotionPiece?.includes(expectedPromotionPiece))
               return false;
             if (
               expectedMoveDescription &&
@@ -648,11 +610,11 @@ export class SequenceRunner {
         return false;
       },
       { dialogType, promotionPiece, moveDescription, dialogOpen },
-      { timeout },
+      { timeout }
     );
 
     console.log(
-      `✅ Dialog expectation met: type=${dialogType}, open=${dialogOpen}, piece=${promotionPiece}`,
+      `✅ Dialog expectation met: type=${dialogType}, open=${dialogOpen}, piece=${promotionPiece}`
     );
   }
 
@@ -667,7 +629,9 @@ export class SequenceRunner {
    * console.log('Current toasts:', state.ui?.toasts);
    * ```
    */
-  async getStoreState(): Promise<ReturnType<NonNullable<E2ETestWindow['__e2e_store']>['getState']> | null> {
+  async getStoreState(): Promise<ReturnType<
+    NonNullable<E2ETestWindow['__e2e_store']>['getState']
+  > | null> {
     return await this.page.evaluate(() => {
       const store = window['__e2e_store'] || window['__zustand_store'];
       return store ? store.getState() : null;
@@ -722,9 +686,9 @@ const expectation = {
    * ```
    */
   successToast: (message: string, moveIndex?: number): Expectation => ({
-    type: "toast",
+    type: 'toast',
     moveIndex,
-    data: { message, toastType: "success" },
+    data: { message, toastType: 'success' },
   }),
 
   /**
@@ -735,9 +699,9 @@ const expectation = {
    * @returns Configured expectation object
    */
   errorToast: (message: string, moveIndex?: number): Expectation => ({
-    type: "toast",
+    type: 'toast',
     moveIndex,
-    data: { message, toastType: "error" },
+    data: { message, toastType: 'error' },
   }),
 
   /**
@@ -753,12 +717,8 @@ const expectation = {
    * expectation.storeState("ui.currentModal", "completion")
    * ```
    */
-  storeState: (
-    path: string,
-    value: unknown,
-    moveIndex?: number,
-  ): Expectation => ({
-    type: "store",
+  storeState: (path: string, value: unknown, moveIndex?: number): Expectation => ({
+    type: 'store',
     moveIndex,
     data: { storePath: path, expectedValue: value },
   }),
@@ -770,7 +730,7 @@ const expectation = {
    * @returns Configured expectation for successful training completion
    */
   trainingSuccess: (moveIndex?: number): Expectation => ({
-    type: "completion",
+    type: 'completion',
     moveIndex,
     data: { isSuccess: true },
   }),
@@ -783,7 +743,7 @@ const expectation = {
    * @returns Configured expectation for open modal
    */
   modalOpen: (modalType: string, moveIndex?: number): Expectation => ({
-    type: "modal",
+    type: 'modal',
     moveIndex,
     data: { modalType, modalOpen: true },
   }),
@@ -795,7 +755,7 @@ const expectation = {
    * @returns Configured expectation for closed modal
    */
   modalClosed: (moveIndex?: number): Expectation => ({
-    type: "modal",
+    type: 'modal',
     moveIndex,
     data: { modalOpen: false },
   }),
@@ -812,14 +772,11 @@ const expectation = {
    * expectation.promotionSuccessDialog("Dame", 8) // Check after 9th move for Queen promotion
    * ```
    */
-  promotionSuccessDialog: (
-    promotionPiece: string,
-    moveIndex?: number,
-  ): Expectation => ({
-    type: "dialog",
+  promotionSuccessDialog: (promotionPiece: string, moveIndex?: number): Expectation => ({
+    type: 'dialog',
     moveIndex,
     data: {
-      dialogType: "moveSuccess",
+      dialogType: 'moveSuccess',
       dialogOpen: true,
       promotionPiece,
     },
@@ -841,12 +798,12 @@ const expectation = {
   promotionDialog: (
     promotionPiece: string,
     moveDescription: string,
-    moveIndex?: number,
+    moveIndex?: number
   ): Expectation => ({
-    type: "dialog",
+    type: 'dialog',
     moveIndex,
     data: {
-      dialogType: "moveSuccess",
+      dialogType: 'moveSuccess',
       dialogOpen: true,
       promotionPiece,
       moveDescription,
@@ -861,7 +818,7 @@ const expectation = {
    * @returns Configured expectation for closed dialog
    */
   dialogClosed: (dialogType: string, moveIndex?: number): Expectation => ({
-    type: "dialog",
+    type: 'dialog',
     moveIndex,
     data: { dialogType, dialogOpen: false },
   }),

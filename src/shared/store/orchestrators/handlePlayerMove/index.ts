@@ -20,31 +20,31 @@
  * ```
  */
 
-import type { StoreApi } from "../types";
-import type { Move as ChessJsMove } from "chess.js";
-import { chessService } from "@shared/services/ChessService";
-import { ErrorService } from "@shared/services/ErrorService";
-import { getLogger } from "@shared/services/logging";
-import { handleTrainingCompletion } from "./move.completion";
+import type { StoreApi } from '../types';
+import type { Move as ChessJsMove } from 'chess.js';
+import { chessService } from '@shared/services/ChessService';
+import { ErrorService } from '@shared/services/ErrorService';
+import { getLogger } from '@shared/services/logging';
+import { handleTrainingCompletion } from './move.completion';
 
 // Import specialized modules
-import { MoveValidator } from "./MoveValidator";
-import { MoveQualityEvaluator } from "./MoveQualityEvaluator";
-import { PawnPromotionHandler } from "./PawnPromotionHandler";
-import { EventBasedMoveDialogManager } from "../../../../features/training/events/EventBasedMoveDialogManager";
-import { getOpponentTurnManager } from "./OpponentTurnHandler";
+import { MoveValidator } from './MoveValidator';
+import { MoveQualityEvaluator } from './MoveQualityEvaluator';
+import { PawnPromotionHandler } from './PawnPromotionHandler';
+import { EventBasedMoveDialogManager } from '../../../../features/training/events/EventBasedMoveDialogManager';
+import { getOpponentTurnManager } from './OpponentTurnHandler';
 
 // Re-export types for consumers
-export type { MoveEvaluation, MoveExecutionResult } from "./move.types";
+export type { MoveEvaluation, MoveExecutionResult } from './move.types';
 
 // Re-export opponent turn manager for external use
 export { getOpponentTurnManager };
 
 /**
  * Dependencies for the handlePlayerMove orchestrator
- * 
+ *
  * @interface HandlePlayerMoveDependencies
- * 
+ *
  * @description
  * Allows dependency injection for better testability and flexibility.
  * All dependencies are optional and will use default implementations if not provided.
@@ -66,49 +66,50 @@ const defaultDependencies: Required<HandlePlayerMoveDependencies> = {
 
 /**
  * Creates a handlePlayerMove function with injected dependencies
- * 
+ *
  * @param {HandlePlayerMoveDependencies} [dependencies] - Optional custom dependencies
  * @returns {Function} A handlePlayerMove function with the specified dependencies
- * 
+ *
  * @description
  * Factory function that creates a handlePlayerMove orchestrator with custom dependencies.
  * This enables better testability by allowing mock implementations to be injected.
- * 
+ *
  * @example
  * ```typescript
  * // For testing with mocks
  * const mockValidator = new MockMoveValidator();
  * const handleMove = createHandlePlayerMove({ moveValidator: mockValidator });
- * 
+ *
  * // For production (uses defaults)
  * const handleMove = createHandlePlayerMove();
  * ```
  */
 export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependencies) {
   const deps = { ...defaultDependencies, ...dependencies };
-  
+
   return async function handlePlayerMoveWithDeps(
     api: StoreApi,
-    move: ChessJsMove | { from: string; to: string; promotion?: string } | string,
+    move: ChessJsMove | { from: string; to: string; promotion?: string } | string
   ): Promise<boolean> {
     const { getState, setState } = api;
     const state = getState();
 
     // Early validation - check if it's player's turn and no in-flight move
-    if (!state.training.isPlayerTurn || state.training.isOpponentThinking || state.training.moveInFlight) {
-      getLogger().debug(
-        "[handlePlayerMove] Early return - busy or not player turn",
-        {
-          isPlayerTurn: state.training.isPlayerTurn,
-          isOpponentThinking: state.training.isOpponentThinking,
-          moveInFlight: state.training.moveInFlight,
-        },
-      );
+    if (
+      !state.training.isPlayerTurn ||
+      state.training.isOpponentThinking ||
+      state.training.moveInFlight
+    ) {
+      getLogger().debug('[handlePlayerMove] Early return - busy or not player turn', {
+        isPlayerTurn: state.training.isPlayerTurn,
+        isOpponentThinking: state.training.isOpponentThinking,
+        moveInFlight: state.training.moveInFlight,
+      });
       return false;
     }
 
     try {
-      setState((draft) => {
+      setState(draft => {
         draft.ui.loading.position = true;
         draft.training.moveInFlight = true;
       });
@@ -117,11 +118,11 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
       const validationResult = await deps.moveValidator.validateMove(move);
 
       if (!validationResult.isValid) {
-        setState((draft) => {
+        setState(draft => {
           draft.ui.toasts.push({
             id: Date.now().toString(),
-            message: validationResult.errorMessage || "Invalid move",
-            type: "error",
+            message: validationResult.errorMessage || 'Invalid move',
+            type: 'error',
           });
         });
         return false;
@@ -134,9 +135,7 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
       const validatedMove = chessService.move(move);
 
       if (!validatedMove) {
-        getLogger().error(
-          "[handlePlayerMove] Move execution failed after validation",
-        );
+        getLogger().error('[handlePlayerMove] Move execution failed after validation');
         return false;
       }
 
@@ -145,15 +144,12 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
       // Step 4: Handle pawn promotion if applicable
       const promotionInfo = deps.pawnPromotionHandler.checkPromotion(validatedMove);
       if (promotionInfo.isPromotion) {
-        getLogger().info(
-          "[handlePlayerMove] Pawn promotion detected:",
-          promotionInfo,
-        );
+        getLogger().info('[handlePlayerMove] Pawn promotion detected:', promotionInfo);
 
         // Check if promotion leads to auto-win
         const isAutoWin = await deps.pawnPromotionHandler.evaluatePromotionOutcome(
           fenAfter,
-          validatedMove.color,
+          validatedMove.color
         );
 
         if (isAutoWin) {
@@ -175,58 +171,60 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
       const baselineMatches = currentBaseline?.fen
         ? currentBaseline.fen.split(' ').slice(0, 4).join(' ') === boardBefore
         : false;
-      const validBaseline = baselineMatches && 
-                            currentBaseline && 
-                            currentBaseline.wdl !== null && 
-                            currentBaseline.fen !== null
-        ? { wdl: currentBaseline.wdl, fen: currentBaseline.fen }
-        : null;
+      const validBaseline =
+        baselineMatches &&
+        currentBaseline &&
+        currentBaseline.wdl !== null &&
+        currentBaseline.fen !== null
+          ? { wdl: currentBaseline.wdl, fen: currentBaseline.fen }
+          : null;
       const qualityResult = await deps.moveQualityEvaluator.evaluateMoveQuality(
         fenBefore,
         fenAfter,
         validatedMove,
-        validBaseline,
+        validBaseline
       );
 
       // Step 6: Show error dialog if move was suboptimal and outcome changed
       if (qualityResult.shouldShowErrorDialog) {
         // Set turn state before showing dialog so "Weiterspielen" can trigger opponent move
         const currentTurn = chessService.turn();
-        const trainingColor =
-          state.training.currentPosition?.colorToTrain?.charAt(0);
-        
+        const trainingColor = state.training.currentPosition?.colorToTrain?.charAt(0);
+
         if (currentTurn !== trainingColor) {
           getLogger().info(
-            "[handlePlayerMove] Setting turn state for opponent before error dialog",
+            '[handlePlayerMove] Setting turn state for opponent before error dialog'
           );
-          setState((draft) => {
+          setState(draft => {
             draft.training.isPlayerTurn = false;
             draft.training.isOpponentThinking = false; // Not thinking yet, waiting for dialog
           });
         }
-        
+
         deps.moveDialogManager.showMoveErrorDialog(
           qualityResult.wdlBefore || 0,
           qualityResult.wdlAfter || 0,
           qualityResult.bestMove,
           validatedMove.san, // The played move
-          api.getState().game.currentMoveIndex, // Current move number
+          api.getState().game.currentMoveIndex // Current move number
         );
 
         getLogger().info(
-          "[handlePlayerMove] Showing error dialog - opponent turn will be scheduled after 'Weiterspielen'",
+          "[handlePlayerMove] Showing error dialog - opponent turn will be scheduled after 'Weiterspielen'"
         );
         return true;
       }
 
       // If this was a queen promotion and no error dialog is needed, show success
-      if (promotionInfo.isPromotion && promotionInfo.promotionPiece === "q") {
-        const promotionPieceLabel = deps.pawnPromotionHandler.getPromotionPieceLabel("q");
-        setState((draft) => {
+      if (promotionInfo.isPromotion && promotionInfo.promotionPiece === 'q') {
+        const promotionPieceLabel = deps.pawnPromotionHandler.getPromotionPieceLabel('q');
+        setState(draft => {
           draft.training.moveSuccessDialog = {
             isOpen: true,
             promotionPiece: promotionPieceLabel,
-            ...(promotionInfo.moveDescription !== undefined && { moveDescription: promotionInfo.moveDescription }),
+            ...(promotionInfo.moveDescription !== undefined && {
+              moveDescription: promotionInfo.moveDescription,
+            }),
           };
         });
       }
@@ -239,12 +237,11 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
 
       // Step 8: Handle opponent turn if needed
       const currentTurn = chessService.turn();
-      const trainingColor =
-        state.training.currentPosition?.colorToTrain?.charAt(0);
+      const trainingColor = state.training.currentPosition?.colorToTrain?.charAt(0);
 
       if (currentTurn !== trainingColor) {
-        getLogger().debug("[handlePlayerMove] Scheduling opponent turn");
-        setState((draft) => {
+        getLogger().debug('[handlePlayerMove] Scheduling opponent turn');
+        setState(draft => {
           draft.training.isPlayerTurn = false;
           draft.training.isOpponentThinking = true;
         });
@@ -255,29 +252,29 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
 
       return true;
     } catch (error) {
-      getLogger().error("[handlePlayerMove] Error in orchestrator:", error);
+      getLogger().error('[handlePlayerMove] Error in orchestrator:', error);
       const userMessage = ErrorService.handleUIError(
         error instanceof Error ? error : new Error(String(error)),
-        "MakeUserMove",
+        'MakeUserMove',
         {
-          component: "MakeUserMove",
-          action: "orchestrate",
-        },
+          component: 'MakeUserMove',
+          action: 'orchestrate',
+        }
       );
 
-      setState((draft) => {
+      setState(draft => {
         draft.ui.toasts.push({
           id: Date.now().toString(),
           message: userMessage,
-          type: "error",
+          type: 'error',
         });
       });
 
-      getLogger().error("[handlePlayerMove] Move handling failed:", error);
+      getLogger().error('[handlePlayerMove] Move handling failed:', error);
       return false;
     } finally {
       // Clear loading state and move-in-flight flag
-      setState((draft) => {
+      setState(draft => {
         draft.ui.loading.position = false;
         draft.training.moveInFlight = false;
       });
@@ -295,7 +292,7 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
  * @remarks
  * This is the default implementation using standard dependencies.
  * For testing or custom implementations, use createHandlePlayerMove() instead.
- * 
+ *
  * Modular flow using specialized handlers:
  * 1. Validate move using MoveValidator
  * 2. Apply move and update state
@@ -303,7 +300,7 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
  * 4. Evaluate quality using MoveQualityEvaluator
  * 5. Show dialogs using MoveDialogManager
  * 6. Handle completion or opponent turn with OpponentTurnHandler
- * 
+ *
  * @example
  * ```typescript
  * // Standard usage

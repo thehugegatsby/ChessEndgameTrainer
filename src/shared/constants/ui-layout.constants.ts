@@ -1,7 +1,7 @@
 /**
  * @fileoverview UI layout and styling constants
  * @module constants/ui-layout
- * 
+ *
  * @description
  * Centralized UI constants for consistent styling across the application.
  * Includes Tailwind class combinations, component dimensions, and layout values.
@@ -10,7 +10,7 @@
 
 /**
  * Loading spinner configuration
- * 
+ *
  * @description
  * Consistent spinner styling across the application.
  * Uses Tailwind classes with semantic grouping.
@@ -25,7 +25,7 @@ export const SPINNER = {
     LARGE: 'h-16 w-16',
     XLARGE: 'h-20 w-20',
   },
-  
+
   /**
    * Spinner border width
    */
@@ -34,7 +34,7 @@ export const SPINNER = {
     MEDIUM: 'border-b-4',
     THICK: 'border-b-6',
   },
-  
+
   /**
    * Spinner colors
    */
@@ -44,7 +44,7 @@ export const SPINNER = {
     SUCCESS: 'border-green-600',
     ERROR: 'border-red-600',
   },
-  
+
   /**
    * Animation classes
    */
@@ -53,7 +53,7 @@ export const SPINNER = {
 
 /**
  * Page layout configuration
- * 
+ *
  * @description
  * Standard page layouts and container configurations.
  */
@@ -62,7 +62,7 @@ export const PAGE_LAYOUT = {
    * Full screen centered layout
    */
   CENTERED_SCREEN: 'flex items-center justify-center min-h-screen',
-  
+
   /**
    * Background color schemes
    */
@@ -71,7 +71,7 @@ export const PAGE_LAYOUT = {
     DARK: 'dark:bg-gray-900',
     COMBINED: 'bg-gray-50 dark:bg-gray-900',
   },
-  
+
   /**
    * Container widths
    */
@@ -81,7 +81,7 @@ export const PAGE_LAYOUT = {
     WIDE: 'max-w-6xl',
     FULL: 'max-w-full',
   },
-  
+
   /**
    * Padding presets
    */
@@ -96,7 +96,7 @@ export const PAGE_LAYOUT = {
 
 /**
  * Typography configuration
- * 
+ *
  * @description
  * Text styling constants for consistent typography.
  */
@@ -113,7 +113,7 @@ export const TYPOGRAPHY = {
     XXL: 'text-2xl',
     XXXL: 'text-3xl',
   },
-  
+
   /**
    * Font weights
    */
@@ -123,7 +123,7 @@ export const TYPOGRAPHY = {
     SEMIBOLD: 'font-semibold',
     BOLD: 'font-bold',
   },
-  
+
   /**
    * Text colors
    */
@@ -138,7 +138,7 @@ export const TYPOGRAPHY = {
 
 /**
  * Spacing configuration
- * 
+ *
  * @description
  * Consistent spacing values for margins and gaps.
  */
@@ -154,7 +154,7 @@ export const SPACING = {
     LG: 'mb-6',
     XL: 'mb-8',
   },
-  
+
   /**
    * Margin top values
    */
@@ -166,7 +166,7 @@ export const SPACING = {
     LG: 'mt-6',
     XL: 'mt-8',
   },
-  
+
   /**
    * Gap values for flex/grid
    */
@@ -182,7 +182,7 @@ export const SPACING = {
 
 /**
  * Component dimensions
- * 
+ *
  * @description
  * Standard dimensions for UI components in pixels.
  */
@@ -195,7 +195,7 @@ export const COMPONENT_DIMENSIONS = {
     MEDIUM: 40,
     LARGE: 48,
   },
-  
+
   /**
    * Icon sizes
    */
@@ -205,12 +205,12 @@ export const COMPONENT_DIMENSIONS = {
     LARGE: 24,
     XLARGE: 32,
   },
-  
+
   /**
    * Touch target minimum size (accessibility)
    */
   TOUCH_TARGET_MIN: 44,
-  
+
   /**
    * Board sizes for chess display
    */
@@ -224,7 +224,7 @@ export const COMPONENT_DIMENSIONS = {
 
 /**
  * Responsive breakpoints
- * 
+ *
  * @description
  * Standard breakpoints for responsive design.
  * Matches common device sizes and framework conventions.
@@ -237,7 +237,7 @@ export const BREAKPOINTS = {
     MAX: 640,
     NAME: 'mobile' as const,
   },
-  
+
   /**
    * Tablet devices (641px - 1024px)
    */
@@ -247,7 +247,7 @@ export const BREAKPOINTS = {
     TYPICAL: 768,
     NAME: 'tablet' as const,
   },
-  
+
   /**
    * Desktop devices (1025px - 1920px)
    */
@@ -257,7 +257,7 @@ export const BREAKPOINTS = {
     TYPICAL: 1280,
     NAME: 'desktop' as const,
   },
-  
+
   /**
    * Wide desktop (> 1920px)
    */
@@ -265,7 +265,7 @@ export const BREAKPOINTS = {
     MIN: 1921,
     NAME: 'wide' as const,
   },
-  
+
   /**
    * Common viewport sizes for testing
    */
@@ -281,7 +281,7 @@ export const BREAKPOINTS = {
 
 /**
  * Z-index layering system
- * 
+ *
  * @description
  * Consistent z-index values for proper element stacking.
  * Higher values appear on top.
@@ -291,42 +291,42 @@ export const Z_INDEX = {
    * Base level elements
    */
   BASE: 0,
-  
+
   /**
    * Dropdown menus
    */
   DROPDOWN: 50,
-  
+
   /**
    * Sticky elements
    */
   STICKY: 100,
-  
+
   /**
    * Fixed headers
    */
   FIXED: 200,
-  
+
   /**
    * Overlay/backdrop
    */
   OVERLAY: 300,
-  
+
   /**
    * Modal dialogs
    */
   MODAL: 400,
-  
+
   /**
    * Popover/tooltip
    */
   POPOVER: 500,
-  
+
   /**
    * Toast notifications
    */
   TOAST: 600,
-  
+
   /**
    * Maximum z-index
    */
@@ -335,7 +335,7 @@ export const Z_INDEX = {
 
 /**
  * Border radius presets
- * 
+ *
  * @description
  * Consistent border radius values for rounded corners.
  */
@@ -350,7 +350,7 @@ export const BORDER_RADIUS = {
 
 /**
  * Shadow presets
- * 
+ *
  * @description
  * Box shadow configurations for depth and elevation.
  */

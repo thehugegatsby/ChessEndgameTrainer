@@ -21,72 +21,72 @@ jobs:
     name: Build and Test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Check for forbidden symlinks
-      run: |
-        echo "Checking for symlinks that should not be committed..."
-        if [ -L "src/config" ]; then
-          echo "❌ ERROR: src/config is a symlink. This is not allowed."
-          echo "This usually happens when worktree setup goes wrong."
-          exit 1
-        fi
-        
-        # Check for any symlinks in src (except node_modules)
-        SYMLINKS=$(find src -type l -not -path "*/node_modules/*" 2>/dev/null || true)
-        if [ -n "$SYMLINKS" ]; then
-          echo "⚠️ WARNING: Symlinks found in src directory:"
-          echo "$SYMLINKS"
-          echo "Please verify these are intentional."
-        fi
-        
-        echo "✅ No forbidden symlinks found"
+      - name: Check for forbidden symlinks
+        run: |
+          echo "Checking for symlinks that should not be committed..."
+          if [ -L "src/config" ]; then
+            echo "❌ ERROR: src/config is a symlink. This is not allowed."
+            echo "This usually happens when worktree setup goes wrong."
+            exit 1
+          fi
 
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v3
-      with:
-        version: ${{ env.PNPM_VERSION }}
+          # Check for any symlinks in src (except node_modules)
+          SYMLINKS=$(find src -type l -not -path "*/node_modules/*" 2>/dev/null || true)
+          if [ -n "$SYMLINKS" ]; then
+            echo "⚠️ WARNING: Symlinks found in src directory:"
+            echo "$SYMLINKS"
+            echo "Please verify these are intentional."
+          fi
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'pnpm'
+          echo "✅ No forbidden symlinks found"
 
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
 
-    - name: Check available memory
-      run: |
-        echo "--- Memory Usage Before Tests ---"
-        free -h
-        echo "--- Node Version ---"
-        node --version
-        echo "--- Available CPUs ---"
-        nproc
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
 
-    - name: Run unit tests (split into chunks)
-      run: |
-        echo "Running chess-core tests..."
-        pnpm run test:unit:chess
-        echo "Running tablebase tests..."
-        pnpm run test:unit:tablebase
-        echo "Running training tests..."
-        pnpm run test:unit:training
-    
-    - name: Run integration tests
-      run: NODE_OPTIONS="--max-old-space-size=2048" pnpm exec vitest run --project integration
-      env:
-        CI: true  # Skip real API tests in CI
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-    - name: Build application
-      run: pnpm run build
-      env:
-        # Add any production environment variables here
-        NEXT_PUBLIC_STOCKFISH_PATH: /stockfish/
+      - name: Check available memory
+        run: |
+          echo "--- Memory Usage Before Tests ---"
+          free -h
+          echo "--- Node Version ---"
+          node --version
+          echo "--- Available CPUs ---"
+          nproc
+
+      - name: Run unit tests (split into chunks)
+        run: |
+          echo "Running chess-core tests..."
+          pnpm run test:unit:chess
+          echo "Running tablebase tests..."
+          pnpm run test:unit:tablebase
+          echo "Running training tests..."
+          pnpm run test:unit:training
+
+      - name: Run integration tests
+        run: NODE_OPTIONS="--max-old-space-size=2048" pnpm exec vitest run --project integration
+        env:
+          CI: true # Skip real API tests in CI
+
+      - name: Build application
+        run: pnpm run build
+        env:
+          # Add any production environment variables here
+          NEXT_PUBLIC_STOCKFISH_PATH: /stockfish/
 
     # Vercel deployment removed - configure VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID secrets to enable
 
@@ -94,30 +94,30 @@ jobs:
     name: Post-Build Checks
     runs-on: ubuntu-latest
     needs: [build-and-test]
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v3
-      with:
-        version: ${{ env.PNPM_VERSION }}
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'pnpm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
 
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-    - name: Run smoke tests
-      run: |
-        # Add smoke test commands here
-        echo "Running smoke tests against production..."
-        # Example: pnpm run test:smoke -- --url=${{ secrets.PRODUCTION_URL }}
+      - name: Run smoke tests
+        run: |
+          # Add smoke test commands here
+          echo "Running smoke tests against production..."
+          # Example: pnpm run test:smoke -- --url=${{ secrets.PRODUCTION_URL }}
 
     # Health check removed - configure PRODUCTION_URL secret to enable
 
@@ -127,39 +127,39 @@ jobs:
     needs: [build-and-test]
     permissions:
       contents: write
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0 # Full history for changelog
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history for changelog
 
-    - name: Generate changelog
-      id: changelog
-      run: |
-        # Simple changelog from commits since last tag
-        LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-        if [ -z "$LAST_TAG" ]; then
-          COMMITS=$(git log --oneline --no-merges -10)
-        else
-          COMMITS=$(git log ${LAST_TAG}..HEAD --oneline --no-merges)
-        fi
-        
-        echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-        echo "## What's Changed" >> $GITHUB_OUTPUT
-        echo "$COMMITS" | sed 's/^/- /' >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Simple changelog from commits since last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            COMMITS=$(git log --oneline --no-merges -10)
+          else
+            COMMITS=$(git log ${LAST_TAG}..HEAD --oneline --no-merges)
+          fi
 
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: v${{ github.run_number }}
-        name: Release v${{ github.run_number }}
-        body: |
-          ${{ steps.changelog.outputs.CHANGELOG }}
-          
-          ---
-          **Full Changelog**: https://github.com/${{ github.repository }}/commits/main
-        draft: false
-        prerelease: false
-        generate_release_notes: true
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo "## What's Changed" >> $GITHUB_OUTPUT
+          echo "$COMMITS" | sed 's/^/- /' >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
+          body: |
+            ${{ steps.changelog.outputs.CHANGELOG }}
+
+            ---
+            **Full Changelog**: https://github.com/${{ github.repository }}/commits/main
+          draft: false
+          prerelease: false
+          generate_release_notes: true

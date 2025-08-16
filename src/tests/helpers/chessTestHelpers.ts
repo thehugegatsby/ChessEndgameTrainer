@@ -4,10 +4,7 @@
  */
 
 import { vi } from 'vitest';
-import {
-  type ChessServiceListener,
-  type ChessServiceEvent,
-} from "@shared/services/ChessService";
+import { type ChessServiceListener, type ChessServiceEvent } from '@shared/services/ChessService';
 
 /**
  * Creates a mock event listener for ChessService events
@@ -40,7 +37,7 @@ export /**
  *
  */
 const createMockListeners = (
-  count: number,
+  count: number
 ): ReturnType<typeof vi.fn<[ChessServiceEvent], void>>[] => {
   return Array.from({ length: count }, () => createMockListener());
 };
@@ -54,7 +51,7 @@ export /**
  *
  */
 const getLastEmittedEvent = (
-  mockListener: ReturnType<typeof vi.fn<[ChessServiceEvent], void>>,
+  mockListener: ReturnType<typeof vi.fn<[ChessServiceEvent], void>>
 ): ChessServiceEvent | undefined => {
   const calls = mockListener.mock.calls;
   if (calls.length === 0) return undefined;
@@ -70,9 +67,9 @@ export /**
  *
  */
 const getAllEmittedEvents = (
-  mockListener: ReturnType<typeof vi.fn<[ChessServiceEvent], void>>,
+  mockListener: ReturnType<typeof vi.fn<[ChessServiceEvent], void>>
 ): ChessServiceEvent[] => {
-  return mockListener.mock.calls.map((call) => call[0]);
+  return mockListener.mock.calls.map(call => call[0]);
 };
 
 /**
@@ -87,8 +84,8 @@ export /**
  */
 const waitForEvent = (
   mockListener: ReturnType<typeof vi.fn<[ChessServiceEvent], void>>,
-  eventType: ChessServiceEvent["type"],
-  timeout = 1000,
+  eventType: ChessServiceEvent['type'],
+  timeout = 1000
 ): Promise<ChessServiceEvent> => {
   return new Promise((resolve, reject) => {
     const timeoutId = setTimeout(() => {
@@ -122,16 +119,16 @@ export /**
  *
  */
 const isValidStateUpdateEvent = (event: ChessServiceEvent): boolean => {
-  if (event.type !== "stateUpdate") return false;
+  if (event.type !== 'stateUpdate') return false;
 
   const payload = event.payload;
   return (
-    typeof payload.fen === "string" &&
-    typeof payload.pgn === "string" &&
+    typeof payload.fen === 'string' &&
+    typeof payload.pgn === 'string' &&
     Array.isArray(payload.moveHistory) &&
-    typeof payload.currentMoveIndex === "number" &&
-    typeof payload.isGameOver === "boolean" &&
-    (payload.gameResult === null || typeof payload.gameResult === "string")
+    typeof payload.currentMoveIndex === 'number' &&
+    typeof payload.isGameOver === 'boolean' &&
+    (payload.gameResult === null || typeof payload.gameResult === 'string')
   );
 };
 
@@ -144,10 +141,10 @@ export /**
  *
  */
 const isValidErrorEvent = (event: ChessServiceEvent): boolean => {
-  if (event.type !== "error") return false;
+  if (event.type !== 'error') return false;
 
   const payload = event.payload;
-  return payload.error instanceof Error && typeof payload.message === "string";
+  return payload.error instanceof Error && typeof payload.message === 'string';
 };
 
 /**
@@ -178,9 +175,9 @@ export /**
  *
  */
 const normalizeFen = (fen: string): string => {
-  const parts = fen.split(" ");
+  const parts = fen.split(' ');
   if (parts.length >= 4) {
-    return parts.slice(0, 4).join(" ");
+    return parts.slice(0, 4).join(' ');
   }
   return fen;
 };
@@ -194,11 +191,7 @@ const normalizeFen = (fen: string): string => {
 export /**
  *
  */
-const expectFenToEqual = (
-  actual: string,
-  expected: string,
-  ignoreCounters = true,
-): void => {
+const expectFenToEqual = (actual: string, expected: string, ignoreCounters = true): void => {
   if (ignoreCounters) {
     expect(normalizeFen(actual)).toBe(normalizeFen(expected));
   } else {

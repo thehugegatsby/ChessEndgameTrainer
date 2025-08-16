@@ -21,7 +21,7 @@ describe('TrainingEventEmitter', () => {
 
       const moveData: TrainingEvents['move:attempted'] = {
         from: 'e2',
-        to: 'e4'
+        to: 'e4',
       };
 
       emitter.emit('move:attempted', moveData);
@@ -44,7 +44,7 @@ describe('TrainingEventEmitter', () => {
         wasOptimal: false,
         wdlBefore: 50,
         wdlAfter: -50,
-        bestMove: 'Qe5'
+        bestMove: 'Qe5',
       };
 
       emitter.emit('move:feedback', feedbackData);
@@ -61,7 +61,7 @@ describe('TrainingEventEmitter', () => {
       const gameData: TrainingEvents['game:complete'] = {
         result: 'win',
         reason: 'checkmate',
-        moveCount: 25
+        moveCount: 25,
       };
 
       emitter.emit('game:complete', gameData);
@@ -81,7 +81,7 @@ describe('TrainingEventEmitter', () => {
       emitter.once('opponent:thinking', handler);
 
       const thinkingData: TrainingEvents['opponent:thinking'] = {
-        isThinking: true
+        isThinking: true,
       };
 
       emitter.emit('opponent:thinking', thinkingData);
@@ -101,7 +101,7 @@ describe('TrainingEventEmitter', () => {
       const promotionData: TrainingEvents['promotion:required'] = {
         from: 'e7',
         to: 'e8',
-        color: 'w'
+        color: 'w',
       };
 
       emitter.emit('promotion:required', promotionData);
@@ -118,7 +118,7 @@ describe('TrainingEventEmitter', () => {
       emitter.on('move:validated', handler2);
 
       const validationData: TrainingEvents['move:validated'] = {
-        isValid: true
+        isValid: true,
       };
 
       emitter.emit('move:validated', validationData);
@@ -147,14 +147,14 @@ describe('TrainingEventEmitter', () => {
       emitter.clear();
 
       emitter.emit('move:attempted', { from: 'e2', to: 'e4' });
-      emitter.emit('move:feedback', { 
-        type: 'success', 
-        wasOptimal: true 
+      emitter.emit('move:feedback', {
+        type: 'success',
+        wasOptimal: true,
       });
-      emitter.emit('game:complete', { 
-        result: 'draw', 
-        reason: 'stalemate', 
-        moveCount: 50 
+      emitter.emit('game:complete', {
+        result: 'draw',
+        reason: 'stalemate',
+        moveCount: 50,
       });
 
       expect(handler1).not.toHaveBeenCalled();
@@ -171,9 +171,9 @@ describe('TrainingEventEmitter', () => {
 
       emitter.clearEvent('opponent:moved');
 
-      emitter.emit('opponent:moved', { 
-        move: 'Qe5', 
-        fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1' 
+      emitter.emit('opponent:moved', {
+        move: 'Qe5',
+        fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
       });
       emitter.emit('opponent:thinking', { isThinking: false });
 
@@ -196,7 +196,7 @@ describe('TrainingEventEmitter', () => {
       const moveData: TrainingEvents['move:applied'] = {
         fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
         san: 'e4',
-        moveNumber: 1
+        moveNumber: 1,
       };
 
       emitter.emit('move:applied', moveData);
@@ -242,7 +242,7 @@ describe('TrainingEventEmitter', () => {
         type: 'success',
         wasOptimal: true,
         wdlBefore: 100,
-        wdlAfter: 100
+        wdlAfter: 100,
       });
 
       expect(handler).toHaveBeenCalled();

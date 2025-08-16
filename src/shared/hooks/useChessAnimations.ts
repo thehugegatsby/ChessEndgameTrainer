@@ -1,12 +1,12 @@
 /**
  * @file Chess animations hook for enhanced visual feedback
  * @module hooks/useChessAnimations
- * 
+ *
  * @description
  * Hook for managing chess board visual effects and animations.
  * Coordinates with move handlers to provide enhanced visual feedback
  * like square highlights, last move indicators, and check animations.
- * 
+ *
  * @remarks
  * This hook enhances the basic chess board with:
  * - Last move highlighting with smooth transitions
@@ -64,15 +64,15 @@ const DEFAULT_CONFIG: ChessAnimationConfig = {
 
 /**
  * Chess animations hook for enhanced visual feedback
- * 
+ *
  * @description
  * Provides functions to manage visual effects on the chess board,
  * including last move highlighting, check indicators, and smooth
  * transitions between game states.
- * 
+ *
  * @param config - Optional animation configuration
  * @returns Object with animation control functions and state
- * 
+ *
  * @example
  * ```tsx
  * const {
@@ -84,13 +84,13 @@ const DEFAULT_CONFIG: ChessAnimationConfig = {
  *   showLastMove: true,
  *   showCheck: true
  * });
- * 
+ *
  * // Highlight the last move
  * highlightLastMove('e2', 'e4');
- * 
+ *
  * // Update check state after move
  * updateCheckState(currentFen);
- * 
+ *
  * // Get CSS classes for a square
  * const classes = getSquareClasses('e1');
  * ```
@@ -109,7 +109,9 @@ export type UseChessAnimationsReturn = {
   readonly animationConfig: ChessAnimationConfig;
 };
 
-export const useChessAnimations = (config: Partial<ChessAnimationConfig> = {}): UseChessAnimationsReturn => {
+export const useChessAnimations = (
+  config: Partial<ChessAnimationConfig> = {}
+): UseChessAnimationsReturn => {
   const animationConfig = { ...DEFAULT_CONFIG, ...config };
   const logger = getLogger();
 
@@ -122,7 +124,7 @@ export const useChessAnimations = (config: Partial<ChessAnimationConfig> = {}): 
    */
   const initializeSquareStates = useCallback(() => {
     const initialStates: Record<string, SquareAnimationState> = {};
-    
+
     // Initialize all 64 squares
     for (let file = 0; file < 8; file++) {
       for (let rank = 1; rank <= 8; rank++) {
@@ -135,45 +137,48 @@ export const useChessAnimations = (config: Partial<ChessAnimationConfig> = {}): 
         };
       }
     }
-    
+
     setSquareStates(initialStates);
   }, []);
 
   /**
    * Highlight the last move made
-   * 
+   *
    * @param fromSquare - Starting square of the move
    * @param toSquare - Target square of the move
    */
-  const highlightLastMove = useCallback((fromSquare: string, toSquare: string) => {
-    if (!animationConfig.showLastMove || animationConfig.reducedMotion) {
-      return;
-    }
+  const highlightLastMove = useCallback(
+    (fromSquare: string, toSquare: string) => {
+      if (!animationConfig.showLastMove || animationConfig.reducedMotion) {
+        return;
+      }
 
-    setSquareStates(prevStates => {
-      const newStates = { ...prevStates };
-      
-      // Clear previous last move highlights
-      Object.keys(newStates).forEach(square => {
-        if (newStates[square]) {
-          newStates[square] = { ...newStates[square], isLastMove: false };
+      setSquareStates(prevStates => {
+        const newStates = { ...prevStates };
+
+        // Clear previous last move highlights
+        Object.keys(newStates).forEach(square => {
+          if (newStates[square]) {
+            newStates[square] = { ...newStates[square], isLastMove: false };
+          }
+        });
+
+        // Set new last move highlights
+        if (newStates[fromSquare]) {
+          newStates[fromSquare] = { ...newStates[fromSquare], isLastMove: true };
         }
-      });
-      
-      // Set new last move highlights
-      if (newStates[fromSquare]) {
-        newStates[fromSquare] = { ...newStates[fromSquare], isLastMove: true };
-      }
-      if (newStates[toSquare]) {
-        newStates[toSquare] = { ...newStates[toSquare], isLastMove: true };
-      }
-      
-      return newStates;
-    });
+        if (newStates[toSquare]) {
+          newStates[toSquare] = { ...newStates[toSquare], isLastMove: true };
+        }
 
-    setLastMoveSquares([fromSquare, toSquare]);
-    logger.debug(`Highlighted last move: ${fromSquare} -> ${toSquare}`);
-  }, [animationConfig.showLastMove, animationConfig.reducedMotion, logger]);
+        return newStates;
+      });
+
+      setLastMoveSquares([fromSquare, toSquare]);
+      logger.debug(`Highlighted last move: ${fromSquare} -> ${toSquare}`);
+    },
+    [animationConfig.showLastMove, animationConfig.reducedMotion, logger]
+  );
 
   /**
    * Find the king square for a given color
@@ -182,9 +187,9 @@ export const useChessAnimations = (config: Partial<ChessAnimationConfig> = {}): 
     for (let file = 0; file < 8; file++) {
       for (let rank = 1; rank <= 8; rank++) {
         const ASCII_LOWERCASE_A = 97;
-        const square = String.fromCharCode(ASCII_LOWERCASE_A + file) + rank as Square;
+        const square = (String.fromCharCode(ASCII_LOWERCASE_A + file) + rank) as Square;
         const piece = chess.get(square);
-        
+
         if (piece && piece.type === 'k' && piece.color === color) {
           return square;
         }
@@ -195,45 +200,48 @@ export const useChessAnimations = (config: Partial<ChessAnimationConfig> = {}): 
 
   /**
    * Update check state for the current position
-   * 
+   *
    * @param fen - Current FEN position
    */
-  const updateCheckState = useCallback((fen: string) => {
-    if (!animationConfig.showCheck || animationConfig.reducedMotion) {
-      return;
-    }
+  const updateCheckState = useCallback(
+    (fen: string) => {
+      if (!animationConfig.showCheck || animationConfig.reducedMotion) {
+        return;
+      }
 
-    try {
-      const chess = new Chess(fen);
-      const isInCheck = chess.inCheck();
-      
-      setSquareStates(prevStates => {
-        const newStates = { ...prevStates };
-        
-        // Clear all check states
-        Object.keys(newStates).forEach(square => {
-          if (newStates[square]) {
-            newStates[square] = { ...newStates[square], isCheck: false };
+      try {
+        const chess = new Chess(fen);
+        const isInCheck = chess.inCheck();
+
+        setSquareStates(prevStates => {
+          const newStates = { ...prevStates };
+
+          // Clear all check states
+          Object.keys(newStates).forEach(square => {
+            if (newStates[square]) {
+              newStates[square] = { ...newStates[square], isCheck: false };
+            }
+          });
+
+          // If in check, find the king square
+          if (isInCheck) {
+            const currentPlayer = chess.turn();
+            const kingSquare = findKingSquare(chess, currentPlayer);
+
+            if (kingSquare && newStates[kingSquare]) {
+              newStates[kingSquare] = { ...newStates[kingSquare], isCheck: true };
+              logger.debug(`King in check at ${kingSquare}`);
+            }
           }
+
+          return newStates;
         });
-        
-        // If in check, find the king square
-        if (isInCheck) {
-          const currentPlayer = chess.turn();
-          const kingSquare = findKingSquare(chess, currentPlayer);
-          
-          if (kingSquare && newStates[kingSquare]) {
-            newStates[kingSquare] = { ...newStates[kingSquare], isCheck: true };
-            logger.debug(`King in check at ${kingSquare}`);
-          }
-        }
-        
-        return newStates;
-      });
-    } catch (error) {
-      logger.warn('Failed to update check state', error as Error);
-    }
-  }, [animationConfig.showCheck, animationConfig.reducedMotion, logger]);
+      } catch (error) {
+        logger.warn('Failed to update check state', error as Error);
+      }
+    },
+    [animationConfig.showCheck, animationConfig.reducedMotion, logger]
+  );
 
   /**
    * Clear all highlights and animations
@@ -241,7 +249,7 @@ export const useChessAnimations = (config: Partial<ChessAnimationConfig> = {}): 
   const clearHighlights = useCallback(() => {
     setSquareStates(prevStates => {
       const newStates = { ...prevStates };
-      
+
       Object.keys(newStates).forEach(square => {
         if (newStates[square]) {
           newStates[square] = {
@@ -251,37 +259,25 @@ export const useChessAnimations = (config: Partial<ChessAnimationConfig> = {}): 
           };
         }
       });
-      
+
       return newStates;
     });
-    
+
     setLastMoveSquares([]);
   }, []);
 
   /**
    * Temporarily highlight a square
-   * 
+   *
    * @param square - Square to highlight
    * @param duration - Duration in milliseconds
    */
-  const highlightSquare = useCallback((square: string, duration: number = 1000) => {
-    if (animationConfig.reducedMotion) {
-      return;
-    }
+  const highlightSquare = useCallback(
+    (square: string, duration: number = 1000) => {
+      if (animationConfig.reducedMotion) {
+        return;
+      }
 
-    setSquareStates(prevStates => ({
-      ...prevStates,
-      [square]: {
-        isLastMove: false,
-        isCheck: false,
-        showMoveHint: false,
-        ...(prevStates[square] || {}),
-        isHighlighted: true,
-      } as SquareAnimationState,
-    }));
-
-    // Clear highlight after duration
-    setTimeout(() => {
       setSquareStates(prevStates => ({
         ...prevStates,
         [square]: {
@@ -289,42 +285,60 @@ export const useChessAnimations = (config: Partial<ChessAnimationConfig> = {}): 
           isCheck: false,
           showMoveHint: false,
           ...(prevStates[square] || {}),
-          isHighlighted: false,
+          isHighlighted: true,
         } as SquareAnimationState,
       }));
-    }, duration);
-  }, [animationConfig.reducedMotion]);
+
+      // Clear highlight after duration
+      setTimeout(() => {
+        setSquareStates(prevStates => ({
+          ...prevStates,
+          [square]: {
+            isLastMove: false,
+            isCheck: false,
+            showMoveHint: false,
+            ...(prevStates[square] || {}),
+            isHighlighted: false,
+          } as SquareAnimationState,
+        }));
+      }, duration);
+    },
+    [animationConfig.reducedMotion]
+  );
 
   /**
    * Get CSS classes for a square based on its animation state
-   * 
+   *
    * @param square - Square to get classes for
    * @returns String of CSS classes
    */
-  const getSquareClasses = useCallback((square: string): string => {
-    const state = squareStates[square];
-    if (!state) return '';
+  const getSquareClasses = useCallback(
+    (square: string): string => {
+      const state = squareStates[square];
+      if (!state) return '';
 
-    const classes: string[] = [];
-    
-    if (state.isLastMove) {
-      classes.push('chess-square-last-move');
-    }
-    
-    if (state.isHighlighted) {
-      classes.push('chess-square-highlighted');
-    }
-    
-    if (state.isCheck) {
-      classes.push('chess-square-check');
-    }
-    
-    if (state.showMoveHint) {
-      classes.push('chess-move-hint');
-    }
+      const classes: string[] = [];
 
-    return classes.join(' ');
-  }, [squareStates]);
+      if (state.isLastMove) {
+        classes.push('chess-square-last-move');
+      }
+
+      if (state.isHighlighted) {
+        classes.push('chess-square-highlighted');
+      }
+
+      if (state.isCheck) {
+        classes.push('chess-square-check');
+      }
+
+      if (state.showMoveHint) {
+        classes.push('chess-move-hint');
+      }
+
+      return classes.join(' ');
+    },
+    [squareStates]
+  );
 
   /**
    * Check if animations are enabled
@@ -341,7 +355,7 @@ export const useChessAnimations = (config: Partial<ChessAnimationConfig> = {}): 
   // Listen for prefers-reduced-motion changes
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    
+
     const handleChange = (e: MediaQueryListEvent): void => {
       if (e.matches) {
         clearHighlights();
@@ -358,12 +372,12 @@ export const useChessAnimations = (config: Partial<ChessAnimationConfig> = {}): 
     updateCheckState,
     clearHighlights,
     highlightSquare,
-    
+
     // State accessors
     getSquareClasses,
     areAnimationsEnabled,
     lastMoveSquares,
-    
+
     // Configuration
     animationConfig,
   };

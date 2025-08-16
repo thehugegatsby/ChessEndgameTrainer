@@ -3,7 +3,7 @@
  * Simple wrapper around chess.js for consistent FEN validation and normalization
  */
 
-import { Chess } from "chess.js";
+import { Chess } from 'chess.js';
 
 /**
  * Result of FEN string validation
@@ -49,11 +49,11 @@ export interface FenValidationResult {
  * @performance O(n) where n is FEN string length, typically <1ms
  */
 export function validateAndSanitizeFen(fen: string): FenValidationResult {
-  if (!fen || typeof fen !== "string") {
+  if (!fen || typeof fen !== 'string') {
     return {
       isValid: false,
-      sanitized: "",
-      errors: ["FEN must be a valid string"],
+      sanitized: '',
+      errors: ['FEN must be a valid string'],
     };
   }
 
@@ -71,7 +71,7 @@ export function validateAndSanitizeFen(fen: string): FenValidationResult {
     };
   } catch (error) {
     // chess.js provides descriptive error messages
-    const errorMessage = error instanceof Error ? error.message : "Invalid FEN";
+    const errorMessage = error instanceof Error ? error.message : 'Invalid FEN';
 
     return {
       isValid: false,

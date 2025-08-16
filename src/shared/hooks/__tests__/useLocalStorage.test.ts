@@ -5,13 +5,13 @@ import { vi } from 'vitest';
  * Perfect Jest 30 compatibility - no global mocking required!
  */
 
-import { renderHook, act, waitFor } from "@testing-library/react";
-import { useLocalStorageWithState } from "@shared/hooks/useLocalStorage";
-import { createTestContainer } from "@tests/utils";
-import type { PlatformStorage } from "@shared/services/platform/types";
+import { renderHook, act, waitFor } from '@testing-library/react';
+import { useLocalStorageWithState } from '@shared/hooks/useLocalStorage';
+import { createTestContainer } from '@tests/utils';
+import type { PlatformStorage } from '@shared/services/platform/types';
 
 // Mock logger using inline pattern like other tests
-vi.mock("@shared/services/logging", () => ({
+vi.mock('@shared/services/logging', () => ({
   getLogger: () => ({
     setContext: vi.fn().mockReturnThis(),
     debug: vi.fn(),
@@ -27,7 +27,7 @@ let testContainer: ReturnType<typeof createTestContainer>;
 let mockStorageService: PlatformStorage;
 
 // Mock the platform service module to use our test container
-vi.mock("@shared/services/platform", () => ({
+vi.mock('@shared/services/platform', () => ({
   /**
    *
    */
@@ -36,42 +36,38 @@ vi.mock("@shared/services/platform", () => ({
   }),
 }));
 
-describe("useLocalStorage Hook - Refactored Version", () => {
-  const testKey = "test-key";
-  const testValue = { count: 42, name: "test" };
-  const testString = "simple string";
+describe('useLocalStorage Hook - Refactored Version', () => {
+  const testKey = 'test-key';
+  const testValue = { count: 42, name: 'test' };
+  const testString = 'simple string';
 
   beforeEach(() => {
     // Create test container with mocked services
     testContainer = createTestContainer();
-    mockStorageService = testContainer.resolve("platform.storage");
+    mockStorageService = testContainer.resolve('platform.storage');
 
     // Reset all mocks
     vi.clearAllMocks();
   });
 
-  describe("Async Hook - useLocalStorageWithState", () => {
-    describe("Initialization", () => {
-      test("should initialize with loading state", () => {
-        vi.spyOn(mockStorageService, "load").mockResolvedValue(null);
+  describe('Async Hook - useLocalStorageWithState', () => {
+    describe('Initialization', () => {
+      test('should initialize with loading state', () => {
+        vi.spyOn(mockStorageService, 'load').mockResolvedValue(null);
 
-        const { result } = renderHook(() =>
-          useLocalStorageWithState(testKey, testString),
-        );
+        const { result } = renderHook(() => useLocalStorageWithState(testKey, testString));
 
         const [value, setter, isLoading, saveError] = result.current;
         expect(value).toBeUndefined();
-        expect(typeof setter).toBe("function");
+        expect(typeof setter).toBe('function');
         expect(isLoading).toBe(true);
         expect(saveError).toBeNull();
       });
 
-      test("should load existing value from storage", async () => {
-        vi.spyOn(mockStorageService, "load").mockResolvedValue(testValue);
+      test('should load existing value from storage', async () => {
+        vi.spyOn(mockStorageService, 'load').mockResolvedValue(testValue);
 
-        const { result } = renderHook(() =>
-          useLocalStorageWithState(testKey, "default"),
-        );
+        const { result } = renderHook(() => useLocalStorageWithState(testKey, 'default'));
 
         // Wait for async loading to complete
         await waitFor(() => {
@@ -85,12 +81,10 @@ describe("useLocalStorage Hook - Refactored Version", () => {
         expect(mockStorageService.load).toHaveBeenCalledWith(testKey);
       });
 
-      test("should use initial value when storage is empty", async () => {
-        vi.spyOn(mockStorageService, "load").mockResolvedValue(null);
+      test('should use initial value when storage is empty', async () => {
+        vi.spyOn(mockStorageService, 'load').mockResolvedValue(null);
 
-        const { result } = renderHook(() =>
-          useLocalStorageWithState(testKey, testString),
-        );
+        const { result } = renderHook(() => useLocalStorageWithState(testKey, testString));
 
         await waitFor(() => {
           expect(result.current[2]).toBe(false);
@@ -100,13 +94,11 @@ describe("useLocalStorage Hook - Refactored Version", () => {
         expect(value).toBe(testString);
       });
 
-      test("should handle function-based initial value", async () => {
+      test('should handle function-based initial value', async () => {
         const initialValueFn = vi.fn(() => testValue);
-        vi.spyOn(mockStorageService, "load").mockResolvedValue(null);
+        vi.spyOn(mockStorageService, 'load').mockResolvedValue(null);
 
-        const { result } = renderHook(() =>
-          useLocalStorageWithState(testKey, initialValueFn),
-        );
+        const { result } = renderHook(() => useLocalStorageWithState(testKey, initialValueFn));
 
         await waitFor(() => {
           expect(result.current[2]).toBe(false);
@@ -117,14 +109,10 @@ describe("useLocalStorage Hook - Refactored Version", () => {
         expect(result.current[0]).toEqual(testValue);
       });
 
-      test("should handle storage load errors gracefully", async () => {
-        vi
-          .spyOn(mockStorageService, "load")
-          .mockRejectedValue(new Error("Storage error"));
+      test('should handle storage load errors gracefully', async () => {
+        vi.spyOn(mockStorageService, 'load').mockRejectedValue(new Error('Storage error'));
 
-        const { result } = renderHook(() =>
-          useLocalStorageWithState(testKey, testString),
-        );
+        const { result } = renderHook(() => useLocalStorageWithState(testKey, testString));
 
         await waitFor(() => {
           expect(result.current[2]).toBe(false);
@@ -135,21 +123,19 @@ describe("useLocalStorage Hook - Refactored Version", () => {
       });
     });
 
-    describe("Setting Values", () => {
-      test("should update state and save to storage", async () => {
-        vi.spyOn(mockStorageService, "load").mockResolvedValue(null);
-        vi.spyOn(mockStorageService, "save").mockResolvedValue(undefined);
+    describe('Setting Values', () => {
+      test('should update state and save to storage', async () => {
+        vi.spyOn(mockStorageService, 'load').mockResolvedValue(null);
+        vi.spyOn(mockStorageService, 'save').mockResolvedValue(undefined);
 
-        const { result } = renderHook(() =>
-          useLocalStorageWithState(testKey, testString),
-        );
+        const { result } = renderHook(() => useLocalStorageWithState(testKey, testString));
 
         // Wait for initialization
         await waitFor(() => {
           expect(result.current[2]).toBe(false);
         });
 
-        const newValue = "updated value";
+        const newValue = 'updated value';
         act(() => {
           result.current[1](newValue);
         });
@@ -158,27 +144,22 @@ describe("useLocalStorage Hook - Refactored Version", () => {
 
         // Wait for save effect to trigger
         await waitFor(() => {
-          expect(mockStorageService.save).toHaveBeenCalledWith(
-            testKey,
-            newValue,
-          );
+          expect(mockStorageService.save).toHaveBeenCalledWith(testKey, newValue);
         });
       });
 
-      test("should handle function-based updates", async () => {
-        vi.spyOn(mockStorageService, "load").mockResolvedValue({ count: 0 });
-        vi.spyOn(mockStorageService, "save").mockResolvedValue(undefined);
+      test('should handle function-based updates', async () => {
+        vi.spyOn(mockStorageService, 'load').mockResolvedValue({ count: 0 });
+        vi.spyOn(mockStorageService, 'save').mockResolvedValue(undefined);
 
-        const { result } = renderHook(() =>
-          useLocalStorageWithState(testKey, { count: 0 }),
-        );
+        const { result } = renderHook(() => useLocalStorageWithState(testKey, { count: 0 }));
 
         // Wait for loading to complete step by step
         await waitFor(
           () => {
             expect(result.current[2]).toBe(false);
           },
-          { timeout: 3000 },
+          { timeout: 3000 }
         );
 
         // Then verify the loaded value
@@ -200,15 +181,11 @@ describe("useLocalStorage Hook - Refactored Version", () => {
         });
       });
 
-      test("should handle save errors by setting error state", async () => {
-        vi.spyOn(mockStorageService, "load").mockResolvedValue(null);
-        vi
-          .spyOn(mockStorageService, "save")
-          .mockRejectedValue(new Error("Save failed"));
+      test('should handle save errors by setting error state', async () => {
+        vi.spyOn(mockStorageService, 'load').mockResolvedValue(null);
+        vi.spyOn(mockStorageService, 'save').mockRejectedValue(new Error('Save failed'));
 
-        const { result } = renderHook(() =>
-          useLocalStorageWithState(testKey, testString),
-        );
+        const { result } = renderHook(() => useLocalStorageWithState(testKey, testString));
 
         await waitFor(() => {
           expect(result.current[2]).toBe(false);
@@ -217,11 +194,11 @@ describe("useLocalStorage Hook - Refactored Version", () => {
 
         // Set a new value (synchronous)
         act(() => {
-          result.current[1]("new value");
+          result.current[1]('new value');
         });
 
         // Should immediately show optimistic update
-        expect(result.current[0]).toBe("new value");
+        expect(result.current[0]).toBe('new value');
 
         // Wait for save effect to fail and set error state
         await waitFor(() => {
@@ -230,31 +207,24 @@ describe("useLocalStorage Hook - Refactored Version", () => {
 
         // Verify the error and that optimistic state was preserved
         expect(result.current[3]).toBeInstanceOf(Error);
-        expect(result.current[3]?.message).toBe("Save failed");
-        expect(result.current[0]).toBe("new value");
+        expect(result.current[3]?.message).toBe('Save failed');
+        expect(result.current[0]).toBe('new value');
       });
     });
 
-    describe("Component Lifecycle", () => {
-      test("should not update state after unmount", async () => {
-        vi
-          .spyOn(mockStorageService, "load")
-          .mockImplementation(
-            () =>
-              new Promise((resolve) =>
-                setTimeout(() => resolve(testValue), 100),
-              ),
-          );
-
-        const { result, unmount } = renderHook(() =>
-          useLocalStorageWithState(testKey, "default"),
+    describe('Component Lifecycle', () => {
+      test('should not update state after unmount', async () => {
+        vi.spyOn(mockStorageService, 'load').mockImplementation(
+          () => new Promise(resolve => setTimeout(() => resolve(testValue), 100))
         );
+
+        const { result, unmount } = renderHook(() => useLocalStorageWithState(testKey, 'default'));
 
         // Unmount before async load completes
         unmount();
 
         // Wait longer than the mock delay
-        await new Promise((resolve) => setTimeout(resolve, 150));
+        await new Promise(resolve => setTimeout(resolve, 150));
 
         // Should still be in initial state since component was unmounted
         expect(result.current[2]).toBe(true); // Still loading
@@ -263,13 +233,11 @@ describe("useLocalStorage Hook - Refactored Version", () => {
     });
   });
 
-  describe("useLocalStorageWithState Hook", () => {
-    test("should provide state-based interface", async () => {
-      vi.spyOn(mockStorageService, "load").mockResolvedValue(testValue);
+  describe('useLocalStorageWithState Hook', () => {
+    test('should provide state-based interface', async () => {
+      vi.spyOn(mockStorageService, 'load').mockResolvedValue(testValue);
 
-      const { result } = renderHook(() =>
-        useLocalStorageWithState(testKey, "default"),
-      );
+      const { result } = renderHook(() => useLocalStorageWithState(testKey, 'default'));
 
       // Should start with loading state
       expect(result.current[0]).toBe(undefined);
@@ -280,13 +248,11 @@ describe("useLocalStorage Hook - Refactored Version", () => {
       });
     });
 
-    test("should maintain useState-like API", async () => {
-      vi.spyOn(mockStorageService, "load").mockResolvedValue(null);
-      vi.spyOn(mockStorageService, "save").mockResolvedValue(undefined);
+    test('should maintain useState-like API', async () => {
+      vi.spyOn(mockStorageService, 'load').mockResolvedValue(null);
+      vi.spyOn(mockStorageService, 'save').mockResolvedValue(undefined);
 
-      const { result } = renderHook(() =>
-        useLocalStorageWithState(testKey, testString),
-      );
+      const { result } = renderHook(() => useLocalStorageWithState(testKey, testString));
 
       // Wait for initialization
       await waitFor(() => {
@@ -295,54 +261,52 @@ describe("useLocalStorage Hook - Refactored Version", () => {
 
       // Should have state API
       const [value, setValue] = result.current;
-      expect(typeof value).toBe("string");
-      expect(typeof setValue).toBe("function");
+      expect(typeof value).toBe('string');
+      expect(typeof setValue).toBe('function');
     });
   });
 
-  describe("ServiceContainer Integration", () => {
-    test("should use only platform service for storage operations", async () => {
-      vi.spyOn(mockStorageService, "load").mockResolvedValue(testValue);
-      vi.spyOn(mockStorageService, "save").mockResolvedValue(undefined);
+  describe('ServiceContainer Integration', () => {
+    test('should use only platform service for storage operations', async () => {
+      vi.spyOn(mockStorageService, 'load').mockResolvedValue(testValue);
+      vi.spyOn(mockStorageService, 'save').mockResolvedValue(undefined);
 
-      const { result } = renderHook(() =>
-        useLocalStorageWithState(testKey, "initial"),
-      );
+      const { result } = renderHook(() => useLocalStorageWithState(testKey, 'initial'));
 
       await waitFor(() => {
         expect(result.current[2]).toBe(false);
       });
 
       await act(async () => {
-        await result.current[1]("updated");
+        await result.current[1]('updated');
       });
 
       // Verify ONLY platform service was used
       expect(mockStorageService.load).toHaveBeenCalledWith(testKey);
-      expect(mockStorageService.save).toHaveBeenCalledWith(testKey, "updated");
+      expect(mockStorageService.save).toHaveBeenCalledWith(testKey, 'updated');
 
       // No window.localStorage access at all!
       expect(vi.isMockFunction(mockStorageService.load)).toBe(true);
       expect(vi.isMockFunction(mockStorageService.save)).toBe(true);
     });
 
-    test("should provide perfect test isolation", async () => {
+    test('should provide perfect test isolation', async () => {
       // Each test gets fresh container and fresh mocks
       const container1 = createTestContainer();
-      const storage1 = container1.resolve("platform.storage");
+      const storage1 = container1.resolve('platform.storage');
 
       const container2 = createTestContainer();
-      const storage2 = container2.resolve("platform.storage");
+      const storage2 = container2.resolve('platform.storage');
 
       // Different containers = different service instances
       expect(storage1).not.toBe(storage2);
 
       // Both should be working mock instances
-      expect(typeof storage1.load).toBe("function");
-      expect(typeof storage2.save).toBe("function");
+      expect(typeof storage1.load).toBe('function');
+      expect(typeof storage2.save).toBe('function');
     });
 
-    test("should support Jest 30 compatible testing", async () => {
+    test('should support Jest 30 compatible testing', async () => {
       // This test validates Jest 30 compatibility
 
       // ✅ No global window.localStorage mocking required
@@ -350,17 +314,15 @@ describe("useLocalStorage Hook - Refactored Version", () => {
       // ✅ Pure dependency injection through ServiceContainer
       // ✅ Perfect mock isolation per test
 
-      vi.spyOn(mockStorageService, "load").mockResolvedValue("test-data");
+      vi.spyOn(mockStorageService, 'load').mockResolvedValue('test-data');
 
-      const { result } = renderHook(() =>
-        useLocalStorageWithState("test", "default"),
-      );
+      const { result } = renderHook(() => useLocalStorageWithState('test', 'default'));
 
       await waitFor(() => {
         expect(result.current[2]).toBe(false);
       });
 
-      expect(result.current[0]).toBe("test-data");
+      expect(result.current[0]).toBe('test-data');
 
       // Verify service container pattern works
       expect(testContainer).toBeDefined();
@@ -369,14 +331,14 @@ describe("useLocalStorage Hook - Refactored Version", () => {
     });
   });
 
-  describe("Performance Characteristics", () => {
-    test("should not create unnecessary re-renders", async () => {
+  describe('Performance Characteristics', () => {
+    test('should not create unnecessary re-renders', async () => {
       const renderCount = vi.fn();
-      vi.spyOn(mockStorageService, "load").mockResolvedValue(testValue);
+      vi.spyOn(mockStorageService, 'load').mockResolvedValue(testValue);
 
       const { result, rerender } = renderHook(() => {
         renderCount();
-        return useLocalStorageWithState(testKey, "initial");
+        return useLocalStorageWithState(testKey, 'initial');
       });
 
       await waitFor(() => {
@@ -392,9 +354,9 @@ describe("useLocalStorage Hook - Refactored Version", () => {
       expect(renderCount).toHaveBeenCalledTimes(4); // Initial + loading state change + 2 rerenders
     });
 
-    test("should handle rapid successive updates correctly", async () => {
-      vi.spyOn(mockStorageService, "load").mockResolvedValue(null);
-      vi.spyOn(mockStorageService, "save").mockResolvedValue(undefined);
+    test('should handle rapid successive updates correctly', async () => {
+      vi.spyOn(mockStorageService, 'load').mockResolvedValue(null);
+      vi.spyOn(mockStorageService, 'save').mockResolvedValue(undefined);
 
       const { result } = renderHook(() => useLocalStorageWithState(testKey, 0));
 

@@ -4,7 +4,7 @@
  */
 
 import { vi } from 'vitest';
-import { type PositionService } from "../IPositionService";
+import { type PositionService } from '../IPositionService';
 
 // Mock implementation of PositionService for tests
 const mockPositionService: PositionService = {

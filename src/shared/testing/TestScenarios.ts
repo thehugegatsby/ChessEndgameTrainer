@@ -20,7 +20,7 @@
  * realistic move targets and German language hints for training purposes.
  */
 
-import { type EndgamePosition } from "@shared/types/endgame";
+import { type EndgamePosition } from '@shared/types/endgame';
 
 // REMOVED: EngineMove and TestInteraction interfaces
 // These were unused legacy code. Use TablebaseMove from TablebaseService instead.
@@ -51,35 +51,22 @@ export const TestPositions: Record<string, TestScenario> = {
   // FEN: "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1"
   // White K+P vs Black K, White to move, goal: win, mate in #11
   POSITION_1_OPPOSITION_BASICS: {
-    id: "1", // TestScenario uses string IDs
-    title: "Opposition Grundlagen",
+    id: '1', // TestScenario uses string IDs
+    title: 'Opposition Grundlagen',
     description:
-      "Opposition Grundlagen - Lerne das fundamentale Konzept der Opposition in Bauernendspielen",
-    fen: "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1", // REAL FEN from Firebase
-    category: "endgame",
-    difficulty: "beginner",
+      'Opposition Grundlagen - Lerne das fundamentale Konzept der Opposition in Bauernendspielen',
+    fen: '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1', // REAL FEN from Firebase
+    category: 'endgame',
+    difficulty: 'beginner',
     targetMoves: 11, // Mate in 11 moves
-    sideToMove: "white",
-    goal: "win",
+    sideToMove: 'white',
+    goal: 'win',
     hints: [
-      "Verwende die Opposition um den gegnerischen König zu verdrängen",
-      "Kf6 oder Kd6 sind gleichwertige Züge",
-      "Der Bauer auf e5 entscheidet das Spiel",
+      'Verwende die Opposition um den gegnerischen König zu verdrängen',
+      'Kf6 oder Kd6 sind gleichwertige Züge',
+      'Der Bauer auf e5 entscheidet das Spiel',
     ],
-    solution: [
-      "Kf6",
-      "Kf8",
-      "e6",
-      "Ke8",
-      "e7",
-      "Kd7",
-      "Kf7",
-      "Kd6",
-      "e8=Q",
-      "Kd5",
-      "Qe7",
-      "mate",
-    ],
+    solution: ['Kf6', 'Kf8', 'e6', 'Ke8', 'e7', 'Kd7', 'Kf7', 'Kd6', 'e8=Q', 'Kd5', 'Qe7', 'mate'],
     // nextPositionId is omitted (undefined) for JSON serialization compatibility
   },
 
@@ -87,121 +74,108 @@ export const TestPositions: Record<string, TestScenario> = {
   // FEN: "2K5/2P2k2/8/8/4R3/8/1r6/8 w - - 0 1"
   // White K+P+R vs Black K+R, White to move, goal: win using bridge technique
   POSITION_9_BRIDGE_ZICKZACK: {
-    id: "9", // TestScenario uses string IDs
-    title: "Zickzack-Technik",
-    description: "König läuft im Zickzack nach vorne, Turm schützt von hinten",
-    fen: "2K5/2P2k2/8/8/4R3/8/1r6/8 w - - 0 1", // From homepage bridgeTrainerLessons
-    category: "endgame",
-    difficulty: "beginner",
+    id: '9', // TestScenario uses string IDs
+    title: 'Zickzack-Technik',
+    description: 'König läuft im Zickzack nach vorne, Turm schützt von hinten',
+    fen: '2K5/2P2k2/8/8/4R3/8/1r6/8 w - - 0 1', // From homepage bridgeTrainerLessons
+    category: 'endgame',
+    difficulty: 'beginner',
     targetMoves: 8, // Estimated moves to win
-    sideToMove: "white",
-    goal: "win",
+    sideToMove: 'white',
+    goal: 'win',
     hints: [
-      "König läuft im Zickzack nach vorne",
-      "Turm schützt von hinten",
-      "Kd7, Kc6, Kb5 sind die Schlüsselzüge",
+      'König läuft im Zickzack nach vorne',
+      'Turm schützt von hinten',
+      'Kd7, Kc6, Kb5 sind die Schlüsselzüge',
     ],
-    solution: ["Kd7", "Kf8", "Kc6", "Ke7", "Kb5", "Kd6", "Re6+", "Kd5", "c8=Q"],
+    solution: ['Kd7', 'Kf8', 'Kc6', 'Ke7', 'Kb5', 'Kd6', 'Re6+', 'Kd5', 'c8=Q'],
   },
 
   // Position 10: "Turm positionieren" Brückenbau-Trainer (was 13)
   // FEN: "2K2k2/2P5/8/8/8/8/1r6/4R3 w - - 0 1"
   // White K+P+R vs Black K+R, White to move, goal: win by positioning rook first
   POSITION_10_BRIDGE_POSITIONING: {
-    id: "10", // TestScenario uses string IDs
-    title: "Turm positionieren",
-    description:
-      "Turm erst auf die 4. oder 5. Reihe bringen, dann Brücke bauen",
-    fen: "2K2k2/2P5/8/8/8/8/1r6/4R3 w - - 0 1", // From homepage bridgeTrainerLessons
-    category: "endgame",
-    difficulty: "beginner",
+    id: '10', // TestScenario uses string IDs
+    title: 'Turm positionieren',
+    description: 'Turm erst auf die 4. oder 5. Reihe bringen, dann Brücke bauen',
+    fen: '2K2k2/2P5/8/8/8/8/1r6/4R3 w - - 0 1', // From homepage bridgeTrainerLessons
+    category: 'endgame',
+    difficulty: 'beginner',
     targetMoves: 10, // Estimated moves to win
-    sideToMove: "white",
-    goal: "win",
+    sideToMove: 'white',
+    goal: 'win',
     hints: [
-      "Turm auf die 4. oder 5. Reihe positionieren",
-      "Re4 oder Re5 sind gute Züge",
-      "Dann normale Brückenbau-Technik anwenden",
+      'Turm auf die 4. oder 5. Reihe positionieren',
+      'Re4 oder Re5 sind gute Züge',
+      'Dann normale Brückenbau-Technik anwenden',
     ],
-    solution: [
-      "Re4",
-      "Kd8",
-      "Kd7",
-      "Kc8",
-      "Kc6",
-      "Kd8",
-      "Kb5",
-      "Kc7",
-      "Re7+",
-      "Kd6",
-      "c8=Q",
-    ],
+    solution: ['Re4', 'Kd8', 'Kd7', 'Kc8', 'Kc6', 'Kd8', 'Kb5', 'Kc7', 'Re7+', 'Kd6', 'c8=Q'],
   },
 
   // Position 11: "König abdrängen" Brückenbau-Trainer (was 14)
   // FEN: "2K1k3/2P5/8/8/8/8/1r6/7R w - - 0 1"
   // White K+P+R vs Black K+R, White to move, goal: win by deflecting king first
   POSITION_11_BRIDGE_DEFLECTION: {
-    id: "11", // TestScenario uses string IDs
-    title: "König abdrängen",
-    description: "König steht noch zentral - erst abdrängen, dann Brücke bauen",
-    fen: "2K1k3/2P5/8/8/8/8/1r6/7R w - - 0 1", // From homepage bridgeTrainerLessons
-    category: "endgame",
-    difficulty: "intermediate",
+    id: '11', // TestScenario uses string IDs
+    title: 'König abdrängen',
+    description: 'König steht noch zentral - erst abdrängen, dann Brücke bauen',
+    fen: '2K1k3/2P5/8/8/8/8/1r6/7R w - - 0 1', // From homepage bridgeTrainerLessons
+    category: 'endgame',
+    difficulty: 'intermediate',
     targetMoves: 12, // Estimated moves to win
-    sideToMove: "white",
-    goal: "win",
+    sideToMove: 'white',
+    goal: 'win',
     hints: [
-      "König mit einem Turmschach abdrängen",
-      "Re1+ zwingt den König auf f8",
-      "Dann Turm positionieren und Brücke bauen",
+      'König mit einem Turmschach abdrängen',
+      'Re1+ zwingt den König auf f8',
+      'Dann Turm positionieren und Brücke bauen',
     ],
     solution: [
-      "Re1+",
-      "Kf8",
-      "Re4",
-      "Kf7",
-      "Kd7",
-      "Kf8",
-      "Kc6",
-      "Ke7",
-      "Kb5",
-      "Kd6",
-      "Re6+",
-      "Kd5",
-      "c8=Q",
+      'Re1+',
+      'Kf8',
+      'Re4',
+      'Kf7',
+      'Kd7',
+      'Kf8',
+      'Kc6',
+      'Ke7',
+      'Kb5',
+      'Kd6',
+      'Re6+',
+      'Kd5',
+      'c8=Q',
     ],
   },
 
   POSITION_2_KPK_ADVANCED: {
-    id: "2", // TestScenario uses string IDs
-    title: "König und Bauer vs König - Fortgeschritten",
-    description: "Fortgeschrittene K+B vs K Position - Opposition und Bauernumwandlung",
-    fen: "8/3k4/8/3K4/3P4/8/8/8 w - - 0 1", // Different position from position 1
-    category: "endgame",
-    difficulty: "beginner",
+    id: '2', // TestScenario uses string IDs
+    title: 'König und Bauer vs König - Fortgeschritten',
+    description: 'Fortgeschrittene K+B vs K Position - Opposition und Bauernumwandlung',
+    fen: '8/3k4/8/3K4/3P4/8/8/8 w - - 0 1', // Different position from position 1
+    category: 'endgame',
+    difficulty: 'beginner',
     targetMoves: 10, // Estimated moves to win
-    sideToMove: "white",
-    goal: "win",
+    sideToMove: 'white',
+    goal: 'win',
     hints: [
-      "Der Bauer muss zur Umwandlung gebracht werden",
-      "König muss den Bauern unterstützen",
-      "Opposition ist der Schlüssel zum Sieg",
+      'Der Bauer muss zur Umwandlung gebracht werden',
+      'König muss den Bauern unterstützen',
+      'Opposition ist der Schlüssel zum Sieg',
     ],
     solution: [
-      "Kd6",
-      "Ke8", 
-      "d5",
-      "Kf7",
-      "Kd7",
-      "Kf6",
-      "d6",
-      "Kf7",
-      "Kd8",
-      "Kf8",
-      "d7+",
-      "Kf7", 
-      "d8=Q"
+      'Kd6',
+      'Ke8',
+      'd5',
+      'Kf7',
+      'Kd7',
+      'Kf6',
+      'd6',
+      'Kf7',
+      'Kd8',
+      'Kf8',
+      'd7+',
+      'Kf7',
+      'd8=Q',
     ],
   },
 };
@@ -213,11 +187,11 @@ export /**
  *
  */
 const PositionIdMap = new Map<number, keyof typeof TestPositions>([
-  [1, "POSITION_1_OPPOSITION_BASICS"],
-  [2, "POSITION_2_KPK_ADVANCED"],
-  [9, "POSITION_9_BRIDGE_ZICKZACK"], // Was 12
-  [10, "POSITION_10_BRIDGE_POSITIONING"], // Was 13
-  [11, "POSITION_11_BRIDGE_DEFLECTION"], // Was 14
+  [1, 'POSITION_1_OPPOSITION_BASICS'],
+  [2, 'POSITION_2_KPK_ADVANCED'],
+  [9, 'POSITION_9_BRIDGE_ZICKZACK'], // Was 12
+  [10, 'POSITION_10_BRIDGE_POSITIONING'], // Was 13
+  [11, 'POSITION_11_BRIDGE_DEFLECTION'], // Was 14
 ]);
 
 /**
@@ -240,9 +214,7 @@ const PositionIdMap = new Map<number, keyof typeof TestPositions>([
  * // Returns null
  * ```
  */
-export function getPositionByPositionId(
-  positionId: number,
-): EndgamePosition | null {
+export function getPositionByPositionId(positionId: number): EndgamePosition | null {
   const positionKey = PositionIdMap.get(positionId);
   if (!positionKey) return null;
 
@@ -251,7 +223,7 @@ export function getPositionByPositionId(
   if (!scenario) {
     return null;
   }
-  
+
   // Convert TestScenario to EndgamePosition
   return {
     id: parseInt(scenario.id),
@@ -282,7 +254,7 @@ export function getPositionByPositionId(
  *
  * @property {string} id - String identifier for test scenarios (overrides numeric ID)
  */
-export interface TestScenario extends Omit<EndgamePosition, "id"> {
+export interface TestScenario extends Omit<EndgamePosition, 'id'> {
   id: string; // Override to be string for test scenarios
 }
 
@@ -290,12 +262,10 @@ export interface TestScenario extends Omit<EndgamePosition, "id"> {
  * Get test scenario by legacy position ID (DEPRECATED - use getPositionByPositionId)
  * @param positionId
  */
-export function getScenarioByPositionId(
-  positionId: number,
-): TestScenario | null {
+export function getScenarioByPositionId(positionId: number): TestScenario | null {
   const positionKey = PositionIdMap.get(positionId);
   if (!positionKey) return null;
-  
+
   const position = TestPositions[positionKey];
   // Validate position exists (TS18048 fix with early validation pattern)
   if (!position) {
@@ -336,7 +306,7 @@ export class TestPositionUtils {
   static normalizeFen(fen: string): string {
     const parts = fen.trim().split(/\s+/);
     if (parts.length >= 4) {
-      return parts.slice(0, 4).join(" ");
+      return parts.slice(0, 4).join(' ');
     }
     return fen;
   }
@@ -401,9 +371,7 @@ export class TestPositionUtils {
    * ```
    */
   static getPositionByFen(fen: string): EndgamePosition | null {
-    const scenario = Object.values(TestPositions).find(
-      (position) => position.fen === fen,
-    );
+    const scenario = Object.values(TestPositions).find(position => position.fen === fen);
     if (!scenario) return null;
 
     // Convert TestScenario to EndgamePosition
@@ -431,23 +399,26 @@ export /**
  *
  */
 const FenToPositionMap = new Map<string, EndgamePosition>(
-  Object.values(TestPositions).map((scenario) => [
-    scenario.fen,
-    {
-      id: parseInt(scenario.id),
-      title: scenario.title,
-      description: scenario.description,
-      fen: scenario.fen,
-      category: scenario.category,
-      difficulty: scenario.difficulty,
-      targetMoves: scenario.targetMoves,
-      hints: scenario.hints,
-      solution: scenario.solution,
-      sideToMove: scenario.sideToMove,
-      goal: scenario.goal,
-      nextPositionId: scenario.nextPositionId,
-    } as EndgamePosition,
-  ] as [string, EndgamePosition]),
+  Object.values(TestPositions).map(
+    scenario =>
+      [
+        scenario.fen,
+        {
+          id: parseInt(scenario.id),
+          title: scenario.title,
+          description: scenario.description,
+          fen: scenario.fen,
+          category: scenario.category,
+          difficulty: scenario.difficulty,
+          targetMoves: scenario.targetMoves,
+          hints: scenario.hints,
+          solution: scenario.solution,
+          sideToMove: scenario.sideToMove,
+          goal: scenario.goal,
+          nextPositionId: scenario.nextPositionId,
+        } as EndgamePosition,
+      ] as [string, EndgamePosition]
+  )
 );
 
 /**
@@ -457,5 +428,5 @@ export /**
  *
  */
 const FenToScenarioMap = new Map<string, TestScenario>(
-  Object.values(TestPositions).map((position) => [position.fen, position]),
+  Object.values(TestPositions).map(position => [position.fen, position])
 );

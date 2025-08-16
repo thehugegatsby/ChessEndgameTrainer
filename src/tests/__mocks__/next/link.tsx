@@ -5,7 +5,11 @@ import React from 'react';
  * Prevents IntersectionObserver errors in tests
  */
 const Link = ({ children, href, ...props }: any) => {
-  return <a href={href} {...props}>{children}</a>;
+  return (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  );
 };
 
 export default Link;

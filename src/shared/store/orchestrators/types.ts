@@ -4,10 +4,10 @@
  * @description Type definitions for async orchestrators that coordinate actions across multiple slices
  */
 
-import { type RootState } from "../slices/types";
+import { type RootState } from '../slices/types';
 // ChessInstance imported where needed
-import { type Move as ChessJsMove } from "chess.js";
-import type { EndgamePosition } from "@shared/types/endgame";
+import { type Move as ChessJsMove } from 'chess.js';
+import type { EndgamePosition } from '@shared/types/endgame';
 
 /**
  * Store API interface provided to orchestrators
@@ -49,7 +49,7 @@ export interface WDLPerspective {
   wdlAfter: number;
   wdlAfterFromTrainingPerspective: number;
   positionWorsened: boolean;
-  outcomeChange?: "Win->Draw/Loss" | "Draw->Loss" | null;
+  outcomeChange?: 'Win->Draw/Loss' | 'Draw->Loss' | null;
 }
 
 /**
@@ -84,12 +84,7 @@ export interface Orchestrators {
    * @returns {Promise<boolean>} Whether the move was successful
    */
   makeUserMove: OrchestratorFunction<
-    [
-      move:
-        | ChessJsMove
-        | { from: string; to: string; promotion?: string }
-        | string,
-    ],
+    [move: ChessJsMove | { from: string; to: string; promotion?: string } | string],
     Promise<boolean>
   >;
 
@@ -106,10 +101,7 @@ export interface Orchestrators {
    * @param {string} [fen] - Optional FEN to evaluate (defaults to current position)
    * @returns {Promise<void>}
    */
-  requestPositionEvaluation: OrchestratorFunction<
-    [fen?: string],
-    Promise<void>
-  >;
+  requestPositionEvaluation: OrchestratorFunction<[fen?: string], Promise<void>>;
 
   /**
    * Loads training context for a position

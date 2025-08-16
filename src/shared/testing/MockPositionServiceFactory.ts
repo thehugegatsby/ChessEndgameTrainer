@@ -4,14 +4,14 @@
  * Completely bypasses Firebase for clean, fast, deterministic tests
  */
 
-import { MockPositionRepository } from "@shared/repositories/implementations/MockPositionRepository";
-import { PositionService as DefaultPositionService } from "@shared/services/database/PositionService";
-import { type PositionService } from "@shared/services/database/IPositionService";
-import { TestPositions } from "./TestScenarios";
-import type { EndgamePosition } from "@shared/types/endgame";
-import { getLogger } from "@shared/services/logging/Logger";
+import { MockPositionRepository } from '@shared/repositories/implementations/MockPositionRepository';
+import { PositionService as DefaultPositionService } from '@shared/services/database/PositionService';
+import { type PositionService } from '@shared/services/database/IPositionService';
+import { TestPositions } from './TestScenarios';
+import type { EndgamePosition } from '@shared/types/endgame';
+import { getLogger } from '@shared/services/logging/Logger';
 
-const logger = getLogger().setContext("MockPositionServiceFactory");
+const logger = getLogger().setContext('MockPositionServiceFactory');
 
 /**
  * Create a fully configured MockPositionService for E2E tests
@@ -40,27 +40,25 @@ export function createMockPositionService(): PositionService {
   });
 
   // Convert TestScenario to EndgamePosition for repository seeding
-  const testPositions: EndgamePosition[] = Object.values(TestPositions).map(
-    (scenario) => ({
-      id: parseInt(scenario.id), // Convert string ID back to number for EndgamePosition
-      title: scenario.title,
-      description: scenario.description,
-      fen: scenario.fen,
-      category: scenario.category,
-      difficulty: scenario.difficulty,
-      // Use conditional assignment to handle exactOptionalPropertyTypes
-      ...(scenario.targetMoves !== undefined && { targetMoves: scenario.targetMoves }),
-      ...(scenario.hints !== undefined && { hints: scenario.hints }),
-      ...(scenario.solution !== undefined && { solution: scenario.solution }),
-      ...(scenario.sideToMove !== undefined && { sideToMove: scenario.sideToMove }),
-      ...(scenario.goal !== undefined && { goal: scenario.goal }),
-      // Conditional mapping for optional fields to prevent undefined serialization issues
-      ...(scenario.nextPositionId !== undefined && {
-        nextPositionId: scenario.nextPositionId,
-      }),
-      // Note: Test-specific fields (initialExpectedMove, expectsDrawEvaluation) are NOT included
+  const testPositions: EndgamePosition[] = Object.values(TestPositions).map(scenario => ({
+    id: parseInt(scenario.id), // Convert string ID back to number for EndgamePosition
+    title: scenario.title,
+    description: scenario.description,
+    fen: scenario.fen,
+    category: scenario.category,
+    difficulty: scenario.difficulty,
+    // Use conditional assignment to handle exactOptionalPropertyTypes
+    ...(scenario.targetMoves !== undefined && { targetMoves: scenario.targetMoves }),
+    ...(scenario.hints !== undefined && { hints: scenario.hints }),
+    ...(scenario.solution !== undefined && { solution: scenario.solution }),
+    ...(scenario.sideToMove !== undefined && { sideToMove: scenario.sideToMove }),
+    ...(scenario.goal !== undefined && { goal: scenario.goal }),
+    // Conditional mapping for optional fields to prevent undefined serialization issues
+    ...(scenario.nextPositionId !== undefined && {
+      nextPositionId: scenario.nextPositionId,
     }),
-  );
+    // Note: Test-specific fields (initialExpectedMove, expectsDrawEvaluation) are NOT included
+  }));
 
   repository.seedData({
     positions: testPositions,
@@ -75,9 +73,7 @@ export function createMockPositionService(): PositionService {
     cacheTTL: 0,
   });
 
-  logger.info(
-    `[MockPositionService] Initialized with ${testPositions.length} test positions`,
-  );
+  logger.info(`[MockPositionService] Initialized with ${testPositions.length} test positions`);
 
   return service;
 }
@@ -89,26 +85,24 @@ export function createMockPositionRepository(): MockPositionRepository {
   const repository = new MockPositionRepository();
 
   // Convert TestScenario to EndgamePosition and pre-seed
-  const testPositions: EndgamePosition[] = Object.values(TestPositions).map(
-    (scenario) => ({
-      id: parseInt(scenario.id),
-      title: scenario.title,
-      description: scenario.description,
-      fen: scenario.fen,
-      category: scenario.category,
-      difficulty: scenario.difficulty,
-      // Use conditional assignment to handle exactOptionalPropertyTypes
-      ...(scenario.targetMoves !== undefined && { targetMoves: scenario.targetMoves }),
-      ...(scenario.hints !== undefined && { hints: scenario.hints }),
-      ...(scenario.solution !== undefined && { solution: scenario.solution }),
-      ...(scenario.sideToMove !== undefined && { sideToMove: scenario.sideToMove }),
-      ...(scenario.goal !== undefined && { goal: scenario.goal }),
-      // Conditional mapping for optional fields to prevent undefined serialization issues
-      ...(scenario.nextPositionId !== undefined && {
-        nextPositionId: scenario.nextPositionId,
-      }),
+  const testPositions: EndgamePosition[] = Object.values(TestPositions).map(scenario => ({
+    id: parseInt(scenario.id),
+    title: scenario.title,
+    description: scenario.description,
+    fen: scenario.fen,
+    category: scenario.category,
+    difficulty: scenario.difficulty,
+    // Use conditional assignment to handle exactOptionalPropertyTypes
+    ...(scenario.targetMoves !== undefined && { targetMoves: scenario.targetMoves }),
+    ...(scenario.hints !== undefined && { hints: scenario.hints }),
+    ...(scenario.solution !== undefined && { solution: scenario.solution }),
+    ...(scenario.sideToMove !== undefined && { sideToMove: scenario.sideToMove }),
+    ...(scenario.goal !== undefined && { goal: scenario.goal }),
+    // Conditional mapping for optional fields to prevent undefined serialization issues
+    ...(scenario.nextPositionId !== undefined && {
+      nextPositionId: scenario.nextPositionId,
     }),
-  );
+  }));
 
   repository.seedData({
     positions: testPositions,
@@ -128,22 +122,19 @@ export function shouldUseMockService(): boolean {
   const useFirestore = process.env['NEXT_PUBLIC_USE_FIRESTORE'];
 
   // Debug logging for environment detection
-  logger.debug("[MockServiceFactory] Environment check", {
+  logger.debug('[MockServiceFactory] Environment check', {
     NODE_ENV: nodeEnv,
     NEXT_PUBLIC_IS_E2E_TEST: nextPublicE2E,
     IS_E2E_TEST: isE2E,
     NEXT_PUBLIC_USE_FIRESTORE: useFirestore,
     shouldUseMock:
-      nodeEnv === "test" ||
-      nextPublicE2E === "true" ||
-      isE2E === "true" ||
-      useFirestore === "false",
+      nodeEnv === 'test' ||
+      nextPublicE2E === 'true' ||
+      isE2E === 'true' ||
+      useFirestore === 'false',
   });
 
   return (
-    nodeEnv === "test" ||
-    nextPublicE2E === "true" ||
-    isE2E === "true" ||
-    useFirestore === "false"
+    nodeEnv === 'test' || nextPublicE2E === 'true' || isE2E === 'true' || useFirestore === 'false'
   );
 }

@@ -1,6 +1,6 @@
-import { type NextRouter } from "next/router";
+import { type NextRouter } from 'next/router';
 // Import the pre-instantiated mock router directly
-import mockRouter from "next-router-mock";
+import mockRouter from 'next-router-mock';
 
 // Export the useRouter hook
 export function useRouter(): NextRouter {

@@ -2,12 +2,12 @@ import { vi } from 'vitest';
 /**
  * @file Unit tests for MoveStrategyService
  * @module tests/unit/services/MoveStrategyService.test
- * 
+ *
  * @description
  * Comprehensive test suite for MoveStrategyService which provides
  * different chess move selection strategies for opponent play.
  * Tests all three strategies: longest resistance, best move, and human-like.
- * 
+ *
  * @see {@link MoveStrategyService} - Service being tested
  * @see {@link TablebaseService} - Mocked dependency
  */
@@ -18,7 +18,7 @@ import type { TablebaseMove } from '@shared/types/tablebase';
 const { mockLoggerInstance } = vi.hoisted(() => {
   const loggerInstance = {
     error: vi.fn(),
-    warn: vi.fn(), 
+    warn: vi.fn(),
     debug: vi.fn(),
     setContext: vi.fn(),
   };
@@ -43,7 +43,7 @@ const mockTablebaseService = tablebaseService as any;
 
 /**
  * Create a mock TablebaseMove object for testing
- * 
+ *
  * @param overrides - Partial move properties to override defaults
  * @returns Complete TablebaseMove object
  */
@@ -59,11 +59,13 @@ const createMockMove = (overrides: Partial<TablebaseMove>): TablebaseMove => ({
 
 /**
  * Create a successful tablebase response with moves
- * 
+ *
  * @param moves - Array of moves to include in response
  * @returns Mocked tablebase response object
  */
-const createMockResponse = (moves: TablebaseMove[]): { isAvailable: boolean; moves: TablebaseMove[] } => ({
+const createMockResponse = (
+  moves: TablebaseMove[]
+): { isAvailable: boolean; moves: TablebaseMove[] } => ({
   isAvailable: true,
   moves,
 });
@@ -148,10 +150,9 @@ describe('MoveStrategyService', () => {
       const result = await moveStrategyService.getLongestResistanceMove(testFen);
 
       expect(result).toBeNull();
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        'No tablebase moves available for position',
-        { fen: testFen }
-      );
+      expect(mockLogger.warn).toHaveBeenCalledWith('No tablebase moves available for position', {
+        fen: testFen,
+      });
     });
 
     it('handles tablebase not available', async () => {
@@ -221,11 +222,9 @@ describe('MoveStrategyService', () => {
       const result = await moveStrategyService.getBestMove(testFen);
 
       expect(result).toBeNull();
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        'Failed to get best move',
-        error,
-        { fen: testFen }
-      );
+      expect(mockLogger.error).toHaveBeenCalledWith('Failed to get best move', error, {
+        fen: testFen,
+      });
     });
 
     it('handles tablebase not available', async () => {
@@ -255,7 +254,7 @@ describe('MoveStrategyService', () => {
       const result = await moveStrategyService.getHumanLikeMove(testFen);
 
       expect(result).toBe('best');
-      
+
       Math.random = originalRandom;
     });
 
@@ -269,14 +268,15 @@ describe('MoveStrategyService', () => {
 
       // Mock Math.random to return value above strength threshold
       const originalRandom = Math.random;
-      Math.random = vi.fn()
+      Math.random = vi
+        .fn()
         .mockReturnValueOnce(0.85) // Above 0.8 threshold
         .mockReturnValueOnce(0.6); // For move selection
 
       const result = await moveStrategyService.getHumanLikeMove(testFen);
 
       expect(['best', 'good', 'okay']).toContain(result);
-      
+
       Math.random = originalRandom;
     });
 
@@ -293,9 +293,7 @@ describe('MoveStrategyService', () => {
     });
 
     it('handles single move gracefully', async () => {
-      const mockMoves = [
-        createMockMove({ uci: 'only', san: 'Only', wdl: 2, dtm: 5, dtz: 3 }),
-      ];
+      const mockMoves = [createMockMove({ uci: 'only', san: 'Only', wdl: 2, dtm: 5, dtz: 3 })];
       mockTablebaseService.getTopMoves.mockResolvedValue(createMockResponse(mockMoves));
 
       const result = await moveStrategyService.getHumanLikeMove(testFen);
@@ -318,11 +316,9 @@ describe('MoveStrategyService', () => {
       const result = await moveStrategyService.getHumanLikeMove(testFen);
 
       expect(result).toBeNull();
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        'Failed to get human-like move',
-        error,
-        { fen: testFen }
-      );
+      expect(mockLogger.error).toHaveBeenCalledWith('Failed to get human-like move', error, {
+        fen: testFen,
+      });
     });
 
     it('respects custom strength parameter', async () => {
@@ -338,7 +334,7 @@ describe('MoveStrategyService', () => {
       const result = await moveStrategyService.getHumanLikeMove(testFen, 0.5);
 
       expect(result).toBe('best');
-      
+
       Math.random = originalRandom;
     });
   });
@@ -364,9 +360,7 @@ describe('MoveStrategyService', () => {
     });
 
     it('logs debug information for move selection', async () => {
-      const mockMoves = [
-        createMockMove({ uci: 'a7a8q', san: 'a8=Q', wdl: 2, dtm: 5, dtz: 3 }),
-      ];
+      const mockMoves = [createMockMove({ uci: 'a7a8q', san: 'a8=Q', wdl: 2, dtm: 5, dtz: 3 })];
       mockTablebaseService.getTopMoves.mockResolvedValue(createMockResponse(mockMoves));
 
       await moveStrategyService.getLongestResistanceMove(testFen);

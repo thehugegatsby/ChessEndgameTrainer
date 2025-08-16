@@ -148,9 +148,9 @@ store/
 
 ```typescript
 // Preferred pattern: Absolute imports with @shared alias
-import { useEvaluation } from "@shared/hooks/useEvaluation";
-import { TrainingStore } from "@shared/store/types";
-import { EvaluationData } from "@shared/types/evaluation";
+import { useEvaluation } from '@shared/hooks/useEvaluation';
+import { TrainingStore } from '@shared/store/types';
+import { EvaluationData } from '@shared/types/evaluation';
 ```
 
 ### Barrel Exports
@@ -158,12 +158,12 @@ import { EvaluationData } from "@shared/types/evaluation";
 ```typescript
 // Pattern: Barrel exports for clean imports
 // shared/hooks/index.ts
-export { useEvaluation } from "./useEvaluation";
-export { useEngine } from "./useEngine";
-export { useEndgameSession } from "./useEndgameSession";
+export { useEvaluation } from './useEvaluation';
+export { useEngine } from './useEngine';
+export { useEndgameSession } from './useEndgameSession';
 
 // Usage
-import { useEvaluation, useEngine } from "@shared/hooks";
+import { useEvaluation, useEngine } from '@shared/hooks';
 ```
 
 ### Layer Dependency Rules
@@ -171,10 +171,10 @@ import { useEvaluation, useEngine } from "@shared/hooks";
 ```typescript
 // ✅ Allowed: Lower layers can import from higher layers
 // hooks/ can import from lib/, services/, store/
-import { analysisService } from "@shared/lib/chess/AnalysisService";
+import { analysisService } from '@shared/lib/chess/AnalysisService';
 
 // ✅ Allowed: Same layer imports
-import { formatEvaluation } from "@shared/utils/chess/evaluation";
+import { formatEvaluation } from '@shared/utils/chess/evaluation';
 
 // ❌ Forbidden: Higher layers importing from lower layers
 // lib/ should NOT import from hooks/
@@ -258,14 +258,14 @@ User Interface Update
 
 ```typescript
 // Pattern: Store consumption in hooks with Zustand v5
-const currentFen = useTrainingStore((state) => state.currentFen);
-const makeMove = useTrainingStore((state) => state.makeMove);
+const currentFen = useTrainingStore(state => state.currentFen);
+const makeMove = useTrainingStore(state => state.makeMove);
 // Use useShallow for object selectors to prevent re-renders
 const { evaluations, analysisStatus } = useTrainingStore(
-  useShallow((state) => ({
+  useShallow(state => ({
     evaluations: state.evaluations,
     analysisStatus: state.analysisStatus,
-  })),
+  }))
 );
 
 // Pattern: Store updates from hooks
@@ -274,7 +274,7 @@ const handleMoveResult = useCallback(
     makeMove(result.move);
     updateEvaluation(result.evaluation);
   },
-  [makeMove, updateEvaluation],
+  [makeMove, updateEvaluation]
 );
 ```
 
@@ -296,12 +296,12 @@ const evaluatePosition = useCallback(
       return result;
     } catch (error) {
       ErrorService.handleChessEngineError(error as Error, {
-        action: "evaluatePosition",
+        action: 'evaluatePosition',
       });
       return null;
     }
   },
-  [service, playerToMove],
+  [service, playerToMove]
 );
 ```
 
@@ -356,7 +356,7 @@ export function useEndgameSession() {
       const validatedMove = validateMove(move, store.getState().position);
       store.makeMove(validatedMove);
     },
-    [store],
+    [store]
   );
 
   return { makeMove };

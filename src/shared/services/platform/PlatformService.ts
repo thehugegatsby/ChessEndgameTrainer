@@ -15,9 +15,9 @@
  * - Platform-specific APIs
  */
 
-import { type PlatformService, type PlatformDetection } from "./types";
-import { WebPlatformService } from "./web/WebPlatformService";
-import { getLogger } from "@shared/services/logging";
+import { type PlatformService, type PlatformDetection } from './types';
+import { WebPlatformService } from './web/WebPlatformService';
+import { getLogger } from '@shared/services/logging';
 
 /**
  * Platform detection implementation
@@ -43,7 +43,7 @@ class PlatformDetectionImpl implements PlatformDetection {
    * ```
    */
   isWeb(): boolean {
-    return typeof window !== "undefined" && typeof document !== "undefined";
+    return typeof window !== 'undefined' && typeof document !== 'undefined';
   }
 
   /**
@@ -63,30 +63,34 @@ class PlatformDetectionImpl implements PlatformDetection {
    * ```
    */
   isMobile(): boolean {
-    if (typeof window === "undefined") return false;
+    if (typeof window === 'undefined') return false;
 
     // Check for React Native
     if ((window as unknown as Record<string, unknown>)['ReactNativeWebView']) return true;
 
     // Check for mobile user agents
     const userAgent = navigator.userAgent.toLowerCase();
-    return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
-      userAgent,
-    );
+    return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
   }
 
   isAndroid(): boolean {
-    if (typeof window === "undefined") return false;
+    if (typeof window === 'undefined') return false;
 
     const userAgent = navigator.userAgent.toLowerCase();
-    return userAgent.includes("android") || (window as unknown as Record<string, unknown>)['isAndroid'] === true;
+    return (
+      userAgent.includes('android') ||
+      (window as unknown as Record<string, unknown>)['isAndroid'] === true
+    );
   }
 
   isIOS(): boolean {
-    if (typeof window === "undefined") return false;
+    if (typeof window === 'undefined') return false;
 
     const userAgent = navigator.userAgent.toLowerCase();
-    return /iphone|ipad|ipod/.test(userAgent) || (window as unknown as Record<string, unknown>)['isIOS'] === true;
+    return (
+      /iphone|ipad|ipod/.test(userAgent) ||
+      (window as unknown as Record<string, unknown>)['isIOS'] === true
+    );
   }
 
   isDesktop(): boolean {
@@ -94,23 +98,23 @@ class PlatformDetectionImpl implements PlatformDetection {
   }
 
   isTouchDevice(): boolean {
-    if (typeof window === "undefined") return false;
+    if (typeof window === 'undefined') return false;
 
     return (
-      "ontouchstart" in window ||
+      'ontouchstart' in window ||
       navigator.maxTouchPoints > 0 ||
       ((navigator as unknown as Record<string, unknown>)['msMaxTouchPoints'] as number) > 0
     );
   }
 
   isStandalone(): boolean {
-    if (typeof window === "undefined") return false;
+    if (typeof window === 'undefined') return false;
 
     // Check if running as PWA
     return (
-      window.matchMedia("(display-mode: standalone)").matches ||
+      window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as unknown as Record<string, unknown>)['standalone'] === true ||
-      document.referrer.includes("android-app://")
+      document.referrer.includes('android-app://')
     );
   }
 }
@@ -135,7 +139,7 @@ export function getPlatformService(): PlatformService {
       // For now, fallback to web implementation
       platformServiceInstance = new WebPlatformService();
       const logger = getLogger();
-      logger.warn("Using Web implementation for mobile platform");
+      logger.warn('Using Web implementation for mobile platform');
     } else {
       // Default to web implementation
       platformServiceInstance = new WebPlatformService();
@@ -163,4 +167,4 @@ export function resetPlatformService(): void {
 }
 
 // Export types for convenience
-export * from "./types";
+export * from './types';

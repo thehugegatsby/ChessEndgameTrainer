@@ -1,7 +1,7 @@
 /**
  * @fileoverview Test constants for consistent values across test suites
  * @module tests/constants/test
- * 
+ *
  * @description
  * Provides shared constants used across multiple test files to ensure
  * consistency and make test maintenance easier.
@@ -18,12 +18,12 @@ export const TEST_FACTORY = {
    * Starting ID counter to avoid conflicts with fixtures
    */
   ID_COUNTER_START: 1000,
-  
+
   /**
    * Maximum number of moves for position generation
    */
   MAX_MOVES: 10,
-  
+
   /**
    * Default mock DTZ (Distance to Zeroing) value
    */
@@ -38,27 +38,27 @@ export const PERFORMANCE_TEST = {
    * Cache sizes for performance testing
    */
   CACHE_SIZES: [50, 100, 200, 500] as const,
-  
+
   /**
    * Small cache size for eviction testing
    */
   SMALL_CACHE_SIZE: 50,
-  
+
   /**
    * Medium cache size for standard tests
    */
   MEDIUM_CACHE_SIZE: 100,
-  
+
   /**
    * Large cache size for bulk operations
    */
   LARGE_CACHE_SIZE: 200,
-  
+
   /**
    * Maximum cache size for stress testing
    */
   MAX_CACHE_SIZE: 500,
-  
+
   /**
    * Number of iterations for performance benchmarks
    */
@@ -67,7 +67,7 @@ export const PERFORMANCE_TEST = {
     MEDIUM: 1000,
     LARGE: 10000,
   },
-  
+
   /**
    * Performance thresholds in milliseconds
    */
@@ -75,14 +75,14 @@ export const PERFORMANCE_TEST = {
     FAST: 50,
     NORMAL: 100,
   },
-  
+
   /**
    * TTL values for cache testing (in milliseconds)
    */
   CACHE_TTL: {
-    VERY_SHORT: 50,  // For fast test execution
-    SHORT: 60,       // Slightly longer for timing tests
-    MEDIUM: 300,     // 5 minutes for extended tests
+    VERY_SHORT: 50, // For fast test execution
+    SHORT: 60, // Slightly longer for timing tests
+    MEDIUM: 300, // 5 minutes for extended tests
   },
 } as const;
 
@@ -94,7 +94,7 @@ export const MOCK_SERVICE = {
    * Default timestamp for consistent mock dates
    */
   DEFAULT_TIMESTAMP: 1000,
-  
+
   /**
    * Mock tablebase service cache size
    */
@@ -109,17 +109,17 @@ export const TEST_TIMEOUTS = {
    * CI environment timeout (longer for slower CI machines)
    */
   CI: 5000,
-  
+
   /**
    * Development environment timeout
    */
   DEV: 2000,
-  
+
   /**
    * Fast test timeout for unit tests
    */
   FAST: 1000,
-  
+
   /**
    * Integration test timeout
    */
@@ -134,7 +134,7 @@ export const TEST_DATA_SIZES = {
    * Number of items for array generation tests
    */
   ARRAY_SIZE: 20,
-  
+
   /**
    * Percentage values for testing
    */
@@ -159,7 +159,9 @@ export const getTestTimeout = (): number => {
  * Helper function to create test data arrays of specified size
  */
 export const createTestArray = <T>(size: number, generator: (index: number) => T): T[] => {
-  return Array(size).fill(null).map((_, i) => generator(i));
+  return Array(size)
+    .fill(null)
+    .map((_, i) => generator(i));
 };
 
 /**

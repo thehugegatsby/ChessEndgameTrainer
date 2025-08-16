@@ -1,6 +1,6 @@
 /**
  * Chess Core Feature - Public API
- * 
+ *
  * This barrel file exports all public components, hooks, services, and types
  * from the chess-core feature module.
  */

@@ -1,11 +1,10 @@
 /**
  * Type-safe EventEmitter for training system
- * 
+ *
  * @description
  * Lightweight event system for UI communication without full EventBus complexity.
  * Uses TypeScript generics for compile-time type safety.
  */
-
 
 /** Training system event types */
 export interface TrainingEvents {
@@ -90,13 +89,15 @@ export class TrainingEventEmitter {
     if (!this.handlers.has(event)) {
       this.handlers.set(event, new Set());
     }
-    
+
     const eventHandlers = this.handlers.get(event) as Set<EventHandler<TrainingEvents[K]>>;
     eventHandlers.add(handler);
 
     if (this.debug) {
       // eslint-disable-next-line no-console
-      console.log(`[EventEmitter] Subscribed to ${String(event)}, total handlers: ${eventHandlers.size}`);
+      console.log(
+        `[EventEmitter] Subscribed to ${String(event)}, total handlers: ${eventHandlers.size}`
+      );
     }
 
     // Return unsubscribe function
@@ -104,7 +105,9 @@ export class TrainingEventEmitter {
       eventHandlers.delete(handler);
       if (this.debug) {
         // eslint-disable-next-line no-console
-        console.log(`[EventEmitter] Unsubscribed from ${String(event)}, remaining: ${eventHandlers.size}`);
+        console.log(
+          `[EventEmitter] Unsubscribed from ${String(event)}, remaining: ${eventHandlers.size}`
+        );
       }
     };
   }
@@ -126,10 +129,7 @@ export class TrainingEventEmitter {
   /**
    * Unsubscribe from an event
    */
-  off<K extends keyof TrainingEvents>(
-    event: K,
-    handler: EventHandler<TrainingEvents[K]>
-  ): void {
+  off<K extends keyof TrainingEvents>(event: K, handler: EventHandler<TrainingEvents[K]>): void {
     const eventHandlers = this.handlers.get(event);
     if (eventHandlers) {
       eventHandlers.delete(handler as EventHandler<unknown>);
@@ -139,10 +139,7 @@ export class TrainingEventEmitter {
   /**
    * Emit an event to all subscribers
    */
-  emit<K extends keyof TrainingEvents>(
-    event: K,
-    data: TrainingEvents[K]
-  ): void {
+  emit<K extends keyof TrainingEvents>(event: K, data: TrainingEvents[K]): void {
     if (this.debug) {
       // eslint-disable-next-line no-console
       console.log(`[EventEmitter] Emitting ${String(event)}:`, data);
@@ -197,7 +194,7 @@ export class TrainingEventEmitter {
     if (event) {
       return this.handlers.get(event)?.size ?? 0;
     }
-    
+
     let total = 0;
     this.handlers.forEach(handlers => {
       total += handlers.size;
@@ -207,6 +204,4 @@ export class TrainingEventEmitter {
 }
 
 // Singleton instance for the app
-export const trainingEvents = new TrainingEventEmitter(
-  process.env.NODE_ENV === 'development'
-);
+export const trainingEvents = new TrainingEventEmitter(process.env.NODE_ENV === 'development');

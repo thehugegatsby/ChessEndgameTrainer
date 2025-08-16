@@ -38,9 +38,7 @@ export interface MockConsoleMessage {
  * Factory function for creating mock Locator with overridable defaults
  * Supports method chaining via mockReturnThis()
  */
-export const createMockLocator = (
-  overrides?: Partial<MockLocator>,
-): MockLocator => ({
+export const createMockLocator = (overrides?: Partial<MockLocator>): MockLocator => ({
   click: vi.fn().mockResolvedValue(undefined),
   isVisible: vi.fn().mockResolvedValue(true),
   getAttribute: vi.fn().mockResolvedValue(null),
@@ -76,8 +74,8 @@ export const createMockPage = (overrides?: Partial<MockPage>): MockPage => {
  * Factory for console message mocks (used by TestBridgeWrapper)
  */
 export const createMockConsoleMessage = (
-  type: string = "log",
-  text: string = "",
+  type: string = 'log',
+  text: string = ''
 ): MockConsoleMessage => ({
   type: vi.fn().mockReturnValue(type),
   text: vi.fn().mockReturnValue(text),
@@ -95,14 +93,15 @@ export const createMockLocatorWithElement = (
     attributes?: Record<string, string>;
     text?: string;
     count?: number;
-  } = {},
+  } = {}
 ): MockLocator =>
   createMockLocator({
     isVisible: vi.fn().mockResolvedValue(elementState.visible ?? true),
-    getAttribute: vi.fn()
+    getAttribute: vi
+      .fn()
       .fn()
       .mockImplementation((name: string) =>
-        Promise.resolve(elementState.attributes?.[name] ?? null),
+        Promise.resolve(elementState.attributes?.[name] ?? null)
       ),
     textContent: vi.fn().mockResolvedValue(elementState.text ?? null),
     count: vi.fn().mockResolvedValue(elementState.count ?? 1),

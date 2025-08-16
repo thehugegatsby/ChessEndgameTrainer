@@ -1,6 +1,6 @@
 /**
  * Deterministic waiting helpers for E2E tests
- * 
+ *
  * Replaces hardcoded waitForTimeout() patterns with store-based waiting.
  * Part of Phase 3 E2E optimization - bulk migration from timeout-based to deterministic waiting.
  */
@@ -15,14 +15,14 @@ const logger = getLogger().setContext('E2E-DeterministicWaiting');
  * Replaces: await page.waitForTimeout(E2E.TIMEOUTS.PAGE_LOAD)
  */
 export async function waitForPageReady(page: Page): Promise<void> {
-  logger.info("⏳ Waiting for page to be ready");
-  
+  logger.info('⏳ Waiting for page to be ready');
+
   // Wait for training board to be visible
-  await page.waitForSelector('[data-testid="training-board"]', { 
+  await page.waitForSelector('[data-testid="training-board"]', {
     state: 'visible',
-    timeout: 30000 
+    timeout: 30000,
   });
-  
+
   // Wait for store to be initialized
   await page.waitForFunction(
     () => {
@@ -34,8 +34,8 @@ export async function waitForPageReady(page: Page): Promise<void> {
     },
     { timeout: 15000 }
   );
-  
-  logger.info("✅ Page ready");
+
+  logger.info('✅ Page ready');
 }
 
 /**
@@ -43,8 +43,8 @@ export async function waitForPageReady(page: Page): Promise<void> {
  * Replaces: await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT)
  */
 export async function waitForTablebaseInit(page: Page): Promise<void> {
-  logger.info("⏳ Waiting for tablebase initialization");
-  
+  logger.info('⏳ Waiting for tablebase initialization');
+
   await page.waitForFunction(
     () => {
       const store = (window as any).__e2e_store;
@@ -55,8 +55,8 @@ export async function waitForTablebaseInit(page: Page): Promise<void> {
     },
     { timeout: 15000 }
   );
-  
-  logger.info("✅ Tablebase initialized");
+
+  logger.info('✅ Tablebase initialized');
 }
 
 /**
@@ -64,27 +64,27 @@ export async function waitForTablebaseInit(page: Page): Promise<void> {
  * Replaces: await page.waitForTimeout(1000) // Wait for overlays
  */
 export async function waitForUIReady(page: Page): Promise<void> {
-  logger.info("⏳ Waiting for UI to be ready");
-  
+  logger.info('⏳ Waiting for UI to be ready');
+
   // Check for common overlays/modals
   const overlaySelectors = [
     '[data-testid="loading-overlay"]',
     '[data-testid="modal"]',
     '.modal-backdrop',
-    '[role="dialog"]'
+    '[role="dialog"]',
   ];
-  
+
   for (const selector of overlaySelectors) {
     try {
-      await page.waitForSelector(selector, { 
-        state: 'hidden', 
-        timeout: 5000 
+      await page.waitForSelector(selector, {
+        state: 'hidden',
+        timeout: 5000,
       });
     } catch {
       // Selector might not exist, that's ok
     }
   }
-  
+
   // Also check store for UI state
   await page.waitForFunction(
     () => {
@@ -96,8 +96,8 @@ export async function waitForUIReady(page: Page): Promise<void> {
     },
     { timeout: 5000 }
   );
-  
-  logger.info("✅ UI ready");
+
+  logger.info('✅ UI ready');
 }
 
 /**
@@ -125,14 +125,14 @@ export async function waitForToast(page: Page): Promise<void> {
   // Wait for toast to appear
   const toastSelector = '[data-testid^="toast-"]';
   try {
-    await page.waitForSelector(toastSelector, { 
-      state: 'visible', 
-      timeout: 5000 
+    await page.waitForSelector(toastSelector, {
+      state: 'visible',
+      timeout: 5000,
     });
     // Wait for it to disappear
-    await page.waitForSelector(toastSelector, { 
-      state: 'hidden', 
-      timeout: 10000 
+    await page.waitForSelector(toastSelector, {
+      state: 'hidden',
+      timeout: 10000,
     });
   } catch {
     // No toast appeared, that's ok
@@ -144,21 +144,22 @@ export async function waitForToast(page: Page): Promise<void> {
  * Replaces: await page.waitForTimeout(E2E.TIMEOUTS.OPPONENT_MOVE)
  */
 export async function waitForOpponentMove(page: Page): Promise<void> {
-  logger.info("⏳ Waiting for opponent move");
-  
+  logger.info('⏳ Waiting for opponent move');
+
   await page.waitForFunction(
     () => {
       const store = (window as any).__e2e_store;
       if (!store) return false;
       const state = store.getState?.();
       // Opponent is done when it's player's turn
-      return state?.training?.isPlayerTurn === true &&
-             state?.tablebase?.analysisStatus !== 'loading';
+      return (
+        state?.training?.isPlayerTurn === true && state?.tablebase?.analysisStatus !== 'loading'
+      );
     },
     { timeout: 15000 }
   );
-  
-  logger.info("✅ Opponent move complete");
+
+  logger.info('✅ Opponent move complete');
 }
 
 /**
@@ -187,6 +188,6 @@ export async function waitForStableState(page: Page): Promise<void> {
   await Promise.all([
     waitForUIReady(page),
     waitForMoveAnimation(page),
-    page.waitForLoadState('domcontentloaded')
+    page.waitForLoadState('domcontentloaded'),
   ]);
 }

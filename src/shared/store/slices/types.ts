@@ -3,7 +3,7 @@
  * @description Defines the structure and interfaces for each store slice
  */
 
-import { type StateCreator } from "zustand";
+import { type StateCreator } from 'zustand';
 import {
   type UIState,
   type Toast,
@@ -11,15 +11,15 @@ import {
   type LoadingState,
   type AnalysisPanelState,
   type AnalysisStatus,
-} from "../types";
+} from '../types';
 
 // Re-export UIState for external use
 export type { UIState };
-import { type ValidatedMove } from "@shared/types/chess";
-import { type PositionAnalysis } from "@shared/types/evaluation";
-import { type EndgamePosition } from "@shared/types/endgame";
-import { type Move as ChessJsMove } from "chess.js";
-import type { TrainingPosition } from "./trainingSlice";
+import { type ValidatedMove } from '@shared/types/chess';
+import { type PositionAnalysis } from '@shared/types/evaluation';
+import { type EndgamePosition } from '@shared/types/endgame';
+import { type Move as ChessJsMove } from 'chess.js';
+import type { TrainingPosition } from './trainingSlice';
 
 /**
  * Game slice - Pure chess game state
@@ -52,13 +52,10 @@ export interface GameActions {
   // Game operations
   initializeGame: (fen: string) => boolean;
   makeMove: (
-    move:
-      | ChessJsMove
-      | { from: string; to: string; promotion?: string }
-      | string,
+    move: ChessJsMove | { from: string; to: string; promotion?: string } | string
   ) => ValidatedMove | null;
   applyMove: (
-    move: { from: string; to: string; promotion?: string } | string,
+    move: { from: string; to: string; promotion?: string } | string
   ) => ValidatedMove | null;
   undoMove: () => boolean;
   redoMove: () => boolean;
@@ -140,13 +137,11 @@ export interface TrainingActions {
   setPosition: (position: TrainingPosition) => void;
   setNavigationPositions: (
     next?: TrainingPosition | null,
-    previous?: TrainingPosition | null,
+    previous?: TrainingPosition | null
   ) => void;
   setNavigationLoading: (loading: boolean) => void;
   setNavigationError: (error: string | null) => void;
-  setChapterProgress: (
-    progress: { completed: number; total: number } | null,
-  ) => void;
+  setChapterProgress: (progress: { completed: number; total: number } | null) => void;
   setPlayerTurn: (isPlayerTurn: boolean) => void;
   clearOpponentThinking: () => void;
   completeTraining: (success: boolean) => void;
@@ -162,14 +157,14 @@ export interface TrainingActions {
       wdlBefore?: number;
       wdlAfter?: number;
       bestMove?: string;
-    } | null,
+    } | null
   ) => void;
   setMoveSuccessDialog: (
     dialog: {
       isOpen: boolean;
       promotionPiece?: string;
       moveDescription?: string;
-    } | null,
+    } | null
   ) => void;
   addTrainingMove: (move: ValidatedMove) => void;
   resetTraining: () => void;
@@ -177,7 +172,6 @@ export interface TrainingActions {
   setEvaluationBaseline: (wdl: number, fen: string) => void;
   clearEvaluationBaseline: () => void;
 }
-
 
 /**
  * UI slice actions
@@ -187,7 +181,7 @@ export interface UIActions {
   setIsSidebarOpen: (isOpen: boolean) => void;
   openModal: (type: ModalType) => void;
   closeModal: () => void;
-  showToast: (message: string, type: Toast["type"], duration?: number) => void;
+  showToast: (message: string, type: Toast['type'], duration?: number) => void;
   removeToast: (id: string) => void;
   setLoading: (key: keyof LoadingState, value: boolean) => void;
   updateAnalysisPanel: (update: Partial<AnalysisPanelState>) => void;
@@ -215,7 +209,7 @@ type BaseState = {
 
 /**
  * Root state combining nested slices with orchestrator actions
- * 
+ *
  * @remarks
  * With Slice-in-Slice pattern, CRITICAL FIX workarounds are eliminated.
  * Actions are preserved directly within each slice.
@@ -235,22 +229,14 @@ export type StoreCreator<T> = StateCreator<RootState, [], [], T>;
  * Immer-aware state creator for slice pattern with middleware
  * This correctly types the immer middleware's mutative state updates
  */
-export type ImmerStateCreator<T> = StateCreator<
-  RootState,
-  [["zustand/immer", never]],
-  [],
-  T
->;
+export type ImmerStateCreator<T> = StateCreator<RootState, [['zustand/immer', never]], [], T>;
 
 /**
  * Async actions that orchestrate across slices
  */
 export interface AsyncActions {
   handlePlayerMove: (
-    move:
-      | ChessJsMove
-      | { from: string; to: string; promotion?: string }
-      | string,
+    move: ChessJsMove | { from: string; to: string; promotion?: string } | string
   ) => Promise<boolean>;
   // handleOpponentTurn and requestPositionEvaluation removed - functionality moved to chessService
   loadTrainingContext: (position: EndgamePosition) => Promise<void>;

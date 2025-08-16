@@ -7,10 +7,7 @@
   "difficulty": "beginner",
   "goal": "win",
   "targetMoves": 8,
-  "hints": [
-    "Support the pawn with your king",
-    "Opposition is crucial in pawn endgames"
-  ],
+  "hints": ["Support the pawn with your king", "Opposition is crucial in pawn endgames"],
   "solution": [
     "1.Kd6",
     "1...Kd8",

@@ -47,7 +47,7 @@ export interface TablebaseData {
     dtz: number;
     dtm: number;
     wdl: number;
-    category: "win" | "draw" | "loss";
+    category: 'win' | 'draw' | 'loss';
   }>;
 }
 
@@ -120,12 +120,7 @@ export interface MoveEvaluation {
  * Move quality classification for training feedback
  * @typedef {string} MoveQuality
  */
-export type MoveQuality =
-  | "excellent"
-  | "good"
-  | "inaccuracy"
-  | "mistake"
-  | "blunder";
+export type MoveQuality = 'excellent' | 'good' | 'inaccuracy' | 'mistake' | 'blunder';
 
 /**
  * Raw tablebase evaluation data as returned by the chess tablebase
@@ -172,7 +167,7 @@ export interface TablebaseEvaluation {
   /** All Multi-PV lines when using Multi-PV evaluation */
   multiPvLines?: Array<{
     multipv: number; // Line number (1, 2, 3, ...)
-    score: { type: "cp" | "mate"; value: number };
+    score: { type: 'cp' | 'mate'; value: number };
     depth: number;
     pv: string; // Space-separated UCI moves
     nodes?: number;
@@ -207,7 +202,7 @@ export interface TablebaseResult {
   dtm: number | null;
 
   /** Human-readable category */
-  category: "win" | "cursed-win" | "draw" | "blessed-loss" | "loss";
+  category: 'win' | 'cursed-win' | 'draw' | 'blessed-loss' | 'loss';
 
   /** Whether the tablebase data is precise */
   precise: boolean;
@@ -217,12 +212,12 @@ export interface TablebaseResult {
  * Move quality classification for the MoveQualityAnalyzer
  */
 export type MoveQualityType =
-  | "excellent"
-  | "good"
-  | "inaccuracy"
-  | "mistake"
-  | "blunder"
-  | "unknown";
+  | 'excellent'
+  | 'good'
+  | 'inaccuracy'
+  | 'mistake'
+  | 'blunder'
+  | 'unknown';
 
 /**
  * Simplified move quality result for the new architecture

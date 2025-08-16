@@ -15,19 +15,19 @@ The `CacheManager<K, V>` interface provides a type-safe, generic caching contrac
 ## Quick Start
 
 ```typescript
-import { LRUCacheManager } from "@shared/lib/cache";
+import { LRUCacheManager } from '@shared/lib/cache';
 
 // Create cache: 200 max items, 5-minute default TTL
 const cache = new LRUCacheManager<string, TablebaseEntry>(200, 300000);
 
 // Store data
-cache.set("position1", tablebaseData);
+cache.set('position1', tablebaseData);
 
 // Store with custom TTL (10 seconds)
-cache.set("tempData", tempValue, 10000);
+cache.set('tempData', tempValue, 10000);
 
 // Retrieve data (handles expiration automatically)
-const data = cache.get("position1");
+const data = cache.get('position1');
 
 // Check statistics
 const stats = cache.getStats();
@@ -113,7 +113,7 @@ interface CacheStats {
 To use a different backend (e.g., Redis), implement the `CacheManager` interface:
 
 ```typescript
-import type { CacheManager } from "@shared/lib/cache";
+import type { CacheManager } from '@shared/lib/cache';
 
 class RedisCacheManager<K, V> implements CacheManager<K, V> {
   constructor(private redisClient: RedisClient) {}

@@ -22,9 +22,9 @@ import { vi } from 'vitest';
  * predictable test behavior across different test runs.
  */
 
-import { getLogger } from "./logging";
+import { getLogger } from './logging';
 
-const logger = getLogger().setContext("TablebaseE2EMocks");
+const logger = getLogger().setContext('TablebaseE2EMocks');
 
 /**
  * E2E tablebase mock responses for specific chess positions
@@ -51,170 +51,170 @@ const logger = getLogger().setContext("TablebaseE2EMocks");
 export const E2E_TABLEBASE_MOCKS: Record<string, any> = {
   // Initial position: King and pawn vs King (White to move)
   // FEN: "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1" (matches test line 66)
-  "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1": {
-    category: "win",
+  '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1': {
+    category: 'win',
     wdl: 2,
     dtz: 17,
     dtm: null,
     precise: true,
     moves: [
       {
-        uci: "e6d6",
-        move: "e6d6",
-        san: "Kd6",
+        uci: 'e6d6',
+        move: 'e6d6',
+        san: 'Kd6',
         dtz: 14,
         dtm: null,
         wdl: 2,
-        category: "win"
+        category: 'win',
       },
       {
-        uci: "e6f6",
-        move: "e6f6",
-        san: "Kf6",
+        uci: 'e6f6',
+        move: 'e6f6',
+        san: 'Kf6',
         dtz: 18,
         dtm: null,
         wdl: 2,
-        category: "win"
-      }
-    ]
+        category: 'win',
+      },
+    ],
   },
 
   // After Kd6 (Black to move) - should be loss for Black = win for White
   // FEN: "4k3/8/3K4/4P3/8/8/8/8 b - - 1 1" (matches test line 47)
-  "4k3/8/3K4/4P3/8/8/8/8 b - - 1 1": {
-    category: "loss", // Loss for Black (current player) = Win for White
+  '4k3/8/3K4/4P3/8/8/8/8 b - - 1 1': {
+    category: 'loss', // Loss for Black (current player) = Win for White
     wdl: -2,
     dtz: -14,
     dtm: null,
     precise: true,
     moves: [
       {
-        uci: "e8d7",
-        move: "e8d7",
-        san: "Kd7",
+        uci: 'e8d7',
+        move: 'e8d7',
+        san: 'Kd7',
         dtz: -13,
         dtm: null,
         wdl: -2,
-        category: "loss"
+        category: 'loss',
       },
       {
-        uci: "e8f8",
-        move: "e8f8",
-        san: "Kf8",
+        uci: 'e8f8',
+        move: 'e8f8',
+        san: 'Kf8',
         dtz: -15,
         dtm: null,
         wdl: -2,
-        category: "loss"
-      }
-    ]
+        category: 'loss',
+      },
+    ],
   },
 
   // After Kf6 (Black to move) - should also be loss for Black = win for White
   // FEN: "4k3/8/5K2/4P3/8/8/8/8 b - - 1 1"
-  "4k3/8/5K2/4P3/8/8/8/8 b - - 1 1": {
-    category: "loss", // Loss for Black (current player) = Win for White
+  '4k3/8/5K2/4P3/8/8/8/8 b - - 1 1': {
+    category: 'loss', // Loss for Black (current player) = Win for White
     wdl: -2,
     dtz: -18,
     dtm: null,
     precise: true,
     moves: [
       {
-        uci: "e8d8",
-        move: "e8d8",
-        san: "Kd8",
+        uci: 'e8d8',
+        move: 'e8d8',
+        san: 'Kd8',
         dtz: -17,
         dtm: null,
         wdl: -2,
-        category: "loss"
+        category: 'loss',
       },
       {
-        uci: "e8f7",
-        move: "e8f7",
-        san: "Kf7",
+        uci: 'e8f7',
+        move: 'e8f7',
+        san: 'Kf7',
         dtz: -19,
         dtm: null,
         wdl: -2,
-        category: "loss"
-      }
-    ]
+        category: 'loss',
+      },
+    ],
   },
 
   // After Kd5 (Black to move) - should be draw
   // FEN: "4k3/8/8/3K1P2/8/8/8/8 b - - 1 1"
-  "4k3/8/8/3K1P2/8/8/8/8 b - - 1 1": {
-    category: "draw",
+  '4k3/8/8/3K1P2/8/8/8/8 b - - 1 1': {
+    category: 'draw',
     wdl: 0,
     dtz: 0,
     dtm: null,
     precise: true,
     moves: [
       {
-        uci: "e8d7",
-        move: "e8d7",
-        san: "Kd7",
+        uci: 'e8d7',
+        move: 'e8d7',
+        san: 'Kd7',
         dtz: 0,
         dtm: null,
         wdl: 0,
-        category: "draw"
+        category: 'draw',
       },
       {
-        uci: "e8e7",
-        move: "e8e7",
-        san: "Ke7",
+        uci: 'e8e7',
+        move: 'e8e7',
+        san: 'Ke7',
         dtz: 0,
         dtm: null,
         wdl: 0,
-        category: "draw"
+        category: 'draw',
       },
       {
-        uci: "e8f7",
-        move: "e8f7",
-        san: "Kf7",
+        uci: 'e8f7',
+        move: 'e8f7',
+        san: 'Kf7',
         dtz: 0,
         dtm: null,
         wdl: 0,
-        category: "draw"
-      }
-    ]
+        category: 'draw',
+      },
+    ],
   },
 
   // After Kf5 (Black to move) - should be draw
   // FEN: "4k3/8/8/4PK2/8/8/8/8 b - - 1 1"
-  "4k3/8/8/4PK2/8/8/8/8 b - - 1 1": {
-    category: "draw",
+  '4k3/8/8/4PK2/8/8/8/8 b - - 1 1': {
+    category: 'draw',
     wdl: 0,
     dtz: 0,
     dtm: null,
     precise: true,
     moves: [
       {
-        uci: "e8d7",
-        move: "e8d7",
-        san: "Kd7",
+        uci: 'e8d7',
+        move: 'e8d7',
+        san: 'Kd7',
         dtz: 0,
         dtm: null,
         wdl: 0,
-        category: "draw"
+        category: 'draw',
       },
       {
-        uci: "e8e7",
-        move: "e8e7",
-        san: "Ke7",
+        uci: 'e8e7',
+        move: 'e8e7',
+        san: 'Ke7',
         dtz: 0,
         dtm: null,
         wdl: 0,
-        category: "draw"
+        category: 'draw',
       },
       {
-        uci: "e8f7",
-        move: "e8f7",
-        san: "Kf7",
+        uci: 'e8f7',
+        move: 'e8f7',
+        san: 'Kf7',
         dtz: 0,
         dtm: null,
         wdl: 0,
-        category: "draw"
-      }
-    ]
+        category: 'draw',
+      },
+    ],
   },
 };
 
@@ -240,10 +240,10 @@ export const E2E_TABLEBASE_MOCKS: Record<string, any> = {
  */
 export function createE2ETablebaseFetchMock(): ReturnType<typeof vi.fn> {
   return vi.fn((url: string) => {
-    if (url.includes("lichess.org/api/tablebase/standard")) {
+    if (url.includes('lichess.org/api/tablebase/standard')) {
       // Extract FEN from URL
       const urlObj = new URL(url);
-      const fen = urlObj.searchParams.get("fen");
+      const fen = urlObj.searchParams.get('fen');
 
       if (fen && E2E_TABLEBASE_MOCKS[fen]) {
         const mockData = E2E_TABLEBASE_MOCKS[fen];
@@ -254,7 +254,7 @@ export function createE2ETablebaseFetchMock(): ReturnType<typeof vi.fn> {
            */
           json: () => Promise.resolve(mockData),
           status: 200,
-          statusText: "OK",
+          statusText: 'OK',
         });
       }
     }
@@ -263,11 +263,11 @@ export function createE2ETablebaseFetchMock(): ReturnType<typeof vi.fn> {
     return Promise.resolve({
       ok: false,
       status: 404,
-      statusText: "Not Found",
+      statusText: 'Not Found',
       /**
        *
        */
-      json: () => Promise.resolve({ error: "Position not found" }),
+      json: () => Promise.resolve({ error: 'Position not found' }),
     });
   });
 }
@@ -298,38 +298,35 @@ export function createE2ETablebaseFetchMock(): ReturnType<typeof vi.fn> {
  * ```
  */
 export function setupE2ETablebaseMocks(): void {
-  if (
-    typeof window !== "undefined" &&
-    process.env['NEXT_PUBLIC_IS_E2E_TEST'] === "true"
-  ) {
-    logger.info("🧪 Setting up E2E Tablebase mocks");
+  if (typeof window !== 'undefined' && process.env['NEXT_PUBLIC_IS_E2E_TEST'] === 'true') {
+    logger.info('🧪 Setting up E2E Tablebase mocks');
 
     // Override fetch for E2E tests
     const originalFetch = window.fetch;
 
     window.fetch = ((url: string | Request, init?: RequestInit) => {
-      const urlString = typeof url === "string" ? url : url.url;
+      const urlString = typeof url === 'string' ? url : url.url;
 
       if (
-        urlString.includes("lichess.org/api/tablebase/standard") ||
-        urlString.includes("tablebase.lichess.ovh/standard")
+        urlString.includes('lichess.org/api/tablebase/standard') ||
+        urlString.includes('tablebase.lichess.ovh/standard')
       ) {
         const urlObj = new URL(urlString);
-        const fen = urlObj.searchParams.get("fen");
+        const fen = urlObj.searchParams.get('fen');
 
-        logger.debug("🧪 E2E Tablebase mock intercepted FEN:", fen);
+        logger.debug('🧪 E2E Tablebase mock intercepted FEN:', fen);
 
         if (fen) {
           // First try exact match
           if (E2E_TABLEBASE_MOCKS[fen]) {
             const mockData = E2E_TABLEBASE_MOCKS[fen];
-            logger.debug("🧪 E2E Tablebase mock returning (exact):", mockData);
+            logger.debug('🧪 E2E Tablebase mock returning (exact):', mockData);
             return Promise.resolve(
               new Response(JSON.stringify(mockData), {
                 status: 200,
-                statusText: "OK",
-                headers: { "Content-Type": "application/json" },
-              }),
+                statusText: 'OK',
+                headers: { 'Content-Type': 'application/json' },
+              })
             );
           }
 
@@ -337,127 +334,124 @@ export function setupE2ETablebaseMocks(): void {
           let mockData: any = null;
 
           // After Kd6 pattern (test line 47)
-          if (fen.includes("4k3/8/3K4/4P3")) {
+          if (fen.includes('4k3/8/3K4/4P3')) {
             mockData = {
-              category: "loss", // Loss for Black = Win for White
+              category: 'loss', // Loss for Black = Win for White
               wdl: -2,
               dtz: -14,
               dtm: null,
               precise: true,
               moves: [
                 {
-                  uci: "e8d7",
-                  move: "e8d7",
-                  san: "Kd7",
+                  uci: 'e8d7',
+                  move: 'e8d7',
+                  san: 'Kd7',
                   dtz: -13,
                   dtm: null,
                   wdl: -2,
-                  category: "loss"
+                  category: 'loss',
                 },
                 {
-                  uci: "e8f8",
-                  move: "e8f8",
-                  san: "Kf8",
+                  uci: 'e8f8',
+                  move: 'e8f8',
+                  san: 'Kf8',
                   dtz: -15,
                   dtm: null,
                   wdl: -2,
-                  category: "loss"
-                }
-              ]
+                  category: 'loss',
+                },
+              ],
             };
           }
           // Initial position pattern (test line 66)
-          else if (fen.includes("4k3/8/4K3/4P3")) {
+          else if (fen.includes('4k3/8/4K3/4P3')) {
             mockData = {
-              category: "win",
+              category: 'win',
               wdl: 2,
               dtz: 17,
               dtm: null,
               precise: true,
               moves: [
                 {
-                  uci: "e6d6",
-                  move: "e6d6",
-                  san: "Kd6",
+                  uci: 'e6d6',
+                  move: 'e6d6',
+                  san: 'Kd6',
                   dtz: 14,
                   dtm: null,
                   wdl: 2,
-                  category: "win"
+                  category: 'win',
                 },
                 {
-                  uci: "e6f6",
-                  move: "e6f6",
-                  san: "Kf6",
+                  uci: 'e6f6',
+                  move: 'e6f6',
+                  san: 'Kf6',
                   dtz: 18,
                   dtm: null,
                   wdl: 2,
-                  category: "win"
-                }
-              ]
+                  category: 'win',
+                },
+              ],
             };
           }
           // After Kf6 pattern
-          else if (fen.includes("4k3/8/5K2/4P3")) {
+          else if (fen.includes('4k3/8/5K2/4P3')) {
             mockData = {
-              category: "loss", // Loss for Black = Win for White
+              category: 'loss', // Loss for Black = Win for White
               wdl: -2,
               dtz: -18,
               dtm: null,
               precise: true,
               moves: [
                 {
-                  uci: "e8d8",
-                  move: "e8d8",
-                  san: "Kd8",
+                  uci: 'e8d8',
+                  move: 'e8d8',
+                  san: 'Kd8',
                   dtz: -17,
                   dtm: null,
                   wdl: -2,
-                  category: "loss"
+                  category: 'loss',
                 },
                 {
-                  uci: "e8f7",
-                  move: "e8f7",
-                  san: "Kf7",
+                  uci: 'e8f7',
+                  move: 'e8f7',
+                  san: 'Kf7',
                   dtz: -19,
                   dtm: null,
                   wdl: -2,
-                  category: "loss"
-                }
-              ]
+                  category: 'loss',
+                },
+              ],
             };
           }
 
           if (mockData) {
-            logger.debug(
-              "🧪 E2E Tablebase mock returning (pattern):",
-              mockData,
-            );
+            logger.debug('🧪 E2E Tablebase mock returning (pattern):', mockData);
             return Promise.resolve(
               new Response(JSON.stringify(mockData), {
                 status: 200,
-                statusText: "OK",
-                headers: { "Content-Type": "application/json" },
-              }),
+                statusText: 'OK',
+                headers: { 'Content-Type': 'application/json' },
+              })
             );
           }
         }
 
         // Fallback for unmocked positions
-        logger.debug("🧪 E2E Tablebase mock - no match found for FEN:", fen);
+        logger.debug('🧪 E2E Tablebase mock - no match found for FEN:', fen);
         return Promise.resolve(
           new Response(
             JSON.stringify({
-              category: "unknown",
+              category: 'unknown',
               wdl: 0,
               dtz: 0,
               dtm: null,
-              error: "Position not found in E2E mocks",
+              error: 'Position not found in E2E mocks',
             }),
             {
               status: 404,
-              statusText: "Not Found",
-            },
-          ),
+              statusText: 'Not Found',
+            }
+          )
         );
       }
 

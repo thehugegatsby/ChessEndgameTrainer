@@ -22,12 +22,12 @@
  * ```
  */
 
-import { type TablebaseSlice, type TablebaseState, type TablebaseActions } from "./types";
-import type { PositionAnalysis } from "@shared/types/evaluation";
-import type { AnalysisStatus } from "../types";
+import { type TablebaseSlice, type TablebaseState, type TablebaseActions } from './types';
+import type { PositionAnalysis } from '@shared/types/evaluation';
+import type { AnalysisStatus } from '../types';
 
 // Re-export types for external use
-export type { TablebaseState, TablebaseActions } from "./types";
+export type { TablebaseState, TablebaseActions } from './types';
 
 /**
  * Initial state for the tablebase slice
@@ -35,11 +35,10 @@ export type { TablebaseState, TablebaseActions } from "./types";
  */
 export const initialTablebaseState = {
   tablebaseMove: undefined as string | null | undefined,
-  analysisStatus: "idle" as AnalysisStatus,
+  analysisStatus: 'idle' as AnalysisStatus,
   evaluations: [] as PositionAnalysis[],
   currentEvaluation: undefined as PositionAnalysis | undefined,
 };
-
 
 /**
  * Creates the tablebase state (data only, no actions)
@@ -58,7 +57,7 @@ export const initialTablebaseState = {
  */
 export const createTablebaseState = (): TablebaseState => ({
   tablebaseMove: undefined as string | null | undefined,
-  analysisStatus: "idle" as AnalysisStatus,
+  analysisStatus: 'idle' as AnalysisStatus,
   evaluations: [],
   currentEvaluation: undefined as PositionAnalysis | undefined,
 });
@@ -79,9 +78,8 @@ export const createTablebaseState = (): TablebaseState => ({
  * ```
  */
 export const createTablebaseActions = (
-  set: (fn: (state: { tablebase: TablebaseState }) => void) => void,
+  set: (fn: (state: { tablebase: TablebaseState }) => void) => void
 ): TablebaseActions => ({
-
   /**
    * Sets the tablebase move for the current position
    *
@@ -110,7 +108,7 @@ export const createTablebaseActions = (
    * ```
    */
   setTablebaseMove: (move: string | null | undefined) => {
-    set((state) => {
+    set(state => {
       state.tablebase.tablebaseMove = move;
     });
   },
@@ -143,7 +141,7 @@ export const createTablebaseActions = (
    * ```
    */
   setAnalysisStatus: (status: AnalysisStatus) => {
-    set((state) => {
+    set(state => {
       state.tablebase.analysisStatus = status;
     });
   },
@@ -179,7 +177,7 @@ export const createTablebaseActions = (
    * ```
    */
   addEvaluation: (evaluation: PositionAnalysis) => {
-    set((state) => {
+    set(state => {
       state.tablebase.evaluations = [...state.tablebase.evaluations, evaluation];
     });
   },
@@ -214,7 +212,7 @@ export const createTablebaseActions = (
    * ```
    */
   setEvaluations: (evaluations: PositionAnalysis[]) => {
-    set((state) => {
+    set(state => {
       state.tablebase.evaluations = evaluations;
     });
   },
@@ -246,7 +244,7 @@ export const createTablebaseActions = (
    * ```
    */
   setCurrentEvaluation: (evaluation: PositionAnalysis | undefined) => {
-    set((state) => {
+    set(state => {
       state.tablebase.currentEvaluation = evaluation;
     });
   },
@@ -273,12 +271,11 @@ export const createTablebaseActions = (
    * ```
    */
   clearTablebaseState: () => {
-    set((state) => {
+    set(state => {
       Object.assign(state.tablebase, initialTablebaseState);
     });
   },
 });
-
 
 /**
  * Selector functions for efficient state access
@@ -336,23 +333,21 @@ export const tablebaseSelectors = {
    * @param {TablebaseSlice} state - The tablebase slice of the store
    * @returns {boolean} True if analysis is in progress
    */
-  selectIsLoading: (state: TablebaseSlice) =>
-    state.analysisStatus === "loading",
+  selectIsLoading: (state: TablebaseSlice) => state.analysisStatus === 'loading',
 
   /**
    * Selects whether analysis has completed successfully
    * @param {TablebaseSlice} state - The tablebase slice of the store
    * @returns {boolean} True if analysis succeeded
    */
-  selectIsSuccess: (state: TablebaseSlice) =>
-    state.analysisStatus === "success",
+  selectIsSuccess: (state: TablebaseSlice) => state.analysisStatus === 'success',
 
   /**
    * Selects whether analysis has failed
    * @param {TablebaseSlice} state - The tablebase slice of the store
    * @returns {boolean} True if analysis failed
    */
-  selectIsError: (state: TablebaseSlice) => state.analysisStatus === "error",
+  selectIsError: (state: TablebaseSlice) => state.analysisStatus === 'error',
 
   /**
    * Selects whether a tablebase move is available
@@ -363,8 +358,7 @@ export const tablebaseSelectors = {
    * Returns true even if move is null (draw), as this still represents
    * a valid tablebase result. Only returns false if undefined.
    */
-  selectHasTablebaseMove: (state: TablebaseSlice) =>
-    state.tablebaseMove !== undefined,
+  selectHasTablebaseMove: (state: TablebaseSlice) => state.tablebaseMove !== undefined,
 
   /**
    * Selects whether the position is a draw according to tablebase
@@ -386,7 +380,7 @@ export const tablebaseSelectors = {
    * ```
    */
   selectEvaluationByFen: (fen: string) => (state: TablebaseSlice) =>
-    state.evaluations.find((e) => e.fen === fen),
+    state.evaluations.find(e => e.fen === fen),
 
   /**
    * Selects the number of cached evaluations

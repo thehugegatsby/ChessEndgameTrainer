@@ -1,6 +1,6 @@
 /**
  * Event-driven training system hook
- * 
+ *
  * @description
  * Always returns EventBasedMoveDialogManager - simplified after feature flag removal.
  * Previously used for A/B testing, now the standard implementation.

@@ -22,22 +22,15 @@
  * and evaluation indices (evaluations array has one extra initial entry).
  */
 
-import React, { useMemo } from "react";
-import type { ValidatedMove } from "@shared/types/chess";
-import {
-  getSmartMoveEvaluation,
-  type MoveEvaluation,
-} from "../../utils/chess/evaluation";
-import {
-  useGameStore,
-  useTablebaseStore,
-  useTrainingStore,
-} from "@shared/store/hooks";
-import { TEST_IDS, getTestId } from "@shared/constants/testIds";
-import { MoveQualityIndicator } from "../analysis/MoveQualityIndicator";
-import { getLogger } from "@shared/services/logging/Logger";
+import React, { useMemo } from 'react';
+import type { ValidatedMove } from '@shared/types/chess';
+import { getSmartMoveEvaluation, type MoveEvaluation } from '../../utils/chess/evaluation';
+import { useGameStore, useTablebaseStore, useTrainingStore } from '@shared/store/hooks';
+import { TEST_IDS, getTestId } from '@shared/constants/testIds';
+import { MoveQualityIndicator } from '../analysis/MoveQualityIndicator';
+import { getLogger } from '@shared/services/logging/Logger';
 
-const logger = getLogger().setContext("MovePanelZustand");
+const logger = getLogger().setContext('MovePanelZustand');
 
 /**
  * Props for the MovePanelZustand component
@@ -129,17 +122,18 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
       if (moveIndex < 0 || moveIndex >= gameState.moveHistory.length) {
         // Use the initial training position FEN if available, otherwise use current FEN
         return (
-          trainingState?.currentPosition?.fen ||
-          gameState.currentFen ||
-          "8/8/8/8/8/8/8/8 w - - 0 1"
+          trainingState?.currentPosition?.fen || gameState.currentFen || '8/8/8/8/8/8/8/8 w - - 0 1'
         );
       }
 
       const move = gameState.moveHistory[moveIndex];
       if (!move) {
-        logger.warn("Move not found at index", { moveIndex, historyLength: gameState.moveHistory.length });
+        logger.warn('Move not found at index', {
+          moveIndex,
+          historyLength: gameState.moveHistory.length,
+        });
         // Return fallback FEN instead of null
-        return gameState.currentFen || "8/8/8/8/8/8/8/8 w - - 0 1";
+        return gameState.currentFen || '8/8/8/8/8/8/8/8 w - - 0 1';
       }
       // Each ValidatedMove has a 'fenBefore' field with the FEN before the move
       return move.fenBefore;
@@ -192,7 +186,7 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
     }, [gameState.moveHistory, tablebaseState.evaluations]);
 
     const hasContent = movePairs.length > 0 || currentMoveIndex === 0;
-    const showE2ESignals = process.env['NEXT_PUBLIC_E2E_SIGNALS'] === "true";
+    const showE2ESignals = process.env['NEXT_PUBLIC_E2E_SIGNALS'] === 'true';
 
     // Check if we have any moves to display
     const effectiveMoveCount = gameState.moveHistory.length;
@@ -204,7 +198,7 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
           data-testid={TEST_IDS.MOVE_PANEL.CONTAINER}
           data-move-count={effectiveMoveCount}
           {...(showE2ESignals && {
-            "data-component-ready": hasContent ? "true" : "false",
+            'data-component-ready': hasContent ? 'true' : 'false',
           })}
         >
           Noch keine Züge gespielt
@@ -218,10 +212,10 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
         data-testid={TEST_IDS.MOVE_PANEL.CONTAINER}
         data-move-count={gameState.moveHistory.length}
         {...(showE2ESignals && {
-          "data-component-ready": hasContent ? "true" : "false",
+          'data-component-ready': hasContent ? 'true' : 'false',
         })}
       >
-        {movePairs.map((pair) => (
+        {movePairs.map(pair => (
           <div
             key={pair.moveNumber}
             className="flex items-center gap-4 py-1 hover:bg-gray-800 rounded px-2"
@@ -237,13 +231,10 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
                 onClick={() => onMoveClick?.((pair.moveNumber - 1) * 2)}
                 className={`font-mono text-sm hover:text-blue-400 px-1 py-0.5 rounded transition-colors ${
                   currentMoveIndex === (pair.moveNumber - 1) * 2
-                    ? "text-blue-400 bg-blue-900/30"
-                    : "text-white"
+                    ? 'text-blue-400 bg-blue-900/30'
+                    : 'text-white'
                 }`}
-                data-testid={getTestId(
-                  TEST_IDS.MOVE_PANEL.ITEM,
-                  (pair.moveNumber - 1) * 2,
-                )}
+                data-testid={getTestId(TEST_IDS.MOVE_PANEL.ITEM, (pair.moveNumber - 1) * 2)}
                 data-move-number={(pair.moveNumber - 1) * 2 + 1}
               >
                 {pair.whiteMove.san}
@@ -257,18 +248,13 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
               {showEvaluations &&
                 pair.whiteEval &&
                 (() => {
-                  const evalDisplay = getSmartMoveEvaluation(
-                    pair.whiteEval,
-                    true,
-                  );
+                  const evalDisplay = getSmartMoveEvaluation(pair.whiteEval, true);
                   return (
                     <span
                       className={`text-xs px-1 py-0.5 rounded ${evalDisplay.className}`}
                       data-testid={TEST_IDS.MOVE_PANEL.EVALUATION}
                     >
-                      <span data-testid={TEST_IDS.MOVE_PANEL.EVAL_SCORE}>
-                        {evalDisplay.text}
-                      </span>
+                      <span data-testid={TEST_IDS.MOVE_PANEL.EVAL_SCORE}>{evalDisplay.text}</span>
                     </span>
                   );
                 })()}
@@ -282,13 +268,10 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
                     onClick={() => onMoveClick?.((pair.moveNumber - 1) * 2 + 1)}
                     className={`font-mono text-sm hover:text-blue-400 px-1 py-0.5 rounded transition-colors ${
                       currentMoveIndex === (pair.moveNumber - 1) * 2 + 1
-                        ? "text-blue-400 bg-blue-900/30"
-                        : "text-white"
+                        ? 'text-blue-400 bg-blue-900/30'
+                        : 'text-white'
                     }`}
-                    data-testid={getTestId(
-                      TEST_IDS.MOVE_PANEL.ITEM,
-                      (pair.moveNumber - 1) * 2 + 1,
-                    )}
+                    data-testid={getTestId(TEST_IDS.MOVE_PANEL.ITEM, (pair.moveNumber - 1) * 2 + 1)}
                     data-move-number={(pair.moveNumber - 1) * 2 + 2}
                   >
                     {pair.blackMove.san}
@@ -302,10 +285,7 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
                   {showEvaluations &&
                     pair.blackEval &&
                     (() => {
-                      const evalDisplay = getSmartMoveEvaluation(
-                        pair.blackEval,
-                        false,
-                      );
+                      const evalDisplay = getSmartMoveEvaluation(pair.blackEval, false);
                       return (
                         <span
                           className={`text-xs px-1 py-0.5 rounded ${evalDisplay.className}`}
@@ -327,7 +307,7 @@ export const MovePanelZustand: React.FC<MovePanelZustandProps> = React.memo(
         ))}
       </div>
     );
-  },
+  }
 );
 
-MovePanelZustand.displayName = "MovePanelZustand";
+MovePanelZustand.displayName = 'MovePanelZustand';

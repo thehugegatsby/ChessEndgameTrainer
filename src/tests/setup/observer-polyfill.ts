@@ -1,6 +1,6 @@
 /**
  * Observer API Polyfill for JSDOM
- * 
+ *
  * Uses the official intersection-observer polyfill for maximum compatibility
  */
 
@@ -67,7 +67,7 @@ class ResizeObserverPolyfill {
   constructor(callback: ResizeObserverCallback) {
     this._callback = callback;
     this._elements = new Set();
-    
+
     if (process.env.NODE_ENV === 'test') {
       (globalThis as any).__lastResizeObserver = this;
     }
@@ -89,12 +89,12 @@ class ResizeObserverPolyfill {
 // Enhanced prototype setup with proper descriptors
 Object.defineProperties(IntersectionObserverPolyfill.prototype, {
   constructor: { value: IntersectionObserverPolyfill, writable: true, configurable: true },
-  [Symbol.toStringTag]: { value: 'IntersectionObserver' }
+  [Symbol.toStringTag]: { value: 'IntersectionObserver' },
 });
 
 Object.defineProperties(ResizeObserverPolyfill.prototype, {
   constructor: { value: ResizeObserverPolyfill, writable: true, configurable: true },
-  [Symbol.toStringTag]: { value: 'ResizeObserver' }
+  [Symbol.toStringTag]: { value: 'ResizeObserver' },
 });
 
 // Remove any existing implementations and set our polyfills on ALL possible globals
@@ -139,8 +139,10 @@ const setPolyfills = () => {
   console.log('🔍 Cross-realm check:');
   if (typeof window !== 'undefined' && typeof globalThis !== 'undefined') {
     console.log('   window === globalThis.window:', window === (globalThis as any).window);
-    console.log('   Same IntersectionObserver:', 
-      (window as any).IntersectionObserver === (globalThis as any).IntersectionObserver);
+    console.log(
+      '   Same IntersectionObserver:',
+      (window as any).IntersectionObserver === (globalThis as any).IntersectionObserver
+    );
   }
 
   // Verify instance creation works
@@ -163,7 +165,7 @@ declare global {
   var IS_REACT_ACT_ENVIRONMENT: boolean;
   var __lastIntersectionObserver: any;
   var __lastResizeObserver: any;
-  
+
   interface Window {
     IntersectionObserver: typeof IntersectionObserverPolyfill;
     ResizeObserver: typeof ResizeObserverPolyfill;

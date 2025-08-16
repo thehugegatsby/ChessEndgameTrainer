@@ -5,11 +5,13 @@
 ### ✅ Documentation Cleanup Completed
 
 **Updated Files**:
+
 - `docs/orchestrators/handlePlayerMove/README.md` - Updated for EventBasedMoveDialogManager
 - `src/shared/store/orchestrators/__tests__/MoveDialogManager.test.ts` - Marked as deprecated, tests skipped
 - `docs/DOCUMENTATION_STATUS.md` - Created comprehensive status report
 
 **Key Changes**:
+
 - MoveDialogManager → EventBasedMoveDialogManager migration documented
 - Outdated test files identified and marked with skip
 - Architectural changes reflected in documentation
@@ -23,8 +25,9 @@
 **Progress: Major YAGNI cleanup completed**
 
 #### Removed Components
+
 - ✅ **SpacedRepetitionService**: 300+ lines sophisticated SM-2 algorithm (never used)
-- ✅ **ProgressService**: Firebase integration (never activated)  
+- ✅ **ProgressService**: Firebase integration (never activated)
 - ✅ **Progress Store Slice**: progressSlice & hooks (commented exports)
 - ✅ **ProgressCard**: UI component (broken import)
 - ✅ **Progress Feature Flags**: USE_NEW_PROGRESS_TRACKING (disabled)
@@ -32,12 +35,14 @@
 - ✅ **DueCardsCacheService**: Test file for non-existent service
 
 #### Impact
+
 - **~900+ lines** of YAGNI code eliminated
 - **Firebase emulator dependency** removed (never setup)
 - **Over-engineered progress system** deleted
 - **Codebase focused** on actual features
 
 ### Documentation Updates
+
 - ✅ README.md: Removed Spaced Repetition, Dashboard, Firebase references
 - ✅ CORE.md: Updated TrainingSlice description (removed progress)
 
@@ -50,11 +55,13 @@
 **Stand: 2025-01-14 10:17 - AKTIV**
 
 #### Completed Batches
+
 - **BATCH 1**: Store slice tests (4 files) - **COMMITTED: 1aa4a88**
-- **BATCH 2**: Utils & Hooks (13 files) - **COMMITTED: c7d2068**  
+- **BATCH 2**: Utils & Hooks (13 files) - **COMMITTED: c7d2068**
 - **BATCH 3**: Services (4 files) - **COMMITTED: 83c5670**
 
 #### Migration Status
+
 - **Files migrated**: 23/50 (46%) ✅
 - **Test status**: **424 tests PASSING** ✅
 - **Principle**: Fix-Everything-First erfolgreich
@@ -62,6 +69,7 @@
 - **µBatch 4b**: MoveQualityEvaluator.test.ts ✅ **COMMITTED: 8b190aa**
 
 #### BATCH 4 - Orchestrators Progress
+
 ```
 1. ✅ MoveDialogManager.test.ts → COMMITTED: a2dd740
 2. ✅ MoveQualityEvaluator.test.ts → COMMITTED: 8b190aa
@@ -70,6 +78,7 @@
 ```
 
 #### Remaining Work: 27 files
+
 - Orchestrators (6), Components (7), Platform (3), Chess Logic (6), Misc (7)
 
 ---
@@ -106,7 +115,8 @@
 ### ✅ Magic Numbers Elimination Progress
 
 **Constants Created**:
-- `tablebase.constants.ts` - API endpoints and error codes  
+
+- `tablebase.constants.ts` - API endpoints and error codes
 - `http.constants.ts` - HTTP retry and timeout settings
 - `chess.constants.ts` - Game logic constants
 - `animation.constants.ts` - UI animation timings
@@ -117,6 +127,7 @@
 ### ✅ Quality Assurance Completed
 
 **Test Suite**: 409/411 tests passing (99.5%)
+
 - 2 minor TablebaseApiClient failures (constant mismatches)
 - All training domain tests passing after migration
 - CI pipeline stable
@@ -138,16 +149,19 @@
 **Decision: Schrittweise Migration zu ES6 Modules**
 
 **Problem**: CI-Fehler mit dynamischen `require()` und TypeScript path aliases
-- 15+ Test-Dateien verwenden `require('@shared/...')` 
+
+- 15+ Test-Dateien verwenden `require('@shared/...')`
 - Funktioniert lokal, scheitert in CI
 - Root Cause: require() kennt TypeScript aliases nicht zur Laufzeit
 
 **Lösung implementiert**:
+
 1. ✅ Quick-Fix: `vite-tsconfig-paths` Plugin installiert
 2. ✅ Konfiguration in `vitest.config.ts` hinzugefügt
 3. ✅ requireShared Helper entfernt (nicht mehr nötig)
 
 **Migration Plan (ROI-basiert)**:
+
 - **NEUE Tests**: Immer ES6 imports verwenden (`import` statt `require`)
 - **ALTE Tests**: Nicht anfassen bis größeres Refactoring (Q2 2025)
 - **Aufwand**: 6-10 Stunden für vollständige Migration
@@ -157,8 +171,9 @@
 ### CI Pipeline Fixed ✅ (2025-01-13)
 
 **Successfully resolved all CI failures**:
+
 1. Removed pre-push hook that was blocking development
-2. Migrated to Node.js 20 (didn't fix memory issues but needed for compatibility)  
+2. Migrated to Node.js 20 (didn't fix memory issues but needed for compatibility)
 3. Split tests into smaller chunks to reduce memory usage
 4. Skipped FeatureFlagService.test.ts and useFeatureFlag.test.tsx (memory leaks)
 5. Fixed import paths in integration tests
@@ -171,10 +186,12 @@
 ### Node.js 20 Migration ✅
 
 **Problem**: Worker memory issues with Vitest on Node.js 22
+
 - "Worker terminated due to reaching memory limit: JS heap out of memory"
 - Initially thought to be Node 22-specific bug, but persists in Node 20
 
-**Solution**: 
+**Solution**:
+
 1. Migrated to Node.js 20.19.4 LTS
 2. Updated test configuration to use single worker:
    - `pool: 'forks'` with `maxForks: 1`
@@ -182,6 +199,7 @@
    - This prevents memory exhaustion
 
 **Documentation Updated**:
+
 - ✅ package.json: Added engines field for Node 20
 - ✅ .nvmrc: Created with version 20.19.4
 - ✅ CI/CD: Updated pnpm version to 10
@@ -190,6 +208,7 @@
 ### Tablebase Timeout Tests 🔧
 
 **Status**: Skipped with TODO comments
+
 - Tests in `TablebaseApiClient.test.ts` are timing out
 - Fake timers not working correctly with retry logic
 - Needs investigation after memory issues are resolved
@@ -197,6 +216,7 @@
 ### Memory Leak in Tests (2025-08-13)
 
 **Root Cause Found**: FeatureFlagService tests cause memory exhaustion
+
 - Both FeatureFlagService.test.ts and useFeatureFlag.test.tsx affected
 - Tests mock global window and localStorage objects
 - Never properly clean up global mocks in afterEach
@@ -212,7 +232,7 @@
    - TODO: Fix mock setup for useTrainingSession hook
    - Skipped with describe.skip
 
-2. **ChessService.pgn.test.ts**: 8 failures  
+2. **ChessService.pgn.test.ts**: 8 failures
    - PGN loading tests not working correctly
    - Mock spy not being called as expected
    - TODO: Fix PGN loading and spy configuration

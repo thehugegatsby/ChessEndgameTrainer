@@ -27,7 +27,7 @@ interface TestData {
 const createTestData = (id: number): TestData => ({
   id,
   name: `Test${id}`,
-  data: `TestData${id}`.repeat(10) // Some content to make it more realistic
+  data: `TestData${id}`.repeat(10), // Some content to make it more realistic
 });
 
 describe('LRUCacheManager', () => {
@@ -45,23 +45,19 @@ describe('LRUCacheManager', () => {
     });
 
     it('should validate constructor parameters', () => {
-      expect(() => new LRUCacheManager(0, 1000))
-        .toThrow('maxSize must be positive');
-      
-      expect(() => new LRUCacheManager(-1, 1000))
-        .toThrow('maxSize must be positive');
-      
-      expect(() => new LRUCacheManager(10, 0))
-        .toThrow('defaultTtlMs must be positive');
-      
-      expect(() => new LRUCacheManager(10, -1))
-        .toThrow('defaultTtlMs must be positive');
+      expect(() => new LRUCacheManager(0, 1000)).toThrow('maxSize must be positive');
+
+      expect(() => new LRUCacheManager(-1, 1000)).toThrow('maxSize must be positive');
+
+      expect(() => new LRUCacheManager(10, 0)).toThrow('defaultTtlMs must be positive');
+
+      expect(() => new LRUCacheManager(10, -1)).toThrow('defaultTtlMs must be positive');
     });
 
     it('should create from options', () => {
       const cache = LRUCacheManager.fromOptions<string, TestData>({
         maxSize: 75,
-        defaultTtlMs: 15000
+        defaultTtlMs: 15000,
       });
       expect(cache).toBeInstanceOf(LRUCacheManager);
     });
@@ -82,7 +78,7 @@ describe('LRUCacheManager', () => {
     it('should store and retrieve values', () => {
       const testData = createTestData(1);
       cache.set('key1', testData);
-      
+
       const retrieved = cache.get('key1');
       expect(retrieved).toEqual(testData);
     });
@@ -94,25 +90,25 @@ describe('LRUCacheManager', () => {
 
     it('should handle has() correctly', () => {
       const testData = createTestData(1);
-      
+
       expect(cache.has('key1')).toBe(false);
-      
+
       cache.set('key1', testData);
       expect(cache.has('key1')).toBe(true);
-      
+
       expect(cache.has('nonexistent')).toBe(false);
     });
 
     it('should delete entries', () => {
       const testData = createTestData(1);
       cache.set('key1', testData);
-      
+
       expect(cache.has('key1')).toBe(true);
-      
+
       const deleted = cache.delete('key1');
       expect(deleted).toBe(true);
       expect(cache.has('key1')).toBe(false);
-      
+
       const deletedAgain = cache.delete('key1');
       expect(deletedAgain).toBe(false);
     });
@@ -122,12 +118,12 @@ describe('LRUCacheManager', () => {
       for (let i = 1; i <= 3; i++) {
         cache.set(`key${i}`, createTestData(i));
       }
-      
+
       expect(cache.size).toBe(3);
-      
+
       cache.clear();
       expect(cache.size).toBe(0);
-      
+
       // Verify all entries are gone
       for (let i = 1; i <= 3; i++) {
         expect(cache.has(`key${i}`)).toBe(false);
@@ -136,16 +132,16 @@ describe('LRUCacheManager', () => {
 
     it('should track size correctly', () => {
       expect(cache.size).toBe(0);
-      
+
       cache.set('key1', createTestData(1));
       expect(cache.size).toBe(1);
-      
+
       cache.set('key2', createTestData(2));
       expect(cache.size).toBe(2);
-      
+
       cache.delete('key1');
       expect(cache.size).toBe(1);
-      
+
       cache.clear();
       expect(cache.size).toBe(0);
     });
@@ -163,15 +159,15 @@ describe('LRUCacheManager', () => {
       cache.set('key1', createTestData(1));
       cache.set('key2', createTestData(2));
       cache.set('key3', createTestData(3));
-      
+
       expect(cache.size).toBe(3);
       expect(cache.has('key1')).toBe(true);
       expect(cache.has('key2')).toBe(true);
       expect(cache.has('key3')).toBe(true);
-      
+
       // Add fourth item - should evict key1 (oldest)
       cache.set('key4', createTestData(4));
-      
+
       expect(cache.size).toBe(3);
       expect(cache.has('key1')).toBe(false); // Evicted
       expect(cache.has('key2')).toBe(true);
@@ -184,14 +180,14 @@ describe('LRUCacheManager', () => {
       cache.set('key1', createTestData(1));
       cache.set('key2', createTestData(2));
       cache.set('key3', createTestData(3));
-      
+
       // Access key1 (makes it most recently used)
       cache.get('key1');
-      
+
       // Add fourth item - should evict key2 (now oldest)
       cache.set('key4', createTestData(4));
-      
-      expect(cache.has('key1')).toBe(true);  // Not evicted (was accessed)
+
+      expect(cache.has('key1')).toBe(true); // Not evicted (was accessed)
       expect(cache.has('key2')).toBe(false); // Evicted
       expect(cache.has('key3')).toBe(true);
       expect(cache.has('key4')).toBe(true);
@@ -202,14 +198,14 @@ describe('LRUCacheManager', () => {
       cache.set('key1', createTestData(1));
       cache.set('key2', createTestData(2));
       cache.set('key3', createTestData(3));
-      
+
       // Overwrite key1 (makes it most recently used)
       cache.set('key1', createTestData(10));
-      
+
       // Add fourth item - should evict key2 (now oldest)
       cache.set('key4', createTestData(4));
-      
-      expect(cache.has('key1')).toBe(true);  // Not evicted (was overwritten)
+
+      expect(cache.has('key1')).toBe(true); // Not evicted (was overwritten)
       expect(cache.get('key1')?.id).toBe(10); // Has new value
       expect(cache.has('key2')).toBe(false); // Evicted
       expect(cache.has('key3')).toBe(true);
@@ -219,21 +215,21 @@ describe('LRUCacheManager', () => {
     it('should handle rapid evictions correctly', () => {
       const maxSize = 3;
       cache = new LRUCacheManager<string, TestData>(maxSize, 10000);
-      
+
       // Add more items than capacity
       for (let i = 1; i <= 10; i++) {
         cache.set(`key${i}`, createTestData(i));
       }
-      
+
       expect(cache.size).toBe(maxSize);
-      
+
       // Only the last 3 items should remain
       // eslint-disable-next-line no-loop-func
       const cacheRef = cache;
       expect(cacheRef.has('key8')).toBe(true);
       expect(cacheRef.has('key9')).toBe(true);
       expect(cacheRef.has('key10')).toBe(true);
-      
+
       // Earlier items should be evicted
       for (let i = 1; i <= 7; i++) {
         expect(cacheRef.has(`key${i}`)).toBe(false);
@@ -251,50 +247,50 @@ describe('LRUCacheManager', () => {
     it('should store entries with default TTL', async () => {
       const testData = createTestData(1);
       cache.set('key1', testData);
-      
+
       expect(cache.get('key1')).toEqual(testData);
-      
+
       // Wait for expiration
       await new Promise(resolve => setTimeout(resolve, 150));
-      
+
       expect(cache.get('key1')).toBeUndefined();
       expect(cache.has('key1')).toBe(false);
     });
 
     it('should store entries with custom TTL', async () => {
       const testData = createTestData(1);
-      
+
       // Store with longer TTL
       cache.set('key1', testData, 500); // 500ms
-      
+
       // Should still be available after default TTL
       await new Promise(resolve => setTimeout(resolve, 150));
       expect(cache.get('key1')).toEqual(testData);
-      
+
       // Should expire after custom TTL
       await new Promise(resolve => setTimeout(resolve, 400));
       expect(cache.get('key1')).toBeUndefined();
     });
 
     it('should handle mixed TTL entries', async () => {
-      cache.set('short', createTestData(1), 50);   // 50ms
+      cache.set('short', createTestData(1), 50); // 50ms
       cache.set('medium', createTestData(2), 150); // 150ms
-      cache.set('long', createTestData(3), 300);   // 300ms
-      
+      cache.set('long', createTestData(3), 300); // 300ms
+
       // All should be available initially
       expect(cache.size).toBe(3);
-      
+
       // After 75ms, short should expire
       await new Promise(resolve => setTimeout(resolve, 75));
       expect(cache.has('short')).toBe(false);
       expect(cache.has('medium')).toBe(true);
       expect(cache.has('long')).toBe(true);
-      
+
       // After another 100ms, medium should expire
       await new Promise(resolve => setTimeout(resolve, 100));
       expect(cache.has('medium')).toBe(false);
       expect(cache.has('long')).toBe(true);
-      
+
       // After another 150ms, long should expire
       await new Promise(resolve => setTimeout(resolve, 150));
       expect(cache.has('long')).toBe(false);
@@ -305,31 +301,31 @@ describe('LRUCacheManager', () => {
       for (let i = 1; i <= 3; i++) {
         cache.set(`key${i}`, createTestData(i), 50);
       }
-      
+
       expect(cache.size).toBe(3);
-      
+
       // Wait for expiration
       await new Promise(resolve => setTimeout(resolve, 75));
-      
+
       // Size check should trigger cleanup
       expect(cache.size).toBe(0);
     });
 
     it('should not affect LRU order with TTL', async () => {
       cache = new LRUCacheManager<string, TestData>(2, 200); // 2 max, 200ms TTL
-      
+
       cache.set('key1', createTestData(1));
       cache.set('key2', createTestData(2));
-      
+
       // Wait a bit but not enough to expire
       await new Promise(resolve => setTimeout(resolve, 100));
-      
+
       // Add third item - should evict by LRU, not TTL
       cache.set('key3', createTestData(3));
-      
+
       expect(cache.has('key1')).toBe(false); // Evicted by LRU
-      expect(cache.has('key2')).toBe(true);  // Still valid
-      expect(cache.has('key3')).toBe(true);  // New entry
+      expect(cache.has('key2')).toBe(true); // Still valid
+      expect(cache.has('key3')).toBe(true); // New entry
     });
   });
 
@@ -411,7 +407,7 @@ describe('LRUCacheManager', () => {
 
       cache.clear();
       stats = cache.getStats();
-      
+
       // Clear should reset size but keep historical stats
       expect(stats.size).toBe(0);
       expect(stats.hits).toBeGreaterThan(0); // Historical data preserved
@@ -440,14 +436,14 @@ describe('LRUCacheManager', () => {
     it('should handle empty strings as keys', () => {
       const testData = createTestData(1);
       cache.set('', testData);
-      
+
       expect(cache.get('')).toEqual(testData);
       expect(cache.has('')).toBe(true);
     });
 
     it('should handle rapid operations', () => {
       const testData = createTestData(1);
-      
+
       // Rapid set/get operations
       for (let i = 0; i < 100; i++) {
         cache.set('rapid', { ...testData, id: i });
@@ -459,10 +455,10 @@ describe('LRUCacheManager', () => {
 
     it('should handle size=1 cache correctly', () => {
       cache = new LRUCacheManager<string, TestData>(1, 1000);
-      
+
       cache.set('key1', createTestData(1));
       expect(cache.size).toBe(1);
-      
+
       cache.set('key2', createTestData(2));
       expect(cache.size).toBe(1);
       expect(cache.has('key1')).toBe(false);
@@ -472,7 +468,7 @@ describe('LRUCacheManager', () => {
     it('should handle concurrent access patterns', () => {
       // Simulate concurrent access
       const promises: Promise<void>[] = [];
-      
+
       for (let i = 0; i < 10; i++) {
         const index = i; // Capture loop variable
         const cacheRef = cache; // Capture cache reference
@@ -517,7 +513,7 @@ describe('LRUCacheManager', () => {
 
     it('should handle large datasets efficiently', () => {
       const cache = new LRUCacheManager<string, TestData>(10000, 60000);
-      
+
       // Add large dataset
       for (let i = 0; i < 5000; i++) {
         cache.set(`large${i}`, createTestData(i));

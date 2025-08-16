@@ -3,10 +3,10 @@
  */
 
 // Type for log data - matches actual usage in codebase
-type LogData = 
-  | string 
-  | number 
-  | boolean 
+type LogData =
+  | string
+  | number
+  | boolean
   | Error
   | Record<string, string | number | boolean | null | undefined>
   | Array<string | number | boolean>;

@@ -3,19 +3,19 @@
  * @see docs/orchestrators/handlePlayerMove/PawnPromotionHandler.md
  */
 
-import type { ValidatedMove } from "@shared/types/chess";
-import { chessService } from "@shared/services/ChessService";
-import { orchestratorTablebase } from "@shared/services/orchestrator/OrchestratorServices";
-import { getLogger } from "@shared/services/logging";
-import type { StoreApi } from "../types";
-import { handleTrainingCompletion } from "./move.completion";
+import type { ValidatedMove } from '@shared/types/chess';
+import { chessService } from '@shared/services/ChessService';
+import { orchestratorTablebase } from '@shared/services/orchestrator/OrchestratorServices';
+import { getLogger } from '@shared/services/logging';
+import type { StoreApi } from '../types';
+import { handleTrainingCompletion } from './move.completion';
 
 /** Information about a pawn promotion move */
 export interface PromotionInfo {
   /** Whether the move involves pawn promotion */
   isPromotion: boolean;
   /** The piece the pawn was promoted to */
-  promotionPiece?: "q" | "r" | "n" | "b";
+  promotionPiece?: 'q' | 'r' | 'n' | 'b';
   /** Source square of the promoting pawn */
   from?: string;
   /** Target square where promotion occurs */
@@ -29,7 +29,7 @@ export interface PromotionInfo {
 /** Promotion choice with German localization */
 export interface PromotionChoice {
   /** Single character piece identifier */
-  piece: "q" | "r" | "n" | "b";
+  piece: 'q' | 'r' | 'n' | 'b';
   /** German label for the piece */
   label: string;
   /** German description of piece capabilities */
@@ -39,17 +39,17 @@ export interface PromotionChoice {
 /** Promotion pieces with German labels */
 export const PROMOTION_CHOICES: PromotionChoice[] = [
   {
-    piece: "q",
-    label: "Dame",
-    description: "Stärkste Figur - kann in alle Richtungen ziehen",
+    piece: 'q',
+    label: 'Dame',
+    description: 'Stärkste Figur - kann in alle Richtungen ziehen',
   },
-  { piece: "r", label: "Turm", description: "Zieht horizontal und vertikal" },
+  { piece: 'r', label: 'Turm', description: 'Zieht horizontal und vertikal' },
   {
-    piece: "n",
-    label: "Springer",
-    description: "Zieht in L-Form, kann über Figuren springen",
+    piece: 'n',
+    label: 'Springer',
+    description: 'Zieht in L-Form, kann über Figuren springen',
   },
-  { piece: "b", label: "Läufer", description: "Zieht diagonal" },
+  { piece: 'b', label: 'Läufer', description: 'Zieht diagonal' },
 ];
 
 /** Handles pawn promotion detection and auto-win evaluation */
@@ -58,13 +58,13 @@ export class PawnPromotionHandler {
   checkPromotion(move: ValidatedMove): PromotionInfo {
     // chess.js sets the 'promotion' property in the move object
     // and flags contain 'p' for promotion
-    const isPromotion = move.flags && move.flags.includes("p");
+    const isPromotion = move.flags && move.flags.includes('p');
 
     if (!isPromotion) {
       return { isPromotion: false };
     }
 
-    getLogger().debug("[PawnPromotion] Promotion detected:", {
+    getLogger().debug('[PawnPromotion] Promotion detected:', {
       from: move.from,
       to: move.to,
       piece: move.piece,
@@ -73,9 +73,7 @@ export class PawnPromotionHandler {
     });
 
     // Validate promotion piece type
-    const promotionPiece = this.isValidPromotionPiece(move.promotion)
-      ? move.promotion
-      : undefined;
+    const promotionPiece = this.isValidPromotionPiece(move.promotion) ? move.promotion : undefined;
 
     return {
       isPromotion: true,
@@ -94,22 +92,19 @@ export class PawnPromotionHandler {
    * @param promotingColor - Color of the player who promoted ('w' or 'b')
    * @returns Promise<boolean> - True if promotion leads to auto-win
    */
-  async evaluatePromotionOutcome(
-    currentFen: string,
-    promotingColor: "w" | "b",
-  ): Promise<boolean> {
+  async evaluatePromotionOutcome(currentFen: string, promotingColor: 'w' | 'b'): Promise<boolean> {
     try {
       // Basic FEN validation
-      if (!currentFen || !currentFen.includes(" ")) {
-        getLogger().warn("[PawnPromotion] Invalid FEN format:", currentFen);
+      if (!currentFen || !currentFen.includes(' ')) {
+        getLogger().warn('[PawnPromotion] Invalid FEN format:', currentFen);
         return false;
       }
       // Check if game is immediately over after promotion
       if (chessService.isGameOver()) {
         const isCheckmate = chessService.isCheckmate();
-        getLogger().debug("[PawnPromotion] Game over after promotion:", {
+        getLogger().debug('[PawnPromotion] Game over after promotion:', {
           isCheckmate,
-          fen: currentFen.split(" ")[0],
+          fen: currentFen.split(' ')[0],
         });
         return isCheckmate; // Checkmate = auto-win
       }
@@ -121,26 +116,24 @@ export class PawnPromotionHandler {
 
       if (
         evaluation.isAvailable &&
-        "result" in evaluation &&
+        'result' in evaluation &&
         evaluation.result &&
-        "wdl" in evaluation.result &&
-        typeof evaluation.result.wdl === "number"
+        'wdl' in evaluation.result &&
+        typeof evaluation.result.wdl === 'number'
       ) {
         // Check if promotion created a winning position from promoting player's perspective
         // WDL is from white's perspective: positive = good for white, negative = good for black
         const wdlFromPromotingPlayerPerspective =
-          promotingColor === "w"
-            ? evaluation.result.wdl
-            : -evaluation.result.wdl;
+          promotingColor === 'w' ? evaluation.result.wdl : -evaluation.result.wdl;
         const isWinning = wdlFromPromotingPlayerPerspective > 0;
 
-        getLogger().debug("[PawnPromotion] Tablebase evaluation:", {
+        getLogger().debug('[PawnPromotion] Tablebase evaluation:', {
           wdl: evaluation.result.wdl,
           wdlFromPromotingPlayerPerspective,
           promotingColor,
           category: evaluation.result.category,
           isWinning,
-          fen: currentFen.split(" ")[0],
+          fen: currentFen.split(' ')[0],
         });
 
         // Consider it an auto-win if the position is winning for the promoting player
@@ -151,10 +144,7 @@ export class PawnPromotionHandler {
 
       return false;
     } catch (error) {
-      getLogger().error(
-        "[PawnPromotion] Error evaluating promotion outcome:",
-        error,
-      );
+      getLogger().error('[PawnPromotion] Error evaluating promotion outcome:', error);
       return false;
     }
   }
@@ -165,42 +155,37 @@ export class PawnPromotionHandler {
    * @param api - Store API for state updates
    * @param promotionInfo - Information about the promotion
    */
-  async handleAutoWin(
-    api: StoreApi,
-    promotionInfo: PromotionInfo,
-  ): Promise<void> {
-    getLogger().info(
-      "[PawnPromotion] Auto-win detected - completing training session",
-    );
+  async handleAutoWin(api: StoreApi, promotionInfo: PromotionInfo): Promise<void> {
+    getLogger().info('[PawnPromotion] Auto-win detected - completing training session');
 
     const { setState } = api;
 
     // Show celebration dialog instead of toast
     const promotionPieceLabel = promotionInfo.promotionPiece
       ? this.getPromotionPieceLabel(promotionInfo.promotionPiece)
-      : "Dame"; // Default to queen if undefined
-    setState((draft) => {
+      : 'Dame'; // Default to queen if undefined
+    setState(draft => {
       draft.training.moveSuccessDialog = {
         isOpen: true,
         promotionPiece: promotionPieceLabel,
-        ...(promotionInfo.moveDescription !== undefined && { moveDescription: promotionInfo.moveDescription }),
+        ...(promotionInfo.moveDescription !== undefined && {
+          moveDescription: promotionInfo.moveDescription,
+        }),
       };
-      
+
       // CRITICAL: End the training session immediately
       draft.training.isPlayerTurn = false;
       draft.training.isOpponentThinking = false;
       draft.training.isSuccess = true;
-      
+
       // Mark game as finished so useTrainingSession calls onComplete(true) -> incrementStreak()
       draft.game.isGameFinished = true;
     });
 
     // Complete training session as won
     await handleTrainingCompletion(api, true);
-    
-    getLogger().info(
-      "[PawnPromotion] Training session completed successfully after promotion",
-    );
+
+    getLogger().info('[PawnPromotion] Training session completed successfully after promotion');
   }
 
   /**
@@ -215,9 +200,9 @@ export class PawnPromotionHandler {
     api: StoreApi,
     from: string,
     to: string,
-    callback: (piece: "q" | "r" | "n" | "b") => void,
+    callback: (piece: 'q' | 'r' | 'n' | 'b') => void
   ): void {
-    getLogger().debug("[PawnPromotion] Showing promotion dialog:", {
+    getLogger().debug('[PawnPromotion] Showing promotion dialog:', {
       from,
       to,
     });
@@ -227,13 +212,13 @@ export class PawnPromotionHandler {
     // Auto-promote to queen by default (UI handles user choice in Chessboard component)
     // The promotion dialog is shown in the Chessboard component which intercepts
     // promotion moves before they reach this handler
-    const chosenPiece: "q" | "r" | "n" | "b" = "q";
+    const chosenPiece: 'q' | 'r' | 'n' | 'b' = 'q';
 
-    setState((draft) => {
+    setState(draft => {
       draft.ui.toasts.push({
         id: Date.now().toString(),
         message: `Bauernumwandlung: ${from}-${to} → Dame`,
-        type: "info",
+        type: 'info',
       });
     });
 
@@ -246,10 +231,8 @@ export class PawnPromotionHandler {
    * @param piece - Promotion piece character (can be undefined)
    * @returns True if valid promotion piece
    */
-  isValidPromotionPiece(
-    piece: string | undefined,
-  ): piece is "q" | "r" | "n" | "b" {
-    return typeof piece === "string" && ["q", "r", "n", "b"].includes(piece);
+  isValidPromotionPiece(piece: string | undefined): piece is 'q' | 'r' | 'n' | 'b' {
+    return typeof piece === 'string' && ['q', 'r', 'n', 'b'].includes(piece);
   }
 
   /**
@@ -258,8 +241,8 @@ export class PawnPromotionHandler {
    * @param piece - Promotion piece character
    * @returns German label for the piece
    */
-  getPromotionPieceLabel(piece: "q" | "r" | "n" | "b"): string {
-    const choice = PROMOTION_CHOICES.find((c) => c.piece === piece);
+  getPromotionPieceLabel(piece: 'q' | 'r' | 'n' | 'b'): string {
+    const choice = PROMOTION_CHOICES.find(c => c.piece === piece);
     return choice?.label || piece.toUpperCase();
   }
 }

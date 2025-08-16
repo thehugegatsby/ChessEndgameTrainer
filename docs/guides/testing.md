@@ -41,6 +41,7 @@ const { showErrorToast } = require('@shared/utils/toast'); // Legacy
 ```
 
 **CI-Fix:** `vite-tsconfig-paths` Plugin löst TypeScript path aliases
+
 - Installiert und konfiguriert in `vitest.config.ts`
 - Ermöglicht `@shared/` imports in CI-Umgebung
 - Keine Änderungen an alten Tests nötig
@@ -50,6 +51,7 @@ const { showErrorToast } = require('@shared/utils/toast'); // Legacy
 Execute tests using `pnpm` for consistent WSL compatibility:
 
 ### Basic Commands
+
 ```bash
 pnpm test                    # Smart test runner (auto-detects WSL2, warns >100 tests)
 pnpm test <file>             # Run specific test file
@@ -59,6 +61,7 @@ pnpm test:coverage           # Tests with coverage report
 ```
 
 ### Feature-Based Testing (NEW - Phase 0+1 Implementation)
+
 ```bash
 pnpm test:chess              # Test chess-core feature only
 pnpm test:tablebase          # Test tablebase feature only
@@ -70,6 +73,7 @@ pnpm test:feature <name>     # Generic feature test command
 **Note:** Currently using `vitest.workspace.ts` for project separation. This shows a deprecation warning but works correctly. Will migrate to `test.projects` field in root config in future update.
 
 ### Legacy Commands
+
 ```bash
 pnpm test:unit               # Unit tests with unit config
 pnpm test:integration        # Integration tests
@@ -78,6 +82,7 @@ pnpm test:all                # Run all test suites
 ```
 
 ### WSL2 Optimizations (Auto-Applied)
+
 - Automatic detection: `WSL_DISTRO_NAME` environment variable
 - Pool type: `forks` instead of `threads` (avoids pipe issues)
 - Worker limits: Max 2 workers (prevents memory issues)
@@ -129,6 +134,7 @@ For **unhandled promise rejections** and race conditions in promise cleanup:
 **Keywords for search:** unhandled promise rejection, finally handler, Promise.allSettled, race condition, afterEach cleanup
 
 **Quick Fix Pattern:**
+
 ```typescript
 // ❌ WRONG: Store promise WITH finally()
 const promise = executeQuery().finally(() => cleanup());
@@ -164,7 +170,7 @@ src/
 
 ```typescript
 // tests/unit/services/AnalysisService.test.ts
-describe("AnalysisService", () => {
+describe('AnalysisService', () => {
   let service: AnalysisService;
   let mockTablebaseService: any;
 
@@ -174,9 +180,9 @@ describe("AnalysisService", () => {
     service = AnalysisService.getInstance();
   });
 
-  it("should prioritize tablebase over engine", async () => {
+  it('should prioritize tablebase over engine', async () => {
     mockTablebaseService.getEvaluation.mockResolvedValue({ isAvailable: true });
-    await service.analyzePosition("FEN_STRING");
+    await service.analyzePosition('FEN_STRING');
     expect(mockTablebaseService.getEvaluation).toHaveBeenCalled();
   });
 });
@@ -201,11 +207,11 @@ describe("AnalysisService", () => {
 
 ```typescript
 // shared/mocks/handlers/tablebase.ts
-import { rest } from "msw";
+import { rest } from 'msw';
 
 export const tablebaseHandlers = [
-  rest.get("https://tablebase.lichess.ovh/standard", (req, res, ctx) => {
-    return res(ctx.json({ wdl: 2, category: "win" }));
+  rest.get('https://tablebase.lichess.ovh/standard', (req, res, ctx) => {
+    return res(ctx.json({ wdl: 2, category: 'win' }));
   }),
 ];
 ```
@@ -227,8 +233,8 @@ export const tablebaseHandlers = [
 **DO**: Use validated FENs from TestFixtures
 
 ```typescript
-import { TestFixtures } from "@shared/testing/TestFixtures";
-const position = TestFixtures.getPosition("pawn-k-k");
+import { TestFixtures } from '@shared/testing/TestFixtures';
+const position = TestFixtures.getPosition('pawn-k-k');
 ```
 
 **DON'T**: Hardcode FENs directly in tests

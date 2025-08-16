@@ -22,13 +22,13 @@
  * ```
  */
 
-import { type GameSlice, type GameState, type GameActions } from "./types";
-import type { ValidatedMove } from "@shared/types";
-import { chessService } from "@shared/services/ChessService";
-import { getLogger } from "@shared/services/logging";
+import { type GameSlice, type GameState, type GameActions } from './types';
+import type { ValidatedMove } from '@shared/types';
+import { chessService } from '@shared/services/ChessService';
+import { getLogger } from '@shared/services/logging';
 
 // Re-export types for external use
-export type { GameState, GameActions } from "./types";
+export type { GameState, GameActions } from './types';
 
 /**
  * Initial state for the game slice
@@ -37,8 +37,8 @@ export type { GameState, GameActions } from "./types";
  */
 export const initialGameState = {
   // game field removed - Chess instance managed by ChessService
-  currentFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-  currentPgn: "",
+  currentFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+  currentPgn: '',
   moveHistory: [] as ValidatedMove[],
   currentMoveIndex: -1,
   isGameFinished: false,
@@ -84,14 +84,14 @@ export const createGameState = (): GameState => ({ ...initialGameState });
  */
 export const createGameActions = (
   set: (fn: (state: { game: GameState }) => void) => void,
-  get: () => { game: GameState },
+  get: () => { game: GameState }
 ): GameActions => ({
   // Actions
 
   // State management actions
   // setGame removed - Chess instances created on-demand from FEN
   updatePosition: (fen: string, pgn: string) =>
-    set((state) => { 
+    set(state => {
       state.game.currentFen = fen;
       state.game.currentPgn = pgn;
     }),
@@ -99,19 +99,29 @@ export const createGameActions = (
     const { game: gameState } = get();
     const newHistory = gameState.moveHistory.slice(0, gameState.currentMoveIndex + 1);
     newHistory.push(move);
-    set((state) => {
+    set(state => {
       state.game.moveHistory = newHistory;
       state.game.currentMoveIndex = newHistory.length - 1;
     });
   },
-  setMoveHistory: (moves: ValidatedMove[]) => set((state) => { state.game.moveHistory = moves; }),
-  setCurrentMoveIndex: (index: number) => set((state) => { state.game.currentMoveIndex = index; }),
-  setGameFinished: (finished: boolean) => set((state) => { state.game.isGameFinished = finished; }),
-  setGameStatus: (isCheckmate: boolean, isDraw: boolean, isStalemate: boolean) => set((state) => {
-    state.game.isCheckmate = isCheckmate;
-    state.game.isDraw = isDraw;  
-    state.game.isStalemate = isStalemate;
-  }),
+  setMoveHistory: (moves: ValidatedMove[]) =>
+    set(state => {
+      state.game.moveHistory = moves;
+    }),
+  setCurrentMoveIndex: (index: number) =>
+    set(state => {
+      state.game.currentMoveIndex = index;
+    }),
+  setGameFinished: (finished: boolean) =>
+    set(state => {
+      state.game.isGameFinished = finished;
+    }),
+  setGameStatus: (isCheckmate: boolean, isDraw: boolean, isStalemate: boolean) =>
+    set(state => {
+      state.game.isCheckmate = isCheckmate;
+      state.game.isDraw = isDraw;
+      state.game.isStalemate = isStalemate;
+    }),
 
   /**
    * Initializes a new chess game with the given FEN position
@@ -176,9 +186,7 @@ export const createGameActions = (
    * const algMove = store.getState().makeMove("Nf3");
    * ```
    */
-  makeMove: (
-    move: { from: string; to: string; promotion?: string } | string,
-  ) => {
+  makeMove: (move: { from: string; to: string; promotion?: string } | string) => {
     // ChessService will emit 'move' event, triggering automatic sync via rootStore subscription
     return chessService.move(move);
   },
@@ -421,36 +429,37 @@ export const createGameActions = (
    * const algMove = store.getState().applyMove("Nf3");
    * ```
    */
-  applyMove: (
-    move: { from: string; to: string; promotion?: string } | string,
-  ) => {
+  applyMove: (move: { from: string; to: string; promotion?: string } | string) => {
     // Use private helper to update state with common logic
-    return _updateGameState("applyMove", () => chessService.move(move));
+    return _updateGameState('applyMove', () => chessService.move(move));
   },
 });
 
 /**
  * Private helper function to update game state with common logic
  * Extracts shared state update pattern between makeMove and applyMove
- * 
+ *
  * @param source - Source of the state update for event emission
  * @param moveFunction - Function that executes the actual move
  * @returns The validated move or null if failed
  */
-function _updateGameState(source: string, moveFunction: () => ValidatedMove | null): ValidatedMove | null {
+function _updateGameState(
+  source: string,
+  moveFunction: () => ValidatedMove | null
+): ValidatedMove | null {
   try {
     const result = moveFunction();
-    
+
     // ChessService will emit event automatically, triggering store sync via rootStore
     // This helper just provides common error handling pattern
     return result;
   } catch (error) {
     // Log error but don't re-throw - let calling action handle response
-    const logger = getLogger().setContext("gameSlice");
+    const logger = getLogger().setContext('gameSlice');
     logger.error(`Error in ${source}`, {
       error: error instanceof Error ? error.message : String(error),
       source,
-      stack: error instanceof Error ? error.stack : undefined
+      stack: error instanceof Error ? error.stack : undefined,
     });
     return null;
   }
@@ -538,8 +547,7 @@ export const gameSelectors = {
    * @param {GameSlice} state - The game slice of the store
    * @returns {boolean} True if there are moves to redo
    */
-  selectCanRedo: (state: GameSlice) =>
-    state.currentMoveIndex < state.moveHistory.length - 1,
+  selectCanRedo: (state: GameSlice) => state.currentMoveIndex < state.moveHistory.length - 1,
 
   /**
    * Selects the last move made

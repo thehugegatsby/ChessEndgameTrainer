@@ -3,7 +3,7 @@
  * Measure and assert performance metrics
  */
 
-import { type Page, type CDPSession } from "@playwright/test";
+import { type Page, type CDPSession } from '@playwright/test';
 
 export interface PerformanceMetrics {
   // Navigation Timing
@@ -65,8 +65,8 @@ export class PerformanceTester {
    */
   async initialize(): Promise<void> {
     this.cdpSession = await this.page.context().newCDPSession(this.page);
-    await this.cdpSession.send("Performance.enable");
-    await this.cdpSession.send("Runtime.enable");
+    await this.cdpSession.send('Performance.enable');
+    await this.cdpSession.send('Runtime.enable');
   }
 
   /**
@@ -80,7 +80,7 @@ export class PerformanceTester {
 
     // Start recording
     await this.page.evaluate(() => {
-      window.performance.mark("test-start");
+      window.performance.mark('test-start');
     });
   }
 
@@ -92,7 +92,7 @@ export class PerformanceTester {
 
     // Navigate and wait for load
     const startTime = Date.now();
-    await this.page.goto(url, { waitUntil: "networkidle" });
+    await this.page.goto(url, { waitUntil: 'networkidle' });
     const loadTime = Date.now() - startTime;
 
     // Collect metrics
@@ -105,12 +105,9 @@ export class PerformanceTester {
   /**
    * Measure specific action performance
    */
-  async measureAction(
-    name: string,
-    action: () => Promise<void>,
-  ): Promise<number> {
+  async measureAction(name: string, action: () => Promise<void>): Promise<number> {
     // Mark start
-    await this.page.evaluate((actionName) => {
+    await this.page.evaluate(actionName => {
       window.performance.mark(`${actionName}-start`);
     }, name);
 
@@ -119,13 +116,9 @@ export class PerformanceTester {
     const duration = Date.now() - startTime;
 
     // Mark end
-    await this.page.evaluate((actionName) => {
+    await this.page.evaluate(actionName => {
       window.performance.mark(`${actionName}-end`);
-      window.performance.measure(
-        actionName,
-        `${actionName}-start`,
-        `${actionName}-end`,
-      );
+      window.performance.measure(actionName, `${actionName}-start`, `${actionName}-end`);
     }, name);
 
     this.metrics.customMetrics[name] = duration;
@@ -139,12 +132,11 @@ export class PerformanceTester {
     // Navigation timing
     const navigationTiming = await this.page.evaluate(() => {
       const nav = window.performance.getEntriesByType(
-        "navigation",
+        'navigation'
       )[0] as PerformanceNavigationTiming;
       return {
         navigationStart: nav.startTime,
-        domContentLoaded:
-          nav.domContentLoadedEventEnd - nav.domContentLoadedEventStart,
+        domContentLoaded: nav.domContentLoadedEventEnd - nav.domContentLoadedEventStart,
         loadComplete: nav.loadEventEnd - nav.loadEventStart,
         ttfb: nav.responseStart - nav.requestStart,
       };
@@ -155,11 +147,11 @@ export class PerformanceTester {
 
     // Resource timing
     const resourceMetrics = await this.page.evaluate(() => {
-      const resources = window.performance.getEntriesByType("resource");
+      const resources = window.performance.getEntriesByType('resource');
       let totalSize = 0;
       let cachedCount = 0;
 
-      resources.forEach((resource) => {
+      resources.forEach(resource => {
         const res = resource as PerformanceResourceTiming;
         totalSize += res.transferSize || 0;
         if (res.transferSize === 0 && res.decodedBodySize > 0) {
@@ -178,8 +170,8 @@ export class PerformanceTester {
     let memoryMetrics = {};
     if (this.cdpSession) {
       try {
-        const result = await this.cdpSession.send("Runtime.evaluate", {
-          expression: "performance.memory",
+        const result = await this.cdpSession.send('Runtime.evaluate', {
+          expression: 'performance.memory',
           returnByValue: true,
         });
 
@@ -208,34 +200,32 @@ export class PerformanceTester {
    */
   private async collectWebVitals(): Promise<Partial<PerformanceMetrics>> {
     return await this.page.evaluate(() => {
-      return new Promise<any>((resolve) => {
+      return new Promise<any>(resolve => {
         const metrics: any = {};
 
         // LCP
-        new PerformanceObserver((list) => {
+        new PerformanceObserver(list => {
           const entries = list.getEntries();
           const lastEntry = entries[entries.length - 1];
           metrics.lcp = lastEntry.startTime;
-        }).observe({ entryTypes: ["largest-contentful-paint"] });
+        }).observe({ entryTypes: ['largest-contentful-paint'] });
 
         // FCP
-        const fcpEntry = performance.getEntriesByName(
-          "first-contentful-paint",
-        )[0];
+        const fcpEntry = performance.getEntriesByName('first-contentful-paint')[0];
         if (fcpEntry) {
           metrics.fcp = fcpEntry.startTime;
         }
 
         // CLS
         let clsValue = 0;
-        new PerformanceObserver((list) => {
+        new PerformanceObserver(list => {
           for (const entry of list.getEntries()) {
             if (!(entry as any).hadRecentInput) {
               clsValue += (entry as any).value;
             }
           }
           metrics.cls = clsValue;
-        }).observe({ entryTypes: ["layout-shift"] });
+        }).observe({ entryTypes: ['layout-shift'] });
 
         // Wait a bit to collect metrics
         setTimeout(() => resolve(metrics), 2000);
@@ -250,21 +240,16 @@ export class PerformanceTester {
     const metrics = await this.collectMetrics();
 
     if (budget.maxLoadTime && metrics.loadComplete > budget.maxLoadTime) {
-      throw new Error(
-        `Load time ${metrics.loadComplete}ms exceeds budget ${budget.maxLoadTime}ms`,
-      );
+      throw new Error(`Load time ${metrics.loadComplete}ms exceeds budget ${budget.maxLoadTime}ms`);
     }
 
     if (budget.maxLCP && metrics.lcp && metrics.lcp > budget.maxLCP) {
       throw new Error(`LCP ${metrics.lcp}ms exceeds budget ${budget.maxLCP}ms`);
     }
 
-    if (
-      budget.maxResourceSize &&
-      metrics.totalResourceSize > budget.maxResourceSize
-    ) {
+    if (budget.maxResourceSize && metrics.totalResourceSize > budget.maxResourceSize) {
       throw new Error(
-        `Resource size ${metrics.totalResourceSize} exceeds budget ${budget.maxResourceSize}`,
+        `Resource size ${metrics.totalResourceSize} exceeds budget ${budget.maxResourceSize}`
       );
     }
 
@@ -274,7 +259,7 @@ export class PerformanceTester {
       metrics.jsHeapUsedSize > budget.maxJSHeapSize
     ) {
       throw new Error(
-        `JS heap size ${metrics.jsHeapUsedSize} exceeds budget ${budget.maxJSHeapSize}`,
+        `JS heap size ${metrics.jsHeapUsedSize} exceeds budget ${budget.maxJSHeapSize}`
       );
     }
   }
@@ -309,7 +294,7 @@ Memory:
 Custom Metrics:
 ${Object.entries(metrics.customMetrics)
   .map(([name, value]) => `- ${name}: ${value}ms`)
-  .join("\n")}
+  .join('\n')}
 `;
   }
 
@@ -345,14 +330,14 @@ export class PerformanceScenarios {
   static async coldLoad(
     page: Page,
     url: string,
-    budget?: PerformanceBudget,
+    budget?: PerformanceBudget
   ): Promise<PerformanceMetrics> {
     const tester = new PerformanceTester(page);
     await tester.initialize();
 
     // Clear all caches
     await page.context().clearCookies();
-    await page.context().route("**/*", (route) => route.continue());
+    await page.context().route('**/*', route => route.continue());
 
     const metrics = await tester.measurePageLoad(url);
 
@@ -370,7 +355,7 @@ export class PerformanceScenarios {
   static async warmLoad(
     page: Page,
     url: string,
-    budget?: PerformanceBudget,
+    budget?: PerformanceBudget
   ): Promise<PerformanceMetrics> {
     const tester = new PerformanceTester(page);
     await tester.initialize();
@@ -401,7 +386,7 @@ export class PerformanceScenarios {
         action: () => Promise<void>;
         budget?: number;
       }>;
-    },
+    }
   ): Promise<PerformanceMetrics> {
     const tester = new PerformanceTester(page);
     await tester.initialize();
@@ -412,7 +397,7 @@ export class PerformanceScenarios {
 
       if (step.budget && duration > step.budget) {
         throw new Error(
-          `Step "${step.name}" took ${duration}ms, exceeding budget of ${step.budget}ms`,
+          `Step "${step.name}" took ${duration}ms, exceeding budget of ${step.budget}ms`
         );
       }
     }
@@ -433,7 +418,7 @@ export async function withPerformanceMonitoring<T>(
   options?: {
     budget?: PerformanceBudget;
     reportPath?: string;
-  },
+  }
 ): Promise<T> {
   const tester = new PerformanceTester(page);
   await tester.initialize();

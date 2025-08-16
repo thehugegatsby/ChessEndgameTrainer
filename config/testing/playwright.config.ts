@@ -9,7 +9,7 @@ import { e2eTestsDir, e2eFirebaseDir, testResultsDir } from '../paths';
 
 // Simple configuration constants using centralized ports
 const DEV_URL = `http://127.0.0.1:${PORTS.E2E}`; // Use E2E port from config
-const CI = process.env.CI === "true";
+const CI = process.env.CI === 'true';
 
 const config = {
   // Test directory
@@ -23,9 +23,9 @@ const config = {
 
   // Reporter configuration
   reporter: [
-    ["html", { open: !CI }],
-    ["json", { outputFile: "test-results/results.json" }],
-    CI ? ["github"] : ["list"],
+    ['html', { open: !CI }],
+    ['json', { outputFile: 'test-results/results.json' }],
+    CI ? ['github'] : ['list'],
   ],
 
   // Shared settings
@@ -34,13 +34,13 @@ const config = {
     baseURL: DEV_URL,
 
     // Collect trace on first retry
-    trace: "on-first-retry",
+    trace: 'on-first-retry',
 
     // Screenshot on failure
-    screenshot: { mode: "only-on-failure" },
+    screenshot: { mode: 'only-on-failure' },
 
     // Video on first retry
-    video: "on-first-retry",
+    video: 'on-first-retry',
 
     // Viewport
     viewport: { width: 1280, height: 720 },
@@ -50,7 +50,7 @@ const config = {
 
     // Set E2E test mode header
     extraHTTPHeaders: {
-      "x-e2e-test-mode": "true",
+      'x-e2e-test-mode': 'true',
     },
 
     // Timeouts
@@ -72,50 +72,53 @@ const config = {
 
   // Projects for different browsers
   // Phase 1 Optimization: Chromium-only for PR tests (67% faster)
-  projects: process.env.GITHUB_REF_NAME !== 'main' ? [
-    {
-      name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
-    },
-  ] : [
-    {
-      name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
-    },
-    {
-      name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
-    },
-    {
-      name: "webkit",
-      use: { ...devices["Desktop Safari"] },
-    },
-  ].concat([
-    // Firebase tests run on all branches
-    {
-      name: "firebase",
-      testDir: e2eFirebaseDir,
-      use: {
-        ...devices["Desktop Chrome"],
-        // Firebase tests get more time due to emulator
-        actionTimeout: 15000,
-        navigationTimeout: 45000,
-      },
-    },
-  ]),
+  projects:
+    process.env.GITHUB_REF_NAME !== 'main'
+      ? [
+          {
+            name: 'chromium',
+            use: { ...devices['Desktop Chrome'] },
+          },
+        ]
+      : [
+          {
+            name: 'chromium',
+            use: { ...devices['Desktop Chrome'] },
+          },
+          {
+            name: 'firefox',
+            use: { ...devices['Desktop Firefox'] },
+          },
+          {
+            name: 'webkit',
+            use: { ...devices['Desktop Safari'] },
+          },
+        ].concat([
+          // Firebase tests run on all branches
+          {
+            name: 'firebase',
+            testDir: e2eFirebaseDir,
+            use: {
+              ...devices['Desktop Chrome'],
+              // Firebase tests get more time due to emulator
+              actionTimeout: 15000,
+              navigationTimeout: 45000,
+            },
+          },
+        ]),
 
   // Output folder for test artifacts
   outputDir: testResultsDir,
 
   // E2E development server with mock environment
   webServer: {
-    command: "npm run dev:e2e",
+    command: 'npm run dev:e2e',
     url: DEV_URL,
     timeout: 60000,
     reuseExistingServer: false, // Always start fresh server with E2E env
     // Übergabe der E2E-Umgebungsvariable direkt an den Next.js-Prozess
     env: {
-      NEXT_PUBLIC_IS_E2E_TEST: "true",
+      NEXT_PUBLIC_IS_E2E_TEST: 'true',
     },
   },
 };

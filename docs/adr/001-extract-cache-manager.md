@@ -47,7 +47,7 @@ class LRUCacheManager<K, V> implements CacheManager<K, V> {
 class TablebaseService {
   constructor(
     apiClient?: LichessApiClient,
-    cacheManager?: CacheManager<string, TablebaseCacheEntry>, // <-- Injected
+    cacheManager?: CacheManager<string, TablebaseCacheEntry> // <-- Injected
   ) {
     this.cacheManager = cacheManager || new LRUCacheManager(200, 300000);
   }

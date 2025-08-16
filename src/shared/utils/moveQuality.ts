@@ -18,10 +18,7 @@
  * performance-critical contexts like real-time move analysis.
  */
 
-import type {
-  SimplifiedMoveQualityResult,
-  MoveQualityType,
-} from "@shared/types/evaluation";
+import type { SimplifiedMoveQualityResult, MoveQualityType } from '@shared/types/evaluation';
 
 /**
  * Analyzes move quality based on tablebase WDL values
@@ -57,7 +54,7 @@ import type {
  */
 export function assessTablebaseMoveQuality(
   wdlBefore: number,
-  wdlAfter: number,
+  wdlAfter: number
 ): SimplifiedMoveQualityResult {
   // Since we're analyzing from the player's perspective who made the move,
   // we need to negate the WDL for the position after (opponent's turn)
@@ -67,14 +64,14 @@ export function assessTablebaseMoveQuality(
   let reason: string;
 
   if (wdlChange > 0) {
-    quality = "excellent";
-    reason = "Optimal tablebase move";
+    quality = 'excellent';
+    reason = 'Optimal tablebase move';
   } else if (wdlChange === 0) {
-    quality = "good";
-    reason = "Maintains tablebase evaluation";
+    quality = 'good';
+    reason = 'Maintains tablebase evaluation';
   } else {
-    quality = "mistake";
-    reason = "Worsens tablebase position";
+    quality = 'mistake';
+    reason = 'Worsens tablebase position';
   }
 
   return {

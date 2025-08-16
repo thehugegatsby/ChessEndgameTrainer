@@ -27,7 +27,7 @@ interface Window {
    */
   e2e_getGameState?: () => {
     fen: string;
-    turn: "w" | "b";
+    turn: 'w' | 'b';
     isGameOver: boolean;
     isCheck: boolean;
     isCheckmate: boolean;

@@ -2,11 +2,11 @@ import { vi } from 'vitest';
 /**
  * @file Tests for useMoveValidation hook
  * @module tests/unit/hooks/useMoveValidation
- * 
+ *
  * @description
  * Comprehensive tests for the useMoveValidation hook that handles
  * move validation and quality assessment logic.
- * 
+ *
  * Tests cover:
  * - Move quality evaluation
  * - Tablebase result processing
@@ -60,10 +60,8 @@ describe('useMoveValidation', () => {
         evaluations: undefined,
       };
 
-      const { result } = renderHook(() => 
-        useMoveValidation(propsWithMissingDeps as any)
-      );
-      
+      const { result } = renderHook(() => useMoveValidation(propsWithMissingDeps as any));
+
       expect(result.current).toBeDefined();
       expect(result.current.processedCount).toBe(0);
       expect(result.current.isProcessing).toBe(false);
@@ -78,7 +76,7 @@ describe('useMoveValidation', () => {
       };
 
       const { result } = renderHook(() => useMoveValidation(propsWithNulls));
-      
+
       expect(result.current).toBeDefined();
       expect(result.current.processedCount).toBe(0);
       expect(result.current.isProcessing).toBe(false);
@@ -91,7 +89,7 @@ describe('useMoveValidation', () => {
       };
 
       const { result } = renderHook(() => useMoveValidation(propsWithoutActions));
-      
+
       expect(result.current).toBeDefined();
       expect(result.current.processedCount).toBe(0);
       expect(result.current.isProcessing).toBe(false);
@@ -104,7 +102,7 @@ describe('useMoveValidation', () => {
       };
 
       const { result } = renderHook(() => useMoveValidation(propsWithEvaluating));
-      
+
       expect(result.current).toBeDefined();
       expect(result.current.processedCount).toBe(0);
       expect(result.current.isProcessing).toBe(true);
@@ -125,15 +123,19 @@ describe('useMoveValidation', () => {
       };
 
       const { result } = renderHook(() => useMoveValidation(propsWithInitialEval));
-      
+
       expect(result.current).toBeDefined();
       expect(result.current.processedCount).toBe(1);
       expect(result.current.isProcessing).toBe(false);
     });
 
     it('handles different tablebase analysis statuses on init', () => {
-      const statuses: Array<'idle' | 'loading' | 'success' | 'error'> = 
-        ['idle', 'loading', 'success', 'error'];
+      const statuses: Array<'idle' | 'loading' | 'success' | 'error'> = [
+        'idle',
+        'loading',
+        'success',
+        'error',
+      ];
 
       statuses.forEach(status => {
         const propsWithStatus = {
@@ -145,7 +147,7 @@ describe('useMoveValidation', () => {
         };
 
         const { result } = renderHook(() => useMoveValidation(propsWithStatus));
-        
+
         expect(result.current).toBeDefined();
         expect(result.current.processedCount).toBe(0);
         expect(result.current.isProcessing).toBe(false);
@@ -159,7 +161,7 @@ describe('useMoveValidation', () => {
       };
 
       const { result } = renderHook(() => useMoveValidation(propsWithEmptyEvals));
-      
+
       expect(result.current).toBeDefined();
       expect(result.current.processedCount).toBe(0);
       expect(result.current.isProcessing).toBe(false);
@@ -177,7 +179,7 @@ describe('useMoveValidation', () => {
       };
 
       const { result } = renderHook(() => useMoveValidation(propsWithEvals));
-      
+
       expect(result.current).toBeDefined();
       expect(result.current.processedCount).toBe(0); // No new evaluation to process
       expect(result.current.isProcessing).toBe(false);
@@ -232,12 +234,9 @@ describe('useMoveValidation', () => {
 
   describe('Analysis Status Management', () => {
     it('updates analysis status when evaluation starts', () => {
-      const { result, rerender } = renderHook(
-        (props) => useMoveValidation(props),
-        { 
-          initialProps: { ...defaultProps, isEvaluating: false }
-        }
-      );
+      const { result, rerender } = renderHook(props => useMoveValidation(props), {
+        initialProps: { ...defaultProps, isEvaluating: false },
+      });
 
       // Start evaluating
       rerender({ ...defaultProps, isEvaluating: true });
@@ -248,12 +247,9 @@ describe('useMoveValidation', () => {
     });
 
     it('clears analysis status when evaluation completes', () => {
-      const { rerender } = renderHook(
-        (props) => useMoveValidation(props),
-        { 
-          initialProps: { ...defaultProps, isEvaluating: true }
-        }
-      );
+      const { rerender } = renderHook(props => useMoveValidation(props), {
+        initialProps: { ...defaultProps, isEvaluating: true },
+      });
 
       // Complete evaluation
       const mockResult = {
@@ -263,8 +259,8 @@ describe('useMoveValidation', () => {
         isAvailable: true,
       };
 
-      rerender({ 
-        ...defaultProps, 
+      rerender({
+        ...defaultProps,
         isEvaluating: false,
         lastEvaluation: mockResult as any,
       });
@@ -313,12 +309,9 @@ describe('useMoveValidation', () => {
 
   describe('FEN Position Changes', () => {
     it('reacts to FEN changes', () => {
-      const { rerender } = renderHook(
-        (props) => useMoveValidation(props),
-        { 
-          initialProps: defaultProps
-        }
-      );
+      const { rerender } = renderHook(props => useMoveValidation(props), {
+        initialProps: defaultProps,
+      });
 
       // Use scenario from central database instead of hardcoded FEN
       const scenario = TRAIN_SCENARIOS.TRAIN_1;
@@ -428,10 +421,9 @@ describe('useMoveValidation', () => {
 
   describe('Performance and Memory', () => {
     it('maintains stable references between renders', () => {
-      const { result, rerender } = renderHook(
-        (props) => useMoveValidation(props),
-        { initialProps: defaultProps }
-      );
+      const { result, rerender } = renderHook(props => useMoveValidation(props), {
+        initialProps: defaultProps,
+      });
 
       const initialResult = result.current;
 
@@ -454,10 +446,9 @@ describe('useMoveValidation', () => {
 
   describe('Processed Count Tracking', () => {
     it('increments processed count for each unique evaluation', () => {
-      const { result, rerender } = renderHook(
-        (props) => useMoveValidation(props),
-        { initialProps: defaultProps }
-      );
+      const { result, rerender } = renderHook(props => useMoveValidation(props), {
+        initialProps: defaultProps,
+      });
 
       // Initially no evaluations processed
       expect(result.current.processedCount).toBe(0);
@@ -491,16 +482,15 @@ describe('useMoveValidation', () => {
         isAvailable: true,
       };
 
-      const { result, rerender } = renderHook(
-        (props) => useMoveValidation(props),
-        { initialProps: { ...defaultProps, lastEvaluation: mockEval } }
-      );
+      const { result, rerender } = renderHook(props => useMoveValidation(props), {
+        initialProps: { ...defaultProps, lastEvaluation: mockEval },
+      });
 
       expect(result.current.processedCount).toBe(1);
 
       // Rerender with same evaluation
       rerender({ ...defaultProps, lastEvaluation: mockEval });
-      
+
       // Count should not increase for duplicate
       expect(result.current.processedCount).toBe(1);
     });
@@ -508,10 +498,9 @@ describe('useMoveValidation', () => {
 
   describe('Complex Scenarios', () => {
     it('handles rapid FEN changes', () => {
-      const { rerender } = renderHook(
-        (props) => useMoveValidation(props),
-        { initialProps: defaultProps }
-      );
+      const { rerender } = renderHook(props => useMoveValidation(props), {
+        initialProps: defaultProps,
+      });
 
       // Rapidly change FENs
       const fens = [
@@ -604,17 +593,16 @@ describe('useMoveValidation', () => {
         lastEvaluation: mockEvaluation,
       };
 
-      const { result, rerender } = renderHook(
-        (hookProps) => useMoveValidation(hookProps),
-        { initialProps: props }
-      );
+      const { result, rerender } = renderHook(hookProps => useMoveValidation(hookProps), {
+        initialProps: props,
+      });
 
       // First render should process the evaluation
       expect(mockTablebaseActions.setAnalysisResult).toHaveBeenCalledTimes(0);
 
       // Second render with same evaluation should be skipped
       rerender(props);
-      
+
       // Should not process the same evaluation twice
       expect(result.current).toBeDefined();
     });
@@ -634,10 +622,9 @@ describe('useMoveValidation', () => {
         isAvailable: true,
       };
 
-      const { result, rerender } = renderHook(
-        (props) => useMoveValidation(props),
-        { initialProps: { ...defaultProps, lastEvaluation: firstEvaluation } }
-      );
+      const { result, rerender } = renderHook(props => useMoveValidation(props), {
+        initialProps: { ...defaultProps, lastEvaluation: firstEvaluation },
+      });
 
       // Process second evaluation with different score
       rerender({ ...defaultProps, lastEvaluation: secondEvaluation });
@@ -660,16 +647,13 @@ describe('useMoveValidation', () => {
         isAvailable: true,
       };
 
-      const { rerender } = renderHook(
-        (props) => useMoveValidation(props),
-        { 
-          initialProps: {
-            ...defaultProps,
-            lastEvaluation: mockEvaluation,
-            tablebaseActions: actionsWithSetEvaluations,
-          }
-        }
-      );
+      const { rerender } = renderHook(props => useMoveValidation(props), {
+        initialProps: {
+          ...defaultProps,
+          lastEvaluation: mockEvaluation,
+          tablebaseActions: actionsWithSetEvaluations,
+        },
+      });
 
       // First render should call setEvaluations
       expect(mockSetEvaluations).toHaveBeenCalledTimes(1);
@@ -725,9 +709,7 @@ describe('useMoveValidation', () => {
           ],
           bestMove: 'Kh1',
         },
-        cache: new Map([
-          ['8/8/8/8/8/8/8/8 w - - 0 1', { wdl: 1, moves: ['Kh1'] }]
-        ]),
+        cache: new Map([['8/8/8/8/8/8/8/8 w - - 0 1', { wdl: 1, moves: ['Kh1'] }]]),
       };
 
       const props = {

@@ -12,14 +12,14 @@ export default defineConfig({
     setupFiles: [
       path.resolve(testsDir, 'setup/observer-polyfill.ts'), // MUST be first!
       path.resolve(testsDir, 'utils/vitestSetup.ts'), // Next.js mocks
-      featuresTestSetup
+      featuresTestSetup,
     ],
     include: [
       `${featuresDir}/**/*.{test,spec}.{ts,tsx}`,
       `${testsDir}/**/*.{test,spec}.{ts,tsx}`,
       `${testsDir}/**/*.test.ts`,
       `${testsDir}/**/*.test.tsx`,
-      `${sharedDir}/**/*.{test,spec}.{ts,tsx}`
+      `${sharedDir}/**/*.{test,spec}.{ts,tsx}`,
     ],
     exclude: ['node_modules', 'dist', '.next', '**/node_modules/**'],
     pool: 'forks',
@@ -27,7 +27,7 @@ export default defineConfig({
       forks: {
         maxForks: 2,
         minForks: 1,
-      }
+      },
     },
     isolate: true,
     coverage: {

@@ -11,11 +11,11 @@
 import { describe, it, test, expect, afterEach, beforeAll, afterAll } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
-import { 
-  LichessApiClient, 
-  LichessApiError, 
+import {
+  LichessApiClient,
+  LichessApiError,
   LichessApiTimeoutError,
-  type LichessApiClientConfig
+  type LichessApiClientConfig,
 } from '../../../shared/services/api/LichessApiClient';
 
 // Test configuration
@@ -50,7 +50,9 @@ interface TablebaseResponse {
   }>;
 }
 
-const createTablebaseResponse = (overrides: Partial<TablebaseResponse> = {}): TablebaseResponse => ({
+const createTablebaseResponse = (
+  overrides: Partial<TablebaseResponse> = {}
+): TablebaseResponse => ({
   category: 'win',
   dtz: 1,
   dtm: 1,
@@ -71,10 +73,10 @@ const createTablebaseResponse = (overrides: Partial<TablebaseResponse> = {}): Ta
       stalemate: false,
       variant_win: false,
       variant_loss: false,
-      insufficient_material: false
-    }
+      insufficient_material: false,
+    },
   ],
-  ...overrides
+  ...overrides,
 });
 
 describe('LichessApiClient', () => {
@@ -93,7 +95,7 @@ describe('LichessApiClient', () => {
   describe('Constructor and Configuration', () => {
     it('should use default configuration when no config provided', () => {
       const client = new LichessApiClient();
-      
+
       // Test with a quick lookup to verify defaults work
       expect(client).toBeInstanceOf(LichessApiClient);
     });
@@ -103,45 +105,43 @@ describe('LichessApiClient', () => {
         baseUrl: TEST_BASE_URL,
         timeoutMs: 1000,
         maxRetries: 2,
-        maxBackoffMs: 5000
+        maxBackoffMs: 5000,
       };
-      
+
       const client = new LichessApiClient(config);
       expect(client).toBeInstanceOf(LichessApiClient);
     });
 
     it('should validate configuration parameters', () => {
       // Test negative timeoutMs
-      expect(() => new LichessApiClient({ timeoutMs: -1 }))
-        .toThrow('timeoutMs must be positive');
-      
+      expect(() => new LichessApiClient({ timeoutMs: -1 })).toThrow('timeoutMs must be positive');
+
       // Test zero timeoutMs
-      expect(() => new LichessApiClient({ timeoutMs: 0 }))
-        .toThrow('timeoutMs must be positive');
+      expect(() => new LichessApiClient({ timeoutMs: 0 })).toThrow('timeoutMs must be positive');
 
       // Test negative maxRetries
-      expect(() => new LichessApiClient({ maxRetries: -1 }))
-        .toThrow('maxRetries must be non-negative');
+      expect(() => new LichessApiClient({ maxRetries: -1 })).toThrow(
+        'maxRetries must be non-negative'
+      );
 
       // Test negative maxBackoffMs
-      expect(() => new LichessApiClient({ maxBackoffMs: -1 }))
-        .toThrow('maxBackoffMs must be positive');
-      
+      expect(() => new LichessApiClient({ maxBackoffMs: -1 })).toThrow(
+        'maxBackoffMs must be positive'
+      );
+
       // Test zero maxBackoffMs
-      expect(() => new LichessApiClient({ maxBackoffMs: 0 }))
-        .toThrow('maxBackoffMs must be positive');
+      expect(() => new LichessApiClient({ maxBackoffMs: 0 })).toThrow(
+        'maxBackoffMs must be positive'
+      );
 
       // Test empty baseUrl
-      expect(() => new LichessApiClient({ baseUrl: '' }))
-        .toThrow('baseUrl cannot be empty');
-      
+      expect(() => new LichessApiClient({ baseUrl: '' })).toThrow('baseUrl cannot be empty');
+
       // Test whitespace-only baseUrl
-      expect(() => new LichessApiClient({ baseUrl: '   ' }))
-        .toThrow('baseUrl cannot be empty');
+      expect(() => new LichessApiClient({ baseUrl: '   ' })).toThrow('baseUrl cannot be empty');
 
       // Test that maxRetries = 0 is allowed (no retries)
-      expect(() => new LichessApiClient({ maxRetries: 0 }))
-        .not.toThrow();
+      expect(() => new LichessApiClient({ maxRetries: 0 })).not.toThrow();
     });
   });
 
@@ -160,11 +160,11 @@ describe('LichessApiClient', () => {
             stalemate: false,
             variant_win: false,
             variant_loss: false,
-            insufficient_material: false
-          }
-        ]
+            insufficient_material: false,
+          },
+        ],
       });
-      
+
       server.use(
         http.get(`${TEST_BASE_URL}`, () => {
           return HttpResponse.json(responseData);
@@ -175,22 +175,22 @@ describe('LichessApiClient', () => {
       const result = await client.lookup(TEST_FEN);
 
       expect(result).toMatchObject({
-        category: "win",
+        category: 'win',
         checkmate: false,
         dtm: 1,
         dtz: 1,
         insufficient_material: false,
         moves: expect.arrayContaining([
           expect.objectContaining({
-            category: "loss",
+            category: 'loss',
             dtm: -1,
             dtz: -1,
-            san: "Kc8",
-            uci: "c7c8",
+            san: 'Kc8',
+            uci: 'c7c8',
             variant_loss: false,
             variant_win: false,
             zeroing: false,
-          })
+          }),
         ]),
         stalemate: false,
         variant_loss: false,
@@ -204,7 +204,7 @@ describe('LichessApiClient', () => {
           const url = new URL(request.url);
           expect(url.searchParams.get('fen')).toBe(TEST_FEN);
           expect(url.searchParams.get('moves')).toBe('20'); // default
-          
+
           return HttpResponse.json(createTablebaseResponse());
         })
       );
@@ -218,7 +218,7 @@ describe('LichessApiClient', () => {
         http.get(`${TEST_BASE_URL}`, ({ request }) => {
           const url = new URL(request.url);
           expect(url.searchParams.get('moves')).toBe('5');
-          
+
           return HttpResponse.json(createTablebaseResponse());
         })
       );
@@ -232,7 +232,7 @@ describe('LichessApiClient', () => {
         http.get(`${TEST_BASE_URL}`, ({ request }) => {
           expect(request.headers.get('Accept')).toBe('application/json');
           expect(request.headers.get('User-Agent')).toBe('ChessEndgameTrainer/1.0');
-          
+
           return HttpResponse.json(createTablebaseResponse());
         })
       );
@@ -251,7 +251,7 @@ describe('LichessApiClient', () => {
       );
 
       const client = new LichessApiClient({ baseUrl: TEST_BASE_URL });
-      
+
       await expect(client.lookup(TEST_FEN)).rejects.toThrow(LichessApiError);
       await expect(client.lookup(TEST_FEN)).rejects.toThrow('HTTP 404: Not Found');
     });
@@ -264,7 +264,7 @@ describe('LichessApiClient', () => {
       );
 
       const client = new LichessApiClient({ baseUrl: TEST_BASE_URL });
-      
+
       await expect(client.lookup(TEST_FEN)).rejects.toThrow(LichessApiError);
       await expect(client.lookup(TEST_FEN)).rejects.toThrow('HTTP 500: Internal Server Error');
     });
@@ -277,7 +277,7 @@ describe('LichessApiClient', () => {
       );
 
       const client = new LichessApiClient({ baseUrl: TEST_BASE_URL });
-      
+
       try {
         await client.lookup(TEST_FEN);
         fail('Should have thrown LichessApiError');
@@ -299,12 +299,12 @@ describe('LichessApiClient', () => {
         })
       );
 
-      const client = new LichessApiClient({ 
-        baseUrl: TEST_BASE_URL, 
+      const client = new LichessApiClient({
+        baseUrl: TEST_BASE_URL,
         timeoutMs: 100, // Very short timeout
-        maxRetries: 1 // No retries to speed up test
+        maxRetries: 1, // No retries to speed up test
       });
-      
+
       await expect(client.lookup(TEST_FEN)).rejects.toThrow(LichessApiTimeoutError);
       await expect(client.lookup(TEST_FEN)).rejects.toThrow('Request timed out after 100ms');
     });
@@ -313,27 +313,27 @@ describe('LichessApiClient', () => {
   describe('Retry Logic', () => {
     it('should retry on 5xx errors and eventually succeed', async () => {
       let attemptCount = 0;
-      
+
       server.use(
         http.get(`${TEST_BASE_URL}`, () => {
           attemptCount++;
-          
+
           if (attemptCount < 3) {
             return new HttpResponse(null, { status: 503, statusText: 'Service Unavailable' });
           }
-          
+
           return HttpResponse.json(createTablebaseResponse());
         })
       );
 
-      const client = new LichessApiClient({ 
+      const client = new LichessApiClient({
         baseUrl: TEST_BASE_URL,
-        maxRetries: 3
+        maxRetries: 3,
       });
-      
+
       const result = await client.lookup(TEST_FEN);
       expect(result).toMatchObject({
-        category: "win",
+        category: 'win',
         checkmate: false,
         dtm: 1,
         dtz: 1,
@@ -348,27 +348,27 @@ describe('LichessApiClient', () => {
 
     it('should retry on 429 (rate limiting) and eventually succeed', async () => {
       let attemptCount = 0;
-      
+
       server.use(
         http.get(`${TEST_BASE_URL}`, () => {
           attemptCount++;
-          
+
           if (attemptCount < 2) {
             return new HttpResponse(null, { status: 429, statusText: 'Too Many Requests' });
           }
-          
+
           return HttpResponse.json(createTablebaseResponse());
         })
       );
 
-      const client = new LichessApiClient({ 
+      const client = new LichessApiClient({
         baseUrl: TEST_BASE_URL,
-        maxRetries: 3
+        maxRetries: 3,
       });
-      
+
       const result = await client.lookup(TEST_FEN);
       expect(result).toMatchObject({
-        category: "win",
+        category: 'win',
         checkmate: false,
         dtm: 1,
         dtz: 1,
@@ -383,7 +383,7 @@ describe('LichessApiClient', () => {
 
     it('should NOT retry on 4xx client errors (except 429)', async () => {
       let attemptCount = 0;
-      
+
       server.use(
         http.get(`${TEST_BASE_URL}`, () => {
           attemptCount++;
@@ -391,18 +391,18 @@ describe('LichessApiClient', () => {
         })
       );
 
-      const client = new LichessApiClient({ 
+      const client = new LichessApiClient({
         baseUrl: TEST_BASE_URL,
-        maxRetries: 3
+        maxRetries: 3,
       });
-      
+
       await expect(client.lookup(TEST_FEN)).rejects.toThrow(LichessApiError);
       expect(attemptCount).toBe(1); // Should not retry
     });
 
     it('should exhaust all retries and throw final error', async () => {
       let attemptCount = 0;
-      
+
       server.use(
         http.get(`${TEST_BASE_URL}`, () => {
           attemptCount++;
@@ -410,11 +410,11 @@ describe('LichessApiClient', () => {
         })
       );
 
-      const client = new LichessApiClient({ 
+      const client = new LichessApiClient({
         baseUrl: TEST_BASE_URL,
-        maxRetries: 2
+        maxRetries: 2,
       });
-      
+
       await expect(client.lookup(TEST_FEN)).rejects.toThrow(LichessApiError);
       expect(attemptCount).toBe(2); // Should retry maxRetries times
     });
@@ -422,7 +422,7 @@ describe('LichessApiClient', () => {
     it('should apply exponential backoff with jitter', async () => {
       const startTime = Date.now();
       let attemptCount = 0;
-      
+
       server.use(
         http.get(`${TEST_BASE_URL}`, () => {
           attemptCount++;
@@ -430,13 +430,13 @@ describe('LichessApiClient', () => {
         })
       );
 
-      const client = new LichessApiClient({ 
+      const client = new LichessApiClient({
         baseUrl: TEST_BASE_URL,
-        maxRetries: 2
+        maxRetries: 2,
       });
-      
+
       await expect(client.lookup(TEST_FEN)).rejects.toThrow();
-      
+
       const elapsedTime = Date.now() - startTime;
       // Should take at least 250ms for the backoff between attempts
       expect(elapsedTime).toBeGreaterThan(200);
@@ -448,13 +448,13 @@ describe('LichessApiClient', () => {
       server.use(
         http.get(`${TEST_BASE_URL}`, () => {
           return new HttpResponse('invalid json', {
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
           });
         })
       );
 
       const client = new LichessApiClient({ baseUrl: TEST_BASE_URL });
-      
+
       await expect(client.lookup(TEST_FEN)).rejects.toThrow();
     });
 
@@ -464,13 +464,13 @@ describe('LichessApiClient', () => {
           return HttpResponse.json({
             // Missing required 'category' field
             dtz: 1,
-            moves: []
+            moves: [],
           });
         })
       );
 
       const client = new LichessApiClient({ baseUrl: TEST_BASE_URL });
-      
+
       await expect(client.lookup(TEST_FEN)).rejects.toThrow('Malformed API response');
     });
 
@@ -483,10 +483,10 @@ describe('LichessApiClient', () => {
         variant_win: false,
         variant_loss: false,
         insufficient_material: false,
-        moves: []
+        moves: [],
         // dtm is optional and missing
       };
-      
+
       server.use(
         http.get(`${TEST_BASE_URL}`, () => {
           return HttpResponse.json(minimalResponse);
@@ -495,7 +495,7 @@ describe('LichessApiClient', () => {
 
       const client = new LichessApiClient({ baseUrl: TEST_BASE_URL });
       const result = await client.lookup(TEST_FEN);
-      
+
       expect(result.category).toBe('draw');
       expect(result.dtz).toBeNull();
       expect(result.moves).toEqual([]);
@@ -510,11 +510,11 @@ describe('LichessApiClient', () => {
         })
       );
 
-      const client = new LichessApiClient({ 
+      const client = new LichessApiClient({
         baseUrl: TEST_BASE_URL,
-        maxRetries: 1 
+        maxRetries: 1,
       });
-      
+
       await expect(client.lookup(TEST_FEN)).rejects.toThrow();
     });
   });
@@ -529,7 +529,7 @@ describe('LichessApiClient', () => {
 
       const client = new LichessApiClient({ baseUrl: TEST_BASE_URL });
       const isHealthy = await client.healthCheck();
-      
+
       expect(isHealthy).toBe(true);
     });
 
@@ -540,12 +540,12 @@ describe('LichessApiClient', () => {
         })
       );
 
-      const client = new LichessApiClient({ 
+      const client = new LichessApiClient({
         baseUrl: TEST_BASE_URL,
-        maxRetries: 1 // Reduce retries for faster test
+        maxRetries: 1, // Reduce retries for faster test
       });
       const isHealthy = await client.healthCheck();
-      
+
       expect(isHealthy).toBe(false);
     });
   });
@@ -553,7 +553,7 @@ describe('LichessApiClient', () => {
   describe('Edge Cases', () => {
     it('should handle empty moves array', async () => {
       const responseWithoutMoves = createTablebaseResponse({ moves: [] });
-      
+
       server.use(
         http.get(`${TEST_BASE_URL}`, () => {
           return HttpResponse.json(responseWithoutMoves);
@@ -562,18 +562,18 @@ describe('LichessApiClient', () => {
 
       const client = new LichessApiClient({ baseUrl: TEST_BASE_URL });
       const result = await client.lookup(TEST_FEN);
-      
+
       expect(result.moves).toEqual([]);
     });
 
     it('should handle FEN with special characters', async () => {
       const specialFen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1';
-      
+
       server.use(
         http.get(`${TEST_BASE_URL}`, ({ request }) => {
           const url = new URL(request.url);
           expect(url.searchParams.get('fen')).toBe(specialFen);
-          
+
           return HttpResponse.json(createTablebaseResponse());
         })
       );

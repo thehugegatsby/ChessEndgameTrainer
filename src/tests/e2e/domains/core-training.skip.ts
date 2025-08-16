@@ -6,21 +6,19 @@
  * Following Gemini's "Let Reality Drive Architecture" approach
  */
 
-import { test, expect } from "@playwright/test";
-import { getLogger } from "../../../shared/services/logging";
-import { E2E } from "../../../shared/constants";
-import { ChessboardPage } from "../helpers/pageObjects/ChessboardPage";
+import { test, expect } from '@playwright/test';
+import { getLogger } from '../../../shared/services/logging';
+import { E2E } from '../../../shared/constants';
+import { ChessboardPage } from '../helpers/pageObjects/ChessboardPage';
 
-test.describe("Core Training Workflow", () => {
-  const logger = getLogger().setContext("E2E-CoreTraining");
+test.describe('Core Training Workflow', () => {
+  const logger = getLogger().setContext('E2E-CoreTraining');
 
   test.beforeEach(async () => {
     // Note: MSW removed - E2E tests use real API
   });
 
-  test("should complete homepage → training → move → evaluation journey", async ({
-    page,
-  }) => {
+  test('should complete homepage → training → move → evaluation journey', async ({ page }) => {
     const chessboard = new ChessboardPage(page);
     // 🏠 STEP 1: Homepage laden (redirects to /train/1)
     await page.goto(E2E.ROUTES.HOME);
@@ -33,7 +31,7 @@ test.describe("Core Training Workflow", () => {
 
     // 🎮 STEP 2: Navigate to Training page
     // Check what links are available on the page
-    const allLinks = await page.locator("a").count();
+    const allLinks = await page.locator('a').count();
     logger.info(`Found ${allLinks} links on homepage`);
 
     // Try direct navigation since training link might not exist
@@ -47,7 +45,7 @@ test.describe("Core Training Workflow", () => {
       page
         .locator(E2E.SELECTORS.BOARD)
         .or(page.locator(E2E.SELECTORS.CHESSBOARD))
-        .or(page.locator(".chess-board")),
+        .or(page.locator('.chess-board'))
     ).toBeVisible();
 
     // ♟️ STEP 3: Execute a move
@@ -56,9 +54,9 @@ test.describe("Core Training Workflow", () => {
 
     // Execute move using domain helper (replaces manual clicking logic)
     try {
-      await chessboard.makeMove("e2", "e4");
+      await chessboard.makeMove('e2', 'e4');
     } catch (error) {
-      logger.warn("Failed to execute move via domain helper", error);
+      logger.warn('Failed to execute move via domain helper', error);
       // Fallback: look for move input or buttons
       const moveInput = page
         .locator('[data-testid="move-input"]')
@@ -66,8 +64,8 @@ test.describe("Core Training Workflow", () => {
         .first();
 
       if (await moveInput.isVisible()) {
-        await moveInput.fill("e4");
-        await page.keyboard.press("Enter");
+        await moveInput.fill('e4');
+        await page.keyboard.press('Enter');
         await chessboard.waitForMoveProcessed();
       }
     }
@@ -79,19 +77,17 @@ test.describe("Core Training Workflow", () => {
     // Look for evaluation display (adapt based on actual UI)
     const evaluation = page
       .locator(E2E.SELECTORS.EVALUATION_DISPLAY)
-      .or(page.locator(".evaluation"))
+      .or(page.locator('.evaluation'))
       .or(page.locator('[class*="eval"]'))
-      .or(page.locator("text=/[+-]?[0-9]+\.[0-9]+/"))
+      .or(page.locator('text=/[+-]?[0-9]+\.[0-9]+/'))
       .first();
 
     // Verify evaluation is displayed
     await expect(evaluation).toBeVisible({ timeout: 10000 });
 
     // Additional verification: check for tablebase status (but ignore debug text)
-    const tablebaseError = page
-      .locator("text=/tablebase.*error.*failed/i")
-      .first();
-    const criticalError = page.locator("text=/critical.*error/i").first();
+    const tablebaseError = page.locator('text=/tablebase.*error.*failed/i').first();
+    const criticalError = page.locator('text=/critical.*error/i').first();
 
     // Only check for actual critical errors, not debug text
     if (await tablebaseError.isVisible()) {
@@ -99,8 +95,8 @@ test.describe("Core Training Workflow", () => {
       // Skip if it's just debug/source code text
       if (
         errorText &&
-        !errorText.includes("this.eventEmitter.emit") &&
-        !errorText.includes("const error")
+        !errorText.includes('this.eventEmitter.emit') &&
+        !errorText.includes('const error')
       ) {
         await expect(tablebaseError).not.toBeVisible();
       }
@@ -113,7 +109,7 @@ test.describe("Core Training Workflow", () => {
     logger.info(E2E.MESSAGES.SUCCESS.CORE_TRAINING_COMPLETE);
   });
 
-  test("should handle tablebase initialization", async ({ page }) => {
+  test('should handle tablebase initialization', async ({ page }) => {
     const chessboard = new ChessboardPage(page);
     await page.goto(E2E.ROUTES.TRAIN(1));
 

@@ -6,10 +6,10 @@
  * component tree, logs them, and displays a fallback UI.
  */
 
-import React, { Component, type ErrorInfo, type ReactNode } from "react";
-import { getLogger } from "@shared/services/logging";
+import React, { Component, type ErrorInfo, type ReactNode } from 'react';
+import { getLogger } from '@shared/services/logging';
 
-const logger = getLogger().setContext("ErrorBoundary");
+const logger = getLogger().setContext('ErrorBoundary');
 
 interface Props {
   children: ReactNode;
@@ -35,7 +35,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   override componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     // Log the error to error reporting service
-    logger.error("Component error caught by boundary", error, {
+    logger.error('Component error caught by boundary', error, {
       componentStack: errorInfo.componentStack,
     });
 
@@ -55,10 +55,9 @@ export class ErrorBoundary extends Component<Props, State> {
               Etwas ist schiefgelaufen
             </h3>
             <p className="text-sm text-red-600 dark:text-red-400">
-              Ein unerwarteter Fehler ist aufgetreten. Bitte laden Sie die Seite
-              neu.
+              Ein unerwarteter Fehler ist aufgetreten. Bitte laden Sie die Seite neu.
             </p>
-            {process.env.NODE_ENV === "development" && this.state.error && (
+            {process.env.NODE_ENV === 'development' && this.state.error && (
               <details className="mt-2">
                 <summary className="text-xs text-red-500 cursor-pointer">
                   Fehlerdetails (nur in Entwicklung)
@@ -84,7 +83,7 @@ export function useErrorBoundary(): { resetKey: number; resetErrorBoundary: () =
   const [resetKey, setResetKey] = React.useState(0);
 
   const resetErrorBoundary = React.useCallback(() => {
-    setResetKey((prev) => prev + 1);
+    setResetKey(prev => prev + 1);
   }, []);
 
   return { resetKey, resetErrorBoundary };

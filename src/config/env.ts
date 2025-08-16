@@ -1,9 +1,9 @@
 /**
  * Environment Variable Configuration
- * 
+ *
  * Validates and types all environment variables at startup
  * using Zod for runtime validation and type safety.
- * 
+ *
  * This solves TS4111 errors from noPropertyAccessFromIndexSignature
  * and ensures all required env vars are present at startup.
  */
@@ -18,10 +18,10 @@ import { getLogger } from '@shared/services/logging';
 const envSchema = z.object({
   // Node environment
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  
+
   // Server ports
   PORT: z.coerce.number().int().positive().optional(),
-  
+
   // Firebase configuration
   NEXT_PUBLIC_FIREBASE_API_KEY: z.string().optional(),
   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: z.string().optional(),
@@ -29,30 +29,30 @@ const envSchema = z.object({
   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: z.string().optional(),
   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: z.string().optional(),
   NEXT_PUBLIC_FIREBASE_APP_ID: z.string().optional(),
-  
+
   // Firebase admin (server-side)
   FIREBASE_PROJECT_ID: z.string().optional(),
   FIREBASE_API_KEY: z.string().optional(),
   FIREBASE_AUTH_DOMAIN: z.string().optional(),
-  
+
   // App configuration
   NEXT_PUBLIC_APP_URL: z.string().url().optional(),
   NEXT_PUBLIC_API_URL: z.string().url().optional(),
   NEXT_PUBLIC_TABLEBASE_API_URL: z.string().url().default('https://tablebase.lichess.ovh/standard'),
-  
+
   // Feature flags
   NEXT_PUBLIC_FIREBASE_ENABLED: z.coerce.boolean().default(false),
   NEXT_PUBLIC_ANALYTICS_ENABLED: z.coerce.boolean().default(false),
   NEXT_PUBLIC_IS_E2E_TEST: z.coerce.boolean().default(false),
   IS_E2E_TEST: z.coerce.boolean().default(false),
-  
+
   // CI/CD
   CI: z.coerce.boolean().default(false),
-  
+
   // Firebase emulator
   USE_EMULATOR: z.coerce.boolean().default(false),
   FIRESTORE_EMULATOR_HOST: z.string().optional(),
-  
+
   // Testing
   RUN_INTEGRATION_TESTS: z.coerce.boolean().default(false),
   NEXT_PUBLIC_E2E_SIGNALS: z.coerce.boolean().default(false),

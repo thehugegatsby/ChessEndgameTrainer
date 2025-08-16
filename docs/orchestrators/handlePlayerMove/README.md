@@ -104,17 +104,17 @@ The orchestrator implements multiple safeguards against race conditions:
 ## Usage
 
 ```typescript
-import { handlePlayerMove } from "@shared/store/orchestrators/handlePlayerMove";
+import { handlePlayerMove } from '@shared/store/orchestrators/handlePlayerMove';
 
 // Execute a player move
 const success = await handlePlayerMove(storeApi, {
-  from: "e2",
-  to: "e4",
-  promotion: "q", // Optional, for pawn promotion
+  from: 'e2',
+  to: 'e4',
+  promotion: 'q', // Optional, for pawn promotion
 });
 
 // Cancel pending opponent move (e.g., during undo)
-import { cancelScheduledOpponentTurn } from "@shared/store/orchestrators/handlePlayerMove";
+import { cancelScheduledOpponentTurn } from '@shared/store/orchestrators/handlePlayerMove';
 cancelScheduledOpponentTurn();
 ```
 
@@ -151,12 +151,14 @@ Integration tests cover the full orchestration flow.
 Multi-model analysis (Gemini 2.5 Pro + GPT-5) confirmed that the 964-line modular system is **appropriately complex** for chess training requirements:
 
 ### ✅ Justified Complexity
+
 - **Chess Training Domain**: Requires tablebase integration, move quality evaluation, pawn promotion auto-win detection, learning feedback dialogs
-- **Modular Design**: High cohesion/low coupling enables LLM maintenance 
+- **Modular Design**: High cohesion/low coupling enables LLM maintenance
 - **Explicit Dependencies**: Clear collaborators via dependency injection
 - **Procedural Clarity**: Orchestrator reads like a recipe with step comments
 
 ### 🔧 Recent Improvements (2025-08-16)
+
 1. **WDL Perspective Fix**: UI now receives player-perspective WDL values
 2. **Race Condition Guard**: `moveInFlight` flag prevents double-processing
 3. **Dialog Stacking Fix**: Promotion success gated until after quality check
@@ -164,11 +166,12 @@ Multi-model analysis (Gemini 2.5 Pro + GPT-5) confirmed that the 964-line modula
 5. **Baseline Validation**: FEN matching prevents stale baseline usage
 
 ### 🎯 Conclusion
+
 The system demonstrates **appropriate complexity for domain requirements** rather than over-engineering. The modular, explicit architecture is actually **superior for LLM code comprehension and maintenance**.
 
 ## Future Enhancements
 
 1. **UCI Move Comparison**: Replace SAN with UCI for more robust best-move matching
-2. **ChessService Integration**: Migrate from singleton to Zustand-managed state  
+2. **ChessService Integration**: Migrate from singleton to Zustand-managed state
 3. **Performance Monitoring**: Add metrics for move processing latency
 4. **Error Recovery**: Enhanced fallback strategies for API failures

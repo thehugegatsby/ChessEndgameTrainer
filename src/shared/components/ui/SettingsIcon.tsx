@@ -1,12 +1,12 @@
 /**
  * @file Settings icon button component
  * @module components/ui/SettingsIcon
- * 
+ *
  * @description
  * Simple settings icon button component with gear icon and hover effects.
  * Provides a consistent settings interface element across the application
  * with customizable click handling and styling.
- * 
+ *
  * @remarks
  * Key features:
  * - SVG gear icon with consistent sizing
@@ -15,18 +15,18 @@
  * - Accessible button with proper title attribute
  * - Flexible styling through className prop
  * - Responsive design with proper touch targets
- * 
+ *
  * The component uses a standard gear icon pattern that users
  * universally recognize as settings/configuration access.
  */
 
-import React from "react";
+import React from 'react';
 
 /**
  * Props for the SettingsIcon component
- * 
+ *
  * @interface SettingsIconProps
- * 
+ *
  * @property {() => void} [onClick] - Callback function when settings icon is clicked
  * @property {string} [className] - Additional CSS classes to apply to the button
  */
@@ -37,13 +37,13 @@ interface SettingsIconProps {
 
 /**
  * Settings icon button component
- * 
+ *
  * @component
  * @description
  * Displays a clickable settings gear icon with hover effects and
  * customizable functionality. Designed to provide access to application
  * settings or configuration options in a familiar, intuitive way.
- * 
+ *
  * @remarks
  * Visual design:
  * - Standard gear/cog icon using SVG paths
@@ -51,37 +51,34 @@ interface SettingsIconProps {
  * - Consistent sizing (5x5 units) for uniform appearance
  * - Rounded corners for modern design language
  * - Smooth color transitions for polished interactions
- * 
+ *
  * Accessibility:
  * - Proper button semantics for screen readers
  * - Title attribute for hover tooltips
  * - Adequate size for touch interactions
  * - High contrast stroke for visibility
- * 
+ *
  * @example
  * ```tsx
  * // Basic settings button
  * <SettingsIcon onClick={() => openSettings()} />
- * 
+ *
  * // With custom styling
  * <SettingsIcon
  *   onClick={handleSettingsClick}
  *   className="ml-2 text-blue-400"
  * />
- * 
+ *
  * // In header or toolbar
  * <div className="toolbar">
  *   <SettingsIcon onClick={() => toggleSettingsModal()} />
  * </div>
  * ```
- * 
+ *
  * @param {SettingsIconProps} props - Component configuration
  * @returns {JSX.Element} Clickable settings icon button
  */
-export const SettingsIcon: React.FC<SettingsIconProps> = ({
-  onClick,
-  className = "",
-}) => {
+export const SettingsIcon: React.FC<SettingsIconProps> = ({ onClick, className = '' }) => {
   return (
     <button
       onClick={onClick}

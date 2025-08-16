@@ -1,29 +1,43 @@
-"use client";
+'use client';
 
 import { getLogger } from '@shared/services/logging/Logger';
-import React, { useState, useCallback, useMemo, lazy, Suspense } from "react";
+import React, { useState, useCallback, useMemo, lazy, Suspense } from 'react';
 
 // Heavy components loaded dynamically
-const TrainingBoard = lazy(() => import("@shared/components/training/TrainingBoard/TrainingBoard").then(m => ({ default: m.TrainingBoard })));
-const MovePanelZustand = lazy(() => import("@shared/components/training/MovePanelZustand").then(m => ({ default: m.MovePanelZustand })));
-const NavigationControls = lazy(() => import("@shared/components/training/NavigationControls").then(m => ({ default: m.NavigationControls })));
-const TablebaseAnalysisPanel = lazy(() => import("@shared/components/training/TablebaseAnalysisPanel").then(m => ({ default: m.TablebaseAnalysisPanel })));
-const AdvancedEndgameMenu = lazy(() => import("@shared/components/navigation/AdvancedEndgameMenu").then(m => ({ default: m.AdvancedEndgameMenu })));
+const TrainingBoard = lazy(() =>
+  import('@shared/components/training/TrainingBoard/TrainingBoard').then(m => ({
+    default: m.TrainingBoard,
+  }))
+);
+const MovePanelZustand = lazy(() =>
+  import('@shared/components/training/MovePanelZustand').then(m => ({
+    default: m.MovePanelZustand,
+  }))
+);
+const NavigationControls = lazy(() =>
+  import('@shared/components/training/NavigationControls').then(m => ({
+    default: m.NavigationControls,
+  }))
+);
+const TablebaseAnalysisPanel = lazy(() =>
+  import('@shared/components/training/TablebaseAnalysisPanel').then(m => ({
+    default: m.TablebaseAnalysisPanel,
+  }))
+);
+const AdvancedEndgameMenu = lazy(() =>
+  import('@shared/components/navigation/AdvancedEndgameMenu').then(m => ({
+    default: m.AdvancedEndgameMenu,
+  }))
+);
 
 // Lightweight components can stay as regular imports
-import { useToast } from "@shared/hooks/useToast";
-import { ToastContainer } from "@shared/components/ui/Toast";
-import { StreakCounter } from "@shared/components/ui/StreakCounter";
-import { CheckmarkAnimation } from "@shared/components/ui/CheckmarkAnimation";
-import {
-  useGameStore,
-  useTrainingStore,
-  useUIStore,
-} from "@shared/store/hooks";
-import {
-  getTrainingDisplayTitle,
-} from "@shared/utils/titleFormatter";
-import { ANIMATION } from "@shared/constants";
+import { useToast } from '@shared/hooks/useToast';
+import { ToastContainer } from '@shared/components/ui/Toast';
+import { StreakCounter } from '@shared/components/ui/StreakCounter';
+import { CheckmarkAnimation } from '@shared/components/ui/CheckmarkAnimation';
+import { useGameStore, useTrainingStore, useUIStore } from '@shared/store/hooks';
+import { getTrainingDisplayTitle } from '@shared/utils/titleFormatter';
+import { ANIMATION } from '@shared/constants';
 
 // Loading fallback component
 const LoadingFallback = (): React.JSX.Element => (
@@ -40,8 +54,8 @@ const LoadingFallback = (): React.JSX.Element => (
  * Uses dynamic imports for heavy components to reduce initial bundle size
  */
 export const EndgameTrainingPageOptimized: React.FC = React.memo(() => {
-  const logger = useMemo(() => getLogger().setContext("EndgameTrainingPage"), []);
-  
+  const logger = useMemo(() => getLogger().setContext('EndgameTrainingPage'), []);
+
   // Zustand store hooks - consolidated
   const [gameState] = useGameStore();
   const [trainingState, trainingActions] = useTrainingStore();
@@ -51,9 +65,9 @@ export const EndgameTrainingPageOptimized: React.FC = React.memo(() => {
   const { showSuccess } = useToast();
 
   // Local state
-  const [currentView, setCurrentView] = useState<"board" | "analysis">("board");
+  const [currentView, setCurrentView] = useState<'board' | 'analysis'>('board');
 
-  const isGameWon = gameState.isGameFinished && gameState.gameResult === "1-0";
+  const isGameWon = gameState.isGameFinished && gameState.gameResult === '1-0';
 
   // Position title for display
   const positionTitle = useMemo(() => {
@@ -63,22 +77,17 @@ export const EndgameTrainingPageOptimized: React.FC = React.memo(() => {
 
   // Handle successful completion
   const handleSuccess = useCallback(() => {
-    logger.info("Training completed successfully");
-    showSuccess("Gut gemacht! Position gemeistert!");
-    
+    logger.info('Training completed successfully');
+    showSuccess('Gut gemacht! Position gemeistert!');
+
     // Update progress in store
     if (trainingState.currentPosition?.id) {
       trainingActions.completeTraining(true);
     }
-    
+
     // Show checkmark animation (use SUCCESS_TOAST_DURATION as fallback)
     trainingActions.showCheckmarkAnimation(ANIMATION.SUCCESS_TOAST_DURATION);
-  }, [
-    logger,
-    showSuccess,
-    trainingState.currentPosition,
-    trainingActions,
-  ]);
+  }, [logger, showSuccess, trainingState.currentPosition, trainingActions]);
 
   // Note: Navigation and reset handlers removed - not used in optimized version
   // Navigation is handled by NavigationControls component
@@ -101,12 +110,10 @@ export const EndgameTrainingPageOptimized: React.FC = React.memo(() => {
       <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {positionTitle}
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{positionTitle}</h1>
             <div className="flex items-center space-x-4">
-              <StreakCounter 
-                currentStreak={trainingState.currentStreak} 
+              <StreakCounter
+                currentStreak={trainingState.currentStreak}
                 bestStreak={trainingState.bestStreak}
               />
               <Suspense fallback={<div className="w-8 h-8 bg-gray-200 rounded animate-pulse" />}>
@@ -122,19 +129,21 @@ export const EndgameTrainingPageOptimized: React.FC = React.memo(() => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Board Section */}
           <div className="lg:col-span-2">
-            <Suspense fallback={
-              <div className="aspect-square bg-white dark:bg-gray-800 rounded-lg shadow animate-pulse" />
-            }>
-              <TrainingBoard 
-                onComplete={handleSuccess}
-              />
+            <Suspense
+              fallback={
+                <div className="aspect-square bg-white dark:bg-gray-800 rounded-lg shadow animate-pulse" />
+              }
+            >
+              <TrainingBoard onComplete={handleSuccess} />
             </Suspense>
-            
+
             {/* Navigation Controls */}
             <div className="mt-4">
-              <Suspense fallback={
-                <div className="h-12 bg-white dark:bg-gray-800 rounded-lg shadow animate-pulse" />
-              }>
+              <Suspense
+                fallback={
+                  <div className="h-12 bg-white dark:bg-gray-800 rounded-lg shadow animate-pulse" />
+                }
+              >
                 <NavigationControls />
               </Suspense>
             </div>
@@ -145,21 +154,21 @@ export const EndgameTrainingPageOptimized: React.FC = React.memo(() => {
             {/* View Toggle */}
             <div className="flex space-x-2 bg-white dark:bg-gray-800 rounded-lg p-1 shadow">
               <button
-                onClick={() => setCurrentView("board")}
+                onClick={() => setCurrentView('board')}
                 className={`flex-1 py-2 px-4 rounded-md transition-colors ${
-                  currentView === "board"
-                    ? "bg-blue-500 text-white"
-                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  currentView === 'board'
+                    ? 'bg-blue-500 text-white'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
                 Züge
               </button>
               <button
-                onClick={() => setCurrentView("analysis")}
+                onClick={() => setCurrentView('analysis')}
                 className={`flex-1 py-2 px-4 rounded-md transition-colors ${
-                  currentView === "analysis"
-                    ? "bg-blue-500 text-white"
-                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  currentView === 'analysis'
+                    ? 'bg-blue-500 text-white'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
                 Analyse
@@ -167,20 +176,21 @@ export const EndgameTrainingPageOptimized: React.FC = React.memo(() => {
             </div>
 
             {/* Content based on view */}
-            {currentView === "board" ? (
-              <Suspense fallback={
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow h-96 animate-pulse" />
-              }>
+            {currentView === 'board' ? (
+              <Suspense
+                fallback={
+                  <div className="bg-white dark:bg-gray-800 rounded-lg shadow h-96 animate-pulse" />
+                }
+              >
                 <MovePanelZustand />
               </Suspense>
             ) : (
-              <Suspense fallback={
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow h-96 animate-pulse" />
-              }>
-                <TablebaseAnalysisPanel 
-                  fen={gameState.currentFen}
-                  isVisible={true}
-                />
+              <Suspense
+                fallback={
+                  <div className="bg-white dark:bg-gray-800 rounded-lg shadow h-96 animate-pulse" />
+                }
+              >
+                <TablebaseAnalysisPanel fen={gameState.currentFen} isVisible={true} />
               </Suspense>
             )}
           </div>
@@ -188,10 +198,7 @@ export const EndgameTrainingPageOptimized: React.FC = React.memo(() => {
       </main>
 
       {/* Toast Container */}
-      <ToastContainer 
-        toasts={uiState.toasts}
-        onRemoveToast={(id) => uiActions.removeToast(id)}
-      />
+      <ToastContainer toasts={uiState.toasts} onRemoveToast={id => uiActions.removeToast(id)} />
 
       {/* Success Animation */}
       {trainingState.showCheckmark && (
@@ -201,4 +208,4 @@ export const EndgameTrainingPageOptimized: React.FC = React.memo(() => {
   );
 });
 
-EndgameTrainingPageOptimized.displayName = "EndgameTrainingPageOptimized";
+EndgameTrainingPageOptimized.displayName = 'EndgameTrainingPageOptimized';

@@ -1,6 +1,6 @@
 /**
  * Event-driven Tablebase Panel Component
- * 
+ *
  * @description
  * A React component that provides tablebase analysis with event-driven
  * communication. This component emits events for tablebase evaluations
@@ -8,7 +8,7 @@
  * without tight coupling.
  */
 
-"use client";
+'use client';
 
 import React, { useEffect } from 'react';
 import { useTablebase } from '../hooks/useTablebase';
@@ -34,17 +34,17 @@ interface EventDrivenTablebasePanelProps {
 
 /**
  * Event-driven tablebase analysis panel
- * 
+ *
  * @description
  * This component fetches tablebase data and emits events for both evaluations
  * and moves. Other components can subscribe to these events to update their
  * state accordingly. The component also provides a traditional UI for
  * displaying the analysis results.
- * 
+ *
  * Events emitted:
  * - 'tablebase:evaluation' - When evaluation data changes
  * - 'tablebase:moves' - When move data changes
- * 
+ *
  * @example
  * ```tsx
  * <EventDrivenTablebasePanel
@@ -63,15 +63,11 @@ export const EventDrivenTablebasePanel: React.FC<EventDrivenTablebasePanelProps>
   onMoveSelect,
 }) => {
   // Event-driven is now always enabled
-  
-  const {
-    evaluation,
-    moves,
-    isLoading,
-    isEvaluationLoading,
-    isMovesLoading,
-    error,
-  } = useTablebase(isVisible ? fen : null, moveLimit);
+
+  const { evaluation, moves, isLoading, isEvaluationLoading, isMovesLoading, error } = useTablebase(
+    isVisible ? fen : null,
+    moveLimit
+  );
 
   // Emit evaluation events
   useEffect(() => {
@@ -92,12 +88,13 @@ export const EventDrivenTablebasePanel: React.FC<EventDrivenTablebasePanelProps>
 
     trainingEvents.emit('tablebase:moves', {
       fen,
-      moves: moves?.map(move => ({
-        uci: move.uci,
-        san: move.san,
-        outcome: move.outcome,
-        ...(move.dtm !== undefined && { dtm: move.dtm }),
-      })) || [],
+      moves:
+        moves?.map(move => ({
+          uci: move.uci,
+          san: move.san,
+          outcome: move.outcome,
+          ...(move.dtm !== undefined && { dtm: move.dtm }),
+        })) || [],
       isLoading: isMovesLoading,
     });
   }, [moves, isMovesLoading, fen]);
@@ -117,10 +114,9 @@ export const EventDrivenTablebasePanel: React.FC<EventDrivenTablebasePanelProps>
         <div className="tablebase-panel__content">
           <div className="tablebase-error">
             <p className="tablebase-error__message">
-              {error.code === 'NOT_FOUND' 
+              {error.code === 'NOT_FOUND'
                 ? 'Position not in tablebase'
-                : 'Tablebase temporarily unavailable'
-              }
+                : 'Tablebase temporarily unavailable'}
             </p>
           </div>
         </div>
@@ -150,18 +146,20 @@ export const EventDrivenTablebasePanel: React.FC<EventDrivenTablebasePanelProps>
       <div className="tablebase-panel__header">
         <h3 className="tablebase-panel__title">Tablebase Analysis</h3>
       </div>
-      
+
       <div className="tablebase-panel__content">
         {/* Position Evaluation */}
         {evaluation && (
           <div className="tablebase-evaluation">
             <div className="tablebase-evaluation__header">
               <span className="tablebase-evaluation__label">Position:</span>
-              <span className={`tablebase-evaluation__outcome tablebase-evaluation__outcome--${evaluation.outcome}`}>
+              <span
+                className={`tablebase-evaluation__outcome tablebase-evaluation__outcome--${evaluation.outcome}`}
+              >
                 {evaluation.outcome.toUpperCase()}
               </span>
             </div>
-            
+
             {evaluation.dtm !== undefined && (
               <div className="tablebase-evaluation__detail">
                 <span className="tablebase-evaluation__detail-label">DTM:</span>
@@ -178,7 +176,7 @@ export const EventDrivenTablebasePanel: React.FC<EventDrivenTablebasePanelProps>
           <div className="tablebase-moves">
             <h4 className="tablebase-moves__title">Best Moves</h4>
             <div className="tablebase-moves__list">
-              {moves.map((move) => (
+              {moves.map(move => (
                 <button
                   key={move.uci}
                   className={`tablebase-move tablebase-move--${move.outcome}`}
@@ -190,9 +188,7 @@ export const EventDrivenTablebasePanel: React.FC<EventDrivenTablebasePanelProps>
                     {move.outcome === 'win' ? '+' : move.outcome === 'loss' ? '-' : '='}
                   </span>
                   {move.dtm !== undefined && (
-                    <span className="tablebase-move__dtm">
-                      {Math.abs(move.dtm)}
-                    </span>
+                    <span className="tablebase-move__dtm">{Math.abs(move.dtm)}</span>
                   )}
                 </button>
               ))}

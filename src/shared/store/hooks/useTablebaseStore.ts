@@ -13,14 +13,14 @@
  * - useTablebaseStore(): Convenience hook returning [state, actions] tuple
  */
 
-import { useMemo } from "react";
-import { useStore, useStoreApi } from "../StoreContext";
-import { useShallow } from "zustand/react/shallow";
+import { useMemo } from 'react';
+import { useStore, useStoreApi } from '../StoreContext';
+import { useShallow } from 'zustand/react/shallow';
 import type {
   RootState,
   TablebaseState as TablebaseStateType,
   TablebaseActions as TablebaseActionsType,
-} from "../slices/types";
+} from '../slices/types';
 // Note: requestPositionEvaluation removed - use chessService directly
 
 /**
@@ -51,7 +51,7 @@ export const useTablebaseState = (): TablebaseStateType => {
       analysisStatus: state.tablebase.analysisStatus,
       evaluations: state.tablebase.evaluations,
       currentEvaluation: state.tablebase.currentEvaluation,
-    })),
+    }))
   );
 };
 
@@ -79,11 +79,11 @@ export const useTablebaseState = (): TablebaseStateType => {
 export const useTablebaseActions = (): TablebaseActionsType => {
   // Non-reactive access to avoid SSR issues
   const storeApi = useStoreApi();
-  
+
   // Memoize the actions object to ensure stable reference
   return useMemo(() => {
     const state = storeApi.getState();
-    
+
     // Clean access: actions are directly available in tablebase slice
     return {
       // Tablebase actions - directly from slice (no CRITICAL FIX workaround needed)
@@ -121,9 +121,6 @@ export const useTablebaseActions = (): TablebaseActionsType => {
  * };
  * ```
  */
-export const useTablebaseStore = (): [
-  TablebaseStateType,
-  TablebaseActionsType,
-] => {
+export const useTablebaseStore = (): [TablebaseStateType, TablebaseActionsType] => {
   return [useTablebaseState(), useTablebaseActions()];
 };

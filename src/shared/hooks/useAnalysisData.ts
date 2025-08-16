@@ -7,8 +7,8 @@
  * Provides a clean interface for components that need to display or update analysis results.
  */
 
-import { useState } from "react";
-import { type AnalysisData } from "@shared/types/analysisTypes";
+import { useState } from 'react';
+import { type AnalysisData } from '@shared/types/analysisTypes';
 
 /**
  * Return type for useAnalysisData hook

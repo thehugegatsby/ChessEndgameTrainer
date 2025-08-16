@@ -4,12 +4,12 @@
  * Integrates with Firebase Test Infrastructure (A.1-A.5)
  */
 
-import { type Page, type Locator, expect } from "@playwright/test";
-import { BasePage } from "./BasePage";
-import { type TestApiClient } from "../api/TestApiClient";
+import { type Page, type Locator, expect } from '@playwright/test';
+import { BasePage } from './BasePage';
+import { type TestApiClient } from '../api/TestApiClient';
 
 export interface FirestoreConnectionInfo {
-  status: "connected" | "disconnected" | "error";
+  status: 'connected' | 'disconnected' | 'error';
   emulatorMode: boolean;
   host?: string;
   port?: number;
@@ -69,14 +69,12 @@ export class FirestoreDebugPage extends BasePage {
 
   constructor(
     page: Page,
-    private apiClient?: TestApiClient,
+    private apiClient?: TestApiClient
   ) {
     super(page);
 
     // Connection status locators
-    this.connectionStatus = page.locator(
-      '[data-testid="firebase-connection-status"]',
-    );
+    this.connectionStatus = page.locator('[data-testid="firebase-connection-status"]');
     this.emulatorBadge = page.locator('[data-testid="emulator-badge"]');
     this.projectIdDisplay = page.locator('[data-testid="project-id"]');
     this.hostDisplay = page.locator('[data-testid="firebase-host"]');
@@ -90,13 +88,9 @@ export class FirestoreDebugPage extends BasePage {
     // Action buttons
     this.refreshButton = page.locator('[data-testid="refresh-data-button"]');
     this.clearDataButton = page.locator('[data-testid="clear-data-button"]');
-    this.validateDataButton = page.locator(
-      '[data-testid="validate-data-button"]',
-    );
+    this.validateDataButton = page.locator('[data-testid="validate-data-button"]');
     this.exportDataButton = page.locator('[data-testid="export-data-button"]');
-    this.seedTestDataButton = page.locator(
-      '[data-testid="seed-test-data-button"]',
-    );
+    this.seedTestDataButton = page.locator('[data-testid="seed-test-data-button"]');
 
     // Data viewers
     this.positionsList = page.locator('[data-testid="positions-list"]');
@@ -118,7 +112,7 @@ export class FirestoreDebugPage extends BasePage {
    * Navigate to the Firestore debug page
    */
   async navigate(): Promise<void> {
-    await this.page.goto("/debug/firestore");
+    await this.page.goto('/debug/firestore');
     await this.waitForPageLoad();
   }
 
@@ -129,7 +123,7 @@ export class FirestoreDebugPage extends BasePage {
     await super.waitForPageLoad();
 
     // Wait for Firebase connection status to appear
-    await this.connectionStatus.waitFor({ state: "visible", timeout: 10000 });
+    await this.connectionStatus.waitFor({ state: 'visible', timeout: 10000 });
 
     // Wait for initial data load
     await this.waitForLoadingComplete();
@@ -142,11 +136,11 @@ export class FirestoreDebugPage extends BasePage {
     const statusText = await this.getLocatorText(this.connectionStatus);
     const emulatorBadgeVisible = await this.emulatorBadge.isVisible();
 
-    let status: "connected" | "disconnected" | "error" = "disconnected";
-    if (statusText.includes("Connected") || statusText.includes("Online")) {
-      status = "connected";
-    } else if (statusText.includes("Error") || statusText.includes("Failed")) {
-      status = "error";
+    let status: 'connected' | 'disconnected' | 'error' = 'disconnected';
+    if (statusText.includes('Connected') || statusText.includes('Online')) {
+      status = 'connected';
+    } else if (statusText.includes('Error') || statusText.includes('Failed')) {
+      status = 'error';
     }
 
     const connectionInfo: FirestoreConnectionInfo = {
@@ -156,9 +150,7 @@ export class FirestoreDebugPage extends BasePage {
 
     // Get additional connection details if available
     if (await this.projectIdDisplay.isVisible()) {
-      connectionInfo.projectId = await this.getLocatorText(
-        this.projectIdDisplay,
-      );
+      connectionInfo.projectId = await this.getLocatorText(this.projectIdDisplay);
     }
 
     if (await this.hostDisplay.isVisible()) {
@@ -195,15 +187,11 @@ export class FirestoreDebugPage extends BasePage {
 
     // Get collection counts
     if (await this.positionsCount.isVisible()) {
-      stats.collections.positions = await this.extractNumber(
-        this.positionsCount,
-      );
+      stats.collections.positions = await this.extractNumber(this.positionsCount);
     }
 
     if (await this.categoriesCount.isVisible()) {
-      stats.collections.categories = await this.extractNumber(
-        this.categoriesCount,
-      );
+      stats.collections.categories = await this.extractNumber(this.categoriesCount);
     }
 
     if (await this.chaptersCount.isVisible()) {
@@ -215,10 +203,7 @@ export class FirestoreDebugPage extends BasePage {
     }
 
     // Calculate total documents
-    stats.totalDocuments = Object.values(stats.collections).reduce(
-      (sum, count) => sum + count,
-      0,
-    );
+    stats.totalDocuments = Object.values(stats.collections).reduce((sum, count) => sum + count, 0);
 
     return stats;
   }
@@ -238,7 +223,7 @@ export class FirestoreDebugPage extends BasePage {
    * Clear all Firestore data with confirmation
    */
   async clearAllData(
-    options: { confirm?: boolean; waitForComplete?: boolean } = {},
+    options: { confirm?: boolean; waitForComplete?: boolean } = {}
   ): Promise<void> {
     const { confirm = true, waitForComplete = true } = options;
 
@@ -247,7 +232,7 @@ export class FirestoreDebugPage extends BasePage {
     // Handle confirmation dialog
     if (confirm) {
       const confirmButton = this.page.locator(
-        'button:has-text("Confirm"), button:has-text("Clear"), button:has-text("Delete")',
+        'button:has-text("Confirm"), button:has-text("Clear"), button:has-text("Delete")'
       );
       if (await confirmButton.isVisible({ timeout: 2000 })) {
         await confirmButton.click();
@@ -272,23 +257,22 @@ export class FirestoreDebugPage extends BasePage {
     await this.waitForLoadingComplete();
 
     // Wait for validation results to appear
-    await this.validationResults.waitFor({ state: "visible", timeout: 10000 });
+    await this.validationResults.waitFor({ state: 'visible', timeout: 10000 });
 
     const resultsText = await this.getLocatorText(this.validationResults);
 
     const result: FirestoreValidationResult = {
-      isValid:
-        resultsText.includes("Valid") || resultsText.includes("No issues"),
+      isValid: resultsText.includes('Valid') || resultsText.includes('No issues'),
       issues: [],
       warnings: [],
     };
 
     // Extract specific issues and warnings if present
-    const issueLines = resultsText.split("\n");
+    const issueLines = resultsText.split('\n');
     for (const line of issueLines) {
-      if (line.includes("Error:") || line.includes("Issue:")) {
+      if (line.includes('Error:') || line.includes('Issue:')) {
         result.issues.push(line.trim());
-      } else if (line.includes("Warning:")) {
+      } else if (line.includes('Warning:')) {
         result.warnings.push(line.trim());
       }
     }
@@ -299,13 +283,9 @@ export class FirestoreDebugPage extends BasePage {
   /**
    * Seed test data using predefined scenario
    */
-  async seedTestData(
-    scenario: "basic" | "advanced" | "empty" = "basic",
-  ): Promise<void> {
+  async seedTestData(scenario: 'basic' | 'advanced' | 'empty' = 'basic'): Promise<void> {
     // Use the dropdown to select scenario
-    const scenarioDropdown = this.page.locator(
-      '[data-testid="scenario-dropdown"]',
-    );
+    const scenarioDropdown = this.page.locator('[data-testid="scenario-dropdown"]');
     if (await scenarioDropdown.isVisible()) {
       await scenarioDropdown.selectOption(scenario);
     }
@@ -316,7 +296,7 @@ export class FirestoreDebugPage extends BasePage {
     // Verify seeding completed successfully
     await this.verifyNoErrors();
 
-    if (scenario !== "empty") {
+    if (scenario !== 'empty') {
       const stats = await this.getDataStats();
       expect(stats.totalDocuments).toBeGreaterThan(0);
     }
@@ -328,15 +308,15 @@ export class FirestoreDebugPage extends BasePage {
   async waitForLoadingComplete(timeout = 15000): Promise<void> {
     try {
       // Wait for loading to start (if it does)
-      await this.loadingIndicator.waitFor({ state: "visible", timeout: 1000 });
+      await this.loadingIndicator.waitFor({ state: 'visible', timeout: 1000 });
       // Then wait for it to disappear
-      await this.loadingIndicator.waitFor({ state: "hidden", timeout });
+      await this.loadingIndicator.waitFor({ state: 'hidden', timeout });
     } catch {
       // Loading might be too fast to catch or not present, that's ok
     }
 
     // Additional wait for network idle
-    await this.page.waitForLoadState("networkidle", { timeout: 5000 });
+    await this.page.waitForLoadState('networkidle', { timeout: 5000 });
   }
 
   /**
@@ -345,28 +325,23 @@ export class FirestoreDebugPage extends BasePage {
   async waitForProgressComplete(timeout = 30000): Promise<void> {
     try {
       // Wait for progress bar to appear
-      await this.progressBar.waitFor({ state: "visible", timeout: 2000 });
+      await this.progressBar.waitFor({ state: 'visible', timeout: 2000 });
 
       // Wait for progress to reach 100% or disappear
       await this.page.waitForFunction(
         () => {
-          const progressBar = document.querySelector(
-            '[data-testid="progress-bar"]',
-          );
+          const progressBar = document.querySelector('[data-testid="progress-bar"]');
           if (!progressBar) return true; // Progress bar disappeared
 
           const progressText =
-            document.querySelector('[data-testid="progress-text"]')
-              ?.textContent || "";
-          return (
-            progressText.includes("100%") || progressText.includes("Complete")
-          );
+            document.querySelector('[data-testid="progress-text"]')?.textContent || '';
+          return progressText.includes('100%') || progressText.includes('Complete');
         },
-        { timeout },
+        { timeout }
       );
 
       // Wait for progress bar to disappear
-      await this.progressBar.waitFor({ state: "hidden", timeout: 5000 });
+      await this.progressBar.waitFor({ state: 'hidden', timeout: 5000 });
     } catch {
       // Progress bar might not appear for quick operations
     }
@@ -378,9 +353,7 @@ export class FirestoreDebugPage extends BasePage {
   async getPositionTitles(): Promise<string[]> {
     await this.waitForLoadingComplete();
 
-    const items = await this.positionsList
-      .locator('[data-testid="position-title"]')
-      .all();
+    const items = await this.positionsList.locator('[data-testid="position-title"]').all();
     const titles: string[] = [];
 
     for (const item of items) {
@@ -397,9 +370,7 @@ export class FirestoreDebugPage extends BasePage {
   async getCategoryNames(): Promise<string[]> {
     await this.waitForLoadingComplete();
 
-    const items = await this.categoriesList
-      .locator('[data-testid="category-name"]')
-      .all();
+    const items = await this.categoriesList.locator('[data-testid="category-name"]').all();
     const names: string[] = [];
 
     for (const item of items) {
@@ -416,9 +387,7 @@ export class FirestoreDebugPage extends BasePage {
   async getUserEmails(): Promise<string[]> {
     await this.waitForLoadingComplete();
 
-    const items = await this.usersList
-      .locator('[data-testid="user-email"]')
-      .all();
+    const items = await this.usersList.locator('[data-testid="user-email"]').all();
     const emails: string[] = [];
 
     for (const item of items) {
@@ -434,13 +403,13 @@ export class FirestoreDebugPage extends BasePage {
    */
   async selectPosition(title: string): Promise<void> {
     const position = this.positionsList.locator(
-      `[data-testid="position-title"]:has-text("${title}")`,
+      `[data-testid="position-title"]:has-text("${title}")`
     );
     await position.click();
 
     // Wait for position details to load
     await this.page.waitForSelector('[data-testid="position-details"]', {
-      state: "visible",
+      state: 'visible',
       timeout: 5000,
     });
   }
@@ -452,7 +421,7 @@ export class FirestoreDebugPage extends BasePage {
     await this.exportDataButton.click();
 
     // Wait for export to complete and raw data to appear
-    await this.rawDataViewer.waitFor({ state: "visible", timeout: 10000 });
+    await this.rawDataViewer.waitFor({ state: 'visible', timeout: 10000 });
 
     return await this.getLocatorText(this.rawDataViewer);
   }
@@ -471,7 +440,7 @@ export class FirestoreDebugPage extends BasePage {
     if (await this.hasError()) {
       return await this.getLocatorText(this.errorMessage);
     }
-    return "";
+    return '';
   }
 
   /**
@@ -488,7 +457,7 @@ export class FirestoreDebugPage extends BasePage {
     if (await this.hasSuccess()) {
       return await this.getLocatorText(this.successMessage);
     }
-    return "";
+    return '';
   }
 
   /**
@@ -504,34 +473,27 @@ export class FirestoreDebugPage extends BasePage {
   /**
    * Wait for specific number of positions to be loaded
    */
-  async waitForPositionsCount(
-    expectedCount: number,
-    timeout = 10000,
-  ): Promise<void> {
+  async waitForPositionsCount(expectedCount: number, timeout = 10000): Promise<void> {
     await this.page.waitForFunction(
-      (count) => {
-        const countElement = document.querySelector(
-          '[data-testid="positions-count"]',
-        );
+      count => {
+        const countElement = document.querySelector('[data-testid="positions-count"]');
         if (!countElement) return false;
 
-        const text = countElement.textContent || "";
+        const text = countElement.textContent || '';
         const match = text.match(/\d+/);
         const currentCount = match ? parseInt(match[0]) : 0;
 
         return currentCount === count;
       },
       expectedCount,
-      { timeout },
+      { timeout }
     );
   }
 
   /**
    * Verify data matches expected state using Test API
    */
-  async verifyDataState(
-    expectedStats: Partial<FirestoreDataStats>,
-  ): Promise<void> {
+  async verifyDataState(expectedStats: Partial<FirestoreDataStats>): Promise<void> {
     const actualStats = await this.getDataStats();
 
     if (expectedStats.totalDocuments !== undefined) {
@@ -539,9 +501,7 @@ export class FirestoreDebugPage extends BasePage {
     }
 
     if (expectedStats.collections) {
-      for (const [collection, expectedCount] of Object.entries(
-        expectedStats.collections,
-      )) {
+      for (const [collection, expectedCount] of Object.entries(expectedStats.collections)) {
         expect(actualStats.collections[collection] || 0).toBe(expectedCount);
       }
     }
@@ -552,7 +512,7 @@ export class FirestoreDebugPage extends BasePage {
    */
   async verifyWithTestApi(): Promise<void> {
     if (!this.apiClient) {
-      console.warn("No Test API client provided, skipping API verification");
+      console.warn('No Test API client provided, skipping API verification');
       return;
     }
 
@@ -561,15 +521,9 @@ export class FirestoreDebugPage extends BasePage {
     const apiStatus = await this.apiClient.getFirebaseStatus();
 
     // Verify counts match between UI and API
-    expect(uiStats.collections.positions || 0).toBe(
-      apiStatus.collections.positions || 0,
-    );
-    expect(uiStats.collections.categories || 0).toBe(
-      apiStatus.collections.categories || 0,
-    );
-    expect(uiStats.collections.users || 0).toBe(
-      apiStatus.collections.users || 0,
-    );
+    expect(uiStats.collections.positions || 0).toBe(apiStatus.collections.positions || 0);
+    expect(uiStats.collections.categories || 0).toBe(apiStatus.collections.categories || 0);
+    expect(uiStats.collections.users || 0).toBe(apiStatus.collections.users || 0);
   }
 
   // Private helper methods
@@ -590,11 +544,11 @@ export class FirestoreDebugPage extends BasePage {
     await super.waitForFirebaseData(timeout);
 
     // Additional Firebase-specific checks
-    await this.connectionStatus.waitFor({ state: "visible", timeout });
+    await this.connectionStatus.waitFor({ state: 'visible', timeout });
 
     // Ensure we're connected
     const connectionInfo = await this.getConnectionInfo();
-    if (connectionInfo.status !== "connected") {
+    if (connectionInfo.status !== 'connected') {
       throw new Error(`Firebase not connected: ${connectionInfo.status}`);
     }
   }

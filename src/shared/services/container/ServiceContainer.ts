@@ -26,7 +26,7 @@ import {
   ServiceAlreadyRegisteredError,
   CircularDependencyError,
   type BrowserAPIs,
-} from "./types";
+} from './types';
 import type {
   PlatformStorage,
   PlatformNotification,
@@ -35,14 +35,14 @@ import type {
   PlatformClipboard,
   PlatformShare,
   PlatformAnalytics,
-} from "../platform/types";
+} from '../platform/types';
 import {
   createMockStorage,
   createMockNavigator,
   createMockWindow,
   createMockDocument,
   createMockPerformance,
-} from "./mocks";
+} from './mocks';
 
 /**
  * Service Container implementation for dependency injection
@@ -114,7 +114,7 @@ export class DefaultServiceContainer implements ServiceContainer {
   static createProductionContainer(): ServiceContainer {
     const container = new DefaultServiceContainer();
 
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       container.registerBrowserAPIs({
         localStorage: window.localStorage,
         sessionStorage: window.sessionStorage,
@@ -153,9 +153,7 @@ export class DefaultServiceContainer implements ServiceContainer {
    * await storage.save('key', 'value');
    * ```
    */
-  static createTestContainer(
-    mockAPIs?: Partial<BrowserAPIs>,
-  ): ServiceContainer {
+  static createTestContainer(mockAPIs?: Partial<BrowserAPIs>): ServiceContainer {
     const container = new DefaultServiceContainer();
 
     // Register mock browser APIs
@@ -195,7 +193,7 @@ export class DefaultServiceContainer implements ServiceContainer {
    */
   register<K extends keyof ServiceRegistry>(
     key: K,
-    factory: ServiceFactory<ServiceRegistry[K]>,
+    factory: ServiceFactory<ServiceRegistry[K]>
   ): void {
     this.registerInternal(key as string, factory);
   }
@@ -298,7 +296,7 @@ export class DefaultServiceContainer implements ServiceContainer {
    * Clear all resolved instances
    */
   clearInstances(): void {
-    this.config.logger("Clearing all service instances");
+    this.config.logger('Clearing all service instances');
     this.instances.clear();
     this.resolving.clear();
   }
@@ -336,16 +334,10 @@ export class DefaultServiceContainer implements ServiceContainer {
       window: Window;
       document: Document;
       performance: Performance;
-    }>,
+    }>
   ): void {
     // Register complete browser APIs object
-    if (
-      apis.localStorage &&
-      apis.navigator &&
-      apis.window &&
-      apis.document &&
-      apis.performance
-    ) {
+    if (apis.localStorage && apis.navigator && apis.window && apis.document && apis.performance) {
       // Store validated APIs in local variables to satisfy TypeScript
       const validatedApis = {
         localStorage: apis.localStorage,
@@ -354,8 +346,8 @@ export class DefaultServiceContainer implements ServiceContainer {
         document: apis.document,
         performance: apis.performance,
       };
-      
-      this.registerCustom("browser.apis", () => ({
+
+      this.registerCustom('browser.apis', () => ({
         localStorage: validatedApis.localStorage,
         sessionStorage: apis.sessionStorage || validatedApis.window.sessionStorage,
         navigator: validatedApis.navigator,
@@ -368,23 +360,23 @@ export class DefaultServiceContainer implements ServiceContainer {
     // Register individual APIs - use closures to capture validated values
     if (apis.localStorage) {
       const localStorage = apis.localStorage;
-      this.registerCustom("browser.localStorage", () => localStorage);
+      this.registerCustom('browser.localStorage', () => localStorage);
     }
     if (apis.navigator) {
       const navigator = apis.navigator;
-      this.registerCustom("browser.navigator", () => navigator);
+      this.registerCustom('browser.navigator', () => navigator);
     }
     if (apis.window) {
       const window = apis.window;
-      this.registerCustom("browser.window", () => window);
+      this.registerCustom('browser.window', () => window);
     }
     if (apis.document) {
       const document = apis.document;
-      this.registerCustom("browser.document", () => document);
+      this.registerCustom('browser.document', () => document);
     }
     if (apis.performance) {
       const performance = apis.performance;
-      this.registerCustom("browser.performance", () => performance);
+      this.registerCustom('browser.performance', () => performance);
     }
   }
 
@@ -394,60 +386,58 @@ export class DefaultServiceContainer implements ServiceContainer {
   private registerPlatformServices(): void {
     // For Phase 1, we keep it simple and register a factory that will
     // import WebPlatformService when first accessed
-    this.registerCustom("platform.service", () => {
-      const {
-        WebPlatformService,
-      } = require("../platform/web/WebPlatformService");
+    this.registerCustom('platform.service', () => {
+      const { WebPlatformService } = require('../platform/web/WebPlatformService');
       return new WebPlatformService();
     });
 
     // Register individual services that delegate to the main service
-    this.register("platform.storage", (container) => {
+    this.register('platform.storage', container => {
       const platformService = container.resolveCustom<{
         storage: PlatformStorage;
-      }>("platform.service");
+      }>('platform.service');
       return platformService.storage;
     });
 
-    this.register("platform.notifications", (container) => {
+    this.register('platform.notifications', container => {
       const platformService = container.resolveCustom<{
         notifications: PlatformNotification;
-      }>("platform.service");
+      }>('platform.service');
       return platformService.notifications;
     });
 
-    this.register("platform.device", (container) => {
+    this.register('platform.device', container => {
       const platformService = container.resolveCustom<{
         device: PlatformDevice;
-      }>("platform.service");
+      }>('platform.service');
       return platformService.device;
     });
 
-    this.register("platform.performance", (container) => {
+    this.register('platform.performance', container => {
       const platformService = container.resolveCustom<{
         performance: PlatformPerformance;
-      }>("platform.service");
+      }>('platform.service');
       return platformService.performance;
     });
 
-    this.register("platform.clipboard", (container) => {
+    this.register('platform.clipboard', container => {
       const platformService = container.resolveCustom<{
         clipboard: PlatformClipboard;
-      }>("platform.service");
+      }>('platform.service');
       return platformService.clipboard;
     });
 
-    this.register("platform.share", (container) => {
+    this.register('platform.share', container => {
       const platformService = container.resolveCustom<{
         share: PlatformShare;
-      }>("platform.service");
+      }>('platform.service');
       return platformService.share;
     });
 
-    this.register("platform.analytics", (container) => {
+    this.register('platform.analytics', container => {
       const platformService = container.resolveCustom<{
         analytics: PlatformAnalytics;
-      }>("platform.service");
+      }>('platform.service');
       return platformService.analytics;
     });
   }

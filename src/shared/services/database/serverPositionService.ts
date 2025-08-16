@@ -4,18 +4,18 @@
  * where React hooks are not available
  */
 
-import { PositionService as DefaultPositionService } from "./PositionService";
-import { type PositionService } from "./IPositionService";
-import { FirebasePositionRepository } from "@shared/repositories/implementations/FirebasePositionRepository";
-import { db } from "@shared/lib/firebase";
+import { PositionService as DefaultPositionService } from './PositionService';
+import { type PositionService } from './IPositionService';
+import { FirebasePositionRepository } from '@shared/repositories/implementations/FirebasePositionRepository';
+import { db } from '@shared/lib/firebase';
 import {
   shouldUseMockService,
   createMockPositionService,
-} from "@shared/testing/MockPositionServiceFactory";
-import { CACHE } from "@shared/constants";
-import { getLogger } from "@shared/services/logging";
+} from '@shared/testing/MockPositionServiceFactory';
+import { CACHE } from '@shared/constants';
+import { getLogger } from '@shared/services/logging';
 
-const logger = getLogger().setContext("ServerPositionService");
+const logger = getLogger().setContext('ServerPositionService');
 
 /**
  * Creates a PositionService instance for server-side usage
@@ -25,7 +25,7 @@ const logger = getLogger().setContext("ServerPositionService");
 export function createServerPositionService(): PositionService {
   // Use mock service for E2E tests (server-side)
   if (shouldUseMockService()) {
-    logger.info("Creating MockPositionService for server-side E2E testing");
+    logger.info('Creating MockPositionService for server-side E2E testing');
     return createMockPositionService();
   }
 

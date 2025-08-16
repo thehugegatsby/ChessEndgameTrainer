@@ -1,4 +1,15 @@
-# Check if learnings are documented
-./.husky/check-learnings.sh || exit 1
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
 
-# Tests moved to pre-push hook for better performance
+echo "🔧 Running pre-commit hooks..."
+
+# 1. Format code for consistency (automatic corrections)
+echo "📐 Running Prettier..."
+npx prettier --write --ignore-unknown .
+git add .
+
+# 2. Run ESLint with auto-fix on staged files
+echo "🔍 Running ESLint with auto-fix..."
+npx lint-staged
+
+echo "✅ Pre-commit hooks completed"

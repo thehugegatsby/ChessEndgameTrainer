@@ -14,18 +14,20 @@
  * ```
  */
 
-import { useStore } from "@shared/store/rootStore";
-import type { RootState } from "@shared/store/slices/types";
+import { useStore } from '@shared/store/rootStore';
+import type { RootState } from '@shared/store/slices/types';
 
 // Mock the store module
-vi.mock("@shared/store/rootStore");
+vi.mock('@shared/store/rootStore');
 
 /**
  * Type for partial root state overrides with nested structure
  */
-type DeepPartial<T> = T extends object ? {
-  [P in keyof T]?: DeepPartial<T[P]>;
-} : T;
+type DeepPartial<T> = T extends object
+  ? {
+      [P in keyof T]?: DeepPartial<T[P]>;
+    }
+  : T;
 
 type MockRootState = DeepPartial<RootState>;
 
@@ -54,8 +56,8 @@ export const mockRootStore = (overrides: MockRootState = {}) => {
   const defaultState = {
     // Game slice
     game: {
-      currentFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-      currentPgn: "",
+      currentFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+      currentPgn: '',
       moveHistory: [],
       currentMoveIndex: -1,
       isGameFinished: false,
@@ -122,7 +124,7 @@ export const mockRootStore = (overrides: MockRootState = {}) => {
     // Tablebase slice
     tablebase: {
       tablebaseMove: undefined,
-      analysisStatus: "idle" as const,
+      analysisStatus: 'idle' as const,
       evaluations: [],
       currentEvaluation: undefined,
       // Tablebase actions
@@ -147,7 +149,7 @@ export const mockRootStore = (overrides: MockRootState = {}) => {
       },
       cardProgress: {},
       loading: false,
-      syncStatus: "idle" as const,
+      syncStatus: 'idle' as const,
       lastSync: null,
       syncError: null,
       // Progress actions
@@ -184,7 +186,7 @@ export const mockRootStore = (overrides: MockRootState = {}) => {
       },
       analysisPanel: {
         isOpen: false,
-        position: "right" as const,
+        position: 'right' as const,
         showEvaluation: true,
         showBestMove: true,
         showDepth: false,
@@ -211,12 +213,20 @@ export const mockRootStore = (overrides: MockRootState = {}) => {
   };
 
   // Deep merge defaults with overrides
-  const deepMerge = (target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> => {
+  const deepMerge = (
+    target: Record<string, unknown>,
+    source: Record<string, unknown>
+  ): Record<string, unknown> => {
     const result = { ...target };
     for (const key in source) {
-      if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key]) && !vi.isMockFunction(source[key])) {
+      if (
+        source[key] &&
+        typeof source[key] === 'object' &&
+        !Array.isArray(source[key]) &&
+        !vi.isMockFunction(source[key])
+      ) {
         result[key] = deepMerge(
-          (target[key] as Record<string, unknown>) || {}, 
+          (target[key] as Record<string, unknown>) || {},
           source[key] as Record<string, unknown>
         );
       } else {
@@ -226,14 +236,17 @@ export const mockRootStore = (overrides: MockRootState = {}) => {
     return result;
   };
 
-  const mockState = deepMerge(defaultState, overrides as Record<string, unknown>) as unknown as RootState;
+  const mockState = deepMerge(
+    defaultState,
+    overrides as Record<string, unknown>
+  ) as unknown as RootState;
 
   // Configure the mock to return our state
   (useStore as any).mockReturnValue(mockState);
 
   // Also mock the selector pattern
   (useStore as any).mockImplementation((selector?: (state: RootState) => unknown) => {
-    if (typeof selector === "function") {
+    if (typeof selector === 'function') {
       return selector(mockState);
     }
     return mockState;
@@ -270,12 +283,20 @@ export const mockRootStoreWithSelector = (overrides: MockRootState = {}) => {
   mock.getState = vi.fn(() => {
     const state = mock();
     // Deep merge the state with overrides
-    const deepMerge = (target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> => {
+    const deepMerge = (
+      target: Record<string, unknown>,
+      source: Record<string, unknown>
+    ): Record<string, unknown> => {
       const result = { ...target };
       for (const key in source) {
-        if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key]) && !vi.isMockFunction(source[key])) {
+        if (
+          source[key] &&
+          typeof source[key] === 'object' &&
+          !Array.isArray(source[key]) &&
+          !vi.isMockFunction(source[key])
+        ) {
           result[key] = deepMerge(
-            (target[key] as Record<string, unknown>) || {}, 
+            (target[key] as Record<string, unknown>) || {},
             source[key] as Record<string, unknown>
           );
         } else {
@@ -284,7 +305,10 @@ export const mockRootStoreWithSelector = (overrides: MockRootState = {}) => {
       }
       return result;
     };
-    return deepMerge(state as unknown as Record<string, unknown>, overrides as unknown as Record<string, unknown>) as unknown as RootState;
+    return deepMerge(
+      state as unknown as Record<string, unknown>,
+      overrides as unknown as Record<string, unknown>
+    ) as unknown as RootState;
   });
 
   return mock;
@@ -304,9 +328,6 @@ export const resetRootStoreMock = () => {
  * @param mock - The mocked function
  * @param expectedCalls - Expected number of calls
  */
-export const verifyRootStoreCalls = (
-  mock: any,
-  expectedCalls: number,
-) => {
+export const verifyRootStoreCalls = (mock: any, expectedCalls: number) => {
   expect(mock).toHaveBeenCalledTimes(expectedCalls);
 };

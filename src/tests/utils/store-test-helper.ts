@@ -5,9 +5,9 @@ import { vi } from 'vitest';
  * @description Provides utilities for creating test stores and common test setups
  */
 
-import { createStore as createZustandStore } from "zustand/vanilla";
-import type { RootState } from "@shared/store/slices/types";
-import type { StateCreator } from "zustand";
+import { createStore as createZustandStore } from 'zustand/vanilla';
+import type { RootState } from '@shared/store/slices/types';
+import type { StateCreator } from 'zustand';
 
 /**
  * Creates a test store with a single slice for isolated testing
@@ -31,7 +31,7 @@ import type { StateCreator } from "zustand";
  */
 export function createTestStore<T>(
   createSlice: StateCreator<T, [], [], T>,
-  initialState?: Partial<T>,
+  initialState?: Partial<T>
 ): ReturnType<typeof createZustandStore<T>> {
   const store = createZustandStore<T>()((set, get, api) => {
     const slice = createSlice(set, get, api);
@@ -67,18 +67,15 @@ export function createTestStore<T>(
  */
 export function createCombinedTestStore(
   sliceCreators: Record<string, StateCreator<any, [], [], any>>,
-  initialState?: Partial<RootState>,
+  initialState?: Partial<RootState>
 ): ReturnType<typeof createZustandStore<RootState>> {
   const store = createZustandStore<RootState>()((set, get, api) => {
-    const slices = Object.entries(sliceCreators).reduce(
-      (acc, [_name, createSlice]) => {
-        return {
-          ...acc,
-          ...createSlice(set, get, api),
-        };
-      },
-      {} as RootState,
-    );
+    const slices = Object.entries(sliceCreators).reduce((acc, [_name, createSlice]) => {
+      return {
+        ...acc,
+        ...createSlice(set, get, api),
+      };
+    }, {} as RootState);
 
     return {
       ...slices,
@@ -101,10 +98,7 @@ export function createCombinedTestStore(
  * await waitForState(() => store.getState().loading === false);
  * ```
  */
-export async function waitForState(
-  callback: () => boolean,
-  timeout = 5000,
-): Promise<void> {
+export async function waitForState(callback: () => boolean, timeout = 5000): Promise<void> {
   const startTime = Date.now();
 
   return new Promise((resolve, reject) => {
@@ -115,9 +109,7 @@ export async function waitForState(
       if (callback()) {
         resolve();
       } else if (Date.now() - startTime > timeout) {
-        reject(
-          new Error(`Timeout waiting for state condition after ${timeout}ms`),
-        );
+        reject(new Error(`Timeout waiting for state condition after ${timeout}ms`));
       } else {
         setTimeout(check, 10);
       }
@@ -171,17 +163,17 @@ export function createMockStoreApi(initialState: Partial<RootState> = {}): {
  * const { startingPosition, endgameKRK } = chessPositions;
  * ```
  */
-import { COMMON_FENS } from "../fixtures/commonFens";
+import { COMMON_FENS } from '../fixtures/commonFens';
 
 export /**
  *
  */
 const chessPositions = {
-  startingPosition: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // Standard starting position
-  endgameKRK: "8/8/8/8/8/8/R7/K3k3 w - - 0 1", // King and Rook vs King
-  endgameKQK: "8/8/8/8/8/8/1Q6/K3k3 w - - 0 1", // King and Queen vs King 
+  startingPosition: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', // Standard starting position
+  endgameKRK: '8/8/8/8/8/8/R7/K3k3 w - - 0 1', // King and Rook vs King
+  endgameKQK: '8/8/8/8/8/8/1Q6/K3k3 w - - 0 1', // King and Queen vs King
   endgameKPK: COMMON_FENS.KPK_WHITE_TO_MOVE, // King and Pawn vs King from Train/1
-  drawPosition: "8/8/8/8/8/8/8/K3k3 w - - 0 1", // King vs King draw
+  drawPosition: '8/8/8/8/8/8/8/K3k3 w - - 0 1', // King vs King draw
 } as const;
 
 /**

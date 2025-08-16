@@ -12,11 +12,11 @@
  * - useLocalStorageSync: Deprecated sync wrapper
  */
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { getPlatformService } from "../services/platform";
-import { getLogger } from "../services/logging";
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { getPlatformService } from '../services/platform';
+import { getLogger } from '../services/logging';
 
-const logger = getLogger().setContext("useLocalStorage");
+const logger = getLogger().setContext('useLocalStorage');
 
 /**
  * INTERNAL: Full-featured async hook with loading state and error handling
@@ -30,17 +30,10 @@ const logger = getLogger().setContext("useLocalStorage");
  */
 function useLocalStorageInternal<T>(
   key: string,
-  initialValue: T | (() => T),
-): [
-  T | undefined,
-  (value: T | ((val: T | undefined) => T)) => void,
-  boolean,
-  Error | null,
-] {
+  initialValue: T | (() => T)
+): [T | undefined, (value: T | ((val: T | undefined) => T)) => void, boolean, Error | null] {
   const resolvedInitialValue = useMemo(() => {
-    return typeof initialValue === "function"
-      ? (initialValue as () => T)()
-      : initialValue;
+    return typeof initialValue === 'function' ? (initialValue as () => T)() : initialValue;
   }, [initialValue]);
 
   const [storedValue, setStoredValue] = useState<T | undefined>(undefined);
@@ -54,12 +47,12 @@ function useLocalStorageInternal<T>(
 
     getPlatformService()
       .storage.load<T>(key)
-      .then((item) => {
+      .then(item => {
         if (isMounted) {
           setStoredValue(item !== null ? item : resolvedInitialValue);
         }
       })
-      .catch((loadError) => {
+      .catch(loadError => {
         logger.warn(`Error loading storage key "${key}": ${loadError}`);
         if (isMounted) {
           setStoredValue(resolvedInitialValue);
@@ -101,7 +94,7 @@ function useLocalStorageInternal<T>(
           setSaveError(null);
         }
       })
-      .catch((err) => {
+      .catch(err => {
         logger.error(`Failed to save storage key "${key}": ${err}`);
         if (isMounted) {
           setSaveError(err instanceof Error ? err : new Error(String(err)));
@@ -121,7 +114,7 @@ function useLocalStorageInternal<T>(
       }
       setStoredValue(value);
     },
-    [saveError],
+    [saveError]
   );
 
   return [storedValue, setValue, isLoading, saveError];
@@ -159,37 +152,32 @@ function useLocalStorageInternal<T>(
  */
 export function useLocalStorage<T>(
   key: string,
-  initialValue: T | (() => T),
+  initialValue: T | (() => T)
 ): [T, (value: T | ((val: T) => T)) => void] {
-  const [asyncValue, setAsyncValue, isLoading, saveError] =
-    useLocalStorageInternal(key, initialValue);
+  const [asyncValue, setAsyncValue, isLoading, saveError] = useLocalStorageInternal(
+    key,
+    initialValue
+  );
 
   const resolvedInitialValue = useMemo(() => {
-    return typeof initialValue === "function"
-      ? (initialValue as () => T)()
-      : initialValue;
+    return typeof initialValue === 'function' ? (initialValue as () => T)() : initialValue;
   }, [initialValue]);
 
   // Return initial value while loading, then switch to loaded value (backward compatible)
-  const currentValue = isLoading
-    ? resolvedInitialValue
-    : (asyncValue ?? resolvedInitialValue);
+  const currentValue = isLoading ? resolvedInitialValue : (asyncValue ?? resolvedInitialValue);
 
   // Wrapper for the setter to maintain backward compatible interface
   const compatSetValue = useCallback(
     (value: T | ((val: T) => T)) => {
-      const valueToStore =
-        value instanceof Function ? value(currentValue) : value;
+      const valueToStore = value instanceof Function ? value(currentValue) : value;
       setAsyncValue(valueToStore);
 
       // Log save errors (backward compatible - original didn't expose errors)
       if (saveError) {
-        logger.warn(
-          `Storage save error (backward compatibility mode): ${saveError.message}`,
-        );
+        logger.warn(`Storage save error (backward compatibility mode): ${saveError.message}`);
       }
     },
-    [currentValue, setAsyncValue, saveError],
+    [currentValue, setAsyncValue, saveError]
   );
 
   return [currentValue, compatSetValue];
@@ -230,12 +218,7 @@ export function useLocalStorage<T>(
  */
 export function useLocalStorageWithState<T>(
   key: string,
-  initialValue: T | (() => T),
-): [
-  T | undefined,
-  (value: T | ((val: T | undefined) => T)) => void,
-  boolean,
-  Error | null,
-] {
+  initialValue: T | (() => T)
+): [T | undefined, (value: T | ((val: T | undefined) => T)) => void, boolean, Error | null] {
   return useLocalStorageInternal(key, initialValue);
 }

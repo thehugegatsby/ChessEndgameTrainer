@@ -1,6 +1,6 @@
 /**
  * Comprehensive tests for WdlAdapter
- * 
+ *
  * Tests the core WDL (Win/Draw/Loss) perspective conversion utility that replaces
  * scattered negation anti-patterns throughout the codebase.
  */
@@ -41,7 +41,7 @@ describe('WdlAdapter', () => {
 
     it('should be symmetric with rawToCanonical for standard values', () => {
       const rawValues: RawWdlValue[] = [1000, 0, -1000];
-      
+
       rawValues.forEach(raw => {
         const canonical = WdlAdapter.rawToCanonical(raw);
         const backToRaw = WdlAdapter.canonicalToRaw(canonical);
@@ -59,7 +59,7 @@ describe('WdlAdapter', () => {
 
     it('should be symmetric (double flip returns original)', () => {
       const values = [1000, -500, 0, 750];
-      
+
       values.forEach(value => {
         const flipped = WdlAdapter.flipPerspective(value);
         const doubleFlipped = WdlAdapter.flipPerspective(flipped);
@@ -71,23 +71,23 @@ describe('WdlAdapter', () => {
   describe('convertToPlayerPerspective', () => {
     it('should keep wdlBefore unchanged (already player perspective)', () => {
       const result = WdlAdapter.convertToPlayerPerspective(800, -300);
-      
+
       expect(result.wdlBeforeFromPlayerPerspective).toBe(800);
     });
 
     it('should flip wdlAfter (from opponent to player perspective)', () => {
       const result = WdlAdapter.convertToPlayerPerspective(800, -300);
-      
+
       expect(result.wdlAfterFromPlayerPerspective).toBe(300); // -(-300)
     });
 
     it('should match MoveQualityEvaluator.convertToPlayerPerspective logic', () => {
       // Test case from MoveQualityEvaluator - side-to-move perspective handling
       const wdlBefore = 1000; // Player was winning
-      const wdlAfter = -500;   // Opponent now sees player losing = opponent winning
-      
+      const wdlAfter = -500; // Opponent now sees player losing = opponent winning
+
       const result = WdlAdapter.convertToPlayerPerspective(wdlBefore, wdlAfter);
-      
+
       // Original player perspective: was winning (1000), now losing (-(-500) = 500)
       // Wait, this should be losing from player's perspective
       expect(result.wdlBeforeFromPlayerPerspective).toBe(1000);
@@ -96,7 +96,7 @@ describe('WdlAdapter', () => {
 
     it('should handle draw positions correctly', () => {
       const result = WdlAdapter.convertToPlayerPerspective(0, 0);
-      
+
       expect(result.wdlBeforeFromPlayerPerspective).toBe(0);
       expect(result.wdlAfterFromPlayerPerspective).toBe(-0); // -(0) = -0 in JavaScript
     });
@@ -122,10 +122,10 @@ describe('WdlAdapter', () => {
 
     it('should match MoveQualityEvaluator.isWinToDrawOrLoss logic', () => {
       // Direct test of L354: return wdlBefore > 0 && wdlAfter <= 0;
-      expect(WdlAdapter.isWinToDrawOrLoss(1, 0)).toBe(true);   // wdlBefore > 0 && wdlAfter <= 0
-      expect(WdlAdapter.isWinToDrawOrLoss(1, -1)).toBe(true);  // wdlBefore > 0 && wdlAfter <= 0  
+      expect(WdlAdapter.isWinToDrawOrLoss(1, 0)).toBe(true); // wdlBefore > 0 && wdlAfter <= 0
+      expect(WdlAdapter.isWinToDrawOrLoss(1, -1)).toBe(true); // wdlBefore > 0 && wdlAfter <= 0
       expect(WdlAdapter.isWinToDrawOrLoss(0, -1)).toBe(false); // wdlBefore = 0, not > 0
-      expect(WdlAdapter.isWinToDrawOrLoss(1, 1)).toBe(false);  // wdlAfter > 0, not <= 0
+      expect(WdlAdapter.isWinToDrawOrLoss(1, 1)).toBe(false); // wdlAfter > 0, not <= 0
     });
   });
 
@@ -136,7 +136,7 @@ describe('WdlAdapter', () => {
     });
 
     it('should not detect non-degrading changes from draw', () => {
-      expect(WdlAdapter.isDrawToLoss(0, 0)).toBe(false);   // Draw to draw
+      expect(WdlAdapter.isDrawToLoss(0, 0)).toBe(false); // Draw to draw
       expect(WdlAdapter.isDrawToLoss(0, 500)).toBe(false); // Draw to win
       expect(WdlAdapter.isDrawToLoss(500, -200)).toBe(false); // Win to loss (not from draw)
       expect(WdlAdapter.isDrawToLoss(-200, -500)).toBe(false); // Loss to worse loss
@@ -144,31 +144,31 @@ describe('WdlAdapter', () => {
 
     it('should match MoveQualityEvaluator.isDrawToLoss logic', () => {
       // Direct test of L361: return wdlBefore === 0 && wdlAfter < 0;
-      expect(WdlAdapter.isDrawToLoss(0, -1)).toBe(true);   // wdlBefore === 0 && wdlAfter < 0
+      expect(WdlAdapter.isDrawToLoss(0, -1)).toBe(true); // wdlBefore === 0 && wdlAfter < 0
       expect(WdlAdapter.isDrawToLoss(0, -500)).toBe(true); // wdlBefore === 0 && wdlAfter < 0
-      expect(WdlAdapter.isDrawToLoss(1, -1)).toBe(false);  // wdlBefore !== 0
-      expect(WdlAdapter.isDrawToLoss(0, 0)).toBe(false);   // wdlAfter = 0, not < 0
-      expect(WdlAdapter.isDrawToLoss(0, 1)).toBe(false);   // wdlAfter > 0, not < 0
+      expect(WdlAdapter.isDrawToLoss(1, -1)).toBe(false); // wdlBefore !== 0
+      expect(WdlAdapter.isDrawToLoss(0, 0)).toBe(false); // wdlAfter = 0, not < 0
+      expect(WdlAdapter.isDrawToLoss(0, 1)).toBe(false); // wdlAfter > 0, not < 0
     });
   });
 
   describe('didOutcomeChange', () => {
     it('should detect significant position degradation', () => {
-      expect(WdlAdapter.didOutcomeChange(800, 0)).toBe(true);   // Win to draw
-      expect(WdlAdapter.didOutcomeChange(500, -200)).toBe(true); // Win to loss  
-      expect(WdlAdapter.didOutcomeChange(0, -300)).toBe(true);   // Draw to loss
+      expect(WdlAdapter.didOutcomeChange(800, 0)).toBe(true); // Win to draw
+      expect(WdlAdapter.didOutcomeChange(500, -200)).toBe(true); // Win to loss
+      expect(WdlAdapter.didOutcomeChange(0, -300)).toBe(true); // Draw to loss
     });
 
     it('should not detect non-significant changes', () => {
-      expect(WdlAdapter.didOutcomeChange(800, 900)).toBe(false);  // Win to better win
-      expect(WdlAdapter.didOutcomeChange(0, 400)).toBe(false);    // Draw to win
+      expect(WdlAdapter.didOutcomeChange(800, 900)).toBe(false); // Win to better win
+      expect(WdlAdapter.didOutcomeChange(0, 400)).toBe(false); // Draw to win
       expect(WdlAdapter.didOutcomeChange(-200, -100)).toBe(false); // Loss to better loss
-      expect(WdlAdapter.didOutcomeChange(0, 0)).toBe(false);      // No change
+      expect(WdlAdapter.didOutcomeChange(0, 0)).toBe(false); // No change
     });
 
     it('should combine win-to-draw/loss and draw-to-loss detection', () => {
       // This method should return true if EITHER condition is met
-      expect(WdlAdapter.didOutcomeChange(100, 0)).toBe(true);  // isWinToDrawOrLoss = true
+      expect(WdlAdapter.didOutcomeChange(100, 0)).toBe(true); // isWinToDrawOrLoss = true
       expect(WdlAdapter.didOutcomeChange(0, -100)).toBe(true); // isDrawToLoss = true
       expect(WdlAdapter.didOutcomeChange(100, -100)).toBe(true); // isWinToDrawOrLoss = true (also covers win to loss)
     });
@@ -176,9 +176,9 @@ describe('WdlAdapter', () => {
 
   describe('getMoveQuality', () => {
     it('should classify blunders (win/draw to loss)', () => {
-      expect(WdlAdapter.getMoveQuality(800, 0)).toBe('blunder');   // Win to draw
+      expect(WdlAdapter.getMoveQuality(800, 0)).toBe('blunder'); // Win to draw
       expect(WdlAdapter.getMoveQuality(500, -200)).toBe('blunder'); // Win to loss
-      expect(WdlAdapter.getMoveQuality(0, -300)).toBe('mistake');   // Draw to loss -> mistake per implementation
+      expect(WdlAdapter.getMoveQuality(0, -300)).toBe('mistake'); // Draw to loss -> mistake per implementation
     });
 
     it('should classify mistakes (draw to loss)', () => {
@@ -187,16 +187,16 @@ describe('WdlAdapter', () => {
     });
 
     it('should classify good moves (improvement)', () => {
-      expect(WdlAdapter.getMoveQuality(200, 600)).toBe('good');  // Win to better win
-      expect(WdlAdapter.getMoveQuality(0, 300)).toBe('good');    // Draw to win  
+      expect(WdlAdapter.getMoveQuality(200, 600)).toBe('good'); // Win to better win
+      expect(WdlAdapter.getMoveQuality(0, 300)).toBe('good'); // Draw to win
       expect(WdlAdapter.getMoveQuality(-400, -100)).toBe('good'); // Loss to better loss
     });
 
     it('should classify best moves (no degradation)', () => {
-      expect(WdlAdapter.getMoveQuality(500, 500)).toBe('best');  // Same evaluation
-      expect(WdlAdapter.getMoveQuality(0, 0)).toBe('best');      // Same draw
+      expect(WdlAdapter.getMoveQuality(500, 500)).toBe('best'); // Same evaluation
+      expect(WdlAdapter.getMoveQuality(0, 0)).toBe('best'); // Same draw
       expect(WdlAdapter.getMoveQuality(-200, -200)).toBe('best'); // Same loss
-      expect(WdlAdapter.getMoveQuality(800, 700)).toBe('best');   // Slight degradation within win
+      expect(WdlAdapter.getMoveQuality(800, 700)).toBe('best'); // Slight degradation within win
     });
   });
 
@@ -251,12 +251,12 @@ describe('WdlAdapter', () => {
       // Mate in 1 vs Mate in 5 - both winning but different values
       const mateIn1 = 900;
       const mateIn5 = 500;
-      
+
       expect(WdlAdapter.rawToCanonical(mateIn1)).toBe(1);
       expect(WdlAdapter.rawToCanonical(mateIn5)).toBe(1);
       expect(WdlAdapter.isWinning(mateIn1)).toBe(true);
       expect(WdlAdapter.isWinning(mateIn5)).toBe(true);
-      
+
       // Move from mate-in-1 to mate-in-5 is still 'best' (both winning)
       expect(WdlAdapter.getMoveQuality(mateIn1, mateIn5)).toBe('best');
     });
@@ -265,7 +265,7 @@ describe('WdlAdapter', () => {
       // Both are draws in WDL terms
       const theoreticalDraw = 0;
       const practicalDraw = 0;
-      
+
       expect(WdlAdapter.didOutcomeChange(theoreticalDraw, practicalDraw)).toBe(false);
     });
 
@@ -273,7 +273,7 @@ describe('WdlAdapter', () => {
       // Player has winning position, but after forced move loses
       const winningPosition = 600;
       const losingAfterZugzwang = -400;
-      
+
       expect(WdlAdapter.isWinToDrawOrLoss(winningPosition, losingAfterZugzwang)).toBe(true);
       expect(WdlAdapter.getMoveQuality(winningPosition, losingAfterZugzwang)).toBe('blunder');
     });
@@ -284,13 +284,13 @@ describe('WdlAdapter', () => {
       // Test cases that mirror real chess scenarios from MoveQualityEvaluator
       const scenarios = [
         { before: 1000, after: -500 }, // Player winning -> opponent winning (player now losing)
-        { before: 0, after: 0 },       // Draw position maintained  
-        { before: -200, after: 300 },  // Player losing -> opponent losing (player now winning)
+        { before: 0, after: 0 }, // Draw position maintained
+        { before: -200, after: 300 }, // Player losing -> opponent losing (player now winning)
       ];
-      
+
       scenarios.forEach(({ before, after }) => {
         const result = WdlAdapter.convertToPlayerPerspective(before, after);
-        
+
         // Should match the exact logic from MoveQualityEvaluator L300-309
         expect(result.wdlBeforeFromPlayerPerspective).toBe(before);
         expect(result.wdlAfterFromPlayerPerspective).toBe(-after);
@@ -300,23 +300,23 @@ describe('WdlAdapter', () => {
     it('should work with shouldShowErrorDialog decision logic', () => {
       // Mirror the MoveQualityEvaluator.shouldShowErrorDialog criteria:
       // !playedMoveWasBest && outcomeChanged
-      
+
       const outcomeChangedCases = [
-        { before: 800, after: 0 },   // Win to draw -> outcome changed
-        { before: 500, after: -200 }, // Win to loss -> outcome changed  
-        { before: 0, after: -300 },   // Draw to loss -> outcome changed
+        { before: 800, after: 0 }, // Win to draw -> outcome changed
+        { before: 500, after: -200 }, // Win to loss -> outcome changed
+        { before: 0, after: -300 }, // Draw to loss -> outcome changed
       ];
-      
+
       const noOutcomeChangeCases = [
-        { before: 800, after: 900 },  // Win to better win
-        { before: 0, after: 400 },    // Draw to win
+        { before: 800, after: 900 }, // Win to better win
+        { before: 0, after: 400 }, // Draw to win
         { before: -200, after: -100 }, // Loss to better loss
       ];
-      
+
       outcomeChangedCases.forEach(({ before, after }) => {
         expect(WdlAdapter.didOutcomeChange(before, after)).toBe(true);
       });
-      
+
       noOutcomeChangeCases.forEach(({ before, after }) => {
         expect(WdlAdapter.didOutcomeChange(before, after)).toBe(false);
       });

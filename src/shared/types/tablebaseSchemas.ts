@@ -7,7 +7,7 @@
  * and clear documentation of the expected API contract.
  */
 
-import { z } from "zod";
+import { z } from 'zod';
 
 /**
  * Schema for individual moves in tablebase response
@@ -34,7 +34,7 @@ export const LichessTablebaseResponseSchema = z.object({
   dtz: z.number().nullable(), // Required but can be null
   dtm: z.number().nullable().default(null), // Can be null, defaults to null if not present
   precise_dtz: z.union([z.number(), z.boolean()]).default(false), // Can be number or boolean
-  dtw: z.number().nullable().default(null), // Add missing fields from actual API  
+  dtw: z.number().nullable().default(null), // Add missing fields from actual API
   dtc: z.number().nullable().default(null),
   checkmate: z.boolean().optional().default(false),
   stalemate: z.boolean().optional().default(false),

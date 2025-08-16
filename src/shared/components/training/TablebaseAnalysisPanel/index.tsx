@@ -22,12 +22,12 @@
  * validated and executed through the store's action system.
  */
 
-"use client";
+'use client';
 
-import React from "react";
-import { usePositionAnalysis } from "@shared/hooks/usePositionAnalysis";
-import { TablebasePanel } from "@shared/components/tablebase/TablebasePanel";
-import { useTrainingStore } from "@shared/store/hooks";
+import React from 'react';
+import { usePositionAnalysis } from '@shared/hooks/usePositionAnalysis';
+import { TablebasePanel } from '@shared/components/tablebase/TablebasePanel';
+import { useTrainingStore } from '@shared/store/hooks';
 
 /**
  * Props for the TablebaseAnalysisPanel component
@@ -115,14 +115,9 @@ export const TablebaseAnalysisPanel: React.FC<TablebaseAnalysisPanelProps> = ({
   }
 
   return (
-    <div
-      className="tablebase-analysis-panel"
-      data-testid="tablebase-analysis-panel"
-    >
+    <div className="tablebase-analysis-panel" data-testid="tablebase-analysis-panel">
       <TablebasePanel
-        tablebaseData={
-          lastEvaluation?.tablebase || { isTablebasePosition: false }
-        }
+        tablebaseData={lastEvaluation?.tablebase || { isTablebasePosition: false }}
         onMoveSelect={handleMoveSelect}
         loading={isEvaluating}
         {...(error && { error })}

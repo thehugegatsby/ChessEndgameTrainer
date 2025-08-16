@@ -1,15 +1,15 @@
 /**
  * ChessServiceFacade - Orchestrator for all chess components
- * 
- * This facade coordinates all chess-related services (ChessEngine, MoveValidator, 
+ *
+ * This facade coordinates all chess-related services (ChessEngine, MoveValidator,
  * MoveHistory, GermanNotation, ChessEventBus, FenCache) and provides a clean API
  * that matches the original ChessService interface.
  * Part of the Clean Architecture refactoring - Phase 1 final component.
  */
 
-import type { Move as ChessJsMove } from "chess.js";
-import type { ValidatedMove } from "@shared/types/chess";
-import { createValidatedMove as createMove } from "@shared/types/chess";
+import type { Move as ChessJsMove } from 'chess.js';
+import type { ValidatedMove } from '@shared/types/chess';
+import { createValidatedMove as createMove } from '@shared/types/chess';
 import type {
   IChessServiceFacade,
   IChessEngine,
@@ -18,16 +18,16 @@ import type {
   IChessEventBus,
   IGermanNotation,
   IFenCache,
-  ChessEventHandler
-} from "../types/interfaces";
+  ChessEventHandler,
+} from '../types/interfaces';
 
 // Default implementations
-import ChessEngine from "../services/ChessEngine";
-import MoveValidator from "../services/MoveValidator";
-import MoveHistory from "../services/MoveHistory";
-import ChessEventBus from "../services/ChessEventBus";
-import GermanNotation from "../utils/GermanNotation";
-import FenCache from "../services/FenCache";
+import ChessEngine from '../services/ChessEngine';
+import MoveValidator from '../services/MoveValidator';
+import MoveHistory from '../services/MoveHistory';
+import ChessEventBus from '../services/ChessEventBus';
+import GermanNotation from '../utils/GermanNotation';
+import FenCache from '../services/FenCache';
 
 interface ChessServiceFacadeDependencies {
   engine?: IChessEngine;
@@ -87,12 +87,14 @@ export default class ChessServiceFacade implements IChessServiceFacade {
   }
 
   // ========== Game Initialization ==========
-  public initialize(fen: string = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"): boolean {
+  public initialize(
+    fen: string = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+  ): boolean {
     const success = this.engine.initialize(fen);
     if (success) {
       this.history.setInitialFen(fen);
       this.history.clear();
-      this.emitStateUpdate("load");
+      this.emitStateUpdate('load');
     }
     return success;
   }
@@ -101,14 +103,16 @@ export default class ChessServiceFacade implements IChessServiceFacade {
     this.engine.reset();
     this.history.clear();
     this.cache.clear();
-    this.emitStateUpdate("reset");
+    this.emitStateUpdate('reset');
   }
 
   // ========== Move Operations ==========
-  public move(move: ChessJsMove | { from: string; to: string; promotion?: string } | string): ValidatedMove | null {
+  public move(
+    move: ChessJsMove | { from: string; to: string; promotion?: string } | string
+  ): ValidatedMove | null {
     // Convert German notation if needed
     const normalizedMove = this.normalizeMove(move);
-    
+
     // Validate move first
     if (!this.validator.validateMove(normalizedMove, this.engine)) {
       return null;
@@ -122,35 +126,34 @@ export default class ChessServiceFacade implements IChessServiceFacade {
 
     // Create validated move using factory function
     const currentFen = this.engine.getFen();
-    const validatedMove = createMove(
-      chessJsMove,
-      chessJsMove.before,
-      currentFen
-    );
+    const validatedMove = createMove(chessJsMove, chessJsMove.before, currentFen);
 
     // Add to history
     this.history.addMove(validatedMove);
 
     // Cache FEN position
-    this.cache.set(currentFen, JSON.stringify({
-      moveNumber: this.history.getCurrentIndex() + 1,
-      gameState: {
-        isCheck: this.engine.isCheck(),
-        isCheckmate: this.engine.isCheckmate(),
-        isStalemate: this.engine.isStalemate(),
-        isDraw: this.engine.isDraw()
-      }
-    }));
+    this.cache.set(
+      currentFen,
+      JSON.stringify({
+        moveNumber: this.history.getCurrentIndex() + 1,
+        gameState: {
+          isCheck: this.engine.isCheck(),
+          isCheckmate: this.engine.isCheckmate(),
+          isStalemate: this.engine.isStalemate(),
+          isDraw: this.engine.isDraw(),
+        },
+      })
+    );
 
     // Emit event
     this.eventBus.emit({
-      type: "move",
+      type: 'move',
       payload: {
         move: validatedMove,
         fen: currentFen,
         currentMoveIndex: this.history.getCurrentIndex(),
-        source: "move"
-      }
+        source: 'move',
+      },
     });
 
     return validatedMove;
@@ -171,7 +174,7 @@ export default class ChessServiceFacade implements IChessServiceFacade {
     const newIndex = this.history.getCurrentIndex() - 1;
     this.history.setPosition(newIndex);
 
-    this.emitStateUpdate("undo");
+    this.emitStateUpdate('undo');
     return true;
   }
 
@@ -182,7 +185,7 @@ export default class ChessServiceFacade implements IChessServiceFacade {
 
     const nextIndex = this.history.getCurrentIndex() + 1;
     const nextMove = this.history.getMove(nextIndex);
-    
+
     if (!nextMove) {
       return false;
     }
@@ -191,7 +194,7 @@ export default class ChessServiceFacade implements IChessServiceFacade {
     const moveObj = {
       from: nextMove.from,
       to: nextMove.to,
-      ...(nextMove.promotion && { promotion: nextMove.promotion })
+      ...(nextMove.promotion && { promotion: nextMove.promotion }),
     };
     const result = this.engine.move(moveObj);
 
@@ -202,12 +205,14 @@ export default class ChessServiceFacade implements IChessServiceFacade {
     // Update history position
     this.history.setPosition(nextIndex);
 
-    this.emitStateUpdate("redo");
+    this.emitStateUpdate('redo');
     return true;
   }
 
   // ========== Move Validation ==========
-  public validateMove(move: ChessJsMove | { from: string; to: string; promotion?: string } | string): boolean {
+  public validateMove(
+    move: ChessJsMove | { from: string; to: string; promotion?: string } | string
+  ): boolean {
     const normalizedMove = this.normalizeMove(move);
     return this.validator.validateMove(normalizedMove, this.engine);
   }
@@ -249,16 +254,16 @@ export default class ChessServiceFacade implements IChessServiceFacade {
     return this.engine.isDraw();
   }
 
-  public turn(): "w" | "b" {
+  public turn(): 'w' | 'b' {
     return this.engine.turn();
   }
 
   public getGameResult(): string | null {
     if (this.isCheckmate()) {
-      return this.turn() === "w" ? "0-1" : "1-0"; // Opposite color wins
+      return this.turn() === 'w' ? '0-1' : '1-0'; // Opposite color wins
     }
     if (this.isStalemate() || this.isDraw()) {
-      return "1/2-1/2";
+      return '1/2-1/2';
     }
     return null;
   }
@@ -273,7 +278,7 @@ export default class ChessServiceFacade implements IChessServiceFacade {
     const success = this.engine.loadPgn(pgn);
     if (success) {
       this.rebuildHistoryFromEngine();
-      this.emitStateUpdate("load");
+      this.emitStateUpdate('load');
     }
     return success;
   }
@@ -281,7 +286,7 @@ export default class ChessServiceFacade implements IChessServiceFacade {
   // ========== Navigation ==========
   public goToMove(moveIndex: number): boolean {
     const totalMoves = this.history.getMoves().length;
-    
+
     if (moveIndex < -1 || moveIndex >= totalMoves) {
       return false;
     }
@@ -303,7 +308,7 @@ export default class ChessServiceFacade implements IChessServiceFacade {
           const moveObj = {
             from: move.from,
             to: move.to,
-            ...(move.promotion && { promotion: move.promotion })
+            ...(move.promotion && { promotion: move.promotion }),
           };
           this.engine.move(moveObj);
         }
@@ -313,13 +318,15 @@ export default class ChessServiceFacade implements IChessServiceFacade {
     // Update history position
     this.history.setPosition(moveIndex);
 
-    this.emitStateUpdate("undo");
+    this.emitStateUpdate('undo');
     return true;
   }
 
   // ========== Private Helpers ==========
-  private normalizeMove(move: ChessJsMove | { from: string; to: string; promotion?: string } | string): ChessJsMove | { from: string; to: string; promotion?: string } | string {
-    if (typeof move === "string") {
+  private normalizeMove(
+    move: ChessJsMove | { from: string; to: string; promotion?: string } | string
+  ): ChessJsMove | { from: string; to: string; promotion?: string } | string {
+    if (typeof move === 'string') {
       // Check if it contains German notation
       if (this.notation.hasGermanNotation(move)) {
         // Try promotion notation first
@@ -327,7 +334,7 @@ export default class ChessServiceFacade implements IChessServiceFacade {
         if (promotionNormalized) {
           return promotionNormalized;
         }
-        
+
         // Then try general SAN conversion
         const sanNormalized = this.notation.germanToSan(move);
         if (sanNormalized !== move) {
@@ -335,13 +342,13 @@ export default class ChessServiceFacade implements IChessServiceFacade {
         }
       }
     }
-    
+
     return move;
   }
 
-  private emitStateUpdate(source: "move" | "reset" | "undo" | "redo" | "load"): void {
+  private emitStateUpdate(source: 'move' | 'reset' | 'undo' | 'redo' | 'load'): void {
     this.eventBus.emit({
-      type: "stateUpdate",
+      type: 'stateUpdate',
       payload: {
         fen: this.getFen(),
         pgn: this.getPgn(),
@@ -349,14 +356,14 @@ export default class ChessServiceFacade implements IChessServiceFacade {
         currentMoveIndex: this.getCurrentMoveIndex(),
         isGameOver: this.isGameOver(),
         gameResult: this.getGameResult(),
-        source
-      }
+        source,
+      },
     });
   }
 
   private rebuildHistoryFromEngine(): void {
     this.history.clear();
-    
+
     const engineHistory = this.engine.history({ verbose: true });
     if (!Array.isArray(engineHistory)) {
       return;
@@ -374,12 +381,8 @@ export default class ChessServiceFacade implements IChessServiceFacade {
     for (const chessJsMove of engineHistory) {
       const result = this.engine.move(chessJsMove);
       if (result) {
-        const validatedMove = createMove(
-          result,
-          result.before,
-          this.engine.getFen()
-        );
-        
+        const validatedMove = createMove(result, result.before, this.engine.getFen());
+
         this.history.addMove(validatedMove);
       }
     }

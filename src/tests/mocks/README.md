@@ -19,9 +19,9 @@ MockManager (Singleton)
 ### Basic Usage
 
 ```typescript
-import { mockManager } from "@tests/mocks/MockManager";
+import { mockManager } from '@tests/mocks/MockManager';
 
-describe("MyComponent", () => {
+describe('MyComponent', () => {
   let chessService;
   let store;
 
@@ -31,9 +31,9 @@ describe("MyComponent", () => {
     store = mockManager.zustandStore.create();
   });
 
-  it("should handle move", () => {
+  it('should handle move', () => {
     // Use the mocked service
-    chessService.move.mockReturnValue({ san: "e4" });
+    chessService.move.mockReturnValue({ san: 'e4' });
 
     // Test your component
     expect(chessService.move).toHaveBeenCalled();
@@ -47,8 +47,8 @@ describe("MyComponent", () => {
 beforeEach(() => {
   // Create mock with specific behavior
   chessService = mockManager.chessService.create({
-    fen: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
-    validMoves: ["e5", "d5", "Nf6"],
+    fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
+    validMoves: ['e5', 'd5', 'Nf6'],
     isGameOver: false,
   });
 });
@@ -62,15 +62,15 @@ Mocks the chess game logic service.
 
 ```typescript
 const chessService = mockManager.chessService.create({
-  fen: "starting position",
+  fen: 'starting position',
   moveHistory: [],
-  validMoves: ["e4", "d4"],
-  moveResults: new Map([["e2-e4", { san: "e4", from: "e2", to: "e4" }]]),
+  validMoves: ['e4', 'd4'],
+  moveResults: new Map([['e2-e4', { san: 'e4', from: 'e2', to: 'e4' }]]),
 });
 
 // Helper methods
-mockManager.chessService.setupPosition("CHECKMATE_POSITION");
-mockManager.chessService.simulateMoves(["e4", "e5", "Nf3"]);
+mockManager.chessService.setupPosition('CHECKMATE_POSITION');
+mockManager.chessService.simulateMoves(['e4', 'e5', 'Nf3']);
 ```
 
 ### TablebaseServiceMockFactory
@@ -82,8 +82,8 @@ const tablebaseService = mockManager.tablebaseService.create({
   shouldFail: false,
   responseDelay: 100, // Simulate network latency
   positionResults: new Map([
-    ["fen1", { category: "win", dtm: 5 }],
-    ["fen2", { category: "draw", dtm: 0 }],
+    ['fen1', { category: 'win', dtm: 5 }],
+    ['fen2', { category: 'draw', dtm: 0 }],
   ]),
 });
 
@@ -100,7 +100,7 @@ Creates isolated Zustand store instances for testing.
 ```typescript
 const { store, getState, setState } = mockManager.zustandStore.create({
   game: {
-    currentFen: "custom fen",
+    currentFen: 'custom fen',
     moveHistory: [],
   },
   training: {
@@ -110,8 +110,8 @@ const { store, getState, setState } = mockManager.zustandStore.create({
 });
 
 // Helper methods
-mockManager.zustandStore.updateSlice("game", { isGameFinished: true });
-const gameState = mockManager.zustandStore.getSliceState("game");
+mockManager.zustandStore.updateSlice('game', { isGameFinished: true });
+const gameState = mockManager.zustandStore.getSliceState('game');
 await mockManager.zustandStore.waitForStateUpdate();
 ```
 
@@ -122,16 +122,16 @@ Manages Mock Service Worker for API mocking.
 ```typescript
 const mswServer = mockManager.mswServer.create({
   handlers: [
-    rest.get("/api/endpoint", (req, res, ctx) => {
-      return res(ctx.json({ data: "mocked" }));
+    rest.get('/api/endpoint', (req, res, ctx) => {
+      return res(ctx.json({ data: 'mocked' }));
     }),
   ],
 });
 
 // Helper methods
 mockManager.mswServer.mockTablebaseSuccess(fen, result);
-mockManager.mswServer.mockTablebaseError(500, "Server error");
-mockManager.mswServer.mockNetworkTimeout("/api/endpoint", 5000);
+mockManager.mswServer.mockTablebaseError(500, 'Server error');
+mockManager.mswServer.mockNetworkTimeout('/api/endpoint', 5000);
 mockManager.mswServer.mockRateLimit();
 ```
 
@@ -142,19 +142,19 @@ mockManager.mswServer.mockRateLimit();
 Isolate components by mocking all dependencies:
 
 ```typescript
-describe("useGameLogic Hook", () => {
+describe('useGameLogic Hook', () => {
   beforeEach(() => {
     const chessService = mockManager.chessService.create({
-      validMoves: ["e4"],
+      validMoves: ['e4'],
       isGameOver: false,
     });
 
     const store = mockManager.zustandStore.create({
-      game: { currentFen: "starting position" },
+      game: { currentFen: 'starting position' },
     });
   });
 
-  it("validates moves correctly", () => {
+  it('validates moves correctly', () => {
     // Test with fully mocked dependencies
   });
 });
@@ -165,7 +165,7 @@ describe("useGameLogic Hook", () => {
 Use real implementations internally, mock external boundaries:
 
 ```typescript
-describe("GameBoard Integration", () => {
+describe('GameBoard Integration', () => {
   beforeEach(() => {
     // Only mock external API calls
     mockManager.mswServer.create();
@@ -174,7 +174,7 @@ describe("GameBoard Integration", () => {
     // Let internal services work together
   });
 
-  it("displays tablebase evaluation", async () => {
+  it('displays tablebase evaluation', async () => {
     // Test with real store and chess service
   });
 });
@@ -188,7 +188,7 @@ Create a complete mock environment:
 beforeEach(() => {
   const env = mockManager.createFullEnvironment({
     chessService: { isGameOver: false },
-    zustandStore: { game: { currentFen: "test position" } },
+    zustandStore: { game: { currentFen: 'test position' } },
   });
 
   // Use env.chessService, env.store, etc.
@@ -225,7 +225,7 @@ This will:
 
 ```typescript
 if (mockManager.hasActiveMocks()) {
-  console.log("Active mocks:", mockManager.getActiveMockNames());
+  console.log('Active mocks:', mockManager.getActiveMockNames());
 }
 ```
 
@@ -243,7 +243,7 @@ if (mockManager.hasActiveMocks()) {
 
 ```typescript
 // Manual mock with potential leaks
-jest.mock("@shared/services/ChessService");
+jest.mock('@shared/services/ChessService');
 const mockChessService = {
   move: jest.fn(),
   // ... manual mock setup
@@ -259,7 +259,7 @@ afterEach(() => {
 
 ```typescript
 // Automatic, type-safe mocking
-import { mockManager } from "@tests/mocks/MockManager";
+import { mockManager } from '@tests/mocks/MockManager';
 
 beforeEach(() => {
   const chessService = mockManager.chessService.create();

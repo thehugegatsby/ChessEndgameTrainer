@@ -4,11 +4,7 @@
  * Allows for multiple service implementations and better testability
  */
 
-import {
-  type EndgamePosition,
-  type EndgameCategory,
-  type EndgameChapter,
-} from "@shared/types";
+import { type EndgamePosition, type EndgameCategory, type EndgameChapter } from '@shared/types';
 
 /**
  * Service interface for position-related business logic
@@ -21,34 +17,21 @@ import {
 export interface PositionService {
   // Single position operations
   getPosition(id: number): Promise<EndgamePosition | null>;
-  createPosition(
-    position: Omit<EndgamePosition, "id">,
-  ): Promise<EndgamePosition | null>;
-  updatePosition(
-    id: number,
-    updates: Partial<EndgamePosition>,
-  ): Promise<EndgamePosition | null>;
+  createPosition(position: Omit<EndgamePosition, 'id'>): Promise<EndgamePosition | null>;
+  updatePosition(id: number, updates: Partial<EndgamePosition>): Promise<EndgamePosition | null>;
   deletePosition(id: number): Promise<boolean>;
 
   // Bulk position operations
   getAllPositions(): Promise<EndgamePosition[]>;
   getPositionsByCategory(category: string): Promise<EndgamePosition[]>;
-  getPositionsByDifficulty(
-    difficulty: EndgamePosition["difficulty"],
-  ): Promise<EndgamePosition[]>;
+  getPositionsByDifficulty(difficulty: EndgamePosition['difficulty']): Promise<EndgamePosition[]>;
 
   // Search and filtering
   searchPositions(searchTerm: string): Promise<EndgamePosition[]>;
 
   // Navigation
-  getNextPosition(
-    currentId: number,
-    categoryId?: string,
-  ): Promise<EndgamePosition | null>;
-  getPreviousPosition(
-    currentId: number,
-    categoryId?: string,
-  ): Promise<EndgamePosition | null>;
+  getNextPosition(currentId: number, categoryId?: string): Promise<EndgamePosition | null>;
+  getPreviousPosition(currentId: number, categoryId?: string): Promise<EndgamePosition | null>;
 
   // Categories and chapters
   getCategories(): Promise<EndgameCategory[]>;

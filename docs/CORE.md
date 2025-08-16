@@ -37,12 +37,12 @@ graph TD
 
 ### Zustand Domain Slices
 
-| Slice | Purpose | Key State |
-|-------|---------|-----------|
-| **GameSlice** | Chess logic, FEN, history | `position`, `moveHistory`, `gameStatus` |
-| **TrainingSlice** | Training sessions | `scenarios`, `sessionStatus` |
-| **TablebaseSlice** | Lichess API cache | `evaluations`, `cache`, `requestStatus` |
-| **UISlice** | UI state management | `modals`, `toasts`, `isLoading` |
+| Slice              | Purpose                   | Key State                               |
+| ------------------ | ------------------------- | --------------------------------------- |
+| **GameSlice**      | Chess logic, FEN, history | `position`, `moveHistory`, `gameStatus` |
+| **TrainingSlice**  | Training sessions         | `scenarios`, `sessionStatus`            |
+| **TablebaseSlice** | Lichess API cache         | `evaluations`, `cache`, `requestStatus` |
+| **UISlice**        | UI state management       | `modals`, `toasts`, `isLoading`         |
 
 ### Services
 
@@ -55,27 +55,31 @@ graph TD
 Complex operations across slices: `/shared/store/orchestrators/`
 
 **Example: handlePlayerMove** (964 lines, 4 modules - **appropriately complex**)
+
 1. Validates move (GameSlice) → MoveValidator
-2. Evaluates quality (TablebaseSlice) → MoveQualityEvaluator  
+2. Evaluates quality (TablebaseSlice) → MoveQualityEvaluator
 3. Handles promotion (Training/UI) → PawnPromotionHandler
 4. Shows feedback (UISlice) → EventBasedMoveDialogManager
 5. Schedules opponent (Training) → OpponentTurnHandler
 
-*Multi-model analysis confirmed: NOT over-engineered, but domain-appropriate complexity*
+_Multi-model analysis confirmed: NOT over-engineered, but domain-appropriate complexity_
 
 ## Code Standards
 
 ### Naming
+
 - Components: `PascalCase.tsx`
 - Hooks: `useCamelCase.ts`
 - Services: `PascalCaseService.ts`
 - Constants: `UPPER_CASE`
 
 ### Language
+
 - Code/Comments: English
 - UI Text: German (`showToast("Ungültiger Zug", "error")`)
 
 ### Imports
+
 1. External (`react`, `zustand`)
 2. Aliases (`@shared/...`)
 3. Types (`import type {...}`)
@@ -101,24 +105,26 @@ function BoardPresentation({ fen, onMove }) {
 
 ```typescript
 // ✅ Clean with Immer
-makeMove: (move) => set((state) => {
-  state.game.moveHistory.push(move);
-})
+makeMove: move =>
+  set(state => {
+    state.game.moveHistory.push(move);
+  });
 
 // ❌ Avoid manual spreading
-makeMove: (move) => set((state) => ({
-  ...state,
-  game: { ...state.game, moveHistory: [...state.game.moveHistory, move] }
-}))
+makeMove: move =>
+  set(state => ({
+    ...state,
+    game: { ...state.game, moveHistory: [...state.game.moveHistory, move] },
+  }));
 ```
 
 ### Optimized Hooks
 
 ```typescript
 // ✅ Specific hooks prevent re-renders
-const { makeMove } = useGameActions();     // Actions only
-const { fen } = useGameState();            // State only
-const [state, actions] = useGameStore();   // Both (rare)
+const { makeMove } = useGameActions(); // Actions only
+const { fen } = useGameState(); // State only
+const [state, actions] = useGameStore(); // Both (rare)
 
 // ❌ Subscribes to entire slice
 const gameStore = useGameStore();
@@ -137,6 +143,7 @@ src/features/training/events/EventBasedMoveDialogManager.ts # Dialog handling �
 ## Architektur-Korrekturen
 
 **NICHT existierende Dateien** (oft falsch referenziert):
+
 - ❌ `MoveDialogManager.ts` (nutze stattdessen EventBasedMoveDialogManager)
 - ❌ `SpacedRepetitionService` (wurde entfernt)
 - ❌ `ProgressService` (wurde entfernt)
@@ -150,8 +157,9 @@ src/features/training/events/EventBasedMoveDialogManager.ts # Dialog handling �
 ## Feature Architecture
 
 3 bounded domains with co-located tests:
+
 - `chess-core/`: Game logic, validation
-- `tablebase/`: Lichess API integration  
+- `tablebase/`: Lichess API integration
 - `training/`: Session management
 
 Migration complete - all tests migrated to Vitest.

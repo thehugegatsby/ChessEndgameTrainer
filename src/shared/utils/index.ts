@@ -1,2 +1,2 @@
 // Chess utilities
-export * from "./chess/evaluation";
+export * from './chess/evaluation';

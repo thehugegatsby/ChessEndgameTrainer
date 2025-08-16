@@ -1,12 +1,12 @@
-import { type Page, expect } from "@playwright/test";
-import { getLogger } from "@shared/services/logging";
+import { type Page, expect } from '@playwright/test';
+import { getLogger } from '@shared/services/logging';
 
 /**
  * Chess Domain Page Object - Replaces hardcoded waitForTimeout() with deterministic waiting
- * 
+ *
  * This helper focuses on chess-specific interactions and state validation,
  * providing domain abstractions for common E2E test patterns.
- * 
+ *
  * @example
  * ```typescript
  * const chessboard = new ChessboardPage(page);
@@ -16,7 +16,7 @@ import { getLogger } from "@shared/services/logging";
  * ```
  */
 export class ChessboardPage {
-  private logger = getLogger().setContext("ChessboardPage");
+  private logger = getLogger().setContext('ChessboardPage');
 
   constructor(private page: Page) {}
 
@@ -25,8 +25,8 @@ export class ChessboardPage {
    * Replaces: await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
    */
   async waitForTablebaseReady(): Promise<void> {
-    this.logger.info("⏳ Waiting for tablebase to be ready");
-    
+    this.logger.info('⏳ Waiting for tablebase to be ready');
+
     await this.page.waitForFunction(
       () => {
         // Check if store indicates tablebase is ready
@@ -41,8 +41,8 @@ export class ChessboardPage {
       },
       { timeout: 15000 }
     );
-    
-    this.logger.info("✅ Tablebase ready");
+
+    this.logger.info('✅ Tablebase ready');
   }
 
   /**
@@ -50,8 +50,8 @@ export class ChessboardPage {
    * Replaces: await page.waitForTimeout(500/1000/2000);
    */
   async waitForMoveProcessed(): Promise<void> {
-    this.logger.info("⏳ Waiting for move to be processed");
-    
+    this.logger.info('⏳ Waiting for move to be processed');
+
     await this.page.waitForFunction(
       () => {
         const store = (window as any).__e2e_store;
@@ -62,8 +62,8 @@ export class ChessboardPage {
       },
       { timeout: 10000 }
     );
-    
-    this.logger.info("✅ Move processed");
+
+    this.logger.info('✅ Move processed');
   }
 
   /**
@@ -99,35 +99,37 @@ export class ChessboardPage {
    * Replaces: checking for various game over indicators with timeouts
    */
   async waitForGameOver(): Promise<void> {
-    this.logger.info("⏳ Waiting for game over");
-    
+    this.logger.info('⏳ Waiting for game over');
+
     await this.page.waitForFunction(
       () => {
         const store = (window as any).__e2e_store;
         if (!store) return false;
         const state = store.getState?.();
-        return state?.training?.isSuccess || 
-               state?.game?.gameResult !== null;
+        return state?.training?.isSuccess || state?.game?.gameResult !== null;
       },
       { timeout: 30000 }
     );
-    
-    this.logger.info("✅ Game over detected");
+
+    this.logger.info('✅ Game over detected');
   }
 
   /**
    * Wait for toast message to appear
    * Replaces: manual toast checking with timeouts
    */
-  async waitForToast(message: string, type: 'success' | 'error' | 'warning' = 'success'): Promise<void> {
+  async waitForToast(
+    message: string,
+    type: 'success' | 'error' | 'warning' = 'success'
+  ): Promise<void> {
     this.logger.info(`⏳ Waiting for ${type} toast: ${message}`);
-    
+
     const toastSelector = `[data-testid="toast-${type}"]`;
     await this.page.waitForSelector(toastSelector, { timeout: 10000 });
-    
+
     const toastElement = this.page.locator(toastSelector);
     await expect(toastElement).toContainText(message);
-    
+
     this.logger.info(`✅ Toast appeared: ${message}`);
   }
 
@@ -138,15 +140,15 @@ export class ChessboardPage {
   async getCurrentFEN(): Promise<string> {
     const fen = await this.page.evaluate(() => {
       const store = (window as any).__e2e_store;
-      if (!store) throw new Error("E2E Store not available");
+      if (!store) throw new Error('E2E Store not available');
       const state = store.getState?.();
       return state?.game?.currentFen;
     });
-    
+
     if (!fen) {
-      throw new Error("Could not retrieve FEN from game state");
+      throw new Error('Could not retrieve FEN from game state');
     }
-    
+
     return fen;
   }
 
@@ -156,9 +158,9 @@ export class ChessboardPage {
    */
   async waitForPosition(expectedFEN: string): Promise<void> {
     this.logger.info(`⏳ Waiting for position: ${expectedFEN}`);
-    
+
     await this.page.waitForFunction(
-      (fen) => {
+      fen => {
         const store = (window as any).__e2e_store;
         if (!store) return false;
         const state = store.getState?.();
@@ -167,8 +169,8 @@ export class ChessboardPage {
       expectedFEN,
       { timeout: 15000 }
     );
-    
-    this.logger.info("✅ Position reached");
+
+    this.logger.info('✅ Position reached');
   }
 
   /**
@@ -176,8 +178,8 @@ export class ChessboardPage {
    * Replaces: manual evaluation checking with race conditions
    */
   async assertEvaluationAvailable(): Promise<void> {
-    this.logger.info("🧠 Checking tablebase evaluation");
-    
+    this.logger.info('🧠 Checking tablebase evaluation');
+
     // First wait for analysis to complete
     await this.page.waitForFunction(
       () => {
@@ -189,21 +191,23 @@ export class ChessboardPage {
       },
       { timeout: 15000 }
     );
-    
+
     // Then verify we have some evaluation data
     const hasEvaluation = await this.page.evaluate(() => {
       const store = (window as any).__e2e_store;
       const state = store.getState?.();
-      return Boolean(state?.tablebase?.currentEvaluation || 
-                state?.tablebase?.evaluations?.length > 0 ||
-                state?.tablebase?.tablebaseMove);
+      return Boolean(
+        state?.tablebase?.currentEvaluation ||
+          state?.tablebase?.evaluations?.length > 0 ||
+          state?.tablebase?.tablebaseMove
+      );
     });
-    
+
     if (!hasEvaluation) {
-      this.logger.warn("⚠️ No evaluation data found, but analysis completed");
+      this.logger.warn('⚠️ No evaluation data found, but analysis completed');
     }
-    
-    this.logger.info("✅ Tablebase evaluation check complete");
+
+    this.logger.info('✅ Tablebase evaluation check complete');
   }
 
   /**

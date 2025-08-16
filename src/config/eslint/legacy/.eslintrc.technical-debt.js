@@ -8,16 +8,16 @@
 module.exports = {
   rules: {
     // Enforce consistent null/undefined usage
-    "@typescript-eslint/no-unnecessary-condition": [
-      "error",
+    '@typescript-eslint/no-unnecessary-condition': [
+      'error',
       {
         allowConstantLoopConditions: true,
       },
     ],
 
     // Prevent null ?? undefined patterns
-    "@typescript-eslint/prefer-nullish-coalescing": [
-      "error",
+    '@typescript-eslint/prefer-nullish-coalescing': [
+      'error',
       {
         ignoreConditionalTests: false,
         ignoreTernaryTests: false,
@@ -27,11 +27,11 @@ module.exports = {
     ],
 
     // Enforce strict equality to catch null/undefined issues
-    eqeqeq: ["error", "always", { null: "ignore" }],
+    eqeqeq: ['error', 'always', { null: 'ignore' }],
 
     // Prevent confusing void expressions
-    "@typescript-eslint/no-confusing-void-expression": [
-      "error",
+    '@typescript-eslint/no-confusing-void-expression': [
+      'error',
       {
         ignoreArrowShorthand: false,
         ignoreVoidOperator: false,
@@ -39,8 +39,8 @@ module.exports = {
     ],
 
     // Enforce return types on functions (prevents implicit any)
-    "@typescript-eslint/explicit-function-return-type": [
-      "warn",
+    '@typescript-eslint/explicit-function-return-type': [
+      'warn',
       {
         allowExpressions: true,
         allowTypedFunctionExpressions: true,
@@ -50,23 +50,23 @@ module.exports = {
     ],
 
     // Prevent any types
-    "@typescript-eslint/no-explicit-any": "error",
+    '@typescript-eslint/no-explicit-any': 'error',
 
     // Enforce consistent type imports
-    "@typescript-eslint/consistent-type-imports": [
-      "error",
+    '@typescript-eslint/consistent-type-imports': [
+      'error',
       {
-        prefer: "type-imports",
-        fixStyle: "inline-type-imports",
+        prefer: 'type-imports',
+        fixStyle: 'inline-type-imports',
       },
     ],
 
     // Warn about deprecated usage
-    "deprecation/deprecation": "warn",
+    'deprecation/deprecation': 'warn',
 
     // Enforce maximum file length to prevent monoliths
-    "max-lines": [
-      "warn",
+    'max-lines': [
+      'warn',
       {
         max: 500,
         skipBlankLines: true,
@@ -75,8 +75,8 @@ module.exports = {
     ],
 
     // Enforce maximum function length
-    "max-lines-per-function": [
-      "warn",
+    'max-lines-per-function': [
+      'warn',
       {
         max: 50,
         skipBlankLines: true,
@@ -86,32 +86,32 @@ module.exports = {
     ],
 
     // Complexity warnings
-    complexity: ["warn", 10],
+    complexity: ['warn', 10],
 
     // Enforce consistent naming
-    "@typescript-eslint/naming-convention": [
-      "error",
+    '@typescript-eslint/naming-convention': [
+      'error',
       {
-        selector: "interface",
-        format: ["PascalCase"],
-        prefix: ["I"],
+        selector: 'interface',
+        format: ['PascalCase'],
+        prefix: ['I'],
       },
       {
-        selector: "typeAlias",
-        format: ["PascalCase"],
+        selector: 'typeAlias',
+        format: ['PascalCase'],
       },
       {
-        selector: "enum",
-        format: ["PascalCase"],
+        selector: 'enum',
+        format: ['PascalCase'],
       },
     ],
   },
 
   // Required plugins
-  plugins: ["@typescript-eslint", "deprecation"],
+  plugins: ['@typescript-eslint', 'deprecation'],
 
   // Parser options
   parserOptions: {
-    project: "./tsconfig.json",
+    project: './tsconfig.json',
   },
 };

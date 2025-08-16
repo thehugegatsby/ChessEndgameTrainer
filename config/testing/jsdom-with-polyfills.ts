@@ -1,6 +1,6 @@
 /**
  * Custom JSDOM Environment with Observer Polyfills
- * 
+ *
  * This ensures IntersectionObserver and ResizeObserver are available
  * BEFORE any modules are loaded, fixing the Next.js 15 issue.
  */
@@ -69,21 +69,21 @@ export default <Environment>{
     // First, setup JSDOM environment
     const jsdomEnv = builtinEnvironments.jsdom;
     const teardown = await jsdomEnv.setup(global, options);
-    
+
     // Then add our polyfills to the JSDOM window
     global.IntersectionObserver = IntersectionObserverPolyfill as any;
     global.ResizeObserver = ResizeObserverPolyfill as any;
     global.IS_REACT_ACT_ENVIRONMENT = true;
-    
+
     // Also set on globalThis
     (globalThis as any).IntersectionObserver = IntersectionObserverPolyfill;
     (globalThis as any).ResizeObserver = ResizeObserverPolyfill;
     (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
-    
+
     console.log('✨ Custom JSDOM Environment: Observer polyfills installed');
-    
+
     return {
-      teardown
+      teardown,
     };
-  }
+  },
 };

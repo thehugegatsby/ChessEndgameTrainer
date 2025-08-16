@@ -5,20 +5,16 @@
  * to the window object for Playwright tests. Works with TestBridge for tablebase control.
  */
 
-import { TestApiService } from "./TestApiService";
-import type {
-  TestMoveResponse,
-  TestGameState,
-  TestTablebaseConfig,
-} from "./TestApiService";
-import type { TestBridge } from "@shared/types/test-bridge";
-import type { TablebaseData } from "@shared/types/evaluation";
-import { getLogger } from "@shared/services/logging";
-import type { RootState } from "@shared/store/slices/types";
-import type { Move as ChessJsMove } from "chess.js";
-import type { EndgamePosition } from "@shared/types/endgame";
+import { TestApiService } from './TestApiService';
+import type { TestMoveResponse, TestGameState, TestTablebaseConfig } from './TestApiService';
+import type { TestBridge } from '@shared/types/test-bridge';
+import type { TablebaseData } from '@shared/types/evaluation';
+import { getLogger } from '@shared/services/logging';
+import type { RootState } from '@shared/store/slices/types';
+import type { Move as ChessJsMove } from 'chess.js';
+import type { EndgamePosition } from '@shared/types/endgame';
 
-const logger = getLogger().setContext("BrowserTestApi");
+const logger = getLogger().setContext('BrowserTestApi');
 
 /**
  * Browser Test API
@@ -93,18 +89,17 @@ export class BrowserTestApi {
   public initialize(storeAccess?: {
     getState: () => RootState;
     subscribe: (listener: (state: RootState, prevState: RootState) => void) => () => void;
-    makeMove: (move: ChessJsMove | { from: string; to: string; promotion?: string } | string) => void;
+    makeMove: (
+      move: ChessJsMove | { from: string; to: string; promotion?: string } | string
+    ) => void;
     applyMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => void;
     resetPosition: () => void;
     setPosition: (position: EndgamePosition) => void;
     goToMove: (moveIndex: number) => void;
     setAnalysisStatus: (status: string) => void;
   }): void {
-    if (
-      process.env.NODE_ENV !== "test" &&
-      process.env['NEXT_PUBLIC_IS_E2E_TEST'] !== "true"
-    ) {
-      logger.warn("Test API is only available in test environment");
+    if (process.env.NODE_ENV !== 'test' && process.env['NEXT_PUBLIC_IS_E2E_TEST'] !== 'true') {
+      logger.warn('Test API is only available in test environment');
       return;
     }
 
@@ -114,9 +109,7 @@ export class BrowserTestApi {
 
     // Wait for store access to be provided
     if (!storeAccess) {
-      logger.warn(
-        "BrowserTestApi: Store access not provided, delaying initialization",
-      );
+      logger.warn('BrowserTestApi: Store access not provided, delaying initialization');
       return;
     }
 
@@ -127,9 +120,7 @@ export class BrowserTestApi {
     const windowWithBridge = window as unknown as { __E2E_TEST_BRIDGE__?: TestBridge };
     this.testBridge = windowWithBridge.__E2E_TEST_BRIDGE__ || null;
     if (!this.testBridge) {
-      logger.warn(
-        "TestBridge not found on window - tablebase control will not be available",
-      );
+      logger.warn('TestBridge not found on window - tablebase control will not be available');
     }
 
     // Expose methods to window
@@ -163,7 +154,7 @@ export class BrowserTestApi {
     };
 
     this.initialized = true;
-    logger.info("Browser Test API initialized");
+    logger.info('Browser Test API initialized');
   }
 
   /**
@@ -275,9 +266,7 @@ export class BrowserTestApi {
    */
   private addMockTablebaseResponse(fen: string, analysis: TablebaseData): void {
     if (!this.testBridge) {
-      logger.error(
-        "TestBridge not available - cannot add mock tablebase response",
-      );
+      logger.error('TestBridge not available - cannot add mock tablebase response');
       return;
     }
 
@@ -303,8 +292,8 @@ export class BrowserTestApi {
 export const browserTestApi = new BrowserTestApi();
 
 // Auto-cleanup on page unload
-if (typeof window !== "undefined") {
-  window.addEventListener("beforeunload", () => {
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
     browserTestApi.cleanup();
   });
 }

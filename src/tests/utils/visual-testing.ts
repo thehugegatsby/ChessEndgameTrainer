@@ -3,17 +3,17 @@
  * Enterprise-grade visual and a11y testing
  */
 
-import { type Page, type Locator, expect } from "@playwright/test";
-import { injectAxe, checkA11y, configureAxe } from "axe-playwright";
+import { type Page, type Locator, expect } from '@playwright/test';
+import { injectAxe, checkA11y, configureAxe } from 'axe-playwright';
 
 export interface VisualTestOptions {
   name: string;
   fullPage?: boolean;
   clip?: { x: number; y: number; width: number; height: number };
   mask?: Locator[];
-  animations?: "disabled" | "allow";
-  caret?: "hide" | "initial";
-  scale?: "css" | "device";
+  animations?: 'disabled' | 'allow';
+  caret?: 'hide' | 'initial';
+  scale?: 'css' | 'device';
   maxDiffPixels?: number;
   maxDiffPixelRatio?: number;
   threshold?: number;
@@ -21,7 +21,7 @@ export interface VisualTestOptions {
 }
 
 export interface A11yTestOptions {
-  includedImpacts?: ("minor" | "moderate" | "serious" | "critical")[];
+  includedImpacts?: ('minor' | 'moderate' | 'serious' | 'critical')[];
   detailedReport?: boolean;
   detailedReportOptions?: {
     html?: boolean;
@@ -37,9 +37,9 @@ export class VisualTester {
   constructor(page: Page, defaultOptions?: Partial<VisualTestOptions>) {
     this.page = page;
     this.defaultOptions = {
-      animations: "disabled",
-      caret: "hide",
-      scale: "css",
+      animations: 'disabled',
+      caret: 'hide',
+      scale: 'css',
       maxDiffPixels: 100,
       threshold: 0.2,
       ...defaultOptions,
@@ -87,7 +87,7 @@ export class VisualTester {
   async snapshotElement(
     element: Locator,
     name: string,
-    options?: Partial<VisualTestOptions>,
+    options?: Partial<VisualTestOptions>
   ): Promise<void> {
     const mergedOptions = { ...this.defaultOptions, ...options };
 
@@ -108,11 +108,9 @@ export class VisualTester {
   /**
    * Prepare page for consistent screenshots
    */
-  private async preparePage(
-    options: Partial<VisualTestOptions>,
-  ): Promise<void> {
+  private async preparePage(options: Partial<VisualTestOptions>): Promise<void> {
     // Disable animations if requested
-    if (options.animations === "disabled") {
+    if (options.animations === 'disabled') {
       await this.page.addStyleTag({
         content: `
           *, *::before, *::after {
@@ -126,7 +124,7 @@ export class VisualTester {
     }
 
     // Hide caret if requested
-    if (options.caret === "hide") {
+    if (options.caret === 'hide') {
       await this.page.addStyleTag({
         content: `
           * {
@@ -140,7 +138,7 @@ export class VisualTester {
     await this.page.evaluate(() => document.fonts.ready);
 
     // Wait for images to load
-    await this.page.waitForLoadState("networkidle");
+    await this.page.waitForLoadState('networkidle');
 
     // Additional wait for any lazy-loaded content
     await this.page.waitForTimeout(500);
@@ -149,10 +147,7 @@ export class VisualTester {
   /**
    * Visual regression test suite
    */
-  async runSuite(suite: {
-    name: string;
-    tests: VisualTestOptions[];
-  }): Promise<void> {
+  async runSuite(suite: { name: string; tests: VisualTestOptions[] }): Promise<void> {
     for (const test of suite.tests) {
       await this.snapshot({
         ...test,
@@ -214,17 +209,14 @@ export class A11yTester {
           rules: options?.rules,
         },
       },
-      options?.skipFailures,
+      options?.skipFailures
     );
   }
 
   /**
    * Check specific element
    */
-  async checkElement(
-    selector: string,
-    options?: A11yTestOptions,
-  ): Promise<void> {
+  async checkElement(selector: string, options?: A11yTestOptions): Promise<void> {
     await this.initialize();
 
     await checkA11y(
@@ -238,7 +230,7 @@ export class A11yTester {
           rules: options?.rules,
         },
       },
-      options?.skipFailures,
+      options?.skipFailures
     );
   }
 
@@ -255,12 +247,12 @@ export class A11yTester {
   async runCommonTests(): Promise<void> {
     // WCAG 2.1 Level AA compliance
     await this.check({
-      includedImpacts: ["critical", "serious"],
+      includedImpacts: ['critical', 'serious'],
       rules: {
-        "color-contrast": { enabled: true },
+        'color-contrast': { enabled: true },
         label: { enabled: true },
-        "landmark-one-main": { enabled: true },
-        "page-has-heading-one": { enabled: true },
+        'landmark-one-main': { enabled: true },
+        'page-has-heading-one': { enabled: true },
         region: { enabled: true },
       },
     });
@@ -274,20 +266,17 @@ export class A11yTester {
       const element = this.page.locator(selector);
 
       // Check if element is focusable
-      const isFocusable = await element.evaluate((el) => {
-        const tabindex = el.getAttribute("tabindex");
-        return (
-          el.matches(":focus-visible") ||
-          (tabindex !== null && parseInt(tabindex) >= 0)
-        );
+      const isFocusable = await element.evaluate(el => {
+        const tabindex = el.getAttribute('tabindex');
+        return el.matches(':focus-visible') || (tabindex !== null && parseInt(tabindex) >= 0);
       });
 
       expect(isFocusable).toBe(true);
 
       // Check if element has accessible name
       const accessibleName =
-        (await element.getAttribute("aria-label")) ||
-        (await element.getAttribute("aria-labelledby")) ||
+        (await element.getAttribute('aria-label')) ||
+        (await element.getAttribute('aria-labelledby')) ||
         (await element.textContent());
 
       expect(accessibleName).toBeTruthy();
@@ -303,7 +292,7 @@ export class A11yTester {
   }): Promise<void> {
     await this.check({
       rules: {
-        "color-contrast": {
+        'color-contrast': {
           enabled: true,
           options: {
             noScroll: true,

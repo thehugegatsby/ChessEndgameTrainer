@@ -20,9 +20,9 @@
  * with longer bars indicating moves that take more time to reach an outcome.
  */
 
-"use client";
+'use client';
 
-import React from "react";
+import React from 'react';
 import {
   type MoveResultType,
   getEvaluationBarColor,
@@ -30,7 +30,7 @@ import {
   calculateBarWidth,
   formatDtzDisplay,
   getMoveResultType,
-} from "@shared/utils/tablebase/resultClassification";
+} from '@shared/utils/tablebase/resultClassification';
 
 /**
  * Props for the MoveEvaluationBar component
@@ -55,7 +55,7 @@ interface MoveEvaluationBarProps {
   /** Additional CSS classes */
   className?: string;
   /** Optional category from tablebase data */
-  category?: "win" | "draw" | "loss";
+  category?: 'win' | 'draw' | 'loss';
 }
 
 /**
@@ -99,7 +99,7 @@ export const MoveEvaluationBar: React.FC<MoveEvaluationBarProps> = ({
   maxDtz,
   onClick,
   isSelected = false,
-  className = "",
+  className = '',
   category,
 }) => {
   const resultType: MoveResultType = category || getMoveResultType(dtz);
@@ -109,14 +109,14 @@ export const MoveEvaluationBar: React.FC<MoveEvaluationBarProps> = ({
 
   const getTextColorClass = (type: MoveResultType): string => {
     switch (type) {
-      case "win":
-        return "text-green-600 dark:text-green-400";
-      case "draw":
-        return "text-yellow-600 dark:text-yellow-400";
-      case "loss":
-        return "text-red-600 dark:text-red-400";
+      case 'win':
+        return 'text-green-600 dark:text-green-400';
+      case 'draw':
+        return 'text-yellow-600 dark:text-yellow-400';
+      case 'loss':
+        return 'text-red-600 dark:text-red-400';
       default:
-        return "text-gray-600 dark:text-gray-400";
+        return 'text-gray-600 dark:text-gray-400';
     }
   };
 
@@ -125,15 +125,15 @@ export const MoveEvaluationBar: React.FC<MoveEvaluationBarProps> = ({
       className={`
         relative flex items-center justify-between py-2 px-3 
         cursor-pointer transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800/50
-        ${isSelected ? "bg-blue-50 dark:bg-blue-900/20" : ""}
+        ${isSelected ? 'bg-blue-50 dark:bg-blue-900/20' : ''}
         ${className}
       `}
       onClick={onClick}
       role="button"
       tabIndex={0}
       aria-label={`Move ${move}, ${dtzDisplay}`}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           onClick?.();
         }
@@ -153,19 +153,15 @@ export const MoveEvaluationBar: React.FC<MoveEvaluationBarProps> = ({
       <div className="relative z-10 flex items-center justify-between w-full">
         <div className="flex items-center space-x-3">
           {/* Move notation */}
-          <span
-            className={`font-mono font-medium text-sm ${getTextColorClass(resultType)}`}
-          >
+          <span className={`font-mono font-medium text-sm ${getTextColorClass(resultType)}`}>
             {move}
           </span>
         </div>
 
         {/* DTZ display */}
         <div className="flex items-center space-x-2">
-          <span
-            className={`text-xs font-medium ${getTextColorClass(resultType)}`}
-          >
-{dtzDisplay}
+          <span className={`text-xs font-medium ${getTextColorClass(resultType)}`}>
+            {dtzDisplay}
           </span>
 
           {/* Accessibility-friendly result indicator */}
@@ -216,7 +212,7 @@ export const CompactMoveEvaluationBar: React.FC<MoveEvaluationBarProps> = ({
   maxDtz,
   onClick,
   isSelected = false,
-  className = "",
+  className = '',
   category,
 }) => {
   const resultType: MoveResultType = category || getMoveResultType(dtz);
@@ -229,15 +225,15 @@ export const CompactMoveEvaluationBar: React.FC<MoveEvaluationBarProps> = ({
       className={`
         relative flex items-center justify-between py-1 px-2 rounded
         cursor-pointer transition-all duration-200 hover:bg-gray-100
-        ${isSelected ? "bg-blue-50 border-blue-300" : ""}
+        ${isSelected ? 'bg-blue-50 border-blue-300' : ''}
         ${className}
       `}
       onClick={onClick}
       role="button"
       tabIndex={0}
       aria-label={`Move ${move}, DTZ ${Math.abs(dtz)}`}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           onClick?.();
         }
@@ -262,9 +258,7 @@ export const CompactMoveEvaluationBar: React.FC<MoveEvaluationBarProps> = ({
           <span className="font-mono font-bold text-sm">{move}</span>
         </div>
 
-        <span className="text-xs text-gray-600">
-          {dtz === 0 ? "0" : Math.abs(dtz)}
-        </span>
+        <span className="text-xs text-gray-600">{dtz === 0 ? '0' : Math.abs(dtz)}</span>
       </div>
     </div>
   );

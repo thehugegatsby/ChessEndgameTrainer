@@ -4,217 +4,209 @@
  */
 
 import { describe, it, test, expect } from 'vitest';
-import React from "react";
-import { render, screen } from "@testing-library/react";
-import { Header } from "@shared/components/layout/Header";
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import { Header } from '@shared/components/layout/Header';
 
-describe("Header Component", () => {
-  describe("Rendering", () => {
-    it("should render main title", () => {
+describe('Header Component', () => {
+  describe('Rendering', () => {
+    it('should render main title', () => {
       render(<Header />);
 
-      expect(screen.getByText("Schach Endspiel Training")?.isConnected).toBe(true);
+      expect(screen.getByText('Schach Endspiel Training')?.isConnected).toBe(true);
     });
 
-    it("should render subtitle", () => {
+    it('should render subtitle', () => {
       render(<Header />);
 
-      expect(screen.getByText("Verbessere dein Endspiel")?.isConnected).toBe(true);
+      expect(screen.getByText('Verbessere dein Endspiel')?.isConnected).toBe(true);
     });
 
-    it("should render chess king icon", () => {
+    it('should render chess king icon', () => {
       render(<Header />);
 
-      expect(screen.getByText("♔")?.isConnected).toBe(true);
+      expect(screen.getByText('♔')?.isConnected).toBe(true);
     });
 
-    it("should be rendered as header element", () => {
+    it('should be rendered as header element', () => {
       render(<Header />);
 
-      const header = screen.getByRole("banner");
+      const header = screen.getByRole('banner');
       expect(header?.isConnected).toBe(true);
-      expect(header.tagName).toBe("HEADER");
+      expect(header.tagName).toBe('HEADER');
     });
   });
 
-  describe("Structure and Layout", () => {
-    it("should have proper header structure", () => {
+  describe('Structure and Layout', () => {
+    it('should have proper header structure', () => {
       const { container } = render(<Header />);
 
-      const header = container.querySelector("header");
+      const header = container.querySelector('header');
       expect(header?.isConnected).toBe(true);
 
       // Should have max-width container
-      const container_div = header?.querySelector(".max-w-7xl");
+      const container_div = header?.querySelector('.max-w-7xl');
       expect(container_div?.isConnected).toBe(true);
 
       // Should have flex layout
-      const flexDiv = container_div?.querySelector(
-        ".flex.items-center.justify-between",
-      );
+      const flexDiv = container_div?.querySelector('.flex.items-center.justify-between');
       expect(flexDiv?.isConnected).toBe(true);
     });
 
-    it("should have left section with icon and title", () => {
+    it('should have left section with icon and title', () => {
       const { container } = render(<Header />);
 
       // Find the left section (first flex section)
-      const leftSection = container.querySelector(
-        ".flex.items-center.space-x-3",
-      );
+      const leftSection = container.querySelector('.flex.items-center.space-x-3');
       expect(leftSection?.isConnected).toBe(true);
 
       // Should contain icon and title
-      expect(leftSection.textContent).toContain("♔");
-      expect(leftSection.textContent).toContain("Schach Endspiel Training");
+      expect(leftSection.textContent).toContain('♔');
+      expect(leftSection.textContent).toContain('Schach Endspiel Training');
     });
 
-    it("should have right section with subtitle", () => {
+    it('should have right section with subtitle', () => {
       render(<Header />);
 
       // The subtitle should be in the right section
-      const subtitle = screen.getByText("Verbessere dein Endspiel");
+      const subtitle = screen.getByText('Verbessere dein Endspiel');
       expect(subtitle?.isConnected).toBe(true);
     });
   });
 
-  describe("CSS Classes and Styling", () => {
-    it("should have fixed positioning classes", () => {
+  describe('CSS Classes and Styling', () => {
+    it('should have fixed positioning classes', () => {
       const { container } = render(<Header />);
 
-      const header = container.querySelector("header");
-      expect(header?.className).toContain("fixed");
-      expect(header?.className).toContain("top-0");
-      expect(header?.className).toContain("left-0");
-      expect(header?.className).toContain("right-0");
+      const header = container.querySelector('header');
+      expect(header?.className).toContain('fixed');
+      expect(header?.className).toContain('top-0');
+      expect(header?.className).toContain('left-0');
+      expect(header?.className).toContain('right-0');
     });
 
-    it("should have proper z-index", () => {
+    it('should have proper z-index', () => {
       const { container } = render(<Header />);
 
-      const header = container.querySelector("header");
-      expect(header?.className).toContain("z-50");
+      const header = container.querySelector('header');
+      expect(header?.className).toContain('z-50');
     });
 
-    it("should have dark card styling", () => {
+    it('should have dark card styling', () => {
       const { container } = render(<Header />);
 
-      const header = container.querySelector("header");
-      expect(header?.className).toContain("dark-card-elevated");
+      const header = container.querySelector('header');
+      expect(header?.className).toContain('dark-card-elevated');
     });
 
-    it("should have responsive container", () => {
+    it('should have responsive container', () => {
       const { container } = render(<Header />);
 
-      const containerDiv = container.querySelector(".max-w-7xl.mx-auto");
+      const containerDiv = container.querySelector('.max-w-7xl.mx-auto');
       expect(containerDiv?.isConnected).toBe(true);
     });
 
-    it("should have proper padding", () => {
+    it('should have proper padding', () => {
       const { container } = render(<Header />);
 
-      const containerDiv = container.querySelector(".px-4.py-3");
+      const containerDiv = container.querySelector('.px-4.py-3');
       expect(containerDiv?.isConnected).toBe(true);
     });
 
-    it("should use CSS custom properties for colors", () => {
+    it('should use CSS custom properties for colors', () => {
       render(<Header />);
 
-      const title = screen.getByText("Schach Endspiel Training");
-      const subtitle = screen.getByText("Verbessere dein Endspiel");
+      const title = screen.getByText('Schach Endspiel Training');
+      const subtitle = screen.getByText('Verbessere dein Endspiel');
 
       // Check that the elements have the correct inline styles set
       // Note: JSDOM may not parse CSS custom properties, so we check for the property being set
-      expect(title.style).toMatchObject({ color: "var(--text-primary)" });
-      expect(subtitle.style).toMatchObject({ color: "var(--text-secondary)" });
+      expect(title.style).toMatchObject({ color: 'var(--text-primary)' });
+      expect(subtitle.style).toMatchObject({ color: 'var(--text-secondary)' });
     });
   });
 
-  describe("Typography", () => {
-    it("should have correct title typography classes", () => {
+  describe('Typography', () => {
+    it('should have correct title typography classes', () => {
       render(<Header />);
 
-      const title = screen.getByText("Schach Endspiel Training");
-      expect(title.className).toContain("text-xl");
-      expect(title.className).toContain("font-bold");
+      const title = screen.getByText('Schach Endspiel Training');
+      expect(title.className).toContain('text-xl');
+      expect(title.className).toContain('font-bold');
     });
 
-    it("should have correct subtitle typography classes", () => {
+    it('should have correct subtitle typography classes', () => {
       render(<Header />);
 
-      const subtitle = screen.getByText("Verbessere dein Endspiel");
-      expect(subtitle.className).toContain("text-sm");
+      const subtitle = screen.getByText('Verbessere dein Endspiel');
+      expect(subtitle.className).toContain('text-sm');
     });
 
-    it("should have correct icon size", () => {
+    it('should have correct icon size', () => {
       render(<Header />);
 
-      const icon = screen.getByText("♔");
-      expect(icon.className).toContain("text-2xl");
+      const icon = screen.getByText('♔');
+      expect(icon.className).toContain('text-2xl');
     });
   });
 
-  describe("Accessibility", () => {
-    it("should use semantic header element", () => {
+  describe('Accessibility', () => {
+    it('should use semantic header element', () => {
       render(<Header />);
 
-      const header = screen.getByRole("banner");
-      expect(header.tagName).toBe("HEADER");
+      const header = screen.getByRole('banner');
+      expect(header.tagName).toBe('HEADER');
     });
 
-    it("should have proper heading hierarchy", () => {
+    it('should have proper heading hierarchy', () => {
       render(<Header />);
 
-      const heading = screen.getByRole("heading", { level: 1 });
-      expect(heading.textContent).toBe("Schach Endspiel Training");
+      const heading = screen.getByRole('heading', { level: 1 });
+      expect(heading.textContent).toBe('Schach Endspiel Training');
     });
 
-    it("should have accessible text content", () => {
+    it('should have accessible text content', () => {
       render(<Header />);
 
       // All text should be visible and accessible
-      expect(screen.getByText("Schach Endspiel Training")?.isConnected).toBe(true);
-      expect(screen.getByText("Verbessere dein Endspiel")?.isConnected).toBe(true);
-      expect(screen.getByText("♔")?.isConnected).toBe(true);
+      expect(screen.getByText('Schach Endspiel Training')?.isConnected).toBe(true);
+      expect(screen.getByText('Verbessere dein Endspiel')?.isConnected).toBe(true);
+      expect(screen.getByText('♔')?.isConnected).toBe(true);
     });
   });
 
-  describe("Responsive Design", () => {
-    it("should have responsive container classes", () => {
+  describe('Responsive Design', () => {
+    it('should have responsive container classes', () => {
       const { container } = render(<Header />);
 
-      const responsiveContainer = container.querySelector(
-        ".max-w-7xl.mx-auto.px-4",
-      );
+      const responsiveContainer = container.querySelector('.max-w-7xl.mx-auto.px-4');
       expect(responsiveContainer?.isConnected).toBe(true);
     });
 
-    it("should have flexible layout", () => {
+    it('should have flexible layout', () => {
       const { container } = render(<Header />);
 
-      const flexContainer = container.querySelector(
-        ".flex.items-center.justify-between",
-      );
+      const flexContainer = container.querySelector('.flex.items-center.justify-between');
       expect(flexContainer?.isConnected).toBe(true);
     });
 
-    it("should have proper spacing classes", () => {
+    it('should have proper spacing classes', () => {
       const { container } = render(<Header />);
 
-      const spacedContainer = container.querySelector(".space-x-3");
+      const spacedContainer = container.querySelector('.space-x-3');
       expect(spacedContainer?.isConnected).toBe(true);
     });
   });
 
-  describe("Component Stability", () => {
-    it("should render consistently", () => {
+  describe('Component Stability', () => {
+    it('should render consistently', () => {
       const { container: container1 } = render(<Header />);
       const { container: container2 } = render(<Header />);
 
       expect(container1.innerHTML).toBe(container2.innerHTML);
     });
 
-    it("should not have dynamic content", () => {
+    it('should not have dynamic content', () => {
       const { container } = render(<Header />);
       const initialHtml = container.innerHTML;
 
@@ -226,55 +218,55 @@ describe("Header Component", () => {
     });
   });
 
-  describe("Layout Integration", () => {
-    it("should be positioned for layout integration", () => {
+  describe('Layout Integration', () => {
+    it('should be positioned for layout integration', () => {
       const { container } = render(<Header />);
 
-      const header = container.querySelector("header");
+      const header = container.querySelector('header');
 
       // Should be fixed positioned to work with app layout
-      expect(header?.className).toContain("fixed");
-      expect(header?.className).toContain("top-0");
-      expect(header?.className).toContain("left-0");
-      expect(header?.className).toContain("right-0");
+      expect(header?.className).toContain('fixed');
+      expect(header?.className).toContain('top-0');
+      expect(header?.className).toContain('left-0');
+      expect(header?.className).toContain('right-0');
 
       // Should have high z-index to stay on top
-      expect(header?.className).toContain("z-50");
+      expect(header?.className).toContain('z-50');
     });
 
-    it("should have elevated styling for visibility", () => {
+    it('should have elevated styling for visibility', () => {
       const { container } = render(<Header />);
 
-      const header = container.querySelector("header");
-      expect(header?.className).toContain("dark-card-elevated");
+      const header = container.querySelector('header');
+      expect(header?.className).toContain('dark-card-elevated');
     });
   });
 
-  describe("Text Content", () => {
-    it("should display German text correctly", () => {
+  describe('Text Content', () => {
+    it('should display German text correctly', () => {
       render(<Header />);
 
       // Should handle German characters correctly
-      expect(screen.getByText("Schach Endspiel Training")?.isConnected).toBe(true);
-      expect(screen.getByText("Verbessere dein Endspiel")?.isConnected).toBe(true);
+      expect(screen.getByText('Schach Endspiel Training')?.isConnected).toBe(true);
+      expect(screen.getByText('Verbessere dein Endspiel')?.isConnected).toBe(true);
     });
 
-    it("should display Unicode chess symbol correctly", () => {
+    it('should display Unicode chess symbol correctly', () => {
       render(<Header />);
 
-      const icon = screen.getByText("♔");
+      const icon = screen.getByText('♔');
       expect(icon?.isConnected).toBe(true);
-      expect(icon.textContent).toBe("♔");
+      expect(icon.textContent).toBe('♔');
     });
   });
 
-  describe("Performance", () => {
-    it("should be a functional component without state", () => {
+  describe('Performance', () => {
+    it('should be a functional component without state', () => {
       // Header should be a simple functional component
-      expect(typeof Header).toBe("function");
+      expect(typeof Header).toBe('function');
     });
 
-    it("should render quickly without heavy computations", () => {
+    it('should render quickly without heavy computations', () => {
       const startTime = performance.now();
       render(<Header />);
       const endTime = performance.now();
@@ -283,7 +275,7 @@ describe("Header Component", () => {
       expect(endTime - startTime).toBeLessThan(50);
     });
 
-    it("should not cause memory leaks", () => {
+    it('should not cause memory leaks', () => {
       const { unmount } = render(<Header />);
 
       // Should unmount cleanly

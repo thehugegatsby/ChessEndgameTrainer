@@ -233,7 +233,7 @@
 }
 
 .chess-move-hint::before {
-  content: "";
+  content: '';
   position: absolute;
   top: var(--chess-size-half);
   left: var(--chess-size-half);

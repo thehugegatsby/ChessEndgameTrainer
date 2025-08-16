@@ -20,7 +20,7 @@
  * (Dame, Turm, Läufer, Springer) to provide appropriate feedback.
  */
 
-import React from "react";
+import React from 'react';
 
 /**
  * Props for the MoveSuccessDialog component
@@ -93,23 +93,23 @@ export const MoveSuccessDialog: React.FC<MoveSuccessDialogProps> = ({
   const getMessage = (): string => {
     if (promotionPiece) {
       switch (promotionPiece.toLowerCase()) {
-        case "dame":
-        case "queen":
+        case 'dame':
+        case 'queen':
           return `Ausgezeichnet! Umwandlung in ${promotionPiece} führt zum Sieg!`;
-        case "turm":
-        case "rook":
+        case 'turm':
+        case 'rook':
           return `Großartig! Umwandlung in ${promotionPiece} führt zum Sieg!`;
-        case "läufer":
-        case "bishop":
+        case 'läufer':
+        case 'bishop':
           return `Klug! Umwandlung in ${promotionPiece} führt zum Sieg!`;
-        case "springer":
-        case "knight":
+        case 'springer':
+        case 'knight':
           return `Clever! Umwandlung in ${promotionPiece} führt zum Sieg!`;
         default:
           return `Perfekt! Umwandlung in ${promotionPiece} führt zum Sieg!`;
       }
     }
-    return "Glückwunsch! Die Umwandlung führt zum Sieg!";
+    return 'Glückwunsch! Die Umwandlung führt zum Sieg!';
   };
 
   return (
@@ -119,7 +119,7 @@ export const MoveSuccessDialog: React.FC<MoveSuccessDialogProps> = ({
     >
       <div
         className="relative bg-gradient-to-br from-green-500 to-emerald-600 p-1 rounded-2xl max-w-md w-full mx-4"
-        onClick={(e) => e.stopPropagation()}
+        onClick={e => e.stopPropagation()}
       >
         <div className="bg-[var(--bg-primary)] rounded-2xl p-6">
           <div className="flex items-center gap-3 mb-4">
@@ -143,8 +143,7 @@ export const MoveSuccessDialog: React.FC<MoveSuccessDialogProps> = ({
           <p className="text-gray-300 mb-2">{getMessage()}</p>
           {moveDescription && (
             <p className="text-gray-400 text-sm mb-4">
-              Gewinnzug:{" "}
-              <strong className="text-gray-200">{moveDescription}</strong>
+              Gewinnzug: <strong className="text-gray-200">{moveDescription}</strong>
             </p>
           )}
           <div className="flex gap-3">

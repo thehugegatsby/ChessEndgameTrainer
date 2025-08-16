@@ -1,12 +1,12 @@
 /**
- * @file Move quality display component  
+ * @file Move quality display component
  * @module components/analysis/MoveQualityDisplay
- * 
+ *
  * @description
  * Pure presentation component for displaying chess move quality assessment results.
  * Focuses exclusively on rendering without any data fetching or business logic,
  * following clean architecture principles with clear separation of concerns.
- * 
+ *
  * @remarks
  * Key features:
  * - Pure presentation component (no side effects)
@@ -16,27 +16,24 @@
  * - Error handling with retry functionality
  * - Consistent styling with move components
  * - Accessible design with proper hover states
- * 
+ *
  * This component is designed to be reusable across different contexts
  * where move quality needs to be displayed, maintaining consistency
  * in the user interface while allowing flexible data sources.
  */
 
-import React from "react";
-import type { SimplifiedMoveQualityResult } from "../../types/evaluation";
-import {
-  getQualityEmoji,
-  formatQualityTooltip,
-} from "../../utils/moveQualityFormatters";
+import React from 'react';
+import type { SimplifiedMoveQualityResult } from '../../types/evaluation';
+import { getQualityEmoji, formatQualityTooltip } from '../../utils/moveQualityFormatters';
 
 /**
  * Props for the MoveQualityDisplay component
- * 
+ *
  * @interface MoveQualityDisplayProps
- * 
+ *
  * @property {SimplifiedMoveQualityResult | null} quality - Move quality result to display, null if no result
  * @property {boolean} [isLoading] - Whether analysis is currently in progress (shows loading indicator)
- * @property {Error | null} [error] - Error from analysis process if analysis failed  
+ * @property {Error | null} [error] - Error from analysis process if analysis failed
  * @property {() => void} [onRetry] - Callback function when user clicks to retry failed analysis
  */
 interface MoveQualityDisplayProps {
@@ -52,53 +49,53 @@ interface MoveQualityDisplayProps {
 
 /**
  * Pure presentation component for move quality display
- * 
+ *
  * @component
  * @description
  * Displays chess move quality assessment with emoji indicators and tooltips.
  * Handles all possible display states including loading, error, success, and
  * empty states. Designed as a pure presentation component without side effects.
- * 
+ *
  * @remarks
  * Display states:
  * - Loading: Shows ⏳ with "Analyzing move..." tooltip
  * - Error: Shows ❗️ with error message and retry functionality
  * - Success: Shows quality emoji (🏆, 👍, ⚠️, ❌, 💥) with detailed tooltip
  * - Empty: Returns null (no display)
- * 
+ *
  * Quality indicators:
  * - 🏆 Excellent move (best choice)
  * - 👍 Good move (solid choice)
  * - ⚠️ Inaccuracy (minor error)
  * - ❌ Mistake (significant error)
  * - 💥 Blunder (critical error)
- * 
+ *
  * The component uses utility functions for consistent emoji mapping
  * and tooltip formatting across the application.
- * 
+ *
  * @example
  * ```tsx
  * // Basic usage with quality result
  * <MoveQualityDisplay quality={qualityResult} />
- * 
+ *
  * // With loading state
- * <MoveQualityDisplay 
- *   quality={null} 
- *   isLoading={true} 
+ * <MoveQualityDisplay
+ *   quality={null}
+ *   isLoading={true}
  * />
- * 
+ *
  * // With error handling
  * <MoveQualityDisplay
  *   quality={null}
  *   error={analysisError}
  *   onRetry={() => retryAnalysis()}
  * />
- * 
+ *
  * // In move list component
  * {moves.map(move => (
  *   <div key={move.index}>
  *     <span>{move.san}</span>
- *     <MoveQualityDisplay 
+ *     <MoveQualityDisplay
  *       quality={move.quality}
  *       isLoading={move.analyzing}
  *       error={move.error}
@@ -107,7 +104,7 @@ interface MoveQualityDisplayProps {
  *   </div>
  * ))}
  * ```
- * 
+ *
  * @param {MoveQualityDisplayProps} props - Component configuration
  * @returns {JSX.Element | null} Quality indicator or null if no display needed
  */
@@ -142,10 +139,7 @@ export const MoveQualityDisplay: React.FC<MoveQualityDisplayProps> = ({
   // Result state
   if (quality) {
     return (
-      <span
-        className="ml-1 text-xs cursor-help"
-        title={formatQualityTooltip(quality)}
-      >
+      <span className="ml-1 text-xs cursor-help" title={formatQualityTooltip(quality)}>
         {getQualityEmoji(quality.quality)}
       </span>
     );
@@ -155,4 +149,4 @@ export const MoveQualityDisplay: React.FC<MoveQualityDisplayProps> = ({
   return null;
 };
 
-MoveQualityDisplay.displayName = "MoveQualityDisplay";
+MoveQualityDisplay.displayName = 'MoveQualityDisplay';

@@ -1,10 +1,10 @@
 /**
  * Global Test Cleanup Configuration
- * 
+ *
  * Automatically registers cleanup handlers for all tests.
  * This file is loaded via setupFilesAfterEnv in Jest config.
- * 
- * CRITICAL: We CANNOT import MockManager here as it would cause modules 
+ *
+ * CRITICAL: We CANNOT import MockManager here as it would cause modules
  * to be cached before vi.mock() can hoist in test files.
  * Instead, we provide minimal cleanup without MockManager.
  */
@@ -24,7 +24,7 @@ afterEach(() => {
   // Clear mock call history but NOT mock implementations
   // This is safe and doesn't interfere with vi.mock() hoisting
   vi.clearAllMocks();
-  
+
   // Clear any fake timers
   if (vi.isMockFunction(setTimeout)) {
     vi.clearAllTimers();
@@ -35,7 +35,7 @@ afterEach(() => {
 afterAll(() => {
   // Clear all intervals and timeouts
   vi.clearAllTimers();
-  
+
   // Note: Do NOT use vi.restoreAllMocks() as it interferes with module mocks
 });
 

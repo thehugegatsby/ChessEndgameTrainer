@@ -11,22 +11,22 @@ const mockDataStore = new Map<string, Map<string, any>>();
 export const createMockDoc = (exists: boolean, data: any = {}): any => ({
   exists: () => exists,
   data: () => data,
-  id: data.id || "1",
+  id: data.id || '1',
 });
 
 export const createMockSnapshot = (docs: any[] = []): any => ({
   empty: docs.length === 0,
   size: docs.length,
-  docs: docs.map((data) => ({
+  docs: docs.map(data => ({
     data: () => data,
-    id: data.id || "1",
+    id: data.id || '1',
   })),
   forEach: (callback: (doc: any) => void) => {
-    docs.forEach((data) =>
+    docs.forEach(data =>
       callback({
         data: () => data,
-        id: data.id || "1",
-      }),
+        id: data.id || '1',
+      })
     );
   },
 });
@@ -51,8 +51,7 @@ const mockCollection = vi.fn((_, collectionName: string) => ({
 }));
 
 const mockGetDocs = vi.fn((queryOrCollection: any) => {
-  const collectionName =
-    queryOrCollection._name || queryOrCollection._collection;
+  const collectionName = queryOrCollection._name || queryOrCollection._collection;
   const collectionData = mockDataStore.get(collectionName);
 
   if (!collectionData) {
@@ -64,14 +63,14 @@ const mockGetDocs = vi.fn((queryOrCollection: any) => {
   // Apply query filters if present
   if (queryOrCollection._filters) {
     queryOrCollection._filters.forEach((filter: any) => {
-      results = results.filter((item) => {
-        if (filter.op === "==") {
+      results = results.filter(item => {
+        if (filter.op === '==') {
           return item[filter.field] === filter.value;
         }
-        if (filter.op === ">") {
+        if (filter.op === '>') {
           return item[filter.field] > filter.value;
         }
-        if (filter.op === "<") {
+        if (filter.op === '<') {
           return item[filter.field] < filter.value;
         }
         return true;
@@ -83,7 +82,7 @@ const mockGetDocs = vi.fn((queryOrCollection: any) => {
   if (queryOrCollection._orderBy) {
     const { field, direction } = queryOrCollection._orderBy;
     results.sort((a, b) => {
-      if (direction === "desc") {
+      if (direction === 'desc') {
         return b[field] - a[field];
       }
       return a[field] - b[field];
@@ -106,12 +105,12 @@ const mockQuery = vi.fn((collection: any, ...constraints: any[]) => {
     _limit: null as number | null,
   };
 
-  constraints.forEach((constraint) => {
-    if (constraint.type === "where") {
+  constraints.forEach(constraint => {
+    if (constraint.type === 'where') {
       query._filters.push(constraint);
-    } else if (constraint.type === "orderBy") {
+    } else if (constraint.type === 'orderBy') {
       query._orderBy = constraint;
-    } else if (constraint.type === "limit") {
+    } else if (constraint.type === 'limit') {
       query._limit = constraint.value;
     }
   });
@@ -120,20 +119,20 @@ const mockQuery = vi.fn((collection: any, ...constraints: any[]) => {
 });
 
 const mockWhere = vi.fn((field: string, op: string, value: any) => ({
-  type: "where",
+  type: 'where',
   field,
   op,
   value,
 }));
 
-const mockOrderBy = vi.fn((field: string, direction: string = "asc") => ({
-  type: "orderBy",
+const mockOrderBy = vi.fn((field: string, direction: string = 'asc') => ({
+  type: 'orderBy',
   field,
   direction,
 }));
 
 const mockLimit = vi.fn((value: number) => ({
-  type: "limit",
+  type: 'limit',
   value,
 }));
 
@@ -164,7 +163,7 @@ export const setMockDoc = (collection: string, id: string, data: any): void => {
 // Test helper to set collection data
 export const setMockCollection = (collection: string, documents: any[]): void => {
   const collectionMap = new Map();
-  documents.forEach((doc) => {
+  documents.forEach(doc => {
     collectionMap.set(doc.id.toString(), doc);
   });
   mockDataStore.set(collection, collectionMap);

@@ -15,16 +15,16 @@ The framework consists of three main parts:
 ### Basic Usage
 
 ```typescript
-import { test } from "@playwright/test";
-import { SequenceRunner, expectation } from "../helpers/sequenceRunner";
+import { test } from '@playwright/test';
+import { SequenceRunner, expectation } from '../helpers/sequenceRunner';
 
-test("My chess scenario", async ({ page }) => {
+test('My chess scenario', async ({ page }) => {
   const runner = new SequenceRunner(page);
 
   await runner.executeSequence({
-    name: "Basic Checkmate",
-    moves: ["Qd1-h5", "Ng8-f6", "Qh5-f7#"],
-    expectations: [expectation.successToast("Checkmate!", 2)],
+    name: 'Basic Checkmate',
+    moves: ['Qd1-h5', 'Ng8-f6', 'Qh5-f7#'],
+    expectations: [expectation.successToast('Checkmate!', 2)],
   });
 });
 ```
@@ -32,9 +32,9 @@ test("My chess scenario", async ({ page }) => {
 ### Using Predefined Scenarios
 
 ```typescript
-import { promotionScenarios } from "./promotionScenarios";
+import { promotionScenarios } from './promotionScenarios';
 
-test("Promotion test", async ({ page }) => {
+test('Promotion test', async ({ page }) => {
   const runner = new SequenceRunner(page);
   await runner.executeSequence(promotionScenarios.promotionToWin);
 });
@@ -67,14 +67,14 @@ The framework supports 5 types of expectations:
 Use the `expectation` object to create common expectations:
 
 ```typescript
-import { expectation } from "../helpers/sequenceRunner";
+import { expectation } from '../helpers/sequenceRunner';
 
 const expectations = [
-  expectation.successToast("Great move!", 0), // After 1st move
-  expectation.errorToast("Invalid move", 2), // After 3rd move
-  expectation.storeState("training.isSuccess", true), // At end
+  expectation.successToast('Great move!', 0), // After 1st move
+  expectation.errorToast('Invalid move', 2), // After 3rd move
+  expectation.storeState('training.isSuccess', true), // At end
   expectation.trainingSuccess(), // At end
-  expectation.modalOpen("completion"), // At end
+  expectation.modalOpen('completion'), // At end
   expectation.modalClosed(5), // After 6th move
 ];
 ```
@@ -100,12 +100,12 @@ interface SequenceConfig {
 
 ```typescript
 interface Expectation {
-  type: "toast" | "evaluation" | "modal" | "store" | "completion";
+  type: 'toast' | 'evaluation' | 'modal' | 'store' | 'completion';
   moveIndex?: number; // When to check (0-indexed, undefined = end)
   data: {
     // Toast expectations
     message?: string; // Text to find (partial match)
-    toastType?: "success" | "error" | "info" | "warning";
+    toastType?: 'success' | 'error' | 'info' | 'warning';
 
     // Store expectations
     storePath?: string; // Dot notation (e.g., 'training.isSuccess')
@@ -171,12 +171,12 @@ Use coordinate notation for moves:
 
 ```typescript
 // Check nested store properties
-expectation.storeState("ui.currentModal", "completion");
-expectation.storeState("training.isSuccess", true);
-expectation.storeState("game.moveHistory.length", 5);
+expectation.storeState('ui.currentModal', 'completion');
+expectation.storeState('training.isSuccess', true);
+expectation.storeState('game.moveHistory.length', 5);
 
 // Check array contents
-expectation.storeState("ui.toasts.0.type", "success");
+expectation.storeState('ui.toasts.0.type', 'success');
 ```
 
 ## Debugging
@@ -184,7 +184,7 @@ expectation.storeState("ui.toasts.0.type", "success");
 ### Debug Failed Tests
 
 ```typescript
-test("Debug test", async ({ page }) => {
+test('Debug test', async ({ page }) => {
   const runner = new SequenceRunner(page);
 
   try {
@@ -194,9 +194,9 @@ test("Debug test", async ({ page }) => {
     const storeState = await runner.getStoreState();
     const gameState = await runner.getGameState();
 
-    console.log("Store toasts:", storeState.ui?.toasts);
-    console.log("Training state:", storeState.training);
-    console.log("Current position:", gameState.fen);
+    console.log('Store toasts:', storeState.ui?.toasts);
+    console.log('Training state:', storeState.training);
+    console.log('Current position:', gameState.fen);
 
     throw error; // Re-throw to fail test
   }
@@ -240,20 +240,17 @@ tests/e2e/
 Create a new file in `scenarios/` (e.g., `endgameScenarios.ts`):
 
 ```typescript
-import { SequenceConfig, expectation } from "../helpers/sequenceRunner";
+import { SequenceConfig, expectation } from '../helpers/sequenceRunner';
 
 export const basicCheckmate: SequenceConfig = {
-  name: "Basic Back Rank Mate",
-  description: "Tests recognition of back rank checkmate patterns",
+  name: 'Basic Back Rank Mate',
+  description: 'Tests recognition of back rank checkmate patterns',
   moves: [
-    "Ra1-a8",
-    "Kb8-c7",
-    "Ra8-a7", // Checkmate sequence
+    'Ra1-a8',
+    'Kb8-c7',
+    'Ra8-a7', // Checkmate sequence
   ],
-  expectations: [
-    expectation.successToast("Checkmate!", 2),
-    expectation.modalOpen("completion"),
-  ],
+  expectations: [expectation.successToast('Checkmate!', 2), expectation.modalOpen('completion')],
 };
 
 export const endgameScenarios = {
@@ -266,20 +263,18 @@ export const endgameScenarios = {
 Create a corresponding test file (e.g., `endgameTests.spec.ts`):
 
 ```typescript
-import { test } from "@playwright/test";
-import { SequenceRunner } from "../helpers/sequenceRunner";
-import { endgameScenarios } from "./endgameScenarios";
+import { test } from '@playwright/test';
+import { SequenceRunner } from '../helpers/sequenceRunner';
+import { endgameScenarios } from './endgameScenarios';
 
-test.describe("Endgame Scenarios", () => {
+test.describe('Endgame Scenarios', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/train/1");
+    await page.goto('/train/1');
     await page.waitForSelector('[data-testid="training-board"]');
-    await page.waitForFunction(
-      () => typeof (window as any).e2e_makeMove === "function",
-    );
+    await page.waitForFunction(() => typeof (window as any).e2e_makeMove === 'function');
   });
 
-  test("Basic checkmate recognition", async ({ page }) => {
+  test('Basic checkmate recognition', async ({ page }) => {
     const runner = new SequenceRunner(page);
     await runner.executeSequence(endgameScenarios.basicCheckmate);
   });

@@ -5,8 +5,8 @@
  * across the application.
  */
 
-import { getLogger } from "./logging";
-import { STRING_OPERATIONS, PRIORITY_VALUES } from "@/constants/utility.constants";
+import { getLogger } from './logging';
+import { STRING_OPERATIONS, PRIORITY_VALUES } from '@/constants/utility.constants';
 
 /**
  * Error types for categorizing different error scenarios
@@ -14,11 +14,11 @@ import { STRING_OPERATIONS, PRIORITY_VALUES } from "@/constants/utility.constant
  * @remarks Used to provide context-specific error messages in German
  */
 export enum ErrorType {
-  TABLEBASE = "TABLEBASE",
-  UI_COMPONENT = "UI_COMPONENT",
-  NETWORK = "NETWORK",
-  STORAGE = "STORAGE",
-  VALIDATION = "VALIDATION",
+  TABLEBASE = 'TABLEBASE',
+  UI_COMPONENT = 'UI_COMPONENT',
+  NETWORK = 'NETWORK',
+  STORAGE = 'STORAGE',
+  VALIDATION = 'VALIDATION',
 }
 
 /**
@@ -90,7 +90,7 @@ export class ErrorService {
     context: ErrorContext;
     timestamp: Date;
   }> = [];
-  private logger = getLogger().setContext("ErrorService");
+  private logger = getLogger().setContext('ErrorService');
 
   /**
    * Gets the singleton instance of ErrorService.
@@ -157,7 +157,7 @@ export class ErrorService {
       timestamp: new Date(),
     };
 
-    service.logger.error("Tablebase Error", error, enhancedContext);
+    service.logger.error('Tablebase Error', error, enhancedContext);
 
     service.logError(error, enhancedContext);
     return service.getUserFriendlyMessage(ErrorType.TABLEBASE);
@@ -211,11 +211,7 @@ export class ErrorService {
    * - Render errors from missing data
    * - Event handler exceptions
    */
-  static handleUIError(
-    error: Error,
-    componentName: string,
-    context: ErrorContext = {},
-  ): string {
+  static handleUIError(error: Error, componentName: string, context: ErrorContext = {}): string {
     const service = ErrorService.getInstance();
     const enhancedContext = {
       ...context,
@@ -224,11 +220,7 @@ export class ErrorService {
       timestamp: new Date(),
     };
 
-    service.logger.error(
-      `UI Error in ${componentName}`,
-      error,
-      enhancedContext,
-    );
+    service.logger.error(`UI Error in ${componentName}`, error, enhancedContext);
 
     service.logError(error, enhancedContext);
     return service.getUserFriendlyMessage(ErrorType.UI_COMPONENT);
@@ -306,7 +298,7 @@ export class ErrorService {
       timestamp: new Date(),
     };
 
-    service.logger.error("Network Error", error, enhancedContext);
+    service.logger.error('Network Error', error, enhancedContext);
 
     service.logError(error, enhancedContext);
     return service.getUserFriendlyMessage(ErrorType.NETWORK);
@@ -351,22 +343,22 @@ export class ErrorService {
   private getUserFriendlyMessage(type: ErrorType): string {
     switch (type) {
       case ErrorType.TABLEBASE:
-        return "Die Tablebase-Datenbank konnte nicht geladen werden. Bitte aktualisieren Sie die Seite.";
+        return 'Die Tablebase-Datenbank konnte nicht geladen werden. Bitte aktualisieren Sie die Seite.';
 
       case ErrorType.UI_COMPONENT:
-        return "Ein Problem mit der Benutzeroberfläche ist aufgetreten. Bitte versuchen Sie es erneut.";
+        return 'Ein Problem mit der Benutzeroberfläche ist aufgetreten. Bitte versuchen Sie es erneut.';
 
       case ErrorType.NETWORK:
-        return "Netzwerkfehler. Bitte prüfen Sie Ihre Internetverbindung.";
+        return 'Netzwerkfehler. Bitte prüfen Sie Ihre Internetverbindung.';
 
       case ErrorType.STORAGE:
-        return "Fehler beim Speichern der Daten. Bitte versuchen Sie es erneut.";
+        return 'Fehler beim Speichern der Daten. Bitte versuchen Sie es erneut.';
 
       case ErrorType.VALIDATION:
-        return "Ungültige Eingabe. Bitte überprüfen Sie Ihre Eingaben.";
+        return 'Ungültige Eingabe. Bitte überprüfen Sie Ihre Eingaben.';
 
       default:
-        return "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.";
+        return 'Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.';
     }
   }
 
@@ -391,17 +383,17 @@ export class ErrorService {
   getErrorStats(): ErrorStats {
     const stats = this.errorLog.reduce(
       (acc, log) => {
-        const type = log.context.type || "UNKNOWN";
+        const type = log.context.type || 'UNKNOWN';
         acc[type] = (acc[type] || 0) + 1;
         return acc;
       },
-      {} as Record<string, number>,
+      {} as Record<string, number>
     );
 
     return {
       totalErrors: this.errorLog.length,
       errorsByType: stats,
-      recentErrors: this.errorLog.slice(PRIORITY_VALUES.ERROR_PRIORITY_OFFSET).map((log) => ({
+      recentErrors: this.errorLog.slice(PRIORITY_VALUES.ERROR_PRIORITY_OFFSET).map(log => ({
         ...log.context,
         timestamp: log.timestamp,
         message: log.error.message,

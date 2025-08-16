@@ -6,12 +6,12 @@ import { featuresDir, sharedDir, testsDir, srcDir } from './config/paths';
 
 /**
  * Vitest Base Configuration
- * 
+ *
  * This configuration is shared across all Vitest projects to ensure:
  * - Consistent Observer API mocks (ResizeObserver, IntersectionObserver)
  * - Proper React/DOM environment setup
  * - Shared test utilities and setup files
- * 
+ *
  * Each project config should import and merge this base configuration.
  */
 export default defineConfig({
@@ -30,26 +30,26 @@ export default defineConfig({
     // Global test configuration shared across all projects
     globals: true,
     environment: 'happy-dom',
-    
+
     // Critical: setupFiles must be loaded in EVERY project to ensure Observer mocks work
     setupFiles: [path.resolve(__dirname, './src/features/test-setup.ts')],
-    
+
     // Shared test configuration
     pool: 'forks',
     poolOptions: {
       forks: {
         maxForks: 2,
         minForks: 1,
-      }
+      },
     },
     isolate: true,
-    
-    // Coverage configuration shared across all projects  
+
+    // Coverage configuration shared across all projects
     coverage: {
       reporter: ['text', 'lcov'],
       exclude: [
         '**/*.test.ts',
-        '**/*.test.tsx', 
+        '**/*.test.tsx',
         '**/*.spec.ts',
         '**/*.spec.tsx',
         '**/test-setup.ts',

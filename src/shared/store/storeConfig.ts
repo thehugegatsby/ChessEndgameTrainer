@@ -3,7 +3,7 @@
  * Manages dependency injection for the Zustand store
  */
 
-import { type PositionService } from "@shared/services/database/IPositionService";
+import { type PositionService } from '@shared/services/database/IPositionService';
 
 /**
  * Store dependencies that need to be injected

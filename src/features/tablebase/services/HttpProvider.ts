@@ -1,6 +1,6 @@
 /**
  * HttpProvider - Abstraction for HTTP, time, and random operations
- * 
+ *
  * Split into separate interfaces for better Interface Segregation (SOLID)
  * Enables dependency injection for testability
  */
@@ -19,8 +19,8 @@ export interface NetworkProvider {
    * @returns Promise that resolves to Response or rejects with timeout
    */
   fetchWithTimeout(
-    url: string, 
-    timeoutMs: number, 
+    url: string,
+    timeoutMs: number,
     options?: RequestInit & { signal?: AbortSignal }
   ): Promise<Response>;
 }
@@ -59,23 +59,23 @@ export interface HttpProvider extends NetworkProvider, TimeProvider, RandomProvi
  */
 export class RealHttpProvider implements HttpProvider {
   async fetchWithTimeout(
-    url: string, 
-    timeoutMs: number, 
+    url: string,
+    timeoutMs: number,
     options: RequestInit & { signal?: AbortSignal } = {}
   ): Promise<Response> {
     // Create internal abort controller for timeout
     const timeoutController = new AbortController();
     const timeoutId = setTimeout(() => timeoutController.abort(), timeoutMs);
-    
+
     // Combine external signal (if provided) with timeout signal
     const signals = [timeoutController.signal];
     if (options.signal) {
       signals.push(options.signal);
     }
-    
+
     // Create combined abort controller
     const combinedController = new AbortController();
-    
+
     // Abort combined controller if any signal fires
     const abortHandler = (): void => combinedController.abort();
     signals.forEach(signal => {
@@ -99,18 +99,19 @@ export class RealHttpProvider implements HttpProvider {
             throw new ApiError('Request cancelled', undefined, 'CANCELLED');
           }
         }
-        
+
         // Detect network errors using TypeError (standard for fetch failures)
         if (error instanceof TypeError) {
           throw new ApiError(`Network error: ${error.message}`, undefined, 'NETWORK_ERROR');
         }
-        
+
         // Additional Node.js specific errors
-        if (error.message && (
-          error.message.includes('ENOTFOUND') || 
-          error.message.includes('ECONNREFUSED') ||
-          error.message.includes('ETIMEDOUT')
-        )) {
+        if (
+          error.message &&
+          (error.message.includes('ENOTFOUND') ||
+            error.message.includes('ECONNREFUSED') ||
+            error.message.includes('ETIMEDOUT'))
+        ) {
           throw new ApiError(`Network error: ${error.message}`, undefined, 'NETWORK_ERROR');
         }
       }

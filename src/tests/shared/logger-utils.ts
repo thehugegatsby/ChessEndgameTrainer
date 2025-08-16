@@ -8,11 +8,7 @@
  * - Prevents duplication and inconsistencies across test files
  */
 
-import {
-  type Logger,
-  type LoggerConfig,
-  LogLevel,
-} from "../../shared/services/logging/types";
+import { type Logger, type LoggerConfig, LogLevel } from '../../shared/services/logging/types';
 
 /**
  * Creates a no-op logger configuration with all features disabled
@@ -110,7 +106,7 @@ export function createTestLogger(): Logger {
     updateConfig: () => {},
 
     getLogs: () =>
-      logs.map((log) => ({
+      logs.map(log => ({
         level: log.level,
         message: log.message,
         timestamp: new Date(),

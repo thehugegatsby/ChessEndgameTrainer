@@ -1,13 +1,13 @@
 /**
  * Tablebase Integration Component
- * 
+ *
  * @description
  * A comprehensive integration component that connects the event-driven tablebase
  * panel with move feedback and the training system. This component serves as
  * the main entry point for tablebase functionality in the training UI.
  */
 
-"use client";
+'use client';
 
 import React from 'react';
 import { EventDrivenTablebasePanel } from './EventDrivenTablebasePanel';
@@ -35,19 +35,19 @@ interface TablebaseIntegrationProps {
 
 /**
  * Tablebase integration component
- * 
+ *
  * @description
  * This component provides a complete tablebase integration for the training
  * interface. It includes both the analysis panel and move feedback, with
  * event-driven communication between components.
- * 
+ *
  * Features:
  * - Event-driven tablebase analysis display
  * - Move feedback with suggestions
  * - Automatic move execution through training store
  * - Responsive layout options
  * - Direct integration with training store
- * 
+ *
  * @example
  * ```tsx
  * <TablebaseIntegration
@@ -71,17 +71,18 @@ export const TablebaseIntegration: React.FC<TablebaseIntegrationProps> = ({
   const [activeTab, setActiveTab] = React.useState<'analysis' | 'feedback'>('analysis');
 
   // Handle move selection from tablebase analysis
-  const handleMoveSelect = React.useCallback((move: TablebaseMove) => {
-    const from = move.uci.substring(0, 2);
-    const to = move.uci.substring(2, 4);
-    const promotion = move.uci.length > 4 ? move.uci.substring(4) : undefined;
-    
-    // Use direct store action (legacy path)
-    const moveData = promotion 
-      ? { from, to, promotion }
-      : { from, to };
-    trainingActions.handlePlayerMove(moveData);
-  }, [trainingActions]);
+  const handleMoveSelect = React.useCallback(
+    (move: TablebaseMove) => {
+      const from = move.uci.substring(0, 2);
+      const to = move.uci.substring(2, 4);
+      const promotion = move.uci.length > 4 ? move.uci.substring(4) : undefined;
+
+      // Use direct store action (legacy path)
+      const moveData = promotion ? { from, to, promotion } : { from, to };
+      trainingActions.handlePlayerMove(moveData);
+    },
+    [trainingActions]
+  );
 
   // Show suggestions by switching to analysis tab
   const handleShowSuggestions = React.useCallback(() => {
@@ -180,7 +181,7 @@ export const TablebaseIntegration: React.FC<TablebaseIntegrationProps> = ({
 
 /**
  * Simplified tablebase integration for basic usage
- * 
+ *
  * @example
  * ```tsx
  * <SimpleTablebaseIntegration fen={currentFen} />

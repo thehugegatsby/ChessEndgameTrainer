@@ -3,15 +3,15 @@
  * Clean architecture using Admin SDK for complete control over test data
  */
 
-import { initializeApp, type App, deleteApp } from "firebase-admin/app";
-import { getFirestore, type Firestore, Timestamp } from "firebase-admin/firestore";
+import { initializeApp, type App, deleteApp } from 'firebase-admin/app';
+import { getFirestore, type Firestore, Timestamp } from 'firebase-admin/firestore';
 import {
   type EndgamePosition,
   type EndgameCategory,
   type EndgameChapter,
-} from "@shared/types/endgame";
-import * as fs from "fs/promises";
-import * as path from "path";
+} from '@shared/types/endgame';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 
 export class FirebaseTestAdmin {
   private app: App | null = null;
@@ -27,9 +27,9 @@ export class FirebaseTestAdmin {
     // Initialize with test project ID
     this.app = initializeApp(
       {
-        projectId: "endgame-trainer-test",
+        projectId: 'endgame-trainer-test',
       },
-      "test-admin-app",
+      'test-admin-app'
     );
 
     this.db = getFirestore(this.app);
@@ -48,9 +48,7 @@ export class FirebaseTestAdmin {
    */
   getDb(): Firestore {
     if (!this.db) {
-      throw new Error(
-        "Firebase Admin not initialized. Call initialize() first.",
-      );
+      throw new Error('Firebase Admin not initialized. Call initialize() first.');
     }
     return this.db;
   }
@@ -60,20 +58,14 @@ export class FirebaseTestAdmin {
    */
   async clearAllData(): Promise<void> {
     const db = this.getDb();
-    const collections = [
-      "positions",
-      "categories",
-      "chapters",
-      "users",
-      "progress",
-    ];
+    const collections = ['positions', 'categories', 'chapters', 'users', 'progress'];
 
     // Use batched deletes for efficiency
-    const deletePromises = collections.map(async (collectionName) => {
+    const deletePromises = collections.map(async collectionName => {
       const collection = db.collection(collectionName);
       const batchSize = 500;
 
-      const query = collection.orderBy("__name__").limit(batchSize);
+      const query = collection.orderBy('__name__').limit(batchSize);
 
       return new Promise((resolve, reject) => {
         this.deleteQueryBatch(db, query, resolve).catch(reject);
@@ -89,7 +81,7 @@ export class FirebaseTestAdmin {
   private async deleteQueryBatch(
     db: Firestore,
     query: FirebaseFirestore.Query,
-    resolve: (value?: unknown) => void,
+    resolve: (value?: unknown) => void
   ): Promise<void> {
     const snapshot = await query.get();
 
@@ -100,7 +92,7 @@ export class FirebaseTestAdmin {
     }
 
     const batch = db.batch();
-    snapshot.docs.forEach((doc) => {
+    snapshot.docs.forEach(doc => {
       batch.delete(doc.ref);
     });
 
@@ -116,13 +108,8 @@ export class FirebaseTestAdmin {
    * Load fixture data from JSON files
    */
   async loadFixture<T = any>(fixtureName: string): Promise<T> {
-    const fixturePath = path.join(
-      __dirname,
-      "..",
-      "fixtures",
-      `${fixtureName}.json`,
-    );
-    const data = await fs.readFile(fixturePath, "utf-8");
+    const fixturePath = path.join(__dirname, '..', 'fixtures', `${fixtureName}.json`);
+    const data = await fs.readFile(fixturePath, 'utf-8');
     return JSON.parse(data) as T;
   }
 
@@ -136,12 +123,11 @@ export class FirebaseTestAdmin {
     // Load from fixture if not provided
     const positionsToSeed =
       positions ??
-      (await this.loadFixture<{ positions: EndgamePosition[] }>("positions"))
-        .positions ??
+      (await this.loadFixture<{ positions: EndgamePosition[] }>('positions')).positions ??
       [];
 
-    positionsToSeed.forEach((position) => {
-      const docRef = db.collection("positions").doc(position.id.toString());
+    positionsToSeed.forEach(position => {
+      const docRef = db.collection('positions').doc(position.id.toString());
       batch.set(docRef, {
         ...position,
         createdAt: Timestamp.now(),
@@ -162,12 +148,11 @@ export class FirebaseTestAdmin {
     // Load from fixture if not provided
     const categoriesToSeed =
       categories ??
-      (await this.loadFixture<{ categories: EndgameCategory[] }>("categories"))
-        .categories ??
+      (await this.loadFixture<{ categories: EndgameCategory[] }>('categories')).categories ??
       [];
 
-    categoriesToSeed.forEach((category) => {
-      const docRef = db.collection("categories").doc(category.id);
+    categoriesToSeed.forEach(category => {
+      const docRef = db.collection('categories').doc(category.id);
       batch.set(docRef, {
         ...category,
         createdAt: Timestamp.now(),
@@ -188,12 +173,11 @@ export class FirebaseTestAdmin {
     // Load from fixture if not provided
     const chaptersToSeed =
       chapters ??
-      (await this.loadFixture<{ chapters: EndgameChapter[] }>("chapters"))
-        .chapters ??
+      (await this.loadFixture<{ chapters: EndgameChapter[] }>('chapters')).chapters ??
       [];
 
-    chaptersToSeed.forEach((chapter) => {
-      const docRef = db.collection("chapters").doc(chapter.id);
+    chaptersToSeed.forEach(chapter => {
+      const docRef = db.collection('chapters').doc(chapter.id);
       batch.set(docRef, {
         ...chapter,
         createdAt: Timestamp.now(),
@@ -208,36 +192,30 @@ export class FirebaseTestAdmin {
    * Seed all test data at once
    */
   async seedAllTestData(): Promise<void> {
-    await Promise.all([
-      this.seedPositions(),
-      this.seedCategories(),
-      this.seedChapters(),
-    ]);
+    await Promise.all([this.seedPositions(), this.seedCategories(), this.seedChapters()]);
   }
 
   /**
    * Create a specific test scenario
    */
-  async createTestScenario(
-    scenario: "basic" | "advanced" | "empty",
-  ): Promise<void> {
+  async createTestScenario(scenario: 'basic' | 'advanced' | 'empty'): Promise<void> {
     await this.clearAllData();
 
     switch (scenario) {
-      case "basic":
+      case 'basic':
         // Only seed basic positions and categories
-        const basicPositions = await this.loadFixture("positions");
+        const basicPositions = await this.loadFixture('positions');
         await this.seedPositions(basicPositions.positions.slice(0, 2));
-        const basicCategories = await this.loadFixture("categories");
+        const basicCategories = await this.loadFixture('categories');
         await this.seedCategories(basicCategories.categories.slice(0, 1));
         break;
 
-      case "advanced":
+      case 'advanced':
         // Seed all data
         await this.seedAllTestData();
         break;
 
-      case "empty":
+      case 'empty':
         // No data seeded
         break;
       default:
@@ -259,34 +237,29 @@ export class FirebaseTestAdmin {
     const issues: string[] = [];
 
     // Count documents
-    const [positionsSnapshot, categoriesSnapshot, chaptersSnapshot] =
-      await Promise.all([
-        db.collection("positions").get(),
-        db.collection("categories").get(),
-        db.collection("chapters").get(),
-      ]);
+    const [positionsSnapshot, categoriesSnapshot, chaptersSnapshot] = await Promise.all([
+      db.collection('positions').get(),
+      db.collection('categories').get(),
+      db.collection('chapters').get(),
+    ]);
 
     // Check for orphaned chapters
-    const categoryIds = new Set(categoriesSnapshot.docs.map((doc) => doc.id));
-    chaptersSnapshot.docs.forEach((doc) => {
+    const categoryIds = new Set(categoriesSnapshot.docs.map(doc => doc.id));
+    chaptersSnapshot.docs.forEach(doc => {
       const chapter = doc.data() as EndgameChapter;
       if (!categoryIds.has(chapter.category)) {
-        issues.push(
-          `Chapter ${doc.id} references non-existent category ${chapter.category}`,
-        );
+        issues.push(`Chapter ${doc.id} references non-existent category ${chapter.category}`);
       }
     });
 
     // Check for positions with invalid categories
-    const positionsWithIssues = positionsSnapshot.docs.filter((doc) => {
+    const positionsWithIssues = positionsSnapshot.docs.filter(doc => {
       const position = doc.data() as EndgamePosition;
       return !categoryIds.has(position.category);
     });
 
     if (positionsWithIssues.length > 0) {
-      issues.push(
-        `${positionsWithIssues.length} positions reference non-existent categories`,
-      );
+      issues.push(`${positionsWithIssues.length} positions reference non-existent categories`);
     }
 
     return {

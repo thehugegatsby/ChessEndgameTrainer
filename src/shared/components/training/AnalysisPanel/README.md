@@ -36,7 +36,7 @@ To test the new version:
 1. **Import the new component**:
 
    ```tsx
-   import { AnalysisPanelWithQuery } from "./AnalysisPanel/AnalysisPanelWithQuery";
+   import { AnalysisPanelWithQuery } from './AnalysisPanel/AnalysisPanelWithQuery';
    ```
 
 2. **Replace in parent component**:

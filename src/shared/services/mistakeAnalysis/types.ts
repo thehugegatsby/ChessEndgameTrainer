@@ -3,7 +3,7 @@
  * Provides intelligent feedback on chess moves based on evaluation changes
  */
 
-import { RATING } from "../../constants";
+import { RATING } from '../../constants';
 
 // EvaluationResult type removed - not exported from evaluation types
 // Using local types instead
@@ -13,20 +13,20 @@ import { RATING } from "../../constants";
  * Prioritizes objective correctness over evaluation nuances
  */
 export type MistakeType =
-  | "PERFECT" // Fastest route to win/draw (tablebase optimal)
-  | "CORRECT" // Maintains win/draw but not fastest
-  | "SUBOPTIMAL" // Prolongs win significantly but still winning
-  | "IMPRECISE" // Minor evaluation loss but position type unchanged
-  | "ERROR" // Changes winning position to difficult win
-  | "BLUNDER" // Loses objective advantage (win→draw, win→loss)
-  | "CRITICAL_ERROR"; // Complete position type change (win→loss, draw→loss)
+  | 'PERFECT' // Fastest route to win/draw (tablebase optimal)
+  | 'CORRECT' // Maintains win/draw but not fastest
+  | 'SUBOPTIMAL' // Prolongs win significantly but still winning
+  | 'IMPRECISE' // Minor evaluation loss but position type unchanged
+  | 'ERROR' // Changes winning position to difficult win
+  | 'BLUNDER' // Loses objective advantage (win→draw, win→loss)
+  | 'CRITICAL_ERROR'; // Complete position type change (win→loss, draw→loss)
 
 /**
  * Tablebase position result for objective evaluation
  */
 export interface TablebaseResult {
   /** Objective game result from this position */
-  result: "win" | "draw" | "loss";
+  result: 'win' | 'draw' | 'loss';
 
   /** Distance to mate/conversion (positive = moves to win, negative = moves to mate) */
   dtm?: number;
@@ -72,33 +72,33 @@ export interface MoveAnalysis {
   themes: MistakeTheme[];
 
   /** Practical severity for learning (not just evaluation) */
-  learningSeverity: "excellent" | "good" | "attention" | "serious" | "critical";
+  learningSeverity: 'excellent' | 'good' | 'attention' | 'serious' | 'critical';
 }
 
 /**
  * Strategic and tactical themes for educational context
  */
 export type MistakeTheme =
-  | "TACTICS" // Missed tactical opportunity
-  | "ENDGAME_TECHNIQUE" // Poor endgame technique
-  | "KING_SAFETY" // King safety violation
-  | "PIECE_ACTIVITY" // Poor piece coordination
-  | "PAWN_STRUCTURE" // Pawn structure damage
-  | "TIME_PRESSURE" // Move suggests time pressure
-  | "CALCULATION" // Miscalculation
-  | "POSITIONAL" // General positional error
-  | "THEORETICAL" // Known theoretical mistake
-  | "BLUNDER_CHECK"; // Missed check or mate
+  | 'TACTICS' // Missed tactical opportunity
+  | 'ENDGAME_TECHNIQUE' // Poor endgame technique
+  | 'KING_SAFETY' // King safety violation
+  | 'PIECE_ACTIVITY' // Poor piece coordination
+  | 'PAWN_STRUCTURE' // Pawn structure damage
+  | 'TIME_PRESSURE' // Move suggests time pressure
+  | 'CALCULATION' // Miscalculation
+  | 'POSITIONAL' // General positional error
+  | 'THEORETICAL' // Known theoretical mistake
+  | 'BLUNDER_CHECK'; // Missed check or mate
 
 /**
  * User skill level for adaptive feedback
  * Thresholds based on centralized RATING constants
  */
 export type SkillLevel =
-  | "BEGINNER" // < RATING.BEGINNER_THRESHOLD (1200)
-  | "INTERMEDIATE" // RATING.BEGINNER_THRESHOLD to RATING.INTERMEDIATE_THRESHOLD (1200-1800)
-  | "ADVANCED" // RATING.INTERMEDIATE_THRESHOLD to RATING.ADVANCED_THRESHOLD (1800-2200)
-  | "EXPERT"; // RATING.EXPERT_THRESHOLD+ (2200+)
+  | 'BEGINNER' // < RATING.BEGINNER_THRESHOLD (1200)
+  | 'INTERMEDIATE' // RATING.BEGINNER_THRESHOLD to RATING.INTERMEDIATE_THRESHOLD (1200-1800)
+  | 'ADVANCED' // RATING.INTERMEDIATE_THRESHOLD to RATING.ADVANCED_THRESHOLD (1800-2200)
+  | 'EXPERT'; // RATING.EXPERT_THRESHOLD+ (2200+)
 
 /**
  * Get skill level based on rating using centralized constants
@@ -106,13 +106,13 @@ export type SkillLevel =
  */
 export function getSkillLevel(rating: number): SkillLevel {
   if (rating < RATING.BEGINNER_THRESHOLD) {
-    return "BEGINNER";
+    return 'BEGINNER';
   } else if (rating < RATING.INTERMEDIATE_THRESHOLD) {
-    return "INTERMEDIATE";
+    return 'INTERMEDIATE';
   } else if (rating < RATING.ADVANCED_THRESHOLD) {
-    return "ADVANCED";
+    return 'ADVANCED';
   } else {
-    return "EXPERT";
+    return 'EXPERT';
   }
 }
 
@@ -168,7 +168,7 @@ export interface MistakeAnalysisService {
     beforePosition: string,
     afterPosition: string,
     move: string,
-    config: AdaptiveConfig,
+    config: AdaptiveConfig
   ): Promise<MoveAnalysis>;
 
   /** Get mistake patterns for a user */
@@ -210,20 +210,20 @@ export interface MistakeClassificationResult {
  */
 export interface MistakeAnalysisEvents {
   /** Emitted when a significant mistake is detected */
-  "mistake-detected": {
+  'mistake-detected': {
     analysis: MoveAnalysis;
     position: string;
     timestamp: Date;
   };
 
   /** Emitted when analysis is complete */
-  "analysis-complete": {
+  'analysis-complete': {
     analysis: MoveAnalysis;
     duration: number;
   };
 
   /** Emitted when adaptive recommendations change */
-  "recommendations-updated": {
+  'recommendations-updated': {
     userId: string;
     newConfig: Partial<AdaptiveConfig>;
   };

@@ -23,7 +23,12 @@
  * All constants use `as const` assertion for type safety and immutability.
  */
 
-import { SIZE_MULTIPLIERS, BINARY_MULTIPLIERS, TIME_MULTIPLIERS, LEARNING_INTERVALS } from './multipliers';
+import {
+  SIZE_MULTIPLIERS,
+  BINARY_MULTIPLIERS,
+  TIME_MULTIPLIERS,
+  LEARNING_INTERVALS,
+} from './multipliers';
 import { TIME_UNITS } from './time.constants';
 
 /**
@@ -42,9 +47,11 @@ import { TIME_UNITS } from './time.constants';
  * ```
  */
 export const STORAGE = {
-  PREFIX: "chess_trainer_",
-  MAX_SIZE_WEB: SIZE_MULTIPLIERS.LARGE_FACTOR * BINARY_MULTIPLIERS.KILOBYTE * BINARY_MULTIPLIERS.KILOBYTE, // 100MB for web
-  MAX_SIZE_MOBILE: SIZE_MULTIPLIERS.MEDIUM_FACTOR * BINARY_MULTIPLIERS.KILOBYTE * BINARY_MULTIPLIERS.KILOBYTE, // 50MB for mobile
+  PREFIX: 'chess_trainer_',
+  MAX_SIZE_WEB:
+    SIZE_MULTIPLIERS.LARGE_FACTOR * BINARY_MULTIPLIERS.KILOBYTE * BINARY_MULTIPLIERS.KILOBYTE, // 100MB for web
+  MAX_SIZE_MOBILE:
+    SIZE_MULTIPLIERS.MEDIUM_FACTOR * BINARY_MULTIPLIERS.KILOBYTE * BINARY_MULTIPLIERS.KILOBYTE, // 50MB for mobile
   COMPRESSION_THRESHOLD: BINARY_MULTIPLIERS.KILOBYTE, // 1KB - compress data larger than this
   CACHE_DURATION: TIME_UNITS.DAY, // 24 hours in milliseconds
 } as const;
@@ -114,28 +121,28 @@ const UI = {
   // Evaluation color palette - synchronized with CSS variables
   EVALUATION_COLORS: {
     EXCELLENT: {
-      text: "#10b981", // Light green text
-      background: "#065f46", // Dark green background
+      text: '#10b981', // Light green text
+      background: '#065f46', // Dark green background
     },
     GOOD: {
-      text: "#3b82f6", // Light blue text
-      background: "#1e40af", // Dark blue background
+      text: '#3b82f6', // Light blue text
+      background: '#1e40af', // Dark blue background
     },
     NEUTRAL: {
-      text: "var(--text-secondary)", // Secondary text color
-      background: "var(--bg-accent)", // Accent background
+      text: 'var(--text-secondary)', // Secondary text color
+      background: 'var(--bg-accent)', // Accent background
     },
     INACCURATE: {
-      text: "#f59e0b", // Light yellow/orange text
-      background: "#92400e", // Dark yellow/orange background
+      text: '#f59e0b', // Light yellow/orange text
+      background: '#92400e', // Dark yellow/orange background
     },
     MISTAKE: {
-      text: "#fb923c", // Light orange text
-      background: "#c2410c", // Dark orange background
+      text: '#fb923c', // Light orange text
+      background: '#c2410c', // Dark orange background
     },
     BLUNDER: {
-      text: "#ef4444", // Light red text
-      background: "#991b1b", // Dark red background
+      text: '#ef4444', // Light red text
+      background: '#991b1b', // Dark red background
     },
   },
 } as const;
@@ -146,7 +153,7 @@ export /**
  */
 const CHESS = {
   BOARD_SIZE: 8,
-  STARTING_FEN: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  STARTING_FEN: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
   MAX_MOVES_HISTORY: 500, // Maximum moves to keep in history
   FIFTY_MOVE_RULE: 50, // Draw by fifty-move rule
   THREEFOLD_REPETITION: 3, // Draw by repetition
@@ -234,7 +241,13 @@ export /**
 const TRAINING = {
   MIN_MOVES_FOR_COMPLETION: 3, // Minimum moves to complete position
   SUCCESS_RATE_THRESHOLD: 0.8, // 80% success rate
-  REPETITION_INTERVALS: [LEARNING_INTERVALS.SHORT_TERM, LEARNING_INTERVALS.MEDIUM_TERM, LEARNING_INTERVALS.WEEKLY, LEARNING_INTERVALS.BI_WEEKLY, LEARNING_INTERVALS.MONTHLY], // Days for spaced repetition
+  REPETITION_INTERVALS: [
+    LEARNING_INTERVALS.SHORT_TERM,
+    LEARNING_INTERVALS.MEDIUM_TERM,
+    LEARNING_INTERVALS.WEEKLY,
+    LEARNING_INTERVALS.BI_WEEKLY,
+    LEARNING_INTERVALS.MONTHLY,
+  ], // Days for spaced repetition
   MAX_HINTS: 3, // Maximum hints per position
 
   // Spaced repetition multipliers
@@ -350,20 +363,20 @@ const E2E = {
 
   // Test Data
   DATA: {
-    STORAGE_KEY: "chess-trainer-storage", // LocalStorage key for state persistence
+    STORAGE_KEY: 'chess-trainer-storage', // LocalStorage key for state persistence
     USER: {
       RATING: 1500, // Test user rating - Use RATING.TEST_RATING
       STREAK: 5, // Test user streak
     },
     MOVES: [
-      { from: "e2", to: "e4", san: "e4" },
-      { from: "e7", to: "e5", san: "e5" },
+      { from: 'e2', to: 'e4', san: 'e4' },
+      { from: 'e7', to: 'e5', san: 'e5' },
     ],
     COMPLETED_POSITIONS: [1, 2], // Test completed positions
     PREFERENCES: {
-      theme: "light" as const,
+      theme: 'light' as const,
       showCoordinates: false,
-      animationSpeed: "fast" as const,
+      animationSpeed: 'fast' as const,
     },
   },
 
@@ -384,7 +397,7 @@ const E2E = {
      * @param square
      */
     SQUARE: (square: string) => `[data-square="${square}"]`,
-    PIECE: "[data-piece]",
+    PIECE: '[data-piece]',
 
     // Training Controls
     BUTTONS: {
@@ -428,7 +441,7 @@ const E2E = {
 
   // Routes/URLs
   ROUTES: {
-    HOME: "/",
+    HOME: '/',
     /**
      *
      * @param id
@@ -439,18 +452,16 @@ const E2E = {
   // Expected Messages/Texts
   MESSAGES: {
     SUCCESS: {
-      CORE_TRAINING_COMPLETE: "Core Training Workflow completed successfully",
-      TABLEBASE_VERIFIED: "Tablebase initialization verified",
-      STATE_PERSISTED: "State persistence test completed successfully",
-      POSITION_PRESERVED: "Position navigation state preserved after reload",
-      CORRUPTION_HANDLED: "App handles localStorage corruption gracefully",
-      PREFERENCES_PERSISTED: "User preferences persisted across sessions",
-      ERROR_RECOVERY_TESTED: "Error recovery functionality tested successfully",
-      UNDO_FUNCTIONALITY_TESTED:
-        "Undo functionality and state consistency verified",
-      MISTAKE_TRACKING_TESTED: "Mistake tracking functionality verified",
-      TABLEBASE_ERROR_RECOVERY_TESTED:
-        "Tablebase error recovery scenarios tested",
+      CORE_TRAINING_COMPLETE: 'Core Training Workflow completed successfully',
+      TABLEBASE_VERIFIED: 'Tablebase initialization verified',
+      STATE_PERSISTED: 'State persistence test completed successfully',
+      POSITION_PRESERVED: 'Position navigation state preserved after reload',
+      CORRUPTION_HANDLED: 'App handles localStorage corruption gracefully',
+      PREFERENCES_PERSISTED: 'User preferences persisted across sessions',
+      ERROR_RECOVERY_TESTED: 'Error recovery functionality tested successfully',
+      UNDO_FUNCTIONALITY_TESTED: 'Undo functionality and state consistency verified',
+      MISTAKE_TRACKING_TESTED: 'Mistake tracking functionality verified',
+      TABLEBASE_ERROR_RECOVERY_TESTED: 'Tablebase error recovery scenarios tested',
     },
     ERRORS: {
       TABLEBASE_ERROR: /tablebase.*error/i,
@@ -459,9 +470,9 @@ const E2E = {
       WARNING: /warning/i,
     },
     WARNINGS: {
-      INVALID_MOVE: "Invalid move",
-      BAD_MOVE: "Not the best move",
-      MISTAKE: "Mistake detected",
+      INVALID_MOVE: 'Invalid move',
+      BAD_MOVE: 'Not the best move',
+      MISTAKE: 'Mistake detected',
     },
   },
 } as const;
@@ -480,7 +491,8 @@ export /**
  *
  */
 const SYSTEM = {
-  GB_TO_BYTES_FACTOR: BINARY_MULTIPLIERS.KILOBYTE * BINARY_MULTIPLIERS.KILOBYTE * BINARY_MULTIPLIERS.KILOBYTE, // Conversion factor GB to bytes
+  GB_TO_BYTES_FACTOR:
+    BINARY_MULTIPLIERS.KILOBYTE * BINARY_MULTIPLIERS.KILOBYTE * BINARY_MULTIPLIERS.KILOBYTE, // Conversion factor GB to bytes
   DEFAULT_MEMORY_GB: 4, // Default system memory allocation
   LOW_MEMORY_THRESHOLD_GB: 4, // Low memory warning threshold
 } as const;

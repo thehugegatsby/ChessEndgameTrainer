@@ -27,40 +27,37 @@
  * ```
  */
 
-import { create } from "zustand";
-import { devtools, persist, createJSONStorage, type StateStorage } from "zustand/middleware";
-import { immer } from "zustand/middleware/immer";
+import { create } from 'zustand';
+import { devtools, persist, createJSONStorage, type StateStorage } from 'zustand/middleware';
+import { immer } from 'zustand/middleware/immer';
 
 // Import all slice creators and initial states
-import { createGameState, createGameActions, initialGameState } from "./slices/gameSlice";
+import { createGameState, createGameActions, initialGameState } from './slices/gameSlice';
 import {
   createTablebaseState,
   createTablebaseActions,
   initialTablebaseState,
-} from "./slices/tablebaseSlice";
+} from './slices/tablebaseSlice';
 import {
   createTrainingState,
   createTrainingActions,
   initialTrainingState,
-} from "./slices/trainingSlice";
-import { createUIState, createUIActions, initialUIState } from "./slices/uiSlice";
+} from './slices/trainingSlice';
+import { createUIState, createUIActions, initialUIState } from './slices/uiSlice';
 
 // Import ChessService for event subscription
-import {
-  chessService,
-  type ChessServiceEvent,
-} from "@shared/services/ChessService";
-import { getLogger } from "@shared/services/logging/Logger";
-import { UI_DURATIONS_MS, TOAST_DURATIONS_MS } from "../../constants/time.constants";
+import { chessService, type ChessServiceEvent } from '@shared/services/ChessService';
+import { getLogger } from '@shared/services/logging/Logger';
+import { UI_DURATIONS_MS, TOAST_DURATIONS_MS } from '../../constants/time.constants';
 
 // Import orchestrators
-import { loadTrainingContext as loadTrainingContextOrchestrator } from "./orchestrators/loadTrainingContext";
-import { handlePlayerMove as handlePlayerMoveOrchestrator } from "./orchestrators/handlePlayerMove/index";
+import { loadTrainingContext as loadTrainingContextOrchestrator } from './orchestrators/loadTrainingContext';
+import { handlePlayerMove as handlePlayerMoveOrchestrator } from './orchestrators/handlePlayerMove/index';
 
 // Import types
-import type { RootState } from "./slices/types";
-import type { Move as ChessJsMove } from "chess.js";
-import type { EndgamePosition } from "@shared/types/endgame";
+import type { RootState } from './slices/types';
+import type { Move as ChessJsMove } from 'chess.js';
+import type { EndgamePosition } from '@shared/types/endgame';
 
 // Re-export RootStore type for external use
 export type RootStore = RootState;
@@ -73,9 +70,9 @@ export type RootStore = RootState;
  * while maintaining functionality in normal browser environments
  */
 const safeStorage: StateStorage = {
-  getItem: (name) => {
+  getItem: name => {
     try {
-      if (typeof window === "undefined") return null;
+      if (typeof window === 'undefined') return null;
       return localStorage.getItem(name);
     } catch {
       // Silently fail in restricted environments (E2E tests, etc.)
@@ -84,16 +81,16 @@ const safeStorage: StateStorage = {
   },
   setItem: (name, value) => {
     try {
-      if (typeof window === "undefined") return;
+      if (typeof window === 'undefined') return;
       localStorage.setItem(name, value);
     } catch {
       // Silently fail in restricted environments
       // This prevents warnings in E2E tests where localStorage exists but throws
     }
   },
-  removeItem: (name) => {
+  removeItem: name => {
     try {
-      if (typeof window === "undefined") return;
+      if (typeof window === 'undefined') return;
       localStorage.removeItem(name);
     } catch {
       // Silently fail in restricted environments
@@ -185,28 +182,28 @@ export const useStore = create<RootState>()(
            * ```
            */
           handlePlayerMove: async (
-            move:
-              | ChessJsMove
-              | { from: string; to: string; promotion?: string }
-              | string,
+            move: ChessJsMove | { from: string; to: string; promotion?: string } | string
           ): Promise<boolean> => {
-            const logger = getLogger().setContext("RootStore");
-            logger.debug("handlePlayerMove called", { move });
+            const logger = getLogger().setContext('RootStore');
+            logger.debug('handlePlayerMove called', { move });
             const storeApi = { getState: get, setState: set };
-            logger.debug("Calling handlePlayerMoveOrchestrator");
+            logger.debug('Calling handlePlayerMoveOrchestrator');
             // Add timeout for E2E tests to prevent hanging
             let result;
-            if (process.env['NEXT_PUBLIC_IS_E2E_TEST'] === "true") {
+            if (process.env['NEXT_PUBLIC_IS_E2E_TEST'] === 'true') {
               result = await Promise.race([
                 handlePlayerMoveOrchestrator(storeApi, move),
-                new Promise<boolean>((_, reject) => 
-                  setTimeout(() => reject(new Error("E2E orchestrator timeout")), UI_DURATIONS_MS.STORE_TIMEOUT)
-                )
+                new Promise<boolean>((_, reject) =>
+                  setTimeout(
+                    () => reject(new Error('E2E orchestrator timeout')),
+                    UI_DURATIONS_MS.STORE_TIMEOUT
+                  )
+                ),
               ]);
             } else {
               result = await handlePlayerMoveOrchestrator(storeApi, move);
             }
-            logger.debug("handlePlayerMoveOrchestrator result", { result });
+            logger.debug('handlePlayerMoveOrchestrator result', { result });
             return result;
           },
 
@@ -236,9 +233,7 @@ export const useStore = create<RootState>()(
            * };
            * ```
            */
-          loadTrainingContext: async (
-            position: EndgamePosition,
-          ): Promise<void> => {
+          loadTrainingContext: async (position: EndgamePosition): Promise<void> => {
             const storeApi = { getState: get, setState: set };
             return await loadTrainingContextOrchestrator(storeApi, position);
           },
@@ -252,24 +247,23 @@ export const useStore = create<RootState>()(
            * Actions are automatically preserved via programmatic filtering.
            */
           reset: () => {
-            set((state) => {
+            set(state => {
               // Game slice - merge initial state
               Object.assign(state.game, initialGameState);
 
               // Training slice - programmatically preserve functions
               const preservedTrainingActions = Object.fromEntries(
-                Object.entries(state.training).filter(([_, v]) => typeof v === "function")
+                Object.entries(state.training).filter(([_, v]) => typeof v === 'function')
               );
               Object.assign(state.training, initialTrainingState, preservedTrainingActions);
 
               // Tablebase slice - programmatically preserve functions
               const preservedTablebaseActions = Object.fromEntries(
-                Object.entries(state.tablebase).filter(([_, v]) => typeof v === "function")
+                Object.entries(state.tablebase).filter(([_, v]) => typeof v === 'function')
               );
               Object.assign(state.tablebase, initialTablebaseState, preservedTablebaseActions);
 
-
-              // UI slice - merge initial state  
+              // UI slice - merge initial state
               Object.assign(state.ui, initialUIState);
             });
           },
@@ -313,7 +307,7 @@ export const useStore = create<RootState>()(
            * ```
            */
           hydrate: (state: Partial<RootState>) => {
-            set((currentState) => ({
+            set(currentState => ({
               ...currentState,
               ...state,
             }));
@@ -321,11 +315,11 @@ export const useStore = create<RootState>()(
         };
       }),
       {
-        name: "endgame-trainer-store",
+        name: 'endgame-trainer-store',
         version: 1,
         storage: createJSONStorage(() => safeStorage), // Safe storage that handles errors gracefully
         // Only persist training position for session continuity
-        partialize: (state) => ({
+        partialize: state => ({
           // Training position - persist for session continuity
           training: {
             currentPosition: state.training.currentPosition,
@@ -344,7 +338,7 @@ export const useStore = create<RootState>()(
           // Deep merge to preserve slice structure and functions
           const merged = { ...currentState };
 
-          if (persistedState && typeof persistedState === "object") {
+          if (persistedState && typeof persistedState === 'object') {
             const persisted = persistedState as Record<string, unknown>;
 
             // Only merge the specific persisted properties, not the entire slice
@@ -352,8 +346,9 @@ export const useStore = create<RootState>()(
             if (training?.currentPosition) {
               merged.training = {
                 ...currentState.training,
-                ...(training.currentPosition !== undefined && { 
-                  currentPosition: training.currentPosition as typeof currentState.training.currentPosition 
+                ...(training.currentPosition !== undefined && {
+                  currentPosition:
+                    training.currentPosition as typeof currentState.training.currentPosition,
                 }),
               };
             }
@@ -361,59 +356,58 @@ export const useStore = create<RootState>()(
 
           return merged;
         },
-      },
+      }
     ),
     {
-      name: "EndgameTrainer Store",
-      enabled: process.env.NODE_ENV === "development",
-    },
-  ),
+      name: 'EndgameTrainer Store',
+      enabled: process.env.NODE_ENV === 'development',
+    }
+  )
 );
 
 /**
  * Subscribe to ChessService events for automatic state synchronization
  * This ensures the store stays in sync with the ChessService singleton
  */
-const unsubscribeChessService = chessService.subscribe(
-  (event: ChessServiceEvent) => {
-    switch (event.type) {
-      case "stateUpdate":
-        // Use batched payload for atomic state update
-        // This ensures consistency and reduces getter calls
-        useStore.setState((draft) => {
-          draft.game.currentFen = event.payload.fen;
-          draft.game.currentPgn = event.payload.pgn;
-          draft.game.moveHistory = event.payload.moveHistory;
-          draft.game.currentMoveIndex = event.payload.currentMoveIndex;
-          draft.game.isGameFinished = event.payload.isGameOver;
-          draft.game.gameResult = event.payload.gameResult;
-        });
-        break;
+const unsubscribeChessService = chessService.subscribe((event: ChessServiceEvent) => {
+  switch (event.type) {
+    case 'stateUpdate':
+      // Use batched payload for atomic state update
+      // This ensures consistency and reduces getter calls
+      useStore.setState(draft => {
+        draft.game.currentFen = event.payload.fen;
+        draft.game.currentPgn = event.payload.pgn;
+        draft.game.moveHistory = event.payload.moveHistory;
+        draft.game.currentMoveIndex = event.payload.currentMoveIndex;
+        draft.game.isGameFinished = event.payload.isGameOver;
+        draft.game.gameResult = event.payload.gameResult;
+      });
+      break;
 
-      case "error":
-        // Handle errors from ChessService
-        useStore.setState((draft) => {
-          draft.ui.toasts.push({
-            id: crypto.randomUUID(),
-            message: event.payload.message,
-            type: "error",
-            duration: TOAST_DURATIONS_MS.ERROR,
-          });
+    case 'error':
+      // Handle errors from ChessService
+      useStore.setState(draft => {
+        draft.ui.toasts.push({
+          id: crypto.randomUUID(),
+          message: event.payload.message,
+          type: 'error',
+          duration: TOAST_DURATIONS_MS.ERROR,
         });
-        // Logging already done in ChessService, avoid duplication
-        break;
+      });
+      // Logging already done in ChessService, avoid duplication
+      break;
 
-      default:
-        // Handle unknown event types
-        console.warn('Unknown ChessService event type:', (event as Record<string, unknown>)['type']);
-        break;
-    }
-  },
-);
+    default:
+      // Handle unknown event types
+      console.warn('Unknown ChessService event type:', (event as Record<string, unknown>)['type']);
+      break;
+  }
+});
 
 // Store cleanup function for hot-module reload or testing
-if (typeof window !== "undefined") {
-  (window as unknown as { __cleanupChessService?: () => void }).__cleanupChessService = unsubscribeChessService;
+if (typeof window !== 'undefined') {
+  (window as unknown as { __cleanupChessService?: () => void }).__cleanupChessService =
+    unsubscribeChessService;
 }
 
 /**

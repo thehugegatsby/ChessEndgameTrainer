@@ -13,7 +13,7 @@ Each domain slice provides three hooks following a performance-optimized pattern
 ### Using State Only (Component re-renders on state changes)
 
 ```tsx
-import { useGameState } from "@shared/store/hooks";
+import { useGameState } from '@shared/store/hooks';
 
 export const GameStatus = () => {
   const gameState = useGameState();
@@ -22,7 +22,7 @@ export const GameStatus = () => {
     <div>
       <p>Current FEN: {gameState.currentFen}</p>
       <p>Move count: {gameState.moveHistory.length}</p>
-      <p>Game finished: {gameState.isGameFinished ? "Yes" : "No"}</p>
+      <p>Game finished: {gameState.isGameFinished ? 'Yes' : 'No'}</p>
     </div>
   );
 };
@@ -31,16 +31,14 @@ export const GameStatus = () => {
 ### Using Actions Only (Component never re-renders)
 
 ```tsx
-import { useGameActions } from "@shared/store/hooks";
+import { useGameActions } from '@shared/store/hooks';
 
 export const GameControls = () => {
   const gameActions = useGameActions();
 
   return (
     <div>
-      <button onClick={() => gameActions.makeMove({ from: "e2", to: "e4" })}>
-        Play e2-e4
-      </button>
+      <button onClick={() => gameActions.makeMove({ from: 'e2', to: 'e4' })}>Play e2-e4</button>
       <button onClick={gameActions.resetGame}>Reset Game</button>
     </div>
   );
@@ -50,7 +48,7 @@ export const GameControls = () => {
 ### Using Both State and Actions (Tuple pattern)
 
 ```tsx
-import { useGameStore } from "@shared/store/hooks";
+import { useGameStore } from '@shared/store/hooks';
 
 export const ChessBoard = () => {
   const [gameState, gameActions] = useGameStore();
@@ -58,10 +56,7 @@ export const ChessBoard = () => {
   return (
     <div>
       <Board position={gameState.currentFen} />
-      <button
-        onClick={gameActions.goToPrevious}
-        disabled={gameState.currentMoveIndex <= 0}
-      >
+      <button onClick={gameActions.goToPrevious} disabled={gameState.currentMoveIndex <= 0}>
         Previous Move
       </button>
     </div>

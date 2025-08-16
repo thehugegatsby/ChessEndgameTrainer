@@ -97,14 +97,14 @@ export interface LichessMove {
  * @type TablebaseCategory
  */
 export type TablebaseCategory =
-  | "win"
-  | "draw"
-  | "loss"
-  | "cursed-win"
-  | "blessed-loss"
-  | "maybe-win"
-  | "maybe-loss"
-  | "unknown";
+  | 'win'
+  | 'draw'
+  | 'loss'
+  | 'cursed-win'
+  | 'blessed-loss'
+  | 'maybe-win'
+  | 'maybe-loss'
+  | 'unknown';
 
 /**
  * Internal representation of tablebase data after transformation

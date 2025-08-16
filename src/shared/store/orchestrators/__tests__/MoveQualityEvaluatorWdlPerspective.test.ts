@@ -4,11 +4,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
  * These tests verify correct perspective handling and cover all major outcome change scenarios
  */
 
-import { createTestValidatedMove } from "@tests/helpers/validatedMoveFactory";
-import { MoveQualityEvaluator } from "@shared/store/orchestrators/handlePlayerMove/MoveQualityEvaluator";
-import { tablebaseService } from "@shared/services/TablebaseService";
+import { createTestValidatedMove } from '@tests/helpers/validatedMoveFactory';
+import { MoveQualityEvaluator } from '@shared/store/orchestrators/handlePlayerMove/MoveQualityEvaluator';
+import { tablebaseService } from '@shared/services/TablebaseService';
 
-describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
+describe('MoveQualityEvaluator - WDL Perspective Conversion', () => {
   let evaluator: MoveQualityEvaluator;
 
   beforeEach(() => {
@@ -19,69 +19,87 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
     vi.restoreAllMocks();
   });
 
-  describe("Mock Verification", () => {
-    it("Should verify MoveQualityEvaluator works with vi.spyOn", async () => {
+  describe('Mock Verification', () => {
+    it('Should verify MoveQualityEvaluator works with vi.spyOn', async () => {
       // Use vi.spyOn to mock the service methods
       const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
       const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
-      // Set up the two required mocks  
+      // Set up the two required mocks
       getEvaluationSpy
         .mockResolvedValueOnce({
           isAvailable: true,
-          result: { wdl: 0, category: "draw", dtm: null, dtz: null, precise: false, evaluation: "Draw" },
+          result: {
+            wdl: 0,
+            category: 'draw',
+            dtm: null,
+            dtz: null,
+            precise: false,
+            evaluation: 'Draw',
+          },
         })
         .mockResolvedValueOnce({
-          isAvailable: true,  
-          result: { wdl: 1000, category: "win", dtm: 15, dtz: 20, precise: true, evaluation: "Win" },
+          isAvailable: true,
+          result: {
+            wdl: 1000,
+            category: 'win',
+            dtm: 15,
+            dtz: 20,
+            precise: true,
+            evaluation: 'Win',
+          },
         });
 
       getTopMovesSpy.mockResolvedValue({
         isAvailable: true,
-        moves: [{ san: "Ke7", uci: "d7e7", category: "draw", dtm: null, dtz: null, wdl: 0 }],
+        moves: [{ san: 'Ke7', uci: 'd7e7', category: 'draw', dtm: null, dtz: null, wdl: 0 }],
       });
 
       // Create a simple move
       const move = createTestValidatedMove({
-        from: "d7", to: "d6", san: "Kd6", color: "b", piece: "k",
-        before: "8/3k4/8/4K3/3P4/8/8/8 b - - 0 1",
-        after: "8/8/3k4/4K3/3P4/8/8/8 w - - 1 2",
+        from: 'd7',
+        to: 'd6',
+        san: 'Kd6',
+        color: 'b',
+        piece: 'k',
+        before: '8/3k4/8/4K3/3P4/8/8/8 b - - 0 1',
+        after: '8/8/3k4/4K3/3P4/8/8/8 w - - 1 2',
       });
 
       // Call evaluateMoveQuality
       const result = await evaluator.evaluateMoveQuality(
-        "8/3k4/8/4K3/3P4/8/8/8 b - - 0 1",
-        "8/8/3k4/4K3/3P4/8/8/8 w - - 1 2",
+        '8/3k4/8/4K3/3P4/8/8/8 b - - 0 1',
+        '8/8/3k4/4K3/3P4/8/8/8 w - - 1 2',
         move
       );
 
       // Check that mocks were called
       expect(getEvaluationSpy).toHaveBeenCalledTimes(2);
       expect(getTopMovesSpy).toHaveBeenCalledTimes(1);
-      
+
       // Check result structure (should NOT be early return values)
       expect(result).toHaveProperty('wdlBefore');
       expect(result).toHaveProperty('wdlAfter');
       expect(result).toHaveProperty('bestMove');
-      
+
       // This test should pass now
       expect(result.wasOptimal).toBe(false);
       expect(result.outcomeChanged).toBe(true);
     });
   });
 
-  describe("Black moves", () => {
-    it("Should detect outcome change: Draw → Loss", async () => {
-      // Black plays losing move instead of defending move  
-      const fenBefore = "8/3k4/8/4K3/3P4/8/8/8 b - - 0 1";
-      const fenAfter = "8/8/3k4/4K3/3P4/8/8/8 w - - 1 2";
+  describe('Black moves', () => {
+    it('Should detect outcome change: Draw → Loss', async () => {
+      // Black plays losing move instead of defending move
+      const fenBefore = '8/3k4/8/4K3/3P4/8/8/8 b - - 0 1';
+      const fenAfter = '8/8/3k4/4K3/3P4/8/8/8 w - - 1 2';
 
       const playedMove = createTestValidatedMove({
-        from: "d7",
-        to: "d6", 
-        san: "Kd6",
-        color: "b",
-        piece: "k",
+        from: 'd7',
+        to: 'd6',
+        san: 'Kd6',
+        color: 'b',
+        piece: 'k',
         before: fenBefore,
         after: fenAfter,
       });
@@ -94,23 +112,23 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
-            category: "draw",
+            category: 'draw',
             dtm: null,
             dtz: null,
             wdl: 0, // Draw from Black's perspective
             precise: false,
-            evaluation: "Draw",
+            evaluation: 'Draw',
           },
         })
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
-            category: "win",
+            category: 'win',
             dtm: 15,
             dtz: 20,
             wdl: 1000, // Win from White's perspective
             precise: true,
-            evaluation: "Win",
+            evaluation: 'Win',
           },
         });
 
@@ -118,9 +136,9 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         isAvailable: true,
         moves: [
           {
-            san: "Ke7",
-            uci: "e8e7",
-            category: "draw",
+            san: 'Ke7',
+            uci: 'e8e7',
+            category: 'draw',
             dtm: null,
             dtz: null,
             wdl: 0,
@@ -128,67 +146,57 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         ],
       });
 
-      const result = await evaluator.evaluateMoveQuality(
-        fenBefore,
-        fenAfter,
-        playedMove,
-      );
+      const result = await evaluator.evaluateMoveQuality(fenBefore, fenAfter, playedMove);
 
       expect(result.wasOptimal).toBe(false);
       expect(result.outcomeChanged).toBe(true); // Draw (0) → Loss (-1000)
       expect(result.shouldShowErrorDialog).toBe(true);
     });
 
-    it("Should detect outcome change: Win → Draw", async () => {
+    it('Should detect outcome change: Win → Draw', async () => {
       // Black plays drawing move instead of winning move
-      const fenBefore = "8/8/8/8/8/2k5/8/K7 b - - 0 1";
-      const fenAfter = "8/8/8/8/8/3k4/8/K7 w - - 1 2";
+      const fenBefore = '8/8/8/8/8/2k5/8/K7 b - - 0 1';
+      const fenAfter = '8/8/8/8/8/3k4/8/K7 w - - 1 2';
 
       const playedMove = createTestValidatedMove({
-        from: "c3",
-        to: "d3",
-        san: "Kd3",
-        color: "b",
-        piece: "k",
+        from: 'c3',
+        to: 'd3',
+        san: 'Kd3',
+        color: 'b',
+        piece: 'k',
         before: fenBefore,
         after: fenAfter,
       });
 
       // Use vi.spyOn to mock the service methods
 
-
       const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
-
 
       const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
-
-
       getEvaluationSpy
-
 
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
-            category: "loss", // Loss for White = Win for Black
+            category: 'loss', // Loss for White = Win for Black
             dtm: -10,
             dtz: -15,
             wdl: 500, // Win from Black's perspective
             precise: true,
-            evaluation: "Win",
+            evaluation: 'Win',
           },
         })
-
 
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
-            category: "draw",
+            category: 'draw',
             dtm: null,
             dtz: null,
             wdl: 0, // Draw from White's perspective
             precise: false,
-            evaluation: "Draw",
+            evaluation: 'Draw',
           },
         });
 
@@ -196,17 +204,17 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         isAvailable: true,
         moves: [
           {
-            san: "Kb3",
-            uci: "c3b3",
-            category: "win",
+            san: 'Kb3',
+            uci: 'c3b3',
+            category: 'win',
             dtm: 8,
             dtz: 12,
             wdl: 600,
           },
           {
-            san: "Kc2",
-            uci: "c3c2",
-            category: "win",
+            san: 'Kc2',
+            uci: 'c3c2',
+            category: 'win',
             dtm: 9,
             dtz: 14,
             wdl: 550,
@@ -214,67 +222,57 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         ],
       });
 
-      const result = await evaluator.evaluateMoveQuality(
-        fenBefore,
-        fenAfter,
-        playedMove,
-      );
+      const result = await evaluator.evaluateMoveQuality(fenBefore, fenAfter, playedMove);
 
       expect(result.wasOptimal).toBe(false);
       expect(result.outcomeChanged).toBe(true); // Win (500) → Draw (0)
       expect(result.shouldShowErrorDialog).toBe(true);
     });
 
-    it("Should NOT show error for optimal move maintaining win", async () => {
+    it('Should NOT show error for optimal move maintaining win', async () => {
       // Black plays correct winning move
-      const fenBefore = "8/8/8/8/8/2k5/8/K7 b - - 0 1";
-      const fenAfter = "8/8/8/8/8/1k6/8/K7 w - - 1 2";
+      const fenBefore = '8/8/8/8/8/2k5/8/K7 b - - 0 1';
+      const fenAfter = '8/8/8/8/8/1k6/8/K7 w - - 1 2';
 
       const playedMove = createTestValidatedMove({
-        from: "c3",
-        to: "b3",
-        san: "Kb3",
-        color: "b",
-        piece: "k",
+        from: 'c3',
+        to: 'b3',
+        san: 'Kb3',
+        color: 'b',
+        piece: 'k',
         before: fenBefore,
         after: fenAfter,
       });
 
       // Use vi.spyOn to mock the service methods
 
-
       const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
-
 
       const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
-
-
       getEvaluationSpy
-
 
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
-            category: "loss",
+            category: 'loss',
             dtm: -10,
             dtz: -15,
             wdl: 500, // Win from Black's perspective
             precise: true,
-            evaluation: "Win",
+            evaluation: 'Win',
           },
         })
-
 
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
-            category: "loss",
+            category: 'loss',
             dtm: -8,
             dtz: -12,
             wdl: -600, // Loss from White's perspective = Win for Black
             precise: true,
-            evaluation: "Loss",
+            evaluation: 'Loss',
           },
         });
 
@@ -282,9 +280,9 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         isAvailable: true,
         moves: [
           {
-            san: "Kb3",
-            uci: "c3b3",
-            category: "win",
+            san: 'Kb3',
+            uci: 'c3b3',
+            category: 'win',
             dtm: 8,
             dtz: 12,
             wdl: 600,
@@ -292,11 +290,7 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         ],
       });
 
-      const result = await evaluator.evaluateMoveQuality(
-        fenBefore,
-        fenAfter,
-        playedMove,
-      );
+      const result = await evaluator.evaluateMoveQuality(fenBefore, fenAfter, playedMove);
 
       expect(result.wasOptimal).toBe(true);
       expect(result.outcomeChanged).toBe(false); // Still winning
@@ -304,57 +298,51 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
     });
   });
 
-  describe("White moves", () => {
-    it("Should detect outcome change: Win → Draw", async () => {
+  describe('White moves', () => {
+    it('Should detect outcome change: Win → Draw', async () => {
       // White plays drawing move instead of winning move
-      const fenBefore = "8/8/8/4K3/8/8/8/k7 w - - 0 1";
-      const fenAfter = "8/8/8/8/4K3/8/8/k7 b - - 1 1";
+      const fenBefore = '8/8/8/4K3/8/8/8/k7 w - - 0 1';
+      const fenAfter = '8/8/8/8/4K3/8/8/k7 b - - 1 1';
 
       const playedMove = createTestValidatedMove({
-        from: "e5",
-        to: "e4",
-        san: "Ke4",
-        color: "w",
-        piece: "k",
+        from: 'e5',
+        to: 'e4',
+        san: 'Ke4',
+        color: 'w',
+        piece: 'k',
         before: fenBefore,
         after: fenAfter,
       });
 
       // Use vi.spyOn to mock the service methods
 
-
       const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
-
 
       const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
-
-
       getEvaluationSpy
-
 
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
-            category: "win",
+            category: 'win',
             dtm: 10,
             dtz: 15,
             wdl: 500, // Win from White's perspective
             precise: true,
-            evaluation: "Win",
+            evaluation: 'Win',
           },
         })
-
 
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
-            category: "draw",
+            category: 'draw',
             dtm: null,
             dtz: null,
             wdl: 0, // Draw from Black's perspective
             precise: false,
-            evaluation: "Draw",
+            evaluation: 'Draw',
           },
         });
 
@@ -362,17 +350,17 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         isAvailable: true,
         moves: [
           {
-            san: "Kd5",
-            uci: "e5d5",
-            category: "win",
+            san: 'Kd5',
+            uci: 'e5d5',
+            category: 'win',
             dtm: 8,
             dtz: 12,
             wdl: 600,
           },
           {
-            san: "Kf5",
-            uci: "e5f5",
-            category: "win",
+            san: 'Kf5',
+            uci: 'e5f5',
+            category: 'win',
             dtm: 9,
             dtz: 14,
             wdl: 550,
@@ -380,67 +368,57 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         ],
       });
 
-      const result = await evaluator.evaluateMoveQuality(
-        fenBefore,
-        fenAfter,
-        playedMove,
-      );
+      const result = await evaluator.evaluateMoveQuality(fenBefore, fenAfter, playedMove);
 
       expect(result.wasOptimal).toBe(false);
       expect(result.outcomeChanged).toBe(true); // Win (500) → Draw (0)
       expect(result.shouldShowErrorDialog).toBe(true);
     });
 
-    it("Should detect outcome change: Draw → Loss", async () => {
+    it('Should detect outcome change: Draw → Loss', async () => {
       // White plays losing move from drawn position
-      const fenBefore = "8/8/3k4/4K3/8/8/8/8 w - - 0 1";
-      const fenAfter = "8/8/3k4/8/8/4K3/8/8 b - - 1 1";
+      const fenBefore = '8/8/3k4/4K3/8/8/8/8 w - - 0 1';
+      const fenAfter = '8/8/3k4/8/8/4K3/8/8 b - - 1 1';
 
       const playedMove = createTestValidatedMove({
-        from: "e5",
-        to: "e3",
-        san: "Ke3",
-        color: "w",
-        piece: "k",
+        from: 'e5',
+        to: 'e3',
+        san: 'Ke3',
+        color: 'w',
+        piece: 'k',
         before: fenBefore,
         after: fenAfter,
       });
 
       // Use vi.spyOn to mock the service methods
 
-
       const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
-
 
       const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
-
-
       getEvaluationSpy
-
 
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
-            category: "draw",
+            category: 'draw',
             dtm: null,
             dtz: null,
             wdl: 0, // Draw from White's perspective
             precise: false,
-            evaluation: "Draw",
+            evaluation: 'Draw',
           },
         })
-
 
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
-            category: "win",
+            category: 'win',
             dtm: 20,
             dtz: 25,
             wdl: 1000, // Win from Black's perspective = Loss for White
             precise: true,
-            evaluation: "Win",
+            evaluation: 'Win',
           },
         });
 
@@ -448,17 +426,17 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         isAvailable: true,
         moves: [
           {
-            san: "Ke4",
-            uci: "e5e4",
-            category: "draw",
+            san: 'Ke4',
+            uci: 'e5e4',
+            category: 'draw',
             dtm: null,
             dtz: null,
             wdl: 0,
           },
           {
-            san: "Kf5",
-            uci: "e5f5",
-            category: "draw",
+            san: 'Kf5',
+            uci: 'e5f5',
+            category: 'draw',
             dtm: null,
             dtz: null,
             wdl: 0,
@@ -466,67 +444,57 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         ],
       });
 
-      const result = await evaluator.evaluateMoveQuality(
-        fenBefore,
-        fenAfter,
-        playedMove,
-      );
+      const result = await evaluator.evaluateMoveQuality(fenBefore, fenAfter, playedMove);
 
       expect(result.wasOptimal).toBe(false);
       expect(result.outcomeChanged).toBe(true); // Draw (0) → Loss (-1000)
       expect(result.shouldShowErrorDialog).toBe(true);
     });
 
-    it("Should detect blunder: Win → Loss", async () => {
+    it('Should detect blunder: Win → Loss', async () => {
       // White blunders from winning to losing position
-      const fenBefore = "8/8/8/4K3/8/8/8/2k5 w - - 0 1";
-      const fenAfter = "8/8/8/8/8/4K3/8/2k5 b - - 1 1";
+      const fenBefore = '8/8/8/4K3/8/8/8/2k5 w - - 0 1';
+      const fenAfter = '8/8/8/8/8/4K3/8/2k5 b - - 1 1';
 
       const playedMove = createTestValidatedMove({
-        from: "e5",
-        to: "e3",
-        san: "Ke3",
-        color: "w",
-        piece: "k",
+        from: 'e5',
+        to: 'e3',
+        san: 'Ke3',
+        color: 'w',
+        piece: 'k',
         before: fenBefore,
         after: fenAfter,
       });
 
       // Use vi.spyOn to mock the service methods
 
-
       const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
-
 
       const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
-
-
       getEvaluationSpy
-
 
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
-            category: "win",
+            category: 'win',
             dtm: 15,
             dtz: 20,
             wdl: 1000, // Win from White's perspective
             precise: true,
-            evaluation: "Win",
+            evaluation: 'Win',
           },
         })
-
 
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
-            category: "win",
+            category: 'win',
             dtm: 10,
             dtz: 15,
             wdl: 1000, // Win from Black's perspective = Loss for White
             precise: true,
-            evaluation: "Win",
+            evaluation: 'Win',
           },
         });
 
@@ -534,9 +502,9 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         isAvailable: true,
         moves: [
           {
-            san: "Kd5",
-            uci: "e5d5",
-            category: "win",
+            san: 'Kd5',
+            uci: 'e5d5',
+            category: 'win',
             dtm: 12,
             dtz: 18,
             wdl: 1000,
@@ -544,67 +512,57 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         ],
       });
 
-      const result = await evaluator.evaluateMoveQuality(
-        fenBefore,
-        fenAfter,
-        playedMove,
-      );
+      const result = await evaluator.evaluateMoveQuality(fenBefore, fenAfter, playedMove);
 
       expect(result.wasOptimal).toBe(false);
       expect(result.outcomeChanged).toBe(true); // Win (1000) → Loss (-1000)
       expect(result.shouldShowErrorDialog).toBe(true);
     });
 
-    it("Should NOT show error for optimal move maintaining draw", async () => {
+    it('Should NOT show error for optimal move maintaining draw', async () => {
       // White plays correct drawing move
-      const fenBefore = "8/8/3k4/4K3/8/8/8/8 w - - 0 1";
-      const fenAfter = "8/8/3k4/8/4K3/8/8/8 b - - 1 1";
+      const fenBefore = '8/8/3k4/4K3/8/8/8/8 w - - 0 1';
+      const fenAfter = '8/8/3k4/8/4K3/8/8/8 b - - 1 1';
 
       const playedMove = createTestValidatedMove({
-        from: "e5",
-        to: "e4",
-        san: "Ke4",
-        color: "w",
-        piece: "k",
+        from: 'e5',
+        to: 'e4',
+        san: 'Ke4',
+        color: 'w',
+        piece: 'k',
         before: fenBefore,
         after: fenAfter,
       });
 
       // Use vi.spyOn to mock the service methods
 
-
       const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
-
 
       const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
-
-
       getEvaluationSpy
-
 
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
-            category: "draw",
+            category: 'draw',
             dtm: null,
             dtz: null,
             wdl: 0, // Draw
             precise: false,
-            evaluation: "Draw",
+            evaluation: 'Draw',
           },
         })
-
 
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
-            category: "draw",
+            category: 'draw',
             dtm: null,
             dtz: null,
             wdl: 0, // Still draw
             precise: false,
-            evaluation: "Draw",
+            evaluation: 'Draw',
           },
         });
 
@@ -612,17 +570,17 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         isAvailable: true,
         moves: [
           {
-            san: "Ke4",
-            uci: "e5e4",
-            category: "draw",
+            san: 'Ke4',
+            uci: 'e5e4',
+            category: 'draw',
             dtm: null,
             dtz: null,
             wdl: 0,
           },
           {
-            san: "Kf5",
-            uci: "e5f5",
-            category: "draw",
+            san: 'Kf5',
+            uci: 'e5f5',
+            category: 'draw',
             dtm: null,
             dtz: null,
             wdl: 0,
@@ -630,11 +588,7 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         ],
       });
 
-      const result = await evaluator.evaluateMoveQuality(
-        fenBefore,
-        fenAfter,
-        playedMove,
-      );
+      const result = await evaluator.evaluateMoveQuality(fenBefore, fenAfter, playedMove);
 
       expect(result.wasOptimal).toBe(true);
       expect(result.outcomeChanged).toBe(false); // Still drawing
@@ -642,57 +596,51 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
     });
   });
 
-  describe("Edge cases", () => {
-    it("Should handle draw values (WDL = 0) correctly", async () => {
+  describe('Edge cases', () => {
+    it('Should handle draw values (WDL = 0) correctly', async () => {
       // Both positions are drawn
-      const fenBefore = "8/8/3k4/4K3/8/8/8/8 w - - 0 1";
-      const fenAfter = "8/8/3k4/8/4K3/8/8/8 b - - 1 1";
+      const fenBefore = '8/8/3k4/4K3/8/8/8/8 w - - 0 1';
+      const fenAfter = '8/8/3k4/8/4K3/8/8/8 b - - 1 1';
 
       const playedMove = createTestValidatedMove({
-        from: "e5",
-        to: "e4",
-        san: "Ke4",
-        color: "w",
-        piece: "k",
+        from: 'e5',
+        to: 'e4',
+        san: 'Ke4',
+        color: 'w',
+        piece: 'k',
         before: fenBefore,
         after: fenAfter,
       });
 
       // Use vi.spyOn to mock the service methods
 
-
       const getEvaluationSpy = vi.spyOn(tablebaseService, 'getEvaluation');
-
 
       const getTopMovesSpy = vi.spyOn(tablebaseService, 'getTopMoves');
 
-
-
       getEvaluationSpy
-
 
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
-            category: "draw",
+            category: 'draw',
             dtm: null,
             dtz: null,
             wdl: 0,
             precise: false,
-            evaluation: "Draw",
+            evaluation: 'Draw',
           },
         })
 
-
         .mockResolvedValueOnce({
           isAvailable: true,
           result: {
-            category: "draw",
+            category: 'draw',
             dtm: null,
             dtz: null,
             wdl: 0,
             precise: false,
-            evaluation: "Draw",
+            evaluation: 'Draw',
           },
         });
 
@@ -700,9 +648,9 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         isAvailable: true,
         moves: [
           {
-            san: "Ke4",
-            uci: "e5e4",
-            category: "draw",
+            san: 'Ke4',
+            uci: 'e5e4',
+            category: 'draw',
             dtm: null,
             dtz: null,
             wdl: 0,
@@ -710,11 +658,7 @@ describe("MoveQualityEvaluator - WDL Perspective Conversion", () => {
         ],
       });
 
-      const result = await evaluator.evaluateMoveQuality(
-        fenBefore,
-        fenAfter,
-        playedMove,
-      );
+      const result = await evaluator.evaluateMoveQuality(fenBefore, fenAfter, playedMove);
 
       // Converting perspectives: 0 → 0 and -0 → 0 (both still 0)
       expect(result.wasOptimal).toBe(true);

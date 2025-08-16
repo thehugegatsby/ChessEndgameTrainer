@@ -7,8 +7,8 @@
  * Centralizes data structures to prevent circular dependencies.
  */
 
-import type { ValidatedMove } from "@shared/types/chess";
-import type { TrainingPosition } from "@shared/store/slices/trainingSlice";
+import type { ValidatedMove } from '@shared/types/chess';
+import type { TrainingPosition } from '@shared/store/slices/trainingSlice';
 
 /**
  * Result of move execution with validation
@@ -45,8 +45,8 @@ export interface MoveContext {
   mistakeCount: number;
   showToast?: (
     message: string,
-    type: "error" | "warning" | "success" | "info",
-    duration?: number,
+    type: 'error' | 'warning' | 'success' | 'info',
+    duration?: number
   ) => void;
 }
 

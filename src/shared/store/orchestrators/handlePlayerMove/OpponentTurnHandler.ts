@@ -3,14 +3,14 @@
  * @see docs/orchestrators/handlePlayerMove/OpponentTurnHandler.md
  */
 
-import type { StoreApi } from "../types";
-import { chessService } from "@shared/services/ChessService";
+import type { StoreApi } from '../types';
+import { chessService } from '@shared/services/ChessService';
 // Note: Using dynamic import for service instead of React Query hook in orchestrator
-import type { TablebaseMove } from "@shared/types/tablebase";
-import { ErrorService } from "@shared/services/ErrorService";
-import { handleTrainingCompletion } from "./move.completion";
-import { getLogger } from "@shared/services/logging";
-import { ALGORITHM_MULTIPLIERS } from "@shared/constants/multipliers";
+import type { TablebaseMove } from '@shared/types/tablebase';
+import { ErrorService } from '@shared/services/ErrorService';
+import { handleTrainingCompletion } from './move.completion';
+import { getLogger } from '@shared/services/logging';
+import { ALGORITHM_MULTIPLIERS } from '@shared/constants/multipliers';
 
 const OPPONENT_TURN_DELAY = 500; // ms
 
@@ -26,12 +26,10 @@ class OpponentTurnManager {
     if (this.timeout) {
       clearTimeout(this.timeout);
       this.timeout = undefined;
-      getLogger().debug(
-        "[OpponentTurnHandler] Successfully cancelled scheduled opponent turn",
-      );
+      getLogger().debug('[OpponentTurnHandler] Successfully cancelled scheduled opponent turn');
     } else {
       getLogger().debug(
-        "[OpponentTurnHandler] WARNING: No timeout to cancel, but set cancellation flag",
+        '[OpponentTurnHandler] WARNING: No timeout to cancel, but set cancellation flag'
       );
     }
   }
@@ -60,16 +58,13 @@ class OpponentTurnManager {
     options?: { onOpponentMoveComplete?: () => Promise<void> | void }
   ): void {
     const currentState = api.getState();
-    getLogger().info(
-      `[OpponentTurnHandler] 🎯 scheduleOpponentTurn called - delay: ${delay}ms`,
-      {
-        isPlayerTurn: currentState.training.isPlayerTurn,
-        isOpponentThinking: currentState.training.isOpponentThinking,
-        currentFen: chessService.getFen(),
-        currentTurn: chessService.turn(),
-        colorToTrain: currentState.training.currentPosition?.colorToTrain,
-      }
-    );
+    getLogger().info(`[OpponentTurnHandler] 🎯 scheduleOpponentTurn called - delay: ${delay}ms`, {
+      isPlayerTurn: currentState.training.isPlayerTurn,
+      isOpponentThinking: currentState.training.isOpponentThinking,
+      currentFen: chessService.getFen(),
+      currentTurn: chessService.turn(),
+      colorToTrain: currentState.training.currentPosition?.colorToTrain,
+    });
 
     // Cancel any previously scheduled opponent turn
     this.cancel();
@@ -77,10 +72,9 @@ class OpponentTurnManager {
     // Clear the cancellation flag when scheduling new turn
     this.isCancelled = false;
 
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       // Schedule new opponent turn with cancellable timeout
       this.timeout = setTimeout(async () => {
-
         // Check if this turn was cancelled
         if (this.isCancelled) return;
 
@@ -88,7 +82,7 @@ class OpponentTurnManager {
         const latestState = api.getState();
         if (latestState.training.isPlayerTurn) return;
 
-        getLogger().debug("[OpponentTurnHandler] Executing opponent turn");
+        getLogger().debug('[OpponentTurnHandler] Executing opponent turn');
         await this.executeOpponentTurn(api, options?.onOpponentMoveComplete);
 
         // Clear the timeout reference after execution
@@ -97,7 +91,7 @@ class OpponentTurnManager {
     } else {
       // Fallback for non-browser environments (tests)
       (async () => {
-        await new Promise((resolve) => setTimeout(resolve, delay));
+        await new Promise(resolve => setTimeout(resolve, delay));
         if (!this.isCancelled) {
           await this.executeOpponentTurn(api, options?.onOpponentMoveComplete);
         }
@@ -139,17 +133,17 @@ class OpponentTurnManager {
       // Fetch ALL moves from tablebase to find optimal one based on DTM
       // We need all moves to properly evaluate defense in losing positions
       // Using orchestrator service wrapper for clean non-hook access
-      const { orchestratorTablebase } = await import("@shared/services/orchestrator/OrchestratorServices");
-      const topMoves = await orchestratorTablebase.getTopMoves(currentFen, ALGORITHM_MULTIPLIERS.DEFAULT_BATCH_SIZE);
+      const { orchestratorTablebase } = await import(
+        '@shared/services/orchestrator/OrchestratorServices'
+      );
+      const topMoves = await orchestratorTablebase.getTopMoves(
+        currentFen,
+        ALGORITHM_MULTIPLIERS.DEFAULT_BATCH_SIZE
+      );
 
-
-      if (
-        !topMoves.isAvailable ||
-        !topMoves.moves ||
-        topMoves.moves.length === 0
-      ) {
+      if (!topMoves.isAvailable || !topMoves.moves || topMoves.moves.length === 0) {
         // No tablebase move available - just return control to player
-        setState((draft) => {
+        setState(draft => {
           draft.training.isPlayerTurn = true;
           draft.training.isOpponentThinking = false;
         });
@@ -166,10 +160,9 @@ class OpponentTurnManager {
       }
 
       // Update state - switch back to player's turn
-      setState((draft) => {
+      setState(draft => {
         draft.training.isPlayerTurn = true;
         draft.training.isOpponentThinking = false;
-
       });
 
       // Check if game ended after opponent move
@@ -189,18 +182,18 @@ class OpponentTurnManager {
       // Handle opponent move errors
       const userMessage = ErrorService.handleUIError(
         error instanceof Error ? error : new Error(String(error)),
-        "OpponentMove",
+        'OpponentMove',
         {
-          component: "OpponentMove",
-          action: "execute",
-        },
+          component: 'OpponentMove',
+          action: 'execute',
+        }
       );
 
-      setState((draft) => {
+      setState(draft => {
         draft.ui.toasts.push({
           id: Date.now().toString(),
           message: userMessage,
-          type: "error",
+          type: 'error',
         });
         // Reset to player's turn and clear thinking flag on error
         draft.training.isPlayerTurn = true;
@@ -215,7 +208,6 @@ class OpponentTurnManager {
  * then fastest win (low DTM) or best defense (high DTM)
  */
 function selectOptimalMove(moves: TablebaseMove[]): TablebaseMove {
-
   // Sort moves by optimal criteria
   const sortedMoves = [...moves].sort((a, b) => {
     // First priority: Sort by outcome (higher WDL is better)
@@ -224,12 +216,7 @@ function selectOptimalMove(moves: TablebaseMove[]): TablebaseMove {
     }
 
     // Same outcome - sort by DTM based on position type
-    if (
-      a.dtm === null ||
-      a.dtm === undefined ||
-      b.dtm === null ||
-      b.dtm === undefined
-    ) {
+    if (a.dtm === null || a.dtm === undefined || b.dtm === null || b.dtm === undefined) {
       return 0; // Can't compare if DTM is missing
     }
 
@@ -255,8 +242,8 @@ function selectOptimalMove(moves: TablebaseMove[]): TablebaseMove {
   }
 
   // Log the decision for debugging
-  getLogger().info("[OpponentTurnHandler] Move selection:", {
-    availableMoves: moves.map((m) => ({
+  getLogger().info('[OpponentTurnHandler] Move selection:', {
+    availableMoves: moves.map(m => ({
       san: m.san,
       wdl: m.wdl,
       dtm: m.dtm,
@@ -269,9 +256,10 @@ function selectOptimalMove(moves: TablebaseMove[]): TablebaseMove {
       category: selected.category,
     },
     reason: (() => {
-      if (selected.wdl < 0) return `Best defense - delays mate for ${Math.abs(selected.dtm || 0)} moves`;
+      if (selected.wdl < 0)
+        return `Best defense - delays mate for ${Math.abs(selected.dtm || 0)} moves`;
       if (selected.wdl > 0) return `Fastest win - mate in ${Math.abs(selected.dtm || 0)} moves`;
-      return "Draw maintaining move";
+      return 'Draw maintaining move';
     })(),
   });
 

@@ -35,19 +35,15 @@
  * ```
  */
 
-import { type PositionRepository } from "@shared/repositories/IPositionRepository";
-import { type PositionService, type PositionServiceConfig } from "./IPositionService";
-import {
-  type EndgamePosition,
-  type EndgameCategory,
-  type EndgameChapter,
-} from "@shared/types";
-import { getLogger } from "@shared/services/logging";
-import { LRUCache } from "@shared/lib/cache/LRUCache";
-import { RepositoryError } from "./errors";
-import { CACHE } from "@shared/constants";
+import { type PositionRepository } from '@shared/repositories/IPositionRepository';
+import { type PositionService, type PositionServiceConfig } from './IPositionService';
+import { type EndgamePosition, type EndgameCategory, type EndgameChapter } from '@shared/types';
+import { getLogger } from '@shared/services/logging';
+import { LRUCache } from '@shared/lib/cache/LRUCache';
+import { RepositoryError } from './errors';
+import { CACHE } from '@shared/constants';
 
-const logger = getLogger().setContext("PositionService");
+const logger = getLogger().setContext('PositionService');
 
 /**
  * Service for managing chess positions
@@ -88,10 +84,7 @@ export class DefaultPositionService implements PositionService {
    * });
    * ```
    */
-  constructor(
-    repository: PositionRepository,
-    config: PositionServiceConfig = {},
-  ) {
+  constructor(repository: PositionRepository, config: PositionServiceConfig = {}) {
     this.repository = repository;
     this.config = {
       cacheEnabled: true,
@@ -105,7 +98,7 @@ export class DefaultPositionService implements PositionService {
       this.cache = new LRUCache<EndgamePosition>(cacheSize);
     }
 
-    logger.info("PositionService initialized", { config: this.config });
+    logger.info('PositionService initialized', { config: this.config });
   }
 
   /**
@@ -134,7 +127,7 @@ export class DefaultPositionService implements PositionService {
     if (this.cache) {
       const cached = this.cache.get(cacheKey);
       if (cached) {
-        logger.debug("Cache hit for position", { id });
+        logger.debug('Cache hit for position', { id });
         return cached;
       }
     }
@@ -148,8 +141,8 @@ export class DefaultPositionService implements PositionService {
 
       return position;
     } catch (error) {
-      logger.error("Failed to get position", { id, error });
-      throw new RepositoryError("getPosition", error as Error);
+      logger.error('Failed to get position', { id, error });
+      throw new RepositoryError('getPosition', error as Error);
     }
   }
 
@@ -181,15 +174,15 @@ export class DefaultPositionService implements PositionService {
       // Cache individual positions
       if (this.cache) {
         const cache = this.cache;
-        positions.forEach((position) => {
+        positions.forEach(position => {
           cache.set(position.id.toString(), position);
         });
       }
 
       return positions;
     } catch (error) {
-      logger.error("Failed to get all positions", { error });
-      throw new RepositoryError("getAllPositions", error as Error);
+      logger.error('Failed to get all positions', { error });
+      throw new RepositoryError('getAllPositions', error as Error);
     }
   }
 
@@ -217,14 +210,14 @@ export class DefaultPositionService implements PositionService {
       // Cache individual positions
       if (this.cache) {
         const cache = this.cache;
-        positions.forEach((position) => {
+        positions.forEach(position => {
           cache.set(position.id.toString(), position);
         });
       }
 
       return positions;
     } catch (error) {
-      logger.error("Failed to get positions by category", { category, error });
+      logger.error('Failed to get positions by category', { category, error });
       return [];
     }
   }
@@ -234,23 +227,22 @@ export class DefaultPositionService implements PositionService {
    * @param difficulty
    */
   async getPositionsByDifficulty(
-    difficulty: EndgamePosition["difficulty"],
+    difficulty: EndgamePosition['difficulty']
   ): Promise<EndgamePosition[]> {
     try {
-      const positions =
-        await this.repository.getPositionsByDifficulty(difficulty);
+      const positions = await this.repository.getPositionsByDifficulty(difficulty);
 
       // Cache individual positions
       if (this.cache) {
         const cache = this.cache;
-        positions.forEach((position) => {
+        positions.forEach(position => {
           cache.set(position.id.toString(), position);
         });
       }
 
       return positions;
     } catch (error) {
-      logger.error("Failed to get positions by difficulty", {
+      logger.error('Failed to get positions by difficulty', {
         difficulty,
         error,
       });
@@ -286,14 +278,14 @@ export class DefaultPositionService implements PositionService {
       // Cache individual positions
       if (this.cache) {
         const cache = this.cache;
-        positions.forEach((position) => {
+        positions.forEach(position => {
           cache.set(position.id.toString(), position);
         });
       }
 
       return positions;
     } catch (error) {
-      logger.error("Failed to search positions", { searchTerm, error });
+      logger.error('Failed to search positions', { searchTerm, error });
       return [];
     }
   }
@@ -313,7 +305,7 @@ export class DefaultPositionService implements PositionService {
    */
   clearCache(): void {
     this.cache?.clear();
-    logger.info("Position cache cleared");
+    logger.info('Position cache cleared');
   }
 
   /**
@@ -340,7 +332,7 @@ export class DefaultPositionService implements PositionService {
     }
 
     const stats = this.cache.getStats();
-    const keys = this.cache.keys().map((key) => parseInt(key, 10));
+    const keys = this.cache.keys().map(key => parseInt(key, 10));
     return {
       size: stats.size,
       keys: keys,
@@ -355,7 +347,7 @@ export class DefaultPositionService implements PositionService {
     try {
       return await this.repository.getCategories();
     } catch (error) {
-      logger.error("Failed to get categories", { error });
+      logger.error('Failed to get categories', { error });
       return [];
     }
   }
@@ -367,7 +359,7 @@ export class DefaultPositionService implements PositionService {
     try {
       return await this.repository.getChapters();
     } catch (error) {
-      logger.error("Failed to get chapters", { error });
+      logger.error('Failed to get chapters', { error });
       return [];
     }
   }
@@ -380,7 +372,7 @@ export class DefaultPositionService implements PositionService {
     try {
       return await this.repository.getChaptersByCategory(categoryId);
     } catch (error) {
-      logger.error("Failed to get chapters by category", { categoryId, error });
+      logger.error('Failed to get chapters by category', { categoryId, error });
       return [];
     }
   }
@@ -405,15 +397,9 @@ export class DefaultPositionService implements PositionService {
    * const nextInCategory = await service.getNextPosition(5, 'rook-endgames');
    * ```
    */
-  async getNextPosition(
-    currentId: number,
-    categoryId?: string,
-  ): Promise<EndgamePosition | null> {
+  async getNextPosition(currentId: number, categoryId?: string): Promise<EndgamePosition | null> {
     try {
-      const position = await this.repository.getNextPosition(
-        currentId,
-        categoryId,
-      );
+      const position = await this.repository.getNextPosition(currentId, categoryId);
 
       if (position && this.cache) {
         this.cache.set(position.id.toString(), position);
@@ -421,7 +407,7 @@ export class DefaultPositionService implements PositionService {
 
       return position;
     } catch (error) {
-      logger.error("Failed to get next position", {
+      logger.error('Failed to get next position', {
         currentId,
         categoryId,
         error,
@@ -437,13 +423,10 @@ export class DefaultPositionService implements PositionService {
    */
   async getPreviousPosition(
     currentId: number,
-    categoryId?: string,
+    categoryId?: string
   ): Promise<EndgamePosition | null> {
     try {
-      const position = await this.repository.getPreviousPosition(
-        currentId,
-        categoryId,
-      );
+      const position = await this.repository.getPreviousPosition(currentId, categoryId);
 
       if (position && this.cache) {
         this.cache.set(position.id.toString(), position);
@@ -451,7 +434,7 @@ export class DefaultPositionService implements PositionService {
 
       return position;
     } catch (error) {
-      logger.error("Failed to get previous position", {
+      logger.error('Failed to get previous position', {
         currentId,
         categoryId,
         error,
@@ -467,7 +450,7 @@ export class DefaultPositionService implements PositionService {
     try {
       return await this.repository.getTotalPositionCount();
     } catch (error) {
-      logger.error("Failed to get position count", { error });
+      logger.error('Failed to get position count', { error });
       return 0;
     }
   }
@@ -480,7 +463,7 @@ export class DefaultPositionService implements PositionService {
     try {
       return await this.repository.getPositionCountByCategory(categoryId);
     } catch (error) {
-      logger.error("Failed to get position count by category", {
+      logger.error('Failed to get position count by category', {
         categoryId,
         error,
       });
@@ -512,9 +495,7 @@ export class DefaultPositionService implements PositionService {
    * });
    * ```
    */
-  async createPosition(
-    position: Omit<EndgamePosition, "id">,
-  ): Promise<EndgamePosition | null> {
+  async createPosition(position: Omit<EndgamePosition, 'id'>): Promise<EndgamePosition | null> {
     try {
       const created = await this.repository.createPosition(position);
 
@@ -522,10 +503,10 @@ export class DefaultPositionService implements PositionService {
         this.cache.set(created.id.toString(), created);
       }
 
-      logger.info("Position created", { id: created.id });
+      logger.info('Position created', { id: created.id });
       return created;
     } catch (error) {
-      logger.error("Failed to create position", { error });
+      logger.error('Failed to create position', { error });
       return null;
     }
   }
@@ -537,7 +518,7 @@ export class DefaultPositionService implements PositionService {
    */
   async updatePosition(
     id: number,
-    updates: Partial<EndgamePosition>,
+    updates: Partial<EndgamePosition>
   ): Promise<EndgamePosition | null> {
     try {
       const updated = await this.repository.updatePosition(id, updates);
@@ -546,10 +527,10 @@ export class DefaultPositionService implements PositionService {
         this.cache.set(id.toString(), updated);
       }
 
-      logger.info("Position updated", { id });
+      logger.info('Position updated', { id });
       return updated;
     } catch (error) {
-      logger.error("Failed to update position", { id, error });
+      logger.error('Failed to update position', { id, error });
       return null;
     }
   }
@@ -566,10 +547,10 @@ export class DefaultPositionService implements PositionService {
         this.cache.delete(id.toString());
       }
 
-      logger.info("Position deleted", { id });
+      logger.info('Position deleted', { id });
       return deleted;
     } catch (error) {
-      logger.error("Failed to delete position", { id, error });
+      logger.error('Failed to delete position', { id, error });
       return false;
     }
   }

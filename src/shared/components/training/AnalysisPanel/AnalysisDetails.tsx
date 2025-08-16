@@ -21,10 +21,10 @@
  * evaluation utilities to provide comprehensive move analysis feedback.
  */
 
-import React from "react";
-import { type Move } from "chess.js";
-import { getEvaluationBarWidth } from "../../../utils/chess/evaluation";
-import { PrincipalVariation } from "../PrincipalVariation";
+import React from 'react';
+import { type Move } from 'chess.js';
+import { getEvaluationBarWidth } from '../../../utils/chess/evaluation';
+import { PrincipalVariation } from '../PrincipalVariation';
 import { PERCENTAGE_MULTIPLIERS } from '@shared/constants/multipliers';
 
 /**
@@ -44,7 +44,7 @@ interface MoveAnalysisData {
   move: Move;
   evaluation?: number;
   bestMove?: string;
-  classification?: "excellent" | "good" | "inaccuracy" | "mistake" | "blunder";
+  classification?: 'excellent' | 'good' | 'inaccuracy' | 'mistake' | 'blunder';
   // PHASE 2.2: Enhanced evaluation data
   pv?: string[];
   pvString?: string;
@@ -78,7 +78,7 @@ interface AnalysisDetailsProps {
  * ```
  */
 const formatEvaluation = (evaluation?: number): string => {
-  if (evaluation === undefined) return "0.00";
+  if (evaluation === undefined) return '0.00';
   return evaluation > 0 ? `+${evaluation.toFixed(2)}` : evaluation.toFixed(2);
 };
 
@@ -131,8 +131,7 @@ const formatEvaluation = (evaluation?: number): string => {
  */
 export const AnalysisDetails: React.FC<AnalysisDetailsProps> = React.memo(
   ({ selectedMoveIndex, analysisData }) => {
-    const selectedAnalysis =
-      selectedMoveIndex !== null ? analysisData[selectedMoveIndex] : null;
+    const selectedAnalysis = selectedMoveIndex !== null ? analysisData[selectedMoveIndex] : null;
 
     return (
       <div className="w-3/5 flex flex-col">
@@ -140,7 +139,7 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = React.memo(
           <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
             {selectedMoveIndex !== null && selectedAnalysis
               ? `Zug ${selectedMoveIndex + 1}: ${selectedAnalysis.move.san}`
-              : "Wähle einen Zug"}
+              : 'Wähle einen Zug'}
           </h4>
         </div>
 
@@ -194,8 +193,12 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = React.memo(
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
                   <PrincipalVariation
                     pv={selectedAnalysis.pv}
-                    {...(selectedAnalysis.pvString !== undefined && { pvString: selectedAnalysis.pvString })}
-                    {...(selectedAnalysis.evaluation !== undefined && { evaluation: selectedAnalysis.evaluation })}
+                    {...(selectedAnalysis.pvString !== undefined && {
+                      pvString: selectedAnalysis.pvString,
+                    })}
+                    {...(selectedAnalysis.evaluation !== undefined && {
+                      evaluation: selectedAnalysis.evaluation,
+                    })}
                     {...(selectedAnalysis.depth !== undefined && { depth: selectedAnalysis.depth })}
                     interactive={true}
                     maxMoves={8} // Limit for mobile UI
@@ -215,40 +218,38 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = React.memo(
                   </h5>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-xs text-gray-600 dark:text-gray-400">
-                        Kategorie:
-                      </span>
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Kategorie:</span>
                       <span
                         className={`text-xs font-medium capitalize ${(() => {
-                          if (selectedAnalysis.classification === "excellent") {
-                            return "text-green-600 dark:text-green-400";
+                          if (selectedAnalysis.classification === 'excellent') {
+                            return 'text-green-600 dark:text-green-400';
                           }
-                          if (selectedAnalysis.classification === "good") {
-                            return "text-blue-600 dark:text-blue-400";
+                          if (selectedAnalysis.classification === 'good') {
+                            return 'text-blue-600 dark:text-blue-400';
                           }
-                          if (selectedAnalysis.classification === "inaccuracy") {
-                            return "text-yellow-600 dark:text-yellow-400";
+                          if (selectedAnalysis.classification === 'inaccuracy') {
+                            return 'text-yellow-600 dark:text-yellow-400';
                           }
-                          if (selectedAnalysis.classification === "mistake") {
-                            return "text-orange-600 dark:text-orange-400";
+                          if (selectedAnalysis.classification === 'mistake') {
+                            return 'text-orange-600 dark:text-orange-400';
                           }
-                          return "text-red-600 dark:text-red-400";
+                          return 'text-red-600 dark:text-red-400';
                         })()}`}
                       >
                         {(() => {
-                          if (selectedAnalysis.classification === "excellent") {
-                            return "Ausgezeichnet";
+                          if (selectedAnalysis.classification === 'excellent') {
+                            return 'Ausgezeichnet';
                           }
-                          if (selectedAnalysis.classification === "good") {
-                            return "Gut";
+                          if (selectedAnalysis.classification === 'good') {
+                            return 'Gut';
                           }
-                          if (selectedAnalysis.classification === "inaccuracy") {
-                            return "Ungenauigkeit";
+                          if (selectedAnalysis.classification === 'inaccuracy') {
+                            return 'Ungenauigkeit';
                           }
-                          if (selectedAnalysis.classification === "mistake") {
-                            return "Fehler";
+                          if (selectedAnalysis.classification === 'mistake') {
+                            return 'Fehler';
                           }
-                          return "Patzer";
+                          return 'Patzer';
                         })()}
                       </span>
                     </div>
@@ -264,22 +265,22 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = React.memo(
                 <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
                   {(() => {
                     if (selectedAnalysis.evaluation === undefined) {
-                      return "Keine detaillierte Bewertung verfügbar.";
+                      return 'Keine detaillierte Bewertung verfügbar.';
                     }
                     if (selectedAnalysis.evaluation > 2) {
-                      return "Weiß steht deutlich besser. Die Position sollte gewonnen werden können.";
+                      return 'Weiß steht deutlich besser. Die Position sollte gewonnen werden können.';
                     }
                     if (selectedAnalysis.evaluation > PERCENTAGE_MULTIPLIERS.FIFTY_PERCENT) {
-                      return "Weiß hat einen kleinen Vorteil. Präzises Spiel ist erforderlich.";
+                      return 'Weiß hat einen kleinen Vorteil. Präzises Spiel ist erforderlich.';
                     }
                     if (selectedAnalysis.evaluation > -PERCENTAGE_MULTIPLIERS.FIFTY_PERCENT) {
-                      return "Die Position ist ausgeglichen. Beide Seiten haben gleiche Chancen.";
+                      return 'Die Position ist ausgeglichen. Beide Seiten haben gleiche Chancen.';
                     }
                     const SIGNIFICANT_DISADVANTAGE = -2;
                     if (selectedAnalysis.evaluation > SIGNIFICANT_DISADVANTAGE) {
-                      return "Schwarz hat einen kleinen Vorteil. Vorsichtiges Spiel ist angebracht.";
+                      return 'Schwarz hat einen kleinen Vorteil. Vorsichtiges Spiel ist angebracht.';
                     }
-                    return "Schwarz steht deutlich besser. Die Position ist schwierig zu verteidigen.";
+                    return 'Schwarz steht deutlich besser. Die Position ist schwierig zu verteidigen.';
                   })()}
                 </div>
               </div>
@@ -297,7 +298,7 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = React.memo(
         </div>
       </div>
     );
-  },
+  }
 );
 
-AnalysisDetails.displayName = "AnalysisDetails";
+AnalysisDetails.displayName = 'AnalysisDetails';

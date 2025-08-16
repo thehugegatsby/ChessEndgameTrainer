@@ -7,8 +7,8 @@
  * Essential for preventing UI flicker and ensuring correct initial state in SSR environments.
  */
 
-import { useEffect, useState } from "react";
-import { useStore, useStoreApi } from "@shared/store/StoreContext";
+import { useEffect, useState } from 'react';
+import { useStore, useStoreApi } from '@shared/store/StoreContext';
 
 /**
  * Type for Zustand persist API (internal/undocumented)
@@ -113,5 +113,5 @@ export function useHydration(): boolean {
  */
 export function useStoreHydration(): boolean {
   // This property is automatically added by persist middleware in v5
-  return useStore((state) => (state as StateWithHydration)._hasHydrated ?? true);
+  return useStore(state => (state as StateWithHydration)._hasHydrated ?? true);
 }

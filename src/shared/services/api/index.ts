@@ -2,9 +2,9 @@
  * API clients for external service communication
  */
 
-export { 
-  LichessApiClient, 
-  LichessApiError, 
+export {
+  LichessApiClient,
+  LichessApiError,
   LichessApiTimeoutError,
-  type LichessApiClientConfig 
+  type LichessApiClientConfig,
 } from './LichessApiClient';

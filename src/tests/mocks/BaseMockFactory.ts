@@ -1,9 +1,9 @@
 /**
  * Base Mock Factory Class
- * 
+ *
  * Provides a consistent pattern for creating and managing test mocks.
  * Ensures proper cleanup and type safety across all test suites.
- * 
+ *
  * @template T - The type/interface of the service being mocked
  * @template C - The type for creation-time overrides (defaults to Partial<any<T>>)
  */
@@ -17,7 +17,7 @@ export abstract class BaseMockFactory<T extends object, C = Partial<T>> {
   /**
    * Creates a new mock instance for a test.
    * Ensures clean state by disposing any existing instance first.
-   * 
+   *
    * @param overrides - Optional overrides for the default mock behavior
    * @returns A fresh mock instance with type safety
    */
@@ -28,16 +28,16 @@ export abstract class BaseMockFactory<T extends object, C = Partial<T>> {
     }
 
     const defaultMock = this._createDefaultMock();
-    
+
     // Deep merge overrides onto the default mock
     const finalMock = this._mergeOverrides(defaultMock, overrides);
-    
+
     this.mockInstance = finalMock as T;
     this._afterCreate(this.mockInstance);
-    
+
     // Register this factory as active with the MockManager
     this._registerWithManager();
-    
+
     return this.mockInstance;
   }
 
@@ -49,7 +49,7 @@ export abstract class BaseMockFactory<T extends object, C = Partial<T>> {
     if (!this.mockInstance) {
       throw new Error(
         `[MockFactory] Mock for ${this.constructor.name} has not been created. ` +
-        `Call create() in a beforeEach block.`
+          `Call create() in a beforeEach block.`
       );
     }
     return this.mockInstance;
@@ -70,12 +70,12 @@ export abstract class BaseMockFactory<T extends object, C = Partial<T>> {
     // Run any registered cleanup callbacks
     this.cleanupCallbacks.forEach(callback => callback());
     this.cleanupCallbacks = [];
-    
+
     if (this.mockInstance) {
       // Call service-specific cleanup if needed
       this._beforeCleanup(this.mockInstance);
     }
-    
+
     this.mockInstance = null;
   }
 
@@ -92,7 +92,7 @@ export abstract class BaseMockFactory<T extends object, C = Partial<T>> {
    */
   protected _mergeOverrides(defaultMock: T, overrides?: C): T {
     if (!overrides) return defaultMock;
-    
+
     // Deep merge for nested objects
     return this._deepMerge(defaultMock, overrides as any) as T;
   }
@@ -107,21 +107,21 @@ export abstract class BaseMockFactory<T extends object, C = Partial<T>> {
       console.warn('[MockFactory] Maximum merge depth reached');
       return target;
     }
-    
+
     // Prevent circular reference infinite loops
     if (visited.has(source)) {
       return target;
     }
     visited.add(source);
-    
+
     const result = { ...target };
-    
+
     for (const key in source) {
       // Protect against prototype pollution
       if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
         continue;
       }
-      
+
       if (Object.prototype.hasOwnProperty.call(source, key)) {
         if (source[key] && typeof source[key] === 'object' && !vi.isMockFunction(source[key])) {
           if (target[key] && typeof target[key] === 'object') {
@@ -134,7 +134,7 @@ export abstract class BaseMockFactory<T extends object, C = Partial<T>> {
         }
       }
     }
-    
+
     return result;
   }
 
@@ -159,7 +159,7 @@ export abstract class BaseMockFactory<T extends object, C = Partial<T>> {
    * a default version of the mock with all methods stubbed.
    */
   protected abstract _createDefaultMock(): T;
-  
+
   /**
    * Register this factory with the MockManager for tracking.
    * Uses dynamic import to avoid circular dependency.

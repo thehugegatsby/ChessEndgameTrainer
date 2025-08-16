@@ -8,27 +8,15 @@ import {
   type Square as ChessJsSquare,
   type PieceSymbol as ChessJsPieceSymbol,
   type Move as ChessJsMove,
-} from "chess.js";
-import { type ChessServiceEvent } from "../services/ChessService";
+} from 'chess.js';
+import { type ChessServiceEvent } from '../services/ChessService';
 
 // Basic chess types
 export type Square = ChessJsSquare; // Use chess.js Square type directly
 export type PieceSymbol = ChessJsPieceSymbol; // Use chess.js PieceSymbol type
-export type Piece =
-  | "p"
-  | "n"
-  | "b"
-  | "r"
-  | "q"
-  | "k"
-  | "P"
-  | "N"
-  | "B"
-  | "R"
-  | "Q"
-  | "K"; // Keep for FEN/display purposes
-export type Color = "w" | "b";
-export type File = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h";
+export type Piece = 'p' | 'n' | 'b' | 'r' | 'q' | 'k' | 'P' | 'N' | 'B' | 'R' | 'Q' | 'K'; // Keep for FEN/display purposes
+export type Color = 'w' | 'b';
+export type File = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h';
 // Move related types - Clean Domain Types
 export interface Move {
   color: Color;
@@ -36,7 +24,7 @@ export interface Move {
   to: Square;
   piece: PieceSymbol;
   captured?: PieceSymbol;
-  promotion?: "q" | "r" | "b" | "n"; // Strict: only valid promotion pieces
+  promotion?: 'q' | 'r' | 'b' | 'n'; // Strict: only valid promotion pieces
   flags: string;
   san: string;
   lan: string;
@@ -47,7 +35,7 @@ export interface Move {
   evalBefore?: number; // WDL evaluation before move (-2 to 2)
   evalAfter?: number; // WDL evaluation after move (-2 to 2)
   bestMoveSan?: string; // Best move in algebraic notation
-  moveQuality?: "excellent" | "good" | "inaccuracy" | "mistake" | "blunder";
+  moveQuality?: 'excellent' | 'good' | 'inaccuracy' | 'mistake' | 'blunder';
   dtzBefore?: number | null; // Distance to zeroing before move
   dtzAfter?: number | null; // Distance to zeroing after move
   // Helper methods (available on chess.js Move instances)
@@ -85,7 +73,7 @@ export type ValidatedMove = DomainMove & {
 export function createValidatedMove(
   chessMove: ChessJsMove,
   fenBefore: string,
-  fenAfter: string,
+  fenAfter: string
 ): ValidatedMove {
   const domainMove: Move = {
     color: chessMove.color,
@@ -93,7 +81,9 @@ export function createValidatedMove(
     to: chessMove.to,
     piece: chessMove.piece,
     ...(chessMove.captured !== undefined && { captured: chessMove.captured }),
-    ...(chessMove.promotion !== undefined && { promotion: chessMove.promotion as "q" | "r" | "b" | "n" }),
+    ...(chessMove.promotion !== undefined && {
+      promotion: chessMove.promotion as 'q' | 'r' | 'b' | 'n',
+    }),
     flags: chessMove.flags,
     san: chessMove.san,
     lan: chessMove.lan,
@@ -104,10 +94,10 @@ export function createValidatedMove(
     // Helper methods
     isCapture: () => Boolean(chessMove.captured),
     isPromotion: () => Boolean(chessMove.promotion),
-    isEnPassant: () => chessMove.flags.includes("e"),
-    isKingsideCastle: () => chessMove.flags.includes("k"),
-    isQueensideCastle: () => chessMove.flags.includes("q"),
-    isBigPawn: () => chessMove.flags.includes("b"),
+    isEnPassant: () => chessMove.flags.includes('e'),
+    isKingsideCastle: () => chessMove.flags.includes('k'),
+    isQueensideCastle: () => chessMove.flags.includes('q'),
+    isBigPawn: () => chessMove.flags.includes('b'),
   };
 
   return domainMove as ValidatedMove;
@@ -148,7 +138,7 @@ export interface TrainingPosition {
   targetSquares?: Square[];
   moveSequence?: Move[];
   hints?: string[];
-  difficulty: "beginner" | "intermediate" | "advanced";
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
   category: string;
 }
 

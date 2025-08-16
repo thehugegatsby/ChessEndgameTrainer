@@ -3,56 +3,56 @@
  * Enterprise test organization and observability
  */
 
-import { test as base, type TestInfo, type Page } from "@playwright/test";
+import { test as base, type TestInfo, type Page } from '@playwright/test';
 
 // Custom type for test function since TestFn is not exported
 type TestFunction = (
   fixtures: { page: Page; [key: string]: any },
-  testInfo: TestInfo,
+  testInfo: TestInfo
 ) => Promise<void> | void;
 
 // Test categories
 export const TestTags = {
   // Test types
-  SMOKE: "@smoke",
-  REGRESSION: "@regression",
-  CRITICAL_PATH: "@critical-path",
-  E2E: "@e2e",
-  INTEGRATION: "@integration",
-  PERFORMANCE: "@performance",
-  VISUAL: "@visual",
-  A11Y: "@a11y",
-  SECURITY: "@security",
+  SMOKE: '@smoke',
+  REGRESSION: '@regression',
+  CRITICAL_PATH: '@critical-path',
+  E2E: '@e2e',
+  INTEGRATION: '@integration',
+  PERFORMANCE: '@performance',
+  VISUAL: '@visual',
+  A11Y: '@a11y',
+  SECURITY: '@security',
 
   // Features
-  AUTH: "@auth",
-  CHESS_BOARD: "@chess-board",
-  TRAINING: "@training",
-  REAL_TIME: "@real-time",
-  OFFLINE: "@offline",
+  AUTH: '@auth',
+  CHESS_BOARD: '@chess-board',
+  TRAINING: '@training',
+  REAL_TIME: '@real-time',
+  OFFLINE: '@offline',
 
   // Priorities
-  P0: "@p0", // Critical
-  P1: "@p1", // High
-  P2: "@p2", // Medium
-  P3: "@p3", // Low
+  P0: '@p0', // Critical
+  P1: '@p1', // High
+  P2: '@p2', // Medium
+  P3: '@p3', // Low
 
   // Environments
-  DEV_ONLY: "@dev-only",
-  STAGING_ONLY: "@staging-only",
-  PROD_SAFE: "@prod-safe",
+  DEV_ONLY: '@dev-only',
+  STAGING_ONLY: '@staging-only',
+  PROD_SAFE: '@prod-safe',
 
   // Special
-  FLAKY: "@flaky",
-  SLOW: "@slow",
-  SKIP_CI: "@skip-ci",
-  QUARANTINE: "@quarantine",
+  FLAKY: '@flaky',
+  SLOW: '@slow',
+  SKIP_CI: '@skip-ci',
+  QUARANTINE: '@quarantine',
 } as const;
 
 // Test metadata interface
 export interface TestMetadata {
   tags: string[];
-  priority: "p0" | "p1" | "p2" | "p3";
+  priority: 'p0' | 'p1' | 'p2' | 'p3';
   expectedDuration: number; // ms
   owner?: string;
   jiraTicket?: string;
@@ -67,7 +67,7 @@ export interface TestMetadata {
 export interface TestMetrics {
   testName: string;
   duration: number;
-  status: "passed" | "failed" | "skipped" | "flaky";
+  status: 'passed' | 'failed' | 'skipped' | 'flaky';
   error?: string;
   retries: number;
   tags: string[];
@@ -110,7 +110,7 @@ export class TestMonitor {
     const metric: TestMetrics = {
       testName: testInfo.title,
       duration,
-      status: testInfo.status as TestMetrics["status"],
+      status: testInfo.status as TestMetrics['status'],
       error: testInfo.error?.message,
       retries: testInfo.retry,
       tags,
@@ -137,9 +137,9 @@ export class TestMonitor {
     tags.push(...titleTags);
 
     // Extract from annotations
-    testInfo.annotations.forEach((annotation) => {
-      if (annotation.type === "tag") {
-        tags.push(annotation.description || "");
+    testInfo.annotations.forEach(annotation => {
+      if (annotation.type === 'tag') {
+        tags.push(annotation.description || '');
       }
     });
 
@@ -171,45 +171,38 @@ export class TestMonitor {
   } {
     const summary = {
       total: this.metrics.length,
-      passed: this.metrics.filter((m) => m.status === "passed").length,
-      failed: this.metrics.filter((m) => m.status === "failed").length,
-      flaky: this.metrics.filter((m) => m.status === "flaky").length,
-      avgDuration:
-        this.metrics.reduce((sum, m) => sum + m.duration, 0) /
-        this.metrics.length,
+      passed: this.metrics.filter(m => m.status === 'passed').length,
+      failed: this.metrics.filter(m => m.status === 'failed').length,
+      flaky: this.metrics.filter(m => m.status === 'flaky').length,
+      avgDuration: this.metrics.reduce((sum, m) => sum + m.duration, 0) / this.metrics.length,
     };
 
     // Group by tags
     const byTag: Record<string, any> = {};
-    this.metrics.forEach((metric) => {
-      metric.tags.forEach((tag) => {
+    this.metrics.forEach(metric => {
+      metric.tags.forEach(tag => {
         if (!byTag[tag]) {
           byTag[tag] = { total: 0, passed: 0, failed: 0, totalDuration: 0 };
         }
         byTag[tag].total++;
-        if (metric.status === "passed") byTag[tag].passed++;
-        if (metric.status === "failed") byTag[tag].failed++;
+        if (metric.status === 'passed') byTag[tag].passed++;
+        if (metric.status === 'failed') byTag[tag].failed++;
         byTag[tag].totalDuration += metric.duration;
       });
     });
 
     // Calculate averages
-    Object.keys(byTag).forEach((tag) => {
+    Object.keys(byTag).forEach(tag => {
       byTag[tag].avgDuration = byTag[tag].totalDuration / byTag[tag].total;
       delete byTag[tag].totalDuration;
     });
 
     // Find slow tests (top 10%)
-    const sortedByDuration = [...this.metrics].sort(
-      (a, b) => b.duration - a.duration,
-    );
-    const slowTests = sortedByDuration.slice(
-      0,
-      Math.ceil(this.metrics.length * 0.1),
-    );
+    const sortedByDuration = [...this.metrics].sort((a, b) => b.duration - a.duration);
+    const slowTests = sortedByDuration.slice(0, Math.ceil(this.metrics.length * 0.1));
 
     // Failed tests
-    const failedTests = this.metrics.filter((m) => m.status === "failed");
+    const failedTests = this.metrics.filter(m => m.status === 'failed');
 
     return {
       summary,
@@ -222,15 +215,15 @@ export class TestMonitor {
   /**
    * Export metrics for external monitoring
    */
-  exportMetrics(format: "json" | "prometheus" | "datadog"): string {
+  exportMetrics(format: 'json' | 'prometheus' | 'datadog'): string {
     switch (format) {
-      case "json":
+      case 'json':
         return JSON.stringify(this.metrics, null, 2);
 
-      case "prometheus":
+      case 'prometheus':
         return this.toPrometheusFormat();
 
-      case "datadog":
+      case 'datadog':
         return this.toDatadogFormat();
 
       default:
@@ -241,25 +234,21 @@ export class TestMonitor {
   private toPrometheusFormat(): string {
     const lines: string[] = [];
 
-    this.metrics.forEach((metric) => {
+    this.metrics.forEach(metric => {
       const labels = `test="${metric.testName}",status="${metric.status}",browser="${metric.environment.browser}"`;
       lines.push(`test_duration_seconds{${labels}} ${metric.duration / 1000}`);
-      lines.push(
-        `test_status{${labels}} ${metric.status === "passed" ? 1 : 0}`,
-      );
+      lines.push(`test_status{${labels}} ${metric.status === 'passed' ? 1 : 0}`);
     });
 
-    return lines.join("\n");
+    return lines.join('\n');
   }
 
   private toDatadogFormat(): string {
     return this.metrics
-      .map((metric) => ({
-        metric: "test.duration",
-        points: [
-          [Math.floor(metric.timestamp.getTime() / 1000), metric.duration],
-        ],
-        type: "gauge",
+      .map(metric => ({
+        metric: 'test.duration',
+        points: [[Math.floor(metric.timestamp.getTime() / 1000), metric.duration]],
+        type: 'gauge',
         tags: [
           `test:${metric.testName}`,
           `status:${metric.status}`,
@@ -267,25 +256,21 @@ export class TestMonitor {
           ...metric.tags,
         ],
       }))
-      .map((m) => JSON.stringify(m))
-      .join("\n");
+      .map(m => JSON.stringify(m))
+      .join('\n');
   }
 }
 
 /**
  * Tagged test function
  */
-export function taggedTest(
-  title: string,
-  tags: string[],
-  testFunction: TestFunction,
-) {
-  const taggedTitle = `${title} ${tags.join(" ")}`;
+export function taggedTest(title: string, tags: string[], testFunction: TestFunction) {
+  const taggedTitle = `${title} ${tags.join(' ')}`;
 
   return base(taggedTitle, async ({ page }, testInfo) => {
     // Add tags as annotations
-    tags.forEach((tag) => {
-      testInfo.annotations.push({ type: "tag", description: tag });
+    tags.forEach(tag => {
+      testInfo.annotations.push({ type: 'tag', description: tag });
     });
 
     // Run test with monitoring
@@ -303,16 +288,12 @@ export function taggedTest(
 /**
  * Test suite with tags
  */
-export function taggedDescribe(
-  title: string,
-  tags: string[],
-  suiteFunction: () => void,
-) {
-  base.describe(`${title} ${tags.join(" ")}`, () => {
+export function taggedDescribe(title: string, tags: string[], suiteFunction: () => void) {
+  base.describe(`${title} ${tags.join(' ')}`, () => {
     base.beforeEach(({}, testInfo) => {
       // Add suite tags to each test
-      tags.forEach((tag) => {
-        testInfo.annotations.push({ type: "tag", description: tag });
+      tags.forEach(tag => {
+        testInfo.annotations.push({ type: 'tag', description: tag });
       });
     });
 
@@ -327,20 +308,17 @@ export function conditionalTest(
   title: string,
   condition: {
     tags?: string[];
-    environment?: "dev" | "staging" | "prod";
+    environment?: 'dev' | 'staging' | 'prod';
     skipOn?: {
       browser?: string[];
       os?: string[];
     };
   },
-  testFunction: TestFunction,
+  testFunction: TestFunction
 ) {
   return base(title, async (fixtures, testInfo) => {
     // Check environment
-    if (
-      condition.environment &&
-      process.env['TEST_ENV'] !== condition.environment
-    ) {
+    if (condition.environment && process.env['TEST_ENV'] !== condition.environment) {
       testInfo.skip();
       return;
     }
@@ -371,7 +349,7 @@ export function flakyTest(
     quarantine?: boolean;
     expectedFailureRate?: number;
   },
-  testFunction: TestFunction,
+  testFunction: TestFunction
 ): ReturnType<typeof base> {
   const taggedTitle = `${title} ${TestTags.FLAKY}`;
 

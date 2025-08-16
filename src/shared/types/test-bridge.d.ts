@@ -11,8 +11,8 @@
  * - Extensible for future services
  */
 
-import type { AnalysisStatus } from "../store/types";
-import type { TablebaseData } from "./evaluation";
+import type { AnalysisStatus } from '../store/types';
+import type { TablebaseData } from './evaluation';
 
 /**
  * Tablebase control API for E2E tests
@@ -57,7 +57,7 @@ export interface TestBridgeDiagnosticAPI {
     fen: string;
     moveCount: number;
     isGameOver: boolean;
-    turn: "w" | "b";
+    turn: 'w' | 'b';
   } | null;
 
   /**

@@ -16,20 +16,20 @@ interface StreakCounterProps {
 
 /**
  * StreakCounter Component
- * 
+ *
  * Displays the current streak and best streak with fire emoji for visual appeal.
  * Shows animated transitions when streak values change.
- * 
+ *
  * @param props - Component props
  * @returns JSX.Element
  */
 export const StreakCounter: React.FC<StreakCounterProps> = ({
   currentStreak,
   bestStreak,
-  className = "",
+  className = '',
 }) => {
   return (
-    <div 
+    <div
       className={`flex items-center gap-4 p-3 bg-gray-800 rounded-lg border border-gray-700 ${className}`}
       data-testid="streak-counter"
     >
@@ -38,7 +38,7 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
         <span className="text-orange-400 text-lg">🔥</span>
         <div className="flex flex-col">
           <span className="text-xs text-gray-400">Aktuelle Serie</span>
-          <span 
+          <span
             className={`text-lg font-bold transition-colors duration-300 ${
               currentStreak > 0 ? 'text-orange-400' : 'text-gray-500'
             }`}
@@ -57,7 +57,7 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
         <span className="text-yellow-400 text-lg">👑</span>
         <div className="flex flex-col">
           <span className="text-xs text-gray-400">Beste Serie</span>
-          <span 
+          <span
             className={`text-lg font-bold transition-colors duration-300 ${
               bestStreak > 0 ? 'text-yellow-400' : 'text-gray-500'
             }`}

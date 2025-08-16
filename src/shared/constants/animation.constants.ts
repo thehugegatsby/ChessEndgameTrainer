@@ -104,53 +104,53 @@ export const EASING_FUNCTIONS = {
   /**
    * Linear easing - constant speed throughout the animation.
    */
-  LINEAR: "linear",
+  LINEAR: 'linear',
 
   /**
    * Ease-in - starts slowly and accelerates.
    */
-  EASE_IN: "ease-in",
+  EASE_IN: 'ease-in',
 
   /**
    * Ease-out - starts quickly and decelerates.
    */
-  EASE_OUT: "ease-out",
+  EASE_OUT: 'ease-out',
 
   /**
    * Ease-in-out - starts slowly, accelerates in the middle, then decelerates.
    * Standard for most UI transitions.
    */
-  EASE_IN_OUT: "ease-in-out",
+  EASE_IN_OUT: 'ease-in-out',
 
   /**
    * Custom cubic bezier for smooth, natural-feeling animations.
    * Similar to Material Design's standard curve.
    */
-  SMOOTH: "cubic-bezier(0.4, 0.0, 0.2, 1)",
+  SMOOTH: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
 
   /**
    * Custom cubic bezier for snappy, responsive animations.
    * Good for small UI elements that need to feel quick.
    */
-  SNAPPY: "cubic-bezier(0.4, 0.0, 0.6, 1)",
+  SNAPPY: 'cubic-bezier(0.4, 0.0, 0.6, 1)',
 
   /**
    * Custom cubic bezier for elastic/bounce effects.
    * Use sparingly for emphasis or playful interactions.
    */
-  ELASTIC: "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+  ELASTIC: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
 
   /**
    * Custom cubic bezier for deceleration emphasis.
    * Good for elements entering the viewport.
    */
-  DECELERATE: "cubic-bezier(0.0, 0.0, 0.2, 1)",
+  DECELERATE: 'cubic-bezier(0.0, 0.0, 0.2, 1)',
 
   /**
    * Custom cubic bezier for acceleration emphasis.
    * Good for elements leaving the viewport.
    */
-  ACCELERATE: "cubic-bezier(0.4, 0.0, 1, 1)",
+  ACCELERATE: 'cubic-bezier(0.4, 0.0, 1, 1)',
 } as const;
 
 /**

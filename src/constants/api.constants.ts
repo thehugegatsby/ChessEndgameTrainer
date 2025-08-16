@@ -20,10 +20,10 @@ export const HTTP_STATUS = {
  * From LichessApiClient.ts and related services
  */
 export const API_TIMEOUTS_MS = {
-  LICHESS_DEFAULT: 5000,        // Default Lichess API timeout
-  LICHESS_TABLEBASE: 10000,     // Longer timeout for tablebase queries
-  RETRY_DELAY_BASE: 250,        // Base retry delay
-  RETRY_DELAY_MAX: 1000,        // Maximum retry delay
+  LICHESS_DEFAULT: 5000, // Default Lichess API timeout
+  LICHESS_TABLEBASE: 10000, // Longer timeout for tablebase queries
+  RETRY_DELAY_BASE: 250, // Base retry delay
+  RETRY_DELAY_MAX: 1000, // Maximum retry delay
 } as const;
 
 /**
@@ -31,7 +31,7 @@ export const API_TIMEOUTS_MS = {
  * From usePositionAnalysis.ts, useProgressSync.ts, etc.
  */
 export const API_LIMITS = {
-  ANALYSIS_MAX_DEPTH: 20,       // Maximum analysis depth
+  ANALYSIS_MAX_DEPTH: 20, // Maximum analysis depth
   PROGRESS_SYNC_MAX_RETRIES: 10, // Maximum retry attempts
-  LOG_ENTRY_LIMIT: 50,          // Log entry limit
+  LOG_ENTRY_LIMIT: 50, // Log entry limit
 } as const;

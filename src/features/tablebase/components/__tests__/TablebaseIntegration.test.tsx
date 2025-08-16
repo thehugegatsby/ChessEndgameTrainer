@@ -46,7 +46,7 @@ const testFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 describe('TablebaseIntegration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Default mock implementations
     mockUseTablebase.mockReturnValue({
       evaluation: { outcome: 'win', dtm: 5, dtz: 12 },
@@ -60,22 +60,16 @@ describe('TablebaseIntegration', () => {
       error: null,
     });
 
-    mockUseTrainingStore.mockReturnValue([
-      null,
-      { handlePlayerMove: vi.fn() },
-    ]);
+    mockUseTrainingStore.mockReturnValue([null, { handlePlayerMove: vi.fn() }]);
   });
 
   describe('basic rendering', () => {
     it('should render tablebase panel with analysis', () => {
       const Wrapper = createWrapper();
-      
+
       render(
         <Wrapper>
-          <TablebaseIntegration
-            fen={testFen}
-            showAnalysis={true}
-          />
+          <TablebaseIntegration fen={testFen} showAnalysis={true} />
         </Wrapper>
       );
 
@@ -86,13 +80,10 @@ describe('TablebaseIntegration', () => {
 
     it('should not render when showAnalysis is false', () => {
       const Wrapper = createWrapper();
-      
+
       const { container } = render(
         <Wrapper>
-          <TablebaseIntegration
-            fen={testFen}
-            showAnalysis={false}
-          />
+          <TablebaseIntegration fen={testFen} showAnalysis={false} />
         </Wrapper>
       );
 
@@ -101,13 +92,10 @@ describe('TablebaseIntegration', () => {
 
     it('should render with stacked layout by default', () => {
       const Wrapper = createWrapper();
-      
+
       render(
         <Wrapper>
-          <TablebaseIntegration
-            fen={testFen}
-            showAnalysis={true}
-          />
+          <TablebaseIntegration fen={testFen} showAnalysis={true} />
         </Wrapper>
       );
 
@@ -119,14 +107,10 @@ describe('TablebaseIntegration', () => {
   describe('layout variants', () => {
     it('should render side-by-side layout', () => {
       const Wrapper = createWrapper();
-      
+
       render(
         <Wrapper>
-          <TablebaseIntegration
-            fen={testFen}
-            layout="side-by-side"
-            showAnalysis={true}
-          />
+          <TablebaseIntegration fen={testFen} layout="side-by-side" showAnalysis={true} />
         </Wrapper>
       );
 
@@ -136,7 +120,7 @@ describe('TablebaseIntegration', () => {
 
     it('should render tabbed layout with navigation', () => {
       const Wrapper = createWrapper();
-      
+
       render(
         <Wrapper>
           <TablebaseIntegration
@@ -154,7 +138,7 @@ describe('TablebaseIntegration', () => {
 
     it('should switch tabs correctly', () => {
       const Wrapper = createWrapper();
-      
+
       render(
         <Wrapper>
           <TablebaseIntegration
@@ -176,19 +160,13 @@ describe('TablebaseIntegration', () => {
   describe('move handling', () => {
     it('should call training store action for move selection', () => {
       const mockHandlePlayerMove = vi.fn();
-      mockUseTrainingStore.mockReturnValue([
-        null,
-        { handlePlayerMove: mockHandlePlayerMove },
-      ]);
-      
+      mockUseTrainingStore.mockReturnValue([null, { handlePlayerMove: mockHandlePlayerMove }]);
+
       const Wrapper = createWrapper();
-      
+
       render(
         <Wrapper>
-          <TablebaseIntegration
-            fen={testFen}
-            showAnalysis={true}
-          />
+          <TablebaseIntegration fen={testFen} showAnalysis={true} />
         </Wrapper>
       );
 
@@ -203,31 +181,23 @@ describe('TablebaseIntegration', () => {
 
     it('should handle promotion moves correctly', () => {
       const mockHandlePlayerMove = vi.fn();
-      mockUseTrainingStore.mockReturnValue([
-        null,
-        { handlePlayerMove: mockHandlePlayerMove },
-      ]);
+      mockUseTrainingStore.mockReturnValue([null, { handlePlayerMove: mockHandlePlayerMove }]);
 
       // Mock promotion move
       mockUseTablebase.mockReturnValue({
         evaluation: { outcome: 'win', dtm: 1 },
-        moves: [
-          { uci: 'e7e8q', san: 'e8=Q+', outcome: 'win', dtm: 1 },
-        ],
+        moves: [{ uci: 'e7e8q', san: 'e8=Q+', outcome: 'win', dtm: 1 }],
         isLoading: false,
         isEvaluationLoading: false,
         isMovesLoading: false,
         error: null,
       });
-      
+
       const Wrapper = createWrapper();
-      
+
       render(
         <Wrapper>
-          <TablebaseIntegration
-            fen={testFen}
-            showAnalysis={true}
-          />
+          <TablebaseIntegration fen={testFen} showAnalysis={true} />
         </Wrapper>
       );
 
@@ -245,7 +215,7 @@ describe('TablebaseIntegration', () => {
   describe('SimpleTablebaseIntegration', () => {
     it('should render with default props', () => {
       const Wrapper = createWrapper();
-      
+
       render(
         <Wrapper>
           <SimpleTablebaseIntegration fen={testFen} />

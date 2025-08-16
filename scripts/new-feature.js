@@ -45,16 +45,18 @@ const directories = [
   'types',
   'utils',
   'utils/__tests__',
-  '__tests__'
+  '__tests__',
 ];
 
-const pascalName = featureName.split('-').map(word => 
-  word.charAt(0).toUpperCase() + word.slice(1)
-).join('');
+const pascalName = featureName
+  .split('-')
+  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+  .join('');
 
-const camelName = featureName.split('-').map((word, index) => 
-  index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)
-).join('');
+const camelName = featureName
+  .split('-')
+  .map((word, index) => (index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)))
+  .join('');
 
 console.log(`🚀 Creating feature: ${featureName}`);
 

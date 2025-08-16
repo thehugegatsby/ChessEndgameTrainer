@@ -1,6 +1,6 @@
-import React from "react";
-import "../styles/globals.css";
-import { AppProviders } from "./providers";
+import React from 'react';
+import '../styles/globals.css';
+import { AppProviders } from './providers';
 
 /**
  * Metadata configuration for the Next.js application
@@ -8,8 +8,8 @@ import { AppProviders } from "./providers";
  * @type {import('next').Metadata}
  */
 export const metadata = {
-  title: "Chess Endgame Trainer",
-  description: "Advanced chess endgame training with AI analysis",
+  title: 'Chess Endgame Trainer',
+  description: 'Advanced chess endgame training with AI analysis',
 };
 
 /**

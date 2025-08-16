@@ -1,6 +1,6 @@
 /**
  * Training Feature - Public API
- * 
+ *
  * This barrel file exports all public components, hooks, services, and types
  * from the training feature module.
  */
@@ -23,12 +23,12 @@
 // export { ProgressTracker } from './services/ProgressTracker';
 
 // Types
-// export type { 
-//   TrainingSession, 
+// export type {
+//   TrainingSession,
 //   SessionConfig,
 //   TrainingMode,
 //   SessionResult,
-//   HintLevel 
+//   HintLevel
 // } from './types/training.types';
 
 // Utils

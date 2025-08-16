@@ -3,9 +3,13 @@
  * Type-safe client for test API server interactions
  */
 
-import { type APIRequestContext } from "@playwright/test";
-import { type EndgamePosition, type EndgameCategory, type EndgameChapter } from "@shared/types/endgame";
-import { PORTS } from "../../../config/ports";
+import { type APIRequestContext } from '@playwright/test';
+import {
+  type EndgamePosition,
+  type EndgameCategory,
+  type EndgameChapter,
+} from '@shared/types/endgame';
+import { PORTS } from '../../../config/ports';
 
 // Type definitions for Firebase test data
 interface FirebaseUser {
@@ -82,15 +86,10 @@ export class TestApiClient {
   /**
    * Create test user with optional progress
    */
-  async createTestUser(
-    user: TestUser,
-  ): Promise<{ success: boolean; userId: string }> {
-    const response = await this.request.post(
-      `${this.baseUrl}/e2e/create-test-user`,
-      {
-        data: user,
-      },
-    );
+  async createTestUser(user: TestUser): Promise<{ success: boolean; userId: string }> {
+    const response = await this.request.post(`${this.baseUrl}/e2e/create-test-user`, {
+      data: user,
+    });
 
     if (!response.ok()) {
       const error = await response.text();
@@ -103,9 +102,7 @@ export class TestApiClient {
   /**
    * Make a move in the game
    */
-  async makeMove(
-    move: MoveRequest,
-  ): Promise<{ success: boolean; move: string }> {
+  async makeMove(move: MoveRequest): Promise<{ success: boolean; move: string }> {
     const response = await this.request.post(`${this.baseUrl}/e2e/make-move`, {
       data: move,
     });
@@ -122,12 +119,9 @@ export class TestApiClient {
    * Set game state directly
    */
   async setGameState(state: GameState): Promise<{ success: boolean }> {
-    const response = await this.request.post(
-      `${this.baseUrl}/e2e/set-game-state`,
-      {
-        data: state,
-      },
-    );
+    const response = await this.request.post(`${this.baseUrl}/e2e/set-game-state`, {
+      data: state,
+    });
 
     if (!response.ok()) {
       const error = await response.text();
@@ -141,9 +135,7 @@ export class TestApiClient {
    * Get current game state
    */
   async getGameState(positionId: number): Promise<GameState> {
-    const response = await this.request.get(
-      `${this.baseUrl}/e2e/game-state/${positionId}`,
-    );
+    const response = await this.request.get(`${this.baseUrl}/e2e/game-state/${positionId}`);
 
     if (!response.ok()) {
       throw new Error(`Failed to get game state: ${response.status()}`);
@@ -156,14 +148,11 @@ export class TestApiClient {
    * Seed test scenario
    */
   async seedScenario(
-    scenario: "basic" | "advanced" | "empty",
+    scenario: 'basic' | 'advanced' | 'empty'
   ): Promise<{ success: boolean; scenario: string }> {
-    const response = await this.request.post(
-      `${this.baseUrl}/e2e/seed-scenario`,
-      {
-        data: { scenario },
-      },
-    );
+    const response = await this.request.post(`${this.baseUrl}/e2e/seed-scenario`, {
+      data: { scenario },
+    });
 
     if (!response.ok()) {
       const error = await response.text();
@@ -191,12 +180,9 @@ export class TestApiClient {
    * Analyze position
    */
   async analyzePosition(fen: string, depth = 20): Promise<AnalysisResult> {
-    const response = await this.request.post(
-      `${this.baseUrl}/e2e/analyze-position`,
-      {
-        data: { fen, depth },
-      },
-    );
+    const response = await this.request.post(`${this.baseUrl}/e2e/analyze-position`, {
+      data: { fen, depth },
+    });
 
     if (!response.ok()) {
       const error = await response.text();
@@ -210,9 +196,7 @@ export class TestApiClient {
    * Verify data integrity
    */
   async verifyIntegrity(): Promise<DataIntegrity> {
-    const response = await this.request.get(
-      `${this.baseUrl}/e2e/verify-integrity`,
-    );
+    const response = await this.request.get(`${this.baseUrl}/e2e/verify-integrity`);
 
     if (!response.ok()) {
       throw new Error(`Failed to verify integrity: ${response.status()}`);
@@ -224,16 +208,12 @@ export class TestApiClient {
   /**
    * Batch operations for efficiency
    */
-  async batchCreateUsers(
-    users: TestUser[],
-  ): Promise<{ success: boolean; userIds: string[] }> {
-    const results = await Promise.all(
-      users.map((user) => this.createTestUser(user)),
-    );
+  async batchCreateUsers(users: TestUser[]): Promise<{ success: boolean; userIds: string[] }> {
+    const results = await Promise.all(users.map(user => this.createTestUser(user)));
 
     return {
-      success: results.every((r) => r.success),
-      userIds: results.map((r) => r.userId),
+      success: results.every(r => r.success),
+      userIds: results.map(r => r.userId),
     };
   }
 
@@ -241,7 +221,7 @@ export class TestApiClient {
    * Set up complete test environment
    */
   async setupTestEnvironment(options: {
-    scenario: "basic" | "advanced" | "empty";
+    scenario: 'basic' | 'advanced' | 'empty';
     users?: TestUser[];
   }): Promise<void> {
     // Clear existing data
@@ -258,9 +238,7 @@ export class TestApiClient {
     // Verify setup
     const integrity = await this.verifyIntegrity();
     if (integrity.issues.length > 0) {
-      throw new Error(
-        `Test environment setup failed: ${integrity.issues.join(", ")}`,
-      );
+      throw new Error(`Test environment setup failed: ${integrity.issues.join(', ')}`);
     }
   }
 
@@ -274,9 +252,9 @@ export class TestApiClient {
         return;
       } catch (_error) {
         if (i === maxAttempts - 1) {
-          throw new Error("Test API did not become ready in time");
+          throw new Error('Test API did not become ready in time');
         }
-        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        await new Promise(resolve => setTimeout(resolve, delayMs));
       }
     }
   }
@@ -293,9 +271,7 @@ export class TestApiClient {
     message: string;
     timestamp: string;
   }> {
-    const response = await this.request.post(
-      `${this.baseUrl}/e2e/firebase/setup`,
-    );
+    const response = await this.request.post(`${this.baseUrl}/e2e/firebase/setup`);
 
     if (!response.ok()) {
       const error = await response.text();
@@ -313,9 +289,7 @@ export class TestApiClient {
     message: string;
     timestamp: string;
   }> {
-    const response = await this.request.post(
-      `${this.baseUrl}/e2e/firebase/clear`,
-    );
+    const response = await this.request.post(`${this.baseUrl}/e2e/firebase/clear`);
 
     if (!response.ok()) {
       const error = await response.text();
@@ -328,15 +302,10 @@ export class TestApiClient {
   /**
    * Seed test positions
    */
-  async seedPositions(
-    positions: EndgamePosition[],
-  ): Promise<{ success: boolean }> {
-    const response = await this.request.post(
-      `${this.baseUrl}/e2e/firebase/seed-positions`,
-      {
-        data: { positions },
-      },
-    );
+  async seedPositions(positions: EndgamePosition[]): Promise<{ success: boolean }> {
+    const response = await this.request.post(`${this.baseUrl}/e2e/firebase/seed-positions`, {
+      data: { positions },
+    });
 
     if (!response.ok()) {
       const error = await response.text();
@@ -350,9 +319,7 @@ export class TestApiClient {
    * Seed all test data
    */
   async seedAllTestData(): Promise<{ success: boolean }> {
-    const response = await this.request.post(
-      `${this.baseUrl}/e2e/firebase/seed-all`,
-    );
+    const response = await this.request.post(`${this.baseUrl}/e2e/firebase/seed-all`);
 
     if (!response.ok()) {
       const error = await response.text();
@@ -367,20 +334,17 @@ export class TestApiClient {
    */
   async createFirebaseUser(
     options: {
-      template?: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT";
+      template?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT';
       overrides?: {
         email?: string;
         displayName?: string;
         customClaims?: Record<string, string | number | boolean>;
       };
-    } = {},
+    } = {}
   ): Promise<{ success: boolean; user: FirebaseUser; progressEntries: number }> {
-    const response = await this.request.post(
-      `${this.baseUrl}/e2e/firebase/create-user`,
-      {
-        data: options,
-      },
-    );
+    const response = await this.request.post(`${this.baseUrl}/e2e/firebase/create-user`, {
+      data: options,
+    });
 
     if (!response.ok()) {
       const error = await response.text();
@@ -394,8 +358,8 @@ export class TestApiClient {
    * Seed test scenario using new architecture
    */
   async seedFirebaseScenario(
-    scenario: "empty" | "basic" | "advanced" | "edge-cases",
-    options?: { userCount?: number; includeProgress?: boolean },
+    scenario: 'empty' | 'basic' | 'advanced' | 'edge-cases',
+    options?: { userCount?: number; includeProgress?: boolean }
   ): Promise<{
     success: boolean;
     scenario: string;
@@ -407,12 +371,9 @@ export class TestApiClient {
     };
     users: FirebaseUser[];
   }> {
-    const response = await this.request.post(
-      `${this.baseUrl}/e2e/firebase/seed-scenario`,
-      {
-        data: { scenario, options },
-      },
-    );
+    const response = await this.request.post(`${this.baseUrl}/e2e/firebase/seed-scenario`, {
+      data: { scenario, options },
+    });
 
     if (!response.ok()) {
       const error = await response.text();
@@ -431,9 +392,7 @@ export class TestApiClient {
     collections: Record<string, number>;
     timestamp: string;
   }> {
-    const response = await this.request.get(
-      `${this.baseUrl}/e2e/firebase/status`,
-    );
+    const response = await this.request.get(`${this.baseUrl}/e2e/firebase/status`);
 
     if (!response.ok()) {
       const error = await response.text();
@@ -448,14 +407,12 @@ export class TestApiClient {
    */
   async verifyFirebaseIntegrity(): Promise<{
     success: boolean;
-    integrity: "good" | "issues_found";
+    integrity: 'good' | 'issues_found';
     counts: Record<string, number>;
     issues: string[];
     timestamp: string;
   }> {
-    const response = await this.request.get(
-      `${this.baseUrl}/e2e/firebase/verify-integrity`,
-    );
+    const response = await this.request.get(`${this.baseUrl}/e2e/firebase/verify-integrity`);
 
     if (!response.ok()) {
       const error = await response.text();
@@ -473,16 +430,13 @@ export class TestApiClient {
     categories?: EndgameCategory[];
     chapters?: EndgameChapter[];
     users?: Array<{
-      template?: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT";
+      template?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT';
       overrides?: { email?: string; displayName?: string };
     }>;
   }): Promise<{ success: boolean; results: Record<string, number> }> {
-    const response = await this.request.post(
-      `${this.baseUrl}/e2e/firebase/seed-batch`,
-      {
-        data,
-      },
-    );
+    const response = await this.request.post(`${this.baseUrl}/e2e/firebase/seed-batch`, {
+      data,
+    });
 
     if (!response.ok()) {
       const error = await response.text();
@@ -500,7 +454,7 @@ export class TestApiClient {
     categories?: EndgameCategory[];
     chapters?: EndgameChapter[];
     users?: Array<{
-      template?: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT";
+      template?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT';
       overrides?: {
         email?: string;
         displayName?: string;
@@ -516,7 +470,7 @@ export class TestApiClient {
       skipValidation?: boolean;
       includeUsers?: boolean;
       userOptions?: {
-        templates?: Array<"BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT">;
+        templates?: Array<'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT'>;
         customClaims?: Record<string, string | number | boolean>;
       };
     };
@@ -535,12 +489,9 @@ export class TestApiClient {
     };
     timestamp: string;
   }> {
-    const response = await this.request.post(
-      `${this.baseUrl}/e2e/firebase/seed-batch-advanced`,
-      {
-        data,
-      },
-    );
+    const response = await this.request.post(`${this.baseUrl}/e2e/firebase/seed-batch-advanced`, {
+      data,
+    });
 
     if (!response.ok()) {
       const error = await response.text();
@@ -554,7 +505,7 @@ export class TestApiClient {
    * Advanced scenario seeding with enhanced options
    */
   async seedFirebaseScenarioAdvanced(
-    scenario: "empty" | "basic" | "advanced" | "edge-cases",
+    scenario: 'empty' | 'basic' | 'advanced' | 'edge-cases',
     options?: {
       userCount?: number;
       includeProgress?: boolean;
@@ -566,10 +517,10 @@ export class TestApiClient {
       skipValidation?: boolean;
       includeUsers?: boolean;
       userOptions?: {
-        templates?: Array<"BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT">;
+        templates?: Array<'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT'>;
         customClaims?: Record<string, string | number | boolean>;
       };
-    },
+    }
   ): Promise<{
     success: boolean;
     results: Record<string, number>;
@@ -592,7 +543,7 @@ export class TestApiClient {
           scenario,
           options,
         },
-      },
+      }
     );
 
     if (!response.ok()) {
@@ -619,9 +570,7 @@ export class TestApiClient {
     };
     timestamp: string;
   }> {
-    const response = await this.request.get(
-      `${this.baseUrl}/e2e/firebase/seeding-statistics`,
-    );
+    const response = await this.request.get(`${this.baseUrl}/e2e/firebase/seeding-statistics`);
 
     if (!response.ok()) {
       const error = await response.text();
