@@ -145,8 +145,9 @@ export class MoveQualityEvaluator {
       return {
         shouldShowErrorDialog,
         // Provide values from the original player's perspective for UI
-        wdlBefore: wdlBeforeFromPlayerPerspective,
-        wdlAfter: wdlAfterFromPlayerPerspective,
+        // Normalize -0 to 0 to avoid test assertion issues
+        wdlBefore: wdlBeforeFromPlayerPerspective === 0 ? 0 : wdlBeforeFromPlayerPerspective,
+        wdlAfter: wdlAfterFromPlayerPerspective === 0 ? 0 : wdlAfterFromPlayerPerspective,
         ...(bestMove !== undefined && { bestMove }),
         wasOptimal: playedMoveWasBest,
         outcomeChanged,

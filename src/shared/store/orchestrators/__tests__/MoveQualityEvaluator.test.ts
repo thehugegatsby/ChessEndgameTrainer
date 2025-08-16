@@ -253,7 +253,7 @@ describe('MoveQualityEvaluator', () => {
       expect(result).toEqual({
         shouldShowErrorDialog: true,
         wdlBefore: 0,
-        wdlAfter: 1000,
+        wdlAfter: -1000,
         bestMove: 'Ka3',
         wasOptimal: false,
         outcomeChanged: true,
@@ -288,7 +288,7 @@ describe('MoveQualityEvaluator', () => {
       expect(result).toEqual({
         shouldShowErrorDialog: false,
         wdlBefore: 1000,
-        wdlAfter: -1000,
+        wdlAfter: 1000,
         bestMove: 'Ka3',
         wasOptimal: false,
         outcomeChanged: false,
