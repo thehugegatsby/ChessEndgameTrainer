@@ -108,6 +108,15 @@ export const useGameActions = (): GameActionsType => {
       goToNext: actions.goToNext,
       goToLast: actions.goToLast,
       setCurrentFen: actions.setCurrentFen,
+
+      // Pure function actions (ChessService replacement)
+      makeMovePure: actions.makeMovePure,
+      validateMovePure: actions.validateMovePure,
+      getGameStatusPure: actions.getGameStatusPure,
+      getPossibleMovesPure: actions.getPossibleMovesPure,
+      goToMovePure: actions.goToMovePure,
+      initializeGamePure: actions.initializeGamePure,
+      resetGamePure: actions.resetGamePure,
     }),
     [actions]
   );

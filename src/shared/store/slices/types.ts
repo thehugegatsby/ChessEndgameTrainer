@@ -69,6 +69,15 @@ export interface GameActions {
 
   // State
   setCurrentFen: (fen: string) => void;
+
+  // Pure function actions (ChessService replacement)
+  makeMovePure: (move: { from: string; to: string; promotion?: string } | string) => import('@shared/utils/chess-logic').MoveResult | null;
+  validateMovePure: (move: { from: string; to: string; promotion?: string } | string) => boolean;
+  getGameStatusPure: () => import('@shared/utils/chess-logic').GameStatus | null;
+  getPossibleMovesPure: (square?: string) => any[];
+  goToMovePure: (targetIndex: number) => boolean;
+  initializeGamePure: (fen: string) => boolean;
+  resetGamePure: () => void;
 }
 
 /**

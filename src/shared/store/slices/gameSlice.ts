@@ -24,8 +24,17 @@
 
 import { type GameSlice, type GameState, type GameActions } from './types';
 import type { ValidatedMove } from '@shared/types';
+import { createValidatedMove } from '@shared/types/chess';
 import { chessService } from '@shared/services/ChessService';
 import { getLogger } from '@shared/services/logging';
+import { 
+  makeMove as makeMovePure, 
+  validateMove, 
+  getGameStatus,
+  getPossibleMoves,
+  isValidFen,
+  goToMove as goToMovePure,
+} from '@shared/utils/chess-logic';
 
 // Re-export types for external use
 export type { GameState, GameActions } from './types';
@@ -432,6 +441,150 @@ export const createGameActions = (
   applyMove: (move: { from: string; to: string; promotion?: string } | string) => {
     // Use private helper to update state with common logic
     return _updateGameState('applyMove', () => chessService.move(move));
+  },
+
+  // =====================================================
+  // PURE FUNCTION ACTIONS (New Migration Target)
+  // =====================================================
+
+  /**
+   * Makes a move using pure functions (ChessService replacement)
+   * 
+   * @param {Object|string} move - Move object or algebraic notation
+   * @returns {MoveResult|null} Result of the move or null if invalid
+   */
+  makeMovePure: (move: { from: string; to: string; promotion?: string } | string) => {
+    const { game } = get();
+    const result = makeMovePure(game.currentFen, move);
+    
+    if (result) {
+      set(state => {
+        state.game.currentFen = result.newFen;
+        // Use type-safe factory to create ValidatedMove
+        const validatedMove = createValidatedMove(
+          result.move,
+          game.currentFen,
+          result.newFen
+        );
+        
+        state.game.moveHistory.push(validatedMove);
+        state.game.currentMoveIndex = state.game.moveHistory.length - 1;
+        state.game.isCheckmate = result.isCheckmate;
+        state.game.isDraw = result.isDraw;
+        state.game.isStalemate = result.isStalemate;
+        state.game.isGameFinished = result.isCheckmate || result.isDraw || result.isStalemate;
+        state.game.gameResult = result.gameResult;
+      });
+    }
+    
+    return result;
+  },
+
+  /**
+   * Validates a move using pure functions
+   * 
+   * @param {Object|string} move - Move to validate
+   * @returns {boolean} Whether the move is valid
+   */
+  validateMovePure: (move: { from: string; to: string; promotion?: string } | string) => {
+    const { game } = get();
+    return validateMove(game.currentFen, move);
+  },
+
+  /**
+   * Gets current game status using pure functions
+   * 
+   * @returns {GameStatus|null} Current game status
+   */
+  getGameStatusPure: () => {
+    const { game } = get();
+    return getGameStatus(game.currentFen);
+  },
+
+  /**
+   * Gets possible moves using pure functions
+   * 
+   * @param {string} [square] - Optional square to get moves for
+   * @returns {Array} Array of possible moves
+   */
+  getPossibleMovesPure: (square?: string) => {
+    const { game } = get();
+    return getPossibleMoves(game.currentFen, square as any);
+  },
+
+  /**
+   * Navigates to a specific move using pure functions
+   * 
+   * @param {number} targetIndex - Target move index
+   * @returns {boolean} Whether navigation was successful
+   */
+  goToMovePure: (targetIndex: number) => {
+    const { game } = get();
+    const moves = game.moveHistory.map(m => m.san);
+    const result = goToMovePure(moves, targetIndex);
+    
+    if (result) {
+      set(state => {
+        state.game.currentFen = result.newFen;
+        state.game.currentMoveIndex = targetIndex;
+        state.game.isCheckmate = result.status.isCheckmate;
+        state.game.isDraw = result.status.isDraw;
+        state.game.isStalemate = result.status.isStalemate;
+        state.game.isGameFinished = result.status.isGameOver;
+        state.game.gameResult = result.status.gameResult;
+      });
+      return true;
+    }
+    
+    return false;
+  },
+
+  /**
+   * Initializes game with FEN using pure functions
+   * 
+   * @param {string} fen - FEN string
+   * @returns {boolean} Whether initialization was successful
+   */
+  initializeGamePure: (fen: string) => {
+    if (!isValidFen(fen)) {
+      return false;
+    }
+    
+    const status = getGameStatus(fen);
+    if (!status) {
+      return false;
+    }
+    
+    set(state => {
+      state.game.currentFen = fen;
+      state.game.moveHistory = [];
+      state.game.currentMoveIndex = -1;
+      state.game.isCheckmate = status.isCheckmate;
+      state.game.isDraw = status.isDraw;
+      state.game.isStalemate = status.isStalemate;
+      state.game.isGameFinished = status.isGameOver;
+      state.game.gameResult = status.gameResult;
+    });
+    
+    return true;
+  },
+
+  /**
+   * Resets game using pure functions
+   */
+  resetGamePure: () => {
+    const standardFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+    
+    set(state => {
+      state.game.currentFen = standardFen;
+      state.game.moveHistory = [];
+      state.game.currentMoveIndex = -1;
+      state.game.isCheckmate = false;
+      state.game.isDraw = false;
+      state.game.isStalemate = false;
+      state.game.isGameFinished = false;
+      state.game.gameResult = null;
+    });
   },
 });
 

@@ -1,44 +1,13 @@
 import { vi } from 'vitest';
 /**
- * @file Tests for GameSlice with nested store structure
- * @module tests/unit/store/slices/gameSlice.nested
+ * @file Tests for GameSlice with pure functions (migration from ChessService)
+ * @module tests/unit/store/slices/gameSlice.pure
  */
 
 import { useStore } from '@shared/store/rootStore';
-import { chessService } from '@shared/services/ChessService';
 
-// Mock ChessService
-vi.mock('@shared/services/ChessService', () => ({
-  chessService: {
-    reset: vi.fn(),
-    initialize: vi.fn().mockReturnValue(true), // Mock initialize method
-    loadPosition: vi.fn(),
-    getFen: vi.fn().mockReturnValue('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'),
-    getPgn: vi.fn().mockReturnValue(''),
-    getHistory: vi.fn().mockReturnValue([]),
-    turn: vi.fn().mockReturnValue('w'),
-    isGameOver: vi.fn().mockReturnValue(false),
-    isCheck: vi.fn().mockReturnValue(false),
-    isCheckmate: vi.fn().mockReturnValue(false),
-    isDraw: vi.fn().mockReturnValue(false),
-    isStalemate: vi.fn().mockReturnValue(false),
-    isThreefoldRepetition: vi.fn().mockReturnValue(false),
-    isInsufficientMaterial: vi.fn().mockReturnValue(false),
-    onStateChange: vi.fn(),
-    move: vi.fn(),
-    undo: vi.fn(),
-    validateMove: vi.fn(),
-    getMoves: vi.fn().mockReturnValue([]),
-    subscribe: vi.fn().mockReturnValue(vi.fn()), // Mock subscribe to return unsubscribe function
-    emit: vi.fn(),
-  },
-}));
-
-describe('GameSlice - Nested Store Structure', () => {
+describe('GameSlice - Pure Functions Integration', () => {
   beforeEach(() => {
-    // Reset mocks
-    vi.clearAllMocks();
-
     // Reset store to initial state - preserve actions by only updating state properties
     useStore.setState(state => {
       state.game.currentFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
