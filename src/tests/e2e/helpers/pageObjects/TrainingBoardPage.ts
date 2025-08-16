@@ -49,21 +49,12 @@ export class TrainingBoardPage {
       promotion,
     });
 
-    // Click source square using react-chessboard's data-square attribute
-    // First try to click a piece on the square (if present)
-    const pieceSelector = `[data-square="${from}"] [role="button"]`;
+    // Click source square container (consistent with target square)
     const squareSelector = `[data-square="${from}"]`;
     
     this.logger.info(`🎯 Clicking source square: ${from}`);
-    try {
-      // Try clicking the piece first (react-chessboard v5.2.1 uses role="button")
-      await this.page.click(pieceSelector, { timeout: 1000 });
-      this.logger.info(`✅ Clicked piece on ${from}`);
-    } catch {
-      // If no piece, click the square itself
-      await this.page.click(squareSelector);
-      this.logger.info(`✅ Clicked square ${from}`);
-    }
+    await this.page.click(squareSelector);
+    this.logger.info(`✅ Clicked square ${from}`);
 
     // Click target square
     this.logger.info(`🎯 Clicking target square: ${to}`);
@@ -257,32 +248,14 @@ export class TrainingBoardPage {
   }
 
   /**
-   * Get move count from move history UI
+   * Get move count from DOM attribute (reliable, store-independent)
    */
   async getMoveCount(): Promise<number> {
-    // FIXED: Only count actual move items, not navigation buttons
-    const moveSelectors = [
-      '[data-testid^="move-item-"]',                              // Only move-item-0, move-item-1, etc.
-      '[data-testid="move-list"] [data-testid^="move-item-"]',    // More specific: inside move-list container
-    ];
+    const moveCountAttr = await this.page.getAttribute('[data-testid="training-board"]', 'data-move-count');
+    const moveCount = moveCountAttr ? parseInt(moveCountAttr, 10) : 0;
     
-    for (const selector of moveSelectors) {
-      const count = await this.page.locator(selector).count();
-      if (count > 0) {
-        this.logger.debug(`getMoveCount found ${count} moves using selector: ${selector}`);
-        return count;
-      }
-    }
-    
-    // If no actual move items found, check if this is the initial state
-    const noMovesText = await this.page.locator(':text("Noch keine Züge gespielt")').isVisible();
-    if (noMovesText) {
-      this.logger.debug("getMoveCount: Found 'no moves' text, returning 0");
-      return 0;
-    }
-    
-    this.logger.warn("getMoveCount: No move elements found with any selector");
-    return 0;
+    this.logger.debug(`DOM-based moveCount: ${moveCount}`);
+    return moveCount;
   }
 
   /**

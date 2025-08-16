@@ -375,6 +375,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
           height: `${DIMENSIONS.TRAINING_BOARD_SIZE}px`,
         }}
         data-fen={currentFen}
+        data-move-count={history.length}
         data-testid="training-board"
         data-analysis-status={tablebaseState.analysisStatus}
       >

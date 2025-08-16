@@ -131,27 +131,29 @@ export class MoveQualityEvaluator {
         ? topMoves.moves[0].san
         : undefined;
 
-      logger.info("[MoveQuality] Decision to show error dialog:", {
-        shouldShowErrorDialog,
-        playedMoveWasBest,
-        outcomeChanged,
-        effectiveWdlBefore,
-        wdlAfterFromPlayerPerspective,
-        usingBaseline: Boolean(trainingBaseline),
-        validatedMove: validatedMove.san,
-        bestMove,
-      });
-
       if (shouldShowErrorDialog) {
-        logger.info(
-          "[MoveQuality] Move quality issue detected - suggesting error dialog",
-        );
+        logger.info("[MoveQuality] Showing error dialog", {
+          validatedMove: validatedMove.san,
+          bestMove,
+          outcomeChanged,
+          effectiveWdlBefore,
+          wdlAfterFromPlayerPerspective,
+        });
+      } else {
+        logger.debug("[MoveQuality] No error dialog", {
+          playedMoveWasBest,
+          outcomeChanged,
+          effectiveWdlBefore,
+          wdlAfterFromPlayerPerspective,
+        });
       }
+
 
       return {
         shouldShowErrorDialog,
-        wdlBefore,
-        wdlAfter,
+        // Provide values from the original player's perspective for UI
+        wdlBefore: wdlBeforeFromPlayerPerspective,
+        wdlAfter: wdlAfterFromPlayerPerspective,
         ...(bestMove !== undefined && { bestMove }),
         wasOptimal: playedMoveWasBest,
         outcomeChanged,
@@ -253,14 +255,14 @@ export class MoveQualityEvaluator {
     playedMoveSan: string,
     playedMoveWasBest: boolean,
   ): void {
-    getLogger().info("[MoveQuality] Best moves check:");
-    getLogger().info("  topMovesAvailable:", topMoves.isAvailable);
-    getLogger().info(
+    logger.debug("[MoveQuality] Best moves check:");
+    logger.debug("  topMovesAvailable:", topMoves.isAvailable);
+    logger.debug(
       "  bestMoves:",
       JSON.stringify(topMoves.moves?.map((m) => m.san)),
     );
-    getLogger().info("  playedMove:", playedMoveSan);
-    getLogger().info("  playedMoveWasBest:", playedMoveWasBest);
+    logger.debug("  playedMove:", playedMoveSan);
+    logger.debug("  playedMoveWasBest:", playedMoveWasBest);
 
     // Debug each move comparison
     if (topMoves.moves) {

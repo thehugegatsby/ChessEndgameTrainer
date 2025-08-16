@@ -94,13 +94,14 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
     const { getState, setState } = api;
     const state = getState();
 
-    // Early validation - check if it's player's turn
-    if (!state.training.isPlayerTurn || state.training.isOpponentThinking) {
+    // Early validation - check if it's player's turn and no in-flight move
+    if (!state.training.isPlayerTurn || state.training.isOpponentThinking || state.training.moveInFlight) {
       getLogger().debug(
-        "[handlePlayerMove] Early return - not player turn or opponent thinking",
+        "[handlePlayerMove] Early return - busy or not player turn",
         {
           isPlayerTurn: state.training.isPlayerTurn,
           isOpponentThinking: state.training.isOpponentThinking,
+          moveInFlight: state.training.moveInFlight,
         },
       );
       return false;
@@ -109,6 +110,7 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
     try {
       setState((draft) => {
         draft.ui.loading.position = true;
+        draft.training.moveInFlight = true;
       });
 
       // Step 1: Validate move using MoveValidator
@@ -162,27 +164,21 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
           return true; // Training completed
         }
 
-        // Show success dialog for all queen promotions, not just auto-win
-        if (promotionInfo.promotionPiece === "q") {
-          const promotionPieceLabel = deps.pawnPromotionHandler.getPromotionPieceLabel(
-            promotionInfo.promotionPiece,
-          );
-          setState((draft) => {
-            draft.training.moveSuccessDialog = {
-              isOpen: true,
-              promotionPiece: promotionPieceLabel,
-              ...(promotionInfo.moveDescription !== undefined && { moveDescription: promotionInfo.moveDescription }),
-            };
-          });
-        }
+        // Defer queen promotion success dialog until after quality check
+        // to avoid conflicts with error dialog
       }
 
       // Step 5: Evaluate move quality using MoveQualityEvaluator
       // Pass current evaluation baseline if available and valid
+      const boardBefore = fenBefore.split(' ').slice(0, 4).join(' ');
       const currentBaseline = state.training.evaluationBaseline;
-      const validBaseline = currentBaseline && 
-                           currentBaseline.wdl !== null && 
-                           currentBaseline.fen !== null 
+      const baselineMatches = currentBaseline?.fen
+        ? currentBaseline.fen.split(' ').slice(0, 4).join(' ') === boardBefore
+        : false;
+      const validBaseline = baselineMatches && 
+                            currentBaseline && 
+                            currentBaseline.wdl !== null && 
+                            currentBaseline.fen !== null
         ? { wdl: currentBaseline.wdl, fen: currentBaseline.fen }
         : null;
       const qualityResult = await deps.moveQualityEvaluator.evaluateMoveQuality(
@@ -221,6 +217,18 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
           "[handlePlayerMove] Showing error dialog - opponent turn will be scheduled after 'Weiterspielen'",
         );
         return true;
+      }
+
+      // If this was a queen promotion and no error dialog is needed, show success
+      if (promotionInfo.isPromotion && promotionInfo.promotionPiece === "q") {
+        const promotionPieceLabel = deps.pawnPromotionHandler.getPromotionPieceLabel("q");
+        setState((draft) => {
+          draft.training.moveSuccessDialog = {
+            isOpen: true,
+            promotionPiece: promotionPieceLabel,
+            ...(promotionInfo.moveDescription !== undefined && { moveDescription: promotionInfo.moveDescription }),
+          };
+        });
       }
 
       // Step 7: Check if game is finished
@@ -268,9 +276,10 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
       getLogger().error("[handlePlayerMove] Move handling failed:", error);
       return false;
     } finally {
-      // Clear loading state
+      // Clear loading state and move-in-flight flag
       setState((draft) => {
         draft.ui.loading.position = false;
+        draft.training.moveInFlight = false;
       });
     }
   };

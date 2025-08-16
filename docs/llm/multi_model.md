@@ -114,12 +114,14 @@ const store = useGameStore();              // Too broad, causes re-renders
 ### Orchestrators Pattern
 Complex cross-slice operations in `/shared/store/orchestrators/`:
 
-**handlePlayerMove** (533 lines) - Main move processing:
-1. **Validation** → GameSlice validates move legality
-2. **State Update** → GameSlice updates position + history  
-3. **Progress** → TrainingSlice tracks advancement
-4. **Feedback** → UISlice shows move quality
-5. **Analysis** → TablebaseSlice fetches evaluation
+**handlePlayerMove** (964 lines, 4 modules) - Sophisticated chess training:
+1. **Validation** → MoveValidator checks legality
+2. **Quality Analysis** → MoveQualityEvaluator compares vs tablebase  
+3. **Promotion Logic** → PawnPromotionHandler detects auto-wins
+4. **Dialog Management** → EventBasedMoveDialogManager shows feedback
+5. **Opponent Simulation** → OpponentTurnHandler schedules turns
+
+*Multi-model analysis confirmed: NOT over-engineered, domain-appropriate complexity*
 
 ---
 

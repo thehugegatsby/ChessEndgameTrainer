@@ -9,6 +9,7 @@
  */
 
 import { z } from 'zod';
+import { getLogger } from '@shared/services/logging';
 
 /**
  * Environment variable schema definition
@@ -74,8 +75,9 @@ const parseEnv = (): EnvVars => {
     return envSchema.parse(process.env);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error('❌ Invalid environment variables:');
-      console.error(JSON.stringify(error.flatten().fieldErrors, null, 2));
+      const logger = getLogger().setContext('EnvConfig');
+      logger.error('❌ Invalid environment variables:');
+      logger.error(JSON.stringify(error.flatten().fieldErrors, null, 2));
       throw new Error('Environment validation failed');
     }
     throw error;

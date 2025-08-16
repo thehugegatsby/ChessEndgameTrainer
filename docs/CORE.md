@@ -48,16 +48,20 @@ graph TD
 
 - **TablebaseService**: Lichess API with LRU cache, deduplication, Zod validation
 - **ChessService**: chess.js wrapper (legacy singleton - prefer GameSlice)
+- **PlatformService**: Android/iOS platform abstraction (siehe [VISION.md](./VISION.md))
 
 ### Orchestrators
 
 Complex operations across slices: `/shared/store/orchestrators/`
 
-**Example: handlePlayerMove**
-1. Validates move (GameSlice)
-2. Updates session (TrainingSlice)  
-3. Shows feedback (UISlice)
-4. Fetches evaluation (TablebaseSlice)
+**Example: handlePlayerMove** (964 lines, 4 modules - **appropriately complex**)
+1. Validates move (GameSlice) → MoveValidator
+2. Evaluates quality (TablebaseSlice) → MoveQualityEvaluator  
+3. Handles promotion (Training/UI) → PawnPromotionHandler
+4. Shows feedback (UISlice) → EventBasedMoveDialogManager
+5. Schedules opponent (Training) → OpponentTurnHandler
+
+*Multi-model analysis confirmed: NOT over-engineered, but domain-appropriate complexity*
 
 ## Code Standards
 

@@ -21,6 +21,7 @@ import type {
   RootState,
 } from "@shared/store/slices/types";
 import type { ValidatedMove } from "@shared/types";
+import { getLogger } from "@shared/services/logging";
 
 
 /**
@@ -106,7 +107,8 @@ export async function createInitialStateForPosition(
     previousPosition = prevPos;
   } catch (error) {
     // Navigation loading is non-critical, continue without it
-    console.warn("Failed to load navigation positions on server:", error);
+    const logger = getLogger().setContext('InitialState');
+    logger.warn("Failed to load navigation positions on server:", error);
   }
 
   // Convert navigation positions to TrainingPositions

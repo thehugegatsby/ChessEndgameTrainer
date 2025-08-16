@@ -26,6 +26,7 @@ pnpm run lint && pnpm tsc # Validation
 | Task | Always Load | Path |
 |------|------------|------|
 | **Any Task** | ✅ | [`docs/CORE.md`](docs/CORE.md) - Architecture |
+| **Product Context** | → | [`docs/VISION.md`](docs/VISION.md) - Product Vision |
 | Testing | → | [`docs/guides/testing.md`](docs/guides/testing.md) |
 | WSL2 Issues | → | [`docs/guides/wsl2.md`](docs/guides/wsl2.md) |
 | MCP Tools | → | [`docs/tooling/mcp-matrix.md`](docs/tooling/mcp-matrix.md) |

@@ -249,6 +249,7 @@ Detaillierte Performance-Metriken und technische Details finden Sie in der Codeb
 
 ### 📖 **Entwickler-Dokumentation**
 
+- **[docs/VISION.md](./docs/VISION.md)** - Produkt-Vision & Konzept
 - **[CLAUDE.md](./CLAUDE.md)** - AI Assistant Context & Architektur-Richtlinien
 - **[CHANGELOG.md](./CHANGELOG.md)** - Versionshistorie und Änderungen
 - **[docs/CORE.md](./docs/CORE.md)** - System-Architektur Übersicht

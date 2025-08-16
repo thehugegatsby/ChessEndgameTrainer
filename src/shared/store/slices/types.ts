@@ -108,6 +108,7 @@ export interface TrainingState {
   } | null;
   isPlayerTurn: boolean;
   isOpponentThinking: boolean; // New flag to prevent race conditions
+  moveInFlight: boolean; // Prevents double-processing of rapid clicks
   isSuccess: boolean;
   hintsUsed: number;
   mistakeCount: number;

@@ -82,11 +82,12 @@ Each feature contains:
 ### Orchestrators Pattern
 Complex cross-slice operations in `/shared/store/orchestrators/`:
 
-**Example: handlePlayerMove** (533 lines)
-1. Validates move (GameSlice)
-2. Updates progress (TrainingSlice)
-3. Shows feedback (UISlice)  
-4. Fetches evaluation (TablebaseSlice)
+**Example: handlePlayerMove** (964 lines - domain-appropriate complexity)
+1. Validates move (GameSlice) → MoveValidator
+2. Evaluates quality (TablebaseSlice) → MoveQualityEvaluator
+3. Handles promotion (Training/UI) → PawnPromotionHandler  
+4. Shows feedback (UISlice) → EventBasedMoveDialogManager
+5. Schedules opponent → OpponentTurnHandler
 
 ## 🧪 Testing Strategy
 
