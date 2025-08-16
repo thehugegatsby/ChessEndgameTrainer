@@ -21,10 +21,19 @@ pnpm run lint && pnpm tsc # Validation
 - ❌ `cmd | grep` → ✅ `cmd && cmd2` (no pipes)
 - 📦 CI-Fix: `vite-tsconfig-paths` resolves modules
 
-## 📚 Core Documentation
+## 📚 Load Documentation
 
-**Essential**: [`docs/CORE.md`](docs/CORE.md) - Architecture overview
-**Complex Flows**: [`docs/orchestrators/handlePlayerMove/TABLEBASE_DATA_FLOW.md`](docs/orchestrators/handlePlayerMove/TABLEBASE_DATA_FLOW.md) - API integration
+| Task                | Always Load | Path                                                                       |
+| ------------------- | ----------- | -------------------------------------------------------------------------- |
+| **Any Task**        | ✅          | [`docs/CORE.md`](docs/CORE.md) - Architecture                              |
+| **Product Context** | →           | [`docs/VISION.md`](docs/VISION.md) - Product Vision                        |
+| **Quality Tasks**   | →           | [`docs/AGENT_CONFIG.json`](docs/AGENT_CONFIG.json) - Standards & Workflows |
+| Testing             | →           | [`docs/guides/testing.md`](docs/guides/testing.md)                         |
+| MCP Tools           | →           | [`docs/tooling/mcp-matrix.md`](docs/tooling/mcp-matrix.md)                 |
+
+## 🤖 LLM Protocol
+
+Always load `CORE.md` first, then task-specific docs from table above. For MCP selection, see `mcp-matrix.md`. Use "use context7" for framework docs.
 
 ## 🤖 MCP Servers Active
 
