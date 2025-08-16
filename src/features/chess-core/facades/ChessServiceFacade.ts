@@ -1,4 +1,9 @@
 /**
+ * @deprecated DO NOT USE IN PRODUCTION
+ * This facade demonstrates Clean Architecture principles but is over-engineered
+ * for our chess use case. See docs/architecture/CHESS_SERVICE_DECISION.md
+ * Use pure functions in src/shared/utils/chess-logic.ts instead.
+ *
  * ChessServiceFacade - Orchestrator for all chess components
  *
  * This facade coordinates all chess-related services (ChessEngine, MoveValidator,
