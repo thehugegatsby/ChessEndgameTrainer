@@ -28,6 +28,7 @@ vi.mock('next/dist/client/use-intersection', () => ({
 // This significantly improves test performance and stability
 import { type ServiceContainer } from '@shared/services/container';
 import { createTestContainer, type TestServiceOverrides } from './createTestContainer';
+import { ServiceProvider } from '@shared/services/container/adapter';
 
 /**
  * Global test container for tests that need shared state
@@ -106,7 +107,7 @@ export function setupReactTestingWithContainer(overrides?: TestServiceOverrides)
      * @param root0.children
      */
     wrapper = ({ children }: { children: React.ReactNode }) => {
-      const { ServiceProvider } = require('@shared/services/container/adapter');
+      // ServiceProvider already imported at top
       return React.createElement(ServiceProvider, { container }, children);
     };
   });

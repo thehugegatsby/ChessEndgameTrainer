@@ -905,33 +905,89 @@ describe('TablebaseService', () => {
     });
 
     it('should handle defensive strategy for losing positions', async () => {
-      // Create test scenario for defensive strategy (when user provides one)
-      const defensiveScenario = {
-        fen: 'test-position', // Will be provided by user
-        moves: [
-          { uci: 'move1', san: 'Move1', wdl: -2, dtz: -10, dtm: -20, category: 'loss' as const },
-          { uci: 'move2', san: 'Move2', wdl: -2, dtz: -10, dtm: -30, category: 'loss' as const },
-        ],
-        expectedRanking: ['move2', 'move1'], // Higher DTM is better when losing
-      };
-
+      // Use DEFENSIVE_STRATEGY_LOSING_POSITION scenario from TablebaseTestScenarios.ts
+      const { TablebaseTestScenarios } = await import('../../shared/testing/TablebaseTestScenarios');
+      const scenario = TablebaseTestScenarios.DEFENSIVE_STRATEGY_LOSING_POSITION;
+      
+      // Mock API response with user-provided move data
       mockLookup.mockResolvedValueOnce(
         createTablebaseResponse({
           category: 'loss',
-          dtz: -10,
-          dtm: -20,
-          moves: defensiveScenario.moves.map(move => ({
+          dtz: -22, // Position DTZ
+          dtm: -26, // Position DTM
+          moves: scenario.moves.map(move => ({
             uci: move.uci,
             san: move.san,
             category: 'win', // API perspective (opponent wins after move)
+            dtz: -move.dtz, // Negate for API perspective (API returns positive for winning side)
+            dtm: -move.dtm, // Negate for API perspective
+          }))
+        })
+      );
+
+      const result = await testService.getTopMoves(scenario.fen, 5);
+
+      expect(result.isAvailable).toBe(true);
+      expect(result.moves).toBeDefined();
+      expect(result.moves!.length).toBe(5);
+
+      // Verify defensive ranking: Ne4 (DTM=25), Ke3 (DTM=25), Kd3 (DTM=23), Nb5 (DTM=17), Nd1 (DTM=13)
+      expect(result.moves![0].uci).toBe('c3e4'); // Ne4 - best defensive (DTM=25)
+      expect(result.moves![0].dtm).toBe(25);
+      expect(result.moves![1].uci).toBe('d4e3'); // Ke3 - equally good defensive (DTM=25)
+      expect(result.moves![1].dtm).toBe(25);
+      expect(result.moves![4].uci).toBe('c3d1'); // Nd1 - worst defensive (DTM=13)
+      expect(result.moves![4].dtm).toBe(13);
+
+      // Verify all are losing moves from White's perspective
+      result.moves!.forEach(move => {
+        expect(move.wdl).toBe(-2);
+        expect(move.category).toBe('loss');
+      });
+    });
+
+    it('should prioritize DTM over DTZ when WDL is equal', async () => {
+      // Use DTM_TIEBREAKER_SAME_DTZ scenario from TablebaseTestScenarios.ts
+      const { TablebaseTestScenarios } = await import('../../shared/testing/TablebaseTestScenarios');
+      const scenario = TablebaseTestScenarios.DTM_TIEBREAKER_SAME_DTZ;
+      
+      // Mock API response with user-provided move data
+      mockLookup.mockResolvedValueOnce(
+        createTablebaseResponse({
+          category: 'win',
+          dtz: 8, // Position DTZ
+          dtm: 24, // Position DTM
+          moves: scenario.moves.map(move => ({
+            uci: move.uci,
+            san: move.san,
+            category: 'loss', // API perspective (opponent loses after move)
             dtz: -move.dtz, // Negate for API perspective
             dtm: -move.dtm, // Negate for API perspective
           }))
         })
       );
 
-      // Skip this test until user provides defensive scenario
-      expect(true).toBe(true);
+      const result = await testService.getTopMoves(scenario.fen, 2);
+
+      expect(result.isAvailable).toBe(true);
+      expect(result.moves).toBeDefined();
+      expect(result.moves!.length).toBe(2);
+
+      // Verify DTM priority: Te6 (DTM=-24) before Th1 (DTM=-36)
+      expect(result.moves![0].uci).toBe('e1e6'); // Te6 - better DTM (faster mate)
+      expect(result.moves![0].dtm).toBe(-24);
+      expect(result.moves![1].uci).toBe('e1h1'); // Th1 - worse DTM (slower mate)
+      expect(result.moves![1].dtm).toBe(-36);
+
+      // Verify both have same WDL and DTZ (DTM priority conditions)
+      expect(result.moves![0].wdl).toBe(2);
+      expect(result.moves![0].dtz).toBe(-8);
+      expect(result.moves![1].wdl).toBe(2);
+      expect(result.moves![1].dtz).toBe(-8);
+
+      // Verify both are winning moves
+      expect(result.moves![0].category).toBe('win');
+      expect(result.moves![1].category).toBe('win');
     });
   });
 });

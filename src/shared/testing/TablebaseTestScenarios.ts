@@ -138,28 +138,82 @@ export const TablebaseTestScenarios: Record<string, TablebaseRankingScenario> = 
     notes: 'DTZ hierarchy would prefer Rb1 (DTZ=4), but DTM hierarchy prefers Re5 (DTM=20) for faster, more instructive mate. Verified with Lichess API 2025-08-16.'
   },
 
-  // Placeholder for DTM Tiebreaker Test
-  DTM_TIEBREAKER_PLACEHOLDER: {
-    description: 'Tests DTM as final tiebreaker when WDL and DTZ are equal',
-    fen: 'PLACEHOLDER - User will provide',
+  // DTM Tiebreaker Test - Same WDL and DTZ, different DTM
+  DTM_TIEBREAKER_SAME_DTZ: {
+    description: 'Tests DTM as tiebreaker when WDL and DTZ are equal',
+    fen: '5k2/2P5/1K6/8/8/2r5/8/4R3 w - - 0 1',
     category: 'dtm',
     moves: [
-      // User will provide moves with same WDL and DTZ but different DTM
+      {
+        uci: 'e1e6',
+        san: 'Te6',
+        wdl: 2,
+        dtz: 8,
+        dtm: 24,
+        category: 'win'
+      },
+      {
+        uci: 'e1h1',
+        san: 'Th1',
+        wdl: 2,
+        dtz: 8,
+        dtm: 36,
+        category: 'win'
+      }
     ],
-    expectedRanking: [],
-    notes: 'Awaiting user-provided FEN and move data'
+    expectedRanking: ['e1e6', 'e1h1'],
+    notes: 'Both moves win with same DTZ=8, but Te6 has better DTM=24 vs Th1 DTM=36. Tests DTM priority in training hierarchy. Verified with user data 2025-08-16.'
   },
 
-  // Placeholder for Defensive Strategy Test
-  DEFENSIVE_STRATEGY_PLACEHOLDER: {
-    description: 'Tests defensive strategy: When all moves lose, prefer slowest loss',
-    fen: 'PLACEHOLDER - User will provide',
+  // Defensive Strategy Test - All moves lose, prefer slowest loss
+  DEFENSIVE_STRATEGY_LOSING_POSITION: {
+    description: 'Tests defensive strategy: When all moves lose, prefer slowest loss (highest DTM)',
+    fen: '8/8/4k3/8/3K4/2N5/6q1/8 w - - 0 1',
     category: 'defensive',
     moves: [
-      // User will provide moves where all are losing but with different DTM values
+      {
+        uci: 'c3e4',
+        san: 'Ne4',
+        wdl: -2,
+        dtz: -21,
+        dtm: -25,
+        category: 'loss'
+      },
+      {
+        uci: 'd4e3',
+        san: 'Ke3',
+        wdl: -2,
+        dtz: -21,
+        dtm: -25,
+        category: 'loss'
+      },
+      {
+        uci: 'd4d3',
+        san: 'Kd3',
+        wdl: -2,
+        dtz: -19,
+        dtm: -23,
+        category: 'loss'
+      },
+      {
+        uci: 'c3b5',
+        san: 'Nb5',
+        wdl: -2,
+        dtz: -3,
+        dtm: -17,
+        category: 'loss'
+      },
+      {
+        uci: 'c3d1',
+        san: 'Nd1',
+        wdl: -2,
+        dtz: -3,
+        dtm: -13,
+        category: 'loss'
+      }
     ],
-    expectedRanking: [],
-    notes: 'Awaiting user-provided FEN and move data'
+    expectedRanking: ['c3e4', 'd4e3', 'd4d3', 'c3b5', 'c3d1'],
+    notes: 'White is losing but should prefer moves with highest DTM (longest resistance). Ne4/Ke3 both DTM=-25 (best), Nd1 DTM=-13 (worst). Tests defensive hierarchy: higher absolute DTM is better when losing. Verified with Lichess API 2025-08-16.'
   },
 
   // Placeholder for Edge Cases

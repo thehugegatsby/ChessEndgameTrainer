@@ -27,6 +27,7 @@ import {
   CircularDependencyError,
   type BrowserAPIs,
 } from './types';
+import { WebPlatformService } from '../platform/web/WebPlatformService';
 import type {
   PlatformStorage,
   PlatformNotification,
@@ -387,7 +388,7 @@ export class DefaultServiceContainer implements ServiceContainer {
     // For Phase 1, we keep it simple and register a factory that will
     // import WebPlatformService when first accessed
     this.registerCustom('platform.service', () => {
-      const { WebPlatformService } = require('../platform/web/WebPlatformService');
+      // WebPlatformService already imported at top
       return new WebPlatformService();
     });
 

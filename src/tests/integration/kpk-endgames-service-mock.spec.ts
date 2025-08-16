@@ -116,8 +116,8 @@ vi.mock('@shared/services/ChessService', () => ({
   chessService: {
     initialize: vi.fn(fen => {
       // This should update the game state
-      setTimeout(() => {
-        const { useStore: storeHook } = require('@shared/store/rootStore');
+      setTimeout(async () => {
+        const { useStore: storeHook } = await import('@shared/store/rootStore');
         storeHook.setState((draft: any) => {
           draft.game.currentFen = fen;
         });
@@ -273,7 +273,7 @@ describe.skip('KPK Integration Tests (Service-Level Mock) - TODO: Fix CI module 
   describe('Error Handling', () => {
     it.skip('should handle service errors gracefully', async () => {
       // Mock service to throw error
-      const { TablebaseService } = require('@shared/services/TablebaseService');
+      const { TablebaseService } = await import('@shared/services/TablebaseService');
       const instance = TablebaseService.getInstance();
       instance.getEvaluation.mockRejectedValueOnce(new Error('API Error'));
 

@@ -1,11 +1,11 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import tsconfigPaths from 'vite-tsconfig-paths';
+// import tsconfigPaths from 'vite-tsconfig-paths'; // REMOVED: We use explicit aliases now
 import path from 'path';
 import { featuresTestSetup, featuresDir, srcDir, sharedDir, testsDir } from '../paths';
 
 export default defineConfig({
-  plugins: [react(), tsconfigPaths()],
+  plugins: [react()], // tsconfigPaths() removed - using explicit aliases
   test: {
     environment: 'jsdom',
     globals: true,

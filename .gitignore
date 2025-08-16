@@ -45,6 +45,9 @@ Thumbs.db
 *.temp
 .cache
 
+# Screenshots (temporary files for Claude Code)
+.screenshots/
+
 # Test caches
 .jest-cache/
 .vitest/
