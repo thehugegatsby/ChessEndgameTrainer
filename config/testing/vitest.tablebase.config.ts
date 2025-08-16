@@ -4,7 +4,7 @@ import baseConfig from '../../vitest.base.config';
 
 /**
  * Vitest Tablebase Project Configuration
- * 
+ *
  * Merges the base configuration with tablebase-specific settings.
  * This ensures Observer API mocks are properly loaded from the shared setupFiles.
  */

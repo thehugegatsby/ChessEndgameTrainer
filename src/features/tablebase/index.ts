@@ -1,6 +1,6 @@
 /**
  * Tablebase Feature - Public API
- * 
+ *
  * This is the main entry point for the tablebase feature.
  * Only exports what's needed by the rest of the application.
  */

@@ -54,7 +54,7 @@ async function confirmLargeTestRun(testCount) {
 
   const rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
   });
 
   return new Promise(resolve => {
@@ -81,24 +81,24 @@ async function confirmLargeTestRun(testCount) {
 // Main execution logic
 async function main() {
   // Check if a specific test file is provided
-  const hasTestFile = args.some(arg => 
-    arg.includes('.test.') || arg.includes('.spec.') || arg.includes('/__tests__/')
+  const hasTestFile = args.some(
+    arg => arg.includes('.test.') || arg.includes('.spec.') || arg.includes('/__tests__/')
   );
 
   if (hasTestFile) {
     // Auto-routing for specific test files
     const testFile = args.find(arg => arg.includes('.test.') || arg.includes('.spec.'));
     const feature = detectFeature(testFile);
-    
+
     if (feature) {
       console.log(`🎯 Auto-routing to feature: ${feature}`);
       console.log(`🔄 Running: pnpm run test:vitest:file ${args.join(' ')}`);
     } else {
       console.log('🔄 Running specific test file');
     }
-    
+
     try {
-      execSync(`pnpm run test:vitest:file ${args.join(' ')}`, {stdio: 'inherit'});
+      execSync(`pnpm run test:vitest:file ${args.join(' ')}`, { stdio: 'inherit' });
     } catch (error) {
       console.error('❌ Test execution failed');
       process.exit(error.status || 1);
@@ -107,7 +107,9 @@ async function main() {
     // Project-based testing (use workspace config)
     console.log('🚀 Running project-specific tests');
     try {
-      execSync(`vitest --workspace vitest.workspace.ts run ${args.join(' ')}`, {stdio: 'inherit'});
+      execSync(`vitest --workspace vitest.workspace.ts run ${args.join(' ')}`, {
+        stdio: 'inherit',
+      });
     } catch (error) {
       console.error('❌ Test execution failed');
       process.exit(error.status || 1);
@@ -115,7 +117,7 @@ async function main() {
   } else {
     // Full test suite - check count and warn
     const testCount = countTestFiles();
-    
+
     if (testCount > 100) {
       const shouldContinue = await confirmLargeTestRun(testCount);
       if (!shouldContinue) {
@@ -123,10 +125,10 @@ async function main() {
         process.exit(0);
       }
     }
-    
+
     console.log(`🔄 Running all tests (${testCount} files)`);
     try {
-      execSync('pnpm run test:original', {stdio: 'inherit'});
+      execSync('pnpm run test:all', { stdio: 'inherit' });
     } catch (error) {
       console.error('❌ Test execution failed');
       process.exit(error.status || 1);

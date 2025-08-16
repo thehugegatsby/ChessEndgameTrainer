@@ -9,41 +9,39 @@
  * Usage: npm run test:real-api
  */
 
-const { spawn } = require("child_process");
-const path = require("path");
+const { spawn } = require('child_process');
+const path = require('path');
 
-console.log("🔍 Running real API integration tests...");
-console.log(
-  "⚠️  These tests require internet connection and may be rate limited.",
-);
-console.log("");
+console.log('🔍 Running real API integration tests...');
+console.log('⚠️  These tests require internet connection and may be rate limited.');
+console.log('');
 
 // Run jest with the real API test file
 const testFile = path.join(
   __dirname,
-  "..",
-  "tests",
-  "integration",
-  "tablebase-real-api.integration.spec.ts",
+  '..',
+  'tests',
+  'integration',
+  'tablebase-real-api.integration.spec.ts'
 );
 
 const jest = spawn(
-  "npx",
-  ["jest", testFile, "--config=tests/jest.config.integration.js", "--verbose"],
+  'npx',
+  ['jest', testFile, '--config=tests/jest.config.integration.js', '--verbose'],
   {
-    stdio: "inherit",
+    stdio: 'inherit',
     env: {
       ...process.env,
-      CI: "false", // Ensure CI env var is not set
+      CI: 'false', // Ensure CI env var is not set
     },
-  },
+  }
 );
 
-jest.on("close", (code) => {
+jest.on('close', code => {
   if (code === 0) {
-    console.log("\n✅ Real API integration tests passed!");
+    console.log('\n✅ Real API integration tests passed!');
   } else {
-    console.log("\n❌ Real API integration tests failed.");
+    console.log('\n❌ Real API integration tests failed.');
     process.exit(code);
   }
 });

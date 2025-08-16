@@ -4,7 +4,7 @@ import baseConfig from '../../vitest.base.config';
 
 /**
  * Vitest Training Project Configuration
- * 
+ *
  * Merges the base configuration with training-specific settings.
  * This ensures Observer API mocks are properly loaded from the shared setupFiles.
  */

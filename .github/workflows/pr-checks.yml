@@ -8,167 +8,167 @@ jobs:
   check-pr-size:
     name: Check PR Size
     runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
 
-    - name: Check PR size
-      run: |
-        FILES_CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | wc -l)
-        LINES_CHANGED=$(git diff --stat origin/${{ github.base_ref }}...HEAD | tail -1 | awk '{print $4 + $6}')
-        
-        echo "Files changed: $FILES_CHANGED"
-        echo "Lines changed: $LINES_CHANGED"
-        
-        echo "## PR Size Analysis" >> $GITHUB_STEP_SUMMARY
-        echo "- Files changed: $FILES_CHANGED" >> $GITHUB_STEP_SUMMARY
-        echo "- Lines changed: $LINES_CHANGED" >> $GITHUB_STEP_SUMMARY
-        
-        if [ $FILES_CHANGED -gt 20 ] || [ $LINES_CHANGED -gt 500 ]; then
-          echo "⚠️ This is a large PR. Consider breaking it into smaller, focused changes." >> $GITHUB_STEP_SUMMARY
-        else
-          echo "✅ PR size is reasonable." >> $GITHUB_STEP_SUMMARY
-        fi
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check PR size
+        run: |
+          FILES_CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | wc -l)
+          LINES_CHANGED=$(git diff --stat origin/${{ github.base_ref }}...HEAD | tail -1 | awk '{print $4 + $6}')
+
+          echo "Files changed: $FILES_CHANGED"
+          echo "Lines changed: $LINES_CHANGED"
+
+          echo "## PR Size Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "- Files changed: $FILES_CHANGED" >> $GITHUB_STEP_SUMMARY
+          echo "- Lines changed: $LINES_CHANGED" >> $GITHUB_STEP_SUMMARY
+
+          if [ $FILES_CHANGED -gt 20 ] || [ $LINES_CHANGED -gt 500 ]; then
+            echo "⚠️ This is a large PR. Consider breaking it into smaller, focused changes." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ PR size is reasonable." >> $GITHUB_STEP_SUMMARY
+          fi
 
   check-test-coverage-diff:
     name: Test Coverage Diff
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout PR branch
-      uses: actions/checkout@v4
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
 
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v3
-      with:
-        version: '9'
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: '10'
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'pnpm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
 
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-    - name: Run tests with coverage
-      run: pnpm run test:coverage
+      - name: Run tests with coverage
+        run: pnpm run test:coverage
 
-    - name: Checkout base branch
-      run: |
-        git fetch origin ${{ github.base_ref }}
-        git checkout origin/${{ github.base_ref }}
+      - name: Checkout base branch
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          git checkout origin/${{ github.base_ref }}
 
-    - name: Run base branch tests
-      run: |
-        pnpm install --frozen-lockfile
-        pnpm run test:coverage -- --coverageDirectory=coverage-base
+      - name: Run base branch tests
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm run test:coverage -- --coverageDirectory=coverage-base
 
-    - name: Compare coverage
-      run: |
-        # Extract coverage percentages
-        NEW_COVERAGE=$(cat coverage/coverage-summary.json | jq '.total.statements.pct')
-        BASE_COVERAGE=$(cat coverage-base/coverage-summary.json | jq '.total.statements.pct' || echo "0")
-        
-        DIFF=$(echo "$NEW_COVERAGE - $BASE_COVERAGE" | bc)
-        
-        echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
-        echo "- Base coverage: $BASE_COVERAGE%" >> $GITHUB_STEP_SUMMARY
-        echo "- New coverage: $NEW_COVERAGE%" >> $GITHUB_STEP_SUMMARY
-        echo "- Difference: $DIFF%" >> $GITHUB_STEP_SUMMARY
-        
-        if (( $(echo "$DIFF < -1" | bc -l) )); then
-          echo "❌ Coverage decreased significantly!" >> $GITHUB_STEP_SUMMARY
-          exit 1
-        else
-          echo "✅ Coverage maintained or improved!" >> $GITHUB_STEP_SUMMARY
-        fi
+      - name: Compare coverage
+        run: |
+          # Extract coverage percentages
+          NEW_COVERAGE=$(cat coverage/coverage-summary.json | jq '.total.statements.pct')
+          BASE_COVERAGE=$(cat coverage-base/coverage-summary.json | jq '.total.statements.pct' || echo "0")
+
+          DIFF=$(echo "$NEW_COVERAGE - $BASE_COVERAGE" | bc)
+
+          echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo "- Base coverage: $BASE_COVERAGE%" >> $GITHUB_STEP_SUMMARY
+          echo "- New coverage: $NEW_COVERAGE%" >> $GITHUB_STEP_SUMMARY
+          echo "- Difference: $DIFF%" >> $GITHUB_STEP_SUMMARY
+
+          if (( $(echo "$DIFF < -1" | bc -l) )); then
+            echo "❌ Coverage decreased significantly!" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "✅ Coverage maintained or improved!" >> $GITHUB_STEP_SUMMARY
+          fi
 
   check-migrations:
     name: Check for Required Migrations
     runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
 
-    - name: Check for schema changes
-      run: |
-        # Check if any database or API schema files changed
-        SCHEMA_CHANGES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E "(schema|migration|types|api)" || true)
-        
-        if [ -n "$SCHEMA_CHANGES" ]; then
-          echo "## ⚠️ Schema Changes Detected" >> $GITHUB_STEP_SUMMARY
-          echo "The following schema-related files were modified:" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "$SCHEMA_CHANGES" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "Please ensure any necessary migrations are included." >> $GITHUB_STEP_SUMMARY
-        fi
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for schema changes
+        run: |
+          # Check if any database or API schema files changed
+          SCHEMA_CHANGES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E "(schema|migration|types|api)" || true)
+
+          if [ -n "$SCHEMA_CHANGES" ]; then
+            echo "## ⚠️ Schema Changes Detected" >> $GITHUB_STEP_SUMMARY
+            echo "The following schema-related files were modified:" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "$SCHEMA_CHANGES" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "Please ensure any necessary migrations are included." >> $GITHUB_STEP_SUMMARY
+          fi
 
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
 
-    - name: Run pnpm audit
-      run: |
-        pnpm audit --production --audit-level=high || true
-        
-    - name: Check for secrets
-      uses: trufflesecurity/trufflehog@main
-      with:
-        path: ./
-        base: ${{ github.event.repository.default_branch }}
-        head: HEAD
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run pnpm audit
+        run: |
+          pnpm audit --production --audit-level=high || true
+
+      - name: Check for secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
 
   bundle-size-check:
     name: Bundle Size Analysis
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v3
-      with:
-        version: '9'
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: '10'
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'pnpm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
 
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-    - name: Build and analyze bundle
-      run: |
-        pnpm run build
-        
-        # Get bundle sizes
-        BUNDLE_SIZE=$(du -sh .next | cut -f1)
-        
-        echo "## Bundle Size Report" >> $GITHUB_STEP_SUMMARY
-        echo "- Total build size: $BUNDLE_SIZE" >> $GITHUB_STEP_SUMMARY
-        
-        # Check if bundle is getting too large
-        BUNDLE_SIZE_BYTES=$(du -sb .next | cut -f1)
-        MAX_SIZE_BYTES=$((300 * 1024 * 1024)) # 300MB
-        
-        if [ $BUNDLE_SIZE_BYTES -gt $MAX_SIZE_BYTES ]; then
-          echo "⚠️ Bundle size exceeds 300MB threshold!" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "✅ Bundle size is within acceptable limits." >> $GITHUB_STEP_SUMMARY
-        fi
+      - name: Build and analyze bundle
+        run: |
+          pnpm run build
+
+          # Get bundle sizes
+          BUNDLE_SIZE=$(du -sh .next | cut -f1)
+
+          echo "## Bundle Size Report" >> $GITHUB_STEP_SUMMARY
+          echo "- Total build size: $BUNDLE_SIZE" >> $GITHUB_STEP_SUMMARY
+
+          # Check if bundle is getting too large
+          BUNDLE_SIZE_BYTES=$(du -sb .next | cut -f1)
+          MAX_SIZE_BYTES=$((300 * 1024 * 1024)) # 300MB
+
+          if [ $BUNDLE_SIZE_BYTES -gt $MAX_SIZE_BYTES ]; then
+            echo "⚠️ Bundle size exceeds 300MB threshold!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Bundle size is within acceptable limits." >> $GITHUB_STEP_SUMMARY
+          fi

@@ -21,12 +21,12 @@
  * ```
  */
 
-import { type UISlice, type UIState, type UIActions } from "./types";
-import { nanoid } from "nanoid";
-import { type Toast, type ModalType, type LoadingState, type AnalysisPanelState } from "../types";
+import { type UISlice, type UIState, type UIActions } from './types';
+import { nanoid } from 'nanoid';
+import { type Toast, type ModalType, type LoadingState, type AnalysisPanelState } from '../types';
 
 // Re-export types for external use
-export type { UIState, UIActions } from "./types";
+export type { UIState, UIActions } from './types';
 
 /**
  * Initial state for the UI slice
@@ -44,7 +44,7 @@ export const initialUIState = {
   } as LoadingState,
   analysisPanel: {
     isOpen: false,
-    activeTab: "moves" as const,
+    activeTab: 'moves' as const,
     showTablebase: true,
   } as AnalysisPanelState,
 };
@@ -84,7 +84,7 @@ export const createUIState = (): UIState => ({ ...initialUIState });
  */
 export const createUIActions = (
   set: (fn: (state: { ui: UIState }) => void) => void,
-  get: () => { ui: UIState & UIActions },
+  get: () => { ui: UIState & UIActions }
 ): UIActions => ({
   // Actions
   /**
@@ -99,7 +99,7 @@ export const createUIActions = (
    * ```
    */
   toggleSidebar: () =>
-    set((state) => {
+    set(state => {
       state.ui.isSidebarOpen = !state.ui.isSidebarOpen;
     }),
 
@@ -119,7 +119,7 @@ export const createUIActions = (
    * ```
    */
   setIsSidebarOpen: (isOpen: boolean) =>
-    set((state) => {
+    set(state => {
       state.ui.isSidebarOpen = isOpen;
     }),
 
@@ -143,7 +143,7 @@ export const createUIActions = (
    * ```
    */
   openModal: (type: ModalType) =>
-    set((state) => {
+    set(state => {
       state.ui.currentModal = type;
     }),
 
@@ -159,7 +159,7 @@ export const createUIActions = (
    * ```
    */
   closeModal: () =>
-    set((state) => {
+    set(state => {
       state.ui.currentModal = null;
     }),
 
@@ -192,7 +192,7 @@ export const createUIActions = (
    * store.getState().showToast('Important message', 'info', 0);
    * ```
    */
-  showToast: (message: string, type: Toast["type"], duration = 3000) => {
+  showToast: (message: string, type: Toast['type'], duration = 3000) => {
     const id = nanoid();
     const toast: Toast = {
       id,
@@ -201,7 +201,7 @@ export const createUIActions = (
       duration,
     };
 
-    set((state) => {
+    set(state => {
       state.ui.toasts.push(toast);
     });
 
@@ -234,7 +234,7 @@ export const createUIActions = (
    * ```
    */
   removeToast: (id: string) =>
-    set((state) => {
+    set(state => {
       state.ui.toasts = state.ui.toasts.filter((toast: Toast) => toast.id !== id);
     }),
 
@@ -262,7 +262,7 @@ export const createUIActions = (
    * ```
    */
   setLoading: (key: keyof LoadingState, value: boolean) =>
-    set((state) => {
+    set(state => {
       state.ui.loading[key] = value;
     }),
 
@@ -294,7 +294,7 @@ export const createUIActions = (
    * ```
    */
   updateAnalysisPanel: (update: Partial<AnalysisPanelState>) =>
-    set((state) => {
+    set(state => {
       Object.assign(state.ui.analysisPanel, update);
     }),
 });
@@ -378,6 +378,5 @@ export const uiSelectors = {
    * const isSettingsOpen = useStore(uiSelectors.selectIsModalOpen('settings'));
    * ```
    */
-  selectIsModalOpen: (type: ModalType) => (state: UISlice) =>
-    state.currentModal === type,
+  selectIsModalOpen: (type: ModalType) => (state: UISlice) => state.currentModal === type,
 };

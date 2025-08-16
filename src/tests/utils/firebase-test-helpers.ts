@@ -1,12 +1,12 @@
 /**
  * Firebase Test Helpers
  * Utilities for setting up and managing test data in Firebase Emulator
- * 
+ *
  * Enhanced with Authentication support and User Progress testing infrastructure
  * for Issue #83 - Firebase service integration test infrastructure
  */
 
-import { initializeApp, deleteApp, type FirebaseApp } from "firebase/app";
+import { initializeApp, deleteApp, type FirebaseApp } from 'firebase/app';
 import {
   getFirestore,
   connectFirestoreEmulator,
@@ -18,31 +18,31 @@ import {
   writeBatch,
   Timestamp,
   serverTimestamp,
-} from "firebase/firestore";
-import { 
-  getAuth, 
-  connectAuthEmulator, 
+} from 'firebase/firestore';
+import {
+  getAuth,
+  connectAuthEmulator,
   signInAnonymously,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   type Auth,
   type UserCredential,
-  type User
-} from "firebase/auth";
+  type User,
+} from 'firebase/auth';
 import {
   type EndgamePosition,
   type EndgameCategory,
   type EndgameChapter,
-} from "@shared/types/endgame";
-import type { UserStats, CardProgress } from "@shared/store/slices/types";
-import { clearAllEmulatorData } from "./firebase-emulator-api";
+} from '@shared/types/endgame';
+import type { UserStats, CardProgress } from '@shared/store/slices/types';
+import { clearAllEmulatorData } from './firebase-emulator-api';
 
 // Test Firebase configuration for emulator
 const TEST_CONFIG = {
-  projectId: process.env['TEST_PROJECT_ID'] || "endgame-trainer-test",
-  apiKey: "test-api-key",
-  authDomain: "localhost",
+  projectId: process.env['TEST_PROJECT_ID'] || 'endgame-trainer-test',
+  apiKey: 'test-api-key',
+  authDomain: 'localhost',
 };
 
 // Remove global singletons to prevent test isolation issues
@@ -61,42 +61,41 @@ const testInstances: TestFirebaseInstance[] = [];
  * @param instanceName - Optional unique name for the app instance (defaults to timestamp)
  * @returns Test Firebase instance with app, db, and auth
  */
-export function initializeTestFirebase(
-  instanceName?: string
-): TestFirebaseInstance {
+export function initializeTestFirebase(instanceName?: string): TestFirebaseInstance {
   // Create unique instance name to prevent conflicts
-  const appName = instanceName || `test-app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  
+  const appName =
+    instanceName || `test-app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
   // Initialize test app with unique name
   const app = initializeApp(TEST_CONFIG, appName);
   const db = getFirestore(app);
   const auth = getAuth(app);
-  
+
   // Connect to Firestore emulator
   try {
-    connectFirestoreEmulator(db, "localhost", 8080);
+    connectFirestoreEmulator(db, 'localhost', 8080);
   } catch (error: any) {
     // Only ignore "already connected" errors, throw real connection failures
-    if (!error.message?.includes("already connected")) {
-      console.error("Failed to connect to Firestore emulator:", error);
+    if (!error.message?.includes('already connected')) {
+      console.error('Failed to connect to Firestore emulator:', error);
       throw error;
     }
   }
-  
-  // Connect to Auth emulator  
+
+  // Connect to Auth emulator
   try {
-    connectAuthEmulator(auth, "http://localhost:9099", { disableWarnings: true });
+    connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
   } catch (error: any) {
     // Only ignore "already connected" errors
-    if (!error.message?.includes("already initialized")) {
-      console.error("Failed to connect to Auth emulator:", error);
+    if (!error.message?.includes('already initialized')) {
+      console.error('Failed to connect to Auth emulator:', error);
       throw error;
     }
   }
-  
+
   const instance = { app, db, auth };
   testInstances.push(instance);
-  
+
   return instance;
 }
 
@@ -112,14 +111,14 @@ export async function createTestUser(
   password?: string
 ): Promise<UserCredential> {
   const testEmail = email || `test-${Date.now()}@example.com`;
-  const testPassword = password || "testpass123";
-  
+  const testPassword = password || 'testpass123';
+
   try {
     // Try to create new user
     return await createUserWithEmailAndPassword(auth, testEmail, testPassword);
   } catch (error: any) {
     // If user exists, sign in instead
-    if (error.code === "auth/email-already-in-use") {
+    if (error.code === 'auth/email-already-in-use') {
       return await signInWithEmailAndPassword(auth, testEmail, testPassword);
     }
     throw error;
@@ -149,20 +148,17 @@ export async function clearFirestoreData(): Promise<void> {
  * @param db - Firestore instance
  * @param userId - User ID to clear data for
  */
-export async function clearUserProgressData(
-  db: Firestore,
-  userId: string
-): Promise<void> {
+export async function clearUserProgressData(db: Firestore, userId: string): Promise<void> {
   const userProgressRef = collection(db, `users/${userId}/userProgress`);
   const snapshot = await getDocs(userProgressRef);
-  
+
   if (snapshot.empty) return;
-  
+
   const batch = writeBatch(db);
-  snapshot.docs.forEach((doc) => {
+  snapshot.docs.forEach(doc => {
     batch.delete(doc.ref);
   });
-  
+
   await batch.commit();
 }
 
@@ -172,7 +168,7 @@ export async function clearUserProgressData(
  * Test UserStats fixture
  */
 export const TEST_USER_STATS: UserStats = {
-  userId: "test-user-123",
+  userId: 'test-user-123',
   totalPositionsCompleted: 25,
   overallSuccessRate: 0.85,
   totalTimeSpent: 3600000, // 1 hour in ms
@@ -200,24 +196,21 @@ export async function seedUserProgress(
     userId,
     lastActive: serverTimestamp(),
   };
-  
-  await setDoc(
-    doc(db, `users/${userId}/userProgress/stats`),
-    userStats
-  );
-  
+
+  await setDoc(doc(db, `users/${userId}/userProgress/stats`), userStats);
+
   // Seed CardProgress documents
   if (cards && cards.length > 0) {
     const batch = writeBatch(db);
-    
-    cards.forEach((card) => {
+
+    cards.forEach(card => {
       const docRef = doc(db, `users/${userId}/userProgress/${card.id}`);
       batch.set(docRef, {
         ...card,
         lastUpdated: serverTimestamp(),
       });
     });
-    
+
     await batch.commit();
   }
 }
@@ -234,14 +227,9 @@ export async function createTestUserWithProgress(
 ): Promise<{ user: User; userId: string }> {
   const userCredential = await createTestUser(instance.auth, email);
   const userId = userCredential.user.uid;
-  
-  await seedUserProgress(
-    instance.db,
-    userId,
-    stats,
-    cards || TEST_CARD_PROGRESS
-  );
-  
+
+  await seedUserProgress(instance.db, userId, stats, cards || TEST_CARD_PROGRESS);
+
   return { user: userCredential.user, userId };
 }
 
@@ -252,14 +240,14 @@ export async function createTestUserWithProgress(
  */
 export class RealtimeTestHelper {
   private listeners: Array<() => void> = [];
-  
+
   /**
    * Register a listener for cleanup
    */
   registerListener(unsubscribe: () => void): void {
     this.listeners.push(unsubscribe);
   }
-  
+
   /**
    * Cleanup all registered listeners
    */
@@ -267,21 +255,18 @@ export class RealtimeTestHelper {
     this.listeners.forEach(unsubscribe => unsubscribe());
     this.listeners = [];
   }
-  
+
   /**
    * Wait for a specific number of snapshot updates
    * @param expectedUpdates - Number of updates to wait for
    * @param timeoutMs - Maximum time to wait (default 5000ms)
    */
-  async waitForUpdates(
-    expectedUpdates: number,
-    timeoutMs: number = 5000
-  ): Promise<void> {
+  async waitForUpdates(expectedUpdates: number, timeoutMs: number = 5000): Promise<void> {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject(new Error(`Timeout waiting for ${expectedUpdates} updates`));
       }, timeoutMs);
-      
+
       let updateCount = 0;
       const checkUpdates = (): void => {
         updateCount++;
@@ -290,7 +275,7 @@ export class RealtimeTestHelper {
           resolve();
         }
       };
-      
+
       // This would be called from within the onSnapshot callback
       (global as any).__rtTestUpdate = checkUpdates;
     });
@@ -304,12 +289,12 @@ export class RealtimeTestHelper {
  */
 export async function seedTestPositions(
   db: Firestore,
-  positions: EndgamePosition[],
+  positions: EndgamePosition[]
 ): Promise<void> {
   const batch = writeBatch(db);
 
-  positions.forEach((position) => {
-    const docRef = doc(db, "positions", position.id.toString());
+  positions.forEach(position => {
+    const docRef = doc(db, 'positions', position.id.toString());
     batch.set(docRef, {
       ...position,
       createdAt: Timestamp.now(),
@@ -325,12 +310,12 @@ export async function seedTestPositions(
  */
 export async function seedTestCategories(
   db: Firestore,
-  categories: EndgameCategory[],
+  categories: EndgameCategory[]
 ): Promise<void> {
   const batch = writeBatch(db);
 
-  categories.forEach((category) => {
-    const docRef = doc(db, "categories", category.id);
+  categories.forEach(category => {
+    const docRef = doc(db, 'categories', category.id);
     batch.set(docRef, {
       ...category,
       createdAt: Timestamp.now(),
@@ -344,14 +329,11 @@ export async function seedTestCategories(
 /**
  * Seed test chapters into Firestore
  */
-export async function seedTestChapters(
-  db: Firestore,
-  chapters: EndgameChapter[],
-): Promise<void> {
+export async function seedTestChapters(db: Firestore, chapters: EndgameChapter[]): Promise<void> {
   const batch = writeBatch(db);
 
-  chapters.forEach((chapter) => {
-    const docRef = doc(db, "chapters", chapter.id);
+  chapters.forEach(chapter => {
+    const docRef = doc(db, 'chapters', chapter.id);
     batch.set(docRef, {
       ...chapter,
       createdAt: Timestamp.now(),
@@ -368,59 +350,59 @@ export async function seedTestChapters(
 export const TEST_POSITIONS: EndgamePosition[] = [
   {
     id: 1,
-    title: "Opposition Basics",
-    description: "Learn the fundamental concept of opposition",
-    fen: "4k3/8/4K3/8/8/8/8/8 w - - 0 1",
-    category: "king-pawn",
-    difficulty: "beginner",
+    title: 'Opposition Basics',
+    description: 'Learn the fundamental concept of opposition',
+    fen: '4k3/8/4K3/8/8/8/8/8 w - - 0 1',
+    category: 'king-pawn',
+    difficulty: 'beginner',
     targetMoves: 1,
-    hints: ["Opposition is key"],
-    solution: ["Ke6-e7"],
-    sideToMove: "white",
-    goal: "win",
+    hints: ['Opposition is key'],
+    solution: ['Ke6-e7'],
+    sideToMove: 'white',
+    goal: 'win',
   },
   {
     id: 2,
-    title: "Advanced Opposition",
-    description: "Master more complex opposition patterns",
-    fen: "8/8/4k3/8/8/4K3/8/8 w - - 0 1",
-    category: "king-pawn",
-    difficulty: "intermediate",
+    title: 'Advanced Opposition',
+    description: 'Master more complex opposition patterns',
+    fen: '8/8/4k3/8/8/4K3/8/8 w - - 0 1',
+    category: 'king-pawn',
+    difficulty: 'intermediate',
     targetMoves: 3,
-    hints: ["Use opposition to control key squares"],
-    solution: ["Ke3-e4", "Ke4-e5", "Ke5-d6"],
-    sideToMove: "white",
-    goal: "win",
+    hints: ['Use opposition to control key squares'],
+    solution: ['Ke3-e4', 'Ke4-e5', 'Ke5-d6'],
+    sideToMove: 'white',
+    goal: 'win',
   },
   {
     id: 12,
-    title: "Brückenbau",
-    description: "Build a bridge for your rook",
-    fen: "1K6/1P6/8/8/8/8/r7/1k6 b - - 0 1",
-    category: "rook-pawn",
-    difficulty: "advanced",
+    title: 'Brückenbau',
+    description: 'Build a bridge for your rook',
+    fen: '1K6/1P6/8/8/8/8/r7/1k6 b - - 0 1',
+    category: 'rook-pawn',
+    difficulty: 'advanced',
     targetMoves: 5,
-    hints: ["Create a bridge with your rook"],
-    solution: ["Ra2-a8+", "Kb8-c7", "Ra8-a7", "Kb1-b2", "Ra7-b7"],
-    sideToMove: "black",
-    goal: "draw",
+    hints: ['Create a bridge with your rook'],
+    solution: ['Ra2-a8+', 'Kb8-c7', 'Ra8-a7', 'Kb1-b2', 'Ra7-b7'],
+    sideToMove: 'black',
+    goal: 'draw',
   },
 ];
 
 export const TEST_CATEGORIES: EndgameCategory[] = [
   {
-    id: "king-pawn",
-    name: "King and Pawn",
-    description: "Fundamental king and pawn endgames",
-    icon: "♔",
+    id: 'king-pawn',
+    name: 'King and Pawn',
+    description: 'Fundamental king and pawn endgames',
+    icon: '♔',
     positions: [],
     subcategories: [],
   },
   {
-    id: "rook-pawn",
-    name: "Rook and Pawn",
-    description: "Rook endgames with pawns",
-    icon: "♜",
+    id: 'rook-pawn',
+    name: 'Rook and Pawn',
+    description: 'Rook endgames with pawns',
+    icon: '♜',
     positions: [],
     subcategories: [],
   },
@@ -428,18 +410,18 @@ export const TEST_CATEGORIES: EndgameCategory[] = [
 
 export const TEST_CHAPTERS: EndgameChapter[] = [
   {
-    id: "opposition-basics",
-    name: "Opposition Fundamentals",
-    description: "Learn the basics of opposition",
-    category: "king-pawn",
+    id: 'opposition-basics',
+    name: 'Opposition Fundamentals',
+    description: 'Learn the basics of opposition',
+    category: 'king-pawn',
     lessons: [],
     totalLessons: 5,
   },
   {
-    id: "bridge-building",
-    name: "Bridge Building Technique",
-    description: "Master the bridge building technique",
-    category: "rook-pawn",
+    id: 'bridge-building',
+    name: 'Bridge Building Technique',
+    description: 'Master the bridge building technique',
+    category: 'rook-pawn',
     lessons: [],
     totalLessons: 3,
   },
@@ -450,14 +432,14 @@ export const TEST_CHAPTERS: EndgameChapter[] = [
  * Should be called in afterAll() to prevent memory leaks
  */
 export async function cleanupAllTestFirebase(): Promise<void> {
-  const cleanupPromises = testInstances.map(async (instance) => {
+  const cleanupPromises = testInstances.map(async instance => {
     try {
       await deleteApp(instance.app);
     } catch (error) {
       // App might already be deleted
     }
   });
-  
+
   await Promise.all(cleanupPromises);
   testInstances.length = 0; // Clear the array
 }
@@ -465,19 +447,16 @@ export async function cleanupAllTestFirebase(): Promise<void> {
 /**
  * Wait for Firestore to be ready (for CI environments)
  */
-export async function waitForFirestore(
-  db: Firestore,
-  maxAttempts = 10
-): Promise<void> {
+export async function waitForFirestore(db: Firestore, maxAttempts = 10): Promise<void> {
   for (let i = 0; i < maxAttempts; i++) {
     try {
       // Try to read from a collection
-      await getDocs(collection(db, "positions"));
+      await getDocs(collection(db, 'positions'));
       return; // Success
     } catch (error) {
       if (i === maxAttempts - 1) throw error;
       // Wait and retry
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
 }

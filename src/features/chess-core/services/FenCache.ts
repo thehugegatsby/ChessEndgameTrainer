@@ -1,6 +1,6 @@
 /**
  * FenCache - LRU cache for FEN positions
- * 
+ *
  * This class provides a Least Recently Used (LRU) cache for storing
  * FEN positions and associated data, optimizing repeated position lookups.
  * Part of the Clean Architecture refactoring.
@@ -8,7 +8,7 @@
 
 import { SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
 
-import type { IFenCache } from "../types/interfaces";
+import type { IFenCache } from '../types/interfaces';
 
 interface CacheNode<T> {
   key: string;
@@ -26,7 +26,7 @@ export default class FenCache implements IFenCache {
 
   constructor(maxSize: number = FenCache.DEFAULT_MAX_SIZE) {
     if (maxSize <= 0) {
-      throw new Error("Cache size must be positive");
+      throw new Error('Cache size must be positive');
     }
     this.maxSize = maxSize;
   }
@@ -51,7 +51,7 @@ export default class FenCache implements IFenCache {
   public set(key: string, value: string): void {
     // Check if key exists
     const existingNode = this.cache.get(key);
-    
+
     if (existingNode) {
       // Update value and move to front
       existingNode.value = value;
@@ -64,7 +64,7 @@ export default class FenCache implements IFenCache {
       key,
       value,
       prev: null,
-      next: null
+      next: null,
     };
 
     // Add to cache
@@ -105,11 +105,11 @@ export default class FenCache implements IFenCache {
    */
   public setMaxSize(size: number): void {
     if (size <= 0) {
-      throw new Error("Cache size must be positive");
+      throw new Error('Cache size must be positive');
     }
-    
+
     this.maxSize = size;
-    
+
     // Evict entries if needed
     while (this.cache.size > this.maxSize) {
       this.evictLRU();
@@ -129,12 +129,12 @@ export default class FenCache implements IFenCache {
   public keys(): string[] {
     const keys: string[] = [];
     let current = this.head;
-    
+
     while (current) {
       keys.push(current.key);
       current = current.next;
     }
-    
+
     return keys;
   }
 
@@ -144,7 +144,7 @@ export default class FenCache implements IFenCache {
   public getStats(): { size: number; maxSize: number; hitRate?: number } {
     return {
       size: this.cache.size,
-      maxSize: this.maxSize
+      maxSize: this.maxSize,
     };
   }
 
@@ -158,7 +158,7 @@ export default class FenCache implements IFenCache {
 
     // Remove from current position
     this.removeNode(node);
-    
+
     // Add to front
     this.addToFront(node);
   }
@@ -173,7 +173,7 @@ export default class FenCache implements IFenCache {
     if (this.head) {
       this.head.prev = node;
     }
-    
+
     this.head = node;
 
     if (!this.tail) {
@@ -208,7 +208,7 @@ export default class FenCache implements IFenCache {
 
     const lru = this.tail;
     this.cache.delete(lru.key);
-    
+
     if (lru.prev) {
       lru.prev.next = null;
       this.tail = lru.prev;

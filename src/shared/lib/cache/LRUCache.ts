@@ -1,13 +1,13 @@
 /**
  * @file Minimal LRU Cache implementation for position caching
  * @module lib/cache/LRUCache
- * 
+ *
  * @description
  * Lightweight Least Recently Used (LRU) cache implementation designed
  * specifically for chess position caching without external dependencies.
  * Provides efficient memory management with automatic eviction of least
  * recently used entries when capacity is exceeded.
- * 
+ *
  * @remarks
  * Key features:
  * - Generic type support for flexible data storage
@@ -16,18 +16,18 @@
  * - Memory usage estimation
  * - Performance metrics for optimization
  * - Clean, minimal API without external dependencies
- * 
+ *
  * The cache uses JavaScript's Map for O(1) operations and maintains
  * insertion order for efficient LRU tracking.
  */
 
-import { LRU_CACHE_CONFIG } from "../../../constants/cache.constants";
+import { LRU_CACHE_CONFIG } from '../../../constants/cache.constants';
 
 /**
  * Cache statistics interface for performance monitoring
- * 
+ *
  * @interface CacheStats
- * 
+ *
  * @property {number} hits - Number of successful cache lookups
  * @property {number} misses - Number of failed cache lookups
  * @property {number} size - Current number of items in cache
@@ -44,24 +44,24 @@ export interface CacheStats {
 
 /**
  * LRU Cache implementation with generic type support
- * 
+ *
  * @template T The type of values stored in the cache
- * 
+ *
  * @class LRUCache
  * @description
  * Implements a Least Recently Used cache with automatic eviction.
  * Uses a Map for O(1) operations and maintains insertion order for
  * efficient LRU tracking. Provides comprehensive statistics tracking.
- * 
+ *
  * @example
  * ```typescript
  * // Create cache for chess positions
  * const positionCache = new LRUCache<PositionEvaluation>(200);
- * 
+ *
  * // Store and retrieve values
  * positionCache.set('fen1', evaluation);
  * const cached = positionCache.get('fen1');
- * 
+ *
  * // Monitor performance
  * const stats = positionCache.getStats();
  * // logger.info(`Hit rate: ${(stats.hitRate * 100).toFixed(1)}%`);
@@ -75,7 +75,7 @@ export class LRUCache<T> {
 
   /**
    * Create a new LRU cache
-   * 
+   *
    * @param {number} [maxSize=100] - Maximum number of items to store
    */
   constructor(maxSize: number = 100) {
@@ -84,10 +84,10 @@ export class LRUCache<T> {
 
   /**
    * Get a value from the cache
-   * 
+   *
    * @param {string} key - The cache key to look up
    * @returns {T | undefined} The cached value or undefined if not found
-   * 
+   *
    * @description
    * Retrieves a value from the cache and marks it as recently used.
    * Updates hit/miss statistics and moves the accessed item to the
@@ -108,10 +108,10 @@ export class LRUCache<T> {
 
   /**
    * Set a value in the cache
-   * 
+   *
    * @param {string} key - The cache key
    * @param {T} value - The value to store
-   * 
+   *
    * @description
    * Stores a value in the cache. If the cache is at capacity,
    * evicts the least recently used item. If the key already exists,
@@ -138,7 +138,7 @@ export class LRUCache<T> {
 
   /**
    * Check if a key exists in the cache
-   * 
+   *
    * @param {string} key - The cache key to check
    * @returns {boolean} True if the key exists in the cache
    */
@@ -148,7 +148,7 @@ export class LRUCache<T> {
 
   /**
    * Delete a key from the cache
-   * 
+   *
    * @param {string} key - The cache key to delete
    * @returns {boolean} True if the key was deleted, false if it didn't exist
    */
@@ -158,7 +158,7 @@ export class LRUCache<T> {
 
   /**
    * Clear all items from the cache and reset statistics
-   * 
+   *
    * @description
    * Removes all cached items and resets hit/miss counters to zero.
    * Useful for testing or when cache needs to be completely refreshed.
@@ -171,9 +171,9 @@ export class LRUCache<T> {
 
   /**
    * Get cache performance statistics
-   * 
+   *
    * @returns {CacheStats} Object containing cache statistics
-   * 
+   *
    * @description
    * Returns comprehensive statistics including hit rate, current size,
    * and total hits/misses for performance monitoring and optimization.
@@ -191,9 +191,9 @@ export class LRUCache<T> {
 
   /**
    * Estimate memory usage of the cache
-   * 
+   *
    * @returns {number} Estimated memory usage in bytes
-   * 
+   *
    * @description
    * Provides a rough estimate of memory usage by assuming
    * approximately 1KB per cache entry. Useful for monitoring
@@ -206,9 +206,9 @@ export class LRUCache<T> {
 
   /**
    * Get all cache keys
-   * 
+   *
    * @returns {string[]} Array of all cache keys
-   * 
+   *
    * @description
    * Returns an array of all keys currently in the cache.
    * Keys are returned in insertion order (least to most recent).

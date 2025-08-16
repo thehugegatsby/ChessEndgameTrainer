@@ -45,13 +45,7 @@ export interface PlatformDevice {
   isLowEndDevice(): boolean;
 }
 
-export type Platform =
-  | "web"
-  | "ios"
-  | "android"
-  | "windows"
-  | "macos"
-  | "linux";
+export type Platform = 'web' | 'ios' | 'android' | 'windows' | 'macos' | 'linux';
 
 export interface DeviceInfo {
   model: string;
@@ -70,7 +64,7 @@ export interface MemoryInfo {
 
 export interface NetworkStatus {
   isOnline: boolean;
-  type?: "wifi" | "4g" | "3g" | "2g" | "none";
+  type?: 'wifi' | '4g' | '3g' | '2g' | 'none';
   effectiveType?: string;
   downlink?: number;
 }

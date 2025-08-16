@@ -4,7 +4,7 @@ Complex state operations that coordinate between services and store.
 
 **Key orchestrator:**
 
-- `handlePlayerMove/`: 533 lines, manages entire move flow including validation, tablebase lookup, opponent response
+- `handlePlayerMove/`: 964 lines across 4 modules, manages sophisticated chess training flow including validation, tablebase quality analysis, pawn promotion with auto-win detection, error dialogs for learning, and opponent simulation
 
 **Responsibilities:**
 

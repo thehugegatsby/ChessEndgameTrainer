@@ -5,12 +5,12 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
  * Expected: All moves should remain visible, only the position should change
  */
 
-import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MovePanelZustand } from "@shared/components/training/MovePanelZustand";
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MovePanelZustand } from '@shared/components/training/MovePanelZustand';
 // import { useStore } from "@shared/store/rootStore"; // Not used in this test file
-import { createTestValidatedMove } from "@tests/helpers/validatedMoveFactory";
+import { createTestValidatedMove } from '@tests/helpers/validatedMoveFactory';
 import type { ValidatedMove } from '@shared/types/chess.js';
 
 // Hoist mocks before vi.mock
@@ -21,51 +21,51 @@ const { useGameStore, useTablebaseStore, useTrainingStore } = vi.hoisted(() => (
 }));
 
 // Mock the store hooks
-vi.mock("@shared/store/hooks", () => ({
+vi.mock('@shared/store/hooks', () => ({
   useGameStore,
   useTablebaseStore,
   useTrainingStore,
 }));
 
-describe("Move History Navigation Bug", () => {
+describe('Move History Navigation Bug', () => {
   /**
    *
    */
   const createMockMoves = (): ValidatedMove[] => [
     createTestValidatedMove({
-      from: "e2",
-      to: "e4",
-      san: "e4",
-      color: "w",
-      piece: "p",
+      from: 'e2',
+      to: 'e4',
+      san: 'e4',
+      color: 'w',
+      piece: 'p',
     }),
     createTestValidatedMove({
-      from: "e7",
-      to: "e5",
-      san: "e5",
-      color: "b",
-      piece: "p",
+      from: 'e7',
+      to: 'e5',
+      san: 'e5',
+      color: 'b',
+      piece: 'p',
     }),
     createTestValidatedMove({
-      from: "g1",
-      to: "f3",
-      san: "Nf3",
-      color: "w",
-      piece: "n",
+      from: 'g1',
+      to: 'f3',
+      san: 'Nf3',
+      color: 'w',
+      piece: 'n',
     }),
     createTestValidatedMove({
-      from: "b8",
-      to: "c6",
-      san: "Nc6",
-      color: "b",
-      piece: "n",
+      from: 'b8',
+      to: 'c6',
+      san: 'Nc6',
+      color: 'b',
+      piece: 'n',
     }),
     createTestValidatedMove({
-      from: "f1",
-      to: "c4",
-      san: "Bc4",
-      color: "w",
-      piece: "b",
+      from: 'f1',
+      to: 'c4',
+      san: 'Bc4',
+      color: 'w',
+      piece: 'b',
     }),
   ];
 
@@ -90,7 +90,7 @@ describe("Move History Navigation Bug", () => {
     vi.clearAllMocks();
   });
 
-  it("FIX VERIFICATION: Should show ALL moves even when navigating to an earlier move", () => {
+  it('FIX VERIFICATION: Should show ALL moves even when navigating to an earlier move', () => {
     const mockMoves = createMockMoves();
     const onMoveClick = vi.fn();
 
@@ -99,7 +99,7 @@ describe("Move History Navigation Bug", () => {
       {
         moveHistory: mockMoves,
         currentMoveIndex: 4, // Viewing the last move
-        currentFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        currentFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
       },
       {},
     ]);
@@ -114,18 +114,18 @@ describe("Move History Navigation Bug", () => {
     const { rerender } = render(
       <QueryClientProvider client={queryClient}>
         <MovePanelZustand onMoveClick={onMoveClick} currentMoveIndex={4} />
-      </QueryClientProvider>,
+      </QueryClientProvider>
     );
 
     // Verify all 5 moves are displayed initially
-    expect(screen.getByText("e4")?.isConnected).toBe(true);
-    expect(screen.getByText("e5")?.isConnected).toBe(true);
-    expect(screen.getByText("Nf3")?.isConnected).toBe(true);
-    expect(screen.getByText("Nc6")?.isConnected).toBe(true);
-    expect(screen.getByText("Bc4")?.isConnected).toBe(true);
+    expect(screen.getByText('e4')?.isConnected).toBe(true);
+    expect(screen.getByText('e5')?.isConnected).toBe(true);
+    expect(screen.getByText('Nf3')?.isConnected).toBe(true);
+    expect(screen.getByText('Nc6')?.isConnected).toBe(true);
+    expect(screen.getByText('Bc4')?.isConnected).toBe(true);
 
     // User clicks on move 2 (Nf3) to navigate there
-    const nf3Button = screen.getByText("Nf3");
+    const nf3Button = screen.getByText('Nf3');
     fireEvent.click(nf3Button);
     expect(onMoveClick).toHaveBeenCalledWith(2);
 
@@ -135,7 +135,7 @@ describe("Move History Navigation Bug", () => {
       {
         moveHistory: mockMoves, // All moves still in history
         currentMoveIndex: 2, // Now viewing move 2
-        currentFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        currentFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
       },
       {},
     ]);
@@ -143,23 +143,23 @@ describe("Move History Navigation Bug", () => {
     rerender(
       <QueryClientProvider client={queryClient}>
         <MovePanelZustand onMoveClick={onMoveClick} currentMoveIndex={2} />
-      </QueryClientProvider>,
+      </QueryClientProvider>
     );
 
     // FIX VERIFICATION: After the fix, ALL moves should remain visible
     // when navigating to an earlier move
 
     // These assertions verify the fix works:
-    expect(screen.getByText("e4")?.isConnected).toBe(true);
-    expect(screen.getByText("e5")?.isConnected).toBe(true);
-    expect(screen.getByText("Nf3")?.isConnected).toBe(true);
+    expect(screen.getByText('e4')?.isConnected).toBe(true);
+    expect(screen.getByText('e5')?.isConnected).toBe(true);
+    expect(screen.getByText('Nf3')?.isConnected).toBe(true);
 
     // FIXED: These moves should now be visible!
-    expect(screen.getByText("Nc6")?.isConnected).toBe(true); // Now visible!
-    expect(screen.getByText("Bc4")?.isConnected).toBe(true); // Now visible!
+    expect(screen.getByText('Nc6')?.isConnected).toBe(true); // Now visible!
+    expect(screen.getByText('Bc4')?.isConnected).toBe(true); // Now visible!
   });
 
-  it("EXPECTED BEHAVIOR: Should display all moves with proper highlighting", () => {
+  it('EXPECTED BEHAVIOR: Should display all moves with proper highlighting', () => {
     const mockMoves = createMockMoves();
     const onMoveClick = vi.fn();
 
@@ -168,7 +168,7 @@ describe("Move History Navigation Bug", () => {
       {
         moveHistory: mockMoves,
         currentMoveIndex: 2, // Viewing move 2, but all moves in history
-        currentFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        currentFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
       },
       {},
     ]);
@@ -181,7 +181,7 @@ describe("Move History Navigation Bug", () => {
     // - User can click any move to jump there
   });
 
-  it("Verifies the actual data flow", () => {
+  it('Verifies the actual data flow', () => {
     const mockMoves = createMockMoves();
 
     // Data flow analysis:

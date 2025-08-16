@@ -9,10 +9,7 @@
       "difficulty": "beginner",
       "goal": "win",
       "targetMoves": 8,
-      "hints": [
-        "Support the pawn with your king",
-        "Opposition is crucial in pawn endgames"
-      ],
+      "hints": ["Support the pawn with your king", "Opposition is crucial in pawn endgames"],
       "solution": [
         "1.Kd6",
         "1...Kd8",
@@ -38,10 +35,7 @@
       "difficulty": "beginner",
       "goal": "win",
       "targetMoves": 13,
-      "hints": [
-        "Support the pawn advance with your king",
-        "Use opposition to control key squares"
-      ],
+      "hints": ["Support the pawn advance with your king", "Use opposition to control key squares"],
       "solution": [
         "1.Kd6",
         "1...Ke8",

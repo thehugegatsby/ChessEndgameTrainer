@@ -8,11 +8,11 @@ export type {
   PositionRepository,
   PositionRepositoryConfig,
   PositionRepositoryEvents,
-} from "./IPositionRepository";
+} from './IPositionRepository';
 
 // Implementations
-export { FirebasePositionRepository } from "./implementations/FirebasePositionRepository";
-export { MockPositionRepository } from "./implementations/MockPositionRepository";
+export { FirebasePositionRepository } from './implementations/FirebasePositionRepository';
+export { MockPositionRepository } from './implementations/MockPositionRepository';
 
 // Future implementations can be added here:
 // export { APIPositionRepository } from './implementations/APIPositionRepository';

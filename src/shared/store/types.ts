@@ -3,13 +3,13 @@
  * Defines the shape of the application state and actions
  */
 
-import { type ValidatedMove, type ChessInstance } from "../types";
-import { type Move as ChessJsMove } from "chess.js";
+import { type ValidatedMove, type ChessInstance } from '../types';
+import { type Move as ChessJsMove } from 'chess.js';
 
-import { type PositionAnalysis } from "../types/evaluation";
+import { type PositionAnalysis } from '../types/evaluation';
 
-import { type EndgamePosition } from "../types/endgame";
-import { type MoveSuccessDialog } from "@shared/store/orchestrators/handlePlayerMove/move.types";
+import { type EndgamePosition } from '../types/endgame';
+import { type MoveSuccessDialog } from '@shared/store/orchestrators/handlePlayerMove/move.types';
 
 // User state
 /**
@@ -31,15 +31,15 @@ export interface UserState {
  *
  */
 export interface UserPreferences {
-  theme: "light" | "dark" | "system";
+  theme: 'light' | 'dark' | 'system';
   soundEnabled: boolean;
   notificationsEnabled: boolean;
-  boardOrientation: "white" | "black";
+  boardOrientation: 'white' | 'black';
   pieceTheme: string;
   autoPromoteToQueen: boolean;
   showCoordinates: boolean;
   showLegalMoves: boolean;
-  animationSpeed: "slow" | "normal" | "fast" | "none";
+  animationSpeed: 'slow' | 'normal' | 'fast' | 'none';
 }
 
 // Endgame session state
@@ -118,7 +118,7 @@ export interface TablebaseAnalysisState {
 /**
  *
  */
-export type AnalysisStatus = "idle" | "loading" | "success" | "error";
+export type AnalysisStatus = 'idle' | 'loading' | 'success' | 'error';
 
 // Progress state
 /**
@@ -193,9 +193,9 @@ export interface Achievement {
   maxProgress: number;
   unlocked: boolean;
   points: number;
-  category: "streak" | "completion" | "performance" | "discovery" | "mastery";
+  category: 'streak' | 'completion' | 'performance' | 'discovery' | 'mastery';
   icon: string;
-  rarity: "common" | "rare" | "epic" | "legendary";
+  rarity: 'common' | 'rare' | 'epic' | 'legendary';
   unlockedAt?: number;
 }
 
@@ -230,13 +230,7 @@ export interface UIState {
 /**
  *
  */
-export type ModalType =
-  | "settings"
-  | "help"
-  | "achievements"
-  | "share"
-  | "confirm"
-  | "completion";
+export type ModalType = 'settings' | 'help' | 'achievements' | 'share' | 'confirm' | 'completion';
 
 /**
  *
@@ -244,7 +238,7 @@ export type ModalType =
 export interface Toast {
   id: string;
   message: string;
-  type: "success" | "error" | "info" | "warning";
+  type: 'success' | 'error' | 'info' | 'warning';
   duration?: number;
 }
 
@@ -263,7 +257,7 @@ export interface LoadingState {
  */
 export interface AnalysisPanelState {
   isOpen: boolean;
-  activeTab: "moves" | "evaluation" | "variations";
+  activeTab: 'moves' | 'evaluation' | 'variations';
   showTablebase: boolean;
 }
 
@@ -336,14 +330,9 @@ export interface TrainingActions {
   loadTrainingContext: (position: EndgamePosition) => Promise<void>;
   setGame: (game: ChessInstance) => void;
   makeUserMove: (
-    move:
-      | ChessJsMove
-      | { from: string; to: string; promotion?: string }
-      | string,
+    move: ChessJsMove | { from: string; to: string; promotion?: string } | string
   ) => Promise<boolean>;
-  applyMove: (
-    move: ChessJsMove | { from: string; to: string; promotion?: string },
-  ) => void;
+  applyMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => void;
   undoMove: () => void;
   resetPosition: () => void;
   setEvaluation: (evaluation: PositionAnalysis) => void;
@@ -358,13 +347,9 @@ export interface TrainingActions {
       wdlBefore?: number;
       wdlAfter?: number;
       bestMove?: string;
-    } | null,
+    } | null
   ) => void;
-  setMoveSuccessDialog: (
-    dialog:
-      | MoveSuccessDialog
-      | null,
-  ) => void;
+  setMoveSuccessDialog: (dialog: MoveSuccessDialog | null) => void;
   // Navigation actions
   goToMove: (moveIndex: number) => void;
   goToFirst: () => void;
@@ -377,10 +362,7 @@ export interface TrainingActions {
  *
  */
 export interface ProgressActions {
-  updatePositionProgress: (
-    positionId: number,
-    update: Partial<PositionProgress>,
-  ) => void;
+  updatePositionProgress: (positionId: number, update: Partial<PositionProgress>) => void;
   addDailyStats: (stats: Partial<DailyStats>) => void;
   unlockAchievement: (achievementId: string) => void;
   toggleFavorite: (positionId: number) => void;
@@ -394,7 +376,7 @@ export interface UIActions {
   toggleSidebar: () => void;
   openModal: (type: ModalType) => void;
   closeModal: () => void;
-  showToast: (message: string, type: Toast["type"], duration?: number) => void;
+  showToast: (message: string, type: Toast['type'], duration?: number) => void;
   removeToast: (id: string) => void;
   setLoading: (key: keyof LoadingState, value: boolean) => void;
   updateAnalysisPanel: (update: Partial<AnalysisPanelState>) => void;

@@ -18,7 +18,7 @@
  * clean architecture and enable easy UI customization.
  */
 
-import type { SimplifiedMoveQualityResult } from "../types/evaluation";
+import type { SimplifiedMoveQualityResult } from '../types/evaluation';
 
 /**
  * Gets emoji representation for move quality
@@ -46,23 +46,21 @@ import type { SimplifiedMoveQualityResult } from "../types/evaluation";
  * - blunder: 💥 (explosion - critical error)
  * - unknown: ❓ (question - no evaluation available)
  */
-export const getQualityEmoji = (
-  quality: SimplifiedMoveQualityResult["quality"],
-): string => {
+export const getQualityEmoji = (quality: SimplifiedMoveQualityResult['quality']): string => {
   switch (quality) {
-    case "excellent":
-      return "🏆";
-    case "good":
-      return "👍";
-    case "inaccuracy":
-      return "⚠️";
-    case "mistake":
-      return "❌";
-    case "blunder":
-      return "💥";
-    case "unknown":
+    case 'excellent':
+      return '🏆';
+    case 'good':
+      return '👍';
+    case 'inaccuracy':
+      return '⚠️';
+    case 'mistake':
+      return '❌';
+    case 'blunder':
+      return '💥';
+    case 'unknown':
     default:
-      return "❓";
+      return '❓';
   }
 };
 
@@ -87,23 +85,21 @@ export const getQualityEmoji = (
  * Labels are currently in English. Future versions may support
  * localization based on user language preferences.
  */
-export const getQualityLabel = (
-  quality: SimplifiedMoveQualityResult["quality"],
-): string => {
+export const getQualityLabel = (quality: SimplifiedMoveQualityResult['quality']): string => {
   switch (quality) {
-    case "excellent":
-      return "Excellent";
-    case "good":
-      return "Good";
-    case "inaccuracy":
-      return "Inaccuracy";
-    case "mistake":
-      return "Mistake";
-    case "blunder":
-      return "Blunder";
-    case "unknown":
+    case 'excellent':
+      return 'Excellent';
+    case 'good':
+      return 'Good';
+    case 'inaccuracy':
+      return 'Inaccuracy';
+    case 'mistake':
+      return 'Mistake';
+    case 'blunder':
+      return 'Blunder';
+    case 'unknown':
     default:
-      return "Unknown";
+      return 'Unknown';
   }
 };
 
@@ -132,9 +128,7 @@ export const getQualityLabel = (
  * The tooltip format is designed to be concise yet informative,
  * suitable for hover interactions without overwhelming the user.
  */
-export const formatQualityTooltip = (
-  result: SimplifiedMoveQualityResult,
-): string => {
+export const formatQualityTooltip = (result: SimplifiedMoveQualityResult): string => {
   const emoji = getQualityEmoji(result.quality);
   const label = getQualityLabel(result.quality);
 

@@ -20,16 +20,16 @@
  * to ensure consistent bar scaling for visual comparison.
  */
 
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { MoveEvaluationBar } from "./MoveEvaluationBar";
+import React, { useState } from 'react';
+import { MoveEvaluationBar } from './MoveEvaluationBar';
 import {
   type MoveResultType,
   type TablebaseMove,
   getResultTypeTitle,
   getResultIcon,
-} from "@shared/utils/tablebase/resultClassification";
+} from '@shared/utils/tablebase/resultClassification';
 
 /**
  * Props for the MoveResultGroup component
@@ -101,7 +101,7 @@ export const MoveResultGroup: React.FC<MoveResultGroupProps> = ({
   selectedMove,
   initiallyExpanded = true,
   compact = false,
-  className = "",
+  className = '',
 }) => {
   const [isExpanded, setIsExpanded] = useState(initiallyExpanded);
 
@@ -111,7 +111,7 @@ export const MoveResultGroup: React.FC<MoveResultGroupProps> = ({
 
   const groupTitle = title || getResultTypeTitle(resultType);
   const icon = getResultIcon(resultType);
-  const maxDtz = Math.max(...moves.map((move) => Math.abs(move.dtz)));
+  const maxDtz = Math.max(...moves.map(move => Math.abs(move.dtz)));
 
   /**
    * Gets CSS color class for result type icons
@@ -127,14 +127,14 @@ export const MoveResultGroup: React.FC<MoveResultGroupProps> = ({
    */
   const getTextColorClass = (type: MoveResultType): string => {
     switch (type) {
-      case "win":
-        return "text-green-600 dark:text-green-400";
-      case "draw":
-        return "text-yellow-600 dark:text-yellow-400";
-      case "loss":
-        return "text-red-600 dark:text-red-400";
+      case 'win':
+        return 'text-green-600 dark:text-green-400';
+      case 'draw':
+        return 'text-yellow-600 dark:text-yellow-400';
+      case 'loss':
+        return 'text-red-600 dark:text-red-400';
       default:
-        return "text-gray-600 dark:text-gray-400";
+        return 'text-gray-600 dark:text-gray-400';
     }
   };
 
@@ -151,8 +151,8 @@ export const MoveResultGroup: React.FC<MoveResultGroupProps> = ({
         tabIndex={0}
         aria-label={`${groupTitle} section, ${moves.length} moves`}
         aria-expanded={isExpanded}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
+        onKeyDown={e => {
+          if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             setIsExpanded(!isExpanded);
           }
@@ -165,19 +165,15 @@ export const MoveResultGroup: React.FC<MoveResultGroupProps> = ({
           >
             {icon}
           </span>
-          <h3 className="font-medium text-sm text-gray-700 dark:text-gray-300">
-            {groupTitle}
-          </h3>
-          <span className="text-xs text-gray-500 dark:text-gray-400">
-            {moves.length}
-          </span>
+          <h3 className="font-medium text-sm text-gray-700 dark:text-gray-300">{groupTitle}</h3>
+          <span className="text-xs text-gray-500 dark:text-gray-400">{moves.length}</span>
         </div>
 
         {/* Expand/Collapse indicator */}
         <div
           className={`
             transition-transform duration-200 text-xs text-gray-400
-            ${isExpanded ? "rotate-180" : ""}
+            ${isExpanded ? 'rotate-180' : ''}
           `}
           aria-hidden="true"
         >
@@ -196,7 +192,7 @@ export const MoveResultGroup: React.FC<MoveResultGroupProps> = ({
               maxDtz={maxDtz}
               onClick={() => onMoveSelect(move.san)}
               isSelected={selectedMove === move.san}
-              className={compact ? "text-xs" : ""}
+              className={compact ? 'text-xs' : ''}
               category={move.category}
             />
           ))}
@@ -235,14 +231,12 @@ export const MoveResultGroup: React.FC<MoveResultGroupProps> = ({
  * @param {MoveResultGroupProps} props - Same props as MoveResultGroup
  * @returns {JSX.Element} Compact move result group
  */
-export const CompactMoveResultGroup: React.FC<MoveResultGroupProps> = (
-  props,
-) => {
+export const CompactMoveResultGroup: React.FC<MoveResultGroupProps> = props => {
   return (
     <MoveResultGroup
       {...props}
       compact={true}
-      className={`compact-move-group ${props.className || ""}`}
+      className={`compact-move-group ${props.className || ''}`}
     />
   );
 };
@@ -286,10 +280,9 @@ export const MoveResultGroupSummary: React.FC<{
 }> = ({ moves, resultType }) => {
   if (moves.length === 0) return null;
 
-  const avgDtz =
-    moves.reduce((sum, move) => sum + Math.abs(move.dtz), 0) / moves.length;
-  const minDtz = Math.min(...moves.map((move) => Math.abs(move.dtz)));
-  const maxDtz = Math.max(...moves.map((move) => Math.abs(move.dtz)));
+  const avgDtz = moves.reduce((sum, move) => sum + Math.abs(move.dtz), 0) / moves.length;
+  const minDtz = Math.min(...moves.map(move => Math.abs(move.dtz)));
+  const maxDtz = Math.max(...moves.map(move => Math.abs(move.dtz)));
 
   /**
    * Gets background and text color classes for statistics display
@@ -305,14 +298,14 @@ export const MoveResultGroupSummary: React.FC<{
    */
   const getStatsColorClass = (type: MoveResultType): string => {
     switch (type) {
-      case "win":
-        return "text-green-600 bg-green-50";
-      case "draw":
-        return "text-yellow-600 bg-yellow-50";
-      case "loss":
-        return "text-red-600 bg-red-50";
+      case 'win':
+        return 'text-green-600 bg-green-50';
+      case 'draw':
+        return 'text-yellow-600 bg-yellow-50';
+      case 'loss':
+        return 'text-red-600 bg-red-50';
       default:
-        return "text-gray-600 bg-gray-50";
+        return 'text-gray-600 bg-gray-50';
     }
   };
 

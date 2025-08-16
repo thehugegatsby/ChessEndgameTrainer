@@ -1,14 +1,11 @@
 /**
  * TablebaseApiClient - Thin HTTP Client for Lichess Tablebase API
- * 
+ *
  * Handles HTTP communication with the Lichess Tablebase API.
  * Includes retry logic, timeout handling, and response validation.
  */
 
-import type { 
-  TablebaseApiClientInterface, 
-  TablebaseApiResponse
-} from '../types/interfaces';
+import type { TablebaseApiClientInterface, TablebaseApiResponse } from '../types/interfaces';
 import { TablebaseApiResponseSchema } from '../types/models';
 import { z } from 'zod';
 import type { HttpProvider } from './HttpProvider';
@@ -58,7 +55,7 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
 
   /**
    * Query the tablebase API for a position
-   * 
+   *
    * @param fen - Position in FEN notation
    * @returns Validated API response
    * @throws {ApiError} for HTTP errors
@@ -67,20 +64,20 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
   query(fen: string): Promise<TablebaseApiResponse> {
     // Normalize FEN for consistent caching (remove halfmove clock and fullmove number)
     const normalizedFen = fen.split(' ').slice(0, FEN.NORMALIZATION_FIELDS).join(' ');
-    
+
     // Check if request is already in flight (request deduplication)
     const existingRequest = this.pendingRequests.get(normalizedFen);
     if (existingRequest) {
       return existingRequest;
     }
-    
+
     // Create new request promise WITHOUT finally() for clean tracking
     const requestPromise = this.executeQuery(fen);
-    
+
     // Store the raw promise for deduplication (without finally() to avoid race condition)
     // See docs/troubleshooting/vitest-async-patterns.md for detailed explanation
     this.pendingRequests.set(normalizedFen, requestPromise);
-    
+
     // Return promise with cleanup attached (but don't store this version)
     return requestPromise.finally(() => {
       this.pendingRequests.delete(normalizedFen);
@@ -92,10 +89,10 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
    */
   private async executeQuery(fen: string): Promise<TablebaseApiResponse> {
     const url = `${this.baseUrl}?fen=${encodeURIComponent(fen)}`;
-    
+
     // Try with retries
     let lastError: Error | undefined;
-    
+
     for (let attempt = ARRAY_INDICES.LOOP_START; attempt <= this.maxRetries; attempt++) {
       try {
         const response = await this.http.fetchWithTimeout(url, this.timeout, {
@@ -104,7 +101,7 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
             'User-Agent': APP_META.USER_AGENT,
           },
         });
-        
+
         // Handle different status codes
         if (response.status === HttpStatus.NOT_FOUND) {
           // Position not in tablebase - this is expected for some positions
@@ -114,7 +111,7 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
             TABLEBASE_API_ERRORS.NOT_FOUND.CODE
           );
         }
-        
+
         if (response.status === HttpStatus.TOO_MANY_REQUESTS) {
           // Rate limited - wait before retry
           const delay = this.getBackoffDelay(attempt);
@@ -126,7 +123,7 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
           );
           continue;
         }
-        
+
         if (!response.ok) {
           throw new ApiError(
             `${TABLEBASE_API_ERRORS.GENERIC_ERROR.MESSAGE}: ${response.status} ${response.statusText}`,
@@ -134,22 +131,23 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
             TABLEBASE_API_ERRORS.GENERIC_ERROR.CODE
           );
         }
-        
+
         // Parse and validate response
         const data = await response.json();
         const validated = TablebaseApiResponseSchema.parse(data);
-        
+
         return validated;
-        
       } catch (error) {
         lastError = error as Error;
-        
+
         // Don't retry on validation errors or 404s
-        if (error instanceof z.ZodError || 
-            (error instanceof ApiError && error.status === HttpStatus.NOT_FOUND)) {
+        if (
+          error instanceof z.ZodError ||
+          (error instanceof ApiError && error.status === HttpStatus.NOT_FOUND)
+        ) {
           throw error;
         }
-        
+
         // For other errors, retry if we have attempts left
         if (attempt < this.maxRetries) {
           const delay = this.getBackoffDelay(attempt);
@@ -158,12 +156,15 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
         }
       }
     }
-    
+
     // All retries exhausted
-    throw lastError || new ApiError(
-      TABLEBASE_API_ERRORS.MAX_RETRIES_EXCEEDED.MESSAGE,
-      undefined,
-      TABLEBASE_API_ERRORS.MAX_RETRIES_EXCEEDED.CODE
+    throw (
+      lastError ||
+      new ApiError(
+        TABLEBASE_API_ERRORS.MAX_RETRIES_EXCEEDED.MESSAGE,
+        undefined,
+        TABLEBASE_API_ERRORS.MAX_RETRIES_EXCEEDED.CODE
+      )
     );
   }
 
@@ -172,15 +173,13 @@ export class TablebaseApiClient implements TablebaseApiClientInterface {
    */
   private getBackoffDelay(attempt: number): number {
     const baseDelay = HTTP_RETRY.BACKOFF_BASE_DELAY;
-    const maxDelay = baseDelay * Math.pow(HTTP_RETRY.BACKOFF_FACTOR, HTTP_RETRY.MAX_BACKOFF_EXPONENT);
-    const delay = Math.min(
-      baseDelay * Math.pow(HTTP_RETRY.BACKOFF_FACTOR, attempt - 1),
-      maxDelay
-    );
-    
+    const maxDelay =
+      baseDelay * Math.pow(HTTP_RETRY.BACKOFF_FACTOR, HTTP_RETRY.MAX_BACKOFF_EXPONENT);
+    const delay = Math.min(baseDelay * Math.pow(HTTP_RETRY.BACKOFF_FACTOR, attempt - 1), maxDelay);
+
     // Add jitter to prevent thundering herd (using injected random)
     const jitter = this.http.random() * HTTP_RETRY.JITTER_FACTOR * delay;
-    
+
     return delay + jitter;
   }
 

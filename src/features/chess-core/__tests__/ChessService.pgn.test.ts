@@ -8,50 +8,50 @@ import { vi } from 'vitest';
 // Mock chess.js with vi.hoisted() pattern for proper spy tracking
 const mockChessInstance = vi.hoisted(() => ({
   move: vi.fn(),
-  fen: vi.fn().mockReturnValue("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
-  pgn: vi.fn().mockReturnValue(""),
+  fen: vi.fn().mockReturnValue('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'),
+  pgn: vi.fn().mockReturnValue(''),
   history: vi.fn().mockReturnValue([]),
   load: vi.fn(),
   loadPgn: vi.fn(),
   isGameOver: vi.fn().mockReturnValue(false),
-  turn: vi.fn().mockReturnValue("w"),
-  moves: vi.fn().mockReturnValue(["e4", "e3", "Nf3"]),
+  turn: vi.fn().mockReturnValue('w'),
+  moves: vi.fn().mockReturnValue(['e4', 'e3', 'Nf3']),
   isCheck: vi.fn().mockReturnValue(false),
   isCheckmate: vi.fn().mockReturnValue(false),
   isStalemate: vi.fn().mockReturnValue(false),
   isDraw: vi.fn().mockReturnValue(false),
 }));
 
-vi.mock("chess.js", () => ({
+vi.mock('chess.js', () => ({
   Chess: vi.fn().mockImplementation(() => mockChessInstance),
 }));
 
-import { ChessService } from "@shared/services/ChessService";
-import { Chess } from "chess.js";
-import { createValidatedMove } from "@shared/types/chess";
+import { ChessService } from '@shared/services/ChessService';
+import { Chess } from 'chess.js';
+import { createValidatedMove } from '@shared/types/chess';
 
 const MockedChess = Chess as any;
 
-describe("ChessService PGN Loading Tests", () => {
+describe('ChessService PGN Loading Tests', () => {
   let chessService: ChessService;
 
   // PGN test fixtures for comprehensive testing
   const pgnTestFixtures = {
-    valid: "1. e4 e5 2. Nf3 Nc6 3. Bb5", // Simple Spanish Opening
-    complex: "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6", // Complex with castling
-    shortGame: "1. e4 e5 2. Qh5 Nc6 3. Bc4 Nf6 4. Qxf7#", // Quick checkmate
-    empty: "",
-    whitespace: "   \n  \t  ", // Only whitespace
-    invalid: "1. xx yy zz", // Malformed moves
-    malformed: "this is not pgn at all",
-    partialValid: "1. e4 e5 2. Nf3 invalid_move", // Valid start, invalid continuation
+    valid: '1. e4 e5 2. Nf3 Nc6 3. Bb5', // Simple Spanish Opening
+    complex: '1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6', // Complex with castling
+    shortGame: '1. e4 e5 2. Qh5 Nc6 3. Bc4 Nf6 4. Qxf7#', // Quick checkmate
+    empty: '',
+    whitespace: '   \n  \t  ', // Only whitespace
+    invalid: '1. xx yy zz', // Malformed moves
+    malformed: 'this is not pgn at all',
+    partialValid: '1. e4 e5 2. Nf3 invalid_move', // Valid start, invalid continuation
   };
 
   // Mock move objects for history reconstruction
   const mockMoves = [
-    { from: "e2", to: "e4", san: "e4", piece: "p", color: "w" },
-    { from: "e7", to: "e5", san: "e5", piece: "p", color: "b" },
-    { from: "g1", to: "f3", san: "Nf3", piece: "n", color: "w" },
+    { from: 'e2', to: 'e4', san: 'e4', piece: 'p', color: 'w' },
+    { from: 'e7', to: 'e5', san: 'e5', piece: 'p', color: 'b' },
+    { from: 'g1', to: 'f3', san: 'Nf3', piece: 'n', color: 'w' },
   ];
 
   beforeEach(() => {
@@ -60,19 +60,19 @@ describe("ChessService PGN Loading Tests", () => {
     chessService = new ChessService();
   });
 
-  describe("loadPgn() - Lines 482-518", () => {
-    it("should load valid PGN and reconstruct move history", () => {
+  describe('loadPgn() - Lines 482-518', () => {
+    it('should load valid PGN and reconstruct move history', () => {
       // Setup mock for successful PGN loading
       mockChessInstance.loadPgn.mockImplementation(() => true as any);
       mockChessInstance.history.mockReturnValue(mockMoves as any);
-      
+
       // Mock the chess position reconstruction
       let fenCounter = 0;
       const fens = [
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // Starting
-        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", // After 1.e4
-        "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2", // After 1...e5
-        "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2", // After 2.Nf3
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', // Starting
+        'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1', // After 1.e4
+        'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2', // After 1...e5
+        'rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2', // After 2.Nf3
       ];
 
       mockChessInstance.fen.mockImplementation(() => fens[fenCounter] || fens[0]);
@@ -103,8 +103,8 @@ describe("ChessService PGN Loading Tests", () => {
       // Verify state update event was emitted
       expect(mockListener).toHaveBeenCalledWith(
         expect.objectContaining({
-          type: "stateUpdate",
-          source: "load",
+          type: 'stateUpdate',
+          source: 'load',
           payload: expect.objectContaining({
             moveHistory: expect.any(Array),
             currentMoveIndex: mockMoves.length - 1,
@@ -113,15 +113,15 @@ describe("ChessService PGN Loading Tests", () => {
       );
     });
 
-    it("should handle complex PGN with castling", () => {
+    it('should handle complex PGN with castling', () => {
       // Setup more complex move sequence
       const complexMoves = [
-        { from: "e2", to: "e4", san: "e4", piece: "p", color: "w" },
-        { from: "e7", to: "e5", san: "e5", piece: "p", color: "b" },
-        { from: "g1", to: "f3", san: "Nf3", piece: "n", color: "w" },
-        { from: "b8", to: "c6", san: "Nc6", piece: "n", color: "b" },
-        { from: "f1", to: "b5", san: "Bb5", piece: "b", color: "w" },
-        { from: "e1", to: "g1", san: "O-O", piece: "k", color: "w" }, // Castling
+        { from: 'e2', to: 'e4', san: 'e4', piece: 'p', color: 'w' },
+        { from: 'e7', to: 'e5', san: 'e5', piece: 'p', color: 'b' },
+        { from: 'g1', to: 'f3', san: 'Nf3', piece: 'n', color: 'w' },
+        { from: 'b8', to: 'c6', san: 'Nc6', piece: 'n', color: 'b' },
+        { from: 'f1', to: 'b5', san: 'Bb5', piece: 'b', color: 'w' },
+        { from: 'e1', to: 'g1', san: 'O-O', piece: 'k', color: 'w' }, // Castling
       ];
 
       mockChessInstance.loadPgn.mockImplementation(() => true as any);
@@ -140,7 +140,7 @@ describe("ChessService PGN Loading Tests", () => {
       expect(chessService.getCurrentMoveIndex()).toBe(complexMoves.length - 1);
     });
 
-    it("should handle empty PGN string", () => {
+    it('should handle empty PGN string', () => {
       // Setup for empty PGN
       mockChessInstance.loadPgn.mockImplementation(() => true as any);
       mockChessInstance.history.mockReturnValue([] as any);
@@ -148,12 +148,12 @@ describe("ChessService PGN Loading Tests", () => {
       const result = chessService.loadPgn(pgnTestFixtures.empty);
 
       expect(result).toBe(true);
-      expect(mockChessInstance.loadPgn).toHaveBeenCalledWith("");
+      expect(mockChessInstance.loadPgn).toHaveBeenCalledWith('');
       expect(chessService.getMoveHistory()).toHaveLength(0);
       expect(chessService.getCurrentMoveIndex()).toBe(-1);
     });
 
-    it("should handle whitespace-only PGN", () => {
+    it('should handle whitespace-only PGN', () => {
       mockChessInstance.loadPgn.mockImplementation(() => true as any);
       mockChessInstance.history.mockReturnValue([] as any);
 
@@ -163,9 +163,9 @@ describe("ChessService PGN Loading Tests", () => {
       expect(chessService.getMoveHistory()).toHaveLength(0);
     });
 
-    it("should handle invalid PGN and emit error event", () => {
+    it('should handle invalid PGN and emit error event', () => {
       // Setup mock to throw error for invalid PGN
-      const pgnError = new Error("Invalid PGN format");
+      const pgnError = new Error('Invalid PGN format');
       mockChessInstance.loadPgn.mockImplementation(() => {
         throw pgnError;
       });
@@ -183,17 +183,17 @@ describe("ChessService PGN Loading Tests", () => {
       // Verify error event was emitted
       expect(mockListener).toHaveBeenCalledWith(
         expect.objectContaining({
-          type: "error",
+          type: 'error',
           payload: expect.objectContaining({
             error: expect.any(Error),
-            message: "Ungültiges PGN-Format",
+            message: 'Ungültiges PGN-Format',
           }),
         })
       );
     });
 
-    it("should handle malformed PGN string", () => {
-      const malformedError = new Error("Not a valid PGN");
+    it('should handle malformed PGN string', () => {
+      const malformedError = new Error('Not a valid PGN');
       mockChessInstance.loadPgn.mockImplementation(() => {
         throw malformedError;
       });
@@ -206,16 +206,16 @@ describe("ChessService PGN Loading Tests", () => {
       expect(result).toBe(false);
       expect(mockListener).toHaveBeenCalledWith(
         expect.objectContaining({
-          type: "error",
+          type: 'error',
           payload: expect.objectContaining({
-            message: "Ungültiges PGN-Format",
+            message: 'Ungültiges PGN-Format',
           }),
         })
       );
     });
 
-    it("should handle partially valid PGN", () => {
-      const partialError = new Error("Invalid move in PGN");
+    it('should handle partially valid PGN', () => {
+      const partialError = new Error('Invalid move in PGN');
       mockChessInstance.loadPgn.mockImplementation(() => {
         throw partialError;
       });
@@ -226,13 +226,13 @@ describe("ChessService PGN Loading Tests", () => {
       expect(mockChessInstance.loadPgn).toHaveBeenCalledWith(pgnTestFixtures.partialValid);
     });
 
-    it("should reset chess instance and rebuild from scratch", () => {
+    it('should reset chess instance and rebuild from scratch', () => {
       // This tests the critical logic in lines 485-496
       mockChessInstance.loadPgn.mockImplementation(() => true as any);
       mockChessInstance.history.mockReturnValue(mockMoves as any);
 
       const initialCallCount = MockedChess.mock.calls.length;
-      
+
       chessService.loadPgn(pgnTestFixtures.valid);
 
       // Verify Chess constructor was called for reset (line 487: this.chess = new Chess())
@@ -241,17 +241,17 @@ describe("ChessService PGN Loading Tests", () => {
       expect(mockChessInstance.move).toHaveBeenCalledTimes(mockMoves.length);
     });
 
-    it("should preserve validated move structure in history", () => {
+    it('should preserve validated move structure in history', () => {
       mockChessInstance.loadPgn.mockImplementation(() => true as any);
       mockChessInstance.history.mockReturnValue(mockMoves as any);
 
       // Mock FEN progression for move validation
       let fenIndex = 0;
       const fenProgression = [
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
-        "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2",
-        "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
+        'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2',
+        'rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2',
       ];
 
       mockChessInstance.fen.mockImplementation(() => fenProgression[fenIndex] || fenProgression[0]);
@@ -264,7 +264,7 @@ describe("ChessService PGN Loading Tests", () => {
       chessService.loadPgn(pgnTestFixtures.valid);
 
       const moveHistory = chessService.getMoveHistory();
-      
+
       // Verify each move in history has required ValidatedMove structure
       moveHistory.forEach((move, index) => {
         expect(move).toHaveProperty('from');
@@ -275,13 +275,13 @@ describe("ChessService PGN Loading Tests", () => {
       });
     });
 
-    it("should handle error during move reconstruction", () => {
+    it('should handle error during move reconstruction', () => {
       mockChessInstance.loadPgn.mockImplementation(() => true as any);
       mockChessInstance.history.mockReturnValue(mockMoves as any);
 
       // Mock move() to throw error during reconstruction
       mockChessInstance.move.mockImplementation(() => {
-        throw new Error("Move reconstruction failed");
+        throw new Error('Move reconstruction failed');
       });
 
       const mockListener = vi.fn();
@@ -293,14 +293,14 @@ describe("ChessService PGN Loading Tests", () => {
       expect(result).toBe(false);
       expect(mockListener).toHaveBeenCalledWith(
         expect.objectContaining({
-          type: "error",
+          type: 'error',
         })
       );
     });
   });
 
-  describe("PGN Integration with other methods", () => {
-    it("should maintain consistency after PGN load", () => {
+  describe('PGN Integration with other methods', () => {
+    it('should maintain consistency after PGN load', () => {
       mockChessInstance.loadPgn.mockImplementation(() => true as any);
       mockChessInstance.history.mockReturnValue(mockMoves as any);
       mockChessInstance.pgn.mockReturnValue(pgnTestFixtures.valid);
@@ -308,10 +308,10 @@ describe("ChessService PGN Loading Tests", () => {
       // Mock FEN progression to enable proper move reconstruction
       let fenIndex = 0;
       const fenProgression = [
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
-        "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2",
-        "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
+        'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2',
+        'rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2',
       ];
 
       mockChessInstance.fen.mockImplementation(() => fenProgression[fenIndex] || fenProgression[0]);

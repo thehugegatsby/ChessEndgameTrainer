@@ -17,7 +17,7 @@
  * @version 1.0.0
  */
 
-import { type SequenceConfig, expectation } from "../helpers/sequenceRunner";
+import { type SequenceConfig, expectation } from '../helpers/sequenceRunner';
 
 /**
  * Test scenario: Pawn promotion leading to automatic win detection
@@ -37,32 +37,31 @@ export /**
  *
  */
 const promotionToWin: SequenceConfig = {
-  name: "Pawn Promotion Auto-Win",
-  description:
-    "King and pawn endgame where promotion leads to automatic win detection",
+  name: 'Pawn Promotion Auto-Win',
+  description: 'King and pawn endgame where promotion leads to automatic win detection',
   moves: [
-    "e6-d6", // 1. Kd6
-    "e8-f7", // 1... Kf7
-    "d6-d7", // 2. Kd7
-    "f7-f8", // 2... Kf8
-    "e5-e6", // 3. e6
-    "f8-g8", // 3... Kg8
-    "e6-e7", // 4. e7
-    "g8-f7", // 4... Kf7
-    "e7-e8=Q", // 5. e8=Q+ (promotion!)
+    'e6-d6', // 1. Kd6
+    'e8-f7', // 1... Kf7
+    'd6-d7', // 2. Kd7
+    'f7-f8', // 2... Kf8
+    'e5-e6', // 3. e6
+    'f8-g8', // 3... Kg8
+    'e6-e7', // 4. e7
+    'g8-f7', // 4... Kf7
+    'e7-e8=Q', // 5. e8=Q+ (promotion!)
   ],
   expectations: [
     // After promotion move, expect success dialog with "Dame" (Queen)
-    expectation.promotionSuccessDialog("Dame", 8), // After move 9 (0-indexed = 8)
+    expectation.promotionSuccessDialog('Dame', 8), // After move 9 (0-indexed = 8)
 
     // Training should complete successfully
     expectation.trainingSuccess(),
 
     // Completion modal should open
-    expectation.modalOpen("completion"),
+    expectation.modalOpen('completion'),
   ],
   setup: {
-    startFen: "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1",
+    startFen: '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1',
     mockTablebase: true,
   },
 };
@@ -79,32 +78,31 @@ export /**
  *
  */
 const promotionToDraw: SequenceConfig = {
-  name: "Pawn Promotion to Draw",
-  description:
-    "Promotion that results in draw, should NOT trigger auto-completion",
+  name: 'Pawn Promotion to Draw',
+  description: 'Promotion that results in draw, should NOT trigger auto-completion',
   moves: [
-    "e6-d6", // 1. Kd6
-    "e8-f7", // 1... Kf7
-    "d6-c7", // 2. Kc7 (different line leading to draw)
-    "f7-g7", // 2... Kg7
-    "e5-e6", // 3. e6
-    "g7-f6", // 3... Kf6
-    "e6-e7", // 4. e7
-    "f6-f7", // 4... Kf7
-    "e7-e8=Q", // 5. e8=Q (promotion but draw)
+    'e6-d6', // 1. Kd6
+    'e8-f7', // 1... Kf7
+    'd6-c7', // 2. Kc7 (different line leading to draw)
+    'f7-g7', // 2... Kg7
+    'e5-e6', // 3. e6
+    'g7-f6', // 3... Kf6
+    'e6-e7', // 4. e7
+    'f6-f7', // 4... Kf7
+    'e7-e8=Q', // 5. e8=Q (promotion but draw)
   ],
   expectations: [
     // Should NOT have success toast after promotion
     // (We'll need to implement negative expectations)
 
     // Training should NOT complete automatically
-    expectation.storeState("training.isSuccess", false),
+    expectation.storeState('training.isSuccess', false),
 
     // No completion modal
     expectation.modalClosed(),
   ],
   setup: {
-    startFen: "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1",
+    startFen: '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1',
     mockTablebase: false, // Mock will return draw
   },
 };
@@ -121,26 +119,26 @@ export /**
  *
  */
 const promotionToQueen: SequenceConfig = {
-  name: "Promotion to Queen",
-  description: "Test promotion specifically to Queen piece",
+  name: 'Promotion to Queen',
+  description: 'Test promotion specifically to Queen piece',
   moves: [
     // Setup moves to reach promotion
-    "e6-d6",
-    "e8-f7",
-    "d6-d7",
-    "f7-f8",
-    "e5-e6",
-    "f8-g8",
-    "e6-e7",
-    "g8-f7",
-    "e7-e8=Q", // Promote to Queen
+    'e6-d6',
+    'e8-f7',
+    'd6-d7',
+    'f7-f8',
+    'e5-e6',
+    'f8-g8',
+    'e6-e7',
+    'g8-f7',
+    'e7-e8=Q', // Promote to Queen
   ],
   expectations: [
-    expectation.promotionSuccessDialog("Dame", 8), // Should mention "Dame" (Queen in German)
+    expectation.promotionSuccessDialog('Dame', 8), // Should mention "Dame" (Queen in German)
     expectation.trainingSuccess(),
   ],
   setup: {
-    startFen: "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1",
+    startFen: '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1',
     mockTablebase: true,
   },
 };
@@ -157,25 +155,25 @@ export /**
  *
  */
 const promotionToRook: SequenceConfig = {
-  name: "Promotion to Rook",
-  description: "Test promotion to Rook piece",
+  name: 'Promotion to Rook',
+  description: 'Test promotion to Rook piece',
   moves: [
-    "e6-d6",
-    "e8-f7",
-    "d6-d7",
-    "f7-f8",
-    "e5-e6",
-    "f8-g8",
-    "e6-e7",
-    "g8-f7",
-    "e7-e8=R", // Promote to Rook
+    'e6-d6',
+    'e8-f7',
+    'd6-d7',
+    'f7-f8',
+    'e5-e6',
+    'f8-g8',
+    'e6-e7',
+    'g8-f7',
+    'e7-e8=R', // Promote to Rook
   ],
   expectations: [
-    expectation.promotionSuccessDialog("Turm", 8), // Should mention "Turm" (Rook in German)
+    expectation.promotionSuccessDialog('Turm', 8), // Should mention "Turm" (Rook in German)
     expectation.trainingSuccess(),
   ],
   setup: {
-    startFen: "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1",
+    startFen: '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1',
     mockTablebase: true,
   },
 };

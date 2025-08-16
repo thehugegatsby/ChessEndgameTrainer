@@ -1,13 +1,13 @@
 /**
  * @file Main application layout component
  * @module components/layout/AppLayout
- * 
+ *
  * @description
  * Root layout component that provides the main application structure
  * including navigation, header, and responsive layout management.
  * Handles both desktop and mobile layouts with adaptive navigation
  * and theme controls.
- * 
+ *
  * @remarks
  * Key features:
  * - Fixed header with app title and settings
@@ -17,24 +17,24 @@
  * - Adaptive menu visibility (shown by default on desktop)
  * - Integration with AdvancedEndgameMenu for position navigation
  * - Dark mode support throughout
- * 
+ *
  * The layout uses CSS Grid and Flexbox for responsive behavior
  * and provides consistent spacing and navigation patterns.
  */
 
-"use client";
+'use client';
 
-import React, { useState, type ReactNode } from "react";
-import { AdvancedEndgameMenu } from "../navigation/AdvancedEndgameMenu";
-import { DarkModeToggle } from "../ui/DarkModeToggle";
-import { SettingsIcon } from "../ui/SettingsIcon";
-import Link from "next/link";
+import React, { useState, type ReactNode } from 'react';
+import { AdvancedEndgameMenu } from '../navigation/AdvancedEndgameMenu';
+import { DarkModeToggle } from '../ui/DarkModeToggle';
+import { SettingsIcon } from '../ui/SettingsIcon';
+import Link from 'next/link';
 
 /**
  * Props for the AppLayout component
- * 
+ *
  * @interface AppLayoutProps
- * 
+ *
  * @property {ReactNode} children - Main page content to render
  * @property {number} [currentPositionId] - Current training position ID for navigation highlighting
  * @property {boolean} [showMobileBottomNav=true] - Whether to show mobile bottom navigation bar
@@ -47,13 +47,13 @@ interface AppLayoutProps {
 
 /**
  * Main application layout component
- * 
+ *
  * @component
  * @description
  * Provides the complete application shell with responsive navigation,
  * header, and content areas. Manages navigation state and provides
  * consistent layout patterns across all pages.
- * 
+ *
  * @remarks
  * Layout structure:
  * - Fixed header (64px height) with title and settings
@@ -61,30 +61,30 @@ interface AppLayoutProps {
  * - Main content area with container constraints
  * - Desktop: Floating buttons in bottom-right
  * - Mobile: Bottom navigation bar with key actions
- * 
+ *
  * Navigation behavior:
  * - Desktop: Menu shown by default, can be collapsed
  * - Mobile: Menu hidden by default, toggle button provided
  * - Mobile toggle shows emoji-based UI for better touch experience
- * 
+ *
  * @example
  * ```tsx
  * // Basic usage
  * <AppLayout>
  *   <YourPageContent />
  * </AppLayout>
- * 
+ *
  * // With position highlighting
  * <AppLayout currentPositionId={5}>
  *   <TrainingPage />
  * </AppLayout>
- * 
+ *
  * // Without mobile bottom nav
  * <AppLayout showMobileBottomNav={false}>
  *   <FullScreenPage />
  * </AppLayout>
  * ```
- * 
+ *
  * @param {AppLayoutProps} props - Layout configuration
  * @returns {JSX.Element} Complete application layout shell
  */
@@ -97,10 +97,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   const [showMenu, setShowMenu] = useState<boolean>(true);
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ backgroundColor: "var(--bg-primary)" }}
-    >
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-gray-900 border-b border-gray-700">
         <div className="flex items-center justify-between px-4 py-3">
@@ -110,7 +107,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       </header>
 
       <div className="flex pt-14">
-        {" "}
+        {' '}
         {/* Add padding-top for fixed header */}
         {/* Advanced Endgame Menu */}
         <AdvancedEndgameMenu
@@ -126,7 +123,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               onClick={() => setShowMenu(!showMenu)}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              {showMenu ? "❌ Menü schließen" : "📖 Navigation"}
+              {showMenu ? '❌ Menü schließen' : '📖 Navigation'}
             </button>
           </div>
 

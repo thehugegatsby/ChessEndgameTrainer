@@ -14,15 +14,15 @@
  * per-request instantiation without singleton conflicts.
  */
 
-import { create, type UseBoundStore, type StoreApi } from "zustand";
-import { devtools, persist, createJSONStorage, type StateStorage } from "zustand/middleware";
-import { immer } from "zustand/middleware/immer";
+import { create, type UseBoundStore, type StoreApi } from 'zustand';
+import { devtools, persist, createJSONStorage, type StateStorage } from 'zustand/middleware';
+import { immer } from 'zustand/middleware/immer';
 
 // Safe storage adapter that gracefully handles localStorage errors
 const safeStorage: StateStorage = {
-  getItem: (name) => {
+  getItem: name => {
     try {
-      if (typeof window === "undefined") return null;
+      if (typeof window === 'undefined') return null;
       return localStorage.getItem(name);
     } catch {
       return null;
@@ -30,15 +30,15 @@ const safeStorage: StateStorage = {
   },
   setItem: (name, value) => {
     try {
-      if (typeof window === "undefined") return;
+      if (typeof window === 'undefined') return;
       localStorage.setItem(name, value);
     } catch {
       // Silently fail in restricted environments
     }
   },
-  removeItem: (name) => {
+  removeItem: name => {
     try {
-      if (typeof window === "undefined") return;
+      if (typeof window === 'undefined') return;
       localStorage.removeItem(name);
     } catch {
       // Silently fail in restricted environments
@@ -47,33 +47,24 @@ const safeStorage: StateStorage = {
 };
 
 // Import all slice creators
-import { createGameState, createGameActions } from "./slices/gameSlice";
-import {
-  createTablebaseState,
-  createTablebaseActions,
-} from "./slices/tablebaseSlice";
-import {
-  createTrainingState,
-  createTrainingActions,
-} from "./slices/trainingSlice";
-import { createUIState, createUIActions } from "./slices/uiSlice";
+import { createGameState, createGameActions } from './slices/gameSlice';
+import { createTablebaseState, createTablebaseActions } from './slices/tablebaseSlice';
+import { createTrainingState, createTrainingActions } from './slices/trainingSlice';
+import { createUIState, createUIActions } from './slices/uiSlice';
 
 // Import ChessService for event subscription
-import {
-  chessService,
-  type ChessServiceEvent,
-} from "@shared/services/ChessService";
-import { getLogger } from "@shared/services/logging/Logger";
+import { chessService, type ChessServiceEvent } from '@shared/services/ChessService';
+import { getLogger } from '@shared/services/logging/Logger';
 
 // Import orchestrators
-import { loadTrainingContext as loadTrainingContextOrchestrator } from "./orchestrators/loadTrainingContext";
-import { handlePlayerMove as handlePlayerMoveOrchestrator } from "./orchestrators/handlePlayerMove/index";
+import { loadTrainingContext as loadTrainingContextOrchestrator } from './orchestrators/loadTrainingContext';
+import { handlePlayerMove as handlePlayerMoveOrchestrator } from './orchestrators/handlePlayerMove/index';
 
 // Import types
-import type { RootState } from "./slices/types";
-import type { Move as ChessJsMove } from "chess.js";
-import type { EndgamePosition } from "@shared/types/endgame";
-import type { TrainingPosition } from "./slices/trainingSlice";
+import type { RootState } from './slices/types';
+import type { Move as ChessJsMove } from 'chess.js';
+import type { EndgamePosition } from '@shared/types/endgame';
+import type { TrainingPosition } from './slices/trainingSlice';
 
 /**
  * Creates a fresh store instance with all slices and middleware
@@ -109,7 +100,9 @@ import type { TrainingPosition } from "./slices/trainingSlice";
  * }
  * ```
  */
-export const createStore = (initialState?: Partial<RootState>): UseBoundStore<StoreApi<RootState>> => {
+export const createStore = (
+  initialState?: Partial<RootState>
+): UseBoundStore<StoreApi<RootState>> => {
   const store = create<RootState>()(
     devtools(
       persist(
@@ -136,23 +129,18 @@ export const createStore = (initialState?: Partial<RootState>): UseBoundStore<St
 
             // Orchestrator actions - coordinate across multiple slices
             handlePlayerMove: async (
-              move:
-                | ChessJsMove
-                | { from: string; to: string; promotion?: string }
-                | string,
+              move: ChessJsMove | { from: string; to: string; promotion?: string } | string
             ): Promise<boolean> => {
-              const logger = getLogger().setContext("CreateStore");
-              logger.debug("handlePlayerMove called", { move });
+              const logger = getLogger().setContext('CreateStore');
+              logger.debug('handlePlayerMove called', { move });
               const storeApi = { getState: get, setState: set };
-              logger.debug("Calling handlePlayerMoveOrchestrator");
+              logger.debug('Calling handlePlayerMoveOrchestrator');
               const result = await handlePlayerMoveOrchestrator(storeApi, move);
-              logger.debug("handlePlayerMoveOrchestrator result", { result });
+              logger.debug('handlePlayerMoveOrchestrator result', { result });
               return result;
             },
 
-            loadTrainingContext: async (
-              position: EndgamePosition,
-            ): Promise<void> => {
+            loadTrainingContext: async (position: EndgamePosition): Promise<void> => {
               const storeApi = { getState: get, setState: set };
               return await loadTrainingContextOrchestrator(storeApi, position);
             },
@@ -161,7 +149,7 @@ export const createStore = (initialState?: Partial<RootState>): UseBoundStore<St
              * Resets entire store to initial state
              */
             reset: () => {
-              set((state) => {
+              set(state => {
                 // Reset only the state properties, not the actions - MANUAL PROPERTY RESET
                 // Game slice - explicit property reset
                 state.game.moveHistory = [];
@@ -172,7 +160,7 @@ export const createStore = (initialState?: Partial<RootState>): UseBoundStore<St
 
                 // Tablebase slice - explicit property reset
                 state.tablebase.tablebaseMove = null;
-                state.tablebase.analysisStatus = "idle";
+                state.tablebase.analysisStatus = 'idle';
                 state.tablebase.evaluations = [];
                 state.tablebase.currentEvaluation = undefined;
 
@@ -188,7 +176,7 @@ export const createStore = (initialState?: Partial<RootState>): UseBoundStore<St
                 };
                 state.ui.analysisPanel = {
                   isOpen: false,
-                  activeTab: "evaluation",
+                  activeTab: 'evaluation',
                   showTablebase: false,
                 };
               });
@@ -198,7 +186,7 @@ export const createStore = (initialState?: Partial<RootState>): UseBoundStore<St
              * Hydrates store with partial state data
              */
             hydrate: (state: Partial<RootState>) => {
-              set((currentState) => ({
+              set(currentState => ({
                 ...currentState,
                 ...state,
               }));
@@ -219,13 +207,10 @@ export const createStore = (initialState?: Partial<RootState>): UseBoundStore<St
                   try {
                     chessService.initialize(fenToLoad);
                   } catch (error) {
-                    getLogger().error(
-                      "Failed to load initial FEN into ChessService",
-                      {
-                        fen: fenToLoad,
-                        error,
-                      },
-                    );
+                    getLogger().error('Failed to load initial FEN into ChessService', {
+                      fen: fenToLoad,
+                      error,
+                    });
                   }
                 }, 0);
               }
@@ -241,7 +226,6 @@ export const createStore = (initialState?: Partial<RootState>): UseBoundStore<St
               Object.assign(rootState.tablebase, initialState.tablebase);
             }
 
-
             // Merge UI state properties
             if (initialState.ui) {
               Object.assign(rootState.ui, initialState.ui);
@@ -251,11 +235,11 @@ export const createStore = (initialState?: Partial<RootState>): UseBoundStore<St
           return rootState;
         }),
         {
-          name: "endgame-trainer-store",
+          name: 'endgame-trainer-store',
           version: 1,
           storage: createJSONStorage(() => safeStorage), // Safe storage that handles errors gracefully
           // Only persist training position for session continuity
-          partialize: (state) => ({
+          partialize: state => ({
             training: {
               currentPosition: state.training.currentPosition,
             },
@@ -265,66 +249,73 @@ export const createStore = (initialState?: Partial<RootState>): UseBoundStore<St
             // Deep merge to preserve slice structure and functions
             const merged = { ...currentState };
 
-            if (persistedState && typeof persistedState === "object") {
+            if (persistedState && typeof persistedState === 'object') {
               const persisted = persistedState as Record<string, unknown>;
 
               // Only merge the specific persisted properties, not the entire slice
-              if (persisted['training'] && typeof persisted['training'] === 'object' && 
-                  'currentPosition' in persisted['training']) {
-                const currentPositionValue = (persisted['training'] as Record<string, unknown>)['currentPosition'] as TrainingPosition | undefined;
-                
+              if (
+                persisted['training'] &&
+                typeof persisted['training'] === 'object' &&
+                'currentPosition' in persisted['training']
+              ) {
+                const currentPositionValue = (persisted['training'] as Record<string, unknown>)[
+                  'currentPosition'
+                ] as TrainingPosition | undefined;
+
                 merged.training = {
                   ...currentState.training,
-                  ...(currentPositionValue !== undefined && { currentPosition: currentPositionValue }),
+                  ...(currentPositionValue !== undefined && {
+                    currentPosition: currentPositionValue,
+                  }),
                 };
               }
             }
 
             return merged;
           },
-        },
+        }
       ),
       {
-        name: "EndgameTrainer Store",
-        enabled: process.env.NODE_ENV === "development",
-      },
-    ),
+        name: 'EndgameTrainer Store',
+        enabled: process.env.NODE_ENV === 'development',
+      }
+    )
   );
 
   // Subscribe to ChessService events for automatic state synchronization
-  const unsubscribeChessService = chessService.subscribe(
-    (event: ChessServiceEvent) => {
-      switch (event.type) {
-        case "stateUpdate":
-          // Use batched payload for atomic state update
-          store.setState((draft) => {
-            draft.game.currentFen = event.payload.fen;
-            draft.game.currentPgn = event.payload.pgn;
-            draft.game.moveHistory = event.payload.moveHistory;
-            draft.game.currentMoveIndex = event.payload.currentMoveIndex;
-            draft.game.isGameFinished = event.payload.isGameOver;
-            draft.game.gameResult = event.payload.gameResult;
-          });
-          break;
+  const unsubscribeChessService = chessService.subscribe((event: ChessServiceEvent) => {
+    switch (event.type) {
+      case 'stateUpdate':
+        // Use batched payload for atomic state update
+        store.setState(draft => {
+          draft.game.currentFen = event.payload.fen;
+          draft.game.currentPgn = event.payload.pgn;
+          draft.game.moveHistory = event.payload.moveHistory;
+          draft.game.currentMoveIndex = event.payload.currentMoveIndex;
+          draft.game.isGameFinished = event.payload.isGameOver;
+          draft.game.gameResult = event.payload.gameResult;
+        });
+        break;
 
-        case "error":
-          // Handle errors from ChessService
-          store.setState((draft) => {
-            draft.ui.toasts.push({
-              id: crypto.randomUUID(),
-              message: event.payload.message,
-              type: "error",
-              duration: 5000,
-            });
+      case 'error':
+        // Handle errors from ChessService
+        store.setState(draft => {
+          draft.ui.toasts.push({
+            id: crypto.randomUUID(),
+            message: event.payload.message,
+            type: 'error',
+            duration: 5000,
           });
-          break;
-        default:
-          // Log unhandled event types for debugging
-          console.warn(`Unhandled ChessService event type: ${(event as Record<string, unknown>)['type']}`);
-          break;
-      }
-    },
-  );
+        });
+        break;
+      default:
+        // Log unhandled event types for debugging
+        console.warn(
+          `Unhandled ChessService event type: ${(event as Record<string, unknown>)['type']}`
+        );
+        break;
+    }
+  });
 
   // Attach cleanup function to store instance
   (store as unknown as { __cleanup: () => void }).__cleanup = unsubscribeChessService;

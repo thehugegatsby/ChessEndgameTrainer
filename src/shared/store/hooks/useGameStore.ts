@@ -13,14 +13,14 @@
  * - useGameStore(): Convenience hook returning [state, actions] tuple
  */
 
-import { useMemo } from "react";
-import { useStore, useStoreApi } from "../StoreContext";
-import { useShallow } from "zustand/react/shallow";
+import { useMemo } from 'react';
+import { useStore, useStoreApi } from '../StoreContext';
+import { useShallow } from 'zustand/react/shallow';
 import type {
   RootState,
   GameState as GameStateType,
   GameActions as GameActionsType,
-} from "../slices/types";
+} from '../slices/types';
 
 /**
  * Hook for reactive game state properties
@@ -49,11 +49,12 @@ export const useGameState = (): GameStateType => {
       moveHistory: state.game.moveHistory,
       currentMoveIndex: state.game.currentMoveIndex,
       isGameFinished: state.game.isGameFinished,
-      ...(state.game.gameResult !== null && state.game.gameResult !== undefined && { gameResult: state.game.gameResult }),
+      ...(state.game.gameResult !== null &&
+        state.game.gameResult !== undefined && { gameResult: state.game.gameResult }),
       isCheckmate: state.game.isCheckmate,
       isDraw: state.game.isDraw,
       isStalemate: state.game.isStalemate,
-    })),
+    }))
   );
 };
 
@@ -108,7 +109,7 @@ export const useGameActions = (): GameActionsType => {
       goToLast: actions.goToLast,
       setCurrentFen: actions.setCurrentFen,
     }),
-    [actions],
+    [actions]
   );
 };
 

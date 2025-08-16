@@ -9,11 +9,11 @@
 import { SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
 
 // Note: Using direct service import for service-to-service integration
-import { formatPositionAnalysis } from "../utils/positionAnalysisFormatter";
-import { getLogger } from "./logging";
-import type { PositionAnalysis } from "../types";
+import { formatPositionAnalysis } from '../utils/positionAnalysisFormatter';
+import { getLogger } from './logging';
+import type { PositionAnalysis } from '../types';
 
-const logger = getLogger().setContext("AnalysisService");
+const logger = getLogger().setContext('AnalysisService');
 
 /**
  * Analysis result with formatted data
@@ -45,21 +45,18 @@ class AnalysisService {
    * It makes two calls to tablebaseService but they're deduplicated
    * by the service's internal cache.
    */
-  async getPositionAnalysis(
-    fen: string,
-    moveLimit: number = 5,
-  ): Promise<AnalysisResult | null> {
-    logger.info("Getting position analysis", {
-      fen: `${fen.slice(0, SIZE_MULTIPLIERS.SMALL_FACTOR * 2)  }...`,
+  async getPositionAnalysis(fen: string, moveLimit: number = 5): Promise<AnalysisResult | null> {
+    logger.info('Getting position analysis', {
+      fen: `${fen.slice(0, SIZE_MULTIPLIERS.SMALL_FACTOR * 2)}...`,
       moveLimit,
     });
 
     // Get tablebase evaluation - this populates the cache
-    const { tablebaseService } = await import("./TablebaseService");
+    const { tablebaseService } = await import('./TablebaseService');
     const tablebaseResult = await tablebaseService.getEvaluation(fen);
 
     if (!tablebaseResult.isAvailable || !tablebaseResult.result) {
-      logger.debug("No tablebase data available for position");
+      logger.debug('No tablebase data available for position');
       return null;
     }
 
@@ -73,29 +70,30 @@ class AnalysisService {
     const evaluation: PositionAnalysis = {
       fen,
       evaluation: displayData.score,
-      ...(displayData.isWin && tablebaseResult.result.dtz && {
-        mateInMoves: Math.abs(tablebaseResult.result.dtz),
-      }),
+      ...(displayData.isWin &&
+        tablebaseResult.result.dtz && {
+          mateInMoves: Math.abs(tablebaseResult.result.dtz),
+        }),
       tablebase: {
         isTablebasePosition: true,
         wdlAfter: tablebaseResult.result.wdl,
-        category: tablebaseResult.result.category as "win" | "draw" | "loss",
+        category: tablebaseResult.result.category as 'win' | 'draw' | 'loss',
         ...(tablebaseResult.result.dtz !== null && { dtz: tablebaseResult.result.dtz }),
         topMoves:
           topMoves.isAvailable && topMoves.moves
-            ? topMoves.moves.map((move) => ({
+            ? topMoves.moves.map(move => ({
                 move: move.uci,
                 san: move.san,
                 dtz: move.dtz || 0,
                 dtm: move.dtm || 0,
                 wdl: move.wdl,
-                category: move.category as "win" | "draw" | "loss",
+                category: move.category as 'win' | 'draw' | 'loss',
               }))
             : [],
       },
     };
 
-    logger.info("Analysis complete", {
+    logger.info('Analysis complete', {
       wdl: tablebaseResult.result.wdl,
       topMovesCount: evaluation.tablebase?.topMoves?.length,
     });
@@ -113,10 +111,7 @@ class AnalysisService {
    * @param moveLimit - Maximum number of moves to fetch
    * @returns Position analysis (empty if no tablebase data)
    */
-  async getPositionAnalysisOrEmpty(
-    fen: string,
-    moveLimit: number = 5,
-  ): Promise<PositionAnalysis> {
+  async getPositionAnalysisOrEmpty(fen: string, moveLimit: number = 5): Promise<PositionAnalysis> {
     const result = await this.getPositionAnalysis(fen, moveLimit);
 
     if (!result) {

@@ -9,12 +9,12 @@ import { vi } from 'vitest';
 export async function flushAsync(): Promise<void> {
   // Let any pending promises resolve (e.g., from state updates)
   await act(async () => {});
-  
+
   // Advance timers and let any new promises resolve
   await act(async () => {
     await vi.runAllTimersAsync();
   });
-  
+
   // One final flush for any promises created by the timers
   await act(async () => {});
 }
@@ -25,27 +25,27 @@ export async function flushAsync(): Promise<void> {
  */
 export class MemoryStorage implements Storage {
   private map = new Map<string, string>();
-  
+
   get length(): number {
     return this.map.size;
   }
-  
+
   clear(): void {
     this.map.clear();
   }
-  
+
   getItem(key: string): string | null {
     return this.map.has(key) ? this.map.get(key)! : null;
   }
-  
+
   key(index: number): string | null {
     return Array.from(this.map.keys())[index] ?? null;
   }
-  
+
   removeItem(key: string): void {
     this.map.delete(key);
   }
-  
+
   setItem(key: string, value: string): void {
     this.map.set(key, value);
   }

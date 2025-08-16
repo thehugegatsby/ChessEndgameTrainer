@@ -16,7 +16,7 @@ import {
   type TablebaseMovesResult,
   type TablebaseMove,
   type TablebaseResult,
-} from "@shared/types/tablebase";
+} from '@shared/types/tablebase';
 
 /**
  * Default mock tablebase result
@@ -25,21 +25,21 @@ const createDefaultResult = (): TablebaseResult => ({
   wdl: 0,
   dtz: 0,
   dtm: null,
-  category: "draw",
+  category: 'draw',
   precise: false,
-  evaluation: "Remis",
+  evaluation: 'Remis',
 });
 
 /**
  * Default mock tablebase move
  */
 const createDefaultMove = (): TablebaseMove => ({
-  uci: "e2e4",
-  san: "e4",
+  uci: 'e2e4',
+  san: 'e4',
   wdl: 0,
   dtz: 0,
   dtm: null,
-  category: "draw",
+  category: 'draw',
 });
 
 /**
@@ -62,18 +62,18 @@ class MockTablebaseService {
    */
   setupDefaults(): void {
     // Default getEvaluation - returns draw position
-    this.getEvaluation.mockImplementation((_fen: string) => Promise.resolve({
-      isAvailable: true,
-      result: createDefaultResult(),
-    }));
+    this.getEvaluation.mockImplementation((_fen: string) =>
+      Promise.resolve({
+        isAvailable: true,
+        result: createDefaultResult(),
+      })
+    );
 
     // Default getTopMoves - returns one draw move
-    this.getTopMoves.mockImplementation(
-      (_fen: string, _limit?: number) => ({
-        isAvailable: true,
-        moves: [createDefaultMove()],
-      }),
-    );
+    this.getTopMoves.mockImplementation((_fen: string, _limit?: number) => ({
+      isAvailable: true,
+      moves: [createDefaultMove()],
+    }));
 
     // Default clearCache - does nothing
     this.clearCache.mockImplementation(() => undefined);
@@ -95,28 +95,26 @@ class MockTablebaseService {
       wdl: 2,
       dtz: dtm * 2,
       dtm: dtm,
-      category: "win",
+      category: 'win',
       precise: true,
       evaluation: `Gewinn in ${dtm} Zügen`,
     };
 
     const move: TablebaseMove = {
-      uci: "e2e3",
-      san: "Ke3",
+      uci: 'e2e3',
+      san: 'Ke3',
       wdl: 2,
       dtz: (dtm - 1) * 2,
       dtm: dtm - 1,
-      category: "win",
+      category: 'win',
     };
 
     if (fen) {
       this.getEvaluation.mockImplementation((f: string) =>
-        f === fen ? { isAvailable: true, result } : { isAvailable: false },
+        f === fen ? { isAvailable: true, result } : { isAvailable: false }
       );
       this.getTopMoves.mockImplementation((f: string) =>
-        f === fen
-          ? { isAvailable: true, moves: [move] }
-          : { isAvailable: false },
+        f === fen ? { isAvailable: true, moves: [move] } : { isAvailable: false }
       );
     } else {
       this.getEvaluation.mockResolvedValue({ isAvailable: true, result });
@@ -132,28 +130,26 @@ class MockTablebaseService {
       wdl: 0,
       dtz: 0,
       dtm: null,
-      category: "draw",
+      category: 'draw',
       precise: true,
-      evaluation: "Remis",
+      evaluation: 'Remis',
     };
 
     const move: TablebaseMove = {
-      uci: "e2e3",
-      san: "Ke3",
+      uci: 'e2e3',
+      san: 'Ke3',
       wdl: 0,
       dtz: 0,
       dtm: null,
-      category: "draw",
+      category: 'draw',
     };
 
     if (fen) {
       this.getEvaluation.mockImplementation((f: string) =>
-        f === fen ? { isAvailable: true, result } : { isAvailable: false },
+        f === fen ? { isAvailable: true, result } : { isAvailable: false }
       );
       this.getTopMoves.mockImplementation((f: string) =>
-        f === fen
-          ? { isAvailable: true, moves: [move] }
-          : { isAvailable: false },
+        f === fen ? { isAvailable: true, moves: [move] } : { isAvailable: false }
       );
     } else {
       this.getEvaluation.mockResolvedValue({ isAvailable: true, result });
@@ -169,28 +165,26 @@ class MockTablebaseService {
       wdl: -2,
       dtz: dtm * 2,
       dtm: dtm,
-      category: "loss",
+      category: 'loss',
       precise: true,
       evaluation: `Verlust in ${Math.abs(dtm)} Zügen`,
     };
 
     const move: TablebaseMove = {
-      uci: "e8d7",
-      san: "Kd7",
+      uci: 'e8d7',
+      san: 'Kd7',
       wdl: -2,
       dtz: (dtm + 1) * 2,
       dtm: dtm + 1,
-      category: "loss",
+      category: 'loss',
     };
 
     if (fen) {
       this.getEvaluation.mockImplementation((f: string) =>
-        f === fen ? { isAvailable: true, result } : { isAvailable: false },
+        f === fen ? { isAvailable: true, result } : { isAvailable: false }
       );
       this.getTopMoves.mockImplementation((f: string) =>
-        f === fen
-          ? { isAvailable: true, moves: [move] }
-          : { isAvailable: false },
+        f === fen ? { isAvailable: true, moves: [move] } : { isAvailable: false }
       );
     } else {
       this.getEvaluation.mockResolvedValue({ isAvailable: true, result });
@@ -201,7 +195,7 @@ class MockTablebaseService {
   /**
    * Helper: Mock API error
    */
-  mockApiError(errorMessage: string = "Tablebase API unavailable"): void {
+  mockApiError(errorMessage: string = 'Tablebase API unavailable'): void {
     this.getEvaluation.mockRejectedValue(new Error(errorMessage));
     this.getTopMoves.mockRejectedValue(new Error(errorMessage));
   }
@@ -212,24 +206,20 @@ class MockTablebaseService {
   mockNotAvailable(fen?: string): void {
     const response: TablebaseEvaluation = {
       isAvailable: false,
-      error: "Position not in tablebase",
+      error: 'Position not in tablebase',
     };
 
     const movesResponse: TablebaseMovesResult = {
       isAvailable: false,
-      error: "Position not in tablebase",
+      error: 'Position not in tablebase',
     };
 
     if (fen) {
       this.getEvaluation.mockImplementation((f: string) =>
-        f === fen
-          ? response
-          : { isAvailable: true, result: createDefaultResult() },
+        f === fen ? response : { isAvailable: true, result: createDefaultResult() }
       );
       this.getTopMoves.mockImplementation((f: string) =>
-        f === fen
-          ? movesResponse
-          : { isAvailable: true, moves: [createDefaultMove()] },
+        f === fen ? movesResponse : { isAvailable: true, moves: [createDefaultMove()] }
       );
     } else {
       this.getEvaluation.mockResolvedValue(response);
@@ -243,7 +233,7 @@ class MockTablebaseService {
   mockLoading(delayMs: number = 1000): void {
     this.getEvaluation.mockImplementation(
       () =>
-        new Promise((resolve) =>
+        new Promise(resolve =>
           setTimeout(
             () =>
               resolve({
@@ -252,37 +242,37 @@ class MockTablebaseService {
                   wdl: 2,
                   dtz: 10,
                   dtm: 5,
-                  category: "win",
+                  category: 'win',
                   precise: true,
-                  evaluation: "Gewinn in 5 Zügen",
+                  evaluation: 'Gewinn in 5 Zügen',
                 },
               }),
-            delayMs,
-          ),
-        ),
+            delayMs
+          )
+        )
     );
 
     this.getTopMoves.mockImplementation(
       () =>
-        new Promise((resolve) =>
+        new Promise(resolve =>
           setTimeout(
             () =>
               resolve({
                 isAvailable: true,
                 moves: [
                   {
-                    uci: "e2e3",
-                    san: "Ke3",
+                    uci: 'e2e3',
+                    san: 'Ke3',
                     wdl: 2,
                     dtz: 8,
                     dtm: 4,
-                    category: "win",
+                    category: 'win',
                   },
                 ],
               }),
-            delayMs,
-          ),
-        ),
+            delayMs
+          )
+        )
     );
   }
 
@@ -318,20 +308,16 @@ export const tablebaseService = mockTablebaseService;
 export const mockWinPosition = (fen?: string, dtm?: number): void =>
   mockTablebaseService.mockWinPosition(fen, dtm);
 
-export const mockDrawPosition = (fen?: string): void =>
-  mockTablebaseService.mockDrawPosition(fen);
+export const mockDrawPosition = (fen?: string): void => mockTablebaseService.mockDrawPosition(fen);
 
 export const mockLossPosition = (fen?: string, dtm?: number): void =>
   mockTablebaseService.mockLossPosition(fen, dtm);
 
-export const mockApiError = (message?: string): void =>
-  mockTablebaseService.mockApiError(message);
+export const mockApiError = (message?: string): void => mockTablebaseService.mockApiError(message);
 
-export const mockNotAvailable = (fen?: string): void =>
-  mockTablebaseService.mockNotAvailable(fen);
+export const mockNotAvailable = (fen?: string): void => mockTablebaseService.mockNotAvailable(fen);
 
-export const mockLoading = (delayMs?: number): void =>
-  mockTablebaseService.mockLoading(delayMs);
+export const mockLoading = (delayMs?: number): void => mockTablebaseService.mockLoading(delayMs);
 
 export const resetMock = (): void => mockTablebaseService.reset();
 

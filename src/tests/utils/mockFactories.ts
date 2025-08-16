@@ -17,7 +17,7 @@ import type {
   MemoryInfo,
   NetworkStatus,
   PerformanceMetrics,
-} from "@shared/services/platform/types";
+} from '@shared/services/platform/types';
 
 // Helper to create mock functions that work with or without Jest
 const mockFn = <TArgs extends unknown[] = unknown[], TReturn = unknown>(
@@ -59,7 +59,7 @@ export function createMockPlatformStorage(
       return Promise.resolve();
     }),
     clear: asyncMockFn(() => {
-      Object.keys(store).forEach((key) => delete store[key]);
+      Object.keys(store).forEach(key => delete store[key]);
       return Promise.resolve();
     }),
     getAllKeys: asyncMockFn(() => {
@@ -77,9 +77,9 @@ export function createMockPlatformDevice(
   overrides: Partial<PlatformDevice> = {}
 ): vi.Mocked<PlatformDevice> {
   const mockDeviceInfo: DeviceInfo = {
-    model: "Test Device",
-    brand: "Test Brand",
-    osVersion: "1.0.0",
+    model: 'Test Device',
+    brand: 'Test Brand',
+    osVersion: '1.0.0',
     screenSize: { width: 1920, height: 1080 },
     pixelRatio: 1,
     isTablet: false,
@@ -93,13 +93,13 @@ export function createMockPlatformDevice(
 
   const mockNetworkStatus: NetworkStatus = {
     isOnline: true,
-    type: "wifi",
-    effectiveType: "4g",
+    type: 'wifi',
+    effectiveType: '4g',
     downlink: 10,
   };
 
   return {
-    getPlatform: mockFn(() => "web"),
+    getPlatform: mockFn(() => 'web'),
     getDeviceInfo: mockFn(() => mockDeviceInfo),
     getMemoryInfo: mockFn(() => mockMemoryInfo),
     getNetworkStatus: mockFn(() => mockNetworkStatus),
@@ -116,7 +116,7 @@ export function createMockPlatformNotification(
   const defaults: vi.Mocked<PlatformNotification> = {
     requestPermission: asyncMockFn(() => Promise.resolve(true)),
     show: asyncMockFn(),
-    schedule: asyncMockFn(() => Promise.resolve("mock-notification-id")),
+    schedule: asyncMockFn(() => Promise.resolve('mock-notification-id')),
     cancel: asyncMockFn(),
     cancelAll: asyncMockFn(),
   };
@@ -164,8 +164,8 @@ export function createMockPlatformPerformance(
     }),
     getMetrics: mockFn(() => mockMetrics),
     clearMetrics: mockFn(() => {
-      Object.keys(measures).forEach((key) => delete measures[key]);
-      Object.keys(marks).forEach((key) => delete marks[key]);
+      Object.keys(measures).forEach(key => delete measures[key]);
+      Object.keys(marks).forEach(key => delete marks[key]);
     }),
   };
 
@@ -178,7 +178,7 @@ export function createMockPlatformPerformance(
 export function createMockPlatformClipboard(
   overrides: Partial<PlatformClipboard> = {}
 ): vi.Mocked<PlatformClipboard> {
-  let clipboardContent = "";
+  let clipboardContent = '';
 
   const defaults: vi.Mocked<PlatformClipboard> = {
     copy: asyncMockFn((text: string) => {
@@ -264,7 +264,7 @@ export const MockScenarios = {
     service.device = createMockPlatformDevice({
       getNetworkStatus: mockFn(() => ({
         isOnline: false,
-        type: "none" as const,
+        type: 'none' as const,
         effectiveType: undefined,
         downlink: 0,
       })),

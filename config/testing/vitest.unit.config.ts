@@ -9,7 +9,7 @@ const isWSL2 = process.env.WSL_DISTRO_NAME !== undefined;
 
 /**
  * Vitest Configuration for UNIT TESTS ONLY
- * 
+ *
  * Optimized for WSL2 and feature-based testing:
  * - Projects for feature-based test organization
  * - WSL2-optimized pool settings
@@ -18,12 +18,12 @@ const isWSL2 = process.env.WSL_DISTRO_NAME !== undefined;
 export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   test: {
-    environment: 'jsdom',  // Browser environment for DOM-dependent tests
+    environment: 'jsdom', // Browser environment for DOM-dependent tests
     globals: true,
     setupFiles: [
       path.resolve(testsDir, 'setup/observer-polyfill.ts'), // MUST be first!
       featuresTestSetup,
-      path.resolve(testsDir, 'utils/vitestSetup.ts')
+      path.resolve(testsDir, 'utils/vitestSetup.ts'),
     ],
     include: [
       // Feature tests (unit tests with TDD)
@@ -34,9 +34,9 @@ export default defineConfig({
       `${testsDir}/unit/**/*.{test,spec}.{ts,tsx}`,
     ],
     exclude: [
-      'node_modules', 
-      'dist', 
-      '.next', 
+      'node_modules',
+      'dist',
+      '.next',
       '**/node_modules/**',
       // Explicitly exclude slow test directories
       `${testsDir}/integration/**`,
@@ -53,21 +53,21 @@ export default defineConfig({
       `${testsDir}/shared/**`,
     ],
     // WSL2-OPTIMIZED PERFORMANCE SETTINGS
-    pool: isWSL2 ? 'forks' : 'threads',  // WSL2: Use forks to avoid pipe issues
+    pool: isWSL2 ? 'forks' : 'threads', // WSL2: Use forks to avoid pipe issues
     poolOptions: {
       threads: {
-        maxThreads: isWSL2 ? 2 : 4,  // WSL2: Limit threads
+        maxThreads: isWSL2 ? 2 : 4, // WSL2: Limit threads
         minThreads: 1,
       },
       forks: {
-        maxForks: isWSL2 ? 2 : 4,  // WSL2: Conservative fork limit
+        maxForks: isWSL2 ? 2 : 4, // WSL2: Conservative fork limit
         minForks: 1,
-        isolate: true,  // Enable isolation to prevent memory leaks
-      }
+        isolate: true, // Enable isolation to prevent memory leaks
+      },
     },
-    testTimeout: 10000,  // Extended timeout for complex async tests
-    maxWorkers: isWSL2 ? 2 : 4,  // WSL2: Limited workers
-    fileParallelism: !isWSL2,  // WSL2: Sequential execution for stability
+    testTimeout: 10000, // Extended timeout for complex async tests
+    maxWorkers: isWSL2 ? 2 : 4, // WSL2: Limited workers
+    fileParallelism: !isWSL2, // WSL2: Sequential execution for stability
     coverage: {
       reporter: ['text', 'lcov'],
       exclude: [

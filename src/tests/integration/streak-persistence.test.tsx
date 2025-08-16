@@ -1,13 +1,13 @@
 /**
  * @file Integration test for streak persistence across position navigation
  * @module tests/integration/streak-persistence
- * 
+ *
  * @description
  * Tests that the streak counter correctly persists and increments when:
  * 1. Completing a training position successfully
  * 2. Navigating to the next position
  * 3. Verifying the streak count has increased
- * 
+ *
  * This test addresses the bug where the streak was being reset to 0
  * when loading a new training position.
  */
@@ -24,24 +24,24 @@ import type { EndgamePosition } from '@shared/types/endgame';
 // Test positions
 const position1: EndgamePosition = {
   id: 1,
-  title: "Test Position 1",
-  description: "First test position for streak testing",
-  fen: "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1",
-  category: "test-category",
-  difficulty: "beginner",
-  sideToMove: "white",
-  goal: "win",
+  title: 'Test Position 1',
+  description: 'First test position for streak testing',
+  fen: '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1',
+  category: 'test-category',
+  difficulty: 'beginner',
+  sideToMove: 'white',
+  goal: 'win',
 };
 
 const position2: EndgamePosition = {
   id: 2,
-  title: "Test Position 2", 
-  description: "Second test position for streak testing",
-  fen: "4k3/8/4K3/4Q3/8/8/8/8 w - - 0 1",
-  category: "test-category",
-  difficulty: "beginner",
-  sideToMove: "white",
-  goal: "win",
+  title: 'Test Position 2',
+  description: 'Second test position for streak testing',
+  fen: '4k3/8/4K3/4Q3/8/8/8/8 w - - 0 1',
+  category: 'test-category',
+  difficulty: 'beginner',
+  sideToMove: 'white',
+  goal: 'win',
 };
 
 describe('Streak Persistence Integration Test', () => {
@@ -51,7 +51,7 @@ describe('Streak Persistence Integration Test', () => {
   beforeEach(() => {
     // Create fresh store for each test
     store = createStore();
-    
+
     // Create wrapper with store provider using the test store
     wrapper = ({ children }: { children: ReactNode }) => (
       <StoreProvider store={store}>{children}</StoreProvider>

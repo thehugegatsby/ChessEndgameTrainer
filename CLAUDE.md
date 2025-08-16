@@ -6,7 +6,7 @@
 
 ```bash
 pnpm run dev              # Dev server (MCP auto-starts)
-pnpm run build            # Production  
+pnpm run build            # Production
 pnpm test file.test.tsx   # Single test (auto-detects feature)
 pnpm test:chess           # Test chess-core feature only
 pnpm test                 # All tests (warns if >100 files)
@@ -23,13 +23,17 @@ pnpm run lint && pnpm tsc # Validation
 
 ## 📚 Load Documentation
 
-| Task | Always Load | Path |
-|------|------------|------|
-| **Any Task** | ✅ | [`docs/CORE.md`](docs/CORE.md) - Architecture |
-| Testing | → | [`docs/guides/testing.md`](docs/guides/testing.md) |
-| WSL2 Issues | → | [`docs/guides/wsl2.md`](docs/guides/wsl2.md) |
-| MCP Tools | → | [`docs/tooling/mcp-matrix.md`](docs/tooling/mcp-matrix.md) |
-| All Docs | → | [`docs/README.md`](docs/README.md) - Navigation Hub |
+| Task                | Always Load | Path                                                                       |
+| ------------------- | ----------- | -------------------------------------------------------------------------- |
+| **Any Task**        | ✅          | [`docs/CORE.md`](docs/CORE.md) - Architecture                              |
+| **Product Context** | →           | [`docs/VISION.md`](docs/VISION.md) - Product Vision                        |
+| **Quality Tasks**   | →           | [`docs/AGENT_CONFIG.json`](docs/AGENT_CONFIG.json) - Standards & Workflows |
+| Testing             | →           | [`docs/guides/testing.md`](docs/guides/testing.md)                         |
+| MCP Tools           | →           | [`docs/tooling/mcp-matrix.md`](docs/tooling/mcp-matrix.md)                 |
+
+## 🤖 LLM Protocol
+
+Always load `CORE.md` first, then task-specific docs from table above. For MCP selection, see `mcp-matrix.md`. Use "use context7" for framework docs.
 
 ## 🤖 MCP Servers Active
 
@@ -37,13 +41,6 @@ pnpm run lint && pnpm tsc # Validation
 - **playwright**: Browser automation & E2E testing
 - **claude-context**: Semantic code search
 - **context7**: Live framework docs (`use context7` in prompts)
-
-## 📝 LLM Workflow
-
-1. **ALWAYS**: Load `docs/CORE.md` first
-2. **TASK-SPECIFIC**: Load relevant guide from table above
-3. **MCP SELECTION**: Check `docs/tooling/mcp-matrix.md`
-4. **LIVE DOCS**: Add "use context7" for React/Next.js docs
 
 ## 🚀 Code Standards
 

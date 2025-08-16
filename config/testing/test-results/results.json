@@ -11,7 +11,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 1
+      "actualWorkers": 5
     },
     "preserveOutput": "always",
     "reporter": [
@@ -43,7 +43,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 5
         },
         "id": "chromium",
         "name": "chromium",
@@ -72,6 +72,229 @@
   },
   "suites": [
     {
+      "title": "debug-board.spec.ts",
+      "file": "debug-board.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Debug react-chessboard v5 structure",
+          "file": "debug-board.spec.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "examine board structure",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/debug-board.spec.ts",
+                        "line": 6,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T10:11:33.934Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ae0bc3cf4d736eebadba-76cf1b5fe050cc7d90dc",
+              "file": "debug-board.spec.ts",
+              "line": 6,
+              "column": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "domains/actual-position-test.spec.ts",
+      "file": "domains/actual-position-test.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Actual Position 1 - King and Pawn vs King",
+          "file": "domains/actual-position-test.spec.ts",
+          "line": 19,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should handle moves in the actual K+P position",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/actual-position-test.spec.ts",
+                        "line": 127,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T10:11:33.935Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8320006a6d7bf9e3212e-ba127759582601752032",
+              "file": "domains/actual-position-test.spec.ts",
+              "line": 127,
+              "column": 8
+            },
+            {
+              "title": "should show move history and evaluation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/actual-position-test.spec.ts",
+                        "line": 233,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T10:11:33.935Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8320006a6d7bf9e3212e-6527916c8a46fdac75e1",
+              "file": "domains/actual-position-test.spec.ts",
+              "line": 233,
+              "column": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "domains/weiterspielen-simple-test.spec.ts",
+      "file": "domains/weiterspielen-simple-test.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Weiterspielen Simple Test",
+          "file": "domains/weiterspielen-simple-test.spec.ts",
+          "line": 22,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Train/1 → Kd5 → Weiterspielen → Schwarz macht keinen Zug (BUG)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-simple-test.spec.ts",
+                        "line": 25,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T10:11:33.936Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d8b88a2fe9be7e48ec93-dfcbbaefb86c4eabf98a",
+              "file": "domains/weiterspielen-simple-test.spec.ts",
+              "line": 25,
+              "column": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
       "title": "smoke.spec.ts",
       "file": "smoke.spec.ts",
       "column": 0,
@@ -91,14 +314,14 @@
               "results": [
                 {
                   "workerIndex": 0,
-                  "parallelIndex": 0,
+                  "parallelIndex": 4,
                   "status": "passed",
-                  "duration": 119,
+                  "duration": 155,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2025-08-14T12:06:12.760Z",
+                  "startTime": "2025-08-16T10:11:34.338Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -116,10 +339,10 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-08-14T12:06:01.429Z",
-    "duration": 11758.969000000001,
+    "startTime": "2025-08-16T10:11:23.177Z",
+    "duration": 11648.498,
     "expected": 1,
-    "skipped": 0,
+    "skipped": 4,
     "unexpected": 0,
     "flaky": 0
   }

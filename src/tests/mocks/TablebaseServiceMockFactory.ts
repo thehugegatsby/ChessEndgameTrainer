@@ -1,6 +1,6 @@
 /**
  * TablebaseService Mock Factory
- * 
+ *
  * Creates mocks for the Lichess Tablebase API service.
  * Provides realistic tablebase responses for testing.
  */
@@ -18,57 +18,64 @@ export interface TablebaseServiceMockOverrides {
   // Response data
   defaultEvaluation?: Partial<TablebaseEvaluation>;
   positionResults?: Map<string, TablebaseEvaluation>;
-  
+
   // Behavior flags
   shouldFail?: boolean;
   failureMessage?: string;
   responseDelay?: number;
-  
+
   // Method overrides
   methods?: Partial<MockedTablebaseService>;
 }
 
-export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseService, TablebaseServiceMockOverrides> {
+export class TablebaseServiceMockFactory extends BaseMockFactory<
+  TablebaseService,
+  TablebaseServiceMockOverrides
+> {
   private positionCache = new Map<string, TablebaseEvaluation>();
   private defaultDelay = 0;
 
   protected _createDefaultMock(): MockedTablebaseService {
     const mock: MockedTablebaseService = {
       // Main evaluation method
-      getEvaluation: vi.fn().mockImplementation(async (fen: string): Promise<TablebaseEvaluation> => {
-        // Simulate network delay if configured
-        if (this.defaultDelay > 0) {
-          await new Promise(resolve => setTimeout(resolve, this.defaultDelay));
-        }
+      getEvaluation: vi
+        .fn()
+        .mockImplementation(async (fen: string): Promise<TablebaseEvaluation> => {
+          // Simulate network delay if configured
+          if (this.defaultDelay > 0) {
+            await new Promise(resolve => setTimeout(resolve, this.defaultDelay));
+          }
 
-        // Check cache first
-        if (this.positionCache.has(fen)) {
-          return this.positionCache.get(fen)!;
-        }
+          // Check cache first
+          if (this.positionCache.has(fen)) {
+            return this.positionCache.get(fen)!;
+          }
 
-        // Return default evaluation
-        const evaluation = this._createDefaultEvaluation(fen);
-        this.positionCache.set(fen, evaluation);
-        return evaluation;
-      }),
+          // Return default evaluation
+          const evaluation = this._createDefaultEvaluation(fen);
+          this.positionCache.set(fen, evaluation);
+          return evaluation;
+        }),
 
-      // Top moves method  
-      getTopMoves: vi.fn().mockImplementation(async (fen: string, limit = 5): Promise<TablebaseMovesResult> => {
-        const evaluation = await (mock as any).getEvaluation(fen);
-        
-        if (!evaluation.isAvailable || !evaluation.result) {
-          return { moves: [], isAvailable: false };
-        }
+      // Top moves method
+      getTopMoves: vi
+        .fn()
+        .mockImplementation(async (fen: string, limit = 5): Promise<TablebaseMovesResult> => {
+          const evaluation = await (mock as any).getEvaluation(fen);
 
-        // Mock some moves
-        const moves = [
-          { san: 'Kg7', uci: 'g6g7', wdl: 2, dtm: 15, dtz: 17, category: 'win' as const },
-          { san: 'Kh7', uci: 'g6h7', wdl: 0, dtm: 0, dtz: 0, category: 'draw' as const },
-          { san: 'Kf7', uci: 'g6f7', wdl: -1, dtm: -20, dtz: -18, category: 'loss' as const }
-        ].slice(0, Math.max(0, limit || 5));
+          if (!evaluation.isAvailable || !evaluation.result) {
+            return { moves: [], isAvailable: false };
+          }
 
-        return { moves, isAvailable: true };
-      }),
+          // Mock some moves
+          const moves = [
+            { san: 'Kg7', uci: 'g6g7', wdl: 2, dtm: 15, dtz: 17, category: 'win' as const },
+            { san: 'Kh7', uci: 'g6h7', wdl: 0, dtm: 0, dtz: 0, category: 'draw' as const },
+            { san: 'Kf7', uci: 'g6f7', wdl: -1, dtm: -20, dtz: -18, category: 'loss' as const },
+          ].slice(0, Math.max(0, limit || 5));
+
+          return { moves, isAvailable: true };
+        }),
 
       // Cache management
       clearCache: vi.fn().mockImplementation(() => {
@@ -80,8 +87,8 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
         cacheHits: 0,
         cacheMisses: 0,
         totalRequests: 0,
-        errorBreakdown: {}
-      }))
+        errorBreakdown: {},
+      })),
     } as unknown as TablebaseService;
 
     return mock;
@@ -99,8 +106,8 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
         dtm: 15,
         dtz: 10,
         precise: true,
-        evaluation: "2"
-      }
+        evaluation: '2',
+      },
     };
   }
 
@@ -136,11 +143,11 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
         if (this.defaultDelay > 0) {
           await new Promise(resolve => setTimeout(resolve, this.defaultDelay));
         }
-        
+
         if (this.positionCache.has(fen)) {
           return this.positionCache.get(fen)!;
         }
-        
+
         return { ...this._createDefaultEvaluation(fen), ...defaultEvaluation };
       });
     }
@@ -156,11 +163,10 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
   protected _beforeCleanup(): void {
     // Clear the position cache
     this.positionCache.clear();
-    
+
     // Reset delay
     this.defaultDelay = 0;
   }
-
 
   /**
    * Helper to set up a winning position
@@ -177,8 +183,8 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
         dtm,
         dtz: dtm + 2,
         precise: true,
-        evaluation: "2"
-      }
+        evaluation: '2',
+      },
     });
   }
 
@@ -197,8 +203,8 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
         dtm: 0,
         dtz: 0,
         precise: true,
-        evaluation: "0"
-      }
+        evaluation: '0',
+      },
     });
   }
 
@@ -217,8 +223,8 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
         dtm,
         dtz: dtm - 2,
         precise: true,
-        evaluation: "-2"
-      }
+        evaluation: '-2',
+      },
     });
   }
 
@@ -238,7 +244,7 @@ export class TablebaseServiceMockFactory extends BaseMockFactory<TablebaseServic
     }
     const mock = this.mockInstance as any;
     const errorMessage = message || 'Service temporarily unavailable';
-    
+
     mock.getEvaluation.mockRejectedValue(new Error(errorMessage));
     mock.getTopMoves.mockRejectedValue(new Error(errorMessage));
   }

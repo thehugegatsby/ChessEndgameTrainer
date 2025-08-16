@@ -1,9 +1,9 @@
 /**
  * TablebaseTransformer Tests
- * 
+ *
  * Critical tests for perspective normalization logic.
  * Tests designed with consensus from O3-mini (9/10) and Claude Haiku (8/10).
- * 
+ *
  * Test Categories:
  * 1. Position Evaluation - WDL perspective switching for positions
  * 2. Move Evaluation - Different logic for move quality assessment
@@ -30,7 +30,7 @@ describe('TablebaseTransformer', () => {
           dtz: 10,
           dtm: 5,
           category: 'win',
-          moves: []
+          moves: [],
         };
         const fen = '8/8/8/8/8/8/8/K6k w - - 0 1'; // White to move
 
@@ -39,7 +39,7 @@ describe('TablebaseTransformer', () => {
         expect(result).toEqual({
           outcome: 'win',
           dtm: 5,
-          dtz: 10
+          dtz: 10,
         });
       });
 
@@ -49,7 +49,7 @@ describe('TablebaseTransformer', () => {
           dtz: -10,
           dtm: -5,
           category: 'loss',
-          moves: []
+          moves: [],
         };
         const fen = '8/8/8/8/8/8/8/k6K w - - 0 1'; // White to move
 
@@ -58,7 +58,7 @@ describe('TablebaseTransformer', () => {
         expect(result).toEqual({
           outcome: 'loss',
           dtm: -5,
-          dtz: -10
+          dtz: -10,
         });
       });
 
@@ -68,7 +68,7 @@ describe('TablebaseTransformer', () => {
           dtz: 0,
           dtm: null,
           category: 'draw',
-          moves: []
+          moves: [],
         };
         const fen = '8/8/8/8/8/8/8/K6k w - - 0 1'; // White to move
 
@@ -77,7 +77,7 @@ describe('TablebaseTransformer', () => {
         expect(result).toEqual({
           outcome: 'draw',
           dtm: undefined,
-          dtz: 0
+          dtz: 0,
         });
       });
     });
@@ -89,7 +89,7 @@ describe('TablebaseTransformer', () => {
           dtz: 10,
           dtm: 5,
           category: 'win',
-          moves: []
+          moves: [],
         };
         const fen = '8/8/8/8/8/8/8/K6k b - - 0 1'; // Black to move
 
@@ -98,7 +98,7 @@ describe('TablebaseTransformer', () => {
         expect(result).toEqual({
           outcome: 'loss', // Loss for Black!
           dtm: 5,
-          dtz: 10
+          dtz: 10,
         });
       });
 
@@ -108,7 +108,7 @@ describe('TablebaseTransformer', () => {
           dtz: -10,
           dtm: -5,
           category: 'loss',
-          moves: []
+          moves: [],
         };
         const fen = '8/8/8/8/8/8/8/k6K b - - 0 1'; // Black to move
 
@@ -117,7 +117,7 @@ describe('TablebaseTransformer', () => {
         expect(result).toEqual({
           outcome: 'win', // Win for Black!
           dtm: -5,
-          dtz: -10
+          dtz: -10,
         });
       });
 
@@ -127,7 +127,7 @@ describe('TablebaseTransformer', () => {
           dtz: 0,
           dtm: null,
           category: 'draw',
-          moves: []
+          moves: [],
         };
         const fen = '8/8/8/8/8/8/8/K6k b - - 0 1'; // Black to move
 
@@ -136,7 +136,7 @@ describe('TablebaseTransformer', () => {
         expect(result).toEqual({
           outcome: 'draw',
           dtm: undefined,
-          dtz: 0
+          dtz: 0,
         });
       });
     });
@@ -148,7 +148,7 @@ describe('TablebaseTransformer', () => {
           dtz: null,
           dtm: undefined,
           category: 'win',
-          moves: []
+          moves: [],
         };
         const fen = '8/8/8/8/8/8/8/K6k w - - 0 1';
 
@@ -157,7 +157,7 @@ describe('TablebaseTransformer', () => {
         expect(result).toEqual({
           outcome: 'win',
           dtm: undefined,
-          dtz: undefined
+          dtz: undefined,
         });
       });
 
@@ -167,7 +167,7 @@ describe('TablebaseTransformer', () => {
           dtz: 0,
           dtm: null,
           category: 'cursed-win',
-          moves: []
+          moves: [],
         };
         const fen = '8/8/8/8/8/8/8/K6k w - - 0 1';
 
@@ -176,7 +176,7 @@ describe('TablebaseTransformer', () => {
         expect(result).toEqual({
           outcome: 'win',
           dtm: undefined,
-          dtz: 0
+          dtz: 0,
         });
       });
 
@@ -186,7 +186,7 @@ describe('TablebaseTransformer', () => {
           dtz: 0,
           dtm: null,
           category: 'blessed-loss',
-          moves: []
+          moves: [],
         };
         const fen = '8/8/8/8/8/8/8/K6k w - - 0 1';
 
@@ -195,7 +195,7 @@ describe('TablebaseTransformer', () => {
         expect(result).toEqual({
           outcome: 'loss',
           dtm: undefined,
-          dtz: 0
+          dtz: 0,
         });
       });
     });
@@ -300,7 +300,9 @@ describe('TablebaseTransformer', () => {
 
       it('should throw error for FEN with too many pieces', () => {
         const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'; // 32 pieces
-        expect(() => transformer.validateFen(fen)).toThrow('Too many pieces for tablebase (32 > 7)');
+        expect(() => transformer.validateFen(fen)).toThrow(
+          'Too many pieces for tablebase (32 > 7)'
+        );
       });
 
       it('should throw error for FEN with 8 pieces', () => {
@@ -332,14 +334,14 @@ describe('TablebaseTransformer', () => {
     describe('Error message validation', () => {
       it('should include piece count in error message', () => {
         const fen = 'KQRBN3/8/8/8/8/8/8/kqrnb2 w - - 0 1'; // K,Q,R,B,N,k,q,r,n,b = 10 pieces
-        expect(() => transformer.validateFen(fen))
-          .toThrow('Too many pieces for tablebase (10 > 7)');
+        expect(() => transformer.validateFen(fen)).toThrow(
+          'Too many pieces for tablebase (10 > 7)'
+        );
       });
 
       it('should include FEN in error message for invalid format', () => {
         const fen = 'bad_fen';
-        expect(() => transformer.validateFen(fen))
-          .toThrow(`Invalid FEN format: ${fen}`);
+        expect(() => transformer.validateFen(fen)).toThrow(`Invalid FEN format: ${fen}`);
       });
     });
   });
@@ -351,7 +353,7 @@ describe('TablebaseTransformer', () => {
         dtz: 15,
         dtm: 8,
         category: 'win',
-        moves: []
+        moves: [],
       };
       const fen = 'K7/P7/8/8/8/8/8/k7 w - - 0 1';
 
@@ -363,7 +365,7 @@ describe('TablebaseTransformer', () => {
       expect(result).toEqual({
         outcome: 'win',
         dtm: 8,
-        dtz: 15
+        dtz: 15,
       });
     });
 
@@ -373,7 +375,7 @@ describe('TablebaseTransformer', () => {
         dtz: -20,
         dtm: -10,
         category: 'loss',
-        moves: []
+        moves: [],
       };
       const fen = 'k7/p7/8/8/8/8/8/K7 b - - 0 1';
 
@@ -385,7 +387,7 @@ describe('TablebaseTransformer', () => {
       expect(result).toEqual({
         outcome: 'win', // Win for Black (inverted)
         dtm: -10,
-        dtz: -20
+        dtz: -20,
       });
     });
 

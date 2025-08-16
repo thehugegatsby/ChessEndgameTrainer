@@ -26,14 +26,14 @@
  */
 
 // Core chess types
-export * from "./chess";
+export * from './chess';
 
 // Analysis and evaluation types
-export * from "./analysisTypes";
-export * from "./evaluation";
+export * from './analysisTypes';
+export * from './evaluation';
 
 // Endgame types
-export * from "./endgame";
+export * from './endgame';
 
 // Tablebase types (specific exports to avoid conflicts)
 export type {
@@ -45,8 +45,8 @@ export type {
   TablebaseMoveInternal,
   TablebaseCacheEntry,
   TablebaseMove,
-} from "./tablebase";
-export * from "./tablebaseSchemas";
+} from './tablebase';
+export * from './tablebaseSchemas';
 
 // Re-export for backwards compatibility
-export type { Move } from "./chess";
+export type { Move } from './chess';

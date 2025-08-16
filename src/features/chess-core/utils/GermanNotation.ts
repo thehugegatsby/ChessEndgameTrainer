@@ -1,43 +1,43 @@
 /**
  * GermanNotation - Utility for converting between German and English chess notation
- * 
+ *
  * This utility handles the conversion of chess piece notation between
  * German (D/T/L/S) and English (Q/R/B/N) formats.
  * Part of the Clean Architecture refactoring.
  */
 
-import type { IGermanNotation } from "../types/interfaces";
+import type { IGermanNotation } from '../types/interfaces';
 
 export default class GermanNotation implements IGermanNotation {
   // Mapping from German to chess.js format
   private static readonly GERMAN_TO_CHESS: Record<string, string> = {
-    D: "q", // Dame (Queen)
-    d: "q",
-    T: "r", // Turm (Rook)
-    t: "r",
-    L: "b", // Läufer (Bishop)
-    l: "b",
-    S: "n", // Springer (Knight)
-    s: "n",
+    D: 'q', // Dame (Queen)
+    d: 'q',
+    T: 'r', // Turm (Rook)
+    t: 'r',
+    L: 'b', // Läufer (Bishop)
+    l: 'b',
+    S: 'n', // Springer (Knight)
+    s: 'n',
     // Also support English notation as pass-through
-    Q: "q",
-    q: "q",
-    R: "r",
-    r: "r",
-    B: "b",
-    b: "b",
-    N: "n",
-    n: "n",
+    Q: 'q',
+    q: 'q',
+    R: 'r',
+    r: 'r',
+    B: 'b',
+    b: 'b',
+    N: 'n',
+    n: 'n',
   };
 
   // Mapping from chess.js format to German
   private static readonly CHESS_TO_GERMAN: Record<string, string> = {
-    q: "D", // Queen -> Dame
-    r: "T", // Rook -> Turm
-    b: "L", // Bishop -> Läufer
-    n: "S", // Knight -> Springer
-    p: "B", // Pawn -> Bauer (rarely used in notation)
-    k: "K", // King -> König (rarely used in notation)
+    q: 'D', // Queen -> Dame
+    r: 'T', // Rook -> Turm
+    b: 'L', // Bishop -> Läufer
+    n: 'S', // Knight -> Springer
+    p: 'B', // Pawn -> Bauer (rarely used in notation)
+    k: 'K', // King -> König (rarely used in notation)
   };
 
   /**
@@ -65,7 +65,9 @@ export default class GermanNotation implements IGermanNotation {
    * Convert a move string with German notation to chess.js format
    * Examples: "e8D" -> "e8=Q", "e7e8D" -> {from: "e7", to: "e8", promotion: "q"}
    */
-  public normalizeMove(move: string): string | { from: string; to: string; promotion?: string } | undefined {
+  public normalizeMove(
+    move: string
+  ): string | { from: string; to: string; promotion?: string } | undefined {
     // Format 1: "e7e8D" or "e7-e8D" (from-to notation with German piece)
     let promotionMatch = move.match(/^([a-h][1-8])-?([a-h][1-8])([DTLSQRBN])$/i);
     if (promotionMatch && promotionMatch[3]) {
@@ -85,7 +87,7 @@ export default class GermanNotation implements IGermanNotation {
       const normalizedPromotion = this.toChessJs(promotionMatch[2]);
       if (normalizedPromotion) {
         // Return in SAN format for chess.js
-        return `${promotionMatch[1]  }=${  normalizedPromotion.toUpperCase()}`;
+        return `${promotionMatch[1]}=${normalizedPromotion.toUpperCase()}`;
       }
     }
 
@@ -123,7 +125,7 @@ export default class GermanNotation implements IGermanNotation {
     if (promotionMatch && promotionMatch[1]) {
       const germanPiece = this.toGerman(promotionMatch[1].toLowerCase());
       if (germanPiece) {
-        result = result.replace(`=${  promotionMatch[1]}`, `=${  germanPiece}`);
+        result = result.replace(`=${promotionMatch[1]}`, `=${germanPiece}`);
       }
     }
 
@@ -151,7 +153,7 @@ export default class GermanNotation implements IGermanNotation {
     if (promotionMatch && promotionMatch[1]) {
       const chessPiece = this.toChessJs(promotionMatch[1]);
       if (chessPiece) {
-        result = result.replace(`=${  promotionMatch[1]}`, `=${  chessPiece.toUpperCase()}`);
+        result = result.replace(`=${promotionMatch[1]}`, `=${chessPiece.toUpperCase()}`);
       }
     }
 

@@ -4,11 +4,7 @@
  * Completely decoupled from any specific implementation (Firebase, API, etc.)
  */
 
-import {
-  type EndgamePosition,
-  type EndgameCategory,
-  type EndgameChapter,
-} from "@shared/types";
+import { type EndgamePosition, type EndgameCategory, type EndgameChapter } from '@shared/types';
 
 /**
  * Repository interface for position data access
@@ -21,21 +17,14 @@ import {
 export interface PositionRepository {
   // Single position operations
   getPosition(id: number): Promise<EndgamePosition | null>;
-  createPosition(
-    position: Omit<EndgamePosition, "id">,
-  ): Promise<EndgamePosition>;
-  updatePosition(
-    id: number,
-    updates: Partial<EndgamePosition>,
-  ): Promise<EndgamePosition | null>;
+  createPosition(position: Omit<EndgamePosition, 'id'>): Promise<EndgamePosition>;
+  updatePosition(id: number, updates: Partial<EndgamePosition>): Promise<EndgamePosition | null>;
   deletePosition(id: number): Promise<boolean>;
 
   // Bulk position operations
   getAllPositions(): Promise<EndgamePosition[]>;
   getPositionsByCategory(category: string): Promise<EndgamePosition[]>;
-  getPositionsByDifficulty(
-    difficulty: EndgamePosition["difficulty"],
-  ): Promise<EndgamePosition[]>;
+  getPositionsByDifficulty(difficulty: EndgamePosition['difficulty']): Promise<EndgamePosition[]>;
   getPositionsByIds(ids: number[]): Promise<EndgamePosition[]>;
 
   // Search and filtering
@@ -43,14 +32,8 @@ export interface PositionRepository {
   getPositionsByTags(tags: string[]): Promise<EndgamePosition[]>;
 
   // Navigation
-  getNextPosition(
-    currentId: number,
-    categoryId?: string,
-  ): Promise<EndgamePosition | null>;
-  getPreviousPosition(
-    currentId: number,
-    categoryId?: string,
-  ): Promise<EndgamePosition | null>;
+  getNextPosition(currentId: number, categoryId?: string): Promise<EndgamePosition | null>;
+  getPreviousPosition(currentId: number, categoryId?: string): Promise<EndgamePosition | null>;
 
   // Categories and chapters
   getCategories(): Promise<EndgameCategory[]>;
@@ -61,16 +44,12 @@ export interface PositionRepository {
   // Statistics
   getTotalPositionCount(): Promise<number>;
   getPositionCountByCategory(categoryId: string): Promise<number>;
-  getPositionCountByDifficulty(
-    difficulty: EndgamePosition["difficulty"],
-  ): Promise<number>;
+  getPositionCountByDifficulty(difficulty: EndgamePosition['difficulty']): Promise<number>;
 
   // Batch operations
-  batchCreatePositions(
-    positions: Omit<EndgamePosition, "id">[],
-  ): Promise<EndgamePosition[]>;
+  batchCreatePositions(positions: Omit<EndgamePosition, 'id'>[]): Promise<EndgamePosition[]>;
   batchUpdatePositions(
-    updates: Array<{ id: number; updates: Partial<EndgamePosition> }>,
+    updates: Array<{ id: number; updates: Partial<EndgamePosition> }>
   ): Promise<EndgamePosition[]>;
   batchDeletePositions(ids: number[]): Promise<boolean>;
 }

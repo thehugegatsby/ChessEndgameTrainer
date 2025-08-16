@@ -9,10 +9,10 @@
 export class PositionError extends Error {
   constructor(
     message: string,
-    public readonly code: string,
+    public readonly code: string
   ) {
     super(message);
-    this.name = "PositionError";
+    this.name = 'PositionError';
     Object.setPrototypeOf(this, PositionError.prototype);
   }
 }
@@ -22,8 +22,8 @@ export class PositionError extends Error {
  */
 export class PositionNotFoundError extends PositionError {
   constructor(id: number) {
-    super(`Position with id ${id} not found`, "POSITION_NOT_FOUND");
-    this.name = "PositionNotFoundError";
+    super(`Position with id ${id} not found`, 'POSITION_NOT_FOUND');
+    this.name = 'PositionNotFoundError';
     Object.setPrototypeOf(this, PositionNotFoundError.prototype);
   }
 }
@@ -33,8 +33,8 @@ export class PositionNotFoundError extends PositionError {
  */
 export class InvalidPositionError extends PositionError {
   constructor(message: string) {
-    super(message, "INVALID_POSITION");
-    this.name = "InvalidPositionError";
+    super(message, 'INVALID_POSITION');
+    this.name = 'InvalidPositionError';
     Object.setPrototypeOf(this, InvalidPositionError.prototype);
   }
 }
@@ -46,9 +46,9 @@ export class RepositoryError extends PositionError {
   constructor(operation: string, originalError: Error) {
     super(
       `Repository operation '${operation}' failed: ${originalError.message}`,
-      "REPOSITORY_ERROR",
+      'REPOSITORY_ERROR'
     );
-    this.name = "RepositoryError";
+    this.name = 'RepositoryError';
     Object.setPrototypeOf(this, RepositoryError.prototype);
   }
 }

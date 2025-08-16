@@ -20,7 +20,7 @@
 
 import { TEXT_LENGTHS } from '@/constants/text.constants';
 
-import { type EndgamePosition } from "@shared/types";
+import { type EndgamePosition } from '@shared/types';
 
 /**
  * Formats position titles according to UI requirements
@@ -49,14 +49,11 @@ import { type EndgamePosition } from "@shared/types";
  * Brückenbau (bridge-building) is a specific rook endgame technique
  * that requires sequential learning, hence the special numbering.
  */
-export function formatPositionTitle(
-  position: EndgamePosition,
-  totalPositions?: number,
-): string {
+export function formatPositionTitle(position: EndgamePosition, totalPositions?: number): string {
   const { title, id, category } = position;
 
   // Handle Brückenbau positions with special formatting
-  if (title === "Brückenbau" || title.toLowerCase().includes("brückenbau")) {
+  if (title === 'Brückenbau' || title.toLowerCase().includes('brückenbau')) {
     if (totalPositions) {
       return `Brückenbau ${id}/${totalPositions}`;
     }
@@ -65,11 +62,9 @@ export function formatPositionTitle(
   }
 
   // Handle other position types that might need special formatting
-  if (category === "rook-pawn" && title === "Brückenbau") {
+  if (category === 'rook-pawn' && title === 'Brückenbau') {
     // Ensure rook-pawn Brückenbau positions get proper numbering
-    return totalPositions
-      ? `Brückenbau ${id}/${totalPositions}`
-      : `Brückenbau ${id}`;
+    return totalPositions ? `Brückenbau ${id}/${totalPositions}` : `Brückenbau ${id}`;
   }
 
   // For all other positions, return the original title
@@ -104,13 +99,13 @@ export function getShortTitle(position: EndgamePosition): string {
   const formatted = formatPositionTitle(position);
 
   // For Brückenbau, keep the full formatted title as it's already concise
-  if (formatted.includes("Brückenbau")) {
+  if (formatted.includes('Brückenbau')) {
     return formatted;
   }
 
   // For other long titles, truncate if needed
   if (formatted.length > TEXT_LENGTHS.TITLE_MAX_LENGTH) {
-    return `${formatted.substring(0, TEXT_LENGTHS.SUBTITLE_MAX_LENGTH)  }...`;
+    return `${formatted.substring(0, TEXT_LENGTHS.SUBTITLE_MAX_LENGTH)}...`;
   }
 
   return formatted;
@@ -146,7 +141,7 @@ export function getShortTitle(position: EndgamePosition): string {
 export function getTrainingDisplayTitle(
   position: EndgamePosition,
   _moveCount?: number,
-  totalPositions?: number,
+  totalPositions?: number
 ): string {
   const baseTitle = formatPositionTitle(position, totalPositions);
 

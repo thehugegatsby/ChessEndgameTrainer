@@ -11,14 +11,13 @@ import {
   type LogFilter,
   type LogTransport,
   type LogFormatter,
-} from "./types";
-import { getPlatformDetection } from "../platform";
-import { STRING_OPERATIONS } from "@/constants/utility.constants";
+} from './types';
+import { getPlatformDetection } from '../platform';
+import { STRING_OPERATIONS } from '@/constants/utility.constants';
 
 // Default configuration
 const DEFAULT_CONFIG: LoggerConfig = {
-  minLevel:
-    process.env.NODE_ENV === "production" ? LogLevel.INFO : LogLevel.DEBUG,
+  minLevel: process.env.NODE_ENV === 'production' ? LogLevel.INFO : LogLevel.DEBUG,
   enableConsole: true,
   enableRemote: false,
   enableFileLogging: false,
@@ -30,7 +29,7 @@ class DefaultLogFormatter implements LogFormatter {
   format(entry: LogEntry): string {
     const timestamp = entry.timestamp.toISOString();
     const level = LogLevel[entry.level];
-    const context = entry.context ? `[${entry.context}]` : "";
+    const context = entry.context ? `[${entry.context}]` : '';
 
     let message = `${timestamp} ${level} ${context} ${entry.message}`;
 
@@ -147,9 +146,9 @@ class RemoteTransport implements LogTransport {
 
     try {
       const response = await fetch(this.endpoint, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ logs: entriesToFlush }),
       });
@@ -161,7 +160,7 @@ class RemoteTransport implements LogTransport {
     } catch (error) {
       // FALLBACK: Using console.error as last resort when logging infrastructure itself fails
       // This prevents infinite loops and ensures critical logging failures are still visible
-      console.error("Failed to send logs to remote:", error);
+      console.error('Failed to send logs to remote:', error);
 
       // If the request fails, put the logs back at the front of the buffer to be retried
       // This preserves chronological order
@@ -224,12 +223,7 @@ export class DefaultLogger implements Logger {
     return true;
   }
 
-  private log(
-    level: LogLevel,
-    message: string,
-    error?: Error | unknown,
-    data?: unknown,
-  ): void {
+  private log(level: LogLevel, message: string, error?: Error | unknown, data?: unknown): void {
     if (!this.shouldLog(level, this.context)) return;
 
     const entry: LogEntry = {
@@ -256,7 +250,7 @@ export class DefaultLogger implements Logger {
     }
 
     // Send to transports
-    this.transports.forEach((transport) => transport.log(entry));
+    this.transports.forEach(transport => transport.log(entry));
   }
 
   debug(message: string, data?: unknown): void {
@@ -314,11 +308,9 @@ export class DefaultLogger implements Logger {
   getLogs(filter?: LogFilter): LogEntry[] {
     if (!filter) return [...this.logs];
 
-    return this.logs.filter((log) => {
-      if (filter.minLevel !== undefined && log.level < filter.minLevel)
-        return false;
-      if (filter.maxLevel !== undefined && log.level > filter.maxLevel)
-        return false;
+    return this.logs.filter(log => {
+      if (filter.minLevel !== undefined && log.level < filter.minLevel) return false;
+      if (filter.maxLevel !== undefined && log.level > filter.maxLevel) return false;
       if (filter.context && log.context !== filter.context) return false;
       if (filter.startTime && log.timestamp < filter.startTime) return false;
       if (filter.endTime && log.timestamp > filter.endTime) return false;
@@ -326,9 +318,7 @@ export class DefaultLogger implements Logger {
         const searchLower = filter.searchText.toLowerCase();
         const inMessage = log.message.toLowerCase().includes(searchLower);
         const inContext = log.context?.toLowerCase().includes(searchLower);
-        const inData = JSON.stringify(log.data)
-          .toLowerCase()
-          .includes(searchLower);
+        const inData = JSON.stringify(log.data).toLowerCase().includes(searchLower);
         return inMessage || inContext || inData;
       }
       return true;
@@ -370,7 +360,7 @@ export class DefaultLogger implements Logger {
 
   /** Flushes all pending logs from all transports */
   async flush(): Promise<void> {
-    await Promise.all(this.transports.map((t) => t.flush()));
+    await Promise.all(this.transports.map(t => t.flush()));
   }
 }
 

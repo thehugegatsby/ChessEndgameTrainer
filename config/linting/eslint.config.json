@@ -242,10 +242,7 @@
         "src/app/**/*.ts"
       ],
       "rules": {
-        "@typescript-eslint/no-unused-vars": [
-          "warn",
-          { "argsIgnorePattern": "^_" }
-        ]
+        "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }]
       }
     },
     {
@@ -270,11 +267,7 @@
       }
     },
     {
-      "files": [
-        "src/tests/reporters/**/*.js",
-        "src/tests/setup/*.js",
-        "src/tests/e2e/global-*.ts"
-      ],
+      "files": ["src/tests/reporters/**/*.js", "src/tests/setup/*.js", "src/tests/e2e/global-*.ts"],
       "rules": {
         "@typescript-eslint/explicit-function-return-type": "off",
         "no-console": "off"

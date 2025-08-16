@@ -1,6 +1,6 @@
 /**
  * Tablebase Models - Domain Value Objects
- * 
+ *
  * These are the concrete implementations and utility types
  * used throughout the tablebase feature.
  */
@@ -44,21 +44,21 @@ export const FenUtils = {
    */
   isValid(fen: string): boolean {
     const parts = fen.split(' ');
-    
+
     // Basic FEN must have at least 2 parts (position and turn)
     if (parts.length < 2) return false;
-    
+
     // Check turn indicator
     const turn = parts[1];
     if (!turn || !['w', 'b'].includes(turn)) return false;
-    
+
     // Check piece placement (simplified validation)
     const position = parts[0];
     if (!position) return false;
-    
+
     const ranks = position.split('/');
     if (ranks.length !== 8) return false;
-    
+
     return true;
   },
 
@@ -90,7 +90,7 @@ export const FenUtils = {
     const position = fen.split(' ')[0];
     if (!position) return 0;
     return position.replace(/[^a-zA-Z]/g, '').length;
-  }
+  },
 };
 
 /**
@@ -115,7 +115,7 @@ export const WdlUtils = {
    */
   invert(wdl: number): number {
     return -wdl;
-  }
+  },
 };
 
 /**
@@ -124,19 +124,19 @@ export const WdlUtils = {
 export const TablebaseConfig = {
   /** Maximum pieces for tablebase lookup (Lichess limit) */
   MAX_PIECES: 7,
-  
+
   /** Default number of moves to return */
   DEFAULT_MOVE_LIMIT: 3,
-  
+
   /** API base URL */
   API_BASE_URL: 'https://tablebase.lichess.ovh/standard',
-  
+
   /** Request timeout in milliseconds */
   REQUEST_TIMEOUT: 5000,
-  
+
   /** Maximum retry attempts */
   MAX_RETRIES: 3,
-  
+
   /** Exponential backoff base delay in ms */
   BACKOFF_BASE_DELAY: 1000,
 } as const;
@@ -149,15 +149,13 @@ export const TypeGuards = {
    * Check if a value is a valid outcome
    */
   isOutcome(value: unknown): value is TablebaseOutcome {
-    return typeof value === 'string' && 
-           ['win', 'draw', 'loss'].includes(value);
+    return typeof value === 'string' && ['win', 'draw', 'loss'].includes(value);
   },
 
   /**
    * Check if an error is a TablebaseError
    */
   isTablebaseError(error: unknown): error is TablebaseError {
-    return error instanceof Error && 
-           error.name === 'TablebaseError';
-  }
+    return error instanceof Error && error.name === 'TablebaseError';
+  },
 };

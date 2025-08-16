@@ -20,15 +20,15 @@
  * and provides visual feedback for optimal move selection.
  */
 
-"use client";
+'use client';
 
-import React, { useMemo } from "react";
-import { MoveResultGroup } from "./MoveResultGroup";
+import React, { useMemo } from 'react';
+import { MoveResultGroup } from './MoveResultGroup';
 import {
   type TablebaseMove,
   classifyMovesByDTZ,
-} from "@shared/utils/tablebase/resultClassification";
-import { type TablebaseData } from "@shared/types/evaluation";
+} from '@shared/utils/tablebase/resultClassification';
+import { type TablebaseData } from '@shared/types/evaluation';
 
 /**
  * Props for the TablebasePanel component
@@ -103,7 +103,7 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
   loading = false,
   error,
   compact = false,
-  className = "",
+  className = '',
 }) => {
   /**
    * Transforms tablebase API data to internal move format
@@ -127,7 +127,7 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
       return [];
     }
 
-    return tablebaseData.topMoves.map((move) => ({
+    return tablebaseData.topMoves.map(move => ({
       move: move.move,
       san: move.san,
       dtz: move.dtz,
@@ -158,9 +158,7 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
   if (error) {
     return (
       <div className={`tablebase-panel ${className}`}>
-        <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-          Tablebase
-        </div>
+        <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Tablebase</div>
         <div className="text-sm text-red-600 dark:text-red-400 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
           Analyse konnte nicht geladen werden
         </div>
@@ -172,13 +170,9 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
   if (loading) {
     return (
       <div className={`tablebase-panel ${className}`}>
-        <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-          Tablebase
-        </div>
+        <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Tablebase</div>
         <div className="text-center py-4">
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            Lade Analyse...
-          </div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">Lade Analyse...</div>
         </div>
       </div>
     );
@@ -188,9 +182,7 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
   if (!tablebaseData.isTablebasePosition) {
     return (
       <div className={`tablebase-panel ${className}`}>
-        <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-          Tablebase
-        </div>
+        <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Tablebase</div>
         <div className="text-sm text-amber-600 dark:text-amber-400 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
           Keine Tablebase-Daten verfügbar
         </div>
@@ -202,9 +194,7 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
   if (moves.length === 0) {
     return (
       <div className={`tablebase-panel ${className}`} data-testid="tablebase-panel-empty">
-        <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-          Tablebase
-        </div>
+        <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Tablebase</div>
         <div className="text-sm text-green-600 dark:text-green-400 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
           Warte auf Tablebase-Analyse...
         </div>
@@ -213,15 +203,10 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
   }
 
   return (
-    <div
-      className={`tablebase-panel ${className}`}
-      data-testid="tablebase-panel"
-    >
+    <div className={`tablebase-panel ${className}`} data-testid="tablebase-panel">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-          Tablebase
-        </div>
+        <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Tablebase</div>
         <div className="text-xs text-gray-500 dark:text-gray-400">
           {categorizedMoves.totalMoves} moves
         </div>
@@ -272,12 +257,12 @@ export const TablebasePanel: React.FC<TablebasePanelProps> = ({
 /**
  * Compact version of TablebasePanel for dense layouts
  */
-export const CompactTablebasePanel: React.FC<TablebasePanelProps> = (props) => {
+export const CompactTablebasePanel: React.FC<TablebasePanelProps> = props => {
   return (
     <TablebasePanel
       {...props}
       compact={true}
-      className={`compact-tablebase-panel ${props.className || ""}`}
+      className={`compact-tablebase-panel ${props.className || ''}`}
     />
   );
 };

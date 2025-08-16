@@ -43,7 +43,7 @@ Manages pawn promotion detection, evaluation, and handling in chess endgame trai
 
 ```typescript
 {
-  piece: "q" | "r" | "n" | "b";
+  piece: 'q' | 'r' | 'n' | 'b';
   label: string; // German label
   description: string; // German description
 }
@@ -118,10 +118,10 @@ Displays promotion choice UI (placeholder).
 
 ```typescript
 PROMOTION_CHOICES = [
-  { piece: "q", label: "Dame", description: "..." },
-  { piece: "r", label: "Turm", description: "..." },
-  { piece: "n", label: "Springer", description: "..." },
-  { piece: "b", label: "Läufer", description: "..." },
+  { piece: 'q', label: 'Dame', description: '...' },
+  { piece: 'r', label: 'Turm', description: '...' },
+  { piece: 'n', label: 'Springer', description: '...' },
+  { piece: 'b', label: 'Läufer', description: '...' },
 ];
 ```
 

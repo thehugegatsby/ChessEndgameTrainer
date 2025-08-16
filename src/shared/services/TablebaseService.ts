@@ -18,19 +18,19 @@
  * - Rate limiting applies (~130 rapid requests trigger limits)
  */
 
-import { validateAndSanitizeFen } from "../utils/fenValidator";
-import { getLogger } from "../services/logging";
-import { APP_CONFIG } from "@/config/constants";
-import { type Result, ok, err, isErr, AppError } from "@shared/utils/result";
+import { validateAndSanitizeFen } from '../utils/fenValidator';
+import { getLogger } from '../services/logging';
+import { APP_CONFIG } from '@/config/constants';
+import { type Result, ok, err, isErr, AppError } from '@shared/utils/result';
 // Removed unused imports - Zod validation now handled by LichessApiClient
-import { LichessApiClient, LichessApiError, LichessApiTimeoutError } from "./api/LichessApiClient";
-import type { CacheManager } from "../lib/cache/types";
-import { LRUCacheManager } from "../lib/cache/LRUCacheManager";
-import { HTTP_CONFIG, HTTP_RETRY } from "@shared/constants/http.constants";
-import { CACHE_SIZES, CACHE_TTL } from "@shared/constants/cache";
-import { INPUT_LIMITS } from "@shared/constants/validation.constants";
-import { CHESS_EVALUATION } from "@shared/constants/multipliers";
-import { HTTP_STATUS } from "../../constants/api.constants";
+import { LichessApiClient, LichessApiError, LichessApiTimeoutError } from './api/LichessApiClient';
+import type { CacheManager } from '../lib/cache/types';
+import { LRUCacheManager } from '../lib/cache/LRUCacheManager';
+import { HTTP_CONFIG, HTTP_RETRY } from '@shared/constants/http.constants';
+import { CACHE_SIZES, CACHE_TTL } from '@shared/constants/cache';
+import { INPUT_LIMITS } from '@shared/constants/validation.constants';
+import { CHESS_EVALUATION } from '@shared/constants/multipliers';
+import { HTTP_STATUS } from '../../constants/api.constants';
 import type {
   LichessTablebaseResponse,
   TablebaseEntry,
@@ -41,17 +41,12 @@ import type {
   TablebaseResult,
   TablebaseEvaluation,
   TablebaseMovesResult,
-} from "../types/tablebase";
+} from '../types/tablebase';
 
 // Re-export types for backward compatibility
-export type {
-  TablebaseMove,
-  TablebaseResult,
-  TablebaseEvaluation,
-  TablebaseMovesResult,
-};
+export type { TablebaseMove, TablebaseResult, TablebaseEvaluation, TablebaseMovesResult };
 
-const logger = getLogger().setContext("TablebaseService");
+const logger = getLogger().setContext('TablebaseService');
 
 // Tablebase configuration constants
 const MAX_PIECES_IN_TABLEBASE = 7; // Lichess uses 7-piece Syzygy tablebases
@@ -61,7 +56,7 @@ class TablebaseService {
   private readonly maxPieces = MAX_PIECES_IN_TABLEBASE;
   private readonly cacheTtl = CACHE_TTL.EXTENDED;
   private pendingRequests = new Map<string, Promise<TablebaseEntry | null>>();
-  
+
   private readonly apiClient: LichessApiClient;
 
   constructor(
@@ -69,18 +64,24 @@ class TablebaseService {
     cacheManager?: CacheManager<string, TablebaseCacheEntry>
   ) {
     // Use provided client or create default instance
-    this.apiClient = apiClient || new LichessApiClient({
-      baseUrl: APP_CONFIG.TABLEBASE_API_URL,
-      timeoutMs: HTTP_CONFIG.REQUEST_TIMEOUT_SHORT,
-      maxRetries: HTTP_RETRY.MAX_RETRIES,
-      maxBackoffMs: HTTP_RETRY.BACKOFF_BASE_DELAY * Math.pow(HTTP_RETRY.BACKOFF_FACTOR, HTTP_RETRY.MAX_BACKOFF_EXPONENT)
-    });
+    this.apiClient =
+      apiClient ||
+      new LichessApiClient({
+        baseUrl: APP_CONFIG.TABLEBASE_API_URL,
+        timeoutMs: HTTP_CONFIG.REQUEST_TIMEOUT_SHORT,
+        maxRetries: HTTP_RETRY.MAX_RETRIES,
+        maxBackoffMs:
+          HTTP_RETRY.BACKOFF_BASE_DELAY *
+          Math.pow(HTTP_RETRY.BACKOFF_FACTOR, HTTP_RETRY.MAX_BACKOFF_EXPONENT),
+      });
 
     // Use provided cache manager or create default LRU cache
-    this.cacheManager = cacheManager || new LRUCacheManager<string, TablebaseCacheEntry>(
-      CACHE_SIZES.LARGE,     // maxSize (same as before)
-      this.cacheTtl  // defaultTtlMs (extended timeout)
-    );
+    this.cacheManager =
+      cacheManager ||
+      new LRUCacheManager<string, TablebaseCacheEntry>(
+        CACHE_SIZES.LARGE, // maxSize (same as before)
+        this.cacheTtl // defaultTtlMs (extended timeout)
+      );
   }
 
   // Metrics for monitoring
@@ -132,29 +133,31 @@ class TablebaseService {
   async getEvaluation(fen: string): Promise<TablebaseEvaluation> {
     // Adapter pattern: internal Result, external legacy API
     const result = await this._getEvaluationInternal(fen);
-    
+
     if (isErr(result)) {
       return {
         isAvailable: false,
         error: result.error.message,
       };
     }
-    
+
     if (!result.value) {
       return { isAvailable: false };
     }
-    
+
     return {
       isAvailable: true,
       result: result.value,
     };
   }
-  
+
   /**
    * Internal implementation using Result pattern
    * @private
    */
-  private async _getEvaluationInternal(fen: string): Promise<Result<TablebaseResult | null, AppError>> {
+  private async _getEvaluationInternal(
+    fen: string
+  ): Promise<Result<TablebaseResult | null, AppError>> {
     try {
       const entry = await this._getOrFetchTablebaseEntry(fen);
 
@@ -171,11 +174,13 @@ class TablebaseService {
         evaluation: entry.position.evaluation,
       });
     } catch (error) {
-      logger.error("Failed to get evaluation", error as Error, { fen });
-      return err(new AppError(
-        error instanceof Error ? error.message : "Unknown error",
-        { fen, operation: "getEvaluation" }
-      ));
+      logger.error('Failed to get evaluation', error as Error, { fen });
+      return err(
+        new AppError(error instanceof Error ? error.message : 'Unknown error', {
+          fen,
+          operation: 'getEvaluation',
+        })
+      );
     }
   }
 
@@ -195,40 +200,37 @@ class TablebaseService {
    *   logger.info(`Best move: ${moves.moves[0].san}`);
    * }
    */
-  async getTopMoves(
-    fen: string,
-    limit: number = 3,
-  ): Promise<TablebaseMovesResult> {
+  async getTopMoves(fen: string, limit: number = 3): Promise<TablebaseMovesResult> {
     // Adapter pattern: internal Result, external legacy API
     const result = await this._getTopMovesInternal(fen, limit);
-    
+
     if (isErr(result)) {
       return {
         isAvailable: false,
         error: result.error.message,
       };
     }
-    
+
     if (!result.value) {
       return {
         isAvailable: false,
-        error: "No moves available for this position",
+        error: 'No moves available for this position',
       };
     }
-    
+
     return {
       isAvailable: true,
       moves: result.value,
     };
   }
-  
+
   /**
    * Internal implementation using Result pattern
    * @private
    */
   private async _getTopMovesInternal(
     fen: string,
-    limit: number = 3,
+    limit: number = 3
   ): Promise<Result<TablebaseMove[] | null, AppError>> {
     try {
       const entry = await this._getOrFetchTablebaseEntry(fen);
@@ -266,13 +268,13 @@ class TablebaseService {
 
       // Take only the best moves (same WDL as the absolute best)
       const bestWdl = sortedMoves[0]?.wdl ?? 0;
-      const bestMoves = sortedMoves.filter((move) => move.wdl === bestWdl);
+      const bestMoves = sortedMoves.filter(move => move.wdl === bestWdl);
 
       // Return up to 'limit' of the best moves
       const topInternalMoves = bestMoves.slice(0, limit);
 
       // Convert internal moves to external format (without zeroing field)
-      const topMoves: TablebaseMove[] = topInternalMoves.map((move) => ({
+      const topMoves: TablebaseMove[] = topInternalMoves.map(move => ({
         uci: move.uci,
         san: move.san,
         wdl: move.wdl,
@@ -282,33 +284,36 @@ class TablebaseService {
       }));
 
       // ENHANCED DEBUG LOGGING
-      logger.info("TablebaseService.getTopMoves DETAILED OUTPUT", {
+      logger.info('TablebaseService.getTopMoves DETAILED OUTPUT', {
         fen,
         requestedLimit: limit,
         totalMovesFromAPI: entry.moves.length,
         bestWdl,
         movesWithBestWdl: bestMoves.length,
         returnedMoves: topMoves.length,
-        returnedMoveDetails: topMoves.map((m) => ({
+        returnedMoveDetails: topMoves.map(m => ({
           san: m.san,
           wdl: m.wdl,
           dtm: m.dtm,
           category: m.category,
         })),
         sortingApplied: (() => {
-          if (bestWdl < 0) return "Defensive (highest DTM first)";
-          if (bestWdl > 0) return "Offensive (lowest DTM first)";
-          return "Draw";
+          if (bestWdl < 0) return 'Defensive (highest DTM first)';
+          if (bestWdl > 0) return 'Offensive (lowest DTM first)';
+          return 'Draw';
         })(),
       });
 
       return ok(topMoves);
     } catch (error) {
-      logger.error("Failed to get top moves", error as Error, { fen });
-      return err(new AppError(
-        error instanceof Error ? error.message : "Unknown error",
-        { fen, limit, operation: "getTopMoves" }
-      ));
+      logger.error('Failed to get top moves', error as Error, { fen });
+      return err(
+        new AppError(error instanceof Error ? error.message : 'Unknown error', {
+          fen,
+          limit,
+          operation: 'getTopMoves',
+        })
+      );
     }
   }
 
@@ -328,7 +333,7 @@ class TablebaseService {
    * Halfmove clock and fullmove number are irrelevant for tablebase lookup
    */
   private _normalizeFen(fen: string): string {
-    return fen.split(" ").slice(0, 4).join(" ");
+    return fen.split(' ').slice(0, 4).join(' ');
   }
 
   /**
@@ -345,13 +350,11 @@ class TablebaseService {
    * 4. Transforms the response to our internal format
    * 5. Caches the complete entry including all moves
    */
-  private _getOrFetchTablebaseEntry(
-    fen: string,
-  ): Promise<TablebaseEntry | null> {
+  private _getOrFetchTablebaseEntry(fen: string): Promise<TablebaseEntry | null> {
     // Validate FEN
     const validation = validateAndSanitizeFen(fen);
     if (!validation.isValid) {
-      throw new Error(`Invalid FEN: ${validation.errors.join(", ")}`);
+      throw new Error(`Invalid FEN: ${validation.errors.join(', ')}`);
     }
     const sanitizedFen = validation.sanitized;
     const normalizedFen = this._normalizeFen(sanitizedFen);
@@ -359,7 +362,7 @@ class TablebaseService {
     // Check piece count
     const pieceCount = this._countPieces(sanitizedFen);
     if (pieceCount > this.maxPieces) {
-      logger.debug("Too many pieces for tablebase", {
+      logger.debug('Too many pieces for tablebase', {
         fen: sanitizedFen,
         pieceCount,
       });
@@ -369,7 +372,7 @@ class TablebaseService {
     // Check cache with normalized FEN
     const cached = this.cacheManager.get(normalizedFen);
     if (cached) {
-      logger.debug("Cache hit for tablebase entry", { fen: normalizedFen });
+      logger.debug('Cache hit for tablebase entry', { fen: normalizedFen });
       this.metrics.recordCacheHit();
       return Promise.resolve(cached.entry);
     }
@@ -378,7 +381,7 @@ class TablebaseService {
     // Check if request already in flight (request deduplication)
     const pending = this.pendingRequests.get(normalizedFen);
     if (pending) {
-      logger.debug("Request already in flight, waiting", {
+      logger.debug('Request already in flight, waiting', {
         fen: normalizedFen,
       });
       this.metrics.recordDeduplication();
@@ -406,7 +409,7 @@ class TablebaseService {
    */
   private async _fetchAndTransform(
     fen: string,
-    normalizedFen: string,
+    normalizedFen: string
   ): Promise<TablebaseEntry | null> {
     this.metrics.recordApiCall();
 
@@ -420,7 +423,7 @@ class TablebaseService {
       // Cache the transformed entry with normalized FEN
       this._cacheEntry(normalizedFen, entry);
 
-      logger.info("Successfully fetched and cached tablebase entry", {
+      logger.info('Successfully fetched and cached tablebase entry', {
         fen,
         positionCategory: entry.position.category,
         moveCount: entry.moves.length,
@@ -434,7 +437,7 @@ class TablebaseService {
 
         // Handle 404 specially - position not in tablebase
         if (error.statusCode === HTTP_STATUS.NOT_FOUND) {
-          logger.info("Position not in tablebase, caching null", {
+          logger.info('Position not in tablebase, caching null', {
             fen: normalizedFen,
           });
           this._cacheEntry(normalizedFen, null);
@@ -442,22 +445,26 @@ class TablebaseService {
         }
 
         // For other API errors, log and re-throw
-        logger.error("Lichess API error", { 
-          fen, 
-          statusCode: error.statusCode, 
-          message: error.message 
+        logger.error('Lichess API error', {
+          fen,
+          statusCode: error.statusCode,
+          message: error.message,
         });
         throw new Error(`Tablebase API error: ${error.message}`);
       }
 
       if (error instanceof LichessApiTimeoutError) {
-        logger.error("Tablebase API timeout", { fen, message: error.message });
+        logger.error('Tablebase API timeout', { fen, message: error.message });
         throw new Error(`Tablebase API timeout: ${error.message}`);
       }
 
       // Handle validation errors and other unexpected errors
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      logger.error("Unexpected error during API call", error instanceof Error ? error : new Error(String(error)), { fen });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      logger.error(
+        'Unexpected error during API call',
+        error instanceof Error ? error : new Error(String(error)),
+        { fen }
+      );
       throw new Error(`Unexpected tablebase error: ${errorMessage}`);
     }
   }
@@ -473,11 +480,8 @@ class TablebaseService {
    * 3. Invert move evaluations to player-to-move perspective
    * 4. Handle Black's perspective correctly
    */
-  private _transformApiResponse(
-    api: LichessTablebaseResponse,
-    fen: string,
-  ): TablebaseEntry {
-    const isBlackToMove = fen.split(" ")[1] === "b";
+  private _transformApiResponse(api: LichessTablebaseResponse, fen: string): TablebaseEntry {
+    const isBlackToMove = fen.split(' ')[1] === 'b';
 
     // Transform position evaluation
     const positionCategory = api.category as TablebaseCategory;
@@ -487,12 +491,10 @@ class TablebaseService {
     // No need to negate for Black positions - the API gives the result from the mover's perspective
 
     // Transform moves with correct perspective (moves array guaranteed by schema)
-    const moves: TablebaseMoveInternal[] = (api.moves || []).map((apiMove) => {
+    const moves: TablebaseMoveInternal[] = (api.moves || []).map(apiMove => {
       // API gives evaluation AFTER the move (from opponent's perspective)
       // We need to invert it to get the evaluation FROM the mover's perspective
-      const moveCategory = this._invertCategory(
-        apiMove.category,
-      ) as TablebaseCategory;
+      const moveCategory = this._invertCategory(apiMove.category) as TablebaseCategory;
       let moveWdl = this._categoryToWdl(moveCategory);
 
       // For Black, we need to negate WDL since it's from White's perspective
@@ -535,7 +537,7 @@ class TablebaseService {
       entry,
       expiry: Date.now() + this.cacheTtl, // Keep expiry for compatibility with existing types
     };
-    
+
     // Use cache manager with TTL - it handles size limits and cleanup automatically
     this.cacheManager.set(fen, cacheEntry, this.cacheTtl);
   }
@@ -546,18 +548,18 @@ class TablebaseService {
    */
   private _categoryToWdl(category: string): number {
     switch (category) {
-      case "win":
+      case 'win':
         return 2;
-      case "cursed-win":
-      case "maybe-win":
+      case 'cursed-win':
+      case 'maybe-win':
         return 1;
-      case "draw":
-      case "unknown":
+      case 'draw':
+      case 'unknown':
         return 0;
-      case "blessed-loss":
-      case "maybe-loss":
+      case 'blessed-loss':
+      case 'maybe-loss':
         return -1;
-      case "loss":
+      case 'loss':
         return CHESS_EVALUATION.WDL_LOSS;
       default:
         return 0;
@@ -570,20 +572,20 @@ class TablebaseService {
    */
   private _invertCategory(category: string): string {
     switch (category) {
-      case "win":
-        return "loss";
-      case "loss":
-        return "win";
-      case "cursed-win":
-        return "blessed-loss";
-      case "blessed-loss":
-        return "cursed-win";
-      case "maybe-win":
-        return "maybe-loss";
-      case "maybe-loss":
-        return "maybe-win";
-      case "draw":
-      case "unknown":
+      case 'win':
+        return 'loss';
+      case 'loss':
+        return 'win';
+      case 'cursed-win':
+        return 'blessed-loss';
+      case 'blessed-loss':
+        return 'cursed-win';
+      case 'maybe-win':
+        return 'maybe-loss';
+      case 'maybe-loss':
+        return 'maybe-win';
+      case 'draw':
+      case 'unknown':
       default:
         return category;
     }
@@ -595,32 +597,26 @@ class TablebaseService {
    */
   private _getEvaluationText(category: string, dtz?: number | null): string {
     switch (category) {
-      case "win":
-        return dtz
-          ? `Gewinn in ${Math.abs(dtz)} Zügen`
-          : "Theoretisch gewonnen";
-      case "cursed-win":
-        return dtz
-          ? `Gewinn in ${Math.abs(dtz)} Zügen (50-Zug-Regel)`
-          : "Gewinn mit 50-Zug-Regel";
-      case "maybe-win":
-        return "Wahrscheinlicher Gewinn";
-      case "draw":
-        return "Theoretisches Remis";
-      case "blessed-loss":
+      case 'win':
+        return dtz ? `Gewinn in ${Math.abs(dtz)} Zügen` : 'Theoretisch gewonnen';
+      case 'cursed-win':
+        return dtz ? `Gewinn in ${Math.abs(dtz)} Zügen (50-Zug-Regel)` : 'Gewinn mit 50-Zug-Regel';
+      case 'maybe-win':
+        return 'Wahrscheinlicher Gewinn';
+      case 'draw':
+        return 'Theoretisches Remis';
+      case 'blessed-loss':
         return dtz
           ? `Verlust in ${Math.abs(dtz)} Zügen (50-Zug-Regel)`
-          : "Verlust mit 50-Zug-Regel";
-      case "maybe-loss":
-        return "Wahrscheinlicher Verlust";
-      case "loss":
-        return dtz
-          ? `Verlust in ${Math.abs(dtz)} Zügen`
-          : "Theoretisch verloren";
-      case "unknown":
-        return "Unbekannte Bewertung";
+          : 'Verlust mit 50-Zug-Regel';
+      case 'maybe-loss':
+        return 'Wahrscheinlicher Verlust';
+      case 'loss':
+        return dtz ? `Verlust in ${Math.abs(dtz)} Zügen` : 'Theoretisch verloren';
+      case 'unknown':
+        return 'Unbekannte Bewertung';
       default:
-        return "Bewertung nicht verfügbar";
+        return 'Bewertung nicht verfügbar';
     }
   }
 
@@ -629,11 +625,11 @@ class TablebaseService {
    * @private
    */
   private _countPieces(fen: string): number {
-    const piecesPart = fen.split(" ")[0];
+    const piecesPart = fen.split(' ')[0];
     if (!piecesPart) {
-      throw new Error("Invalid FEN: missing pieces part");
+      throw new Error('Invalid FEN: missing pieces part');
     }
-    return piecesPart.replace(/[^a-zA-Z]/g, "").length;
+    return piecesPart.replace(/[^a-zA-Z]/g, '').length;
   }
 
   /**

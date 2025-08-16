@@ -1,12 +1,12 @@
 /**
  * @file Move handlers hook for chess training board
  * @module hooks/useMoveHandlers
- * 
+ *
  * @description
  * Custom hook that encapsulates all move handling logic for chess training.
  * Extracted from TrainingBoard to separate business logic from UI rendering.
  * Handles drag-and-drop, click-to-move, and core move validation logic.
- * 
+ *
  * @remarks
  * Key responsibilities:
  * - Chess move validation and execution
@@ -14,10 +14,10 @@
  * - Click-to-move functionality with selection state
  * - Position readiness validation
  * - Comprehensive logging and error handling
- * 
+ *
  * This hook maintains all the complex business logic while providing
  * a clean interface for chess board components.
- * 
+ *
  * @example
  * ```tsx
  * const { onDrop, onSquareClick, selectedSquare } = useMoveHandlers({
@@ -27,7 +27,7 @@
  *   trainingState,
  *   onMove: makeMove
  * });
- * 
+ *
  * <Chessboard
  *   fen={currentFen}
  *   onPieceDrop={onDrop}
@@ -48,7 +48,20 @@ import { SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
 /**
  * Piece types from react-chessboard
  */
-type PieceType = "wP" | "wN" | "wB" | "wR" | "wQ" | "wK" | "bP" | "bN" | "bB" | "bR" | "bQ" | "bK" | null;
+type PieceType =
+  | 'wP'
+  | 'wN'
+  | 'wB'
+  | 'wR'
+  | 'wQ'
+  | 'wK'
+  | 'bP'
+  | 'bN'
+  | 'bB'
+  | 'bR'
+  | 'bQ'
+  | 'bK'
+  | null;
 
 /**
  * Basic move interface for chess moves
@@ -56,7 +69,7 @@ type PieceType = "wP" | "wN" | "wB" | "wR" | "wQ" | "wK" | "bP" | "bN" | "bB" | 
 interface MoveInput {
   from: string;
   to: string;
-  promotion?: "q" | "r" | "b" | "n";
+  promotion?: 'q' | 'r' | 'b' | 'n';
 }
 
 /**
@@ -92,7 +105,12 @@ interface UseMoveHandlersProps {
  */
 interface UseMoveHandlersReturn {
   /** Event handler for piece drop events from drag-and-drop with promotion support */
-  onDrop: (sourceSquare: string, targetSquare: string, piece: string, promotion?: string) => boolean;
+  onDrop: (
+    sourceSquare: string,
+    targetSquare: string,
+    piece: string,
+    promotion?: string
+  ) => boolean;
   /** Event handler for square click events (click-to-move) */
   onSquareClick: ({ piece, square }: { piece: PieceType; square: string }) => void;
   /** Function to check if a move is a pawn promotion */
@@ -105,7 +123,7 @@ interface UseMoveHandlersReturn {
 
 /**
  * Custom hook for chess move handling logic
- * 
+ *
  * @description
  * Encapsulates all move handling logic including:
  * - Core move validation and execution
@@ -113,7 +131,7 @@ interface UseMoveHandlersReturn {
  * - Click-to-move functionality with selection state management
  * - Position readiness validation and game state checks
  * - Comprehensive logging and error handling
- * 
+ *
  * @remarks
  * This hook maintains all the complex business logic that was previously
  * embedded in TrainingBoard. It coordinates between multiple services:
@@ -121,10 +139,10 @@ interface UseMoveHandlersReturn {
  * - TrainingSession hook for game state via onMove callback
  * - UI actions for user feedback
  * - Logging service for debugging
- * 
+ *
  * The hook preserves all original functionality while providing a clean
  * interface that separates concerns between UI rendering and business logic.
- * 
+ *
  * @param props Configuration object with game state and callbacks
  * @returns Object with event handlers and selection state
  */
@@ -137,61 +155,65 @@ export const useMoveHandlers = ({
 }: UseMoveHandlersProps): UseMoveHandlersReturn => {
   // Click-to-move state management
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
-  
+
   // Chess audio integration
   const { playSound } = useChessAudio({ volume: 0.7, enabled: true });
 
   /**
    * Analyze a move and play appropriate audio
-   * 
+   *
    * @param move - The move that was made
    * @param beforeFen - FEN position before the move
    * @param afterFen - FEN position after the move
    */
-  const analyzeMoveAndPlayAudio = useCallback(async (
-    move: MoveInput,
-    beforeFen: string,
-    afterFen: string
-  ) => {
-    try {
-      const chessAfter = new Chess(afterFen);
-      const chessBefore = new Chess(beforeFen);
-      
-      // Check if move was a capture by comparing piece counts
-      // More reliable than checking target square
-      const piecesBefore = chessBefore.board().flat().filter(p => p !== null).length;
-      const piecesAfter = chessAfter.board().flat().filter(p => p !== null).length;
-      const wasCapture = piecesBefore > piecesAfter;
-      
-      // Check if position is now in check
-      const isInCheck = chessAfter.inCheck();
-      
-      // Check game ending conditions
-      const isCheckmate = chessAfter.isCheckmate();
-      const isDraw = chessAfter.isDraw() || chessAfter.isStalemate();
-      
-      // Check if move was a promotion
-      const wasPromotion = Boolean(move.promotion);
-      
-      // Play appropriate sound based on move characteristics
-      if (isCheckmate) {
-        await playSound('checkmate');
-      } else if (isDraw) {
-        await playSound('draw'); 
-      } else if (wasPromotion) {
-        await playSound('promotion');
-      } else if (isInCheck) {
-        await playSound('check');
-      } else if (wasCapture) {
-        await playSound('capture');
-      } else {
-        await playSound('move');
+  const analyzeMoveAndPlayAudio = useCallback(
+    async (move: MoveInput, beforeFen: string, afterFen: string) => {
+      try {
+        const chessAfter = new Chess(afterFen);
+        const chessBefore = new Chess(beforeFen);
+
+        // Check if move was a capture by comparing piece counts
+        // More reliable than checking target square
+        const piecesBefore = chessBefore
+          .board()
+          .flat()
+          .filter(p => p !== null).length;
+        const piecesAfter = chessAfter
+          .board()
+          .flat()
+          .filter(p => p !== null).length;
+        const wasCapture = piecesBefore > piecesAfter;
+
+        // Check if position is now in check
+        const isInCheck = chessAfter.inCheck();
+
+        // Check game ending conditions
+        const isCheckmate = chessAfter.isCheckmate();
+        const isDraw = chessAfter.isDraw() || chessAfter.isStalemate();
+
+        // Check if move was a promotion
+        const wasPromotion = Boolean(move.promotion);
+
+        // Play appropriate sound based on move characteristics
+        if (isCheckmate) {
+          await playSound('checkmate');
+        } else if (isDraw) {
+          await playSound('draw');
+        } else if (wasPromotion) {
+          await playSound('promotion');
+        } else if (isInCheck) {
+          await playSound('check');
+        } else if (wasCapture) {
+          await playSound('capture');
+        } else {
+          await playSound('move');
+        }
+      } catch (error) {
+        getLogger().warn('Failed to analyze move for audio', error as Error);
       }
-      
-    } catch (error) {
-      getLogger().warn('Failed to analyze move for audio', error as Error);
-    }
-  }, [playSound]);
+    },
+    [playSound]
+  );
 
   /**
    * Clear the current square selection
@@ -202,32 +224,35 @@ export const useMoveHandlers = ({
 
   /**
    * Check if a move is a pawn promotion
-   * 
+   *
    * @param {string} from - Starting square
    * @param {string} to - Target square
    * @returns {boolean} Whether this move is a promotion
    */
-  const onPromotionCheck = useCallback((from: string, to: string): boolean => {
-    try {
-      const chess = new Chess(currentFen);
-      const piece = chess.get(from as Square);
-      
-      // Must be a pawn
-      if (!piece || piece.type !== 'p') {
+  const onPromotionCheck = useCallback(
+    (from: string, to: string): boolean => {
+      try {
+        const chess = new Chess(currentFen);
+        const piece = chess.get(from as Square);
+
+        // Must be a pawn
+        if (!piece || piece.type !== 'p') {
+          return false;
+        }
+
+        // Must be moving to promotion rank
+        const targetRank = to[1];
+        const isWhitePawn = piece.color === 'w';
+        const isBlackPawn = piece.color === 'b';
+
+        return (isWhitePawn && targetRank === '8') || (isBlackPawn && targetRank === '1');
+      } catch (error) {
+        getLogger().error('Failed to check promotion', error as Error);
         return false;
       }
-      
-      // Must be moving to promotion rank
-      const targetRank = to[1];
-      const isWhitePawn = piece.color === 'w';
-      const isBlackPawn = piece.color === 'b';
-      
-      return (isWhitePawn && targetRank === '8') || (isBlackPawn && targetRank === '1');
-    } catch (error) {
-      getLogger().error("Failed to check promotion", error as Error);
-      return false;
-    }
-  }, [currentFen]);
+    },
+    [currentFen]
+  );
 
   /**
    * Handles chess move execution and validation
@@ -269,7 +294,7 @@ export const useMoveHandlers = ({
     async (move: MoveInput) => {
       // CRITICAL: Block moves if position is not ready
       if (!isPositionReady) {
-        getLogger().warn("Position not ready, blocking move", {
+        getLogger().warn('Position not ready, blocking move', {
           currentPositionId: trainingState.currentPosition?.id,
         });
         return false;
@@ -287,7 +312,7 @@ export const useMoveHandlers = ({
       try {
         // Capture current FEN before making the move for audio analysis
         const beforeFen = currentFen;
-        
+
         // Move validation is handled by ChessService in makeMove
         const result = await onMove(move);
 
@@ -317,8 +342,7 @@ export const useMoveHandlers = ({
 
         return result;
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Move failed";
+        const errorMessage = error instanceof Error ? error.message : 'Move failed';
         showErrorToast(errorMessage);
         // Play error sound for failed moves
         playSound('error');
@@ -333,7 +357,7 @@ export const useMoveHandlers = ({
       currentFen,
       analyzeMoveAndPlayAudio,
       playSound,
-    ],
+    ]
   );
 
   /**
@@ -369,31 +393,26 @@ export const useMoveHandlers = ({
 
       // Add promotion piece if provided
       if (promotion) {
-        move.promotion = promotion as "q" | "r" | "b" | "n";
+        move.promotion = promotion as 'q' | 'r' | 'b' | 'n';
       } else if (onPromotionCheck(sourceSquare, targetSquare)) {
         // If no promotion provided but move is a promotion, default to queen
-        move.promotion = "q";
+        move.promotion = 'q';
       }
 
       handleMove(move);
       return true;
     },
-    [
-      handleMove,
-      isGameFinished,
-      isPositionReady,
-      onPromotionCheck,
-    ],
+    [handleMove, isGameFinished, isPositionReady, onPromotionCheck]
   );
 
   /**
    * Handles square click events for click-to-move functionality
-   * 
+   *
    * @param {object} args - Arguments from react-chessboard
    * @param {PieceType} args.piece - Piece on the clicked square (can be null)
    * @param {string} args.square - Square that was clicked
    * @returns {void}
-   * 
+   *
    * @description
    * Implements click-to-move interaction pattern for accessibility and E2E testing:
    * - First click selects piece (if valid piece on square)
@@ -415,12 +434,12 @@ export const useMoveHandlers = ({
             const chess = new Chess(currentFen);
             const currentTurn = chess.turn();
             const pieceColor = piece?.[0]; // 'w' or 'b'
-            
+
             if (pieceColor === currentTurn) {
               setSelectedSquare(square);
             }
           } catch (error) {
-            getLogger().error("Failed to validate piece color", error as Error);
+            getLogger().error('Failed to validate piece color', error as Error);
           }
         }
         return;
@@ -433,12 +452,12 @@ export const useMoveHandlers = ({
       }
 
       // Try to make move from selected square to clicked square
-      const result = onDrop(selectedSquare, square, ""); // Piece type not needed
+      const result = onDrop(selectedSquare, square, ''); // Piece type not needed
       if (result) {
         setSelectedSquare(null); // Clear selection after successful move
       }
     },
-    [selectedSquare, isPositionReady, isGameFinished, currentFen, onDrop],
+    [selectedSquare, isPositionReady, isGameFinished, currentFen, onDrop]
   );
 
   return {

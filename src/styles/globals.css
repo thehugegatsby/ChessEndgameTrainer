@@ -3,10 +3,10 @@
 @tailwind utilities;
 
 /* Import dialog animations */
-@import "./dialog-animations.css";
+@import './dialog-animations.css';
 
 /* Import chess piece animations */
-@import "./chess-animations.css";
+@import './chess-animations.css';
 
 /* Dark Theme Root Variables */
 :root {
@@ -269,8 +269,7 @@ html {
 
 .sidebar-engine-evaluation {
   font-family:
-    ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo,
-    monospace;
+    ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
   font-weight: 700;
   letter-spacing: -0.05em;
 }

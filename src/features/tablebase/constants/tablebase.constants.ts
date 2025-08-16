@@ -1,7 +1,7 @@
 /**
  * @fileoverview Constants specific to the Tablebase API feature
  * @module features/tablebase/constants
- * 
+ *
  * @description
  * Tablebase-specific constants including error codes, messages,
  * and API configuration. Designed for optimal LLM readability
@@ -12,7 +12,7 @@ import { TIME_UNITS } from '@shared/constants/time.constants';
 
 /**
  * Tablebase API error definitions
- * 
+ *
  * @description
  * Standardized error codes and messages for tablebase operations.
  * These provide consistent error handling across the feature.
@@ -27,7 +27,7 @@ export const TABLEBASE_API_ERRORS = {
     CODE: 'TABLEBASE_NOT_FOUND',
     MESSAGE: 'Position not in tablebase',
   },
-  
+
   /**
    * Rate limiting error
    * Lichess API has rate limits to prevent abuse
@@ -36,7 +36,7 @@ export const TABLEBASE_API_ERRORS = {
     CODE: 'TABLEBASE_RATE_LIMITED',
     MESSAGE: 'Rate limited by tablebase API',
   },
-  
+
   /**
    * Generic API error
    * Catch-all for unexpected API responses
@@ -45,7 +45,7 @@ export const TABLEBASE_API_ERRORS = {
     CODE: 'TABLEBASE_API_ERROR',
     MESSAGE: 'Tablebase API error',
   },
-  
+
   /**
    * Maximum retries exceeded
    * Request failed after all retry attempts
@@ -54,7 +54,7 @@ export const TABLEBASE_API_ERRORS = {
     CODE: 'TABLEBASE_MAX_RETRIES',
     MESSAGE: 'Maximum retry attempts exceeded for tablebase query',
   },
-  
+
   /**
    * Timeout error
    * Request took too long to complete
@@ -63,7 +63,7 @@ export const TABLEBASE_API_ERRORS = {
     CODE: 'TABLEBASE_TIMEOUT',
     MESSAGE: 'Tablebase query timed out',
   },
-  
+
   /**
    * Invalid FEN format
    * FEN string doesn't match expected format
@@ -72,7 +72,7 @@ export const TABLEBASE_API_ERRORS = {
     CODE: 'TABLEBASE_INVALID_FEN',
     MESSAGE: 'Invalid FEN format for tablebase query',
   },
-  
+
   /**
    * Too many pieces
    * Position has more pieces than tablebase supports
@@ -85,7 +85,7 @@ export const TABLEBASE_API_ERRORS = {
 
 /**
  * Tablebase query configuration
- * 
+ *
  * @description
  * Configuration specific to tablebase queries and caching.
  */
@@ -95,13 +95,13 @@ export const TABLEBASE_CONFIG = {
    * Current Syzygy tablebases support up to 7 pieces
    */
   MAX_PIECES: 7,
-  
+
   /**
    * Minimum number of pieces for tablebase query
    * Positions with fewer pieces are trivial
    */
   MIN_PIECES: 3,
-  
+
   /**
    * Cache configuration for tablebase results
    */
@@ -111,24 +111,24 @@ export const TABLEBASE_CONFIG = {
      * Tablebase results are static, so can be cached longer
      */
     TTL: 5 * TIME_UNITS.MINUTE,
-    
+
     /**
      * Maximum number of positions to cache
      */
     MAX_ENTRIES: 100,
-    
+
     /**
      * Cache key prefix for storage
      */
     KEY_PREFIX: 'tablebase_',
   },
-  
+
   /**
    * Query timeout specific to tablebase (7 seconds)
    * Slightly longer than general HTTP timeout due to computation
    */
   QUERY_TIMEOUT: 7 * TIME_UNITS.SECOND,
-  
+
   /**
    * Buffer time added to timeout for cleanup (1 second)
    */
@@ -137,7 +137,7 @@ export const TABLEBASE_CONFIG = {
 
 /**
  * Tablebase result types
- * 
+ *
  * @description
  * Standardized result types from tablebase queries.
  */
@@ -150,10 +150,10 @@ export const TABLEBASE_RESULTS = {
     WHITE_WIN: 1,
     DRAW: 0,
     BLACK_WIN: -1,
-    CURSED_WIN: 2,    // Win but requires 50-move rule
+    CURSED_WIN: 2, // Win but requires 50-move rule
     BLESSED_LOSS: -2, // Loss but can draw via 50-move rule
   },
-  
+
   /**
    * Distance to zeroing move (DTZ)
    * Number of moves until a pawn move or capture
@@ -164,7 +164,7 @@ export const TABLEBASE_RESULTS = {
      * Higher values are capped for UI clarity
      */
     MAX_DISPLAY: 100,
-    
+
     /**
      * DTZ value indicating immediate win/loss
      */
@@ -174,7 +174,7 @@ export const TABLEBASE_RESULTS = {
 
 /**
  * Tablebase API response fields
- * 
+ *
  * @description
  * Expected fields in tablebase API responses.
  */
@@ -186,7 +186,7 @@ export const TABLEBASE_RESPONSE_FIELDS = {
   DTZ: 'dtz',
   DTM: 'dtm',
   MOVES: 'moves',
-  
+
   /**
    * Category values
    */
@@ -203,7 +203,7 @@ export const TABLEBASE_RESPONSE_FIELDS = {
 
 /**
  * Tablebase move evaluation
- * 
+ *
  * @description
  * Constants for evaluating moves from tablebase.
  */
@@ -215,13 +215,13 @@ export const TABLEBASE_MOVE_EVAL = {
   WIN_SCORE: 10000,
   LOSS_SCORE: -10000,
   DRAW_SCORE: 0,
-  
+
   /**
    * Confidence level for tablebase evaluations
    * Tablebase provides perfect information
    */
   CONFIDENCE: 1.0,
-  
+
   /**
    * Depth value for tablebase evaluations
    * Set high to indicate perfect knowledge

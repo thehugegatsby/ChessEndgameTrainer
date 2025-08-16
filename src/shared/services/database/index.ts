@@ -3,17 +3,11 @@
  */
 
 // Export interfaces and implementation
-export type {
-  PositionService,
-  PositionServiceConfig,
-} from "./IPositionService";
+export type { PositionService, PositionServiceConfig } from './IPositionService';
 // Note: PositionService class is exported from ./PositionService.ts with alias
 
 // Export server-side helpers
-export {
-  createServerPositionService,
-  getServerPositionService,
-} from "./serverPositionService";
+export { createServerPositionService, getServerPositionService } from './serverPositionService';
 
 // Export error types
 export {
@@ -21,4 +15,4 @@ export {
   PositionNotFoundError,
   InvalidPositionError,
   RepositoryError,
-} from "./errors";
+} from './errors';

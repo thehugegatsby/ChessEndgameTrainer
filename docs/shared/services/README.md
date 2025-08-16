@@ -2,7 +2,7 @@
 
 **Target**: LLM comprehension for service layer patterns
 **Environment**: WSL + VS Code + Windows
-**Updated**: 2025-07-13
+**Updated**: 2025-08-16
 
 ## 🎯 Service Layer Architecture
 
@@ -11,20 +11,21 @@ The service layer implements clean architecture principles with clear separation
 ```
 Service Layer Architecture:
 ┌─────────────────────────────────────────────────────────────┐
-│                   SERVICE INTERFACES                     │
+│                    CORE SERVICES                         │
 │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐ │
-│  │ ITablebaseService│  │ IPositionService │  │IPlatformService│ │
+│  │  ChessService   │  │TablebaseService │  │TrainingService│ │
+│  │  (Singleton)    │  │  (LRU Cache)    │  │  (Sessions) │ │
 │  └─────────────────┘  └─────────────────┘  └─────────────┘ │
 ├─────────────────────────────────────────────────────────────┤
-│                SERVICE IMPLEMENTATIONS                   │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐ │
-│  │MockTablebaseServ│  │ PositionService │  │WebPlatformServ│ │
-│  └─────────────────┘  └─────────────────┘  └─────────────┘ │
+│              ANALYSIS & STRATEGY SERVICES               │
+│  ┌─────────────────┐  ┌─────────────────┐                  │
+│  │AnalysisService  │  │MoveStrategyServ │                  │
+│  └─────────────────┘  └─────────────────┘                  │
 ├─────────────────────────────────────────────────────────────┤
-│              CENTRAL SERVICES & UTILITIES               │
+│              INFRASTRUCTURE & UTILITIES                  │
 │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐ │
-│  │  EngineService  │  │  ErrorService   │  │Logger Service│ │
-│  │  (Singleton)    │  │  (Centralized)  │  │(Structured) │ │
+│  │  ErrorService   │  │  LoggingService │  │LichessApiClient│ │
+│  │  (Centralized)  │  │  (Structured)   │  │  (API Layer)│ │
 │  └─────────────────┘  └─────────────────┘  └─────────────┘ │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -33,38 +34,39 @@ Service Layer Architecture:
 
 ```
 services/
-├── tablebase/              # Tablebase evaluation services
-│   ├── ITablebaseService.ts        # Service interface
-│   ├── MockTablebaseService.ts     # Mock implementation
-│   ├── TablebaseServiceAdapter.ts  # Adapter implementation
-│   └── index.ts                    # Factory and exports
-├── database/               # Database services
-│   ├── IPositionService.ts         # Position data interface
-│   ├── PositionService.ts          # Position data service
-│   ├── errors.ts                   # Database error types
-│   ├── serverPositionService.ts    # Server position service
-│   └── index.ts
-├── chess/                  # Chess-specific services
-│   └── EngineService.ts            # Clean singleton implementation
-├── platform/               # Platform abstraction
-│   ├── PlatformService.ts          # Factory with detection
-│   ├── types.ts                    # Platform interfaces
-│   └── web/
-│       └── WebPlatformService.ts   # Web implementation
+├── ChessService.ts         # Chess logic singleton (wraps chess.js)
+├── TablebaseService.ts     # Lichess API with LRU cache
+├── TrainingService.ts      # Training session management
+├── ErrorService.ts         # Centralized error handling
+├── AnalysisService.ts      # Position analysis
+├── MoveStrategyService.ts  # Move strategy logic
+├── TablebaseService.e2e.mocks.ts  # E2E test mocks
+├── api/                    # API clients
+│   └── LichessApiClient.ts         # Lichess API client with Zod validation
 ├── logging/                # Logging infrastructure
-│   ├── Logger.ts                   # Structured logger
-│   ├── types.ts                    # Logging types
-│   └── index.ts
-├── test/                   # Testing services
-│   ├── BrowserTestApi.ts           # Browser test bridge
-│   ├── TestApiService.ts           # Test API service
-│   ├── TestBridge.ts               # Test bridge utilities
-│   └── index.ts
-├── mistakeAnalysis/        # Mistake analysis services
-│   └── types.ts                    # Analysis types
-├── engine/                 # Engine service abstractions
-├── errorService.ts         # Centralized error handling
-└── index.ts               # Service layer exports
+│   ├── index.ts                    # Logger factory
+│   └── types.ts                    # Logging types
+├── database/               # Position data services
+│   ├── IPositionService.ts
+│   ├── PositionService.ts
+│   ├── serverPositionService.ts
+│   └── errors.ts
+├── orchestrator/           # Service orchestration
+│   └── OrchestratorServices.ts
+├── mistakeAnalysis/        # Move mistake analysis
+│   └── types.ts
+├── container/              # Dependency injection
+│   └── ServiceContainer.ts
+├── platform/               # Platform abstraction
+│   ├── PlatformService.ts
+│   ├── types.ts
+│   └── web/
+│       └── WebPlatformService.ts
+├── test/                   # Test API services
+│   ├── TestApiService.ts
+│   └── BrowserTestApi.ts
+├── __mocks__/              # Service mocks for testing
+└── __tests__/              # Service unit tests
 ```
 
 ## 🔧 Core Service Patterns
@@ -92,13 +94,13 @@ interface ITablebaseService {
 ```typescript
 // File: /shared/services/tablebase/index.ts:15-25
 export function createTablebaseService(
-  type: "mock" | "syzygy" | "gaviota",
-  config: TablebaseServiceConfig,
+  type: 'mock' | 'syzygy' | 'gaviota',
+  config: TablebaseServiceConfig
 ): ITablebaseService {
   switch (type) {
-    case "mock":
+    case 'mock':
       return new MockTablebaseService(config);
-    case "syzygy":
+    case 'syzygy':
       return new SyzygyTablebaseService(config);
     default:
       throw new Error(`Unknown tablebase service type: ${type}`);
@@ -115,10 +117,7 @@ export function createTablebaseService(
 class TablebaseServiceAdapter {
   constructor(private tablebaseService: ITablebaseService) {}
 
-  async getEvaluation(
-    fen: string,
-    playerToMove: "w" | "b",
-  ): Promise<TablebaseResult | null> {
+  async getEvaluation(fen: string, playerToMove: 'w' | 'b'): Promise<TablebaseResult | null> {
     try {
       const serviceResult = await this.tablebaseService.lookupPosition(fen);
 
@@ -133,7 +132,7 @@ class TablebaseServiceAdapter {
         precise: serviceResult.precise,
       };
     } catch (error) {
-      console.warn("TablebaseServiceAdapter error:", error);
+      console.warn('TablebaseServiceAdapter error:', error);
       return null;
     }
   }
@@ -142,25 +141,25 @@ class TablebaseServiceAdapter {
 
 ## 🎯 Critical Service Implementations
 
+### ChessService
+
+- **Implementation**: `/shared/services/ChessService.ts`
+- **Purpose**: Chess game logic management (wraps chess.js)
+- **Pattern**: Singleton with event-driven updates
+- **Note**: Singleton pattern required due to Immer/WritableDraft conflicts
+
 ### TablebaseService
 
-- **Interface**: `/shared/services/tablebase/ITablebaseService.ts`
-- **Implementation**: `/shared/services/tablebase/MockTablebaseService.ts`
-- **Purpose**: Chess endgame tablebase lookups
-- **Pattern**: Cache-first with TTL expiration
+- **Implementation**: `/shared/services/TablebaseService.ts`
+- **Purpose**: Lichess Tablebase API integration
+- **Pattern**: Single API call architecture with LRU cache
+- **Features**: FEN normalization, WDL perspective handling, rate limiting
 
-### EngineService
+### TrainingService
 
-- **Implementation**: `/shared/services/chess/EngineService.ts`
-- **Purpose**: Stockfish chess engine management
-- **Pattern**: Singleton with worker lifecycle management
-
-### PositionService
-
-- **Interface**: `/shared/services/database/IPositionService.ts`
-- **Implementation**: `/shared/services/database/PositionService.ts`
-- **Purpose**: Position data persistence and retrieval
-- **Pattern**: Repository pattern with Firebase backend
+- **Implementation**: `/shared/services/TrainingService.ts`
+- **Purpose**: Training session management
+- **Pattern**: Session-based state management
 
 ## 🔄 Service Interaction Patterns
 
@@ -221,10 +220,10 @@ class MockTablebaseService implements ITablebaseService {
 // Pattern: Environment-specific service configuration
 export const serviceConfig = {
   tablebase: {
-    type: process.env.NODE_ENV === "test" ? "mock" : "syzygy",
+    type: process.env.NODE_ENV === 'test' ? 'mock' : 'syzygy',
     maxPieces: 7,
     enableCaching: true,
-    timeout: process.env.NODE_ENV === "development" ? 5000 : 2000,
+    timeout: process.env.NODE_ENV === 'development' ? 5000 : 2000,
   },
 };
 ```
@@ -235,7 +234,7 @@ export const serviceConfig = {
 
 ```typescript
 // File: /tests/unit/services/tablebase/MockTablebaseService.test.ts:20-40
-describe("MockTablebaseService", () => {
+describe('MockTablebaseService', () => {
   let service: MockTablebaseService;
 
   beforeEach(() => {
@@ -247,14 +246,12 @@ describe("MockTablebaseService", () => {
     });
   });
 
-  it("should return win for KQvK endgame", async () => {
-    const result = await service.lookupPosition(
-      "8/8/8/8/8/8/4K3/4k1Q1 w - - 0 1",
-    );
+  it('should return win for KQvK endgame', async () => {
+    const result = await service.lookupPosition('8/8/8/8/8/8/4K3/4k1Q1 w - - 0 1');
 
     expect(result).not.toBeNull();
     expect(result!.wdl).toBe(2);
-    expect(result!.category).toBe("win");
+    expect(result!.category).toBe('win');
   });
 });
 ```
@@ -262,31 +259,23 @@ describe("MockTablebaseService", () => {
 ### Service Integration Testing
 
 ```typescript
-// Pattern: Test service through adapter
-describe("TablebaseServiceAdapter", () => {
-  let adapter: TablebaseServiceAdapter;
-  let mockService: jest.Mocked<ITablebaseService>;
+// Pattern: Test with Vitest mocks
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
+describe('TablebaseService', () => {
+  let service: TablebaseService;
 
   beforeEach(() => {
-    mockService = {
-      lookupPosition: jest.fn(),
-      isTablebasePosition: jest.fn(),
-    } as jest.Mocked<ITablebaseService>;
-
-    adapter = new TablebaseServiceAdapter(mockService);
+    vi.clearAllMocks();
+    service = new TablebaseService();
   });
 
-  it("should transform service result to provider format", async () => {
-    const serviceResult = { wdl: 2, category: "win", precise: true };
-    mockService.lookupPosition.mockResolvedValue(serviceResult);
+  it('should use single API call for all moves', async () => {
+    const result = await service.getTopMoves(TEST_FEN);
 
-    const result = await adapter.getEvaluation(TEST_FEN, "w");
-
-    expect(result).toEqual({
-      wdl: 2,
-      category: "win",
-      precise: true,
-    });
+    // Should make only 1 API call, not N+1
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(result.moves).toHaveLength(3);
   });
 });
 ```

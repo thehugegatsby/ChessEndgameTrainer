@@ -24,16 +24,16 @@
  * ```
  */
 
-import { type TrainingSlice, type TrainingState, type TrainingActions } from "./types";
-import type { EndgamePosition as BaseEndgamePosition } from "@shared/types/endgame";
-import type { ValidatedMove } from "@shared/types/chess";
-import type { MoveSuccessDialog } from "@shared/store/orchestrators/handlePlayerMove/move.types";
-import { PERCENTAGE_MULTIPLIERS, ALGORITHM_MULTIPLIERS } from "@shared/constants/multipliers";
-import { PERCENT } from "@/constants/number.constants";
+import { type TrainingSlice, type TrainingState, type TrainingActions } from './types';
+import type { EndgamePosition as BaseEndgamePosition } from '@shared/types/endgame';
+import type { ValidatedMove } from '@shared/types/chess';
+import type { MoveSuccessDialog } from '@shared/store/orchestrators/handlePlayerMove/move.types';
+import { PERCENTAGE_MULTIPLIERS, ALGORITHM_MULTIPLIERS } from '@shared/constants/multipliers';
+import { PERCENT } from '@/constants/number.constants';
 
 // Re-export types for external use
-export type { TrainingState, TrainingActions } from "./types";
-import { getLogger } from "@shared/services/logging";
+export type { TrainingState, TrainingActions } from './types';
+import { getLogger } from '@shared/services/logging';
 
 /**
  * Extended EndgamePosition with training-specific fields
@@ -44,12 +44,12 @@ export interface TrainingPosition extends BaseEndgamePosition {
   /**
    * Color the user is training (determines which side to play)
    */
-  colorToTrain: "white" | "black";
+  colorToTrain: 'white' | 'black';
 
   /**
    * Expected outcome for successful training completion
    */
-  targetOutcome: "1-0" | "0-1" | "1/2-1/2";
+  targetOutcome: '1-0' | '0-1' | '1/2-1/2';
 
   /**
    * Optional time limit in seconds
@@ -75,6 +75,7 @@ export const initialTrainingState = {
   chapterProgress: null as { completed: number; total: number } | null,
   isPlayerTurn: true,
   isOpponentThinking: false,
+  moveInFlight: false,
   isSuccess: false,
   hintsUsed: 0,
   mistakeCount: 0,
@@ -96,7 +97,6 @@ export const initialTrainingState = {
   } | null,
 };
 
-
 /**
  * Creates the training state (data only, no actions)
  *
@@ -114,13 +114,14 @@ export const initialTrainingState = {
  */
 export const createTrainingState = (): TrainingState => ({
   // currentPosition: undefined - omit instead of undefined
-  // nextPosition: undefined - omit instead of undefined  
+  // nextPosition: undefined - omit instead of undefined
   // previousPosition: undefined - omit instead of undefined
   isLoadingNavigation: false,
   navigationError: null as string | null,
   chapterProgress: null as { completed: number; total: number } | null,
   isPlayerTurn: true,
   isOpponentThinking: false,
+  moveInFlight: false,
   isSuccess: false,
   hintsUsed: 0,
   mistakeCount: 0,
@@ -158,13 +159,14 @@ export const createTrainingState = (): TrainingState => ({
  * const trainingActions = createTrainingActions(set, get);
  * ```
  */
-const logger = getLogger().setContext("TrainingSlice");
+const logger = getLogger().setContext('TrainingSlice');
 
 export const createTrainingActions = (
-  set: (fn: (state: { training: TrainingState; game: { moveHistory: ValidatedMove[] } }) => void) => void,
-  get: () => { training: TrainingState },
+  set: (
+    fn: (state: { training: TrainingState; game: { moveHistory: ValidatedMove[] } }) => void
+  ) => void,
+  get: () => { training: TrainingState }
 ): TrainingActions => ({
-
   /**
    * Sets the current training position
    *
@@ -193,14 +195,13 @@ export const createTrainingActions = (
    * ```
    */
   setPosition: (position: TrainingPosition) => {
-    set((state) => {
+    set(state => {
       state.training.currentPosition = position;
       state.training.isSuccess = false;
       state.training.hintsUsed = 0;
       state.training.mistakeCount = 0;
       // Set initial turn based on position
-      state.training.isPlayerTurn =
-        position.sideToMove === position.colorToTrain;
+      state.training.isPlayerTurn = position.sideToMove === position.colorToTrain;
       // Clear evaluation baseline when setting new position
       state.training.evaluationBaseline = null;
     });
@@ -231,11 +232,8 @@ export const createTrainingActions = (
    * store.getState().setNavigationPositions(null, null);
    * ```
    */
-  setNavigationPositions: (
-    next?: TrainingPosition | null,
-    previous?: TrainingPosition | null,
-  ) => {
-    set((state) => {
+  setNavigationPositions: (next?: TrainingPosition | null, previous?: TrainingPosition | null) => {
+    set(state => {
       if (next !== undefined) {
         state.training.nextPosition = next;
       }
@@ -267,7 +265,7 @@ export const createTrainingActions = (
    * ```
    */
   setNavigationLoading: (loading: boolean) => {
-    set((state) => {
+    set(state => {
       state.training.isLoadingNavigation = loading;
     });
   },
@@ -293,7 +291,7 @@ export const createTrainingActions = (
    * ```
    */
   setNavigationError: (error: string | null) => {
-    set((state) => {
+    set(state => {
       state.training.navigationError = error;
     });
   },
@@ -323,10 +321,8 @@ export const createTrainingActions = (
    * store.getState().setChapterProgress(null);
    * ```
    */
-  setChapterProgress: (
-    progress: { completed: number; total: number } | null,
-  ) => {
-    set((state) => {
+  setChapterProgress: (progress: { completed: number; total: number } | null) => {
+    set(state => {
       state.training.chapterProgress = progress;
     });
   },
@@ -353,7 +349,7 @@ export const createTrainingActions = (
    * ```
    */
   setPlayerTurn: (isPlayerTurn: boolean) => {
-    set((state) => {
+    set(state => {
       state.training.isPlayerTurn = isPlayerTurn;
     });
   },
@@ -375,7 +371,7 @@ export const createTrainingActions = (
    * ```
    */
   clearOpponentThinking: () => {
-    set((state) => {
+    set(state => {
       state.training.isOpponentThinking = false;
     });
   },
@@ -402,7 +398,7 @@ export const createTrainingActions = (
    * ```
    */
   completeTraining: (success: boolean) => {
-    set((state) => {
+    set(state => {
       state.training.isSuccess = success;
     });
   },
@@ -431,7 +427,7 @@ export const createTrainingActions = (
    * ```
    */
   incrementHint: () => {
-    set((state) => {
+    set(state => {
       state.training.hintsUsed = state.training.hintsUsed + 1;
     });
   },
@@ -457,13 +453,13 @@ export const createTrainingActions = (
    * ```
    */
   incrementMistake: () => {
-    set((state) => {
+    set(state => {
       state.training.mistakeCount = state.training.mistakeCount + 1;
       // Reset streak when a mistake is made
       state.training.currentStreak = 0;
     });
-    logger.info("Mistake incremented and streak reset", { 
-      mistakeCount: get().training.mistakeCount 
+    logger.info('Mistake incremented and streak reset', {
+      mistakeCount: get().training.mistakeCount,
     });
   },
 
@@ -503,9 +499,9 @@ export const createTrainingActions = (
       wdlBefore?: number;
       wdlAfter?: number;
       bestMove?: string;
-    } | null,
+    } | null
   ) => {
-    set((state) => {
+    set(state => {
       state.training.moveErrorDialog = dialog;
     });
   },
@@ -543,9 +539,9 @@ export const createTrainingActions = (
       isOpen: boolean;
       promotionPiece?: string;
       moveDescription?: string;
-    } | null,
+    } | null
   ) => {
-    set((state) => {
+    set(state => {
       state.training.moveSuccessDialog = dialog;
     });
   },
@@ -577,7 +573,7 @@ export const createTrainingActions = (
   addTrainingMove: (move: ValidatedMove) => {
     // This is a placeholder - actual implementation will be in orchestrator
     // as it needs to coordinate with game state
-    logger.debug("Training move added", { move });
+    logger.debug('Training move added', { move });
   },
 
   /**
@@ -603,7 +599,7 @@ export const createTrainingActions = (
    * ```
    */
   resetTraining: () => {
-    set((state) => {
+    set(state => {
       Object.assign(state.training, initialTrainingState);
     });
   },
@@ -626,7 +622,7 @@ export const createTrainingActions = (
    */
   resetPosition: () => {
     const currentPos = get().training.currentPosition;
-    set((state) => {
+    set(state => {
       // moveHistory is in game slice, not training slice
       state.game.moveHistory = [];
       state.training.hintsUsed = 0;
@@ -666,14 +662,14 @@ export const createTrainingActions = (
    * ```
    */
   setEvaluationBaseline: (wdl: number, fen: string) => {
-    set((state) => {
+    set(state => {
       state.training.evaluationBaseline = {
         wdl,
         fen,
         timestamp: Date.now(),
       };
     });
-    logger.info("Evaluation baseline updated", { wdl, fen });
+    logger.info('Evaluation baseline updated', { wdl, fen });
   },
 
   /**
@@ -693,10 +689,10 @@ export const createTrainingActions = (
    * ```
    */
   clearEvaluationBaseline: () => {
-    set((state) => {
+    set(state => {
       state.training.evaluationBaseline = null;
     });
-    logger.info("Evaluation baseline cleared");
+    logger.info('Evaluation baseline cleared');
   },
 
   /**
@@ -715,15 +711,15 @@ export const createTrainingActions = (
    * ```
    */
   incrementStreak: () => {
-    set((state) => {
+    set(state => {
       state.training.currentStreak = state.training.currentStreak + 1;
       if (state.training.currentStreak > state.training.bestStreak) {
         state.training.bestStreak = state.training.currentStreak;
       }
     });
-    logger.info("Streak incremented", { 
+    logger.info('Streak incremented', {
       currentStreak: get().training.currentStreak,
-      bestStreak: get().training.bestStreak 
+      bestStreak: get().training.bestStreak,
     });
   },
 
@@ -743,10 +739,10 @@ export const createTrainingActions = (
    * ```
    */
   resetStreak: () => {
-    set((state) => {
+    set(state => {
       state.training.currentStreak = 0;
     });
-    logger.info("Streak reset");
+    logger.info('Streak reset');
   },
 
   /**
@@ -764,24 +760,24 @@ export const createTrainingActions = (
    * ```typescript
    * // Show checkmark for 2 seconds
    * store.getState().showCheckmarkAnimation();
-   * 
+   *
    * // Show for custom duration
    * store.getState().showCheckmarkAnimation(1500);
    * ```
    */
   showCheckmarkAnimation: (duration: number = 2000) => {
-    set((state) => {
+    set(state => {
       state.training.showCheckmark = true;
     });
-    
+
     // Auto-hide after duration
     setTimeout(() => {
-      set((state) => {
+      set(state => {
         state.training.showCheckmark = false;
       });
     }, duration);
-    
-    logger.info("Checkmark animation shown", { duration });
+
+    logger.info('Checkmark animation shown', { duration });
   },
 
   /**
@@ -799,19 +795,18 @@ export const createTrainingActions = (
    * ```typescript
    * // Enable auto-progression
    * store.getState().setAutoProgressEnabled(true);
-   * 
+   *
    * // Disable auto-progression
    * store.getState().setAutoProgressEnabled(false);
    * ```
    */
   setAutoProgressEnabled: (enabled: boolean) => {
-    set((state) => {
+    set(state => {
       state.training.autoProgressEnabled = enabled;
     });
-    logger.info("Auto-progression setting changed", { enabled });
+    logger.info('Auto-progression setting changed', { enabled });
   },
 });
-
 
 /**
  * Selector functions for efficient state access
@@ -862,8 +857,7 @@ export const trainingSelectors = {
    * @param {TrainingSlice} state - The training slice of the store
    * @returns {boolean} Whether navigation is loading
    */
-  selectIsLoadingNavigation: (state: TrainingSlice) =>
-    state.isLoadingNavigation ?? false,
+  selectIsLoadingNavigation: (state: TrainingSlice) => state.isLoadingNavigation ?? false,
 
   /**
    * Selects navigation error
@@ -947,8 +941,7 @@ export const trainingSelectors = {
    * @param {TrainingSlice} state - The training slice of the store
    * @returns {boolean} True if session started but not ended
    */
-  selectIsTrainingActive: (state: TrainingSlice) =>
-    state.currentPosition !== undefined,
+  selectIsTrainingActive: (state: TrainingSlice) => state.currentPosition !== undefined,
 
   /**
    * Selects performance accuracy (hints as negative impact)

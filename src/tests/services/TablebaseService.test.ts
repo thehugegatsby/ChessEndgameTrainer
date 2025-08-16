@@ -8,17 +8,20 @@ import { vi } from 'vitest';
  * of the optimized TablebaseService implementation.
  */
 
-import { tablebaseService, TablebaseService } from "../../shared/services/TablebaseService";
-import { TEST_FENS } from "../../shared/testing/TestFixtures";
-import { EndgamePositions, SpecialPositions, StandardPositions } from "../fixtures/commonFens";
+import { tablebaseService, TablebaseService } from '../../shared/services/TablebaseService';
+import { TEST_FENS } from '../../shared/testing/TestFixtures';
+import { EndgamePositions, SpecialPositions, StandardPositions } from '../fixtures/commonFens';
 
 // Mock the LichessApiClient
-vi.mock("../../shared/services/api/LichessApiClient", () => ({
+vi.mock('../../shared/services/api/LichessApiClient', () => ({
   LichessApiClient: vi.fn().mockImplementation(() => ({
     lookup: vi.fn(),
   })),
   LichessApiError: class LichessApiError extends Error {
-    constructor(public statusCode: number, message: string) {
+    constructor(
+      public statusCode: number,
+      message: string
+    ) {
       super(message);
       this.name = 'LichessApiError';
     }
@@ -29,9 +32,9 @@ vi.mock("../../shared/services/api/LichessApiClient", () => ({
 global.fetch = vi.fn();
 
 // Import the mocked LichessApiClient to get the mock instance
-import { LichessApiClient } from "../../shared/services/api/LichessApiClient";
+import { LichessApiClient } from '../../shared/services/api/LichessApiClient';
 
-describe("TablebaseService", () => {
+describe('TablebaseService', () => {
   const mockFetch = global.fetch as typeof fetch;
   let mockLookup: ReturnType<typeof vi.fn>;
   let mockApiClient: any;
@@ -39,13 +42,13 @@ describe("TablebaseService", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Create a new mock instance with a mock lookup function
     mockLookup = vi.fn();
     mockApiClient = {
-      lookup: mockLookup
+      lookup: mockLookup,
     };
-    
+
     // Create a new TablebaseService instance with the mocked client for each test
     testService = new TablebaseService(mockApiClient);
     testService.clearCache();
@@ -72,7 +75,7 @@ describe("TablebaseService", () => {
     }>;
   }) {
     return {
-      category: config.category || "draw",
+      category: config.category || 'draw',
       dtz: config.dtz ?? 0,
       dtm: config.dtm ?? null,
       checkmate: false,
@@ -84,20 +87,20 @@ describe("TablebaseService", () => {
     };
   }
 
-  describe("Core Functionality", () => {
-    it("should fetch and return evaluation for a position", async () => {
+  describe('Core Functionality', () => {
+    it('should fetch and return evaluation for a position', async () => {
       const fen = EndgamePositions.KQK_WIN;
 
       mockLookup.mockResolvedValueOnce(
         createTablebaseResponse({
-          category: "win",
+          category: 'win',
           dtz: 13,
           dtm: 13,
           moves: [
             {
-              uci: "h1b7",
-              san: "Qb7+",
-              category: "loss",
+              uci: 'h1b7',
+              san: 'Qb7+',
+              category: 'loss',
               dtz: -12,
               dtm: -12,
             },
@@ -112,33 +115,33 @@ describe("TablebaseService", () => {
         wdl: 2,
         dtz: 13,
         dtm: 13,
-        category: "win",
+        category: 'win',
         precise: false,
-        evaluation: "Gewinn in 13 Zügen",
+        evaluation: 'Gewinn in 13 Zügen',
       });
       expect(mockLookup).toHaveBeenCalledTimes(1);
     });
 
-    it("should return top moves with correct perspective", async () => {
+    it('should return top moves with correct perspective', async () => {
       const fen = EndgamePositions.KQK_WIN;
 
       mockLookup.mockResolvedValueOnce(
         createTablebaseResponse({
-          category: "win",
+          category: 'win',
           dtz: 13,
           dtm: 13,
           moves: [
             {
-              uci: "h1b7",
-              san: "Qb7+",
-              category: "loss", // API returns opponent's perspective
+              uci: 'h1b7',
+              san: 'Qb7+',
+              category: 'loss', // API returns opponent's perspective
               dtz: -12,
               dtm: -12,
             },
             {
-              uci: "h1h7",
-              san: "Qh7",
-              category: "loss",
+              uci: 'h1h7',
+              san: 'Qh7',
+              category: 'loss',
               dtz: -14,
               dtm: -14,
             },
@@ -151,30 +154,30 @@ describe("TablebaseService", () => {
       expect(result.isAvailable).toBe(true);
       expect(result.moves).toHaveLength(2);
       // All returned moves should be best moves (same WDL)
-      expect(result.moves![0].category).toBe("win");
+      expect(result.moves![0].category).toBe('win');
       expect(result.moves![0].wdl).toBe(2);
       expect(result.moves![1].wdl).toBe(2); // Same WDL as first move
 
       // Should contain both best moves (order may vary due to sorting)
-      const moveUcis = result.moves!.map((m) => m.uci).sort();
-      expect(moveUcis).toEqual(["h1b7", "h1h7"]);
+      const moveUcis = result.moves!.map(m => m.uci).sort();
+      expect(moveUcis).toEqual(['h1b7', 'h1h7']);
     });
   });
 
-  describe("Single API Call Architecture", () => {
-    it("should use cached data for subsequent requests", async () => {
+  describe('Single API Call Architecture', () => {
+    it('should use cached data for subsequent requests', async () => {
       const fen = EndgamePositions.KQK_WIN;
 
       mockLookup.mockResolvedValueOnce(
         createTablebaseResponse({
-          category: "win",
+          category: 'win',
           dtz: 13,
           dtm: 13,
           moves: [
             {
-              uci: "h1b7",
-              san: "Qb7+",
-              category: "loss",
+              uci: 'h1b7',
+              san: 'Qb7+',
+              category: 'loss',
               dtz: -12,
               dtm: -12,
             },
@@ -198,17 +201,17 @@ describe("TablebaseService", () => {
       expect(mockLookup).toHaveBeenCalledTimes(1); // Still no additional call
     });
 
-    it("should normalize FEN for better cache efficiency", async () => {
+    it('should normalize FEN for better cache efficiency', async () => {
       mockLookup.mockResolvedValueOnce(
         createTablebaseResponse({
-          category: "draw",
+          category: 'draw',
           dtz: 0,
         })
       );
 
       // Different halfmove/fullmove counters but same position
       const fen1 = EndgamePositions.KQK_WIN;
-      const fen2 = EndgamePositions.KQK_WIN.replace("0 1", "15 42"); // Same position, different counters
+      const fen2 = EndgamePositions.KQK_WIN.replace('0 1', '15 42'); // Same position, different counters
 
       await testService.getEvaluation(fen1);
       await testService.getEvaluation(fen2);
@@ -218,19 +221,19 @@ describe("TablebaseService", () => {
     });
   });
 
-  describe("Error Handling", () => {
-    it("should handle invalid FEN gracefully", async () => {
-      const invalidFen = "invalid fen string";
+  describe('Error Handling', () => {
+    it('should handle invalid FEN gracefully', async () => {
+      const invalidFen = 'invalid fen string';
 
       // The service returns an error instead of throwing
       const result = await testService.getEvaluation(invalidFen);
 
       expect(result.isAvailable).toBe(false);
-      expect(result.error).toContain("Invalid FEN");
+      expect(result.error).toContain('Invalid FEN');
       expect(mockLookup).not.toHaveBeenCalled();
     });
 
-    it("should handle positions with too many pieces", async () => {
+    it('should handle positions with too many pieces', async () => {
       const startingPosition = TEST_FENS.STARTING_POSITION;
 
       const result = await testService.getEvaluation(startingPosition);
@@ -239,11 +242,11 @@ describe("TablebaseService", () => {
       expect(mockLookup).not.toHaveBeenCalled();
     });
 
-    it("should handle 404 responses gracefully", async () => {
+    it('should handle 404 responses gracefully', async () => {
       const fen = EndgamePositions.KNK_DRAW; // Valid but rare position
 
-      const { LichessApiError } = require("../../shared/services/api/LichessApiClient");
-      mockLookup.mockRejectedValueOnce(new LichessApiError(404, "Not found"));
+      const { LichessApiError } = require('../../shared/services/api/LichessApiClient');
+      mockLookup.mockRejectedValueOnce(new LichessApiError(404, 'Not found'));
 
       const result = await testService.getEvaluation(fen);
 
@@ -256,16 +259,16 @@ describe("TablebaseService", () => {
       expect(mockLookup).toHaveBeenCalledTimes(1); // No additional call
     });
 
-    it("should handle rate limiting errors", async () => {
+    it('should handle rate limiting errors', async () => {
       const fen = EndgamePositions.KQK_WIN;
 
-      // Since the LichessApiClient handles retries internally, 
+      // Since the LichessApiClient handles retries internally,
       // and we're mocking it, we simulate the final result after retries
       mockLookup.mockResolvedValueOnce(
         createTablebaseResponse({
-          category: "win",
+          category: 'win',
           dtz: 13,
-        }),
+        })
       );
 
       const result = await testService.getEvaluation(fen);
@@ -275,20 +278,20 @@ describe("TablebaseService", () => {
     }, 10000);
   });
 
-  describe("Black Perspective Handling", () => {
-    it("should handle Black to move positions correctly", async () => {
+  describe('Black Perspective Handling', () => {
+    it('should handle Black to move positions correctly', async () => {
       const fen = EndgamePositions.KQK_BLACK_TO_MOVE; // Black to move
 
       mockLookup.mockResolvedValueOnce(
         createTablebaseResponse({
-          category: "loss", // Black is losing
+          category: 'loss', // Black is losing
           dtz: -13,
           dtm: -13,
           moves: [
             {
-              uci: "e8d7",
-              san: "Kd7",
-              category: "win", // Win for White after Black's move
+              uci: 'e8d7',
+              san: 'Kd7',
+              category: 'win', // Win for White after Black's move
               dtz: 12,
               dtm: 12,
             },
@@ -299,22 +302,22 @@ describe("TablebaseService", () => {
       const result = await testService.getTopMoves(fen, 1);
 
       expect(result.isAvailable).toBe(true);
-      expect(result.moves![0].category).toBe("loss"); // Inverted
+      expect(result.moves![0].category).toBe('loss'); // Inverted
       // Note: WDL is from the move's perspective, not the side to move
       // The move leads to a loss for Black, so it's positive (good for White)
       expect(result.moves![0].wdl).toBe(2);
     });
   });
 
-  describe("Category to WDL Conversion", () => {
-    it("should convert all category types correctly", async () => {
+  describe('Category to WDL Conversion', () => {
+    it('should convert all category types correctly', async () => {
       const testCases = [
-        { category: "win", expectedWdl: 2 },
-        { category: "cursed-win", expectedWdl: 1 },
-        { category: "draw", expectedWdl: 0 },
-        { category: "blessed-loss", expectedWdl: -1 },
-        { category: "loss", expectedWdl: -2 },
-        { category: "unknown", expectedWdl: 0 }, // Default case
+        { category: 'win', expectedWdl: 2 },
+        { category: 'cursed-win', expectedWdl: 1 },
+        { category: 'draw', expectedWdl: 0 },
+        { category: 'blessed-loss', expectedWdl: -1 },
+        { category: 'loss', expectedWdl: -2 },
+        { category: 'unknown', expectedWdl: 0 }, // Default case
       ];
 
       for (const { category, expectedWdl } of testCases) {
@@ -325,7 +328,7 @@ describe("TablebaseService", () => {
           createTablebaseResponse({
             category,
             dtz: 0,
-          }),
+          })
         );
 
         const result = await testService.getEvaluation(fen);
@@ -337,25 +340,25 @@ describe("TablebaseService", () => {
     });
   });
 
-  describe("Request Deduplication", () => {
-    it("should handle concurrent requests for same position", async () => {
+  describe('Request Deduplication', () => {
+    it('should handle concurrent requests for same position', async () => {
       const fen = EndgamePositions.KQK_WIN;
 
       // Delay the response to ensure requests are concurrent
       mockLookup.mockImplementationOnce(
         () =>
-          new Promise((resolve) =>
+          new Promise(resolve =>
             setTimeout(
               () =>
                 resolve(
                   createTablebaseResponse({
-                    category: "win",
+                    category: 'win',
                     dtz: 13,
-                  }),
+                  })
                 ),
-              100,
-            ),
-          ),
+              100
+            )
+          )
       );
 
       // Make multiple concurrent requests
@@ -366,9 +369,9 @@ describe("TablebaseService", () => {
       const results = await Promise.all(promises);
 
       // All should succeed with same result
-      results.forEach((result) => {
+      results.forEach(result => {
         expect(result.isAvailable).toBe(true);
-        expect(result.result?.category).toBe("win");
+        expect(result.result?.category).toBe('win');
       });
 
       // But only one API call should be made
@@ -376,19 +379,19 @@ describe("TablebaseService", () => {
     });
   });
 
-  describe("Move Limiting", () => {
-    it("should respect move limit parameter", async () => {
+  describe('Move Limiting', () => {
+    it('should respect move limit parameter', async () => {
       const fen = EndgamePositions.KQK_WIN;
 
       mockLookup.mockResolvedValueOnce(
         createTablebaseResponse({
-          category: "win",
+          category: 'win',
           moves: Array(10)
             .fill(null)
             .map((_, i) => ({
               uci: `move${i}`,
               san: `Move${i}`,
-              category: "loss",
+              category: 'loss',
               dtz: -(10 + i),
               dtm: -(10 + i),
             })),
@@ -408,13 +411,13 @@ describe("TablebaseService", () => {
     });
   });
 
-  describe("Empty Moves Handling", () => {
-    it("should handle positions with no legal moves", async () => {
+  describe('Empty Moves Handling', () => {
+    it('should handle positions with no legal moves', async () => {
       const fen = EndgamePositions.KQK_WIN;
 
       mockLookup.mockResolvedValueOnce(
         createTablebaseResponse({
-          category: "win",
+          category: 'win',
           dtz: 1,
           dtm: 1,
           moves: [], // No legal moves (e.g., checkmate)
@@ -426,17 +429,17 @@ describe("TablebaseService", () => {
 
       const movesResult = await testService.getTopMoves(fen, 5);
       expect(movesResult.isAvailable).toBe(false);
-      expect(movesResult.error).toContain("No moves available");
+      expect(movesResult.error).toContain('No moves available');
     });
   });
 
-  describe("Metrics Tracking", () => {
-    it("should track cache hits and API calls", async () => {
+  describe('Metrics Tracking', () => {
+    it('should track cache hits and API calls', async () => {
       const fen = EndgamePositions.KQK_WIN;
 
       mockLookup.mockResolvedValue(
         createTablebaseResponse({
-          category: "win",
+          category: 'win',
           dtz: 13,
         })
       );
@@ -459,24 +462,24 @@ describe("TablebaseService", () => {
     });
   });
 
-  describe("Edge Cases - En Passant Preservation", () => {
-    it("should treat positions with different en passant squares as different", async () => {
+  describe('Edge Cases - En Passant Preservation', () => {
+    it('should treat positions with different en passant squares as different', async () => {
       // Use valid endgame positions with ≤7 pieces - simple KPK position
-      const fenWithEp = "8/8/8/3pP3/8/3K4/8/3k4 w - d6 0 1"; // En passant possible (6 pieces)
-      const fenWithoutEp = "8/8/8/3pP3/8/3K4/8/3k4 w - - 0 1"; // No en passant
+      const fenWithEp = '8/8/8/3pP3/8/3K4/8/3k4 w - d6 0 1'; // En passant possible (6 pieces)
+      const fenWithoutEp = '8/8/8/3pP3/8/3K4/8/3k4 w - - 0 1'; // No en passant
 
       mockLookup
         .mockResolvedValueOnce(
           createTablebaseResponse({
-            category: "draw",
+            category: 'draw',
             dtz: 0,
-          }),
+          })
         )
         .mockResolvedValueOnce(
           createTablebaseResponse({
-            category: "draw",
+            category: 'draw',
             dtz: 0,
-          }),
+          })
         );
 
       await testService.getEvaluation(fenWithEp);
@@ -487,14 +490,14 @@ describe("TablebaseService", () => {
     });
   });
 
-  describe("Edge Cases - Partial API Responses", () => {
-    it("should handle 200 OK with incomplete response gracefully", async () => {
+  describe('Edge Cases - Partial API Responses', () => {
+    it('should handle 200 OK with incomplete response gracefully', async () => {
       const fen = EndgamePositions.KQK_WIN;
 
       // Mock incomplete response - this should cause an error in transformation
       // Provide minimal data with category to avoid crash, but missing other fields
       mockLookup.mockResolvedValueOnce({
-        category: "draw",
+        category: 'draw',
         // Missing moves, dtz, dtm, etc.
       });
 
@@ -512,7 +515,7 @@ describe("TablebaseService", () => {
       expect(mockLookup).toHaveBeenCalledTimes(1);
     });
 
-    it("should handle 200 OK with null moves array", async () => {
+    it('should handle 200 OK with null moves array', async () => {
       const fen = EndgamePositions.KQK_WIN;
 
       mockLookup.mockResolvedValueOnce({
@@ -521,7 +524,7 @@ describe("TablebaseService", () => {
          *
          */
         json: async () => ({
-          category: "win",
+          category: 'win',
           dtz: 13,
           dtm: 13,
           moves: null, // Invalid: should be array
@@ -535,14 +538,14 @@ describe("TablebaseService", () => {
     });
   });
 
-  describe("Edge Cases - Concurrent Failure Handling", () => {
-    it("should properly handle concurrent requests with deduplication", async () => {
+  describe('Edge Cases - Concurrent Failure Handling', () => {
+    it('should properly handle concurrent requests with deduplication', async () => {
       const fen = EndgamePositions.KQK_WIN;
 
       // Mock successful response
       mockLookup.mockResolvedValue(
         createTablebaseResponse({
-          category: "win",
+          category: 'win',
           dtz: 13,
         })
       );
@@ -557,16 +560,16 @@ describe("TablebaseService", () => {
       const [result1, result2] = await Promise.allSettled([promise1, promise2]);
 
       // Both should succeed with the same result
-      expect(result1.status).toBe("fulfilled");
-      if (result1.status === "fulfilled") {
+      expect(result1.status).toBe('fulfilled');
+      if (result1.status === 'fulfilled') {
         expect(result1.value.isAvailable).toBe(true);
-        expect(result1.value.result?.category).toBe("win");
+        expect(result1.value.result?.category).toBe('win');
       }
 
-      expect(result2.status).toBe("fulfilled");
-      if (result2.status === "fulfilled") {
+      expect(result2.status).toBe('fulfilled');
+      if (result2.status === 'fulfilled') {
         expect(result2.value.isAvailable).toBe(true);
-        expect(result2.value.result?.category).toBe("win");
+        expect(result2.value.result?.category).toBe('win');
       }
 
       // Verify deduplication worked - only 1 API call for both concurrent requests
@@ -579,8 +582,8 @@ describe("TablebaseService", () => {
     });
   });
 
-  describe("Issue #59 - DTM Sorting with Negative Values", () => {
-    it("should correctly sort moves with negative DTM values (pawn promotion bug)", async () => {
+  describe('Issue #59 - DTM Sorting with Negative Values', () => {
+    it('should correctly sort moves with negative DTM values (pawn promotion bug)', async () => {
       // This was a real bug where e7 (DTM=-12) was incorrectly sorted after Ke8 (DTM=-20)
       const mockResponse = {
         checkmate: false,
@@ -591,41 +594,41 @@ describe("TablebaseService", () => {
         dtz: 1,
         precise_dtz: 1,
         dtm: 13,
-        category: "win",
+        category: 'win',
         moves: [
           {
-            uci: "e6e7",
-            san: "e7",
+            uci: 'e6e7',
+            san: 'e7',
             zeroing: true,
             dtz: -2,
             precise_dtz: -2,
             dtm: -12,
-            category: "loss",
+            category: 'loss',
           },
           {
-            uci: "d7e8",
-            san: "Ke8",
+            uci: 'd7e8',
+            san: 'Ke8',
             zeroing: false,
             dtz: -2,
             precise_dtz: -2,
             dtm: -20,
-            category: "loss",
+            category: 'loss',
           },
           {
-            uci: "d7d8",
-            san: "Kd8",
+            uci: 'd7d8',
+            san: 'Kd8',
             zeroing: false,
             dtz: -2,
             precise_dtz: -2,
             dtm: -16,
-            category: "loss",
+            category: 'loss',
           },
         ],
       };
 
       mockLookup.mockResolvedValueOnce(createTablebaseResponse(mockResponse));
 
-      const fen = "6k1/3K4/4P3/8/8/8/8/8 w - - 3 4";
+      const fen = '6k1/3K4/4P3/8/8/8/8/8 w - - 3 4';
       const result = await testService.getTopMoves(fen, 5);
 
       expect(result.isAvailable).toBe(true);
@@ -633,25 +636,25 @@ describe("TablebaseService", () => {
       expect(result.moves!.length).toBeGreaterThan(0);
 
       // e7 should be first (best DTM of -12)
-      expect(result.moves![0].san).toBe("e7");
+      expect(result.moves![0].san).toBe('e7');
       expect(result.moves![0].dtm).toBe(-12);
 
       // Verify correct order: e7 (-12), Kd8 (-16), Ke8 (-20)
       if (result.moves!.length >= 3) {
-        expect(result.moves![1].san).toBe("Kd8");
-        expect(result.moves![2].san).toBe("Ke8");
+        expect(result.moves![1].san).toBe('Kd8');
+        expect(result.moves![2].san).toBe('Ke8');
       }
     });
   });
 
-  describe("Edge Cases - Terminal States", () => {
-    it("should handle checkmate positions correctly", async () => {
+  describe('Edge Cases - Terminal States', () => {
+    it('should handle checkmate positions correctly', async () => {
       // K+Q vs K checkmate position (Black is checkmated)
       const checkmatedFen = SpecialPositions.CHECKMATE;
 
       mockLookup.mockResolvedValueOnce(
         createTablebaseResponse({
-          category: "loss", // Black has lost (is checkmated)
+          category: 'loss', // Black has lost (is checkmated)
           dtz: 0,
           dtm: 0,
           moves: [], // No legal moves (checkmate)
@@ -661,18 +664,18 @@ describe("TablebaseService", () => {
       const result = await testService.getEvaluation(checkmatedFen);
 
       expect(result.isAvailable).toBe(true);
-      expect(result.result?.category).toBe("loss"); // Black is checkmated
+      expect(result.result?.category).toBe('loss'); // Black is checkmated
       expect(result.result?.wdl).toBe(-2);
       expect(result.result?.dtz).toBe(0);
     });
 
-    it("should handle stalemate positions correctly", async () => {
+    it('should handle stalemate positions correctly', async () => {
       // K vs K+pawn stalemate position
       const stalemateFen = SpecialPositions.STALEMATE;
 
       mockLookup.mockResolvedValueOnce(
         createTablebaseResponse({
-          category: "draw", // Stalemate is always a draw
+          category: 'draw', // Stalemate is always a draw
           dtz: 0,
           dtm: null,
           moves: [], // No legal moves (stalemate)
@@ -682,13 +685,13 @@ describe("TablebaseService", () => {
       const result = await testService.getEvaluation(stalemateFen);
 
       expect(result.isAvailable).toBe(true);
-      expect(result.result?.category).toBe("draw");
+      expect(result.result?.category).toBe('draw');
       expect(result.result?.wdl).toBe(0);
 
       // Verify moves endpoint handles stalemate correctly
       const movesResult = await testService.getTopMoves(stalemateFen, 5);
       expect(movesResult.isAvailable).toBe(false);
-      expect(movesResult.error).toContain("No moves available");
+      expect(movesResult.error).toContain('No moves available');
     });
   });
 
@@ -705,14 +708,14 @@ describe("TablebaseService", () => {
         has: vi.fn().mockReturnValue(false),
         delete: vi.fn().mockReturnValue(true),
         clear: vi.fn(),
-        size: 0
+        size: 0,
       };
 
       const customService = new TablebaseService(mockApiClient, mockCacheManager);
 
       // Mock successful response
-      const responseData = { 
-        category: 'win', 
+      const responseData = {
+        category: 'win',
         dtz: 1,
         dtm: 1,
         checkmate: false,
@@ -720,9 +723,9 @@ describe("TablebaseService", () => {
         variant_win: false,
         variant_loss: false,
         insufficient_material: false,
-        moves: [{ uci: 'a1a2', san: 'Ka2', category: 'loss', dtz: -2, dtm: -2 }]
+        moves: [{ uci: 'a1a2', san: 'Ka2', category: 'loss', dtz: -2, dtm: -2 }],
       };
-      
+
       mockLookup.mockResolvedValueOnce(createTablebaseResponse(responseData));
 
       const testFen = 'K7/8/k7/8/8/8/8/8 w - - 0 1';
@@ -735,23 +738,23 @@ describe("TablebaseService", () => {
 
     it('should use default LRUCacheManager when none provided', async () => {
       const defaultService = new TablebaseService(mockApiClient);
-      
-      const responseData = { 
-        category: 'win', 
+
+      const responseData = {
+        category: 'win',
         dtz: 1,
-        moves: [{ uci: 'a1a2', san: 'Ka2', category: 'loss', dtz: -2, dtm: -2 }]
+        moves: [{ uci: 'a1a2', san: 'Ka2', category: 'loss', dtz: -2, dtm: -2 }],
       };
-      
+
       mockLookup.mockResolvedValue(createTablebaseResponse(responseData));
 
       const testFen = 'K7/8/k7/8/8/8/8/8 w - - 0 1';
-      
+
       // First call should miss cache
       await defaultService.getEvaluation(testFen);
-      
+
       // Second call should hit cache (LRU should work)
       await defaultService.getEvaluation(testFen);
-      
+
       // Should have made only one API call due to caching
       expect(mockLookup).toHaveBeenCalledTimes(1);
     });
@@ -759,51 +762,51 @@ describe("TablebaseService", () => {
     it('should maintain cache behavior consistency with CacheManager', async () => {
       // Start with fresh mock state
       mockLookup.mockClear();
-      
-      const responseData = { 
-        category: 'win', 
+
+      const responseData = {
+        category: 'win',
         dtz: 1,
-        moves: [{ uci: 'a1a2', san: 'Ka2', category: 'loss', dtz: -2, dtm: -2 }]
+        moves: [{ uci: 'a1a2', san: 'Ka2', category: 'loss', dtz: -2, dtm: -2 }],
       };
-      
+
       mockLookup.mockResolvedValue(createTablebaseResponse(responseData));
 
       const testFen = 'K7/8/k7/8/8/8/8/8 w - - 0 1';
-      
+
       // First call - cache miss
       const result1 = await testService.getEvaluation(testFen);
       expect(result1.isAvailable).toBe(true);
-      
+
       // Second call - should be cache hit
       const result2 = await testService.getEvaluation(testFen);
       expect(result2.isAvailable).toBe(true);
       expect(result1).toEqual(result2);
-      
+
       // Should have made only one API call
       expect(mockLookup).toHaveBeenCalledTimes(1);
-      
+
       // Clear cache
       testService.clearCache();
-      
+
       // Third call - cache miss again after clear
       const result3 = await testService.getEvaluation(testFen);
       expect(result3.isAvailable).toBe(true);
       expect(result3).toEqual(result1); // Same result, but fetched again
-      
+
       // Should have made second API call after cache clear
       expect(mockLookup).toHaveBeenCalledTimes(2);
     });
 
     it('should work with both constructor parameters', async () => {
-      const responseData = { 
-        category: 'win', 
+      const responseData = {
+        category: 'win',
         dtz: 1,
-        moves: [{ uci: 'a1a2', san: 'Ka2', category: 'loss', dtz: -2, dtm: -2 }]
+        moves: [{ uci: 'a1a2', san: 'Ka2', category: 'loss', dtz: -2, dtm: -2 }],
       };
-      
+
       const mockTablebaseClient = {
         lookup: vi.fn().mockResolvedValue(responseData),
-        healthCheck: vi.fn().mockResolvedValue(true)
+        healthCheck: vi.fn().mockResolvedValue(true),
       };
 
       const mockCacheManager = {
@@ -812,7 +815,7 @@ describe("TablebaseService", () => {
         has: vi.fn().mockReturnValue(false),
         delete: vi.fn().mockReturnValue(true),
         clear: vi.fn(),
-        size: 0
+        size: 0,
       };
 
       const customService = new TablebaseService(mockTablebaseClient as any, mockCacheManager);

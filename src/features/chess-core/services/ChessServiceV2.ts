@@ -1,15 +1,15 @@
 /**
  * ChessServiceV2 - Modern implementation of chess service
- * 
+ *
  * This is the new implementation for the Strangler Fig Pattern migration.
  * It implements the IChessService interface to ensure compatibility with
  * the legacy ChessService while providing improved architecture.
  */
 
-import { Chess, type Move as ChessJsMove } from "chess.js";
-import type { ValidatedMove } from "@shared/types/chess";
-import { createValidatedMove } from "@shared/types/chess";
-import { getLogger } from "@shared/services/logging";
+import { Chess, type Move as ChessJsMove } from 'chess.js';
+import type { ValidatedMove } from '@shared/types/chess';
+import { createValidatedMove } from '@shared/types/chess';
+import { getLogger } from '@shared/services/logging';
 import type {
   IChessService,
   GameStatePayload,
@@ -17,9 +17,9 @@ import type {
   ChessServiceListener,
   MoveInput,
   MoveOptions,
-} from "../types/IChessService";
+} from '../types/IChessService';
 
-const logger = getLogger().setContext("ChessServiceV2");
+const logger = getLogger().setContext('ChessServiceV2');
 
 /**
  * Modern chess service implementation
@@ -36,11 +36,11 @@ class ChessServiceV2 implements IChessService {
   private currentMoveIndex = -1;
   private fenCache = new Map<string, string>();
   private readonly MAX_CACHE_SIZE = MAX_FEN_CACHE_SIZE;
-  private initialFen: string = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  private initialFen: string = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
   private constructor() {
     this.chess = new Chess();
-    logger.info("ChessServiceV2 initialized");
+    logger.info('ChessServiceV2 initialized');
   }
 
   /**
@@ -67,13 +67,13 @@ class ChessServiceV2 implements IChessService {
    * Emit event to all listeners
    */
   private emit(event: ChessServiceEvent): void {
-    this.listeners.forEach((listener) => {
+    this.listeners.forEach(listener => {
       try {
         listener(event);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         logger.error(`Error in ChessServiceV2 listener: ${errorMessage}`, {
-          errorType: error ? error.constructor.name : "unknown",
+          errorType: error ? error.constructor.name : 'unknown',
           stack: error instanceof Error ? error.stack : undefined,
         });
       }
@@ -112,24 +112,24 @@ class ChessServiceV2 implements IChessService {
       this.currentMoveIndex = -1;
 
       this.emit({
-        type: "stateUpdate",
+        type: 'stateUpdate',
         payload: this.buildStatePayload(),
-        source: "load",
+        source: 'load',
       });
 
       return true;
     } catch (error) {
       this.emit({
-        type: "error",
+        type: 'error',
         payload: {
           error: error instanceof Error ? error : new Error(String(error)),
-          message: "Ungültige FEN-Position",
+          message: 'Ungültige FEN-Position',
         },
       });
       const errorMessage = error instanceof Error ? error.message : String(error);
       logger.error(`Failed to initialize with FEN: ${errorMessage}`, {
         fen,
-        errorType: error ? error.constructor.name : "unknown",
+        errorType: error ? error.constructor.name : 'unknown',
       });
       return false;
     }
@@ -144,9 +144,9 @@ class ChessServiceV2 implements IChessService {
     this.currentMoveIndex = -1;
 
     this.emit({
-      type: "stateUpdate",
+      type: 'stateUpdate',
       payload: this.buildStatePayload(),
-      source: "reset",
+      source: 'reset',
     });
   }
 
@@ -172,9 +172,9 @@ class ChessServiceV2 implements IChessService {
         this.currentMoveIndex++;
 
         this.emit({
-          type: "stateUpdate",
+          type: 'stateUpdate',
           payload: this.buildStatePayload(),
-          source: "move",
+          source: 'move',
         });
 
         return validatedMove;
@@ -183,17 +183,17 @@ class ChessServiceV2 implements IChessService {
       return null;
     } catch (error) {
       this.emit({
-        type: "error",
+        type: 'error',
         payload: {
           error: error instanceof Error ? error : new Error(String(error)),
-          move: typeof move === "object" ? JSON.stringify(move) : String(move),
-          message: "Ungültiger Zug",
+          move: typeof move === 'object' ? JSON.stringify(move) : String(move),
+          message: 'Ungültiger Zug',
         },
       });
       const errorMessage = error instanceof Error ? error.message : String(error);
       logger.error(`Failed to make move: ${errorMessage}`, {
-        move: typeof move === "object" ? JSON.stringify(move) : move,
-        errorType: error ? error.constructor.name : "unknown",
+        move: typeof move === 'object' ? JSON.stringify(move) : move,
+        errorType: error ? error.constructor.name : 'unknown',
       });
       return null;
     }
@@ -204,7 +204,7 @@ class ChessServiceV2 implements IChessService {
    */
   public undo(): boolean {
     if (this.currentMoveIndex < 0) {
-      logger.warn("No moves to undo");
+      logger.warn('No moves to undo');
       return false;
     }
 
@@ -219,9 +219,9 @@ class ChessServiceV2 implements IChessService {
       this.currentMoveIndex--;
 
       this.emit({
-        type: "stateUpdate",
+        type: 'stateUpdate',
         payload: this.buildStatePayload(),
-        source: "undo",
+        source: 'undo',
       });
 
       return true;
@@ -229,7 +229,7 @@ class ChessServiceV2 implements IChessService {
       const errorMessage = error instanceof Error ? error.message : String(error);
       logger.error(`Failed to undo move: ${errorMessage}`, {
         currentMoveIndex: this.currentMoveIndex,
-        errorType: error ? error.constructor.name : "unknown",
+        errorType: error ? error.constructor.name : 'unknown',
       });
       return false;
     }
@@ -240,7 +240,7 @@ class ChessServiceV2 implements IChessService {
    */
   public redo(): boolean {
     if (this.currentMoveIndex >= this.moveHistory.length - 1) {
-      logger.warn("No moves to redo");
+      logger.warn('No moves to redo');
       return false;
     }
 
@@ -253,9 +253,9 @@ class ChessServiceV2 implements IChessService {
       this.currentMoveIndex++;
 
       this.emit({
-        type: "stateUpdate",
+        type: 'stateUpdate',
         payload: this.buildStatePayload(),
-        source: "redo",
+        source: 'redo',
       });
 
       return true;
@@ -263,7 +263,7 @@ class ChessServiceV2 implements IChessService {
       const errorMessage = error instanceof Error ? error.message : String(error);
       logger.error(`Failed to redo move: ${errorMessage}`, {
         currentMoveIndex: this.currentMoveIndex,
-        errorType: error ? error.constructor.name : "unknown",
+        errorType: error ? error.constructor.name : 'unknown',
       });
       return false;
     }
@@ -282,8 +282,8 @@ class ChessServiceV2 implements IChessService {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       logger.error(`ChessServiceV2.validateMove error: ${errorMessage}`, {
-        errorType: error ? error.constructor.name : "unknown",
-        move: typeof move === "object" ? JSON.stringify(move) : String(move),
+        errorType: error ? error.constructor.name : 'unknown',
+        move: typeof move === 'object' ? JSON.stringify(move) : String(move),
         currentFen: this.chess.fen(),
       });
       return false;
@@ -356,7 +356,7 @@ class ChessServiceV2 implements IChessService {
   /**
    * Get whose turn it is
    */
-  public turn(): "w" | "b" {
+  public turn(): 'w' | 'b' {
     return this.chess.turn();
   }
 
@@ -367,10 +367,10 @@ class ChessServiceV2 implements IChessService {
     if (!this.chess.isGameOver()) return null;
 
     if (this.chess.isCheckmate()) {
-      return this.chess.turn() === "w" ? "0-1" : "1-0";
+      return this.chess.turn() === 'w' ? '0-1' : '1-0';
     }
 
-    return "1/2-1/2"; // Draw
+    return '1/2-1/2'; // Draw
   }
 
   /**
@@ -386,7 +386,7 @@ class ChessServiceV2 implements IChessService {
       chessOptions.verbose = options.verbose;
     }
     if (options.square && /^[a-h][1-8]$/.test(options.square)) {
-      chessOptions.square = options.square as "a1";
+      chessOptions.square = options.square as 'a1';
     }
 
     return this.chess.moves(chessOptions);
@@ -415,23 +415,23 @@ class ChessServiceV2 implements IChessService {
       this.currentMoveIndex = this.moveHistory.length - 1;
 
       this.emit({
-        type: "stateUpdate",
+        type: 'stateUpdate',
         payload: this.buildStatePayload(),
-        source: "load",
+        source: 'load',
       });
 
       return true;
     } catch (error) {
       this.emit({
-        type: "error",
+        type: 'error',
         payload: {
           error: error instanceof Error ? error : new Error(String(error)),
-          message: "Ungültiges PGN-Format",
+          message: 'Ungültiges PGN-Format',
         },
       });
       const errorMessage = error instanceof Error ? error.message : String(error);
       logger.error(`Failed to load PGN: ${errorMessage}`, {
-        errorType: error ? error.constructor.name : "unknown",
+        errorType: error ? error.constructor.name : 'unknown',
       });
       return false;
     }
@@ -443,13 +443,13 @@ class ChessServiceV2 implements IChessService {
   public goToMove(moveIndex: number): boolean {
     if (moveIndex < -1 || moveIndex >= this.moveHistory.length) {
       this.emit({
-        type: "error",
+        type: 'error',
         payload: {
           error: new Error(`Invalid move index: ${moveIndex}`),
           message: `Ungültiger Zugindex: ${moveIndex}`,
         },
       });
-      logger.warn("Invalid move index", { moveIndex });
+      logger.warn('Invalid move index', { moveIndex });
       return false;
     }
 
@@ -463,24 +463,24 @@ class ChessServiceV2 implements IChessService {
       this.currentMoveIndex = moveIndex;
 
       this.emit({
-        type: "stateUpdate",
+        type: 'stateUpdate',
         payload: this.buildStatePayload(),
-        source: "load",
+        source: 'load',
       });
 
       return true;
     } catch (error) {
       this.emit({
-        type: "error",
+        type: 'error',
         payload: {
           error: error instanceof Error ? error : new Error(String(error)),
-          message: "Fehler beim Navigieren zum Zug",
+          message: 'Fehler beim Navigieren zum Zug',
         },
       });
       const errorMessage = error instanceof Error ? error.message : String(error);
       logger.error(`Failed to go to move: ${errorMessage}`, {
         moveIndex,
-        errorType: error ? error.constructor.name : "unknown",
+        errorType: error ? error.constructor.name : 'unknown',
       });
       return false;
     }
@@ -509,14 +509,14 @@ class ChessServiceV2 implements IChessService {
    * Handles German piece notation (D, T, L, S) and various formats
    */
   private normalizeMove(move: MoveInput): MoveInput {
-    if (typeof move === "object" && move !== null && "promotion" in move && move.promotion) {
+    if (typeof move === 'object' && move !== null && 'promotion' in move && move.promotion) {
       const normalizedPromotion = this.normalizePromotionPiece(move.promotion);
       const result = { ...move };
       if (normalizedPromotion) {
         result.promotion = normalizedPromotion;
       }
       return result;
-    } else if (typeof move === "string") {
+    } else if (typeof move === 'string') {
       // Handle string notation with German piece letters
       let promotionMatch = move.match(/^([a-h][1-8])-?([a-h][1-8])([DTLSQRBN])$/i);
       if (promotionMatch && promotionMatch[3]) {
@@ -534,7 +534,7 @@ class ChessServiceV2 implements IChessService {
       promotionMatch = move.match(/^([a-h][1-8])=?([DTLSQRBN])$/i);
       if (promotionMatch && promotionMatch[2]) {
         const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[2]);
-        return `${promotionMatch[1]  }=${  (normalizedPromotion || "").toUpperCase()}`;
+        return `${promotionMatch[1]}=${(normalizedPromotion || '').toUpperCase()}`;
       }
     }
 
@@ -548,23 +548,23 @@ class ChessServiceV2 implements IChessService {
     if (!notation) return undefined;
 
     const germanToChessJs: Record<string, string> = {
-      D: "q", // Dame (Queen)
-      d: "q",
-      T: "r", // Turm (Rook)
-      t: "r",
-      L: "b", // Läufer (Bishop)
-      l: "b",
-      S: "n", // Springer (Knight)
-      s: "n",
+      D: 'q', // Dame (Queen)
+      d: 'q',
+      T: 'r', // Turm (Rook)
+      t: 'r',
+      L: 'b', // Läufer (Bishop)
+      l: 'b',
+      S: 'n', // Springer (Knight)
+      s: 'n',
       // Also support English notation
-      Q: "q",
-      q: "q",
-      R: "r",
-      r: "r",
-      B: "b",
-      b: "b",
-      N: "n",
-      n: "n",
+      Q: 'q',
+      q: 'q',
+      R: 'r',
+      r: 'r',
+      B: 'b',
+      b: 'b',
+      N: 'n',
+      n: 'n',
     };
 
     return germanToChessJs[notation] || notation;

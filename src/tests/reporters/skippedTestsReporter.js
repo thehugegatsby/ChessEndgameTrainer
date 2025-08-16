@@ -17,10 +17,10 @@ class SkippedTestsReporter {
    */
   onTestResult(test, testResult) {
     // Collect skipped tests
-    testResult.testResults.forEach((result) => {
-      if (result.status === "pending" || result.status === "skipped") {
+    testResult.testResults.forEach(result => {
+      if (result.status === 'pending' || result.status === 'skipped') {
         this.skippedTests.push({
-          file: test.path.replace(process.cwd(), ""),
+          file: test.path.replace(process.cwd(), ''),
           title: result.title,
           fullName: result.fullName,
           ancestorTitles: result.ancestorTitles,
@@ -45,11 +45,11 @@ class SkippedTestsReporter {
     const skippedTestsData = {
       total: this.skippedTests.length,
       byFile: {},
-      threshold: this._options.maxSkippedTests || 10
+      threshold: this._options.maxSkippedTests || 10,
     };
 
     // Group by file
-    this.skippedTests.forEach((test) => {
+    this.skippedTests.forEach(test => {
       if (!skippedTestsData.byFile[test.file]) {
         skippedTestsData.byFile[test.file] = [];
       }

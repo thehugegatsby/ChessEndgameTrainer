@@ -3,9 +3,9 @@
  * SIMPLIFIED: Removed overengineered tablebase helpers
  */
 
-import { getMoveQualityDisplay } from "./displayHelpers";
-import type { EvaluationDisplay } from "@shared/types";
-import { SMART_EVALUATION_THRESHOLDS } from "../../../../constants/chess.constants";
+import { getMoveQualityDisplay } from './displayHelpers';
+import type { EvaluationDisplay } from '@shared/types';
+import { SMART_EVALUATION_THRESHOLDS } from '../../../../constants/chess.constants';
 
 export interface MoveEvaluation {
   evaluation: number;
@@ -26,15 +26,15 @@ export interface MoveEvaluation {
  */
 export const getSmartMoveEvaluation = (
   evaluation: MoveEvaluation,
-  isWhite: boolean,
+  isWhite: boolean
 ): EvaluationDisplay => {
   const { evaluation: rawEvaluation, mateInMoves, tablebase } = evaluation;
 
   // If tablebase WDL data is available, use it for accurate move quality assessment
   if (
     tablebase &&
-    typeof tablebase.wdlBefore === "number" &&
-    typeof tablebase.wdlAfter === "number"
+    typeof tablebase.wdlBefore === 'number' &&
+    typeof tablebase.wdlAfter === 'number'
   ) {
     // WDL values are absolute (from White's perspective). Adjust for the current player
     const wdlBefore = isWhite ? tablebase.wdlBefore : -tablebase.wdlBefore;
@@ -45,7 +45,8 @@ export const getSmartMoveEvaluation = (
     let qualityScore = 0;
     if (wdlAfter > wdlBefore)
       qualityScore = SMART_EVALUATION_THRESHOLDS.SIGNIFICANT_ADVANTAGE; // Improved position (e.g., Draw -> Win) -> Brilliant
-    else if (wdlAfter < wdlBefore) qualityScore = SMART_EVALUATION_THRESHOLDS.SIGNIFICANT_DISADVANTAGE; // Worsened position (e.g., Win -> Draw) -> Blunder
+    else if (wdlAfter < wdlBefore)
+      qualityScore = SMART_EVALUATION_THRESHOLDS.SIGNIFICANT_DISADVANTAGE; // Worsened position (e.g., Win -> Draw) -> Blunder
     // If wdlAfter === wdlBefore, qualityScore remains 0 (neutral move)
 
     return getMoveQualityDisplay(qualityScore, mateInMoves);

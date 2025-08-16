@@ -23,14 +23,14 @@
  * and provides a comprehensive overview of available training content.
  */
 
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { getStoreDependencies } from "@shared/store/storeConfig";
-import { type EndgameCategory, type EndgameChapter } from "@shared/types";
-import { getLogger } from "@shared/services/logging";
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { getStoreDependencies } from '@shared/store/storeConfig';
+import { type EndgameCategory, type EndgameChapter } from '@shared/types';
+import { getLogger } from '@shared/services/logging';
 import { SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
 
-const logger = getLogger().setContext("AdvancedEndgameMenu");
+const logger = getLogger().setContext('AdvancedEndgameMenu');
 
 /**
  * Props for the AdvancedEndgameMenu component
@@ -126,10 +126,7 @@ interface CategoryWithDetails extends EndgameCategory {
  * @param {AdvancedEndgameMenuProps} props - Navigation menu configuration
  * @returns {JSX.Element} Rendered navigation menu with categories and stats
  */
-export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
-  isOpen,
-  onClose,
-}) => {
+export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({ isOpen, onClose }) => {
   const dependencies = getStoreDependencies();
   const positionService = dependencies?.positionService;
   const [categories, setCategories] = useState<CategoryWithDetails[]>([]);
@@ -147,7 +144,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
     const loadData = async (): Promise<void> => {
       try {
         // Load user stats from localStorage
-        const savedStats = localStorage.getItem("endgame-user-stats");
+        const savedStats = localStorage.getItem('endgame-user-stats');
         if (savedStats) {
           setUserStats(JSON.parse(savedStats));
         }
@@ -163,11 +160,9 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
 
         // Fetch position counts in parallel
         const categoriesWithCounts = await Promise.all(
-          baseCategories.map(async (cat) => {
+          baseCategories.map(async cat => {
             try {
-              const count = await positionService.getPositionCountByCategory(
-                cat.id,
-              );
+              const count = await positionService.getPositionCountByCategory(cat.id);
               return {
                 ...cat,
                 positionCount: count,
@@ -181,22 +176,19 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
                 isExpanded: false,
               } as CategoryWithDetails;
             }
-          }),
+          })
         );
 
         setCategories(categoriesWithCounts);
 
         // Calculate total positions
-        const total = categoriesWithCounts.reduce(
-          (sum, cat) => sum + (cat.positionCount || 0),
-          0,
-        );
+        const total = categoriesWithCounts.reduce((sum, cat) => sum + (cat.positionCount || 0), 0);
         setTotalPositions(total);
 
         setError(null);
       } catch (err) {
-        logger.error("Failed to load menu data", err);
-        setError("Menü konnte nicht geladen werden");
+        logger.error('Failed to load menu data', err);
+        setError('Menü konnte nicht geladen werden');
       } finally {
         setIsLoading(false);
       }
@@ -208,7 +200,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
   }, [isOpen, positionService]);
 
   const toggleCategory = async (categoryId: string): Promise<void> => {
-    const categoryIndex = categories.findIndex((c) => c.id === categoryId);
+    const categoryIndex = categories.findIndex(c => c.id === categoryId);
     if (categoryIndex === -1) return;
 
     const category = categories[categoryIndex];
@@ -216,53 +208,38 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
 
     // Toggle expansion state
     if (category.isExpanded) {
-      setCategories((prev) =>
-        prev.map((c) =>
-          c.id === categoryId ? { ...c, isExpanded: false } : c,
-        ),
-      );
+      setCategories(prev => prev.map(c => (c.id === categoryId ? { ...c, isExpanded: false } : c)));
       return;
     }
 
     // Expand and load chapters if not already loaded
     if (!category.chapters) {
-      setCategories((prev) =>
-        prev.map((c) =>
-          c.id === categoryId
-            ? { ...c, isLoadingChapters: true, isExpanded: true }
-            : c,
-        ),
+      setCategories(prev =>
+        prev.map(c =>
+          c.id === categoryId ? { ...c, isLoadingChapters: true, isExpanded: true } : c
+        )
       );
 
       try {
         // Check if service is available before loading chapters
         if (!positionService) {
-          throw new Error("Position service not available");
+          throw new Error('Position service not available');
         }
-        const chapters =
-          await positionService.getChaptersByCategory(categoryId);
-        setCategories((prev) =>
-          prev.map((c) =>
-            c.id === categoryId
-              ? { ...c, chapters, isLoadingChapters: false }
-              : c,
-          ),
+        const chapters = await positionService.getChaptersByCategory(categoryId);
+        setCategories(prev =>
+          prev.map(c => (c.id === categoryId ? { ...c, chapters, isLoadingChapters: false } : c))
         );
       } catch (err) {
         logger.error(`Failed to load chapters for category ${categoryId}`, err);
-        setCategories((prev) =>
-          prev.map((c) =>
-            c.id === categoryId
-              ? { ...c, isLoadingChapters: false, isExpanded: false }
-              : c,
-          ),
+        setCategories(prev =>
+          prev.map(c =>
+            c.id === categoryId ? { ...c, isLoadingChapters: false, isExpanded: false } : c
+          )
         );
       }
     } else {
       // Just expand if chapters already loaded
-      setCategories((prev) =>
-        prev.map((c) => (c.id === categoryId ? { ...c, isExpanded: true } : c)),
-      );
+      setCategories(prev => prev.map(c => (c.id === categoryId ? { ...c, isExpanded: true } : c)));
     }
   };
 
@@ -270,20 +247,17 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
     Math.floor(totalPositions * (userStats.successRate / SIZE_MULTIPLIERS.LARGE_FACTOR));
 
   if (!isOpen) return null;
-  
+
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={onClose} />
 
       {/* Menu Sidebar */}
       <div
         className={`
         fixed left-0 top-0 h-full w-[18rem] bg-gray-900 text-white z-50 transform transition-transform duration-300 ease-in-out
-        ${isOpen ? "translate-x-0" : "-translate-x-full"}
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0 lg:static lg:z-auto
       `}
       >
@@ -291,10 +265,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
         <div className="p-4 border-b border-gray-700">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">Endgame Training</h2>
-            <button
-              onClick={onClose}
-              className="lg:hidden p-2 hover:bg-gray-800 rounded"
-            >
+            <button onClick={onClose} className="lg:hidden p-2 hover:bg-gray-800 rounded">
               ✕
             </button>
           </div>
@@ -336,7 +307,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
           {/* Categories */}
           {!isLoading &&
             !error &&
-            categories.map((category) => (
+            categories.map(category => (
               <div key={category.id}>
                 {/* Category Header */}
                 <button
@@ -347,14 +318,12 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
                     <span className="text-lg">{category.icon}</span>
                     <span className="font-medium">{category.name}</span>
                     {category.positionCount !== null && (
-                      <span className="text-xs text-gray-400">
-                        ({category.positionCount})
-                      </span>
+                      <span className="text-xs text-gray-400">({category.positionCount})</span>
                     )}
                   </div>
                   <span
                     className={`transform transition-transform ${
-                      category.isExpanded ? "rotate-90" : ""
+                      category.isExpanded ? 'rotate-90' : ''
                     }`}
                   >
                     ▶
@@ -384,7 +353,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
                         </div>
 
                         {/* Individual chapters */}
-                        {category.chapters.map((chapter) => (
+                        {category.chapters.map(chapter => (
                           <div key={chapter.id} className="px-8 py-1">
                             <Link href={`/train/1?chapter=${chapter.id}`}>
                               <div className="p-2 hover:bg-gray-700 rounded text-sm text-gray-300 flex items-center gap-2">
@@ -414,27 +383,25 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
             ))}
 
           {/* Future Categories (placeholder) */}
-          {["Queen endgames", "Knight endgames", "Bishop endgames"].map(
-            (name) => (
-              <button
-                key={name}
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-800 transition-colors text-left text-gray-500"
-                disabled
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-lg">
-                    {(() => {
-                      if (name.includes("Queen")) return "♛";
-                      if (name.includes("Knight")) return "♞";
-                      return "♝";
-                    })()}
-                  </span>
-                  <span className="font-medium">{name}</span>
-                </div>
-                <span>▶</span>
-              </button>
-            ),
-          )}
+          {['Queen endgames', 'Knight endgames', 'Bishop endgames'].map(name => (
+            <button
+              key={name}
+              className="w-full flex items-center justify-between p-4 hover:bg-gray-800 transition-colors text-left text-gray-500"
+              disabled
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-lg">
+                  {(() => {
+                    if (name.includes('Queen')) return '♛';
+                    if (name.includes('Knight')) return '♞';
+                    return '♝';
+                  })()}
+                </span>
+                <span className="font-medium">{name}</span>
+              </div>
+              <span>▶</span>
+            </button>
+          ))}
         </div>
 
         {/* User Profile Section */}
@@ -451,9 +418,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({
                 </div>
                 <div>
                   <div className="text-sm font-medium">D.</div>
-                  <div className="text-xs text-gray-400">
-                    Rating: {userStats.rating}
-                  </div>
+                  <div className="text-xs text-gray-400">Rating: {userStats.rating}</div>
                 </div>
               </div>
               <span>▶</span>

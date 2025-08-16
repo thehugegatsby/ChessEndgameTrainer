@@ -1,12 +1,12 @@
 /**
  * @file Training Scenarios - Real Firebase Positions
  * @description Central database of real training positions from Firebase with move sequences
- * 
+ *
  * Use this for:
  * - E2E testing with real app positions
  * - Training sequence validation
  * - Move outcome testing (GEWINN, GEWINN_IN_VERLUST, REMIS)
- * 
+ *
  * Only contains actual Firebase training positions that exist in the app
  */
 
@@ -52,7 +52,7 @@ export const TRAIN_SCENARIOS: Record<string, TrainScenario> = {
     title: 'Opposition Grundlagen',
     description: 'King + Pawn vs King - Opposition fundamentals',
     fen: '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1',
-    
+
     sequences: {
       WIN: {
         id: 'WIN',
@@ -61,9 +61,9 @@ export const TRAIN_SCENARIOS: Record<string, TrainScenario> = {
         expectedOutcome: 'win',
         expectedMistakes: 0,
       },
-      
+
       WIN_TO_DRAW_MOVE_1: {
-        id: 'WIN_TO_DRAW_MOVE_1', 
+        id: 'WIN_TO_DRAW_MOVE_1',
         description: 'Immediate blunder - Kd5 throws away the win',
         moves: ['Kd5'],
         expectedOutcome: 'draw',
@@ -72,12 +72,12 @@ export const TRAIN_SCENARIOS: Record<string, TrainScenario> = {
 
       WIN_TO_DRAW_MOVE_2: {
         id: 'WIN_TO_DRAW_MOVE_2',
-        description: 'Late blunder - good start then Kd5 mistake', 
+        description: 'Late blunder - good start then Kd5 mistake',
         moves: ['Kd6', 'Kd8', 'Kd5'],
         expectedOutcome: 'draw',
         expectedMistakes: 1, // Only the last move is mistake
       },
-      
+
       PAWN_PROMOTION_TO_DRAW: {
         id: 'PAWN_PROMOTION_TO_DRAW',
         description: 'Suboptimal play leads to draw despite pawn promotion to queen',
@@ -94,16 +94,30 @@ export const TRAIN_SCENARIOS: Record<string, TrainScenario> = {
     title: 'König und Bauer vs König - Fortgeschritten',
     description: 'Advanced K+P vs K position - White to win',
     fen: '8/3k4/8/4K3/3P4/8/8/8 w - - 0 1',
-    
+
     sequences: {
       WIN: {
         id: 'WIN',
         description: 'Perfect technique - support pawn advance',
-        moves: ['Kd5', 'Ke7', 'Kc6', 'Ke8', 'Kc7', 'Ke7', 'd5', 'Kf6', 'd6', 'Ke6', 'd7', 'Ke7', 'd8=D'],
+        moves: [
+          'Kd5',
+          'Ke7',
+          'Kc6',
+          'Ke8',
+          'Kc7',
+          'Ke7',
+          'd5',
+          'Kf6',
+          'd6',
+          'Ke6',
+          'd7',
+          'Ke7',
+          'd8=D',
+        ],
         expectedOutcome: 'win',
         expectedMistakes: 0,
       },
-      
+
       WIN_TO_DRAW_MOVE_1: {
         id: 'WIN_TO_DRAW_MOVE_1',
         description: 'Immediate blunder - premature pawn advance d5',
@@ -133,7 +147,7 @@ export const TRAIN_SCENARIOS: Record<string, TrainScenario> = {
 
 /**
  * Get training scenario by position ID
- * 
+ *
  * @param positionId - Firebase position ID (1, 2, etc.)
  * @returns Training scenario or null if not found
  */
@@ -144,24 +158,23 @@ export function getTrainScenario(positionId: number): TrainScenario | null {
 
 /**
  * Get all available training position IDs
- * 
+ *
  * @returns Array of available position IDs
  */
 export function getAvailableTrainPositions(): number[] {
-  return Object.values(TRAIN_SCENARIOS).map(s => s.id).sort((a, b) => a - b);
+  return Object.values(TRAIN_SCENARIOS)
+    .map(s => s.id)
+    .sort((a, b) => a - b);
 }
 
 /**
  * Get move sequence by position ID and sequence type
- * 
+ *
  * @param positionId - Firebase position ID
  * @param sequenceType - Sequence identifier (GEWINN, GEWINN_IN_VERLUST, etc.)
  * @returns Move sequence or null if not found
  */
-export function getMoveSequence(
-  positionId: number, 
-  sequenceType: string
-): MoveSequence | null {
+export function getMoveSequence(positionId: number, sequenceType: string): MoveSequence | null {
   const scenario = getTrainScenario(positionId);
   if (!scenario || !scenario.sequences[sequenceType]) {
     return null;
@@ -171,11 +184,11 @@ export function getMoveSequence(
 
 /**
  * Helper function for E2E tests - get URL with move sequence
- * 
+ *
  * @param positionId - Training position ID
  * @param sequenceType - Move sequence type
  * @returns URL string for E2E testing
- * 
+ *
  * @example
  * ```typescript
  * const url = getE2EUrl(1, 'GEWINN');
@@ -187,7 +200,7 @@ export function getE2EUrl(positionId: number, sequenceType: string): string {
   if (!sequence) {
     throw new Error(`Sequence not found: position ${positionId}, type ${sequenceType}`);
   }
-  
+
   const movesParam = sequence.moves.join(',');
   return `/train/${positionId}?moves=${movesParam}`;
 }

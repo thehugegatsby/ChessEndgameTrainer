@@ -11,7 +11,7 @@ export const APP_CONFIG = {
   /** Development server port */
   DEV_PORT: 3002,
   /** Development server host */
-  DEV_HOST: "127.0.0.1",
+  DEV_HOST: '127.0.0.1',
   /**
    * Get the development URL
    * @returns The development server URL
@@ -21,10 +21,10 @@ export const APP_CONFIG = {
   },
 
   /** Production URL */
-  PROD_URL: env.NEXT_PUBLIC_APP_URL || "https://endgametrainer.com",
+  PROD_URL: env.NEXT_PUBLIC_APP_URL || 'https://endgametrainer.com',
 
   /** API base URL */
-  API_BASE_URL: env.NEXT_PUBLIC_API_URL || "/api",
+  API_BASE_URL: env.NEXT_PUBLIC_API_URL || '/api',
   /** Lichess Tablebase API URL */
   TABLEBASE_API_URL: env.NEXT_PUBLIC_TABLEBASE_API_URL,
 
@@ -41,17 +41,17 @@ export const APP_CONFIG = {
 /**
  * Check if running in development mode
  */
-export const isDevelopment = process.env.NODE_ENV === "development";
+export const isDevelopment = process.env.NODE_ENV === 'development';
 
 /**
  * Check if running in production mode
  */
-export const isProduction = process.env.NODE_ENV === "production";
+export const isProduction = process.env.NODE_ENV === 'production';
 
 /**
  * Check if running in test mode
  */
-export const isTest = process.env.NODE_ENV === "test";
+export const isTest = process.env.NODE_ENV === 'test';
 
 /**
  * Get the appropriate URL based on environment

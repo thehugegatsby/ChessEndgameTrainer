@@ -1,17 +1,17 @@
 /**
  * ChessEngine - Core wrapper around chess.js
- * 
+ *
  * This class provides a clean interface to chess.js library,
  * handling all direct interactions with the chess engine.
  * Part of the Clean Architecture refactoring of ChessService.
  */
 
-import { Chess, type Move as ChessJsMove, type Square } from "chess.js";
-import type { IChessEngine } from "../types/interfaces";
+import { Chess, type Move as ChessJsMove, type Square } from 'chess.js';
+import type { IChessEngine } from '../types/interfaces';
 
 export default class ChessEngine implements IChessEngine {
   private chess: Chess;
-  private startingFen: string = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  private startingFen: string = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
   constructor() {
     this.chess = new Chess();
@@ -125,7 +125,7 @@ export default class ChessEngine implements IChessEngine {
   /**
    * Get whose turn it is
    */
-  public turn(): "w" | "b" {
+  public turn(): 'w' | 'b' {
     return this.chess.turn();
   }
 
@@ -163,11 +163,11 @@ export default class ChessEngine implements IChessEngine {
   /**
    * Get piece at square
    */
-  public get(square: string): { type: string; color: "w" | "b" } | null {
+  public get(square: string): { type: string; color: 'w' | 'b' } | null {
     if (!this.isValidSquare(square)) {
       return null;
     }
-    
+
     const piece = this.chess.get(square);
     return piece || null;
   }
@@ -175,7 +175,7 @@ export default class ChessEngine implements IChessEngine {
   /**
    * Get board array
    */
-  public board(): (({ type: string; color: "w" | "b" } | null))[][] {
+  public board(): ({ type: string; color: 'w' | 'b' } | null)[][] {
     return this.chess.board();
   }
 

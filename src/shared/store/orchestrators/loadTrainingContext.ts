@@ -28,15 +28,15 @@
  * ```
  */
 
-import type { StoreApi } from "./types";
-import type { EndgamePosition } from "@shared/types/endgame";
-import type { TrainingPosition } from "../slices/trainingSlice";
-import { getLogger } from "@shared/services/logging";
-import { chessService } from "@shared/services/ChessService";
-import { Chess } from "chess.js";
-import { getServerPositionService } from "@shared/services/database/serverPositionService";
+import type { StoreApi } from './types';
+import type { EndgamePosition } from '@shared/types/endgame';
+import type { TrainingPosition } from '../slices/trainingSlice';
+import { getLogger } from '@shared/services/logging';
+import { chessService } from '@shared/services/ChessService';
+import { Chess } from 'chess.js';
+import { getServerPositionService } from '@shared/services/database/serverPositionService';
 
-const logger = getLogger().setContext("loadTrainingContext");
+const logger = getLogger().setContext('loadTrainingContext');
 
 /**
  * Loads training context for a position
@@ -90,18 +90,18 @@ const logger = getLogger().setContext("loadTrainingContext");
  */
 export const loadTrainingContext = async (
   api: StoreApi,
-  position: EndgamePosition,
+  position: EndgamePosition
 ): Promise<void> => {
   const { setState } = api;
 
   try {
     // Set loading state via setState
-    setState((draft) => {
+    setState(draft => {
       draft.ui.loading.position = true;
     });
 
     // Step 1: Reset all relevant state via setState using initial states
-    setState((draft) => {
+    setState(draft => {
       // Reset slices to their initial states - PROPERLY preserving action methods
       // CRITICAL: Reset only data properties, never overwrite the slice objects themselves
 
@@ -114,7 +114,7 @@ export const loadTrainingContext = async (
 
       // Tablebase slice - manual property reset
       draft.tablebase.tablebaseMove = null;
-      draft.tablebase.analysisStatus = "idle";
+      draft.tablebase.analysisStatus = 'idle';
       draft.tablebase.evaluations = [];
       draft.tablebase.currentEvaluation = undefined;
 
@@ -137,7 +137,7 @@ export const loadTrainingContext = async (
     }
 
     if (!isValidFen) {
-      throw new Error("Ungültige FEN-Position");
+      throw new Error('Ungültige FEN-Position');
     }
 
     // Initialize ChessService synchronously - orchestrators can safely handle state updates
@@ -150,42 +150,43 @@ export const loadTrainingContext = async (
     const isTrainingPosition = (pos: EndgamePosition): pos is TrainingPosition => {
       return 'colorToTrain' in pos && 'targetOutcome' in pos;
     };
-    
-    const trainingPosition: TrainingPosition = isTrainingPosition(position) ? position : {
-      ...position,
-      // Add training-specific fields with sensible defaults
-      colorToTrain: position.sideToMove || "white",
-      targetOutcome: (() => {
-        if (position.goal === "win") {
-          return position.sideToMove === "white" ? "1-0" : "0-1";
-        }
-        if (position.goal === "draw") {
-          return "1/2-1/2";
-        }
-        return "1-0"; // Default to win for white
-      })(),
-      // timeLimit: undefined - omit instead of undefined
-      // chapterId: undefined - omit instead of undefined
-    };
+
+    const trainingPosition: TrainingPosition = isTrainingPosition(position)
+      ? position
+      : {
+          ...position,
+          // Add training-specific fields with sensible defaults
+          colorToTrain: position.sideToMove || 'white',
+          targetOutcome: (() => {
+            if (position.goal === 'win') {
+              return position.sideToMove === 'white' ? '1-0' : '0-1';
+            }
+            if (position.goal === 'draw') {
+              return '1/2-1/2';
+            }
+            return '1-0'; // Default to win for white
+          })(),
+          // timeLimit: undefined - omit instead of undefined
+          // chapterId: undefined - omit instead of undefined
+        };
 
     // Step 4: Set the training position and player turn
     // Get turn from ChessService
     const currentTurn = chessService.turn();
-    const isPlayerTurn =
-      currentTurn === trainingPosition.colorToTrain.charAt(0);
+    const isPlayerTurn = currentTurn === trainingPosition.colorToTrain.charAt(0);
 
-    setState((draft) => {
-      logger.info("🔥 DEBUG: Setting training position", {
+    setState(draft => {
+      logger.info('🔥 DEBUG: Setting training position', {
         positionId: trainingPosition.id,
         currentStreakBefore: draft.training.currentStreak,
-        bestStreakBefore: draft.training.bestStreak
+        bestStreakBefore: draft.training.bestStreak,
       });
       draft.training.currentPosition = trainingPosition;
       draft.training.isPlayerTurn = isPlayerTurn;
-      logger.info("🔥 DEBUG: After setting position", {
+      logger.info('🔥 DEBUG: After setting position', {
         positionId: trainingPosition.id,
         currentStreakAfter: draft.training.currentStreak,
-        bestStreakAfter: draft.training.bestStreak
+        bestStreakAfter: draft.training.bestStreak,
       });
     });
 
@@ -194,7 +195,7 @@ export const loadTrainingContext = async (
     const positionService = getServerPositionService();
 
     // Set loading state for navigation
-    setState((draft) => {
+    setState(draft => {
       draft.training.isLoadingNavigation = true;
     });
 
@@ -208,46 +209,46 @@ export const loadTrainingContext = async (
       // Convert EndgamePosition to TrainingPosition for navigation positions
       const convertToTrainingPosition = (pos: EndgamePosition | null): TrainingPosition | null => {
         if (!pos) return null;
-        
+
         // Check if already a TrainingPosition
         if (isTrainingPosition(pos)) return pos;
-        
+
         // Convert EndgamePosition to TrainingPosition
         return {
           ...pos,
-          colorToTrain: pos.sideToMove || "white",
+          colorToTrain: pos.sideToMove || 'white',
           targetOutcome: (() => {
-            if (pos.goal === "win") {
-              return pos.sideToMove === "white" ? "1-0" : "0-1";
+            if (pos.goal === 'win') {
+              return pos.sideToMove === 'white' ? '1-0' : '0-1';
             }
-            if (pos.goal === "draw") {
-              return "1/2-1/2";
+            if (pos.goal === 'draw') {
+              return '1/2-1/2';
             }
-            return "1-0";
+            return '1-0';
           })(),
           // timeLimit: undefined - omit instead of undefined
           // chapterId: undefined - omit instead of undefined
         };
       };
-      
+
       const nextTrainingPos = convertToTrainingPosition(nextPos);
       const prevTrainingPos = convertToTrainingPosition(prevPos);
 
       // Update navigation positions
-      setState((draft) => {
+      setState(draft => {
         draft.training.nextPosition = nextTrainingPos;
         draft.training.previousPosition = prevTrainingPos;
         draft.training.isLoadingNavigation = false;
       });
 
-      logger.debug("Navigation positions loaded", {
+      logger.debug('Navigation positions loaded', {
         nextId: nextPos?.id,
         prevId: prevPos?.id,
       });
     } catch (navError) {
       // Navigation loading is non-critical, just log and continue
-      logger.warn("Failed to load navigation positions", { error: navError });
-      setState((draft) => {
+      logger.warn('Failed to load navigation positions', { error: navError });
+      setState(draft => {
         draft.training.nextPosition = null;
         draft.training.previousPosition = null;
         draft.training.isLoadingNavigation = false;
@@ -267,26 +268,25 @@ export const loadTrainingContext = async (
     // Step 7: Position progress tracking removed (was unused in UI)
 
     // Step 8: Show success message
-    setState((draft) => {
+    setState(draft => {
       draft.ui.toasts.push({
         id: Date.now().toString(),
         message: `Position geladen: ${position.title}`,
-        type: "success",
+        type: 'success',
         duration: 2000,
       });
     });
   } catch (error) {
     // Handle errors
-    const errorMessage =
-      error instanceof Error ? error.message : "Fehler beim Laden der Position";
+    const errorMessage = error instanceof Error ? error.message : 'Fehler beim Laden der Position';
 
     // Show error and reset state
-    setState((draft) => {
+    setState(draft => {
       // Show error toast
       draft.ui.toasts.push({
         id: Date.now().toString(),
         message: errorMessage,
-        type: "error",
+        type: 'error',
         duration: 5000,
       });
 
@@ -300,7 +300,7 @@ export const loadTrainingContext = async (
     });
   } finally {
     // Clear loading state
-    setState((draft) => {
+    setState(draft => {
       draft.ui.loading.position = false;
     });
   }

@@ -1,6 +1,6 @@
 /**
  * Tablebase Service Interfaces - Clean Domain Layer
- * 
+ *
  * These interfaces define the contract for tablebase functionality
  * without any implementation details or external API specifics.
  * Following Clean Architecture principles.
@@ -34,10 +34,10 @@ export interface TablebaseServiceInterface {
 export interface TablebaseEvaluation {
   /** Win, draw, or loss from the player's perspective */
   outcome: TablebaseOutcome;
-  
+
   /** Distance to mate in plies (half-moves), if available */
   dtm?: number | undefined;
-  
+
   /** Distance to zeroing (50-move rule) in plies, if available */
   dtz?: number | undefined;
 }
@@ -49,16 +49,16 @@ export interface TablebaseEvaluation {
 export interface TablebaseMove {
   /** Move in UCI notation (e.g., "e2e4", "a7a8q") */
   uci: string;
-  
+
   /** Move in Standard Algebraic Notation (e.g., "e4", "a8=Q+") */
   san: string;
-  
+
   /** Evaluation after this move from the mover's perspective */
   outcome: TablebaseOutcome;
-  
+
   /** Distance to mate after this move, if available */
   dtm?: number | undefined;
-  
+
   /** Distance to zeroing after this move, if available */
   dtz?: number | undefined;
 }
@@ -89,16 +89,16 @@ export interface TablebaseApiClientInterface {
 export interface TablebaseApiResponse {
   /** Win/Draw/Loss value from White's perspective */
   wdl: number;
-  
+
   /** Distance to zeroing */
   dtz: number | null;
-  
+
   /** Distance to mate (only for ≤5 pieces) */
   dtm?: number | null | undefined;
-  
+
   /** Category string from the API */
   category: string;
-  
+
   /** Available moves with evaluations */
   moves: TablebaseApiMove[];
 }
@@ -109,19 +109,19 @@ export interface TablebaseApiResponse {
 export interface TablebaseApiMove {
   /** Move in UCI notation */
   uci: string;
-  
+
   /** Move in SAN notation */
   san: string;
-  
+
   /** WDL after the move from White's perspective */
   wdl: number;
-  
+
   /** DTZ after the move */
   dtz: number | null;
-  
+
   /** DTM after the move */
   dtm?: number | null | undefined;
-  
+
   /** Category after the move */
   category: string;
 }
@@ -137,10 +137,7 @@ export interface TablebaseTransformerInterface {
    * @param fen - Current position
    * @returns Normalized evaluation
    */
-  normalizePositionEvaluation(
-    apiData: TablebaseApiResponse,
-    fen: string
-  ): TablebaseEvaluation;
+  normalizePositionEvaluation(apiData: TablebaseApiResponse, fen: string): TablebaseEvaluation;
 
   /**
    * Normalize move evaluation to player's perspective
@@ -148,10 +145,7 @@ export interface TablebaseTransformerInterface {
    * @param isBlackToMove - Whether Black is to move
    * @returns Normalized outcome
    */
-  normalizeMoveEvaluation(
-    moveWdl: number,
-    isBlackToMove: boolean
-  ): TablebaseOutcome;
+  normalizeMoveEvaluation(moveWdl: number, isBlackToMove: boolean): TablebaseOutcome;
 }
 
 /**

@@ -28,9 +28,9 @@ vi.mock('@shared/hooks/useTablebaseQuery', () => ({
         wdl: 0,
         dtz: 0,
         dtm: 0,
-        category: "draw",
+        category: 'draw',
         precise: false,
-      }
+      },
     },
     isLoading: false,
     isError: false,
@@ -40,8 +40,8 @@ vi.mock('@shared/hooks/useTablebaseQuery', () => ({
 
 vi.mock('@shared/utils/moveQuality', () => ({
   assessTablebaseMoveQuality: vi.fn(() => ({
-    quality: "perfect",
-    reason: "Best move",
+    quality: 'perfect',
+    reason: 'Best move',
     isTablebaseAnalysis: true,
   })),
 }));
@@ -73,7 +73,7 @@ describe('useMoveQuality simple test', () => {
       },
     });
 
-    const wrapper = ({ children }: { children: React.ReactNode }): React.ReactElement => 
+    const wrapper = ({ children }: { children: React.ReactNode }): React.ReactElement =>
       React.createElement(QueryClientProvider, { client: queryClient }, children);
 
     const { result } = renderHook(() => useMoveQuality(), { wrapper });

@@ -4,23 +4,19 @@ import { vi } from 'vitest';
  * @module tests/unit/store/slices/gameSlice.nested
  */
 
-import { useStore } from "@shared/store/rootStore";
-import { chessService } from "@shared/services/ChessService";
+import { useStore } from '@shared/store/rootStore';
+import { chessService } from '@shared/services/ChessService';
 
 // Mock ChessService
-vi.mock("@shared/services/ChessService", () => ({
+vi.mock('@shared/services/ChessService', () => ({
   chessService: {
     reset: vi.fn(),
     initialize: vi.fn().mockReturnValue(true), // Mock initialize method
     loadPosition: vi.fn(),
-    getFen: vi
-      .fn()
-      .mockReturnValue(
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-      ),
-    getPgn: vi.fn().mockReturnValue(""),
+    getFen: vi.fn().mockReturnValue('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'),
+    getPgn: vi.fn().mockReturnValue(''),
     getHistory: vi.fn().mockReturnValue([]),
-    turn: vi.fn().mockReturnValue("w"),
+    turn: vi.fn().mockReturnValue('w'),
     isGameOver: vi.fn().mockReturnValue(false),
     isCheck: vi.fn().mockReturnValue(false),
     isCheckmate: vi.fn().mockReturnValue(false),
@@ -38,16 +34,15 @@ vi.mock("@shared/services/ChessService", () => ({
   },
 }));
 
-describe("GameSlice - Nested Store Structure", () => {
+describe('GameSlice - Nested Store Structure', () => {
   beforeEach(() => {
     // Reset mocks
     vi.clearAllMocks();
 
     // Reset store to initial state - preserve actions by only updating state properties
-    useStore.setState((state) => {
-      state.game.currentFen =
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-      state.game.currentPgn = "";
+    useStore.setState(state => {
+      state.game.currentFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+      state.game.currentPgn = '';
       state.game.moveHistory = [];
       state.game.currentMoveIndex = -1;
       state.game.isGameFinished = false;
@@ -55,10 +50,10 @@ describe("GameSlice - Nested Store Structure", () => {
     });
   });
 
-  describe("resetGame", () => {
-    it("should call ChessService reset", () => {
+  describe('resetGame', () => {
+    it('should call ChessService reset', () => {
       const store = useStore.getState();
-      
+
       // Clear previous calls to ensure clean state
       (chessService.reset as ReturnType<typeof vi.fn>).mockClear();
 
@@ -78,10 +73,10 @@ describe("GameSlice - Nested Store Structure", () => {
     });
   });
 
-  describe("initializeGame", () => {
-    it("should initialize game with FEN", () => {
+  describe('initializeGame', () => {
+    it('should initialize game with FEN', () => {
       const store = useStore.getState();
-      const testFen = "8/8/8/8/8/8/8/8 w - - 0 1";
+      const testFen = '8/8/8/8/8/8/8/8 w - - 0 1';
 
       const result = store.game.initializeGame(testFen);
 
@@ -90,8 +85,8 @@ describe("GameSlice - Nested Store Structure", () => {
     });
   });
 
-  describe("setGameFinished", () => {
-    it("should set game finished to true", () => {
+  describe('setGameFinished', () => {
+    it('should set game finished to true', () => {
       const store = useStore.getState();
 
       store.game.setGameFinished(true);
@@ -100,7 +95,7 @@ describe("GameSlice - Nested Store Structure", () => {
       expect(state.game.isGameFinished).toBe(true);
     });
 
-    it("should set game finished to false", () => {
+    it('should set game finished to false', () => {
       const store = useStore.getState();
 
       store.game.setGameFinished(false);
@@ -110,11 +105,11 @@ describe("GameSlice - Nested Store Structure", () => {
     });
   });
 
-  describe("updatePosition", () => {
-    it("should update position with FEN and PGN", () => {
+  describe('updatePosition', () => {
+    it('should update position with FEN and PGN', () => {
       const store = useStore.getState();
-      const testFen = "8/8/8/8/8/8/8/8 w - - 0 1";
-      const testPgn = "1. e4";
+      const testFen = '8/8/8/8/8/8/8/8 w - - 0 1';
+      const testPgn = '1. e4';
 
       store.game.updatePosition(testFen, testPgn);
 
@@ -124,24 +119,24 @@ describe("GameSlice - Nested Store Structure", () => {
     });
   });
 
-  describe("setMoveHistory", () => {
-    it("should set move history", () => {
+  describe('setMoveHistory', () => {
+    it('should set move history', () => {
       const store = useStore.getState();
       const mockMoves = [
         {
-          san: "e4",
-          from: "e2",
-          to: "e4",
-          color: "w",
-          piece: "p",
+          san: 'e4',
+          from: 'e2',
+          to: 'e4',
+          color: 'w',
+          piece: 'p',
           captured: undefined,
         },
         {
-          san: "e5",
-          from: "e7",
-          to: "e5",
-          color: "b",
-          piece: "p",
+          san: 'e5',
+          from: 'e7',
+          to: 'e5',
+          color: 'b',
+          piece: 'p',
           captured: undefined,
         },
       ] as any;
@@ -153,8 +148,8 @@ describe("GameSlice - Nested Store Structure", () => {
     });
   });
 
-  describe("setCurrentMoveIndex", () => {
-    it("should set current move index", () => {
+  describe('setCurrentMoveIndex', () => {
+    it('should set current move index', () => {
       const store = useStore.getState();
 
       store.game.setCurrentMoveIndex(5);
@@ -164,8 +159,8 @@ describe("GameSlice - Nested Store Structure", () => {
     });
   });
 
-  describe("Integration with nested structure", () => {
-    it("should work with other slices in the store", () => {
+  describe('Integration with nested structure', () => {
+    it('should work with other slices in the store', () => {
       const store = useStore.getState();
 
       // Verify that other slices exist
@@ -183,7 +178,7 @@ describe("GameSlice - Nested Store Structure", () => {
       expect(state.training.isPlayerTurn).toBeDefined();
     });
 
-    it("should maintain proper nesting in state updates", () => {
+    it('should maintain proper nesting in state updates', () => {
       const store = useStore.getState();
 
       // Make multiple updates
@@ -196,9 +191,9 @@ describe("GameSlice - Nested Store Structure", () => {
       expect(state.game.currentMoveIndex).toBe(3);
 
       // Verify structure is maintained
-      expect(state.game).toHaveProperty("currentFen");
-      expect(state.game).toHaveProperty("moveHistory");
-      expect(state.game).toHaveProperty("resetGame");
+      expect(state.game).toHaveProperty('currentFen');
+      expect(state.game).toHaveProperty('moveHistory');
+      expect(state.game).toHaveProperty('resetGame');
     });
   });
 });

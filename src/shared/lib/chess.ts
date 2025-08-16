@@ -1,4 +1,4 @@
-import { Chess } from "chess.js";
+import { Chess } from 'chess.js';
 
 export class ChessGame {
   private chess: Chess;
@@ -36,7 +36,7 @@ export class ChessGame {
     this.chess.load(fen);
   }
 
-  getTurn(): "w" | "b" {
+  getTurn(): 'w' | 'b' {
     return this.chess.turn();
   }
 }

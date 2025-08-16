@@ -1,14 +1,14 @@
 /**
  * MoveHistory - Manages move history and navigation
- * 
+ *
  * This class handles the storage and navigation of chess moves,
  * supporting undo/redo functionality and position tracking.
  * Part of the Clean Architecture refactoring.
  */
 
-import { Chess } from "chess.js";
-import type { ValidatedMove } from "@shared/types/chess";
-import type { IMoveHistory } from "../types/interfaces";
+import { Chess } from 'chess.js';
+import type { ValidatedMove } from '@shared/types/chess';
+import type { IMoveHistory } from '../types/interfaces';
 
 // Constants
 const MAX_HISTORY_SIZE = 500; // Prevent memory issues in very long games
@@ -17,7 +17,7 @@ const HISTORY_RETENTION_RATIO = 0.9; // Keep 90% of max size when trimming
 export default class MoveHistory implements IMoveHistory {
   private moves: ValidatedMove[] = [];
   private currentIndex: number = -1;
-  private initialFen: string = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  private initialFen: string = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
   private static readonly MAX_HISTORY_SIZE = MAX_HISTORY_SIZE;
 
   /**
@@ -33,7 +33,7 @@ export default class MoveHistory implements IMoveHistory {
       }
       this.truncateAfterCurrent();
     }
-    
+
     // Enforce maximum history size to prevent memory issues
     if (this.moves.length >= MoveHistory.MAX_HISTORY_SIZE) {
       // Remove oldest moves, keeping 90% of max size
@@ -43,7 +43,7 @@ export default class MoveHistory implements IMoveHistory {
       this.currentIndex = Math.max(-1, this.currentIndex - removeCount);
       console.warn(`History limit reached. Removed ${removeCount} oldest move(s)`);
     }
-    
+
     this.moves.push(move);
     this.currentIndex++;
   }
@@ -122,11 +122,11 @@ export default class MoveHistory implements IMoveHistory {
     if (!Number.isInteger(index) || index < -1 || index >= this.moves.length) {
       return undefined;
     }
-    
+
     if (index === -1) {
       return this.initialFen;
     }
-    
+
     const move = this.moves[index];
     return move?.fenAfter;
   }
@@ -161,12 +161,12 @@ export default class MoveHistory implements IMoveHistory {
     if (this.currentIndex < 0) {
       return this.initialFen;
     }
-    
+
     if (this.currentIndex === 0) {
       const firstMove = this.moves[0];
       return firstMove?.fenBefore || this.initialFen;
     }
-    
+
     const previousMove = this.moves[this.currentIndex - 1];
     return previousMove?.fenAfter || this.initialFen;
   }
@@ -178,7 +178,7 @@ export default class MoveHistory implements IMoveHistory {
     if (this.currentIndex < 0 || this.currentIndex >= this.moves.length) {
       return undefined;
     }
-    
+
     const currentMove = this.moves[this.currentIndex];
     return currentMove?.fenAfter;
   }
@@ -190,7 +190,7 @@ export default class MoveHistory implements IMoveHistory {
     if (!this.canUndo()) {
       return false;
     }
-    
+
     this.currentIndex--;
     return true;
   }
@@ -202,7 +202,7 @@ export default class MoveHistory implements IMoveHistory {
     if (!this.canRedo()) {
       return false;
     }
-    
+
     this.currentIndex++;
     return true;
   }

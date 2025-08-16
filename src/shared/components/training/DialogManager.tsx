@@ -1,18 +1,18 @@
 /**
  * @file Dialog Manager for Training Board
  * @module components/training/DialogManager
- * 
+ *
  * @description
  * Presentational component that renders move error and success dialogs.
  * Extracted from TrainingBoard to separate UI concerns from business logic.
- * 
+ *
  * @remarks
  * Key design decisions:
  * - Pure presentational component (no store access)
  * - All state passed via props from parent
  * - All callbacks delegated to parent business logic
  * - No over-engineering - direct dialog rendering only
- * 
+ *
  * @example
  * ```tsx
  * <DialogManager
@@ -61,7 +61,7 @@ interface DialogManagerProps {
   errorDialog: ErrorDialogState | null;
   /** Move success dialog state from training store */
   successDialog: SuccessDialogState | null;
-  
+
   /** Callback for error dialog - take back move (undo) */
   onErrorTakeBack: () => void;
   /** Callback for error dialog - restart game */
@@ -70,7 +70,7 @@ interface DialogManagerProps {
   onErrorContinue: () => void;
   /** Callback for error dialog - show best move */
   onErrorShowBestMove?: () => void;
-  
+
   /** Callback for success dialog - close dialog */
   onSuccessClose: () => void;
   /** Callback for success dialog - continue to next */
@@ -79,21 +79,21 @@ interface DialogManagerProps {
 
 /**
  * Dialog Manager Component
- * 
+ *
  * Renders training dialogs based on state passed from parent component.
  * Maintains separation between UI rendering and business logic.
- * 
+ *
  * @param props Dialog state and callback functions
  * @returns Dialog components or null if no dialogs are active
- * 
+ *
  * @remarks
  * This component:
  * - Renders MoveErrorDialog when error state is open
- * - Renders MoveSuccessDialog when success state is open  
+ * - Renders MoveSuccessDialog when success state is open
  * - Delegates all actions to parent component callbacks
  * - Has no direct store access (presentational pattern)
  * - Provides clean separation between UI and business logic
- * 
+ *
  * Design Pattern: Presentational Component
  * - State comes from props (lifted up to parent)
  * - Actions delegated via callbacks
@@ -104,7 +104,7 @@ export const DialogManager: React.FC<DialogManagerProps> = ({
   errorDialog,
   successDialog,
   onErrorTakeBack,
-  onErrorRestart, 
+  onErrorRestart,
   onErrorContinue,
   onErrorShowBestMove,
   onSuccessClose,
@@ -134,8 +134,12 @@ export const DialogManager: React.FC<DialogManagerProps> = ({
           isOpen={successDialog.isOpen}
           onClose={onSuccessClose}
           onContinue={onSuccessContinue}
-          {...(successDialog.promotionPiece !== undefined && { promotionPiece: successDialog.promotionPiece })}
-          {...(successDialog.moveDescription !== undefined && { moveDescription: successDialog.moveDescription })}
+          {...(successDialog.promotionPiece !== undefined && {
+            promotionPiece: successDialog.promotionPiece,
+          })}
+          {...(successDialog.moveDescription !== undefined && {
+            moveDescription: successDialog.moveDescription,
+          })}
         />
       )}
     </>

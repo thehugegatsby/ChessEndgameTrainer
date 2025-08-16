@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import React, { lazy, Suspense } from "react";
-import { StoreProvider } from "@shared/store/StoreContext";
-import type { RootState } from "@shared/store/slices/types";
+import React, { lazy, Suspense } from 'react';
+import { StoreProvider } from '@shared/store/StoreContext';
+import type { RootState } from '@shared/store/slices/types';
 
 // Lazy load the lightweight training page
-const EndgameTrainingPageLite = lazy(() => 
-  import("@shared/pages/EndgameTrainingPageLite").then(module => ({
-    default: module.EndgameTrainingPageLite
+const EndgameTrainingPageLite = lazy(() =>
+  import('@shared/pages/EndgameTrainingPageLite').then(module => ({
+    default: module.EndgameTrainingPageLite,
   }))
 );
 
@@ -19,9 +19,7 @@ const LoadingScreen = (): React.JSX.Element => (
       <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
         Lade Training...
       </h2>
-      <p className="text-gray-500 dark:text-gray-400">
-        Bereite Endspielposition vor
-      </p>
+      <p className="text-gray-500 dark:text-gray-400">Bereite Endspielposition vor</p>
     </div>
   </div>
 );

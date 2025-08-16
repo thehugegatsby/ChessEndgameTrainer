@@ -14,10 +14,13 @@ handlePlayerMove/
 ├── MoveValidator.ts         # Move validation logic
 ├── MoveQualityEvaluator.ts  # Tablebase quality analysis
 ├── PawnPromotionHandler.ts  # Pawn promotion detection
-├── MoveDialogManager.ts     # Dialog interactions
 ├── OpponentTurnHandler.ts   # Opponent move scheduling
 ├── move.completion.ts       # Training completion logic
 └── move.types.ts           # TypeScript type definitions
+
+External Dependencies:
+└── features/training/events/
+    └── EventBasedMoveDialogManager.ts  # Dialog interactions (imported)
 ```
 
 ## Core Flow
@@ -30,7 +33,7 @@ graph TD
     C -->|Yes| E[Execute Move]
     E --> F[MoveQualityEvaluator]
     F --> G{Optimal?}
-    G -->|No| H[MoveDialogManager]
+    G -->|No| H[EventBasedMoveDialogManager]
     G -->|Yes| I[Update State]
     H --> I
     I --> J{Game Over?}
@@ -59,12 +62,13 @@ graph TD
 - Manages promotion piece selection
 - Handles UI interactions for promotion
 
-### MoveDialogManager
+### EventBasedMoveDialogManager
 
-- Coordinates error dialogs
-- Manages promotion dialogs
-- Handles user confirmations
-- Provides feedback for suboptimal moves
+- Event-driven dialog coordination
+- Manages error dialogs for suboptimal moves
+- Handles promotion dialogs
+- Provides user confirmations
+- Imported from `features/training/events/EventBasedMoveDialogManager.ts`
 
 ### OpponentTurnHandler
 
@@ -100,17 +104,17 @@ The orchestrator implements multiple safeguards against race conditions:
 ## Usage
 
 ```typescript
-import { handlePlayerMove } from "@shared/store/orchestrators/handlePlayerMove";
+import { handlePlayerMove } from '@shared/store/orchestrators/handlePlayerMove';
 
 // Execute a player move
 const success = await handlePlayerMove(storeApi, {
-  from: "e2",
-  to: "e4",
-  promotion: "q", // Optional, for pawn promotion
+  from: 'e2',
+  to: 'e4',
+  promotion: 'q', // Optional, for pawn promotion
 });
 
 // Cancel pending opponent move (e.g., during undo)
-import { cancelScheduledOpponentTurn } from "@shared/store/orchestrators/handlePlayerMove";
+import { cancelScheduledOpponentTurn } from '@shared/store/orchestrators/handlePlayerMove';
 cancelScheduledOpponentTurn();
 ```
 
@@ -135,14 +139,39 @@ Each module has comprehensive unit tests:
 - `MoveValidator.test.ts`
 - `MoveQualityEvaluator.test.ts`
 - `PawnPromotionHandler.test.ts`
-- `MoveDialogManager.test.ts`
-- `OpponentTurnHandler.test.ts`
+- `OpponentTurnManager.test.ts` (Note: Test file name differs from handler)
+- `EventBasedMoveDialogManager` tests in `features/training/events/__tests__/`
 
 Integration tests cover the full orchestration flow.
 
-## Future Improvements
+## Architecture Assessment (2025-08-16)
 
-1. **Event-Based Architecture**: Replace direct coupling with event bus
-2. **Strategy Pattern**: For different training modes
-3. **Command Pattern**: For undo/redo support
-4. **Observer Pattern**: For state change notifications
+**Analysis Result: NOT Over-Engineered**
+
+Multi-model analysis (Gemini 2.5 Pro + GPT-5) confirmed that the 964-line modular system is **appropriately complex** for chess training requirements:
+
+### ✅ Justified Complexity
+
+- **Chess Training Domain**: Requires tablebase integration, move quality evaluation, pawn promotion auto-win detection, learning feedback dialogs
+- **Modular Design**: High cohesion/low coupling enables LLM maintenance
+- **Explicit Dependencies**: Clear collaborators via dependency injection
+- **Procedural Clarity**: Orchestrator reads like a recipe with step comments
+
+### 🔧 Recent Improvements (2025-08-16)
+
+1. **WDL Perspective Fix**: UI now receives player-perspective WDL values
+2. **Race Condition Guard**: `moveInFlight` flag prevents double-processing
+3. **Dialog Stacking Fix**: Promotion success gated until after quality check
+4. **Logging Optimization**: Hot-path logs moved to debug level
+5. **Baseline Validation**: FEN matching prevents stale baseline usage
+
+### 🎯 Conclusion
+
+The system demonstrates **appropriate complexity for domain requirements** rather than over-engineering. The modular, explicit architecture is actually **superior for LLM code comprehension and maintenance**.
+
+## Future Enhancements
+
+1. **UCI Move Comparison**: Replace SAN with UCI for more robust best-move matching
+2. **ChessService Integration**: Migrate from singleton to Zustand-managed state
+3. **Performance Monitoring**: Add metrics for move processing latency
+4. **Error Recovery**: Enhanced fallback strategies for API failures

@@ -12,14 +12,14 @@ export type {
   ServiceOverrides,
   ServiceContainerConfig,
   BrowserAPIs,
-} from "./types";
+} from './types';
 
 // Errors
 export {
   ServiceNotFoundError,
   ServiceAlreadyRegisteredError,
   CircularDependencyError,
-} from "./types";
+} from './types';
 
 // Mocks for testing
 export {
@@ -28,10 +28,10 @@ export {
   createMockWindow,
   createMockDocument,
   createMockPerformance,
-} from "./mocks";
+} from './mocks';
 
 // Implementation
-export { ServiceContainer } from "./ServiceContainer";
+export { ServiceContainer } from './ServiceContainer';
 
 // React integration
 export {
@@ -44,4 +44,4 @@ export {
   useLocalStorage,
   getPlatformService,
   resetPlatformService,
-} from "./adapter";
+} from './adapter';

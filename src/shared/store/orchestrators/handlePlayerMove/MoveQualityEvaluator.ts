@@ -3,15 +3,15 @@
  * @see docs/orchestrators/handlePlayerMove/MoveQualityEvaluator.md
  */
 
-import type { ValidatedMove } from "@shared/types/chess";
+import type { ValidatedMove } from '@shared/types/chess';
 import {
   tablebaseService,
   type TablebaseEvaluation,
   type TablebaseMovesResult,
-} from "@shared/services/TablebaseService";
-import type { TablebaseResult } from "@shared/types/tablebase";
-import { getLogger } from "@shared/services/logging";
-import { WdlAdapter } from "@shared/utils/tablebase/wdl";
+} from '@shared/services/TablebaseService';
+import type { TablebaseResult } from '@shared/types/tablebase';
+import { getLogger } from '@shared/services/logging';
+import { WdlAdapter } from '@shared/utils/tablebase/wdl';
 
 /** Result of move quality evaluation */
 export interface MoveQualityResult {
@@ -31,7 +31,7 @@ export interface MoveQualityResult {
 
 const TOP_MOVES_LIMIT = 3;
 
-const logger = getLogger().setContext("MoveQualityEvaluator");
+const logger = getLogger().setContext('MoveQualityEvaluator');
 
 /** TablebaseEvaluation with guaranteed result property */
 type ValidatedTablebaseEvaluation = TablebaseEvaluation & {
@@ -50,7 +50,7 @@ export class MoveQualityEvaluator {
     fenBefore: string,
     fenAfter: string,
     validatedMove: ValidatedMove,
-    trainingBaseline?: { wdl: number; fen: string } | null,
+    trainingBaseline?: { wdl: number; fen: string } | null
   ): Promise<MoveQualityResult> {
     try {
       // Get evaluations before and after the move in parallel for better performance
@@ -61,15 +61,12 @@ export class MoveQualityEvaluator {
 
       // Check if both evaluations are available using type guards
       if (!this.hasValidResult(evalBefore) || !this.hasValidResult(evalAfter)) {
-        logger.debug(
-          "[MoveQuality] Skipping evaluation - insufficient data:",
-          {
-            evalBeforeAvailable: evalBefore?.isAvailable,
-            evalAfterAvailable: evalAfter?.isAvailable,
-            hasBeforeResult: evalBefore && "result" in evalBefore,
-            hasAfterResult: evalAfter && "result" in evalAfter,
-          },
-        );
+        logger.debug('[MoveQuality] Skipping evaluation - insufficient data:', {
+          evalBeforeAvailable: evalBefore?.isAvailable,
+          evalAfterAvailable: evalAfter?.isAvailable,
+          hasBeforeResult: evalBefore && 'result' in evalBefore,
+          hasAfterResult: evalAfter && 'result' in evalAfter,
+        });
 
         return {
           shouldShowErrorDialog: false,
@@ -82,13 +79,13 @@ export class MoveQualityEvaluator {
       const wdlBefore = evalBefore.result.wdl;
       const wdlAfter = evalAfter.result.wdl;
 
-      logger.debug("[MoveQuality] Evaluating move quality:", {
+      logger.debug('[MoveQuality] Evaluating move quality:', {
         moveColor: validatedMove.color,
         moveSan: validatedMove.san,
         wdlBefore,
         wdlAfter,
-        fenBefore: fenBefore.split(" ")[0], // Just board position
-        fenAfter: fenAfter.split(" ")[0],
+        fenBefore: fenBefore.split(' ')[0], // Just board position
+        fenAfter: fenAfter.split(' ')[0],
       });
 
       // Convert WDL values to player perspective
@@ -98,7 +95,7 @@ export class MoveQualityEvaluator {
       // Determine effective baseline for comparison
       const effectiveWdlBefore = trainingBaseline?.wdl ?? wdlBeforeFromPlayerPerspective;
 
-      logger.debug("[MoveQuality] WDL evaluation context:", {
+      logger.debug('[MoveQuality] WDL evaluation context:', {
         wdlBeforeFromPlayerPerspective,
         wdlAfterFromPlayerPerspective,
         trainingBaselineWdl: trainingBaseline?.wdl,
@@ -114,50 +111,48 @@ export class MoveQualityEvaluator {
       // Check if the played move was one of the best moves
       const playedMoveWasBest = this.wasMoveBest(topMoves, validatedMove.san);
 
-      this.logBestMovesComparison(
-        topMoves,
-        validatedMove.san,
-        playedMoveWasBest,
-      );
+      this.logBestMovesComparison(topMoves, validatedMove.san, playedMoveWasBest);
 
       // Determine if outcome changed significantly - use baseline if available
       const outcomeChanged = WdlAdapter.didOutcomeChange(
         effectiveWdlBefore,
-        wdlAfterFromPlayerPerspective,
+        wdlAfterFromPlayerPerspective
       );
 
       const shouldShowErrorDialog = !playedMoveWasBest && outcomeChanged;
-      const bestMove = topMoves.isAvailable && topMoves.moves && topMoves.moves.length > 0 && topMoves.moves[0]
-        ? topMoves.moves[0].san
-        : undefined;
-
-      logger.info("[MoveQuality] Decision to show error dialog:", {
-        shouldShowErrorDialog,
-        playedMoveWasBest,
-        outcomeChanged,
-        effectiveWdlBefore,
-        wdlAfterFromPlayerPerspective,
-        usingBaseline: Boolean(trainingBaseline),
-        validatedMove: validatedMove.san,
-        bestMove,
-      });
+      const bestMove =
+        topMoves.isAvailable && topMoves.moves && topMoves.moves.length > 0 && topMoves.moves[0]
+          ? topMoves.moves[0].san
+          : undefined;
 
       if (shouldShowErrorDialog) {
-        logger.info(
-          "[MoveQuality] Move quality issue detected - suggesting error dialog",
-        );
+        logger.info('[MoveQuality] Showing error dialog', {
+          validatedMove: validatedMove.san,
+          bestMove,
+          outcomeChanged,
+          effectiveWdlBefore,
+          wdlAfterFromPlayerPerspective,
+        });
+      } else {
+        logger.debug('[MoveQuality] No error dialog', {
+          playedMoveWasBest,
+          outcomeChanged,
+          effectiveWdlBefore,
+          wdlAfterFromPlayerPerspective,
+        });
       }
 
       return {
         shouldShowErrorDialog,
-        wdlBefore,
-        wdlAfter,
+        // Provide values from the original player's perspective for UI
+        wdlBefore: wdlBeforeFromPlayerPerspective,
+        wdlAfter: wdlAfterFromPlayerPerspective,
         ...(bestMove !== undefined && { bestMove }),
         wasOptimal: playedMoveWasBest,
         outcomeChanged,
       };
     } catch (error) {
-      getLogger().error("Move quality evaluation failed:", error);
+      getLogger().error('Move quality evaluation failed:', error);
       return {
         shouldShowErrorDialog: false,
         wasOptimal: false, // Conservative - don't assume optimal on evaluation failure
@@ -170,21 +165,16 @@ export class MoveQualityEvaluator {
    * Gets tablebase evaluation for a position with error handling
    */
   private async getEvaluation(fen: string): Promise<TablebaseEvaluation> {
-    return await tablebaseService
-      .getEvaluation(fen)
-      .catch(() => ({ isAvailable: false }));
+    return await tablebaseService.getEvaluation(fen).catch(() => ({ isAvailable: false }));
   }
-
 
   /**
    * Type guard to check if a single evaluation has a valid result
    */
-  private hasValidResult(evaluation: TablebaseEvaluation): evaluation is ValidatedTablebaseEvaluation {
-    return (
-      evaluation.isAvailable &&
-      "result" in evaluation &&
-      Boolean(evaluation.result)
-    );
+  private hasValidResult(
+    evaluation: TablebaseEvaluation
+  ): evaluation is ValidatedTablebaseEvaluation {
+    return evaluation.isAvailable && 'result' in evaluation && Boolean(evaluation.result);
   }
 
   /**
@@ -215,7 +205,10 @@ export class MoveQualityEvaluator {
    * // Returns: { wdlBeforeFromPlayerPerspective: 0, wdlAfterFromPlayerPerspective: -1000 }
    * // This correctly shows Black went from draw (0) to loss (-1000)
    */
-  private convertToPlayerPerspective(wdlBefore: number, wdlAfter: number): { wdlBeforeFromPlayerPerspective: number; wdlAfterFromPlayerPerspective: number } {
+  private convertToPlayerPerspective(
+    wdlBefore: number,
+    wdlAfter: number
+  ): { wdlBeforeFromPlayerPerspective: number; wdlAfterFromPlayerPerspective: number } {
     return WdlAdapter.convertToPlayerPerspective(wdlBefore, wdlAfter);
   }
 
@@ -223,27 +216,24 @@ export class MoveQualityEvaluator {
    * Type guard to check if TablebaseMovesResult has valid moves
    */
   private hasValidMoves(topMoves: TablebaseMovesResult): topMoves is ValidatedTablebaseMovesResult {
-    return topMoves.isAvailable && Boolean(topMoves.moves) && topMoves.moves !== undefined && topMoves.moves.length > 0;
+    return (
+      topMoves.isAvailable &&
+      Boolean(topMoves.moves) &&
+      topMoves.moves !== undefined &&
+      topMoves.moves.length > 0
+    );
   }
 
   /**
    * Checks if the played move was among the best moves
    */
-  private wasMoveBest(
-    topMoves: TablebaseMovesResult,
-    playedMoveSan: string,
-  ): boolean {
+  private wasMoveBest(topMoves: TablebaseMovesResult, playedMoveSan: string): boolean {
     if (!this.hasValidMoves(topMoves)) {
       return false;
     }
     // TypeScript now knows that topMoves.moves is a non-empty array
-    return topMoves.moves.some((m) => m.san === playedMoveSan);
+    return topMoves.moves.some(m => m.san === playedMoveSan);
   }
-
-
-
-
-
 
   /**
    * Logs best moves comparison for debugging
@@ -251,28 +241,22 @@ export class MoveQualityEvaluator {
   private logBestMovesComparison(
     topMoves: TablebaseMovesResult,
     playedMoveSan: string,
-    playedMoveWasBest: boolean,
+    playedMoveWasBest: boolean
   ): void {
-    getLogger().info("[MoveQuality] Best moves check:");
-    getLogger().info("  topMovesAvailable:", topMoves.isAvailable);
-    getLogger().info(
-      "  bestMoves:",
-      JSON.stringify(topMoves.moves?.map((m) => m.san)),
-    );
-    getLogger().info("  playedMove:", playedMoveSan);
-    getLogger().info("  playedMoveWasBest:", playedMoveWasBest);
+    logger.debug('[MoveQuality] Best moves check:');
+    logger.debug('  topMovesAvailable:', topMoves.isAvailable);
+    logger.debug('  bestMoves:', JSON.stringify(topMoves.moves?.map(m => m.san)));
+    logger.debug('  playedMove:', playedMoveSan);
+    logger.debug('  playedMoveWasBest:', playedMoveWasBest);
 
     // Debug each move comparison
     if (topMoves.moves) {
-      logger.debug("  Comparing each move:");
+      logger.debug('  Comparing each move:');
       topMoves.moves.forEach((m, i) => {
         logger.debug(
-          `    Move ${i}: "${m.san}" === "${playedMoveSan}" ? ${m.san === playedMoveSan}`,
+          `    Move ${i}: "${m.san}" === "${playedMoveSan}" ? ${m.san === playedMoveSan}`
         );
       });
     }
   }
-
-
-
 }

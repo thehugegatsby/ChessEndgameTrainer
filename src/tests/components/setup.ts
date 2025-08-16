@@ -21,14 +21,14 @@ afterEach(() => {
 global.window = Object.create(window);
 
 // Define E2E Test Bridge on window
-Object.defineProperty(window, "__E2E_TEST_BRIDGE__", {
+Object.defineProperty(window, '__E2E_TEST_BRIDGE__', {
   value: undefined,
   writable: true,
   configurable: true,
 });
 
 // Define E2E test mode flag
-Object.defineProperty(window, "__E2E_TEST_MODE__", {
+Object.defineProperty(window, '__E2E_TEST_MODE__', {
   value: false,
   writable: true,
   configurable: true,
@@ -86,11 +86,10 @@ export const createTestBridgeMock = (): TestBridgeMock => ({
   addCustomResponse: vi.fn().mockResolvedValue(undefined),
   getResponseTime: vi.fn().mockReturnValue(100),
   diagnostic: {
-    getCurrentFen: vi.fn()
+    getCurrentFen: vi
       .fn()
-      .mockReturnValue(
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-      ),
+      .fn()
+      .mockReturnValue('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'),
     getStatus: vi.fn().mockReturnValue({ ready: true, initialized: true }),
   },
   tablebase: {

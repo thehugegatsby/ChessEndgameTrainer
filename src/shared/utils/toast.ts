@@ -32,7 +32,7 @@ export const showSuccessToast = (message: string, options?: ToastOptions): strin
 };
 
 /**
- * Show an error toast  
+ * Show an error toast
  */
 export const showErrorToast = (message: string, options?: ToastOptions): string | number => {
   return toast.error(message, {
@@ -113,64 +113,68 @@ export const dismissAllToasts = (): void => {
  * Chess-specific toast variants with German text
  */
 export const chessToasts = {
-  moveSuccess: (move: string): string | number => 
-    showSuccessToast('Zug ausgeführt', { 
+  moveSuccess: (move: string): string | number =>
+    showSuccessToast('Zug ausgeführt', {
       description: `${move} gespielt`,
-      duration: 2000 
+      duration: 2000,
     }),
-    
+
   moveError: (error: string): string | number =>
     showErrorToast('Ungültiger Zug', {
       description: error,
-      duration: 4000
+      duration: 4000,
     }),
-    
+
   analysisStarted: (): string | number =>
     showLoadingToast('Analysiere Position...', {
-      id: 'analysis'
+      id: 'analysis',
     }),
-    
+
   analysisComplete: (evaluation: string): void => {
     dismissToast('analysis');
     showSuccessToast('Analyse abgeschlossen', {
       description: evaluation,
-      duration: 3000
+      duration: 3000,
     });
   },
-  
+
   analysisFailed: (error: string): void => {
     dismissToast('analysis');
     showErrorToast('Analyse fehlgeschlagen', {
       description: error,
-      duration: 5000
+      duration: 5000,
     });
   },
-  
+
   promotionSuccess: (piece: string): string | number =>
     showSuccessToast('Bauernumwandlung', {
       description: `Umgewandelt in ${piece}`,
-      duration: 2000
+      duration: 2000,
     }),
-    
+
   trainingSessionComplete: (moves: number): string | number =>
     showSuccessToast('Trainingssession abgeschlossen!', {
       description: `${moves} Züge gespielt`,
-      duration: 4000
+      duration: 4000,
     }),
-    
+
   positionSaved: (): string | number =>
     showSuccessToast('Position gespeichert', {
-      duration: 2000
+      duration: 2000,
     }),
-    
+
   positionLoaded: (): string | number =>
     showInfoToast('Position geladen', {
-      duration: 2000  
+      duration: 2000,
     }),
 };
 
 // Legacy compatibility - can be gradually migrated away from
-export const showToast = (type: ToastType, message: string, options?: ToastOptions): string | number => {
+export const showToast = (
+  type: ToastType,
+  message: string,
+  options?: ToastOptions
+): string | number => {
   switch (type) {
     case 'success':
       return showSuccessToast(message, options);

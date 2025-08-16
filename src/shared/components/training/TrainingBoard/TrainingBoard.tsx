@@ -21,34 +21,29 @@
  * training system, coordinating between multiple services and state slices.
  */
 
+'use client';
+
 // Module loading confirmed - debug logging removed for production
 
-import React, {
-  useEffect,
-  useCallback,
-  useState,
-} from "react";
-import { type Move } from "chess.js";
-import { Chessboard } from "@shared/components/chess/Chessboard";
-import { usePositionAnalysis, useTrainingSession } from "../../../hooks";
-import { usePageReady } from "../../../hooks/usePageReady";
-import {
-  useGameStore,
-  useTrainingStore,
-  useTablebaseStore,
-  useUIStore,
-} from "@shared/store/hooks";
-import { useStoreApi } from "@shared/store/StoreContext";
-import { type EndgamePosition } from "@shared/types";
-import { getLogger } from "@shared/services/logging/Logger";
-import { DIMENSIONS } from "@shared/constants";
-import { AlertDisplay } from "@shared/components/ui/AlertDisplay";
-import { DialogManager } from "../DialogManager";
-import { E2ETestHelper } from "../../testing/E2ETestHelper";
-import { useMoveHandlers } from "@shared/hooks/useMoveHandlers";
-import { useDialogHandlers } from "@shared/hooks/useDialogHandlers";
-import { useMoveValidation } from "@shared/hooks/useMoveValidation";
-import { useGameNavigation } from "@shared/hooks/useGameNavigation";
+import React, { useEffect, useCallback, useState } from 'react';
+import { type Move } from 'chess.js';
+import { Chessboard } from '@shared/components/chess/Chessboard';
+import { usePositionAnalysis, useTrainingSession } from '../../../hooks';
+import { usePageReady } from '../../../hooks/usePageReady';
+import { useGameStore, useTrainingStore, useTablebaseStore, useUIStore } from '@shared/store/hooks';
+import { useStoreApi } from '@shared/store/StoreContext';
+import { type EndgamePosition } from '@shared/types';
+import { getLogger } from '@shared/services/logging/Logger';
+import { DIMENSIONS } from '@shared/constants';
+import { AlertDisplay } from '@shared/components/ui/AlertDisplay';
+import { DialogManager } from '../DialogManager';
+import { E2ETestHelper } from '../../testing/E2ETestHelper';
+import { useMoveHandlers } from '@shared/hooks/useMoveHandlers';
+import { useDialogHandlers } from '@shared/hooks/useDialogHandlers';
+import { useMoveValidation } from '@shared/hooks/useMoveValidation';
+import { useGameNavigation } from '@shared/hooks/useGameNavigation';
+
+type PieceType = 'wP' | 'wN' | 'wB' | 'wR' | 'wQ' | 'wK' | 'bP' | 'bN' | 'bB' | 'bR' | 'bQ' | 'bK';
 
 /**
  * Extended evaluation data structure for move panel integration
@@ -169,7 +164,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   resetTrigger = 0,
   router,
 }) => {
-  const initialFen = fen || position?.fen || "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1";
+  const initialFen = fen || position?.fen || '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1';
 
   // === ZUSTAND STORE - Using domain-specific hooks for performance ===
   const [, gameActions] = useGameStore(); // Pure chess state
@@ -180,14 +175,13 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
 
   // Set position in store on mount or when position changes
   useEffect(() => {
-    const logger = getLogger().setContext("TrainingBoard-PositionInit");
+    const logger = getLogger().setContext('TrainingBoard-PositionInit');
 
     if (
       position &&
-      (!trainingState.currentPosition ||
-        trainingState.currentPosition.id !== position.id)
+      (!trainingState.currentPosition || trainingState.currentPosition.id !== position.id)
     ) {
-      logger.info("Setting position in store", {
+      logger.info('Setting position in store', {
         positionId: position.id,
         title: position.title,
         fen: position.fen,
@@ -203,25 +197,18 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   // === HOOKS ===
 
   // Chess game logic - now using Store as single source of truth
-  const {
-    history,
-    isGameFinished,
-    currentFen,
-    makeMove,
-    jumpToMove,
-    resetGame,
-    undoMove,
-  } = useTrainingSession({
-    /**
-     *
-     * @param success
-     */
-    onComplete: (success) => {
-      // Call parent callback
-      onComplete(success);
-    },
-    ...(onPositionChange && { onPositionChange }),
-  });
+  const { history, isGameFinished, currentFen, makeMove, jumpToMove, resetGame, undoMove } =
+    useTrainingSession({
+      /**
+       *
+       * @param success
+       */
+      onComplete: success => {
+        // Call parent callback
+        onComplete(success);
+      },
+      ...(onPositionChange && { onPositionChange }),
+    });
 
   // Move handling logic - extracted to custom hook
   const { onDrop, onSquareClick, onPromotionCheck } = useMoveHandlers({
@@ -231,6 +218,61 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     trainingState,
     onMove: makeMove,
   });
+
+  // === E2E DEBUG: Handler-Debugging Wrapper ===
+  const onPieceDropWrapped = useCallback(
+    (sourceSquare: string, targetSquare: string, piece: string, promotion?: string): boolean => {
+      const el = document.querySelector('[data-testid="training-board"]');
+      if (el) {
+        el.setAttribute('data-last-drop-from', sourceSquare);
+        el.setAttribute('data-last-drop-to', targetSquare);
+        el.setAttribute('data-on-piece-drop-fired', 'true');
+        el.setAttribute(
+          'data-drop-count',
+          String(1 + Number(el.getAttribute('data-drop-count') || '0'))
+        );
+      }
+      (window as unknown as Record<string, unknown>)['__dbg_lastDrop'] = {
+        from: sourceSquare,
+        to: targetSquare,
+        piece,
+        promotion,
+        ts: Date.now(),
+      };
+      console.info('🎯 E2E DEBUG: onPieceDrop called', {
+        from: sourceSquare,
+        to: targetSquare,
+        piece,
+        promotion,
+        timestamp: Date.now(),
+      });
+      return onDrop?.(sourceSquare, targetSquare, piece, promotion) ?? false;
+    },
+    [onDrop]
+  );
+
+  const onSquareClickWrapped = useCallback(
+    (args: { piece: PieceType | null; square: string }) => {
+      const { square } = args;
+      const el = document.querySelector('[data-testid="training-board"]');
+      if (el) {
+        el.setAttribute('data-on-square-click-fired', 'true');
+        el.setAttribute('data-last-click-square', square);
+        el.setAttribute(
+          'data-click-count',
+          String(1 + Number(el.getAttribute('data-click-count') || '0'))
+        );
+      }
+      (window as unknown as Record<string, unknown>)['__dbg_lastClick'] = {
+        square,
+        args,
+        ts: Date.now(),
+      };
+      console.info('🎯 E2E DEBUG: onSquareClick called', { square, args, timestamp: Date.now() });
+      onSquareClick?.(args);
+    },
+    [onSquareClick]
+  );
 
   // Game navigation logic - extracted to custom hook
   const gameNavigation = useGameNavigation({
@@ -268,7 +310,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     /**
      *
      */
-    handleReset: () => setResetKey((prev) => prev + 1),
+    handleReset: () => setResetKey(prev => prev + 1),
     /**
      *
      */
@@ -316,9 +358,8 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
 
   // All dialog handler functions now handled by useDialogHandlers hook
   // See: /shared/hooks/useDialogHandlers.ts for implementation
-  
-  // Note: Analysis status updates now handled by useMoveValidation hook
 
+  // Note: Analysis status updates now handled by useMoveValidation hook
 
   // === REMOVED E2E WINDOW ATTACHMENTS ===
   // E2E tests now use Page Object Model via DOM interaction
@@ -350,8 +391,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
 
   // === PAGE READY DETECTION ===
   const isAnalysisReady =
-    tablebaseState.analysisStatus === "success" ||
-    tablebaseState.analysisStatus === "idle";
+    tablebaseState.analysisStatus === 'success' || tablebaseState.analysisStatus === 'idle';
   const isBoardReady = Boolean(currentFen);
   const isPageReady = usePageReady([isAnalysisReady, isBoardReady]);
 
@@ -359,12 +399,12 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   // Note: customSquareRenderer was removed as it's not supported in react-chessboard v2.1.3
   // E2E tests should use the board's data-testid="training-board" and other available selectors
 
-  const showE2ESignals = process.env['NEXT_PUBLIC_E2E_SIGNALS'] === "true";
+  const showE2ESignals = process.env['NEXT_PUBLIC_E2E_SIGNALS'] === 'true';
 
   return (
     <div
       className="flex flex-col items-center"
-      {...(showE2ESignals && { "data-page-ready": isPageReady })}
+      {...(showE2ESignals && { 'data-page-ready': isPageReady })}
     >
       {/* Chessboard with Evaluation Overlay and E2E data attributes */}
       <div
@@ -375,17 +415,23 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
           height: `${DIMENSIONS.TRAINING_BOARD_SIZE}px`,
         }}
         data-fen={currentFen}
+        data-move-count={history.length}
         data-testid="training-board"
         data-analysis-status={tablebaseState.analysisStatus}
       >
         <Chessboard
           fen={currentFen}
-          onPieceDrop={onDrop}
-          onSquareClick={onSquareClick}
+          onPieceDrop={onPieceDropWrapped}
+          onSquareClick={onSquareClickWrapped}
           onPromotionCheck={onPromotionCheck}
           arePiecesDraggable={!isGameFinished}
           boardWidth={800}
           animationDuration={150}
+          {...(process.env.NODE_ENV === 'development' && {
+            'data-handlers-bound': 'true',
+            'data-on-piece-drop-bound': Boolean(onPieceDropWrapped).toString(),
+            'data-on-square-click-bound': Boolean(onSquareClickWrapped).toString(),
+          })}
         />
       </div>
 
@@ -401,7 +447,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
       {(trainingUIState.analysisError || evaluationError) && (
         <AlertDisplay
           type="error"
-          message={trainingUIState.analysisError || evaluationError || "Unknown error"}
+          message={trainingUIState.analysisError || evaluationError || 'Unknown error'}
           onDismiss={trainingUIState.handleClearAnalysisError}
         />
       )}
@@ -425,7 +471,6 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         onMove={makeMove}
         moveHistory={history}
       />
-
     </div>
   );
 };

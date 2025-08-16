@@ -1,18 +1,22 @@
-"use client";
+'use client';
 
-import React, { useEffect } from "react";
-import { usePathname } from "next/navigation";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "sonner";
-import { useStore, StoreProvider } from "@shared/store/StoreContext";
-import { configureStore } from "@shared/store/storeConfig";
-import { createServerPositionService } from "@shared/services/database/serverPositionService";
-import { getLogger } from "@shared/services/logging";
+import React, { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'sonner';
+import { useStore, StoreProvider } from '@shared/store/StoreContext';
+import { configureStore } from '@shared/store/storeConfig';
+import { createServerPositionService } from '@shared/services/database/serverPositionService';
+import { getLogger } from '@shared/services/logging';
 // Removed E2E mock import - should not be used in production code
-import { useStoreHydration } from "@shared/hooks/useHydration";
-import { CommandPalette, useCommandPalette, useChessHotkeys } from "@shared/components/ui/CommandPalette";
-import { DURATIONS } from "@shared/constants/time.constants";
-import { HttpStatus } from "@shared/constants/http";
+import { useStoreHydration } from '@shared/hooks/useHydration';
+import {
+  CommandPalette,
+  useCommandPalette,
+  useChessHotkeys,
+} from '@shared/components/ui/CommandPalette';
+import { DURATIONS } from '@shared/constants/time.constants';
+import { HttpStatus } from '@shared/constants/http';
 
 // Query client configuration constants
 const MAX_RETRY_COUNT = 3;
@@ -42,7 +46,7 @@ const queryClient = new QueryClient({
 
 // Configure store dependencies once at app initialization
 // This happens before any component renders
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   const positionService = createServerPositionService();
   configureStore({ positionService });
 
@@ -57,52 +61,49 @@ if (typeof window !== "undefined") {
  */
 function AppProvidersInner({ children }: { children: React.ReactNode }): React.JSX.Element {
   const pathname = usePathname();
-  const analysisStatus = useStore((state) => state.tablebase.analysisStatus);
-  const logger = getLogger().setContext("_app");
+  const analysisStatus = useStore(state => state.tablebase.analysisStatus);
+  const logger = getLogger().setContext('_app');
   const hasHydrated = useStoreHydration();
   const { open, setOpen } = useCommandPalette();
-  
+
   // Enable global chess hotkeys
   useChessHotkeys();
 
   useEffect(() => {
     // Update app-ready based on router state
     // Don't wait for tablebase initially as it may not be initialized on all pages
-    if (typeof document !== "undefined") {
-      let appReadyState: "true" | "false" | "error";
+    if (typeof document !== 'undefined') {
+      let appReadyState: 'true' | 'false' | 'error';
 
       // Define ready state based on router and analysis status
       const isReady = pathname !== null; // App Router equivalent of router.isReady
 
-      if (analysisStatus === "error") {
-        appReadyState = "error";
+      if (analysisStatus === 'error') {
+        appReadyState = 'error';
       } else if (
         isReady &&
-        (analysisStatus === "idle" ||
-          analysisStatus === "success" ||
-          !pathname.startsWith("/train"))
+        (analysisStatus === 'idle' ||
+          analysisStatus === 'success' ||
+          !pathname.startsWith('/train'))
       ) {
         // Ready if router is ready AND (analysis is idle/success OR not on a training page)
-        appReadyState = "true";
+        appReadyState = 'true';
       } else {
-        appReadyState = "false";
+        appReadyState = 'false';
       }
 
       // Track transitions for debugging and monitoring
-      const previousState = document.body.dataset['appReady'] || "null";
+      const previousState = document.body.dataset['appReady'] || 'null';
       const currentState = appReadyState;
 
       if (previousState !== currentState) {
-        logger.info(
-          `App ready state transition: ${previousState} → ${currentState}`,
-          {
-            router: {
-              isReady,
-              pathname,
-            },
-            analysisStatus,
+        logger.info(`App ready state transition: ${previousState} → ${currentState}`, {
+          router: {
+            isReady,
+            pathname,
           },
-        );
+          analysisStatus,
+        });
       }
 
       // Set the global app-ready state for other components and tests
@@ -112,8 +113,8 @@ function AppProvidersInner({ children }: { children: React.ReactNode }): React.J
 
   useEffect(() => {
     // Additional effect for error handling if needed
-    if (analysisStatus === "error") {
-      logger.error("Analysis is in error state during app initialization", {
+    if (analysisStatus === 'error') {
+      logger.error('Analysis is in error state during app initialization', {
         pathname,
         analysisStatus,
       });
@@ -133,13 +134,7 @@ function AppProvidersInner({ children }: { children: React.ReactNode }): React.J
     <>
       {children}
       <CommandPalette open={open} onOpenChange={setOpen} />
-      <Toaster 
-        position="bottom-right"
-        richColors
-        theme="dark"
-        closeButton
-        expand
-      />
+      <Toaster position="bottom-right" richColors theme="dark" closeButton expand />
     </>
   );
 }

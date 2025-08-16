@@ -3,11 +3,11 @@ import { showInfoToast } from '@shared/utils/toast';
 /**
  * @file Tests for useDialogHandlers hook
  * @module tests/unit/hooks/useDialogHandlers
- * 
+ *
  * @description
  * Comprehensive tests for the useDialogHandlers hook that encapsulates
  * all dialog handling logic for chess training interactions.
- * 
+ *
  * Tests cover:
  * - Move error dialog actions (take back, restart, continue, show best move)
  * - Move success dialog actions (close, continue)
@@ -89,15 +89,15 @@ describe('useDialogHandlers', () => {
     // Enhance simple mocks with factory behavior for more realistic testing
     const mockChessService = chessServiceMockFactory.create();
     const mockTablebaseService = tablebaseServiceMockFactory.create();
-    
+
     // Assign factory mock behavior to the simple mocks
     Object.assign(chessService, mockChessService);
     Object.assign(tablebaseService, mockTablebaseService);
-    
+
     // Clear all other mocks
     vi.clearAllMocks();
   });
-  
+
   afterEach(() => {
     chessServiceMockFactory.cleanup();
     tablebaseServiceMockFactory.cleanup();
@@ -151,7 +151,7 @@ describe('useDialogHandlers', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Reset mocked services
     (chessService.getFen as ReturnType<typeof vi.fn>).mockReturnValue('8/8/8/8/8/8/8/8 w - - 0 1');
     (chessService.turn as ReturnType<typeof vi.fn>).mockReturnValue('w');
@@ -159,7 +159,7 @@ describe('useDialogHandlers', () => {
       isAvailable: true,
       result: { wdl: 1 },
     });
-    
+
     // Clear mock calls for opponent turn manager
     mockOpponentTurnManager.schedule.mockClear();
     mockOpponentTurnManager.cancel.mockClear();
@@ -204,7 +204,7 @@ describe('useDialogHandlers', () => {
     it('cancels scheduled opponent turn before undoing move', () => {
       const mockUndoMove = vi.fn().mockReturnValue(true);
       const props = { ...defaultProps, undoMove: mockUndoMove };
-      
+
       const { result } = renderHook(() => useDialogHandlers(props));
 
       act(() => {
@@ -218,7 +218,7 @@ describe('useDialogHandlers', () => {
     it('sets player turn and clears opponent thinking after successful undo', () => {
       const mockUndoMove = vi.fn().mockReturnValue(true);
       const props = { ...defaultProps, undoMove: mockUndoMove };
-      
+
       const { result } = renderHook(() => useDialogHandlers(props));
 
       act(() => {
@@ -233,7 +233,7 @@ describe('useDialogHandlers', () => {
     it('closes move error dialog after successful undo', () => {
       const mockUndoMove = vi.fn().mockReturnValue(true);
       const props = { ...defaultProps, undoMove: mockUndoMove };
-      
+
       const { result } = renderHook(() => useDialogHandlers(props));
 
       act(() => {
@@ -246,7 +246,7 @@ describe('useDialogHandlers', () => {
     it('handles failed undo gracefully', () => {
       const mockUndoMove = vi.fn().mockReturnValue(false);
       const props = { ...defaultProps, undoMove: mockUndoMove };
-      
+
       const { result } = renderHook(() => useDialogHandlers(props));
 
       act(() => {
@@ -262,7 +262,7 @@ describe('useDialogHandlers', () => {
         ...mockTrainingActions,
       } as any;
       const props = { ...defaultProps, trainingActions: actionsWithoutDialog };
-      
+
       const { result } = renderHook(() => useDialogHandlers(props));
 
       // Should not throw
@@ -306,11 +306,11 @@ describe('useDialogHandlers', () => {
       // Mock chess service to return black's turn
       (chessService.turn as ReturnType<typeof vi.fn>).mockReturnValue('b');
 
-      const props = { 
-        ...defaultProps, 
-        storeApi: mockStoreApiWithBlackTurn 
+      const props = {
+        ...defaultProps,
+        storeApi: mockStoreApiWithBlackTurn,
       };
-      
+
       const { result } = renderHook(() => useDialogHandlers(props));
 
       act(() => {
@@ -331,11 +331,11 @@ describe('useDialogHandlers', () => {
       expect(mockOpponentTurnManager.schedule).toHaveBeenCalledWith(
         expect.objectContaining({
           getState: expect.any(Function),
-          setState: expect.any(Function)
-        }), 
-        500, 
+          setState: expect.any(Function),
+        }),
+        500,
         expect.objectContaining({
-          onOpponentMoveComplete: expect.any(Function)
+          onOpponentMoveComplete: expect.any(Function),
         })
       );
     });
@@ -357,7 +357,10 @@ describe('useDialogHandlers', () => {
       });
 
       expect(tablebaseService.getEvaluation).toHaveBeenCalled();
-      expect(mockTrainingActions.setEvaluationBaseline).toHaveBeenCalledWith(1, '8/8/8/8/8/8/8/8 w - - 0 1');
+      expect(mockTrainingActions.setEvaluationBaseline).toHaveBeenCalledWith(
+        1,
+        '8/8/8/8/8/8/8/8 w - - 0 1'
+      );
     });
 
     it('handles tablebase unavailable gracefully in callback', async () => {
@@ -383,7 +386,9 @@ describe('useDialogHandlers', () => {
     });
 
     it('handles tablebase error gracefully in callback', async () => {
-      (tablebaseService.getEvaluation as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('API Error'));
+      (tablebaseService.getEvaluation as ReturnType<typeof vi.fn>).mockRejectedValue(
+        new Error('API Error')
+      );
 
       const { result } = renderHook(() => useDialogHandlers(defaultProps));
 
@@ -411,10 +416,7 @@ describe('useDialogHandlers', () => {
         result.current.handleShowBestMove();
       });
 
-      expect(showInfoToast).toHaveBeenCalledWith(
-        'Der beste Zug war: Kh1',
-        { duration: 4000 }
-      );
+      expect(showInfoToast).toHaveBeenCalledWith('Der beste Zug war: Kh1', { duration: 4000 });
       expect(mockTrainingActions.setMoveErrorDialog).toHaveBeenCalledWith(null);
     });
 
@@ -424,11 +426,11 @@ describe('useDialogHandlers', () => {
         moveErrorDialog: null,
       };
 
-      const props = { 
-        ...defaultProps, 
-        trainingState: stateWithoutBestMove 
+      const props = {
+        ...defaultProps,
+        trainingState: stateWithoutBestMove,
       };
-      
+
       const { result } = renderHook(() => useDialogHandlers(props));
 
       act(() => {
@@ -445,11 +447,11 @@ describe('useDialogHandlers', () => {
         moveErrorDialog: undefined,
       };
 
-      const props = { 
-        ...defaultProps, 
-        trainingState: stateWithoutDialog 
+      const props = {
+        ...defaultProps,
+        trainingState: stateWithoutDialog,
       };
-      
+
       const { result } = renderHook(() => useDialogHandlers(props));
 
       // Should not throw
@@ -487,10 +489,9 @@ describe('useDialogHandlers', () => {
 
   describe('State and Action Dependencies', () => {
     it('reacts to trainingState changes', () => {
-      const { result, rerender } = renderHook(
-        (props) => useDialogHandlers(props),
-        { initialProps: defaultProps }
-      );
+      const { result, rerender } = renderHook(props => useDialogHandlers(props), {
+        initialProps: defaultProps,
+      });
 
       const newTrainingState = {
         ...mockTrainingState,
@@ -508,17 +509,13 @@ describe('useDialogHandlers', () => {
         result.current.handleShowBestMove();
       });
 
-      expect(showInfoToast).toHaveBeenCalledWith(
-        'Der beste Zug war: Qh8+',
-        { duration: 4000 }
-      );
+      expect(showInfoToast).toHaveBeenCalledWith('Der beste Zug war: Qh8+', { duration: 4000 });
     });
 
     it('maintains stable function references between renders', () => {
-      const { result, rerender } = renderHook(
-        (props) => useDialogHandlers(props),
-        { initialProps: defaultProps }
-      );
+      const { result, rerender } = renderHook(props => useDialogHandlers(props), {
+        initialProps: defaultProps,
+      });
 
       const initialHandlers = { ...result.current };
 
@@ -531,10 +528,9 @@ describe('useDialogHandlers', () => {
     });
 
     it('updates when dependencies change', () => {
-      const { result, rerender } = renderHook(
-        (props) => useDialogHandlers(props),
-        { initialProps: defaultProps }
-      );
+      const { result, rerender } = renderHook(props => useDialogHandlers(props), {
+        initialProps: defaultProps,
+      });
 
       const newUndoMove = vi.fn().mockReturnValue(true);
       const newProps = { ...defaultProps, undoMove: newUndoMove };
@@ -558,7 +554,7 @@ describe('useDialogHandlers', () => {
           setMoveSuccessDialog: vi.fn(), // Provide minimal required interface
         } as any,
       };
-      
+
       const { result } = renderHook(() => useDialogHandlers(propsWithoutActions));
 
       // Should not throw when calling handlers
@@ -579,7 +575,7 @@ describe('useDialogHandlers', () => {
       } as any;
 
       const props = { ...defaultProps, storeApi: mockStoreApiWithError };
-      
+
       const { result } = renderHook(() => useDialogHandlers(props));
 
       // Should work normally with valid store
@@ -592,7 +588,9 @@ describe('useDialogHandlers', () => {
 
     it('handles chessService in normal operation', () => {
       // Reset to normal behavior after previous tests
-      (chessService.getFen as ReturnType<typeof vi.fn>).mockReturnValue('8/8/8/8/8/8/8/8 w - - 0 1');
+      (chessService.getFen as ReturnType<typeof vi.fn>).mockReturnValue(
+        '8/8/8/8/8/8/8/8 w - - 0 1'
+      );
 
       const { result } = renderHook(() => useDialogHandlers(defaultProps));
 
@@ -609,7 +607,7 @@ describe('useDialogHandlers', () => {
     it('handles complete error dialog workflow', () => {
       const mockUndoMove = vi.fn().mockReturnValue(true);
       const props = { ...defaultProps, undoMove: mockUndoMove };
-      
+
       const { result } = renderHook(() => useDialogHandlers(props));
 
       // User clicks "Take Back"
@@ -638,7 +636,7 @@ describe('useDialogHandlers', () => {
 
       // Simulate opponent move completion
       const callback = mockOpponentTurnManager.schedule.mock.calls[0][2].onOpponentMoveComplete;
-      
+
       await act(async () => {
         await callback();
       });

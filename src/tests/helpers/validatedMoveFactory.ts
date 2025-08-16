@@ -8,8 +8,8 @@
  * validation logic that might exist in the application.
  */
 
-import { createTestMove, type CreateMoveOptions } from "./moveFactory";
-import type { ValidatedMove } from "@shared/types/chess";
+import { createTestMove, type CreateMoveOptions } from './moveFactory';
+import type { ValidatedMove } from '@shared/types/chess';
 
 /**
  * Creates a ValidatedMove for testing purposes
@@ -43,43 +43,43 @@ export const createTestValidatedMove = (options: CreateMoveOptions): ValidatedMo
  */
 export const VALIDATED_TEST_MOVES = {
   E2E4: createTestValidatedMove({
-    from: "e2",
-    to: "e4",
-    piece: "p",
-    san: "e4",
+    from: 'e2',
+    to: 'e4',
+    piece: 'p',
+    san: 'e4',
   }),
   E7E5: createTestValidatedMove({
-    from: "e7",
-    to: "e5",
-    piece: "p",
-    color: "b",
-    san: "e5",
+    from: 'e7',
+    to: 'e5',
+    piece: 'p',
+    color: 'b',
+    san: 'e5',
   }),
   NG1F3: createTestValidatedMove({
-    from: "g1",
-    to: "f3",
-    piece: "n",
-    san: "Nf3",
+    from: 'g1',
+    to: 'f3',
+    piece: 'n',
+    san: 'Nf3',
   }),
   KINGSIDE_CASTLE: createTestValidatedMove({
-    from: "e1",
-    to: "g1",
-    piece: "k",
-    san: "O-O",
+    from: 'e1',
+    to: 'g1',
+    piece: 'k',
+    san: 'O-O',
   }),
   CAPTURE: createTestValidatedMove({
-    from: "e4",
-    to: "d5",
-    piece: "p",
-    captured: "p",
-    san: "exd5",
+    from: 'e4',
+    to: 'd5',
+    piece: 'p',
+    captured: 'p',
+    san: 'exd5',
   }),
   PROMOTION: createTestValidatedMove({
-    from: "e7",
-    to: "e8",
-    piece: "p",
-    promotion: "q",
-    san: "e8=Q",
+    from: 'e7',
+    to: 'e8',
+    piece: 'p',
+    promotion: 'q',
+    san: 'e8=Q',
   }),
 } as const;
 

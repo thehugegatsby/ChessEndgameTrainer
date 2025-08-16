@@ -1,6 +1,6 @@
 /**
  * Example React component showing direct event subscription
- * 
+ *
  * @description
  * This replaces the complex Event-Bridge with direct subscriptions
  * in components that need to react to training events.
@@ -21,9 +21,9 @@ import type { RootState } from '@shared/store/slices/types';
 export function TrainingEventListener(): null {
   useEffect(() => {
     // Event-driven is now standard - always subscribe
-    
+
     // Subscribe to move feedback events
-    const unsubscribeFeedback = trainingEvents.on('move:feedback', (data) => {
+    const unsubscribeFeedback = trainingEvents.on('move:feedback', data => {
       if (data.type === 'error') {
         // Show error dialog
         useStore.setState((draft: WritableDraft<RootState>) => {
@@ -40,29 +40,29 @@ export function TrainingEventListener(): null {
           draft.ui.toasts.push({
             id: Date.now().toString(),
             message: 'Guter Zug!',
-            type: 'success'
+            type: 'success',
           });
         });
       }
     });
-    
+
     // Subscribe to game complete events
-    const unsubscribeComplete = trainingEvents.on('game:complete', (data) => {
+    const unsubscribeComplete = trainingEvents.on('game:complete', data => {
       useStore.setState((draft: WritableDraft<RootState>) => {
         draft.training.isSuccess = data.result === 'win';
         draft.training.mistakeCount = data.moveCount;
       });
     });
-    
+
     // Subscribe to opponent thinking events
-    const unsubscribeThinking = trainingEvents.on('opponent:thinking', (data) => {
+    const unsubscribeThinking = trainingEvents.on('opponent:thinking', data => {
       useStore.setState((draft: WritableDraft<RootState>) => {
         draft.training.isPlayerTurn = !data.isThinking;
       });
     });
-    
+
     // Subscribe to tablebase evaluation events
-    const unsubscribeTablebaseEval = trainingEvents.on('tablebase:evaluation', (data) => {
+    const unsubscribeTablebaseEval = trainingEvents.on('tablebase:evaluation', data => {
       useStore.setState((draft: WritableDraft<RootState>) => {
         // Store tablebase evaluation in UI state for other components
         draft.ui.tablebaseData = {
@@ -77,9 +77,9 @@ export function TrainingEventListener(): null {
         };
       });
     });
-    
+
     // Subscribe to tablebase moves events
-    const unsubscribeTablebaseMoves = trainingEvents.on('tablebase:moves', (data) => {
+    const unsubscribeTablebaseMoves = trainingEvents.on('tablebase:moves', data => {
       useStore.setState((state: WritableDraft<RootState>) => {
         // Update tablebase data with moves
         if (state.ui.tablebaseData && state.ui.tablebaseData.fen === data.fen) {
@@ -89,7 +89,7 @@ export function TrainingEventListener(): null {
         }
       });
     });
-    
+
     // Cleanup on unmount
     return () => {
       unsubscribeFeedback();
@@ -99,7 +99,7 @@ export function TrainingEventListener(): null {
       unsubscribeTablebaseMoves();
     };
   }, []);
-  
+
   // This component doesn't render anything
   return null;
 }
@@ -117,6 +117,6 @@ export function useTrainingEvent<K extends keyof TrainingEvents>(
     // Event-driven is now standard - always subscribe
     const unsubscribe = trainingEvents.on(event, handler);
     return unsubscribe;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [event]);
 }

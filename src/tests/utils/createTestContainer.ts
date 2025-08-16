@@ -4,11 +4,11 @@ import { vi } from 'vitest';
  * Easy setup for Jest tests with ServiceContainer
  */
 
-import React from "react";
-import type { BrowserAPIs } from "@shared/services/platform/web/WebPlatformService";
-import { WebPlatformService } from "@shared/services/platform/web/WebPlatformService";
-import { ServiceContainer } from "@shared/services/container";
-import { MockStorage } from "./MockStorage";
+import React from 'react';
+import type { BrowserAPIs } from '@shared/services/platform/web/WebPlatformService';
+import { WebPlatformService } from '@shared/services/platform/web/WebPlatformService';
+import { ServiceContainer } from '@shared/services/container';
+import { MockStorage } from './MockStorage';
 
 /**
  * Service overrides for specific tests
@@ -26,9 +26,7 @@ export interface TestServiceOverrides {
  * Create a test container with optional overrides
  * Main entry point for Jest tests - replaces global localStorage mocks
  */
-export function createTestContainer(
-  overrides?: TestServiceOverrides,
-): ServiceContainer {
+export function createTestContainer(overrides?: TestServiceOverrides): ServiceContainer {
   const container = new ServiceContainer();
 
   // Create mock instances
@@ -36,12 +34,12 @@ export function createTestContainer(
   const mockNavigator =
     overrides?.navigator ||
     ({
-      userAgent: "Mozilla/5.0 (Test Environment)",
+      userAgent: 'Mozilla/5.0 (Test Environment)',
       onLine: true,
       deviceMemory: 8,
       clipboard: {
         writeText: vi.fn().mockResolvedValue(undefined),
-        readText: vi.fn().mockResolvedValue("mocked text"),
+        readText: vi.fn().mockResolvedValue('mocked text'),
       },
       share: vi.fn().mockResolvedValue(undefined),
     } as any);
@@ -79,56 +77,50 @@ export function createTestContainer(
   };
 
   // Register browser APIs individually for direct access
-  container.registerCustom(
-    "browser.localStorage",
-    () => browserAPIs.localStorage,
-  );
-  container.registerCustom("browser.navigator", () => browserAPIs.navigator);
-  container.registerCustom("browser.window", () => browserAPIs.window!);
-  container.registerCustom("browser.document", () => browserAPIs.document!);
-  container.registerCustom(
-    "browser.performance",
-    () => browserAPIs.performance!,
-  );
+  container.registerCustom('browser.localStorage', () => browserAPIs.localStorage);
+  container.registerCustom('browser.navigator', () => browserAPIs.navigator);
+  container.registerCustom('browser.window', () => browserAPIs.window!);
+  container.registerCustom('browser.document', () => browserAPIs.document!);
+  container.registerCustom('browser.performance', () => browserAPIs.performance!);
 
   // Register the WebPlatformService with injected mock dependencies
-  container.registerCustom("platform.service", () => {
+  container.registerCustom('platform.service', () => {
     return new WebPlatformService(browserAPIs);
   });
 
   // Register individual platform services that delegate to the main service
-  container.register("platform.storage", (c) => {
-    const platformService = c.resolveCustom("platform.service") as any;
+  container.register('platform.storage', c => {
+    const platformService = c.resolveCustom('platform.service') as any;
     return platformService.storage;
   });
 
-  container.register("platform.notifications", (c) => {
-    const platformService = c.resolveCustom("platform.service") as any;
+  container.register('platform.notifications', c => {
+    const platformService = c.resolveCustom('platform.service') as any;
     return platformService.notifications;
   });
 
-  container.register("platform.device", (c) => {
-    const platformService = c.resolveCustom("platform.service") as any;
+  container.register('platform.device', c => {
+    const platformService = c.resolveCustom('platform.service') as any;
     return platformService.device;
   });
 
-  container.register("platform.performance", (c) => {
-    const platformService = c.resolveCustom("platform.service") as any;
+  container.register('platform.performance', c => {
+    const platformService = c.resolveCustom('platform.service') as any;
     return platformService.performance;
   });
 
-  container.register("platform.clipboard", (c) => {
-    const platformService = c.resolveCustom("platform.service") as any;
+  container.register('platform.clipboard', c => {
+    const platformService = c.resolveCustom('platform.service') as any;
     return platformService.clipboard;
   });
 
-  container.register("platform.share", (c) => {
-    const platformService = c.resolveCustom("platform.service") as any;
+  container.register('platform.share', c => {
+    const platformService = c.resolveCustom('platform.service') as any;
     return platformService.share;
   });
 
-  container.register("platform.analytics", (c) => {
-    const platformService = c.resolveCustom("platform.service") as any;
+  container.register('platform.analytics', c => {
+    const platformService = c.resolveCustom('platform.service') as any;
     return platformService.analytics;
   });
 
@@ -139,9 +131,7 @@ export function createTestContainer(
  * Setup function for beforeEach hooks
  * Ensures clean container per test
  */
-export function setupTestContainer(
-  overrides?: TestServiceOverrides,
-): () => ServiceContainer {
+export function setupTestContainer(overrides?: TestServiceOverrides): () => ServiceContainer {
   let container: ServiceContainer;
 
   beforeEach(() => {
@@ -188,7 +178,7 @@ export function createMockLocalStorage(): Storage {
       delete store[key];
     }),
     clear: mockFn(() => {
-      Object.keys(store).forEach((key) => delete store[key]);
+      Object.keys(store).forEach(key => delete store[key]);
     }),
     key: mockFn((index: number) => {
       const keys = Object.keys(store);
@@ -227,14 +217,14 @@ export const TestScenarios = {
   offline: () => {
     const mockNavigator = {
       onLine: false,
-      userAgent: "Mozilla/5.0 (Test Environment - Offline)",
+      userAgent: 'Mozilla/5.0 (Test Environment - Offline)',
       deviceMemory: 8,
-      connection: { type: "none", effectiveType: undefined, downlink: 0 },
-      mozConnection: { type: "none", effectiveType: undefined, downlink: 0 },
-      webkitConnection: { type: "none", effectiveType: undefined, downlink: 0 },
+      connection: { type: 'none', effectiveType: undefined, downlink: 0 },
+      mozConnection: { type: 'none', effectiveType: undefined, downlink: 0 },
+      webkitConnection: { type: 'none', effectiveType: undefined, downlink: 0 },
       clipboard: {
         writeText: vi.fn().mockResolvedValue(undefined),
-        readText: vi.fn().mockResolvedValue("mocked text"),
+        readText: vi.fn().mockResolvedValue('mocked text'),
       },
       share: vi.fn().mockResolvedValue(undefined),
     } as any;
@@ -248,7 +238,7 @@ export const TestScenarios = {
   mobile: () => {
     const mockNavigator = {
       onLine: true,
-      userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X)",
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X)',
     } as Navigator;
 
     const mockWindow = {
@@ -269,10 +259,10 @@ export const TestScenarios = {
     const mockNavigator = {
       deviceMemory: 2, // 2GB
       onLine: true,
-      userAgent: "Mozilla/5.0 (Test Environment - Low Memory)",
+      userAgent: 'Mozilla/5.0 (Test Environment - Low Memory)',
       clipboard: {
         writeText: vi.fn().mockResolvedValue(undefined),
-        readText: vi.fn().mockResolvedValue("mocked text"),
+        readText: vi.fn().mockResolvedValue('mocked text'),
       },
       share: vi.fn().mockResolvedValue(undefined),
     } as any;
@@ -288,11 +278,7 @@ export const TestAssertions = {
   /**
    * Assert localStorage operations
    */
-  expectStorageCall: (
-    storage: Storage,
-    method: keyof Storage,
-    ...args: any[]
-  ) => {
+  expectStorageCall: (storage: Storage, method: keyof Storage, ...args: any[]) => {
     // Running in Vitest environment
     expect(storage[method]).toHaveBeenCalledWith(...args);
   },
@@ -300,10 +286,7 @@ export const TestAssertions = {
   /**
    * Assert storage state
    */
-  expectStorageState: (
-    storage: Storage,
-    expectedData: Record<string, string>,
-  ) => {
+  expectStorageState: (storage: Storage, expectedData: Record<string, string>) => {
     Object.entries(expectedData).forEach(([key, value]) => {
       expect(storage.getItem(key)).toBe(value);
     });

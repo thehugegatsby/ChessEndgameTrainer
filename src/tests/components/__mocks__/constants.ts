@@ -24,7 +24,7 @@ export /**
  *
  */
 const LOG_CONTEXTS = {
-  BASE: "BaseComponent",
-  BOARD: "BoardComponent",
-  BRIDGE: "TestBridge",
+  BASE: 'BaseComponent',
+  BOARD: 'BoardComponent',
+  BRIDGE: 'TestBridge',
 };

@@ -53,13 +53,9 @@ const createWrapper = () => {
       mutations: { retry: false },
     },
   });
-  
+
   return function Wrapper({ children }: { children: React.ReactNode }) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
-    );
+    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
   };
 };
 
@@ -73,14 +69,10 @@ describe('EventDrivenTablebasePanel', () => {
 
   it('should render tablebase analysis', () => {
     const Wrapper = createWrapper();
-    
+
     render(
       <Wrapper>
-        <EventDrivenTablebasePanel
-          fen={testFen}
-          isVisible={true}
-          onMoveSelect={mockOnMoveSelect}
-        />
+        <EventDrivenTablebasePanel fen={testFen} isVisible={true} onMoveSelect={mockOnMoveSelect} />
       </Wrapper>
     );
 
@@ -91,13 +83,10 @@ describe('EventDrivenTablebasePanel', () => {
 
   it('should display evaluation outcome correctly', () => {
     const Wrapper = createWrapper();
-    
+
     render(
       <Wrapper>
-        <EventDrivenTablebasePanel
-          fen={testFen}
-          isVisible={true}
-        />
+        <EventDrivenTablebasePanel fen={testFen} isVisible={true} />
       </Wrapper>
     );
 
@@ -107,37 +96,29 @@ describe('EventDrivenTablebasePanel', () => {
 
   it('should display moves with correct outcomes', () => {
     const Wrapper = createWrapper();
-    
+
     render(
       <Wrapper>
-        <EventDrivenTablebasePanel
-          fen={testFen}
-          isVisible={true}
-          onMoveSelect={mockOnMoveSelect}
-        />
+        <EventDrivenTablebasePanel fen={testFen} isVisible={true} onMoveSelect={mockOnMoveSelect} />
       </Wrapper>
     );
 
     expect(screen.getByText('e4')?.isConnected).toBe(true);
     expect(screen.getByText('d4')?.isConnected).toBe(true);
-    
+
     const winMove = screen.getByText('+');
     const drawMove = screen.getByText('=');
-    
+
     expect(winMove?.isConnected).toBe(true);
     expect(drawMove?.isConnected).toBe(true);
   });
 
   it('should call onMoveSelect when move is clicked', () => {
     const Wrapper = createWrapper();
-    
+
     render(
       <Wrapper>
-        <EventDrivenTablebasePanel
-          fen={testFen}
-          isVisible={true}
-          onMoveSelect={mockOnMoveSelect}
-        />
+        <EventDrivenTablebasePanel fen={testFen} isVisible={true} onMoveSelect={mockOnMoveSelect} />
       </Wrapper>
     );
 
@@ -155,13 +136,10 @@ describe('EventDrivenTablebasePanel', () => {
 
   it('should emit tablebase events when event-driven', async () => {
     const Wrapper = createWrapper();
-    
+
     render(
       <Wrapper>
-        <EventDrivenTablebasePanel
-          fen={testFen}
-          isVisible={true}
-        />
+        <EventDrivenTablebasePanel fen={testFen} isVisible={true} />
       </Wrapper>
     );
 
@@ -197,13 +175,10 @@ describe('EventDrivenTablebasePanel', () => {
 
   it('should not render when not visible', () => {
     const Wrapper = createWrapper();
-    
+
     render(
       <Wrapper>
-        <EventDrivenTablebasePanel
-          fen={testFen}
-          isVisible={false}
-        />
+        <EventDrivenTablebasePanel fen={testFen} isVisible={false} />
       </Wrapper>
     );
 
@@ -221,13 +196,10 @@ describe('EventDrivenTablebasePanel', () => {
     });
 
     const Wrapper = createWrapper();
-    
+
     render(
       <Wrapper>
-        <EventDrivenTablebasePanel
-          fen={testFen}
-          isVisible={true}
-        />
+        <EventDrivenTablebasePanel fen={testFen} isVisible={true} />
       </Wrapper>
     );
 
@@ -249,13 +221,10 @@ describe('EventDrivenTablebasePanel', () => {
     });
 
     const Wrapper = createWrapper();
-    
+
     render(
       <Wrapper>
-        <EventDrivenTablebasePanel
-          fen={testFen}
-          isVisible={true}
-        />
+        <EventDrivenTablebasePanel fen={testFen} isVisible={true} />
       </Wrapper>
     );
 

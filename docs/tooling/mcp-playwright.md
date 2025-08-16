@@ -136,18 +136,18 @@ browser_click("[data-testid='submit-button']");
 browser_click("[data-square='e4']");
 
 // Avoid: Generic selectors
-browser_click(".button"); // Too generic
-browser_click("div > span"); // Fragile
+browser_click('.button'); // Too generic
+browser_click('div > span'); // Fragile
 ```
 
 ### Wait Strategies
 
 ```javascript
 // Wait for specific text
-browser_wait_for({ text: "Spielende" });
+browser_wait_for({ text: 'Spielende' });
 
 // Wait for element to disappear
-browser_wait_for({ textGone: "Lädt..." });
+browser_wait_for({ textGone: 'Lädt...' });
 
 // Fixed time wait (last resort)
 browser_wait_for({ time: 2 });
@@ -170,14 +170,14 @@ const snapshot = await browser_snapshot();
 
 ```javascript
 // Before each test
-browser_navigate("/");
+browser_navigate('/');
 browser_evaluate(() => {
   // Reset application state
   window.store.getState().reset();
 });
 
 // After test
-browser_take_screenshot({ filename: "test-end.png" });
+browser_take_screenshot({ filename: 'test-end.png' });
 browser_close();
 ```
 
@@ -186,8 +186,8 @@ browser_close();
 ```javascript
 // Check console for errors
 const messages = await browser_console_messages();
-const errors = messages.filter((m) => m.type === "error");
-assert(errors.length === 0, "No console errors");
+const errors = messages.filter(m => m.type === 'error');
+assert(errors.length === 0, 'No console errors');
 ```
 
 ## Limitations

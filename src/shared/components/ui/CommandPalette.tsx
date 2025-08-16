@@ -3,7 +3,7 @@
  * @description Modern command palette with Ctrl+K shortcut for quick navigation and actions
  */
 
-"use client";
+'use client';
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -26,13 +26,16 @@ interface CommandPaletteProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function CommandPalette({ open, onOpenChange }: CommandPaletteProps): React.ReactElement | null {
+export function CommandPalette({
+  open,
+  onOpenChange,
+}: CommandPaletteProps): React.ReactElement | null {
   const [search, setSearch] = useState('');
   const router = useRouter();
-  
+
   // Store actions
-  const resetGame = useStore((state) => state.game.resetGame);
-  const currentFen = useStore((state) => state.game.currentFen);
+  const resetGame = useStore(state => state.game.resetGame);
+  const currentFen = useStore(state => state.game.currentFen);
 
   const commands: CommandItem[] = [
     // Navigation commands
@@ -62,13 +65,13 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps): Rea
     },
     {
       id: 'nav-training-2',
-      label: 'Training Position 2', 
+      label: 'Training Position 2',
       description: 'Starte Training mit Position 2',
       category: 'training',
       action: () => router.push('/train/2'),
       keywords: ['training', 'position', '2'],
     },
-    
+
     // Game actions
     {
       id: 'action-reset-game',
@@ -103,7 +106,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps): Rea
   // Filter commands based on search
   const filteredCommands = commands.filter(cmd => {
     if (!search) return true;
-    
+
     const searchLower = search.toLowerCase();
     return (
       cmd.label.toLowerCase().includes(searchLower) ||
@@ -113,16 +116,19 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps): Rea
   });
 
   // Group commands by category
-  const groupedCommands = filteredCommands.reduce((acc, cmd) => {
-    if (!acc[cmd.category]) {
-      acc[cmd.category] = [];
-    }
-    const categoryArray = acc[cmd.category];
-    if (categoryArray) {
-      categoryArray.push(cmd);
-    }
-    return acc;
-  }, {} as Record<string, CommandItem[]>);
+  const groupedCommands = filteredCommands.reduce(
+    (acc, cmd) => {
+      if (!acc[cmd.category]) {
+        acc[cmd.category] = [];
+      }
+      const categoryArray = acc[cmd.category];
+      if (categoryArray) {
+        categoryArray.push(cmd);
+      }
+      return acc;
+    },
+    {} as Record<string, CommandItem[]>
+  );
 
   const categoryLabels = {
     navigation: 'Navigation',
@@ -150,20 +156,25 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps): Rea
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center pt-[15vh]">
-      <div 
+      <div
         className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-2xl w-full mx-4 max-h-[70vh] overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
+        onClick={e => e.stopPropagation()}
       >
         <Command className="rounded-lg">
           <div className="flex items-center border-b px-3 dark:border-gray-700">
-            <svg 
+            <svg
               className="mr-2 h-4 w-4 shrink-0 text-gray-500"
-              xmlns="http://www.w3.org/2000/svg" 
-              fill="none" 
-              viewBox="0 0 24 24" 
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
               stroke="currentColor"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
             </svg>
             <Command.Input
               placeholder="Suche nach Befehlen..."
@@ -172,19 +183,19 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps): Rea
               className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-gray-500 dark:text-white"
             />
           </div>
-          
+
           <Command.List className="max-h-[50vh] overflow-y-auto p-2">
             <Command.Empty className="py-6 text-center text-sm text-gray-500">
               Keine Befehle gefunden.
             </Command.Empty>
-            
+
             {Object.entries(groupedCommands).map(([category, categoryCommands]) => (
-              <Command.Group 
-                key={category} 
+              <Command.Group
+                key={category}
                 heading={categoryLabels[category as keyof typeof categoryLabels]}
                 className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-gray-500 dark:[&_[cmdk-group-heading]]:text-gray-400"
               >
-                {categoryCommands.map((cmd) => (
+                {categoryCommands.map(cmd => (
                   <Command.Item
                     key={cmd.id}
                     value={cmd.label}
@@ -207,7 +218,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps): Rea
               </Command.Group>
             ))}
           </Command.List>
-          
+
           <div className="border-t p-3 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
             <div className="flex justify-between">
               <span>↑↓ navigieren</span>
@@ -230,7 +241,7 @@ export function useCommandPalette(): { open: boolean; setOpen: (open: boolean) =
   // Use react-hotkeys-hook for more reliable keyboard handling
   useHotkeys(
     'ctrl+k, cmd+k',
-    (e) => {
+    e => {
       e.preventDefault();
       setOpen(true);
     },
@@ -248,35 +259,55 @@ export function useCommandPalette(): { open: boolean; setOpen: (open: boolean) =
  */
 export function useChessHotkeys(): void {
   const router = useRouter();
-  const resetGame = useStore((state) => state.game.resetGame);
-  const currentFen = useStore((state) => state.game.currentFen);
+  const resetGame = useStore(state => state.game.resetGame);
+  const currentFen = useStore(state => state.game.currentFen);
 
   // Navigation shortcuts
-  useHotkeys('ctrl+shift+h, cmd+shift+h', () => {
-    router.push('/');
-  }, { description: 'Zur Startseite navigieren' });
+  useHotkeys(
+    'ctrl+shift+h, cmd+shift+h',
+    () => {
+      router.push('/');
+    },
+    { description: 'Zur Startseite navigieren' }
+  );
 
   // Game shortcuts
-  useHotkeys('ctrl+r, cmd+r', (e) => {
-    e.preventDefault(); // Prevent browser reload
-    resetGame();
-    showSuccessToast('Spiel zurückgesetzt');
-  }, { description: 'Spiel zurücksetzen' });
+  useHotkeys(
+    'ctrl+r, cmd+r',
+    e => {
+      e.preventDefault(); // Prevent browser reload
+      resetGame();
+      showSuccessToast('Spiel zurückgesetzt');
+    },
+    { description: 'Spiel zurücksetzen' }
+  );
 
   // FEN copy shortcut
-  useHotkeys('ctrl+shift+c, cmd+shift+c', () => {
-    if (currentFen) {
-      navigator.clipboard.writeText(currentFen);
-      showSuccessToast('FEN kopiert');
-    }
-  }, { description: 'FEN kopieren' });
+  useHotkeys(
+    'ctrl+shift+c, cmd+shift+c',
+    () => {
+      if (currentFen) {
+        navigator.clipboard.writeText(currentFen);
+        showSuccessToast('FEN kopiert');
+      }
+    },
+    { description: 'FEN kopieren' }
+  );
 
   // Training shortcuts
-  useHotkeys('ctrl+1', () => {
-    router.push('/train/1');
-  }, { description: 'Training Position 1' });
+  useHotkeys(
+    'ctrl+1',
+    () => {
+      router.push('/train/1');
+    },
+    { description: 'Training Position 1' }
+  );
 
-  useHotkeys('ctrl+2', () => {
-    router.push('/train/2');
-  }, { description: 'Training Position 2' });
+  useHotkeys(
+    'ctrl+2',
+    () => {
+      router.push('/train/2');
+    },
+    { description: 'Training Position 2' }
+  );
 }

@@ -1,6 +1,6 @@
 /**
  * MSW Server Mock Factory
- * 
+ *
  * Manages Mock Service Worker server instances for API mocking.
  * Ensures proper setup and teardown of MSW handlers.
  */
@@ -56,13 +56,10 @@ export class MSWServerMockFactory extends BaseMockFactory<MockedMSWServer, MSWSe
 
       // Health check endpoint
       http.get(`${this.baseUrl}/health`, () => {
-        return new Response(
-          JSON.stringify({ status: 'ok' }),
-          {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          }
-        );
+        return new Response(JSON.stringify({ status: 'ok' }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
       }),
     ];
 
@@ -120,10 +117,10 @@ export class MSWServerMockFactory extends BaseMockFactory<MockedMSWServer, MSWSe
     if (this.server) {
       // Reset handlers to defaults before cleanup
       this.server.resetHandlers();
-      
+
       // Close the server
       this.server.close();
-      
+
       this.server = null;
     }
   }
@@ -158,10 +155,7 @@ export class MSWServerMockFactory extends BaseMockFactory<MockedMSWServer, MSWSe
 
     this.server.use(
       http.get(`${this.baseUrl}/standard`, () => {
-        return Response.json(
-          { error: message || 'Internal server error' },
-          { status: statusCode }
-        );
+        return Response.json({ error: message || 'Internal server error' }, { status: statusCode });
       })
     );
   }
@@ -176,10 +170,7 @@ export class MSWServerMockFactory extends BaseMockFactory<MockedMSWServer, MSWSe
       http.get(endpoint, async () => {
         // Delay longer than typical timeout
         await new Promise(resolve => setTimeout(resolve, delay));
-        return Response.json(
-          { error: 'Request timeout' },
-          { status: 408 }
-        );
+        return Response.json({ error: 'Request timeout' }, { status: 408 });
       })
     );
   }
@@ -197,16 +188,13 @@ export class MSWServerMockFactory extends BaseMockFactory<MockedMSWServer, MSWSe
       http.get(`${this.baseUrl}/*`, () => {
         requestCount++;
         if (requestCount > limit) {
-          return new Response(
-            JSON.stringify({ error: 'Rate limit exceeded' }),
-            {
-              status: 429,
-              headers: {
-                'Content-Type': 'application/json',
-                'Retry-After': '60'
-              }
-            }
-          );
+          return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
+            status: 429,
+            headers: {
+              'Content-Type': 'application/json',
+              'Retry-After': '60',
+            },
+          });
         }
         // Passthrough for other handlers
         return new Response(null, { status: 200 });

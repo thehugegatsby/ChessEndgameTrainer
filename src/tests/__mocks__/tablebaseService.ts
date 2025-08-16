@@ -7,7 +7,7 @@ import {
   type TablebaseEvaluation,
   type TablebaseMove,
   type TablebaseResult,
-} from "@shared/types/tablebase";
+} from '@shared/types/tablebase';
 
 export /**
  *
@@ -16,9 +16,9 @@ const mockTablebaseResult: TablebaseResult = {
   wdl: 2, // win
   dtz: 10,
   dtm: 5,
-  category: "win",
+  category: 'win',
   precise: true,
-  evaluation: "Matt in 5 Zügen",
+  evaluation: 'Matt in 5 Zügen',
 };
 
 export /**
@@ -33,12 +33,12 @@ export /**
  *
  */
 const mockTablebaseMove: TablebaseMove = {
-  uci: "e2e3",
-  san: "Ke3",
+  uci: 'e2e3',
+  san: 'Ke3',
   wdl: 2, // win
   dtz: 8,
   dtm: 4,
-  category: "win",
+  category: 'win',
 };
 
 export /**
@@ -60,7 +60,7 @@ const mockTablebaseService = {
 };
 
 // Mock the TablebaseService module
-vi.mock("@shared/services/TablebaseService", () => ({
+vi.mock('@shared/services/TablebaseService', () => ({
   TablebaseService: vi.fn(() => mockTablebaseService),
   default: mockTablebaseService,
 }));

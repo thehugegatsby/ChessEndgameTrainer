@@ -46,10 +46,7 @@ class TablebaseService {
   private readonly dataCache: CacheManager<string, TablebaseEntry>;
   private readonly promiseCache: CacheManager<string, Promise<TablebaseEntry>>;
 
-  constructor(
-    apiClient?: LichessApiClient,
-    cacheManager?: CacheManager<string, TablebaseEntry>,
-  ) {
+  constructor(apiClient?: LichessApiClient, cacheManager?: CacheManager<string, TablebaseEntry>) {
     this.dataCache = cacheManager || new LRUCacheManager(200, 300000);
     // Shorter TTL for promises - they're temporary
     this.promiseCache = new LRUCacheManager(100, 10000);
@@ -68,14 +65,14 @@ class TablebaseService {
     if (!promise) {
       // No in-flight request - create one
       promise = this.fetchFromAPI(fen)
-        .then((data) => {
+        .then(data => {
           // Cache the successful result
           this.dataCache.set(fen, data);
           // Remove promise from cache (no longer needed)
           this.promiseCache.delete(fen);
           return data;
         })
-        .catch((error) => {
+        .catch(error => {
           // Remove failed promise so next request can retry
           this.promiseCache.delete(fen);
           throw error;
@@ -110,7 +107,7 @@ class AnalysisService {
 
     // Create new request
     const request = this.performAnalysis(position)
-      .then((result) => {
+      .then(result => {
         this.cache.set(position, result);
         return result;
       })
@@ -130,8 +127,8 @@ class AnalysisService {
 ### Unit Testing with Mock Cache
 
 ```typescript
-describe("TablebaseService", () => {
-  it("should use cache manager correctly", async () => {
+describe('TablebaseService', () => {
+  it('should use cache manager correctly', async () => {
     const mockCache = {
       get: jest.fn().mockReturnValue(undefined),
       set: jest.fn(),
@@ -143,9 +140,9 @@ describe("TablebaseService", () => {
 
     const service = new TablebaseService(undefined, mockCache);
 
-    await service.getEvaluation("test-fen");
+    await service.getEvaluation('test-fen');
 
-    expect(mockCache.get).toHaveBeenCalledWith("test-fen");
+    expect(mockCache.get).toHaveBeenCalledWith('test-fen');
     expect(mockCache.set).toHaveBeenCalled();
   });
 });
@@ -154,20 +151,20 @@ describe("TablebaseService", () => {
 ### Testing Cache Stampede Prevention
 
 ```typescript
-it("should prevent cache stampede", async () => {
+it('should prevent cache stampede', async () => {
   const service = new TablebaseService();
   let apiCallCount = 0;
 
   // Mock API to count calls
   service.fetchFromAPI = jest.fn().mockImplementation(() => {
     apiCallCount++;
-    return new Promise((resolve) => setTimeout(() => resolve(testData), 100));
+    return new Promise(resolve => setTimeout(() => resolve(testData), 100));
   });
 
   // Launch multiple concurrent requests for same key
   const promises = Array(10)
     .fill(null)
-    .map(() => service.getEvaluation("same-fen"));
+    .map(() => service.getEvaluation('same-fen'));
 
   const results = await Promise.all(promises);
 
@@ -186,7 +183,7 @@ it("should prevent cache stampede", async () => {
 class APIService {
   private cache = new LRUCacheManager<string, APIResponse>(
     100, // max 100 endpoints cached
-    60000, // 1 minute TTL
+    60000 // 1 minute TTL
   );
 
   async fetch(endpoint: string): Promise<APIResponse> {
@@ -202,7 +199,7 @@ class APIService {
 class CalculationService {
   private cache = new LRUCacheManager<string, Result>(
     500, // max 500 calculations cached
-    3600000, // 1 hour TTL
+    3600000 // 1 hour TTL
   );
 
   async calculate(input: string): Promise<Result> {
@@ -222,7 +219,7 @@ class CalculationService {
 class UserService {
   private cache = new LRUCacheManager<string, UserData>(
     1000, // max 1000 users cached
-    900000, // 15 minute TTL
+    900000 // 15 minute TTL
   );
 
   async getUser(id: string): Promise<UserData> {
@@ -247,8 +244,8 @@ class MonitoredService {
     // Log stats every minute
     if (Date.now() - this.lastStatsLog > 60000) {
       const stats = this.cache.getStats();
-      logger.info("Cache performance", {
-        service: "MonitoredService",
+      logger.info('Cache performance', {
+        service: 'MonitoredService',
         hitRate: stats.hitRate,
         size: stats.size,
         evictions: stats.evictions,

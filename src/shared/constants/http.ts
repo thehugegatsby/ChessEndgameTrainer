@@ -1,7 +1,7 @@
 /**
  * HTTP Status Code constants
  * @module constants/http
- * 
+ *
  * @description
  * Standard HTTP status codes used throughout the application
  * for API responses and error handling.

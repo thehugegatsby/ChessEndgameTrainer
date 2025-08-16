@@ -15,7 +15,7 @@ export const mockAuth = {
   currentUser: mockUser,
   signInWithEmailAndPassword: vi.fn().mockResolvedValue({ user: mockUser }),
   signOut: vi.fn().mockResolvedValue(undefined),
-  onAuthStateChanged: vi.fn((callback) => {
+  onAuthStateChanged: vi.fn(callback => {
     callback(mockUser);
     return vi.fn(); // unsubscribe function
   }),

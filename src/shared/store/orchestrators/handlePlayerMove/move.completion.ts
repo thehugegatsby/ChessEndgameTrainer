@@ -8,11 +8,11 @@
  * for consistency.
  */
 
-import type { StoreApi } from "../types";
-import type { ValidatedMove } from "@shared/types/chess";
-import { chessService } from "@shared/services/ChessService";
-import { PERCENT } from "@/constants/number.constants";
-import { UI_DURATIONS_MS } from "@/constants/time.constants";
+import type { StoreApi } from '../types';
+import type { ValidatedMove } from '@shared/types/chess';
+import { chessService } from '@shared/services/ChessService';
+import { PERCENT } from '@/constants/number.constants';
+import { UI_DURATIONS_MS } from '@/constants/time.constants';
 
 /**
  * Handles training completion logic
@@ -33,21 +33,17 @@ import { UI_DURATIONS_MS } from "@/constants/time.constants";
  * A "perfect game" requires 100% accuracy, no mistakes, and optimal final move.
  * Success is determined by matching the target outcome (win/draw/loss).
  */
-export function handleTrainingCompletion(
-  api: StoreApi,
-  isOptimal: boolean,
-): void {
+export function handleTrainingCompletion(api: StoreApi, isOptimal: boolean): void {
   const { getState, setState } = api;
   const state = getState();
 
-  if (!state.training.currentPosition)
-    return;
+  if (!state.training.currentPosition) return;
 
   const userMoves = state.game.moveHistory.filter(
-    (m: ValidatedMove) => 'userMove' in m && (m as Record<string, unknown>)['userMove'],
+    (m: ValidatedMove) => 'userMove' in m && (m as Record<string, unknown>)['userMove']
   );
   const optimalMoves = userMoves.filter(
-    (m: ValidatedMove) => 'isOptimal' in m && (m as Record<string, unknown>)['isOptimal'],
+    (m: ValidatedMove) => 'isOptimal' in m && (m as Record<string, unknown>)['isOptimal']
   ).length;
   const totalMoves = userMoves.length;
   const accuracy = totalMoves > 0 ? (optimalMoves / totalMoves) * PERCENT : 0;
@@ -60,10 +56,10 @@ export function handleTrainingCompletion(
   // Determine success based on game outcome
   const gameOutcome = (() => {
     if (chessService.isCheckmate()) {
-      return chessService.turn() === "w" ? "0-1" : "1-0";
+      return chessService.turn() === 'w' ? '0-1' : '1-0';
     }
     if (chessService.isDraw()) {
-      return "1/2-1/2";
+      return '1/2-1/2';
     }
     return null;
   })();
@@ -71,7 +67,7 @@ export function handleTrainingCompletion(
   const success = gameOutcome === state.training.currentPosition.targetOutcome;
 
   // Complete training using setState
-  setState((draft) => {
+  setState(draft => {
     // Mark training as complete
     draft.training.isSuccess = success;
     draft.training.isPlayerTurn = false;
@@ -85,10 +81,10 @@ export function handleTrainingCompletion(
         draft.training.bestStreak = draft.training.currentStreak;
       }
       draft.training.showCheckmark = true;
-      
+
       // Auto-hide checkmark after 2 seconds
       setTimeout(() => {
-        api.setState((stateDraft) => {
+        api.setState(stateDraft => {
           // eslint-disable-next-line no-param-reassign
           stateDraft.training.showCheckmark = false;
         });
@@ -103,29 +99,29 @@ export function handleTrainingCompletion(
       if (isPerfectGame) {
         draft.ui.toasts.push({
           id: Date.now().toString(),
-          message: "Perfektes Spiel! 🎉",
-          type: "success",
+          message: 'Perfektes Spiel! 🎉',
+          type: 'success',
           duration: 5000,
         });
       } else {
         draft.ui.toasts.push({
           id: Date.now().toString(),
           message: `Training abgeschlossen! Genauigkeit: ${accuracy.toFixed(0)}%`,
-          type: "success",
+          type: 'success',
           duration: 4000,
         });
       }
     } else {
       draft.ui.toasts.push({
         id: Date.now().toString(),
-        message: "Training nicht erfolgreich - versuche es erneut!",
-        type: "warning",
+        message: 'Training nicht erfolgreich - versuche es erneut!',
+        type: 'warning',
         duration: 4000,
       });
     }
 
     // Open completion modal
-    draft.ui.currentModal = "completion";
+    draft.ui.currentModal = 'completion';
     // Note: We'd need a separate way to pass completion data (success, accuracy, isPerfectGame)
     // For now, just showing the toast is enough to fix the immediate issue
   });

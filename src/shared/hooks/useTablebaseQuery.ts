@@ -3,7 +3,12 @@
  * @description Wraps TablebaseService with React Query for optimal caching and data fetching
  */
 
-import { useQuery, useQueryClient, type UseQueryOptions, type UseQueryResult } from '@tanstack/react-query';
+import {
+  useQuery,
+  useQueryClient,
+  type UseQueryOptions,
+  type UseQueryResult,
+} from '@tanstack/react-query';
 import { tablebaseService } from '@shared/services/TablebaseService';
 import type { TablebaseEvaluation, TablebaseMovesResult } from '@shared/services/TablebaseService';
 import { getLogger } from '@shared/services/logging';
@@ -42,18 +47,18 @@ export function useTablebaseEvaluation(
 
       logger.debug('Fetching tablebase evaluation', { fen });
       const result = await tablebaseService.getEvaluation(fen);
-      
+
       // Log result for debugging
       if (result.isAvailable) {
-        logger.debug('Tablebase evaluation success', { 
-          fen, 
+        logger.debug('Tablebase evaluation success', {
+          fen,
           category: result.result?.category,
-          wdl: result.result?.wdl
+          wdl: result.result?.wdl,
         });
       } else {
         logger.debug('Tablebase evaluation not available', { fen, error: result.error });
       }
-      
+
       return result;
     },
     enabled: Boolean(fen),
@@ -74,7 +79,7 @@ export function useTablebaseEvaluation(
 
 /**
  * Hook to get top moves from tablebase
- * @param fen - Position in FEN notation  
+ * @param fen - Position in FEN notation
  * @param limit - Maximum number of moves to return
  * @param options - React Query options
  * @returns Top moves with React Query state
@@ -93,18 +98,18 @@ export function useTablebaseTopMoves(
 
       logger.debug('Fetching tablebase top moves', { fen, limit });
       const result = await tablebaseService.getTopMoves(fen, limit);
-      
+
       // Log result for debugging
       if (result.isAvailable) {
-        logger.debug('Tablebase moves success', { 
-          fen, 
+        logger.debug('Tablebase moves success', {
+          fen,
           moveCount: result.moves?.length || 0,
-          topMove: result.moves?.[0]?.san
+          topMove: result.moves?.[0]?.san,
         });
       } else {
         logger.debug('Tablebase moves not available', { fen, error: result.error });
       }
-      
+
       return result;
     },
     enabled: Boolean(fen),
@@ -128,7 +133,7 @@ export function useTablebaseTopMoves(
  */
 export function usePrefetchTablebaseEvaluation() {
   const queryClient = useQueryClient();
-  
+
   return (fen: string) => {
     queryClient.prefetchQuery({
       queryKey: tablebaseKeys.evaluation(fen),
@@ -142,7 +147,15 @@ export function usePrefetchTablebaseEvaluation() {
  * Hook to get tablebase service metrics
  * @returns Service metrics
  */
-export function useTablebaseMetrics(): UseQueryResult<{ cacheHitRate: number; totalApiCalls: number; errorBreakdown: Record<string, number>; dedupedRequests: number }, Error> {
+export function useTablebaseMetrics(): UseQueryResult<
+  {
+    cacheHitRate: number;
+    totalApiCalls: number;
+    errorBreakdown: Record<string, number>;
+    dedupedRequests: number;
+  },
+  Error
+> {
   return useQuery({
     queryKey: [...tablebaseKeys.all, 'metrics'],
     queryFn: () => tablebaseService.getMetrics(),

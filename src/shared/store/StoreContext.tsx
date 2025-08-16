@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * @file SSR-safe Zustand store context provider
@@ -40,18 +40,12 @@
  * ```
  */
 
-import React, {
-  createContext,
-  useContext,
-  useRef,
-  useEffect,
-  type ReactNode,
-} from "react";
-import { useStore as useZustandStore } from "zustand";
-import { getLogger } from "@shared/services/logging";
-import { createStore } from "./createStore";
-import { browserTestApi } from "@shared/services/test/BrowserTestApi";
-import type { RootState } from "./slices/types";
+import React, { createContext, useContext, useRef, useEffect, type ReactNode } from 'react';
+import { useStore as useZustandStore } from 'zustand';
+import { getLogger } from '@shared/services/logging';
+import { createStore } from './createStore';
+import { browserTestApi } from '@shared/services/test/BrowserTestApi';
+import type { RootState } from './slices/types';
 
 /**
  * Store instance type for the context
@@ -105,11 +99,7 @@ interface StoreProviderProps {
  * </StoreProvider>
  * ```
  */
-export const StoreProvider: React.FC<StoreProviderProps> = ({
-  children,
-  initialState,
-  store,
-}) => {
+export const StoreProvider: React.FC<StoreProviderProps> = ({ children, initialState, store }) => {
   // Create store instance once per provider instance
   // This ensures fresh store per request on server, stable store on client
   const storeRef = useRef<StoreApi | undefined>(undefined);
@@ -117,13 +107,15 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({
   if (!storeRef.current) {
     // Use provided store (for testing) or create new one
     storeRef.current = store || createStore(initialState);
-    
+
     // Expose store globally for E2E tests (deterministic waiting)
     // Only in test environments to enable state-based waiting
-    if (typeof window !== 'undefined' && 
-        (process.env['NEXT_PUBLIC_IS_E2E_TEST'] === 'true' || 
-         process.env.NODE_ENV === 'test' ||
-         process.env.NODE_ENV === 'development')) {
+    if (
+      typeof window !== 'undefined' &&
+      (process.env['NEXT_PUBLIC_IS_E2E_TEST'] === 'true' ||
+        process.env.NODE_ENV === 'test' ||
+        process.env.NODE_ENV === 'development')
+    ) {
       (window as unknown as Record<string, unknown>)['__e2e_store'] = storeRef.current;
       (window as unknown as Record<string, unknown>)['__zustand_store'] = storeRef.current;
     }
@@ -131,19 +123,26 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({
 
   // Initialize BrowserTestApi for E2E tests (provides e2e_makeMove, e2e_getGameState)
   useEffect(() => {
-    if (typeof window !== 'undefined' && 
-        (process.env['NEXT_PUBLIC_IS_E2E_TEST'] === 'true' || 
-         process.env.NODE_ENV === 'test')) {
+    if (
+      typeof window !== 'undefined' &&
+      (process.env['NEXT_PUBLIC_IS_E2E_TEST'] === 'true' || process.env.NODE_ENV === 'test')
+    ) {
       // Get store state to access actions
       const state = storeRef.current?.getState();
-      
+
       // Create storeAccess object with required actions for TestApiService
       const storeAccess = {
         getState: () => storeRef.current?.getState() as RootState,
-        subscribe: (listener: (state: RootState, prevState: RootState) => void) => storeRef.current?.subscribe(listener) || (() => {}),
-        setState: (updater: RootState | Partial<RootState> | ((state: RootState) => RootState | Partial<RootState> | void)) => {
+        subscribe: (listener: (state: RootState, prevState: RootState) => void) =>
+          storeRef.current?.subscribe(listener) || (() => {}),
+        setState: (
+          updater:
+            | RootState
+            | Partial<RootState>
+            | ((state: RootState) => RootState | Partial<RootState> | void)
+        ) => {
           if (typeof updater === 'function') {
-            storeRef.current?.setState((currentState) => {
+            storeRef.current?.setState(currentState => {
               const result = updater(currentState);
               return result === undefined ? currentState : result;
             });
@@ -156,19 +155,19 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({
         makeMove: state?.handlePlayerMove || (() => Promise.resolve(false)),
         applyMove: state?.game?.applyMove || (() => null), // Test-only action for applying moves
         resetPosition: state?.reset || (() => {}),
-        setPosition: (() => {}), // Not directly available in new architecture
+        setPosition: () => {}, // Not directly available in new architecture
         goToMove: state?.game?.goToMove || (() => {}),
-        setAnalysisStatus: (() => {}), // Not directly available in new architecture
+        setAnalysisStatus: () => {}, // Not directly available in new architecture
       };
-      
+
       // Initialize BrowserTestApi which exposes e2e_makeMove to window
       try {
         browserTestApi.initialize(storeAccess);
       } catch (error) {
-        const logger = getLogger().setContext("StoreContext");
-        logger.error("Failed to initialize BrowserTestApi", {
+        const logger = getLogger().setContext('StoreContext');
+        logger.error('Failed to initialize BrowserTestApi', {
           error: error instanceof Error ? error.message : String(error),
-          stack: error instanceof Error ? error.stack : undefined
+          stack: error instanceof Error ? error.stack : undefined,
         });
       }
     }
@@ -185,11 +184,7 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({
     };
   }, []);
 
-  return (
-    <StoreContext.Provider value={storeRef.current}>
-      {children}
-    </StoreContext.Provider>
-  );
+  return <StoreContext.Provider value={storeRef.current}>{children}</StoreContext.Provider>;
 };
 
 /**
@@ -229,14 +224,14 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({
  * ```
  */
 export const useStore = <T = RootState,>(
-  selector?: (state: RootState) => T,
+  selector?: (state: RootState) => T
 ): T extends RootState ? RootState : T => {
   const store = useContext(StoreContext);
 
   if (!store) {
     throw new Error(
-      "useStore must be used within a StoreProvider. " +
-        "Make sure to wrap your app with <StoreProvider> in _app.tsx",
+      'useStore must be used within a StoreProvider. ' +
+        'Make sure to wrap your app with <StoreProvider> in _app.tsx'
     );
   }
 
@@ -282,8 +277,8 @@ export const useStoreApi = (): StoreApi => {
 
   if (!store) {
     throw new Error(
-      "useStoreApi must be used within a StoreProvider. " +
-        "Make sure to wrap your app with <StoreProvider> in _app.tsx",
+      'useStoreApi must be used within a StoreProvider. ' +
+        'Make sure to wrap your app with <StoreProvider> in _app.tsx'
     );
   }
 

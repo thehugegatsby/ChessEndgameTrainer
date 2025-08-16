@@ -1,10 +1,10 @@
 /**
  * Centralized Path Configuration - Single Source of Truth
- * 
+ *
  * 🤖 AI-NOTE: ALL config files must import paths from here
  * 🤖 AI-RULE: Never use relative paths (../) in config files
  * 🤖 AI-RULE: Always add new paths here first, then import in configs
- * 
+ *
  * PURPOSE: Absolute path constants for all configuration files
  * PATTERN: Pure constants only - no side effects, no logic
  */

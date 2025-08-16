@@ -6,30 +6,25 @@
  * Journey: Load position → Make moves → Reload → Verify state restored
  */
 
-import { test, expect } from "@playwright/test";
-import { getLogger } from "../../../shared/services/logging";
-import { E2E, RATING } from "../../../shared/constants";
-import { 
-  waitForPageReady,
-  waitForNetworkIdle
-} from "../helpers/deterministicWaiting";
+import { test, expect } from '@playwright/test';
+import { getLogger } from '../../../shared/services/logging';
+import { E2E, RATING } from '../../../shared/constants';
+import { waitForPageReady, waitForNetworkIdle } from '../helpers/deterministicWaiting';
 
-test.describe("State Persistence - Issue #23", () => {
-  const logger = getLogger().setContext("E2E-StatePersistence");
+test.describe('State Persistence - Issue #23', () => {
+  const logger = getLogger().setContext('E2E-StatePersistence');
 
   test.beforeEach(async () => {
     // Setup for each test
   });
 
-  test("should persist and restore game state after page reload", async ({
-    page,
-  }) => {
+  test('should persist and restore game state after page reload', async ({ page }) => {
     // 🏁 STEP 1: Navigate to homepage first (which works)
-    await page.goto("/");
+    await page.goto('/');
     await waitForPageReady(page);
 
     // Skip board validation for now - focus on state persistence test
-    logger.info("Page loaded, testing state persistence");
+    logger.info('Page loaded, testing state persistence');
 
     // 🎯 STEP 2: Test localStorage state persistence directly
     // Set test data in localStorage to simulate game state
@@ -37,7 +32,7 @@ test.describe("State Persistence - Issue #23", () => {
       user: {
         rating: E2E.DATA.USER.RATING,
         currentStreak: E2E.DATA.USER.STREAK,
-        preferences: { theme: "dark", showCoordinates: true },
+        preferences: { theme: 'dark', showCoordinates: true },
       },
       training: {
         moveHistory: E2E.DATA.MOVES,
@@ -46,13 +41,13 @@ test.describe("State Persistence - Issue #23", () => {
       progress: { completedPositions: E2E.DATA.COMPLETED_POSITIONS },
     };
 
-    await page.evaluate((state) => {
+    await page.evaluate(state => {
       localStorage.setItem(
-        "chess-trainer-storage",
+        'chess-trainer-storage',
         JSON.stringify({
           state,
           version: 0,
-        }),
+        })
       );
 
       // Note: Cannot use logger inside page.evaluate() browser context
@@ -63,7 +58,7 @@ test.describe("State Persistence - Issue #23", () => {
     await waitForNetworkIdle(page);
 
     // 🧪 STEP 4: Verify state was restored from localStorage
-    const restoredState = await page.evaluate((storageKey) => {
+    const restoredState = await page.evaluate(storageKey => {
       const stored = localStorage.getItem(storageKey);
       if (!stored) return null;
 
@@ -75,7 +70,7 @@ test.describe("State Persistence - Issue #23", () => {
       }
     }, E2E.DATA.STORAGE_KEY);
 
-    logger.info("State after reload", { restoredState });
+    logger.info('State after reload', { restoredState });
 
     // Assert critical state is preserved
     expect(restoredState).toBeTruthy();
@@ -88,24 +83,18 @@ test.describe("State Persistence - Issue #23", () => {
 
     // Check training state if present
     if (restoredState.training && restoredState.training.moveHistory) {
-      expect(restoredState.training.moveHistory).toHaveLength(
-        E2E.DATA.MOVES.length,
-      );
+      expect(restoredState.training.moveHistory).toHaveLength(E2E.DATA.MOVES.length);
     }
 
     // Check progress state if present
     if (restoredState.progress && restoredState.progress.completedPositions) {
-      expect(restoredState.progress.completedPositions).toEqual(
-        E2E.DATA.COMPLETED_POSITIONS,
-      );
+      expect(restoredState.progress.completedPositions).toEqual(E2E.DATA.COMPLETED_POSITIONS);
     }
 
     logger.info(E2E.MESSAGES.SUCCESS.STATE_PERSISTED);
   });
 
-  test.skip("should preserve position navigation state across reloads", async ({
-    page,
-  }) => {
+  test.skip('should preserve position navigation state across reloads', async ({ page }) => {
     // 🎯 STEP 1: Navigate to homepage (working route)
     await page.goto(E2E.ROUTES.HOME);
     await waitForPageReady(page);
@@ -129,14 +118,14 @@ test.describe("State Persistence - Issue #23", () => {
     });
   });
 
-  test("should handle localStorage corruption gracefully", async ({ page }) => {
+  test('should handle localStorage corruption gracefully', async ({ page }) => {
     // 🎯 STEP 1: Navigate to homepage and establish normal state
     await page.goto(E2E.ROUTES.HOME);
     await waitForPageReady(page);
 
     // 🧨 STEP 2: Corrupt localStorage
-    await page.evaluate((storageKey) => {
-      localStorage.setItem(storageKey, "invalid-json{");
+    await page.evaluate(storageKey => {
+      localStorage.setItem(storageKey, 'invalid-json{');
     }, E2E.DATA.STORAGE_KEY);
 
     // 🔄 STEP 3: Reload with corrupted data
@@ -146,11 +135,11 @@ test.describe("State Persistence - Issue #23", () => {
     // 🧪 STEP 4: Verify app handles corruption and doesn't crash
     // Should still load the page even with corrupted localStorage
     // Instead of checking title (which may be empty), check that page doesn't crash
-    const pageContent = await page.locator("body").isVisible();
+    const pageContent = await page.locator('body').isVisible();
     expect(pageContent).toBe(true);
 
     // Check that the page loads without errors
-    const hasError = await page.locator("text=/error/i").count();
+    const hasError = await page.locator('text=/error/i').count();
     expect(hasError).toBe(0);
 
     logger.info(E2E.MESSAGES.SUCCESS.CORRUPTION_HANDLED, {
@@ -159,7 +148,7 @@ test.describe("State Persistence - Issue #23", () => {
     });
   });
 
-  test("should preserve user preferences across sessions", async ({ page }) => {
+  test('should preserve user preferences across sessions', async ({ page }) => {
     // 🎯 STEP 1: Load homepage
     await page.goto(E2E.ROUTES.HOME);
     await waitForPageReady(page);
@@ -180,10 +169,10 @@ test.describe("State Persistence - Issue #23", () => {
           JSON.stringify({
             state,
             version: 0,
-          }),
+          })
         );
       },
-      { state: testState, storageKey: E2E.DATA.STORAGE_KEY },
+      { state: testState, storageKey: E2E.DATA.STORAGE_KEY }
     );
 
     // 🔄 STEP 3: Reload page
@@ -191,7 +180,7 @@ test.describe("State Persistence - Issue #23", () => {
     await waitForNetworkIdle(page);
 
     // 🧪 STEP 4: Verify preferences were restored
-    const restoredState = await page.evaluate((storageKey) => {
+    const restoredState = await page.evaluate(storageKey => {
       const stored = localStorage.getItem(storageKey);
       if (!stored) return null;
 
@@ -206,12 +195,12 @@ test.describe("State Persistence - Issue #23", () => {
     // Check preferences if present - be flexible with theme defaults
     if (restoredState?.user?.preferences) {
       // Theme might be dark by default, just check that it's a valid theme
-      expect(["light", "dark"]).toContain(restoredState.user.preferences.theme);
+      expect(['light', 'dark']).toContain(restoredState.user.preferences.theme);
       expect(restoredState.user.preferences.showCoordinates).toBe(
-        E2E.DATA.PREFERENCES.showCoordinates,
+        E2E.DATA.PREFERENCES.showCoordinates
       );
       expect(restoredState.user.preferences.animationSpeed).toBe(
-        E2E.DATA.PREFERENCES.animationSpeed,
+        E2E.DATA.PREFERENCES.animationSpeed
       );
     }
 

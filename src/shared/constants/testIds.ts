@@ -8,27 +8,27 @@
 
 export const TEST_IDS = {
   MOVE_PANEL: {
-    CONTAINER: "move-list", // Semantic name for the move list container
-    ITEM: "move-item",
-    EVALUATION: "move-evaluation",
-    EVAL_SCORE: "eval-score",
+    CONTAINER: 'move-list', // Semantic name for the move list container
+    ITEM: 'move-item',
+    EVALUATION: 'move-evaluation',
+    EVAL_SCORE: 'eval-score',
   },
   NAVIGATION: {
-    FIRST: "nav-first",
-    BACK: "nav-back",
-    FORWARD: "nav-forward",
-    LAST: "nav-last",
-    TRAINING_LINK: "training-link",
+    FIRST: 'nav-first',
+    BACK: 'nav-back',
+    FORWARD: 'nav-forward',
+    LAST: 'nav-last',
+    TRAINING_LINK: 'training-link',
   },
   CONTROLS: {
-    UNDO: "undo-button",
+    UNDO: 'undo-button',
   },
   CHESS: {
-    TRAINING_BOARD: "training-board",
-    CHESSBOARD: "chessboard",
+    TRAINING_BOARD: 'training-board',
+    CHESSBOARD: 'chessboard',
   },
   LESSONS: {
-    START_BUTTON: "lesson-start",
+    START_BUTTON: 'lesson-start',
   },
 } as const;
 

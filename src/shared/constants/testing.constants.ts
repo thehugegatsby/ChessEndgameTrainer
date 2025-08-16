@@ -1,7 +1,7 @@
 /**
  * @fileoverview Testing configuration and constants
  * @module constants/testing
- * 
+ *
  * @description
  * Centralized testing constants for unit tests, integration tests, and E2E tests.
  * Includes timeouts, viewport configurations, test data, and testing tool settings.
@@ -10,7 +10,7 @@
 
 /**
  * Common test timeouts
- * 
+ *
  * @description
  * Reusable timeout values for different test scenarios.
  * Use these instead of magic numbers for consistency.
@@ -21,43 +21,43 @@ export const TEST_TIMEOUTS = {
    * For synchronous or nearly instant operations
    */
   INSTANT: 100,
-  
+
   /**
    * Very short timeout (500ms)
    * For quick async operations
    */
   VERY_SHORT: 500,
-  
+
   /**
    * Short timeout (1 second)
    * For simple async operations
    */
   SHORT: 1000,
-  
+
   /**
    * Medium timeout (3 seconds)
    * For moderate async operations
    */
   MEDIUM: 3000,
-  
+
   /**
    * Long timeout (5 seconds)
    * For complex async operations
    */
   LONG: 5000,
-  
+
   /**
    * Very long timeout (10 seconds)
    * For API calls or heavy operations
    */
   VERY_LONG: 10000,
-  
+
   /**
    * Extended timeout (30 seconds)
    * For integration tests or E2E scenarios
    */
   EXTENDED: 30000,
-  
+
   /**
    * Maximum timeout (60 seconds)
    * For extremely long operations
@@ -67,7 +67,7 @@ export const TEST_TIMEOUTS = {
 
 /**
  * Test runner configuration
- * 
+ *
  * @description
  * Configuration for Vitest test runner including parallelization,
  * timeouts, and resource management.
@@ -81,28 +81,28 @@ export const TEST_RUNNER = {
      * Maximum number of parallel test forks
      */
     MAX_FORKS: 1,
-    
+
     /**
      * Minimum number of parallel test forks
      */
     MIN_FORKS: 1,
-    
+
     /**
      * Maximum number of worker threads
      */
     MAX_WORKERS: 1,
-    
+
     /**
      * Test timeout in milliseconds (5 seconds)
      */
     TIMEOUT: TEST_TIMEOUTS.LONG,
-    
+
     /**
      * Hook timeout in milliseconds
      */
     HOOK_TIMEOUT: TEST_TIMEOUTS.LONG,
   },
-  
+
   /**
    * Integration test configuration
    */
@@ -111,28 +111,28 @@ export const TEST_RUNNER = {
      * Maximum number of parallel test forks
      */
     MAX_FORKS: 4,
-    
+
     /**
      * Minimum number of parallel test forks
      */
     MIN_FORKS: 1,
-    
+
     /**
      * Test timeout in milliseconds (30 seconds)
      */
     TIMEOUT: TEST_TIMEOUTS.EXTENDED,
-    
+
     /**
      * Hook timeout in milliseconds
      */
     HOOK_TIMEOUT: TEST_TIMEOUTS.EXTENDED,
   },
-  
+
   /**
    * Default polling interval for async checks
    */
   POLL_INTERVAL: 50,
-  
+
   /**
    * Default API call timeout
    */
@@ -141,7 +141,7 @@ export const TEST_RUNNER = {
 
 /**
  * Playwright E2E test configuration
- * 
+ *
  * @description
  * Configuration for Playwright end-to-end tests including viewport sizes,
  * timeouts, and browser settings.
@@ -158,7 +158,7 @@ export const E2E_CONFIG = {
       WIDTH: 1280,
       HEIGHT: 720,
     },
-    
+
     /**
      * Tablet viewport
      */
@@ -166,7 +166,7 @@ export const E2E_CONFIG = {
       WIDTH: 1024,
       HEIGHT: 768,
     },
-    
+
     /**
      * Mobile viewport
      */
@@ -175,7 +175,7 @@ export const E2E_CONFIG = {
       HEIGHT: 667,
     },
   },
-  
+
   /**
    * Timeout configurations in milliseconds
    */
@@ -184,33 +184,33 @@ export const E2E_CONFIG = {
      * Default action timeout (10 seconds)
      */
     ACTION: 10000,
-    
+
     /**
      * Navigation timeout (30 seconds)
      */
     NAVIGATION: 30000,
-    
+
     /**
      * Test timeout (60 seconds)
      */
     TEST: 60000,
-    
+
     /**
      * Assertion timeout (5 seconds)
      */
     ASSERTION: 5000,
-    
+
     /**
      * Extended action timeout for CI (15 seconds)
      */
     ACTION_CI: 15000,
-    
+
     /**
      * Extended navigation timeout for CI (45 seconds)
      */
     NAVIGATION_CI: 45000,
   },
-  
+
   /**
    * Screenshot comparison configuration
    */
@@ -219,13 +219,13 @@ export const E2E_CONFIG = {
      * Maximum allowed pixel difference
      */
     MAX_DIFF_PIXELS: 100,
-    
+
     /**
      * Pixel difference threshold (0-1)
      */
     THRESHOLD: 0.2,
   },
-  
+
   /**
    * Retry configuration
    */
@@ -234,13 +234,13 @@ export const E2E_CONFIG = {
      * Number of retries in CI environment
      */
     CI: 2,
-    
+
     /**
      * Number of retries in local environment
      */
     LOCAL: 0,
   },
-  
+
   /**
    * Worker configuration
    */
@@ -249,7 +249,7 @@ export const E2E_CONFIG = {
      * Number of workers in CI environment
      */
     CI: 4,
-    
+
     /**
      * Number of workers in local environment (undefined = auto)
      */
@@ -259,7 +259,7 @@ export const E2E_CONFIG = {
 
 /**
  * Test data and fixtures
- * 
+ *
  * @description
  * Common test data used across different test suites.
  */
@@ -276,7 +276,7 @@ export const TEST_DATA = {
       DESCRIPTION: 'King and Pawn vs King',
       TARGET_MOVES: 3,
     },
-    
+
     /**
      * Rook and King vs King endgame
      */
@@ -285,7 +285,7 @@ export const TEST_DATA = {
       DESCRIPTION: 'Rook and King vs King',
       TARGET_MOVES: 3,
     },
-    
+
     /**
      * Pawn race endgame
      */
@@ -295,7 +295,7 @@ export const TEST_DATA = {
       TARGET_MOVES: 5,
     },
   },
-  
+
   /**
    * Test user data
    */
@@ -304,18 +304,18 @@ export const TEST_DATA = {
      * Default test user rating
      */
     RATING: 1500,
-    
+
     /**
      * Test user streak count
      */
     STREAK: 5,
-    
+
     /**
      * Test user ID
      */
     ID: 'test-user-123',
   },
-  
+
   /**
    * Test moves for move validation
    */
@@ -327,7 +327,7 @@ export const TEST_DATA = {
       { from: 'e2', to: 'e4', san: 'e4' },
       { from: 'e7', to: 'e5', san: 'e5' },
     ],
-    
+
     /**
      * Invalid move example
      */
@@ -337,7 +337,7 @@ export const TEST_DATA = {
 
 /**
  * Firebase emulator ports
- * 
+ *
  * @description
  * Port configuration for Firebase emulators used in testing.
  */
@@ -346,17 +346,17 @@ export const FIREBASE_EMULATOR_PORTS = {
    * Authentication emulator port
    */
   AUTH: 9099,
-  
+
   /**
    * Firestore emulator port
    */
   FIRESTORE: 8080,
-  
+
   /**
    * Storage emulator port
    */
   STORAGE: 9199,
-  
+
   /**
    * Emulator host
    */
@@ -365,7 +365,7 @@ export const FIREBASE_EMULATOR_PORTS = {
 
 /**
  * Mock service delays
- * 
+ *
  * @description
  * Artificial delays for mock services to simulate real-world conditions.
  */
@@ -374,22 +374,22 @@ export const MOCK_DELAYS = {
    * Minimal delay for instant responses (10ms)
    */
   INSTANT: 10,
-  
+
   /**
    * Fast response delay (100ms)
    */
   FAST: 100,
-  
+
   /**
    * Normal response delay (500ms)
    */
   NORMAL: 500,
-  
+
   /**
    * Slow response delay (1500ms)
    */
   SLOW: 1500,
-  
+
   /**
    * Timeout simulation delay (5000ms)
    */
@@ -398,7 +398,7 @@ export const MOCK_DELAYS = {
 
 /**
  * Test environment variables
- * 
+ *
  * @description
  * Environment-specific configuration for testing.
  */
@@ -407,17 +407,17 @@ export const TEST_ENV = {
    * Check if running in CI environment
    */
   IS_CI: process.env['CI'] === 'true',
-  
+
   /**
    * Check if running in GitHub Actions
    */
   IS_GITHUB_ACTIONS: process.env['GITHUB_ACTIONS'] === 'true',
-  
+
   /**
    * Check if running in debug mode
    */
   DEBUG: process.env['DEBUG'] === 'true',
-  
+
   /**
    * Test environment name
    */

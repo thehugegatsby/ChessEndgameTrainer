@@ -18,7 +18,7 @@ The server is already configured in `.mcp.json`:
 ```json
 {
   "claude-context": {
-    "command": "npx", 
+    "command": "npx",
     "args": ["-y", "@zilliz/claude-context-mcp@latest"]
   }
 }
@@ -51,6 +51,7 @@ Parameters:
 ```
 
 **Splitter Options:**
+
 - `ast`: Syntax-aware splitting with automatic fallback (recommended)
 - `langchain`: Character-based splitting for general text
 
@@ -80,30 +81,35 @@ Parameters:
 ## Common Use Cases
 
 ### Finding Implementations
+
 ```
 Query: "user authentication logic"
 Returns: Auth services, middleware, login components
 ```
 
 ### Understanding Architecture
+
 ```
 Query: "state management store configuration"
 Returns: Store setup, reducers, state interfaces
 ```
 
 ### Locating Bug-Prone Areas
+
 ```
 Query: "error handling try catch"
 Returns: All error handling patterns in codebase
 ```
 
 ### Discovering Similar Code
+
 ```
 Query: "dialog modal component"
 Returns: All dialog/modal implementations
 ```
 
 ### Refactoring Assistance
+
 ```
 Query: "database connection setup"
 Returns: All DB configuration and connection code
@@ -112,16 +118,19 @@ Returns: All DB configuration and connection code
 ## Best Practices
 
 ### 1. Index Management
+
 - Index once at project start
 - Re-index after major structural changes
 - Use `force: true` only when necessary
 
 ### 2. Query Optimization
+
 - Use descriptive natural language
 - Include technical terms when specific
 - Combine concepts for better results
 
 ### 3. Filter Usage
+
 - Use `extensionFilter` to narrow results
 - Adjust `limit` based on needs (default 10)
 - Higher limits for exploration, lower for specific searches
@@ -156,16 +165,19 @@ The EndgameTrainer codebase benefits from semantic search for:
 ## Troubleshooting
 
 ### Index Not Found
+
 - Ensure absolute paths are used
 - Check if indexing completed successfully
 - Verify no permission issues
 
 ### No Results
+
 - Try broader search terms
 - Check if files are excluded by ignore patterns
 - Verify file extensions are included
 
 ### Slow Performance
+
 - Consider reducing search limit
 - Re-index with optimized splitter
 - Check system resources
@@ -180,6 +192,7 @@ The EndgameTrainer codebase benefits from semantic search for:
 ## Configuration Examples
 
 ### Standard Web Project
+
 ```json
 {
   "path": "/home/user/project",
@@ -190,6 +203,7 @@ The EndgameTrainer codebase benefits from semantic search for:
 ```
 
 ### Documentation-Heavy Project
+
 ```json
 {
   "path": "/home/user/docs-project",
@@ -200,6 +214,7 @@ The EndgameTrainer codebase benefits from semantic search for:
 ```
 
 ### Monorepo Setup
+
 ```json
 {
   "path": "/home/user/monorepo/packages/core",

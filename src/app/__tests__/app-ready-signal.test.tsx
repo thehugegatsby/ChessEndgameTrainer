@@ -4,12 +4,12 @@ import { describe, expect, beforeEach, afterEach, vi } from 'vitest';
  * @description Tests that the app-ready attribute is correctly set based on pathname and engine status
  */
 
-import React from "react";
-import { render, waitFor } from "@testing-library/react";
-import { usePathname } from "next/navigation";
+import React from 'react';
+import { render, waitFor } from '@testing-library/react';
+import { usePathname } from 'next/navigation';
 
 // Mock Next.js navigation
-vi.mock("next/navigation", () => ({
+vi.mock('next/navigation', () => ({
   usePathname: vi.fn(),
   useRouter: vi.fn(() => ({
     push: vi.fn(),
@@ -22,22 +22,22 @@ vi.mock("next/navigation", () => ({
 }));
 
 // Mock the StoreContext to provide useStore
-vi.mock("@shared/store/StoreContext", () => ({
+vi.mock('@shared/store/StoreContext', () => ({
   useStore: vi.fn(),
   StoreProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 // Mock hydration hook
-vi.mock("@shared/hooks/useHydration", () => ({
+vi.mock('@shared/hooks/useHydration', () => ({
   useStoreHydration: vi.fn().mockReturnValue(true),
 }));
 
-import { useStore } from "@shared/store/StoreContext";
+import { useStore } from '@shared/store/StoreContext';
 
 // Import component after mocks are set up
-import { AppProviders } from "../providers";
+import { AppProviders } from '../providers';
 
-describe("App Ready Signal (App Router)", () => {
+describe('App Ready Signal (App Router)', () => {
   const mockUsePathname = usePathname as ReturnType<typeof vi.fn>;
 
   // Helper function to create a mock state with all required properties
@@ -47,7 +47,7 @@ describe("App Ready Signal (App Router)", () => {
     },
     game: {
       resetGame: vi.fn(),
-      currentFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      currentFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
     },
     progress: {
       resetProgress: vi.fn(),
@@ -56,215 +56,215 @@ describe("App Ready Signal (App Router)", () => {
 
   beforeEach(() => {
     // Setup pathname mock
-    mockUsePathname.mockReturnValue("/");
+    mockUsePathname.mockReturnValue('/');
 
     // Default store mock - analysisStatus is now nested in tablebase slice
-    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-      const state = createMockState("loading");
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation(selector => {
+      const state = createMockState('loading');
       return selector ? selector(state) : state;
     });
 
     // Clear body attributes
-    document.body.removeAttribute("data-app-ready");
+    document.body.removeAttribute('data-app-ready');
   });
 
   afterEach(() => {
     vi.clearAllMocks();
   });
 
-  test("should set data-app-ready to true when engine is initializing on non-training page", async () => {
-    mockUsePathname.mockReturnValue("/");
-    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-      const state = createMockState("loading");
+  test('should set data-app-ready to true when engine is initializing on non-training page', async () => {
+    mockUsePathname.mockReturnValue('/');
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation(selector => {
+      const state = createMockState('loading');
       return selector ? selector(state) : state;
     });
 
     render(
       <AppProviders>
         <div>Test Page</div>
-      </AppProviders>,
+      </AppProviders>
     );
 
     await waitFor(() => {
-      expect(document.body.getAttribute("data-app-ready")).toBe("true");
+      expect(document.body.getAttribute('data-app-ready')).toBe('true');
     });
   });
 
-  test("should set data-app-ready to false when engine is initializing on training page", async () => {
-    mockUsePathname.mockReturnValue("/train/1");
-    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-      const state = createMockState("loading");
+  test('should set data-app-ready to false when engine is initializing on training page', async () => {
+    mockUsePathname.mockReturnValue('/train/1');
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation(selector => {
+      const state = createMockState('loading');
       return selector ? selector(state) : state;
     });
 
     render(
       <AppProviders>
         <div>Test Page</div>
-      </AppProviders>,
+      </AppProviders>
     );
 
     await waitFor(() => {
-      expect(document.body.getAttribute("data-app-ready")).toBe("false");
+      expect(document.body.getAttribute('data-app-ready')).toBe('false');
     });
   });
 
-  test("should set data-app-ready to true when engine is ready on non-training page", async () => {
-    mockUsePathname.mockReturnValue("/");
-    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-      const state = createMockState("idle");
+  test('should set data-app-ready to true when engine is ready on non-training page', async () => {
+    mockUsePathname.mockReturnValue('/');
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation(selector => {
+      const state = createMockState('idle');
       return selector ? selector(state) : state;
     });
 
     render(
       <AppProviders>
         <div>Test Page</div>
-      </AppProviders>,
+      </AppProviders>
     );
 
     await waitFor(() => {
-      expect(document.body.getAttribute("data-app-ready")).toBe("true");
+      expect(document.body.getAttribute('data-app-ready')).toBe('true');
     });
   });
 
-  test("should set data-app-ready to true when engine is ready on training page", async () => {
-    mockUsePathname.mockReturnValue("/train/1");
-    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-      const state = createMockState("idle");
+  test('should set data-app-ready to true when engine is ready on training page', async () => {
+    mockUsePathname.mockReturnValue('/train/1');
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation(selector => {
+      const state = createMockState('idle');
       return selector ? selector(state) : state;
     });
 
     render(
       <AppProviders>
         <div>Test Page</div>
-      </AppProviders>,
+      </AppProviders>
     );
 
     await waitFor(() => {
-      expect(document.body.getAttribute("data-app-ready")).toBe("true");
+      expect(document.body.getAttribute('data-app-ready')).toBe('true');
     });
   });
 
-  test("should set data-app-ready to error when engine has error", async () => {
-    mockUsePathname.mockReturnValue("/train/1");
-    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-      const state = createMockState("error");
+  test('should set data-app-ready to error when engine has error', async () => {
+    mockUsePathname.mockReturnValue('/train/1');
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation(selector => {
+      const state = createMockState('error');
       return selector ? selector(state) : state;
     });
 
     render(
       <AppProviders>
         <div>Test Page</div>
-      </AppProviders>,
+      </AppProviders>
     );
 
     await waitFor(() => {
-      expect(document.body.getAttribute("data-app-ready")).toBe("error");
+      expect(document.body.getAttribute('data-app-ready')).toBe('error');
     });
   });
 
-  test("should set data-app-ready to error when engine has error on non-training page", async () => {
-    mockUsePathname.mockReturnValue("/");
-    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-      const state = createMockState("error");
+  test('should set data-app-ready to error when engine has error on non-training page', async () => {
+    mockUsePathname.mockReturnValue('/');
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation(selector => {
+      const state = createMockState('error');
       return selector ? selector(state) : state;
     });
 
     render(
       <AppProviders>
         <div>Test Page</div>
-      </AppProviders>,
+      </AppProviders>
     );
 
     await waitFor(() => {
-      expect(document.body.getAttribute("data-app-ready")).toBe("error");
+      expect(document.body.getAttribute('data-app-ready')).toBe('error');
     });
   });
 
-  test("should update data-app-ready when pathname changes", async () => {
+  test('should update data-app-ready when pathname changes', async () => {
     // Start on home page
-    mockUsePathname.mockReturnValue("/");
-    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-      const state = createMockState("idle");
+    mockUsePathname.mockReturnValue('/');
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation(selector => {
+      const state = createMockState('idle');
       return selector ? selector(state) : state;
     });
 
     const { rerender } = render(
       <AppProviders>
         <div>Test Page</div>
-      </AppProviders>,
+      </AppProviders>
     );
 
     await waitFor(() => {
-      expect(document.body.getAttribute("data-app-ready")).toBe("true");
+      expect(document.body.getAttribute('data-app-ready')).toBe('true');
     });
 
     // Change to training page with initializing engine
-    mockUsePathname.mockReturnValue("/train/1");
-    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-      const state = createMockState("loading");
+    mockUsePathname.mockReturnValue('/train/1');
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation(selector => {
+      const state = createMockState('loading');
       return selector ? selector(state) : state;
     });
 
     rerender(
       <AppProviders>
         <div>Test Page</div>
-      </AppProviders>,
+      </AppProviders>
     );
 
     await waitFor(() => {
-      expect(document.body.getAttribute("data-app-ready")).toBe("false");
+      expect(document.body.getAttribute('data-app-ready')).toBe('false');
     });
   });
 
-  test("should update data-app-ready when engine status changes", async () => {
-    mockUsePathname.mockReturnValue("/train/1");
-    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-      const state = createMockState("loading");
+  test('should update data-app-ready when engine status changes', async () => {
+    mockUsePathname.mockReturnValue('/train/1');
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation(selector => {
+      const state = createMockState('loading');
       return selector ? selector(state) : state;
     });
 
     const { rerender } = render(
       <AppProviders>
         <div>Test Page</div>
-      </AppProviders>,
+      </AppProviders>
     );
 
     await waitFor(() => {
-      expect(document.body.getAttribute("data-app-ready")).toBe("false");
+      expect(document.body.getAttribute('data-app-ready')).toBe('false');
     });
 
     // Engine becomes ready
-    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-      const state = createMockState("idle");
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation(selector => {
+      const state = createMockState('idle');
       return selector ? selector(state) : state;
     });
 
     rerender(
       <AppProviders>
         <div>Test Page</div>
-      </AppProviders>,
+      </AppProviders>
     );
 
     await waitFor(() => {
-      expect(document.body.getAttribute("data-app-ready")).toBe("true");
+      expect(document.body.getAttribute('data-app-ready')).toBe('true');
     });
   });
 
-  test("should handle null pathname gracefully", async () => {
+  test('should handle null pathname gracefully', async () => {
     mockUsePathname.mockReturnValue(null);
-    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
-      const state = createMockState("idle");
+    (useStore as unknown as ReturnType<typeof vi.fn>).mockImplementation(selector => {
+      const state = createMockState('idle');
       return selector ? selector(state) : state;
     });
 
     render(
       <AppProviders>
         <div>Test Page</div>
-      </AppProviders>,
+      </AppProviders>
     );
 
     await waitFor(() => {
-      expect(document.body.getAttribute("data-app-ready")).toBe("false");
+      expect(document.body.getAttribute('data-app-ready')).toBe('false');
     });
   });
 });

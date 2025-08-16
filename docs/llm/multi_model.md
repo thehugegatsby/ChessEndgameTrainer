@@ -14,14 +14,16 @@ You are working on a **Chess Endgame Trainer** - a modern web application for le
 **CRITICAL**: This runs in **WSL2** environment with specific command constraints.
 
 ### Quick Commands
+
 ```bash
 pnpm run dev              # Start development (port 3002)
-pnpm test:chess           # Test chess-core feature  
+pnpm test:chess           # Test chess-core feature
 pnpm run lint && pnpm tsc # Validate code
 pnpm run build            # Production build
 ```
 
 ### Architecture at a Glance
+
 - **State**: Zustand with 7 domain slices (Game, Training, Tablebase, UI, etc.)
 - **Testing**: Vitest v3 (245 tests passing, Jest removed)
 - **Features**: 4 bounded domains (chess-core, tablebase, training, move-quality)
@@ -32,6 +34,7 @@ pnpm run build            # Production build
 ## 🚨 WSL2 CRITICAL CONSTRAINTS
 
 **These commands WILL CRASH in WSL2:**
+
 ```bash
 ❌ pnpm test -- --run file.tsx    # Never use '--' with pnpm
 ❌ npm run build | grep error      # Pipes cause crashes
@@ -39,6 +42,7 @@ pnpm run build            # Production build
 ```
 
 **Use these instead:**
+
 ```bash
 ✅ pnpm test file.tsx             # Direct file paths
 ✅ pnpm run build && echo "done"  # Use && not pipes
@@ -89,7 +93,7 @@ EndgameTrainer/
 rootStore.ts combines:
 ├── GameSlice       # Chess position, move history, FEN state
 ├── TrainingSlice   # Training mode, sessions, progress
-├── TablebaseSlice  # Lichess API cache, evaluations  
+├── TablebaseSlice  # Lichess API cache, evaluations
 ├── UISlice         # Modals, toasts, loading states
 ├── ProgressSlice   # User advancement tracking
 ├── SettingsSlice   # App configuration
@@ -97,44 +101,52 @@ rootStore.ts combines:
 ```
 
 ### Usage Patterns
+
 ```typescript
 // ✅ Correct: Use specific hooks
-const { makeMove } = useGameActions();     // Actions only
-const { position } = useGameState();       // State only
+const { makeMove } = useGameActions(); // Actions only
+const { position } = useGameState(); // State only
 
 // ✅ Correct: Zustand with Immer
-makeMove: (move) => set((state) => {
-  state.game.moveHistory.push(move);       // Direct mutation via Immer
-})
+makeMove: move =>
+  set(state => {
+    state.game.moveHistory.push(move); // Direct mutation via Immer
+  });
 
 // ❌ Avoid: Direct store access
-const store = useGameStore();              // Too broad, causes re-renders
+const store = useGameStore(); // Too broad, causes re-renders
 ```
 
 ### Orchestrators Pattern
+
 Complex cross-slice operations in `/shared/store/orchestrators/`:
 
-**handlePlayerMove** (533 lines) - Main move processing:
-1. **Validation** → GameSlice validates move legality
-2. **State Update** → GameSlice updates position + history  
-3. **Progress** → TrainingSlice tracks advancement
-4. **Feedback** → UISlice shows move quality
-5. **Analysis** → TablebaseSlice fetches evaluation
+**handlePlayerMove** (964 lines, 4 modules) - Sophisticated chess training:
+
+1. **Validation** → MoveValidator checks legality
+2. **Quality Analysis** → MoveQualityEvaluator compares vs tablebase
+3. **Promotion Logic** → PawnPromotionHandler detects auto-wins
+4. **Dialog Management** → EventBasedMoveDialogManager shows feedback
+5. **Opponent Simulation** → OpponentTurnHandler schedules turns
+
+_Multi-model analysis confirmed: NOT over-engineered, domain-appropriate complexity_
 
 ---
 
 ## 🧪 TESTING STRATEGY
 
 ### Vitest v3 Migration (COMPLETE)
+
 - **Status**: All 245 tests passing ✅
 - **Framework**: Vitest only (Jest completely removed)
 - **Structure**: Feature-based with project separation
 
 ### Test Commands
+
 ```bash
 # Feature-specific testing (RECOMMENDED)
 pnpm test:chess           # chess-core domain only
-pnpm test:tablebase       # tablebase domain only  
+pnpm test:tablebase       # tablebase domain only
 pnpm test:training        # training domain only
 pnpm test:shared          # shared utilities
 
@@ -145,12 +157,14 @@ pnpm test:watch           # Watch mode for development
 ```
 
 ### WSL2 Optimizations (Auto-Applied)
+
 - **Pool**: `forks` instead of `threads` (prevents pipe issues)
 - **Workers**: Limited to 2 (prevents memory issues)
 - **Parallelism**: `fileParallelism: false` (stability)
 - **Detection**: Automatic via `WSL_DISTRO_NAME` environment variable
 
 ### Test Structure
+
 ```
 Testing Architecture:
 ├── src/features/*/         # Unit tests (co-located with source)
@@ -164,6 +178,7 @@ Testing Architecture:
 ## 🔧 SERVICES & BUSINESS LOGIC
 
 ### Core Services
+
 ```typescript
 // TablebaseService - Primary evaluation source
 class TablebaseService {
@@ -187,10 +202,11 @@ class AnalysisService {
 ```
 
 ### German UI Language
+
 ```typescript
 // ✅ Correct: German error messages
-showToast("Ungültiger Zug", "error");
-showErrorMessage("Fehler beim Laden der Position");
+showToast('Ungültiger Zug', 'error');
+showErrorMessage('Fehler beim Laden der Position');
 
 // ✅ Correct: German piece notation
 const promotion = { D: 'q', T: 'r', L: 'b', S: 'n' }; // Dame, Turm, Läufer, Springer
@@ -201,11 +217,13 @@ const promotion = { D: 'q', T: 'r', L: 'b', S: 'n' }; // Dame, Turm, Läufer, Sp
 ## 📋 CODE STANDARDS
 
 ### TypeScript Rules
+
 - **Strict**: Zero `any` types allowed
 - **Branded Types**: `ValidatedMove`, `ValidatedFEN` for type safety
 - **Path Mapping**: Use `@shared/`, `@features/`, `@tests/` aliases
 
 ### Component Patterns
+
 ```typescript
 // ✅ Container/Presentation separation
 function BoardContainer() {
@@ -219,6 +237,7 @@ function BoardPresentation({ fen, onMove }: Props) {
 ```
 
 ### File Naming
+
 - **Components**: `PascalCase.tsx`
 - **Hooks**: `useCamelCase.ts`
 - **Services**: `PascalCaseService.ts`
@@ -226,6 +245,7 @@ function BoardPresentation({ fen, onMove }: Props) {
 - **Integration**: `Feature.spec.ts`
 
 ### Import Order
+
 ```typescript
 // 1. External libraries
 import React from 'react';
@@ -244,20 +264,23 @@ import type { Move, Position } from '@shared/types/chess';
 ## 🛠️ DEVELOPMENT WORKFLOW
 
 ### Quality Gates (Run Before Commit)
+
 ```bash
 pnpm run lint       # ESLint (only 1 warning - non-critical)
 pnpm tsc           # TypeScript check (0 errors ✅)
-pnpm test          # All tests (245 passing ✅) 
+pnpm test          # All tests (245 passing ✅)
 pnpm run build     # Production build (succeeds in 7s ✅)
 ```
 
 ### Documentation Loading Strategy
+
 1. **ALWAYS FIRST**: Load `docs/CORE.md` (architecture overview)
 2. **For Testing**: Load `docs/guides/testing.md`
 3. **For Tools**: Load `docs/tooling/mcp-matrix.md`
 4. **For WSL Issues**: Load `docs/guides/wsl2.md`
 
 ### Git Workflow
+
 - **Main Branch**: `main` (clean status)
 - **Recent Commits**: Vitest v3 migration, test fixes, TypeScript cleanup
 - **No Engine**: Stockfish completely removed (tablebase-only architecture)
@@ -267,29 +290,37 @@ pnpm run build     # Production build (succeeds in 7s ✅)
 ## 🎯 FEATURE DOMAINS
 
 ### 1. chess-core/
+
 **Purpose**: Core chess logic, move validation, German notation  
-**Key Files**: 
+**Key Files**:
+
 - `ChessEngine.ts` - Game state management
-- `MoveValidator.ts` - Move legality checking  
+- `MoveValidator.ts` - Move legality checking
 - `GermanNotation.ts` - German piece notation (D/T/L/S)
 
 ### 2. tablebase/
+
 **Purpose**: Lichess API integration, perfect endgame analysis  
 **Key Files**:
+
 - `TablebaseService.ts` - API client with caching
 - `TablebaseCache.ts` - LRU cache implementation
 - `TablebaseTypes.ts` - Evaluation interfaces
 
 ### 3. training/
+
 **Purpose**: Training sessions, progress tracking, spaced repetition  
 **Key Files**:
+
 - `TrainingManager.ts` - Session orchestration
 - `ProgressTracker.ts` - User advancement
 - `SpacedRepetition.ts` - FSRS algorithm implementation
 
 ### 4. move-quality/
+
 **Purpose**: Move evaluation, hint system, quality assessment  
 **Key Files**:
+
 - `MoveEvaluator.ts` - Position evaluation
 - `HintGenerator.ts` - Training hints
 - `QualityMeter.ts` - Move quality assessment
@@ -301,15 +332,17 @@ pnpm run build     # Production build (succeeds in 7s ✅)
 ### Common Issues
 
 **1. WSL Command Failures**
+
 ```bash
 # ❌ This fails in WSL2
 pnpm test -- src/features/chess-core/
 
-# ✅ Use this instead  
+# ✅ Use this instead
 pnpm test src/features/chess-core/
 ```
 
 **2. Test Import Errors**
+
 ```typescript
 // ❌ Path not resolved
 import { GameStore } from '../../../store/gameSlice';
@@ -319,6 +352,7 @@ import { GameStore } from '@shared/store/gameSlice';
 ```
 
 **3. TypeScript Compilation Errors**
+
 ```bash
 # Check for any type errors
 pnpm tsc --noEmit
@@ -327,6 +361,7 @@ pnpm tsc --noEmit
 ```
 
 ### Performance Optimization
+
 - **Bundle Size**: <300KB per route
 - **API Calls**: 75% reduction via caching
 - **Re-renders**: Minimized via specific Zustand selectors
@@ -337,19 +372,22 @@ pnpm tsc --noEmit
 ## 📊 PROJECT STATUS
 
 ### ✅ COMPLETED (Phase 8 - August 2025)
+
 - **Store Refactoring**: Monolithic → 7 domain slices
-- **Vitest Migration**: Complete (245 tests passing)  
+- **Vitest Migration**: Complete (245 tests passing)
 - **TypeScript Health**: 0 compilation errors
 - **Performance**: LRU cache, API optimization
 - **Security**: FEN sanitization, input validation
 
 ### 🎯 CURRENT STATE: Ready for Development
+
 - **Architecture**: Stable domain-driven design
 - **Testing**: Comprehensive coverage with Vitest v3
 - **Documentation**: Complete for AI assistants
 - **Quality**: All gates passing
 
 ### 🚀 NEXT PHASE: Feature Development
+
 Ready for new features on solid architectural foundation.
 
 ---
@@ -359,25 +397,28 @@ Ready for new features on solid architectural foundation.
 ### For Gemini Pro / GPT-5 / O3 / O4-Mini
 
 **Before Starting Any Task:**
+
 1. Load `docs/CORE.md` for architecture context
-2. Check WSL2 constraints (no pipes, no `--` with pnpm)  
+2. Check WSL2 constraints (no pipes, no `--` with pnpm)
 3. Use feature-specific test commands
 4. Follow Zustand slice patterns
 5. Maintain German UI text for errors
 
 **Code Patterns to Follow:**
+
 ```typescript
 // ✅ Zustand actions with Immer
-const useGameActions = () => useGameStore(state => ({
-  makeMove: state.makeMove,
-  resetGame: state.resetGame,
-}));
+const useGameActions = () =>
+  useGameStore(state => ({
+    makeMove: state.makeMove,
+    resetGame: state.resetGame,
+  }));
 
 // ✅ Error handling with German text
 try {
   await makeMove(move);
 } catch (error) {
-  showToast("Ungültiger Zug", "error");
+  showToast('Ungültiger Zug', 'error');
 }
 
 // ✅ Testing with proper imports
@@ -386,6 +427,7 @@ import { useGameStore } from '@shared/store/hooks';
 ```
 
 **Anti-Patterns to Avoid:**
+
 - Using `any` types (use proper TypeScript)
 - Accessing store directly (use hooks)
 - Hardcoding FENs (use TestFixtures)
@@ -393,12 +435,14 @@ import { useGameStore } from '@shared/store/hooks';
 - Using pipes in WSL commands
 
 ### Context Refresh Commands
+
 When you need updated context, use these commands:
+
 ```bash
 # Get current git status
 git status
 
-# Check test health  
+# Check test health
 pnpm test:chess
 
 # Validate TypeScript

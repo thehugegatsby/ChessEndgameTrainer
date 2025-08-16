@@ -1,6 +1,6 @@
 /**
  * ChessService Mock Factory
- * 
+ *
  * Creates type-safe mocks for ChessService with sensible defaults.
  * Handles both unit tests (fully mocked) and integration tests (partial mocks).
  */
@@ -8,7 +8,7 @@
 // @ts-nocheck - Test infrastructure with complex mock typing
 
 import { vi } from 'vitest';
-import type { Move } from "chess.js";
+import type { Move } from 'chess.js';
 import { BaseMockFactory } from './BaseMockFactory';
 import type { ChessService } from '@shared/services/ChessService';
 import type { ValidatedMove, ChessEvent } from '@shared/types/index';
@@ -24,17 +24,20 @@ export interface ChessServiceMockOverrides {
   fen?: string;
   pgn?: string;
   moveHistory?: ValidatedMove[];
-  
+
   // Behaviors
   validMoves?: string[];
   moveResults?: Map<string, ValidatedMove | null>;
   isGameOver?: boolean;
-  
+
   // Method overrides
   methods?: Partial<MockedChessService>;
 }
 
-export class ChessServiceMockFactory extends BaseMockFactory<ChessService, ChessServiceMockOverrides> {
+export class ChessServiceMockFactory extends BaseMockFactory<
+  ChessService,
+  ChessServiceMockOverrides
+> {
   private listeners: Set<ChessListener> = new Set();
   private currentFen: string = COMMON_FENS.STARTING_POSITION;
   private moveHistory: ValidatedMove[] = [];
@@ -61,7 +64,7 @@ export class ChessServiceMockFactory extends BaseMockFactory<ChessService, Chess
       getMoveHistory: vi.fn().mockImplementation(() => [...this.moveHistory]),
       getCurrentMoveIndex: vi.fn().mockImplementation(() => this.moveHistory.length - 1),
       turn: vi.fn().mockReturnValue('w'),
-      
+
       // Game status
       isGameOver: vi.fn().mockReturnValue(false),
       isCheckmate: vi.fn().mockReturnValue(false),
@@ -70,14 +73,14 @@ export class ChessServiceMockFactory extends BaseMockFactory<ChessService, Chess
       isInsufficientMaterial: vi.fn().mockReturnValue(false),
       isThreefoldRepetition: vi.fn().mockReturnValue(false),
       isCheck: vi.fn().mockReturnValue(false),
-      
+
       getGameResult: vi.fn().mockReturnValue(null),
 
       // Move operations
-      move: vi.fn().mockImplementation((move) => {
+      move: vi.fn().mockImplementation(move => {
         // Handle different input formats dynamically
         let from: string, to: string, san: string;
-        
+
         if (typeof move === 'string') {
           // Handle algebraic notation (e.g., "e4", "Nf3")
           san = move;
@@ -104,7 +107,7 @@ export class ChessServiceMockFactory extends BaseMockFactory<ChessService, Chess
           // Fallback for invalid input
           return null;
         }
-        
+
         // Create a chess.js compatible move object
         const chessJsMove = {
           from,
@@ -115,16 +118,12 @@ export class ChessServiceMockFactory extends BaseMockFactory<ChessService, Chess
           flags: 'n',
           lan: `${from}${to}`,
           captured: undefined,
-          promotion: undefined
+          promotion: undefined,
         } as Move;
-        
+
         // Use the proper factory to create ValidatedMove with branding
-        const validatedMove = createValidatedMove(
-          chessJsMove, 
-          this.currentFen, 
-          this.currentFen
-        );
-        
+        const validatedMove = createValidatedMove(chessJsMove, this.currentFen, this.currentFen);
+
         this.moveHistory.push(validatedMove);
         this._emitStateUpdate('move');
         return validatedMove;
@@ -180,7 +179,7 @@ export class ChessServiceMockFactory extends BaseMockFactory<ChessService, Chess
   }
 
   protected _mergeOverrides(
-    defaultMock: MockedChessService, 
+    defaultMock: MockedChessService,
     overrides?: ChessServiceMockOverrides
   ): MockedChessService {
     if (!overrides) return defaultMock;
@@ -208,7 +207,7 @@ export class ChessServiceMockFactory extends BaseMockFactory<ChessService, Chess
     }
 
     if (overrides.moveResults) {
-      merged.move.mockImplementation((move) => {
+      merged.move.mockImplementation(move => {
         const key = typeof move === 'string' ? move : `${move.from}-${move.to}`;
         return overrides.moveResults!.get(key) || null;
       });
@@ -229,11 +228,11 @@ export class ChessServiceMockFactory extends BaseMockFactory<ChessService, Chess
   protected _beforeCleanup(): void {
     // Clear all listeners
     this.listeners.clear();
-    
+
     // Reset state completely to free memory
     this.currentFen = COMMON_FENS.STARTING_POSITION;
     this.moveHistory.length = 0; // More efficient than creating new array
-    
+
     // Clear any remaining references
     this.listeners = new Set();
     this.moveHistory = [];
@@ -242,7 +241,7 @@ export class ChessServiceMockFactory extends BaseMockFactory<ChessService, Chess
   /**
    * Helper method to emit events to all listeners
    */
-  private _emitStateUpdate(source: "reset" | "move" | "undo" | "redo" | "load"): void {
+  private _emitStateUpdate(source: 'reset' | 'move' | 'undo' | 'redo' | 'load'): void {
     const event: ChessEvent = {
       type: 'stateUpdate',
       source,

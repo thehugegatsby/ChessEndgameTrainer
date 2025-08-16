@@ -21,8 +21,8 @@
  * disables appropriate buttons when at the start or end of move history.
  */
 
-import React from "react";
-import { useGameStore } from "@shared/store/hooks";
+import React from 'react';
+import { useGameStore } from '@shared/store/hooks';
 
 /**
  * Navigation controls for move history
@@ -87,8 +87,8 @@ export const NavigationControls: React.FC = React.memo(() => {
         disabled={isAtStart}
         className={`p-2 rounded transition-all ${
           isAtStart
-            ? "text-gray-600 cursor-not-allowed"
-            : "text-white hover:bg-gray-700 active:scale-95"
+            ? 'text-gray-600 cursor-not-allowed'
+            : 'text-white hover:bg-gray-700 active:scale-95'
         }`}
         title="Zum Anfang der Zugliste"
         aria-label="Zum Anfang der Zugliste"
@@ -104,8 +104,8 @@ export const NavigationControls: React.FC = React.memo(() => {
         disabled={isAtStart}
         className={`p-2 rounded transition-all ${
           isAtStart
-            ? "text-gray-600 cursor-not-allowed"
-            : "text-white hover:bg-gray-700 active:scale-95"
+            ? 'text-gray-600 cursor-not-allowed'
+            : 'text-white hover:bg-gray-700 active:scale-95'
         }`}
         title="Ein Zug zurück"
         aria-label="Ein Zug zurück"
@@ -122,8 +122,8 @@ export const NavigationControls: React.FC = React.memo(() => {
         disabled={isAtEnd}
         className={`p-2 rounded transition-all ${
           isAtEnd
-            ? "text-gray-600 cursor-not-allowed"
-            : "text-white hover:bg-gray-700 active:scale-95"
+            ? 'text-gray-600 cursor-not-allowed'
+            : 'text-white hover:bg-gray-700 active:scale-95'
         }`}
         title="Ein Zug vor"
         aria-label="Ein Zug vor"
@@ -139,8 +139,8 @@ export const NavigationControls: React.FC = React.memo(() => {
         disabled={isAtEnd}
         className={`p-2 rounded transition-all ${
           isAtEnd
-            ? "text-gray-600 cursor-not-allowed"
-            : "text-white hover:bg-gray-700 active:scale-95"
+            ? 'text-gray-600 cursor-not-allowed'
+            : 'text-white hover:bg-gray-700 active:scale-95'
         }`}
         title="Zum Ende der Zugliste"
         aria-label="Zum Ende der Zugliste"
@@ -154,4 +154,4 @@ export const NavigationControls: React.FC = React.memo(() => {
   );
 });
 
-NavigationControls.displayName = "NavigationControls";
+NavigationControls.displayName = 'NavigationControls';

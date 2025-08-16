@@ -7,7 +7,7 @@
  * Essential for E2E tests to know when to start interacting with the page.
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
 /**
  * Custom hook for managing page ready state in E2E tests
@@ -53,21 +53,17 @@ export function usePageReady(dependencies: boolean[] = []): boolean {
 
   useEffect(() => {
     // Check if all dependencies are true
-    const allReady =
-      dependencies.length === 0 || dependencies.every((dep) => dep === true);
+    const allReady = dependencies.length === 0 || dependencies.every(dep => dep === true);
 
     if (allReady && !isPageReady) {
       setIsPageReady(true);
 
       // Optional: Emit custom event for debugging
-      if (
-        typeof window !== "undefined" &&
-        process.env['NEXT_PUBLIC_E2E_SIGNALS'] === "true"
-      ) {
+      if (typeof window !== 'undefined' && process.env['NEXT_PUBLIC_E2E_SIGNALS'] === 'true') {
         window.dispatchEvent(
-          new CustomEvent("page-ready", {
+          new CustomEvent('page-ready', {
             detail: { timestamp: Date.now() },
-          }),
+          })
         );
       }
     }

@@ -5,14 +5,14 @@ import { vi } from 'vitest';
  */
 
 // @testing-library/jest-dom removed - using Vitest native matchers
-import React from "react";
+import React from 'react';
 
 // Mock Next.js components that use IntersectionObserver
 // This prevents "observer.observe is not a function" errors
 vi.mock('next/link', () => ({
   default: ({ children, href, ...props }: any) => {
     return React.createElement('a', { href, ...props }, children);
-  }
+  },
 }));
 
 // Mock Next.js internal use-intersection hook directly
@@ -26,11 +26,8 @@ vi.mock('next/dist/client/use-intersection', () => ({
 
 // Note: MSW polyfills removed - using service-level mocking instead
 // This significantly improves test performance and stability
-import { type ServiceContainer } from "@shared/services/container";
-import {
-  createTestContainer,
-  type TestServiceOverrides,
-} from "./createTestContainer";
+import { type ServiceContainer } from '@shared/services/container';
+import { createTestContainer, type TestServiceOverrides } from './createTestContainer';
 
 /**
  * Global test container for tests that need shared state
@@ -43,9 +40,7 @@ let globalTestContainer: ServiceContainer | null = null;
  * Call in vi.setup.js or describe block
  * @param overrides
  */
-export function setupGlobalTestContainer(
-  overrides?: TestServiceOverrides,
-): void {
+export function setupGlobalTestContainer(overrides?: TestServiceOverrides): void {
   beforeAll(() => {
     globalTestContainer = createTestContainer(overrides);
   });
@@ -66,9 +61,7 @@ export function setupGlobalTestContainer(
  */
 export function getGlobalTestContainer(): ServiceContainer {
   if (!globalTestContainer) {
-    throw new Error(
-      "Global test container not set up. Call setupGlobalTestContainer() first.",
-    );
+    throw new Error('Global test container not set up. Call setupGlobalTestContainer() first.');
   }
   return globalTestContainer;
 }
@@ -78,9 +71,7 @@ export function getGlobalTestContainer(): ServiceContainer {
  * Preferred approach for better test isolation
  * @param overrides
  */
-export function setupPerTestContainer(
-  overrides?: TestServiceOverrides,
-): () => IServiceContainer {
+export function setupPerTestContainer(overrides?: TestServiceOverrides): () => IServiceContainer {
   let container: ServiceContainer;
 
   beforeEach(() => {
@@ -98,9 +89,10 @@ export function setupPerTestContainer(
  * React Testing Library setup with ServiceContainer
  * @param overrides
  */
-export function setupReactTestingWithContainer(
-  overrides?: TestServiceOverrides,
-): { getContainer: () => ServiceContainer; getWrapper: () => React.ComponentType<{ children: React.ReactNode }> } {
+export function setupReactTestingWithContainer(overrides?: TestServiceOverrides): {
+  getContainer: () => ServiceContainer;
+  getWrapper: () => React.ComponentType<{ children: React.ReactNode }>;
+} {
   let container: ServiceContainer;
   let wrapper: React.ComponentType<{ children: React.ReactNode }>;
 
@@ -114,7 +106,7 @@ export function setupReactTestingWithContainer(
      * @param root0.children
      */
     wrapper = ({ children }: { children: React.ReactNode }) => {
-      const { ServiceProvider } = require("@shared/services/container/adapter");
+      const { ServiceProvider } = require('@shared/services/container/adapter');
       return React.createElement(ServiceProvider, { container }, children);
     };
   });
@@ -166,14 +158,10 @@ export const platformServiceMatchers = {
    * @param method
    * @param args
    */
-  toHaveCalledStorageMethod: (
-    storage: Storage,
-    method: keyof Storage,
-    ...args: any[]
-  ) => {
+  toHaveCalledStorageMethod: (storage: Storage, method: keyof Storage, ...args: any[]) => {
     // Check if running in test environment
     expect((storage as any)[method]).toHaveBeenCalledWith(...args);
-  }
+  },
 };
 
 /**
@@ -181,10 +169,8 @@ export const platformServiceMatchers = {
  */
 export const testEnvironment = {
   isVitest: true,
-  isJSDOM:
-    typeof window !== "undefined" &&
-    window.navigator?.userAgent?.includes("jsdom"),
-  isNode: typeof process !== "undefined" && process.versions?.node,
+  isJSDOM: typeof window !== 'undefined' && window.navigator?.userAgent?.includes('jsdom'),
+  isNode: typeof process !== 'undefined' && process.versions?.node,
 };
 
 /**
@@ -194,8 +180,8 @@ export /**
  *
  */
 const waitForNextTick = (): Promise<void> => {
-  return new Promise((resolve) => {
-    if (typeof setImmediate !== "undefined") {
+  return new Promise(resolve => {
+    if (typeof setImmediate !== 'undefined') {
       setImmediate(resolve);
     } else {
       setTimeout(resolve, 0);
@@ -211,18 +197,16 @@ const waitForNextTick = (): Promise<void> => {
 export /**
  *
  */
-const waitForServicesReady = async (
-  container: ServiceContainer,
-): Promise<void> => {
+const waitForServicesReady = async (container: ServiceContainer): Promise<void> => {
   // Give services time to initialize
   await waitForNextTick();
 
   // Try to resolve a basic service to ensure container is ready
   try {
-    container.resolveCustom("browser.localStorage");
+    container.resolveCustom('browser.localStorage');
   } catch (error) {
     // If services aren't ready, wait a bit more
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    await new Promise(resolve => setTimeout(resolve, 10));
   }
 };
 
@@ -231,9 +215,9 @@ const waitForServicesReady = async (
  * @param container
  */
 export function debugContainer(container: ServiceContainer): void {
-  if (process.env['NODE_ENV'] === "test" && process.env['DEBUG_CONTAINER']) {
-    console.log("Container Stats:", (container as any).getStats?.());
-    console.log("Registered Keys:", (container as any).getRegisteredKeys?.());
+  if (process.env['NODE_ENV'] === 'test' && process.env['DEBUG_CONTAINER']) {
+    console.log('Container Stats:', (container as any).getStats?.());
+    console.log('Registered Keys:', (container as any).getRegisteredKeys?.());
   }
 }
 
@@ -248,9 +232,9 @@ export function mockConsole(): {
   const originalConsole = { ...console };
 
   beforeEach(() => {
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(console, "warn").mockImplementation(() => {});
-    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -263,27 +247,21 @@ export function mockConsole(): {
      * @param message
      */
     expectConsoleLog: (message: string) => {
-      expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining(message),
-      );
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining(message));
     },
     /**
      *
      * @param message
      */
     expectConsoleWarn: (message: string) => {
-      expect(console.warn).toHaveBeenCalledWith(
-        expect.stringContaining(message),
-      );
+      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining(message));
     },
     /**
      *
      * @param message
      */
     expectConsoleError: (message: string) => {
-      expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining(message),
-      );
+      expect(console.error).toHaveBeenCalledWith(expect.stringContaining(message));
     },
   };
 }

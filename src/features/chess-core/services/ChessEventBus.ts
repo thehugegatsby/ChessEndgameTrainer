@@ -1,6 +1,6 @@
 /**
  * ChessEventBus - Event management for chess operations
- * 
+ *
  * This class handles event subscription and emission for chess-related events,
  * providing a decoupled communication mechanism between components.
  * Part of the Clean Architecture refactoring.
@@ -8,7 +8,7 @@
 
 import { SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
 
-import type { IChessEventBus, ChessEventHandler, ChessEventPayload } from "../types/interfaces";
+import type { IChessEventBus, ChessEventHandler, ChessEventPayload } from '../types/interfaces';
 
 export default class ChessEventBus implements IChessEventBus {
   private listeners: Set<ChessEventHandler> = new Set();
@@ -102,7 +102,7 @@ export default class ChessEventBus implements IChessEventBus {
    */
   private addToHistory(event: ChessEventPayload): void {
     this.eventHistory.push(event);
-    
+
     // Maintain max history size
     if (this.eventHistory.length > ChessEventBus.MAX_HISTORY_SIZE) {
       this.eventHistory = this.eventHistory.slice(-ChessEventBus.MAX_HISTORY_SIZE);

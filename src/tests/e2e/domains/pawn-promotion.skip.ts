@@ -3,27 +3,25 @@
  * E2E Test for Pawn Promotion Auto-Win Feature
  */
 
-import { test, expect } from "@playwright/test";
-import { TRAIN_SCENARIOS } from "../../fixtures/trainPositions";
-import { 
+import { test, expect } from '@playwright/test';
+import { TRAIN_SCENARIOS } from '../../fixtures/trainPositions';
+import {
   waitForMoveAnimation,
   waitForUIReady,
-  waitForOpponentMove
-} from "../helpers/deterministicWaiting";
+  waitForOpponentMove,
+} from '../helpers/deterministicWaiting';
 
-test.describe("Pawn Promotion Auto-Win Feature", () => {
-  test.skip("should show success message when promotion leads to win", async ({
-    page,
-  }) => {
-    console.log("🚀 Testing promotion auto-win with FULL move sequence...");
+test.describe('Pawn Promotion Auto-Win Feature', () => {
+  test.skip('should show success message when promotion leads to win', async ({ page }) => {
+    console.log('🚀 Testing promotion auto-win with FULL move sequence...');
 
     // Mock tablebase API to return win for winning positions
-    await page.route("**/api/tablebase/**", async (route) => {
+    await page.route('**/api/tablebase/**', async route => {
       await route.fulfill({
         status: 200,
-        contentType: "application/json",
+        contentType: 'application/json',
         body: JSON.stringify({
-          category: "win",
+          category: 'win',
           wdl: 2, // Win for white
           dtm: 5,
           moves: [],
@@ -31,31 +29,29 @@ test.describe("Pawn Promotion Auto-Win Feature", () => {
       });
     });
 
-    await page.goto("/train/1");
+    await page.goto('/train/1');
     await page.waitForSelector('[data-testid="training-board"]', {
       timeout: 10000,
     });
 
     // Wait for API to be ready
-    await page.waitForFunction(
-      () => typeof (window as any).e2e_makeMove === "function",
-    );
+    await page.waitForFunction(() => typeof (window as any).e2e_makeMove === 'function');
 
     // Use TRAIN_1 WIN sequence - complete pawn promotion to auto-win
     const train1 = TRAIN_SCENARIOS.TRAIN_1;
     const sequence = {
       moves: train1.sequences.WIN.moves,
-      expectedOutcome: 'win' as const
+      expectedOutcome: 'win' as const,
     };
 
-    console.log("🎯 Playing COMPLETE winning promotion sequence...");
-    console.log("Sequence moves:", sequence.moves);
+    console.log('🎯 Playing COMPLETE winning promotion sequence...');
+    console.log('Sequence moves:', sequence.moves);
 
     for (let i = 0; i < sequence.moves.length; i++) {
       const move = sequence.moves[i];
       console.log(`Making move ${i + 1}/${sequence.moves.length}: ${move}`);
 
-      const result = await page.evaluate(async (moveStr) => {
+      const result = await page.evaluate(async moveStr => {
         const moveExecutionResult = await (window as any).e2e_makeMove(moveStr);
         console.log(`Move result:`, moveExecutionResult);
         return moveExecutionResult;
@@ -67,10 +63,8 @@ test.describe("Pawn Promotion Auto-Win Feature", () => {
       }
 
       // Special handling for the promotion move
-      if (move.includes("=Q")) {
-        console.log(
-          "🎯 Promotion move successful! Waiting for auto-win detection...",
-        );
+      if (move.includes('=Q')) {
+        console.log('🎯 Promotion move successful! Waiting for auto-win detection...');
         await waitForUIReady(page); // Give time for promotion detection
         break;
       }
@@ -80,7 +74,7 @@ test.describe("Pawn Promotion Auto-Win Feature", () => {
     }
 
     // Check if sequence completed successfully
-    console.log("🎯 Checking if promotion sequence completed...");
+    console.log('🎯 Checking if promotion sequence completed...');
 
     // Give time for promotion detection logic to run
     await waitForUIReady(page);
@@ -96,46 +90,42 @@ test.describe("Pawn Promotion Auto-Win Feature", () => {
           currentModal: state.ui?.currentModal,
           moveSuccessDialog: state.training?.moveSuccessDialog,
           promotionToasts: state.ui?.toasts?.filter(
-            (t: any) =>
-              t.type === "success" && t.message?.includes("Umwandlung"),
+            (t: any) => t.type === 'success' && t.message?.includes('Umwandlung')
           ),
         };
       }
       return null;
     });
 
-    console.log("📊 Final state after promotion attempt:", finalState);
+    console.log('📊 Final state after promotion attempt:', finalState);
 
     // Check for promotion success dialog instead of toast
     const hasPromotionSuccess =
-      finalState?.moveSuccessDialog?.isOpen &&
-      finalState?.moveSuccessDialog?.promotionPiece;
+      finalState?.moveSuccessDialog?.isOpen && finalState?.moveSuccessDialog?.promotionPiece;
 
     console.log(`🔍 Promotion success detected: ${hasPromotionSuccess}`);
     console.log(`🔍 Move success dialog:`, finalState?.moveSuccessDialog);
 
     if (hasPromotionSuccess) {
       expect(hasPromotionSuccess).toBe(true);
-      console.log("✅ SUCCESS: Promotion auto-win detection working!");
+      console.log('✅ SUCCESS: Promotion auto-win detection working!');
     } else {
-      console.log("❌ ISSUE: No success dialog found after promotion sequence");
-      console.log("This means the promotion detection feature is NOT working");
+      console.log('❌ ISSUE: No success dialog found after promotion sequence');
+      console.log('This means the promotion detection feature is NOT working');
       expect(hasPromotionSuccess).toBe(true); // This will fail and show the real issue
     }
   });
 
-  test.skip("should NOT show success message when promotion leads to draw", async ({
-    page,
-  }) => {
-    console.log("Testing promotion that should NOT trigger auto-win...");
+  test.skip('should NOT show success message when promotion leads to draw', async ({ page }) => {
+    console.log('Testing promotion that should NOT trigger auto-win...');
 
     // Mock tablebase API to return draw for drawing positions
-    await page.route("**/api/tablebase/**", async (route) => {
+    await page.route('**/api/tablebase/**', async route => {
       await route.fulfill({
         status: 200,
-        contentType: "application/json",
+        contentType: 'application/json',
         body: JSON.stringify({
-          category: "draw",
+          category: 'draw',
           wdl: 0, // Draw
           dtm: null,
           moves: [],
@@ -143,7 +133,7 @@ test.describe("Pawn Promotion Auto-Win Feature", () => {
       });
     });
 
-    await page.goto("/train/1");
+    await page.goto('/train/1');
     await page.waitForSelector('[data-testid="training-board"]', {
       timeout: 10000,
     });
@@ -152,16 +142,16 @@ test.describe("Pawn Promotion Auto-Win Feature", () => {
     const train1 = TRAIN_SCENARIOS.TRAIN_1;
     const sequence = {
       moves: train1.sequences.PAWN_PROMOTION_TO_DRAW.moves,
-      expectedOutcome: 'draw' as const
+      expectedOutcome: 'draw' as const,
     };
 
-    console.log("Playing drawing promotion sequence...");
+    console.log('Playing drawing promotion sequence...');
 
     for (let i = 0; i < Math.min(5, sequence.moves.length); i++) {
       const move = sequence.moves[i];
       console.log(`Making move ${i + 1}: ${move}`);
 
-      const moveResult = await page.evaluate(async (moveStr) => {
+      const moveResult = await page.evaluate(async moveStr => {
         return await (window as any).e2e_makeMove(moveStr);
       }, move);
 
@@ -186,30 +176,27 @@ test.describe("Pawn Promotion Auto-Win Feature", () => {
       return null;
     });
 
-    console.log("Store state after drawing sequence:", storeState);
+    console.log('Store state after drawing sequence:', storeState);
 
     // Should NOT have success indication for drawing promotion
     const hasWinIndication =
       storeState?.isSuccess ||
-      storeState?.toasts?.some(
-        (t: any) => t.type === "success" && t.message?.includes("Dame"),
-      ) ||
-      (storeState?.moveSuccessDialog?.isOpen &&
-        storeState?.moveSuccessDialog?.promotionPiece);
+      storeState?.toasts?.some((t: any) => t.type === 'success' && t.message?.includes('Dame')) ||
+      (storeState?.moveSuccessDialog?.isOpen && storeState?.moveSuccessDialog?.promotionPiece);
 
     console.log(`Has win indication: ${hasWinIndication}`);
     console.log(`Move success dialog:`, storeState?.moveSuccessDialog);
     expect(hasWinIndication).toBe(false); // Should be false for draw sequence
   });
 
-  test.skip("should show correct promotion message", async ({ page }) => {
+  test.skip('should show correct promotion message', async ({ page }) => {
     // Mock winning tablebase response
-    await page.route("**/api/tablebase/**", async (route) => {
+    await page.route('**/api/tablebase/**', async route => {
       await route.fulfill({
         status: 200,
-        contentType: "application/json",
+        contentType: 'application/json',
         body: JSON.stringify({
-          category: "win",
+          category: 'win',
           wdl: 2,
           dtm: 5,
           moves: [],
@@ -217,21 +204,19 @@ test.describe("Pawn Promotion Auto-Win Feature", () => {
       });
     });
 
-    await page.goto("/train/1");
+    await page.goto('/train/1');
     await page.waitForSelector('[data-testid="training-board"]');
 
     // Wait for API
-    await page.waitForFunction(
-      () => typeof (window as any).e2e_makeMove === "function",
-    );
+    await page.waitForFunction(() => typeof (window as any).e2e_makeMove === 'function');
 
     // Direct test: make a promotion move
-    console.log("Testing direct promotion message...");
+    console.log('Testing direct promotion message...');
 
     // Try to make promotion move (this might fail if position isn't set up)
     try {
       await page.evaluate(async () => {
-        return await (window as any).e2e_makeMove("e7-e8=Q");
+        return await (window as any).e2e_makeMove('e7-e8=Q');
       });
 
       // Check for German success dialog instead of toast
@@ -244,22 +229,16 @@ test.describe("Pawn Promotion Auto-Win Feature", () => {
         return null;
       });
 
-      console.log("Dialog state:", dialogState);
+      console.log('Dialog state:', dialogState);
 
       // Check that dialog contains German promotion piece name
-      if (
-        dialogState?.isOpen &&
-        dialogState?.promotionPiece?.includes("Dame")
-      ) {
-        console.log("✅ German promotion dialog found with Dame!");
+      if (dialogState?.isOpen && dialogState?.promotionPiece?.includes('Dame')) {
+        console.log('✅ German promotion dialog found with Dame!');
       } else {
-        console.log("❌ German promotion dialog not found");
+        console.log('❌ German promotion dialog not found');
       }
     } catch (error) {
-      console.log(
-        "Direct promotion test failed (expected if position not set up):",
-        error,
-      );
+      console.log('Direct promotion test failed (expected if position not set up):', error);
     }
   });
 });

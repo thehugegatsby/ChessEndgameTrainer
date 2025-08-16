@@ -1,13 +1,13 @@
 /**
  * Move Feedback Panel Component
- * 
+ *
  * @description
  * Displays feedback for player moves based on tablebase analysis.
  * Shows whether the move was optimal, suboptimal, or a mistake,
  * along with alternative suggestions and evaluation changes.
  */
 
-"use client";
+'use client';
 
 import React from 'react';
 import { useTrainingEvent } from '../../training/components/TrainingEventListener';
@@ -70,12 +70,12 @@ function useWdlFormatter(): {
 
 /**
  * Move feedback panel component
- * 
+ *
  * @description
  * Listens to move feedback events and displays contextual information
  * about the quality of moves played. Provides suggestions for improvement
  * and shows evaluation changes from the tablebase perspective.
- * 
+ *
  * @example
  * ```tsx
  * <MoveFeedbackPanel
@@ -93,18 +93,19 @@ export const MoveFeedbackPanel: React.FC<MoveFeedbackPanelProps> = ({
 }) => {
   const [feedbackData, setFeedbackData] = React.useState<MoveFeedbackData | null>(null);
   const { formatWdl, getWdlColor } = useWdlFormatter();
-  
+
   // Get tablebase moves from store for suggestions
   const tablebaseData = useStore(state => state.ui.tablebaseData);
 
   // Listen to move feedback events
-  useTrainingEvent('move:feedback', (data) => {
-    const evaluation = data.wdlBefore !== undefined && data.wdlAfter !== undefined
-      ? {
-          before: formatWdl(data.wdlBefore),
-          after: formatWdl(data.wdlAfter),
-        }
-      : undefined;
+  useTrainingEvent('move:feedback', data => {
+    const evaluation =
+      data.wdlBefore !== undefined && data.wdlAfter !== undefined
+        ? {
+            before: formatWdl(data.wdlBefore),
+            after: formatWdl(data.wdlAfter),
+          }
+        : undefined;
 
     let message = '';
     if (data.type === 'success') {
@@ -115,9 +116,9 @@ export const MoveFeedbackPanel: React.FC<MoveFeedbackPanelProps> = ({
       message = 'This move loses the position!';
     }
 
-    const suggestions = tablebaseData?.moves?.filter(move => 
-      move.san !== data.playedMove
-    ).slice(0, 3); // Show top 3 alternatives
+    const suggestions = tablebaseData?.moves
+      ?.filter(move => move.san !== data.playedMove)
+      .slice(0, 3); // Show top 3 alternatives
 
     const newFeedbackData: MoveFeedbackData = {
       type: data.type,
@@ -130,7 +131,7 @@ export const MoveFeedbackPanel: React.FC<MoveFeedbackPanelProps> = ({
       ...(evaluation && { evaluation }),
       ...(suggestions && suggestions.length > 0 && { suggestions }),
     };
-    
+
     setFeedbackData(newFeedbackData);
 
     // Auto-hide after 10 seconds for success messages
@@ -164,18 +165,18 @@ export const MoveFeedbackPanel: React.FC<MoveFeedbackPanelProps> = ({
   };
 
   return (
-    <div className={`move-feedback-panel border rounded-lg p-4 ${typeStyles[feedbackData.type]} ${className}`}>
+    <div
+      className={`move-feedback-panel border rounded-lg p-4 ${typeStyles[feedbackData.type]} ${className}`}
+    >
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center space-x-2">
           <span className={`text-lg font-bold ${textStyles[feedbackData.type]}`}>
             {iconStyles[feedbackData.type]}
           </span>
-          <h3 className={`font-semibold ${textStyles[feedbackData.type]}`}>
-            Move Feedback
-          </h3>
+          <h3 className={`font-semibold ${textStyles[feedbackData.type]}`}>Move Feedback</h3>
         </div>
-        
+
         <button
           onClick={() => setFeedbackData(null)}
           className={`text-sm opacity-60 hover:opacity-100 ${textStyles[feedbackData.type]}`}
@@ -186,9 +187,7 @@ export const MoveFeedbackPanel: React.FC<MoveFeedbackPanelProps> = ({
       </div>
 
       {/* Feedback Message */}
-      <p className={`text-sm mb-3 ${textStyles[feedbackData.type]}`}>
-        {feedbackData.message}
-      </p>
+      <p className={`text-sm mb-3 ${textStyles[feedbackData.type]}`}>{feedbackData.message}</p>
 
       {/* Evaluation Change */}
       {feedbackData.evaluation && (
@@ -216,7 +215,7 @@ export const MoveFeedbackPanel: React.FC<MoveFeedbackPanelProps> = ({
             <span className="font-mono font-medium">{feedbackData.playedMove}</span>
           </div>
         )}
-        
+
         {feedbackData.bestMove && feedbackData.bestMove !== feedbackData.playedMove && (
           <div className="flex justify-between text-sm">
             <span className="text-gray-600 dark:text-gray-400">Best:</span>
@@ -243,9 +242,9 @@ export const MoveFeedbackPanel: React.FC<MoveFeedbackPanelProps> = ({
               </button>
             )}
           </div>
-          
+
           <div className="space-y-1">
-            {feedbackData.suggestions.map((move) => (
+            {feedbackData.suggestions.map(move => (
               <button
                 key={move.uci}
                 onClick={() => onMoveSelect?.(move)}
@@ -253,11 +252,15 @@ export const MoveFeedbackPanel: React.FC<MoveFeedbackPanelProps> = ({
                 title={`${move.san} leads to ${move.outcome}${move.dtm ? ` in ${Math.abs(move.dtm)} moves` : ''}`}
               >
                 <span className="font-mono">{move.san}</span>
-                <span className={`text-xs ${
-                  move.outcome === 'win' ? 'text-green-600 dark:text-green-400' :
-                  move.outcome === 'loss' ? 'text-red-600 dark:text-red-400' :
-                  'text-gray-600 dark:text-gray-400'
-                }`}>
+                <span
+                  className={`text-xs ${
+                    move.outcome === 'win'
+                      ? 'text-green-600 dark:text-green-400'
+                      : move.outcome === 'loss'
+                        ? 'text-red-600 dark:text-red-400'
+                        : 'text-gray-600 dark:text-gray-400'
+                  }`}
+                >
                   {move.outcome === 'win' ? '+' : move.outcome === 'loss' ? '-' : '='}
                   {move.dtm !== undefined && Math.abs(move.dtm)}
                 </span>

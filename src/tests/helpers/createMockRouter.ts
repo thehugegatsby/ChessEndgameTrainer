@@ -3,7 +3,7 @@
  * Centralized mock for consistent router testing across the application
  */
 
-import { type NextRouter } from "next/router";
+import { type NextRouter } from 'next/router';
 
 /**
  * Creates a complete mock of the Next.js Router with all properties
@@ -15,14 +15,14 @@ import { type NextRouter } from "next/router";
 export function createMockRouter(router?: Partial<NextRouter>): NextRouter {
   // Internal state that can be modified by router methods
   let internalState = {
-    pathname: router?.pathname || "/",
+    pathname: router?.pathname || '/',
     query: router?.query || {},
-    asPath: router?.asPath || "/",
-    route: router?.route || "/",
-    basePath: router?.basePath || "",
-    locale: router?.locale || "en",
-    locales: router?.locales || ["en", "de", "es"],
-    defaultLocale: router?.defaultLocale || "en",
+    asPath: router?.asPath || '/',
+    route: router?.route || '/',
+    basePath: router?.basePath || '',
+    locale: router?.locale || 'en',
+    locales: router?.locales || ['en', 'de', 'es'],
+    defaultLocale: router?.defaultLocale || 'en',
     isReady: router?.isReady ?? true,
     isPreview: router?.isPreview ?? false,
     isFallback: router?.isFallback ?? false,
@@ -31,10 +31,10 @@ export function createMockRouter(router?: Partial<NextRouter>): NextRouter {
 
   // Parse URL to extract pathname and query
   const parseUrl = (
-    url: string,
+    url: string
   ): { pathname: string; query: Record<string, string | string[]> } => {
     try {
-      const [pathname, search] = url.split("?");
+      const [pathname, search] = url.split('?');
       const query: Record<string, string | string[]> = {};
 
       if (search) {
@@ -42,18 +42,16 @@ export function createMockRouter(router?: Partial<NextRouter>): NextRouter {
         params.forEach((value, key) => {
           const existing = query[key];
           if (existing) {
-            query[key] = Array.isArray(existing)
-              ? [...existing, value]
-              : [existing, value];
+            query[key] = Array.isArray(existing) ? [...existing, value] : [existing, value];
           } else {
             query[key] = value;
           }
         });
       }
 
-      return { pathname: pathname || "/", query };
+      return { pathname: pathname || '/', query };
     } catch {
-      return { pathname: url || "/", query: {} };
+      return { pathname: url || '/', query: {} };
     }
   };
 
@@ -86,8 +84,8 @@ export function createMockRouter(router?: Partial<NextRouter>): NextRouter {
         route: pathname, // Simplified - in reality this might differ
       };
       // Emit route change events
-      (mockRouter.events.emit as ReturnType<typeof vi.fn>)("routeChangeStart", url);
-      (mockRouter.events.emit as ReturnType<typeof vi.fn>)("routeChangeComplete", url);
+      (mockRouter.events.emit as ReturnType<typeof vi.fn>)('routeChangeStart', url);
+      (mockRouter.events.emit as ReturnType<typeof vi.fn>)('routeChangeComplete', url);
       return true;
     }),
 
@@ -100,20 +98,20 @@ export function createMockRouter(router?: Partial<NextRouter>): NextRouter {
         asPath: url,
         route: pathname,
       };
-      (mockRouter.events.emit as ReturnType<typeof vi.fn>)("routeChangeStart", url);
-      (mockRouter.events.emit as ReturnType<typeof vi.fn>)("routeChangeComplete", url);
+      (mockRouter.events.emit as ReturnType<typeof vi.fn>)('routeChangeStart', url);
+      (mockRouter.events.emit as ReturnType<typeof vi.fn>)('routeChangeComplete', url);
       return true;
     }),
 
     reload: vi.fn(() => {
       // Reload doesn't change state but might emit events
       (mockRouter.events.emit as ReturnType<typeof vi.fn>)(
-        "routeChangeStart",
-        internalState.asPath,
+        'routeChangeStart',
+        internalState.asPath
       );
       (mockRouter.events.emit as ReturnType<typeof vi.fn>)(
-        "routeChangeComplete",
-        internalState.asPath,
+        'routeChangeComplete',
+        internalState.asPath
       );
     }),
 
@@ -121,12 +119,12 @@ export function createMockRouter(router?: Partial<NextRouter>): NextRouter {
       // In a real router, this would use history
       // For testing, we'll just emit events
       (mockRouter.events.emit as ReturnType<typeof vi.fn>)(
-        "routeChangeStart",
-        internalState.asPath,
+        'routeChangeStart',
+        internalState.asPath
       );
       (mockRouter.events.emit as ReturnType<typeof vi.fn>)(
-        "routeChangeComplete",
-        internalState.asPath,
+        'routeChangeComplete',
+        internalState.asPath
       );
     }),
 
@@ -192,8 +190,8 @@ export const createMockRouterScenarios = {
    */
   trainingPage: (id: string) =>
     createMockRouter({
-      pathname: "/train/[id]",
-      route: "/train/[id]",
+      pathname: '/train/[id]',
+      route: '/train/[id]',
       query: { id },
       asPath: `/train/${id}`,
     }),
@@ -203,9 +201,9 @@ export const createMockRouterScenarios = {
    */
   errorPage: () =>
     createMockRouter({
-      pathname: "/404",
-      route: "/404",
-      asPath: "/404",
+      pathname: '/404',
+      route: '/404',
+      asPath: '/404',
     }),
 
   /**
@@ -232,11 +230,7 @@ export const createMockRouterScenarios = {
  * Useful for assertions in tests
  */
 export function isMockedRouter(router: any): router is NextRouter {
-  return (
-    router &&
-    typeof router.push === "function" &&
-    vi.isMockFunction(router.push)
-  );
+  return router && typeof router.push === 'function' && vi.isMockFunction(router.push);
 }
 
 /**

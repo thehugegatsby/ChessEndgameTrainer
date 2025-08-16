@@ -3,8 +3,8 @@
  * Encapsulates all chess board interactions and validations
  */
 
-import { type Page, type Locator, expect } from "@playwright/test";
-import { BasePage } from "./BasePage";
+import { type Page, type Locator, expect } from '@playwright/test';
+import { BasePage } from './BasePage';
 
 /**
  *
@@ -12,7 +12,7 @@ import { BasePage } from "./BasePage";
 export interface ChessMove {
   from: string;
   to: string;
-  promotion?: "q" | "r" | "b" | "n";
+  promotion?: 'q' | 'r' | 'b' | 'n';
 }
 
 /**
@@ -20,7 +20,7 @@ export interface ChessMove {
  */
 export interface BoardState {
   fen: string;
-  turn: "w" | "b";
+  turn: 'w' | 'b';
   moveCount: number;
   isGameOver: boolean;
   pgn: string;
@@ -42,14 +42,14 @@ export class ChessBoardPage extends BasePage {
    *
    */
   get boardSquares(): Locator {
-    return this.board.locator("[data-square]");
+    return this.board.locator('[data-square]');
   }
 
   /**
    *
    */
   get positionTitle(): Locator {
-    return this.page.locator("h1");
+    return this.page.locator('h1');
   }
 
   /**
@@ -112,13 +112,13 @@ export class ChessBoardPage extends BasePage {
    * Wait for page to be ready
    */
   async waitForPageReady(): Promise<void> {
-    await this.board.waitFor({ state: "visible" });
+    await this.board.waitFor({ state: 'visible' });
     await this.waitForFirebaseData();
 
     // Wait for board to have data-fen attribute
     await this.page.waitForFunction(() => {
       const board = document.querySelector('[data-testid="training-board"]');
-      return board && board.getAttribute("data-fen");
+      return board && board.getAttribute('data-fen');
     });
   }
 
@@ -135,8 +135,8 @@ export class ChessBoardPage extends BasePage {
    * Get current FEN
    */
   async getCurrentFEN(): Promise<string> {
-    const fen = await this.board.getAttribute("data-fen");
-    if (!fen) throw new Error("FEN not found on board");
+    const fen = await this.board.getAttribute('data-fen');
+    if (!fen) throw new Error('FEN not found on board');
     return fen;
   }
 
@@ -150,9 +150,7 @@ export class ChessBoardPage extends BasePage {
     });
 
     if (!state) {
-      throw new Error(
-        "Test API not available. Make sure NEXT_PUBLIC_IS_E2E_TEST is set.",
-      );
+      throw new Error('Test API not available. Make sure NEXT_PUBLIC_IS_E2E_TEST is set.');
     }
 
     return state;
@@ -207,16 +205,14 @@ export class ChessBoardPage extends BasePage {
    * Select promotion piece
    * @param piece
    */
-  async selectPromotion(piece: "q" | "r" | "b" | "n"): Promise<void> {
-    const promotionDialog = this.page.locator(
-      '[data-testid="promotion-dialog"]',
-    );
-    await promotionDialog.waitFor({ state: "visible" });
+  async selectPromotion(piece: 'q' | 'r' | 'b' | 'n'): Promise<void> {
+    const promotionDialog = this.page.locator('[data-testid="promotion-dialog"]');
+    await promotionDialog.waitFor({ state: 'visible' });
 
     const pieceButton = promotionDialog.locator(`[data-piece="${piece}"]`);
     await pieceButton.click();
 
-    await promotionDialog.waitFor({ state: "hidden" });
+    await promotionDialog.waitFor({ state: 'hidden' });
   }
 
   /**
@@ -233,7 +229,7 @@ export class ChessBoardPage extends BasePage {
    */
   async squareHasPiece(square: string): Promise<boolean> {
     const squareElement = this.getSquareLocator(square);
-    const piece = await squareElement.locator("[data-piece]").count();
+    const piece = await squareElement.locator('[data-piece]').count();
     return piece > 0;
   }
 
@@ -243,13 +239,13 @@ export class ChessBoardPage extends BasePage {
    */
   async getPieceOnSquare(square: string): Promise<string | null> {
     const squareElement = this.getSquareLocator(square);
-    const pieceElement = squareElement.locator("[data-piece]");
+    const pieceElement = squareElement.locator('[data-piece]');
 
     if ((await pieceElement.count()) === 0) {
       return null;
     }
 
-    return await pieceElement.getAttribute("data-piece");
+    return await pieceElement.getAttribute('data-piece');
   }
 
   /**
@@ -268,10 +264,7 @@ export class ChessBoardPage extends BasePage {
     await this.nextPositionButton.click();
 
     // Wait for URL to change
-    await this.page.waitForFunction(
-      (url) => window.location.href !== url,
-      currentUrl,
-    );
+    await this.page.waitForFunction(url => window.location.href !== url, currentUrl);
 
     await this.waitForPageReady();
   }
@@ -284,10 +277,7 @@ export class ChessBoardPage extends BasePage {
     await this.previousPositionButton.click();
 
     // Wait for URL to change
-    await this.page.waitForFunction(
-      (url) => window.location.href !== url,
-      currentUrl,
-    );
+    await this.page.waitForFunction(url => window.location.href !== url, currentUrl);
 
     await this.waitForPageReady();
   }
@@ -299,16 +289,14 @@ export class ChessBoardPage extends BasePage {
     await this.hintButton.click();
 
     const hintModal = this.page.locator('[data-testid="hint-modal"]');
-    await hintModal.waitFor({ state: "visible" });
+    await hintModal.waitFor({ state: 'visible' });
 
-    const hintText = await hintModal
-      .locator('[data-testid="hint-text"]')
-      .textContent();
+    const hintText = await hintModal.locator('[data-testid="hint-text"]').textContent();
 
     await hintModal.locator('[data-testid="close-hint"]').click();
-    await hintModal.waitFor({ state: "hidden" });
+    await hintModal.waitFor({ state: 'hidden' });
 
-    return hintText || "";
+    return hintText || '';
   }
 
   /**
@@ -318,14 +306,12 @@ export class ChessBoardPage extends BasePage {
     await this.solutionButton.click();
 
     const solutionModal = this.page.locator('[data-testid="solution-modal"]');
-    await solutionModal.waitFor({ state: "visible" });
+    await solutionModal.waitFor({ state: 'visible' });
 
-    const moves = await solutionModal
-      .locator('[data-testid="solution-move"]')
-      .allTextContents();
+    const moves = await solutionModal.locator('[data-testid="solution-move"]').allTextContents();
 
     await solutionModal.locator('[data-testid="close-solution"]').click();
-    await solutionModal.waitFor({ state: "hidden" });
+    await solutionModal.waitFor({ state: 'hidden' });
 
     return moves;
   }
@@ -334,14 +320,14 @@ export class ChessBoardPage extends BasePage {
    * Get current evaluation
    */
   async getCurrentEvaluation(): Promise<string> {
-    return (await this.evaluationDisplay.textContent()) || "";
+    return (await this.evaluationDisplay.textContent()) || '';
   }
 
   /**
    * Get move count
    */
   async getMoveCount(): Promise<number> {
-    const text = (await this.moveCounter.textContent()) || "0";
+    const text = (await this.moveCounter.textContent()) || '0';
     return parseInt(text, 10);
   }
 
@@ -353,14 +339,14 @@ export class ChessBoardPage extends BasePage {
 
     // Wait for move count to increase by 2 (player + tablebase)
     await this.page.waitForFunction(
-      async (expectedCount) => {
+      async expectedCount => {
         const counter = document.querySelector('[data-testid="move-counter"]');
         if (!counter) return false;
-        const count = parseInt(counter.textContent || "0", 10);
+        const count = parseInt(counter.textContent || '0', 10);
         return count >= expectedCount;
       },
       initialMoveCount + 2,
-      { timeout: 10000 },
+      { timeout: 10000 }
     );
 
     // Additional wait for animation
@@ -372,10 +358,7 @@ export class ChessBoardPage extends BasePage {
    * @param expectedTitle
    * @param expectedFEN
    */
-  async assertPositionLoaded(
-    expectedTitle: string,
-    expectedFEN: string,
-  ): Promise<void> {
+  async assertPositionLoaded(expectedTitle: string, expectedFEN: string): Promise<void> {
     await expect(this.positionTitle).toHaveText(expectedTitle);
 
     const currentFEN = await this.getCurrentFEN();
@@ -397,7 +380,7 @@ export class ChessBoardPage extends BasePage {
    */
   async takeBoardScreenshot(_name: string): Promise<Buffer> {
     return await this.board.screenshot({
-      animations: "disabled",
+      animations: 'disabled',
     });
   }
 }

@@ -9,7 +9,7 @@ const isWSL2 = process.env.WSL_DISTRO_NAME !== undefined;
 
 /**
  * Vitest Configuration with PROJECTS
- * 
+ *
  * Feature-based project organization for targeted test runs:
  * - pnpm test --project chess-core
  * - pnpm test --project tablebase
@@ -46,16 +46,16 @@ export default defineConfig({
         testMatch: [`${testsDir}/integration/**/*.{test,spec}.{ts,tsx}`],
       },
     ],
-    
+
     // Global test settings
     environment: 'jsdom',
     globals: true,
     setupFiles: [
       path.resolve(testsDir, 'setup/observer-polyfill.ts'), // MUST be first!
       featuresTestSetup,
-      path.resolve(testsDir, 'utils/vitestSetup.ts')
+      path.resolve(testsDir, 'utils/vitestSetup.ts'),
     ],
-    
+
     // WSL2-OPTIMIZED PERFORMANCE SETTINGS
     pool: isWSL2 ? 'forks' : 'threads',
     poolOptions: {
@@ -67,13 +67,13 @@ export default defineConfig({
         maxForks: isWSL2 ? 2 : 4,
         minForks: 1,
         isolate: true,
-      }
+      },
     },
-    
+
     testTimeout: 10000,
     maxWorkers: isWSL2 ? 2 : 4,
     fileParallelism: !isWSL2,
-    
+
     // Enhanced coverage configuration
     coverage: {
       reporter: ['text', 'lcov', 'html'],
@@ -95,7 +95,7 @@ export default defineConfig({
       ],
     },
   },
-  
+
   resolve: {
     alias: {
       '@features': featuresDir,

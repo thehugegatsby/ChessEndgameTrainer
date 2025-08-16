@@ -23,8 +23,8 @@ global.fetch = vi.fn(() =>
     /** @returns Promise with mock tablebase data */
     json: () => Promise.resolve({ wdl: 2, dtm: 15, dtz: 15 }),
     /** @returns Promise with mock tablebase text */
-    text: () => Promise.resolve("2,15,15"),
-  }),
+    text: () => Promise.resolve('2,15,15'),
+  })
 );
 
 // Mock logger for evaluation tests
@@ -37,7 +37,7 @@ const mockLogger = {
 };
 
 // Set up module mocks
-vi.mock("@shared/services/loggerService", () => ({
+vi.mock('@shared/services/loggerService', () => ({
   getLogger: vi.fn(() => mockLogger),
   Logger: {
     getInstance: vi.fn(() => mockLogger),

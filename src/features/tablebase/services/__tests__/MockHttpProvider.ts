@@ -1,6 +1,6 @@
 /**
  * MockHttpProvider - Test implementation of HttpProvider
- * 
+ *
  * Provides deterministic HTTP and async operations for testing.
  * Features:
  * - Configurable responses and errors
@@ -25,7 +25,7 @@ export class MockHttpProvider implements HttpProvider {
   private fetchHandler!: FetchHandler;
   private randomValue: number = 0.5; // Default deterministic random value
   private abortHandlers: Set<() => void> = new Set(); // Track abort handlers for cleanup
-  
+
   // Call tracking
   public sleepCalls: number[] = [];
   public fetchCalls: Array<{ url: string; timeoutMs: number; options?: RequestInit }> = [];
@@ -69,7 +69,7 @@ export class MockHttpProvider implements HttpProvider {
     this.abortCalls = 0;
     this.randomValue = 0.5;
     this.abortHandlers.clear();
-    
+
     // Default to successful empty JSON response
     this.mockFetchJson({});
   }
@@ -90,9 +90,9 @@ export class MockHttpProvider implements HttpProvider {
       const init: ResponseInit = {
         status,
         statusText,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       };
-      
+
       // Create Response with proper json() method
       const response = new Response(body, init);
       return Promise.resolve(response);
@@ -116,10 +116,12 @@ export class MockHttpProvider implements HttpProvider {
    */
   mockFetchStatus(status: number, statusText?: string): void {
     this.fetchHandler = () => {
-      return Promise.resolve(new Response(null, { 
-        status, 
-        statusText: statusText || this.getDefaultStatusText(status) 
-      }));
+      return Promise.resolve(
+        new Response(null, {
+          status,
+          statusText: statusText || this.getDefaultStatusText(status),
+        })
+      );
     };
   }
 
@@ -130,29 +132,31 @@ export class MockHttpProvider implements HttpProvider {
     let callCount = 0;
     this.fetchHandler = () => {
       const response = responses[callCount++];
-      
+
       if (!response) {
         // Return rejected promise instead of throwing
         return Promise.reject(new Error('Mock fetch sequence exhausted'));
       }
-      
+
       if (response.error) {
         // Return rejected promise instead of throwing
         return Promise.reject(response.error);
       }
-      
+
       const body = response.data ? JSON.stringify(response.data) : null;
       const headers = new Headers(response.headers || {});
-      
+
       if (response.data && !headers.has('Content-Type')) {
         headers.set('Content-Type', 'application/json');
       }
-      
-      return Promise.resolve(new Response(body, {
-        status: response.status || 200,
-        statusText: response.statusText || this.getDefaultStatusText(response.status || 200),
-        headers
-      }));
+
+      return Promise.resolve(
+        new Response(body, {
+          status: response.status || 200,
+          statusText: response.statusText || this.getDefaultStatusText(response.status || 200),
+          headers,
+        })
+      );
     };
   }
 
@@ -165,7 +169,7 @@ export class MockHttpProvider implements HttpProvider {
       404: 'Not Found',
       429: 'Too Many Requests',
       500: 'Internal Server Error',
-      503: 'Service Unavailable'
+      503: 'Service Unavailable',
     };
     return statusTexts[status] || '';
   }

@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 /**
  * Test Cleanup Utilities
- * 
+ *
  * Provides comprehensive cleanup functions to prevent memory leaks in tests
  * and ensure proper test isolation.
  */
@@ -202,10 +202,10 @@ export function setupTestCleanup(isReactTest = false): void {
   afterAll(() => {
     // Final cleanup
     cleanupManager.cleanupAll();
-    
+
     // Ensure real timers are restored
     vi.useRealTimers();
-    
+
     // Clear all mocks one final time
     vi.clearAllMocks();
   });
@@ -240,18 +240,18 @@ export const trackedTimers = {
     cleanupManager.trackTimer(timer);
     return timer;
   },
-  
+
   setInterval: (callback: () => void, ms?: number): NodeJS.Timeout => {
     const interval = setInterval(callback, ms);
     cleanupManager.trackInterval(interval);
     return interval;
   },
-  
+
   requestAnimationFrame: (callback: FrameRequestCallback): number => {
     const id = requestAnimationFrame(callback);
     cleanupManager.trackAnimationFrame(id);
     return id;
-  }
+  },
 };
 
 /**
@@ -288,7 +288,9 @@ export function mockIntersectionObserver(): void {
     observe(): void {}
     unobserve(): void {}
     disconnect(): void {}
-    takeRecords(): IntersectionObserverEntry[] { return []; }
+    takeRecords(): IntersectionObserverEntry[] {
+      return [];
+    }
     root = null;
     rootMargin = '';
     thresholds = [];
@@ -325,10 +327,10 @@ export { cleanupManager };
 export async function ensureAsyncCompletion(): Promise<void> {
   // Wait for promises
   await waitForPendingPromises();
-  
+
   // Wait for next tick
   await waitForNextTick();
-  
+
   // Small delay to ensure all async operations complete
   await new Promise(resolve => setTimeout(resolve, 0));
 }
@@ -345,5 +347,5 @@ export default {
   mockIntersectionObserver,
   cleanupZustandStores,
   ensureAsyncCompletion,
-  cleanupManager
+  cleanupManager,
 };

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 /**
  * @file Comprehensive unit tests for chess-adapter
  * @module tests/unit/infrastructure/chess-adapter
- * 
+ *
  * @description
  * Tests for the critical Anti-Corruption Layer between chess.js and domain.
  * Following DeepSeek planning + Gemini review feedback.
@@ -15,7 +15,7 @@ import {
   fromLibraryMove,
   fromLibraryMoves,
   ChessAdapterError,
-  ChessAdapter
+  ChessAdapter,
 } from '@shared/infrastructure/chess-adapter';
 import { ValidatedMove, type Color, type PieceSymbol, type Square } from '@shared/types/chess.js';
 import { createTestValidatedMove } from '@tests/helpers/validatedMoveFactory';
@@ -29,7 +29,19 @@ vi.mock('@shared/services/logging', () => ({
 }));
 
 // Helper to create chess.js Move with all required properties including methods
-const createChessJsMove = (overrides: Partial<Omit<ChessJsMove, 'isCapture' | 'isPromotion' | 'isEnPassant' | 'isKingsideCastle' | 'isQueensideCastle' | 'isBigPawn'>> = {}): ChessJsMove => {
+const createChessJsMove = (
+  overrides: Partial<
+    Omit<
+      ChessJsMove,
+      | 'isCapture'
+      | 'isPromotion'
+      | 'isEnPassant'
+      | 'isKingsideCastle'
+      | 'isQueensideCastle'
+      | 'isBigPawn'
+    >
+  > = {}
+): ChessJsMove => {
   const baseMove = {
     from: 'e2' as Square,
     to: 'e4' as Square,
@@ -42,7 +54,7 @@ const createChessJsMove = (overrides: Partial<Omit<ChessJsMove, 'isCapture' | 'i
     after: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
     ...overrides,
   };
-  
+
   // Create the complete chess.js Move object with all required methods
   return {
     ...baseMove,
@@ -69,7 +81,7 @@ describe('chess-adapter', () => {
         expect(ChessAdapter.isValidPromotionPiece('k')).toBe(false); // King cannot promote
         expect(ChessAdapter.isValidPromotionPiece('p')).toBe(false); // Pawn cannot promote to pawn
         expect(ChessAdapter.isValidPromotionPiece('x')).toBe(false); // Invalid piece
-        expect(ChessAdapter.isValidPromotionPiece('')).toBe(false);   // Empty string
+        expect(ChessAdapter.isValidPromotionPiece('')).toBe(false); // Empty string
       });
 
       it('should return false for non-string inputs', () => {
@@ -131,7 +143,7 @@ describe('chess-adapter', () => {
         color: 'w',
         san: 'e4',
         before: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-        after: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
+        after: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
       });
 
       const result = toLibraryMove(domainMove);
@@ -140,7 +152,7 @@ describe('chess-adapter', () => {
       expect(result.to).toBe('e4');
       expect(result.san).toBe('e4');
       expect(result.before).toBe(domainMove.fenBefore); // Mapped correctly
-      expect(result.after).toBe(domainMove.fenAfter);   // Mapped correctly
+      expect(result.after).toBe(domainMove.fenAfter); // Mapped correctly
     });
 
     it('should preserve all move properties', () => {
@@ -151,7 +163,7 @@ describe('chess-adapter', () => {
         color: 'w',
         san: 'e8=Q+',
         promotion: 'q',
-        captured: 'r'
+        captured: 'r',
       });
 
       const result = toLibraryMove(domainMove);
@@ -169,7 +181,7 @@ describe('chess-adapter', () => {
         to: 'f3',
         piece: 'n',
         color: 'w',
-        san: 'Nf3'
+        san: 'Nf3',
       });
 
       const result = toLibraryMove(minimalMove);
@@ -206,7 +218,7 @@ describe('chess-adapter', () => {
           to: 'd5',
           captured: 'p',
           san: 'exd5',
-          flags: 'c' // capture
+          flags: 'c', // capture
         });
 
         const result = fromLibraryMove(captureMove);
@@ -222,7 +234,7 @@ describe('chess-adapter', () => {
           to: 'e8',
           promotion: 'q',
           san: 'e8=Q',
-          flags: 'p' // promotion
+          flags: 'p', // promotion
         });
 
         const result = fromLibraryMove(promotionMove);
@@ -238,7 +250,7 @@ describe('chess-adapter', () => {
           to: 'g1',
           piece: 'k',
           san: 'O-O',
-          flags: 'k' // kingside castle
+          flags: 'k', // kingside castle
         });
 
         const queensideCastle = createChessJsMove({
@@ -246,7 +258,7 @@ describe('chess-adapter', () => {
           to: 'c1',
           piece: 'k',
           san: 'O-O-O',
-          flags: 'q' // queenside castle
+          flags: 'q', // queenside castle
         });
 
         const kingsideResult = fromLibraryMove(kingsideCastle);
@@ -264,7 +276,7 @@ describe('chess-adapter', () => {
           to: 'd6',
           captured: 'p',
           san: 'exd6',
-          flags: 'e' // en passant
+          flags: 'e', // en passant
         });
 
         const result = fromLibraryMove(enPassantMove);
@@ -282,7 +294,7 @@ describe('chess-adapter', () => {
             to: 'a8',
             promotion: piece,
             san: `a8=${piece.toUpperCase()}`,
-            flags: 'p'
+            flags: 'p',
           });
 
           const result = fromLibraryMove(promotionMove);
@@ -298,7 +310,9 @@ describe('chess-adapter', () => {
         delete (incompleteMove as any).from;
 
         expect(() => fromLibraryMove(incompleteMove as ChessJsMove)).toThrow(ChessAdapterError);
-        expect(() => fromLibraryMove(incompleteMove as ChessJsMove)).toThrow('Missing required move fields');
+        expect(() => fromLibraryMove(incompleteMove as ChessJsMove)).toThrow(
+          'Missing required move fields'
+        );
       });
 
       it('should validate all required fields individually', () => {
@@ -314,7 +328,7 @@ describe('chess-adapter', () => {
 
       it('should throw for invalid color', () => {
         const invalidColorMove = createChessJsMove({
-          color: 'invalid' as Color
+          color: 'invalid' as Color,
         });
 
         expect(() => fromLibraryMove(invalidColorMove)).toThrow(ChessAdapterError);
@@ -323,7 +337,7 @@ describe('chess-adapter', () => {
 
       it('should throw for invalid piece symbol', () => {
         const invalidPieceMove = createChessJsMove({
-          piece: 'invalid' as PieceSymbol
+          piece: 'invalid' as PieceSymbol,
         });
 
         expect(() => fromLibraryMove(invalidPieceMove)).toThrow(ChessAdapterError);
@@ -332,7 +346,7 @@ describe('chess-adapter', () => {
 
       it('should throw for invalid captured piece', () => {
         const invalidCaptureMove = createChessJsMove({
-          captured: 'invalid' as PieceSymbol
+          captured: 'invalid' as PieceSymbol,
         });
 
         expect(() => fromLibraryMove(invalidCaptureMove)).toThrow(ChessAdapterError);
@@ -341,7 +355,7 @@ describe('chess-adapter', () => {
 
       it('should throw for invalid promotion piece', () => {
         const invalidPromotionMove = createChessJsMove({
-          promotion: 'k' as any // King promotion is invalid
+          promotion: 'k' as any, // King promotion is invalid
         });
 
         expect(() => fromLibraryMove(invalidPromotionMove)).toThrow(ChessAdapterError);
@@ -351,7 +365,7 @@ describe('chess-adapter', () => {
 
       it('should provide detailed error context', () => {
         const invalidMove = createChessJsMove({
-          color: 'invalid' as Color
+          color: 'invalid' as Color,
         });
 
         try {
@@ -369,23 +383,29 @@ describe('chess-adapter', () => {
     describe('Helper Methods', () => {
       it('should provide correct isCapture helper', () => {
         const nonCaptureMove = fromLibraryMove(validLibraryMove);
-        const captureMove = fromLibraryMove(createChessJsMove({
-          captured: 'p',
-          flags: 'c'
-        }));
+        const captureMove = fromLibraryMove(
+          createChessJsMove({
+            captured: 'p',
+            flags: 'c',
+          })
+        );
 
         expect(nonCaptureMove.isCapture()).toBe(false);
         expect(captureMove.isCapture()).toBe(true);
       });
 
       it('should provide correct isBigPawn helper', () => {
-        const bigPawnMove = fromLibraryMove(createChessJsMove({
-          flags: 'b' // big pawn move (2 squares)
-        }));
+        const bigPawnMove = fromLibraryMove(
+          createChessJsMove({
+            flags: 'b', // big pawn move (2 squares)
+          })
+        );
 
-        const regularMove = fromLibraryMove(createChessJsMove({
-          flags: ''
-        }));
+        const regularMove = fromLibraryMove(
+          createChessJsMove({
+            flags: '',
+          })
+        );
 
         expect(bigPawnMove.isBigPawn()).toBe(true);
         expect(regularMove.isBigPawn()).toBe(false);
@@ -393,7 +413,7 @@ describe('chess-adapter', () => {
 
       it('should handle missing flags gracefully', () => {
         const moveWithoutFlags = createChessJsMove({
-          flags: undefined
+          flags: undefined,
         });
 
         const result = fromLibraryMove(moveWithoutFlags);
@@ -411,7 +431,7 @@ describe('chess-adapter', () => {
     describe('Edge Cases', () => {
       it('should handle empty LAN field', () => {
         const moveWithoutLan = createChessJsMove({
-          lan: undefined
+          lan: undefined,
         });
 
         const result = fromLibraryMove(moveWithoutLan);
@@ -421,7 +441,7 @@ describe('chess-adapter', () => {
       it('should handle missing FEN fields', () => {
         const moveWithoutFens = createChessJsMove({
           before: undefined,
-          after: undefined
+          after: undefined,
         });
 
         const result = fromLibraryMove(moveWithoutFens);
@@ -433,7 +453,7 @@ describe('chess-adapter', () => {
         const complexMove = createChessJsMove({
           flags: 'npc', // promotion + capture + check
           promotion: 'q',
-          captured: 'r'
+          captured: 'r',
         });
 
         const result = fromLibraryMove(complexMove);
@@ -451,7 +471,7 @@ describe('chess-adapter', () => {
         to: 'e4',
         san: 'e4',
         flags: 'b',
-        lan: 'e2e4'
+        lan: 'e2e4',
       }),
       createChessJsMove({
         from: 'g8',
@@ -460,8 +480,8 @@ describe('chess-adapter', () => {
         color: 'b',
         san: 'Nf6',
         flags: '',
-        lan: 'g8f6'
-      })
+        lan: 'g8f6',
+      }),
     ];
 
     it('should convert array of valid moves', () => {
@@ -484,8 +504,8 @@ describe('chess-adapter', () => {
           from: 'g8',
           to: 'f6',
           piece: 'n',
-          color: 'invalid' as Color // Invalid color
-        })
+          color: 'invalid' as Color, // Invalid color
+        }),
       ];
 
       try {
@@ -505,13 +525,13 @@ describe('chess-adapter', () => {
           from: 'g8',
           to: 'f6',
           piece: 'n',
-          color: 'invalid1' as Color
+          color: 'invalid1' as Color,
         }),
         createChessJsMove({
           from: 'e2',
           to: 'e4',
-          color: 'invalid2' as Color
-        })
+          color: 'invalid2' as Color,
+        }),
       ];
 
       try {
@@ -558,22 +578,46 @@ describe('chess-adapter', () => {
       const gameSequence: ChessJsMove[] = [
         // 1. e4 e5
         createChessJsMove({
-          from: 'e2', to: 'e4', piece: 'p', color: 'w', san: 'e4', flags: 'b', lan: 'e2e4',
+          from: 'e2',
+          to: 'e4',
+          piece: 'p',
+          color: 'w',
+          san: 'e4',
+          flags: 'b',
+          lan: 'e2e4',
           before: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-          after: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
+          after: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
         }),
         createChessJsMove({
-          from: 'e7', to: 'e5', piece: 'p', color: 'b', san: 'e5', flags: 'b', lan: 'e7e5',
+          from: 'e7',
+          to: 'e5',
+          piece: 'p',
+          color: 'b',
+          san: 'e5',
+          flags: 'b',
+          lan: 'e7e5',
           before: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
-          after: 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2'
+          after: 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2',
         }),
         // 2. Nf3 Nc6
         createChessJsMove({
-          from: 'g1', to: 'f3', piece: 'n', color: 'w', san: 'Nf3', flags: 'n', lan: 'g1f3'
+          from: 'g1',
+          to: 'f3',
+          piece: 'n',
+          color: 'w',
+          san: 'Nf3',
+          flags: 'n',
+          lan: 'g1f3',
         }),
         createChessJsMove({
-          from: 'b8', to: 'c6', piece: 'n', color: 'b', san: 'Nc6', flags: 'n', lan: 'b8c6'
-        })
+          from: 'b8',
+          to: 'c6',
+          piece: 'n',
+          color: 'b',
+          san: 'Nc6',
+          flags: 'n',
+          lan: 'b8c6',
+        }),
       ];
 
       const result = fromLibraryMoves(gameSequence);
@@ -604,16 +648,16 @@ describe('chess-adapter', () => {
         flags: 'b',
         lan: 'e2e4',
         before: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-        after: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
+        after: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
       });
-      
+
       // Simulate potential future library changes by adding unknown fields
       const futureMoveFormat = {
         ...baseValidMove,
         // Simulate additional fields that might be added in future versions
         futureField1: 'unknown',
         futureField2: 42,
-        futureFlag: true
+        futureFlag: true,
       } as any;
 
       // Should still work - adapter only validates known fields
@@ -635,7 +679,7 @@ describe('chess-adapter', () => {
         promotion: 'q',
         captured: 'r',
         before: 'test-before-fen',
-        after: 'test-after-fen'
+        after: 'test-after-fen',
       });
 
       // Domain → Library → Domain

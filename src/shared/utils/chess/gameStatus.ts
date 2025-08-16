@@ -20,7 +20,7 @@
  * material counting and common endgame patterns.
  */
 
-import { Chess } from "chess.js";
+import { Chess } from 'chess.js';
 
 /**
  * Complete game status information
@@ -37,9 +37,9 @@ import { Chess } from "chess.js";
  * @property {string} icon - Visual indicator emoji for the side to move
  */
 export interface GameStatus {
-  sideToMove: "white" | "black";
+  sideToMove: 'white' | 'black';
   sideToMoveDisplay: string;
-  objective: "win" | "draw" | "defend";
+  objective: 'win' | 'draw' | 'defend';
   objectiveDisplay: string;
   icon: string;
 }
@@ -73,10 +73,7 @@ export interface GameStatus {
  * detection uses detectObjective() which applies heuristics based on
  * material balance and endgame patterns.
  */
-export function getGameStatus(
-  fen: string,
-  goalFromData?: "win" | "draw" | "defend",
-): GameStatus {
+export function getGameStatus(fen: string, goalFromData?: 'win' | 'draw' | 'defend'): GameStatus {
   const chess = new Chess();
 
   try {
@@ -84,21 +81,21 @@ export function getGameStatus(
   } catch {
     // Fallback for invalid FEN - error details not needed
     return {
-      sideToMove: "white",
-      sideToMoveDisplay: "Weiß am Zug",
-      objective: "win",
-      objectiveDisplay: "Ziel: Gewinn",
-      icon: "🟢",
+      sideToMove: 'white',
+      sideToMoveDisplay: 'Weiß am Zug',
+      objective: 'win',
+      objectiveDisplay: 'Ziel: Gewinn',
+      icon: '🟢',
     };
   }
 
   const turn = chess.turn();
-  const sideToMove = turn === "w" ? "white" : "black";
+  const sideToMove = turn === 'w' ? 'white' : 'black';
 
   // Display based on turn
-  const sideToMoveDisplay = turn === "w" ? "Weiß am Zug" : "Schwarz am Zug";
+  const sideToMoveDisplay = turn === 'w' ? 'Weiß am Zug' : 'Schwarz am Zug';
 
-  const icon = turn === "w" ? "🟢" : "⚫";
+  const icon = turn === 'w' ? '🟢' : '⚫';
 
   // Objective detection
   const objective = goalFromData || detectObjective(fen);
@@ -145,7 +142,7 @@ export function getGameStatus(
  * detectObjective('8/8/8/8/8/8/p7/K6k w - - 0 1'); // 'draw'
  * ```
  */
-function detectObjective(fen: string): "win" | "draw" | "defend" {
+function detectObjective(fen: string): 'win' | 'draw' | 'defend' {
   const chess = new Chess();
   chess.load(fen);
 
@@ -166,12 +163,12 @@ function detectObjective(fen: string): "win" | "draw" | "defend" {
     for (const square of row) {
       if (square) {
         const value = pieceValues[square.type];
-        if (square.color === "w") {
+        if (square.color === 'w') {
           whiteMaterial += value;
-          if (square.type === "p") whiteHasPawns = true;
+          if (square.type === 'p') whiteHasPawns = true;
         } else {
           blackMaterial += value;
-          if (square.type === "p") blackHasPawns = true;
+          if (square.type === 'p') blackHasPawns = true;
         }
       }
     }
@@ -182,12 +179,12 @@ function detectObjective(fen: string): "win" | "draw" | "defend" {
 
   // Strong material advantage usually means winning
   if (Math.abs(materialDiff) >= 3) {
-    return "win";
+    return 'win';
   }
 
   // Pawn endgames with extra pawn often winning
   if (whiteHasPawns && blackHasPawns && Math.abs(materialDiff) >= 1) {
-    return "win";
+    return 'win';
   }
 
   // King + Pawn vs King is usually winning
@@ -195,16 +192,16 @@ function detectObjective(fen: string): "win" | "draw" | "defend" {
     (whiteMaterial === 1 && blackMaterial === 0) ||
     (whiteMaterial === 0 && blackMaterial === 1)
   ) {
-    return "win";
+    return 'win';
   }
 
   // Equal material often draw
   if (materialDiff === 0) {
-    return "draw";
+    return 'draw';
   }
 
   // Default to win for learning purposes
-  return "win";
+  return 'win';
 }
 
 /**
@@ -232,15 +229,15 @@ function detectObjective(fen: string): "win" | "draw" | "defend" {
  * - draw → "Remis" (draw)
  * - defend → "Verteidigen" (defend)
  */
-function getObjectiveDisplay(objective: "win" | "draw" | "defend"): string {
+function getObjectiveDisplay(objective: 'win' | 'draw' | 'defend'): string {
   switch (objective) {
-    case "win":
-      return "Ziel: Gewinn";
-    case "draw":
-      return "Ziel: Remis";
-    case "defend":
-      return "Ziel: Verteidigen";
+    case 'win':
+      return 'Ziel: Gewinn';
+    case 'draw':
+      return 'Ziel: Remis';
+    case 'defend':
+      return 'Ziel: Verteidigen';
     default:
-      return "Ziel: Gewinn";
+      return 'Ziel: Gewinn';
   }
 }

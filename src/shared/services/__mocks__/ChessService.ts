@@ -4,13 +4,12 @@ import { vi } from 'vitest';
  * Simulates chess move validation and game state management
  */
 
-import { EventEmitter } from "events";
-import type { ValidatedMove, Square } from "@shared/types";
+import { EventEmitter } from 'events';
+import type { ValidatedMove, Square } from '@shared/types';
 
 class MockChessService extends EventEmitter {
-  private fen: string =
-    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-  private pgn: string = "";
+  private fen: string = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+  private pgn: string = '';
   private moveHistory: ValidatedMove[] = [];
   private isFinished: boolean = false;
   private currentMoveIndex: number = -1;
@@ -23,14 +22,14 @@ class MockChessService extends EventEmitter {
 
   initialize(fen: string): boolean {
     this.fen = fen;
-    this.pgn = "";
+    this.pgn = '';
     this.moveHistory = [];
     this.isFinished = false;
     this.currentMoveIndex = -1;
 
     // Emit stateUpdate event with proper payload
-    this.emit("stateUpdate", {
-      type: "stateUpdate",
+    this.emit('stateUpdate', {
+      type: 'stateUpdate',
       payload: {
         fen: this.fen,
         pgn: this.pgn,
@@ -44,18 +43,16 @@ class MockChessService extends EventEmitter {
     return true;
   }
 
-  move(
-    move: { from: string; to: string; promotion?: string } | string,
-  ): ValidatedMove | null {
+  move(move: { from: string; to: string; promotion?: string } | string): ValidatedMove | null {
     // Generate SAN based on the actual move
     let san: string;
     let from: string;
     let to: string;
 
-    if (typeof move === "string") {
+    if (typeof move === 'string') {
       san = move;
-      from = "e2";
-      to = "e4";
+      from = 'e2';
+      to = 'e4';
     } else {
       from = move.from;
       to = move.to;
@@ -71,9 +68,9 @@ class MockChessService extends EventEmitter {
       from: from as Square,
       to: to as Square,
       san: san,
-      piece: "k",
-      color: "w",
-      flags: "",
+      piece: 'k',
+      color: 'w',
+      flags: '',
       lan: `${from}${to}`,
       fenBefore: this.fen,
       fenAfter: this.fen, // In reality this would change
@@ -91,8 +88,8 @@ class MockChessService extends EventEmitter {
     this.currentMoveIndex = this.moveHistory.length - 1;
 
     // Emit stateUpdate event with proper payload
-    this.emit("stateUpdate", {
-      type: "stateUpdate",
+    this.emit('stateUpdate', {
+      type: 'stateUpdate',
       payload: {
         fen: this.fen,
         pgn: this.getPgn(),
@@ -110,8 +107,8 @@ class MockChessService extends EventEmitter {
     if (this.moveHistory.length === 0) return null;
 
     const lastMove = this.moveHistory.pop();
-    this.emit("undo", lastMove);
-    this.emit("stateChange");
+    this.emit('undo', lastMove);
+    this.emit('stateChange');
     return lastMove || null;
   }
 
@@ -121,11 +118,11 @@ class MockChessService extends EventEmitter {
     this.isFinished = false;
 
     // Emit stateUpdate event with proper payload
-    this.emit("stateUpdate", {
-      type: "stateUpdate",
+    this.emit('stateUpdate', {
+      type: 'stateUpdate',
       payload: {
         fen: this.fen,
-        pgn: "",
+        pgn: '',
         moveHistory: this.moveHistory,
         currentMoveIndex: this.currentMoveIndex,
         isGameOver: this.isFinished,
@@ -139,8 +136,8 @@ class MockChessService extends EventEmitter {
     this.currentMoveIndex = index;
 
     // Emit stateUpdate event with proper payload
-    this.emit("stateUpdate", {
-      type: "stateUpdate",
+    this.emit('stateUpdate', {
+      type: 'stateUpdate',
       payload: {
         fen: this.fen,
         pgn: this.getPgn(),
@@ -164,11 +161,11 @@ class MockChessService extends EventEmitter {
           const moveNum = Math.floor(i / 2) + 1;
           return i % 2 === 0 ? `${moveNum}. ${m.san}` : m.san;
         })
-        .join(" ");
+        .join(' ');
       // Return formatted PGN with starting position
       return `[FEN "${this.fen}"] ${moves}`;
     }
-    return this.pgn || "";
+    return this.pgn || '';
   }
 
   getHistory(): ValidatedMove[] {
@@ -185,8 +182,8 @@ class MockChessService extends EventEmitter {
 
   isDraw = vi.fn(() => false);
 
-  turn(): "w" | "b" {
-    return "w";
+  turn(): 'w' | 'b' {
+    return 'w';
   }
 
   getCurrentMoveIndex(): number {
@@ -199,9 +196,7 @@ class MockChessService extends EventEmitter {
     return true;
   }
 
-  validateMove(
-    _move: { from: string; to: string; promotion?: string } | string
-  ): boolean {
+  validateMove(_move: { from: string; to: string; promotion?: string } | string): boolean {
     // Always return true for testing - moves are valid
     return true;
   }
@@ -226,7 +221,7 @@ class MockChessService extends EventEmitter {
     return ['Ke2', 'Kd1', 'Kf1', 'Kd6'];
   }
 
-  getSquare(_square: string): { type: string; color: "w" | "b" } | null {
+  getSquare(_square: string): { type: string; color: 'w' | 'b' } | null {
     return null;
   }
 
@@ -244,15 +239,15 @@ class MockChessService extends EventEmitter {
   }
 
   onMove(callback: (move: ValidatedMove) => void): void {
-    this.on("move", callback);
+    this.on('move', callback);
   }
 
   onUndo(callback: (move: ValidatedMove) => void): void {
-    this.on("undo", callback);
+    this.on('undo', callback);
   }
 
   onStateChange(callback: () => void): void {
-    this.on("stateChange", callback);
+    this.on('stateChange', callback);
   }
 
   override removeAllListeners(): this {
@@ -265,12 +260,12 @@ class MockChessService extends EventEmitter {
     // Forward stateUpdate events properly
     const handleStateUpdate = (event: any): void => {
       // If event already has the correct structure, pass it through
-      if (event && event.type === "stateUpdate") {
+      if (event && event.type === 'stateUpdate') {
         callback(event);
       } else {
         // Otherwise create the proper structure
         callback({
-          type: "stateUpdate",
+          type: 'stateUpdate',
           payload: {
             fen: this.fen,
             pgn: this.getPgn(),
@@ -283,11 +278,11 @@ class MockChessService extends EventEmitter {
       }
     };
 
-    this.on("stateUpdate", handleStateUpdate);
+    this.on('stateUpdate', handleStateUpdate);
 
     // Return unsubscribe function
     return () => {
-      this.off("stateUpdate", handleStateUpdate);
+      this.off('stateUpdate', handleStateUpdate);
     };
   }
 }

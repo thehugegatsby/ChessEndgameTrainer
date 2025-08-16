@@ -22,8 +22,8 @@
  * Uses Tailwind CSS for styling with glassmorphism effects.
  */
 
-import React, { useState, useEffect } from "react";
-import { UI } from "@shared/constants";
+import React, { useState, useEffect } from 'react';
+import { UI } from '@shared/constants';
 
 /**
  * Props for individual Toast component
@@ -37,7 +37,7 @@ import { UI } from "@shared/constants";
  */
 export interface ToastProps {
   message: string;
-  type: "success" | "error" | "info" | "warning";
+  type: 'success' | 'error' | 'info' | 'warning';
   duration?: number;
   onClose: () => void;
 }
@@ -55,7 +55,7 @@ export interface ToastProps {
  * ```tsx
  * import { getLogger } from '@shared/services/logging/Logger';
  * const logger = getLogger();
- * 
+ *
  * <Toast
  *   message="Move successful!"
  *   type="success"
@@ -92,18 +92,16 @@ export const Toast: React.FC<ToastProps> = ({
    */
   const getToastStyles = (): string => {
     const baseStyles =
-      "fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm transition-all duration-300 max-w-sm";
+      'fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm transition-all duration-300 max-w-sm';
 
     const typeStyles = {
-      success: "bg-green-500/90 text-white border border-green-400",
-      error: "bg-red-500/90 text-white border border-red-400",
-      info: "bg-blue-500/90 text-white border border-blue-400",
-      warning: "bg-yellow-500/90 text-black border border-yellow-400",
+      success: 'bg-green-500/90 text-white border border-green-400',
+      error: 'bg-red-500/90 text-white border border-red-400',
+      info: 'bg-blue-500/90 text-white border border-blue-400',
+      warning: 'bg-yellow-500/90 text-black border border-yellow-400',
     };
 
-    const visibilityStyles = isVisible
-      ? "opacity-100 translate-x-0"
-      : "opacity-0 translate-x-full";
+    const visibilityStyles = isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full';
 
     return `${baseStyles} ${typeStyles[type]} ${visibilityStyles}`;
   };
@@ -116,16 +114,16 @@ export const Toast: React.FC<ToastProps> = ({
    */
   const getIcon = (): string => {
     switch (type) {
-      case "success":
-        return "🎉";
-      case "error":
-        return "❌";
-      case "info":
-        return "ℹ️";
-      case "warning":
-        return "⚠️";
+      case 'success':
+        return '🎉';
+      case 'error':
+        return '❌';
+      case 'info':
+        return 'ℹ️';
+      case 'warning':
+        return '⚠️';
       default:
-        return "";
+        return '';
     }
   };
 
@@ -164,7 +162,7 @@ interface ToastContainerProps {
   toasts: Array<{
     id: string;
     message: string;
-    type: "success" | "error" | "info" | "warning";
+    type: 'success' | 'error' | 'info' | 'warning';
     duration?: number;
   }>;
   onRemoveToast: (id: string) => void;
@@ -200,13 +198,10 @@ interface ToastContainerProps {
  * @param {ToastContainerProps} props - Container configuration
  * @returns {JSX.Element} Rendered toast container
  */
-export const ToastContainer: React.FC<ToastContainerProps> = ({
-  toasts,
-  onRemoveToast,
-}) => {
+export const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, onRemoveToast }) => {
   return (
     <div className="fixed top-4 right-4 z-50 space-y-2">
-      {toasts.map((toast) => (
+      {toasts.map(toast => (
         <Toast
           key={toast.id}
           message={toast.message}

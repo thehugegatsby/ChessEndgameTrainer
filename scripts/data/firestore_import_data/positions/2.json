@@ -7,10 +7,7 @@
   "difficulty": "beginner",
   "goal": "win",
   "targetMoves": 13,
-  "hints": [
-    "Support the pawn advance with your king",
-    "Use opposition to control key squares"
-  ],
+  "hints": ["Support the pawn advance with your king", "Use opposition to control key squares"],
   "solution": [
     "1.Kd6",
     "1...Ke8",

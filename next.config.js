@@ -1,11 +1,13 @@
 /**
  * Next.js 15 Configuration with Turbopack Optimizations
  * Based on latest Next.js 15 best practices
+ * O3 FIX: Added next-transpile-modules for react-chessboard ESM compatibility
  */
 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
+// const withTM = require('next-transpile-modules')(['react-chessboard']); // Temporarily disabled for E2E test
 const { PORTS } = require('./config/ports.js');
 
 // Simplified configuration using centralized ports
@@ -73,6 +75,7 @@ const nextConfig = {
     // Remove test attributes in production
     reactRemoveProperties: process.env.NODE_ENV === "production",
   },
+
 
   // Static file optimization
   compress: true,

@@ -8,13 +8,13 @@
  * Uses the store as the single source of truth for all chess state.
  */
 
-import { useCallback } from "react";
-import { type Chess } from "chess.js";
-import { useGameStore, useTrainingStore } from "@shared/store/hooks";
-import { useStoreApi } from "@shared/store/StoreContext";
-import type { ValidatedMove } from "@shared/types/chess";
-import { ErrorService } from "@shared/services/ErrorService";
-import { getLogger } from "@shared/services/logging";
+import { useCallback } from 'react';
+import { type Chess } from 'chess.js';
+import { useGameStore, useTrainingStore } from '@shared/store/hooks';
+import { useStoreApi } from '@shared/store/StoreContext';
+import type { ValidatedMove } from '@shared/types/chess';
+import { ErrorService } from '@shared/services/ErrorService';
+import { getLogger } from '@shared/services/logging';
 
 /**
  * Configuration options for the useTrainingSession hook
@@ -47,11 +47,7 @@ interface UseTrainingSessionReturn {
   isGameFinished: boolean;
   currentFen: string;
   currentPgn: string;
-  makeMove: (move: {
-    from: string;
-    to: string;
-    promotion?: string;
-  }) => Promise<boolean>;
+  makeMove: (move: { from: string; to: string; promotion?: string }) => Promise<boolean>;
   jumpToMove: (moveIndex: number) => void;
   resetGame: () => void;
   undoMove: () => boolean;
@@ -129,29 +125,25 @@ export const useTrainingSession = ({
    * @returns {Promise<boolean>} True if move was successful, false otherwise
    */
   const makeMove = useCallback(
-    async (move: {
-      from: string;
-      to: string;
-      promotion?: string;
-    }): Promise<boolean> => {
-      const logger = getLogger().setContext("useTrainingSession");
-      logger.debug("makeMove called", { move });
-      
+    async (move: { from: string; to: string; promotion?: string }): Promise<boolean> => {
+      const logger = getLogger().setContext('useTrainingSession');
+      logger.debug('makeMove called', { move });
+
       // CRITICAL DEBUG: Log the exact reason why moves might be blocked
-      logger.debug("gameState.isGameFinished check", {
+      logger.debug('gameState.isGameFinished check', {
         isGameFinished: gameState.isGameFinished,
         gameResult: gameState.gameResult,
         currentFen: gameState.currentFen,
         moveHistoryLength: gameState.moveHistory?.length,
         checkmate: gameState.isCheckmate,
         draw: gameState.isDraw,
-        stalemate: gameState.isStalemate
+        stalemate: gameState.isStalemate,
       });
-      
+
       if (gameState.isGameFinished) {
-        logger.warn("EARLY RETURN: gameState.isGameFinished is true, blocking move", {
+        logger.warn('EARLY RETURN: gameState.isGameFinished is true, blocking move', {
           isGameFinished: gameState.isGameFinished,
-          gameResult: gameState.gameResult
+          gameResult: gameState.gameResult,
         });
         return false;
       }
@@ -160,30 +152,27 @@ export const useTrainingSession = ({
         // REFACTORED: Use centralized TrainingService for consistent move execution
         // This ensures the same business logic runs for both UI and E2E test paths
         const { trainingService } = await import('@shared/services/TrainingService');
-        logger.debug("🚀 Delegating to centralized TrainingService");
-        
+        logger.debug('🚀 Delegating to centralized TrainingService');
+
         // Convert move object to string format (e.g., "e2e4" or "e7e8q")
         const moveString = move.from + move.to + (move.promotion || '');
         const result = await trainingService.executeMove(storeApi, moveString, onComplete);
         if (!result.success) {
-          logger.warn("❌ TrainingService.executeMove failed", { error: result.error });
+          logger.warn('❌ TrainingService.executeMove failed', { error: result.error });
           return false;
         }
-        
-        logger.debug("✅ TrainingService.executeMove succeeded");
+
+        logger.debug('✅ TrainingService.executeMove succeeded');
 
         // Notify position change with current Store state
-        onPositionChange?.(
-          gameState.currentFen || "",
-          gameState.currentPgn || "",
-        );
+        onPositionChange?.(gameState.currentFen || '', gameState.currentPgn || '');
 
         return true;
       } catch (error) {
         ErrorService.handleUIError(
           error instanceof Error ? error : new Error(String(error)),
-          "useTrainingSession",
-          { action: "makeMove", additionalData: { move: String(move) } },
+          'useTrainingSession',
+          { action: 'makeMove', additionalData: { move: String(move) } }
         );
         return false;
       }
@@ -200,7 +189,7 @@ export const useTrainingSession = ({
       onComplete,
       onPositionChange,
       storeApi,
-    ],
+    ]
   );
 
   /**
@@ -215,15 +204,10 @@ export const useTrainingSession = ({
 
       // Notify position change
       if (onPositionChange && gameState.currentFen) {
-        onPositionChange(gameState.currentFen, gameState.currentPgn || "");
+        onPositionChange(gameState.currentFen, gameState.currentPgn || '');
       }
     },
-    [
-      gameActions,
-      gameState.currentFen,
-      gameState.currentPgn,
-      onPositionChange,
-    ],
+    [gameActions, gameState.currentFen, gameState.currentPgn, onPositionChange]
   );
 
   /**
@@ -235,7 +219,7 @@ export const useTrainingSession = ({
 
     // Notify position change
     if (onPositionChange && trainingState.currentPosition) {
-      onPositionChange(trainingState.currentPosition.fen, "");
+      onPositionChange(trainingState.currentPosition.fen, '');
     }
   }, [gameActions, trainingState.currentPosition, onPositionChange]);
 
@@ -251,7 +235,7 @@ export const useTrainingSession = ({
 
     // Notify position change
     if (onPositionChange && gameState.currentFen) {
-      onPositionChange(gameState.currentFen, gameState.currentPgn || "");
+      onPositionChange(gameState.currentFen, gameState.currentPgn || '');
     }
 
     return true;
@@ -267,9 +251,8 @@ export const useTrainingSession = ({
     game: null, // Chess instance now managed by ChessService, not exposed here
     history: gameState.moveHistory,
     isGameFinished: gameState.isGameFinished,
-    currentFen:
-      gameState.currentFen || trainingState.currentPosition?.fen || "",
-    currentPgn: gameState.currentPgn || "",
+    currentFen: gameState.currentFen || trainingState.currentPosition?.fen || '',
+    currentPgn: gameState.currentPgn || '',
     makeMove,
     jumpToMove,
     resetGame,

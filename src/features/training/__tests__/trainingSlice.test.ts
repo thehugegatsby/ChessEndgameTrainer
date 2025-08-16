@@ -4,25 +4,25 @@
  */
 
 import { describe, it, test, expect, beforeEach } from 'vitest';
-import { useStore } from "@shared/store/rootStore";
-import type { TrainingPosition } from "@shared/store/slices/trainingSlice";
+import { useStore } from '@shared/store/rootStore';
+import type { TrainingPosition } from '@shared/store/slices/trainingSlice';
 
-describe("TrainingSlice - Nested Store Structure", () => {
+describe('TrainingSlice - Nested Store Structure', () => {
   const mockPosition: TrainingPosition = {
     id: 1,
-    title: "Test Position",
-    fen: "8/8/8/8/8/8/8/8 w - - 0 1",
-    colorToTrain: "white",
-    targetOutcome: "1-0",
-    sideToMove: "white",
-    difficulty: "beginner" as const,
-    category: "basic",
-    description: "Test position for training",
+    title: 'Test Position',
+    fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+    colorToTrain: 'white',
+    targetOutcome: '1-0',
+    sideToMove: 'white',
+    difficulty: 'beginner' as const,
+    category: 'basic',
+    description: 'Test position for training',
   };
 
   beforeEach(() => {
     // Reset store to initial state - preserve actions by only updating state properties
-    useStore.setState((state) => {
+    useStore.setState(state => {
       state.training.currentPosition = undefined;
       state.training.nextPosition = undefined;
       state.training.previousPosition = undefined;
@@ -38,8 +38,8 @@ describe("TrainingSlice - Nested Store Structure", () => {
     });
   });
 
-  describe("setPosition", () => {
-    it("should set current position and reset session state", () => {
+  describe('setPosition', () => {
+    it('should set current position and reset session state', () => {
       const store = useStore.getState();
       const beforeTime = Date.now();
 
@@ -54,17 +54,17 @@ describe("TrainingSlice - Nested Store Structure", () => {
       expect(state.training.mistakeCount).toBe(0);
     });
 
-    it("should set player turn based on position color", () => {
+    it('should set player turn based on position color', () => {
       const store = useStore.getState();
       const whitePosition = {
         ...mockPosition,
-        colorToTrain: "white" as const,
-        sideToMove: "white" as const,
+        colorToTrain: 'white' as const,
+        sideToMove: 'white' as const,
       };
       const blackPosition = {
         ...mockPosition,
-        colorToTrain: "black" as const,
-        sideToMove: "black" as const,
+        colorToTrain: 'black' as const,
+        sideToMove: 'black' as const,
       };
 
       store.training.setPosition(whitePosition);
@@ -75,10 +75,10 @@ describe("TrainingSlice - Nested Store Structure", () => {
     });
   });
 
-  describe("setNavigationPositions", () => {
-    it("should set next position", () => {
+  describe('setNavigationPositions', () => {
+    it('should set next position', () => {
       const store = useStore.getState();
-      const nextPosition = { ...mockPosition, id: 2, title: "Next Position" };
+      const nextPosition = { ...mockPosition, id: 2, title: 'Next Position' };
 
       store.training.setNavigationPositions(nextPosition);
 
@@ -86,12 +86,12 @@ describe("TrainingSlice - Nested Store Structure", () => {
       expect(state.training.nextPosition).toEqual(nextPosition);
     });
 
-    it("should set previous position", () => {
+    it('should set previous position', () => {
       const store = useStore.getState();
       const prevPosition = {
         ...mockPosition,
         id: 0,
-        title: "Previous Position",
+        title: 'Previous Position',
       };
 
       store.training.setNavigationPositions(undefined, prevPosition);
@@ -100,13 +100,13 @@ describe("TrainingSlice - Nested Store Structure", () => {
       expect(state.training.previousPosition).toEqual(prevPosition);
     });
 
-    it("should set both positions", () => {
+    it('should set both positions', () => {
       const store = useStore.getState();
-      const nextPosition = { ...mockPosition, id: 2, title: "Next Position" };
+      const nextPosition = { ...mockPosition, id: 2, title: 'Next Position' };
       const prevPosition = {
         ...mockPosition,
         id: 0,
-        title: "Previous Position",
+        title: 'Previous Position',
       };
 
       store.training.setNavigationPositions(nextPosition, prevPosition);
@@ -116,7 +116,7 @@ describe("TrainingSlice - Nested Store Structure", () => {
       expect(state.training.previousPosition).toEqual(prevPosition);
     });
 
-    it("should clear navigation with null values", () => {
+    it('should clear navigation with null values', () => {
       const store = useStore.getState();
 
       // First set some positions
@@ -131,8 +131,8 @@ describe("TrainingSlice - Nested Store Structure", () => {
     });
   });
 
-  describe("setNavigationLoading", () => {
-    it("should set navigation loading to true", () => {
+  describe('setNavigationLoading', () => {
+    it('should set navigation loading to true', () => {
       const store = useStore.getState();
 
       store.training.setNavigationLoading(true);
@@ -141,7 +141,7 @@ describe("TrainingSlice - Nested Store Structure", () => {
       expect(state.training.isLoadingNavigation).toBe(true);
     });
 
-    it("should set navigation loading to false", () => {
+    it('should set navigation loading to false', () => {
       const store = useStore.getState();
 
       store.training.setNavigationLoading(false);
@@ -151,10 +151,10 @@ describe("TrainingSlice - Nested Store Structure", () => {
     });
   });
 
-  describe("setNavigationError", () => {
-    it("should set navigation error message", () => {
+  describe('setNavigationError', () => {
+    it('should set navigation error message', () => {
       const store = useStore.getState();
-      const errorMessage = "Position nicht gefunden";
+      const errorMessage = 'Position nicht gefunden';
 
       store.training.setNavigationError(errorMessage);
 
@@ -162,11 +162,11 @@ describe("TrainingSlice - Nested Store Structure", () => {
       expect(state.training.navigationError).toBe(errorMessage);
     });
 
-    it("should clear navigation error", () => {
+    it('should clear navigation error', () => {
       const store = useStore.getState();
 
       // First set an error
-      store.training.setNavigationError("Some error");
+      store.training.setNavigationError('Some error');
 
       // Then clear it
       store.training.setNavigationError(null);
@@ -176,8 +176,8 @@ describe("TrainingSlice - Nested Store Structure", () => {
     });
   });
 
-  describe("setChapterProgress", () => {
-    it("should set chapter progress", () => {
+  describe('setChapterProgress', () => {
+    it('should set chapter progress', () => {
       const store = useStore.getState();
       const progress = { completed: 3, total: 10 };
 
@@ -187,7 +187,7 @@ describe("TrainingSlice - Nested Store Structure", () => {
       expect(state.training.chapterProgress).toEqual(progress);
     });
 
-    it("should clear chapter progress", () => {
+    it('should clear chapter progress', () => {
       const store = useStore.getState();
 
       // First set progress
@@ -201,8 +201,8 @@ describe("TrainingSlice - Nested Store Structure", () => {
     });
   });
 
-  describe("setPlayerTurn", () => {
-    it("should enable player turn", () => {
+  describe('setPlayerTurn', () => {
+    it('should enable player turn', () => {
       const store = useStore.getState();
 
       store.training.setPlayerTurn(true);
@@ -211,7 +211,7 @@ describe("TrainingSlice - Nested Store Structure", () => {
       expect(state.training.isPlayerTurn).toBe(true);
     });
 
-    it("should disable player turn", () => {
+    it('should disable player turn', () => {
       const store = useStore.getState();
 
       store.training.setPlayerTurn(false);
@@ -221,8 +221,8 @@ describe("TrainingSlice - Nested Store Structure", () => {
     });
   });
 
-  describe("completeTraining", () => {
-    it("should mark training as successful", () => {
+  describe('completeTraining', () => {
+    it('should mark training as successful', () => {
       const store = useStore.getState();
 
       store.training.completeTraining(true);
@@ -232,7 +232,7 @@ describe("TrainingSlice - Nested Store Structure", () => {
       expect(state.training.isSuccess).toBe(true);
     });
 
-    it("should mark training as failed", () => {
+    it('should mark training as failed', () => {
       const store = useStore.getState();
 
       store.training.completeTraining(false);
@@ -242,8 +242,8 @@ describe("TrainingSlice - Nested Store Structure", () => {
     });
   });
 
-  describe("incrementHint", () => {
-    it("should increment hint counter", () => {
+  describe('incrementHint', () => {
+    it('should increment hint counter', () => {
       const store = useStore.getState();
 
       expect(useStore.getState().training.hintsUsed).toBe(0);
@@ -256,8 +256,8 @@ describe("TrainingSlice - Nested Store Structure", () => {
     });
   });
 
-  describe("incrementMistake", () => {
-    it("should increment mistake counter", () => {
+  describe('incrementMistake', () => {
+    it('should increment mistake counter', () => {
       const store = useStore.getState();
 
       expect(useStore.getState().training.mistakeCount).toBe(0);
@@ -270,14 +270,14 @@ describe("TrainingSlice - Nested Store Structure", () => {
     });
   });
 
-  describe("setMoveErrorDialog", () => {
-    it("should show move error dialog", () => {
+  describe('setMoveErrorDialog', () => {
+    it('should show move error dialog', () => {
       const store = useStore.getState();
       const dialog = {
         isOpen: true,
         wdlBefore: 1000,
         wdlAfter: 0,
-        bestMove: "Qb7",
+        bestMove: 'Qb7',
       };
 
       store.training.setMoveErrorDialog(dialog);
@@ -286,7 +286,7 @@ describe("TrainingSlice - Nested Store Structure", () => {
       expect(state.training.moveErrorDialog).toEqual(dialog);
     });
 
-    it("should close move error dialog", () => {
+    it('should close move error dialog', () => {
       const store = useStore.getState();
 
       // First open the dialog
@@ -304,8 +304,8 @@ describe("TrainingSlice - Nested Store Structure", () => {
     });
   });
 
-  describe("resetTraining", () => {
-    it("should reset state to initial values", () => {
+  describe('resetTraining', () => {
+    it('should reset state to initial values', () => {
       const store = useStore.getState();
 
       // Set various values first
@@ -319,27 +319,27 @@ describe("TrainingSlice - Nested Store Structure", () => {
       expect(stateBefore.training.currentPosition).toEqual(mockPosition);
       expect(stateBefore.training.hintsUsed).toBe(1);
       expect(stateBefore.training.mistakeCount).toBe(1);
-      
+
       // Reset training - should now actually reset the state
       store.training.resetTraining();
 
       const stateAfter = useStore.getState();
-      
+
       // State should be reset to initial values
       expect(stateAfter.training.currentPosition).toBeUndefined();
       expect(stateAfter.training.hintsUsed).toBe(0);
       expect(stateAfter.training.mistakeCount).toBe(0);
       expect(stateAfter.training.isPlayerTurn).toBe(true);
       expect(stateAfter.training.isSuccess).toBe(false);
-      
+
       // Actions should still be available
       expect(typeof store.training.setPosition).toBe('function');
       expect(typeof store.training.incrementHint).toBe('function');
     });
   });
 
-  describe("Integration with nested structure", () => {
-    it("should work with other slices in the store", () => {
+  describe('Integration with nested structure', () => {
+    it('should work with other slices in the store', () => {
       const store = useStore.getState();
 
       // Verify that other slices exist
@@ -357,7 +357,7 @@ describe("TrainingSlice - Nested Store Structure", () => {
       expect(state.tablebase.analysisStatus).toBeDefined();
     });
 
-    it("should maintain proper nesting in state updates", () => {
+    it('should maintain proper nesting in state updates', () => {
       const store = useStore.getState();
 
       // Make multiple updates

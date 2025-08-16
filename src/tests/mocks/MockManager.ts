@@ -1,13 +1,13 @@
 /**
  * Central Mock Manager
- * 
+ *
  * Singleton that manages all mock factories and provides
  * automatic cleanup after each test.
- * 
+ *
  * Usage:
  * ```typescript
  * import { mockManager } from '@tests/mocks/MockManager';
- * 
+ *
  * beforeEach(() => {
  *   const chessService = mockManager.chessService.create();
  *   const store = mockManager.zustandStore.create();
@@ -25,23 +25,23 @@ class MockManager {
   // Service mocks
   public readonly chessService = new ChessServiceMockFactory();
   public readonly tablebaseService = new TablebaseServiceMockFactory();
-  
+
   // Store mocks
   public readonly zustandStore = new ZustandStoreMockFactory();
-  
+
   // API mocks (lazy loaded to avoid MSW import issues in Node tests)
   private _mswServer?: any;
-  
+
   // Track all active mocks for cleanup
   private activeMocks = new Set<BaseMockFactory<any>>();
-  
+
   constructor() {
     // Register this instance globally for factories to access
     if (typeof global !== 'undefined') {
       (global as any).__mockManager = this;
     }
   }
-  
+
   /**
    * Get MSW server factory with lazy loading
    */
@@ -51,10 +51,18 @@ class MockManager {
         const { MSWServerMockFactory } = require('./MSWServerMockFactory');
         this._mswServer = new MSWServerMockFactory();
       } catch (error) {
-        console.warn('MSW not available in this environment:', error instanceof Error ? error.message : String(error));
+        console.warn(
+          'MSW not available in this environment:',
+          error instanceof Error ? error.message : String(error)
+        );
         // Return a mock that does nothing
         this._mswServer = {
-          create: () => ({ server: null, addHandler: () => {}, resetHandlers: () => {}, close: () => {} }),
+          create: () => ({
+            server: null,
+            addHandler: () => {},
+            resetHandlers: () => {},
+            close: () => {},
+          }),
           cleanup: () => {},
           exists: () => false,
         };
@@ -95,10 +103,10 @@ class MockManager {
         console.error(`Error cleaning up ${factory.constructor.name}:`, error);
       }
     }
-    
+
     // Clear active mocks set
     this.activeMocks.clear();
-    
+
     // Additional global cleanup
     this.performGlobalCleanup();
   }
@@ -110,12 +118,12 @@ class MockManager {
     // IMPORTANT: Do NOT use vi.clearAllMocks() here!
     // It destroys module mock implementations defined at the top of test files.
     // Individual mock factories handle their own cleanup in their cleanup() methods.
-    
+
     // Clear all timers if using fake timers
     if (vi.isMockFunction(setTimeout)) {
       vi.clearAllTimers();
     }
-    
+
     // Clear any pending promises
     if (typeof process !== 'undefined' && process.nextTick) {
       process.nextTick(() => {});
@@ -128,7 +136,7 @@ class MockManager {
    */
   public resetAll(): void {
     this.cleanupAfterEach();
-    
+
     // Additional reset logic if needed
     this.activeMocks.clear();
   }
@@ -144,9 +152,7 @@ class MockManager {
    * Get a list of active mock names (for debugging)
    */
   public getActiveMockNames(): string[] {
-    return Array.from(this.activeMocks).map(
-      factory => factory.constructor.name
-    );
+    return Array.from(this.activeMocks).map(factory => factory.constructor.name);
   }
 
   /**
@@ -172,17 +178,17 @@ class MockManager {
    */
   public verifyCleanup(): void {
     const issues: string[] = [];
-    
+
     for (const factory of this.allFactories) {
       if (factory.exists()) {
         issues.push(`${factory.constructor.name} still has an active instance`);
       }
     }
-    
+
     if (this.activeMocks.size > 0) {
       issues.push(`${this.activeMocks.size} mocks are still marked as active`);
     }
-    
+
     if (issues.length > 0) {
       console.warn('Mock cleanup issues detected:', issues);
     }

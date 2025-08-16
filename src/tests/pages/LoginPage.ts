@@ -3,8 +3,8 @@
  * Handles authentication UI interactions
  */
 
-import { type Page } from "@playwright/test";
-import { BasePage } from "./BasePage";
+import { type Page } from '@playwright/test';
+import { BasePage } from './BasePage';
 
 export class LoginPage extends BasePage {
   constructor(page: Page) {
@@ -12,7 +12,7 @@ export class LoginPage extends BasePage {
   }
 
   async navigate(): Promise<void> {
-    await this.page.goto("/login");
+    await this.page.goto('/login');
   }
 
   async fillEmail(email: string): Promise<void> {
@@ -29,11 +29,11 @@ export class LoginPage extends BasePage {
 
   async getErrorMessage(): Promise<string> {
     const errorElement = this.page.locator('[data-testid="error-message"]');
-    await errorElement.waitFor({ state: "visible" });
+    await errorElement.waitFor({ state: 'visible' });
     return this.getLocatorText(errorElement);
   }
 
   async waitForPageLoad(): Promise<void> {
-    await this.page.waitForLoadState("networkidle");
+    await this.page.waitForLoadState('networkidle');
   }
 }

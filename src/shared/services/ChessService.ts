@@ -8,14 +8,14 @@
  * of concerns. Provides event-driven updates for store synchronization.
  */
 
-import { Chess, type Move as ChessJsMove } from "chess.js";
-import type { ValidatedMove } from "@shared/types/chess";
-import { createValidatedMove } from "@shared/types/chess";
-import { getLogger } from "./logging";
-import { CACHE_SIZES } from "@/shared/constants/cache";
-import { FEN, ARRAY_INDICES } from "@/shared/constants/chess.constants";
+import { Chess, type Move as ChessJsMove } from 'chess.js';
+import type { ValidatedMove } from '@shared/types/chess';
+import { createValidatedMove } from '@shared/types/chess';
+import { getLogger } from './logging';
+import { CACHE_SIZES } from '@/shared/constants/cache';
+import { FEN, ARRAY_INDICES } from '@/shared/constants/chess.constants';
 
-const logger = getLogger().setContext("ChessService");
+const logger = getLogger().setContext('ChessService');
 
 /**
  * Game state payload for events
@@ -34,11 +34,11 @@ export interface GameStatePayload {
  */
 export type ChessServiceEvent =
   | {
-      type: "stateUpdate";
+      type: 'stateUpdate';
       payload: GameStatePayload;
-      source: "move" | "reset" | "undo" | "redo" | "load";
+      source: 'move' | 'reset' | 'undo' | 'redo' | 'load';
     }
-  | { type: "error"; payload: { error: Error; move?: ValidatedMove | string; message: string } };
+  | { type: 'error'; payload: { error: Error; move?: ValidatedMove | string; message: string } };
 
 /**
  * Listener function type for ChessService events
@@ -66,28 +66,28 @@ class ChessService {
    */
   private normalizePromotionPiece(notation: string | undefined): string | undefined {
     if (!notation) return undefined;
-    
+
     // Map German piece names to chess.js format
     const germanToChessJs: Record<string, string> = {
-      'D': 'q', // Dame (Queen)
-      'd': 'q',
-      'T': 'r', // Turm (Rook)
-      't': 'r',
-      'L': 'b', // Läufer (Bishop)
-      'l': 'b',
-      'S': 'n', // Springer (Knight)
-      's': 'n',
+      D: 'q', // Dame (Queen)
+      d: 'q',
+      T: 'r', // Turm (Rook)
+      t: 'r',
+      L: 'b', // Läufer (Bishop)
+      l: 'b',
+      S: 'n', // Springer (Knight)
+      s: 'n',
       // Also support English notation
-      'Q': 'q',
-      'q': 'q',
-      'R': 'r',
-      'r': 'r',
-      'B': 'b',
-      'b': 'b',
-      'N': 'n',
-      'n': 'n',
+      Q: 'q',
+      q: 'q',
+      R: 'r',
+      r: 'r',
+      B: 'b',
+      b: 'b',
+      N: 'n',
+      n: 'n',
     };
-    
+
     return germanToChessJs[notation] || notation;
   }
 
@@ -109,14 +109,14 @@ class ChessService {
    * Emit event to all listeners
    */
   private emit(event: ChessServiceEvent): void {
-    this.listeners.forEach((listener) => {
+    this.listeners.forEach(listener => {
       try {
         listener(event);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         logger.error(`Error in ChessService listener: ${errorMessage}`, {
           errorType: error ? error.constructor.name : 'unknown',
-          stack: error instanceof Error ? error.stack : undefined
+          stack: error instanceof Error ? error.stack : undefined,
         });
       }
     });
@@ -142,7 +142,6 @@ class ChessService {
    */
   initialize(fen: string): boolean {
     try {
-
       // Check cache first (storing normalized FEN strings, not Chess instances)
       const cachedFen = this.fenCache.get(fen);
       if (cachedFen) {
@@ -163,9 +162,9 @@ class ChessService {
       // ChessService initialized
 
       this.emit({
-        type: "stateUpdate",
+        type: 'stateUpdate',
         payload: this.buildStatePayload(),
-        source: "load",
+        source: 'load',
       });
 
       // State update emitted to listeners
@@ -173,15 +172,18 @@ class ChessService {
     } catch (error) {
       // Emit error event for initialization failures
       this.emit({
-        type: "error",
+        type: 'error',
         payload: {
           error: error instanceof Error ? error : new Error(String(error)),
           // Omit move property instead of setting to undefined for exactOptionalPropertyTypes
-          message: "Ungültige FEN-Position",
+          message: 'Ungültige FEN-Position',
         },
       });
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error(`Failed to initialize with FEN: ${errorMessage}`, { fen, errorType: error ? error.constructor.name : 'unknown' });
+      logger.error(`Failed to initialize with FEN: ${errorMessage}`, {
+        fen,
+        errorType: error ? error.constructor.name : 'unknown',
+      });
       return false;
     }
   }
@@ -190,10 +192,7 @@ class ChessService {
    * Make a move
    */
   move(
-    move:
-      | ChessJsMove
-      | { from: string; to: string; promotion?: string }
-      | string,
+    move: ChessJsMove | { from: string; to: string; promotion?: string } | string
   ): ValidatedMove | null {
     try {
       const fenBefore = this.chess.fen();
@@ -211,17 +210,17 @@ class ChessService {
         }
       } else if (typeof move === 'string') {
         // Handle string notation with German piece letters
-        
+
         // First check if it's a regular move with German piece notation (e.g., "Dh5", "Ta4")
         const germanPieceRegex = /^([DTLS])([a-h]?[1-8]?[x]?)([a-h][1-8])([+#])?$/;
         const germanMatch = move.match(germanPieceRegex);
         if (germanMatch && germanMatch.length >= 4) {
           // Convert German piece notation to English
           const germanToEnglish: Record<string, string> = {
-            'D': 'Q', // Dame -> Queen
-            'T': 'R', // Turm -> Rook
-            'L': 'B', // Läufer -> Bishop
-            'S': 'N', // Springer -> Knight
+            D: 'Q', // Dame -> Queen
+            T: 'R', // Turm -> Rook
+            L: 'B', // Läufer -> Bishop
+            S: 'N', // Springer -> Knight
           };
           // When regex matches, these groups are guaranteed to exist (but group 2 can be empty string)
           const [, piece = '', middle = '', target = '', suffix = ''] = germanMatch;
@@ -230,7 +229,7 @@ class ChessService {
           }
         } else {
           // Try different promotion formats: "e7e8D", "e7-e8D", "e8D", "e8=D"
-          
+
           // Format 1: "e7e8D" or "e7-e8D" (from-to-promotion with optional dash)
           let promotionMatch = move.match(/^([a-h][1-8])-?([a-h][1-8])([DTLSQRBN])$/i);
           if (promotionMatch && promotionMatch[3]) {
@@ -239,14 +238,14 @@ class ChessService {
             normalizedMove = {
               from: promotionMatch[1],
               to: promotionMatch[2],
-              promotion: normalizedPromotion as string
+              promotion: normalizedPromotion as string,
             } as { from: string; to: string; promotion?: string };
           } else {
             // Format 2: "e8D" or "e8=D" (SAN notation with German piece)
             promotionMatch = move.match(/^([a-h][1-8])=?([DTLSQRBN])$/i);
             if (promotionMatch && promotionMatch[2]) {
               const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[2]);
-              normalizedMove = `${promotionMatch[1]  }=${  (normalizedPromotion || '').toUpperCase()}`;
+              normalizedMove = `${promotionMatch[1]}=${(normalizedPromotion || '').toUpperCase()}`;
             }
           }
         }
@@ -256,17 +255,17 @@ class ChessService {
 
       if (!result) {
         // Emit error event for invalid moves
-        logger.warn("Invalid move attempted", {
+        logger.warn('Invalid move attempted', {
           move,
           fenBefore,
         });
 
         this.emit({
-          type: "error",
+          type: 'error',
           payload: {
-            error: new Error("Invalid move"),
+            error: new Error('Invalid move'),
             move: typeof move === 'string' ? move : `${move.from}-${move.to}`,
-            message: "Ungültiger Zug",
+            message: 'Ungültiger Zug',
           },
         });
         return null;
@@ -281,24 +280,27 @@ class ChessService {
       this.currentMoveIndex = this.moveHistory.length - 1;
 
       this.emit({
-        type: "stateUpdate",
+        type: 'stateUpdate',
         payload: this.buildStatePayload(),
-        source: "move",
+        source: 'move',
       });
 
       return validatedMove;
     } catch (error) {
       // Emit error event for exceptions
       this.emit({
-        type: "error",
+        type: 'error',
         payload: {
           error: error instanceof Error ? error : new Error(String(error)),
           move: typeof move === 'string' ? move : `${move.from}-${move.to}`,
-          message: "Fehler beim Ausführen des Zuges",
+          message: 'Fehler beim Ausführen des Zuges',
         },
       });
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error(`Error making move: ${errorMessage}`, { move, errorType: error ? error.constructor.name : 'unknown' });
+      logger.error(`Error making move: ${errorMessage}`, {
+        move,
+        errorType: error ? error.constructor.name : 'unknown',
+      });
       return null;
     }
   }
@@ -310,46 +312,46 @@ class ChessService {
     if (this.currentMoveIndex < 0) {
       // Emit error event for no moves to undo
       this.emit({
-        type: "error",
+        type: 'error',
         payload: {
-          error: new Error("No moves to undo"),
+          error: new Error('No moves to undo'),
           // Omit move property for exactOptionalPropertyTypes compatibility
-          message: "Keine Züge zum Rückgängigmachen",
+          message: 'Keine Züge zum Rückgängigmachen',
         },
       });
-      logger.warn("No moves to undo");
+      logger.warn('No moves to undo');
       return false;
     }
 
     try {
       const targetIndex = this.currentMoveIndex - 1;
       const targetFen =
-        targetIndex >= 0
-          ? this.moveHistory[targetIndex]?.fenAfter
-          : this.moveHistory[0]?.fenBefore;
+        targetIndex >= 0 ? this.moveHistory[targetIndex]?.fenAfter : this.moveHistory[0]?.fenBefore;
 
       this.chess = new Chess(targetFen);
       this.currentMoveIndex = targetIndex;
 
       this.emit({
-        type: "stateUpdate",
+        type: 'stateUpdate',
         payload: this.buildStatePayload(),
-        source: "undo",
+        source: 'undo',
       });
 
       return true;
     } catch (error) {
       // Emit error event for undo failures
       this.emit({
-        type: "error",
+        type: 'error',
         payload: {
           error: error instanceof Error ? error : new Error(String(error)),
           // Omit move property for exactOptionalPropertyTypes compatibility
-          message: "Fehler beim Rückgängigmachen",
+          message: 'Fehler beim Rückgängigmachen',
         },
       });
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error(`Failed to undo move: ${errorMessage}`, { errorType: error ? error.constructor.name : 'unknown' });
+      logger.error(`Failed to undo move: ${errorMessage}`, {
+        errorType: error ? error.constructor.name : 'unknown',
+      });
       return false;
     }
   }
@@ -361,14 +363,14 @@ class ChessService {
     if (this.currentMoveIndex >= this.moveHistory.length - 1) {
       // Emit error event for no moves to redo
       this.emit({
-        type: "error",
+        type: 'error',
         payload: {
-          error: new Error("No moves to redo"),
+          error: new Error('No moves to redo'),
           // Omit move property for exactOptionalPropertyTypes compatibility
-          message: "Keine Züge zum Wiederherstellen",
+          message: 'Keine Züge zum Wiederherstellen',
         },
       });
-      logger.warn("No moves to redo");
+      logger.warn('No moves to redo');
       return false;
     }
 
@@ -376,7 +378,7 @@ class ChessService {
       const targetIndex = this.currentMoveIndex + 1;
       const targetMove = this.moveHistory[targetIndex];
       if (!targetMove) {
-        logger.warn("No move found at target index");
+        logger.warn('No move found at target index');
         return false;
       }
       const targetFen = targetMove.fenAfter;
@@ -385,24 +387,26 @@ class ChessService {
       this.currentMoveIndex = targetIndex;
 
       this.emit({
-        type: "stateUpdate",
+        type: 'stateUpdate',
         payload: this.buildStatePayload(),
-        source: "redo",
+        source: 'redo',
       });
 
       return true;
     } catch (error) {
       // Emit error event for redo failures
       this.emit({
-        type: "error",
+        type: 'error',
         payload: {
           error: error instanceof Error ? error : new Error(String(error)),
           // Omit move property for exactOptionalPropertyTypes compatibility
-          message: "Fehler beim Wiederherstellen",
+          message: 'Fehler beim Wiederherstellen',
         },
       });
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error(`Failed to redo move: ${errorMessage}`, { errorType: error ? error.constructor.name : 'unknown' });
+      logger.error(`Failed to redo move: ${errorMessage}`, {
+        errorType: error ? error.constructor.name : 'unknown',
+      });
       return false;
     }
   }
@@ -417,11 +421,10 @@ class ChessService {
     this.currentMoveIndex = -1;
 
     this.emit({
-      type: "stateUpdate",
+      type: 'stateUpdate',
       payload: this.buildStatePayload(),
-      source: "reset",
+      source: 'reset',
     });
-
   }
 
   /**
@@ -490,21 +493,18 @@ class ChessService {
   /**
    * Get whose turn it is
    */
-  turn(): "w" | "b" {
+  turn(): 'w' | 'b' {
     return this.chess.turn();
   }
 
   /**
    * Get legal moves for a square
    */
-  moves(options?: {
-    square?: string;
-    verbose?: boolean;
-  }): string[] | ChessJsMove[] {
+  moves(options?: { square?: string; verbose?: boolean }): string[] | ChessJsMove[] {
     if (!options) {
       return this.chess.moves();
     }
-    
+
     // Handle chess.js type requirements
     const chessOptions: { square?: string; verbose?: boolean } = {};
     if (options.verbose !== undefined) {
@@ -513,32 +513,101 @@ class ChessService {
     if (options.square && /^[a-h][1-8]$/.test(options.square)) {
       chessOptions.square = options.square as 'a1'; // Type assertion after validation
     }
-    
+
     return this.chess.moves(chessOptions);
   }
 
   /**
    * Helper: Validate move object has valid squares
    */
-  private validateMoveObject(move: { from: string; to: string; promotion?: string }, currentFen: string): boolean {
+  private validateMoveObject(
+    move: { from: string; to: string; promotion?: string },
+    currentFen: string
+  ): boolean {
     const { from, to } = move;
     const squareRegex = /^[a-h][1-8]$/;
-    
+
     // Basic square format validation
     if (!squareRegex.test(from) || !squareRegex.test(to)) {
       return false;
     }
-    
+
     // Check if source square has a piece
     const tempChess = new Chess(currentFen);
-    const isValidSquare = (square: string): square is 'a1' | 'a2' | 'a3' | 'a4' | 'a5' | 'a6' | 'a7' | 'a8' | 'b1' | 'b2' | 'b3' | 'b4' | 'b5' | 'b6' | 'b7' | 'b8' | 'c1' | 'c2' | 'c3' | 'c4' | 'c5' | 'c6' | 'c7' | 'c8' | 'd1' | 'd2' | 'd3' | 'd4' | 'd5' | 'd6' | 'd7' | 'd8' | 'e1' | 'e2' | 'e3' | 'e4' | 'e5' | 'e6' | 'e7' | 'e8' | 'f1' | 'f2' | 'f3' | 'f4' | 'f5' | 'f6' | 'f7' | 'f8' | 'g1' | 'g2' | 'g3' | 'g4' | 'g5' | 'g6' | 'g7' | 'g8' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'h7' | 'h8' => {
+    const isValidSquare = (
+      square: string
+    ): square is
+      | 'a1'
+      | 'a2'
+      | 'a3'
+      | 'a4'
+      | 'a5'
+      | 'a6'
+      | 'a7'
+      | 'a8'
+      | 'b1'
+      | 'b2'
+      | 'b3'
+      | 'b4'
+      | 'b5'
+      | 'b6'
+      | 'b7'
+      | 'b8'
+      | 'c1'
+      | 'c2'
+      | 'c3'
+      | 'c4'
+      | 'c5'
+      | 'c6'
+      | 'c7'
+      | 'c8'
+      | 'd1'
+      | 'd2'
+      | 'd3'
+      | 'd4'
+      | 'd5'
+      | 'd6'
+      | 'd7'
+      | 'd8'
+      | 'e1'
+      | 'e2'
+      | 'e3'
+      | 'e4'
+      | 'e5'
+      | 'e6'
+      | 'e7'
+      | 'e8'
+      | 'f1'
+      | 'f2'
+      | 'f3'
+      | 'f4'
+      | 'f5'
+      | 'f6'
+      | 'f7'
+      | 'f8'
+      | 'g1'
+      | 'g2'
+      | 'g3'
+      | 'g4'
+      | 'g5'
+      | 'g6'
+      | 'g7'
+      | 'g8'
+      | 'h1'
+      | 'h2'
+      | 'h3'
+      | 'h4'
+      | 'h5'
+      | 'h6'
+      | 'h7'
+      | 'h8' => {
       return /^[a-h][1-8]$/.test(square);
     };
-    
+
     if (!isValidSquare(from)) {
       return false;
     }
-    
+
     const piece = tempChess.get(from);
     return piece !== null;
   }
@@ -549,13 +618,13 @@ class ChessService {
   private normalizeGermanNotation(move: string): string {
     const germanPieceRegex = /^([DTLS])([a-h]?[1-8]?[x]?)([a-h][1-8])([+#])?$/;
     const germanMatch = move.match(germanPieceRegex);
-    
+
     if (germanMatch && germanMatch.length >= 4) {
       const germanToEnglish: Record<string, string> = {
-        'D': 'Q', // Dame -> Queen
-        'T': 'R', // Turm -> Rook
-        'L': 'B', // Läufer -> Bishop
-        'S': 'N', // Springer -> Knight
+        D: 'Q', // Dame -> Queen
+        T: 'R', // Turm -> Rook
+        L: 'B', // Läufer -> Bishop
+        S: 'N', // Springer -> Knight
       };
       const [, piece = '', middle = '', target = '', suffix = ''] = germanMatch;
       if (piece && target && germanToEnglish[piece]) {
@@ -568,7 +637,9 @@ class ChessService {
   /**
    * Helper: Handle promotion notation
    */
-  private handlePromotionNotation(move: string): string | { from: string; to: string; promotion?: string } {
+  private handlePromotionNotation(
+    move: string
+  ): string | { from: string; to: string; promotion?: string } {
     // Format 1: "e7e8D" or "e7-e8D" (from-to-promotion with optional dash)
     let promotionMatch = move.match(/^([a-h][1-8])-?([a-h][1-8])([DTLSQRBN])$/i);
     if (promotionMatch && promotionMatch[1] && promotionMatch[2] && promotionMatch[3]) {
@@ -576,17 +647,17 @@ class ChessService {
       return {
         from: promotionMatch[1],
         to: promotionMatch[2],
-        promotion: normalizedPromotion as string
+        promotion: normalizedPromotion as string,
       };
     }
-    
+
     // Format 2: "e8D" or "e8=D" (SAN notation with German piece)
     promotionMatch = move.match(/^([a-h][1-8])=?([DTLSQRBN])$/i);
     if (promotionMatch && promotionMatch[1] && promotionMatch[2]) {
       const normalizedPromotion = this.normalizePromotionPiece(promotionMatch[2]);
       return `${promotionMatch[1]}=${(normalizedPromotion || '').toUpperCase()}`;
     }
-    
+
     return move;
   }
 
@@ -594,17 +665,19 @@ class ChessService {
    * Validate a move without making it
    */
   validateMove(
-    move:
-      | ChessJsMove
-      | { from: string; to: string; promotion?: string }
-      | string,
+    move: ChessJsMove | { from: string; to: string; promotion?: string } | string
   ): boolean {
     try {
       const currentFen = this.chess.fen();
 
       // Validate move object format
       if (typeof move === 'object' && move !== null && 'from' in move && 'to' in move) {
-        if (!this.validateMoveObject(move as { from: string; to: string; promotion?: string }, currentFen)) {
+        if (
+          !this.validateMoveObject(
+            move as { from: string; to: string; promotion?: string },
+            currentFen
+          )
+        ) {
           return false;
         }
       }
@@ -636,9 +709,10 @@ class ChessService {
       if (typeof move === 'object' && move !== null && 'promotion' in move) {
         logger.info(`Promotion move validation`, {
           originalMove: JSON.stringify(move),
-          normalizedMove: typeof normalizedMove === 'object' ? JSON.stringify(normalizedMove) : normalizedMove,
+          normalizedMove:
+            typeof normalizedMove === 'object' ? JSON.stringify(normalizedMove) : normalizedMove,
           result: result ? 'valid' : 'invalid',
-          currentFen: currentFen
+          currentFen: currentFen,
         });
       }
 
@@ -648,13 +722,13 @@ class ChessService {
       // Enhanced error logging to debug E2E issues
       const errorMessage = error instanceof Error ? error.message : String(error);
       const errorStack = error instanceof Error ? error.stack : undefined;
-      
-      logger.error(`ChessService.validateMove error: ${errorMessage}`, { 
+
+      logger.error(`ChessService.validateMove error: ${errorMessage}`, {
         errorType: error ? error.constructor.name : 'unknown',
         move: typeof move === 'object' ? JSON.stringify(move) : String(move),
         moveType: typeof move,
         currentFen: this.chess.fen(),
-        stack: errorStack
+        stack: errorStack,
       });
       return false;
     }
@@ -667,10 +741,10 @@ class ChessService {
     if (!this.chess.isGameOver()) return null;
 
     if (this.chess.isCheckmate()) {
-      return this.chess.turn() === "w" ? "0-1" : "1-0";
+      return this.chess.turn() === 'w' ? '0-1' : '1-0';
     }
 
-    return "1/2-1/2"; // Draw
+    return '1/2-1/2'; // Draw
   }
 
   /**
@@ -696,24 +770,26 @@ class ChessService {
       this.currentMoveIndex = this.moveHistory.length - 1;
 
       this.emit({
-        type: "stateUpdate",
+        type: 'stateUpdate',
         payload: this.buildStatePayload(),
-        source: "load",
+        source: 'load',
       });
 
       return true;
     } catch (error) {
       // Emit error event for PGN loading failures
       this.emit({
-        type: "error",
+        type: 'error',
         payload: {
           error: error instanceof Error ? error : new Error(String(error)),
           // Omit move property for exactOptionalPropertyTypes compatibility
-          message: "Ungültiges PGN-Format",
+          message: 'Ungültiges PGN-Format',
         },
       });
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error(`Failed to load PGN: ${errorMessage}`, { errorType: error ? error.constructor.name : 'unknown' });
+      logger.error(`Failed to load PGN: ${errorMessage}`, {
+        errorType: error ? error.constructor.name : 'unknown',
+      });
       return false;
     }
   }
@@ -747,14 +823,14 @@ class ChessService {
     if (moveIndex < -1 || moveIndex >= this.moveHistory.length) {
       // Emit error event for invalid index
       this.emit({
-        type: "error",
+        type: 'error',
         payload: {
           error: new Error(`Invalid move index: ${moveIndex}`),
           // Omit move property for exactOptionalPropertyTypes compatibility
           message: `Ungültiger Zugindex: ${moveIndex}`,
         },
       });
-      logger.warn("Invalid move index", { moveIndex });
+      logger.warn('Invalid move index', { moveIndex });
       return false;
     }
 
@@ -768,24 +844,27 @@ class ChessService {
       this.currentMoveIndex = moveIndex;
 
       this.emit({
-        type: "stateUpdate",
+        type: 'stateUpdate',
         payload: this.buildStatePayload(),
-        source: "load",
+        source: 'load',
       });
 
       return true;
     } catch (error) {
       // Emit error event for navigation failures
       this.emit({
-        type: "error",
+        type: 'error',
         payload: {
           error: error instanceof Error ? error : new Error(String(error)),
           // Omit move property for exactOptionalPropertyTypes compatibility
-          message: "Fehler beim Navigieren zum Zug",
+          message: 'Fehler beim Navigieren zum Zug',
         },
       });
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error(`Failed to go to move: ${errorMessage}`, { moveIndex, errorType: error ? error.constructor.name : 'unknown' });
+      logger.error(`Failed to go to move: ${errorMessage}`, {
+        moveIndex,
+        errorType: error ? error.constructor.name : 'unknown',
+      });
       return false;
     }
   }

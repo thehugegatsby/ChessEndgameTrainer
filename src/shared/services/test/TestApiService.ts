@@ -11,14 +11,14 @@
  * - Deterministic: Provides predictable test behavior
  */
 
-import { Chess, type Move as ChessJsMove } from "chess.js";
-import { TESTING } from "@shared/constants";
-import { getLogger } from "@shared/services/logging";
-import type { RootState } from "@shared/store/slices/types";
-import type { EndgamePosition } from "@shared/types/endgame";
-import { type Result, ok, err, isErr, AppError } from "@shared/utils/result";
+import { Chess, type Move as ChessJsMove } from 'chess.js';
+import { TESTING } from '@shared/constants';
+import { getLogger } from '@shared/services/logging';
+import type { RootState } from '@shared/store/slices/types';
+import type { EndgamePosition } from '@shared/types/endgame';
+import { type Result, ok, err, isErr, AppError } from '@shared/utils/result';
 
-const logger = getLogger().setContext("TestApiService");
+const logger = getLogger().setContext('TestApiService');
 
 /**
  * Test API Response types
@@ -50,7 +50,7 @@ export interface TestMoveResponse {
  */
 export interface TestGameState {
   fen: string;
-  turn: "w" | "b";
+  turn: 'w' | 'b';
   moveCount: number;
   pgn: string;
   isGameOver: boolean;
@@ -141,7 +141,9 @@ export class TestApiService {
     getState: () => RootState;
     subscribe: (listener: (state: RootState, prevState: RootState) => void) => () => void;
     // Individual action functions extracted from store state
-    makeMove: (move: ChessJsMove | { from: string; to: string; promotion?: string } | string) => void;
+    makeMove: (
+      move: ChessJsMove | { from: string; to: string; promotion?: string } | string
+    ) => void;
     applyMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => void;
     resetPosition: () => void;
     setPosition: (position: EndgamePosition) => void;
@@ -193,18 +195,20 @@ export class TestApiService {
       getState: () => RootState;
       subscribe: (listener: (state: RootState, prevState: RootState) => void) => () => void;
       // Individual action functions extracted from store state
-      makeMove: (move: ChessJsMove | { from: string; to: string; promotion?: string } | string) => void;
+      makeMove: (
+        move: ChessJsMove | { from: string; to: string; promotion?: string } | string
+      ) => void;
       applyMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => void;
       resetPosition: () => void;
       setPosition: (position: EndgamePosition) => void;
       goToMove: (moveIndex: number) => void;
       setAnalysisStatus: (status: string) => void;
     },
-    config?: TestTablebaseConfig,
+    config?: TestTablebaseConfig
   ): void {
     // Validate required actions
     if (!storeAccess.makeMove || !storeAccess.resetPosition) {
-      logger.error("Required store actions not available");
+      logger.error('Required store actions not available');
       this._isInitialized = false;
       return;
     }
@@ -216,12 +220,10 @@ export class TestApiService {
       this.tablebaseConfig = { ...this.tablebaseConfig, ...config };
     }
 
-    logger.info(
-      "✅ TestApiService: Successfully initialized with store actions",
-    );
+    logger.info('✅ TestApiService: Successfully initialized with store actions');
 
     // Emit initialization event
-    this.emit("test:initialized", { config: this.tablebaseConfig });
+    this.emit('test:initialized', { config: this.tablebaseConfig });
   }
 
   /**
@@ -250,7 +252,7 @@ export class TestApiService {
     this.tablebaseConfig = { deterministic: false };
     this._isInitialized = false;
     this.storeAccess = null;
-    this.emit("test:cleanup", {});
+    this.emit('test:cleanup', {});
     TestApiService.instance = null;
   }
 
@@ -281,40 +283,40 @@ export class TestApiService {
    */
   public async makeValidatedMove(move: string): Promise<TestMoveResponse> {
     if (!this.storeAccess) {
-      throw new Error("TestApiService not initialized with store access");
+      throw new Error('TestApiService not initialized with store access');
     }
 
     try {
       // Parse move format
       let moveObj: { from: string; to: string; promotion?: string } | string;
 
-      if (move.includes("-")) {
+      if (move.includes('-')) {
         // Format: 'e2-e4' or 'e7-e8=D'
-        const parts = move.split("-");
+        const parts = move.split('-');
         const from = parts[0];
         const toPart = parts[1];
-        
+
         if (!from || !toPart) {
           throw new Error(`Invalid move format: ${move}`);
         }
-        
+
         // At this point, TypeScript knows from and toPart are strings
-        if (toPart.includes("=")) {
-          const promotionParts = toPart.split("=");
+        if (toPart.includes('=')) {
+          const promotionParts = toPart.split('=');
           const to = promotionParts[0];
           const promotionPart = promotionParts[1];
-          
+
           if (!to) {
             throw new Error(`Invalid promotion format: ${move}`);
           }
-          
+
           let promotion = promotionPart;
           // Convert German to English notation
-          if (promotion === "D") promotion = "q"; // Dame -> Queen
-          if (promotion === "T") promotion = "r"; // Turm -> Rook
-          if (promotion === "L") promotion = "b"; // Läufer -> Bishop
-          if (promotion === "S") promotion = "n"; // Springer -> Knight
-          
+          if (promotion === 'D') promotion = 'q'; // Dame -> Queen
+          if (promotion === 'T') promotion = 'r'; // Turm -> Rook
+          if (promotion === 'L') promotion = 'b'; // Läufer -> Bishop
+          if (promotion === 'S') promotion = 'n'; // Springer -> Knight
+
           moveObj = {
             from: from,
             to: to,
@@ -329,23 +331,35 @@ export class TestApiService {
       }
 
       // Import handlePlayerMove directly (it's not part of store, it's an orchestrator)
-      const { handlePlayerMove } = await import(
-        "@shared/store/orchestrators/handlePlayerMove"
-      );
+      const { handlePlayerMove } = await import('@shared/store/orchestrators/handlePlayerMove');
 
       // Create a store API object that handlePlayerMove expects (like in rootStore.ts:186)
       const storeApi = {
         getState: this.storeAccess.getState,
-        setState: (updater: RootState | Partial<RootState> | ((state: RootState) => RootState | Partial<RootState> | void)) => {
+        setState: (
+          updater:
+            | RootState
+            | Partial<RootState>
+            | ((state: RootState) => RootState | Partial<RootState> | void)
+        ) => {
           // We need the actual setState from store access - this is the key fix
           // The storeAccess should provide the actual Zustand setState method
-          if (this.storeAccess && "setState" in this.storeAccess) {
+          if (this.storeAccess && 'setState' in this.storeAccess) {
             // If storeAccess provides setState directly
-            (this.storeAccess as unknown as { setState: (updater: RootState | Partial<RootState> | ((state: RootState) => RootState | Partial<RootState> | void)) => void }).setState(updater);
+            (
+              this.storeAccess as unknown as {
+                setState: (
+                  updater:
+                    | RootState
+                    | Partial<RootState>
+                    | ((state: RootState) => RootState | Partial<RootState> | void)
+                ) => void;
+              }
+            ).setState(updater);
           } else {
             // Fallback - log warning but don't fail
             logger.warn(
-              "TestApiService: setState not available in storeAccess - state updates may not work",
+              'TestApiService: setState not available in storeAccess - state updates may not work'
             );
           }
         },
@@ -357,22 +371,21 @@ export class TestApiService {
       // Get final state after move processing
       const finalState = this.storeAccess.getState();
 
-      this.emit("test:validated_move", {
+      this.emit('test:validated_move', {
         move,
         success: result,
-        fen: finalState.game?.currentFen || "unknown",
+        fen: finalState.game?.currentFen || 'unknown',
         moveCount: finalState.game?.moveHistory?.length || 0,
       });
 
       return {
         success: result,
-        resultingFen:
-          finalState.game?.currentFen || "unknown",
+        resultingFen: finalState.game?.currentFen || 'unknown',
         moveCount: finalState.game?.moveHistory?.length || 0,
-        ...(!result && { error: "Move rejected by validation pipeline" }),
+        ...(!result && { error: 'Move rejected by validation pipeline' }),
       };
     } catch (error) {
-      logger.error("TestApiService.makeValidatedMove error:", error);
+      logger.error('TestApiService.makeValidatedMove error:', error);
       return {
         success: false,
         error: `Error: ${error instanceof Error ? error.message : String(error)}`,
@@ -388,58 +401,60 @@ export class TestApiService {
   public async makeMove(move: string): Promise<TestMoveResponse> {
     // Adapter pattern: internal Result, external legacy API
     const result = await this._makeMoveInternal(move);
-    
+
     if (isErr(result)) {
       return {
         success: false,
         error: result.error.message,
       };
     }
-    
+
     return {
       success: true,
       resultingFen: result.value.resultingFen,
       moveCount: result.value.moveCount,
     };
   }
-  
+
   /**
    * Internal implementation using Result pattern
    * @private
    */
-  private async _makeMoveInternal(move: string): Promise<Result<{resultingFen: string; moveCount: number}, AppError>> {
+  private async _makeMoveInternal(
+    move: string
+  ): Promise<Result<{ resultingFen: string; moveCount: number }, AppError>> {
     if (!this.storeAccess) {
-      return err(new AppError("TestApiService not initialized with store access"));
+      return err(new AppError('TestApiService not initialized with store access'));
     }
 
     try {
       // Parse move format - note: moveObj was unused, using direct makeMove call
-      if (move.includes("-")) {
+      if (move.includes('-')) {
         // Format: 'e2-e4' or 'e7-e8=D'
-        const parts = move.split("-");
+        const parts = move.split('-');
         const from = parts[0];
         const toPart = parts[1];
-        
+
         if (!from || !toPart) {
           throw new Error(`Invalid move format: ${move}`);
         }
-        
+
         // At this point, TypeScript knows from and toPart are strings
-        if (toPart.includes("=")) {
-          const promotionParts = toPart.split("=");
+        if (toPart.includes('=')) {
+          const promotionParts = toPart.split('=');
           const to = promotionParts[0];
           const promotionPart = promotionParts[1];
-          
+
           if (!to) {
             throw new Error(`Invalid promotion format: ${move}`);
           }
-          
+
           let promotion = promotionPart;
           // Convert German to English notation
-          if (promotion === "D") promotion = "q"; // Dame -> Queen
-          if (promotion === "T") promotion = "r"; // Turm -> Rook
-          if (promotion === "L") promotion = "b"; // Läufer -> Bishop
-          if (promotion === "S") promotion = "n"; // Springer -> Knight
+          if (promotion === 'D') promotion = 'q'; // Dame -> Queen
+          if (promotion === 'T') promotion = 'r'; // Turm -> Rook
+          if (promotion === 'L') promotion = 'b'; // Läufer -> Bishop
+          if (promotion === 'S') promotion = 'n'; // Springer -> Knight
           // Use direct makeMove call instead of creating unused moveObj
           this.storeAccess.makeMove({
             from: from,
@@ -454,29 +469,25 @@ export class TestApiService {
         // SAN notation - need to convert to from/to format
         // For simplicity, we'll use makeMove which accepts strings
         this.storeAccess.makeMove(move);
-        
+
         const newState = this.storeAccess.getState();
-        
-        if (
-          this.tablebaseConfig.deterministic &&
-          newState.training?.isPlayerTurn === false
-        ) {
+
+        if (this.tablebaseConfig.deterministic && newState.training?.isPlayerTurn === false) {
           // After player move, check if tablebase should respond with a fixed move
-          await this.handleDeterministicTablebaseMove(newState.game?.currentFen || "");
+          await this.handleDeterministicTablebaseMove(newState.game?.currentFen || '');
         }
-        
-        this.emit("test:move", {
+
+        this.emit('test:move', {
           move,
-          fen: newState.game?.currentFen || "unknown",
-          moveCount:
-            newState.game?.moveHistory?.length || 0,
+          fen: newState.game?.currentFen || 'unknown',
+          moveCount: newState.game?.moveHistory?.length || 0,
         });
-        
+
         // Get updated state after potential tablebase move
         const finalState = this.storeAccess.getState();
-        
+
         return ok({
-          resultingFen: finalState.game?.currentFen || "unknown",
+          resultingFen: finalState.game?.currentFen || 'unknown',
           moveCount: finalState.game?.moveHistory?.length || 0,
         });
       }
@@ -484,46 +495,44 @@ export class TestApiService {
       // REFACTORED: Use centralized TrainingService for consistent move execution
       // This ensures the same business logic runs for both UI and E2E test paths
       const { trainingService } = await import('@shared/services/TrainingService');
-      
+
       // Create StoreApi interface from storeAccess
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const storeApi = this.storeAccess as any; // TrainingService expects StoreApi but we have a subset
-      
+
       const result = await trainingService.executeMove(storeApi, move);
       if (!result.success) {
-        return err(new AppError(result.error || "TrainingService move execution failed"));
+        return err(new AppError(result.error || 'TrainingService move execution failed'));
       }
-      
+
       const newState = this.storeAccess.getState();
 
       // Check if deterministic mode is enabled and if we should mock tablebase response
-      if (
-        this.tablebaseConfig.deterministic &&
-        this.tablebaseConfig.fixedResponses
-      ) {
+      if (this.tablebaseConfig.deterministic && this.tablebaseConfig.fixedResponses) {
         // After player move, check if tablebase should respond with a fixed move
-        await this.handleDeterministicTablebaseMove(newState.game?.currentFen || "");
+        await this.handleDeterministicTablebaseMove(newState.game?.currentFen || '');
       }
 
-      this.emit("test:move", {
+      this.emit('test:move', {
         move,
-        fen: newState.game?.currentFen || "unknown",
-        moveCount:
-          newState.game?.moveHistory?.length || 0,
+        fen: newState.game?.currentFen || 'unknown',
+        moveCount: newState.game?.moveHistory?.length || 0,
       });
 
       // Get updated state after potential tablebase move
       const finalState = this.storeAccess.getState();
 
       return ok({
-        resultingFen: finalState.game?.currentFen || "unknown",
+        resultingFen: finalState.game?.currentFen || 'unknown',
         moveCount: finalState.game?.moveHistory?.length || 0,
       });
     } catch (error) {
-      return err(new AppError(
-        error instanceof Error ? error.message : "Unknown error",
-        { move, operation: "makeMove" }
-      ));
+      return err(
+        new AppError(error instanceof Error ? error.message : 'Unknown error', {
+          move,
+          operation: 'makeMove',
+        })
+      );
     }
   }
 
@@ -550,13 +559,12 @@ export class TestApiService {
    */
   public getGameState(): TestGameState {
     if (!this.storeAccess) {
-      throw new Error("TestApiService not initialized with store access");
+      throw new Error('TestApiService not initialized with store access');
     }
 
     const state = this.storeAccess.getState();
     const currentFen =
-      state.game?.currentFen ||
-      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+      state.game?.currentFen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
     const game = new Chess(currentFen);
 
     // Get last move if available
@@ -566,8 +574,8 @@ export class TestApiService {
       const lastHistoryItem = history[history.length - 1];
       if (lastHistoryItem) {
         lastMove = {
-          from: lastHistoryItem.from || "",
-          to: lastHistoryItem.to || "",
+          from: lastHistoryItem.from || '',
+          to: lastHistoryItem.to || '',
           san: lastHistoryItem.san,
         };
       }
@@ -575,7 +583,7 @@ export class TestApiService {
 
     const gameOverReason = this.getGameOverReason(game);
     const evaluation = state.tablebase?.currentEvaluation?.evaluation;
-    
+
     return {
       fen: currentFen,
       turn: game.turn(),
@@ -614,11 +622,11 @@ export class TestApiService {
    */
   public resetGame(): void {
     if (!this.storeAccess) {
-      throw new Error("TestApiService not initialized with store access");
+      throw new Error('TestApiService not initialized with store access');
     }
 
     this.storeAccess.resetPosition();
-    this.emit("test:reset", {});
+    this.emit('test:reset', {});
   }
 
   /**
@@ -627,7 +635,7 @@ export class TestApiService {
    */
   public configureTablebase(config: TestTablebaseConfig): void {
     this.tablebaseConfig = { ...this.tablebaseConfig, ...config };
-    this.emit("test:tablebaseConfigured", { config: this.tablebaseConfig });
+    this.emit('test:tablebaseConfigured', { config: this.tablebaseConfig });
 
     // Note: TestBridge system already handles configuration propagation
     // to the actual tablebase instance for deterministic test behavior
@@ -642,10 +650,10 @@ export class TestApiService {
    * for the tablebase status to become ready.
    */
   public async triggerTablebaseAnalysis(
-    timeoutMs: number = TESTING.DEFAULT_TIMEOUT,
+    timeoutMs: number = TESTING.DEFAULT_TIMEOUT
   ): Promise<boolean> {
     if (!this.storeAccess) {
-      throw new Error("TestApiService not initialized");
+      throw new Error('TestApiService not initialized');
     }
 
     try {
@@ -654,29 +662,27 @@ export class TestApiService {
       // Wait for tablebase to be ready
       while (Date.now() - startTime < timeoutMs) {
         const state = this.storeAccess.getState();
-        const analysisStatus = state.tablebase?.analysisStatus || "idle";
+        const analysisStatus = state.tablebase?.analysisStatus || 'idle';
 
-        if (analysisStatus === "idle" || analysisStatus === "success") {
+        if (analysisStatus === 'idle' || analysisStatus === 'success') {
           // Tablebase is working or has finished
-          this.emit("test:tablebaseAnalysisComplete", {
-            fen: state.game?.currentFen || "unknown",
+          this.emit('test:tablebaseAnalysisComplete', {
+            fen: state.game?.currentFen || 'unknown',
           });
           return true;
         }
 
         // Wait a bit before checking again
-        await new Promise((resolve) =>
-          setTimeout(resolve, TESTING.POLL_INTERVAL),
-        );
+        await new Promise(resolve => setTimeout(resolve, TESTING.POLL_INTERVAL));
       }
 
       // Timeout reached
-      logger.warn("Tablebase analysis timeout after", { timeoutMs });
+      logger.warn('Tablebase analysis timeout after', { timeoutMs });
       return false;
     } catch (error) {
-      logger.error("Tablebase analysis check failed", error);
-      this.emit("test:tablebaseError", {
-        error: error instanceof Error ? error.message : "Unknown error",
+      logger.error('Tablebase analysis check failed', error);
+      this.emit('test:tablebaseError', {
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       return false;
     }
@@ -688,7 +694,7 @@ export class TestApiService {
    * @param handler
    */
   public on(event: string, handler: (detail: unknown) => void): void {
-    this.eventEmitter.addEventListener(event, (e) => handler((e as CustomEvent).detail));
+    this.eventEmitter.addEventListener(event, e => handler((e as CustomEvent).detail));
   }
 
   /**
@@ -697,7 +703,7 @@ export class TestApiService {
    * @param handler
    */
   public off(event: string, handler: (detail: unknown) => void): void {
-    this.eventEmitter.removeEventListener(event, (e) => handler((e as CustomEvent).detail));
+    this.eventEmitter.removeEventListener(event, e => handler((e as CustomEvent).detail));
   }
 
   /**
@@ -713,9 +719,7 @@ export class TestApiService {
    * Handle deterministic tablebase move in mock mode
    * @param currentFen
    */
-  private async handleDeterministicTablebaseMove(
-    currentFen: string,
-  ): Promise<void> {
+  private async handleDeterministicTablebaseMove(currentFen: string): Promise<void> {
     if (!this.storeAccess || !this.tablebaseConfig.fixedResponses) {
       return;
     }
@@ -725,13 +729,8 @@ export class TestApiService {
 
     if (tablebaseMove) {
       // Wait a bit to simulate tablebase thinking time (optional)
-      if (
-        this.tablebaseConfig.timeLimit &&
-        this.tablebaseConfig.timeLimit > 0
-      ) {
-        await new Promise((resolve) =>
-          setTimeout(resolve, this.tablebaseConfig.timeLimit),
-        );
+      if (this.tablebaseConfig.timeLimit && this.tablebaseConfig.timeLimit > 0) {
+        await new Promise(resolve => setTimeout(resolve, this.tablebaseConfig.timeLimit));
       }
 
       // Make the deterministic tablebase move
@@ -740,13 +739,13 @@ export class TestApiService {
         if (this.storeAccess.makeMove) {
           this.storeAccess.makeMove(tablebaseMove);
         }
-        this.emit("test:tablebaseMove", {
+        this.emit('test:tablebaseMove', {
           move: tablebaseMove,
           fen: currentFen,
           deterministic: true,
         });
       } catch (error) {
-        logger.warn("Deterministic tablebase move failed", {
+        logger.warn('Deterministic tablebase move failed', {
           tablebaseMove,
           position: currentFen,
           error,
@@ -762,15 +761,15 @@ export class TestApiService {
   private getGameOverReason(game: Chess): string | undefined {
     if (!game.isGameOver()) return undefined;
 
-    if (game.isCheckmate()) return "checkmate";
+    if (game.isCheckmate()) return 'checkmate';
     if (game.isDraw()) {
-      if (game.isStalemate()) return "stalemate";
-      if (game.isThreefoldRepetition()) return "threefold repetition";
-      if (game.isInsufficientMaterial()) return "insufficient material";
-      return "draw";
+      if (game.isStalemate()) return 'stalemate';
+      if (game.isThreefoldRepetition()) return 'threefold repetition';
+      if (game.isInsufficientMaterial()) return 'insufficient material';
+      return 'draw';
     }
 
-    return "game over";
+    return 'game over';
   }
 }
 

@@ -1,22 +1,22 @@
 /**
  * @file Move validation and evaluation processing hook
  * @module hooks/useMoveValidation
- * 
+ *
  * @description
  * Custom hook that encapsulates evaluation processing and analysis status
  * management for chess training. Extracted from TrainingBoard to separate
  * evaluation concerns from UI rendering.
- * 
+ *
  * @remarks
  * Key responsibilities:
  * - Evaluation deduplication using processedEvaluationsRef
  * - Analysis status synchronization with tablebase store
  * - Safe handling of tablebase actions availability
  * - Evaluation update coordination
- * 
+ *
  * This hook maintains evaluation processing logic while providing
  * a clean interface for move validation and analysis management.
- * 
+ *
  * @example
  * ```tsx
  * const moveValidation = useMoveValidation({
@@ -27,7 +27,7 @@
  *   tablebaseState,
  *   tablebaseActions
  * });
- * 
+ *
  * // Hook handles evaluation processing and status updates internally
  * ```
  */
@@ -39,7 +39,7 @@ import { STRING_CONSTANTS } from '@shared/constants/multipliers';
 
 /**
  * Configuration options for move validation hook
- * 
+ *
  * @interface UseMoveValidationOptions
  * @description Options for configuring move validation behavior
  */
@@ -57,15 +57,17 @@ export interface UseMoveValidationOptions {
     analysisStatus: 'idle' | 'loading' | 'success' | 'error';
   };
   /** Tablebase store actions */
-  tablebaseActions: {
-    setEvaluations?: (evaluations: PositionAnalysis[]) => void;
-    setAnalysisStatus?: (status: 'idle' | 'loading' | 'success' | 'error') => void;
-  } | undefined;
+  tablebaseActions:
+    | {
+        setEvaluations?: (evaluations: PositionAnalysis[]) => void;
+        setAnalysisStatus?: (status: 'idle' | 'loading' | 'success' | 'error') => void;
+      }
+    | undefined;
 }
 
 /**
  * Move validation state and utilities
- * 
+ *
  * @interface MoveValidationResult
  * @description Result object containing validation state
  */
@@ -78,15 +80,15 @@ export interface MoveValidationResult {
 
 /**
  * Move validation and evaluation processing hook
- * 
+ *
  * @description
  * Manages evaluation processing with deduplication and analysis
  * status synchronization. Handles safe interaction with tablebase
  * store actions and maintains evaluation state consistency.
- * 
+ *
  * @param {UseMoveValidationOptions} options - Validation configuration
  * @returns {MoveValidationResult} Validation state and utilities
- * 
+ *
  * @example
  * ```tsx
  * const moveValidation = useMoveValidation({
@@ -97,7 +99,7 @@ export interface MoveValidationResult {
  *   tablebaseState: state,
  *   tablebaseActions: actions
  * });
- * 
+ *
  * // Access processing state
  * if (moveValidation.isProcessing) {
  *   // console.log('Processing evaluation...');
@@ -110,19 +112,18 @@ export const useMoveValidation = ({
   evaluations,
   isEvaluating,
   tablebaseState,
-  tablebaseActions
+  tablebaseActions,
 }: UseMoveValidationOptions): MoveValidationResult => {
-  
   // Track processed evaluations to prevent duplicates
   const processedEvaluationsRef = useRef(new Set<string>());
   const [processedCount, setProcessedCount] = useState(0);
-  
+
   // Update Zustand with current evaluation
   useEffect(() => {
     if (!lastEvaluation) return;
 
     // Create unique key for this evaluation using current FEN and evaluation data
-    const evalKey = `${currentFen}_${lastEvaluation.evaluation}_${lastEvaluation.mateInMoves ?? "null"}`;
+    const evalKey = `${currentFen}_${lastEvaluation.evaluation}_${lastEvaluation.mateInMoves ?? 'null'}`;
 
     if (processedEvaluationsRef.current.has(evalKey)) {
       return; // Skip if already processed
@@ -138,17 +139,17 @@ export const useMoveValidation = ({
     if (tablebaseActions?.setEvaluations) {
       tablebaseActions.setEvaluations(updatedEvaluations);
     } else {
-      const logger = getLogger().setContext("useMoveValidation");
-      logger.error("tablebaseActions.setEvaluations is not available", {
+      const logger = getLogger().setContext('useMoveValidation');
+      logger.error('tablebaseActions.setEvaluations is not available', {
         hasTablebaseActions: Boolean(tablebaseActions),
-        availableMethods: tablebaseActions ? Object.keys(tablebaseActions) : []
+        availableMethods: tablebaseActions ? Object.keys(tablebaseActions) : [],
       });
     }
   }, [lastEvaluation, currentFen, evaluations, tablebaseActions]);
-  
+
   // Update analysis status based on evaluation state
   useEffect(() => {
-    getLogger().debug("🔍 TablebaseActions debug", {
+    getLogger().debug('🔍 TablebaseActions debug', {
       hasTablebaseActions: Boolean(tablebaseActions),
       hasSetAnalysisStatus: Boolean(tablebaseActions?.setAnalysisStatus),
       tablebaseActionsKeys: Object.keys(tablebaseActions || {}),
@@ -157,26 +158,29 @@ export const useMoveValidation = ({
 
     // CRITICAL: Safe-guard to prevent crashes
     if (!tablebaseActions?.setAnalysisStatus) {
-      const logger = getLogger().setContext("useMoveValidation");
-      logger.warn("tablebaseActions.setAnalysisStatus not available, skipping analysis status update", {
-        hasTablebaseActions: Boolean(tablebaseActions),
-        isEvaluating,
-        currentFen: `${currentFen?.substring(0, STRING_CONSTANTS.FEN_TRUNCATE_LENGTH)  }...`
-      });
+      const logger = getLogger().setContext('useMoveValidation');
+      logger.warn(
+        'tablebaseActions.setAnalysisStatus not available, skipping analysis status update',
+        {
+          hasTablebaseActions: Boolean(tablebaseActions),
+          isEvaluating,
+          currentFen: `${currentFen?.substring(0, STRING_CONSTANTS.FEN_TRUNCATE_LENGTH)}...`,
+        }
+      );
       return;
     }
 
     if (isEvaluating) {
-      tablebaseActions.setAnalysisStatus("loading");
-    } else if (tablebaseState.analysisStatus === "loading") {
+      tablebaseActions.setAnalysisStatus('loading');
+    } else if (tablebaseState.analysisStatus === 'loading') {
       // Only update to success if we were loading
-      tablebaseActions.setAnalysisStatus("success");
+      tablebaseActions.setAnalysisStatus('success');
     }
   }, [isEvaluating, tablebaseState, tablebaseActions, currentFen]);
-  
+
   // Return validation state
   return {
     processedCount,
-    isProcessing: isEvaluating
+    isProcessing: isEvaluating,
   };
 };

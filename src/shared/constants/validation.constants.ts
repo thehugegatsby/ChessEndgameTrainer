@@ -22,22 +22,22 @@ export const INPUT_LIMITS = Object.freeze({
      * Maximum length for user display names
      */
     MAX_USERNAME_LENGTH: 50,
-    
+
     /**
      * Minimum length for user display names
      */
     MIN_USERNAME_LENGTH: 2,
-    
+
     /**
      * Maximum length for game comments or notes
      */
     MAX_COMMENT_LENGTH: 500,
-    
+
     /**
      * Maximum length for endgame scenario descriptions
      */
     MAX_SCENARIO_DESCRIPTION_LENGTH: 200,
-    
+
     /**
      * Maximum length for custom training session names
      */
@@ -52,32 +52,32 @@ export const INPUT_LIMITS = Object.freeze({
      * Maximum number of moves in a single training session
      */
     MAX_MOVES_PER_SESSION: 1000,
-    
+
     /**
      * Minimum engine depth for analysis
      */
     MIN_ENGINE_DEPTH: 1,
-    
+
     /**
      * Maximum engine depth for analysis
      */
     MAX_ENGINE_DEPTH: 30,
-    
+
     /**
      * Maximum number of variations to analyze
      */
     MAX_VARIATIONS: 10,
-    
+
     /**
      * Maximum rating difference for matchmaking
      */
     MAX_RATING_DIFFERENCE: 500,
-    
+
     /**
      * Minimum user rating
      */
     MIN_USER_RATING: 500,
-    
+
     /**
      * Maximum user rating
      */
@@ -92,22 +92,22 @@ export const INPUT_LIMITS = Object.freeze({
      * Maximum number of items in move history
      */
     MAX_MOVE_HISTORY_SIZE: 200,
-    
+
     /**
      * Maximum number of saved positions per user
      */
     MAX_SAVED_POSITIONS: 100,
-    
+
     /**
      * Maximum number of concurrent training sessions
      */
     MAX_CONCURRENT_SESSIONS: 3,
-    
+
     /**
      * Maximum number of custom endgame scenarios
      */
     MAX_CUSTOM_SCENARIOS: 50,
-    
+
     /**
      * Maximum number of tags per position
      */
@@ -131,23 +131,24 @@ export const VALIDATION_PATTERNS = Object.freeze({
      * Complete FEN string pattern
      * Matches: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
      */
-    COMPLETE: /^([rnbqkpRNBQKP1-8]+\/){7}[rnbqkpRNBQKP1-8]+\s[bw]\s(K?Q?k?q?|-)\s([a-h][36]|-)\s\d+\s\d+$/,
-    
+    COMPLETE:
+      /^([rnbqkpRNBQKP1-8]+\/){7}[rnbqkpRNBQKP1-8]+\s[bw]\s(K?Q?k?q?|-)\s([a-h][36]|-)\s\d+\s\d+$/,
+
     /**
      * FEN piece placement only (first field)
      */
     PIECE_PLACEMENT: /^([rnbqkpRNBQKP1-8]+\/){7}[rnbqkpRNBQKP1-8]+$/,
-    
+
     /**
      * FEN active color (second field)
      */
     ACTIVE_COLOR: /^[bw]$/,
-    
+
     /**
      * FEN castling rights (third field)
      */
     CASTLING_RIGHTS: /^(K?Q?k?q?|-)$/,
-    
+
     /**
      * FEN en passant target (fourth field)
      */
@@ -163,25 +164,25 @@ export const VALIDATION_PATTERNS = Object.freeze({
      * Matches: "e4", "Nf3", "O-O", "Qxd5+", "a8=Q#"
      */
     SAN: /^([NBRQK]?[a-h]?[1-8]?x?[a-h][1-8](=[NBRQ])?|O-O(-O)?)[+#]?$/,
-    
+
     /**
      * Long Algebraic Notation (LAN)
      * Matches: "e2-e4", "Ng1-f3", "O-O"
      */
     LAN: /^([a-h][1-8]-[a-h][1-8](=[NBRQ])?|O-O(-O)?)[+#]?$/,
-    
+
     /**
      * UCI (Universal Chess Interface) notation
      * Matches: "e2e4", "g1f3", "e7e8q"
      */
     UCI: /^[a-h][1-8][a-h][1-8][nbrq]?$/,
-    
+
     /**
      * Square notation
      * Matches: "e4", "a1", "h8"
      */
     SQUARE: /^[a-h][1-8]$/,
-    
+
     /**
      * Piece notation (single piece)
      * Matches: "K", "Q", "R", "B", "N", "P" (and lowercase)
@@ -197,17 +198,17 @@ export const VALIDATION_PATTERNS = Object.freeze({
      * Valid username pattern (alphanumeric, underscore, hyphen)
      */
     USERNAME: /^[a-zA-Z0-9_-]+$/,
-    
+
     /**
      * Valid session name (letters, numbers, spaces, basic punctuation)
      */
     SESSION_NAME: /^[a-zA-Z0-9\s\-_.,!?()]+$/,
-    
+
     /**
      * Valid tag name (alphanumeric, underscore, hyphen)
      */
     TAG_NAME: /^[a-zA-Z0-9_-]+$/,
-    
+
     /**
      * Valid search query (flexible pattern for position search)
      */
@@ -222,12 +223,12 @@ export const VALIDATION_PATTERNS = Object.freeze({
      * Valid session ID format
      */
     SESSION_ID: /^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$/,
-    
+
     /**
      * Valid position hash format (for caching)
      */
     POSITION_HASH: /^[a-f0-9]{32}$/,
-    
+
     /**
      * Valid timestamp format (ISO 8601)
      */
@@ -252,13 +253,13 @@ export const VALIDATION_RULES = Object.freeze({
      */
     MAX_PIECES_PER_TYPE: Object.freeze({
       KING: 1,
-      QUEEN: 9,   // 1 original + 8 promoted pawns
-      ROOK: 10,   // 2 original + 8 promoted pawns
+      QUEEN: 9, // 1 original + 8 promoted pawns
+      ROOK: 10, // 2 original + 8 promoted pawns
       BISHOP: 10, // 2 original + 8 promoted pawns
       KNIGHT: 10, // 2 original + 8 promoted pawns
-      PAWN: 8,    // maximum on board at once
+      PAWN: 8, // maximum on board at once
     }),
-    
+
     /**
      * Board dimension constraints
      */
@@ -268,7 +269,7 @@ export const VALIDATION_RULES = Object.freeze({
       MIN_FILE_CODE: 97, // 'a' in ASCII
       MAX_FILE_CODE: 104, // 'h' in ASCII
     }),
-    
+
     /**
      * Move count constraints
      */
@@ -277,12 +278,12 @@ export const VALIDATION_RULES = Object.freeze({
        * Minimum plies (half-moves) before draw by 50-move rule
        */
       FIFTY_MOVE_RULE_THRESHOLD: 100,
-      
+
       /**
        * Maximum reasonable game length in plies
        */
       MAX_GAME_LENGTH: 500,
-      
+
       /**
        * Minimum moves for a valid endgame training session
        */
@@ -298,17 +299,17 @@ export const VALIDATION_RULES = Object.freeze({
      * Characters to strip from user input
      */
     STRIP_CHARS: /[<>\"'&]/g,
-    
+
     /**
      * Maximum consecutive whitespace characters to allow
      */
     MAX_CONSECUTIVE_SPACES: 3,
-    
+
     /**
      * Whether to trim whitespace from inputs
      */
     TRIM_WHITESPACE: true,
-    
+
     /**
      * Whether to convert inputs to lowercase for comparison
      */
@@ -323,17 +324,17 @@ export const VALIDATION_RULES = Object.freeze({
      * Maximum concurrent validation operations
      */
     MAX_CONCURRENT_VALIDATIONS: 10,
-    
+
     /**
      * Timeout for individual validation operations (ms)
      */
     VALIDATION_TIMEOUT_MS: 1000,
-    
+
     /**
      * Maximum depth for recursive validation
      */
     MAX_VALIDATION_DEPTH: 5,
-    
+
     /**
      * Batch size for bulk validation operations
      */

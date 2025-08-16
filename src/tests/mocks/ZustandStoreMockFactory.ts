@@ -1,6 +1,6 @@
 /**
  * Zustand Store Test Factory
- * 
+ *
  * Factory for creating test-ready Zustand store instances with state isolation.
  * Note: This uses the real store implementation but resets state between tests
  * to prevent pollution. For true mocking, consider separate mock implementations.
@@ -44,10 +44,10 @@ export class ZustandStoreMockFactory extends BaseMockFactory<MockStoreResult, St
 
     // Get the real store instance with proper typing
     this.storeInstance = useStore as StoreApi<RootStore>;
-    
+
     // Reset store to initial state
     this._resetStore();
-    
+
     // Apply overrides if provided
     if (overrides) {
       this._applyOverrides(overrides);
@@ -57,12 +57,12 @@ export class ZustandStoreMockFactory extends BaseMockFactory<MockStoreResult, St
     const mockResult: MockStoreResult = {
       store: this.storeInstance,
       getState: () => this.storeInstance!.getState(),
-      setState: (partial) => {
+      setState: partial => {
         act(() => {
           this.storeInstance!.setState(partial);
         });
       },
-      subscribe: (listener) => {
+      subscribe: listener => {
         const unsubscribe = this.storeInstance!.subscribe(listener);
         this.subscriptions.add(unsubscribe);
         return unsubscribe;
@@ -81,7 +81,7 @@ export class ZustandStoreMockFactory extends BaseMockFactory<MockStoreResult, St
 
     act(() => {
       const state = this.storeInstance!.getState();
-      
+
       // Reset each slice using their reset methods if available
       if (state.reset) {
         state.reset();
@@ -97,7 +97,7 @@ export class ZustandStoreMockFactory extends BaseMockFactory<MockStoreResult, St
 
   private _resetGameSlice(): void {
     act(() => {
-      this.storeInstance!.setState((state) => ({
+      this.storeInstance!.setState(state => ({
         game: {
           ...state.game,
           currentFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
@@ -116,7 +116,7 @@ export class ZustandStoreMockFactory extends BaseMockFactory<MockStoreResult, St
 
   private _resetTrainingSlice(): void {
     act(() => {
-      this.storeInstance!.setState((state) => ({
+      this.storeInstance!.setState(state => ({
         training: {
           ...state.training,
           currentPosition: undefined,
@@ -144,7 +144,7 @@ export class ZustandStoreMockFactory extends BaseMockFactory<MockStoreResult, St
 
   private _resetTablebaseSlice(): void {
     act(() => {
-      this.storeInstance!.setState((state) => ({
+      this.storeInstance!.setState(state => ({
         tablebase: {
           ...state.tablebase,
           analysisStatus: 'idle',
@@ -157,7 +157,7 @@ export class ZustandStoreMockFactory extends BaseMockFactory<MockStoreResult, St
 
   private _resetUISlice(): void {
     act(() => {
-      this.storeInstance!.setState((state) => ({
+      this.storeInstance!.setState(state => ({
         ui: {
           ...state.ui,
           selectedSquare: null,
@@ -223,7 +223,7 @@ export class ZustandStoreMockFactory extends BaseMockFactory<MockStoreResult, St
       subscribe: vi.fn(),
       store: {} as StoreApi<RootStore>,
     };
-    
+
     return mockStore as unknown as MockStoreResult;
   }
 
@@ -250,7 +250,7 @@ export class ZustandStoreMockFactory extends BaseMockFactory<MockStoreResult, St
    * Helper method to wait for async state updates
    */
   public async waitForStateUpdate(): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       setTimeout(() => {
         act(() => {
           resolve();
@@ -272,16 +272,13 @@ export class ZustandStoreMockFactory extends BaseMockFactory<MockStoreResult, St
   /**
    * Helper method to update a specific slice
    */
-  public updateSlice<K extends keyof RootStore>(
-    slice: K, 
-    updates: Partial<RootStore[K]>
-  ): void {
+  public updateSlice<K extends keyof RootStore>(slice: K, updates: Partial<RootStore[K]>): void {
     if (!this.storeInstance) {
       throw new Error('Store not initialized. Call create() first.');
     }
 
     act(() => {
-      this.storeInstance!.setState((state) => ({
+      this.storeInstance!.setState(state => ({
         [slice]: {
           ...state[slice],
           ...updates,

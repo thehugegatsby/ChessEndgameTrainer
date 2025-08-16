@@ -20,13 +20,13 @@
  * and provides optimized sorting algorithms for each move category.
  */
 
-import { RESULT_CLASSIFICATION } from "../../../constants/chess.constants";
+import { RESULT_CLASSIFICATION } from '../../../constants/chess.constants';
 
 /**
  * Move result type classification
  * @typedef {'win' | 'draw' | 'loss'} MoveResultType
  */
-export type MoveResultType = "win" | "draw" | "loss";
+export type MoveResultType = 'win' | 'draw' | 'loss';
 
 /**
  * Tablebase move data structure
@@ -49,7 +49,7 @@ export interface TablebaseMove {
   dtz: number;
   dtm: number;
   wdl: number;
-  category: "win" | "draw" | "loss";
+  category: 'win' | 'draw' | 'loss';
 }
 
 /**
@@ -111,9 +111,9 @@ export interface CategorizedMoves {
  * ```
  */
 export const getMoveResultType = (dtz: number): MoveResultType => {
-  if (dtz > 0) return "win";
-  if (dtz === 0) return "draw";
-  return "loss";
+  if (dtz > 0) return 'win';
+  if (dtz === 0) return 'draw';
+  return 'loss';
 };
 
 /**
@@ -135,9 +135,7 @@ export const getMoveResultType = (dtz: number): MoveResultType => {
  * getMoveResultTypeFromMove(move); // 'win' (uses category)
  * ```
  */
-export const getMoveResultTypeFromMove = (
-  move: TablebaseMove,
-): MoveResultType => {
+export const getMoveResultTypeFromMove = (move: TablebaseMove): MoveResultType => {
   // Use the category field if available (more reliable)
   if (move.category) {
     return move.category;
@@ -168,9 +166,9 @@ export const getMoveResultTypeFromMove = (
  * ```
  */
 export const getMoveResultTypeFromWdl = (wdl: number): MoveResultType => {
-  if (wdl > 0) return "win";
-  if (wdl === 0) return "draw";
-  return "loss";
+  if (wdl > 0) return 'win';
+  if (wdl === 0) return 'draw';
+  return 'loss';
 };
 
 /**
@@ -257,10 +255,10 @@ export const sortMovesByResult = (moves: TablebaseMove[]): TablebaseMove[] => {
     }
 
     // Within same result type, sort by DTZ value
-    if (aType === "win") {
+    if (aType === 'win') {
       // Winning moves: ascending DTZ (faster wins first)
       return a.dtz - b.dtz;
-    } else if (aType === "draw") {
+    } else if (aType === 'draw') {
       // Drawing moves: alphabetical by move notation
       return a.san.localeCompare(b.san);
     } else {
@@ -301,9 +299,7 @@ export const sortMovesByResult = (moves: TablebaseMove[]): TablebaseMove[] => {
  * - Each group is optimally sorted for gameplay
  * - Total move count is preserved for validation
  */
-export const classifyMovesByDTZ = (
-  moves: TablebaseMove[],
-): CategorizedMoves => {
+export const classifyMovesByDTZ = (moves: TablebaseMove[]): CategorizedMoves => {
   const grouped = groupMovesByResult(moves);
 
   return {
@@ -340,14 +336,14 @@ export const classifyMovesByDTZ = (
  */
 export const getColorClass = (resultType: MoveResultType): string => {
   switch (resultType) {
-    case "win":
-      return "text-green-700 bg-green-100 border-green-300";
-    case "draw":
-      return "text-yellow-700 bg-yellow-100 border-yellow-300";
-    case "loss":
-      return "text-red-700 bg-red-100 border-red-300";
+    case 'win':
+      return 'text-green-700 bg-green-100 border-green-300';
+    case 'draw':
+      return 'text-yellow-700 bg-yellow-100 border-yellow-300';
+    case 'loss':
+      return 'text-red-700 bg-red-100 border-red-300';
     default:
-      return "text-gray-700 bg-gray-100 border-gray-300";
+      return 'text-gray-700 bg-gray-100 border-gray-300';
   }
 };
 
@@ -371,14 +367,14 @@ export const getColorClass = (resultType: MoveResultType): string => {
  */
 export const getEvaluationBarColor = (resultType: MoveResultType): string => {
   switch (resultType) {
-    case "win":
-      return "bg-green-500";
-    case "draw":
-      return "bg-yellow-500";
-    case "loss":
-      return "bg-red-500";
+    case 'win':
+      return 'bg-green-500';
+    case 'draw':
+      return 'bg-yellow-500';
+    case 'loss':
+      return 'bg-red-500';
     default:
-      return "bg-gray-500";
+      return 'bg-gray-500';
   }
 };
 
@@ -409,14 +405,14 @@ export const getEvaluationBarColor = (resultType: MoveResultType): string => {
  */
 export const getResultIcon = (resultType: MoveResultType): string => {
   switch (resultType) {
-    case "win":
-      return "✓";
-    case "draw":
-      return "=";
-    case "loss":
-      return "✗";
+    case 'win':
+      return '✓';
+    case 'draw':
+      return '=';
+    case 'loss':
+      return '✗';
     default:
-      return "?";
+      return '?';
   }
 };
 
@@ -459,8 +455,13 @@ export const calculateBarWidth = (dtz: number, maxDtz: number): number => {
   if (absMaxDtz === 0) return RESULT_CLASSIFICATION.MISTAKE_THRESHOLD;
 
   // Calculate width: minimum 20%, maximum 100%
-  const baseWidth = (absDtz / absMaxDtz) * RESULT_CLASSIFICATION.BLUNDER_THRESHOLD + RESULT_CLASSIFICATION.ADVANTAGE_THRESHOLD;
-  return Math.min(RESULT_CLASSIFICATION.PERCENTAGE_BASE, Math.max(RESULT_CLASSIFICATION.ADVANTAGE_THRESHOLD, baseWidth));
+  const baseWidth =
+    (absDtz / absMaxDtz) * RESULT_CLASSIFICATION.BLUNDER_THRESHOLD +
+    RESULT_CLASSIFICATION.ADVANTAGE_THRESHOLD;
+  return Math.min(
+    RESULT_CLASSIFICATION.PERCENTAGE_BASE,
+    Math.max(RESULT_CLASSIFICATION.ADVANTAGE_THRESHOLD, baseWidth)
+  );
 };
 
 /**
@@ -487,7 +488,7 @@ export const calculateBarWidth = (dtz: number, maxDtz: number): number => {
  * represents half-moves (ply) to the outcome with best play from both sides.
  */
 export const formatDtzDisplay = (dtz: number): string => {
-  if (dtz === 0) return "Draw";
+  if (dtz === 0) return 'Draw';
   if (dtz > 0) return `Win in ${dtz}`;
   return `Loss in ${Math.abs(dtz)}`;
 };
@@ -516,13 +517,13 @@ export const formatDtzDisplay = (dtz: number): string => {
  */
 export const getResultTypeTitle = (resultType: MoveResultType): string => {
   switch (resultType) {
-    case "win":
-      return "Winning Moves";
-    case "draw":
-      return "Drawing Moves";
-    case "loss":
-      return "Losing Moves";
+    case 'win':
+      return 'Winning Moves';
+    case 'draw':
+      return 'Drawing Moves';
+    case 'loss':
+      return 'Losing Moves';
     default:
-      return "Unknown Moves";
+      return 'Unknown Moves';
   }
 };

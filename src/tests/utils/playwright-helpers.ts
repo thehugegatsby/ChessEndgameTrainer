@@ -3,7 +3,7 @@
  * Common utility functions for Playwright tests
  */
 
-import { type Locator } from "@playwright/test";
+import { type Locator } from '@playwright/test';
 
 /**
  * Safely get text content from a locator
@@ -13,7 +13,7 @@ import { type Locator } from "@playwright/test";
  */
 export async function getLocatorText(locator: Locator): Promise<string> {
   const text = await locator.textContent();
-  return text || "";
+  return text || '';
 }
 
 /**
@@ -21,6 +21,6 @@ export async function getLocatorText(locator: Locator): Promise<string> {
  * Combines waiting and text extraction in one operation
  */
 export async function getVisibleText(locator: Locator): Promise<string> {
-  await locator.waitFor({ state: "visible" });
+  await locator.waitFor({ state: 'visible' });
   return getLocatorText(locator);
 }

@@ -2,14 +2,14 @@ import { vi } from 'vitest';
 /**
  * @file Tests for useMoveHandlers hook
  * @module tests/unit/hooks/useMoveHandlers
- * 
+ *
  * @description
  * Comprehensive tests for the useMoveHandlers hook that encapsulates
  * all move handling logic for chess training board interactions.
- * 
+ *
  * Tests cover:
  * - Drag and drop event handling
- * - Click-to-move functionality  
+ * - Click-to-move functionality
  * - Move validation and execution
  * - Position readiness checks
  * - Pawn promotion detection
@@ -79,18 +79,21 @@ describe('useMoveHandlers', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Set up default Chess mock implementation
-    vi.mocked(Chess).mockImplementation((fen?: string) => ({
-      turn: vi.fn(() => 'w'), // Default to white's turn
-      fen: vi.fn(() => fen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'),
-      get: vi.fn((square: string) => {
-        // Mock piece detection for promotion tests
-        if (square === 'e7') return { type: 'p', color: 'w' }; // White pawn on 7th rank
-        if (square === 'e2') return { type: 'p', color: 'b' }; // Black pawn on 2nd rank
-        return null;
-      }),
-    }) as any);
+    vi.mocked(Chess).mockImplementation(
+      (fen?: string) =>
+        ({
+          turn: vi.fn(() => 'w'), // Default to white's turn
+          fen: vi.fn(() => fen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'),
+          get: vi.fn((square: string) => {
+            // Mock piece detection for promotion tests
+            if (square === 'e7') return { type: 'p', color: 'w' }; // White pawn on 7th rank
+            if (square === 'e2') return { type: 'p', color: 'b' }; // Black pawn on 2nd rank
+            return null;
+          }),
+        }) as any
+    );
   });
 
   describe('Hook Initialization', () => {
@@ -118,7 +121,7 @@ describe('useMoveHandlers', () => {
     it('executes move when position is ready and game not finished', async () => {
       const mockOnMove = vi.fn().mockResolvedValue(true);
       const props = { ...defaultProps, onMove: mockOnMove };
-      
+
       const { result } = renderHook(() => useMoveHandlers(props));
 
       act(() => {
@@ -134,12 +137,12 @@ describe('useMoveHandlers', () => {
 
     it('blocks moves when position is not ready', () => {
       const mockOnMove = vi.fn();
-      const props = { 
-        ...defaultProps, 
+      const props = {
+        ...defaultProps,
         isPositionReady: false,
-        onMove: mockOnMove 
+        onMove: mockOnMove,
       };
-      
+
       const { result } = renderHook(() => useMoveHandlers(props));
 
       act(() => {
@@ -152,12 +155,12 @@ describe('useMoveHandlers', () => {
 
     it('blocks moves when game is finished', () => {
       const mockOnMove = vi.fn();
-      const props = { 
-        ...defaultProps, 
+      const props = {
+        ...defaultProps,
         isGameFinished: true,
-        onMove: mockOnMove 
+        onMove: mockOnMove,
       };
-      
+
       const { result } = renderHook(() => useMoveHandlers(props));
 
       act(() => {
@@ -171,7 +174,7 @@ describe('useMoveHandlers', () => {
     it('detects pawn promotion and adds promotion property', async () => {
       const mockOnMove = vi.fn().mockResolvedValue(true);
       const props = { ...defaultProps, onMove: mockOnMove };
-      
+
       const { result } = renderHook(() => useMoveHandlers(props));
 
       act(() => {
@@ -187,14 +190,14 @@ describe('useMoveHandlers', () => {
       expect(mockOnMove).toHaveBeenCalledWith({
         from: 'e7',
         to: 'e8',
-        promotion: 'q'
+        promotion: 'q',
       });
     });
 
     it('handles black pawn promotion to first rank', async () => {
       const mockOnMove = vi.fn().mockResolvedValue(true);
       const props = { ...defaultProps, onMove: mockOnMove };
-      
+
       const { result } = renderHook(() => useMoveHandlers(props));
 
       act(() => {
@@ -208,14 +211,14 @@ describe('useMoveHandlers', () => {
       expect(mockOnMove).toHaveBeenCalledWith({
         from: 'e2',
         to: 'e1',
-        promotion: 'q'
+        promotion: 'q',
       });
     });
 
     it('does not add promotion for non-pawn pieces', async () => {
       const mockOnMove = vi.fn().mockResolvedValue(true);
       const props = { ...defaultProps, onMove: mockOnMove };
-      
+
       const { result } = renderHook(() => useMoveHandlers(props));
 
       act(() => {
@@ -228,14 +231,14 @@ describe('useMoveHandlers', () => {
 
       expect(mockOnMove).toHaveBeenCalledWith({
         from: 'd1',
-        to: 'd8'
+        to: 'd8',
       });
     });
 
     it('does not add promotion for pawn not reaching promotion rank', async () => {
       const mockOnMove = vi.fn().mockResolvedValue(true);
       const props = { ...defaultProps, onMove: mockOnMove };
-      
+
       const { result } = renderHook(() => useMoveHandlers(props));
 
       act(() => {
@@ -248,7 +251,7 @@ describe('useMoveHandlers', () => {
 
       expect(mockOnMove).toHaveBeenCalledWith({
         from: 'e2',
-        to: 'e4'
+        to: 'e4',
       });
     });
   });
@@ -258,9 +261,9 @@ describe('useMoveHandlers', () => {
       const { result } = renderHook(() => useMoveHandlers(defaultProps));
 
       act(() => {
-        result.current.onSquareClick({ 
-          piece: 'wP', 
-          square: 'e2' 
+        result.current.onSquareClick({
+          piece: 'wP',
+          square: 'e2',
         });
       });
 
@@ -271,9 +274,9 @@ describe('useMoveHandlers', () => {
       const { result } = renderHook(() => useMoveHandlers(defaultProps));
 
       act(() => {
-        result.current.onSquareClick({ 
-          piece: null, 
-          square: 'e4' 
+        result.current.onSquareClick({
+          piece: null,
+          square: 'e4',
         });
       });
 
@@ -285,9 +288,9 @@ describe('useMoveHandlers', () => {
 
       // First click selects
       act(() => {
-        result.current.onSquareClick({ 
-          piece: 'wP', 
-          square: 'e2' 
+        result.current.onSquareClick({
+          piece: 'wP',
+          square: 'e2',
         });
       });
 
@@ -295,9 +298,9 @@ describe('useMoveHandlers', () => {
 
       // Second click deselects
       act(() => {
-        result.current.onSquareClick({ 
-          piece: 'wP', 
-          square: 'e2' 
+        result.current.onSquareClick({
+          piece: 'wP',
+          square: 'e2',
         });
       });
 
@@ -307,22 +310,22 @@ describe('useMoveHandlers', () => {
     it('attempts move when different square is clicked after selection', async () => {
       const mockOnMove = vi.fn().mockResolvedValue(true);
       const props = { ...defaultProps, onMove: mockOnMove };
-      
+
       const { result } = renderHook(() => useMoveHandlers(props));
 
       // First click selects
       act(() => {
-        result.current.onSquareClick({ 
-          piece: 'wP', 
-          square: 'e2' 
+        result.current.onSquareClick({
+          piece: 'wP',
+          square: 'e2',
         });
       });
 
       // Second click attempts move
       act(() => {
-        result.current.onSquareClick({ 
-          piece: null, 
-          square: 'e4' 
+        result.current.onSquareClick({
+          piece: null,
+          square: 'e4',
         });
       });
 
@@ -335,9 +338,9 @@ describe('useMoveHandlers', () => {
       const { result } = renderHook(() => useMoveHandlers(props));
 
       act(() => {
-        result.current.onSquareClick({ 
-          piece: 'wP', 
-          square: 'e2' 
+        result.current.onSquareClick({
+          piece: 'wP',
+          square: 'e2',
         });
       });
 
@@ -349,9 +352,9 @@ describe('useMoveHandlers', () => {
       const { result } = renderHook(() => useMoveHandlers(props));
 
       act(() => {
-        result.current.onSquareClick({ 
-          piece: 'wP', 
-          square: 'e2' 
+        result.current.onSquareClick({
+          piece: 'wP',
+          square: 'e2',
         });
       });
 
@@ -360,17 +363,20 @@ describe('useMoveHandlers', () => {
 
     it('validates piece color matches current turn', () => {
       // Mock Chess to return white's turn
-      vi.mocked(Chess).mockImplementation(() => ({
-        turn: () => 'w',
-      }) as any);
+      vi.mocked(Chess).mockImplementation(
+        () =>
+          ({
+            turn: () => 'w',
+          }) as any
+      );
 
       const { result } = renderHook(() => useMoveHandlers(defaultProps));
 
       // White piece should be selectable
       act(() => {
-        result.current.onSquareClick({ 
-          piece: 'wP', 
-          square: 'e2' 
+        result.current.onSquareClick({
+          piece: 'wP',
+          square: 'e2',
         });
       });
 
@@ -383,9 +389,9 @@ describe('useMoveHandlers', () => {
 
       // Black piece should not be selectable on white's turn
       act(() => {
-        result.current.onSquareClick({ 
-          piece: 'bP', 
-          square: 'e7' 
+        result.current.onSquareClick({
+          piece: 'bP',
+          square: 'e7',
         });
       });
 
@@ -399,9 +405,9 @@ describe('useMoveHandlers', () => {
 
       // Select a square
       act(() => {
-        result.current.onSquareClick({ 
-          piece: 'wP', 
-          square: 'e2' 
+        result.current.onSquareClick({
+          piece: 'wP',
+          square: 'e2',
         });
       });
 
@@ -433,7 +439,7 @@ describe('useMoveHandlers', () => {
     it('shows toast on move execution error', async () => {
       const mockOnMove = vi.fn().mockRejectedValue(new Error('Invalid move'));
       const props = { ...defaultProps, onMove: mockOnMove };
-      
+
       const { result } = renderHook(() => useMoveHandlers(props));
 
       act(() => {
@@ -451,7 +457,7 @@ describe('useMoveHandlers', () => {
     it('handles non-Error exceptions gracefully', async () => {
       const mockOnMove = vi.fn().mockRejectedValue('String error');
       const props = { ...defaultProps, onMove: mockOnMove };
-      
+
       const { result } = renderHook(() => useMoveHandlers(props));
 
       act(() => {
@@ -470,7 +476,7 @@ describe('useMoveHandlers', () => {
     it('handles same-square drop (no move)', () => {
       const mockOnMove = vi.fn();
       const props = { ...defaultProps, onMove: mockOnMove };
-      
+
       const { result } = renderHook(() => useMoveHandlers(props));
 
       act(() => {
@@ -488,13 +494,13 @@ describe('useMoveHandlers', () => {
         ...mockTrainingState,
         currentPosition: null,
       };
-      
-      const props = { 
-        ...defaultProps, 
+
+      const props = {
+        ...defaultProps,
         trainingState: trainingStateWithoutPosition,
-        isPositionReady: false 
+        isPositionReady: false,
       };
-      
+
       const { result } = renderHook(() => useMoveHandlers(props));
 
       act(() => {
@@ -513,9 +519,9 @@ describe('useMoveHandlers', () => {
 
       // Should not crash on validation error
       act(() => {
-        result.current.onSquareClick({ 
-          piece: 'wP', 
-          square: 'e2' 
+        result.current.onSquareClick({
+          piece: 'wP',
+          square: 'e2',
         });
       });
 
@@ -526,10 +532,9 @@ describe('useMoveHandlers', () => {
 
   describe('Props Dependencies', () => {
     it('updates when currentFen changes', () => {
-      const { result, rerender } = renderHook(
-        (props) => useMoveHandlers(props),
-        { initialProps: defaultProps }
-      );
+      const { result, rerender } = renderHook(props => useMoveHandlers(props), {
+        initialProps: defaultProps,
+      });
 
       const newFen = 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2';
       const newProps = { ...defaultProps, currentFen: newFen };
@@ -545,10 +550,9 @@ describe('useMoveHandlers', () => {
     });
 
     it('reacts to isPositionReady changes', () => {
-      const { result, rerender } = renderHook(
-        (props) => useMoveHandlers(props),
-        { initialProps: { ...defaultProps, isPositionReady: false } }
-      );
+      const { result, rerender } = renderHook(props => useMoveHandlers(props), {
+        initialProps: { ...defaultProps, isPositionReady: false },
+      });
 
       // Should block moves initially
       act(() => {

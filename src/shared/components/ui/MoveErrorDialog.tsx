@@ -22,7 +22,7 @@
  * feedback messages (e.g., "ruins winning position", "leads to loss").
  */
 
-import React from "react";
+import React from 'react';
 import { CHESS_EVALUATION } from '@shared/constants/multipliers';
 
 /**
@@ -105,9 +105,9 @@ export const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
    */
   const convertToGermanNotation = (move: string): string => {
     return move
-      .replace(/Q/g, 'D')  // Queen -> Dame
-      .replace(/R/g, 'T')  // Rook -> Turm
-      .replace(/B/g, 'L')  // Bishop -> Läufer
+      .replace(/Q/g, 'D') // Queen -> Dame
+      .replace(/R/g, 'T') // Rook -> Turm
+      .replace(/B/g, 'L') // Bishop -> Läufer
       .replace(/N/g, 'S'); // Knight -> Springer
   };
 
@@ -115,16 +115,16 @@ export const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
    * Get formatted move notation with move number
    */
   const getFormattedMove = (move: string | undefined, _isPlayerMove: boolean): string => {
-    if (!move || moveNumber === undefined) return move || "???";
-    
+    if (!move || moveNumber === undefined) return move || '???';
+
     // Convert to German notation
     const germanMove = convertToGermanNotation(move);
-    
+
     // Determine if it's a white or black move based on move number
     // moveNumber starts at 0: 0,2,4,6... = white moves, 1,3,5,7... = black moves
-    const isWhiteMove = (moveNumber % 2 === 0);
+    const isWhiteMove = moveNumber % 2 === 0;
     const displayMoveNumber = Math.floor(moveNumber / 2) + 1;
-    
+
     if (isWhiteMove) {
       return `${displayMoveNumber}.${germanMove}`;
     } else {
@@ -148,7 +148,7 @@ export const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
    */
   const getMessage = (): string => {
     const formattedPlayedMove = getFormattedMove(playedMove, true);
-    
+
     if (wdlBefore === CHESS_EVALUATION.WDL_WIN && wdlAfter < CHESS_EVALUATION.WDL_WIN) {
       return `${formattedPlayedMove} verdirbt den Gewinn!`;
     } else if (wdlBefore === CHESS_EVALUATION.WDL_DRAW && wdlAfter === CHESS_EVALUATION.WDL_LOSS) {
@@ -167,7 +167,7 @@ export const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
     >
       <div
         className="relative bg-gradient-to-br from-red-500 to-pink-600 p-1 rounded-2xl max-w-md w-full mx-4"
-        onClick={(e) => e.stopPropagation()}
+        onClick={e => e.stopPropagation()}
       >
         <div className="bg-[var(--bg-primary)] rounded-2xl p-6">
           <div className="flex items-center gap-3 mb-4">
@@ -191,7 +191,7 @@ export const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
           <p className="text-gray-300 mb-2">{getMessage()}</p>
           {bestMove && (
             <p className="text-gray-400 text-sm mb-4">
-              Besser war:{" "}
+              Besser war:{' '}
               <strong className="text-gray-200">{getFormattedMove(bestMove, false)}</strong>
             </p>
           )}

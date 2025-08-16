@@ -19,8 +19,8 @@
  * formatting logic from specific data sources.
  */
 
-import type { TablebaseResult } from "@shared/services/TablebaseService";
-import { CHESS_EVALUATION, POSITION_ANALYSIS } from "../../constants/chess.constants";
+import type { TablebaseResult } from '@shared/services/TablebaseService';
+import { CHESS_EVALUATION, POSITION_ANALYSIS } from '../../constants/chess.constants';
 
 /**
  * Formatted position analysis for UI display
@@ -60,32 +60,30 @@ export interface PositionAnalysisDisplay {
  *
  * @performance O(1) - Simple calculations only
  */
-export function formatPositionAnalysis(
-  result: TablebaseResult,
-): PositionAnalysisDisplay {
+export function formatPositionAnalysis(result: TablebaseResult): PositionAnalysisDisplay {
   const { category, dtz, wdl } = result;
 
   let displayText: string;
   let className: string;
 
-  if (category === "draw" || dtz === 0) {
-    displayText = "Draw";
-    className = "draw";
-  } else if (category === "win" || (dtz !== null && dtz > 0)) {
-    displayText = dtz !== null ? `Win in ${dtz}` : "Win";
-    className = "winning";
+  if (category === 'draw' || dtz === 0) {
+    displayText = 'Draw';
+    className = 'draw';
+  } else if (category === 'win' || (dtz !== null && dtz > 0)) {
+    displayText = dtz !== null ? `Win in ${dtz}` : 'Win';
+    className = 'winning';
   } else {
-    displayText = dtz !== null ? `Loss in ${Math.abs(dtz)}` : "Loss";
-    className = "losing";
+    displayText = dtz !== null ? `Loss in ${Math.abs(dtz)}` : 'Loss';
+    className = 'losing';
   }
 
   return {
     displayText,
     className,
     score: wdlToScore(wdl, dtz),
-    isWin: category === "win" || category === "cursed-win",
-    isDraw: category === "draw",
-    isLoss: category === "loss" || category === "blessed-loss",
+    isWin: category === 'win' || category === 'cursed-win',
+    isDraw: category === 'draw',
+    isLoss: category === 'loss' || category === 'blessed-loss',
   };
 }
 

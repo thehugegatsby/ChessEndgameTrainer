@@ -21,9 +21,9 @@
  * visual indicators and color coding.
  */
 
-import React from "react";
-import { type Move } from "chess.js";
-import { UI_CONSTANTS } from "@shared/constants/uiConstants";
+import React from 'react';
+import { type Move } from 'chess.js';
+import { UI_CONSTANTS } from '@shared/constants/uiConstants';
 import { CHESS_EVALUATION, PERCENTAGE_MULTIPLIERS } from '@shared/constants/multipliers';
 
 /**
@@ -44,7 +44,7 @@ interface EvaluationData {
   mateInMoves?: number;
   tablebase?: {
     isTablebasePosition: boolean;
-    category?: "win" | "loss" | "draw";
+    category?: 'win' | 'loss' | 'draw';
     wdl?: number;
     dtm?: number;
   };
@@ -152,32 +152,32 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
     mateInMoves?: number;
     tablebase?: {
       isTablebasePosition: boolean;
-      category?: "win" | "loss" | "draw";
+      category?: 'win' | 'loss' | 'draw';
       wdl?: number;
       dtm?: number;
     };
   }): string => {
-    if (!evalData) return "";
+    if (!evalData) return '';
 
     // Tablebase evaluation with emojis
     if (evalData.tablebase?.isTablebasePosition) {
       const { category, wdl, dtm } = evalData.tablebase;
-      let emoji = "";
-      let text = "";
+      let emoji = '';
+      let text = '';
 
       if (category) {
         switch (category) {
-          case "win":
-            emoji = "🏆";
-            text = dtm ? `W${dtm}` : "Win";
+          case 'win':
+            emoji = '🏆';
+            text = dtm ? `W${dtm}` : 'Win';
             break;
-          case "loss":
-            emoji = "❌";
-            text = dtm ? `L${dtm}` : "Loss";
+          case 'loss':
+            emoji = '❌';
+            text = dtm ? `L${dtm}` : 'Loss';
             break;
-          case "draw":
-            emoji = "⚖️";
-            text = "Draw";
+          case 'draw':
+            emoji = '⚖️';
+            text = 'Draw';
             break;
           default:
             // Exhaustive check - should never happen
@@ -186,14 +186,14 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
         }
       } else if (wdl !== undefined) {
         if (wdl === CHESS_EVALUATION.WDL_WIN) {
-          emoji = "🏆";
-          text = dtm ? `W${dtm}` : "Win";
+          emoji = '🏆';
+          text = dtm ? `W${dtm}` : 'Win';
         } else if (wdl === CHESS_EVALUATION.WDL_LOSS) {
-          emoji = "❌";
-          text = dtm ? `L${dtm}` : "Loss";
+          emoji = '❌';
+          text = dtm ? `L${dtm}` : 'Loss';
         } else {
-          emoji = "⚖️";
-          text = "Draw";
+          emoji = '⚖️';
+          text = 'Draw';
         }
       }
 
@@ -205,7 +205,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
     }
 
     const eval_ = evalData.evaluation;
-    if (Math.abs(eval_) < PERCENTAGE_MULTIPLIERS.TEN_PERCENT) return "0.0";
+    if (Math.abs(eval_) < PERCENTAGE_MULTIPLIERS.TEN_PERCENT) return '0.0';
     return eval_ > 0 ? `+${eval_.toFixed(1)}` : eval_.toFixed(1);
   };
 
@@ -214,11 +214,11 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
     mateInMoves?: number;
     tablebase?: {
       isTablebasePosition: boolean;
-      category?: "win" | "loss" | "draw";
+      category?: 'win' | 'loss' | 'draw';
       wdl?: number;
     };
   }): string => {
-    if (!evalData) return "";
+    if (!evalData) return '';
 
     // Tablebase evaluation colors
     if (evalData.tablebase?.isTablebasePosition) {
@@ -226,32 +226,32 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
 
       if (category) {
         switch (category) {
-          case "win":
-            return "text-green-700";
-          case "loss":
-            return "text-red-700";
-          case "draw":
-            return "text-yellow-600";
+          case 'win':
+            return 'text-green-700';
+          case 'loss':
+            return 'text-red-700';
+          case 'draw':
+            return 'text-yellow-600';
           default:
-            return "text-gray-600";
+            return 'text-gray-600';
         }
       } else if (wdl !== undefined) {
-        if (wdl === CHESS_EVALUATION.WDL_WIN) return "text-green-700";
-        if (wdl === CHESS_EVALUATION.WDL_LOSS) return "text-red-700";
-        return "text-yellow-600";
+        if (wdl === CHESS_EVALUATION.WDL_WIN) return 'text-green-700';
+        if (wdl === CHESS_EVALUATION.WDL_LOSS) return 'text-red-700';
+        return 'text-yellow-600';
       }
     }
 
     if (evalData.mateInMoves !== undefined) {
-      return evalData.mateInMoves > 0 ? "text-green-700" : "text-red-700";
+      return evalData.mateInMoves > 0 ? 'text-green-700' : 'text-red-700';
     }
 
     const eval_ = evalData.evaluation;
-    if (eval_ > CHESS_EVALUATION.SIGNIFICANT_ADVANTAGE) return "text-green-700";
-    if (eval_ > CHESS_EVALUATION.SLIGHT_ADVANTAGE) return "text-green-600";
-    if (eval_ > CHESS_EVALUATION.SLIGHT_DISADVANTAGE) return "text-gray-600";
-    if (eval_ > CHESS_EVALUATION.SIGNIFICANT_DISADVANTAGE) return "text-orange-600";
-    return "text-red-600";
+    if (eval_ > CHESS_EVALUATION.SIGNIFICANT_ADVANTAGE) return 'text-green-700';
+    if (eval_ > CHESS_EVALUATION.SLIGHT_ADVANTAGE) return 'text-green-600';
+    if (eval_ > CHESS_EVALUATION.SLIGHT_DISADVANTAGE) return 'text-gray-600';
+    if (eval_ > CHESS_EVALUATION.SIGNIFICANT_DISADVANTAGE) return 'text-orange-600';
+    return 'text-red-600';
   };
 
   return (
@@ -259,7 +259,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
       <div className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-4">
         <h2 className="text-xl font-bold flex items-center gap-2">
           <span>📋</span>
-          <span>Züge{showEvaluations ? " & Bewertungen" : ""}</span>
+          <span>Züge{showEvaluations ? ' & Bewertungen' : ''}</span>
         </h2>
       </div>
 
@@ -269,12 +269,8 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
             <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full mb-3">
               <span className="text-xl">🎯</span>
             </div>
-            <p className="text-gray-500 text-base italic">
-              Noch keine Züge gespielt
-            </p>
-            <p className="text-gray-400 text-sm mt-1">
-              Ziehe eine Figur um zu beginnen
-            </p>
+            <p className="text-gray-500 text-base italic">Noch keine Züge gespielt</p>
+            <p className="text-gray-400 text-sm mt-1">Ziehe eine Figur um zu beginnen</p>
           </div>
         ) : (
           <div
@@ -283,7 +279,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
             data-testid="move-list"
           >
             <div className="space-y-0.5">
-              {movePairs.map((pair) => (
+              {movePairs.map(pair => (
                 <div
                   key={pair.number}
                   className="group flex items-center py-1.5 px-2 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 border border-transparent hover:border-blue-100"
@@ -295,7 +291,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
                     <div className="flex items-center gap-2">
                       {/* Weißer Zug - links */}
                       <div className="flex flex-col items-center min-w-0 flex-1">
-                        <span 
+                        <span
                           className="font-mono text-sm text-gray-800 bg-gray-50 px-1.5 py-0.5 rounded group-hover:bg-white transition-colors truncate w-full text-center"
                           data-testid={`move-item-${(pair.number - 1) * 2}`}
                         >
@@ -314,7 +310,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
                       <div className="flex flex-col items-center min-w-0 flex-1">
                         {pair.black ? (
                           <>
-                            <span 
+                            <span
                               className="font-mono text-sm text-gray-600 bg-gray-50 px-1.5 py-0.5 rounded group-hover:bg-white transition-colors truncate w-full text-center"
                               data-testid={`move-item-${(pair.number - 1) * 2 + 1}`}
                             >

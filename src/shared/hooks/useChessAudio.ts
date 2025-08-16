@@ -1,12 +1,12 @@
 /**
  * @file Chess audio hook with use-sound integration
  * @module hooks/useChessAudio
- * 
+ *
  * @description
  * Hook for playing chess-specific audio effects during gameplay to enhance
  * the Lichess-like experience. Supports various chess events with fallback
  * for missing audio files and respects browser autoplay policies.
- * 
+ *
  * @remarks
  * Phase 1 implementation with basic sound types:
  * - Move sounds for regular moves
@@ -14,7 +14,7 @@
  * - Check sounds for check notifications
  * - Game end sounds (checkmate, draw)
  * - Error sounds for invalid moves
- * 
+ *
  * Future phases will add audio sprites and advanced settings.
  */
 
@@ -26,15 +26,15 @@ import { useFallbackAudio } from './useFallbackAudio';
 /**
  * Chess sound event types
  */
-export type ChessSoundType = 
-  | 'move'          // Regular piece move
-  | 'capture'       // Piece capture
-  | 'check'         // Check notification
-  | 'checkmate'     // Game ends in checkmate
-  | 'draw'          // Game ends in draw/stalemate
-  | 'promotion'     // Pawn promotion
-  | 'error'         // Invalid move or error
-  | 'success';      // Training success
+export type ChessSoundType =
+  | 'move' // Regular piece move
+  | 'capture' // Piece capture
+  | 'check' // Check notification
+  | 'checkmate' // Game ends in checkmate
+  | 'draw' // Game ends in draw/stalemate
+  | 'promotion' // Pawn promotion
+  | 'error' // Invalid move or error
+  | 'success'; // Training success
 
 /**
  * Audio configuration options
@@ -73,25 +73,25 @@ const SOUND_PATHS = {
 
 /**
  * Chess audio hook for playing game-related sounds
- * 
+ *
  * @description
  * Provides a simple interface for playing chess audio effects with automatic
- * fallback handling and logging. Respects browser autoplay policies and 
+ * fallback handling and logging. Respects browser autoplay policies and
  * gracefully degrades when audio files are missing.
- * 
+ *
  * @param config - Optional audio configuration
  * @returns Object with play function and audio state
- * 
+ *
  * @example
  * ```tsx
  * const { playSound, isAudioEnabled } = useChessAudio({
  *   volume: 0.8,
  *   enabled: true
  * });
- * 
+ *
  * // Play move sound
  * playSound('move');
- * 
+ *
  * // Play capture sound
  * playSound('capture');
  * ```
@@ -111,7 +111,7 @@ export const useChessAudio = (config: Partial<AudioConfig> = {}): UseChessAudioR
   const audioConfig = { ...DEFAULT_CONFIG, ...config };
   const logger = getLogger();
   const loadedSounds = useRef<Set<ChessSoundType>>(new Set());
-  
+
   // Fallback audio system
   const { playFallbackSound } = useFallbackAudio(audioConfig.volume);
 
@@ -174,59 +174,62 @@ export const useChessAudio = (config: Partial<AudioConfig> = {}): UseChessAudioR
 
   /**
    * Play a chess sound effect
-   * 
+   *
    * @param soundType - Type of sound to play
    * @returns Promise that resolves when sound starts playing
    */
-  const playSound = useCallback(async (soundType: ChessSoundType): Promise<void> => {
-    // Check if audio is enabled
-    if (!audioConfig.enabled) {
-      return;
-    }
-
-    try {
-      // Map sound types to their respective play functions
-      const soundMap = {
-        move: playMove,
-        capture: playCapture,
-        check: playCheck,
-        checkmate: playCheckmate,
-        draw: playDraw,
-        promotion: playPromotion,
-        error: playError,
-        success: playSuccess,
-      };
-
-      const playFunction = soundMap[soundType];
-      if (playFunction) {
-        try {
-          playFunction();
-          logger.debug(`Played ${soundType} sound from MP3`);
-        } catch {
-          // If MP3 fails, try fallback audio
-          logger.info(`MP3 failed for ${soundType}, using fallback`);
-          await playFallbackSound(soundType);
-        }
-      } else {
-        logger.warn(`Unknown sound type: ${soundType}`);
+  const playSound = useCallback(
+    async (soundType: ChessSoundType): Promise<void> => {
+      // Check if audio is enabled
+      if (!audioConfig.enabled) {
+        return;
       }
-    } catch (error) {
-      // Graceful degradation - don't let audio errors break the game
-      logger.warn(`Failed to play ${soundType} sound`, error as Error);
-    }
-  }, [
-    audioConfig.enabled,
-    playMove,
-    playCapture,
-    playCheck,
-    playCheckmate,
-    playDraw,
-    playPromotion,
-    playError,
-    playSuccess,
-    logger,
-    playFallbackSound,
-  ]);
+
+      try {
+        // Map sound types to their respective play functions
+        const soundMap = {
+          move: playMove,
+          capture: playCapture,
+          check: playCheck,
+          checkmate: playCheckmate,
+          draw: playDraw,
+          promotion: playPromotion,
+          error: playError,
+          success: playSuccess,
+        };
+
+        const playFunction = soundMap[soundType];
+        if (playFunction) {
+          try {
+            playFunction();
+            logger.debug(`Played ${soundType} sound from MP3`);
+          } catch {
+            // If MP3 fails, try fallback audio
+            logger.info(`MP3 failed for ${soundType}, using fallback`);
+            await playFallbackSound(soundType);
+          }
+        } else {
+          logger.warn(`Unknown sound type: ${soundType}`);
+        }
+      } catch (error) {
+        // Graceful degradation - don't let audio errors break the game
+        logger.warn(`Failed to play ${soundType} sound`, error as Error);
+      }
+    },
+    [
+      audioConfig.enabled,
+      playMove,
+      playCapture,
+      playCheck,
+      playCheckmate,
+      playDraw,
+      playPromotion,
+      playError,
+      playSuccess,
+      logger,
+      playFallbackSound,
+    ]
+  );
 
   /**
    * Check if a specific sound type is loaded and ready

@@ -1,16 +1,16 @@
 ---
 name: Vite Migration Epic
 about: Main epic for migrating from Next.js to Vite
-title: "[EPIC] Migrate from Next.js to Vite"
+title: '[EPIC] Migrate from Next.js to Vite'
 labels: epic, migration, architecture, blocked
-assignees: ""
+assignees: ''
 ---
 
 ```yaml
 type: epic
 priority: high
 status: blocked
-blocker: "#137 - Feature-based Architecture Migration"
+blocker: '#137 - Feature-based Architecture Migration'
 effort: 10-15 days
 ai_context:
   current_stack: Next.js 15, App Router, TypeScript

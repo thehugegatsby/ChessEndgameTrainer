@@ -5,21 +5,21 @@
 
 module.exports = {
   rules: {
-    "no-restricted-syntax": [
-      "error",
+    'no-restricted-syntax': [
+      'error',
       {
         selector: 'JSXAttribute[name.name="data-testid"][value.type="Literal"]',
         message:
-          "Use TEST_IDS constants instead of hardcoded data-testid strings. Import from @shared/constants/testIds",
+          'Use TEST_IDS constants instead of hardcoded data-testid strings. Import from @shared/constants/testIds',
       },
     ],
   },
   overrides: [
     {
       // Allow hardcoded test IDs only in the constants file itself
-      files: ["**/constants/testIds.ts"],
+      files: ['**/constants/testIds.ts'],
       rules: {
-        "no-restricted-syntax": "off",
+        'no-restricted-syntax': 'off',
       },
     },
   ],

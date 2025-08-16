@@ -75,28 +75,28 @@ Formats log entries as:
 ### Basic Logging
 
 ```typescript
-import { getLogger } from "@shared/services/logging/Logger";
+import { getLogger } from '@shared/services/logging/Logger';
 
 const logger = getLogger();
-logger.info("Application started");
-logger.error("Database connection failed", error);
-logger.debug("Processing user request", { userId: 123 });
+logger.info('Application started');
+logger.error('Database connection failed', error);
+logger.debug('Processing user request', { userId: 123 });
 ```
 
 ### Contextual Logging
 
 ```typescript
-const authLogger = logger.setContext("AuthService");
-authLogger.info("User authenticated", { userId: 456 });
+const authLogger = logger.setContext('AuthService');
+authLogger.info('User authenticated', { userId: 456 });
 // Output: [timestamp] INFO [AuthService] User authenticated {userId: 456}
 ```
 
 ### Performance Monitoring
 
 ```typescript
-logger.time("apiCall");
+logger.time('apiCall');
 const result = await fetchDataFromAPI();
-logger.timeEnd("apiCall");
+logger.timeEnd('apiCall');
 // Logs: "apiCall: 234.56ms"
 ```
 
@@ -104,10 +104,10 @@ logger.timeEnd("apiCall");
 
 ```typescript
 const requestLogger = logger.withFields({
-  requestId: "abc-123",
-  sessionId: "xyz-789",
+  requestId: 'abc-123',
+  sessionId: 'xyz-789',
 });
-requestLogger.info("Processing request");
+requestLogger.info('Processing request');
 // All logs include requestId and sessionId
 ```
 
@@ -116,9 +116,9 @@ requestLogger.info("Processing request");
 ```typescript
 const logs = logger.getLogs({
   minLevel: LogLevel.ERROR,
-  context: "Database",
+  context: 'Database',
   startTime: new Date(Date.now() - 3600000),
-  searchText: "connection",
+  searchText: 'connection',
 });
 ```
 
@@ -152,7 +152,7 @@ const prodLogger = createLogger({
   minLevel: LogLevel.INFO,
   enableConsole: false,
   enableRemote: true,
-  remoteEndpoint: "https://logs.myapp.com/ingest",
+  remoteEndpoint: 'https://logs.myapp.com/ingest',
   maxLogSize: 5000,
 });
 ```
@@ -206,19 +206,19 @@ const prodLogger = createLogger({
 2. **Add context for modules**
 
    ```typescript
-   const logger = getLogger().setContext("ModuleName");
+   const logger = getLogger().setContext('ModuleName');
    ```
 
 3. **Include structured data**
 
    ```typescript
-   logger.info("User action", { userId, action, timestamp });
+   logger.info('User action', { userId, action, timestamp });
    ```
 
 4. **Flush before shutdown**
 
    ```typescript
-   process.on("SIGTERM", async () => {
+   process.on('SIGTERM', async () => {
      await logger.flush();
      process.exit(0);
    });
@@ -226,9 +226,9 @@ const prodLogger = createLogger({
 
 5. **Use timers for performance**
    ```typescript
-   logger.time("operation");
+   logger.time('operation');
    await performOperation();
-   logger.timeEnd("operation");
+   logger.timeEnd('operation');
    ```
 
 ## Testing

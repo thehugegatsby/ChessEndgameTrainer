@@ -20,11 +20,11 @@ export function deepFreeze<T extends object>(obj: T): Readonly<T> {
     const value = (obj as any)[prop];
 
     // Skip if property is not an object or is already frozen
-    if (value && typeof value === "object" && !Object.isFrozen(value)) {
+    if (value && typeof value === 'object' && !Object.isFrozen(value)) {
       // Handle arrays specially to maintain their type
       if (Array.isArray(value)) {
         value.forEach((item, index) => {
-          if (item && typeof item === "object") {
+          if (item && typeof item === 'object') {
             value[index] = deepFreeze(item);
           }
         });
@@ -56,7 +56,7 @@ export function isDeepFrozen(obj: any): boolean {
   // Check all properties recursively
   for (const prop of Object.getOwnPropertyNames(obj)) {
     const value = obj[prop];
-    if (value && typeof value === "object") {
+    if (value && typeof value === 'object') {
       if (!isDeepFrozen(value)) {
         return false;
       }

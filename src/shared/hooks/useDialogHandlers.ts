@@ -1,12 +1,12 @@
 /**
  * @file Dialog handlers hook for chess training board
  * @module hooks/useDialogHandlers
- * 
+ *
  * @description
  * Custom hook that encapsulates all dialog handling logic for chess training.
  * Extracted from TrainingBoard to separate dialog business logic from UI coordination.
  * Handles error dialogs, success dialogs, and training workflow actions.
- * 
+ *
  * @remarks
  * Key responsibilities:
  * - Move error dialog actions (take back, restart, continue, show best move)
@@ -14,10 +14,10 @@
  * - Training session reset coordination
  * - Complex opponent turn scheduling and cancellation
  * - Comprehensive logging and state coordination
- * 
+ *
  * This hook maintains all the complex business logic while providing
  * a clean interface for dialog action coordination.
- * 
+ *
  * @example
  * ```tsx
  * const dialogHandlers = useDialogHandlers({
@@ -30,7 +30,7 @@
  *   storeApi,
  *   trainingUIState,
  * });
- * 
+ *
  * <DialogManager
  *   errorDialog={trainingState.moveErrorDialog}
  *   successDialog={trainingState.moveSuccessDialog}
@@ -93,7 +93,7 @@ interface GameActionsSubset {
  * UI actions interface (subset needed for dialog handling)
  */
 interface UIActionsSubset {
-  showToast: (message: string, type: "error" | "success" | "warning" | "info") => void;
+  showToast: (message: string, type: 'error' | 'success' | 'warning' | 'info') => void;
 }
 
 /**
@@ -110,7 +110,6 @@ interface TrainingStateSubset {
     bestMove?: string;
   } | null;
 }
-
 
 /**
  * Training UI state interface (subset needed for dialog handling)
@@ -129,23 +128,23 @@ interface UseDialogHandlersProps {
   resetGame: () => void;
   /** Training session function to clear evaluations */
   clearEvaluations: () => void;
-  
+
   /** Training store actions */
   trainingActions: TrainingActionsSubset;
   /** Game store actions */
   gameActions: GameActionsSubset;
   /** UI store actions */
   uiActions: UIActionsSubset;
-  
+
   /** Training state */
   trainingState: TrainingStateSubset;
-  
+
   /** Store API for direct state access */
   storeApi: StoreApi;
-  
+
   /** Training UI state management */
   trainingUIState: TrainingUIStateSubset;
-  
+
   /** Optional Next.js router for client-side navigation */
   router?: {
     push: (url: string) => void;
@@ -164,19 +163,19 @@ interface UseDialogHandlersReturn {
   handleMoveErrorContinue: () => void;
   /** Handler for move error dialog - show best move */
   handleShowBestMove: () => void;
-  
+
   /** Handler for move success dialog - close dialog */
   handleMoveSuccessClose: () => void;
   /** Handler for move success dialog - continue to next */
   handleMoveSuccessContinue: () => void;
-  
+
   /** Handler for general game reset */
   handleReset: () => void;
 }
 
 /**
  * Custom hook for chess dialog handling logic
- * 
+ *
  * @description
  * Encapsulates all dialog handling logic including:
  * - Move error dialog actions with complex undo and opponent turn logic
@@ -184,7 +183,7 @@ interface UseDialogHandlersReturn {
  * - Training session reset coordination across multiple services
  * - State management for opponent turns and player interactions
  * - Comprehensive logging and error handling
- * 
+ *
  * @remarks
  * This hook maintains all the complex business logic that was previously
  * embedded in TrainingBoard. It coordinates between multiple services:
@@ -192,10 +191,10 @@ interface UseDialogHandlersReturn {
  * - Store actions for state updates
  * - Opponent turn orchestrators for training flow
  * - Logging service for debugging and monitoring
- * 
+ *
  * The hook preserves all original functionality while providing a clean
  * interface that separates concerns between dialog actions and UI coordination.
- * 
+ *
  * @param props Configuration object with session functions, store actions, and state
  * @returns Object with all dialog handler functions
  */
@@ -210,7 +209,6 @@ export const useDialogHandlers = ({
   trainingUIState,
   router,
 }: UseDialogHandlersProps): UseDialogHandlersReturn => {
-
   /**
    * Resets the training board to initial state
    *
@@ -249,23 +247,23 @@ export const useDialogHandlers = ({
    * the move from history and reverts the board position.
    */
   const handleMoveErrorTakeBack = useCallback(() => {
-    const logger = getLogger().setContext("useDialogHandlers-MoveError");
-    logger.info("Undoing suboptimal move using useTrainingSession undoMove");
+    const logger = getLogger().setContext('useDialogHandlers-MoveError');
+    logger.info('Undoing suboptimal move using useTrainingSession undoMove');
 
     // CRITICAL: Cancel any scheduled opponent turn BEFORE undoing
     // This prevents the opponent from playing after we undo
     getOpponentTurnManager().cancel();
-    logger.info("Cancelled any scheduled opponent turn");
+    logger.info('Cancelled any scheduled opponent turn');
 
     // Use the undoMove function from useTrainingSession which properly handles ChessService
     const undoResult = undoMove();
 
     if (undoResult) {
-      logger.info("Move successfully undone");
+      logger.info('Move successfully undone');
 
       // CRITICAL: Set player turn to true after undoing a suboptimal move
       // This prevents the opponent from playing immediately after undo
-      logger.debug("Before setPlayerTurn - current state", {
+      logger.debug('Before setPlayerTurn - current state', {
         isPlayerTurn: trainingState.isPlayerTurn,
         isOpponentThinking: trainingState.isOpponentThinking,
       });
@@ -273,22 +271,20 @@ export const useDialogHandlers = ({
       trainingActions.clearOpponentThinking(); // Clear opponent thinking flag
       trainingActions.clearEvaluationBaseline(); // Clear baseline since we're back to original position
       logger.info(
-        "Set player turn to true, cleared opponent thinking, and cleared evaluation baseline",
+        'Set player turn to true, cleared opponent thinking, and cleared evaluation baseline'
       );
-      logger.debug("After setPlayerTurn call");
+      logger.debug('After setPlayerTurn call');
     } else {
-      logger.error("Failed to undo move - no moves in history");
+      logger.error('Failed to undo move - no moves in history');
     }
 
     // Close the dialog using the trainingActions hook which properly accesses the action
     // The hook extracts the action from the slice creator, not from the nested store state
     if (trainingActions && trainingActions.setMoveErrorDialog) {
       trainingActions.setMoveErrorDialog(null);
-      logger.info(
-        "Successfully closed move error dialog via trainingActions hook",
-      );
+      logger.info('Successfully closed move error dialog via trainingActions hook');
     } else {
-      logger.error("setMoveErrorDialog not available in trainingActions");
+      logger.error('setMoveErrorDialog not available in trainingActions');
     }
   }, [undoMove, trainingActions, trainingState]);
 
@@ -304,8 +300,8 @@ export const useDialogHandlers = ({
    * mistake and wants to start the position from the beginning.
    */
   const handleMoveErrorRestart = useCallback(() => {
-    const logger = getLogger().setContext("useDialogHandlers-MoveError");
-    logger.info("Restarting game due to move error");
+    const logger = getLogger().setContext('useDialogHandlers-MoveError');
+    logger.info('Restarting game due to move error');
     handleReset();
     trainingActions.setMoveErrorDialog(null);
   }, [handleReset, trainingActions]);
@@ -324,85 +320,82 @@ export const useDialogHandlers = ({
    * always having to take back moves.
    */
   const handleMoveErrorContinue = useCallback(() => {
-    const logger = getLogger().setContext("useDialogHandlers-MoveError");
-    
+    const logger = getLogger().setContext('useDialogHandlers-MoveError');
+
     // Get current state for debugging
     const currentState = storeApi.getState();
-    logger.info(
-      "🎯 WEITERSPIELEN clicked - Current state BEFORE action:",
-      {
-        isPlayerTurn: currentState.training.isPlayerTurn,
-        isOpponentThinking: currentState.training.isOpponentThinking,
-        currentFen: chessService.getFen(),
-        currentTurn: chessService.turn(),
-        colorToTrain: currentState.training.currentPosition?.colorToTrain,
-        moveCount: currentState.game.moveHistory.length,
-      }
-    );
+    logger.info('🎯 WEITERSPIELEN clicked - Current state BEFORE action:', {
+      isPlayerTurn: currentState.training.isPlayerTurn,
+      isOpponentThinking: currentState.training.isOpponentThinking,
+      currentFen: chessService.getFen(),
+      currentTurn: chessService.turn(),
+      colorToTrain: currentState.training.currentPosition?.colorToTrain,
+      moveCount: currentState.game.moveHistory.length,
+    });
 
     // CRITICAL FIX: Set turn state before scheduling opponent turn
     // This ensures the opponent can actually execute their move
     const currentTurn = chessService.turn();
     const trainingColor = currentState.training.currentPosition?.colorToTrain?.charAt(0);
-    
+
     if (currentTurn !== trainingColor) {
-      logger.info("🔧 FIXING BUG: Setting isPlayerTurn=false for opponent to move");
+      logger.info('🔧 FIXING BUG: Setting isPlayerTurn=false for opponent to move');
       trainingActions.setPlayerTurn(false);
     }
 
     // Close the error dialog
     trainingActions.setMoveErrorDialog(null);
-    logger.info("✅ Error dialog closed");
+    logger.info('✅ Error dialog closed');
 
     // Schedule opponent turn to respond to player's move
-    logger.info("📅 Calling scheduleOpponentTurn with evaluation baseline callback...");
-    
+    logger.info('📅 Calling scheduleOpponentTurn with evaluation baseline callback...');
+
     // Create adapter for Zustand store to match orchestrator's StoreApi interface
     const orchestratorApi = {
       getState: storeApi.getState,
       setState: (updater: (draft: RootState) => void | Partial<RootState>) => {
         // Handle both function and partial state forms
         if (typeof updater === 'function') {
-          storeApi.setState((state) => {
+          storeApi.setState(state => {
             const result = updater(state);
             return result === undefined ? state : result;
           });
         } else {
           storeApi.setState(updater);
         }
-      }
+      },
     };
-    
+
     getOpponentTurnManager().schedule(orchestratorApi, UI_DURATIONS_MS.DIALOG_CLOSE_DELAY, {
       onOpponentMoveComplete: async () => {
-        logger.info("🎯 Opponent move completed - updating evaluation baseline");
-        
+        logger.info('🎯 Opponent move completed - updating evaluation baseline');
+
         try {
           // Get current position evaluation
           const currentFen = chessService.getFen();
           // Dynamic import for callback context
           const { tablebaseService } = await import('@shared/services/TablebaseService');
           const currentEval = await tablebaseService.getEvaluation(currentFen);
-          
+
           if (currentEval.isAvailable && currentEval.result) {
             // Update baseline to current position's evaluation using the actions provided to this hook
             trainingActions.setEvaluationBaseline(currentEval.result.wdl, currentFen);
-            logger.info("✅ Evaluation baseline updated successfully", {
+            logger.info('✅ Evaluation baseline updated successfully', {
               newBaseline: currentEval.result.wdl,
               fen: currentFen,
             });
           } else {
-            logger.warn("⚠️ Could not get evaluation for baseline update - tablebase unavailable");
+            logger.warn('⚠️ Could not get evaluation for baseline update - tablebase unavailable');
           }
         } catch (error) {
-          logger.error("❌ Failed to update evaluation baseline:", error);
+          logger.error('❌ Failed to update evaluation baseline:', error);
         }
-      }
+      },
     });
 
     // Check state after scheduling
     const stateAfter = storeApi.getState();
-    logger.info("📊 State AFTER scheduling opponent turn:", {
+    logger.info('📊 State AFTER scheduling opponent turn:', {
       isPlayerTurn: stateAfter.training.isPlayerTurn,
       isOpponentThinking: stateAfter.training.isOpponentThinking,
     });
@@ -422,12 +415,11 @@ export const useDialogHandlers = ({
    */
   const handleShowBestMove = useCallback(() => {
     if (trainingState.moveErrorDialog?.bestMove) {
-      const logger = getLogger().setContext("useDialogHandlers-MoveError");
-      logger.info("Showing best move", { bestMove: trainingState.moveErrorDialog.bestMove });
-      showInfoToast(
-        `Der beste Zug war: ${trainingState.moveErrorDialog.bestMove}`,
-        { duration: 4000 }
-      );
+      const logger = getLogger().setContext('useDialogHandlers-MoveError');
+      logger.info('Showing best move', { bestMove: trainingState.moveErrorDialog.bestMove });
+      showInfoToast(`Der beste Zug war: ${trainingState.moveErrorDialog.bestMove}`, {
+        duration: 4000,
+      });
     }
     trainingActions.setMoveErrorDialog(null);
   }, [trainingState.moveErrorDialog, trainingActions]);
@@ -450,36 +442,38 @@ export const useDialogHandlers = ({
    * This should navigate to the next position or end the training session.
    */
   const handleMoveSuccessContinue = useCallback(() => {
-    const logger = getLogger().setContext("useDialogHandlers-MoveSuccess");
+    const logger = getLogger().setContext('useDialogHandlers-MoveSuccess');
     logger.info("Success dialog 'Weiter' clicked - continuing training");
-    
+
     // Close the success dialog
     trainingActions.setMoveSuccessDialog(null);
-    
+
     // Get current state to check for next position and auto-progression setting
     const currentState = storeApi.getState();
     const hasNextPosition = currentState.training.nextPosition;
     const autoProgressEnabled = currentState.training.autoProgressEnabled;
-    
-    logger.info("Checking navigation options", {
+
+    logger.info('Checking navigation options', {
       hasNextPosition: Boolean(hasNextPosition),
       nextPositionId: hasNextPosition?.id,
       autoProgressEnabled,
     });
-    
+
     // Navigate to next position if available
     if (hasNextPosition) {
       if (router) {
-        logger.info("Using Next.js router for fast client-side navigation", { nextId: hasNextPosition.id });
+        logger.info('Using Next.js router for fast client-side navigation', {
+          nextId: hasNextPosition.id,
+        });
         router.push(`/train/${hasNextPosition.id}`);
       } else if (typeof window !== 'undefined') {
-        logger.info("Fallback to page reload navigation", { nextId: hasNextPosition.id });
+        logger.info('Fallback to page reload navigation', { nextId: hasNextPosition.id });
         window.location.href = `/train/${hasNextPosition.id}`;
       } else {
-        logger.warn("No navigation method available");
+        logger.warn('No navigation method available');
       }
     } else {
-      logger.info("No next position available - training session complete");
+      logger.info('No next position available - training session complete');
       // Could show a "Training complete" message or return to menu
     }
   }, [trainingActions, storeApi, router]);

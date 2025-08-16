@@ -7,9 +7,9 @@
  * move legality checking, and game state verification.
  */
 
-import type { Move as ChessJsMove } from "chess.js";
-import { chessService } from "@shared/services/ChessService";
-import type { TrainingState } from "@shared/store/slices/types";
+import type { Move as ChessJsMove } from 'chess.js';
+import { chessService } from '@shared/services/ChessService';
+import type { TrainingState } from '@shared/store/slices/types';
 
 /**
  * Result of move validation containing validity status and error information
@@ -74,10 +74,7 @@ export class MoveValidator {
    * @returns Validation result with error message if invalid
    */
   validateMove(
-    move:
-      | ChessJsMove
-      | { from: string; to: string; promotion?: string }
-      | string,
+    move: ChessJsMove | { from: string; to: string; promotion?: string } | string
   ): ValidationResult {
     try {
       const isValid = chessService.validateMove(move);
@@ -85,7 +82,7 @@ export class MoveValidator {
       if (!isValid) {
         return {
           isValid: false,
-          errorMessage: "Invalid move",
+          errorMessage: 'Invalid move',
         };
       }
 
@@ -93,7 +90,7 @@ export class MoveValidator {
     } catch (error) {
       return {
         isValid: false,
-        errorMessage: error instanceof Error ? error.message : "Invalid move",
+        errorMessage: error instanceof Error ? error.message : 'Invalid move',
       };
     }
   }

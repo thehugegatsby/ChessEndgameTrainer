@@ -5,22 +5,28 @@ const path = require('path');
 
 function findDuplicateComponents(dir, components = new Map()) {
   const files = fs.readdirSync(dir, { withFileTypes: true });
-  
+
   for (const file of files) {
     const filePath = path.join(dir, file.name);
-    
+
     if (file.isDirectory() && !file.name.startsWith('.') && file.name !== 'node_modules') {
       findDuplicateComponents(filePath, components);
     } else if (file.isFile() && (file.name.endsWith('.tsx') || file.name.endsWith('.jsx'))) {
       // Skip Next.js page files and test files
-      if (file.name === 'page.tsx' || file.name === 'layout.tsx' || 
-          file.name === 'error.tsx' || file.name === 'loading.tsx' ||
-          file.name === 'not-found.tsx' || file.name.endsWith('.test.tsx') ||
-          file.name.endsWith('.test.jsx') || file.name === 'index.tsx' ||
-          file.name === 'index.jsx') {
+      if (
+        file.name === 'page.tsx' ||
+        file.name === 'layout.tsx' ||
+        file.name === 'error.tsx' ||
+        file.name === 'loading.tsx' ||
+        file.name === 'not-found.tsx' ||
+        file.name.endsWith('.test.tsx') ||
+        file.name.endsWith('.test.jsx') ||
+        file.name === 'index.tsx' ||
+        file.name === 'index.jsx'
+      ) {
         continue;
       }
-      
+
       const componentName = file.name.replace(/\.(tsx|jsx)$/, '');
       if (!components.has(componentName)) {
         components.set(componentName, []);
@@ -28,7 +34,7 @@ function findDuplicateComponents(dir, components = new Map()) {
       components.get(componentName).push(filePath);
     }
   }
-  
+
   return components;
 }
 

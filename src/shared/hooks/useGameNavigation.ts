@@ -1,22 +1,22 @@
 /**
  * @file Game navigation hook for chess training board
  * @module hooks/useGameNavigation
- * 
+ *
  * @description
  * Custom hook that encapsulates move history navigation logic for chess training.
  * Extracted from TrainingBoard to separate navigation concerns from UI rendering.
  * Handles move history tracking, previous FEN calculation, and parent callbacks.
- * 
+ *
  * @remarks
  * Key responsibilities:
  * - Previous FEN calculation for tablebase comparison
  * - Move history change notifications to parent
  * - Jump-to-move functionality coordination
  * - Chess game state reconstruction for navigation
- * 
+ *
  * This hook maintains navigation state logic while providing
  * a clean interface for move history management.
- * 
+ *
  * @example
  * ```tsx
  * const gameNavigation = useGameNavigation({
@@ -27,7 +27,7 @@
  *   onJumpToMove,
  *   jumpToMove
  * });
- * 
+ *
  * // Use previousFen for tablebase comparison
  * const analysis = usePositionAnalysis({
  *   fen: currentFen,
@@ -43,7 +43,7 @@ import { toLibraryMove } from '@shared/infrastructure/chess-adapter';
 
 /**
  * Configuration options for game navigation hook
- * 
+ *
  * @interface UseGameNavigationOptions
  * @description Options for configuring game navigation behavior
  */
@@ -64,7 +64,7 @@ export interface UseGameNavigationOptions {
 
 /**
  * Game navigation state and utilities
- * 
+ *
  * @interface GameNavigationResult
  * @description Result object containing navigation state and utilities
  */
@@ -79,15 +79,15 @@ export interface GameNavigationResult {
 
 /**
  * Game navigation hook
- * 
+ *
  * @description
  * Provides move history navigation functionality with FEN reconstruction
  * and parent callback coordination. Calculates previous positions for
  * tablebase comparison and manages navigation state.
- * 
+ *
  * @param {UseGameNavigationOptions} options - Navigation configuration
  * @returns {GameNavigationResult} Navigation state and utilities
- * 
+ *
  * @example
  * ```tsx
  * const gameNavigation = useGameNavigation({
@@ -98,7 +98,7 @@ export interface GameNavigationResult {
  *   onJumpToMove: setJumpFunction,
  *   jumpToMove: jumpToMoveFunction
  * });
- * 
+ *
  * // Access previous position for comparison
  * if (gameNavigation.previousFen) {
  *   // Log previous position for debugging
@@ -112,9 +112,8 @@ export const useGameNavigation = ({
   currentFen: _currentFen, // Reserved for future use
   onHistoryChange,
   onJumpToMove,
-  jumpToMove
+  jumpToMove,
 }: UseGameNavigationOptions): GameNavigationResult => {
-  
   // Calculate previous FEN for tablebase move comparison
   const previousFen = useMemo(() => {
     if (history.length === 0) {
@@ -167,6 +166,6 @@ export const useGameNavigation = ({
   return {
     previousFen,
     canNavigate: history.length > 0,
-    totalMoves: history.length
+    totalMoves: history.length,
   };
 };

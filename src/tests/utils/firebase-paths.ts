@@ -7,25 +7,23 @@
 /**
  * Get the base user document path
  */
-export const getUserPath = (userId: string): string => 
-  `users/${userId}`;
+export const getUserPath = (userId: string): string => `users/${userId}`;
 
 /**
  * Get the user progress subcollection path
  */
-export const getUserProgressPath = (userId: string): string => 
+export const getUserProgressPath = (userId: string): string =>
   `${getUserPath(userId)}/userProgress`;
 
 /**
  * Get the user stats document path
  */
-export const getUserStatsPath = (userId: string): string => 
-  `${getUserProgressPath(userId)}/stats`;
+export const getUserStatsPath = (userId: string): string => `${getUserProgressPath(userId)}/stats`;
 
 /**
  * Get a specific card progress document path
  */
-export const getCardProgressPath = (userId: string, cardId: string): string => 
+export const getCardProgressPath = (userId: string, cardId: string): string =>
   `${getUserProgressPath(userId)}/${cardId}`;
 
 /**
@@ -34,7 +32,7 @@ export const getCardProgressPath = (userId: string, cardId: string): string =>
 export const COLLECTIONS = {
   USERS: 'users',
   POSITIONS: 'positions',
-  CATEGORIES: 'categories', 
+  CATEGORIES: 'categories',
   CHAPTERS: 'chapters',
 } as const;
 

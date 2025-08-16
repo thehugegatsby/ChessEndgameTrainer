@@ -14,22 +14,61 @@
  * - API adapter for react-chessboard v5 compatibility
  * - Configurable piece dragging control
  * - Type-safe piece drop handling
+ * - SSR-safe dynamic loading to prevent hydration issues
  *
  * The component serves as an adapter layer between the application's
  * chess logic and the external react-chessboard library, ensuring
  * consistent behavior and easier upgrades.
  */
 
-import React, { useEffect, useState } from "react";
-import { 
-  Chessboard as ReactChessboard,
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import {
+  Chessboard as RawChessboard,
   type PieceDropHandlerArgs,
-  type SquareHandlerArgs
-} from "react-chessboard";
-import { PromotionDialog, type PromotionPiece } from "./PromotionDialog";
+  type SquareHandlerArgs,
+} from 'react-chessboard';
+import { PromotionDialog, type PromotionPiece } from './PromotionDialog';
+
+// GPT-5 FIX: Client-only mount gate to avoid SSR completely
+// This bypasses next/dynamic bailout issues in Next.js 15 + React 19
+const ClientOnlyChessboard: React.FC<Record<string, unknown>> = props => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div
+        data-chessboard-hydrated="false"
+        style={{
+          width: '800px',
+          height: '800px',
+          backgroundColor: '#f0d9b5',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {/* Loading placeholder while mounting */}
+      </div>
+    );
+  }
+
+  return (
+    <div data-chessboard-hydrated="true">
+      <RawChessboard {...props} />
+    </div>
+  );
+};
+
+const ReactChessboard = ClientOnlyChessboard as React.ComponentType<Record<string, unknown>>;
 
 // Types for react-chessboard (library has incomplete TypeScript definitions)
-type PieceType = "wP" | "wN" | "wB" | "wR" | "wQ" | "wK" | "bP" | "bN" | "bB" | "bR" | "bQ" | "bK";
+type PieceType = 'wP' | 'wN' | 'wB' | 'wR' | 'wQ' | 'wK' | 'bP' | 'bN' | 'bB' | 'bR' | 'bQ' | 'bK';
 
 /**
  * Promotion move data stored while waiting for piece selection
@@ -58,7 +97,7 @@ interface ChessboardProps {
     sourceSquare: string,
     targetSquare: string,
     piece: string,
-    promotion?: string,
+    promotion?: string
   ) => boolean;
   onSquareClick?: (args: { piece: PieceType | null; square: string }) => void;
   onPromotionCheck?: (from: string, to: string) => boolean;
@@ -123,15 +162,12 @@ export const Chessboard: React.FC<ChessboardProps> = ({
   arePiecesDraggable = true,
   animationDuration = 200,
 }) => {
-  // Prevent SSR hydration mismatch by only rendering on client
-  const [isClient, setIsClient] = useState(false);
   // Promotion dialog state
   const [pendingPromotion, setPendingPromotion] = useState<PendingPromotion | null>(null);
-  const [promotionPosition, setPromotionPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const [promotionPosition, setPromotionPosition] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  });
   /**
    * Calculate board-relative position for promotion dialog
    */
@@ -139,7 +175,7 @@ export const Chessboard: React.FC<ChessboardProps> = ({
     const ASCII_LOWERCASE_A = 97;
     const file = square.charCodeAt(0) - ASCII_LOWERCASE_A; // a=0, b=1, etc.
     const rank = parseInt(square.charAt(1)) - 1; // 1=0, 2=1, etc.
-    
+
     const BOARD_SIZE = 8;
     const squareSize = boardWidth / BOARD_SIZE;
     const SQUARE_CENTER_OFFSET = 0.5;
@@ -147,7 +183,7 @@ export const Chessboard: React.FC<ChessboardProps> = ({
     // Flip rank for display (rank 8 is at top)
     const MAX_RANK_INDEX = 7;
     const y = (MAX_RANK_INDEX - rank + SQUARE_CENTER_OFFSET) * squareSize;
-    
+
     return { x, y };
   };
 
@@ -186,7 +222,7 @@ export const Chessboard: React.FC<ChessboardProps> = ({
       pendingPromotion.from,
       pendingPromotion.to,
       pendingPromotion.piece,
-      "q"
+      'q'
     );
 
     if (success) {
@@ -198,7 +234,11 @@ export const Chessboard: React.FC<ChessboardProps> = ({
    * Adapts piece drop events to react-chessboard v5 API
    * Now handles promotion detection and dialog display
    */
-  const handlePieceDrop = ({ piece, sourceSquare, targetSquare }: PieceDropHandlerArgs): boolean => {
+  const handlePieceDrop = ({
+    piece,
+    sourceSquare,
+    targetSquare,
+  }: PieceDropHandlerArgs): boolean => {
     if (!targetSquare) return false;
 
     // Check if this is a promotion move first (before calling onPieceDrop)
@@ -209,11 +249,11 @@ export const Chessboard: React.FC<ChessboardProps> = ({
         to: targetSquare,
         piece: String(piece.pieceType),
       });
-      
+
       // Calculate position for promotion dialog
       const position = getSquarePosition(targetSquare);
       setPromotionPosition(position);
-      
+
       // Return true to accept the visual move, but don't call onPieceDrop yet
       return true;
     }
@@ -231,24 +271,6 @@ export const Chessboard: React.FC<ChessboardProps> = ({
     });
   };
 
-  // Render placeholder during SSR to avoid hydration mismatch
-  if (!isClient) {
-    return (
-      <div
-        style={{
-          width: `${boardWidth}px`,
-          height: `${boardWidth}px`,
-          backgroundColor: "#f0d9b5",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        {/* Empty board placeholder during SSR */}
-      </div>
-    );
-  }
-
   // Determine promotion color from the pending move
   const promotionColor = pendingPromotion?.piece.charAt(0).toLowerCase() === 'w' ? 'w' : 'b';
 
@@ -259,8 +281,8 @@ export const Chessboard: React.FC<ChessboardProps> = ({
           position: fen,
           ...(onPieceDrop && { onPieceDrop: handlePieceDrop }),
           ...(onSquareClick && { onSquareClick: handleSquareClick }),
-          boardStyle: { 
-            width: `${boardWidth}px`, 
+          boardStyle: {
+            width: `${boardWidth}px`,
             height: `${boardWidth}px`,
             borderRadius: '6px',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
@@ -276,7 +298,7 @@ export const Chessboard: React.FC<ChessboardProps> = ({
           },
         }}
       />
-      
+
       {/* Promotion Dialog */}
       <PromotionDialog
         isOpen={Boolean(pendingPromotion)}

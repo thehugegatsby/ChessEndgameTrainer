@@ -15,12 +15,12 @@
  * - Memory: Stores up to 100 evaluations per session
  */
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { analysisService } from "@shared/services/AnalysisService";
-import { ErrorService } from "@shared/services/ErrorService";
-import { getLogger } from "@shared/services/logging";
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { analysisService } from '@shared/services/AnalysisService';
+import { ErrorService } from '@shared/services/ErrorService';
+import { getLogger } from '@shared/services/logging';
 import { STRING_CONSTANTS } from '@shared/constants/multipliers';
-import type { PositionAnalysis } from "@shared/types";
+import type { PositionAnalysis } from '@shared/types';
 
 const logger = getLogger().setContext('usePositionAnalysis');
 
@@ -85,16 +85,14 @@ export function usePositionAnalysis({
   isEnabled,
 }: UsePositionAnalysisOptions): UsePositionAnalysisReturn {
   const [evaluations, setEvaluations] = useState<PositionAnalysis[]>([]);
-  const [lastEvaluation, setLastEvaluation] = useState<PositionAnalysis | null>(
-    null,
-  );
+  const [lastEvaluation, setLastEvaluation] = useState<PositionAnalysis | null>(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const addEvaluation = useCallback((evaluation: PositionAnalysis) => {
-    setEvaluations((prev) => [...prev, evaluation]);
+    setEvaluations(prev => [...prev, evaluation]);
     setLastEvaluation(evaluation);
   }, []);
 
@@ -105,21 +103,19 @@ export function usePositionAnalysis({
   }, []);
 
   useEffect(() => {
-    logger.info("[usePositionAnalysis] Effect triggered", {
+    logger.info('[usePositionAnalysis] Effect triggered', {
       isEnabled,
-      fen: `${fen?.slice(0, STRING_CONSTANTS.FEN_TRUNCATE_LENGTH)  }...`,
+      fen: `${fen?.slice(0, STRING_CONSTANTS.FEN_TRUNCATE_LENGTH)}...`,
     });
 
     if (!isEnabled || !fen) {
-      logger.debug(
-        "[usePositionAnalysis] Skipping evaluation - not enabled or no FEN",
-      );
+      logger.debug('[usePositionAnalysis] Skipping evaluation - not enabled or no FEN');
       return;
     }
 
     // Cancel any pending evaluation
     if (abortControllerRef.current) {
-      logger.debug("[usePositionAnalysis] Aborting previous evaluation");
+      logger.debug('[usePositionAnalysis] Aborting previous evaluation');
       abortControllerRef.current.abort();
     }
 
@@ -133,20 +129,17 @@ export function usePositionAnalysis({
 
       setIsEvaluating(true);
       setError(null);
-      logger.info("[usePositionAnalysis] Starting evaluation");
+      logger.info('[usePositionAnalysis] Starting evaluation');
 
       try {
         // Get position analysis from the centralized service
-        const evaluation = await analysisService.getPositionAnalysisOrEmpty(
-          fen,
-          5,
-        );
+        const evaluation = await analysisService.getPositionAnalysisOrEmpty(fen, 5);
 
         if (abortController.signal.aborted) {
           return;
         }
 
-        logger.info("[usePositionAnalysis] Got tablebase evaluation", {
+        logger.info('[usePositionAnalysis] Got tablebase evaluation', {
           hasTablebase: Boolean(evaluation.tablebase),
           topMovesCount: evaluation.tablebase?.topMoves?.length,
         });
@@ -156,11 +149,11 @@ export function usePositionAnalysis({
         }
       } catch (err: unknown) {
         const evalError = err instanceof Error ? err : new Error(String(err));
-        if (evalError.name !== "AbortError") {
-          logger.error("[usePositionAnalysis] Evaluation failed", evalError);
+        if (evalError.name !== 'AbortError') {
+          logger.error('[usePositionAnalysis] Evaluation failed', evalError);
           const userMessage = ErrorService.handleTablebaseError(evalError, {
-            component: "usePositionAnalysis",
-            action: "evaluatePosition",
+            component: 'usePositionAnalysis',
+            action: 'evaluatePosition',
             additionalData: { fen },
           });
           // Only set error if component is still mounted and request not aborted
@@ -168,7 +161,7 @@ export function usePositionAnalysis({
             setError(userMessage);
           }
         } else {
-          logger.debug("[usePositionAnalysis] Evaluation aborted");
+          logger.debug('[usePositionAnalysis] Evaluation aborted');
         }
       } finally {
         if (!abortControllerRef.current?.signal.aborted) {

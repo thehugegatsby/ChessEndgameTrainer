@@ -10,11 +10,11 @@
  * - Mobile-responsive design following industry standards
  */
 
-"use client";
+'use client';
 
-import React, { useState, useCallback, useMemo } from "react";
-import { UI_CONSTANTS } from "@shared/constants/uiConstants";
-import { DIMENSIONS } from "@shared/constants";
+import React, { useState, useCallback, useMemo } from 'react';
+import { UI_CONSTANTS } from '@shared/constants/uiConstants';
+import { DIMENSIONS } from '@shared/constants';
 
 export interface PrincipalVariationProps {
   /** Array of moves in algebraic notation (e.g., ['e2e4', 'e7e5', 'g1f3']) */
@@ -56,11 +56,9 @@ export const PrincipalVariation: React.FC<PrincipalVariationProps> = React.memo(
     onMoveClick,
     interactive = true,
     maxMoves = UI_CONSTANTS.PRINCIPAL_VARIATION.MAX_MOVES_DISPLAY,
-    className = "",
+    className = '',
   }) => {
-    const [hoveredMoveIndex, setHoveredMoveIndex] = useState<number | null>(
-      null,
-    );
+    const [hoveredMoveIndex, setHoveredMoveIndex] = useState<number | null>(null);
 
     // Memoize processed moves for performance
     const processedMoves = useMemo(() => {
@@ -83,7 +81,7 @@ export const PrincipalVariation: React.FC<PrincipalVariationProps> = React.memo(
         if (!interactive || !onMoveClick) return;
         onMoveClick(moveIndex, move);
       },
-      [interactive, onMoveClick],
+      [interactive, onMoveClick]
     );
 
     // Handle mouse events for hover effects
@@ -93,7 +91,7 @@ export const PrincipalVariation: React.FC<PrincipalVariationProps> = React.memo(
           setHoveredMoveIndex(index);
         }
       },
-      [interactive],
+      [interactive]
     );
 
     const handleMouseLeave = useCallback(() => {
@@ -135,9 +133,7 @@ export const PrincipalVariation: React.FC<PrincipalVariationProps> = React.memo(
 
           {evaluation !== undefined && (
             <span className="text-xs font-mono text-gray-700 dark:text-gray-300">
-              {evaluation > 0
-                ? `+${evaluation.toFixed(2)}`
-                : evaluation.toFixed(2)}
+              {evaluation > 0 ? `+${evaluation.toFixed(2)}` : evaluation.toFixed(2)}
             </span>
           )}
         </div>
@@ -164,24 +160,20 @@ export const PrincipalVariation: React.FC<PrincipalVariationProps> = React.memo(
                   type="button"
                   className={`
                   move-button px-2 py-1 text-xs font-mono rounded transition-all duration-150
-                  ${interactive ? "cursor-pointer hover:scale-105" : "cursor-default"}
+                  ${interactive ? 'cursor-pointer hover:scale-105' : 'cursor-default'}
                   ${
                     hoveredMoveIndex === index
-                      ? "bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 shadow-sm"
-                      : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                      ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 shadow-sm'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }
-                  ${isEven ? "text-gray-800 dark:text-gray-200" : "text-gray-600 dark:text-gray-300"}
+                  ${isEven ? 'text-gray-800 dark:text-gray-200' : 'text-gray-600 dark:text-gray-300'}
                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
                 `}
                   onClick={() => handleMoveClick(index, move)}
                   onMouseEnter={() => handleMouseEnter(index)}
                   onMouseLeave={handleMouseLeave}
                   disabled={!interactive}
-                  title={
-                    interactive
-                      ? `Klicken um Position nach ${notation} zu sehen`
-                      : undefined
-                  }
+                  title={interactive ? `Klicken um Position nach ${notation} zu sehen` : undefined}
                   aria-label={`Zug ${index + 1}: ${notation}`}
                 >
                   {notation}
@@ -208,11 +200,9 @@ export const PrincipalVariation: React.FC<PrincipalVariationProps> = React.memo(
         )}
 
         {/* Debug info in development */}
-        {process.env.NODE_ENV === "development" && pvString && (
+        {process.env.NODE_ENV === 'development' && pvString && (
           <details className="pv-debug mt-2">
-            <summary className="text-xs text-gray-400 cursor-pointer">
-              Debug Info
-            </summary>
+            <summary className="text-xs text-gray-400 cursor-pointer">Debug Info</summary>
             <pre className="text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded mt-1 overflow-x-auto">
               Raw PV: {pvString}
             </pre>
@@ -220,7 +210,7 @@ export const PrincipalVariation: React.FC<PrincipalVariationProps> = React.memo(
         )}
       </div>
     );
-  },
+  }
 );
 
-PrincipalVariation.displayName = "PrincipalVariation";
+PrincipalVariation.displayName = 'PrincipalVariation';

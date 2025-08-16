@@ -41,7 +41,7 @@ Use the browser developer console to test audio playback:
 
 ```javascript
 // Test if audio files are accessible
-fetch("/sounds/chess/move.mp3").then((r) => console.log("move.mp3:", r.status));
+fetch('/sounds/chess/move.mp3').then(r => console.log('move.mp3:', r.status));
 ```
 
 ## Fallback Behavior

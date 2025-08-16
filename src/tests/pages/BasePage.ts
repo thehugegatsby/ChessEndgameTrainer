@@ -3,7 +3,7 @@
  * Common functionality for all page objects
  */
 
-import { type Page, type Locator } from "@playwright/test";
+import { type Page, type Locator } from '@playwright/test';
 
 export abstract class BasePage {
   constructor(protected page: Page) {}
@@ -20,7 +20,7 @@ export abstract class BasePage {
    * Wait for page to load
    */
   async waitForPageLoad(): Promise<void> {
-    await this.page.waitForLoadState("networkidle");
+    await this.page.waitForLoadState('networkidle');
   }
 
   /**
@@ -45,9 +45,9 @@ export abstract class BasePage {
   async waitForElement(
     selector: string,
     options?: {
-      state?: "visible" | "hidden" | "attached" | "detached";
+      state?: 'visible' | 'hidden' | 'attached' | 'detached';
       timeout?: number;
-    },
+    }
   ): Promise<void> {
     await this.page.waitForSelector(selector, options ?? {});
   }
@@ -57,7 +57,7 @@ export abstract class BasePage {
    */
   async getText(selector: string): Promise<string> {
     const text = await this.page.textContent(selector);
-    return text || "";
+    return text || '';
   }
 
   /**
@@ -94,7 +94,7 @@ export abstract class BasePage {
    */
   protected async getLocatorText(locator: Locator): Promise<string> {
     const text = await locator.textContent();
-    return text || "";
+    return text || '';
   }
 
   /**

@@ -1,5 +1,5 @@
-import { type Page, expect } from "@playwright/test";
-import { getLogger } from "@shared/services/logging";
+import { type Page, expect } from '@playwright/test';
+import { getLogger } from '@shared/services/logging';
 
 /**
  * Page Object Model for TrainingBoard E2E testing
@@ -8,7 +8,7 @@ import { getLogger } from "@shared/services/logging";
  * Uses data-testid attributes and UI element queries for reliable test automation.
  */
 export class TrainingBoardPage {
-  private logger = getLogger().setContext("TrainingBoardPage");
+  private logger = getLogger().setContext('TrainingBoardPage');
 
   constructor(private page: Page) {}
 
@@ -16,59 +16,102 @@ export class TrainingBoardPage {
    * Wait for the training page to be ready for interaction
    */
   async waitForPageReady(): Promise<void> {
-    this.logger.info("⏳ Waiting for training page to be ready");
-    
+    this.logger.info('⏳ Waiting for training page to be ready');
+
     // Wait for essential elements to be visible
     await this.page.waitForSelector('[data-testid="training-board"]', { timeout: 10000 });
     await this.page.waitForSelector('[data-testid="current-streak"]', { timeout: 5000 });
     await this.page.waitForSelector('[data-testid="best-streak"]', { timeout: 5000 });
-    
+
     // Wait for board to have position data
-    await this.page.waitForFunction(() => {
-      const board = document.querySelector('[data-testid="training-board"]');
-      return board && board.getAttribute('data-fen');
-    }, { timeout: 5000 });
-    
-    // Small delay for final settling
-    await this.page.waitForTimeout(500);
-    
-    this.logger.info("✅ Training page is ready");
+    await this.page.waitForFunction(
+      () => {
+        const board = document.querySelector('[data-testid="training-board"]');
+        return board && board.getAttribute('data-fen');
+      },
+      { timeout: 5000 }
+    );
+
+    // CRITICAL: Wait for chessboard hydration to complete
+    this.logger.info('⏳ Waiting for chessboard hydration...');
+    await this.page.waitForSelector('[data-chessboard-hydrated="true"]', { timeout: 15000 });
+
+    // Wait for clickable squares to be available
+    await this.page.waitForFunction(
+      () => {
+        const squares = document.querySelectorAll('[data-square]');
+        return squares.length >= 32; // At least half the board should be available
+      },
+      { timeout: 10000 }
+    );
+
+    this.logger.info('✅ Training page and chessboard are fully ready');
   }
 
   /**
-   * Execute a chess move by clicking board squares
+   * Execute a chess move using real mouse drag (primary method)
    *
    * @param from - Source square (e.g., "e2")
    * @param to - Target square (e.g., "e4")
    * @param promotion - Optional promotion piece ("q", "r", "b", "n")
    */
   async makeMove(from: string, to: string, promotion?: string): Promise<void> {
-    this.logger.info("📍 Making move via DOM interaction", {
+    this.logger.info('🔄 Making move via real mouse drag (GPT-5 recommended fix)', {
       from,
       to,
       promotion,
     });
 
-    // Click source square using react-chessboard's data-square attribute
-    // First try to click a piece on the square (if present)
-    const pieceSelector = `[data-square="${from}"] [draggable]`;
-    const squareSelector = `[data-square="${from}"]`;
-    
-    this.logger.info(`🎯 Clicking source square: ${from}`);
     try {
-      // Try clicking the piece first
-      await this.page.click(pieceSelector, { timeout: 1000 });
-      this.logger.info(`✅ Clicked piece on ${from}`);
-    } catch {
-      // If no piece, click the square itself
-      await this.page.click(squareSelector);
-      this.logger.info(`✅ Clicked square ${from}`);
-    }
+      // GPT-5 FIX: Use real mouse events instead of dragTo()
+      const fromSquare = this.page.locator(`[data-square="${from}"]`);
+      const toSquare = this.page.locator(`[data-square="${to}"]`);
 
-    // Click target square
-    this.logger.info(`🎯 Clicking target square: ${to}`);
-    await this.page.click(`[data-square="${to}"]`);
-    this.logger.info(`✅ Clicked target square ${to}`);
+      // Look for piece element inside the square (react-chessboard binds events to piece, not square)
+      const fromPiece = fromSquare.locator('[data-piece], img, svg, .chessboard-piece').first();
+      const pieceExists = (await fromPiece.count()) > 0;
+
+      // Use piece element if it exists, otherwise fall back to square
+      const sourceElement = pieceExists ? fromPiece : fromSquare;
+
+      this.logger.info(
+        `🎯 Getting bounding boxes for ${pieceExists ? 'piece' : 'square'} elements`
+      );
+      const srcBox = await sourceElement.boundingBox();
+      const dstBox = await toSquare.boundingBox();
+
+      if (!srcBox || !dstBox) {
+        throw new Error('Missing bounding boxes for drag operation');
+      }
+
+      // Calculate center coordinates
+      const sx = srcBox.x + srcBox.width / 2;
+      const sy = srcBox.y + srcBox.height / 2;
+      const tx = dstBox.x + dstBox.width / 2;
+      const ty = dstBox.y + dstBox.height / 2;
+
+      this.logger.info(`🎯 Real mouse drag: (${sx}, ${sy}) → (${tx}, ${ty})`);
+
+      // Perform real mouse drag with steps for smooth animation
+      await this.page.mouse.move(sx, sy);
+      await this.page.mouse.down();
+      await this.page.mouse.move((sx + tx) / 2, (sy + ty) / 2, { steps: 10 });
+      await this.page.mouse.move(tx, ty, { steps: 10 });
+      await this.page.mouse.up();
+
+      this.logger.info(`✅ Completed real mouse drag from ${from} to ${to}`);
+    } catch (dragError) {
+      this.logger.warn('Real mouse drag failed, falling back to two-click method', { dragError });
+
+      // Fallback: Two-click method for onSquareClick
+      this.logger.info(`🎯 Clicking source square: ${from}`);
+      await this.page.click(`[data-square="${from}"]`);
+      this.logger.info(`✅ Clicked square ${from}`);
+
+      this.logger.info(`🎯 Clicking target square: ${to}`);
+      await this.page.click(`[data-square="${to}"]`);
+      this.logger.info(`✅ Clicked target square ${to}`);
+    }
 
     // Handle promotion if specified
     if (promotion) {
@@ -76,9 +119,10 @@ export class TrainingBoardPage {
       try {
         await this.page.waitForSelector(promotionSelector, { timeout: 5000 });
         await this.page.click(promotionSelector);
+        this.logger.info(`✅ Selected promotion piece: ${promotion}`);
       } catch {
         // Promotion dialog might not appear or use different selector
-        this.logger.debug("Promotion dialog not found, move may auto-promote to queen");
+        this.logger.debug('Promotion dialog not found, move may auto-promote to queen');
       }
     }
 
@@ -90,14 +134,11 @@ export class TrainingBoardPage {
    * Get current board position via DOM attributes
    */
   async getPosition(): Promise<string> {
-    const fenAttribute = await this.page.getAttribute(
-      '[data-testid="training-board"]',
-      "data-fen",
-    );
+    const fenAttribute = await this.page.getAttribute('[data-testid="training-board"]', 'data-fen');
 
     if (!fenAttribute) {
       throw new Error(
-        "Board FEN not found in DOM - ensure data-fen attribute is set on training-board",
+        'Board FEN not found in DOM - ensure data-fen attribute is set on training-board'
       );
     }
 
@@ -107,11 +148,11 @@ export class TrainingBoardPage {
   /**
    * Get current turn from UI
    */
-  async getTurn(): Promise<"w" | "b"> {
+  async getTurn(): Promise<'w' | 'b'> {
     // Parse turn from FEN string since there's no dedicated turn indicator
     const fen = await this.getPosition();
-    const fenParts = fen.split(" ");
-    return (fenParts[1] || "w") as "w" | "b";
+    const fenParts = fen.split(' ');
+    return (fenParts[1] || 'w') as 'w' | 'b';
   }
 
   /**
@@ -119,26 +160,29 @@ export class TrainingBoardPage {
    * Tries common winning patterns for endgame positions
    */
   async makeMovesUntilSuccess(): Promise<void> {
-    this.logger.info("🎯 Attempting to complete position successfully");
-    
+    this.logger.info('🎯 Attempting to complete position successfully');
+
     let attempts = 0;
     const maxAttempts = 10;
-    
+
     while (attempts < maxAttempts) {
       attempts++;
-      
+
       // Check if we already have a success dialog
-      const successDialog = await this.page.locator('text="Geschafft"').isVisible().catch(() => false);
+      const successDialog = await this.page
+        .locator('text="Geschafft"')
+        .isVisible()
+        .catch(() => false);
       if (successDialog) {
-        this.logger.info("✅ Success dialog already visible");
+        this.logger.info('✅ Success dialog already visible');
         return;
       }
-      
+
       // Try to make a move based on current position
       try {
         const fen = await this.getPosition();
         this.logger.info(`📋 Current FEN (attempt ${attempts}): ${fen}`);
-        
+
         // For King+Pawn endgames, try pushing the pawn or using the king
         if (fen.includes('P') || fen.includes('p')) {
           await this.tryPawnEndgameMoves();
@@ -146,22 +190,24 @@ export class TrainingBoardPage {
           // Try basic king moves
           await this.tryBasicKingMoves();
         }
-        
+
         // Wait a bit for the move to be processed
         await this.page.waitForTimeout(1000);
-        
+
         // Check if we now have success
-        const nowHasSuccess = await this.page.locator('text="Geschafft"').isVisible().catch(() => false);
+        const nowHasSuccess = await this.page
+          .locator('text="Geschafft"')
+          .isVisible()
+          .catch(() => false);
         if (nowHasSuccess) {
-          this.logger.info("✅ Successfully completed position!");
+          this.logger.info('✅ Successfully completed position!');
           return;
         }
-        
       } catch (error) {
         this.logger.debug(`Move attempt ${attempts} failed:`, error);
       }
     }
-    
+
     throw new Error(`Failed to complete position after ${maxAttempts} attempts`);
   }
 
@@ -170,12 +216,24 @@ export class TrainingBoardPage {
    */
   private async tryPawnEndgameMoves(): Promise<void> {
     const moves = [
-      ['e5', 'e6'], ['d5', 'd6'], ['c5', 'c6'], ['f5', 'f6'],
-      ['e4', 'e5'], ['d4', 'd5'], ['c4', 'c5'], ['f4', 'f5'],
-      ['e6', 'e7'], ['d6', 'd7'], ['c6', 'c7'], ['f6', 'f7'],
-      ['e7', 'e8'], ['d7', 'd8'], ['c7', 'c8'], ['f7', 'f8'],
+      ['e5', 'e6'],
+      ['d5', 'd6'],
+      ['c5', 'c6'],
+      ['f5', 'f6'],
+      ['e4', 'e5'],
+      ['d4', 'd5'],
+      ['c4', 'c5'],
+      ['f4', 'f5'],
+      ['e6', 'e7'],
+      ['d6', 'd7'],
+      ['c6', 'c7'],
+      ['f6', 'f7'],
+      ['e7', 'e8'],
+      ['d7', 'd8'],
+      ['c7', 'c8'],
+      ['f7', 'f8'],
     ];
-    
+
     for (const [from, to] of moves) {
       try {
         await this.makeMove(from, to);
@@ -192,11 +250,17 @@ export class TrainingBoardPage {
    */
   private async tryBasicKingMoves(): Promise<void> {
     const kingMoves = [
-      ['e4', 'e5'], ['e4', 'f5'], ['e4', 'd5'],
-      ['d4', 'e5'], ['d4', 'd5'], ['d4', 'c5'],
-      ['f4', 'e5'], ['f4', 'f5'], ['f4', 'g5'],
+      ['e4', 'e5'],
+      ['e4', 'f5'],
+      ['e4', 'd5'],
+      ['d4', 'e5'],
+      ['d4', 'd5'],
+      ['d4', 'c5'],
+      ['f4', 'e5'],
+      ['f4', 'f5'],
+      ['f4', 'g5'],
     ];
-    
+
     for (const [from, to] of kingMoves) {
       try {
         await this.makeMove(from, to);
@@ -212,14 +276,16 @@ export class TrainingBoardPage {
    * Make a deliberately bad move to break a streak
    */
   async makeBadMove(): Promise<void> {
-    this.logger.info("🎯 Making a bad move to break streak");
-    
+    this.logger.info('🎯 Making a bad move to break streak');
+
     // Try to move the king into danger or make other suboptimal moves
     const badMoves = [
-      ['e4', 'e3'], ['d4', 'd3'], // Move backwards
-      ['e4', 'e4'], ['d4', 'd4'], // Invalid moves (same square)
+      ['e4', 'e3'],
+      ['d4', 'd3'], // Move backwards
+      ['e4', 'e4'],
+      ['d4', 'd4'], // Invalid moves (same square)
     ];
-    
+
     for (const [from, to] of badMoves) {
       try {
         await this.makeMove(from, to);
@@ -244,9 +310,9 @@ export class TrainingBoardPage {
       'text=/game.*over/i',
       'text=/checkmate/i',
       'text=/stalemate/i',
-      'text=/draw/i'
+      'text=/draw/i',
     ];
-    
+
     for (const selector of gameOverSelectors) {
       const element = await this.page.locator(selector).first();
       if (await element.isVisible().catch(() => false)) {
@@ -257,32 +323,17 @@ export class TrainingBoardPage {
   }
 
   /**
-   * Get move count from move history UI
+   * Get move count from DOM attribute (reliable, store-independent)
    */
   async getMoveCount(): Promise<number> {
-    // FIXED: Only count actual move items, not navigation buttons
-    const moveSelectors = [
-      '[data-testid^="move-item-"]',                              // Only move-item-0, move-item-1, etc.
-      '[data-testid="move-list"] [data-testid^="move-item-"]',    // More specific: inside move-list container
-    ];
-    
-    for (const selector of moveSelectors) {
-      const count = await this.page.locator(selector).count();
-      if (count > 0) {
-        this.logger.debug(`getMoveCount found ${count} moves using selector: ${selector}`);
-        return count;
-      }
-    }
-    
-    // If no actual move items found, check if this is the initial state
-    const noMovesText = await this.page.locator(':text("Noch keine Züge gespielt")').isVisible();
-    if (noMovesText) {
-      this.logger.debug("getMoveCount: Found 'no moves' text, returning 0");
-      return 0;
-    }
-    
-    this.logger.warn("getMoveCount: No move elements found with any selector");
-    return 0;
+    const moveCountAttr = await this.page.getAttribute(
+      '[data-testid="training-board"]',
+      'data-move-count'
+    );
+    const moveCount = moveCountAttr ? parseInt(moveCountAttr, 10) : 0;
+
+    this.logger.debug(`DOM-based moveCount: ${moveCount}`);
+    return moveCount;
   }
 
   /**
@@ -294,7 +345,7 @@ export class TrainingBoardPage {
     const highlightedSquares = await this.page
       .locator('[data-square].highlighted, [data-square][style*="background"]')
       .count();
-    
+
     // If no highlighted squares visible, return a default non-zero value
     // since there are usually moves available
     return highlightedSquares || 1;
@@ -311,12 +362,10 @@ export class TrainingBoardPage {
     // Wait for board to finish loading
     await this.page.waitForFunction(
       () => {
-        const boardElement = document.querySelector(
-          '[data-testid="training-board"]',
-        );
-        return boardElement && !boardElement.classList.contains("loading");
+        const boardElement = document.querySelector('[data-testid="training-board"]');
+        return boardElement && !boardElement.classList.contains('loading');
       },
-      { timeout: 10000 },
+      { timeout: 10000 }
     );
   }
 
@@ -327,7 +376,7 @@ export class TrainingBoardPage {
    */
   async getGameState(): Promise<{
     fen: string;
-    turn: "w" | "b";
+    turn: 'w' | 'b';
     isGameOver: boolean;
     moveCount: number;
     availableMovesCount: number;
@@ -341,8 +390,8 @@ export class TrainingBoardPage {
     };
 
     // Enhanced debugging to understand game state
-    this.logger.debug("Complete game state:", state);
-    
+    this.logger.debug('Complete game state:', state);
+
     return state;
   }
 
@@ -354,11 +403,7 @@ export class TrainingBoardPage {
    * @param promotion - Optional promotion piece
    * @returns Promise<boolean> - true if move was successful
    */
-  async makeMoveWithValidation(
-    from: string,
-    to: string,
-    promotion?: string,
-  ): Promise<boolean> {
+  async makeMoveWithValidation(from: string, to: string, promotion?: string): Promise<boolean> {
     const initialState = await this.getGameState();
 
     try {
@@ -372,7 +417,7 @@ export class TrainingBoardPage {
       // Validate that move count increased (indicating successful move)
       const moveSuccessful = newState.moveCount > initialState.moveCount;
 
-      this.logger.debug("Move validation result", {
+      this.logger.debug('Move validation result', {
         from,
         to,
         promotion,
@@ -383,7 +428,7 @@ export class TrainingBoardPage {
 
       return moveSuccessful;
     } catch (error) {
-      this.logger.error("Move execution failed", error as Error, {
+      this.logger.error('Move execution failed', error as Error, {
         from,
         to,
         promotion,
@@ -397,8 +442,8 @@ export class TrainingBoardPage {
    * Replaces hardcoded waitForTimeout() with store-based waiting
    */
   async waitForMoveProcessed(): Promise<void> {
-    this.logger.info("⏳ Waiting for move to be processed");
-    
+    this.logger.info('⏳ Waiting for move to be processed');
+
     await this.page.waitForFunction(
       () => {
         const store = (window as any).__e2e_store;
@@ -409,8 +454,8 @@ export class TrainingBoardPage {
       },
       { timeout: 10000 }
     );
-    
-    this.logger.info("✅ Move processed");
+
+    this.logger.info('✅ Move processed');
   }
 
   /**
@@ -418,19 +463,14 @@ export class TrainingBoardPage {
    * @param expectedFen
    * @param timeout
    */
-  async waitForPosition(
-    expectedFen: string,
-    timeout: number = 10000,
-  ): Promise<void> {
+  async waitForPosition(expectedFen: string, timeout: number = 10000): Promise<void> {
     await this.page.waitForFunction(
-      (fen) => {
-        const boardElement = document.querySelector(
-          '[data-testid="training-board"]',
-        );
-        return boardElement?.getAttribute("data-fen") === fen;
+      fen => {
+        const boardElement = document.querySelector('[data-testid="training-board"]');
+        return boardElement?.getAttribute('data-fen') === fen;
       },
       expectedFen,
-      { timeout },
+      { timeout }
     );
   }
 
@@ -444,9 +484,9 @@ export class TrainingBoardPage {
       '[data-testid="move-history"]',
       '[data-testid="move-list"]',
       '.move-history',
-      '.move-list'
+      '.move-list',
     ];
-    
+
     for (const selector of historySelectors) {
       const element = await this.page.locator(selector).first();
       if (await element.isVisible().catch(() => false)) {
@@ -455,9 +495,66 @@ export class TrainingBoardPage {
         return;
       }
     }
-    
+
     // If no move history found, check entire page for the move text
     const pageText = await this.page.textContent('body');
     expect(pageText).toContain(expectedMove);
+  }
+
+  /**
+   * Debug method: Check if handlers were fired and log debugging info
+   */
+  async debugHandlerExecution(from: string, to: string): Promise<void> {
+    this.logger.info('🔍 E2E DEBUG: Checking handler execution...');
+
+    // Check if our debug wrapper fired
+    const debugInfo = await this.page.evaluate(() => {
+      const board = document.querySelector('[data-testid="training-board"]');
+      const lastDrop = (window as any).__dbg_lastDrop;
+      const lastClick = (window as any).__dbg_lastClick;
+
+      return {
+        boardExists: Boolean(board),
+        handlersBound: board?.getAttribute('data-handlers-bound'),
+        onPieceDropBound: board?.getAttribute('data-on-piece-drop-bound'),
+        onSquareClickBound: board?.getAttribute('data-on-square-click-bound'),
+        pieceDropFired: board?.getAttribute('data-on-piece-drop-fired'),
+        squareClickFired: board?.getAttribute('data-on-square-click-fired'),
+        lastDropFrom: board?.getAttribute('data-last-drop-from'),
+        lastDropTo: board?.getAttribute('data-last-drop-to'),
+        dropCount: board?.getAttribute('data-drop-count'),
+        lastClickSquare: board?.getAttribute('data-last-click-square'),
+        clickCount: board?.getAttribute('data-click-count'),
+        windowDebugDrop: lastDrop,
+        windowDebugClick: lastClick,
+      };
+    });
+
+    this.logger.info('🔍 Handler Debug Info:', debugInfo);
+
+    // Check DOM layer under cursor
+    const fromSquare = this.page.locator(`[data-square="${from}"]`);
+    const srcBox = await fromSquare.boundingBox();
+
+    if (srcBox) {
+      const sx = srcBox.x + srcBox.width / 2;
+      const sy = srcBox.y + srcBox.height / 2;
+
+      const elementStack = await this.page.evaluate(
+        ([x, y]) => {
+          return document.elementsFromPoint(x, y).map(e => ({
+            tag: e.tagName,
+            id: e.id,
+            className: e.className,
+            dataSquare: e.getAttribute('data-square') || '',
+            dataPiece: e.getAttribute('data-piece') || '',
+            pointerEvents: getComputedStyle(e).pointerEvents,
+          }));
+        },
+        [sx, sy]
+      );
+
+      this.logger.info(`🔍 Elements under cursor at (${sx}, ${sy}):`, elementStack);
+    }
   }
 }
