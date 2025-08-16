@@ -128,7 +128,7 @@ jobs:
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report-${{ matrix.project }}${{ matrix.shard && format('-shard-{0}', matrix.shard) || '' }}
+          name: coverage-report-${{ matrix.project }}${{ matrix.shard && format('-shard-{0}', replace(matrix.shard, '/', '-')) || '' }}
           path: coverage/
         if: always() && hashFiles('coverage/**') != ''
 
