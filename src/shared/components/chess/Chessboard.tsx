@@ -33,7 +33,7 @@ import { PromotionDialog, type PromotionPiece } from './PromotionDialog';
 
 // GPT-5 FIX: Client-only mount gate to avoid SSR completely
 // This bypasses next/dynamic bailout issues in Next.js 15 + React 19
-const ClientOnlyChessboard: React.FC<any> = props => {
+const ClientOnlyChessboard: React.FC<Record<string, unknown>> = props => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -65,7 +65,7 @@ const ClientOnlyChessboard: React.FC<any> = props => {
   );
 };
 
-const ReactChessboard = ClientOnlyChessboard;
+const ReactChessboard = ClientOnlyChessboard as React.ComponentType<Record<string, unknown>>;
 
 // Types for react-chessboard (library has incomplete TypeScript definitions)
 type PieceType = 'wP' | 'wN' | 'wB' | 'wR' | 'wQ' | 'wK' | 'bP' | 'bN' | 'bB' | 'bR' | 'bQ' | 'bK';

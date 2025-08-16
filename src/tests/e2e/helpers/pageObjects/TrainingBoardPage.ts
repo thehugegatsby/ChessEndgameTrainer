@@ -514,7 +514,7 @@ export class TrainingBoardPage {
       const lastClick = (window as any).__dbg_lastClick;
 
       return {
-        boardExists: !!board,
+        boardExists: Boolean(board),
         handlersBound: board?.getAttribute('data-handlers-bound'),
         onPieceDropBound: board?.getAttribute('data-on-piece-drop-bound'),
         onSquareClickBound: board?.getAttribute('data-on-square-click-bound'),

@@ -43,6 +43,8 @@ import { useDialogHandlers } from '@shared/hooks/useDialogHandlers';
 import { useMoveValidation } from '@shared/hooks/useMoveValidation';
 import { useGameNavigation } from '@shared/hooks/useGameNavigation';
 
+type PieceType = 'wP' | 'wN' | 'wB' | 'wR' | 'wQ' | 'wK' | 'bP' | 'bN' | 'bB' | 'bR' | 'bQ' | 'bK';
+
 /**
  * Extended evaluation data structure for move panel integration
  *
@@ -219,38 +221,55 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
 
   // === E2E DEBUG: Handler-Debugging Wrapper ===
   const onPieceDropWrapped = useCallback(
-    async (from: string, to: string) => {
+    (sourceSquare: string, targetSquare: string, piece: string, promotion?: string): boolean => {
       const el = document.querySelector('[data-testid="training-board"]');
       if (el) {
-        el.setAttribute('data-last-drop-from', from);
-        el.setAttribute('data-last-drop-to', to);
+        el.setAttribute('data-last-drop-from', sourceSquare);
+        el.setAttribute('data-last-drop-to', targetSquare);
         el.setAttribute('data-on-piece-drop-fired', 'true');
         el.setAttribute(
           'data-drop-count',
           String(1 + Number(el.getAttribute('data-drop-count') || '0'))
         );
       }
-      (window as any).__dbg_lastDrop = { from, to, ts: Date.now() };
-      console.log('🎯 E2E DEBUG: onPieceDrop called', { from, to, timestamp: Date.now() });
-      return onDrop?.(from, to);
+      (window as unknown as Record<string, unknown>)['__dbg_lastDrop'] = {
+        from: sourceSquare,
+        to: targetSquare,
+        piece,
+        promotion,
+        ts: Date.now(),
+      };
+      console.info('🎯 E2E DEBUG: onPieceDrop called', {
+        from: sourceSquare,
+        to: targetSquare,
+        piece,
+        promotion,
+        timestamp: Date.now(),
+      });
+      return onDrop?.(sourceSquare, targetSquare, piece, promotion) ?? false;
     },
     [onDrop]
   );
 
   const onSquareClickWrapped = useCallback(
-    (sq: string) => {
+    (args: { piece: PieceType | null; square: string }) => {
+      const { square } = args;
       const el = document.querySelector('[data-testid="training-board"]');
       if (el) {
         el.setAttribute('data-on-square-click-fired', 'true');
-        el.setAttribute('data-last-click-square', sq);
+        el.setAttribute('data-last-click-square', square);
         el.setAttribute(
           'data-click-count',
           String(1 + Number(el.getAttribute('data-click-count') || '0'))
         );
       }
-      (window as any).__dbg_lastClick = { sq, ts: Date.now() };
-      console.log('🎯 E2E DEBUG: onSquareClick called', { sq, timestamp: Date.now() });
-      onSquareClick?.(sq);
+      (window as unknown as Record<string, unknown>)['__dbg_lastClick'] = {
+        square,
+        args,
+        ts: Date.now(),
+      };
+      console.info('🎯 E2E DEBUG: onSquareClick called', { square, args, timestamp: Date.now() });
+      onSquareClick?.(args);
     },
     [onSquareClick]
   );
