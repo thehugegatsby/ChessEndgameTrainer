@@ -1,4 +1,4 @@
-name: CI Pipeline (Modern)
+name: CI Pipeline
 
 on:
   push:
@@ -19,7 +19,7 @@ concurrency:
 jobs:
   ci:
     name: CI Tests & Build
-    uses: ./.github/workflows/_ci-reusable.yml
+    uses: ./.github/workflows/_ci-simple.yml
     with:
       node-version: '20'
       pnpm-version: '10'

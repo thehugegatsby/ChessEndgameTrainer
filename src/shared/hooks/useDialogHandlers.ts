@@ -48,7 +48,7 @@ import { useCallback } from 'react';
 import { getLogger } from '@shared/services/logging/Logger';
 import { getOpponentTurnManager } from '@shared/store/orchestrators/handlePlayerMove';
 import { showInfoToast } from '@shared/utils/toast';
-import { chessService } from '@shared/services/ChessService';
+import { getFen, turn } from '@shared/utils/chess-logic';
 import { UI_DURATIONS_MS } from '../../constants/time.constants';
 // Note: Direct service import maintained for callback context
 import type { StoreApi } from '@shared/store/StoreContext';
@@ -327,15 +327,15 @@ export const useDialogHandlers = ({
     logger.info('🎯 WEITERSPIELEN clicked - Current state BEFORE action:', {
       isPlayerTurn: currentState.training.isPlayerTurn,
       isOpponentThinking: currentState.training.isOpponentThinking,
-      currentFen: chessService.getFen(),
-      currentTurn: chessService.turn(),
+      currentFen: getFen(currentState.game.currentFen),
+      currentTurn: turn(currentState.game.currentFen),
       colorToTrain: currentState.training.currentPosition?.colorToTrain,
       moveCount: currentState.game.moveHistory.length,
     });
 
     // CRITICAL FIX: Set turn state before scheduling opponent turn
     // This ensures the opponent can actually execute their move
-    const currentTurn = chessService.turn();
+    const currentTurn = turn(currentState.game.currentFen);
     const trainingColor = currentState.training.currentPosition?.colorToTrain?.charAt(0);
 
     if (currentTurn !== trainingColor) {
@@ -371,8 +371,9 @@ export const useDialogHandlers = ({
         logger.info('🎯 Opponent move completed - updating evaluation baseline');
 
         try {
-          // Get current position evaluation
-          const currentFen = chessService.getFen();
+          // Get current position evaluation from store state
+          const gameState = storeApi.getState();
+          const currentFen = gameState.game.currentFen;
           // Dynamic import for callback context
           const { tablebaseService } = await import('@shared/services/TablebaseService');
           const currentEval = await tablebaseService.getEvaluation(currentFen);

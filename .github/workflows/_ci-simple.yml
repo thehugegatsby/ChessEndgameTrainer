@@ -1,0 +1,140 @@
+name: Simple CI Workflow
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version to use'
+        required: false
+        type: string
+        default: '20'
+      pnpm-version:
+        description: 'pnpm version to use'
+        required: false
+        type: string
+        default: '10'
+      run-e2e:
+        description: 'Whether to run E2E tests'
+        required: false
+        type: boolean
+        default: false
+      upload-build:
+        description: 'Whether to upload build artifacts'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  NODE_VERSION: ${{ inputs.node-version }}
+  PNPM_VERSION: ${{ inputs.pnpm-version }}
+
+jobs:
+  test-and-build:
+    name: Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run ESLint
+        run: pnpm run lint
+
+      - name: Run TypeScript compiler check
+        run: pnpm tsc
+
+      - name: Check for duplicate components
+        run: pnpm run check-duplicates
+
+      - name: Run all tests
+        run: pnpm test
+        env:
+          CI: true
+
+      - name: Build Next.js app
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_STOCKFISH_PATH: /stockfish/
+
+      - name: Verify build output
+        run: |
+          if [ ! -d ".next" ] || [ -z "$(ls -A .next)" ]; then
+            echo "Error: Build output directory .next/ is missing or empty."
+            exit 1
+          fi
+          echo "✅ Build output verified"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nextjs-build
+          path: |
+            .next
+            public
+            package.json
+            pnpm-lock.yaml
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+        if: inputs.upload-build
+
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    if: inputs.run-e2e
+    needs: test-and-build
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: nextjs-build
+          path: .
+
+      - name: Run Playwright tests
+        run: pnpm run test:e2e
+        env:
+          PLAYWRIGHT_JUNIT_OUTPUT_NAME: results.xml
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 3

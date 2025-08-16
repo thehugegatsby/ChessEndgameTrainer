@@ -15,7 +15,7 @@ jobs:
   # Run full CI pipeline first
   ci:
     name: CI Tests & Build
-    uses: ./.github/workflows/_ci-reusable.yml
+    uses: ./.github/workflows/_ci-simple.yml
     with:
       node-version: '20'
       pnpm-version: '10'
@@ -129,7 +129,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.run_number }}
           name: Release v${{ github.run_number }}
