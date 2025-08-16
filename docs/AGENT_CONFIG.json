@@ -165,14 +165,17 @@
       },
       {
         "step": 5,
-        "name": "DOCUMENTATION_UPDATE",
+        "name": "COMMIT_AND_DOCUMENT",
         "actions": [
-          "Update all triggered documentation files",
-          "Add code comments for complex logic",
-          "Update CHANGELOG.md immediately",
-          "Create migration guide if breaking changes"
+          "1. Review staged file changes to determine the appropriate commit 'type' and 'scope'.",
+          "2. Consult 'commit_conventions' in AGENT_CONFIG.json to formulate the commit message header.",
+          "3. If 'type' is 'exp', 'abandon', or 'arch', generate the structured body using the corresponding 'structured_body_templates'.",
+          "4. Construct the full commit message string following conventional commits format.",
+          "5. Execute 'git commit' with the generated message. CRITICAL: If the command fails due to the commitlint hook, parse the stderr output, re-consult the conventions, correct the message, and re-execute the commit command.",
+          "6. After a successful commit, check the 'changelog' flag for the commit type in 'commit_conventions'. If true, update CHANGELOG.md.",
+          "7. Update any other documentation files as required by 'documentation_maintenance.immediate_update_triggers'."
         ],
-        "validation": "All relevant docs updated"
+        "validation": "Commit must be successfully created in git history (hook passed). All triggered documentation must be updated."
       },
       {
         "step": 6,
