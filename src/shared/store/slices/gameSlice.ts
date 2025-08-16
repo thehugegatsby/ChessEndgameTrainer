@@ -35,6 +35,7 @@ import {
   isValidFen,
   goToMove as goToMovePure,
 } from '@shared/utils/chess-logic';
+import type { Square } from 'chess.js';
 
 // Re-export types for external use
 export type { GameState, GameActions } from './types';
@@ -509,7 +510,7 @@ export const createGameActions = (
    */
   getPossibleMovesPure: (square?: string) => {
     const { game } = get();
-    return getPossibleMoves(game.currentFen, (square as any) || undefined);
+    return getPossibleMoves(game.currentFen, square as Square | undefined);
   },
 
   /**
