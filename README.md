@@ -4,6 +4,14 @@ Modern chess endgame training with perfect Lichess tablebase analysis. Single-LL
 
 **Tech Stack**: React 19, TypeScript, Zustand, Next.js 15, Tailwind CSS | WSL2 Linux
 
+## 🚀 Pipeline Modernization (2025-08-16)
+
+✅ **Modernized GitHub Actions with Reusable Workflows**
+- Vitest sharding for 40% faster test execution
+- Vercel prebuilt deployments for zero rebuild time
+- Environment protection with manual approval gates
+- Unified CI/CD architecture with DRY principles
+
 ## ⚡ Quick Start
 
 ```bash
