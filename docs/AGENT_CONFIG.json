@@ -250,6 +250,80 @@
     }
   },
 
+  "commit_conventions": {
+    "types": [
+      { "type": "feat", "description": "A new feature", "changelog": true },
+      { "type": "fix", "description": "A bug fix", "changelog": true },
+      {
+        "type": "perf",
+        "description": "A code change that improves performance",
+        "changelog": true
+      },
+      { "type": "revert", "description": "Reverts a previous commit", "changelog": true },
+      { "type": "docs", "description": "Documentation only changes", "changelog": false },
+      {
+        "type": "style",
+        "description": "Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)",
+        "changelog": false
+      },
+      {
+        "type": "refactor",
+        "description": "A code change that neither fixes a bug nor adds a feature",
+        "changelog": false
+      },
+      {
+        "type": "test",
+        "description": "Adding missing or correcting existing tests",
+        "changelog": false
+      },
+      {
+        "type": "build",
+        "description": "Changes that affect the build system or external dependencies",
+        "changelog": false
+      },
+      {
+        "type": "ci",
+        "description": "Changes to our CI configuration files and scripts",
+        "changelog": false
+      },
+      {
+        "type": "chore",
+        "description": "Other changes that don't modify src or test files",
+        "changelog": false
+      },
+      { "type": "exp", "description": "Begins or continues an experiment", "changelog": false },
+      {
+        "type": "abandon",
+        "description": "Removes an experimental feature and documents why",
+        "changelog": false
+      },
+      {
+        "type": "arch",
+        "description": "A significant architectural decision or change",
+        "changelog": false
+      }
+    ],
+    "scopes": [
+      "ui",
+      "store",
+      "engine",
+      "tablebase",
+      "service",
+      "api",
+      "e2e",
+      "config",
+      "agent",
+      "global"
+    ],
+    "structured_body_templates": {
+      "exp": ["Hypothesis: <text>", "Method: <text>", "Metrics: <text>"],
+      "abandon": ["Reason: <text>", "Outcome: <text>", "Learnings: <text>"],
+      "arch": ["Decision: <text>", "Rationale: <text>", "Alternatives: <text>"]
+    },
+    "footer_keys": ["BREAKING CHANGE", "Experiment-ID"],
+    "example": "exp(engine): introduce speculative evaluation caching\n\nHypothesis: Caching evaluation results for the next likely 3 moves will reduce perceived latency during user interaction.\nMethod: Use a simple in-memory LRU cache within the EngineService to store FEN string evaluations. The cache will be populated asynchronously after the primary move evaluation.\nMetrics: Measure the cache hit rate and the average evaluation time for user-initiated analysis. Target a 75% hit rate for subsequent moves.\n\nExperiment-ID: exp-202501-speculative-cache-01"
+  },
+
   "testing_requirements": {
     "unit_tests": {
       "coverage_target": 90,
