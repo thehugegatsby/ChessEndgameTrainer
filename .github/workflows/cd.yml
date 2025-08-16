@@ -71,11 +71,11 @@ jobs:
       - name: Run unit tests (split into chunks)
         run: |
           echo "Running chess-core tests..."
-          pnpm run test:unit:chess
+          pnpm run test:chess
           echo "Running tablebase tests..."
-          pnpm run test:unit:tablebase
+          pnpm run test:tablebase
           echo "Running training tests..."
-          pnpm run test:unit:training
+          pnpm run test:training
 
       - name: Run integration tests
         run: NODE_OPTIONS="--max-old-space-size=2048" pnpm exec vitest run --project integration
