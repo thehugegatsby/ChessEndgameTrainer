@@ -1,6 +1,22 @@
 # SCRATCHPAD
 
-## 🧹 CURRENT SESSION: YAGNI Cleanup (2025-01-14)
+## 🔄 CURRENT SESSION: Documentation Update (2025-08-16)
+
+### ✅ Documentation Cleanup Completed
+
+**Updated Files**:
+- `docs/orchestrators/handlePlayerMove/README.md` - Updated for EventBasedMoveDialogManager
+- `src/shared/store/orchestrators/__tests__/MoveDialogManager.test.ts` - Marked as deprecated, tests skipped
+- `docs/DOCUMENTATION_STATUS.md` - Created comprehensive status report
+
+**Key Changes**:
+- MoveDialogManager → EventBasedMoveDialogManager migration documented
+- Outdated test files identified and marked with skip
+- Architectural changes reflected in documentation
+
+---
+
+## 🧹 PREVIOUS SESSION: YAGNI Cleanup (2025-01-14)
 
 ### ✅ YAGNI Violations Eliminated
 

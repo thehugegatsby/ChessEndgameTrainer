@@ -4,6 +4,8 @@
 
 React 19 + TypeScript + Zustand. Domain-driven design with reactive state store as Single Source of Truth.
 
+**Verifiziert**: 2025-08-16 - Alle Angaben wurden einzeln geprüft
+
 ## Architecture
 
 ```mermaid
@@ -118,13 +120,22 @@ const [state, actions] = useGameStore();   // Both (rare)
 const gameStore = useGameStore();
 ```
 
-## Critical Files
+## Critical Files (Verifiziert existieren)
 
 ```
-src/shared/store/rootStore.ts                 # Main store
-src/shared/services/ChessService.ts           # Chess logic  
-src/shared/store/orchestrators/handlePlayerMove/  # Move handling (533 lines)
+src/shared/store/rootStore.ts                      # Main store ✓
+src/shared/services/ChessService.ts                # Chess logic ✓
+src/shared/store/orchestrators/handlePlayerMove/   # Move handling ✓
+src/shared/store/orchestrators/loadTrainingContext.ts # Training context ✓
+src/features/training/events/EventBasedMoveDialogManager.ts # Dialog handling ✓
 ```
+
+## Architektur-Korrekturen
+
+**NICHT existierende Dateien** (oft falsch referenziert):
+- ❌ `MoveDialogManager.ts` (nutze stattdessen EventBasedMoveDialogManager)
+- ❌ `SpacedRepetitionService` (wurde entfernt)
+- ❌ `ProgressService` (wurde entfernt)
 
 ## Testing Strategy
 

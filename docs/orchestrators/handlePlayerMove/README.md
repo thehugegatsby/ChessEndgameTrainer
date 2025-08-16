@@ -14,10 +14,13 @@ handlePlayerMove/
 ├── MoveValidator.ts         # Move validation logic
 ├── MoveQualityEvaluator.ts  # Tablebase quality analysis
 ├── PawnPromotionHandler.ts  # Pawn promotion detection
-├── MoveDialogManager.ts     # Dialog interactions
 ├── OpponentTurnHandler.ts   # Opponent move scheduling
 ├── move.completion.ts       # Training completion logic
 └── move.types.ts           # TypeScript type definitions
+
+External Dependencies:
+└── features/training/events/
+    └── EventBasedMoveDialogManager.ts  # Dialog interactions (imported)
 ```
 
 ## Core Flow
@@ -30,7 +33,7 @@ graph TD
     C -->|Yes| E[Execute Move]
     E --> F[MoveQualityEvaluator]
     F --> G{Optimal?}
-    G -->|No| H[MoveDialogManager]
+    G -->|No| H[EventBasedMoveDialogManager]
     G -->|Yes| I[Update State]
     H --> I
     I --> J{Game Over?}
@@ -59,12 +62,13 @@ graph TD
 - Manages promotion piece selection
 - Handles UI interactions for promotion
 
-### MoveDialogManager
+### EventBasedMoveDialogManager
 
-- Coordinates error dialogs
-- Manages promotion dialogs
-- Handles user confirmations
-- Provides feedback for suboptimal moves
+- Event-driven dialog coordination
+- Manages error dialogs for suboptimal moves
+- Handles promotion dialogs
+- Provides user confirmations
+- Imported from `features/training/events/EventBasedMoveDialogManager.ts`
 
 ### OpponentTurnHandler
 
@@ -135,8 +139,8 @@ Each module has comprehensive unit tests:
 - `MoveValidator.test.ts`
 - `MoveQualityEvaluator.test.ts`
 - `PawnPromotionHandler.test.ts`
-- `MoveDialogManager.test.ts`
-- `OpponentTurnHandler.test.ts`
+- `OpponentTurnManager.test.ts` (Note: Test file name differs from handler)
+- `EventBasedMoveDialogManager` tests in `features/training/events/__tests__/`
 
 Integration tests cover the full orchestration flow.
 

@@ -14,7 +14,6 @@ This is the central navigation hub. Load specific docs based on your task.
 ### Guides
 - [`guides/testing.md`](guides/testing.md) - Vitest setup, WSL2 test commands
 - [`guides/wsl2.md`](guides/wsl2.md) - WSL2 environment troubleshooting
-- [`guides/FIREBASE_SETUP.md`](guides/FIREBASE_SETUP.md) - Firebase configuration
 
 ### MCP Tools
 - [`tooling/mcp-matrix.md`](tooling/mcp-matrix.md) - **Tool selection decision matrix**
