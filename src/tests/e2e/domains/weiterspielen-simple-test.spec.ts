@@ -1,4 +1,4 @@
-// @vitest-skip
+// E2E Test activated - testing Weiterspielen bug
 /**
  * Simple E2E Test für Weiterspielen Bug
  *
@@ -30,7 +30,7 @@ test.describe("Weiterspielen Simple Test", () => {
     );
 
     // STEP 1: Gehe zu Train/1 (wie in der manuellen App)
-    await page.goto(E2E.ROUTES.TRAIN(1));
+    await page.goto(`http://127.0.0.1:3002${E2E.ROUTES.TRAIN(1)}`);
     await waitForPageReady(page);
     await expect(page).toHaveURL(/\/train/);
     await expect(page.locator("[data-testid='training-board']")).toBeVisible();

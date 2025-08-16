@@ -51,12 +51,12 @@ export class TrainingBoardPage {
 
     // Click source square using react-chessboard's data-square attribute
     // First try to click a piece on the square (if present)
-    const pieceSelector = `[data-square="${from}"] [draggable]`;
+    const pieceSelector = `[data-square="${from}"] [role="button"]`;
     const squareSelector = `[data-square="${from}"]`;
     
     this.logger.info(`🎯 Clicking source square: ${from}`);
     try {
-      // Try clicking the piece first
+      // Try clicking the piece first (react-chessboard v5.2.1 uses role="button")
       await this.page.click(pieceSelector, { timeout: 1000 });
       this.logger.info(`✅ Clicked piece on ${from}`);
     } catch {
