@@ -21,14 +21,10 @@ pnpm run lint && pnpm tsc # Validation
 - ❌ `cmd | grep` → ✅ `cmd && cmd2` (no pipes)
 - 📦 CI-Fix: `vite-tsconfig-paths` resolves modules
 
-## 📚 Load Documentation
+## 📚 Core Documentation
 
-| Task                | Always Load | Path                                                       |
-| ------------------- | ----------- | ---------------------------------------------------------- |
-| **Any Task**        | ✅          | [`docs/CORE.md`](docs/CORE.md) - Architecture              |
-| **Product Context** | →           | [`docs/VISION.md`](docs/VISION.md) - Product Vision        |
-| Testing             | →           | [`docs/guides/testing.md`](docs/guides/testing.md)         |
-| MCP Tools           | →           | [`docs/tooling/mcp-matrix.md`](docs/tooling/mcp-matrix.md) |
+**Essential**: [`docs/CORE.md`](docs/CORE.md) - Architecture overview
+**Complex Flows**: [`docs/orchestrators/handlePlayerMove/TABLEBASE_DATA_FLOW.md`](docs/orchestrators/handlePlayerMove/TABLEBASE_DATA_FLOW.md) - API integration
 
 ## 🤖 MCP Servers Active
 
@@ -36,10 +32,6 @@ pnpm run lint && pnpm tsc # Validation
 - **playwright**: Browser automation & E2E testing
 - **claude-context**: Semantic code search
 - **context7**: Live framework docs (`use context7` in prompts)
-
-## 🤖 LLM Protocol
-
-Always load `CORE.md` first, then task-specific docs from table above. For MCP selection, see `mcp-matrix.md`. Use "use context7" for framework docs.
 
 ## 🚀 Code Standards
 

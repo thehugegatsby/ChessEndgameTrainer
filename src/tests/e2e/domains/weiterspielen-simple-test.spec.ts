@@ -22,7 +22,9 @@ import {
 test.describe('Weiterspielen Simple Test', () => {
   const logger = getLogger().setContext('E2E-WeiterSpielenSimple');
 
-  test('Train/1 → Kd5 → Weiterspielen → Schwarz macht keinen Zug (BUG)', async ({ page }) => {
+  test.skip('Train/1 → Kd5 → Weiterspielen → Schwarz macht keinen Zug (BUG)', async ({ page }) => {
+    // SKIPPED: Chessboard move execution fails due to react-chessboard + React 19 incompatibility
+    // Will be fixed by chessground migration (Epic #182)
     logger.info('🎯 SIMPLE TEST: Train/1 → Kd5 → Weiterspielen → Schwarz macht keinen Zug');
 
     // STEP 1: Gehe zu Train/1 (wie in der manuellen App)

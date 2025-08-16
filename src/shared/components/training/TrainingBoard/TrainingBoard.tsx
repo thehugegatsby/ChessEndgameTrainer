@@ -217,6 +217,44 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
     onMove: makeMove,
   });
 
+  // === E2E DEBUG: Handler-Debugging Wrapper ===
+  const onPieceDropWrapped = useCallback(
+    async (from: string, to: string) => {
+      const el = document.querySelector('[data-testid="training-board"]');
+      if (el) {
+        el.setAttribute('data-last-drop-from', from);
+        el.setAttribute('data-last-drop-to', to);
+        el.setAttribute('data-on-piece-drop-fired', 'true');
+        el.setAttribute(
+          'data-drop-count',
+          String(1 + Number(el.getAttribute('data-drop-count') || '0'))
+        );
+      }
+      (window as any).__dbg_lastDrop = { from, to, ts: Date.now() };
+      console.log('🎯 E2E DEBUG: onPieceDrop called', { from, to, timestamp: Date.now() });
+      return onDrop?.(from, to);
+    },
+    [onDrop]
+  );
+
+  const onSquareClickWrapped = useCallback(
+    (sq: string) => {
+      const el = document.querySelector('[data-testid="training-board"]');
+      if (el) {
+        el.setAttribute('data-on-square-click-fired', 'true');
+        el.setAttribute('data-last-click-square', sq);
+        el.setAttribute(
+          'data-click-count',
+          String(1 + Number(el.getAttribute('data-click-count') || '0'))
+        );
+      }
+      (window as any).__dbg_lastClick = { sq, ts: Date.now() };
+      console.log('🎯 E2E DEBUG: onSquareClick called', { sq, timestamp: Date.now() });
+      onSquareClick?.(sq);
+    },
+    [onSquareClick]
+  );
+
   // Game navigation logic - extracted to custom hook
   const gameNavigation = useGameNavigation({
     history,
@@ -364,16 +402,16 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
       >
         <Chessboard
           fen={currentFen}
-          onPieceDrop={onDrop}
-          onSquareClick={onSquareClick}
+          onPieceDrop={onPieceDropWrapped}
+          onSquareClick={onSquareClickWrapped}
           onPromotionCheck={onPromotionCheck}
           arePiecesDraggable={!isGameFinished}
           boardWidth={800}
           animationDuration={150}
           {...(process.env.NODE_ENV === 'development' && {
             'data-handlers-bound': 'true',
-            'data-on-piece-drop-bound': Boolean(onDrop).toString(),
-            'data-on-square-click-bound': Boolean(onSquareClick).toString(),
+            'data-on-piece-drop-bound': Boolean(onPieceDropWrapped).toString(),
+            'data-on-square-click-bound': Boolean(onSquareClickWrapped).toString(),
           })}
         />
       </div>

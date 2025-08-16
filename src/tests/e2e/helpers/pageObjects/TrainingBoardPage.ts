@@ -49,29 +49,59 @@ export class TrainingBoardPage {
   }
 
   /**
-   * Execute a chess move using drag-and-drop (primary method)
+   * Execute a chess move using real mouse drag (primary method)
    *
    * @param from - Source square (e.g., "e2")
    * @param to - Target square (e.g., "e4")
    * @param promotion - Optional promotion piece ("q", "r", "b", "n")
    */
   async makeMove(from: string, to: string, promotion?: string): Promise<void> {
-    this.logger.info('🔄 Making move via drag-and-drop (react-chessboard primary interaction)', {
+    this.logger.info('🔄 Making move via real mouse drag (GPT-5 recommended fix)', {
       from,
       to,
       promotion,
     });
 
     try {
-      // Primary method: Drag-and-drop to trigger onPieceDrop
-      const fromSelector = `[data-square="${from}"]`;
-      const toSelector = `[data-square="${to}"]`;
+      // GPT-5 FIX: Use real mouse events instead of dragTo()
+      const fromSquare = this.page.locator(`[data-square="${from}"]`);
+      const toSquare = this.page.locator(`[data-square="${to}"]`);
 
-      this.logger.info(`🎯 Dragging piece from ${from} to ${to}`);
-      await this.page.locator(fromSelector).dragTo(this.page.locator(toSelector));
-      this.logger.info(`✅ Completed drag from ${from} to ${to}`);
+      // Look for piece element inside the square (react-chessboard binds events to piece, not square)
+      const fromPiece = fromSquare.locator('[data-piece], img, svg, .chessboard-piece').first();
+      const pieceExists = (await fromPiece.count()) > 0;
+
+      // Use piece element if it exists, otherwise fall back to square
+      const sourceElement = pieceExists ? fromPiece : fromSquare;
+
+      this.logger.info(
+        `🎯 Getting bounding boxes for ${pieceExists ? 'piece' : 'square'} elements`
+      );
+      const srcBox = await sourceElement.boundingBox();
+      const dstBox = await toSquare.boundingBox();
+
+      if (!srcBox || !dstBox) {
+        throw new Error('Missing bounding boxes for drag operation');
+      }
+
+      // Calculate center coordinates
+      const sx = srcBox.x + srcBox.width / 2;
+      const sy = srcBox.y + srcBox.height / 2;
+      const tx = dstBox.x + dstBox.width / 2;
+      const ty = dstBox.y + dstBox.height / 2;
+
+      this.logger.info(`🎯 Real mouse drag: (${sx}, ${sy}) → (${tx}, ${ty})`);
+
+      // Perform real mouse drag with steps for smooth animation
+      await this.page.mouse.move(sx, sy);
+      await this.page.mouse.down();
+      await this.page.mouse.move((sx + tx) / 2, (sy + ty) / 2, { steps: 10 });
+      await this.page.mouse.move(tx, ty, { steps: 10 });
+      await this.page.mouse.up();
+
+      this.logger.info(`✅ Completed real mouse drag from ${from} to ${to}`);
     } catch (dragError) {
-      this.logger.warn('Drag-and-drop failed, falling back to two-click method', { dragError });
+      this.logger.warn('Real mouse drag failed, falling back to two-click method', { dragError });
 
       // Fallback: Two-click method for onSquareClick
       this.logger.info(`🎯 Clicking source square: ${from}`);
@@ -469,5 +499,62 @@ export class TrainingBoardPage {
     // If no move history found, check entire page for the move text
     const pageText = await this.page.textContent('body');
     expect(pageText).toContain(expectedMove);
+  }
+
+  /**
+   * Debug method: Check if handlers were fired and log debugging info
+   */
+  async debugHandlerExecution(from: string, to: string): Promise<void> {
+    this.logger.info('🔍 E2E DEBUG: Checking handler execution...');
+
+    // Check if our debug wrapper fired
+    const debugInfo = await this.page.evaluate(() => {
+      const board = document.querySelector('[data-testid="training-board"]');
+      const lastDrop = (window as any).__dbg_lastDrop;
+      const lastClick = (window as any).__dbg_lastClick;
+
+      return {
+        boardExists: !!board,
+        handlersBound: board?.getAttribute('data-handlers-bound'),
+        onPieceDropBound: board?.getAttribute('data-on-piece-drop-bound'),
+        onSquareClickBound: board?.getAttribute('data-on-square-click-bound'),
+        pieceDropFired: board?.getAttribute('data-on-piece-drop-fired'),
+        squareClickFired: board?.getAttribute('data-on-square-click-fired'),
+        lastDropFrom: board?.getAttribute('data-last-drop-from'),
+        lastDropTo: board?.getAttribute('data-last-drop-to'),
+        dropCount: board?.getAttribute('data-drop-count'),
+        lastClickSquare: board?.getAttribute('data-last-click-square'),
+        clickCount: board?.getAttribute('data-click-count'),
+        windowDebugDrop: lastDrop,
+        windowDebugClick: lastClick,
+      };
+    });
+
+    this.logger.info('🔍 Handler Debug Info:', debugInfo);
+
+    // Check DOM layer under cursor
+    const fromSquare = this.page.locator(`[data-square="${from}"]`);
+    const srcBox = await fromSquare.boundingBox();
+
+    if (srcBox) {
+      const sx = srcBox.x + srcBox.width / 2;
+      const sy = srcBox.y + srcBox.height / 2;
+
+      const elementStack = await this.page.evaluate(
+        ([x, y]) => {
+          return document.elementsFromPoint(x, y).map(e => ({
+            tag: e.tagName,
+            id: e.id,
+            className: e.className,
+            dataSquare: e.getAttribute('data-square') || '',
+            dataPiece: e.getAttribute('data-piece') || '',
+            pointerEvents: getComputedStyle(e).pointerEvents,
+          }));
+        },
+        [sx, sy]
+      );
+
+      this.logger.info(`🔍 Elements under cursor at (${sx}, ${sy}):`, elementStack);
+    }
   }
 }

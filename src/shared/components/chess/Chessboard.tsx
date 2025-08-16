@@ -23,30 +23,49 @@
 
 'use client';
 
-import React, { useState } from 'react';
-import dynamic from 'next/dynamic';
-import { type PieceDropHandlerArgs, type SquareHandlerArgs } from 'react-chessboard';
+import React, { useState, useEffect } from 'react';
+import {
+  Chessboard as RawChessboard,
+  type PieceDropHandlerArgs,
+  type SquareHandlerArgs,
+} from 'react-chessboard';
 import { PromotionDialog, type PromotionPiece } from './PromotionDialog';
 
-// Dynamic import of react-chessboard to prevent SSR hydration issues
-const ReactChessboard = dynamic(() => import('react-chessboard').then(mod => mod.Chessboard), {
-  ssr: false,
-  loading: () => (
-    <div
-      data-chessboard-hydrated="false"
-      style={{
-        width: '800px',
-        height: '800px',
-        backgroundColor: '#f0d9b5',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      {/* Loading placeholder while chessboard chunk loads */}
+// GPT-5 FIX: Client-only mount gate to avoid SSR completely
+// This bypasses next/dynamic bailout issues in Next.js 15 + React 19
+const ClientOnlyChessboard: React.FC<any> = props => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div
+        data-chessboard-hydrated="false"
+        style={{
+          width: '800px',
+          height: '800px',
+          backgroundColor: '#f0d9b5',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {/* Loading placeholder while mounting */}
+      </div>
+    );
+  }
+
+  return (
+    <div data-chessboard-hydrated="true">
+      <RawChessboard {...props} />
     </div>
-  ),
-});
+  );
+};
+
+const ReactChessboard = ClientOnlyChessboard;
 
 // Types for react-chessboard (library has incomplete TypeScript definitions)
 type PieceType = 'wP' | 'wN' | 'wB' | 'wR' | 'wQ' | 'wK' | 'bP' | 'bN' | 'bB' | 'bR' | 'bQ' | 'bK';
@@ -256,7 +275,7 @@ export const Chessboard: React.FC<ChessboardProps> = ({
   const promotionColor = pendingPromotion?.piece.charAt(0).toLowerCase() === 'w' ? 'w' : 'b';
 
   return (
-    <div className="relative chess-board-container" data-chessboard-hydrated="true">
+    <div className="relative chess-board-container">
       <ReactChessboard
         options={{
           position: fen,

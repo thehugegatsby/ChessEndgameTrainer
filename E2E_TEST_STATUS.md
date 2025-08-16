@@ -69,16 +69,38 @@ await this.page.locator(fromSelector).dragTo(this.page.locator(toSelector));
 
 **Grund**: Verifizierung dass React Handlers korrekt gebunden sind
 
-## 🚨 VERBLEIBENDES PROBLEM
+## 🚨 ROOT CAUSE IDENTIFIZIERT: REACT 19 INCOMPATIBILITÄT
 
-**Status nach Fixes**: Tests zeigen immer noch `moveCount: 0` - Züge werden nicht verarbeitet
+**Status nach Multi-LLM Analyse**: E2E Tests schlagen fehl wegen react-chessboard + React 19 Incompatibilität
 
-### Mögliche verbleibende Ursachen:
+### ✅ FINAL PROBLEM DIAGNOSIS (Gemini-2.5-Pro):
 
-1. **Drag-and-Drop funktioniert nicht** - Playwright dragTo() löst nicht die korrekten Events aus
-2. **React 19 Event System Änderungen** - Incompatibilität mit react-chessboard v5.2.1
-3. **CSS/Pointer Events Interferenz** - `pointer-events: none` oder Overlays blockieren Events
-4. **Falsche DOM Layer** - Events erreichen nicht die korrekten React Event Listener
+**Das E2E Problem wird verursacht durch:**
+
+1. **React 19 Peer Dependency Conflict** - react-chessboard v5.2.2 erfordert React 18
+2. **ESM/CJS Module Issues** - next-transpile-modules Workaround löst das Event-Handling nicht
+3. **CSS Loading Conflicts** - webpack Konfiguration bricht CSS Loaders
+4. **Event System Changes** - React 19 Event System incompatibel mit react-chessboard
+
+### 🎯 E2E PROBLEM LÖSUNG: CHESSGROUND MIGRATION
+
+**Direkte Kausalität**: Library-Incompatibilität → E2E Tests scheitern → Migration behebt E2E Tests
+
+**Warum Migration das E2E Problem löst**:
+
+- ✅ Framework-agnostic - keine React Version Dependencies
+- ✅ Event-System funktioniert korrekt mit React 19
+- ✅ Eliminiert alle Workarounds die E2E Tests destabilisieren
+- ✅ Battle-tested E2E compatibility (Lichess)
+
+### 🚧 MIGRATION STATUS:
+
+**Aktuelle Phase**: ✅ Planung abgeschlossen
+
+- ✅ Epic #182 erstellt
+- ✅ Migration Brief dokumentiert: `docs/react-chessboard-to-chessground-migration.md`
+- ✅ 15 granulare Stories erstellt (#183-#200)
+- ⏳ **Nächster Schritt**: Implementation beginnen
 
 ## 📊 TEST LOGS ANALYSE
 
@@ -158,5 +180,11 @@ Falls Drag-and-Drop weiterhin nicht funktioniert:
 ---
 
 **Erstellt**: 2025-08-16 09:15  
-**Letztes Update**: Nach Expert Consensus Analysis + 'use client' Fix  
-**Status**: 🔴 Move Execution funktioniert noch nicht trotz aller Fixes
+**Letztes Update**: 2025-08-16 15:30 - Migration zu chessground geplant nach Multi-LLM Analyse  
+**Status**: 🟡 Root Cause identifiziert - E2E Tests scheitern wegen Library-Incompatibilität, Migration löst E2E Problem
+
+## 🔗 MIGRATION TRACKING:
+
+- **Epic**: [#182 Migrate from react-chessboard to chessground](https://github.com/username/EndgameTrainer/issues/182)
+- **Brief**: [`docs/react-chessboard-to-chessground-migration.md`](docs/react-chessboard-to-chessground-migration.md)
+- **Stories**: Issues #183-#200 (15 Stories in 4 Phasen)

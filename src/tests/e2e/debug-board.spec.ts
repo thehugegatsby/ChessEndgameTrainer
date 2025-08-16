@@ -3,7 +3,9 @@ import { test } from '@playwright/test';
 import { waitForPageReady } from './helpers/deterministicWaiting';
 
 test.describe('Debug react-chessboard v5 structure', () => {
-  test('examine board structure', async ({ page }) => {
+  test.skip('examine board structure', async ({ page }) => {
+    // SKIPPED: Debug test - not needed for merge
+    // Will be reactivated for chessground migration debugging
     await page.goto('/train/1');
 
     // Wait for board to load

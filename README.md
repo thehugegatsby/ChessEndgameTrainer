@@ -1,311 +1,41 @@
 # Chess Endgame Trainer 🎯
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.4.6-black)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue)](https://www.typescriptlang.org/)
-[![Zustand](https://img.shields.io/badge/Zustand-5.0.7-orange)](https://zustand-demo.pmnd.rs/)
-[![Test Coverage](https://img.shields.io/badge/Tests-513+_passing-green)](./coverage/lcov-report/index.html)
-[![Phase 3B](https://img.shields.io/badge/Phase_3B-COMPLETE-brightgreen)](./docs/.archive/PROJECT_STATUS.md)
-[![Architecture](https://img.shields.io/badge/Architecture-Event_Driven-blue)](./docs/CORE.md)
+Modern chess endgame training with perfect Lichess tablebase analysis. Single-LLM experimental project for systematic endgame learning.
 
-Eine moderne **Web-first** Anwendung zum systematischen Lernen von Schachendspielen mit KI-Unterstützung. **🎉 PHASE 3B COMPLETE** - Event-driven Architecture mit Tablebase Integration!
+**Tech Stack**: React 19, TypeScript, Zustand, Next.js 15, Tailwind CSS | WSL2 Linux
 
-## 🎯 Features
-
-- **13 Endspiel-Positionen** - Von Bauern bis Turmendspiele
-- **Tablebase-Only Architecture** - Lichess API für perfekte Endspiel-Analyse
-- **Simplified Architecture** - TablebaseService → Store → UI
-- **Tablebase Evaluation** - Perfekte Endspiel-Bewertungen
-- **Best Moves Display** - Top 3 Züge mit Bewertungen (Lichess-Style)
-- **Brückenbau-Trainer** - Strukturiertes Lernen mit 5 Lektionen
-- **Performance Optimiert** - 75% weniger API-Calls, LRU Cache
-- **Responsive Design** - Desktop & Mobile optimiert
-- **Dark Mode** - Augenschonend trainieren
-- **Production Ready** - Vercel Deployment mit Security Headers
-
-## 🚀 Projektstruktur
-
-```
-ChessEndgameTrainer/
-├── app/                            # Next.js App Router
-│   ├── layout.tsx                  # Root Layout mit Providers
-│   ├── page.tsx                    # Homepage mit Endgame-Kategorien
-│   ├── train/[id]/page.tsx         # Haupttraining-Interface
-│   └── providers.tsx               # Client-side Providers
-│
-├── shared/                         # Geteilte Logik für Web + App
-│   ├── components/                 # Wiederverwendbare UI-Komponenten
-│   │   ├── chess/                  # Schachbrett-Komponenten
-│   │   ├── training/               # Training-spezifische Komponenten
-│   │   └── ui/                     # Allgemeine UI-Komponenten
-│   ├── hooks/                      # Gemeinsame React Hooks
-│   ├── lib/                        # Services, chess.js wrapper
-│   │   └── chess/                  # Chess Engine, Validation
-│   ├── utils/                      # Utility Functions
-│   │   └── chess/                  # Chess-specific utilities
-│   │       └── evaluation/         # Modular evaluation logic
-│   ├── data/                       # Endspielkarten (FEN, Ziel, Lösung)
-│   └── services/                   # Error handling, Storage
-│
-├── config/                         # Central configuration
-│   └── constants.ts                # App constants (ports, URLs)
-│
-└── firebase/                       # Firebase Konfiguration
-```
-
-## 🛠️ Technologien
-
-- **Frontend**: Next.js 15.4.6, React 19.1.1
-- **Language**: TypeScript 5.9.2
-- **Styling**: Tailwind CSS 3.4.17
-- **Chess Logic**: chess.js 1.0.0-beta.6 für Zugvalidierung
-- **State Management**: Zustand 5.0.7 (Domain-Specific Slices Architecture)
-- **Testing**: Jest 30.0.4, React Testing Library 14.2.1
-- **Environment**: Node.js 20.x (Required - see .nvmrc)
-
-## 📊 Projekt Status (August 2025)
-
-### 🎉 **MAJOR MILESTONE: Phase 8 Store Refactoring Complete!**
-
-**Historic achievement**: Die größte architektonische Überarbeitung in der Projektgeschichte wurde erfolgreich abgeschlossen!
-
-- ✅ **Monolithic store.ts (1,298 lines)** → **7 focused domain slices**
-- ✅ **All TypeScript errors resolved** (0 compilation errors)
-- ✅ **All tests passing** with proper Immer middleware patterns
-- ✅ **Branded types implementation** with controlled test factories
-- ✅ **Domain-driven architecture** with clean separation of concerns
-
-### ✅ **Technical Health**
-
-- **Test Suite**: 1417 tests (100% passing) | Comprehensive Coverage
-- **TypeScript**: 0 errors (100% clean) | Complete Clean Compilation
-- **Architecture**: v3.8 Domain-Specific Slices - Clean separation mit Orchestrators
-- **State Management**: Zustand 5.0.7 mit Domain Slices (GameSlice, TrainingSlice, etc.)
-- **UI Framework**: TailwindCSS 3.4.17 (Stable version)
-- **Security**: FEN Input Sanitization implemented
-- **Performance**: LRU Cache, Debouncing, Tree-Shaking optimized
-- **CI/CD**: Stabilized pipeline with automated quality gates
-
-### 🎯 **Current Focus: New Feature Development**
-
-Ready for new feature development! No critical bugs blocking progress.
-
-## 💻 Entwicklung
-
-### Voraussetzungen
-
-- Node.js 20.x (LTS) - **Required**, see `.nvmrc`
-- pnpm 10+
-
-### Installation
+## ⚡ Quick Start
 
 ```bash
-# Use Node 20 (with nvm)
-nvm use
-
-# Install dependencies
-pnpm install
+pnpm run dev              # Dev server (http://localhost:3002)
+pnpm run build            # Production build
+pnpm test                 # Run tests
+pnpm run lint && pnpm tsc # Validation
 ```
 
-### Entwicklungsserver starten
+## 🏗️ Architecture Overview
 
-```bash
-pnpm run dev
-```
+Zustand orchestrators manage training flow, Lichess Tablebase API provides perfect move analysis, React components display interactive chess board. Domain-specific slices (Game, Training, Tablebase, UI) with cross-slice orchestrators for complex operations.
 
-Server läuft auf http://localhost:3002 (Dev) oder http://localhost:3003 (E2E Tests)
+## 📁 Key Directories
 
-### Database (Firebase Firestore)
+- `src/shared/store/orchestrators/` - Training logic and cross-slice operations
+- `src/shared/services/` - API integrations (TablebaseService, ChessService)
+- `src/shared/components/` - React UI components (Chessboard, Training)
+- `src/tests/` - Feature-based testing (unit + E2E)
+- `docs/` - Essential documentation (CORE.md, complex flows)
 
-Die Anwendung unterstützt Firebase Firestore als Backend-Datenbank für persistente Speicherung von Fortschritt und Einstellungen. Konfiguration über Umgebungsvariablen.
+## 🎯 Key Design Decisions
 
-### Tests ausführen
+**Tablebase-Only Strategy** (2025-08-10): External Lichess API instead of local chess engine for perfect endgame analysis. Simpler state management, always optimal moves.
 
-```bash
-# Unit Tests
-pnpm test
+**Zustand Domain Slices** (2025-08-16): Refactored monolithic store into focused domain slices (Game, Training, Tablebase, UI) with orchestrators for cross-slice operations.
 
-# Mit Coverage
-pnpm run test:coverage
+**LLM-Only Development** (2025-08-16): Single Claude developer workflow, documentation optimized for AI context rather than human teams.
 
-# Watch Mode
-pnpm run test:watch
+**WSL2 Testing Strategy** (2025-08-15): Feature-based test routing with performance guards and auto-detection for optimal CI/CD integration.
 
-# All test suites
-pnpm run test:all
+## 📋 Essential Documentation
 
-# Specific test categories
-pnpm run test:unit
-pnpm run test:integration
-pnpm run test:performance
-```
-
-#### Test-Architektur
-
-Umfassende Test-Suite mit Clean Test Output (Logger Mocking implementiert ✅):
-
-```bash
-# Dev-Server starten
-npm run dev
-
-# Tests mit Coverage ausführen
-npm run test:coverage
-
-# Individual slice tests (NEW in Phase 8)
-npm run test -- gameSlice
-npm run test -- trainingSlice
-```
-
-### Lint
-
-```bash
-npm run lint
-```
-
-## 🔧 Konfiguration
-
-Zentrale Konfiguration in `/config/constants.ts`:
-
-```bash
-# Development Server
-DEV_PORT=3002
-
-# Build optimization
-npm run build
-```
-
-## 🎮 Aktuelle Endspiel-Positionen
-
-- **Bauernendspiele**: Grundlegende Bauernstrukturen
-- **Turmendspiele**: Lucena, Philidor Positionen
-- **7 Positionen** bereits implementiert
-- Erweiterbar auf 50+ Positionen
-
-## ⚡ Performance & Engine Architecture
-
-Die Anwendung wurde für optimale Performance auf Desktop und Mobile optimiert:
-
-### 🔧 **Domain-Specific Slices Architecture** (v3.7 - 2025-08)
-
-**🎉 PHASE 8 COMPLETE**: Transformation von monolithischer zu domain-spezifischer Architektur!
-
-- **Domain Slices**: GameSlice, TrainingSlice, TablebaseSlice, ProgressSlice, UISlice, SettingsSlice, UserSlice
-- **Orchestrators**: Cross-slice operations für komplexe Operationen
-- **TablebaseService**: Optimierte Lichess API Integration (Single API Call)
-- **AnalysisService**: Zentralisierte Position-Analyse Logik
-- **Smart Caching**: FEN Normalisierung, Request Deduplication
-- **Error Boundaries**: React Error Boundaries für robuste Fehlerbehandlung
-- **TypeScript**: 100% Type Safety mit Branded Types (ValidatedMove)
-- **Test Infrastructure**: 823 passing tests mit proper Immer middleware patterns
-
-### 📈 **Performance Optimierungen**
-
-- **LRU Cache**: Intelligentes Caching für wiederholte Positionen
-- **Debouncing**: Verhindert überflüssige Engine-Anfragen
-- **75% weniger API-Calls** durch verschiedene Optimierungen
-- **99.99% Cache Hit Rate** für wiederkehrende Positionen
-- **Bundle Size**: Optimiert für <300KB pro Route
-
-Detaillierte Performance-Metriken und technische Details finden Sie in der Codebasis unter `/shared/services/TablebaseService.ts`.
-
-## 🚀 Entwicklungs-Roadmap
-
-### ✅ **Completed Foundations (Phase 8 MAJOR MILESTONE!)**
-
-- ✅ **Domain-Specific Architecture**: Monolithic store.ts (1,298 lines) → 7 focused domain slices
-- ✅ **Clean Separation**: Service→Adapter→Provider layers with proper slice boundaries
-- ✅ **Tablebase Integration**: Lichess API integration with caching
-- ✅ **State Management**: Zustand 5.0.7 with Domain Slices + Orchestrators
-- ✅ **TypeScript Health**: 100% error resolution (0 compilation errors)
-- ✅ **Test Infrastructure**: 1417 comprehensive unit tests + E2E tests (98.9% PASSING)
-- ✅ **Branded Types**: Clean ValidatedMove implementation with controlled factories
-- ✅ **Security**: FEN input sanitization and validation
-- ✅ **Performance**: LRU caching, debouncing, bundle optimization
-
-### 🎯 **Current Phase: New Feature Development (Ready!)**
-
-**Phase 8 Store Refactoring COMPLETE** - Ready for new features!
-
-- ✅ **Domain-Specific Architecture** - Complete store transformation
-- ✅ **TypeScript Health** - 0 compilation errors
-- ✅ **Test Infrastructure** - 1417 tests (98.9% passing)
-- ✅ **E2E test rewrite** - Modern Playwright architecture (42/42 passing)
-- 🎯 **Next**: New features on solid architectural foundation
-
-### ⚡ **Phase 2: Enhancement (2-3 Weeks)**
-
-- 🚀 **Performance optimization** - Lazy loading, code splitting
-- 🔥 **Data completion** - Missing Firestore positions
-- 📊 **Quality improvements** - TypeScript error elimination
-- 🧪 **Test coverage** - Enable skipped tests
-
-### 🏗️ **Phase 3: Expansion (Future)**
-
-- 📱 **Progressive Web App** - Mobile experience without native complexity
-- 🎨 **Advanced features** - Enhanced Brückenbau trainer
-- 📱 **Native mobile** - Only after web platform stability
-- 🔮 **Platform expansion** - Based on user feedback and metrics
-
-## 📚 Dokumentation & Architektur
-
-### 📖 **Entwickler-Dokumentation**
-
-- **[docs/VISION.md](./docs/VISION.md)** - Produkt-Vision & Konzept
-- **[CLAUDE.md](./CLAUDE.md)** - AI Assistant Context & Architektur-Richtlinien
-- **[CHANGELOG.md](./CHANGELOG.md)** - Versionshistorie und Änderungen
-- **[docs/CORE.md](./docs/CORE.md)** - System-Architektur Übersicht
-- **[GitHub Issues](https://github.com/thehugegatsby/ChessEndgameTrainer/issues)** - Aktuelle Prioritäten und Roadmap
-
-### 🏗️ **Web-First Architektur-Prinzipien**
-
-- **Clean Architecture**: Service→Adapter→Provider Separation
-- **Tablebase-Only**: Keine lokale Engine, nur perfekte Endspiel-Datenbank
-- **Simplified State**: Zustand Store ohne Engine-Komplexität
-- **Store of Truth**: Zustand als zentrale State-Verwaltung
-- **TypeScript Strict**: Vollständige Typisierung für Entwicklersicherheit
-- **Performance**: <300KB Bundle-Size pro Route
-
-### 🎯 **Web-First Strategy Benefits**
-
-- **Rapid Development**: Fokus auf eine Plattform
-- **Quality First**: Stabilität vor Feature-Expansion
-- **Resource Efficiency**: Keine parallele Mobile-Komplexität
-- **User Value**: Perfekte Web-Experience vs. mittelmäßige Multi-Platform
-- **Future-Ready**: PWA als Mobile-Brücke, Native später
-
----
-
-## 🤝 Entwicklungs-Workflow
-
-### 🔄 **Qualitäts-Gates**
-
-```bash
-npm test           # 1417 tests (98.9% passing) ✅
-npm run test:e2e   # 42/42 E2E tests müssen bestehen ✅
-npm run lint       # ESLint ohne Fehler ✅
-npm run build      # Erfolgreicher Build ✅
-npx tsc --noEmit   # 0 TypeScript errors ✅
-```
-
-### 📋 **Issue-Priorisierung**
-
-- **P0 Critical**: UI Bugs, Test-Failures → Sofort
-- **P1 High**: Performance, UX → Diese Woche
-- **P2 Medium**: Tech Debt → Nächste Sprints
-- **P3 Low**: Future Features → Backlog
-
-### 🎯 **Web-First Entwicklung**
-
-1. **Stabilität vor Features** - Bugs zuerst fixen
-2. **Test-getrieben** - E2E + Unit Test Coverage
-3. **Performance-bewusst** - Bundle Size <300KB
-4. **Mobile später** - PWA dann Native
-
----
-
-## 📄 Lizenz
-
-ISC
-
----
-
-_Multi-Model Analysis (Juli 2025): Gemini Pro + Claude Opus 4 Consensus_
+**Core Architecture**: [`docs/CORE.md`](docs/CORE.md) - System overview and patterns  
+**Complex Flows**: [`docs/orchestrators/handlePlayerMove/TABLEBASE_DATA_FLOW.md`](docs/orchestrators/handlePlayerMove/TABLEBASE_DATA_FLOW.md) - API integration details
