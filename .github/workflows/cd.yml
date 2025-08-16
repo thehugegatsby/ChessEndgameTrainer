@@ -4,19 +4,147 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  workflow_dispatch: # Allow manual deployment
 
+# Don't cancel CD runs - production deployments should complete
 concurrency:
   group: cd-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
+  # Run full CI pipeline first
   ci:
     name: CI Tests & Build
     uses: ./.github/workflows/_ci-reusable.yml
     with:
       node-version: '20'
       pnpm-version: '10'
-      run-e2e: false
-      upload-build: false
+      run-e2e: false  # Skip E2E for faster CD
+      upload-build: true  # Upload build artifacts for deployment
     secrets: inherit
+
+  # Deployment job with environment protection
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: ci
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for forbidden symlinks
+        run: |
+          echo "Checking for symlinks that should not be committed..."
+          if [ -L "src/config" ]; then
+            echo "❌ ERROR: src/config is a symlink. This is not allowed."
+            echo "This usually happens when worktree setup goes wrong."
+            exit 1
+          fi
+
+          # Check for any symlinks in src (except node_modules)
+          SYMLINKS=$(find src -type l -not -path "*/node_modules/*" 2>/dev/null || true)
+          if [ -n "$SYMLINKS" ]; then
+            echo "⚠️ WARNING: Symlinks found in src directory:"
+            echo "$SYMLINKS"
+            echo "Please verify these are intentional."
+          fi
+
+          echo "✅ No forbidden symlinks found"
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: nextjs-build
+          path: .
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+  post-build-checks:
+    name: Post-Build Checks
+    runs-on: ubuntu-latest
+    needs: [ci, deploy]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: '10'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run smoke tests
+        run: |
+          # Add smoke test commands here
+          echo "Running smoke tests against production..."
+          # Example: pnpm run test:smoke -- --url=${{ secrets.PRODUCTION_URL }}
+
+    # Health check removed - configure PRODUCTION_URL secret to enable
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [ci, deploy]
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history for changelog
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Simple changelog from commits since last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            COMMITS=$(git log --oneline --no-merges -10)
+          else
+            COMMITS=$(git log ${LAST_TAG}..HEAD --oneline --no-merges)
+          fi
+
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo "## What's Changed" >> $GITHUB_OUTPUT
+          echo "$COMMITS" | sed 's/^/- /' >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
+          body: |
+            ${{ steps.changelog.outputs.CHANGELOG }}
+
+            ---
+            **Full Changelog**: https://github.com/${{ github.repository }}/commits/main
+          draft: false
+          prerelease: false
+          generate_release_notes: true

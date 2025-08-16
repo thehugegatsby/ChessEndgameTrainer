@@ -23,66 +23,198 @@ on:
         required: false
         type: boolean
         default: false
+    outputs:
+      build-cache-key:
+        description: 'Build cache key for Next.js'
+        value: ${{ jobs.build.outputs.cache-key }}
+    secrets:
+      VERCEL_TOKEN:
+        required: false
+      VERCEL_ORG_ID:
+        required: false
+      VERCEL_PROJECT_ID:
+        required: false
 
 env:
   NODE_VERSION: ${{ inputs.node-version }}
   PNPM_VERSION: ${{ inputs.pnpm-version }}
+  # CI-optimized settings for Vitest
+  VITEST_POOL: 'threads'
+  # Fixed locale and timezone for consistent test results
+  LANG: 'en_US.UTF-8'
+  LC_ALL: 'en_US.UTF-8'
+  TZ: 'UTC'
 
 jobs:
   lint-and-typecheck:
     name: Lint & Type Check
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
         with:
           version: ${{ env.PNPM_VERSION }}
-      - uses: actions/setup-node@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run lint
-      - run: pnpm tsc
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run ESLint
+        run: pnpm run lint
+
+      - name: Run TypeScript compiler check
+        run: pnpm tsc
+
+      - name: Check for duplicate components
+        run: pnpm run check-duplicates
 
   test:
-    name: Test (${{ matrix.project }})
+    name: Test (${{ matrix.project }}${{ matrix.shard && format(' - Shard {0}', matrix.shard) || '' }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         project: [chess-core, tablebase, training]
+        # Shard chess-core tests for better performance
+        include:
+          - project: chess-core
+            shard: 1/4
+          - project: chess-core
+            shard: 2/4
+          - project: chess-core
+            shard: 3/4
+          - project: chess-core
+            shard: 4/4
+        exclude:
+          - project: chess-core
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
         with:
           version: ${{ env.PNPM_VERSION }}
-      - uses: actions/setup-node@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm exec vitest run --project ${{ matrix.project }}
 
-  build:
-    name: Build
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run tests for ${{ matrix.project }}
+        run: |
+          if [ "${{ matrix.project }}" = "chess-core" ] && [ -n "${{ matrix.shard }}" ]; then
+            # Run sharded tests for chess-core
+            pnpm exec vitest run --project ${{ matrix.project }} --shard ${{ matrix.shard }}
+          else
+            # Run regular tests for other projects
+            pnpm exec vitest run --project ${{ matrix.project }}
+          fi
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ matrix.project }}${{ matrix.shard && format('-shard-{0}', matrix.shard) || '' }}
+          path: coverage/
+        if: always()
+
+  integration-tests:
+    name: Integration Tests
     runs-on: ubuntu-latest
     needs: lint-and-typecheck
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
         with:
           version: ${{ env.PNPM_VERSION }}
-      - uses: actions/setup-node@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run build
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run integration tests
+        run: |
+          NODE_OPTIONS="--max-old-space-size=2048" pnpm exec vitest run --project integration
+        env:
+          CI: true
+
+  build:
+    name: Build Next.js App
+    runs-on: ubuntu-latest
+    needs: [lint-and-typecheck]
+    outputs:
+      cache-key: ${{ steps.cache-key.outputs.key }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Generate cache key
+        id: cache-key
+        run: |
+          echo "key=${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx', 'next.config.*', 'tsconfig.json') }}" >> $GITHUB_OUTPUT
+
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: |
+            .next/cache
+          key: ${{ steps.cache-key.outputs.key }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Next.js app
+        run: pnpm run build
         env:
           NEXT_PUBLIC_STOCKFISH_PATH: /stockfish/
+
+      - name: Verify build output
+        run: |
+          if [ ! -d ".next" ] || [ -z "$(ls -A .next)" ]; then
+            echo "Error: Build output directory .next/ is missing or empty."
+            echo "Build command completed but produced no artifacts."
+            exit 1
+          fi
+          echo "✅ Build output verified: .next/ directory contains files"
+
       - name: Upload build artifacts
-        if: inputs.upload-build
         uses: actions/upload-artifact@v4
         with:
           name: nextjs-build
@@ -91,27 +223,120 @@ jobs:
             public
             package.json
             pnpm-lock.yaml
+          include-hidden-files: true
+          if-no-files-found: error
           retention-days: 1
+        if: inputs.upload-build
 
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
     if: inputs.run-e2e
-    needs: [test, build]
+    needs: [lint-and-typecheck, test, build]
+    timeout-minutes: 10
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
         with:
           version: ${{ env.PNPM_VERSION }}
-      - uses: actions/setup-node@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: nextjs-build
           path: .
-      - run: pnpm run test:e2e
+
+      - name: Run Playwright tests
+        run: pnpm run test:e2e
+        env:
+          PLAYWRIGHT_JUNIT_OUTPUT_NAME: results.xml
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 3
+
+  quality-gates:
+    name: Quality Gates Summary
+    runs-on: ubuntu-latest
+    needs: [lint-and-typecheck, test, integration-tests, build]
+    if: always()
+
+    steps:
+      - name: Check job statuses
+        run: |
+          echo "## CI Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.lint-and-typecheck.result }}" == "success" ]; then
+            echo "✅ Lint & Type Check: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Lint & Type Check: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.test.result }}" == "success" ]; then
+            echo "✅ Feature Tests: Passed (3 projects + chess-core sharding)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Feature Tests: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.integration-tests.result }}" == "success" ]; then
+            echo "✅ Integration Tests: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Integration Tests: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.build.result }}" == "success" ]; then
+            echo "✅ Build: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Build: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ inputs.run-e2e }}" == "true" ]; then
+            if [ "${{ needs.e2e.result }}" == "success" ]; then
+              echo "✅ E2E Tests: Passed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ E2E Tests: Failed" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "⏭️ E2E Tests: Skipped" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Set final status
+        if: |
+          needs.lint-and-typecheck.result == 'failure' ||
+          needs.test.result == 'failure' ||
+          needs.integration-tests.result == 'failure' ||
+          needs.build.result == 'failure' ||
+          (inputs.run-e2e && needs.e2e.result == 'failure')
+        run: |
+          echo "❌ Quality gates failed. Please fix the issues before merging."
+          exit 1
