@@ -119,10 +119,10 @@ jobs:
         run: |
           if [ "${{ matrix.project }}" = "chess-core" ] && [ -n "${{ matrix.shard }}" ]; then
             # Run sharded tests for chess-core
-            pnpm exec vitest run --project ${{ matrix.project }} --shard ${{ matrix.shard }}
+            pnpm exec vitest run --project ${{ matrix.project }} --shard ${{ matrix.shard }} --coverage
           else
             # Run regular tests for other projects
-            pnpm exec vitest run --project ${{ matrix.project }}
+            pnpm exec vitest run --project ${{ matrix.project }} --coverage
           fi
 
       - name: Upload coverage report
@@ -130,7 +130,7 @@ jobs:
         with:
           name: coverage-report-${{ matrix.project }}${{ matrix.shard && format('-shard-{0}', matrix.shard) || '' }}
           path: coverage/
-        if: always()
+        if: always() && hashFiles('coverage/**') != ''
 
   integration-tests:
     name: Integration Tests

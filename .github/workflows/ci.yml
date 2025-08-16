@@ -24,4 +24,4 @@ jobs:
       node-version: '20'
       pnpm-version: '10'
       run-e2e: true
-      upload-build: false
+      upload-build: true  # E2E tests need build artifacts
