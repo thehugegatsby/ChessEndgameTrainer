@@ -35,6 +35,14 @@ import { PERCENT } from '@/constants/number.constants';
 export type { TrainingState, TrainingActions } from './types';
 import { getLogger } from '@shared/services/logging';
 
+// TODO: PHASE B.3 - Service Dependencies for DI
+// Import service interfaces for dependency injection
+import type { 
+  PositionServiceInterface,
+  MoveServiceInterface,
+  GameStateServiceInterface
+} from '@domains/game/services';
+
 /**
  * Extended EndgamePosition with training-specific fields
  * @interface TrainingPosition
@@ -148,15 +156,25 @@ export const createTrainingState = (): TrainingState => ({
  *
  * @param {Function} set - Zustand's set function for state updates
  * @param {Function} get - Zustand's get function for accessing current state
+ * @param {Object} services - Service dependencies for domain operations
+ * @param {PositionServiceInterface} services.positionService - Position management service
+ * @param {MoveServiceInterface} services.moveService - Move execution service  
+ * @param {GameStateServiceInterface} services.gameStateService - Game state management service
  * @returns {TrainingActions} Training action functions
  *
  * @remarks
  * This function creates only the action functions for training slice.
  * Actions are kept separate from state to prevent Immer middleware from stripping them.
+ * Services are injected as dependencies to follow Domain-Driven Design principles.
  *
  * @example
  * ```typescript
- * const trainingActions = createTrainingActions(set, get);
+ * const services = {
+ *   positionService: new PositionService(chessEngine),
+ *   moveService: new MoveService(chessEngine),
+ *   gameStateService: new GameStateService(chessEngine)
+ * };
+ * const trainingActions = createTrainingActions(set, get, services);
  * ```
  */
 const logger = getLogger().setContext('TrainingSlice');
@@ -165,8 +183,18 @@ export const createTrainingActions = (
   set: (
     fn: (state: { training: TrainingState; game: { moveHistory: ValidatedMove[] } }) => void
   ) => void,
-  get: () => { training: TrainingState }
-): TrainingActions => ({
+  get: () => { training: TrainingState },
+  services: {
+    positionService: PositionServiceInterface;
+    moveService: MoveServiceInterface;
+    gameStateService: GameStateServiceInterface;
+  }
+): TrainingActions => {
+  // TODO: PHASE B.3 - Service implementation placeholder
+  // Services will be used in subsequent phases to replace direct logic
+  void services; // Acknowledge services parameter
+  
+  return {
   /**
    * Sets the current training position
    *
@@ -855,7 +883,8 @@ export const createTrainingActions = (
     console.info(`STUB: Finalizing training session due to ${reason}`);
     // TODO: Extract to GameStateService - training completion logic (accuracy, streaks, etc.)
   },
-});
+  };
+};
 
 /**
  * Selector functions for efficient state access

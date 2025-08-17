@@ -19,7 +19,7 @@ import type {
  * Uses ChessEngine for game state information and implements training-specific logic.
  */
 export class GameStateService implements GameStateServiceInterface {
-  // @ts-ignore - Used in implementation
+  // @ts-expect-error - Used in implementation
   private _chessEngine: ChessEngineInterface;
 
   constructor(chessEngine: ChessEngineInterface) {

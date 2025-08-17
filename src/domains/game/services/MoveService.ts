@@ -19,7 +19,7 @@ import type {
  * Uses ChessEngine for move operations and maintains training-specific move history.
  */
 export class MoveService implements MoveServiceInterface {
-  // @ts-ignore - Used in implementation
+  // @ts-expect-error - Used in implementation
   private _chessEngine: ChessEngineInterface;
   private moveHistory: ValidatedMove[] = [];
 
@@ -27,7 +27,7 @@ export class MoveService implements MoveServiceInterface {
     this._chessEngine = chessEngine;
   }
 
-  async makeMove(_move: string | object): Promise<MoveResult> {
+  makeMove(_move: string | object): Promise<MoveResult> {
     // TODO: Implement move execution logic
     // - Parse move input (UCI, SAN, or move object)
     // - Validate move legality
@@ -37,7 +37,7 @@ export class MoveService implements MoveServiceInterface {
     throw new Error('MoveService.makeMove not implemented');
   }
 
-  async validateMove(_move: string | object): Promise<MoveValidationResult> {
+  validateMove(_move: string | object): Promise<MoveValidationResult> {
     // TODO: Implement move validation logic
     // - Parse move input
     // - Check move legality without executing

@@ -20,7 +20,7 @@ import type {
  * Uses ChessEngine for position management and tablebase for evaluation.
  */
 export class PositionService implements PositionServiceInterface {
-  // @ts-ignore - Used in implementation
+  // @ts-expect-error - Used in implementation
   private _chessEngine: ChessEngineInterface;
   private evaluationBaseline: EvaluationBaseline | null = null;
 
@@ -28,7 +28,7 @@ export class PositionService implements PositionServiceInterface {
     this._chessEngine = chessEngine;
   }
 
-  async loadPosition(_fen: string): Promise<boolean> {
+  loadPosition(_fen: string): Promise<boolean> {
     // TODO: Implement FEN loading logic
     // - Validate FEN format
     // - Load position into chess engine
@@ -43,7 +43,7 @@ export class PositionService implements PositionServiceInterface {
     throw new Error('PositionService.getCurrentFen not implemented');
   }
 
-  async evaluatePosition(_fen?: string): Promise<PositionEvaluationResult | null> {
+  evaluatePosition(_fen?: string): Promise<PositionEvaluationResult | null> {
     // TODO: Implement position evaluation logic
     // - Use provided FEN or get current FEN
     // - Call tablebase service for evaluation
@@ -52,7 +52,7 @@ export class PositionService implements PositionServiceInterface {
     throw new Error('PositionService.evaluatePosition not implemented');
   }
 
-  async evaluateMoveQuality(
+  evaluateMoveQuality(
     _move: ValidatedMove, 
     _fenBefore: string, 
     _fenAfter: string
@@ -66,7 +66,7 @@ export class PositionService implements PositionServiceInterface {
     throw new Error('PositionService.evaluateMoveQuality not implemented');
   }
 
-  async getBestMove(_fen?: string): Promise<string | null> {
+  getBestMove(_fen?: string): Promise<string | null> {
     // TODO: Implement best move calculation
     // - Use provided FEN or get current FEN from chessEngine
     // - First, attempt to get move from tablebase

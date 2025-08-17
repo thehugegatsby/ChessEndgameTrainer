@@ -45,6 +45,15 @@ import {
 } from './slices/trainingSlice';
 import { createUIState, createUIActions, initialUIState } from './slices/uiSlice';
 
+// TODO: PHASE B.3 - Service Dependencies for RootStore
+// Import game services for dependency injection
+import { 
+  PositionService,
+  MoveService,
+  GameStateService
+} from '@domains/game/services';
+import { ChessEngine } from '@domains/game/engine/ChessEngine';
+
 // Using pure functions for chess logic
 import { getLogger } from '@shared/services/logging/Logger';
 import { UI_DURATIONS_MS } from '../../constants/time.constants';
@@ -133,8 +142,16 @@ export const useStore = create<RootState>()(
   devtools(
     persist(
       immer((set, get, _store) => {
-        // Create slices using new pattern (clean separation of state and actions)
+        // TODO: PHASE B.3 - Create Service Dependencies for RootStore
+        // Initialize ChessEngine and game services for dependency injection
+        const chessEngine = new ChessEngine();
+        const gameServices = {
+          positionService: new PositionService(chessEngine),
+          moveService: new MoveService(chessEngine),
+          gameStateService: new GameStateService(chessEngine),
+        };
 
+        // Create slices using new pattern (clean separation of state and actions)
         return {
           // Clean separation pattern: state and actions composed
           game: {
@@ -143,7 +160,7 @@ export const useStore = create<RootState>()(
           },
           training: {
             ...createTrainingState(),
-            ...createTrainingActions(set, get),
+            ...createTrainingActions(set, get, gameServices),
           },
           tablebase: {
             ...createTablebaseState(),
