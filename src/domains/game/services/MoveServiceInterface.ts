@@ -66,6 +66,37 @@ export interface MakeMoveResult {
    * Error message if move failed
    */
   error?: string;
+
+  // Enhanced metadata for "Fat Service, Thin Slice" pattern
+  /**
+   * Type of piece that was moved
+   */
+  pieceType: string;
+  
+  /**
+   * Type of piece that was captured (if any)
+   */
+  capturedPiece?: string;
+  
+  /**
+   * Whether the move is an en passant capture
+   */
+  isEnPassant: boolean;
+  
+  /**
+   * Full move number after the move
+   */
+  moveNumber: number;
+  
+  /**
+   * Half-move clock (for 50-move rule) after the move
+   */
+  halfMoveClock: number;
+  
+  /**
+   * Which side castling occurred (if castling)
+   */
+  castleSide?: 'king' | 'queen';
 }
 
 /**
