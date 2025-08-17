@@ -6,7 +6,7 @@
 
 // Service Interfaces
 export type { PositionServiceInterface } from './PositionServiceInterface';
-export type { IMoveService } from './MoveServiceInterface';
+export type { MoveServiceInterface } from './MoveServiceInterface';
 export type { GameStateServiceInterface } from './GameStateServiceInterface';
 
 // Service Implementations

@@ -103,7 +103,7 @@ export interface MoveInput {
  * STATELESS service following "Fat Service, Thin Slice" pattern
  * Services handle complex logic, return rich data for simple slice updates
  */
-export interface IMoveService {
+export interface MoveServiceInterface {
   /**
    * Makes a user move with comprehensive result data
    * 

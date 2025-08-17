@@ -39,7 +39,7 @@ import { getLogger } from '@shared/services/logging';
 // Import service interfaces for dependency injection
 import type { 
   PositionServiceInterface,
-  IMoveService,
+  MoveServiceInterface,
   GameStateServiceInterface
 } from '@domains/game/services';
 
@@ -188,7 +188,7 @@ export const createTrainingActions = (
   get: () => { training: TrainingState },
   services: {
     positionService: PositionServiceInterface;
-    moveService: IMoveService;
+    moveService: MoveServiceInterface;
     gameStateService: GameStateServiceInterface;
   }
 ): TrainingActions => {

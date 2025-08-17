@@ -5,7 +5,7 @@
  */
 
 import type { ChessEngineInterface, MoveInput as EngineMoveInput } from '@domains/game/engine/types';
-import type { IMoveService, MakeMoveResult, MoveInput } from './MoveServiceInterface';
+import type { MoveServiceInterface, MakeMoveResult, MoveInput as ServiceMoveInput } from './MoveServiceInterface';
 import { createValidatedMove } from '@shared/types/chess';
 
 /**
@@ -16,7 +16,7 @@ import { createValidatedMove } from '@shared/types/chess';
  * - TrainingSlice only manages state updates from service results
  * - No internal state - all data flows through method parameters
  */
-export class MoveService implements IMoveService {
+export class MoveService implements MoveServiceInterface {
   private chessEngine: ChessEngineInterface;
 
   constructor(chessEngine: ChessEngineInterface) {
@@ -35,7 +35,7 @@ export class MoveService implements IMoveService {
    * @param move - Move to make
    * @returns Rich result with newFen, move object, game state flags, and metadata
    */
-  makeUserMove(currentFen: string, move: MoveInput): MakeMoveResult {
+  makeUserMove(currentFen: string, move: ServiceMoveInput): MakeMoveResult {
     try {
       // Store FEN before move for ValidatedMove creation
       const fenBefore = currentFen;
@@ -44,10 +44,11 @@ export class MoveService implements IMoveService {
       this.chessEngine.loadFen(currentFen);
       
       // Convert MoveInput to EngineMoveInput (both use from/to/promotion)
+      // Type assertion needed due to conflicting MoveInput types in codebase
       const engineMove: EngineMoveInput = {
-        from: move.from as any, // Type assertion for Square conversion
-        to: move.to as any,     // Type assertion for Square conversion
-        ...(move.promotion && { promotion: move.promotion })
+        from: (move as any).from,
+        to: (move as any).to,
+        ...((move as any).promotion && { promotion: (move as any).promotion })
       };
       
       // Attempt to make the move
