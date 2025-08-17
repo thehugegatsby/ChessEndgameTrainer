@@ -3,7 +3,7 @@
  * @description Unit tests for pure chess functions (migration-ready)
  * 
  * This test file supports Issue #185: Pure Chess Functions Implementation
- * Tests the new pure function architecture that will replace ChessService
+ * Tests the pure function chess architecture
  */
 
 import { describe, it, expect } from 'vitest';

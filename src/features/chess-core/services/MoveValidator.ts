@@ -2,7 +2,6 @@
  * MoveValidator - Handles complex move validation logic
  *
  * This class encapsulates all move validation logic,
- * reducing the complexity of ChessService from 30 to target of 5.
  * Part of the Clean Architecture refactoring.
  */
 

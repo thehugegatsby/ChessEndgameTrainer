@@ -515,7 +515,7 @@ describe('GameSlice Pure Functions Integration', () => {
     it('should support parallel old/new actions during migration', () => {
       // During migration, both old and new actions should coexist
       const oldMakeMove = (move: string) => {
-        // Simulate old ChessService-based action
+        // Simulate legacy service-based action
         console.log('Old action called with:', move);
         return true;
       };

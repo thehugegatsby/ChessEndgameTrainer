@@ -17,7 +17,7 @@
 
 import { type PlatformService, type PlatformDetection } from './types';
 import { WebPlatformService } from './web/WebPlatformService';
-import { getLogger } from '@shared/services/logging';
+import { getLogger } from '../logging';
 
 /**
  * Platform detection implementation

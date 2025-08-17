@@ -52,7 +52,7 @@ import { createTablebaseState, createTablebaseActions } from './slices/tablebase
 import { createTrainingState, createTrainingActions } from './slices/trainingSlice';
 import { createUIState, createUIActions } from './slices/uiSlice';
 
-// ChessService removed - using pure functions
+// Using pure functions for chess logic
 import { getLogger } from '@shared/services/logging/Logger';
 
 // Import orchestrators
@@ -76,7 +76,7 @@ import type { TrainingPosition } from './slices/trainingSlice';
  * - All 4 domain-specific slices (Game, Tablebase, Training, UI)
  * - Cross-slice orchestrators for complex operations
  * - Middleware integration (DevTools, Persist, Immer)
- * - ChessService event subscription for state sync
+ * - Direct state management through slice actions
  * - Global reset and hydration actions
  *
  * Each call creates a completely fresh store instance, preventing
@@ -268,7 +268,7 @@ export const createStore = (
     )
   );
 
-  // ChessService event subscription removed - state managed directly by slice actions
+  // State managed directly by slice actions
 
   return store;
 };

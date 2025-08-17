@@ -89,12 +89,20 @@
           {
             "group": ["jest", "**/jest", "@types/jest"],
             "message": "Use Vitest instead of Jest. Import from 'vitest' instead."
+          },
+          {
+            "group": ["**/ChessService", "**/*ChessService*"],
+            "message": "ChessService is deprecated. Use pure functions from '@shared/utils/chess-logic' instead."
           }
         ],
         "paths": [
           {
             "name": "jest",
             "message": "Use Vitest instead of Jest. Import { vi, describe, it, expect } from 'vitest' instead."
+          },
+          {
+            "name": "@shared/services/ChessService",
+            "message": "ChessService is deprecated. Use pure functions from '@shared/utils/chess-logic' instead."
           }
         ]
       }

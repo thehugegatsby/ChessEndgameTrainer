@@ -1,23 +1,23 @@
 'use client';
 
-import { getLogger } from '@shared/services/logging';
+import { getLogger } from '../services/logging';
 import { UI_DURATIONS_MS } from '../../constants/time.constants';
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { TrainingBoard, MovePanelZustand, NavigationControls } from '@shared/components/training';
-import { TablebaseAnalysisPanel } from '@shared/components/training/TablebaseAnalysisPanel';
-import { AdvancedEndgameMenu } from '@shared/components/navigation/AdvancedEndgameMenu';
+import { TrainingBoard, MovePanelZustand, NavigationControls } from '../components/training';
+import { TablebaseAnalysisPanel } from '../components/training/TablebaseAnalysisPanel';
+import { AdvancedEndgameMenu } from '../components/navigation/AdvancedEndgameMenu';
 // EndgamePosition import no longer needed - position comes from store
-import { useToast } from '@shared/hooks/useToast';
-import { ToastContainer } from '@shared/components/ui/Toast';
-import { StreakCounter } from '@shared/components/ui/StreakCounter';
-import { CheckmarkAnimation } from '@shared/components/ui/CheckmarkAnimation';
-import { getGameStatus } from '@shared/utils/chess/gameStatus';
-import { useGameStore, useTrainingStore, useUIStore } from '@shared/store/hooks';
+import { useToast } from '../hooks/useToast';
+import { ToastContainer } from '../components/ui/Toast';
+import { StreakCounter } from '../components/ui/StreakCounter';
+import { CheckmarkAnimation } from '../components/ui/CheckmarkAnimation';
+import { getGameStatus } from '../utils/chess/gameStatus';
+import { useGameStore, useTrainingStore, useUIStore } from '../store/hooks';
 // useInitializePosition no longer needed - SSR hydration handles initialization
-import { getTrainingDisplayTitle, formatPositionTitle } from '@shared/utils/titleFormatter';
-import { ANIMATION } from '@shared/constants';
+import { getTrainingDisplayTitle, formatPositionTitle } from '../utils/titleFormatter';
+import { ANIMATION } from '../constants';
 
 // No props needed anymore - all data comes from hydrated store
 

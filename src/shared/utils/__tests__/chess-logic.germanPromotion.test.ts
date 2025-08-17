@@ -1,5 +1,5 @@
 /**
- * @file ChessService German Promotion Notation Tests
+ * @file German Promotion Notation Tests
  * @description Tests for handling German piece notation in pawn promotion
  */
 

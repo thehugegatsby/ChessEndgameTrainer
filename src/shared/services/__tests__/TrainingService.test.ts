@@ -74,7 +74,7 @@ describe('TrainingService', () => {
 
     mockOnComplete = vi.fn();
 
-    // Reset ChessService mocks
+    // Reset chess-logic mocks
     vi.mocked(getFen).mockReturnValue('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
     vi.mocked(turn).mockReturnValue('w');
     vi.mocked(getPgn).mockReturnValue('');
@@ -430,7 +430,7 @@ describe('TrainingService', () => {
       });
     });
 
-    it('should fall back to ChessService FEN when state FEN is not available', () => {
+    it('should fall back to chess-logic FEN when state FEN is not available', () => {
       // Arrange
       mockState.game.currentFen = undefined;
       vi.mocked(getFen).mockReturnValue('fallback-fen');
@@ -443,7 +443,7 @@ describe('TrainingService', () => {
       expect(vi.mocked(getFen)).toHaveBeenCalled();
     });
 
-    it('should fall back to ChessService PGN when state PGN is not available', () => {
+    it('should fall back to chess-logic PGN when state PGN is not available', () => {
       // Arrange
       mockState.game.currentPgn = undefined;
       vi.mocked(getPgn).mockReturnValue('fallback-pgn');

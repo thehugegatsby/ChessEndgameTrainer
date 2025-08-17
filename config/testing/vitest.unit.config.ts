@@ -16,7 +16,7 @@ const isWSL2 = process.env.WSL_DISTRO_NAME !== undefined;
  * - Smart coverage exclusions
  */
 export default defineConfig({
-  plugins: [react(), tsconfigPaths()],
+  plugins: [tsconfigPaths(), react()],
   test: {
     environment: 'jsdom', // Browser environment for DOM-dependent tests
     globals: true,
@@ -90,13 +90,6 @@ export default defineConfig({
     },
   },
   resolve: {
-    alias: {
-      '@features': featuresDir,
-      '@lib': path.resolve(srcDir, 'lib'),
-      '@shared': sharedDir,
-      '@tests': testsDir,
-      '@': srcDir,
-    },
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
   },
 });

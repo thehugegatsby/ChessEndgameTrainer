@@ -112,7 +112,13 @@ function useLocalStorageInternal<T>(
       if (saveError) {
         setSaveError(null);
       }
-      setStoredValue(value);
+      
+      // Handle both direct values and functions
+      if (typeof value === 'function') {
+        setStoredValue(prevValue => (value as (val: T | undefined) => T)(prevValue));
+      } else {
+        setStoredValue(value);
+      }
     },
     [saveError]
   );

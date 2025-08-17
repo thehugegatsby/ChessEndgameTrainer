@@ -55,6 +55,7 @@ export const useGameState = (): GameStateType => {
       isDraw: state.game.isDraw,
       isStalemate: state.game.isStalemate,
       playerColor: state.game.playerColor,
+      startingFen: state.game.startingFen,
     }))
   );
 };
@@ -110,7 +111,7 @@ export const useGameActions = (): GameActionsType => {
       goToLast: actions.goToLast,
       setCurrentFen: actions.setCurrentFen,
 
-      // Pure function actions (ChessService replacement)
+      // Pure function actions
       makeMovePure: actions.makeMovePure,
       validateMovePure: actions.validateMovePure,
       getGameStatusPure: actions.getGameStatusPure,

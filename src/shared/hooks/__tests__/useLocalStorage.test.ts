@@ -19,20 +19,19 @@ vi.mock('@shared/services/logging', () => ({
   }),
 }));
 
-// Mock localStorage directly for tests
-const mockLocalStorage = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
+// Mock storage with correct PlatformStorage interface
+const mockStorage = {
+  load: vi.fn(),
+  save: vi.fn(),
+  remove: vi.fn(),
   clear: vi.fn(),
-  length: 0,
-  key: vi.fn(),
+  getAllKeys: vi.fn(),
 };
 
 // Mock the platform service module to use our mock storage
 vi.mock('@shared/services/platform', () => ({
   getPlatformService: () => ({
-    storage: mockLocalStorage,
+    storage: mockStorage,
   }),
 }));
 
@@ -48,7 +47,7 @@ describe('useLocalStorage Hook', () => {
 
   describe('useLocalStorageWithState - Basic Functionality', () => {
     it('should return default value when storage is empty', async () => {
-      mockLocalStorage.getItem.mockResolvedValue(null);
+      mockStorage.load.mockResolvedValue(null);
 
       const { result } = renderHook(() =>
         useLocalStorageWithState(testKey, testValue)
@@ -58,12 +57,12 @@ describe('useLocalStorage Hook', () => {
         expect(result.current[0]).toEqual(testValue);
       });
 
-      expect(mockLocalStorage.getItem).toHaveBeenCalledWith(testKey);
+      expect(mockStorage.load).toHaveBeenCalledWith(testKey);
     });
 
     it('should load stored value on mount', async () => {
       const storedValue = { count: 100, name: 'stored' };
-      mockLocalStorage.getItem.mockResolvedValue(JSON.stringify(storedValue));
+      mockStorage.load.mockResolvedValue(storedValue);
 
       const { result } = renderHook(() =>
         useLocalStorageWithState(testKey, testValue)
@@ -75,12 +74,18 @@ describe('useLocalStorage Hook', () => {
     });
 
     it('should save value to storage when set', async () => {
-      mockLocalStorage.getItem.mockResolvedValue(null);
-      mockLocalStorage.setItem.mockResolvedValue();
+      mockStorage.load.mockResolvedValue(null);
+      mockStorage.save.mockResolvedValue();
 
       const { result } = renderHook(() =>
         useLocalStorageWithState(testKey, testValue)
       );
+
+      // Wait for initial loading to complete
+      await waitFor(() => {
+        expect(result.current[2]).toBe(false); // isLoading = false
+        expect(result.current[0]).toEqual(testValue); // Initial value loaded
+      });
 
       const newValue = { count: 200, name: 'updated' };
       
@@ -92,14 +97,11 @@ describe('useLocalStorage Hook', () => {
         expect(result.current[0]).toEqual(newValue);
       });
 
-      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        testKey,
-        JSON.stringify(newValue)
-      );
+      expect(mockStorage.save).toHaveBeenCalledWith(testKey, newValue);
     });
 
     it('should handle string values correctly', async () => {
-      mockLocalStorage.getItem.mockResolvedValue(JSON.stringify(testString));
+      mockStorage.load.mockResolvedValue(testString);
 
       const { result } = renderHook(() =>
         useLocalStorageWithState(testKey, 'default')
@@ -111,7 +113,7 @@ describe('useLocalStorage Hook', () => {
     });
 
     it('should handle storage errors gracefully', async () => {
-      mockLocalStorage.getItem.mockRejectedValue(new Error('Storage error'));
+      mockStorage.load.mockRejectedValue(new Error('Storage error'));
 
       const { result } = renderHook(() =>
         useLocalStorageWithState(testKey, testValue)
@@ -123,7 +125,7 @@ describe('useLocalStorage Hook', () => {
     });
 
     it('should handle invalid JSON gracefully', async () => {
-      mockLocalStorage.getItem.mockResolvedValue('invalid json');
+      mockStorage.load.mockRejectedValue(new Error('Parse error'));
 
       const { result } = renderHook(() =>
         useLocalStorageWithState(testKey, testValue)

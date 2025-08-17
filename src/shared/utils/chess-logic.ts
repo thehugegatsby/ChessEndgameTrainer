@@ -1,10 +1,10 @@
 /**
  * @file chess-logic.ts
- * @description Pure chess functions to replace ChessService singleton
+ * @description Pure chess functions for game logic
  * 
  * This module implements pure functions for chess logic operations,
  * eliminating the need for stateful services and event systems.
- * Part of Issue #173: ChessService Duality Resolution
+ * Replaces stateful service with pure functional approach
  */
 
 import { Chess, type Move as ChessJsMove, type Square } from 'chess.js';

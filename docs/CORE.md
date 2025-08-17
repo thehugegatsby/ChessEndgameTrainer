@@ -4,7 +4,7 @@
 
 React 19 + TypeScript + Zustand. Domain-driven design with reactive state store as Single Source of Truth.
 
-**Verifiziert**: 2025-08-16 - Alle Angaben wurden einzeln geprüft
+**Verifiziert**: 2025-08-17 - ChessService Migration completed, Pure Functions architecture active
 
 ## Architecture
 
@@ -22,7 +22,7 @@ graph TD
     end
     subgraph "Business Logic"
         C --> H[Orchestrators]
-        H --> I[ChessService]
+        H --> I[Pure Functions]
         H --> J[TablebaseService]
     end
     subgraph "External APIs"
@@ -47,7 +47,7 @@ graph TD
 ### Services
 
 - **TablebaseService**: Lichess API with LRU cache, deduplication, Zod validation
-- **ChessService**: chess.js wrapper (legacy singleton - prefer GameSlice)
+- **Pure Functions**: chess-logic.ts stateless functions (replaces legacy ChessService)
 - **PlatformService**: Android/iOS platform abstraction (siehe [VISION.md](./VISION.md))
 
 ### Orchestrators
@@ -134,7 +134,7 @@ const gameStore = useGameStore();
 
 ```
 src/shared/store/rootStore.ts                      # Main store ✓
-src/shared/services/ChessService.ts                # Chess logic ✓
+src/shared/utils/chess-logic.ts                    # Pure chess functions ✓
 src/shared/store/orchestrators/handlePlayerMove/   # Move handling ✓
 src/shared/store/orchestrators/loadTrainingContext.ts # Training context ✓
 src/features/training/events/EventBasedMoveDialogManager.ts # Dialog handling ✓
@@ -144,6 +144,7 @@ src/features/training/events/EventBasedMoveDialogManager.ts # Dialog handling �
 
 **NICHT existierende Dateien** (oft falsch referenziert):
 
+- ❌ `ChessService.ts` (GELÖSCHT - nutze chess-logic.ts pure functions)
 - ❌ `MoveDialogManager.ts` (nutze stattdessen EventBasedMoveDialogManager)
 - ❌ `SpacedRepetitionService` (wurde entfernt)
 - ❌ `ProgressService` (wurde entfernt)

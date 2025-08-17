@@ -45,7 +45,7 @@ import {
 } from './slices/trainingSlice';
 import { createUIState, createUIActions, initialUIState } from './slices/uiSlice';
 
-// ChessService removed - using pure functions
+// Using pure functions for chess logic
 import { getLogger } from '@shared/services/logging/Logger';
 import { UI_DURATIONS_MS } from '../../constants/time.constants';
 
@@ -364,7 +364,7 @@ export const useStore = create<RootState>()(
   )
 );
 
-// ChessService event subscription removed - state managed directly by slice actions
+// State managed directly by slice actions
 
 /**
  * Hook for accessing the complete store state and actions

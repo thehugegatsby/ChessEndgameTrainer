@@ -42,7 +42,7 @@ interface UseTrainingSessionOptions {
  * @property {Function} undoMove - Take back the last move
  */
 interface UseTrainingSessionReturn {
-  game: Chess | null; // Chess instance now managed by ChessService, not exposed here
+  game: Chess | null; // Chess instances created on-demand, not exposed here
   history: ValidatedMove[];
   isGameFinished: boolean;
   currentFen: string;
@@ -255,7 +255,7 @@ export const useTrainingSession = ({
   ]);
 
   return {
-    game: null, // Chess instance now managed by ChessService, not exposed here
+    game: null, // Chess instances created on-demand, not exposed here
     history: gameState.moveHistory,
     isGameFinished: gameState.isGameFinished,
     currentFen: gameState.currentFen || trainingState.currentPosition?.fen || '',

@@ -313,7 +313,7 @@ export const useMoveHandlers = ({
         // Capture current FEN before making the move for audio analysis
         const beforeFen = currentFen;
 
-        // Move validation is handled by ChessService in makeMove
+        // Move validation is handled by pure functions in makeMove
         const result = await onMove(move);
 
         // If the move was successful, analyze it and play appropriate audio
