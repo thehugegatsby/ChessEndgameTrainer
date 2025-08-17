@@ -2,7 +2,12 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { featuresTestSetup, featuresDir, srcDir, sharedDir, testsDir } from '../paths';
+
+const projectRoot = path.resolve(__dirname, '../../');
+console.log('✅ Vitest configuration loaded from: config/testing/vitest.config.ts');
+console.log('Project root:', projectRoot);
 
 // WSL2 Detection for optimized performance settings
 const isWSL2 = process.env.WSL_DISTRO_NAME !== undefined;
@@ -14,8 +19,20 @@ const isWSL2 = process.env.WSL_DISTRO_NAME !== undefined;
  * Supports both feature-based projects and adaptive WSL2 optimizations.
  */
 export default defineConfig({
-  plugins: [react(), tsconfigPaths()],
+  root: projectRoot,
+  plugins: [
+    react(),
+    tsconfigPaths({ root: projectRoot }),
+  ],
   test: {
+    // Alias configuration - CRUCIAL: Must be in test section, not resolve section!
+    alias: {
+      '@shared': path.resolve(projectRoot, 'src/shared'),
+      '@features': path.resolve(projectRoot, 'src/features'), 
+      '@tests': path.resolve(projectRoot, 'src/tests'),
+      '@': path.resolve(projectRoot, 'src'),
+    },
+    
     // Feature-based project organization for targeted test runs
     projects: [
       {
@@ -105,13 +122,6 @@ export default defineConfig({
   },
 
   resolve: {
-    alias: {
-      '@features': featuresDir,
-      '@lib': path.resolve(srcDir, 'lib'),
-      '@shared': sharedDir,
-      '@tests': testsDir,
-      '@': srcDir,
-    },
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
   },
 });

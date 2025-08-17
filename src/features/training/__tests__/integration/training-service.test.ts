@@ -4,7 +4,7 @@ import { vi } from 'vitest';
  * @module tests/integration/training-service
  *
  * @description
- * Tests the centralized TrainingService with real store and ChessService.
+ * Tests the centralized TrainingService with real store and pure chess functions.
  * This is a true integration test that verifies the complete flow.
  */
 

@@ -255,7 +255,7 @@ export const useDialogHandlers = ({
     getOpponentTurnManager().cancel();
     logger.info('Cancelled any scheduled opponent turn');
 
-    // Use the undoMove function from useTrainingSession which properly handles ChessService
+    // Use the undoMove function from useTrainingSession which properly handles pure functions
     const undoResult = undoMove();
 
     if (undoResult) {

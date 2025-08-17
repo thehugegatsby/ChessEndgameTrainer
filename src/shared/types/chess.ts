@@ -9,35 +9,10 @@ import {
   type PieceSymbol as ChessJsPieceSymbol,
   type Move as ChessJsMove,
 } from 'chess.js';
-// ChessService event types moved here for independence
+// Core chess domain types and interfaces
 
-/**
- * Game state payload for events
- */
-export interface GameStatePayload {
-  fen: string;
-  pgn: string;
-  moveHistory: ValidatedMove[];
-  currentMoveIndex: number;
-  isGameOver: boolean;
-  gameResult: string | null;
-}
 
-/**
- * Event types emitted by chess services
- */
-export type ChessServiceEvent =
-  | {
-      type: 'stateUpdate';
-      payload: GameStatePayload;
-      source: 'move' | 'reset' | 'undo' | 'redo' | 'load';
-    }
-  | { type: 'error'; payload: { error: Error; move?: ValidatedMove | string; message: string } };
 
-/**
- * Listener function type for chess service events
- */
-export type ChessServiceListener = (event: ChessServiceEvent) => void;
 
 // Basic chess types
 export type Square = ChessJsSquare; // Use chess.js Square type directly
@@ -183,4 +158,3 @@ export type PGN = string;
 
 // Aliases for common naming patterns
 export type ChessMove = Move;
-export type ChessEvent = ChessServiceEvent;

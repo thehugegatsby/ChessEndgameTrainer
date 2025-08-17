@@ -8,7 +8,7 @@ The Mock Factory System provides a centralized, type-safe approach to creating a
 
 ```
 MockManager (Singleton)
-    ├── ChessServiceMockFactory
+    ├── (ChessServiceMockFactory - deprecated)
     ├── TablebaseServiceMockFactory
     ├── ZustandStoreMockFactory
     └── MSWServerMockFactory
@@ -20,23 +20,24 @@ MockManager (Singleton)
 
 ```typescript
 import { mockManager } from '@tests/mocks/MockManager';
+import { makeMove } from '@shared/utils/chess-logic';
+import { FEN } from '@shared/constants/chess.constants';
 
 describe('MyComponent', () => {
-  let chessService;
   let store;
 
   beforeEach(() => {
     // Create fresh mocks for each test
-    chessService = mockManager.chessService.create();
     store = mockManager.zustandStore.create();
   });
 
   it('should handle move', () => {
-    // Use the mocked service
-    chessService.move.mockReturnValue({ san: 'e4' });
+    // Use pure functions directly
+    const result = makeMove(FEN.STARTING_POSITION, { from: 'e2', to: 'e4' });
+    expect(result?.move.san).toBe('e4');
 
     // Test your component
-    expect(chessService.move).toHaveBeenCalled();
+    expect(result).toBeTruthy();
   });
 });
 ```
@@ -44,33 +45,48 @@ describe('MyComponent', () => {
 ### With Custom Overrides
 
 ```typescript
+import { makeMove, getPossibleMoves } from '@shared/utils/chess-logic';
+
 beforeEach(() => {
-  // Create mock with specific behavior
-  chessService = mockManager.chessService.create({
-    fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
-    validMoves: ['e5', 'd5', 'Nf6'],
-    isGameOver: false,
+  // Use pure functions for specific positions
+  const testFen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1';
+  const validMoves = getPossibleMoves(testFen);
+  
+  store = mockManager.zustandStore.create({
+    game: {
+      currentFen: testFen,
+      moveHistory: [],
+      isGameFinished: false,
+    }
   });
 });
 ```
 
 ## Mock Factories
 
-### ChessServiceMockFactory
+### ChessServiceMockFactory (DEPRECATED)
 
-Mocks the chess game logic service.
+**Note: ChessService has been replaced with pure functions from `@shared/utils/chess-logic`.**
+
+For chess logic testing, use pure functions directly:
 
 ```typescript
-const chessService = mockManager.chessService.create({
-  fen: 'starting position',
-  moveHistory: [],
-  validMoves: ['e4', 'd4'],
-  moveResults: new Map([['e2-e4', { san: 'e4', from: 'e2', to: 'e4' }]]),
-});
+import { makeMove, getPossibleMoves, getGameStatus } from '@shared/utils/chess-logic';
+import { FEN } from '@shared/constants/chess.constants';
+import { COMMON_FENS } from '@tests/fixtures/commonFens';
 
-// Helper methods
-mockManager.chessService.setupPosition('CHECKMATE_POSITION');
-mockManager.chessService.simulateMoves(['e4', 'e5', 'Nf3']);
+// Direct testing with pure functions
+const result = makeMove(FEN.STARTING_POSITION, { from: 'e2', to: 'e4' });
+const validMoves = getPossibleMoves(FEN.STARTING_POSITION);
+const status = getGameStatus(COMMON_FENS.CHECKMATE_POSITION);
+
+// For store testing, mock the store state
+const store = mockManager.zustandStore.create({
+  game: {
+    currentFen: FEN.STARTING_POSITION,
+    moveHistory: [],
+  }
+});
 ```
 
 ### TablebaseServiceMockFactory
@@ -142,20 +158,26 @@ mockManager.mswServer.mockRateLimit();
 Isolate components by mocking all dependencies:
 
 ```typescript
+import { getPossibleMoves, getGameStatus } from '@shared/utils/chess-logic';
+import { FEN } from '@shared/constants/chess.constants';
+
 describe('useGameLogic Hook', () => {
   beforeEach(() => {
-    const chessService = mockManager.chessService.create({
-      validMoves: ['e4'],
-      isGameOver: false,
-    });
-
     const store = mockManager.zustandStore.create({
-      game: { currentFen: 'starting position' },
+      game: { 
+        currentFen: FEN.STARTING_POSITION,
+        startingFen: FEN.STARTING_POSITION 
+      },
     });
   });
 
   it('validates moves correctly', () => {
-    // Test with fully mocked dependencies
+    // Test with pure functions (no mocking needed)
+    const validMoves = getPossibleMoves(FEN.STARTING_POSITION);
+    const status = getGameStatus(FEN.STARTING_POSITION);
+    
+    expect(validMoves).toContain(expect.objectContaining({ from: 'e2', to: 'e4' }));
+    expect(status?.isGameOver).toBe(false);
   });
 });
 ```
@@ -258,12 +280,17 @@ afterEach(() => {
 ### New Pattern
 
 ```typescript
-// Automatic, type-safe mocking
+// Use pure functions directly (no mocking needed)
+import { makeMove, validateMove } from '@shared/utils/chess-logic';
 import { mockManager } from '@tests/mocks/MockManager';
 
 beforeEach(() => {
-  const chessService = mockManager.chessService.create();
+  // Only mock external dependencies like store state
+  const store = mockManager.zustandStore.create();
   // Cleanup happens automatically!
+  
+  // Use chess pure functions directly - no mocking needed
+  const result = makeMove(currentFen, move);
 });
 ```
 

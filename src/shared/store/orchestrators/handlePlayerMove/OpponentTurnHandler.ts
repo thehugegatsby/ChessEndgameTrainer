@@ -5,7 +5,7 @@
 
 import type { StoreApi } from '../types';
 import { getFen, turn, makeMove, isGameOver } from '@shared/utils/chess-logic';
-// Note: Using pure functions instead of ChessService singleton
+// Using pure functions for chess logic
 import type { TablebaseMove } from '@shared/types/tablebase';
 import { ErrorService } from '@shared/services/ErrorService';
 import { handleTrainingCompletion } from './move.completion';

@@ -15,7 +15,7 @@
  * ```
  */
 
-// ChessServiceMockFactory removed - ChessService deleted
+// Core mock factories for testing
 import { ZustandStoreMockFactory } from './ZustandStoreMockFactory';
 import { TablebaseServiceMockFactory } from './TablebaseServiceMockFactory';
 import { type MSWServerMockFactory } from './MSWServerMockFactory';
@@ -196,7 +196,6 @@ class MockManager {
 export const mockManager = new MockManager();
 
 // Type exports for convenience
-export type MockedChessService = ReturnType<ChessServiceMockFactory['create']>;
 export type MockedTablebaseService = ReturnType<TablebaseServiceMockFactory['create']>;
 export type MockedStore = ReturnType<ZustandStoreMockFactory['create']>;
 export type MockedMSWServer = ReturnType<MSWServerMockFactory['create']>;

@@ -25,7 +25,7 @@
 import { type GameSlice, type GameState, type GameActions, type RootState } from './types';
 import type { ValidatedMove } from '@shared/types';
 import { createValidatedMove } from '@shared/types/chess';
-// ChessService removed - using pure functions from chess-logic.ts
+// Using pure functions from chess-logic.ts
 import { getLogger } from '@shared/services/logging';
 import { 
   makeMove as makeMovePure, 
@@ -35,8 +35,7 @@ import {
   isValidFen,
   goToMove as goToMovePure,
 } from '@shared/utils/chess-logic';
-// COMMON_FENS imported inline as constants
-const STARTING_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+import { FEN } from '@shared/constants/chess.constants';
 import type { Square } from 'chess.js';
 
 // Re-export types for external use
@@ -45,11 +44,11 @@ export type { GameState, GameActions } from './types';
 /**
  * Initial state for the game slice
  * Exported separately to enable proper store reset in tests
- * Note: Chess instance now managed by ChessService, not stored in state
+ * Note: Chess instances created on-demand from FEN, not stored in state
  */
 export const initialGameState = {
-  // game field removed - Chess instance managed by ChessService
-  currentFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+  // Chess instances created on-demand from currentFen
+  currentFen: FEN.STARTING_POSITION,
   currentPgn: '',
   moveHistory: [] as ValidatedMove[],
   currentMoveIndex: -1,
@@ -61,6 +60,7 @@ export const initialGameState = {
   isStalemate: false,
   // Migration additions for orchestrator action
   playerColor: 'w' as 'w' | 'b',
+  startingFen: FEN.STARTING_POSITION,
 };
 
 /**
@@ -146,7 +146,7 @@ export const createGameActions = (
    * @fires stateChange - When game is initialized
    *
    * @remarks
-   * - Uses ChessService to validate and initialize position
+   * - Uses pure functions to validate and initialize position
    * - Resets move history and game state
    * - Returns false if FEN is invalid
    *
@@ -162,7 +162,7 @@ export const createGameActions = (
    * ```
    */
   initializeGame: (fen: string) => {
-    const startingFen = fen || STARTING_POSITION;
+    const startingFen = fen || FEN.STARTING_POSITION;
     
     // Validate FEN before initializing
     if (!isValidFen(startingFen)) {
@@ -342,11 +342,9 @@ export const createGameActions = (
    * ```
    */
   goToPrevious: () => {
-    const { game } = get();
-    const currentIndex = game.currentMoveIndex ?? game.moveHistory.length - 1;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Migration: Legacy actions calling pure functions
-    const actions = get() as any;
-    actions.goToMovePure(currentIndex - 1);
+    const state = get();
+    const currentIndex = state.game.currentMoveIndex ?? state.game.moveHistory.length - 1;
+    state.game.goToMovePure(currentIndex - 1);
   },
 
   /**
@@ -364,11 +362,9 @@ export const createGameActions = (
    * ```
    */
   goToNext: () => {
-    const { game } = get();
-    const currentIndex = game.currentMoveIndex ?? -1;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Migration: Legacy actions calling pure functions
-    const actions = get() as any;
-    actions.goToMovePure(currentIndex + 1);
+    const state = get();
+    const currentIndex = state.game.currentMoveIndex ?? -1;
+    state.game.goToMovePure(currentIndex + 1);
   },
 
   /**
@@ -386,10 +382,8 @@ export const createGameActions = (
    * ```
    */
   goToLast: () => {
-    const { game } = get();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Migration: Legacy actions calling pure functions
-    const actions = get() as any;
-    actions.goToMovePure(game.moveHistory.length - 1);
+    const state = get();
+    state.game.goToMovePure(state.game.moveHistory.length - 1);
   },
 
   /**
@@ -409,9 +403,8 @@ export const createGameActions = (
    * ```
    */
   resetGame: () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Migration: Legacy actions calling pure functions
-    const actions = get() as any;
-    actions.resetGamePure();
+    const state = get();
+    state.game.resetGamePure();
   },
 
   /**
@@ -436,9 +429,8 @@ export const createGameActions = (
    * ```
    */
   setCurrentFen: (fen: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Migration: Legacy actions calling pure functions
-    const actions = get() as any;
-    return actions.initializeGamePure(fen);
+    const state = get();
+    return state.game.initializeGamePure(fen);
   },
 
   /**
@@ -474,9 +466,8 @@ export const createGameActions = (
    */
   applyMove: (move: { from: string; to: string; promotion?: string } | string) => {
     // Delegate to the canonical pure action (same as makeMove for testing)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Migration: Legacy actions calling pure functions
-    const actions = get() as any;
-    const outcome = actions.makeMovePure(move);
+    const state = get();
+    const outcome = state.game.makeMovePure(move);
     return outcome ? outcome.validatedMove : null;
   },
 
@@ -485,7 +476,7 @@ export const createGameActions = (
   // =====================================================
 
   /**
-   * Makes a move using pure functions (ChessService replacement)
+   * Makes a move using pure functions
    * 
    * @param {Object|string} move - Move object or algebraic notation
    * @returns {MoveResult|null} Result of the move or null if invalid
@@ -561,7 +552,7 @@ export const createGameActions = (
   goToMovePure: (targetIndex: number) => {
     const { game } = get();
     const moves = game.moveHistory.map(m => m.san);
-    const result = goToMovePure(moves, targetIndex);
+    const result = goToMovePure(moves, targetIndex, game.startingFen);
     
     if (result) {
       set(state => {
@@ -604,6 +595,7 @@ export const createGameActions = (
       state.game.isStalemate = status.isStalemate;
       state.game.isGameFinished = status.isGameOver;
       state.game.gameResult = status.gameResult;
+      state.game.startingFen = fen;
     });
     
     return true;
@@ -613,10 +605,8 @@ export const createGameActions = (
    * Resets game using pure functions
    */
   resetGamePure: () => {
-    const standardFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-    
     set(state => {
-      state.game.currentFen = standardFen;
+      state.game.currentFen = FEN.STARTING_POSITION;
       state.game.moveHistory = [];
       state.game.currentMoveIndex = -1;
       state.game.isCheckmate = false;
@@ -624,6 +614,7 @@ export const createGameActions = (
       state.game.isStalemate = false;
       state.game.isGameFinished = false;
       state.game.gameResult = null;
+      state.game.startingFen = FEN.STARTING_POSITION;
     });
   },
 });
@@ -652,7 +643,7 @@ export const createGameActions = (
  * ```
  */
 export const gameSelectors = {
-  // selectGame removed - Chess instance now managed by ChessService
+  // Chess instances created on-demand from FEN
 
   /**
    * Selects the current FEN position

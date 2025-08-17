@@ -78,6 +78,41 @@ async function confirmLargeTestRun(testCount) {
   });
 }
 
+// Helper: Get test suite overview
+function getTestSuiteOverview() {
+  const features = ['chess-core', 'tablebase', 'training', 'shared'];
+  const overview = {
+    unit: 0,
+    integration: 0,
+    total: 0
+  };
+
+  features.forEach(feature => {
+    try {
+      const featureCount = execSync(
+        `find src/features/${feature} -name "*.test.*" -o -name "*.spec.*" | wc -l`,
+        { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }
+      );
+      overview.unit += parseInt(featureCount.trim(), 10);
+    } catch {
+      // Feature might not exist
+    }
+  });
+
+  try {
+    const integrationCount = execSync(
+      `find src/tests/integration src/features -path "*/integration/*" \\( -name "*.test.*" -o -name "*.spec.*" \\) | wc -l`,
+      { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }
+    );
+    overview.integration = parseInt(integrationCount.trim(), 10);
+  } catch {
+    overview.integration = 0;
+  }
+
+  overview.total = overview.unit + overview.integration;
+  return overview;
+}
+
 // Main execution logic
 async function main() {
   // Check if a specific test file is provided
@@ -92,22 +127,28 @@ async function main() {
 
     if (feature) {
       console.log(`🎯 Auto-routing to feature: ${feature}`);
-      console.log(`🔄 Running: pnpm run test:vitest:file ${args.join(' ')}`);
+      console.log(`🔄 Running: pnpm test:${feature} ${testFile}`);
+      try {
+        execSync(`pnpm test:${feature} ${testFile}`, { stdio: 'inherit' });
+      } catch (error) {
+        console.error('❌ Test execution failed');
+        process.exit(error.status || 1);
+      }
     } else {
       console.log('🔄 Running specific test file');
-    }
-
-    try {
-      execSync(`pnpm run test:vitest:file ${args.join(' ')}`, { stdio: 'inherit' });
-    } catch (error) {
-      console.error('❌ Test execution failed');
-      process.exit(error.status || 1);
+      try {
+        execSync(`vitest run ${testFile}`, { stdio: 'inherit' });
+      } catch (error) {
+        console.error('❌ Test execution failed');
+        process.exit(error.status || 1);
+      }
     }
   } else if (args.includes('--project') || args.includes('-p')) {
     // Project-based testing (use workspace config)
-    console.log('🚀 Running project-specific tests');
+    const projectName = args[args.indexOf('--project') + 1] || args[args.indexOf('-p') + 1];
+    console.log(`🚀 Running ${projectName} project tests`);
     try {
-      execSync(`vitest --workspace vitest.workspace.ts run ${args.join(' ')}`, {
+      execSync(`vitest run --project ${projectName}`, {
         stdio: 'inherit',
       });
     } catch (error) {
@@ -115,18 +156,25 @@ async function main() {
       process.exit(error.status || 1);
     }
   } else {
-    // Full test suite - check count and warn
-    const testCount = countTestFiles();
+    // Full test suite - show overview and check count
+    const overview = getTestSuiteOverview();
+    
+    console.log('\n📊 Test Suite Overview:');
+    console.log(`   Unit Tests: ${overview.unit} files`);
+    console.log(`   Integration: ${overview.integration} files`);
+    console.log(`   Total: ${overview.total} files\n`);
 
-    if (testCount > 100) {
-      const shouldContinue = await confirmLargeTestRun(testCount);
+    if (overview.total > 100) {
+      const shouldContinue = await confirmLargeTestRun(overview.total);
       if (!shouldContinue) {
         console.log('✋ Test run cancelled');
         process.exit(0);
       }
     }
 
-    console.log(`🔄 Running all tests (${testCount} files)`);
+    console.log(`🔄 Running all tests (${overview.total} files)`);
+    console.log('📦 Test execution order: chess-core → tablebase → training → integration\n');
+    
     try {
       execSync('pnpm run test:all', { stdio: 'inherit' });
     } catch (error) {

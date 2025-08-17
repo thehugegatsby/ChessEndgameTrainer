@@ -40,6 +40,7 @@ export interface GameState {
   // Migration additions for orchestrator action
   playerColor: 'w' | 'b';
   lastMoveError?: string;
+  startingFen: string;
 }
 
 /**
@@ -93,7 +94,7 @@ export interface GameActions {
   // State
   setCurrentFen: (fen: string) => void;
 
-  // Pure function actions (ChessService replacement)
+  // Pure function actions
   makeMovePure: (move: { from: string; to: string; promotion?: string } | string) => { moveResult: MoveResult; validatedMove: ValidatedMove } | null;
   validateMovePure: (move: { from: string; to: string; promotion?: string } | string) => boolean;
   getGameStatusPure: () => GameStatus | null;

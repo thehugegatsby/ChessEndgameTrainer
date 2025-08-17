@@ -184,45 +184,6 @@ export interface IGermanNotation {
   germanToSan(germanSan: string): string;
 }
 
-// ========== ChessServiceFacade Interface ==========
-// Orchestrates all components (implements IChessService)
-export interface IChessServiceFacade {
-  // Component access (for testing)
-  getEngine(): IChessEngine;
-  getValidator(): IMoveValidator;
-  getHistory(): IMoveHistory;
-  getEventBus(): IChessEventBus;
-  getNotation(): IGermanNotation;
-  getCache(): IFenCache;
-
-  // IChessService implementation
-  subscribe(listener: (event: ChessEventPayload) => void): () => void;
-  initialize(fen: string): boolean;
-  reset(): void;
-  move(
-    move: ChessJsMove | { from: string; to: string; promotion?: string } | string
-  ): ValidatedMove | null;
-  undo(): boolean;
-  redo(): boolean;
-  validateMove(
-    move: ChessJsMove | { from: string; to: string; promotion?: string } | string
-  ): boolean;
-  getFen(): string;
-  getPgn(): string;
-  getMoveHistory(): ValidatedMove[];
-  getCurrentMoveIndex(): number;
-  isGameOver(): boolean;
-  isCheck(): boolean;
-  isCheckmate(): boolean;
-  isStalemate(): boolean;
-  isDraw(): boolean;
-  turn(): 'w' | 'b';
-  getGameResult(): string | null;
-  moves(options?: { square?: string; verbose?: boolean }): string[] | ChessJsMove[];
-  loadPgn(pgn: string): boolean;
-  goToMove(moveIndex: number): boolean;
-}
-
 // ========== Factory Functions ==========
 // For dependency injection
 export type ChessEngineFactory = () => IChessEngine;
@@ -231,11 +192,3 @@ export type MoveHistoryFactory = () => IMoveHistory;
 export type GermanNotationFactory = () => IGermanNotation;
 export type FenCacheFactory = (maxSize?: number) => IFenCache;
 export type ChessEventBusFactory = () => IChessEventBus;
-export type ChessServiceFacadeFactory = (dependencies?: {
-  engine?: IChessEngine;
-  validator?: IMoveValidator;
-  history?: IMoveHistory;
-  eventBus?: IChessEventBus;
-  notation?: IGermanNotation;
-  cache?: IFenCache;
-}) => IChessServiceFacade;

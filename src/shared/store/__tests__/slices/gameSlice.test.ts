@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 /**
- * @file Tests for GameSlice with pure functions (migration from ChessService)
+ * @file Tests for GameSlice with pure functions
  * @module tests/unit/store/slices/gameSlice.pure
  */
 
@@ -152,10 +152,10 @@ describe('GameSlice - Pure Functions Integration', () => {
 
       expect(result).not.toBeNull();
       if (result) {
-        expect(result.newFen).toBe(COMMON_FENS.OPENING_AFTER_E4);
+        expect(result.moveResult.newFen).toBe(COMMON_FENS.OPENING_AFTER_E4);
         
         const state = useStore.getState();
-        expect(state.game.currentFen).toBe(result.newFen);
+        expect(state.game.currentFen).toBe(result.moveResult.newFen);
         expect(state.game.moveHistory).toHaveLength(1);
         expect(state.game.currentMoveIndex).toBe(0);
       }

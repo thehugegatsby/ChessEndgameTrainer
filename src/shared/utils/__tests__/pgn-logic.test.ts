@@ -1,7 +1,7 @@
 /**
  * @file PGN Logic Tests
  * @description Pure function tests for PGN operations
- * Migrated from ChessService.pgn.test.ts as part of Issue #173
+ * Migrated from service-based architecture as part of Issue #173
  */
 
 import { describe, it, expect } from 'vitest';

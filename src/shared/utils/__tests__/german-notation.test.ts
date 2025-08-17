@@ -461,17 +461,17 @@ describe('German Chess Notation Support', () => {
     });
   });
 
-  describe('Integration with ChessService', () => {
-    it('should support the same notation patterns as ChessService', () => {
-      // These are the patterns that ChessService currently supports
-      const chessServicePatterns = [
+  describe('Legacy Compatibility', () => {
+    it('should support the same notation patterns as legacy system', () => {
+      // These are the patterns that the legacy system currently supports
+      const legacyPatterns = [
         'Dh5', 'Ta1', 'Lc4', 'Sf3', // Basic German pieces
         'Dxh5', 'Txe1', // German captures
         'e8D', 'e8T', // German promotion
         'e7e8D', 'e7-e8T', // Object-style German promotion
       ];
 
-      for (const pattern of chessServicePatterns) {
+      for (const pattern of legacyPatterns) {
         const result = normalizeGermanNotation(pattern);
         expect(typeof result).toBe('string');
         expect(result.length).toBeGreaterThan(0);
@@ -481,7 +481,7 @@ describe('German Chess Notation Support', () => {
     });
 
     it('should be compatible with existing German notation handling', () => {
-      // Test patterns from ChessService.ts
+      // Test patterns from legacy system
       const testCases = [
         { input: 'Dh5', expected: 'Qh5' },
         { input: 'Ta4', expected: 'Ra4' },

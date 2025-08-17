@@ -2,7 +2,7 @@
  * @file chess-logic.integration.test.ts
  * @description Integration tests for pure chess functions
  * 
- * Migrated from ChessService.integration.test.ts as part of Issue #173
+ * Migrated from service-based architecture as part of Issue #173
  * Focus: Integration testing with real chess.js (30% of total test strategy)
  * Target: Verify real chess rules work correctly with pure functions
  * Strategy: Use real chess.js to test actual chess logic integration

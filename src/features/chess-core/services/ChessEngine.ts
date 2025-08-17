@@ -3,7 +3,6 @@
  *
  * This class provides a clean interface to chess.js library,
  * handling all direct interactions with the chess engine.
- * Part of the Clean Architecture refactoring of ChessService.
  */
 
 import { Chess, type Move as ChessJsMove, type Square } from 'chess.js';

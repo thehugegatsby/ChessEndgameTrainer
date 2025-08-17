@@ -85,7 +85,7 @@ describe('OpponentTurnManager', () => {
       // Schedule a turn first - this will call getFen for logging
       manager.schedule(mockApi, 100);
 
-      // Clear only chessService mocks to track timeout execution calls
+      // Clear only chess-logic mocks to track timeout execution calls
       (getFen as ReturnType<typeof vi.fn>).mockClear();
       (turn as ReturnType<typeof vi.fn>).mockClear();
 
@@ -127,7 +127,7 @@ describe('OpponentTurnManager', () => {
       // Schedule second turn - should cancel first, calls getFen again for logging
       manager.schedule(mockApi, 200);
 
-      // Clear only chessService mocks to track timeout execution calls
+      // Clear only chess-logic mocks to track timeout execution calls
       (getFen as ReturnType<typeof vi.fn>).mockClear();
       (turn as ReturnType<typeof vi.fn>).mockClear();
 
@@ -148,7 +148,7 @@ describe('OpponentTurnManager', () => {
       manager.schedule(mockApi, 100); // calls getFen for logging
       manager.cancel();
 
-      // Clear only chessService mocks to track timeout execution calls
+      // Clear only chess-logic mocks to track timeout execution calls
       (getFen as ReturnType<typeof vi.fn>).mockClear();
       (turn as ReturnType<typeof vi.fn>).mockClear();
 
@@ -164,7 +164,7 @@ describe('OpponentTurnManager', () => {
 
       manager.schedule(mockApi, 0); // calls getFen for logging
 
-      // Clear only chessService mocks to track timeout execution calls
+      // Clear only chess-logic mocks to track timeout execution calls
       (getFen as ReturnType<typeof vi.fn>).mockClear();
       (turn as ReturnType<typeof vi.fn>).mockClear();
 
