@@ -8,46 +8,68 @@
 ## PHASE A: ANALYZE & DECIDE
 
 ### A.1 Git Safety Setup
-- [ ] Create branch: `git checkout -b evaluation-domain-migration`
-- [ ] Backup commit: `git add -A && git commit -m "Backup: Before evaluation domain migration"`
+- [x] ~~Create branch: `git checkout -b evaluation-domain-migration`~~
+- [x] ~~Backup commit: `git add -A && git commit -m "Backup: Before evaluation domain migration"`~~
 
 ### A.2 Code Analysis - TablebaseService Implementations
 
-**Files to Analyze (6 total):**
-- [ ] `/shared/services/TablebaseService.ts` [641 LOC - Expected Winner]
-- [ ] `/features/tablebase/services/TablebaseService.ts` [381 LOC - Likely Older]
-- [ ] `/shared/services/TablebaseService.e2e.mocks.ts` [462 LOC - E2E Mock]
-- [ ] `/shared/services/__mocks__/TablebaseService.ts` [324 LOC - Vitest Mock] 
-- [ ] `/tests/mocks/TablebaseServiceMockFactory.ts` [251 LOC - Factory Pattern]
-- [ ] `/tests/__mocks__/tablebaseService.ts` [68 LOC - Simple Mock]
+**Files Analyzed (6 total):**
+- [x] `/shared/services/TablebaseService.ts` [641 LOC - **WINNER** - Optimized, modern]
+- [x] `/features/tablebase/services/TablebaseService.ts` [381 LOC - Older implementation]
+- [x] `/shared/services/TablebaseService.e2e.mocks.ts` [462 LOC - E2E Mock - TO DELETE]
+- [x] `/shared/services/__mocks__/TablebaseService.ts` [324 LOC - **WINNER MOCK** - Vitest Standard] 
+- [x] `/tests/mocks/TablebaseServiceMockFactory.ts` [251 LOC - Factory Pattern - TO DELETE]
+- [x] `/tests/__mocks__/tablebaseService.ts` [68 LOC - Simple Mock - TO DELETE]
 
-**Analysis Criteria per File:**
-- [ ] TypeScript quality (strict types, proper interfaces)
-- [ ] Performance optimizations (caching, error handling)
-- [ ] API surface area (clean, minimal methods)
-- [ ] Dependencies (external libs, internal imports)
-- [ ] Code complexity and maintainability
+**Analysis Results:**
+
+**WINNER SERVICE: `/shared/services/TablebaseService.ts`**
+- ✅ **Modern Architecture:** Single API call optimization, LRU cache, Result pattern
+- ✅ **TypeScript Quality:** Strict types, proper interfaces, no any types
+- ✅ **Performance:** Optimized caching, request deduplication, metrics tracking
+- ✅ **API Surface:** Clean methods (getEvaluation, getTopMoves), good error handling
+- ✅ **Dependencies:** Well-structured imports, proper abstractions
+- ⚠️ **Minor Issue:** German text generation violates separation of concerns
+
+**WINNER MOCK: `/shared/services/__mocks__/TablebaseService.ts`**
+- ✅ **Vitest Standard:** Proper vi.fn() usage, follows Vitest patterns
+- ✅ **Comprehensive:** Helper methods for different scenarios (win/loss/draw)
+- ✅ **Good API:** mockWinPosition, mockDrawPosition, resetMock helpers
+- ✅ **Maintainable:** Clean, well-documented, easy to extend
 
 ### A.3 Mock Strategy Investigation
-- [ ] Search current test usage: `GREP "TablebaseService" --include="*.test.*" --include="*.spec.*"`
-- [ ] Find mock imports: `GREP "import.*Mock" --include="*.test.*"`
-- [ ] Identify preferred mock pattern (Vitest __mocks__ vs factory vs inline)
+- [x] Search current test usage: `GREP "TablebaseService" --include="*.test.*" --include="*.spec.*"`
+- [x] Find mock imports: `GREP "import.*Mock" --include="*.test.*"`
+- [x] Identify preferred mock pattern: **Vitest __mocks__ standard**
 
 ### A.4 Decision Matrix
-- [ ] **WINNER_SERVICE:** `_________________` (file path)
-- [ ] **WINNER_MOCK:** `_________________` (file path + strategy)
-- [ ] **DELETE_LIST:** 
-  - [ ] `_________________`
-  - [ ] `_________________` 
-  - [ ] `_________________`
-  - [ ] `_________________`
-  - [ ] `_________________`
+- [x] **WINNER_SERVICE:** `/shared/services/TablebaseService.ts` (needs minor refactoring)
+- [x] **WINNER_MOCK:** `/shared/services/__mocks__/TablebaseService.ts` (Vitest standard)
+- [x] **DELETE_LIST:** 
+  - [x] `/features/tablebase/services/TablebaseService.ts` (old implementation)
+  - [x] `/shared/services/TablebaseService.e2e.mocks.ts` (E2E mock)
+  - [x] `/tests/mocks/TablebaseServiceMockFactory.ts` (factory pattern)
+  - [x] `/tests/__mocks__/tablebaseService.ts` (simple mock)
 
-**Phase A Complete:** [ ] (All analysis done, decisions made)
+**REFACTORING NEEDED:**
+- [x] ~~Remove German text generation from service (_getEvaluationText method)~~
+- [x] ~~Move text generation to UI layer (create evaluationText.ts utility)~~
+
+**Phase A Complete:** [x] (All analysis done, decisions made)
 
 ---
 
 ## PHASE B: BUILD & MIGRATE
+
+### B.0 Refactor Service (NEW - before migration)
+- [x] ~~Remove `evaluation` field from TablebaseResult type~~
+- [x] ~~Remove `evaluation` field from PositionEvaluation type~~
+- [x] ~~Remove `evaluation` field from _transformApiResponse (line 494)~~
+- [x] ~~Create `src/shared/utils/evaluationText.ts`~~
+- [x] ~~Move German text logic to evaluationText.ts~~
+- [x] ~~Remove `_getEvaluationText()` method (lines 567-590)~~
+- [x] ~~Test refactored service still works (pnpm tsc && pnpm lint ✅)~~
+- [ ] Commit: `git add . && git commit -m "refactor: remove UI concerns from TablebaseService"`
 
 ### B.1 Domain Structure Creation
 - [ ] Create directories: `mkdir -p src/domains/evaluation/{services,types,cache,__mocks__}`
@@ -126,6 +148,21 @@
 
 ## SUCCESS METRICS
 
+### Architecture Improvements
+- [x] Service is right-sized (90% good, 10% needs refactoring)
+- [ ] Separation of concerns fixed (UI text moved out)
+- [ ] Clean domain boundaries established
+
+### What We Keep (Right-sized features)
+- ✅ Result pattern & error handling - Essential for robustness
+- ✅ Request deduplication - Prevents API rate limits  
+- ✅ LRU cache with TTL - Standard best practice
+- ✅ Perspective conversion - Core domain logic
+- ✅ Metrics tracking - Production monitoring
+
+### What We Remove (Violations)
+- ❌ German text generation - Moves to UI layer
+
 ### Quantitative Targets
 - [x] **Starting State:** 6 TablebaseService files
 - [ ] **Target State:** 2 TablebaseService files
@@ -141,12 +178,16 @@
 
 ---
 
-**CURRENT STATUS:** [ ] Phase A | [ ] Phase B | [ ] Phase C | [ ] COMPLETE
+**CURRENT STATUS:** [x] Phase A | [ ] Phase B | [ ] Phase C | [ ] COMPLETE
 
-**NEXT ACTION:** Start Phase A.1 - Git Safety Setup
+**NEXT ACTION:** Start Phase B.0 - Refactor Service (remove UI concerns)
 
 **NOTES:**
 ```
-[Add execution notes, issues found, decisions made here]
-
+[2025-08-17] Gemini analysis confirmed:
+- TablebaseService is NOT overengineered, it's robust and well-designed
+- Only issue: German text generation violates separation of concerns
+- Decision: Keep service, refactor out UI text generation
+- Service provides data (category, dtz), UI generates display text
+- 90% of service features are right-sized for production use
 ```

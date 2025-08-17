@@ -27,7 +27,6 @@ const createDefaultResult = (): TablebaseResult => ({
   dtm: null,
   category: 'draw',
   precise: false,
-  evaluation: 'Remis',
 });
 
 /**
@@ -97,7 +96,6 @@ class MockTablebaseService {
       dtm: dtm,
       category: 'win',
       precise: true,
-      evaluation: `Gewinn in ${dtm} Zügen`,
     };
 
     const move: TablebaseMove = {
@@ -132,8 +130,7 @@ class MockTablebaseService {
       dtm: null,
       category: 'draw',
       precise: true,
-      evaluation: 'Remis',
-    };
+        };
 
     const move: TablebaseMove = {
       uci: 'e2e3',
@@ -167,7 +164,6 @@ class MockTablebaseService {
       dtm: dtm,
       category: 'loss',
       precise: true,
-      evaluation: `Verlust in ${Math.abs(dtm)} Zügen`,
     };
 
     const move: TablebaseMove = {
@@ -244,7 +240,6 @@ class MockTablebaseService {
                   dtm: 5,
                   category: 'win',
                   precise: true,
-                  evaluation: 'Gewinn in 5 Zügen',
                 },
               }),
             delayMs

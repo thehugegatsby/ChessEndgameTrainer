@@ -172,7 +172,6 @@ class TablebaseService {
         dtm: entry.position.dtm,
         category: entry.position.category,
         precise: entry.position.precise,
-        evaluation: entry.position.evaluation,
       });
     } catch (error) {
       logger.error('Failed to get evaluation', error as Error, { fen });
@@ -491,7 +490,6 @@ class TablebaseService {
         dtz: api.dtz,
         dtm: api.dtm ?? null,
         precise: api.precise_dtz !== undefined && api.precise_dtz !== null,
-        evaluation: this._getEvaluationText(positionCategory, api.dtz),
       },
       moves,
       fen,
@@ -560,34 +558,6 @@ class TablebaseService {
 
 
 
-  /**
-   * Generate evaluation text in German
-   * @private
-   */
-  private _getEvaluationText(category: string, dtz?: number | null): string {
-    switch (category) {
-      case 'win':
-        return dtz ? `Gewinn in ${Math.abs(dtz)} Zügen` : 'Theoretisch gewonnen';
-      case 'cursed-win':
-        return dtz ? `Gewinn in ${Math.abs(dtz)} Zügen (50-Zug-Regel)` : 'Gewinn mit 50-Zug-Regel';
-      case 'maybe-win':
-        return 'Wahrscheinlicher Gewinn';
-      case 'draw':
-        return 'Theoretisches Remis';
-      case 'blessed-loss':
-        return dtz
-          ? `Verlust in ${Math.abs(dtz)} Zügen (50-Zug-Regel)`
-          : 'Verlust mit 50-Zug-Regel';
-      case 'maybe-loss':
-        return 'Wahrscheinlicher Verlust';
-      case 'loss':
-        return dtz ? `Verlust in ${Math.abs(dtz)} Zügen` : 'Theoretisch verloren';
-      case 'unknown':
-        return 'Unbekannte Bewertung';
-      default:
-        return 'Bewertung nicht verfügbar';
-    }
-  }
 
   /**
    * Count pieces in FEN
