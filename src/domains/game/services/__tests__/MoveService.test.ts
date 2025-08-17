@@ -75,6 +75,14 @@ describe('MoveService', () => {
       expect(result.isCapture).toBe(false);
       expect(result.isPromotion).toBe(false);
       expect(result.isCastling).toBe(false);
+      
+      // Enhanced metadata fields
+      expect(result.pieceType).toBe('p');
+      expect(result.capturedPiece).toBeUndefined();
+      expect(result.isEnPassant).toBe(false);
+      expect(result.moveNumber).toBe(1);
+      expect(result.halfMoveClock).toBe(0);
+      expect(result.castleSide).toBeUndefined();
     });
 
     it('should return error result for invalid move', () => {
@@ -116,6 +124,8 @@ describe('MoveService', () => {
 
       // Assert
       expect(result.isCapture).toBe(true);
+      expect(result.capturedPiece).toBe('p');
+      expect(result.pieceType).toBe('p');
     });
 
     it('should detect promotion moves', () => {
@@ -143,6 +153,7 @@ describe('MoveService', () => {
 
       // Assert
       expect(result.isPromotion).toBe(true);
+      expect(result.pieceType).toBe('p');
     });
 
     it('should detect castling moves', () => {
@@ -169,6 +180,8 @@ describe('MoveService', () => {
 
       // Assert
       expect(result.isCastling).toBe(true);
+      expect(result.pieceType).toBe('k');
+      expect(result.castleSide).toBe('king');
     });
 
     it('should detect checkmate', () => {
@@ -211,6 +224,127 @@ describe('MoveService', () => {
       expect(result.newFen).toBeNull();
       expect(result.move).toBeNull();
       expect(result.error).toBe('Test error');
+      
+      // Enhanced metadata defaults for error case
+      expect(result.pieceType).toBe('');
+      expect(result.capturedPiece).toBeUndefined();
+      expect(result.isEnPassant).toBe(false);
+      expect(result.moveNumber).toBe(0);
+      expect(result.halfMoveClock).toBe(0);
+      expect(result.castleSide).toBeUndefined();
+    });
+
+    it('should detect en passant moves', () => {
+      // Arrange
+      const mockMoveResult: ChessJsMove = {
+        color: 'w',
+        from: 'e5',
+        to: 'd6',
+        flags: 'e',
+        piece: 'p',
+        san: 'exd6',
+        captured: 'p'
+      };
+      
+      vi.mocked(mockChessEngine.loadFen).mockReturnValue(true);
+      vi.mocked(mockChessEngine.makeMove).mockReturnValue(mockMoveResult);
+      vi.mocked(mockChessEngine.getFen).mockReturnValue('rnbqkbnr/ppp1pppp/3p4/8/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2');
+      vi.mocked(mockChessEngine.isCheckmate).mockReturnValue(false);
+      vi.mocked(mockChessEngine.isStalemate).mockReturnValue(false);
+      vi.mocked(mockChessEngine.isCheck).mockReturnValue(false);
+      vi.mocked(mockChessEngine.isDraw).mockReturnValue(false);
+
+      // Act
+      const result = moveService.makeUserMove(testFen, testMove);
+
+      // Assert
+      expect(result.isEnPassant).toBe(true);
+      expect(result.isCapture).toBe(true);
+      expect(result.capturedPiece).toBe('p');
+      expect(result.pieceType).toBe('p');
+    });
+
+    it('should detect queen-side castling', () => {
+      // Arrange
+      const mockMoveResult: ChessJsMove = {
+        color: 'w',
+        from: 'e1',
+        to: 'c1',
+        flags: 'q',
+        piece: 'k',
+        san: 'O-O-O'
+      };
+      
+      vi.mocked(mockChessEngine.loadFen).mockReturnValue(true);
+      vi.mocked(mockChessEngine.makeMove).mockReturnValue(mockMoveResult);
+      vi.mocked(mockChessEngine.getFen).mockReturnValue('updated-fen');
+      vi.mocked(mockChessEngine.isCheckmate).mockReturnValue(false);
+      vi.mocked(mockChessEngine.isStalemate).mockReturnValue(false);
+      vi.mocked(mockChessEngine.isCheck).mockReturnValue(false);
+      vi.mocked(mockChessEngine.isDraw).mockReturnValue(false);
+
+      // Act
+      const result = moveService.makeUserMove(testFen, testMove);
+
+      // Assert
+      expect(result.isCastling).toBe(true);
+      expect(result.pieceType).toBe('k');
+      expect(result.castleSide).toBe('queen');
+    });
+
+    it('should parse move number and half-move clock from FEN', () => {
+      // Arrange
+      const mockMoveResult: ChessJsMove = {
+        color: 'w',
+        from: 'e2',
+        to: 'e4',
+        flags: 'n',
+        piece: 'p',
+        san: 'e4'
+      };
+      
+      const fenWithMoveInfo = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 5 12';
+      
+      vi.mocked(mockChessEngine.loadFen).mockReturnValue(true);
+      vi.mocked(mockChessEngine.makeMove).mockReturnValue(mockMoveResult);
+      vi.mocked(mockChessEngine.getFen).mockReturnValue(fenWithMoveInfo);
+      vi.mocked(mockChessEngine.isCheckmate).mockReturnValue(false);
+      vi.mocked(mockChessEngine.isStalemate).mockReturnValue(false);
+      vi.mocked(mockChessEngine.isCheck).mockReturnValue(false);
+      vi.mocked(mockChessEngine.isDraw).mockReturnValue(false);
+
+      // Act
+      const result = moveService.makeUserMove(testFen, testMove);
+
+      // Assert
+      expect(result.moveNumber).toBe(12);
+      expect(result.halfMoveClock).toBe(5);
+    });
+
+    it('should test all piece types', () => {
+      // Test knight move
+      const mockKnightMove: ChessJsMove = {
+        color: 'w',
+        from: 'g1',
+        to: 'f3',
+        flags: 'n',
+        piece: 'n',
+        san: 'Nf3'
+      };
+      
+      vi.mocked(mockChessEngine.loadFen).mockReturnValue(true);
+      vi.mocked(mockChessEngine.makeMove).mockReturnValue(mockKnightMove);
+      vi.mocked(mockChessEngine.getFen).mockReturnValue('updated-fen');
+      vi.mocked(mockChessEngine.isCheckmate).mockReturnValue(false);
+      vi.mocked(mockChessEngine.isStalemate).mockReturnValue(false);
+      vi.mocked(mockChessEngine.isCheck).mockReturnValue(false);
+      vi.mocked(mockChessEngine.isDraw).mockReturnValue(false);
+
+      // Act
+      const result = moveService.makeUserMove(testFen, testMove);
+
+      // Assert
+      expect(result.pieceType).toBe('n');
     });
   });
 });
