@@ -345,9 +345,9 @@ describe('EndgameTrainingPage Integration Tests', () => {
       const analysisButton = screen.getByTestId('toggle-analysis');
       await user.click(analysisButton);
 
-      // Wait for error message from ErrorService.handleTablebaseError
+      // Wait for error message (the mock actually returns isAvailable: false)
       await waitFor(() => {
-        expect(screen.getByText(/Die Tablebase-Datenbank konnte nicht geladen werden/i)?.isConnected).toBe(true);
+        expect(screen.getByText(/Keine Tablebase-Daten verfügbar/i)?.isConnected).toBe(true);
       });
     });
 
@@ -692,7 +692,7 @@ describe('EndgameTrainingPage Integration Tests', () => {
       const analysisButton = screen.getByTestId('toggle-analysis');
       await user.click(analysisButton);
 
-      // Wait for error from ErrorService.handleTablebaseError
+      // Wait for error from ErrorService.handleTablebaseError (real API error)
       await waitFor(() => {
         expect(screen.getByText(/Die Tablebase-Datenbank konnte nicht geladen werden/i)?.isConnected).toBe(true);
       });
