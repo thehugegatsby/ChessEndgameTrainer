@@ -31,32 +31,40 @@ export default defineConfig({
       '@features': path.resolve(projectRoot, 'src/features'), 
       '@tests': path.resolve(projectRoot, 'src/tests'),
       '@': path.resolve(projectRoot, 'src'),
+      '@domains': path.resolve(projectRoot, 'src/domains'),
     },
     
     // Feature-based project organization for targeted test runs
+    // Each project runs in an isolated context. 'extends: true' is required to inherit root-level configuration like aliases.
     projects: [
       {
         name: 'chess-core',
+        extends: true,
         testMatch: [`${featuresDir}/chess-core/**/*.{test,spec}.{ts,tsx}`],
       },
       {
         name: 'tablebase',
+        extends: true,
         testMatch: [`${featuresDir}/tablebase/**/*.{test,spec}.{ts,tsx}`],
       },
       {
         name: 'training',
+        extends: true,
         testMatch: [`${featuresDir}/training/**/*.{test,spec}.{ts,tsx}`],
       },
       {
         name: 'move-quality',
+        extends: true,
         testMatch: [`${featuresDir}/move-quality/**/*.{test,spec}.{ts,tsx}`],
       },
       {
         name: 'shared',
+        extends: true,
         testMatch: [`${sharedDir}/**/*.{test,spec}.{ts,tsx}`],
       },
       {
         name: 'integration',
+        extends: true,
         testMatch: [`${testsDir}/integration/**/*.{test,spec}.{ts,tsx}`],
       },
     ],
@@ -123,5 +131,9 @@ export default defineConfig({
 
   resolve: {
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
+    // Minimal aliases: only @domains has issues with tsconfigPaths plugin in projects mode
+    alias: {
+      '@domains': path.resolve(projectRoot, 'src/domains'),
+    },
   },
 });

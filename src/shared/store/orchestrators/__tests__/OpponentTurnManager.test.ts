@@ -6,7 +6,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 import { getOpponentTurnManager } from '@shared/store/orchestrators/handlePlayerMove/OpponentTurnHandler';
 import { getFen, turn, makeMove, isGameOver } from '@shared/utils/chess-logic';
-import { tablebaseService } from '@shared/services/TablebaseService';
+import { tablebaseService } from '../../../../domains/evaluation';
 import { handleTrainingCompletion } from '@shared/store/orchestrators/handlePlayerMove/move.completion';
 import { COMMON_FENS } from '@tests/fixtures/commonFens';
 import type { StoreApi } from '@shared/store/orchestrators/types';
@@ -19,7 +19,7 @@ vi.mock('@shared/utils/chess-logic', () => ({
   isGameOver: vi.fn(),
 }));
 
-vi.mock('@shared/services/TablebaseService', () => ({
+vi.mock('../../../../../domains/evaluation', () => ({
   tablebaseService: {
     getTopMoves: vi.fn(),
   },

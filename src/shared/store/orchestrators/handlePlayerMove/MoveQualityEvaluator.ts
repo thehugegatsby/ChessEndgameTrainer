@@ -8,7 +8,7 @@ import {
   tablebaseService,
   type TablebaseEvaluation,
   type TablebaseMovesResult,
-} from '@shared/services/TablebaseService';
+} from '@domains/evaluation';
 import type { TablebaseResult } from '@shared/types/tablebase';
 import { getLogger } from '@shared/services/logging';
 import { WdlAdapter } from '@shared/utils/tablebase/wdl';

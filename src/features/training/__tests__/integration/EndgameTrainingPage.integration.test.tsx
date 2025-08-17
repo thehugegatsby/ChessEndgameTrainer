@@ -32,8 +32,25 @@ vi.mock('next/link', () => ({
 // Mock Firebase - uses central mock
 vi.mock('../../../../shared/lib/firebase');
 
-// Mock TablebaseService - uses central mock from __mocks__ folder
-vi.mock('../../../../shared/services/TablebaseService');
+// Mock TablebaseService - uses central mock from domain
+vi.mock('../../../../domains/evaluation', () => ({
+  tablebaseService: {
+    getEvaluation: vi.fn().mockResolvedValue({
+      isAvailable: false, // Default: no tablebase data available
+    }),
+    getTopMoves: vi.fn().mockResolvedValue({
+      isAvailable: false,
+      moves: [],
+    }),
+    clearCache: vi.fn(),
+    getMetrics: vi.fn().mockReturnValue({
+      cacheHitRate: 0,
+      totalApiCalls: 0,
+      errorBreakdown: {},
+      dedupedRequests: 0,
+    }),
+  },
+}));
 
 // Mock the Chessboard wrapper component to prevent DOM sizing issues in tests
 vi.mock('../../../../shared/components/chess/Chessboard', () => ({
@@ -53,13 +70,13 @@ vi.mock('../../../../shared/components/chess/Chessboard', () => ({
 vi.mock('../../../../shared/services/database/serverPositionService');
 
 // Import the mocked service
-import { tablebaseService as mockTablebaseService } from '../../../../shared/services/TablebaseService';
-// Import helper functions from the mock
+import { tablebaseService as mockTablebaseService } from '../../../../domains/evaluation';
+// Import helper functions from the dedicated testing entry point
 import {
   resetMock,
   mockWinPosition,
   mockApiError,
-} from '../../../../shared/services/__mocks__/TablebaseService';
+} from '../../../../domains/evaluation/testing';
 
 // Import the mocked position service
 import { mockServerPositionService } from '../../../../shared/services/database/__mocks__/serverPositionService';

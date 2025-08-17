@@ -6,7 +6,7 @@ import { vi } from 'vitest';
  * that can be used across all test files. It follows Jest's manual mock pattern.
  *
  * Usage:
- * - Vitest will automatically use this mock when `vi.mock('@shared/services/TablebaseService')` is called
+ * - Vitest will automatically use this mock when `vi.mock('@domains/evaluation')` is called
  * - Test files can import helper methods to customize mock behavior
  * - Default implementations return sensible test data
  */
@@ -27,7 +27,6 @@ const createDefaultResult = (): TablebaseResult => ({
   dtm: null,
   category: 'draw',
   precise: false,
-  evaluation: 'Remis',
 });
 
 /**
@@ -97,7 +96,6 @@ class MockTablebaseService {
       dtm: dtm,
       category: 'win',
       precise: true,
-      evaluation: `Gewinn in ${dtm} Zügen`,
     };
 
     const move: TablebaseMove = {
@@ -132,8 +130,7 @@ class MockTablebaseService {
       dtm: null,
       category: 'draw',
       precise: true,
-      evaluation: 'Remis',
-    };
+        };
 
     const move: TablebaseMove = {
       uci: 'e2e3',
@@ -167,7 +164,6 @@ class MockTablebaseService {
       dtm: dtm,
       category: 'loss',
       precise: true,
-      evaluation: `Verlust in ${Math.abs(dtm)} Zügen`,
     };
 
     const move: TablebaseMove = {
@@ -244,7 +240,6 @@ class MockTablebaseService {
                   dtm: 5,
                   category: 'win',
                   precise: true,
-                  evaluation: 'Gewinn in 5 Zügen',
                 },
               }),
             delayMs

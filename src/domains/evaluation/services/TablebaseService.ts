@@ -18,20 +18,20 @@
  * - Rate limiting applies (~130 rapid requests trigger limits)
  */
 
-import { validateAndSanitizeFen } from '../utils/fenValidator';
-import { getLogger } from '../services/logging';
+import { validateAndSanitizeFen } from '@shared/utils/fenValidator';
+import { getLogger } from '@shared/services/logging';
 import { APP_CONFIG } from '@/config/constants';
 import { type Result, ok, err, isErr, AppError } from '@shared/utils/result';
 // Removed unused imports - Zod validation now handled by LichessApiClient
-import { LichessApiClient, LichessApiError, LichessApiTimeoutError } from './api/LichessApiClient';
-import type { CacheManager } from '../lib/cache/types';
-import { LRUCacheManager } from '../lib/cache/LRUCacheManager';
+import { LichessApiClient, LichessApiError, LichessApiTimeoutError } from '@shared/services/api/LichessApiClient';
+import type { CacheManager } from '@shared/lib/cache/types';
+import { LRUCacheManager } from '@shared/lib/cache/LRUCacheManager';
 import { HTTP_CONFIG, HTTP_RETRY } from '@shared/constants/http.constants';
 import { CACHE_SIZES, CACHE_TTL } from '@shared/constants/cache';
 import { INPUT_LIMITS } from '@shared/constants/validation.constants';
 import { CHESS_EVALUATION } from '@shared/constants/multipliers';
-import { HTTP_STATUS } from '../../constants/api.constants';
-import { compareTablebaseMoves } from '../utils/tablebase/tablebaseRanking';
+import { HTTP_STATUS } from '@/constants/api.constants';
+import { compareTablebaseMoves } from '@shared/utils/tablebase/tablebaseRanking';
 import type {
   LichessTablebaseResponse,
   TablebaseEntry,
@@ -42,7 +42,7 @@ import type {
   TablebaseResult,
   TablebaseEvaluation,
   TablebaseMovesResult,
-} from '../types/tablebase';
+} from '@shared/types/tablebase';
 
 // Re-export types for backward compatibility
 export type { TablebaseMove, TablebaseResult, TablebaseEvaluation, TablebaseMovesResult };
@@ -172,7 +172,6 @@ class TablebaseService {
         dtm: entry.position.dtm,
         category: entry.position.category,
         precise: entry.position.precise,
-        evaluation: entry.position.evaluation,
       });
     } catch (error) {
       logger.error('Failed to get evaluation', error as Error, { fen });
@@ -491,7 +490,6 @@ class TablebaseService {
         dtz: api.dtz,
         dtm: api.dtm ?? null,
         precise: api.precise_dtz !== undefined && api.precise_dtz !== null,
-        evaluation: this._getEvaluationText(positionCategory, api.dtz),
       },
       moves,
       fen,
@@ -560,34 +558,6 @@ class TablebaseService {
 
 
 
-  /**
-   * Generate evaluation text in German
-   * @private
-   */
-  private _getEvaluationText(category: string, dtz?: number | null): string {
-    switch (category) {
-      case 'win':
-        return dtz ? `Gewinn in ${Math.abs(dtz)} Zügen` : 'Theoretisch gewonnen';
-      case 'cursed-win':
-        return dtz ? `Gewinn in ${Math.abs(dtz)} Zügen (50-Zug-Regel)` : 'Gewinn mit 50-Zug-Regel';
-      case 'maybe-win':
-        return 'Wahrscheinlicher Gewinn';
-      case 'draw':
-        return 'Theoretisches Remis';
-      case 'blessed-loss':
-        return dtz
-          ? `Verlust in ${Math.abs(dtz)} Zügen (50-Zug-Regel)`
-          : 'Verlust mit 50-Zug-Regel';
-      case 'maybe-loss':
-        return 'Wahrscheinlicher Verlust';
-      case 'loss':
-        return dtz ? `Verlust in ${Math.abs(dtz)} Zügen` : 'Theoretisch verloren';
-      case 'unknown':
-        return 'Unbekannte Bewertung';
-      default:
-        return 'Bewertung nicht verfügbar';
-    }
-  }
 
   /**
    * Count pieces in FEN
@@ -627,7 +597,7 @@ class TablebaseService {
  * Singleton instance of optimized TablebaseService
  *
  * @example
- * import { tablebaseService } from '@shared/services/TablebaseService';
+ * import { tablebaseService } from '@domains/evaluation';
  *
  * // Get position evaluation (1 API call)
  * const eval = await tablebaseService.getEvaluation(fen);

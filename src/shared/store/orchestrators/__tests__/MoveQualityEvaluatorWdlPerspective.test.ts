@@ -6,7 +6,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { createTestValidatedMove } from '@tests/helpers/validatedMoveFactory';
 import { MoveQualityEvaluator } from '@shared/store/orchestrators/handlePlayerMove/MoveQualityEvaluator';
-import { tablebaseService } from '@shared/services/TablebaseService';
+import { tablebaseService } from '../../../../domains/evaluation';
 
 describe('MoveQualityEvaluator - WDL Perspective Conversion', () => {
   let evaluator: MoveQualityEvaluator;

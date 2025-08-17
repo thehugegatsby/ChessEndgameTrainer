@@ -8,7 +8,7 @@ import { vi } from 'vitest';
  * of the optimized TablebaseService implementation.
  */
 
-import { tablebaseService, TablebaseService } from '../../shared/services/TablebaseService';
+import { tablebaseService, TablebaseService } from '../../domains/evaluation';
 import { TEST_FENS } from '../../shared/testing/TestFixtures';
 import { EndgamePositions, SpecialPositions, StandardPositions } from '../fixtures/commonFens';
 

@@ -4,7 +4,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
  * @module tests/unit/orchestrators/MoveQualityEvaluator
  */
 
-import { tablebaseService } from '@shared/services/TablebaseService';
+import { tablebaseService } from '../../../../domains/evaluation';
 import { createTestValidatedMove } from '@tests/helpers/validatedMoveFactory';
 import { MoveQualityEvaluator } from '@shared/store/orchestrators/handlePlayerMove/MoveQualityEvaluator';
 

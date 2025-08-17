@@ -1,11 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { PositionAnalysis } from '@shared/types';
 
-// Mock dependencies - must be defined before imports
-vi.mock('../TablebaseService', () => ({
+// Mock evaluation domain at module level
+vi.mock('../../../domains/evaluation', () => ({
   tablebaseService: {
     getEvaluation: vi.fn(),
     getTopMoves: vi.fn(),
+    clearCache: vi.fn(),
+    getMetrics: vi.fn(),
   },
 }));
 
@@ -15,7 +17,7 @@ vi.mock('../../utils/positionAnalysisFormatter', () => ({
 
 // Import after mocks are set up
 import { analysisService } from '../AnalysisService';
-import { tablebaseService } from '../TablebaseService';
+import { tablebaseService } from '../../../domains/evaluation';
 import { formatPositionAnalysis } from '../../utils/positionAnalysisFormatter';
 
 // Mock logger to prevent console output during tests
@@ -33,7 +35,7 @@ describe('AnalysisService', () => {
   const TEST_FEN = '8/8/8/8/k7/8/8/K5R1 w - - 0 1';
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.clearAllMocks(); // Clear all mock calls and implementations
   });
 
   afterEach(() => {
@@ -57,11 +59,11 @@ describe('AnalysisService', () => {
         ],
       };
       
-      vi.mocked(tablebaseService).getEvaluation.mockResolvedValue({
+      tablebaseService.getEvaluation.mockResolvedValue({
         isAvailable: true,
         result: rawTablebaseResult,
       });
-      vi.mocked(tablebaseService).getTopMoves.mockResolvedValue(topMovesResult);
+      tablebaseService.getTopMoves.mockResolvedValue(topMovesResult);
       vi.mocked(formatPositionAnalysis).mockReturnValue({ 
         score: 9985, 
         isWin: true,
@@ -92,14 +94,14 @@ describe('AnalysisService', () => {
       expect(result?.rawTablebaseResult).toEqual(rawTablebaseResult);
 
       // Verify method calls
-      expect(vi.mocked(tablebaseService).getEvaluation).toHaveBeenCalledWith(TEST_FEN);
-      expect(vi.mocked(tablebaseService).getTopMoves).toHaveBeenCalledWith(TEST_FEN, 5);
+      expect(tablebaseService.getEvaluation).toHaveBeenCalledWith(TEST_FEN);
+      expect(tablebaseService.getTopMoves).toHaveBeenCalledWith(TEST_FEN, 5);
       expect(vi.mocked(formatPositionAnalysis)).toHaveBeenCalledWith(rawTablebaseResult);
     });
 
     it('should return null if tablebase data is not available', async () => {
       // Arrange
-      vi.mocked(tablebaseService).getEvaluation.mockResolvedValue({ 
+      tablebaseService.getEvaluation.mockResolvedValue({ 
         isAvailable: false 
       });
 
@@ -108,13 +110,13 @@ describe('AnalysisService', () => {
 
       // Assert
       expect(result).toBeNull();
-      expect(vi.mocked(tablebaseService).getTopMoves).not.toHaveBeenCalled();
+      expect(tablebaseService.getTopMoves).not.toHaveBeenCalled();
       expect(vi.mocked(formatPositionAnalysis)).not.toHaveBeenCalled();
     });
 
     it('should return null if tablebase result is null', async () => {
       // Arrange
-      vi.mocked(tablebaseService).getEvaluation.mockResolvedValue({
+      tablebaseService.getEvaluation.mockResolvedValue({
         isAvailable: true,
         result: null,
       });
@@ -124,7 +126,7 @@ describe('AnalysisService', () => {
 
       // Assert
       expect(result).toBeNull();
-      expect(vi.mocked(tablebaseService).getTopMoves).not.toHaveBeenCalled();
+      expect(tablebaseService.getTopMoves).not.toHaveBeenCalled();
     });
 
     it('should handle draw position without dtz/dtm', async () => {
@@ -136,11 +138,11 @@ describe('AnalysisService', () => {
         category: 'draw',
       };
       
-      vi.mocked(tablebaseService).getEvaluation.mockResolvedValue({
+      tablebaseService.getEvaluation.mockResolvedValue({
         isAvailable: true,
         result: rawTablebaseResult,
       });
-      vi.mocked(tablebaseService).getTopMoves.mockResolvedValue({ 
+      tablebaseService.getTopMoves.mockResolvedValue({ 
         isAvailable: true, 
         moves: [] 
       });
@@ -170,11 +172,11 @@ describe('AnalysisService', () => {
         category: 'win' 
       };
       
-      vi.mocked(tablebaseService).getEvaluation.mockResolvedValue({
+      tablebaseService.getEvaluation.mockResolvedValue({
         isAvailable: true,
         result: rawTablebaseResult,
       });
-      vi.mocked(tablebaseService).getTopMoves.mockResolvedValue({ 
+      tablebaseService.getTopMoves.mockResolvedValue({ 
         isAvailable: false, 
         moves: null 
       });
@@ -201,11 +203,11 @@ describe('AnalysisService', () => {
         category: 'win' 
       };
       
-      vi.mocked(tablebaseService).getEvaluation.mockResolvedValue({
+      tablebaseService.getEvaluation.mockResolvedValue({
         isAvailable: true,
         result: rawTablebaseResult,
       });
-      vi.mocked(tablebaseService).getTopMoves.mockResolvedValue({ 
+      tablebaseService.getTopMoves.mockResolvedValue({ 
         isAvailable: true, 
         moves: [] 
       });
@@ -233,11 +235,11 @@ describe('AnalysisService', () => {
         category: 'draw' 
       };
       
-      vi.mocked(tablebaseService).getEvaluation.mockResolvedValue({
+      tablebaseService.getEvaluation.mockResolvedValue({
         isAvailable: true,
         result: rawTablebaseResult,
       });
-      vi.mocked(tablebaseService).getTopMoves.mockResolvedValue({ 
+      tablebaseService.getTopMoves.mockResolvedValue({ 
         isAvailable: true, 
         moves: [] 
       });
@@ -264,11 +266,11 @@ describe('AnalysisService', () => {
         category: 'win' 
       };
       
-      vi.mocked(tablebaseService).getEvaluation.mockResolvedValue({
+      tablebaseService.getEvaluation.mockResolvedValue({
         isAvailable: true,
         result: rawTablebaseResult,
       });
-      vi.mocked(tablebaseService).getTopMoves.mockResolvedValue({ 
+      tablebaseService.getTopMoves.mockResolvedValue({ 
         isAvailable: true, 
         moves: [] 
       });
@@ -296,11 +298,11 @@ describe('AnalysisService', () => {
         category: 'draw' 
       };
       
-      vi.mocked(tablebaseService).getEvaluation.mockResolvedValue({
+      tablebaseService.getEvaluation.mockResolvedValue({
         isAvailable: true,
         result: rawTablebaseResult,
       });
-      vi.mocked(tablebaseService).getTopMoves.mockResolvedValue({ 
+      tablebaseService.getTopMoves.mockResolvedValue({ 
         isAvailable: true, 
         moves: [] 
       });
@@ -313,17 +315,17 @@ describe('AnalysisService', () => {
       await analysisService.getPositionAnalysis(TEST_FEN);
 
       // Assert
-      expect(vi.mocked(tablebaseService).getTopMoves).toHaveBeenCalledWith(TEST_FEN, 5);
+      expect(tablebaseService.getTopMoves).toHaveBeenCalledWith(TEST_FEN, 5);
     });
 
     it('should propagate errors from getEvaluation', async () => {
       // Arrange
       const error = new Error('Network Error');
-      vi.mocked(tablebaseService).getEvaluation.mockRejectedValue(error);
+      tablebaseService.getEvaluation.mockRejectedValue(error);
 
       // Act & Assert
       await expect(analysisService.getPositionAnalysis(TEST_FEN)).rejects.toThrow('Network Error');
-      expect(vi.mocked(tablebaseService).getTopMoves).not.toHaveBeenCalled();
+      expect(tablebaseService.getTopMoves).not.toHaveBeenCalled();
     });
 
     it('should propagate errors from getTopMoves', async () => {
@@ -336,11 +338,11 @@ describe('AnalysisService', () => {
         category: 'draw' 
       };
       
-      vi.mocked(tablebaseService).getEvaluation.mockResolvedValue({
+      tablebaseService.getEvaluation.mockResolvedValue({
         isAvailable: true,
         result: rawTablebaseResult,
       });
-      vi.mocked(tablebaseService).getTopMoves.mockRejectedValue(error);
+      tablebaseService.getTopMoves.mockRejectedValue(error);
       vi.mocked(formatPositionAnalysis).mockReturnValue({ 
         score: 0, 
         isWin: false 
@@ -366,11 +368,11 @@ describe('AnalysisService', () => {
         ],
       };
       
-      vi.mocked(tablebaseService).getEvaluation.mockResolvedValue({
+      tablebaseService.getEvaluation.mockResolvedValue({
         isAvailable: true,
         result: rawTablebaseResult,
       });
-      vi.mocked(tablebaseService).getTopMoves.mockResolvedValue(topMovesResult);
+      tablebaseService.getTopMoves.mockResolvedValue(topMovesResult);
       vi.mocked(formatPositionAnalysis).mockReturnValue({ 
         score: -9975, 
         isWin: false,
@@ -492,7 +494,7 @@ describe('AnalysisService', () => {
     it('should handle empty FEN string gracefully', async () => {
       // Arrange
       const error = new Error('Invalid FEN');
-      vi.mocked(tablebaseService).getEvaluation.mockRejectedValue(error);
+      tablebaseService.getEvaluation.mockRejectedValue(error);
 
       // Act & Assert
       await expect(analysisService.getPositionAnalysis('')).rejects.toThrow('Invalid FEN');
@@ -501,18 +503,18 @@ describe('AnalysisService', () => {
     it('should handle moveLimit edge cases', async () => {
       // Arrange
       const rawTablebaseResult = { wdl: 0, dtz: null, dtm: null, category: 'draw' };
-      vi.mocked(tablebaseService).getEvaluation.mockResolvedValue({
+      tablebaseService.getEvaluation.mockResolvedValue({
         isAvailable: true,
         result: rawTablebaseResult,
       });
-      vi.mocked(tablebaseService).getTopMoves.mockResolvedValue({ isAvailable: true, moves: [] });
+      tablebaseService.getTopMoves.mockResolvedValue({ isAvailable: true, moves: [] });
       vi.mocked(formatPositionAnalysis).mockReturnValue({ score: 0, isWin: false });
 
       // Act
       await analysisService.getPositionAnalysis(TEST_FEN, 0);
 
       // Assert
-      expect(vi.mocked(tablebaseService).getTopMoves).toHaveBeenCalledWith(TEST_FEN, 0);
+      expect(tablebaseService.getTopMoves).toHaveBeenCalledWith(TEST_FEN, 0);
     });
 
     it('should handle missing optional fields in tablebase result', async () => {
@@ -524,11 +526,11 @@ describe('AnalysisService', () => {
         // Missing DTM field entirely
       };
       
-      vi.mocked(tablebaseService).getEvaluation.mockResolvedValue({
+      tablebaseService.getEvaluation.mockResolvedValue({
         isAvailable: true,
         result: rawTablebaseResult,
       });
-      vi.mocked(tablebaseService).getTopMoves.mockResolvedValue({ isAvailable: true, moves: [] });
+      tablebaseService.getTopMoves.mockResolvedValue({ isAvailable: true, moves: [] });
       vi.mocked(formatPositionAnalysis).mockReturnValue({ 
         score: 8000, 
         isWin: true,

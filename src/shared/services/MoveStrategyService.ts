@@ -47,7 +47,7 @@ class MoveStrategyService {
   async getLongestResistanceMove(fen: string): Promise<string | null> {
     try {
       // Get ALL moves efficiently with single API call
-      const { tablebaseService } = await import('./TablebaseService');
+      const { tablebaseService } = await import('@domains/evaluation');
       const topMoves = await tablebaseService.getTopMoves(fen, SIZE_MULTIPLIERS.LARGE_FACTOR);
 
       if (!topMoves.isAvailable || !topMoves.moves || topMoves.moves.length === 0) {
@@ -198,7 +198,7 @@ class MoveStrategyService {
    */
   async getBestMove(fen: string): Promise<string | null> {
     try {
-      const { tablebaseService } = await import('./TablebaseService');
+      const { tablebaseService } = await import('@domains/evaluation');
       const topMoves = await tablebaseService.getTopMoves(fen, 1);
 
       if (!topMoves.isAvailable || !topMoves.moves || topMoves.moves.length === 0) {
@@ -241,7 +241,7 @@ class MoveStrategyService {
    */
   async getHumanLikeMove(fen: string, strength: number = 0.8): Promise<string | null> {
     try {
-      const { tablebaseService } = await import('./TablebaseService');
+      const { tablebaseService } = await import('@domains/evaluation');
       const topMoves = await tablebaseService.getTopMoves(fen, 5);
 
       if (!topMoves.isAvailable || !topMoves.moves || topMoves.moves.length === 0) {

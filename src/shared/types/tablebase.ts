@@ -150,9 +150,6 @@ export interface PositionEvaluation {
 
   /** Whether DTZ is precise (not rounded) */
   precise: boolean;
-
-  /** Human-readable evaluation in German */
-  evaluation: string;
 }
 
 /**
@@ -222,7 +219,6 @@ export interface TablebaseResult {
   dtm: number | null;
   category: TablebaseCategory;
   precise: boolean;
-  evaluation: string;
 }
 
 /**

@@ -9,8 +9,8 @@
 
 import { vi } from 'vitest';
 import { BaseMockFactory } from './BaseMockFactory';
-import type { TablebaseService } from '@shared/services/TablebaseService';
-import type { TablebaseEvaluation, TablebaseMovesResult } from '@shared/services/TablebaseService';
+import type { TablebaseService } from '../../domains/evaluation';
+import type { TablebaseEvaluation, TablebaseMovesResult } from '../../domains/evaluation';
 
 type MockedTablebaseService = TablebaseService;
 

@@ -9,8 +9,8 @@ import {
   type UseQueryOptions,
   type UseQueryResult,
 } from '@tanstack/react-query';
-import { tablebaseService } from '@shared/services/TablebaseService';
-import type { TablebaseEvaluation, TablebaseMovesResult } from '@shared/services/TablebaseService';
+import { tablebaseService } from '@domains/evaluation';
+import type { TablebaseEvaluation, TablebaseMovesResult } from '@domains/evaluation';
 import { getLogger } from '@shared/services/logging';
 import { TIME_MULTIPLIERS } from '@shared/constants/multipliers';
 import { TIME_UNITS } from '@shared/constants/time.constants';
