@@ -91,6 +91,7 @@ export const useGameActions = (): GameActionsType => {
       updatePosition: actions.updatePosition,
       addMove: actions.addMove,
       setMoveHistory: actions.setMoveHistory,
+      resetMoveHistory: actions.resetMoveHistory,
       setCurrentMoveIndex: actions.setCurrentMoveIndex,
       setGameFinished: actions.setGameFinished,
       setGameStatus: actions.setGameStatus,

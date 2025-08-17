@@ -122,6 +122,27 @@ export const createGameActions = (
     set(state => {
       state.game.moveHistory = moves;
     }),
+  /**
+   * Resets the move history to empty array
+   * 
+   * @fires stateChange - When move history is cleared
+   * 
+   * @remarks
+   * This action provides a clean way for orchestrators to reset the move history
+   * without cross-slice coupling. Part of B5.5.5 Phase 3B refactoring to decouple
+   * TrainingSlice from GameSlice direct modifications.
+   * 
+   * @example
+   * ```typescript
+   * // In orchestrator
+   * store.getState().game.resetMoveHistory();
+   * ```
+   */
+  resetMoveHistory: () =>
+    set(state => {
+      state.game.moveHistory = [];
+      state.game.currentMoveIndex = -1;
+    }),
   setCurrentMoveIndex: (index: number) =>
     set(state => {
       state.game.currentMoveIndex = index;

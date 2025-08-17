@@ -68,6 +68,7 @@ export interface GameActions {
   updatePosition: (fen: string, pgn: string) => void;
   addMove: (move: ValidatedMove) => void;
   setMoveHistory: (moves: ValidatedMove[]) => void;
+  resetMoveHistory: () => void;
   setCurrentMoveIndex: (index: number) => void;
   setGameFinished: (finished: boolean) => void;
   setGameStatus: (isCheckmate: boolean, isDraw: boolean, isStalemate: boolean) => void;
