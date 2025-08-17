@@ -621,37 +621,38 @@ src/domains/game/
 - [x] ✅ `b5.1.1`: Removed private moveHistory array from MoveService (stateless pattern)
 - [x] ✅ `b5.1.2`: Added moveHistory to TrainingState interface, initialTrainingState, createTrainingState, and selectMoveHistory selector
 
-**B5.2 MoveService Interface & Implementation Foundation** 🔄 **IN PROGRESS**
+**B5.2 MoveService Interface & Implementation Foundation** ✅ **COMPLETE**
 
 Strategy: Gemini's "Fat Service, Thin Slice" pattern - Service handles complex logic, slice only manages state updates
 
-**B5.2.1 MoveService Scaffolding**
-- [ ] `b5.2.1-interface-creation`: Create MoveService.ts with IMoveService interface and empty class
-  - [ ] Define basic class structure with ChessEngine dependency injection
-  - [ ] Create empty interface (methods added incrementally)
-  - [ ] Constructor accepts IChessEngine instance
-- [ ] `b5.2.1-typescript-check`: TypeScript validation - `pnpm tsc`
-- [ ] `b5.2.1-commit`: Commit - `feat(game): B5.2.1 - scaffold MoveService interface and class`
+**B5.2.1 MoveService Scaffolding** ✅ **COMPLETE**
+- [x] ✅ `b5.2.1-interface-creation`: Create MoveService.ts with IMoveService interface and empty class
+  - [x] ✅ Define basic class structure with ChessEngine dependency injection
+  - [x] ✅ Create empty interface (methods added incrementally)
+  - [x] ✅ Constructor accepts IChessEngine instance
+- [x] ✅ `b5.2.1-typescript-check`: TypeScript validation - `pnpm tsc`
+- [x] ✅ `b5.2.1-commit`: Commit `dca3675e` - `feat(service): b5.2.1 - scaffold moveservice interface and class`
 
-**B5.2.2 Rich Return Type Design**
-- [ ] `b5.2.2-return-types`: Create MakeMoveResult interface with comprehensive data
-  - [ ] `newFen: string | null` - Updated position
-  - [ ] `move: Move | null` - Executed move object
-  - [ ] `pgn: string` - Updated PGN string  
-  - [ ] `isCheckmate: boolean, isStalemate: boolean` - Game status
-  - [ ] `error?: string` - Validation error if any
-- [ ] `b5.2.2-typescript-check`: TypeScript validation - `pnpm tsc`
-- [ ] `b5.2.2-commit`: Commit - `feat(game): B5.2.2 - define rich MakeMoveResult return type`
+**B5.2.2 Rich Return Type Design** ✅ **COMPLETE**
+- [x] ✅ `b5.2.2-return-types`: Create MakeMoveResult interface with comprehensive data
+  - [x] ✅ `newFen: string | null` - Updated position
+  - [x] ✅ `move: Move | null` - Executed move object
+  - [x] ✅ `pgn: string` - Updated PGN string  
+  - [x] ✅ `isCheckmate: boolean, isStalemate: boolean` - Game status
+  - [x] ✅ `isCapture, isPromotion, isCastling, isDraw, isCheck` - Move metadata
+  - [x] ✅ `error?: string` - Validation error if any
+- [x] ✅ `b5.2.2-typescript-check`: TypeScript validation - `pnpm tsc`
+- [x] ✅ `b5.2.2-commit`: Included in commit `dca3675e`
 
-**B5.3 TrainingSlice Service Integration Foundation**
+**B5.3 TrainingSlice Service Integration Foundation** ✅ **COMPLETE**
 
-**B5.3.1 Service Instantiation in TrainingSlice**
-- [ ] `b5.3.1-instantiation`: Import and instantiate MoveService in TrainingSlice
-  - [ ] Use existing chessEngine instance
-  - [ ] Make service available to all thunks/reducers
-  - [ ] No functional logic changes yet (safe preparation)
-- [ ] `b5.3.1-test-validation`: Full test validation - `pnpm test` (should pass, no changes)
-- [ ] `b5.3.1-commit`: Commit - `refactor(training): B5.3.1 - instantiate MoveService in TrainingSlice`
+**B5.3.1 Service Instantiation in TrainingSlice** ✅ **COMPLETE**
+- [x] ✅ `b5.3.1-instantiation`: MoveService already instantiated in rootStore
+  - [x] ✅ Uses existing chessEngine instance via dependency injection
+  - [x] ✅ Service available to all thunks/reducers via gameServices parameter
+  - [x] ✅ No functional logic changes (safe preparation pattern)
+- [x] ✅ `b5.3.1-test-validation`: Full test validation - `pnpm test` ✅ (all tests pass)
+- [x] ✅ `b5.3.1-commit`: Already committed in infrastructure setup
 
 **B5.3.2 makeUserMove Implementation**
 - [ ] `b5.3.2-user-move-method`: Implement makeUserMove in MoveService

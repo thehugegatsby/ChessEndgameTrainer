@@ -104,5 +104,12 @@ export interface MoveInput {
  * Services handle complex logic, return rich data for simple slice updates
  */
 export interface IMoveService {
-  // Methods will be added incrementally in B5.2-B5.6
+  /**
+   * Makes a user move with comprehensive result data
+   * 
+   * @param currentFen - Current position FEN
+   * @param move - Move to make
+   * @returns Rich result with all derived game state
+   */
+  makeUserMove(currentFen: string, move: MoveInput): MakeMoveResult;
 }
