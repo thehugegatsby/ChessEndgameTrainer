@@ -6,7 +6,7 @@
  */
 
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
-import { tablebaseService } from '../services/TablebaseService';
+import { tablebaseService } from '@domains/evaluation';
 import type { TablebaseEvaluation, TablebaseMove } from '../types/interfaces';
 import { TablebaseError } from '../types/interfaces';
 
@@ -54,7 +54,7 @@ export function useTablebaseEvaluation(
         throw new TablebaseError('FEN is required', 'INVALID_FEN');
       }
 
-      return tablebaseService.evaluate(fen);
+      return tablebaseService.getEvaluation(fen);
     },
 
     enabled: Boolean(fen),
@@ -117,7 +117,7 @@ export function useTablebaseMoves(
         throw new TablebaseError('FEN is required', 'INVALID_FEN');
       }
 
-      return tablebaseService.getBestMoves(fen, limit);
+      return tablebaseService.getTopMoves(fen, limit);
     },
 
     enabled: Boolean(fen),

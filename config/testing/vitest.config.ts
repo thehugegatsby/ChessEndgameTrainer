@@ -29,6 +29,7 @@ export default defineConfig({
     alias: {
       '@shared': path.resolve(projectRoot, 'src/shared'),
       '@features': path.resolve(projectRoot, 'src/features'), 
+      '@domains': path.resolve(projectRoot, 'src/domains'),
       '@tests': path.resolve(projectRoot, 'src/tests'),
       '@': path.resolve(projectRoot, 'src'),
     },
@@ -123,5 +124,12 @@ export default defineConfig({
 
   resolve: {
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
+    alias: {
+      '@shared': path.resolve(projectRoot, 'src/shared'),
+      '@features': path.resolve(projectRoot, 'src/features'), 
+      '@domains': path.resolve(projectRoot, 'src/domains'),
+      '@tests': path.resolve(projectRoot, 'src/tests'),
+      '@': path.resolve(projectRoot, 'src'),
+    },
   },
 });

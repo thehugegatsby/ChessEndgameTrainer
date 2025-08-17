@@ -31,11 +31,11 @@ vi.mock('@shared/services/logging', () => ({
   getLogger: vi.fn(() => mockLoggerInstance),
 }));
 
-vi.mock('@shared/services/TablebaseService');
+vi.mock('../../../domains/evaluation');
 
 // Now import the service and dependencies
 import { moveStrategyService } from '@shared/services/MoveStrategyService';
-import { tablebaseService } from '@shared/services/TablebaseService';
+import { tablebaseService } from '../../../domains/evaluation';
 
 // Use the mock logger instance directly
 const mockLogger = mockLoggerInstance;

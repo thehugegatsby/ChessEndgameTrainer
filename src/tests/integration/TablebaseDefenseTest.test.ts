@@ -3,7 +3,7 @@ import { vi, beforeAll, afterEach, afterAll } from 'vitest';
  * Direct test of TablebaseService DTM sorting for defense
  */
 
-import { tablebaseService } from '@shared/services/TablebaseService';
+import { tablebaseService } from '../../domains/evaluation';
 import { TRAIN_SCENARIOS } from '../fixtures/trainPositions';
 import { getLogger } from '@shared/services/logging/Logger';
 import { MSWServerMockFactory } from '../mocks/MSWServerMockFactory';

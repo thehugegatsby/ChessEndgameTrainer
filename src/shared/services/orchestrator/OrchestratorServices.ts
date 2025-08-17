@@ -13,7 +13,7 @@
  * orchestrator code without dynamic imports or direct service references.
  */
 
-import { tablebaseService } from '@shared/services/TablebaseService';
+import { tablebaseService } from '@domains/evaluation';
 import type { TablebaseEvaluation, TablebaseMovesResult } from '@shared/types/tablebase';
 
 /**

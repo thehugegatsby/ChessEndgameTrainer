@@ -597,7 +597,7 @@ class TablebaseService {
  * Singleton instance of optimized TablebaseService
  *
  * @example
- * import { tablebaseService } from '@shared/services/TablebaseService';
+ * import { tablebaseService } from '@domains/evaluation';
  *
  * // Get position evaluation (1 API call)
  * const eval = await tablebaseService.getEvaluation(fen);

@@ -15,7 +15,7 @@ vi.mock('../../utils/positionAnalysisFormatter', () => ({
 
 // Import after mocks are set up
 import { analysisService } from '../AnalysisService';
-import { tablebaseService } from '../TablebaseService';
+import { tablebaseService } from '../../../domains/evaluation';
 import { formatPositionAnalysis } from '../../utils/positionAnalysisFormatter';
 
 // Mock logger to prevent console output during tests

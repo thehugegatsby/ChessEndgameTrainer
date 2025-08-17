@@ -18,7 +18,7 @@ import { showInfoToast } from '@shared/utils/toast';
 
 import { renderHook, act } from '@testing-library/react';
 import { useDialogHandlers } from '@shared/hooks/useDialogHandlers';
-import { tablebaseService } from '@shared/services/TablebaseService';
+import { tablebaseService } from '../../../domains/evaluation';
 import { getOpponentTurnManager } from '@shared/store/orchestrators/handlePlayerMove';
 import { getFen, turn } from '@shared/utils/chess-logic';
 import { COMMON_FENS } from '@tests/fixtures/commonFens';

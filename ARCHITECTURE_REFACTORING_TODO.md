@@ -85,10 +85,11 @@
 - [x] ~~**Validation:** `pnpm tsc && pnpm lint` ✅~~
 
 ### B.3 Mock Migration
-- [ ] Copy mock: `cp WINNER_MOCK src/domains/evaluation/__mocks__/TablebaseService.ts`
-- [ ] Adjust mock imports for new domain structure
-- [ ] Commit: `git add . && git commit -m "Migrate TablebaseService mock to evaluation domain"`
-- [ ] **Validation:** `pnpm test` ✅
+- [x] ~~Copy mock: `cp WINNER_MOCK src/domains/evaluation/services/__mocks__/TablebaseService.ts`~~
+- [x] ~~Follow Vitest convention with correct __mocks__ directory placement~~
+- [x] ~~Update JSDoc comment to reflect new domain import path~~
+- [x] ~~Commit: `git add . && git commit -m "Migrate TablebaseService mock to evaluation domain"`~~
+- [x] ~~**Validation:** `pnpm test` ✅~~
 
 ### B.4 Import Replacement
 - [ ] Find all imports: `GREP -r "from.*TablebaseService" src/ --include="*.ts" --include="*.tsx"`
@@ -102,6 +103,7 @@
 **Phase B Complete:** [ ] (All services migrated, imports updated, tests green)
 
 **B.2 COMPLETE:** [x] ✅ Service successfully migrated to evaluation domain
+**B.3 COMPLETE:** [x] ✅ Mock successfully migrated to evaluation domain
 
 ---
 

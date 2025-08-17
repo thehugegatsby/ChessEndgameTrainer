@@ -13,7 +13,7 @@ import { orchestratorTablebase } from '@shared/services/orchestrator/Orchestrato
 import { getLogger } from '@shared/services/logging';
 import { handleTrainingCompletion } from '@shared/store/orchestrators/handlePlayerMove/move.completion';
 import { createTestValidatedMove } from '@tests/helpers/validatedMoveFactory';
-import { tablebaseService } from '@shared/services/TablebaseService';
+import { tablebaseService } from '../../../../domains/evaluation';
 import { COMMON_FENS } from '@tests/fixtures/commonFens';
 import type { StoreApi } from '@shared/store/orchestrators/types';
 

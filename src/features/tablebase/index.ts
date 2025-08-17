@@ -6,7 +6,7 @@
  */
 
 // Service
-export { tablebaseService } from './services/TablebaseService';
+export { tablebaseService } from '@domains/evaluation';
 
 // Hooks
 export {

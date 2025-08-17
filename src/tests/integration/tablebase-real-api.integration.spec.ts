@@ -12,7 +12,7 @@
  */
 
 import { describe, it, test, expect, beforeEach } from 'vitest';
-import { tablebaseService } from '@shared/services/TablebaseService';
+import { tablebaseService } from '../../domains/evaluation';
 import { COMMON_FENS } from '../fixtures/commonFens';
 
 // Skip these tests in CI to avoid rate limiting and external dependencies

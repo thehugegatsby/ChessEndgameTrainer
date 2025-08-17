@@ -19,7 +19,7 @@
  * formatting logic from specific data sources.
  */
 
-import type { TablebaseResult } from '@shared/services/TablebaseService';
+import type { TablebaseResult } from '@domains/evaluation';
 import { CHESS_EVALUATION, POSITION_ANALYSIS } from '../../constants/chess.constants';
 
 /**
