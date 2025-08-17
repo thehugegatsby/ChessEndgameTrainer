@@ -6,9 +6,10 @@
  * and test code while providing a stable testing API.
  */
 
-// Re-export the mock helpers from their internal location
+// Re-export the mock helpers and service from their internal location
 // This decouples consuming tests from internal file structure
 export {
+  tablebaseService,
   resetMock,
   mockWinPosition,
   mockDrawPosition,

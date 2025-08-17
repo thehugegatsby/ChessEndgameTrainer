@@ -33,7 +33,24 @@ vi.mock('next/link', () => ({
 vi.mock('../../../../shared/lib/firebase');
 
 // Mock TablebaseService - uses central mock from domain
-vi.mock('../../../../domains/evaluation');
+vi.mock('../../../../domains/evaluation', () => ({
+  tablebaseService: {
+    getEvaluation: vi.fn().mockResolvedValue({
+      isAvailable: false, // Default: no tablebase data available
+    }),
+    getTopMoves: vi.fn().mockResolvedValue({
+      isAvailable: false,
+      moves: [],
+    }),
+    clearCache: vi.fn(),
+    getMetrics: vi.fn().mockReturnValue({
+      cacheHitRate: 0,
+      totalApiCalls: 0,
+      errorBreakdown: {},
+      dedupedRequests: 0,
+    }),
+  },
+}));
 
 // Mock the Chessboard wrapper component to prevent DOM sizing issues in tests
 vi.mock('../../../../shared/components/chess/Chessboard', () => ({
