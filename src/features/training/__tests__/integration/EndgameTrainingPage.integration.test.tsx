@@ -345,9 +345,9 @@ describe('EndgameTrainingPage Integration Tests', () => {
       const analysisButton = screen.getByTestId('toggle-analysis');
       await user.click(analysisButton);
 
-      // Wait for error message
+      // Wait for error message from ErrorService.handleTablebaseError
       await waitFor(() => {
-        expect(screen.getByText(/Analyse konnte nicht geladen werden/i)?.isConnected).toBe(true);
+        expect(screen.getByText(/Die Tablebase-Datenbank konnte nicht geladen werden/i)?.isConnected).toBe(true);
       });
     });
 
@@ -692,9 +692,9 @@ describe('EndgameTrainingPage Integration Tests', () => {
       const analysisButton = screen.getByTestId('toggle-analysis');
       await user.click(analysisButton);
 
-      // Wait for error
+      // Wait for error from ErrorService.handleTablebaseError
       await waitFor(() => {
-        expect(screen.getByText(/Analyse konnte nicht geladen werden/i)?.isConnected).toBe(true);
+        expect(screen.getByText(/Die Tablebase-Datenbank konnte nicht geladen werden/i)?.isConnected).toBe(true);
       });
 
       // Try again - should succeed

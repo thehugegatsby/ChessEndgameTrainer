@@ -143,7 +143,7 @@ class OpponentTurnManager {
         ALGORITHM_MULTIPLIERS.DEFAULT_BATCH_SIZE
       );
 
-      if (!topMoves.isAvailable || !topMoves.moves || topMoves.moves.length === 0) {
+      if (!topMoves || !topMoves.isAvailable || !topMoves.moves || topMoves.moves.length === 0) {
         // No tablebase move available - just return control to player
         setState(draft => {
           draft.training.isPlayerTurn = true;

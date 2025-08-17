@@ -4,9 +4,8 @@
  */
 
 import { describe, it, test, expect, beforeEach } from 'vitest';
-import { describe, test, expect, beforeEach } from 'vitest';
 import { Chess } from 'chess.js';
-import { TEST_FENS, TEST_MOVES } from '../../../shared/testing/TestFixtures';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 describe('Chess.js Integration and Game Logic', () => {
   let game: Chess;
@@ -17,26 +16,26 @@ describe('Chess.js Integration and Game Logic', () => {
 
   describe('Position Loading and FEN Handling', () => {
     test('should_load_starting_position_correctly', () => {
-      game.load(TEST_FENS.STARTING_POSITION);
+      game.load(TEST_POSITIONS.STARTING_POSITION);
 
-      expect(game.fen()).toBe(TEST_FENS.STARTING_POSITION);
+      expect(game.fen()).toBe(TEST_POSITIONS.STARTING_POSITION);
       expect(game.turn()).toBe('w');
     });
 
     test('should_load_endgame_positions_correctly', () => {
-      game.load(TEST_FENS.KQK_TABLEBASE_WIN);
-      expect(game.fen()).toBe(TEST_FENS.KQK_TABLEBASE_WIN);
+      game.load(TEST_POSITIONS.KQK_TABLEBASE_WIN);
+      expect(game.fen()).toBe(TEST_POSITIONS.KQK_TABLEBASE_WIN);
 
-      game.load(TEST_FENS.ROOK_ENDGAME);
-      expect(game.fen()).toBe(TEST_FENS.ROOK_ENDGAME);
+      game.load(TEST_POSITIONS.ROOK_ENDGAME);
+      expect(game.fen()).toBe(TEST_POSITIONS.ROOK_ENDGAME);
 
-      game.load(TEST_FENS.WHITE_ADVANTAGE);
-      expect(game.fen()).toBe(TEST_FENS.WHITE_ADVANTAGE);
+      game.load(TEST_POSITIONS.WHITE_ADVANTAGE);
+      expect(game.fen()).toBe(TEST_POSITIONS.WHITE_ADVANTAGE);
     });
 
     test('should_reject_invalid_fen_strings', () => {
-      expect(() => game.load(TEST_FENS.INVALID_FEN)).toThrow();
-      expect(() => game.load(TEST_FENS.MALFORMED_FEN)).toThrow();
+      expect(() => game.load(TEST_POSITIONS.INVALID_FEN)).toThrow();
+      expect(() => game.load(TEST_POSITIONS.MALFORMED_FEN)).toThrow();
       expect(() => game.load('')).toThrow();
     });
 
@@ -73,7 +72,7 @@ describe('Chess.js Integration and Game Logic', () => {
   describe('Move Validation and Execution', () => {
     describe('Legal Moves', () => {
       test('should_allow_legal_pawn_moves', () => {
-        const move = game.move(TEST_MOVES.E2E4);
+        const move = game.move('e4');
 
         expect(move).not.toBeNull();
         expect(move?.from).toBe('e2');
@@ -82,7 +81,7 @@ describe('Chess.js Integration and Game Logic', () => {
       });
 
       test('should_allow_legal_knight_moves', () => {
-        const move = game.move(TEST_MOVES.NG1F3);
+        const move = game.move('Nf3');
 
         expect(move).not.toBeNull();
         expect(move?.from).toBe('g1');
@@ -102,7 +101,7 @@ describe('Chess.js Integration and Game Logic', () => {
 
       test('should_handle_en_passant_captures', () => {
         // Set up en passant scenario
-        game.load(TEST_FENS.EN_PASSANT_POSITION);
+        game.load(TEST_POSITIONS.EN_PASSANT_POSITION);
 
         const move = game.move({ from: 'e5', to: 'd6' });
 
@@ -113,7 +112,7 @@ describe('Chess.js Integration and Game Logic', () => {
 
       test('should_handle_castling_moves', () => {
         // Set up castling scenario
-        game.load(TEST_FENS.CASTLING_AVAILABLE);
+        game.load(TEST_POSITIONS.CASTLING_AVAILABLE);
 
         // Kingside castling
         const kingsideCastle = game.move({ from: 'e1', to: 'g1' });
@@ -121,7 +120,7 @@ describe('Chess.js Integration and Game Logic', () => {
         expect(kingsideCastle?.flags).toContain('k'); // Kingside castle flag
 
         // Reset and try queenside
-        game.load(TEST_FENS.CASTLING_AVAILABLE);
+        game.load(TEST_POSITIONS.CASTLING_AVAILABLE);
         const queensideCastle = game.move({ from: 'e1', to: 'c1' });
         expect(queensideCastle).not.toBeNull();
         expect(queensideCastle?.flags).toContain('q'); // Queenside castle flag
@@ -129,9 +128,9 @@ describe('Chess.js Integration and Game Logic', () => {
 
       test('should_handle_pawn_promotion', () => {
         // Set up promotion scenario
-        game.load(TEST_FENS.PAWN_PROMOTION_WHITE);
+        game.load(TEST_POSITIONS.PAWN_PROMOTION_WHITE);
 
-        const promotion = game.move(TEST_MOVES.PROMOTION_QUEEN);
+        const promotion = game.move({ from: 'e7', to: 'e8', promotion: 'q' });
 
         expect(promotion).not.toBeNull();
         expect(promotion?.flags).toContain('p'); // Promotion flag
@@ -141,26 +140,25 @@ describe('Chess.js Integration and Game Logic', () => {
 
     describe('Illegal Moves', () => {
       test('should_reject_illegal_pawn_moves', () => {
-        expect(() => game.move(TEST_MOVES.ILLEGAL_MOVE)).toThrow();
+        expect(() => game.move('invalidmove')).toThrow();
       });
 
       test('should_reject_moves_to_invalid_squares', () => {
-        expect(() => game.move(TEST_MOVES.INVALID_SQUARE)).toThrow();
+        expect(() => game.move('z9')).toThrow();
       });
 
       test('should_reject_moves_that_leave_king_in_check', () => {
-        // Set up endgame position where king cannot move, only pawn can move
-        game.load(TEST_FENS.EXPOSED_KING_POSITION);
+        // Set up position where king is in check
+        game.load(TEST_POSITIONS.KING_IN_CHECK);
 
-        // Try to move the h2 pawn, king stays safe (this should work)
-        const move = game.move({ from: 'h2', to: 'h3' });
-        expect(move).not.toBeNull();
+        // King must respond to check - try to castle (should fail)
+        expect(() => game.move('O-O')).toThrow();
       });
 
       test('should_reject_castling_through_check', () => {
         // Test chess.js castling validation - this validates the integration works
         // Use a position where castling is available
-        game.load(TEST_FENS.CASTLING_AVAILABLE);
+        game.load(TEST_POSITIONS.CASTLING_AVAILABLE);
 
         // Test that chess.js properly validates castling moves
         const legalMoves = game.moves({ verbose: true });
@@ -174,7 +172,7 @@ describe('Chess.js Integration and Game Logic', () => {
 
       test('should_reject_castling_when_king_in_check', () => {
         // Set up position where king is in check
-        game.load(TEST_FENS.KING_IN_CHECK);
+        game.load(TEST_POSITIONS.KING_IN_CHECK);
 
         // Cannot castle when king is in check from queen on e2
         expect(() => game.move({ from: 'e1', to: 'g1' })).toThrow();
@@ -183,7 +181,7 @@ describe('Chess.js Integration and Game Logic', () => {
 
       test('should_reject_moves_when_no_castling_rights', () => {
         // Set up position without castling rights
-        game.load(TEST_FENS.CASTLING_NO_RIGHTS);
+        game.load(TEST_POSITIONS.CASTLING_NO_RIGHTS);
 
         // Castling without rights - chess.js throws
         expect(() => game.move({ from: 'e1', to: 'g1' })).toThrow();
@@ -235,7 +233,7 @@ describe('Chess.js Integration and Game Logic', () => {
     describe('Stalemate Detection', () => {
       test('should_detect_stalemate_correctly', () => {
         // Set up a real stalemate position: Black king trapped by white king and pawn
-        game.load(TEST_FENS.STALEMATE_POSITION);
+        game.load(TEST_POSITIONS.STALEMATE_POSITION);
 
         expect(game.isStalemate()).toBe(true);
         expect(game.isGameOver()).toBe(true);
@@ -249,7 +247,7 @@ describe('Chess.js Integration and Game Logic', () => {
     describe('Draw Conditions', () => {
       test('should_detect_insufficient_material_draw', () => {
         // King vs King
-        game.load(TEST_FENS.INSUFFICIENT_MATERIAL);
+        game.load(TEST_POSITIONS.INSUFFICIENT_MATERIAL);
 
         expect(game.isInsufficientMaterial()).toBe(true);
         expect(game.isDraw()).toBe(true);
@@ -457,17 +455,17 @@ describe('Chess.js Integration and Game Logic', () => {
 
     test('should_handle_complex_endgame_positions', () => {
       // Load various endgame positions and verify they work
-      game.load(TEST_FENS.BLACK_ADVANTAGE);
-      expect(game.fen()).toBe(TEST_FENS.BLACK_ADVANTAGE);
+      game.load(TEST_POSITIONS.BLACK_ADVANTAGE);
+      expect(game.fen()).toBe(TEST_POSITIONS.BLACK_ADVANTAGE);
 
-      game.load(TEST_FENS.EQUAL_POSITION);
-      expect(game.fen()).toBe(TEST_FENS.EQUAL_POSITION);
+      game.load(TEST_POSITIONS.EQUAL_POSITION);
+      expect(game.fen()).toBe(TEST_POSITIONS.EQUAL_POSITION);
 
-      game.load(TEST_FENS.KPK_WINNING);
-      expect(game.fen()).toBe(TEST_FENS.KPK_WINNING);
+      game.load(TEST_POSITIONS.KPK_WINNING);
+      expect(game.fen()).toBe(TEST_POSITIONS.KPK_WINNING);
 
       // Each should still allow move generation
-      game.load(TEST_FENS.EQUAL_POSITION);
+      game.load(TEST_POSITIONS.EQUAL_POSITION);
       const moves = game.moves();
       expect(moves.length).toBeGreaterThan(0);
     });
