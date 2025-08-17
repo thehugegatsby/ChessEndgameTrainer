@@ -4,13 +4,13 @@
  */
 
 import type { StoreApi } from '../types';
-import { getFen, turn, makeMove, isGameOver } from '@shared/utils/chess-logic';
+import { getFen, turn, isGameOver } from '@shared/utils/chess-logic';
 // Using pure functions for chess logic
 import type { TablebaseMove } from '@shared/types/tablebase';
 import { ErrorService } from '@shared/services/ErrorService';
 import { handleTrainingCompletion } from './move.completion';
 import { getLogger } from '@shared/services/logging';
-import { createValidatedMove } from '@shared/types/chess';
+import { orchestratorMoveService } from '@shared/services/orchestrator/OrchestratorGameServices';
 import { ALGORITHM_MULTIPLIERS } from '@shared/constants/multipliers';
 
 const OPPONENT_TURN_DELAY = 500; // ms
@@ -155,10 +155,10 @@ class OpponentTurnManager {
       // Select optimal move (see selectOptimalMove for algorithm)
       const bestMove = selectOptimalMove(topMoves.moves);
 
-      // Execute the opponent move (tablebase moves should always be valid)
-      const move = makeMove(currentState.game.currentFen, bestMove.san);
-      if (!move) {
-        throw new Error(`Failed to execute tablebase move: ${bestMove.san}`);
+      // Execute the opponent move using MoveService for consistency
+      const moveResult = orchestratorMoveService.makeEngineMove(currentFen, bestMove.san);
+      if (!moveResult.newFen || !moveResult.move) {
+        throw new Error(`Failed to execute tablebase move: ${bestMove.san} - ${moveResult.error || 'Unknown error'}`);
       }
 
       // Update state - switch back to player's turn
@@ -169,11 +169,14 @@ class OpponentTurnManager {
 
       // Check if game ended after opponent move
       // Update state with the new position after opponent move
-      const newFen = move.newFen;
+      const newFen = moveResult.newFen;
+      const validatedMove = moveResult.move;
+      
       api.setState(draft => {
         draft.game.currentFen = newFen;
-        const validatedMove = createValidatedMove(move.move, currentFen, newFen);
-        draft.game.moveHistory.push(validatedMove);
+        if (validatedMove) {
+          draft.game.moveHistory.push(validatedMove);
+        }
       });
 
       if (isGameOver(newFen)) {
