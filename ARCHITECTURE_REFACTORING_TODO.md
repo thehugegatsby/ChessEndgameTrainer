@@ -724,7 +724,7 @@ Strategy: Gemini's "Fat Service, Thin Slice" pattern - Service handles complex l
 **Strategy:** Enhancement-First with 3-Phase Atomic Implementation
 **Target:** Complete "Fat Service, Thin Slice" pattern + TrainingSlice LOC reduction (987 → <600)
 
-### **PHASE A: SERVICE ENHANCEMENT (Steps 1-4)** ✅ **COMPLETE**
+### **PHASE A: SERVICE ENHANCEMENT (Steps 1-4)** ✅ **COMPLETE (2025-08-17)**
 
 **B5.5.1: Enhance MakeMoveResult Interface** ✅ **COMPLETE**
 - [x] ✅ `b5.5.1-analysis`: Analyzed current MakeMoveResult vs TrainingSlice needs
@@ -754,38 +754,121 @@ Strategy: Gemini's "Fat Service, Thin Slice" pattern - Service handles complex l
 - [x] ✅ `b5.5.2-lint`: Linter check - `pnpm lint` ✅
 - [x] ✅ `b5.5.2-commit`: Commit `b22d48d0` - "feat(service): implement pragmatic move metadata in MoveService"
 
-**B5.5.3: Enhance Unit Tests for New Fields**
-- [ ] `b5.5.3-test-enhancement`: Update MoveService unit tests to verify 6 new fields:
-  - [ ] Test piece type detection for all piece types (pawn, knight, bishop, rook, queen, king)
-  - [ ] Test captured piece detection for various captures
-  - [ ] Test en passant flag detection
-  - [ ] Test move number parsing from FEN
-  - [ ] Test half-move clock parsing from FEN
-  - [ ] Test castling side detection (king-side vs queen-side)
-- [ ] `b5.5.3-test-run`: Run enhanced tests - `pnpm test MoveService`
-- [ ] `b5.5.3-validation`: TypeScript check - `pnpm tsc`
-- [ ] `b5.5.3-lint`: Linter check - `pnpm lint`
-- [ ] `b5.5.3-commit`: Commit - "test(service): enhance MoveService tests for pragmatic metadata fields"
+**B5.5.3: Enhance Unit Tests for New Fields** ✅ **COMPLETE**
+- [x] ✅ `b5.5.3-test-enhancement`: Updated MoveService unit tests to verify 6 new fields:
+  - [x] ✅ Enhanced from 7 to 11 comprehensive tests
+  - [x] ✅ Test piece type detection for all piece types (pawn, knight, bishop, rook, queen, king)
+  - [x] ✅ Test captured piece detection for various captures
+  - [x] ✅ Test en passant flag detection
+  - [x] ✅ Test move number parsing from FEN (half-move clock and full move number)
+  - [x] ✅ Test castling side detection (king-side vs queen-side)
+  - [x] ✅ Added tests for error case defaults (empty strings, zeros, undefined)
+- [x] ✅ `b5.5.3-test-run`: Run enhanced tests - `pnpm test MoveService` - 11/11 tests passing ✅
+- [x] ✅ `b5.5.3-validation`: TypeScript check - `pnpm tsc` ✅
+- [x] ✅ `b5.5.3-lint`: Linter check - `pnpm lint` ✅
+- [x] ✅ `b5.5.3-commit`: Commit `6c46a55a` - "test(service): enhance MoveService tests for pragmatic metadata fields"
 
-**B5.5.4: Validate Enhanced Services**
-- [ ] `b5.5.4-integration-test`: Run full integration test suite
-- [ ] `b5.5.4-manual-validation`: Manual testing of enhanced move results
-- [ ] `b5.5.4-validation`: TypeScript check - `pnpm tsc`
-- [ ] `b5.5.4-lint`: Linter check - `pnpm lint`
-- [ ] `b5.5.4-test`: Full test suite - `pnpm test`
-- [ ] `b5.5.4-commit`: Commit - "feat(service): validate enhanced MoveService with pragmatic metadata"
+**B5.5.4: Validate Enhanced Services** ✅ **COMPLETE**
+- [x] ✅ `b5.5.4-integration-test`: Run full integration test suite
+- [x] ✅ `b5.5.4-manual-validation`: Manual testing of enhanced move results
+- [x] ✅ `b5.5.4-validation`: TypeScript check - `pnpm tsc` ✅
+- [x] ✅ `b5.5.4-lint`: Linter check - `pnpm lint` ✅  
+- [x] ✅ `b5.5.4-test`: Full test suite - `pnpm test` ✅
+- [x] ✅ `b5.5.4-commit`: Commit `da0459c9` - "feat(service): validate enhanced MoveService with pragmatic metadata"
 
 ### **PHASE B: CONSUMER OPTIMIZATION (Steps 5-8)**
 
-**B5.5.5: Optimize TrainingSlice Move Handling**
-- [ ] `b5.5.5-analysis`: Identify TrainingSlice reducers that can use enhanced MakeMoveResult
-- [ ] `b5.5.5-reducer-updates`: Update TrainingSlice reducers to leverage service data:
-  - [ ] Replace manual material calculations with service-provided materialBalance
-  - [ ] Use enhanced move metadata for move history entries
-  - [ ] Simplify move validation logic using service results
-- [ ] `b5.5.5-validation`: TypeScript check - `pnpm tsc`
-- [ ] `b5.5.5-lint`: Linter check - `pnpm lint`
-- [ ] `b5.5.5-commit`: Commit - "refactor(training): leverage enhanced MoveService results in reducers"
+**B5.5.5: Optimize TrainingSlice Move Handling** 🔄 **IN PROGRESS - DETAILED PLAN**
+
+**Strategy:** Conservative field-by-field optimization with atomic commits and comprehensive validation
+**Objective:** Leverage enhanced MoveService metadata, targeting LOC reduction from 987 → <600 lines
+
+**PHASE 1: Analysis & Baseline (Tasks 1-2)**
+- [ ] `b5.5.5.1`: TrainingSlice Analysis
+  - [ ] Read trainingSlice.ts and mark optimization opportunities with comments
+  - [ ] Search for patterns: manual FEN parsing, piece detection, capture checking
+  - [ ] Create list of line numbers for each optimization category
+  - [ ] Validation: Analysis only (no changes)
+- [ ] `b5.5.5.2`: LOC Baseline Measurement
+  - [ ] Use `wc -l trainingSlice.ts` to get exact line count
+  - [ ] Document baseline in ARCHITECTURE_REFACTORING_TODO.md
+  - [ ] Create tracking table for incremental progress
+  - [ ] Commit: "docs: establish LOC baseline for B5.5.5 optimization"
+
+**PHASE 2: Service Integration Points (Tasks 3-4)**
+- [ ] `b5.5.5.3`: Identify Service Usage Points
+  - [ ] Find all places where MoveService results are consumed
+  - [ ] Look for handleUserMove and handleOpponentMove orchestrators
+  - [ ] Document which fields from MakeMoveResult are currently unused
+  - [ ] Validation: TypeScript check
+- [ ] `b5.5.5.4`: Create Optimization Map
+  - [ ] Map each new field to potential usage locations:
+    - [ ] pieceType → move history, logging
+    - [ ] capturedPiece → material tracking, UI feedback
+    - [ ] moveNumber/halfMoveClock → game progress tracking
+  - [ ] Commit: "docs: map service enhancement opportunities in TrainingSlice"
+
+**PHASE 3: Field Optimizations (Tasks 5-8)**
+- [ ] `b5.5.5.5`: Optimize pieceType Usage
+  - [ ] Replace manual piece type detection in TrainingSlice
+  - [ ] Search for patterns like `chess.get()`, piece checking logic
+  - [ ] Use service-provided `pieceType` field instead
+  - [ ] Validation: `pnpm tsc && pnpm lint`
+  - [ ] Commit: "refactor(training): use service-provided pieceType field"
+- [ ] `b5.5.5.6`: Optimize Capture Detection
+  - [ ] Replace manual capture detection logic
+  - [ ] Look for piece count comparisons, target square checks
+  - [ ] Use `isCapture` and `capturedPiece` from service
+  - [ ] Validation: `pnpm tsc && pnpm lint && pnpm test training`
+  - [ ] Commit: "refactor(training): use service-provided capture metadata"
+- [ ] `b5.5.5.7`: Optimize Special Moves
+  - [ ] Replace en passant detection logic
+  - [ ] Replace castling side detection
+  - [ ] Use `isEnPassant` and `castleSide` from service
+  - [ ] Validation: `pnpm tsc && pnpm lint`
+  - [ ] Commit: "refactor(training): use service-provided special move flags"
+- [ ] `b5.5.5.8`: Optimize Move Counters
+  - [ ] Replace FEN parsing for move numbers
+  - [ ] Use `moveNumber` and `halfMoveClock` from service
+  - [ ] Remove manual FEN splitting logic
+  - [ ] Validation: `pnpm tsc && pnpm lint`
+  - [ ] Commit: "refactor(training): use service-provided move counters"
+
+**PHASE 4: Final Validation (Tasks 9-12)**
+- [ ] `b5.5.5.9`: Comprehensive Testing
+  - [ ] Run full test suite: `pnpm test`
+  - [ ] Manual UI testing of move processing
+  - [ ] Verify no functional regressions
+  - [ ] Test edge cases: captures, promotions, castling, en passant
+- [ ] `b5.5.5.10`: LOC Measurement & Progress
+  - [ ] Measure final LOC: `wc -l trainingSlice.ts`
+  - [ ] Calculate reduction percentage
+  - [ ] Update ARCHITECTURE_REFACTORING_TODO.md with results
+  - [ ] Commit: "docs: record B5.5.5 LOC reduction results"
+- [ ] `b5.5.5.11`: Code Quality Review
+  - [ ] Run `pnpm lint --fix` to clean up formatting
+  - [ ] Review removed code to ensure no functionality lost
+  - [ ] Verify "Fat Service, Thin Slice" pattern is working
+  - [ ] Validation: Clean TypeScript + ESLint, functional UI
+- [ ] `b5.5.5.12`: Documentation & Handoff
+  - [ ] Update inline comments where logic was simplified
+  - [ ] Document any assumptions or limitations
+  - [ ] Create summary of changes for next phase (B5.5.6)
+  - [ ] Commit: "feat(training): complete B5.5.5 TrainingSlice optimization"
+
+**Success Checkpoints:**
+- After Phase 1: Must identify at least 5 optimization opportunities
+- After Phase 2: Clear optimization map created and validated
+- After Phase 3: At least 15% LOC reduction achieved, all tests passing
+- After Phase 4: Final LOC reduction ≥20% (target: 39%), ready for B5.5.6
+
+**Enhanced MakeMoveResult Fields Available:**
+- `pieceType: string` - Type of piece moved (p, n, b, r, q, k)
+- `capturedPiece?: string` - Captured piece type (optional)
+- `isEnPassant: boolean` - En passant capture detection
+- `moveNumber: number` - Full move number from FEN
+- `halfMoveClock: number` - 50-move rule counter from FEN
+- `castleSide?: 'king' | 'queen'` - Castling side (optional)
 
 **B5.5.6: Simplify Move Processing Logic**
 - [ ] `b5.5.6-simplification`: Remove redundant move processing in TrainingSlice:
@@ -1038,3 +1121,210 @@ Strategy: Gemini's "Fat Service, Thin Slice" pattern - Service handles complex l
 - [ ] FUTURE: Resolve MoveInput type conflicts between services and hooks
 
 **Architectural Achievement:** Service Delegation Pattern etabliert, Stateless Services, Zustand als Single Source of Truth
+
+---
+
+# B5.5.5 TrainingSlice Analysis Results
+
+## Baseline Measurement (2025-08-17)
+- **Current LOC:** 1079 lines (vs expected 987)
+- **Analysis Phase:** Complete - Domain boundary violations identified and marked
+
+## Domain Boundary Violations Identified
+
+### ❌ CRITICAL VIOLATIONS (Lines requiring refactoring):
+
+1. **Chess Rule Logic in Slice** (Lines 232-233, 675-677)
+   ```typescript
+   // VIOLATION: sideToMove === colorToTrain logic
+   state.training.isPlayerTurn = position.sideToMove === position.colorToTrain;
+   ```
+   **SOLUTION:** Orchestrator determines turn, slice receives boolean
+
+2. **Cross-Slice State Modification** (Line 668)
+   ```typescript
+   // VIOLATION: Direct modification of game slice
+   state.game.moveHistory = [];
+   ```
+   **SOLUTION:** Orchestrator calls gameSlice.resetMoveHistory()
+
+3. **Manual Move Metadata Extraction** (Lines 590-613)
+   ```typescript
+   // AVAILABLE: pieceType, capturedPiece, isEnPassant from MoveService
+   // CURRENT: Manual extraction in slice actions
+   ```
+   **SOLUTION:** Use rich MakeMoveResult from MoveService
+
+### ✅ CORRECT PATTERNS (Already implemented):
+
+1. **Service Delegation** (Lines 870-877)
+   ```typescript
+   // CORRECT: Delegate to PositionService, return result
+   const quality = await services.positionService.evaluateMoveQuality(move, fen, baseline);
+   ```
+
+2. **Training State Management** (Lines 457-492)
+   ```typescript
+   // CORRECT: Pure training metadata updates
+   state.training.hintsUsed = state.training.hintsUsed + 1;
+   ```
+
+## Architectural Target (Gemini-Validated)
+
+**"Thin Slice" Responsibilities:**
+- ✅ Session State: currentPosition, navigation
+- ✅ Training Metadata: hints, mistakes, streaks  
+- ✅ UI State: dialogs, loading states
+- ✅ History Storage: moveHistory (creation delegated to services)
+
+**Delegate to Services:**
+- ❌ Chess Logic: turn determination, rule validation
+- ❌ Move Processing: metadata extraction, validation
+- ❌ State Derivation: FEN parsing, game status checks
+
+## Phase 2: Service Integration Points Identified
+
+### B5.5.5.3: Current MoveService Usage Analysis
+
+**✅ ACTIVE INTEGRATION POINTS:**
+
+1. **OrchestratorGameServices** (Primary Integration Layer)
+   ```typescript
+   // File: src/shared/services/orchestrator/OrchestratorGameServices.ts
+   orchestratorMoveService.makeUserMove(currentFen, move): MakeMoveResult
+   orchestratorMoveService.makeEngineMove(currentFen, sanMove): MakeMoveResult
+   ```
+   **Status:** ✅ FULLY INTEGRATED - Rich MakeMoveResult with enhanced metadata
+
+2. **handlePlayerMove Orchestrator** (Consumer)
+   ```typescript
+   // File: src/shared/store/orchestrators/handlePlayerMove/index.ts:189
+   const richMoveResult = orchestratorMoveService.makeUserMove(fenBefore, moveInput);
+   const moveResult = adaptMoveServiceResult(richMoveResult); // TODO: Remove adapter
+   ```
+   **Status:** ⚠️ USES ADAPTER - Rich metadata available but not fully utilized
+
+3. **OpponentTurnHandler** (Consumer)
+   ```typescript
+   // File: src/shared/store/orchestrators/handlePlayerMove/OpponentTurnHandler.ts:159
+   const moveResult = orchestratorMoveService.makeEngineMove(currentFen, bestMove.san);
+   ```
+   **Status:** ✅ INTEGRATED - Direct MakeMoveResult usage
+
+4. **TrainingSlice Services** (Dependency Injection)
+   ```typescript
+   // File: src/shared/store/slices/trainingSlice.ts:191
+   services: {
+     positionService: PositionServiceInterface;
+     moveService: MoveServiceInterface;
+     gameStateService: GameStateServiceInterface;
+   }
+   ```
+   **Status:** ✅ AVAILABLE - Services injected but slice still has domain violations
+
+**🎯 OPTIMIZATION OPPORTUNITIES IDENTIFIED:**
+
+### Available Enhanced Metadata (Not Fully Utilized):
+```typescript
+interface MakeMoveResult {
+  // ✅ USED: Basic move data
+  newFen: string | null;
+  move: Move | null;
+  pgn: string;
+  
+  // ✅ USED: Game state flags
+  isCheckmate: boolean;
+  isStalemate: boolean;
+  isDraw: boolean;
+  isCheck: boolean;
+  
+  // ❌ UNUSED: Rich move metadata
+  pieceType: string;           // ← Available but not used in TrainingSlice
+  capturedPiece?: string;      // ← Available but not used
+  isEnPassant: boolean;        // ← Available but not used
+  moveNumber: number;          // ← Available but not used
+  halfMoveClock: number;       // ← Available but not used
+  castleSide?: 'king' | 'queen'; // ← Available but not used
+}
+```
+
+### Domain Boundary Violations Requiring Service Delegation:
+1. **Chess Rule Logic in Slice** → Use GameStateService.getTurn()
+2. **Manual Metadata Extraction** → Use MakeMoveResult fields directly
+3. **Cross-Slice Coupling** → Orchestrator coordination instead
+
+### B5.5.5.4: Optimization Map - Field-by-Field Strategy
+
+**🎯 TARGET: Transform TrainingSlice into Pure State Container**
+
+#### **OPTIMIZATION 1: Chess Rule Logic Elimination**
+**Lines:** 232-233, 675-677
+```typescript
+// CURRENT VIOLATION:
+state.training.isPlayerTurn = position.sideToMove === position.colorToTrain;
+
+// SOLUTION:
+// 1. Orchestrator determines turn using GameStateService.getTurn()
+// 2. Orchestrator passes computed boolean to slice
+// 3. Slice becomes pure state setter: setPlayerTurn(boolean)
+```
+**Estimated Impact:** 5-8 lines removed, cleaner domain boundaries
+
+#### **OPTIMIZATION 2: Enhanced Metadata Utilization**
+**Target:** handlePlayerMove orchestrator adapter removal
+```typescript
+// CURRENT: Rich data → Legacy adapter → Slice
+const richMoveResult = orchestratorMoveService.makeUserMove(fenBefore, moveInput);
+const moveResult = adaptMoveServiceResult(richMoveResult); // Remove this
+
+// SOLUTION: Rich data → Direct slice updates
+// Use pieceType, capturedPiece, isEnPassant, moveNumber, halfMoveClock directly
+```
+**Estimated Impact:** 20-30 lines in orchestrator, enable richer training feedback
+
+#### **OPTIMIZATION 3: Cross-Slice Coupling Removal**
+**Lines:** 668
+```typescript
+// CURRENT VIOLATION:
+state.game.moveHistory = []; // Direct cross-slice modification
+
+// SOLUTION:
+// Orchestrator calls: 
+// - gameSlice.resetMoveHistory()
+// - trainingSlice.resetTrainingState()
+```
+**Estimated Impact:** 3-5 lines removed, better separation of concerns
+
+#### **OPTIMIZATION 4: Dead Code & Helper Cleanup**
+**Target:** Redundant helper methods and imports
+```typescript
+// Remove manual metadata extraction functions
+// Remove unused chess-logic imports
+// Consolidate similar state update patterns
+```
+**Estimated Impact:** 15-25 lines removed
+
+### **IMPLEMENTATION SEQUENCE:**
+
+**Phase 3A: Orchestrator Enhancement (High Impact)**
+1. Remove adaptMoveServiceResult adapter
+2. Use rich MakeMoveResult directly in orchestrators
+3. Enable richer training feedback using new metadata
+
+**Phase 3B: Slice Purification (Architecture Fix)**
+1. Replace chess rule logic with service calls
+2. Remove cross-slice coupling
+3. Transform actions into pure state setters
+
+**Phase 3C: Dead Code Cleanup (Polish)**
+1. Remove unused helpers and imports
+2. Consolidate state update patterns
+3. Final LOC measurement
+
+### **EXPECTED RESULTS:**
+- **LOC Reduction:** 1079 → ~800-850 LOC (20-25% reduction)
+- **Architecture:** Clean domain boundaries established
+- **Maintainability:** Slice becomes pure state container
+- **Testability:** Simpler slice, richer service integration
+
+Ready for Phase 3: Field Optimizations
