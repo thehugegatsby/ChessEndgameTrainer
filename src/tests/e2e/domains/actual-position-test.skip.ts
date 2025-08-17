@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test';
 import { getLogger } from '../../../shared/services/logging';
 import { E2E } from '../../../shared/constants';
 import { TrainingBoardPage } from '../helpers/pageObjects/TrainingBoardPage';
-import { COMMON_FENS } from '../../fixtures/commonFens';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 import {
   waitForTablebaseInit,
   waitForUIReady,
@@ -139,7 +139,7 @@ test.describe.skip('Actual Position 1 - King and Pawn vs King', () => {
       // Verify the Lichess link contains the expected FEN
       const lichessLink = page.locator('a[href*="lichess.org/analysis"]');
       const href = await lichessLink.getAttribute('href');
-      expect(href).toContain(COMMON_FENS.KPK_WHITE_TO_MOVE);
+      expect(href).toContain(TEST_POSITIONS.KPK_WHITE_TO_MOVE);
 
       logger.info('Position 1 loaded successfully');
     });

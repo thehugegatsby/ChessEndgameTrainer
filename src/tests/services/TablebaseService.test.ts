@@ -9,8 +9,7 @@ import { vi } from 'vitest';
  */
 
 import { tablebaseService, TablebaseService } from '../../domains/evaluation';
-import { TEST_FENS } from '../../shared/testing/TestFixtures';
-import { EndgamePositions, SpecialPositions, StandardPositions } from '../fixtures/commonFens';
+import { TEST_POSITIONS, EndgamePositions, SpecialPositions, StandardPositions } from '@shared/testing/ChessTestData';
 
 // Mock the LichessApiClient
 vi.mock('../../shared/services/api/LichessApiClient', () => ({
@@ -234,7 +233,7 @@ describe('TablebaseService', () => {
     });
 
     it('should handle positions with too many pieces', async () => {
-      const startingPosition = TEST_FENS.STARTING_POSITION;
+      const startingPosition = TEST_POSITIONS.STARTING_POSITION;
 
       const result = await testService.getEvaluation(startingPosition);
 

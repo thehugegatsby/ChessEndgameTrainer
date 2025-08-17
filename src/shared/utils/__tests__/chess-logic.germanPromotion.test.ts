@@ -7,7 +7,7 @@ import { describe, it, test, expect, beforeEach } from 'vitest';
 import { makeMove, validateMove } from '@shared/utils/chess-logic';
 
 // Import aus der zentralen Fixtures-Datenbank
-import { COMMON_FENS } from '@tests/fixtures/commonFens';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 describe('Chess Logic - German Promotion Notation', () => {
   // No service setup needed - using pure functions
@@ -15,7 +15,7 @@ describe('Chess Logic - German Promotion Notation', () => {
   describe('German notation conversion', () => {
     it('should handle German "D" for Dame (Queen) promotion', () => {
       // Test move with German notation (e7 to e8)
-      const result = makeMove(COMMON_FENS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'D' });
+      const result = makeMove(TEST_POSITIONS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'D' });
 
       expect(result).not.toBeNull();
       expect(result?.move.san).toContain('=Q'); // Should be converted to Queen
@@ -23,7 +23,7 @@ describe('Chess Logic - German Promotion Notation', () => {
     });
 
     it('should handle lowercase German "d" for Dame (Queen) promotion', () => {
-      const result = makeMove(COMMON_FENS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'd' });
+      const result = makeMove(TEST_POSITIONS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'd' });
 
       expect(result).not.toBeNull();
       expect(result?.move.san).toContain('=Q');
@@ -31,7 +31,7 @@ describe('Chess Logic - German Promotion Notation', () => {
     });
 
     it('should handle German "T" for Turm (Rook) promotion', () => {
-      const result = makeMove(COMMON_FENS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'T' });
+      const result = makeMove(TEST_POSITIONS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'T' });
 
       expect(result).not.toBeNull();
       expect(result?.move.san).toContain('=R');
@@ -39,7 +39,7 @@ describe('Chess Logic - German Promotion Notation', () => {
     });
 
     it('should handle German "L" for Läufer (Bishop) promotion', () => {
-      const result = makeMove(COMMON_FENS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'L' });
+      const result = makeMove(TEST_POSITIONS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'L' });
 
       expect(result).not.toBeNull();
       expect(result?.move.san).toContain('=B');
@@ -47,7 +47,7 @@ describe('Chess Logic - German Promotion Notation', () => {
     });
 
     it('should handle German "S" for Springer (Knight) promotion', () => {
-      const result = makeMove(COMMON_FENS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'S' });
+      const result = makeMove(TEST_POSITIONS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'S' });
 
       expect(result).not.toBeNull();
       expect(result?.move.san).toContain('=N');
@@ -55,7 +55,7 @@ describe('Chess Logic - German Promotion Notation', () => {
     });
 
     it('should handle string notation with German promotion "f7f8D"', () => {
-      const result = makeMove(COMMON_FENS.PAWN_PROMOTION_READY, 'e7e8D');
+      const result = makeMove(TEST_POSITIONS.PAWN_PROMOTION_READY, 'e7e8D');
 
       expect(result).not.toBeNull();
       expect(result?.move.san).toContain('=Q');
@@ -65,7 +65,7 @@ describe('Chess Logic - German Promotion Notation', () => {
     });
 
     it('should handle string notation with German promotion and dash "f7-f8D"', () => {
-      const result = makeMove(COMMON_FENS.PAWN_PROMOTION_READY, 'e7-e8D');
+      const result = makeMove(TEST_POSITIONS.PAWN_PROMOTION_READY, 'e7-e8D');
 
       expect(result).not.toBeNull();
       expect(result?.move.san).toContain('=Q');
@@ -76,41 +76,41 @@ describe('Chess Logic - German Promotion Notation', () => {
 
     it('should still handle English notation correctly', () => {
       // Test with standard English notation
-      const resultQ = makeMove(COMMON_FENS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'Q' });
+      const resultQ = makeMove(TEST_POSITIONS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'Q' });
       expect(resultQ?.move.promotion).toBe('q');
 
-      const resultLowerQ = makeMove(COMMON_FENS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'q' });
+      const resultLowerQ = makeMove(TEST_POSITIONS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'q' });
       expect(resultLowerQ?.move.promotion).toBe('q');
     });
 
     it('should validate moves with German promotion notation', () => {
       // Validate with German notation
-      const isValidD = validateMove(COMMON_FENS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'D' });
+      const isValidD = validateMove(TEST_POSITIONS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'D' });
       expect(isValidD).toBe(true);
 
-      const isValidT = validateMove(COMMON_FENS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'T' });
+      const isValidT = validateMove(TEST_POSITIONS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'T' });
       expect(isValidT).toBe(true);
 
-      const isValidL = validateMove(COMMON_FENS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'L' });
+      const isValidL = validateMove(TEST_POSITIONS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'L' });
       expect(isValidL).toBe(true);
 
-      const isValidS = validateMove(COMMON_FENS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'S' });
+      const isValidS = validateMove(TEST_POSITIONS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'S' });
       expect(isValidS).toBe(true);
     });
 
     it('should validate string notation with German promotion', () => {
-      const isValid = validateMove(COMMON_FENS.PAWN_PROMOTION_READY, 'e7e8D');
+      const isValid = validateMove(TEST_POSITIONS.PAWN_PROMOTION_READY, 'e7e8D');
       expect(isValid).toBe(true);
     });
 
     it('should validate string notation with German promotion and dash', () => {
-      const isValid = validateMove(COMMON_FENS.PAWN_PROMOTION_READY, 'e7-e8D');
+      const isValid = validateMove(TEST_POSITIONS.PAWN_PROMOTION_READY, 'e7-e8D');
       expect(isValid).toBe(true);
     });
 
     it('should handle invalid German notation gracefully', () => {
       // Test with invalid notation (should pass through and fail in chess.js)
-      const result = makeMove(COMMON_FENS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'X' });
+      const result = makeMove(TEST_POSITIONS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'X' });
       expect(result).toBeNull(); // Invalid promotion piece
     });
   });

@@ -22,13 +22,11 @@
 
 import type { StoreApi } from '../types';
 import type { Move as ChessJsMove } from 'chess.js';
-import { turn, isGameOver, type MoveResult } from '@shared/utils/chess-logic';
-import { createValidatedMove } from '@shared/types/chess';
+import { turn, isGameOver } from '@shared/utils/chess-logic';
 import { ErrorService } from '@shared/services/ErrorService';
 import { getLogger } from '@shared/services/logging';
 import { handleTrainingCompletion } from './move.completion';
 import { orchestratorMoveService } from '@shared/services/orchestrator/OrchestratorGameServices';
-import type { MakeMoveResult } from '@domains/game/services/MoveServiceInterface';
 
 // Import specialized modules
 import { MoveValidator } from './MoveValidator';
@@ -68,52 +66,9 @@ const defaultDependencies: Required<HandlePlayerMoveDependencies> = {
 };
 
 /**
- * Temporary adapter to convert rich MoveService result to legacy MoveResult format
- * 
- * @param richResult - Rich result from MoveService.makeUserMove  
- * @returns Legacy MoveResult format expected by downstream orchestrator logic
- * 
- * @remarks
- * TODO: Remove this adapter in follow-up refactoring to leverage full MakeMoveResult
- * This adapter enables service delegation without changing downstream logic in this phase
+ * ✅ REMOVED: adaptMoveServiceResult adapter (B5.5.5 Phase 3A.1)
+ * Now using rich MakeMoveResult directly for enhanced metadata access
  */
-function adaptMoveServiceResult(richResult: MakeMoveResult): MoveResult | null {
-  // Handle service error (move validation failed)
-  if (richResult.error || !richResult.newFen || !richResult.move) {
-    return null;
-  }
-
-  // Create a plain data object that is structurally identical to a ChessJsMove.
-  // This discards the methods from ValidatedMove, matching the legacy behavior.
-  const plainMoveObject = {
-    color: richResult.move.color,
-    from: richResult.move.from,
-    to: richResult.move.to,
-    piece: richResult.move.piece,
-    flags: richResult.move.flags,
-    san: richResult.move.san,
-    lan: richResult.move.lan,
-    ...(richResult.move.captured !== undefined && { captured: richResult.move.captured }),
-    ...(richResult.move.promotion !== undefined && { promotion: richResult.move.promotion }),
-  };
-
-  return {
-    newFen: richResult.newFen,
-    // We know this object is compatible, but the compiler is confused.
-    // Use an assertion to override the incorrect type error.
-    // This is a temporary measure until the root type conflict is resolved.
-    move: plainMoveObject as ChessJsMove,
-    isCheckmate: richResult.isCheckmate,
-    isStalemate: richResult.isStalemate,
-    isDraw: richResult.isDraw,
-    isCheck: richResult.isCheck,
-    gameResult: richResult.isCheckmate
-      ? (richResult.move.color === 'w' ? '1-0' : '0-1') // Winner is the player who made the checkmate move
-      : (richResult.isDraw || richResult.isStalemate)
-        ? '1/2-1/2'
-        : null
-  };
-}
 
 /**
  * Creates a handlePlayerMove function with injected dependencies
@@ -182,34 +137,33 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
       // Step 2: Get position before move for evaluation
       const fenBefore = state.game.currentFen;
 
-      // Step 3: Apply move to game state using MoveService (with adapter for legacy compatibility)
+      // Step 3: Apply move to game state using MoveService (direct rich result usage)
       const moveInput = typeof move === 'string' 
         ? { from: move.slice(0, 2), to: move.slice(2, 4), promotion: move.slice(4) }
         : move;
       const richMoveResult = orchestratorMoveService.makeUserMove(fenBefore, moveInput);
-      const moveResult = adaptMoveServiceResult(richMoveResult);
 
-      if (!moveResult) {
+      // ✅ B5.5.5 Phase 3A.1: Direct rich result usage (no adapter)
+      if (richMoveResult.error || !richMoveResult.newFen || !richMoveResult.move) {
         getLogger().error('[handlePlayerMove] Move execution failed:', richMoveResult.error || 'Unknown error');
         return false;
       }
 
-      const validatedMove = moveResult.move;
-      const fenAfter = moveResult.newFen;
+      const validatedMove = richMoveResult.move;
+      const fenAfter = richMoveResult.newFen;
 
-      // Create properly typed ValidatedMove for use throughout orchestrator
-      const validatedMoveEntry = createValidatedMove(validatedMove, fenBefore, fenAfter);
+      // ✅ Rich result already provides ValidatedMove - no conversion needed
       
       // Update game state
       setState(draft => {
         draft.game.currentFen = fenAfter;
-        // Add move to history using proper type-safe factory
-        draft.game.moveHistory.push(validatedMoveEntry);
+        // Add move to history - already ValidatedMove from service
+        draft.game.moveHistory.push(validatedMove);
         draft.game.currentMoveIndex = draft.game.moveHistory.length - 1;
       });
 
       // Step 4: Handle pawn promotion if applicable
-      const promotionInfo = deps.pawnPromotionHandler.checkPromotion(validatedMoveEntry);
+      const promotionInfo = deps.pawnPromotionHandler.checkPromotion(validatedMove);
       if (promotionInfo.isPromotion) {
         getLogger().info('[handlePlayerMove] Pawn promotion detected:', promotionInfo);
 
@@ -248,7 +202,7 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
       const qualityResult = await deps.moveQualityEvaluator.evaluateMoveQuality(
         fenBefore,
         fenAfter,
-        validatedMoveEntry,
+        validatedMove,
         validBaseline
       );
 

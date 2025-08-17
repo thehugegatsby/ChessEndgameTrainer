@@ -149,6 +149,8 @@ export class TestApiService {
     setPosition: (position: EndgamePosition) => void;
     goToMove: (moveIndex: number) => void;
     setAnalysisStatus: (status: string) => void;
+    // ✅ B5.5.5 Phase 3B.3: Orchestrator helper for coordinated state reset
+    resetTrainingAndGameState: () => Promise<void>;
   } | null = null;
 
   private constructor() {}
@@ -203,6 +205,8 @@ export class TestApiService {
       setPosition: (position: EndgamePosition) => void;
       goToMove: (moveIndex: number) => void;
       setAnalysisStatus: (status: string) => void;
+      // ✅ B5.5.5 Phase 3B.3: Orchestrator helper for coordinated state reset
+      resetTrainingAndGameState: () => Promise<void>;
     },
     config?: TestTablebaseConfig
   ): void {
@@ -620,12 +624,13 @@ export class TestApiService {
    * expect(state.fen).toBe('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
    * ```
    */
-  public resetGame(): void {
+  public async resetGame(): Promise<void> {
     if (!this.storeAccess) {
       throw new Error('TestApiService not initialized with store access');
     }
 
-    this.storeAccess.resetPosition();
+    // ✅ B5.5.5 Phase 3B.3: Use orchestrator helper for coordinated reset
+    await this.storeAccess.resetTrainingAndGameState();
     this.emit('test:reset', {});
   }
 

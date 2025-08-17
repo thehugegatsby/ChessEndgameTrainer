@@ -8,7 +8,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { Chess, type Move as ChessJsMove } from 'chess.js';
-import { COMMON_FENS } from '@tests/fixtures/commonFens';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 import {
   makeMove,
   validateMove,
@@ -79,7 +79,7 @@ function getGameResultFromChess(chess: Chess): string | null {
 describe('Chess Logic Pure Functions', () => {
   describe('makeMove', () => {
     it('should make valid opening move e4', () => {
-      const result = makeMove(COMMON_FENS.STARTING_POSITION, 'e4');
+      const result = makeMove(TEST_POSITIONS.STARTING_POSITION, 'e4');
       
       expect(result).not.toBeNull();
       expect(result?.newFen).toBe('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1');
@@ -99,7 +99,7 @@ describe('Chess Logic Pure Functions', () => {
     });
 
     it('should make valid knight move Nf3', () => {
-      const result = makeMove(COMMON_FENS.STARTING_POSITION, 'Nf3');
+      const result = makeMove(TEST_POSITIONS.STARTING_POSITION, 'Nf3');
       
       expect(result).not.toBeNull();
       expect(result?.move).toEqual(
@@ -113,12 +113,12 @@ describe('Chess Logic Pure Functions', () => {
     });
 
     it('should reject invalid opening move e5', () => {
-      const result = makeMove(COMMON_FENS.STARTING_POSITION, 'e5');
+      const result = makeMove(TEST_POSITIONS.STARTING_POSITION, 'e5');
       expect(result).toBeNull();
     });
 
     it('should handle promotion move', () => {
-      const result = makeMove(COMMON_FENS.WHITE_PROMOTION, 'e8=Q');
+      const result = makeMove(TEST_POSITIONS.WHITE_PROMOTION, 'e8=Q');
       
       expect(result).not.toBeNull();
       expect(result?.move).toEqual(
@@ -143,21 +143,21 @@ describe('Chess Logic Pure Functions', () => {
 
     it('should detect stalemate', () => {
       // Use existing stalemate position
-      const result = getGameStatus(COMMON_FENS.STALEMATE_POSITION);
+      const result = getGameStatus(TEST_POSITIONS.STALEMATE_POSITION);
       
       expect(result.isStalemate).toBe(true);
       expect(result.gameResult).toBe('1/2-1/2');
     });
 
     it('should handle object move format', () => {
-      const result = makeMove(COMMON_FENS.STARTING_POSITION, { from: 'e2', to: 'e4' });
+      const result = makeMove(TEST_POSITIONS.STARTING_POSITION, { from: 'e2', to: 'e4' });
       
       expect(result).not.toBeNull();
       expect(result?.newFen).toBe('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1');
     });
 
     it('should handle object move with promotion', () => {
-      const result = makeMove(COMMON_FENS.WHITE_PROMOTION, { from: 'e7', to: 'e8', promotion: 'q' });
+      const result = makeMove(TEST_POSITIONS.WHITE_PROMOTION, { from: 'e7', to: 'e8', promotion: 'q' });
       
       expect(result).not.toBeNull();
       expect(result?.move.promotion).toBe('q');
@@ -166,33 +166,33 @@ describe('Chess Logic Pure Functions', () => {
 
   describe('validateMove', () => {
     it('should validate legal opening moves', () => {
-      expect(validateMove(COMMON_FENS.STARTING_POSITION, 'e4')).toBe(true);
-      expect(validateMove(COMMON_FENS.STARTING_POSITION, 'Nf3')).toBe(true);
-      expect(validateMove(COMMON_FENS.STARTING_POSITION, 'd4')).toBe(true);
-      expect(validateMove(COMMON_FENS.STARTING_POSITION, 'Nc3')).toBe(true);
+      expect(validateMove(TEST_POSITIONS.STARTING_POSITION, 'e4')).toBe(true);
+      expect(validateMove(TEST_POSITIONS.STARTING_POSITION, 'Nf3')).toBe(true);
+      expect(validateMove(TEST_POSITIONS.STARTING_POSITION, 'd4')).toBe(true);
+      expect(validateMove(TEST_POSITIONS.STARTING_POSITION, 'Nc3')).toBe(true);
     });
 
     it('should reject illegal opening moves', () => {
-      expect(validateMove(COMMON_FENS.STARTING_POSITION, 'e5')).toBe(false);
-      expect(validateMove(COMMON_FENS.STARTING_POSITION, 'Ke2')).toBe(false);
-      expect(validateMove(COMMON_FENS.STARTING_POSITION, 'Qh5')).toBe(false);
+      expect(validateMove(TEST_POSITIONS.STARTING_POSITION, 'e5')).toBe(false);
+      expect(validateMove(TEST_POSITIONS.STARTING_POSITION, 'Ke2')).toBe(false);
+      expect(validateMove(TEST_POSITIONS.STARTING_POSITION, 'Qh5')).toBe(false);
     });
 
     it('should validate moves in middle game', () => {
-      expect(validateMove(COMMON_FENS.OPENING_AFTER_E4, 'e5')).toBe(true);
-      expect(validateMove(COMMON_FENS.OPENING_AFTER_E4, 'Nf6')).toBe(true);
+      expect(validateMove(TEST_POSITIONS.OPENING_AFTER_E4, 'e5')).toBe(true);
+      expect(validateMove(TEST_POSITIONS.OPENING_AFTER_E4, 'Nf6')).toBe(true);
     });
 
     it('should validate promotion moves', () => {
-      expect(validateMove(COMMON_FENS.WHITE_PROMOTION, 'e8=Q')).toBe(true);
-      expect(validateMove(COMMON_FENS.WHITE_PROMOTION, 'e8=R')).toBe(true);
-      expect(validateMove(COMMON_FENS.WHITE_PROMOTION, 'e8=B')).toBe(true);
-      expect(validateMove(COMMON_FENS.WHITE_PROMOTION, 'e8=N')).toBe(true);
+      expect(validateMove(TEST_POSITIONS.WHITE_PROMOTION, 'e8=Q')).toBe(true);
+      expect(validateMove(TEST_POSITIONS.WHITE_PROMOTION, 'e8=R')).toBe(true);
+      expect(validateMove(TEST_POSITIONS.WHITE_PROMOTION, 'e8=B')).toBe(true);
+      expect(validateMove(TEST_POSITIONS.WHITE_PROMOTION, 'e8=N')).toBe(true);
     });
 
     it('should validate object move format', () => {
-      expect(validateMove(COMMON_FENS.STARTING_POSITION, { from: 'e2', to: 'e4' })).toBe(true);
-      expect(validateMove(COMMON_FENS.STARTING_POSITION, { from: 'e2', to: 'e5' })).toBe(false);
+      expect(validateMove(TEST_POSITIONS.STARTING_POSITION, { from: 'e2', to: 'e4' })).toBe(true);
+      expect(validateMove(TEST_POSITIONS.STARTING_POSITION, { from: 'e2', to: 'e5' })).toBe(false);
     });
 
     it('should handle invalid FEN gracefully', () => {
@@ -202,7 +202,7 @@ describe('Chess Logic Pure Functions', () => {
 
   describe('getPossibleMoves', () => {
     it('should return all possible opening moves', () => {
-      const moves = getPossibleMoves(COMMON_FENS.STARTING_POSITION);
+      const moves = getPossibleMoves(TEST_POSITIONS.STARTING_POSITION);
       
       expect(moves).toHaveLength(20); // 16 pawn moves + 4 knight moves
       expect(moves.some(move => move.san === 'e4')).toBe(true);
@@ -210,7 +210,7 @@ describe('Chess Logic Pure Functions', () => {
     });
 
     it('should return moves for specific square', () => {
-      const moves = getPossibleMoves(COMMON_FENS.STARTING_POSITION, 'e2');
+      const moves = getPossibleMoves(TEST_POSITIONS.STARTING_POSITION, 'e2');
       
       expect(moves).toHaveLength(2); // e3, e4
       expect(moves.some(move => move.san === 'e3')).toBe(true);
@@ -218,7 +218,7 @@ describe('Chess Logic Pure Functions', () => {
     });
 
     it('should return empty array for invalid square', () => {
-      const moves = getPossibleMoves(COMMON_FENS.STARTING_POSITION, 'e3');
+      const moves = getPossibleMoves(TEST_POSITIONS.STARTING_POSITION, 'e3');
       expect(moves).toHaveLength(0);
     });
 
@@ -228,7 +228,7 @@ describe('Chess Logic Pure Functions', () => {
     });
 
     it('should return knight moves correctly', () => {
-      const moves = getPossibleMoves(COMMON_FENS.STARTING_POSITION, 'g1');
+      const moves = getPossibleMoves(TEST_POSITIONS.STARTING_POSITION, 'g1');
       
       expect(moves).toHaveLength(2); // Nf3, Nh3
       expect(moves.some(move => move.san === 'Nf3')).toBe(true);
@@ -238,7 +238,7 @@ describe('Chess Logic Pure Functions', () => {
 
   describe('getGameStatus', () => {
     it('should return correct status for starting position', () => {
-      const status = getGameStatus(COMMON_FENS.STARTING_POSITION);
+      const status = getGameStatus(TEST_POSITIONS.STARTING_POSITION);
       
       expect(status).toEqual({
         isGameOver: false,
@@ -252,7 +252,7 @@ describe('Chess Logic Pure Functions', () => {
     });
 
     it('should detect checkmate status', () => {
-      const status = getGameStatus(COMMON_FENS.CHECKMATE_POSITION);
+      const status = getGameStatus(TEST_POSITIONS.CHECKMATE_POSITION);
       
       expect(status.isGameOver).toBe(true);
       expect(status.isCheckmate).toBe(true);
@@ -260,7 +260,7 @@ describe('Chess Logic Pure Functions', () => {
     });
 
     it('should detect stalemate status', () => {
-      const status = getGameStatus(COMMON_FENS.STALEMATE_POSITION);
+      const status = getGameStatus(TEST_POSITIONS.STALEMATE_POSITION);
       
       expect(status.isGameOver).toBe(true);
       expect(status.isStalemate).toBe(true);
@@ -274,8 +274,8 @@ describe('Chess Logic Pure Functions', () => {
     });
 
     it('should return correct turn', () => {
-      expect(getGameStatus(COMMON_FENS.STARTING_POSITION).turn).toBe('w');
-      expect(getGameStatus(COMMON_FENS.OPENING_AFTER_E4).turn).toBe('b');
+      expect(getGameStatus(TEST_POSITIONS.STARTING_POSITION).turn).toBe('w');
+      expect(getGameStatus(TEST_POSITIONS.OPENING_AFTER_E4).turn).toBe('b');
     });
   });
 
@@ -322,7 +322,7 @@ describe('Chess Logic Pure Functions', () => {
       const chess = new Chess();
       
       // Make same moves with both approaches
-      const pureResult = makeMove(COMMON_FENS.STARTING_POSITION, 'e4');
+      const pureResult = makeMove(TEST_POSITIONS.STARTING_POSITION, 'e4');
       chess.move('e4');
       
       expect(pureResult?.newFen).toBe(chess.fen());
@@ -332,7 +332,7 @@ describe('Chess Logic Pure Functions', () => {
 
     it('should validate moves consistently with Chess.js', () => {
       const testMoves = ['e4', 'e5', 'Nf3', 'Nc6', 'Bb5', 'a6'];
-      let currentFen = COMMON_FENS.STARTING_POSITION;
+      let currentFen = TEST_POSITIONS.STARTING_POSITION;
       const chess = new Chess();
       
       for (const move of testMoves) {
@@ -350,15 +350,15 @@ describe('Chess Logic Pure Functions', () => {
 
   describe('Error handling', () => {
     it('should handle malformed moves gracefully', () => {
-      expect(makeMove(COMMON_FENS.STARTING_POSITION, 'invalid')).toBeNull();
-      expect(validateMove(COMMON_FENS.STARTING_POSITION, 'invalid')).toBe(false);
+      expect(makeMove(TEST_POSITIONS.STARTING_POSITION, 'invalid')).toBeNull();
+      expect(validateMove(TEST_POSITIONS.STARTING_POSITION, 'invalid')).toBe(false);
       // Invalid square returns empty array, not all moves
-      expect(getPossibleMoves(COMMON_FENS.STARTING_POSITION, 'invalid')).toEqual([]);
+      expect(getPossibleMoves(TEST_POSITIONS.STARTING_POSITION, 'invalid')).toEqual([]);
     });
 
     it('should handle empty strings gracefully', () => {
-      expect(makeMove(COMMON_FENS.STARTING_POSITION, '')).toBeNull();
-      expect(validateMove(COMMON_FENS.STARTING_POSITION, '')).toBe(false);
+      expect(makeMove(TEST_POSITIONS.STARTING_POSITION, '')).toBeNull();
+      expect(validateMove(TEST_POSITIONS.STARTING_POSITION, '')).toBe(false);
       expect(normalizeGermanNotation('')).toBe('');
     });
 
@@ -380,7 +380,7 @@ describe('Chess Logic Pure Functions', () => {
       
       // Perform 1000 validations
       for (let i = 0; i < 1000; i++) {
-        validateMove(COMMON_FENS.STARTING_POSITION, 'e4');
+        validateMove(TEST_POSITIONS.STARTING_POSITION, 'e4');
       }
       
       const end = performance.now();
@@ -394,10 +394,10 @@ describe('Chess Logic Pure Functions', () => {
       // This test ensures we create new Chess instances each time
       // rather than keeping references that could leak
       for (let i = 0; i < 100; i++) {
-        makeMove(COMMON_FENS.STARTING_POSITION, 'e4');
-        validateMove(COMMON_FENS.STARTING_POSITION, 'e4');
-        getPossibleMoves(COMMON_FENS.STARTING_POSITION);
-        getGameStatus(COMMON_FENS.STARTING_POSITION);
+        makeMove(TEST_POSITIONS.STARTING_POSITION, 'e4');
+        validateMove(TEST_POSITIONS.STARTING_POSITION, 'e4');
+        getPossibleMoves(TEST_POSITIONS.STARTING_POSITION);
+        getGameStatus(TEST_POSITIONS.STARTING_POSITION);
       }
       
       // If we reach here without memory issues, test passes

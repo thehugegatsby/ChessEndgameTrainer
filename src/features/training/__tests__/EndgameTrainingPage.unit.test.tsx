@@ -2,7 +2,7 @@ import { vi } from 'vitest';
 import React from 'react';
 import { useGameStore, useTrainingStore, useUIStore } from '@shared/store/hooks';
 import { useRouter } from 'next/navigation';
-import { COMMON_FENS } from '@tests/fixtures/commonFens';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 // Mock the hooks
 vi.mock('@shared/store/hooks');
@@ -175,7 +175,7 @@ describe('EndgameTrainingPage - Lichess URL Generation', () => {
     it('should handle endgame position with partial game', () => {
       // Simulate an endgame where we've made some moves
       const endgamePgn = '[FEN "8/8/8/4k3/8/8/4P3/4K3 w - - 0 1"]\n\n1. e3 Kd5 2. Kf2 Ke4';
-      const currentFen = COMMON_FENS.COMPLEX_ENDGAME;
+      const currentFen = TEST_POSITIONS.COMPLEX_ENDGAME;
       const moveHistory = [
         { from: 'e2', to: 'e3', san: 'e3' },
         { from: 'e5', to: 'd5', san: 'Kd5' },

@@ -21,7 +21,7 @@ import { useDialogHandlers } from '@shared/hooks/useDialogHandlers';
 import { tablebaseService } from '../../../domains/evaluation';
 import { getOpponentTurnManager } from '@shared/store/orchestrators/handlePlayerMove';
 import { getFen, turn } from '@shared/utils/chess-logic';
-import { COMMON_FENS } from '@tests/fixtures/commonFens';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 // Mock dependencies
 vi.mock('@shared/services/logging/Logger', () => ({
@@ -108,7 +108,7 @@ describe('useDialogHandlers', () => {
       training: mockTrainingState,
       game: {
         moveHistory: ['e4', 'e5'],
-        currentFen: COMMON_FENS.STARTING_POSITION,
+        currentFen: TEST_POSITIONS.STARTING_POSITION,
       },
     })),
     setState: vi.fn(),
@@ -134,7 +134,7 @@ describe('useDialogHandlers', () => {
     vi.clearAllMocks();
 
     // Reset pure function mocks
-    (getFen as ReturnType<typeof vi.fn>).mockReturnValue(COMMON_FENS.STARTING_POSITION);
+    (getFen as ReturnType<typeof vi.fn>).mockReturnValue(TEST_POSITIONS.STARTING_POSITION);
     (turn as ReturnType<typeof vi.fn>).mockReturnValue('w');
     (tablebaseService.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
       isAvailable: true,
@@ -278,7 +278,7 @@ describe('useDialogHandlers', () => {
         },
         game: { 
           moveHistory: [],
-          currentFen: COMMON_FENS.STARTING_POSITION,
+          currentFen: TEST_POSITIONS.STARTING_POSITION,
         },
       };
 
@@ -343,7 +343,7 @@ describe('useDialogHandlers', () => {
       expect(tablebaseService.getEvaluation).toHaveBeenCalled();
       expect(mockTrainingActions.setEvaluationBaseline).toHaveBeenCalledWith(
         1,
-        COMMON_FENS.STARTING_POSITION
+        TEST_POSITIONS.STARTING_POSITION
       );
     });
 
@@ -572,7 +572,7 @@ describe('useDialogHandlers', () => {
 
     it('handles pure chess functions in normal operation', () => {
       // Reset to normal behavior after previous tests
-      (getFen as ReturnType<typeof vi.fn>).mockReturnValue(COMMON_FENS.STARTING_POSITION);
+      (getFen as ReturnType<typeof vi.fn>).mockReturnValue(TEST_POSITIONS.STARTING_POSITION);
 
       const { result } = renderHook(() => useDialogHandlers(defaultProps));
 

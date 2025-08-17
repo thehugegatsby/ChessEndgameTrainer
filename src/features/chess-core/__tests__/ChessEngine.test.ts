@@ -6,7 +6,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { IChessEngine } from '../types/interfaces';
 import ChessEngine from '../services/ChessEngine';
-import { TestPositions } from '../../../shared/testing/TestScenarios';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 describe('ChessEngine', () => {
   let engine: IChessEngine;
@@ -17,16 +17,14 @@ describe('ChessEngine', () => {
 
   describe('Initialization', () => {
     it('should initialize with default starting position', () => {
-      const defaultFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-      expect(engine.getFen()).toBe(defaultFen);
+      expect(engine.getFen()).toBe(TEST_POSITIONS.STARTING_POSITION);
     });
 
     it('should initialize with custom FEN position', () => {
-      const customFen = '8/8/8/3k4/3K4/8/8/8 w - - 0 1';
-      const result = engine.initialize(customFen);
+      const result = engine.initialize(TEST_POSITIONS.MINIMAL_VALID_POSITION);
 
       expect(result).toBe(true);
-      expect(engine.getFen()).toBe(customFen);
+      expect(engine.getFen()).toBe(TEST_POSITIONS.MINIMAL_VALID_POSITION);
     });
 
     it('should reject invalid FEN positions', () => {

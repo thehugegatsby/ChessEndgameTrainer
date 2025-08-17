@@ -158,6 +158,13 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children, initialS
         setPosition: () => {}, // Not directly available in new architecture
         goToMove: state?.game?.goToMove || (() => {}),
         setAnalysisStatus: () => {}, // Not directly available in new architecture
+        // ✅ B5.5.5 Phase 3B.3: Add resetTrainingAndGameState orchestrator helper
+        resetTrainingAndGameState: async () => {
+          if (storeRef.current) {
+            const { resetTrainingAndGameState } = await import('@shared/store/orchestrators/sharedHelpers');
+            resetTrainingAndGameState(storeRef.current as any);
+          }
+        },
       };
 
       // Initialize BrowserTestApi which exposes e2e_makeMove to window

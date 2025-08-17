@@ -4,7 +4,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MovePanelZustand } from '@shared/components/training/MovePanelZustand';
 import { createTestValidatedMove } from '@tests/helpers/validatedMoveFactory';
-import { COMMON_FENS } from '@tests/fixtures/commonFens';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 // Mock the store hooks directly
 vi.mock('@shared/store/hooks');
@@ -46,8 +46,8 @@ describe('MovePanelZustand', () => {
         to: 'e4',
         piece: 'p',
         san: 'e4',
-        before: COMMON_FENS.STARTING_POSITION,
-        after: COMMON_FENS.OPENING_AFTER_E4,
+        before: TEST_POSITIONS.STARTING_POSITION,
+        after: TEST_POSITIONS.OPENING_AFTER_E4,
       }),
       createTestValidatedMove({
         from: 'e7',
@@ -55,22 +55,22 @@ describe('MovePanelZustand', () => {
         piece: 'p',
         color: 'b',
         san: 'e5',
-        before: COMMON_FENS.OPENING_AFTER_E4,
-        after: COMMON_FENS.OPENING_AFTER_E4_E5,
+        before: TEST_POSITIONS.OPENING_AFTER_E4,
+        after: TEST_POSITIONS.OPENING_AFTER_E4_E5,
       }),
       createTestValidatedMove({
         from: 'g1',
         to: 'f3',
         piece: 'n',
         san: 'Nf3',
-        before: COMMON_FENS.OPENING_AFTER_E4_E5,
-        after: COMMON_FENS.OPENING_AFTER_E4_E5_NF3,
+        before: TEST_POSITIONS.OPENING_AFTER_E4_E5,
+        after: TEST_POSITIONS.OPENING_AFTER_E4_E5_NF3,
       }),
     ];
 
     (useGameStore as ReturnType<typeof vi.fn>).mockReturnValue([
       {
-        currentFen: COMMON_FENS.OPENING_AFTER_E4_E5_NF3,
+        currentFen: TEST_POSITIONS.OPENING_AFTER_E4_E5_NF3,
         currentPgn: '1. e4 e5 2. Nf3',
         moveHistory: mockMoves,
         currentMoveIndex: 2,
@@ -105,8 +105,8 @@ describe('MovePanelZustand', () => {
         to: 'e4',
         piece: 'p',
         san: 'e4',
-        before: COMMON_FENS.STARTING_POSITION,
-        after: COMMON_FENS.OPENING_AFTER_E4,
+        before: TEST_POSITIONS.STARTING_POSITION,
+        after: TEST_POSITIONS.OPENING_AFTER_E4,
       }),
     ];
 
@@ -124,7 +124,7 @@ describe('MovePanelZustand', () => {
 
     (useGameStore as ReturnType<typeof vi.fn>).mockReturnValue([
       {
-        currentFen: COMMON_FENS.OPENING_AFTER_E4_E5_NF3,
+        currentFen: TEST_POSITIONS.OPENING_AFTER_E4_E5_NF3,
         currentPgn: '1. e4 e5 2. Nf3',
         moveHistory: mockMoves,
         currentMoveIndex: 2,
@@ -177,7 +177,7 @@ describe('MovePanelZustand', () => {
 
     (useGameStore as ReturnType<typeof vi.fn>).mockReturnValue([
       {
-        currentFen: COMMON_FENS.OPENING_AFTER_E4_E5_NF3,
+        currentFen: TEST_POSITIONS.OPENING_AFTER_E4_E5_NF3,
         currentPgn: '1. e4 e5 2. Nf3',
         moveHistory: mockMoves,
         currentMoveIndex: 2,
@@ -230,7 +230,7 @@ describe('MovePanelZustand', () => {
 
     (useGameStore as ReturnType<typeof vi.fn>).mockReturnValue([
       {
-        currentFen: COMMON_FENS.OPENING_AFTER_E4_E5_NF3,
+        currentFen: TEST_POSITIONS.OPENING_AFTER_E4_E5_NF3,
         currentPgn: '1. e4 e5 2. Nf3',
         moveHistory: mockMoves,
         currentMoveIndex: 2,
@@ -296,7 +296,7 @@ describe('MovePanelZustand', () => {
 
     (useGameStore as ReturnType<typeof vi.fn>).mockReturnValue([
       {
-        currentFen: COMMON_FENS.OPENING_AFTER_E4_E5_NF3,
+        currentFen: TEST_POSITIONS.OPENING_AFTER_E4_E5_NF3,
         currentPgn: '1. e4 e5 2. Nf3',
         moveHistory: mockMoves,
         currentMoveIndex: 2,

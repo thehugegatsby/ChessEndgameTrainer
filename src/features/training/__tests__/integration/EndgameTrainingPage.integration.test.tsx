@@ -81,8 +81,8 @@ import {
 // Import the mocked position service
 import { mockServerPositionService } from '../../../../shared/services/database/__mocks__/serverPositionService';
 
-// Import COMMON_FENS for proper test positions
-import { COMMON_FENS } from '../../../../tests/fixtures/commonFens';
+// Import TEST_POSITIONS for proper test positions
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 // Type the mocked router
 const mockedUseRouter = useRouter as ReturnType<typeof vi.fn>;
@@ -250,10 +250,10 @@ describe('EndgameTrainingPage Integration Tests', () => {
 
   describe('User Interactions - Making Moves', () => {
     it('should handle player moves correctly', async () => {
-      // Use a proper COMMON_FENS position for consistent testing
+      // Use a proper TEST_POSITIONS position for consistent testing
       const simplePosition = {
         ...mockPosition,
-        fen: COMMON_FENS.KPK_WHITE_TO_MOVE, // '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1'
+        fen: TEST_POSITIONS.KPK_WHITE_TO_MOVE, // '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1'
       };
 
       renderPage();
@@ -266,7 +266,7 @@ describe('EndgameTrainingPage Integration Tests', () => {
 
       const componentStore = (window as any).__zustand_store;
 
-      // Setup state with COMMON_FENS position using the component's store
+      // Setup state with TEST_POSITIONS position using the component's store
       await act(async () => {
         const state = componentStore.getState();
         state.game.initializeGame(simplePosition.fen);
@@ -460,11 +460,11 @@ describe('EndgameTrainingPage Integration Tests', () => {
     it('should reset position when reset button is clicked', async () => {
       // Test the reset functionality without rendering to avoid component errors
 
-      // First add a move to the history using the new orchestrator with COMMON_FENS position
+      // First add a move to the history using the new orchestrator with TEST_POSITIONS position
       await act(async () => {
         const state = useStore.getState();
         // Use a position where e2-e3 is valid (starting position)
-        state.game.initializeGame(COMMON_FENS.STARTING_POSITION);
+        state.game.initializeGame(TEST_POSITIONS.STARTING_POSITION);
         await state.handlePlayerMove({
           from: 'e2',
           to: 'e3',
@@ -485,7 +485,7 @@ describe('EndgameTrainingPage Integration Tests', () => {
 
       // Verify game was reset
       expect(useStore.getState().game.moveHistory).toHaveLength(0);
-      expect(useStore.getState().game.currentFen).toBe(COMMON_FENS.STARTING_POSITION);
+      expect(useStore.getState().game.currentFen).toBe(TEST_POSITIONS.STARTING_POSITION);
     });
   });
 
@@ -493,11 +493,11 @@ describe('EndgameTrainingPage Integration Tests', () => {
     it('should navigate through move history', async () => {
       // Test move navigation without rendering to avoid component errors
 
-      // Add a move to the history using the new orchestrator with COMMON_FENS position
+      // Add a move to the history using the new orchestrator with TEST_POSITIONS position
       await act(async () => {
         const state = useStore.getState();
         // Use a position where e2-e3 is valid (starting position)
-        state.game.initializeGame(COMMON_FENS.STARTING_POSITION);
+        state.game.initializeGame(TEST_POSITIONS.STARTING_POSITION);
         await state.handlePlayerMove({
           from: 'e2',
           to: 'e3',
@@ -617,11 +617,11 @@ describe('EndgameTrainingPage Integration Tests', () => {
       });
       expect(useStore.getState().ui.analysisPanel.isOpen).toBe(true);
 
-      // Step 2: Make a move using the new orchestrator with COMMON_FENS position
+      // Step 2: Make a move using the new orchestrator with TEST_POSITIONS position
       await act(async () => {
         const state = useStore.getState();
         // Use a position where e2-e3 is valid (starting position)
-        state.game.initializeGame(COMMON_FENS.STARTING_POSITION);
+        state.game.initializeGame(TEST_POSITIONS.STARTING_POSITION);
         await state.handlePlayerMove({
           from: 'e2',
           to: 'e3',

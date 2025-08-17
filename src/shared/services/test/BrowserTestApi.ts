@@ -97,6 +97,8 @@ export class BrowserTestApi {
     setPosition: (position: EndgamePosition) => void;
     goToMove: (moveIndex: number) => void;
     setAnalysisStatus: (status: string) => void;
+    // ✅ B5.5.5 Phase 3B.3: Orchestrator helper for coordinated state reset
+    resetTrainingAndGameState: () => Promise<void>;
   }): void {
     if (process.env.NODE_ENV !== 'test' && process.env['NEXT_PUBLIC_IS_E2E_TEST'] !== 'true') {
       logger.warn('Test API is only available in test environment');
@@ -221,7 +223,7 @@ export class BrowserTestApi {
   /**
    * Reset game through test API
    */
-  private resetGame(): void {
+  private resetGame(): Promise<void> {
     return this.testApi.resetGame();
   }
 

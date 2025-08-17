@@ -26,11 +26,11 @@ import {
   turn,
 } from '../chess-logic';
 import {
-  COMMON_FENS,
+  TEST_POSITIONS,
   StandardPositions,
   EndgamePositions,
   SpecialPositions,
-} from '../../../tests/fixtures/commonFens';
+} from '@shared/testing/ChessTestData';
 
 // Helper to create test moves in chess.js format
 const createTestMove = (from: string, to: string, promotion?: string) => ({

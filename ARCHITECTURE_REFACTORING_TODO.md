@@ -1327,4 +1327,70 @@ state.game.moveHistory = []; // Direct cross-slice modification
 - **Maintainability:** Slice becomes pure state container
 - **Testability:** Simpler slice, richer service integration
 
+---
+
+## **PHASE 3A IMPLEMENTATION STATUS** ✅ **COMPLETE (2025-08-17)**
+
+### **B5.5.5 Phase 3A: Orchestrator Enhancement** ✅ **COMPLETE**
+
+**Status:** All Phase 3A tasks completed successfully with clean TypeScript validation
+
+**3A.1: Remove adaptMoveServiceResult adapter** ✅ **COMPLETE**
+- [x] ✅ Removed adaptMoveServiceResult function (lines 70-116) from handlePlayerMove orchestrator
+- [x] ✅ Cleaned up MoveResult import - no longer needed
+- [x] ✅ Added documentation comment explaining adapter removal
+- [x] ✅ Location: `/src/shared/store/orchestrators/handlePlayerMove/index.ts`
+
+**3A.2: Use rich MakeMoveResult directly** ✅ **COMPLETE**
+- [x] ✅ Updated orchestrator to use `richMoveResult.move` directly (already ValidatedMove)
+- [x] ✅ Removed unnecessary createValidatedMove call - service provides ValidatedMove
+- [x] ✅ Simplified move history updates using rich result
+- [x] ✅ Updated all downstream usage (promotion handling, quality evaluation)
+
+**3A.3: Validate orchestrator enhancement** ✅ **COMPLETE**
+- [x] ✅ TypeScript validation clean - `pnpm tsc --noEmit` ✅
+- [x] ✅ Test failures are pre-existing SAN notation issues (documented in refactoring plan)
+- [x] ✅ Orchestrator now directly consumes rich MoveService metadata
+
+**Architectural Impact:**
+- ✅ **Fat Service, Thin Orchestrator:** Orchestrator simplified, service provides rich data
+- ✅ **Metadata Access:** Ready for enhanced training feedback using pieceType, capturedPiece, etc.
+- ✅ **Clean Boundaries:** No data transformation layer between service and consumers
+- ✅ **Type Safety:** ValidatedMove consistency throughout call chain
+
+### **B5.5.5 Phase 3B: Slice Purification** ✅ **COMPLETE (2025-08-17)**
+
+**Strategy:** Remove cross-slice coupling and domain boundary violations from TrainingSlice
+**Objective:** Establish clean domain boundaries following "Fat Service, Thin Slice" pattern
+
+**3B.1: Create GameSlice.resetMoveHistory action** ✅ **COMPLETE**
+- [x] ✅ Added `resetMoveHistory` action to GameSlice interface and implementation
+- [x] ✅ Updated types.ts GameActions interface to include new action
+- [x] ✅ Updated useGameStore hook to include resetMoveHistory in type assertion
+- [x] ✅ TypeScript validation clean - `pnpm tsc --noEmit` ✅
+
+**3B.2: Create resetTrainingAndGameState orchestrator helper** ✅ **COMPLETE**
+- [x] ✅ Created `src/shared/store/orchestrators/sharedHelpers.ts`
+- [x] ✅ Implemented `resetTrainingAndGameState(api: StoreApi)` function
+- [x] ✅ Function calls TrainingSlice.resetPosition() then GameSlice.resetMoveHistory()
+- [x] ✅ Added JSDoc documentation and examples
+- [x] ✅ TypeScript validation clean - `pnpm tsc --noEmit` ✅
+
+**3B.3: Remove cross-slice coupling from TrainingSlice** ✅ **COMPLETE**
+- [x] ✅ Updated TrainingSlice.resetPosition() to remove direct game.moveHistory modification (line 669)
+- [x] ✅ Added comment explaining orchestrator coordination pattern
+- [x] ✅ Updated TestApiService storeAccess interface to include resetTrainingAndGameState
+- [x] ✅ Updated StoreContext.tsx to provide resetTrainingAndGameState in storeAccess
+- [x] ✅ Updated BrowserTestApi.initialize interface to include new method
+- [x] ✅ Updated TestApiService.resetGame() to use orchestrator helper
+- [x] ✅ Cross-slice coupling eliminated - TrainingSlice no longer modifies GameSlice directly
+
+**Architectural Impact:**
+- ✅ **Clean Domain Boundaries:** TrainingSlice no longer directly modifies GameSlice
+- ✅ **Orchestrator Pattern:** Coordinated state updates via sharedHelpers
+- ✅ **Service Integration:** TestApiService properly uses orchestrator helpers
+- ✅ **Type Safety:** All interfaces updated for new orchestrator method
+
+**Next Phase:** Ready for Phase 3B.4 (Service Enhancement) and Phase 3B.5 (Chess Logic Removal)
+
 Ready for Phase 3: Field Optimizations

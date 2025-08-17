@@ -6,7 +6,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { loadPgn, getMoveHistory, getPgn, generatePgn } from '@shared/utils/chess-logic';
-import { COMMON_FENS } from '@tests/fixtures/commonFens';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 describe('PGN Logic', () => {
   // Test fixtures for comprehensive testing
@@ -58,13 +58,13 @@ describe('PGN Logic', () => {
     it('should return starting position for empty PGN', () => {
       const result = loadPgn(pgnTestFixtures.empty);
       
-      expect(result).toBe(COMMON_FENS.STARTING_POSITION);
+      expect(result).toBe(TEST_POSITIONS.STARTING_POSITION);
     });
 
     it('should return starting position for whitespace-only PGN', () => {
       const result = loadPgn(pgnTestFixtures.whitespace);
       
-      expect(result).toBe(COMMON_FENS.STARTING_POSITION);
+      expect(result).toBe(TEST_POSITIONS.STARTING_POSITION);
     });
 
     it('should return null for invalid PGN', () => {
@@ -92,7 +92,7 @@ describe('PGN Logic', () => {
       expect(result).toBeTruthy();
       expect(typeof result).toBe('string');
       // Should match the position after e4 e5 Nf3
-      expect(result).toBe(COMMON_FENS.OPENING_AFTER_E4_E5_NF3);
+      expect(result).toBe(TEST_POSITIONS.OPENING_AFTER_E4_E5_NF3);
     });
 
     it('should handle castling moves in PGN', () => {
@@ -248,9 +248,9 @@ describe('PGN Logic', () => {
     });
 
     it('should handle starting from custom position', () => {
-      // Use COMMON_FENS for consistent testing
+      // Use TEST_POSITIONS for consistent testing
       const moves = ['e5']; // Valid black move after e4
-      const result = generatePgn(moves, COMMON_FENS.OPENING_AFTER_E4);
+      const result = generatePgn(moves, TEST_POSITIONS.OPENING_AFTER_E4);
       
       expect(result).toBeTruthy();
       expect(typeof result).toBe('string');
@@ -260,7 +260,7 @@ describe('PGN Logic', () => {
     it('should return null for invalid move from custom position', () => {
       // Invalid white move when it's black's turn
       const invalidMoves = ['Qh5'];
-      const result = generatePgn(invalidMoves, COMMON_FENS.OPENING_AFTER_E4);
+      const result = generatePgn(invalidMoves, TEST_POSITIONS.OPENING_AFTER_E4);
       
       expect(result).toBeNull();
     });
@@ -305,7 +305,7 @@ describe('PGN Logic', () => {
       expect(result[0]).toEqual({ san: 'e4' });
     });
 
-    it('should handle positions from COMMON_FENS', () => {
+    it('should handle positions from TEST_POSITIONS', () => {
       // Test with a complex position
       const simplePgn = '1. e4';
       const result = getMoveHistory(simplePgn);

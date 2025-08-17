@@ -97,6 +97,8 @@ describe('TestApiService - Store-Based Architecture', () => {
       setPosition: vi.fn(),
       goToMove: vi.fn(),
       setAnalysisStatus: vi.fn(),
+      // ✅ B5.5.5 Phase 3B.3: Add orchestrator helper for coordinated reset
+      resetTrainingAndGameState: vi.fn(),
     };
 
     // Mock console methods
@@ -246,7 +248,8 @@ describe('TestApiService - Store-Based Architecture', () => {
 
       await service.resetGame();
 
-      expect(mockStoreAccess.resetPosition).toHaveBeenCalled();
+      // ✅ B5.5.5 Phase 3B.3: Verify orchestrator helper is called instead of direct resetPosition
+      expect(mockStoreAccess.resetTrainingAndGameState).toHaveBeenCalled();
       expect(eventHandler).toHaveBeenCalledWith({});
     });
   });

@@ -228,9 +228,10 @@ export const createTrainingActions = (
       state.training.isSuccess = false;
       state.training.hintsUsed = 0;
       state.training.mistakeCount = 0;
-      // Set initial turn based on position
+      // ❌ DOMAIN BOUNDARY VIOLATION: Chess rule logic in slice
+      // Slice should receive computed isPlayerTurn from orchestrator
       state.training.isPlayerTurn = position.sideToMove === position.colorToTrain;
-      // Clear evaluation baseline when setting new position
+      // ✅ APPROPRIATE: Training state management
       state.training.evaluationBaseline = null;
     });
   },
@@ -587,16 +588,19 @@ export const createTrainingActions = (
    * like whether it was optimal, user-made, etc. The actual implementation
    * of moveHistory is handled by orchestrators.
    *
-   * TODO: Extract to MoveService - Move execution and validation
-   * - Move validation logic
-   * - Move history management
-   * - Training-specific move metadata
+   * TODO: B5.5.5 OPTIMIZATION OPPORTUNITY - Use MoveService metadata
+   * - AVAILABLE: pieceType, capturedPiece, isEnPassant, moveNumber, halfMoveClock, castleSide
+   * - REPLACE: Manual piece type detection, capture checking, move counting
+   * - LINES TO OPTIMIZE: ~10-15 lines of manual metadata extraction
    *
    * @example
    * ```typescript
-   * // Called by orchestrator
+   * // Called by orchestrator with enhanced metadata
    * store.getState().addTrainingMove({
    *   ...validatedMove,
+   *   pieceType: 'q', // From MoveService
+   *   capturedPiece: 'r', // From MoveService  
+   *   isCapture: true, // From MoveService
    *   userMove: true,
    *   isOptimal: false,
    *   mistakeReason: "Missed checkmate"
@@ -604,8 +608,8 @@ export const createTrainingActions = (
    * ```
    */
   addTrainingMove: (move: ValidatedMove) => {
-    // TODO: Extract to MoveService - actual implementation will be in orchestrator
-    // as it needs to coordinate with game state
+    // TODO: B5.5.5 OPTIMIZATION - Remove manual move metadata extraction
+    // MoveService already provides: pieceType, capturedPiece, isEnPassant, etc.
     logger.debug('Training move added', { move });
   },
 
@@ -647,10 +651,10 @@ export const createTrainingActions = (
    * It clears move history, evaluations, and resets all counters. The game will
    * need to be reloaded to the initial position FEN by the game slice.
    *
-   * TODO: Extract to PositionService - Position loading and FEN management
-   * - FEN loading logic
-   * - Position reset functionality
-   * - Turn determination based on position
+   * DOMAIN BOUNDARY VIOLATION ANALYSIS:
+   * ❌ CHESS LOGIC: sideToMove === colorToTrain (lines 676-678) - TODO: Phase 3B.5
+   * ✅ FIXED: Cross-slice coupling removed (B5.5.5 Phase 3B.3)
+   * ✅ APPROPRIATE: Training metadata resets (hintsUsed, mistakeCount, etc.)
    *
    * @example
    * ```typescript
@@ -661,17 +665,18 @@ export const createTrainingActions = (
   resetPosition: () => {
     const currentPos = get().training.currentPosition;
     set(state => {
-      // TODO: Extract to MoveService - Move history management
-      state.game.moveHistory = [];
+      // ✅ FIXED B5.5.5 Phase 3B.3: Cross-slice coupling removed
+      // Orchestrator now handles game.resetMoveHistory() separately
       state.training.moveHistory = [];
       state.training.hintsUsed = 0;
       state.training.mistakeCount = 0;
       state.training.isSuccess = false;
-      // TODO: Extract to GameStateService - Turn management logic
+      // ❌ DOMAIN BOUNDARY VIOLATION: Chess rule logic in application layer
+      // Slice should be ignorant of chess concepts like "sideToMove"
       state.training.isPlayerTurn = currentPos
         ? currentPos.sideToMove === currentPos.colorToTrain
         : true;
-      // TODO: Extract to PositionService - Evaluation baseline management
+      // ✅ APPROPRIATE: Simple training state reset
       state.training.evaluationBaseline = null;
     });
   },
@@ -856,6 +861,11 @@ export const createTrainingActions = (
    * Evaluates move quality for training feedback
    * @param move - The move that was made
    * @param fen - The FEN position after the move
+   * 
+   * ✅ CORRECT DOMAIN DELEGATION EXAMPLE:
+   * - Slice delegates complex logic to PositionService
+   * - Service returns computed result
+   * - Slice/orchestrator handles consequences (UI feedback, state updates)
    */
   evaluateMoveQuality: async (move: ValidatedMove, fen: string) => {
     const baseline = get().training.evaluationBaseline;
@@ -863,8 +873,7 @@ export const createTrainingActions = (
     
     logger.info(`Move quality for ${move.san}`, { quality, baseline });
     
-    // Service provides the evaluation, orchestrator will handle the consequences
-    // (e.g., incrementing mistakes, showing feedback)
+    // ✅ CORRECT: Service provides data, orchestrator handles consequences
     return quality;
   },
 

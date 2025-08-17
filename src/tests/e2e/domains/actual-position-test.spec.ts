@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test';
 import { getLogger } from '../../../shared/services/logging';
 import { E2E } from '../../../shared/constants';
 import { TrainingBoardPage } from '../helpers/pageObjects/TrainingBoardPage';
-import { COMMON_FENS } from '../../fixtures/commonFens';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 import {
   waitForTablebaseInit,
   waitForUIReady,
@@ -141,7 +141,7 @@ test.describe('Actual Position 1 - King and Pawn vs King', () => {
       // Verify the Lichess link contains the expected FEN (with URL encoding)
       const lichessLink = page.locator('a[href*="lichess.org/analysis"]');
       const href = await lichessLink.getAttribute('href');
-      const expectedFenInUrl = COMMON_FENS.KPK_WHITE_TO_MOVE.replace(/ /g, '_');
+      const expectedFenInUrl = TEST_POSITIONS.KPK_WHITE_TO_MOVE.replace(/ /g, '_');
       expect(href).toContain(expectedFenInUrl);
 
       logger.info('Position 1 loaded successfully');

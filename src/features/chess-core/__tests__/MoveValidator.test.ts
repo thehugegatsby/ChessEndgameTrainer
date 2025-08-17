@@ -7,7 +7,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import type { IMoveValidator, IChessEngine } from '../types/interfaces';
 import MoveValidator from '../services/MoveValidator';
 import ChessEngine from '../services/ChessEngine';
-import { TestPositions } from '../../../shared/testing/TestScenarios';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 describe('MoveValidator', () => {
   let validator: IMoveValidator;
