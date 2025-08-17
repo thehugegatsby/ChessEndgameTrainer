@@ -2,7 +2,8 @@
 
 Modern chess endgame training with perfect Lichess tablebase analysis. Single-LLM experimental project for systematic endgame learning.
 
-**Tech Stack**: React 19, TypeScript, Zustand, Next.js 15, Tailwind CSS | WSL2 Linux
+**Tech Stack**: React 19, TypeScript, Zustand, Next.js 15, Tailwind CSS | WSL2 Linux  
+**📅 Last Updated:** 2025-08-17 - Phase 1 Domain Migration Complete
 
 ## 🚀 Pipeline Modernization (2025-08-16)
 

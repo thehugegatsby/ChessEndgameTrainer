@@ -20,6 +20,7 @@ export const configDir = resolve(projectRoot, 'config');
 export const appDir = resolve(srcDir, 'app');
 export const sharedDir = resolve(srcDir, 'shared');
 export const featuresDir = resolve(srcDir, 'features');
+export const domainsDir = resolve(srcDir, 'domains');
 
 // Test directories
 export const testsDir = resolve(srcDir, 'tests');

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import { featuresTestSetup, featuresDir, srcDir, sharedDir, testsDir } from '../paths';
+import { featuresTestSetup, featuresDir, srcDir, sharedDir, testsDir, domainsDir } from '../paths';
 
 /**
  * Vitest Configuration for INTEGRATION TESTS ONLY
@@ -60,6 +60,7 @@ export default defineConfig({
       '@lib': path.resolve(srcDir, 'lib'),
       '@shared': sharedDir,
       '@tests': testsDir,
+      '@domains': domainsDir,
       '@': srcDir,
     },
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],

@@ -4,7 +4,7 @@
 
 React 19 + TypeScript + Zustand. Domain-driven design with reactive state store as Single Source of Truth.
 
-**Verifiziert**: 2025-08-17 - ChessService Migration completed, Pure Functions architecture active
+**Verifiziert**: 2025-08-17 - Phase 1 Domain Migration COMPLETE. Evaluation Domain established at `/src/domains/evaluation/`
 
 ## Architecture
 
@@ -23,10 +23,13 @@ graph TD
     subgraph "Business Logic"
         C --> H[Orchestrators]
         H --> I[Pure Functions]
-        H --> J[TablebaseService]
+    end
+    subgraph "Domain Services"
+        H --> J[domains/evaluation]
+        J --> K[TablebaseService]
     end
     subgraph "External APIs"
-        J --> K((Lichess API))
+        K --> L((Lichess API))
     end
 
     style C fill:#e1f5fe
