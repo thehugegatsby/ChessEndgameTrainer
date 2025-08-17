@@ -53,7 +53,21 @@ export class MoveService implements MoveServiceInterface {
     const isPromotion = moveResult.promotion !== undefined;
     const isCastling = moveResult.flags.includes('k') || moveResult.flags.includes('q');
     
-    return {
+    // Enhanced metadata (pragmatic fields only)
+    const pieceType = moveResult.piece;
+    const capturedPiece = moveResult.captured;
+    const isEnPassant = moveResult.flags.includes('e');
+    const castleSide = isCastling 
+      ? (moveResult.flags.includes('k') ? 'king' as const : 'queen' as const)
+      : undefined;
+
+    // Parse FEN for move number and half-move clock
+    const fenParts = fenAfter.split(' ');
+    const moveNumber = parseInt(fenParts[5] || '1', 10);
+    const halfMoveClock = parseInt(fenParts[4] || '0', 10);
+    
+    // Build result object with conditional property assignment for optional fields
+    const result: MakeMoveResult = {
       newFen: fenAfter,
       move: validatedMove,
       pgn: '', // No PGN method available, placeholder for now
@@ -63,8 +77,23 @@ export class MoveService implements MoveServiceInterface {
       isDraw,
       isCapture,
       isPromotion,
-      isCastling
+      isCastling,
+      // Enhanced metadata
+      pieceType,
+      isEnPassant,
+      moveNumber,
+      halfMoveClock
     };
+
+    // Add optional properties only if they have values (exactOptionalPropertyTypes compliance)
+    if (capturedPiece) {
+      result.capturedPiece = capturedPiece;
+    }
+    if (castleSide) {
+      result.castleSide = castleSide;
+    }
+
+    return result;
   }
 
   /**
@@ -98,6 +127,11 @@ export class MoveService implements MoveServiceInterface {
           isCapture: false,
           isPromotion: false,
           isCastling: false,
+          // Enhanced metadata defaults for error case
+          pieceType: '',
+          isEnPassant: false,
+          moveNumber: 0,
+          halfMoveClock: 0,
           error: `Ungültiger SAN-Zug: ${sanMove}` // German error message per project standards
         };
       }
@@ -119,6 +153,11 @@ export class MoveService implements MoveServiceInterface {
         isCapture: false,
         isPromotion: false,
         isCastling: false,
+        // Enhanced metadata defaults for error case
+        pieceType: '',
+        isEnPassant: false,
+        moveNumber: 0,
+        halfMoveClock: 0,
         error: error instanceof Error ? error.message : 'Unbekannter Fehler bei SAN-Zug'
       };
     }
@@ -169,6 +208,11 @@ export class MoveService implements MoveServiceInterface {
           isCapture: false,
           isPromotion: false,
           isCastling: false,
+          // Enhanced metadata defaults for error case
+          pieceType: '',
+          isEnPassant: false,
+          moveNumber: 0,
+          halfMoveClock: 0,
           error: 'Ungültiger Zug' // German error message per project standards
         };
       }
@@ -190,6 +234,11 @@ export class MoveService implements MoveServiceInterface {
         isCapture: false,
         isPromotion: false,
         isCastling: false,
+        // Enhanced metadata defaults for error case
+        pieceType: '',
+        isEnPassant: false,
+        moveNumber: 0,
+        halfMoveClock: 0,
         error: error instanceof Error ? error.message : 'Unbekannter Fehler'
       };
     }
