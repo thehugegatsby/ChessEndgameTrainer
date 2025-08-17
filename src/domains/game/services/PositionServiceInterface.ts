@@ -99,6 +99,15 @@ export interface PositionServiceInterface {
   getCurrentFen(): string | null;
   
   /**
+   * Creates an evaluation baseline object for training
+   * 
+   * @param wdl - WDL evaluation value
+   * @param fen - FEN position when baseline was established
+   * @returns Evaluation baseline object with timestamp
+   */
+  createEvaluationBaseline(wdl: number, fen: string): { wdl: number; fen: string; timestamp: number };
+  
+  /**
    * Evaluates the current position using tablebase
    * 
    * @param fen - FEN string to evaluate (optional, uses current if not provided)
@@ -110,14 +119,14 @@ export interface PositionServiceInterface {
    * Evaluates move quality for training feedback
    * 
    * @param move - The move that was made
-   * @param fenBefore - FEN position before the move
-   * @param fenAfter - FEN position after the move
+   * @param fenAfterMove - FEN position after the move
+   * @param baseline - Evaluation baseline for comparison (can be null)
    * @returns Promise resolving to move quality assessment
    */
   evaluateMoveQuality(
     move: ValidatedMove, 
-    fenBefore: string, 
-    fenAfter: string
+    fenAfterMove: string, 
+    baseline: { wdl: number | null } | null
   ): Promise<MoveQualityResult | null>;
   
   /**
@@ -131,25 +140,6 @@ export interface PositionServiceInterface {
    */
   getBestMove(fen?: string): Promise<string | null>;
 
-  /**
-   * Sets evaluation baseline for subsequent move quality assessments
-   * 
-   * @param wdl - WDL evaluation to use as baseline
-   * @param fen - FEN position when baseline was established
-   */
-  setEvaluationBaseline(wdl: number, fen: string): void;
-  
-  /**
-   * Gets the current evaluation baseline
-   * 
-   * @returns Current evaluation baseline or null
-   */
-  getEvaluationBaseline(): EvaluationBaseline | null;
-  
-  /**
-   * Clears the evaluation baseline
-   */
-  clearEvaluationBaseline(): void;
   
   /**
    * Resets the position service to initial state

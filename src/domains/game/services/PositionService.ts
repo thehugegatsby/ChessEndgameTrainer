@@ -8,9 +8,8 @@ import type { ChessEngineInterface } from '@domains/game/engine/types';
 import type { ValidatedMove } from '@shared/types/chess';
 import type { 
   PositionServiceInterface, 
-  PositionEvaluationResult, 
-  EvaluationBaseline, 
-  MoveQualityResult 
+  PositionEvaluationResult,
+  MoveQualityResult
 } from './PositionServiceInterface';
 
 /**
@@ -21,7 +20,6 @@ import type {
  */
 export class PositionService implements PositionServiceInterface {
   private _chessEngine: ChessEngineInterface;
-  private evaluationBaseline: EvaluationBaseline | null = null;
 
   constructor(chessEngine: ChessEngineInterface) {
     this._chessEngine = chessEngine;
@@ -41,6 +39,14 @@ export class PositionService implements PositionServiceInterface {
     return this._chessEngine.getFen();
   }
 
+  createEvaluationBaseline(wdl: number, fen: string): { wdl: number; fen: string; timestamp: number } {
+    return {
+      wdl,
+      fen,
+      timestamp: Date.now(),
+    };
+  }
+
   evaluatePosition(_fen?: string): Promise<PositionEvaluationResult | null> {
     // TODO: Implement position evaluation logic
     // - Use provided FEN or get current FEN
@@ -51,17 +57,41 @@ export class PositionService implements PositionServiceInterface {
   }
 
   evaluateMoveQuality(
-    _move: ValidatedMove, 
-    _fenBefore: string, 
-    _fenAfter: string
+    move: ValidatedMove, 
+    fenAfterMove: string, 
+    baseline: { wdl: number | null } | null
   ): Promise<MoveQualityResult | null> {
-    // TODO: Implement move quality evaluation logic
-    // - Evaluate position before and after move
-    // - Compare WDL values
-    // - Determine if move is optimal
-    // - Find best move if current move is suboptimal
-    // - Handle evaluation baseline if set
-    throw new Error('PositionService.evaluateMoveQuality not implemented');
+    // Placeholder implementation for B4.3 - richer mock result
+    // TODO: Integrate with tablebase service for real evaluation
+    
+    // Constants for mock evaluation variability
+    const RANDOM_OFFSET = 0.5;
+    const WDL_VARIATION_RANGE = 0.2;
+    
+    const mockWdlBefore = baseline?.wdl ?? 0;
+    const mockWdlAfter = mockWdlBefore + (Math.random() - RANDOM_OFFSET) * WDL_VARIATION_RANGE; // Small variation
+    const optimalThreshold = 0.05;
+    const wdlDifference = Math.abs(mockWdlAfter - mockWdlBefore);
+    
+    console.info(`Evaluating move quality for ${move.san} at FEN ${fenAfterMove}`, {
+      baseline,
+      mockWdlBefore,
+      mockWdlAfter
+    });
+    
+    const result: MoveQualityResult = {
+      isOptimal: wdlDifference < optimalThreshold,
+      wdlBefore: mockWdlBefore,
+      wdlAfter: mockWdlAfter,
+      category: 'unknown' as const // Required by MoveQualityResult interface
+    };
+    
+    // Only include bestMove if move is not optimal
+    if (wdlDifference > optimalThreshold) {
+      result.bestMove = 'Ke2'; // Mock best move
+    }
+    
+    return Promise.resolve(result);
   }
 
   getBestMove(_fen?: string): Promise<string | null> {
@@ -73,31 +103,9 @@ export class PositionService implements PositionServiceInterface {
     throw new Error('PositionService.getBestMove not implemented');
   }
 
-  setEvaluationBaseline(wdl: number, fen: string): void {
-    // TODO: Implement evaluation baseline setting
-    // - Store baseline for subsequent move evaluations
-    // - Used after "Weiterspielen" scenarios
-    this.evaluationBaseline = {
-      wdl,
-      fen,
-      timestamp: Date.now(),
-    };
-  }
-
-  getEvaluationBaseline(): EvaluationBaseline | null {
-    // TODO: Implement evaluation baseline retrieval
-    return this.evaluationBaseline;
-  }
-
-  clearEvaluationBaseline(): void {
-    // TODO: Implement evaluation baseline clearing
-    this.evaluationBaseline = null;
-  }
 
   reset(): void {
     // TODO: Implement position service reset
-    // - Clear evaluation baseline
     // - Reset any cached positions
-    this.evaluationBaseline = null;
   }
 }
