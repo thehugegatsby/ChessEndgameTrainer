@@ -520,27 +520,46 @@ src/domains/game/
 - [x] `a1.5-typescript-lint`: ✅ Full validation - `pnpm tsc && pnpm lint` 
 - [x] `a1.6-commit-improvements`: ✅ Commit `032ca879` - "refactor: improve chessengine german notation and api based on architectural review"
 
-**A.2 Test-Adapter für Legacy Validation**
-- [ ] `a2.1-create-adapter-interface`: Erstelle IChessEngineAdapter interface - Mapping zwischen legacy IChessEngine und domain ChessEngineInterface
-- [ ] `a2.2-implement-adapter`: Implementiere ChessEngineAdapter class - Komposition mit domain ChessEngine
-- [ ] `a2.3-typescript-check`: TypeScript validation - `pnpm tsc` 
-- [ ] `a2.4-adapter-smoke-test`: Erstelle Adapter smoke test - Grundfunktionalität validieren
-- [ ] `a2.5-commit-adapter`: Commit - `git add . && git commit -m "feat: create ChessEngineAdapter for legacy test validation"`
+**A.2 Test-Adapter für Legacy Validation** ✅ **COMPLETE**
+- [x] `a2.1-analyze-legacy-usage`: ✅ Analysiere legacy test usage - 20/50 IChessEngine methods tatsächlich genutzt
+- [x] `a2.2-minimal-adapter`: ✅ Minimaler ChessEngineAdapter - Nur 20 genutzte Methoden implementiert (Gemini's Critical Path Strategy)
+- [x] `a2.3-typescript-validation`: ✅ TypeScript + ESLint validation - Clean compilation
+- [x] `a2.4-critical-tests`: ✅ Critical Legacy Tests - 16 wichtigste Tests für validation erstellt
+- [x] `a2.5-adapter-validation`: ✅ Adapter Tests - 16/16 Tests passieren durch Adapter ✅
+- [x] `a2.6-commit-adapter`: ✅ Commit `1749d3f8` - "feat: minimal chess engine adapter for critical test validation"
 
-**A.3 Legacy Tests Migration**
-- [ ] `a3.1-copy-legacy-tests`: Kopiere legacy test structure - Erstelle AdapterValidation.test.ts mit 35 legacy tests
-- [ ] `a3.2-run-adapter-tests`: Führe Tests gegen Adapter aus - Identifiziere behavioral differences
-- [ ] `a3.3-fix-adapter-mapping`: Fixe Adapter mappings - Behebe gefundene Unterschiede
-- [ ] `a3.4-full-test-validation`: Full test run - `pnpm test` alle Adapter tests
-- [ ] `a3.5-commit-legacy-tests`: Commit - `git add . && git commit -m "test: migrate legacy ChessEngine tests via adapter pattern"`
+**A.2 RESULTS:**
+- ✅ **ChessEngineAdapter:** Bridges legacy IChessEngine (50 methods) → domain ChessEngineInterface (12 methods)
+- ✅ **Composition Pattern:** Uses domain ChessEngine internally, minimal implementation overhead
+- ✅ **20 Methods Implemented:** Only methods actually used by legacy tests (move, getFen, initialize, etc.)
+- ✅ **30 Methods UnsupportedError:** Clear error messages for unused legacy methods
+- ✅ **Type Safety:** Safe conversion between string squares and Square type
+- ✅ **Test Validation:** 16 critical tests covering position management, moves, game state
+- ✅ **Quality Gates:** TypeScript compilation + ESLint validation clean
 
-**A.4 Domain Test Coverage Expansion**  
-- [ ] `a4.1-port-core-tests`: Portiere high-value legacy tests - Direkt für domain ChessEngine umschreiben
-- [ ] `a4.2-german-notation-tests`: German notation test suite - Teste D→q, T→r, L→b, S→n + edge cases
-- [ ] `a4.3-edge-case-tests`: Edge case tests - FEN roundtrips, castling, en passant, promotion ambiguities
-- [ ] `a4.4-typescript-test`: TypeScript + test validation - `pnpm tsc && pnpm test`
-- [ ] `a4.5-gemini-review-tests`: **Gemini Review** - Test coverage assessment und recommendations
-- [ ] `a4.6-commit-test-expansion`: Commit - `git add . && git commit -m "test: expand domain ChessEngine test coverage with German notation support"`
+**A.3 Domain Test Coverage Expansion** 
+**Strategy:** Quality über Quantity - 15 robuste Tests statt 35 übertragene Tests
+
+- [ ] `a3.1-analyze-legacy-suite`: Analysiere Legacy Test Suite - Identifiziere die 35 Tests und kategorisiere nach Priorität
+- [ ] `a3.2-high-value-selection`: Erstelle High-Value Test Selection - Wähle die 10-15 wichtigsten Tests für Domain Migration
+- [ ] `a3.3-typescript-check`: TypeScript Check - `pnpm tsc`
+- [ ] `a3.4-port-critical-tests`: Portiere Critical Tests - Schreibe ausgewählte Tests direkt für domain ChessEngine um
+- [ ] `a3.5-typescript-lint`: TypeScript + Lint Check - `pnpm tsc && pnpm lint`
+- [ ] `a3.6-run-domain-tests`: Run Domain Tests - `pnpm test ChessEngine.test.ts` (domain version)
+- [ ] `a3.7-typescript-lint-2`: TypeScript + Lint Check - `pnpm tsc && pnpm lint`
+- [ ] `a3.8-german-notation-tests`: Erweitere German Notation Tests - D→q, T→r, L→b, S→n edge cases
+- [ ] `a3.9-run-extended-tests`: Run Extended Tests - `pnpm test` domain ChessEngine tests
+- [ ] `a3.10-typescript-lint-3`: TypeScript + Lint Check - `pnpm tsc && pnpm lint`
+- [ ] `a3.11-performance-baseline`: Performance Baseline - Teste domain engine performance vs legacy
+- [ ] `a3.12-final-test-validation`: Final Test Validation - Full domain ChessEngine test suite
+- [ ] `a3.13-commit-domain-tests`: Commit Domain Tests - `git add . && git commit -m 'test: expand domain ChessEngine test coverage with German notation'`
+
+**A.3 TARGET METRICS:**
+- **Test Count:** 3 → 25-30 domain tests (current smoke tests → comprehensive coverage)
+- **Coverage Areas:** Position management, move operations, game state, German notation, edge cases
+- **Performance:** Domain engine ≥ legacy engine speed baseline
+- **Quality Gates:** TypeScript + ESLint clean nach jedem der 13 Schritte
+- **German Support:** Comprehensive D/T/L/S notation testing with edge cases
 
 #### **PHASE B: TrainingSlice Service Extraction**
 
