@@ -39,7 +39,7 @@ import { getLogger } from '@shared/services/logging';
 // Import service interfaces for dependency injection
 import type { 
   PositionServiceInterface,
-  MoveServiceInterface,
+  IMoveService,
   GameStateServiceInterface
 } from '@domains/game/services';
 
@@ -91,6 +91,7 @@ export const initialTrainingState = {
   bestStreak: 0,
   showCheckmark: false,
   autoProgressEnabled: true,
+  moveHistory: [] as ValidatedMove[],
   moveErrorDialog: null as {
     isOpen: boolean;
     wdlBefore?: number;
@@ -137,6 +138,7 @@ export const createTrainingState = (): TrainingState => ({
   bestStreak: 0,
   showCheckmark: false,
   autoProgressEnabled: true,
+  moveHistory: [] as ValidatedMove[],
   moveErrorDialog: null as {
     isOpen: boolean;
     wdlBefore?: number;
@@ -186,7 +188,7 @@ export const createTrainingActions = (
   get: () => { training: TrainingState },
   services: {
     positionService: PositionServiceInterface;
-    moveService: MoveServiceInterface;
+    moveService: IMoveService;
     gameStateService: GameStateServiceInterface;
   }
 ): TrainingActions => {
@@ -661,6 +663,7 @@ export const createTrainingActions = (
     set(state => {
       // TODO: Extract to MoveService - Move history management
       state.game.moveHistory = [];
+      state.training.moveHistory = [];
       state.training.hintsUsed = 0;
       state.training.mistakeCount = 0;
       state.training.isSuccess = false;
@@ -1057,4 +1060,11 @@ export const trainingSelectors = {
    * @returns {boolean} Whether auto-progression is enabled
    */
   selectAutoProgressEnabled: (state: TrainingSlice) => state.autoProgressEnabled,
+
+  /**
+   * Selects the training move history
+   * @param {TrainingSlice} state - The training slice of the store
+   * @returns {ValidatedMove[]} Array of training moves with metadata
+   */
+  selectMoveHistory: (state: TrainingSlice) => state.moveHistory,
 };

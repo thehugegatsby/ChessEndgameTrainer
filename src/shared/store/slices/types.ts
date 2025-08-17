@@ -146,6 +146,7 @@ export interface TrainingState {
   bestStreak: number;
   showCheckmark: boolean;
   autoProgressEnabled: boolean;
+  moveHistory: ValidatedMove[]; // Training-specific move history with metadata
   moveErrorDialog: {
     isOpen: boolean;
     wdlBefore?: number;

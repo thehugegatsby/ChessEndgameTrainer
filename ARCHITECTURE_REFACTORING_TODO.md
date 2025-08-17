@@ -615,12 +615,121 @@ src/domains/game/
 
 **Result:** ✅ **Service Delegation Pattern etabliert** - TrainingSlice delegiert an PositionService, Zustand bleibt Single Source of Truth
 
-**B.5 MoveService - makeMove Logik extrahieren**
-- [ ] `b5.1-move-interface`: Interface - `makeMove(move): MoveResult` hinzufügen
-- [ ] `b5.2-move-implementation`: Implementierung - chessEngine.makeMove delegation
-- [ ] `b5.3-training-refactoring`: TrainingSlice refactoring - makeMove-Logik durch moveService ersetzen
-- [ ] `b5.4-validation-test`: Test validation - `pnpm test`, LOC-Tabelle update
-- [ ] `b5.5-commit-move`: Commit - `refactor(training): extract makeMove logic to MoveService`
+**B.5 MoveService - Comprehensive Move Logic Migration** ✅ **B5.1 COMPLETE** 🔄 **B5.2 IN PROGRESS**
+
+**B5.1 Stateless Pattern Enforcement (COMPLETE)** ✅
+- [x] ✅ `b5.1.1`: Removed private moveHistory array from MoveService (stateless pattern)
+- [x] ✅ `b5.1.2`: Added moveHistory to TrainingState interface, initialTrainingState, createTrainingState, and selectMoveHistory selector
+
+**B5.2 MoveService Interface & Implementation Foundation** 🔄 **IN PROGRESS**
+
+Strategy: Gemini's "Fat Service, Thin Slice" pattern - Service handles complex logic, slice only manages state updates
+
+**B5.2.1 MoveService Scaffolding**
+- [ ] `b5.2.1-interface-creation`: Create MoveService.ts with IMoveService interface and empty class
+  - [ ] Define basic class structure with ChessEngine dependency injection
+  - [ ] Create empty interface (methods added incrementally)
+  - [ ] Constructor accepts IChessEngine instance
+- [ ] `b5.2.1-typescript-check`: TypeScript validation - `pnpm tsc`
+- [ ] `b5.2.1-commit`: Commit - `feat(game): B5.2.1 - scaffold MoveService interface and class`
+
+**B5.2.2 Rich Return Type Design**
+- [ ] `b5.2.2-return-types`: Create MakeMoveResult interface with comprehensive data
+  - [ ] `newFen: string | null` - Updated position
+  - [ ] `move: Move | null` - Executed move object
+  - [ ] `pgn: string` - Updated PGN string  
+  - [ ] `isCheckmate: boolean, isStalemate: boolean` - Game status
+  - [ ] `error?: string` - Validation error if any
+- [ ] `b5.2.2-typescript-check`: TypeScript validation - `pnpm tsc`
+- [ ] `b5.2.2-commit`: Commit - `feat(game): B5.2.2 - define rich MakeMoveResult return type`
+
+**B5.3 TrainingSlice Service Integration Foundation**
+
+**B5.3.1 Service Instantiation in TrainingSlice**
+- [ ] `b5.3.1-instantiation`: Import and instantiate MoveService in TrainingSlice
+  - [ ] Use existing chessEngine instance
+  - [ ] Make service available to all thunks/reducers
+  - [ ] No functional logic changes yet (safe preparation)
+- [ ] `b5.3.1-test-validation`: Full test validation - `pnpm test` (should pass, no changes)
+- [ ] `b5.3.1-commit`: Commit - `refactor(training): B5.3.1 - instantiate MoveService in TrainingSlice`
+
+**B5.3.2 makeUserMove Implementation**
+- [ ] `b5.3.2-user-move-method`: Implement makeUserMove in MoveService
+  - [ ] Method signature: `makeUserMove(currentFen: string, move: MoveInput): MakeMoveResult`
+  - [ ] Chess engine delegation for move validation and execution
+  - [ ] Return rich MakeMoveResult with all derived state
+- [ ] `b5.3.2-unit-tests`: Create MoveService unit tests for makeUserMove method
+- [ ] `b5.3.2-test-validation`: Test validation - `pnpm test`
+- [ ] `b5.3.2-commit`: Commit - `feat(game): B5.3.2 - implement makeUserMove in MoveService`
+
+**B5.3.3 handleUserMove Delegation Refactoring** 
+- [ ] `b5.3.3-thunk-refactor`: Refactor handleUserMove thunk to use moveService.makeUserMove
+  - [ ] Replace direct chess logic with service delegation
+  - [ ] Simplify reducer to only update state from service result
+  - [ ] Maintain identical UI behavior and error handling
+- [ ] `b5.3.3-integration-test`: Integration testing - manual UI testing for moves
+- [ ] `b5.3.3-test-validation`: Full test validation - `pnpm test`
+- [ ] `b5.3.3-commit`: Commit - `refactor(training): B5.3.3 - delegate move logic to MoveService in handleUserMove`
+
+**B5.4 Engine Move Logic Migration**
+
+**B5.4.1 makeEngineMove Implementation**
+- [ ] `b5.4.1-engine-move-method`: Implement makeEngineMove in MoveService  
+  - [ ] Method signature: `makeEngineMove(currentFen: string, pgn: string): MakeMoveResult`
+  - [ ] Coordinate with TablebaseService for best move determination
+  - [ ] Reuse makeUserMove internal logic for move execution
+- [ ] `b5.4.1-unit-tests`: Create unit tests for makeEngineMove method
+- [ ] `b5.4.1-test-validation`: Test validation - `pnpm test`
+- [ ] `b5.4.1-commit`: Commit - `feat(game): B5.4.1 - implement makeEngineMove in MoveService`
+
+**B5.4.2 handleEngineMove Delegation Refactoring**
+- [ ] `b5.4.2-thunk-refactor`: Refactor handleEngineMove thunk to use moveService.makeEngineMove
+  - [ ] Replace engine move logic with service delegation
+  - [ ] Simplify reducer logic to state updates only
+- [ ] `b5.4.2-integration-test`: Integration testing - manual engine move testing
+- [ ] `b5.4.2-test-validation`: Full test validation - `pnpm test`
+- [ ] `b5.4.2-commit`: Commit - `refactor(training): B5.4.2 - delegate engine move logic to MoveService`
+
+**B5.5 Service Enhancement & TrainingSlice Cleanup**
+
+**B5.5.1 Enhanced Service Return Types** 
+- [ ] `b5.5.1-rich-results`: Enhance MakeMoveResult with complete derived state
+  - [ ] Add all game status flags (check, checkmate, stalemate, draw)
+  - [ ] Include move metadata (capture, promotion, castling)
+  - [ ] Update both makeUserMove and makeEngineMove methods
+- [ ] `b5.5.1-slice-simplification`: Simplify TrainingSlice reducers to use rich service results
+- [ ] `b5.5.1-test-validation`: Test validation - `pnpm test` (no UI behavior change)
+- [ ] `b5.5.1-commit`: Commit - `refactor(game): B5.5.1 - enrich MoveService return type for simpler slice updates`
+
+**B5.5.2 Legacy Code Removal**
+- [ ] `b5.5.2-dead-code-removal`: Remove unused chess logic from TrainingSlice
+  - [ ] Delete private helper methods for move validation
+  - [ ] Remove direct chessEngine calls from thunks 
+  - [ ] Clean up imports and unused variables
+- [ ] `b5.5.2-typescript-lint`: TypeScript + Lint validation - `pnpm tsc && pnpm lint`
+- [ ] `b5.5.2-test-validation`: Full test validation - `pnpm test`
+- [ ] `b5.5.2-commit`: Commit - `refactor(training): B5.5.2 - remove dead move-related code from TrainingSlice`
+
+**B5.6 Validation & LOC Measurement**
+
+**B5.6.1 Final Validation & Metrics**
+- [ ] `b5.6.1-manual-testing`: Comprehensive manual testing
+  - [ ] User moves, engine responses, promotions, special moves
+  - [ ] Game end states (checkmate, stalemate, draw)
+  - [ ] Error handling for invalid moves
+- [ ] `b5.6.1-loc-measurement`: Measure TrainingSlice LOC reduction
+  - [ ] Use `cloc` or VS Code extension for precise measurement
+  - [ ] Update LOC tracking table (baseline: 987 LOC, target: <600 LOC)
+- [ ] `b5.6.1-commit`: Commit - `docs(project): B5.6.1 - complete MoveService migration and record LOC reduction`
+
+**B5 Success Criteria:**
+- ✅ All tests passing (unit + integration)
+- ✅ TrainingSlice LOC significantly reduced (progress toward <600 LOC goal)
+- ✅ Identical UI behavior maintained
+- ✅ Service Delegation Pattern established (Fat Service, Thin Slice)
+- ✅ Stateless MoveService with rich return types
+
+**Quality Gates:** `pnpm tsc && pnpm lint && pnpm test` after each atomic commit
 
 **B.6 GameStateService - Spielzustand-Logik extrahieren**
 - [ ] `b6.1-gamestate-interface`: Interface - `isCheck()`, `isCheckmate()`, `isDraw()`, `getTurn()`
@@ -714,9 +823,17 @@ src/domains/game/
 1. ✅ **ChessEngine Verbesserungen** (Gemini's Feedback) - COMPLETE
 2. ✅ **Adapter-Pattern Test Migration** (GPT-5's Strategy) - COMPLETE  
 3. ✅ **TrainingSlice Service Extraction B4** (PositionService) - **COMPLETE**
-4. 🔄 **TrainingSlice Service Extraction B5** (MoveService) - **READY**
+4. 🔄 **TrainingSlice Service Extraction B5** (MoveService) - **IN PROGRESS**
 
 **Completed:** B4 PositionService delegation mit Gemini refinements
-**Current Status:** Ready for B5 MoveService - makeMove Logik extrahieren
+**Current Status:** B5 MoveService implementation mit granularem Plan - **IN PROGRESS** ✅ B5.1 COMPLETE
+- ✅ B5.1: Stateless Pattern enforcement (moveHistory aus Service entfernen + TrainingState moveHistory hinzugefügt)
+  - ✅ B5.1.1: Removed private moveHistory array from MoveService (stateless pattern)
+  - ✅ B5.1.2: Added moveHistory to TrainingState interface, initialTrainingState, createTrainingState, and selectMoveHistory selector
+- 🔄 B5.2: Read-only Methoden (getLegalMoves, isCapture, isPromotion) - **IN PROGRESS**
+- B5.3: Core move logic (validateMove, makeMove)
+- B5.4: History management als pure functions
+- B5.5: TrainingSlice Integration mit Service delegation
+- B5.6: Orchestrator Integration (handlePlayerMove)
 
 **Architectural Achievement:** Service Delegation Pattern etabliert, Stateless Services, Zustand als Single Source of Truth
