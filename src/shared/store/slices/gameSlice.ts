@@ -22,10 +22,10 @@
  * ```
  */
 
-import { type GameSlice, type GameState, type GameActions } from './types';
+import { type GameSlice, type GameState, type GameActions, type RootState } from './types';
 import type { ValidatedMove } from '@shared/types';
 import { createValidatedMove } from '@shared/types/chess';
-import { chessService } from '@shared/services/ChessService';
+// ChessService removed - using pure functions from chess-logic.ts
 import { getLogger } from '@shared/services/logging';
 import { 
   makeMove as makeMovePure, 
@@ -35,6 +35,8 @@ import {
   isValidFen,
   goToMove as goToMovePure,
 } from '@shared/utils/chess-logic';
+// COMMON_FENS imported inline as constants
+const STARTING_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 import type { Square } from 'chess.js';
 
 // Re-export types for external use
@@ -59,7 +61,6 @@ export const initialGameState = {
   isStalemate: false,
   // Migration additions for orchestrator action
   playerColor: 'w' as 'w' | 'b',
-  lastMoveError: undefined as string | undefined,
 };
 
 /**
@@ -96,8 +97,8 @@ export const createGameState = (): GameState => ({ ...initialGameState });
  * ```
  */
 export const createGameActions = (
-  set: (fn: (state: { game: GameState }) => void) => void,
-  get: () => { game: GameState }
+  set: (fn: (draft: RootState) => void) => void,
+  get: () => RootState
 ): GameActions => ({
   // Actions
 
@@ -161,8 +162,26 @@ export const createGameActions = (
    * ```
    */
   initializeGame: (fen: string) => {
-    // ChessService will emit 'load' event, triggering automatic sync via rootStore subscription
-    return chessService.initialize(fen);
+    const startingFen = fen || STARTING_POSITION;
+    
+    // Validate FEN before initializing
+    if (!isValidFen(startingFen)) {
+      getLogger().warn('Invalid FEN provided to initializeGame', { fen: startingFen });
+      return false;
+    }
+    
+    set(state => {
+      state.game.currentFen = startingFen;
+      state.game.moveHistory = []; // Fresh start
+      state.game.currentPgn = ''; // Fresh start
+      // Clear any previous error
+      if ('lastMoveError' in state.game) {
+        delete state.game.lastMoveError;
+      }
+      state.game.isGameFinished = false;
+    });
+    
+    return true;
   },
 
   /**
@@ -200,8 +219,11 @@ export const createGameActions = (
    * ```
    */
   makeMove: (move: { from: string; to: string; promotion?: string } | string) => {
-    // ChessService will emit 'move' event, triggering automatic sync via rootStore subscription
-    return chessService.move(move);
+    // Delegate to the canonical pure action
+    const outcome = get().game.makeMovePure(move);
+    
+    // Adapt the return value to match the legacy API contract
+    return outcome ? outcome.validatedMove : null;
   },
 
   /**
@@ -226,8 +248,8 @@ export const createGameActions = (
    * ```
    */
   undoMove: () => {
-    // ChessService will emit 'undo' event, triggering automatic sync via rootStore subscription
-    return chessService.undo();
+    const { game } = get();
+    return get().game.goToMovePure(game.currentMoveIndex - 1);
   },
 
   /**
@@ -252,8 +274,8 @@ export const createGameActions = (
    * ```
    */
   redoMove: () => {
-    // ChessService will emit 'redo' event, triggering automatic sync via rootStore subscription
-    return chessService.redo();
+    const { game } = get();
+    return get().game.goToMovePure(game.currentMoveIndex + 1);
   },
 
   /**
@@ -284,8 +306,7 @@ export const createGameActions = (
    * ```
    */
   goToMove: (moveIndex: number) => {
-    // ChessService will emit 'load' event, triggering automatic sync via rootStore subscription
-    return chessService.goToMove(moveIndex);
+    return get().game.goToMovePure(moveIndex);
   },
 
   /**
@@ -303,7 +324,7 @@ export const createGameActions = (
    * ```
    */
   goToFirst: () => {
-    chessService.goToMove(-1);
+    get().game.goToMovePure(-1);
   },
 
   /**
@@ -323,7 +344,9 @@ export const createGameActions = (
   goToPrevious: () => {
     const { game } = get();
     const currentIndex = game.currentMoveIndex ?? game.moveHistory.length - 1;
-    chessService.goToMove(currentIndex - 1);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Migration: Legacy actions calling pure functions
+    const actions = get() as any;
+    actions.goToMovePure(currentIndex - 1);
   },
 
   /**
@@ -343,7 +366,9 @@ export const createGameActions = (
   goToNext: () => {
     const { game } = get();
     const currentIndex = game.currentMoveIndex ?? -1;
-    chessService.goToMove(currentIndex + 1);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Migration: Legacy actions calling pure functions
+    const actions = get() as any;
+    actions.goToMovePure(currentIndex + 1);
   },
 
   /**
@@ -362,7 +387,9 @@ export const createGameActions = (
    */
   goToLast: () => {
     const { game } = get();
-    chessService.goToMove(game.moveHistory.length - 1);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Migration: Legacy actions calling pure functions
+    const actions = get() as any;
+    actions.goToMovePure(game.moveHistory.length - 1);
   },
 
   /**
@@ -382,8 +409,9 @@ export const createGameActions = (
    * ```
    */
   resetGame: () => {
-    // ChessService will emit 'reset' event, triggering automatic sync via rootStore subscription
-    chessService.reset();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Migration: Legacy actions calling pure functions
+    const actions = get() as any;
+    actions.resetGamePure();
   },
 
   /**
@@ -408,7 +436,9 @@ export const createGameActions = (
    * ```
    */
   setCurrentFen: (fen: string) => {
-    return chessService.initialize(fen);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Migration: Legacy actions calling pure functions
+    const actions = get() as any;
+    return actions.initializeGamePure(fen);
   },
 
   /**
@@ -443,8 +473,11 @@ export const createGameActions = (
    * ```
    */
   applyMove: (move: { from: string; to: string; promotion?: string } | string) => {
-    // Use private helper to update state with common logic
-    return _updateGameState('applyMove', () => chessService.move(move));
+    // Delegate to the canonical pure action (same as makeMove for testing)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Migration: Legacy actions calling pure functions
+    const actions = get() as any;
+    const outcome = actions.makeMovePure(move);
+    return outcome ? outcome.validatedMove : null;
   },
 
   // =====================================================
@@ -462,15 +495,15 @@ export const createGameActions = (
     const result = makeMovePure(game.currentFen, move);
     
     if (result) {
+      // Use type-safe factory to create ValidatedMove
+      const validatedMove = createValidatedMove(
+        result.move,
+        game.currentFen,
+        result.newFen
+      );
+      
       set(state => {
         state.game.currentFen = result.newFen;
-        // Use type-safe factory to create ValidatedMove
-        const validatedMove = createValidatedMove(
-          result.move,
-          game.currentFen,
-          result.newFen
-        );
-        
         state.game.moveHistory.push(validatedMove);
         state.game.currentMoveIndex = state.game.moveHistory.length - 1;
         state.game.isCheckmate = result.isCheckmate;
@@ -479,9 +512,12 @@ export const createGameActions = (
         state.game.isGameFinished = result.isCheckmate || result.isDraw || result.isStalemate;
         state.game.gameResult = result.gameResult;
       });
+      
+      // Return rich object as expected by the interface
+      return { moveResult: result, validatedMove };
     }
     
-    return result;
+    return null;
   },
 
   /**
@@ -592,37 +628,9 @@ export const createGameActions = (
   },
 });
 
-/**
- * Private helper function to update game state with common logic
- * Extracts shared state update pattern between makeMove and applyMove
- *
- * @param source - Source of the state update for event emission
- * @param moveFunction - Function that executes the actual move
- * @returns The validated move or null if failed
- */
-function _updateGameState(
-  source: string,
-  moveFunction: () => ValidatedMove | null
-): ValidatedMove | null {
-  try {
-    const result = moveFunction();
+// Helper function removed - using pure functions
 
-    // ChessService will emit event automatically, triggering store sync via rootStore
-    // This helper just provides common error handling pattern
-    return result;
-  } catch (error) {
-    // Log error but don't re-throw - let calling action handle response
-    const logger = getLogger().setContext('gameSlice');
-    logger.error(`Error in ${source}`, {
-      error: error instanceof Error ? error.message : String(error),
-      source,
-      stack: error instanceof Error ? error.stack : undefined,
-    });
-    return null;
-  }
-}
-
-// Helper function removed - now using chessService.getGameResult()
+// Helper function removed - using pure functions
 
 /**
  * Selector functions for efficient state access
@@ -726,10 +734,10 @@ export const gameSelectors = {
    * const e2Moves = useStore(gameSelectors.selectLegalMoves('e2'));
    * ```
    */
-  selectLegalMoves: (square: string) => () => {
-    // Use ChessService to get legal moves
+  selectLegalMoves: (square: string) => (state: RootState) => {
+    // Use pure function to get legal moves
     try {
-      return chessService.moves({ square, verbose: true });
+      return getPossibleMoves(state.game.currentFen, square as Square);
     } catch {
       return [];
     }

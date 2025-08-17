@@ -9,13 +9,13 @@
  * import { mockManager } from '@tests/mocks/MockManager';
  *
  * beforeEach(() => {
- *   const chessService = mockManager.chessService.create();
  *   const store = mockManager.zustandStore.create();
+ *   const tablebase = mockManager.tablebaseService.create();
  * });
  * ```
  */
 
-import { ChessServiceMockFactory } from './ChessServiceMockFactory';
+// ChessServiceMockFactory removed - ChessService deleted
 import { ZustandStoreMockFactory } from './ZustandStoreMockFactory';
 import { TablebaseServiceMockFactory } from './TablebaseServiceMockFactory';
 import { type MSWServerMockFactory } from './MSWServerMockFactory';
@@ -23,7 +23,6 @@ import { type BaseMockFactory } from './BaseMockFactory';
 
 class MockManager {
   // Service mocks
-  public readonly chessService = new ChessServiceMockFactory();
   public readonly tablebaseService = new TablebaseServiceMockFactory();
 
   // Store mocks
@@ -160,12 +159,10 @@ class MockManager {
    * Useful for integration tests that need a full environment
    */
   public createFullEnvironment(overrides?: {
-    chessService?: Parameters<ChessServiceMockFactory['create']>[0];
     tablebaseService?: Parameters<TablebaseServiceMockFactory['create']>[0];
     zustandStore?: Parameters<ZustandStoreMockFactory['create']>[0];
   }) {
     return {
-      chessService: this.chessService.create(overrides?.chessService),
       tablebaseService: this.tablebaseService.create(overrides?.tablebaseService),
       store: this.zustandStore.create(overrides?.zustandStore),
       mswServer: this.mswServer.create(),

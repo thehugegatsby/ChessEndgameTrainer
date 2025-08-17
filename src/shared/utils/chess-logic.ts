@@ -85,7 +85,7 @@ function normalizeGermanMove(move: string | { from: string; to: string; promotio
     const normalizedPromotion = normalizePromotionPiece(move.promotion);
     return {
       ...move,
-      promotion: normalizedPromotion
+      ...(normalizedPromotion && { promotion: normalizedPromotion })
     };
   }
 
@@ -93,12 +93,12 @@ function normalizeGermanMove(move: string | { from: string; to: string; promotio
   if (typeof move === 'string') {
     // Format 1: "e7e8D" or "e7-e8D" (from-to-promotion with optional dash)
     let promotionMatch = move.match(/^([a-h][1-8])-?([a-h][1-8])([DTLSQRBN])$/i);
-    if (promotionMatch && promotionMatch[3]) {
+    if (promotionMatch && promotionMatch[1] && promotionMatch[2] && promotionMatch[3]) {
       const normalizedPromotion = normalizePromotionPiece(promotionMatch[3]);
       return {
         from: promotionMatch[1],
         to: promotionMatch[2],
-        promotion: normalizedPromotion as string,
+        ...(normalizedPromotion && { promotion: normalizedPromotion })
       };
     }
     
@@ -156,6 +156,41 @@ export function validateMove(fen: string, move: string | { from: string; to: str
     return chess.move(normalizedMove) !== null;
   } catch {
     return false;
+  }
+}
+
+/**
+ * Pure function: Parse and validate move notation, returning full move object
+ * @param fen - Current position in FEN notation
+ * @param moveNotation - Move notation (e.g., "e4", "Nf3", "e2-e4", "e7e8D")
+ * @returns ChessJsMove object if valid, null if invalid or illegal
+ * 
+ * @example
+ * parseMove(startingFen, "e4") // Returns {from: "e2", to: "e4", san: "e4", ...}
+ * parseMove(startingFen, "e2-e4") // Returns {from: "e2", to: "e4", san: "e4", ...}
+ * parseMove(startingFen, "invalid") // Returns null
+ */
+export function parseMove(fen: string, moveNotation: string): ChessJsMove | null {
+  try {
+    const chess = new Chess(fen);
+    
+    // Handle coordinate notation (e2-e4 format)
+    if (moveNotation.includes('-')) {
+      const parts = moveNotation.split('-');
+      if (parts.length === 2 && parts[0] && parts[1]) {
+        const [from, to] = parts;
+        const moveObj = { from, to, promotion: 'q' }; // Default promotion to queen
+        const normalizedMove = normalizeGermanMove(moveObj);
+        return chess.move(normalizedMove);
+      }
+    }
+    
+    // Handle SAN notation (e4, Nf3, O-O) and German promotion notation
+    const normalizedMove = normalizeGermanMove(moveNotation);
+    return chess.move(normalizedMove);
+    
+  } catch {
+    return null;
   }
 }
 

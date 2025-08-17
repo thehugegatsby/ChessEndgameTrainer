@@ -94,7 +94,7 @@ export const useTablebaseActions = (): TablebaseActionsType => {
       setCurrentEvaluation: state.tablebase.setCurrentEvaluation,
       clearTablebaseState: state.tablebase.clearTablebaseState,
 
-      // Note: requestPositionEvaluation removed - use chessService.fetchEvaluation() directly
+      // Note: requestPositionEvaluation removed - use tablebaseService.fetchEvaluation() directly
     };
   }, [storeApi]);
 };

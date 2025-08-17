@@ -17,7 +17,8 @@
  */
 
 import { useState, useEffect } from 'react';
-import { chessService } from '@shared/services/ChessService';
+import { parseMove, makeMove } from '@shared/utils/chess-logic';
+import { createValidatedMove } from '@shared/types/chess';
 import { getLogger } from '@shared/services/logging';
 import { ANIMATION } from '@shared/constants';
 import type { ValidatedMove } from '@shared/types/chess';
@@ -108,11 +109,12 @@ export const E2ETestHelper: React.FC<E2ETestHelperProps> = ({
          */
         const playNextMove = async (): Promise<void> => {
           if (moveIndex < moves.length) {
-            const moveNotation = moves[moveIndex];
+            const moveNotation = moves[moveIndex]?.trim();
 
             logger.debug('Attempting move', {
               moveIndex,
               moveNotation,
+              currentFen, // Log the FEN we are validating against
               currentHistoryLength: moveHistory.length,
             });
 
@@ -123,59 +125,39 @@ export const E2ETestHelper: React.FC<E2ETestHelperProps> = ({
               return;
             }
 
-            try {
-              // Parse move notation to standardized format
-              let validatedMove: ValidatedMove | null = null;
-              if (moveNotation.includes('-')) {
-                // Format: e2-e4
-                const parts = moveNotation.split('-');
-                if (!parts || parts.length !== 2 || !parts[0] || !parts[1]) {
-                  throw new Error(`Invalid move notation format: ${moveNotation}`);
-                }
-                const [from, to] = parts;
-                // Use ChessService to validate and get the proper move
-                validatedMove = chessService.move({ from, to, promotion: 'q' });
-                if (validatedMove) {
-                  // Undo the move since we're just validating
-                  chessService.undo();
-                }
-              } else {
-                // Format: e4 (SAN) - validate through ChessService
-                validatedMove = chessService.move(moveNotation);
-                if (validatedMove) {
-                  // Undo the move since we're just validating
-                  chessService.undo();
-                }
-              }
+            // Pure, stateless validation using parseMove
+            const chessjsMove = parseMove(currentFen, moveNotation);
 
-              if (validatedMove) {
+            if (chessjsMove) {
+              // Get the move result to determine the new FEN
+              const moveResult = makeMove(currentFen, moveNotation);
+              if (moveResult) {
+                // Create a proper ValidatedMove with FEN context
+                const validatedMove = createValidatedMove(
+                  chessjsMove,
+                  currentFen,
+                  moveResult.newFen
+                );
+                
                 logger.debug('Move parsed successfully', { move: validatedMove });
                 const result = await onMove(validatedMove);
 
                 if (result) {
+                  logger.debug('Move executed successfully', { moveIndex });
                   moveIndex++;
-                  logger.debug('Move executed successfully', {
-                    moveIndex,
-                    newHistoryLength: moveHistory.length,
-                  });
-
-                  // Wait and then next move
                   setTimeout(playNextMove, ANIMATION.MOVE_PLAY_DELAY_NORMAL);
                 } else {
-                  logger.warn('Move execution failed', { moveNotation });
-                  // Try next move
+                  logger.warn('onMove execution failed', { moveNotation });
                   moveIndex++;
                   setTimeout(playNextMove, ANIMATION.MOVE_PLAY_DELAY_FAST);
                 }
               } else {
-                logger.warn('Move parsing returned null', { moveNotation });
-                // Try next move
+                logger.warn('Move makeMove failed', { moveNotation });
                 moveIndex++;
                 setTimeout(playNextMove, ANIMATION.MOVE_PLAY_DELAY_FAST);
               }
-            } catch (error) {
-              logger.error('Test move failed', error, { moveNotation });
-              // Try next move
+            } else {
+              logger.warn('Move parsing failed or move is invalid', { moveNotation });
               moveIndex++;
               setTimeout(playNextMove, ANIMATION.MOVE_PLAY_DELAY_FAST);
             }

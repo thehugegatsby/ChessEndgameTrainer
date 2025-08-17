@@ -1,6 +1,6 @@
 'use client';
 
-import { getLogger } from '@shared/services/logging/Logger';
+import { getLogger } from '@shared/services/logging';
 import { UI_DURATIONS_MS } from '../../constants/time.constants';
 
 import React, { useState, useCallback, useMemo } from 'react';

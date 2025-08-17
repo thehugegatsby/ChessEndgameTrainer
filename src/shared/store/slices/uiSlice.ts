@@ -297,6 +297,19 @@ export const createUIActions = (
     set(state => {
       Object.assign(state.ui.analysisPanel, update);
     }),
+
+  // =====================================================
+  // ORCHESTRATOR DELEGATE STUBS (Migration Phase)
+  // =====================================================
+
+  /**
+   * [STUB] Shows game over dialog when training completes
+   * @param gameOverInfo - Information about how the game ended
+   */
+  showGameOverDialog: (gameOverInfo: { reason: string }) => {
+    console.info(`STUB: Showing game over dialog for reason: ${gameOverInfo.reason}`);
+    // TODO: Implement actual game over dialog logic
+  },
 });
 
 /**

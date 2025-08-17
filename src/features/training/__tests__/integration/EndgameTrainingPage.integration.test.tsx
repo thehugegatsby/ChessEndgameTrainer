@@ -9,11 +9,11 @@ import React from 'react';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { EndgameTrainingPage } from '@shared/pages/EndgameTrainingPage';
-import { type EndgamePosition } from '@shared/types';
+import { EndgameTrainingPage } from '../../../../shared/pages/EndgameTrainingPage';
+import { type EndgamePosition } from '../../../../shared/types';
 import { useRouter } from 'next/navigation';
-import { useStore } from '@shared/store/rootStore';
-import { StoreProvider } from '@shared/store/StoreContext';
+import { useStore } from '../../../../shared/store/rootStore';
+import { StoreProvider } from '../../../../shared/store/StoreContext';
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
@@ -30,28 +30,26 @@ vi.mock('next/link', () => ({
 // Observer APIs are now handled by globalSetup which runs BEFORE module loading
 
 // Mock Firebase - uses central mock
-vi.mock('@shared/lib/firebase');
+vi.mock('../../../../shared/lib/firebase');
 
 // Mock TablebaseService - uses central mock from __mocks__ folder
-vi.mock('@shared/services/TablebaseService');
+vi.mock('../../../../shared/services/TablebaseService');
 
-// Mock ChessService - uses central mock from __mocks__ folder
-vi.mock('@shared/services/ChessService');
 
 // Mock serverPositionService - uses mock from __mocks__ folder
-vi.mock('@shared/services/database/serverPositionService');
+vi.mock('../../../../shared/services/database/serverPositionService');
 
 // Import the mocked service
-import { tablebaseService as mockTablebaseService } from '@shared/services/TablebaseService';
+import { tablebaseService as mockTablebaseService } from '../../../../shared/services/TablebaseService';
 // Import helper functions from the mock
 import {
   resetMock,
   mockWinPosition,
   mockApiError,
-} from '@shared/services/__mocks__/TablebaseService';
+} from '../../../../shared/services/__mocks__/TablebaseService';
 
 // Import the mocked position service
-import { mockServerPositionService } from '@shared/services/database/__mocks__/serverPositionService';
+import { mockServerPositionService } from '../../../../shared/services/database/__mocks__/serverPositionService';
 
 // Type the mocked router
 const mockedUseRouter = useRouter as ReturnType<typeof vi.fn>;

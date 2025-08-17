@@ -109,7 +109,7 @@ interface UseTrainingSessionReturn {
  * ```
  */
 export const useTrainingSession = ({
-  onComplete,
+  onComplete: _onComplete,
   onPositionChange,
 }: UseTrainingSessionOptions): UseTrainingSessionReturn => {
   const [gameState, gameActions] = useGameStore();
@@ -149,23 +149,32 @@ export const useTrainingSession = ({
       }
 
       try {
-        // REFACTORED: Use centralized TrainingService for consistent move execution
-        // This ensures the same business logic runs for both UI and E2E test paths
-        const { trainingService } = await import('@shared/services/TrainingService');
-        logger.debug('🚀 Delegating to centralized TrainingService');
+        // MIGRATED: Use atomic handlePlayerMove action directly (replaces TrainingService)
+        // This eliminates the 440+ line orchestrator complexity and uses pure functions
+        logger.debug('🚀 Using atomic handlePlayerMove action from gameSlice');
 
-        // Convert move object to string format (e.g., "e2e4" or "e7e8q")
-        const moveString = move.from + move.to + (move.promotion || '');
-        const result = await trainingService.executeMove(storeApi, moveString, onComplete);
-        if (!result.success) {
-          logger.warn('❌ TrainingService.executeMove failed', { error: result.error });
+        // Format move for new atomic action
+        const formattedMove = {
+          from: move.from,
+          to: move.to,
+          ...(move.promotion && { promotion: move.promotion as 'q' | 'r' | 'b' | 'n' })
+        };
+
+        // Call the atomic action from root store - it handles validation, execution, and delegation
+        await storeApi.getState().handlePlayerMove(formattedMove);
+
+        // Check for errors after atomic action execution
+        const updatedState = storeApi.getState();
+        if (updatedState.game.lastMoveError) {
+          logger.warn('❌ handlePlayerMove failed', { error: updatedState.game.lastMoveError });
           return false;
         }
 
-        logger.debug('✅ TrainingService.executeMove succeeded');
+        logger.debug('✅ handlePlayerMove succeeded');
 
-        // Notify position change with current Store state
-        onPositionChange?.(gameState.currentFen || '', gameState.currentPgn || '');
+        // Notify position change with updated Store state
+        const finalState = storeApi.getState();
+        onPositionChange?.(finalState.game.currentFen || '', finalState.game.currentPgn || '');
 
         return true;
       } catch (error) {
@@ -184,9 +193,7 @@ export const useTrainingSession = ({
       gameState.isStalemate,
       gameState.isGameFinished,
       gameState.currentFen,
-      gameState.currentPgn,
       gameState.moveHistory?.length,
-      onComplete,
       onPositionChange,
       storeApi,
     ]

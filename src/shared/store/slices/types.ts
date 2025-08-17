@@ -42,6 +42,25 @@ export interface GameState {
   lastMoveError?: string;
 }
 
+/**
+ * Opponent slice - AI opponent state
+ */
+export interface OpponentState {
+  isThinking: boolean;
+  lastMove: string | null;
+  difficulty: 'easy' | 'medium' | 'hard';
+}
+
+export interface OpponentActions {
+  setThinking: (thinking: boolean) => void;
+  setLastMove: (move: string | null) => void;
+  setDifficulty: (difficulty: 'easy' | 'medium' | 'hard') => void;
+  // Orchestrator delegates
+  triggerOpponentMove: (fen: string) => void;
+}
+
+export type OpponentSlice = OpponentState
+
 export interface GameActions {
   // State management
   // setGame removed - Chess instances created on-demand
@@ -75,7 +94,7 @@ export interface GameActions {
   setCurrentFen: (fen: string) => void;
 
   // Pure function actions (ChessService replacement)
-  makeMovePure: (move: { from: string; to: string; promotion?: string } | string) => MoveResult | null;
+  makeMovePure: (move: { from: string; to: string; promotion?: string } | string) => { moveResult: MoveResult; validatedMove: ValidatedMove } | null;
   validateMovePure: (move: { from: string; to: string; promotion?: string } | string) => boolean;
   getGameStatusPure: () => GameStatus | null;
   getPossibleMovesPure: (square?: string) => ChessJsMove[];
@@ -184,6 +203,9 @@ export interface TrainingActions {
   resetPosition: () => void;
   setEvaluationBaseline: (wdl: number, fen: string) => void;
   clearEvaluationBaseline: () => void;
+  // Orchestrator delegates
+  evaluateMoveQuality: (move: ValidatedMove, fen: string) => void;
+  finalizeTrainingSession: (reason: string) => void;
 }
 
 /**
@@ -198,6 +220,8 @@ export interface UIActions {
   removeToast: (id: string) => void;
   setLoading: (key: keyof LoadingState, value: boolean) => void;
   updateAnalysisPanel: (update: Partial<AnalysisPanelState>) => void;
+  // Orchestrator delegates
+  showGameOverDialog: (gameOverInfo: { reason: string }) => void;
 }
 
 /**

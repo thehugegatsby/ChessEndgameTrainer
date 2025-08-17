@@ -654,7 +654,7 @@ export const createTrainingActions = (
    * @example
    * ```typescript
    * // After opponent move following "Weiterspielen"
-   * const currentFen = chessService.getFen();
+   * const currentFen = get().game.currentFen;
    * const evaluation = await tablebaseService.getEvaluation(currentFen);
    * if (evaluation.isAvailable) {
    *   trainingActions.setEvaluationBaseline(evaluation.result.wdl, currentFen);
@@ -805,6 +805,29 @@ export const createTrainingActions = (
       state.training.autoProgressEnabled = enabled;
     });
     logger.info('Auto-progression setting changed', { enabled });
+  },
+
+  // =====================================================
+  // ORCHESTRATOR DELEGATE STUBS (Migration Phase)
+  // =====================================================
+
+  /**
+   * [STUB] Evaluates move quality for training feedback
+   * @param move - The move that was made
+   * @param fen - The FEN position after the move
+   */
+  evaluateMoveQuality: (move: ValidatedMove, fen: string) => {
+    console.info(`STUB: Evaluating move quality for ${move.san} at FEN ${fen}`);
+    // TODO: Implement actual move quality evaluation logic
+  },
+
+  /**
+   * [STUB] Finalizes training session when game ends
+   * @param reason - The reason the game ended (checkmate, draw, etc.)
+   */
+  finalizeTrainingSession: (reason: string) => {
+    console.info(`STUB: Finalizing training session due to ${reason}`);
+    // TODO: Implement training completion logic (accuracy, streaks, etc.)
   },
 });
 

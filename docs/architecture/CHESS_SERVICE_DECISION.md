@@ -19,10 +19,14 @@
 
 **VERWANDTE ISSUES:**
 
-- [#173 - ResolveChessServiceDuality](../../issues/173) - Hauptarchitektur-Issue
+- [#173 - ResolveChessServiceDuality](../../issues/173) - ✅ **COMPLETED** (2025-08-17)
 - [#174 - EnforceComplexityLimits](../../issues/174) - Blockiert bis Service-Refactoring
 - [#175 - SimplifyHandlePlayerMove](../../issues/175) - Abhängig von Service-Architektur
 - [#179 - FixMockImplementationPatterns](../../issues/179) - Wird durch Pure Functions gelöst
+
+**IMPLEMENTIERUNG:**
+
+- [Migration Log](migrations/2025-08-17-chessservice-to-pure-functions/README.md) - Vollständige Migrations-Dokumentation
 
 ---
 

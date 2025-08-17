@@ -22,7 +22,8 @@
 
 import type { StoreApi } from '../types';
 import type { Move as ChessJsMove } from 'chess.js';
-import { chessService } from '@shared/services/ChessService';
+import { makeMove as makeMovePure, turn, isGameOver } from '@shared/utils/chess-logic';
+import { createValidatedMove } from '@shared/types/chess';
 import { ErrorService } from '@shared/services/ErrorService';
 import { getLogger } from '@shared/services/logging';
 import { handleTrainingCompletion } from './move.completion';
@@ -129,20 +130,32 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
       }
 
       // Step 2: Get position before move for evaluation
-      const fenBefore = chessService.getFen();
+      const fenBefore = state.game.currentFen;
 
-      // Step 3: Apply move to game state
-      const validatedMove = chessService.move(move);
+      // Step 3: Apply move to game state using pure function
+      const moveResult = makeMovePure(fenBefore, move);
 
-      if (!validatedMove) {
+      if (!moveResult) {
         getLogger().error('[handlePlayerMove] Move execution failed after validation');
         return false;
       }
 
-      const fenAfter = chessService.getFen();
+      const validatedMove = moveResult.move;
+      const fenAfter = moveResult.newFen;
+
+      // Create properly typed ValidatedMove for use throughout orchestrator
+      const validatedMoveEntry = createValidatedMove(validatedMove, fenBefore, fenAfter);
+      
+      // Update game state
+      setState(draft => {
+        draft.game.currentFen = fenAfter;
+        // Add move to history using proper type-safe factory
+        draft.game.moveHistory.push(validatedMoveEntry);
+        draft.game.currentMoveIndex = draft.game.moveHistory.length - 1;
+      });
 
       // Step 4: Handle pawn promotion if applicable
-      const promotionInfo = deps.pawnPromotionHandler.checkPromotion(validatedMove);
+      const promotionInfo = deps.pawnPromotionHandler.checkPromotion(validatedMoveEntry);
       if (promotionInfo.isPromotion) {
         getLogger().info('[handlePlayerMove] Pawn promotion detected:', promotionInfo);
 
@@ -181,14 +194,14 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
       const qualityResult = await deps.moveQualityEvaluator.evaluateMoveQuality(
         fenBefore,
         fenAfter,
-        validatedMove,
+        validatedMoveEntry,
         validBaseline
       );
 
       // Step 6: Show error dialog if move was suboptimal and outcome changed
       if (qualityResult.shouldShowErrorDialog) {
         // Set turn state before showing dialog so "Weiterspielen" can trigger opponent move
-        const currentTurn = chessService.turn();
+        const currentTurn = turn(fenAfter);
         const trainingColor = state.training.currentPosition?.colorToTrain?.charAt(0);
 
         if (currentTurn !== trainingColor) {
@@ -230,13 +243,13 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
       }
 
       // Step 7: Check if game is finished
-      if (chessService.isGameOver()) {
+      if (isGameOver(fenAfter)) {
         await handleTrainingCompletion(api, true);
         return true;
       }
 
       // Step 8: Handle opponent turn if needed
-      const currentTurn = chessService.turn();
+      const currentTurn = turn(fenAfter);
       const trainingColor = state.training.currentPosition?.colorToTrain?.charAt(0);
 
       if (currentTurn !== trainingColor) {

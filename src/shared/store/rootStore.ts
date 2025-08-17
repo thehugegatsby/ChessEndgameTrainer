@@ -45,10 +45,9 @@ import {
 } from './slices/trainingSlice';
 import { createUIState, createUIActions, initialUIState } from './slices/uiSlice';
 
-// Import ChessService for event subscription
-import { chessService, type ChessServiceEvent } from '@shared/services/ChessService';
+// ChessService removed - using pure functions
 import { getLogger } from '@shared/services/logging/Logger';
-import { UI_DURATIONS_MS, TOAST_DURATIONS_MS } from '../../constants/time.constants';
+import { UI_DURATIONS_MS } from '../../constants/time.constants';
 
 // Import orchestrators
 import { loadTrainingContext as loadTrainingContextOrchestrator } from './orchestrators/loadTrainingContext';
@@ -365,50 +364,7 @@ export const useStore = create<RootState>()(
   )
 );
 
-/**
- * Subscribe to ChessService events for automatic state synchronization
- * This ensures the store stays in sync with the ChessService singleton
- */
-const unsubscribeChessService = chessService.subscribe((event: ChessServiceEvent) => {
-  switch (event.type) {
-    case 'stateUpdate':
-      // Use batched payload for atomic state update
-      // This ensures consistency and reduces getter calls
-      useStore.setState(draft => {
-        draft.game.currentFen = event.payload.fen;
-        draft.game.currentPgn = event.payload.pgn;
-        draft.game.moveHistory = event.payload.moveHistory;
-        draft.game.currentMoveIndex = event.payload.currentMoveIndex;
-        draft.game.isGameFinished = event.payload.isGameOver;
-        draft.game.gameResult = event.payload.gameResult;
-      });
-      break;
-
-    case 'error':
-      // Handle errors from ChessService
-      useStore.setState(draft => {
-        draft.ui.toasts.push({
-          id: crypto.randomUUID(),
-          message: event.payload.message,
-          type: 'error',
-          duration: TOAST_DURATIONS_MS.ERROR,
-        });
-      });
-      // Logging already done in ChessService, avoid duplication
-      break;
-
-    default:
-      // Handle unknown event types
-      console.warn('Unknown ChessService event type:', (event as Record<string, unknown>)['type']);
-      break;
-  }
-});
-
-// Store cleanup function for hot-module reload or testing
-if (typeof window !== 'undefined') {
-  (window as unknown as { __cleanupChessService?: () => void }).__cleanupChessService =
-    unsubscribeChessService;
-}
+// ChessService event subscription removed - state managed directly by slice actions
 
 /**
  * Hook for accessing the complete store state and actions

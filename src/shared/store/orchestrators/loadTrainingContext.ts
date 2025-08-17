@@ -32,8 +32,7 @@ import type { StoreApi } from './types';
 import type { EndgamePosition } from '@shared/types/endgame';
 import type { TrainingPosition } from '../slices/trainingSlice';
 import { getLogger } from '@shared/services/logging';
-import { chessService } from '@shared/services/ChessService';
-import { Chess } from 'chess.js';
+import { isValidFen, turn } from '@shared/utils/chess-logic';
 import { getServerPositionService } from '@shared/services/database/serverPositionService';
 
 const logger = getLogger().setContext('loadTrainingContext');
@@ -124,26 +123,20 @@ export const loadTrainingContext = async (
       }
     });
 
-    // Step 2: Validate FEN and initialize game state
-    // Defer ChessService initialization to avoid setState during render
-    // First just validate the FEN
-    const chess = new Chess();
-    let isValidFen = false;
-    try {
-      chess.load(position.fen);
-      isValidFen = true;
-    } catch {
-      isValidFen = false;
-    }
-
-    if (!isValidFen) {
+    // Step 2: Validate FEN and initialize game state using pure functions
+    if (!isValidFen(position.fen)) {
       throw new Error('Ungültige FEN-Position');
     }
 
-    // Initialize ChessService synchronously - orchestrators can safely handle state updates
-    chessService.initialize(position.fen);
-
-    // Game state will be automatically synced via ChessService event subscription in rootStore
+    // Initialize game state using pure function approach
+    setState(draft => {
+      draft.game.currentFen = position.fen;
+      draft.game.currentPgn = '';
+      draft.game.moveHistory = [];
+      draft.game.currentMoveIndex = -1;
+      draft.game.isGameFinished = false;
+      draft.game.gameResult = null;
+    });
 
     // Step 3: Create TrainingPosition from EndgamePosition
     // Check if this is already a TrainingPosition (has the required fields)
@@ -171,8 +164,8 @@ export const loadTrainingContext = async (
         };
 
     // Step 4: Set the training position and player turn
-    // Get turn from ChessService
-    const currentTurn = chessService.turn();
+    // Get turn from pure function
+    const currentTurn = turn(position.fen);
     const isPlayerTurn = currentTurn === trainingPosition.colorToTrain.charAt(0);
 
     setState(draft => {
@@ -261,7 +254,7 @@ export const loadTrainingContext = async (
       // This is now handled by the training components
       logger.debug("Opponent's turn - should be handled by component");
     } else {
-      // Position evaluation now handled by components using chessService
+      // Position evaluation now handled by components using pure functions
       logger.debug("Player's turn - evaluation handled by component");
     }
 

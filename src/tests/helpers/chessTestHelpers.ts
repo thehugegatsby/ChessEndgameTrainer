@@ -4,7 +4,7 @@
  */
 
 import { vi } from 'vitest';
-import { type ChessServiceListener, type ChessServiceEvent } from '@shared/services/ChessService';
+import { type ChessServiceEvent } from '@shared/types/chess';
 
 /**
  * Creates a mock event listener for ChessService events
@@ -13,8 +13,10 @@ import { type ChessServiceListener, type ChessServiceEvent } from '@shared/servi
  * @example
  * ```typescript
  * const mockListener = createMockListener();
- * chessService.subscribe(mockListener);
- * chessService.move({ from: 'e2', to: 'e4' });
+ * // Subscribe to store events
+ * store.subscribe(mockListener);
+ * // Make a move using pure functions
+ * const result = makeMove(COMMON_FENS.STARTING_POSITION, { from: 'e2', to: 'e4' });
  * expect(mockListener).toHaveBeenCalledWith(expect.objectContaining({
  *   type: 'stateUpdate',
  *   source: 'move'

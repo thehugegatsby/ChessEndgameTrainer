@@ -52,8 +52,7 @@ import { createTablebaseState, createTablebaseActions } from './slices/tablebase
 import { createTrainingState, createTrainingActions } from './slices/trainingSlice';
 import { createUIState, createUIActions } from './slices/uiSlice';
 
-// Import ChessService for event subscription
-import { chessService, type ChessServiceEvent } from '@shared/services/ChessService';
+// ChessService removed - using pure functions
 import { getLogger } from '@shared/services/logging/Logger';
 
 // Import orchestrators
@@ -199,21 +198,8 @@ export const createStore = (
             if (initialState.game) {
               Object.assign(rootState.game, initialState.game);
 
-              // CRITICAL: Sync ChessService with initial FEN after render
-              // Use setTimeout to avoid setState during render
-              if (initialState.game.currentFen) {
-                const fenToLoad = initialState.game.currentFen;
-                setTimeout(() => {
-                  try {
-                    chessService.initialize(fenToLoad);
-                  } catch (error) {
-                    getLogger().error('Failed to load initial FEN into ChessService', {
-                      fen: fenToLoad,
-                      error,
-                    });
-                  }
-                }, 0);
-              }
+              // NOTE: Game initialization now handled by pure functions in gameSlice
+              // The currentFen is already set in rootState.game.currentFen above
             }
 
             // Merge training state properties
@@ -282,43 +268,7 @@ export const createStore = (
     )
   );
 
-  // Subscribe to ChessService events for automatic state synchronization
-  const unsubscribeChessService = chessService.subscribe((event: ChessServiceEvent) => {
-    switch (event.type) {
-      case 'stateUpdate':
-        // Use batched payload for atomic state update
-        store.setState(draft => {
-          draft.game.currentFen = event.payload.fen;
-          draft.game.currentPgn = event.payload.pgn;
-          draft.game.moveHistory = event.payload.moveHistory;
-          draft.game.currentMoveIndex = event.payload.currentMoveIndex;
-          draft.game.isGameFinished = event.payload.isGameOver;
-          draft.game.gameResult = event.payload.gameResult;
-        });
-        break;
-
-      case 'error':
-        // Handle errors from ChessService
-        store.setState(draft => {
-          draft.ui.toasts.push({
-            id: crypto.randomUUID(),
-            message: event.payload.message,
-            type: 'error',
-            duration: 5000,
-          });
-        });
-        break;
-      default:
-        // Log unhandled event types for debugging
-        console.warn(
-          `Unhandled ChessService event type: ${(event as Record<string, unknown>)['type']}`
-        );
-        break;
-    }
-  });
-
-  // Attach cleanup function to store instance
-  (store as unknown as { __cleanup: () => void }).__cleanup = unsubscribeChessService;
+  // ChessService event subscription removed - state managed directly by slice actions
 
   return store;
 };

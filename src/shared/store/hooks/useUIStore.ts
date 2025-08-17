@@ -97,6 +97,9 @@ export const useUIActions = (): UIActionsType => {
       removeToast: actions.removeToast,
       setLoading: actions.setLoading,
       updateAnalysisPanel: actions.updateAnalysisPanel,
+      
+      // Orchestrator delegates
+      showGameOverDialog: actions.showGameOverDialog,
     }),
     [actions]
   );

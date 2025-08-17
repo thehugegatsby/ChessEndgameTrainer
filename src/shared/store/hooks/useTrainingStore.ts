@@ -138,6 +138,10 @@ export const useTrainingActions = (): ExtendedTrainingActions => {
       showCheckmarkAnimation: state.training.showCheckmarkAnimation,
       setAutoProgressEnabled: state.training.setAutoProgressEnabled,
 
+      // Delegate actions for orchestrator
+      evaluateMoveQuality: state.training.evaluateMoveQuality,
+      finalizeTrainingSession: state.training.finalizeTrainingSession,
+
       // Orchestrated actions (from root level)
       handlePlayerMove: state.handlePlayerMove,
       loadTrainingContext: state.loadTrainingContext,

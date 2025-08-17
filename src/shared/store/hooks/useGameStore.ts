@@ -54,6 +54,7 @@ export const useGameState = (): GameStateType => {
       isCheckmate: state.game.isCheckmate,
       isDraw: state.game.isDraw,
       isStalemate: state.game.isStalemate,
+      playerColor: state.game.playerColor,
     }))
   );
 };
