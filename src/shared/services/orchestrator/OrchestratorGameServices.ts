@@ -38,6 +38,17 @@ export class OrchestratorMoveService {
   static makeUserMove(currentFen: string, move: MoveInput): MakeMoveResult {
     return moveService.makeUserMove(currentFen, move);
   }
+
+  /**
+   * Make an engine move using SAN notation with comprehensive result data
+   *
+   * @param currentFen - Current position FEN
+   * @param sanMove - Move in SAN notation (e.g., "Nf3", "O-O", "exd8=Q")
+   * @returns Promise resolving to move result with all derived state
+   */
+  static makeEngineMove(currentFen: string, sanMove: string): MakeMoveResult {
+    return moveService.makeEngineMove(currentFen, sanMove);
+  }
 }
 
 /**
