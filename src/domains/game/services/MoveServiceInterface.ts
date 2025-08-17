@@ -112,4 +112,13 @@ export interface MoveServiceInterface {
    * @returns Rich result with all derived game state
    */
   makeUserMove(currentFen: string, move: MoveInput): MakeMoveResult;
+
+  /**
+   * Makes an engine move using SAN notation with comprehensive result data
+   * 
+   * @param currentFen - Current position FEN
+   * @param sanMove - Move in SAN notation (e.g., "Nf3", "O-O", "exd8=Q")
+   * @returns Rich result with all derived game state
+   */
+  makeEngineMove(currentFen: string, sanMove: string): MakeMoveResult;
 }
