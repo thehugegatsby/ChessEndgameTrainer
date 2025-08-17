@@ -19,9 +19,8 @@ import type {
  * Uses ChessEngine for move operations and maintains training-specific move history.
  */
 export class MoveService implements MoveServiceInterface {
-  // @ts-expect-error - Used in implementation
+  // @ts-expect-error - Used in future implementation steps
   private _chessEngine: ChessEngineInterface;
-  private moveHistory: ValidatedMove[] = [];
 
   constructor(chessEngine: ChessEngineInterface) {
     this._chessEngine = chessEngine;
@@ -54,19 +53,19 @@ export class MoveService implements MoveServiceInterface {
 
   getMoveHistory(): ValidatedMove[] {
     // TODO: Implement move history retrieval
-    return this.moveHistory;
+    throw new Error('MoveService.getMoveHistory not implemented - use stateless version');
   }
 
-  addTrainingMove(move: ValidatedMove): void {
+  addTrainingMove(_move: ValidatedMove): void {
     // TODO: Implement training move addition
     // - Add move to training history
     // - Include training-specific metadata
-    this.moveHistory.push(move);
+    throw new Error('MoveService.addTrainingMove not implemented - use stateless version');
   }
 
   clearMoveHistory(): void {
     // TODO: Implement move history clearing
-    this.moveHistory = [];
+    throw new Error('MoveService.clearMoveHistory not implemented - use stateless version');
   }
 
   undoLastMove(): boolean {
@@ -79,8 +78,7 @@ export class MoveService implements MoveServiceInterface {
 
   getLastMove(): ValidatedMove | null {
     // TODO: Implement last move retrieval
-    const lastMove = this.moveHistory[this.moveHistory.length - 1];
-    return lastMove || null;
+    throw new Error('MoveService.getLastMove not implemented - use stateless version');
   }
 
   isCapture(_move: string | ValidatedMove): boolean {
@@ -106,6 +104,6 @@ export class MoveService implements MoveServiceInterface {
     // TODO: Implement move service reset
     // - Clear move history
     // - Reset any move-related state
-    this.moveHistory = [];
+    throw new Error('MoveService.reset not implemented - use stateless version');
   }
 }
