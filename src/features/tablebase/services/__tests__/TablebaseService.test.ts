@@ -4,7 +4,7 @@ import { vi } from 'vitest';
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach, type MockedFunction } from 'vitest';
-import { TablebaseService, tablebaseService } from '@domains/evaluation';
+import { TablebaseService, tablebaseService } from '../../../../domains/evaluation';
 import { tablebaseApiClient, ApiError } from '../TablebaseApiClient';
 import { tablebaseTransformer } from '../TablebaseTransformer';
 import type {

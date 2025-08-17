@@ -7,6 +7,7 @@
  */
 
 import { SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
+import { tablebaseService } from '@domains/evaluation';
 
 // Note: Using direct service import for service-to-service integration
 import { formatPositionAnalysis } from '../utils/positionAnalysisFormatter';
@@ -52,7 +53,6 @@ class AnalysisService {
     });
 
     // Get tablebase evaluation - this populates the cache
-    const { tablebaseService } = await import('@domains/evaluation');
     const tablebaseResult = await tablebaseService.getEvaluation(fen);
 
     if (!tablebaseResult.isAvailable || !tablebaseResult.result) {
