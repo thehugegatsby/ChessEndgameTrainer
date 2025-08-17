@@ -7,6 +7,7 @@
 import type { ChessEngineInterface, MoveInput as EngineMoveInput } from '@domains/game/engine/types';
 import type { MoveServiceInterface, MakeMoveResult, MoveInput as ServiceMoveInput } from './MoveServiceInterface';
 import { createValidatedMove } from '@shared/types/chess';
+import type { Move as ChessJsMove, Square } from 'chess.js';
 
 /**
  * STATELESS Move Service implementation
@@ -21,6 +22,106 @@ export class MoveService implements MoveServiceInterface {
 
   constructor(chessEngine: ChessEngineInterface) {
     this.chessEngine = chessEngine;
+  }
+
+  /**
+   * Builds successful move result with all derived state
+   * 
+   * @param moveResult - ChessJs move result from successful move
+   * @param fenBefore - FEN position before move
+   * @param fenAfter - FEN position after move  
+   * @returns Rich MakeMoveResult with all derived game state
+   * 
+   * @private
+   */
+  private _buildMoveResult(
+    moveResult: ChessJsMove,
+    fenBefore: string,
+    fenAfter: string
+  ): MakeMoveResult {
+    // Create ValidatedMove using the factory function
+    const validatedMove = createValidatedMove(moveResult, fenBefore, fenAfter);
+    
+    // Game state checks
+    const isCheckmate = this.chessEngine.isCheckmate();
+    const isStalemate = this.chessEngine.isStalemate();
+    const isCheck = this.chessEngine.isCheck();
+    const isDraw = this.chessEngine.isDraw();
+    
+    // Move metadata
+    const isCapture = moveResult.captured !== undefined;
+    const isPromotion = moveResult.promotion !== undefined;
+    const isCastling = moveResult.flags.includes('k') || moveResult.flags.includes('q');
+    
+    return {
+      newFen: fenAfter,
+      move: validatedMove,
+      pgn: '', // No PGN method available, placeholder for now
+      isCheckmate,
+      isStalemate,
+      isCheck,
+      isDraw,
+      isCapture,
+      isPromotion,
+      isCastling
+    };
+  }
+
+  /**
+   * Makes an engine move using SAN notation with comprehensive result data
+   * 
+   * @param currentFen - Current position FEN
+   * @param sanMove - Move in SAN notation (e.g., "Nf3", "O-O", "exd8=Q")
+   * @returns Rich result with newFen, move object, game state flags, and metadata
+   */
+  makeEngineMove(currentFen: string, sanMove: string): MakeMoveResult {
+    try {
+      // Store FEN before move for ValidatedMove creation
+      const fenBefore = currentFen;
+      
+      // Load current position
+      this.chessEngine.loadFen(currentFen);
+      
+      // Attempt to make the SAN move
+      const moveResult = this.chessEngine.makeMove(sanMove);
+      
+      // If move failed, return error result
+      if (!moveResult) {
+        return {
+          newFen: null,
+          move: null,
+          pgn: '', // No PGN method available, use empty string
+          isCheckmate: false,
+          isStalemate: false,
+          isCheck: false,
+          isDraw: false,
+          isCapture: false,
+          isPromotion: false,
+          isCastling: false,
+          error: `Ungültiger SAN-Zug: ${sanMove}` // German error message per project standards
+        };
+      }
+      
+      // Move succeeded - get new FEN and delegate to shared helper
+      const newFen = this.chessEngine.getFen();
+      return this._buildMoveResult(moveResult, fenBefore, newFen);
+      
+    } catch (error) {
+      // Handle any unexpected errors
+      return {
+        newFen: null,
+        move: null,
+        pgn: '',
+        isCheckmate: false,
+        isStalemate: false,
+        isCheck: false,
+        isDraw: false,
+        isCapture: false,
+        isPromotion: false,
+        isCastling: false,
+        error: error instanceof Error ? error.message : 'Unbekannter Fehler bei SAN-Zug'
+      };
+    }
   }
 
   /**
@@ -45,10 +146,11 @@ export class MoveService implements MoveServiceInterface {
       
       // Convert MoveInput to EngineMoveInput (both use from/to/promotion)
       // Type assertion needed due to conflicting MoveInput types in codebase
+      const moveInput = move as { from: Square; to: Square; promotion?: string };
       const engineMove: EngineMoveInput = {
-        from: (move as any).from,
-        to: (move as any).to,
-        ...((move as any).promotion && { promotion: (move as any).promotion })
+        from: moveInput.from,
+        to: moveInput.to,
+        ...(moveInput.promotion && { promotion: moveInput.promotion })
       };
       
       // Attempt to make the move
@@ -71,35 +173,9 @@ export class MoveService implements MoveServiceInterface {
         };
       }
       
-      // Move succeeded - gather all derived state
+      // Move succeeded - get new FEN and delegate to shared helper
       const newFen = this.chessEngine.getFen();
-      
-      // Create ValidatedMove using the factory function
-      const validatedMove = createValidatedMove(moveResult, fenBefore, newFen);
-      
-      // Game state checks
-      const isCheckmate = this.chessEngine.isCheckmate();
-      const isStalemate = this.chessEngine.isStalemate();
-      const isCheck = this.chessEngine.isCheck();
-      const isDraw = this.chessEngine.isDraw();
-      
-      // Move metadata
-      const isCapture = moveResult.captured !== undefined;
-      const isPromotion = moveResult.promotion !== undefined;
-      const isCastling = moveResult.flags.includes('k') || moveResult.flags.includes('q');
-      
-      return {
-        newFen,
-        move: validatedMove,
-        pgn: '', // No PGN method available, placeholder for now
-        isCheckmate,
-        isStalemate,
-        isCheck,
-        isDraw,
-        isCapture,
-        isPromotion,
-        isCastling
-      };
+      return this._buildMoveResult(moveResult, fenBefore, newFen);
       
     } catch (error) {
       // Handle any unexpected errors

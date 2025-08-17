@@ -108,7 +108,12 @@ export class TrainingService {
           moveObj = { from, to: toPart };
         }
       } else {
-        // SAN notation - pass as string
+        // SAN notation detected - skip for now, will be fixed in B5.6
+        if (typeof move === 'string' && move.match(/^[a-h1-8KQRNBP]/)) {
+          logger.warn('SAN notation not yet supported, pending B5.6 implementation', { move });
+          return { success: false, error: 'SAN notation wird in B5.6 implementiert' };
+        }
+        // Pass string as-is for other formats
         moveObj = move;
       }
 

@@ -672,24 +672,45 @@ Strategy: Gemini's "Fat Service, Thin Slice" pattern - Service handles complex l
 - [x] ✅ `b5.3.3-test-validation`: Full test validation - `pnpm test` (98%+ pass rate)
 - [x] ✅ `b5.3.3-commit`: Commit - `refactor(training): B5.3.3 - delegate move logic to MoveService in handleUserMove`
 
-**B5.4 Engine Move Logic Migration**
+**B5.4 Engine Move Logic Migration** 🔄 **IN PROGRESS**
 
-**B5.4.1 makeEngineMove Implementation**
-- [ ] `b5.4.1-engine-move-method`: Implement makeEngineMove in MoveService  
-  - [ ] Method signature: `makeEngineMove(currentFen: string, pgn: string): MakeMoveResult`
-  - [ ] Coordinate with TablebaseService for best move determination
-  - [ ] Reuse makeUserMove internal logic for move execution
-- [ ] `b5.4.1-unit-tests`: Create unit tests for makeEngineMove method
-- [ ] `b5.4.1-test-validation`: Test validation - `pnpm test`
-- [ ] `b5.4.1-commit`: Commit - `feat(game): B5.4.1 - implement makeEngineMove in MoveService`
+**B5.4.1 Extract Shared Helper from makeUserMove**
+- [ ] `b5.4.1-extract-helper`: Extract `_buildMoveResult` private helper
+  - [ ] Consolidate result building logic (lines 74-102 from makeUserMove)
+  - [ ] Handle ValidatedMove creation, game state checks, metadata
+  - [ ] TypeScript: Proper return type MakeMoveResult
+- [ ] `b5.4.1-refactor-user`: Refactor makeUserMove to use shared helper
+- [ ] `b5.4.1-typecheck`: Run `pnpm tsc --noEmit` 
+- [ ] `b5.4.1-lint`: Run `pnpm lint`
+- [ ] `b5.4.1-commit`: Commit - `refactor(service): extract shared _buildMoveResult helper`
 
-**B5.4.2 handleEngineMove Delegation Refactoring**
-- [ ] `b5.4.2-thunk-refactor`: Refactor handleEngineMove thunk to use moveService.makeEngineMove
-  - [ ] Replace engine move logic with service delegation
-  - [ ] Simplify reducer logic to state updates only
-- [ ] `b5.4.2-integration-test`: Integration testing - manual engine move testing
-- [ ] `b5.4.2-test-validation`: Full test validation - `pnpm test`
-- [ ] `b5.4.2-commit`: Commit - `refactor(training): B5.4.2 - delegate engine move logic to MoveService`
+**B5.4.2 Implement makeEngineMove Method**
+- [ ] `b5.4.2-engine-method`: Add makeEngineMove to MoveService
+  - [ ] Method signature: `makeEngineMove(currentFen: string, sanMove: string): MakeMoveResult`
+  - [ ] Load position, execute SAN move, handle errors
+  - [ ] Delegate to `_buildMoveResult` for success case
+- [ ] `b5.4.2-interface`: Update MoveServiceInterface with makeEngineMove
+- [ ] `b5.4.2-typecheck`: Run `pnpm tsc --noEmit`
+- [ ] `b5.4.2-lint`: Run `pnpm lint`
+- [ ] `b5.4.2-commit`: Commit - `feat(service): implement makeEngineMove for tablebase moves`
+
+**B5.4.3 Create Unit Tests for makeEngineMove**
+- [ ] `b5.4.3-test-file`: Create MoveService.engineMove.test.ts
+- [ ] `b5.4.3-test-cases`: Test valid SAN moves (e4, Nf3, O-O)
+- [ ] `b5.4.3-test-errors`: Test invalid move handling
+- [ ] `b5.4.3-test-states`: Test checkmate/stalemate detection
+- [ ] `b5.4.3-test-run`: Run `pnpm test MoveService`
+- [ ] `b5.4.3-commit`: Commit - `test(service): add unit tests for makeEngineMove`
+
+**B5.4.4 Refactor OpponentTurnHandler to Use makeEngineMove**
+- [ ] `b5.4.4-import`: Add orchestratorMoveService import
+- [ ] `b5.4.4-replace`: Replace makeMove call with makeEngineMove
+- [ ] `b5.4.4-state`: Use MakeMoveResult for state updates
+- [ ] `b5.4.4-cleanup`: Remove createValidatedMove (service handles it)
+- [ ] `b5.4.4-typecheck`: Run `pnpm tsc --noEmit`
+- [ ] `b5.4.4-lint`: Run `pnpm lint`
+- [ ] `b5.4.4-test`: Run integration tests
+- [ ] `b5.4.4-commit`: Commit - `refactor(orchestrator): delegate engine moves to MoveService`
 
 **B5.5 Service Enhancement & TrainingSlice Cleanup**
 
@@ -836,7 +857,7 @@ Strategy: Gemini's "Fat Service, Thin Slice" pattern - Service handles complex l
   - ✅ B5.3.1: Service Instantiation in TrainingSlice
   - ✅ B5.3.2: makeUserMove Implementation  
   - ✅ B5.3.3: handleUserMove Delegation Refactoring (Service delegation with adapter pattern)
-- 🔄 B5.4: Engine Move Logic Migration - **NEXT**
+- 🔄 B5.4: Engine Move Logic Migration - **IN PROGRESS**
 - B5.5: Service Enhancement & TrainingSlice Cleanup
 - B5.6: Validation & LOC Measurement
 
@@ -844,12 +865,32 @@ Strategy: Gemini's "Fat Service, Thin Slice" pattern - Service handles complex l
 
 ## 🔮 FUTURE TODOS (POST B5.6)
 
+### Temporary Fixes (TO REMOVE IN B5.6)
+
+**SAN Move Format Handling** 
+- **Status:** ⚠️ TEMPORARY FIX APPLIED (2025-08-17)
+- **Location:** `src/shared/services/TrainingService.ts` lines 112-115
+- **Issue:** TrainingService receives SAN notation ("Kd6") but orchestrator expects object format
+- **Current Fix:** Graceful failure with warning message
+- **Target Solution (B5.6):** Move all format parsing to MoveService as Single Source of Truth
+- **Gemini Recommendation:** Two-phase approach - temporary fix now, proper solution in B5.6
+- **Related Tests:** 
+  - `training-service.test.ts` - expects SAN format
+  - `EndgameTrainingPage.integration.test.tsx` - sends object format
+
 ### Technical Debt & Follow-up Tasks
 
 **Type System Cleanup**
 - [ ] Resolve MoveInput type conflicts between `/domains/game/services/` and `/shared/hooks/`
 - [ ] Remove type assertions in MoveService.ts (replace with proper type unification)
 - [ ] Standardize move input format across codebase (SAN vs from/to)
+
+**Move Format Normalization (Priority: HIGH)**
+- [ ] Remove temporary SAN handling from TrainingService (lines 112-115)
+- [ ] Implement comprehensive move parsing in MoveService
+- [ ] Support all formats: SAN ("Kd6"), coordinates ("e2-e4"), objects ({from, to})
+- [ ] Update MoveServiceInterface to accept union type
+- [ ] Clean up orchestrator adapter after MoveService handles all formats
 
 **Integration Test Fixes**
 - [ ] Fix training-service.test.ts integration tests (SAN move format support)
@@ -860,5 +901,9 @@ Strategy: Gemini's "Fat Service, Thin Slice" pattern - Service handles complex l
 - [ ] Remove adapter pattern and leverage full MakeMoveResult in orchestrator
 - [ ] Utilize rich metadata (isCapture, isPromotion, isCastling) directly
 - [ ] Simplify orchestrator logic by using service-provided game state flags
+
+**From TodoWrite Items (B5.3.3 Follow-up)**
+- [ ] FUTURE: Leverage full MakeMoveResult in orchestrator (post B5.6)
+- [ ] FUTURE: Resolve MoveInput type conflicts between services and hooks
 
 **Architectural Achievement:** Service Delegation Pattern etabliert, Stateless Services, Zustand als Single Source of Truth
