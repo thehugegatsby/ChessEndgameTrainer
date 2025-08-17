@@ -4,12 +4,13 @@
  */
 
 import type { StoreApi } from '../types';
-import { chessService } from '@shared/services/ChessService';
-// Note: Using dynamic import for service instead of React Query hook in orchestrator
+import { getFen, turn, makeMove, isGameOver } from '@shared/utils/chess-logic';
+// Note: Using pure functions instead of ChessService singleton
 import type { TablebaseMove } from '@shared/types/tablebase';
 import { ErrorService } from '@shared/services/ErrorService';
 import { handleTrainingCompletion } from './move.completion';
 import { getLogger } from '@shared/services/logging';
+import { createValidatedMove } from '@shared/types/chess';
 import { ALGORITHM_MULTIPLIERS } from '@shared/constants/multipliers';
 
 const OPPONENT_TURN_DELAY = 500; // ms
@@ -61,8 +62,8 @@ class OpponentTurnManager {
     getLogger().info(`[OpponentTurnHandler] 🎯 scheduleOpponentTurn called - delay: ${delay}ms`, {
       isPlayerTurn: currentState.training.isPlayerTurn,
       isOpponentThinking: currentState.training.isOpponentThinking,
-      currentFen: chessService.getFen(),
-      currentTurn: chessService.turn(),
+      currentFen: getFen(currentState.game.currentFen),
+      currentTurn: turn(currentState.game.currentFen),
       colorToTrain: currentState.training.currentPosition?.colorToTrain,
     });
 
@@ -128,7 +129,8 @@ class OpponentTurnManager {
 
     try {
       // Get current position
-      const currentFen = chessService.getFen();
+      const currentState = api.getState();
+      const currentFen = currentState.game.currentFen;
 
       // Fetch ALL moves from tablebase to find optimal one based on DTM
       // We need all moves to properly evaluate defense in losing positions
@@ -154,7 +156,7 @@ class OpponentTurnManager {
       const bestMove = selectOptimalMove(topMoves.moves);
 
       // Execute the opponent move (tablebase moves should always be valid)
-      const move = chessService.move(bestMove.san);
+      const move = makeMove(currentState.game.currentFen, bestMove.san);
       if (!move) {
         throw new Error(`Failed to execute tablebase move: ${bestMove.san}`);
       }
@@ -166,7 +168,15 @@ class OpponentTurnManager {
       });
 
       // Check if game ended after opponent move
-      if (chessService.isGameOver()) {
+      // Update state with the new position after opponent move
+      const newFen = move.newFen;
+      api.setState(draft => {
+        draft.game.currentFen = newFen;
+        const validatedMove = createValidatedMove(move.move, currentFen, newFen);
+        draft.game.moveHistory.push(validatedMove);
+      });
+
+      if (isGameOver(newFen)) {
         await handleTrainingCompletion(api, false); // Player didn't win
       }
 

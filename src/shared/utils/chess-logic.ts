@@ -292,3 +292,54 @@ export function normalizePromotionPiece(notation: string | undefined): string | 
 
   return germanToChessJs[notation] || notation;
 }
+
+/**
+ * Pure function: Get FEN string for current position
+ * @param fen - Current position in FEN notation
+ * @returns FEN string
+ */
+export function getFen(fen: string): string {
+  return fen;
+}
+
+/**
+ * Pure function: Get current player turn
+ * @param fen - Current position in FEN notation
+ * @returns 'w' for white, 'b' for black
+ */
+export function turn(fen: string): 'w' | 'b' {
+  try {
+    const chess = new Chess(fen);
+    return chess.turn();
+  } catch {
+    return 'w'; // Default to white if invalid FEN
+  }
+}
+
+/**
+ * Pure function: Check if game is over
+ * @param fen - Current position in FEN notation
+ * @returns true if game is over, false otherwise
+ */
+export function isGameOver(fen: string): boolean {
+  try {
+    const chess = new Chess(fen);
+    return chess.isGameOver();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Pure function: Check if position is checkmate
+ * @param fen - Current position in FEN notation
+ * @returns true if checkmate, false otherwise
+ */
+export function isCheckmate(fen: string): boolean {
+  try {
+    const chess = new Chess(fen);
+    return chess.isCheckmate();
+  } catch {
+    return false;
+  }
+}
