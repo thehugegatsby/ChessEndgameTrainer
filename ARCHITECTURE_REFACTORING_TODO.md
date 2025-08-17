@@ -432,7 +432,7 @@ pnpm test                    # Full test suite
 
 ## 📊 PHASE 2 PROGRESS TRACKING
 
-### ✅ COMPLETED TASKS (11/64)
+### ✅ COMPLETED TASKS (17/64) - UPDATED 2025-08-17
 
 **Week 1 Day 1 - Foundation Setup:** ✅ COMPLETE
 - ✅ `w1d1-1`: Game Domain directory structure created
@@ -569,43 +569,47 @@ src/domains/game/
 - ✅ **Endgame Support:** 3 Training-Integration Tests für Endspiel-Szenarien hinzugefügt
 - ✅ **Quality Assurance:** Alle TypeScript + ESLint Checks während allen 13 Schritten bestanden
 
+**Phase A Complete:** [x] ✅ (ChessEngine validated, test coverage expanded, ready for service extraction)
+
 #### **PHASE B: TrainingSlice Service Extraction (Gemini's 13-Task Strategy)**
 
 **Strategy:** Incremental, risk-minimized extraction mit LOC tracking (987→<600 LOC)
 **Approach:** 3-Teil Struktur - Analyse & Grundgerüst → Inkrementelle Extraktion → Absicherung & Abschluss
 
-### **Teil 1: Analyse & Service-Grundgerüst (Tasks B1-B3)**
+### **Teil 1: Analyse & Service-Grundgerüst (Tasks B1-B3)** ✅ **COMPLETE**
 
-**B.1 Baseline & Analyse**
-- [ ] `b1.1-loc-measurement`: LOC-Messung TrainingSlice.ts - Exakte Zeilen + Markdown tracking table erstellen
-- [ ] `b1.2-code-analysis`: Code-Analyse mit Kommentaren - Markiere extractable blocks mit TODO comments
+**B.1 Baseline & Analyse** ✅ **COMPLETE**
+- [x] `b1.1-loc-measurement`: LOC-Messung TrainingSlice.ts - Exakte Zeilen + Markdown tracking table erstellen
+- [x] `b1.2-code-analysis`: Code-Analyse mit Kommentaren - Markiere extractable blocks mit TODO comments
   - `// TODO: Extract to PositionService` (FEN-Handling, Board-Setup)
   - `// TODO: Extract to MoveService` (makeMove, isMoveLegal, getValidMoves) 
   - `// TODO: Extract to GameStateService` (isCheck, isMate, getTurn)
-- [ ] `b1.3-commit-analysis`: Commit - `refactor(training): analyze and mark code for service extraction`
+- [x] `b1.3-commit-analysis`: Commit `cd321318` - `refactor: analyze and mark code for service extraction`
 
-**B.2 Service Interfaces & Scaffolding**
-- [ ] `b2.1-directory-structure`: Verzeichnisstruktur - Erstelle `src/domains/game/services/`
-- [ ] `b2.2-interface-definitions`: Interface-Dateien erstellen:
+**B.2 Service Interfaces & Scaffolding** ✅ **COMPLETE**
+- [x] `b2.1-directory-structure`: Verzeichnisstruktur - Erstelle `src/domains/game/services/`
+- [x] `b2.2-interface-definitions`: Interface-Dateien erstellen:
   - `PositionServiceInterface.ts`, `MoveServiceInterface.ts`, `GameStateServiceInterface.ts`
-- [ ] `b2.3-scaffolding-classes`: Leere Service-Klassen - ChessEngineInterface als dependency
-- [ ] `b2.4-lint-build-check`: TypeScript + Lint validation - `pnpm tsc && pnpm lint`
-- [ ] `b2.5-commit-scaffolding`: Commit - `feat(game): scaffold interfaces and classes for game services`
+- [x] `b2.3-scaffolding-classes`: Leere Service-Klassen - ChessEngineInterface als dependency
+- [x] `b2.4-lint-build-check`: TypeScript + Lint validation - `pnpm tsc && pnpm lint`
+- [x] `b2.5-commit-scaffolding`: Commit `65ae0f4b` - `feat(service): scaffold interfaces and classes for game services`
 
-**B.3 Service-Integration (Dependency Injection)**
-- [ ] `b3.1-service-instantiation`: Zentrale Service-Instanziierung - `/services/index.ts` mit ChessEngine
-- [ ] `b3.2-thunk-integration`: Services via store.extraArgument - Thunk dependency injection setup
-- [ ] `b3.3-lint-test-check`: Validation - `pnpm lint && pnpm test` (keine Änderung erwartet)
-- [ ] `b3.4-commit-di`: Commit - `refactor(training): setup dependency injection for game services in thunks`
+**B.3 Service-Integration (Dependency Injection)** ✅ **COMPLETE**
+- [x] `b3.1-service-instantiation`: Zentrale Service-Instanziierung - `/services/index.ts` mit ChessEngine
+- [x] `b3.2-thunk-integration`: Services via store.extraArgument - Thunk dependency injection setup
+- [x] `b3.3-lint-test-check`: Validation - `pnpm lint && pnpm test` (keine Änderung erwartet)
+- [x] `b3.4-commit-di`: Commit `2200df33` - `feat(service): setup dependency injection for game services`
 
 ### **Teil 2: Inkrementelle Extraktion (Tasks B4-B8)**
 
-**B.4 PositionService - FEN-Logik extrahieren**
-- [ ] `b4.1-position-interface`: Interface - `loadPosition(fen)`, `getCurrentFen()` hinzufügen
-- [ ] `b4.2-position-implementation`: Implementierung - ChessEngine delegation
-- [ ] `b4.3-training-refactoring`: TrainingSlice refactoring - FEN-Logik durch positionService ersetzen
-- [ ] `b4.4-validation-test`: Test validation - `pnpm test`, LOC-Tabelle update
-- [ ] `b4.5-commit-position`: Commit - `refactor(training): extract FEN handling to PositionService`
+**B.4 PositionService - FEN-Logik extrahieren** 🔄 **CURRENT (Gemini's 5-Step Plan)**
+- [ ] `b4.1-interface-verification`: Interface verifizieren (`loadPosition`, `getCurrentFen` bereits definiert) - Validation: `pnpm tsc`
+- [ ] `b4.2-position-implementation`: PositionService implementieren (ChessEngine delegation) - Validation: `pnpm tsc && pnpm lint` - Commit: `feat(game): implement FEN handling in PositionService`
+- [ ] `b4.3-training-refactoring`: TrainingSlice refactoring (Service statt chess.js) - Validation: `pnpm tsc && pnpm lint`
+- [ ] `b4.4-integration-tests`: Tests anpassen & ausführen - Validation: `pnpm test`
+- [ ] `b4.5-cleanup-commit`: Cleanup, LOC messen, committen - Validation: `pnpm tsc && pnpm lint && pnpm test` - Commit: `refactor(training): extract FEN handling to PositionService`
+
+**Target:** TrainingSlice 987 LOC → **<987 LOC** (First measurable reduction)
 
 **B.5 MoveService - makeMove Logik extrahieren**
 - [ ] `b5.1-move-interface`: Interface - `makeMove(move): MoveResult` hinzufügen
@@ -702,12 +706,13 @@ src/domains/game/
 - ✅ TrainingSlice Reduktion: 987 → <600 LOC
 - ✅ Legacy ChessEngine Cleanup
 
-### 🎯 **NÄCHSTE SCHRITTE:**
-1. **ChessEngine Verbesserungen** (Gemini's Feedback)
-2. **Adapter-Pattern Test Migration** (GPT-5's Strategy)  
-3. **TrainingSlice Service Extraction** (Hauptziel)
-4. **Integration & Cleanup**
+### 🎯 **NÄCHSTE SCHRITTE (UPDATED 2025-08-17):**
+1. ✅ **ChessEngine Verbesserungen** (Gemini's Feedback) - COMPLETE
+2. ✅ **Adapter-Pattern Test Migration** (GPT-5's Strategy) - COMPLETE
+3. 🔄 **TrainingSlice Service Extraction** (Hauptziel) - **IN PROGRESS: B4**
+4. ⏳ **Integration & Cleanup** - PENDING
 
-**Geschätzte Zeit:** 5-6 Stunden (statt ursprünglich geplante 2+ Tage)
+**Current Task:** B4 PositionService FEN-Logik Extraktion (5 atomare Steps)
+**Status:** Ready to execute Gemini's risk-minimized plan
 
-**Key Insight:** Die Domain-driven ChessEngine ist bereits produktionsreif - wir müssen sie nur richtig integrieren!
+**Key Insight:** Die Domain-driven ChessEngine ist bereits produktionsreif und vollständig getestet - Service Extraction kann beginnen!

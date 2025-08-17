@@ -20,7 +20,6 @@ import type {
  * Uses ChessEngine for position management and tablebase for evaluation.
  */
 export class PositionService implements PositionServiceInterface {
-  // @ts-expect-error - Used in implementation
   private _chessEngine: ChessEngineInterface;
   private evaluationBaseline: EvaluationBaseline | null = null;
 
@@ -28,19 +27,18 @@ export class PositionService implements PositionServiceInterface {
     this._chessEngine = chessEngine;
   }
 
-  loadPosition(_fen: string): Promise<boolean> {
-    // TODO: Implement FEN loading logic
-    // - Validate FEN format
-    // - Load position into chess engine
-    // - Handle loading errors
-    throw new Error('PositionService.loadPosition not implemented');
+  loadPosition(fen: string): Promise<boolean> {
+    try {
+      const result = this._chessEngine.loadFen(fen);
+      return Promise.resolve(result);
+    } catch (error) {
+      console.error('Failed to load FEN in PositionService:', error);
+      return Promise.resolve(false);
+    }
   }
 
   getCurrentFen(): string | null {
-    // TODO: Implement current FEN retrieval
-    // - Get FEN from chess engine
-    // - Return null if no position loaded
-    throw new Error('PositionService.getCurrentFen not implemented');
+    return this._chessEngine.getFen();
   }
 
   evaluatePosition(_fen?: string): Promise<PositionEvaluationResult | null> {
