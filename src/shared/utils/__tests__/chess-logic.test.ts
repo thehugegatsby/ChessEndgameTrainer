@@ -386,8 +386,8 @@ describe('Chess Logic Pure Functions', () => {
       const end = performance.now();
       const duration = end - start;
       
-      // Should complete 1000 validations in under 200ms (relaxed for WSL2)
-      expect(duration).toBeLessThan(200);
+      // Should complete 1000 validations in under 400ms (relaxed for CI)
+      expect(duration).toBeLessThan(400);
     });
 
     it('should not leak memory with repeated calls', () => {

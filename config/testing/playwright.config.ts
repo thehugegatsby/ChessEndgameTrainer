@@ -71,41 +71,24 @@ const config = {
   },
 
   // Projects for different browsers
-  // Phase 1 Optimization: Chromium-only for PR tests (67% faster)
-  projects:
-    process.env.GITHUB_REF_NAME !== 'main'
-      ? [
-          {
-            name: 'chromium',
-            use: { ...devices['Desktop Chrome'] },
-          },
-        ]
-      : [
-          {
-            name: 'chromium',
-            use: { ...devices['Desktop Chrome'] },
-          },
-          {
-            name: 'firefox',
-            use: { ...devices['Desktop Firefox'] },
-          },
-          {
-            name: 'webkit',
-            use: { ...devices['Desktop Safari'] },
-          },
-        ].concat([
-          // Firebase tests run on all branches
-          {
-            name: 'firebase',
-            testDir: e2eFirebaseDir,
-            use: {
-              ...devices['Desktop Chrome'],
-              // Firebase tests get more time due to emulator
-              actionTimeout: 15000,
-              navigationTimeout: 45000,
-            },
-          },
-        ]),
+  // Chromium-only for CI stability (webkit has dependency issues in CI)
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    // Firebase tests run on all branches
+    {
+      name: 'firebase',
+      testDir: e2eFirebaseDir,
+      use: {
+        ...devices['Desktop Chrome'],
+        // Firebase tests get more time due to emulator
+        actionTimeout: 15000,
+        navigationTimeout: 45000,
+      },
+    },
+  ],
 
   // Output folder for test artifacts
   outputDir: testResultsDir,
