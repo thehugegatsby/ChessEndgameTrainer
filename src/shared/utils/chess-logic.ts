@@ -35,6 +35,85 @@ export interface PositionUpdateResult {
 }
 
 /**
+ * Gets the current turn from a FEN string
+ * @param fen - FEN position string
+ * @returns 'w' for white's turn, 'b' for black's turn
+ */
+export const turn = (fen: string): 'w' | 'b' => {
+  const parts = fen.split(' ');
+  return parts[1] as 'w' | 'b';
+};
+
+/**
+ * Helper: Normalize German promotion pieces to chess.js format
+ * @param notation - Promotion piece notation (D,T,L,S or Q,R,B,N)
+ * @returns Normalized chess.js promotion notation (q,r,b,n)
+ */
+function normalizePromotionPiece(notation: string | undefined): string | undefined {
+  if (!notation) return undefined;
+  
+  // Map German piece names to chess.js format
+  const germanToChessJs: Record<string, string> = {
+    'D': 'q', // Dame (Queen)
+    'd': 'q',
+    'T': 'r', // Turm (Rook)
+    't': 'r',
+    'L': 'b', // Läufer (Bishop)
+    'l': 'b',
+    'S': 'n', // Springer (Knight)
+    's': 'n',
+    // Also support English notation
+    'Q': 'q',
+    'q': 'q',
+    'R': 'r',
+    'r': 'r',
+    'B': 'b',
+    'b': 'b',
+    'N': 'n',
+    'n': 'n',
+  };
+  
+  return germanToChessJs[notation] || notation.toLowerCase();
+}
+
+/**
+ * Helper: Normalize moves with German promotion notation
+ */
+function normalizeGermanMove(move: string | { from: string; to: string; promotion?: string }): string | { from: string; to: string; promotion?: string } {
+  // Handle object format with promotion
+  if (typeof move === 'object' && move !== null && 'promotion' in move && move.promotion) {
+    const normalizedPromotion = normalizePromotionPiece(move.promotion);
+    return {
+      ...move,
+      promotion: normalizedPromotion
+    };
+  }
+
+  // Handle string format with German promotion notation
+  if (typeof move === 'string') {
+    // Format 1: "e7e8D" or "e7-e8D" (from-to-promotion with optional dash)
+    let promotionMatch = move.match(/^([a-h][1-8])-?([a-h][1-8])([DTLSQRBN])$/i);
+    if (promotionMatch && promotionMatch[3]) {
+      const normalizedPromotion = normalizePromotionPiece(promotionMatch[3]);
+      return {
+        from: promotionMatch[1],
+        to: promotionMatch[2],
+        promotion: normalizedPromotion as string,
+      };
+    }
+    
+    // Format 2: "e8D" or "e8=D" (SAN notation with German piece)
+    promotionMatch = move.match(/^([a-h][1-8])=?([DTLSQRBN])$/i);
+    if (promotionMatch && promotionMatch[2]) {
+      const normalizedPromotion = normalizePromotionPiece(promotionMatch[2]);
+      return `${promotionMatch[1]}=${(normalizedPromotion || '').toUpperCase()}`;
+    }
+  }
+  
+  return move;
+}
+
+/**
  * Pure function: Make a move on a chess position
  * @param fen - Current position in FEN notation
  * @param move - Move to make (string or object format)
@@ -43,7 +122,8 @@ export interface PositionUpdateResult {
 export function makeMove(fen: string, move: string | { from: string; to: string; promotion?: string }): MoveResult | null {
   try {
     const chess = new Chess(fen);
-    const result = chess.move(move);
+    const normalizedMove = normalizeGermanMove(move);
+    const result = chess.move(normalizedMove);
     
     if (!result) {
       return null;
@@ -72,7 +152,8 @@ export function makeMove(fen: string, move: string | { from: string; to: string;
 export function validateMove(fen: string, move: string | { from: string; to: string; promotion?: string }): boolean {
   try {
     const chess = new Chess(fen);
-    return chess.move(move) !== null;
+    const normalizedMove = normalizeGermanMove(move);
+    return chess.move(normalizedMove) !== null;
   } catch {
     return false;
   }
@@ -262,36 +343,6 @@ export function replayToIndex(moveHistory: Array<{san: string}>, targetIndex: nu
   return goToMove(moves, targetIndex, startingFen);
 }
 
-/**
- * Pure function: Normalize German piece notation to chess.js format
- * @param notation - German piece notation (D, T, L, S) or English (Q, R, B, N)
- * @returns chess.js compatible piece notation (q, r, b, n) or original if already valid
- */
-export function normalizePromotionPiece(notation: string | undefined): string | undefined {
-  if (!notation) return undefined;
-
-  const germanToChessJs: Record<string, string> = {
-    D: 'q', // Dame (Queen)
-    d: 'q',
-    T: 'r', // Turm (Rook)
-    t: 'r',
-    L: 'b', // Läufer (Bishop)
-    l: 'b',
-    S: 'n', // Springer (Knight)
-    s: 'n',
-    // Also support English notation
-    Q: 'q',
-    q: 'q',
-    R: 'r',
-    r: 'r',
-    B: 'b',
-    b: 'b',
-    N: 'n',
-    n: 'n',
-  };
-
-  return germanToChessJs[notation] || notation;
-}
 
 /**
  * Pure function: Get FEN string for current position
@@ -302,19 +353,6 @@ export function getFen(fen: string): string {
   return fen;
 }
 
-/**
- * Pure function: Get current player turn
- * @param fen - Current position in FEN notation
- * @returns 'w' for white, 'b' for black
- */
-export function turn(fen: string): 'w' | 'b' {
-  try {
-    const chess = new Chess(fen);
-    return chess.turn();
-  } catch {
-    return 'w'; // Default to white if invalid FEN
-  }
-}
 
 /**
  * Pure function: Check if game is over

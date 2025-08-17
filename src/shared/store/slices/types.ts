@@ -37,6 +37,9 @@ export interface GameState {
   isCheckmate: boolean;
   isDraw: boolean;
   isStalemate: boolean;
+  // Migration additions for orchestrator action
+  playerColor: 'w' | 'b';
+  lastMoveError?: string;
 }
 
 export interface GameActions {

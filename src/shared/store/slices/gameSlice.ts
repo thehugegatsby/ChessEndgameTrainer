@@ -57,6 +57,9 @@ export const initialGameState = {
   isCheckmate: false,
   isDraw: false,
   isStalemate: false,
+  // Migration additions for orchestrator action
+  playerColor: 'w' as 'w' | 'b',
+  lastMoveError: undefined as string | undefined,
 };
 
 /**

@@ -33,7 +33,7 @@ store.set(state => state.fen = result.fen); // Centralized state management
 |-------|--------|---------|-----------|---------|
 | **Start** | 543 usages | 543 | 543 | ❌ |
 | **Day 1** | Infrastructure | ✅ | - | ✅ |
-| **Day 2-3** | Tests (543→400) | 5/16 files | 11 files | 🔄 |
+| **Day 2-3** | Tests (543→400) | 6/16 files | 10 files | 🔄 |
 | **Day 4-5** | UI (400→200) | - | - | ⏳ |
 | **Day 6-7** | Hooks (200→100) | - | - | ⏳ |
 | **Day 8-9** | Orchestrators (100→50) | - | - | ⏳ |
@@ -156,6 +156,52 @@ async evaluatePromotionOutcome(currentFen: string, promotingColor: 'w' | 'b') {
 - **File**: `src/shared/store/orchestrators/__tests__/PawnPromotionHandler.test.ts`
 
 #### 5. OpponentTurnHandler ✅ (Implementation + Tests)
+
+#### 6. TrainingService ✅ (Implementation + Tests)
+**Implementation Changes:**
+```typescript
+// OLD: import { chessService } from '@shared/services/ChessService';
+// NEW: import { getFen, turn, getPgn, isGameOver, isCheckmate, isDraw, isStalemate, getMoveHistory, isCheck } from '@shared/utils/chess-logic';
+
+// OLD: getGameState(api: StoreApi) {
+//        const fen = chessService.getFen();
+//        const turn = chessService.turn();
+// NEW: getGameState(api: StoreApi) {
+//        const currentFen = state.game.currentFen || getFen('startingFen');
+//        const currentTurn = turn(currentFen);
+
+getGameState(api: StoreApi) {
+  const state = api.getState();
+  const currentFen = state.game.currentFen || getFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+  const currentPgn = state.game.currentPgn || getPgn('');
+  
+  return {
+    fen: currentFen,
+    turn: turn(currentFen),
+    moveCount: state.game.moveHistory.length,
+    pgn: currentPgn,
+    isGameOver: isGameOver(currentFen),
+    gameOverReason: (() => {
+      if (!isGameOver(currentFen)) return undefined;
+      if (isCheckmate(currentFen)) return 'checkmate';
+      if (isStalemate(currentFen)) return 'stalemate';
+      if (isDraw(currentFen)) return 'draw';
+      return 'unknown';
+    })(),
+    // ... all functions now use explicit FEN parameters
+  };
+}
+```
+
+**Test Changes:**
+- **Removed**: All ChessService mocking infrastructure (complex singleton setup)
+- **Added**: Pure function mocks for all chess-logic functions
+- **Updated**: Move parsing tests to handle O-O castling as dash notation
+- **Fixed**: Error handling expectations (return failure vs throw)
+- **Result**: 44/44 tests passing
+- **File**: `src/shared/services/__tests__/TrainingService.test.ts`
+
+#### 5. OpponentTurnHandler ✅ (Implementation + Tests)
 **Implementation Changes:**
 ```typescript
 // OLD: import { chessService } from '@shared/services/ChessService';
@@ -192,8 +238,9 @@ api.setState(draft => {
 | useDialogHandlers.test.ts | 26/26 | ✅ | No ChessService mocks |
 | PawnPromotionHandler.test.ts | 30/30 | ✅ | Pure functions for game state |
 | OpponentTurnManager.test.ts | 25/25 | ✅ | Stateless opponent logic |
+| TrainingService.test.ts | 44/44 | ✅ | Complete pure function migration |
 | chess-logic.test.ts | 37/37 | ✅ | Already pure |
-| **Total** | **148/148** | **✅** | **All green** |
+| **Total** | **192/192** | **✅** | **All green** |
 
 ### Code Quality
 - ✅ **Type Safety**: Consistent use of `COMMON_FENS`
@@ -283,6 +330,13 @@ pnpm run lint && pnpm tsc
 
 ---
 
-**Last Updated**: 2025-01-16  
+**Last Updated**: 2025-08-17  
 **Next Review**: After Day 2-3 completion  
-**Status**: 🟢 On track, excellent progress (5/16 test files migrated)
+**Status**: 🟢 On track, excellent progress (6/16 test files migrated)
+
+## 🔄 Current Status & Next Target
+
+**Last Completed**: TrainingService migration (Implementation + Tests) - 44/44 tests passing  
+**Next Target**: useTablebaseStore.test.ts migration (7/16)
+**Remaining Day 2-3 Files**: 10/16 test files to migrate
+**Progress**: 37.5% of Day 2-3 test migration complete
