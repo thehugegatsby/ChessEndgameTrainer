@@ -190,9 +190,7 @@ export const createTrainingActions = (
     gameStateService: GameStateServiceInterface;
   }
 ): TrainingActions => {
-  // TODO: PHASE B.3 - Service implementation placeholder
-  // Services will be used in subsequent phases to replace direct logic
-  void services; // Acknowledge services parameter
+  // Services are now actively used for position evaluation and baseline management
   
   return {
   /**
@@ -705,13 +703,9 @@ export const createTrainingActions = (
    * ```
    */
   setEvaluationBaseline: (wdl: number, fen: string) => {
+    const baseline = services.positionService.createEvaluationBaseline(wdl, fen);
     set(state => {
-      // TODO: Extract to PositionService - Evaluation baseline state management
-      state.training.evaluationBaseline = {
-        wdl,
-        fen,
-        timestamp: Date.now(),
-      };
+      state.training.evaluationBaseline = baseline;
     });
     logger.info('Evaluation baseline updated', { wdl, fen });
   },
@@ -856,18 +850,19 @@ export const createTrainingActions = (
   // =====================================================
 
   /**
-   * [STUB] Evaluates move quality for training feedback
+   * Evaluates move quality for training feedback
    * @param move - The move that was made
    * @param fen - The FEN position after the move
-   * 
-   * TODO: Extract to PositionService - Move quality evaluation logic
-   * - WDL comparison logic
-   * - Position evaluation calls
-   * - Move optimality assessment
    */
-  evaluateMoveQuality: (move: ValidatedMove, fen: string) => {
-    console.info(`STUB: Evaluating move quality for ${move.san} at FEN ${fen}`);
-    // TODO: Extract to PositionService - actual move quality evaluation logic
+  evaluateMoveQuality: async (move: ValidatedMove, fen: string) => {
+    const baseline = get().training.evaluationBaseline;
+    const quality = await services.positionService.evaluateMoveQuality(move, fen, baseline);
+    
+    logger.info(`Move quality for ${move.san}`, { quality, baseline });
+    
+    // Service provides the evaluation, orchestrator will handle the consequences
+    // (e.g., incrementing mistakes, showing feedback)
+    return quality;
   },
 
   /**
