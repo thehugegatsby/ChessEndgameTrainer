@@ -559,6 +559,11 @@ export const createTrainingActions = (
    * like whether it was optimal, user-made, etc. The actual implementation
    * of moveHistory is handled by orchestrators.
    *
+   * TODO: Extract to MoveService - Move execution and validation
+   * - Move validation logic
+   * - Move history management
+   * - Training-specific move metadata
+   *
    * @example
    * ```typescript
    * // Called by orchestrator
@@ -571,7 +576,7 @@ export const createTrainingActions = (
    * ```
    */
   addTrainingMove: (move: ValidatedMove) => {
-    // This is a placeholder - actual implementation will be in orchestrator
+    // TODO: Extract to MoveService - actual implementation will be in orchestrator
     // as it needs to coordinate with game state
     logger.debug('Training move added', { move });
   },
@@ -614,6 +619,11 @@ export const createTrainingActions = (
    * It clears move history, evaluations, and resets all counters. The game will
    * need to be reloaded to the initial position FEN by the game slice.
    *
+   * TODO: Extract to PositionService - Position loading and FEN management
+   * - FEN loading logic
+   * - Position reset functionality
+   * - Turn determination based on position
+   *
    * @example
    * ```typescript
    * // Reset to start of training
@@ -623,16 +633,16 @@ export const createTrainingActions = (
   resetPosition: () => {
     const currentPos = get().training.currentPosition;
     set(state => {
-      // moveHistory is in game slice, not training slice
+      // TODO: Extract to MoveService - Move history management
       state.game.moveHistory = [];
       state.training.hintsUsed = 0;
       state.training.mistakeCount = 0;
       state.training.isSuccess = false;
-      // Reset turn based on position
+      // TODO: Extract to GameStateService - Turn management logic
       state.training.isPlayerTurn = currentPos
         ? currentPos.sideToMove === currentPos.colorToTrain
         : true;
-      // Clear evaluation baseline when resetting position
+      // TODO: Extract to PositionService - Evaluation baseline management
       state.training.evaluationBaseline = null;
     });
   },
@@ -651,6 +661,11 @@ export const createTrainingActions = (
    * player moves will be evaluated relative to this baseline rather than the
    * original training position expectation.
    *
+   * TODO: Extract to PositionService - Position evaluation management
+   * - Evaluation baseline tracking
+   * - WDL value comparison
+   * - Position evaluation caching
+   *
    * @example
    * ```typescript
    * // After opponent move following "Weiterspielen"
@@ -663,6 +678,7 @@ export const createTrainingActions = (
    */
   setEvaluationBaseline: (wdl: number, fen: string) => {
     set(state => {
+      // TODO: Extract to PositionService - Evaluation baseline state management
       state.training.evaluationBaseline = {
         wdl,
         fen,
@@ -815,19 +831,29 @@ export const createTrainingActions = (
    * [STUB] Evaluates move quality for training feedback
    * @param move - The move that was made
    * @param fen - The FEN position after the move
+   * 
+   * TODO: Extract to PositionService - Move quality evaluation logic
+   * - WDL comparison logic
+   * - Position evaluation calls
+   * - Move optimality assessment
    */
   evaluateMoveQuality: (move: ValidatedMove, fen: string) => {
     console.info(`STUB: Evaluating move quality for ${move.san} at FEN ${fen}`);
-    // TODO: Implement actual move quality evaluation logic
+    // TODO: Extract to PositionService - actual move quality evaluation logic
   },
 
   /**
    * [STUB] Finalizes training session when game ends
    * @param reason - The reason the game ended (checkmate, draw, etc.)
+   * 
+   * TODO: Extract to GameStateService - Game termination detection
+   * - Checkmate/stalemate detection
+   * - Draw conditions checking
+   * - Training completion criteria
    */
   finalizeTrainingSession: (reason: string) => {
     console.info(`STUB: Finalizing training session due to ${reason}`);
-    // TODO: Implement training completion logic (accuracy, streaks, etc.)
+    // TODO: Extract to GameStateService - training completion logic (accuracy, streaks, etc.)
   },
 });
 
