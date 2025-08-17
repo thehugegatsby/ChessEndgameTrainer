@@ -54,12 +54,12 @@ vi.mock('../../../../shared/services/database/serverPositionService');
 
 // Import the mocked service
 import { tablebaseService as mockTablebaseService } from '../../../../domains/evaluation';
-// Import helper functions from the mock
+// Import helper functions from the dedicated testing entry point
 import {
   resetMock,
   mockWinPosition,
   mockApiError,
-} from '../../../../domains/evaluation';
+} from '../../../../domains/evaluation/testing';
 
 // Import the mocked position service
 import { mockServerPositionService } from '../../../../shared/services/database/__mocks__/serverPositionService';
