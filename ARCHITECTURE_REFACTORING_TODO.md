@@ -672,65 +672,196 @@ Strategy: Gemini's "Fat Service, Thin Slice" pattern - Service handles complex l
 - [x] ✅ `b5.3.3-test-validation`: Full test validation - `pnpm test` (98%+ pass rate)
 - [x] ✅ `b5.3.3-commit`: Commit - `refactor(training): B5.3.3 - delegate move logic to MoveService in handleUserMove`
 
-**B5.4 Engine Move Logic Migration** 🔄 **IN PROGRESS**
+**B5.4 Engine Move Logic Migration** ✅ **COMPLETE**
 
-**B5.4.1 Extract Shared Helper from makeUserMove**
-- [ ] `b5.4.1-extract-helper`: Extract `_buildMoveResult` private helper
-  - [ ] Consolidate result building logic (lines 74-102 from makeUserMove)
-  - [ ] Handle ValidatedMove creation, game state checks, metadata
-  - [ ] TypeScript: Proper return type MakeMoveResult
-- [ ] `b5.4.1-refactor-user`: Refactor makeUserMove to use shared helper
-- [ ] `b5.4.1-typecheck`: Run `pnpm tsc --noEmit` 
-- [ ] `b5.4.1-lint`: Run `pnpm lint`
-- [ ] `b5.4.1-commit`: Commit - `refactor(service): extract shared _buildMoveResult helper`
+**B5.4.1 Extract Shared Helper from makeUserMove** ✅ **COMPLETE**
+- [x] ✅ `b5.4.1-extract-helper`: `_buildMoveResult` helper bereits vorhanden (Zeilen 37-68)
+  - [x] ✅ Consolidate result building logic already implemented in MoveService
+  - [x] ✅ Handles ValidatedMove creation, game state checks, metadata
+  - [x] ✅ TypeScript: Proper return type MakeMoveResult
+- [x] ✅ `b5.4.1-refactor-user`: makeUserMove already uses shared helper pattern
+- [x] ✅ `b5.4.1-typecheck`: TypeScript validation - `pnpm tsc` ✅ 
+- [x] ✅ `b5.4.1-lint`: Linter validation - `pnpm lint` ✅
+- [x] ✅ `b5.4.1-commit`: Helper pattern already established
 
-**B5.4.2 Implement makeEngineMove Method**
-- [ ] `b5.4.2-engine-method`: Add makeEngineMove to MoveService
-  - [ ] Method signature: `makeEngineMove(currentFen: string, sanMove: string): MakeMoveResult`
-  - [ ] Load position, execute SAN move, handle errors
-  - [ ] Delegate to `_buildMoveResult` for success case
-- [ ] `b5.4.2-interface`: Update MoveServiceInterface with makeEngineMove
-- [ ] `b5.4.2-typecheck`: Run `pnpm tsc --noEmit`
-- [ ] `b5.4.2-lint`: Run `pnpm lint`
-- [ ] `b5.4.2-commit`: Commit - `feat(service): implement makeEngineMove for tablebase moves`
+**B5.4.2 Implement makeEngineMove Method** ✅ **COMPLETE**
+- [x] ✅ `b5.4.2-engine-method`: makeEngineMove implemented in MoveService
+  - [x] ✅ Method signature: `makeEngineMove(currentFen: string, sanMove: string): MakeMoveResult`
+  - [x] ✅ Load position, execute SAN move, handle errors
+  - [x] ✅ Delegates to `_buildMoveResult` for success case
+- [x] ✅ `b5.4.2-interface`: MoveServiceInterface updated with makeEngineMove
+- [x] ✅ `b5.4.2-typecheck`: TypeScript validation - `pnpm tsc` ✅
+- [x] ✅ `b5.4.2-lint`: Linter validation - `pnpm lint` ✅
+- [x] ✅ `b5.4.2-commit`: Multiple commits covering implementation
 
-**B5.4.3 Create Unit Tests for makeEngineMove**
-- [ ] `b5.4.3-test-file`: Create MoveService.engineMove.test.ts
-- [ ] `b5.4.3-test-cases`: Test valid SAN moves (e4, Nf3, O-O)
-- [ ] `b5.4.3-test-errors`: Test invalid move handling
-- [ ] `b5.4.3-test-states`: Test checkmate/stalemate detection
-- [ ] `b5.4.3-test-run`: Run `pnpm test MoveService`
-- [ ] `b5.4.3-commit`: Commit - `test(service): add unit tests for makeEngineMove`
+**B5.4.3 Create Unit Tests for makeEngineMove** ✅ **COMPLETE**
+- [x] ✅ `b5.4.3-test-file`: MoveService.engineMove.test.ts created (270 LOC)
+- [x] ✅ `b5.4.3-test-cases`: 8 comprehensive tests covering valid SAN moves (e4, Nf3, O-O, e8=Q)
+- [x] ✅ `b5.4.3-test-errors`: Invalid move handling and engine exceptions tested
+- [x] ✅ `b5.4.3-test-states`: Checkmate/stalemate detection tests included
+- [x] ✅ `b5.4.3-test-run`: All 8 MoveService engineMove tests passing ✅
+- [x] ✅ `b5.4.3-commit`: Unit tests committed
 
-**B5.4.4 Refactor OpponentTurnHandler to Use makeEngineMove**
-- [ ] `b5.4.4-import`: Add orchestratorMoveService import
-- [ ] `b5.4.4-replace`: Replace makeMove call with makeEngineMove
-- [ ] `b5.4.4-state`: Use MakeMoveResult for state updates
-- [ ] `b5.4.4-cleanup`: Remove createValidatedMove (service handles it)
-- [ ] `b5.4.4-typecheck`: Run `pnpm tsc --noEmit`
-- [ ] `b5.4.4-lint`: Run `pnpm lint`
-- [ ] `b5.4.4-test`: Run integration tests
-- [ ] `b5.4.4-commit`: Commit - `refactor(orchestrator): delegate engine moves to MoveService`
+**B5.4.4 Refactor OpponentTurnHandler to Use makeEngineMove** ✅ **COMPLETE**
+- [x] ✅ `b5.4.4-import`: orchestratorMoveService import added
+- [x] ✅ `b5.4.4-replace`: makeMove call replaced with orchestratorMoveService.makeEngineMove (line 159)
+- [x] ✅ `b5.4.4-state`: MakeMoveResult used for state updates
+- [x] ✅ `b5.4.4-cleanup`: Service handles ValidatedMove creation internally
+- [x] ✅ `b5.4.4-typecheck`: TypeScript validation - `pnpm tsc` ✅
+- [x] ✅ `b5.4.4-lint`: Linter validation - `pnpm lint` ✅
+- [x] ✅ `b5.4.4-test`: All 10 OpponentTurn integration tests passing ✅
+- [x] ✅ `b5.4.4-commit`: Service delegation refactoring complete
 
-**B5.5 Service Enhancement & TrainingSlice Cleanup**
+**B5.4 Results:**
+- ✅ **Service Delegation Pattern:** Established for engine moves via orchestratorMoveService.makeEngineMove
+- ✅ **Unit Test Coverage:** 8 comprehensive tests for makeEngineMove method
+- ✅ **Integration Validation:** All OpponentTurnHandler tests passing (10/10)
+- ✅ **Code Quality:** TypeScript + ESLint validation clean
+- ✅ **Architecture:** "Fat Service, Thin Slice" pattern implemented
 
-**B5.5.1 Enhanced Service Return Types** 
-- [ ] `b5.5.1-rich-results`: Enhance MakeMoveResult with complete derived state
-  - [ ] Add all game status flags (check, checkmate, stalemate, draw)
-  - [ ] Include move metadata (capture, promotion, castling)
-  - [ ] Update both makeUserMove and makeEngineMove methods
-- [ ] `b5.5.1-slice-simplification`: Simplify TrainingSlice reducers to use rich service results
-- [ ] `b5.5.1-test-validation`: Test validation - `pnpm test` (no UI behavior change)
-- [ ] `b5.5.1-commit`: Commit - `refactor(game): B5.5.1 - enrich MoveService return type for simpler slice updates`
+**B5.5 Service Enhancement & TrainingSlice Cleanup** 🔄 **IN PROGRESS**
 
-**B5.5.2 Legacy Code Removal**
-- [ ] `b5.5.2-dead-code-removal`: Remove unused chess logic from TrainingSlice
-  - [ ] Delete private helper methods for move validation
-  - [ ] Remove direct chessEngine calls from thunks 
-  - [ ] Clean up imports and unused variables
-- [ ] `b5.5.2-typescript-lint`: TypeScript + Lint validation - `pnpm tsc && pnpm lint`
-- [ ] `b5.5.2-test-validation`: Full test validation - `pnpm test`
-- [ ] `b5.5.2-commit`: Commit - `refactor(training): B5.5.2 - remove dead move-related code from TrainingSlice`
+**Strategy:** Enhancement-First with 3-Phase Atomic Implementation
+**Target:** Complete "Fat Service, Thin Slice" pattern + TrainingSlice LOC reduction (987 → <600)
+
+### **PHASE A: SERVICE ENHANCEMENT (Steps 1-4)** ✅ **COMPLETE**
+
+**B5.5.1: Enhance MakeMoveResult Interface** ✅ **COMPLETE**
+- [x] ✅ `b5.5.1-analysis`: Analyzed current MakeMoveResult vs TrainingSlice needs
+  - [x] ✅ Identified 6 pragmatic fields (avoided overengineering after user feedback)
+  - [x] ✅ Selected essential metadata: pieceType, capturedPiece, isEnPassant, moveNumber, halfMoveClock, castleSide
+  - [x] ✅ Used GPT-5 for initial analysis, refined to pragmatic approach
+- [x] ✅ `b5.5.1-interface`: Enhanced MakeMoveResult interface with 6 pragmatic fields:
+  - [x] ✅ pieceType: string (piece moved)
+  - [x] ✅ capturedPiece?: string (optional captured piece)
+  - [x] ✅ isEnPassant: boolean (en passant detection)
+  - [x] ✅ moveNumber: number (full move number from FEN)
+  - [x] ✅ halfMoveClock: number (50-move rule counter from FEN)
+  - [x] ✅ castleSide?: 'king' | 'queen' (optional castling side)
+- [x] ✅ `b5.5.1-validation`: TypeScript check - `pnpm tsc` ✅
+- [x] ✅ `b5.5.1-lint`: Linter check - `pnpm lint` ✅
+- [x] ✅ `b5.5.1-commit`: Commit `0e8dd2bb` - "feat(service): enhance MakeMoveResult with pragmatic move metadata"
+
+**B5.5.2: Update MoveService Implementation** ✅ **COMPLETE**
+- [x] ✅ `b5.5.2-implementation`: Updated _buildMoveResult helper to populate 6 new fields:
+  - [x] ✅ Extracted piece type from moveResult.piece
+  - [x] ✅ Extracted captured piece from moveResult.captured
+  - [x] ✅ Detected en passant via 'e' flag in moveResult.flags
+  - [x] ✅ Parsed moveNumber and halfMoveClock from FEN string
+  - [x] ✅ Determined castleSide from k/q flags in moveResult.flags
+  - [x] ✅ Handled exactOptionalPropertyTypes compliance with conditional assignment
+- [x] ✅ `b5.5.2-validation`: TypeScript check - `pnpm tsc` ✅
+- [x] ✅ `b5.5.2-lint`: Linter check - `pnpm lint` ✅
+- [x] ✅ `b5.5.2-commit`: Commit `b22d48d0` - "feat(service): implement pragmatic move metadata in MoveService"
+
+**B5.5.3: Enhance Unit Tests for New Fields**
+- [ ] `b5.5.3-test-enhancement`: Update MoveService unit tests to verify 6 new fields:
+  - [ ] Test piece type detection for all piece types (pawn, knight, bishop, rook, queen, king)
+  - [ ] Test captured piece detection for various captures
+  - [ ] Test en passant flag detection
+  - [ ] Test move number parsing from FEN
+  - [ ] Test half-move clock parsing from FEN
+  - [ ] Test castling side detection (king-side vs queen-side)
+- [ ] `b5.5.3-test-run`: Run enhanced tests - `pnpm test MoveService`
+- [ ] `b5.5.3-validation`: TypeScript check - `pnpm tsc`
+- [ ] `b5.5.3-lint`: Linter check - `pnpm lint`
+- [ ] `b5.5.3-commit`: Commit - "test(service): enhance MoveService tests for pragmatic metadata fields"
+
+**B5.5.4: Validate Enhanced Services**
+- [ ] `b5.5.4-integration-test`: Run full integration test suite
+- [ ] `b5.5.4-manual-validation`: Manual testing of enhanced move results
+- [ ] `b5.5.4-validation`: TypeScript check - `pnpm tsc`
+- [ ] `b5.5.4-lint`: Linter check - `pnpm lint`
+- [ ] `b5.5.4-test`: Full test suite - `pnpm test`
+- [ ] `b5.5.4-commit`: Commit - "feat(service): validate enhanced MoveService with pragmatic metadata"
+
+### **PHASE B: CONSUMER OPTIMIZATION (Steps 5-8)**
+
+**B5.5.5: Optimize TrainingSlice Move Handling**
+- [ ] `b5.5.5-analysis`: Identify TrainingSlice reducers that can use enhanced MakeMoveResult
+- [ ] `b5.5.5-reducer-updates`: Update TrainingSlice reducers to leverage service data:
+  - [ ] Replace manual material calculations with service-provided materialBalance
+  - [ ] Use enhanced move metadata for move history entries
+  - [ ] Simplify move validation logic using service results
+- [ ] `b5.5.5-validation`: TypeScript check - `pnpm tsc`
+- [ ] `b5.5.5-lint`: Linter check - `pnpm lint`
+- [ ] `b5.5.5-commit`: Commit - "refactor(training): leverage enhanced MoveService results in reducers"
+
+**B5.5.6: Simplify Move Processing Logic**
+- [ ] `b5.5.6-simplification`: Remove redundant move processing in TrainingSlice:
+  - [ ] Remove manual piece type detection (use service-provided)
+  - [ ] Remove manual capture detection (use service-provided)
+  - [ ] Remove duplicate game state checks (use service-provided)
+- [ ] `b5.5.6-validation`: TypeScript check - `pnpm tsc`
+- [ ] `b5.5.6-lint`: Linter check - `pnpm lint`
+- [ ] `b5.5.6-test`: Run training tests - `pnpm test training`
+- [ ] `b5.5.6-commit`: Commit - "refactor(training): remove redundant move processing logic"
+
+**B5.5.7: Optimize OpponentTurnHandler**
+- [ ] `b5.5.7-optimization`: Update OpponentTurnHandler to use enhanced MakeMoveResult:
+  - [ ] Use service-provided game state instead of separate checks
+  - [ ] Leverage enhanced move metadata for logging
+  - [ ] Simplify state updates using rich service data
+- [ ] `b5.5.7-validation`: TypeScript check - `pnpm tsc`
+- [ ] `b5.5.7-lint`: Linter check - `pnpm lint`
+- [ ] `b5.5.7-test`: Run opponent tests - `pnpm test OpponentTurn`
+- [ ] `b5.5.7-commit`: Commit - "refactor(orchestrator): optimize OpponentTurnHandler with enhanced services"
+
+**B5.5.8: Validate Consumer Optimizations**
+- [ ] `b5.5.8-integration-test`: Full integration testing of optimized consumers
+- [ ] `b5.5.8-manual-validation`: Manual UI testing for move processing
+- [ ] `b5.5.8-validation`: TypeScript check - `pnpm tsc`
+- [ ] `b5.5.8-lint`: Linter check - `pnpm lint`
+- [ ] `b5.5.8-test`: Full test suite - `pnpm test`
+- [ ] `b5.5.8-commit`: Commit - "feat(training): complete consumer optimization for enhanced services"
+
+### **PHASE C: DEAD CODE CLEANUP (Steps 9-12)**
+
+**B5.5.9: Identify Dead Code Patterns**
+- [ ] `b5.5.9-analysis`: Systematic dead code identification in TrainingSlice:
+  - [ ] Unused helper methods for move validation
+  - [ ] Redundant chess logic functions
+  - [ ] Commented-out code blocks
+  - [ ] Unused imports from chess-logic utils
+- [ ] `b5.5.9-documentation`: Document dead code candidates with line numbers
+- [ ] `b5.5.9-validation`: TypeScript check - `pnpm tsc`
+- [ ] `b5.5.9-commit`: Commit - "docs(training): identify dead code patterns for cleanup"
+
+**B5.5.10: Remove Redundant Helper Methods**
+- [ ] `b5.5.10-removal`: Conservative removal of genuinely unused helper methods:
+  - [ ] Remove duplicate move validation functions
+  - [ ] Remove manual game state checking functions
+  - [ ] Remove redundant position analysis helpers
+- [ ] `b5.5.10-validation`: TypeScript check - `pnpm tsc`
+- [ ] `b5.5.10-lint`: Linter check - `pnpm lint`
+- [ ] `b5.5.10-test`: Full test suite - `pnpm test`
+- [ ] `b5.5.10-commit`: Commit - "refactor(training): remove redundant helper methods"
+
+**B5.5.11: Clean Up Imports and Dependencies**
+- [ ] `b5.5.11-import-cleanup`: Remove unused imports and dependencies:
+  - [ ] Clean up chess-logic imports no longer needed
+  - [ ] Remove unused utility imports
+  - [ ] Clean up type imports that are redundant
+- [ ] `b5.5.11-validation`: TypeScript check - `pnpm tsc`
+- [ ] `b5.5.11-lint`: Linter check - `pnpm lint`
+- [ ] `b5.5.11-commit`: Commit - "refactor(training): clean up unused imports and dependencies"
+
+**B5.5.12: Final Validation and LOC Measurement**
+- [ ] `b5.5.12-loc-measurement`: Measure TrainingSlice LOC reduction:
+  - [ ] Use `cloc` to count lines before/after
+  - [ ] Document reduction percentage
+  - [ ] Update LOC tracking table
+- [ ] `b5.5.12-final-validation`: Comprehensive final validation
+- [ ] `b5.5.12-validation`: TypeScript check - `pnpm tsc`
+- [ ] `b5.5.12-lint`: Linter check - `pnpm lint`
+- [ ] `b5.5.12-test`: Full test suite - `pnpm test`
+- [ ] `b5.5.12-commit`: Commit - "feat(training): complete B5.5 service enhancement and cleanup"
+
+### **B5.5 SUCCESS CRITERIA:**
+- **LOC Reduction Target:** 15-40% TrainingSlice reduction (987 → 590-840 LOC)
+- **Quality Gates:** TypeScript + ESLint + Tests after each atomic commit
+- **Architecture:** "Fat Service, Thin Slice" pattern fully implemented
+- **Risk Mitigation:** Enhancement-First approach with conservative cleanup
 
 **B5.6 Validation & LOC Measurement**
 
@@ -848,7 +979,7 @@ Strategy: Gemini's "Fat Service, Thin Slice" pattern - Service handles complex l
 4. 🔄 **TrainingSlice Service Extraction B5** (MoveService) - **IN PROGRESS**
 
 **Completed:** B4 PositionService delegation mit Gemini refinements
-**Current Status:** B5 MoveService implementation mit granularem Plan - **IN PROGRESS** ✅ B5.1-B5.3.3 COMPLETE
+**Current Status:** B5 MoveService implementation mit granularem Plan - ✅ **B5.1-B5.4 COMPLETE**
 - ✅ B5.1: Stateless Pattern enforcement (moveHistory aus Service entfernen + TrainingState moveHistory hinzugefügt)
   - ✅ B5.1.1: Removed private moveHistory array from MoveService (stateless pattern)
   - ✅ B5.1.2: Added moveHistory to TrainingState interface, initialTrainingState, createTrainingState, and selectMoveHistory selector
@@ -857,8 +988,8 @@ Strategy: Gemini's "Fat Service, Thin Slice" pattern - Service handles complex l
   - ✅ B5.3.1: Service Instantiation in TrainingSlice
   - ✅ B5.3.2: makeUserMove Implementation  
   - ✅ B5.3.3: handleUserMove Delegation Refactoring (Service delegation with adapter pattern)
-- 🔄 B5.4: Engine Move Logic Migration - **IN PROGRESS**
-- B5.5: Service Enhancement & TrainingSlice Cleanup
+- ✅ B5.4: Engine Move Logic Migration - **COMPLETE** (Service Delegation Pattern established)
+- 🔄 B5.5: Service Enhancement & TrainingSlice Cleanup - **NEXT PHASE**
 - B5.6: Validation & LOC Measurement
 
 ---
