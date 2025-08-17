@@ -138,10 +138,24 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
       const fenBefore = state.game.currentFen;
 
       // Step 3: Apply move to game state using MoveService (direct rich result usage)
-      const moveInput = typeof move === 'string' 
-        ? { from: move.slice(0, 2), to: move.slice(2, 4), promotion: move.slice(4) }
-        : move;
-      const richMoveResult = orchestratorMoveService.makeUserMove(fenBefore, moveInput);
+      let richMoveResult;
+      
+      if (typeof move === 'string') {
+        // Check if this is coordinate notation (e.g., "e2e4", "e2-e4") or SAN notation (e.g., "Kd6", "Nf3")
+        const isCoordinateNotation = /^[a-h][1-8]-?[a-h][1-8]/.test(move);
+        
+        if (isCoordinateNotation) {
+          // Parse coordinate notation to { from, to } format
+          const moveInput = { from: move.slice(0, 2), to: move.slice(2, 4), promotion: move.slice(4) };
+          richMoveResult = orchestratorMoveService.makeUserMove(fenBefore, moveInput);
+        } else {
+          // SAN notation - use makeEngineMove for proper parsing
+          richMoveResult = orchestratorMoveService.makeEngineMove(fenBefore, move);
+        }
+      } else {
+        // Object format - use makeUserMove
+        richMoveResult = orchestratorMoveService.makeUserMove(fenBefore, move);
+      }
 
       // ✅ B5.5.5 Phase 3A.1: Direct rich result usage (no adapter)
       if (richMoveResult.error || !richMoveResult.newFen || !richMoveResult.move) {

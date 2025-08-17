@@ -55,7 +55,7 @@ class AnalysisService {
     // Get tablebase evaluation - this populates the cache
     const tablebaseResult = await tablebaseService.getEvaluation(fen);
 
-    if (!tablebaseResult.isAvailable || !tablebaseResult.result) {
+    if (!tablebaseResult || !tablebaseResult.isAvailable || !tablebaseResult.result) {
       logger.debug('No tablebase data available for position');
       return null;
     }

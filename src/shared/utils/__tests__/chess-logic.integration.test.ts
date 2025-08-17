@@ -206,14 +206,14 @@ describe('Chess Logic Integration Tests', () => {
 
   describe('Endgame Scenarios', () => {
     it('should handle KPK (King + Pawn vs King) endgame correctly', () => {
-      const kpkFen = EndgamePositions.KPK_WIN;
+      const kpkFen = EndgamePositions.KPK_WIN; // '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1'
 
-      // Test a typical winning move in KPK
-      const result = makeMove(kpkFen, createTestMove('a8', 'b8')); // King move
+      // Test a typical winning move in KPK - advance the king
+      const result = makeMove(kpkFen, createTestMove('e6', 'f6')); // White king move
 
       expect(result).not.toBeNull();
-      expect(result?.move.san).toBe('Kb8');
-      expect(result?.newFen).toContain('1K6/P7/k7'); // King moved to b8
+      expect(result?.move.san).toBe('Kf6');
+      expect(result?.newFen).toContain('4k3/8/5K2/4P3'); // King moved to f6
     });
 
     it('should handle KQK (King + Queen vs King) endgame correctly', () => {

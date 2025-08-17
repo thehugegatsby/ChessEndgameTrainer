@@ -109,12 +109,8 @@ export class TrainingService {
           moveObj = { from, to: toPart };
         }
       } else {
-        // SAN notation detected - skip for now, will be fixed in B5.6
-        if (typeof move === 'string' && move.match(/^[a-h1-8KQRNBP]/)) {
-          logger.warn('SAN notation not yet supported, pending B5.6 implementation', { move });
-          return { success: false, error: 'SAN notation wird in B5.6 implementiert' };
-        }
-        // Pass string as-is for other formats
+        // SAN notation or other formats - pass through as-is
+        // Note: SAN notation (Nf3, Qxd5+, etc.) is handled by handlePlayerMove orchestrator
         moveObj = move;
       }
 
