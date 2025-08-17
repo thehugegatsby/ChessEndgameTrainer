@@ -12,7 +12,7 @@ import { http } from 'msw';
 const logger = getLogger();
 
 // Mock TablebaseService for unit tests only
-vi.mock('@shared/services/TablebaseService');
+vi.mock('../../domains/evaluation');
 
 // MSW server for integration tests
 let mswFactory: MSWServerMockFactory | null = null;
@@ -82,7 +82,7 @@ describe('TablebaseService Defense Sorting - Unit Tests', () => {
 describe('TablebaseService Defense Sorting - Integration Tests (MSW)', () => {
   beforeAll(async () => {
     // Unmock the TablebaseService for integration tests
-    vi.doUnmock('@shared/services/TablebaseService');
+    vi.doUnmock('../../domains/evaluation');
 
     // Initialize MSW server
     mswFactory = new MSWServerMockFactory();
@@ -132,7 +132,7 @@ describe('TablebaseService Defense Sorting - Integration Tests (MSW)', () => {
     logger.info('FEN:', fen);
 
     // Import the real service dynamically (not mocked)
-    const { tablebaseService: realService } = await import('@shared/services/TablebaseService');
+    const { tablebaseService: realService } = await import('../../domains/evaluation');
 
     // Get top 10 moves from tablebase (will hit MSW mock)
     const result = await realService.getTopMoves(fen, 10);
@@ -196,7 +196,7 @@ describe('TablebaseService Defense Sorting - Integration Tests (MSW)', () => {
     const sequence = scenario.sequences.BLACK_FINDS_BEST_DEFENSE;
 
     // Import the real service dynamically (not mocked)
-    const { tablebaseService: realService } = await import('@shared/services/TablebaseService');
+    const { tablebaseService: realService } = await import('../../domains/evaluation');
 
     // Call the service (will hit MSW mock)
     const result = await realService.getTopMoves(fen, 10);

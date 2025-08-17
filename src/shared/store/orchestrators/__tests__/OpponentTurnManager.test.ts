@@ -19,7 +19,7 @@ vi.mock('@shared/utils/chess-logic', () => ({
   isGameOver: vi.fn(),
 }));
 
-vi.mock('@shared/services/TablebaseService', () => ({
+vi.mock('../../../../../domains/evaluation', () => ({
   tablebaseService: {
     getTopMoves: vi.fn(),
   },

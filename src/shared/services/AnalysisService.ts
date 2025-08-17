@@ -52,7 +52,7 @@ class AnalysisService {
     });
 
     // Get tablebase evaluation - this populates the cache
-    const { tablebaseService } = await import('./TablebaseService');
+    const { tablebaseService } = await import('@domains/evaluation');
     const tablebaseResult = await tablebaseService.getEvaluation(fen);
 
     if (!tablebaseResult.isAvailable || !tablebaseResult.result) {

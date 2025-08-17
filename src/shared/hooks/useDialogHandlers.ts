@@ -375,7 +375,7 @@ export const useDialogHandlers = ({
           const gameState = storeApi.getState();
           const currentFen = gameState.game.currentFen;
           // Dynamic import for callback context
-          const { tablebaseService } = await import('@shared/services/TablebaseService');
+          const { tablebaseService } = await import('@domains/evaluation');
           const currentEval = await tablebaseService.getEvaluation(currentFen);
 
           if (currentEval.isAvailable && currentEval.result) {

@@ -52,7 +52,7 @@ vi.mock('@shared/utils/toast', () => ({
   showWarningToast: vi.fn(),
 }));
 
-vi.mock('@shared/services/TablebaseService', () => ({
+vi.mock('../../../domains/evaluation', () => ({
   tablebaseService: {
     getEvaluation: vi.fn(),
   },
