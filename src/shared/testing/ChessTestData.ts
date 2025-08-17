@@ -104,6 +104,8 @@ export const TEST_POSITIONS = {
 
   // King vs King - Tests für Remis durch unzureichendes Material
   KK_DRAW: '8/8/8/8/8/8/8/K3k3 w - - 0 1',
+  // Könige diagonal - Tests für King vs King Endspiele
+  KK_DIAGONAL: 'K7/8/k7/8/8/8/8/8 w - - 0 1',
   // Nur Könige - Tests für automatische Remis-Erkennung
   INSUFFICIENT_MATERIAL: '4k3/8/8/8/8/8/8/4K3 w - - 0 1',
 

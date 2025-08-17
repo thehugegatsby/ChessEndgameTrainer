@@ -48,7 +48,7 @@ describe('MoveValidator', () => {
     });
 
     it('should validate moves in endgame positions', () => {
-      const position = TestPositions.POSITION_1_OPPOSITION_BASICS;
+      const position = { fen: TEST_POSITIONS.FIREBASE_OPPOSITION_BASIC };
       engine.initialize(position.fen);
 
       // Test first move from solution
@@ -164,7 +164,7 @@ describe('MoveValidator', () => {
     });
 
     it('should reject en passant from wrong rank', () => {
-      engine.initialize('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+      engine.initialize(TEST_POSITIONS.STARTING_POSITION);
 
       const result = validator.validateEnPassant('e2', 'd3', engine);
       expect(result).toBe(false);
@@ -251,7 +251,7 @@ describe('MoveValidator', () => {
     });
 
     it('should handle endgame positions', () => {
-      const position = TestPositions.POSITION_1_OPPOSITION_BASICS;
+      const position = { fen: TEST_POSITIONS.FIREBASE_OPPOSITION_BASIC };
       engine.initialize(position.fen);
 
       // In this position (fen: "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1")

@@ -143,7 +143,7 @@ describe('EndgameTrainingPage - Lichess URL Generation', () => {
     it('should handle empty move history even with PGN present', () => {
       // Edge case: PGN exists but move history is empty (shouldn't normally happen)
       const currentPgn = '1. e4';
-      const currentFen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1';
+      const currentFen = TEST_POSITIONS.OPENING_AFTER_E4;
       const moveHistory: any[] = [];
 
       const url =

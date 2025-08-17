@@ -5,13 +5,13 @@ import { vi } from 'vitest';
  */
 
 import { useStore } from '@shared/store/rootStore';
-import { COMMON_FENS } from '@tests/fixtures/commonFens';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 describe('GameSlice - Pure Functions Integration', () => {
   beforeEach(() => {
     // Reset store to initial state - preserve actions by only updating state properties
     useStore.setState(state => {
-      state.game.currentFen = COMMON_FENS.STARTING_POSITION;
+      state.game.currentFen = TEST_POSITIONS.STARTING_POSITION;
       state.game.currentPgn = '';
       state.game.moveHistory = [];
       state.game.currentMoveIndex = -1;
@@ -35,7 +35,7 @@ describe('GameSlice - Pure Functions Integration', () => {
 
       // Verify state was reset
       const state = useStore.getState();
-      expect(state.game.currentFen).toBe(COMMON_FENS.STARTING_POSITION);
+      expect(state.game.currentFen).toBe(TEST_POSITIONS.STARTING_POSITION);
       expect(state.game.moveHistory).toEqual([]);
       expect(state.game.currentMoveIndex).toBe(-1);
       expect(state.game.isGameFinished).toBe(false);
@@ -46,7 +46,7 @@ describe('GameSlice - Pure Functions Integration', () => {
   describe('initializeGamePure', () => {
     it('should initialize game with valid FEN using pure functions', () => {
       const store = useStore.getState();
-      const testFen = COMMON_FENS.KPK_WHITE_TO_MOVE; // Valid endgame position
+      const testFen = TEST_POSITIONS.KPK_WHITE_TO_MOVE; // Valid endgame position
 
       const result = store.game.initializeGamePure(testFen);
 
@@ -66,7 +66,7 @@ describe('GameSlice - Pure Functions Integration', () => {
       expect(result).toBe(false);
       // State should remain unchanged
       const state = useStore.getState();
-      expect(state.game.currentFen).toBe(COMMON_FENS.STARTING_POSITION);
+      expect(state.game.currentFen).toBe(TEST_POSITIONS.STARTING_POSITION);
     });
   });
 
@@ -93,7 +93,7 @@ describe('GameSlice - Pure Functions Integration', () => {
   describe('updatePosition', () => {
     it('should update position with FEN and PGN', () => {
       const store = useStore.getState();
-      const testFen = '8/8/8/8/8/8/8/8 w - - 0 1';
+      const testFen = TEST_POSITIONS.EMPTY_BOARD;
       const testPgn = '1. e4';
 
       store.game.updatePosition(testFen, testPgn);
@@ -152,7 +152,7 @@ describe('GameSlice - Pure Functions Integration', () => {
 
       expect(result).not.toBeNull();
       if (result) {
-        expect(result.moveResult.newFen).toBe(COMMON_FENS.OPENING_AFTER_E4);
+        expect(result.moveResult.newFen).toBe(TEST_POSITIONS.OPENING_AFTER_E4);
         
         const state = useStore.getState();
         expect(state.game.currentFen).toBe(result.moveResult.newFen);
@@ -169,7 +169,7 @@ describe('GameSlice - Pure Functions Integration', () => {
       expect(result).toBeNull();
       
       const state = useStore.getState();
-      expect(state.game.currentFen).toBe(COMMON_FENS.STARTING_POSITION);
+      expect(state.game.currentFen).toBe(TEST_POSITIONS.STARTING_POSITION);
       expect(state.game.moveHistory).toHaveLength(0);
     });
 
@@ -223,7 +223,7 @@ describe('GameSlice - Pure Functions Integration', () => {
 
       // Verify it doesn't affect other slices
       const state = useStore.getState();
-      expect(state.game.currentFen).toBe(COMMON_FENS.OPENING_AFTER_E4);
+      expect(state.game.currentFen).toBe(TEST_POSITIONS.OPENING_AFTER_E4);
       expect(state.tablebase.analysisStatus).toBeDefined();
       expect(state.training.isPlayerTurn).toBeDefined();
     });
@@ -237,7 +237,7 @@ describe('GameSlice - Pure Functions Integration', () => {
 
       // Check all updates were applied correctly
       const state = useStore.getState();
-      expect(state.game.currentFen).toBe(COMMON_FENS.OPENING_AFTER_E4);
+      expect(state.game.currentFen).toBe(TEST_POSITIONS.OPENING_AFTER_E4);
       expect(state.game.isGameFinished).toBe(true);
       expect(state.game.moveHistory).toHaveLength(1);
 

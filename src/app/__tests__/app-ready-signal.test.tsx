@@ -7,6 +7,7 @@ import { describe, expect, beforeEach, afterEach, vi } from 'vitest';
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import { usePathname } from 'next/navigation';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 // Mock Next.js navigation
 vi.mock('next/navigation', () => ({
@@ -47,7 +48,7 @@ describe('App Ready Signal (App Router)', () => {
     },
     game: {
       resetGame: vi.fn(),
-      currentFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+      currentFen: TEST_POSITIONS.STARTING_POSITION,
     },
     progress: {
       resetProgress: vi.fn(),

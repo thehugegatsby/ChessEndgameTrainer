@@ -1,13 +1,14 @@
 import { describe, it, test, expect } from 'vitest';
 import { validateAndSanitizeFen } from '@shared/utils/fenValidator';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 describe('FEN Validator', () => {
   describe('validateAndSanitizeFen', () => {
     it('should validate correct FEN strings', () => {
       const validFens = [
-        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        TEST_POSITIONS.STARTING_POSITION,
         '8/8/8/8/8/8/1K1k4/8 w - - 0 1',
-        'r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1',
+        TEST_POSITIONS.CASTLING_AVAILABLE,
         '8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1',
       ];
 
@@ -21,10 +22,10 @@ describe('FEN Validator', () => {
 
     it('should normalize FEN strings', () => {
       // chess.js normalizes FENs - e.g., it might add explicit move counters
-      const fenWithSpaces = '  rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1  ';
+      const fenWithSpaces = `  ${TEST_POSITIONS.STARTING_POSITION}  `;
       const result = validateAndSanitizeFen(fenWithSpaces);
       expect(result.isValid).toBe(true);
-      expect(result.sanitized).toBe('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+      expect(result.sanitized).toBe(TEST_POSITIONS.STARTING_POSITION);
       expect(result.errors).toHaveLength(0);
     });
 

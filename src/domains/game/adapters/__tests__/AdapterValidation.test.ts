@@ -9,6 +9,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import type { IChessEngine } from '@features/chess-core/types/interfaces';
 import { ChessEngineAdapter } from '../ChessEngineAdapter';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 describe('ChessEngineAdapter - Critical Legacy Validation', () => {
   let engine: IChessEngine;
@@ -19,8 +20,7 @@ describe('ChessEngineAdapter - Critical Legacy Validation', () => {
 
   describe('Core Position Management', () => {
     it('should initialize with default starting position', () => {
-      const defaultFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-      expect(engine.getFen()).toBe(defaultFen);
+      expect(engine.getFen()).toBe(TEST_POSITIONS.STARTING_POSITION);
     });
 
     it('should initialize with custom FEN position', () => {

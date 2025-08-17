@@ -201,14 +201,12 @@ export interface TrainingActions {
       moveDescription?: string;
     } | null
   ) => void;
-  addTrainingMove: (move: ValidatedMove) => void;
   resetTraining: () => void;
   resetPosition: () => void;
   setEvaluationBaseline: (wdl: number, fen: string) => void;
   clearEvaluationBaseline: () => void;
   // Orchestrator delegates
-  evaluateMoveQuality: (move: ValidatedMove, fen: string) => void;
-  finalizeTrainingSession: (reason: string) => void;
+  evaluateMoveQuality: (move: ValidatedMove, fen: string) => Promise<unknown>;
 }
 
 /**

@@ -14,6 +14,7 @@
 
 import type { StoreApi } from './types';
 import { getLogger } from '@shared/services/logging';
+import { trainingService } from '@shared/services/TrainingService';
 
 const logger = getLogger().setContext('OrchestratorHelpers');
 
@@ -31,6 +32,7 @@ const logger = getLogger().setContext('OrchestratorHelpers');
  * **Coordinated Actions:**
  * 1. Calls TrainingSlice.resetPosition() - resets training-specific state
  * 2. Calls GameSlice.resetMoveHistory() - resets move history in proper slice
+ * 3. Calculates and sets isPlayerTurn via TrainingService (eliminates domain violation)
  * 
  * **Usage Pattern:**
  * Use this instead of calling trainingSlice.resetPosition() directly when you need
@@ -62,6 +64,21 @@ export function resetTrainingAndGameState(api: StoreApi): void {
   
   // 2. Reset game state via proper slice action
   game.resetMoveHistory();
+
+  // 3. ✅ B5.5.5 Phase 3.2: Calculate and set isPlayerTurn via orchestrator/service
+  const currentPosition = getState().training.currentPosition;
+  if (currentPosition?.fen && currentPosition?.colorToTrain) {
+    const playerColor = currentPosition.colorToTrain === 'white' ? 'w' : 'b';
+    const isPlayerTurn = trainingService.calculateIsPlayerTurn(currentPosition.fen, playerColor);
+    
+    logger.debug('Setting isPlayerTurn via service calculation', {
+      fen: currentPosition.fen,
+      playerColor,
+      isPlayerTurn
+    });
+    
+    training.setPlayerTurn(isPlayerTurn);
+  }
 
   logger.info('Training and game state reset completed');
 }

@@ -11,6 +11,7 @@ import type {
   GameTerminationReason,
   TrainingCompletionResult
 } from './GameStateServiceInterface';
+import { turn } from '@shared/utils/chess-logic';
 
 /**
  * Game State Service implementation
@@ -19,6 +20,27 @@ import type {
  * Uses ChessEngine for game state information and implements training-specific logic.
  */
 export class GameStateService implements GameStateServiceInterface {
+  /**
+   * Get the active turn from a FEN string (pure chess logic)
+   * 
+   * @param {string} fen - FEN string to parse
+   * @returns {'w' | 'b'} The color whose turn it is to move
+   * 
+   * @remarks
+   * This is a pure function that extracts the turn information from the FEN string.
+   * It follows the FEN specification where the second field indicates active turn:
+   * - 'w' for white to move
+   * - 'b' for black to move
+   * 
+   * @example
+   * ```typescript
+   * const fen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1';
+   * const currentTurn = GameStateService.getTurnFromFen(fen); // Returns 'b'
+   * ```
+   */
+  public static getTurnFromFen(fen: string): 'w' | 'b' {
+    return turn(fen);
+  }
   // @ts-expect-error - Used in implementation
   private _chessEngine: ChessEngineInterface;
 

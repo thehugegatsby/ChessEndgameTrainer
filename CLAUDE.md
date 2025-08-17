@@ -50,6 +50,13 @@ Always load `CORE.md` first, then task-specific docs from table above. For MCP s
 - **UI Errors**: German (`"Ungültiger Zug"`)
 - **Imports**: Use `@shared/` aliases
 
+## ♟️ Chess Test Data - CRITICAL
+
+**NIEMALS eigene Schachpositionen/FEN-Strings erfinden!**
+- ✅ Immer verwenden: `import { TEST_POSITIONS } from '@shared/testing/ChessTestData'`
+- 📍 Zentrale Datei: `src/shared/testing/ChessTestData.ts` (90+ Positionen)
+- 🎯 Kategorien: Standard, Endspiel, Spielzustand, Spezialregeln, Eröffnungen, Bridge-Trainer, Firebase
+
 ## 📸 Screenshot Integration
 
 When I type "ss" in a message, automatically run `~/.local/bin/lastshot` and use the Read tool to display my latest screenshot.

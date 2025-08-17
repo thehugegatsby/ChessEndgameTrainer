@@ -112,7 +112,7 @@ describe('MovePanelZustand', () => {
 
     const mockEvaluations = [
       {
-        fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        fen: TEST_POSITIONS.STARTING_POSITION,
         evaluation: 0,
       }, // Initial position
       {
@@ -161,7 +161,7 @@ describe('MovePanelZustand', () => {
         to: 'e4',
         piece: 'p',
         san: 'e4',
-        before: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        before: TEST_POSITIONS.STARTING_POSITION,
         after: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
       }),
       createTestValidatedMove({
@@ -214,7 +214,7 @@ describe('MovePanelZustand', () => {
         to: 'e4',
         piece: 'p',
         san: 'e4',
-        before: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        before: TEST_POSITIONS.STARTING_POSITION,
         after: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
       }),
       createTestValidatedMove({
@@ -272,14 +272,14 @@ describe('MovePanelZustand', () => {
         to: 'e4',
         piece: 'p',
         san: 'e4',
-        before: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        before: TEST_POSITIONS.STARTING_POSITION,
         after: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
       }),
     ];
 
     const mockEvaluations = [
       {
-        fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        fen: TEST_POSITIONS.STARTING_POSITION,
         evaluation: 0,
       }, // Initial position
       {
@@ -325,7 +325,7 @@ describe('MovePanelZustand', () => {
   it('should show empty state when no moves', () => {
     (useGameStore as ReturnType<typeof vi.fn>).mockReturnValue([
       {
-        currentFen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        currentFen: TEST_POSITIONS.STARTING_POSITION,
         currentPgn: '',
         moveHistory: [],
         currentMoveIndex: -1,

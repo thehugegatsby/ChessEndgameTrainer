@@ -6,6 +6,7 @@ import { vi } from 'vitest';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TrainingEventEmitter } from '../EventEmitter';
 import type { TrainingEvents } from '../EventEmitter';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 describe('TrainingEventEmitter', () => {
   let emitter: TrainingEventEmitter;
@@ -173,7 +174,7 @@ describe('TrainingEventEmitter', () => {
 
       emitter.emit('opponent:moved', {
         move: 'Qe5',
-        fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        fen: TEST_POSITIONS.STARTING_POSITION,
       });
       emitter.emit('opponent:thinking', { isThinking: false });
 

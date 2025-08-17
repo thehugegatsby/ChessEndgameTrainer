@@ -126,7 +126,6 @@ export const useTrainingActions = (): ExtendedTrainingActions => {
       incrementMistake: state.training.incrementMistake,
       setMoveErrorDialog: state.training.setMoveErrorDialog,
       setMoveSuccessDialog: state.training.setMoveSuccessDialog,
-      addTrainingMove: state.training.addTrainingMove,
       resetTraining: state.training.resetTraining,
       resetPosition: state.training.resetPosition,
       setEvaluationBaseline: state.training.setEvaluationBaseline,
@@ -140,7 +139,6 @@ export const useTrainingActions = (): ExtendedTrainingActions => {
 
       // Delegate actions for orchestrator
       evaluateMoveQuality: state.training.evaluateMoveQuality,
-      finalizeTrainingSession: state.training.finalizeTrainingSession,
 
       // Orchestrated actions (from root level)
       handlePlayerMove: state.handlePlayerMove,

@@ -20,6 +20,7 @@ import { getLogger } from '@shared/services/logging/Logger';
 import { getFen, turn, getPgn, isGameOver, isCheckmate, isDraw, isStalemate, isCheck } from '@shared/utils/chess-logic';
 import type { StoreApi } from '@shared/store/StoreContext';
 import type { ValidatedMove } from '@shared/types/chess';
+import { GameStateService } from '@domains/game/services/GameStateService';
 
 const logger = getLogger().setContext('TrainingService');
 
@@ -213,6 +214,34 @@ export class TrainingService {
           ? state.game.moveHistory[state.game.moveHistory.length - 1]
           : undefined,
     };
+  }
+
+  /**
+   * Calculate whether it's the player's turn based on current game state
+   * 
+   * @param {string} fen - Current game position in FEN notation
+   * @param {'w' | 'b'} playerColor - The color the player is controlling
+   * @returns {boolean} True if it's the player's turn to move
+   * 
+   * @remarks
+   * This method combines pure chess logic (FEN parsing) with training context
+   * (player color) to determine turn state. It delegates the FEN parsing to
+   * GameStateService and applies training-specific logic here.
+   * 
+   * This follows the "Fat Service, Thin Slice" pattern where business logic
+   * is centralized in services rather than scattered across slices.
+   * 
+   * @example
+   * ```typescript
+   * const fen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1';
+   * const playerColor = 'w'; // Player controls white
+   * const isPlayerTurn = trainingService.calculateIsPlayerTurn(fen, playerColor);
+   * // Returns false because it's black's turn but player controls white
+   * ```
+   */
+  calculateIsPlayerTurn(fen: string, playerColor: 'w' | 'b'): boolean {
+    const currentTurn = GameStateService.getTurnFromFen(fen);
+    return currentTurn === playerColor;
   }
 }
 

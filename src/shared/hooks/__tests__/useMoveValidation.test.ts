@@ -17,6 +17,7 @@ import { vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useMoveValidation } from '@shared/hooks/useMoveValidation';
 import { TRAIN_SCENARIOS } from '@tests/fixtures/trainPositions';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 // Mock dependencies
 const mockTablebaseActions = {
@@ -33,7 +34,7 @@ const mockTablebaseState = {
 describe('useMoveValidation', () => {
   const defaultProps = {
     lastEvaluation: null,
-    currentFen: '8/8/8/8/8/8/8/8 w - - 0 1',
+    currentFen: TEST_POSITIONS.EMPTY_BOARD,
     evaluations: [],
     isEvaluating: false,
     tablebaseState: mockTablebaseState,
@@ -110,7 +111,7 @@ describe('useMoveValidation', () => {
 
     it('initializes with initial evaluation', () => {
       const initialEvaluation = {
-        fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        fen: TEST_POSITIONS.EMPTY_BOARD,
         evaluation: 100,
         moves: [{ move: 'Kh1', wdl: 1, dtm: 5 }],
         isAvailable: true,
@@ -119,7 +120,7 @@ describe('useMoveValidation', () => {
       const propsWithInitialEval = {
         ...defaultProps,
         lastEvaluation: initialEvaluation,
-        currentFen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        currentFen: TEST_POSITIONS.EMPTY_BOARD,
       };
 
       const { result } = renderHook(() => useMoveValidation(propsWithInitialEval));
@@ -189,7 +190,7 @@ describe('useMoveValidation', () => {
   describe('Move Quality Assessment', () => {
     it('processes tablebase results correctly', () => {
       const mockEvaluation = {
-        fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        fen: TEST_POSITIONS.EMPTY_BOARD,
         evaluation: 100,
         moves: [
           { move: 'Kh1', wdl: 1, dtm: 5 },
@@ -214,7 +215,7 @@ describe('useMoveValidation', () => {
 
     it('handles unavailable tablebase results', () => {
       const mockEvaluation = {
-        fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        fen: TEST_POSITIONS.EMPTY_BOARD,
         evaluation: 0,
         moves: [],
         isAvailable: false,
@@ -253,7 +254,7 @@ describe('useMoveValidation', () => {
 
       // Complete evaluation
       const mockResult = {
-        fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        fen: TEST_POSITIONS.EMPTY_BOARD,
         evaluation: 100,
         moves: [{ move: 'Kh1', wdl: 1 }],
         isAvailable: true,
@@ -272,7 +273,7 @@ describe('useMoveValidation', () => {
   describe('Error Handling', () => {
     it('handles evaluation errors gracefully', () => {
       const mockEvaluation = {
-        fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        fen: TEST_POSITIONS.EMPTY_BOARD,
         evaluation: 0,
         moves: [],
         isAvailable: false,
@@ -455,7 +456,7 @@ describe('useMoveValidation', () => {
 
       // Process first evaluation
       const eval1 = {
-        fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        fen: TEST_POSITIONS.EMPTY_BOARD,
         evaluation: 100,
         moves: [{ move: 'Kh1', wdl: 1 }],
         isAvailable: true,
@@ -465,7 +466,7 @@ describe('useMoveValidation', () => {
 
       // Process second evaluation with different score
       const eval2 = {
-        fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        fen: TEST_POSITIONS.EMPTY_BOARD,
         evaluation: 200,
         moves: [{ move: 'Kh2', wdl: 1 }],
         isAvailable: true,
@@ -476,7 +477,7 @@ describe('useMoveValidation', () => {
 
     it('does not increment count for duplicate evaluations', () => {
       const mockEval = {
-        fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        fen: TEST_POSITIONS.EMPTY_BOARD,
         evaluation: 100,
         moves: [{ move: 'Kh1', wdl: 1 }],
         isAvailable: true,
@@ -504,7 +505,7 @@ describe('useMoveValidation', () => {
 
       // Rapidly change FENs
       const fens = [
-        '8/8/8/8/8/8/8/8 w - - 0 1',
+        TEST_POSITIONS.EMPTY_BOARD,
         '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1',
         '4k3/8/4K3/8/4P3/8/8/8 b - - 1 1',
       ];
@@ -522,7 +523,7 @@ describe('useMoveValidation', () => {
         ...defaultProps,
         isEvaluating: true,
         lastEvaluation: {
-          fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+          fen: TEST_POSITIONS.EMPTY_BOARD,
           evaluation: 100,
           moves: [{ move: 'Kh1', wdl: 1 }],
           isAvailable: true,
@@ -543,7 +544,7 @@ describe('useMoveValidation', () => {
       };
 
       const mockEvaluation = {
-        fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        fen: TEST_POSITIONS.EMPTY_BOARD,
         evaluation: 100,
         moves: [{ move: 'Kh1', wdl: 1, dtm: 5 }],
         isAvailable: true,
@@ -581,7 +582,7 @@ describe('useMoveValidation', () => {
 
     it('skips already processed evaluations', () => {
       const mockEvaluation = {
-        fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        fen: TEST_POSITIONS.EMPTY_BOARD,
         evaluation: 100,
         mateInMoves: 5,
         moves: [{ move: 'Kh1', wdl: 1, dtm: 5 }],
@@ -609,14 +610,14 @@ describe('useMoveValidation', () => {
 
     it('processes different evaluations separately', () => {
       const firstEvaluation = {
-        fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        fen: TEST_POSITIONS.EMPTY_BOARD,
         evaluation: 100,
         moves: [{ move: 'Kh1', wdl: 1, dtm: 5 }],
         isAvailable: true,
       };
 
       const secondEvaluation = {
-        fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        fen: TEST_POSITIONS.EMPTY_BOARD,
         evaluation: 200, // Different evaluation score
         moves: [{ move: 'Kh2', wdl: 1, dtm: 3 }],
         isAvailable: true,
@@ -641,7 +642,7 @@ describe('useMoveValidation', () => {
       };
 
       const mockEvaluation = {
-        fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        fen: TEST_POSITIONS.EMPTY_BOARD,
         evaluation: 100,
         moves: [{ move: 'Kh1', wdl: 1, dtm: 5 }],
         isAvailable: true,
@@ -677,7 +678,7 @@ describe('useMoveValidation', () => {
   describe('Integration with Other Hooks', () => {
     it('works with evaluation data from usePositionAnalysis', () => {
       const mockPositionAnalysisData = {
-        fen: '8/8/8/8/8/8/8/8 w - - 0 1',
+        fen: TEST_POSITIONS.EMPTY_BOARD,
         evaluation: 100,
         moves: [
           { move: 'Kh1', wdl: 1, dtm: 5, evaluation: 100 },
@@ -702,14 +703,14 @@ describe('useMoveValidation', () => {
       const richTablebaseState = {
         analysisStatus: 'success' as const,
         analysisResult: {
-          position: '8/8/8/8/8/8/8/8 w - - 0 1',
+          position: TEST_POSITIONS.EMPTY_BOARD,
           moves: [
             { move: 'Kh1', wdl: 1, dtm: 3 },
             { move: 'Kg1', wdl: -1, dtm: 15 },
           ],
           bestMove: 'Kh1',
         },
-        cache: new Map([['8/8/8/8/8/8/8/8 w - - 0 1', { wdl: 1, moves: ['Kh1'] }]]),
+        cache: new Map([[TEST_POSITIONS.EMPTY_BOARD, { wdl: 1, moves: ['Kh1'] }]]),
       };
 
       const props = {

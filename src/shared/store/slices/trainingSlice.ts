@@ -228,10 +228,8 @@ export const createTrainingActions = (
       state.training.isSuccess = false;
       state.training.hintsUsed = 0;
       state.training.mistakeCount = 0;
-      // ❌ DOMAIN BOUNDARY VIOLATION: Chess rule logic in slice
-      // Slice should receive computed isPlayerTurn from orchestrator
-      state.training.isPlayerTurn = position.sideToMove === position.colorToTrain;
-      // ✅ APPROPRIATE: Training state management
+      // ✅ FIXED: Orchestrator will compute and pass isPlayerTurn separately
+      // No chess logic in slice - pure state management only
       state.training.evaluationBaseline = null;
     });
   },
@@ -575,43 +573,6 @@ export const createTrainingActions = (
     });
   },
 
-  /**
-   * Adds a move to the training history
-   *
-   * @param {any} move - The move to add (ValidatedMove with training metadata)
-   *
-   * @fires stateChange - When move is added
-   *
-   * @remarks
-   * This action is called by orchestrators to track moves made during
-   * training. The move object should include training-specific metadata
-   * like whether it was optimal, user-made, etc. The actual implementation
-   * of moveHistory is handled by orchestrators.
-   *
-   * TODO: B5.5.5 OPTIMIZATION OPPORTUNITY - Use MoveService metadata
-   * - AVAILABLE: pieceType, capturedPiece, isEnPassant, moveNumber, halfMoveClock, castleSide
-   * - REPLACE: Manual piece type detection, capture checking, move counting
-   * - LINES TO OPTIMIZE: ~10-15 lines of manual metadata extraction
-   *
-   * @example
-   * ```typescript
-   * // Called by orchestrator with enhanced metadata
-   * store.getState().addTrainingMove({
-   *   ...validatedMove,
-   *   pieceType: 'q', // From MoveService
-   *   capturedPiece: 'r', // From MoveService  
-   *   isCapture: true, // From MoveService
-   *   userMove: true,
-   *   isOptimal: false,
-   *   mistakeReason: "Missed checkmate"
-   * });
-   * ```
-   */
-  addTrainingMove: (move: ValidatedMove) => {
-    // TODO: B5.5.5 OPTIMIZATION - Remove manual move metadata extraction
-    // MoveService already provides: pieceType, capturedPiece, isEnPassant, etc.
-    logger.debug('Training move added', { move });
-  },
 
   /**
    * Resets all training state to initial values
@@ -663,7 +624,6 @@ export const createTrainingActions = (
    * ```
    */
   resetPosition: () => {
-    const currentPos = get().training.currentPosition;
     set(state => {
       // ✅ FIXED B5.5.5 Phase 3B.3: Cross-slice coupling removed
       // Orchestrator now handles game.resetMoveHistory() separately
@@ -671,12 +631,8 @@ export const createTrainingActions = (
       state.training.hintsUsed = 0;
       state.training.mistakeCount = 0;
       state.training.isSuccess = false;
-      // ❌ DOMAIN BOUNDARY VIOLATION: Chess rule logic in application layer
-      // Slice should be ignorant of chess concepts like "sideToMove"
-      state.training.isPlayerTurn = currentPos
-        ? currentPos.sideToMove === currentPos.colorToTrain
-        : true;
-      // ✅ APPROPRIATE: Simple training state reset
+      // ✅ FIXED: Chess logic moved to orchestrator/service
+      // Orchestrator will compute and set isPlayerTurn separately
       state.training.evaluationBaseline = null;
     });
   },
@@ -877,19 +833,6 @@ export const createTrainingActions = (
     return quality;
   },
 
-  /**
-   * [STUB] Finalizes training session when game ends
-   * @param reason - The reason the game ended (checkmate, draw, etc.)
-   * 
-   * TODO: Extract to GameStateService - Game termination detection
-   * - Checkmate/stalemate detection
-   * - Draw conditions checking
-   * - Training completion criteria
-   */
-  finalizeTrainingSession: (reason: string) => {
-    console.info(`STUB: Finalizing training session due to ${reason}`);
-    // TODO: Extract to GameStateService - training completion logic (accuracy, streaks, etc.)
-  },
   };
 };
 

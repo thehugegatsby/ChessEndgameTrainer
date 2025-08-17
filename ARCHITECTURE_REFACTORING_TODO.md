@@ -1391,6 +1391,157 @@ state.game.moveHistory = []; // Direct cross-slice modification
 - ✅ **Service Integration:** TestApiService properly uses orchestrator helpers
 - ✅ **Type Safety:** All interfaces updated for new orchestrator method
 
-**Next Phase:** Ready for Phase 3B.4 (Service Enhancement) and Phase 3B.5 (Chess Logic Removal)
+### **B5.5.5 Phase 3B.4: Service Enhancement for isPlayerTurn** ✅ **COMPLETE (2025-08-17)**
 
-Ready for Phase 3: Field Optimizations
+**Strategy:** Extract chess logic from TrainingSlice using pure service functions
+**Target:** Remove domain boundary violations in turn calculation logic
+
+**3B.4.1: Add getTurnFromFen to GameStateService** ✅ **COMPLETE**
+- [x] ✅ Added static method `getTurnFromFen(fen: string): 'w' | 'b'` to GameStateService
+- [x] ✅ Uses pure function `turn()` from chess-logic utilities
+- [x] ✅ Stateless service method for chess domain logic
+- [x] ✅ TypeScript validation clean - `pnpm tsc --noEmit` ✅
+
+**3B.4.2: Add calculateIsPlayerTurn to TrainingService** ✅ **COMPLETE**
+- [x] ✅ Added `calculateIsPlayerTurn(fen: string, playerColor: 'w' | 'b'): boolean`
+- [x] ✅ Uses GameStateService.getTurnFromFen() for chess logic delegation
+- [x] ✅ Training-specific business logic combining chess state with training context
+- [x] ✅ TypeScript validation clean - `pnpm tsc --noEmit` ✅
+
+**3B.4.3: Update orchestrators to use service methods** ⏳ **PENDING**
+- [ ] Update loadTrainingContext orchestrator to use TrainingService.calculateIsPlayerTurn()
+- [ ] Update handlePlayerMove orchestrator to use service methods
+- [ ] Replace inline turn calculation with service delegation
+- [ ] TypeScript validation - `pnpm tsc --noEmit`
+
+**3B.4.4: Remove chess logic from TrainingSlice actions** ⏳ **PENDING**
+- [ ] Replace `position.sideToMove === position.colorToTrain` with orchestrator-provided boolean
+- [ ] Update TrainingSlice to receive computed isPlayerTurn from orchestrator
+- [ ] Remove chess rule evaluation from slice actions
+- [ ] TypeScript validation - `pnpm tsc --noEmit`
+
+**Architectural Progress:**
+- ✅ **Service Layer:** Chess logic properly encapsulated in GameStateService
+- ✅ **Business Logic:** Training context handled by TrainingService
+- ⏳ **Integration:** Orchestrator updates pending for service usage
+- ⏳ **Purification:** TrainingSlice chess logic removal pending
+
+**Impact So Far:**
+- Pure functions established for turn calculation
+- Clean separation: GameStateService (chess) → TrainingService (business) → Orchestrator (coordination)
+- Ready for orchestrator integration and slice purification
+
+---
+
+## ✅ **B5.5.5 QUALITY-FIRST REFACTORING - GEMINI VALIDATED PLAN (2025-08-17)**
+
+### **STRATEGIC ANALYSIS COMPLETE** ✅
+
+**ARCHITECTURE ASSESSMENT (Claude + Gemini Consensus):**
+- **Current State:** 85% clean code, well-designed service delegation pattern
+- **Primary Issues:** Minor domain boundary violations (chess logic in slice)
+- **Approach:** Quality-first refinement, not radical restructuring
+- **Gemini Quote:** *"Your analysis is spot-on. Proceed with quality-first approach."*
+
+### **EXECUTION PLAN - 50 MINUTES TOTAL**
+
+#### **✅ PHASE 1: ANALYSIS COMPLETE (2025-08-17)**
+- [x] **TrainingSlice Archaeology** - 1080 LOC analyzed, responsibility mapping created
+- [x] **Domain Boundary Analysis** - 3 violations identified (lines 233, 676-678, stubs)
+- [x] **Service Integration Assessment** - PositionService already working, pattern established
+- [x] **Gemini Expert Validation** - Confirmed quality-first approach, validated findings
+
+#### **✅ PHASE 2: CORE REFACTORING COMPLETE (2025-08-17)**
+- [x] **Remove dead code stubs** (`addTrainingMove`, `finalizeTrainingSession`) - ~40 LOC reduction
+- [x] **Fix domain boundary violations** - Chess logic removed from slice (lines 233, 676-678)
+- [x] **Interface cleanup** - Types and hooks updated to match new slice API
+- [x] **Test migration** - All tests updated to use centralized TEST_POSITIONS
+- [x] **Validation passed** - TypeScript + ESLint clean, architecture boundaries enforced
+
+#### **🔄 PHASE 3: ORCHESTRATOR INTEGRATION (READY TO START)**
+
+**Gemini-Planned Implementation Strategy:**
+- **Approach**: Surgical direct updates maintaining clean architecture
+- **Pattern**: `setPosition()` → `calculateIsPlayerTurn()` → `setPlayerTurn()`
+- **Risk Level**: Low (incremental, well-tested changes)
+
+**Phase 3.1: Discovery & Verification (15 min)**
+- [ ] Verify `TrainingService.calculateIsPlayerTurn()` method exists and works
+- [ ] Search for all orchestrator calls to `setPosition()` and `resetPosition()` 
+- [ ] Verify service injection patterns in found orchestrators
+
+**Phase 3.2: Sequential Updates (30 min)**
+- [ ] Update each orchestrator with new pattern:
+  ```typescript
+  // Before: store.training.setPosition(position);
+  // After:  
+  store.training.setPosition(position);
+  const isPlayerTurn = trainingService.calculateIsPlayerTurn(position.fen, position.colorToTrain);
+  store.training.setPlayerTurn(isPlayerTurn);
+  ```
+- [ ] TypeScript validation after each file update
+
+**Phase 3.3: Integration Testing (15 min)**
+- [ ] Full TypeScript + ESLint validation
+- [ ] Core training and orchestrator tests
+- [ ] Manual verification of key user flows
+
+### **SUCCESS CRITERIA (Gemini Validated):**
+- ✅ Clean "Thin Slice, Fat Service" pattern achieved
+- ✅ Zero domain boundary violations
+- ✅ Better testability and maintainability
+- ✅ Natural LOC reduction as side effect (~5%)
+- **Goal:** Qualitative assessment (NO hard metrics)
+- **Questions:** 
+  - Is slice a pure coordinator?
+  - Is business logic organized in service?
+  - Would new developer understand faster?
+  - Does adding features feel easier?
+
+**Step 6: Natural Cleanup (Optional)**
+- **Goal:** Only obvious cleanup opportunities
+- **Method:** Unused imports, commented code, obvious dead helpers
+- **Rule:** Only if it feels "natural" - skip if uncertain
+
+**Step 7: Documentation & Reflection**
+- **Goal:** Document what was achieved (quality focus)
+- **Content:** What was complex before vs. simple now
+- **Metric:** LOC reduction as side note, not main goal
+
+### **SUCCESS CRITERIA (Quality-Based)**
+
+**Primary Success:**
+- Clean separation of concerns achieved
+- Code feels more maintainable
+- New features easier to add
+
+**Secondary Success:**
+- Natural LOC reduction occurred
+- TypeScript + ESLint happy
+- Tests still pass
+
+**Developer Happiness Test:**
+- "This feels better to work with"
+- "I understand what each piece does"
+- "Adding features would be straightforward"
+
+### **EXECUTION PRINCIPLES**
+
+**No Pressure:** Stop when architecture feels clean enough
+**No Deadlines:** Quality over speed
+**No Hard Targets:** Clean code over metrics
+**Your Pace:** One thunk at a time when you feel like it
+
+### **ARCHITECTURAL BENEFITS TARGET**
+
+**Before:** TrainingSlice with mixed responsibilities
+- State management + Business logic combined
+- Complex thunks with API calls, validation, transformation
+- Hard to test, maintain, and extend
+
+**After:** Clean "Fat Service, Thin Slice" pattern
+- Slice: Pure state coordinator
+- Service: Business logic, API calls, complex operations
+- Clear boundaries, easier testing, natural simplification
+
+**Next Phase:** Ready for quality-first refactoring when desired

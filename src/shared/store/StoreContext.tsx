@@ -46,6 +46,7 @@ import { getLogger } from '@shared/services/logging';
 import { createStore } from './createStore';
 import { browserTestApi } from '@shared/services/test/BrowserTestApi';
 import type { RootState } from './slices/types';
+import type { StoreApi as OrchestratorStoreApi } from './orchestrators/types';
 
 /**
  * Store instance type for the context
@@ -162,7 +163,7 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children, initialS
         resetTrainingAndGameState: async () => {
           if (storeRef.current) {
             const { resetTrainingAndGameState } = await import('@shared/store/orchestrators/sharedHelpers');
-            resetTrainingAndGameState(storeRef.current as any);
+            resetTrainingAndGameState(storeRef.current as OrchestratorStoreApi);
           }
         },
       };

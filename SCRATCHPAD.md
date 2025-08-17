@@ -18,6 +18,43 @@
 - If suggesting complexity, explicitly state: "Simple version: X. At scale Y, we'd need Z"
 - Err on side of under-engineering initially
 
+## ✅ COMPLETED SESSION: FEN Consolidation Migration (2025-08-17)
+
+### ✅ Single Source of Truth für Chess Test Data - COMPLETED
+
+**CRITICAL NOTE für Claude LLM**: **NIEMALS eigene Schachpositionen/FEN-Strings erfinden!** 
+**IMMER verwenden**: `src/shared/testing/ChessTestData.ts` für alle Testpositionen.
+
+**Migration erfolgreich abgeschlossen**:
+- **Central file**: `src/shared/testing/ChessTestData.ts` (90+ Positionen)
+- **Structure**: TEST_POSITIONS, TEST_SCENARIOS, TEST_SEQUENCES
+- **Migrated data**:
+  - 4 Bridge-Trainer Positionen aus TestScenarios.ts
+  - 2 Firebase Positionen aus trainPositions.ts  
+  - ~20 hardcodierte FENs aus verschiedenen Test-Dateien
+  - Legacy Daten aus commonFens.ts, TestFixtures.ts
+
+**Bereinigung**:
+- ✅ testFixtures.ts gelöscht (redundant)
+- ✅ TestScenarios.ts gelöscht (vollständig migriert)
+- ✅ Alle Test-Imports auf zentrale ChessTestData aktualisiert
+- ✅ TypeScript compilation erfolgreich
+- ✅ ESLint Violations behoben
+
+**Kategorien in TEST_POSITIONS**:
+- Standard Positionen (Ausgangsstellung, leeres Brett)
+- Endspiel Positionen (KPK, KQK, etc.)
+- Spielzustand Positionen (Matt, Patt, Schach)
+- Spezialregeln (Rochade, En Passant, Promotion)
+- Eröffnungen (nach e4, e4 e5, etc.)
+- Bridge-Trainer Positionen (Zickzack, Positionierung, Abdrängung)
+- Firebase Training Positionen
+- Häufig verwendete Test-Positionen
+
+**Für Claude**: Bei Bedarf für Schachpositionen → `TEST_POSITIONS.POSITION_NAME` verwenden!
+
+---
+
 ## ✅ COMPLETED SESSION: Phase 1 Domain Migration - MERGED TO MAIN (2025-08-17)
 
 ### ✅ Phase 1: Evaluation Domain Migration - COMPLETED
