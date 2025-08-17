@@ -1,30 +1,18 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 /**
- * @file Tests for MoveValidator
+ * @file Tests for MoveValidator with pure functions
  * @module tests/unit/orchestrators/MoveValidator
  */
 
 import { MoveValidator } from '@shared/store/orchestrators/handlePlayerMove/MoveValidator';
 import type { TrainingState } from '@shared/store/slices/types';
-
-// Mock ChessService
-vi.mock('@shared/services/ChessService', () => ({
-  chessService: {
-    validateMove: vi.fn(),
-  },
-}));
-
-// Import after mock
-import { chessService } from '@shared/services/ChessService';
+import { COMMON_FENS } from '@tests/fixtures/commonFens';
 
 describe('MoveValidator', () => {
   let validator: MoveValidator;
 
   beforeEach(() => {
     validator = new MoveValidator();
-    vi.clearAllMocks();
-    // Reset mock implementation
-    (chessService.validateMove as ReturnType<typeof vi.fn>).mockReturnValue(true);
   });
 
   describe('validateTurn', () => {
@@ -74,21 +62,16 @@ describe('MoveValidator', () => {
   });
 
   describe('validateMove', () => {
-    it('should return valid result for legal move', () => {
-      (chessService.validateMove as ReturnType<typeof vi.fn>).mockReturnValue(true);
-
-      const result = validator.validateMove('e4');
+    it('should return valid result for legal move using pure functions', () => {
+      const result = validator.validateMove('e4', COMMON_FENS.STARTING_POSITION);
 
       expect(result).toEqual({
         isValid: true,
       });
-      expect(chessService.validateMove).toHaveBeenCalledWith('e4');
     });
 
-    it('should return invalid result for illegal move', () => {
-      (chessService.validateMove as ReturnType<typeof vi.fn>).mockReturnValue(false);
-
-      const result = validator.validateMove('invalid');
+    it('should return invalid result for illegal move using pure functions', () => {
+      const result = validator.validateMove('e5', COMMON_FENS.STARTING_POSITION); // Invalid opening move
 
       expect(result).toEqual({
         isValid: false,
@@ -96,49 +79,89 @@ describe('MoveValidator', () => {
       });
     });
 
-    it('should handle ChessJS move object', () => {
-      (chessService.validateMove as ReturnType<typeof vi.fn>).mockReturnValue(true);
-
-      const move = { from: 'e2', to: 'e4', promotion: 'q' };
-      const result = validator.validateMove(move);
+    it('should handle ChessJS move object with pure functions', () => {
+      const move = { from: 'e7', to: 'e8', promotion: 'q' };
+      const result = validator.validateMove(move, COMMON_FENS.WHITE_PROMOTION);
 
       expect(result.isValid).toBe(true);
-      expect(chessService.validateMove).toHaveBeenCalledWith(move);
     });
 
-    it('should handle move object with from/to', () => {
-      (chessService.validateMove as ReturnType<typeof vi.fn>).mockReturnValue(true);
-
+    it('should handle move object with from/to using pure functions', () => {
       const move = { from: 'e2', to: 'e4' };
-      const result = validator.validateMove(move);
+      const result = validator.validateMove(move, COMMON_FENS.STARTING_POSITION);
 
       expect(result.isValid).toBe(true);
-      expect(chessService.validateMove).toHaveBeenCalledWith(move);
     });
 
-    it('should return error message when ChessService throws', () => {
-      (chessService.validateMove as ReturnType<typeof vi.fn>).mockImplementation(() => {
-        throw new Error('Position is checkmate');
-      });
-
-      const result = validator.validateMove('e4');
-
-      expect(result).toEqual({
-        isValid: false,
-        errorMessage: 'Position is checkmate',
-      });
-    });
-
-    it('should handle non-Error exceptions', () => {
-      (chessService.validateMove as ReturnType<typeof vi.fn>).mockImplementation(() => {
-        throw 'String error';
-      });
-
-      const result = validator.validateMove('e4');
+    it('should return error message for invalid FEN', () => {
+      const result = validator.validateMove('e4', 'invalid-fen');
 
       expect(result).toEqual({
         isValid: false,
         errorMessage: 'Invalid move',
+      });
+    });
+
+    it('should handle valid knight moves', () => {
+      const result = validator.validateMove('Nf3', COMMON_FENS.STARTING_POSITION);
+
+      expect(result).toEqual({
+        isValid: true,
+      });
+    });
+
+    it('should reject moves in checkmate position', () => {
+      const result = validator.validateMove('Ka8', COMMON_FENS.CHECKMATE_POSITION);
+
+      expect(result).toEqual({
+        isValid: false,
+        errorMessage: 'Invalid move',
+      });
+    });
+  });
+
+  describe('checkGameState', () => {
+    it('should return correct game state for starting position', () => {
+      const result = validator.checkGameState(COMMON_FENS.STARTING_POSITION);
+
+      expect(result).toEqual({
+        isGameOver: false,
+        isCheckmate: false,
+        isDraw: false,
+        isStalemate: false,
+      });
+    });
+
+    it('should detect checkmate using pure functions', () => {
+      const result = validator.checkGameState(COMMON_FENS.CHECKMATE_POSITION);
+
+      expect(result).toEqual({
+        isGameOver: true,
+        isCheckmate: true,
+        isDraw: false,
+        isStalemate: false,
+      });
+    });
+
+    it('should detect stalemate using pure functions', () => {
+      const result = validator.checkGameState(COMMON_FENS.STALEMATE_POSITION);
+
+      expect(result).toEqual({
+        isGameOver: true,
+        isCheckmate: false,
+        isDraw: true,
+        isStalemate: true,
+      });
+    });
+
+    it('should handle invalid FEN gracefully', () => {
+      const result = validator.checkGameState('invalid-fen');
+
+      expect(result).toEqual({
+        isGameOver: false,
+        isCheckmate: false,
+        isDraw: false,
+        isStalemate: false,
       });
     });
   });

@@ -115,7 +115,7 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
       });
 
       // Step 1: Validate move using MoveValidator
-      const validationResult = await deps.moveValidator.validateMove(move);
+      const validationResult = deps.moveValidator.validateMove(move, state.game.currentFen);
 
       if (!validationResult.isValid) {
         setState(draft => {

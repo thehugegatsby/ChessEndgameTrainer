@@ -18,17 +18,12 @@ import { showInfoToast } from '@shared/utils/toast';
 
 import { renderHook, act } from '@testing-library/react';
 import { useDialogHandlers } from '@shared/hooks/useDialogHandlers';
-import { chessService } from '@shared/services/ChessService';
 import { tablebaseService } from '@shared/services/TablebaseService';
 import { getOpponentTurnManager } from '@shared/store/orchestrators/handlePlayerMove';
-import { ChessServiceMockFactory } from '@tests/mocks/ChessServiceMockFactory';
-import { TablebaseServiceMockFactory } from '@tests/mocks/TablebaseServiceMockFactory';
+import { getFen, turn } from '@shared/utils/chess-logic';
+import { COMMON_FENS } from '@tests/fixtures/commonFens';
 
-// Initialize mock factories for consistent behavior
-const chessServiceMockFactory = new ChessServiceMockFactory();
-const tablebaseServiceMockFactory = new TablebaseServiceMockFactory();
-
-// Mock dependencies with factories for more realistic behavior
+// Mock dependencies
 vi.mock('@shared/services/logging/Logger', () => ({
   getLogger: vi.fn(() => ({
     setContext: vi.fn(() => ({
@@ -44,12 +39,10 @@ vi.mock('@shared/services/logging/Logger', () => ({
   })),
 }));
 
-// Simple mocks that will be enhanced with factory behavior
-vi.mock('@shared/services/ChessService', () => ({
-  chessService: {
-    getFen: vi.fn(),
-    turn: vi.fn(),
-  },
+// Mock pure chess logic functions
+vi.mock('@shared/utils/chess-logic', () => ({
+  getFen: vi.fn(),
+  turn: vi.fn(),
 }));
 
 vi.mock('@shared/utils/toast', () => ({
@@ -86,21 +79,8 @@ describe('useDialogHandlers', () => {
   };
 
   beforeEach(() => {
-    // Enhance simple mocks with factory behavior for more realistic testing
-    const mockChessService = chessServiceMockFactory.create();
-    const mockTablebaseService = tablebaseServiceMockFactory.create();
-
-    // Assign factory mock behavior to the simple mocks
-    Object.assign(chessService, mockChessService);
-    Object.assign(tablebaseService, mockTablebaseService);
-
-    // Clear all other mocks
+    // Clear all mocks
     vi.clearAllMocks();
-  });
-
-  afterEach(() => {
-    chessServiceMockFactory.cleanup();
-    tablebaseServiceMockFactory.cleanup();
   });
 
   const mockGameActions = {
@@ -128,6 +108,7 @@ describe('useDialogHandlers', () => {
       training: mockTrainingState,
       game: {
         moveHistory: ['e4', 'e5'],
+        currentFen: COMMON_FENS.STARTING_POSITION,
       },
     })),
     setState: vi.fn(),
@@ -152,9 +133,9 @@ describe('useDialogHandlers', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Reset mocked services
-    (chessService.getFen as ReturnType<typeof vi.fn>).mockReturnValue('8/8/8/8/8/8/8/8 w - - 0 1');
-    (chessService.turn as ReturnType<typeof vi.fn>).mockReturnValue('w');
+    // Reset pure function mocks
+    (getFen as ReturnType<typeof vi.fn>).mockReturnValue(COMMON_FENS.STARTING_POSITION);
+    (turn as ReturnType<typeof vi.fn>).mockReturnValue('w');
     (tablebaseService.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
       isAvailable: true,
       result: { wdl: 1 },
@@ -295,7 +276,10 @@ describe('useDialogHandlers', () => {
           isPlayerTurn: true,
           currentPosition: { colorToTrain: 'white' },
         },
-        game: { moveHistory: [] },
+        game: { 
+          moveHistory: [],
+          currentFen: COMMON_FENS.STARTING_POSITION,
+        },
       };
 
       const mockStoreApiWithBlackTurn = {
@@ -303,8 +287,8 @@ describe('useDialogHandlers', () => {
         getState: vi.fn(() => stateWithBlackTurn),
       } as any;
 
-      // Mock chess service to return black's turn
-      (chessService.turn as ReturnType<typeof vi.fn>).mockReturnValue('b');
+      // Mock pure function to return black's turn
+      (turn as ReturnType<typeof vi.fn>).mockReturnValue('b');
 
       const props = {
         ...defaultProps,
@@ -359,7 +343,7 @@ describe('useDialogHandlers', () => {
       expect(tablebaseService.getEvaluation).toHaveBeenCalled();
       expect(mockTrainingActions.setEvaluationBaseline).toHaveBeenCalledWith(
         1,
-        '8/8/8/8/8/8/8/8 w - - 0 1'
+        COMMON_FENS.STARTING_POSITION
       );
     });
 
@@ -586,11 +570,9 @@ describe('useDialogHandlers', () => {
       }).not.toThrow();
     });
 
-    it('handles chessService in normal operation', () => {
+    it('handles pure chess functions in normal operation', () => {
       // Reset to normal behavior after previous tests
-      (chessService.getFen as ReturnType<typeof vi.fn>).mockReturnValue(
-        '8/8/8/8/8/8/8/8 w - - 0 1'
-      );
+      (getFen as ReturnType<typeof vi.fn>).mockReturnValue(COMMON_FENS.STARTING_POSITION);
 
       const { result } = renderHook(() => useDialogHandlers(defaultProps));
 

@@ -8,20 +8,19 @@ import {
   PawnPromotionHandler,
   PROMOTION_CHOICES,
 } from '@shared/store/orchestrators/handlePlayerMove/PawnPromotionHandler';
-import { chessService } from '@shared/services/ChessService';
+import { isGameOver, isCheckmate } from '@shared/utils/chess-logic';
 import { orchestratorTablebase } from '@shared/services/orchestrator/OrchestratorServices';
 import { getLogger } from '@shared/services/logging';
 import { handleTrainingCompletion } from '@shared/store/orchestrators/handlePlayerMove/move.completion';
 import { createTestValidatedMove } from '@tests/helpers/validatedMoveFactory';
 import { tablebaseService } from '@shared/services/TablebaseService';
+import { COMMON_FENS } from '@tests/fixtures/commonFens';
 import type { StoreApi } from '@shared/store/orchestrators/types';
 
-// Mock dependencies
-vi.mock('@shared/services/ChessService', () => ({
-  chessService: {
-    isGameOver: vi.fn(),
-    isCheckmate: vi.fn(),
-  },
+// Mock pure chess logic functions
+vi.mock('@shared/utils/chess-logic', () => ({
+  isGameOver: vi.fn(),
+  isCheckmate: vi.fn(),
 }));
 
 vi.mock('@shared/services/orchestrator/OrchestratorServices', () => ({
@@ -233,7 +232,7 @@ describe('PawnPromotionHandler', () => {
   });
 
   describe('evaluatePromotionOutcome', () => {
-    const validFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+    const validFen = COMMON_FENS.STARTING_POSITION;
 
     it('should return false for invalid FEN', async () => {
       const result = await handler.evaluatePromotionOutcome('', 'w');
@@ -253,8 +252,8 @@ describe('PawnPromotionHandler', () => {
 
     it('should detect checkmate as auto-win', async () => {
       // Configure mocks before calling the handler
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(true);
-      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockReturnValue(true);
+      (isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(true);
+      (isCheckmate as ReturnType<typeof vi.fn>).mockReturnValue(true);
 
       const result = await handler.evaluatePromotionOutcome(validFen, 'w');
 
@@ -265,8 +264,8 @@ describe('PawnPromotionHandler', () => {
 
     it('should not consider stalemate as auto-win', async () => {
       // Access the mocked functions directly (they're already mocked at module level)
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(true);
-      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(true);
+      (isCheckmate as ReturnType<typeof vi.fn>).mockReturnValue(false);
 
       const result = await handler.evaluatePromotionOutcome(validFen, 'w');
 
@@ -275,7 +274,7 @@ describe('PawnPromotionHandler', () => {
 
     it('should detect winning positions for white with tablebase', async () => {
       // Access the mocked functions directly
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
       (orchestratorTablebase.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         result: createTablebaseResult({
@@ -293,7 +292,7 @@ describe('PawnPromotionHandler', () => {
 
     it('should detect winning positions for black with tablebase', async () => {
       // Access the mocked functions directly
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
       (orchestratorTablebase.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         result: createTablebaseResult({
@@ -311,12 +310,12 @@ describe('PawnPromotionHandler', () => {
 
     it('should consider all winning positions as auto-win regardless of category', async () => {
       // Use vi.spyOn to mock the chess service methods
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockClear();
-      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockClear();
+      (isGameOver as ReturnType<typeof vi.fn>).mockClear();
+      (isCheckmate as ReturnType<typeof vi.fn>).mockClear();
 
       // Use vi.spyOn to mock the tablebase service methods
 
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
       (orchestratorTablebase.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         result: createTablebaseResult({
@@ -332,12 +331,12 @@ describe('PawnPromotionHandler', () => {
 
     it('should handle draw positions', async () => {
       // Use vi.spyOn to mock the chess service methods
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockClear();
-      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockClear();
+      (isGameOver as ReturnType<typeof vi.fn>).mockClear();
+      (isCheckmate as ReturnType<typeof vi.fn>).mockClear();
 
       // Use vi.spyOn to mock the tablebase service methods
 
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
       (orchestratorTablebase.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         result: createTablebaseResult({
@@ -353,12 +352,12 @@ describe('PawnPromotionHandler', () => {
 
     it('should handle losing positions', async () => {
       // Use vi.spyOn to mock the chess service methods
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockClear();
-      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockClear();
+      (isGameOver as ReturnType<typeof vi.fn>).mockClear();
+      (isCheckmate as ReturnType<typeof vi.fn>).mockClear();
 
       // Use vi.spyOn to mock the tablebase service methods
 
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
       (orchestratorTablebase.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         result: createTablebaseResult({
@@ -374,12 +373,12 @@ describe('PawnPromotionHandler', () => {
 
     it('should handle tablebase unavailable', async () => {
       // Use vi.spyOn to mock the chess service methods
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockClear();
-      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockClear();
+      (isGameOver as ReturnType<typeof vi.fn>).mockClear();
+      (isCheckmate as ReturnType<typeof vi.fn>).mockClear();
 
       // Use vi.spyOn to mock the tablebase service methods
 
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
       (orchestratorTablebase.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: false,
       });
@@ -391,10 +390,10 @@ describe('PawnPromotionHandler', () => {
 
     it('should handle tablebase errors gracefully', async () => {
       // Use vi.spyOn to mock the tablebase service methods
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockClear();
-      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockClear();
+      (isGameOver as ReturnType<typeof vi.fn>).mockClear();
+      (isCheckmate as ReturnType<typeof vi.fn>).mockClear();
 
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
       (orchestratorTablebase.getEvaluation as ReturnType<typeof vi.fn>).mockRejectedValue(
         new Error('API error')
       );
@@ -407,12 +406,12 @@ describe('PawnPromotionHandler', () => {
 
     it('should handle evaluation without result field', async () => {
       // Use vi.spyOn to mock the chess service methods
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockClear();
-      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockClear();
+      (isGameOver as ReturnType<typeof vi.fn>).mockClear();
+      (isCheckmate as ReturnType<typeof vi.fn>).mockClear();
 
       // Use vi.spyOn to mock the tablebase service methods
 
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
       (orchestratorTablebase.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         // Missing result field
@@ -425,12 +424,12 @@ describe('PawnPromotionHandler', () => {
 
     it('should handle evaluation with null result', async () => {
       // Use vi.spyOn to mock the chess service methods
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockClear();
-      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockClear();
+      (isGameOver as ReturnType<typeof vi.fn>).mockClear();
+      (isCheckmate as ReturnType<typeof vi.fn>).mockClear();
 
       // Use vi.spyOn to mock the tablebase service methods
 
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
       (orchestratorTablebase.getEvaluation as ReturnType<typeof vi.fn>).mockResolvedValue({
         isAvailable: true,
         result: undefined,
@@ -443,7 +442,7 @@ describe('PawnPromotionHandler', () => {
 
     it('should handle evaluation with invalid WDL', async () => {
       // Access the mocked functions directly (they're already mocked at module level)
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
 
       // Use vi.spyOn to mock the tablebase service methods
 
@@ -467,10 +466,10 @@ describe('PawnPromotionHandler', () => {
 
     it('should handle unexpected errors', async () => {
       // Use vi.spyOn to mock the chess service methods
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockClear();
-      (chessService.isCheckmate as ReturnType<typeof vi.fn>).mockClear();
+      (isGameOver as ReturnType<typeof vi.fn>).mockClear();
+      (isCheckmate as ReturnType<typeof vi.fn>).mockClear();
 
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockImplementation(() => {
+      (isGameOver as ReturnType<typeof vi.fn>).mockImplementation(() => {
         throw new Error('Unexpected error');
       });
 

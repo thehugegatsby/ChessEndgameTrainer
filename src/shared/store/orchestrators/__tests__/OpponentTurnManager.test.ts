@@ -5,19 +5,18 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
  */
 
 import { getOpponentTurnManager } from '@shared/store/orchestrators/handlePlayerMove/OpponentTurnHandler';
-import { chessService } from '@shared/services/ChessService';
+import { getFen, turn, makeMove, isGameOver } from '@shared/utils/chess-logic';
 import { tablebaseService } from '@shared/services/TablebaseService';
 import { handleTrainingCompletion } from '@shared/store/orchestrators/handlePlayerMove/move.completion';
+import { COMMON_FENS } from '@tests/fixtures/commonFens';
 import type { StoreApi } from '@shared/store/orchestrators/types';
 
-// Mock dependencies
-vi.mock('@shared/services/ChessService', () => ({
-  chessService: {
-    getFen: vi.fn(),
-    turn: vi.fn(),
-    move: vi.fn(),
-    isGameOver: vi.fn(),
-  },
+// Mock pure chess logic functions
+vi.mock('@shared/utils/chess-logic', () => ({
+  getFen: vi.fn(),
+  turn: vi.fn(),
+  makeMove: vi.fn(),
+  isGameOver: vi.fn(),
 }));
 
 vi.mock('@shared/services/TablebaseService', () => ({
@@ -51,6 +50,10 @@ describe('OpponentTurnManager', () => {
         isOpponentThinking: true,
         currentPosition: { colorToTrain: 'white' },
       },
+      game: {
+        currentFen: COMMON_FENS.STARTING_POSITION,
+        moveHistory: [],
+      },
       ui: {
         toasts: [],
       },
@@ -83,8 +86,8 @@ describe('OpponentTurnManager', () => {
       manager.schedule(mockApi, 100);
 
       // Clear only chessService mocks to track timeout execution calls
-      (chessService.getFen as ReturnType<typeof vi.fn>).mockClear();
-      (chessService.turn as ReturnType<typeof vi.fn>).mockClear();
+      (getFen as ReturnType<typeof vi.fn>).mockClear();
+      (turn as ReturnType<typeof vi.fn>).mockClear();
 
       // Cancel it
       manager.cancel();
@@ -93,7 +96,7 @@ describe('OpponentTurnManager', () => {
       vi.advanceTimersByTime(200);
 
       // Should not call getFen again since timeout was cancelled
-      expect(chessService.getFen).not.toHaveBeenCalled();
+      expect(getFen).not.toHaveBeenCalled();
     });
 
     it('should handle cancel when no timeout is active', () => {
@@ -125,14 +128,14 @@ describe('OpponentTurnManager', () => {
       manager.schedule(mockApi, 200);
 
       // Clear only chessService mocks to track timeout execution calls
-      (chessService.getFen as ReturnType<typeof vi.fn>).mockClear();
-      (chessService.turn as ReturnType<typeof vi.fn>).mockClear();
+      (getFen as ReturnType<typeof vi.fn>).mockClear();
+      (turn as ReturnType<typeof vi.fn>).mockClear();
 
       // Fast-forward past first delay but not second
       vi.advanceTimersByTime(150);
 
       // Should not have executed timeout callback yet
-      expect(chessService.getFen).not.toHaveBeenCalled();
+      expect(getFen).not.toHaveBeenCalled();
 
       // Fast-forward past second delay
       vi.advanceTimersByTime(100);
@@ -146,13 +149,13 @@ describe('OpponentTurnManager', () => {
       manager.cancel();
 
       // Clear only chessService mocks to track timeout execution calls
-      (chessService.getFen as ReturnType<typeof vi.fn>).mockClear();
-      (chessService.turn as ReturnType<typeof vi.fn>).mockClear();
+      (getFen as ReturnType<typeof vi.fn>).mockClear();
+      (turn as ReturnType<typeof vi.fn>).mockClear();
 
       vi.advanceTimersByTime(200);
 
       // Should not call getFen again since timeout was cancelled
-      expect(chessService.getFen).not.toHaveBeenCalled();
+      expect(getFen).not.toHaveBeenCalled();
     });
 
     it('should not execute if state shows player turn', async () => {
@@ -162,14 +165,14 @@ describe('OpponentTurnManager', () => {
       manager.schedule(mockApi, 0); // calls getFen for logging
 
       // Clear only chessService mocks to track timeout execution calls
-      (chessService.getFen as ReturnType<typeof vi.fn>).mockClear();
-      (chessService.turn as ReturnType<typeof vi.fn>).mockClear();
+      (getFen as ReturnType<typeof vi.fn>).mockClear();
+      (turn as ReturnType<typeof vi.fn>).mockClear();
 
       // Fast-forward
       vi.advanceTimersByTime(100);
 
       // Should not call getFen again since timeout callback exits early on player turn
-      expect(chessService.getFen).not.toHaveBeenCalled();
+      expect(getFen).not.toHaveBeenCalled();
     });
   });
 
@@ -196,9 +199,9 @@ describe('OpponentTurnManager', () => {
         ],
       });
 
-      (chessService.getFen as ReturnType<typeof vi.fn>).mockReturnValue('test-fen');
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
-      (chessService.move as ReturnType<typeof vi.fn>).mockReturnValue({
+      (getFen as ReturnType<typeof vi.fn>).mockReturnValue('test-fen');
+      (isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (makeMove as ReturnType<typeof vi.fn>).mockReturnValue({
         san: 'Kd7',
         from: 'd6',
         to: 'd7',
@@ -252,7 +255,7 @@ describe('OpponentTurnManager', () => {
       );
 
       // Assert - No move should have been made
-      expect(chessService.move).not.toHaveBeenCalled();
+      expect(makeMove).not.toHaveBeenCalled();
     });
 
     it('should handle tablebase unavailable', async () => {
@@ -272,12 +275,12 @@ describe('OpponentTurnManager', () => {
       // Assert - Should return control to player without making a move
       expect(mockState.training.isPlayerTurn).toBe(true);
       expect(mockState.training.isOpponentThinking).toBe(false);
-      expect(chessService.move).not.toHaveBeenCalled();
+      expect(makeMove).not.toHaveBeenCalled();
     });
 
     it('should handle game over scenario correctly', () => {
       // Arrange - Set up game over condition
-      (chessService.isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(true);
+      (isGameOver as ReturnType<typeof vi.fn>).mockReturnValue(true);
       mockState.training.isPlayerTurn = false;
       mockState.training.isOpponentThinking = true;
 
@@ -292,7 +295,7 @@ describe('OpponentTurnManager', () => {
     });
 
     it('should handle move execution failure', async () => {
-      (chessService.move as ReturnType<typeof vi.fn>).mockReturnValue(null);
+      (makeMove as ReturnType<typeof vi.fn>).mockReturnValue(null);
 
       manager.schedule(mockApi, 0);
 

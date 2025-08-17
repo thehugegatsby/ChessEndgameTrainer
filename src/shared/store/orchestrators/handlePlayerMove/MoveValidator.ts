@@ -8,7 +8,7 @@
  */
 
 import type { Move as ChessJsMove } from 'chess.js';
-import { chessService } from '@shared/services/ChessService';
+import { validateMove, getGameStatus } from '@shared/utils/chess-logic';
 import type { TrainingState } from '@shared/store/slices/types';
 
 /**
@@ -38,19 +38,19 @@ export interface GameStateInfo {
 }
 
 /**
- * Validates and manages chess move validation
+ * Validates and manages chess move validation using pure functions
  * @class MoveValidator
  *
  * @description
  * Handles comprehensive move validation including:
- * - Move legality using chess.js engine
+ * - Move legality using pure chess functions
  * - Game state verification (turn, game over checks)
  * - Error message generation for UI feedback
  *
  * @example
  * ```typescript
  * const validator = new MoveValidator();
- * const result = await validator.validateMove("e2-e4");
+ * const result = validator.validateMove("e2-e4", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
  * if (!result.isValid) {
  *   // console.log(result.errorMessage);
  * }
@@ -68,16 +68,18 @@ export class MoveValidator {
   }
 
   /**
-   * Validates if a move is legal according to chess rules
+   * Validates if a move is legal according to chess rules using pure functions
    *
    * @param move - The move to validate
+   * @param fen - Current FEN position
    * @returns Validation result with error message if invalid
    */
   validateMove(
-    move: ChessJsMove | { from: string; to: string; promotion?: string } | string
+    move: ChessJsMove | { from: string; to: string; promotion?: string } | string,
+    fen: string
   ): ValidationResult {
     try {
-      const isValid = chessService.validateMove(move);
+      const isValid = validateMove(fen, move);
 
       if (!isValid) {
         return {
@@ -96,16 +98,28 @@ export class MoveValidator {
   }
 
   /**
-   * Checks the current game state
+   * Checks the current game state using pure functions
    *
+   * @param fen - Current FEN position
    * @returns Current game state information
    */
-  checkGameState(): GameStateInfo {
+  checkGameState(fen: string): GameStateInfo {
+    const status = getGameStatus(fen);
+    
+    if (!status) {
+      return {
+        isGameOver: false,
+        isCheckmate: false,
+        isDraw: false,
+        isStalemate: false,
+      };
+    }
+
     return {
-      isGameOver: chessService.isGameOver(),
-      isCheckmate: chessService.isCheckmate(),
-      isDraw: chessService.isDraw(),
-      isStalemate: chessService.isStalemate(),
+      isGameOver: status.isGameOver,
+      isCheckmate: status.isCheckmate,
+      isDraw: status.isDraw,
+      isStalemate: status.isStalemate,
     };
   }
 }

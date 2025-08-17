@@ -343,3 +343,71 @@ export function isCheckmate(fen: string): boolean {
     return false;
   }
 }
+
+/**
+ * Pure function: Check if position is stalemate
+ * @param fen - Current position in FEN notation
+ * @returns true if stalemate, false otherwise
+ */
+export function isStalemate(fen: string): boolean {
+  try {
+    const chess = new Chess(fen);
+    return chess.isStalemate();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Pure function: Check if position is draw
+ * @param fen - Current position in FEN notation  
+ * @returns true if draw, false otherwise
+ */
+export function isDraw(fen: string): boolean {
+  try {
+    const chess = new Chess(fen);
+    return chess.isDraw();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Pure function: Check if position is in check
+ * @param fen - Current position in FEN notation
+ * @returns true if in check, false otherwise
+ */
+export function isCheck(fen: string): boolean {
+  try {
+    const chess = new Chess(fen);
+    return chess.isCheck();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Pure function: Get PGN from move history
+ * @param pgn - PGN string to return (passthrough for compatibility)
+ * @returns PGN string
+ */
+export function getPgn(pgn: string): string {
+  return pgn;
+}
+
+/**
+ * Pure function: Get move history from PGN
+ * @param pgn - PGN string
+ * @returns Array of move objects
+ */
+export function getMoveHistory(pgn: string): Array<{san: string}> {
+  if (!pgn) return [];
+  
+  try {
+    const chess = new Chess();
+    chess.loadPgn(pgn);
+    return chess.history({ verbose: true }).map(move => ({ san: move.san }));
+  } catch {
+    return [];
+  }
+}

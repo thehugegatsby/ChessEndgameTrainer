@@ -1,5 +1,23 @@
 # SCRATCHPAD
 
+## ⚠️ CRITICAL: Architecture Philosophy 
+
+**LEARNED LESSON:** Start simple, scale when needed. Avoid suggesting overengineered solutions first.
+
+### Pattern Recognition
+- ❌ **Anti-pattern:** Suggest complex solution → implement → later call it overengineered
+- ✅ **Correct:** Start with simple solution → explicitly mention scaling path if needed
+- ⚠️ **Note:** Context resets between sessions - this philosophy must be documented here
+
+### Examples of This Problem
+1. **CI Pipeline:** Built complex sharding for 4 tests → later simplified as "overengineered"
+2. **General tendency:** Suggest enterprise patterns for small codebases
+
+### Solution
+- Always ask: "Is this the simplest thing that works?"
+- If suggesting complexity, explicitly state: "Simple version: X. At scale Y, we'd need Z"
+- Err on side of under-engineering initially
+
 ## 🔍 CURRENT SESSION: Issue Cleanup & Architecture Review (2025-08-16 Part 2)
 
 ### ✅ Issue Backlog Cleanup Completed
@@ -20,14 +38,21 @@
 
 **Validated as Current**:
 
-- #184 - Remove ChessServiceV2 (578 lines, ready to execute)
+- ✅ #184 - Remove ChessServiceV2 (578 lines) **ALREADY COMPLETED** - File deleted
 - #185 - Pure Functions Implementation (2d effort)
 - #141, #176, #178, #180 - All confirmed relevant
 
+**Anti-Pattern Analysis Completed (2025-08-16)**:
+- ChessServiceV2 - ✅ ALREADY DELETED (no references found)
+- Service Layer Explosion identified: 121 service exports, 27 service classes
+- TrainingSlice mega-slice: 987 lines (needs splitting)
+- Dependency Injection over-engineering in ServiceContainer (574 lines)
+
 ### Next Actions:
 
-- Quick Win: #184 (10min dead code removal)
+- ✅ ChessServiceV2 deletion (already done)
 - Strategic: #185 (Pure Functions foundation)
+- Parallel: Service layer simplification opportunities
 
 ---
 

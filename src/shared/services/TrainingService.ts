@@ -17,7 +17,7 @@
  */
 
 import { getLogger } from '@shared/services/logging/Logger';
-import { chessService } from '@shared/services/ChessService';
+import { getFen, turn, getPgn, isGameOver, isCheckmate, isDraw, isStalemate, isCheck } from '@shared/utils/chess-logic';
 import type { StoreApi } from '@shared/store/StoreContext';
 import type { ValidatedMove } from '@shared/types/chess';
 
@@ -182,24 +182,27 @@ export class TrainingService {
     lastMove: ValidatedMove | undefined;
   } {
     const state = api.getState();
+    const currentFen = state.game.currentFen || getFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+    const currentPgn = state.game.currentPgn || getPgn('');
+    
     return {
-      fen: state.game.currentFen || chessService.getFen(),
-      turn: chessService.turn(),
+      fen: currentFen,
+      turn: turn(currentFen),
       moveCount: state.game.moveHistory.length,
-      pgn: state.game.currentPgn || chessService.getPgn(),
-      isGameOver: chessService.isGameOver(),
+      pgn: currentPgn,
+      isGameOver: isGameOver(currentFen),
       gameOverReason: (() => {
-        if (!chessService.isGameOver()) return undefined;
-        if (chessService.isCheckmate()) return 'checkmate';
-        if (chessService.isDraw()) return 'draw';
-        if (chessService.isStalemate()) return 'stalemate';
+        if (!isGameOver(currentFen)) return undefined;
+        if (isCheckmate(currentFen)) return 'checkmate';
+        if (isStalemate(currentFen)) return 'stalemate';
+        if (isDraw(currentFen)) return 'draw';
         return 'unknown';
       })(),
-      history: chessService.getMoveHistory(),
+      history: state.game.moveHistory || [],
       evaluation: undefined, // Could be extended if needed
-      isCheck: chessService.isCheck(),
-      isCheckmate: chessService.isCheckmate(),
-      isDraw: chessService.isDraw(),
+      isCheck: isCheck(currentFen),
+      isCheckmate: isCheckmate(currentFen),
+      isDraw: isDraw(currentFen),
       lastMove:
         state.game.moveHistory.length > 0
           ? state.game.moveHistory[state.game.moveHistory.length - 1]

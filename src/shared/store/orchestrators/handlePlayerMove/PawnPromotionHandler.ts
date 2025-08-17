@@ -4,7 +4,7 @@
  */
 
 import type { ValidatedMove } from '@shared/types/chess';
-import { chessService } from '@shared/services/ChessService';
+import { isGameOver, isCheckmate } from '@shared/utils/chess-logic';
 import { orchestratorTablebase } from '@shared/services/orchestrator/OrchestratorServices';
 import { getLogger } from '@shared/services/logging';
 import type { StoreApi } from '../types';
@@ -100,13 +100,13 @@ export class PawnPromotionHandler {
         return false;
       }
       // Check if game is immediately over after promotion
-      if (chessService.isGameOver()) {
-        const isCheckmate = chessService.isCheckmate();
+      if (isGameOver(currentFen)) {
+        const isCheckmateResult = isCheckmate(currentFen);
         getLogger().debug('[PawnPromotion] Game over after promotion:', {
-          isCheckmate,
+          isCheckmate: isCheckmateResult,
           fen: currentFen.split(' ')[0],
         });
-        return isCheckmate; // Checkmate = auto-win
+        return isCheckmateResult; // Checkmate = auto-win
       }
 
       // Use tablebase to evaluate the resulting position
