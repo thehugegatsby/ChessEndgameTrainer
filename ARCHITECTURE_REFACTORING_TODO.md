@@ -78,11 +78,11 @@
 - [x] ~~**Validation:** `pnpm tsc` ✅~~
 
 ### B.2 Service Migration  
-- [ ] Copy winner: `cp WINNER_SERVICE src/domains/evaluation/services/TablebaseService.ts`
-- [ ] Extract types to `src/domains/evaluation/types/` (if needed)
-- [ ] Create public API: `src/domains/evaluation/index.ts`
-- [ ] Commit: `git add . && git commit -m "Migrate TablebaseService to evaluation domain"`
-- [ ] **Validation:** `pnpm tsc` ✅
+- [x] ~~Copy winner: `cp WINNER_SERVICE src/domains/evaluation/services/TablebaseService.ts`~~
+- [x] ~~Fix imports to point back to shared dependencies~~
+- [x] ~~Create public API: `src/domains/evaluation/index.ts`~~
+- [x] ~~Commit: `git add . && git commit -m "Migrate TablebaseService to evaluation domain"`~~
+- [x] ~~**Validation:** `pnpm tsc && pnpm lint` ✅~~
 
 ### B.3 Mock Migration
 - [ ] Copy mock: `cp WINNER_MOCK src/domains/evaluation/__mocks__/TablebaseService.ts`
@@ -100,6 +100,8 @@
 - [ ] **Final Validation:** All imports point to `src/domains/evaluation/`
 
 **Phase B Complete:** [ ] (All services migrated, imports updated, tests green)
+
+**B.2 COMPLETE:** [x] ✅ Service successfully migrated to evaluation domain
 
 ---
 
