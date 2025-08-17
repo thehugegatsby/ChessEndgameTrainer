@@ -6,11 +6,25 @@
  * evaluation text generation.
  */
 
-// Services will be exported here after migration
-// export { TablebaseService } from './services/TablebaseService';
+// Service exports
+export { TablebaseService, tablebaseService } from './services/TablebaseService';
 
-// Types will be exported here after migration  
-// export type { TablebaseResult, TablebaseEvaluation, TablebaseMovesResult } from './services/TablebaseService';
+// Type exports for backward compatibility
+export type {
+  TablebaseMove,
+  TablebaseResult,
+  TablebaseEvaluation,
+  TablebaseMovesResult,
+} from './services/TablebaseService';
 
 // Utilities
-// export { getEvaluationText } from './utils/evaluationText';
+export { getEvaluationText } from '@shared/utils/evaluationText';
+
+// Future exports (when types are migrated):
+// export type {
+//   TablebaseEntry,
+//   TablebaseCategory,
+//   TablebaseCacheEntry,
+//   TablebaseMoveInternal,
+//   LichessTablebaseResponse,
+// } from './types/tablebase';

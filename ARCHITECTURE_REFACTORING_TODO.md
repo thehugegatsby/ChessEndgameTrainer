@@ -73,8 +73,9 @@
 
 ### B.1 Domain Structure Creation
 - [x] ~~Create directories: `mkdir -p src/domains/evaluation/{services,types,utils,__mocks__}`~~
-- [ ] Commit: `git add . && git commit -m "Create evaluation domain structure"`
-- [ ] **Validation:** `pnpm tsc` ✅
+- [x] ~~Add domain index.ts, README.md, and @domains/* path alias~~
+- [x] ~~Commit: `git add . && git commit -m "Create evaluation domain structure"`~~
+- [x] ~~**Validation:** `pnpm tsc` ✅~~
 
 ### B.2 Service Migration  
 - [ ] Copy winner: `cp WINNER_SERVICE src/domains/evaluation/services/TablebaseService.ts`
