@@ -32,6 +32,7 @@
       "@/*": ["./src/*"],
       "@shared/*": ["./src/shared/*"],
       "@features/*": ["./src/features/*"],
+      "@domains/*": ["./src/domains/*"],
       "@lib/*": ["./src/lib/*"],
       "@app/*": ["./src/app/*"],
       "@tests/*": ["./src/tests/*"]

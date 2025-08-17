@@ -69,10 +69,10 @@
 - [x] ~~Move German text logic to evaluationText.ts~~
 - [x] ~~Remove `_getEvaluationText()` method (lines 567-590)~~
 - [x] ~~Test refactored service still works (pnpm tsc && pnpm lint ✅)~~
-- [ ] Commit: `git add . && git commit -m "refactor: remove UI concerns from TablebaseService"`
+- [x] ~~Commit: `git add . && git commit -m "refactor: remove UI concerns from TablebaseService"`~~
 
 ### B.1 Domain Structure Creation
-- [ ] Create directories: `mkdir -p src/domains/evaluation/{services,types,cache,__mocks__}`
+- [x] ~~Create directories: `mkdir -p src/domains/evaluation/{services,types,utils,__mocks__}`~~
 - [ ] Commit: `git add . && git commit -m "Create evaluation domain structure"`
 - [ ] **Validation:** `pnpm tsc` ✅
 
