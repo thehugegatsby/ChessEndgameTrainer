@@ -27,6 +27,7 @@ import { ErrorService } from '@shared/services/ErrorService';
 import { getLogger } from '@shared/services/logging';
 import { handleTrainingCompletion } from './move.completion';
 import { orchestratorMoveService } from '@shared/services/orchestrator/OrchestratorGameServices';
+import { getServerPositionService } from '@shared/services/database/serverPositionService';
 
 // Import specialized modules
 import { MoveValidator } from './MoveValidator';
@@ -176,6 +177,72 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
         draft.game.currentMoveIndex = draft.game.moveHistory.length - 1;
       });
 
+      // Step 3.5: Refresh navigation positions after successful move
+      // This ensures nextPosition/previousPosition remain valid for navigation
+      // CRITICAL: Must happen before any early returns (auto-win, error dialog, game over)
+      getLogger().info('[handlePlayerMove] Starting navigation refresh after successful move');
+      if (state.training.currentPosition) {
+        try {
+          const positionService = getServerPositionService();
+          getLogger().debug('[handlePlayerMove] Got position service, refreshing navigation for position', { 
+            positionId: state.training.currentPosition.id 
+          });
+          
+          const [nextPos, prevPos] = await Promise.all([
+            positionService.getNextPosition(state.training.currentPosition.id, state.training.currentPosition.category),
+            positionService.getPreviousPosition(state.training.currentPosition.id, state.training.currentPosition.category),
+          ]);
+
+          getLogger().debug('[handlePlayerMove] Retrieved positions', { 
+            nextId: nextPos?.id, 
+            prevId: prevPos?.id 
+          });
+
+          // Convert EndgamePosition to TrainingPosition (same logic as in loadTrainingContext)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const convertToTrainingPosition = (pos: any): any => {
+            if (!pos) return null;
+            // Check if already a TrainingPosition
+            if ('colorToTrain' in pos && 'targetOutcome' in pos) return pos;
+            // Convert EndgamePosition to TrainingPosition
+            return {
+              ...pos,
+              colorToTrain: pos.sideToMove || 'white',
+              targetOutcome: (() => {
+                if (pos.goal === 'win') {
+                  return pos.sideToMove === 'white' ? '1-0' : '0-1';
+                }
+                if (pos.goal === 'draw') {
+                  return '1/2-1/2';
+                }
+                return '1-0';
+              })(),
+            };
+          };
+
+          const nextTrainingPos = convertToTrainingPosition(nextPos);
+          const prevTrainingPos = convertToTrainingPosition(prevPos);
+
+          setState(draft => {
+            draft.training.nextPosition = nextTrainingPos;
+            draft.training.previousPosition = prevTrainingPos;
+          });
+
+          getLogger().info('[handlePlayerMove] Successfully updated navigation positions in store');
+          getLogger().info(`[STORE] Navigation refresh successful. nextPosition ID: ${nextTrainingPos?.id}, previousPosition ID: ${prevTrainingPos?.id}, Timestamp: ${new Date().toISOString()}`);
+          getLogger().debug('[handlePlayerMove] Navigation positions refreshed', {
+            nextId: nextPos?.id,
+            prevId: prevPos?.id,
+          });
+        } catch (navError) {
+          getLogger().error('[handlePlayerMove] Failed to refresh navigation positions', { error: navError });
+          getLogger().warn('[handlePlayerMove] Failed to refresh navigation positions', { error: navError });
+          // Navigation failure is non-critical, don't break the move flow
+        }
+      } else {
+        getLogger().warn('[handlePlayerMove] No current position in state, skipping navigation refresh');
+      }
+
       // Step 4: Handle pawn promotion if applicable
       const promotionInfo = deps.pawnPromotionHandler.checkPromotion(validatedMove);
       if (promotionInfo.isPromotion) {
@@ -270,7 +337,8 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
         return true;
       }
 
-      // Step 8: Handle opponent turn if needed
+
+      // Step 9: Handle opponent turn if needed
       const currentTurn = turn(fenAfter);
       const trainingColor = state.training.currentPosition?.colorToTrain?.charAt(0);
 

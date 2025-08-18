@@ -4,7 +4,7 @@
  * @description Implementation of game state management and training completion logic
  */
 
-import type { ChessEngineInterface } from '@domains/game/engine/types';
+import type { ChessGameLogicInterface } from '@domains/game/engine/types';
 import type { 
   GameStateServiceInterface,
   GameStateInfo,
@@ -41,86 +41,116 @@ export class GameStateService implements GameStateServiceInterface {
   public static getTurnFromFen(fen: string): 'w' | 'b' {
     return turn(fen);
   }
-  // @ts-expect-error - Used in implementation
-  private _chessEngine: ChessEngineInterface;
+  private _chessGameLogic: ChessGameLogicInterface;
 
-  constructor(chessEngine: ChessEngineInterface) {
-    this._chessEngine = chessEngine;
+  constructor(chessGameLogic: ChessGameLogicInterface) {
+    this._chessGameLogic = chessGameLogic;
   }
 
   getGameState(): GameStateInfo {
-    // TODO: Implement game state retrieval
-    // - Get comprehensive game state from chess engine
-    // - Include turn, check status, game over status
-    // - Calculate termination reason if game is over
-    throw new Error('GameStateService.getGameState not implemented');
+    const currentTurn = this.getTurn();
+    const isCheck = this.isCheck();
+    const isGameOver = this.isGameOver();
+    const isCheckmate = this.isCheckmate();
+    const isStalemate = this.isStalemate();
+    const isDraw = this.isDraw();
+    const terminationReason = isGameOver ? this.getTerminationReason() : undefined;
+    
+    // Extract move numbers from FEN string
+    const fen = this._chessGameLogic.getFen();
+    const fenParts = fen.split(' ');
+    const halfMoveClock = fenParts[4] ? parseInt(fenParts[4], 10) : 0;
+    const fullMoveNumber = fenParts[5] ? parseInt(fenParts[5], 10) : 1;
+
+    const result: GameStateInfo = {
+      turn: currentTurn,
+      isCheck,
+      isGameOver,
+      isCheckmate,
+      isStalemate,
+      isDraw,
+      fullMoveNumber,
+      halfMoveClock
+    };
+    
+    if (terminationReason) {
+      result.terminationReason = terminationReason;
+    }
+    
+    return result;
   }
 
   isGameOver(): boolean {
-    // TODO: Implement game over detection
-    // - Check if game has ended (checkmate, stalemate, draw)
-    throw new Error('GameStateService.isGameOver not implemented');
+    return this._chessGameLogic.isGameOver();
   }
 
   isCheckmate(): boolean {
-    // TODO: Implement checkmate detection
-    // - Check if current position is checkmate
-    throw new Error('GameStateService.isCheckmate not implemented');
+    return this._chessGameLogic.isCheckmate();
   }
 
   isStalemate(): boolean {
-    // TODO: Implement stalemate detection
-    // - Check if current position is stalemate
-    throw new Error('GameStateService.isStalemate not implemented');
+    return this._chessGameLogic.isStalemate();
   }
 
   isDraw(): boolean {
-    // TODO: Implement draw detection
-    // - Check for various draw conditions
-    // - Insufficient material, fifty-move rule, repetition
-    throw new Error('GameStateService.isDraw not implemented');
+    return this._chessGameLogic.isDraw();
   }
 
   isCheck(): boolean {
-    // TODO: Implement check detection
-    // - Check if current player is in check
-    throw new Error('GameStateService.isCheck not implemented');
+    return this._chessGameLogic.isCheck();
   }
 
   getTurn(): 'white' | 'black' {
-    // TODO: Implement turn retrieval
-    // - Get whose turn it is to move
-    throw new Error('GameStateService.getTurn not implemented');
+    const fen = this._chessGameLogic.getFen();
+    const currentTurn = GameStateService.getTurnFromFen(fen);
+    return currentTurn === 'w' ? 'white' : 'black';
   }
 
   isPlayerTurn(colorToTrain: 'white' | 'black'): boolean {
-    // TODO: Implement player turn detection
-    // - Compare current turn with training color
     return this.getTurn() === colorToTrain;
   }
 
   getTerminationReason(): GameTerminationReason | null {
-    // TODO: Implement termination reason detection
-    // - Determine why the game ended
-    // - Return null if game is ongoing
-    throw new Error('GameStateService.getTerminationReason not implemented');
+    if (!this.isGameOver()) {
+      return null;
+    }
+    
+    if (this.isCheckmate()) {
+      return 'checkmate';
+    }
+    
+    if (this.isStalemate()) {
+      return 'stalemate';
+    }
+    
+    if (this.isDraw()) {
+      return 'draw-agreement';
+    }
+    
+    return null;
   }
 
   finalizeTrainingSession(
-    _reason: GameTerminationReason,
-    _targetOutcome: '1-0' | '0-1' | '1/2-1/2',
-    _metrics: {
+    reason: GameTerminationReason,
+    targetOutcome: '1-0' | '0-1' | '1/2-1/2',
+    metrics: {
       moveCount: number;
       mistakes: number;
       hintsUsed: number;
       accuracy: number;
     }
   ): TrainingCompletionResult {
-    // TODO: Implement training session finalization
-    // - Calculate final training result
-    // - Compare actual outcome with target
-    // - Return comprehensive completion result
-    throw new Error('GameStateService.finalizeTrainingSession not implemented');
+    const actualOutcome = this.getGameOutcome();
+    const targetAchieved = actualOutcome === targetOutcome;
+    const success = targetAchieved && this.isGameOver();
+
+    return {
+      success,
+      reason,
+      outcome: actualOutcome || '1/2-1/2', // Fallback to draw if outcome is null
+      targetAchieved,
+      metrics
+    };
   }
 
   isTrainingObjectiveMet(targetOutcome: '1-0' | '0-1' | '1/2-1/2'): boolean {
@@ -131,15 +161,26 @@ export class GameStateService implements GameStateServiceInterface {
   }
 
   getGameOutcome(): '1-0' | '0-1' | '1/2-1/2' | null {
-    // TODO: Implement game outcome determination
-    // - Return game result based on current state
-    // - Return null if game is ongoing
-    throw new Error('GameStateService.getGameOutcome not implemented');
+    if (!this.isGameOver()) {
+      return null;
+    }
+    
+    if (this.isCheckmate()) {
+      // If checkmate, the winner is the opposite of current turn
+      const currentTurn = this.getTurn();
+      return currentTurn === 'white' ? '0-1' : '1-0';
+    }
+    
+    if (this.isStalemate() || this.isDraw()) {
+      return '1/2-1/2';
+    }
+    
+    return null;
   }
 
   reset(): void {
-    // TODO: Implement game state service reset
-    // - Reset any cached game state
-    // - Clear training-specific state
+    // No internal state to reset in this service
+    // All state is delegated to the ChessGameLogic instance
+    // The ChessGameLogic should be reset externally if needed
   }
 }

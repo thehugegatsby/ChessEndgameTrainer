@@ -67,6 +67,9 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
   const nextPosition = trainingState.nextPosition;
   const isLoadingNavigation = trainingState.isLoadingNavigation;
 
+  // DEBUG: Log beim Rendern
+  getLogger().info(`[REACT RENDER] nextPosition ID: ${nextPosition?.id}, prevPosition ID: ${prevPosition?.id}, isLoading: ${isLoadingNavigation}, Timestamp: ${new Date().toISOString()}`);
+
   const handleComplete = useCallback(
     (isSuccess: boolean) => {
       if (isSuccess) {
@@ -211,7 +214,13 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
               <span className="text-lg">↻</span>
             </button>
             <button
-              onClick={() => nextPosition && router.push(`/train/${nextPosition.id}`)}
+              onClick={() => {
+                // DEBUG: Log beim Button Click
+                getLogger().info(`[REACT CLICK] nextPosition ID: ${nextPosition?.id}, Timestamp: ${new Date().toISOString()}`);
+                if (nextPosition) {
+                  router.push(`/train/${nextPosition.id}`);
+                }
+              }}
               disabled={!nextPosition || isLoadingNavigation}
               className="p-2 hover:bg-gray-800 rounded disabled:opacity-30 transition-colors"
               title="Nächste Stellung"
