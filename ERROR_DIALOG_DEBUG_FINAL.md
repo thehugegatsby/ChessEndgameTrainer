@@ -1,25 +1,25 @@
-# 🐛 ERROR DIALOG BUG - Vollständige Debug Session Analysis
+# 🐛 E2E TEST FAILURES - Vollständige Debug Session Analysis
 
-**Chess Endgame Trainer - Error Dialog verschwindet sofort**  
+**Chess Endgame Trainer - E2E Tests schlagen fehl wegen setPosition Bug**  
 **Date**: 2025-08-18  
-**Status**: ❌ **UNGELÖST** - Dialog funktioniert technisch, aber ist unsichtbar für User
+**Status**: ❌ **UNGELÖST** - setPosition funktioniert nicht, Position wird nie gesetzt
 
 ## 🎯 PROBLEM ZUSAMMENFASSUNG
 
-**User berichtet**: "Error Dialog erscheint NICHT beim Training trotz korrekter Implementation"
+**HAUPTPROBLEM**: E2E Tests schlagen fehl weil `setPosition` nicht funktioniert!
 
-### Was der User sieht:
-- ❌ Macht suboptimalen Move (z.B. verschlechtert WDL von 1000 auf 0)
-- ❌ KEIN Error Dialog erscheint
-- ❌ Kann nicht "Zurücknehmen" oder "Weiterspielen" wählen
-- ❌ Training-Experience ist defekt
+### E2E Test Status:
+- ❌ **0/5 Weiterspielen tests passing**
+- ❌ Position wird NIEMALS von Standard-Startposition geändert
+- ❌ Alle Moves werden als "Move rejected by validation pipeline" abgelehnt
+- ❌ **setPosition() funktioniert komplett nicht**
 
-### Was technisch passiert:
-- ✅ Events werden gefeuert: `move:feedback` mit `type: 'error'`
-- ✅ State wird gesetzt: `moveErrorDialog: { isOpen: true, wdlBefore: 1000, wdlAfter: 0 }`
-- ✅ Event Listeners sind registriert und funktionieren
-- ✅ DialogManager ist korrekt eingebunden
-- ❌ **Dialog erscheint TROTZDEM nicht im Browser**
+### Technischer Status:
+- ✅ Test API wird initialisiert
+- ✅ e2e_setBoardState wird aufgerufen
+- ✅ TestApiService.setPosition wird erreicht
+- ❌ **Aber Position ändert sich NIE im Store**
+- ❌ **FEN bleibt immer "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"**
 
 ## 🔍 ENTDECKTE ROOT CAUSES
 
