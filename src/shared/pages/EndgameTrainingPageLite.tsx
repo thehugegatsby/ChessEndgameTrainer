@@ -18,6 +18,10 @@ import { useGameStore, useTrainingStore, useUIStore } from '@shared/store/hooks'
 // useInitializePosition no longer needed - SSR hydration handles initialization
 import { getTrainingDisplayTitle, formatPositionTitle } from '@shared/utils/titleFormatter';
 import { ANIMATION } from '@shared/constants';
+import { trainingEvents } from '@domains/training/events/EventEmitter';
+import { useStore } from '@shared/store/rootStore';
+import type { WritableDraft } from 'immer';
+import type { RootState } from '@shared/store/slices/types';
 
 // No props needed anymore - all data comes from hydrated store
 
@@ -52,6 +56,33 @@ export const EndgameTrainingPageLite: React.FC = React.memo(() => {
     currentFen: gameState.currentFen,
     timestamp: new Date().toISOString(),
   });
+
+  // Training Event Listener - handle move feedback events directly
+  React.useEffect(() => {
+    console.log('🎯 [EndgameTrainingPageLite] Setting up training event listeners');
+    
+    const unsubscribeFeedback = trainingEvents.on('move:feedback', data => {
+      console.log('🎯 [EndgameTrainingPageLite] Received move:feedback event:', data);
+      if (data.type === 'error') {
+        console.log('🎯 [EndgameTrainingPageLite] Processing error event - updating dialog state');
+        // Show error dialog
+        useStore.setState((draft: WritableDraft<RootState>) => {
+          draft.training.moveErrorDialog = {
+            isOpen: true,
+            ...(data.wdlBefore !== undefined && { wdlBefore: data.wdlBefore }),
+            ...(data.wdlAfter !== undefined && { wdlAfter: data.wdlAfter }),
+            ...(data.bestMove !== undefined && { bestMove: data.bestMove }),
+          };
+        });
+        console.log('🎯 [EndgameTrainingPageLite] Error dialog state updated - should be visible now');
+      }
+    });
+
+    return () => {
+      console.log('🎯 [EndgameTrainingPageLite] Cleaning up training event listeners');
+      unsubscribeFeedback();
+    };
+  }, []); // Empty dependency array - only run once
 
   // Extract actions to avoid dependency issues
   const { completeTraining } = trainingActions;

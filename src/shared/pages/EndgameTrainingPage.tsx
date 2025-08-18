@@ -13,6 +13,10 @@ import { useToast } from '../hooks/useToast';
 import { ToastContainer } from '../components/ui/Toast';
 import { StreakCounter } from '../components/ui/StreakCounter';
 import { CheckmarkAnimation } from '../components/ui/CheckmarkAnimation';
+import { trainingEvents } from '@domains/training/events/EventEmitter';
+import { useStore } from '@shared/store/rootStore';
+import type { WritableDraft } from 'immer';
+import type { RootState } from '@shared/store/slices/types';
 import { getGameStatus } from '../utils/chess/gameStatus';
 import { useGameStore, useTrainingStore, useUIStore } from '../store/hooks';
 // useInitializePosition no longer needed - SSR hydration handles initialization
@@ -26,7 +30,14 @@ import { ANIMATION } from '../constants';
  * Provides the main training interface for endgame positions
  * All position data comes from the pre-hydrated store state
  */
-export const EndgameTrainingPage: React.FC = React.memo(() => {
+export const EndgameTrainingPage: React.FC = () => {
+  console.log('🚨🚨🚨 COMPONENT START - SHOULD ALWAYS APPEAR! 🚨🚨🚨', Date.now());
+  console.log('🔥🔥🔥 NEW DEBUG MESSAGE - TESTING COMPILATION! 🔥🔥🔥', Date.now());
+  
+  // Test if getLogger works instead of console.log
+  const logger = getLogger().setContext('EndgameTrainingPage-START');
+  logger.info('🎯 LOGGER TEST: Component execution started!', { timestamp: Date.now() });
+  
   // Next.js router
   const router = useRouter();
 
@@ -52,6 +63,45 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
     currentFen: gameState.currentFen,
     timestamp: new Date().toISOString(),
   });
+
+  console.log('🚨 BEFORE useEffect - This should ALWAYS appear!', Date.now());
+
+  // Training Event Listener - handle move feedback events directly
+  React.useEffect(() => {
+    console.log('🚨 CRITICAL DEBUG: useEffect is running!', Date.now());
+    console.log('🚨 CRITICAL DEBUG: typeof window:', typeof window);
+    console.log('🚨 CRITICAL DEBUG: isClient check:', typeof window !== 'undefined');
+    
+    // Explicit client-side check to avoid SSR issues
+    if (typeof window === 'undefined') {
+      console.log('🚨 CRITICAL DEBUG: SSR detected - useEffect running on server, skipping');
+      return;
+    }
+    
+    console.log('🎯 [EndgameTrainingPage] Setting up training event listeners (CLIENT SIDE)');
+    
+    const unsubscribeFeedback = trainingEvents.on('move:feedback', data => {
+      console.log('🎯 [EndgameTrainingPage] Received move:feedback event:', data);
+      if (data.type === 'error') {
+        console.log('🎯 [EndgameTrainingPage] Processing error event - updating dialog state');
+        // Show error dialog
+        useStore.setState((draft: WritableDraft<RootState>) => {
+          draft.training.moveErrorDialog = {
+            isOpen: true,
+            ...(data.wdlBefore !== undefined && { wdlBefore: data.wdlBefore }),
+            ...(data.wdlAfter !== undefined && { wdlAfter: data.wdlAfter }),
+            ...(data.bestMove !== undefined && { bestMove: data.bestMove }),
+          };
+        });
+        console.log('🎯 [EndgameTrainingPage] Error dialog state updated - should be visible now');
+      }
+    });
+
+    return () => {
+      console.log('🎯 [EndgameTrainingPage] Cleaning up training event listeners');
+      unsubscribeFeedback();
+    };
+  }, []); // Empty dependency array - only run once
 
   // Extract actions to avoid dependency issues
   const { completeTraining } = trainingActions;
@@ -306,6 +356,6 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
       </div>
     </div>
   );
-});
+};
 
 EndgameTrainingPage.displayName = 'EndgameTrainingPage';

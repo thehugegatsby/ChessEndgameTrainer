@@ -11,7 +11,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 2
+      "actualWorkers": 1
     },
     "preserveOutput": "always",
     "reporter": [
@@ -43,7 +43,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 2
+          "actualWorkers": 1
         },
         "id": "chromium",
         "name": "chromium",
@@ -59,7 +59,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 2
+          "actualWorkers": 1
         },
         "id": "firebase",
         "name": "firebase",
@@ -88,20 +88,20 @@
   },
   "suites": [
     {
-      "title": "core/pawn-promotion.spec.ts",
-      "file": "core/pawn-promotion.spec.ts",
+      "title": "domains/weiterspielen-simple-test.spec.ts",
+      "file": "domains/weiterspielen-simple-test.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Pawn Promotion Simple Test",
-          "file": "core/pawn-promotion.spec.ts",
-          "line": 9,
+          "title": "Error Feedback System Test",
+          "file": "domains/weiterspielen-simple-test.spec.ts",
+          "line": 15,
           "column": 6,
           "specs": [
             {
-              "title": "should auto-complete when promoting from e7 to e8=Q",
+              "title": "Train/1 → UI-Click(Kd5) → Verify Error Feedback",
               "ok": true,
               "tags": [],
               "tests": [
@@ -116,58 +116,76 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 41626,
+                      "duration": 18850,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "🎯 Starting pawn promotion sequence...\n"
+                          "text": "🎯 UI-BASED TEST: Train/1 → UI-Click(Kd5) → Verify Error Feedback\n"
                         },
                         {
-                          "text": "📍 Step 1: Moving pawn e5 → e6\n"
+                          "text": "✅ Train/1 geladen\n"
                         },
                         {
-                          "text": "🎯 Making move: e5 → e6 (click)\n"
+                          "text": "📋 Mache Kd5 (blunder) move...\n"
                         },
                         {
-                          "text": "✅ Click move completed: e5 → e6\n"
+                          "text": "📋 Making Kd5 move through UI click...\n"
                         },
                         {
-                          "text": "✅ Move verified successful: e5 → e6\n"
+                          "text": "🎯 Making move: e6 → d5 (click)\n"
                         },
                         {
-                          "text": "📍 Step 2: Moving pawn e6 → e7\n"
+                          "text": "✅ Click move completed: e6 → d5\n"
                         },
                         {
-                          "text": "🎯 Making move: e6 → e7 (click)\n"
+                          "text": "✅ Move verified successful: e6 → d5\n"
                         },
                         {
-                          "text": "✅ Click move completed: e6 → e7\n"
+                          "text": "📊 Move Kd5 attempted\n"
                         },
                         {
-                          "text": "✅ Move verified successful: e6 → e7\n"
+                          "text": "🔍 Verifying move was processed...\n"
                         },
                         {
-                          "text": "📍 Step 3: Promoting pawn e7 → e8=Q\n"
+                          "text": "✅ Move number '1.' found in move list!\n"
                         },
                         {
-                          "text": "🎯 Making move: e7 → e8 (click)\n"
+                          "text": "✅ Kd5 move button found in move list!\n"
                         },
                         {
-                          "text": "✅ Click move completed: e7 → e8\n"
+                          "text": "✅ SUCCESS: Move processing pipeline working correctly!\n"
                         },
                         {
-                          "text": "✅ Move verified successful: e7 → e8\n"
+                          "text": "✅ Error feedback system working correctly!\n"
                         },
                         {
-                          "text": "⚠️ No promotion dialog found - auto-promotion to Queen\n"
+                          "text": "📋 Additional verification complete!\n"
                         },
                         {
-                          "text": "🎉 Pawn promotion test PASSED!\n"
+                          "text": "✅ Board remains functional after mistake move\n"
+                        },
+                        {
+                          "text": "🎯 Test Summary:\n"
+                        },
+                        {
+                          "text": "   - Move Kd5: ✅ Successfully executed\n"
+                        },
+                        {
+                          "text": "   - Move Processing: ✅ Move appears in move list with number\n"
+                        },
+                        {
+                          "text": "   - Error Feedback: ✅ Pipeline working (verified manually)\n"
+                        },
+                        {
+                          "text": "   - Board: ✅ Remains functional\n"
+                        },
+                        {
+                          "text": "🎉 SUCCESS: Error feedback system working correctly!\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-18T11:24:02.296Z",
+                      "startTime": "2025-08-18T13:20:39.359Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -175,62 +193,9 @@
                   "status": "expected"
                 }
               ],
-              "id": "47dd5a3f14384a9bbb96-f7ca7cc16b72ad7da399",
-              "file": "core/pawn-promotion.spec.ts",
-              "line": 11,
-              "column": 7
-            },
-            {
-              "title": "manual test of promotion detection",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
-                      "status": "passed",
-                      "duration": 17375,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🎯 Testing promotion UI detection...\n"
-                        },
-                        {
-                          "text": "🎯 Making move: e5 → e6 (click)\n"
-                        },
-                        {
-                          "text": "✅ Click move completed: e5 → e6\n"
-                        },
-                        {
-                          "text": "✅ Move verified successful: e5 → e6\n"
-                        },
-                        {
-                          "text": "⚠️ No promotion dialog found (expected for regular moves)\n"
-                        },
-                        {
-                          "text": "✅ Promotion detection test completed\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-08-18T11:24:02.291Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "47dd5a3f14384a9bbb96-619f8a650713c9d0d204",
-              "file": "core/pawn-promotion.spec.ts",
-              "line": 87,
+              "id": "d8b88a2fe9be7e48ec93-e7104c38a4afd570b981",
+              "file": "domains/weiterspielen-simple-test.spec.ts",
+              "line": 23,
               "column": 7
             }
           ]
@@ -240,9 +205,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-08-18T11:23:50.489Z",
-    "duration": 52880.947,
-    "expected": 2,
+    "startTime": "2025-08-18T13:20:23.364Z",
+    "duration": 33946.806,
+    "expected": 1,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

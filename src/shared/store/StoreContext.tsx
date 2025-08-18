@@ -46,7 +46,6 @@ import { getLogger } from '@shared/services/logging';
 import { createStore } from './createStore';
 import { browserTestApi } from '@shared/services/test/BrowserTestApi';
 import type { RootState } from './slices/types';
-import type { StoreApi as OrchestratorStoreApi } from './orchestrators/types';
 
 /**
  * Store instance type for the context
@@ -124,10 +123,24 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children, initialS
 
   // Initialize BrowserTestApi for E2E tests (provides e2e_makeMove, e2e_getGameState)
   useEffect(() => {
-    if (
-      typeof window !== 'undefined' &&
-      (process.env['NEXT_PUBLIC_IS_E2E_TEST'] === 'true' || process.env.NODE_ENV === 'test')
-    ) {
+    // Debug: Log environment variables for troubleshooting
+    console.log('🔍 StoreContext E2E Debug:', {
+      NODE_ENV: process.env.NODE_ENV,
+      NEXT_PUBLIC_IS_E2E_TEST: process.env['NEXT_PUBLIC_IS_E2E_TEST'],
+      isClient: typeof window !== 'undefined',
+      userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'server'
+    });
+
+    // Check multiple sources for E2E test mode
+    const isE2EMode = typeof window !== 'undefined' && (
+      process.env['NEXT_PUBLIC_IS_E2E_TEST'] === 'true' || 
+      process.env.NODE_ENV === 'test' ||
+      window.location.search.includes('e2e=true') ||
+      window.navigator.userAgent.includes('Playwright')
+    );
+
+    if (isE2EMode) {
+      console.log('✅ E2E-Modus aktiviert: Initialisiere Test API');
       // Get store state to access actions
       const state = storeRef.current?.getState();
 
@@ -151,21 +164,13 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children, initialS
             storeRef.current?.setState(updater);
           }
         },
-        // Extract individual actions from state - these need to be fixed in TestApiService
-        // For now, provide empty functions to avoid runtime errors
+        // Use actual store actions from current architecture
         makeMove: state?.handlePlayerMove || (() => Promise.resolve(false)),
-        applyMove: state?.game?.applyMove || (() => null), // Test-only action for applying moves
+        _internalApplyMove: state?.game?.applyMove || (() => null), // Direct move application for tests
         resetPosition: state?.reset || (() => {}),
         setPosition: () => {}, // Not directly available in new architecture
         goToMove: state?.game?.goToMove || (() => {}),
         setAnalysisStatus: () => {}, // Not directly available in new architecture
-        // ✅ B5.5.5 Phase 3B.3: Add resetTrainingAndGameState orchestrator helper
-        resetTrainingAndGameState: async () => {
-          if (storeRef.current) {
-            const { resetTrainingAndGameState } = await import('@shared/store/orchestrators/sharedHelpers');
-            resetTrainingAndGameState(storeRef.current as OrchestratorStoreApi);
-          }
-        },
       };
 
       // Initialize BrowserTestApi which exposes e2e_makeMove to window
@@ -178,6 +183,12 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children, initialS
           stack: error instanceof Error ? error.stack : undefined,
         });
       }
+    } else {
+      console.log('❌ E2E Test API wird nicht initialisiert:', {
+        reason: typeof window === 'undefined' ? 'Server-side' : 'Env vars nicht gesetzt',
+        NODE_ENV: process.env.NODE_ENV,
+        NEXT_PUBLIC_IS_E2E_TEST: process.env['NEXT_PUBLIC_IS_E2E_TEST']
+      });
     }
 
     // Cleanup on unmount

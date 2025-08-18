@@ -5,16 +5,13 @@
  * to the window object for Playwright tests. Works with TestBridge for tablebase control.
  */
 
-import { TestApiService } from './TestApiService';
-import type { TestMoveResponse, TestGameState, TestTablebaseConfig } from './TestApiService';
-import type { TestBridge } from '@shared/types/test-bridge';
-import type { TablebaseData } from '@shared/types/evaluation';
-import { getLogger } from '@shared/services/logging';
-import type { RootState } from '@shared/store/slices/types';
-import type { Move as ChessJsMove } from 'chess.js';
-import type { EndgamePosition } from '@shared/types/endgame';
-
-const logger = getLogger().setContext('BrowserTestApi');
+import { TestApiService } from "./TestApiService";
+import type {
+  TestMoveResponse,
+  TestGameState,
+  TestTablebaseConfig,
+} from "./TestApiService";
+import type { TestBridge } from "@shared/types/test-bridge";
 
 /**
  * Browser Test API
@@ -42,12 +39,12 @@ const logger = getLogger().setContext('BrowserTestApi');
  * @example
  * ```typescript
  * // Browser usage (exposed to window)
- * const result = await window['__testApi'].makeMove('e2-e4');
- * const state = window['__testApi'].getGameState();
+ * const result = await window.__testApi.makeMove('e2-e4');
+ * const state = window.__testApi.getGameState();
  *
  * // Legacy compatibility
- * await window['e2e_makeMove']('Nf3');
- * const gameState = window['e2e_getGameState']();
+ * await window.e2e_makeMove('Nf3');
+ * const gameState = window.e2e_getGameState();
  * ```
  */
 export class BrowserTestApi {
@@ -67,7 +64,7 @@ export class BrowserTestApi {
    * TestBridge integration, and legacy compatibility methods. Only functions
    * in test environments for security.
    *
-   * @param {unknown} [storeAccess] - Store access object with actions and state
+   * @param {any} [storeAccess] - Store access object with actions and state
    * @returns {Promise<void>} Promise that resolves when initialization is complete
    *
    * @remarks
@@ -75,7 +72,7 @@ export class BrowserTestApi {
    * - Validates test environment (NODE_ENV=test or NEXT_PUBLIC_IS_E2E_TEST=true)
    * - Initializes underlying TestApiService
    * - Connects to TestBridge for tablebase control
-   * - Exposes modern API methods to window['__testApi']
+   * - Exposes modern API methods to window.__testApi
    * - Sets up legacy compatibility methods (e2e_makeMove, e2e_getGameState)
    * - Registers cleanup handlers for page unload
    *
@@ -83,25 +80,15 @@ export class BrowserTestApi {
    * ```typescript
    * const browserTestApi = new BrowserTestApi();
    * await browserTestApi.initialize(storeAccess);
-   * // Now window['__testApi'] is available
+   * // Now window.__testApi is available
    * ```
    */
-  public initialize(storeAccess?: {
-    getState: () => RootState;
-    subscribe: (listener: (state: RootState, prevState: RootState) => void) => () => void;
-    makeMove: (
-      move: ChessJsMove | { from: string; to: string; promotion?: string } | string
-    ) => void;
-    applyMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => void;
-    resetPosition: () => void;
-    setPosition: (position: EndgamePosition) => void;
-    goToMove: (moveIndex: number) => void;
-    setAnalysisStatus: (status: string) => void;
-    // ✅ B5.5.5 Phase 3B.3: Orchestrator helper for coordinated state reset
-    resetTrainingAndGameState: () => Promise<void>;
-  }): void {
-    if (process.env.NODE_ENV !== 'test' && process.env['NEXT_PUBLIC_IS_E2E_TEST'] !== 'true') {
-      logger.warn('Test API is only available in test environment');
+  public async initialize(storeAccess?: any): Promise<void> {
+    if (
+      process.env.NODE_ENV !== "test" &&
+      process.env['NEXT_PUBLIC_IS_E2E_TEST'] !== "true"
+    ) {
+      console.warn("Test API is only available in test environment");
       return;
     }
 
@@ -111,7 +98,9 @@ export class BrowserTestApi {
 
     // Wait for store access to be provided
     if (!storeAccess) {
-      logger.warn('BrowserTestApi: Store access not provided, delaying initialization');
+      console.warn(
+        "BrowserTestApi: Store access not provided, delaying initialization",
+      );
       return;
     }
 
@@ -119,15 +108,15 @@ export class BrowserTestApi {
     this.testApi.initialize(storeAccess);
 
     // Get TestBridge from window (set by _app.tsx)
-    const windowWithBridge = window as unknown as { __E2E_TEST_BRIDGE__?: TestBridge };
-    this.testBridge = windowWithBridge.__E2E_TEST_BRIDGE__ || null;
+    this.testBridge = (window as any).__E2E_TEST_BRIDGE__ || null;
     if (!this.testBridge) {
-      logger.warn('TestBridge not found on window - tablebase control will not be available');
+      console.warn(
+        "TestBridge not found on window - tablebase control will not be available",
+      );
     }
 
     // Expose methods to window
-    const windowWithApi = window as unknown as Record<string, unknown>;
-    windowWithApi['__testApi'] = {
+    (window as any).__testApi = {
       makeMove: this.makeMove.bind(this),
       makeValidatedMove: this.makeValidatedMove.bind(this),
       getGameState: this.getGameState.bind(this),
@@ -138,9 +127,25 @@ export class BrowserTestApi {
       cleanup: this.cleanup.bind(this),
     };
 
+    // Legacy compatibility - expose old API names
+    /**
+     *
+     * @param move
+     */
+    (window as any).e2e_makeMove = async (move: string) => {
+      const result = await this.makeMove(move);
+      return result;
+    };
+
+    /**
+     *
+     */
+    (window as any).e2e_getGameState = () => {
+      return this.getGameState();
+    };
 
     this.initialized = true;
-    logger.info('Browser Test API initialized');
+    console.log("Browser Test API initialized");
   }
 
   /**
@@ -168,14 +173,15 @@ export class BrowserTestApi {
    * // Automatic cleanup on page unload (already handled)
    * ```
    */
-  public cleanup(): void {
+  public async cleanup(): Promise<void> {
     if (!this.initialized) {
       return;
     }
 
     // Remove from window
-    const windowWithApi = window as unknown as Record<string, unknown>;
-    delete windowWithApi['__testApi'];
+    delete (window as any).__testApi;
+    delete (window as any).e2e_makeMove;
+    delete (window as any).e2e_getGameState;
 
     // Clean up test API
     this.testApi.cleanup();
@@ -194,8 +200,8 @@ export class BrowserTestApi {
    * @param {string} move - Move in algebraic notation or from-to format
    * @returns {Promise<TestMoveResponse>} Promise resolving to move execution result
    */
-  private makeMove(move: string): Promise<TestMoveResponse> {
-    return Promise.resolve(this.testApi.makeMove(move));
+  private async makeMove(move: string): Promise<TestMoveResponse> {
+    return this.testApi.makeMove(move);
   }
 
   /**
@@ -209,8 +215,8 @@ export class BrowserTestApi {
    * @param {string} move - Move in algebraic notation or from-to format
    * @returns {Promise<TestMoveResponse>} Promise resolving to move execution result
    */
-  private makeValidatedMove(move: string): Promise<TestMoveResponse> {
-    return Promise.resolve(this.testApi.makeValidatedMove(move));
+  private async makeValidatedMove(move: string): Promise<TestMoveResponse> {
+    return this.testApi.makeValidatedMove(move);
   }
 
   /**
@@ -223,7 +229,7 @@ export class BrowserTestApi {
   /**
    * Reset game through test API
    */
-  private resetGame(): Promise<void> {
+  private async resetGame(): Promise<void> {
     return this.testApi.resetGame();
   }
 
@@ -239,8 +245,8 @@ export class BrowserTestApi {
    * Trigger tablebase analysis (instant with mock)
    * @param timeout
    */
-  private triggerTablebaseAnalysis(timeout?: number): Promise<boolean> {
-    return Promise.resolve(this.testApi.triggerTablebaseAnalysis(timeout));
+  private async triggerTablebaseAnalysis(timeout?: number): Promise<boolean> {
+    return this.testApi.triggerTablebaseAnalysis(timeout);
   }
 
   /**
@@ -248,9 +254,11 @@ export class BrowserTestApi {
    * @param fen
    * @param analysis
    */
-  private addMockTablebaseResponse(fen: string, analysis: TablebaseData): void {
+  private addMockTablebaseResponse(fen: string, analysis: any): void {
     if (!this.testBridge) {
-      logger.error('TestBridge not available - cannot add mock tablebase response');
+      console.error(
+        "TestBridge not available - cannot add mock tablebase response",
+      );
       return;
     }
 
@@ -276,8 +284,8 @@ export class BrowserTestApi {
 export const browserTestApi = new BrowserTestApi();
 
 // Auto-cleanup on page unload
-if (typeof window !== 'undefined') {
-  window.addEventListener('beforeunload', () => {
+if (typeof window !== "undefined") {
+  window.addEventListener("beforeunload", () => {
     browserTestApi.cleanup();
   });
 }
