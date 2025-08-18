@@ -7,8 +7,8 @@
  */
 
 import { useEffect } from 'react';
-import { trainingEvents } from '../events/EventEmitter';
-import type { TrainingEvents } from '../events/EventEmitter';
+import { trainingEvents } from '@domains/training/events/EventEmitter';
+import type { TrainingEvents } from '@domains/training/events/EventEmitter';
 import { useStore } from '@shared/store/rootStore';
 // Event-driven is now standard - no feature flag needed
 import type { WritableDraft } from 'immer';

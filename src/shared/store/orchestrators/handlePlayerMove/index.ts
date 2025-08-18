@@ -33,7 +33,7 @@ import { getServerPositionService } from '@shared/services/database/serverPositi
 import { MoveValidator } from './MoveValidator';
 import { MoveQualityEvaluator } from './MoveQualityEvaluator';
 import { PawnPromotionHandler } from './PawnPromotionHandler';
-import { EventBasedMoveDialogManager } from '../../../../features/training/events/EventBasedMoveDialogManager';
+import { EventBasedMoveDialogManager } from '@domains/training/events/EventBasedMoveDialogManager';
 import { getOpponentTurnManager } from './OpponentTurnHandler';
 import { GameStateService } from '@domains/game/services/GameStateService';
 import { ChessGameLogic } from '@domains/game/engine/ChessGameLogic';

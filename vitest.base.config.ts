@@ -33,7 +33,7 @@ export default defineConfig({
     environment: 'happy-dom',
 
     // Critical: setupFiles must be loaded in EVERY project to ensure Observer mocks work
-    setupFiles: [path.resolve(__dirname, './src/features/test-setup.ts')],
+    setupFiles: [path.resolve(__dirname, './src/tests/setup/global-observer-setup.ts')],
 
     // Shared test configuration
     pool: 'forks',

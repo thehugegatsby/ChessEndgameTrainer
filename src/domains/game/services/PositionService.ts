@@ -6,6 +6,7 @@
 
 import { getLogger } from '@shared/services/logging/Logger';
 import { ErrorService } from '@shared/services/ErrorService';
+import { tablebaseService } from '@domains/evaluation';
 import type { ChessGameLogicInterface } from '@domains/game/engine/types';
 import type { ValidatedMove } from '@shared/types/chess';
 import type { 
@@ -58,13 +59,47 @@ export class PositionService implements PositionServiceInterface {
     };
   }
 
-  evaluatePosition(_fen?: string): Promise<PositionEvaluationResult | null> {
-    // TODO: Implement position evaluation logic
-    // - Use provided FEN or get current FEN
-    // - Call tablebase service for evaluation
-    // - Transform result to PositionEvaluationResult
-    // - Handle evaluation errors
-    throw new Error('PositionService.evaluatePosition not implemented');
+  async evaluatePosition(fen?: string): Promise<PositionEvaluationResult | null> {
+    try {
+      const currentFen = fen || this._chessGameLogic.getFen();
+      this.logger.debug('Evaluating position', { fen: currentFen });
+
+      const evaluation = await tablebaseService.getEvaluation(currentFen);
+      
+      if (!evaluation.isAvailable) {
+        this.logger.debug('Tablebase not available for position', { fen: currentFen });
+        return null;
+      }
+
+      // Transform tablebase result to PositionEvaluationResult
+      const result: PositionEvaluationResult = {
+        wdl: evaluation.result!.wdl,
+        category: evaluation.result!.category as 'win' | 'loss' | 'draw' | 'unknown'
+      };
+      
+      // Only add dtz if it exists
+      if (evaluation.result!.dtz !== null) {
+        result.dtz = evaluation.result!.dtz;
+      }
+
+      this.logger.debug('Position evaluation completed', { 
+        fen: currentFen,
+        result 
+      });
+
+      return result;
+    } catch (error) {
+      ErrorService.handleUIError(
+        error as Error,
+        'PositionService',
+        {
+          action: 'evaluate-position',
+          additionalData: { fen: fen || 'current' }
+        }
+      );
+      this.logger.error('Failed to evaluate position', error);
+      return null;
+    }
   }
 
   evaluateMoveQuality(
@@ -105,13 +140,50 @@ export class PositionService implements PositionServiceInterface {
     return Promise.resolve(result);
   }
 
-  getBestMove(_fen?: string): Promise<string | null> {
-    // TODO: Implement best move calculation
-    // - Use provided FEN or get current FEN from chessEngine
-    // - First, attempt to get move from tablebase
-    // - If tablebase doesn't apply (>7 pieces), fall back to chessEngine's analysis
-    // - Return the best move in UCI format
-    throw new Error('PositionService.getBestMove not implemented');
+  async getBestMove(fen?: string): Promise<string | null> {
+    try {
+      const currentFen = fen || this._chessGameLogic.getFen();
+      this.logger.debug('Getting best move for position', { fen: currentFen });
+
+      // First, attempt to get move from tablebase
+      const moves = await tablebaseService.getTopMoves(currentFen, 1);
+      
+      if (!moves.isAvailable) {
+        this.logger.debug('Tablebase not available for best move calculation', { fen: currentFen });
+        // TODO: Future enhancement - fall back to chess engine analysis
+        // For now, return null when tablebase is not available
+        return null;
+      }
+
+      if (!moves.moves || moves.moves.length === 0) {
+        this.logger.debug('No moves found in tablebase', { fen: currentFen });
+        return null;
+      }
+
+      // After the length check, we know moves.moves has at least one element
+      // The '!' after [0] tells TypeScript this element definitely exists
+      const firstMove = moves.moves[0]!;
+      const bestMove = firstMove.uci;
+      
+      this.logger.debug('Best move calculated', { 
+        fen: currentFen,
+        bestMove,
+        wdl: firstMove.wdl
+      });
+
+      return bestMove;
+    } catch (error) {
+      ErrorService.handleUIError(
+        error as Error,
+        'PositionService',
+        {
+          action: 'get-best-move',
+          additionalData: { fen: fen || 'current' }
+        }
+      );
+      this.logger.error('Failed to get best move', error);
+      return null;
+    }
   }
 
 

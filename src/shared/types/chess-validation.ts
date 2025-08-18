@@ -245,7 +245,7 @@ export function isChessPiece(value: unknown): value is ChessPiece {
     'code' in value &&
     'color' in value &&
     'kind' in value &&
-    isPieceCode((value as any).code)
+    isPieceCode((value as Record<string, unknown>)['code'])
   );
 }
 

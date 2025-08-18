@@ -8,6 +8,16 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { PositionService } from './PositionService';
 import type { ChessGameLogicInterface } from '@domains/game/engine/types';
 
+// Mock the tablebase service
+vi.mock('@domains/evaluation', () => ({
+  tablebaseService: {
+    getEvaluation: vi.fn(),
+    getTopMoves: vi.fn()
+  }
+}));
+
+import { tablebaseService } from '@domains/evaluation';
+
 const TEST_POSITIONS = {
   STARTING_POSITION: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
   AFTER_E4: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
@@ -234,6 +244,251 @@ describe('PositionService', () => {
       const result = positionService.loadFromFEN(fenWithSpaces);
       
       expect(result).toBe(true);
+    });
+  });
+
+  describe('evaluatePosition()', () => {
+    const mockTablebaseService = vi.mocked(tablebaseService);
+
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it('should return evaluation result when tablebase is available', async () => {
+      // Arrange
+      const testFen = TEST_POSITIONS.KPK_ENDGAME;
+      mockChessGameLogic.getFen = vi.fn().mockReturnValue(testFen);
+      mockTablebaseService.getEvaluation.mockResolvedValue({
+        isAvailable: true,
+        result: {
+          wdl: 2,
+          category: 'win',
+          dtz: 23,
+          dtm: 23,
+          precise: true
+        }
+      });
+
+      // Act
+      const result = await positionService.evaluatePosition();
+
+      // Assert
+      expect(result).toEqual({
+        wdl: 2,
+        category: 'win',
+        dtz: 23
+      });
+      expect(mockTablebaseService.getEvaluation).toHaveBeenCalledWith(testFen);
+    });
+
+    it('should use provided FEN when specified', async () => {
+      // Arrange
+      const customFen = TEST_POSITIONS.AFTER_E4;
+      mockTablebaseService.getEvaluation.mockResolvedValue({
+        isAvailable: true,
+        result: {
+          wdl: 0,
+          category: 'draw',
+          dtz: null,
+          dtm: null,
+          precise: true
+        }
+      });
+
+      // Act
+      const result = await positionService.evaluatePosition(customFen);
+
+      // Assert
+      expect(result).toEqual({
+        wdl: 0,
+        category: 'draw'
+      });
+      expect(mockTablebaseService.getEvaluation).toHaveBeenCalledWith(customFen);
+      expect(mockChessGameLogic.getFen).not.toHaveBeenCalled();
+    });
+
+    it('should return null when tablebase is not available', async () => {
+      // Arrange
+      const testFen = TEST_POSITIONS.STARTING_POSITION;
+      mockChessGameLogic.getFen = vi.fn().mockReturnValue(testFen);
+      mockTablebaseService.getEvaluation.mockResolvedValue({
+        isAvailable: false
+      });
+
+      // Act
+      const result = await positionService.evaluatePosition();
+
+      // Assert
+      expect(result).toBeNull();
+      expect(mockTablebaseService.getEvaluation).toHaveBeenCalledWith(testFen);
+    });
+
+    it('should handle tablebase service errors gracefully', async () => {
+      // Arrange
+      const testFen = TEST_POSITIONS.KPK_ENDGAME;
+      mockChessGameLogic.getFen = vi.fn().mockReturnValue(testFen);
+      mockTablebaseService.getEvaluation.mockRejectedValue(new Error('API Error'));
+
+      // Act
+      const result = await positionService.evaluatePosition();
+
+      // Assert
+      expect(result).toBeNull();
+    });
+
+    it('should not include dtz when it is null', async () => {
+      // Arrange
+      const testFen = TEST_POSITIONS.KPK_ENDGAME;
+      mockChessGameLogic.getFen = vi.fn().mockReturnValue(testFen);
+      mockTablebaseService.getEvaluation.mockResolvedValue({
+        isAvailable: true,
+        result: {
+          wdl: -2,
+          category: 'loss',
+          dtz: null,
+          dtm: 15,
+          precise: true
+        }
+      });
+
+      // Act
+      const result = await positionService.evaluatePosition();
+
+      // Assert
+      expect(result).toEqual({
+        wdl: -2,
+        category: 'loss'
+      });
+      expect(result).not.toHaveProperty('dtz');
+    });
+  });
+
+  describe('getBestMove()', () => {
+    const mockTablebaseService = vi.mocked(tablebaseService);
+
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it('should return best move when tablebase has moves', async () => {
+      // Arrange
+      const testFen = TEST_POSITIONS.KPK_ENDGAME;
+      mockChessGameLogic.getFen = vi.fn().mockReturnValue(testFen);
+      mockTablebaseService.getTopMoves.mockResolvedValue({
+        isAvailable: true,
+        moves: [
+          {
+            uci: 'e5e6',
+            san: 'e6',
+            wdl: 2,
+            dtz: 22,
+            dtm: 22,
+            category: 'win'
+          },
+          {
+            uci: 'e6e7',
+            san: 'Ke7',
+            wdl: 2,
+            dtz: 24,
+            dtm: 24,
+            category: 'win'
+          }
+        ]
+      });
+
+      // Act
+      const result = await positionService.getBestMove();
+
+      // Assert
+      expect(result).toBe('e5e6');
+      expect(mockTablebaseService.getTopMoves).toHaveBeenCalledWith(testFen, 1);
+    });
+
+    it('should use provided FEN when specified', async () => {
+      // Arrange
+      const customFen = TEST_POSITIONS.AFTER_E4;
+      mockTablebaseService.getTopMoves.mockResolvedValue({
+        isAvailable: true,
+        moves: [
+          {
+            uci: 'e7e5',
+            san: 'e5',
+            wdl: 0,
+            dtz: null,
+            dtm: null,
+            category: 'draw'
+          }
+        ]
+      });
+
+      // Act
+      const result = await positionService.getBestMove(customFen);
+
+      // Assert
+      expect(result).toBe('e7e5');
+      expect(mockTablebaseService.getTopMoves).toHaveBeenCalledWith(customFen, 1);
+      expect(mockChessGameLogic.getFen).not.toHaveBeenCalled();
+    });
+
+    it('should return null when tablebase is not available', async () => {
+      // Arrange
+      const testFen = TEST_POSITIONS.STARTING_POSITION;
+      mockChessGameLogic.getFen = vi.fn().mockReturnValue(testFen);
+      mockTablebaseService.getTopMoves.mockResolvedValue({
+        isAvailable: false
+      });
+
+      // Act
+      const result = await positionService.getBestMove();
+
+      // Assert
+      expect(result).toBeNull();
+      expect(mockTablebaseService.getTopMoves).toHaveBeenCalledWith(testFen, 1);
+    });
+
+    it('should return null when no moves are available', async () => {
+      // Arrange
+      const testFen = TEST_POSITIONS.KPK_ENDGAME;
+      mockChessGameLogic.getFen = vi.fn().mockReturnValue(testFen);
+      mockTablebaseService.getTopMoves.mockResolvedValue({
+        isAvailable: true,
+        moves: []
+      });
+
+      // Act
+      const result = await positionService.getBestMove();
+
+      // Assert
+      expect(result).toBeNull();
+    });
+
+    it('should return null when moves array is undefined', async () => {
+      // Arrange
+      const testFen = TEST_POSITIONS.KPK_ENDGAME;
+      mockChessGameLogic.getFen = vi.fn().mockReturnValue(testFen);
+      mockTablebaseService.getTopMoves.mockResolvedValue({
+        isAvailable: true
+        // moves is undefined
+      });
+
+      // Act
+      const result = await positionService.getBestMove();
+
+      // Assert
+      expect(result).toBeNull();
+    });
+
+    it('should handle tablebase service errors gracefully', async () => {
+      // Arrange
+      const testFen = TEST_POSITIONS.KPK_ENDGAME;
+      mockChessGameLogic.getFen = vi.fn().mockReturnValue(testFen);
+      mockTablebaseService.getTopMoves.mockRejectedValue(new Error('Network Error'));
+
+      // Act
+      const result = await positionService.getBestMove();
+
+      // Assert
+      expect(result).toBeNull();
     });
   });
 });

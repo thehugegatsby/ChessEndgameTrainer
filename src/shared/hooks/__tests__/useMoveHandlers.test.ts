@@ -362,17 +362,28 @@ describe('useMoveHandlers', () => {
     });
 
     it('validates piece color matches current turn', () => {
-      // Mock Chess to return white's turn
-      vi.mocked(Chess).mockImplementation(
-        () =>
-          ({
-            turn: () => 'w',
-          }) as any
-      );
+      // Mock the domain services used in the new piece color validation logic
+      const mockChessGameLogic = {
+        loadFen: vi.fn(),
+        getFen: vi.fn(() => 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'),
+      };
+      
+      const mockGameStateService = {
+        getTurn: vi.fn(() => 'white'), // New domain service returns 'white' not 'w'
+      };
+
+      // Mock the domain service constructors
+      vi.doMock('@domains/game/engine/ChessGameLogic', () => ({
+        ChessGameLogic: vi.fn(() => mockChessGameLogic),
+      }));
+      
+      vi.doMock('@domains/game/services/GameStateService', () => ({
+        GameStateService: vi.fn(() => mockGameStateService),
+      }));
 
       const { result } = renderHook(() => useMoveHandlers(defaultProps));
 
-      // White piece should be selectable
+      // White piece should be selectable when it's white's turn
       act(() => {
         result.current.onSquareClick({
           piece: 'wP',

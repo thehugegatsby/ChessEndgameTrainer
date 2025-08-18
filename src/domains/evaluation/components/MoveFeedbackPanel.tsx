@@ -10,9 +10,9 @@
 'use client';
 
 import React from 'react';
-import { useTrainingEvent } from '../../training/components/TrainingEventListener';
+import { useTrainingEvent } from '@domains/training/components/TrainingEventListener';
 import { useStore } from '@shared/store/rootStore';
-import type { TablebaseMove } from '../types/interfaces';
+import type { TablebaseMove } from '@domains/evaluation/types/interfaces';
 
 /**
  * Props for the MoveFeedbackPanel component

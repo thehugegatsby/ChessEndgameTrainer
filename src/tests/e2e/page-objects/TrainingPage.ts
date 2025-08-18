@@ -274,6 +274,12 @@ export class TrainingPage {
    * @param positionId Expected position number
    */
   async assertAtPosition(positionId: number): Promise<void> {
+    // Wait for navigation to complete with proper timeout
+    await this.page.waitForURL(`**/train/${positionId}**`, { 
+      timeout: 10000,
+      waitUntil: 'networkidle' 
+    });
+    
     const currentUrl = this.page.url();
     expect(currentUrl).toMatch(new RegExp(`/train/${positionId}(?:\\?|$)`));
   }

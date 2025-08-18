@@ -5,7 +5,7 @@
  * This keeps the service layer clean of UI concerns.
  */
 
-import type { TablebaseEvaluation, TablebaseMove } from '../types/interfaces';
+import type { TablebaseEvaluation, TablebaseMove } from '@domains/evaluation/types/interfaces';
 
 /**
  * Format evaluation to German text

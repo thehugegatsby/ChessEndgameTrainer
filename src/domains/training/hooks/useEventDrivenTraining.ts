@@ -6,7 +6,7 @@
  * Previously used for A/B testing, now the standard implementation.
  */
 
-import { EventBasedMoveDialogManager } from '../events/EventBasedMoveDialogManager';
+import { EventBasedMoveDialogManager } from '@domains/training/events/EventBasedMoveDialogManager';
 
 /**
  * Hook to get the dialog manager (always event-based now)

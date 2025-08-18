@@ -11,7 +11,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 1
+      "actualWorkers": 6
     },
     "preserveOutput": "always",
     "reporter": [
@@ -43,7 +43,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 6
         },
         "id": "chromium",
         "name": "chromium",
@@ -59,7 +59,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 6
         },
         "id": "firebase",
         "name": "firebase",
@@ -102,7 +102,7 @@
           "specs": [
             {
               "title": "🔥 CRITICAL: Complete training workflow (full journey)",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -115,28 +115,9 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 21917,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/\\/train\\/2(?:\\?|$)/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3009/train/1\"\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/\\/train\\/2(?:\\?|$)/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3009/train/1\"\u001b[39m\n    at TrainingPage.assertAtPosition (/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/page-objects/TrainingPage.ts:278:24)\n    at /home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/core/smoke-workflow.spec.ts:66:24",
-                        "location": {
-                          "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/page-objects/TrainingPage.ts",
-                          "column": 24,
-                          "line": 278
-                        },
-                        "snippet": "\u001b[90m   at \u001b[39mpage-objects/TrainingPage.ts:278\n\n  276 |   async assertAtPosition(positionId: number): Promise<void> {\n  277 |     const currentUrl = this.page.url();\n> 278 |     expect(currentUrl).toMatch(new RegExp(`/train/${positionId}(?:\\\\?|$)`));\n      |                        ^\n  279 |   }\n  280 |\n  281 |   /**"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/page-objects/TrainingPage.ts",
-                            "column": 24,
-                            "line": 278
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/\\/train\\/2(?:\\?|$)/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3009/train/1\"\u001b[39m\n\n   at page-objects/TrainingPage.ts:278\n\n  276 |   async assertAtPosition(positionId: number): Promise<void> {\n  277 |     const currentUrl = this.page.url();\n> 278 |     expect(currentUrl).toMatch(new RegExp(`/train/${positionId}(?:\\\\?|$)`));\n      |                        ^\n  279 |   }\n  280 |\n  281 |   /**\n    at TrainingPage.assertAtPosition (/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/page-objects/TrainingPage.ts:278:24)\n    at /home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/core/smoke-workflow.spec.ts:66:24"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 23295,
+                      "errors": [],
                       "stdout": [
                         {
                           "text": "🚀 Starting complete training workflow test...\n"
@@ -209,37 +190,264 @@
                         },
                         {
                           "text": "📍 Step 5: Verifying new position...\n"
+                        },
+                        {
+                          "text": "🎉 Complete workflow test PASSED!\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-18T09:55:25.991Z",
+                      "startTime": "2025-08-18T10:42:41.556Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/core-smoke-workflow-🚀-E2E-f4682-ning-workflow-full-journey--chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/core-smoke-workflow-🚀-E2E-f4682-ning-workflow-full-journey--chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/page-objects/TrainingPage.ts",
-                        "column": 24,
-                        "line": 278
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "17a2aa238a2d1086b48f-3233a9f21897183d0967",
               "file": "core/smoke-workflow.spec.ts",
               "line": 28,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "⚡ Quick Smoke Tests",
+          "file": "core/smoke-workflow.spec.ts",
+          "line": 73,
+          "column": 6,
+          "specs": [
+            {
+              "title": "🩺 App loads without errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 2717,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🧪 Quick health check...\n"
+                        },
+                        {
+                          "text": "✅ Health check passed: \"Chess Endgame Trainer\"\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T10:42:41.548Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "17a2aa238a2d1086b48f-a5b4efdb6962affb8037",
+              "file": "core/smoke-workflow.spec.ts",
+              "line": 80,
+              "column": 7
+            },
+            {
+              "title": "🎯 Training page loads board",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 2798,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🧪 Testing training page loads...\n"
+                        },
+                        {
+                          "text": "✅ Training board loads successfully\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T10:42:41.558Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "17a2aa238a2d1086b48f-5b1127aa82533d66f98e",
+              "file": "core/smoke-workflow.spec.ts",
+              "line": 105,
+              "column": 7
+            },
+            {
+              "title": "🔗 Basic navigation works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 5662,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🧪 Testing basic navigation...\n"
+                        },
+                        {
+                          "text": "✅ Basic navigation works\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T10:42:41.562Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "17a2aa238a2d1086b48f-c9292f6562cd98cf75a1",
+              "file": "core/smoke-workflow.spec.ts",
+              "line": 115,
+              "column": 7
+            },
+            {
+              "title": "⚡ Performance check - loads within 10 seconds",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 2790,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🧪 Testing load performance...\n"
+                        },
+                        {
+                          "text": "⏱️  Load time: 2617ms\n"
+                        },
+                        {
+                          "text": "✅ Performance check passed\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T10:42:41.554Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "17a2aa238a2d1086b48f-9c027f31660c1f84cd36",
+              "file": "core/smoke-workflow.spec.ts",
+              "line": 133,
+              "column": 7
+            },
+            {
+              "title": "🎮 Both interaction methods work",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 5,
+                      "status": "passed",
+                      "duration": 31366,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🧪 Testing click and drag interactions...\n"
+                        },
+                        {
+                          "text": "🎯 Making move: e6 → d6 (click)\n"
+                        },
+                        {
+                          "text": "✅ Click move completed: e6 → d6\n"
+                        },
+                        {
+                          "text": "✅ Move verified successful: e6 → d6\n"
+                        },
+                        {
+                          "text": "✅ Click interaction works\n"
+                        },
+                        {
+                          "text": "🎯 Making move: e6 → d6 (drag)\n"
+                        },
+                        {
+                          "text": "✅ Drag move completed: e6 → d6\n"
+                        },
+                        {
+                          "text": "✅ Move verified successful: e6 → d6\n"
+                        },
+                        {
+                          "text": "✅ Drag interaction works\n"
+                        },
+                        {
+                          "text": "✅ Interaction methods tested - Click: ✅, Drag: ✅\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T10:42:41.561Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "17a2aa238a2d1086b48f-bdb2484d04e3a3e0bc71",
+              "file": "core/smoke-workflow.spec.ts",
+              "line": 149,
               "column": 7
             }
           ]
@@ -249,11 +457,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-08-18T09:55:14.562Z",
-    "duration": 33671.969,
-    "expected": 0,
+    "startTime": "2025-08-18T10:42:29.941Z",
+    "duration": 42599.799999999996,
+    "expected": 6,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 0,
     "flaky": 0
   }
 }

@@ -532,10 +532,14 @@ export const useMoveHandlers = ({
               pieceFirstChar: piece?.[0],
               pieceType: typeof piece,
               currentTurn,
-              isCorrectColor: pieceColor === currentTurn
+              currentTurnChar: currentTurn === 'white' ? 'w' : 'b',
+              isCorrectColor: pieceColor === (currentTurn === 'white' ? 'w' : 'b')
             });
 
-            if (pieceColor === currentTurn) {
+            // Convert currentTurn to single character for comparison with pieceColor
+            const currentTurnChar = currentTurn === 'white' ? 'w' : 'b';
+            
+            if (pieceColor === currentTurnChar) {
               setSelectedSquare(square);
               console.info(`✅ [MOVE CHAIN] onSquareClick: Selected square ${square}`);
             } else {

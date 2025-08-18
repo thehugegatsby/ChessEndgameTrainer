@@ -7,8 +7,8 @@
  * and makes testing easier.
  */
 
-import { trainingEvents } from './EventEmitter';
-import type { TrainingEvents } from './EventEmitter';
+import { trainingEvents } from '@domains/training/events/EventEmitter';
+import type { TrainingEvents } from '@domains/training/events/EventEmitter';
 
 // WDL change thresholds
 const MAJOR_MISTAKE_THRESHOLD = -50;
