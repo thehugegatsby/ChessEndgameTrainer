@@ -130,11 +130,11 @@ class AnalysisService {
 describe('TablebaseService', () => {
   it('should use cache manager correctly', async () => {
     const mockCache = {
-      get: jest.fn().mockReturnValue(undefined),
-      set: jest.fn(),
-      has: jest.fn().mockReturnValue(false),
-      delete: jest.fn(),
-      clear: jest.fn(),
+      get: vi.fn().mockReturnValue(undefined),
+      set: vi.fn(),
+      has: vi.fn().mockReturnValue(false),
+      delete: vi.fn(),
+      clear: vi.fn(),
       size: 0,
     };
 
@@ -156,7 +156,7 @@ it('should prevent cache stampede', async () => {
   let apiCallCount = 0;
 
   // Mock API to count calls
-  service.fetchFromAPI = jest.fn().mockImplementation(() => {
+  service.fetchFromAPI = vi.fn().mockImplementation(() => {
     apiCallCount++;
     return new Promise(resolve => setTimeout(() => resolve(testData), 100));
   });

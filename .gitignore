@@ -19,7 +19,8 @@ node_modules/
 /.npmrc
 /tsconfig.json
 /.eslintrc.json
-/jest.config.js
+# Legacy Jest config (migrated to Vitest)
+# /jest.config.js
 /vitest.config.ts
 /next.config.js
 /postcss.config.js

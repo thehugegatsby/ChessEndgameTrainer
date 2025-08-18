@@ -202,10 +202,10 @@ import { formatEvaluation } from '@shared/utils/chess/evaluation';
 }
 ```
 
-### Jest Module Mapping
+### Vitest Module Mapping
 
-```javascript
-// jest.config.js moduleNameMapper
+```typescript
+// vitest.config.ts alias configuration
 moduleNameMapper: {
   '^@shared/(.*)$': '<rootDir>/shared/$1',
   '^@shared/components/(.*)$': '<rootDir>/shared/components/$1',

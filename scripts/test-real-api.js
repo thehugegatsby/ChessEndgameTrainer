@@ -16,18 +16,17 @@ console.log('🔍 Running real API integration tests...');
 console.log('⚠️  These tests require internet connection and may be rate limited.');
 console.log('');
 
-// Run jest with the real API test file
+// Run vitest with the real API test file
 const testFile = path.join(
   __dirname,
   '..',
-  'tests',
-  'integration',
+  'src/tests/integration',
   'tablebase-real-api.integration.spec.ts'
 );
 
-const jest = spawn(
-  'npx',
-  ['jest', testFile, '--config=tests/jest.config.integration.js', '--verbose'],
+const vitest = spawn(
+  'pnpm',
+  ['vitest', 'run', testFile, '--config=config/testing/vitest.integration.config.ts'],
   {
     stdio: 'inherit',
     env: {
@@ -37,7 +36,7 @@ const jest = spawn(
   }
 );
 
-jest.on('close', code => {
+vitest.on('close', code => {
   if (code === 0) {
     console.log('\n✅ Real API integration tests passed!');
   } else {

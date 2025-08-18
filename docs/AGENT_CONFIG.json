@@ -155,9 +155,9 @@
         "step": 4,
         "name": "TESTING_GATE",
         "actions": [
-          "Run 'npm test' - all tests must pass",
-          "Run 'npm run lint' - no errors allowed",
-          "Run 'npm run build' - build must succeed",
+          "Run 'pnpm test' - all tests must pass",
+          "Run 'pnpm run lint' - no errors allowed",
+          "Run 'pnpm run build' - build must succeed",
           "Test coverage must meet minimums",
           "Manual testing for UI changes"
         ],

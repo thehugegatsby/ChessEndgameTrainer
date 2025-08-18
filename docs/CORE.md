@@ -147,14 +147,14 @@ src/features/training/events/EventBasedMoveDialogManager.ts # Dialog handling �
 
 **NICHT existierende Dateien** (oft falsch referenziert):
 
-- ❌ `ChessService.ts` (GELÖSCHT - nutze chess-logic.ts pure functions)
+- ❌ `ChessService.ts` (MIGRIERT 2025-08-17 - nutze @shared/utils/chess-logic.ts pure functions)
 - ❌ `MoveDialogManager.ts` (nutze stattdessen EventBasedMoveDialogManager)
-- ❌ `SpacedRepetitionService` (wurde entfernt)
-- ❌ `ProgressService` (wurde entfernt)
+- ❌ `SpacedRepetitionService` (YAGNI cleanup 2025-01-14)
+- ❌ `ProgressService` (YAGNI cleanup 2025-01-14)
 
 ## Testing Strategy
 
-- **Framework**: Vitest (Jest removed)
+- **Framework**: Vitest (Jest→Vitest migration completed 2025-01-14)
 - **Structure**: `src/tests/unit/`, `src/features/*/`
 - **WSL Critical**: `pnpm test file.tsx` (never use `--`)
 

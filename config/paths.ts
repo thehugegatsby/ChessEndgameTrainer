@@ -44,8 +44,8 @@ export const testingConfigDir = resolve(configDir, 'testing');
 export const lintingConfigDir = resolve(configDir, 'linting');
 
 // Common file patterns for reuse
-export const testSetupFile = resolve(testingConfigDir, 'jest.setup.ts');
-export const integrationSetupFile = resolve(testingConfigDir, 'jest.setup.integration.ts');
+export const testSetupFile = resolve(testingConfigDir, 'vitest.setup.ts');
+export const integrationSetupFile = resolve(testingConfigDir, 'vitest.setup.integration.ts');
 export const featuresTestSetup = resolve(featuresDir, 'test-setup.ts');
 
 // Mock file paths

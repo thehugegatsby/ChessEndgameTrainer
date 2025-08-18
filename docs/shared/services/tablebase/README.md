@@ -107,9 +107,9 @@ const TABLEBASE_CONFIG = {
 
 ```typescript
 // Mock tablebase responses
-jest.mock('@shared/services/TablebaseService', () => ({
+vi.mock('@shared/services/TablebaseService', () => ({
   tablebaseService: {
-    getEvaluation: jest.fn().mockResolvedValue({
+    getEvaluation: vi.fn().mockResolvedValue({
       isAvailable: true,
       result: { wdl: 2, dtz: 5, category: 'win' },
     }),

@@ -367,18 +367,18 @@ dispatch(makeMove('e4'));
 
 ```typescript
 describe('ChessService', () => {
-  let mockEngine: jest.Mocked<IChessEngine>;
-  let mockValidator: jest.Mocked<IMoveValidator>;
-  let mockHistory: jest.Mocked<IMoveHistory>;
-  let mockEventBus: jest.Mocked<IChessEventBus>;
-  let mockNotation: jest.Mocked<IGermanNotation>;
-  let mockCache: jest.Mocked<IFenCache>;
+  let mockEngine: MockedObject<IChessEngine>;
+  let mockValidator: MockedObject<IMoveValidator>;
+  let mockHistory: MockedObject<IMoveHistory>;
+  let mockEventBus: MockedObject<IChessEventBus>;
+  let mockNotation: MockedObject<IGermanNotation>;
+  let mockCache: MockedObject<IFenCache>;
 
   beforeEach(() => {
     // 50+ Zeilen Mock Setup
     mockEngine = {
-      move: jest.fn(),
-      getFen: jest.fn().mockReturnValue('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'),
+      move: vi.fn(),
+      getFen: vi.fn().mockReturnValue('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'),
       // ... 20 weitere Methods
     };
 

@@ -175,8 +175,8 @@ describe('AnalysisService', () => {
   let mockTablebaseService: any;
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    mockTablebaseService = { getEvaluation: jest.fn() };
+    vi.clearAllMocks();
+    mockTablebaseService = { getEvaluation: vi.fn() };
     service = AnalysisService.getInstance();
   });
 
@@ -207,11 +207,11 @@ describe('AnalysisService', () => {
 
 ```typescript
 // shared/mocks/handlers/tablebase.ts
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 
 export const tablebaseHandlers = [
-  rest.get('https://tablebase.lichess.ovh/standard', (req, res, ctx) => {
-    return res(ctx.json({ wdl: 2, category: 'win' }));
+  http.get('https://tablebase.lichess.ovh/standard', () => {
+    return HttpResponse.json({ wdl: 2, category: 'win' });
   }),
 ];
 ```

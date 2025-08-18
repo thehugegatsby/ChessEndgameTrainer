@@ -244,7 +244,7 @@ if (mockManager.hasActiveMocks()) {
 
 afterEach(() => {
   // Easy to forget cleanup
-  jest.clearAllMocks();
+  vi.clearAllMocks();
 });
 ```
 
