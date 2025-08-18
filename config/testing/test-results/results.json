@@ -52,7 +52,7 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 15000
+        "timeout": 10000
       },
       {
         "outputDir": "/home/thehu/coolProjects/EndgameTrainer/test-results",
@@ -68,7 +68,7 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 15000
+        "timeout": 10000
       }
     ],
     "shard": null,
@@ -106,7 +106,7 @@
               "tags": [],
               "tests": [
                 {
-                  "timeout": 15000,
+                  "timeout": 10000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
@@ -116,7 +116,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 8924,
+                      "duration": 8866,
                       "error": {
                         "message": "Error: \u001b[31mTimed out 3000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('[data-testid=\"move-error-dialog\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"move-error-dialog\"]')\u001b[22m\n",
                         "stack": "Error: \u001b[31mTimed out 3000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('[data-testid=\"move-error-dialog\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"move-error-dialog\"]')\u001b[22m\n\n    at /home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-feature.spec.ts:136:31",
@@ -139,42 +139,42 @@
                       ],
                       "stdout": [
                         {
-                          "text": "2025-08-18T17:13:25.964Z INFO [E2E-WeiterSpielenFeature] Training page loaded for Weiterspielen test {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                          "text": "2025-08-18T17:15:59.445Z INFO [E2E-WeiterSpielenFeature] Training page loaded for Weiterspielen test {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
                         },
                         {
-                          "text": "2025-08-18T17:13:25.967Z INFO [E2E-WeiterSpielenFeature] Testing complete Weiterspielen flow: error → continue → opponent moves {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                          "text": "2025-08-18T17:15:59.448Z INFO [E2E-WeiterSpielenFeature] Testing complete Weiterspielen flow: error → continue → opponent moves {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
                         },
                         {
-                          "text": "2025-08-18T17:13:25.967Z INFO [E2E-WeiterSpielenFeature] Setting up KPK_CENTRAL test position for guaranteed error dialog {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                          "text": "2025-08-18T17:15:59.448Z INFO [E2E-WeiterSpielenFeature] Setting up KPK_CENTRAL test position for guaranteed error dialog {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
                         },
                         {
-                          "text": "2025-08-18T17:13:28.977Z INFO [E2E-WeiterSpielenFeature] DEBUG: Current game state after setting position: {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"fen\": \"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\",\n  \"turn\": \"w\",\n  \"moveCount\": 0\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m },\n  fen: \u001b[32m'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'\u001b[39m,\n  turn: \u001b[32m'w'\u001b[39m,\n  moveCount: \u001b[33m0\u001b[39m\n}\n"
+                          "text": "2025-08-18T17:16:02.464Z INFO [E2E-WeiterSpielenFeature] DEBUG: Current game state after setting position: {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"fen\": \"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\",\n  \"turn\": \"w\",\n  \"moveCount\": 0\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m },\n  fen: \u001b[32m'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'\u001b[39m,\n  turn: \u001b[32m'w'\u001b[39m,\n  moveCount: \u001b[33m0\u001b[39m\n}\n"
                         },
                         {
-                          "text": "2025-08-18T17:13:28.977Z INFO [E2E-WeiterSpielenFeature] Step 1: Testing error dialog system with illegal move first {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                          "text": "2025-08-18T17:16:02.464Z INFO [E2E-WeiterSpielenFeature] Step 1: Testing error dialog system with illegal move first {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
                         },
                         {
                           "text": "[E2E] Move Ka8 API result: {\n  success: \u001b[33mfalse\u001b[39m,\n  resultingFen: \u001b[32m'8/8/8/4k3/4P3/4K3/8/8 w - - 0 1'\u001b[39m,\n  moveCount: \u001b[33m0\u001b[39m,\n  error: \u001b[32m'Move rejected by validation pipeline'\u001b[39m\n}\n"
                         },
                         {
-                          "text": "2025-08-18T17:13:29.005Z INFO [E2E-WeiterSpielenFeature] DEBUG: Illegal move result: {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"success\": false,\n  \"errorMessage\": \"API rejected move: Move rejected by validation pipeline\",\n  \"finalFen\": \"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\"\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m },\n  success: \u001b[33mfalse\u001b[39m,\n  errorMessage: \u001b[32m'API rejected move: Move rejected by validation pipeline'\u001b[39m,\n  finalFen: \u001b[32m'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'\u001b[39m\n}\n"
+                          "text": "2025-08-18T17:16:02.491Z INFO [E2E-WeiterSpielenFeature] DEBUG: Illegal move result: {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"success\": false,\n  \"errorMessage\": \"API rejected move: Move rejected by validation pipeline\",\n  \"finalFen\": \"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\"\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m },\n  success: \u001b[33mfalse\u001b[39m,\n  errorMessage: \u001b[32m'API rejected move: Move rejected by validation pipeline'\u001b[39m,\n  finalFen: \u001b[32m'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'\u001b[39m\n}\n"
                         },
                         {
-                          "text": "2025-08-18T17:13:29.005Z INFO [E2E-WeiterSpielenFeature] ✅ Illegal move properly rejected, now testing suboptimal move Kd5 {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                          "text": "2025-08-18T17:16:02.491Z INFO [E2E-WeiterSpielenFeature] ✅ Illegal move properly rejected, now testing suboptimal move Kd5 {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
                         },
                         {
                           "text": "[E2E] Move Kd5 API result: {\n  success: \u001b[33mfalse\u001b[39m,\n  resultingFen: \u001b[32m'8/8/8/4k3/4P3/4K3/8/8 w - - 0 1'\u001b[39m,\n  moveCount: \u001b[33m0\u001b[39m,\n  error: \u001b[32m'Move rejected by validation pipeline'\u001b[39m\n}\n"
                         },
                         {
-                          "text": "2025-08-18T17:13:29.020Z INFO [E2E-WeiterSpielenFeature] DEBUG: Move result: {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"success\": false,\n  \"errorMessage\": \"API rejected move: Move rejected by validation pipeline\",\n  \"finalFen\": \"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\"\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m },\n  success: \u001b[33mfalse\u001b[39m,\n  errorMessage: \u001b[32m'API rejected move: Move rejected by validation pipeline'\u001b[39m,\n  finalFen: \u001b[32m'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'\u001b[39m\n}\n"
+                          "text": "2025-08-18T17:16:02.505Z INFO [E2E-WeiterSpielenFeature] DEBUG: Move result: {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"success\": false,\n  \"errorMessage\": \"API rejected move: Move rejected by validation pipeline\",\n  \"finalFen\": \"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\"\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m },\n  success: \u001b[33mfalse\u001b[39m,\n  errorMessage: \u001b[32m'API rejected move: Move rejected by validation pipeline'\u001b[39m,\n  finalFen: \u001b[32m'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'\u001b[39m\n}\n"
                         },
                         {
-                          "text": "2025-08-18T17:13:29.022Z INFO [E2E-WeiterSpielenFeature] ✅ Suboptimal move correctly rejected with error dialog {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                          "text": "2025-08-18T17:16:02.508Z INFO [E2E-WeiterSpielenFeature] ✅ Suboptimal move correctly rejected with error dialog {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-18T17:13:23.088Z",
+                      "startTime": "2025-08-18T17:15:56.606Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -210,8 +210,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-08-18T17:13:11.513Z",
-    "duration": 20847.613999999998,
+    "startTime": "2025-08-18T17:15:44.788Z",
+    "duration": 21033.092,
     "expected": 0,
     "skipped": 0,
     "unexpected": 1,

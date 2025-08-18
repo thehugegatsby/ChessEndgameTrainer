@@ -179,10 +179,16 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children, initialS
         }) as (move: unknown) => void,
         resetPosition: (state?.reset || (() => {})) as () => void,
         setPosition: ((position: unknown) => {
-          if (state?.game?.setCurrentFen) {
-            state.game.setCurrentFen(position as string);
+          const currentState = storeRef.current?.getState();
+          if (currentState?.game?.setCurrentFen) {
+            currentState.game.setCurrentFen(position as string);
+            getLogger().info('✅ Position set successfully via setCurrentFen', { fen: position });
           } else {
-            getLogger().error('setCurrentFen not found in gameSlice');
+            getLogger().error('setCurrentFen not found in gameSlice', { 
+              currentState: Boolean(currentState),
+              game: Boolean(currentState?.game),
+              setCurrentFen: Boolean(currentState?.game?.setCurrentFen)
+            });
           }
         }) as (position: unknown) => void,
         goToMove: (state?.game?.goToMove || (() => {})) as (moveIndex: number) => void,
