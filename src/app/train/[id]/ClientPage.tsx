@@ -4,10 +4,10 @@ import React, { lazy, Suspense } from 'react';
 import { StoreProvider } from '@shared/store/StoreContext';
 import type { RootState } from '@shared/store/slices/types';
 
-// Lazy load the lightweight training page
-const EndgameTrainingPageLite = lazy(() =>
-  import('@shared/pages/EndgameTrainingPageLite').then(module => ({
-    default: module.EndgameTrainingPageLite,
+// Lazy load the main training page (React.memo optimized)
+const EndgameTrainingPage = lazy(() =>
+  import('@shared/pages/EndgameTrainingPage').then(module => ({
+    default: module.EndgameTrainingPage,
   }))
 );
 
@@ -36,7 +36,7 @@ export default function ClientPage({ initialState }: ClientPageProps): React.JSX
   return (
     <StoreProvider initialState={initialState}>
       <Suspense fallback={<LoadingScreen />}>
-        <EndgameTrainingPageLite />
+        <EndgameTrainingPage />
       </Suspense>
     </StoreProvider>
   );

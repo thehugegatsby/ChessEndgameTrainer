@@ -124,7 +124,7 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children, initialS
   // Initialize BrowserTestApi for E2E tests (provides e2e_makeMove, e2e_getGameState)
   useEffect(() => {
     // Debug: Log environment variables for troubleshooting
-    console.log('🔍 StoreContext E2E Debug:', {
+    getLogger().info('🔍 StoreContext E2E Debug:', {
       NODE_ENV: process.env.NODE_ENV,
       NEXT_PUBLIC_IS_E2E_TEST: process.env['NEXT_PUBLIC_IS_E2E_TEST'],
       isClient: typeof window !== 'undefined',
@@ -140,7 +140,7 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children, initialS
     );
 
     if (isE2EMode) {
-      console.log('✅ E2E-Modus aktiviert: Initialisiere Test API');
+      getLogger().info('✅ E2E-Modus aktiviert: Initialisiere Test API');
       // Get store state to access actions
       const state = storeRef.current?.getState();
 
@@ -165,12 +165,28 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children, initialS
           }
         },
         // Use actual store actions from current architecture
-        makeMove: state?.handlePlayerMove || (() => Promise.resolve(false)),
-        _internalApplyMove: state?.game?.applyMove || (() => null), // Direct move application for tests
-        resetPosition: state?.reset || (() => {}),
-        setPosition: () => {}, // Not directly available in new architecture
-        goToMove: state?.game?.goToMove || (() => {}),
-        setAnalysisStatus: () => {}, // Not directly available in new architecture
+        makeMove: ((move: unknown) => {
+          if (state?.handlePlayerMove) {
+            return state.handlePlayerMove(move as Parameters<typeof state.handlePlayerMove>[0]);
+          }
+          return Promise.resolve(false);
+        }) as (move: unknown) => void,
+        _internalApplyMove: ((move: unknown) => {
+          if (state?.game?.applyMove) {
+            return state.game.applyMove(move as Parameters<typeof state.game.applyMove>[0]);
+          }
+          return null;
+        }) as (move: unknown) => void,
+        resetPosition: (state?.reset || (() => {})) as () => void,
+        setPosition: ((position: unknown) => {
+          if (state?.game?.setCurrentFen) {
+            state.game.setCurrentFen(position as string);
+          } else {
+            getLogger().error('setCurrentFen not found in gameSlice');
+          }
+        }) as (position: unknown) => void,
+        goToMove: (state?.game?.goToMove || (() => {})) as (moveIndex: number) => void,
+        setAnalysisStatus: (() => {}) as (status: string) => void, // Not directly available in new architecture
       };
 
       // Initialize BrowserTestApi which exposes e2e_makeMove to window
@@ -184,7 +200,7 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children, initialS
         });
       }
     } else {
-      console.log('❌ E2E Test API wird nicht initialisiert:', {
+      getLogger().info('❌ E2E Test API wird nicht initialisiert:', {
         reason: typeof window === 'undefined' ? 'Server-side' : 'Env vars nicht gesetzt',
         NODE_ENV: process.env.NODE_ENV,
         NEXT_PUBLIC_IS_E2E_TEST: process.env['NEXT_PUBLIC_IS_E2E_TEST']

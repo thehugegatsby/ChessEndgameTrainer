@@ -1,45 +1,42 @@
 'use client';
 
-import { getLogger } from '../services/logging';
+import { getLogger } from '@shared/services/logging/Logger';
 import { UI_DURATIONS_MS } from '../../constants/time.constants';
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { TrainingBoard, MovePanelZustand, NavigationControls } from '../components/training';
-import { TablebaseAnalysisPanel } from '../components/training/TablebaseAnalysisPanel';
-import { AdvancedEndgameMenu } from '../components/navigation/AdvancedEndgameMenu';
+import { TrainingBoard, MovePanelZustand, NavigationControls } from '@shared/components/training';
+import { TablebaseAnalysisPanel } from '@shared/components/training/TablebaseAnalysisPanel';
+import { AdvancedEndgameMenu } from '@shared/components/navigation/AdvancedEndgameMenu';
 // EndgamePosition import no longer needed - position comes from store
-import { useToast } from '../hooks/useToast';
-import { ToastContainer } from '../components/ui/Toast';
-import { StreakCounter } from '../components/ui/StreakCounter';
-import { CheckmarkAnimation } from '../components/ui/CheckmarkAnimation';
+import { useToast } from '@shared/hooks/useToast';
+import { ToastContainer } from '@shared/components/ui/Toast';
+import { StreakCounter } from '@shared/components/ui/StreakCounter';
+import { CheckmarkAnimation } from '@shared/components/ui/CheckmarkAnimation';
+import { getGameStatus } from '@shared/utils/chess/gameStatus';
+import { useGameStore, useTrainingStore, useUIStore } from '@shared/store/hooks';
+// useInitializePosition no longer needed - SSR hydration handles initialization
+import { getTrainingDisplayTitle, formatPositionTitle } from '@shared/utils/titleFormatter';
+import { ANIMATION } from '@shared/constants';
 import { trainingEvents } from '@domains/training/events/EventEmitter';
-import { useStore } from '@shared/store/rootStore';
+import { useStoreApi } from '@shared/store/StoreContext';
 import type { WritableDraft } from 'immer';
 import type { RootState } from '@shared/store/slices/types';
-import { getGameStatus } from '../utils/chess/gameStatus';
-import { useGameStore, useTrainingStore, useUIStore } from '../store/hooks';
-// useInitializePosition no longer needed - SSR hydration handles initialization
-import { getTrainingDisplayTitle, formatPositionTitle } from '../utils/titleFormatter';
-import { ANIMATION } from '../constants';
 
 // No props needed anymore - all data comes from hydrated store
 
 /**
- * Endgame training page component using Zustand store
+ * Endgame training page component using Zustand store (React.memo optimized)
  * Provides the main training interface for endgame positions
  * All position data comes from the pre-hydrated store state
+ * Performance optimized with React.memo and absolute imports
  */
-export const EndgameTrainingPage: React.FC = () => {
-  console.log('🚨🚨🚨 COMPONENT START - SHOULD ALWAYS APPEAR! 🚨🚨🚨', Date.now());
-  console.log('🔥🔥🔥 NEW DEBUG MESSAGE - TESTING COMPILATION! 🔥🔥🔥', Date.now());
-  
-  // Test if getLogger works instead of console.log
-  const logger = getLogger().setContext('EndgameTrainingPage-START');
-  logger.info('🎯 LOGGER TEST: Component execution started!', { timestamp: Date.now() });
-  
+export const EndgameTrainingPage: React.FC = React.memo(() => {
   // Next.js router
   const router = useRouter();
+
+  // Context store API for event handling
+  const store = useStoreApi();
 
   // Zustand store hooks - consolidated
   const [gameState, gameActions] = useGameStore();
@@ -64,28 +61,17 @@ export const EndgameTrainingPage: React.FC = () => {
     timestamp: new Date().toISOString(),
   });
 
-  console.log('🚨 BEFORE useEffect - This should ALWAYS appear!', Date.now());
-
   // Training Event Listener - handle move feedback events directly
   React.useEffect(() => {
-    console.log('🚨 CRITICAL DEBUG: useEffect is running!', Date.now());
-    console.log('🚨 CRITICAL DEBUG: typeof window:', typeof window);
-    console.log('🚨 CRITICAL DEBUG: isClient check:', typeof window !== 'undefined');
-    
-    // Explicit client-side check to avoid SSR issues
-    if (typeof window === 'undefined') {
-      console.log('🚨 CRITICAL DEBUG: SSR detected - useEffect running on server, skipping');
-      return;
-    }
-    
-    console.log('🎯 [EndgameTrainingPage] Setting up training event listeners (CLIENT SIDE)');
+    const logger = getLogger().setContext('EndgameTrainingPage');
+    logger.info('🎯 [EndgameTrainingPage] Setting up training event listeners');
     
     const unsubscribeFeedback = trainingEvents.on('move:feedback', data => {
-      console.log('🎯 [EndgameTrainingPage] Received move:feedback event:', data);
+      logger.info('🎯 [EndgameTrainingPage] Received move:feedback event:', data);
       if (data.type === 'error') {
-        console.log('🎯 [EndgameTrainingPage] Processing error event - updating dialog state');
+        logger.info('🎯 [EndgameTrainingPage] Processing error event - updating dialog state');
         // Show error dialog
-        useStore.setState((draft: WritableDraft<RootState>) => {
+        store.setState((draft: WritableDraft<RootState>) => {
           draft.training.moveErrorDialog = {
             isOpen: true,
             ...(data.wdlBefore !== undefined && { wdlBefore: data.wdlBefore }),
@@ -93,15 +79,15 @@ export const EndgameTrainingPage: React.FC = () => {
             ...(data.bestMove !== undefined && { bestMove: data.bestMove }),
           };
         });
-        console.log('🎯 [EndgameTrainingPage] Error dialog state updated - should be visible now');
+        logger.info('🎯 [EndgameTrainingPage] Error dialog state updated - should be visible now');
       }
     });
 
     return () => {
-      console.log('🎯 [EndgameTrainingPage] Cleaning up training event listeners');
+      logger.info('🎯 [EndgameTrainingPage] Cleaning up training event listeners');
       unsubscribeFeedback();
     };
-  }, []); // Empty dependency array - only run once
+  }, [store]); // Include store in dependency array
 
   // Extract actions to avoid dependency issues
   const { completeTraining } = trainingActions;
@@ -116,9 +102,6 @@ export const EndgameTrainingPage: React.FC = () => {
   const prevPosition = trainingState.previousPosition;
   const nextPosition = trainingState.nextPosition;
   const isLoadingNavigation = trainingState.isLoadingNavigation;
-
-  // DEBUG: Log beim Rendern
-  getLogger().info(`[REACT RENDER] nextPosition ID: ${nextPosition?.id}, prevPosition ID: ${prevPosition?.id}, isLoading: ${isLoadingNavigation}, Timestamp: ${new Date().toISOString()}`);
 
   const handleComplete = useCallback(
     (isSuccess: boolean) => {
@@ -264,13 +247,7 @@ export const EndgameTrainingPage: React.FC = () => {
               <span className="text-lg">↻</span>
             </button>
             <button
-              onClick={() => {
-                // DEBUG: Log beim Button Click
-                getLogger().info(`[REACT CLICK] nextPosition ID: ${nextPosition?.id}, Timestamp: ${new Date().toISOString()}`);
-                if (nextPosition) {
-                  router.push(`/train/${nextPosition.id}`);
-                }
-              }}
+              onClick={() => nextPosition && router.push(`/train/${nextPosition.id}`)}
               disabled={!nextPosition || isLoadingNavigation}
               className="p-2 hover:bg-gray-800 rounded disabled:opacity-30 transition-colors"
               title="Nächste Stellung"
@@ -356,6 +333,6 @@ export const EndgameTrainingPage: React.FC = () => {
       </div>
     </div>
   );
-};
+});
 
 EndgameTrainingPage.displayName = 'EndgameTrainingPage';

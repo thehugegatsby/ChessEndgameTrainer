@@ -53,7 +53,7 @@ export class MoveQualityEvaluator {
     trainingBaseline?: { wdl: number; fen: string } | null
   ): Promise<MoveQualityResult> {
     try {
-      console.log('🔍 [MoveQualityEvaluator] Starting evaluation for move:', {
+      getLogger().info('🔍 [MoveQualityEvaluator] Starting evaluation for move:', {
         move: validatedMove.san,
         fenBefore: fenBefore.split(' ')[0], // Just board position
         fenAfter: fenAfter.split(' ')[0],
@@ -65,7 +65,7 @@ export class MoveQualityEvaluator {
         this.getEvaluation(fenAfter),
       ]);
 
-      console.log('🔍 [MoveQualityEvaluator] Tablebase results:', {
+      getLogger().info('🔍 [MoveQualityEvaluator] Tablebase results:', {
         evalBeforeAvailable: evalBefore?.isAvailable,
         evalAfterAvailable: evalAfter?.isAvailable,
         hasBeforeResult: evalBefore && 'result' in evalBefore,
@@ -76,7 +76,7 @@ export class MoveQualityEvaluator {
 
       // Check if both evaluations are available using type guards
       if (!this.hasValidResult(evalBefore) || !this.hasValidResult(evalAfter)) {
-        console.log('❌ [MoveQualityEvaluator] Skipping evaluation - insufficient data');
+        getLogger().info('❌ [MoveQualityEvaluator] Skipping evaluation - insufficient data');
         logger.debug('[MoveQuality] Skipping evaluation - insufficient data:', {
           evalBeforeAvailable: evalBefore?.isAvailable,
           evalAfterAvailable: evalAfter?.isAvailable,
@@ -141,7 +141,7 @@ export class MoveQualityEvaluator {
           ? topMoves.moves[0].san
           : undefined;
 
-      console.log('🔍 [MoveQualityEvaluator] Final decision:', {
+      getLogger().info('🔍 [MoveQualityEvaluator] Final decision:', {
         playedMoveWasBest,
         outcomeChanged,
         shouldShowErrorDialog,
@@ -151,7 +151,7 @@ export class MoveQualityEvaluator {
       });
 
       if (shouldShowErrorDialog) {
-        console.log('✅ [MoveQualityEvaluator] Should show error dialog!');
+        getLogger().info('✅ [MoveQualityEvaluator] Should show error dialog!');
         logger.info('[MoveQuality] Showing error dialog', {
           validatedMove: validatedMove.san,
           bestMove,
@@ -160,7 +160,7 @@ export class MoveQualityEvaluator {
           wdlAfterFromPlayerPerspective,
         });
       } else {
-        console.log('❌ [MoveQualityEvaluator] No error dialog');
+        getLogger().info('❌ [MoveQualityEvaluator] No error dialog');
         logger.debug('[MoveQuality] No error dialog', {
           playedMoveWasBest,
           outcomeChanged,

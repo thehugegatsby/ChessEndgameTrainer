@@ -10,9 +10,7 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {
-      "actualWorkers": 1
-    },
+    "metadata": {},
     "preserveOutput": "always",
     "reporter": [
       [
@@ -42,9 +40,7 @@
         "outputDir": "/home/thehu/coolProjects/EndgameTrainer/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "chromium",
         "name": "chromium",
         "testDir": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e",
@@ -58,9 +54,7 @@
         "outputDir": "/home/thehu/coolProjects/EndgameTrainer/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 1
-        },
+        "metadata": {},
         "id": "firebase",
         "name": "firebase",
         "testDir": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/firebase",
@@ -88,6 +82,439 @@
   },
   "suites": [
     {
+      "title": "core/error-recovery.spec.ts",
+      "file": "core/error-recovery.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "🔄 Error Recovery - \"Zurücknehmen\" and \"Weiterspielen\" Features",
+          "file": "core/error-recovery.spec.ts",
+          "line": 20,
+          "column": 6,
+          "specs": [
+            {
+              "title": "🎯 Should show error dialog for bad move and reset on \"Zurücknehmen\"",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "602a5001eb204681e5c2-c3a8e94ce0e0845531e5",
+              "file": "core/error-recovery.spec.ts",
+              "line": 32,
+              "column": 7
+            },
+            {
+              "title": "🔄 Should test dialog button functionality",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "602a5001eb204681e5c2-a2e67b1962b7f53ce803",
+              "file": "core/error-recovery.spec.ts",
+              "line": 78,
+              "column": 7
+            },
+            {
+              "title": "⚖️ Should test \"Weiterspielen\" option",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "602a5001eb204681e5c2-0dce9825a6499a1dadcb",
+              "file": "core/error-recovery.spec.ts",
+              "line": 108,
+              "column": 7
+            },
+            {
+              "title": "🚫 Should handle illegal moves correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "602a5001eb204681e5c2-3de64c8265e889b7472f",
+              "file": "core/error-recovery.spec.ts",
+              "line": 141,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "core/pawn-promotion.spec.ts",
+      "file": "core/pawn-promotion.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Pawn Promotion Simple Test",
+          "file": "core/pawn-promotion.spec.ts",
+          "line": 9,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should auto-complete when promoting from e7 to e8=Q",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "47dd5a3f14384a9bbb96-f7ca7cc16b72ad7da399",
+              "file": "core/pawn-promotion.spec.ts",
+              "line": 11,
+              "column": 7
+            },
+            {
+              "title": "manual test of promotion detection",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "47dd5a3f14384a9bbb96-619f8a650713c9d0d204",
+              "file": "core/pawn-promotion.spec.ts",
+              "line": 87,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "core/smoke-workflow.spec.ts",
+      "file": "core/smoke-workflow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "🚀 E2E Smoke Test - Complete Training Workflow",
+          "file": "core/smoke-workflow.spec.ts",
+          "line": 20,
+          "column": 6,
+          "specs": [
+            {
+              "title": "🔥 CRITICAL: Complete training workflow (full journey)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "17a2aa238a2d1086b48f-3233a9f21897183d0967",
+              "file": "core/smoke-workflow.spec.ts",
+              "line": 28,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "⚡ Quick Smoke Tests",
+          "file": "core/smoke-workflow.spec.ts",
+          "line": 73,
+          "column": 6,
+          "specs": [
+            {
+              "title": "🩺 App loads without errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "17a2aa238a2d1086b48f-a5b4efdb6962affb8037",
+              "file": "core/smoke-workflow.spec.ts",
+              "line": 80,
+              "column": 7
+            },
+            {
+              "title": "🎯 Training page loads board",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "17a2aa238a2d1086b48f-5b1127aa82533d66f98e",
+              "file": "core/smoke-workflow.spec.ts",
+              "line": 105,
+              "column": 7
+            },
+            {
+              "title": "🔗 Basic navigation works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "17a2aa238a2d1086b48f-c9292f6562cd98cf75a1",
+              "file": "core/smoke-workflow.spec.ts",
+              "line": 115,
+              "column": 7
+            },
+            {
+              "title": "⚡ Performance check - loads within 10 seconds",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "17a2aa238a2d1086b48f-9c027f31660c1f84cd36",
+              "file": "core/smoke-workflow.spec.ts",
+              "line": 133,
+              "column": 7
+            },
+            {
+              "title": "🎮 Both interaction methods work",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "17a2aa238a2d1086b48f-bdb2484d04e3a3e0bc71",
+              "file": "core/smoke-workflow.spec.ts",
+              "line": 149,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "domains/weiterspielen-bug-proof.spec.ts",
+      "file": "domains/weiterspielen-bug-proof.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Weiterspielen Bug Proof",
+          "file": "domains/weiterspielen-bug-proof.spec.ts",
+          "line": 17,
+          "column": 6,
+          "specs": [
+            {
+              "title": "PROVES: Opponent does NOT move after Weiterspielen",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cab9c6ca883049b0c687-a634285ff61739e4fe1b",
+              "file": "domains/weiterspielen-bug-proof.spec.ts",
+              "line": 28,
+              "column": 7
+            },
+            {
+              "title": "CONTROL: Verify that Zurücknehmen works correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cab9c6ca883049b0c687-cc1c05e17d7e9b40668b",
+              "file": "domains/weiterspielen-bug-proof.spec.ts",
+              "line": 191,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "domains/weiterspielen-feature.spec.ts",
+      "file": "domains/weiterspielen-feature.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Weiterspielen Feature",
+          "file": "domains/weiterspielen-feature.spec.ts",
+          "line": 18,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should show error dialog for suboptimal move, then continue with opponent move",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2f5e194db48f33172e36-821efba6d740d355750d",
+              "file": "domains/weiterspielen-feature.spec.ts",
+              "line": 33,
+              "column": 7
+            },
+            {
+              "title": "should handle 'Weiterspielen' with different types of suboptimal moves",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2f5e194db48f33172e36-7ad8c0bcfc79d136e868",
+              "file": "domains/weiterspielen-feature.spec.ts",
+              "line": 213,
+              "column": 7
+            },
+            {
+              "title": "should verify error dialog content and button text",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "2f5e194db48f33172e36-f8918828a54740f68db8",
+              "file": "domains/weiterspielen-feature.spec.ts",
+              "line": 295,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
       "title": "domains/weiterspielen-simple-test.spec.ts",
       "file": "domains/weiterspielen-simple-test.spec.ts",
       "column": 0,
@@ -111,86 +538,8 @@
                   "expectedStatus": "passed",
                   "projectId": "chromium",
                   "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 18850,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🎯 UI-BASED TEST: Train/1 → UI-Click(Kd5) → Verify Error Feedback\n"
-                        },
-                        {
-                          "text": "✅ Train/1 geladen\n"
-                        },
-                        {
-                          "text": "📋 Mache Kd5 (blunder) move...\n"
-                        },
-                        {
-                          "text": "📋 Making Kd5 move through UI click...\n"
-                        },
-                        {
-                          "text": "🎯 Making move: e6 → d5 (click)\n"
-                        },
-                        {
-                          "text": "✅ Click move completed: e6 → d5\n"
-                        },
-                        {
-                          "text": "✅ Move verified successful: e6 → d5\n"
-                        },
-                        {
-                          "text": "📊 Move Kd5 attempted\n"
-                        },
-                        {
-                          "text": "🔍 Verifying move was processed...\n"
-                        },
-                        {
-                          "text": "✅ Move number '1.' found in move list!\n"
-                        },
-                        {
-                          "text": "✅ Kd5 move button found in move list!\n"
-                        },
-                        {
-                          "text": "✅ SUCCESS: Move processing pipeline working correctly!\n"
-                        },
-                        {
-                          "text": "✅ Error feedback system working correctly!\n"
-                        },
-                        {
-                          "text": "📋 Additional verification complete!\n"
-                        },
-                        {
-                          "text": "✅ Board remains functional after mistake move\n"
-                        },
-                        {
-                          "text": "🎯 Test Summary:\n"
-                        },
-                        {
-                          "text": "   - Move Kd5: ✅ Successfully executed\n"
-                        },
-                        {
-                          "text": "   - Move Processing: ✅ Move appears in move list with number\n"
-                        },
-                        {
-                          "text": "   - Error Feedback: ✅ Pipeline working (verified manually)\n"
-                        },
-                        {
-                          "text": "   - Board: ✅ Remains functional\n"
-                        },
-                        {
-                          "text": "🎉 SUCCESS: Error feedback system working correctly!\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-08-18T13:20:39.359Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
+                  "results": [],
+                  "status": "skipped"
                 }
               ],
               "id": "d8b88a2fe9be7e48ec93-e7104c38a4afd570b981",
@@ -205,10 +554,10 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-08-18T13:20:23.364Z",
-    "duration": 33946.806,
-    "expected": 1,
-    "skipped": 0,
+    "startTime": "2025-08-18T17:01:21.314Z",
+    "duration": 41.372999999999934,
+    "expected": 0,
+    "skipped": 18,
     "unexpected": 0,
     "flaky": 0
   }

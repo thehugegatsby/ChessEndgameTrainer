@@ -13,7 +13,7 @@ import { test, expect } from "@playwright/test";
 import { getLogger } from "../../../shared/services/logging";
 import { E2E } from "../../../shared/constants";
 import { performMoveAndWait, waitForGameState } from "../helpers/moveHelpers";
-import { EndgamePositions } from "../../fixtures/fenPositions";
+import { TEST_POSITIONS } from "@shared/testing/ChessTestData";
 
 test.describe("Weiterspielen Feature", () => {
   const logger = getLogger().setContext("E2E-WeiterSpielenFeature");
@@ -47,7 +47,7 @@ test.describe("Weiterspielen Feature", () => {
       if (typeof (window as any).e2e_setBoardState === "function") {
         (window as any).e2e_setBoardState(testFen);
       }
-    }, EndgamePositions.KPK_CENTRAL);
+    }, TEST_POSITIONS.KPK_CENTRAL);
 
     // Wait for board to be interactive and tablebase ready
     await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
@@ -220,7 +220,7 @@ test.describe("Weiterspielen Feature", () => {
       if (typeof (window as any).e2e_setBoardState === "function") {
         (window as any).e2e_setBoardState(testFen);
       }
-    }, EndgamePositions.KPK_CENTRAL);
+    }, TEST_POSITIONS.KPK_CENTRAL);
 
     await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
 
@@ -302,7 +302,7 @@ test.describe("Weiterspielen Feature", () => {
       if (typeof (window as any).e2e_setBoardState === "function") {
         (window as any).e2e_setBoardState(testFen);
       }
-    }, EndgamePositions.KPK_CENTRAL);
+    }, TEST_POSITIONS.KPK_CENTRAL);
 
     await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
 

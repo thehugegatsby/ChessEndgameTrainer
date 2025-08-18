@@ -5,7 +5,8 @@
  * Uses the application's e2e_getGameState() and e2e_makeMove() APIs for robust testing.
  */
 
-import { Page, expect } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import { expect } from "@playwright/test";
 
 /**
  *

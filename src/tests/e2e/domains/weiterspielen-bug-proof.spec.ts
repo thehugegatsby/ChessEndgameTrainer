@@ -12,7 +12,7 @@ import { test, expect } from "@playwright/test";
 import { getLogger } from "../../../shared/services/logging";
 import { E2E } from "../../../shared/constants";
 import { performMoveAndWait } from "../helpers/moveHelpers";
-import { EndgamePositions } from "../../fixtures/fenPositions";
+import { TEST_POSITIONS } from "@shared/testing/ChessTestData";
 
 test.describe("Weiterspielen Bug Proof", () => {
   const logger = getLogger().setContext("E2E-WeiterSpielenBugProof");
@@ -36,7 +36,7 @@ test.describe("Weiterspielen Bug Proof", () => {
       if (typeof (window as any).e2e_setBoardState === "function") {
         (window as any).e2e_setBoardState(testFen);
       }
-    }, EndgamePositions.KPK_WIN); // "K7/P7/k7/8/8/8/8/8 w - - 0 1" - King on a8, Pawn on a7, black king on a6
+    }, TEST_POSITIONS.KPK_WIN); // "K7/P7/k7/8/8/8/8/8 w - - 0 1" - King on a8, Pawn on a7, black king on a6
 
     await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
     logger.info("Position set: KPK_WIN for bug demonstration");
@@ -100,7 +100,7 @@ test.describe("Weiterspielen Bug Proof", () => {
           if (typeof (window as any).e2e_setBoardState === "function") {
             (window as any).e2e_setBoardState(testFen);
           }
-        }, EndgamePositions.KPK_WIN);
+        }, TEST_POSITIONS.KPK_WIN);
         await page.waitForTimeout(1000);
       }
     }
@@ -200,7 +200,7 @@ test.describe("Weiterspielen Bug Proof", () => {
       if (typeof (window as any).e2e_setBoardState === "function") {
         (window as any).e2e_setBoardState(testFen);
       }
-    }, EndgamePositions.KPK_WIN);
+    }, TEST_POSITIONS.KPK_WIN);
 
     await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
 

@@ -12,6 +12,8 @@ import type {
   TestTablebaseConfig,
 } from "./TestApiService";
 import type { TestBridge } from "@shared/types/test-bridge";
+import type { TablebaseData } from "@shared/types/evaluation";
+import { getLogger } from "@shared/services/logging";
 
 /**
  * Browser Test API
@@ -83,7 +85,16 @@ export class BrowserTestApi {
    * // Now window.__testApi is available
    * ```
    */
-  public async initialize(storeAccess?: any): Promise<void> {
+  public initialize(storeAccess?: {
+    getState: () => unknown;
+    subscribe: (listener: (state: unknown, prevState: unknown) => void) => () => void;
+    makeMove: (move: unknown) => void;
+    _internalApplyMove: (move: unknown) => void;
+    resetPosition: () => void;
+    setPosition: (position: unknown) => void;
+    goToMove: (moveIndex: number) => void;
+    setAnalysisStatus: (status: string) => void;
+  }): void {
     if (
       process.env.NODE_ENV !== "test" &&
       process.env['NEXT_PUBLIC_IS_E2E_TEST'] !== "true"
@@ -108,7 +119,7 @@ export class BrowserTestApi {
     this.testApi.initialize(storeAccess);
 
     // Get TestBridge from window (set by _app.tsx)
-    this.testBridge = (window as any).__E2E_TEST_BRIDGE__ || null;
+    this.testBridge = (window as unknown as { __E2E_TEST_BRIDGE__?: TestBridge }).__E2E_TEST_BRIDGE__ || null;
     if (!this.testBridge) {
       console.warn(
         "TestBridge not found on window - tablebase control will not be available",
@@ -116,7 +127,7 @@ export class BrowserTestApi {
     }
 
     // Expose methods to window
-    (window as any).__testApi = {
+    (window as unknown as { __testApi: unknown }).__testApi = {
       makeMove: this.makeMove.bind(this),
       makeValidatedMove: this.makeValidatedMove.bind(this),
       getGameState: this.getGameState.bind(this),
@@ -132,20 +143,29 @@ export class BrowserTestApi {
      *
      * @param move
      */
-    (window as any).e2e_makeMove = async (move: string) => {
-      const result = await this.makeMove(move);
+    (window as unknown as { e2e_makeMove: (move: string) => Promise<unknown> }).e2e_makeMove = async (move: string) => {
+      // Use validated move for proper error dialog testing
+      const result = await this.makeValidatedMove(move);
       return result;
     };
 
     /**
      *
      */
-    (window as any).e2e_getGameState = () => {
+    (window as unknown as { e2e_getGameState: () => unknown }).e2e_getGameState = () => {
       return this.getGameState();
     };
 
+    /**
+     * Set board position via FEN string
+     */
+    (window as unknown as { e2e_setBoardState: (fen: string) => unknown }).e2e_setBoardState = (fen: string) => {
+      return this.setPosition(fen);
+    };
+
     this.initialized = true;
-    console.log("Browser Test API initialized");
+    getLogger().info("Browser Test API initialized");
+    return; // Explicit return for TypeScript
   }
 
   /**
@@ -173,15 +193,16 @@ export class BrowserTestApi {
    * // Automatic cleanup on page unload (already handled)
    * ```
    */
-  public async cleanup(): Promise<void> {
+  public cleanup(): void {
     if (!this.initialized) {
       return;
     }
 
     // Remove from window
-    delete (window as any).__testApi;
-    delete (window as any).e2e_makeMove;
-    delete (window as any).e2e_getGameState;
+    delete (window as unknown as { __testApi?: unknown }).__testApi;
+    delete (window as unknown as { e2e_makeMove?: unknown }).e2e_makeMove;
+    delete (window as unknown as { e2e_getGameState?: unknown }).e2e_getGameState;
+    delete (window as unknown as { e2e_setBoardState?: unknown }).e2e_setBoardState;
 
     // Clean up test API
     this.testApi.cleanup();
@@ -200,7 +221,7 @@ export class BrowserTestApi {
    * @param {string} move - Move in algebraic notation or from-to format
    * @returns {Promise<TestMoveResponse>} Promise resolving to move execution result
    */
-  private async makeMove(move: string): Promise<TestMoveResponse> {
+  private makeMove(move: string): Promise<TestMoveResponse> {
     return this.testApi.makeMove(move);
   }
 
@@ -215,7 +236,7 @@ export class BrowserTestApi {
    * @param {string} move - Move in algebraic notation or from-to format
    * @returns {Promise<TestMoveResponse>} Promise resolving to move execution result
    */
-  private async makeValidatedMove(move: string): Promise<TestMoveResponse> {
+  private makeValidatedMove(move: string): Promise<TestMoveResponse> {
     return this.testApi.makeValidatedMove(move);
   }
 
@@ -227,10 +248,17 @@ export class BrowserTestApi {
   }
 
   /**
+   * Set board position via FEN string
+   */
+  private setPosition(fen: string): boolean {
+    return this.testApi.setPosition(fen);
+  }
+
+  /**
    * Reset game through test API
    */
-  private async resetGame(): Promise<void> {
-    return this.testApi.resetGame();
+  private resetGame(): void {
+    this.testApi.resetGame();
   }
 
   /**
@@ -245,7 +273,7 @@ export class BrowserTestApi {
    * Trigger tablebase analysis (instant with mock)
    * @param timeout
    */
-  private async triggerTablebaseAnalysis(timeout?: number): Promise<boolean> {
+  private triggerTablebaseAnalysis(timeout?: number): Promise<boolean> {
     return this.testApi.triggerTablebaseAnalysis(timeout);
   }
 
@@ -254,9 +282,9 @@ export class BrowserTestApi {
    * @param fen
    * @param analysis
    */
-  private addMockTablebaseResponse(fen: string, analysis: any): void {
+  private addMockTablebaseResponse(fen: string, analysis: TablebaseData): void {
     if (!this.testBridge) {
-      console.error(
+      getLogger().error(
         "TestBridge not available - cannot add mock tablebase response",
       );
       return;

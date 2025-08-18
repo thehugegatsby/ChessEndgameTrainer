@@ -519,13 +519,53 @@ export class TestApiService {
    * expect(state.fen).toBe('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
    * ```
    */
-  public async resetGame(): Promise<void> {
+  public resetGame(): void {
     if (!this.storeAccess) {
       throw new Error("TestApiService not initialized with store access");
     }
 
     this.storeAccess.resetPosition();
     this.emit("test:reset", {});
+  }
+
+  /**
+   * Set board position via FEN string
+   *
+   * @description
+   * Sets the chess board to a specific position defined by the FEN string.
+   * This is essential for testing specific scenarios and positions.
+   *
+   * @param {string} fen - Valid FEN string representing the board position
+   * @returns {boolean} True if position was set successfully, false otherwise
+   *
+   * @throws {Error} If service is not initialized with store access
+   *
+   * @example
+   * ```typescript
+   * // Set an endgame position
+   * const success = testApi.setPosition('8/8/8/4k3/4P3/4K3/8/8 w - - 0 1');
+   * expect(success).toBe(true);
+   * ```
+   */
+  public setPosition(fen: string): boolean {
+    if (!this.storeAccess) {
+      console.error("TestApiService not initialized with store access");
+      return false;
+    }
+
+    if (!this.storeAccess.setPosition) {
+      console.error("setPosition not available in store");
+      return false;
+    }
+
+    try {
+      this.storeAccess.setPosition(fen);
+      this.emit("test:positionSet", { fen });
+      return true;
+    } catch (error) {
+      console.error("Failed to set position:", error);
+      return false;
+    }
   }
 
   /**
