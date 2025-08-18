@@ -1,5 +1,5 @@
 import { defineConfig, mergeConfig } from 'vitest/config';
-import { featuresDir } from '../paths';
+import { domainsDir } from '../paths';
 import baseConfig from '../../vitest.base.config';
 
 /**
@@ -13,7 +13,7 @@ export default mergeConfig(
   defineConfig({
     test: {
       name: 'training',
-      include: [`${featuresDir}/training/**/*.{test,spec}.{ts,tsx}`],
+      include: [`${domainsDir}/training/**/*.{test,spec}.{ts,tsx}`],
       exclude: ['node_modules', 'dist', '.next', '**/node_modules/**'],
     },
   })

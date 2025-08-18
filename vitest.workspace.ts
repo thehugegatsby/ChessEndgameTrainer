@@ -9,26 +9,26 @@ import { defineWorkspace } from 'vitest/config';
  * - Optimized for WSL2 performance
  */
 export default defineWorkspace([
-  // Feature Projects (Unit Tests)
+  // Domain Projects (Unit Tests)
   {
     extends: './config/testing/vitest.chess-core.config.ts',
     test: {
-      name: 'chess-core',
-      include: ['src/features/chess-core/**/*.{test,spec}.{ts,tsx}'],
+      name: 'game',
+      include: ['src/domains/game/**/*.{test,spec}.{ts,tsx}'],
     },
   },
   {
     extends: './config/testing/vitest.tablebase.config.ts', 
     test: {
-      name: 'tablebase',
-      include: ['src/features/tablebase/**/*.{test,spec}.{ts,tsx}'],
+      name: 'evaluation',
+      include: ['src/domains/evaluation/**/*.{test,spec}.{ts,tsx}'],
     },
   },
   {
     extends: './config/testing/vitest.training.config.ts',
     test: {
       name: 'training', 
-      include: ['src/features/training/**/*.{test,spec}.{ts,tsx}'],
+      include: ['src/domains/training/**/*.{test,spec}.{ts,tsx}'],
     },
   },
   {
@@ -46,7 +46,7 @@ export default defineWorkspace([
       name: 'integration',
       include: [
         'src/tests/integration/**/*.{test,spec}.{ts,tsx}',
-        'src/features/**/integration/**/*.{test,spec}.{ts,tsx}',
+        'src/domains/**/integration/**/*.{test,spec}.{ts,tsx}',
       ],
     },
   },

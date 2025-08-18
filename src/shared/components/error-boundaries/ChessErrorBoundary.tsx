@@ -18,6 +18,7 @@
 import React, { Component } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { getLogger } from '@shared/services/logging';
+import { TIMING_CONSTANTS } from '../../../config/constants';
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -70,7 +71,7 @@ export class ChessErrorBoundary extends Component<
     };
   }
 
-  override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  override componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     const errorId = this.state.errorId || crypto.randomUUID();
     
     // Log the error with chess-specific context
@@ -103,11 +104,11 @@ export class ChessErrorBoundary extends Component<
     if (this.state.retryCount === 0) {
       this.resetTimeoutId = setTimeout(() => {
         this.handleRetry();
-      }, 5000);
+      }, TIMING_CONSTANTS.AUTO_RETRY_TIMEOUT_MS);
     }
   }
 
-  override componentDidUpdate(prevProps: ChessErrorBoundaryProps) {
+  override componentDidUpdate(prevProps: ChessErrorBoundaryProps): void {
     const { resetOnPropsChange, resetKeys } = this.props;
     const { hasError } = this.state;
 
@@ -123,13 +124,13 @@ export class ChessErrorBoundary extends Component<
     }
   }
 
-  override componentWillUnmount() {
+  override componentWillUnmount(): void {
     if (this.resetTimeoutId) {
       clearTimeout(this.resetTimeoutId);
     }
   }
 
-  resetErrorBoundary = () => {
+  resetErrorBoundary = (): void => {
     if (this.resetTimeoutId) {
       clearTimeout(this.resetTimeoutId);
       this.resetTimeoutId = null;
@@ -149,7 +150,7 @@ export class ChessErrorBoundary extends Component<
     });
   };
 
-  handleRetry = () => {
+  handleRetry = (): void => {
     const newRetryCount = this.state.retryCount + 1;
     
     getLogger().info('[CHESS-ERROR-BOUNDARY] Manual retry attempted', {
@@ -166,7 +167,7 @@ export class ChessErrorBoundary extends Component<
     });
   };
 
-  handleReportError = () => {
+  handleReportError = (): void => {
     const { error, errorInfo, errorId } = this.state;
     
     if (error && errorInfo && errorId) {
@@ -193,14 +194,14 @@ export class ChessErrorBoundary extends Component<
             alert('Error report copied to clipboard');
           })
           .catch(() => {
-            console.log('Error report:', errorReport);
+            console.info('Error report:', errorReport);
             alert('Error report logged to console');
           });
       }
     }
   };
 
-  override render() {
+  override render(): React.ReactNode {
     if (this.state.hasError) {
       // Custom fallback UI provided
       if (this.props.fallback) {
@@ -244,7 +245,7 @@ function ChessErrorFallback({
   onRetry,
   onReset,
   onReport
-}: ChessErrorFallbackProps) {
+}: ChessErrorFallbackProps): React.ReactElement {
   const isRepeatedError = retryCount > 0;
 
   return (
@@ -392,7 +393,7 @@ function ChessErrorFallback({
           <li>Lade die Seite vollständig neu (Strg+F5)</li>
           <li>Lösche den Browser-Cache</li>
           <li>Verwende einen anderen Browser</li>
-          <li>Melde das Problem über "Fehler melden"</li>
+          <li>Melde das Problem über &ldquo;Fehler melden&rdquo;</li>
         </ol>
       </div>
     </div>
@@ -411,7 +412,7 @@ interface ChessErrorWrapperProps {
   resetKeys?: Array<string | number>;
 }
 
-export function ChessErrorWrapper({ children, resetKeys }: ChessErrorWrapperProps) {
+export function ChessErrorWrapper({ children, resetKeys }: ChessErrorWrapperProps): React.ReactElement {
   return (
     <ChessErrorBoundary
       resetOnPropsChange={true}

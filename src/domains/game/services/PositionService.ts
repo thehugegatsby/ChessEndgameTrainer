@@ -72,14 +72,19 @@ export class PositionService implements PositionServiceInterface {
       }
 
       // Transform tablebase result to PositionEvaluationResult
+      const evaluationResult = evaluation.result;
+      if (!evaluationResult) {
+        throw new Error('No evaluation result available');
+      }
+      
       const result: PositionEvaluationResult = {
-        wdl: evaluation.result!.wdl,
-        category: evaluation.result!.category as 'win' | 'loss' | 'draw' | 'unknown'
+        wdl: evaluationResult.wdl,
+        category: evaluationResult.category as 'win' | 'loss' | 'draw' | 'unknown'
       };
       
       // Only add dtz if it exists
-      if (evaluation.result!.dtz !== null) {
-        result.dtz = evaluation.result!.dtz;
+      if (evaluationResult.dtz !== null) {
+        result.dtz = evaluationResult.dtz;
       }
 
       this.logger.debug('Position evaluation completed', { 
@@ -161,8 +166,11 @@ export class PositionService implements PositionServiceInterface {
       }
 
       // After the length check, we know moves.moves has at least one element
-      // The '!' after [0] tells TypeScript this element definitely exists
-      const firstMove = moves.moves[0]!;
+      const firstMove = moves.moves[0];
+      if (!firstMove) {
+        this.logger.debug('First move is undefined despite length check', { fen: currentFen });
+        return null;
+      }
       const bestMove = firstMove.uci;
       
       this.logger.debug('Best move calculated', { 

@@ -11,7 +11,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 6
+      "actualWorkers": 2
     },
     "preserveOutput": "always",
     "reporter": [
@@ -43,7 +43,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 6
+          "actualWorkers": 2
         },
         "id": "chromium",
         "name": "chromium",
@@ -59,7 +59,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 6
+          "actualWorkers": 2
         },
         "id": "firebase",
         "name": "firebase",
@@ -88,20 +88,20 @@
   },
   "suites": [
     {
-      "title": "core/smoke-workflow.spec.ts",
-      "file": "core/smoke-workflow.spec.ts",
+      "title": "core/pawn-promotion.spec.ts",
+      "file": "core/pawn-promotion.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "🚀 E2E Smoke Test - Complete Training Workflow",
-          "file": "core/smoke-workflow.spec.ts",
-          "line": 20,
+          "title": "Pawn Promotion Simple Test",
+          "file": "core/pawn-promotion.spec.ts",
+          "line": 9,
           "column": 6,
           "specs": [
             {
-              "title": "🔥 CRITICAL: Complete training workflow (full journey)",
+              "title": "should auto-complete when promoting from e7 to e8=Q",
               "ok": true,
               "tags": [],
               "tests": [
@@ -116,88 +116,58 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 23295,
+                      "duration": 41626,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "🚀 Starting complete training workflow test...\n"
+                          "text": "🎯 Starting pawn promotion sequence...\n"
                         },
                         {
-                          "text": "📍 Step 1: Loading training position...\n"
+                          "text": "📍 Step 1: Moving pawn e5 → e6\n"
                         },
                         {
-                          "text": "📍 Step 2: Making a move...\n"
+                          "text": "🎯 Making move: e5 → e6 (click)\n"
                         },
                         {
-                          "text": "🎯 Making move: e6 → d6 (click)\n"
+                          "text": "✅ Click move completed: e5 → e6\n"
                         },
                         {
-                          "text": "✅ Click move completed: e6 → d6\n"
+                          "text": "✅ Move verified successful: e5 → e6\n"
                         },
                         {
-                          "text": "✅ Move verified successful: e6 → d6\n"
+                          "text": "📍 Step 2: Moving pawn e6 → e7\n"
                         },
                         {
-                          "text": "📍 Step 3: Checking for feedback...\n"
+                          "text": "🎯 Making move: e6 → e7 (click)\n"
                         },
                         {
-                          "text": "⚠️ Streak counter not found or different format: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n"
+                          "text": "✅ Click move completed: e6 → e7\n"
                         },
                         {
-                          "text": "📍 Step 4: Navigating to next position...\n"
+                          "text": "✅ Move verified successful: e6 → e7\n"
                         },
                         {
-                          "text": "🔍 Attempting to find next position button...\n"
+                          "text": "📍 Step 3: Promoting pawn e7 → e8=Q\n"
                         },
                         {
-                          "text": "Found 14 buttons on page\n"
+                          "text": "🎯 Making move: e7 → e8 (click)\n"
                         },
                         {
-                          "text": "Button 0: text=\"✕\", title=\"null\", disabled=false\n"
+                          "text": "✅ Click move completed: e7 → e8\n"
                         },
                         {
-                          "text": "Button 1: text=\"⚙️Settings\", title=\"null\", disabled=false\n"
+                          "text": "✅ Move verified successful: e7 → e8\n"
                         },
                         {
-                          "text": "Button 2: text=\"♛Queen endgames▶\", title=\"null\", disabled=true\n"
+                          "text": "⚠️ No promotion dialog found - auto-promotion to Queen\n"
                         },
                         {
-                          "text": "Button 3: text=\"♞Knight endgames▶\", title=\"null\", disabled=true\n"
-                        },
-                        {
-                          "text": "Button 4: text=\"♝Bishop endgames▶\", title=\"null\", disabled=true\n"
-                        },
-                        {
-                          "text": "Button 5: text=\"← Vorherige Stellung\", title=\"Vorherige Stellung\", disabled=true\n"
-                        },
-                        {
-                          "text": "Button 6: text=\"↻\", title=\"Position zurücksetzen\", disabled=false\n"
-                        },
-                        {
-                          "text": "Button 7: text=\"Nächste Stellung →\", title=\"Nächste Stellung\", disabled=false\n"
-                        },
-                        {
-                          "text": "Button 8: text=\"Analyse AN\", title=\"null\", disabled=false\n"
-                        },
-                        {
-                          "text": "Button 9: text=\"Kd6\", title=\"null\", disabled=false\n"
-                        },
-                        {
-                          "text": "⏳ Waiting for navigation state to be refreshed...\n"
-                        },
-                        {
-                          "text": "✅ Navigation refresh wait complete - nextPosition should be available\n"
-                        },
-                        {
-                          "text": "📍 Step 5: Verifying new position...\n"
-                        },
-                        {
-                          "text": "🎉 Complete workflow test PASSED!\n"
+                          "text": "🎉 Pawn promotion test PASSED!\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-18T10:42:41.556Z",
+                      "startTime": "2025-08-18T11:24:02.296Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -205,21 +175,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "17a2aa238a2d1086b48f-3233a9f21897183d0967",
-              "file": "core/smoke-workflow.spec.ts",
-              "line": 28,
+              "id": "47dd5a3f14384a9bbb96-f7ca7cc16b72ad7da399",
+              "file": "core/pawn-promotion.spec.ts",
+              "line": 11,
               "column": 7
-            }
-          ]
-        },
-        {
-          "title": "⚡ Quick Smoke Tests",
-          "file": "core/smoke-workflow.spec.ts",
-          "line": 73,
-          "column": 6,
-          "specs": [
+            },
             {
-              "title": "🩺 App loads without errors",
+              "title": "manual test of promotion detection",
               "ok": true,
               "tags": [],
               "tests": [
@@ -234,19 +196,31 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 2717,
+                      "duration": 17375,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "🧪 Quick health check...\n"
+                          "text": "🎯 Testing promotion UI detection...\n"
                         },
                         {
-                          "text": "✅ Health check passed: \"Chess Endgame Trainer\"\n"
+                          "text": "🎯 Making move: e5 → e6 (click)\n"
+                        },
+                        {
+                          "text": "✅ Click move completed: e5 → e6\n"
+                        },
+                        {
+                          "text": "✅ Move verified successful: e5 → e6\n"
+                        },
+                        {
+                          "text": "⚠️ No promotion dialog found (expected for regular moves)\n"
+                        },
+                        {
+                          "text": "✅ Promotion detection test completed\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-18T10:42:41.548Z",
+                      "startTime": "2025-08-18T11:24:02.291Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -254,200 +228,9 @@
                   "status": "expected"
                 }
               ],
-              "id": "17a2aa238a2d1086b48f-a5b4efdb6962affb8037",
-              "file": "core/smoke-workflow.spec.ts",
-              "line": 80,
-              "column": 7
-            },
-            {
-              "title": "🎯 Training page loads board",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 2,
-                      "status": "passed",
-                      "duration": 2798,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🧪 Testing training page loads...\n"
-                        },
-                        {
-                          "text": "✅ Training board loads successfully\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-08-18T10:42:41.558Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "17a2aa238a2d1086b48f-5b1127aa82533d66f98e",
-              "file": "core/smoke-workflow.spec.ts",
-              "line": 105,
-              "column": 7
-            },
-            {
-              "title": "🔗 Basic navigation works",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 3,
-                      "parallelIndex": 3,
-                      "status": "passed",
-                      "duration": 5662,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🧪 Testing basic navigation...\n"
-                        },
-                        {
-                          "text": "✅ Basic navigation works\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-08-18T10:42:41.562Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "17a2aa238a2d1086b48f-c9292f6562cd98cf75a1",
-              "file": "core/smoke-workflow.spec.ts",
-              "line": 115,
-              "column": 7
-            },
-            {
-              "title": "⚡ Performance check - loads within 10 seconds",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 4,
-                      "parallelIndex": 4,
-                      "status": "passed",
-                      "duration": 2790,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🧪 Testing load performance...\n"
-                        },
-                        {
-                          "text": "⏱️  Load time: 2617ms\n"
-                        },
-                        {
-                          "text": "✅ Performance check passed\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-08-18T10:42:41.554Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "17a2aa238a2d1086b48f-9c027f31660c1f84cd36",
-              "file": "core/smoke-workflow.spec.ts",
-              "line": 133,
-              "column": 7
-            },
-            {
-              "title": "🎮 Both interaction methods work",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 5,
-                      "parallelIndex": 5,
-                      "status": "passed",
-                      "duration": 31366,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🧪 Testing click and drag interactions...\n"
-                        },
-                        {
-                          "text": "🎯 Making move: e6 → d6 (click)\n"
-                        },
-                        {
-                          "text": "✅ Click move completed: e6 → d6\n"
-                        },
-                        {
-                          "text": "✅ Move verified successful: e6 → d6\n"
-                        },
-                        {
-                          "text": "✅ Click interaction works\n"
-                        },
-                        {
-                          "text": "🎯 Making move: e6 → d6 (drag)\n"
-                        },
-                        {
-                          "text": "✅ Drag move completed: e6 → d6\n"
-                        },
-                        {
-                          "text": "✅ Move verified successful: e6 → d6\n"
-                        },
-                        {
-                          "text": "✅ Drag interaction works\n"
-                        },
-                        {
-                          "text": "✅ Interaction methods tested - Click: ✅, Drag: ✅\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-08-18T10:42:41.561Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "17a2aa238a2d1086b48f-bdb2484d04e3a3e0bc71",
-              "file": "core/smoke-workflow.spec.ts",
-              "line": 149,
+              "id": "47dd5a3f14384a9bbb96-619f8a650713c9d0d204",
+              "file": "core/pawn-promotion.spec.ts",
+              "line": 87,
               "column": 7
             }
           ]
@@ -457,9 +240,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-08-18T10:42:29.941Z",
-    "duration": 42599.799999999996,
-    "expected": 6,
+    "startTime": "2025-08-18T11:23:50.489Z",
+    "duration": 52880.947,
+    "expected": 2,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

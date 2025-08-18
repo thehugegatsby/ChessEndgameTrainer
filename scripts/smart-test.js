@@ -81,28 +81,39 @@ async function confirmLargeTestRun(testCount) {
 
 // Helper: Get test suite overview
 function getTestSuiteOverview() {
-  const features = ['chess-core', 'tablebase', 'training', 'shared'];
+  const domains = ['game', 'evaluation', 'training'];
   const overview = {
     unit: 0,
     integration: 0,
     total: 0
   };
 
-  features.forEach(feature => {
+  domains.forEach(domain => {
     try {
-      const featureCount = execSync(
-        `find src/features/${feature} -name "*.test.*" -o -name "*.spec.*" | wc -l`,
+      const domainCount = execSync(
+        `find src/domains/${domain} -name "*.test.*" -o -name "*.spec.*" | wc -l`,
         { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }
       );
-      overview.unit += parseInt(featureCount.trim(), 10);
+      overview.unit += parseInt(domainCount.trim(), 10);
     } catch {
-      // Feature might not exist
+      // Domain might not exist
     }
   });
 
+  // Add shared tests
+  try {
+    const sharedCount = execSync(
+      `find src/shared -name "*.test.*" -o -name "*.spec.*" | wc -l`,
+      { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }
+    );
+    overview.unit += parseInt(sharedCount.trim(), 10);
+  } catch {
+    // Shared might not exist
+  }
+
   try {
     const integrationCount = execSync(
-      `find src/tests/integration src/features -path "*/integration/*" \\( -name "*.test.*" -o -name "*.spec.*" \\) | wc -l`,
+      `find src/tests/integration src/domains -path "*/integration/*" \\( -name "*.test.*" -o -name "*.spec.*" \\) | wc -l`,
       { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }
     );
     overview.integration = parseInt(integrationCount.trim(), 10);

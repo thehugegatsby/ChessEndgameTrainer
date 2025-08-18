@@ -33,7 +33,7 @@ export interface TestUser {
   >;
 }
 
-export interface GameState {
+export interface TestGameState {
   positionId: number;
   fen: string;
   moveHistory: string[];
@@ -118,7 +118,7 @@ export class TestApiClient {
   /**
    * Set game state directly
    */
-  async setGameState(state: GameState): Promise<{ success: boolean }> {
+  async setGameState(state: TestGameState): Promise<{ success: boolean }> {
     const response = await this.request.post(`${this.baseUrl}/e2e/set-game-state`, {
       data: state,
     });
@@ -134,7 +134,7 @@ export class TestApiClient {
   /**
    * Get current game state
    */
-  async getGameState(positionId: number): Promise<GameState> {
+  async getGameState(positionId: number): Promise<TestGameState> {
     const response = await this.request.get(`${this.baseUrl}/e2e/game-state/${positionId}`);
 
     if (!response.ok()) {

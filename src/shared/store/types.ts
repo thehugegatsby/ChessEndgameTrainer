@@ -3,13 +3,7 @@
  * Defines the shape of the application state and actions
  */
 
-import { type ValidatedMove, type ChessInstance } from '../types';
-import { type Move as ChessJsMove } from 'chess.js';
-
 import { type PositionAnalysis } from '../types/evaluation';
-
-import { type EndgamePosition } from '../types/endgame';
-import { type MoveSuccessDialog } from '@shared/store/orchestrators/handlePlayerMove/move.types';
 
 // User state
 /**
@@ -42,65 +36,12 @@ export interface UserPreferences {
   animationSpeed: 'slow' | 'normal' | 'fast' | 'none';
 }
 
-// Endgame session state
-/**
- * State for endgame training sessions
- * @interface EndgameSessionState
- */
-export interface EndgameSessionState {
-  currentPosition?: EndgamePosition;
-  nextPosition?: EndgamePosition | null;
-  previousPosition?: EndgamePosition | null;
-  isLoadingNavigation?: boolean;
-  navigationError?: string | null;
-  chapterProgress?: {
-    completed: number;
-    total: number;
-  } | null;
-  game?: ChessInstance;
-  moveHistory: ValidatedMove[];
-  tablebaseMove?: string | null | undefined;
-  evaluations: PositionAnalysis[];
-  isPlayerTurn: boolean;
-  isGameFinished: boolean;
-  isSuccess: boolean;
-  startTime?: number;
-  endTime?: number;
-  hintsUsed: number;
-  mistakeCount: number;
-  currentEvaluation?: PositionAnalysis | undefined;
-  analysisStatus: AnalysisStatus;
-  currentFen?: string;
-  currentPgn?: string;
-  currentMoveIndex?: number;
-  moveErrorDialog?: {
-    isOpen: boolean;
-    wdlBefore?: number;
-    wdlAfter?: number;
-    bestMove?: string;
-  } | null;
-}
-
-// Complete endgame session state combining all aspects
-export interface CompleteEndgameSessionState {
-  gameState: GameState;
-  tablebaseAnalysisState: TablebaseAnalysisState;
-}
+// DEPRECATED: EndgameSessionState removed - replaced by TrainingSlice in slices/types.ts
+// DEPRECATED: CompleteEndgameSessionState removed - replaced by slice-based architecture
 
 // TrainingState removed - use EndgameSessionState instead
 
-/**
- * Pure chess game state (domain-agnostic)
- * @interface GameState
- */
-export interface GameState {
-  game?: ChessInstance;
-  currentFen: string;
-  currentPgn: string;
-  moveHistory: ValidatedMove[];
-  currentMoveIndex: number;
-  isGameFinished: boolean;
-}
+// DEPRECATED: GameState removed - replaced by GameState in slices/types.ts
 
 /**
  * Tablebase analysis state
@@ -294,21 +235,7 @@ export interface ExperimentalFeatures {
   multiplePerspective: boolean;
 }
 
-// Root state
-/**
- *
- */
-export interface RootState {
-  user: UserState;
-  training: EndgameSessionState;
-  progress: ProgressState;
-  ui: UIState;
-  settings: SettingsState;
-
-  // Internal action references (used to prevent Immer stripping)
-  _trainingActions?: TrainingActions;
-  _tablebaseActions?: Record<string, (...args: unknown[]) => void>;
-}
+// DEPRECATED: Old RootState removed - replaced by slice-based RootState in slices/types.ts
 
 // Action types
 /**
@@ -322,41 +249,7 @@ export interface UserActions {
   addCompletedPosition: (positionId: number) => void;
 }
 
-/**
- *
- */
-export interface TrainingActions {
-  setPosition: (position: EndgamePosition) => void;
-  loadTrainingContext: (position: EndgamePosition) => Promise<void>;
-  setGame: (game: ChessInstance) => void;
-  makeUserMove: (
-    move: ChessJsMove | { from: string; to: string; promotion?: string } | string
-  ) => Promise<boolean>;
-  applyMove: (move: ChessJsMove | { from: string; to: string; promotion?: string }) => void;
-  undoMove: () => void;
-  resetPosition: () => void;
-  setEvaluation: (evaluation: PositionAnalysis) => void;
-  setEvaluations: (evaluations: PositionAnalysis[]) => void;
-  setAnalysisStatus: (status: AnalysisStatus) => void;
-  completeTraining: (success: boolean) => void;
-  incrementHint: () => void;
-  incrementMistake: () => void;
-  setMoveErrorDialog: (
-    dialogState: {
-      isOpen: boolean;
-      wdlBefore?: number;
-      wdlAfter?: number;
-      bestMove?: string;
-    } | null
-  ) => void;
-  setMoveSuccessDialog: (dialog: MoveSuccessDialog | null) => void;
-  // Navigation actions
-  goToMove: (moveIndex: number) => void;
-  goToFirst: () => void;
-  goToPrevious: () => void;
-  goToNext: () => void;
-  goToLast: () => void;
-}
+// DEPRECATED: TrainingActions removed - replaced by TrainingActions in slices/types.ts
 
 /**
  *
@@ -392,16 +285,4 @@ export interface SettingsActions {
   completeSync: (success: boolean, error?: string) => void;
 }
 
-// Combined actions
-/**
- *
- */
-export interface Actions
-  extends UserActions,
-    TrainingActions,
-    ProgressActions,
-    UIActions,
-    SettingsActions {
-  reset: () => void;
-  hydrate: (state: Partial<RootState>) => void;
-}
+// DEPRECATED: Old Actions interface removed - replaced by slice-based actions in slices/types.ts

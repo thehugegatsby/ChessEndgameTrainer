@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { featuresTestSetup, featuresDir, srcDir, sharedDir, testsDir } from '../paths';
+import { srcDir, sharedDir, testsDir, domainsDir } from '../paths';
 
 const projectRoot = path.resolve(__dirname, '../../');
 console.log('✅ Vitest configuration loaded from: config/testing/vitest.config.ts');
@@ -28,34 +28,28 @@ export default defineConfig({
     // Alias configuration - CRUCIAL: Must be in test section, not resolve section!
     alias: {
       '@shared': path.resolve(projectRoot, 'src/shared'),
-      '@features': path.resolve(projectRoot, 'src/features'), 
       '@tests': path.resolve(projectRoot, 'src/tests'),
       '@': path.resolve(projectRoot, 'src'),
       '@domains': path.resolve(projectRoot, 'src/domains'),
     },
     
-    // Feature-based project organization for targeted test runs
+    // Domain-based project organization for targeted test runs
     // Each project runs in an isolated context. 'extends: true' is required to inherit root-level configuration like aliases.
     projects: [
       {
-        name: 'chess-core',
+        name: 'game',
         extends: true,
-        testMatch: [`${featuresDir}/chess-core/**/*.{test,spec}.{ts,tsx}`],
+        testMatch: [`${domainsDir}/game/**/*.{test,spec}.{ts,tsx}`],
       },
       {
-        name: 'tablebase',
+        name: 'evaluation',
         extends: true,
-        testMatch: [`${featuresDir}/tablebase/**/*.{test,spec}.{ts,tsx}`],
+        testMatch: [`${domainsDir}/evaluation/**/*.{test,spec}.{ts,tsx}`],
       },
       {
         name: 'training',
         extends: true,
-        testMatch: [`${featuresDir}/training/**/*.{test,spec}.{ts,tsx}`],
-      },
-      {
-        name: 'move-quality',
-        extends: true,
-        testMatch: [`${featuresDir}/move-quality/**/*.{test,spec}.{ts,tsx}`],
+        testMatch: [`${domainsDir}/training/**/*.{test,spec}.{ts,tsx}`],
       },
       {
         name: 'shared',
@@ -74,13 +68,12 @@ export default defineConfig({
     globals: true,
     setupFiles: [
       path.resolve(testsDir, 'setup/observer-polyfill.ts'), // MUST be first!
-      featuresTestSetup,
       path.resolve(testsDir, 'utils/vitestSetup.ts'),
     ],
 
     // Test file inclusion patterns
     include: [
-      `${featuresDir}/**/*.{test,spec}.{ts,tsx}`,
+      `${domainsDir}/**/*.{test,spec}.{ts,tsx}`,
       `${testsDir}/**/*.{test,spec}.{ts,tsx}`,
       `${testsDir}/**/*.test.ts`,
       `${testsDir}/**/*.test.tsx`,

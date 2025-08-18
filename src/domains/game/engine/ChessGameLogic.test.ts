@@ -1,24 +1,24 @@
 /**
- * @file ChessEngine Test Contract
- * @description Comprehensive tests for domain ChessEngine implementation
+ * @file ChessGameLogic Test Contract
+ * @description Comprehensive tests for domain ChessGameLogic implementation
  * Expanded from legacy test suite with high-priority test cases
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ChessEngine } from './ChessEngine';
+import { ChessGameLogic } from './ChessGameLogic';
 import type { MoveInput } from './types';
 
-describe('ChessEngine', () => {
-  let engine: ChessEngine;
+describe('ChessGameLogic', () => {
+  let engine: ChessGameLogic;
 
   beforeEach(() => {
-    engine = new ChessEngine();
+    engine = new ChessGameLogic();
   });
 
   describe('Smoke Test - Basic Instantiation', () => {
-    it('should create a new ChessEngine instance', () => {
+    it('should create a new ChessGameLogic instance', () => {
       expect(engine).toBeDefined();
-      expect(engine).toBeInstanceOf(ChessEngine);
+      expect(engine).toBeInstanceOf(ChessGameLogic);
     });
 
     it('should initialize with starting position', () => {
@@ -29,7 +29,7 @@ describe('ChessEngine', () => {
 
     it('should accept custom FEN in constructor', () => {
       const customFen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1';
-      const customEngine = new ChessEngine(customFen);
+      const customEngine = new ChessGameLogic(customFen);
       expect(customEngine.getFen()).toBe(customFen);
       expect(customEngine.getTurn()).toBe('b');
     });
@@ -169,7 +169,7 @@ describe('ChessEngine', () => {
 
   describe('Move Generation', () => {
     it('should generate all legal moves from starting position', () => {
-      const moves = engine.getPossibleMoves();
+      const moves = engine.getValidMoves();
       
       expect(Array.isArray(moves)).toBe(true);
       expect(moves.length).toBe(20); // 20 legal moves in starting position
@@ -182,7 +182,7 @@ describe('ChessEngine', () => {
     });
 
     it('should generate moves for specific square', () => {
-      const moves = engine.getPossibleMoves('e2');
+      const moves = engine.getValidMoves('e2');
       
       expect(Array.isArray(moves)).toBe(true);
       expect(moves.length).toBe(2); // e3 and e4
@@ -320,7 +320,7 @@ describe('ChessEngine', () => {
       expect(engine.isGameOver()).toBe(true);
       
       // But moves should still be generated for analysis
-      const kingMoves = engine.getPossibleMoves('d3');
+      const kingMoves = engine.getValidMoves('d3');
       expect(kingMoves.length).toBeGreaterThan(0);
     });
 
@@ -329,7 +329,7 @@ describe('ChessEngine', () => {
       engine.loadFen('8/1p6/p1k5/P1P5/1P1K4/8/8/8 w - - 0 1');
       
       expect(engine.isGameOver()).toBe(false);
-      const moves = engine.getPossibleMoves();
+      const moves = engine.getValidMoves();
       expect(moves.length).toBeGreaterThan(0);
       
       // Should be able to make a move

@@ -11,7 +11,6 @@ export { createStore } from './createStore';
 export type {
   UserState,
   UserPreferences,
-  EndgameSessionState,
   ProgressState,
   PositionProgress,
   DailyStats,
@@ -25,7 +24,6 @@ export type {
   ExperimentalFeatures,
   DataSyncState,
   AnalysisStatus,
-  CompleteEndgameSessionState,
   TablebaseAnalysisState,
 } from './types';
 

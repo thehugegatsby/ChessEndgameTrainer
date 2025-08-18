@@ -63,3 +63,17 @@ export const getAppUrl = (): string => {
   }
   return APP_CONFIG.PROD_URL;
 };
+
+/**
+ * UI and UX timing constants
+ */
+export const TIMING_CONSTANTS = {
+  /** Auto-retry timeout for error boundaries (5 seconds) */
+  AUTO_RETRY_TIMEOUT_MS: 5_000,
+  /** Default toast duration */
+  DEFAULT_TOAST_DURATION_MS: 3_000,
+  /** Debounce delay for user input */
+  USER_INPUT_DEBOUNCE_MS: 300,
+  /** Animation duration for UI transitions */
+  UI_ANIMATION_DURATION_MS: 200,
+} as const;

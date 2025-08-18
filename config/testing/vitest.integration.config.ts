@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import { featuresTestSetup, featuresDir, srcDir, sharedDir, testsDir, domainsDir } from '../paths';
+import { srcDir, sharedDir, testsDir, domainsDir } from '../paths';
 
 /**
  * Vitest Configuration for INTEGRATION TESTS ONLY
@@ -21,14 +21,13 @@ export default defineConfig({
     setupFiles: [
       path.resolve(testsDir, 'setup/observer-polyfill.ts'), // Still needed for per-test setup
       path.resolve(testsDir, 'utils/vitestSetup.ts'), // Next.js mocks
-      featuresTestSetup,
     ],
     include: [
       `${testsDir}/integration/**/*.{test,spec}.{ts,tsx}`,
       `${testsDir}/performance/**/*.{test,spec}.{ts,tsx}`,
       `${testsDir}/smoke/**/*.{test,spec}.{ts,tsx}`,
-      // Feature-specific integration tests (co-located with features)
-      `${featuresDir}/**/__tests__/integration/**/*.{test,spec}.{ts,tsx}`,
+      // Domain-specific integration tests
+      `${domainsDir}/**/__tests__/integration/**/*.{test,spec}.{ts,tsx}`,
     ],
     exclude: ['node_modules', 'dist', '.next', '**/node_modules/**', '**/unit/**', '**/e2e/**'],
     // Use forks pool for better process isolation
@@ -56,7 +55,6 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@features': featuresDir,
       '@lib': path.resolve(srcDir, 'lib'),
       '@shared': sharedDir,
       '@tests': testsDir,

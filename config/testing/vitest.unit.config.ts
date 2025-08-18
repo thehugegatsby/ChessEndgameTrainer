@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import path from 'path';
-import { featuresTestSetup, featuresDir, srcDir, sharedDir, testsDir } from '../paths';
+import { srcDir, sharedDir, testsDir, domainsDir } from '../paths';
 
 // WSL2 Detection
 const isWSL2 = process.env.WSL_DISTRO_NAME !== undefined;
@@ -22,13 +22,12 @@ export default defineConfig({
     globals: true,
     setupFiles: [
       path.resolve(testsDir, 'setup/observer-polyfill.ts'), // MUST be first!
-      featuresTestSetup,
       path.resolve(testsDir, 'utils/vitestSetup.ts'),
     ],
     include: [
-      // Feature tests (unit tests with TDD)
-      `${featuresDir}/**/*.{test,spec}.{ts,tsx}`,
-      // Shared component tests (new feature-based structure)
+      // Domain tests (unit tests with TDD)
+      `${domainsDir}/**/*.{test,spec}.{ts,tsx}`,
+      // Shared component tests
       `${sharedDir}/**/*.{test,spec}.{ts,tsx}`,
       // Unit test directory (legacy structure)
       `${testsDir}/unit/**/*.{test,spec}.{ts,tsx}`,

@@ -19,7 +19,6 @@ export const configDir = resolve(projectRoot, 'config');
 // Source directories
 export const appDir = resolve(srcDir, 'app');
 export const sharedDir = resolve(srcDir, 'shared');
-export const featuresDir = resolve(srcDir, 'features');
 export const domainsDir = resolve(srcDir, 'domains');
 
 // Test directories
@@ -46,7 +45,6 @@ export const lintingConfigDir = resolve(configDir, 'linting');
 // Common file patterns for reuse
 export const testSetupFile = resolve(testingConfigDir, 'vitest.setup.ts');
 export const integrationSetupFile = resolve(testingConfigDir, 'vitest.setup.integration.ts');
-export const featuresTestSetup = resolve(featuresDir, 'test-setup.ts');
 
 // Mock file paths
 export const fileMock = resolve(testsMocksDir, 'fileMock.js');
