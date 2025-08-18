@@ -13,7 +13,7 @@
 
 import { describe, it, test, expect, beforeEach } from 'vitest';
 import { tablebaseService } from '../../domains/evaluation';
-import { COMMON_FENS } from '@shared/testing/ChessTestData';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 // Skip these tests in CI to avoid rate limiting and external dependencies
 // Also skip if fetch is not available (e.g., in Node.js test environment without polyfill)
@@ -105,7 +105,7 @@ describeIfNotCI('Tablebase Real API Integration Tests', () => {
   describe('WDL Perspective Normalization', () => {
     it('should handle perspective correctly for black to move', async () => {
       // Position where black is to move and losing
-      const fen = COMMON_FENS.REAL_API_KPK;
+      const fen = TEST_POSITIONS.KPK_BASIC_WIN;
 
       const result = await tablebaseService.getEvaluation(fen);
 

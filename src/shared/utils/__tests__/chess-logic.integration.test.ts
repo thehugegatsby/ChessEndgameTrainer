@@ -25,12 +25,7 @@ import {
   generatePgn,
   turn,
 } from '../chess-logic';
-import {
-  TEST_POSITIONS,
-  StandardPositions,
-  EndgamePositions,
-  SpecialPositions,
-} from '@shared/testing/ChessTestData';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 // Helper to create test moves in chess.js format
 const createTestMove = (from: string, to: string, promotion?: string) => ({
@@ -42,7 +37,7 @@ const createTestMove = (from: string, to: string, promotion?: string) => ({
 describe('Chess Logic Integration Tests', () => {
   describe('Real Chess Rules', () => {
     it('should execute standard opening moves correctly', () => {
-      const startingFen = StandardPositions.STARTING;
+      const startingFen = TEST_POSITIONS.STARTING_POSITION;
       const result = makeMove(startingFen, createTestMove('e2', 'e4'));
 
       expect(result).not.toBeNull();
@@ -53,7 +48,7 @@ describe('Chess Logic Integration Tests', () => {
     });
 
     it('should handle castling moves correctly', () => {
-      const castlingFen = StandardPositions.CASTLING_AVAILABLE;
+      const castlingFen = TEST_POSITIONS.CASTLING_AVAILABLE;
 
       // Test kingside castling for white
       const result = makeMove(castlingFen, createTestMove('e1', 'g1'));
@@ -64,7 +59,7 @@ describe('Chess Logic Integration Tests', () => {
     });
 
     it('should handle en passant captures correctly', () => {
-      const enPassantFen = StandardPositions.EN_PASSANT;
+      const enPassantFen = TEST_POSITIONS.EN_PASSANT_POSITION;
 
       const result = makeMove(enPassantFen, createTestMove('e5', 'd6'));
 
@@ -76,7 +71,7 @@ describe('Chess Logic Integration Tests', () => {
     });
 
     it('should handle pawn promotion correctly', () => {
-      const promotionFen = SpecialPositions.PROMOTION;
+      const promotionFen = TEST_POSITIONS.WHITE_PROMOTION;
 
       // chess.js expects promotion in the move format: "e8=Q+"
       const result = makeMove(promotionFen, 'e8=Q+');
@@ -87,21 +82,21 @@ describe('Chess Logic Integration Tests', () => {
     });
 
     it('should detect checkmate correctly', () => {
-      const checkmateFen = SpecialPositions.CHECKMATE;
+      const checkmateFen = TEST_POSITIONS.CHECKMATE_POSITION;
 
       expect(isGameOver(checkmateFen)).toBe(true);
       expect(isCheckmate(checkmateFen)).toBe(true);
     });
 
     it('should detect stalemate correctly', () => {
-      const stalemateFen = SpecialPositions.STALEMATE;
+      const stalemateFen = TEST_POSITIONS.STALEMATE_POSITION;
 
       expect(isGameOver(stalemateFen)).toBe(true);
       expect(isStalemate(stalemateFen)).toBe(true);
     });
 
     it('should reject illegal moves', () => {
-      const startingFen = StandardPositions.STARTING;
+      const startingFen = TEST_POSITIONS.STARTING_POSITION;
 
       const result = makeMove(startingFen, createTestMove('e2', 'e5')); // Illegal pawn jump
 
@@ -110,7 +105,7 @@ describe('Chess Logic Integration Tests', () => {
 
     it('should handle complex move sequences', () => {
       // Play a short opening sequence using makeMove sequentially
-      let currentFen = StandardPositions.STARTING;
+      let currentFen = TEST_POSITIONS.STARTING_POSITION;
       
       const moves = [
         createTestMove('e2', 'e4'), // 1. e4
@@ -139,7 +134,7 @@ describe('Chess Logic Integration Tests', () => {
 
   describe('Move Validation Integration', () => {
     it('should validate moves without changing state', () => {
-      const startingFen = StandardPositions.STARTING;
+      const startingFen = TEST_POSITIONS.STARTING_POSITION;
 
       const validGood = validateMove(startingFen, createTestMove('e2', 'e4'));
       const validBad = validateMove(startingFen, createTestMove('e2', 'e5'));
@@ -152,7 +147,7 @@ describe('Chess Logic Integration Tests', () => {
     });
 
     it('should validate promotion moves correctly', () => {
-      const promotionFen = SpecialPositions.PROMOTION;
+      const promotionFen = TEST_POSITIONS.WHITE_PROMOTION;
 
       const validPromotion = validateMove(promotionFen, 'e8=Q+'); // chess.js format
       const invalidNoPromotion = validateMove(promotionFen, 'e8'); // Missing promotion
@@ -162,7 +157,7 @@ describe('Chess Logic Integration Tests', () => {
     });
 
     it('should validate string moves in SAN notation', () => {
-      const startingFen = StandardPositions.STARTING;
+      const startingFen = TEST_POSITIONS.STARTING_POSITION;
 
       const validSAN = validateMove(startingFen, 'e4');
       const invalidSAN = validateMove(startingFen, 'e5'); // Illegal as opening move for white
@@ -174,7 +169,7 @@ describe('Chess Logic Integration Tests', () => {
 
   describe('Game Status Integration', () => {
     it('should provide comprehensive game status', () => {
-      const checkmateFen = SpecialPositions.CHECKMATE;
+      const checkmateFen = TEST_POSITIONS.CHECKMATE_POSITION;
       const status = getGameStatus(checkmateFen);
 
       expect(status.isGameOver).toBe(true);
@@ -185,19 +180,19 @@ describe('Chess Logic Integration Tests', () => {
 
     it('should detect different game end conditions', () => {
       // Test checkmate
-      const checkmateFen = SpecialPositions.CHECKMATE;
+      const checkmateFen = TEST_POSITIONS.CHECKMATE_POSITION;
       const checkmateStatus = getGameStatus(checkmateFen);
       expect(checkmateStatus.isCheckmate).toBe(true);
       expect(checkmateStatus.isGameOver).toBe(true);
 
       // Test stalemate
-      const stalemateFen = SpecialPositions.STALEMATE;
+      const stalemateFen = TEST_POSITIONS.STALEMATE_POSITION;
       const stalemateStatus = getGameStatus(stalemateFen);
       expect(stalemateStatus.isStalemate).toBe(true);
       expect(stalemateStatus.isGameOver).toBe(true);
 
       // Test insufficient material
-      const insufficientFen = SpecialPositions.INSUFFICIENT_MATERIAL;
+      const insufficientFen = TEST_POSITIONS.INSUFFICIENT_MATERIAL;
       const insufficientStatus = getGameStatus(insufficientFen);
       expect(insufficientStatus.isDraw).toBe(true);
       expect(insufficientStatus.isGameOver).toBe(true);
@@ -206,7 +201,7 @@ describe('Chess Logic Integration Tests', () => {
 
   describe('Endgame Scenarios', () => {
     it('should handle KPK (King + Pawn vs King) endgame correctly', () => {
-      const kpkFen = EndgamePositions.KPK_WIN; // '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1'
+      const kpkFen = TEST_POSITIONS.KPK_BASIC_WIN; // '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1'
 
       // Test a typical winning move in KPK - advance the king
       const result = makeMove(kpkFen, createTestMove('e6', 'f6')); // White king move
@@ -217,7 +212,7 @@ describe('Chess Logic Integration Tests', () => {
     });
 
     it('should handle KQK (King + Queen vs King) endgame correctly', () => {
-      const kqkFen = EndgamePositions.KQK_WIN;
+      const kqkFen = TEST_POSITIONS.KQK_TABLEBASE_WIN;
 
       // Queen should have many legal moves in this position
       expect(kqkFen).toContain('Q'); // Queen present
@@ -233,7 +228,7 @@ describe('Chess Logic Integration Tests', () => {
     });
 
     it('should detect insufficient material correctly', () => {
-      const insufficientFen = SpecialPositions.INSUFFICIENT_MATERIAL;
+      const insufficientFen = TEST_POSITIONS.INSUFFICIENT_MATERIAL;
 
       expect(isGameOver(insufficientFen)).toBe(true);
       expect(isDraw(insufficientFen)).toBe(true);
@@ -243,10 +238,10 @@ describe('Chess Logic Integration Tests', () => {
   describe('Position Validation', () => {
     it('should accept valid FEN positions', () => {
       const validPositions = [
-        StandardPositions.STARTING,
-        StandardPositions.AFTER_E4,
-        EndgamePositions.KPK_WIN,
-        EndgamePositions.KQK_WIN,
+        TEST_POSITIONS.STARTING_POSITION,
+        TEST_POSITIONS.OPENING_AFTER_E4,
+        TEST_POSITIONS.KPK_BASIC_WIN,
+        TEST_POSITIONS.KQK_TABLEBASE_WIN,
       ];
 
       validPositions.forEach(fen => {
@@ -255,7 +250,7 @@ describe('Chess Logic Integration Tests', () => {
         expect(['w', 'b']).toContain(currentTurn);
         
         // For AFTER_E4, chess.js correctly shows no en passant
-        if (fen === StandardPositions.AFTER_E4) {
+        if (fen === TEST_POSITIONS.OPENING_AFTER_E4) {
           expect(fen).toContain('4P3');
           expect(fen).toContain('b KQkq -');
         }
@@ -276,7 +271,7 @@ describe('Chess Logic Integration Tests', () => {
   describe('Real Chess Logic Edge Cases', () => {
     it('should handle castling restrictions correctly', () => {
       // Start with castling available position
-      let currentFen = StandardPositions.CASTLING_AVAILABLE;
+      let currentFen = TEST_POSITIONS.CASTLING_AVAILABLE;
 
       // Move the king first
       let result = makeMove(currentFen, createTestMove('e1', 'f1')); // King move
@@ -298,7 +293,7 @@ describe('Chess Logic Integration Tests', () => {
 
     it('should handle check restrictions correctly', () => {
       // Set up a position where black king is in check
-      const checkFen = SpecialPositions.CHECK;
+      const checkFen = TEST_POSITIONS.CHECK_POSITION;
 
       // First verify king is actually in check
       expect(isCheck(checkFen)).toBe(true);
@@ -342,7 +337,7 @@ describe('Chess Logic Integration Tests', () => {
 
   describe('Turn and State Management', () => {
     it('should track turn correctly throughout game', () => {
-      let currentFen = StandardPositions.STARTING;
+      let currentFen = TEST_POSITIONS.STARTING_POSITION;
       
       expect(turn(currentFen)).toBe('w'); // White starts
       
@@ -360,7 +355,7 @@ describe('Chess Logic Integration Tests', () => {
     });
 
     it('should maintain position consistency', () => {
-      const testFen = StandardPositions.AFTER_E4;
+      const testFen = TEST_POSITIONS.OPENING_AFTER_E4;
       
       // Pure function should return identical FEN
       expect(getFen(testFen)).toBe(testFen);

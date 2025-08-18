@@ -1,10 +1,9 @@
 # Services
 
-Singleton service instances for chess logic and external integrations.
+Service instances for external integrations and cross-cutting concerns.
 
 **Key Services:**
 
-- `ChessService`: Core chess game logic, move validation
 - `TablebaseService`: Lichess tablebase API integration
 - `ErrorService`: Centralized error handling
 - `Logger`: Application-wide logging with remote transport

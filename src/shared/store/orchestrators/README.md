@@ -8,7 +8,7 @@ Complex state operations that coordinate between services and store.
 
 **Responsibilities:**
 
-- Bridge between ChessService and store updates
+- Bridge between domain services and store updates
 - Handle async operations (API calls, tablebase queries)
 - Manage side effects and error states
 - Coordinate multi-step state transitions

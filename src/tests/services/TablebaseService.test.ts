@@ -9,7 +9,7 @@ import { vi } from 'vitest';
  */
 
 import { tablebaseService, TablebaseService } from '../../domains/evaluation';
-import { TEST_POSITIONS, EndgamePositions, SpecialPositions, StandardPositions } from '@shared/testing/ChessTestData';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 // Mock the LichessApiClient
 vi.mock('../../shared/services/api/LichessApiClient', () => ({
@@ -88,7 +88,7 @@ describe('TablebaseService', () => {
 
   describe('Core Functionality', () => {
     it('should fetch and return evaluation for a position', async () => {
-      const fen = EndgamePositions.KQK_WIN;
+      const fen = TEST_POSITIONS.ENDGAME.KQK_WIN;
 
       mockLookup.mockResolvedValueOnce(
         createTablebaseResponse({
@@ -122,7 +122,7 @@ describe('TablebaseService', () => {
     });
 
     it('should return top moves with correct perspective', async () => {
-      const fen = EndgamePositions.KQK_WIN;
+      const fen = TEST_POSITIONS.ENDGAME.KQK_WIN;
 
       mockLookup.mockResolvedValueOnce(
         createTablebaseResponse({
@@ -165,7 +165,7 @@ describe('TablebaseService', () => {
 
   describe('Single API Call Architecture', () => {
     it('should use cached data for subsequent requests', async () => {
-      const fen = EndgamePositions.KQK_WIN;
+      const fen = TEST_POSITIONS.ENDGAME.KQK_WIN;
 
       mockLookup.mockResolvedValueOnce(
         createTablebaseResponse({
@@ -209,8 +209,8 @@ describe('TablebaseService', () => {
       );
 
       // Different halfmove/fullmove counters but same position
-      const fen1 = EndgamePositions.KQK_WIN;
-      const fen2 = EndgamePositions.KQK_WIN.replace('0 1', '15 42'); // Same position, different counters
+      const fen1 = TEST_POSITIONS.ENDGAME.KQK_WIN;
+      const fen2 = TEST_POSITIONS.ENDGAME.KQK_WIN.replace('0 1', '15 42'); // Same position, different counters
 
       await testService.getEvaluation(fen1);
       await testService.getEvaluation(fen2);
@@ -242,7 +242,7 @@ describe('TablebaseService', () => {
     });
 
     it('should handle 404 responses gracefully', async () => {
-      const fen = EndgamePositions.KNK_DRAW; // Valid but rare position
+      const fen = TEST_POSITIONS.ENDGAME.KNK_DRAW; // Valid but rare position
 
       const { LichessApiError } = await import('../../shared/services/api/LichessApiClient');
       mockLookup.mockRejectedValueOnce(new LichessApiError(404, 'Not found'));
@@ -259,7 +259,7 @@ describe('TablebaseService', () => {
     });
 
     it('should handle rate limiting errors', async () => {
-      const fen = EndgamePositions.KQK_WIN;
+      const fen = TEST_POSITIONS.ENDGAME.KQK_WIN;
 
       // Since the LichessApiClient handles retries internally,
       // and we're mocking it, we simulate the final result after retries
@@ -279,7 +279,7 @@ describe('TablebaseService', () => {
 
   describe('Black Perspective Handling', () => {
     it('should handle Black to move positions correctly', async () => {
-      const fen = EndgamePositions.KQK_BLACK_TO_MOVE; // Black to move
+      const fen = TEST_POSITIONS.ENDGAME.KQK_BLACK_TO_MOVE; // Black to move
 
       mockLookup.mockResolvedValueOnce(
         createTablebaseResponse({
@@ -341,7 +341,7 @@ describe('TablebaseService', () => {
 
   describe('Request Deduplication', () => {
     it('should handle concurrent requests for same position', async () => {
-      const fen = EndgamePositions.KQK_WIN;
+      const fen = TEST_POSITIONS.ENDGAME.KQK_WIN;
 
       // Delay the response to ensure requests are concurrent
       mockLookup.mockImplementationOnce(
@@ -380,7 +380,7 @@ describe('TablebaseService', () => {
 
   describe('Move Limiting', () => {
     it('should respect move limit parameter', async () => {
-      const fen = EndgamePositions.KQK_WIN;
+      const fen = TEST_POSITIONS.ENDGAME.KQK_WIN;
 
       mockLookup.mockResolvedValueOnce(
         createTablebaseResponse({
@@ -412,7 +412,7 @@ describe('TablebaseService', () => {
 
   describe('Empty Moves Handling', () => {
     it('should handle positions with no legal moves', async () => {
-      const fen = EndgamePositions.KQK_WIN;
+      const fen = TEST_POSITIONS.ENDGAME.KQK_WIN;
 
       mockLookup.mockResolvedValueOnce(
         createTablebaseResponse({
@@ -434,7 +434,7 @@ describe('TablebaseService', () => {
 
   describe('Metrics Tracking', () => {
     it('should track cache hits and API calls', async () => {
-      const fen = EndgamePositions.KQK_WIN;
+      const fen = TEST_POSITIONS.ENDGAME.KQK_WIN;
 
       mockLookup.mockResolvedValue(
         createTablebaseResponse({
@@ -491,7 +491,7 @@ describe('TablebaseService', () => {
 
   describe('Edge Cases - Partial API Responses', () => {
     it('should handle 200 OK with incomplete response gracefully', async () => {
-      const fen = EndgamePositions.KQK_WIN;
+      const fen = TEST_POSITIONS.ENDGAME.KQK_WIN;
 
       // Mock incomplete response - this should cause an error in transformation
       // Provide minimal data with category to avoid crash, but missing other fields
@@ -515,7 +515,7 @@ describe('TablebaseService', () => {
     });
 
     it('should handle 200 OK with null moves array', async () => {
-      const fen = EndgamePositions.KQK_WIN;
+      const fen = TEST_POSITIONS.ENDGAME.KQK_WIN;
 
       mockLookup.mockResolvedValueOnce({
         ok: true,
@@ -539,7 +539,7 @@ describe('TablebaseService', () => {
 
   describe('Edge Cases - Concurrent Failure Handling', () => {
     it('should properly handle concurrent requests with deduplication', async () => {
-      const fen = EndgamePositions.KQK_WIN;
+      const fen = TEST_POSITIONS.ENDGAME.KQK_WIN;
 
       // Mock successful response
       mockLookup.mockResolvedValue(

@@ -276,7 +276,7 @@ export interface AsyncActions {
   handlePlayerMove: (
     move: ChessJsMove | { from: string; to: string; promotion?: string } | string
   ) => Promise<boolean>;
-  // handleOpponentTurn and requestPositionEvaluation removed - functionality moved to chessService
+  // handleOpponentTurn and requestPositionEvaluation removed - functionality moved to orchestrators
   loadTrainingContext: (position: EndgamePosition) => Promise<void>;
 }
 

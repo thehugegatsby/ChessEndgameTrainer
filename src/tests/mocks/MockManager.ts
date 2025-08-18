@@ -75,7 +75,6 @@ class MockManager {
    */
   private get allFactories(): BaseMockFactory<any>[] {
     return [
-      this.chessService,
       this.tablebaseService,
       this.zustandStore,
       ...(this._mswServer ? [this._mswServer] : []),

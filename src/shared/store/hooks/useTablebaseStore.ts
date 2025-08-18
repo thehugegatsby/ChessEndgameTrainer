@@ -21,7 +21,7 @@ import type {
   TablebaseState as TablebaseStateType,
   TablebaseActions as TablebaseActionsType,
 } from '../slices/types';
-// Note: requestPositionEvaluation removed - use chessService directly
+// Note: requestPositionEvaluation removed - use tablebaseService directly
 
 /**
  * Hook for reactive tablebase state properties

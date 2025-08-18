@@ -8,7 +8,6 @@ The Mock Factory System provides a centralized, type-safe approach to creating a
 
 ```
 MockManager (Singleton)
-    ├── (ChessServiceMockFactory - deprecated)
     ├── TablebaseServiceMockFactory
     ├── ZustandStoreMockFactory
     └── MSWServerMockFactory
@@ -64,30 +63,6 @@ beforeEach(() => {
 
 ## Mock Factories
 
-### ChessServiceMockFactory (DEPRECATED)
-
-**Note: ChessService has been replaced with pure functions from `@shared/utils/chess-logic`.**
-
-For chess logic testing, use pure functions directly:
-
-```typescript
-import { makeMove, getPossibleMoves, getGameStatus } from '@shared/utils/chess-logic';
-import { FEN } from '@shared/constants/chess.constants';
-import { COMMON_FENS } from '@tests/fixtures/commonFens';
-
-// Direct testing with pure functions
-const result = makeMove(FEN.STARTING_POSITION, { from: 'e2', to: 'e4' });
-const validMoves = getPossibleMoves(FEN.STARTING_POSITION);
-const status = getGameStatus(COMMON_FENS.CHECKMATE_POSITION);
-
-// For store testing, mock the store state
-const store = mockManager.zustandStore.create({
-  game: {
-    currentFen: FEN.STARTING_POSITION,
-    moveHistory: [],
-  }
-});
-```
 
 ### TablebaseServiceMockFactory
 
@@ -209,11 +184,10 @@ Create a complete mock environment:
 ```typescript
 beforeEach(() => {
   const env = mockManager.createFullEnvironment({
-    chessService: { isGameOver: false },
     zustandStore: { game: { currentFen: 'test position' } },
   });
 
-  // Use env.chessService, env.store, etc.
+  // Use env.store, env.tablebaseService, etc.
 });
 ```
 
@@ -265,11 +239,8 @@ if (mockManager.hasActiveMocks()) {
 
 ```typescript
 // Manual mock with potential leaks
-jest.mock('@shared/services/ChessService');
-const mockChessService = {
-  move: jest.fn(),
-  // ... manual mock setup
-};
+// Chess logic is now handled by pure functions from @shared/utils/chess-logic
+// No mocking needed - test pure functions directly
 
 afterEach(() => {
   // Easy to forget cleanup

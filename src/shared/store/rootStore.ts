@@ -224,7 +224,7 @@ export const useStore = create<RootState>()(
           },
 
           // Note: handleOpponentTurn and requestPositionEvaluation removed
-          // Their functionality is now in chessService and handlePlayerMove orchestrator
+          // Their functionality is now in orchestrators and domain services
 
           /**
            * Loads training context for a position
