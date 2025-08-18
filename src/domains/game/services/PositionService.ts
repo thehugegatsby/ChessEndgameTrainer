@@ -4,6 +4,8 @@
  * @description Implementation of position management, FEN handling, and position evaluation
  */
 
+import { getLogger } from '@shared/services/logging/Logger';
+import { ErrorService } from '@shared/services/ErrorService';
 import type { ChessEngineInterface } from '@domains/game/engine/types';
 import type { ValidatedMove } from '@shared/types/chess';
 import type { 
@@ -20,6 +22,7 @@ import type {
  */
 export class PositionService implements PositionServiceInterface {
   private _chessEngine: ChessEngineInterface;
+  private logger = getLogger().setContext('PositionService');
 
   constructor(chessEngine: ChessEngineInterface) {
     this._chessEngine = chessEngine;
@@ -30,7 +33,15 @@ export class PositionService implements PositionServiceInterface {
       const result = this._chessEngine.loadFen(fen);
       return Promise.resolve(result);
     } catch (error) {
-      console.error('Failed to load FEN in PositionService:', error);
+      ErrorService.handleUIError(
+        error as Error,
+        'PositionService',
+        {
+          action: 'load-position',
+          additionalData: { fen }
+        }
+      );
+      this.logger.error('Failed to load FEN in PositionService', error);
       return Promise.resolve(false);
     }
   }
@@ -73,7 +84,7 @@ export class PositionService implements PositionServiceInterface {
     const optimalThreshold = 0.05;
     const wdlDifference = Math.abs(mockWdlAfter - mockWdlBefore);
     
-    console.info(`Evaluating move quality for ${move.san} at FEN ${fenAfterMove}`, {
+    this.logger.info(`Evaluating move quality for ${move.san} at FEN ${fenAfterMove}`, {
       baseline,
       mockWdlBefore,
       mockWdlAfter
@@ -104,8 +115,46 @@ export class PositionService implements PositionServiceInterface {
   }
 
 
+  exportToFEN(): string {
+    return this._chessEngine.getFen();
+  }
+
+  loadFromFEN(fen: string): boolean {
+    if (!this.validatePosition(fen)) {
+      return false;
+    }
+    return this._chessEngine.loadFen(fen);
+  }
+
+  validatePosition(fen: string): boolean {
+    // Basic FEN structure validation (6 space-separated fields)
+    const fenParts = fen.trim().split(' ');
+    if (fenParts.length !== 6) {
+      return false;
+    }
+    
+    // Let chess engine validate chess-specific rules
+    try {
+      const currentFen = this._chessEngine.getFen();
+      const isValid = this._chessEngine.loadFen(fen);
+      // Restore original position
+      this._chessEngine.loadFen(currentFen);
+      return isValid;
+    } catch {
+      return false;
+    }
+  }
+
+  setPosition(fen: string): boolean {
+    return this.loadFromFEN(fen);
+  }
+
+  resetToStarting(): void {
+    this._chessEngine.loadFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+  }
+
   reset(): void {
-    // TODO: Implement position service reset
-    // - Reset any cached positions
+    // Reset any cached positions
+    this.resetToStarting();
   }
 }

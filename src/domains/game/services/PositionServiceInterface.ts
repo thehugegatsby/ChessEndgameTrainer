@@ -142,6 +142,42 @@ export interface PositionServiceInterface {
 
   
   /**
+   * Exports current position to FEN string
+   * 
+   * @returns Current position as FEN string
+   */
+  exportToFEN(): string;
+  
+  /**
+   * Loads position from FEN string with validation
+   * 
+   * @param fen - FEN string to load
+   * @returns Success status of loading operation
+   */
+  loadFromFEN(fen: string): boolean;
+  
+  /**
+   * Validates FEN string format and chess rules
+   * 
+   * @param fen - FEN string to validate
+   * @returns Whether FEN is valid
+   */
+  validatePosition(fen: string): boolean;
+  
+  /**
+   * Sets position directly (with validation)
+   * 
+   * @param fen - FEN string to set as current position
+   * @returns Success status
+   */
+  setPosition(fen: string): boolean;
+  
+  /**
+   * Resets position to starting position
+   */
+  resetToStarting(): void;
+
+  /**
    * Resets the position service to initial state
    */
   reset(): void;
