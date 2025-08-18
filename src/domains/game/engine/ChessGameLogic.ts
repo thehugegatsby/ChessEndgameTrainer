@@ -98,6 +98,19 @@ export class ChessGameLogic implements ChessGameLogicInterface {
     return this.chess.turn();
   }
 
+  // Board access
+  getBoard(): (import('chess.js').Piece | null)[][] {
+    return this.chess.board();
+  }
+
+  getPieceAt(square: string): import('chess.js').Piece | null {
+    try {
+      return this.chess.get(square as import('chess.js').Square) || null;
+    } catch {
+      return null;
+    }
+  }
+
   // History
   undo(): ChessJsMove | null {
     return this.chess.undo();

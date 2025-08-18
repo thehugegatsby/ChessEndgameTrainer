@@ -4,8 +4,8 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { type Move } from 'chess.js';
-import { Chess } from 'chess.js';
+import type { Move as ChessJsMove } from 'chess.js';
+import { ChessGameLogic } from '@domains/game/engine/ChessGameLogic';
 import { useTablebaseEvaluation, useTablebaseTopMoves } from '@shared/hooks/useTablebaseQuery';
 import { SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
 import { MoveAnalysis } from './MoveAnalysis';
@@ -19,7 +19,7 @@ const logger = getLogger().setContext('AnalysisPanel');
 // MoveAnalysisData interface moved to ./types.ts to prevent duplicate definitions
 
 interface AnalysisPanelProps {
-  history: Move[];
+  history: ChessJsMove[];
   initialFen?: string;
   onClose: () => void;
   isVisible: boolean;
@@ -31,7 +31,7 @@ interface AnalysisPanelProps {
 interface PositionData {
   fenBefore: string;
   fenAfter: string;
-  move: Move;
+  move: ChessJsMove;
   index: number;
 }
 
@@ -118,7 +118,8 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
       if (!isVisible || history.length === 0) return [];
 
       const startFen = initialFen || '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1';
-      const chess = new Chess(startFen);
+      const chessGameLogic = new ChessGameLogic();
+      chessGameLogic.loadFen(startFen);
       const result: PositionData[] = [];
 
       for (let i = 0; i < history.length; i++) {
@@ -127,10 +128,14 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = React.memo(
           // Skip invalid moves
           continue;
         }
-        const fenBefore = chess.fen();
+        const fenBefore = chessGameLogic.getFen();
 
-        chess.move(move);
-        const fenAfter = chess.fen();
+        const moveResult = chessGameLogic.makeMove(move);
+        if (!moveResult) {
+          // Skip invalid moves
+          continue;
+        }
+        const fenAfter = chessGameLogic.getFen();
 
         result.push({
           fenBefore,

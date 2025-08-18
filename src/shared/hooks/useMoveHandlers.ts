@@ -38,12 +38,16 @@
  */
 
 import { useCallback, useState } from 'react';
-import { Chess, type Square } from 'chess.js';
 import { getLogger } from '@shared/services/logging/Logger';
 import { showErrorToast } from '@shared/utils/toast';
 import { useChessAudio } from './useChessAudio';
 import { SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
+import { ChessGameLogic } from '@domains/game/engine/ChessGameLogic';
+import { GameStateService } from '@domains/game/services/GameStateService';
+import type { MoveInput as DomainMoveInput } from '@domains/game/engine/types';
 // import type { ValidatedMove } from '@shared/types/chess';
+
+const FEN_DISPLAY_LENGTH = 20;
 
 /**
  * Piece types from react-chessboard
@@ -169,27 +173,30 @@ export const useMoveHandlers = ({
   const analyzeMoveAndPlayAudio = useCallback(
     async (move: MoveInput, beforeFen: string, afterFen: string) => {
       try {
-        const chessAfter = new Chess(afterFen);
-        const chessBefore = new Chess(beforeFen);
-
+        // Use domain services for chess logic
+        const chessAfter = new ChessGameLogic();
+        const chessBefore = new ChessGameLogic();
+        
+        chessAfter.loadFen(afterFen);
+        chessBefore.loadFen(beforeFen);
+        
+        const gameStateAfter = new GameStateService(chessAfter);
+        
         // Check if move was a capture by comparing piece counts
         // More reliable than checking target square
-        const piecesBefore = chessBefore
-          .board()
-          .flat()
-          .filter(p => p !== null).length;
-        const piecesAfter = chessAfter
-          .board()
-          .flat()
-          .filter(p => p !== null).length;
+        const boardBefore = chessBefore.getBoard();
+        const boardAfter = chessAfter.getBoard();
+        
+        const piecesBefore = boardBefore.flat().filter((p: unknown) => p !== null).length;
+        const piecesAfter = boardAfter.flat().filter((p: unknown) => p !== null).length;
         const wasCapture = piecesBefore > piecesAfter;
 
         // Check if position is now in check
-        const isInCheck = chessAfter.inCheck();
+        const isInCheck = gameStateAfter.isCheck();
 
         // Check game ending conditions
-        const isCheckmate = chessAfter.isCheckmate();
-        const isDraw = chessAfter.isDraw() || chessAfter.isStalemate();
+        const isCheckmate = gameStateAfter.isCheckmate();
+        const isDraw = gameStateAfter.isDraw();
 
         // Check if move was a promotion
         const wasPromotion = Boolean(move.promotion);
@@ -232,8 +239,9 @@ export const useMoveHandlers = ({
   const onPromotionCheck = useCallback(
     (from: string, to: string): boolean => {
       try {
-        const chess = new Chess(currentFen);
-        const piece = chess.get(from as Square);
+        const chess = new ChessGameLogic();
+        chess.loadFen(currentFen);
+        const piece = chess.getPieceAt(from);
 
         // Must be a pawn
         if (!piece || piece.type !== 'p') {
@@ -338,10 +346,16 @@ export const useMoveHandlers = ({
           // For now, let's use setTimeout to let the store update
           setTimeout(() => {
             try {
-              const chess = new Chess(beforeFen);
-              chess.move(move);
-              const afterFen = chess.fen();
-              analyzeMoveAndPlayAudio(move, beforeFen, afterFen);
+              const chess = new ChessGameLogic();
+              chess.loadFen(beforeFen);
+              const moveResult = chess.makeMove(move as DomainMoveInput);
+              if (moveResult) {
+                const afterFen = chess.getFen();
+                analyzeMoveAndPlayAudio(move, beforeFen, afterFen);
+              } else {
+                // Fallback to generic move sound if analysis fails
+                playSound('move');
+              }
             } catch {
               // Fallback to generic move sound if analysis fails
               playSound('move');
@@ -470,7 +484,7 @@ export const useMoveHandlers = ({
         selectedSquare,
         isPositionReady,
         isGameFinished,
-        currentFen: currentFen?.substring(0, 20) + '...',
+        currentFen: `${currentFen?.substring(0, FEN_DISPLAY_LENGTH)}...`,
         timestamp: new Date().toISOString()
       });
 
@@ -495,8 +509,10 @@ export const useMoveHandlers = ({
         if (piece) {
           // Check if it's the right color's turn
           try {
-            const chess = new Chess(currentFen);
-            const currentTurn = chess.turn();
+            const chess = new ChessGameLogic();
+            chess.loadFen(currentFen);
+            const gameState = new GameStateService(chess);
+            const currentTurn = gameState.getTurn();
             
             // Extract piece color from piece object
             // The piece object has structure: {"pieceType":"wK"} or string "wK"
@@ -504,7 +520,7 @@ export const useMoveHandlers = ({
             if (typeof piece === 'string') {
               pieceColor = piece[0]; // 'w' or 'b'
             } else if (piece && typeof piece === 'object' && 'pieceType' in piece) {
-              pieceColor = (piece as any).pieceType?.[0]; // Extract from {"pieceType":"wK"}
+              pieceColor = (piece as { pieceType?: string }).pieceType?.[0]; // Extract from {"pieceType":"wK"}
             }
 
             console.info(`🎯 [MOVE CHAIN] onSquareClick: Piece validation`, {

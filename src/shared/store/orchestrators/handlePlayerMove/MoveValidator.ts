@@ -60,13 +60,11 @@ export interface GameStateInfo {
  */
 export class MoveValidator {
   private moveService: MoveService;
-  private gameStateService: GameStateService;
 
   constructor() {
     // Create domain services with shared chess engine
     const chessEngine = new ChessGameLogic();
     this.moveService = new MoveService(chessEngine);
-    this.gameStateService = new GameStateService(chessEngine);
   }
   /**
    * Validates if it's the player's turn and opponent is not thinking
@@ -130,19 +128,20 @@ export class MoveValidator {
             };
           }
         }
-      } else if ('from' in move && 'to' in move) {
-        // Already in correct format
+      } else if (typeof move === 'object' && 'from' in move && 'to' in move) {
+        // Move object format - extract coordinates
         moveInput = {
           from: move.from,
           to: move.to,
           ...(move.promotion && { promotion: move.promotion })
         };
       } else {
-        // ChessJsMove format - convert to coordinate notation
+        // Handle any other case as object
+        const moveObj = move as { from: string; to: string; promotion?: string };
         moveInput = {
-          from: move.from,
-          to: move.to,
-          ...(move.promotion && { promotion: move.promotion })
+          from: moveObj.from,
+          to: moveObj.to,
+          ...(moveObj.promotion && { promotion: moveObj.promotion })
         };
       }
 

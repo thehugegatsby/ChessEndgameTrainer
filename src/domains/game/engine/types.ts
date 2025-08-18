@@ -28,6 +28,10 @@ export interface ChessGameLogicInterface {
   isCheck(): boolean;
   getTurn(): 'w' | 'b';
   
+  // Board Access
+  getBoard(): (import('chess.js').Piece | null)[][];
+  getPieceAt(square: string): import('chess.js').Piece | null;
+  
   // History
   undo(): ChessJsMove | null;
   getHistory(): ChessJsMove[];
