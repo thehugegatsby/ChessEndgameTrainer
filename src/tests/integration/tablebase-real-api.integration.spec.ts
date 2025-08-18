@@ -13,7 +13,7 @@
 
 import { describe, it, test, expect, beforeEach } from 'vitest';
 import { tablebaseService } from '../../domains/evaluation';
-import { COMMON_FENS } from '../fixtures/commonFens';
+import { COMMON_FENS } from '@shared/testing/ChessTestData';
 
 // Skip these tests in CI to avoid rate limiting and external dependencies
 // Also skip if fetch is not available (e.g., in Node.js test environment without polyfill)

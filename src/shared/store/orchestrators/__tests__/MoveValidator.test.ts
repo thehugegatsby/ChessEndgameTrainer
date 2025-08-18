@@ -6,7 +6,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 
 import { MoveValidator } from '@shared/store/orchestrators/handlePlayerMove/MoveValidator';
 import type { TrainingState } from '@shared/store/slices/types';
-import { COMMON_FENS } from '@tests/fixtures/commonFens';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 describe('MoveValidator', () => {
   let validator: MoveValidator;
@@ -63,7 +63,7 @@ describe('MoveValidator', () => {
 
   describe('validateMove', () => {
     it('should return valid result for legal move using pure functions', () => {
-      const result = validator.validateMove('e4', COMMON_FENS.STARTING_POSITION);
+      const result = validator.validateMove('e4', TEST_POSITIONS.STARTING_POSITION);
 
       expect(result).toEqual({
         isValid: true,
@@ -71,7 +71,7 @@ describe('MoveValidator', () => {
     });
 
     it('should return invalid result for illegal move using pure functions', () => {
-      const result = validator.validateMove('e5', COMMON_FENS.STARTING_POSITION); // Invalid opening move
+      const result = validator.validateMove('e5', TEST_POSITIONS.STARTING_POSITION); // Invalid opening move
 
       expect(result).toEqual({
         isValid: false,
@@ -81,14 +81,14 @@ describe('MoveValidator', () => {
 
     it('should handle ChessJS move object with pure functions', () => {
       const move = { from: 'e7', to: 'e8', promotion: 'q' };
-      const result = validator.validateMove(move, COMMON_FENS.WHITE_PROMOTION);
+      const result = validator.validateMove(move, TEST_POSITIONS.WHITE_PROMOTION);
 
       expect(result.isValid).toBe(true);
     });
 
     it('should handle move object with from/to using pure functions', () => {
       const move = { from: 'e2', to: 'e4' };
-      const result = validator.validateMove(move, COMMON_FENS.STARTING_POSITION);
+      const result = validator.validateMove(move, TEST_POSITIONS.STARTING_POSITION);
 
       expect(result.isValid).toBe(true);
     });
@@ -103,7 +103,7 @@ describe('MoveValidator', () => {
     });
 
     it('should handle valid knight moves', () => {
-      const result = validator.validateMove('Nf3', COMMON_FENS.STARTING_POSITION);
+      const result = validator.validateMove('Nf3', TEST_POSITIONS.STARTING_POSITION);
 
       expect(result).toEqual({
         isValid: true,
@@ -111,7 +111,7 @@ describe('MoveValidator', () => {
     });
 
     it('should reject moves in checkmate position', () => {
-      const result = validator.validateMove('Ka8', COMMON_FENS.CHECKMATE_POSITION);
+      const result = validator.validateMove('Ka8', TEST_POSITIONS.CHECKMATE_POSITION);
 
       expect(result).toEqual({
         isValid: false,
@@ -122,7 +122,7 @@ describe('MoveValidator', () => {
 
   describe('checkGameState', () => {
     it('should return correct game state for starting position', () => {
-      const result = validator.checkGameState(COMMON_FENS.STARTING_POSITION);
+      const result = validator.checkGameState(TEST_POSITIONS.STARTING_POSITION);
 
       expect(result).toEqual({
         isGameOver: false,
@@ -133,7 +133,7 @@ describe('MoveValidator', () => {
     });
 
     it('should detect checkmate using pure functions', () => {
-      const result = validator.checkGameState(COMMON_FENS.CHECKMATE_POSITION);
+      const result = validator.checkGameState(TEST_POSITIONS.CHECKMATE_POSITION);
 
       expect(result).toEqual({
         isGameOver: true,
@@ -144,7 +144,7 @@ describe('MoveValidator', () => {
     });
 
     it('should detect stalemate using pure functions', () => {
-      const result = validator.checkGameState(COMMON_FENS.STALEMATE_POSITION);
+      const result = validator.checkGameState(TEST_POSITIONS.STALEMATE_POSITION);
 
       expect(result).toEqual({
         isGameOver: true,

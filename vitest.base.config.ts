@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import path from 'path';
-import { featuresDir, sharedDir, testsDir, srcDir } from './config/paths';
+import { featuresDir, sharedDir, testsDir, srcDir, domainsDir } from './config/paths';
 
 /**
  * Vitest Base Configuration
@@ -21,6 +21,7 @@ export default defineConfig({
       '@features': featuresDir,
       '@lib': path.resolve(srcDir, 'lib'),
       '@shared': sharedDir,
+      '@domains': domainsDir,
       '@tests': testsDir,
       '@': srcDir,
     },

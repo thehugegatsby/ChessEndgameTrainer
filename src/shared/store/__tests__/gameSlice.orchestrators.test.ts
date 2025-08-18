@@ -6,7 +6,7 @@
 import { describe, it, expect, vi, beforeEach, type MockedFunction } from 'vitest';
 import { createStore } from '../createStore';
 import type { RootStore } from '../rootStore';
-import { COMMON_FENS } from '@/tests/fixtures/commonFens';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 // Mock the delegate actions to verify they're called correctly
 const mockEvaluateMoveQuality = vi.fn();
@@ -66,7 +66,7 @@ describe.skip('handlePlayerMove - Atomic Orchestrator Action', () => {
     
     // Set up initial game state
     store.setState(state => {
-      state.game.currentFen = COMMON_FENS.STARTING_POSITION;
+      state.game.currentFen = TEST_POSITIONS.STARTING_POSITION;
       state.game.playerColor = 'w';
       state.game.moveHistory = [];
       state.game.currentMoveIndex = -1;
@@ -99,7 +99,7 @@ describe.skip('handlePlayerMove - Atomic Orchestrator Action', () => {
 
       // Assert
       expect(store.getState().game.lastMoveError).toBe('Invalid move');
-      expect(store.getState().game.currentFen).toBe(COMMON_FENS.STARTING_POSITION); // No change
+      expect(store.getState().game.currentFen).toBe(TEST_POSITIONS.STARTING_POSITION); // No change
       expect(store.getState().game.moveHistory).toHaveLength(0);
       
       // Verify no delegate actions were called
@@ -118,7 +118,7 @@ describe.skip('handlePlayerMove - Atomic Orchestrator Action', () => {
 
       // Assert
       expect(store.getState().game.lastMoveError).toBe('Move could not be applied');
-      expect(store.getState().game.currentFen).toBe(COMMON_FENS.STARTING_POSITION); // No change
+      expect(store.getState().game.currentFen).toBe(TEST_POSITIONS.STARTING_POSITION); // No change
       expect(store.getState().game.moveHistory).toHaveLength(0);
     });
   });
@@ -363,8 +363,8 @@ describe.skip('handlePlayerMove - Atomic Orchestrator Action', () => {
       await store.getState().handlePlayerMove(move);
 
       // Assert - Verify execution order and completeness
-      expect(mockedValidateMove).toHaveBeenCalledWith(COMMON_FENS.STARTING_POSITION, move);
-      expect(mockedMakeMove).toHaveBeenCalledWith(COMMON_FENS.STARTING_POSITION, move);
+      expect(mockedValidateMove).toHaveBeenCalledWith(TEST_POSITIONS.STARTING_POSITION, move);
+      expect(mockedMakeMove).toHaveBeenCalledWith(TEST_POSITIONS.STARTING_POSITION, move);
       expect(mockedGetGameStatus).toHaveBeenCalledWith(mockMoveResult.newFen);
       expect(mockedTurn).toHaveBeenCalledWith(mockMoveResult.newFen);
       

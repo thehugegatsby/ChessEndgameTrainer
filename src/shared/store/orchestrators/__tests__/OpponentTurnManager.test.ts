@@ -8,7 +8,7 @@ import { getOpponentTurnManager } from '@shared/store/orchestrators/handlePlayer
 import { getFen, turn, makeMove, isGameOver } from '@shared/utils/chess-logic';
 import { tablebaseService } from '../../../../domains/evaluation';
 import { handleTrainingCompletion } from '@shared/store/orchestrators/handlePlayerMove/move.completion';
-import { COMMON_FENS } from '@tests/fixtures/commonFens';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 import type { StoreApi } from '@shared/store/orchestrators/types';
 
 // Mock pure chess logic functions
@@ -51,7 +51,7 @@ describe('OpponentTurnManager', () => {
         currentPosition: { colorToTrain: 'white' },
       },
       game: {
-        currentFen: COMMON_FENS.STARTING_POSITION,
+        currentFen: TEST_POSITIONS.STARTING_POSITION,
         moveHistory: [],
       },
       ui: {

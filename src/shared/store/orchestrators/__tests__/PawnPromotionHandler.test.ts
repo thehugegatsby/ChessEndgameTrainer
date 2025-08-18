@@ -14,7 +14,7 @@ import { getLogger } from '@shared/services/logging';
 import { handleTrainingCompletion } from '@shared/store/orchestrators/handlePlayerMove/move.completion';
 import { createTestValidatedMove } from '@tests/helpers/validatedMoveFactory';
 import { tablebaseService } from '../../../../domains/evaluation';
-import { COMMON_FENS } from '@tests/fixtures/commonFens';
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 import type { StoreApi } from '@shared/store/orchestrators/types';
 
 // Mock pure chess logic functions
@@ -232,7 +232,7 @@ describe('PawnPromotionHandler', () => {
   });
 
   describe('evaluatePromotionOutcome', () => {
-    const validFen = COMMON_FENS.STARTING_POSITION;
+    const validFen = TEST_POSITIONS.STARTING_POSITION;
 
     it('should return false for invalid FEN', async () => {
       const result = await handler.evaluatePromotionOutcome('', 'w');

@@ -69,10 +69,12 @@ class MockTablebaseService {
     );
 
     // Default getTopMoves - returns one draw move
-    this.getTopMoves.mockImplementation((_fen: string, _limit?: number) => ({
-      isAvailable: true,
-      moves: [createDefaultMove()],
-    }));
+    this.getTopMoves.mockImplementation((_fen: string, _limit?: number) => 
+      Promise.resolve({
+        isAvailable: true,
+        moves: [createDefaultMove()],
+      })
+    );
 
     // Default clearCache - does nothing
     this.clearCache.mockImplementation(() => undefined);
