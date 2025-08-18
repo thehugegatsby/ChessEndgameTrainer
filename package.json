@@ -123,5 +123,8 @@
     "workerDirectory": [
       "public"
     ]
+  },
+  "pnpm": {
+    "overrides": {}
   }
 }
