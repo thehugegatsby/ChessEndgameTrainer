@@ -24,6 +24,7 @@ vi.mock('@shared/components/ui/MoveErrorDialog', () => ({
   MoveErrorDialog: ({
     isOpen,
     onClose,
+    onContinue,
     onTakeBack,
     onRestart,
     onShowBestMove,
@@ -35,6 +36,9 @@ vi.mock('@shared/components/ui/MoveErrorDialog', () => ({
       <div data-testid="move-error-dialog">
         <button onClick={onClose} data-testid="error-close">
           Close
+        </button>
+        <button onClick={onContinue} data-testid="error-continue">
+          Continue
         </button>
         <button onClick={onTakeBack} data-testid="error-takeback">
           Take Back
@@ -74,6 +78,7 @@ describe('DialogManager', () => {
     onErrorTakeBack: vi.fn(),
     onErrorRestart: vi.fn(),
     onErrorContinue: vi.fn(),
+    onErrorClose: vi.fn(),
     onErrorShowBestMove: vi.fn(),
     onSuccessClose: vi.fn(),
     onSuccessContinue: vi.fn(),
@@ -156,7 +161,7 @@ describe('DialogManager', () => {
       render(<DialogManager errorDialog={errorDialog} successDialog={null} {...mockHandlers} />);
 
       await user.click(screen.getByTestId('error-close'));
-      expect(mockHandlers.onErrorContinue).toHaveBeenCalledTimes(1);
+      expect(mockHandlers.onErrorClose).toHaveBeenCalledTimes(1);
     });
 
     it('shows and calls show best move handler when bestMove is provided', async () => {

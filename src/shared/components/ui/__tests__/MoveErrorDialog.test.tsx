@@ -13,6 +13,7 @@ describe('MoveErrorDialog', () => {
     playedMove: 'Ka2',
     moveNumber: 0,
     onClose: vi.fn(),
+    onContinue: vi.fn(),
     onTakeBack: vi.fn(),
   };
 
@@ -89,13 +90,14 @@ describe('MoveErrorDialog', () => {
       expect(defaultProps.onTakeBack).toHaveBeenCalledTimes(1);
     });
 
-    it('calls onClose when continue playing button is clicked', () => {
+    it('calls onContinue when continue playing button is clicked', () => {
       render(<MoveErrorDialog {...defaultProps} />);
 
-      const closeButton = screen.getByRole('button', { name: 'Weiterspielen' });
-      fireEvent.click(closeButton);
+      const continueButton = screen.getByRole('button', { name: 'Weiterspielen' });
+      fireEvent.click(continueButton);
 
-      expect(defaultProps.onClose).toHaveBeenCalledTimes(1);
+      expect(defaultProps.onContinue).toHaveBeenCalledTimes(1);
+      expect(defaultProps.onClose).not.toHaveBeenCalled();
       expect(defaultProps.onTakeBack).not.toHaveBeenCalled();
     });
 

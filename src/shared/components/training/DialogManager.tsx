@@ -68,6 +68,8 @@ interface DialogManagerProps {
   onErrorRestart: () => void;
   /** Callback for error dialog - continue playing */
   onErrorContinue: () => void;
+  /** Callback for error dialog - close dialog (backdrop/ESC) */
+  onErrorClose: () => void;
   /** Callback for error dialog - show best move */
   onErrorShowBestMove?: () => void;
 
@@ -106,6 +108,7 @@ export const DialogManager: React.FC<DialogManagerProps> = ({
   onErrorTakeBack,
   onErrorRestart,
   onErrorContinue,
+  onErrorClose,
   onErrorShowBestMove,
   onSuccessClose,
   onSuccessContinue,
@@ -116,7 +119,8 @@ export const DialogManager: React.FC<DialogManagerProps> = ({
       {errorDialog?.isOpen && (
         <MoveErrorDialog
           isOpen={errorDialog.isOpen}
-          onClose={onErrorContinue}
+          onClose={onErrorClose}
+          onContinue={onErrorContinue}
           onTakeBack={onErrorTakeBack}
           onRestart={onErrorRestart}
           {...(errorDialog.bestMove && { onShowBestMove: onErrorShowBestMove })}

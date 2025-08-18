@@ -459,6 +459,7 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         onErrorTakeBack={dialogHandlers.handleMoveErrorTakeBack}
         onErrorRestart={dialogHandlers.handleMoveErrorRestart}
         onErrorContinue={dialogHandlers.handleMoveErrorContinue}
+        onErrorClose={dialogHandlers.handleMoveErrorClose}
         onErrorShowBestMove={dialogHandlers.handleShowBestMove}
         onSuccessClose={dialogHandlers.handleMoveSuccessClose}
         onSuccessContinue={dialogHandlers.handleMoveSuccessContinue}

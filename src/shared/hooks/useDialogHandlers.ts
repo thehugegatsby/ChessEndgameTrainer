@@ -161,6 +161,8 @@ interface UseDialogHandlersReturn {
   handleMoveErrorRestart: () => void;
   /** Handler for move error dialog - continue playing */
   handleMoveErrorContinue: () => void;
+  /** Handler for move error dialog - close dialog (backdrop/ESC) */
+  handleMoveErrorClose: () => void;
   /** Handler for move error dialog - show best move */
   handleShowBestMove: () => void;
 
@@ -403,6 +405,19 @@ export const useDialogHandlers = ({
   }, [trainingActions, storeApi]);
 
   /**
+   * Handles error dialog close without continuing the game
+   *
+   * @description
+   * Simple dialog dismissal for backdrop clicks or ESC key.
+   * Does not trigger game continuation or opponent moves.
+   */
+  const handleMoveErrorClose = useCallback(() => {
+    const logger = getLogger().setContext('useDialogHandlers-MoveErrorClose');
+    logger.info('Error dialog closed via backdrop/ESC - no game action taken');
+    trainingActions.setMoveErrorDialog(null);
+  }, [trainingActions]);
+
+  /**
    * Displays the best move as a toast notification
    *
    * @description
@@ -483,6 +498,7 @@ export const useDialogHandlers = ({
     handleMoveErrorTakeBack,
     handleMoveErrorRestart,
     handleMoveErrorContinue,
+    handleMoveErrorClose,
     handleShowBestMove,
     handleMoveSuccessClose,
     handleMoveSuccessContinue,

@@ -2,6 +2,7 @@
 
 import { getLogger } from '@shared/services/logging/Logger';
 import { UI_DURATIONS_MS } from '../../constants/time.constants';
+import { produce } from 'immer';
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
@@ -71,14 +72,16 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
       if (data.type === 'error') {
         logger.info('🎯 [EndgameTrainingPage] Processing error event - updating dialog state');
         // Show error dialog
-        store.setState((draft: WritableDraft<RootState>) => {
-          draft.training.moveErrorDialog = {
-            isOpen: true,
-            ...(data.wdlBefore !== undefined && { wdlBefore: data.wdlBefore }),
-            ...(data.wdlAfter !== undefined && { wdlAfter: data.wdlAfter }),
-            ...(data.bestMove !== undefined && { bestMove: data.bestMove }),
-          };
-        });
+        store.setState(
+          produce((draft: WritableDraft<RootState>) => {
+            draft.training.moveErrorDialog = {
+              isOpen: true,
+              ...(data.wdlBefore !== undefined && { wdlBefore: data.wdlBefore }),
+              ...(data.wdlAfter !== undefined && { wdlAfter: data.wdlAfter }),
+              ...(data.bestMove !== undefined && { bestMove: data.bestMove }),
+            };
+          })
+        );
         logger.info('🎯 [EndgameTrainingPage] Error dialog state updated - should be visible now');
       }
     });

@@ -31,7 +31,8 @@ import { CHESS_EVALUATION } from '@shared/constants/multipliers';
  * @interface MoveErrorDialogProps
  *
  * @property {boolean} isOpen - Controls dialog visibility
- * @property {() => void} onClose - Callback when dialog is closed
+ * @property {() => void} onClose - Callback when dialog is closed (backdrop/ESC)
+ * @property {() => void} onContinue - Callback to continue playing (Weiterspielen button)
  * @property {() => void} onTakeBack - Callback to take back the move
  * @property {() => void} [onRestart] - Optional callback to restart (currently unused)
  * @property {() => void} [onShowBestMove] - Optional callback to show best move (currently unused)
@@ -44,6 +45,7 @@ import { CHESS_EVALUATION } from '@shared/constants/multipliers';
 interface MoveErrorDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  onContinue?: () => void;
   onTakeBack: () => void;
   onRestart?: () => void;
   onShowBestMove?: () => void;
@@ -91,6 +93,7 @@ interface MoveErrorDialogProps {
 export const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
   isOpen,
   onClose,
+  onContinue,
   onTakeBack,
   wdlBefore,
   wdlAfter,
@@ -197,7 +200,7 @@ export const MoveErrorDialog: React.FC<MoveErrorDialogProps> = ({
           )}
           <div className="flex gap-3">
             <button
-              onClick={onClose}
+              onClick={onContinue || onClose}
               className="flex-1 px-4 py-2 text-white bg-white/10 backdrop-blur rounded-lg hover:bg-white/20 transition-all"
             >
               Weiterspielen
