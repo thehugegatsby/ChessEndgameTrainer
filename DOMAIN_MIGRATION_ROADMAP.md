@@ -2,9 +2,9 @@
 
 **Chess Endgame Trainer - Complete Architecture Migration to Domain-driven Design**
 
-**Status**: **PHASE 2C COMPLETE ✅ | MOVING TO MOVE SERVICE**
+**Status**: **PHASE 3 STARTED ⚡ | BL-01 COMPLETE ✅**
 **Start Date**: 2025-08-18  
-**Progress**: **16/29 Tasks Complete (55%)** | **GameStateService COMPLETE ✅**
+**Progress**: **19/29 Tasks Complete (66%)** | **Business Logic Migration In Progress**
 **Target**: Q1 2025 completion
 
 ## 🎯 Mission
@@ -22,7 +22,7 @@ Complete the migration from `features/` legacy architecture to clean Domain-driv
 ### ✅ COMPLETED (Updated Analysis - 2025-08-18 Session 2)
 - **Phase 1**: Domain structure, TablebaseService, ChessEngineAdapter, Core interfaces
 - **Phase 2A Foundation Layer**: Position Fundamentals + Move Validation Core **COMPLETE**
-  - ✅ **MoveService**: Fully implemented (327 LOC) - "Fat Service, Thin Slice" pattern exemplar
+  - ✅ **MoveService**: **6/6 methods COMPLETE** with comprehensive tests (27 tests)
   - ✅ **PositionService**: Core methods (loadFromFEN, validatePosition, exportToFEN) 
 - **Phase 2B+C Game State Layer**: Basic + Advanced + Integration **COMPLETE**
   - ✅ **GameStateService**: **10/10 methods COMPLETE** with comprehensive tests (36 tests)
@@ -35,9 +35,9 @@ Complete the migration from `features/` legacy architecture to clean Domain-driv
 
 ### 🚨 CRITICAL GAPS (Current Focus)
 - **GameStateService**: **COMPLETE ✅** (10/10 methods with 36 tests!)
-- **MoveService**: **2 complex methods remaining** (validateMove(), undoMove())
-- **PositionService**: 2 non-critical methods (evaluatePosition, getBestMove) 
-- **Integration Layer**: Ready for business logic migration with complete GameStateService
+- **MoveService**: **COMPLETE ✅** (6/6 methods with 27 tests!)
+- **PositionService**: 2 non-critical methods remaining (evaluatePosition, getBestMove) 
+- **Phase 3**: Ready for business logic migration with complete core services
 
 ---
 
@@ -89,14 +89,14 @@ Complete the migration from `features/` legacy architecture to clean Domain-driv
 | :----- | :----------------------------- | :----------------------------------- | :--------- | :----------- | :------ |
 | **GS-08** | `getGameState()`               | Aggregate all state information      | MEDIUM     | All B blocks | ✅ DONE |
 | **GS-09** | `getGameOutcome()`             | Uses termination logic               | LOW        | B2 complete  | ✅ DONE |
-| **MS-03** | `validateMove()`               | Uses validation + game state         | MEDIUM     | A2+B blocks  | TODO |
+| **MS-03** | `validateMove()`               | Uses validation + game state         | MEDIUM     | A2+B blocks  | ✅ DONE |
 | **GS-10** | `finalizeTrainingSession()`    | Training logic implementation        | HIGH       | All previous | ✅ DONE |
 
 #### **Block C2: Remaining Operations**
 
 | ID     | Method                    | Implementation Strategy                 | Risk Level | Dependencies | Status |
 | :----- | :------------------------ | :-------------------------------------- | :--------- | :----------- | :------ |
-| **MS-04** | `undoMove()`              | Complex state management                | HIGH       | All previous | TODO |
+| **MS-04** | `undoMove()`              | Complex state management                | HIGH       | All previous | ✅ DONE |
 | **PS-04** | `setPosition()`           | Uses validation from A1                | LOW        | A1 complete  | TODO |
 | **PS-05** | `resetToStarting()`       | Simple reset operation                  | NONE       | -            | TODO |
 
@@ -108,7 +108,7 @@ Complete the migration from `features/` legacy architecture to clean Domain-driv
 
 | ID     | Action                                                                              | Files to Modify                                                              | Commit Message                                             |
 | :----- | :---------------------------------------------------------------------------------- | :--------------------------------------------------------------------------- | :--------------------------------------------------------- |
-| **BL-01** | In `handlePlayerMove`, replace move validation logic with `moveService.isMoveLegal()` | `src/shared/store/orchestrators/handlePlayerMove/`                           | `refactor(store): use MoveService for move validation`     |
+| **BL-01** | ✅ In `handlePlayerMove`, replace move validation logic with `moveService.isMoveLegal()` | `src/shared/store/orchestrators/handlePlayerMove/`                           | `refactor(store): use MoveService for move validation`     |
 | **BL-02** | In `handlePlayerMove`, replace `chess.move()` with `moveService.makeMove()`         | `src/shared/store/orchestrators/handlePlayerMove/`                           | `refactor(store): use MoveService to make moves`           |
 | **BL-03** | In `handlePlayerMove`, replace game state checks with `gameStateService` methods    | `src/shared/store/orchestrators/handlePlayerMove/`                           | `refactor(store): use GameStateService for status checks`  |
 | **BL-04** | In `TrainingBoard.tsx`, remove direct chess logic for rendering valid moves         | `src/features/training/components/TrainingBoard.tsx`                         | `refactor(ui): delegate valid move logic to domain`        |
@@ -198,12 +198,13 @@ grep -r "throw new Error.*not implemented" src/domains/
 5. **Minimal Debt**: Only 2 legacy imports - excellent architectural isolation
 
 **⚡ Critical Path - Next Priority:**
-**MoveService Completion** - Remaining complex methods:
-- MS-03: `validateMove()` - Uses validation + game state (MEDIUM risk)
-- MS-04: `undoMove()` - Complex state management (HIGH risk)
+**Phase 3: Business Logic Migration** - Core services complete, ready for integration:
+- BL-01: Replace move validation in orchestrators with MoveService
+- BL-02: Replace game state checks with GameStateService  
+- BL-03: Remove direct chess.js usage from UI/Store layers
 
-**🚀 Performance Projection**: At current velocity → **Phase 2 complete in next session**
+**🚀 Performance Projection**: **Phase 2 COMPLETE!** → Phase 3 ready to begin
 
 ---
 
-**Next Task**: **MS-03** - Implement `MoveService.validateMove()` (Block C2)
+**Next Task**: **BL-02** - Replace game state checks with GameStateService (Phase 3)

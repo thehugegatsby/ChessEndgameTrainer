@@ -3,13 +3,15 @@
  * @module store/orchestrators/handlePlayerMove/MoveValidator
  *
  * @description
- * Handles move validation logic including turn validation,
- * move legality checking, and game state verification.
+ * Handles move validation logic using domain services.
+ * Migrated from legacy chess-logic utils to MoveService and GameStateService.
  */
 
 import type { Move as ChessJsMove } from 'chess.js';
-import { validateMove, getGameStatus } from '@shared/utils/chess-logic';
 import type { TrainingState } from '@shared/store/slices/types';
+import { MoveService } from '@domains/game/services/MoveService';
+import { GameStateService } from '@domains/game/services/GameStateService';
+import { ChessGameLogic } from '@domains/game/engine/ChessGameLogic';
 
 /**
  * Result of move validation containing validity status and error information
@@ -38,13 +40,13 @@ export interface GameStateInfo {
 }
 
 /**
- * Validates and manages chess move validation using pure functions
+ * Validates and manages chess move validation using domain services
  * @class MoveValidator
  *
  * @description
  * Handles comprehensive move validation including:
- * - Move legality using pure chess functions
- * - Game state verification (turn, game over checks)
+ * - Move legality using MoveService
+ * - Game state verification using GameStateService
  * - Error message generation for UI feedback
  *
  * @example
@@ -57,6 +59,15 @@ export interface GameStateInfo {
  * ```
  */
 export class MoveValidator {
+  private moveService: MoveService;
+  private gameStateService: GameStateService;
+
+  constructor() {
+    // Create domain services with shared chess engine
+    const chessEngine = new ChessGameLogic();
+    this.moveService = new MoveService(chessEngine);
+    this.gameStateService = new GameStateService(chessEngine);
+  }
   /**
    * Validates if it's the player's turn and opponent is not thinking
    *
@@ -68,7 +79,7 @@ export class MoveValidator {
   }
 
   /**
-   * Validates if a move is legal according to chess rules using pure functions
+   * Validates if a move is legal according to chess rules using MoveService
    *
    * @param move - The move to validate
    * @param fen - Current FEN position
@@ -79,12 +90,69 @@ export class MoveValidator {
     fen: string
   ): ValidationResult {
     try {
-      const isValid = validateMove(fen, move);
+      // Convert move to standard format for MoveService
+      let moveInput: { from: string; to: string; promotion?: string };
+      
+      if (typeof move === 'string') {
+        // First try to parse as coordinate notation (e2e4, e2-e4)
+        const cleanMove = move.replace('-', '');
+        if (cleanMove.length >= 4 && cleanMove.length <= 5 && /^[a-h][1-8][a-h][1-8][qrnb]?$/.test(cleanMove)) {
+          // This is coordinate notation
+          moveInput = {
+            from: cleanMove.slice(0, 2),
+            to: cleanMove.slice(2, 4),
+            ...(cleanMove.length > 4 && { promotion: cleanMove.slice(4) })
+          };
+        } else {
+          // Assume it's SAN notation - use engine directly
+          try {
+            const tempEngine = new ChessGameLogic();
+            const loadResult = tempEngine.loadFen(fen);
+            if (!loadResult) {
+              return {
+                isValid: false,
+                errorMessage: 'Ungültiger Zug',
+              };
+            }
+            const moveResult = tempEngine.makeMove(move);
+            if (moveResult) {
+              return { isValid: true };
+            } else {
+              return {
+                isValid: false,
+                errorMessage: 'Ungültiger Zug',
+              };
+            }
+          } catch (error) {
+            return {
+              isValid: false,
+              errorMessage: error instanceof Error ? error.message : 'Ungültiger Zug',
+            };
+          }
+        }
+      } else if ('from' in move && 'to' in move) {
+        // Already in correct format
+        moveInput = {
+          from: move.from,
+          to: move.to,
+          ...(move.promotion && { promotion: move.promotion })
+        };
+      } else {
+        // ChessJsMove format - convert to coordinate notation
+        moveInput = {
+          from: move.from,
+          to: move.to,
+          ...(move.promotion && { promotion: move.promotion })
+        };
+      }
 
-      if (!isValid) {
+      // Use MoveService for validation
+      const validationResult = this.moveService.isMoveLegal(fen, moveInput);
+
+      if (!validationResult.isLegal) {
         return {
           isValid: false,
-          errorMessage: 'Invalid move',
+          errorMessage: validationResult.error || 'Ungültiger Zug',
         };
       }
 
@@ -92,21 +160,36 @@ export class MoveValidator {
     } catch (error) {
       return {
         isValid: false,
-        errorMessage: error instanceof Error ? error.message : 'Invalid move',
+        errorMessage: error instanceof Error ? error.message : 'Ungültiger Zug',
       };
     }
   }
 
   /**
-   * Checks the current game state using pure functions
+   * Checks the current game state using GameStateService
    *
    * @param fen - Current FEN position
    * @returns Current game state information
    */
   checkGameState(fen: string): GameStateInfo {
-    const status = getGameStatus(fen);
-    
-    if (!status) {
+    try {
+      // GameStateService needs the engine to be loaded with the FEN first
+      // We can use individual methods that work with the current engine state
+      // Since we need to check a specific FEN, we must load it first
+      
+      // For now, create a fresh engine instance with the FEN
+      const tempEngine = new ChessGameLogic();
+      tempEngine.loadFen(fen);
+      const tempGameStateService = new GameStateService(tempEngine);
+      
+      return {
+        isGameOver: tempGameStateService.isGameOver(),
+        isCheckmate: tempGameStateService.isCheckmate(),
+        isDraw: tempGameStateService.isDraw(),
+        isStalemate: tempGameStateService.isStalemate(),
+      };
+    } catch (error) {
+      // Return safe defaults on error
       return {
         isGameOver: false,
         isCheckmate: false,
@@ -114,12 +197,5 @@ export class MoveValidator {
         isStalemate: false,
       };
     }
-
-    return {
-      isGameOver: status.isGameOver,
-      isCheckmate: status.isCheckmate,
-      isDraw: status.isDraw,
-      isStalemate: status.isStalemate,
-    };
   }
 }
