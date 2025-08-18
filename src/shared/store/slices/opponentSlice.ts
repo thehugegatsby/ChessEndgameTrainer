@@ -5,6 +5,7 @@
  * This slice handles opponent turn management and AI move execution.
  */
 
+import { getLogger } from '@shared/services/logging/Logger';
 import { type OpponentSlice, type OpponentState, type OpponentActions } from './types';
 
 // Re-export types for external use
@@ -31,7 +32,10 @@ export const createOpponentState = (): OpponentState => ({ ...initialOpponentSta
 export const createOpponentActions = (
   set: (fn: (state: { opponent: OpponentState }) => void) => void,
   _get: () => { opponent: OpponentState }
-): OpponentActions => ({
+): OpponentActions => {
+  const logger = getLogger().setContext('OpponentSlice');
+
+  return {
   
   setThinking: (thinking: boolean) => {
     set(state => {
@@ -60,10 +64,11 @@ export const createOpponentActions = (
    * @param fen - The current FEN position for opponent to analyze
    */
   triggerOpponentMove: (fen: string) => {
-    console.info(`STUB: Triggering opponent move for FEN: ${fen}`);
+    logger.info(`STUB: Triggering opponent move for FEN: ${fen}`);
     // TODO: Implement actual opponent AI move generation
   },
-});
+  };
+};
 
 /**
  * Selector functions for efficient state access

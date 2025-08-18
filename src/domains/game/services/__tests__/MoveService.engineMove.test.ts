@@ -5,11 +5,11 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { MoveService } from '../MoveService';
-import type { ChessEngineInterface } from '@domains/game/engine/types';
+import type { ChessGameLogicInterface } from '@domains/game/engine/types';
 import type { Move as ChessJsMove } from 'chess.js';
 
-// Mock ChessEngine
-const mockChessEngine: ChessEngineInterface = {
+// Mock ChessGameLogic
+const mockChessGameLogic: ChessGameLogicInterface = {
   loadFen: vi.fn(),
   getFen: vi.fn(),
   makeMove: vi.fn(),
@@ -29,7 +29,7 @@ describe('MoveService.makeEngineMove', () => {
   let moveService: MoveService;
 
   beforeEach(() => {
-    moveService = new MoveService(mockChessEngine);
+    moveService = new MoveService(mockChessGameLogic);
     vi.clearAllMocks();
   });
 
@@ -48,20 +48,20 @@ describe('MoveService.makeEngineMove', () => {
       };
       const newFen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1';
 
-      mockChessEngine.loadFen = vi.fn().mockReturnValue(true);
-      mockChessEngine.makeMove = vi.fn().mockReturnValue(mockMoveResult);
-      mockChessEngine.getFen = vi.fn().mockReturnValue(newFen);
-      mockChessEngine.isCheckmate = vi.fn().mockReturnValue(false);
-      mockChessEngine.isStalemate = vi.fn().mockReturnValue(false);
-      mockChessEngine.isCheck = vi.fn().mockReturnValue(false);
-      mockChessEngine.isDraw = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.loadFen = vi.fn().mockReturnValue(true);
+      mockChessGameLogic.makeMove = vi.fn().mockReturnValue(mockMoveResult);
+      mockChessGameLogic.getFen = vi.fn().mockReturnValue(newFen);
+      mockChessGameLogic.isCheckmate = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.isStalemate = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.isCheck = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.isDraw = vi.fn().mockReturnValue(false);
 
       // Act
       const result = moveService.makeEngineMove(currentFen, sanMove);
 
       // Assert
-      expect(mockChessEngine.loadFen).toHaveBeenCalledWith(currentFen);
-      expect(mockChessEngine.makeMove).toHaveBeenCalledWith(sanMove);
+      expect(mockChessGameLogic.loadFen).toHaveBeenCalledWith(currentFen);
+      expect(mockChessGameLogic.makeMove).toHaveBeenCalledWith(sanMove);
       expect(result.newFen).toBe(newFen);
       expect(result.move).toBeDefined();
       expect(result.move?.san).toBe('e4');
@@ -82,13 +82,13 @@ describe('MoveService.makeEngineMove', () => {
       };
       const newFen = 'rnbqkbnr/pppppppp/8/8/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 1';
 
-      mockChessEngine.loadFen = vi.fn().mockReturnValue(true);
-      mockChessEngine.makeMove = vi.fn().mockReturnValue(mockMoveResult);
-      mockChessEngine.getFen = vi.fn().mockReturnValue(newFen);
-      mockChessEngine.isCheckmate = vi.fn().mockReturnValue(false);
-      mockChessEngine.isStalemate = vi.fn().mockReturnValue(false);
-      mockChessEngine.isCheck = vi.fn().mockReturnValue(false);
-      mockChessEngine.isDraw = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.loadFen = vi.fn().mockReturnValue(true);
+      mockChessGameLogic.makeMove = vi.fn().mockReturnValue(mockMoveResult);
+      mockChessGameLogic.getFen = vi.fn().mockReturnValue(newFen);
+      mockChessGameLogic.isCheckmate = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.isStalemate = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.isCheck = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.isDraw = vi.fn().mockReturnValue(false);
 
       // Act
       const result = moveService.makeEngineMove(currentFen, sanMove);
@@ -113,13 +113,13 @@ describe('MoveService.makeEngineMove', () => {
       };
       const newFen = 'rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 5 4';
 
-      mockChessEngine.loadFen = vi.fn().mockReturnValue(true);
-      mockChessEngine.makeMove = vi.fn().mockReturnValue(mockMoveResult);
-      mockChessEngine.getFen = vi.fn().mockReturnValue(newFen);
-      mockChessEngine.isCheckmate = vi.fn().mockReturnValue(false);
-      mockChessEngine.isStalemate = vi.fn().mockReturnValue(false);
-      mockChessEngine.isCheck = vi.fn().mockReturnValue(false);
-      mockChessEngine.isDraw = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.loadFen = vi.fn().mockReturnValue(true);
+      mockChessGameLogic.makeMove = vi.fn().mockReturnValue(mockMoveResult);
+      mockChessGameLogic.getFen = vi.fn().mockReturnValue(newFen);
+      mockChessGameLogic.isCheckmate = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.isStalemate = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.isCheck = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.isDraw = vi.fn().mockReturnValue(false);
 
       // Act
       const result = moveService.makeEngineMove(currentFen, sanMove);
@@ -146,13 +146,13 @@ describe('MoveService.makeEngineMove', () => {
       };
       const newFen = '4Q3/8/8/8/8/8/8/4K3 b - - 0 1';
 
-      mockChessEngine.loadFen = vi.fn().mockReturnValue(true);
-      mockChessEngine.makeMove = vi.fn().mockReturnValue(mockMoveResult);
-      mockChessEngine.getFen = vi.fn().mockReturnValue(newFen);
-      mockChessEngine.isCheckmate = vi.fn().mockReturnValue(false);
-      mockChessEngine.isStalemate = vi.fn().mockReturnValue(false);
-      mockChessEngine.isCheck = vi.fn().mockReturnValue(false);
-      mockChessEngine.isDraw = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.loadFen = vi.fn().mockReturnValue(true);
+      mockChessGameLogic.makeMove = vi.fn().mockReturnValue(mockMoveResult);
+      mockChessGameLogic.getFen = vi.fn().mockReturnValue(newFen);
+      mockChessGameLogic.isCheckmate = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.isStalemate = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.isCheck = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.isDraw = vi.fn().mockReturnValue(false);
 
       // Act
       const result = moveService.makeEngineMove(currentFen, sanMove);
@@ -171,8 +171,8 @@ describe('MoveService.makeEngineMove', () => {
       const currentFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
       const sanMove = 'Xe9'; // Invalid move
 
-      mockChessEngine.loadFen = vi.fn().mockReturnValue(true);
-      mockChessEngine.makeMove = vi.fn().mockReturnValue(null); // Move failed
+      mockChessGameLogic.loadFen = vi.fn().mockReturnValue(true);
+      mockChessGameLogic.makeMove = vi.fn().mockReturnValue(null); // Move failed
 
       // Act
       const result = moveService.makeEngineMove(currentFen, sanMove);
@@ -189,8 +189,8 @@ describe('MoveService.makeEngineMove', () => {
       const currentFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
       const sanMove = 'e4';
 
-      mockChessEngine.loadFen = vi.fn().mockReturnValue(true);
-      mockChessEngine.makeMove = vi.fn().mockImplementation(() => {
+      mockChessGameLogic.loadFen = vi.fn().mockReturnValue(true);
+      mockChessGameLogic.makeMove = vi.fn().mockImplementation(() => {
         throw new Error('Engine crashed');
       });
 
@@ -219,13 +219,13 @@ describe('MoveService.makeEngineMove', () => {
       };
       const newFen = 'R3k3/8/8/8/8/8/8/4K2R b K - 1 1';
 
-      mockChessEngine.loadFen = vi.fn().mockReturnValue(true);
-      mockChessEngine.makeMove = vi.fn().mockReturnValue(mockMoveResult);
-      mockChessEngine.getFen = vi.fn().mockReturnValue(newFen);
-      mockChessEngine.isCheckmate = vi.fn().mockReturnValue(true);
-      mockChessEngine.isStalemate = vi.fn().mockReturnValue(false);
-      mockChessEngine.isCheck = vi.fn().mockReturnValue(true);
-      mockChessEngine.isDraw = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.loadFen = vi.fn().mockReturnValue(true);
+      mockChessGameLogic.makeMove = vi.fn().mockReturnValue(mockMoveResult);
+      mockChessGameLogic.getFen = vi.fn().mockReturnValue(newFen);
+      mockChessGameLogic.isCheckmate = vi.fn().mockReturnValue(true);
+      mockChessGameLogic.isStalemate = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.isCheck = vi.fn().mockReturnValue(true);
+      mockChessGameLogic.isDraw = vi.fn().mockReturnValue(false);
 
       // Act
       const result = moveService.makeEngineMove(currentFen, sanMove);
@@ -250,13 +250,13 @@ describe('MoveService.makeEngineMove', () => {
       };
       const newFen = '8/8/8/8/8/8/2K5/k7 b - - 1 1';
 
-      mockChessEngine.loadFen = vi.fn().mockReturnValue(true);
-      mockChessEngine.makeMove = vi.fn().mockReturnValue(mockMoveResult);
-      mockChessEngine.getFen = vi.fn().mockReturnValue(newFen);
-      mockChessEngine.isCheckmate = vi.fn().mockReturnValue(false);
-      mockChessEngine.isStalemate = vi.fn().mockReturnValue(true);
-      mockChessEngine.isCheck = vi.fn().mockReturnValue(false);
-      mockChessEngine.isDraw = vi.fn().mockReturnValue(true);
+      mockChessGameLogic.loadFen = vi.fn().mockReturnValue(true);
+      mockChessGameLogic.makeMove = vi.fn().mockReturnValue(mockMoveResult);
+      mockChessGameLogic.getFen = vi.fn().mockReturnValue(newFen);
+      mockChessGameLogic.isCheckmate = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.isStalemate = vi.fn().mockReturnValue(true);
+      mockChessGameLogic.isCheck = vi.fn().mockReturnValue(false);
+      mockChessGameLogic.isDraw = vi.fn().mockReturnValue(true);
 
       // Act
       const result = moveService.makeEngineMove(currentFen, sanMove);

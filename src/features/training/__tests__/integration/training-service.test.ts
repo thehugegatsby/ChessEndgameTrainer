@@ -9,7 +9,7 @@ import { vi } from 'vitest';
  */
 
 import { TrainingService } from '@shared/services/TrainingService';
-import { TRAIN_SCENARIOS } from '@tests/fixtures/trainPositions';
+import { TRAIN_SCENARIOS } from '@shared/testing/ChessTestData';
 import { useStore } from '@shared/store/rootStore';
 import { type EndgamePosition } from '@shared/types/endgame';
 

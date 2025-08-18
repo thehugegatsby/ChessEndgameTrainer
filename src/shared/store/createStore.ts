@@ -59,7 +59,7 @@ import {
   MoveService,
   GameStateService
 } from '@domains/game/services';
-import { ChessEngine } from '@domains/game/engine/ChessEngine';
+import { ChessGameLogic } from '@domains/game/engine/ChessGameLogic';
 
 // Using pure functions for chess logic
 import { getLogger } from '@shared/services/logging/Logger';
@@ -117,11 +117,11 @@ export const createStore = (
         immer((set, get, _api) => {
           // TODO: PHASE B.3 - Create Service Dependencies
           // Initialize ChessEngine and game services for dependency injection
-          const chessEngine = new ChessEngine();
+          const chessGameLogic = new ChessGameLogic();
           const gameServices = {
-            positionService: new PositionService(chessEngine),
-            moveService: new MoveService(chessEngine),
-            gameStateService: new GameStateService(chessEngine),
+            positionService: new PositionService(chessGameLogic),
+            moveService: new MoveService(chessGameLogic),
+            gameStateService: new GameStateService(chessGameLogic),
           };
 
           // Create slices using new pattern (clean separation of state and actions)

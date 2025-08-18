@@ -6,7 +6,7 @@
 
 import { getLogger } from '@shared/services/logging/Logger';
 import { ErrorService } from '@shared/services/ErrorService';
-import type { ChessEngineInterface } from '@domains/game/engine/types';
+import type { ChessGameLogicInterface } from '@domains/game/engine/types';
 import type { ValidatedMove } from '@shared/types/chess';
 import type { 
   PositionServiceInterface, 
@@ -18,19 +18,19 @@ import type {
  * Position Service implementation
  * 
  * Handles FEN loading, position evaluation, and move quality assessment.
- * Uses ChessEngine for position management and tablebase for evaluation.
+ * Uses ChessGameLogic for position management and tablebase for evaluation.
  */
 export class PositionService implements PositionServiceInterface {
-  private _chessEngine: ChessEngineInterface;
+  private _chessGameLogic: ChessGameLogicInterface;
   private logger = getLogger().setContext('PositionService');
 
-  constructor(chessEngine: ChessEngineInterface) {
-    this._chessEngine = chessEngine;
+  constructor(chessGameLogic: ChessGameLogicInterface) {
+    this._chessGameLogic = chessGameLogic;
   }
 
   loadPosition(fen: string): Promise<boolean> {
     try {
-      const result = this._chessEngine.loadFen(fen);
+      const result = this._chessGameLogic.loadFen(fen);
       return Promise.resolve(result);
     } catch (error) {
       ErrorService.handleUIError(
@@ -47,7 +47,7 @@ export class PositionService implements PositionServiceInterface {
   }
 
   getCurrentFen(): string | null {
-    return this._chessEngine.getFen();
+    return this._chessGameLogic.getFen();
   }
 
   createEvaluationBaseline(wdl: number, fen: string): { wdl: number; fen: string; timestamp: number } {
@@ -116,14 +116,14 @@ export class PositionService implements PositionServiceInterface {
 
 
   exportToFEN(): string {
-    return this._chessEngine.getFen();
+    return this._chessGameLogic.getFen();
   }
 
   loadFromFEN(fen: string): boolean {
     if (!this.validatePosition(fen)) {
       return false;
     }
-    return this._chessEngine.loadFen(fen);
+    return this._chessGameLogic.loadFen(fen);
   }
 
   validatePosition(fen: string): boolean {
@@ -135,10 +135,10 @@ export class PositionService implements PositionServiceInterface {
     
     // Let chess engine validate chess-specific rules
     try {
-      const currentFen = this._chessEngine.getFen();
-      const isValid = this._chessEngine.loadFen(fen);
+      const currentFen = this._chessGameLogic.getFen();
+      const isValid = this._chessGameLogic.loadFen(fen);
       // Restore original position
-      this._chessEngine.loadFen(currentFen);
+      this._chessGameLogic.loadFen(currentFen);
       return isValid;
     } catch {
       return false;
@@ -150,7 +150,7 @@ export class PositionService implements PositionServiceInterface {
   }
 
   resetToStarting(): void {
-    this._chessEngine.loadFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+    this._chessGameLogic.loadFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
   }
 
   reset(): void {

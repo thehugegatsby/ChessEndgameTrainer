@@ -21,6 +21,7 @@
  * ```
  */
 
+import { getLogger } from '@shared/services/logging/Logger';
 import { type UISlice, type UIState, type UIActions } from './types';
 import { nanoid } from 'nanoid';
 import { type Toast, type ModalType, type LoadingState, type AnalysisPanelState } from '../types';
@@ -85,7 +86,10 @@ export const createUIState = (): UIState => ({ ...initialUIState });
 export const createUIActions = (
   set: (fn: (state: { ui: UIState }) => void) => void,
   get: () => { ui: UIState & UIActions }
-): UIActions => ({
+): UIActions => {
+  const logger = getLogger().setContext('UISlice');
+
+  return {
   // Actions
   /**
    * Toggles the sidebar visibility state
@@ -307,10 +311,11 @@ export const createUIActions = (
    * @param gameOverInfo - Information about how the game ended
    */
   showGameOverDialog: (gameOverInfo: { reason: string }) => {
-    console.info(`STUB: Showing game over dialog for reason: ${gameOverInfo.reason}`);
+    logger.info(`STUB: Showing game over dialog for reason: ${gameOverInfo.reason}`);
     // TODO: Implement actual game over dialog logic
   },
-});
+  };
+};
 
 /**
  * Selector functions for efficient state access

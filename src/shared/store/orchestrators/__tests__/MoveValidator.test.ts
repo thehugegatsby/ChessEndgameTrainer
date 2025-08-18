@@ -75,7 +75,7 @@ describe('MoveValidator', () => {
 
       expect(result).toEqual({
         isValid: false,
-        errorMessage: 'Invalid move',
+        errorMessage: 'Ungültiger Zug',
       });
     });
 
@@ -98,7 +98,7 @@ describe('MoveValidator', () => {
 
       expect(result).toEqual({
         isValid: false,
-        errorMessage: 'Invalid move',
+        errorMessage: 'Ungültiger Zug',
       });
     });
 
@@ -115,7 +115,7 @@ describe('MoveValidator', () => {
 
       expect(result).toEqual({
         isValid: false,
-        errorMessage: 'Invalid move',
+        errorMessage: 'Ungültiger Zug',
       });
     });
   });

@@ -4,8 +4,8 @@
  * @description Stateless move service following "Fat Service, Thin Slice" pattern
  */
 
-import type { ChessEngineInterface, MoveInput as EngineMoveInput } from '@domains/game/engine/types';
-import type { MoveServiceInterface, MakeMoveResult, MoveInput as ServiceMoveInput } from './MoveServiceInterface';
+import type { ChessGameLogicInterface, MoveInput as EngineMoveInput } from '@domains/game/engine/types';
+import type { MoveServiceInterface, MakeMoveResult, MoveInput as ServiceMoveInput, ValidMove, MoveValidationResult } from './MoveServiceInterface';
 import { createValidatedMove } from '@shared/types/chess';
 import type { Move as ChessJsMove, Square } from 'chess.js';
 
@@ -18,10 +18,10 @@ import type { Move as ChessJsMove, Square } from 'chess.js';
  * - No internal state - all data flows through method parameters
  */
 export class MoveService implements MoveServiceInterface {
-  private chessEngine: ChessEngineInterface;
+  private chessGameLogic: ChessGameLogicInterface;
 
-  constructor(chessEngine: ChessEngineInterface) {
-    this.chessEngine = chessEngine;
+  constructor(chessGameLogic: ChessGameLogicInterface) {
+    this.chessGameLogic = chessGameLogic;
   }
 
   /**
@@ -43,10 +43,10 @@ export class MoveService implements MoveServiceInterface {
     const validatedMove = createValidatedMove(moveResult, fenBefore, fenAfter);
     
     // Game state checks
-    const isCheckmate = this.chessEngine.isCheckmate();
-    const isStalemate = this.chessEngine.isStalemate();
-    const isCheck = this.chessEngine.isCheck();
-    const isDraw = this.chessEngine.isDraw();
+    const isCheckmate = this.chessGameLogic.isCheckmate();
+    const isStalemate = this.chessGameLogic.isStalemate();
+    const isCheck = this.chessGameLogic.isCheck();
+    const isDraw = this.chessGameLogic.isDraw();
     
     // Move metadata
     const isCapture = moveResult.captured !== undefined;
@@ -109,10 +109,10 @@ export class MoveService implements MoveServiceInterface {
       const fenBefore = currentFen;
       
       // Load current position
-      this.chessEngine.loadFen(currentFen);
+      this.chessGameLogic.loadFen(currentFen);
       
       // Attempt to make the SAN move
-      const moveResult = this.chessEngine.makeMove(sanMove);
+      const moveResult = this.chessGameLogic.makeMove(sanMove);
       
       // If move failed, return error result
       if (!moveResult) {
@@ -137,7 +137,7 @@ export class MoveService implements MoveServiceInterface {
       }
       
       // Move succeeded - get new FEN and delegate to shared helper
-      const newFen = this.chessEngine.getFen();
+      const newFen = this.chessGameLogic.getFen();
       return this._buildMoveResult(moveResult, fenBefore, newFen);
       
     } catch (error) {
@@ -181,7 +181,7 @@ export class MoveService implements MoveServiceInterface {
       const fenBefore = currentFen;
       
       // Load current position
-      this.chessEngine.loadFen(currentFen);
+      this.chessGameLogic.loadFen(currentFen);
       
       // Convert MoveInput to EngineMoveInput (both use from/to/promotion)
       // Type assertion needed due to conflicting MoveInput types in codebase
@@ -193,7 +193,7 @@ export class MoveService implements MoveServiceInterface {
       };
       
       // Attempt to make the move
-      const moveResult = this.chessEngine.makeMove(engineMove);
+      const moveResult = this.chessGameLogic.makeMove(engineMove);
       
       // If move failed, return error result
       if (!moveResult) {
@@ -218,7 +218,7 @@ export class MoveService implements MoveServiceInterface {
       }
       
       // Move succeeded - get new FEN and delegate to shared helper
-      const newFen = this.chessEngine.getFen();
+      const newFen = this.chessGameLogic.getFen();
       return this._buildMoveResult(moveResult, fenBefore, newFen);
       
     } catch (error) {
@@ -240,6 +240,180 @@ export class MoveService implements MoveServiceInterface {
         moveNumber: 0,
         halfMoveClock: 0,
         error: error instanceof Error ? error.message : 'Unbekannter Fehler'
+      };
+    }
+  }
+
+  /**
+   * Gets all valid moves for current position
+   * 
+   * @param currentFen - Current position FEN
+   * @param square - Optional specific square to get moves for
+   * @returns Array of valid moves
+   */
+  getValidMoves(currentFen: string, square?: string): ValidMove[] {
+    try {
+      // Load the position
+      this.chessGameLogic.loadFen(currentFen);
+      
+      // Get moves from engine - either for specific square or all moves
+      const engineMoves = square 
+        ? this.chessGameLogic.getValidMoves(square as Square)
+        : this.chessGameLogic.getValidMoves();
+      
+      // Transform engine moves to service format
+      return engineMoves.map((move: ChessJsMove) => ({
+        from: move.from,
+        to: move.to,
+        san: move.san,
+        piece: move.piece,
+        ...(move.captured && { captured: move.captured }),
+        ...(move.promotion && { promotion: move.promotion }),
+        flags: move.flags
+      }));
+      
+    } catch {
+      // Return empty array on error
+      return [];
+    }
+  }
+
+  /**
+   * Validates if a move is legal in the current position
+   * 
+   * @param currentFen - Current position FEN
+   * @param move - Move to validate
+   * @returns Validation result with legal status and error if invalid
+   */
+  isMoveLegal(currentFen: string, move: ServiceMoveInput): MoveValidationResult {
+    try {
+      // Load the position
+      this.chessGameLogic.loadFen(currentFen);
+      
+      // Try to validate the move through the engine
+      const engineMove: EngineMoveInput = {
+        from: move.from as Square,
+        to: move.to as Square,
+        ...(move.promotion && { promotion: move.promotion })
+      };
+      
+      const isValid = this.chessGameLogic.isMoveLegal(engineMove);
+      
+      if (isValid) {
+        // Get the SAN notation by actually making the move temporarily
+        const moveResult = this.chessGameLogic.makeMove(engineMove);
+        const san = moveResult?.san;
+        
+        // Restore the original position
+        this.chessGameLogic.loadFen(currentFen);
+        
+        return {
+          isLegal: true,
+          san: san || `${move.from}-${move.to}`
+        };
+      } else {
+        return {
+          isLegal: false,
+          error: 'Ungültiger Zug'
+        };
+      }
+      
+    } catch (error) {
+      return {
+        isLegal: false,
+        error: error instanceof Error ? error.message : 'Fehler bei Zugvalidierung'
+      };
+    }
+  }
+
+  /**
+   * Validates a move with comprehensive validation including game state
+   * 
+   * @param currentFen - Current position FEN
+   * @param move - Move to validate
+   * @returns Detailed validation result with rich validation information
+   */
+  validateMove(currentFen: string, move: ServiceMoveInput): MoveValidationResult {
+    try {
+      // Load the position
+      this.chessGameLogic.loadFen(currentFen);
+      
+      // Convert to engine move format
+      const engineMove: EngineMoveInput = {
+        from: move.from as Square,
+        to: move.to as Square,
+        ...(move.promotion && { promotion: move.promotion })
+      };
+      
+      // First check basic legality
+      const isBasicallyLegal = this.chessGameLogic.isMoveLegal(engineMove);
+      
+      if (!isBasicallyLegal) {
+        return {
+          isLegal: false,
+          error: 'Ungültiger Zug'
+        };
+      }
+      
+      // Get more detailed validation by attempting the move
+      const moveResult = this.chessGameLogic.makeMove(engineMove);
+      if (!moveResult) {
+        return {
+          isLegal: false,
+          error: 'Zug konnte nicht ausgeführt werden'
+        };
+      }
+      
+      // Get SAN notation and restore position
+      const san = moveResult.san;
+      this.chessGameLogic.loadFen(currentFen);
+      
+      return {
+        isLegal: true,
+        san: san
+      };
+      
+    } catch (error) {
+      return {
+        isLegal: false,
+        error: error instanceof Error ? error.message : 'Fehler bei erweiterter Zugvalidierung'
+      };
+    }
+  }
+
+  /**
+   * Undoes the last move and returns the previous position
+   * 
+   * @param currentFen - Current position FEN
+   * @returns Result with previous position or error if undo not possible
+   */
+  undoMove(currentFen: string): { success: boolean; previousFen?: string; error?: string } {
+    try {
+      // Load the current position
+      this.chessGameLogic.loadFen(currentFen);
+      
+      // Attempt to undo the move
+      const success = this.chessGameLogic.undo();
+      
+      if (!success) {
+        return {
+          success: false,
+          error: 'Kein Zug zum Rückgängigmachen verfügbar'
+        };
+      }
+      
+      // Get the previous position
+      const previousFen = this.chessGameLogic.getFen();
+      
+      return {
+        success: true,
+        previousFen: previousFen
+      };
+      
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Fehler beim Rückgängigmachen des Zugs'
       };
     }
   }

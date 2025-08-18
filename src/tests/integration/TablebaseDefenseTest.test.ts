@@ -4,7 +4,7 @@ import { vi, beforeAll, afterEach, afterAll } from 'vitest';
  */
 
 import { tablebaseService } from '../../domains/evaluation';
-import { TRAIN_SCENARIOS } from '../fixtures/trainPositions';
+import { TRAIN_SCENARIOS } from '@shared/testing/ChessTestData';
 import { getLogger } from '@shared/services/logging/Logger';
 import { MSWServerMockFactory } from '../mocks/MSWServerMockFactory';
 import { http } from 'msw';

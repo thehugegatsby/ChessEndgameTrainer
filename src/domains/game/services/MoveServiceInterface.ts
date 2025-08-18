@@ -129,6 +129,19 @@ export interface MoveInput {
 }
 
 /**
+ * Valid move data from chess engine
+ */
+export interface ValidMove {
+  from: string;
+  to: string;
+  san: string;
+  piece: string;
+  captured?: string | undefined;
+  promotion?: string | undefined;
+  flags: string;
+}
+
+/**
  * Interface for move management service
  * 
  * STATELESS service following "Fat Service, Thin Slice" pattern
@@ -152,4 +165,39 @@ export interface MoveServiceInterface {
    * @returns Rich result with all derived game state
    */
   makeEngineMove(currentFen: string, sanMove: string): MakeMoveResult;
+
+  /**
+   * Gets all valid moves for current position
+   * 
+   * @param currentFen - Current position FEN
+   * @param square - Optional specific square to get moves for
+   * @returns Array of valid moves
+   */
+  getValidMoves(currentFen: string, square?: string): ValidMove[];
+
+  /**
+   * Validates if a move is legal in the current position
+   * 
+   * @param currentFen - Current position FEN
+   * @param move - Move to validate
+   * @returns Validation result with legal status and error if invalid
+   */
+  isMoveLegal(currentFen: string, move: MoveInput): MoveValidationResult;
+
+  /**
+   * Validates a move with comprehensive validation including game state
+   * 
+   * @param currentFen - Current position FEN
+   * @param move - Move to validate
+   * @returns Detailed validation result with rich validation information
+   */
+  validateMove(currentFen: string, move: MoveInput): MoveValidationResult;
+
+  /**
+   * Undoes the last move and returns the previous position
+   * 
+   * @param currentFen - Current position FEN
+   * @returns Result with previous position or error if undo not possible
+   */
+  undoMove(currentFen: string): { success: boolean; previousFen?: string; error?: string };
 }

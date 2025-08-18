@@ -3,15 +3,15 @@
  * @description Chess game logic domain exports
  * 
  * This domain handles core chess game mechanics including:
- * - Chess engine abstraction (chess.js wrapper)
+ * - Chess game logic abstraction (chess.js wrapper)
  * - Position and move management
  * - Game state and flow control
  * - German chess notation support
  */
 
-// Chess Engine (chess.js abstraction)
-export { ChessEngine } from './engine/ChessEngine';
-export type { ChessEngineInterface, MoveInput, GamePosition } from './engine/types';
+// Chess Game Logic (chess.js abstraction)
+export { ChessGameLogic } from './engine/ChessGameLogic';
+export type { ChessGameLogicInterface, MoveInput, GamePosition } from './engine/types';
 
 // Game Services (business logic)
 // TODO: Implement during service extraction phase

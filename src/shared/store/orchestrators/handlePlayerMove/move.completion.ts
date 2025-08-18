@@ -10,7 +10,9 @@
 
 import type { StoreApi } from '../types';
 import type { ValidatedMove } from '@shared/types/chess';
-import { isCheckmate, turn, isDraw } from '@shared/utils/chess-logic';
+import { turn } from '@shared/utils/chess-logic';
+import { GameStateService } from '@domains/game/services/GameStateService';
+import { ChessGameLogic } from '@domains/game/engine/ChessGameLogic';
 import { PERCENT } from '@/constants/number.constants';
 import { UI_DURATIONS_MS } from '@/constants/time.constants';
 
@@ -53,13 +55,17 @@ export function handleTrainingCompletion(api: StoreApi, isOptimal: boolean): voi
   const isPerfectGame =
     accuracy === PERCENT && state.training.mistakeCount === 0 && finalMoveOptimal;
 
-  // Determine success based on game outcome
+  // Determine success based on game outcome using GameStateService
   const currentFen = state.game.currentFen;
+  const tempChessGameLogic = new ChessGameLogic();
+  tempChessGameLogic.loadFen(currentFen);
+  const tempGameStateService = new GameStateService(tempChessGameLogic);
+  
   const gameOutcome = (() => {
-    if (isCheckmate(currentFen)) {
+    if (tempGameStateService.isCheckmate()) {
       return turn(currentFen) === 'w' ? '0-1' : '1-0';
     }
-    if (isDraw(currentFen)) {
+    if (tempGameStateService.isDraw()) {
       return '1/2-1/2';
     }
     return null;

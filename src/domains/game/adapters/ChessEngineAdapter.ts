@@ -2,25 +2,25 @@
  * @file ChessEngineAdapter
  * @description Minimal adapter for legacy test validation - TEMPORARY
  * 
- * Maps legacy IChessEngine interface to domain ChessEngineInterface
+ * Maps legacy IChessEngine interface to domain ChessGameLogicInterface
  * Only implements the 20 methods actually used by legacy tests
  */
 
 import type { Move as ChessJsMove, Square } from 'chess.js';
 import type { IChessEngine } from '@features/chess-core/types/interfaces';
-import type { ChessEngineInterface } from '@domains/game/engine/types';
-import { ChessEngine } from '@domains/game/engine/ChessEngine';
+import type { ChessGameLogicInterface, MoveInput } from '@domains/game/engine/types';
+import { ChessGameLogic } from '@domains/game/engine/ChessGameLogic';
 
 /**
  * Minimal adapter for legacy test validation
  * Implements only the 20 methods used by legacy tests, throws for unused methods
  */
 export class ChessEngineAdapter implements IChessEngine {
-  private domainEngine: ChessEngineInterface;
+  private domainEngine: ChessGameLogicInterface;
   private initialFen: string = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
   constructor() {
-    this.domainEngine = new ChessEngine();
+    this.domainEngine = new ChessGameLogic();
     this.domainEngine.loadFen(this.initialFen);
   }
 
@@ -85,9 +85,17 @@ export class ChessEngineAdapter implements IChessEngine {
 
   moves(options?: { square?: string; verbose?: boolean }): string[] | ChessJsMove[] {
     if (options?.square) {
-      return this.domainEngine.getPossibleMoves(options.square as Square);
+      return this.domainEngine.getValidMoves(options.square as Square);
     }
-    return this.domainEngine.getPossibleMoves();
+    return this.domainEngine.getValidMoves();
+  }
+
+  getValidMoves(square?: Square): ChessJsMove[] {
+    return this.domainEngine.getValidMoves(square);
+  }
+
+  isMoveLegal(move: MoveInput): boolean {
+    return this.domainEngine.isMoveLegal(move);
   }
 
   get(_square: string): { type: string; color: 'w' | 'b' } | null {

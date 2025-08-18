@@ -8,7 +8,7 @@
 
 import { test } from '@playwright/test';
 import { SequenceRunner, expectation } from '../helpers/sequenceRunner';
-import { TRAIN_SCENARIOS } from '../../fixtures/trainPositions';
+import { TRAIN_SCENARIOS } from '@shared/testing/ChessTestData';
 import { waitForPageReady, waitForTablebaseInit } from '../helpers/deterministicWaiting';
 import { getLogger } from '@shared/services/logging';
 

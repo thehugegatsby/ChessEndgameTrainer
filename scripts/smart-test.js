@@ -37,6 +37,7 @@ function detectFeature(filePath) {
   if (filePath.includes('move-quality')) return 'move-quality';
   if (filePath.includes('shared')) return 'shared';
   if (filePath.includes('integration')) return 'integration';
+  if (filePath.includes('src/tests/e2e/') || filePath.includes('e2e/')) return 'e2e';
   return null;
 }
 
@@ -125,7 +126,16 @@ async function main() {
     const testFile = args.find(arg => arg.includes('.test.') || arg.includes('.spec.'));
     const feature = detectFeature(testFile);
 
-    if (feature) {
+    if (feature === 'e2e') {
+      console.log(`🎯 Auto-routing to E2E tests`);
+      console.log(`🔄 Running: pnpm test:e2e ${testFile}`);
+      try {
+        execSync(`pnpm test:e2e ${testFile}`, { stdio: 'inherit' });
+      } catch (error) {
+        console.error('❌ E2E test execution failed');
+        process.exit(error.status || 1);
+      }
+    } else if (feature) {
       console.log(`🎯 Auto-routing to feature: ${feature}`);
       console.log(`🔄 Running: pnpm test:${feature} ${testFile}`);
       try {

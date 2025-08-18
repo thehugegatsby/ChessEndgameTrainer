@@ -292,8 +292,20 @@ export const useMoveHandlers = ({
    */
   const handleMove = useCallback(
     async (move: MoveInput) => {
+      // CRITICAL DEBUG: Log every handleMove call
+      console.info(`🔄 [MOVE CHAIN] handleMove called in useMoveHandlers`, { 
+        move, 
+        isPositionReady, 
+        isGameFinished,
+        currentPositionId: trainingState.currentPosition?.id,
+        timestamp: new Date().toISOString() 
+      });
+
       // CRITICAL: Block moves if position is not ready
       if (!isPositionReady) {
+        console.warn('❌ [MOVE CHAIN] Position not ready, blocking move', {
+          currentPositionId: trainingState.currentPosition?.id,
+        });
         getLogger().warn('Position not ready, blocking move', {
           currentPositionId: trainingState.currentPosition?.id,
         });
@@ -301,6 +313,7 @@ export const useMoveHandlers = ({
       }
 
       if (isGameFinished) {
+        console.warn('❌ [MOVE CHAIN] Game finished, blocking move', { isGameFinished });
         return false;
       }
 
@@ -314,7 +327,9 @@ export const useMoveHandlers = ({
         const beforeFen = currentFen;
 
         // Move validation is handled by pure functions in makeMove
+        console.info(`🚀 [MOVE CHAIN] Calling onMove (makeMove) from handleMove`, { move, timestamp: new Date().toISOString() });
         const result = await onMove(move);
+        console.info(`✅ [MOVE CHAIN] onMove (makeMove) returned`, { result, timestamp: new Date().toISOString() });
 
         // If the move was successful, analyze it and play appropriate audio
         if (result) {
@@ -381,8 +396,26 @@ export const useMoveHandlers = ({
    */
   const onDrop = useCallback(
     (sourceSquare: string, targetSquare: string, _piece: string, promotion?: string): boolean => {
+      // CRITICAL DEBUG: Log every onDrop call
+      console.info(`🚀 [MOVE CHAIN] onDrop START`, {
+        from: sourceSquare,
+        to: targetSquare,
+        piece: _piece,
+        promotion,
+        isPositionReady,
+        isGameFinished,
+        timestamp: new Date().toISOString()
+      });
+
       // Block drops if position is not ready or game is finished
       if (!isPositionReady || isGameFinished) {
+        console.warn(`❌ [MOVE CHAIN] onDrop BLOCKED`, {
+          reason: !isPositionReady ? 'position not ready' : 'game finished',
+          isPositionReady,
+          isGameFinished,
+          from: sourceSquare,
+          to: targetSquare
+        });
         return false;
       }
 
@@ -394,12 +427,21 @@ export const useMoveHandlers = ({
       // Add promotion piece if provided
       if (promotion) {
         move.promotion = promotion as 'q' | 'r' | 'b' | 'n';
+        console.info(`🎯 [MOVE CHAIN] onDrop: Added explicit promotion`, { promotion });
       } else if (onPromotionCheck(sourceSquare, targetSquare)) {
         // If no promotion provided but move is a promotion, default to queen
         move.promotion = 'q';
+        console.info(`🎯 [MOVE CHAIN] onDrop: Auto-promotion to queen detected`);
       }
 
+      console.info(`🚀 [MOVE CHAIN] onDrop: Calling handleMove`, {
+        move,
+        timestamp: new Date().toISOString()
+      });
+
       handleMove(move);
+      
+      console.info(`✅ [MOVE CHAIN] onDrop: handleMove called, returning true`);
       return true;
     },
     [handleMove, isGameFinished, isPositionReady, onPromotionCheck]
@@ -421,40 +463,110 @@ export const useMoveHandlers = ({
    */
   const onSquareClick = useCallback(
     ({ piece, square }: { piece: PieceType; square: string }): void => {
+      // CRITICAL DEBUG: Log every click with complete state context
+      console.info(`🎯 [MOVE CHAIN] onSquareClick START`, {
+        square,
+        piece,
+        selectedSquare,
+        isPositionReady,
+        isGameFinished,
+        currentFen: currentFen?.substring(0, 20) + '...',
+        timestamp: new Date().toISOString()
+      });
+
       // Block clicks if position is not ready or game is finished
       if (!isPositionReady || isGameFinished) {
+        console.warn(`❌ [MOVE CHAIN] onSquareClick BLOCKED`, {
+          reason: !isPositionReady ? 'position not ready' : 'game finished',
+          isPositionReady,
+          isGameFinished
+        });
         return;
       }
 
       // If no square is selected, select this square if it has a piece
       if (!selectedSquare) {
+        console.info(`🎯 [MOVE CHAIN] onSquareClick: No square selected, checking piece`, {
+          square,
+          piece,
+          hasPiece: Boolean(piece)
+        });
+
         if (piece) {
           // Check if it's the right color's turn
           try {
             const chess = new Chess(currentFen);
             const currentTurn = chess.turn();
-            const pieceColor = piece?.[0]; // 'w' or 'b'
+            
+            // Extract piece color from piece object
+            // The piece object has structure: {"pieceType":"wK"} or string "wK"
+            let pieceColor: string | undefined;
+            if (typeof piece === 'string') {
+              pieceColor = piece[0]; // 'w' or 'b'
+            } else if (piece && typeof piece === 'object' && 'pieceType' in piece) {
+              pieceColor = (piece as any).pieceType?.[0]; // Extract from {"pieceType":"wK"}
+            }
+
+            console.info(`🎯 [MOVE CHAIN] onSquareClick: Piece validation`, {
+              square,
+              piece,
+              pieceFullString: String(piece),
+              pieceStringified: JSON.stringify(piece),
+              pieceColor,
+              pieceFirstChar: piece?.[0],
+              pieceType: typeof piece,
+              currentTurn,
+              isCorrectColor: pieceColor === currentTurn
+            });
 
             if (pieceColor === currentTurn) {
               setSelectedSquare(square);
+              console.info(`✅ [MOVE CHAIN] onSquareClick: Selected square ${square}`);
+            } else {
+              console.warn(`❌ [MOVE CHAIN] onSquareClick: Wrong color piece`, {
+                pieceColor,
+                currentTurn,
+                square
+              });
             }
           } catch (error) {
+            console.error(`❌ [MOVE CHAIN] onSquareClick: Chess validation failed`, error);
             getLogger().error('Failed to validate piece color', error as Error);
           }
+        } else {
+          console.info(`🎯 [MOVE CHAIN] onSquareClick: No piece on square ${square}, ignoring`);
         }
         return;
       }
 
       // If same square clicked, deselect
       if (selectedSquare === square) {
+        console.info(`🎯 [MOVE CHAIN] onSquareClick: Deselecting same square ${square}`);
         setSelectedSquare(null);
         return;
       }
 
       // Try to make move from selected square to clicked square
+      console.info(`🚀 [MOVE CHAIN] onSquareClick: Attempting move`, {
+        from: selectedSquare,
+        to: square,
+        timestamp: new Date().toISOString()
+      });
+
       const result = onDrop(selectedSquare, square, ''); // Piece type not needed
+      
+      console.info(`✅ [MOVE CHAIN] onSquareClick: onDrop returned`, {
+        from: selectedSquare,
+        to: square,
+        result,
+        timestamp: new Date().toISOString()
+      });
+
       if (result) {
         setSelectedSquare(null); // Clear selection after successful move
+        console.info(`✅ [MOVE CHAIN] onSquareClick: Move successful, cleared selection`);
+      } else {
+        console.warn(`❌ [MOVE CHAIN] onSquareClick: Move failed, keeping selection`);
       }
     },
     [selectedSquare, isPositionReady, isGameFinished, currentFen, onDrop]

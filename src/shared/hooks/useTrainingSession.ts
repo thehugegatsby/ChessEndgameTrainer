@@ -127,6 +127,15 @@ export const useTrainingSession = ({
   const makeMove = useCallback(
     async (move: { from: string; to: string; promotion?: string }): Promise<boolean> => {
       const logger = getLogger().setContext('useTrainingSession');
+      
+      // CRITICAL DEBUG: Log every makeMove call
+      console.info(`🎯 [MOVE CHAIN] makeMove called in useTrainingSession`, { 
+        move, 
+        timestamp: new Date().toISOString(),
+        gameFinished: gameState.isGameFinished,
+        currentFen: gameState.currentFen
+      });
+      
       logger.debug('makeMove called', { move });
 
       // CRITICAL DEBUG: Log the exact reason why moves might be blocked
@@ -161,7 +170,14 @@ export const useTrainingSession = ({
         };
 
         // Call the atomic action from root store - it handles validation, execution, and delegation
+        console.info(`🏪 [MOVE CHAIN] Calling storeApi.getState().handlePlayerMove`, { 
+          formattedMove, 
+          timestamp: new Date().toISOString() 
+        });
         await storeApi.getState().handlePlayerMove(formattedMove);
+        console.info(`✅ [MOVE CHAIN] storeApi.getState().handlePlayerMove completed`, { 
+          timestamp: new Date().toISOString() 
+        });
 
         // Check for errors after atomic action execution
         const updatedState = storeApi.getState();

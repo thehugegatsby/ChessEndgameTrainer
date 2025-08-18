@@ -13,13 +13,13 @@
  * orchestrator code without dynamic imports or direct service references.
  */
 
-import { ChessEngine } from '@domains/game/engine/ChessEngine';
+import { ChessGameLogic } from '@domains/game/engine/ChessGameLogic';
 import { MoveService } from '@domains/game/services/MoveService';
 import type { MakeMoveResult, MoveInput } from '@domains/game/services/MoveServiceInterface';
 
 // Create singleton instances for orchestrator use
-const chessEngine = new ChessEngine();
-const moveService = new MoveService(chessEngine);
+const chessGameLogic = new ChessGameLogic();
+const moveService = new MoveService(chessGameLogic);
 
 /**
  * Orchestrator-friendly wrapper for move service

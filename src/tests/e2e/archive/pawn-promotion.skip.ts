@@ -4,7 +4,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { TRAIN_SCENARIOS } from '../../fixtures/trainPositions';
+import { TRAIN_SCENARIOS } from '@shared/testing/ChessTestData';
 import {
   waitForMoveAnimation,
   waitForUIReady,

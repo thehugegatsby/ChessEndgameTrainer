@@ -7,6 +7,7 @@
  */
 
 import { SIZE_MULTIPLIERS } from '@shared/constants/multipliers';
+import { getLogger } from '@shared/services/logging/Logger';
 
 import type { IChessEventBus, ChessEventHandler, ChessEventPayload } from '../types/interfaces';
 
@@ -15,6 +16,7 @@ export default class ChessEventBus implements IChessEventBus {
   private eventHistory: ChessEventPayload[] = [];
   private static readonly MAX_HISTORY_SIZE = SIZE_MULTIPLIERS.LARGE_FACTOR;
   private isEnabled: boolean = true;
+  private logger = getLogger().setContext('ChessEventBus');
 
   /**
    * Subscribe to chess events
@@ -49,7 +51,7 @@ export default class ChessEventBus implements IChessEventBus {
         handler(event);
       } catch (error) {
         // Prevent one handler's error from affecting others
-        console.error('Error in event handler:', error);
+        this.logger.error('Error in event handler', error);
       }
     });
   }

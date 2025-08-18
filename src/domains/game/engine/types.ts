@@ -6,10 +6,10 @@
 import type { Square, Move as ChessJsMove } from 'chess.js';
 
 /**
- * Chess engine interface for abstracting chess.js
- * Provides mobile-compatible abstraction layer
+ * Chess game logic interface for abstracting chess.js
+ * Provides mobile-compatible abstraction layer for game rules and mechanics
  */
-export interface ChessEngineInterface {
+export interface ChessGameLogicInterface {
   // Position Management
   loadFen(fen: string): boolean;
   getFen(): string;
@@ -17,7 +17,8 @@ export interface ChessEngineInterface {
   // Move Operations
   makeMove(move: MoveInput): ChessJsMove | null;
   validateMove(move: MoveInput): boolean;
-  getPossibleMoves(square?: Square): ChessJsMove[];
+  getValidMoves(square?: Square): ChessJsMove[];
+  isMoveLegal(move: MoveInput): boolean;
   
   // Game Status
   isGameOver(): boolean;

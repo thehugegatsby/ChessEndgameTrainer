@@ -188,7 +188,7 @@ export class MoveValidator {
         isDraw: tempGameStateService.isDraw(),
         isStalemate: tempGameStateService.isStalemate(),
       };
-    } catch (error) {
+    } catch {
       // Return safe defaults on error
       return {
         isGameOver: false,

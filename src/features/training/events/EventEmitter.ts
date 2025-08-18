@@ -6,6 +6,8 @@
  * Uses TypeScript generics for compile-time type safety.
  */
 
+import { getLogger } from '@shared/services/logging/Logger';
+
 /** Training system event types */
 export interface TrainingEvents {
   'move:attempted': {
@@ -73,6 +75,7 @@ type EventHandler<T> = (data: T) => void;
 export class TrainingEventEmitter {
   private handlers: Map<keyof TrainingEvents, Set<EventHandler<unknown>>> = new Map();
   private debug = false;
+  private logger = getLogger().setContext('TrainingEventEmitter');
 
   constructor(debug = false) {
     this.debug = debug;
@@ -94,9 +97,8 @@ export class TrainingEventEmitter {
     eventHandlers.add(handler);
 
     if (this.debug) {
-      // eslint-disable-next-line no-console
-      console.log(
-        `[EventEmitter] Subscribed to ${String(event)}, total handlers: ${eventHandlers.size}`
+      this.logger.debug(
+        `Subscribed to ${String(event)}, total handlers: ${eventHandlers.size}`
       );
     }
 
@@ -104,9 +106,8 @@ export class TrainingEventEmitter {
     return () => {
       eventHandlers.delete(handler);
       if (this.debug) {
-        // eslint-disable-next-line no-console
-        console.log(
-          `[EventEmitter] Unsubscribed from ${String(event)}, remaining: ${eventHandlers.size}`
+        this.logger.debug(
+          `Unsubscribed from ${String(event)}, remaining: ${eventHandlers.size}`
         );
       }
     };
@@ -141,15 +142,13 @@ export class TrainingEventEmitter {
    */
   emit<K extends keyof TrainingEvents>(event: K, data: TrainingEvents[K]): void {
     if (this.debug) {
-      // eslint-disable-next-line no-console
-      console.log(`[EventEmitter] Emitting ${String(event)}:`, data);
+      this.logger.debug(`Emitting ${String(event)}`, data);
     }
 
     const eventHandlers = this.handlers.get(event);
     if (!eventHandlers || eventHandlers.size === 0) {
       if (this.debug) {
-        // eslint-disable-next-line no-console
-        console.log(`[EventEmitter] No handlers for ${String(event)}`);
+        this.logger.debug(`No handlers for ${String(event)}`);
       }
       return;
     }
@@ -159,8 +158,7 @@ export class TrainingEventEmitter {
       try {
         handler(data);
       } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(`[EventEmitter] Error in handler for ${String(event)}:`, error);
+        this.logger.error(`Error in handler for ${String(event)}`, error);
       }
     });
   }
@@ -171,8 +169,7 @@ export class TrainingEventEmitter {
   clear(): void {
     this.handlers.clear();
     if (this.debug) {
-      // eslint-disable-next-line no-console
-      console.log('[EventEmitter] All handlers cleared');
+      this.logger.debug('All handlers cleared');
     }
   }
 
@@ -182,8 +179,7 @@ export class TrainingEventEmitter {
   clearEvent<K extends keyof TrainingEvents>(event: K): void {
     this.handlers.delete(event);
     if (this.debug) {
-      // eslint-disable-next-line no-console
-      console.log(`[EventEmitter] Cleared handlers for ${String(event)}`);
+      this.logger.debug(`Cleared handlers for ${String(event)}`);
     }
   }
 

@@ -15,7 +15,7 @@
 
 import { test, expect } from '@playwright/test';
 import { TrainingBoardPage } from './helpers/pageObjects/TrainingBoardPage';
-import { TRAIN_SCENARIOS } from '../fixtures/trainPositions';
+import { TRAIN_SCENARIOS } from '@shared/testing/ChessTestData';
 
 test.describe('Streak Counter E2E', () => {
   let trainingBoard: TrainingBoardPage;

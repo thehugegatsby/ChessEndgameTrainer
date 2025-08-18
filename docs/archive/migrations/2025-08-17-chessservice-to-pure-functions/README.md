@@ -77,7 +77,7 @@ makeMovePure: (move) => {
 #### 1. gameSlice.test.ts ✅
 - **Removed**: 25 lines of ChessService mocking
 - **Added**: Pure function tests (`makeMovePure`, `validateMovePure`, etc.)
-- **Result**: 15/15 tests green, uses `COMMON_FENS`
+- **Result**: 15/15 tests green, uses `TEST_POSITIONS`
 - **File**: `src/shared/store/__tests__/slices/gameSlice.test.ts`
 
 #### 2. MoveValidator ✅ (Implementation + Tests)
@@ -124,7 +124,7 @@ const handleMoveErrorContinue = useCallback(() => {
 **Test Changes:**
 - **Removed**: ChessServiceMockFactory and all ChessService mocking (28 lines)
 - **Added**: Pure function mocks for `getFen` and `turn`
-- **Updated**: All assertions to use `COMMON_FENS.STARTING_POSITION`
+- **Updated**: All assertions to use `TEST_POSITIONS.STARTING_POSITION`
 - **Result**: 26/26 tests green
 - **File**: `src/shared/hooks/__tests__/useDialogHandlers.test.ts`
 
@@ -234,9 +234,9 @@ api.setState(draft => {
 // OLD: import { ChessService } from '@shared/services/ChessService';
 // NEW: import { makeMove, validateMove } from '@shared/utils/chess-logic';
 
-// OLD: service.initialize(COMMON_FENS.PAWN_PROMOTION_READY);
+// OLD: service.initialize(TEST_POSITIONS.PAWN_PROMOTION_READY);
 //      const result = service.move({ from: 'e7', to: 'e8', promotion: 'D' });
-// NEW: const result = makeMove(COMMON_FENS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'D' });
+// NEW: const result = makeMove(TEST_POSITIONS.PAWN_PROMOTION_READY, { from: 'e7', to: 'e8', promotion: 'D' });
 
 // Added German promotion notation support to pure functions
 // Enhanced normalizePromotionPiece() for D/T/L/S notation
@@ -253,7 +253,7 @@ api.setState(draft => {
 **Migration Changes:**
 ```typescript
 // OLD: ChessService.pgn.test.ts - 332 lines of complex singleton tests
-// NEW: pgn-logic.test.ts - 34 pure function tests with COMMON_FENS
+// NEW: pgn-logic.test.ts - 34 pure function tests with TEST_POSITIONS
 
 // OLD: Complex mocking, event system tests, stateful reconstruction
 // NEW: Simple Input → Pure Function → Assert Output pattern
@@ -269,7 +269,7 @@ api.setState(draft => {
 **Key Improvements:**
 - **Renamed & Relocated**: `ChessService.pgn.test.ts` → `src/shared/utils/__tests__/pgn-logic.test.ts`
 - **Pure Function Focus**: Tests `loadPgn()`, `getMoveHistory()`, `getPgn()`, `generatePgn()`
-- **COMMON_FENS Integration**: Uses `COMMON_FENS.STARTING_POSITION`, `OPENING_AFTER_E4` etc.
+- **TEST_POSITIONS Integration**: Uses `TEST_POSITIONS.STARTING_POSITION`, `OPENING_AFTER_E4` etc.
 - **Stronger Assertions**: Exact FEN equality, specific FEN component validation
 - **Event System Elimination**: No more event/singleton state management tests
 - **Result**: 34/34 tests passing, 0 mocks, faster execution
@@ -308,7 +308,7 @@ api.setState(draft => {
 **Key Improvements:**
 - **Migrated & Relocated**: `ChessService.integration.test.ts` → `src/shared/utils/__tests__/chess-logic.integration.test.ts`
 - **Pure Function Focus**: Tests `makeMove()`, `validateMove()`, `getGameStatus()`, `generatePgn()` etc.
-- **COMMON_FENS Integration**: Uses `StandardPositions.STARTING`, `EndgamePositions.KPK_WIN` etc.
+- **TEST_POSITIONS Integration**: Uses `StandardPositions.STARTING`, `EndgamePositions.KPK_WIN` etc.
 - **No Event System**: Eliminates all singleton event/state management complexity
 - **Result**: 24/24 tests passing, 0 mocks, pure chess logic validation
 
@@ -325,13 +325,13 @@ api.setState(draft => {
 | TrainingService.test.ts | 44/44 | ✅ | Complete pure function migration |
 | chess-logic.test.ts | 37/37 | ✅ | Already pure |
 | ChessService.germanPromotion.test.ts | 12/12 | ✅ | German notation support |
-| pgn-logic.test.ts | 34/34 | ✅ | Pure PGN functions with COMMON_FENS |
+| pgn-logic.test.ts | 34/34 | ✅ | Pure PGN functions with TEST_POSITIONS |
 | **chess-logic.integration.test.ts** | **24/24** | **✅** | **Integration tests with pure functions** |
 | ChessServiceFacade | - | 🗑️ | DELETED (deprecated) |
 | **Total** | **262/262** | **✅** | **All green** |
 
 ### Code Quality
-- ✅ **Type Safety**: Consistent use of `COMMON_FENS`
+- ✅ **Type Safety**: Consistent use of `TEST_POSITIONS`
 - ✅ **Error Handling**: Graceful degradation for invalid FEN
 - ✅ **API Design**: Explicit FEN parameters for clarity
 - ✅ **Performance**: Pure functions optimized for clarity over micro-optimizations

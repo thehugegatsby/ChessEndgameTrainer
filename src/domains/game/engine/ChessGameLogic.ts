@@ -1,17 +1,17 @@
 /**
- * @file ChessEngine - Chess.js Abstraction Layer
+ * @file ChessGameLogic - Chess.js Abstraction Layer
  * @description Mobile-compatible wrapper for chess.js with German notation support
  */
 
 import { Chess, type Square, type Move as ChessJsMove } from 'chess.js';
-import type { ChessEngineInterface, MoveInput, GamePosition } from './types';
+import type { ChessGameLogicInterface, MoveInput, GamePosition } from './types';
 import { PIECE_NOTATION_MAP } from './types';
 
 /**
- * Chess engine implementation wrapping chess.js
+ * Chess game logic implementation wrapping chess.js
  * Provides consistent interface for web and future mobile platforms
  */
-export class ChessEngine implements ChessEngineInterface {
+export class ChessGameLogic implements ChessGameLogicInterface {
   private chess: Chess;
 
   constructor(fen?: string) {
@@ -54,12 +54,22 @@ export class ChessEngine implements ChessEngineInterface {
     }
   }
 
-  getPossibleMoves(square?: Square): ChessJsMove[] {
+  getValidMoves(square?: Square): ChessJsMove[] {
     try {
       const options = square ? { square, verbose: true } : { verbose: true };
       return this.chess.moves(options) as ChessJsMove[];
     } catch {
       return [];
+    }
+  }
+
+  isMoveLegal(move: MoveInput): boolean {
+    try {
+      const normalizedMove = this.normalizeMove(move);
+      const testChess = new Chess(this.chess.fen());
+      return testChess.move(normalizedMove) !== null;
+    } catch {
+      return false;
     }
   }
 

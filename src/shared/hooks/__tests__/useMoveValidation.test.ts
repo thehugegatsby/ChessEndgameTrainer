@@ -16,7 +16,7 @@ import { vi } from 'vitest';
 
 import { renderHook, act } from '@testing-library/react';
 import { useMoveValidation } from '@shared/hooks/useMoveValidation';
-import { TRAIN_SCENARIOS } from '@tests/fixtures/trainPositions';
+import { TRAIN_SCENARIOS } from '@shared/testing/ChessTestData';
 import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
 
 // Mock dependencies

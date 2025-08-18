@@ -22,7 +22,7 @@
 
 import type { StoreApi } from '../types';
 import type { Move as ChessJsMove } from 'chess.js';
-import { turn, isGameOver } from '@shared/utils/chess-logic';
+import { turn } from '@shared/utils/chess-logic';
 import { ErrorService } from '@shared/services/ErrorService';
 import { getLogger } from '@shared/services/logging';
 import { handleTrainingCompletion } from './move.completion';
@@ -35,6 +35,8 @@ import { MoveQualityEvaluator } from './MoveQualityEvaluator';
 import { PawnPromotionHandler } from './PawnPromotionHandler';
 import { EventBasedMoveDialogManager } from '../../../../features/training/events/EventBasedMoveDialogManager';
 import { getOpponentTurnManager } from './OpponentTurnHandler';
+import { GameStateService } from '@domains/game/services/GameStateService';
+import { ChessGameLogic } from '@domains/game/engine/ChessGameLogic';
 
 // Re-export types for consumers
 export type { MoveEvaluation, MoveExecutionResult } from './move.types';
@@ -331,8 +333,12 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
         });
       }
 
-      // Step 7: Check if game is finished
-      if (isGameOver(fenAfter)) {
+      // Step 7: Check if game is finished using GameStateService
+      const tempChessGameLogic = new ChessGameLogic();
+      tempChessGameLogic.loadFen(fenAfter);
+      const tempGameStateService = new GameStateService(tempChessGameLogic);
+      
+      if (tempGameStateService.isGameOver()) {
         await handleTrainingCompletion(api, true);
         return true;
       }

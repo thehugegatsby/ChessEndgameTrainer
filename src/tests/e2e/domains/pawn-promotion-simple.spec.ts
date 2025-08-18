@@ -1,4 +1,3 @@
-// @vitest-skip
 /**
  * Simple Pawn Promotion Test
  * Tests just the promotion move itself from a pre-set position
@@ -10,7 +9,7 @@ import { E2E } from '../../../shared/constants';
 import { getLogger } from '../../../shared/services/logging';
 import { waitForTablebaseInit, waitForOpponentMove } from '../helpers/deterministicWaiting';
 
-test.describe.skip('Pawn Promotion Simple Test', () => {
+test.describe('Pawn Promotion Simple Test', () => {
   const logger = getLogger().setContext('E2E-PawnPromotion');
 
   test('should auto-complete when promoting from e7 to e8=Q', async ({ page }) => {

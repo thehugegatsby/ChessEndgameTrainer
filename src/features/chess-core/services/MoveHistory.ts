@@ -7,6 +7,8 @@
  */
 
 import { Chess } from 'chess.js';
+import { getLogger } from '@shared/services/logging/Logger';
+import { ErrorService } from '@shared/services/ErrorService';
 import type { ValidatedMove } from '@shared/types/chess';
 import type { IMoveHistory } from '../types/interfaces';
 
@@ -19,6 +21,7 @@ export default class MoveHistory implements IMoveHistory {
   private currentIndex: number = -1;
   private initialFen: string = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
   private static readonly MAX_HISTORY_SIZE = MAX_HISTORY_SIZE;
+  private logger = getLogger().setContext('MoveHistory');
 
   /**
    * Add a move to history
@@ -29,7 +32,7 @@ export default class MoveHistory implements IMoveHistory {
       // Warning: This will discard future moves after current position
       const movesDiscarded = this.moves.length - 1 - this.currentIndex;
       if (movesDiscarded > 0) {
-        console.warn(`Discarding ${movesDiscarded} future move(s) from history`);
+        this.logger.warn(`Discarding ${movesDiscarded} future move(s) from history`);
       }
       this.truncateAfterCurrent();
     }
@@ -41,7 +44,7 @@ export default class MoveHistory implements IMoveHistory {
       const removeCount = this.moves.length - keepCount;
       this.moves = this.moves.slice(removeCount);
       this.currentIndex = Math.max(-1, this.currentIndex - removeCount);
-      console.warn(`History limit reached. Removed ${removeCount} oldest move(s)`);
+      this.logger.warn(`History limit reached. Removed ${removeCount} oldest move(s)`);
     }
 
     this.moves.push(move);
@@ -148,9 +151,17 @@ export default class MoveHistory implements IMoveHistory {
       new Chess(fen);
       // If we get here, FEN is valid
       this.initialFen = fen;
-    } catch {
-      console.error(`Invalid FEN string: ${fen}`);
-      throw new Error(`Cannot set invalid FEN: ${fen}`);
+    } catch (error) {
+      const userMessage = ErrorService.handleUIError(
+        error as Error,
+        'MoveHistory',
+        {
+          action: 'set-initial-fen',
+          additionalData: { fen }
+        }
+      );
+      this.logger.error(`Invalid FEN string: ${fen}`);
+      throw new Error(userMessage);
     }
   }
 

@@ -15,6 +15,7 @@
  */
 
 import React from 'react';
+import { getLogger } from '@shared/services/logging/Logger';
 
 /**
  * Mapping of piece identifiers to their SVG URLs in public directory
@@ -110,10 +111,11 @@ export const ChessPiece: React.FC<ChessPieceProps> = ({
   'aria-label': ariaLabel,
   ...props
 }) => {
+  const logger = getLogger().setContext('ChessPiece');
   const pieceUrl = pieceMap[piece];
 
   if (!pieceUrl) {
-    console.warn(`Unknown chess piece: ${piece}`);
+    logger.warn(`Unknown chess piece: ${piece}`);
     return null;
   }
 

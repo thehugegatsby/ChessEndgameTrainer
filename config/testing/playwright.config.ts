@@ -98,7 +98,7 @@ const config = {
     command: 'npm run dev:e2e',
     url: DEV_URL,
     timeout: 60000,
-    reuseExistingServer: false, // Always start fresh server with E2E env
+    reuseExistingServer: true, // Allow reusing existing dev server
     // Übergabe der E2E-Umgebungsvariable direkt an den Next.js-Prozess
     env: {
       NEXT_PUBLIC_IS_E2E_TEST: 'true',

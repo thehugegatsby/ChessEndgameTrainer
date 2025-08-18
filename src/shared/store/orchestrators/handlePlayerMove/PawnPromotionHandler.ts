@@ -4,7 +4,8 @@
  */
 
 import type { ValidatedMove } from '@shared/types/chess';
-import { isGameOver, isCheckmate } from '@shared/utils/chess-logic';
+import { GameStateService } from '@domains/game/services/GameStateService';
+import { ChessGameLogic } from '@domains/game/engine/ChessGameLogic';
 import { orchestratorTablebase } from '@shared/services/orchestrator/OrchestratorServices';
 import { getLogger } from '@shared/services/logging';
 import type { StoreApi } from '../types';
@@ -99,9 +100,13 @@ export class PawnPromotionHandler {
         getLogger().warn('[PawnPromotion] Invalid FEN format:', currentFen);
         return false;
       }
-      // Check if game is immediately over after promotion
-      if (isGameOver(currentFen)) {
-        const isCheckmateResult = isCheckmate(currentFen);
+      // Check if game is immediately over after promotion using GameStateService
+      const tempChessGameLogic = new ChessGameLogic();
+      tempChessGameLogic.loadFen(currentFen);
+      const tempGameStateService = new GameStateService(tempChessGameLogic);
+      
+      if (tempGameStateService.isGameOver()) {
+        const isCheckmateResult = tempGameStateService.isCheckmate();
         getLogger().debug('[PawnPromotion] Game over after promotion:', {
           isCheckmate: isCheckmateResult,
           fen: currentFen.split(' ')[0],

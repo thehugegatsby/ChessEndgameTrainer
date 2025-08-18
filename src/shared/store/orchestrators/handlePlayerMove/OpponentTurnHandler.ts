@@ -4,7 +4,9 @@
  */
 
 import type { StoreApi } from '../types';
-import { getFen, turn, isGameOver } from '@shared/utils/chess-logic';
+import { getFen, turn } from '@shared/utils/chess-logic';
+import { GameStateService } from '@domains/game/services/GameStateService';
+import { ChessGameLogic } from '@domains/game/engine/ChessGameLogic';
 // Using pure functions for chess logic
 import type { TablebaseMove } from '@shared/types/tablebase';
 import { ErrorService } from '@shared/services/ErrorService';
@@ -179,7 +181,12 @@ class OpponentTurnManager {
         }
       });
 
-      if (isGameOver(newFen)) {
+      // Check if game is finished using GameStateService
+      const tempChessGameLogic = new ChessGameLogic();
+      tempChessGameLogic.loadFen(newFen);
+      const tempGameStateService = new GameStateService(tempChessGameLogic);
+      
+      if (tempGameStateService.isGameOver()) {
         await handleTrainingCompletion(api, false); // Player didn't win
       }
 
