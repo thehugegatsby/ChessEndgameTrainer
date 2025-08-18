@@ -228,13 +228,16 @@ export const tablebaseHandlers = [
 - **Command**: `pnpm test:e2e`
 - **Location**: `tests/e2e/`
 
-### 4.4. Test Fixtures
+### 4.4. Test Fixtures ✅ Updated (2025-08-18)
 
-**DO**: Use validated FENs from TestFixtures
+**DO**: Use consolidated test data from ChessTestData
 
 ```typescript
-import { TestFixtures } from '@shared/testing/TestFixtures';
-const position = TestFixtures.getPosition('pawn-k-k');
+import { TEST_POSITIONS } from '@shared/testing/ChessTestData';
+const position = TEST_POSITIONS.KPK_BASIC; // King + Pawn vs King basic position
+const endgame = TEST_POSITIONS.BRIDGE_TRAINER_ZICKZACK; // Bridge trainer positions
 ```
 
-**DON'T**: Hardcode FENs directly in tests
+**Migration Complete**: All chess test data consolidated into single source of truth at `src/shared/testing/ChessTestData.ts` (90+ positions)
+
+**DON'T**: Create custom FEN strings - always use ChessTestData

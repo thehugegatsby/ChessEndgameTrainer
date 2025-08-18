@@ -3,7 +3,7 @@
  * Defines the shape of the application state and actions
  */
 
-import { type PositionAnalysis } from '../types/evaluation';
+// No imports needed - all interfaces moved to slices/types.ts or deprecated
 
 // User state
 /**
@@ -43,16 +43,7 @@ export interface UserPreferences {
 
 // DEPRECATED: GameState removed - replaced by GameState in slices/types.ts
 
-/**
- * Tablebase analysis state
- * @interface TablebaseAnalysisState
- */
-export interface TablebaseAnalysisState {
-  tablebaseMove?: string | null | undefined;
-  analysisStatus: AnalysisStatus;
-  evaluations: PositionAnalysis[];
-  currentEvaluation?: PositionAnalysis | undefined;
-}
+// DEPRECATED: TablebaseAnalysisState removed - replaced by TablebaseState in slices/types.ts
 
 // EndgameTrainingState removed - replaced by TrainingState in slices/types.ts
 

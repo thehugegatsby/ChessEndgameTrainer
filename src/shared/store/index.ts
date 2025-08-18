@@ -24,7 +24,6 @@ export type {
   ExperimentalFeatures,
   DataSyncState,
   AnalysisStatus,
-  TablebaseAnalysisState,
 } from './types';
 
 // Re-export types that are used widely

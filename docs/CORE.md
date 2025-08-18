@@ -38,14 +38,16 @@ graph TD
     style J fill:#e8f5e8
 ```
 
-### Zustand Domain Slices
+### Zustand Domain Slices ✅ 100% Slice-Based Architecture (2025-08-18)
 
 | Slice              | Purpose                   | Key State                               |
 | ------------------ | ------------------------- | --------------------------------------- |
-| **GameSlice**      | Chess logic, FEN, history | `position`, `moveHistory`, `gameStatus` |
-| **TrainingSlice**  | Training sessions         | `scenarios`, `sessionStatus`            |
+| **GameSlice**      | Chess logic, FEN, history | `currentFen`, `moveHistory`, `gameStatus` |
+| **TrainingSlice**  | Training sessions         | `currentPosition`, `currentStreak`, `isPlayerTurn` |
 | **TablebaseSlice** | Lichess API cache         | `evaluations`, `cache`, `requestStatus` |
-| **UISlice**        | UI state management       | `modals`, `toasts`, `isLoading`         |
+| **UISlice**        | UI state management       | `modals`, `toasts`, `loading`         |
+
+**Architecture Migration Complete**: Store uses exclusively `/shared/store/slices/types.ts` - no legacy interfaces remain.
 
 ### Services
 
