@@ -255,6 +255,23 @@ export const useStore = create<RootState>()(
           },
 
           /**
+           * Loads only the position without navigation or additional orchestration
+           *
+           * @param {EndgamePosition} position - The endgame position to load
+           * @returns {Promise<void>} Completes when position is loaded
+           *
+           * @remarks
+           * This is a focused orchestrator that only handles position loading.
+           * Perfect for E2E tests where navigation loading would interfere.
+           * Uses the SRP-conform loadPosition orchestrator.
+           */
+          loadPosition: async (position: EndgamePosition): Promise<void> => {
+            const { loadPosition } = await import('./orchestrators/loadPosition');
+            const storeApi = { getState: get, setState: set };
+            return await loadPosition(storeApi, position);
+          },
+
+          /**
            * Resets entire store to initial state
            *
            * @remarks

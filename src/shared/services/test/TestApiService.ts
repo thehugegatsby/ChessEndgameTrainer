@@ -451,14 +451,31 @@ export class TestApiService {
     }
 
     const state = this.storeAccess.getState();
+    console.log('🔍 TestApiService.getGameState: Store state keys', Object.keys(state));
+    console.log('🔍 TestApiService.getGameState: Available FENs', {
+      'state.game?.currentFen': state.game?.currentFen,
+      'state.training?.currentFen': state.training?.currentFen,
+      'state.fen': state.fen,
+      'gameKeys': state.game ? Object.keys(state.game) : null,
+      'trainingKeys': state.training ? Object.keys(state.training) : null
+    });
+    
     const currentFen =
-      state.training?.currentFen ||
-      state.fen ||
-      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+      state.game?.currentFen ||           // ✅ Correct path for new architecture
+      state.training?.currentFen ||       // Fallback for old training slice
+      state.fen ||                        // Fallback for very old architecture
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; // Starting position fallback
+      
+    console.log('🔍 TestApiService.getGameState: Selected FEN', { currentFen });
     const game = new Chess(currentFen);
 
     // Get last move if available
-    const history = state.training?.moveHistory || state.history || [];
+    const history = state.game?.moveHistory || state.training?.moveHistory || state.history || [];
+    console.log('🔍 TestApiService.getGameState: Move history', { 
+      historyLength: history.length,
+      'state.game?.moveHistory': state.game?.moveHistory?.length,
+      'state.training?.moveHistory': state.training?.moveHistory?.length 
+    });
     let lastMove;
     if (history.length > 0) {
       const lastHistoryItem = history[history.length - 1];
@@ -548,6 +565,8 @@ export class TestApiService {
    * ```
    */
   public setPosition(fen: string): boolean {
+    console.log('🔍 TestApiService.setPosition called', { fen });
+    
     if (!this.storeAccess) {
       console.error("TestApiService not initialized with store access");
       return false;
@@ -559,7 +578,9 @@ export class TestApiService {
     }
 
     try {
+      console.log('🚀 TestApiService: Calling storeAccess.setPosition');
       this.storeAccess.setPosition(fen);
+      console.log('✅ TestApiService: storeAccess.setPosition called successfully');
       this.emit("test:positionSet", { fen });
       return true;
     } catch (error) {

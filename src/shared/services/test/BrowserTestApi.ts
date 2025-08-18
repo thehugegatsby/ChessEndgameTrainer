@@ -160,7 +160,11 @@ export class BrowserTestApi {
      * Set board position via FEN string
      */
     (window as unknown as { e2e_setBoardState: (fen: string) => unknown }).e2e_setBoardState = (fen: string) => {
-      return this.setPosition(fen);
+      console.info('🔍 BrowserTestApi: e2e_setBoardState called', { fen });
+      // 'this' is already correctly bound by the arrow function
+      const result = this.setPosition(fen);
+      console.info('🔍 BrowserTestApi: setPosition result', { result });
+      return result;
     };
 
     this.initialized = true;
@@ -251,7 +255,10 @@ export class BrowserTestApi {
    * Set board position via FEN string
    */
   private setPosition(fen: string): boolean {
-    return this.testApi.setPosition(fen);
+    console.info('🔍 BrowserTestApi.setPosition called', { fen });
+    const result = this.testApi.setPosition(fen);
+    console.info('🔍 BrowserTestApi.setPosition result', { result });
+    return result;
   }
 
   /**

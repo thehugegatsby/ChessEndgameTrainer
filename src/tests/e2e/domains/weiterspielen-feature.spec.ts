@@ -19,6 +19,13 @@ test.describe("Weiterspielen Feature", () => {
   const logger = getLogger().setContext("E2E-WeiterSpielenFeature");
 
   test.beforeEach(async ({ page }) => {
+    // Listen to console messages for debugging
+    page.on('console', msg => {
+      if (msg.text().includes('DEBUG') || msg.text().includes('🔍') || msg.text().includes('🚀') || msg.text().includes('✅') || msg.text().includes('❌')) {
+        console.log('BROWSER CONSOLE:', msg.text());
+      }
+    });
+
     // Start fresh for each test
     await page.goto(E2E.ROUTES.TRAIN(1));
     await page.waitForTimeout(E2E.TIMEOUTS.PAGE_LOAD);
@@ -43,11 +50,63 @@ test.describe("Weiterspielen Feature", () => {
       "Setting up KPK_CENTRAL test position for guaranteed error dialog",
     );
 
-    await page.evaluate((testFen) => {
+    // DEBUG: Test if page.evaluate works at all
+    logger.info("Testing if page.evaluate works...");
+    const simpleTest = await page.evaluate(() => {
+      console.log('🔍 SIMPLE TEST: page.evaluate is working!');
+      return { test: 'success', timestamp: Date.now() };
+    });
+    logger.info("Simple evaluate result:", simpleTest);
+
+    // DEBUG: Test e2e functions availability  
+    const functionCheck = await page.evaluate(() => {
+      console.log('🔍 FUNCTION CHECK: Testing E2E functions');
+      const result = {
+        e2e_setBoardState: typeof (window as any).e2e_setBoardState,
+        e2e_makeMove: typeof (window as any).e2e_makeMove,
+        e2e_getGameState: typeof (window as any).e2e_getGameState,
+        __e2e_store: typeof (window as any).__e2e_store,
+        windowKeys: Object.keys(window).filter(k => k.includes('e2e') || k.includes('test'))
+      };
+      console.log('🔍 FUNCTION CHECK result:', result);
+      return result;
+    });
+    logger.info("Function check result:", functionCheck);
+
+    // Get the FEN string before passing to page.evaluate
+    const testFen = TEST_POSITIONS.KPK_CENTRAL;
+    logger.info("Using test FEN:", testFen);
+
+    // STEP 0.1: Verify initial state is NOT the target state
+    const initialGameState = await page.evaluate(() => (window as any).e2e_getGameState());
+    logger.info("Initial game state FEN:", initialGameState.fen);
+    expect(initialGameState.fen).not.toBe(testFen);
+
+    // STEP 0.2: Set the board state
+    await page.evaluate((fenString) => {
+      console.log('🔍 DEBUG: Starting position setup', { fenString });
+      
       if (typeof (window as any).e2e_setBoardState === "function") {
-        (window as any).e2e_setBoardState(testFen);
+        console.log('🚀 DEBUG: Calling e2e_setBoardState');
+        (window as any).e2e_setBoardState(fenString);
+        console.log('✅ DEBUG: e2e_setBoardState called');
+      } else {
+        console.error('❌ DEBUG: e2e_setBoardState not available');
+        throw new Error('e2e_setBoardState is not a function on the window object');
       }
-    }, TEST_POSITIONS.KPK_CENTRAL);
+    }, testFen);
+
+    // STEP 0.3: Verify state change on API level IMMEDIATELY
+    // Use expect.poll for robust waiting
+    await expect.poll(async () => {
+      const state = await page.evaluate(() => (window as any).e2e_getGameState());
+      return state.fen;
+    }, {
+      message: `FEN should be updated to ${testFen}`,
+      timeout: 5000,
+    }).toBe(testFen);
+
+    logger.info("✅ Game state successfully updated via e2e_setBoardState");
 
     // Wait for board to be interactive and tablebase ready
     await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
@@ -216,11 +275,32 @@ test.describe("Weiterspielen Feature", () => {
     logger.info("Testing Weiterspielen with various suboptimal move scenarios");
 
     // Set up KPK_CENTRAL position for consistent testing
-    await page.evaluate((testFen) => {
+    const centralFen = TEST_POSITIONS.KPK_CENTRAL;
+    await page.evaluate(async (testFen) => {
       if (typeof (window as any).e2e_setBoardState === "function") {
         (window as any).e2e_setBoardState(testFen);
+        
+        // Wait for training context to be fully loaded
+        let retries = 50; // Max 5 seconds with 100ms intervals
+        while (retries > 0) {
+          const store = (window as any).__e2e_store;
+          if (store) {
+            const state = store.getState();
+            if (state.training.currentPosition?.fen === testFen && 
+                state.game.currentFen === testFen) {
+              console.log('✅ Position fully loaded in both slices');
+              break;
+            }
+          }
+          await new Promise(resolve => setTimeout(resolve, 100));
+          retries--;
+        }
+        
+        if (retries === 0) {
+          console.error('❌ Position loading timeout');
+        }
       }
-    }, TEST_POSITIONS.KPK_CENTRAL);
+    }, centralFen);
 
     await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
 
@@ -298,11 +378,32 @@ test.describe("Weiterspielen Feature", () => {
     logger.info("Testing error dialog UI elements and text content");
 
     // Set up KPK_CENTRAL position
-    await page.evaluate((testFen) => {
+    const kpkCentralFen = TEST_POSITIONS.KPK_CENTRAL;
+    await page.evaluate(async (testFen) => {
       if (typeof (window as any).e2e_setBoardState === "function") {
         (window as any).e2e_setBoardState(testFen);
+        
+        // Wait for training context to be fully loaded
+        let retries = 50; // Max 5 seconds with 100ms intervals
+        while (retries > 0) {
+          const store = (window as any).__e2e_store;
+          if (store) {
+            const state = store.getState();
+            if (state.training.currentPosition?.fen === testFen && 
+                state.game.currentFen === testFen) {
+              console.log('✅ Position fully loaded in both slices');
+              break;
+            }
+          }
+          await new Promise(resolve => setTimeout(resolve, 100));
+          retries--;
+        }
+        
+        if (retries === 0) {
+          console.error('❌ Position loading timeout');
+        }
       }
-    }, TEST_POSITIONS.KPK_CENTRAL);
+    }, kpkCentralFen);
 
     await page.waitForTimeout(E2E.TIMEOUTS.TABLEBASE_INIT);
 

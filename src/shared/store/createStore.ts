@@ -162,6 +162,12 @@ export const createStore = (
               return await loadTrainingContextOrchestrator(storeApi, position);
             },
 
+            loadPosition: async (position: EndgamePosition): Promise<void> => {
+              const { loadPosition } = await import('./orchestrators/loadPosition');
+              const storeApi = { getState: get, setState: set };
+              return await loadPosition(storeApi, position);
+            },
+
             /**
              * Resets entire store to initial state
              */

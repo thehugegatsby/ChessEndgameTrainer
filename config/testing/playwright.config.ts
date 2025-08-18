@@ -33,20 +33,28 @@ const config = {
     // Base URL for navigation - using development server
     baseURL: DEV_URL,
 
-    // Collect trace on first retry
-    trace: 'on-first-retry',
+    // 🎯 ENHANCED DEBUGGING: Always capture traces for failed dialog investigations
+    trace: {
+      mode: 'retain-on-failure',
+      screenshots: true,
+      snapshots: true, 
+      sources: true
+    },
 
     // Screenshot on failure
     screenshot: { mode: 'only-on-failure' },
 
-    // Video on first retry
-    video: 'on-first-retry',
+    // 🎯 ENHANCED DEBUGGING: Always record video for dialog failures  
+    video: 'retain-on-failure',
 
     // Viewport
     viewport: { width: 1280, height: 720 },
 
-    // Run tests in headless mode
-    headless: true,
+    // 🎯 DEBUGGING: Run in headed mode to see actual dialog behavior
+    headless: false,
+
+    // 🎯 DEBUGGING: Slow down for visual inspection
+    slowMo: 500,
 
     // Set E2E test mode header
     extraHTTPHeaders: {

@@ -278,6 +278,7 @@ export interface AsyncActions {
   ) => Promise<boolean>;
   // handleOpponentTurn and requestPositionEvaluation removed - functionality moved to orchestrators
   loadTrainingContext: (position: EndgamePosition) => Promise<void>;
+  loadPosition: (position: EndgamePosition) => Promise<void>;
 }
 
 /**

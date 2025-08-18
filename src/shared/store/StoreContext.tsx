@@ -180,15 +180,58 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children, initialS
         resetPosition: (state?.reset || (() => {})) as () => void,
         setPosition: ((position: unknown) => {
           const currentState = storeRef.current?.getState();
-          if (currentState?.game?.setCurrentFen) {
-            currentState.game.setCurrentFen(position as string);
-            getLogger().info('✅ Position set successfully via setCurrentFen', { fen: position });
-          } else {
-            getLogger().error('setCurrentFen not found in gameSlice', { 
-              currentState: Boolean(currentState),
-              game: Boolean(currentState?.game),
-              setCurrentFen: Boolean(currentState?.game?.setCurrentFen)
+          const fen = position as string;
+          
+          getLogger().info('🔍 E2E setPosition called', { 
+            fen,
+            currentState: Boolean(currentState),
+            loadTrainingContext: Boolean(currentState?.loadTrainingContext),
+            storeKeys: currentState ? Object.keys(currentState) : []
+          });
+          
+          // Use the focused loadPosition orchestrator for E2E tests
+          // This avoids navigation loading that would override the test position
+          if (currentState?.loadPosition) {
+            // Create a minimal EndgamePosition from FEN for E2E tests
+            const endgamePosition = {
+              id: 999, // E2E test position ID
+              title: 'E2E Test Position',
+              fen: fen,
+              category: 'e2e-test',
+              difficulty: 'intermediate' as const,
+              sideToMove: fen.includes(' w ') ? 'white' as const : 'black' as const,
+              goal: 'win' as const,
+              description: 'Position set via E2E test API'
+            };
+            
+            getLogger().info('🚀 Calling loadPosition with position (E2E safe)', { endgamePosition });
+            
+            // Use loadPosition to set position WITHOUT navigation loading
+            currentState.loadPosition(endgamePosition).then(() => {
+              getLogger().info('✅ Position set via loadPosition orchestrator', { 
+                fen, 
+                positionId: endgamePosition.id 
+              });
+            }).catch((error) => {
+              getLogger().error('❌ Failed to load position', { 
+                error: error instanceof Error ? error.message : String(error),
+                fen 
+              });
             });
+          } else {
+            getLogger().error('❌ loadPosition orchestrator not found', {
+              currentState: Boolean(currentState),
+              loadPosition: Boolean(currentState?.loadPosition),
+              availableActions: currentState ? Object.keys(currentState).filter(key => typeof (currentState as unknown as Record<string, unknown>)[key] === 'function') : []
+            });
+            
+            // Fallback: try to set position directly on game slice
+            if (currentState?.game?.setCurrentFen) {
+              getLogger().info('🔄 Fallback: Using game.setCurrentFen');
+              currentState.game.setCurrentFen(fen);
+            } else {
+              getLogger().error('❌ No fallback method available for setting position');
+            }
           }
         }) as (position: unknown) => void,
         goToMove: (state?.game?.goToMove || (() => {})) as (moveIndex: number) => void,

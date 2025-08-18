@@ -11,7 +11,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 1
+      "actualWorkers": 12
     },
     "preserveOutput": "always",
     "reporter": [
@@ -43,7 +43,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 12
         },
         "id": "chromium",
         "name": "chromium",
@@ -52,14 +52,14 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 10000
+        "timeout": 60000
       },
       {
         "outputDir": "/home/thehu/coolProjects/EndgameTrainer/test-results",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 12
         },
         "id": "firebase",
         "name": "firebase",
@@ -68,7 +68,7 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 10000
+        "timeout": 60000
       }
     ],
     "shard": null,
@@ -88,6 +88,1007 @@
   },
   "suites": [
     {
+      "title": "core/error-recovery.spec.ts",
+      "file": "core/error-recovery.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "🔄 Error Recovery - \"Zurücknehmen\" and \"Weiterspielen\" Features",
+          "file": "core/error-recovery.spec.ts",
+          "line": 20,
+          "column": 6,
+          "specs": [
+            {
+              "title": "🎯 Should show error dialog for bad move and reset on \"Zurücknehmen\"",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 31082,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📍 Step 1: Making move that should trigger error...\n"
+                        },
+                        {
+                          "text": "🎯 Making move: e5 → e6 (click)\n"
+                        },
+                        {
+                          "text": "✅ Click move completed: e5 → e6\n"
+                        },
+                        {
+                          "text": "✅ Move verified successful: e5 → e6\n"
+                        },
+                        {
+                          "text": "📍 Step 2: Checking if error dialog appears...\n"
+                        },
+                        {
+                          "text": "ℹ️  No error dialog appeared - move might be legal or system may not show errors for this position\n"
+                        },
+                        {
+                          "text": "📍 Checking if move was executed normally...\n"
+                        },
+                        {
+                          "text": "✅ Test completed - no error dialog needed for this move\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T20:06:32.125Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "602a5001eb204681e5c2-c3a8e94ce0e0845531e5",
+              "file": "core/error-recovery.spec.ts",
+              "line": 32,
+              "column": 7
+            },
+            {
+              "title": "🔄 Should test dialog button functionality",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 27172,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📍 Testing basic dialog functionality...\n"
+                        },
+                        {
+                          "text": "🎯 Making move: e5 → e6 (click)\n"
+                        },
+                        {
+                          "text": "✅ Click move completed: e5 → e6\n"
+                        },
+                        {
+                          "text": "✅ Move verified successful: e5 → e6\n"
+                        },
+                        {
+                          "text": "ℹ️  No error dialog appeared - position may not trigger errors\n"
+                        },
+                        {
+                          "text": "✅ Test completed - board interaction working normally\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T20:06:32.100Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "602a5001eb204681e5c2-a2e67b1962b7f53ce803",
+              "file": "core/error-recovery.spec.ts",
+              "line": 78,
+              "column": 7
+            },
+            {
+              "title": "⚖️ Should test \"Weiterspielen\" option",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 30340,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📍 Testing \"Weiterspielen\" option...\n"
+                        },
+                        {
+                          "text": "🎯 Making move: e5 → e6 (click)\n"
+                        },
+                        {
+                          "text": "✅ Click move completed: e5 → e6\n"
+                        },
+                        {
+                          "text": "✅ Move verified successful: e5 → e6\n"
+                        },
+                        {
+                          "text": "ℹ️  No error dialog appeared - move was acceptable\n"
+                        },
+                        {
+                          "text": "✅ Test completed - no error handling needed\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T20:06:32.105Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "602a5001eb204681e5c2-0dce9825a6499a1dadcb",
+              "file": "core/error-recovery.spec.ts",
+              "line": 108,
+              "column": 7
+            },
+            {
+              "title": "🚫 Should handle illegal moves correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 28934,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📍 Step 1: Making illegal move...\n"
+                        },
+                        {
+                          "text": "🎯 Making move: e6 → h2 (click)\n"
+                        },
+                        {
+                          "text": "✅ Click move completed: e6 → h2\n"
+                        },
+                        {
+                          "text": "✅ Move verified successful: e6 → h2\n"
+                        },
+                        {
+                          "text": "📍 Step 2: Verifying no dialog appears...\n"
+                        },
+                        {
+                          "text": "📍 Step 3: Verifying board is still functional...\n"
+                        },
+                        {
+                          "text": "🎉 Illegal move handling test PASSED!\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T20:06:32.118Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "602a5001eb204681e5c2-3de64c8265e889b7472f",
+              "file": "core/error-recovery.spec.ts",
+              "line": 141,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "core/pawn-promotion.spec.ts",
+      "file": "core/pawn-promotion.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Pawn Promotion Simple Test",
+          "file": "core/pawn-promotion.spec.ts",
+          "line": 9,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should auto-complete when promoting from e7 to e8=Q",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 53386,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🎯 Starting pawn promotion sequence...\n"
+                        },
+                        {
+                          "text": "📍 Step 1: Moving pawn e5 → e6\n"
+                        },
+                        {
+                          "text": "🎯 Making move: e5 → e6 (click)\n"
+                        },
+                        {
+                          "text": "✅ Click move completed: e5 → e6\n"
+                        },
+                        {
+                          "text": "✅ Move verified successful: e5 → e6\n"
+                        },
+                        {
+                          "text": "📍 Step 2: Moving pawn e6 → e7\n"
+                        },
+                        {
+                          "text": "🎯 Making move: e6 → e7 (click)\n"
+                        },
+                        {
+                          "text": "✅ Click move completed: e6 → e7\n"
+                        },
+                        {
+                          "text": "✅ Move verified successful: e6 → e7\n"
+                        },
+                        {
+                          "text": "📍 Step 3: Promoting pawn e7 → e8=Q\n"
+                        },
+                        {
+                          "text": "🎯 Making move: e7 → e8 (click)\n"
+                        },
+                        {
+                          "text": "✅ Click move completed: e7 → e8\n"
+                        },
+                        {
+                          "text": "✅ Move verified successful: e7 → e8\n"
+                        },
+                        {
+                          "text": "⚠️ No promotion dialog found - auto-promotion to Queen\n"
+                        },
+                        {
+                          "text": "🎉 Pawn promotion test PASSED!\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T20:06:32.102Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "47dd5a3f14384a9bbb96-f7ca7cc16b72ad7da399",
+              "file": "core/pawn-promotion.spec.ts",
+              "line": 11,
+              "column": 7
+            },
+            {
+              "title": "manual test of promotion detection",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 5,
+                      "status": "passed",
+                      "duration": 29897,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🎯 Testing promotion UI detection...\n"
+                        },
+                        {
+                          "text": "🎯 Making move: e5 → e6 (click)\n"
+                        },
+                        {
+                          "text": "✅ Click move completed: e5 → e6\n"
+                        },
+                        {
+                          "text": "✅ Move verified successful: e5 → e6\n"
+                        },
+                        {
+                          "text": "⚠️ No promotion dialog found (expected for regular moves)\n"
+                        },
+                        {
+                          "text": "✅ Promotion detection test completed\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T20:06:32.168Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "47dd5a3f14384a9bbb96-619f8a650713c9d0d204",
+              "file": "core/pawn-promotion.spec.ts",
+              "line": 87,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "core/smoke-workflow.spec.ts",
+      "file": "core/smoke-workflow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "🚀 E2E Smoke Test - Complete Training Workflow",
+          "file": "core/smoke-workflow.spec.ts",
+          "line": 20,
+          "column": 6,
+          "specs": [
+            {
+              "title": "🔥 CRITICAL: Complete training workflow (full journey)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 6,
+                      "status": "passed",
+                      "duration": 35019,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🚀 Starting complete training workflow test...\n"
+                        },
+                        {
+                          "text": "📍 Step 1: Loading training position...\n"
+                        },
+                        {
+                          "text": "📍 Step 2: Making a move...\n"
+                        },
+                        {
+                          "text": "🎯 Making move: e6 → d6 (click)\n"
+                        },
+                        {
+                          "text": "✅ Click move completed: e6 → d6\n"
+                        },
+                        {
+                          "text": "✅ Move verified successful: e6 → d6\n"
+                        },
+                        {
+                          "text": "📍 Step 3: Checking for feedback...\n"
+                        },
+                        {
+                          "text": "✅ Streak counter working\n"
+                        },
+                        {
+                          "text": "📍 Step 4: Navigating to next position...\n"
+                        },
+                        {
+                          "text": "🔍 Attempting to find next position button...\n"
+                        },
+                        {
+                          "text": "Found 14 buttons on page\n"
+                        },
+                        {
+                          "text": "Button 0: text=\"✕\", title=\"null\", disabled=false\n"
+                        },
+                        {
+                          "text": "Button 1: text=\"⚙️Settings\", title=\"null\", disabled=false\n"
+                        },
+                        {
+                          "text": "Button 2: text=\"♛Queen endgames▶\", title=\"null\", disabled=true\n"
+                        },
+                        {
+                          "text": "Button 3: text=\"♞Knight endgames▶\", title=\"null\", disabled=true\n"
+                        },
+                        {
+                          "text": "Button 4: text=\"♝Bishop endgames▶\", title=\"null\", disabled=true\n"
+                        },
+                        {
+                          "text": "Button 5: text=\"← Vorherige Stellung\", title=\"Vorherige Stellung\", disabled=true\n"
+                        },
+                        {
+                          "text": "Button 6: text=\"↻\", title=\"Position zurücksetzen\", disabled=false\n"
+                        },
+                        {
+                          "text": "Button 7: text=\"Nächste Stellung →\", title=\"Nächste Stellung\", disabled=false\n"
+                        },
+                        {
+                          "text": "Button 8: text=\"Analyse AN\", title=\"null\", disabled=false\n"
+                        },
+                        {
+                          "text": "Button 9: text=\"Kd6\", title=\"null\", disabled=false\n"
+                        },
+                        {
+                          "text": "⏳ Waiting for navigation state to be refreshed...\n"
+                        },
+                        {
+                          "text": "✅ Navigation refresh wait complete - nextPosition should be available\n"
+                        },
+                        {
+                          "text": "📍 Step 5: Verifying new position...\n"
+                        },
+                        {
+                          "text": "🎉 Complete workflow test PASSED!\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T20:06:32.086Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "17a2aa238a2d1086b48f-3233a9f21897183d0967",
+              "file": "core/smoke-workflow.spec.ts",
+              "line": 28,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "⚡ Quick Smoke Tests",
+          "file": "core/smoke-workflow.spec.ts",
+          "line": 73,
+          "column": 6,
+          "specs": [
+            {
+              "title": "🩺 App loads without errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 7,
+                      "status": "passed",
+                      "duration": 10579,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🧪 Quick health check...\n"
+                        },
+                        {
+                          "text": "✅ Health check passed: \"Chess Endgame Trainer\"\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T20:06:32.178Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "17a2aa238a2d1086b48f-a5b4efdb6962affb8037",
+              "file": "core/smoke-workflow.spec.ts",
+              "line": 80,
+              "column": 7
+            },
+            {
+              "title": "🎯 Training page loads board",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 8,
+                      "status": "passed",
+                      "duration": 13069,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🧪 Testing training page loads...\n"
+                        },
+                        {
+                          "text": "✅ Training board loads successfully\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T20:06:32.110Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "17a2aa238a2d1086b48f-5b1127aa82533d66f98e",
+              "file": "core/smoke-workflow.spec.ts",
+              "line": 105,
+              "column": 7
+            },
+            {
+              "title": "🔗 Basic navigation works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 9,
+                      "status": "passed",
+                      "duration": 18279,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🧪 Testing basic navigation...\n"
+                        },
+                        {
+                          "text": "✅ Basic navigation works\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T20:06:32.137Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "17a2aa238a2d1086b48f-c9292f6562cd98cf75a1",
+              "file": "core/smoke-workflow.spec.ts",
+              "line": 115,
+              "column": 7
+            },
+            {
+              "title": "⚡ Performance check - loads within 10 seconds",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 10,
+                      "status": "failed",
+                      "duration": 12985,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m10000\u001b[39m\nReceived:   \u001b[31m11211\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m10000\u001b[39m\nReceived:   \u001b[31m11211\u001b[39m\n    at /home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/core/smoke-workflow.spec.ts:144:22",
+                        "location": {
+                          "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/core/smoke-workflow.spec.ts",
+                          "column": 22,
+                          "line": 144
+                        },
+                        "snippet": "  142 |     console.log(`⏱️  Load time: ${loadTime}ms`);\n  143 |     \n> 144 |     expect(loadTime).toBeLessThan(TestConfig.performance.maxLoadTime);\n      |                      ^\n  145 |     \n  146 |     console.log('✅ Performance check passed');\n  147 |   });"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/core/smoke-workflow.spec.ts",
+                            "column": 22,
+                            "line": 144
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m10000\u001b[39m\nReceived:   \u001b[31m11211\u001b[39m\n\n  142 |     console.log(`⏱️  Load time: ${loadTime}ms`);\n  143 |     \n> 144 |     expect(loadTime).toBeLessThan(TestConfig.performance.maxLoadTime);\n      |                      ^\n  145 |     \n  146 |     console.log('✅ Performance check passed');\n  147 |   });\n    at /home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/core/smoke-workflow.spec.ts:144:22"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🧪 Testing load performance...\n"
+                        },
+                        {
+                          "text": "⏱️  Load time: 11211ms\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T20:06:32.178Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/core-smoke-workflow-⚡-Quic-b9e2a-k---loads-within-10-seconds-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/core-smoke-workflow-⚡-Quic-b9e2a-k---loads-within-10-seconds-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/core-smoke-workflow-⚡-Quic-b9e2a-k---loads-within-10-seconds-chromium/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/core-smoke-workflow-⚡-Quic-b9e2a-k---loads-within-10-seconds-chromium/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/core/smoke-workflow.spec.ts",
+                        "column": 22,
+                        "line": 144
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "17a2aa238a2d1086b48f-9c027f31660c1f84cd36",
+              "file": "core/smoke-workflow.spec.ts",
+              "line": 133,
+              "column": 7
+            },
+            {
+              "title": "🎮 Both interaction methods work",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 11,
+                      "status": "passed",
+                      "duration": 43148,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🧪 Testing click and drag interactions...\n"
+                        },
+                        {
+                          "text": "🎯 Making move: e6 → d6 (click)\n"
+                        },
+                        {
+                          "text": "✅ Click move completed: e6 → d6\n"
+                        },
+                        {
+                          "text": "✅ Move verified successful: e6 → d6\n"
+                        },
+                        {
+                          "text": "✅ Click interaction works\n"
+                        },
+                        {
+                          "text": "🎯 Making move: e6 → d6 (drag)\n"
+                        },
+                        {
+                          "text": "✅ Drag move completed: e6 → d6\n"
+                        },
+                        {
+                          "text": "✅ Move verified successful: e6 → d6\n"
+                        },
+                        {
+                          "text": "✅ Drag interaction works\n"
+                        },
+                        {
+                          "text": "✅ Interaction methods tested - Click: ✅, Drag: ✅\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T20:06:32.121Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "17a2aa238a2d1086b48f-bdb2484d04e3a3e0bc71",
+              "file": "core/smoke-workflow.spec.ts",
+              "line": 149,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "domains/weiterspielen-bug-proof.spec.ts",
+      "file": "domains/weiterspielen-bug-proof.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Weiterspielen Bug Proof",
+          "file": "domains/weiterspielen-bug-proof.spec.ts",
+          "line": 17,
+          "column": 6,
+          "specs": [
+            {
+              "title": "PROVES: Opponent does NOT move after Weiterspielen",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 7,
+                      "status": "failed",
+                      "duration": 12816,
+                      "error": {
+                        "message": "Error: \u001b[31mTimed out 3000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('[data-testid=\"move-error-dialog\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"move-error-dialog\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[31mTimed out 3000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('[data-testid=\"move-error-dialog\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"move-error-dialog\"]')\u001b[22m\n\n    at /home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-bug-proof.spec.ts:65:35",
+                        "location": {
+                          "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-bug-proof.spec.ts",
+                          "column": 35,
+                          "line": 65
+                        },
+                        "snippet": "  63 |         // STEP 3: Verify error dialog is visible with \"Weiterspielen\" button\n  64 |         const errorDialog = page.locator('[data-testid=\"move-error-dialog\"]');\n> 65 |         await expect(errorDialog).toBeVisible({ timeout: 3000 });\n     |                                   ^\n  66 |\n  67 |         const weiterSpielenButton = errorDialog.locator(\n  68 |           'button:has-text(\"Weiterspielen\")',"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-bug-proof.spec.ts",
+                            "column": 35,
+                            "line": 65
+                          },
+                          "message": "Error: \u001b[31mTimed out 3000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('[data-testid=\"move-error-dialog\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"move-error-dialog\"]')\u001b[22m\n\n\n  63 |         // STEP 3: Verify error dialog is visible with \"Weiterspielen\" button\n  64 |         const errorDialog = page.locator('[data-testid=\"move-error-dialog\"]');\n> 65 |         await expect(errorDialog).toBeVisible({ timeout: 3000 });\n     |                                   ^\n  66 |\n  67 |         const weiterSpielenButton = errorDialog.locator(\n  68 |           'button:has-text(\"Weiterspielen\")',\n    at /home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-bug-proof.spec.ts:65:35"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "2025-08-18T20:06:50.015Z INFO [E2E-WeiterSpielenBugProof] Training page loaded for bug proof test {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:50.019Z INFO [E2E-WeiterSpielenBugProof] 🐛 TESTING: Proving that Weiterspielen bug exists {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:53.087Z INFO [E2E-WeiterSpielenBugProof] Position set: KPK_WIN for bug demonstration {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:53.087Z INFO [E2E-WeiterSpielenBugProof] Testing move: Kb8 to see if it triggers error dialog {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "[E2E] Move Kb8 API result: {\n  success: \u001b[33mfalse\u001b[39m,\n  resultingFen: \u001b[32m'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'\u001b[39m,\n  moveCount: \u001b[33m0\u001b[39m,\n  error: \u001b[32m'Move rejected by validation pipeline'\u001b[39m\n}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:53.152Z INFO [E2E-WeiterSpielenBugProof] ✅ Move Kb8 triggered error dialog! {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T20:06:43.657Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-bug--7a70b-OT-move-after-Weiterspielen-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-bug--7a70b-OT-move-after-Weiterspielen-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-bug--7a70b-OT-move-after-Weiterspielen-chromium/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-bug--7a70b-OT-move-after-Weiterspielen-chromium/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-bug-proof.spec.ts",
+                        "column": 35,
+                        "line": 65
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "cab9c6ca883049b0c687-a634285ff61739e4fe1b",
+              "file": "domains/weiterspielen-bug-proof.spec.ts",
+              "line": 28,
+              "column": 7
+            },
+            {
+              "title": "CONTROL: Verify that Zurücknehmen works correctly",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 8,
+                      "status": "failed",
+                      "duration": 11291,
+                      "error": {
+                        "message": "Error: \u001b[31mTimed out 3000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('[data-testid=\"move-error-dialog\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"move-error-dialog\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[31mTimed out 3000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('[data-testid=\"move-error-dialog\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"move-error-dialog\"]')\u001b[22m\n\n    at /home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-bug-proof.spec.ts:220:31",
+                        "location": {
+                          "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-bug-proof.spec.ts",
+                          "column": 31,
+                          "line": 220
+                        },
+                        "snippet": "  218 |     // Verify error dialog and click Zurücknehmen instead\n  219 |     const errorDialog = page.locator('[data-testid=\"move-error-dialog\"]');\n> 220 |     await expect(errorDialog).toBeVisible({ timeout: 3000 });\n      |                               ^\n  221 |\n  222 |     const zurueckButton = errorDialog.locator(\n  223 |       'button:has-text(\"Zurücknehmen\")',"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-bug-proof.spec.ts",
+                            "column": 31,
+                            "line": 220
+                          },
+                          "message": "Error: \u001b[31mTimed out 3000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('[data-testid=\"move-error-dialog\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"move-error-dialog\"]')\u001b[22m\n\n\n  218 |     // Verify error dialog and click Zurücknehmen instead\n  219 |     const errorDialog = page.locator('[data-testid=\"move-error-dialog\"]');\n> 220 |     await expect(errorDialog).toBeVisible({ timeout: 3000 });\n      |                               ^\n  221 |\n  222 |     const zurueckButton = errorDialog.locator(\n  223 |       'button:has-text(\"Zurücknehmen\")',\n    at /home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-bug-proof.spec.ts:220:31"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "2025-08-18T20:06:50.997Z INFO [E2E-WeiterSpielenBugProof] Training page loaded for bug proof test {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:50.999Z INFO [E2E-WeiterSpielenBugProof] 🧪 CONTROL TEST: Verifying that Zurücknehmen (take back) works correctly {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "[E2E] Move Kd5 API result: {\n  success: \u001b[33mfalse\u001b[39m,\n  resultingFen: \u001b[32m'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'\u001b[39m,\n  moveCount: \u001b[33m0\u001b[39m,\n  error: \u001b[32m'Move rejected by validation pipeline'\u001b[39m\n}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T20:06:46.112Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-bug--973f2-urücknehmen-works-correctly-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-bug--973f2-urücknehmen-works-correctly-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-bug--973f2-urücknehmen-works-correctly-chromium/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-bug--973f2-urücknehmen-works-correctly-chromium/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-bug-proof.spec.ts",
+                        "column": 31,
+                        "line": 220
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "cab9c6ca883049b0c687-cc1c05e17d7e9b40668b",
+              "file": "domains/weiterspielen-bug-proof.spec.ts",
+              "line": 191,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
       "title": "domains/weiterspielen-feature.spec.ts",
       "file": "domains/weiterspielen-feature.spec.ts",
       "column": 0,
@@ -106,75 +1107,282 @@
               "tags": [],
               "tests": [
                 {
-                  "timeout": 10000,
+                  "timeout": 60000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
+                      "workerIndex": 12,
+                      "parallelIndex": 10,
                       "status": "failed",
-                      "duration": 8866,
+                      "duration": 11707,
                       "error": {
                         "message": "Error: \u001b[31mTimed out 3000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('[data-testid=\"move-error-dialog\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"move-error-dialog\"]')\u001b[22m\n",
-                        "stack": "Error: \u001b[31mTimed out 3000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('[data-testid=\"move-error-dialog\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"move-error-dialog\"]')\u001b[22m\n\n    at /home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-feature.spec.ts:136:31",
+                        "stack": "Error: \u001b[31mTimed out 3000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('[data-testid=\"move-error-dialog\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"move-error-dialog\"]')\u001b[22m\n\n    at /home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-feature.spec.ts:195:31",
                         "location": {
                           "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-feature.spec.ts",
                           "column": 31,
-                          "line": 136
+                          "line": 195
                         },
-                        "snippet": "  134 |     // STEP 2: Verify error dialog contains \"Weiterspielen\" button (not \"Verstanden\")\n  135 |     const errorDialog = page.locator('[data-testid=\"move-error-dialog\"]');\n> 136 |     await expect(errorDialog).toBeVisible({ timeout: 3000 });\n      |                               ^\n  137 |\n  138 |     // Check for \"Weiterspielen\" button\n  139 |     const weiterSpielenButton = errorDialog.locator("
+                        "snippet": "  193 |     // STEP 2: Verify error dialog contains \"Weiterspielen\" button (not \"Verstanden\")\n  194 |     const errorDialog = page.locator('[data-testid=\"move-error-dialog\"]');\n> 195 |     await expect(errorDialog).toBeVisible({ timeout: 3000 });\n      |                               ^\n  196 |\n  197 |     // Check for \"Weiterspielen\" button\n  198 |     const weiterSpielenButton = errorDialog.locator("
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-feature.spec.ts",
                             "column": 31,
-                            "line": 136
+                            "line": 195
                           },
-                          "message": "Error: \u001b[31mTimed out 3000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('[data-testid=\"move-error-dialog\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"move-error-dialog\"]')\u001b[22m\n\n\n  134 |     // STEP 2: Verify error dialog contains \"Weiterspielen\" button (not \"Verstanden\")\n  135 |     const errorDialog = page.locator('[data-testid=\"move-error-dialog\"]');\n> 136 |     await expect(errorDialog).toBeVisible({ timeout: 3000 });\n      |                               ^\n  137 |\n  138 |     // Check for \"Weiterspielen\" button\n  139 |     const weiterSpielenButton = errorDialog.locator(\n    at /home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-feature.spec.ts:136:31"
+                          "message": "Error: \u001b[31mTimed out 3000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('[data-testid=\"move-error-dialog\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"move-error-dialog\"]')\u001b[22m\n\n\n  193 |     // STEP 2: Verify error dialog contains \"Weiterspielen\" button (not \"Verstanden\")\n  194 |     const errorDialog = page.locator('[data-testid=\"move-error-dialog\"]');\n> 195 |     await expect(errorDialog).toBeVisible({ timeout: 3000 });\n      |                               ^\n  196 |\n  197 |     // Check for \"Weiterspielen\" button\n  198 |     const weiterSpielenButton = errorDialog.locator(\n    at /home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-feature.spec.ts:195:31"
                         }
                       ],
                       "stdout": [
                         {
-                          "text": "2025-08-18T17:15:59.445Z INFO [E2E-WeiterSpielenFeature] Training page loaded for Weiterspielen test {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:50.891Z DEBUG [MockPositionServiceFactory] [MockServiceFactory] Environment check {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"NODE_ENV\": \"development\",\n  \"NEXT_PUBLIC_IS_E2E_TEST\": \"true\",\n  \"NEXT_PUBLIC_USE_FIRESTORE\": \"true\",\n  \"shouldUseMock\": true\n} {platform: Object, NODE_ENV: development, NEXT_PUBLIC_IS_E2E_TEST: true, IS_E2E_TEST: undefined, NEXT_PUBLIC_USE_FIRESTORE: true}\n"
                         },
                         {
-                          "text": "2025-08-18T17:15:59.448Z INFO [E2E-WeiterSpielenFeature] Testing complete Weiterspielen flow: error → continue → opponent moves {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:51.404Z INFO  🔍 StoreContext E2E Debug: {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"NODE_ENV\": \"development\",\n  \"NEXT_PUBLIC_IS_E2E_TEST\": \"true\",\n  \"isClient\": true,\n  \"userAgent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.7258.5 Safari/537.36\"\n} {platform: Object, NODE_ENV: development, NEXT_PUBLIC_IS_E2E_TEST: true, isClient: true, userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb…ML, like Gecko) Chrome/139.0.7258.5 Safari/537.36}\n"
                         },
                         {
-                          "text": "2025-08-18T17:15:59.448Z INFO [E2E-WeiterSpielenFeature] Setting up KPK_CENTRAL test position for guaranteed error dialog {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:51.404Z INFO  ✅ E2E-Modus aktiviert: Initialisiere Test API {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {platform: Object}\n"
                         },
                         {
-                          "text": "2025-08-18T17:16:02.464Z INFO [E2E-WeiterSpielenFeature] DEBUG: Current game state after setting position: {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"fen\": \"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\",\n  \"turn\": \"w\",\n  \"moveCount\": 0\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m },\n  fen: \u001b[32m'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'\u001b[39m,\n  turn: \u001b[32m'w'\u001b[39m,\n  moveCount: \u001b[33m0\u001b[39m\n}\n"
+                          "text": "BROWSER CONSOLE: ✅ TestApiService: Successfully initialized with store actions\n"
                         },
                         {
-                          "text": "2025-08-18T17:16:02.464Z INFO [E2E-WeiterSpielenFeature] Step 1: Testing error dialog system with illegal move first {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:51.431Z INFO  🔍 StoreContext E2E Debug: {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"NODE_ENV\": \"development\",\n  \"NEXT_PUBLIC_IS_E2E_TEST\": \"true\",\n  \"isClient\": true,\n  \"userAgent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.7258.5 Safari/537.36\"\n} {platform: Object, NODE_ENV: development, NEXT_PUBLIC_IS_E2E_TEST: true, isClient: true, userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb…ML, like Gecko) Chrome/139.0.7258.5 Safari/537.36}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:51.432Z INFO  ✅ E2E-Modus aktiviert: Initialisiere Test API {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {platform: Object}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:51.894Z DEBUG  🏠 EndgameTrainingPage rendered {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasPosition\": true,\n  \"positionId\": 1,\n  \"positionFen\": \"4k3/8/4K3/4P3/8/8/8/8 w - - 0 1\",\n  \"currentFen\": \"4k3/8/4K3/4P3/8/8/8/8 w - - 0 1\",\n  \"timestamp\": \"2025-08-18T20:06:51.894Z\"\n} {platform: Object, hasPosition: true, positionId: 1, positionFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, currentFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:51.900Z DEBUG  🏠 EndgameTrainingPage rendered {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasPosition\": true,\n  \"positionId\": 1,\n  \"positionFen\": \"4k3/8/4K3/4P3/8/8/8/8 w - - 0 1\",\n  \"currentFen\": \"4k3/8/4K3/4P3/8/8/8/8 w - - 0 1\",\n  \"timestamp\": \"2025-08-18T20:06:51.900Z\"\n} {platform: Object, hasPosition: true, positionId: 1, positionFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, currentFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:51.932Z DEBUG [E2ETestHelper] URL check {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"url\": \"http://127.0.0.1:3009/train/1\",\n  \"search\": \"\",\n  \"testMoves\": null,\n  \"gameReady\": true,\n  \"isGameFinished\": false,\n  \"historyLength\": 0,\n  \"testMoveProcessed\": false\n} {platform: Object, url: http://127.0.0.1:3009/train/1, search: , testMoves: null, gameReady: true}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:51.964Z DEBUG  🔍 TablebaseActions debug {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasTablebaseActions\": true,\n  \"hasSetAnalysisStatus\": true,\n  \"tablebaseActionsKeys\": [\n    \"setTablebaseMove\",\n    \"setAnalysisStatus\",\n    \"addEvaluation\",\n    \"setEvaluations\",\n    \"setCurrentEvaluation\",\n    \"clearTablebaseState\"\n  ],\n  \"isEvaluating\": false\n} {platform: Object, hasTablebaseActions: true, hasSetAnalysisStatus: true, tablebaseActionsKeys: Array(6), isEvaluating: false}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:51.971Z DEBUG [usePositionAnalysis] [usePositionAnalysis] Skipping evaluation - not enabled or no FEN {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {platform: Object}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:51.974Z DEBUG [TrainingEventEmitter] Subscribed to move:feedback, total handlers: 1 {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {platform: Object}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:52.184Z DEBUG  🔍 TablebaseActions debug {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasTablebaseActions\": true,\n  \"hasSetAnalysisStatus\": true,\n  \"tablebaseActionsKeys\": [\n    \"setTablebaseMove\",\n    \"setAnalysisStatus\",\n    \"addEvaluation\",\n    \"setEvaluations\",\n    \"setCurrentEvaluation\",\n    \"clearTablebaseState\"\n  ],\n  \"isEvaluating\": true\n} {platform: Object, hasTablebaseActions: true, hasSetAnalysisStatus: true, tablebaseActionsKeys: Array(6), isEvaluating: true}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:52.223Z DEBUG  🔍 TablebaseActions debug {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasTablebaseActions\": true,\n  \"hasSetAnalysisStatus\": true,\n  \"tablebaseActionsKeys\": [\n    \"setTablebaseMove\",\n    \"setAnalysisStatus\",\n    \"addEvaluation\",\n    \"setEvaluations\",\n    \"setCurrentEvaluation\",\n    \"clearTablebaseState\"\n  ],\n  \"isEvaluating\": true\n} {platform: Object, hasTablebaseActions: true, hasSetAnalysisStatus: true, tablebaseActionsKeys: Array(6), isEvaluating: true}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:53.477Z INFO [E2E-WeiterSpielenFeature] Training page loaded for Weiterspielen test {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:53.479Z INFO [E2E-WeiterSpielenFeature] Testing complete Weiterspielen flow: error → continue → opponent moves {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:53.479Z INFO [E2E-WeiterSpielenFeature] Setting up KPK_CENTRAL test position for guaranteed error dialog {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:53.479Z INFO [E2E-WeiterSpielenFeature] Testing if page.evaluate works... {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 SIMPLE TEST: page.evaluate is working!\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:53.488Z INFO [E2E-WeiterSpielenFeature] Simple evaluate result: {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"test\": \"success\",\n  \"timestamp\": 1755547613485\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m },\n  test: \u001b[32m'success'\u001b[39m,\n  timestamp: \u001b[33m1755547613485\u001b[39m\n}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 FUNCTION CHECK: Testing E2E functions\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 FUNCTION CHECK result: {e2e_setBoardState: function, e2e_makeMove: function, e2e_getGameState: function, __e2e_store: function, windowKeys: Array(5)}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:53.495Z INFO [E2E-WeiterSpielenFeature] Function check result: {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"e2e_setBoardState\": \"function\",\n  \"e2e_makeMove\": \"function\",\n  \"e2e_getGameState\": \"function\",\n  \"__e2e_store\": \"function\",\n  \"windowKeys\": [\n    \"__e2e_store\",\n    \"__testApi\",\n    \"e2e_makeMove\",\n    \"e2e_getGameState\",\n    \"e2e_setBoardState\"\n  ]\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m },\n  e2e_setBoardState: \u001b[32m'function'\u001b[39m,\n  e2e_makeMove: \u001b[32m'function'\u001b[39m,\n  e2e_getGameState: \u001b[32m'function'\u001b[39m,\n  __e2e_store: \u001b[32m'function'\u001b[39m,\n  windowKeys: [\n    \u001b[32m'__e2e_store'\u001b[39m,\n    \u001b[32m'__testApi'\u001b[39m,\n    \u001b[32m'e2e_makeMove'\u001b[39m,\n    \u001b[32m'e2e_getGameState'\u001b[39m,\n    \u001b[32m'e2e_setBoardState'\u001b[39m\n  ]\n}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:53.496Z INFO [E2E-WeiterSpielenFeature] Using test FEN: {\n  \"0\": \"8\",\n  \"1\": \"/\",\n  \"2\": \"8\",\n  \"3\": \"/\",\n  \"4\": \"8\",\n  \"5\": \"/\",\n  \"6\": \"4\",\n  \"7\": \"k\",\n  \"8\": \"3\",\n  \"9\": \"/\",\n  \"10\": \"4\",\n  \"11\": \"P\",\n  \"12\": \"3\",\n  \"13\": \"/\",\n  \"14\": \"4\",\n  \"15\": \"K\",\n  \"16\": \"3\",\n  \"17\": \"/\",\n  \"18\": \"8\",\n  \"19\": \"/\",\n  \"20\": \"8\",\n  \"21\": \" \",\n  \"22\": \"w\",\n  \"23\": \" \",\n  \"24\": \"-\",\n  \"25\": \" \",\n  \"26\": \"-\",\n  \"27\": \" \",\n  \"28\": \"0\",\n  \"29\": \" \",\n  \"30\": \"1\",\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  \u001b[32m'0'\u001b[39m: \u001b[32m'8'\u001b[39m,\n  \u001b[32m'1'\u001b[39m: \u001b[32m'/'\u001b[39m,\n  \u001b[32m'2'\u001b[39m: \u001b[32m'8'\u001b[39m,\n  \u001b[32m'3'\u001b[39m: \u001b[32m'/'\u001b[39m,\n  \u001b[32m'4'\u001b[39m: \u001b[32m'8'\u001b[39m,\n  \u001b[32m'5'\u001b[39m: \u001b[32m'/'\u001b[39m,\n  \u001b[32m'6'\u001b[39m: \u001b[32m'4'\u001b[39m,\n  \u001b[32m'7'\u001b[39m: \u001b[32m'k'\u001b[39m,\n  \u001b[32m'8'\u001b[39m: \u001b[32m'3'\u001b[39m,\n  \u001b[32m'9'\u001b[39m: \u001b[32m'/'\u001b[39m,\n  \u001b[32m'10'\u001b[39m: \u001b[32m'4'\u001b[39m,\n  \u001b[32m'11'\u001b[39m: \u001b[32m'P'\u001b[39m,\n  \u001b[32m'12'\u001b[39m: \u001b[32m'3'\u001b[39m,\n  \u001b[32m'13'\u001b[39m: \u001b[32m'/'\u001b[39m,\n  \u001b[32m'14'\u001b[39m: \u001b[32m'4'\u001b[39m,\n  \u001b[32m'15'\u001b[39m: \u001b[32m'K'\u001b[39m,\n  \u001b[32m'16'\u001b[39m: \u001b[32m'3'\u001b[39m,\n  \u001b[32m'17'\u001b[39m: \u001b[32m'/'\u001b[39m,\n  \u001b[32m'18'\u001b[39m: \u001b[32m'8'\u001b[39m,\n  \u001b[32m'19'\u001b[39m: \u001b[32m'/'\u001b[39m,\n  \u001b[32m'20'\u001b[39m: \u001b[32m'8'\u001b[39m,\n  \u001b[32m'21'\u001b[39m: \u001b[32m' '\u001b[39m,\n  \u001b[32m'22'\u001b[39m: \u001b[32m'w'\u001b[39m,\n  \u001b[32m'23'\u001b[39m: \u001b[32m' '\u001b[39m,\n  \u001b[32m'24'\u001b[39m: \u001b[32m'-'\u001b[39m,\n  \u001b[32m'25'\u001b[39m: \u001b[32m' '\u001b[39m,\n  \u001b[32m'26'\u001b[39m: \u001b[32m'-'\u001b[39m,\n  \u001b[32m'27'\u001b[39m: \u001b[32m' '\u001b[39m,\n  \u001b[32m'28'\u001b[39m: \u001b[32m'0'\u001b[39m,\n  \u001b[32m'29'\u001b[39m: \u001b[32m' '\u001b[39m,\n  \u001b[32m'30'\u001b[39m: \u001b[32m'1'\u001b[39m,\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Store state keys [game, training, tablebase, ui, handlePlayerMove, loadTrainingContext, loadPosition, reset, hydrate]\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Available FENs {state.game?.currentFen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1, state.training?.currentFen: undefined, state.fen: undefined, gameKeys: Array(37), trainingKeys: Array(38)}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Selected FEN {currentFen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Move history {historyLength: 0, state.game?.moveHistory: 0, state.training?.moveHistory: 0}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:53.505Z INFO [E2E-WeiterSpielenFeature] Initial game state FEN: {\n  \"0\": \"r\",\n  \"1\": \"n\",\n  \"2\": \"b\",\n  \"3\": \"q\",\n  \"4\": \"k\",\n  \"5\": \"b\",\n  \"6\": \"n\",\n  \"7\": \"r\",\n  \"8\": \"/\",\n  \"9\": \"p\",\n  \"10\": \"p\",\n  \"11\": \"p\",\n  \"12\": \"p\",\n  \"13\": \"p\",\n  \"14\": \"p\",\n  \"15\": \"p\",\n  \"16\": \"p\",\n  \"17\": \"/\",\n  \"18\": \"8\",\n  \"19\": \"/\",\n  \"20\": \"8\",\n  \"21\": \"/\",\n  \"22\": \"8\",\n  \"23\": \"/\",\n  \"24\": \"8\",\n  \"25\": \"/\",\n  \"26\": \"P\",\n  \"27\": \"P\",\n  \"28\": \"P\",\n  \"29\": \"P\",\n  \"30\": \"P\",\n  \"31\": \"P\",\n  \"32\": \"P\",\n  \"33\": \"P\",\n  \"34\": \"/\",\n  \"35\": \"R\",\n  \"36\": \"N\",\n  \"37\": \"B\",\n  \"38\": \"Q\",\n  \"39\": \"K\",\n  \"40\": \"B\",\n  \"41\": \"N\",\n  \"42\": \"R\",\n  \"43\": \" \",\n  \"44\": \"w\",\n  \"45\": \" \",\n  \"46\": \"K\",\n  \"47\": \"Q\",\n  \"48\": \"k\",\n  \"49\": \"q\",\n  \"50\": \" \",\n  \"51\": \"-\",\n  \"52\": \" \",\n  \"53\": \"0\",\n  \"54\": \" \",\n  \"55\": \"1\",\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  \u001b[32m'0'\u001b[39m: \u001b[32m'r'\u001b[39m,\n  \u001b[32m'1'\u001b[39m: \u001b[32m'n'\u001b[39m,\n  \u001b[32m'2'\u001b[39m: \u001b[32m'b'\u001b[39m,\n  \u001b[32m'3'\u001b[39m: \u001b[32m'q'\u001b[39m,\n  \u001b[32m'4'\u001b[39m: \u001b[32m'k'\u001b[39m,\n  \u001b[32m'5'\u001b[39m: \u001b[32m'b'\u001b[39m,\n  \u001b[32m'6'\u001b[39m: \u001b[32m'n'\u001b[39m,\n  \u001b[32m'7'\u001b[39m: \u001b[32m'r'\u001b[39m,\n  \u001b[32m'8'\u001b[39m: \u001b[32m'/'\u001b[39m,\n  \u001b[32m'9'\u001b[39m: \u001b[32m'p'\u001b[39m,\n  \u001b[32m'10'\u001b[39m: \u001b[32m'p'\u001b[39m,\n  \u001b[32m'11'\u001b[39m: \u001b[32m'p'\u001b[39m,\n  \u001b[32m'12'\u001b[39m: \u001b[32m'p'\u001b[39m,\n  \u001b[32m'13'\u001b[39m: \u001b[32m'p'\u001b[39m,\n  \u001b[32m'14'\u001b[39m: \u001b[32m'p'\u001b[39m,\n  \u001b[32m'15'\u001b[39m: \u001b[32m'p'\u001b[39m,\n  \u001b[32m'16'\u001b[39m: \u001b[32m'p'\u001b[39m,\n  \u001b[32m'17'\u001b[39m: \u001b[32m'/'\u001b[39m,\n  \u001b[32m'18'\u001b[39m: \u001b[32m'8'\u001b[39m,\n  \u001b[32m'19'\u001b[39m: \u001b[32m'/'\u001b[39m,\n  \u001b[32m'20'\u001b[39m: \u001b[32m'8'\u001b[39m,\n  \u001b[32m'21'\u001b[39m: \u001b[32m'/'\u001b[39m,\n  \u001b[32m'22'\u001b[39m: \u001b[32m'8'\u001b[39m,\n  \u001b[32m'23'\u001b[39m: \u001b[32m'/'\u001b[39m,\n  \u001b[32m'24'\u001b[39m: \u001b[32m'8'\u001b[39m,\n  \u001b[32m'25'\u001b[39m: \u001b[32m'/'\u001b[39m,\n  \u001b[32m'26'\u001b[39m: \u001b[32m'P'\u001b[39m,\n  \u001b[32m'27'\u001b[39m: \u001b[32m'P'\u001b[39m,\n  \u001b[32m'28'\u001b[39m: \u001b[32m'P'\u001b[39m,\n  \u001b[32m'29'\u001b[39m: \u001b[32m'P'\u001b[39m,\n  \u001b[32m'30'\u001b[39m: \u001b[32m'P'\u001b[39m,\n  \u001b[32m'31'\u001b[39m: \u001b[32m'P'\u001b[39m,\n  \u001b[32m'32'\u001b[39m: \u001b[32m'P'\u001b[39m,\n  \u001b[32m'33'\u001b[39m: \u001b[32m'P'\u001b[39m,\n  \u001b[32m'34'\u001b[39m: \u001b[32m'/'\u001b[39m,\n  \u001b[32m'35'\u001b[39m: \u001b[32m'R'\u001b[39m,\n  \u001b[32m'36'\u001b[39m: \u001b[32m'N'\u001b[39m,\n  \u001b[32m'37'\u001b[39m: \u001b[32m'B'\u001b[39m,\n  \u001b[32m'38'\u001b[39m: \u001b[32m'Q'\u001b[39m,\n  \u001b[32m'39'\u001b[39m: \u001b[32m'K'\u001b[39m,\n  \u001b[32m'40'\u001b[39m: \u001b[32m'B'\u001b[39m,\n  \u001b[32m'41'\u001b[39m: \u001b[32m'N'\u001b[39m,\n  \u001b[32m'42'\u001b[39m: \u001b[32m'R'\u001b[39m,\n  \u001b[32m'43'\u001b[39m: \u001b[32m' '\u001b[39m,\n  \u001b[32m'44'\u001b[39m: \u001b[32m'w'\u001b[39m,\n  \u001b[32m'45'\u001b[39m: \u001b[32m' '\u001b[39m,\n  \u001b[32m'46'\u001b[39m: \u001b[32m'K'\u001b[39m,\n  \u001b[32m'47'\u001b[39m: \u001b[32m'Q'\u001b[39m,\n  \u001b[32m'48'\u001b[39m: \u001b[32m'k'\u001b[39m,\n  \u001b[32m'49'\u001b[39m: \u001b[32m'q'\u001b[39m,\n  \u001b[32m'50'\u001b[39m: \u001b[32m' '\u001b[39m,\n  \u001b[32m'51'\u001b[39m: \u001b[32m'-'\u001b[39m,\n  \u001b[32m'52'\u001b[39m: \u001b[32m' '\u001b[39m,\n  \u001b[32m'53'\u001b[39m: \u001b[32m'0'\u001b[39m,\n  \u001b[32m'54'\u001b[39m: \u001b[32m' '\u001b[39m,\n  \u001b[32m'55'\u001b[39m: \u001b[32m'1'\u001b[39m,\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 DEBUG: Starting position setup {fenString: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🚀 DEBUG: Calling e2e_setBoardState\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 BrowserTestApi: e2e_setBoardState called {fen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 BrowserTestApi.setPosition called {fen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.setPosition called {fen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🚀 TestApiService: Calling storeAccess.setPosition\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:53.512Z INFO  🔍 E2E setPosition called {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"fen\": \"8/8/8/4k3/4P3/4K3/8/8 w - - 0 1\",\n  \"currentState\": true,\n  \"loadTrainingContext\": true,\n  \"storeKeys\": [\n    \"game\",\n    \"training\",\n    \"tablebase\",\n    \"ui\",\n    \"handlePlayerMove\",\n    \"loadTrainingContext\",\n    \"loadPosition\",\n    \"reset\",\n    \"hydrate\"\n  ]\n} {platform: Object, fen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1, currentState: true, loadTrainingContext: true, storeKeys: Array(9)}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:53.513Z INFO  🚀 Calling loadPosition with position (E2E safe) {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"endgamePosition\": {\n    \"id\": 999,\n    \"title\": \"E2E Test Position\",\n    \"fen\": \"8/8/8/4k3/4P3/4K3/8/8 w - - 0 1\",\n    \"category\": \"e2e-test\",\n    \"difficulty\": \"intermediate\",\n    \"sideToMove\": \"white\",\n    \"goal\": \"win\",\n    \"description\": \"Position set via E2E test API\"\n  }\n} {platform: Object, endgamePosition: Object}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: ✅ TestApiService: storeAccess.setPosition called successfully\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 BrowserTestApi.setPosition result {result: true}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 BrowserTestApi: setPosition result {result: true}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: ✅ DEBUG: e2e_setBoardState called\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:53.517Z INFO  ✅ Position set via loadPosition orchestrator {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"fen\": \"8/8/8/4k3/4P3/4K3/8/8 w - - 0 1\",\n  \"positionId\": 999\n} {platform: Object, fen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1, positionId: 999}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Store state keys [game, training, tablebase, ui, handlePlayerMove, loadTrainingContext, loadPosition, reset, hydrate]\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Available FENs {state.game?.currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1, state.training?.currentFen: undefined, state.fen: undefined, gameKeys: Array(37), trainingKeys: Array(41)}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Selected FEN {currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Move history {historyLength: 0, state.game?.moveHistory: 0, state.training?.moveHistory: 0}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:53.529Z INFO [E2E-WeiterSpielenFeature] ✅ Game state successfully updated via e2e_setBoardState {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:54.797Z DEBUG [AnalysisService] No tablebase data available for position {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {platform: Object}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:54.818Z DEBUG  🔍 TablebaseActions debug {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasTablebaseActions\": true,\n  \"hasSetAnalysisStatus\": true,\n  \"tablebaseActionsKeys\": [\n    \"setTablebaseMove\",\n    \"setAnalysisStatus\",\n    \"addEvaluation\",\n    \"setEvaluations\",\n    \"setCurrentEvaluation\",\n    \"clearTablebaseState\"\n  ],\n  \"isEvaluating\": false\n} {platform: Object, hasTablebaseActions: true, hasSetAnalysisStatus: true, tablebaseActionsKeys: Array(6), isEvaluating: false}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:54.835Z DEBUG  🔍 TablebaseActions debug {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasTablebaseActions\": true,\n  \"hasSetAnalysisStatus\": true,\n  \"tablebaseActionsKeys\": [\n    \"setTablebaseMove\",\n    \"setAnalysisStatus\",\n    \"addEvaluation\",\n    \"setEvaluations\",\n    \"setCurrentEvaluation\",\n    \"clearTablebaseState\"\n  ],\n  \"isEvaluating\": false\n} {platform: Object, hasTablebaseActions: true, hasSetAnalysisStatus: true, tablebaseActionsKeys: Array(6), isEvaluating: false}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Store state keys [game, training, tablebase, ui, handlePlayerMove, loadTrainingContext, loadPosition, reset, hydrate]\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Available FENs {state.game?.currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1, state.training?.currentFen: undefined, state.fen: undefined, gameKeys: Array(37), trainingKeys: Array(41)}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Selected FEN {currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Move history {historyLength: 0, state.game?.moveHistory: 0, state.training?.moveHistory: 0}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:56.543Z INFO [E2E-WeiterSpielenFeature] DEBUG: Current game state after setting position: {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"fen\": \"8/8/8/4k3/4P3/4K3/8/8 w - - 0 1\",\n  \"turn\": \"w\",\n  \"moveCount\": 0\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m },\n  fen: \u001b[32m'8/8/8/4k3/4P3/4K3/8/8 w - - 0 1'\u001b[39m,\n  turn: \u001b[32m'w'\u001b[39m,\n  moveCount: \u001b[33m0\u001b[39m\n}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:56.543Z INFO [E2E-WeiterSpielenFeature] Step 1: Testing error dialog system with illegal move first {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Store state keys [game, training, tablebase, ui, handlePlayerMove, loadTrainingContext, loadPosition, reset, hydrate]\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Available FENs {state.game?.currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1, state.training?.currentFen: undefined, state.fen: undefined, gameKeys: Array(37), trainingKeys: Array(41)}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Selected FEN {currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Move history {historyLength: 0, state.game?.moveHistory: 0, state.training?.moveHistory: 0}\n"
                         },
                         {
                           "text": "[E2E] Move Ka8 API result: {\n  success: \u001b[33mfalse\u001b[39m,\n  resultingFen: \u001b[32m'8/8/8/4k3/4P3/4K3/8/8 w - - 0 1'\u001b[39m,\n  moveCount: \u001b[33m0\u001b[39m,\n  error: \u001b[32m'Move rejected by validation pipeline'\u001b[39m\n}\n"
                         },
                         {
-                          "text": "2025-08-18T17:16:02.491Z INFO [E2E-WeiterSpielenFeature] DEBUG: Illegal move result: {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"success\": false,\n  \"errorMessage\": \"API rejected move: Move rejected by validation pipeline\",\n  \"finalFen\": \"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\"\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m },\n  success: \u001b[33mfalse\u001b[39m,\n  errorMessage: \u001b[32m'API rejected move: Move rejected by validation pipeline'\u001b[39m,\n  finalFen: \u001b[32m'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'\u001b[39m\n}\n"
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Store state keys [game, training, tablebase, ui, handlePlayerMove, loadTrainingContext, loadPosition, reset, hydrate]\n"
                         },
                         {
-                          "text": "2025-08-18T17:16:02.491Z INFO [E2E-WeiterSpielenFeature] ✅ Illegal move properly rejected, now testing suboptimal move Kd5 {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Available FENs {state.game?.currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1, state.training?.currentFen: undefined, state.fen: undefined, gameKeys: Array(37), trainingKeys: Array(41)}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Selected FEN {currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Move history {historyLength: 0, state.game?.moveHistory: 0, state.training?.moveHistory: 0}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:56.590Z INFO [E2E-WeiterSpielenFeature] DEBUG: Illegal move result: {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"success\": false,\n  \"errorMessage\": \"API rejected move: Move rejected by validation pipeline\",\n  \"finalFen\": \"8/8/8/4k3/4P3/4K3/8/8 w - - 0 1\"\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m },\n  success: \u001b[33mfalse\u001b[39m,\n  errorMessage: \u001b[32m'API rejected move: Move rejected by validation pipeline'\u001b[39m,\n  finalFen: \u001b[32m'8/8/8/4k3/4P3/4K3/8/8 w - - 0 1'\u001b[39m\n}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:56.590Z INFO [E2E-WeiterSpielenFeature] ✅ Illegal move properly rejected, now testing suboptimal move Kd5 {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Store state keys [game, training, tablebase, ui, handlePlayerMove, loadTrainingContext, loadPosition, reset, hydrate]\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Available FENs {state.game?.currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1, state.training?.currentFen: undefined, state.fen: undefined, gameKeys: Array(37), trainingKeys: Array(41)}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Selected FEN {currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Move history {historyLength: 0, state.game?.moveHistory: 0, state.training?.moveHistory: 0}\n"
                         },
                         {
                           "text": "[E2E] Move Kd5 API result: {\n  success: \u001b[33mfalse\u001b[39m,\n  resultingFen: \u001b[32m'8/8/8/4k3/4P3/4K3/8/8 w - - 0 1'\u001b[39m,\n  moveCount: \u001b[33m0\u001b[39m,\n  error: \u001b[32m'Move rejected by validation pipeline'\u001b[39m\n}\n"
                         },
                         {
-                          "text": "2025-08-18T17:16:02.505Z INFO [E2E-WeiterSpielenFeature] DEBUG: Move result: {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"success\": false,\n  \"errorMessage\": \"API rejected move: Move rejected by validation pipeline\",\n  \"finalFen\": \"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\"\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m },\n  success: \u001b[33mfalse\u001b[39m,\n  errorMessage: \u001b[32m'API rejected move: Move rejected by validation pipeline'\u001b[39m,\n  finalFen: \u001b[32m'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'\u001b[39m\n}\n"
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Store state keys [game, training, tablebase, ui, handlePlayerMove, loadTrainingContext, loadPosition, reset, hydrate]\n"
                         },
                         {
-                          "text": "2025-08-18T17:16:02.508Z INFO [E2E-WeiterSpielenFeature] ✅ Suboptimal move correctly rejected with error dialog {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Available FENs {state.game?.currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1, state.training?.currentFen: undefined, state.fen: undefined, gameKeys: Array(37), trainingKeys: Array(41)}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Selected FEN {currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Move history {historyLength: 0, state.game?.moveHistory: 0, state.training?.moveHistory: 0}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:56.623Z INFO [E2E-WeiterSpielenFeature] DEBUG: Move result: {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"success\": false,\n  \"errorMessage\": \"API rejected move: Move rejected by validation pipeline\",\n  \"finalFen\": \"8/8/8/4k3/4P3/4K3/8/8 w - - 0 1\"\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m },\n  success: \u001b[33mfalse\u001b[39m,\n  errorMessage: \u001b[32m'API rejected move: Move rejected by validation pipeline'\u001b[39m,\n  finalFen: \u001b[32m'8/8/8/4k3/4P3/4K3/8/8 w - - 0 1'\u001b[39m\n}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:56.624Z INFO [E2E-WeiterSpielenFeature] ✅ Suboptimal move correctly rejected with error dialog {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-18T17:15:56.606Z",
+                      "steps": [
+                        {
+                          "title": "Expect \"FEN should be updated to 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1\"",
+                          "duration": 8
+                        }
+                      ],
+                      "startTime": "2025-08-18T20:06:48.119Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -183,15 +1391,25 @@
                           "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-feat-2db52-continue-with-opponent-move-chromium/test-failed-1.png"
                         },
                         {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-feat-2db52-continue-with-opponent-move-chromium/video.webm"
+                        },
+                        {
                           "name": "error-context",
                           "contentType": "text/markdown",
                           "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-feat-2db52-continue-with-opponent-move-chromium/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-feat-2db52-continue-with-opponent-move-chromium/trace.zip"
                         }
                       ],
                       "errorLocation": {
                         "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-feature.spec.ts",
                         "column": 31,
-                        "line": 136
+                        "line": 195
                       }
                     }
                   ],
@@ -200,7 +1418,522 @@
               ],
               "id": "2f5e194db48f33172e36-821efba6d740d355750d",
               "file": "domains/weiterspielen-feature.spec.ts",
-              "line": 33,
+              "line": 40,
+              "column": 7
+            },
+            {
+              "title": "should handle 'Weiterspielen' with different types of suboptimal moves",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 9,
+                      "status": "failed",
+                      "duration": 15469,
+                      "error": {
+                        "message": "Error: \u001b[31mTimed out 3000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('[data-testid=\"move-error-dialog\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"move-error-dialog\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[31mTimed out 3000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('[data-testid=\"move-error-dialog\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"move-error-dialog\"]')\u001b[22m\n\n    at /home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-feature.spec.ts:328:35",
+                        "location": {
+                          "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-feature.spec.ts",
+                          "column": 35,
+                          "line": 328
+                        },
+                        "snippet": "  326 |\n  327 |         const errorDialog = page.locator('[data-testid=\"move-error-dialog\"]');\n> 328 |         await expect(errorDialog).toBeVisible({ timeout: 3000 });\n      |                                   ^\n  329 |\n  330 |         const weiterSpielenButton = errorDialog.locator(\n  331 |           'button:has-text(\"Weiterspielen\")',"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-feature.spec.ts",
+                            "column": 35,
+                            "line": 328
+                          },
+                          "message": "Error: \u001b[31mTimed out 3000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('[data-testid=\"move-error-dialog\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"move-error-dialog\"]')\u001b[22m\n\n\n  326 |\n  327 |         const errorDialog = page.locator('[data-testid=\"move-error-dialog\"]');\n> 328 |         await expect(errorDialog).toBeVisible({ timeout: 3000 });\n      |                                   ^\n  329 |\n  330 |         const weiterSpielenButton = errorDialog.locator(\n  331 |           'button:has-text(\"Weiterspielen\")',\n    at /home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-feature.spec.ts:328:35"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:52.656Z DEBUG [MockPositionServiceFactory] [MockServiceFactory] Environment check {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"NODE_ENV\": \"development\",\n  \"NEXT_PUBLIC_IS_E2E_TEST\": \"true\",\n  \"NEXT_PUBLIC_USE_FIRESTORE\": \"true\",\n  \"shouldUseMock\": true\n} {platform: Object, NODE_ENV: development, NEXT_PUBLIC_IS_E2E_TEST: true, IS_E2E_TEST: undefined, NEXT_PUBLIC_USE_FIRESTORE: true}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:53.110Z INFO  🔍 StoreContext E2E Debug: {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"NODE_ENV\": \"development\",\n  \"NEXT_PUBLIC_IS_E2E_TEST\": \"true\",\n  \"isClient\": true,\n  \"userAgent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.7258.5 Safari/537.36\"\n} {platform: Object, NODE_ENV: development, NEXT_PUBLIC_IS_E2E_TEST: true, isClient: true, userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb…ML, like Gecko) Chrome/139.0.7258.5 Safari/537.36}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:53.110Z INFO  ✅ E2E-Modus aktiviert: Initialisiere Test API {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {platform: Object}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: ✅ TestApiService: Successfully initialized with store actions\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:53.129Z INFO  🔍 StoreContext E2E Debug: {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"NODE_ENV\": \"development\",\n  \"NEXT_PUBLIC_IS_E2E_TEST\": \"true\",\n  \"isClient\": true,\n  \"userAgent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.7258.5 Safari/537.36\"\n} {platform: Object, NODE_ENV: development, NEXT_PUBLIC_IS_E2E_TEST: true, isClient: true, userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb…ML, like Gecko) Chrome/139.0.7258.5 Safari/537.36}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:53.130Z INFO  ✅ E2E-Modus aktiviert: Initialisiere Test API {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {platform: Object}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:53.295Z DEBUG  🏠 EndgameTrainingPage rendered {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasPosition\": true,\n  \"positionId\": 1,\n  \"positionFen\": \"4k3/8/4K3/4P3/8/8/8/8 w - - 0 1\",\n  \"currentFen\": \"4k3/8/4K3/4P3/8/8/8/8 w - - 0 1\",\n  \"timestamp\": \"2025-08-18T20:06:53.295Z\"\n} {platform: Object, hasPosition: true, positionId: 1, positionFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, currentFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:53.297Z DEBUG  🏠 EndgameTrainingPage rendered {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasPosition\": true,\n  \"positionId\": 1,\n  \"positionFen\": \"4k3/8/4K3/4P3/8/8/8/8 w - - 0 1\",\n  \"currentFen\": \"4k3/8/4K3/4P3/8/8/8/8 w - - 0 1\",\n  \"timestamp\": \"2025-08-18T20:06:53.297Z\"\n} {platform: Object, hasPosition: true, positionId: 1, positionFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, currentFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:53.314Z DEBUG [E2ETestHelper] URL check {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"url\": \"http://127.0.0.1:3009/train/1\",\n  \"search\": \"\",\n  \"testMoves\": null,\n  \"gameReady\": true,\n  \"isGameFinished\": false,\n  \"historyLength\": 0,\n  \"testMoveProcessed\": false\n} {platform: Object, url: http://127.0.0.1:3009/train/1, search: , testMoves: null, gameReady: true}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:53.329Z DEBUG  🔍 TablebaseActions debug {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasTablebaseActions\": true,\n  \"hasSetAnalysisStatus\": true,\n  \"tablebaseActionsKeys\": [\n    \"setTablebaseMove\",\n    \"setAnalysisStatus\",\n    \"addEvaluation\",\n    \"setEvaluations\",\n    \"setCurrentEvaluation\",\n    \"clearTablebaseState\"\n  ],\n  \"isEvaluating\": false\n} {platform: Object, hasTablebaseActions: true, hasSetAnalysisStatus: true, tablebaseActionsKeys: Array(6), isEvaluating: false}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:53.332Z DEBUG [usePositionAnalysis] [usePositionAnalysis] Skipping evaluation - not enabled or no FEN {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {platform: Object}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:53.334Z DEBUG [TrainingEventEmitter] Subscribed to move:feedback, total handlers: 1 {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {platform: Object}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:53.414Z DEBUG  🔍 TablebaseActions debug {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasTablebaseActions\": true,\n  \"hasSetAnalysisStatus\": true,\n  \"tablebaseActionsKeys\": [\n    \"setTablebaseMove\",\n    \"setAnalysisStatus\",\n    \"addEvaluation\",\n    \"setEvaluations\",\n    \"setCurrentEvaluation\",\n    \"clearTablebaseState\"\n  ],\n  \"isEvaluating\": true\n} {platform: Object, hasTablebaseActions: true, hasSetAnalysisStatus: true, tablebaseActionsKeys: Array(6), isEvaluating: true}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:53.443Z DEBUG  🔍 TablebaseActions debug {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasTablebaseActions\": true,\n  \"hasSetAnalysisStatus\": true,\n  \"tablebaseActionsKeys\": [\n    \"setTablebaseMove\",\n    \"setAnalysisStatus\",\n    \"addEvaluation\",\n    \"setEvaluations\",\n    \"setCurrentEvaluation\",\n    \"clearTablebaseState\"\n  ],\n  \"isEvaluating\": true\n} {platform: Object, hasTablebaseActions: true, hasSetAnalysisStatus: true, tablebaseActionsKeys: Array(6), isEvaluating: true}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:55.153Z INFO [E2E-WeiterSpielenFeature] Training page loaded for Weiterspielen test {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:06:55.155Z INFO [E2E-WeiterSpielenFeature] Testing Weiterspielen with various suboptimal move scenarios {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 BrowserTestApi: e2e_setBoardState called {fen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 BrowserTestApi.setPosition called {fen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.setPosition called {fen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🚀 TestApiService: Calling storeAccess.setPosition\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:55.159Z INFO  🔍 E2E setPosition called {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"fen\": \"8/8/8/4k3/4P3/4K3/8/8 w - - 0 1\",\n  \"currentState\": true,\n  \"loadTrainingContext\": true,\n  \"storeKeys\": [\n    \"game\",\n    \"training\",\n    \"tablebase\",\n    \"ui\",\n    \"handlePlayerMove\",\n    \"loadTrainingContext\",\n    \"loadPosition\",\n    \"reset\",\n    \"hydrate\"\n  ]\n} {platform: Object, fen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1, currentState: true, loadTrainingContext: true, storeKeys: Array(9)}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:55.160Z INFO  🚀 Calling loadPosition with position (E2E safe) {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"endgamePosition\": {\n    \"id\": 999,\n    \"title\": \"E2E Test Position\",\n    \"fen\": \"8/8/8/4k3/4P3/4K3/8/8 w - - 0 1\",\n    \"category\": \"e2e-test\",\n    \"difficulty\": \"intermediate\",\n    \"sideToMove\": \"white\",\n    \"goal\": \"win\",\n    \"description\": \"Position set via E2E test API\"\n  }\n} {platform: Object, endgamePosition: Object}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: ✅ TestApiService: storeAccess.setPosition called successfully\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 BrowserTestApi.setPosition result {result: true}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 BrowserTestApi: setPosition result {result: true}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:55.163Z INFO  ✅ Position set via loadPosition orchestrator {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"fen\": \"8/8/8/4k3/4P3/4K3/8/8 w - - 0 1\",\n  \"positionId\": 999\n} {platform: Object, fen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1, positionId: 999}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:55.207Z DEBUG [AnalysisService] No tablebase data available for position {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {platform: Object}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:55.228Z DEBUG  🔍 TablebaseActions debug {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasTablebaseActions\": true,\n  \"hasSetAnalysisStatus\": true,\n  \"tablebaseActionsKeys\": [\n    \"setTablebaseMove\",\n    \"setAnalysisStatus\",\n    \"addEvaluation\",\n    \"setEvaluations\",\n    \"setCurrentEvaluation\",\n    \"clearTablebaseState\"\n  ],\n  \"isEvaluating\": false\n} {platform: Object, hasTablebaseActions: true, hasSetAnalysisStatus: true, tablebaseActionsKeys: Array(6), isEvaluating: false}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:55.248Z DEBUG  🔍 TablebaseActions debug {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasTablebaseActions\": true,\n  \"hasSetAnalysisStatus\": true,\n  \"tablebaseActionsKeys\": [\n    \"setTablebaseMove\",\n    \"setAnalysisStatus\",\n    \"addEvaluation\",\n    \"setEvaluations\",\n    \"setCurrentEvaluation\",\n    \"clearTablebaseState\"\n  ],\n  \"isEvaluating\": false\n} {platform: Object, hasTablebaseActions: true, hasSetAnalysisStatus: true, tablebaseActionsKeys: Array(6), isEvaluating: false}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: ❌ Position loading timeout\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:07:04.003Z INFO [E2E-WeiterSpielenFeature] Testing Weiterspielen flow with move: Kd5 {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Store state keys [game, training, tablebase, ui, handlePlayerMove, loadTrainingContext, loadPosition, reset, hydrate]\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Available FENs {state.game?.currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1, state.training?.currentFen: undefined, state.fen: undefined, gameKeys: Array(37), trainingKeys: Array(41)}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Selected FEN {currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Move history {historyLength: 0, state.game?.moveHistory: 0, state.training?.moveHistory: 0}\n"
+                        },
+                        {
+                          "text": "[E2E] Move Kd5 API result: {\n  success: \u001b[33mfalse\u001b[39m,\n  resultingFen: \u001b[32m'8/8/8/4k3/4P3/4K3/8/8 w - - 0 1'\u001b[39m,\n  moveCount: \u001b[33m0\u001b[39m,\n  error: \u001b[32m'Move rejected by validation pipeline'\u001b[39m\n}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Store state keys [game, training, tablebase, ui, handlePlayerMove, loadTrainingContext, loadPosition, reset, hydrate]\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Available FENs {state.game?.currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1, state.training?.currentFen: undefined, state.fen: undefined, gameKeys: Array(37), trainingKeys: Array(41)}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Selected FEN {currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Move history {historyLength: 0, state.game?.moveHistory: 0, state.training?.moveHistory: 0}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:07:04.045Z INFO [E2E-WeiterSpielenFeature] Move Kd5 was rejected, testing Weiterspielen... {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T20:06:51.303Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-feat-3e519-t-types-of-suboptimal-moves-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-feat-3e519-t-types-of-suboptimal-moves-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-feat-3e519-t-types-of-suboptimal-moves-chromium/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-feat-3e519-t-types-of-suboptimal-moves-chromium/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-feature.spec.ts",
+                        "column": 35,
+                        "line": 328
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2f5e194db48f33172e36-7ad8c0bcfc79d136e868",
+              "file": "domains/weiterspielen-feature.spec.ts",
+              "line": 272,
+              "column": 7
+            },
+            {
+              "title": "should verify error dialog content and button text",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 7,
+                      "status": "failed",
+                      "duration": 15418,
+                      "error": {
+                        "message": "Error: \u001b[31mTimed out 3000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('[data-testid=\"move-error-dialog\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"move-error-dialog\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[31mTimed out 3000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('[data-testid=\"move-error-dialog\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"move-error-dialog\"]')\u001b[22m\n\n    at /home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-feature.spec.ts:418:33",
+                        "location": {
+                          "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-feature.spec.ts",
+                          "column": 33,
+                          "line": 418
+                        },
+                        "snippet": "  416 |     if (errorMoveResult.success === false) {\n  417 |       const errorDialog = page.locator('[data-testid=\"move-error-dialog\"]');\n> 418 |       await expect(errorDialog).toBeVisible({ timeout: 3000 });\n      |                                 ^\n  419 |\n  420 |       // Test dialog contains expected German text\n  421 |       await expect(errorDialog).toContainText(\"Fehler erkannt!\");"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-feature.spec.ts",
+                            "column": 33,
+                            "line": 418
+                          },
+                          "message": "Error: \u001b[31mTimed out 3000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('[data-testid=\"move-error-dialog\"]')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"move-error-dialog\"]')\u001b[22m\n\n\n  416 |     if (errorMoveResult.success === false) {\n  417 |       const errorDialog = page.locator('[data-testid=\"move-error-dialog\"]');\n> 418 |       await expect(errorDialog).toBeVisible({ timeout: 3000 });\n      |                                 ^\n  419 |\n  420 |       // Test dialog contains expected German text\n  421 |       await expect(errorDialog).toContainText(\"Fehler erkannt!\");\n    at /home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-feature.spec.ts:418:33"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:58.826Z DEBUG [MockPositionServiceFactory] [MockServiceFactory] Environment check {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"NODE_ENV\": \"development\",\n  \"NEXT_PUBLIC_IS_E2E_TEST\": \"true\",\n  \"NEXT_PUBLIC_USE_FIRESTORE\": \"true\",\n  \"shouldUseMock\": true\n} {platform: Object, NODE_ENV: development, NEXT_PUBLIC_IS_E2E_TEST: true, IS_E2E_TEST: undefined, NEXT_PUBLIC_USE_FIRESTORE: true}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:59.162Z INFO  🔍 StoreContext E2E Debug: {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"NODE_ENV\": \"development\",\n  \"NEXT_PUBLIC_IS_E2E_TEST\": \"true\",\n  \"isClient\": true,\n  \"userAgent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.7258.5 Safari/537.36\"\n} {platform: Object, NODE_ENV: development, NEXT_PUBLIC_IS_E2E_TEST: true, isClient: true, userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb…ML, like Gecko) Chrome/139.0.7258.5 Safari/537.36}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:59.162Z INFO  ✅ E2E-Modus aktiviert: Initialisiere Test API {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {platform: Object}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: ✅ TestApiService: Successfully initialized with store actions\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:59.191Z INFO  🔍 StoreContext E2E Debug: {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"NODE_ENV\": \"development\",\n  \"NEXT_PUBLIC_IS_E2E_TEST\": \"true\",\n  \"isClient\": true,\n  \"userAgent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.7258.5 Safari/537.36\"\n} {platform: Object, NODE_ENV: development, NEXT_PUBLIC_IS_E2E_TEST: true, isClient: true, userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb…ML, like Gecko) Chrome/139.0.7258.5 Safari/537.36}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:59.192Z INFO  ✅ E2E-Modus aktiviert: Initialisiere Test API {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {platform: Object}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:59.424Z DEBUG  🏠 EndgameTrainingPage rendered {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasPosition\": true,\n  \"positionId\": 1,\n  \"positionFen\": \"4k3/8/4K3/4P3/8/8/8/8 w - - 0 1\",\n  \"currentFen\": \"4k3/8/4K3/4P3/8/8/8/8 w - - 0 1\",\n  \"timestamp\": \"2025-08-18T20:06:59.424Z\"\n} {platform: Object, hasPosition: true, positionId: 1, positionFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, currentFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:59.427Z DEBUG  🏠 EndgameTrainingPage rendered {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasPosition\": true,\n  \"positionId\": 1,\n  \"positionFen\": \"4k3/8/4K3/4P3/8/8/8/8 w - - 0 1\",\n  \"currentFen\": \"4k3/8/4K3/4P3/8/8/8/8 w - - 0 1\",\n  \"timestamp\": \"2025-08-18T20:06:59.427Z\"\n} {platform: Object, hasPosition: true, positionId: 1, positionFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, currentFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:59.456Z DEBUG [E2ETestHelper] URL check {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"url\": \"http://127.0.0.1:3009/train/1\",\n  \"search\": \"\",\n  \"testMoves\": null,\n  \"gameReady\": true,\n  \"isGameFinished\": false,\n  \"historyLength\": 0,\n  \"testMoveProcessed\": false\n} {platform: Object, url: http://127.0.0.1:3009/train/1, search: , testMoves: null, gameReady: true}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:59.488Z DEBUG  🔍 TablebaseActions debug {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasTablebaseActions\": true,\n  \"hasSetAnalysisStatus\": true,\n  \"tablebaseActionsKeys\": [\n    \"setTablebaseMove\",\n    \"setAnalysisStatus\",\n    \"addEvaluation\",\n    \"setEvaluations\",\n    \"setCurrentEvaluation\",\n    \"clearTablebaseState\"\n  ],\n  \"isEvaluating\": false\n} {platform: Object, hasTablebaseActions: true, hasSetAnalysisStatus: true, tablebaseActionsKeys: Array(6), isEvaluating: false}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:59.496Z DEBUG [usePositionAnalysis] [usePositionAnalysis] Skipping evaluation - not enabled or no FEN {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {platform: Object}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:59.501Z DEBUG [TrainingEventEmitter] Subscribed to move:feedback, total handlers: 1 {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {platform: Object}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:59.841Z DEBUG  🔍 TablebaseActions debug {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasTablebaseActions\": true,\n  \"hasSetAnalysisStatus\": true,\n  \"tablebaseActionsKeys\": [\n    \"setTablebaseMove\",\n    \"setAnalysisStatus\",\n    \"addEvaluation\",\n    \"setEvaluations\",\n    \"setCurrentEvaluation\",\n    \"clearTablebaseState\"\n  ],\n  \"isEvaluating\": true\n} {platform: Object, hasTablebaseActions: true, hasSetAnalysisStatus: true, tablebaseActionsKeys: Array(6), isEvaluating: true}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:06:59.887Z DEBUG  🔍 TablebaseActions debug {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasTablebaseActions\": true,\n  \"hasSetAnalysisStatus\": true,\n  \"tablebaseActionsKeys\": [\n    \"setTablebaseMove\",\n    \"setAnalysisStatus\",\n    \"addEvaluation\",\n    \"setEvaluations\",\n    \"setCurrentEvaluation\",\n    \"clearTablebaseState\"\n  ],\n  \"isEvaluating\": true\n} {platform: Object, hasTablebaseActions: true, hasSetAnalysisStatus: true, tablebaseActionsKeys: Array(6), isEvaluating: true}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:07:01.320Z INFO [E2E-WeiterSpielenFeature] Training page loaded for Weiterspielen test {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "2025-08-18T20:07:01.322Z INFO [E2E-WeiterSpielenFeature] Testing error dialog UI elements and text content {\n  \"platform\": {\n    \"isWeb\": false,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {\n  platform: { isWeb: \u001b[33mfalse\u001b[39m, isMobile: \u001b[33mfalse\u001b[39m, isAndroid: \u001b[33mfalse\u001b[39m, isIOS: \u001b[33mfalse\u001b[39m }\n}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 BrowserTestApi: e2e_setBoardState called {fen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 BrowserTestApi.setPosition called {fen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.setPosition called {fen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🚀 TestApiService: Calling storeAccess.setPosition\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:07:01.334Z INFO  🔍 E2E setPosition called {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"fen\": \"8/8/8/4k3/4P3/4K3/8/8 w - - 0 1\",\n  \"currentState\": true,\n  \"loadTrainingContext\": true,\n  \"storeKeys\": [\n    \"game\",\n    \"training\",\n    \"tablebase\",\n    \"ui\",\n    \"handlePlayerMove\",\n    \"loadTrainingContext\",\n    \"loadPosition\",\n    \"reset\",\n    \"hydrate\"\n  ]\n} {platform: Object, fen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1, currentState: true, loadTrainingContext: true, storeKeys: Array(9)}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:07:01.334Z INFO  🚀 Calling loadPosition with position (E2E safe) {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"endgamePosition\": {\n    \"id\": 999,\n    \"title\": \"E2E Test Position\",\n    \"fen\": \"8/8/8/4k3/4P3/4K3/8/8 w - - 0 1\",\n    \"category\": \"e2e-test\",\n    \"difficulty\": \"intermediate\",\n    \"sideToMove\": \"white\",\n    \"goal\": \"win\",\n    \"description\": \"Position set via E2E test API\"\n  }\n} {platform: Object, endgamePosition: Object}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: ✅ TestApiService: storeAccess.setPosition called successfully\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 BrowserTestApi.setPosition result {result: true}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 BrowserTestApi: setPosition result {result: true}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:07:01.339Z INFO  ✅ Position set via loadPosition orchestrator {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"fen\": \"8/8/8/4k3/4P3/4K3/8/8 w - - 0 1\",\n  \"positionId\": 999\n} {platform: Object, fen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1, positionId: 999}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:07:01.739Z DEBUG [AnalysisService] No tablebase data available for position {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  }\n} {platform: Object}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:07:01.770Z DEBUG  🔍 TablebaseActions debug {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasTablebaseActions\": true,\n  \"hasSetAnalysisStatus\": true,\n  \"tablebaseActionsKeys\": [\n    \"setTablebaseMove\",\n    \"setAnalysisStatus\",\n    \"addEvaluation\",\n    \"setEvaluations\",\n    \"setCurrentEvaluation\",\n    \"clearTablebaseState\"\n  ],\n  \"isEvaluating\": false\n} {platform: Object, hasTablebaseActions: true, hasSetAnalysisStatus: true, tablebaseActionsKeys: Array(6), isEvaluating: false}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 2025-08-18T20:07:01.797Z DEBUG  🔍 TablebaseActions debug {\n  \"platform\": {\n    \"isWeb\": true,\n    \"isMobile\": false,\n    \"isAndroid\": false,\n    \"isIOS\": false\n  },\n  \"hasTablebaseActions\": true,\n  \"hasSetAnalysisStatus\": true,\n  \"tablebaseActionsKeys\": [\n    \"setTablebaseMove\",\n    \"setAnalysisStatus\",\n    \"addEvaluation\",\n    \"setEvaluations\",\n    \"setCurrentEvaluation\",\n    \"clearTablebaseState\"\n  ],\n  \"isEvaluating\": false\n} {platform: Object, hasTablebaseActions: true, hasSetAnalysisStatus: true, tablebaseActionsKeys: Array(6), isEvaluating: false}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: ❌ Position loading timeout\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Store state keys [game, training, tablebase, ui, handlePlayerMove, loadTrainingContext, loadPosition, reset, hydrate]\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Available FENs {state.game?.currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1, state.training?.currentFen: undefined, state.fen: undefined, gameKeys: Array(37), trainingKeys: Array(41)}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Selected FEN {currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Move history {historyLength: 0, state.game?.moveHistory: 0, state.training?.moveHistory: 0}\n"
+                        },
+                        {
+                          "text": "[E2E] Move Kd5 API result: {\n  success: \u001b[33mfalse\u001b[39m,\n  resultingFen: \u001b[32m'8/8/8/4k3/4P3/4K3/8/8 w - - 0 1'\u001b[39m,\n  moveCount: \u001b[33m0\u001b[39m,\n  error: \u001b[32m'Move rejected by validation pipeline'\u001b[39m\n}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Store state keys [game, training, tablebase, ui, handlePlayerMove, loadTrainingContext, loadPosition, reset, hydrate]\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Available FENs {state.game?.currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1, state.training?.currentFen: undefined, state.fen: undefined, gameKeys: Array(37), trainingKeys: Array(41)}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Selected FEN {currentFen: 8/8/8/4k3/4P3/4K3/8/8 w - - 0 1}\n"
+                        },
+                        {
+                          "text": "BROWSER CONSOLE: 🔍 TestApiService.getGameState: Move history {historyLength: 0, state.game?.moveHistory: 0, state.training?.moveHistory: 0}\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T20:06:57.224Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-feat-0a76a-log-content-and-button-text-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-feat-0a76a-log-content-and-button-text-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-feat-0a76a-log-content-and-button-text-chromium/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/thehu/coolProjects/EndgameTrainer/test-results/domains-weiterspielen-feat-0a76a-log-content-and-button-text-chromium/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/domains/weiterspielen-feature.spec.ts",
+                        "column": 33,
+                        "line": 418
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "2f5e194db48f33172e36-f8918828a54740f68db8",
+              "file": "domains/weiterspielen-feature.spec.ts",
+              "line": 375,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "domains/weiterspielen-simple-test.spec.ts",
+      "file": "domains/weiterspielen-simple-test.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Error Feedback System Test",
+          "file": "domains/weiterspielen-simple-test.spec.ts",
+          "line": 15,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Train/1 → UI-Click(Kd5) → Verify Error Feedback",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 8,
+                      "status": "passed",
+                      "duration": 21705,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🎯 UI-BASED TEST: Train/1 → UI-Click(Kd5) → Verify Error Feedback\n"
+                        },
+                        {
+                          "text": "✅ Train/1 geladen\n"
+                        },
+                        {
+                          "text": "📋 Mache Kd5 (blunder) move...\n"
+                        },
+                        {
+                          "text": "📋 Making Kd5 move through UI click...\n"
+                        },
+                        {
+                          "text": "🎯 Making move: e6 → d5 (click)\n"
+                        },
+                        {
+                          "text": "✅ Click move completed: e6 → d5\n"
+                        },
+                        {
+                          "text": "✅ Move verified successful: e6 → d5\n"
+                        },
+                        {
+                          "text": "📊 Move Kd5 attempted\n"
+                        },
+                        {
+                          "text": "🔍 Verifying move was processed...\n"
+                        },
+                        {
+                          "text": "✅ Move number '1.' found in move list!\n"
+                        },
+                        {
+                          "text": "✅ Kd5 move button found in move list!\n"
+                        },
+                        {
+                          "text": "✅ SUCCESS: Move processing pipeline working correctly!\n"
+                        },
+                        {
+                          "text": "✅ Error feedback system working correctly!\n"
+                        },
+                        {
+                          "text": "📋 Additional verification complete!\n"
+                        },
+                        {
+                          "text": "✅ Board remains functional after mistake move\n"
+                        },
+                        {
+                          "text": "🎯 Test Summary:\n"
+                        },
+                        {
+                          "text": "   - Move Kd5: ✅ Successfully executed\n"
+                        },
+                        {
+                          "text": "   - Move Processing: ✅ Move appears in move list with number\n"
+                        },
+                        {
+                          "text": "   - Error Feedback: ✅ Pipeline working (verified manually)\n"
+                        },
+                        {
+                          "text": "   - Board: ✅ Remains functional\n"
+                        },
+                        {
+                          "text": "🎉 SUCCESS: Error feedback system working correctly!\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-18T20:06:58.211Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d8b88a2fe9be7e48ec93-e7104c38a4afd570b981",
+              "file": "domains/weiterspielen-simple-test.spec.ts",
+              "line": 23,
               "column": 7
             }
           ]
@@ -210,11 +1943,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-08-18T17:15:44.788Z",
-    "duration": 21033.092,
-    "expected": 0,
+    "startTime": "2025-08-18T20:06:19.146Z",
+    "duration": 66609.412,
+    "expected": 12,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 6,
     "flaky": 0
   }
 }
