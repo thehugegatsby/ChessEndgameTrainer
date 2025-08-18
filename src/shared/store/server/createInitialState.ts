@@ -13,7 +13,7 @@
  * isolated chess instance and state object.
  */
 
-import { Chess } from 'chess.js';
+import { ChessGameLogic } from '@domains/game/engine/ChessGameLogic';
 import { getServerPositionService } from '@shared/services/database/serverPositionService';
 import type { EndgamePosition } from '@shared/types/endgame';
 import type { TrainingPosition } from '@shared/store/slices/trainingSlice';
@@ -76,9 +76,9 @@ export async function createInitialStateForPosition(
   position: EndgamePosition
 ): Promise<Partial<RootState>> {
   // 1. Create a fresh, request-scoped chess instance to avoid singleton issues
-  const chess = new Chess();
+  const chessGameLogic = new ChessGameLogic();
   try {
-    chess.load(position.fen);
+    chessGameLogic.loadFen(position.fen);
   } catch {
     throw new Error(`Invalid FEN provided for position ${position.id}: ${position.fen}`);
   }
@@ -89,7 +89,7 @@ export async function createInitialStateForPosition(
   );
 
   // 3. Determine player's turn
-  const currentTurn = chess.turn();
+  const currentTurn = chessGameLogic.getTurn();
   const isPlayerTurn = currentTurn === trainingPosition.colorToTrain.charAt(0);
 
   // 4. Fetch navigation positions concurrently (non-blocking)

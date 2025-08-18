@@ -3,7 +3,7 @@
  * @description Mobile-compatible wrapper for chess.js with German notation support
  */
 
-import { Chess, type Square, type Move as ChessJsMove } from 'chess.js';
+import { Chess, type Square, type Move as ChessJsMove, type Piece } from 'chess.js';
 import type { ChessGameLogicInterface, MoveInput, GamePosition } from './types';
 import { PIECE_NOTATION_MAP } from './types';
 
@@ -99,13 +99,13 @@ export class ChessGameLogic implements ChessGameLogicInterface {
   }
 
   // Board access
-  getBoard(): (import('chess.js').Piece | null)[][] {
+  getBoard(): (Piece | null)[][] {
     return this.chess.board();
   }
 
-  getPieceAt(square: string): import('chess.js').Piece | null {
+  getPieceAt(square: string): Piece | null {
     try {
-      return this.chess.get(square as import('chess.js').Square) || null;
+      return this.chess.get(square as Square) || null;
     } catch {
       return null;
     }

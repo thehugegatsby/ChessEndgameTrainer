@@ -3,7 +3,7 @@
  * @description Type definitions for the chess game engine
  */
 
-import type { Square, Move as ChessJsMove } from 'chess.js';
+import type { Square, Move as ChessJsMove, Piece } from 'chess.js';
 
 /**
  * Chess game logic interface for abstracting chess.js
@@ -29,8 +29,8 @@ export interface ChessGameLogicInterface {
   getTurn(): 'w' | 'b';
   
   // Board Access
-  getBoard(): (import('chess.js').Piece | null)[][];
-  getPieceAt(square: string): import('chess.js').Piece | null;
+  getBoard(): (Piece | null)[][];
+  getPieceAt(square: string): Piece | null;
   
   // History
   undo(): ChessJsMove | null;
