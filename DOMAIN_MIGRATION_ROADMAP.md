@@ -2,9 +2,9 @@
 
 **Chess Endgame Trainer - Complete Architecture Migration to Domain-driven Design**
 
-**Status**: **PHASE 3 STARTED ⚡ | BL-01 COMPLETE ✅**
+**Status**: **PHASE 3 IN PROGRESS ⚡ | BL-01 & BL-02 COMPLETE ✅**
 **Start Date**: 2025-08-18  
-**Progress**: **19/29 Tasks Complete (66%)** | **Business Logic Migration In Progress**
+**Progress**: **20/29 Tasks Complete (69%)** | **Business Logic Migration In Progress**
 **Target**: Q1 2025 completion
 
 ## 🎯 Mission
@@ -33,11 +33,16 @@ Complete the migration from `features/` legacy architecture to clean Domain-driv
 - **Architecture Quality**: Domain Layer > Legacy Features, Clean "ChessGameLogic" naming
 - **Clean Separation**: ChessEngine→ChessGameLogic refactoring completed, consistent naming
 
-### 🚨 CRITICAL GAPS (Current Focus)
-- **GameStateService**: **COMPLETE ✅** (10/10 methods with 36 tests!)
-- **MoveService**: **COMPLETE ✅** (6/6 methods with 27 tests!)
-- **PositionService**: 2 non-critical methods remaining (evaluatePosition, getBestMove) 
-- **Phase 3**: Ready for business logic migration with complete core services
+### ✅ COMPLETED TASKS (Current Status)
+- **Phase 1**: Domain structure, TablebaseService, ChessEngineAdapter, Core interfaces ✅
+- **Phase 2**: All core domain services complete ✅
+  - **GameStateService**: **COMPLETE ✅** (10/10 methods with 36 tests!)
+  - **MoveService**: **COMPLETE ✅** (6/6 methods with 27 tests!)
+  - **PositionService**: Core methods complete (2 non-critical remaining)
+- **Phase 3**: Business Logic Migration IN PROGRESS 🔄
+  - **BL-01**: MoveValidator migration ✅ 
+  - **BL-02**: GameStateService integration ✅
+  - **BL-03**: Direct chess.js removal ⚡ (IN PROGRESS)
 
 ---
 
@@ -109,8 +114,8 @@ Complete the migration from `features/` legacy architecture to clean Domain-driv
 | ID     | Action                                                                              | Files to Modify                                                              | Commit Message                                             |
 | :----- | :---------------------------------------------------------------------------------- | :--------------------------------------------------------------------------- | :--------------------------------------------------------- |
 | **BL-01** | ✅ In `handlePlayerMove`, replace move validation logic with `moveService.isMoveLegal()` | `src/shared/store/orchestrators/handlePlayerMove/`                           | `refactor(store): use MoveService for move validation`     |
-| **BL-02** | In `handlePlayerMove`, replace `chess.move()` with `moveService.makeMove()`         | `src/shared/store/orchestrators/handlePlayerMove/`                           | `refactor(store): use MoveService to make moves`           |
-| **BL-03** | In `handlePlayerMove`, replace game state checks with `gameStateService` methods    | `src/shared/store/orchestrators/handlePlayerMove/`                           | `refactor(store): use GameStateService for status checks`  |
+| **BL-02** | ✅ In `handlePlayerMove`, replace game state checks with `gameStateService` methods    | `src/shared/store/orchestrators/handlePlayerMove/`                           | `refactor(store): use GameStateService for status checks`  |
+| **BL-03** | In `handlePlayerMove`, replace `chess.move()` with `moveService.makeMove()`         | `src/shared/store/orchestrators/handlePlayerMove/`                           | `refactor(store): use MoveService to make moves`           |
 | **BL-04** | In `TrainingBoard.tsx`, remove direct chess logic for rendering valid moves         | `src/features/training/components/TrainingBoard.tsx`                         | `refactor(ui): delegate valid move logic to domain`        |
 | **BL-05** | Remove all direct `chess.js` imports from the UI and Store layers                   | `src/features/**/*.ts`, `src/app/**/*.ts`                                    | `refactor: remove direct chess.js usage from UI/Store`     |
 
@@ -203,8 +208,10 @@ grep -r "throw new Error.*not implemented" src/domains/
 - BL-02: Replace game state checks with GameStateService  
 - BL-03: Remove direct chess.js usage from UI/Store layers
 
-**🚀 Performance Projection**: **Phase 2 COMPLETE!** → Phase 3 ready to begin
+**🚀 Performance Projection**: **Phase 2 COMPLETE!** → Phase 3: 2/5 tasks complete (40%)
 
 ---
 
-**Next Task**: **BL-02** - Replace game state checks with GameStateService (Phase 3)
+**Current Task**: **BL-03** - Remove direct chess.js usage from UI/Store layers
+**Progress**: Store layer migrations in progress (createInitialState.ts, AnalysisPanel.tsx)
+**Next**: Complete BL-03, then proceed to BL-04 & BL-05
