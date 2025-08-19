@@ -178,30 +178,11 @@ jobs:
         env:
           NEXT_PUBLIC_STOCKFISH_PATH: /stockfish/
 
-      - name: Start production server
-        run: |
-          echo "Starting Next.js production server..."
-          pnpm start &
-          echo $! > server.pid
-
-      - name: Wait for server to be ready
-        run: |
-          echo "Waiting for server at http://localhost:3000..."
-          timeout 60 bash -c 'until curl -s -f http://localhost:3000 > /dev/null; do sleep 2; done'
-          echo "✅ Server is ready"
-
       - name: Run Playwright E2E tests
-        run: pnpm run test:e2e
+        run: pnpm run test:e2e:headless
         env:
-          PLAYWRIGHT_TEST_BASE_URL: http://localhost:3000
+          CI: true
 
-      - name: Stop server
-        if: always()
-        run: |
-          if [ -f server.pid ]; then
-            kill $(cat server.pid) || true
-            rm server.pid
-          fi
 
       - name: Upload Playwright report
         if: failure()
