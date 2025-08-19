@@ -3,22 +3,29 @@
  * @module components/chess/Chessboard
  *
  * @description
- * Wrapper component around react-chessboard library that provides a
- * standardized interface for displaying chess positions. Handles the
- * API differences and provides a consistent interface for the application.
+ * Wrapper component around react-chessboard v5 library that provides a
+ * backwards-compatible v4-style interface for the application. Handles the
+ * v5 API differences and provides a consistent interface for components.
  *
  * @remarks
  * Key features:
- * - FEN position display with configurable board size
- * - Piece drag and drop functionality
- * - API adapter for react-chessboard v5 compatibility
- * - Configurable piece dragging control
- * - Type-safe piece drop handling
+ * - FEN position display with CSS-based board sizing (v5 removed boardWidth prop)
+ * - Piece drag and drop functionality with v5 API adapter
+ * - Handler signature conversion (v5 { piece, sourceSquare, targetSquare } → v4 (from, to, piece))
+ * - Configurable piece dragging control (allowDragging in v5)
+ * - Type-safe piece drop handling with promotion support
  * - SSR-safe dynamic loading to prevent hydration issues
+ *
+ * BREAKING CHANGES from v4→v5:
+ * - Uses `options` prop instead of direct props
+ * - Handler signatures changed: onPieceDrop now receives object instead of parameters
+ * - Board sizing via CSS container instead of boardWidth prop
+ * - position prop instead of fen prop
+ * - allowDragging instead of arePiecesDraggable
  *
  * The component serves as an adapter layer between the application's
  * chess logic and the external react-chessboard library, ensuring
- * consistent behavior and easier upgrades.
+ * consistent behavior across v5 API changes.
  */
 
 'use client';
@@ -231,8 +238,8 @@ export const Chessboard: React.FC<ChessboardProps> = ({
   };
 
   /**
-   * Adapts piece drop events to react-chessboard v5 API
-   * Now handles promotion detection and dialog display
+   * Adapts piece drop events from react-chessboard v5 API to our v4-style interface
+   * Converts new v5 signature { piece, sourceSquare, targetSquare } to old v4 signature (from, to, piece)
    */
   const handlePieceDrop = ({
     piece,
@@ -241,13 +248,16 @@ export const Chessboard: React.FC<ChessboardProps> = ({
   }: PieceDropHandlerArgs): boolean => {
     if (!targetSquare) return false;
 
+    // Extract piece type from v5 DraggingPieceDataType
+    const pieceType = piece.pieceType;
+
     // Check if this is a promotion move first (before calling onPieceDrop)
     if (onPromotionCheck && onPromotionCheck(sourceSquare, targetSquare)) {
       // Store the pending promotion and show dialog
       setPendingPromotion({
         from: sourceSquare,
         to: targetSquare,
-        piece: String(piece.pieceType),
+        piece: pieceType,
       });
 
       // Calculate position for promotion dialog
@@ -258,9 +268,9 @@ export const Chessboard: React.FC<ChessboardProps> = ({
       return true;
     }
 
-    // Normal move (not a promotion) - call the handler
+    // Normal move (not a promotion) - call the handler with v4-style signature
     if (!onPieceDrop) return false;
-    return onPieceDrop(sourceSquare, targetSquare, String(piece.pieceType));
+    return onPieceDrop(sourceSquare, targetSquare, pieceType);
   };
 
   const handleSquareClick = ({ piece, square }: SquareHandlerArgs): void => {
@@ -276,28 +286,38 @@ export const Chessboard: React.FC<ChessboardProps> = ({
 
   return (
     <div className="relative chess-board-container">
-      <ReactChessboard
-        options={{
-          position: fen,
-          ...(onPieceDrop && { onPieceDrop: handlePieceDrop }),
-          ...(onSquareClick && { onSquareClick: handleSquareClick }),
-          boardStyle: {
-            width: `${boardWidth}px`,
-            height: `${boardWidth}px`,
-            borderRadius: '6px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          },
-          allowDragging: arePiecesDraggable,
-          animationDurationInMs: animationDuration,
-          // Standard chess board colors
-          darkSquareStyle: {
-            backgroundColor: '#b58863',
-          },
-          lightSquareStyle: {
-            backgroundColor: '#f0d9b5',
-          },
+      {/* Container handles sizing since boardWidth prop was removed in v5 */}
+      <div 
+        style={{
+          width: `${boardWidth}px`,
+          height: `${boardWidth}px`,
         }}
-      />
+      >
+        <ReactChessboard
+          options={{
+            position: fen,
+            ...(onPieceDrop && { onPieceDrop: handlePieceDrop }),
+            ...(onSquareClick && { onSquareClick: handleSquareClick }),
+            boardStyle: {
+              width: '100%',
+              height: '100%',
+              borderRadius: '6px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            },
+            allowDragging: arePiecesDraggable,
+            animationDurationInMs: animationDuration,
+            // Standard chess board colors
+            darkSquareStyle: {
+              backgroundColor: '#b58863',
+            },
+            lightSquareStyle: {
+              backgroundColor: '#f0d9b5',
+            },
+            // v5 specific options for better E2E testing
+            id: 'chessboard-main',
+          }}
+        />
+      </div>
 
       {/* Promotion Dialog */}
       <PromotionDialog

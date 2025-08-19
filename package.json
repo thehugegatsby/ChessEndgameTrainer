@@ -7,7 +7,7 @@
     "dev": "node -e \"const {PORTS} = require('./config/ports'); require('child_process').execSync('next dev -p ' + PORTS.DEV, {stdio: 'inherit'})\"",
     "dev:e2e": "NEXT_PUBLIC_IS_E2E_TEST=true next dev -p 3009",
     "build": "next build",
-    "start": "next start",
+    "start": "node -e \"const {PORTS} = require('./config/ports'); require('child_process').execSync('next start -p ' + PORTS.PRODUCTION, {stdio: 'inherit'})\"",
     "test": "node scripts/smart-test.js",
     "test:unit": "vitest run --project chess-core --project tablebase --project training --project shared",
     "test:integration": "vitest run --project integration",

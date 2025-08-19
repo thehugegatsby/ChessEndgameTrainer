@@ -104,7 +104,7 @@ const config = {
   // E2E development server with mock environment
   webServer: {
     command: 'npm run dev:e2e',
-    url: DEV_URL,
+    url: `${DEV_URL}/simple-chess-test`, // Use working endpoint for health check
     timeout: 60000,
     reuseExistingServer: true, // Allow reusing existing dev server
     // Übergabe der E2E-Umgebungsvariable direkt an den Next.js-Prozess

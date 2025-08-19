@@ -53,6 +53,35 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
   // The position now comes directly from the hydrated store
   const position = trainingState.currentPosition;
 
+  // Initialize with Position 1 if no position is loaded (Lichess-style system)
+  React.useEffect(() => {
+    if (!position) {
+      const logger = getLogger().setContext('EndgameTrainingPage-Init');
+      logger.info('No position loaded, initializing with Position 1');
+      
+      // Load Position 1 as default using store action
+      const initializePosition = async (): Promise<void> => {
+        try {
+          // Use store's loadTrainingContext which handles the position service
+          await store.getState().loadTrainingContext({ 
+            id: 1,
+            title: 'Opposition Grundlagen',
+            description: 'Lerne die Grundlagen der Opposition',
+            fen: '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1',
+            goal: 'win',
+            difficulty: 'beginner',
+            category: 'pawn-endgame'
+          });
+          logger.info('Position 1 loaded successfully');
+        } catch (error) {
+          logger.error('Failed to load Position 1:', error);
+        }
+      };
+      
+      initializePosition();
+    }
+  }, [position, store]);
+
   // Debug: Log component state
   getLogger().debug('🏠 EndgameTrainingPage rendered', {
     hasPosition: Boolean(position),
