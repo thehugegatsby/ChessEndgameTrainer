@@ -10,7 +10,9 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {},
+    "metadata": {
+      "actualWorkers": 2
+    },
     "preserveOutput": "always",
     "reporter": [
       [
@@ -40,7 +42,9 @@
         "outputDir": "/home/thehu/coolProjects/EndgameTrainer/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {},
+        "metadata": {
+          "actualWorkers": 2
+        },
         "id": "chromium",
         "name": "chromium",
         "testDir": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e",
@@ -48,13 +52,15 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 60000
+        "timeout": 30000
       },
       {
         "outputDir": "/home/thehu/coolProjects/EndgameTrainer/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {},
+        "metadata": {
+          "actualWorkers": 2
+        },
         "id": "firebase",
         "name": "firebase",
         "testDir": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/firebase",
@@ -62,7 +68,7 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 60000
+        "timeout": 30000
       }
     ],
     "shard": null,
@@ -72,7 +78,7 @@
     "workers": 12,
     "webServer": {
       "command": "npm run dev:e2e",
-      "url": "http://127.0.0.1:3009",
+      "url": "http://127.0.0.1:3009/simple-chess-test",
       "timeout": 60000,
       "reuseExistingServer": true,
       "env": {
@@ -80,17 +86,181 @@
       }
     }
   },
-  "suites": [],
-  "errors": [
+  "suites": [
     {
-      "message": "Error: Process from config.webServer exited early.",
-      "stack": "Error: Process from config.webServer exited early."
+      "title": "core/simple-chess-v5.spec.ts",
+      "file": "core/simple-chess-v5.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Simple Chess v5 API Test",
+          "file": "core/simple-chess-v5.spec.ts",
+          "line": 8,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Simple chess component with v5 drag and drop",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3879,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🎯 Loading simple chess test page...\n"
+                        },
+                        {
+                          "text": "🔍 BROWSER: 🔍 SimpleChessTest render: {currentFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, chessFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, turn: w, moves: Array(4)}\n"
+                        },
+                        {
+                          "text": "🔍 BROWSER: 🔍 SimpleChessTest render: {currentFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, chessFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, turn: w, moves: Array(4)}\n"
+                        },
+                        {
+                          "text": "🔍 Initial FEN: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1\n"
+                        },
+                        {
+                          "text": "✅ Board shows correct initial position (not starting position!)\n"
+                        },
+                        {
+                          "text": "🔄 Testing move: King e6 to f6\n"
+                        },
+                        {
+                          "text": "🔍 BROWSER: 🎯 Move attempt: {piece: wK, from: e6, to: e6}\n"
+                        },
+                        {
+                          "text": "🔍 BROWSER: ❌ Move error: Error: Invalid move: {\"from\":\"e6\",\"to\":\"e6\",\"promotion\":\"q\"}\n    at Chess.move (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/chess.js@1.4.0/node_modules/chess.js/dist/esm/chess.js:2548:23)\n    at SimpleChessTest.useCallback[onPieceDrop] (webpack-internal:///(app-pages-browser)/./src/app/simple-chess-test/page.tsx:54:36)\n    at handleDragEnd (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/react-chessboard@5.5.0_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/react-chessboard/dist/index.esm.js:4947:46)\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/react-chessboard@5.5.0_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/react-chessboard/dist/index.esm.js:3478:40)\n    at exports.unstable_batchedUpdates (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.4.7_@babel+core@7.28.3_@opentelemetry+api@1.9.0_@playwright+test@1.54.2_react-d_0609498fbbd4238dd4a25a8b3a0a0ef0/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js:411:14)\n    at handler (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/react-chessboard@5.5.0_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/react-chessboard/dist/index.esm.js:3465:75)\n    at PointerSensor.handleEnd (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/react-chessboard@5.5.0_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/react-chessboard/dist/index.esm.js:1890:5)\n"
+                        },
+                        {
+                          "text": "🔍 After move FEN: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1\n"
+                        },
+                        {
+                          "text": "❌ FAILED: FEN unchanged after move (drag&drop might not work)\n"
+                        },
+                        {
+                          "text": "🔄 Trying click-to-move fallback...\n"
+                        },
+                        {
+                          "text": "🔍 BROWSER: 🔍 SimpleChessTest render: {currentFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, chessFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, turn: w, moves: Array(4)}\n"
+                        },
+                        {
+                          "text": "🔍 BROWSER: 🔍 SimpleChessTest render: {currentFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, chessFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, turn: w, moves: Array(4)}\n"
+                        },
+                        {
+                          "text": "🔍 BROWSER: 🔍 SimpleChessTest render: {currentFen: 4k3/8/5K2/4P3/8/8/8/8 b - - 1 1, chessFen: 4k3/8/5K2/4P3/8/8/8/8 b - - 1 1, turn: b, moves: Array(3)}\n"
+                        },
+                        {
+                          "text": "🔍 BROWSER: 🔍 SimpleChessTest render: {currentFen: 4k3/8/5K2/4P3/8/8/8/8 b - - 1 1, chessFen: 4k3/8/5K2/4P3/8/8/8/8 b - - 1 1, turn: b, moves: Array(3)}\n"
+                        },
+                        {
+                          "text": "🔍 After click-move FEN: 4k3/8/5K2/4P3/8/8/8/8 b - - 1 1\n"
+                        },
+                        {
+                          "text": "✅ SUCCESS: Click-to-move works with v5 API\n"
+                        },
+                        {
+                          "text": "🎯 v5 API simple chess test complete\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-19T17:25:02.389Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "53146daff1c54597e131-4c714ce50a2f05308c20",
+              "file": "core/simple-chess-v5.spec.ts",
+              "line": 10,
+              "column": 7
+            },
+            {
+              "title": "Click-to-move sequence: Kf6 Kf8 Kg6",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3815,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🎯 Testing click-to-move sequence...\n"
+                        },
+                        {
+                          "text": "✅ Initial position correct\n"
+                        },
+                        {
+                          "text": "🔄 Move 1: Kf6 (e6→f6)\n"
+                        },
+                        {
+                          "text": "✅ Move 1 successful: Kf6\n"
+                        },
+                        {
+                          "text": "🔄 Move 2: Kf8 (e8→f8)\n"
+                        },
+                        {
+                          "text": "✅ Move 2 successful: Kf8\n"
+                        },
+                        {
+                          "text": "🔄 Move 3: Kg6 (f6→g6)\n"
+                        },
+                        {
+                          "text": "✅ Move 3 successful: Kg6\n"
+                        },
+                        {
+                          "text": "🎯 Click-to-move sequence complete: Kf6 Kf8 Kg6\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-19T17:25:02.393Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "53146daff1c54597e131-a45ffa488e7f233329de",
+              "file": "core/simple-chess-v5.spec.ts",
+              "line": 100,
+              "column": 7
+            }
+          ]
+        }
+      ]
     }
   ],
+  "errors": [],
   "stats": {
-    "startTime": "2025-08-19T16:39:19.599Z",
-    "duration": 654.2599999999999,
-    "expected": 0,
+    "startTime": "2025-08-19T17:25:01.772Z",
+    "duration": 4776.905,
+    "expected": 2,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

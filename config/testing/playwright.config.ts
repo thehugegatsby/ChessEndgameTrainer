@@ -10,6 +10,7 @@ import { e2eTestsDir, e2eFirebaseDir, testResultsDir } from '../paths';
 // Simple configuration constants using centralized ports
 const DEV_URL = `http://127.0.0.1:${PORTS.E2E}`; // Use E2E port from config
 const CI = process.env.CI === 'true';
+const HEADED = process.env.HEADED === 'true';
 
 const config = {
   // Test directory
@@ -50,11 +51,11 @@ const config = {
     // Viewport
     viewport: { width: 1280, height: 720 },
 
-    // 🎯 DEBUGGING: Run in headed mode to see actual dialog behavior
-    headless: false,
+    // Headless mode control - default headless unless HEADED=true  
+    headless: !HEADED,
 
-    // 🎯 DEBUGGING: Slow down for visual inspection
-    slowMo: 500,
+    // 🎯 DEBUGGING: Slow down for visual inspection (only when headed)
+    slowMo: HEADED ? 500 : 0,
 
     // Set E2E test mode header
     extraHTTPHeaders: {

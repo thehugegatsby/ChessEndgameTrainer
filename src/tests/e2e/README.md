@@ -224,14 +224,26 @@ Making move 2/9: e8-f7
 ```
 tests/e2e/
 ├── README.md                           # This documentation
-├── helpers/
-│   └── sequenceRunner.ts              # Core framework
-├── scenarios/
-│   ├── promotionScenarios.ts          # Promotion test scenarios
-│   └── genericScenarioTest.spec.ts    # Example test implementation
-└── domains/                           # Legacy individual tests
-    └── pawn-promotion.spec.ts         # Original promotion test
+├── core/                               # Core E2E tests
+│   ├── simple-chess-v5.spec.ts        # React-chessboard v5 testing (click-to-move)
+│   ├── pawn-promotion.spec.ts          # Pawn promotion testing
+│   ├── error-recovery.spec.ts          # Error dialog and recovery testing
+│   └── smoke-workflow.spec.ts          # Basic workflow testing
+├── domains/                            # Feature-specific tests
+│   ├── weiterspielen-bug-proof.spec.ts # "Weiterspielen" feature tests
+│   ├── weiterspielen-feature.spec.ts   # "Weiterspielen" feature tests
+│   └── weiterspielen-simple-test.spec.ts # "Weiterspielen" simple tests
+├── helpers/                            # Test utilities
+│   ├── DebugHelper.ts                  # Debug utilities
+│   └── moveHelpers.ts                  # Move execution helpers
+├── page-objects/                       # Page object models
+│   ├── ChessboardPage.ts               # Chessboard interactions
+│   └── TrainingPage.ts                 # Training page interactions
+└── config/                             # Test configuration
+    └── TestConfig.ts                   # Test constants and settings
 ```
+
+Note: SimpleChessTest component is now located at `src/app/simple-chess-test/page.tsx`
 
 ## Creating New Scenarios
 
