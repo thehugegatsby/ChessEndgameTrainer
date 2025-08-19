@@ -15,12 +15,15 @@ const SimpleChessTest: React.FC = () => {
   const [gamePosition, setGamePosition] = useState(chess.fen());
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
 
-  console.log('🔍 SimpleChessTest render:', {
-    currentFen: gamePosition,
-    chessFen: chess.fen(),
-    turn: chess.turn(),
-    moves: chess.moves()
-  });
+  // Debug logging for E2E test component
+  if (process.env.NODE_ENV === 'development') {
+    console.info('🔍 SimpleChessTest render:', {
+      currentFen: gamePosition,
+      chessFen: chess.fen(),
+      turn: chess.turn(),
+      moves: chess.moves()
+    });
+  }
 
   // Force re-render helper
   const forceUpdate = useCallback(() => {
@@ -28,11 +31,11 @@ const SimpleChessTest: React.FC = () => {
   }, [chess]);
 
   // Move handler - v5 API format (with piece object)
-  const onPieceDrop = useCallback(({ piece, sourceSquare, targetSquare }: { piece: any; sourceSquare: string; targetSquare: string | null }) => {
-    console.log('🎯 Move attempt:', { piece: piece?.pieceType, from: sourceSquare, to: targetSquare });
+  const onPieceDrop = useCallback(({ piece, sourceSquare, targetSquare }: { piece: { pieceType: string } | null; sourceSquare: string; targetSquare: string | null }) => {
+    console.info('🎯 Move attempt:', { piece: piece?.pieceType, from: sourceSquare, to: targetSquare });
     
     if (!targetSquare) {
-      console.log('❌ Move failed: No target square');
+      console.info('❌ Move failed: No target square');
       return false;
     }
     
@@ -44,31 +47,31 @@ const SimpleChessTest: React.FC = () => {
       });
       
       if (move) {
-        console.log('✅ Move successful:', move);
+        console.info('✅ Move successful:', move);
         forceUpdate();
         return true;
       } else {
-        console.log('❌ Move failed: Invalid move');
+        console.info('❌ Move failed: Invalid move');
         return false;
       }
     } catch (error) {
-      console.log('❌ Move error:', error);
+      console.error('❌ Move error:', error);
       return false;
     }
   }, [chess, forceUpdate]);
 
   // Click-to-move handler - v5 API format
   const onSquareClick = useCallback(({ square }: { square: string }) => {
-    console.log('🎯 Square clicked:', { square, selectedSquare });
+    console.info('🎯 Square clicked:', { square, selectedSquare });
     
     if (selectedSquare === null) {
       // First click - select piece
       setSelectedSquare(square);
-      console.log('✅ Square selected:', square);
+      console.info('✅ Square selected:', square);
     } else if (selectedSquare === square) {
       // Same square clicked - deselect
       setSelectedSquare(null);
-      console.log('❌ Square deselected:', square);
+      console.info('❌ Square deselected:', square);
     } else {
       // Second click - try to move
       try {
@@ -79,15 +82,15 @@ const SimpleChessTest: React.FC = () => {
         });
         
         if (move) {
-          console.log('✅ Click move successful:', move);
+          console.info('✅ Click move successful:', move);
           forceUpdate();
           setSelectedSquare(null);
         } else {
-          console.log('❌ Click move failed: Invalid move');
+          console.info('❌ Click move failed: Invalid move');
           setSelectedSquare(square); // Select new square instead
         }
       } catch (error) {
-        console.log('❌ Click move error:', error);
+        console.error('❌ Click move error:', error);
         setSelectedSquare(square); // Select new square instead
       }
     }
