@@ -295,7 +295,103 @@ test.describe('Endgame Scenarios', () => {
 - Use final expectations (no `moveIndex`) for end-of-sequence checks
 - Allow adequate timeouts for complex UI updates
 
-### 3. Debugging Tips
+### 3. react-chessboard v5 Migration & Testing
+
+#### Click-to-Move for E2E Tests
+
+With react-chessboard v5, **click-to-move** is the recommended approach for E2E testing instead of drag-and-drop:
+
+```typescript
+// ✅ Recommended: Click-to-move (v5 native support)
+await page.click('[data-square="e6"]');  // Select piece
+await page.click('[data-square="f6"]');  // Move to target
+
+// ❌ Avoid: Drag-and-drop (unreliable in E2E tests)
+await page.locator('[data-square="e6"]').dragTo('[data-square="f6"]');
+```
+
+**Why click-to-move is better for E2E:**
+- ✅ Native react-chessboard v5 support via `onSquareClick`
+- ✅ More reliable than drag-and-drop in automated tests
+- ✅ Tests actual user interaction patterns
+- ✅ No timing issues with drag gestures
+
+#### Implementation Example
+
+**Component Setup:**
+```typescript
+// Add onSquareClick handler to your Chessboard component
+<Chessboard
+  options={{
+    position: gamePosition,
+    onPieceDrop: onPieceDrop,        // Keep for drag support
+    onSquareClick: onSquareClick,    // Add for click-to-move
+    allowDragging: true,
+    id: 'chess-board'
+  }}
+/>
+```
+
+**Handler Implementation:**
+```typescript
+const onSquareClick = useCallback(({ square }: { square: string }) => {
+  if (selectedSquare === null) {
+    setSelectedSquare(square);  // First click: select
+  } else if (selectedSquare === square) {
+    setSelectedSquare(null);    // Same square: deselect
+  } else {
+    // Second click: attempt move
+    const move = chess.move({ from: selectedSquare, to: square });
+    if (move) {
+      updatePosition();
+      setSelectedSquare(null);
+    } else {
+      setSelectedSquare(square); // Invalid move: select new square
+    }
+  }
+}, [selectedSquare, chess]);
+```
+
+**E2E Test Pattern:**
+```typescript
+test('Multi-move sequence with click-to-move', async ({ page }) => {
+  // Navigate and wait for board
+  await page.goto('/simple-chess-test');
+  await page.waitForSelector('[data-testid="chess-board"]');
+  
+  // Execute move sequence: Kf6, Kf8, Kg6
+  const moves = [
+    { from: 'e6', to: 'f6', desc: 'Kf6' },
+    { from: 'e8', to: 'f8', desc: 'Kf8' }, 
+    { from: 'f6', to: 'g6', desc: 'Kg6' }
+  ];
+  
+  for (const move of moves) {
+    console.log(`🔄 ${move.desc} (${move.from}→${move.to})`);
+    await page.click(`[data-square="${move.from}"]`);
+    await page.waitForTimeout(200);
+    await page.click(`[data-square="${move.to}"]`);
+    await page.waitForTimeout(500);
+    
+    // Verify FEN change
+    const newFen = await page.getAttribute('[data-testid="chess-board"]', 'data-fen');
+    expect(newFen).not.toBe(previousFen);
+  }
+});
+```
+
+#### v5 API Changes Summary
+
+Key changes from react-chessboard v4 to v5 affecting E2E tests:
+
+- **New**: `onSquareClick` handler for click-to-move support
+- **Changed**: `onPieceDrop` signature now includes `piece` object parameter
+- **Removed**: Built-in promotion dialogs (handle externally)
+- **Renamed**: Various props simplified (e.g., `arePiecesDraggable` → `allowDragging`)
+
+For complete migration details, see: https://github.com/clariity/react-chessboard/blob/main/docs/G_UpgradeToV5.mdx
+
+### 4. Debugging Tips
 
 - Start with simple scenarios and build complexity gradually
 - Use console output to understand execution flow

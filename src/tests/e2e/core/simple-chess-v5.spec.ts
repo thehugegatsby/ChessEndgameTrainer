@@ -96,4 +96,62 @@ test.describe('Simple Chess v5 API Test', () => {
     
     console.log('🎯 v5 API simple chess test complete');
   });
+
+  test('Click-to-move sequence: Kf6 Kf8 Kg6', async ({ page }) => {
+    
+    console.log('🎯 Testing click-to-move sequence...');
+    
+    // Navigate to test page
+    await page.goto('/simple-chess-test');
+    
+    // Wait for board to load
+    await page.waitForSelector('[data-testid="simple-chess-board"]', { timeout: 10000 });
+    
+    // Check initial position (Opposition Grundlagen)
+    const initialFen = await page.getAttribute('[data-testid="simple-chess-board"]', 'data-fen');
+    const expectedInitialFen = '4k3/8/4K3/4P3/8/8/8/8 w - - 0 1';
+    expect(initialFen).toBe(expectedInitialFen);
+    console.log('✅ Initial position correct');
+    
+    // Move 1: Kf6 (White King e6 to f6)
+    console.log('🔄 Move 1: Kf6 (e6→f6)');
+    await page.click('[data-square="e6"]');
+    await page.waitForTimeout(200);
+    await page.click('[data-square="f6"]');
+    await page.waitForTimeout(500);
+    
+    // Check position after Kf6
+    const afterKf6 = await page.getAttribute('[data-testid="simple-chess-board"]', 'data-fen');
+    const expectedAfterKf6 = '4k3/8/5K2/4P3/8/8/8/8 b - - 1 1';
+    expect(afterKf6).toBe(expectedAfterKf6);
+    console.log('✅ Move 1 successful: Kf6');
+    
+    // Move 2: Kf8 (Black King e8 to f8)
+    console.log('🔄 Move 2: Kf8 (e8→f8)');
+    await page.click('[data-square="e8"]');
+    await page.waitForTimeout(200);
+    await page.click('[data-square="f8"]');
+    await page.waitForTimeout(500);
+    
+    // Check position after Kf8
+    const afterKf8 = await page.getAttribute('[data-testid="simple-chess-board"]', 'data-fen');
+    const expectedAfterKf8 = '5k2/8/5K2/4P3/8/8/8/8 w - - 2 2';
+    expect(afterKf8).toBe(expectedAfterKf8);
+    console.log('✅ Move 2 successful: Kf8');
+    
+    // Move 3: Kg6 (White King f6 to g6)
+    console.log('🔄 Move 3: Kg6 (f6→g6)');
+    await page.click('[data-square="f6"]');
+    await page.waitForTimeout(200);
+    await page.click('[data-square="g6"]');
+    await page.waitForTimeout(500);
+    
+    // Check position after Kg6
+    const afterKg6 = await page.getAttribute('[data-testid="simple-chess-board"]', 'data-fen');
+    const expectedAfterKg6 = '5k2/8/6K1/4P3/8/8/8/8 b - - 3 2';
+    expect(afterKg6).toBe(expectedAfterKg6);
+    console.log('✅ Move 3 successful: Kg6');
+    
+    console.log('🎯 Click-to-move sequence complete: Kf6 Kf8 Kg6');
+  });
 });

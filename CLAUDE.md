@@ -49,6 +49,7 @@ Always load `CORE.md` first, then task-specific docs from table above. For MCP s
 - **Types**: No `any` - always typed
 - **UI Errors**: German (`"Ungültiger Zug"`)
 - **Imports**: Use `@shared/` aliases
+- **E2E Move Testing**: Use click-to-move, not drag&drop (see `src/tests/e2e/README.md`)
 
 ## ♟️ Chess Test Data - CRITICAL
 
