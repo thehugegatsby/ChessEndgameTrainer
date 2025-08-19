@@ -11,7 +11,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 2
+      "actualWorkers": 3
     },
     "preserveOutput": "always",
     "reporter": [
@@ -43,7 +43,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 2
+          "actualWorkers": 3
         },
         "id": "chromium",
         "name": "chromium",
@@ -52,14 +52,14 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 30000
+        "timeout": 60000
       },
       {
         "outputDir": "/home/thehu/coolProjects/EndgameTrainer/test-results",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 2
+          "actualWorkers": 3
         },
         "id": "firebase",
         "name": "firebase",
@@ -68,7 +68,7 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 30000
+        "timeout": 60000
       }
     ],
     "shard": null,
@@ -88,25 +88,25 @@
   },
   "suites": [
     {
-      "title": "core/simple-chess-v5.spec.ts",
-      "file": "core/simple-chess-v5.spec.ts",
+      "title": "core/comprehensive-smoke.spec.ts",
+      "file": "core/comprehensive-smoke.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Simple Chess v5 API Test",
-          "file": "core/simple-chess-v5.spec.ts",
-          "line": 8,
+          "title": "🚀 Comprehensive Smoke Test - Complete Application Workflow",
+          "file": "core/comprehensive-smoke.spec.ts",
+          "line": 28,
           "column": 6,
           "specs": [
             {
-              "title": "Simple chess component with v5 drag and drop",
+              "title": "🎯 COMPREHENSIVE: End-to-end application workflow with test.steps",
               "ok": true,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
+                  "timeout": 120000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
@@ -116,67 +116,194 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 3879,
+                      "duration": 28324,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "🎯 Loading simple chess test page...\n"
+                          "text": "🚀 Starting comprehensive smoke test with structured steps...\n"
                         },
                         {
-                          "text": "🔍 BROWSER: 🔍 SimpleChessTest render: {currentFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, chessFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, turn: w, moves: Array(4)}\n"
+                          "text": "📊 Monitoring JavaScript errors...\n"
                         },
                         {
-                          "text": "🔍 BROWSER: 🔍 SimpleChessTest render: {currentFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, chessFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, turn: w, moves: Array(4)}\n"
+                          "text": "🌐 Loading home page...\n"
                         },
                         {
-                          "text": "🔍 Initial FEN: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1\n"
+                          "text": "✅ Page title: \"Chess Endgame Trainer\"\n"
                         },
                         {
-                          "text": "✅ Board shows correct initial position (not starting position!)\n"
+                          "text": "⏱️  App load time: 2245ms\n"
                         },
                         {
-                          "text": "🔄 Testing move: King e6 to f6\n"
+                          "text": "🎯 Testing simple chess component with v5 API...\n"
                         },
                         {
-                          "text": "🔍 BROWSER: 🎯 Move attempt: {piece: wK, from: e6, to: e6}\n"
+                          "text": "✅ Simple chess component loads with correct position\n"
                         },
                         {
-                          "text": "🔍 BROWSER: ❌ Move error: Error: Invalid move: {\"from\":\"e6\",\"to\":\"e6\",\"promotion\":\"q\"}\n    at Chess.move (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/chess.js@1.4.0/node_modules/chess.js/dist/esm/chess.js:2548:23)\n    at SimpleChessTest.useCallback[onPieceDrop] (webpack-internal:///(app-pages-browser)/./src/app/simple-chess-test/page.tsx:54:36)\n    at handleDragEnd (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/react-chessboard@5.5.0_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/react-chessboard/dist/index.esm.js:4947:46)\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/react-chessboard@5.5.0_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/react-chessboard/dist/index.esm.js:3478:40)\n    at exports.unstable_batchedUpdates (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.4.7_@babel+core@7.28.3_@opentelemetry+api@1.9.0_@playwright+test@1.54.2_react-d_0609498fbbd4238dd4a25a8b3a0a0ef0/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js:411:14)\n    at handler (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/react-chessboard@5.5.0_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/react-chessboard/dist/index.esm.js:3465:75)\n    at PointerSensor.handleEnd (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/react-chessboard@5.5.0_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/react-chessboard/dist/index.esm.js:1890:5)\n"
+                          "text": "🔄 Testing click-to-move (e6→f6)...\n"
                         },
                         {
-                          "text": "🔍 After move FEN: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1\n"
+                          "text": "✅ Click-to-move functionality working\n"
                         },
                         {
-                          "text": "❌ FAILED: FEN unchanged after move (drag&drop might not work)\n"
+                          "text": "📍 Loading training page...\n"
                         },
                         {
-                          "text": "🔄 Trying click-to-move fallback...\n"
+                          "text": "⏱️  Board load time: 1938ms\n"
                         },
                         {
-                          "text": "🔍 BROWSER: 🔍 SimpleChessTest render: {currentFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, chessFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, turn: w, moves: Array(4)}\n"
+                          "text": "✅ Training page loaded: Endgame Training\n"
                         },
                         {
-                          "text": "🔍 BROWSER: 🔍 SimpleChessTest render: {currentFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, chessFen: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1, turn: w, moves: Array(4)}\n"
+                          "text": "✅ Chess board found on training page\n"
                         },
                         {
-                          "text": "🔍 BROWSER: 🔍 SimpleChessTest render: {currentFen: 4k3/8/5K2/4P3/8/8/8/8 b - - 1 1, chessFen: 4k3/8/5K2/4P3/8/8/8/8 b - - 1 1, turn: b, moves: Array(3)}\n"
+                          "text": "✅ Correct training page loaded\n"
                         },
                         {
-                          "text": "🔍 BROWSER: 🔍 SimpleChessTest render: {currentFen: 4k3/8/5K2/4P3/8/8/8/8 b - - 1 1, chessFen: 4k3/8/5K2/4P3/8/8/8/8 b - - 1 1, turn: b, moves: Array(3)}\n"
+                          "text": "🎯 Testing chess board interactions on training page...\n"
                         },
                         {
-                          "text": "🔍 After click-move FEN: 4k3/8/5K2/4P3/8/8/8/8 b - - 1 1\n"
+                          "text": "✅ Interactive chess board found\n"
                         },
                         {
-                          "text": "✅ SUCCESS: Click-to-move works with v5 API\n"
+                          "text": "📊 Found 64 chess squares\n"
                         },
                         {
-                          "text": "🎯 v5 API simple chess test complete\n"
+                          "text": "✅ Board interaction test completed\n"
+                        },
+                        {
+                          "text": "⏱️  Interaction test time: 50ms\n"
+                        },
+                        {
+                          "text": "🧪 Testing error handling mechanisms...\n"
+                        },
+                        {
+                          "text": "🔄 Attempting potentially invalid move...\n"
+                        },
+                        {
+                          "text": "🎯 Making move: e8 → f8 (click)\n"
+                        },
+                        {
+                          "text": "✅ Click move completed: e8 → f8\n"
+                        },
+                        {
+                          "text": "✅ Move verified successful: e8 → f8\n"
+                        },
+                        {
+                          "text": "ℹ️  Move executed - no error dialog triggered\n"
+                        },
+                        {
+                          "text": "ℹ️  No error dialog needed - error handling verified\n"
+                        },
+                        {
+                          "text": "🔄 Testing navigation workflow...\n"
+                        },
+                        {
+                          "text": "🔄 Testing home page navigation...\n"
+                        },
+                        {
+                          "text": "✅ Home page navigation successful\n"
+                        },
+                        {
+                          "text": "🔄 Testing training page navigation...\n"
+                        },
+                        {
+                          "text": "✅ Training page navigation successful\n"
+                        },
+                        {
+                          "text": "🔄 Testing simple chess test navigation...\n"
+                        },
+                        {
+                          "text": "✅ Simple chess test navigation successful\n"
+                        },
+                        {
+                          "text": "⏱️  Navigation time: 4059ms\n"
+                        },
+                        {
+                          "text": "🎯 Testing complete training flow...\n"
+                        },
+                        {
+                          "text": "📄 Training page content length: 11363 characters\n"
+                        },
+                        {
+                          "text": "📊 Found 258 page sections\n"
+                        },
+                        {
+                          "text": "✅ Training page structure analyzed\n"
+                        },
+                        {
+                          "text": "🔘 Found 14 buttons and 3 links\n"
+                        },
+                        {
+                          "text": "✅ Interactive elements available\n"
+                        },
+                        {
+                          "text": "\n📊 PERFORMANCE METRICS SUMMARY:\n"
+                        },
+                        {
+                          "text": "⏱️  Total test time: 29665ms\n"
+                        },
+                        {
+                          "text": "🌐 App load time: 2245ms\n"
+                        },
+                        {
+                          "text": "🎲 Board load time: 1938ms\n"
+                        },
+                        {
+                          "text": "♟️  Move execution time: 50ms\n"
+                        },
+                        {
+                          "text": "🧭 Navigation time: 4059ms\n"
+                        },
+                        {
+                          "text": "\n✅ COMPREHENSIVE SMOKE TEST COMPLETED SUCCESSFULLY!\n"
+                        },
+                        {
+                          "text": "🎉 All critical application workflows verified\n"
+                        },
+                        {
+                          "text": "📸 Final screenshot saved\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-19T17:25:02.389Z",
+                      "steps": [
+                        {
+                          "title": "🔍 Step 1: Application Initialization & Health Check",
+                          "duration": 2246
+                        },
+                        {
+                          "title": "🎲 Step 2: Simple Chess Component Testing",
+                          "duration": 1902
+                        },
+                        {
+                          "title": "🏋️ Step 3: Training Page Navigation & UI Elements",
+                          "duration": 1956
+                        },
+                        {
+                          "title": "♟️ Step 4: Chess Board Interactions - Multi-Move Sequence",
+                          "duration": 50
+                        },
+                        {
+                          "title": "🛠️ Step 5: Error Handling & Recovery Testing",
+                          "duration": 17839
+                        },
+                        {
+                          "title": "🧭 Step 6: Position Navigation Workflow",
+                          "duration": 4059
+                        },
+                        {
+                          "title": "🏆 Step 7: Endgame Sequence & Training Flow",
+                          "duration": 1610
+                        },
+                        {
+                          "title": "📊 Step 8: Performance Metrics & Test Summary",
+                          "duration": 144
+                        }
+                      ],
+                      "startTime": "2025-08-19T17:58:25.352Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -184,18 +311,18 @@
                   "status": "expected"
                 }
               ],
-              "id": "53146daff1c54597e131-4c714ce50a2f05308c20",
-              "file": "core/simple-chess-v5.spec.ts",
-              "line": 10,
+              "id": "a5b3560489ac8087432c-1c24edcae1a6f23cd2e9",
+              "file": "core/comprehensive-smoke.spec.ts",
+              "line": 46,
               "column": 7
             },
             {
-              "title": "Click-to-move sequence: Kf6 Kf8 Kg6",
+              "title": "⚡ Quick Interaction Methods Comparison",
               "ok": true,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
+                  "timeout": 120000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
@@ -205,40 +332,38 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 3815,
+                      "duration": 3718,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "🎯 Testing click-to-move sequence...\n"
+                          "text": "🧪 Comparing click vs drag interaction methods...\n"
                         },
                         {
-                          "text": "✅ Initial position correct\n"
+                          "text": "⏱️  Click-to-move time: 513ms\n"
                         },
                         {
-                          "text": "🔄 Move 1: Kf6 (e6→f6)\n"
+                          "text": "✅ Click-to-move verified\n"
                         },
                         {
-                          "text": "✅ Move 1 successful: Kf6\n"
+                          "text": "⏱️  Drag-and-drop time: 388ms\n"
                         },
                         {
-                          "text": "🔄 Move 2: Kf8 (e8→f8)\n"
-                        },
-                        {
-                          "text": "✅ Move 2 successful: Kf8\n"
-                        },
-                        {
-                          "text": "🔄 Move 3: Kg6 (f6→g6)\n"
-                        },
-                        {
-                          "text": "✅ Move 3 successful: Kg6\n"
-                        },
-                        {
-                          "text": "🎯 Click-to-move sequence complete: Kf6 Kf8 Kg6\n"
+                          "text": "⚠️  Drag-and-drop may need improvement\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-19T17:25:02.393Z",
+                      "steps": [
+                        {
+                          "title": "🖱️ Click-to-Move Performance Test",
+                          "duration": 2579
+                        },
+                        {
+                          "title": "🖱️ Drag-and-Drop Performance Test",
+                          "duration": 993
+                        }
+                      ],
+                      "startTime": "2025-08-19T17:58:25.351Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -246,9 +371,65 @@
                   "status": "expected"
                 }
               ],
-              "id": "53146daff1c54597e131-a45ffa488e7f233329de",
-              "file": "core/simple-chess-v5.spec.ts",
-              "line": 100,
+              "id": "a5b3560489ac8087432c-f7b4b186a0fec8f68bfb",
+              "file": "core/comprehensive-smoke.spec.ts",
+              "line": 292,
+              "column": 7
+            },
+            {
+              "title": "🔍 Error Detection & Console Monitoring",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 2693,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🧪 Advanced error detection and monitoring...\n"
+                        },
+                        {
+                          "text": "🔘 Found 17 clickable elements\n"
+                        },
+                        {
+                          "text": "🚨 Errors detected: 0\n"
+                        },
+                        {
+                          "text": "⚠️  Warnings detected: 1\n"
+                        },
+                        {
+                          "text": "✅ Error monitoring completed\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "🚨 JavaScript Error Collection",
+                          "duration": 2553
+                        }
+                      ],
+                      "startTime": "2025-08-19T17:58:25.349Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5b3560489ac8087432c-d16eb65abadc8d588abd",
+              "file": "core/comprehensive-smoke.spec.ts",
+              "line": 344,
               "column": 7
             }
           ]
@@ -258,9 +439,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-08-19T17:25:01.772Z",
-    "duration": 4776.905,
-    "expected": 2,
+    "startTime": "2025-08-19T17:58:24.725Z",
+    "duration": 29157.968999999997,
+    "expected": 3,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0
