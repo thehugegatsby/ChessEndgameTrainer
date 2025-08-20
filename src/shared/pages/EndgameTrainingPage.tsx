@@ -20,7 +20,7 @@ import { getGameStatus } from '@shared/utils/chess/gameStatus';
 import { useGameStore, useTrainingStore, useUIStore } from '@shared/store/hooks';
 // useInitializePosition no longer needed - SSR hydration handles initialization
 import { getTrainingDisplayTitle, formatPositionTitle } from '@shared/utils/titleFormatter';
-import { ANIMATION } from '@shared/constants';
+import { ANIMATION, DIMENSIONS } from '@shared/constants';
 import { trainingEvents } from '@domains/training/events/EventEmitter';
 import { useStoreApi } from '@shared/store/StoreContext';
 import type { WritableDraft } from 'immer';
@@ -54,7 +54,7 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
   
   // Container-based responsive board sizing
   const boardContainerRef = useRef<HTMLDivElement | null>(null);
-  const [boardSize, setBoardSize] = useState<number>(500);
+  const [boardSize, setBoardSize] = useState<number>(DIMENSIONS.TRAINING_BOARD_SIZE);
 
   // The position now comes directly from the hydrated store
   const position = trainingState.currentPosition;
@@ -349,7 +349,7 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
 
         {/* Instructions */}
         <div className="instructions p-4 border-b border-gray-700">
-          <h3 className="font-bold mb-2">{formatPositionTitle(position)}</h3>
+          <h3 className="font-bold mb-2">{position ? formatPositionTitle(position) : 'Position wird geladen...'}</h3>
           <p className="text-sm text-gray-400">{position?.description || 'Position wird geladen...'}</p>
         </div>
 

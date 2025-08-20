@@ -17,7 +17,7 @@ import { test, expect } from '@playwright/test';
 import { TrainingPage } from '../page-objects/TrainingPage';
 import { TestConfig } from '../config/TestConfig';
 import { TEST_POSITIONS, TEST_SEQUENCES } from '@shared/testing/ChessTestData';
-import { performMoveWithoutValidation, performMoveAndWait, makePlayerMoveAndFixTurn } from '../helpers/moveHelpers';
+import { performMoveWithoutValidation, performMoveAndWait, makePlayerMoveAndFixTurn, makeOpponentMove } from '../helpers/moveHelpers';
 
 interface PerformanceMetrics {
   pageLoadTime: number;
@@ -33,14 +33,6 @@ interface PerformanceMetrics {
  */
 async function makePlayerMove(page: any, move: string): Promise<void> {
   await makePlayerMoveAndFixTurn(page, move);
-}
-
-/**
- * Helper function to make an opponent move via direct API (bypasses validation)
- */
-async function makeOpponentMove(page: any, move: string): Promise<void> {
-  console.log(`🤖 Opponent direct move: ${move}`);
-  await performMoveWithoutValidation(page, move);
 }
 
 
@@ -319,10 +311,15 @@ test.describe('🎯 Comprehensive Training Flow - Complete Workflow Validation',
         // Move 1: Opponent (Black) - Kf7 via direct API  
         console.log(`🔄 Move 1 response: ${correctSequence.moves[1]} (Opponent)`);
         await makeOpponentMove(page, 'Kf7'); // King e8 to f7 (WITHOUT validation)
+        console.log(`✅ Move 1 response completed, starting Move 2...`);
         
         // Move 2: Player (White) - Kd7 via validated API
         console.log(`🔄 Move 2: ${correctSequence.moves[2]} (Player)`);
+        console.log(`🔍 DEBUG: About to call makePlayerMove with 'Kd7'`);
+        
+        // Use the fixed validation API for player moves
         await makePlayerMove(page, 'Kd7'); // King d6 to d7 (WITH validation)
+        console.log(`✅ Move 2 completed, starting Move 2 response...`);
         
         // Move 2: Opponent (Black) - Kf8 via direct API
         console.log(`🔄 Move 2 response: ${correctSequence.moves[3]} (Opponent)`);

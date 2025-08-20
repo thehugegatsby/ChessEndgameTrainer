@@ -833,6 +833,81 @@ export const createTrainingActions = (
     return quality;
   },
 
+  /**
+   * Commits a move to the training state without validation
+   * 
+   * @param move - The validated move to commit
+   * @param newGameState - The new game state after the move
+   * @param newGameState.fen - The FEN position after the move
+   * @param newGameState.moveHistory - The updated move history
+   * @param newGameState.turn - The turn after the move ('w' | 'b')
+   * @param newGameState.isGameOver - Whether the game is over
+   * 
+   * @remarks
+   * This is the core low-level function for committing moves to training state.
+   * It updates all necessary state without performing any validation.
+   * Both validated player moves and direct opponent moves use this function.
+   * 
+   * This function:
+   * - Updates move history in training state
+   * - Sets turn state based on game state and training configuration
+   * - Handles move-in-flight state
+   * - Does NOT perform validation (that's handled by orchestrators)
+   * 
+   * @example
+   * ```typescript
+   * // Used by handlePlayerMove after validation
+   * await commitMoveToTraining(validatedMove, {
+   *   fen: "8/8/8/8/8/8/R7/K3k3 b - - 0 1",
+   *   moveHistory: [...previousHistory, validatedMove],
+   *   turn: 'b',
+   *   isGameOver: false
+   * });
+   * 
+   * // Used by direct move API for opponent moves
+   * await commitMoveToTraining(directMove, newGameState);
+   * ```
+   */
+  commitMoveToTraining: (
+    move: ValidatedMove,
+    newGameState: {
+      fen: string;
+      moveHistory: ValidatedMove[];
+      turn: 'w' | 'b';
+      isGameOver: boolean;
+    }
+  ) => {
+    set(state => {
+      // Update training move history
+      state.training.moveHistory = [...newGameState.moveHistory];
+      
+      // Clear move-in-flight state
+      state.training.moveInFlight = false;
+      
+      // Update turn state based on training configuration
+      const currentPosition = state.training.currentPosition;
+      if (currentPosition) {
+        // Player can move when it's their color's turn and game is not over
+        const isPlayerColor = (newGameState.turn === 'w' && currentPosition.colorToTrain === 'white') ||
+                             (newGameState.turn === 'b' && currentPosition.colorToTrain === 'black');
+        state.training.isPlayerTurn = isPlayerColor && !newGameState.isGameOver;
+      } else {
+        // Fallback: player can always move if no training position set
+        state.training.isPlayerTurn = true;
+      }
+      
+      // Clear opponent thinking state
+      state.training.isOpponentThinking = false;
+    });
+    
+    logger.info('Move committed to training state', {
+      move: move.san,
+      newFen: newGameState.fen,
+      isPlayerTurn: get().training.isPlayerTurn,
+      moveCount: newGameState.moveHistory.length
+    });
+  },
+
   };
 };
 

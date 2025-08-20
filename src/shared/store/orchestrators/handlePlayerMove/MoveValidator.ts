@@ -92,17 +92,19 @@ export class MoveValidator {
       let moveInput: { from: string; to: string; promotion?: string };
       
       if (typeof move === 'string') {
-        // First try to parse as coordinate notation (e2e4, e2-e4)
-        const cleanMove = move.replace('-', '');
-        if (cleanMove.length >= 4 && cleanMove.length <= 5 && /^[a-h][1-8][a-h][1-8][qrnb]?$/.test(cleanMove)) {
-          // This is coordinate notation
+        // Use stricter coordinate notation detection that matches parseMoveInput
+        const coordMatch = /^([a-h][1-8])[-]?([a-h][1-8])([qrbnQRBN])?$/.exec(move);
+        
+        if (coordMatch) {
+          // This is coordinate notation - parse using capture groups
+          const [_, from, to, promotion] = coordMatch;
           moveInput = {
-            from: cleanMove.slice(0, 2),
-            to: cleanMove.slice(2, 4),
-            ...(cleanMove.length > 4 && { promotion: cleanMove.slice(4) })
+            from,
+            to,
+            ...(promotion && { promotion: promotion.toLowerCase() })
           };
         } else {
-          // Assume it's SAN notation - use engine directly
+          // SAN notation - use engine directly for validation
           try {
             const tempEngine = new ChessGameLogic();
             const loadResult = tempEngine.loadFen(fen);

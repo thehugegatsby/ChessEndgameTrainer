@@ -17,6 +17,22 @@ import { getLogger } from "@shared/services/logging";
 import { isE2EMode } from "@shared/utils/environment/isE2EMode";
 
 /**
+ * Store access interface for type safety
+ */
+interface StoreAccess {
+  getState: () => unknown;
+  subscribe: (listener: (state: unknown, prevState: unknown) => void) => () => void;
+  makeMove: (move: unknown) => void;
+  _internalApplyMove: (move: unknown) => void;
+  resetPosition: () => void;
+  setPosition: (position: unknown) => void;
+  goToMove: (moveIndex: number) => void;
+  setAnalysisStatus: (status: string) => void;
+  setState?: (updater: unknown) => void;
+  setTurnState?: (isPlayerTurn: boolean) => void;
+}
+
+/**
  * Browser Test API
  *
  * @class BrowserTestApi
@@ -86,24 +102,14 @@ export class BrowserTestApi {
    * // Now window.__testApi is available
    * ```
    */
-  public initialize(storeAccess?: {
-    getState: () => unknown;
-    subscribe: (listener: (state: unknown, prevState: unknown) => void) => () => void;
-    makeMove: (move: unknown) => void;
-    _internalApplyMove: (move: unknown) => void;
-    resetPosition: () => void;
-    setPosition: (position: unknown) => void;
-    goToMove: (moveIndex: number) => void;
-    setAnalysisStatus: (status: string) => void;
-    setState?: (updater: any) => void;
-    setTurnState?: (isPlayerTurn: boolean) => void;
-  }): void {
-    console.log('🔧 BrowserTestApi.initialize called');
-    console.log('🔧 storeAccess provided:', !!storeAccess);
+  public initialize(storeAccess?: StoreAccess): void {
+    // Use console.info/warn for browser test environments (ESLint-compliant)
+    console.info('🔧 BrowserTestApi.initialize called');
+    console.info('🔧 storeAccess provided:', Boolean(storeAccess));
     
     // Use browser-compatible E2E mode detection
     const isTestMode = isE2EMode();
-    console.log('🔧 isE2EMode():', isTestMode);
+    console.info('🔧 isE2EMode():', isTestMode);
     
     if (!isTestMode) {
       console.warn("Test API is only available in E2E test environment");
@@ -111,15 +117,13 @@ export class BrowserTestApi {
     }
 
     if (this.initialized) {
-      console.log('🔧 BrowserTestApi already initialized, skipping');
+      console.info('🔧 BrowserTestApi already initialized, skipping');
       return;
     }
 
     // Wait for store access to be provided
     if (!storeAccess) {
-      console.warn(
-        "BrowserTestApi: Store access not provided, delaying initialization",
-      );
+      console.warn("BrowserTestApi: Store access not provided, delaying initialization");
       return;
     }
 
@@ -138,6 +142,7 @@ export class BrowserTestApi {
     (window as unknown as { __testApi: unknown }).__testApi = {
       makeMove: this.makeMove.bind(this),
       makeValidatedMove: this.makeValidatedMove.bind(this),
+      makeDirectMove: this.makeDirectMove.bind(this),
       getGameState: this.getGameState.bind(this),
       resetGame: this.resetGame.bind(this),
       configureTablebase: this.configureTablebase.bind(this),
@@ -177,7 +182,7 @@ export class BrowserTestApi {
     };
 
     this.initialized = true;
-    console.log('🔧 BrowserTestApi.initialize COMPLETED - window.__testApi is now available');
+    console.info('🔧 BrowserTestApi.initialize COMPLETED - window.__testApi is now available');
     getLogger().info("Browser Test API initialized");
     return; // Explicit return for TypeScript
   }
@@ -251,7 +256,39 @@ export class BrowserTestApi {
    * @returns {Promise<TestMoveResponse>} Promise resolving to move execution result
    */
   private makeValidatedMove(move: string): Promise<TestMoveResponse> {
-    return this.testApi.makeValidatedMove(move);
+    console.error('🔥🔥🔥 BROWSERTESTAPI.MAKEVALIDATEDMOVE CALLED WITH:', move);
+    try {
+      const result = this.testApi.makeValidatedMove(move);
+      console.error('🔥 makeValidatedMove call succeeded, returning promise');
+      return result;
+    } catch (error) {
+      console.error('🔥 makeValidatedMove call failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Make a direct move bypassing all validation (for opponent moves in E2E tests)
+   *
+   * @private
+   * @description
+   * Executes a chess move directly bypassing all validation logic. This is specifically
+   * designed for opponent moves in E2E tests where we need to set up game states
+   * without triggering the validation pipeline that blocks moves when !isPlayerTurn.
+   *
+   * @param {string} move - Move in algebraic notation or from-to format
+   * @returns {Promise<TestMoveResponse>} Promise resolving to move execution result
+   */
+  private makeDirectMove(move: string): Promise<TestMoveResponse> {
+    console.info('🔧🔧🔧 BROWSERTESTAPI.MAKEDIRECTMOVE CALLED WITH:', move);
+    try {
+      const result = this.testApi.makeDirectMove(move);
+      console.info('🔧 makeDirectMove call succeeded, returning promise');
+      return Promise.resolve(result);
+    } catch (error) {
+      console.error('🔧 makeDirectMove call failed:', error);
+      return Promise.reject(error);
+    }
   }
 
   /**

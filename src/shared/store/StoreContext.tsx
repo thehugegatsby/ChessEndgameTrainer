@@ -122,12 +122,12 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children, initialS
     // Use browser-compatible E2E mode detection
     const isTestMode = isE2EMode();
     
-    // Debug: Log environment detection for troubleshooting
-    console.log('🔍 StoreContext E2E Debug:');
-    console.log('- isClient:', typeof window !== 'undefined');
-    console.log('- userAgent:', typeof window !== 'undefined' ? window.navigator.userAgent : 'server');
-    console.log('- location.search:', typeof window !== 'undefined' ? window.location.search : 'server');
-    console.log('- isE2EMode():', isTestMode);
+    // Debug: Log environment detection for troubleshooting  
+    console.info('🔍 StoreContext E2E Debug:');
+    console.info('- isClient:', typeof window !== 'undefined');
+    console.info('- userAgent:', typeof window !== 'undefined' ? window.navigator.userAgent : 'server');
+    console.info('- location.search:', typeof window !== 'undefined' ? window.location.search : 'server');
+    console.info('- isE2EMode():', isTestMode);
 
     if (isTestMode) {
       getLogger().info('✅ E2E-Modus aktiviert: Initialisiere Test API');
@@ -226,23 +226,13 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children, initialS
         }) as (position: unknown) => void,
         goToMove: (state?.game?.goToMove || (() => {})) as (moveIndex: number) => void,
         setAnalysisStatus: (() => {}) as (status: string) => void, // Not directly available in new architecture
-        setState: (updater: any) => {
-          if (typeof updater === 'function') {
-            storeRef.current?.setState(currentState => {
-              const result = updater(currentState);
-              return result === undefined ? currentState : result;
-            });
-          } else {
-            storeRef.current?.setState(updater);
-          }
-        },
         setTurnState: (isPlayerTurn: boolean) => {
           const currentState = storeRef.current?.getState();
-          if (currentState?.training?.setIsPlayerTurn) {
-            currentState.training.setIsPlayerTurn(isPlayerTurn);
+          if (currentState?.training?.setPlayerTurn) {
+            currentState.training.setPlayerTurn(isPlayerTurn);
             getLogger().info('🔧 Turn state set via E2E API', { isPlayerTurn });
           } else {
-            getLogger().warn('❌ setIsPlayerTurn not available in training state');
+            getLogger().warn('❌ setPlayerTurn not available in training state');
           }
         }
       };

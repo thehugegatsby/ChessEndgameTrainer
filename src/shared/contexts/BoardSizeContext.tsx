@@ -17,6 +17,7 @@
 'use client';
 
 import { createContext } from 'react';
+import { DIMENSIONS } from '@shared/constants';
 
 /**
  * Context for sharing chessboard size across components
@@ -36,4 +37,4 @@ import { createContext } from 'react';
  * const boardWidth = useContext(BoardSizeContext);
  * ```
  */
-export const BoardSizeContext = createContext<number>(500);
+export const BoardSizeContext = createContext<number>(DIMENSIONS.TRAINING_BOARD_SIZE);

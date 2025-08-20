@@ -53,10 +53,10 @@ export function isE2EMode(): boolean {
     const isHeadless = window.navigator.webdriver === true;
     
     // Method 4: Check for test-specific window properties
-    const hasTestMarkers = !!(
-      (window as any).__E2E_TEST_MODE__ ||
-      (window as any).__playwright__ ||
-      (window as any).__webdriver__
+    const hasTestMarkers = Boolean(
+      (window as { __E2E_TEST_MODE__?: boolean }).__E2E_TEST_MODE__ ||
+      (window as { __playwright__?: unknown }).__playwright__ ||
+      (window as { __webdriver__?: unknown }).__webdriver__
     );
 
     const result = hasE2EParam || hasPlaywrightUA || isHeadless || hasTestMarkers;
@@ -89,7 +89,7 @@ export function isE2EMode(): boolean {
  */
 export function forceE2EMode(): void {
   if (typeof window !== 'undefined') {
-    (window as any).__E2E_TEST_MODE__ = true;
+    (window as { __E2E_TEST_MODE__?: boolean }).__E2E_TEST_MODE__ = true;
     getLogger().info('E2E mode forced via window property');
   }
 }
@@ -99,7 +99,7 @@ export function forceE2EMode(): void {
  */
 export function clearE2EMode(): void {
   if (typeof window !== 'undefined') {
-    delete (window as any).__E2E_TEST_MODE__;
+    delete (window as { __E2E_TEST_MODE__?: boolean }).__E2E_TEST_MODE__;
     getLogger().info('E2E mode cleared');
   }
 }

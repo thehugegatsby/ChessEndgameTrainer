@@ -38,8 +38,7 @@ import { MoveQualityEvaluator } from './MoveQualityEvaluator';
 import { PawnPromotionHandler } from './PawnPromotionHandler';
 import { EventBasedMoveDialogManager } from '@domains/training/events/EventBasedMoveDialogManager';
 import { getOpponentTurnManager } from './OpponentTurnHandler';
-import { GameStateService } from '@domains/game/services/GameStateService';
-import { ChessGameLogic } from '@domains/game/engine/ChessGameLogic';
+import { Chess } from 'chess.js';
 
 // Re-export types for consumers
 export type { MoveEvaluation, MoveExecutionResult } from './move.types';
@@ -161,12 +160,18 @@ async function refreshNavigationPositions(state: RootState, setState: (fn: (draf
  */
 function parseMoveInput(move: ChessJsMove | { from: string; to: string; promotion?: string } | string, fenBefore: string): MakeMoveResult {
   if (typeof move === 'string') {
-    // Check if this is coordinate notation (e.g., "e2e4", "e2-e4") or SAN notation (e.g., "Kd6", "Nf3")
-    const isCoordinateNotation = /^[a-h][1-8]-?[a-h][1-8]/.test(move);
+    // Check if this is coordinate notation with stricter regex
+    // Must be exactly: [file][rank][-][file][rank][promotion?]
+    const coordMatch = /^([a-h][1-8])[-]?([a-h][1-8])([qrbnQRBN])?$/.exec(move);
     
-    if (isCoordinateNotation) {
-      // Parse coordinate notation to { from, to } format
-      const moveInput = { from: move.slice(0, 2), to: move.slice(2, 4), promotion: move.slice(4) };
+    if (coordMatch) {
+      // Parse coordinate notation to { from, to } format using capture groups
+      const [_, from, to, promotion] = coordMatch;
+      const moveInput = { 
+        from, 
+        to, 
+        ...(promotion && { promotion: promotion.toLowerCase() })
+      };
       return orchestratorMoveService.makeUserMove(fenBefore, moveInput);
     } else {
       // SAN notation - use makeEngineMove for proper parsing
@@ -314,13 +319,48 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
 
       // ✅ Rich result already provides ValidatedMove - no conversion needed
       
-      // Update game state
+      // Update game and training state using shared commit function
       setState(draft => {
+        // Update game state
         draft.game.currentFen = fenAfter;
-        // Add move to history - already ValidatedMove from service
         draft.game.moveHistory.push(validatedMove);
         draft.game.currentMoveIndex = draft.game.moveHistory.length - 1;
       });
+
+      // Create game state object for training commit  
+      const chess = new Chess(fenAfter);
+      
+      const newGameState = {
+        fen: fenAfter,
+        moveHistory: [...state.game.moveHistory, validatedMove],
+        turn: turn(fenAfter) as 'w' | 'b',
+        isGameOver: chess.isGameOver()
+      };
+
+      // Use the new shared commit function for training state
+      // This handles: training move history, turn state, move-in-flight, opponent thinking
+      const stateAfterGameUpdate = api.getState();
+      if (stateAfterGameUpdate.training && typeof (stateAfterGameUpdate as { commitMoveToTraining?: unknown }).commitMoveToTraining === 'function') {
+        (stateAfterGameUpdate as { commitMoveToTraining: (move: unknown, state: unknown) => void }).commitMoveToTraining(validatedMove, newGameState);
+      } else {
+        // Fallback: manual training state update (for backwards compatibility)
+        setState(draft => {
+          draft.training.moveHistory = newGameState.moveHistory;
+          draft.training.moveInFlight = false;
+          
+          // Update turn state based on training configuration
+          const currentPosition = draft.training.currentPosition;
+          if (currentPosition) {
+            const isPlayerColor = (newGameState.turn === 'w' && currentPosition.colorToTrain === 'white') ||
+                                 (newGameState.turn === 'b' && currentPosition.colorToTrain === 'black');
+            draft.training.isPlayerTurn = isPlayerColor && !newGameState.isGameOver;
+          } else {
+            draft.training.isPlayerTurn = true;
+          }
+          
+          draft.training.isOpponentThinking = false;
+        });
+      }
 
       // Step 3.5: Refresh navigation positions after successful move
       // This ensures nextPosition/previousPosition remain valid for navigation
@@ -465,10 +505,9 @@ export function createHandlePlayerMove(dependencies?: HandlePlayerMoveDependenci
       getLogger().error('[handlePlayerMove] Move handling failed:', error);
       return false;
     } finally {
-      // Clear loading state and move-in-flight flag
+      // Clear loading state (moveInFlight is handled by commitMoveToTraining)
       setState(draft => {
         draft.ui.loading.position = false;
-        draft.training.moveInFlight = false;
       });
     }
   };

@@ -556,3 +556,140 @@ export async function makePlayerMoveAndFixTurn(
   
   return result;
 }
+
+/**
+ * Makes an opponent move using the new direct API (bypassing all validation)
+ * This is the preferred method for opponent moves in E2E tests as it uses the
+ * new commitMoveToTraining function and handles turn state correctly.
+ * 
+ * @param page Playwright page object
+ * @param move Move in standard notation (e.g., "e2-e4" or "Nf3")
+ * @param options Configuration options
+ * @returns Promise resolving when move is complete
+ */
+export async function makeOpponentMove(
+  page: Page,
+  move: string,
+  options: MoveOptions = {},
+): Promise<{ success: boolean; finalState: GameState; errorMessage?: string }> {
+  const { expectedFen, timeout = 5000, allowRejection = false } = options;
+  const errorSelector = '[data-testid="move-error-dialog"]';
+
+  console.log(`🤖 Opponent direct move: ${move}`);
+  
+  // 0. Wait for test API to be available
+  try {
+    await waitForTestApi(page, 10000);
+  } catch (error) {
+    throw new Error(
+      "E2E test API not available - TrainingBoard component may not have mounted yet",
+    );
+  }
+
+  // 1. Get initial state before the move
+  const initialState = (await page.evaluate(() =>
+    (window as any).e2e_getGameState(),
+  )) as GameState;
+  if (!initialState || typeof initialState.moveCount !== "number") {
+    throw new Error("Could not get initial game state from e2e_getGameState()");
+  }
+
+  // 2. Perform the move using the new direct API
+  const moveResult = await page.evaluate(async (moveString) => {
+    return await (window as any).__testApi.makeDirectMove(moveString);
+  }, move);
+
+  console.log(`[E2E] Opponent move ${move} API result:`, moveResult);
+
+  // 2a. Check if API rejected the move immediately (API-level failures)
+  if (moveResult && moveResult.success === false) {
+    const finalState = (await page.evaluate(() =>
+      (window as any).e2e_getGameState(),
+    )) as GameState;
+
+    return {
+      success: false,
+      finalState,
+      errorMessage: `Direct API rejected move: ${moveResult.error || "Unknown error"}`,
+    };
+  }
+
+  // 3. Wait for either success or failure condition
+  const successCondition = page.waitForFunction(
+    ({ initial, expected }) => {
+      const state = (window as any).e2e_getGameState();
+      if (!state) return false;
+
+      // If FEN is provided, it's the source of truth
+      if (expected) {
+        return state.fen === expected;
+      }
+
+      // Otherwise, check for move count increment
+      return state.moveCount > initial.moveCount;
+    },
+    { initial: initialState, expected: expectedFen },
+    { polling: 100, timeout },
+  );
+
+  const failureCondition = page
+    .waitForSelector(errorSelector, {
+      state: "visible",
+      timeout: Math.min(timeout, 2000), // Error dialogs should appear quickly
+    })
+    .catch(() => null); // Don't throw if no error dialog appears
+
+  try {
+    await Promise.race([successCondition, failureCondition]);
+
+    // Check if error dialog appeared (shouldn't happen with direct moves, but just in case)
+    const errorElement = page.locator(errorSelector);
+    const hasError = await errorElement.isVisible();
+
+    if (hasError) {
+      const errorText = await errorElement.textContent();
+      const errorMessage = `Opponent move rejected: "${errorText}"`;
+
+      if (!allowRejection) {
+        throw new Error(errorMessage);
+      }
+
+      return {
+        success: false,
+        finalState: await page.evaluate(() =>
+          (window as any).e2e_getGameState(),
+        ),
+        errorMessage,
+      };
+    }
+
+    // Success case - get final state
+    const finalState = (await page.evaluate(() =>
+      (window as any).e2e_getGameState(),
+    )) as GameState;
+
+    // Validate expected FEN if provided
+    if (expectedFen && finalState.fen !== expectedFen) {
+      throw new Error(
+        `Expected FEN "${expectedFen}" but got "${finalState.fen}"`,
+      );
+    }
+
+    console.log(
+      `[E2E] Opponent move ${move} completed successfully. Move count: ${initialState.moveCount} → ${finalState.moveCount}`,
+    );
+
+    return {
+      success: true,
+      finalState,
+    };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    if (errorMessage.includes("timeout") || errorMessage.includes("Timeout")) {
+      throw new Error(
+        `Timeout: Opponent move "${move}" did not complete within ${timeout}ms. Initial state: ${initialState.fen}`,
+      );
+    }
+    throw err instanceof Error ? err : new Error(String(err));
+  }
+}

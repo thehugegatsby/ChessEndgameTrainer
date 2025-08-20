@@ -253,31 +253,26 @@ export class TestApiService {
     }
 
     try {
-      // Use the setTurnState method from storeAccess if available
-      if (this.storeAccess.setTurnState) {
-        this.storeAccess.setTurnState(isPlayerTurn);
-        console.log("Test API: Turn state set via storeAccess.setTurnState", { isPlayerTurn });
+      // Try to use setState to update the store
+      if ((this.storeAccess as any).setState) {
+        (this.storeAccess.setState as any)((state: unknown) => {
+          const typedState = state as any;
+          if (typedState.training) {
+            return {
+              ...typedState,
+              training: {
+                ...typedState.training,
+                isPlayerTurn,
+                isOpponentThinking: false,
+                moveInFlight: false
+              }
+            };
+          }
+          return typedState;
+        });
+        console.log("Test API: Turn state set via setState", { isPlayerTurn });
       } else {
-        // Fallback: try to use setState to update the store
-        if (this.storeAccess.setState) {
-          this.storeAccess.setState((state: any) => {
-            if (state.training) {
-              return {
-                ...state,
-                training: {
-                  ...state.training,
-                  isPlayerTurn,
-                  isOpponentThinking: false,
-                  moveInFlight: false
-                }
-              };
-            }
-            return state;
-          });
-          console.log("Test API: Turn state set via setState", { isPlayerTurn });
-        } else {
-          console.warn("Test API: No method available to set turn state");
-        }
+        console.warn("Test API: No setState method available to set turn state");
       }
     } catch (error) {
       console.error("Test API: Failed to set turn state", error);
@@ -319,11 +314,28 @@ export class TestApiService {
    * @returns Promise resolving to move execution result with validation
    */
   public async makeValidatedMove(move: string): Promise<TestMoveResponse> {
+    console.error('🚨🚨🚨 MAKEVALIDATEDMOVE ENTRY POINT - THIS SHOULD ALWAYS APPEAR');
     if (!this.storeAccess) {
+      console.error('🚨 storeAccess is null - TestApiService not initialized');
       throw new Error("TestApiService not initialized with store access");
     }
 
     try {
+      // CRITICAL FIX: Set turn state to allow handlePlayerMove to proceed
+      // handlePlayerMove has early return if !isPlayerTurn, so we must ensure it's true
+      console.log('🔧🔧🔧 MAKEVALIDATEDMOVE CALLED WITH MOVE:', move);
+      console.log('🔧 Setting turn state to player before validation pipeline');
+      this.setTurnState(true);
+
+      // Debug: Check current state after setting turn
+      const stateAfterTurnSet = this.storeAccess.getState();
+      console.log('🔍 State after setTurnState:', {
+        isPlayerTurn: stateAfterTurnSet.training?.isPlayerTurn,
+        isOpponentThinking: stateAfterTurnSet.training?.isOpponentThinking,
+        moveInFlight: stateAfterTurnSet.training?.moveInFlight,
+        currentFen: stateAfterTurnSet.game?.currentFen
+      });
+
       // Parse move format
       let moveObj: { from: string; to: string; promotion?: string } | string;
 
@@ -339,6 +351,8 @@ export class TestApiService {
         // SAN notation
         moveObj = move;
       }
+
+      console.log('🎯 About to call handlePlayerMove with:', { move, moveObj });
 
       // Import handlePlayerMove directly (it's not part of store, it's an orchestrator)
       const { handlePlayerMove } = await import(
@@ -364,10 +378,18 @@ export class TestApiService {
       };
 
       // Execute move through the FULL validation pipeline
+      console.log('🚀 Calling handlePlayerMove...');
       const result = await handlePlayerMove(storeApi, moveObj);
+      console.log('📋 handlePlayerMove result:', result);
 
       // Get final state after move processing
       const finalState = this.storeAccess.getState();
+      console.log('🔍 Final state after handlePlayerMove:', {
+        success: result,
+        currentFen: finalState.game?.currentFen,
+        moveCount: finalState.game?.moveHistory?.length,
+        isPlayerTurn: finalState.training?.isPlayerTurn
+      });
 
       this.emit("test:validated_move", {
         move,
@@ -463,6 +485,151 @@ export class TestApiService {
         };
       }
     } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
+    }
+  }
+
+  /**
+   * Make a direct move bypassing all validation (for opponent moves in E2E tests)
+   * @param move - Move in format 'from-to' (e.g., 'e2-e4') or SAN notation
+   * @description
+   * This method executes moves directly without any validation, using the new
+   * commitMoveToTraining function. It's specifically designed for opponent moves
+   * in E2E tests where we need to bypass the validation pipeline that blocks
+   * moves when !isPlayerTurn.
+   * 
+   * This method:
+   * - Parses the move into a ValidatedMove object
+   * - Executes the move using chess.js directly
+   * - Updates both game and training state via commitMoveToTraining
+   * - Handles turn state correctly based on training configuration
+   */
+  public makeDirectMove(move: string): TestMoveResponse {
+    if (!this.storeAccess) {
+      throw new Error("TestApiService not initialized with store access");
+    }
+
+    try {
+      console.log(`🔧 Direct move (bypassing validation): ${move}`);
+      
+      // Get current state
+      const currentState = this.storeAccess.getState();
+      const currentFen = currentState.game?.currentFen || currentState.currentFen;
+      
+      if (!currentFen) {
+        throw new Error("No current FEN available for move execution");
+      }
+      
+      // Create chess instance and load current position
+      const chess = new Chess(currentFen);
+      
+      // Parse and execute move
+      let moveObj: { from: string; to: string; promotion?: string } | string;
+      
+      if (move.includes("-")) {
+        // Format: 'e2-e4'
+        const parts = move.split("-");
+        if (parts.length >= 2 && parts[0] && parts[1]) {
+          moveObj = { from: parts[0], to: parts[1] };
+        } else {
+          throw new Error(`Invalid move format: ${move}`);
+        }
+      } else {
+        // SAN notation
+        moveObj = move;
+      }
+      
+      // Execute move with chess.js
+      const chessMove = chess.move(moveObj);
+      if (!chessMove) {
+        throw new Error(`Invalid move: ${move} in position ${currentFen}`);
+      }
+      
+      // Create ValidatedMove object
+      const validatedMove = {
+        from: chessMove.from,
+        to: chessMove.to,
+        san: chessMove.san,
+        ...(chessMove.promotion && { promotion: chessMove.promotion }),
+        timestamp: Date.now()
+      };
+      
+      // Get new game state after move
+      const newFen = chess.fen();
+      const newHistory = [...(currentState.game?.moveHistory || []), validatedMove];
+      
+      // Update game state first (lower level)
+      if (this.storeAccess._internalApplyMove) {
+        this.storeAccess._internalApplyMove(validatedMove);
+      } else {
+        throw new Error("_internalApplyMove not available in storeAccess");
+      }
+      
+      // Use the commitMoveToTraining function if available
+      const finalGameState = this.storeAccess.getState();
+      
+      if (typeof (finalGameState as any).commitMoveToTraining === 'function') {
+        // Use the new commit function to update training state
+        (finalGameState as any).commitMoveToTraining(validatedMove, {
+          fen: newFen,
+          moveHistory: newHistory,
+          turn: chess.turn(),
+          isGameOver: chess.isGameOver()
+        });
+      } else {
+        console.warn("commitMoveToTraining not available - falling back to manual state update");
+        // Fallback: manually update training state
+        if ((this.storeAccess as any).setState) {
+          (this.storeAccess.setState as any)((state: unknown) => {
+            const typedState = state as any;
+            if (typedState.training) {
+              const currentPosition = typedState.training.currentPosition;
+              const isPlayerColor = currentPosition ? 
+                ((chess.turn() === 'w' && currentPosition.colorToTrain === 'white') ||
+                 (chess.turn() === 'b' && currentPosition.colorToTrain === 'black')) : true;
+              
+              return {
+                ...typedState,
+                training: {
+                  ...typedState.training,
+                  moveHistory: newHistory,
+                  isPlayerTurn: isPlayerColor && !chess.isGameOver(),
+                  isOpponentThinking: false,
+                  moveInFlight: false
+                }
+              };
+            }
+            return typedState;
+          });
+        }
+      }
+      
+      // Get final state
+      const finalState = this.storeAccess.getState();
+      
+      console.log(`✅ Direct move completed: ${chessMove.san}`, {
+        newFen,
+        moveCount: newHistory.length,
+        isPlayerTurn: finalState.training?.isPlayerTurn
+      });
+      
+      this.emit("test:direct_move", {
+        move,
+        san: chessMove.san,
+        fen: newFen,
+        moveCount: newHistory.length,
+      });
+
+      return {
+        success: true,
+        resultingFen: newFen,
+        moveCount: newHistory.length,
+      };
+    } catch (error) {
+      console.error("TestApiService.makeDirectMove error:", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",

@@ -52,7 +52,7 @@ const config = {
     viewport: { width: 1280, height: 720 },
 
     // Headless mode control - default headless unless HEADED=true  
-    headless: !HEADED,
+    headless: true,
 
     // 🎯 DEBUGGING: Slow down for visual inspection (only when headed)
     slowMo: HEADED ? 500 : 0,

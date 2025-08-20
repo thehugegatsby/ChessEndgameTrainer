@@ -207,6 +207,16 @@ export interface TrainingActions {
   clearEvaluationBaseline: () => void;
   // Orchestrator delegates
   evaluateMoveQuality: (move: ValidatedMove, fen: string) => Promise<unknown>;
+  // Core move commit function (shared by validation and direct paths)
+  commitMoveToTraining: (
+    move: ValidatedMove,
+    newGameState: {
+      fen: string;
+      moveHistory: ValidatedMove[];
+      turn: 'w' | 'b';
+      isGameOver: boolean;
+    }
+  ) => void;
 }
 
 /**

@@ -10,9 +10,7 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {
-      "actualWorkers": 2
-    },
+    "metadata": {},
     "preserveOutput": "always",
     "reporter": [
       [
@@ -42,9 +40,7 @@
         "outputDir": "/home/thehu/coolProjects/EndgameTrainer/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 2
-        },
+        "metadata": {},
         "id": "chromium",
         "name": "chromium",
         "testDir": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e",
@@ -58,9 +54,7 @@
         "outputDir": "/home/thehu/coolProjects/EndgameTrainer/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 2
-        },
+        "metadata": {},
         "id": "firebase",
         "name": "firebase",
         "testDir": "/home/thehu/coolProjects/EndgameTrainer/src/tests/e2e/firebase",
@@ -86,394 +80,21 @@
       }
     }
   },
-  "suites": [
+  "suites": [],
+  "errors": [
     {
-      "title": "training/comprehensive-training-flow.spec.ts",
-      "file": "training/comprehensive-training-flow.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "🎯 Comprehensive Training Flow - Complete Workflow Validation",
-          "file": "training/comprehensive-training-flow.spec.ts",
-          "line": 31,
-          "column": 6,
-          "specs": [
-            {
-              "title": "🏆 TRAINING FLOW: Complete workflow from position load to next position",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 120000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 84232,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🚀 Starting comprehensive training flow test...\n"
-                        },
-                        {
-                          "text": "🌐 Loading training page...\n"
-                        },
-                        {
-                          "text": "🎯 Verifying visual layout components...\n"
-                        },
-                        {
-                          "text": "✅ Chess board is visible\n"
-                        },
-                        {
-                          "text": "✅ Left panel found with selector: [data-testid*=\"left\"], [class*=\"left\"], .sidebar-left, .panel-left\n"
-                        },
-                        {
-                          "text": "✅ Right panel found with selector: [data-testid*=\"analysis\"], .analysis-panel, .move-history\n"
-                        },
-                        {
-                          "text": "✅ Correct training URL verified\n"
-                        },
-                        {
-                          "text": "⏱️  Page load time: 6056ms\n"
-                        },
-                        {
-                          "text": "🎯 Verifying Position 1 loads correctly...\n"
-                        },
-                        {
-                          "text": "✅ Position 1 FEN verified correctly\n"
-                        },
-                        {
-                          "text": "⏱️  Position load time: 41ms\n"
-                        },
-                        {
-                          "text": "🎯 Testing error sequence: wrong moves → error dialog → undo...\n"
-                        },
-                        {
-                          "text": "🔄 Making first wrong move: Ke6→f7...\n"
-                        },
-                        {
-                          "text": "🎯 Making move: e6 → f7 (click)\n"
-                        },
-                        {
-                          "text": "✅ Click move completed: e6 → f7\n"
-                        },
-                        {
-                          "text": "🔍 DEBUG: Verifying move e6→f7, initialFEN: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1\n"
-                        },
-                        {
-                          "text": "⚠️  First wrong move failed or was rejected: Error: Chess move failed: e6 → f7 (click): Error: Move verification failed: board state did not change as expected\n"
-                        },
-                        {
-                          "text": "🔄 Making second wrong move: Kf7→e7...\n"
-                        },
-                        {
-                          "text": "🎯 Making move: f7 → e7 (click)\n"
-                        },
-                        {
-                          "text": "✅ Click move completed: f7 → e7\n"
-                        },
-                        {
-                          "text": "🔍 DEBUG: Verifying move f7→e7, initialFEN: 4k3/8/4K3/4P3/8/8/8/8 w - - 0 1\n"
-                        },
-                        {
-                          "text": "⚠️  Second wrong move failed: Error: Chess move failed: f7 → e7 (click): Error: Move verification failed: board state did not change as expected\n"
-                        },
-                        {
-                          "text": "🔍 Looking for error dialog or feedback...\n"
-                        },
-                        {
-                          "text": "⚠️  No error dialog found - moves may have been valid or error handling differs\n"
-                        },
-                        {
-                          "text": "⏱️  Error sequence time: 11431ms\n"
-                        },
-                        {
-                          "text": "🎯 Testing success sequence: correct moves to win using ChessTestData...\n"
-                        },
-                        {
-                          "text": "📋 Using complete move sequence: Kd6, Kf8, e6, Ke8, e7, Kd7, Kf7, Kd6, e8=Q+\n"
-                        },
-                        {
-                          "text": "🔄 Move 1. White: Kd6\n"
-                        },
-                        {
-                          "text": "[E2E] Direct move Kd6 API result: {\n  success: \u001b[33mtrue\u001b[39m,\n  resultingFen: \u001b[32m'4k3/8/3K4/4P3/8/8/8/8 b - - 1 1'\u001b[39m,\n  moveCount: \u001b[33m1\u001b[39m\n}\n"
-                        },
-                        {
-                          "text": "[E2E] Direct move Kd6 completed successfully. Move count: 0 → 1\n"
-                        },
-                        {
-                          "text": "✅ White move Kd6 executed successfully (direct API) - Total moves: 1\n"
-                        },
-                        {
-                          "text": "🔄 Move 1... Black: Kf8\n"
-                        },
-                        {
-                          "text": "[E2E] Direct move Kf8 API result: {\n  success: \u001b[33mtrue\u001b[39m,\n  resultingFen: \u001b[32m'5k2/8/3K4/4P3/8/8/8/8 w - - 2 2'\u001b[39m,\n  moveCount: \u001b[33m2\u001b[39m\n}\n"
-                        },
-                        {
-                          "text": "[E2E] Direct move Kf8 completed successfully. Move count: 1 → 2\n"
-                        },
-                        {
-                          "text": "✅ Black move Kf8 executed successfully (direct API) - Total moves: 2\n"
-                        },
-                        {
-                          "text": "🔄 Move 2. White: e6\n"
-                        },
-                        {
-                          "text": "[E2E] Direct move e6 API result: {\n  success: \u001b[33mtrue\u001b[39m,\n  resultingFen: \u001b[32m'5k2/8/3KP3/8/8/8/8/8 b - - 0 2'\u001b[39m,\n  moveCount: \u001b[33m3\u001b[39m\n}\n"
-                        },
-                        {
-                          "text": "[E2E] Direct move e6 completed successfully. Move count: 2 → 3\n"
-                        },
-                        {
-                          "text": "✅ White move e6 executed successfully (direct API) - Total moves: 3\n"
-                        },
-                        {
-                          "text": "🔄 Move 2... Black: Ke8\n"
-                        },
-                        {
-                          "text": "[E2E] Direct move Ke8 API result: {\n  success: \u001b[33mtrue\u001b[39m,\n  resultingFen: \u001b[32m'4k3/8/3KP3/8/8/8/8/8 w - - 1 3'\u001b[39m,\n  moveCount: \u001b[33m4\u001b[39m\n}\n"
-                        },
-                        {
-                          "text": "[E2E] Direct move Ke8 completed successfully. Move count: 3 → 4\n"
-                        },
-                        {
-                          "text": "✅ Black move Ke8 executed successfully (direct API) - Total moves: 4\n"
-                        },
-                        {
-                          "text": "🔄 Move 3. White: e7\n"
-                        },
-                        {
-                          "text": "[E2E] Direct move e7 API result: {\n  success: \u001b[33mtrue\u001b[39m,\n  resultingFen: \u001b[32m'4k3/4P3/3K4/8/8/8/8/8 b - - 0 3'\u001b[39m,\n  moveCount: \u001b[33m5\u001b[39m\n}\n"
-                        },
-                        {
-                          "text": "[E2E] Direct move e7 completed successfully. Move count: 4 → 5\n"
-                        },
-                        {
-                          "text": "✅ White move e7 executed successfully (direct API) - Total moves: 5\n"
-                        },
-                        {
-                          "text": "🔄 Move 3... Black: Kd7\n"
-                        },
-                        {
-                          "text": "[E2E] Direct move Kd7 API result: {\n  success: \u001b[33mtrue\u001b[39m,\n  resultingFen: \u001b[32m'4k3/4P3/3K4/8/8/8/8/8 b - - 0 3'\u001b[39m,\n  moveCount: \u001b[33m5\u001b[39m\n}\n"
-                        },
-                        {
-                          "text": "[E2E] Direct move Kd7 completed successfully. Move count: 5 → 5\n"
-                        },
-                        {
-                          "text": "✅ Black move Kd7 executed successfully (direct API) - Total moves: 5\n"
-                        },
-                        {
-                          "text": "🔄 Move 4. White: Kf7\n"
-                        },
-                        {
-                          "text": "[E2E] Direct move Kf7 API result: {\n  success: \u001b[33mtrue\u001b[39m,\n  resultingFen: \u001b[32m'8/4Pk2/3K4/8/8/8/8/8 w - - 1 4'\u001b[39m,\n  moveCount: \u001b[33m6\u001b[39m\n}\n"
-                        },
-                        {
-                          "text": "[E2E] Direct move Kf7 completed successfully. Move count: 5 → 6\n"
-                        },
-                        {
-                          "text": "✅ White move Kf7 executed successfully (direct API) - Total moves: 6\n"
-                        },
-                        {
-                          "text": "🔄 Move 4... Black: Kd6\n"
-                        },
-                        {
-                          "text": "[E2E] Direct move Kd6 API result: {\n  success: \u001b[33mtrue\u001b[39m,\n  resultingFen: \u001b[32m'8/4Pk2/3K4/8/8/8/8/8 w - - 1 4'\u001b[39m,\n  moveCount: \u001b[33m6\u001b[39m\n}\n"
-                        },
-                        {
-                          "text": "[E2E] Direct move Kd6 completed successfully. Move count: 6 → 6\n"
-                        },
-                        {
-                          "text": "✅ Black move Kd6 executed successfully (direct API) - Total moves: 6\n"
-                        },
-                        {
-                          "text": "🔄 Move 5. White: e8=Q+\n"
-                        },
-                        {
-                          "text": "[E2E] Direct move e8=Q+ API result: {\n  success: \u001b[33mtrue\u001b[39m,\n  resultingFen: \u001b[32m'4Q3/5k2/3K4/8/8/8/8/8 b - - 0 4'\u001b[39m,\n  moveCount: \u001b[33m7\u001b[39m\n}\n"
-                        },
-                        {
-                          "text": "[E2E] Direct move e8=Q+ completed successfully. Move count: 6 → 7\n"
-                        },
-                        {
-                          "text": "✅ White move e8=Q+ executed successfully (direct API) - Total moves: 7\n"
-                        },
-                        {
-                          "text": "🔍 Looking for success dialog or win notification...\n"
-                        },
-                        {
-                          "text": "ℹ️  No success dialog found yet - checking for checkmate or game end state...\n"
-                        },
-                        {
-                          "text": "ℹ️  Success dialog not found - sequence may need adjustment or game still in progress\n"
-                        },
-                        {
-                          "text": "⏱️  Success sequence time: 35332ms\n"
-                        },
-                        {
-                          "text": "🎯 Testing continue to next position...\n"
-                        },
-                        {
-                          "text": "✅ Continue button found with selector: button:has-text(\"Nächste Stellung\")\n"
-                        },
-                        {
-                          "text": "✅ Continue button found with selector: button:has-text(\"Nächste\")\n"
-                        },
-                        {
-                          "text": "⚠️  Continue button not found - training flow may handle transitions differently\n"
-                        },
-                        {
-                          "text": "ℹ️  No transition indicators found\n"
-                        },
-                        {
-                          "text": "\n📊 PERFORMANCE METRICS SUMMARY:\n"
-                        },
-                        {
-                          "text": "⏱️  Total test time: 85611ms\n"
-                        },
-                        {
-                          "text": "🌐 Page load time: 6056ms\n"
-                        },
-                        {
-                          "text": "🎲 Position load time: 41ms\n"
-                        },
-                        {
-                          "text": "🚨 Error sequence time: 11431ms\n"
-                        },
-                        {
-                          "text": "🏆 Success sequence time: 35332ms\n"
-                        },
-                        {
-                          "text": "\n✅ COMPREHENSIVE TRAINING FLOW TEST COMPLETED!\n"
-                        },
-                        {
-                          "text": "🎉 All critical training workflows verified\n"
-                        },
-                        {
-                          "text": "📸 Final screenshot saved\n"
-                        }
-                      ],
-                      "stderr": [
-                        {
-                          "text": "❌ Move failed: e6 → f7 Error: Move verification failed: board state did not change as expected\n    at ChessboardPage.move \u001b[90m(/home/thehu/coolProjects/EndgameTrainer/\u001b[39msrc/tests/e2e/page-objects/ChessboardPage.ts:110:15\u001b[90m)\u001b[39m\n\u001b[90m    at runNextTicks (node:internal/process/task_queues:60:5)\u001b[39m\n\u001b[90m    at processImmediate (node:internal/timers:454:9)\u001b[39m\n\u001b[90m    at process.callbackTrampoline (node:internal/async_hooks:130:17)\u001b[39m\n    at TrainingPage.makeTrainingMove \u001b[90m(/home/thehu/coolProjects/EndgameTrainer/\u001b[39msrc/tests/e2e/page-objects/TrainingPage.ts:75:5\u001b[90m)\u001b[39m\n    at \u001b[90m/home/thehu/coolProjects/EndgameTrainer/\u001b[39msrc/tests/e2e/training/comprehensive-training-flow.spec.ts:172:9\n    at TestStepInfoImpl._runStepBody \u001b[90m(/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:449:14\u001b[90m)\u001b[39m\n    at \u001b[90m/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/common/testType.js:244:20\n    at \u001b[90m/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/common/testType.js:242:18\n    at TestTypeImpl._step \u001b[90m(/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/common/testType.js:239:12\u001b[90m)\u001b[39m\n    at \u001b[90m/home/thehu/coolProjects/EndgameTrainer/\u001b[39msrc/tests/e2e/training/comprehensive-training-flow.spec.ts:161:5\n    at \u001b[90m/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:304:9\n    at \u001b[90m/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:289:11\n    at TimeoutManager.withRunnable \u001b[90m(/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/worker/timeoutManager.js:67:14\u001b[90m)\u001b[39m\n    at TestInfoImpl._runWithTimeout \u001b[90m(/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:287:7\u001b[90m)\u001b[39m\n    at \u001b[90m/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:302:7\n    at WorkerMain._runTest \u001b[90m(/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:277:5\u001b[90m)\u001b[39m\n    at WorkerMain.runTestGroup \u001b[90m(/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:193:11\u001b[90m)\u001b[39m\n    at process.<anonymous> \u001b[90m(/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/common/process.js:65:22\u001b[90m)\u001b[39m\n"
-                        },
-                        {
-                          "text": "❌ Move failed: f7 → e7 Error: Move verification failed: board state did not change as expected\n    at ChessboardPage.move \u001b[90m(/home/thehu/coolProjects/EndgameTrainer/\u001b[39msrc/tests/e2e/page-objects/ChessboardPage.ts:110:15\u001b[90m)\u001b[39m\n    at TrainingPage.makeTrainingMove \u001b[90m(/home/thehu/coolProjects/EndgameTrainer/\u001b[39msrc/tests/e2e/page-objects/TrainingPage.ts:75:5\u001b[90m)\u001b[39m\n    at \u001b[90m/home/thehu/coolProjects/EndgameTrainer/\u001b[39msrc/tests/e2e/training/comprehensive-training-flow.spec.ts:182:9\n    at TestStepInfoImpl._runStepBody \u001b[90m(/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:449:14\u001b[90m)\u001b[39m\n    at \u001b[90m/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/common/testType.js:244:20\n    at \u001b[90m/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/common/testType.js:242:18\n    at TestTypeImpl._step \u001b[90m(/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/common/testType.js:239:12\u001b[90m)\u001b[39m\n    at \u001b[90m/home/thehu/coolProjects/EndgameTrainer/\u001b[39msrc/tests/e2e/training/comprehensive-training-flow.spec.ts:161:5\n    at \u001b[90m/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:304:9\n    at \u001b[90m/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:289:11\n    at TimeoutManager.withRunnable \u001b[90m(/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/worker/timeoutManager.js:67:14\u001b[90m)\u001b[39m\n    at TestInfoImpl._runWithTimeout \u001b[90m(/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/worker/testInfo.js:287:7\u001b[90m)\u001b[39m\n    at \u001b[90m/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:302:7\n    at WorkerMain._runTest \u001b[90m(/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:277:5\u001b[90m)\u001b[39m\n    at WorkerMain.runTestGroup \u001b[90m(/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/worker/workerMain.js:193:11\u001b[90m)\u001b[39m\n    at process.<anonymous> \u001b[90m(/home/thehu/coolProjects/EndgameTrainer/\u001b[39mnode_modules/\u001b[4m.pnpm\u001b[24m/playwright@1.54.2/node_modules/\u001b[4mplaywright\u001b[24m/lib/common/process.js:65:22\u001b[90m)\u001b[39m\n"
-                        }
-                      ],
-                      "retry": 0,
-                      "steps": [
-                        {
-                          "title": "🔍 Step 1: Visual Layout Verification",
-                          "duration": 6056
-                        },
-                        {
-                          "title": "🎲 Step 2: Position 1 Loading & FEN Verification",
-                          "duration": 42
-                        },
-                        {
-                          "title": "🚨 Step 3: Error Sequence with Undo Functionality",
-                          "duration": 11431
-                        },
-                        {
-                          "title": "🏆 Step 4: Success Sequence to Win",
-                          "duration": 35332
-                        },
-                        {
-                          "title": "🚀 Step 5: Continue to Next Position",
-                          "duration": 32747
-                        },
-                        {
-                          "title": "📊 Step 6: Performance Metrics & Test Summary",
-                          "duration": 62
-                        }
-                      ],
-                      "startTime": "2025-08-20T17:16:55.455Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "6e7a0d86c89168dde54d-901d1baeabd34ae6b9ef",
-              "file": "training/comprehensive-training-flow.spec.ts",
-              "line": 49,
-              "column": 7
-            },
-            {
-              "title": "⚡ Training Page Load Performance Test",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 120000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
-                      "status": "passed",
-                      "duration": 4410,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🧪 Testing training page load performance...\n"
-                        },
-                        {
-                          "text": "⏱️  Quick load time: 4016ms\n"
-                        },
-                        {
-                          "text": "✅ Board loaded successfully\n"
-                        },
-                        {
-                          "text": "✅ Load performance within acceptable limits\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "steps": [
-                        {
-                          "title": "🚀 Quick Load Test",
-                          "duration": 4025
-                        }
-                      ],
-                      "startTime": "2025-08-20T17:16:55.456Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "6e7a0d86c89168dde54d-09c91b7fe7d3fe6c4ef9",
-              "file": "training/comprehensive-training-flow.spec.ts",
-              "line": 480,
-              "column": 7
-            }
-          ]
-        }
-      ]
+      "message": "TypeError: Duplicate declaration \"makeOpponentMove\"\n  39 |  * Helper function to make an opponent move via direct API (bypasses validation)\n  40 |  */\n> 41 | async function makeOpponentMove(page: any, move: string): Promise<void> {\n     |                ^^^^^^^^^^^^^^^^\n  42 |   console.log(`🤖 Opponent direct move: ${move}`);\n  43 |   \n  44 |   // Use direct API and then fix turn state",
+      "stack": "TypeError: Duplicate declaration \"makeOpponentMove\"\n  39 |  * Helper function to make an opponent move via direct API (bypasses validation)\n  40 |  */\n> 41 | async function makeOpponentMove(page: any, move: string): Promise<void> {\n     |                ^^^^^^^^^^^^^^^^\n  42 |   console.log(`🤖 Opponent direct move: ${move}`);\n  43 |   \n  44 |   // Use direct API and then fix turn state"
+    },
+    {
+      "message": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments.",
+      "stack": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments."
     }
   ],
-  "errors": [],
   "stats": {
-    "startTime": "2025-08-20T17:16:50.105Z",
-    "duration": 90092.246,
-    "expected": 2,
+    "startTime": "2025-08-20T19:03:00.790Z",
+    "duration": 6607.886,
+    "expected": 0,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

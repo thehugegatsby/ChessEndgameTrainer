@@ -34,7 +34,6 @@ import { useGameStore, useTrainingStore, useTablebaseStore, useUIStore } from '@
 import { useStoreApi } from '@shared/store/StoreContext';
 import { type EndgamePosition } from '@shared/types';
 import { getLogger } from '@shared/services/logging/Logger';
-import { DIMENSIONS } from '@shared/constants';
 import { AlertDisplay } from '@shared/components/ui/AlertDisplay';
 import { DialogManager } from '../DialogManager';
 import { E2ETestHelper } from '../../testing/E2ETestHelper';
