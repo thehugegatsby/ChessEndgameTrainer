@@ -9,9 +9,9 @@
  * - German chess notation support
  */
 
-// Chess Game Logic (chess.js abstraction)
-export { ChessGameLogic } from './engine/ChessGameLogic';
-export type { ChessGameLogicInterface, MoveInput, GamePosition } from './engine/types';
+// Export new chess service
+export { ChessService } from '../../core/services/chess.service';
+export type { ChessSnapshot, ChessMove } from '../../core/types';
 
 // Game Services (business logic)
 // TODO: Implement during service extraction phase

@@ -12,7 +12,7 @@
 
 import React from 'react';
 import { getLogger } from '@shared/services/logging/Logger';
-import { EndgameTrainingPage } from '@shared/pages/EndgameTrainingPage';
+import EndgameTrainingPage from '@shared/pages/EndgameTrainingPageNew';
 
 const logger = getLogger().setContext('TrainingPage');
 

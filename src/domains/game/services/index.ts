@@ -1,34 +1,26 @@
 /**
  * @file Game Services Barrel Export
  * @module domains/game/services
- * @description Central export point for all game services and interfaces
+ * @description Central export point for all game services
  */
 
 // Service Interfaces
 export type { PositionServiceInterface } from './PositionServiceInterface';
-export type { MoveServiceInterface } from './MoveServiceInterface';
-export type { GameStateServiceInterface } from './GameStateServiceInterface';
 
 // Service Implementations
-export { PositionService } from './PositionService';
-export { MoveService } from './MoveService';
-export { GameStateService } from './GameStateService';
+// export { PositionService } from './PositionService'; // Moved to _legacy
 
-// Types from interfaces
-export type {
-  PositionEvaluationResult,
-  EvaluationBaseline,
-  MoveQualityResult
-} from './PositionServiceInterface';
+// Export new core services
+export { ChessService } from '../../../core/services/chess.service';
+export { TablebaseService } from '../../../core/services/tablebase.service';
+export { PositionService as CorePositionService } from '../../../core/services/position.service';
 
+// Types from core
 export type {
-  MakeMoveResult,
-  MoveValidationResult,
-  MoveInput
-} from './MoveServiceInterface';
-
-export type {
-  GameStateInfo,
-  GameTerminationReason,
-  TrainingCompletionResult
-} from './GameStateServiceInterface';
+  ChessSnapshot,
+  ChessMove,
+  Position,
+  TablebaseResult,
+  TrainingSnapshot,
+  TrainingState
+} from '../../../core/types';

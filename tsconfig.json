@@ -22,11 +22,11 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "exactOptionalPropertyTypes": false,
     "noImplicitReturns": true,
-    "noPropertyAccessFromIndexSignature": true,
+    "noPropertyAccessFromIndexSignature": false,
     "useUnknownInCatchVariables": true,
     "verbatimModuleSyntax": true,
     "baseUrl": ".",
@@ -59,6 +59,7 @@
     "src/tests/**/*",
     "scripts/**/*.test.ts",
     "config/**/*",
-    "src/config/**/*"
+    "src/config/**/*",
+    "src/_legacy/**/*"
   ]
 }

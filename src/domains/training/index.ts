@@ -6,7 +6,7 @@
  */
 
 // Components
-export { TrainingEventListener } from './components/TrainingEventListener';
+// export { TrainingEventListener } from './components/TrainingEventListener'; // Moved to _legacy
 
 // Events
 export { EventBasedMoveDialogManager } from './events/EventBasedMoveDialogManager';
