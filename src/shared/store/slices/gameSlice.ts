@@ -256,8 +256,8 @@ export const createGameActions = (
    *
    * @remarks
    * - Can only undo if there are moves in history
+   * - Removes the last move from history (true undo)
    * - Updates the game state to the previous position
-   * - Maintains move history for redo functionality
    *
    * @example
    * ```typescript
@@ -270,7 +270,38 @@ export const createGameActions = (
    */
   undoMove: () => {
     const { game } = get();
-    return get().game.goToMovePure(game.currentMoveIndex - 1);
+    
+    // Check if there are moves to undo
+    if (game.moveHistory.length === 0) {
+      return false;
+    }
+    
+    // Remove the last move from history
+    const newHistory = game.moveHistory.slice(0, -1);
+    const newMoveIndex = newHistory.length - 1;
+    
+    // Navigate to the new last move position (or starting position if no moves left)
+    const moves = newHistory.map(m => m.san);
+    const result = goToMovePure(moves, newMoveIndex, game.startingFen);
+    
+    if (result) {
+      set(state => {
+        // Update position and game status
+        state.game.currentFen = result.newFen;
+        state.game.currentMoveIndex = newMoveIndex;
+        state.game.isCheckmate = result.status.isCheckmate;
+        state.game.isDraw = result.status.isDraw;
+        state.game.isStalemate = result.status.isStalemate;
+        state.game.isGameFinished = result.status.isGameOver;
+        state.game.gameResult = result.status.gameResult;
+        
+        // CRITICAL: Remove the last move from history
+        state.game.moveHistory = newHistory;
+      });
+      return true;
+    }
+    
+    return false;
   },
 
   /**

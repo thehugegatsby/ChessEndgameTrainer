@@ -112,6 +112,8 @@ export const loadPosition = (
       // Set the new position
       draft.game.currentFen = position.fen;
       draft.game.currentPgn = '';
+      // CRITICAL FIX: Set startingFen to training position so undoMove returns to correct position
+      draft.game.startingFen = position.fen;
 
       // Clear any open modals that might interfere
       if (draft.ui.currentModal) {
