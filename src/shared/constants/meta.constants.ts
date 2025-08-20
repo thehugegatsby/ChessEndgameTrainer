@@ -119,11 +119,10 @@ export const ROUTES = {
   HOME: '/',
 
   /**
-   * Training page route template
-   * @param id - Position ID
-   * @returns Formatted training route
+   * Training page route - unified training experience
+   * All positions are handled internally by the training page
    */
-  TRAIN: (id: number | string) => `/train/${id}`,
+  TRAINING: '/training',
 
   /**
    * Analysis page route (future feature)
@@ -138,7 +137,7 @@ export const ROUTES = {
   /**
    * Default redirect route
    */
-  DEFAULT_REDIRECT: '/train/1',
+  DEFAULT_REDIRECT: '/training',
 } as const;
 
 /**

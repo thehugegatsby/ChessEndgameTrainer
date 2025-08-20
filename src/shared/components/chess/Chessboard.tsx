@@ -48,12 +48,13 @@ const ClientOnlyChessboard: React.FC<Record<string, unknown>> = props => {
   }, []);
 
   if (!mounted) {
+    const { boardWidth = 400 } = props as { boardWidth?: number };
     return (
       <div
         data-chessboard-hydrated="false"
         style={{
-          width: '800px',
-          height: '800px',
+          width: `${boardWidth}px`,
+          height: `${boardWidth}px`,
           backgroundColor: '#f0d9b5',
           display: 'flex',
           alignItems: 'center',

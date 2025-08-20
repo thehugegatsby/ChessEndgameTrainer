@@ -18,7 +18,7 @@
  * while handling edge cases and special position types.
  */
 
-import { TEXT_LENGTHS } from '@/constants/text.constants';
+// Removed unused import: TEXT_LENGTHS
 
 import { type EndgamePosition } from '@shared/types';
 
@@ -50,6 +50,9 @@ import { type EndgamePosition } from '@shared/types';
  * that requires sequential learning, hence the special numbering.
  */
 export function formatPositionTitle(position: EndgamePosition, totalPositions?: number): string {
+  if (!position) {
+    return 'Position wird geladen...';
+  }
   const { title, id, category } = position;
 
   // Handle Brückenbau positions with special formatting
@@ -96,6 +99,9 @@ export function formatPositionTitle(position: EndgamePosition, totalPositions?: 
  * Ellipsis (...) is added to indicate truncation.
  */
 export function getShortTitle(position: EndgamePosition): string {
+  if (!position) {
+    return 'Position wird geladen...';
+  }
   const formatted = formatPositionTitle(position);
 
   // For Brückenbau, keep the full formatted title as it's already concise
@@ -104,8 +110,10 @@ export function getShortTitle(position: EndgamePosition): string {
   }
 
   // For other long titles, truncate if needed
-  if (formatted.length > TEXT_LENGTHS.TITLE_MAX_LENGTH) {
-    return `${formatted.substring(0, TEXT_LENGTHS.SUBTITLE_MAX_LENGTH)}...`;
+  const maxLength = 30;
+  const truncateLength = 27;
+  if (formatted.length > maxLength) {
+    return `${formatted.substring(0, truncateLength)}...`;
   }
 
   return formatted;
@@ -143,6 +151,9 @@ export function getTrainingDisplayTitle(
   _moveCount?: number,
   totalPositions?: number
 ): string {
+  if (!position) {
+    return 'Position wird geladen...';
+  }
   const baseTitle = formatPositionTitle(position, totalPositions);
 
   // Simply return the base title without move indicators

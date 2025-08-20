@@ -4,7 +4,7 @@
  */
 
 import { toast } from 'sonner';
-import { TOAST_DURATIONS_MS } from '../../constants/time.constants';
+import { TOAST_DURATIONS_MS } from '@shared/constants';
 
 /**
  * Toast message types

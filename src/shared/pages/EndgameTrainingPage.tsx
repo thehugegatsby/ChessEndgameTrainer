@@ -1,16 +1,18 @@
 'use client';
 
 import { getLogger } from '@shared/services/logging/Logger';
-import { UI_DURATIONS_MS } from '../../constants/time.constants';
+import { UI_DURATIONS_MS } from '@shared/constants/time/time.constants';
 import { produce } from 'immer';
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { BoardSizeContext } from '@shared/contexts/BoardSizeContext';
 import { useRouter } from 'next/navigation';
 import { TrainingBoard, MovePanelZustand, NavigationControls } from '@shared/components/training';
 import { TablebaseAnalysisPanel } from '@shared/components/training/TablebaseAnalysisPanel';
 import { AdvancedEndgameMenu } from '@shared/components/navigation/AdvancedEndgameMenu';
 // EndgamePosition import no longer needed - position comes from store
 import { useToast } from '@shared/hooks/useToast';
+import { showInfoToast } from '@shared/utils/toast';
 import { ToastContainer } from '@shared/components/ui/Toast';
 import { StreakCounter } from '@shared/components/ui/StreakCounter';
 import { CheckmarkAnimation } from '@shared/components/ui/CheckmarkAnimation';
@@ -49,6 +51,10 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
 
   // Local UI state
   const [resetKey, setResetKey] = useState<number>(0);
+  
+  // Container-based responsive board sizing
+  const boardContainerRef = useRef<HTMLDivElement | null>(null);
+  const [boardSize, setBoardSize] = useState<number>(500);
 
   // The position now comes directly from the hydrated store
   const position = trainingState.currentPosition;
@@ -121,6 +127,35 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
     };
   }, [store]); // Include store in dependency array
 
+  // Container-based responsive board sizing with ResizeObserver
+  useEffect(() => {
+    const el = boardContainerRef.current;
+    if (!el || typeof window === 'undefined') return;
+
+    const MIN = 320;
+    const MAX = 900;
+
+    const compute = (): void => {
+      const available = el.clientWidth; // tatsächliche Breite in der Mittelspalte
+      const next = Math.max(MIN, Math.min(MAX, Math.floor(available)));
+      setBoardSize(next);
+    };
+
+    compute();
+
+    const ro = new ResizeObserver(() => compute());
+    ro.observe(el);
+
+    window.addEventListener('orientationchange', compute);
+    window.addEventListener('resize', compute);
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('orientationchange', compute);
+      window.removeEventListener('resize', compute);
+    };
+  }, []);
+
   // Extract actions to avoid dependency issues
   const { completeTraining } = trainingActions;
 
@@ -154,7 +189,9 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
             delayMs: UI_DURATIONS_MS.ENDGAME_FEEDBACK_LONG,
           });
           setTimeout(() => {
-            router.push(`/train/${nextPosition.id}`);
+            // TODO: Implement internal position loading for unified /training URL
+            // router.push(`/training?position=${nextPosition.id}`);
+            showInfoToast(`Position ${nextPosition.id} wird geladen...`);
           }, UI_DURATIONS_MS.ENDGAME_FEEDBACK_LONG); // Wait for checkmark animation + 500ms buffer
         }
       } else {
@@ -172,7 +209,6 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
       trainingActions,
       trainingState.autoProgressEnabled,
       nextPosition,
-      router,
     ]
   );
 
@@ -207,56 +243,55 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
     return `https://lichess.org/analysis/${currentFen.replace(/ /g, '_')}`;
   }, [gameState.currentPgn, gameState.moveHistory.length, gameState.currentFen, position?.fen]);
 
-  // Early return if position is not available (shouldn't happen with SSR hydration)
-  if (!position) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-gray-600">Position wird geladen...</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="trainer-container h-screen flex bg-slate-800 text-white">
-      <ToastContainer toasts={uiState.toasts} onRemoveToast={id => uiActions.removeToast(id)} />
+    <BoardSizeContext.Provider value={boardSize}>
+      <div className="trainer-container h-screen bg-slate-800 text-white">
+        <ToastContainer toasts={uiState.toasts} onRemoveToast={id => uiActions.removeToast(id)} />
 
-      {/* Checkmark Animation Overlay */}
-      <CheckmarkAnimation isVisible={trainingState.showCheckmark} />
+        {/* Checkmark Animation Overlay */}
+        <CheckmarkAnimation isVisible={trainingState.showCheckmark} />
 
-      {/* Left Menu */}
-      <AdvancedEndgameMenu isOpen={true} onClose={() => {}} currentPositionId={position.id} />
-
-      {/* Main Content - Chess Board Area - truly centered */}
-      <div
-        className="chessboard-wrapper flex-1 h-full relative mr-72"
-        style={{ marginLeft: '-20px' }}
-      >
-        {/* Chessboard Area */}
-        <div className="w-full h-full relative">
-          {/* Progress Header centered above board - always show for E2E test visibility */}
-          <div
-            className="absolute top-24 left-0 right-0 text-center pointer-events-none"
-            data-testid="position-title"
-            style={{ zIndex: 5 }}
-          >
-            <h2 className="text-3xl font-bold">
-              {getTrainingDisplayTitle(position, gameState.moveHistory?.length || 0)}
-            </h2>
+        {/* CSS Grid Layout mit festen Seitenbreiten (320px + flexibel + 320px) */}
+        <div className="grid grid-cols-[320px_1fr_320px] h-full">
+          {/* LINKS: Navigation Menü - feste Breite 320px */}
+          <div className="h-full min-h-0 bg-gray-800 w-80 min-w-80 max-w-80">
+            <div className="w-full h-full">
+              <AdvancedEndgameMenu isOpen={true} onClose={() => {}} currentPositionId={position?.id || 1} />
+            </div>
           </div>
 
-          <div className="w-full h-full flex items-center justify-center">
-            <TrainingBoard
-              key={`${position.id}-${resetKey}`}
-              position={position}
-              onComplete={handleComplete}
-              router={router}
-            />
-          </div>
-        </div>
-      </div>
+          {/* MITTE: Schachbrett - Grid-zentriert */}
+          <div ref={boardContainerRef} className="h-full min-h-0 flex flex-col items-center justify-center bg-slate-800 relative px-8">
+            {!position ? (
+              <div className="flex items-center justify-center">
+                <div className="text-lg text-gray-600">Position wird geladen...</div>
+              </div>
+            ) : (
+              <>
+                {/* Titel über dem Brett */}
+                <div className="mb-8 w-full max-w-[700px] text-center">
+                  <h2 className="text-3xl font-bold truncate">
+                    {getTrainingDisplayTitle(position, gameState.moveHistory?.length || 0)}
+                  </h2>
+                </div>
 
-      {/* Right Sidebar - Fixed positioned */}
-      <div className="sidebar fixed right-0 top-0 bottom-0 w-72 bg-gray-900 border-l border-gray-700 flex flex-col z-20 overflow-y-auto">
+                {/* Schachbrett Container - Flexbox-zentriert für garantierte Mitte */}
+                <div className="flex justify-center items-center w-full">
+                  <div style={{ width: boardSize, height: boardSize }}>
+                    <TrainingBoard
+                      key={`${position?.id || 'loading'}-${resetKey}`}
+                      position={position}
+                      onComplete={handleComplete}
+                      router={router}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* RECHTS: Analyse Panel - feste Breite 320px */}
+          <div className="h-full min-h-0 bg-gray-900 border-l border-gray-700 flex flex-col w-80 min-w-80 max-w-80">
         {/* Navigation between positions */}
         <div className="nav-section p-4 border-b border-gray-700">
           <h3 className="text-sm font-semibold text-gray-400 mb-2 text-center">
@@ -264,7 +299,10 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
           </h3>
           <div className="flex items-center justify-center gap-4">
             <button
-              onClick={() => prevPosition && router.push(`/train/${prevPosition.id}`)}
+              onClick={() => prevPosition && (
+                // TODO: Implement internal position loading
+                showInfoToast(`Position ${prevPosition.id} wird geladen...`)
+              )}
               disabled={!prevPosition || isLoadingNavigation}
               className="p-2 hover:bg-gray-800 rounded disabled:opacity-30 transition-colors"
               title="Vorherige Stellung"
@@ -279,7 +317,10 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
               <span className="text-lg">↻</span>
             </button>
             <button
-              onClick={() => nextPosition && router.push(`/train/${nextPosition.id}`)}
+              onClick={() => nextPosition && (
+                // TODO: Implement internal position loading  
+                showInfoToast(`Position ${nextPosition.id} wird geladen...`)
+              )}
               disabled={!nextPosition || isLoadingNavigation}
               className="p-2 hover:bg-gray-800 rounded disabled:opacity-30 transition-colors"
               title="Nächste Stellung"
@@ -309,7 +350,7 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
         {/* Instructions */}
         <div className="instructions p-4 border-b border-gray-700">
           <h3 className="font-bold mb-2">{formatPositionTitle(position)}</h3>
-          <p className="text-sm text-gray-400">{position.description}</p>
+          <p className="text-sm text-gray-400">{position?.description || 'Position wird geladen...'}</p>
         </div>
 
         {/* Toggles */}
@@ -327,7 +368,7 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
           </button>
 
           <TablebaseAnalysisPanel
-            fen={gameState.currentFen || position.fen}
+            fen={gameState.currentFen || position?.fen || ''}
             isVisible={uiState.analysisPanel.isOpen}
             {...(() => {
               const previousFen =
@@ -361,9 +402,11 @@ export const EndgameTrainingPage: React.FC = React.memo(() => {
           >
             Auf Lichess analysieren →
           </a>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </BoardSizeContext.Provider>
   );
 });
 

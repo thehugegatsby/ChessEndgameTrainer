@@ -21,8 +21,7 @@ import {
   type PerformanceMetrics,
   type ShareOptions,
 } from '../types';
-import { STORAGE, SYSTEM } from '../../../constants';
-import { DISPLAY_DEFAULTS, DEVICE_THRESHOLDS } from '../../../../constants/display.constants';
+import { STORAGE, SYSTEM, DISPLAY_DEFAULTS, DEVICE_THRESHOLDS } from '@shared/constants';
 // Using console directly to avoid circular dependency with Logger
 
 // Storage key validation regex

@@ -239,6 +239,52 @@ export class TestApiService {
    * // Fresh instance will be created on next getInstance() call
    * ```
    */
+  /**
+   * Set turn state for test scenarios (bypasses normal game flow)
+   * @param isPlayerTurn - Whether it's the player's turn
+   * @description
+   * This method allows E2E tests to manually control whose turn it is,
+   * enabling testing of mixed validation scenarios where player moves
+   * go through validation but opponent moves are direct.
+   */
+  public setTurnState(isPlayerTurn: boolean): void {
+    if (!this.storeAccess) {
+      throw new Error("TestApiService not initialized with store access");
+    }
+
+    try {
+      // Use the setTurnState method from storeAccess if available
+      if (this.storeAccess.setTurnState) {
+        this.storeAccess.setTurnState(isPlayerTurn);
+        console.log("Test API: Turn state set via storeAccess.setTurnState", { isPlayerTurn });
+      } else {
+        // Fallback: try to use setState to update the store
+        if (this.storeAccess.setState) {
+          this.storeAccess.setState((state: any) => {
+            if (state.training) {
+              return {
+                ...state,
+                training: {
+                  ...state.training,
+                  isPlayerTurn,
+                  isOpponentThinking: false,
+                  moveInFlight: false
+                }
+              };
+            }
+            return state;
+          });
+          console.log("Test API: Turn state set via setState", { isPlayerTurn });
+        } else {
+          console.warn("Test API: No method available to set turn state");
+        }
+      }
+    } catch (error) {
+      console.error("Test API: Failed to set turn state", error);
+      throw new Error(`Failed to set turn state: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
   public cleanup(): void {
     this.tablebaseConfig = { deterministic: false };
     this._isInitialized = false;

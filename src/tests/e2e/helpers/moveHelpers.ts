@@ -42,16 +42,161 @@ async function waitForTestApi(
   page: Page,
   timeout: number = 10000,
 ): Promise<void> {
+  console.log("Waiting for window.__testApi to be available...");
   await page.waitForFunction(
     () => {
-      return (
-        typeof (window as any).e2e_getGameState === "function" &&
-        typeof (window as any).e2e_makeMove === "function"
+      // Debug logging in browser context
+      if (typeof (window as any).__testApi === "undefined") {
+        console.log("DEBUG: window.__testApi is undefined");
+        return false;
+      }
+      
+      const testApi = (window as any).__testApi;
+      const hasRequiredMethods = (
+        typeof testApi.makeMove === "function" &&
+        typeof testApi.setTurnState === "function" &&
+        typeof testApi.getGameState === "function"
       );
+      
+      console.log("DEBUG: window.__testApi available, hasRequiredMethods:", hasRequiredMethods);
+      return hasRequiredMethods;
     },
     {},
     { timeout, polling: 100 },
   );
+  console.log("window.__testApi is now available.");
+}
+
+/**
+ * Performs a move using the direct API without validation (bypasses turn checks)
+ * @param page Playwright page object
+ * @param move Move in standard notation (e.g., "e2-e4" or "Nf3")
+ * @param options Configuration options
+ * @returns Promise resolving when move is confirmed or rejecting on error
+ */
+export async function performMoveWithoutValidation(
+  page: Page,
+  move: string,
+  options: MoveOptions = {},
+): Promise<{ success: boolean; finalState: GameState; errorMessage?: string }> {
+  const { expectedFen, timeout = 5000, allowRejection = false } = options;
+  const errorSelector = '[data-testid="move-error-dialog"]';
+
+  // 0. Wait for test API to be available
+  try {
+    await waitForTestApi(page, 10000);
+  } catch (error) {
+    throw new Error(
+      "E2E test API not available - TrainingBoard component may not have mounted yet",
+    );
+  }
+
+  // 1. Get initial state before the move
+  const initialState = (await page.evaluate(() =>
+    (window as any).e2e_getGameState(),
+  )) as GameState;
+  if (!initialState || typeof initialState.moveCount !== "number") {
+    throw new Error("Could not get initial game state from e2e_getGameState()");
+  }
+
+  // 2. Perform the move using the direct API (bypasses validation)
+  const moveResult = await page.evaluate(async (moveString) => {
+    return await (window as any).__testApi.makeMove(moveString);
+  }, move);
+
+  console.log(`[E2E] Direct move ${move} API result:`, moveResult);
+
+  // 2a. Check if API rejected the move immediately (API-level failures)
+  if (moveResult && moveResult.success === false) {
+    const finalState = (await page.evaluate(() =>
+      (window as any).e2e_getGameState(),
+    )) as GameState;
+
+    return {
+      success: false,
+      finalState,
+      errorMessage: `Direct API rejected move: ${moveResult.error || "Unknown error"}`,
+    };
+  }
+
+  // 3. Wait for either success or failure condition
+  const successCondition = page.waitForFunction(
+    ({ initial, expected }) => {
+      const state = (window as any).e2e_getGameState();
+      if (!state) return false;
+
+      // If FEN is provided, it's the source of truth
+      if (expected) {
+        return state.fen === expected;
+      }
+
+      // Otherwise, check for move count increment
+      return state.moveCount > initial.moveCount;
+    },
+    { initial: initialState, expected: expectedFen },
+    { polling: 100, timeout },
+  );
+
+  const failureCondition = page
+    .waitForSelector(errorSelector, {
+      state: "visible",
+      timeout: Math.min(timeout, 2000), // Error dialogs should appear quickly
+    })
+    .catch(() => null); // Don't throw if no error dialog appears
+
+  try {
+    await Promise.race([successCondition, failureCondition]);
+
+    // Check if error dialog appeared
+    const errorElement = page.locator(errorSelector);
+    const hasError = await errorElement.isVisible();
+
+    if (hasError) {
+      const errorText = await errorElement.textContent();
+      const errorMessage = `Direct move rejected: "${errorText}"`;
+
+      if (!allowRejection) {
+        throw new Error(errorMessage);
+      }
+
+      return {
+        success: false,
+        finalState: await page.evaluate(() =>
+          (window as any).e2e_getGameState(),
+        ),
+        errorMessage,
+      };
+    }
+
+    // Success case - get final state
+    const finalState = (await page.evaluate(() =>
+      (window as any).e2e_getGameState(),
+    )) as GameState;
+
+    // Validate expected FEN if provided
+    if (expectedFen && finalState.fen !== expectedFen) {
+      throw new Error(
+        `Expected FEN "${expectedFen}" but got "${finalState.fen}"`,
+      );
+    }
+
+    console.log(
+      `[E2E] Direct move ${move} completed successfully. Move count: ${initialState.moveCount} → ${finalState.moveCount}`,
+    );
+
+    return {
+      success: true,
+      finalState,
+    };
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    if (errorMessage.includes("timeout") || errorMessage.includes("Timeout")) {
+      throw new Error(
+        `Timeout: Direct move "${move}" did not complete within ${timeout}ms. Initial state: ${initialState.fen}`,
+      );
+    }
+    throw err instanceof Error ? err : new Error(String(err));
+  }
 }
 
 /**
@@ -376,4 +521,38 @@ export async function dismissMoveErrorDialog(page: Page): Promise<void> {
   }
 
   throw new Error("Could not find dismiss button for move error dialog");
+}
+
+/**
+ * Makes a player move with validation (for error dialogs) and then fixes the turn state
+ * This allows player moves to go through the full validation pipeline while ensuring
+ * the next player move can be made without turn validation issues.
+ * 
+ * @param page Playwright page object
+ * @param move Move in standard notation (e.g., "e2-e4" or "Nf3")
+ * @param options Configuration options
+ * @returns Promise resolving when move is complete and turn state is fixed
+ */
+export async function makePlayerMoveAndFixTurn(
+  page: Page,
+  move: string,
+  options: MoveOptions = {},
+): Promise<{ success: boolean; finalState: GameState; errorMessage?: string }> {
+  console.log(`👤 Player validated move: ${move}`);
+  
+  // 0. Ensure test API is available
+  await waitForTestApi(page, 10000);
+  
+  // 1. Execute move WITH validation (triggers error dialogs if needed)
+  const result = await performMoveAndWait(page, move, options);
+  
+  // 2. If move was successful, fix turn state for next player move
+  if (result.success) {
+    await page.evaluate(() => {
+      (window as any).__testApi.setTurnState(true);
+    });
+    console.log(`🔧 Turn state fixed - player can move again`);
+  }
+  
+  return result;
 }

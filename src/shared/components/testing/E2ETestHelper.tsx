@@ -7,7 +7,7 @@
  * Handles automated move execution via URL parameters for E2E test scenarios.
  *
  * @example
- * // URL: /train/position?moves=e2-e4,Nf3,d5
+ * // URL: /training?moves=e2-e4,Nf3,d5
  * <E2ETestHelper
  *   currentFen={fen}
  *   isGameFinished={finished}

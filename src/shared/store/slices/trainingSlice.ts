@@ -29,7 +29,7 @@ import type { EndgamePosition as BaseEndgamePosition } from '@shared/types/endga
 import type { ValidatedMove } from '@shared/types/chess';
 import type { MoveSuccessDialog } from '@shared/store/orchestrators/handlePlayerMove/move.types';
 import { PERCENTAGE_MULTIPLIERS, ALGORITHM_MULTIPLIERS } from '@shared/constants/multipliers';
-import { PERCENT } from '@/constants/number.constants';
+import { PERCENT } from '@shared/constants';
 
 // Re-export types for external use
 export type { TrainingState, TrainingActions } from './types';

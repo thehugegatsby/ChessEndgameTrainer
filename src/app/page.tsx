@@ -5,5 +5,5 @@ import { redirect } from 'next/navigation';
  * @returns Redirects to training page
  */
 export default function HomePage(): never {
-  redirect('/train/1');
+  redirect('/training');
 }

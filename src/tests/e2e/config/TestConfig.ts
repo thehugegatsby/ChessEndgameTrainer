@@ -27,14 +27,13 @@ export const TestConfig = {
   // URLs and Navigation
   urls: {
     home: '/',
-    training: '/train',
-    position: (id: number) => `/train/${id}`,
+    training: '/training',
   },
 
   // Chess Board Selectors (priority order for fallback)
   selectors: {
     board: {
-      container: '[class*="chess"], [data-testid*="board"], .chessboard, [class*="board"]',
+      container: '[data-testid="training-board"]',
       square: (square: string) => `[data-testid="square-${square}"], [data-square="${square}"], .square-${square}`,
       piece: '[data-piece], .piece, img',
       pieceOnSquare: (square: string) => `${TestConfig.selectors.board.square(square)} ${TestConfig.selectors.board.piece}`,

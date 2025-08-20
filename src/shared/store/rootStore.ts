@@ -56,7 +56,7 @@ import { ChessGameLogic } from '@domains/game/engine/ChessGameLogic';
 
 // Using pure functions for chess logic
 import { getLogger } from '@shared/services/logging/Logger';
-import { UI_DURATIONS_MS } from '../../constants/time.constants';
+import { UI_DURATIONS_MS } from '@shared/constants';
 
 // Import orchestrators
 import { loadTrainingContext as loadTrainingContextOrchestrator } from './orchestrators/loadTrainingContext';

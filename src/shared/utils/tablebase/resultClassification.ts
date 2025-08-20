@@ -20,7 +20,7 @@
  * and provides optimized sorting algorithms for each move category.
  */
 
-import { RESULT_CLASSIFICATION } from '../../../constants/chess.constants';
+import { RESULT_CLASSIFICATION } from '@shared/constants';
 
 /**
  * Move result type classification

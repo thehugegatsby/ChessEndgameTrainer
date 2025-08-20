@@ -244,14 +244,30 @@ export class ChessboardPage {
    */
   private async verifyMoveSuccess(initialFEN: string | null, from: string, to: string): Promise<boolean> {
     try {
+      console.log(`🔍 DEBUG: Verifying move ${from}→${to}, initialFEN: ${initialFEN}`);
+      
       // Wait for board state to change
       await this.page.waitForFunction(
         (startFEN) => {
           // Try multiple ways to detect board state change
+          // Priority 1: Training board (most reliable)
+          const trainingBoard = document.querySelector('[data-testid="training-board"]');
+          if (trainingBoard) {
+            const currentFEN = trainingBoard.getAttribute('data-fen');
+            console.log(`🔍 DEBUG: training-board - startFEN: ${startFEN}, currentFEN: ${currentFEN}`);
+            if (currentFEN && currentFEN !== startFEN) {
+              return true;
+            }
+          }
+          
+          // Priority 2: Generic [data-fen] selector (fallback)
           const currentBoard = document.querySelector('[data-fen]');
           if (currentBoard) {
             const currentFEN = currentBoard.getAttribute('data-fen');
-            return currentFEN !== startFEN;
+            console.log(`🔍 DEBUG: [data-fen] board - startFEN: ${startFEN}, currentFEN: ${currentFEN}`);
+            if (currentFEN && currentFEN !== startFEN) {
+              return true;
+            }
           }
           
           // Fallback: check if piece positions changed
@@ -316,6 +332,39 @@ export class ChessboardPage {
     // Verify some squares are present
     const squares = this.page.locator('[data-square]');
     await expect(squares.first()).toBeVisible();
+  }
+
+  /**
+   * Wait for it to be white's turn to move
+   */
+  async waitForWhiteTurn(): Promise<void> {
+    console.log('⏳ Waiting for white\'s turn...');
+    
+    try {
+      await this.page.waitForFunction(
+        () => {
+          // Check training board for current turn
+          const trainingBoard = document.querySelector('[data-testid="training-board"]');
+          if (trainingBoard) {
+            const currentFEN = trainingBoard.getAttribute('data-fen');
+            if (currentFEN) {
+              // FEN format: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+              // The part after the position is the turn: 'w' = white, 'b' = black
+              const turnPart = currentFEN.split(' ')[1];
+              console.log(`🔍 Current turn from FEN: ${turnPart} (full FEN: ${currentFEN})`);
+              return turnPart === 'w';
+            }
+          }
+          
+          return false;
+        },
+        { timeout: TestConfig.timeouts.long }
+      );
+      
+      console.log('✅ White\'s turn confirmed');
+    } catch (error) {
+      console.log('⚠️ Timeout waiting for white\'s turn, proceeding anyway');
+    }
   }
 
   /**

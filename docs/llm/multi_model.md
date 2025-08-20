@@ -58,7 +58,7 @@ EndgameTrainer/
 ├── app/                    # Next.js App Router
 │   ├── layout.tsx          # Root layout + providers
 │   ├── page.tsx            # Homepage with categories
-│   ├── train/[id]/page.tsx # Main training interface
+│   ├── training/page.tsx   # Main training interface
 │   └── providers.tsx       # Client providers
 │
 ├── src/

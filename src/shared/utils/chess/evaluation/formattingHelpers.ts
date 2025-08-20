@@ -1,6 +1,6 @@
 import type { PositionAnalysis } from '@shared/types';
 import { EVALUATION } from '@shared/constants';
-import { EVALUATION_FORMATTING } from '../../../../constants/chess.constants';
+import { EVALUATION_FORMATTING } from '@shared/constants';
 
 export const formatEvaluation = (evalData?: PositionAnalysis): string => {
   if (!evalData) return '0.00';

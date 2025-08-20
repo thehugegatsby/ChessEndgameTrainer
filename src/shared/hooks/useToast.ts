@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ENCODING_BASES, RANDOM_GENERATION } from '@/constants/utility.constants';
+import { ENCODING_BASES, RANDOM_GENERATION } from '@shared/constants';
 
 /**
  * Toast type definitions

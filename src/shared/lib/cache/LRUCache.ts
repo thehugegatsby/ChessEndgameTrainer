@@ -21,7 +21,7 @@
  * insertion order for efficient LRU tracking.
  */
 
-import { LRU_CACHE_CONFIG } from '../../../constants/cache.constants';
+import { LRU_CACHE_CONFIG } from '@shared/constants';
 
 /**
  * Cache statistics interface for performance monitoring

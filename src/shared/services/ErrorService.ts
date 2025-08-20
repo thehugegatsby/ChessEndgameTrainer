@@ -6,7 +6,7 @@
  */
 
 import { getLogger } from './logging';
-import { STRING_OPERATIONS, PRIORITY_VALUES } from '@/constants/utility.constants';
+import { STRING_OPERATIONS, PRIORITY_VALUES } from '@shared/constants';
 
 /**
  * Error types for categorizing different error scenarios

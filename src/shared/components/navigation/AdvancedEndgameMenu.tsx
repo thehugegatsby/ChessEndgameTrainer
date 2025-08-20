@@ -256,7 +256,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({ isOpen
       {/* Menu Sidebar */}
       <div
         className={`
-        fixed left-0 top-0 h-full w-[18rem] bg-gray-900 text-white z-50 transform transition-transform duration-300 ease-in-out
+        fixed left-0 top-0 h-full w-80 bg-gray-900 text-white z-50 transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0 lg:static lg:z-auto
       `}
@@ -345,7 +345,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({ isOpen
                       <>
                         {/* All positions in category */}
                         <div className="px-8 py-2">
-                          <Link href={`/train/1?category=${category.id}`}>
+                          <Link href={`/training?category=${category.id}`}>
                             <div className="p-2 hover:bg-gray-700 rounded text-sm text-gray-300">
                               Alle Positionen
                             </div>
@@ -355,7 +355,7 @@ export const AdvancedEndgameMenu: React.FC<AdvancedEndgameMenuProps> = ({ isOpen
                         {/* Individual chapters */}
                         {category.chapters.map(chapter => (
                           <div key={chapter.id} className="px-8 py-1">
-                            <Link href={`/train/1?chapter=${chapter.id}`}>
+                            <Link href={`/training?chapter=${chapter.id}`}>
                               <div className="p-2 hover:bg-gray-700 rounded text-sm text-gray-300 flex items-center gap-2">
                                 <span className="text-xs">🎯</span>
                                 <span>{chapter.name}</span>

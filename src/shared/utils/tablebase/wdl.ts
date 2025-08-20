@@ -14,7 +14,7 @@
  * with explicit perspective conversion only when needed for display or analysis.
  */
 
-import { WDL_CONVERSION } from '../../../constants/chess.constants';
+import { WDL_CONVERSION } from '@shared/constants';
 
 /**
  * Canonical WDL value type

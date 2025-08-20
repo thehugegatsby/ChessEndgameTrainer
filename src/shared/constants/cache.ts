@@ -192,3 +192,23 @@ export const CACHE_INVALIDATION = {
    */
   CASCADE: true,
 } as const;
+
+/**
+ * HTTP buffer sizes for network operations
+ */
+export const HTTP_BUFFER_SIZES = {
+  /**
+   * Maximum HTTP request body size (10MB)
+   */
+  MAX_BODY_SIZE_BYTES: 10 * 1024 * 1024,
+  
+  /**
+   * Default chunk size for streaming (64KB)
+   */
+  CHUNK_SIZE_BYTES: 64 * 1024,
+  
+  /**
+   * Maximum header size (8KB)
+   */
+  MAX_HEADER_SIZE_BYTES: 8 * 1024,
+} as const;

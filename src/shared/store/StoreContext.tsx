@@ -45,6 +45,7 @@ import { useStore as useZustandStore } from 'zustand';
 import { getLogger } from '@shared/services/logging';
 import { createStore } from './createStore';
 import { browserTestApi } from '@shared/services/test/BrowserTestApi';
+import { isE2EMode } from '@shared/utils/environment/isE2EMode';
 import type { RootState } from './slices/types';
 
 /**
@@ -110,12 +111,7 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children, initialS
 
     // Expose store globally for E2E tests (deterministic waiting)
     // Only in test environments to enable state-based waiting
-    if (
-      typeof window !== 'undefined' &&
-      (process.env['NEXT_PUBLIC_IS_E2E_TEST'] === 'true' ||
-        process.env.NODE_ENV === 'test' ||
-        process.env.NODE_ENV === 'development')
-    ) {
+    if (typeof window !== 'undefined' && isE2EMode()) {
       (window as unknown as Record<string, unknown>)['__e2e_store'] = storeRef.current;
       (window as unknown as Record<string, unknown>)['__zustand_store'] = storeRef.current;
     }
@@ -123,23 +119,17 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children, initialS
 
   // Initialize BrowserTestApi for E2E tests (provides e2e_makeMove, e2e_getGameState)
   useEffect(() => {
-    // Debug: Log environment variables for troubleshooting
-    getLogger().info('🔍 StoreContext E2E Debug:', {
-      NODE_ENV: process.env.NODE_ENV,
-      NEXT_PUBLIC_IS_E2E_TEST: process.env['NEXT_PUBLIC_IS_E2E_TEST'],
-      isClient: typeof window !== 'undefined',
-      userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'server'
-    });
+    // Use browser-compatible E2E mode detection
+    const isTestMode = isE2EMode();
+    
+    // Debug: Log environment detection for troubleshooting
+    console.log('🔍 StoreContext E2E Debug:');
+    console.log('- isClient:', typeof window !== 'undefined');
+    console.log('- userAgent:', typeof window !== 'undefined' ? window.navigator.userAgent : 'server');
+    console.log('- location.search:', typeof window !== 'undefined' ? window.location.search : 'server');
+    console.log('- isE2EMode():', isTestMode);
 
-    // Check multiple sources for E2E test mode
-    const isE2EMode = typeof window !== 'undefined' && (
-      process.env['NEXT_PUBLIC_IS_E2E_TEST'] === 'true' || 
-      process.env.NODE_ENV === 'test' ||
-      window.location.search.includes('e2e=true') ||
-      window.navigator.userAgent.includes('Playwright')
-    );
-
-    if (isE2EMode) {
+    if (isTestMode) {
       getLogger().info('✅ E2E-Modus aktiviert: Initialisiere Test API');
       // Get store state to access actions
       const state = storeRef.current?.getState();
@@ -236,6 +226,25 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children, initialS
         }) as (position: unknown) => void,
         goToMove: (state?.game?.goToMove || (() => {})) as (moveIndex: number) => void,
         setAnalysisStatus: (() => {}) as (status: string) => void, // Not directly available in new architecture
+        setState: (updater: any) => {
+          if (typeof updater === 'function') {
+            storeRef.current?.setState(currentState => {
+              const result = updater(currentState);
+              return result === undefined ? currentState : result;
+            });
+          } else {
+            storeRef.current?.setState(updater);
+          }
+        },
+        setTurnState: (isPlayerTurn: boolean) => {
+          const currentState = storeRef.current?.getState();
+          if (currentState?.training?.setIsPlayerTurn) {
+            currentState.training.setIsPlayerTurn(isPlayerTurn);
+            getLogger().info('🔧 Turn state set via E2E API', { isPlayerTurn });
+          } else {
+            getLogger().warn('❌ setIsPlayerTurn not available in training state');
+          }
+        }
       };
 
       // Initialize BrowserTestApi which exposes e2e_makeMove to window
@@ -250,9 +259,9 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children, initialS
       }
     } else {
       getLogger().info('❌ E2E Test API wird nicht initialisiert:', {
-        reason: typeof window === 'undefined' ? 'Server-side' : 'Env vars nicht gesetzt',
-        NODE_ENV: process.env.NODE_ENV,
-        NEXT_PUBLIC_IS_E2E_TEST: process.env['NEXT_PUBLIC_IS_E2E_TEST']
+        reason: typeof window === 'undefined' ? 'Server-side' : 'E2E mode not detected',
+        isClient: typeof window !== 'undefined',
+        userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'server'
       });
     }
 

@@ -56,20 +56,12 @@ export function CommandPalette({
       keywords: ['tablebase', 'demo', 'test'],
     },
     {
-      id: 'nav-training-1',
-      label: 'Training Position 1',
-      description: 'Starte Training mit Position 1',
+      id: 'nav-training',
+      label: 'Training starten',
+      description: 'Starte das Endspiel-Training',
       category: 'training',
-      action: () => router.push('/train/1'),
-      keywords: ['training', 'position', '1'],
-    },
-    {
-      id: 'nav-training-2',
-      label: 'Training Position 2',
-      description: 'Starte Training mit Position 2',
-      category: 'training',
-      action: () => router.push('/train/2'),
-      keywords: ['training', 'position', '2'],
+      action: () => router.push('/training'),
+      keywords: ['training', 'endgame', 'endspiel'],
     },
 
     // Game actions
@@ -296,18 +288,10 @@ export function useChessHotkeys(): void {
 
   // Training shortcuts
   useHotkeys(
-    'ctrl+1',
+    'ctrl+t, cmd+t',
     () => {
-      router.push('/train/1');
+      router.push('/training');
     },
-    { description: 'Training Position 1' }
-  );
-
-  useHotkeys(
-    'ctrl+2',
-    () => {
-      router.push('/train/2');
-    },
-    { description: 'Training Position 2' }
+    { description: 'Training starten' }
   );
 }

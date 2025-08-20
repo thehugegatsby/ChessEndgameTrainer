@@ -29,8 +29,8 @@ import { z } from 'zod';
 import { getLogger } from '../logging';
 import { LichessTablebaseResponseSchema } from '../../types/tablebaseSchemas';
 import type { LichessTablebaseResponse } from '../../types/tablebase';
-import { API_TIMEOUTS_MS } from '../../../constants/time.constants';
-import { HTTP_STATUS } from '../../../constants/api.constants';
+import { API_TIMEOUTS_MS } from '@shared/constants';
+import { HTTP_STATUS } from '@shared/constants';
 
 /**
  * API-specific error for Lichess Tablebase communication

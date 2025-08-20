@@ -8,7 +8,7 @@
  * optimal LLM readability with comprehensive documentation.
  */
 
-import { HTTP_BUFFER_SIZES } from '../../constants/cache.constants';
+import { HTTP_BUFFER_SIZES } from '@shared/constants';
 
 /**
  * HTTP configuration defaults

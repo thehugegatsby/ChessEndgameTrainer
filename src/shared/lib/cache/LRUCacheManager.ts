@@ -35,7 +35,7 @@
  */
 
 import type { CacheManager, CacheEntry, CacheStats, CacheOptions } from './types';
-import { LRU_CACHE_CONFIG } from '../../../constants/cache.constants';
+import { LRU_CACHE_CONFIG } from '@shared/constants';
 
 export class LRUCacheManager<K, V> implements CacheManager<K, V> {
   private readonly cache = new Map<K, CacheEntry<V>>();

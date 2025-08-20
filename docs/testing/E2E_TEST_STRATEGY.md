@@ -13,7 +13,7 @@ Unser E2E Test Framework bietet drei spezialisierte Test-Tiers, die verschiedene
 
 ```typescript
 test('User can drag piece to make move', async ({ page }) => {
-  await page.goto('/train/1');
+  await page.goto('/training');
   await page.dragAndDrop('[data-square="e2"]', '[data-square="e4"]');
   await expect(page.locator('[data-square="e4"] .piece')).toBeVisible();
 });
@@ -39,7 +39,7 @@ test('User can drag piece to make move', async ({ page }) => {
 
 ```typescript
 test('En passant capture works correctly', async ({ page }) => {
-  await page.goto('/train/1');
+  await page.goto('/training');
   
   // Setup position for en passant
   await page.evaluate(() => window.e2e_setPosition('rnbqkbnr/pppp1ppp/8/4pP2/8/8/PPPP1PPP/RNBQKBNR w KQkq e6'));
@@ -76,7 +76,7 @@ test('En passant capture works correctly', async ({ page }) => {
 ```typescript
 test('Endgame position loads correctly', async ({ page }) => {
   // Setup complex endgame position via URL
-  await page.goto('/train/1?moves=e4,e5,Nf3,Nc6,Bb5,a6,Ba4,Nf6');
+  await page.goto('/training?moves=e4,e5,Nf3,Nc6,Bb5,a6,Ba4,Nf6');
   
   const gameState = await page.evaluate(() => window.e2e_getGameState());
   expect(gameState.moveCount).toBe(8);
@@ -170,7 +170,7 @@ await page.evaluate(() => {
 ### Alt (nur URL-Parameter)
 ```typescript
 test('old test', async ({ page }) => {
-  await page.goto('/train/1?moves=e4,e5,Nf3');
+  await page.goto('/training?moves=e4,e5,Nf3');
   // Test logic here
 });
 ```
@@ -179,7 +179,7 @@ test('old test', async ({ page }) => {
 ```typescript
 test('new test', async ({ page }) => {
   // Tier 3: Setup
-  await page.goto('/train/1?moves=e4,e5');
+  await page.goto('/training?moves=e4,e5');
   
   // Tier 2: Interaction & Validation
   const result = await page.evaluate(() => window.e2e_makeValidatedMove('Nf3'));

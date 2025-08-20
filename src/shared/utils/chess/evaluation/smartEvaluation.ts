@@ -5,7 +5,7 @@
 
 import { getMoveQualityDisplay } from './displayHelpers';
 import type { EvaluationDisplay } from '@shared/types';
-import { SMART_EVALUATION_THRESHOLDS } from '../../../../constants/chess.constants';
+import { SMART_EVALUATION_THRESHOLDS } from '@shared/constants';
 
 export interface MoveEvaluation {
   evaluation: number;

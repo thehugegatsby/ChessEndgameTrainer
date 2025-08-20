@@ -25,7 +25,7 @@
 
 // Module loading confirmed - debug logging removed for production
 
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, useContext } from 'react';
 import { type Move } from 'chess.js';
 import { Chessboard } from '@shared/components/chess/Chessboard';
 import { usePositionAnalysis, useTrainingSession } from '../../../hooks';
@@ -42,6 +42,7 @@ import { useMoveHandlers } from '@shared/hooks/useMoveHandlers';
 import { useDialogHandlers } from '@shared/hooks/useDialogHandlers';
 import { useMoveValidation } from '@shared/hooks/useMoveValidation';
 import { useGameNavigation } from '@shared/hooks/useGameNavigation';
+import { BoardSizeContext } from '@shared/contexts/BoardSizeContext';
 
 type PieceType = 'wP' | 'wN' | 'wB' | 'wR' | 'wQ' | 'wK' | 'bP' | 'bN' | 'bB' | 'bR' | 'bQ' | 'bK';
 
@@ -171,6 +172,9 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
   const [trainingState, trainingActions] = useTrainingStore(); // Training session state
   const [tablebaseState, tablebaseActions] = useTablebaseStore(); // Analysis and evaluation data
   const [, uiActions] = useUIStore(); // UI state (toasts, modals, loading)
+
+  // === RESPONSIVE BOARD SIZING ===
+  const boardWidth = useContext(BoardSizeContext);
   const storeApi = useStoreApi(); // Store API for orchestrator functions
 
   // Set position in store on mount or when position changes
@@ -411,8 +415,8 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
         className="relative"
         key={trainingUIState.resetKey}
         style={{
-          width: `${DIMENSIONS.TRAINING_BOARD_SIZE}px`,
-          height: `${DIMENSIONS.TRAINING_BOARD_SIZE}px`,
+          width: `${boardWidth}px`,
+          height: `${boardWidth}px`,
         }}
         data-fen={currentFen}
         data-move-count={history.length}
@@ -425,12 +429,13 @@ export const TrainingBoard: React.FC<TrainingBoardProps> = ({
           onSquareClick={onSquareClickWrapped}
           onPromotionCheck={onPromotionCheck}
           arePiecesDraggable={!isGameFinished}
-          boardWidth={800}
+          boardWidth={boardWidth}
           animationDuration={150}
           {...(process.env.NODE_ENV === 'development' && {
             'data-handlers-bound': 'true',
             'data-on-piece-drop-bound': Boolean(onPieceDropWrapped).toString(),
             'data-on-square-click-bound': Boolean(onSquareClickWrapped).toString(),
+            'data-board-width': boardWidth,
           })}
         />
       </div>

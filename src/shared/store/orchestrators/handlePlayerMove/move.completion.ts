@@ -13,8 +13,8 @@ import type { ValidatedMove } from '@shared/types/chess';
 import { turn } from '@shared/utils/chess-logic';
 import { GameStateService } from '@domains/game/services/GameStateService';
 import { ChessGameLogic } from '@domains/game/engine/ChessGameLogic';
-import { PERCENT } from '@/constants/number.constants';
-import { UI_DURATIONS_MS } from '@/constants/time.constants';
+import { PERCENT } from '@shared/constants';
+import { UI_DURATIONS_MS } from '@shared/constants';
 
 /**
  * Handles training completion logic

@@ -20,7 +20,7 @@
  */
 
 import type { TablebaseResult } from '@domains/evaluation';
-import { CHESS_EVALUATION, POSITION_ANALYSIS } from '../../constants/chess.constants';
+import { CHESS_EVALUATION, POSITION_ANALYSIS } from '@shared/constants';
 
 /**
  * Formatted position analysis for UI display

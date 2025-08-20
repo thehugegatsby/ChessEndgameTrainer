@@ -30,7 +30,7 @@ import { HTTP_CONFIG, HTTP_RETRY } from '@shared/constants/http.constants';
 import { CACHE_SIZES, CACHE_TTL } from '@shared/constants/cache';
 import { INPUT_LIMITS } from '@shared/constants/validation.constants';
 import { CHESS_EVALUATION } from '@shared/constants/multipliers';
-import { HTTP_STATUS } from '@/constants/api.constants';
+import { HTTP_STATUS } from '@shared/constants';
 import { compareTablebaseMoves } from '@shared/utils/tablebase/tablebaseRanking';
 import type {
   LichessTablebaseResponse,

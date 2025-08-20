@@ -805,7 +805,7 @@ export function getMoveSequence(positionId: number, sequenceType: string): MoveS
  * @example
  * ```typescript
  * const url = getE2EUrl(1, 'WIN');
- * // Returns: '/train/1?moves=Kd6,Kf8,e6,Ke8,e7,Kd7,Kf7,Kd6,e8=Q+'
+ * // Returns: '/training?moves=Kd6,Kf8,e6,Ke8,e7,Kd7,Kf7,Kd6,e8=Q+'
  * ```
  */
 export function getE2EUrl(positionId: number, sequenceType: string): string {
@@ -815,7 +815,7 @@ export function getE2EUrl(positionId: number, sequenceType: string): string {
   }
 
   const movesParam = sequence.moves.join(',');
-  return `/train/${positionId}?moves=${movesParam}`;
+  return `/training?moves=${movesParam}`;
 }
 
 // =============================================================================

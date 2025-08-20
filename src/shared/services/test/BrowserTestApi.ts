@@ -14,6 +14,7 @@ import type {
 import type { TestBridge } from "@shared/types/test-bridge";
 import type { TablebaseData } from "@shared/types/evaluation";
 import { getLogger } from "@shared/services/logging";
+import { isE2EMode } from "@shared/utils/environment/isE2EMode";
 
 /**
  * Browser Test API
@@ -94,16 +95,23 @@ export class BrowserTestApi {
     setPosition: (position: unknown) => void;
     goToMove: (moveIndex: number) => void;
     setAnalysisStatus: (status: string) => void;
+    setState?: (updater: any) => void;
+    setTurnState?: (isPlayerTurn: boolean) => void;
   }): void {
-    if (
-      process.env.NODE_ENV !== "test" &&
-      process.env['NEXT_PUBLIC_IS_E2E_TEST'] !== "true"
-    ) {
-      console.warn("Test API is only available in test environment");
+    console.log('🔧 BrowserTestApi.initialize called');
+    console.log('🔧 storeAccess provided:', !!storeAccess);
+    
+    // Use browser-compatible E2E mode detection
+    const isTestMode = isE2EMode();
+    console.log('🔧 isE2EMode():', isTestMode);
+    
+    if (!isTestMode) {
+      console.warn("Test API is only available in E2E test environment");
       return;
     }
 
     if (this.initialized) {
+      console.log('🔧 BrowserTestApi already initialized, skipping');
       return;
     }
 
@@ -135,6 +143,7 @@ export class BrowserTestApi {
       configureTablebase: this.configureTablebase.bind(this),
       triggerTablebaseAnalysis: this.triggerTablebaseAnalysis.bind(this),
       addMockTablebaseResponse: this.addMockTablebaseResponse.bind(this),
+      setTurnState: this.setTurnState.bind(this),
       cleanup: this.cleanup.bind(this),
     };
 
@@ -168,6 +177,7 @@ export class BrowserTestApi {
     };
 
     this.initialized = true;
+    console.log('🔧 BrowserTestApi.initialize COMPLETED - window.__testApi is now available');
     getLogger().info("Browser Test API initialized");
     return; // Explicit return for TypeScript
   }
@@ -299,6 +309,14 @@ export class BrowserTestApi {
 
     // Use TestBridge to control the MockScenarioTablebase
     this.testBridge.tablebase.addCustomResponse(fen, analysis);
+  }
+
+  /**
+   * Set turn state through test API
+   * @param isPlayerTurn - Whether it's the player's turn
+   */
+  private setTurnState(isPlayerTurn: boolean): void {
+    return this.testApi.setTurnState(isPlayerTurn);
   }
 }
 

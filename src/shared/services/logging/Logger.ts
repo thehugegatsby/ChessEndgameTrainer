@@ -13,7 +13,7 @@ import {
   type LogFormatter,
 } from './types';
 import { getPlatformDetection } from '../platform';
-import { STRING_OPERATIONS } from '../../../constants/utility.constants';
+import { STRING_OPERATIONS } from '@shared/constants';
 
 // Default configuration
 const DEFAULT_CONFIG: LoggerConfig = {

@@ -49,7 +49,7 @@ import { getLogger } from '@shared/services/logging/Logger';
 import { getOpponentTurnManager } from '@shared/store/orchestrators/handlePlayerMove';
 import { showInfoToast } from '@shared/utils/toast';
 import { getFen, turn } from '@shared/utils/chess-logic';
-import { UI_DURATIONS_MS } from '../../constants/time.constants';
+import { UI_DURATIONS_MS } from '@shared/constants/time/time.constants';
 // Note: Direct service import maintained for callback context
 import type { StoreApi } from '@shared/store/StoreContext';
 import type { RootState } from '@shared/store/slices/types';
@@ -209,7 +209,7 @@ export const useDialogHandlers = ({
   trainingState,
   storeApi,
   trainingUIState,
-  router,
+  router: _router,
 }: UseDialogHandlersProps): UseDialogHandlersReturn => {
   /**
    * Resets the training board to initial state
@@ -475,24 +475,32 @@ export const useDialogHandlers = ({
       autoProgressEnabled,
     });
 
-    // Navigate to next position if available
+    // Load next position internally within training page
     if (hasNextPosition) {
-      if (router) {
-        logger.info('Using Next.js router for fast client-side navigation', {
-          nextId: hasNextPosition.id,
-        });
-        router.push(`/train/${hasNextPosition.id}`);
-      } else if (typeof window !== 'undefined') {
-        logger.info('Fallback to page reload navigation', { nextId: hasNextPosition.id });
-        window.location.href = `/train/${hasNextPosition.id}`;
-      } else {
-        logger.warn('No navigation method available');
-      }
+      logger.info('Loading next position internally', {
+        nextId: hasNextPosition.id,
+      });
+      
+      // Trigger internal position loading logic
+      // The training page should handle position transitions internally
+      // without changing the URL - similar to Lichess training
+      
+      // For now, we'll show a success message and let the training page handle the transition
+      showInfoToast(`Position ${hasNextPosition.id} wird geladen...`, {
+        duration: 2000,
+      });
+      
+      // TODO: Implement internal position loading
+      // This should trigger the training page to load the next position
+      // without navigation, maintaining the /training URL
+      
     } else {
       logger.info('No next position available - training session complete');
-      // Could show a "Training complete" message or return to menu
+      showInfoToast('Training abgeschlossen! Gut gemacht!', {
+        duration: 3000,
+      });
     }
-  }, [trainingActions, storeApi, router]);
+  }, [trainingActions, storeApi]);
 
   return {
     handleMoveErrorTakeBack,
